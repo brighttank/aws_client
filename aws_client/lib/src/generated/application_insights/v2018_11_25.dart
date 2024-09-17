@@ -53,6 +53,48 @@ class ApplicationInsights {
     _protocol.close();
   }
 
+  /// Adds a workload to a component. Each component can have at most five
+  /// workloads.
+  ///
+  /// May throw [ResourceInUseException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [componentName] :
+  /// The name of the component.
+  ///
+  /// Parameter [resourceGroupName] :
+  /// The name of the resource group.
+  ///
+  /// Parameter [workloadConfiguration] :
+  /// The configuration settings of the workload. The value is the escaped JSON
+  /// of the configuration.
+  Future<AddWorkloadResponse> addWorkload({
+    required String componentName,
+    required String resourceGroupName,
+    required WorkloadConfiguration workloadConfiguration,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'EC2WindowsBarleyService.AddWorkload'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ComponentName': componentName,
+        'ResourceGroupName': resourceGroupName,
+        'WorkloadConfiguration': workloadConfiguration,
+      },
+    );
+
+    return AddWorkloadResponse.fromJson(jsonResponse.body);
+  }
+
   /// Adds an application that is created from a resource group.
   ///
   /// May throw [ResourceInUseException].
@@ -61,6 +103,10 @@ class ApplicationInsights {
   /// May throw [InternalServerException].
   /// May throw [TagsAlreadyExistException].
   /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [attachMissingPermission] :
+  /// If set to true, the managed policies for SSM and CW will be attached to
+  /// the instance roles if they are missing.
   ///
   /// Parameter [autoConfigEnabled] :
   /// Indicates whether Application Insights automatically configures
@@ -98,6 +144,7 @@ class ApplicationInsights {
   /// associated tag value (<code>Value</code>). The maximum length of a tag key
   /// is 128 characters. The maximum length of a tag value is 256 characters.
   Future<CreateApplicationResponse> createApplication({
+    bool? attachMissingPermission,
     bool? autoConfigEnabled,
     bool? autoCreate,
     bool? cWEMonitorEnabled,
@@ -118,10 +165,12 @@ class ApplicationInsights {
       // TODO queryParams
       headers: headers,
       payload: {
+        if (attachMissingPermission != null)
+          'AttachMissingPermission': attachMissingPermission,
         if (autoConfigEnabled != null) 'AutoConfigEnabled': autoConfigEnabled,
         if (autoCreate != null) 'AutoCreate': autoCreate,
         if (cWEMonitorEnabled != null) 'CWEMonitorEnabled': cWEMonitorEnabled,
-        if (groupingType != null) 'GroupingType': groupingType.toValue(),
+        if (groupingType != null) 'GroupingType': groupingType.value,
         if (opsCenterEnabled != null) 'OpsCenterEnabled': opsCenterEnabled,
         if (opsItemSNSTopicArn != null)
           'OpsItemSNSTopicArn': opsItemSNSTopicArn,
@@ -343,8 +392,12 @@ class ApplicationInsights {
   ///
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   Future<DescribeApplicationResponse> describeApplication({
     required String resourceGroupName,
+    String? accountId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -358,6 +411,7 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
       },
     );
 
@@ -376,9 +430,13 @@ class ApplicationInsights {
   ///
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   Future<DescribeComponentResponse> describeComponent({
     required String componentName,
     required String resourceGroupName,
+    String? accountId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -393,6 +451,7 @@ class ApplicationInsights {
       payload: {
         'ComponentName': componentName,
         'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
       },
     );
 
@@ -410,10 +469,14 @@ class ApplicationInsights {
   ///
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   Future<DescribeComponentConfigurationResponse>
       describeComponentConfiguration({
     required String componentName,
     required String resourceGroupName,
+    String? accountId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -428,6 +491,7 @@ class ApplicationInsights {
       payload: {
         'ComponentName': componentName,
         'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
       },
     );
 
@@ -448,11 +512,19 @@ class ApplicationInsights {
   ///
   /// Parameter [tier] :
   /// The tier of the application component.
+  ///
+  /// Parameter [recommendationType] :
+  /// The recommended configuration type.
+  ///
+  /// Parameter [workloadName] :
+  /// The name of the workload.
   Future<DescribeComponentConfigurationRecommendationResponse>
       describeComponentConfigurationRecommendation({
     required String componentName,
     required String resourceGroupName,
     required Tier tier,
+    RecommendationType? recommendationType,
+    String? workloadName,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -468,7 +540,10 @@ class ApplicationInsights {
       payload: {
         'ComponentName': componentName,
         'ResourceGroupName': resourceGroupName,
-        'Tier': tier.toValue(),
+        'Tier': tier.value,
+        if (recommendationType != null)
+          'RecommendationType': recommendationType.value,
+        if (workloadName != null) 'WorkloadName': workloadName,
       },
     );
 
@@ -490,10 +565,14 @@ class ApplicationInsights {
   ///
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   Future<DescribeLogPatternResponse> describeLogPattern({
     required String patternName,
     required String patternSetName,
     required String resourceGroupName,
+    String? accountId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -509,6 +588,7 @@ class ApplicationInsights {
         'PatternName': patternName,
         'PatternSetName': patternSetName,
         'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
       },
     );
 
@@ -523,8 +603,12 @@ class ApplicationInsights {
   ///
   /// Parameter [observationId] :
   /// The ID of the observation.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   Future<DescribeObservationResponse> describeObservation({
     required String observationId,
+    String? accountId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -538,6 +622,7 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ObservationId': observationId,
+        if (accountId != null) 'AccountId': accountId,
       },
     );
 
@@ -552,8 +637,13 @@ class ApplicationInsights {
   ///
   /// Parameter [problemId] :
   /// The ID of the problem.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the owner of the resource group affected by the
+  /// problem.
   Future<DescribeProblemResponse> describeProblem({
     required String problemId,
+    String? accountId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -567,6 +657,7 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ProblemId': problemId,
+        if (accountId != null) 'AccountId': accountId,
       },
     );
 
@@ -581,8 +672,12 @@ class ApplicationInsights {
   ///
   /// Parameter [problemId] :
   /// The ID of the problem.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   Future<DescribeProblemObservationsResponse> describeProblemObservations({
     required String problemId,
+    String? accountId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -596,16 +691,64 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ProblemId': problemId,
+        if (accountId != null) 'AccountId': accountId,
       },
     );
 
     return DescribeProblemObservationsResponse.fromJson(jsonResponse.body);
   }
 
+  /// Describes a workload and its configuration.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [componentName] :
+  /// The name of the component.
+  ///
+  /// Parameter [resourceGroupName] :
+  /// The name of the resource group.
+  ///
+  /// Parameter [workloadId] :
+  /// The ID of the workload.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the workload owner.
+  Future<DescribeWorkloadResponse> describeWorkload({
+    required String componentName,
+    required String resourceGroupName,
+    required String workloadId,
+    String? accountId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'EC2WindowsBarleyService.DescribeWorkload'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ComponentName': componentName,
+        'ResourceGroupName': resourceGroupName,
+        'WorkloadId': workloadId,
+        if (accountId != null) 'AccountId': accountId,
+      },
+    );
+
+    return DescribeWorkloadResponse.fromJson(jsonResponse.body);
+  }
+
   /// Lists the IDs of the applications that you are monitoring.
   ///
   /// May throw [ValidationException].
   /// May throw [InternalServerException].
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return in a single call. To retrieve the
@@ -615,6 +758,7 @@ class ApplicationInsights {
   /// Parameter [nextToken] :
   /// The token to request the next page of results.
   Future<ListApplicationsResponse> listApplications({
+    String? accountId,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -635,6 +779,7 @@ class ApplicationInsights {
       // TODO queryParams
       headers: headers,
       payload: {
+        if (accountId != null) 'AccountId': accountId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -653,6 +798,9 @@ class ApplicationInsights {
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
   ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
+  ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return in a single call. To retrieve the
   /// remaining results, make another call with the returned
@@ -662,6 +810,7 @@ class ApplicationInsights {
   /// The token to request the next page of results.
   Future<ListComponentsResponse> listComponents({
     required String resourceGroupName,
+    String? accountId,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -683,6 +832,7 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -710,6 +860,9 @@ class ApplicationInsights {
   /// May throw [ValidationException].
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalServerException].
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   ///
   /// Parameter [endTime] :
   /// The end time of the event.
@@ -743,6 +896,7 @@ class ApplicationInsights {
   /// Parameter [startTime] :
   /// The start time of the event.
   Future<ListConfigurationHistoryResponse> listConfigurationHistory({
+    String? accountId,
     DateTime? endTime,
     ConfigurationEventStatus? eventStatus,
     int? maxResults,
@@ -767,8 +921,9 @@ class ApplicationInsights {
       // TODO queryParams
       headers: headers,
       payload: {
+        if (accountId != null) 'AccountId': accountId,
         if (endTime != null) 'EndTime': unixTimestampToJson(endTime),
-        if (eventStatus != null) 'EventStatus': eventStatus.toValue(),
+        if (eventStatus != null) 'EventStatus': eventStatus.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
@@ -788,6 +943,9 @@ class ApplicationInsights {
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
   ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
+  ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return in a single call. To retrieve the
   /// remaining results, make another call with the returned
@@ -797,6 +955,7 @@ class ApplicationInsights {
   /// The token to request the next page of results.
   Future<ListLogPatternSetsResponse> listLogPatternSets({
     required String resourceGroupName,
+    String? accountId,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -818,6 +977,7 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -835,6 +995,9 @@ class ApplicationInsights {
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
   ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
+  ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return in a single call. To retrieve the
   /// remaining results, make another call with the returned
@@ -847,6 +1010,7 @@ class ApplicationInsights {
   /// The name of the log pattern set.
   Future<ListLogPatternsResponse> listLogPatterns({
     required String resourceGroupName,
+    String? accountId,
     int? maxResults,
     String? nextToken,
     String? patternSetName,
@@ -869,6 +1033,7 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (patternSetName != null) 'PatternSetName': patternSetName,
@@ -883,6 +1048,9 @@ class ApplicationInsights {
   /// May throw [ValidationException].
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalServerException].
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID for the resource group owner.
   ///
   /// Parameter [componentName] :
   /// The name of the component.
@@ -906,13 +1074,19 @@ class ApplicationInsights {
   /// The time when the problem was detected, in epoch seconds. If you don't
   /// specify a time frame for the request, problems within the past seven days
   /// are returned.
+  ///
+  /// Parameter [visibility] :
+  /// Specifies whether or not you can view the problem. If not specified,
+  /// visible and ignored problems are returned.
   Future<ListProblemsResponse> listProblems({
+    String? accountId,
     String? componentName,
     DateTime? endTime,
     int? maxResults,
     String? nextToken,
     String? resourceGroupName,
     DateTime? startTime,
+    Visibility? visibility,
   }) async {
     _s.validateNumRange(
       'maxResults',
@@ -931,12 +1105,14 @@ class ApplicationInsights {
       // TODO queryParams
       headers: headers,
       payload: {
+        if (accountId != null) 'AccountId': accountId,
         if (componentName != null) 'ComponentName': componentName,
         if (endTime != null) 'EndTime': unixTimestampToJson(endTime),
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
         if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
+        if (visibility != null) 'Visibility': visibility.value,
       },
     );
 
@@ -975,6 +1151,100 @@ class ApplicationInsights {
     );
 
     return ListTagsForResourceResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Lists the workloads that are configured on a given component.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [componentName] :
+  /// The name of the component.
+  ///
+  /// Parameter [resourceGroupName] :
+  /// The name of the resource group.
+  ///
+  /// Parameter [accountId] :
+  /// The AWS account ID of the owner of the workload.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return in a single call. To retrieve the
+  /// remaining results, make another call with the returned
+  /// <code>NextToken</code> value.
+  ///
+  /// Parameter [nextToken] :
+  /// The token to request the next page of results.
+  Future<ListWorkloadsResponse> listWorkloads({
+    required String componentName,
+    required String resourceGroupName,
+    String? accountId,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      40,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'EC2WindowsBarleyService.ListWorkloads'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ComponentName': componentName,
+        'ResourceGroupName': resourceGroupName,
+        if (accountId != null) 'AccountId': accountId,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListWorkloadsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Remove workload from a component.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [componentName] :
+  /// The name of the component.
+  ///
+  /// Parameter [resourceGroupName] :
+  /// The name of the resource group.
+  ///
+  /// Parameter [workloadId] :
+  /// The ID of the workload.
+  Future<void> removeWorkload({
+    required String componentName,
+    required String resourceGroupName,
+    required String workloadId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'EC2WindowsBarleyService.RemoveWorkload'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ComponentName': componentName,
+        'ResourceGroupName': resourceGroupName,
+        'WorkloadId': workloadId,
+      },
+    );
   }
 
   /// Add one or more tags (keys and values) to a specified application. A
@@ -1068,6 +1338,10 @@ class ApplicationInsights {
   /// Parameter [resourceGroupName] :
   /// The name of the resource group.
   ///
+  /// Parameter [attachMissingPermission] :
+  /// If set to true, the managed policies for SSM and CW will be attached to
+  /// the instance roles if they are missing.
+  ///
   /// Parameter [autoConfigEnabled] :
   /// Turns auto-configuration on or off.
   ///
@@ -1090,6 +1364,7 @@ class ApplicationInsights {
   /// problems.
   Future<UpdateApplicationResponse> updateApplication({
     required String resourceGroupName,
+    bool? attachMissingPermission,
     bool? autoConfigEnabled,
     bool? cWEMonitorEnabled,
     bool? opsCenterEnabled,
@@ -1108,6 +1383,8 @@ class ApplicationInsights {
       headers: headers,
       payload: {
         'ResourceGroupName': resourceGroupName,
+        if (attachMissingPermission != null)
+          'AttachMissingPermission': attachMissingPermission,
         if (autoConfigEnabled != null) 'AutoConfigEnabled': autoConfigEnabled,
         if (cWEMonitorEnabled != null) 'CWEMonitorEnabled': cWEMonitorEnabled,
         if (opsCenterEnabled != null) 'OpsCenterEnabled': opsCenterEnabled,
@@ -1172,6 +1449,7 @@ class ApplicationInsights {
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
   /// May throw [InternalServerException].
+  /// May throw [ResourceInUseException].
   ///
   /// Parameter [componentName] :
   /// The name of the component.
@@ -1224,7 +1502,7 @@ class ApplicationInsights {
         if (componentConfiguration != null)
           'ComponentConfiguration': componentConfiguration,
         if (monitor != null) 'Monitor': monitor,
-        if (tier != null) 'Tier': tier.toValue(),
+        if (tier != null) 'Tier': tier.value,
       },
     );
   }
@@ -1290,6 +1568,128 @@ class ApplicationInsights {
 
     return UpdateLogPatternResponse.fromJson(jsonResponse.body);
   }
+
+  /// Updates the visibility of the problem or specifies the problem as
+  /// <code>RESOLVED</code>.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [problemId] :
+  /// The ID of the problem.
+  ///
+  /// Parameter [updateStatus] :
+  /// The status of the problem. Arguments can be passed for only problems that
+  /// show a status of <code>RECOVERING</code>.
+  ///
+  /// Parameter [visibility] :
+  /// The visibility of a problem. When you pass a value of
+  /// <code>IGNORED</code>, the problem is removed from the default view, and
+  /// all notifications for the problem are suspended. When <code>VISIBLE</code>
+  /// is passed, the <code>IGNORED</code> action is reversed.
+  Future<void> updateProblem({
+    required String problemId,
+    UpdateStatus? updateStatus,
+    Visibility? visibility,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'EC2WindowsBarleyService.UpdateProblem'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ProblemId': problemId,
+        if (updateStatus != null) 'UpdateStatus': updateStatus.value,
+        if (visibility != null) 'Visibility': visibility.value,
+      },
+    );
+  }
+
+  /// Adds a workload to a component. Each component can have at most five
+  /// workloads.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [componentName] :
+  /// The name of the component.
+  ///
+  /// Parameter [resourceGroupName] :
+  /// The name of the resource group.
+  ///
+  /// Parameter [workloadConfiguration] :
+  /// The configuration settings of the workload. The value is the escaped JSON
+  /// of the configuration.
+  ///
+  /// Parameter [workloadId] :
+  /// The ID of the workload.
+  Future<UpdateWorkloadResponse> updateWorkload({
+    required String componentName,
+    required String resourceGroupName,
+    required WorkloadConfiguration workloadConfiguration,
+    String? workloadId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'EC2WindowsBarleyService.UpdateWorkload'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ComponentName': componentName,
+        'ResourceGroupName': resourceGroupName,
+        'WorkloadConfiguration': workloadConfiguration,
+        if (workloadId != null) 'WorkloadId': workloadId,
+      },
+    );
+
+    return UpdateWorkloadResponse.fromJson(jsonResponse.body);
+  }
+}
+
+class AddWorkloadResponse {
+  /// The configuration settings of the workload. The value is the escaped JSON of
+  /// the configuration.
+  final WorkloadConfiguration? workloadConfiguration;
+
+  /// The ID of the workload.
+  final String? workloadId;
+
+  AddWorkloadResponse({
+    this.workloadConfiguration,
+    this.workloadId,
+  });
+
+  factory AddWorkloadResponse.fromJson(Map<String, dynamic> json) {
+    return AddWorkloadResponse(
+      workloadConfiguration: json['WorkloadConfiguration'] != null
+          ? WorkloadConfiguration.fromJson(
+              json['WorkloadConfiguration'] as Map<String, dynamic>)
+          : null,
+      workloadId: json['WorkloadId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final workloadConfiguration = this.workloadConfiguration;
+    final workloadId = this.workloadId;
+    return {
+      if (workloadConfiguration != null)
+        'WorkloadConfiguration': workloadConfiguration,
+      if (workloadId != null) 'WorkloadId': workloadId,
+    };
+  }
 }
 
 /// Describes a standalone resource or similarly grouped resources that the
@@ -1334,13 +1734,13 @@ class ApplicationComponent {
       componentRemarks: json['ComponentRemarks'] as String?,
       detectedWorkload: (json['DetectedWorkload'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(
-              k.toTier(),
+              Tier.fromString(k),
               (e as Map<String, dynamic>)
                   .map((k, e) => MapEntry(k, e as String)))),
       monitor: json['Monitor'] as bool?,
-      osType: (json['OsType'] as String?)?.toOsType(),
+      osType: (json['OsType'] as String?)?.let(OsType.fromString),
       resourceType: json['ResourceType'] as String?,
-      tier: (json['Tier'] as String?)?.toTier(),
+      tier: (json['Tier'] as String?)?.let(Tier.fromString),
     );
   }
 
@@ -1357,17 +1757,24 @@ class ApplicationComponent {
       if (componentRemarks != null) 'ComponentRemarks': componentRemarks,
       if (detectedWorkload != null)
         'DetectedWorkload':
-            detectedWorkload.map((k, e) => MapEntry(k.toValue(), e)),
+            detectedWorkload.map((k, e) => MapEntry(k.value, e)),
       if (monitor != null) 'Monitor': monitor,
-      if (osType != null) 'OsType': osType.toValue(),
+      if (osType != null) 'OsType': osType.value,
       if (resourceType != null) 'ResourceType': resourceType,
-      if (tier != null) 'Tier': tier.toValue(),
+      if (tier != null) 'Tier': tier.value,
     };
   }
 }
 
 /// Describes the status of the application.
 class ApplicationInfo {
+  /// The AWS account ID for the owner of the application.
+  final String? accountId;
+
+  /// If set to true, the managed policies for SSM and CW will be attached to the
+  /// instance roles if they are missing.
+  final bool? attachMissingPermission;
+
   /// Indicates whether auto-configuration is turned on for this application.
   final bool? autoConfigEnabled;
 
@@ -1407,6 +1814,8 @@ class ApplicationInfo {
   final String? resourceGroupName;
 
   ApplicationInfo({
+    this.accountId,
+    this.attachMissingPermission,
     this.autoConfigEnabled,
     this.cWEMonitorEnabled,
     this.discoveryType,
@@ -1419,9 +1828,12 @@ class ApplicationInfo {
 
   factory ApplicationInfo.fromJson(Map<String, dynamic> json) {
     return ApplicationInfo(
+      accountId: json['AccountId'] as String?,
+      attachMissingPermission: json['AttachMissingPermission'] as bool?,
       autoConfigEnabled: json['AutoConfigEnabled'] as bool?,
       cWEMonitorEnabled: json['CWEMonitorEnabled'] as bool?,
-      discoveryType: (json['DiscoveryType'] as String?)?.toDiscoveryType(),
+      discoveryType:
+          (json['DiscoveryType'] as String?)?.let(DiscoveryType.fromString),
       lifeCycle: json['LifeCycle'] as String?,
       opsCenterEnabled: json['OpsCenterEnabled'] as bool?,
       opsItemSNSTopicArn: json['OpsItemSNSTopicArn'] as String?,
@@ -1431,6 +1843,8 @@ class ApplicationInfo {
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final attachMissingPermission = this.attachMissingPermission;
     final autoConfigEnabled = this.autoConfigEnabled;
     final cWEMonitorEnabled = this.cWEMonitorEnabled;
     final discoveryType = this.discoveryType;
@@ -1440,9 +1854,12 @@ class ApplicationInfo {
     final remarks = this.remarks;
     final resourceGroupName = this.resourceGroupName;
     return {
+      if (accountId != null) 'AccountId': accountId,
+      if (attachMissingPermission != null)
+        'AttachMissingPermission': attachMissingPermission,
       if (autoConfigEnabled != null) 'AutoConfigEnabled': autoConfigEnabled,
       if (cWEMonitorEnabled != null) 'CWEMonitorEnabled': cWEMonitorEnabled,
-      if (discoveryType != null) 'DiscoveryType': discoveryType.toValue(),
+      if (discoveryType != null) 'DiscoveryType': discoveryType.value,
       if (lifeCycle != null) 'LifeCycle': lifeCycle,
       if (opsCenterEnabled != null) 'OpsCenterEnabled': opsCenterEnabled,
       if (opsItemSNSTopicArn != null) 'OpsItemSNSTopicArn': opsItemSNSTopicArn,
@@ -1453,45 +1870,28 @@ class ApplicationInfo {
 }
 
 enum CloudWatchEventSource {
-  ec2,
-  codeDeploy,
-  health,
-  rds,
-}
+  ec2('EC2'),
+  codeDeploy('CODE_DEPLOY'),
+  health('HEALTH'),
+  rds('RDS'),
+  ;
 
-extension CloudWatchEventSourceValueExtension on CloudWatchEventSource {
-  String toValue() {
-    switch (this) {
-      case CloudWatchEventSource.ec2:
-        return 'EC2';
-      case CloudWatchEventSource.codeDeploy:
-        return 'CODE_DEPLOY';
-      case CloudWatchEventSource.health:
-        return 'HEALTH';
-      case CloudWatchEventSource.rds:
-        return 'RDS';
-    }
-  }
-}
+  final String value;
 
-extension CloudWatchEventSourceFromString on String {
-  CloudWatchEventSource toCloudWatchEventSource() {
-    switch (this) {
-      case 'EC2':
-        return CloudWatchEventSource.ec2;
-      case 'CODE_DEPLOY':
-        return CloudWatchEventSource.codeDeploy;
-      case 'HEALTH':
-        return CloudWatchEventSource.health;
-      case 'RDS':
-        return CloudWatchEventSource.rds;
-    }
-    throw Exception('$this is not known in enum CloudWatchEventSource');
-  }
+  const CloudWatchEventSource(this.value);
+
+  static CloudWatchEventSource fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CloudWatchEventSource'));
 }
 
 /// The event information.
 class ConfigurationEvent {
+  /// The AWS account ID for the owner of the application to which the
+  /// configuration event belongs.
+  final String? accountId;
+
   /// The details of the event in plain text.
   final String? eventDetail;
 
@@ -1512,119 +1912,91 @@ class ConfigurationEvent {
   /// The resource monitored by Application Insights.
   final String? monitoredResourceARN;
 
+  /// The name of the resource group of the application to which the configuration
+  /// event belongs.
+  final String? resourceGroupName;
+
   ConfigurationEvent({
+    this.accountId,
     this.eventDetail,
     this.eventResourceName,
     this.eventResourceType,
     this.eventStatus,
     this.eventTime,
     this.monitoredResourceARN,
+    this.resourceGroupName,
   });
 
   factory ConfigurationEvent.fromJson(Map<String, dynamic> json) {
     return ConfigurationEvent(
+      accountId: json['AccountId'] as String?,
       eventDetail: json['EventDetail'] as String?,
       eventResourceName: json['EventResourceName'] as String?,
       eventResourceType: (json['EventResourceType'] as String?)
-          ?.toConfigurationEventResourceType(),
-      eventStatus:
-          (json['EventStatus'] as String?)?.toConfigurationEventStatus(),
+          ?.let(ConfigurationEventResourceType.fromString),
+      eventStatus: (json['EventStatus'] as String?)
+          ?.let(ConfigurationEventStatus.fromString),
       eventTime: timeStampFromJson(json['EventTime']),
       monitoredResourceARN: json['MonitoredResourceARN'] as String?,
+      resourceGroupName: json['ResourceGroupName'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
     final eventDetail = this.eventDetail;
     final eventResourceName = this.eventResourceName;
     final eventResourceType = this.eventResourceType;
     final eventStatus = this.eventStatus;
     final eventTime = this.eventTime;
     final monitoredResourceARN = this.monitoredResourceARN;
+    final resourceGroupName = this.resourceGroupName;
     return {
+      if (accountId != null) 'AccountId': accountId,
       if (eventDetail != null) 'EventDetail': eventDetail,
       if (eventResourceName != null) 'EventResourceName': eventResourceName,
       if (eventResourceType != null)
-        'EventResourceType': eventResourceType.toValue(),
-      if (eventStatus != null) 'EventStatus': eventStatus.toValue(),
+        'EventResourceType': eventResourceType.value,
+      if (eventStatus != null) 'EventStatus': eventStatus.value,
       if (eventTime != null) 'EventTime': unixTimestampToJson(eventTime),
       if (monitoredResourceARN != null)
         'MonitoredResourceARN': monitoredResourceARN,
+      if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
     };
   }
 }
 
 enum ConfigurationEventResourceType {
-  cloudwatchAlarm,
-  cloudwatchLog,
-  cloudformation,
-  ssmAssociation,
-}
+  cloudwatchAlarm('CLOUDWATCH_ALARM'),
+  cloudwatchLog('CLOUDWATCH_LOG'),
+  cloudformation('CLOUDFORMATION'),
+  ssmAssociation('SSM_ASSOCIATION'),
+  ;
 
-extension ConfigurationEventResourceTypeValueExtension
-    on ConfigurationEventResourceType {
-  String toValue() {
-    switch (this) {
-      case ConfigurationEventResourceType.cloudwatchAlarm:
-        return 'CLOUDWATCH_ALARM';
-      case ConfigurationEventResourceType.cloudwatchLog:
-        return 'CLOUDWATCH_LOG';
-      case ConfigurationEventResourceType.cloudformation:
-        return 'CLOUDFORMATION';
-      case ConfigurationEventResourceType.ssmAssociation:
-        return 'SSM_ASSOCIATION';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationEventResourceTypeFromString on String {
-  ConfigurationEventResourceType toConfigurationEventResourceType() {
-    switch (this) {
-      case 'CLOUDWATCH_ALARM':
-        return ConfigurationEventResourceType.cloudwatchAlarm;
-      case 'CLOUDWATCH_LOG':
-        return ConfigurationEventResourceType.cloudwatchLog;
-      case 'CLOUDFORMATION':
-        return ConfigurationEventResourceType.cloudformation;
-      case 'SSM_ASSOCIATION':
-        return ConfigurationEventResourceType.ssmAssociation;
-    }
-    throw Exception(
-        '$this is not known in enum ConfigurationEventResourceType');
-  }
+  const ConfigurationEventResourceType(this.value);
+
+  static ConfigurationEventResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigurationEventResourceType'));
 }
 
 enum ConfigurationEventStatus {
-  info,
-  warn,
-  error,
-}
+  info('INFO'),
+  warn('WARN'),
+  error('ERROR'),
+  ;
 
-extension ConfigurationEventStatusValueExtension on ConfigurationEventStatus {
-  String toValue() {
-    switch (this) {
-      case ConfigurationEventStatus.info:
-        return 'INFO';
-      case ConfigurationEventStatus.warn:
-        return 'WARN';
-      case ConfigurationEventStatus.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationEventStatusFromString on String {
-  ConfigurationEventStatus toConfigurationEventStatus() {
-    switch (this) {
-      case 'INFO':
-        return ConfigurationEventStatus.info;
-      case 'WARN':
-        return ConfigurationEventStatus.warn;
-      case 'ERROR':
-        return ConfigurationEventStatus.error;
-    }
-    throw Exception('$this is not known in enum ConfigurationEventStatus');
-  }
+  const ConfigurationEventStatus(this.value);
+
+  static ConfigurationEventStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigurationEventStatus'));
 }
 
 class CreateApplicationResponse {
@@ -1805,7 +2177,7 @@ class DescribeComponentConfigurationResponse {
     return DescribeComponentConfigurationResponse(
       componentConfiguration: json['ComponentConfiguration'] as String?,
       monitor: json['Monitor'] as bool?,
-      tier: (json['Tier'] as String?)?.toTier(),
+      tier: (json['Tier'] as String?)?.let(Tier.fromString),
     );
   }
 
@@ -1817,7 +2189,7 @@ class DescribeComponentConfigurationResponse {
       if (componentConfiguration != null)
         'ComponentConfiguration': componentConfiguration,
       if (monitor != null) 'Monitor': monitor,
-      if (tier != null) 'Tier': tier.toValue(),
+      if (tier != null) 'Tier': tier.value,
     };
   }
 }
@@ -1840,7 +2212,7 @@ class DescribeComponentResponse {
               json['ApplicationComponent'] as Map<String, dynamic>)
           : null,
       resourceList: (json['ResourceList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -1858,6 +2230,9 @@ class DescribeComponentResponse {
 }
 
 class DescribeLogPatternResponse {
+  /// The AWS account ID for the resource group owner.
+  final String? accountId;
+
   /// The successfully created log pattern.
   final LogPattern? logPattern;
 
@@ -1865,12 +2240,14 @@ class DescribeLogPatternResponse {
   final String? resourceGroupName;
 
   DescribeLogPatternResponse({
+    this.accountId,
     this.logPattern,
     this.resourceGroupName,
   });
 
   factory DescribeLogPatternResponse.fromJson(Map<String, dynamic> json) {
     return DescribeLogPatternResponse(
+      accountId: json['AccountId'] as String?,
       logPattern: json['LogPattern'] != null
           ? LogPattern.fromJson(json['LogPattern'] as Map<String, dynamic>)
           : null,
@@ -1879,9 +2256,11 @@ class DescribeLogPatternResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
     final logPattern = this.logPattern;
     final resourceGroupName = this.resourceGroupName;
     return {
+      if (accountId != null) 'AccountId': accountId,
       if (logPattern != null) 'LogPattern': logPattern,
       if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
     };
@@ -1963,111 +2342,104 @@ class DescribeProblemResponse {
   }
 }
 
+class DescribeWorkloadResponse {
+  /// The configuration settings of the workload. The value is the escaped JSON of
+  /// the configuration.
+  final WorkloadConfiguration? workloadConfiguration;
+
+  /// The ID of the workload.
+  final String? workloadId;
+
+  /// If logging is supported for the resource type, shows whether the component
+  /// has configured logs to be monitored.
+  final String? workloadRemarks;
+
+  DescribeWorkloadResponse({
+    this.workloadConfiguration,
+    this.workloadId,
+    this.workloadRemarks,
+  });
+
+  factory DescribeWorkloadResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeWorkloadResponse(
+      workloadConfiguration: json['WorkloadConfiguration'] != null
+          ? WorkloadConfiguration.fromJson(
+              json['WorkloadConfiguration'] as Map<String, dynamic>)
+          : null,
+      workloadId: json['WorkloadId'] as String?,
+      workloadRemarks: json['WorkloadRemarks'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final workloadConfiguration = this.workloadConfiguration;
+    final workloadId = this.workloadId;
+    final workloadRemarks = this.workloadRemarks;
+    return {
+      if (workloadConfiguration != null)
+        'WorkloadConfiguration': workloadConfiguration,
+      if (workloadId != null) 'WorkloadId': workloadId,
+      if (workloadRemarks != null) 'WorkloadRemarks': workloadRemarks,
+    };
+  }
+}
+
 enum DiscoveryType {
-  resourceGroupBased,
-  accountBased,
-}
+  resourceGroupBased('RESOURCE_GROUP_BASED'),
+  accountBased('ACCOUNT_BASED'),
+  ;
 
-extension DiscoveryTypeValueExtension on DiscoveryType {
-  String toValue() {
-    switch (this) {
-      case DiscoveryType.resourceGroupBased:
-        return 'RESOURCE_GROUP_BASED';
-      case DiscoveryType.accountBased:
-        return 'ACCOUNT_BASED';
-    }
-  }
-}
+  final String value;
 
-extension DiscoveryTypeFromString on String {
-  DiscoveryType toDiscoveryType() {
-    switch (this) {
-      case 'RESOURCE_GROUP_BASED':
-        return DiscoveryType.resourceGroupBased;
-      case 'ACCOUNT_BASED':
-        return DiscoveryType.accountBased;
-    }
-    throw Exception('$this is not known in enum DiscoveryType');
-  }
+  const DiscoveryType(this.value);
+
+  static DiscoveryType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DiscoveryType'));
 }
 
 enum FeedbackKey {
-  insightsFeedback,
-}
+  insightsFeedback('INSIGHTS_FEEDBACK'),
+  ;
 
-extension FeedbackKeyValueExtension on FeedbackKey {
-  String toValue() {
-    switch (this) {
-      case FeedbackKey.insightsFeedback:
-        return 'INSIGHTS_FEEDBACK';
-    }
-  }
-}
+  final String value;
 
-extension FeedbackKeyFromString on String {
-  FeedbackKey toFeedbackKey() {
-    switch (this) {
-      case 'INSIGHTS_FEEDBACK':
-        return FeedbackKey.insightsFeedback;
-    }
-    throw Exception('$this is not known in enum FeedbackKey');
-  }
+  const FeedbackKey(this.value);
+
+  static FeedbackKey fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FeedbackKey'));
 }
 
 enum FeedbackValue {
-  notSpecified,
-  useful,
-  notUseful,
-}
+  notSpecified('NOT_SPECIFIED'),
+  useful('USEFUL'),
+  notUseful('NOT_USEFUL'),
+  ;
 
-extension FeedbackValueValueExtension on FeedbackValue {
-  String toValue() {
-    switch (this) {
-      case FeedbackValue.notSpecified:
-        return 'NOT_SPECIFIED';
-      case FeedbackValue.useful:
-        return 'USEFUL';
-      case FeedbackValue.notUseful:
-        return 'NOT_USEFUL';
-    }
-  }
-}
+  final String value;
 
-extension FeedbackValueFromString on String {
-  FeedbackValue toFeedbackValue() {
-    switch (this) {
-      case 'NOT_SPECIFIED':
-        return FeedbackValue.notSpecified;
-      case 'USEFUL':
-        return FeedbackValue.useful;
-      case 'NOT_USEFUL':
-        return FeedbackValue.notUseful;
-    }
-    throw Exception('$this is not known in enum FeedbackValue');
-  }
+  const FeedbackValue(this.value);
+
+  static FeedbackValue fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FeedbackValue'));
 }
 
 enum GroupingType {
-  accountBased,
-}
+  accountBased('ACCOUNT_BASED'),
+  ;
 
-extension GroupingTypeValueExtension on GroupingType {
-  String toValue() {
-    switch (this) {
-      case GroupingType.accountBased:
-        return 'ACCOUNT_BASED';
-    }
-  }
-}
+  final String value;
 
-extension GroupingTypeFromString on String {
-  GroupingType toGroupingType() {
-    switch (this) {
-      case 'ACCOUNT_BASED':
-        return GroupingType.accountBased;
-    }
-    throw Exception('$this is not known in enum GroupingType');
-  }
+  const GroupingType(this.value);
+
+  static GroupingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum GroupingType'));
 }
 
 class ListApplicationsResponse {
@@ -2086,7 +2458,7 @@ class ListApplicationsResponse {
   factory ListApplicationsResponse.fromJson(Map<String, dynamic> json) {
     return ListApplicationsResponse(
       applicationInfoList: (json['ApplicationInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApplicationInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2119,7 +2491,7 @@ class ListComponentsResponse {
   factory ListComponentsResponse.fromJson(Map<String, dynamic> json) {
     return ListComponentsResponse(
       applicationComponentList: (json['ApplicationComponentList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApplicationComponent.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2157,7 +2529,7 @@ class ListConfigurationHistoryResponse {
   factory ListConfigurationHistoryResponse.fromJson(Map<String, dynamic> json) {
     return ListConfigurationHistoryResponse(
       eventList: (json['EventList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConfigurationEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2175,6 +2547,9 @@ class ListConfigurationHistoryResponse {
 }
 
 class ListLogPatternSetsResponse {
+  /// The AWS account ID for the resource group owner.
+  final String? accountId;
+
   /// The list of log pattern sets.
   final List<String>? logPatternSets;
 
@@ -2186,6 +2561,7 @@ class ListLogPatternSetsResponse {
   final String? resourceGroupName;
 
   ListLogPatternSetsResponse({
+    this.accountId,
     this.logPatternSets,
     this.nextToken,
     this.resourceGroupName,
@@ -2193,8 +2569,9 @@ class ListLogPatternSetsResponse {
 
   factory ListLogPatternSetsResponse.fromJson(Map<String, dynamic> json) {
     return ListLogPatternSetsResponse(
+      accountId: json['AccountId'] as String?,
       logPatternSets: (json['LogPatternSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2203,10 +2580,12 @@ class ListLogPatternSetsResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
     final logPatternSets = this.logPatternSets;
     final nextToken = this.nextToken;
     final resourceGroupName = this.resourceGroupName;
     return {
+      if (accountId != null) 'AccountId': accountId,
       if (logPatternSets != null) 'LogPatternSets': logPatternSets,
       if (nextToken != null) 'NextToken': nextToken,
       if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
@@ -2215,6 +2594,9 @@ class ListLogPatternSetsResponse {
 }
 
 class ListLogPatternsResponse {
+  /// The AWS account ID for the resource group owner.
+  final String? accountId;
+
   /// The list of log patterns.
   final List<LogPattern>? logPatterns;
 
@@ -2226,6 +2608,7 @@ class ListLogPatternsResponse {
   final String? resourceGroupName;
 
   ListLogPatternsResponse({
+    this.accountId,
     this.logPatterns,
     this.nextToken,
     this.resourceGroupName,
@@ -2233,8 +2616,9 @@ class ListLogPatternsResponse {
 
   factory ListLogPatternsResponse.fromJson(Map<String, dynamic> json) {
     return ListLogPatternsResponse(
+      accountId: json['AccountId'] as String?,
       logPatterns: (json['LogPatterns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LogPattern.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2243,10 +2627,12 @@ class ListLogPatternsResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
     final logPatterns = this.logPatterns;
     final nextToken = this.nextToken;
     final resourceGroupName = this.resourceGroupName;
     return {
+      if (accountId != null) 'AccountId': accountId,
       if (logPatterns != null) 'LogPatterns': logPatterns,
       if (nextToken != null) 'NextToken': nextToken,
       if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
@@ -2255,6 +2641,9 @@ class ListLogPatternsResponse {
 }
 
 class ListProblemsResponse {
+  /// The AWS account ID for the resource group owner.
+  final String? accountId;
+
   /// The token used to retrieve the next page of results. This value is
   /// <code>null</code> when there are no more results to return.
   final String? nextToken;
@@ -2266,6 +2655,7 @@ class ListProblemsResponse {
   final String? resourceGroupName;
 
   ListProblemsResponse({
+    this.accountId,
     this.nextToken,
     this.problemList,
     this.resourceGroupName,
@@ -2273,9 +2663,10 @@ class ListProblemsResponse {
 
   factory ListProblemsResponse.fromJson(Map<String, dynamic> json) {
     return ListProblemsResponse(
+      accountId: json['AccountId'] as String?,
       nextToken: json['NextToken'] as String?,
       problemList: (json['ProblemList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Problem.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceGroupName: json['ResourceGroupName'] as String?,
@@ -2283,10 +2674,12 @@ class ListProblemsResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
     final nextToken = this.nextToken;
     final problemList = this.problemList;
     final resourceGroupName = this.resourceGroupName;
     return {
+      if (accountId != null) 'AccountId': accountId,
       if (nextToken != null) 'NextToken': nextToken,
       if (problemList != null) 'ProblemList': problemList,
       if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
@@ -2307,7 +2700,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2321,37 +2714,51 @@ class ListTagsForResourceResponse {
   }
 }
 
+class ListWorkloadsResponse {
+  /// The token to request the next page of results.
+  final String? nextToken;
+
+  /// The list of workloads.
+  final List<Workload>? workloadList;
+
+  ListWorkloadsResponse({
+    this.nextToken,
+    this.workloadList,
+  });
+
+  factory ListWorkloadsResponse.fromJson(Map<String, dynamic> json) {
+    return ListWorkloadsResponse(
+      nextToken: json['NextToken'] as String?,
+      workloadList: (json['WorkloadList'] as List?)
+          ?.nonNulls
+          .map((e) => Workload.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nextToken = this.nextToken;
+    final workloadList = this.workloadList;
+    return {
+      if (nextToken != null) 'NextToken': nextToken,
+      if (workloadList != null) 'WorkloadList': workloadList,
+    };
+  }
+}
+
 enum LogFilter {
-  error,
-  warn,
-  info,
-}
+  error('ERROR'),
+  warn('WARN'),
+  info('INFO'),
+  ;
 
-extension LogFilterValueExtension on LogFilter {
-  String toValue() {
-    switch (this) {
-      case LogFilter.error:
-        return 'ERROR';
-      case LogFilter.warn:
-        return 'WARN';
-      case LogFilter.info:
-        return 'INFO';
-    }
-  }
-}
+  final String value;
 
-extension LogFilterFromString on String {
-  LogFilter toLogFilter() {
-    switch (this) {
-      case 'ERROR':
-        return LogFilter.error;
-      case 'WARN':
-        return LogFilter.warn;
-      case 'INFO':
-        return LogFilter.info;
-    }
-    throw Exception('$this is not known in enum LogFilter');
-  }
+  const LogFilter(this.value);
+
+  static LogFilter fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum LogFilter'));
 }
 
 /// An object that defines the log patterns that belongs to a
@@ -2616,8 +3023,8 @@ class Observation {
     return Observation(
       cloudWatchEventDetailType: json['CloudWatchEventDetailType'] as String?,
       cloudWatchEventId: json['CloudWatchEventId'] as String?,
-      cloudWatchEventSource:
-          (json['CloudWatchEventSource'] as String?)?.toCloudWatchEventSource(),
+      cloudWatchEventSource: (json['CloudWatchEventSource'] as String?)
+          ?.let(CloudWatchEventSource.fromString),
       codeDeployApplication: json['CodeDeployApplication'] as String?,
       codeDeployDeploymentGroup: json['CodeDeployDeploymentGroup'] as String?,
       codeDeployDeploymentId: json['CodeDeployDeploymentId'] as String?,
@@ -2636,7 +3043,7 @@ class Observation {
       healthService: json['HealthService'] as String?,
       id: json['Id'] as String?,
       lineTime: timeStampFromJson(json['LineTime']),
-      logFilter: (json['LogFilter'] as String?)?.toLogFilter(),
+      logFilter: (json['LogFilter'] as String?)?.let(LogFilter.fromString),
       logGroup: json['LogGroup'] as String?,
       logText: json['LogText'] as String?,
       metricName: json['MetricName'] as String?,
@@ -2714,7 +3121,7 @@ class Observation {
         'CloudWatchEventDetailType': cloudWatchEventDetailType,
       if (cloudWatchEventId != null) 'CloudWatchEventId': cloudWatchEventId,
       if (cloudWatchEventSource != null)
-        'CloudWatchEventSource': cloudWatchEventSource.toValue(),
+        'CloudWatchEventSource': cloudWatchEventSource.value,
       if (codeDeployApplication != null)
         'CodeDeployApplication': codeDeployApplication,
       if (codeDeployDeploymentGroup != null)
@@ -2740,7 +3147,7 @@ class Observation {
       if (healthService != null) 'HealthService': healthService,
       if (id != null) 'Id': id,
       if (lineTime != null) 'LineTime': unixTimestampToJson(lineTime),
-      if (logFilter != null) 'LogFilter': logFilter.toValue(),
+      if (logFilter != null) 'LogFilter': logFilter.value,
       if (logGroup != null) 'LogGroup': logGroup,
       if (logText != null) 'LogText': logText,
       if (metricName != null) 'MetricName': metricName,
@@ -2771,35 +3178,25 @@ class Observation {
 }
 
 enum OsType {
-  windows,
-  linux,
-}
+  windows('WINDOWS'),
+  linux('LINUX'),
+  ;
 
-extension OsTypeValueExtension on OsType {
-  String toValue() {
-    switch (this) {
-      case OsType.windows:
-        return 'WINDOWS';
-      case OsType.linux:
-        return 'LINUX';
-    }
-  }
-}
+  final String value;
 
-extension OsTypeFromString on String {
-  OsType toOsType() {
-    switch (this) {
-      case 'WINDOWS':
-        return OsType.windows;
-      case 'LINUX':
-        return OsType.linux;
-    }
-    throw Exception('$this is not known in enum OsType');
-  }
+  const OsType(this.value);
+
+  static OsType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum OsType'));
 }
 
 /// Describes a problem that is detected by correlating observations.
 class Problem {
+  /// The AWS account ID for the owner of the resource group affected by the
+  /// problem.
+  final String? accountId;
+
   /// The resource affected by the problem.
   final String? affectedResource;
 
@@ -2822,6 +3219,12 @@ class Problem {
   /// was resolved.
   final int? recurringCount;
 
+  /// Specifies how the problem was resolved. If the value is
+  /// <code>AUTOMATIC</code>, the system resolved the problem. If the value is
+  /// <code>MANUAL</code>, the user resolved the problem. If the value is
+  /// <code>UNRESOLVED</code>, then the problem is not resolved.
+  final ResolutionMethod? resolutionMethod;
+
   /// The name of the resource group affected by the problem.
   final String? resourceGroupName;
 
@@ -2837,7 +3240,12 @@ class Problem {
   /// The name of the problem.
   final String? title;
 
+  /// Specifies whether or not you can view the problem. Updates to ignored
+  /// problems do not generate notifications.
+  final Visibility? visibility;
+
   Problem({
+    this.accountId,
     this.affectedResource,
     this.endTime,
     this.feedback,
@@ -2845,32 +3253,41 @@ class Problem {
     this.insights,
     this.lastRecurrenceTime,
     this.recurringCount,
+    this.resolutionMethod,
     this.resourceGroupName,
     this.severityLevel,
     this.startTime,
     this.status,
     this.title,
+    this.visibility,
   });
 
   factory Problem.fromJson(Map<String, dynamic> json) {
     return Problem(
+      accountId: json['AccountId'] as String?,
       affectedResource: json['AffectedResource'] as String?,
       endTime: timeStampFromJson(json['EndTime']),
       feedback: (json['Feedback'] as Map<String, dynamic>?)?.map((k, e) =>
-          MapEntry(k.toFeedbackKey(), (e as String).toFeedbackValue())),
+          MapEntry(FeedbackKey.fromString(k),
+              FeedbackValue.fromString((e as String)))),
       id: json['Id'] as String?,
       insights: json['Insights'] as String?,
       lastRecurrenceTime: timeStampFromJson(json['LastRecurrenceTime']),
       recurringCount: json['RecurringCount'] as int?,
+      resolutionMethod: (json['ResolutionMethod'] as String?)
+          ?.let(ResolutionMethod.fromString),
       resourceGroupName: json['ResourceGroupName'] as String?,
-      severityLevel: (json['SeverityLevel'] as String?)?.toSeverityLevel(),
+      severityLevel:
+          (json['SeverityLevel'] as String?)?.let(SeverityLevel.fromString),
       startTime: timeStampFromJson(json['StartTime']),
-      status: (json['Status'] as String?)?.toStatus(),
+      status: (json['Status'] as String?)?.let(Status.fromString),
       title: json['Title'] as String?,
+      visibility: (json['Visibility'] as String?)?.let(Visibility.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
     final affectedResource = this.affectedResource;
     final endTime = this.endTime;
     final feedback = this.feedback;
@@ -2878,28 +3295,49 @@ class Problem {
     final insights = this.insights;
     final lastRecurrenceTime = this.lastRecurrenceTime;
     final recurringCount = this.recurringCount;
+    final resolutionMethod = this.resolutionMethod;
     final resourceGroupName = this.resourceGroupName;
     final severityLevel = this.severityLevel;
     final startTime = this.startTime;
     final status = this.status;
     final title = this.title;
+    final visibility = this.visibility;
     return {
+      if (accountId != null) 'AccountId': accountId,
       if (affectedResource != null) 'AffectedResource': affectedResource,
       if (endTime != null) 'EndTime': unixTimestampToJson(endTime),
       if (feedback != null)
-        'Feedback': feedback.map((k, e) => MapEntry(k.toValue(), e.toValue())),
+        'Feedback': feedback.map((k, e) => MapEntry(k.value, e.value)),
       if (id != null) 'Id': id,
       if (insights != null) 'Insights': insights,
       if (lastRecurrenceTime != null)
         'LastRecurrenceTime': unixTimestampToJson(lastRecurrenceTime),
       if (recurringCount != null) 'RecurringCount': recurringCount,
+      if (resolutionMethod != null) 'ResolutionMethod': resolutionMethod.value,
       if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
-      if (severityLevel != null) 'SeverityLevel': severityLevel.toValue(),
+      if (severityLevel != null) 'SeverityLevel': severityLevel.value,
       if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (title != null) 'Title': title,
+      if (visibility != null) 'Visibility': visibility.value,
     };
   }
+}
+
+enum RecommendationType {
+  infraOnly('INFRA_ONLY'),
+  workloadOnly('WORKLOAD_ONLY'),
+  all('ALL'),
+  ;
+
+  final String value;
+
+  const RecommendationType(this.value);
+
+  static RecommendationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecommendationType'));
 }
 
 /// Describes observations related to the problem.
@@ -2914,7 +3352,7 @@ class RelatedObservations {
   factory RelatedObservations.fromJson(Map<String, dynamic> json) {
     return RelatedObservations(
       observationList: (json['ObservationList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Observation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2928,80 +3366,66 @@ class RelatedObservations {
   }
 }
 
+class RemoveWorkloadResponse {
+  RemoveWorkloadResponse();
+
+  factory RemoveWorkloadResponse.fromJson(Map<String, dynamic> _) {
+    return RemoveWorkloadResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+enum ResolutionMethod {
+  manual('MANUAL'),
+  automatic('AUTOMATIC'),
+  unresolved('UNRESOLVED'),
+  ;
+
+  final String value;
+
+  const ResolutionMethod(this.value);
+
+  static ResolutionMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResolutionMethod'));
+}
+
 enum SeverityLevel {
-  informative,
-  low,
-  medium,
-  high,
-}
+  informative('Informative'),
+  low('Low'),
+  medium('Medium'),
+  high('High'),
+  ;
 
-extension SeverityLevelValueExtension on SeverityLevel {
-  String toValue() {
-    switch (this) {
-      case SeverityLevel.informative:
-        return 'Informative';
-      case SeverityLevel.low:
-        return 'Low';
-      case SeverityLevel.medium:
-        return 'Medium';
-      case SeverityLevel.high:
-        return 'High';
-    }
-  }
-}
+  final String value;
 
-extension SeverityLevelFromString on String {
-  SeverityLevel toSeverityLevel() {
-    switch (this) {
-      case 'Informative':
-        return SeverityLevel.informative;
-      case 'Low':
-        return SeverityLevel.low;
-      case 'Medium':
-        return SeverityLevel.medium;
-      case 'High':
-        return SeverityLevel.high;
-    }
-    throw Exception('$this is not known in enum SeverityLevel');
-  }
+  const SeverityLevel(this.value);
+
+  static SeverityLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SeverityLevel'));
 }
 
 enum Status {
-  ignore,
-  resolved,
-  pending,
-  recurring,
-}
+  ignore('IGNORE'),
+  resolved('RESOLVED'),
+  pending('PENDING'),
+  recurring('RECURRING'),
+  recovering('RECOVERING'),
+  ;
 
-extension StatusValueExtension on Status {
-  String toValue() {
-    switch (this) {
-      case Status.ignore:
-        return 'IGNORE';
-      case Status.resolved:
-        return 'RESOLVED';
-      case Status.pending:
-        return 'PENDING';
-      case Status.recurring:
-        return 'RECURRING';
-    }
-  }
-}
+  final String value;
 
-extension StatusFromString on String {
-  Status toStatus() {
-    switch (this) {
-      case 'IGNORE':
-        return Status.ignore;
-      case 'RESOLVED':
-        return Status.resolved;
-      case 'PENDING':
-        return Status.pending;
-      case 'RECURRING':
-        return Status.recurring;
-    }
-    throw Exception('$this is not known in enum Status');
-  }
+  const Status(this.value);
+
+  static Status fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Status'));
 }
 
 /// An object that defines the tags associated with an application. A <i>tag</i>
@@ -3078,111 +3502,36 @@ class TagResourceResponse {
 }
 
 enum Tier {
-  custom,
-  $default,
-  dotNetCore,
-  dotNetWorker,
-  dotNetWebTier,
-  dotNetWeb,
-  sqlServer,
-  sqlServerAlwaysonAvailabilityGroup,
-  mysql,
-  postgresql,
-  javaJmx,
-  oracle,
-  sapHanaMultiNode,
-  sapHanaSingleNode,
-  sapHanaHighAvailability,
-  sqlServerFailoverClusterInstance,
-  sharepoint,
-  activeDirectory,
-}
+  custom('CUSTOM'),
+  $default('DEFAULT'),
+  dotNetCore('DOT_NET_CORE'),
+  dotNetWorker('DOT_NET_WORKER'),
+  dotNetWebTier('DOT_NET_WEB_TIER'),
+  dotNetWeb('DOT_NET_WEB'),
+  sqlServer('SQL_SERVER'),
+  sqlServerAlwaysonAvailabilityGroup('SQL_SERVER_ALWAYSON_AVAILABILITY_GROUP'),
+  mysql('MYSQL'),
+  postgresql('POSTGRESQL'),
+  javaJmx('JAVA_JMX'),
+  oracle('ORACLE'),
+  sapHanaMultiNode('SAP_HANA_MULTI_NODE'),
+  sapHanaSingleNode('SAP_HANA_SINGLE_NODE'),
+  sapHanaHighAvailability('SAP_HANA_HIGH_AVAILABILITY'),
+  sqlServerFailoverClusterInstance('SQL_SERVER_FAILOVER_CLUSTER_INSTANCE'),
+  sharepoint('SHAREPOINT'),
+  activeDirectory('ACTIVE_DIRECTORY'),
+  sapNetweaverStandard('SAP_NETWEAVER_STANDARD'),
+  sapNetweaverDistributed('SAP_NETWEAVER_DISTRIBUTED'),
+  sapNetweaverHighAvailability('SAP_NETWEAVER_HIGH_AVAILABILITY'),
+  ;
 
-extension TierValueExtension on Tier {
-  String toValue() {
-    switch (this) {
-      case Tier.custom:
-        return 'CUSTOM';
-      case Tier.$default:
-        return 'DEFAULT';
-      case Tier.dotNetCore:
-        return 'DOT_NET_CORE';
-      case Tier.dotNetWorker:
-        return 'DOT_NET_WORKER';
-      case Tier.dotNetWebTier:
-        return 'DOT_NET_WEB_TIER';
-      case Tier.dotNetWeb:
-        return 'DOT_NET_WEB';
-      case Tier.sqlServer:
-        return 'SQL_SERVER';
-      case Tier.sqlServerAlwaysonAvailabilityGroup:
-        return 'SQL_SERVER_ALWAYSON_AVAILABILITY_GROUP';
-      case Tier.mysql:
-        return 'MYSQL';
-      case Tier.postgresql:
-        return 'POSTGRESQL';
-      case Tier.javaJmx:
-        return 'JAVA_JMX';
-      case Tier.oracle:
-        return 'ORACLE';
-      case Tier.sapHanaMultiNode:
-        return 'SAP_HANA_MULTI_NODE';
-      case Tier.sapHanaSingleNode:
-        return 'SAP_HANA_SINGLE_NODE';
-      case Tier.sapHanaHighAvailability:
-        return 'SAP_HANA_HIGH_AVAILABILITY';
-      case Tier.sqlServerFailoverClusterInstance:
-        return 'SQL_SERVER_FAILOVER_CLUSTER_INSTANCE';
-      case Tier.sharepoint:
-        return 'SHAREPOINT';
-      case Tier.activeDirectory:
-        return 'ACTIVE_DIRECTORY';
-    }
-  }
-}
+  final String value;
 
-extension TierFromString on String {
-  Tier toTier() {
-    switch (this) {
-      case 'CUSTOM':
-        return Tier.custom;
-      case 'DEFAULT':
-        return Tier.$default;
-      case 'DOT_NET_CORE':
-        return Tier.dotNetCore;
-      case 'DOT_NET_WORKER':
-        return Tier.dotNetWorker;
-      case 'DOT_NET_WEB_TIER':
-        return Tier.dotNetWebTier;
-      case 'DOT_NET_WEB':
-        return Tier.dotNetWeb;
-      case 'SQL_SERVER':
-        return Tier.sqlServer;
-      case 'SQL_SERVER_ALWAYSON_AVAILABILITY_GROUP':
-        return Tier.sqlServerAlwaysonAvailabilityGroup;
-      case 'MYSQL':
-        return Tier.mysql;
-      case 'POSTGRESQL':
-        return Tier.postgresql;
-      case 'JAVA_JMX':
-        return Tier.javaJmx;
-      case 'ORACLE':
-        return Tier.oracle;
-      case 'SAP_HANA_MULTI_NODE':
-        return Tier.sapHanaMultiNode;
-      case 'SAP_HANA_SINGLE_NODE':
-        return Tier.sapHanaSingleNode;
-      case 'SAP_HANA_HIGH_AVAILABILITY':
-        return Tier.sapHanaHighAvailability;
-      case 'SQL_SERVER_FAILOVER_CLUSTER_INSTANCE':
-        return Tier.sqlServerFailoverClusterInstance;
-      case 'SHAREPOINT':
-        return Tier.sharepoint;
-      case 'ACTIVE_DIRECTORY':
-        return Tier.activeDirectory;
-    }
-    throw Exception('$this is not known in enum Tier');
-  }
+  const Tier(this.value);
+
+  static Tier fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Tier'));
 }
 
 class UntagResourceResponse {
@@ -3274,6 +3623,169 @@ class UpdateLogPatternResponse {
     return {
       if (logPattern != null) 'LogPattern': logPattern,
       if (resourceGroupName != null) 'ResourceGroupName': resourceGroupName,
+    };
+  }
+}
+
+class UpdateProblemResponse {
+  UpdateProblemResponse();
+
+  factory UpdateProblemResponse.fromJson(Map<String, dynamic> _) {
+    return UpdateProblemResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+enum UpdateStatus {
+  resolved('RESOLVED'),
+  ;
+
+  final String value;
+
+  const UpdateStatus(this.value);
+
+  static UpdateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateStatus'));
+}
+
+class UpdateWorkloadResponse {
+  /// The configuration settings of the workload. The value is the escaped JSON of
+  /// the configuration.
+  final WorkloadConfiguration? workloadConfiguration;
+
+  /// The ID of the workload.
+  final String? workloadId;
+
+  UpdateWorkloadResponse({
+    this.workloadConfiguration,
+    this.workloadId,
+  });
+
+  factory UpdateWorkloadResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateWorkloadResponse(
+      workloadConfiguration: json['WorkloadConfiguration'] != null
+          ? WorkloadConfiguration.fromJson(
+              json['WorkloadConfiguration'] as Map<String, dynamic>)
+          : null,
+      workloadId: json['WorkloadId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final workloadConfiguration = this.workloadConfiguration;
+    final workloadId = this.workloadId;
+    return {
+      if (workloadConfiguration != null)
+        'WorkloadConfiguration': workloadConfiguration,
+      if (workloadId != null) 'WorkloadId': workloadId,
+    };
+  }
+}
+
+enum Visibility {
+  ignored('IGNORED'),
+  visible('VISIBLE'),
+  ;
+
+  final String value;
+
+  const Visibility(this.value);
+
+  static Visibility fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Visibility'));
+}
+
+/// Describes the workloads on a component.
+class Workload {
+  /// The name of the component.
+  final String? componentName;
+
+  /// The tier of the workload.
+  final Tier? tier;
+
+  /// The ID of the workload.
+  final String? workloadId;
+
+  /// The name of the workload.
+  final String? workloadName;
+
+  /// If logging is supported for the resource type, shows whether the component
+  /// has configured logs to be monitored.
+  final String? workloadRemarks;
+
+  Workload({
+    this.componentName,
+    this.tier,
+    this.workloadId,
+    this.workloadName,
+    this.workloadRemarks,
+  });
+
+  factory Workload.fromJson(Map<String, dynamic> json) {
+    return Workload(
+      componentName: json['ComponentName'] as String?,
+      tier: (json['Tier'] as String?)?.let(Tier.fromString),
+      workloadId: json['WorkloadId'] as String?,
+      workloadName: json['WorkloadName'] as String?,
+      workloadRemarks: json['WorkloadRemarks'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final componentName = this.componentName;
+    final tier = this.tier;
+    final workloadId = this.workloadId;
+    final workloadName = this.workloadName;
+    final workloadRemarks = this.workloadRemarks;
+    return {
+      if (componentName != null) 'ComponentName': componentName,
+      if (tier != null) 'Tier': tier.value,
+      if (workloadId != null) 'WorkloadId': workloadId,
+      if (workloadName != null) 'WorkloadName': workloadName,
+      if (workloadRemarks != null) 'WorkloadRemarks': workloadRemarks,
+    };
+  }
+}
+
+/// The configuration of the workload.
+class WorkloadConfiguration {
+  /// The configuration settings of the workload.
+  final String? configuration;
+
+  /// The configuration of the workload tier.
+  final Tier? tier;
+
+  /// The name of the workload.
+  final String? workloadName;
+
+  WorkloadConfiguration({
+    this.configuration,
+    this.tier,
+    this.workloadName,
+  });
+
+  factory WorkloadConfiguration.fromJson(Map<String, dynamic> json) {
+    return WorkloadConfiguration(
+      configuration: json['Configuration'] as String?,
+      tier: (json['Tier'] as String?)?.let(Tier.fromString),
+      workloadName: json['WorkloadName'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configuration = this.configuration;
+    final tier = this.tier;
+    final workloadName = this.workloadName;
+    return {
+      if (configuration != null) 'Configuration': configuration,
+      if (tier != null) 'Tier': tier.value,
+      if (workloadName != null) 'WorkloadName': workloadName,
     };
   }
 }

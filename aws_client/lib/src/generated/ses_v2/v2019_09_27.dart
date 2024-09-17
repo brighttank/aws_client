@@ -77,6 +77,25 @@ class SesV2 {
     return BatchGetMetricDataResponse.fromJson(response);
   }
 
+  /// Cancels an export job.
+  ///
+  /// May throw [NotFoundException].
+  /// May throw [BadRequestException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [jobId] :
+  /// The export job ID.
+  Future<void> cancelExportJob({
+    required String jobId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'PUT',
+      requestUri: '/v2/email/export-jobs/${Uri.encodeComponent(jobId)}/cancel',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
   /// Create a configuration set. <i>Configuration sets</i> are groups of rules
   /// that you can apply to the emails that you send. You apply a configuration
   /// set to an email by specifying the name of the configuration set when you
@@ -364,7 +383,7 @@ class SesV2 {
   }) async {
     final $payload = <String, dynamic>{
       'PoolName': poolName,
-      if (scalingMode != null) 'ScalingMode': scalingMode.toValue(),
+      if (scalingMode != null) 'ScalingMode': scalingMode.value,
       if (tags != null) 'Tags': tags,
     };
     final response = await _protocol.send(
@@ -607,6 +626,37 @@ class SesV2 {
       requestUri: '/v2/email/templates',
       exceptionFnMap: _exceptionFns,
     );
+  }
+
+  /// Creates an export job for a data source and destination.
+  ///
+  /// You can execute this operation no more than once per second.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [TooManyRequestsException].
+  /// May throw [NotFoundException].
+  /// May throw [LimitExceededException].
+  ///
+  /// Parameter [exportDataSource] :
+  /// The data source for the export job.
+  ///
+  /// Parameter [exportDestination] :
+  /// The destination for the export job.
+  Future<CreateExportJobResponse> createExportJob({
+    required ExportDataSource exportDataSource,
+    required ExportDestination exportDestination,
+  }) async {
+    final $payload = <String, dynamic>{
+      'ExportDataSource': exportDataSource,
+      'ExportDestination': exportDestination,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/v2/email/export-jobs',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateExportJobResponse.fromJson(response);
   }
 
   /// Creates an import job for a data destination.
@@ -1347,6 +1397,26 @@ class SesV2 {
     return GetEmailTemplateResponse.fromJson(response);
   }
 
+  /// Provides information about an export job.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [NotFoundException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [jobId] :
+  /// The export job ID.
+  Future<GetExportJobResponse> getExportJob({
+    required String jobId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v2/email/export-jobs/${Uri.encodeComponent(jobId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetExportJobResponse.fromJson(response);
+  }
+
   /// Provides information about an import job.
   ///
   /// May throw [BadRequestException].
@@ -1365,6 +1435,31 @@ class SesV2 {
       exceptionFnMap: _exceptionFns,
     );
     return GetImportJobResponse.fromJson(response);
+  }
+
+  /// Provides information about a specific message, including the from address,
+  /// the subject, the recipient address, email tags, as well as events
+  /// associated with the message.
+  ///
+  /// You can execute this operation no more than once per second.
+  ///
+  /// May throw [NotFoundException].
+  /// May throw [TooManyRequestsException].
+  /// May throw [BadRequestException].
+  ///
+  /// Parameter [messageId] :
+  /// A <code>MessageId</code> is a unique identifier for a message, and is
+  /// returned when sending emails through Amazon SES.
+  Future<GetMessageInsightsResponse> getMessageInsights({
+    required String messageId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v2/email/insights/${Uri.encodeComponent(messageId)}/',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetMessageInsightsResponse.fromJson(response);
   }
 
   /// Retrieves information about a specific email address that's on the
@@ -1496,16 +1591,16 @@ class SesV2 {
     String? nextToken,
     int? pageSize,
   }) async {
-    final $query = <String, List<String>>{
-      if (nextToken != null) 'NextToken': [nextToken],
-      if (pageSize != null) 'PageSize': [pageSize.toString()],
+    final $payload = <String, dynamic>{
+      if (filter != null) 'Filter': filter,
+      if (nextToken != null) 'NextToken': nextToken,
+      if (pageSize != null) 'PageSize': pageSize,
     };
     final response = await _protocol.send(
-      payload: null,
-      method: 'GET',
+      payload: $payload,
+      method: 'POST',
       requestUri:
-          '/v2/email/contact-lists/${Uri.encodeComponent(contactListName)}/contacts',
-      queryParams: $query,
+          '/v2/email/contact-lists/${Uri.encodeComponent(contactListName)}/contacts/list',
       exceptionFnMap: _exceptionFns,
     );
     return ListContactsResponse.fromJson(response);
@@ -1744,7 +1839,7 @@ class SesV2 {
   /// <code>NextToken</code> element, which you can use to obtain additional
   /// results.
   ///
-  /// The value you specify has to be at least 1, and can be no more than 10.
+  /// The value you specify has to be at least 1, and can be no more than 100.
   Future<ListEmailTemplatesResponse> listEmailTemplates({
     String? nextToken,
     int? pageSize,
@@ -1761,6 +1856,51 @@ class SesV2 {
       exceptionFnMap: _exceptionFns,
     );
     return ListEmailTemplatesResponse.fromJson(response);
+  }
+
+  /// Lists all of the export jobs.
+  ///
+  /// May throw [TooManyRequestsException].
+  /// May throw [BadRequestException].
+  ///
+  /// Parameter [exportSourceType] :
+  /// A value used to list export jobs that have a certain
+  /// <code>ExportSourceType</code>.
+  ///
+  /// Parameter [jobStatus] :
+  /// A value used to list export jobs that have a certain
+  /// <code>JobStatus</code>.
+  ///
+  /// Parameter [nextToken] :
+  /// The pagination token returned from a previous call to
+  /// <code>ListExportJobs</code> to indicate the position in the list of export
+  /// jobs.
+  ///
+  /// Parameter [pageSize] :
+  /// Maximum number of export jobs to return at once. Use this parameter to
+  /// paginate results. If additional export jobs exist beyond the specified
+  /// limit, the <code>NextToken</code> element is sent in the response. Use the
+  /// <code>NextToken</code> value in subsequent calls to
+  /// <code>ListExportJobs</code> to retrieve additional export jobs.
+  Future<ListExportJobsResponse> listExportJobs({
+    ExportSourceType? exportSourceType,
+    JobStatus? jobStatus,
+    String? nextToken,
+    int? pageSize,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (exportSourceType != null) 'ExportSourceType': exportSourceType.value,
+      if (jobStatus != null) 'JobStatus': jobStatus.value,
+      if (nextToken != null) 'NextToken': nextToken,
+      if (pageSize != null) 'PageSize': pageSize,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/v2/email/list-export-jobs',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListExportJobsResponse.fromJson(response);
   }
 
   /// Lists all of the import jobs.
@@ -1789,15 +1929,16 @@ class SesV2 {
     String? nextToken,
     int? pageSize,
   }) async {
-    final $query = <String, List<String>>{
-      if (nextToken != null) 'NextToken': [nextToken],
-      if (pageSize != null) 'PageSize': [pageSize.toString()],
+    final $payload = <String, dynamic>{
+      if (importDestinationType != null)
+        'ImportDestinationType': importDestinationType.value,
+      if (nextToken != null) 'NextToken': nextToken,
+      if (pageSize != null) 'PageSize': pageSize,
     };
     final response = await _protocol.send(
-      payload: null,
-      method: 'GET',
-      requestUri: '/v2/email/import-jobs',
-      queryParams: $query,
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/v2/email/import-jobs/list',
       exceptionFnMap: _exceptionFns,
     );
     return ListImportJobsResponse.fromJson(response);
@@ -1835,8 +1976,7 @@ class SesV2 {
     int? pageSize,
   }) async {
     final $payload = <String, dynamic>{
-      if (filter != null)
-        'Filter': filter.map((k, e) => MapEntry(k.toValue(), e)),
+      if (filter != null) 'Filter': filter.map((k, e) => MapEntry(k.value, e)),
       if (nextToken != null) 'NextToken': nextToken,
       if (pageSize != null) 'PageSize': pageSize,
     };
@@ -1889,7 +2029,7 @@ class SesV2 {
       if (endDate != null) 'EndDate': [_s.iso8601ToJson(endDate).toString()],
       if (nextToken != null) 'NextToken': [nextToken],
       if (pageSize != null) 'PageSize': [pageSize.toString()],
-      if (reasons != null) 'Reason': reasons.map((e) => e.toValue()).toList(),
+      if (reasons != null) 'Reason': reasons.map((e) => e.value).toList(),
       if (startDate != null)
         'StartDate': [_s.iso8601ToJson(startDate).toString()],
     };
@@ -1987,10 +2127,7 @@ class SesV2 {
   ///
   /// If the value is <code>false</code>, then your account is in the
   /// <i>sandbox</i>. When your account is in the sandbox, you can only send
-  /// email to verified identities. Additionally, the maximum number of emails
-  /// you can send in a 24-hour period (your sending quota) is 200, and the
-  /// maximum number of emails you can send per second (your maximum sending
-  /// rate) is 1.
+  /// email to verified identities.
   ///
   /// If the value is <code>true</code>, then your account has production
   /// access. When your account has production access, you can send email to any
@@ -2005,12 +2142,12 @@ class SesV2 {
     bool? productionAccessEnabled,
   }) async {
     final $payload = <String, dynamic>{
-      'MailType': mailType.toValue(),
+      'MailType': mailType.value,
       'UseCaseDescription': useCaseDescription,
       'WebsiteURL': websiteURL,
       if (additionalContactEmailAddresses != null)
         'AdditionalContactEmailAddresses': additionalContactEmailAddresses,
-      if (contactLanguage != null) 'ContactLanguage': contactLanguage.toValue(),
+      if (contactLanguage != null) 'ContactLanguage': contactLanguage.value,
       if (productionAccessEnabled != null)
         'ProductionAccessEnabled': productionAccessEnabled,
     };
@@ -2076,7 +2213,7 @@ class SesV2 {
   }) async {
     final $payload = <String, dynamic>{
       if (suppressedReasons != null)
-        'SuppressedReasons': suppressedReasons.map((e) => e.toValue()).toList(),
+        'SuppressedReasons': suppressedReasons.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2136,7 +2273,7 @@ class SesV2 {
   }) async {
     final $payload = <String, dynamic>{
       if (sendingPoolName != null) 'SendingPoolName': sendingPoolName,
-      if (tlsPolicy != null) 'TlsPolicy': tlsPolicy.toValue(),
+      if (tlsPolicy != null) 'TlsPolicy': tlsPolicy.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2242,7 +2379,7 @@ class SesV2 {
   }) async {
     final $payload = <String, dynamic>{
       if (suppressedReasons != null)
-        'SuppressedReasons': suppressedReasons.map((e) => e.toValue()).toList(),
+        'SuppressedReasons': suppressedReasons.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2373,7 +2510,7 @@ class SesV2 {
     required ScalingMode scalingMode,
   }) async {
     final $payload = <String, dynamic>{
-      'ScalingMode': scalingMode.toValue(),
+      'ScalingMode': scalingMode.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2573,7 +2710,7 @@ class SesV2 {
     DkimSigningAttributes? signingAttributes,
   }) async {
     final $payload = <String, dynamic>{
-      'SigningAttributesOrigin': signingAttributesOrigin.toValue(),
+      'SigningAttributesOrigin': signingAttributesOrigin.value,
       if (signingAttributes != null) 'SigningAttributes': signingAttributes,
     };
     final response = await _protocol.send(
@@ -2683,7 +2820,7 @@ class SesV2 {
   }) async {
     final $payload = <String, dynamic>{
       if (behaviorOnMxFailure != null)
-        'BehaviorOnMxFailure': behaviorOnMxFailure.toValue(),
+        'BehaviorOnMxFailure': behaviorOnMxFailure.value,
       if (mailFromDomain != null) 'MailFromDomain': mailFromDomain,
     };
     final response = await _protocol.send(
@@ -2713,7 +2850,7 @@ class SesV2 {
   }) async {
     final $payload = <String, dynamic>{
       'EmailAddress': emailAddress,
-      'Reason': reason.toValue(),
+      'Reason': reason.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2915,7 +3052,7 @@ class SesV2 {
   ///
   /// Parameter [content] :
   /// An object that contains the body of the message. You can send either a
-  /// Simple message Raw message or a template Message.
+  /// Simple message, Raw message, or a Templated message.
   ///
   /// Parameter [configurationSetName] :
   /// The name of the configuration set to use when sending the email.
@@ -3171,9 +3308,12 @@ class SesV2 {
     );
   }
 
-  /// Updates a contact's preferences for a list. It is not necessary to specify
-  /// all existing topic preferences in the TopicPreferences object, just the
-  /// ones that need updating.
+  /// Updates a contact's preferences for a list.
+  /// <note>
+  /// You must specify all existing topic preferences in the
+  /// <code>TopicPreferences</code> object, not just the ones that need
+  /// updating; otherwise, all your existing preferences will be removed.
+  /// </note>
   ///
   /// May throw [BadRequestException].
   /// May throw [TooManyRequestsException].
@@ -3446,12 +3586,12 @@ class AccountDetails {
     return AccountDetails(
       additionalContactEmailAddresses:
           (json['AdditionalContactEmailAddresses'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       contactLanguage:
-          (json['ContactLanguage'] as String?)?.toContactLanguage(),
-      mailType: (json['MailType'] as String?)?.toMailType(),
+          (json['ContactLanguage'] as String?)?.let(ContactLanguage.fromString),
+      mailType: (json['MailType'] as String?)?.let(MailType.fromString),
       reviewDetails: json['ReviewDetails'] != null
           ? ReviewDetails.fromJson(
               json['ReviewDetails'] as Map<String, dynamic>)
@@ -3472,8 +3612,8 @@ class AccountDetails {
     return {
       if (additionalContactEmailAddresses != null)
         'AdditionalContactEmailAddresses': additionalContactEmailAddresses,
-      if (contactLanguage != null) 'ContactLanguage': contactLanguage.toValue(),
-      if (mailType != null) 'MailType': mailType.toValue(),
+      if (contactLanguage != null) 'ContactLanguage': contactLanguage.value,
+      if (mailType != null) 'MailType': mailType.value,
       if (reviewDetails != null) 'ReviewDetails': reviewDetails,
       if (useCaseDescription != null) 'UseCaseDescription': useCaseDescription,
       if (websiteURL != null) 'WebsiteURL': websiteURL,
@@ -3576,11 +3716,11 @@ class BatchGetMetricDataQuery {
     return {
       'EndDate': unixTimestampToJson(endDate),
       'Id': id,
-      'Metric': metric.toValue(),
-      'Namespace': namespace.toValue(),
+      'Metric': metric.value,
+      'Namespace': namespace.value,
       'StartDate': unixTimestampToJson(startDate),
       if (dimensions != null)
-        'Dimensions': dimensions.map((k, e) => MapEntry(k.toValue(), e)),
+        'Dimensions': dimensions.map((k, e) => MapEntry(k.value, e)),
     };
   }
 }
@@ -3602,11 +3742,11 @@ class BatchGetMetricDataResponse {
   factory BatchGetMetricDataResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetMetricDataResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDataError.fromJson(e as Map<String, dynamic>))
           .toList(),
       results: (json['Results'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDataResult.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3633,31 +3773,18 @@ class BatchGetMetricDataResponse {
 /// in the <code>Pending</code>, <code>Failed</code>, and
 /// <code>TemporaryFailure</code> states.
 enum BehaviorOnMxFailure {
-  useDefaultValue,
-  rejectMessage,
-}
+  useDefaultValue('USE_DEFAULT_VALUE'),
+  rejectMessage('REJECT_MESSAGE'),
+  ;
 
-extension BehaviorOnMxFailureValueExtension on BehaviorOnMxFailure {
-  String toValue() {
-    switch (this) {
-      case BehaviorOnMxFailure.useDefaultValue:
-        return 'USE_DEFAULT_VALUE';
-      case BehaviorOnMxFailure.rejectMessage:
-        return 'REJECT_MESSAGE';
-    }
-  }
-}
+  final String value;
 
-extension BehaviorOnMxFailureFromString on String {
-  BehaviorOnMxFailure toBehaviorOnMxFailure() {
-    switch (this) {
-      case 'USE_DEFAULT_VALUE':
-        return BehaviorOnMxFailure.useDefaultValue;
-      case 'REJECT_MESSAGE':
-        return BehaviorOnMxFailure.rejectMessage;
-    }
-    throw Exception('$this is not known in enum BehaviorOnMxFailure');
-  }
+  const BehaviorOnMxFailure(this.value);
+
+  static BehaviorOnMxFailure fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum BehaviorOnMxFailure'));
 }
 
 /// An object that contains information about a blacklisting event that impacts
@@ -3726,6 +3853,61 @@ class Body {
   }
 }
 
+/// Information about a <code>Bounce</code> event.
+class Bounce {
+  /// The subtype of the bounce, as determined by SES.
+  final String? bounceSubType;
+
+  /// The type of the bounce, as determined by SES. Can be one of
+  /// <code>UNDETERMINED</code>, <code>TRANSIENT</code>, or <code>PERMANENT</code>
+  final BounceType? bounceType;
+
+  /// The status code issued by the reporting Message Transfer Authority (MTA).
+  /// This field only appears if a delivery status notification (DSN) was attached
+  /// to the bounce and the <code>Diagnostic-Code</code> was provided in the DSN.
+  final String? diagnosticCode;
+
+  Bounce({
+    this.bounceSubType,
+    this.bounceType,
+    this.diagnosticCode,
+  });
+
+  factory Bounce.fromJson(Map<String, dynamic> json) {
+    return Bounce(
+      bounceSubType: json['BounceSubType'] as String?,
+      bounceType: (json['BounceType'] as String?)?.let(BounceType.fromString),
+      diagnosticCode: json['DiagnosticCode'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final bounceSubType = this.bounceSubType;
+    final bounceType = this.bounceType;
+    final diagnosticCode = this.diagnosticCode;
+    return {
+      if (bounceSubType != null) 'BounceSubType': bounceSubType,
+      if (bounceType != null) 'BounceType': bounceType.value,
+      if (diagnosticCode != null) 'DiagnosticCode': diagnosticCode,
+    };
+  }
+}
+
+enum BounceType {
+  undetermined('UNDETERMINED'),
+  transient('TRANSIENT'),
+  permanent('PERMANENT'),
+  ;
+
+  final String value;
+
+  const BounceType(this.value);
+
+  static BounceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum BounceType'));
+}
+
 /// An object that contains the body of the message. You can specify a template
 /// message.
 class BulkEmailContent {
@@ -3763,6 +3945,37 @@ class BulkEmailEntry {
   /// <code>BulkEmailEntry</code>.
   final ReplacementEmailContent? replacementEmailContent;
 
+  /// The list of message headers associated with the <code>BulkEmailEntry</code>
+  /// data type.
+  ///
+  /// <ul>
+  /// <li>
+  /// Headers Not Present in <code>BulkEmailEntry</code>: If a header is specified
+  /// in <a
+  /// href="https://docs.aws.amazon.com/ses/latest/APIReference-V2/API_Template.html">
+  /// <code>Template</code> </a> but not in <code>BulkEmailEntry</code>, the
+  /// header from <code>Template</code> will be added to the outgoing email.
+  /// </li>
+  /// <li>
+  /// Headers Present in <code>BulkEmailEntry</code>: If a header is specified in
+  /// <code>BulkEmailEntry</code>, it takes precedence over any header of the same
+  /// name specified in <a
+  /// href="https://docs.aws.amazon.com/ses/latest/APIReference-V2/API_Template.html">
+  /// <code>Template</code> </a>:
+  ///
+  /// <ul>
+  /// <li>
+  /// If the header is also defined within <code>Template</code>, the value from
+  /// <code>BulkEmailEntry</code> will replace the header's value in the email.
+  /// </li>
+  /// <li>
+  /// If the header is not defined within <code>Template</code>, it will simply be
+  /// added to the email as specified in <code>BulkEmailEntry</code>.
+  /// </li>
+  /// </ul> </li>
+  /// </ul>
+  final List<MessageHeader>? replacementHeaders;
+
   /// A list of tags, in the form of name/value pairs, to apply to an email that
   /// you send using the <code>SendBulkTemplatedEmail</code> operation. Tags
   /// correspond to characteristics of the email that you define, so that you can
@@ -3772,17 +3985,20 @@ class BulkEmailEntry {
   BulkEmailEntry({
     required this.destination,
     this.replacementEmailContent,
+    this.replacementHeaders,
     this.replacementTags,
   });
 
   Map<String, dynamic> toJson() {
     final destination = this.destination;
     final replacementEmailContent = this.replacementEmailContent;
+    final replacementHeaders = this.replacementHeaders;
     final replacementTags = this.replacementTags;
     return {
       'Destination': destination,
       if (replacementEmailContent != null)
         'ReplacementEmailContent': replacementEmailContent,
+      if (replacementHeaders != null) 'ReplacementHeaders': replacementHeaders,
       if (replacementTags != null) 'ReplacementTags': replacementTags,
     };
   }
@@ -3877,7 +4093,7 @@ class BulkEmailEntryResult {
     return BulkEmailEntryResult(
       error: json['Error'] as String?,
       messageId: json['MessageId'] as String?,
-      status: (json['Status'] as String?)?.toBulkEmailStatus(),
+      status: (json['Status'] as String?)?.let(BulkEmailStatus.fromString),
     );
   }
 
@@ -3888,96 +4104,49 @@ class BulkEmailEntryResult {
     return {
       if (error != null) 'Error': error,
       if (messageId != null) 'MessageId': messageId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum BulkEmailStatus {
-  success,
-  messageRejected,
-  mailFromDomainNotVerified,
-  configurationSetNotFound,
-  templateNotFound,
-  accountSuspended,
-  accountThrottled,
-  accountDailyQuotaExceeded,
-  invalidSendingPoolName,
-  accountSendingPaused,
-  configurationSetSendingPaused,
-  invalidParameter,
-  transientFailure,
-  failed,
+  success('SUCCESS'),
+  messageRejected('MESSAGE_REJECTED'),
+  mailFromDomainNotVerified('MAIL_FROM_DOMAIN_NOT_VERIFIED'),
+  configurationSetNotFound('CONFIGURATION_SET_NOT_FOUND'),
+  templateNotFound('TEMPLATE_NOT_FOUND'),
+  accountSuspended('ACCOUNT_SUSPENDED'),
+  accountThrottled('ACCOUNT_THROTTLED'),
+  accountDailyQuotaExceeded('ACCOUNT_DAILY_QUOTA_EXCEEDED'),
+  invalidSendingPoolName('INVALID_SENDING_POOL_NAME'),
+  accountSendingPaused('ACCOUNT_SENDING_PAUSED'),
+  configurationSetSendingPaused('CONFIGURATION_SET_SENDING_PAUSED'),
+  invalidParameter('INVALID_PARAMETER'),
+  transientFailure('TRANSIENT_FAILURE'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const BulkEmailStatus(this.value);
+
+  static BulkEmailStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BulkEmailStatus'));
 }
 
-extension BulkEmailStatusValueExtension on BulkEmailStatus {
-  String toValue() {
-    switch (this) {
-      case BulkEmailStatus.success:
-        return 'SUCCESS';
-      case BulkEmailStatus.messageRejected:
-        return 'MESSAGE_REJECTED';
-      case BulkEmailStatus.mailFromDomainNotVerified:
-        return 'MAIL_FROM_DOMAIN_NOT_VERIFIED';
-      case BulkEmailStatus.configurationSetNotFound:
-        return 'CONFIGURATION_SET_NOT_FOUND';
-      case BulkEmailStatus.templateNotFound:
-        return 'TEMPLATE_NOT_FOUND';
-      case BulkEmailStatus.accountSuspended:
-        return 'ACCOUNT_SUSPENDED';
-      case BulkEmailStatus.accountThrottled:
-        return 'ACCOUNT_THROTTLED';
-      case BulkEmailStatus.accountDailyQuotaExceeded:
-        return 'ACCOUNT_DAILY_QUOTA_EXCEEDED';
-      case BulkEmailStatus.invalidSendingPoolName:
-        return 'INVALID_SENDING_POOL_NAME';
-      case BulkEmailStatus.accountSendingPaused:
-        return 'ACCOUNT_SENDING_PAUSED';
-      case BulkEmailStatus.configurationSetSendingPaused:
-        return 'CONFIGURATION_SET_SENDING_PAUSED';
-      case BulkEmailStatus.invalidParameter:
-        return 'INVALID_PARAMETER';
-      case BulkEmailStatus.transientFailure:
-        return 'TRANSIENT_FAILURE';
-      case BulkEmailStatus.failed:
-        return 'FAILED';
-    }
+/// An HTTP 200 response if the request succeeds, or an error message if the
+/// request fails.
+class CancelExportJobResponse {
+  CancelExportJobResponse();
+
+  factory CancelExportJobResponse.fromJson(Map<String, dynamic> _) {
+    return CancelExportJobResponse();
   }
-}
 
-extension BulkEmailStatusFromString on String {
-  BulkEmailStatus toBulkEmailStatus() {
-    switch (this) {
-      case 'SUCCESS':
-        return BulkEmailStatus.success;
-      case 'MESSAGE_REJECTED':
-        return BulkEmailStatus.messageRejected;
-      case 'MAIL_FROM_DOMAIN_NOT_VERIFIED':
-        return BulkEmailStatus.mailFromDomainNotVerified;
-      case 'CONFIGURATION_SET_NOT_FOUND':
-        return BulkEmailStatus.configurationSetNotFound;
-      case 'TEMPLATE_NOT_FOUND':
-        return BulkEmailStatus.templateNotFound;
-      case 'ACCOUNT_SUSPENDED':
-        return BulkEmailStatus.accountSuspended;
-      case 'ACCOUNT_THROTTLED':
-        return BulkEmailStatus.accountThrottled;
-      case 'ACCOUNT_DAILY_QUOTA_EXCEEDED':
-        return BulkEmailStatus.accountDailyQuotaExceeded;
-      case 'INVALID_SENDING_POOL_NAME':
-        return BulkEmailStatus.invalidSendingPoolName;
-      case 'ACCOUNT_SENDING_PAUSED':
-        return BulkEmailStatus.accountSendingPaused;
-      case 'CONFIGURATION_SET_SENDING_PAUSED':
-        return BulkEmailStatus.configurationSetSendingPaused;
-      case 'INVALID_PARAMETER':
-        return BulkEmailStatus.invalidParameter;
-      case 'TRANSIENT_FAILURE':
-        return BulkEmailStatus.transientFailure;
-      case 'FAILED':
-        return BulkEmailStatus.failed;
-    }
-    throw Exception('$this is not known in enum BulkEmailStatus');
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -3996,7 +4165,7 @@ class CloudWatchDestination {
   factory CloudWatchDestination.fromJson(Map<String, dynamic> json) {
     return CloudWatchDestination(
       dimensionConfigurations: (json['DimensionConfigurations'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CloudWatchDimensionConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4061,8 +4230,8 @@ class CloudWatchDimensionConfiguration {
     return CloudWatchDimensionConfiguration(
       defaultDimensionValue: json['DefaultDimensionValue'] as String,
       dimensionName: json['DimensionName'] as String,
-      dimensionValueSource:
-          (json['DimensionValueSource'] as String).toDimensionValueSource(),
+      dimensionValueSource: DimensionValueSource.fromString(
+          (json['DimensionValueSource'] as String)),
     );
   }
 
@@ -4073,7 +4242,42 @@ class CloudWatchDimensionConfiguration {
     return {
       'DefaultDimensionValue': defaultDimensionValue,
       'DimensionName': dimensionName,
-      'DimensionValueSource': dimensionValueSource.toValue(),
+      'DimensionValueSource': dimensionValueSource.value,
+    };
+  }
+}
+
+/// Information about a <code>Complaint</code> event.
+class Complaint {
+  /// The value of the <code>Feedback-Type</code> field from the feedback report
+  /// received from the ISP.
+  final String? complaintFeedbackType;
+
+  /// Can either be <code>null</code> or <code>OnAccountSuppressionList</code>. If
+  /// the value is <code>OnAccountSuppressionList</code>, SES accepted the
+  /// message, but didn't attempt to send it because it was on the account-level
+  /// suppression list.
+  final String? complaintSubType;
+
+  Complaint({
+    this.complaintFeedbackType,
+    this.complaintSubType,
+  });
+
+  factory Complaint.fromJson(Map<String, dynamic> json) {
+    return Complaint(
+      complaintFeedbackType: json['ComplaintFeedbackType'] as String?,
+      complaintSubType: json['ComplaintSubType'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final complaintFeedbackType = this.complaintFeedbackType;
+    final complaintSubType = this.complaintSubType;
+    return {
+      if (complaintFeedbackType != null)
+        'ComplaintFeedbackType': complaintFeedbackType,
+      if (complaintSubType != null) 'ComplaintSubType': complaintSubType,
     };
   }
 }
@@ -4109,11 +4313,11 @@ class Contact {
       emailAddress: json['EmailAddress'] as String?,
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       topicDefaultPreferences: (json['TopicDefaultPreferences'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TopicPreference.fromJson(e as Map<String, dynamic>))
           .toList(),
       topicPreferences: (json['TopicPreferences'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TopicPreference.fromJson(e as Map<String, dynamic>))
           .toList(),
       unsubscribeAll: json['UnsubscribeAll'] as bool?,
@@ -4139,31 +4343,18 @@ class Contact {
 }
 
 enum ContactLanguage {
-  en,
-  ja,
-}
+  en('EN'),
+  ja('JA'),
+  ;
 
-extension ContactLanguageValueExtension on ContactLanguage {
-  String toValue() {
-    switch (this) {
-      case ContactLanguage.en:
-        return 'EN';
-      case ContactLanguage.ja:
-        return 'JA';
-    }
-  }
-}
+  final String value;
 
-extension ContactLanguageFromString on String {
-  ContactLanguage toContactLanguage() {
-    switch (this) {
-      case 'EN':
-        return ContactLanguage.en;
-      case 'JA':
-        return ContactLanguage.ja;
-    }
-    throw Exception('$this is not known in enum ContactLanguage');
-  }
+  const ContactLanguage(this.value);
+
+  static ContactLanguage fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContactLanguage'));
 }
 
 /// A list that contains contacts that have subscribed to a particular topic or
@@ -4224,8 +4415,8 @@ class ContactListDestination {
 
   factory ContactListDestination.fromJson(Map<String, dynamic> json) {
     return ContactListDestination(
-      contactListImportAction: (json['ContactListImportAction'] as String)
-          .toContactListImportAction(),
+      contactListImportAction: ContactListImportAction.fromString(
+          (json['ContactListImportAction'] as String)),
       contactListName: json['ContactListName'] as String,
     );
   }
@@ -4234,38 +4425,25 @@ class ContactListDestination {
     final contactListImportAction = this.contactListImportAction;
     final contactListName = this.contactListName;
     return {
-      'ContactListImportAction': contactListImportAction.toValue(),
+      'ContactListImportAction': contactListImportAction.value,
       'ContactListName': contactListName,
     };
   }
 }
 
 enum ContactListImportAction {
-  delete,
-  put,
-}
+  delete('DELETE'),
+  put('PUT'),
+  ;
 
-extension ContactListImportActionValueExtension on ContactListImportAction {
-  String toValue() {
-    switch (this) {
-      case ContactListImportAction.delete:
-        return 'DELETE';
-      case ContactListImportAction.put:
-        return 'PUT';
-    }
-  }
-}
+  final String value;
 
-extension ContactListImportActionFromString on String {
-  ContactListImportAction toContactListImportAction() {
-    switch (this) {
-      case 'DELETE':
-        return ContactListImportAction.delete;
-      case 'PUT':
-        return ContactListImportAction.put;
-    }
-    throw Exception('$this is not known in enum ContactListImportAction');
-  }
+  const ContactListImportAction(this.value);
+
+  static ContactListImportAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContactListImportAction'));
 }
 
 /// An object that represents the content of the email, and optionally a
@@ -4399,8 +4577,8 @@ class CreateDeliverabilityTestReportResponse {
   factory CreateDeliverabilityTestReportResponse.fromJson(
       Map<String, dynamic> json) {
     return CreateDeliverabilityTestReportResponse(
-      deliverabilityTestStatus: (json['DeliverabilityTestStatus'] as String)
-          .toDeliverabilityTestStatus(),
+      deliverabilityTestStatus: DeliverabilityTestStatus.fromString(
+          (json['DeliverabilityTestStatus'] as String)),
       reportId: json['ReportId'] as String,
     );
   }
@@ -4409,7 +4587,7 @@ class CreateDeliverabilityTestReportResponse {
     final deliverabilityTestStatus = this.deliverabilityTestStatus;
     final reportId = this.reportId;
     return {
-      'DeliverabilityTestStatus': deliverabilityTestStatus.toValue(),
+      'DeliverabilityTestStatus': deliverabilityTestStatus.value,
       'ReportId': reportId,
     };
   }
@@ -4461,7 +4639,8 @@ class CreateEmailIdentityResponse {
           ? DkimAttributes.fromJson(
               json['DkimAttributes'] as Map<String, dynamic>)
           : null,
-      identityType: (json['IdentityType'] as String?)?.toIdentityType(),
+      identityType:
+          (json['IdentityType'] as String?)?.let(IdentityType.fromString),
       verifiedForSendingStatus: json['VerifiedForSendingStatus'] as bool?,
     );
   }
@@ -4472,7 +4651,7 @@ class CreateEmailIdentityResponse {
     final verifiedForSendingStatus = this.verifiedForSendingStatus;
     return {
       if (dkimAttributes != null) 'DkimAttributes': dkimAttributes,
-      if (identityType != null) 'IdentityType': identityType.toValue(),
+      if (identityType != null) 'IdentityType': identityType.value,
       if (verifiedForSendingStatus != null)
         'VerifiedForSendingStatus': verifiedForSendingStatus,
     };
@@ -4490,6 +4669,30 @@ class CreateEmailTemplateResponse {
 
   Map<String, dynamic> toJson() {
     return {};
+  }
+}
+
+/// An HTTP 200 response if the request succeeds, or an error message if the
+/// request fails.
+class CreateExportJobResponse {
+  /// A string that represents the export job ID.
+  final String? jobId;
+
+  CreateExportJobResponse({
+    this.jobId,
+  });
+
+  factory CreateExportJobResponse.fromJson(Map<String, dynamic> json) {
+    return CreateExportJobResponse(
+      jobId: json['JobId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final jobId = this.jobId;
+    return {
+      if (jobId != null) 'JobId': jobId,
+    };
   }
 }
 
@@ -4596,7 +4799,7 @@ class DailyVolume {
   factory DailyVolume.fromJson(Map<String, dynamic> json) {
     return DailyVolume(
       domainIspPlacements: (json['DomainIspPlacements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DomainIspPlacement.fromJson(e as Map<String, dynamic>))
           .toList(),
       startDate: timeStampFromJson(json['StartDate']),
@@ -4645,7 +4848,7 @@ class DashboardAttributes {
   factory DashboardAttributes.fromJson(Map<String, dynamic> json) {
     return DashboardAttributes(
       engagementMetrics:
-          (json['EngagementMetrics'] as String?)?.toFeatureStatus(),
+          (json['EngagementMetrics'] as String?)?.let(FeatureStatus.fromString),
     );
   }
 
@@ -4653,7 +4856,7 @@ class DashboardAttributes {
     final engagementMetrics = this.engagementMetrics;
     return {
       if (engagementMetrics != null)
-        'EngagementMetrics': engagementMetrics.toValue(),
+        'EngagementMetrics': engagementMetrics.value,
     };
   }
 }
@@ -4683,7 +4886,7 @@ class DashboardOptions {
   factory DashboardOptions.fromJson(Map<String, dynamic> json) {
     return DashboardOptions(
       engagementMetrics:
-          (json['EngagementMetrics'] as String?)?.toFeatureStatus(),
+          (json['EngagementMetrics'] as String?)?.let(FeatureStatus.fromString),
     );
   }
 
@@ -4691,38 +4894,33 @@ class DashboardOptions {
     final engagementMetrics = this.engagementMetrics;
     return {
       if (engagementMetrics != null)
-        'EngagementMetrics': engagementMetrics.toValue(),
+        'EngagementMetrics': engagementMetrics.value,
     };
   }
 }
 
-/// The data format of the import job's data source.
+/// The data format of a file, can be one of the following:
+///
+/// <ul>
+/// <li>
+/// <code>CSV</code> – A comma-separated values file.
+/// </li>
+/// <li>
+/// <code>JSON</code> – A JSON file.
+/// </li>
+/// </ul>
 enum DataFormat {
-  csv,
-  json,
-}
+  csv('CSV'),
+  json('JSON'),
+  ;
 
-extension DataFormatValueExtension on DataFormat {
-  String toValue() {
-    switch (this) {
-      case DataFormat.csv:
-        return 'CSV';
-      case DataFormat.json:
-        return 'JSON';
-    }
-  }
-}
+  final String value;
 
-extension DataFormatFromString on String {
-  DataFormat toDataFormat() {
-    switch (this) {
-      case 'CSV':
-        return DataFormat.csv;
-      case 'JSON':
-        return DataFormat.json;
-    }
-    throw Exception('$this is not known in enum DataFormat');
-  }
+  const DataFormat(this.value);
+
+  static DataFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum DataFormat'));
 }
 
 /// Contains information about a dedicated IP address that is associated with
@@ -4770,7 +4968,7 @@ class DedicatedIp {
     return DedicatedIp(
       ip: json['Ip'] as String,
       warmupPercentage: json['WarmupPercentage'] as int,
-      warmupStatus: (json['WarmupStatus'] as String).toWarmupStatus(),
+      warmupStatus: WarmupStatus.fromString((json['WarmupStatus'] as String)),
       poolName: json['PoolName'] as String?,
     );
   }
@@ -4783,7 +4981,7 @@ class DedicatedIp {
     return {
       'Ip': ip,
       'WarmupPercentage': warmupPercentage,
-      'WarmupStatus': warmupStatus.toValue(),
+      'WarmupStatus': warmupStatus.value,
       if (poolName != null) 'PoolName': poolName,
     };
   }
@@ -4816,7 +5014,7 @@ class DedicatedIpPool {
   factory DedicatedIpPool.fromJson(Map<String, dynamic> json) {
     return DedicatedIpPool(
       poolName: json['PoolName'] as String,
-      scalingMode: (json['ScalingMode'] as String).toScalingMode(),
+      scalingMode: ScalingMode.fromString((json['ScalingMode'] as String)),
     );
   }
 
@@ -4825,7 +5023,7 @@ class DedicatedIpPool {
     final scalingMode = this.scalingMode;
     return {
       'PoolName': poolName,
-      'ScalingMode': scalingMode.toValue(),
+      'ScalingMode': scalingMode.value,
     };
   }
 }
@@ -4972,39 +5170,19 @@ class DeleteSuppressedDestinationResponse {
 /// value is <code>PENDING_EXPIRATION</code>, your subscription is scheduled to
 /// expire at the end of the current calendar month.
 enum DeliverabilityDashboardAccountStatus {
-  active,
-  pendingExpiration,
-  disabled,
-}
+  active('ACTIVE'),
+  pendingExpiration('PENDING_EXPIRATION'),
+  disabled('DISABLED'),
+  ;
 
-extension DeliverabilityDashboardAccountStatusValueExtension
-    on DeliverabilityDashboardAccountStatus {
-  String toValue() {
-    switch (this) {
-      case DeliverabilityDashboardAccountStatus.active:
-        return 'ACTIVE';
-      case DeliverabilityDashboardAccountStatus.pendingExpiration:
-        return 'PENDING_EXPIRATION';
-      case DeliverabilityDashboardAccountStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension DeliverabilityDashboardAccountStatusFromString on String {
-  DeliverabilityDashboardAccountStatus
-      toDeliverabilityDashboardAccountStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return DeliverabilityDashboardAccountStatus.active;
-      case 'PENDING_EXPIRATION':
-        return DeliverabilityDashboardAccountStatus.pendingExpiration;
-      case 'DISABLED':
-        return DeliverabilityDashboardAccountStatus.disabled;
-    }
-    throw Exception(
-        '$this is not known in enum DeliverabilityDashboardAccountStatus');
-  }
+  const DeliverabilityDashboardAccountStatus(this.value);
+
+  static DeliverabilityDashboardAccountStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DeliverabilityDashboardAccountStatus'));
 }
 
 /// An object that contains metadata related to a predictive inbox placement
@@ -5048,7 +5226,7 @@ class DeliverabilityTestReport {
     return DeliverabilityTestReport(
       createDate: timeStampFromJson(json['CreateDate']),
       deliverabilityTestStatus: (json['DeliverabilityTestStatus'] as String?)
-          ?.toDeliverabilityTestStatus(),
+          ?.let(DeliverabilityTestStatus.fromString),
       fromEmailAddress: json['FromEmailAddress'] as String?,
       reportId: json['ReportId'] as String?,
       reportName: json['ReportName'] as String?,
@@ -5066,7 +5244,7 @@ class DeliverabilityTestReport {
     return {
       if (createDate != null) 'CreateDate': unixTimestampToJson(createDate),
       if (deliverabilityTestStatus != null)
-        'DeliverabilityTestStatus': deliverabilityTestStatus.toValue(),
+        'DeliverabilityTestStatus': deliverabilityTestStatus.value,
       if (fromEmailAddress != null) 'FromEmailAddress': fromEmailAddress,
       if (reportId != null) 'ReportId': reportId,
       if (reportName != null) 'ReportName': reportName,
@@ -5083,31 +5261,74 @@ class DeliverabilityTestReport {
 /// <code>GetDeliverabilityTestReport</code> operation to view the results of
 /// the test.
 enum DeliverabilityTestStatus {
-  inProgress,
-  completed,
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  ;
+
+  final String value;
+
+  const DeliverabilityTestStatus(this.value);
+
+  static DeliverabilityTestStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DeliverabilityTestStatus'));
 }
 
-extension DeliverabilityTestStatusValueExtension on DeliverabilityTestStatus {
-  String toValue() {
-    switch (this) {
-      case DeliverabilityTestStatus.inProgress:
-        return 'IN_PROGRESS';
-      case DeliverabilityTestStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+/// The type of delivery events:
+///
+/// <ul>
+/// <li>
+/// <code>SEND</code> - The send request was successful and SES will attempt to
+/// deliver the message to the recipient’s mail server. (If account-level or
+/// global suppression is being used, SES will still count it as a send, but
+/// delivery is suppressed.)
+/// </li>
+/// <li>
+/// <code>DELIVERY</code> - SES successfully delivered the email to the
+/// recipient's mail server. Excludes deliveries to the mailbox simulator and
+/// emails addressed to more than one recipient.
+/// </li>
+/// <li>
+/// <code>TRANSIENT_BOUNCE</code> - Feedback received for delivery failures
+/// excluding issues with non-existent mailboxes. Excludes bounces from the
+/// mailbox simulator, and those from emails addressed to more than one
+/// recipient.
+/// </li>
+/// <li>
+/// <code>PERMANENT_BOUNCE</code> - Feedback received for emails sent to
+/// non-existent mailboxes. Excludes bounces from the mailbox simulator, those
+/// originating from your account-level suppression list (if enabled), and those
+/// from emails addressed to more than one recipient.
+/// </li>
+/// <li>
+/// <code>UNDETERMINED_BOUNCE</code> - SES was unable to determine the bounce
+/// reason.
+/// </li>
+/// <li>
+/// <code>COMPLAINT</code> - Complaint received for the email. This excludes
+/// complaints from the mailbox simulator, those originating from your
+/// account-level suppression list (if enabled), and those from emails addressed
+/// to more than one recipient.
+/// </li>
+/// </ul>
+enum DeliveryEventType {
+  send('SEND'),
+  delivery('DELIVERY'),
+  transientBounce('TRANSIENT_BOUNCE'),
+  permanentBounce('PERMANENT_BOUNCE'),
+  undeterminedBounce('UNDETERMINED_BOUNCE'),
+  complaint('COMPLAINT'),
+  ;
 
-extension DeliverabilityTestStatusFromString on String {
-  DeliverabilityTestStatus toDeliverabilityTestStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return DeliverabilityTestStatus.inProgress;
-      case 'COMPLETED':
-        return DeliverabilityTestStatus.completed;
-    }
-    throw Exception('$this is not known in enum DeliverabilityTestStatus');
-  }
+  final String value;
+
+  const DeliveryEventType(this.value);
+
+  static DeliveryEventType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeliveryEventType'));
 }
 
 /// Used to associate a configuration set with a dedicated IP pool.
@@ -5130,7 +5351,7 @@ class DeliveryOptions {
   factory DeliveryOptions.fromJson(Map<String, dynamic> json) {
     return DeliveryOptions(
       sendingPoolName: json['SendingPoolName'] as String?,
-      tlsPolicy: (json['TlsPolicy'] as String?)?.toTlsPolicy(),
+      tlsPolicy: (json['TlsPolicy'] as String?)?.let(TlsPolicy.fromString),
     );
   }
 
@@ -5139,7 +5360,7 @@ class DeliveryOptions {
     final tlsPolicy = this.tlsPolicy;
     return {
       if (sendingPoolName != null) 'SendingPoolName': sendingPoolName,
-      if (tlsPolicy != null) 'TlsPolicy': tlsPolicy.toValue(),
+      if (tlsPolicy != null) 'TlsPolicy': tlsPolicy.value,
     };
   }
 }
@@ -5194,36 +5415,19 @@ class Destination {
 /// <code>messageTag</code>. To use your own email headers, choose
 /// <code>emailHeader</code>. To use link tags, choose <code>linkTags</code>.
 enum DimensionValueSource {
-  messageTag,
-  emailHeader,
-  linkTag,
-}
+  messageTag('MESSAGE_TAG'),
+  emailHeader('EMAIL_HEADER'),
+  linkTag('LINK_TAG'),
+  ;
 
-extension DimensionValueSourceValueExtension on DimensionValueSource {
-  String toValue() {
-    switch (this) {
-      case DimensionValueSource.messageTag:
-        return 'MESSAGE_TAG';
-      case DimensionValueSource.emailHeader:
-        return 'EMAIL_HEADER';
-      case DimensionValueSource.linkTag:
-        return 'LINK_TAG';
-    }
-  }
-}
+  final String value;
 
-extension DimensionValueSourceFromString on String {
-  DimensionValueSource toDimensionValueSource() {
-    switch (this) {
-      case 'MESSAGE_TAG':
-        return DimensionValueSource.messageTag;
-      case 'EMAIL_HEADER':
-        return DimensionValueSource.emailHeader;
-      case 'LINK_TAG':
-        return DimensionValueSource.linkTag;
-    }
-    throw Exception('$this is not known in enum DimensionValueSource');
-  }
+  const DimensionValueSource(this.value);
+
+  static DimensionValueSource fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DimensionValueSource'));
 }
 
 /// An object that contains information about the DKIM authentication status for
@@ -5330,19 +5534,17 @@ class DkimAttributes {
   factory DkimAttributes.fromJson(Map<String, dynamic> json) {
     return DkimAttributes(
       currentSigningKeyLength: (json['CurrentSigningKeyLength'] as String?)
-          ?.toDkimSigningKeyLength(),
+          ?.let(DkimSigningKeyLength.fromString),
       lastKeyGenerationTimestamp:
           timeStampFromJson(json['LastKeyGenerationTimestamp']),
-      nextSigningKeyLength:
-          (json['NextSigningKeyLength'] as String?)?.toDkimSigningKeyLength(),
+      nextSigningKeyLength: (json['NextSigningKeyLength'] as String?)
+          ?.let(DkimSigningKeyLength.fromString),
       signingAttributesOrigin: (json['SigningAttributesOrigin'] as String?)
-          ?.toDkimSigningAttributesOrigin(),
+          ?.let(DkimSigningAttributesOrigin.fromString),
       signingEnabled: json['SigningEnabled'] as bool?,
-      status: (json['Status'] as String?)?.toDkimStatus(),
-      tokens: (json['Tokens'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      status: (json['Status'] as String?)?.let(DkimStatus.fromString),
+      tokens:
+          (json['Tokens'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -5356,16 +5558,16 @@ class DkimAttributes {
     final tokens = this.tokens;
     return {
       if (currentSigningKeyLength != null)
-        'CurrentSigningKeyLength': currentSigningKeyLength.toValue(),
+        'CurrentSigningKeyLength': currentSigningKeyLength.value,
       if (lastKeyGenerationTimestamp != null)
         'LastKeyGenerationTimestamp':
             unixTimestampToJson(lastKeyGenerationTimestamp),
       if (nextSigningKeyLength != null)
-        'NextSigningKeyLength': nextSigningKeyLength.toValue(),
+        'NextSigningKeyLength': nextSigningKeyLength.value,
       if (signingAttributesOrigin != null)
-        'SigningAttributesOrigin': signingAttributesOrigin.toValue(),
+        'SigningAttributesOrigin': signingAttributesOrigin.value,
       if (signingEnabled != null) 'SigningEnabled': signingEnabled,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (tokens != null) 'Tokens': tokens,
     };
   }
@@ -5405,66 +5607,39 @@ class DkimSigningAttributes {
       if (domainSigningSelector != null)
         'DomainSigningSelector': domainSigningSelector,
       if (nextSigningKeyLength != null)
-        'NextSigningKeyLength': nextSigningKeyLength.toValue(),
+        'NextSigningKeyLength': nextSigningKeyLength.value,
     };
   }
 }
 
 enum DkimSigningAttributesOrigin {
-  awsSes,
-  external,
-}
+  awsSes('AWS_SES'),
+  external('EXTERNAL'),
+  ;
 
-extension DkimSigningAttributesOriginValueExtension
-    on DkimSigningAttributesOrigin {
-  String toValue() {
-    switch (this) {
-      case DkimSigningAttributesOrigin.awsSes:
-        return 'AWS_SES';
-      case DkimSigningAttributesOrigin.external:
-        return 'EXTERNAL';
-    }
-  }
-}
+  final String value;
 
-extension DkimSigningAttributesOriginFromString on String {
-  DkimSigningAttributesOrigin toDkimSigningAttributesOrigin() {
-    switch (this) {
-      case 'AWS_SES':
-        return DkimSigningAttributesOrigin.awsSes;
-      case 'EXTERNAL':
-        return DkimSigningAttributesOrigin.external;
-    }
-    throw Exception('$this is not known in enum DkimSigningAttributesOrigin');
-  }
+  const DkimSigningAttributesOrigin(this.value);
+
+  static DkimSigningAttributesOrigin fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DkimSigningAttributesOrigin'));
 }
 
 enum DkimSigningKeyLength {
-  rsa_1024Bit,
-  rsa_2048Bit,
-}
+  rsa_1024Bit('RSA_1024_BIT'),
+  rsa_2048Bit('RSA_2048_BIT'),
+  ;
 
-extension DkimSigningKeyLengthValueExtension on DkimSigningKeyLength {
-  String toValue() {
-    switch (this) {
-      case DkimSigningKeyLength.rsa_1024Bit:
-        return 'RSA_1024_BIT';
-      case DkimSigningKeyLength.rsa_2048Bit:
-        return 'RSA_2048_BIT';
-    }
-  }
-}
+  final String value;
 
-extension DkimSigningKeyLengthFromString on String {
-  DkimSigningKeyLength toDkimSigningKeyLength() {
-    switch (this) {
-      case 'RSA_1024_BIT':
-        return DkimSigningKeyLength.rsa_1024Bit;
-      case 'RSA_2048_BIT':
-        return DkimSigningKeyLength.rsa_2048Bit;
-    }
-    throw Exception('$this is not known in enum DkimSigningKeyLength');
-  }
+  const DkimSigningKeyLength(this.value);
+
+  static DkimSigningKeyLength fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DkimSigningKeyLength'));
 }
 
 /// The DKIM authentication status of the identity. The status can be one of the
@@ -5494,46 +5669,20 @@ extension DkimSigningKeyLengthFromString on String {
 /// </li>
 /// </ul>
 enum DkimStatus {
-  pending,
-  success,
-  failed,
-  temporaryFailure,
-  notStarted,
-}
+  pending('PENDING'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  temporaryFailure('TEMPORARY_FAILURE'),
+  notStarted('NOT_STARTED'),
+  ;
 
-extension DkimStatusValueExtension on DkimStatus {
-  String toValue() {
-    switch (this) {
-      case DkimStatus.pending:
-        return 'PENDING';
-      case DkimStatus.success:
-        return 'SUCCESS';
-      case DkimStatus.failed:
-        return 'FAILED';
-      case DkimStatus.temporaryFailure:
-        return 'TEMPORARY_FAILURE';
-      case DkimStatus.notStarted:
-        return 'NOT_STARTED';
-    }
-  }
-}
+  final String value;
 
-extension DkimStatusFromString on String {
-  DkimStatus toDkimStatus() {
-    switch (this) {
-      case 'PENDING':
-        return DkimStatus.pending;
-      case 'SUCCESS':
-        return DkimStatus.success;
-      case 'FAILED':
-        return DkimStatus.failed;
-      case 'TEMPORARY_FAILURE':
-        return DkimStatus.temporaryFailure;
-      case 'NOT_STARTED':
-        return DkimStatus.notStarted;
-    }
-    throw Exception('$this is not known in enum DkimStatus');
-  }
+  const DkimStatus(this.value);
+
+  static DkimStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum DkimStatus'));
 }
 
 /// An object that contains the deliverability data for a specific campaign.
@@ -5619,10 +5768,7 @@ class DomainDeliverabilityCampaign {
     return DomainDeliverabilityCampaign(
       campaignId: json['CampaignId'] as String?,
       deleteRate: json['DeleteRate'] as double?,
-      esps: (json['Esps'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      esps: (json['Esps'] as List?)?.nonNulls.map((e) => e as String).toList(),
       firstSeenDateTime: timeStampFromJson(json['FirstSeenDateTime']),
       fromAddress: json['FromAddress'] as String?,
       imageUrl: json['ImageUrl'] as String?,
@@ -5632,7 +5778,7 @@ class DomainDeliverabilityCampaign {
       readDeleteRate: json['ReadDeleteRate'] as double?,
       readRate: json['ReadRate'] as double?,
       sendingIps: (json['SendingIps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       spamCount: json['SpamCount'] as int?,
@@ -5807,7 +5953,10 @@ class EmailContent {
   /// SES API v2 supports.
   /// </li>
   /// <li>
-  /// The entire message must be Base64 encoded.
+  /// The raw data of the message needs to base64-encoded if you are accessing
+  /// Amazon SES directly through the HTTPS interface. If you are accessing Amazon
+  /// SES using an Amazon Web Services SDK, the SDK takes care of the base
+  /// 64-encoding for you.
   /// </li>
   /// <li>
   /// If any of the MIME parts in your message contain content that is outside of
@@ -5843,6 +5992,47 @@ class EmailContent {
       if (raw != null) 'Raw': raw,
       if (simple != null) 'Simple': simple,
       if (template != null) 'Template': template,
+    };
+  }
+}
+
+/// An email's insights contain metadata and delivery information about a
+/// specific email.
+class EmailInsights {
+  /// The recipient of the email.
+  final String? destination;
+
+  /// A list of events associated with the sent email.
+  final List<InsightsEvent>? events;
+
+  /// The recipient's ISP (e.g., <code>Gmail</code>, <code>Yahoo</code>, etc.).
+  final String? isp;
+
+  EmailInsights({
+    this.destination,
+    this.events,
+    this.isp,
+  });
+
+  factory EmailInsights.fromJson(Map<String, dynamic> json) {
+    return EmailInsights(
+      destination: json['Destination'] as String?,
+      events: (json['Events'] as List?)
+          ?.nonNulls
+          .map((e) => InsightsEvent.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      isp: json['Isp'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final destination = this.destination;
+    final events = this.events;
+    final isp = this.isp;
+    return {
+      if (destination != null) 'Destination': destination,
+      if (events != null) 'Events': events,
+      if (isp != null) 'Isp': isp,
     };
   }
 }
@@ -5915,6 +6105,33 @@ class EmailTemplateMetadata {
       if (templateName != null) 'TemplateName': templateName,
     };
   }
+}
+
+/// The type of delivery events:
+///
+/// <ul>
+/// <li>
+/// <code>OPEN</code> - Open event for emails including open trackers. Excludes
+/// opens for emails addressed to more than one recipient.
+/// </li>
+/// <li>
+/// <code>CLICK</code> - Click event for emails including wrapped links.
+/// Excludes clicks for emails addressed to more than one recipient.
+/// </li>
+/// </ul>
+enum EngagementEventType {
+  open('OPEN'),
+  click('CLICK'),
+  ;
+
+  final String value;
+
+  const EngagementEventType(this.value);
+
+  static EngagementEventType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EngagementEventType'));
 }
 
 /// In the Amazon SES API v2, <i>events</i> include message sends, deliveries,
@@ -6031,8 +6248,8 @@ class EventDestination {
   factory EventDestination.fromJson(Map<String, dynamic> json) {
     return EventDestination(
       matchingEventTypes: (json['MatchingEventTypes'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toEventType())
+          .nonNulls
+          .map((e) => EventType.fromString((e as String)))
           .toList(),
       name: json['Name'] as String,
       cloudWatchDestination: json['CloudWatchDestination'] != null
@@ -6064,7 +6281,7 @@ class EventDestination {
     final pinpointDestination = this.pinpointDestination;
     final snsDestination = this.snsDestination;
     return {
-      'MatchingEventTypes': matchingEventTypes.map((e) => e.toValue()).toList(),
+      'MatchingEventTypes': matchingEventTypes.map((e) => e.value).toList(),
       'Name': name,
       if (cloudWatchDestination != null)
         'CloudWatchDestination': cloudWatchDestination,
@@ -6140,8 +6357,7 @@ class EventDestinationDefinition {
       if (kinesisFirehoseDestination != null)
         'KinesisFirehoseDestination': kinesisFirehoseDestination,
       if (matchingEventTypes != null)
-        'MatchingEventTypes':
-            matchingEventTypes.map((e) => e.toValue()).toList(),
+        'MatchingEventTypes': matchingEventTypes.map((e) => e.value).toList(),
       if (pinpointDestination != null)
         'PinpointDestination': pinpointDestination,
       if (snsDestination != null) 'SnsDestination': snsDestination,
@@ -6149,82 +6365,289 @@ class EventDestinationDefinition {
   }
 }
 
+/// Contains a <code>Bounce</code> object if the event type is
+/// <code>BOUNCE</code>. Contains a <code>Complaint</code> object if the event
+/// type is <code>COMPLAINT</code>.
+class EventDetails {
+  /// Information about a <code>Bounce</code> event.
+  final Bounce? bounce;
+
+  /// Information about a <code>Complaint</code> event.
+  final Complaint? complaint;
+
+  EventDetails({
+    this.bounce,
+    this.complaint,
+  });
+
+  factory EventDetails.fromJson(Map<String, dynamic> json) {
+    return EventDetails(
+      bounce: json['Bounce'] != null
+          ? Bounce.fromJson(json['Bounce'] as Map<String, dynamic>)
+          : null,
+      complaint: json['Complaint'] != null
+          ? Complaint.fromJson(json['Complaint'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final bounce = this.bounce;
+    final complaint = this.complaint;
+    return {
+      if (bounce != null) 'Bounce': bounce,
+      if (complaint != null) 'Complaint': complaint,
+    };
+  }
+}
+
 /// An email sending event type. For example, email sends, opens, and bounces
 /// are all email events.
 enum EventType {
-  send,
-  reject,
-  bounce,
-  complaint,
-  delivery,
-  open,
-  click,
-  renderingFailure,
-  deliveryDelay,
-  subscription,
+  send('SEND'),
+  reject('REJECT'),
+  bounce('BOUNCE'),
+  complaint('COMPLAINT'),
+  delivery('DELIVERY'),
+  open('OPEN'),
+  click('CLICK'),
+  renderingFailure('RENDERING_FAILURE'),
+  deliveryDelay('DELIVERY_DELAY'),
+  subscription('SUBSCRIPTION'),
+  ;
+
+  final String value;
+
+  const EventType(this.value);
+
+  static EventType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EventType'));
 }
 
-extension EventTypeValueExtension on EventType {
-  String toValue() {
-    switch (this) {
-      case EventType.send:
-        return 'SEND';
-      case EventType.reject:
-        return 'REJECT';
-      case EventType.bounce:
-        return 'BOUNCE';
-      case EventType.complaint:
-        return 'COMPLAINT';
-      case EventType.delivery:
-        return 'DELIVERY';
-      case EventType.open:
-        return 'OPEN';
-      case EventType.click:
-        return 'CLICK';
-      case EventType.renderingFailure:
-        return 'RENDERING_FAILURE';
-      case EventType.deliveryDelay:
-        return 'DELIVERY_DELAY';
-      case EventType.subscription:
-        return 'SUBSCRIPTION';
-    }
+/// An object that contains details about the data source of the export job. It
+/// can only contain one of <code>MetricsDataSource</code> or
+/// <code>MessageInsightsDataSource</code> object.
+class ExportDataSource {
+  final MessageInsightsDataSource? messageInsightsDataSource;
+  final MetricsDataSource? metricsDataSource;
+
+  ExportDataSource({
+    this.messageInsightsDataSource,
+    this.metricsDataSource,
+  });
+
+  factory ExportDataSource.fromJson(Map<String, dynamic> json) {
+    return ExportDataSource(
+      messageInsightsDataSource: json['MessageInsightsDataSource'] != null
+          ? MessageInsightsDataSource.fromJson(
+              json['MessageInsightsDataSource'] as Map<String, dynamic>)
+          : null,
+      metricsDataSource: json['MetricsDataSource'] != null
+          ? MetricsDataSource.fromJson(
+              json['MetricsDataSource'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final messageInsightsDataSource = this.messageInsightsDataSource;
+    final metricsDataSource = this.metricsDataSource;
+    return {
+      if (messageInsightsDataSource != null)
+        'MessageInsightsDataSource': messageInsightsDataSource,
+      if (metricsDataSource != null) 'MetricsDataSource': metricsDataSource,
+    };
   }
 }
 
-extension EventTypeFromString on String {
-  EventType toEventType() {
-    switch (this) {
-      case 'SEND':
-        return EventType.send;
-      case 'REJECT':
-        return EventType.reject;
-      case 'BOUNCE':
-        return EventType.bounce;
-      case 'COMPLAINT':
-        return EventType.complaint;
-      case 'DELIVERY':
-        return EventType.delivery;
-      case 'OPEN':
-        return EventType.open;
-      case 'CLICK':
-        return EventType.click;
-      case 'RENDERING_FAILURE':
-        return EventType.renderingFailure;
-      case 'DELIVERY_DELAY':
-        return EventType.deliveryDelay;
-      case 'SUBSCRIPTION':
-        return EventType.subscription;
-    }
-    throw Exception('$this is not known in enum EventType');
+/// An object that contains details about the destination of the export job.
+class ExportDestination {
+  /// The data format of the final export job file, can be one of the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>CSV</code> - A comma-separated values file.
+  /// </li>
+  /// <li>
+  /// <code>JSON</code> - A Json file.
+  /// </li>
+  /// </ul>
+  final DataFormat dataFormat;
+
+  /// An Amazon S3 pre-signed URL that points to the generated export file.
+  final String? s3Url;
+
+  ExportDestination({
+    required this.dataFormat,
+    this.s3Url,
+  });
+
+  factory ExportDestination.fromJson(Map<String, dynamic> json) {
+    return ExportDestination(
+      dataFormat: DataFormat.fromString((json['DataFormat'] as String)),
+      s3Url: json['S3Url'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final dataFormat = this.dataFormat;
+    final s3Url = this.s3Url;
+    return {
+      'DataFormat': dataFormat.value,
+      if (s3Url != null) 'S3Url': s3Url,
+    };
   }
 }
 
-/// An object that contains the failure details about an import job.
+/// A summary of the export job.
+class ExportJobSummary {
+  /// The timestamp of when the export job was completed.
+  final DateTime? completedTimestamp;
+
+  /// The timestamp of when the export job was created.
+  final DateTime? createdTimestamp;
+
+  /// The source type of the export job.
+  final ExportSourceType? exportSourceType;
+
+  /// The export job ID.
+  final String? jobId;
+
+  /// The status of the export job.
+  final JobStatus? jobStatus;
+
+  ExportJobSummary({
+    this.completedTimestamp,
+    this.createdTimestamp,
+    this.exportSourceType,
+    this.jobId,
+    this.jobStatus,
+  });
+
+  factory ExportJobSummary.fromJson(Map<String, dynamic> json) {
+    return ExportJobSummary(
+      completedTimestamp: timeStampFromJson(json['CompletedTimestamp']),
+      createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
+      exportSourceType: (json['ExportSourceType'] as String?)
+          ?.let(ExportSourceType.fromString),
+      jobId: json['JobId'] as String?,
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final completedTimestamp = this.completedTimestamp;
+    final createdTimestamp = this.createdTimestamp;
+    final exportSourceType = this.exportSourceType;
+    final jobId = this.jobId;
+    final jobStatus = this.jobStatus;
+    return {
+      if (completedTimestamp != null)
+        'CompletedTimestamp': unixTimestampToJson(completedTimestamp),
+      if (createdTimestamp != null)
+        'CreatedTimestamp': unixTimestampToJson(createdTimestamp),
+      if (exportSourceType != null) 'ExportSourceType': exportSourceType.value,
+      if (jobId != null) 'JobId': jobId,
+      if (jobStatus != null) 'JobStatus': jobStatus.value,
+    };
+  }
+}
+
+/// An object that contains a mapping between a <code>Metric</code> and
+/// <code>MetricAggregation</code>.
+class ExportMetric {
+  final MetricAggregation? aggregation;
+  final Metric? name;
+
+  ExportMetric({
+    this.aggregation,
+    this.name,
+  });
+
+  factory ExportMetric.fromJson(Map<String, dynamic> json) {
+    return ExportMetric(
+      aggregation:
+          (json['Aggregation'] as String?)?.let(MetricAggregation.fromString),
+      name: (json['Name'] as String?)?.let(Metric.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final aggregation = this.aggregation;
+    final name = this.name;
+    return {
+      if (aggregation != null) 'Aggregation': aggregation.value,
+      if (name != null) 'Name': name.value,
+    };
+  }
+}
+
+/// The type of data source of an export, can be one of the following:
+///
+/// <ul>
+/// <li>
+/// <code>METRICS_DATA</code> - The metrics export.
+/// </li>
+/// <li>
+/// <code>MESSAGE_INSIGHTS</code> - The Message Insights export.
+/// </li>
+/// </ul>
+enum ExportSourceType {
+  metricsData('METRICS_DATA'),
+  messageInsights('MESSAGE_INSIGHTS'),
+  ;
+
+  final String value;
+
+  const ExportSourceType(this.value);
+
+  static ExportSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExportSourceType'));
+}
+
+/// Statistics about the execution of an export job.
+class ExportStatistics {
+  /// The number of records that were exported to the final export file.
+  ///
+  /// This value might not be available for all export source types
+  final int? exportedRecordsCount;
+
+  /// The number of records that were processed to generate the final export file.
+  final int? processedRecordsCount;
+
+  ExportStatistics({
+    this.exportedRecordsCount,
+    this.processedRecordsCount,
+  });
+
+  factory ExportStatistics.fromJson(Map<String, dynamic> json) {
+    return ExportStatistics(
+      exportedRecordsCount: json['ExportedRecordsCount'] as int?,
+      processedRecordsCount: json['ProcessedRecordsCount'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final exportedRecordsCount = this.exportedRecordsCount;
+    final processedRecordsCount = this.processedRecordsCount;
+    return {
+      if (exportedRecordsCount != null)
+        'ExportedRecordsCount': exportedRecordsCount,
+      if (processedRecordsCount != null)
+        'ProcessedRecordsCount': processedRecordsCount,
+    };
+  }
+}
+
+/// An object that contains the failure details about a job.
 class FailureInfo {
-  /// A message about why the import job failed.
+  /// A message about why the job failed.
   final String? errorMessage;
 
-  /// An Amazon S3 presigned URL that contains all the failed records and related
+  /// An Amazon S3 pre-signed URL that contains all the failed records and related
   /// information.
   final String? failedRecordsS3Url;
 
@@ -6251,31 +6674,18 @@ class FailureInfo {
 }
 
 enum FeatureStatus {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension FeatureStatusValueExtension on FeatureStatus {
-  String toValue() {
-    switch (this) {
-      case FeatureStatus.enabled:
-        return 'ENABLED';
-      case FeatureStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension FeatureStatusFromString on String {
-  FeatureStatus toFeatureStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return FeatureStatus.enabled;
-      case 'DISABLED':
-        return FeatureStatus.disabled;
-    }
-    throw Exception('$this is not known in enum FeatureStatus');
-  }
+  const FeatureStatus(this.value);
+
+  static FeatureStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FeatureStatus'));
 }
 
 /// A list of details about the email-sending capabilities of your Amazon SES
@@ -6315,9 +6725,7 @@ class GetAccountResponse {
   ///
   /// If the value is <code>false</code>, then your account is in the
   /// <i>sandbox</i>. When your account is in the sandbox, you can only send email
-  /// to verified identities. Additionally, the maximum number of emails you can
-  /// send in a 24-hour period (your sending quota) is 200, and the maximum number
-  /// of emails you can send per second (your maximum sending rate) is 1.
+  /// to verified identities.
   ///
   /// If the value is <code>true</code>, then your account has production access.
   /// When your account has production access, you can send email to any address.
@@ -6417,7 +6825,7 @@ class GetBlacklistReportsResponse {
           (k, e) => MapEntry(
               k,
               (e as List)
-                  .whereNotNull()
+                  .nonNulls
                   .map(
                       (e) => BlacklistEntry.fromJson(e as Map<String, dynamic>))
                   .toList())),
@@ -6446,7 +6854,7 @@ class GetConfigurationSetEventDestinationsResponse {
       Map<String, dynamic> json) {
     return GetConfigurationSetEventDestinationsResponse(
       eventDestinations: (json['EventDestinations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EventDestination.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6524,7 +6932,7 @@ class GetConfigurationSetResponse {
               json['SuppressionOptions'] as Map<String, dynamic>)
           : null,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       trackingOptions: json['TrackingOptions'] != null
@@ -6596,11 +7004,11 @@ class GetContactListResponse {
       description: json['Description'] as String?,
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       topics: (json['Topics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Topic.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6671,11 +7079,11 @@ class GetContactResponse {
       emailAddress: json['EmailAddress'] as String?,
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       topicDefaultPreferences: (json['TopicDefaultPreferences'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TopicPreference.fromJson(e as Map<String, dynamic>))
           .toList(),
       topicPreferences: (json['TopicPreferences'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TopicPreference.fromJson(e as Map<String, dynamic>))
           .toList(),
       unsubscribeAll: json['UnsubscribeAll'] as bool?,
@@ -6842,7 +7250,7 @@ class GetDedicatedIpsResponse {
   factory GetDedicatedIpsResponse.fromJson(Map<String, dynamic> json) {
     return GetDedicatedIpsResponse(
       dedicatedIps: (json['DedicatedIps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DedicatedIp.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6900,15 +7308,15 @@ class GetDeliverabilityDashboardOptionsResponse {
     return GetDeliverabilityDashboardOptionsResponse(
       dashboardEnabled: json['DashboardEnabled'] as bool,
       accountStatus: (json['AccountStatus'] as String?)
-          ?.toDeliverabilityDashboardAccountStatus(),
+          ?.let(DeliverabilityDashboardAccountStatus.fromString),
       activeSubscribedDomains: (json['ActiveSubscribedDomains'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DomainDeliverabilityTrackingOption.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       pendingExpirationSubscribedDomains:
           (json['PendingExpirationSubscribedDomains'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => DomainDeliverabilityTrackingOption.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -6925,7 +7333,7 @@ class GetDeliverabilityDashboardOptionsResponse {
     final subscriptionExpiryDate = this.subscriptionExpiryDate;
     return {
       'DashboardEnabled': dashboardEnabled,
-      if (accountStatus != null) 'AccountStatus': accountStatus.toValue(),
+      if (accountStatus != null) 'AccountStatus': accountStatus.value,
       if (activeSubscribedDomains != null)
         'ActiveSubscribedDomains': activeSubscribedDomains,
       if (pendingExpirationSubscribedDomains != null)
@@ -6973,14 +7381,14 @@ class GetDeliverabilityTestReportResponse {
       deliverabilityTestReport: DeliverabilityTestReport.fromJson(
           json['DeliverabilityTestReport'] as Map<String, dynamic>),
       ispPlacements: (json['IspPlacements'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => IspPlacement.fromJson(e as Map<String, dynamic>))
           .toList(),
       overallPlacement: PlacementStatistics.fromJson(
           json['OverallPlacement'] as Map<String, dynamic>),
       message: json['Message'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7051,7 +7459,7 @@ class GetDomainStatisticsReportResponse {
       Map<String, dynamic> json) {
     return GetDomainStatisticsReportResponse(
       dailyVolumes: (json['DailyVolumes'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => DailyVolume.fromJson(e as Map<String, dynamic>))
           .toList(),
       overallVolume:
@@ -7131,6 +7539,10 @@ class GetEmailIdentityResponse {
   /// associated with the email identity.
   final List<Tag>? tags;
 
+  /// An object that contains additional information about the verification status
+  /// for the identity.
+  final VerificationInfo? verificationInfo;
+
   /// The verification status of the identity. The status can be one of the
   /// following:
   ///
@@ -7171,6 +7583,7 @@ class GetEmailIdentityResponse {
     this.mailFromAttributes,
     this.policies,
     this.tags,
+    this.verificationInfo,
     this.verificationStatus,
     this.verifiedForSendingStatus,
   });
@@ -7183,7 +7596,8 @@ class GetEmailIdentityResponse {
               json['DkimAttributes'] as Map<String, dynamic>)
           : null,
       feedbackForwardingStatus: json['FeedbackForwardingStatus'] as bool?,
-      identityType: (json['IdentityType'] as String?)?.toIdentityType(),
+      identityType:
+          (json['IdentityType'] as String?)?.let(IdentityType.fromString),
       mailFromAttributes: json['MailFromAttributes'] != null
           ? MailFromAttributes.fromJson(
               json['MailFromAttributes'] as Map<String, dynamic>)
@@ -7191,11 +7605,15 @@ class GetEmailIdentityResponse {
       policies: (json['Policies'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      verificationStatus:
-          (json['VerificationStatus'] as String?)?.toVerificationStatus(),
+      verificationInfo: json['VerificationInfo'] != null
+          ? VerificationInfo.fromJson(
+              json['VerificationInfo'] as Map<String, dynamic>)
+          : null,
+      verificationStatus: (json['VerificationStatus'] as String?)
+          ?.let(VerificationStatus.fromString),
       verifiedForSendingStatus: json['VerifiedForSendingStatus'] as bool?,
     );
   }
@@ -7208,6 +7626,7 @@ class GetEmailIdentityResponse {
     final mailFromAttributes = this.mailFromAttributes;
     final policies = this.policies;
     final tags = this.tags;
+    final verificationInfo = this.verificationInfo;
     final verificationStatus = this.verificationStatus;
     final verifiedForSendingStatus = this.verifiedForSendingStatus;
     return {
@@ -7216,12 +7635,13 @@ class GetEmailIdentityResponse {
       if (dkimAttributes != null) 'DkimAttributes': dkimAttributes,
       if (feedbackForwardingStatus != null)
         'FeedbackForwardingStatus': feedbackForwardingStatus,
-      if (identityType != null) 'IdentityType': identityType.toValue(),
+      if (identityType != null) 'IdentityType': identityType.value,
       if (mailFromAttributes != null) 'MailFromAttributes': mailFromAttributes,
       if (policies != null) 'Policies': policies,
       if (tags != null) 'Tags': tags,
+      if (verificationInfo != null) 'VerificationInfo': verificationInfo,
       if (verificationStatus != null)
-        'VerificationStatus': verificationStatus.toValue(),
+        'VerificationStatus': verificationStatus.value,
       if (verifiedForSendingStatus != null)
         'VerifiedForSendingStatus': verifiedForSendingStatus,
     };
@@ -7256,6 +7676,100 @@ class GetEmailTemplateResponse {
     return {
       'TemplateContent': templateContent,
       'TemplateName': templateName,
+    };
+  }
+}
+
+/// An HTTP 200 response if the request succeeds, or an error message if the
+/// request fails.
+class GetExportJobResponse {
+  /// The timestamp of when the export job was completed.
+  final DateTime? completedTimestamp;
+
+  /// The timestamp of when the export job was created.
+  final DateTime? createdTimestamp;
+
+  /// The data source of the export job.
+  final ExportDataSource? exportDataSource;
+
+  /// The destination of the export job.
+  final ExportDestination? exportDestination;
+
+  /// The type of source of the export job.
+  final ExportSourceType? exportSourceType;
+
+  /// The failure details about an export job.
+  final FailureInfo? failureInfo;
+
+  /// The export job ID.
+  final String? jobId;
+
+  /// The status of the export job.
+  final JobStatus? jobStatus;
+
+  /// The statistics about the export job.
+  final ExportStatistics? statistics;
+
+  GetExportJobResponse({
+    this.completedTimestamp,
+    this.createdTimestamp,
+    this.exportDataSource,
+    this.exportDestination,
+    this.exportSourceType,
+    this.failureInfo,
+    this.jobId,
+    this.jobStatus,
+    this.statistics,
+  });
+
+  factory GetExportJobResponse.fromJson(Map<String, dynamic> json) {
+    return GetExportJobResponse(
+      completedTimestamp: timeStampFromJson(json['CompletedTimestamp']),
+      createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
+      exportDataSource: json['ExportDataSource'] != null
+          ? ExportDataSource.fromJson(
+              json['ExportDataSource'] as Map<String, dynamic>)
+          : null,
+      exportDestination: json['ExportDestination'] != null
+          ? ExportDestination.fromJson(
+              json['ExportDestination'] as Map<String, dynamic>)
+          : null,
+      exportSourceType: (json['ExportSourceType'] as String?)
+          ?.let(ExportSourceType.fromString),
+      failureInfo: json['FailureInfo'] != null
+          ? FailureInfo.fromJson(json['FailureInfo'] as Map<String, dynamic>)
+          : null,
+      jobId: json['JobId'] as String?,
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
+      statistics: json['Statistics'] != null
+          ? ExportStatistics.fromJson(
+              json['Statistics'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final completedTimestamp = this.completedTimestamp;
+    final createdTimestamp = this.createdTimestamp;
+    final exportDataSource = this.exportDataSource;
+    final exportDestination = this.exportDestination;
+    final exportSourceType = this.exportSourceType;
+    final failureInfo = this.failureInfo;
+    final jobId = this.jobId;
+    final jobStatus = this.jobStatus;
+    final statistics = this.statistics;
+    return {
+      if (completedTimestamp != null)
+        'CompletedTimestamp': unixTimestampToJson(completedTimestamp),
+      if (createdTimestamp != null)
+        'CreatedTimestamp': unixTimestampToJson(createdTimestamp),
+      if (exportDataSource != null) 'ExportDataSource': exportDataSource,
+      if (exportDestination != null) 'ExportDestination': exportDestination,
+      if (exportSourceType != null) 'ExportSourceType': exportSourceType.value,
+      if (failureInfo != null) 'FailureInfo': failureInfo,
+      if (jobId != null) 'JobId': jobId,
+      if (jobStatus != null) 'JobStatus': jobStatus.value,
+      if (statistics != null) 'Statistics': statistics,
     };
   }
 }
@@ -7320,7 +7834,7 @@ class GetImportJobResponse {
               json['ImportDestination'] as Map<String, dynamic>)
           : null,
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       processedRecordsCount: json['ProcessedRecordsCount'] as int?,
     );
   }
@@ -7345,9 +7859,68 @@ class GetImportJobResponse {
       if (importDataSource != null) 'ImportDataSource': importDataSource,
       if (importDestination != null) 'ImportDestination': importDestination,
       if (jobId != null) 'JobId': jobId,
-      if (jobStatus != null) 'JobStatus': jobStatus.toValue(),
+      if (jobStatus != null) 'JobStatus': jobStatus.value,
       if (processedRecordsCount != null)
         'ProcessedRecordsCount': processedRecordsCount,
+    };
+  }
+}
+
+/// Information about a message.
+class GetMessageInsightsResponse {
+  /// A list of tags, in the form of name/value pairs, that were applied to the
+  /// email you sent, along with Amazon SES <a
+  /// href="https://docs.aws.amazon.com/ses/latest/dg/monitor-using-event-publishing.html">Auto-Tags</a>.
+  final List<MessageTag>? emailTags;
+
+  /// The from address used to send the message.
+  final String? fromEmailAddress;
+
+  /// A set of insights associated with the message.
+  final List<EmailInsights>? insights;
+
+  /// A unique identifier for the message.
+  final String? messageId;
+
+  /// The subject line of the message.
+  final String? subject;
+
+  GetMessageInsightsResponse({
+    this.emailTags,
+    this.fromEmailAddress,
+    this.insights,
+    this.messageId,
+    this.subject,
+  });
+
+  factory GetMessageInsightsResponse.fromJson(Map<String, dynamic> json) {
+    return GetMessageInsightsResponse(
+      emailTags: (json['EmailTags'] as List?)
+          ?.nonNulls
+          .map((e) => MessageTag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      fromEmailAddress: json['FromEmailAddress'] as String?,
+      insights: (json['Insights'] as List?)
+          ?.nonNulls
+          .map((e) => EmailInsights.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      messageId: json['MessageId'] as String?,
+      subject: json['Subject'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final emailTags = this.emailTags;
+    final fromEmailAddress = this.fromEmailAddress;
+    final insights = this.insights;
+    final messageId = this.messageId;
+    final subject = this.subject;
+    return {
+      if (emailTags != null) 'EmailTags': emailTags,
+      if (fromEmailAddress != null) 'FromEmailAddress': fromEmailAddress,
+      if (insights != null) 'Insights': insights,
+      if (messageId != null) 'MessageId': messageId,
+      if (subject != null) 'Subject': subject,
     };
   }
 }
@@ -7400,8 +7973,8 @@ class GuardianAttributes {
 
   factory GuardianAttributes.fromJson(Map<String, dynamic> json) {
     return GuardianAttributes(
-      optimizedSharedDelivery:
-          (json['OptimizedSharedDelivery'] as String?)?.toFeatureStatus(),
+      optimizedSharedDelivery: (json['OptimizedSharedDelivery'] as String?)
+          ?.let(FeatureStatus.fromString),
     );
   }
 
@@ -7409,7 +7982,7 @@ class GuardianAttributes {
     final optimizedSharedDelivery = this.optimizedSharedDelivery;
     return {
       if (optimizedSharedDelivery != null)
-        'OptimizedSharedDelivery': optimizedSharedDelivery.toValue(),
+        'OptimizedSharedDelivery': optimizedSharedDelivery.value,
     };
   }
 }
@@ -7438,8 +8011,8 @@ class GuardianOptions {
 
   factory GuardianOptions.fromJson(Map<String, dynamic> json) {
     return GuardianOptions(
-      optimizedSharedDelivery:
-          (json['OptimizedSharedDelivery'] as String?)?.toFeatureStatus(),
+      optimizedSharedDelivery: (json['OptimizedSharedDelivery'] as String?)
+          ?.let(FeatureStatus.fromString),
     );
   }
 
@@ -7447,7 +8020,7 @@ class GuardianOptions {
     final optimizedSharedDelivery = this.optimizedSharedDelivery;
     return {
       if (optimizedSharedDelivery != null)
-        'OptimizedSharedDelivery': optimizedSharedDelivery.toValue(),
+        'OptimizedSharedDelivery': optimizedSharedDelivery.value,
     };
   }
 }
@@ -7504,10 +8077,11 @@ class IdentityInfo {
   factory IdentityInfo.fromJson(Map<String, dynamic> json) {
     return IdentityInfo(
       identityName: json['IdentityName'] as String?,
-      identityType: (json['IdentityType'] as String?)?.toIdentityType(),
+      identityType:
+          (json['IdentityType'] as String?)?.let(IdentityType.fromString),
       sendingEnabled: json['SendingEnabled'] as bool?,
-      verificationStatus:
-          (json['VerificationStatus'] as String?)?.toVerificationStatus(),
+      verificationStatus: (json['VerificationStatus'] as String?)
+          ?.let(VerificationStatus.fromString),
     );
   }
 
@@ -7518,45 +8092,28 @@ class IdentityInfo {
     final verificationStatus = this.verificationStatus;
     return {
       if (identityName != null) 'IdentityName': identityName,
-      if (identityType != null) 'IdentityType': identityType.toValue(),
+      if (identityType != null) 'IdentityType': identityType.value,
       if (sendingEnabled != null) 'SendingEnabled': sendingEnabled,
       if (verificationStatus != null)
-        'VerificationStatus': verificationStatus.toValue(),
+        'VerificationStatus': verificationStatus.value,
     };
   }
 }
 
 enum IdentityType {
-  emailAddress,
-  domain,
-  managedDomain,
-}
+  emailAddress('EMAIL_ADDRESS'),
+  domain('DOMAIN'),
+  managedDomain('MANAGED_DOMAIN'),
+  ;
 
-extension IdentityTypeValueExtension on IdentityType {
-  String toValue() {
-    switch (this) {
-      case IdentityType.emailAddress:
-        return 'EMAIL_ADDRESS';
-      case IdentityType.domain:
-        return 'DOMAIN';
-      case IdentityType.managedDomain:
-        return 'MANAGED_DOMAIN';
-    }
-  }
-}
+  final String value;
 
-extension IdentityTypeFromString on String {
-  IdentityType toIdentityType() {
-    switch (this) {
-      case 'EMAIL_ADDRESS':
-        return IdentityType.emailAddress;
-      case 'DOMAIN':
-        return IdentityType.domain;
-      case 'MANAGED_DOMAIN':
-        return IdentityType.managedDomain;
-    }
-    throw Exception('$this is not known in enum IdentityType');
-  }
+  const IdentityType(this.value);
+
+  static IdentityType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IdentityType'));
 }
 
 /// An object that contains details about the data source of the import job.
@@ -7575,7 +8132,7 @@ class ImportDataSource {
 
   factory ImportDataSource.fromJson(Map<String, dynamic> json) {
     return ImportDataSource(
-      dataFormat: (json['DataFormat'] as String).toDataFormat(),
+      dataFormat: DataFormat.fromString((json['DataFormat'] as String)),
       s3Url: json['S3Url'] as String,
     );
   }
@@ -7584,7 +8141,7 @@ class ImportDataSource {
     final dataFormat = this.dataFormat;
     final s3Url = this.s3Url;
     return {
-      'DataFormat': dataFormat.toValue(),
+      'DataFormat': dataFormat.value,
       'S3Url': s3Url,
     };
   }
@@ -7633,31 +8190,18 @@ class ImportDestination {
 /// The destination of the import job, which can be used to list import jobs
 /// that have a certain <code>ImportDestinationType</code>.
 enum ImportDestinationType {
-  suppressionList,
-  contactList,
-}
+  suppressionList('SUPPRESSION_LIST'),
+  contactList('CONTACT_LIST'),
+  ;
 
-extension ImportDestinationTypeValueExtension on ImportDestinationType {
-  String toValue() {
-    switch (this) {
-      case ImportDestinationType.suppressionList:
-        return 'SUPPRESSION_LIST';
-      case ImportDestinationType.contactList:
-        return 'CONTACT_LIST';
-    }
-  }
-}
+  final String value;
 
-extension ImportDestinationTypeFromString on String {
-  ImportDestinationType toImportDestinationType() {
-    switch (this) {
-      case 'SUPPRESSION_LIST':
-        return ImportDestinationType.suppressionList;
-      case 'CONTACT_LIST':
-        return ImportDestinationType.contactList;
-    }
-    throw Exception('$this is not known in enum ImportDestinationType');
-  }
+  const ImportDestinationType(this.value);
+
+  static ImportDestinationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ImportDestinationType'));
 }
 
 /// A summary of the import job.
@@ -7693,7 +8237,7 @@ class ImportJobSummary {
               json['ImportDestination'] as Map<String, dynamic>)
           : null,
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       processedRecordsCount: json['ProcessedRecordsCount'] as int?,
     );
   }
@@ -7711,7 +8255,7 @@ class ImportJobSummary {
       if (failedRecordsCount != null) 'FailedRecordsCount': failedRecordsCount,
       if (importDestination != null) 'ImportDestination': importDestination,
       if (jobId != null) 'JobId': jobId,
-      if (jobStatus != null) 'JobStatus': jobStatus.toValue(),
+      if (jobStatus != null) 'JobStatus': jobStatus.value,
       if (processedRecordsCount != null)
         'ProcessedRecordsCount': processedRecordsCount,
     };
@@ -7739,7 +8283,7 @@ class InboxPlacementTrackingOption {
     return InboxPlacementTrackingOption(
       global: json['Global'] as bool?,
       trackedIsps: (json['TrackedIsps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -7751,6 +8295,80 @@ class InboxPlacementTrackingOption {
     return {
       if (global != null) 'Global': global,
       if (trackedIsps != null) 'TrackedIsps': trackedIsps,
+    };
+  }
+}
+
+/// An object containing details about a specific event.
+class InsightsEvent {
+  /// Details about bounce or complaint events.
+  final EventDetails? details;
+
+  /// The timestamp of the event.
+  final DateTime? timestamp;
+
+  /// The type of event:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SEND</code> - The send request was successful and SES will attempt to
+  /// deliver the message to the recipient’s mail server. (If account-level or
+  /// global suppression is being used, SES will still count it as a send, but
+  /// delivery is suppressed.)
+  /// </li>
+  /// <li>
+  /// <code>DELIVERY</code> - SES successfully delivered the email to the
+  /// recipient's mail server. Excludes deliveries to the mailbox simulator, and
+  /// those from emails addressed to more than one recipient.
+  /// </li>
+  /// <li>
+  /// <code>BOUNCE</code> - Feedback received for delivery failures. Additional
+  /// details about the bounce are provided in the <code>Details</code> object.
+  /// Excludes bounces from the mailbox simulator, and those from emails addressed
+  /// to more than one recipient.
+  /// </li>
+  /// <li>
+  /// <code>COMPLAINT</code> - Complaint received for the email. Additional
+  /// details about the complaint are provided in the <code>Details</code> object.
+  /// This excludes complaints from the mailbox simulator, those originating from
+  /// your account-level suppression list (if enabled), and those from emails
+  /// addressed to more than one recipient.
+  /// </li>
+  /// <li>
+  /// <code>OPEN</code> - Open event for emails including open trackers. Excludes
+  /// opens for emails addressed to more than one recipient.
+  /// </li>
+  /// <li>
+  /// <code>CLICK</code> - Click event for emails including wrapped links.
+  /// Excludes clicks for emails addressed to more than one recipient.
+  /// </li>
+  /// </ul>
+  final EventType? type;
+
+  InsightsEvent({
+    this.details,
+    this.timestamp,
+    this.type,
+  });
+
+  factory InsightsEvent.fromJson(Map<String, dynamic> json) {
+    return InsightsEvent(
+      details: json['Details'] != null
+          ? EventDetails.fromJson(json['Details'] as Map<String, dynamic>)
+          : null,
+      timestamp: timeStampFromJson(json['Timestamp']),
+      type: (json['Type'] as String?)?.let(EventType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final details = this.details;
+    final timestamp = this.timestamp;
+    final type = this.type;
+    return {
+      if (details != null) 'Details': details,
+      if (timestamp != null) 'Timestamp': unixTimestampToJson(timestamp),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -7791,43 +8409,37 @@ class IspPlacement {
   }
 }
 
-/// The status of the import job.
+/// The status of a job.
+///
+/// <ul>
+/// <li>
+/// <code>CREATED</code> – Job has just been created.
+/// </li>
+/// <li>
+/// <code>PROCESSING</code> – Job is processing.
+/// </li>
+/// <li>
+/// <code>ERROR</code> – An error occurred during processing.
+/// </li>
+/// <li>
+/// <code>COMPLETED</code> – Job has completed processing successfully.
+/// </li>
+/// </ul>
 enum JobStatus {
-  created,
-  processing,
-  completed,
-  failed,
-}
+  created('CREATED'),
+  processing('PROCESSING'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  cancelled('CANCELLED'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.created:
-        return 'CREATED';
-      case JobStatus.processing:
-        return 'PROCESSING';
-      case JobStatus.completed:
-        return 'COMPLETED';
-      case JobStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'CREATED':
-        return JobStatus.created;
-      case 'PROCESSING':
-        return JobStatus.processing;
-      case 'COMPLETED':
-        return JobStatus.completed;
-      case 'FAILED':
-        return JobStatus.failed;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 /// An object that defines an Amazon Kinesis Data Firehose destination for email
@@ -7885,7 +8497,7 @@ class ListConfigurationSetsResponse {
   factory ListConfigurationSetsResponse.fromJson(Map<String, dynamic> json) {
     return ListConfigurationSetsResponse(
       configurationSets: (json['ConfigurationSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7920,7 +8532,7 @@ class ListContactListsResponse {
   factory ListContactListsResponse.fromJson(Map<String, dynamic> json) {
     return ListContactListsResponse(
       contactLists: (json['ContactLists'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ContactList.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7955,7 +8567,7 @@ class ListContactsFilter {
     final filteredStatus = this.filteredStatus;
     final topicFilter = this.topicFilter;
     return {
-      if (filteredStatus != null) 'FilteredStatus': filteredStatus.toValue(),
+      if (filteredStatus != null) 'FilteredStatus': filteredStatus.value,
       if (topicFilter != null) 'TopicFilter': topicFilter,
     };
   }
@@ -7979,7 +8591,7 @@ class ListContactsResponse {
   factory ListContactsResponse.fromJson(Map<String, dynamic> json) {
     return ListContactsResponse(
       contacts: (json['Contacts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Contact.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -8019,7 +8631,7 @@ class ListCustomVerificationEmailTemplatesResponse {
     return ListCustomVerificationEmailTemplatesResponse(
       customVerificationEmailTemplates:
           (json['CustomVerificationEmailTemplates'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => CustomVerificationEmailTemplateMetadata.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -8059,7 +8671,7 @@ class ListDedicatedIpPoolsResponse {
   factory ListDedicatedIpPoolsResponse.fromJson(Map<String, dynamic> json) {
     return ListDedicatedIpPoolsResponse(
       dedicatedIpPools: (json['DedicatedIpPools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -8098,7 +8710,7 @@ class ListDeliverabilityTestReportsResponse {
       Map<String, dynamic> json) {
     return ListDeliverabilityTestReportsResponse(
       deliverabilityTestReports: (json['DeliverabilityTestReports'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               DeliverabilityTestReport.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8140,7 +8752,7 @@ class ListDomainDeliverabilityCampaignsResponse {
     return ListDomainDeliverabilityCampaignsResponse(
       domainDeliverabilityCampaigns: (json['DomainDeliverabilityCampaigns']
               as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               DomainDeliverabilityCampaign.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8179,7 +8791,7 @@ class ListEmailIdentitiesResponse {
   factory ListEmailIdentitiesResponse.fromJson(Map<String, dynamic> json) {
     return ListEmailIdentitiesResponse(
       emailIdentities: (json['EmailIdentities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IdentityInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -8216,7 +8828,7 @@ class ListEmailTemplatesResponse {
     return ListEmailTemplatesResponse(
       nextToken: json['NextToken'] as String?,
       templatesMetadata: (json['TemplatesMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EmailTemplateMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8228,6 +8840,43 @@ class ListEmailTemplatesResponse {
     return {
       if (nextToken != null) 'NextToken': nextToken,
       if (templatesMetadata != null) 'TemplatesMetadata': templatesMetadata,
+    };
+  }
+}
+
+/// An HTTP 200 response if the request succeeds, or an error message if the
+/// request fails.
+class ListExportJobsResponse {
+  /// A list of the export job summaries.
+  final List<ExportJobSummary>? exportJobs;
+
+  /// A string token indicating that there might be additional export jobs
+  /// available to be listed. Use this token to a subsequent call to
+  /// <code>ListExportJobs</code> with the same parameters to retrieve the next
+  /// page of export jobs.
+  final String? nextToken;
+
+  ListExportJobsResponse({
+    this.exportJobs,
+    this.nextToken,
+  });
+
+  factory ListExportJobsResponse.fromJson(Map<String, dynamic> json) {
+    return ListExportJobsResponse(
+      exportJobs: (json['ExportJobs'] as List?)
+          ?.nonNulls
+          .map((e) => ExportJobSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final exportJobs = this.exportJobs;
+    final nextToken = this.nextToken;
+    return {
+      if (exportJobs != null) 'ExportJobs': exportJobs,
+      if (nextToken != null) 'NextToken': nextToken,
     };
   }
 }
@@ -8252,7 +8901,7 @@ class ListImportJobsResponse {
   factory ListImportJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListImportJobsResponse(
       importJobs: (json['ImportJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImportJobSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -8317,42 +8966,20 @@ class ListManagementOptions {
 /// </li>
 /// </ul>
 enum ListRecommendationsFilterKey {
-  type,
-  impact,
-  status,
-  resourceArn,
-}
+  type('TYPE'),
+  impact('IMPACT'),
+  status('STATUS'),
+  resourceArn('RESOURCE_ARN'),
+  ;
 
-extension ListRecommendationsFilterKeyValueExtension
-    on ListRecommendationsFilterKey {
-  String toValue() {
-    switch (this) {
-      case ListRecommendationsFilterKey.type:
-        return 'TYPE';
-      case ListRecommendationsFilterKey.impact:
-        return 'IMPACT';
-      case ListRecommendationsFilterKey.status:
-        return 'STATUS';
-      case ListRecommendationsFilterKey.resourceArn:
-        return 'RESOURCE_ARN';
-    }
-  }
-}
+  final String value;
 
-extension ListRecommendationsFilterKeyFromString on String {
-  ListRecommendationsFilterKey toListRecommendationsFilterKey() {
-    switch (this) {
-      case 'TYPE':
-        return ListRecommendationsFilterKey.type;
-      case 'IMPACT':
-        return ListRecommendationsFilterKey.impact;
-      case 'STATUS':
-        return ListRecommendationsFilterKey.status;
-      case 'RESOURCE_ARN':
-        return ListRecommendationsFilterKey.resourceArn;
-    }
-    throw Exception('$this is not known in enum ListRecommendationsFilterKey');
-  }
+  const ListRecommendationsFilterKey(this.value);
+
+  static ListRecommendationsFilterKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ListRecommendationsFilterKey'));
 }
 
 /// Contains the response to your request to retrieve the list of
@@ -8377,7 +9004,7 @@ class ListRecommendationsResponse {
     return ListRecommendationsResponse(
       nextToken: json['NextToken'] as String?,
       recommendations: (json['Recommendations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Recommendation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8416,7 +9043,7 @@ class ListSuppressedDestinationsResponse {
       nextToken: json['NextToken'] as String?,
       suppressedDestinationSummaries: (json['SuppressedDestinationSummaries']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SuppressedDestinationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8447,7 +9074,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8510,11 +9137,11 @@ class MailFromAttributes {
 
   factory MailFromAttributes.fromJson(Map<String, dynamic> json) {
     return MailFromAttributes(
-      behaviorOnMxFailure:
-          (json['BehaviorOnMxFailure'] as String).toBehaviorOnMxFailure(),
+      behaviorOnMxFailure: BehaviorOnMxFailure.fromString(
+          (json['BehaviorOnMxFailure'] as String)),
       mailFromDomain: json['MailFromDomain'] as String,
-      mailFromDomainStatus:
-          (json['MailFromDomainStatus'] as String).toMailFromDomainStatus(),
+      mailFromDomainStatus: MailFromDomainStatus.fromString(
+          (json['MailFromDomainStatus'] as String)),
     );
   }
 
@@ -8523,9 +9150,9 @@ class MailFromAttributes {
     final mailFromDomain = this.mailFromDomain;
     final mailFromDomainStatus = this.mailFromDomainStatus;
     return {
-      'BehaviorOnMxFailure': behaviorOnMxFailure.toValue(),
+      'BehaviorOnMxFailure': behaviorOnMxFailure.value,
       'MailFromDomain': mailFromDomain,
-      'MailFromDomainStatus': mailFromDomainStatus.toValue(),
+      'MailFromDomainStatus': mailFromDomainStatus.value,
     };
   }
 }
@@ -8552,69 +9179,34 @@ class MailFromAttributes {
 /// </li>
 /// </ul>
 enum MailFromDomainStatus {
-  pending,
-  success,
-  failed,
-  temporaryFailure,
-}
+  pending('PENDING'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  temporaryFailure('TEMPORARY_FAILURE'),
+  ;
 
-extension MailFromDomainStatusValueExtension on MailFromDomainStatus {
-  String toValue() {
-    switch (this) {
-      case MailFromDomainStatus.pending:
-        return 'PENDING';
-      case MailFromDomainStatus.success:
-        return 'SUCCESS';
-      case MailFromDomainStatus.failed:
-        return 'FAILED';
-      case MailFromDomainStatus.temporaryFailure:
-        return 'TEMPORARY_FAILURE';
-    }
-  }
-}
+  final String value;
 
-extension MailFromDomainStatusFromString on String {
-  MailFromDomainStatus toMailFromDomainStatus() {
-    switch (this) {
-      case 'PENDING':
-        return MailFromDomainStatus.pending;
-      case 'SUCCESS':
-        return MailFromDomainStatus.success;
-      case 'FAILED':
-        return MailFromDomainStatus.failed;
-      case 'TEMPORARY_FAILURE':
-        return MailFromDomainStatus.temporaryFailure;
-    }
-    throw Exception('$this is not known in enum MailFromDomainStatus');
-  }
+  const MailFromDomainStatus(this.value);
+
+  static MailFromDomainStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MailFromDomainStatus'));
 }
 
 enum MailType {
-  marketing,
-  transactional,
-}
+  marketing('MARKETING'),
+  transactional('TRANSACTIONAL'),
+  ;
 
-extension MailTypeValueExtension on MailType {
-  String toValue() {
-    switch (this) {
-      case MailType.marketing:
-        return 'MARKETING';
-      case MailType.transactional:
-        return 'TRANSACTIONAL';
-    }
-  }
-}
+  final String value;
 
-extension MailTypeFromString on String {
-  MailType toMailType() {
-    switch (this) {
-      case 'MARKETING':
-        return MailType.marketing;
-      case 'TRANSACTIONAL':
-        return MailType.transactional;
-    }
-    throw Exception('$this is not known in enum MailType');
-  }
+  const MailType(this.value);
+
+  static MailType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MailType'));
 }
 
 /// Represents the email message that you're sending. The <code>Message</code>
@@ -8630,17 +9222,219 @@ class Message {
   /// href="https://tools.ietf.org/html/rfc2047">RFC 2047</a>.
   final Content subject;
 
+  /// The list of message headers that will be added to the email message.
+  final List<MessageHeader>? headers;
+
   Message({
     required this.body,
     required this.subject,
+    this.headers,
   });
 
   Map<String, dynamic> toJson() {
     final body = this.body;
     final subject = this.subject;
+    final headers = this.headers;
     return {
       'Body': body,
       'Subject': subject,
+      if (headers != null) 'Headers': headers,
+    };
+  }
+}
+
+/// Contains the name and value of a message header that you add to an email.
+class MessageHeader {
+  /// The name of the message header. The message header name has to meet the
+  /// following criteria:
+  ///
+  /// <ul>
+  /// <li>
+  /// Can contain any printable ASCII character (33 - 126) except for colon (:).
+  /// </li>
+  /// <li>
+  /// Can contain no more than 126 characters.
+  /// </li>
+  /// </ul>
+  final String name;
+
+  /// The value of the message header. The message header value has to meet the
+  /// following criteria:
+  ///
+  /// <ul>
+  /// <li>
+  /// Can contain any printable ASCII character.
+  /// </li>
+  /// <li>
+  /// Can contain no more than 870 characters.
+  /// </li>
+  /// </ul>
+  final String value;
+
+  MessageHeader({
+    required this.name,
+    required this.value,
+  });
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final value = this.value;
+    return {
+      'Name': name,
+      'Value': value,
+    };
+  }
+}
+
+/// An object that contains filters applied when performing the Message Insights
+/// export.
+class MessageInsightsDataSource {
+  /// Represents the end date for the export interval as a timestamp. The end date
+  /// is inclusive.
+  final DateTime endDate;
+
+  /// Represents the start date for the export interval as a timestamp. The start
+  /// date is inclusive.
+  final DateTime startDate;
+
+  /// Filters for results to be excluded from the export file.
+  final MessageInsightsFilters? exclude;
+
+  /// Filters for results to be included in the export file.
+  final MessageInsightsFilters? include;
+
+  /// The maximum number of results.
+  final int? maxResults;
+
+  MessageInsightsDataSource({
+    required this.endDate,
+    required this.startDate,
+    this.exclude,
+    this.include,
+    this.maxResults,
+  });
+
+  factory MessageInsightsDataSource.fromJson(Map<String, dynamic> json) {
+    return MessageInsightsDataSource(
+      endDate: nonNullableTimeStampFromJson(json['EndDate'] as Object),
+      startDate: nonNullableTimeStampFromJson(json['StartDate'] as Object),
+      exclude: json['Exclude'] != null
+          ? MessageInsightsFilters.fromJson(
+              json['Exclude'] as Map<String, dynamic>)
+          : null,
+      include: json['Include'] != null
+          ? MessageInsightsFilters.fromJson(
+              json['Include'] as Map<String, dynamic>)
+          : null,
+      maxResults: json['MaxResults'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final endDate = this.endDate;
+    final startDate = this.startDate;
+    final exclude = this.exclude;
+    final include = this.include;
+    final maxResults = this.maxResults;
+    return {
+      'EndDate': unixTimestampToJson(endDate),
+      'StartDate': unixTimestampToJson(startDate),
+      if (exclude != null) 'Exclude': exclude,
+      if (include != null) 'Include': include,
+      if (maxResults != null) 'MaxResults': maxResults,
+    };
+  }
+}
+
+/// An object containing Message Insights filters.
+///
+/// If you specify multiple filters, the filters are joined by AND.
+///
+/// If you specify multiple values for a filter, the values are joined by OR.
+/// Filter values are case-sensitive.
+///
+/// <code>FromEmailAddress</code>, <code>Destination</code>, and
+/// <code>Subject</code> filters support partial match. A partial match is
+/// performed by using the <code>*</code> wildcard character placed at the
+/// beginning (suffix match), the end (prefix match) or both ends of the string
+/// (contains match). In order to match the literal characters <code>*</code> or
+/// <code>\</code>, they must be escaped using the <code>\</code> character. If
+/// no wildcard character is present, an exact match is performed.
+class MessageInsightsFilters {
+  /// The recipient's email address.
+  final List<String>? destination;
+
+  /// The from address used to send the message.
+  final List<String>? fromEmailAddress;
+
+  /// The recipient's ISP (e.g., <code>Gmail</code>, <code>Yahoo</code>, etc.).
+  final List<String>? isp;
+
+  /// The last delivery-related event for the email, where the ordering is as
+  /// follows: <code>SEND</code> &lt; <code>BOUNCE</code> &lt;
+  /// <code>DELIVERY</code> &lt; <code>COMPLAINT</code>.
+  final List<DeliveryEventType>? lastDeliveryEvent;
+
+  /// The last engagement-related event for the email, where the ordering is as
+  /// follows: <code>OPEN</code> &lt; <code>CLICK</code>.
+  ///
+  /// Engagement events are only available if <a
+  /// href="https://docs.aws.amazon.com/ses/latest/dg/vdm-settings.html">Engagement
+  /// tracking</a> is enabled.
+  final List<EngagementEventType>? lastEngagementEvent;
+
+  /// The subject line of the message.
+  final List<String>? subject;
+
+  MessageInsightsFilters({
+    this.destination,
+    this.fromEmailAddress,
+    this.isp,
+    this.lastDeliveryEvent,
+    this.lastEngagementEvent,
+    this.subject,
+  });
+
+  factory MessageInsightsFilters.fromJson(Map<String, dynamic> json) {
+    return MessageInsightsFilters(
+      destination: (json['Destination'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      fromEmailAddress: (json['FromEmailAddress'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      isp: (json['Isp'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      lastDeliveryEvent: (json['LastDeliveryEvent'] as List?)
+          ?.nonNulls
+          .map((e) => DeliveryEventType.fromString((e as String)))
+          .toList(),
+      lastEngagementEvent: (json['LastEngagementEvent'] as List?)
+          ?.nonNulls
+          .map((e) => EngagementEventType.fromString((e as String)))
+          .toList(),
+      subject:
+          (json['Subject'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final destination = this.destination;
+    final fromEmailAddress = this.fromEmailAddress;
+    final isp = this.isp;
+    final lastDeliveryEvent = this.lastDeliveryEvent;
+    final lastEngagementEvent = this.lastEngagementEvent;
+    final subject = this.subject;
+    return {
+      if (destination != null) 'Destination': destination,
+      if (fromEmailAddress != null) 'FromEmailAddress': fromEmailAddress,
+      if (isp != null) 'Isp': isp,
+      if (lastDeliveryEvent != null)
+        'LastDeliveryEvent': lastDeliveryEvent.map((e) => e.value).toList(),
+      if (lastEngagementEvent != null)
+        'LastEngagementEvent': lastEngagementEvent.map((e) => e.value).toList(),
+      if (subject != null) 'Subject': subject,
     };
   }
 }
@@ -8681,6 +9475,13 @@ class MessageTag {
     required this.value,
   });
 
+  factory MessageTag.fromJson(Map<String, dynamic> json) {
+    return MessageTag(
+      name: json['Name'] as String,
+      value: json['Value'] as String,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final name = this.name;
     final value = this.value;
@@ -8691,72 +9492,108 @@ class MessageTag {
   }
 }
 
+/// The metric to export, can be one of the following:
+///
+/// <ul>
+/// <li>
+/// <code>SEND</code> - Emails sent eligible for tracking in the VDM dashboard.
+/// This excludes emails sent to the mailbox simulator and emails addressed to
+/// more than one recipient.
+/// </li>
+/// <li>
+/// <code>COMPLAINT</code> - Complaints received for your account. This excludes
+/// complaints from the mailbox simulator, those originating from your
+/// account-level suppression list (if enabled), and those for emails addressed
+/// to more than one recipient
+/// </li>
+/// <li>
+/// <code>PERMANENT_BOUNCE</code> - Permanent bounces - i.e., feedback received
+/// for emails sent to non-existent mailboxes. Excludes bounces from the mailbox
+/// simulator, those originating from your account-level suppression list (if
+/// enabled), and those for emails addressed to more than one recipient.
+/// </li>
+/// <li>
+/// <code>TRANSIENT_BOUNCE</code> - Transient bounces - i.e., feedback received
+/// for delivery failures excluding issues with non-existent mailboxes. Excludes
+/// bounces from the mailbox simulator, and those for emails addressed to more
+/// than one recipient.
+/// </li>
+/// <li>
+/// <code>OPEN</code> - Unique open events for emails including open trackers.
+/// Excludes opens for emails addressed to more than one recipient.
+/// </li>
+/// <li>
+/// <code>CLICK</code> - Unique click events for emails including wrapped links.
+/// Excludes clicks for emails addressed to more than one recipient.
+/// </li>
+/// <li>
+/// <code>DELIVERY</code> - Successful deliveries for email sending attempts.
+/// Excludes deliveries to the mailbox simulator and for emails addressed to
+/// more than one recipient.
+/// </li>
+/// <li>
+/// <code>DELIVERY_OPEN</code> - Successful deliveries for email sending
+/// attempts. Excludes deliveries to the mailbox simulator, for emails addressed
+/// to more than one recipient, and emails without open trackers.
+/// </li>
+/// <li>
+/// <code>DELIVERY_CLICK</code> - Successful deliveries for email sending
+/// attempts. Excludes deliveries to the mailbox simulator, for emails addressed
+/// to more than one recipient, and emails without click trackers.
+/// </li>
+/// <li>
+/// <code>DELIVERY_COMPLAINT</code> - Successful deliveries for email sending
+/// attempts. Excludes deliveries to the mailbox simulator, for emails addressed
+/// to more than one recipient, and emails addressed to recipients hosted by
+/// ISPs with which Amazon SES does not have a feedback loop agreement.
+/// </li>
+/// </ul>
 enum Metric {
-  send,
-  complaint,
-  permanentBounce,
-  transientBounce,
-  open,
-  click,
-  delivery,
-  deliveryOpen,
-  deliveryClick,
-  deliveryComplaint,
+  send('SEND'),
+  complaint('COMPLAINT'),
+  permanentBounce('PERMANENT_BOUNCE'),
+  transientBounce('TRANSIENT_BOUNCE'),
+  open('OPEN'),
+  click('CLICK'),
+  delivery('DELIVERY'),
+  deliveryOpen('DELIVERY_OPEN'),
+  deliveryClick('DELIVERY_CLICK'),
+  deliveryComplaint('DELIVERY_COMPLAINT'),
+  ;
+
+  final String value;
+
+  const Metric(this.value);
+
+  static Metric fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Metric'));
 }
 
-extension MetricValueExtension on Metric {
-  String toValue() {
-    switch (this) {
-      case Metric.send:
-        return 'SEND';
-      case Metric.complaint:
-        return 'COMPLAINT';
-      case Metric.permanentBounce:
-        return 'PERMANENT_BOUNCE';
-      case Metric.transientBounce:
-        return 'TRANSIENT_BOUNCE';
-      case Metric.open:
-        return 'OPEN';
-      case Metric.click:
-        return 'CLICK';
-      case Metric.delivery:
-        return 'DELIVERY';
-      case Metric.deliveryOpen:
-        return 'DELIVERY_OPEN';
-      case Metric.deliveryClick:
-        return 'DELIVERY_CLICK';
-      case Metric.deliveryComplaint:
-        return 'DELIVERY_COMPLAINT';
-    }
-  }
-}
+/// The aggregation to apply to a metric, can be one of the following:
+///
+/// <ul>
+/// <li>
+/// <code>VOLUME</code> - The volume of events for this metric.
+/// </li>
+/// <li>
+/// <code>RATE</code> - The rate for this metric relative to the
+/// <code>SEND</code> metric volume.
+/// </li>
+/// </ul>
+enum MetricAggregation {
+  rate('RATE'),
+  volume('VOLUME'),
+  ;
 
-extension MetricFromString on String {
-  Metric toMetric() {
-    switch (this) {
-      case 'SEND':
-        return Metric.send;
-      case 'COMPLAINT':
-        return Metric.complaint;
-      case 'PERMANENT_BOUNCE':
-        return Metric.permanentBounce;
-      case 'TRANSIENT_BOUNCE':
-        return Metric.transientBounce;
-      case 'OPEN':
-        return Metric.open;
-      case 'CLICK':
-        return Metric.click;
-      case 'DELIVERY':
-        return Metric.delivery;
-      case 'DELIVERY_OPEN':
-        return Metric.deliveryOpen;
-      case 'DELIVERY_CLICK':
-        return Metric.deliveryClick;
-      case 'DELIVERY_COMPLAINT':
-        return Metric.deliveryComplaint;
-    }
-    throw Exception('$this is not known in enum Metric');
-  }
+  final String value;
+
+  const MetricAggregation(this.value);
+
+  static MetricAggregation fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MetricAggregation'));
 }
 
 /// An error corresponding to the unsuccessful processing of a single metric
@@ -8790,7 +9627,7 @@ class MetricDataError {
 
   factory MetricDataError.fromJson(Map<String, dynamic> json) {
     return MetricDataError(
-      code: (json['Code'] as String?)?.toQueryErrorCode(),
+      code: (json['Code'] as String?)?.let(QueryErrorCode.fromString),
       id: json['Id'] as String?,
       message: json['Message'] as String?,
     );
@@ -8801,7 +9638,7 @@ class MetricDataError {
     final id = this.id;
     final message = this.message;
     return {
-      if (code != null) 'Code': code.toValue(),
+      if (code != null) 'Code': code.value,
       if (id != null) 'Id': id,
       if (message != null) 'Message': message,
     };
@@ -8829,13 +9666,10 @@ class MetricDataResult {
     return MetricDataResult(
       id: json['Id'] as String?,
       timestamps: (json['Timestamps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(nonNullableTimeStampFromJson)
           .toList(),
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      values: (json['Values'] as List?)?.nonNulls.map((e) => e as int).toList(),
     );
   }
 
@@ -8869,58 +9703,91 @@ class MetricDataResult {
 /// </li>
 /// </ul>
 enum MetricDimensionName {
-  emailIdentity,
-  configurationSet,
-  isp,
-}
+  emailIdentity('EMAIL_IDENTITY'),
+  configurationSet('CONFIGURATION_SET'),
+  isp('ISP'),
+  ;
 
-extension MetricDimensionNameValueExtension on MetricDimensionName {
-  String toValue() {
-    switch (this) {
-      case MetricDimensionName.emailIdentity:
-        return 'EMAIL_IDENTITY';
-      case MetricDimensionName.configurationSet:
-        return 'CONFIGURATION_SET';
-      case MetricDimensionName.isp:
-        return 'ISP';
-    }
-  }
-}
+  final String value;
 
-extension MetricDimensionNameFromString on String {
-  MetricDimensionName toMetricDimensionName() {
-    switch (this) {
-      case 'EMAIL_IDENTITY':
-        return MetricDimensionName.emailIdentity;
-      case 'CONFIGURATION_SET':
-        return MetricDimensionName.configurationSet;
-      case 'ISP':
-        return MetricDimensionName.isp;
-    }
-    throw Exception('$this is not known in enum MetricDimensionName');
-  }
+  const MetricDimensionName(this.value);
+
+  static MetricDimensionName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MetricDimensionName'));
 }
 
 enum MetricNamespace {
-  vdm,
+  vdm('VDM'),
+  ;
+
+  final String value;
+
+  const MetricNamespace(this.value);
+
+  static MetricNamespace fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MetricNamespace'));
 }
 
-extension MetricNamespaceValueExtension on MetricNamespace {
-  String toValue() {
-    switch (this) {
-      case MetricNamespace.vdm:
-        return 'VDM';
-    }
+/// An object that contains details about the data source for the metrics
+/// export.
+class MetricsDataSource {
+  /// An object that contains a mapping between a <code>MetricDimensionName</code>
+  /// and <code>MetricDimensionValue</code> to filter metrics by. Must contain a
+  /// least 1 dimension but no more than 3 unique ones.
+  final Map<MetricDimensionName, List<String>> dimensions;
+
+  /// Represents the end date for the export interval as a timestamp.
+  final DateTime endDate;
+
+  /// A list of <code>ExportMetric</code> objects to export.
+  final List<ExportMetric> metrics;
+
+  /// The metrics namespace - e.g., <code>VDM</code>.
+  final MetricNamespace namespace;
+
+  /// Represents the start date for the export interval as a timestamp.
+  final DateTime startDate;
+
+  MetricsDataSource({
+    required this.dimensions,
+    required this.endDate,
+    required this.metrics,
+    required this.namespace,
+    required this.startDate,
+  });
+
+  factory MetricsDataSource.fromJson(Map<String, dynamic> json) {
+    return MetricsDataSource(
+      dimensions: (json['Dimensions'] as Map<String, dynamic>).map((k, e) =>
+          MapEntry(MetricDimensionName.fromString(k),
+              (e as List).nonNulls.map((e) => e as String).toList())),
+      endDate: nonNullableTimeStampFromJson(json['EndDate'] as Object),
+      metrics: (json['Metrics'] as List)
+          .nonNulls
+          .map((e) => ExportMetric.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      namespace: MetricNamespace.fromString((json['Namespace'] as String)),
+      startDate: nonNullableTimeStampFromJson(json['StartDate'] as Object),
+    );
   }
-}
 
-extension MetricNamespaceFromString on String {
-  MetricNamespace toMetricNamespace() {
-    switch (this) {
-      case 'VDM':
-        return MetricNamespace.vdm;
-    }
-    throw Exception('$this is not known in enum MetricNamespace');
+  Map<String, dynamic> toJson() {
+    final dimensions = this.dimensions;
+    final endDate = this.endDate;
+    final metrics = this.metrics;
+    final namespace = this.namespace;
+    final startDate = this.startDate;
+    return {
+      'Dimensions': dimensions.map((k, e) => MapEntry(k.value, e)),
+      'EndDate': unixTimestampToJson(endDate),
+      'Metrics': metrics,
+      'Namespace': namespace.value,
+      'StartDate': unixTimestampToJson(startDate),
+    };
   }
 }
 
@@ -8948,7 +9815,7 @@ class OverallVolume {
   factory OverallVolume.fromJson(Map<String, dynamic> json) {
     return OverallVolume(
       domainIspPlacements: (json['DomainIspPlacements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DomainIspPlacement.fromJson(e as Map<String, dynamic>))
           .toList(),
       readRatePercent: json['ReadRatePercent'] as double?,
@@ -9373,9 +10240,9 @@ class PutEmailIdentityDkimSigningAttributesResponse {
   factory PutEmailIdentityDkimSigningAttributesResponse.fromJson(
       Map<String, dynamic> json) {
     return PutEmailIdentityDkimSigningAttributesResponse(
-      dkimStatus: (json['DkimStatus'] as String?)?.toDkimStatus(),
+      dkimStatus: (json['DkimStatus'] as String?)?.let(DkimStatus.fromString),
       dkimTokens: (json['DkimTokens'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -9385,7 +10252,7 @@ class PutEmailIdentityDkimSigningAttributesResponse {
     final dkimStatus = this.dkimStatus;
     final dkimTokens = this.dkimTokens;
     return {
-      if (dkimStatus != null) 'DkimStatus': dkimStatus.toValue(),
+      if (dkimStatus != null) 'DkimStatus': dkimStatus.value,
       if (dkimTokens != null) 'DkimTokens': dkimTokens,
     };
   }
@@ -9436,31 +10303,18 @@ class PutSuppressedDestinationResponse {
 }
 
 enum QueryErrorCode {
-  internalFailure,
-  accessDenied,
-}
+  internalFailure('INTERNAL_FAILURE'),
+  accessDenied('ACCESS_DENIED'),
+  ;
 
-extension QueryErrorCodeValueExtension on QueryErrorCode {
-  String toValue() {
-    switch (this) {
-      case QueryErrorCode.internalFailure:
-        return 'INTERNAL_FAILURE';
-      case QueryErrorCode.accessDenied:
-        return 'ACCESS_DENIED';
-    }
-  }
-}
+  final String value;
 
-extension QueryErrorCodeFromString on String {
-  QueryErrorCode toQueryErrorCode() {
-    switch (this) {
-      case 'INTERNAL_FAILURE':
-        return QueryErrorCode.internalFailure;
-      case 'ACCESS_DENIED':
-        return QueryErrorCode.accessDenied;
-    }
-    throw Exception('$this is not known in enum QueryErrorCode');
-  }
+  const QueryErrorCode(this.value);
+
+  static QueryErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum QueryErrorCode'));
 }
 
 /// Represents the raw content of an email message.
@@ -9481,7 +10335,10 @@ class RawMessage {
   /// Attachments must be in a file format that the Amazon SES supports.
   /// </li>
   /// <li>
-  /// The entire message must be Base64 encoded.
+  /// The raw data of the message needs to base64-encoded if you are accessing
+  /// Amazon SES directly through the HTTPS interface. If you are accessing Amazon
+  /// SES using an Amazon Web Services SDK, the SDK takes care of the base
+  /// 64-encoding for you.
   /// </li>
   /// <li>
   /// If any of the MIME parts in your message contain content that is outside of
@@ -9551,11 +10408,11 @@ class Recommendation {
     return Recommendation(
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
       description: json['Description'] as String?,
-      impact: (json['Impact'] as String?)?.toRecommendationImpact(),
+      impact: (json['Impact'] as String?)?.let(RecommendationImpact.fromString),
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       resourceArn: json['ResourceArn'] as String?,
-      status: (json['Status'] as String?)?.toRecommendationStatus(),
-      type: (json['Type'] as String?)?.toRecommendationType(),
+      status: (json['Status'] as String?)?.let(RecommendationStatus.fromString),
+      type: (json['Type'] as String?)?.let(RecommendationType.fromString),
     );
   }
 
@@ -9571,108 +10428,61 @@ class Recommendation {
       if (createdTimestamp != null)
         'CreatedTimestamp': unixTimestampToJson(createdTimestamp),
       if (description != null) 'Description': description,
-      if (impact != null) 'Impact': impact.toValue(),
+      if (impact != null) 'Impact': impact.value,
       if (lastUpdatedTimestamp != null)
         'LastUpdatedTimestamp': unixTimestampToJson(lastUpdatedTimestamp),
       if (resourceArn != null) 'ResourceArn': resourceArn,
-      if (status != null) 'Status': status.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (status != null) 'Status': status.value,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum RecommendationImpact {
-  low,
-  high,
-}
+  low('LOW'),
+  high('HIGH'),
+  ;
 
-extension RecommendationImpactValueExtension on RecommendationImpact {
-  String toValue() {
-    switch (this) {
-      case RecommendationImpact.low:
-        return 'LOW';
-      case RecommendationImpact.high:
-        return 'HIGH';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationImpactFromString on String {
-  RecommendationImpact toRecommendationImpact() {
-    switch (this) {
-      case 'LOW':
-        return RecommendationImpact.low;
-      case 'HIGH':
-        return RecommendationImpact.high;
-    }
-    throw Exception('$this is not known in enum RecommendationImpact');
-  }
+  const RecommendationImpact(this.value);
+
+  static RecommendationImpact fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecommendationImpact'));
 }
 
 enum RecommendationStatus {
-  open,
-  fixed,
-}
+  open('OPEN'),
+  fixed('FIXED'),
+  ;
 
-extension RecommendationStatusValueExtension on RecommendationStatus {
-  String toValue() {
-    switch (this) {
-      case RecommendationStatus.open:
-        return 'OPEN';
-      case RecommendationStatus.fixed:
-        return 'FIXED';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationStatusFromString on String {
-  RecommendationStatus toRecommendationStatus() {
-    switch (this) {
-      case 'OPEN':
-        return RecommendationStatus.open;
-      case 'FIXED':
-        return RecommendationStatus.fixed;
-    }
-    throw Exception('$this is not known in enum RecommendationStatus');
-  }
+  const RecommendationStatus(this.value);
+
+  static RecommendationStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecommendationStatus'));
 }
 
 enum RecommendationType {
-  dkim,
-  dmarc,
-  spf,
-  bimi,
-}
+  dkim('DKIM'),
+  dmarc('DMARC'),
+  spf('SPF'),
+  bimi('BIMI'),
+  ;
 
-extension RecommendationTypeValueExtension on RecommendationType {
-  String toValue() {
-    switch (this) {
-      case RecommendationType.dkim:
-        return 'DKIM';
-      case RecommendationType.dmarc:
-        return 'DMARC';
-      case RecommendationType.spf:
-        return 'SPF';
-      case RecommendationType.bimi:
-        return 'BIMI';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationTypeFromString on String {
-  RecommendationType toRecommendationType() {
-    switch (this) {
-      case 'DKIM':
-        return RecommendationType.dkim;
-      case 'DMARC':
-        return RecommendationType.dmarc;
-      case 'SPF':
-        return RecommendationType.spf;
-      case 'BIMI':
-        return RecommendationType.bimi;
-    }
-    throw Exception('$this is not known in enum RecommendationType');
-  }
+  const RecommendationType(this.value);
+
+  static RecommendationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecommendationType'));
 }
 
 /// The <code>ReplaceEmailContent</code> object to be used for a specific
@@ -9790,7 +10600,7 @@ class ReviewDetails {
   factory ReviewDetails.fromJson(Map<String, dynamic> json) {
     return ReviewDetails(
       caseId: json['CaseId'] as String?,
-      status: (json['Status'] as String?)?.toReviewStatus(),
+      status: (json['Status'] as String?)?.let(ReviewStatus.fromString),
     );
   }
 
@@ -9799,75 +10609,78 @@ class ReviewDetails {
     final status = this.status;
     return {
       if (caseId != null) 'CaseId': caseId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum ReviewStatus {
-  pending,
-  failed,
-  granted,
-  denied,
+  pending('PENDING'),
+  failed('FAILED'),
+  granted('GRANTED'),
+  denied('DENIED'),
+  ;
+
+  final String value;
+
+  const ReviewStatus(this.value);
+
+  static ReviewStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReviewStatus'));
 }
 
-extension ReviewStatusValueExtension on ReviewStatus {
-  String toValue() {
-    switch (this) {
-      case ReviewStatus.pending:
-        return 'PENDING';
-      case ReviewStatus.failed:
-        return 'FAILED';
-      case ReviewStatus.granted:
-        return 'GRANTED';
-      case ReviewStatus.denied:
-        return 'DENIED';
-    }
+/// An object that contains information about the start of authority (SOA)
+/// record associated with the identity.
+class SOARecord {
+  /// Administrative contact email from the SOA record.
+  final String? adminEmail;
+
+  /// Primary name server specified in the SOA record.
+  final String? primaryNameServer;
+
+  /// Serial number from the SOA record.
+  final int? serialNumber;
+
+  SOARecord({
+    this.adminEmail,
+    this.primaryNameServer,
+    this.serialNumber,
+  });
+
+  factory SOARecord.fromJson(Map<String, dynamic> json) {
+    return SOARecord(
+      adminEmail: json['AdminEmail'] as String?,
+      primaryNameServer: json['PrimaryNameServer'] as String?,
+      serialNumber: json['SerialNumber'] as int?,
+    );
   }
-}
 
-extension ReviewStatusFromString on String {
-  ReviewStatus toReviewStatus() {
-    switch (this) {
-      case 'PENDING':
-        return ReviewStatus.pending;
-      case 'FAILED':
-        return ReviewStatus.failed;
-      case 'GRANTED':
-        return ReviewStatus.granted;
-      case 'DENIED':
-        return ReviewStatus.denied;
-    }
-    throw Exception('$this is not known in enum ReviewStatus');
+  Map<String, dynamic> toJson() {
+    final adminEmail = this.adminEmail;
+    final primaryNameServer = this.primaryNameServer;
+    final serialNumber = this.serialNumber;
+    return {
+      if (adminEmail != null) 'AdminEmail': adminEmail,
+      if (primaryNameServer != null) 'PrimaryNameServer': primaryNameServer,
+      if (serialNumber != null) 'SerialNumber': serialNumber,
+    };
   }
 }
 
 enum ScalingMode {
-  standard,
-  managed,
-}
+  standard('STANDARD'),
+  managed('MANAGED'),
+  ;
 
-extension ScalingModeValueExtension on ScalingMode {
-  String toValue() {
-    switch (this) {
-      case ScalingMode.standard:
-        return 'STANDARD';
-      case ScalingMode.managed:
-        return 'MANAGED';
-    }
-  }
-}
+  final String value;
 
-extension ScalingModeFromString on String {
-  ScalingMode toScalingMode() {
-    switch (this) {
-      case 'STANDARD':
-        return ScalingMode.standard;
-      case 'MANAGED':
-        return ScalingMode.managed;
-    }
-    throw Exception('$this is not known in enum ScalingMode');
-  }
+  const ScalingMode(this.value);
+
+  static ScalingMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ScalingMode'));
 }
 
 /// The following data is returned in JSON format by the service.
@@ -9883,7 +10696,7 @@ class SendBulkEmailResponse {
   factory SendBulkEmailResponse.fromJson(Map<String, dynamic> json) {
     return SendBulkEmailResponse(
       bulkEmailEntryResults: (json['BulkEmailEntryResults'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BulkEmailEntryResult.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9927,10 +10740,10 @@ class SendEmailResponse {
   /// A unique identifier for the message that is generated when the message is
   /// accepted.
   /// <note>
-  /// It's possible for Amazon SES to accept a message without sending it. This
-  /// can happen when the message that you're trying to send has an attachment
-  /// contains a virus, or when you send a templated email that contains invalid
-  /// personalization content, for example.
+  /// It's possible for Amazon SES to accept a message without sending it. For
+  /// example, this can happen when the message that you're trying to send has an
+  /// attachment that contains a virus, or when you send a templated email that
+  /// contains invalid personalization content.
   /// </note>
   final String? messageId;
 
@@ -10049,31 +10862,18 @@ class SnsDestination {
 }
 
 enum SubscriptionStatus {
-  optIn,
-  optOut,
-}
+  optIn('OPT_IN'),
+  optOut('OPT_OUT'),
+  ;
 
-extension SubscriptionStatusValueExtension on SubscriptionStatus {
-  String toValue() {
-    switch (this) {
-      case SubscriptionStatus.optIn:
-        return 'OPT_IN';
-      case SubscriptionStatus.optOut:
-        return 'OPT_OUT';
-    }
-  }
-}
+  final String value;
 
-extension SubscriptionStatusFromString on String {
-  SubscriptionStatus toSubscriptionStatus() {
-    switch (this) {
-      case 'OPT_IN':
-        return SubscriptionStatus.optIn;
-      case 'OPT_OUT':
-        return SubscriptionStatus.optOut;
-    }
-    throw Exception('$this is not known in enum SubscriptionStatus');
-  }
+  const SubscriptionStatus(this.value);
+
+  static SubscriptionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SubscriptionStatus'));
 }
 
 /// An object that contains information about an email address that is on the
@@ -10106,7 +10906,7 @@ class SuppressedDestination {
       emailAddress: json['EmailAddress'] as String,
       lastUpdateTime:
           nonNullableTimeStampFromJson(json['LastUpdateTime'] as Object),
-      reason: (json['Reason'] as String).toSuppressionListReason(),
+      reason: SuppressionListReason.fromString((json['Reason'] as String)),
       attributes: json['Attributes'] != null
           ? SuppressedDestinationAttributes.fromJson(
               json['Attributes'] as Map<String, dynamic>)
@@ -10122,7 +10922,7 @@ class SuppressedDestination {
     return {
       'EmailAddress': emailAddress,
       'LastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      'Reason': reason.toValue(),
+      'Reason': reason.value,
       if (attributes != null) 'Attributes': attributes,
     };
   }
@@ -10185,7 +10985,7 @@ class SuppressedDestinationSummary {
       emailAddress: json['EmailAddress'] as String,
       lastUpdateTime:
           nonNullableTimeStampFromJson(json['LastUpdateTime'] as Object),
-      reason: (json['Reason'] as String).toSuppressionListReason(),
+      reason: SuppressionListReason.fromString((json['Reason'] as String)),
     );
   }
 
@@ -10196,7 +10996,7 @@ class SuppressedDestinationSummary {
     return {
       'EmailAddress': emailAddress,
       'LastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      'Reason': reason.toValue(),
+      'Reason': reason.value,
     };
   }
 }
@@ -10229,8 +11029,8 @@ class SuppressionAttributes {
   factory SuppressionAttributes.fromJson(Map<String, dynamic> json) {
     return SuppressionAttributes(
       suppressedReasons: (json['SuppressedReasons'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toSuppressionListReason())
+          ?.nonNulls
+          .map((e) => SuppressionListReason.fromString((e as String)))
           .toList(),
     );
   }
@@ -10239,7 +11039,7 @@ class SuppressionAttributes {
     final suppressedReasons = this.suppressedReasons;
     return {
       if (suppressedReasons != null)
-        'SuppressedReasons': suppressedReasons.map((e) => e.toValue()).toList(),
+        'SuppressedReasons': suppressedReasons.map((e) => e.value).toList(),
     };
   }
 }
@@ -10266,16 +11066,15 @@ class SuppressionListDestination {
 
   factory SuppressionListDestination.fromJson(Map<String, dynamic> json) {
     return SuppressionListDestination(
-      suppressionListImportAction:
-          (json['SuppressionListImportAction'] as String)
-              .toSuppressionListImportAction(),
+      suppressionListImportAction: SuppressionListImportAction.fromString(
+          (json['SuppressionListImportAction'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final suppressionListImportAction = this.suppressionListImportAction;
     return {
-      'SuppressionListImportAction': suppressionListImportAction.toValue(),
+      'SuppressionListImportAction': suppressionListImportAction.value,
     };
   }
 }
@@ -10292,32 +11091,18 @@ class SuppressionListDestination {
 /// </li>
 /// </ul>
 enum SuppressionListImportAction {
-  delete,
-  put,
-}
+  delete('DELETE'),
+  put('PUT'),
+  ;
 
-extension SuppressionListImportActionValueExtension
-    on SuppressionListImportAction {
-  String toValue() {
-    switch (this) {
-      case SuppressionListImportAction.delete:
-        return 'DELETE';
-      case SuppressionListImportAction.put:
-        return 'PUT';
-    }
-  }
-}
+  final String value;
 
-extension SuppressionListImportActionFromString on String {
-  SuppressionListImportAction toSuppressionListImportAction() {
-    switch (this) {
-      case 'DELETE':
-        return SuppressionListImportAction.delete;
-      case 'PUT':
-        return SuppressionListImportAction.put;
-    }
-    throw Exception('$this is not known in enum SuppressionListImportAction');
-  }
+  const SuppressionListImportAction(this.value);
+
+  static SuppressionListImportAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SuppressionListImportAction'));
 }
 
 /// The reason that the address was added to the suppression list for your
@@ -10336,31 +11121,18 @@ extension SuppressionListImportActionFromString on String {
 /// </li>
 /// </ul>
 enum SuppressionListReason {
-  bounce,
-  complaint,
-}
+  bounce('BOUNCE'),
+  complaint('COMPLAINT'),
+  ;
 
-extension SuppressionListReasonValueExtension on SuppressionListReason {
-  String toValue() {
-    switch (this) {
-      case SuppressionListReason.bounce:
-        return 'BOUNCE';
-      case SuppressionListReason.complaint:
-        return 'COMPLAINT';
-    }
-  }
-}
+  final String value;
 
-extension SuppressionListReasonFromString on String {
-  SuppressionListReason toSuppressionListReason() {
-    switch (this) {
-      case 'BOUNCE':
-        return SuppressionListReason.bounce;
-      case 'COMPLAINT':
-        return SuppressionListReason.complaint;
-    }
-    throw Exception('$this is not known in enum SuppressionListReason');
-  }
+  const SuppressionListReason(this.value);
+
+  static SuppressionListReason fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SuppressionListReason'));
 }
 
 /// An object that contains information about the suppression list preferences
@@ -10391,8 +11163,8 @@ class SuppressionOptions {
   factory SuppressionOptions.fromJson(Map<String, dynamic> json) {
     return SuppressionOptions(
       suppressedReasons: (json['SuppressedReasons'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toSuppressionListReason())
+          ?.nonNulls
+          .map((e) => SuppressionListReason.fromString((e as String)))
           .toList(),
     );
   }
@@ -10401,7 +11173,7 @@ class SuppressionOptions {
     final suppressedReasons = this.suppressedReasons;
     return {
       if (suppressedReasons != null)
-        'SuppressedReasons': suppressedReasons.map((e) => e.toValue()).toList(),
+        'SuppressedReasons': suppressedReasons.map((e) => e.value).toList(),
     };
   }
 }
@@ -10494,6 +11266,9 @@ class TagResourceResponse {
 /// template</i> is a type of message template that contains content that you
 /// want to define, save, and reuse in email messages that you send.
 class Template {
+  /// The list of message headers that will be added to the email message.
+  final List<MessageHeader>? headers;
+
   /// The Amazon Resource Name (ARN) of the template.
   final String? templateArn;
 
@@ -10509,16 +11284,19 @@ class Template {
   final String? templateName;
 
   Template({
+    this.headers,
     this.templateArn,
     this.templateData,
     this.templateName,
   });
 
   Map<String, dynamic> toJson() {
+    final headers = this.headers;
     final templateArn = this.templateArn;
     final templateData = this.templateData;
     final templateName = this.templateName;
     return {
+      if (headers != null) 'Headers': headers,
       if (templateArn != null) 'TemplateArn': templateArn,
       if (templateData != null) 'TemplateData': templateData,
       if (templateName != null) 'TemplateName': templateName,
@@ -10557,31 +11335,17 @@ class TestRenderEmailTemplateResponse {
 /// value is <code>Optional</code>, messages can be delivered in plain text if a
 /// TLS connection can't be established.
 enum TlsPolicy {
-  require,
-  optional,
-}
+  require('REQUIRE'),
+  optional('OPTIONAL'),
+  ;
 
-extension TlsPolicyValueExtension on TlsPolicy {
-  String toValue() {
-    switch (this) {
-      case TlsPolicy.require:
-        return 'REQUIRE';
-      case TlsPolicy.optional:
-        return 'OPTIONAL';
-    }
-  }
-}
+  final String value;
 
-extension TlsPolicyFromString on String {
-  TlsPolicy toTlsPolicy() {
-    switch (this) {
-      case 'REQUIRE':
-        return TlsPolicy.require;
-      case 'OPTIONAL':
-        return TlsPolicy.optional;
-    }
-    throw Exception('$this is not known in enum TlsPolicy');
-  }
+  const TlsPolicy(this.value);
+
+  static TlsPolicy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TlsPolicy'));
 }
 
 /// An interest group, theme, or label within a list. Lists can have multiple
@@ -10609,8 +11373,8 @@ class Topic {
 
   factory Topic.fromJson(Map<String, dynamic> json) {
     return Topic(
-      defaultSubscriptionStatus:
-          (json['DefaultSubscriptionStatus'] as String).toSubscriptionStatus(),
+      defaultSubscriptionStatus: SubscriptionStatus.fromString(
+          (json['DefaultSubscriptionStatus'] as String)),
       displayName: json['DisplayName'] as String,
       topicName: json['TopicName'] as String,
       description: json['Description'] as String?,
@@ -10623,7 +11387,7 @@ class Topic {
     final topicName = this.topicName;
     final description = this.description;
     return {
-      'DefaultSubscriptionStatus': defaultSubscriptionStatus.toValue(),
+      'DefaultSubscriptionStatus': defaultSubscriptionStatus.value,
       'DisplayName': displayName,
       'TopicName': topicName,
       if (description != null) 'Description': description,
@@ -10675,7 +11439,7 @@ class TopicPreference {
   factory TopicPreference.fromJson(Map<String, dynamic> json) {
     return TopicPreference(
       subscriptionStatus:
-          (json['SubscriptionStatus'] as String).toSubscriptionStatus(),
+          SubscriptionStatus.fromString((json['SubscriptionStatus'] as String)),
       topicName: json['TopicName'] as String,
     );
   }
@@ -10684,7 +11448,7 @@ class TopicPreference {
     final subscriptionStatus = this.subscriptionStatus;
     final topicName = this.topicName;
     return {
-      'SubscriptionStatus': subscriptionStatus.toValue(),
+      'SubscriptionStatus': subscriptionStatus.value,
       'TopicName': topicName,
     };
   }
@@ -10845,7 +11609,7 @@ class VdmAttributes {
 
   factory VdmAttributes.fromJson(Map<String, dynamic> json) {
     return VdmAttributes(
-      vdmEnabled: (json['VdmEnabled'] as String).toFeatureStatus(),
+      vdmEnabled: FeatureStatus.fromString((json['VdmEnabled'] as String)),
       dashboardAttributes: json['DashboardAttributes'] != null
           ? DashboardAttributes.fromJson(
               json['DashboardAttributes'] as Map<String, dynamic>)
@@ -10862,7 +11626,7 @@ class VdmAttributes {
     final dashboardAttributes = this.dashboardAttributes;
     final guardianAttributes = this.guardianAttributes;
     return {
-      'VdmEnabled': vdmEnabled.toValue(),
+      'VdmEnabled': vdmEnabled.value,
       if (dashboardAttributes != null)
         'DashboardAttributes': dashboardAttributes,
       if (guardianAttributes != null) 'GuardianAttributes': guardianAttributes,
@@ -10909,47 +11673,118 @@ class VdmOptions {
   }
 }
 
+enum VerificationError {
+  serviceError('SERVICE_ERROR'),
+  dnsServerError('DNS_SERVER_ERROR'),
+  hostNotFound('HOST_NOT_FOUND'),
+  typeNotFound('TYPE_NOT_FOUND'),
+  invalidValue('INVALID_VALUE'),
+  ;
+
+  final String value;
+
+  const VerificationError(this.value);
+
+  static VerificationError fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VerificationError'));
+}
+
+/// An object that contains additional information about the verification status
+/// for the identity.
+class VerificationInfo {
+  /// Provides the reason for the failure describing why Amazon SES was not able
+  /// to successfully verify the identity. Below are the possible values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>INVALID_VALUE</code> – Amazon SES was able to find the record, but the
+  /// value contained within the record was invalid. Ensure you have published the
+  /// correct values for the record.
+  /// </li>
+  /// <li>
+  /// <code>TYPE_NOT_FOUND</code> – The queried hostname exists but does not have
+  /// the requested type of DNS record. Ensure that you have published the correct
+  /// type of DNS record.
+  /// </li>
+  /// <li>
+  /// <code>HOST_NOT_FOUND</code> – The queried hostname does not exist or was not
+  /// reachable at the time of the request. Ensure that you have published the
+  /// required DNS record(s).
+  /// </li>
+  /// <li>
+  /// <code>SERVICE_ERROR</code> – A temporary issue is preventing Amazon SES from
+  /// determining the verification status of the domain.
+  /// </li>
+  /// <li>
+  /// <code>DNS_SERVER_ERROR</code> – The DNS server encountered an issue and was
+  /// unable to complete the request.
+  /// </li>
+  /// </ul>
+  final VerificationError? errorType;
+
+  /// The last time a verification attempt was made for this identity.
+  final DateTime? lastCheckedTimestamp;
+
+  /// The last time a successful verification was made for this identity.
+  final DateTime? lastSuccessTimestamp;
+
+  /// An object that contains information about the start of authority (SOA)
+  /// record associated with the identity.
+  final SOARecord? sOARecord;
+
+  VerificationInfo({
+    this.errorType,
+    this.lastCheckedTimestamp,
+    this.lastSuccessTimestamp,
+    this.sOARecord,
+  });
+
+  factory VerificationInfo.fromJson(Map<String, dynamic> json) {
+    return VerificationInfo(
+      errorType:
+          (json['ErrorType'] as String?)?.let(VerificationError.fromString),
+      lastCheckedTimestamp: timeStampFromJson(json['LastCheckedTimestamp']),
+      lastSuccessTimestamp: timeStampFromJson(json['LastSuccessTimestamp']),
+      sOARecord: json['SOARecord'] != null
+          ? SOARecord.fromJson(json['SOARecord'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final errorType = this.errorType;
+    final lastCheckedTimestamp = this.lastCheckedTimestamp;
+    final lastSuccessTimestamp = this.lastSuccessTimestamp;
+    final sOARecord = this.sOARecord;
+    return {
+      if (errorType != null) 'ErrorType': errorType.value,
+      if (lastCheckedTimestamp != null)
+        'LastCheckedTimestamp': unixTimestampToJson(lastCheckedTimestamp),
+      if (lastSuccessTimestamp != null)
+        'LastSuccessTimestamp': unixTimestampToJson(lastSuccessTimestamp),
+      if (sOARecord != null) 'SOARecord': sOARecord,
+    };
+  }
+}
+
 enum VerificationStatus {
-  pending,
-  success,
-  failed,
-  temporaryFailure,
-  notStarted,
-}
+  pending('PENDING'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  temporaryFailure('TEMPORARY_FAILURE'),
+  notStarted('NOT_STARTED'),
+  ;
 
-extension VerificationStatusValueExtension on VerificationStatus {
-  String toValue() {
-    switch (this) {
-      case VerificationStatus.pending:
-        return 'PENDING';
-      case VerificationStatus.success:
-        return 'SUCCESS';
-      case VerificationStatus.failed:
-        return 'FAILED';
-      case VerificationStatus.temporaryFailure:
-        return 'TEMPORARY_FAILURE';
-      case VerificationStatus.notStarted:
-        return 'NOT_STARTED';
-    }
-  }
-}
+  final String value;
 
-extension VerificationStatusFromString on String {
-  VerificationStatus toVerificationStatus() {
-    switch (this) {
-      case 'PENDING':
-        return VerificationStatus.pending;
-      case 'SUCCESS':
-        return VerificationStatus.success;
-      case 'FAILED':
-        return VerificationStatus.failed;
-      case 'TEMPORARY_FAILURE':
-        return VerificationStatus.temporaryFailure;
-      case 'NOT_STARTED':
-        return VerificationStatus.notStarted;
-    }
-    throw Exception('$this is not known in enum VerificationStatus');
-  }
+  const VerificationStatus(this.value);
+
+  static VerificationStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum VerificationStatus'));
 }
 
 /// An object that contains information about the amount of email that was
@@ -11002,31 +11837,18 @@ class VolumeStatistics {
 
 /// The warmup status of a dedicated IP.
 enum WarmupStatus {
-  inProgress,
-  done,
-}
+  inProgress('IN_PROGRESS'),
+  done('DONE'),
+  ;
 
-extension WarmupStatusValueExtension on WarmupStatus {
-  String toValue() {
-    switch (this) {
-      case WarmupStatus.inProgress:
-        return 'IN_PROGRESS';
-      case WarmupStatus.done:
-        return 'DONE';
-    }
-  }
-}
+  final String value;
 
-extension WarmupStatusFromString on String {
-  WarmupStatus toWarmupStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return WarmupStatus.inProgress;
-      case 'DONE':
-        return WarmupStatus.done;
-    }
-    throw Exception('$this is not known in enum WarmupStatus');
-  }
+  const WarmupStatus(this.value);
+
+  static WarmupStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WarmupStatus'));
 }
 
 class AccountSuspendedException extends _s.GenericAwsException {

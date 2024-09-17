@@ -37,7 +37,7 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// Private CA rejects an otherwise valid request because the request exceeds
 /// the operation's quota for the number of requests per second. When a request
 /// is throttled, Amazon Web Services Private CA returns a <a
-/// href="https://docs.aws.amazon.com/acm-pca/latest/APIReference/CommonErrors.html">ThrottlingException</a>
+/// href="https://docs.aws.amazon.com/privateca/latest/APIReference/CommonErrors.html">ThrottlingException</a>
 /// error. Amazon Web Services Private CA does not guarantee a minimum request
 /// rate for APIs.
 ///
@@ -127,24 +127,20 @@ class ACMPCA {
   /// handling CA keys.
   ///
   /// Default: FIPS_140_2_LEVEL_3_OR_HIGHER
-  ///
-  /// <i>Note:</i> <code>FIPS_140_2_LEVEL_3_OR_HIGHER</code> is not supported in
-  /// the following Regions:
-  ///
-  /// <ul>
-  /// <li>
-  /// ap-northeast-3
-  /// </li>
-  /// <li>
-  /// ap-southeast-3
-  /// </li>
-  /// </ul>
-  /// When creating a CA in these Regions, you must provide
+  /// <note>
+  /// Some Amazon Web Services Regions do not support the default. When creating
+  /// a CA in these Regions, you must provide
   /// <code>FIPS_140_2_LEVEL_2_OR_HIGHER</code> as the argument for
   /// <code>KeyStorageSecurityStandard</code>. Failure to do this results in an
   /// <code>InvalidArgsException</code> with the message, "A certificate
   /// authority cannot be created in this region with the specified security
   /// standard."
+  ///
+  /// For information about security standard support in various Regions, see <a
+  /// href="https://docs.aws.amazon.com/privateca/latest/userguide/data-protection.html#private-keys">Storage
+  /// and security compliance of Amazon Web Services Private CA private
+  /// keys</a>.
+  /// </note>
   ///
   /// Parameter [revocationConfiguration] :
   /// Contains information to enable Online Certificate Status Protocol (OCSP)
@@ -220,14 +216,14 @@ class ACMPCA {
       headers: headers,
       payload: {
         'CertificateAuthorityConfiguration': certificateAuthorityConfiguration,
-        'CertificateAuthorityType': certificateAuthorityType.toValue(),
+        'CertificateAuthorityType': certificateAuthorityType.value,
         if (idempotencyToken != null) 'IdempotencyToken': idempotencyToken,
         if (keyStorageSecurityStandard != null)
-          'KeyStorageSecurityStandard': keyStorageSecurityStandard.toValue(),
+          'KeyStorageSecurityStandard': keyStorageSecurityStandard.value,
         if (revocationConfiguration != null)
           'RevocationConfiguration': revocationConfiguration,
         if (tags != null) 'Tags': tags,
-        if (usageMode != null) 'UsageMode': usageMode.toValue(),
+        if (usageMode != null) 'UsageMode': usageMode.value,
       },
     );
 
@@ -294,7 +290,7 @@ class ACMPCA {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AuditReportResponseFormat': auditReportResponseFormat.toValue(),
+        'AuditReportResponseFormat': auditReportResponseFormat.value,
         'CertificateAuthorityArn': certificateAuthorityArn,
         'S3BucketName': s3BucketName,
       },
@@ -380,7 +376,7 @@ class ACMPCA {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Actions': actions.map((e) => e.toValue()).toList(),
+        'Actions': actions.map((e) => e.value).toList(),
         'CertificateAuthorityArn': certificateAuthorityArn,
         'Principal': principal,
         if (sourceAccount != null) 'SourceAccount': sourceAccount,
@@ -1193,7 +1189,7 @@ class ACMPCA {
   /// <code>SigningAlgorithm</code> parameter used to sign a CSR in the
   /// <code>CreateCertificateAuthority</code> action.
   /// <note>
-  /// The specified signing algorithm family (RSA or ECDSA) much match the
+  /// The specified signing algorithm family (RSA or ECDSA) must match the
   /// algorithm family of the CA's secret key.
   /// </note>
   ///
@@ -1233,12 +1229,12 @@ class ACMPCA {
   /// Parameter [idempotencyToken] :
   /// Alphanumeric string that can be used to distinguish between calls to the
   /// <b>IssueCertificate</b> action. Idempotency tokens for
-  /// <b>IssueCertificate</b> time out after one minute. Therefore, if you call
-  /// <b>IssueCertificate</b> multiple times with the same idempotency token
-  /// within one minute, Amazon Web Services Private CA recognizes that you are
-  /// requesting only one certificate and will issue only one. If you change the
-  /// idempotency token for each call, Amazon Web Services Private CA recognizes
-  /// that you are requesting multiple certificates.
+  /// <b>IssueCertificate</b> time out after five minutes. Therefore, if you
+  /// call <b>IssueCertificate</b> multiple times with the same idempotency
+  /// token within five minutes, Amazon Web Services Private CA recognizes that
+  /// you are requesting only one certificate and will issue only one. If you
+  /// change the idempotency token for each call, Amazon Web Services Private CA
+  /// recognizes that you are requesting multiple certificates.
   ///
   /// Parameter [templateArn] :
   /// Specifies a custom configuration template to use when issuing a
@@ -1275,7 +1271,7 @@ class ACMPCA {
   /// The <code>ValidityNotBefore</code> value is expressed as an explicit date
   /// and time, using the <code>Validity</code> type value
   /// <code>ABSOLUTE</code>. For more information, see <a
-  /// href="https://docs.aws.amazon.com/acm-pca/latest/APIReference/API_Validity.html">Validity</a>
+  /// href="https://docs.aws.amazon.com/privateca/latest/APIReference/API_Validity.html">Validity</a>
   /// in this API reference and <a
   /// href="https://datatracker.ietf.org/doc/html/rfc5280#section-4.1.2.5">Validity</a>
   /// in RFC 5280.
@@ -1302,7 +1298,7 @@ class ACMPCA {
       payload: {
         'CertificateAuthorityArn': certificateAuthorityArn,
         'Csr': base64Encode(csr),
-        'SigningAlgorithm': signingAlgorithm.toValue(),
+        'SigningAlgorithm': signingAlgorithm.value,
         'Validity': validity,
         if (apiPassthrough != null) 'ApiPassthrough': apiPassthrough,
         if (idempotencyToken != null) 'IdempotencyToken': idempotencyToken,
@@ -1326,6 +1322,9 @@ class ACMPCA {
   /// beyond the number you specify, the <code>NextToken</code> element is sent
   /// in the response. Use this <code>NextToken</code> value in a subsequent
   /// request to retrieve additional items.
+  ///
+  /// Although the maximum value is 1000, the action only returns a maximum of
+  /// 100 items.
   ///
   /// Parameter [nextToken] :
   /// Use this parameter when paginating results in a subsequent request after
@@ -1359,7 +1358,7 @@ class ACMPCA {
       payload: {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (resourceOwner != null) 'ResourceOwner': resourceOwner.toValue(),
+        if (resourceOwner != null) 'ResourceOwner': resourceOwner.value,
       },
     );
 
@@ -1740,7 +1739,7 @@ class ACMPCA {
       payload: {
         'CertificateAuthorityArn': certificateAuthorityArn,
         'CertificateSerial': certificateSerial,
-        'RevocationReason': revocationReason.toValue(),
+        'RevocationReason': revocationReason.value,
       },
     );
   }
@@ -1935,7 +1934,7 @@ class ACMPCA {
         'CertificateAuthorityArn': certificateAuthorityArn,
         if (revocationConfiguration != null)
           'RevocationConfiguration': revocationConfiguration,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
       },
     );
   }
@@ -2039,7 +2038,7 @@ class ASN1Subject {
       commonName: json['CommonName'] as String?,
       country: json['Country'] as String?,
       customAttributes: (json['CustomAttributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomAttribute.fromJson(e as Map<String, dynamic>))
           .toList(),
       distinguishedNameQualifier: json['DistinguishedNameQualifier'] as String?,
@@ -2150,8 +2149,8 @@ class AccessMethod {
 
   factory AccessMethod.fromJson(Map<String, dynamic> json) {
     return AccessMethod(
-      accessMethodType:
-          (json['AccessMethodType'] as String?)?.toAccessMethodType(),
+      accessMethodType: (json['AccessMethodType'] as String?)
+          ?.let(AccessMethodType.fromString),
       customObjectIdentifier: json['CustomObjectIdentifier'] as String?,
     );
   }
@@ -2160,8 +2159,7 @@ class AccessMethod {
     final accessMethodType = this.accessMethodType;
     final customObjectIdentifier = this.customObjectIdentifier;
     return {
-      if (accessMethodType != null)
-        'AccessMethodType': accessMethodType.toValue(),
+      if (accessMethodType != null) 'AccessMethodType': accessMethodType.value,
       if (customObjectIdentifier != null)
         'CustomObjectIdentifier': customObjectIdentifier,
     };
@@ -2169,69 +2167,34 @@ class AccessMethod {
 }
 
 enum AccessMethodType {
-  caRepository,
-  resourcePkiManifest,
-  resourcePkiNotify,
-}
+  caRepository('CA_REPOSITORY'),
+  resourcePkiManifest('RESOURCE_PKI_MANIFEST'),
+  resourcePkiNotify('RESOURCE_PKI_NOTIFY'),
+  ;
 
-extension AccessMethodTypeValueExtension on AccessMethodType {
-  String toValue() {
-    switch (this) {
-      case AccessMethodType.caRepository:
-        return 'CA_REPOSITORY';
-      case AccessMethodType.resourcePkiManifest:
-        return 'RESOURCE_PKI_MANIFEST';
-      case AccessMethodType.resourcePkiNotify:
-        return 'RESOURCE_PKI_NOTIFY';
-    }
-  }
-}
+  final String value;
 
-extension AccessMethodTypeFromString on String {
-  AccessMethodType toAccessMethodType() {
-    switch (this) {
-      case 'CA_REPOSITORY':
-        return AccessMethodType.caRepository;
-      case 'RESOURCE_PKI_MANIFEST':
-        return AccessMethodType.resourcePkiManifest;
-      case 'RESOURCE_PKI_NOTIFY':
-        return AccessMethodType.resourcePkiNotify;
-    }
-    throw Exception('$this is not known in enum AccessMethodType');
-  }
+  const AccessMethodType(this.value);
+
+  static AccessMethodType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccessMethodType'));
 }
 
 enum ActionType {
-  issueCertificate,
-  getCertificate,
-  listPermissions,
-}
+  issueCertificate('IssueCertificate'),
+  getCertificate('GetCertificate'),
+  listPermissions('ListPermissions'),
+  ;
 
-extension ActionTypeValueExtension on ActionType {
-  String toValue() {
-    switch (this) {
-      case ActionType.issueCertificate:
-        return 'IssueCertificate';
-      case ActionType.getCertificate:
-        return 'GetCertificate';
-      case ActionType.listPermissions:
-        return 'ListPermissions';
-    }
-  }
-}
+  final String value;
 
-extension ActionTypeFromString on String {
-  ActionType toActionType() {
-    switch (this) {
-      case 'IssueCertificate':
-        return ActionType.issueCertificate;
-      case 'GetCertificate':
-        return ActionType.getCertificate;
-      case 'ListPermissions':
-        return ActionType.listPermissions;
-    }
-    throw Exception('$this is not known in enum ActionType');
-  }
+  const ActionType(this.value);
+
+  static ActionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ActionType'));
 }
 
 /// Contains X.509 certificate information to be placed in an issued
@@ -2264,64 +2227,34 @@ class ApiPassthrough {
 }
 
 enum AuditReportResponseFormat {
-  json,
-  csv,
-}
+  json('JSON'),
+  csv('CSV'),
+  ;
 
-extension AuditReportResponseFormatValueExtension on AuditReportResponseFormat {
-  String toValue() {
-    switch (this) {
-      case AuditReportResponseFormat.json:
-        return 'JSON';
-      case AuditReportResponseFormat.csv:
-        return 'CSV';
-    }
-  }
-}
+  final String value;
 
-extension AuditReportResponseFormatFromString on String {
-  AuditReportResponseFormat toAuditReportResponseFormat() {
-    switch (this) {
-      case 'JSON':
-        return AuditReportResponseFormat.json;
-      case 'CSV':
-        return AuditReportResponseFormat.csv;
-    }
-    throw Exception('$this is not known in enum AuditReportResponseFormat');
-  }
+  const AuditReportResponseFormat(this.value);
+
+  static AuditReportResponseFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AuditReportResponseFormat'));
 }
 
 enum AuditReportStatus {
-  creating,
-  success,
-  failed,
-}
+  creating('CREATING'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  ;
 
-extension AuditReportStatusValueExtension on AuditReportStatus {
-  String toValue() {
-    switch (this) {
-      case AuditReportStatus.creating:
-        return 'CREATING';
-      case AuditReportStatus.success:
-        return 'SUCCESS';
-      case AuditReportStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension AuditReportStatusFromString on String {
-  AuditReportStatus toAuditReportStatus() {
-    switch (this) {
-      case 'CREATING':
-        return AuditReportStatus.creating;
-      case 'SUCCESS':
-        return AuditReportStatus.success;
-      case 'FAILED':
-        return AuditReportStatus.failed;
-    }
-    throw Exception('$this is not known in enum AuditReportStatus');
-  }
+  const AuditReportStatus(this.value);
+
+  static AuditReportStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AuditReportStatus'));
 }
 
 /// Contains information about your private certificate authority (CA). Your
@@ -2432,10 +2365,11 @@ class CertificateAuthority {
                       as Map<String, dynamic>)
               : null,
       createdAt: timeStampFromJson(json['CreatedAt']),
-      failureReason: (json['FailureReason'] as String?)?.toFailureReason(),
+      failureReason:
+          (json['FailureReason'] as String?)?.let(FailureReason.fromString),
       keyStorageSecurityStandard:
           (json['KeyStorageSecurityStandard'] as String?)
-              ?.toKeyStorageSecurityStandard(),
+              ?.let(KeyStorageSecurityStandard.fromString),
       lastStateChangeAt: timeStampFromJson(json['LastStateChangeAt']),
       notAfter: timeStampFromJson(json['NotAfter']),
       notBefore: timeStampFromJson(json['NotBefore']),
@@ -2446,10 +2380,11 @@ class CertificateAuthority {
               json['RevocationConfiguration'] as Map<String, dynamic>)
           : null,
       serial: json['Serial'] as String?,
-      status: (json['Status'] as String?)?.toCertificateAuthorityStatus(),
-      type: (json['Type'] as String?)?.toCertificateAuthorityType(),
-      usageMode:
-          (json['UsageMode'] as String?)?.toCertificateAuthorityUsageMode(),
+      status: (json['Status'] as String?)
+          ?.let(CertificateAuthorityStatus.fromString),
+      type: (json['Type'] as String?)?.let(CertificateAuthorityType.fromString),
+      usageMode: (json['UsageMode'] as String?)
+          ?.let(CertificateAuthorityUsageMode.fromString),
     );
   }
 }
@@ -2492,9 +2427,9 @@ class CertificateAuthorityConfiguration {
   factory CertificateAuthorityConfiguration.fromJson(
       Map<String, dynamic> json) {
     return CertificateAuthorityConfiguration(
-      keyAlgorithm: (json['KeyAlgorithm'] as String).toKeyAlgorithm(),
+      keyAlgorithm: KeyAlgorithm.fromString((json['KeyAlgorithm'] as String)),
       signingAlgorithm:
-          (json['SigningAlgorithm'] as String).toSigningAlgorithm(),
+          SigningAlgorithm.fromString((json['SigningAlgorithm'] as String)),
       subject: ASN1Subject.fromJson(json['Subject'] as Map<String, dynamic>),
       csrExtensions: json['CsrExtensions'] != null
           ? CsrExtensions.fromJson(
@@ -2509,8 +2444,8 @@ class CertificateAuthorityConfiguration {
     final subject = this.subject;
     final csrExtensions = this.csrExtensions;
     return {
-      'KeyAlgorithm': keyAlgorithm.toValue(),
-      'SigningAlgorithm': signingAlgorithm.toValue(),
+      'KeyAlgorithm': keyAlgorithm.value,
+      'SigningAlgorithm': signingAlgorithm.value,
       'Subject': subject,
       if (csrExtensions != null) 'CsrExtensions': csrExtensions,
     };
@@ -2518,114 +2453,53 @@ class CertificateAuthorityConfiguration {
 }
 
 enum CertificateAuthorityStatus {
-  creating,
-  pendingCertificate,
-  active,
-  deleted,
-  disabled,
-  expired,
-  failed,
-}
+  creating('CREATING'),
+  pendingCertificate('PENDING_CERTIFICATE'),
+  active('ACTIVE'),
+  deleted('DELETED'),
+  disabled('DISABLED'),
+  expired('EXPIRED'),
+  failed('FAILED'),
+  ;
 
-extension CertificateAuthorityStatusValueExtension
-    on CertificateAuthorityStatus {
-  String toValue() {
-    switch (this) {
-      case CertificateAuthorityStatus.creating:
-        return 'CREATING';
-      case CertificateAuthorityStatus.pendingCertificate:
-        return 'PENDING_CERTIFICATE';
-      case CertificateAuthorityStatus.active:
-        return 'ACTIVE';
-      case CertificateAuthorityStatus.deleted:
-        return 'DELETED';
-      case CertificateAuthorityStatus.disabled:
-        return 'DISABLED';
-      case CertificateAuthorityStatus.expired:
-        return 'EXPIRED';
-      case CertificateAuthorityStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension CertificateAuthorityStatusFromString on String {
-  CertificateAuthorityStatus toCertificateAuthorityStatus() {
-    switch (this) {
-      case 'CREATING':
-        return CertificateAuthorityStatus.creating;
-      case 'PENDING_CERTIFICATE':
-        return CertificateAuthorityStatus.pendingCertificate;
-      case 'ACTIVE':
-        return CertificateAuthorityStatus.active;
-      case 'DELETED':
-        return CertificateAuthorityStatus.deleted;
-      case 'DISABLED':
-        return CertificateAuthorityStatus.disabled;
-      case 'EXPIRED':
-        return CertificateAuthorityStatus.expired;
-      case 'FAILED':
-        return CertificateAuthorityStatus.failed;
-    }
-    throw Exception('$this is not known in enum CertificateAuthorityStatus');
-  }
+  const CertificateAuthorityStatus(this.value);
+
+  static CertificateAuthorityStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CertificateAuthorityStatus'));
 }
 
 enum CertificateAuthorityType {
-  root,
-  subordinate,
-}
+  root('ROOT'),
+  subordinate('SUBORDINATE'),
+  ;
 
-extension CertificateAuthorityTypeValueExtension on CertificateAuthorityType {
-  String toValue() {
-    switch (this) {
-      case CertificateAuthorityType.root:
-        return 'ROOT';
-      case CertificateAuthorityType.subordinate:
-        return 'SUBORDINATE';
-    }
-  }
-}
+  final String value;
 
-extension CertificateAuthorityTypeFromString on String {
-  CertificateAuthorityType toCertificateAuthorityType() {
-    switch (this) {
-      case 'ROOT':
-        return CertificateAuthorityType.root;
-      case 'SUBORDINATE':
-        return CertificateAuthorityType.subordinate;
-    }
-    throw Exception('$this is not known in enum CertificateAuthorityType');
-  }
+  const CertificateAuthorityType(this.value);
+
+  static CertificateAuthorityType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CertificateAuthorityType'));
 }
 
 enum CertificateAuthorityUsageMode {
-  generalPurpose,
-  shortLivedCertificate,
-}
+  generalPurpose('GENERAL_PURPOSE'),
+  shortLivedCertificate('SHORT_LIVED_CERTIFICATE'),
+  ;
 
-extension CertificateAuthorityUsageModeValueExtension
-    on CertificateAuthorityUsageMode {
-  String toValue() {
-    switch (this) {
-      case CertificateAuthorityUsageMode.generalPurpose:
-        return 'GENERAL_PURPOSE';
-      case CertificateAuthorityUsageMode.shortLivedCertificate:
-        return 'SHORT_LIVED_CERTIFICATE';
-    }
-  }
-}
+  final String value;
 
-extension CertificateAuthorityUsageModeFromString on String {
-  CertificateAuthorityUsageMode toCertificateAuthorityUsageMode() {
-    switch (this) {
-      case 'GENERAL_PURPOSE':
-        return CertificateAuthorityUsageMode.generalPurpose;
-      case 'SHORT_LIVED_CERTIFICATE':
-        return CertificateAuthorityUsageMode.shortLivedCertificate;
-    }
-    throw Exception('$this is not known in enum CertificateAuthorityUsageMode');
-  }
+  const CertificateAuthorityUsageMode(this.value);
+
+  static CertificateAuthorityUsageMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CertificateAuthorityUsageMode'));
 }
 
 class CreateCertificateAuthorityAuditReportResponse {
@@ -2675,10 +2549,12 @@ class CreateCertificateAuthorityResponse {
 /// setting the <b>Enabled</b> parameter to <code>true</code>. Your private CA
 /// writes CRLs to an S3 bucket that you specify in the <b>S3BucketName</b>
 /// parameter. You can hide the name of your bucket by specifying a value for
-/// the <b>CustomCname</b> parameter. Your private CA copies the CNAME or the S3
-/// bucket name to the <b>CRL Distribution Points</b> extension of each
-/// certificate it issues. Your S3 bucket policy must give write permission to
-/// Amazon Web Services Private CA.
+/// the <b>CustomCname</b> parameter. Your private CA by default copies the
+/// CNAME or the S3 bucket name to the <b>CRL Distribution Points</b> extension
+/// of each certificate it issues. If you want to configure this default
+/// behavior to be something different, you can set the
+/// <b>CrlDistributionPointExtensionConfiguration</b> parameter. Your S3 bucket
+/// policy must give write permission to Amazon Web Services Private CA.
 ///
 /// Amazon Web Services Private CA assets that are stored in Amazon S3 can be
 /// protected with encryption. For more information, see <a
@@ -2776,6 +2652,13 @@ class CrlConfiguration {
   /// action.
   final bool enabled;
 
+  /// Configures the behavior of the CRL Distribution Point extension for
+  /// certificates issued by your certificate authority. If this field is not
+  /// provided, then the CRl Distribution Point Extension will be present and
+  /// contain the default CRL URL.
+  final CrlDistributionPointExtensionConfiguration?
+      crlDistributionPointExtensionConfiguration;
+
   /// Name inserted into the certificate <b>CRL Distribution Points</b> extension
   /// that enables the use of an alias for the CRL distribution point. Use this
   /// value if you don't want the name of your S3 bucket to be public.
@@ -2829,6 +2712,7 @@ class CrlConfiguration {
 
   CrlConfiguration({
     required this.enabled,
+    this.crlDistributionPointExtensionConfiguration,
     this.customCname,
     this.expirationInDays,
     this.s3BucketName,
@@ -2838,25 +2722,76 @@ class CrlConfiguration {
   factory CrlConfiguration.fromJson(Map<String, dynamic> json) {
     return CrlConfiguration(
       enabled: json['Enabled'] as bool,
+      crlDistributionPointExtensionConfiguration:
+          json['CrlDistributionPointExtensionConfiguration'] != null
+              ? CrlDistributionPointExtensionConfiguration.fromJson(
+                  json['CrlDistributionPointExtensionConfiguration']
+                      as Map<String, dynamic>)
+              : null,
       customCname: json['CustomCname'] as String?,
       expirationInDays: json['ExpirationInDays'] as int?,
       s3BucketName: json['S3BucketName'] as String?,
-      s3ObjectAcl: (json['S3ObjectAcl'] as String?)?.toS3ObjectAcl(),
+      s3ObjectAcl:
+          (json['S3ObjectAcl'] as String?)?.let(S3ObjectAcl.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final enabled = this.enabled;
+    final crlDistributionPointExtensionConfiguration =
+        this.crlDistributionPointExtensionConfiguration;
     final customCname = this.customCname;
     final expirationInDays = this.expirationInDays;
     final s3BucketName = this.s3BucketName;
     final s3ObjectAcl = this.s3ObjectAcl;
     return {
       'Enabled': enabled,
+      if (crlDistributionPointExtensionConfiguration != null)
+        'CrlDistributionPointExtensionConfiguration':
+            crlDistributionPointExtensionConfiguration,
       if (customCname != null) 'CustomCname': customCname,
       if (expirationInDays != null) 'ExpirationInDays': expirationInDays,
       if (s3BucketName != null) 'S3BucketName': s3BucketName,
-      if (s3ObjectAcl != null) 'S3ObjectAcl': s3ObjectAcl.toValue(),
+      if (s3ObjectAcl != null) 'S3ObjectAcl': s3ObjectAcl.value,
+    };
+  }
+}
+
+/// Contains configuration information for the default behavior of the CRL
+/// Distribution Point (CDP) extension in certificates issued by your CA. This
+/// extension contains a link to download the CRL, so you can check whether a
+/// certificate has been revoked. To choose whether you want this extension
+/// omitted or not in certificates issued by your CA, you can set the
+/// <b>OmitExtension</b> parameter.
+class CrlDistributionPointExtensionConfiguration {
+  /// Configures whether the CRL Distribution Point extension should be populated
+  /// with the default URL to the CRL. If set to <code>true</code>, then the CDP
+  /// extension will not be present in any certificates issued by that CA unless
+  /// otherwise specified through CSR or API passthrough.
+  /// <note>
+  /// Only set this if you have another way to distribute the CRL Distribution
+  /// Points ffor certificates issued by your CA, such as the Matter Distributed
+  /// Compliance Ledger
+  ///
+  /// This configuration cannot be enabled with a custom CNAME set.
+  /// </note>
+  final bool omitExtension;
+
+  CrlDistributionPointExtensionConfiguration({
+    required this.omitExtension,
+  });
+
+  factory CrlDistributionPointExtensionConfiguration.fromJson(
+      Map<String, dynamic> json) {
+    return CrlDistributionPointExtensionConfiguration(
+      omitExtension: json['OmitExtension'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final omitExtension = this.omitExtension;
+    return {
+      'OmitExtension': omitExtension,
     };
   }
 }
@@ -2885,7 +2820,7 @@ class CsrExtensions {
           ? KeyUsage.fromJson(json['KeyUsage'] as Map<String, dynamic>)
           : null,
       subjectInformationAccess: (json['SubjectInformationAccess'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AccessDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2998,8 +2933,8 @@ class DescribeCertificateAuthorityAuditReportResponse {
   factory DescribeCertificateAuthorityAuditReportResponse.fromJson(
       Map<String, dynamic> json) {
     return DescribeCertificateAuthorityAuditReportResponse(
-      auditReportStatus:
-          (json['AuditReportStatus'] as String?)?.toAuditReportStatus(),
+      auditReportStatus: (json['AuditReportStatus'] as String?)
+          ?.let(AuditReportStatus.fromString),
       createdAt: timeStampFromJson(json['CreatedAt']),
       s3BucketName: json['S3BucketName'] as String?,
       s3Key: json['S3Key'] as String?,
@@ -3085,72 +3020,31 @@ class ExtendedKeyUsage {
       if (extendedKeyUsageObjectIdentifier != null)
         'ExtendedKeyUsageObjectIdentifier': extendedKeyUsageObjectIdentifier,
       if (extendedKeyUsageType != null)
-        'ExtendedKeyUsageType': extendedKeyUsageType.toValue(),
+        'ExtendedKeyUsageType': extendedKeyUsageType.value,
     };
   }
 }
 
 enum ExtendedKeyUsageType {
-  serverAuth,
-  clientAuth,
-  codeSigning,
-  emailProtection,
-  timeStamping,
-  ocspSigning,
-  smartCardLogin,
-  documentSigning,
-  certificateTransparency,
-}
+  serverAuth('SERVER_AUTH'),
+  clientAuth('CLIENT_AUTH'),
+  codeSigning('CODE_SIGNING'),
+  emailProtection('EMAIL_PROTECTION'),
+  timeStamping('TIME_STAMPING'),
+  ocspSigning('OCSP_SIGNING'),
+  smartCardLogin('SMART_CARD_LOGIN'),
+  documentSigning('DOCUMENT_SIGNING'),
+  certificateTransparency('CERTIFICATE_TRANSPARENCY'),
+  ;
 
-extension ExtendedKeyUsageTypeValueExtension on ExtendedKeyUsageType {
-  String toValue() {
-    switch (this) {
-      case ExtendedKeyUsageType.serverAuth:
-        return 'SERVER_AUTH';
-      case ExtendedKeyUsageType.clientAuth:
-        return 'CLIENT_AUTH';
-      case ExtendedKeyUsageType.codeSigning:
-        return 'CODE_SIGNING';
-      case ExtendedKeyUsageType.emailProtection:
-        return 'EMAIL_PROTECTION';
-      case ExtendedKeyUsageType.timeStamping:
-        return 'TIME_STAMPING';
-      case ExtendedKeyUsageType.ocspSigning:
-        return 'OCSP_SIGNING';
-      case ExtendedKeyUsageType.smartCardLogin:
-        return 'SMART_CARD_LOGIN';
-      case ExtendedKeyUsageType.documentSigning:
-        return 'DOCUMENT_SIGNING';
-      case ExtendedKeyUsageType.certificateTransparency:
-        return 'CERTIFICATE_TRANSPARENCY';
-    }
-  }
-}
+  final String value;
 
-extension ExtendedKeyUsageTypeFromString on String {
-  ExtendedKeyUsageType toExtendedKeyUsageType() {
-    switch (this) {
-      case 'SERVER_AUTH':
-        return ExtendedKeyUsageType.serverAuth;
-      case 'CLIENT_AUTH':
-        return ExtendedKeyUsageType.clientAuth;
-      case 'CODE_SIGNING':
-        return ExtendedKeyUsageType.codeSigning;
-      case 'EMAIL_PROTECTION':
-        return ExtendedKeyUsageType.emailProtection;
-      case 'TIME_STAMPING':
-        return ExtendedKeyUsageType.timeStamping;
-      case 'OCSP_SIGNING':
-        return ExtendedKeyUsageType.ocspSigning;
-      case 'SMART_CARD_LOGIN':
-        return ExtendedKeyUsageType.smartCardLogin;
-      case 'DOCUMENT_SIGNING':
-        return ExtendedKeyUsageType.documentSigning;
-      case 'CERTIFICATE_TRANSPARENCY':
-        return ExtendedKeyUsageType.certificateTransparency;
-    }
-    throw Exception('$this is not known in enum ExtendedKeyUsageType');
-  }
+  const ExtendedKeyUsageType(this.value);
+
+  static ExtendedKeyUsageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ExtendedKeyUsageType'));
 }
 
 /// Contains X.509 extension information for a certificate.
@@ -3211,36 +3105,19 @@ class Extensions {
 }
 
 enum FailureReason {
-  requestTimedOut,
-  unsupportedAlgorithm,
-  other,
-}
+  requestTimedOut('REQUEST_TIMED_OUT'),
+  unsupportedAlgorithm('UNSUPPORTED_ALGORITHM'),
+  other('OTHER'),
+  ;
 
-extension FailureReasonValueExtension on FailureReason {
-  String toValue() {
-    switch (this) {
-      case FailureReason.requestTimedOut:
-        return 'REQUEST_TIMED_OUT';
-      case FailureReason.unsupportedAlgorithm:
-        return 'UNSUPPORTED_ALGORITHM';
-      case FailureReason.other:
-        return 'OTHER';
-    }
-  }
-}
+  final String value;
 
-extension FailureReasonFromString on String {
-  FailureReason toFailureReason() {
-    switch (this) {
-      case 'REQUEST_TIMED_OUT':
-        return FailureReason.requestTimedOut;
-      case 'UNSUPPORTED_ALGORITHM':
-        return FailureReason.unsupportedAlgorithm;
-      case 'OTHER':
-        return FailureReason.other;
-    }
-    throw Exception('$this is not known in enum FailureReason');
-  }
+  const FailureReason(this.value);
+
+  static FailureReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FailureReason'));
 }
 
 /// Describes an ASN.1 X.400 <code>GeneralName</code> as defined in <a
@@ -3424,70 +3301,35 @@ class IssueCertificateResponse {
 }
 
 enum KeyAlgorithm {
-  rsa_2048,
-  rsa_4096,
-  ecPrime256v1,
-  ecSecp384r1,
-}
+  rsa_2048('RSA_2048'),
+  rsa_4096('RSA_4096'),
+  ecPrime256v1('EC_prime256v1'),
+  ecSecp384r1('EC_secp384r1'),
+  ;
 
-extension KeyAlgorithmValueExtension on KeyAlgorithm {
-  String toValue() {
-    switch (this) {
-      case KeyAlgorithm.rsa_2048:
-        return 'RSA_2048';
-      case KeyAlgorithm.rsa_4096:
-        return 'RSA_4096';
-      case KeyAlgorithm.ecPrime256v1:
-        return 'EC_prime256v1';
-      case KeyAlgorithm.ecSecp384r1:
-        return 'EC_secp384r1';
-    }
-  }
-}
+  final String value;
 
-extension KeyAlgorithmFromString on String {
-  KeyAlgorithm toKeyAlgorithm() {
-    switch (this) {
-      case 'RSA_2048':
-        return KeyAlgorithm.rsa_2048;
-      case 'RSA_4096':
-        return KeyAlgorithm.rsa_4096;
-      case 'EC_prime256v1':
-        return KeyAlgorithm.ecPrime256v1;
-      case 'EC_secp384r1':
-        return KeyAlgorithm.ecSecp384r1;
-    }
-    throw Exception('$this is not known in enum KeyAlgorithm');
-  }
+  const KeyAlgorithm(this.value);
+
+  static KeyAlgorithm fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum KeyAlgorithm'));
 }
 
 enum KeyStorageSecurityStandard {
-  fips_140_2Level_2OrHigher,
-  fips_140_2Level_3OrHigher,
-}
+  fips_140_2Level_2OrHigher('FIPS_140_2_LEVEL_2_OR_HIGHER'),
+  fips_140_2Level_3OrHigher('FIPS_140_2_LEVEL_3_OR_HIGHER'),
+  ;
 
-extension KeyStorageSecurityStandardValueExtension
-    on KeyStorageSecurityStandard {
-  String toValue() {
-    switch (this) {
-      case KeyStorageSecurityStandard.fips_140_2Level_2OrHigher:
-        return 'FIPS_140_2_LEVEL_2_OR_HIGHER';
-      case KeyStorageSecurityStandard.fips_140_2Level_3OrHigher:
-        return 'FIPS_140_2_LEVEL_3_OR_HIGHER';
-    }
-  }
-}
+  final String value;
 
-extension KeyStorageSecurityStandardFromString on String {
-  KeyStorageSecurityStandard toKeyStorageSecurityStandard() {
-    switch (this) {
-      case 'FIPS_140_2_LEVEL_2_OR_HIGHER':
-        return KeyStorageSecurityStandard.fips_140_2Level_2OrHigher;
-      case 'FIPS_140_2_LEVEL_3_OR_HIGHER':
-        return KeyStorageSecurityStandard.fips_140_2Level_3OrHigher;
-    }
-    throw Exception('$this is not known in enum KeyStorageSecurityStandard');
-  }
+  const KeyStorageSecurityStandard(this.value);
+
+  static KeyStorageSecurityStandard fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum KeyStorageSecurityStandard'));
 }
 
 /// Defines one or more purposes for which the key contained in the certificate
@@ -3587,7 +3429,7 @@ class ListCertificateAuthoritiesResponse {
       Map<String, dynamic> json) {
     return ListCertificateAuthoritiesResponse(
       certificateAuthorities: (json['CertificateAuthorities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CertificateAuthority.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3614,7 +3456,7 @@ class ListPermissionsResponse {
     return ListPermissionsResponse(
       nextToken: json['NextToken'] as String?,
       permissions: (json['Permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Permission.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3638,7 +3480,7 @@ class ListTagsResponse {
     return ListTagsResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3772,8 +3614,8 @@ class Permission {
   factory Permission.fromJson(Map<String, dynamic> json) {
     return Permission(
       actions: (json['Actions'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toActionType())
+          ?.nonNulls
+          .map((e) => ActionType.fromString((e as String)))
           .toList(),
       certificateAuthorityArn: json['CertificateAuthorityArn'] as String?,
       createdAt: timeStampFromJson(json['CreatedAt']),
@@ -3813,26 +3655,17 @@ class PolicyInformation {
 }
 
 enum PolicyQualifierId {
-  cps,
-}
+  cps('CPS'),
+  ;
 
-extension PolicyQualifierIdValueExtension on PolicyQualifierId {
-  String toValue() {
-    switch (this) {
-      case PolicyQualifierId.cps:
-        return 'CPS';
-    }
-  }
-}
+  final String value;
 
-extension PolicyQualifierIdFromString on String {
-  PolicyQualifierId toPolicyQualifierId() {
-    switch (this) {
-      case 'CPS':
-        return PolicyQualifierId.cps;
-    }
-    throw Exception('$this is not known in enum PolicyQualifierId');
-  }
+  const PolicyQualifierId(this.value);
+
+  static PolicyQualifierId fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PolicyQualifierId'));
 }
 
 /// Modifies the <code>CertPolicyId</code> of a <code>PolicyInformation</code>
@@ -3855,7 +3688,7 @@ class PolicyQualifierInfo {
     final policyQualifierId = this.policyQualifierId;
     final qualifier = this.qualifier;
     return {
-      'PolicyQualifierId': policyQualifierId.toValue(),
+      'PolicyQualifierId': policyQualifierId.value,
       'Qualifier': qualifier,
     };
   }
@@ -3883,31 +3716,18 @@ class Qualifier {
 }
 
 enum ResourceOwner {
-  self,
-  otherAccounts,
-}
+  self('SELF'),
+  otherAccounts('OTHER_ACCOUNTS'),
+  ;
 
-extension ResourceOwnerValueExtension on ResourceOwner {
-  String toValue() {
-    switch (this) {
-      case ResourceOwner.self:
-        return 'SELF';
-      case ResourceOwner.otherAccounts:
-        return 'OTHER_ACCOUNTS';
-    }
-  }
-}
+  final String value;
 
-extension ResourceOwnerFromString on String {
-  ResourceOwner toResourceOwner() {
-    switch (this) {
-      case 'SELF':
-        return ResourceOwner.self;
-      case 'OTHER_ACCOUNTS':
-        return ResourceOwner.otherAccounts;
-    }
-    throw Exception('$this is not known in enum ResourceOwner');
-  }
+  const ResourceOwner(this.value);
+
+  static ResourceOwner fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceOwner'));
 }
 
 /// Certificate revocation information used by the <a
@@ -3965,137 +3785,57 @@ class RevocationConfiguration {
 }
 
 enum RevocationReason {
-  unspecified,
-  keyCompromise,
-  certificateAuthorityCompromise,
-  affiliationChanged,
-  superseded,
-  cessationOfOperation,
-  privilegeWithdrawn,
-  aACompromise,
-}
+  unspecified('UNSPECIFIED'),
+  keyCompromise('KEY_COMPROMISE'),
+  certificateAuthorityCompromise('CERTIFICATE_AUTHORITY_COMPROMISE'),
+  affiliationChanged('AFFILIATION_CHANGED'),
+  superseded('SUPERSEDED'),
+  cessationOfOperation('CESSATION_OF_OPERATION'),
+  privilegeWithdrawn('PRIVILEGE_WITHDRAWN'),
+  aACompromise('A_A_COMPROMISE'),
+  ;
 
-extension RevocationReasonValueExtension on RevocationReason {
-  String toValue() {
-    switch (this) {
-      case RevocationReason.unspecified:
-        return 'UNSPECIFIED';
-      case RevocationReason.keyCompromise:
-        return 'KEY_COMPROMISE';
-      case RevocationReason.certificateAuthorityCompromise:
-        return 'CERTIFICATE_AUTHORITY_COMPROMISE';
-      case RevocationReason.affiliationChanged:
-        return 'AFFILIATION_CHANGED';
-      case RevocationReason.superseded:
-        return 'SUPERSEDED';
-      case RevocationReason.cessationOfOperation:
-        return 'CESSATION_OF_OPERATION';
-      case RevocationReason.privilegeWithdrawn:
-        return 'PRIVILEGE_WITHDRAWN';
-      case RevocationReason.aACompromise:
-        return 'A_A_COMPROMISE';
-    }
-  }
-}
+  final String value;
 
-extension RevocationReasonFromString on String {
-  RevocationReason toRevocationReason() {
-    switch (this) {
-      case 'UNSPECIFIED':
-        return RevocationReason.unspecified;
-      case 'KEY_COMPROMISE':
-        return RevocationReason.keyCompromise;
-      case 'CERTIFICATE_AUTHORITY_COMPROMISE':
-        return RevocationReason.certificateAuthorityCompromise;
-      case 'AFFILIATION_CHANGED':
-        return RevocationReason.affiliationChanged;
-      case 'SUPERSEDED':
-        return RevocationReason.superseded;
-      case 'CESSATION_OF_OPERATION':
-        return RevocationReason.cessationOfOperation;
-      case 'PRIVILEGE_WITHDRAWN':
-        return RevocationReason.privilegeWithdrawn;
-      case 'A_A_COMPROMISE':
-        return RevocationReason.aACompromise;
-    }
-    throw Exception('$this is not known in enum RevocationReason');
-  }
+  const RevocationReason(this.value);
+
+  static RevocationReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RevocationReason'));
 }
 
 enum S3ObjectAcl {
-  publicRead,
-  bucketOwnerFullControl,
-}
+  publicRead('PUBLIC_READ'),
+  bucketOwnerFullControl('BUCKET_OWNER_FULL_CONTROL'),
+  ;
 
-extension S3ObjectAclValueExtension on S3ObjectAcl {
-  String toValue() {
-    switch (this) {
-      case S3ObjectAcl.publicRead:
-        return 'PUBLIC_READ';
-      case S3ObjectAcl.bucketOwnerFullControl:
-        return 'BUCKET_OWNER_FULL_CONTROL';
-    }
-  }
-}
+  final String value;
 
-extension S3ObjectAclFromString on String {
-  S3ObjectAcl toS3ObjectAcl() {
-    switch (this) {
-      case 'PUBLIC_READ':
-        return S3ObjectAcl.publicRead;
-      case 'BUCKET_OWNER_FULL_CONTROL':
-        return S3ObjectAcl.bucketOwnerFullControl;
-    }
-    throw Exception('$this is not known in enum S3ObjectAcl');
-  }
+  const S3ObjectAcl(this.value);
+
+  static S3ObjectAcl fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum S3ObjectAcl'));
 }
 
 enum SigningAlgorithm {
-  sha256withecdsa,
-  sha384withecdsa,
-  sha512withecdsa,
-  sha256withrsa,
-  sha384withrsa,
-  sha512withrsa,
-}
+  sha256withecdsa('SHA256WITHECDSA'),
+  sha384withecdsa('SHA384WITHECDSA'),
+  sha512withecdsa('SHA512WITHECDSA'),
+  sha256withrsa('SHA256WITHRSA'),
+  sha384withrsa('SHA384WITHRSA'),
+  sha512withrsa('SHA512WITHRSA'),
+  ;
 
-extension SigningAlgorithmValueExtension on SigningAlgorithm {
-  String toValue() {
-    switch (this) {
-      case SigningAlgorithm.sha256withecdsa:
-        return 'SHA256WITHECDSA';
-      case SigningAlgorithm.sha384withecdsa:
-        return 'SHA384WITHECDSA';
-      case SigningAlgorithm.sha512withecdsa:
-        return 'SHA512WITHECDSA';
-      case SigningAlgorithm.sha256withrsa:
-        return 'SHA256WITHRSA';
-      case SigningAlgorithm.sha384withrsa:
-        return 'SHA384WITHRSA';
-      case SigningAlgorithm.sha512withrsa:
-        return 'SHA512WITHRSA';
-    }
-  }
-}
+  final String value;
 
-extension SigningAlgorithmFromString on String {
-  SigningAlgorithm toSigningAlgorithm() {
-    switch (this) {
-      case 'SHA256WITHECDSA':
-        return SigningAlgorithm.sha256withecdsa;
-      case 'SHA384WITHECDSA':
-        return SigningAlgorithm.sha384withecdsa;
-      case 'SHA512WITHECDSA':
-        return SigningAlgorithm.sha512withecdsa;
-      case 'SHA256WITHRSA':
-        return SigningAlgorithm.sha256withrsa;
-      case 'SHA384WITHRSA':
-        return SigningAlgorithm.sha384withrsa;
-      case 'SHA512WITHRSA':
-        return SigningAlgorithm.sha512withrsa;
-    }
-    throw Exception('$this is not known in enum SigningAlgorithm');
-  }
+  const SigningAlgorithm(this.value);
+
+  static SigningAlgorithm fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SigningAlgorithm'));
 }
 
 /// Tags are labels that you can use to identify and organize your private CAs.
@@ -4212,53 +3952,28 @@ class Validity {
     final type = this.type;
     final value = this.value;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       'Value': value,
     };
   }
 }
 
 enum ValidityPeriodType {
-  endDate,
-  absolute,
-  days,
-  months,
-  years,
-}
+  endDate('END_DATE'),
+  absolute('ABSOLUTE'),
+  days('DAYS'),
+  months('MONTHS'),
+  years('YEARS'),
+  ;
 
-extension ValidityPeriodTypeValueExtension on ValidityPeriodType {
-  String toValue() {
-    switch (this) {
-      case ValidityPeriodType.endDate:
-        return 'END_DATE';
-      case ValidityPeriodType.absolute:
-        return 'ABSOLUTE';
-      case ValidityPeriodType.days:
-        return 'DAYS';
-      case ValidityPeriodType.months:
-        return 'MONTHS';
-      case ValidityPeriodType.years:
-        return 'YEARS';
-    }
-  }
-}
+  final String value;
 
-extension ValidityPeriodTypeFromString on String {
-  ValidityPeriodType toValidityPeriodType() {
-    switch (this) {
-      case 'END_DATE':
-        return ValidityPeriodType.endDate;
-      case 'ABSOLUTE':
-        return ValidityPeriodType.absolute;
-      case 'DAYS':
-        return ValidityPeriodType.days;
-      case 'MONTHS':
-        return ValidityPeriodType.months;
-      case 'YEARS':
-        return ValidityPeriodType.years;
-    }
-    throw Exception('$this is not known in enum ValidityPeriodType');
-  }
+  const ValidityPeriodType(this.value);
+
+  static ValidityPeriodType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ValidityPeriodType'));
 }
 
 class CertificateMismatchException extends _s.GenericAwsException {

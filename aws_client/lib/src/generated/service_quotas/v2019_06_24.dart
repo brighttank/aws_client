@@ -19,10 +19,10 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// With Service Quotas, you can view and manage your quotas easily as your AWS
-/// workloads grow. Quotas, also referred to as limits, are the maximum number
-/// of resources that you can create in your AWS account. For more information,
-/// see the <a
+/// With Service Quotas, you can view and manage your quotas easily as your
+/// Amazon Web Services workloads grow. Quotas, also referred to as limits, are
+/// the maximum number of resources that you can create in your Amazon Web
+/// Services account. For more information, see the <a
 /// href="https://docs.aws.amazon.com/servicequotas/latest/userguide/">Service
 /// Quotas User Guide</a>.
 class ServiceQuotas {
@@ -54,9 +54,10 @@ class ServiceQuotas {
   }
 
   /// Associates your quota request template with your organization. When a new
-  /// account is created in your organization, the quota increase requests in
-  /// the template are automatically applied to the account. You can add a quota
-  /// increase request for any adjustable quota to your template.
+  /// Amazon Web Services account is created in your organization, the quota
+  /// increase requests in the template are automatically applied to the
+  /// account. You can add a quota increase request for any adjustable quota to
+  /// your template.
   ///
   /// May throw [DependencyAccessDeniedException].
   /// May throw [AccessDeniedException].
@@ -94,13 +95,16 @@ class ServiceQuotas {
   /// May throw [NoAvailableOrganizationException].
   ///
   /// Parameter [awsRegion] :
-  /// The AWS Region.
+  /// Specifies the Amazon Web Services Region for which the request was made.
   ///
   /// Parameter [quotaCode] :
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   Future<void> deleteServiceQuotaIncreaseRequestFromTemplate({
     required String awsRegion,
     required String quotaCode,
@@ -126,9 +130,9 @@ class ServiceQuotas {
   }
 
   /// Disables your quota request template. After a template is disabled, the
-  /// quota increase requests in the template are not applied to new accounts in
-  /// your organization. Disabling a quota request template does not apply its
-  /// quota increase requests.
+  /// quota increase requests in the template are not applied to new Amazon Web
+  /// Services accounts in your organization. Disabling a quota request template
+  /// does not apply its quota increase requests.
   ///
   /// May throw [DependencyAccessDeniedException].
   /// May throw [ServiceQuotaTemplateNotInUseException].
@@ -162,10 +166,13 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [quotaCode] :
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   Future<GetAWSDefaultServiceQuotaResponse> getAWSDefaultServiceQuota({
     required String quotaCode,
     required String serviceCode,
@@ -227,7 +234,7 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [requestId] :
-  /// The ID of the quota increase request.
+  /// Specifies the ID of the quota increase request.
   Future<GetRequestedServiceQuotaChangeResponse>
       getRequestedServiceQuotaChange({
     required String requestId,
@@ -261,13 +268,22 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [quotaCode] :
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
+  ///
+  /// Parameter [contextId] :
+  /// Specifies the Amazon Web Services account or resource to which the quota
+  /// applies. The value in this field depends on the context scope associated
+  /// with the specified service quota.
   Future<GetServiceQuotaResponse> getServiceQuota({
     required String quotaCode,
     required String serviceCode,
+    String? contextId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -282,6 +298,7 @@ class ServiceQuotas {
       payload: {
         'QuotaCode': quotaCode,
         'ServiceCode': serviceCode,
+        if (contextId != null) 'ContextId': contextId,
       },
     );
 
@@ -302,13 +319,16 @@ class ServiceQuotas {
   /// May throw [NoAvailableOrganizationException].
   ///
   /// Parameter [awsRegion] :
-  /// The AWS Region.
+  /// Specifies the Amazon Web Services Region for which you made the request.
   ///
   /// Parameter [quotaCode] :
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   Future<GetServiceQuotaIncreaseRequestFromTemplateResponse>
       getServiceQuotaIncreaseRequestFromTemplate({
     required String awsRegion,
@@ -337,8 +357,8 @@ class ServiceQuotas {
         jsonResponse.body);
   }
 
-  /// Lists the default values for the quotas for the specified AWS service. A
-  /// default value does not reflect any quota increases.
+  /// Lists the default values for the quotas for the specified Amazon Web
+  /// Service. A default value does not reflect any quota increases.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [NoSuchResourceException].
@@ -348,15 +368,30 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return with a single call. To retrieve
-  /// the remaining results, if any, make another call with the token returned
-  /// from this call.
+  /// Specifies the maximum number of results that you want included on each
+  /// page of the response. If you do not include this parameter, it defaults to
+  /// a value appropriate to the operation. If additional items exist beyond
+  /// those included in the current response, the <code>NextToken</code>
+  /// response element is present and has a value (is not null). Include that
+  /// value as the <code>NextToken</code> request parameter in the next call to
+  /// the operation to get the next part of the results.
+  /// <note>
+  /// An API operation can return fewer results than the maximum even when there
+  /// are more results available. You should check <code>NextToken</code> after
+  /// every operation to ensure that you receive all of the results.
+  /// </note>
   ///
   /// Parameter [nextToken] :
-  /// The token for the next page of results.
+  /// Specifies a value for receiving additional results after you receive a
+  /// <code>NextToken</code> response in a previous request. A
+  /// <code>NextToken</code> response indicates that more output is available.
+  /// Set this parameter to the value of the previous call's
+  /// <code>NextToken</code> response to indicate where the output should
+  /// continue from.
   Future<ListAWSDefaultServiceQuotasResponse> listAWSDefaultServiceQuotas({
     required String serviceCode,
     int? maxResults,
@@ -388,7 +423,8 @@ class ServiceQuotas {
     return ListAWSDefaultServiceQuotasResponse.fromJson(jsonResponse.body);
   }
 
-  /// Retrieves the quota increase requests for the specified service.
+  /// Retrieves the quota increase requests for the specified Amazon Web
+  /// Service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [NoSuchResourceException].
@@ -398,22 +434,43 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return with a single call. To retrieve
-  /// the remaining results, if any, make another call with the token returned
-  /// from this call.
+  /// Specifies the maximum number of results that you want included on each
+  /// page of the response. If you do not include this parameter, it defaults to
+  /// a value appropriate to the operation. If additional items exist beyond
+  /// those included in the current response, the <code>NextToken</code>
+  /// response element is present and has a value (is not null). Include that
+  /// value as the <code>NextToken</code> request parameter in the next call to
+  /// the operation to get the next part of the results.
+  /// <note>
+  /// An API operation can return fewer results than the maximum even when there
+  /// are more results available. You should check <code>NextToken</code> after
+  /// every operation to ensure that you receive all of the results.
+  /// </note>
   ///
   /// Parameter [nextToken] :
-  /// The token for the next page of results.
+  /// Specifies a value for receiving additional results after you receive a
+  /// <code>NextToken</code> response in a previous request. A
+  /// <code>NextToken</code> response indicates that more output is available.
+  /// Set this parameter to the value of the previous call's
+  /// <code>NextToken</code> response to indicate where the output should
+  /// continue from.
+  ///
+  /// Parameter [quotaRequestedAtLevel] :
+  /// Specifies at which level within the Amazon Web Services account the quota
+  /// request applies to.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   ///
   /// Parameter [status] :
-  /// The status of the quota increase request.
+  /// Specifies that you want to filter the results to only the requests with
+  /// the matching status.
   Future<ListRequestedServiceQuotaChangeHistoryResponse>
       listRequestedServiceQuotaChangeHistory({
     int? maxResults,
     String? nextToken,
+    AppliedLevelEnum? quotaRequestedAtLevel,
     String? serviceCode,
     RequestStatus? status,
   }) async {
@@ -437,8 +494,10 @@ class ServiceQuotas {
       payload: {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
+        if (quotaRequestedAtLevel != null)
+          'QuotaRequestedAtLevel': quotaRequestedAtLevel.value,
         if (serviceCode != null) 'ServiceCode': serviceCode,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
       },
     );
 
@@ -456,27 +515,50 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [quotaCode] :
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return with a single call. To retrieve
-  /// the remaining results, if any, make another call with the token returned
-  /// from this call.
+  /// Specifies the maximum number of results that you want included on each
+  /// page of the response. If you do not include this parameter, it defaults to
+  /// a value appropriate to the operation. If additional items exist beyond
+  /// those included in the current response, the <code>NextToken</code>
+  /// response element is present and has a value (is not null). Include that
+  /// value as the <code>NextToken</code> request parameter in the next call to
+  /// the operation to get the next part of the results.
+  /// <note>
+  /// An API operation can return fewer results than the maximum even when there
+  /// are more results available. You should check <code>NextToken</code> after
+  /// every operation to ensure that you receive all of the results.
+  /// </note>
   ///
   /// Parameter [nextToken] :
-  /// The token for the next page of results.
+  /// Specifies a value for receiving additional results after you receive a
+  /// <code>NextToken</code> response in a previous request. A
+  /// <code>NextToken</code> response indicates that more output is available.
+  /// Set this parameter to the value of the previous call's
+  /// <code>NextToken</code> response to indicate where the output should
+  /// continue from.
+  ///
+  /// Parameter [quotaRequestedAtLevel] :
+  /// Specifies at which level within the Amazon Web Services account the quota
+  /// request applies to.
   ///
   /// Parameter [status] :
-  /// The status value of the quota increase request.
+  /// Specifies that you want to filter the results to only the requests with
+  /// the matching status.
   Future<ListRequestedServiceQuotaChangeHistoryByQuotaResponse>
       listRequestedServiceQuotaChangeHistoryByQuota({
     required String quotaCode,
     required String serviceCode,
     int? maxResults,
     String? nextToken,
+    AppliedLevelEnum? quotaRequestedAtLevel,
     RequestStatus? status,
   }) async {
     _s.validateNumRange(
@@ -501,7 +583,9 @@ class ServiceQuotas {
         'ServiceCode': serviceCode,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (status != null) 'Status': status.toValue(),
+        if (quotaRequestedAtLevel != null)
+          'QuotaRequestedAtLevel': quotaRequestedAtLevel.value,
+        if (status != null) 'Status': status.value,
       },
     );
 
@@ -521,18 +605,33 @@ class ServiceQuotas {
   /// May throw [NoAvailableOrganizationException].
   ///
   /// Parameter [awsRegion] :
-  /// The AWS Region.
+  /// Specifies the Amazon Web Services Region for which you made the request.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return with a single call. To retrieve
-  /// the remaining results, if any, make another call with the token returned
-  /// from this call.
+  /// Specifies the maximum number of results that you want included on each
+  /// page of the response. If you do not include this parameter, it defaults to
+  /// a value appropriate to the operation. If additional items exist beyond
+  /// those included in the current response, the <code>NextToken</code>
+  /// response element is present and has a value (is not null). Include that
+  /// value as the <code>NextToken</code> request parameter in the next call to
+  /// the operation to get the next part of the results.
+  /// <note>
+  /// An API operation can return fewer results than the maximum even when there
+  /// are more results available. You should check <code>NextToken</code> after
+  /// every operation to ensure that you receive all of the results.
+  /// </note>
   ///
   /// Parameter [nextToken] :
-  /// The token for the next page of results.
+  /// Specifies a value for receiving additional results after you receive a
+  /// <code>NextToken</code> response in a previous request. A
+  /// <code>NextToken</code> response indicates that more output is available.
+  /// Set this parameter to the value of the previous call's
+  /// <code>NextToken</code> response to indicate where the output should
+  /// continue from.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   Future<ListServiceQuotaIncreaseRequestsInTemplateResponse>
       listServiceQuotaIncreaseRequestsInTemplate({
     String? awsRegion,
@@ -569,9 +668,9 @@ class ServiceQuotas {
         jsonResponse.body);
   }
 
-  /// Lists the applied quota values for the specified AWS service. For some
-  /// quotas, only the default values are available. If the applied quota value
-  /// is not available for a quota, the quota is not retrieved.
+  /// Lists the applied quota values for the specified Amazon Web Service. For
+  /// some quotas, only the default values are available. If the applied quota
+  /// value is not available for a quota, the quota is not retrieved.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [NoSuchResourceException].
@@ -581,19 +680,44 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return with a single call. To retrieve
-  /// the remaining results, if any, make another call with the token returned
-  /// from this call.
+  /// Specifies the maximum number of results that you want included on each
+  /// page of the response. If you do not include this parameter, it defaults to
+  /// a value appropriate to the operation. If additional items exist beyond
+  /// those included in the current response, the <code>NextToken</code>
+  /// response element is present and has a value (is not null). Include that
+  /// value as the <code>NextToken</code> request parameter in the next call to
+  /// the operation to get the next part of the results.
+  /// <note>
+  /// An API operation can return fewer results than the maximum even when there
+  /// are more results available. You should check <code>NextToken</code> after
+  /// every operation to ensure that you receive all of the results.
+  /// </note>
   ///
   /// Parameter [nextToken] :
-  /// The token for the next page of results.
+  /// Specifies a value for receiving additional results after you receive a
+  /// <code>NextToken</code> response in a previous request. A
+  /// <code>NextToken</code> response indicates that more output is available.
+  /// Set this parameter to the value of the previous call's
+  /// <code>NextToken</code> response to indicate where the output should
+  /// continue from.
+  ///
+  /// Parameter [quotaAppliedAtLevel] :
+  /// Specifies at which level of granularity that the quota value is applied.
+  ///
+  /// Parameter [quotaCode] :
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   Future<ListServiceQuotasResponse> listServiceQuotas({
     required String serviceCode,
     int? maxResults,
     String? nextToken,
+    AppliedLevelEnum? quotaAppliedAtLevel,
+    String? quotaCode,
   }) async {
     _s.validateNumRange(
       'maxResults',
@@ -615,13 +739,17 @@ class ServiceQuotas {
         'ServiceCode': serviceCode,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
+        if (quotaAppliedAtLevel != null)
+          'QuotaAppliedAtLevel': quotaAppliedAtLevel.value,
+        if (quotaCode != null) 'QuotaCode': quotaCode,
       },
     );
 
     return ListServiceQuotasResponse.fromJson(jsonResponse.body);
   }
 
-  /// Lists the names and codes for the services integrated with Service Quotas.
+  /// Lists the names and codes for the Amazon Web Services integrated with
+  /// Service Quotas.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [IllegalArgumentException].
@@ -630,12 +758,26 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return with a single call. To retrieve
-  /// the remaining results, if any, make another call with the token returned
-  /// from this call.
+  /// Specifies the maximum number of results that you want included on each
+  /// page of the response. If you do not include this parameter, it defaults to
+  /// a value appropriate to the operation. If additional items exist beyond
+  /// those included in the current response, the <code>NextToken</code>
+  /// response element is present and has a value (is not null). Include that
+  /// value as the <code>NextToken</code> request parameter in the next call to
+  /// the operation to get the next part of the results.
+  /// <note>
+  /// An API operation can return fewer results than the maximum even when there
+  /// are more results available. You should check <code>NextToken</code> after
+  /// every operation to ensure that you receive all of the results.
+  /// </note>
   ///
   /// Parameter [nextToken] :
-  /// The token for the next page of results.
+  /// Specifies a value for receiving additional results after you receive a
+  /// <code>NextToken</code> response in a previous request. A
+  /// <code>NextToken</code> response indicates that more output is available.
+  /// Set this parameter to the value of the previous call's
+  /// <code>NextToken</code> response to indicate where the output should
+  /// continue from.
   Future<ListServicesResponse> listServices({
     int? maxResults,
     String? nextToken,
@@ -678,9 +820,9 @@ class ServiceQuotas {
   /// list tags. You can get this information by using the Service Quotas
   /// console, or by listing the quotas using the <a
   /// href="https://docs.aws.amazon.com/cli/latest/reference/service-quotas/list-service-quotas.html">list-service-quotas</a>
-  /// AWS CLI command or the <a
+  /// CLI command or the <a
   /// href="https://docs.aws.amazon.com/servicequotas/2019-06-24/apireference/API_ListServiceQuotas.html">ListServiceQuotas</a>
-  /// AWS API operation.
+  /// Amazon Web Services API operation.
   Future<ListTagsForResourceResponse> listTagsForResource({
     required String resourceARN,
   }) async {
@@ -716,16 +858,19 @@ class ServiceQuotas {
   /// May throw [NoAvailableOrganizationException].
   ///
   /// Parameter [awsRegion] :
-  /// The AWS Region.
+  /// Specifies the Amazon Web Services Region to which the template applies.
   ///
   /// Parameter [desiredValue] :
-  /// The new, increased value for the quota.
+  /// Specifies the new, increased value for the quota.
   ///
   /// Parameter [quotaCode] :
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   Future<PutServiceQuotaIncreaseRequestIntoTemplateResponse>
       putServiceQuotaIncreaseRequestIntoTemplate({
     required String awsRegion,
@@ -776,17 +921,26 @@ class ServiceQuotas {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [desiredValue] :
-  /// The new, increased value for the quota.
+  /// Specifies the new, increased value for the quota.
   ///
   /// Parameter [quotaCode] :
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific
+  /// quota, use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   ///
   /// Parameter [serviceCode] :
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
+  ///
+  /// Parameter [contextId] :
+  /// Specifies the Amazon Web Services account or resource to which the quota
+  /// applies. The value in this field depends on the context scope associated
+  /// with the specified service quota.
   Future<RequestServiceQuotaIncreaseResponse> requestServiceQuotaIncrease({
     required double desiredValue,
     required String quotaCode,
     required String serviceCode,
+    String? contextId,
   }) async {
     _s.validateNumRange(
       'desiredValue',
@@ -809,6 +963,7 @@ class ServiceQuotas {
         'DesiredValue': desiredValue,
         'QuotaCode': quotaCode,
         'ServiceCode': serviceCode,
+        if (contextId != null) 'ContextId': contextId,
       },
     );
 
@@ -831,9 +986,9 @@ class ServiceQuotas {
   /// information by using the Service Quotas console, or by listing the quotas
   /// using the <a
   /// href="https://docs.aws.amazon.com/cli/latest/reference/service-quotas/list-service-quotas.html">list-service-quotas</a>
-  /// AWS CLI command or the <a
+  /// CLI command or the <a
   /// href="https://docs.aws.amazon.com/servicequotas/2019-06-24/apireference/API_ListServiceQuotas.html">ListServiceQuotas</a>
-  /// AWS API operation.
+  /// Amazon Web Services API operation.
   ///
   /// Parameter [tags] :
   /// The tags that you want to add to the resource.
@@ -872,9 +1027,9 @@ class ServiceQuotas {
   /// untag. You can get this information by using the Service Quotas console,
   /// or by listing the quotas using the <a
   /// href="https://docs.aws.amazon.com/cli/latest/reference/service-quotas/list-service-quotas.html">list-service-quotas</a>
-  /// AWS CLI command or the <a
+  /// CLI command or the <a
   /// href="https://docs.aws.amazon.com/servicequotas/2019-06-24/apireference/API_ListServiceQuotas.html">ListServiceQuotas</a>
-  /// AWS API operation.
+  /// Amazon Web Services API operation.
   ///
   /// Parameter [tagKeys] :
   /// The keys of the tags that you want to remove from the resource.
@@ -898,6 +1053,22 @@ class ServiceQuotas {
       },
     );
   }
+}
+
+enum AppliedLevelEnum {
+  account('ACCOUNT'),
+  resource('RESOURCE'),
+  all('ALL'),
+  ;
+
+  final String value;
+
+  const AppliedLevelEnum(this.value);
+
+  static AppliedLevelEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AppliedLevelEnum'));
 }
 
 class AssociateServiceQuotaTemplateResponse {
@@ -940,41 +1111,19 @@ class DisassociateServiceQuotaTemplateResponse {
 }
 
 enum ErrorCode {
-  dependencyAccessDeniedError,
-  dependencyThrottlingError,
-  dependencyServiceError,
-  serviceQuotaNotAvailableError,
-}
+  dependencyAccessDeniedError('DEPENDENCY_ACCESS_DENIED_ERROR'),
+  dependencyThrottlingError('DEPENDENCY_THROTTLING_ERROR'),
+  dependencyServiceError('DEPENDENCY_SERVICE_ERROR'),
+  serviceQuotaNotAvailableError('SERVICE_QUOTA_NOT_AVAILABLE_ERROR'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.dependencyAccessDeniedError:
-        return 'DEPENDENCY_ACCESS_DENIED_ERROR';
-      case ErrorCode.dependencyThrottlingError:
-        return 'DEPENDENCY_THROTTLING_ERROR';
-      case ErrorCode.dependencyServiceError:
-        return 'DEPENDENCY_SERVICE_ERROR';
-      case ErrorCode.serviceQuotaNotAvailableError:
-        return 'SERVICE_QUOTA_NOT_AVAILABLE_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'DEPENDENCY_ACCESS_DENIED_ERROR':
-        return ErrorCode.dependencyAccessDeniedError;
-      case 'DEPENDENCY_THROTTLING_ERROR':
-        return ErrorCode.dependencyThrottlingError;
-      case 'DEPENDENCY_SERVICE_ERROR':
-        return ErrorCode.dependencyServiceError;
-      case 'SERVICE_QUOTA_NOT_AVAILABLE_ERROR':
-        return ErrorCode.serviceQuotaNotAvailableError;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 /// An error that explains why an action did not succeed.
@@ -985,14 +1134,15 @@ class ErrorReason {
   /// <li>
   /// <code>DEPENDENCY_ACCESS_DENIED_ERROR</code> - The caller does not have the
   /// required permissions to complete the action. To resolve the error, you must
-  /// have permission to access the service or quota.
+  /// have permission to access the Amazon Web Service or quota.
   /// </li>
   /// <li>
-  /// <code>DEPENDENCY_THROTTLING_ERROR</code> - The service is throttling Service
-  /// Quotas.
+  /// <code>DEPENDENCY_THROTTLING_ERROR</code> - The Amazon Web Service is
+  /// throttling Service Quotas.
   /// </li>
   /// <li>
-  /// <code>DEPENDENCY_SERVICE_ERROR</code> - The service is not available.
+  /// <code>DEPENDENCY_SERVICE_ERROR</code> - The Amazon Web Service is not
+  /// available.
   /// </li>
   /// <li>
   /// <code>SERVICE_QUOTA_NOT_AVAILABLE_ERROR</code> - There was an error in
@@ -1011,7 +1161,7 @@ class ErrorReason {
 
   factory ErrorReason.fromJson(Map<String, dynamic> json) {
     return ErrorReason(
-      errorCode: (json['ErrorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
     );
   }
@@ -1020,7 +1170,7 @@ class ErrorReason {
     final errorCode = this.errorCode;
     final errorMessage = this.errorMessage;
     return {
-      if (errorCode != null) 'ErrorCode': errorCode.toValue(),
+      if (errorCode != null) 'ErrorCode': errorCode.value,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
     };
   }
@@ -1053,8 +1203,8 @@ class GetAWSDefaultServiceQuotaResponse {
 
 class GetAssociationForServiceQuotaTemplateResponse {
   /// The association status. If the status is <code>ASSOCIATED</code>, the quota
-  /// increase requests in the template are automatically applied to new accounts
-  /// in your organization.
+  /// increase requests in the template are automatically applied to new Amazon
+  /// Web Services accounts in your organization.
   final ServiceQuotaTemplateAssociationStatus?
       serviceQuotaTemplateAssociationStatus;
 
@@ -1067,7 +1217,7 @@ class GetAssociationForServiceQuotaTemplateResponse {
     return GetAssociationForServiceQuotaTemplateResponse(
       serviceQuotaTemplateAssociationStatus:
           (json['ServiceQuotaTemplateAssociationStatus'] as String?)
-              ?.toServiceQuotaTemplateAssociationStatus(),
+              ?.let(ServiceQuotaTemplateAssociationStatus.fromString),
     );
   }
 
@@ -1077,7 +1227,7 @@ class GetAssociationForServiceQuotaTemplateResponse {
     return {
       if (serviceQuotaTemplateAssociationStatus != null)
         'ServiceQuotaTemplateAssociationStatus':
-            serviceQuotaTemplateAssociationStatus.toValue(),
+            serviceQuotaTemplateAssociationStatus.value,
     };
   }
 }
@@ -1165,8 +1315,11 @@ class GetServiceQuotaResponse {
 }
 
 class ListAWSDefaultServiceQuotasResponse {
-  /// The token to use to retrieve the next page of results. This value is null
-  /// when there are no more results to return.
+  /// If present, indicates that more output is available than is included in the
+  /// current response. Use this value in the <code>NextToken</code> request
+  /// parameter in a subsequent call to the operation to get the next part of the
+  /// output. You should repeat this until the <code>NextToken</code> response
+  /// element comes back as <code>null</code>.
   final String? nextToken;
 
   /// Information about the quotas.
@@ -1182,7 +1335,7 @@ class ListAWSDefaultServiceQuotasResponse {
     return ListAWSDefaultServiceQuotasResponse(
       nextToken: json['NextToken'] as String?,
       quotas: (json['Quotas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceQuota.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1199,8 +1352,11 @@ class ListAWSDefaultServiceQuotasResponse {
 }
 
 class ListRequestedServiceQuotaChangeHistoryByQuotaResponse {
-  /// The token to use to retrieve the next page of results. This value is null
-  /// when there are no more results to return.
+  /// If present, indicates that more output is available than is included in the
+  /// current response. Use this value in the <code>NextToken</code> request
+  /// parameter in a subsequent call to the operation to get the next part of the
+  /// output. You should repeat this until the <code>NextToken</code> response
+  /// element comes back as <code>null</code>.
   final String? nextToken;
 
   /// Information about the quota increase requests.
@@ -1216,7 +1372,7 @@ class ListRequestedServiceQuotaChangeHistoryByQuotaResponse {
     return ListRequestedServiceQuotaChangeHistoryByQuotaResponse(
       nextToken: json['NextToken'] as String?,
       requestedQuotas: (json['RequestedQuotas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RequestedServiceQuotaChange.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1234,8 +1390,11 @@ class ListRequestedServiceQuotaChangeHistoryByQuotaResponse {
 }
 
 class ListRequestedServiceQuotaChangeHistoryResponse {
-  /// The token to use to retrieve the next page of results. This value is null
-  /// when there are no more results to return.
+  /// If present, indicates that more output is available than is included in the
+  /// current response. Use this value in the <code>NextToken</code> request
+  /// parameter in a subsequent call to the operation to get the next part of the
+  /// output. You should repeat this until the <code>NextToken</code> response
+  /// element comes back as <code>null</code>.
   final String? nextToken;
 
   /// Information about the quota increase requests.
@@ -1251,7 +1410,7 @@ class ListRequestedServiceQuotaChangeHistoryResponse {
     return ListRequestedServiceQuotaChangeHistoryResponse(
       nextToken: json['NextToken'] as String?,
       requestedQuotas: (json['RequestedQuotas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RequestedServiceQuotaChange.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1269,8 +1428,11 @@ class ListRequestedServiceQuotaChangeHistoryResponse {
 }
 
 class ListServiceQuotaIncreaseRequestsInTemplateResponse {
-  /// The token to use to retrieve the next page of results. This value is null
-  /// when there are no more results to return.
+  /// If present, indicates that more output is available than is included in the
+  /// current response. Use this value in the <code>NextToken</code> request
+  /// parameter in a subsequent call to the operation to get the next part of the
+  /// output. You should repeat this until the <code>NextToken</code> response
+  /// element comes back as <code>null</code>.
   final String? nextToken;
 
   /// Information about the quota increase requests.
@@ -1288,7 +1450,7 @@ class ListServiceQuotaIncreaseRequestsInTemplateResponse {
       nextToken: json['NextToken'] as String?,
       serviceQuotaIncreaseRequestInTemplateList:
           (json['ServiceQuotaIncreaseRequestInTemplateList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ServiceQuotaIncreaseRequestInTemplate.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -1309,8 +1471,11 @@ class ListServiceQuotaIncreaseRequestsInTemplateResponse {
 }
 
 class ListServiceQuotasResponse {
-  /// The token to use to retrieve the next page of results. This value is null
-  /// when there are no more results to return.
+  /// If present, indicates that more output is available than is included in the
+  /// current response. Use this value in the <code>NextToken</code> request
+  /// parameter in a subsequent call to the operation to get the next part of the
+  /// output. You should repeat this until the <code>NextToken</code> response
+  /// element comes back as <code>null</code>.
   final String? nextToken;
 
   /// Information about the quotas.
@@ -1325,7 +1490,7 @@ class ListServiceQuotasResponse {
     return ListServiceQuotasResponse(
       nextToken: json['NextToken'] as String?,
       quotas: (json['Quotas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceQuota.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1342,11 +1507,14 @@ class ListServiceQuotasResponse {
 }
 
 class ListServicesResponse {
-  /// The token to use to retrieve the next page of results. This value is null
-  /// when there are no more results to return.
+  /// If present, indicates that more output is available than is included in the
+  /// current response. Use this value in the <code>NextToken</code> request
+  /// parameter in a subsequent call to the operation to get the next part of the
+  /// output. You should repeat this until the <code>NextToken</code> response
+  /// element comes back as <code>null</code>.
   final String? nextToken;
 
-  /// Information about the services.
+  /// The list of the Amazon Web Service names and service codes.
   final List<ServiceInfo>? services;
 
   ListServicesResponse({
@@ -1358,7 +1526,7 @@ class ListServicesResponse {
     return ListServicesResponse(
       nextToken: json['NextToken'] as String?,
       services: (json['Services'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1385,7 +1553,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1448,56 +1616,22 @@ class MetricInfo {
 }
 
 enum PeriodUnit {
-  microsecond,
-  millisecond,
-  second,
-  minute,
-  hour,
-  day,
-  week,
-}
+  microsecond('MICROSECOND'),
+  millisecond('MILLISECOND'),
+  second('SECOND'),
+  minute('MINUTE'),
+  hour('HOUR'),
+  day('DAY'),
+  week('WEEK'),
+  ;
 
-extension PeriodUnitValueExtension on PeriodUnit {
-  String toValue() {
-    switch (this) {
-      case PeriodUnit.microsecond:
-        return 'MICROSECOND';
-      case PeriodUnit.millisecond:
-        return 'MILLISECOND';
-      case PeriodUnit.second:
-        return 'SECOND';
-      case PeriodUnit.minute:
-        return 'MINUTE';
-      case PeriodUnit.hour:
-        return 'HOUR';
-      case PeriodUnit.day:
-        return 'DAY';
-      case PeriodUnit.week:
-        return 'WEEK';
-    }
-  }
-}
+  final String value;
 
-extension PeriodUnitFromString on String {
-  PeriodUnit toPeriodUnit() {
-    switch (this) {
-      case 'MICROSECOND':
-        return PeriodUnit.microsecond;
-      case 'MILLISECOND':
-        return PeriodUnit.millisecond;
-      case 'SECOND':
-        return PeriodUnit.second;
-      case 'MINUTE':
-        return PeriodUnit.minute;
-      case 'HOUR':
-        return PeriodUnit.hour;
-      case 'DAY':
-        return PeriodUnit.day;
-      case 'WEEK':
-        return PeriodUnit.week;
-    }
-    throw Exception('$this is not known in enum PeriodUnit');
-  }
+  const PeriodUnit(this.value);
+
+  static PeriodUnit fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PeriodUnit'));
 }
 
 class PutServiceQuotaIncreaseRequestIntoTemplateResponse {
@@ -1532,12 +1666,70 @@ class PutServiceQuotaIncreaseRequestIntoTemplateResponse {
   }
 }
 
+/// A structure that describes the context for a service quota. The context
+/// identifies what the quota applies to.
+class QuotaContextInfo {
+  /// Specifies the Amazon Web Services account or resource to which the quota
+  /// applies. The value in this field depends on the context scope associated
+  /// with the specified service quota.
+  final String? contextId;
+
+  /// Specifies whether the quota applies to an Amazon Web Services account, or to
+  /// a resource.
+  final QuotaContextScope? contextScope;
+
+  /// When the <code>ContextScope</code> is <code>RESOURCE</code>, then this
+  /// specifies the resource type of the specified resource.
+  final String? contextScopeType;
+
+  QuotaContextInfo({
+    this.contextId,
+    this.contextScope,
+    this.contextScopeType,
+  });
+
+  factory QuotaContextInfo.fromJson(Map<String, dynamic> json) {
+    return QuotaContextInfo(
+      contextId: json['ContextId'] as String?,
+      contextScope:
+          (json['ContextScope'] as String?)?.let(QuotaContextScope.fromString),
+      contextScopeType: json['ContextScopeType'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final contextId = this.contextId;
+    final contextScope = this.contextScope;
+    final contextScopeType = this.contextScopeType;
+    return {
+      if (contextId != null) 'ContextId': contextId,
+      if (contextScope != null) 'ContextScope': contextScope.value,
+      if (contextScopeType != null) 'ContextScopeType': contextScopeType,
+    };
+  }
+}
+
+enum QuotaContextScope {
+  resource('RESOURCE'),
+  account('ACCOUNT'),
+  ;
+
+  final String value;
+
+  const QuotaContextScope(this.value);
+
+  static QuotaContextScope fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum QuotaContextScope'));
+}
+
 /// Information about the quota period.
 class QuotaPeriod {
   /// The time unit.
   final PeriodUnit? periodUnit;
 
-  /// The value.
+  /// The value associated with the reported <code>PeriodUnit</code>.
   final int? periodValue;
 
   QuotaPeriod({
@@ -1547,7 +1739,7 @@ class QuotaPeriod {
 
   factory QuotaPeriod.fromJson(Map<String, dynamic> json) {
     return QuotaPeriod(
-      periodUnit: (json['PeriodUnit'] as String?)?.toPeriodUnit(),
+      periodUnit: (json['PeriodUnit'] as String?)?.let(PeriodUnit.fromString),
       periodValue: json['PeriodValue'] as int?,
     );
   }
@@ -1556,7 +1748,7 @@ class QuotaPeriod {
     final periodUnit = this.periodUnit;
     final periodValue = this.periodValue;
     return {
-      if (periodUnit != null) 'PeriodUnit': periodUnit.toValue(),
+      if (periodUnit != null) 'PeriodUnit': periodUnit.value,
       if (periodValue != null) 'PeriodValue': periodValue,
     };
   }
@@ -1589,46 +1781,23 @@ class RequestServiceQuotaIncreaseResponse {
 }
 
 enum RequestStatus {
-  pending,
-  caseOpened,
-  approved,
-  denied,
-  caseClosed,
-}
+  pending('PENDING'),
+  caseOpened('CASE_OPENED'),
+  approved('APPROVED'),
+  denied('DENIED'),
+  caseClosed('CASE_CLOSED'),
+  notApproved('NOT_APPROVED'),
+  invalidRequest('INVALID_REQUEST'),
+  ;
 
-extension RequestStatusValueExtension on RequestStatus {
-  String toValue() {
-    switch (this) {
-      case RequestStatus.pending:
-        return 'PENDING';
-      case RequestStatus.caseOpened:
-        return 'CASE_OPENED';
-      case RequestStatus.approved:
-        return 'APPROVED';
-      case RequestStatus.denied:
-        return 'DENIED';
-      case RequestStatus.caseClosed:
-        return 'CASE_CLOSED';
-    }
-  }
-}
+  final String value;
 
-extension RequestStatusFromString on String {
-  RequestStatus toRequestStatus() {
-    switch (this) {
-      case 'PENDING':
-        return RequestStatus.pending;
-      case 'CASE_OPENED':
-        return RequestStatus.caseOpened;
-      case 'APPROVED':
-        return RequestStatus.approved;
-      case 'DENIED':
-        return RequestStatus.denied;
-      case 'CASE_CLOSED':
-        return RequestStatus.caseClosed;
-    }
-    throw Exception('$this is not known in enum RequestStatus');
-  }
+  const RequestStatus(this.value);
+
+  static RequestStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RequestStatus'));
 }
 
 /// Information about a quota increase request.
@@ -1655,19 +1824,29 @@ class RequestedServiceQuotaChange {
   /// The Amazon Resource Name (ARN) of the quota.
   final String? quotaArn;
 
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific quota,
+  /// use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   final String? quotaCode;
 
-  /// The quota name.
+  /// The context for this service quota.
+  final QuotaContextInfo? quotaContext;
+
+  /// Specifies the quota name.
   final String? quotaName;
+
+  /// Specifies at which level within the Amazon Web Services account the quota
+  /// request applies to.
+  final AppliedLevelEnum? quotaRequestedAtLevel;
 
   /// The IAM identity of the requester.
   final String? requester;
 
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   final String? serviceCode;
 
-  /// The service name.
+  /// Specifies the service name.
   final String? serviceName;
 
   /// The state of the quota increase request.
@@ -1685,7 +1864,9 @@ class RequestedServiceQuotaChange {
     this.lastUpdated,
     this.quotaArn,
     this.quotaCode,
+    this.quotaContext,
     this.quotaName,
+    this.quotaRequestedAtLevel,
     this.requester,
     this.serviceCode,
     this.serviceName,
@@ -1703,11 +1884,17 @@ class RequestedServiceQuotaChange {
       lastUpdated: timeStampFromJson(json['LastUpdated']),
       quotaArn: json['QuotaArn'] as String?,
       quotaCode: json['QuotaCode'] as String?,
+      quotaContext: json['QuotaContext'] != null
+          ? QuotaContextInfo.fromJson(
+              json['QuotaContext'] as Map<String, dynamic>)
+          : null,
       quotaName: json['QuotaName'] as String?,
+      quotaRequestedAtLevel: (json['QuotaRequestedAtLevel'] as String?)
+          ?.let(AppliedLevelEnum.fromString),
       requester: json['Requester'] as String?,
       serviceCode: json['ServiceCode'] as String?,
       serviceName: json['ServiceName'] as String?,
-      status: (json['Status'] as String?)?.toRequestStatus(),
+      status: (json['Status'] as String?)?.let(RequestStatus.fromString),
       unit: json['Unit'] as String?,
     );
   }
@@ -1721,7 +1908,9 @@ class RequestedServiceQuotaChange {
     final lastUpdated = this.lastUpdated;
     final quotaArn = this.quotaArn;
     final quotaCode = this.quotaCode;
+    final quotaContext = this.quotaContext;
     final quotaName = this.quotaName;
+    final quotaRequestedAtLevel = this.quotaRequestedAtLevel;
     final requester = this.requester;
     final serviceCode = this.serviceCode;
     final serviceName = this.serviceName;
@@ -1736,22 +1925,26 @@ class RequestedServiceQuotaChange {
       if (lastUpdated != null) 'LastUpdated': unixTimestampToJson(lastUpdated),
       if (quotaArn != null) 'QuotaArn': quotaArn,
       if (quotaCode != null) 'QuotaCode': quotaCode,
+      if (quotaContext != null) 'QuotaContext': quotaContext,
       if (quotaName != null) 'QuotaName': quotaName,
+      if (quotaRequestedAtLevel != null)
+        'QuotaRequestedAtLevel': quotaRequestedAtLevel.value,
       if (requester != null) 'Requester': requester,
       if (serviceCode != null) 'ServiceCode': serviceCode,
       if (serviceName != null) 'ServiceName': serviceName,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (unit != null) 'Unit': unit,
     };
   }
 }
 
-/// Information about a service.
+/// Information about an Amazon Web Service.
 class ServiceInfo {
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   final String? serviceCode;
 
-  /// The service name.
+  /// Specifies the service name.
   final String? serviceName;
 
   ServiceInfo({
@@ -1790,19 +1983,28 @@ class ServiceQuota {
   /// The period of time.
   final QuotaPeriod? period;
 
+  /// Specifies at which level of granularity that the quota value is applied.
+  final AppliedLevelEnum? quotaAppliedAtLevel;
+
   /// The Amazon Resource Name (ARN) of the quota.
   final String? quotaArn;
 
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific quota,
+  /// use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   final String? quotaCode;
 
-  /// The quota name.
+  /// The context for this service quota.
+  final QuotaContextInfo? quotaContext;
+
+  /// Specifies the quota name.
   final String? quotaName;
 
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   final String? serviceCode;
 
-  /// The service name.
+  /// Specifies the service name.
   final String? serviceName;
 
   /// The unit of measurement.
@@ -1819,8 +2021,10 @@ class ServiceQuota {
     this.errorReason,
     this.globalQuota,
     this.period,
+    this.quotaAppliedAtLevel,
     this.quotaArn,
     this.quotaCode,
+    this.quotaContext,
     this.quotaName,
     this.serviceCode,
     this.serviceName,
@@ -1839,8 +2043,14 @@ class ServiceQuota {
       period: json['Period'] != null
           ? QuotaPeriod.fromJson(json['Period'] as Map<String, dynamic>)
           : null,
+      quotaAppliedAtLevel: (json['QuotaAppliedAtLevel'] as String?)
+          ?.let(AppliedLevelEnum.fromString),
       quotaArn: json['QuotaArn'] as String?,
       quotaCode: json['QuotaCode'] as String?,
+      quotaContext: json['QuotaContext'] != null
+          ? QuotaContextInfo.fromJson(
+              json['QuotaContext'] as Map<String, dynamic>)
+          : null,
       quotaName: json['QuotaName'] as String?,
       serviceCode: json['ServiceCode'] as String?,
       serviceName: json['ServiceName'] as String?,
@@ -1857,8 +2067,10 @@ class ServiceQuota {
     final errorReason = this.errorReason;
     final globalQuota = this.globalQuota;
     final period = this.period;
+    final quotaAppliedAtLevel = this.quotaAppliedAtLevel;
     final quotaArn = this.quotaArn;
     final quotaCode = this.quotaCode;
+    final quotaContext = this.quotaContext;
     final quotaName = this.quotaName;
     final serviceCode = this.serviceCode;
     final serviceName = this.serviceName;
@@ -1870,8 +2082,11 @@ class ServiceQuota {
       if (errorReason != null) 'ErrorReason': errorReason,
       if (globalQuota != null) 'GlobalQuota': globalQuota,
       if (period != null) 'Period': period,
+      if (quotaAppliedAtLevel != null)
+        'QuotaAppliedAtLevel': quotaAppliedAtLevel.value,
       if (quotaArn != null) 'QuotaArn': quotaArn,
       if (quotaCode != null) 'QuotaCode': quotaCode,
+      if (quotaContext != null) 'QuotaContext': quotaContext,
       if (quotaName != null) 'QuotaName': quotaName,
       if (serviceCode != null) 'ServiceCode': serviceCode,
       if (serviceName != null) 'ServiceName': serviceName,
@@ -1884,7 +2099,7 @@ class ServiceQuota {
 
 /// Information about a quota increase request.
 class ServiceQuotaIncreaseRequestInTemplate {
-  /// The AWS Region.
+  /// The Amazon Web Services Region.
   final String? awsRegion;
 
   /// The new, increased value of the quota.
@@ -1893,16 +2108,19 @@ class ServiceQuotaIncreaseRequestInTemplate {
   /// Indicates whether the quota is global.
   final bool? globalQuota;
 
-  /// The quota identifier.
+  /// Specifies the quota identifier. To find the quota code for a specific quota,
+  /// use the <a>ListServiceQuotas</a> operation, and look for the
+  /// <code>QuotaCode</code> response in the output for the quota you want.
   final String? quotaCode;
 
-  /// The quota name.
+  /// Specifies the quota name.
   final String? quotaName;
 
-  /// The service identifier.
+  /// Specifies the service identifier. To find the service code value for an
+  /// Amazon Web Services service, use the <a>ListServices</a> operation.
   final String? serviceCode;
 
-  /// The service name.
+  /// Specifies the service name.
   final String? serviceName;
 
   /// The unit of measurement.
@@ -1956,34 +2174,18 @@ class ServiceQuotaIncreaseRequestInTemplate {
 }
 
 enum ServiceQuotaTemplateAssociationStatus {
-  associated,
-  disassociated,
-}
+  associated('ASSOCIATED'),
+  disassociated('DISASSOCIATED'),
+  ;
 
-extension ServiceQuotaTemplateAssociationStatusValueExtension
-    on ServiceQuotaTemplateAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case ServiceQuotaTemplateAssociationStatus.associated:
-        return 'ASSOCIATED';
-      case ServiceQuotaTemplateAssociationStatus.disassociated:
-        return 'DISASSOCIATED';
-    }
-  }
-}
+  final String value;
 
-extension ServiceQuotaTemplateAssociationStatusFromString on String {
-  ServiceQuotaTemplateAssociationStatus
-      toServiceQuotaTemplateAssociationStatus() {
-    switch (this) {
-      case 'ASSOCIATED':
-        return ServiceQuotaTemplateAssociationStatus.associated;
-      case 'DISASSOCIATED':
-        return ServiceQuotaTemplateAssociationStatus.disassociated;
-    }
-    throw Exception(
-        '$this is not known in enum ServiceQuotaTemplateAssociationStatus');
-  }
+  const ServiceQuotaTemplateAssociationStatus(this.value);
+
+  static ServiceQuotaTemplateAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ServiceQuotaTemplateAssociationStatus'));
 }
 
 /// A complex data type that contains a tag key and tag value.

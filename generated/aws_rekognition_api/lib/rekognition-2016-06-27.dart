@@ -35,6 +35,10 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// <ul>
 /// <li>
 /// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_AssociateFaces.html">AssociateFaces</a>
+/// </li>
+/// <li>
+/// <a
 /// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_CompareFaces.html">CompareFaces</a>
 /// </li>
 /// <li>
@@ -43,11 +47,19 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// </li>
 /// <li>
 /// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_CreateUser.html">CreateUser</a>
+/// </li>
+/// <li>
+/// <a
 /// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_DeleteCollection.html">DeleteCollection</a>
 /// </li>
 /// <li>
 /// <a
 /// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_DeleteFaces.html">DeleteFaces</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_DeleteUser.html">DeleteUser</a>
 /// </li>
 /// <li>
 /// <a
@@ -75,7 +87,15 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// </li>
 /// <li>
 /// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_DisassociateFaces.html">DisassociateFaces</a>
+/// </li>
+/// <li>
+/// <a
 /// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_GetCelebrityInfo.html">GetCelebrityInfo</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_GetMediaAnalysisJob.html">GetMediaAnalysisJob</a>
 /// </li>
 /// <li>
 /// <a
@@ -87,7 +107,15 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// </li>
 /// <li>
 /// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_ListMediaAnalysisJob.html">ListMediaAnalysisJob</a>
+/// </li>
+/// <li>
+/// <a
 /// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_ListFaces.html">ListFaces</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_ListFaces.html">ListUsers</a>
 /// </li>
 /// <li>
 /// <a
@@ -100,6 +128,18 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// <li>
 /// <a
 /// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_SearchFacesByImage.html">SearchFacesByImage</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_SearchUsers.html">SearchUsers</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_SearchUsersByImage.html">SearchUsersByImage</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/rekognition/latest/APIReference/API_StartMediaAnalysisJob.html">StartMediaAnalysisJob</a>
 /// </li>
 /// </ul>
 /// <b>Amazon Rekognition Custom Labels</b>
@@ -314,6 +354,111 @@ class Rekognition {
     _protocol.close();
   }
 
+  /// Associates one or more faces with an existing UserID. Takes an array of
+  /// <code>FaceIds</code>. Each <code>FaceId</code> that are present in the
+  /// <code>FaceIds</code> list is associated with the provided UserID. The
+  /// maximum number of total <code>FaceIds</code> per UserID is 100.
+  ///
+  /// The <code>UserMatchThreshold</code> parameter specifies the minimum user
+  /// match confidence required for the face to be associated with a UserID that
+  /// has at least one <code>FaceID</code> already associated. This ensures that
+  /// the <code>FaceIds</code> are associated with the right UserID. The value
+  /// ranges from 0-100 and default value is 75.
+  ///
+  /// If successful, an array of <code>AssociatedFace</code> objects containing
+  /// the associated <code>FaceIds</code> is returned. If a given face is
+  /// already associated with the given <code>UserID</code>, it will be ignored
+  /// and will not be returned in the response. If a given face is already
+  /// associated to a different <code>UserID</code>, isn't found in the
+  /// collection, doesn’t meet the <code>UserMatchThreshold</code>, or there are
+  /// already 100 faces associated with the <code>UserID</code>, it will be
+  /// returned as part of an array of <code>UnsuccessfulFaceAssociations.</code>
+  ///
+  /// The <code>UserStatus</code> reflects the status of an operation which
+  /// updates a UserID representation with a list of given faces. The
+  /// <code>UserStatus</code> can be:
+  ///
+  /// <ul>
+  /// <li>
+  /// ACTIVE - All associations or disassociations of FaceID(s) for a UserID are
+  /// complete.
+  /// </li>
+  /// <li>
+  /// CREATED - A UserID has been created, but has no FaceID(s) associated with
+  /// it.
+  /// </li>
+  /// <li>
+  /// UPDATING - A UserID is being updated and there are current associations or
+  /// disassociations of FaceID(s) taking place.
+  /// </li>
+  /// </ul>
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [IdempotentParameterMismatchException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  ///
+  /// Parameter [collectionId] :
+  /// The ID of an existing collection containing the UserID.
+  ///
+  /// Parameter [faceIds] :
+  /// An array of FaceIDs to associate with the UserID.
+  ///
+  /// Parameter [userId] :
+  /// The ID for the existing UserID.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Idempotent token used to identify the request to
+  /// <code>AssociateFaces</code>. If you use the same token with multiple
+  /// <code>AssociateFaces</code> requests, the same response is returned. Use
+  /// ClientRequestToken to prevent the same request from being processed more
+  /// than once.
+  ///
+  /// Parameter [userMatchThreshold] :
+  /// An optional value specifying the minimum confidence in the UserID match to
+  /// return. The default value is 75.
+  Future<AssociateFacesResponse> associateFaces({
+    required String collectionId,
+    required List<String> faceIds,
+    required String userId,
+    String? clientRequestToken,
+    double? userMatchThreshold,
+  }) async {
+    _s.validateNumRange(
+      'userMatchThreshold',
+      userMatchThreshold,
+      0,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.AssociateFaces'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CollectionId': collectionId,
+        'FaceIds': faceIds,
+        'UserId': userId,
+        'ClientRequestToken':
+            clientRequestToken ?? _s.generateIdempotencyToken(),
+        if (userMatchThreshold != null)
+          'UserMatchThreshold': userMatchThreshold,
+      },
+    );
+
+    return AssociateFacesResponse.fromJson(jsonResponse.body);
+  }
+
   /// Compares a face in the <i>source</i> input image with each of the 100
   /// largest faces detected in the <i>target</i> input image.
   ///
@@ -449,7 +594,7 @@ class Rekognition {
       payload: {
         'SourceImage': sourceImage,
         'TargetImage': targetImage,
-        if (qualityFilter != null) 'QualityFilter': qualityFilter.toValue(),
+        if (qualityFilter != null) 'QualityFilter': qualityFilter.value,
         if (similarityThreshold != null)
           'SimilarityThreshold': similarityThreshold,
       },
@@ -458,6 +603,9 @@ class Rekognition {
     return CompareFacesResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Copies a version of an Amazon Rekognition Custom Labels model from a
   /// source project to a destination project. The source and destination
   /// projects can be in different AWS accounts but must be in the same AWS
@@ -476,6 +624,8 @@ class Rekognition {
   /// If you are copying a model version to a project in the same AWS account,
   /// you don't need to create a project policy.
   /// <note>
+  /// Copying project versions is supported only for Custom Labels models.
+  ///
   /// To copy a model, the destination project, source project, and source model
   /// version must already exist.
   /// </note>
@@ -634,13 +784,16 @@ class Rekognition {
     return CreateCollectionResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Creates a new Amazon Rekognition Custom Labels dataset. You can create a
   /// dataset by using an Amazon Sagemaker format manifest file or by copying an
   /// existing Amazon Rekognition Custom Labels dataset.
   ///
-  /// To create a training dataset for a project, specify <code>train</code> for
+  /// To create a training dataset for a project, specify <code>TRAIN</code> for
   /// the value of <code>DatasetType</code>. To create the test dataset for a
-  /// project, specify <code>test</code> for the value of
+  /// project, specify <code>TEST</code> for the value of
   /// <code>DatasetType</code>.
   ///
   /// The response from <code>CreateDataset</code> is the Amazon Resource Name
@@ -676,8 +829,8 @@ class Rekognition {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [datasetType] :
-  /// The type of the dataset. Specify <code>train</code> to create a training
-  /// dataset. Specify <code>test</code> to create a test dataset.
+  /// The type of the dataset. Specify <code>TRAIN</code> to create a training
+  /// dataset. Specify <code>TEST</code> to create a test dataset.
   ///
   /// Parameter [projectArn] :
   /// The ARN of the Amazon Rekognition Custom Labels project to which you want
@@ -705,7 +858,7 @@ class Rekognition {
       // TODO queryParams
       headers: headers,
       payload: {
-        'DatasetType': datasetType.toValue(),
+        'DatasetType': datasetType.value,
         'ProjectArn': projectArn,
         if (datasetSource != null) 'DatasetSource': datasetSource,
       },
@@ -716,13 +869,17 @@ class Rekognition {
 
   /// This API operation initiates a Face Liveness session. It returns a
   /// <code>SessionId</code>, which you can use to start streaming Face Liveness
-  /// video and get the results for a Face Liveness session. You can use the
-  /// <code>OutputConfig</code> option in the Settings parameter to provide an
-  /// Amazon S3 bucket location. The Amazon S3 bucket stores reference images
-  /// and audit images. You can use <code>AuditImagesLimit</code> to limit the
-  /// number of audit images returned. This number is between 0 and 4. By
-  /// default, it is set to 0. The limit is best effort and based on the
-  /// duration of the selfie-video.
+  /// video and get the results for a Face Liveness session.
+  ///
+  /// You can use the <code>OutputConfig</code> option in the Settings parameter
+  /// to provide an Amazon S3 bucket location. The Amazon S3 bucket stores
+  /// reference images and audit images. If no Amazon S3 bucket is defined, raw
+  /// bytes are sent instead.
+  ///
+  /// You can use <code>AuditImagesLimit</code> to limit the number of audit
+  /// images returned when <code>GetFaceLivenessSessionResults</code> is called.
+  /// This number is between 0 and 4. By default, it is set to 0. The limit is
+  /// best effort and based on the duration of the selfie-video.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [InternalServerError].
@@ -770,11 +927,13 @@ class Rekognition {
     return CreateFaceLivenessSessionResponse.fromJson(jsonResponse.body);
   }
 
-  /// Creates a new Amazon Rekognition Custom Labels project. A project is a
-  /// group of resources (datasets, model versions) that you use to create and
-  /// manage Amazon Rekognition Custom Labels models.
-  ///
-  /// This operation requires permissions to perform the
+  /// Creates a new Amazon Rekognition project. A project is a group of
+  /// resources (datasets, model versions) that you use to create and manage a
+  /// Amazon Rekognition Custom Labels Model or custom adapter. You can specify
+  /// a feature to create the project with, if no feature is specified then
+  /// Custom Labels is used by default. For adapters, you can also choose
+  /// whether or not to have the project auto update by using the AutoUpdate
+  /// argument. This operation requires permissions to perform the
   /// <code>rekognition:CreateProject</code> action.
   ///
   /// May throw [ResourceInUseException].
@@ -787,8 +946,19 @@ class Rekognition {
   ///
   /// Parameter [projectName] :
   /// The name of the project to create.
+  ///
+  /// Parameter [autoUpdate] :
+  /// Specifies whether automatic retraining should be attempted for the
+  /// versions of the project. Automatic retraining is done as a best effort.
+  /// Required argument for Content Moderation. Applicable only to adapters.
+  ///
+  /// Parameter [feature] :
+  /// Specifies feature that is being customized. If no value is provided
+  /// CUSTOM_LABELS is used as a default.
   Future<CreateProjectResponse> createProject({
     required String projectName,
+    ProjectAutoUpdate? autoUpdate,
+    CustomizationFeature? feature,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -802,21 +972,36 @@ class Rekognition {
       headers: headers,
       payload: {
         'ProjectName': projectName,
+        if (autoUpdate != null) 'AutoUpdate': autoUpdate.value,
+        if (feature != null) 'Feature': feature.value,
       },
     );
 
     return CreateProjectResponse.fromJson(jsonResponse.body);
   }
 
-  /// Creates a new version of a model and begins training. Models are managed
-  /// as part of an Amazon Rekognition Custom Labels project. The response from
+  /// Creates a new version of Amazon Rekognition project (like a Custom Labels
+  /// model or a custom adapter) and begins training. Models and adapters are
+  /// managed as part of a Rekognition project. The response from
   /// <code>CreateProjectVersion</code> is an Amazon Resource Name (ARN) for the
-  /// version of the model.
+  /// project version.
   ///
-  /// Training uses the training and test datasets associated with the project.
-  /// For more information, see Creating training and test dataset in the
-  /// <i>Amazon Rekognition Custom Labels Developer Guide</i>.
+  /// The FeatureConfig operation argument allows you to configure specific
+  /// model or adapter settings. You can provide a description to the project
+  /// version by using the VersionDescription argment. Training can take a while
+  /// to complete. You can get the current status by calling
+  /// <a>DescribeProjectVersions</a>. Training completed successfully if the
+  /// value of the <code>Status</code> field is <code>TRAINING_COMPLETED</code>.
+  /// Once training has successfully completed, call
+  /// <a>DescribeProjectVersions</a> to get the training results and evaluate
+  /// the model.
+  ///
+  /// This operation requires permissions to perform the
+  /// <code>rekognition:CreateProjectVersion</code> action.
   /// <note>
+  /// <i>The following applies only to projects with Amazon Rekognition Custom
+  /// Labels as the chosen feature:</i>
+  ///
   /// You can train a model in a project that doesn't have associated datasets
   /// by specifying manifest files in the <code>TrainingData</code> and
   /// <code>TestingData</code> fields.
@@ -829,26 +1014,7 @@ class Rekognition {
   /// Instead of training with a project without associated datasets, we
   /// recommend that you use the manifest files to create training and test
   /// datasets for the project.
-  /// </note>
-  /// Training takes a while to complete. You can get the current status by
-  /// calling <a>DescribeProjectVersions</a>. Training completed successfully if
-  /// the value of the <code>Status</code> field is
-  /// <code>TRAINING_COMPLETED</code>.
-  ///
-  /// If training fails, see Debugging a failed model training in the <i>Amazon
-  /// Rekognition Custom Labels</i> developer guide.
-  ///
-  /// Once training has successfully completed, call
-  /// <a>DescribeProjectVersions</a> to get the training results and evaluate
-  /// the model. For more information, see Improving a trained Amazon
-  /// Rekognition Custom Labels model in the <i>Amazon Rekognition Custom
-  /// Labels</i> developers guide.
-  ///
-  /// After evaluating the model, you start the model by calling
-  /// <a>StartProjectVersion</a>.
-  ///
-  /// This operation requires permissions to perform the
-  /// <code>rekognition:CreateProjectVersion</code> action.
+  /// </note> <p/>
   ///
   /// May throw [ResourceInUseException].
   /// May throw [ResourceNotFoundException].
@@ -861,25 +1027,30 @@ class Rekognition {
   /// May throw [ServiceQuotaExceededException].
   ///
   /// Parameter [outputConfig] :
-  /// The Amazon S3 bucket location to store the results of training. The S3
-  /// bucket can be in any AWS account as long as the caller has
-  /// <code>s3:PutObject</code> permissions on the S3 bucket.
+  /// The Amazon S3 bucket location to store the results of training. The bucket
+  /// can be any S3 bucket in your AWS account. You need
+  /// <code>s3:PutObject</code> permission on the bucket.
   ///
   /// Parameter [projectArn] :
-  /// The ARN of the Amazon Rekognition Custom Labels project that manages the
-  /// model that you want to train.
+  /// The ARN of the Amazon Rekognition project that will manage the project
+  /// version you want to train.
   ///
   /// Parameter [versionName] :
-  /// A name for the version of the model. This value must be unique.
+  /// A name for the version of the project version. This value must be unique.
+  ///
+  /// Parameter [featureConfig] :
+  /// Feature-specific configuration of the training job. If the job
+  /// configuration does not match the feature type associated with the project,
+  /// an InvalidParameterException is returned.
   ///
   /// Parameter [kmsKeyId] :
   /// The identifier for your AWS Key Management Service key (AWS KMS key). You
   /// can supply the Amazon Resource Name (ARN) of your KMS key, the ID of your
   /// KMS key, an alias for your KMS key, or an alias ARN. The key is used to
-  /// encrypt training and test images copied into the service for model
-  /// training. Your source images are unaffected. The key is also used to
-  /// encrypt training results and manifest files written to the output Amazon
-  /// S3 bucket (<code>OutputConfig</code>).
+  /// encrypt training images, test images, and manifest files copied into the
+  /// service for the project version. Your source images are unaffected. The
+  /// key is also used to encrypt training results and manifest files written to
+  /// the output Amazon S3 bucket (<code>OutputConfig</code>).
   ///
   /// If you choose to use your own KMS key, you need the following permissions
   /// on the KMS key.
@@ -902,27 +1073,33 @@ class Rekognition {
   /// the service are encrypted using a key that AWS owns and manages.
   ///
   /// Parameter [tags] :
-  /// A set of tags (key-value pairs) that you want to attach to the model.
+  /// A set of tags (key-value pairs) that you want to attach to the project
+  /// version.
   ///
   /// Parameter [testingData] :
-  /// Specifies an external manifest that the service uses to test the model. If
-  /// you specify <code>TestingData</code> you must also specify
+  /// Specifies an external manifest that the service uses to test the project
+  /// version. If you specify <code>TestingData</code> you must also specify
   /// <code>TrainingData</code>. The project must not have any associated
   /// datasets.
   ///
   /// Parameter [trainingData] :
-  /// Specifies an external manifest that the services uses to train the model.
-  /// If you specify <code>TrainingData</code> you must also specify
+  /// Specifies an external manifest that the services uses to train the project
+  /// version. If you specify <code>TrainingData</code> you must also specify
   /// <code>TestingData</code>. The project must not have any associated
   /// datasets.
+  ///
+  /// Parameter [versionDescription] :
+  /// A description applied to the project version being created.
   Future<CreateProjectVersionResponse> createProjectVersion({
     required OutputConfig outputConfig,
     required String projectArn,
     required String versionName,
+    CustomizationFeatureConfig? featureConfig,
     String? kmsKeyId,
     Map<String, String>? tags,
     TestingData? testingData,
     TrainingData? trainingData,
+    String? versionDescription,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -938,10 +1115,13 @@ class Rekognition {
         'OutputConfig': outputConfig,
         'ProjectArn': projectArn,
         'VersionName': versionName,
+        if (featureConfig != null) 'FeatureConfig': featureConfig,
         if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
         if (tags != null) 'Tags': tags,
         if (testingData != null) 'TestingData': testingData,
         if (trainingData != null) 'TrainingData': trainingData,
+        if (versionDescription != null)
+          'VersionDescription': versionDescription,
       },
     );
 
@@ -1102,6 +1282,65 @@ class Rekognition {
     return CreateStreamProcessorResponse.fromJson(jsonResponse.body);
   }
 
+  /// Creates a new User within a collection specified by
+  /// <code>CollectionId</code>. Takes <code>UserId</code> as a parameter, which
+  /// is a user provided ID which should be unique within the collection. The
+  /// provided <code>UserId</code> will alias the system generated UUID to make
+  /// the <code>UserId</code> more user friendly.
+  ///
+  /// Uses a <code>ClientToken</code>, an idempotency token that ensures a call
+  /// to <code>CreateUser</code> completes only once. If the value is not
+  /// supplied, the AWS SDK generates an idempotency token for the requests.
+  /// This prevents retries after a network error results from making multiple
+  /// <code>CreateUser</code> calls.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [IdempotentParameterMismatchException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [collectionId] :
+  /// The ID of an existing collection to which the new UserID needs to be
+  /// created.
+  ///
+  /// Parameter [userId] :
+  /// ID for the UserID to be created. This ID needs to be unique within the
+  /// collection.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Idempotent token used to identify the request to <code>CreateUser</code>.
+  /// If you use the same token with multiple <code>CreateUser</code> requests,
+  /// the same response is returned. Use ClientRequestToken to prevent the same
+  /// request from being processed more than once.
+  Future<void> createUser({
+    required String collectionId,
+    required String userId,
+    String? clientRequestToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.CreateUser'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CollectionId': collectionId,
+        'UserId': userId,
+        'ClientRequestToken':
+            clientRequestToken ?? _s.generateIdempotencyToken(),
+      },
+    );
+  }
+
   /// Deletes the specified collection. Note that this operation removes all
   /// faces in the collection. For an example, see <a
   /// href="https://docs.aws.amazon.com/rekognition/latest/dg/delete-collection-procedure.html">Deleting
@@ -1140,6 +1379,9 @@ class Rekognition {
     return DeleteCollectionResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Deletes an existing Amazon Rekognition Custom Labels dataset. Deleting a
   /// dataset might take while. Use <a>DescribeDataset</a> to check the current
   /// status. The dataset is still deleting if the value of <code>Status</code>
@@ -1225,9 +1467,9 @@ class Rekognition {
     return DeleteFacesResponse.fromJson(jsonResponse.body);
   }
 
-  /// Deletes an Amazon Rekognition Custom Labels project. To delete a project
-  /// you must first delete all models associated with the project. To delete a
-  /// model, see <a>DeleteProjectVersion</a>.
+  /// Deletes a Amazon Rekognition project. To delete a project you must first
+  /// delete all models or adapters associated with the project. To delete a
+  /// model or adapter, see <a>DeleteProjectVersion</a>.
   ///
   /// <code>DeleteProject</code> is an asynchronous operation. To check if the
   /// project is deleted, call <a>DescribeProjects</a>. The project is deleted
@@ -1269,6 +1511,9 @@ class Rekognition {
     return DeleteProjectResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Deletes an existing project policy.
   ///
   /// To get a list of project policies attached to a project, call
@@ -1318,13 +1563,14 @@ class Rekognition {
     );
   }
 
-  /// Deletes an Amazon Rekognition Custom Labels model.
+  /// Deletes a Rekognition project model or project version, like a Amazon
+  /// Rekognition Custom Labels model or a custom adapter.
   ///
-  /// You can't delete a model if it is running or if it is training. To check
-  /// the status of a model, use the <code>Status</code> field returned from
-  /// <a>DescribeProjectVersions</a>. To stop a running model call
-  /// <a>StopProjectVersion</a>. If the model is training, wait until it
-  /// finishes.
+  /// You can't delete a project version if it is running or if it is training.
+  /// To check the status of a project version, use the Status field returned
+  /// from <a>DescribeProjectVersions</a>. To stop a project version call
+  /// <a>StopProjectVersion</a>. If the project version is training, wait until
+  /// it finishes.
   ///
   /// This operation requires permissions to perform the
   /// <code>rekognition:DeleteProjectVersion</code> action.
@@ -1338,7 +1584,7 @@ class Rekognition {
   /// May throw [ProvisionedThroughputExceededException].
   ///
   /// Parameter [projectVersionArn] :
-  /// The Amazon Resource Name (ARN) of the model version that you want to
+  /// The Amazon Resource Name (ARN) of the project version that you want to
   /// delete.
   Future<DeleteProjectVersionResponse> deleteProjectVersion({
     required String projectVersionArn,
@@ -1396,6 +1642,58 @@ class Rekognition {
     );
   }
 
+  /// Deletes the specified UserID within the collection. Faces that are
+  /// associated with the UserID are disassociated from the UserID before
+  /// deleting the specified UserID. If the specified <code>Collection</code> or
+  /// <code>UserID</code> is already deleted or not found, a
+  /// <code>ResourceNotFoundException</code> will be thrown. If the action is
+  /// successful with a 200 response, an empty HTTP body is returned.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [IdempotentParameterMismatchException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [collectionId] :
+  /// The ID of an existing collection from which the UserID needs to be
+  /// deleted.
+  ///
+  /// Parameter [userId] :
+  /// ID for the UserID to be deleted.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Idempotent token used to identify the request to <code>DeleteUser</code>.
+  /// If you use the same token with multiple <code>DeleteUser </code>requests,
+  /// the same response is returned. Use ClientRequestToken to prevent the same
+  /// request from being processed more than once.
+  Future<void> deleteUser({
+    required String collectionId,
+    required String userId,
+    String? clientRequestToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.DeleteUser'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CollectionId': collectionId,
+        'UserId': userId,
+        'ClientRequestToken':
+            clientRequestToken ?? _s.generateIdempotencyToken(),
+      },
+    );
+  }
+
   /// Describes the specified collection. You can use
   /// <code>DescribeCollection</code> to get information, such as the number of
   /// faces indexed into a collection and the version of the model used by the
@@ -1434,6 +1732,9 @@ class Rekognition {
     return DescribeCollectionResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Describes an Amazon Rekognition Custom Labels dataset. You can get
   /// information such as the current status of a dataset and statistics about
   /// the images and labels in a dataset.
@@ -1471,10 +1772,10 @@ class Rekognition {
     return DescribeDatasetResponse.fromJson(jsonResponse.body);
   }
 
-  /// Lists and describes the versions of a model in an Amazon Rekognition
-  /// Custom Labels project. You can specify up to 10 model versions in
+  /// Lists and describes the versions of an Amazon Rekognition project. You can
+  /// specify up to 10 model or adapter versions in
   /// <code>ProjectVersionArns</code>. If you don't specify a value,
-  /// descriptions for all model versions in the project are returned.
+  /// descriptions for all model/adapter versions in the project are returned.
   ///
   /// This operation requires permissions to perform the
   /// <code>rekognition:DescribeProjectVersions</code> action.
@@ -1488,8 +1789,8 @@ class Rekognition {
   /// May throw [ProvisionedThroughputExceededException].
   ///
   /// Parameter [projectArn] :
-  /// The Amazon Resource Name (ARN) of the project that contains the models you
-  /// want to describe.
+  /// The Amazon Resource Name (ARN) of the project that contains the
+  /// model/adapter you want to describe.
   ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return per paginated call. The largest
@@ -1498,15 +1799,14 @@ class Rekognition {
   ///
   /// Parameter [nextToken] :
   /// If the previous response was incomplete (because there is more results to
-  /// retrieve), Amazon Rekognition Custom Labels returns a pagination token in
-  /// the response. You can use this pagination token to retrieve the next set
-  /// of results.
+  /// retrieve), Amazon Rekognition returns a pagination token in the response.
+  /// You can use this pagination token to retrieve the next set of results.
   ///
   /// Parameter [versionNames] :
-  /// A list of model version names that you want to describe. You can add up to
-  /// 10 model version names to the list. If you don't specify a value, all
-  /// model descriptions are returned. A version name is part of a model
-  /// (ProjectVersion) ARN. For example,
+  /// A list of model or project version names that you want to describe. You
+  /// can add up to 10 model or project version names to the list. If you don't
+  /// specify a value, all project version descriptions are returned. A version
+  /// name is part of a project version ARN. For example,
   /// <code>my-model.2020-01-21T09.10.15</code> is the version name in the
   /// following ARN.
   /// <code>arn:aws:rekognition:us-east-1:123456789012:project/getting-started/version/<i>my-model.2020-01-21T09.10.15</i>/1234567890123</code>.
@@ -1543,7 +1843,7 @@ class Rekognition {
     return DescribeProjectVersionsResponse.fromJson(jsonResponse.body);
   }
 
-  /// Gets information about your Amazon Rekognition Custom Labels projects.
+  /// Gets information about your Rekognition projects.
   ///
   /// This operation requires permissions to perform the
   /// <code>rekognition:DescribeProjects</code> action.
@@ -1555,6 +1855,10 @@ class Rekognition {
   /// May throw [ThrottlingException].
   /// May throw [ProvisionedThroughputExceededException].
   ///
+  /// Parameter [features] :
+  /// Specifies the type of customization to filter projects by. If no value is
+  /// specified, CUSTOM_LABELS is used as a default.
+  ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return per paginated call. The largest
   /// value you can specify is 100. If you specify a value greater than 100, a
@@ -1562,15 +1866,15 @@ class Rekognition {
   ///
   /// Parameter [nextToken] :
   /// If the previous response was incomplete (because there is more results to
-  /// retrieve), Amazon Rekognition Custom Labels returns a pagination token in
-  /// the response. You can use this pagination token to retrieve the next set
-  /// of results.
+  /// retrieve), Rekognition returns a pagination token in the response. You can
+  /// use this pagination token to retrieve the next set of results.
   ///
   /// Parameter [projectNames] :
-  /// A list of the projects that you want Amazon Rekognition Custom Labels to
-  /// describe. If you don't specify a value, the response includes descriptions
-  /// for all the projects in your AWS account.
+  /// A list of the projects that you want Rekognition to describe. If you don't
+  /// specify a value, the response includes descriptions for all the projects
+  /// in your AWS account.
   Future<DescribeProjectsResponse> describeProjects({
+    List<CustomizationFeature>? features,
     int? maxResults,
     String? nextToken,
     List<String>? projectNames,
@@ -1592,6 +1896,7 @@ class Rekognition {
       // TODO queryParams
       headers: headers,
       payload: {
+        if (features != null) 'Features': features.map((e) => e.value).toList(),
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (projectNames != null) 'ProjectNames': projectNames,
@@ -1636,6 +1941,9 @@ class Rekognition {
     return DescribeStreamProcessorResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Detects custom labels in a supplied image by using an Amazon Rekognition
   /// Custom Labels model.
   ///
@@ -1653,7 +1961,9 @@ class Rekognition {
   /// the label name (<code>Name</code>), the level of confidence that the image
   /// contains the object (<code>Confidence</code>), and object location
   /// information, if it exists, for the label on the image
-  /// (<code>Geometry</code>).
+  /// (<code>Geometry</code>). Note that for the
+  /// <code>DetectCustomLabelsLabels</code> operation, <code>Polygons</code> are
+  /// not returned in the <code>Geometry</code> section of the response.
   ///
   /// To filter labels that are returned, specify a value for
   /// <code>MinConfidence</code>. <code>DetectCustomLabelsLabels</code> only
@@ -1696,7 +2006,10 @@ class Rekognition {
   /// May throw [InvalidImageFormatException].
   ///
   /// Parameter [projectVersionArn] :
-  /// The ARN of the model version that you want to use.
+  /// The ARN of the model version that you want to use. Only models associated
+  /// with Custom Labels projects accepted by the operation. If a provided ARN
+  /// refers to a model version associated with a project for a different
+  /// feature type, then an InvalidParameterException is returned.
   ///
   /// Parameter [maxResults] :
   /// Maximum number of results you want the service to return in the response.
@@ -1807,6 +2120,11 @@ class Rekognition {
   /// If you provide both, <code>["ALL", "DEFAULT"]</code>, the service uses a
   /// logical "AND" operator to determine which attributes to return (in this
   /// case, all attributes).
+  ///
+  /// Note that while the FaceOccluded and EyeDirection attributes are supported
+  /// when using <code>DetectFaces</code>, they aren't supported when analyzing
+  /// videos with <code>StartFaceDetection</code> and
+  /// <code>GetFaceDetection</code>.
   Future<DetectFacesResponse> detectFaces({
     required Image image,
     List<Attribute>? attributes,
@@ -1824,7 +2142,7 @@ class Rekognition {
       payload: {
         'Image': image,
         if (attributes != null)
-          'Attributes': attributes.map((e) => e.toValue()).toList(),
+          'Attributes': attributes.map((e) => e.value).toList(),
       },
     );
 
@@ -1862,10 +2180,11 @@ class Rekognition {
   /// href="https://docs.aws.amazon.com/rekognition/latest/dg/labels-detect-labels-image.html">Detecting
   /// Labels in an Image</a>.
   ///
-  /// You can specify <code>MinConfidence</code> to control the confidence
-  /// threshold for the labels returned. The default is 55%. You can also add
-  /// the <code>MaxLabels</code> parameter to limit the number of labels
-  /// returned. The default and upper limit is 1000 labels.
+  /// When getting labels, you can specify <code>MinConfidence</code> to control
+  /// the confidence threshold for the labels returned. The default is 55%. You
+  /// can also add the <code>MaxLabels</code> parameter to limit the number of
+  /// labels returned. The default and upper limit is 1000 labels. These
+  /// arguments are only valid when supplying GENERAL_LABELS as a feature type.
   ///
   /// <b>Response Elements</b>
   ///
@@ -1985,6 +2304,8 @@ class Rekognition {
   /// Parameter [maxLabels] :
   /// Maximum number of labels you want the service to return in the response.
   /// The service returns the specified number of highest confidence labels.
+  /// Only valid when GENERAL_LABELS is specified as a feature type in the
+  /// Feature input parameter.
   ///
   /// Parameter [minConfidence] :
   /// Specifies the minimum confidence level for the labels to return. Amazon
@@ -1992,7 +2313,9 @@ class Rekognition {
   /// specified value.
   ///
   /// If <code>MinConfidence</code> is not specified, the operation returns
-  /// labels with a confidence values greater than or equal to 55 percent.
+  /// labels with a confidence values greater than or equal to 55 percent. Only
+  /// valid when GENERAL_LABELS is specified as a feature type in the Feature
+  /// input parameter.
   ///
   /// Parameter [settings] :
   /// A list of the filters to be applied to returned detected labels and image
@@ -2033,8 +2356,7 @@ class Rekognition {
       headers: headers,
       payload: {
         'Image': image,
-        if (features != null)
-          'Features': features.map((e) => e.toValue()).toList(),
+        if (features != null) 'Features': features.map((e) => e.value).toList(),
         if (maxLabels != null) 'MaxLabels': maxLabels,
         if (minConfidence != null) 'MinConfidence': minConfidence,
         if (settings != null) 'Settings': settings,
@@ -2061,6 +2383,10 @@ class Rekognition {
   /// call Amazon Rekognition operations, passing image bytes is not supported.
   /// The image must be either a PNG or JPEG formatted file.
   ///
+  /// You can specify an adapter to use when retrieving label predictions by
+  /// providing a <code>ProjectVersionArn</code> to the
+  /// <code>ProjectVersion</code> argument.
+  ///
   /// May throw [InvalidS3ObjectException].
   /// May throw [InvalidParameterException].
   /// May throw [ImageTooLargeException].
@@ -2070,6 +2396,8 @@ class Rekognition {
   /// May throw [ProvisionedThroughputExceededException].
   /// May throw [InvalidImageFormatException].
   /// May throw [HumanLoopQuotaExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ResourceNotReadyException].
   ///
   /// Parameter [image] :
   /// The input image as base64-encoded bytes or an S3 object. If you use the
@@ -2092,10 +2420,16 @@ class Rekognition {
   ///
   /// If you don't specify <code>MinConfidence</code>, the operation returns
   /// labels with confidence values greater than or equal to 50 percent.
+  ///
+  /// Parameter [projectVersion] :
+  /// Identifier for the custom adapter. Expects the ProjectVersionArn as a
+  /// value. Use the CreateProject or CreateProjectVersion APIs to create a
+  /// custom adapter.
   Future<DetectModerationLabelsResponse> detectModerationLabels({
     required Image image,
     HumanLoopConfig? humanLoopConfig,
     double? minConfidence,
+    String? projectVersion,
   }) async {
     _s.validateNumRange(
       'minConfidence',
@@ -2117,6 +2451,7 @@ class Rekognition {
         'Image': image,
         if (humanLoopConfig != null) 'HumanLoopConfig': humanLoopConfig,
         if (minConfidence != null) 'MinConfidence': minConfidence,
+        if (projectVersion != null) 'ProjectVersion': projectVersion,
       },
     );
 
@@ -2295,6 +2630,71 @@ class Rekognition {
     return DetectTextResponse.fromJson(jsonResponse.body);
   }
 
+  /// Removes the association between a <code>Face</code> supplied in an array
+  /// of <code>FaceIds</code> and the User. If the User is not present already,
+  /// then a <code>ResourceNotFound</code> exception is thrown. If successful,
+  /// an array of faces that are disassociated from the User is returned. If a
+  /// given face is already disassociated from the given UserID, it will be
+  /// ignored and not be returned in the response. If a given face is already
+  /// associated with a different User or not found in the collection it will be
+  /// returned as part of <code>UnsuccessfulDisassociations</code>. You can
+  /// remove 1 - 100 face IDs from a user at one time.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [IdempotentParameterMismatchException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [collectionId] :
+  /// The ID of an existing collection containing the UserID.
+  ///
+  /// Parameter [faceIds] :
+  /// An array of face IDs to disassociate from the UserID.
+  ///
+  /// Parameter [userId] :
+  /// ID for the existing UserID.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Idempotent token used to identify the request to
+  /// <code>DisassociateFaces</code>. If you use the same token with multiple
+  /// <code>DisassociateFaces</code> requests, the same response is returned.
+  /// Use ClientRequestToken to prevent the same request from being processed
+  /// more than once.
+  Future<DisassociateFacesResponse> disassociateFaces({
+    required String collectionId,
+    required List<String> faceIds,
+    required String userId,
+    String? clientRequestToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.DisassociateFaces'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CollectionId': collectionId,
+        'FaceIds': faceIds,
+        'UserId': userId,
+        'ClientRequestToken':
+            clientRequestToken ?? _s.generateIdempotencyToken(),
+      },
+    );
+
+    return DisassociateFacesResponse.fromJson(jsonResponse.body);
+  }
+
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Distributes the entries (images) in a training dataset across the training
   /// dataset and the test dataset for a project.
   /// <code>DistributeDatasetEntries</code> moves 20% of the training dataset
@@ -2502,7 +2902,7 @@ class Rekognition {
         'JobId': jobId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (sortBy != null) 'SortBy': sortBy.toValue(),
+        if (sortBy != null) 'SortBy': sortBy.value,
       },
     );
 
@@ -2617,10 +3017,10 @@ class Rekognition {
       headers: headers,
       payload: {
         'JobId': jobId,
-        if (aggregateBy != null) 'AggregateBy': aggregateBy.toValue(),
+        if (aggregateBy != null) 'AggregateBy': aggregateBy.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (sortBy != null) 'SortBy': sortBy.toValue(),
+        if (sortBy != null) 'SortBy': sortBy.value,
       },
     );
 
@@ -2651,6 +3051,10 @@ class Rekognition {
   /// results, call <code>GetFaceDetection</code> and populate the
   /// <code>NextToken</code> request parameter with the token value returned
   /// from the previous call to <code>GetFaceDetection</code>.
+  ///
+  /// Note that for the <code>GetFaceDetection</code> operation, the returned
+  /// values for <code>FaceOccluded</code> and <code>EyeDirection</code> will
+  /// always be "null".
   ///
   /// May throw [AccessDeniedException].
   /// May throw [InternalServerError].
@@ -2710,8 +3114,13 @@ class Rekognition {
   /// <code>CreateFaceLivenessSession</code>. Returns the corresponding Face
   /// Liveness confidence score, a reference image that includes a face bounding
   /// box, and audit images that also contain face bounding boxes. The Face
-  /// Liveness confidence score ranges from 0 to 100. The reference image can
-  /// optionally be returned.
+  /// Liveness confidence score ranges from 0 to 100.
+  ///
+  /// The number of audit images returned by
+  /// <code>GetFaceLivenessSessionResults</code> is defined by the
+  /// <code>AuditImagesLimit</code> paramater when calling
+  /// <code>CreateFaceLivenessSession</code>. Reference images are always
+  /// returned when possible.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [InternalServerError].
@@ -2835,7 +3244,7 @@ class Rekognition {
         'JobId': jobId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (sortBy != null) 'SortBy': sortBy.toValue(),
+        if (sortBy != null) 'SortBy': sortBy.value,
       },
     );
 
@@ -2990,14 +3399,48 @@ class Rekognition {
       headers: headers,
       payload: {
         'JobId': jobId,
-        if (aggregateBy != null) 'AggregateBy': aggregateBy.toValue(),
+        if (aggregateBy != null) 'AggregateBy': aggregateBy.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (sortBy != null) 'SortBy': sortBy.toValue(),
+        if (sortBy != null) 'SortBy': sortBy.value,
       },
     );
 
     return GetLabelDetectionResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Retrieves the results for a given media analysis job. Takes a
+  /// <code>JobId</code> returned by StartMediaAnalysisJob.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerError].
+  /// May throw [InvalidParameterException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [jobId] :
+  /// Unique identifier for the media analysis job for which you want to
+  /// retrieve results.
+  Future<GetMediaAnalysisJobResponse> getMediaAnalysisJob({
+    required String jobId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.GetMediaAnalysisJob'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'JobId': jobId,
+      },
+    );
+
+    return GetMediaAnalysisJobResponse.fromJson(jsonResponse.body);
   }
 
   /// Gets the path tracking results of a Amazon Rekognition Video analysis
@@ -3096,7 +3539,7 @@ class Rekognition {
         'JobId': jobId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (sortBy != null) 'SortBy': sortBy.toValue(),
+        if (sortBy != null) 'SortBy': sortBy.value,
       },
     );
 
@@ -3212,7 +3655,7 @@ class Rekognition {
   ///
   /// <code>GetTextDetection</code> returns an array of detected text
   /// (<code>TextDetections</code>) sorted by the time the text was detected, up
-  /// to 50 words per frame of video.
+  /// to 100 words per frame of video.
   ///
   /// Each element of the array includes the detected text, the precentage
   /// confidence in the acuracy of the detected text, the time the text was
@@ -3507,10 +3950,10 @@ class Rekognition {
         'Image': image,
         if (detectionAttributes != null)
           'DetectionAttributes':
-              detectionAttributes.map((e) => e.toValue()).toList(),
+              detectionAttributes.map((e) => e.value).toList(),
         if (externalImageId != null) 'ExternalImageId': externalImageId,
         if (maxFaces != null) 'MaxFaces': maxFaces,
-        if (qualityFilter != null) 'QualityFilter': qualityFilter.toValue(),
+        if (qualityFilter != null) 'QualityFilter': qualityFilter.value,
       },
     );
 
@@ -3569,6 +4012,9 @@ class Rekognition {
     return ListCollectionsResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Lists the entries (images) within a dataset. An entry is a JSON Line that
   /// contains the information for a single image, including the image location,
   /// assigned labels, and object location bounding boxes. For more information,
@@ -3675,6 +4121,9 @@ class Rekognition {
     return ListDatasetEntriesResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Lists the labels in a dataset. Amazon Rekognition Custom Labels uses
   /// labels to describe images. For more information, see <a
   /// href="https://docs.aws.amazon.com/rekognition/latest/customlabels-dg/md-labeling-images.html">Labeling
@@ -3757,6 +4206,10 @@ class Rekognition {
   /// Parameter [collectionId] :
   /// ID of the collection from which to list the faces.
   ///
+  /// Parameter [faceIds] :
+  /// An array of face IDs to filter results with when listing faces in a
+  /// collection.
+  ///
   /// Parameter [maxResults] :
   /// Maximum number of faces to return.
   ///
@@ -3764,10 +4217,16 @@ class Rekognition {
   /// If the previous response was incomplete (because there is more data to
   /// retrieve), Amazon Rekognition returns a pagination token in the response.
   /// You can use this pagination token to retrieve the next set of faces.
+  ///
+  /// Parameter [userId] :
+  /// An array of user IDs to filter results with when listing faces in a
+  /// collection.
   Future<ListFacesResponse> listFaces({
     required String collectionId,
+    List<String>? faceIds,
     int? maxResults,
     String? nextToken,
+    String? userId,
   }) async {
     _s.validateNumRange(
       'maxResults',
@@ -3787,14 +4246,66 @@ class Rekognition {
       headers: headers,
       payload: {
         'CollectionId': collectionId,
+        if (faceIds != null) 'FaceIds': faceIds,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
+        if (userId != null) 'UserId': userId,
       },
     );
 
     return ListFacesResponse.fromJson(jsonResponse.body);
   }
 
+  /// Returns a list of media analysis jobs. Results are sorted by
+  /// <code>CreationTimestamp</code> in descending order.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [InvalidParameterException].
+  /// May throw [InvalidPaginationTokenException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per paginated call. The largest
+  /// value user can specify is 100. If user specifies a value greater than 100,
+  /// an <code>InvalidParameterException</code> error occurs. The default value
+  /// is 100.
+  ///
+  /// Parameter [nextToken] :
+  /// Pagination token, if the previous response was incomplete.
+  Future<ListMediaAnalysisJobsResponse> listMediaAnalysisJobs({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.ListMediaAnalysisJobs'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListMediaAnalysisJobsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Gets a list of the project policies attached to a project.
   ///
   /// To attach a project policy to a project, call <a>PutProjectPolicy</a>. To
@@ -3940,11 +4451,69 @@ class Rekognition {
     return ListTagsForResourceResponse.fromJson(jsonResponse.body);
   }
 
+  /// Returns metadata of the User such as <code>UserID</code> in the specified
+  /// collection. Anonymous User (to reserve faces without any identity) is not
+  /// returned as part of this request. The results are sorted by system
+  /// generated primary key ID. If the response is truncated,
+  /// <code>NextToken</code> is returned in the response that can be used in the
+  /// subsequent request to retrieve the next set of identities.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidPaginationTokenException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [collectionId] :
+  /// The ID of an existing collection.
+  ///
+  /// Parameter [maxResults] :
+  /// Maximum number of UsersID to return.
+  ///
+  /// Parameter [nextToken] :
+  /// Pagingation token to receive the next set of UsersID.
+  Future<ListUsersResponse> listUsers({
+    required String collectionId,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      500,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.ListUsers'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CollectionId': collectionId,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListUsersResponse.fromJson(jsonResponse.body);
+  }
+
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Attaches a project policy to a Amazon Rekognition Custom Labels project in
   /// a trusting AWS account. A project policy specifies that a trusted AWS
   /// account can copy a model version from a trusting AWS account to a project
   /// in the trusted AWS account. To copy a model version you use the
-  /// <a>CopyProjectVersion</a> operation.
+  /// <a>CopyProjectVersion</a> operation. Only applies to Custom Labels
+  /// projects.
   ///
   /// For more information about the format of a project policy document, see
   /// Attaching a project policy (SDK) in the <i>Amazon Rekognition Custom
@@ -4311,11 +4880,166 @@ class Rekognition {
         if (faceMatchThreshold != null)
           'FaceMatchThreshold': faceMatchThreshold,
         if (maxFaces != null) 'MaxFaces': maxFaces,
-        if (qualityFilter != null) 'QualityFilter': qualityFilter.toValue(),
+        if (qualityFilter != null) 'QualityFilter': qualityFilter.value,
       },
     );
 
     return SearchFacesByImageResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Searches for UserIDs within a collection based on a <code>FaceId</code> or
+  /// <code>UserId</code>. This API can be used to find the closest UserID (with
+  /// a highest similarity) to associate a face. The request must be provided
+  /// with either <code>FaceId</code> or <code>UserId</code>. The operation
+  /// returns an array of UserID that match the <code>FaceId</code> or
+  /// <code>UserId</code>, ordered by similarity score with the highest
+  /// similarity first.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [collectionId] :
+  /// The ID of an existing collection containing the UserID, used with a UserId
+  /// or FaceId. If a FaceId is provided, UserId isn’t required to be present in
+  /// the Collection.
+  ///
+  /// Parameter [faceId] :
+  /// ID for the existing face.
+  ///
+  /// Parameter [maxUsers] :
+  /// Maximum number of identities to return.
+  ///
+  /// Parameter [userId] :
+  /// ID for the existing User.
+  ///
+  /// Parameter [userMatchThreshold] :
+  /// Optional value that specifies the minimum confidence in the matched UserID
+  /// to return. Default value of 80.
+  Future<SearchUsersResponse> searchUsers({
+    required String collectionId,
+    String? faceId,
+    int? maxUsers,
+    String? userId,
+    double? userMatchThreshold,
+  }) async {
+    _s.validateNumRange(
+      'maxUsers',
+      maxUsers,
+      1,
+      500,
+    );
+    _s.validateNumRange(
+      'userMatchThreshold',
+      userMatchThreshold,
+      0,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.SearchUsers'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CollectionId': collectionId,
+        if (faceId != null) 'FaceId': faceId,
+        if (maxUsers != null) 'MaxUsers': maxUsers,
+        if (userId != null) 'UserId': userId,
+        if (userMatchThreshold != null)
+          'UserMatchThreshold': userMatchThreshold,
+      },
+    );
+
+    return SearchUsersResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Searches for UserIDs using a supplied image. It first detects the largest
+  /// face in the image, and then searches a specified collection for matching
+  /// UserIDs.
+  ///
+  /// The operation returns an array of UserIDs that match the face in the
+  /// supplied image, ordered by similarity score with the highest similarity
+  /// first. It also returns a bounding box for the face found in the input
+  /// image.
+  ///
+  /// Information about faces detected in the supplied image, but not used for
+  /// the search, is returned in an array of <code>UnsearchedFace</code>
+  /// objects. If no valid face is detected in the image, the response will
+  /// contain an empty <code>UserMatches</code> list and no
+  /// <code>SearchedFace</code> object.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidImageFormatException].
+  /// May throw [InvalidS3ObjectException].
+  /// May throw [ImageTooLargeException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [collectionId] :
+  /// The ID of an existing collection containing the UserID.
+  ///
+  /// Parameter [maxUsers] :
+  /// Maximum number of UserIDs to return.
+  ///
+  /// Parameter [qualityFilter] :
+  /// A filter that specifies a quality bar for how much filtering is done to
+  /// identify faces. Filtered faces aren't searched for in the collection. The
+  /// default value is NONE.
+  ///
+  /// Parameter [userMatchThreshold] :
+  /// Specifies the minimum confidence in the UserID match to return. Default
+  /// value is 80.
+  Future<SearchUsersByImageResponse> searchUsersByImage({
+    required String collectionId,
+    required Image image,
+    int? maxUsers,
+    QualityFilter? qualityFilter,
+    double? userMatchThreshold,
+  }) async {
+    _s.validateNumRange(
+      'maxUsers',
+      maxUsers,
+      1,
+      500,
+    );
+    _s.validateNumRange(
+      'userMatchThreshold',
+      userMatchThreshold,
+      0,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.SearchUsersByImage'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CollectionId': collectionId,
+        'Image': image,
+        if (maxUsers != null) 'MaxUsers': maxUsers,
+        if (qualityFilter != null) 'QualityFilter': qualityFilter.value,
+        if (userMatchThreshold != null)
+          'UserMatchThreshold': userMatchThreshold,
+      },
+    );
+
+    return SearchUsersByImageResponse.fromJson(jsonResponse.body);
   }
 
   /// Starts asynchronous recognition of celebrities in a stored video.
@@ -4577,7 +5301,7 @@ class Rekognition {
         'Video': video,
         if (clientRequestToken != null)
           'ClientRequestToken': clientRequestToken,
-        if (faceAttributes != null) 'FaceAttributes': faceAttributes.toValue(),
+        if (faceAttributes != null) 'FaceAttributes': faceAttributes.value,
         if (jobTag != null) 'JobTag': jobTag,
         if (notificationChannel != null)
           'NotificationChannel': notificationChannel,
@@ -4802,8 +5526,7 @@ class Rekognition {
         'Video': video,
         if (clientRequestToken != null)
           'ClientRequestToken': clientRequestToken,
-        if (features != null)
-          'Features': features.map((e) => e.toValue()).toList(),
+        if (features != null) 'Features': features.map((e) => e.value).toList(),
         if (jobTag != null) 'JobTag': jobTag,
         if (minConfidence != null) 'MinConfidence': minConfidence,
         if (notificationChannel != null)
@@ -4813,6 +5536,77 @@ class Rekognition {
     );
 
     return StartLabelDetectionResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Initiates a new media analysis job. Accepts a manifest file in an Amazon
+  /// S3 bucket. The output is a manifest file and a summary of the manifest
+  /// stored in the Amazon S3 bucket.
+  ///
+  /// May throw [InternalServerError].
+  /// May throw [AccessDeniedException].
+  /// May throw [InvalidParameterException].
+  /// May throw [InvalidManifestException].
+  /// May throw [InvalidS3ObjectException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ResourceNotReadyException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [LimitExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [IdempotentParameterMismatchException].
+  ///
+  /// Parameter [input] :
+  /// Input data to be analyzed by the job.
+  ///
+  /// Parameter [operationsConfig] :
+  /// Configuration options for the media analysis job to be created.
+  ///
+  /// Parameter [outputConfig] :
+  /// The Amazon S3 bucket location to store the results.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Idempotency token used to prevent the accidental creation of duplicate
+  /// versions. If you use the same token with multiple
+  /// <code>StartMediaAnalysisJobRequest</code> requests, the same response is
+  /// returned. Use <code>ClientRequestToken</code> to prevent the same request
+  /// from being processed more than once.
+  ///
+  /// Parameter [jobName] :
+  /// The name of the job. Does not have to be unique.
+  ///
+  /// Parameter [kmsKeyId] :
+  /// The identifier of customer managed AWS KMS key (name or ARN). The key is
+  /// used to encrypt images copied into the service. The key is also used to
+  /// encrypt results and manifest files written to the output Amazon S3 bucket.
+  Future<StartMediaAnalysisJobResponse> startMediaAnalysisJob({
+    required MediaAnalysisInput input,
+    required MediaAnalysisOperationsConfig operationsConfig,
+    required MediaAnalysisOutputConfig outputConfig,
+    String? clientRequestToken,
+    String? jobName,
+    String? kmsKeyId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'RekognitionService.StartMediaAnalysisJob'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Input': input,
+        'OperationsConfig': operationsConfig,
+        'OutputConfig': outputConfig,
+        'ClientRequestToken':
+            clientRequestToken ?? _s.generateIdempotencyToken(),
+        if (jobName != null) 'JobName': jobName,
+        if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      },
+    );
+
+    return StartMediaAnalysisJobResponse.fromJson(jsonResponse.body);
   }
 
   /// Starts the asynchronous tracking of a person's path in a stored video.
@@ -4891,6 +5685,9 @@ class Rekognition {
     return StartPersonTrackingResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Starts the running of the version of a model. Starting a model takes a
   /// while to complete. To check the current state of the model, use
   /// <a>DescribeProjectVersions</a>.
@@ -4901,9 +5698,6 @@ class Rekognition {
   /// You are charged for the amount of time that the model is running. To stop
   /// a running model, call <a>StopProjectVersion</a>.
   /// </note>
-  /// For more information, see <i>Running a trained Amazon Rekognition Custom
-  /// Labels model</i> in the Amazon Rekognition Custom Labels Guide.
-  ///
   /// This operation requires permissions to perform the
   /// <code>rekognition:StartProjectVersion</code> action.
   ///
@@ -4919,10 +5713,6 @@ class Rekognition {
   /// Parameter [minInferenceUnits] :
   /// The minimum number of inference units to use. A single inference unit
   /// represents 1 hour of processing.
-  ///
-  /// For information about the number of transactions per second (TPS) that an
-  /// inference unit can support, see <i>Running a trained Amazon Rekognition
-  /// Custom Labels model</i> in the Amazon Rekognition Custom Labels Guide.
   ///
   /// Use a higher number to increase the TPS throughput of your model. You are
   /// charged for the number of inference units that you use.
@@ -5052,7 +5842,7 @@ class Rekognition {
       // TODO queryParams
       headers: headers,
       payload: {
-        'SegmentTypes': segmentTypes.map((e) => e.toValue()).toList(),
+        'SegmentTypes': segmentTypes.map((e) => e.value).toList(),
         'Video': video,
         if (clientRequestToken != null)
           'ClientRequestToken': clientRequestToken,
@@ -5200,8 +5990,12 @@ class Rekognition {
     return StartTextDetectionResponse.fromJson(jsonResponse.body);
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Stops a running model. The operation might take a while to complete. To
-  /// check the current status, call <a>DescribeProjectVersions</a>.
+  /// check the current status, call <a>DescribeProjectVersions</a>. Only
+  /// applies to Custom Labels projects.
   ///
   /// This operation requires permissions to perform the
   /// <code>rekognition:StopProjectVersion</code> action.
@@ -5215,8 +6009,7 @@ class Rekognition {
   /// May throw [ProvisionedThroughputExceededException].
   ///
   /// Parameter [projectVersionArn] :
-  /// The Amazon Resource Name (ARN) of the model version that you want to
-  /// delete.
+  /// The Amazon Resource Name (ARN) of the model version that you want to stop.
   ///
   /// This operation requires permissions to perform the
   /// <code>rekognition:StopProjectVersion</code> action.
@@ -5356,6 +6149,9 @@ class Rekognition {
     );
   }
 
+  /// <note>
+  /// This operation applies only to Amazon Rekognition Custom Labels.
+  /// </note>
   /// Adds or updates one or more entries (images) in a dataset. An entry is a
   /// JSON Line which contains the information for a single image, including the
   /// image location, assigned labels, and object location bounding boxes. For
@@ -5477,8 +6273,7 @@ class Rekognition {
         if (dataSharingPreferenceForUpdate != null)
           'DataSharingPreferenceForUpdate': dataSharingPreferenceForUpdate,
         if (parametersToDelete != null)
-          'ParametersToDelete':
-              parametersToDelete.map((e) => e.toValue()).toList(),
+          'ParametersToDelete': parametersToDelete.map((e) => e.value).toList(),
         if (regionsOfInterestForUpdate != null)
           'RegionsOfInterestForUpdate': regionsOfInterestForUpdate,
         if (settingsForUpdate != null) 'SettingsForUpdate': settingsForUpdate,
@@ -5541,92 +6336,85 @@ class Asset {
   }
 }
 
+class AssociateFacesResponse {
+  /// An array of AssociatedFace objects containing FaceIDs that have been
+  /// successfully associated with the UserID. Returned if the AssociateFaces
+  /// action is successful.
+  final List<AssociatedFace>? associatedFaces;
+
+  /// An array of UnsuccessfulAssociation objects containing FaceIDs that are not
+  /// successfully associated along with the reasons. Returned if the
+  /// AssociateFaces action is successful.
+  final List<UnsuccessfulFaceAssociation>? unsuccessfulFaceAssociations;
+
+  /// The status of an update made to a UserID. Reflects if the UserID has been
+  /// updated for every requested change.
+  final UserStatus? userStatus;
+
+  AssociateFacesResponse({
+    this.associatedFaces,
+    this.unsuccessfulFaceAssociations,
+    this.userStatus,
+  });
+
+  factory AssociateFacesResponse.fromJson(Map<String, dynamic> json) {
+    return AssociateFacesResponse(
+      associatedFaces: (json['AssociatedFaces'] as List?)
+          ?.nonNulls
+          .map((e) => AssociatedFace.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      unsuccessfulFaceAssociations: (json['UnsuccessfulFaceAssociations']
+              as List?)
+          ?.nonNulls
+          .map((e) =>
+              UnsuccessfulFaceAssociation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      userStatus: (json['UserStatus'] as String?)?.let(UserStatus.fromString),
+    );
+  }
+}
+
+/// Provides face metadata for the faces that are associated to a specific
+/// UserID.
+class AssociatedFace {
+  /// Unique identifier assigned to the face.
+  final String? faceId;
+
+  AssociatedFace({
+    this.faceId,
+  });
+
+  factory AssociatedFace.fromJson(Map<String, dynamic> json) {
+    return AssociatedFace(
+      faceId: json['FaceId'] as String?,
+    );
+  }
+}
+
 enum Attribute {
-  $default,
-  all,
-  ageRange,
-  beard,
-  emotions,
-  eyeDirection,
-  eyeglasses,
-  eyesOpen,
-  gender,
-  mouthOpen,
-  mustache,
-  faceOccluded,
-  smile,
-  sunglasses,
-}
+  $default('DEFAULT'),
+  all('ALL'),
+  ageRange('AGE_RANGE'),
+  beard('BEARD'),
+  emotions('EMOTIONS'),
+  eyeDirection('EYE_DIRECTION'),
+  eyeglasses('EYEGLASSES'),
+  eyesOpen('EYES_OPEN'),
+  gender('GENDER'),
+  mouthOpen('MOUTH_OPEN'),
+  mustache('MUSTACHE'),
+  faceOccluded('FACE_OCCLUDED'),
+  smile('SMILE'),
+  sunglasses('SUNGLASSES'),
+  ;
 
-extension AttributeValueExtension on Attribute {
-  String toValue() {
-    switch (this) {
-      case Attribute.$default:
-        return 'DEFAULT';
-      case Attribute.all:
-        return 'ALL';
-      case Attribute.ageRange:
-        return 'AGE_RANGE';
-      case Attribute.beard:
-        return 'BEARD';
-      case Attribute.emotions:
-        return 'EMOTIONS';
-      case Attribute.eyeDirection:
-        return 'EYE_DIRECTION';
-      case Attribute.eyeglasses:
-        return 'EYEGLASSES';
-      case Attribute.eyesOpen:
-        return 'EYES_OPEN';
-      case Attribute.gender:
-        return 'GENDER';
-      case Attribute.mouthOpen:
-        return 'MOUTH_OPEN';
-      case Attribute.mustache:
-        return 'MUSTACHE';
-      case Attribute.faceOccluded:
-        return 'FACE_OCCLUDED';
-      case Attribute.smile:
-        return 'SMILE';
-      case Attribute.sunglasses:
-        return 'SUNGLASSES';
-    }
-  }
-}
+  final String value;
 
-extension AttributeFromString on String {
-  Attribute toAttribute() {
-    switch (this) {
-      case 'DEFAULT':
-        return Attribute.$default;
-      case 'ALL':
-        return Attribute.all;
-      case 'AGE_RANGE':
-        return Attribute.ageRange;
-      case 'BEARD':
-        return Attribute.beard;
-      case 'EMOTIONS':
-        return Attribute.emotions;
-      case 'EYE_DIRECTION':
-        return Attribute.eyeDirection;
-      case 'EYEGLASSES':
-        return Attribute.eyeglasses;
-      case 'EYES_OPEN':
-        return Attribute.eyesOpen;
-      case 'GENDER':
-        return Attribute.gender;
-      case 'MOUTH_OPEN':
-        return Attribute.mouthOpen;
-      case 'MUSTACHE':
-        return Attribute.mustache;
-      case 'FACE_OCCLUDED':
-        return Attribute.faceOccluded;
-      case 'SMILE':
-        return Attribute.smile;
-      case 'SUNGLASSES':
-        return Attribute.sunglasses;
-    }
-    throw Exception('$this is not known in enum Attribute');
-  }
+  const Attribute(this.value);
+
+  static Attribute fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Attribute'));
 }
 
 /// Metadata information about an audio stream. An array of
@@ -5759,41 +6547,19 @@ class BlackFrame {
 }
 
 enum BodyPart {
-  face,
-  head,
-  leftHand,
-  rightHand,
-}
+  face('FACE'),
+  head('HEAD'),
+  leftHand('LEFT_HAND'),
+  rightHand('RIGHT_HAND'),
+  ;
 
-extension BodyPartValueExtension on BodyPart {
-  String toValue() {
-    switch (this) {
-      case BodyPart.face:
-        return 'FACE';
-      case BodyPart.head:
-        return 'HEAD';
-      case BodyPart.leftHand:
-        return 'LEFT_HAND';
-      case BodyPart.rightHand:
-        return 'RIGHT_HAND';
-    }
-  }
-}
+  final String value;
 
-extension BodyPartFromString on String {
-  BodyPart toBodyPart() {
-    switch (this) {
-      case 'FACE':
-        return BodyPart.face;
-      case 'HEAD':
-        return BodyPart.head;
-      case 'LEFT_HAND':
-        return BodyPart.leftHand;
-      case 'RIGHT_HAND':
-        return BodyPart.rightHand;
-    }
-    throw Exception('$this is not known in enum BodyPart');
-  }
+  const BodyPart(this.value);
+
+  static BodyPart fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum BodyPart'));
 }
 
 /// Identifies the bounding box around the label, face, text, object of
@@ -5905,10 +6671,7 @@ class Celebrity {
           : null,
       matchConfidence: json['MatchConfidence'] as double?,
       name: json['Name'] as String?,
-      urls: (json['Urls'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      urls: (json['Urls'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -5961,10 +6724,7 @@ class CelebrityDetail {
           ? KnownGender.fromJson(json['KnownGender'] as Map<String, dynamic>)
           : null,
       name: json['Name'] as String?,
-      urls: (json['Urls'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      urls: (json['Urls'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -5997,32 +6757,18 @@ class CelebrityRecognition {
 }
 
 enum CelebrityRecognitionSortBy {
-  id,
-  timestamp,
-}
+  id('ID'),
+  timestamp('TIMESTAMP'),
+  ;
 
-extension CelebrityRecognitionSortByValueExtension
-    on CelebrityRecognitionSortBy {
-  String toValue() {
-    switch (this) {
-      case CelebrityRecognitionSortBy.id:
-        return 'ID';
-      case CelebrityRecognitionSortBy.timestamp:
-        return 'TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension CelebrityRecognitionSortByFromString on String {
-  CelebrityRecognitionSortBy toCelebrityRecognitionSortBy() {
-    switch (this) {
-      case 'ID':
-        return CelebrityRecognitionSortBy.id;
-      case 'TIMESTAMP':
-        return CelebrityRecognitionSortBy.timestamp;
-    }
-    throw Exception('$this is not known in enum CelebrityRecognitionSortBy');
-  }
+  const CelebrityRecognitionSortBy(this.value);
+
+  static CelebrityRecognitionSortBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CelebrityRecognitionSortBy'));
 }
 
 /// Provides information about a face in a target image that matches the source
@@ -6108,7 +6854,7 @@ class CompareFacesResponse {
   factory CompareFacesResponse.fromJson(Map<String, dynamic> json) {
     return CompareFacesResponse(
       faceMatches: (json['FaceMatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CompareFacesMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       sourceImageFace: json['SourceImageFace'] != null
@@ -6117,12 +6863,12 @@ class CompareFacesResponse {
           : null,
       sourceImageOrientationCorrection:
           (json['SourceImageOrientationCorrection'] as String?)
-              ?.toOrientationCorrection(),
+              ?.let(OrientationCorrection.fromString),
       targetImageOrientationCorrection:
           (json['TargetImageOrientationCorrection'] as String?)
-              ?.toOrientationCorrection(),
+              ?.let(OrientationCorrection.fromString),
       unmatchedFaces: (json['UnmatchedFaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ComparedFace.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6173,11 +6919,11 @@ class ComparedFace {
           : null,
       confidence: json['Confidence'] as double?,
       emotions: (json['Emotions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Emotion.fromJson(e as Map<String, dynamic>))
           .toList(),
       landmarks: (json['Landmarks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Landmark.fromJson(e as Map<String, dynamic>))
           .toList(),
       pose: json['Pose'] != null
@@ -6246,10 +6992,8 @@ class ConnectedHomeSettings {
 
   factory ConnectedHomeSettings.fromJson(Map<String, dynamic> json) {
     return ConnectedHomeSettings(
-      labels: (json['Labels'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      labels:
+          (json['Labels'] as List).nonNulls.map((e) => e as String).toList(),
       minConfidence: json['MinConfidence'] as double?,
     );
   }
@@ -6292,65 +7036,43 @@ class ConnectedHomeSettingsForUpdate {
 }
 
 enum ContentClassifier {
-  freeOfPersonallyIdentifiableInformation,
-  freeOfAdultContent,
-}
+  freeOfPersonallyIdentifiableInformation(
+      'FreeOfPersonallyIdentifiableInformation'),
+  freeOfAdultContent('FreeOfAdultContent'),
+  ;
 
-extension ContentClassifierValueExtension on ContentClassifier {
-  String toValue() {
-    switch (this) {
-      case ContentClassifier.freeOfPersonallyIdentifiableInformation:
-        return 'FreeOfPersonallyIdentifiableInformation';
-      case ContentClassifier.freeOfAdultContent:
-        return 'FreeOfAdultContent';
-    }
-  }
-}
+  final String value;
 
-extension ContentClassifierFromString on String {
-  ContentClassifier toContentClassifier() {
-    switch (this) {
-      case 'FreeOfPersonallyIdentifiableInformation':
-        return ContentClassifier.freeOfPersonallyIdentifiableInformation;
-      case 'FreeOfAdultContent':
-        return ContentClassifier.freeOfAdultContent;
-    }
-    throw Exception('$this is not known in enum ContentClassifier');
-  }
+  const ContentClassifier(this.value);
+
+  static ContentClassifier fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContentClassifier'));
 }
 
 enum ContentModerationAggregateBy {
-  timestamps,
-  segments,
-}
+  timestamps('TIMESTAMPS'),
+  segments('SEGMENTS'),
+  ;
 
-extension ContentModerationAggregateByValueExtension
-    on ContentModerationAggregateBy {
-  String toValue() {
-    switch (this) {
-      case ContentModerationAggregateBy.timestamps:
-        return 'TIMESTAMPS';
-      case ContentModerationAggregateBy.segments:
-        return 'SEGMENTS';
-    }
-  }
-}
+  final String value;
 
-extension ContentModerationAggregateByFromString on String {
-  ContentModerationAggregateBy toContentModerationAggregateBy() {
-    switch (this) {
-      case 'TIMESTAMPS':
-        return ContentModerationAggregateBy.timestamps;
-      case 'SEGMENTS':
-        return ContentModerationAggregateBy.segments;
-    }
-    throw Exception('$this is not known in enum ContentModerationAggregateBy');
-  }
+  const ContentModerationAggregateBy(this.value);
+
+  static ContentModerationAggregateBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContentModerationAggregateBy'));
 }
 
 /// Information about an inappropriate, unwanted, or offensive content label
 /// detection in a stored video.
 class ContentModerationDetection {
+  /// A list of predicted results for the type of content an image contains. For
+  /// example, the image content might be from animation, sports, or a video game.
+  final List<ContentType>? contentTypes;
+
   /// The time duration of a segment in milliseconds, I.e. time elapsed from
   /// StartTimestampMillis to EndTimestampMillis.
   final int? durationMillis;
@@ -6373,6 +7095,7 @@ class ContentModerationDetection {
   final int? timestamp;
 
   ContentModerationDetection({
+    this.contentTypes,
     this.durationMillis,
     this.endTimestampMillis,
     this.moderationLabel,
@@ -6382,6 +7105,10 @@ class ContentModerationDetection {
 
   factory ContentModerationDetection.fromJson(Map<String, dynamic> json) {
     return ContentModerationDetection(
+      contentTypes: (json['ContentTypes'] as List?)
+          ?.nonNulls
+          .map((e) => ContentType.fromJson(e as Map<String, dynamic>))
+          .toList(),
       durationMillis: json['DurationMillis'] as int?,
       endTimestampMillis: json['EndTimestampMillis'] as int?,
       moderationLabel: json['ModerationLabel'] != null
@@ -6395,30 +7122,39 @@ class ContentModerationDetection {
 }
 
 enum ContentModerationSortBy {
-  name,
-  timestamp,
+  name('NAME'),
+  timestamp('TIMESTAMP'),
+  ;
+
+  final String value;
+
+  const ContentModerationSortBy(this.value);
+
+  static ContentModerationSortBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContentModerationSortBy'));
 }
 
-extension ContentModerationSortByValueExtension on ContentModerationSortBy {
-  String toValue() {
-    switch (this) {
-      case ContentModerationSortBy.name:
-        return 'NAME';
-      case ContentModerationSortBy.timestamp:
-        return 'TIMESTAMP';
-    }
-  }
-}
+/// Contains information regarding the confidence and name of a detected content
+/// type.
+class ContentType {
+  /// The confidence level of the label given
+  final double? confidence;
 
-extension ContentModerationSortByFromString on String {
-  ContentModerationSortBy toContentModerationSortBy() {
-    switch (this) {
-      case 'NAME':
-        return ContentModerationSortBy.name;
-      case 'TIMESTAMP':
-        return ContentModerationSortBy.timestamp;
-    }
-    throw Exception('$this is not known in enum ContentModerationSortBy');
+  /// The name of the label
+  final String? name;
+
+  ContentType({
+    this.confidence,
+    this.name,
+  });
+
+  factory ContentType.fromJson(Map<String, dynamic> json) {
+    return ContentType(
+      confidence: json['Confidence'] as double?,
+      name: json['Name'] as String?,
+    );
   }
 }
 
@@ -6536,7 +7272,12 @@ class CreateFaceLivenessSessionRequestSettings {
 }
 
 class CreateFaceLivenessSessionResponse {
-  /// A unique 128-bit UUID identifying a Face Liveness session.
+  /// A unique 128-bit UUID identifying a Face Liveness session. A new sessionID
+  /// must be used for every Face Liveness check. If a given sessionID is used for
+  /// subsequent Face Liveness checks, the checks will fail. Additionally, a
+  /// SessionId expires 3 minutes after it's sent, making all Liveness data
+  /// associated with the session (e.g., sessionID, reference image, audit images,
+  /// etc.) unavailable.
   final String sessionId;
 
   CreateFaceLivenessSessionResponse({
@@ -6568,7 +7309,7 @@ class CreateProjectResponse {
 }
 
 class CreateProjectVersionResponse {
-  /// The ARN of the model version that was created. Use
+  /// The ARN of the model or the project version that was created. Use
   /// <code>DescribeProjectVersion</code> to get the current status of the
   /// training operation.
   final String? projectVersionArn;
@@ -6596,6 +7337,14 @@ class CreateStreamProcessorResponse {
     return CreateStreamProcessorResponse(
       streamProcessorArn: json['StreamProcessorArn'] as String?,
     );
+  }
+}
+
+class CreateUserResponse {
+  CreateUserResponse();
+
+  factory CreateUserResponse.fromJson(Map<String, dynamic> _) {
+    return CreateUserResponse();
   }
 }
 
@@ -6627,6 +7376,76 @@ class CustomLabel {
           : null,
       name: json['Name'] as String?,
     );
+  }
+}
+
+enum CustomizationFeature {
+  contentModeration('CONTENT_MODERATION'),
+  customLabels('CUSTOM_LABELS'),
+  ;
+
+  final String value;
+
+  const CustomizationFeature(this.value);
+
+  static CustomizationFeature fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CustomizationFeature'));
+}
+
+/// Feature specific configuration for the training job. Configuration provided
+/// for the job must match the feature type parameter associated with project.
+/// If configuration and feature type do not match an InvalidParameterException
+/// is returned.
+class CustomizationFeatureConfig {
+  /// Configuration options for Custom Moderation training.
+  final CustomizationFeatureContentModerationConfig? contentModeration;
+
+  CustomizationFeatureConfig({
+    this.contentModeration,
+  });
+
+  factory CustomizationFeatureConfig.fromJson(Map<String, dynamic> json) {
+    return CustomizationFeatureConfig(
+      contentModeration: json['ContentModeration'] != null
+          ? CustomizationFeatureContentModerationConfig.fromJson(
+              json['ContentModeration'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final contentModeration = this.contentModeration;
+    return {
+      if (contentModeration != null) 'ContentModeration': contentModeration,
+    };
+  }
+}
+
+/// Configuration options for Content Moderation training.
+class CustomizationFeatureContentModerationConfig {
+  /// The confidence level you plan to use to identify if unsafe content is
+  /// present during inference.
+  final double? confidenceThreshold;
+
+  CustomizationFeatureContentModerationConfig({
+    this.confidenceThreshold,
+  });
+
+  factory CustomizationFeatureContentModerationConfig.fromJson(
+      Map<String, dynamic> json) {
+    return CustomizationFeatureContentModerationConfig(
+      confidenceThreshold: json['ConfidenceThreshold'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final confidenceThreshold = this.confidenceThreshold;
+    return {
+      if (confidenceThreshold != null)
+        'ConfidenceThreshold': confidenceThreshold,
+    };
   }
 }
 
@@ -6702,10 +7521,10 @@ class DatasetDescription {
           ? DatasetStats.fromJson(json['DatasetStats'] as Map<String, dynamic>)
           : null,
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
-      status: (json['Status'] as String?)?.toDatasetStatus(),
+      status: (json['Status'] as String?)?.let(DatasetStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
-      statusMessageCode:
-          (json['StatusMessageCode'] as String?)?.toDatasetStatusMessageCode(),
+      statusMessageCode: (json['StatusMessageCode'] as String?)
+          ?.let(DatasetStatusMessageCode.fromString),
     );
   }
 }
@@ -6793,11 +7612,12 @@ class DatasetMetadata {
     return DatasetMetadata(
       creationTimestamp: timeStampFromJson(json['CreationTimestamp']),
       datasetArn: json['DatasetArn'] as String?,
-      datasetType: (json['DatasetType'] as String?)?.toDatasetType(),
-      status: (json['Status'] as String?)?.toDatasetStatus(),
+      datasetType:
+          (json['DatasetType'] as String?)?.let(DatasetType.fromString),
+      status: (json['Status'] as String?)?.let(DatasetStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
-      statusMessageCode:
-          (json['StatusMessageCode'] as String?)?.toDatasetStatusMessageCode(),
+      statusMessageCode: (json['StatusMessageCode'] as String?)
+          ?.let(DatasetStatusMessageCode.fromString),
     );
   }
 }
@@ -6870,117 +7690,53 @@ class DatasetStats {
 }
 
 enum DatasetStatus {
-  createInProgress,
-  createComplete,
-  createFailed,
-  updateInProgress,
-  updateComplete,
-  updateFailed,
-  deleteInProgress,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  createComplete('CREATE_COMPLETE'),
+  createFailed('CREATE_FAILED'),
+  updateInProgress('UPDATE_IN_PROGRESS'),
+  updateComplete('UPDATE_COMPLETE'),
+  updateFailed('UPDATE_FAILED'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  ;
 
-extension DatasetStatusValueExtension on DatasetStatus {
-  String toValue() {
-    switch (this) {
-      case DatasetStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case DatasetStatus.createComplete:
-        return 'CREATE_COMPLETE';
-      case DatasetStatus.createFailed:
-        return 'CREATE_FAILED';
-      case DatasetStatus.updateInProgress:
-        return 'UPDATE_IN_PROGRESS';
-      case DatasetStatus.updateComplete:
-        return 'UPDATE_COMPLETE';
-      case DatasetStatus.updateFailed:
-        return 'UPDATE_FAILED';
-      case DatasetStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-    }
-  }
-}
+  final String value;
 
-extension DatasetStatusFromString on String {
-  DatasetStatus toDatasetStatus() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return DatasetStatus.createInProgress;
-      case 'CREATE_COMPLETE':
-        return DatasetStatus.createComplete;
-      case 'CREATE_FAILED':
-        return DatasetStatus.createFailed;
-      case 'UPDATE_IN_PROGRESS':
-        return DatasetStatus.updateInProgress;
-      case 'UPDATE_COMPLETE':
-        return DatasetStatus.updateComplete;
-      case 'UPDATE_FAILED':
-        return DatasetStatus.updateFailed;
-      case 'DELETE_IN_PROGRESS':
-        return DatasetStatus.deleteInProgress;
-    }
-    throw Exception('$this is not known in enum DatasetStatus');
-  }
+  const DatasetStatus(this.value);
+
+  static DatasetStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DatasetStatus'));
 }
 
 enum DatasetStatusMessageCode {
-  success,
-  serviceError,
-  clientError,
-}
+  success('SUCCESS'),
+  serviceError('SERVICE_ERROR'),
+  clientError('CLIENT_ERROR'),
+  ;
 
-extension DatasetStatusMessageCodeValueExtension on DatasetStatusMessageCode {
-  String toValue() {
-    switch (this) {
-      case DatasetStatusMessageCode.success:
-        return 'SUCCESS';
-      case DatasetStatusMessageCode.serviceError:
-        return 'SERVICE_ERROR';
-      case DatasetStatusMessageCode.clientError:
-        return 'CLIENT_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension DatasetStatusMessageCodeFromString on String {
-  DatasetStatusMessageCode toDatasetStatusMessageCode() {
-    switch (this) {
-      case 'SUCCESS':
-        return DatasetStatusMessageCode.success;
-      case 'SERVICE_ERROR':
-        return DatasetStatusMessageCode.serviceError;
-      case 'CLIENT_ERROR':
-        return DatasetStatusMessageCode.clientError;
-    }
-    throw Exception('$this is not known in enum DatasetStatusMessageCode');
-  }
+  const DatasetStatusMessageCode(this.value);
+
+  static DatasetStatusMessageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DatasetStatusMessageCode'));
 }
 
 enum DatasetType {
-  train,
-  test,
-}
+  train('TRAIN'),
+  test('TEST'),
+  ;
 
-extension DatasetTypeValueExtension on DatasetType {
-  String toValue() {
-    switch (this) {
-      case DatasetType.train:
-        return 'TRAIN';
-      case DatasetType.test:
-        return 'TEST';
-    }
-  }
-}
+  final String value;
 
-extension DatasetTypeFromString on String {
-  DatasetType toDatasetType() {
-    switch (this) {
-      case 'TRAIN':
-        return DatasetType.train;
-      case 'TEST':
-        return DatasetType.test;
-    }
-    throw Exception('$this is not known in enum DatasetType');
-  }
+  const DatasetType(this.value);
+
+  static DatasetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum DatasetType'));
 }
 
 class DeleteCollectionResponse {
@@ -7010,15 +7766,24 @@ class DeleteFacesResponse {
   /// An array of strings (face IDs) of the faces that were deleted.
   final List<String>? deletedFaces;
 
+  /// An array of any faces that weren't deleted.
+  final List<UnsuccessfulFaceDeletion>? unsuccessfulFaceDeletions;
+
   DeleteFacesResponse({
     this.deletedFaces,
+    this.unsuccessfulFaceDeletions,
   });
 
   factory DeleteFacesResponse.fromJson(Map<String, dynamic> json) {
     return DeleteFacesResponse(
       deletedFaces: (json['DeletedFaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
+          .toList(),
+      unsuccessfulFaceDeletions: (json['UnsuccessfulFaceDeletions'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              UnsuccessfulFaceDeletion.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -7042,7 +7807,7 @@ class DeleteProjectResponse {
 
   factory DeleteProjectResponse.fromJson(Map<String, dynamic> json) {
     return DeleteProjectResponse(
-      status: (json['Status'] as String?)?.toProjectStatus(),
+      status: (json['Status'] as String?)?.let(ProjectStatus.fromString),
     );
   }
 }
@@ -7057,7 +7822,7 @@ class DeleteProjectVersionResponse {
 
   factory DeleteProjectVersionResponse.fromJson(Map<String, dynamic> json) {
     return DeleteProjectVersionResponse(
-      status: (json['Status'] as String?)?.toProjectVersionStatus(),
+      status: (json['Status'] as String?)?.let(ProjectVersionStatus.fromString),
     );
   }
 }
@@ -7067,6 +7832,14 @@ class DeleteStreamProcessorResponse {
 
   factory DeleteStreamProcessorResponse.fromJson(Map<String, dynamic> _) {
     return DeleteStreamProcessorResponse();
+  }
+}
+
+class DeleteUserResponse {
+  DeleteUserResponse();
+
+  factory DeleteUserResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteUserResponse();
   }
 }
 
@@ -7090,11 +7863,15 @@ class DescribeCollectionResponse {
   /// Developer Guide.
   final String? faceModelVersion;
 
+  /// The number of UserIDs assigned to the specified colleciton.
+  final int? userCount;
+
   DescribeCollectionResponse({
     this.collectionARN,
     this.creationTimestamp,
     this.faceCount,
     this.faceModelVersion,
+    this.userCount,
   });
 
   factory DescribeCollectionResponse.fromJson(Map<String, dynamic> json) {
@@ -7103,6 +7880,7 @@ class DescribeCollectionResponse {
       creationTimestamp: timeStampFromJson(json['CreationTimestamp']),
       faceCount: json['FaceCount'] as int?,
       faceModelVersion: json['FaceModelVersion'] as String?,
+      userCount: json['UserCount'] as int?,
     );
   }
 }
@@ -7127,13 +7905,12 @@ class DescribeDatasetResponse {
 
 class DescribeProjectVersionsResponse {
   /// If the previous response was incomplete (because there is more results to
-  /// retrieve), Amazon Rekognition Custom Labels returns a pagination token in
-  /// the response. You can use this pagination token to retrieve the next set of
-  /// results.
+  /// retrieve), Amazon Rekognition returns a pagination token in the response.
+  /// You can use this pagination token to retrieve the next set of results.
   final String? nextToken;
 
-  /// A list of model descriptions. The list is sorted by the creation date and
-  /// time of the model versions, latest to earliest.
+  /// A list of project version descriptions. The list is sorted by the creation
+  /// date and time of the project versions, latest to earliest.
   final List<ProjectVersionDescription>? projectVersionDescriptions;
 
   DescribeProjectVersionsResponse({
@@ -7145,7 +7922,7 @@ class DescribeProjectVersionsResponse {
     return DescribeProjectVersionsResponse(
       nextToken: json['NextToken'] as String?,
       projectVersionDescriptions: (json['ProjectVersionDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ProjectVersionDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7155,9 +7932,8 @@ class DescribeProjectVersionsResponse {
 
 class DescribeProjectsResponse {
   /// If the previous response was incomplete (because there is more results to
-  /// retrieve), Amazon Rekognition Custom Labels returns a pagination token in
-  /// the response. You can use this pagination token to retrieve the next set of
-  /// results.
+  /// retrieve), Amazon Rekognition returns a pagination token in the response.
+  /// You can use this pagination token to retrieve the next set of results.
   final String? nextToken;
 
   /// A list of project descriptions. The list is sorted by the date and time the
@@ -7173,7 +7949,7 @@ class DescribeProjectsResponse {
     return DescribeProjectsResponse(
       nextToken: json['NextToken'] as String?,
       projectDescriptions: (json['ProjectDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7271,7 +8047,7 @@ class DescribeStreamProcessorResponse {
               json['Output'] as Map<String, dynamic>)
           : null,
       regionsOfInterest: (json['RegionsOfInterest'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RegionOfInterest.fromJson(e as Map<String, dynamic>))
           .toList(),
       roleArn: json['RoleArn'] as String?,
@@ -7279,7 +8055,8 @@ class DescribeStreamProcessorResponse {
           ? StreamProcessorSettings.fromJson(
               json['Settings'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toStreamProcessorStatus(),
+      status:
+          (json['Status'] as String?)?.let(StreamProcessorStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       streamProcessorArn: json['StreamProcessorArn'] as String?,
     );
@@ -7297,7 +8074,7 @@ class DetectCustomLabelsResponse {
   factory DetectCustomLabelsResponse.fromJson(Map<String, dynamic> json) {
     return DetectCustomLabelsResponse(
       customLabels: (json['CustomLabels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomLabel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7331,41 +8108,28 @@ class DetectFacesResponse {
   factory DetectFacesResponse.fromJson(Map<String, dynamic> json) {
     return DetectFacesResponse(
       faceDetails: (json['FaceDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaceDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
-      orientationCorrection:
-          (json['OrientationCorrection'] as String?)?.toOrientationCorrection(),
+      orientationCorrection: (json['OrientationCorrection'] as String?)
+          ?.let(OrientationCorrection.fromString),
     );
   }
 }
 
 enum DetectLabelsFeatureName {
-  generalLabels,
-  imageProperties,
-}
+  generalLabels('GENERAL_LABELS'),
+  imageProperties('IMAGE_PROPERTIES'),
+  ;
 
-extension DetectLabelsFeatureNameValueExtension on DetectLabelsFeatureName {
-  String toValue() {
-    switch (this) {
-      case DetectLabelsFeatureName.generalLabels:
-        return 'GENERAL_LABELS';
-      case DetectLabelsFeatureName.imageProperties:
-        return 'IMAGE_PROPERTIES';
-    }
-  }
-}
+  final String value;
 
-extension DetectLabelsFeatureNameFromString on String {
-  DetectLabelsFeatureName toDetectLabelsFeatureName() {
-    switch (this) {
-      case 'GENERAL_LABELS':
-        return DetectLabelsFeatureName.generalLabels;
-      case 'IMAGE_PROPERTIES':
-        return DetectLabelsFeatureName.imageProperties;
-    }
-    throw Exception('$this is not known in enum DetectLabelsFeatureName');
-  }
+  const DetectLabelsFeatureName(this.value);
+
+  static DetectLabelsFeatureName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DetectLabelsFeatureName'));
 }
 
 /// The background of the image with regard to image quality and dominant
@@ -7387,7 +8151,7 @@ class DetectLabelsImageBackground {
   factory DetectLabelsImageBackground.fromJson(Map<String, dynamic> json) {
     return DetectLabelsImageBackground(
       dominantColors: (json['DominantColors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DominantColor.fromJson(e as Map<String, dynamic>))
           .toList(),
       quality: json['Quality'] != null
@@ -7417,7 +8181,7 @@ class DetectLabelsImageForeground {
   factory DetectLabelsImageForeground.fromJson(Map<String, dynamic> json) {
     return DetectLabelsImageForeground(
       dominantColors: (json['DominantColors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DominantColor.fromJson(e as Map<String, dynamic>))
           .toList(),
       quality: json['Quality'] != null
@@ -7466,7 +8230,7 @@ class DetectLabelsImageProperties {
               json['Background'] as Map<String, dynamic>)
           : null,
       dominantColors: (json['DominantColors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DominantColor.fromJson(e as Map<String, dynamic>))
           .toList(),
       foreground: json['Foreground'] != null
@@ -7567,11 +8331,11 @@ class DetectLabelsResponse {
           : null,
       labelModelVersion: json['LabelModelVersion'] as String?,
       labels: (json['Labels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Label.fromJson(e as Map<String, dynamic>))
           .toList(),
-      orientationCorrection:
-          (json['OrientationCorrection'] as String?)?.toOrientationCorrection(),
+      orientationCorrection: (json['OrientationCorrection'] as String?)
+          ?.let(OrientationCorrection.fromString),
     );
   }
 }
@@ -7604,6 +8368,10 @@ class DetectLabelsSettings {
 }
 
 class DetectModerationLabelsResponse {
+  /// A list of predicted results for the type of content an image contains. For
+  /// example, the image content might be from animation, sports, or a video game.
+  final List<ContentType>? contentTypes;
+
   /// Shows the results of the human in the loop evaluation.
   final HumanLoopActivationOutput? humanLoopActivationOutput;
 
@@ -7611,27 +8379,39 @@ class DetectModerationLabelsResponse {
   /// start of the video, they were detected.
   final List<ModerationLabel>? moderationLabels;
 
-  /// Version number of the moderation detection model that was used to detect
-  /// unsafe content.
+  /// Version number of the base moderation detection model that was used to
+  /// detect unsafe content.
   final String? moderationModelVersion;
 
+  /// Identifier of the custom adapter that was used during inference. If during
+  /// inference the adapter was EXPIRED, then the parameter will not be returned,
+  /// indicating that a base moderation detection project version was used.
+  final String? projectVersion;
+
   DetectModerationLabelsResponse({
+    this.contentTypes,
     this.humanLoopActivationOutput,
     this.moderationLabels,
     this.moderationModelVersion,
+    this.projectVersion,
   });
 
   factory DetectModerationLabelsResponse.fromJson(Map<String, dynamic> json) {
     return DetectModerationLabelsResponse(
+      contentTypes: (json['ContentTypes'] as List?)
+          ?.nonNulls
+          .map((e) => ContentType.fromJson(e as Map<String, dynamic>))
+          .toList(),
       humanLoopActivationOutput: json['HumanLoopActivationOutput'] != null
           ? HumanLoopActivationOutput.fromJson(
               json['HumanLoopActivationOutput'] as Map<String, dynamic>)
           : null,
       moderationLabels: (json['ModerationLabels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ModerationLabel.fromJson(e as Map<String, dynamic>))
           .toList(),
       moderationModelVersion: json['ModerationModelVersion'] as String?,
+      projectVersion: json['ProjectVersion'] as String?,
     );
   }
 }
@@ -7659,7 +8439,7 @@ class DetectProtectiveEquipmentResponse {
       Map<String, dynamic> json) {
     return DetectProtectiveEquipmentResponse(
       persons: (json['Persons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ProtectiveEquipmentPerson.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7714,7 +8494,7 @@ class DetectTextResponse {
   factory DetectTextResponse.fromJson(Map<String, dynamic> json) {
     return DetectTextResponse(
       textDetections: (json['TextDetections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TextDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
       textModelVersion: json['TextModelVersion'] as String?,
@@ -7757,6 +8537,61 @@ class DetectionFilter {
         'MinBoundingBoxWidth': minBoundingBoxWidth,
       if (minConfidence != null) 'MinConfidence': minConfidence,
     };
+  }
+}
+
+class DisassociateFacesResponse {
+  /// An array of DissociatedFace objects containing FaceIds that are successfully
+  /// disassociated with the UserID is returned. Returned if the
+  /// DisassociatedFaces action is successful.
+  final List<DisassociatedFace>? disassociatedFaces;
+
+  /// An array of UnsuccessfulDisassociation objects containing FaceIds that are
+  /// not successfully associated, along with the reasons for the failure to
+  /// associate. Returned if the DisassociateFaces action is successful.
+  final List<UnsuccessfulFaceDisassociation>? unsuccessfulFaceDisassociations;
+
+  /// The status of an update made to a User. Reflects if the User has been
+  /// updated for every requested change.
+  final UserStatus? userStatus;
+
+  DisassociateFacesResponse({
+    this.disassociatedFaces,
+    this.unsuccessfulFaceDisassociations,
+    this.userStatus,
+  });
+
+  factory DisassociateFacesResponse.fromJson(Map<String, dynamic> json) {
+    return DisassociateFacesResponse(
+      disassociatedFaces: (json['DisassociatedFaces'] as List?)
+          ?.nonNulls
+          .map((e) => DisassociatedFace.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      unsuccessfulFaceDisassociations:
+          (json['UnsuccessfulFaceDisassociations'] as List?)
+              ?.nonNulls
+              .map((e) => UnsuccessfulFaceDisassociation.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      userStatus: (json['UserStatus'] as String?)?.let(UserStatus.fromString),
+    );
+  }
+}
+
+/// Provides face metadata for the faces that are disassociated from a specific
+/// UserID.
+class DisassociatedFace {
+  /// Unique identifier assigned to the face.
+  final String? faceId;
+
+  DisassociatedFace({
+    this.faceId,
+  });
+
+  factory DisassociatedFace.fromJson(Map<String, dynamic> json) {
+    return DisassociatedFace(
+      faceId: json['FaceId'] as String?,
+    );
   }
 }
 
@@ -7853,72 +8688,30 @@ class Emotion {
   factory Emotion.fromJson(Map<String, dynamic> json) {
     return Emotion(
       confidence: json['Confidence'] as double?,
-      type: (json['Type'] as String?)?.toEmotionName(),
+      type: (json['Type'] as String?)?.let(EmotionName.fromString),
     );
   }
 }
 
 enum EmotionName {
-  happy,
-  sad,
-  angry,
-  confused,
-  disgusted,
-  surprised,
-  calm,
-  unknown,
-  fear,
-}
+  happy('HAPPY'),
+  sad('SAD'),
+  angry('ANGRY'),
+  confused('CONFUSED'),
+  disgusted('DISGUSTED'),
+  surprised('SURPRISED'),
+  calm('CALM'),
+  unknown('UNKNOWN'),
+  fear('FEAR'),
+  ;
 
-extension EmotionNameValueExtension on EmotionName {
-  String toValue() {
-    switch (this) {
-      case EmotionName.happy:
-        return 'HAPPY';
-      case EmotionName.sad:
-        return 'SAD';
-      case EmotionName.angry:
-        return 'ANGRY';
-      case EmotionName.confused:
-        return 'CONFUSED';
-      case EmotionName.disgusted:
-        return 'DISGUSTED';
-      case EmotionName.surprised:
-        return 'SURPRISED';
-      case EmotionName.calm:
-        return 'CALM';
-      case EmotionName.unknown:
-        return 'UNKNOWN';
-      case EmotionName.fear:
-        return 'FEAR';
-    }
-  }
-}
+  final String value;
 
-extension EmotionNameFromString on String {
-  EmotionName toEmotionName() {
-    switch (this) {
-      case 'HAPPY':
-        return EmotionName.happy;
-      case 'SAD':
-        return EmotionName.sad;
-      case 'ANGRY':
-        return EmotionName.angry;
-      case 'CONFUSED':
-        return EmotionName.confused;
-      case 'DISGUSTED':
-        return EmotionName.disgusted;
-      case 'SURPRISED':
-        return EmotionName.surprised;
-      case 'CALM':
-        return EmotionName.calm;
-      case 'UNKNOWN':
-        return EmotionName.unknown;
-      case 'FEAR':
-        return EmotionName.fear;
-    }
-    throw Exception('$this is not known in enum EmotionName');
-  }
+  const EmotionName(this.value);
+
+  static EmotionName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EmotionName'));
 }
 
 /// Information about an item of Personal Protective Equipment (PPE) detected by
@@ -7955,7 +8748,7 @@ class EquipmentDetection {
           ? CoversBodyPart.fromJson(
               json['CoversBodyPart'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toProtectiveEquipmentType(),
+      type: (json['Type'] as String?)?.let(ProtectiveEquipmentType.fromString),
     );
   }
 }
@@ -8080,6 +8873,9 @@ class Face {
   /// the face vector.
   final String? indexFacesModelVersion;
 
+  /// Unique identifier assigned to the user.
+  final String? userId;
+
   Face({
     this.boundingBox,
     this.confidence,
@@ -8087,6 +8883,7 @@ class Face {
     this.faceId,
     this.imageId,
     this.indexFacesModelVersion,
+    this.userId,
   });
 
   factory Face.fromJson(Map<String, dynamic> json) {
@@ -8099,36 +8896,24 @@ class Face {
       faceId: json['FaceId'] as String?,
       imageId: json['ImageId'] as String?,
       indexFacesModelVersion: json['IndexFacesModelVersion'] as String?,
+      userId: json['UserId'] as String?,
     );
   }
 }
 
 enum FaceAttributes {
-  $default,
-  all,
-}
+  $default('DEFAULT'),
+  all('ALL'),
+  ;
 
-extension FaceAttributesValueExtension on FaceAttributes {
-  String toValue() {
-    switch (this) {
-      case FaceAttributes.$default:
-        return 'DEFAULT';
-      case FaceAttributes.all:
-        return 'ALL';
-    }
-  }
-}
+  final String value;
 
-extension FaceAttributesFromString on String {
-  FaceAttributes toFaceAttributes() {
-    switch (this) {
-      case 'DEFAULT':
-        return FaceAttributes.$default;
-      case 'ALL':
-        return FaceAttributes.all;
-    }
-    throw Exception('$this is not known in enum FaceAttributes');
-  }
+  const FaceAttributes(this.value);
+
+  static FaceAttributes fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FaceAttributes'));
 }
 
 /// Structure containing attributes of the face that the algorithm detected.
@@ -8267,7 +9052,7 @@ class FaceDetail {
           : null,
       confidence: json['Confidence'] as double?,
       emotions: (json['Emotions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Emotion.fromJson(e as Map<String, dynamic>))
           .toList(),
       eyeDirection: json['EyeDirection'] != null
@@ -8286,7 +9071,7 @@ class FaceDetail {
           ? Gender.fromJson(json['Gender'] as Map<String, dynamic>)
           : null,
       landmarks: (json['Landmarks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Landmark.fromJson(e as Map<String, dynamic>))
           .toList(),
       mouthOpen: json['MouthOpen'] != null
@@ -8460,31 +9245,18 @@ class FaceSearchSettings {
 }
 
 enum FaceSearchSortBy {
-  $index,
-  timestamp,
-}
+  $index('INDEX'),
+  timestamp('TIMESTAMP'),
+  ;
 
-extension FaceSearchSortByValueExtension on FaceSearchSortBy {
-  String toValue() {
-    switch (this) {
-      case FaceSearchSortBy.$index:
-        return 'INDEX';
-      case FaceSearchSortBy.timestamp:
-        return 'TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension FaceSearchSortByFromString on String {
-  FaceSearchSortBy toFaceSearchSortBy() {
-    switch (this) {
-      case 'INDEX':
-        return FaceSearchSortBy.$index;
-      case 'TIMESTAMP':
-        return FaceSearchSortBy.timestamp;
-    }
-    throw Exception('$this is not known in enum FaceSearchSortBy');
-  }
+  const FaceSearchSortBy(this.value);
+
+  static FaceSearchSortBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FaceSearchSortBy'));
 }
 
 /// The predicted gender of a detected face.
@@ -8518,37 +9290,23 @@ class Gender {
   factory Gender.fromJson(Map<String, dynamic> json) {
     return Gender(
       confidence: json['Confidence'] as double?,
-      value: (json['Value'] as String?)?.toGenderType(),
+      value: (json['Value'] as String?)?.let(GenderType.fromString),
     );
   }
 }
 
 enum GenderType {
-  male,
-  female,
-}
+  male('Male'),
+  female('Female'),
+  ;
 
-extension GenderTypeValueExtension on GenderType {
-  String toValue() {
-    switch (this) {
-      case GenderType.male:
-        return 'Male';
-      case GenderType.female:
-        return 'Female';
-    }
-  }
-}
+  final String value;
 
-extension GenderTypeFromString on String {
-  GenderType toGenderType() {
-    switch (this) {
-      case 'Male':
-        return GenderType.male;
-      case 'Female':
-        return GenderType.female;
-    }
-    throw Exception('$this is not known in enum GenderType');
-  }
+  const GenderType(this.value);
+
+  static GenderType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum GenderType'));
 }
 
 /// Contains filters for the object labels returned by DetectLabels. Filters can
@@ -8618,7 +9376,7 @@ class Geometry {
           ? BoundingBox.fromJson(json['BoundingBox'] as Map<String, dynamic>)
           : null,
       polygon: (json['Polygon'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Point.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8647,10 +9405,7 @@ class GetCelebrityInfoResponse {
           ? KnownGender.fromJson(json['KnownGender'] as Map<String, dynamic>)
           : null,
       name: json['Name'] as String?,
-      urls: (json['Urls'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      urls: (json['Urls'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -8701,11 +9456,11 @@ class GetCelebrityRecognitionResponse {
   factory GetCelebrityRecognitionResponse.fromJson(Map<String, dynamic> json) {
     return GetCelebrityRecognitionResponse(
       celebrities: (json['Celebrities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CelebrityRecognition.fromJson(e as Map<String, dynamic>))
           .toList(),
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       nextToken: json['NextToken'] as String?,
       statusMessage: json['StatusMessage'] as String?,
@@ -8737,9 +9492,10 @@ class GetContentModerationRequestMetadata {
   factory GetContentModerationRequestMetadata.fromJson(
       Map<String, dynamic> json) {
     return GetContentModerationRequestMetadata(
-      aggregateBy:
-          (json['AggregateBy'] as String?)?.toContentModerationAggregateBy(),
-      sortBy: (json['SortBy'] as String?)?.toContentModerationSortBy(),
+      aggregateBy: (json['AggregateBy'] as String?)
+          ?.let(ContentModerationAggregateBy.fromString),
+      sortBy:
+          (json['SortBy'] as String?)?.let(ContentModerationSortBy.fromString),
     );
   }
 }
@@ -8805,10 +9561,10 @@ class GetContentModerationResponse {
               json['GetRequestMetadata'] as Map<String, dynamic>)
           : null,
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       moderationLabels: (json['ModerationLabels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ContentModerationDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8873,11 +9629,11 @@ class GetFaceDetectionResponse {
   factory GetFaceDetectionResponse.fromJson(Map<String, dynamic> json) {
     return GetFaceDetectionResponse(
       faces: (json['Faces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaceDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       nextToken: json['NextToken'] as String?,
       statusMessage: json['StatusMessage'] as String?,
@@ -8904,7 +9660,8 @@ class GetFaceLivenessSessionResultsResponse {
   /// purposes. It includes a bounding box of the face and the Base64-encoded
   /// bytes that return an image. If the CreateFaceLivenessSession request
   /// included an OutputConfig argument, the image will be uploaded to an S3Object
-  /// specified in the output configuration.
+  /// specified in the output configuration. If no Amazon S3 bucket is defined,
+  /// raw bytes are sent instead.
   final List<AuditImage>? auditImages;
 
   /// Probabalistic confidence score for if the person in the given video was
@@ -8931,9 +9688,9 @@ class GetFaceLivenessSessionResultsResponse {
       Map<String, dynamic> json) {
     return GetFaceLivenessSessionResultsResponse(
       sessionId: json['SessionId'] as String,
-      status: (json['Status'] as String).toLivenessSessionStatus(),
+      status: LivenessSessionStatus.fromString((json['Status'] as String)),
       auditImages: (json['AuditImages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AuditImage.fromJson(e as Map<String, dynamic>))
           .toList(),
       confidence: json['Confidence'] as double?,
@@ -8997,11 +9754,11 @@ class GetFaceSearchResponse {
   factory GetFaceSearchResponse.fromJson(Map<String, dynamic> json) {
     return GetFaceSearchResponse(
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       nextToken: json['NextToken'] as String?,
       persons: (json['Persons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PersonMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       statusMessage: json['StatusMessage'] as String?,
@@ -9032,9 +9789,9 @@ class GetLabelDetectionRequestMetadata {
 
   factory GetLabelDetectionRequestMetadata.fromJson(Map<String, dynamic> json) {
     return GetLabelDetectionRequestMetadata(
-      aggregateBy:
-          (json['AggregateBy'] as String?)?.toLabelDetectionAggregateBy(),
-      sortBy: (json['SortBy'] as String?)?.toLabelDetectionSortBy(),
+      aggregateBy: (json['AggregateBy'] as String?)
+          ?.let(LabelDetectionAggregateBy.fromString),
+      sortBy: (json['SortBy'] as String?)?.let(LabelDetectionSortBy.fromString),
     );
   }
 }
@@ -9100,11 +9857,11 @@ class GetLabelDetectionResponse {
               json['GetRequestMetadata'] as Map<String, dynamic>)
           : null,
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       labelModelVersion: json['LabelModelVersion'] as String?,
       labels: (json['Labels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LabelDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -9115,6 +9872,90 @@ class GetLabelDetectionResponse {
       videoMetadata: json['VideoMetadata'] != null
           ? VideoMetadata.fromJson(
               json['VideoMetadata'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class GetMediaAnalysisJobResponse {
+  /// The Unix date and time when the job was started.
+  final DateTime creationTimestamp;
+
+  /// Reference to the input manifest that was provided in the job creation
+  /// request.
+  final MediaAnalysisInput input;
+
+  /// The identifier for the media analysis job.
+  final String jobId;
+
+  /// Operation configurations that were provided during job creation.
+  final MediaAnalysisOperationsConfig operationsConfig;
+
+  /// Output configuration that was provided in the creation request.
+  final MediaAnalysisOutputConfig outputConfig;
+
+  /// The current status of the media analysis job.
+  final MediaAnalysisJobStatus status;
+
+  /// The Unix date and time when the job finished.
+  final DateTime? completionTimestamp;
+
+  /// Details about the error that resulted in failure of the job.
+  final MediaAnalysisJobFailureDetails? failureDetails;
+
+  /// The name of the media analysis job.
+  final String? jobName;
+
+  /// KMS Key that was provided in the creation request.
+  final String? kmsKeyId;
+
+  /// The summary manifest provides statistics on input manifest and errors
+  /// identified in the input manifest.
+  final MediaAnalysisManifestSummary? manifestSummary;
+
+  /// Output manifest that contains prediction results.
+  final MediaAnalysisResults? results;
+
+  GetMediaAnalysisJobResponse({
+    required this.creationTimestamp,
+    required this.input,
+    required this.jobId,
+    required this.operationsConfig,
+    required this.outputConfig,
+    required this.status,
+    this.completionTimestamp,
+    this.failureDetails,
+    this.jobName,
+    this.kmsKeyId,
+    this.manifestSummary,
+    this.results,
+  });
+
+  factory GetMediaAnalysisJobResponse.fromJson(Map<String, dynamic> json) {
+    return GetMediaAnalysisJobResponse(
+      creationTimestamp:
+          nonNullableTimeStampFromJson(json['CreationTimestamp'] as Object),
+      input: MediaAnalysisInput.fromJson(json['Input'] as Map<String, dynamic>),
+      jobId: json['JobId'] as String,
+      operationsConfig: MediaAnalysisOperationsConfig.fromJson(
+          json['OperationsConfig'] as Map<String, dynamic>),
+      outputConfig: MediaAnalysisOutputConfig.fromJson(
+          json['OutputConfig'] as Map<String, dynamic>),
+      status: MediaAnalysisJobStatus.fromString((json['Status'] as String)),
+      completionTimestamp: timeStampFromJson(json['CompletionTimestamp']),
+      failureDetails: json['FailureDetails'] != null
+          ? MediaAnalysisJobFailureDetails.fromJson(
+              json['FailureDetails'] as Map<String, dynamic>)
+          : null,
+      jobName: json['JobName'] as String?,
+      kmsKeyId: json['KmsKeyId'] as String?,
+      manifestSummary: json['ManifestSummary'] != null
+          ? MediaAnalysisManifestSummary.fromJson(
+              json['ManifestSummary'] as Map<String, dynamic>)
+          : null,
+      results: json['Results'] != null
+          ? MediaAnalysisResults.fromJson(
+              json['Results'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -9168,11 +10009,11 @@ class GetPersonTrackingResponse {
   factory GetPersonTrackingResponse.fromJson(Map<String, dynamic> json) {
     return GetPersonTrackingResponse(
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       nextToken: json['NextToken'] as String?,
       persons: (json['Persons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PersonDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
       statusMessage: json['StatusMessage'] as String?,
@@ -9254,19 +10095,19 @@ class GetSegmentDetectionResponse {
   factory GetSegmentDetectionResponse.fromJson(Map<String, dynamic> json) {
     return GetSegmentDetectionResponse(
       audioMetadata: (json['AudioMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AudioMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       nextToken: json['NextToken'] as String?,
       segments: (json['Segments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SegmentDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
       selectedSegmentTypes: (json['SelectedSegmentTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SegmentTypeInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       statusMessage: json['StatusMessage'] as String?,
@@ -9274,7 +10115,7 @@ class GetSegmentDetectionResponse {
           ? Video.fromJson(json['Video'] as Map<String, dynamic>)
           : null,
       videoMetadata: (json['VideoMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VideoMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9328,12 +10169,12 @@ class GetTextDetectionResponse {
   factory GetTextDetectionResponse.fromJson(Map<String, dynamic> json) {
     return GetTextDetectionResponse(
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toVideoJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(VideoJobStatus.fromString),
       jobTag: json['JobTag'] as String?,
       nextToken: json['NextToken'] as String?,
       statusMessage: json['StatusMessage'] as String?,
       textDetections: (json['TextDetections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TextDetectionResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       textModelVersion: json['TextModelVersion'] as String?,
@@ -9401,7 +10242,7 @@ class HumanLoopActivationOutput {
                   json['HumanLoopActivationConditionsEvaluationResults']
                       as String),
       humanLoopActivationReasons: (json['HumanLoopActivationReasons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       humanLoopArn: json['HumanLoopArn'] as String?,
@@ -9458,8 +10299,7 @@ class HumanLoopDataAttributes {
     final contentClassifiers = this.contentClassifiers;
     return {
       if (contentClassifiers != null)
-        'ContentClassifiers':
-            contentClassifiers.map((e) => e.toValue()).toList(),
+        'ContentClassifiers': contentClassifiers.map((e) => e.value).toList(),
     };
   }
 }
@@ -9597,13 +10437,13 @@ class IndexFacesResponse {
     return IndexFacesResponse(
       faceModelVersion: json['FaceModelVersion'] as String?,
       faceRecords: (json['FaceRecords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaceRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
-      orientationCorrection:
-          (json['OrientationCorrection'] as String?)?.toOrientationCorrection(),
+      orientationCorrection: (json['OrientationCorrection'] as String?)
+          ?.let(OrientationCorrection.fromString),
       unindexedFaces: (json['UnindexedFaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UnindexedFace.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9637,7 +10477,7 @@ class Instance {
           : null,
       confidence: json['Confidence'] as double?,
       dominantColors: (json['DominantColors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DominantColor.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9736,48 +10576,27 @@ class KnownGender {
 
   factory KnownGender.fromJson(Map<String, dynamic> json) {
     return KnownGender(
-      type: (json['Type'] as String?)?.toKnownGenderType(),
+      type: (json['Type'] as String?)?.let(KnownGenderType.fromString),
     );
   }
 }
 
 /// A list of enum string of possible gender values that Celebrity returns.
 enum KnownGenderType {
-  male,
-  female,
-  nonbinary,
-  unlisted,
-}
+  male('Male'),
+  female('Female'),
+  nonbinary('Nonbinary'),
+  unlisted('Unlisted'),
+  ;
 
-extension KnownGenderTypeValueExtension on KnownGenderType {
-  String toValue() {
-    switch (this) {
-      case KnownGenderType.male:
-        return 'Male';
-      case KnownGenderType.female:
-        return 'Female';
-      case KnownGenderType.nonbinary:
-        return 'Nonbinary';
-      case KnownGenderType.unlisted:
-        return 'Unlisted';
-    }
-  }
-}
+  final String value;
 
-extension KnownGenderTypeFromString on String {
-  KnownGenderType toKnownGenderType() {
-    switch (this) {
-      case 'Male':
-        return KnownGenderType.male;
-      case 'Female':
-        return KnownGenderType.female;
-      case 'Nonbinary':
-        return KnownGenderType.nonbinary;
-      case 'Unlisted':
-        return KnownGenderType.unlisted;
-    }
-    throw Exception('$this is not known in enum KnownGenderType');
-  }
+  const KnownGenderType(this.value);
+
+  static KnownGenderType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum KnownGenderType'));
 }
 
 /// Structure containing details about the detected label, including the name,
@@ -9818,21 +10637,21 @@ class Label {
   factory Label.fromJson(Map<String, dynamic> json) {
     return Label(
       aliases: (json['Aliases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LabelAlias.fromJson(e as Map<String, dynamic>))
           .toList(),
       categories: (json['Categories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LabelCategory.fromJson(e as Map<String, dynamic>))
           .toList(),
       confidence: json['Confidence'] as double?,
       instances: (json['Instances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Instance.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
       parents: (json['Parents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Parent.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9916,54 +10735,32 @@ class LabelDetection {
 }
 
 enum LabelDetectionAggregateBy {
-  timestamps,
-  segments,
-}
+  timestamps('TIMESTAMPS'),
+  segments('SEGMENTS'),
+  ;
 
-extension LabelDetectionAggregateByValueExtension on LabelDetectionAggregateBy {
-  String toValue() {
-    switch (this) {
-      case LabelDetectionAggregateBy.timestamps:
-        return 'TIMESTAMPS';
-      case LabelDetectionAggregateBy.segments:
-        return 'SEGMENTS';
-    }
-  }
-}
+  final String value;
 
-extension LabelDetectionAggregateByFromString on String {
-  LabelDetectionAggregateBy toLabelDetectionAggregateBy() {
-    switch (this) {
-      case 'TIMESTAMPS':
-        return LabelDetectionAggregateBy.timestamps;
-      case 'SEGMENTS':
-        return LabelDetectionAggregateBy.segments;
-    }
-    throw Exception('$this is not known in enum LabelDetectionAggregateBy');
-  }
+  const LabelDetectionAggregateBy(this.value);
+
+  static LabelDetectionAggregateBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LabelDetectionAggregateBy'));
 }
 
 enum LabelDetectionFeatureName {
-  generalLabels,
-}
+  generalLabels('GENERAL_LABELS'),
+  ;
 
-extension LabelDetectionFeatureNameValueExtension on LabelDetectionFeatureName {
-  String toValue() {
-    switch (this) {
-      case LabelDetectionFeatureName.generalLabels:
-        return 'GENERAL_LABELS';
-    }
-  }
-}
+  final String value;
 
-extension LabelDetectionFeatureNameFromString on String {
-  LabelDetectionFeatureName toLabelDetectionFeatureName() {
-    switch (this) {
-      case 'GENERAL_LABELS':
-        return LabelDetectionFeatureName.generalLabels;
-    }
-    throw Exception('$this is not known in enum LabelDetectionFeatureName');
-  }
+  const LabelDetectionFeatureName(this.value);
+
+  static LabelDetectionFeatureName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LabelDetectionFeatureName'));
 }
 
 /// Contains the specified filters that should be applied to a list of returned
@@ -9984,31 +10781,18 @@ class LabelDetectionSettings {
 }
 
 enum LabelDetectionSortBy {
-  name,
-  timestamp,
-}
+  name('NAME'),
+  timestamp('TIMESTAMP'),
+  ;
 
-extension LabelDetectionSortByValueExtension on LabelDetectionSortBy {
-  String toValue() {
-    switch (this) {
-      case LabelDetectionSortBy.name:
-        return 'NAME';
-      case LabelDetectionSortBy.timestamp:
-        return 'TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension LabelDetectionSortByFromString on String {
-  LabelDetectionSortBy toLabelDetectionSortBy() {
-    switch (this) {
-      case 'NAME':
-        return LabelDetectionSortBy.name;
-      case 'TIMESTAMP':
-        return LabelDetectionSortBy.timestamp;
-    }
-    throw Exception('$this is not known in enum LabelDetectionSortBy');
-  }
+  const LabelDetectionSortBy(this.value);
+
+  static LabelDetectionSortBy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LabelDetectionSortBy'));
 }
 
 /// Indicates the location of the landmark on the face.
@@ -10036,7 +10820,7 @@ class Landmark {
 
   factory Landmark.fromJson(Map<String, dynamic> json) {
     return Landmark(
-      type: (json['Type'] as String?)?.toLandmarkType(),
+      type: (json['Type'] as String?)?.let(LandmarkType.fromString),
       x: json['X'] as double?,
       y: json['Y'] as double?,
     );
@@ -10044,171 +10828,46 @@ class Landmark {
 }
 
 enum LandmarkType {
-  eyeLeft,
-  eyeRight,
-  nose,
-  mouthLeft,
-  mouthRight,
-  leftEyeBrowLeft,
-  leftEyeBrowRight,
-  leftEyeBrowUp,
-  rightEyeBrowLeft,
-  rightEyeBrowRight,
-  rightEyeBrowUp,
-  leftEyeLeft,
-  leftEyeRight,
-  leftEyeUp,
-  leftEyeDown,
-  rightEyeLeft,
-  rightEyeRight,
-  rightEyeUp,
-  rightEyeDown,
-  noseLeft,
-  noseRight,
-  mouthUp,
-  mouthDown,
-  leftPupil,
-  rightPupil,
-  upperJawlineLeft,
-  midJawlineLeft,
-  chinBottom,
-  midJawlineRight,
-  upperJawlineRight,
-}
+  eyeLeft('eyeLeft'),
+  eyeRight('eyeRight'),
+  nose('nose'),
+  mouthLeft('mouthLeft'),
+  mouthRight('mouthRight'),
+  leftEyeBrowLeft('leftEyeBrowLeft'),
+  leftEyeBrowRight('leftEyeBrowRight'),
+  leftEyeBrowUp('leftEyeBrowUp'),
+  rightEyeBrowLeft('rightEyeBrowLeft'),
+  rightEyeBrowRight('rightEyeBrowRight'),
+  rightEyeBrowUp('rightEyeBrowUp'),
+  leftEyeLeft('leftEyeLeft'),
+  leftEyeRight('leftEyeRight'),
+  leftEyeUp('leftEyeUp'),
+  leftEyeDown('leftEyeDown'),
+  rightEyeLeft('rightEyeLeft'),
+  rightEyeRight('rightEyeRight'),
+  rightEyeUp('rightEyeUp'),
+  rightEyeDown('rightEyeDown'),
+  noseLeft('noseLeft'),
+  noseRight('noseRight'),
+  mouthUp('mouthUp'),
+  mouthDown('mouthDown'),
+  leftPupil('leftPupil'),
+  rightPupil('rightPupil'),
+  upperJawlineLeft('upperJawlineLeft'),
+  midJawlineLeft('midJawlineLeft'),
+  chinBottom('chinBottom'),
+  midJawlineRight('midJawlineRight'),
+  upperJawlineRight('upperJawlineRight'),
+  ;
 
-extension LandmarkTypeValueExtension on LandmarkType {
-  String toValue() {
-    switch (this) {
-      case LandmarkType.eyeLeft:
-        return 'eyeLeft';
-      case LandmarkType.eyeRight:
-        return 'eyeRight';
-      case LandmarkType.nose:
-        return 'nose';
-      case LandmarkType.mouthLeft:
-        return 'mouthLeft';
-      case LandmarkType.mouthRight:
-        return 'mouthRight';
-      case LandmarkType.leftEyeBrowLeft:
-        return 'leftEyeBrowLeft';
-      case LandmarkType.leftEyeBrowRight:
-        return 'leftEyeBrowRight';
-      case LandmarkType.leftEyeBrowUp:
-        return 'leftEyeBrowUp';
-      case LandmarkType.rightEyeBrowLeft:
-        return 'rightEyeBrowLeft';
-      case LandmarkType.rightEyeBrowRight:
-        return 'rightEyeBrowRight';
-      case LandmarkType.rightEyeBrowUp:
-        return 'rightEyeBrowUp';
-      case LandmarkType.leftEyeLeft:
-        return 'leftEyeLeft';
-      case LandmarkType.leftEyeRight:
-        return 'leftEyeRight';
-      case LandmarkType.leftEyeUp:
-        return 'leftEyeUp';
-      case LandmarkType.leftEyeDown:
-        return 'leftEyeDown';
-      case LandmarkType.rightEyeLeft:
-        return 'rightEyeLeft';
-      case LandmarkType.rightEyeRight:
-        return 'rightEyeRight';
-      case LandmarkType.rightEyeUp:
-        return 'rightEyeUp';
-      case LandmarkType.rightEyeDown:
-        return 'rightEyeDown';
-      case LandmarkType.noseLeft:
-        return 'noseLeft';
-      case LandmarkType.noseRight:
-        return 'noseRight';
-      case LandmarkType.mouthUp:
-        return 'mouthUp';
-      case LandmarkType.mouthDown:
-        return 'mouthDown';
-      case LandmarkType.leftPupil:
-        return 'leftPupil';
-      case LandmarkType.rightPupil:
-        return 'rightPupil';
-      case LandmarkType.upperJawlineLeft:
-        return 'upperJawlineLeft';
-      case LandmarkType.midJawlineLeft:
-        return 'midJawlineLeft';
-      case LandmarkType.chinBottom:
-        return 'chinBottom';
-      case LandmarkType.midJawlineRight:
-        return 'midJawlineRight';
-      case LandmarkType.upperJawlineRight:
-        return 'upperJawlineRight';
-    }
-  }
-}
+  final String value;
 
-extension LandmarkTypeFromString on String {
-  LandmarkType toLandmarkType() {
-    switch (this) {
-      case 'eyeLeft':
-        return LandmarkType.eyeLeft;
-      case 'eyeRight':
-        return LandmarkType.eyeRight;
-      case 'nose':
-        return LandmarkType.nose;
-      case 'mouthLeft':
-        return LandmarkType.mouthLeft;
-      case 'mouthRight':
-        return LandmarkType.mouthRight;
-      case 'leftEyeBrowLeft':
-        return LandmarkType.leftEyeBrowLeft;
-      case 'leftEyeBrowRight':
-        return LandmarkType.leftEyeBrowRight;
-      case 'leftEyeBrowUp':
-        return LandmarkType.leftEyeBrowUp;
-      case 'rightEyeBrowLeft':
-        return LandmarkType.rightEyeBrowLeft;
-      case 'rightEyeBrowRight':
-        return LandmarkType.rightEyeBrowRight;
-      case 'rightEyeBrowUp':
-        return LandmarkType.rightEyeBrowUp;
-      case 'leftEyeLeft':
-        return LandmarkType.leftEyeLeft;
-      case 'leftEyeRight':
-        return LandmarkType.leftEyeRight;
-      case 'leftEyeUp':
-        return LandmarkType.leftEyeUp;
-      case 'leftEyeDown':
-        return LandmarkType.leftEyeDown;
-      case 'rightEyeLeft':
-        return LandmarkType.rightEyeLeft;
-      case 'rightEyeRight':
-        return LandmarkType.rightEyeRight;
-      case 'rightEyeUp':
-        return LandmarkType.rightEyeUp;
-      case 'rightEyeDown':
-        return LandmarkType.rightEyeDown;
-      case 'noseLeft':
-        return LandmarkType.noseLeft;
-      case 'noseRight':
-        return LandmarkType.noseRight;
-      case 'mouthUp':
-        return LandmarkType.mouthUp;
-      case 'mouthDown':
-        return LandmarkType.mouthDown;
-      case 'leftPupil':
-        return LandmarkType.leftPupil;
-      case 'rightPupil':
-        return LandmarkType.rightPupil;
-      case 'upperJawlineLeft':
-        return LandmarkType.upperJawlineLeft;
-      case 'midJawlineLeft':
-        return LandmarkType.midJawlineLeft;
-      case 'chinBottom':
-        return LandmarkType.chinBottom;
-      case 'midJawlineRight':
-        return LandmarkType.midJawlineRight;
-      case 'upperJawlineRight':
-        return LandmarkType.upperJawlineRight;
-    }
-    throw Exception('$this is not known in enum LandmarkType');
-  }
+  const LandmarkType(this.value);
+
+  static LandmarkType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LandmarkType'));
 }
 
 class ListCollectionsResponse {
@@ -10235,11 +10894,11 @@ class ListCollectionsResponse {
   factory ListCollectionsResponse.fromJson(Map<String, dynamic> json) {
     return ListCollectionsResponse(
       collectionIds: (json['CollectionIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       faceModelVersions: (json['FaceModelVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -10265,7 +10924,7 @@ class ListDatasetEntriesResponse {
   factory ListDatasetEntriesResponse.fromJson(Map<String, dynamic> json) {
     return ListDatasetEntriesResponse(
       datasetEntries: (json['DatasetEntries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -10291,7 +10950,7 @@ class ListDatasetLabelsResponse {
   factory ListDatasetLabelsResponse.fromJson(Map<String, dynamic> json) {
     return ListDatasetLabelsResponse(
       datasetLabelDescriptions: (json['DatasetLabelDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DatasetLabelDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -10322,8 +10981,32 @@ class ListFacesResponse {
     return ListFacesResponse(
       faceModelVersion: json['FaceModelVersion'] as String?,
       faces: (json['Faces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Face.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class ListMediaAnalysisJobsResponse {
+  /// Contains a list of all media analysis jobs.
+  final List<MediaAnalysisJobDescription> mediaAnalysisJobs;
+
+  /// Pagination token, if the previous response was incomplete.
+  final String? nextToken;
+
+  ListMediaAnalysisJobsResponse({
+    required this.mediaAnalysisJobs,
+    this.nextToken,
+  });
+
+  factory ListMediaAnalysisJobsResponse.fromJson(Map<String, dynamic> json) {
+    return ListMediaAnalysisJobsResponse(
+      mediaAnalysisJobs: (json['MediaAnalysisJobs'] as List)
+          .nonNulls
+          .map((e) =>
+              MediaAnalysisJobDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
     );
@@ -10348,7 +11031,7 @@ class ListProjectPoliciesResponse {
     return ListProjectPoliciesResponse(
       nextToken: json['NextToken'] as String?,
       projectPolicies: (json['ProjectPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectPolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10373,7 +11056,7 @@ class ListStreamProcessorsResponse {
     return ListStreamProcessorsResponse(
       nextToken: json['NextToken'] as String?,
       streamProcessors: (json['StreamProcessors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StreamProcessor.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10392,6 +11075,30 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+}
+
+class ListUsersResponse {
+  /// A pagination token to be used with the subsequent request if the response is
+  /// truncated.
+  final String? nextToken;
+
+  /// List of UsersID associated with the specified collection.
+  final List<User>? users;
+
+  ListUsersResponse({
+    this.nextToken,
+    this.users,
+  });
+
+  factory ListUsersResponse.fromJson(Map<String, dynamic> json) {
+    return ListUsersResponse(
+      nextToken: json['NextToken'] as String?,
+      users: (json['Users'] as List?)
+          ?.nonNulls
+          .map((e) => User.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -10426,45 +11133,365 @@ class LivenessOutputConfig {
 }
 
 enum LivenessSessionStatus {
-  created,
-  inProgress,
-  succeeded,
-  failed,
-  expired,
+  created('CREATED'),
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  expired('EXPIRED'),
+  ;
+
+  final String value;
+
+  const LivenessSessionStatus(this.value);
+
+  static LivenessSessionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LivenessSessionStatus'));
 }
 
-extension LivenessSessionStatusValueExtension on LivenessSessionStatus {
-  String toValue() {
-    switch (this) {
-      case LivenessSessionStatus.created:
-        return 'CREATED';
-      case LivenessSessionStatus.inProgress:
-        return 'IN_PROGRESS';
-      case LivenessSessionStatus.succeeded:
-        return 'SUCCEEDED';
-      case LivenessSessionStatus.failed:
-        return 'FAILED';
-      case LivenessSessionStatus.expired:
-        return 'EXPIRED';
-    }
+/// Contains metadata for a UserID matched with a given face.
+class MatchedUser {
+  /// A provided ID for the UserID. Unique within the collection.
+  final String? userId;
+
+  /// The status of the user matched to a provided FaceID.
+  final UserStatus? userStatus;
+
+  MatchedUser({
+    this.userId,
+    this.userStatus,
+  });
+
+  factory MatchedUser.fromJson(Map<String, dynamic> json) {
+    return MatchedUser(
+      userId: json['UserId'] as String?,
+      userStatus: (json['UserStatus'] as String?)?.let(UserStatus.fromString),
+    );
   }
 }
 
-extension LivenessSessionStatusFromString on String {
-  LivenessSessionStatus toLivenessSessionStatus() {
-    switch (this) {
-      case 'CREATED':
-        return LivenessSessionStatus.created;
-      case 'IN_PROGRESS':
-        return LivenessSessionStatus.inProgress;
-      case 'SUCCEEDED':
-        return LivenessSessionStatus.succeeded;
-      case 'FAILED':
-        return LivenessSessionStatus.failed;
-      case 'EXPIRED':
-        return LivenessSessionStatus.expired;
-    }
-    throw Exception('$this is not known in enum LivenessSessionStatus');
+/// Configuration for Moderation Labels Detection.
+class MediaAnalysisDetectModerationLabelsConfig {
+  /// Specifies the minimum confidence level for the moderation labels to return.
+  /// Amazon Rekognition doesn't return any labels with a confidence level lower
+  /// than this specified value.
+  final double? minConfidence;
+
+  /// Specifies the custom moderation model to be used during the label detection
+  /// job. If not provided the pre-trained model is used.
+  final String? projectVersion;
+
+  MediaAnalysisDetectModerationLabelsConfig({
+    this.minConfidence,
+    this.projectVersion,
+  });
+
+  factory MediaAnalysisDetectModerationLabelsConfig.fromJson(
+      Map<String, dynamic> json) {
+    return MediaAnalysisDetectModerationLabelsConfig(
+      minConfidence: json['MinConfidence'] as double?,
+      projectVersion: json['ProjectVersion'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final minConfidence = this.minConfidence;
+    final projectVersion = this.projectVersion;
+    return {
+      if (minConfidence != null) 'MinConfidence': minConfidence,
+      if (projectVersion != null) 'ProjectVersion': projectVersion,
+    };
+  }
+}
+
+/// Contains input information for a media analysis job.
+class MediaAnalysisInput {
+  final S3Object s3Object;
+
+  MediaAnalysisInput({
+    required this.s3Object,
+  });
+
+  factory MediaAnalysisInput.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisInput(
+      s3Object: S3Object.fromJson(json['S3Object'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final s3Object = this.s3Object;
+    return {
+      'S3Object': s3Object,
+    };
+  }
+}
+
+/// Description for a media analysis job.
+class MediaAnalysisJobDescription {
+  /// The Unix date and time when the job was started.
+  final DateTime creationTimestamp;
+
+  /// Reference to the input manifest that was provided in the job creation
+  /// request.
+  final MediaAnalysisInput input;
+
+  /// The identifier for a media analysis job.
+  final String jobId;
+
+  /// Operation configurations that were provided during job creation.
+  final MediaAnalysisOperationsConfig operationsConfig;
+
+  /// Output configuration that was provided in the creation request.
+  final MediaAnalysisOutputConfig outputConfig;
+
+  /// The status of the media analysis job being retrieved.
+  final MediaAnalysisJobStatus status;
+
+  /// The Unix date and time when the job finished.
+  final DateTime? completionTimestamp;
+
+  /// Details about the error that resulted in failure of the job.
+  final MediaAnalysisJobFailureDetails? failureDetails;
+
+  /// The name of a media analysis job.
+  final String? jobName;
+
+  /// KMS Key that was provided in the creation request.
+  final String? kmsKeyId;
+
+  /// Provides statistics on input manifest and errors identified in the input
+  /// manifest.
+  final MediaAnalysisManifestSummary? manifestSummary;
+
+  /// Output manifest that contains prediction results.
+  final MediaAnalysisResults? results;
+
+  MediaAnalysisJobDescription({
+    required this.creationTimestamp,
+    required this.input,
+    required this.jobId,
+    required this.operationsConfig,
+    required this.outputConfig,
+    required this.status,
+    this.completionTimestamp,
+    this.failureDetails,
+    this.jobName,
+    this.kmsKeyId,
+    this.manifestSummary,
+    this.results,
+  });
+
+  factory MediaAnalysisJobDescription.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisJobDescription(
+      creationTimestamp:
+          nonNullableTimeStampFromJson(json['CreationTimestamp'] as Object),
+      input: MediaAnalysisInput.fromJson(json['Input'] as Map<String, dynamic>),
+      jobId: json['JobId'] as String,
+      operationsConfig: MediaAnalysisOperationsConfig.fromJson(
+          json['OperationsConfig'] as Map<String, dynamic>),
+      outputConfig: MediaAnalysisOutputConfig.fromJson(
+          json['OutputConfig'] as Map<String, dynamic>),
+      status: MediaAnalysisJobStatus.fromString((json['Status'] as String)),
+      completionTimestamp: timeStampFromJson(json['CompletionTimestamp']),
+      failureDetails: json['FailureDetails'] != null
+          ? MediaAnalysisJobFailureDetails.fromJson(
+              json['FailureDetails'] as Map<String, dynamic>)
+          : null,
+      jobName: json['JobName'] as String?,
+      kmsKeyId: json['KmsKeyId'] as String?,
+      manifestSummary: json['ManifestSummary'] != null
+          ? MediaAnalysisManifestSummary.fromJson(
+              json['ManifestSummary'] as Map<String, dynamic>)
+          : null,
+      results: json['Results'] != null
+          ? MediaAnalysisResults.fromJson(
+              json['Results'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+enum MediaAnalysisJobFailureCode {
+  internalError('INTERNAL_ERROR'),
+  invalidS3Object('INVALID_S3_OBJECT'),
+  invalidManifest('INVALID_MANIFEST'),
+  invalidOutputConfig('INVALID_OUTPUT_CONFIG'),
+  invalidKmsKey('INVALID_KMS_KEY'),
+  accessDenied('ACCESS_DENIED'),
+  resourceNotFound('RESOURCE_NOT_FOUND'),
+  resourceNotReady('RESOURCE_NOT_READY'),
+  throttled('THROTTLED'),
+  ;
+
+  final String value;
+
+  const MediaAnalysisJobFailureCode(this.value);
+
+  static MediaAnalysisJobFailureCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MediaAnalysisJobFailureCode'));
+}
+
+/// Details about the error that resulted in failure of the job.
+class MediaAnalysisJobFailureDetails {
+  /// Error code for the failed job.
+  final MediaAnalysisJobFailureCode? code;
+
+  /// Human readable error message.
+  final String? message;
+
+  MediaAnalysisJobFailureDetails({
+    this.code,
+    this.message,
+  });
+
+  factory MediaAnalysisJobFailureDetails.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisJobFailureDetails(
+      code: (json['Code'] as String?)
+          ?.let(MediaAnalysisJobFailureCode.fromString),
+      message: json['Message'] as String?,
+    );
+  }
+}
+
+enum MediaAnalysisJobStatus {
+  created('CREATED'),
+  queued('QUEUED'),
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const MediaAnalysisJobStatus(this.value);
+
+  static MediaAnalysisJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MediaAnalysisJobStatus'));
+}
+
+/// Summary that provides statistics on input manifest and errors identified in
+/// the input manifest.
+class MediaAnalysisManifestSummary {
+  final S3Object? s3Object;
+
+  MediaAnalysisManifestSummary({
+    this.s3Object,
+  });
+
+  factory MediaAnalysisManifestSummary.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisManifestSummary(
+      s3Object: json['S3Object'] != null
+          ? S3Object.fromJson(json['S3Object'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// Object containing information about the model versions of selected features
+/// in a given job.
+class MediaAnalysisModelVersions {
+  /// The Moderation base model version.
+  final String? moderation;
+
+  MediaAnalysisModelVersions({
+    this.moderation,
+  });
+
+  factory MediaAnalysisModelVersions.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisModelVersions(
+      moderation: json['Moderation'] as String?,
+    );
+  }
+}
+
+/// Configuration options for a media analysis job. Configuration is
+/// operation-specific.
+class MediaAnalysisOperationsConfig {
+  /// Contains configuration options for a DetectModerationLabels job.
+  final MediaAnalysisDetectModerationLabelsConfig? detectModerationLabels;
+
+  MediaAnalysisOperationsConfig({
+    this.detectModerationLabels,
+  });
+
+  factory MediaAnalysisOperationsConfig.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisOperationsConfig(
+      detectModerationLabels: json['DetectModerationLabels'] != null
+          ? MediaAnalysisDetectModerationLabelsConfig.fromJson(
+              json['DetectModerationLabels'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final detectModerationLabels = this.detectModerationLabels;
+    return {
+      if (detectModerationLabels != null)
+        'DetectModerationLabels': detectModerationLabels,
+    };
+  }
+}
+
+/// Output configuration provided in the job creation request.
+class MediaAnalysisOutputConfig {
+  /// Specifies the Amazon S3 bucket to contain the output of the media analysis
+  /// job.
+  final String s3Bucket;
+
+  /// Specifies the Amazon S3 key prefix that comes after the name of the bucket
+  /// you have designated for storage.
+  final String? s3KeyPrefix;
+
+  MediaAnalysisOutputConfig({
+    required this.s3Bucket,
+    this.s3KeyPrefix,
+  });
+
+  factory MediaAnalysisOutputConfig.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisOutputConfig(
+      s3Bucket: json['S3Bucket'] as String,
+      s3KeyPrefix: json['S3KeyPrefix'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final s3Bucket = this.s3Bucket;
+    final s3KeyPrefix = this.s3KeyPrefix;
+    return {
+      'S3Bucket': s3Bucket,
+      if (s3KeyPrefix != null) 'S3KeyPrefix': s3KeyPrefix,
+    };
+  }
+}
+
+/// Contains the results for a media analysis job created with
+/// StartMediaAnalysisJob.
+class MediaAnalysisResults {
+  /// Information about the model versions for the features selected in a given
+  /// job.
+  final MediaAnalysisModelVersions? modelVersions;
+  final S3Object? s3Object;
+
+  MediaAnalysisResults({
+    this.modelVersions,
+    this.s3Object,
+  });
+
+  factory MediaAnalysisResults.fromJson(Map<String, dynamic> json) {
+    return MediaAnalysisResults(
+      modelVersions: json['ModelVersions'] != null
+          ? MediaAnalysisModelVersions.fromJson(
+              json['ModelVersions'] as Map<String, dynamic>)
+          : null,
+      s3Object: json['S3Object'] != null
+          ? S3Object.fromJson(json['S3Object'] as Map<String, dynamic>)
+          : null,
+    );
   }
 }
 
@@ -10488,10 +11515,14 @@ class ModerationLabel {
   /// the parent label <code>""</code>.
   final String? parentName;
 
+  /// The level of the moderation label with regard to its taxonomy, from 1 to 3.
+  final int? taxonomyLevel;
+
   ModerationLabel({
     this.confidence,
     this.name,
     this.parentName,
+    this.taxonomyLevel,
   });
 
   factory ModerationLabel.fromJson(Map<String, dynamic> json) {
@@ -10499,6 +11530,7 @@ class ModerationLabel {
       confidence: json['Confidence'] as double?,
       name: json['Name'] as String?,
       parentName: json['ParentName'] as String?,
+      taxonomyLevel: json['TaxonomyLevel'] as int?,
     );
   }
 }
@@ -10582,41 +11614,20 @@ class NotificationChannel {
 }
 
 enum OrientationCorrection {
-  rotate_0,
-  rotate_90,
-  rotate_180,
-  rotate_270,
-}
+  rotate_0('ROTATE_0'),
+  rotate_90('ROTATE_90'),
+  rotate_180('ROTATE_180'),
+  rotate_270('ROTATE_270'),
+  ;
 
-extension OrientationCorrectionValueExtension on OrientationCorrection {
-  String toValue() {
-    switch (this) {
-      case OrientationCorrection.rotate_0:
-        return 'ROTATE_0';
-      case OrientationCorrection.rotate_90:
-        return 'ROTATE_90';
-      case OrientationCorrection.rotate_180:
-        return 'ROTATE_180';
-      case OrientationCorrection.rotate_270:
-        return 'ROTATE_270';
-    }
-  }
-}
+  final String value;
 
-extension OrientationCorrectionFromString on String {
-  OrientationCorrection toOrientationCorrection() {
-    switch (this) {
-      case 'ROTATE_0':
-        return OrientationCorrection.rotate_0;
-      case 'ROTATE_90':
-        return OrientationCorrection.rotate_90;
-      case 'ROTATE_180':
-        return OrientationCorrection.rotate_180;
-      case 'ROTATE_270':
-        return OrientationCorrection.rotate_270;
-    }
-    throw Exception('$this is not known in enum OrientationCorrection');
-  }
+  const OrientationCorrection(this.value);
+
+  static OrientationCorrection fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum OrientationCorrection'));
 }
 
 /// The S3 bucket and folder location where training output is placed.
@@ -10755,7 +11766,7 @@ class PersonMatch {
   factory PersonMatch.fromJson(Map<String, dynamic> json) {
     return PersonMatch(
       faceMatches: (json['FaceMatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaceMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       person: json['Person'] != null
@@ -10767,31 +11778,18 @@ class PersonMatch {
 }
 
 enum PersonTrackingSortBy {
-  $index,
-  timestamp,
-}
+  $index('INDEX'),
+  timestamp('TIMESTAMP'),
+  ;
 
-extension PersonTrackingSortByValueExtension on PersonTrackingSortBy {
-  String toValue() {
-    switch (this) {
-      case PersonTrackingSortBy.$index:
-        return 'INDEX';
-      case PersonTrackingSortBy.timestamp:
-        return 'TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension PersonTrackingSortByFromString on String {
-  PersonTrackingSortBy toPersonTrackingSortBy() {
-    switch (this) {
-      case 'INDEX':
-        return PersonTrackingSortBy.$index;
-      case 'TIMESTAMP':
-        return PersonTrackingSortBy.timestamp;
-    }
-    throw Exception('$this is not known in enum PersonTrackingSortBy');
-  }
+  const PersonTrackingSortBy(this.value);
+
+  static PersonTrackingSortBy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PersonTrackingSortBy'));
 }
 
 /// The X and Y coordinates of a point on an image or video frame. The X and Y
@@ -10859,14 +11857,36 @@ class Pose {
   }
 }
 
+enum ProjectAutoUpdate {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const ProjectAutoUpdate(this.value);
+
+  static ProjectAutoUpdate fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ProjectAutoUpdate'));
+}
+
 /// A description of an Amazon Rekognition Custom Labels project. For more
 /// information, see <a>DescribeProjects</a>.
 class ProjectDescription {
+  /// Indicates whether automatic retraining will be attempted for the versions of
+  /// the project. Applies only to adapters.
+  final ProjectAutoUpdate? autoUpdate;
+
   /// The Unix timestamp for the date and time that the project was created.
   final DateTime? creationTimestamp;
 
   /// Information about the training and test datasets in the project.
   final List<DatasetMetadata>? datasets;
+
+  /// Specifies the project that is being customized.
+  final CustomizationFeature? feature;
 
   /// The Amazon Resource Name (ARN) of the project.
   final String? projectArn;
@@ -10875,21 +11895,27 @@ class ProjectDescription {
   final ProjectStatus? status;
 
   ProjectDescription({
+    this.autoUpdate,
     this.creationTimestamp,
     this.datasets,
+    this.feature,
     this.projectArn,
     this.status,
   });
 
   factory ProjectDescription.fromJson(Map<String, dynamic> json) {
     return ProjectDescription(
+      autoUpdate:
+          (json['AutoUpdate'] as String?)?.let(ProjectAutoUpdate.fromString),
       creationTimestamp: timeStampFromJson(json['CreationTimestamp']),
       datasets: (json['Datasets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
+      feature:
+          (json['Feature'] as String?)?.let(CustomizationFeature.fromString),
       projectArn: json['ProjectArn'] as String?,
-      status: (json['Status'] as String?)?.toProjectStatus(),
+      status: (json['Status'] as String?)?.let(ProjectStatus.fromString),
     );
   }
 }
@@ -10939,40 +11965,26 @@ class ProjectPolicy {
 }
 
 enum ProjectStatus {
-  creating,
-  created,
-  deleting,
+  creating('CREATING'),
+  created('CREATED'),
+  deleting('DELETING'),
+  ;
+
+  final String value;
+
+  const ProjectStatus(this.value);
+
+  static ProjectStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ProjectStatus'));
 }
 
-extension ProjectStatusValueExtension on ProjectStatus {
-  String toValue() {
-    switch (this) {
-      case ProjectStatus.creating:
-        return 'CREATING';
-      case ProjectStatus.created:
-        return 'CREATED';
-      case ProjectStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
-
-extension ProjectStatusFromString on String {
-  ProjectStatus toProjectStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ProjectStatus.creating;
-      case 'CREATED':
-        return ProjectStatus.created;
-      case 'DELETING':
-        return ProjectStatus.deleting;
-    }
-    throw Exception('$this is not known in enum ProjectStatus');
-  }
-}
-
-/// A description of a version of an Amazon Rekognition Custom Labels model.
+/// A description of a version of a Amazon Rekognition project version.
 class ProjectVersionDescription {
+  /// The base detection model version used to create the project version.
+  final String? baseModelVersion;
+
   /// The duration, in seconds, that you were billed for a successful training of
   /// the model version. This value is only returned if the model version has been
   /// successfully trained.
@@ -10985,6 +11997,12 @@ class ProjectVersionDescription {
   /// training is successful.
   final EvaluationResult? evaluationResult;
 
+  /// The feature that was customized.
+  final CustomizationFeature? feature;
+
+  /// Feature specific configuration that was applied during training.
+  final CustomizationFeatureConfig? featureConfig;
+
   /// The identifer for the AWS Key Management Service key (AWS KMS key) that was
   /// used to encrypt the model during training.
   final String? kmsKeyId;
@@ -10993,19 +12011,20 @@ class ProjectVersionDescription {
   /// aggregate data validation results for the training and test datasets.
   final GroundTruthManifest? manifestSummary;
 
-  /// The maximum number of inference units Amazon Rekognition Custom Labels uses
-  /// to auto-scale the model. For more information, see
+  /// The maximum number of inference units Amazon Rekognition uses to auto-scale
+  /// the model. Applies only to Custom Labels projects. For more information, see
   /// <a>StartProjectVersion</a>.
   final int? maxInferenceUnits;
 
-  /// The minimum number of inference units used by the model. For more
-  /// information, see <a>StartProjectVersion</a>.
+  /// The minimum number of inference units used by the model. Applies only to
+  /// Custom Labels projects. For more information, see
+  /// <a>StartProjectVersion</a>.
   final int? minInferenceUnits;
 
   /// The location where training results are saved.
   final OutputConfig? outputConfig;
 
-  /// The Amazon Resource Name (ARN) of the model version.
+  /// The Amazon Resource Name (ARN) of the project version.
   final String? projectVersionArn;
 
   /// If the model version was copied from a different project,
@@ -11028,10 +12047,16 @@ class ProjectVersionDescription {
   /// The Unix date and time that training of the model ended.
   final DateTime? trainingEndTimestamp;
 
+  /// A user-provided description of the project version.
+  final String? versionDescription;
+
   ProjectVersionDescription({
+    this.baseModelVersion,
     this.billableTrainingTimeInSeconds,
     this.creationTimestamp,
     this.evaluationResult,
+    this.feature,
+    this.featureConfig,
     this.kmsKeyId,
     this.manifestSummary,
     this.maxInferenceUnits,
@@ -11044,16 +12069,24 @@ class ProjectVersionDescription {
     this.testingDataResult,
     this.trainingDataResult,
     this.trainingEndTimestamp,
+    this.versionDescription,
   });
 
   factory ProjectVersionDescription.fromJson(Map<String, dynamic> json) {
     return ProjectVersionDescription(
+      baseModelVersion: json['BaseModelVersion'] as String?,
       billableTrainingTimeInSeconds:
           json['BillableTrainingTimeInSeconds'] as int?,
       creationTimestamp: timeStampFromJson(json['CreationTimestamp']),
       evaluationResult: json['EvaluationResult'] != null
           ? EvaluationResult.fromJson(
               json['EvaluationResult'] as Map<String, dynamic>)
+          : null,
+      feature:
+          (json['Feature'] as String?)?.let(CustomizationFeature.fromString),
+      featureConfig: json['FeatureConfig'] != null
+          ? CustomizationFeatureConfig.fromJson(
+              json['FeatureConfig'] as Map<String, dynamic>)
           : null,
       kmsKeyId: json['KmsKeyId'] as String?,
       manifestSummary: json['ManifestSummary'] != null
@@ -11067,7 +12100,7 @@ class ProjectVersionDescription {
           : null,
       projectVersionArn: json['ProjectVersionArn'] as String?,
       sourceProjectVersionArn: json['SourceProjectVersionArn'] as String?,
-      status: (json['Status'] as String?)?.toProjectVersionStatus(),
+      status: (json['Status'] as String?)?.let(ProjectVersionStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       testingDataResult: json['TestingDataResult'] != null
           ? TestingDataResult.fromJson(
@@ -11078,86 +12111,36 @@ class ProjectVersionDescription {
               json['TrainingDataResult'] as Map<String, dynamic>)
           : null,
       trainingEndTimestamp: timeStampFromJson(json['TrainingEndTimestamp']),
+      versionDescription: json['VersionDescription'] as String?,
     );
   }
 }
 
 enum ProjectVersionStatus {
-  trainingInProgress,
-  trainingCompleted,
-  trainingFailed,
-  starting,
-  running,
-  failed,
-  stopping,
-  stopped,
-  deleting,
-  copyingInProgress,
-  copyingCompleted,
-  copyingFailed,
-}
+  trainingInProgress('TRAINING_IN_PROGRESS'),
+  trainingCompleted('TRAINING_COMPLETED'),
+  trainingFailed('TRAINING_FAILED'),
+  starting('STARTING'),
+  running('RUNNING'),
+  failed('FAILED'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  deleting('DELETING'),
+  copyingInProgress('COPYING_IN_PROGRESS'),
+  copyingCompleted('COPYING_COMPLETED'),
+  copyingFailed('COPYING_FAILED'),
+  deprecated('DEPRECATED'),
+  expired('EXPIRED'),
+  ;
 
-extension ProjectVersionStatusValueExtension on ProjectVersionStatus {
-  String toValue() {
-    switch (this) {
-      case ProjectVersionStatus.trainingInProgress:
-        return 'TRAINING_IN_PROGRESS';
-      case ProjectVersionStatus.trainingCompleted:
-        return 'TRAINING_COMPLETED';
-      case ProjectVersionStatus.trainingFailed:
-        return 'TRAINING_FAILED';
-      case ProjectVersionStatus.starting:
-        return 'STARTING';
-      case ProjectVersionStatus.running:
-        return 'RUNNING';
-      case ProjectVersionStatus.failed:
-        return 'FAILED';
-      case ProjectVersionStatus.stopping:
-        return 'STOPPING';
-      case ProjectVersionStatus.stopped:
-        return 'STOPPED';
-      case ProjectVersionStatus.deleting:
-        return 'DELETING';
-      case ProjectVersionStatus.copyingInProgress:
-        return 'COPYING_IN_PROGRESS';
-      case ProjectVersionStatus.copyingCompleted:
-        return 'COPYING_COMPLETED';
-      case ProjectVersionStatus.copyingFailed:
-        return 'COPYING_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ProjectVersionStatusFromString on String {
-  ProjectVersionStatus toProjectVersionStatus() {
-    switch (this) {
-      case 'TRAINING_IN_PROGRESS':
-        return ProjectVersionStatus.trainingInProgress;
-      case 'TRAINING_COMPLETED':
-        return ProjectVersionStatus.trainingCompleted;
-      case 'TRAINING_FAILED':
-        return ProjectVersionStatus.trainingFailed;
-      case 'STARTING':
-        return ProjectVersionStatus.starting;
-      case 'RUNNING':
-        return ProjectVersionStatus.running;
-      case 'FAILED':
-        return ProjectVersionStatus.failed;
-      case 'STOPPING':
-        return ProjectVersionStatus.stopping;
-      case 'STOPPED':
-        return ProjectVersionStatus.stopped;
-      case 'DELETING':
-        return ProjectVersionStatus.deleting;
-      case 'COPYING_IN_PROGRESS':
-        return ProjectVersionStatus.copyingInProgress;
-      case 'COPYING_COMPLETED':
-        return ProjectVersionStatus.copyingCompleted;
-      case 'COPYING_FAILED':
-        return ProjectVersionStatus.copyingFailed;
-    }
-    throw Exception('$this is not known in enum ProjectVersionStatus');
-  }
+  const ProjectVersionStatus(this.value);
+
+  static ProjectVersionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ProjectVersionStatus'));
 }
 
 /// Information about a body part detected by <a>DetectProtectiveEquipment</a>
@@ -11185,10 +12168,10 @@ class ProtectiveEquipmentBodyPart {
     return ProtectiveEquipmentBodyPart(
       confidence: json['Confidence'] as double?,
       equipmentDetections: (json['EquipmentDetections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EquipmentDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
-      name: (json['Name'] as String?)?.toBodyPart(),
+      name: (json['Name'] as String?)?.let(BodyPart.fromString),
     );
   }
 }
@@ -11222,7 +12205,7 @@ class ProtectiveEquipmentPerson {
   factory ProtectiveEquipmentPerson.fromJson(Map<String, dynamic> json) {
     return ProtectiveEquipmentPerson(
       bodyParts: (json['BodyParts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ProtectiveEquipmentBodyPart.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -11278,7 +12261,7 @@ class ProtectiveEquipmentSummarizationAttributes {
     return {
       'MinConfidence': minConfidence,
       'RequiredEquipmentTypes':
-          requiredEquipmentTypes.map((e) => e.toValue()).toList(),
+          requiredEquipmentTypes.map((e) => e.value).toList(),
     };
   }
 }
@@ -11324,17 +12307,17 @@ class ProtectiveEquipmentSummary {
   factory ProtectiveEquipmentSummary.fromJson(Map<String, dynamic> json) {
     return ProtectiveEquipmentSummary(
       personsIndeterminate: (json['PersonsIndeterminate'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as int)
           .toList(),
       personsWithRequiredEquipment:
           (json['PersonsWithRequiredEquipment'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as int)
               .toList(),
       personsWithoutRequiredEquipment:
           (json['PersonsWithoutRequiredEquipment'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as int)
               .toList(),
     );
@@ -11342,36 +12325,19 @@ class ProtectiveEquipmentSummary {
 }
 
 enum ProtectiveEquipmentType {
-  faceCover,
-  handCover,
-  headCover,
-}
+  faceCover('FACE_COVER'),
+  handCover('HAND_COVER'),
+  headCover('HEAD_COVER'),
+  ;
 
-extension ProtectiveEquipmentTypeValueExtension on ProtectiveEquipmentType {
-  String toValue() {
-    switch (this) {
-      case ProtectiveEquipmentType.faceCover:
-        return 'FACE_COVER';
-      case ProtectiveEquipmentType.handCover:
-        return 'HAND_COVER';
-      case ProtectiveEquipmentType.headCover:
-        return 'HEAD_COVER';
-    }
-  }
-}
+  final String value;
 
-extension ProtectiveEquipmentTypeFromString on String {
-  ProtectiveEquipmentType toProtectiveEquipmentType() {
-    switch (this) {
-      case 'FACE_COVER':
-        return ProtectiveEquipmentType.faceCover;
-      case 'HAND_COVER':
-        return ProtectiveEquipmentType.handCover;
-      case 'HEAD_COVER':
-        return ProtectiveEquipmentType.headCover;
-    }
-    throw Exception('$this is not known in enum ProtectiveEquipmentType');
-  }
+  const ProtectiveEquipmentType(this.value);
+
+  static ProtectiveEquipmentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ProtectiveEquipmentType'));
 }
 
 class PutProjectPolicyResponse {
@@ -11390,99 +12356,40 @@ class PutProjectPolicyResponse {
 }
 
 enum QualityFilter {
-  none,
-  auto,
-  low,
-  medium,
-  high,
-}
+  none('NONE'),
+  auto('AUTO'),
+  low('LOW'),
+  medium('MEDIUM'),
+  high('HIGH'),
+  ;
 
-extension QualityFilterValueExtension on QualityFilter {
-  String toValue() {
-    switch (this) {
-      case QualityFilter.none:
-        return 'NONE';
-      case QualityFilter.auto:
-        return 'AUTO';
-      case QualityFilter.low:
-        return 'LOW';
-      case QualityFilter.medium:
-        return 'MEDIUM';
-      case QualityFilter.high:
-        return 'HIGH';
-    }
-  }
-}
+  final String value;
 
-extension QualityFilterFromString on String {
-  QualityFilter toQualityFilter() {
-    switch (this) {
-      case 'NONE':
-        return QualityFilter.none;
-      case 'AUTO':
-        return QualityFilter.auto;
-      case 'LOW':
-        return QualityFilter.low;
-      case 'MEDIUM':
-        return QualityFilter.medium;
-      case 'HIGH':
-        return QualityFilter.high;
-    }
-    throw Exception('$this is not known in enum QualityFilter');
-  }
+  const QualityFilter(this.value);
+
+  static QualityFilter fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum QualityFilter'));
 }
 
 enum Reason {
-  exceedsMaxFaces,
-  extremePose,
-  lowBrightness,
-  lowSharpness,
-  lowConfidence,
-  smallBoundingBox,
-  lowFaceQuality,
-}
+  exceedsMaxFaces('EXCEEDS_MAX_FACES'),
+  extremePose('EXTREME_POSE'),
+  lowBrightness('LOW_BRIGHTNESS'),
+  lowSharpness('LOW_SHARPNESS'),
+  lowConfidence('LOW_CONFIDENCE'),
+  smallBoundingBox('SMALL_BOUNDING_BOX'),
+  lowFaceQuality('LOW_FACE_QUALITY'),
+  ;
 
-extension ReasonValueExtension on Reason {
-  String toValue() {
-    switch (this) {
-      case Reason.exceedsMaxFaces:
-        return 'EXCEEDS_MAX_FACES';
-      case Reason.extremePose:
-        return 'EXTREME_POSE';
-      case Reason.lowBrightness:
-        return 'LOW_BRIGHTNESS';
-      case Reason.lowSharpness:
-        return 'LOW_SHARPNESS';
-      case Reason.lowConfidence:
-        return 'LOW_CONFIDENCE';
-      case Reason.smallBoundingBox:
-        return 'SMALL_BOUNDING_BOX';
-      case Reason.lowFaceQuality:
-        return 'LOW_FACE_QUALITY';
-    }
-  }
-}
+  final String value;
 
-extension ReasonFromString on String {
-  Reason toReason() {
-    switch (this) {
-      case 'EXCEEDS_MAX_FACES':
-        return Reason.exceedsMaxFaces;
-      case 'EXTREME_POSE':
-        return Reason.extremePose;
-      case 'LOW_BRIGHTNESS':
-        return Reason.lowBrightness;
-      case 'LOW_SHARPNESS':
-        return Reason.lowSharpness;
-      case 'LOW_CONFIDENCE':
-        return Reason.lowConfidence;
-      case 'SMALL_BOUNDING_BOX':
-        return Reason.smallBoundingBox;
-      case 'LOW_FACE_QUALITY':
-        return Reason.lowFaceQuality;
-    }
-    throw Exception('$this is not known in enum Reason');
-  }
+  const Reason(this.value);
+
+  static Reason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Reason'));
 }
 
 class RecognizeCelebritiesResponse {
@@ -11528,13 +12435,13 @@ class RecognizeCelebritiesResponse {
   factory RecognizeCelebritiesResponse.fromJson(Map<String, dynamic> json) {
     return RecognizeCelebritiesResponse(
       celebrityFaces: (json['CelebrityFaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Celebrity.fromJson(e as Map<String, dynamic>))
           .toList(),
-      orientationCorrection:
-          (json['OrientationCorrection'] as String?)?.toOrientationCorrection(),
+      orientationCorrection: (json['OrientationCorrection'] as String?)
+          ?.let(OrientationCorrection.fromString),
       unrecognizedFaces: (json['UnrecognizedFaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ComparedFace.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11568,7 +12475,7 @@ class RegionOfInterest {
           ? BoundingBox.fromJson(json['BoundingBox'] as Map<String, dynamic>)
           : null,
       polygon: (json['Polygon'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Point.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11693,7 +12600,7 @@ class SearchFacesByImageResponse {
   factory SearchFacesByImageResponse.fromJson(Map<String, dynamic> json) {
     return SearchFacesByImageResponse(
       faceMatches: (json['FaceMatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaceMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       faceModelVersion: json['FaceModelVersion'] as String?,
@@ -11727,11 +12634,149 @@ class SearchFacesResponse {
   factory SearchFacesResponse.fromJson(Map<String, dynamic> json) {
     return SearchFacesResponse(
       faceMatches: (json['FaceMatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaceMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       faceModelVersion: json['FaceModelVersion'] as String?,
       searchedFaceId: json['SearchedFaceId'] as String?,
+    );
+  }
+}
+
+class SearchUsersByImageResponse {
+  /// Version number of the face detection model associated with the input
+  /// collection CollectionId.
+  final String? faceModelVersion;
+
+  /// A list of FaceDetail objects containing the BoundingBox for the largest face
+  /// in image, as well as the confidence in the bounding box, that was searched
+  /// for matches. If no valid face is detected in the image the response will
+  /// contain no SearchedFace object.
+  final SearchedFaceDetails? searchedFace;
+
+  /// List of UnsearchedFace objects. Contains the face details infered from the
+  /// specified image but not used for search. Contains reasons that describe why
+  /// a face wasn't used for Search.
+  final List<UnsearchedFace>? unsearchedFaces;
+
+  /// An array of UserID objects that matched the input face, along with the
+  /// confidence in the match. The returned structure will be empty if there are
+  /// no matches. Returned if the SearchUsersByImageResponse action is successful.
+  final List<UserMatch>? userMatches;
+
+  SearchUsersByImageResponse({
+    this.faceModelVersion,
+    this.searchedFace,
+    this.unsearchedFaces,
+    this.userMatches,
+  });
+
+  factory SearchUsersByImageResponse.fromJson(Map<String, dynamic> json) {
+    return SearchUsersByImageResponse(
+      faceModelVersion: json['FaceModelVersion'] as String?,
+      searchedFace: json['SearchedFace'] != null
+          ? SearchedFaceDetails.fromJson(
+              json['SearchedFace'] as Map<String, dynamic>)
+          : null,
+      unsearchedFaces: (json['UnsearchedFaces'] as List?)
+          ?.nonNulls
+          .map((e) => UnsearchedFace.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      userMatches: (json['UserMatches'] as List?)
+          ?.nonNulls
+          .map((e) => UserMatch.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class SearchUsersResponse {
+  /// Version number of the face detection model associated with the input
+  /// CollectionId.
+  final String? faceModelVersion;
+
+  /// Contains the ID of a face that was used to search for matches in a
+  /// collection.
+  final SearchedFace? searchedFace;
+
+  /// Contains the ID of the UserID that was used to search for matches in a
+  /// collection.
+  final SearchedUser? searchedUser;
+
+  /// An array of UserMatch objects that matched the input face along with the
+  /// confidence in the match. Array will be empty if there are no matches.
+  final List<UserMatch>? userMatches;
+
+  SearchUsersResponse({
+    this.faceModelVersion,
+    this.searchedFace,
+    this.searchedUser,
+    this.userMatches,
+  });
+
+  factory SearchUsersResponse.fromJson(Map<String, dynamic> json) {
+    return SearchUsersResponse(
+      faceModelVersion: json['FaceModelVersion'] as String?,
+      searchedFace: json['SearchedFace'] != null
+          ? SearchedFace.fromJson(json['SearchedFace'] as Map<String, dynamic>)
+          : null,
+      searchedUser: json['SearchedUser'] != null
+          ? SearchedUser.fromJson(json['SearchedUser'] as Map<String, dynamic>)
+          : null,
+      userMatches: (json['UserMatches'] as List?)
+          ?.nonNulls
+          .map((e) => UserMatch.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+/// Provides face metadata such as FaceId, BoundingBox, Confidence of the input
+/// face used for search.
+class SearchedFace {
+  /// Unique identifier assigned to the face.
+  final String? faceId;
+
+  SearchedFace({
+    this.faceId,
+  });
+
+  factory SearchedFace.fromJson(Map<String, dynamic> json) {
+    return SearchedFace(
+      faceId: json['FaceId'] as String?,
+    );
+  }
+}
+
+/// Contains data regarding the input face used for a search.
+class SearchedFaceDetails {
+  final FaceDetail? faceDetail;
+
+  SearchedFaceDetails({
+    this.faceDetail,
+  });
+
+  factory SearchedFaceDetails.fromJson(Map<String, dynamic> json) {
+    return SearchedFaceDetails(
+      faceDetail: json['FaceDetail'] != null
+          ? FaceDetail.fromJson(json['FaceDetail'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// Contains metadata about a User searched for within a collection.
+class SearchedUser {
+  /// A provided ID for the UserID. Unique within the collection.
+  final String? userId;
+
+  SearchedUser({
+    this.userId,
+  });
+
+  factory SearchedUser.fromJson(Map<String, dynamic> json) {
+    return SearchedUser(
+      userId: json['UserId'] as String?,
     );
   }
 }
@@ -11822,37 +12867,23 @@ class SegmentDetection {
           ? TechnicalCueSegment.fromJson(
               json['TechnicalCueSegment'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toSegmentType(),
+      type: (json['Type'] as String?)?.let(SegmentType.fromString),
     );
   }
 }
 
 enum SegmentType {
-  technicalCue,
-  shot,
-}
+  technicalCue('TECHNICAL_CUE'),
+  shot('SHOT'),
+  ;
 
-extension SegmentTypeValueExtension on SegmentType {
-  String toValue() {
-    switch (this) {
-      case SegmentType.technicalCue:
-        return 'TECHNICAL_CUE';
-      case SegmentType.shot:
-        return 'SHOT';
-    }
-  }
-}
+  final String value;
 
-extension SegmentTypeFromString on String {
-  SegmentType toSegmentType() {
-    switch (this) {
-      case 'TECHNICAL_CUE':
-        return SegmentType.technicalCue;
-      case 'SHOT':
-        return SegmentType.shot;
-    }
-    throw Exception('$this is not known in enum SegmentType');
-  }
+  const SegmentType(this.value);
+
+  static SegmentType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SegmentType'));
 }
 
 /// Information about the type of a segment requested in a call to
@@ -11873,7 +12904,7 @@ class SegmentTypeInfo {
   factory SegmentTypeInfo.fromJson(Map<String, dynamic> json) {
     return SegmentTypeInfo(
       modelVersion: json['ModelVersion'] as String?,
-      type: (json['Type'] as String?)?.toSegmentType(),
+      type: (json['Type'] as String?)?.let(SegmentType.fromString),
     );
   }
 }
@@ -12005,6 +13036,21 @@ class StartLabelDetectionResponse {
   }
 }
 
+class StartMediaAnalysisJobResponse {
+  /// Identifier for the created job.
+  final String jobId;
+
+  StartMediaAnalysisJobResponse({
+    required this.jobId,
+  });
+
+  factory StartMediaAnalysisJobResponse.fromJson(Map<String, dynamic> json) {
+    return StartMediaAnalysisJobResponse(
+      jobId: json['JobId'] as String,
+    );
+  }
+}
+
 class StartPersonTrackingResponse {
   /// The identifier for the person detection job. Use <code>JobId</code> to
   /// identify the job in a subsequent call to <code>GetPersonTracking</code>.
@@ -12031,7 +13077,7 @@ class StartProjectVersionResponse {
 
   factory StartProjectVersionResponse.fromJson(Map<String, dynamic> json) {
     return StartProjectVersionResponse(
-      status: (json['Status'] as String?)?.toProjectVersionStatus(),
+      status: (json['Status'] as String?)?.let(ProjectVersionStatus.fromString),
     );
   }
 }
@@ -12209,7 +13255,7 @@ class StopProjectVersionResponse {
 
   factory StopProjectVersionResponse.fromJson(Map<String, dynamic> json) {
     return StopProjectVersionResponse(
-      status: (json['Status'] as String?)?.toProjectVersionStatus(),
+      status: (json['Status'] as String?)?.let(ProjectVersionStatus.fromString),
     );
   }
 }
@@ -12284,7 +13330,8 @@ class StreamProcessor {
   factory StreamProcessor.fromJson(Map<String, dynamic> json) {
     return StreamProcessor(
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toStreamProcessorStatus(),
+      status:
+          (json['Status'] as String?)?.let(StreamProcessorStatus.fromString),
     );
   }
 }
@@ -12421,33 +13468,18 @@ class StreamProcessorOutput {
 }
 
 enum StreamProcessorParameterToDelete {
-  connectedHomeMinConfidence,
-  regionsOfInterest,
-}
+  connectedHomeMinConfidence('ConnectedHomeMinConfidence'),
+  regionsOfInterest('RegionsOfInterest'),
+  ;
 
-extension StreamProcessorParameterToDeleteValueExtension
-    on StreamProcessorParameterToDelete {
-  String toValue() {
-    switch (this) {
-      case StreamProcessorParameterToDelete.connectedHomeMinConfidence:
-        return 'ConnectedHomeMinConfidence';
-      case StreamProcessorParameterToDelete.regionsOfInterest:
-        return 'RegionsOfInterest';
-    }
-  }
-}
+  final String value;
 
-extension StreamProcessorParameterToDeleteFromString on String {
-  StreamProcessorParameterToDelete toStreamProcessorParameterToDelete() {
-    switch (this) {
-      case 'ConnectedHomeMinConfidence':
-        return StreamProcessorParameterToDelete.connectedHomeMinConfidence;
-      case 'RegionsOfInterest':
-        return StreamProcessorParameterToDelete.regionsOfInterest;
-    }
-    throw Exception(
-        '$this is not known in enum StreamProcessorParameterToDelete');
-  }
+  const StreamProcessorParameterToDelete(this.value);
+
+  static StreamProcessorParameterToDelete fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum StreamProcessorParameterToDelete'));
 }
 
 /// Input parameters used in a streaming video analyzed by a Amazon Rekognition
@@ -12509,51 +13541,22 @@ class StreamProcessorSettingsForUpdate {
 }
 
 enum StreamProcessorStatus {
-  stopped,
-  starting,
-  running,
-  failed,
-  stopping,
-  updating,
-}
+  stopped('STOPPED'),
+  starting('STARTING'),
+  running('RUNNING'),
+  failed('FAILED'),
+  stopping('STOPPING'),
+  updating('UPDATING'),
+  ;
 
-extension StreamProcessorStatusValueExtension on StreamProcessorStatus {
-  String toValue() {
-    switch (this) {
-      case StreamProcessorStatus.stopped:
-        return 'STOPPED';
-      case StreamProcessorStatus.starting:
-        return 'STARTING';
-      case StreamProcessorStatus.running:
-        return 'RUNNING';
-      case StreamProcessorStatus.failed:
-        return 'FAILED';
-      case StreamProcessorStatus.stopping:
-        return 'STOPPING';
-      case StreamProcessorStatus.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension StreamProcessorStatusFromString on String {
-  StreamProcessorStatus toStreamProcessorStatus() {
-    switch (this) {
-      case 'STOPPED':
-        return StreamProcessorStatus.stopped;
-      case 'STARTING':
-        return StreamProcessorStatus.starting;
-      case 'RUNNING':
-        return StreamProcessorStatus.running;
-      case 'FAILED':
-        return StreamProcessorStatus.failed;
-      case 'STOPPING':
-        return StreamProcessorStatus.stopping;
-      case 'UPDATING':
-        return StreamProcessorStatus.updating;
-    }
-    throw Exception('$this is not known in enum StreamProcessorStatus');
-  }
+  const StreamProcessorStatus(this.value);
+
+  static StreamProcessorStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StreamProcessorStatus'));
 }
 
 /// The S3 bucket that contains the training summary. The training summary
@@ -12626,75 +13629,40 @@ class TechnicalCueSegment {
   factory TechnicalCueSegment.fromJson(Map<String, dynamic> json) {
     return TechnicalCueSegment(
       confidence: json['Confidence'] as double?,
-      type: (json['Type'] as String?)?.toTechnicalCueType(),
+      type: (json['Type'] as String?)?.let(TechnicalCueType.fromString),
     );
   }
 }
 
 enum TechnicalCueType {
-  colorBars,
-  endCredits,
-  blackFrames,
-  openingCredits,
-  studioLogo,
-  slate,
-  content,
-}
+  colorBars('ColorBars'),
+  endCredits('EndCredits'),
+  blackFrames('BlackFrames'),
+  openingCredits('OpeningCredits'),
+  studioLogo('StudioLogo'),
+  slate('Slate'),
+  content('Content'),
+  ;
 
-extension TechnicalCueTypeValueExtension on TechnicalCueType {
-  String toValue() {
-    switch (this) {
-      case TechnicalCueType.colorBars:
-        return 'ColorBars';
-      case TechnicalCueType.endCredits:
-        return 'EndCredits';
-      case TechnicalCueType.blackFrames:
-        return 'BlackFrames';
-      case TechnicalCueType.openingCredits:
-        return 'OpeningCredits';
-      case TechnicalCueType.studioLogo:
-        return 'StudioLogo';
-      case TechnicalCueType.slate:
-        return 'Slate';
-      case TechnicalCueType.content:
-        return 'Content';
-    }
-  }
-}
+  final String value;
 
-extension TechnicalCueTypeFromString on String {
-  TechnicalCueType toTechnicalCueType() {
-    switch (this) {
-      case 'ColorBars':
-        return TechnicalCueType.colorBars;
-      case 'EndCredits':
-        return TechnicalCueType.endCredits;
-      case 'BlackFrames':
-        return TechnicalCueType.blackFrames;
-      case 'OpeningCredits':
-        return TechnicalCueType.openingCredits;
-      case 'StudioLogo':
-        return TechnicalCueType.studioLogo;
-      case 'Slate':
-        return TechnicalCueType.slate;
-      case 'Content':
-        return TechnicalCueType.content;
-    }
-    throw Exception('$this is not known in enum TechnicalCueType');
-  }
+  const TechnicalCueType(this.value);
+
+  static TechnicalCueType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TechnicalCueType'));
 }
 
 /// The dataset used for testing. Optionally, if <code>AutoCreate</code> is set,
-/// Amazon Rekognition Custom Labels uses the training dataset to create a test
-/// dataset with a temporary split of the training dataset.
+/// Amazon Rekognition uses the training dataset to create a test dataset with a
+/// temporary split of the training dataset.
 class TestingData {
   /// The assets used for testing.
   final List<Asset>? assets;
 
-  /// If specified, Amazon Rekognition Custom Labels temporarily splits the
-  /// training dataset (80%) to create a test dataset (20%) for the training job.
-  /// After training completes, the test dataset is not stored and the training
-  /// dataset reverts to its previous size.
+  /// If specified, Rekognition splits training dataset to create a test dataset
+  /// for the training job.
   final bool? autoCreate;
 
   TestingData({
@@ -12705,7 +13673,7 @@ class TestingData {
   factory TestingData.fromJson(Map<String, dynamic> json) {
     return TestingData(
       assets: (json['Assets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Asset.fromJson(e as Map<String, dynamic>))
           .toList(),
       autoCreate: json['AutoCreate'] as bool?,
@@ -12812,7 +13780,7 @@ class TextDetection {
           : null,
       id: json['Id'] as int?,
       parentId: json['ParentId'] as int?,
-      type: (json['Type'] as String?)?.toTextTypes(),
+      type: (json['Type'] as String?)?.let(TextTypes.fromString),
     );
   }
 }
@@ -12846,37 +13814,23 @@ class TextDetectionResult {
 }
 
 enum TextTypes {
-  line,
-  word,
-}
+  line('LINE'),
+  word('WORD'),
+  ;
 
-extension TextTypesValueExtension on TextTypes {
-  String toValue() {
-    switch (this) {
-      case TextTypes.line:
-        return 'LINE';
-      case TextTypes.word:
-        return 'WORD';
-    }
-  }
-}
+  final String value;
 
-extension TextTypesFromString on String {
-  TextTypes toTextTypes() {
-    switch (this) {
-      case 'LINE':
-        return TextTypes.line;
-      case 'WORD':
-        return TextTypes.word;
-    }
-    throw Exception('$this is not known in enum TextTypes');
-  }
+  const TextTypes(this.value);
+
+  static TextTypes fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TextTypes'));
 }
 
 /// The dataset used for training.
 class TrainingData {
-  /// A Sagemaker GroundTruth manifest file that contains the training images
-  /// (assets).
+  /// A manifest file that contains references to the training images and
+  /// ground-truth annotations.
   final List<Asset>? assets;
 
   TrainingData({
@@ -12886,7 +13840,7 @@ class TrainingData {
   factory TrainingData.fromJson(Map<String, dynamic> json) {
     return TrainingData(
       assets: (json['Assets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Asset.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12900,18 +13854,18 @@ class TrainingData {
   }
 }
 
-/// Sagemaker Groundtruth format manifest files for the input, output and
-/// validation datasets that are used and created during testing.
+/// The data validation manifest created for the training dataset during model
+/// training.
 class TrainingDataResult {
-  /// The training assets that you supplied for training.
+  /// The training data that you supplied.
   final TrainingData? input;
 
-  /// The images (assets) that were actually trained by Amazon Rekognition Custom
-  /// Labels.
+  /// Reference to images (assets) that were actually used during training with
+  /// trained model predictions.
   final TrainingData? output;
 
-  /// The location of the data validation manifest. The data validation manifest
-  /// is created for the training dataset during model training.
+  /// A manifest that you supplied for training, with validation results for each
+  /// line.
   final ValidationData? validation;
 
   TrainingDataResult({
@@ -12981,11 +13935,202 @@ class UnindexedFace {
           ? FaceDetail.fromJson(json['FaceDetail'] as Map<String, dynamic>)
           : null,
       reasons: (json['Reasons'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toReason())
+          ?.nonNulls
+          .map((e) => Reason.fromString((e as String)))
           .toList(),
     );
   }
+}
+
+/// Face details inferred from the image but not used for search. The response
+/// attribute contains reasons for why a face wasn't used for Search.
+class UnsearchedFace {
+  final FaceDetail? faceDetails;
+
+  /// Reasons why a face wasn't used for Search.
+  final List<UnsearchedFaceReason>? reasons;
+
+  UnsearchedFace({
+    this.faceDetails,
+    this.reasons,
+  });
+
+  factory UnsearchedFace.fromJson(Map<String, dynamic> json) {
+    return UnsearchedFace(
+      faceDetails: json['FaceDetails'] != null
+          ? FaceDetail.fromJson(json['FaceDetails'] as Map<String, dynamic>)
+          : null,
+      reasons: (json['Reasons'] as List?)
+          ?.nonNulls
+          .map((e) => UnsearchedFaceReason.fromString((e as String)))
+          .toList(),
+    );
+  }
+}
+
+enum UnsearchedFaceReason {
+  faceNotLargest('FACE_NOT_LARGEST'),
+  exceedsMaxFaces('EXCEEDS_MAX_FACES'),
+  extremePose('EXTREME_POSE'),
+  lowBrightness('LOW_BRIGHTNESS'),
+  lowSharpness('LOW_SHARPNESS'),
+  lowConfidence('LOW_CONFIDENCE'),
+  smallBoundingBox('SMALL_BOUNDING_BOX'),
+  lowFaceQuality('LOW_FACE_QUALITY'),
+  ;
+
+  final String value;
+
+  const UnsearchedFaceReason(this.value);
+
+  static UnsearchedFaceReason fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum UnsearchedFaceReason'));
+}
+
+/// Contains metadata like FaceId, UserID, and Reasons, for a face that was
+/// unsuccessfully associated.
+class UnsuccessfulFaceAssociation {
+  /// Match confidence with the UserID, provides information regarding if a face
+  /// association was unsuccessful because it didn't meet UserMatchThreshold.
+  final double? confidence;
+
+  /// A unique identifier assigned to the face.
+  final String? faceId;
+
+  /// The reason why the association was unsuccessful.
+  final List<UnsuccessfulFaceAssociationReason>? reasons;
+
+  /// A provided ID for the UserID. Unique within the collection.
+  final String? userId;
+
+  UnsuccessfulFaceAssociation({
+    this.confidence,
+    this.faceId,
+    this.reasons,
+    this.userId,
+  });
+
+  factory UnsuccessfulFaceAssociation.fromJson(Map<String, dynamic> json) {
+    return UnsuccessfulFaceAssociation(
+      confidence: json['Confidence'] as double?,
+      faceId: json['FaceId'] as String?,
+      reasons: (json['Reasons'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              UnsuccessfulFaceAssociationReason.fromString((e as String)))
+          .toList(),
+      userId: json['UserId'] as String?,
+    );
+  }
+}
+
+enum UnsuccessfulFaceAssociationReason {
+  faceNotFound('FACE_NOT_FOUND'),
+  associatedToADifferentUser('ASSOCIATED_TO_A_DIFFERENT_USER'),
+  lowMatchConfidence('LOW_MATCH_CONFIDENCE'),
+  ;
+
+  final String value;
+
+  const UnsuccessfulFaceAssociationReason(this.value);
+
+  static UnsuccessfulFaceAssociationReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum UnsuccessfulFaceAssociationReason'));
+}
+
+/// Contains metadata like FaceId, UserID, and Reasons, for a face that was
+/// unsuccessfully deleted.
+class UnsuccessfulFaceDeletion {
+  /// A unique identifier assigned to the face.
+  final String? faceId;
+
+  /// The reason why the deletion was unsuccessful.
+  final List<UnsuccessfulFaceDeletionReason>? reasons;
+
+  /// A provided ID for the UserID. Unique within the collection.
+  final String? userId;
+
+  UnsuccessfulFaceDeletion({
+    this.faceId,
+    this.reasons,
+    this.userId,
+  });
+
+  factory UnsuccessfulFaceDeletion.fromJson(Map<String, dynamic> json) {
+    return UnsuccessfulFaceDeletion(
+      faceId: json['FaceId'] as String?,
+      reasons: (json['Reasons'] as List?)
+          ?.nonNulls
+          .map((e) => UnsuccessfulFaceDeletionReason.fromString((e as String)))
+          .toList(),
+      userId: json['UserId'] as String?,
+    );
+  }
+}
+
+enum UnsuccessfulFaceDeletionReason {
+  associatedToAnExistingUser('ASSOCIATED_TO_AN_EXISTING_USER'),
+  faceNotFound('FACE_NOT_FOUND'),
+  ;
+
+  final String value;
+
+  const UnsuccessfulFaceDeletionReason(this.value);
+
+  static UnsuccessfulFaceDeletionReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum UnsuccessfulFaceDeletionReason'));
+}
+
+/// Contains metadata like FaceId, UserID, and Reasons, for a face that was
+/// unsuccessfully disassociated.
+class UnsuccessfulFaceDisassociation {
+  /// A unique identifier assigned to the face.
+  final String? faceId;
+
+  /// The reason why the deletion was unsuccessful.
+  final List<UnsuccessfulFaceDisassociationReason>? reasons;
+
+  /// A provided ID for the UserID. Unique within the collection.
+  final String? userId;
+
+  UnsuccessfulFaceDisassociation({
+    this.faceId,
+    this.reasons,
+    this.userId,
+  });
+
+  factory UnsuccessfulFaceDisassociation.fromJson(Map<String, dynamic> json) {
+    return UnsuccessfulFaceDisassociation(
+      faceId: json['FaceId'] as String?,
+      reasons: (json['Reasons'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              UnsuccessfulFaceDisassociationReason.fromString((e as String)))
+          .toList(),
+      userId: json['UserId'] as String?,
+    );
+  }
+}
+
+enum UnsuccessfulFaceDisassociationReason {
+  faceNotFound('FACE_NOT_FOUND'),
+  associatedToADifferentUser('ASSOCIATED_TO_A_DIFFERENT_USER'),
+  ;
+
+  final String value;
+
+  const UnsuccessfulFaceDisassociationReason(this.value);
+
+  static UnsuccessfulFaceDisassociationReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum UnsuccessfulFaceDisassociationReason'));
 }
 
 class UntagResourceResponse {
@@ -13010,6 +14155,68 @@ class UpdateStreamProcessorResponse {
   factory UpdateStreamProcessorResponse.fromJson(Map<String, dynamic> _) {
     return UpdateStreamProcessorResponse();
   }
+}
+
+/// Metadata of the user stored in a collection.
+class User {
+  /// A provided ID for the User. Unique within the collection.
+  final String? userId;
+
+  /// Communicates if the UserID has been updated with latest set of faces to be
+  /// associated with the UserID.
+  final UserStatus? userStatus;
+
+  User({
+    this.userId,
+    this.userStatus,
+  });
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+      userId: json['UserId'] as String?,
+      userStatus: (json['UserStatus'] as String?)?.let(UserStatus.fromString),
+    );
+  }
+}
+
+/// Provides UserID metadata along with the confidence in the match of this
+/// UserID with the input face.
+class UserMatch {
+  /// Describes the UserID metadata.
+  final double? similarity;
+
+  /// Confidence in the match of this UserID with the input face.
+  final MatchedUser? user;
+
+  UserMatch({
+    this.similarity,
+    this.user,
+  });
+
+  factory UserMatch.fromJson(Map<String, dynamic> json) {
+    return UserMatch(
+      similarity: json['Similarity'] as double?,
+      user: json['User'] != null
+          ? MatchedUser.fromJson(json['User'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+enum UserStatus {
+  active('ACTIVE'),
+  updating('UPDATING'),
+  creating('CREATING'),
+  created('CREATED'),
+  ;
+
+  final String value;
+
+  const UserStatus(this.value);
+
+  static UserStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum UserStatus'));
 }
 
 /// Contains the Amazon S3 bucket location of the validation data for a model
@@ -13037,7 +14244,7 @@ class ValidationData {
   factory ValidationData.fromJson(Map<String, dynamic> json) {
     return ValidationData(
       assets: (json['Assets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Asset.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13073,64 +14280,34 @@ class Video {
 }
 
 enum VideoColorRange {
-  full,
-  limited,
-}
+  full('FULL'),
+  limited('LIMITED'),
+  ;
 
-extension VideoColorRangeValueExtension on VideoColorRange {
-  String toValue() {
-    switch (this) {
-      case VideoColorRange.full:
-        return 'FULL';
-      case VideoColorRange.limited:
-        return 'LIMITED';
-    }
-  }
-}
+  final String value;
 
-extension VideoColorRangeFromString on String {
-  VideoColorRange toVideoColorRange() {
-    switch (this) {
-      case 'FULL':
-        return VideoColorRange.full;
-      case 'LIMITED':
-        return VideoColorRange.limited;
-    }
-    throw Exception('$this is not known in enum VideoColorRange');
-  }
+  const VideoColorRange(this.value);
+
+  static VideoColorRange fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VideoColorRange'));
 }
 
 enum VideoJobStatus {
-  inProgress,
-  succeeded,
-  failed,
-}
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
 
-extension VideoJobStatusValueExtension on VideoJobStatus {
-  String toValue() {
-    switch (this) {
-      case VideoJobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case VideoJobStatus.succeeded:
-        return 'SUCCEEDED';
-      case VideoJobStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension VideoJobStatusFromString on String {
-  VideoJobStatus toVideoJobStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return VideoJobStatus.inProgress;
-      case 'SUCCEEDED':
-        return VideoJobStatus.succeeded;
-      case 'FAILED':
-        return VideoJobStatus.failed;
-    }
-    throw Exception('$this is not known in enum VideoJobStatus');
-  }
+  const VideoJobStatus(this.value);
+
+  static VideoJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VideoJobStatus'));
 }
 
 /// Information about a video that Amazon Rekognition analyzed.
@@ -13172,7 +14349,8 @@ class VideoMetadata {
   factory VideoMetadata.fromJson(Map<String, dynamic> json) {
     return VideoMetadata(
       codec: json['Codec'] as String?,
-      colorRange: (json['ColorRange'] as String?)?.toVideoColorRange(),
+      colorRange:
+          (json['ColorRange'] as String?)?.let(VideoColorRange.fromString),
       durationMillis: json['DurationMillis'] as int?,
       format: json['Format'] as String?,
       frameHeight: json['FrameHeight'] as int?,
@@ -13185,6 +14363,11 @@ class VideoMetadata {
 class AccessDeniedException extends _s.GenericAwsException {
   AccessDeniedException({String? type, String? message})
       : super(type: type, code: 'AccessDeniedException', message: message);
+}
+
+class ConflictException extends _s.GenericAwsException {
+  ConflictException({String? type, String? message})
+      : super(type: type, code: 'ConflictException', message: message);
 }
 
 class HumanLoopQuotaExceededException extends _s.GenericAwsException {
@@ -13217,6 +14400,11 @@ class InvalidImageFormatException extends _s.GenericAwsException {
   InvalidImageFormatException({String? type, String? message})
       : super(
             type: type, code: 'InvalidImageFormatException', message: message);
+}
+
+class InvalidManifestException extends _s.GenericAwsException {
+  InvalidManifestException({String? type, String? message})
+      : super(type: type, code: 'InvalidManifestException', message: message);
 }
 
 class InvalidPaginationTokenException extends _s.GenericAwsException {
@@ -13315,6 +14503,8 @@ class VideoTooLargeException extends _s.GenericAwsException {
 final _exceptionFns = <String, _s.AwsExceptionFn>{
   'AccessDeniedException': (type, message) =>
       AccessDeniedException(type: type, message: message),
+  'ConflictException': (type, message) =>
+      ConflictException(type: type, message: message),
   'HumanLoopQuotaExceededException': (type, message) =>
       HumanLoopQuotaExceededException(type: type, message: message),
   'IdempotentParameterMismatchException': (type, message) =>
@@ -13325,6 +14515,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       InternalServerError(type: type, message: message),
   'InvalidImageFormatException': (type, message) =>
       InvalidImageFormatException(type: type, message: message),
+  'InvalidManifestException': (type, message) =>
+      InvalidManifestException(type: type, message: message),
   'InvalidPaginationTokenException': (type, message) =>
       InvalidPaginationTokenException(type: type, message: message),
   'InvalidParameterException': (type, message) =>

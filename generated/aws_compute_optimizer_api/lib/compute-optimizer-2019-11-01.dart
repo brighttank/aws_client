@@ -122,8 +122,8 @@ class ComputeOptimizer {
       headers: headers,
       payload: {
         'recommendationPreferenceNames':
-            recommendationPreferenceNames.map((e) => e.toValue()).toList(),
-        'resourceType': resourceType.toValue(),
+            recommendationPreferenceNames.map((e) => e.value).toList(),
+        'resourceType': resourceType.value,
         if (scope != null) 'scope': scope,
       },
     );
@@ -317,8 +317,8 @@ class ComputeOptimizer {
         's3DestinationConfig': s3DestinationConfig,
         if (accountIds != null) 'accountIds': accountIds,
         if (fieldsToExport != null)
-          'fieldsToExport': fieldsToExport.map((e) => e.toValue()).toList(),
-        if (fileFormat != null) 'fileFormat': fileFormat.toValue(),
+          'fieldsToExport': fieldsToExport.map((e) => e.value).toList(),
+        if (fileFormat != null) 'fileFormat': fileFormat.value,
         if (filters != null) 'filters': filters,
         if (includeMemberAccounts != null)
           'includeMemberAccounts': includeMemberAccounts,
@@ -426,8 +426,8 @@ class ComputeOptimizer {
         's3DestinationConfig': s3DestinationConfig,
         if (accountIds != null) 'accountIds': accountIds,
         if (fieldsToExport != null)
-          'fieldsToExport': fieldsToExport.map((e) => e.toValue()).toList(),
-        if (fileFormat != null) 'fileFormat': fileFormat.toValue(),
+          'fieldsToExport': fieldsToExport.map((e) => e.value).toList(),
+        if (fileFormat != null) 'fileFormat': fileFormat.value,
         if (filters != null) 'filters': filters,
         if (includeMemberAccounts != null)
           'includeMemberAccounts': includeMemberAccounts,
@@ -549,8 +549,8 @@ class ComputeOptimizer {
         's3DestinationConfig': s3DestinationConfig,
         if (accountIds != null) 'accountIds': accountIds,
         if (fieldsToExport != null)
-          'fieldsToExport': fieldsToExport.map((e) => e.toValue()).toList(),
-        if (fileFormat != null) 'fileFormat': fileFormat.toValue(),
+          'fieldsToExport': fieldsToExport.map((e) => e.value).toList(),
+        if (fileFormat != null) 'fileFormat': fileFormat.value,
         if (filters != null) 'filters': filters,
         if (includeMemberAccounts != null)
           'includeMemberAccounts': includeMemberAccounts,
@@ -653,8 +653,8 @@ class ComputeOptimizer {
         's3DestinationConfig': s3DestinationConfig,
         if (accountIds != null) 'accountIds': accountIds,
         if (fieldsToExport != null)
-          'fieldsToExport': fieldsToExport.map((e) => e.toValue()).toList(),
-        if (fileFormat != null) 'fileFormat': fileFormat.toValue(),
+          'fieldsToExport': fieldsToExport.map((e) => e.value).toList(),
+        if (fileFormat != null) 'fileFormat': fileFormat.value,
         if (filters != null) 'filters': filters,
         if (includeMemberAccounts != null)
           'includeMemberAccounts': includeMemberAccounts,
@@ -760,8 +760,8 @@ class ComputeOptimizer {
         's3DestinationConfig': s3DestinationConfig,
         if (accountIds != null) 'accountIds': accountIds,
         if (fieldsToExport != null)
-          'fieldsToExport': fieldsToExport.map((e) => e.toValue()).toList(),
-        if (fileFormat != null) 'fileFormat': fileFormat.toValue(),
+          'fieldsToExport': fieldsToExport.map((e) => e.value).toList(),
+        if (fileFormat != null) 'fileFormat': fileFormat.value,
         if (filters != null) 'filters': filters,
         if (includeMemberAccounts != null)
           'includeMemberAccounts': includeMemberAccounts,
@@ -770,6 +770,108 @@ class ComputeOptimizer {
 
     return ExportLambdaFunctionRecommendationsResponse.fromJson(
         jsonResponse.body);
+  }
+
+  /// Export optimization recommendations for your licenses.
+  ///
+  /// Recommendations are exported in a comma-separated values (CSV) file, and
+  /// its metadata in a JavaScript Object Notation (JSON) file, to an existing
+  /// Amazon Simple Storage Service (Amazon S3) bucket that you specify. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/exporting-recommendations.html">Exporting
+  /// Recommendations</a> in the <i>Compute Optimizer User Guide</i>.
+  ///
+  /// You can have only one license export job in progress per Amazon Web
+  /// Services Region.
+  ///
+  /// May throw [OptInRequiredException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InvalidParameterValueException].
+  /// May throw [MissingAuthenticationToken].
+  /// May throw [ThrottlingException].
+  /// May throw [LimitExceededException].
+  ///
+  /// Parameter [accountIds] :
+  /// The IDs of the Amazon Web Services accounts for which to export license
+  /// recommendations.
+  ///
+  /// If your account is the management account of an organization, use this
+  /// parameter to specify the member account for which you want to export
+  /// recommendations.
+  ///
+  /// This parameter can't be specified together with the include member
+  /// accounts parameter. The parameters are mutually exclusive.
+  ///
+  /// If this parameter is omitted, recommendations for member accounts aren't
+  /// included in the export.
+  ///
+  /// You can specify multiple account IDs per request.
+  ///
+  /// Parameter [fieldsToExport] :
+  /// The recommendations data to include in the export file. For more
+  /// information about the fields that can be exported, see <a
+  /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/exporting-recommendations.html#exported-files">Exported
+  /// files</a> in the <i>Compute Optimizer User Guide</i>.
+  ///
+  /// Parameter [fileFormat] :
+  /// The format of the export file.
+  ///
+  /// A CSV file is the only export format currently supported.
+  ///
+  /// Parameter [filters] :
+  /// An array of objects to specify a filter that exports a more specific set
+  /// of license recommendations.
+  ///
+  /// Parameter [includeMemberAccounts] :
+  /// Indicates whether to include recommendations for resources in all member
+  /// accounts of the organization if your account is the management account of
+  /// an organization.
+  ///
+  /// The member accounts must also be opted in to Compute Optimizer, and
+  /// trusted access for Compute Optimizer must be enabled in the organization
+  /// account. For more information, see <a
+  /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/security-iam.html#trusted-service-access">Compute
+  /// Optimizer and Amazon Web Services Organizations trusted access</a> in the
+  /// <i>Compute Optimizer User Guide</i>.
+  ///
+  /// If this parameter is omitted, recommendations for member accounts of the
+  /// organization aren't included in the export file .
+  ///
+  /// This parameter cannot be specified together with the account IDs
+  /// parameter. The parameters are mutually exclusive.
+  Future<ExportLicenseRecommendationsResponse> exportLicenseRecommendations({
+    required S3DestinationConfig s3DestinationConfig,
+    List<String>? accountIds,
+    List<ExportableLicenseField>? fieldsToExport,
+    FileFormat? fileFormat,
+    List<LicenseRecommendationFilter>? filters,
+    bool? includeMemberAccounts,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.0',
+      'X-Amz-Target': 'ComputeOptimizerService.ExportLicenseRecommendations'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        's3DestinationConfig': s3DestinationConfig,
+        if (accountIds != null) 'accountIds': accountIds,
+        if (fieldsToExport != null)
+          'fieldsToExport': fieldsToExport.map((e) => e.value).toList(),
+        if (fileFormat != null) 'fileFormat': fileFormat.value,
+        if (filters != null) 'filters': filters,
+        if (includeMemberAccounts != null)
+          'includeMemberAccounts': includeMemberAccounts,
+      },
+    );
+
+    return ExportLicenseRecommendationsResponse.fromJson(jsonResponse.body);
   }
 
   /// Returns Auto Scaling group recommendations.
@@ -1092,7 +1194,7 @@ class ComputeOptimizer {
         'instanceArn': instanceArn,
         'period': period,
         'startTime': unixTimestampToJson(startTime),
-        'stat': stat.toValue(),
+        'stat': stat.value,
         if (recommendationPreferences != null)
           'recommendationPreferences': recommendationPreferences,
       },
@@ -1155,7 +1257,7 @@ class ComputeOptimizer {
         'period': period,
         'serviceArn': serviceArn,
         'startTime': unixTimestampToJson(startTime),
-        'stat': stat.toValue(),
+        'stat': stat.value,
       },
     );
 
@@ -1471,6 +1573,88 @@ class ComputeOptimizer {
     return GetLambdaFunctionRecommendationsResponse.fromJson(jsonResponse.body);
   }
 
+  /// Returns license recommendations for Amazon EC2 instances that run on a
+  /// specific license.
+  ///
+  /// Compute Optimizer generates recommendations for licenses that meet a
+  /// specific set of requirements. For more information, see the <a
+  /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/requirements.html">Supported
+  /// resources and requirements</a> in the <i>Compute Optimizer User Guide</i>.
+  ///
+  /// May throw [OptInRequiredException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InvalidParameterValueException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [MissingAuthenticationToken].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [accountIds] :
+  /// The ID of the Amazon Web Services account for which to return license
+  /// recommendations.
+  ///
+  /// If your account is the management account of an organization, use this
+  /// parameter to specify the member account for which you want to return
+  /// license recommendations.
+  ///
+  /// Only one account ID can be specified per request.
+  ///
+  /// Parameter [filters] :
+  /// An array of objects to specify a filter that returns a more specific list
+  /// of license recommendations.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of license recommendations to return with a single
+  /// request.
+  ///
+  /// To retrieve the remaining results, make another request with the returned
+  /// <code>nextToken</code> value.
+  ///
+  /// Parameter [nextToken] :
+  /// The token to advance to the next page of license recommendations.
+  ///
+  /// Parameter [resourceArns] :
+  /// The ARN that identifies the Amazon EC2 instance.
+  ///
+  /// The following is the format of the ARN:
+  ///
+  /// <code>arn:aws:ec2:region:aws_account_id:instance/instance-id</code>
+  Future<GetLicenseRecommendationsResponse> getLicenseRecommendations({
+    List<String>? accountIds,
+    List<LicenseRecommendationFilter>? filters,
+    int? maxResults,
+    String? nextToken,
+    List<String>? resourceArns,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      1000,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.0',
+      'X-Amz-Target': 'ComputeOptimizerService.GetLicenseRecommendations'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (accountIds != null) 'accountIds': accountIds,
+        if (filters != null) 'filters': filters,
+        if (maxResults != null) 'maxResults': maxResults,
+        if (nextToken != null) 'nextToken': nextToken,
+        if (resourceArns != null) 'resourceArns': resourceArns,
+      },
+    );
+
+    return GetLicenseRecommendationsResponse.fromJson(jsonResponse.body);
+  }
+
   /// Returns existing recommendation preferences, such as enhanced
   /// infrastructure metrics.
   ///
@@ -1549,7 +1733,7 @@ class ComputeOptimizer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'resourceType': resourceType.toValue(),
+        'resourceType': resourceType.value,
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
         if (scope != null) 'scope': scope,
@@ -1713,6 +1897,39 @@ class ComputeOptimizer {
   /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/inferred-workload-types.html">Inferred
   /// workload types</a> in the <i>Compute Optimizer User Guide</i>.
   ///
+  /// Parameter [lookBackPeriod] :
+  /// The preference to control the number of days the utilization metrics of
+  /// the Amazon Web Services resource are analyzed. When this preference isn't
+  /// specified, we use the default value <code>DAYS_14</code>.
+  /// <note>
+  /// You can only set this preference for the Amazon EC2 instance and Auto
+  /// Scaling group resource types.
+  /// </note>
+  ///
+  /// Parameter [preferredResources] :
+  /// The preference to control which resource type values are considered when
+  /// generating rightsizing recommendations. You can specify this preference as
+  /// a combination of include and exclude lists. You must specify either an
+  /// <code>includeList</code> or <code>excludeList</code>. If the preference is
+  /// an empty set of resource type values, an error occurs.
+  /// <note>
+  /// You can only set this preference for the Amazon EC2 instance and Auto
+  /// Scaling group resource types.
+  /// </note>
+  ///
+  /// Parameter [savingsEstimationMode] :
+  /// The status of the savings estimation mode preference to create or update.
+  ///
+  /// Specify the <code>AfterDiscounts</code> status to activate the preference,
+  /// or specify <code>BeforeDiscounts</code> to deactivate the preference.
+  ///
+  /// Only the account manager or delegated administrator of your organization
+  /// can activate this preference.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/savings-estimation-mode.html">
+  /// Savings estimation mode</a> in the <i>Compute Optimizer User Guide</i>.
+  ///
   /// Parameter [scope] :
   /// An object that describes the scope of the recommendation preference to
   /// create.
@@ -1735,12 +1952,48 @@ class ComputeOptimizer {
   /// recommendation preferences at the resource level only for standalone
   /// instances.
   /// </note>
+  ///
+  /// Parameter [utilizationPreferences] :
+  /// The preference to control the resource’s CPU utilization threshold, CPU
+  /// utilization headroom, and memory utilization headroom. When this
+  /// preference isn't specified, we use the following default values.
+  ///
+  /// CPU utilization:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>P99_5</code> for threshold
+  /// </li>
+  /// <li>
+  /// <code>PERCENT_20</code> for headroom
+  /// </li>
+  /// </ul>
+  /// Memory utilization:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>PERCENT_20</code> for headroom
+  /// </li>
+  /// </ul> <note>
+  /// <ul>
+  /// <li>
+  /// You can only set CPU and memory utilization preferences for the Amazon EC2
+  /// instance resource type.
+  /// </li>
+  /// <li>
+  /// The threshold setting isn’t available for memory utilization.
+  /// </li>
+  /// </ul> </note>
   Future<void> putRecommendationPreferences({
     required ResourceType resourceType,
     EnhancedInfrastructureMetrics? enhancedInfrastructureMetrics,
     ExternalMetricsPreference? externalMetricsPreference,
     InferredWorkloadTypesPreference? inferredWorkloadTypes,
+    LookBackPeriodPreference? lookBackPeriod,
+    List<PreferredResource>? preferredResources,
+    SavingsEstimationMode? savingsEstimationMode,
     Scope? scope,
+    List<UtilizationPreference>? utilizationPreferences,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.0',
@@ -1753,15 +2006,21 @@ class ComputeOptimizer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'resourceType': resourceType.toValue(),
+        'resourceType': resourceType.value,
         if (enhancedInfrastructureMetrics != null)
-          'enhancedInfrastructureMetrics':
-              enhancedInfrastructureMetrics.toValue(),
+          'enhancedInfrastructureMetrics': enhancedInfrastructureMetrics.value,
         if (externalMetricsPreference != null)
           'externalMetricsPreference': externalMetricsPreference,
         if (inferredWorkloadTypes != null)
-          'inferredWorkloadTypes': inferredWorkloadTypes.toValue(),
+          'inferredWorkloadTypes': inferredWorkloadTypes.value,
+        if (lookBackPeriod != null) 'lookBackPeriod': lookBackPeriod.value,
+        if (preferredResources != null)
+          'preferredResources': preferredResources,
+        if (savingsEstimationMode != null)
+          'savingsEstimationMode': savingsEstimationMode.value,
         if (scope != null) 'scope': scope,
+        if (utilizationPreferences != null)
+          'utilizationPreferences': utilizationPreferences,
       },
     );
   }
@@ -1835,7 +2094,7 @@ class ComputeOptimizer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'status': status.toValue(),
+        'status': status.value,
         if (includeMemberAccounts != null)
           'includeMemberAccounts': includeMemberAccounts,
       },
@@ -1876,38 +2135,25 @@ class AccountEnrollmentStatus {
     return AccountEnrollmentStatus(
       accountId: json['accountId'] as String?,
       lastUpdatedTimestamp: timeStampFromJson(json['lastUpdatedTimestamp']),
-      status: (json['status'] as String?)?.toStatus(),
+      status: (json['status'] as String?)?.let(Status.fromString),
       statusReason: json['statusReason'] as String?,
     );
   }
 }
 
 enum AutoScalingConfiguration {
-  targetTrackingScalingCpu,
-  targetTrackingScalingMemory,
-}
+  targetTrackingScalingCpu('TargetTrackingScalingCpu'),
+  targetTrackingScalingMemory('TargetTrackingScalingMemory'),
+  ;
 
-extension AutoScalingConfigurationValueExtension on AutoScalingConfiguration {
-  String toValue() {
-    switch (this) {
-      case AutoScalingConfiguration.targetTrackingScalingCpu:
-        return 'TargetTrackingScalingCpu';
-      case AutoScalingConfiguration.targetTrackingScalingMemory:
-        return 'TargetTrackingScalingMemory';
-    }
-  }
-}
+  final String value;
 
-extension AutoScalingConfigurationFromString on String {
-  AutoScalingConfiguration toAutoScalingConfiguration() {
-    switch (this) {
-      case 'TargetTrackingScalingCpu':
-        return AutoScalingConfiguration.targetTrackingScalingCpu;
-      case 'TargetTrackingScalingMemory':
-        return AutoScalingConfiguration.targetTrackingScalingMemory;
-    }
-    throw Exception('$this is not known in enum AutoScalingConfiguration');
-  }
+  const AutoScalingConfiguration(this.value);
+
+  static AutoScalingConfiguration fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AutoScalingConfiguration'));
 }
 
 /// Describes the configuration of an Auto Scaling group.
@@ -1943,6 +2189,30 @@ class AutoScalingGroupConfiguration {
   }
 }
 
+/// An object that describes the estimated monthly savings possible by adopting
+/// Compute Optimizer’s Auto Scaling group recommendations. This is based on the
+/// Savings Plans and Reserved Instances discounts.
+class AutoScalingGroupEstimatedMonthlySavings {
+  /// The currency of the estimated monthly savings.
+  final Currency? currency;
+
+  /// The value of the estimated monthly savings.
+  final double? value;
+
+  AutoScalingGroupEstimatedMonthlySavings({
+    this.currency,
+    this.value,
+  });
+
+  factory AutoScalingGroupEstimatedMonthlySavings.fromJson(
+      Map<String, dynamic> json) {
+    return AutoScalingGroupEstimatedMonthlySavings(
+      currency: (json['currency'] as String?)?.let(Currency.fromString),
+      value: json['value'] as double?,
+    );
+  }
+}
+
 /// Describes an Auto Scaling group recommendation.
 class AutoScalingGroupRecommendation {
   /// The Amazon Web Services account ID of the Auto Scaling group.
@@ -1957,6 +2227,10 @@ class AutoScalingGroupRecommendation {
   /// An array of objects that describe the current configuration of the Auto
   /// Scaling group.
   final AutoScalingGroupConfiguration? currentConfiguration;
+
+  /// Describes the GPU accelerator settings for the current instance type of the
+  /// Auto Scaling group.
+  final GpuInfo? currentInstanceGpuInfo;
 
   /// The risk of the current Auto Scaling group not meeting the performance needs
   /// of its workloads. The higher the risk, the more likely the current Auto
@@ -2052,6 +2326,7 @@ class AutoScalingGroupRecommendation {
     this.autoScalingGroupArn,
     this.autoScalingGroupName,
     this.currentConfiguration,
+    this.currentInstanceGpuInfo,
     this.currentPerformanceRisk,
     this.effectiveRecommendationPreferences,
     this.finding,
@@ -2071,28 +2346,32 @@ class AutoScalingGroupRecommendation {
           ? AutoScalingGroupConfiguration.fromJson(
               json['currentConfiguration'] as Map<String, dynamic>)
           : null,
+      currentInstanceGpuInfo: json['currentInstanceGpuInfo'] != null
+          ? GpuInfo.fromJson(
+              json['currentInstanceGpuInfo'] as Map<String, dynamic>)
+          : null,
       currentPerformanceRisk: (json['currentPerformanceRisk'] as String?)
-          ?.toCurrentPerformanceRisk(),
+          ?.let(CurrentPerformanceRisk.fromString),
       effectiveRecommendationPreferences:
           json['effectiveRecommendationPreferences'] != null
               ? EffectiveRecommendationPreferences.fromJson(
                   json['effectiveRecommendationPreferences']
                       as Map<String, dynamic>)
               : null,
-      finding: (json['finding'] as String?)?.toFinding(),
+      finding: (json['finding'] as String?)?.let(Finding.fromString),
       inferredWorkloadTypes: (json['inferredWorkloadTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toInferredWorkloadType())
+          ?.nonNulls
+          .map((e) => InferredWorkloadType.fromString((e as String)))
           .toList(),
       lastRefreshTimestamp: timeStampFromJson(json['lastRefreshTimestamp']),
       lookBackPeriodInDays: json['lookBackPeriodInDays'] as double?,
       recommendationOptions: (json['recommendationOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AutoScalingGroupRecommendationOption.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       utilizationMetrics: (json['utilizationMetrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UtilizationMetric.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2103,6 +2382,10 @@ class AutoScalingGroupRecommendation {
 class AutoScalingGroupRecommendationOption {
   /// An array of objects that describe an Auto Scaling group configuration.
   final AutoScalingGroupConfiguration? configuration;
+
+  /// Describes the GPU accelerator settings for the recommended instance type of
+  /// the Auto Scaling group.
+  final GpuInfo? instanceGpuInfo;
 
   /// The level of effort required to migrate from the current instance type to
   /// the recommended instance type.
@@ -2154,13 +2437,22 @@ class AutoScalingGroupRecommendationOption {
   /// savings amount and percentage.
   final SavingsOpportunity? savingsOpportunity;
 
+  /// An object that describes the savings opportunity for the Auto Scaling group
+  /// recommendation option that includes Savings Plans and Reserved Instances
+  /// discounts. Savings opportunity includes the estimated monthly savings and
+  /// percentage.
+  final AutoScalingGroupSavingsOpportunityAfterDiscounts?
+      savingsOpportunityAfterDiscounts;
+
   AutoScalingGroupRecommendationOption({
     this.configuration,
+    this.instanceGpuInfo,
     this.migrationEffort,
     this.performanceRisk,
     this.projectedUtilizationMetrics,
     this.rank,
     this.savingsOpportunity,
+    this.savingsOpportunityAfterDiscounts,
   });
 
   factory AutoScalingGroupRecommendationOption.fromJson(
@@ -2170,12 +2462,15 @@ class AutoScalingGroupRecommendationOption {
           ? AutoScalingGroupConfiguration.fromJson(
               json['configuration'] as Map<String, dynamic>)
           : null,
+      instanceGpuInfo: json['instanceGpuInfo'] != null
+          ? GpuInfo.fromJson(json['instanceGpuInfo'] as Map<String, dynamic>)
+          : null,
       migrationEffort:
-          (json['migrationEffort'] as String?)?.toMigrationEffort(),
+          (json['migrationEffort'] as String?)?.let(MigrationEffort.fromString),
       performanceRisk: json['performanceRisk'] as double?,
       projectedUtilizationMetrics:
           (json['projectedUtilizationMetrics'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => UtilizationMetric.fromJson(e as Map<String, dynamic>))
               .toList(),
       rank: json['rank'] as int?,
@@ -2183,6 +2478,47 @@ class AutoScalingGroupRecommendationOption {
           ? SavingsOpportunity.fromJson(
               json['savingsOpportunity'] as Map<String, dynamic>)
           : null,
+      savingsOpportunityAfterDiscounts:
+          json['savingsOpportunityAfterDiscounts'] != null
+              ? AutoScalingGroupSavingsOpportunityAfterDiscounts.fromJson(
+                  json['savingsOpportunityAfterDiscounts']
+                      as Map<String, dynamic>)
+              : null,
+    );
+  }
+}
+
+/// Describes the savings opportunity for Auto Scaling group recommendations
+/// after applying the Savings Plans and Reserved Instances discounts.
+///
+/// Savings opportunity represents the estimated monthly savings you can achieve
+/// by implementing Compute Optimizer recommendations.
+class AutoScalingGroupSavingsOpportunityAfterDiscounts {
+  /// An object that describes the estimated monthly savings possible by adopting
+  /// Compute Optimizer’s Auto Scaling group recommendations. This is based on the
+  /// Savings Plans and Reserved Instances pricing discounts.
+  final AutoScalingGroupEstimatedMonthlySavings? estimatedMonthlySavings;
+
+  /// The estimated monthly savings possible as a percentage of monthly cost after
+  /// applying the Savings Plans and Reserved Instances discounts. This saving can
+  /// be achieved by adopting Compute Optimizer’s Auto Scaling group
+  /// recommendations.
+  final double? savingsOpportunityPercentage;
+
+  AutoScalingGroupSavingsOpportunityAfterDiscounts({
+    this.estimatedMonthlySavings,
+    this.savingsOpportunityPercentage,
+  });
+
+  factory AutoScalingGroupSavingsOpportunityAfterDiscounts.fromJson(
+      Map<String, dynamic> json) {
+    return AutoScalingGroupSavingsOpportunityAfterDiscounts(
+      estimatedMonthlySavings: json['estimatedMonthlySavings'] != null
+          ? AutoScalingGroupEstimatedMonthlySavings.fromJson(
+              json['estimatedMonthlySavings'] as Map<String, dynamic>)
+          : null,
+      savingsOpportunityPercentage:
+          json['savingsOpportunityPercentage'] as double?,
     );
   }
 }
@@ -2248,97 +2584,49 @@ class ContainerRecommendation {
 }
 
 enum CpuVendorArchitecture {
-  awsArm64,
-  current,
-}
+  awsArm64('AWS_ARM64'),
+  current('CURRENT'),
+  ;
 
-extension CpuVendorArchitectureValueExtension on CpuVendorArchitecture {
-  String toValue() {
-    switch (this) {
-      case CpuVendorArchitecture.awsArm64:
-        return 'AWS_ARM64';
-      case CpuVendorArchitecture.current:
-        return 'CURRENT';
-    }
-  }
-}
+  final String value;
 
-extension CpuVendorArchitectureFromString on String {
-  CpuVendorArchitecture toCpuVendorArchitecture() {
-    switch (this) {
-      case 'AWS_ARM64':
-        return CpuVendorArchitecture.awsArm64;
-      case 'CURRENT':
-        return CpuVendorArchitecture.current;
-    }
-    throw Exception('$this is not known in enum CpuVendorArchitecture');
-  }
+  const CpuVendorArchitecture(this.value);
+
+  static CpuVendorArchitecture fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CpuVendorArchitecture'));
 }
 
 enum Currency {
-  usd,
-  cny,
-}
+  usd('USD'),
+  cny('CNY'),
+  ;
 
-extension CurrencyValueExtension on Currency {
-  String toValue() {
-    switch (this) {
-      case Currency.usd:
-        return 'USD';
-      case Currency.cny:
-        return 'CNY';
-    }
-  }
-}
+  final String value;
 
-extension CurrencyFromString on String {
-  Currency toCurrency() {
-    switch (this) {
-      case 'USD':
-        return Currency.usd;
-      case 'CNY':
-        return Currency.cny;
-    }
-    throw Exception('$this is not known in enum Currency');
-  }
+  const Currency(this.value);
+
+  static Currency fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Currency'));
 }
 
 enum CurrentPerformanceRisk {
-  veryLow,
-  low,
-  medium,
-  high,
-}
+  veryLow('VeryLow'),
+  low('Low'),
+  medium('Medium'),
+  high('High'),
+  ;
 
-extension CurrentPerformanceRiskValueExtension on CurrentPerformanceRisk {
-  String toValue() {
-    switch (this) {
-      case CurrentPerformanceRisk.veryLow:
-        return 'VeryLow';
-      case CurrentPerformanceRisk.low:
-        return 'Low';
-      case CurrentPerformanceRisk.medium:
-        return 'Medium';
-      case CurrentPerformanceRisk.high:
-        return 'High';
-    }
-  }
-}
+  final String value;
 
-extension CurrentPerformanceRiskFromString on String {
-  CurrentPerformanceRisk toCurrentPerformanceRisk() {
-    switch (this) {
-      case 'VeryLow':
-        return CurrentPerformanceRisk.veryLow;
-      case 'Low':
-        return CurrentPerformanceRisk.low;
-      case 'Medium':
-        return CurrentPerformanceRisk.medium;
-      case 'High':
-        return CurrentPerformanceRisk.high;
-    }
-    throw Exception('$this is not known in enum CurrentPerformanceRisk');
-  }
+  const CurrentPerformanceRisk(this.value);
+
+  static CurrentPerformanceRisk fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CurrentPerformanceRisk'));
 }
 
 /// Describes the performance risk ratings for a given resource type.
@@ -2379,6 +2667,101 @@ class CurrentPerformanceRiskRatings {
   }
 }
 
+enum CustomizableMetricHeadroom {
+  percent_30('PERCENT_30'),
+  percent_20('PERCENT_20'),
+  percent_10('PERCENT_10'),
+  percent_0('PERCENT_0'),
+  ;
+
+  final String value;
+
+  const CustomizableMetricHeadroom(this.value);
+
+  static CustomizableMetricHeadroom fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomizableMetricHeadroom'));
+}
+
+enum CustomizableMetricName {
+  cpuUtilization('CpuUtilization'),
+  memoryUtilization('MemoryUtilization'),
+  ;
+
+  final String value;
+
+  const CustomizableMetricName(this.value);
+
+  static CustomizableMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomizableMetricName'));
+}
+
+/// Defines the various metric parameters that can be customized, such as
+/// threshold and headroom.
+class CustomizableMetricParameters {
+  /// The headroom value in percentage used for the specified metric parameter.
+  ///
+  /// The following lists the valid values for CPU and memory utilization.
+  ///
+  /// <ul>
+  /// <li>
+  /// CPU utilization: <code>PERCENT_30 | PERCENT_20 | PERCENT_0</code>
+  /// </li>
+  /// <li>
+  /// Memory utilization: <code>PERCENT_30 | PERCENT_20 | PERCENT_10</code>
+  /// </li>
+  /// </ul>
+  final CustomizableMetricHeadroom? headroom;
+
+  /// The threshold value used for the specified metric parameter.
+  /// <note>
+  /// You can only specify the threshold value for CPU utilization.
+  /// </note>
+  final CustomizableMetricThreshold? threshold;
+
+  CustomizableMetricParameters({
+    this.headroom,
+    this.threshold,
+  });
+
+  factory CustomizableMetricParameters.fromJson(Map<String, dynamic> json) {
+    return CustomizableMetricParameters(
+      headroom: (json['headroom'] as String?)
+          ?.let(CustomizableMetricHeadroom.fromString),
+      threshold: (json['threshold'] as String?)
+          ?.let(CustomizableMetricThreshold.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final headroom = this.headroom;
+    final threshold = this.threshold;
+    return {
+      if (headroom != null) 'headroom': headroom.value,
+      if (threshold != null) 'threshold': threshold.value,
+    };
+  }
+}
+
+enum CustomizableMetricThreshold {
+  p90('P90'),
+  p95('P95'),
+  p99_5('P99_5'),
+  ;
+
+  final String value;
+
+  const CustomizableMetricThreshold(this.value);
+
+  static CustomizableMetricThreshold fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomizableMetricThreshold'));
+}
+
 class DeleteRecommendationPreferencesResponse {
   DeleteRecommendationPreferencesResponse();
 
@@ -2407,10 +2790,54 @@ class DescribeRecommendationExportJobsResponse {
     return DescribeRecommendationExportJobsResponse(
       nextToken: json['nextToken'] as String?,
       recommendationExportJobs: (json['recommendationExportJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RecommendationExportJob.fromJson(e as Map<String, dynamic>))
           .toList(),
+    );
+  }
+}
+
+/// Describes the effective recommendation preferences for Amazon EBS volumes.
+class EBSEffectiveRecommendationPreferences {
+  /// Describes the savings estimation mode preference applied for calculating
+  /// savings opportunity for Amazon EBS volumes.
+  final EBSSavingsEstimationMode? savingsEstimationMode;
+
+  EBSEffectiveRecommendationPreferences({
+    this.savingsEstimationMode,
+  });
+
+  factory EBSEffectiveRecommendationPreferences.fromJson(
+      Map<String, dynamic> json) {
+    return EBSEffectiveRecommendationPreferences(
+      savingsEstimationMode: json['savingsEstimationMode'] != null
+          ? EBSSavingsEstimationMode.fromJson(
+              json['savingsEstimationMode'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// An object that describes the estimated monthly savings possible by adopting
+/// Compute Optimizer’s Amazon EBS volume recommendations. This includes any
+/// applicable discounts.
+class EBSEstimatedMonthlySavings {
+  /// The currency of the estimated monthly savings.
+  final Currency? currency;
+
+  /// The value of the estimated monthly savings.
+  final double? value;
+
+  EBSEstimatedMonthlySavings({
+    this.currency,
+    this.value,
+  });
+
+  factory EBSEstimatedMonthlySavings.fromJson(Map<String, dynamic> json) {
+    return EBSEstimatedMonthlySavings(
+      currency: (json['currency'] as String?)?.let(Currency.fromString),
+      value: json['value'] as double?,
     );
   }
 }
@@ -2462,98 +2889,120 @@ class EBSFilter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
 enum EBSFilterName {
-  finding,
-}
+  finding('Finding'),
+  ;
 
-extension EBSFilterNameValueExtension on EBSFilterName {
-  String toValue() {
-    switch (this) {
-      case EBSFilterName.finding:
-        return 'Finding';
-    }
-  }
-}
+  final String value;
 
-extension EBSFilterNameFromString on String {
-  EBSFilterName toEBSFilterName() {
-    switch (this) {
-      case 'Finding':
-        return EBSFilterName.finding;
-    }
-    throw Exception('$this is not known in enum EBSFilterName');
-  }
+  const EBSFilterName(this.value);
+
+  static EBSFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EBSFilterName'));
 }
 
 enum EBSFinding {
-  optimized,
-  notOptimized,
-}
+  optimized('Optimized'),
+  notOptimized('NotOptimized'),
+  ;
 
-extension EBSFindingValueExtension on EBSFinding {
-  String toValue() {
-    switch (this) {
-      case EBSFinding.optimized:
-        return 'Optimized';
-      case EBSFinding.notOptimized:
-        return 'NotOptimized';
-    }
-  }
-}
+  final String value;
 
-extension EBSFindingFromString on String {
-  EBSFinding toEBSFinding() {
-    switch (this) {
-      case 'Optimized':
-        return EBSFinding.optimized;
-      case 'NotOptimized':
-        return EBSFinding.notOptimized;
-    }
-    throw Exception('$this is not known in enum EBSFinding');
-  }
+  const EBSFinding(this.value);
+
+  static EBSFinding fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EBSFinding'));
 }
 
 enum EBSMetricName {
-  volumeReadOpsPerSecond,
-  volumeWriteOpsPerSecond,
-  volumeReadBytesPerSecond,
-  volumeWriteBytesPerSecond,
+  volumeReadOpsPerSecond('VolumeReadOpsPerSecond'),
+  volumeWriteOpsPerSecond('VolumeWriteOpsPerSecond'),
+  volumeReadBytesPerSecond('VolumeReadBytesPerSecond'),
+  volumeWriteBytesPerSecond('VolumeWriteBytesPerSecond'),
+  ;
+
+  final String value;
+
+  const EBSMetricName(this.value);
+
+  static EBSMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EBSMetricName'));
 }
 
-extension EBSMetricNameValueExtension on EBSMetricName {
-  String toValue() {
-    switch (this) {
-      case EBSMetricName.volumeReadOpsPerSecond:
-        return 'VolumeReadOpsPerSecond';
-      case EBSMetricName.volumeWriteOpsPerSecond:
-        return 'VolumeWriteOpsPerSecond';
-      case EBSMetricName.volumeReadBytesPerSecond:
-        return 'VolumeReadBytesPerSecond';
-      case EBSMetricName.volumeWriteBytesPerSecond:
-        return 'VolumeWriteBytesPerSecond';
-    }
+/// Describes the savings estimation mode used for calculating savings
+/// opportunity for Amazon EBS volumes.
+class EBSSavingsEstimationMode {
+  /// Describes the source for calculating the savings opportunity for Amazon EBS
+  /// volumes.
+  final EBSSavingsEstimationModeSource? source;
+
+  EBSSavingsEstimationMode({
+    this.source,
+  });
+
+  factory EBSSavingsEstimationMode.fromJson(Map<String, dynamic> json) {
+    return EBSSavingsEstimationMode(
+      source: (json['source'] as String?)
+          ?.let(EBSSavingsEstimationModeSource.fromString),
+    );
   }
 }
 
-extension EBSMetricNameFromString on String {
-  EBSMetricName toEBSMetricName() {
-    switch (this) {
-      case 'VolumeReadOpsPerSecond':
-        return EBSMetricName.volumeReadOpsPerSecond;
-      case 'VolumeWriteOpsPerSecond':
-        return EBSMetricName.volumeWriteOpsPerSecond;
-      case 'VolumeReadBytesPerSecond':
-        return EBSMetricName.volumeReadBytesPerSecond;
-      case 'VolumeWriteBytesPerSecond':
-        return EBSMetricName.volumeWriteBytesPerSecond;
-    }
-    throw Exception('$this is not known in enum EBSMetricName');
+enum EBSSavingsEstimationModeSource {
+  publicPricing('PublicPricing'),
+  costExplorerRightsizing('CostExplorerRightsizing'),
+  costOptimizationHub('CostOptimizationHub'),
+  ;
+
+  final String value;
+
+  const EBSSavingsEstimationModeSource(this.value);
+
+  static EBSSavingsEstimationModeSource fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EBSSavingsEstimationModeSource'));
+}
+
+/// Describes the savings opportunity for Amazon EBS volume recommendations
+/// after applying specific discounts.
+class EBSSavingsOpportunityAfterDiscounts {
+  /// The estimated monthly savings possible as a percentage of monthly cost by
+  /// adopting Compute Optimizer’s Amazon EBS volume recommendations. This saving
+  /// includes any applicable discounts.
+  final EBSEstimatedMonthlySavings? estimatedMonthlySavings;
+
+  /// The estimated monthly savings possible as a percentage of monthly cost after
+  /// applying the specific discounts. This saving can be achieved by adopting
+  /// Compute Optimizer’s Amazon EBS volume recommendations.
+  final double? savingsOpportunityPercentage;
+
+  EBSSavingsOpportunityAfterDiscounts({
+    this.estimatedMonthlySavings,
+    this.savingsOpportunityPercentage,
+  });
+
+  factory EBSSavingsOpportunityAfterDiscounts.fromJson(
+      Map<String, dynamic> json) {
+    return EBSSavingsOpportunityAfterDiscounts(
+      estimatedMonthlySavings: json['estimatedMonthlySavings'] != null
+          ? EBSEstimatedMonthlySavings.fromJson(
+              json['estimatedMonthlySavings'] as Map<String, dynamic>)
+          : null,
+      savingsOpportunityPercentage:
+          json['savingsOpportunityPercentage'] as double?,
+    );
   }
 }
 
@@ -2625,95 +3074,171 @@ class EBSUtilizationMetric {
 
   factory EBSUtilizationMetric.fromJson(Map<String, dynamic> json) {
     return EBSUtilizationMetric(
-      name: (json['name'] as String?)?.toEBSMetricName(),
-      statistic: (json['statistic'] as String?)?.toMetricStatistic(),
+      name: (json['name'] as String?)?.let(EBSMetricName.fromString),
+      statistic:
+          (json['statistic'] as String?)?.let(MetricStatistic.fromString),
       value: json['value'] as double?,
     );
   }
 }
 
+/// Describes the effective recommendation preferences for Amazon ECS services.
+class ECSEffectiveRecommendationPreferences {
+  /// Describes the savings estimation mode preference applied for calculating
+  /// savings opportunity for Amazon ECS services.
+  final ECSSavingsEstimationMode? savingsEstimationMode;
+
+  ECSEffectiveRecommendationPreferences({
+    this.savingsEstimationMode,
+  });
+
+  factory ECSEffectiveRecommendationPreferences.fromJson(
+      Map<String, dynamic> json) {
+    return ECSEffectiveRecommendationPreferences(
+      savingsEstimationMode: json['savingsEstimationMode'] != null
+          ? ECSSavingsEstimationMode.fromJson(
+              json['savingsEstimationMode'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// Describes the estimated monthly savings possible for Amazon ECS services by
+/// adopting Compute Optimizer recommendations. This is based on Amazon ECS
+/// service pricing after applying Savings Plans discounts.
+class ECSEstimatedMonthlySavings {
+  /// The currency of the estimated monthly savings.
+  final Currency? currency;
+
+  /// The value of the estimated monthly savings for Amazon ECS services.
+  final double? value;
+
+  ECSEstimatedMonthlySavings({
+    this.currency,
+    this.value,
+  });
+
+  factory ECSEstimatedMonthlySavings.fromJson(Map<String, dynamic> json) {
+    return ECSEstimatedMonthlySavings(
+      currency: (json['currency'] as String?)?.let(Currency.fromString),
+      value: json['value'] as double?,
+    );
+  }
+}
+
+/// Describes the savings estimation mode used for calculating savings
+/// opportunity for Amazon ECS services.
+class ECSSavingsEstimationMode {
+  /// Describes the source for calculating the savings opportunity for Amazon ECS
+  /// services.
+  final ECSSavingsEstimationModeSource? source;
+
+  ECSSavingsEstimationMode({
+    this.source,
+  });
+
+  factory ECSSavingsEstimationMode.fromJson(Map<String, dynamic> json) {
+    return ECSSavingsEstimationMode(
+      source: (json['source'] as String?)
+          ?.let(ECSSavingsEstimationModeSource.fromString),
+    );
+  }
+}
+
+enum ECSSavingsEstimationModeSource {
+  publicPricing('PublicPricing'),
+  costExplorerRightsizing('CostExplorerRightsizing'),
+  costOptimizationHub('CostOptimizationHub'),
+  ;
+
+  final String value;
+
+  const ECSSavingsEstimationModeSource(this.value);
+
+  static ECSSavingsEstimationModeSource fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ECSSavingsEstimationModeSource'));
+}
+
+/// Describes the savings opportunity for Amazon ECS service recommendations
+/// after applying Savings Plans discounts.
+///
+/// Savings opportunity represents the estimated monthly savings after applying
+/// Savings Plans discounts. You can achieve this by implementing a given
+/// Compute Optimizer recommendation.
+class ECSSavingsOpportunityAfterDiscounts {
+  /// The estimated monthly savings possible by adopting Compute Optimizer’s
+  /// Amazon ECS service recommendations. This includes any applicable Savings
+  /// Plans discounts.
+  final ECSEstimatedMonthlySavings? estimatedMonthlySavings;
+
+  /// The estimated monthly savings possible as a percentage of monthly cost by
+  /// adopting Compute Optimizer’s Amazon ECS service recommendations. This
+  /// includes any applicable Savings Plans discounts.
+  final double? savingsOpportunityPercentage;
+
+  ECSSavingsOpportunityAfterDiscounts({
+    this.estimatedMonthlySavings,
+    this.savingsOpportunityPercentage,
+  });
+
+  factory ECSSavingsOpportunityAfterDiscounts.fromJson(
+      Map<String, dynamic> json) {
+    return ECSSavingsOpportunityAfterDiscounts(
+      estimatedMonthlySavings: json['estimatedMonthlySavings'] != null
+          ? ECSEstimatedMonthlySavings.fromJson(
+              json['estimatedMonthlySavings'] as Map<String, dynamic>)
+          : null,
+      savingsOpportunityPercentage:
+          json['savingsOpportunityPercentage'] as double?,
+    );
+  }
+}
+
 enum ECSServiceLaunchType {
-  ec2,
-  fargate,
-}
+  ec2('EC2'),
+  fargate('Fargate'),
+  ;
 
-extension ECSServiceLaunchTypeValueExtension on ECSServiceLaunchType {
-  String toValue() {
-    switch (this) {
-      case ECSServiceLaunchType.ec2:
-        return 'EC2';
-      case ECSServiceLaunchType.fargate:
-        return 'Fargate';
-    }
-  }
-}
+  final String value;
 
-extension ECSServiceLaunchTypeFromString on String {
-  ECSServiceLaunchType toECSServiceLaunchType() {
-    switch (this) {
-      case 'EC2':
-        return ECSServiceLaunchType.ec2;
-      case 'Fargate':
-        return ECSServiceLaunchType.fargate;
-    }
-    throw Exception('$this is not known in enum ECSServiceLaunchType');
-  }
+  const ECSServiceLaunchType(this.value);
+
+  static ECSServiceLaunchType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ECSServiceLaunchType'));
 }
 
 enum ECSServiceMetricName {
-  cpu,
-  memory,
-}
+  cpu('Cpu'),
+  memory('Memory'),
+  ;
 
-extension ECSServiceMetricNameValueExtension on ECSServiceMetricName {
-  String toValue() {
-    switch (this) {
-      case ECSServiceMetricName.cpu:
-        return 'Cpu';
-      case ECSServiceMetricName.memory:
-        return 'Memory';
-    }
-  }
-}
+  final String value;
 
-extension ECSServiceMetricNameFromString on String {
-  ECSServiceMetricName toECSServiceMetricName() {
-    switch (this) {
-      case 'Cpu':
-        return ECSServiceMetricName.cpu;
-      case 'Memory':
-        return ECSServiceMetricName.memory;
-    }
-    throw Exception('$this is not known in enum ECSServiceMetricName');
-  }
+  const ECSServiceMetricName(this.value);
+
+  static ECSServiceMetricName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ECSServiceMetricName'));
 }
 
 enum ECSServiceMetricStatistic {
-  maximum,
-  average,
-}
+  maximum('Maximum'),
+  average('Average'),
+  ;
 
-extension ECSServiceMetricStatisticValueExtension on ECSServiceMetricStatistic {
-  String toValue() {
-    switch (this) {
-      case ECSServiceMetricStatistic.maximum:
-        return 'Maximum';
-      case ECSServiceMetricStatistic.average:
-        return 'Average';
-    }
-  }
-}
+  final String value;
 
-extension ECSServiceMetricStatisticFromString on String {
-  ECSServiceMetricStatistic toECSServiceMetricStatistic() {
-    switch (this) {
-      case 'Maximum':
-        return ECSServiceMetricStatistic.maximum;
-      case 'Average':
-        return ECSServiceMetricStatistic.average;
-    }
-    throw Exception('$this is not known in enum ECSServiceMetricStatistic');
-  }
+  const ECSServiceMetricStatistic(this.value);
+
+  static ECSServiceMetricStatistic fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ECSServiceMetricStatistic'));
 }
 
 /// Describes the projected metrics of an Amazon ECS service recommendation
@@ -2758,16 +3283,16 @@ class ECSServiceProjectedMetric {
   factory ECSServiceProjectedMetric.fromJson(Map<String, dynamic> json) {
     return ECSServiceProjectedMetric(
       lowerBoundValues: (json['lowerBoundValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as double)
           .toList(),
-      name: (json['name'] as String?)?.toECSServiceMetricName(),
+      name: (json['name'] as String?)?.let(ECSServiceMetricName.fromString),
       timestamps: (json['timestamps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(nonNullableTimeStampFromJson)
           .toList(),
       upperBoundValues: (json['upperBoundValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as double)
           .toList(),
     );
@@ -2832,8 +3357,9 @@ class ECSServiceProjectedUtilizationMetric {
       Map<String, dynamic> json) {
     return ECSServiceProjectedUtilizationMetric(
       lowerBoundValue: json['lowerBoundValue'] as double?,
-      name: (json['name'] as String?)?.toECSServiceMetricName(),
-      statistic: (json['statistic'] as String?)?.toECSServiceMetricStatistic(),
+      name: (json['name'] as String?)?.let(ECSServiceMetricName.fromString),
+      statistic: (json['statistic'] as String?)
+          ?.let(ECSServiceMetricStatistic.fromString),
       upperBoundValue: json['upperBoundValue'] as double?,
     );
   }
@@ -2851,6 +3377,10 @@ class ECSServiceRecommendation {
 
   /// The configuration of the current Amazon ECS service.
   final ServiceConfiguration? currentServiceConfiguration;
+
+  /// Describes the effective recommendation preferences for Amazon ECS services.
+  final ECSEffectiveRecommendationPreferences?
+      effectiveRecommendationPreferences;
 
   /// The finding classification of an Amazon ECS service.
   ///
@@ -2945,6 +3475,7 @@ class ECSServiceRecommendation {
     this.accountId,
     this.currentPerformanceRisk,
     this.currentServiceConfiguration,
+    this.effectiveRecommendationPreferences,
     this.finding,
     this.findingReasonCodes,
     this.lastRefreshTimestamp,
@@ -2960,34 +3491,41 @@ class ECSServiceRecommendation {
     return ECSServiceRecommendation(
       accountId: json['accountId'] as String?,
       currentPerformanceRisk: (json['currentPerformanceRisk'] as String?)
-          ?.toCurrentPerformanceRisk(),
+          ?.let(CurrentPerformanceRisk.fromString),
       currentServiceConfiguration: json['currentServiceConfiguration'] != null
           ? ServiceConfiguration.fromJson(
               json['currentServiceConfiguration'] as Map<String, dynamic>)
           : null,
-      finding:
-          (json['finding'] as String?)?.toECSServiceRecommendationFinding(),
+      effectiveRecommendationPreferences:
+          json['effectiveRecommendationPreferences'] != null
+              ? ECSEffectiveRecommendationPreferences.fromJson(
+                  json['effectiveRecommendationPreferences']
+                      as Map<String, dynamic>)
+              : null,
+      finding: (json['finding'] as String?)
+          ?.let(ECSServiceRecommendationFinding.fromString),
       findingReasonCodes: (json['findingReasonCodes'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as String).toECSServiceRecommendationFindingReasonCode())
+          ?.nonNulls
+          .map((e) => ECSServiceRecommendationFindingReasonCode.fromString(
+              (e as String)))
           .toList(),
       lastRefreshTimestamp: timeStampFromJson(json['lastRefreshTimestamp']),
-      launchType: (json['launchType'] as String?)?.toECSServiceLaunchType(),
+      launchType:
+          (json['launchType'] as String?)?.let(ECSServiceLaunchType.fromString),
       lookbackPeriodInDays: json['lookbackPeriodInDays'] as double?,
       serviceArn: json['serviceArn'] as String?,
       serviceRecommendationOptions:
           (json['serviceRecommendationOptions'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ECSServiceRecommendationOption.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       utilizationMetrics: (json['utilizationMetrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ECSServiceUtilizationMetric.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3053,116 +3591,58 @@ class ECSServiceRecommendationFilter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
 enum ECSServiceRecommendationFilterName {
-  finding,
-  findingReasonCode,
-}
+  finding('Finding'),
+  findingReasonCode('FindingReasonCode'),
+  ;
 
-extension ECSServiceRecommendationFilterNameValueExtension
-    on ECSServiceRecommendationFilterName {
-  String toValue() {
-    switch (this) {
-      case ECSServiceRecommendationFilterName.finding:
-        return 'Finding';
-      case ECSServiceRecommendationFilterName.findingReasonCode:
-        return 'FindingReasonCode';
-    }
-  }
-}
+  final String value;
 
-extension ECSServiceRecommendationFilterNameFromString on String {
-  ECSServiceRecommendationFilterName toECSServiceRecommendationFilterName() {
-    switch (this) {
-      case 'Finding':
-        return ECSServiceRecommendationFilterName.finding;
-      case 'FindingReasonCode':
-        return ECSServiceRecommendationFilterName.findingReasonCode;
-    }
-    throw Exception(
-        '$this is not known in enum ECSServiceRecommendationFilterName');
-  }
+  const ECSServiceRecommendationFilterName(this.value);
+
+  static ECSServiceRecommendationFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ECSServiceRecommendationFilterName'));
 }
 
 enum ECSServiceRecommendationFinding {
-  optimized,
-  underprovisioned,
-  overprovisioned,
-}
+  optimized('Optimized'),
+  underprovisioned('Underprovisioned'),
+  overprovisioned('Overprovisioned'),
+  ;
 
-extension ECSServiceRecommendationFindingValueExtension
-    on ECSServiceRecommendationFinding {
-  String toValue() {
-    switch (this) {
-      case ECSServiceRecommendationFinding.optimized:
-        return 'Optimized';
-      case ECSServiceRecommendationFinding.underprovisioned:
-        return 'Underprovisioned';
-      case ECSServiceRecommendationFinding.overprovisioned:
-        return 'Overprovisioned';
-    }
-  }
-}
+  final String value;
 
-extension ECSServiceRecommendationFindingFromString on String {
-  ECSServiceRecommendationFinding toECSServiceRecommendationFinding() {
-    switch (this) {
-      case 'Optimized':
-        return ECSServiceRecommendationFinding.optimized;
-      case 'Underprovisioned':
-        return ECSServiceRecommendationFinding.underprovisioned;
-      case 'Overprovisioned':
-        return ECSServiceRecommendationFinding.overprovisioned;
-    }
-    throw Exception(
-        '$this is not known in enum ECSServiceRecommendationFinding');
-  }
+  const ECSServiceRecommendationFinding(this.value);
+
+  static ECSServiceRecommendationFinding fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ECSServiceRecommendationFinding'));
 }
 
 enum ECSServiceRecommendationFindingReasonCode {
-  memoryOverprovisioned,
-  memoryUnderprovisioned,
-  cPUOverprovisioned,
-  cPUUnderprovisioned,
-}
+  memoryOverprovisioned('MemoryOverprovisioned'),
+  memoryUnderprovisioned('MemoryUnderprovisioned'),
+  cPUOverprovisioned('CPUOverprovisioned'),
+  cPUUnderprovisioned('CPUUnderprovisioned'),
+  ;
 
-extension ECSServiceRecommendationFindingReasonCodeValueExtension
-    on ECSServiceRecommendationFindingReasonCode {
-  String toValue() {
-    switch (this) {
-      case ECSServiceRecommendationFindingReasonCode.memoryOverprovisioned:
-        return 'MemoryOverprovisioned';
-      case ECSServiceRecommendationFindingReasonCode.memoryUnderprovisioned:
-        return 'MemoryUnderprovisioned';
-      case ECSServiceRecommendationFindingReasonCode.cPUOverprovisioned:
-        return 'CPUOverprovisioned';
-      case ECSServiceRecommendationFindingReasonCode.cPUUnderprovisioned:
-        return 'CPUUnderprovisioned';
-    }
-  }
-}
+  final String value;
 
-extension ECSServiceRecommendationFindingReasonCodeFromString on String {
-  ECSServiceRecommendationFindingReasonCode
-      toECSServiceRecommendationFindingReasonCode() {
-    switch (this) {
-      case 'MemoryOverprovisioned':
-        return ECSServiceRecommendationFindingReasonCode.memoryOverprovisioned;
-      case 'MemoryUnderprovisioned':
-        return ECSServiceRecommendationFindingReasonCode.memoryUnderprovisioned;
-      case 'CPUOverprovisioned':
-        return ECSServiceRecommendationFindingReasonCode.cPUOverprovisioned;
-      case 'CPUUnderprovisioned':
-        return ECSServiceRecommendationFindingReasonCode.cPUUnderprovisioned;
-    }
-    throw Exception(
-        '$this is not known in enum ECSServiceRecommendationFindingReasonCode');
-  }
+  const ECSServiceRecommendationFindingReasonCode(this.value);
+
+  static ECSServiceRecommendationFindingReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ECSServiceRecommendationFindingReasonCode'));
 }
 
 /// Describes the recommendation options for an Amazon ECS service.
@@ -3182,18 +3662,27 @@ class ECSServiceRecommendationOption {
   final List<ECSServiceProjectedUtilizationMetric>? projectedUtilizationMetrics;
   final SavingsOpportunity? savingsOpportunity;
 
+  /// Describes the savings opportunity for Amazon ECS service recommendations or
+  /// for the recommendation option.
+  ///
+  /// Savings opportunity represents the estimated monthly savings after applying
+  /// Savings Plans discounts. You can achieve this by implementing a given
+  /// Compute Optimizer recommendation.
+  final ECSSavingsOpportunityAfterDiscounts? savingsOpportunityAfterDiscounts;
+
   ECSServiceRecommendationOption({
     this.containerRecommendations,
     this.cpu,
     this.memory,
     this.projectedUtilizationMetrics,
     this.savingsOpportunity,
+    this.savingsOpportunityAfterDiscounts,
   });
 
   factory ECSServiceRecommendationOption.fromJson(Map<String, dynamic> json) {
     return ECSServiceRecommendationOption(
       containerRecommendations: (json['containerRecommendations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ContainerRecommendation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3201,7 +3690,7 @@ class ECSServiceRecommendationOption {
       memory: json['memory'] as int?,
       projectedUtilizationMetrics:
           (json['projectedUtilizationMetrics'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ECSServiceProjectedUtilizationMetric.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -3209,6 +3698,12 @@ class ECSServiceRecommendationOption {
           ? SavingsOpportunity.fromJson(
               json['savingsOpportunity'] as Map<String, dynamic>)
           : null,
+      savingsOpportunityAfterDiscounts:
+          json['savingsOpportunityAfterDiscounts'] != null
+              ? ECSSavingsOpportunityAfterDiscounts.fromJson(
+                  json['savingsOpportunityAfterDiscounts']
+                      as Map<String, dynamic>)
+              : null,
     );
   }
 }
@@ -3239,7 +3734,7 @@ class ECSServiceRecommendedOptionProjectedMetric {
       Map<String, dynamic> json) {
     return ECSServiceRecommendedOptionProjectedMetric(
       projectedMetrics: (json['projectedMetrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ECSServiceProjectedMetric.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3298,9 +3793,56 @@ class ECSServiceUtilizationMetric {
 
   factory ECSServiceUtilizationMetric.fromJson(Map<String, dynamic> json) {
     return ECSServiceUtilizationMetric(
-      name: (json['name'] as String?)?.toECSServiceMetricName(),
-      statistic: (json['statistic'] as String?)?.toECSServiceMetricStatistic(),
+      name: (json['name'] as String?)?.let(ECSServiceMetricName.fromString),
+      statistic: (json['statistic'] as String?)
+          ?.let(ECSServiceMetricStatistic.fromString),
       value: json['value'] as double?,
+    );
+  }
+}
+
+/// Describes the effective preferred resources that Compute Optimizer considers
+/// as rightsizing recommendation candidates.
+/// <note>
+/// Compute Optimizer only supports Amazon EC2 instance types.
+/// </note>
+class EffectivePreferredResource {
+  /// The expanded version of your preferred resource's include list.
+  final List<String>? effectiveIncludeList;
+
+  /// The list of preferred resources values that you want excluded from
+  /// rightsizing recommendation candidates.
+  final List<String>? excludeList;
+
+  /// The list of preferred resource values that you want considered as
+  /// rightsizing recommendation candidates.
+  final List<String>? includeList;
+
+  /// The name of the preferred resource list.
+  final PreferredResourceName? name;
+
+  EffectivePreferredResource({
+    this.effectiveIncludeList,
+    this.excludeList,
+    this.includeList,
+    this.name,
+  });
+
+  factory EffectivePreferredResource.fromJson(Map<String, dynamic> json) {
+    return EffectivePreferredResource(
+      effectiveIncludeList: (json['effectiveIncludeList'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      excludeList: (json['excludeList'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      includeList: (json['includeList'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      name: (json['name'] as String?)?.let(PreferredResourceName.fromString),
     );
   }
 }
@@ -3358,60 +3900,84 @@ class EffectiveRecommendationPreferences {
   /// confirms that it's not yet applied to recommendations.
   final InferredWorkloadTypesPreference? inferredWorkloadTypes;
 
+  /// The number of days the utilization metrics of the Amazon Web Services
+  /// resource are analyzed.
+  final LookBackPeriodPreference? lookBackPeriod;
+
+  /// The resource type values that are considered as candidates when generating
+  /// rightsizing recommendations.
+  final List<EffectivePreferredResource>? preferredResources;
+
+  /// Describes the savings estimation mode applied for calculating savings
+  /// opportunity for a resource.
+  final InstanceSavingsEstimationMode? savingsEstimationMode;
+
+  /// The resource’s CPU and memory utilization preferences, such as threshold and
+  /// headroom, that are used to generate rightsizing recommendations.
+  /// <note>
+  /// This preference is only available for the Amazon EC2 instance resource type.
+  /// </note>
+  final List<UtilizationPreference>? utilizationPreferences;
+
   EffectiveRecommendationPreferences({
     this.cpuVendorArchitectures,
     this.enhancedInfrastructureMetrics,
     this.externalMetricsPreference,
     this.inferredWorkloadTypes,
+    this.lookBackPeriod,
+    this.preferredResources,
+    this.savingsEstimationMode,
+    this.utilizationPreferences,
   });
 
   factory EffectiveRecommendationPreferences.fromJson(
       Map<String, dynamic> json) {
     return EffectiveRecommendationPreferences(
       cpuVendorArchitectures: (json['cpuVendorArchitectures'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toCpuVendorArchitecture())
+          ?.nonNulls
+          .map((e) => CpuVendorArchitecture.fromString((e as String)))
           .toList(),
       enhancedInfrastructureMetrics:
           (json['enhancedInfrastructureMetrics'] as String?)
-              ?.toEnhancedInfrastructureMetrics(),
+              ?.let(EnhancedInfrastructureMetrics.fromString),
       externalMetricsPreference: json['externalMetricsPreference'] != null
           ? ExternalMetricsPreference.fromJson(
               json['externalMetricsPreference'] as Map<String, dynamic>)
           : null,
       inferredWorkloadTypes: (json['inferredWorkloadTypes'] as String?)
-          ?.toInferredWorkloadTypesPreference(),
+          ?.let(InferredWorkloadTypesPreference.fromString),
+      lookBackPeriod: (json['lookBackPeriod'] as String?)
+          ?.let(LookBackPeriodPreference.fromString),
+      preferredResources: (json['preferredResources'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              EffectivePreferredResource.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      savingsEstimationMode: json['savingsEstimationMode'] != null
+          ? InstanceSavingsEstimationMode.fromJson(
+              json['savingsEstimationMode'] as Map<String, dynamic>)
+          : null,
+      utilizationPreferences: (json['utilizationPreferences'] as List?)
+          ?.nonNulls
+          .map((e) => UtilizationPreference.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
 
 enum EnhancedInfrastructureMetrics {
-  active,
-  inactive,
-}
+  active('Active'),
+  inactive('Inactive'),
+  ;
 
-extension EnhancedInfrastructureMetricsValueExtension
-    on EnhancedInfrastructureMetrics {
-  String toValue() {
-    switch (this) {
-      case EnhancedInfrastructureMetrics.active:
-        return 'Active';
-      case EnhancedInfrastructureMetrics.inactive:
-        return 'Inactive';
-    }
-  }
-}
+  final String value;
 
-extension EnhancedInfrastructureMetricsFromString on String {
-  EnhancedInfrastructureMetrics toEnhancedInfrastructureMetrics() {
-    switch (this) {
-      case 'Active':
-        return EnhancedInfrastructureMetrics.active;
-      case 'Inactive':
-        return EnhancedInfrastructureMetrics.inactive;
-    }
-    throw Exception('$this is not known in enum EnhancedInfrastructureMetrics');
-  }
+  const EnhancedInfrastructureMetrics(this.value);
+
+  static EnhancedInfrastructureMetrics fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EnhancedInfrastructureMetrics'));
 }
 
 /// Describes a filter that returns a more specific list of account enrollment
@@ -3439,33 +4005,24 @@ class EnrollmentFilter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
 enum EnrollmentFilterName {
-  status,
-}
+  status('Status'),
+  ;
 
-extension EnrollmentFilterNameValueExtension on EnrollmentFilterName {
-  String toValue() {
-    switch (this) {
-      case EnrollmentFilterName.status:
-        return 'Status';
-    }
-  }
-}
+  final String value;
 
-extension EnrollmentFilterNameFromString on String {
-  EnrollmentFilterName toEnrollmentFilterName() {
-    switch (this) {
-      case 'Status':
-        return EnrollmentFilterName.status;
-    }
-    throw Exception('$this is not known in enum EnrollmentFilterName');
-  }
+  const EnrollmentFilterName(this.value);
+
+  static EnrollmentFilterName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EnrollmentFilterName'));
 }
 
 /// Describes the estimated monthly savings amount possible, based on On-Demand
@@ -3490,7 +4047,7 @@ class EstimatedMonthlySavings {
 
   factory EstimatedMonthlySavings.fromJson(Map<String, dynamic> json) {
     return EstimatedMonthlySavings(
-      currency: (json['currency'] as String?)?.toCurrency(),
+      currency: (json['currency'] as String?)?.let(Currency.fromString),
       value: json['value'] as double?,
     );
   }
@@ -3647,1224 +4204,491 @@ class ExportLambdaFunctionRecommendationsResponse {
   }
 }
 
+class ExportLicenseRecommendationsResponse {
+  /// The identification number of the export job.
+  ///
+  /// To view the status of an export job, use the
+  /// <a>DescribeRecommendationExportJobs</a> action and specify the job ID.
+  final String? jobId;
+  final S3Destination? s3Destination;
+
+  ExportLicenseRecommendationsResponse({
+    this.jobId,
+    this.s3Destination,
+  });
+
+  factory ExportLicenseRecommendationsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ExportLicenseRecommendationsResponse(
+      jobId: json['jobId'] as String?,
+      s3Destination: json['s3Destination'] != null
+          ? S3Destination.fromJson(
+              json['s3Destination'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
 enum ExportableAutoScalingGroupField {
-  accountId,
-  autoScalingGroupArn,
-  autoScalingGroupName,
-  finding,
-  utilizationMetricsCpuMaximum,
-  utilizationMetricsMemoryMaximum,
-  utilizationMetricsEbsReadOpsPerSecondMaximum,
-  utilizationMetricsEbsWriteOpsPerSecondMaximum,
-  utilizationMetricsEbsReadBytesPerSecondMaximum,
-  utilizationMetricsEbsWriteBytesPerSecondMaximum,
-  utilizationMetricsDiskReadOpsPerSecondMaximum,
-  utilizationMetricsDiskWriteOpsPerSecondMaximum,
-  utilizationMetricsDiskReadBytesPerSecondMaximum,
-  utilizationMetricsDiskWriteBytesPerSecondMaximum,
-  utilizationMetricsNetworkInBytesPerSecondMaximum,
-  utilizationMetricsNetworkOutBytesPerSecondMaximum,
-  utilizationMetricsNetworkPacketsInPerSecondMaximum,
-  utilizationMetricsNetworkPacketsOutPerSecondMaximum,
-  lookbackPeriodInDays,
-  currentConfigurationInstanceType,
-  currentConfigurationDesiredCapacity,
-  currentConfigurationMinSize,
-  currentConfigurationMaxSize,
-  currentOnDemandPrice,
-  currentStandardOneYearNoUpfrontReservedPrice,
-  currentStandardThreeYearNoUpfrontReservedPrice,
-  currentVCpus,
-  currentMemory,
-  currentStorage,
-  currentNetwork,
-  recommendationOptionsConfigurationInstanceType,
-  recommendationOptionsConfigurationDesiredCapacity,
-  recommendationOptionsConfigurationMinSize,
-  recommendationOptionsConfigurationMaxSize,
-  recommendationOptionsProjectedUtilizationMetricsCpuMaximum,
-  recommendationOptionsProjectedUtilizationMetricsMemoryMaximum,
-  recommendationOptionsPerformanceRisk,
-  recommendationOptionsOnDemandPrice,
-  recommendationOptionsStandardOneYearNoUpfrontReservedPrice,
-  recommendationOptionsStandardThreeYearNoUpfrontReservedPrice,
-  recommendationOptionsVcpus,
-  recommendationOptionsMemory,
-  recommendationOptionsStorage,
-  recommendationOptionsNetwork,
-  lastRefreshTimestamp,
-  currentPerformanceRisk,
-  recommendationOptionsSavingsOpportunityPercentage,
-  recommendationOptionsEstimatedMonthlySavingsCurrency,
-  recommendationOptionsEstimatedMonthlySavingsValue,
-  effectiveRecommendationPreferencesCpuVendorArchitectures,
-  effectiveRecommendationPreferencesEnhancedInfrastructureMetrics,
-  effectiveRecommendationPreferencesInferredWorkloadTypes,
-  inferredWorkloadTypes,
-  recommendationOptionsMigrationEffort,
-}
+  accountId('AccountId'),
+  autoScalingGroupArn('AutoScalingGroupArn'),
+  autoScalingGroupName('AutoScalingGroupName'),
+  finding('Finding'),
+  utilizationMetricsCpuMaximum('UtilizationMetricsCpuMaximum'),
+  utilizationMetricsMemoryMaximum('UtilizationMetricsMemoryMaximum'),
+  utilizationMetricsEbsReadOpsPerSecondMaximum(
+      'UtilizationMetricsEbsReadOpsPerSecondMaximum'),
+  utilizationMetricsEbsWriteOpsPerSecondMaximum(
+      'UtilizationMetricsEbsWriteOpsPerSecondMaximum'),
+  utilizationMetricsEbsReadBytesPerSecondMaximum(
+      'UtilizationMetricsEbsReadBytesPerSecondMaximum'),
+  utilizationMetricsEbsWriteBytesPerSecondMaximum(
+      'UtilizationMetricsEbsWriteBytesPerSecondMaximum'),
+  utilizationMetricsDiskReadOpsPerSecondMaximum(
+      'UtilizationMetricsDiskReadOpsPerSecondMaximum'),
+  utilizationMetricsDiskWriteOpsPerSecondMaximum(
+      'UtilizationMetricsDiskWriteOpsPerSecondMaximum'),
+  utilizationMetricsDiskReadBytesPerSecondMaximum(
+      'UtilizationMetricsDiskReadBytesPerSecondMaximum'),
+  utilizationMetricsDiskWriteBytesPerSecondMaximum(
+      'UtilizationMetricsDiskWriteBytesPerSecondMaximum'),
+  utilizationMetricsNetworkInBytesPerSecondMaximum(
+      'UtilizationMetricsNetworkInBytesPerSecondMaximum'),
+  utilizationMetricsNetworkOutBytesPerSecondMaximum(
+      'UtilizationMetricsNetworkOutBytesPerSecondMaximum'),
+  utilizationMetricsNetworkPacketsInPerSecondMaximum(
+      'UtilizationMetricsNetworkPacketsInPerSecondMaximum'),
+  utilizationMetricsNetworkPacketsOutPerSecondMaximum(
+      'UtilizationMetricsNetworkPacketsOutPerSecondMaximum'),
+  lookbackPeriodInDays('LookbackPeriodInDays'),
+  currentConfigurationInstanceType('CurrentConfigurationInstanceType'),
+  currentConfigurationDesiredCapacity('CurrentConfigurationDesiredCapacity'),
+  currentConfigurationMinSize('CurrentConfigurationMinSize'),
+  currentConfigurationMaxSize('CurrentConfigurationMaxSize'),
+  currentOnDemandPrice('CurrentOnDemandPrice'),
+  currentStandardOneYearNoUpfrontReservedPrice(
+      'CurrentStandardOneYearNoUpfrontReservedPrice'),
+  currentStandardThreeYearNoUpfrontReservedPrice(
+      'CurrentStandardThreeYearNoUpfrontReservedPrice'),
+  currentVCpus('CurrentVCpus'),
+  currentMemory('CurrentMemory'),
+  currentStorage('CurrentStorage'),
+  currentNetwork('CurrentNetwork'),
+  recommendationOptionsConfigurationInstanceType(
+      'RecommendationOptionsConfigurationInstanceType'),
+  recommendationOptionsConfigurationDesiredCapacity(
+      'RecommendationOptionsConfigurationDesiredCapacity'),
+  recommendationOptionsConfigurationMinSize(
+      'RecommendationOptionsConfigurationMinSize'),
+  recommendationOptionsConfigurationMaxSize(
+      'RecommendationOptionsConfigurationMaxSize'),
+  recommendationOptionsProjectedUtilizationMetricsCpuMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum'),
+  recommendationOptionsProjectedUtilizationMetricsMemoryMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum'),
+  recommendationOptionsPerformanceRisk('RecommendationOptionsPerformanceRisk'),
+  recommendationOptionsOnDemandPrice('RecommendationOptionsOnDemandPrice'),
+  recommendationOptionsStandardOneYearNoUpfrontReservedPrice(
+      'RecommendationOptionsStandardOneYearNoUpfrontReservedPrice'),
+  recommendationOptionsStandardThreeYearNoUpfrontReservedPrice(
+      'RecommendationOptionsStandardThreeYearNoUpfrontReservedPrice'),
+  recommendationOptionsVcpus('RecommendationOptionsVcpus'),
+  recommendationOptionsMemory('RecommendationOptionsMemory'),
+  recommendationOptionsStorage('RecommendationOptionsStorage'),
+  recommendationOptionsNetwork('RecommendationOptionsNetwork'),
+  lastRefreshTimestamp('LastRefreshTimestamp'),
+  currentPerformanceRisk('CurrentPerformanceRisk'),
+  recommendationOptionsSavingsOpportunityPercentage(
+      'RecommendationOptionsSavingsOpportunityPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrency(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrency'),
+  recommendationOptionsEstimatedMonthlySavingsValue(
+      'RecommendationOptionsEstimatedMonthlySavingsValue'),
+  effectiveRecommendationPreferencesCpuVendorArchitectures(
+      'EffectiveRecommendationPreferencesCpuVendorArchitectures'),
+  effectiveRecommendationPreferencesEnhancedInfrastructureMetrics(
+      'EffectiveRecommendationPreferencesEnhancedInfrastructureMetrics'),
+  effectiveRecommendationPreferencesInferredWorkloadTypes(
+      'EffectiveRecommendationPreferencesInferredWorkloadTypes'),
+  inferredWorkloadTypes('InferredWorkloadTypes'),
+  recommendationOptionsMigrationEffort('RecommendationOptionsMigrationEffort'),
+  currentInstanceGpuInfo('CurrentInstanceGpuInfo'),
+  recommendationOptionsInstanceGpuInfo('RecommendationOptionsInstanceGpuInfo'),
+  utilizationMetricsGpuPercentageMaximum(
+      'UtilizationMetricsGpuPercentageMaximum'),
+  utilizationMetricsGpuMemoryPercentageMaximum(
+      'UtilizationMetricsGpuMemoryPercentageMaximum'),
+  recommendationOptionsProjectedUtilizationMetricsGpuPercentageMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsGpuPercentageMaximum'),
+  recommendationOptionsProjectedUtilizationMetricsGpuMemoryPercentageMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsGpuMemoryPercentageMaximum'),
+  effectiveRecommendationPreferencesSavingsEstimationMode(
+      'EffectiveRecommendationPreferencesSavingsEstimationMode'),
+  recommendationOptionsSavingsOpportunityAfterDiscountsPercentage(
+      'RecommendationOptionsSavingsOpportunityAfterDiscountsPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts'),
+  recommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts'),
+  effectiveRecommendationPreferencesPreferredResources(
+      'EffectiveRecommendationPreferencesPreferredResources'),
+  effectiveRecommendationPreferencesLookBackPeriod(
+      'EffectiveRecommendationPreferencesLookBackPeriod'),
+  ;
 
-extension ExportableAutoScalingGroupFieldValueExtension
-    on ExportableAutoScalingGroupField {
-  String toValue() {
-    switch (this) {
-      case ExportableAutoScalingGroupField.accountId:
-        return 'AccountId';
-      case ExportableAutoScalingGroupField.autoScalingGroupArn:
-        return 'AutoScalingGroupArn';
-      case ExportableAutoScalingGroupField.autoScalingGroupName:
-        return 'AutoScalingGroupName';
-      case ExportableAutoScalingGroupField.finding:
-        return 'Finding';
-      case ExportableAutoScalingGroupField.utilizationMetricsCpuMaximum:
-        return 'UtilizationMetricsCpuMaximum';
-      case ExportableAutoScalingGroupField.utilizationMetricsMemoryMaximum:
-        return 'UtilizationMetricsMemoryMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsEbsReadOpsPerSecondMaximum:
-        return 'UtilizationMetricsEbsReadOpsPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsEbsWriteOpsPerSecondMaximum:
-        return 'UtilizationMetricsEbsWriteOpsPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsEbsReadBytesPerSecondMaximum:
-        return 'UtilizationMetricsEbsReadBytesPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsEbsWriteBytesPerSecondMaximum:
-        return 'UtilizationMetricsEbsWriteBytesPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsDiskReadOpsPerSecondMaximum:
-        return 'UtilizationMetricsDiskReadOpsPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsDiskWriteOpsPerSecondMaximum:
-        return 'UtilizationMetricsDiskWriteOpsPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsDiskReadBytesPerSecondMaximum:
-        return 'UtilizationMetricsDiskReadBytesPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsDiskWriteBytesPerSecondMaximum:
-        return 'UtilizationMetricsDiskWriteBytesPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkInBytesPerSecondMaximum:
-        return 'UtilizationMetricsNetworkInBytesPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkOutBytesPerSecondMaximum:
-        return 'UtilizationMetricsNetworkOutBytesPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkPacketsInPerSecondMaximum:
-        return 'UtilizationMetricsNetworkPacketsInPerSecondMaximum';
-      case ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkPacketsOutPerSecondMaximum:
-        return 'UtilizationMetricsNetworkPacketsOutPerSecondMaximum';
-      case ExportableAutoScalingGroupField.lookbackPeriodInDays:
-        return 'LookbackPeriodInDays';
-      case ExportableAutoScalingGroupField.currentConfigurationInstanceType:
-        return 'CurrentConfigurationInstanceType';
-      case ExportableAutoScalingGroupField.currentConfigurationDesiredCapacity:
-        return 'CurrentConfigurationDesiredCapacity';
-      case ExportableAutoScalingGroupField.currentConfigurationMinSize:
-        return 'CurrentConfigurationMinSize';
-      case ExportableAutoScalingGroupField.currentConfigurationMaxSize:
-        return 'CurrentConfigurationMaxSize';
-      case ExportableAutoScalingGroupField.currentOnDemandPrice:
-        return 'CurrentOnDemandPrice';
-      case ExportableAutoScalingGroupField
-            .currentStandardOneYearNoUpfrontReservedPrice:
-        return 'CurrentStandardOneYearNoUpfrontReservedPrice';
-      case ExportableAutoScalingGroupField
-            .currentStandardThreeYearNoUpfrontReservedPrice:
-        return 'CurrentStandardThreeYearNoUpfrontReservedPrice';
-      case ExportableAutoScalingGroupField.currentVCpus:
-        return 'CurrentVCpus';
-      case ExportableAutoScalingGroupField.currentMemory:
-        return 'CurrentMemory';
-      case ExportableAutoScalingGroupField.currentStorage:
-        return 'CurrentStorage';
-      case ExportableAutoScalingGroupField.currentNetwork:
-        return 'CurrentNetwork';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationInstanceType:
-        return 'RecommendationOptionsConfigurationInstanceType';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationDesiredCapacity:
-        return 'RecommendationOptionsConfigurationDesiredCapacity';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationMinSize:
-        return 'RecommendationOptionsConfigurationMinSize';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationMaxSize:
-        return 'RecommendationOptionsConfigurationMaxSize';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsProjectedUtilizationMetricsCpuMaximum:
-        return 'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsProjectedUtilizationMetricsMemoryMaximum:
-        return 'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum';
-      case ExportableAutoScalingGroupField.recommendationOptionsPerformanceRisk:
-        return 'RecommendationOptionsPerformanceRisk';
-      case ExportableAutoScalingGroupField.recommendationOptionsOnDemandPrice:
-        return 'RecommendationOptionsOnDemandPrice';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsStandardOneYearNoUpfrontReservedPrice:
-        return 'RecommendationOptionsStandardOneYearNoUpfrontReservedPrice';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsStandardThreeYearNoUpfrontReservedPrice:
-        return 'RecommendationOptionsStandardThreeYearNoUpfrontReservedPrice';
-      case ExportableAutoScalingGroupField.recommendationOptionsVcpus:
-        return 'RecommendationOptionsVcpus';
-      case ExportableAutoScalingGroupField.recommendationOptionsMemory:
-        return 'RecommendationOptionsMemory';
-      case ExportableAutoScalingGroupField.recommendationOptionsStorage:
-        return 'RecommendationOptionsStorage';
-      case ExportableAutoScalingGroupField.recommendationOptionsNetwork:
-        return 'RecommendationOptionsNetwork';
-      case ExportableAutoScalingGroupField.lastRefreshTimestamp:
-        return 'LastRefreshTimestamp';
-      case ExportableAutoScalingGroupField.currentPerformanceRisk:
-        return 'CurrentPerformanceRisk';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsSavingsOpportunityPercentage:
-        return 'RecommendationOptionsSavingsOpportunityPercentage';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency:
-        return 'RecommendationOptionsEstimatedMonthlySavingsCurrency';
-      case ExportableAutoScalingGroupField
-            .recommendationOptionsEstimatedMonthlySavingsValue:
-        return 'RecommendationOptionsEstimatedMonthlySavingsValue';
-      case ExportableAutoScalingGroupField
-            .effectiveRecommendationPreferencesCpuVendorArchitectures:
-        return 'EffectiveRecommendationPreferencesCpuVendorArchitectures';
-      case ExportableAutoScalingGroupField
-            .effectiveRecommendationPreferencesEnhancedInfrastructureMetrics:
-        return 'EffectiveRecommendationPreferencesEnhancedInfrastructureMetrics';
-      case ExportableAutoScalingGroupField
-            .effectiveRecommendationPreferencesInferredWorkloadTypes:
-        return 'EffectiveRecommendationPreferencesInferredWorkloadTypes';
-      case ExportableAutoScalingGroupField.inferredWorkloadTypes:
-        return 'InferredWorkloadTypes';
-      case ExportableAutoScalingGroupField.recommendationOptionsMigrationEffort:
-        return 'RecommendationOptionsMigrationEffort';
-    }
-  }
-}
+  final String value;
 
-extension ExportableAutoScalingGroupFieldFromString on String {
-  ExportableAutoScalingGroupField toExportableAutoScalingGroupField() {
-    switch (this) {
-      case 'AccountId':
-        return ExportableAutoScalingGroupField.accountId;
-      case 'AutoScalingGroupArn':
-        return ExportableAutoScalingGroupField.autoScalingGroupArn;
-      case 'AutoScalingGroupName':
-        return ExportableAutoScalingGroupField.autoScalingGroupName;
-      case 'Finding':
-        return ExportableAutoScalingGroupField.finding;
-      case 'UtilizationMetricsCpuMaximum':
-        return ExportableAutoScalingGroupField.utilizationMetricsCpuMaximum;
-      case 'UtilizationMetricsMemoryMaximum':
-        return ExportableAutoScalingGroupField.utilizationMetricsMemoryMaximum;
-      case 'UtilizationMetricsEbsReadOpsPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsEbsReadOpsPerSecondMaximum;
-      case 'UtilizationMetricsEbsWriteOpsPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsEbsWriteOpsPerSecondMaximum;
-      case 'UtilizationMetricsEbsReadBytesPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsEbsReadBytesPerSecondMaximum;
-      case 'UtilizationMetricsEbsWriteBytesPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsEbsWriteBytesPerSecondMaximum;
-      case 'UtilizationMetricsDiskReadOpsPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsDiskReadOpsPerSecondMaximum;
-      case 'UtilizationMetricsDiskWriteOpsPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsDiskWriteOpsPerSecondMaximum;
-      case 'UtilizationMetricsDiskReadBytesPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsDiskReadBytesPerSecondMaximum;
-      case 'UtilizationMetricsDiskWriteBytesPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsDiskWriteBytesPerSecondMaximum;
-      case 'UtilizationMetricsNetworkInBytesPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkInBytesPerSecondMaximum;
-      case 'UtilizationMetricsNetworkOutBytesPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkOutBytesPerSecondMaximum;
-      case 'UtilizationMetricsNetworkPacketsInPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkPacketsInPerSecondMaximum;
-      case 'UtilizationMetricsNetworkPacketsOutPerSecondMaximum':
-        return ExportableAutoScalingGroupField
-            .utilizationMetricsNetworkPacketsOutPerSecondMaximum;
-      case 'LookbackPeriodInDays':
-        return ExportableAutoScalingGroupField.lookbackPeriodInDays;
-      case 'CurrentConfigurationInstanceType':
-        return ExportableAutoScalingGroupField.currentConfigurationInstanceType;
-      case 'CurrentConfigurationDesiredCapacity':
-        return ExportableAutoScalingGroupField
-            .currentConfigurationDesiredCapacity;
-      case 'CurrentConfigurationMinSize':
-        return ExportableAutoScalingGroupField.currentConfigurationMinSize;
-      case 'CurrentConfigurationMaxSize':
-        return ExportableAutoScalingGroupField.currentConfigurationMaxSize;
-      case 'CurrentOnDemandPrice':
-        return ExportableAutoScalingGroupField.currentOnDemandPrice;
-      case 'CurrentStandardOneYearNoUpfrontReservedPrice':
-        return ExportableAutoScalingGroupField
-            .currentStandardOneYearNoUpfrontReservedPrice;
-      case 'CurrentStandardThreeYearNoUpfrontReservedPrice':
-        return ExportableAutoScalingGroupField
-            .currentStandardThreeYearNoUpfrontReservedPrice;
-      case 'CurrentVCpus':
-        return ExportableAutoScalingGroupField.currentVCpus;
-      case 'CurrentMemory':
-        return ExportableAutoScalingGroupField.currentMemory;
-      case 'CurrentStorage':
-        return ExportableAutoScalingGroupField.currentStorage;
-      case 'CurrentNetwork':
-        return ExportableAutoScalingGroupField.currentNetwork;
-      case 'RecommendationOptionsConfigurationInstanceType':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationInstanceType;
-      case 'RecommendationOptionsConfigurationDesiredCapacity':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationDesiredCapacity;
-      case 'RecommendationOptionsConfigurationMinSize':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationMinSize;
-      case 'RecommendationOptionsConfigurationMaxSize':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsConfigurationMaxSize;
-      case 'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsProjectedUtilizationMetricsCpuMaximum;
-      case 'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsProjectedUtilizationMetricsMemoryMaximum;
-      case 'RecommendationOptionsPerformanceRisk':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsPerformanceRisk;
-      case 'RecommendationOptionsOnDemandPrice':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsOnDemandPrice;
-      case 'RecommendationOptionsStandardOneYearNoUpfrontReservedPrice':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsStandardOneYearNoUpfrontReservedPrice;
-      case 'RecommendationOptionsStandardThreeYearNoUpfrontReservedPrice':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsStandardThreeYearNoUpfrontReservedPrice;
-      case 'RecommendationOptionsVcpus':
-        return ExportableAutoScalingGroupField.recommendationOptionsVcpus;
-      case 'RecommendationOptionsMemory':
-        return ExportableAutoScalingGroupField.recommendationOptionsMemory;
-      case 'RecommendationOptionsStorage':
-        return ExportableAutoScalingGroupField.recommendationOptionsStorage;
-      case 'RecommendationOptionsNetwork':
-        return ExportableAutoScalingGroupField.recommendationOptionsNetwork;
-      case 'LastRefreshTimestamp':
-        return ExportableAutoScalingGroupField.lastRefreshTimestamp;
-      case 'CurrentPerformanceRisk':
-        return ExportableAutoScalingGroupField.currentPerformanceRisk;
-      case 'RecommendationOptionsSavingsOpportunityPercentage':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsSavingsOpportunityPercentage;
-      case 'RecommendationOptionsEstimatedMonthlySavingsCurrency':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency;
-      case 'RecommendationOptionsEstimatedMonthlySavingsValue':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsEstimatedMonthlySavingsValue;
-      case 'EffectiveRecommendationPreferencesCpuVendorArchitectures':
-        return ExportableAutoScalingGroupField
-            .effectiveRecommendationPreferencesCpuVendorArchitectures;
-      case 'EffectiveRecommendationPreferencesEnhancedInfrastructureMetrics':
-        return ExportableAutoScalingGroupField
-            .effectiveRecommendationPreferencesEnhancedInfrastructureMetrics;
-      case 'EffectiveRecommendationPreferencesInferredWorkloadTypes':
-        return ExportableAutoScalingGroupField
-            .effectiveRecommendationPreferencesInferredWorkloadTypes;
-      case 'InferredWorkloadTypes':
-        return ExportableAutoScalingGroupField.inferredWorkloadTypes;
-      case 'RecommendationOptionsMigrationEffort':
-        return ExportableAutoScalingGroupField
-            .recommendationOptionsMigrationEffort;
-    }
-    throw Exception(
-        '$this is not known in enum ExportableAutoScalingGroupField');
-  }
+  const ExportableAutoScalingGroupField(this.value);
+
+  static ExportableAutoScalingGroupField fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExportableAutoScalingGroupField'));
 }
 
 enum ExportableECSServiceField {
-  accountId,
-  serviceArn,
-  lookbackPeriodInDays,
-  lastRefreshTimestamp,
-  launchType,
-  currentPerformanceRisk,
-  currentServiceConfigurationMemory,
-  currentServiceConfigurationCpu,
-  currentServiceConfigurationTaskDefinitionArn,
-  currentServiceConfigurationAutoScalingConfiguration,
-  currentServiceContainerConfigurations,
-  utilizationMetricsCpuMaximum,
-  utilizationMetricsMemoryMaximum,
-  finding,
-  findingReasonCodes,
-  recommendationOptionsMemory,
-  recommendationOptionsCpu,
-  recommendationOptionsSavingsOpportunityPercentage,
-  recommendationOptionsEstimatedMonthlySavingsCurrency,
-  recommendationOptionsEstimatedMonthlySavingsValue,
-  recommendationOptionsContainerRecommendations,
-  recommendationOptionsProjectedUtilizationMetricsCpuMaximum,
-  recommendationOptionsProjectedUtilizationMetricsMemoryMaximum,
-  tags,
-}
+  accountId('AccountId'),
+  serviceArn('ServiceArn'),
+  lookbackPeriodInDays('LookbackPeriodInDays'),
+  lastRefreshTimestamp('LastRefreshTimestamp'),
+  launchType('LaunchType'),
+  currentPerformanceRisk('CurrentPerformanceRisk'),
+  currentServiceConfigurationMemory('CurrentServiceConfigurationMemory'),
+  currentServiceConfigurationCpu('CurrentServiceConfigurationCpu'),
+  currentServiceConfigurationTaskDefinitionArn(
+      'CurrentServiceConfigurationTaskDefinitionArn'),
+  currentServiceConfigurationAutoScalingConfiguration(
+      'CurrentServiceConfigurationAutoScalingConfiguration'),
+  currentServiceContainerConfigurations(
+      'CurrentServiceContainerConfigurations'),
+  utilizationMetricsCpuMaximum('UtilizationMetricsCpuMaximum'),
+  utilizationMetricsMemoryMaximum('UtilizationMetricsMemoryMaximum'),
+  finding('Finding'),
+  findingReasonCodes('FindingReasonCodes'),
+  recommendationOptionsMemory('RecommendationOptionsMemory'),
+  recommendationOptionsCpu('RecommendationOptionsCpu'),
+  recommendationOptionsSavingsOpportunityPercentage(
+      'RecommendationOptionsSavingsOpportunityPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrency(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrency'),
+  recommendationOptionsEstimatedMonthlySavingsValue(
+      'RecommendationOptionsEstimatedMonthlySavingsValue'),
+  recommendationOptionsContainerRecommendations(
+      'RecommendationOptionsContainerRecommendations'),
+  recommendationOptionsProjectedUtilizationMetricsCpuMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum'),
+  recommendationOptionsProjectedUtilizationMetricsMemoryMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum'),
+  tags('Tags'),
+  effectiveRecommendationPreferencesSavingsEstimationMode(
+      'EffectiveRecommendationPreferencesSavingsEstimationMode'),
+  recommendationOptionsSavingsOpportunityAfterDiscountsPercentage(
+      'RecommendationOptionsSavingsOpportunityAfterDiscountsPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts'),
+  recommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts'),
+  ;
 
-extension ExportableECSServiceFieldValueExtension on ExportableECSServiceField {
-  String toValue() {
-    switch (this) {
-      case ExportableECSServiceField.accountId:
-        return 'AccountId';
-      case ExportableECSServiceField.serviceArn:
-        return 'ServiceArn';
-      case ExportableECSServiceField.lookbackPeriodInDays:
-        return 'LookbackPeriodInDays';
-      case ExportableECSServiceField.lastRefreshTimestamp:
-        return 'LastRefreshTimestamp';
-      case ExportableECSServiceField.launchType:
-        return 'LaunchType';
-      case ExportableECSServiceField.currentPerformanceRisk:
-        return 'CurrentPerformanceRisk';
-      case ExportableECSServiceField.currentServiceConfigurationMemory:
-        return 'CurrentServiceConfigurationMemory';
-      case ExportableECSServiceField.currentServiceConfigurationCpu:
-        return 'CurrentServiceConfigurationCpu';
-      case ExportableECSServiceField
-            .currentServiceConfigurationTaskDefinitionArn:
-        return 'CurrentServiceConfigurationTaskDefinitionArn';
-      case ExportableECSServiceField
-            .currentServiceConfigurationAutoScalingConfiguration:
-        return 'CurrentServiceConfigurationAutoScalingConfiguration';
-      case ExportableECSServiceField.currentServiceContainerConfigurations:
-        return 'CurrentServiceContainerConfigurations';
-      case ExportableECSServiceField.utilizationMetricsCpuMaximum:
-        return 'UtilizationMetricsCpuMaximum';
-      case ExportableECSServiceField.utilizationMetricsMemoryMaximum:
-        return 'UtilizationMetricsMemoryMaximum';
-      case ExportableECSServiceField.finding:
-        return 'Finding';
-      case ExportableECSServiceField.findingReasonCodes:
-        return 'FindingReasonCodes';
-      case ExportableECSServiceField.recommendationOptionsMemory:
-        return 'RecommendationOptionsMemory';
-      case ExportableECSServiceField.recommendationOptionsCpu:
-        return 'RecommendationOptionsCpu';
-      case ExportableECSServiceField
-            .recommendationOptionsSavingsOpportunityPercentage:
-        return 'RecommendationOptionsSavingsOpportunityPercentage';
-      case ExportableECSServiceField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency:
-        return 'RecommendationOptionsEstimatedMonthlySavingsCurrency';
-      case ExportableECSServiceField
-            .recommendationOptionsEstimatedMonthlySavingsValue:
-        return 'RecommendationOptionsEstimatedMonthlySavingsValue';
-      case ExportableECSServiceField
-            .recommendationOptionsContainerRecommendations:
-        return 'RecommendationOptionsContainerRecommendations';
-      case ExportableECSServiceField
-            .recommendationOptionsProjectedUtilizationMetricsCpuMaximum:
-        return 'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum';
-      case ExportableECSServiceField
-            .recommendationOptionsProjectedUtilizationMetricsMemoryMaximum:
-        return 'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum';
-      case ExportableECSServiceField.tags:
-        return 'Tags';
-    }
-  }
-}
+  final String value;
 
-extension ExportableECSServiceFieldFromString on String {
-  ExportableECSServiceField toExportableECSServiceField() {
-    switch (this) {
-      case 'AccountId':
-        return ExportableECSServiceField.accountId;
-      case 'ServiceArn':
-        return ExportableECSServiceField.serviceArn;
-      case 'LookbackPeriodInDays':
-        return ExportableECSServiceField.lookbackPeriodInDays;
-      case 'LastRefreshTimestamp':
-        return ExportableECSServiceField.lastRefreshTimestamp;
-      case 'LaunchType':
-        return ExportableECSServiceField.launchType;
-      case 'CurrentPerformanceRisk':
-        return ExportableECSServiceField.currentPerformanceRisk;
-      case 'CurrentServiceConfigurationMemory':
-        return ExportableECSServiceField.currentServiceConfigurationMemory;
-      case 'CurrentServiceConfigurationCpu':
-        return ExportableECSServiceField.currentServiceConfigurationCpu;
-      case 'CurrentServiceConfigurationTaskDefinitionArn':
-        return ExportableECSServiceField
-            .currentServiceConfigurationTaskDefinitionArn;
-      case 'CurrentServiceConfigurationAutoScalingConfiguration':
-        return ExportableECSServiceField
-            .currentServiceConfigurationAutoScalingConfiguration;
-      case 'CurrentServiceContainerConfigurations':
-        return ExportableECSServiceField.currentServiceContainerConfigurations;
-      case 'UtilizationMetricsCpuMaximum':
-        return ExportableECSServiceField.utilizationMetricsCpuMaximum;
-      case 'UtilizationMetricsMemoryMaximum':
-        return ExportableECSServiceField.utilizationMetricsMemoryMaximum;
-      case 'Finding':
-        return ExportableECSServiceField.finding;
-      case 'FindingReasonCodes':
-        return ExportableECSServiceField.findingReasonCodes;
-      case 'RecommendationOptionsMemory':
-        return ExportableECSServiceField.recommendationOptionsMemory;
-      case 'RecommendationOptionsCpu':
-        return ExportableECSServiceField.recommendationOptionsCpu;
-      case 'RecommendationOptionsSavingsOpportunityPercentage':
-        return ExportableECSServiceField
-            .recommendationOptionsSavingsOpportunityPercentage;
-      case 'RecommendationOptionsEstimatedMonthlySavingsCurrency':
-        return ExportableECSServiceField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency;
-      case 'RecommendationOptionsEstimatedMonthlySavingsValue':
-        return ExportableECSServiceField
-            .recommendationOptionsEstimatedMonthlySavingsValue;
-      case 'RecommendationOptionsContainerRecommendations':
-        return ExportableECSServiceField
-            .recommendationOptionsContainerRecommendations;
-      case 'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum':
-        return ExportableECSServiceField
-            .recommendationOptionsProjectedUtilizationMetricsCpuMaximum;
-      case 'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum':
-        return ExportableECSServiceField
-            .recommendationOptionsProjectedUtilizationMetricsMemoryMaximum;
-      case 'Tags':
-        return ExportableECSServiceField.tags;
-    }
-    throw Exception('$this is not known in enum ExportableECSServiceField');
-  }
+  const ExportableECSServiceField(this.value);
+
+  static ExportableECSServiceField fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExportableECSServiceField'));
 }
 
 enum ExportableInstanceField {
-  accountId,
-  instanceArn,
-  instanceName,
-  finding,
-  findingReasonCodes,
-  lookbackPeriodInDays,
-  currentInstanceType,
-  utilizationMetricsCpuMaximum,
-  utilizationMetricsMemoryMaximum,
-  utilizationMetricsEbsReadOpsPerSecondMaximum,
-  utilizationMetricsEbsWriteOpsPerSecondMaximum,
-  utilizationMetricsEbsReadBytesPerSecondMaximum,
-  utilizationMetricsEbsWriteBytesPerSecondMaximum,
-  utilizationMetricsDiskReadOpsPerSecondMaximum,
-  utilizationMetricsDiskWriteOpsPerSecondMaximum,
-  utilizationMetricsDiskReadBytesPerSecondMaximum,
-  utilizationMetricsDiskWriteBytesPerSecondMaximum,
-  utilizationMetricsNetworkInBytesPerSecondMaximum,
-  utilizationMetricsNetworkOutBytesPerSecondMaximum,
-  utilizationMetricsNetworkPacketsInPerSecondMaximum,
-  utilizationMetricsNetworkPacketsOutPerSecondMaximum,
-  currentOnDemandPrice,
-  currentStandardOneYearNoUpfrontReservedPrice,
-  currentStandardThreeYearNoUpfrontReservedPrice,
-  currentVCpus,
-  currentMemory,
-  currentStorage,
-  currentNetwork,
-  recommendationOptionsInstanceType,
-  recommendationOptionsProjectedUtilizationMetricsCpuMaximum,
-  recommendationOptionsProjectedUtilizationMetricsMemoryMaximum,
-  recommendationOptionsPlatformDifferences,
-  recommendationOptionsPerformanceRisk,
-  recommendationOptionsVcpus,
-  recommendationOptionsMemory,
-  recommendationOptionsStorage,
-  recommendationOptionsNetwork,
-  recommendationOptionsOnDemandPrice,
-  recommendationOptionsStandardOneYearNoUpfrontReservedPrice,
-  recommendationOptionsStandardThreeYearNoUpfrontReservedPrice,
-  recommendationsSourcesRecommendationSourceArn,
-  recommendationsSourcesRecommendationSourceType,
-  lastRefreshTimestamp,
-  currentPerformanceRisk,
-  recommendationOptionsSavingsOpportunityPercentage,
-  recommendationOptionsEstimatedMonthlySavingsCurrency,
-  recommendationOptionsEstimatedMonthlySavingsValue,
-  effectiveRecommendationPreferencesCpuVendorArchitectures,
-  effectiveRecommendationPreferencesEnhancedInfrastructureMetrics,
-  effectiveRecommendationPreferencesInferredWorkloadTypes,
-  inferredWorkloadTypes,
-  recommendationOptionsMigrationEffort,
-  effectiveRecommendationPreferencesExternalMetricsSource,
-  instanceState,
-  tags,
-  externalMetricStatusCode,
-  externalMetricStatusReason,
-}
+  accountId('AccountId'),
+  instanceArn('InstanceArn'),
+  instanceName('InstanceName'),
+  finding('Finding'),
+  findingReasonCodes('FindingReasonCodes'),
+  lookbackPeriodInDays('LookbackPeriodInDays'),
+  currentInstanceType('CurrentInstanceType'),
+  utilizationMetricsCpuMaximum('UtilizationMetricsCpuMaximum'),
+  utilizationMetricsMemoryMaximum('UtilizationMetricsMemoryMaximum'),
+  utilizationMetricsEbsReadOpsPerSecondMaximum(
+      'UtilizationMetricsEbsReadOpsPerSecondMaximum'),
+  utilizationMetricsEbsWriteOpsPerSecondMaximum(
+      'UtilizationMetricsEbsWriteOpsPerSecondMaximum'),
+  utilizationMetricsEbsReadBytesPerSecondMaximum(
+      'UtilizationMetricsEbsReadBytesPerSecondMaximum'),
+  utilizationMetricsEbsWriteBytesPerSecondMaximum(
+      'UtilizationMetricsEbsWriteBytesPerSecondMaximum'),
+  utilizationMetricsDiskReadOpsPerSecondMaximum(
+      'UtilizationMetricsDiskReadOpsPerSecondMaximum'),
+  utilizationMetricsDiskWriteOpsPerSecondMaximum(
+      'UtilizationMetricsDiskWriteOpsPerSecondMaximum'),
+  utilizationMetricsDiskReadBytesPerSecondMaximum(
+      'UtilizationMetricsDiskReadBytesPerSecondMaximum'),
+  utilizationMetricsDiskWriteBytesPerSecondMaximum(
+      'UtilizationMetricsDiskWriteBytesPerSecondMaximum'),
+  utilizationMetricsNetworkInBytesPerSecondMaximum(
+      'UtilizationMetricsNetworkInBytesPerSecondMaximum'),
+  utilizationMetricsNetworkOutBytesPerSecondMaximum(
+      'UtilizationMetricsNetworkOutBytesPerSecondMaximum'),
+  utilizationMetricsNetworkPacketsInPerSecondMaximum(
+      'UtilizationMetricsNetworkPacketsInPerSecondMaximum'),
+  utilizationMetricsNetworkPacketsOutPerSecondMaximum(
+      'UtilizationMetricsNetworkPacketsOutPerSecondMaximum'),
+  currentOnDemandPrice('CurrentOnDemandPrice'),
+  currentStandardOneYearNoUpfrontReservedPrice(
+      'CurrentStandardOneYearNoUpfrontReservedPrice'),
+  currentStandardThreeYearNoUpfrontReservedPrice(
+      'CurrentStandardThreeYearNoUpfrontReservedPrice'),
+  currentVCpus('CurrentVCpus'),
+  currentMemory('CurrentMemory'),
+  currentStorage('CurrentStorage'),
+  currentNetwork('CurrentNetwork'),
+  recommendationOptionsInstanceType('RecommendationOptionsInstanceType'),
+  recommendationOptionsProjectedUtilizationMetricsCpuMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum'),
+  recommendationOptionsProjectedUtilizationMetricsMemoryMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum'),
+  recommendationOptionsPlatformDifferences(
+      'RecommendationOptionsPlatformDifferences'),
+  recommendationOptionsPerformanceRisk('RecommendationOptionsPerformanceRisk'),
+  recommendationOptionsVcpus('RecommendationOptionsVcpus'),
+  recommendationOptionsMemory('RecommendationOptionsMemory'),
+  recommendationOptionsStorage('RecommendationOptionsStorage'),
+  recommendationOptionsNetwork('RecommendationOptionsNetwork'),
+  recommendationOptionsOnDemandPrice('RecommendationOptionsOnDemandPrice'),
+  recommendationOptionsStandardOneYearNoUpfrontReservedPrice(
+      'RecommendationOptionsStandardOneYearNoUpfrontReservedPrice'),
+  recommendationOptionsStandardThreeYearNoUpfrontReservedPrice(
+      'RecommendationOptionsStandardThreeYearNoUpfrontReservedPrice'),
+  recommendationsSourcesRecommendationSourceArn(
+      'RecommendationsSourcesRecommendationSourceArn'),
+  recommendationsSourcesRecommendationSourceType(
+      'RecommendationsSourcesRecommendationSourceType'),
+  lastRefreshTimestamp('LastRefreshTimestamp'),
+  currentPerformanceRisk('CurrentPerformanceRisk'),
+  recommendationOptionsSavingsOpportunityPercentage(
+      'RecommendationOptionsSavingsOpportunityPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrency(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrency'),
+  recommendationOptionsEstimatedMonthlySavingsValue(
+      'RecommendationOptionsEstimatedMonthlySavingsValue'),
+  effectiveRecommendationPreferencesCpuVendorArchitectures(
+      'EffectiveRecommendationPreferencesCpuVendorArchitectures'),
+  effectiveRecommendationPreferencesEnhancedInfrastructureMetrics(
+      'EffectiveRecommendationPreferencesEnhancedInfrastructureMetrics'),
+  effectiveRecommendationPreferencesInferredWorkloadTypes(
+      'EffectiveRecommendationPreferencesInferredWorkloadTypes'),
+  inferredWorkloadTypes('InferredWorkloadTypes'),
+  recommendationOptionsMigrationEffort('RecommendationOptionsMigrationEffort'),
+  effectiveRecommendationPreferencesExternalMetricsSource(
+      'EffectiveRecommendationPreferencesExternalMetricsSource'),
+  instanceState('InstanceState'),
+  tags('Tags'),
+  externalMetricStatusCode('ExternalMetricStatusCode'),
+  externalMetricStatusReason('ExternalMetricStatusReason'),
+  currentInstanceGpuInfo('CurrentInstanceGpuInfo'),
+  recommendationOptionsInstanceGpuInfo('RecommendationOptionsInstanceGpuInfo'),
+  utilizationMetricsGpuPercentageMaximum(
+      'UtilizationMetricsGpuPercentageMaximum'),
+  utilizationMetricsGpuMemoryPercentageMaximum(
+      'UtilizationMetricsGpuMemoryPercentageMaximum'),
+  recommendationOptionsProjectedUtilizationMetricsGpuPercentageMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsGpuPercentageMaximum'),
+  recommendationOptionsProjectedUtilizationMetricsGpuMemoryPercentageMaximum(
+      'RecommendationOptionsProjectedUtilizationMetricsGpuMemoryPercentageMaximum'),
+  idle('Idle'),
+  effectiveRecommendationPreferencesPreferredResources(
+      'EffectiveRecommendationPreferencesPreferredResources'),
+  effectiveRecommendationPreferencesLookBackPeriod(
+      'EffectiveRecommendationPreferencesLookBackPeriod'),
+  effectiveRecommendationPreferencesUtilizationPreferences(
+      'EffectiveRecommendationPreferencesUtilizationPreferences'),
+  effectiveRecommendationPreferencesSavingsEstimationMode(
+      'EffectiveRecommendationPreferencesSavingsEstimationMode'),
+  recommendationOptionsSavingsOpportunityAfterDiscountsPercentage(
+      'RecommendationOptionsSavingsOpportunityAfterDiscountsPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts'),
+  recommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts'),
+  ;
 
-extension ExportableInstanceFieldValueExtension on ExportableInstanceField {
-  String toValue() {
-    switch (this) {
-      case ExportableInstanceField.accountId:
-        return 'AccountId';
-      case ExportableInstanceField.instanceArn:
-        return 'InstanceArn';
-      case ExportableInstanceField.instanceName:
-        return 'InstanceName';
-      case ExportableInstanceField.finding:
-        return 'Finding';
-      case ExportableInstanceField.findingReasonCodes:
-        return 'FindingReasonCodes';
-      case ExportableInstanceField.lookbackPeriodInDays:
-        return 'LookbackPeriodInDays';
-      case ExportableInstanceField.currentInstanceType:
-        return 'CurrentInstanceType';
-      case ExportableInstanceField.utilizationMetricsCpuMaximum:
-        return 'UtilizationMetricsCpuMaximum';
-      case ExportableInstanceField.utilizationMetricsMemoryMaximum:
-        return 'UtilizationMetricsMemoryMaximum';
-      case ExportableInstanceField.utilizationMetricsEbsReadOpsPerSecondMaximum:
-        return 'UtilizationMetricsEbsReadOpsPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsEbsWriteOpsPerSecondMaximum:
-        return 'UtilizationMetricsEbsWriteOpsPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsEbsReadBytesPerSecondMaximum:
-        return 'UtilizationMetricsEbsReadBytesPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsEbsWriteBytesPerSecondMaximum:
-        return 'UtilizationMetricsEbsWriteBytesPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsDiskReadOpsPerSecondMaximum:
-        return 'UtilizationMetricsDiskReadOpsPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsDiskWriteOpsPerSecondMaximum:
-        return 'UtilizationMetricsDiskWriteOpsPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsDiskReadBytesPerSecondMaximum:
-        return 'UtilizationMetricsDiskReadBytesPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsDiskWriteBytesPerSecondMaximum:
-        return 'UtilizationMetricsDiskWriteBytesPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsNetworkInBytesPerSecondMaximum:
-        return 'UtilizationMetricsNetworkInBytesPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsNetworkOutBytesPerSecondMaximum:
-        return 'UtilizationMetricsNetworkOutBytesPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsNetworkPacketsInPerSecondMaximum:
-        return 'UtilizationMetricsNetworkPacketsInPerSecondMaximum';
-      case ExportableInstanceField
-            .utilizationMetricsNetworkPacketsOutPerSecondMaximum:
-        return 'UtilizationMetricsNetworkPacketsOutPerSecondMaximum';
-      case ExportableInstanceField.currentOnDemandPrice:
-        return 'CurrentOnDemandPrice';
-      case ExportableInstanceField.currentStandardOneYearNoUpfrontReservedPrice:
-        return 'CurrentStandardOneYearNoUpfrontReservedPrice';
-      case ExportableInstanceField
-            .currentStandardThreeYearNoUpfrontReservedPrice:
-        return 'CurrentStandardThreeYearNoUpfrontReservedPrice';
-      case ExportableInstanceField.currentVCpus:
-        return 'CurrentVCpus';
-      case ExportableInstanceField.currentMemory:
-        return 'CurrentMemory';
-      case ExportableInstanceField.currentStorage:
-        return 'CurrentStorage';
-      case ExportableInstanceField.currentNetwork:
-        return 'CurrentNetwork';
-      case ExportableInstanceField.recommendationOptionsInstanceType:
-        return 'RecommendationOptionsInstanceType';
-      case ExportableInstanceField
-            .recommendationOptionsProjectedUtilizationMetricsCpuMaximum:
-        return 'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum';
-      case ExportableInstanceField
-            .recommendationOptionsProjectedUtilizationMetricsMemoryMaximum:
-        return 'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum';
-      case ExportableInstanceField.recommendationOptionsPlatformDifferences:
-        return 'RecommendationOptionsPlatformDifferences';
-      case ExportableInstanceField.recommendationOptionsPerformanceRisk:
-        return 'RecommendationOptionsPerformanceRisk';
-      case ExportableInstanceField.recommendationOptionsVcpus:
-        return 'RecommendationOptionsVcpus';
-      case ExportableInstanceField.recommendationOptionsMemory:
-        return 'RecommendationOptionsMemory';
-      case ExportableInstanceField.recommendationOptionsStorage:
-        return 'RecommendationOptionsStorage';
-      case ExportableInstanceField.recommendationOptionsNetwork:
-        return 'RecommendationOptionsNetwork';
-      case ExportableInstanceField.recommendationOptionsOnDemandPrice:
-        return 'RecommendationOptionsOnDemandPrice';
-      case ExportableInstanceField
-            .recommendationOptionsStandardOneYearNoUpfrontReservedPrice:
-        return 'RecommendationOptionsStandardOneYearNoUpfrontReservedPrice';
-      case ExportableInstanceField
-            .recommendationOptionsStandardThreeYearNoUpfrontReservedPrice:
-        return 'RecommendationOptionsStandardThreeYearNoUpfrontReservedPrice';
-      case ExportableInstanceField
-            .recommendationsSourcesRecommendationSourceArn:
-        return 'RecommendationsSourcesRecommendationSourceArn';
-      case ExportableInstanceField
-            .recommendationsSourcesRecommendationSourceType:
-        return 'RecommendationsSourcesRecommendationSourceType';
-      case ExportableInstanceField.lastRefreshTimestamp:
-        return 'LastRefreshTimestamp';
-      case ExportableInstanceField.currentPerformanceRisk:
-        return 'CurrentPerformanceRisk';
-      case ExportableInstanceField
-            .recommendationOptionsSavingsOpportunityPercentage:
-        return 'RecommendationOptionsSavingsOpportunityPercentage';
-      case ExportableInstanceField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency:
-        return 'RecommendationOptionsEstimatedMonthlySavingsCurrency';
-      case ExportableInstanceField
-            .recommendationOptionsEstimatedMonthlySavingsValue:
-        return 'RecommendationOptionsEstimatedMonthlySavingsValue';
-      case ExportableInstanceField
-            .effectiveRecommendationPreferencesCpuVendorArchitectures:
-        return 'EffectiveRecommendationPreferencesCpuVendorArchitectures';
-      case ExportableInstanceField
-            .effectiveRecommendationPreferencesEnhancedInfrastructureMetrics:
-        return 'EffectiveRecommendationPreferencesEnhancedInfrastructureMetrics';
-      case ExportableInstanceField
-            .effectiveRecommendationPreferencesInferredWorkloadTypes:
-        return 'EffectiveRecommendationPreferencesInferredWorkloadTypes';
-      case ExportableInstanceField.inferredWorkloadTypes:
-        return 'InferredWorkloadTypes';
-      case ExportableInstanceField.recommendationOptionsMigrationEffort:
-        return 'RecommendationOptionsMigrationEffort';
-      case ExportableInstanceField
-            .effectiveRecommendationPreferencesExternalMetricsSource:
-        return 'EffectiveRecommendationPreferencesExternalMetricsSource';
-      case ExportableInstanceField.instanceState:
-        return 'InstanceState';
-      case ExportableInstanceField.tags:
-        return 'Tags';
-      case ExportableInstanceField.externalMetricStatusCode:
-        return 'ExternalMetricStatusCode';
-      case ExportableInstanceField.externalMetricStatusReason:
-        return 'ExternalMetricStatusReason';
-    }
-  }
-}
+  final String value;
 
-extension ExportableInstanceFieldFromString on String {
-  ExportableInstanceField toExportableInstanceField() {
-    switch (this) {
-      case 'AccountId':
-        return ExportableInstanceField.accountId;
-      case 'InstanceArn':
-        return ExportableInstanceField.instanceArn;
-      case 'InstanceName':
-        return ExportableInstanceField.instanceName;
-      case 'Finding':
-        return ExportableInstanceField.finding;
-      case 'FindingReasonCodes':
-        return ExportableInstanceField.findingReasonCodes;
-      case 'LookbackPeriodInDays':
-        return ExportableInstanceField.lookbackPeriodInDays;
-      case 'CurrentInstanceType':
-        return ExportableInstanceField.currentInstanceType;
-      case 'UtilizationMetricsCpuMaximum':
-        return ExportableInstanceField.utilizationMetricsCpuMaximum;
-      case 'UtilizationMetricsMemoryMaximum':
-        return ExportableInstanceField.utilizationMetricsMemoryMaximum;
-      case 'UtilizationMetricsEbsReadOpsPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsEbsReadOpsPerSecondMaximum;
-      case 'UtilizationMetricsEbsWriteOpsPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsEbsWriteOpsPerSecondMaximum;
-      case 'UtilizationMetricsEbsReadBytesPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsEbsReadBytesPerSecondMaximum;
-      case 'UtilizationMetricsEbsWriteBytesPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsEbsWriteBytesPerSecondMaximum;
-      case 'UtilizationMetricsDiskReadOpsPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsDiskReadOpsPerSecondMaximum;
-      case 'UtilizationMetricsDiskWriteOpsPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsDiskWriteOpsPerSecondMaximum;
-      case 'UtilizationMetricsDiskReadBytesPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsDiskReadBytesPerSecondMaximum;
-      case 'UtilizationMetricsDiskWriteBytesPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsDiskWriteBytesPerSecondMaximum;
-      case 'UtilizationMetricsNetworkInBytesPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsNetworkInBytesPerSecondMaximum;
-      case 'UtilizationMetricsNetworkOutBytesPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsNetworkOutBytesPerSecondMaximum;
-      case 'UtilizationMetricsNetworkPacketsInPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsNetworkPacketsInPerSecondMaximum;
-      case 'UtilizationMetricsNetworkPacketsOutPerSecondMaximum':
-        return ExportableInstanceField
-            .utilizationMetricsNetworkPacketsOutPerSecondMaximum;
-      case 'CurrentOnDemandPrice':
-        return ExportableInstanceField.currentOnDemandPrice;
-      case 'CurrentStandardOneYearNoUpfrontReservedPrice':
-        return ExportableInstanceField
-            .currentStandardOneYearNoUpfrontReservedPrice;
-      case 'CurrentStandardThreeYearNoUpfrontReservedPrice':
-        return ExportableInstanceField
-            .currentStandardThreeYearNoUpfrontReservedPrice;
-      case 'CurrentVCpus':
-        return ExportableInstanceField.currentVCpus;
-      case 'CurrentMemory':
-        return ExportableInstanceField.currentMemory;
-      case 'CurrentStorage':
-        return ExportableInstanceField.currentStorage;
-      case 'CurrentNetwork':
-        return ExportableInstanceField.currentNetwork;
-      case 'RecommendationOptionsInstanceType':
-        return ExportableInstanceField.recommendationOptionsInstanceType;
-      case 'RecommendationOptionsProjectedUtilizationMetricsCpuMaximum':
-        return ExportableInstanceField
-            .recommendationOptionsProjectedUtilizationMetricsCpuMaximum;
-      case 'RecommendationOptionsProjectedUtilizationMetricsMemoryMaximum':
-        return ExportableInstanceField
-            .recommendationOptionsProjectedUtilizationMetricsMemoryMaximum;
-      case 'RecommendationOptionsPlatformDifferences':
-        return ExportableInstanceField.recommendationOptionsPlatformDifferences;
-      case 'RecommendationOptionsPerformanceRisk':
-        return ExportableInstanceField.recommendationOptionsPerformanceRisk;
-      case 'RecommendationOptionsVcpus':
-        return ExportableInstanceField.recommendationOptionsVcpus;
-      case 'RecommendationOptionsMemory':
-        return ExportableInstanceField.recommendationOptionsMemory;
-      case 'RecommendationOptionsStorage':
-        return ExportableInstanceField.recommendationOptionsStorage;
-      case 'RecommendationOptionsNetwork':
-        return ExportableInstanceField.recommendationOptionsNetwork;
-      case 'RecommendationOptionsOnDemandPrice':
-        return ExportableInstanceField.recommendationOptionsOnDemandPrice;
-      case 'RecommendationOptionsStandardOneYearNoUpfrontReservedPrice':
-        return ExportableInstanceField
-            .recommendationOptionsStandardOneYearNoUpfrontReservedPrice;
-      case 'RecommendationOptionsStandardThreeYearNoUpfrontReservedPrice':
-        return ExportableInstanceField
-            .recommendationOptionsStandardThreeYearNoUpfrontReservedPrice;
-      case 'RecommendationsSourcesRecommendationSourceArn':
-        return ExportableInstanceField
-            .recommendationsSourcesRecommendationSourceArn;
-      case 'RecommendationsSourcesRecommendationSourceType':
-        return ExportableInstanceField
-            .recommendationsSourcesRecommendationSourceType;
-      case 'LastRefreshTimestamp':
-        return ExportableInstanceField.lastRefreshTimestamp;
-      case 'CurrentPerformanceRisk':
-        return ExportableInstanceField.currentPerformanceRisk;
-      case 'RecommendationOptionsSavingsOpportunityPercentage':
-        return ExportableInstanceField
-            .recommendationOptionsSavingsOpportunityPercentage;
-      case 'RecommendationOptionsEstimatedMonthlySavingsCurrency':
-        return ExportableInstanceField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency;
-      case 'RecommendationOptionsEstimatedMonthlySavingsValue':
-        return ExportableInstanceField
-            .recommendationOptionsEstimatedMonthlySavingsValue;
-      case 'EffectiveRecommendationPreferencesCpuVendorArchitectures':
-        return ExportableInstanceField
-            .effectiveRecommendationPreferencesCpuVendorArchitectures;
-      case 'EffectiveRecommendationPreferencesEnhancedInfrastructureMetrics':
-        return ExportableInstanceField
-            .effectiveRecommendationPreferencesEnhancedInfrastructureMetrics;
-      case 'EffectiveRecommendationPreferencesInferredWorkloadTypes':
-        return ExportableInstanceField
-            .effectiveRecommendationPreferencesInferredWorkloadTypes;
-      case 'InferredWorkloadTypes':
-        return ExportableInstanceField.inferredWorkloadTypes;
-      case 'RecommendationOptionsMigrationEffort':
-        return ExportableInstanceField.recommendationOptionsMigrationEffort;
-      case 'EffectiveRecommendationPreferencesExternalMetricsSource':
-        return ExportableInstanceField
-            .effectiveRecommendationPreferencesExternalMetricsSource;
-      case 'InstanceState':
-        return ExportableInstanceField.instanceState;
-      case 'Tags':
-        return ExportableInstanceField.tags;
-      case 'ExternalMetricStatusCode':
-        return ExportableInstanceField.externalMetricStatusCode;
-      case 'ExternalMetricStatusReason':
-        return ExportableInstanceField.externalMetricStatusReason;
-    }
-    throw Exception('$this is not known in enum ExportableInstanceField');
-  }
+  const ExportableInstanceField(this.value);
+
+  static ExportableInstanceField fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExportableInstanceField'));
 }
 
 enum ExportableLambdaFunctionField {
-  accountId,
-  functionArn,
-  functionVersion,
-  finding,
-  findingReasonCodes,
-  numberOfInvocations,
-  utilizationMetricsDurationMaximum,
-  utilizationMetricsDurationAverage,
-  utilizationMetricsMemoryMaximum,
-  utilizationMetricsMemoryAverage,
-  lookbackPeriodInDays,
-  currentConfigurationMemorySize,
-  currentConfigurationTimeout,
-  currentCostTotal,
-  currentCostAverage,
-  recommendationOptionsConfigurationMemorySize,
-  recommendationOptionsCostLow,
-  recommendationOptionsCostHigh,
-  recommendationOptionsProjectedUtilizationMetricsDurationLowerBound,
-  recommendationOptionsProjectedUtilizationMetricsDurationUpperBound,
-  recommendationOptionsProjectedUtilizationMetricsDurationExpected,
-  lastRefreshTimestamp,
-  currentPerformanceRisk,
-  recommendationOptionsSavingsOpportunityPercentage,
-  recommendationOptionsEstimatedMonthlySavingsCurrency,
-  recommendationOptionsEstimatedMonthlySavingsValue,
-  tags,
+  accountId('AccountId'),
+  functionArn('FunctionArn'),
+  functionVersion('FunctionVersion'),
+  finding('Finding'),
+  findingReasonCodes('FindingReasonCodes'),
+  numberOfInvocations('NumberOfInvocations'),
+  utilizationMetricsDurationMaximum('UtilizationMetricsDurationMaximum'),
+  utilizationMetricsDurationAverage('UtilizationMetricsDurationAverage'),
+  utilizationMetricsMemoryMaximum('UtilizationMetricsMemoryMaximum'),
+  utilizationMetricsMemoryAverage('UtilizationMetricsMemoryAverage'),
+  lookbackPeriodInDays('LookbackPeriodInDays'),
+  currentConfigurationMemorySize('CurrentConfigurationMemorySize'),
+  currentConfigurationTimeout('CurrentConfigurationTimeout'),
+  currentCostTotal('CurrentCostTotal'),
+  currentCostAverage('CurrentCostAverage'),
+  recommendationOptionsConfigurationMemorySize(
+      'RecommendationOptionsConfigurationMemorySize'),
+  recommendationOptionsCostLow('RecommendationOptionsCostLow'),
+  recommendationOptionsCostHigh('RecommendationOptionsCostHigh'),
+  recommendationOptionsProjectedUtilizationMetricsDurationLowerBound(
+      'RecommendationOptionsProjectedUtilizationMetricsDurationLowerBound'),
+  recommendationOptionsProjectedUtilizationMetricsDurationUpperBound(
+      'RecommendationOptionsProjectedUtilizationMetricsDurationUpperBound'),
+  recommendationOptionsProjectedUtilizationMetricsDurationExpected(
+      'RecommendationOptionsProjectedUtilizationMetricsDurationExpected'),
+  lastRefreshTimestamp('LastRefreshTimestamp'),
+  currentPerformanceRisk('CurrentPerformanceRisk'),
+  recommendationOptionsSavingsOpportunityPercentage(
+      'RecommendationOptionsSavingsOpportunityPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrency(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrency'),
+  recommendationOptionsEstimatedMonthlySavingsValue(
+      'RecommendationOptionsEstimatedMonthlySavingsValue'),
+  tags('Tags'),
+  effectiveRecommendationPreferencesSavingsEstimationMode(
+      'EffectiveRecommendationPreferencesSavingsEstimationMode'),
+  recommendationOptionsSavingsOpportunityAfterDiscountsPercentage(
+      'RecommendationOptionsSavingsOpportunityAfterDiscountsPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts'),
+  recommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts'),
+  ;
+
+  final String value;
+
+  const ExportableLambdaFunctionField(this.value);
+
+  static ExportableLambdaFunctionField fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExportableLambdaFunctionField'));
 }
 
-extension ExportableLambdaFunctionFieldValueExtension
-    on ExportableLambdaFunctionField {
-  String toValue() {
-    switch (this) {
-      case ExportableLambdaFunctionField.accountId:
-        return 'AccountId';
-      case ExportableLambdaFunctionField.functionArn:
-        return 'FunctionArn';
-      case ExportableLambdaFunctionField.functionVersion:
-        return 'FunctionVersion';
-      case ExportableLambdaFunctionField.finding:
-        return 'Finding';
-      case ExportableLambdaFunctionField.findingReasonCodes:
-        return 'FindingReasonCodes';
-      case ExportableLambdaFunctionField.numberOfInvocations:
-        return 'NumberOfInvocations';
-      case ExportableLambdaFunctionField.utilizationMetricsDurationMaximum:
-        return 'UtilizationMetricsDurationMaximum';
-      case ExportableLambdaFunctionField.utilizationMetricsDurationAverage:
-        return 'UtilizationMetricsDurationAverage';
-      case ExportableLambdaFunctionField.utilizationMetricsMemoryMaximum:
-        return 'UtilizationMetricsMemoryMaximum';
-      case ExportableLambdaFunctionField.utilizationMetricsMemoryAverage:
-        return 'UtilizationMetricsMemoryAverage';
-      case ExportableLambdaFunctionField.lookbackPeriodInDays:
-        return 'LookbackPeriodInDays';
-      case ExportableLambdaFunctionField.currentConfigurationMemorySize:
-        return 'CurrentConfigurationMemorySize';
-      case ExportableLambdaFunctionField.currentConfigurationTimeout:
-        return 'CurrentConfigurationTimeout';
-      case ExportableLambdaFunctionField.currentCostTotal:
-        return 'CurrentCostTotal';
-      case ExportableLambdaFunctionField.currentCostAverage:
-        return 'CurrentCostAverage';
-      case ExportableLambdaFunctionField
-            .recommendationOptionsConfigurationMemorySize:
-        return 'RecommendationOptionsConfigurationMemorySize';
-      case ExportableLambdaFunctionField.recommendationOptionsCostLow:
-        return 'RecommendationOptionsCostLow';
-      case ExportableLambdaFunctionField.recommendationOptionsCostHigh:
-        return 'RecommendationOptionsCostHigh';
-      case ExportableLambdaFunctionField
-            .recommendationOptionsProjectedUtilizationMetricsDurationLowerBound:
-        return 'RecommendationOptionsProjectedUtilizationMetricsDurationLowerBound';
-      case ExportableLambdaFunctionField
-            .recommendationOptionsProjectedUtilizationMetricsDurationUpperBound:
-        return 'RecommendationOptionsProjectedUtilizationMetricsDurationUpperBound';
-      case ExportableLambdaFunctionField
-            .recommendationOptionsProjectedUtilizationMetricsDurationExpected:
-        return 'RecommendationOptionsProjectedUtilizationMetricsDurationExpected';
-      case ExportableLambdaFunctionField.lastRefreshTimestamp:
-        return 'LastRefreshTimestamp';
-      case ExportableLambdaFunctionField.currentPerformanceRisk:
-        return 'CurrentPerformanceRisk';
-      case ExportableLambdaFunctionField
-            .recommendationOptionsSavingsOpportunityPercentage:
-        return 'RecommendationOptionsSavingsOpportunityPercentage';
-      case ExportableLambdaFunctionField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency:
-        return 'RecommendationOptionsEstimatedMonthlySavingsCurrency';
-      case ExportableLambdaFunctionField
-            .recommendationOptionsEstimatedMonthlySavingsValue:
-        return 'RecommendationOptionsEstimatedMonthlySavingsValue';
-      case ExportableLambdaFunctionField.tags:
-        return 'Tags';
-    }
-  }
-}
+enum ExportableLicenseField {
+  accountId('AccountId'),
+  resourceArn('ResourceArn'),
+  lookbackPeriodInDays('LookbackPeriodInDays'),
+  lastRefreshTimestamp('LastRefreshTimestamp'),
+  finding('Finding'),
+  findingReasonCodes('FindingReasonCodes'),
+  currentLicenseConfigurationNumberOfCores(
+      'CurrentLicenseConfigurationNumberOfCores'),
+  currentLicenseConfigurationInstanceType(
+      'CurrentLicenseConfigurationInstanceType'),
+  currentLicenseConfigurationOperatingSystem(
+      'CurrentLicenseConfigurationOperatingSystem'),
+  currentLicenseConfigurationLicenseName(
+      'CurrentLicenseConfigurationLicenseName'),
+  currentLicenseConfigurationLicenseEdition(
+      'CurrentLicenseConfigurationLicenseEdition'),
+  currentLicenseConfigurationLicenseModel(
+      'CurrentLicenseConfigurationLicenseModel'),
+  currentLicenseConfigurationLicenseVersion(
+      'CurrentLicenseConfigurationLicenseVersion'),
+  currentLicenseConfigurationMetricsSource(
+      'CurrentLicenseConfigurationMetricsSource'),
+  recommendationOptionsOperatingSystem('RecommendationOptionsOperatingSystem'),
+  recommendationOptionsLicenseEdition('RecommendationOptionsLicenseEdition'),
+  recommendationOptionsLicenseModel('RecommendationOptionsLicenseModel'),
+  recommendationOptionsSavingsOpportunityPercentage(
+      'RecommendationOptionsSavingsOpportunityPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrency(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrency'),
+  recommendationOptionsEstimatedMonthlySavingsValue(
+      'RecommendationOptionsEstimatedMonthlySavingsValue'),
+  tags('Tags'),
+  ;
 
-extension ExportableLambdaFunctionFieldFromString on String {
-  ExportableLambdaFunctionField toExportableLambdaFunctionField() {
-    switch (this) {
-      case 'AccountId':
-        return ExportableLambdaFunctionField.accountId;
-      case 'FunctionArn':
-        return ExportableLambdaFunctionField.functionArn;
-      case 'FunctionVersion':
-        return ExportableLambdaFunctionField.functionVersion;
-      case 'Finding':
-        return ExportableLambdaFunctionField.finding;
-      case 'FindingReasonCodes':
-        return ExportableLambdaFunctionField.findingReasonCodes;
-      case 'NumberOfInvocations':
-        return ExportableLambdaFunctionField.numberOfInvocations;
-      case 'UtilizationMetricsDurationMaximum':
-        return ExportableLambdaFunctionField.utilizationMetricsDurationMaximum;
-      case 'UtilizationMetricsDurationAverage':
-        return ExportableLambdaFunctionField.utilizationMetricsDurationAverage;
-      case 'UtilizationMetricsMemoryMaximum':
-        return ExportableLambdaFunctionField.utilizationMetricsMemoryMaximum;
-      case 'UtilizationMetricsMemoryAverage':
-        return ExportableLambdaFunctionField.utilizationMetricsMemoryAverage;
-      case 'LookbackPeriodInDays':
-        return ExportableLambdaFunctionField.lookbackPeriodInDays;
-      case 'CurrentConfigurationMemorySize':
-        return ExportableLambdaFunctionField.currentConfigurationMemorySize;
-      case 'CurrentConfigurationTimeout':
-        return ExportableLambdaFunctionField.currentConfigurationTimeout;
-      case 'CurrentCostTotal':
-        return ExportableLambdaFunctionField.currentCostTotal;
-      case 'CurrentCostAverage':
-        return ExportableLambdaFunctionField.currentCostAverage;
-      case 'RecommendationOptionsConfigurationMemorySize':
-        return ExportableLambdaFunctionField
-            .recommendationOptionsConfigurationMemorySize;
-      case 'RecommendationOptionsCostLow':
-        return ExportableLambdaFunctionField.recommendationOptionsCostLow;
-      case 'RecommendationOptionsCostHigh':
-        return ExportableLambdaFunctionField.recommendationOptionsCostHigh;
-      case 'RecommendationOptionsProjectedUtilizationMetricsDurationLowerBound':
-        return ExportableLambdaFunctionField
-            .recommendationOptionsProjectedUtilizationMetricsDurationLowerBound;
-      case 'RecommendationOptionsProjectedUtilizationMetricsDurationUpperBound':
-        return ExportableLambdaFunctionField
-            .recommendationOptionsProjectedUtilizationMetricsDurationUpperBound;
-      case 'RecommendationOptionsProjectedUtilizationMetricsDurationExpected':
-        return ExportableLambdaFunctionField
-            .recommendationOptionsProjectedUtilizationMetricsDurationExpected;
-      case 'LastRefreshTimestamp':
-        return ExportableLambdaFunctionField.lastRefreshTimestamp;
-      case 'CurrentPerformanceRisk':
-        return ExportableLambdaFunctionField.currentPerformanceRisk;
-      case 'RecommendationOptionsSavingsOpportunityPercentage':
-        return ExportableLambdaFunctionField
-            .recommendationOptionsSavingsOpportunityPercentage;
-      case 'RecommendationOptionsEstimatedMonthlySavingsCurrency':
-        return ExportableLambdaFunctionField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency;
-      case 'RecommendationOptionsEstimatedMonthlySavingsValue':
-        return ExportableLambdaFunctionField
-            .recommendationOptionsEstimatedMonthlySavingsValue;
-      case 'Tags':
-        return ExportableLambdaFunctionField.tags;
-    }
-    throw Exception('$this is not known in enum ExportableLambdaFunctionField');
-  }
+  final String value;
+
+  const ExportableLicenseField(this.value);
+
+  static ExportableLicenseField fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExportableLicenseField'));
 }
 
 enum ExportableVolumeField {
-  accountId,
-  volumeArn,
-  finding,
-  utilizationMetricsVolumeReadOpsPerSecondMaximum,
-  utilizationMetricsVolumeWriteOpsPerSecondMaximum,
-  utilizationMetricsVolumeReadBytesPerSecondMaximum,
-  utilizationMetricsVolumeWriteBytesPerSecondMaximum,
-  lookbackPeriodInDays,
-  currentConfigurationVolumeType,
-  currentConfigurationVolumeBaselineIOPS,
-  currentConfigurationVolumeBaselineThroughput,
-  currentConfigurationVolumeBurstIOPS,
-  currentConfigurationVolumeBurstThroughput,
-  currentConfigurationVolumeSize,
-  currentMonthlyPrice,
-  recommendationOptionsConfigurationVolumeType,
-  recommendationOptionsConfigurationVolumeBaselineIOPS,
-  recommendationOptionsConfigurationVolumeBaselineThroughput,
-  recommendationOptionsConfigurationVolumeBurstIOPS,
-  recommendationOptionsConfigurationVolumeBurstThroughput,
-  recommendationOptionsConfigurationVolumeSize,
-  recommendationOptionsMonthlyPrice,
-  recommendationOptionsPerformanceRisk,
-  lastRefreshTimestamp,
-  currentPerformanceRisk,
-  recommendationOptionsSavingsOpportunityPercentage,
-  recommendationOptionsEstimatedMonthlySavingsCurrency,
-  recommendationOptionsEstimatedMonthlySavingsValue,
-  rootVolume,
-  tags,
-}
+  accountId('AccountId'),
+  volumeArn('VolumeArn'),
+  finding('Finding'),
+  utilizationMetricsVolumeReadOpsPerSecondMaximum(
+      'UtilizationMetricsVolumeReadOpsPerSecondMaximum'),
+  utilizationMetricsVolumeWriteOpsPerSecondMaximum(
+      'UtilizationMetricsVolumeWriteOpsPerSecondMaximum'),
+  utilizationMetricsVolumeReadBytesPerSecondMaximum(
+      'UtilizationMetricsVolumeReadBytesPerSecondMaximum'),
+  utilizationMetricsVolumeWriteBytesPerSecondMaximum(
+      'UtilizationMetricsVolumeWriteBytesPerSecondMaximum'),
+  lookbackPeriodInDays('LookbackPeriodInDays'),
+  currentConfigurationVolumeType('CurrentConfigurationVolumeType'),
+  currentConfigurationVolumeBaselineIOPS(
+      'CurrentConfigurationVolumeBaselineIOPS'),
+  currentConfigurationVolumeBaselineThroughput(
+      'CurrentConfigurationVolumeBaselineThroughput'),
+  currentConfigurationVolumeBurstIOPS('CurrentConfigurationVolumeBurstIOPS'),
+  currentConfigurationVolumeBurstThroughput(
+      'CurrentConfigurationVolumeBurstThroughput'),
+  currentConfigurationVolumeSize('CurrentConfigurationVolumeSize'),
+  currentMonthlyPrice('CurrentMonthlyPrice'),
+  recommendationOptionsConfigurationVolumeType(
+      'RecommendationOptionsConfigurationVolumeType'),
+  recommendationOptionsConfigurationVolumeBaselineIOPS(
+      'RecommendationOptionsConfigurationVolumeBaselineIOPS'),
+  recommendationOptionsConfigurationVolumeBaselineThroughput(
+      'RecommendationOptionsConfigurationVolumeBaselineThroughput'),
+  recommendationOptionsConfigurationVolumeBurstIOPS(
+      'RecommendationOptionsConfigurationVolumeBurstIOPS'),
+  recommendationOptionsConfigurationVolumeBurstThroughput(
+      'RecommendationOptionsConfigurationVolumeBurstThroughput'),
+  recommendationOptionsConfigurationVolumeSize(
+      'RecommendationOptionsConfigurationVolumeSize'),
+  recommendationOptionsMonthlyPrice('RecommendationOptionsMonthlyPrice'),
+  recommendationOptionsPerformanceRisk('RecommendationOptionsPerformanceRisk'),
+  lastRefreshTimestamp('LastRefreshTimestamp'),
+  currentPerformanceRisk('CurrentPerformanceRisk'),
+  recommendationOptionsSavingsOpportunityPercentage(
+      'RecommendationOptionsSavingsOpportunityPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrency(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrency'),
+  recommendationOptionsEstimatedMonthlySavingsValue(
+      'RecommendationOptionsEstimatedMonthlySavingsValue'),
+  rootVolume('RootVolume'),
+  tags('Tags'),
+  currentConfigurationRootVolume('CurrentConfigurationRootVolume'),
+  effectiveRecommendationPreferencesSavingsEstimationMode(
+      'EffectiveRecommendationPreferencesSavingsEstimationMode'),
+  recommendationOptionsSavingsOpportunityAfterDiscountsPercentage(
+      'RecommendationOptionsSavingsOpportunityAfterDiscountsPercentage'),
+  recommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsCurrencyAfterDiscounts'),
+  recommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts(
+      'RecommendationOptionsEstimatedMonthlySavingsValueAfterDiscounts'),
+  ;
 
-extension ExportableVolumeFieldValueExtension on ExportableVolumeField {
-  String toValue() {
-    switch (this) {
-      case ExportableVolumeField.accountId:
-        return 'AccountId';
-      case ExportableVolumeField.volumeArn:
-        return 'VolumeArn';
-      case ExportableVolumeField.finding:
-        return 'Finding';
-      case ExportableVolumeField
-            .utilizationMetricsVolumeReadOpsPerSecondMaximum:
-        return 'UtilizationMetricsVolumeReadOpsPerSecondMaximum';
-      case ExportableVolumeField
-            .utilizationMetricsVolumeWriteOpsPerSecondMaximum:
-        return 'UtilizationMetricsVolumeWriteOpsPerSecondMaximum';
-      case ExportableVolumeField
-            .utilizationMetricsVolumeReadBytesPerSecondMaximum:
-        return 'UtilizationMetricsVolumeReadBytesPerSecondMaximum';
-      case ExportableVolumeField
-            .utilizationMetricsVolumeWriteBytesPerSecondMaximum:
-        return 'UtilizationMetricsVolumeWriteBytesPerSecondMaximum';
-      case ExportableVolumeField.lookbackPeriodInDays:
-        return 'LookbackPeriodInDays';
-      case ExportableVolumeField.currentConfigurationVolumeType:
-        return 'CurrentConfigurationVolumeType';
-      case ExportableVolumeField.currentConfigurationVolumeBaselineIOPS:
-        return 'CurrentConfigurationVolumeBaselineIOPS';
-      case ExportableVolumeField.currentConfigurationVolumeBaselineThroughput:
-        return 'CurrentConfigurationVolumeBaselineThroughput';
-      case ExportableVolumeField.currentConfigurationVolumeBurstIOPS:
-        return 'CurrentConfigurationVolumeBurstIOPS';
-      case ExportableVolumeField.currentConfigurationVolumeBurstThroughput:
-        return 'CurrentConfigurationVolumeBurstThroughput';
-      case ExportableVolumeField.currentConfigurationVolumeSize:
-        return 'CurrentConfigurationVolumeSize';
-      case ExportableVolumeField.currentMonthlyPrice:
-        return 'CurrentMonthlyPrice';
-      case ExportableVolumeField.recommendationOptionsConfigurationVolumeType:
-        return 'RecommendationOptionsConfigurationVolumeType';
-      case ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBaselineIOPS:
-        return 'RecommendationOptionsConfigurationVolumeBaselineIOPS';
-      case ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBaselineThroughput:
-        return 'RecommendationOptionsConfigurationVolumeBaselineThroughput';
-      case ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBurstIOPS:
-        return 'RecommendationOptionsConfigurationVolumeBurstIOPS';
-      case ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBurstThroughput:
-        return 'RecommendationOptionsConfigurationVolumeBurstThroughput';
-      case ExportableVolumeField.recommendationOptionsConfigurationVolumeSize:
-        return 'RecommendationOptionsConfigurationVolumeSize';
-      case ExportableVolumeField.recommendationOptionsMonthlyPrice:
-        return 'RecommendationOptionsMonthlyPrice';
-      case ExportableVolumeField.recommendationOptionsPerformanceRisk:
-        return 'RecommendationOptionsPerformanceRisk';
-      case ExportableVolumeField.lastRefreshTimestamp:
-        return 'LastRefreshTimestamp';
-      case ExportableVolumeField.currentPerformanceRisk:
-        return 'CurrentPerformanceRisk';
-      case ExportableVolumeField
-            .recommendationOptionsSavingsOpportunityPercentage:
-        return 'RecommendationOptionsSavingsOpportunityPercentage';
-      case ExportableVolumeField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency:
-        return 'RecommendationOptionsEstimatedMonthlySavingsCurrency';
-      case ExportableVolumeField
-            .recommendationOptionsEstimatedMonthlySavingsValue:
-        return 'RecommendationOptionsEstimatedMonthlySavingsValue';
-      case ExportableVolumeField.rootVolume:
-        return 'RootVolume';
-      case ExportableVolumeField.tags:
-        return 'Tags';
-    }
-  }
-}
+  final String value;
 
-extension ExportableVolumeFieldFromString on String {
-  ExportableVolumeField toExportableVolumeField() {
-    switch (this) {
-      case 'AccountId':
-        return ExportableVolumeField.accountId;
-      case 'VolumeArn':
-        return ExportableVolumeField.volumeArn;
-      case 'Finding':
-        return ExportableVolumeField.finding;
-      case 'UtilizationMetricsVolumeReadOpsPerSecondMaximum':
-        return ExportableVolumeField
-            .utilizationMetricsVolumeReadOpsPerSecondMaximum;
-      case 'UtilizationMetricsVolumeWriteOpsPerSecondMaximum':
-        return ExportableVolumeField
-            .utilizationMetricsVolumeWriteOpsPerSecondMaximum;
-      case 'UtilizationMetricsVolumeReadBytesPerSecondMaximum':
-        return ExportableVolumeField
-            .utilizationMetricsVolumeReadBytesPerSecondMaximum;
-      case 'UtilizationMetricsVolumeWriteBytesPerSecondMaximum':
-        return ExportableVolumeField
-            .utilizationMetricsVolumeWriteBytesPerSecondMaximum;
-      case 'LookbackPeriodInDays':
-        return ExportableVolumeField.lookbackPeriodInDays;
-      case 'CurrentConfigurationVolumeType':
-        return ExportableVolumeField.currentConfigurationVolumeType;
-      case 'CurrentConfigurationVolumeBaselineIOPS':
-        return ExportableVolumeField.currentConfigurationVolumeBaselineIOPS;
-      case 'CurrentConfigurationVolumeBaselineThroughput':
-        return ExportableVolumeField
-            .currentConfigurationVolumeBaselineThroughput;
-      case 'CurrentConfigurationVolumeBurstIOPS':
-        return ExportableVolumeField.currentConfigurationVolumeBurstIOPS;
-      case 'CurrentConfigurationVolumeBurstThroughput':
-        return ExportableVolumeField.currentConfigurationVolumeBurstThroughput;
-      case 'CurrentConfigurationVolumeSize':
-        return ExportableVolumeField.currentConfigurationVolumeSize;
-      case 'CurrentMonthlyPrice':
-        return ExportableVolumeField.currentMonthlyPrice;
-      case 'RecommendationOptionsConfigurationVolumeType':
-        return ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeType;
-      case 'RecommendationOptionsConfigurationVolumeBaselineIOPS':
-        return ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBaselineIOPS;
-      case 'RecommendationOptionsConfigurationVolumeBaselineThroughput':
-        return ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBaselineThroughput;
-      case 'RecommendationOptionsConfigurationVolumeBurstIOPS':
-        return ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBurstIOPS;
-      case 'RecommendationOptionsConfigurationVolumeBurstThroughput':
-        return ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeBurstThroughput;
-      case 'RecommendationOptionsConfigurationVolumeSize':
-        return ExportableVolumeField
-            .recommendationOptionsConfigurationVolumeSize;
-      case 'RecommendationOptionsMonthlyPrice':
-        return ExportableVolumeField.recommendationOptionsMonthlyPrice;
-      case 'RecommendationOptionsPerformanceRisk':
-        return ExportableVolumeField.recommendationOptionsPerformanceRisk;
-      case 'LastRefreshTimestamp':
-        return ExportableVolumeField.lastRefreshTimestamp;
-      case 'CurrentPerformanceRisk':
-        return ExportableVolumeField.currentPerformanceRisk;
-      case 'RecommendationOptionsSavingsOpportunityPercentage':
-        return ExportableVolumeField
-            .recommendationOptionsSavingsOpportunityPercentage;
-      case 'RecommendationOptionsEstimatedMonthlySavingsCurrency':
-        return ExportableVolumeField
-            .recommendationOptionsEstimatedMonthlySavingsCurrency;
-      case 'RecommendationOptionsEstimatedMonthlySavingsValue':
-        return ExportableVolumeField
-            .recommendationOptionsEstimatedMonthlySavingsValue;
-      case 'RootVolume':
-        return ExportableVolumeField.rootVolume;
-      case 'Tags':
-        return ExportableVolumeField.tags;
-    }
-    throw Exception('$this is not known in enum ExportableVolumeField');
-  }
+  const ExportableVolumeField(this.value);
+
+  static ExportableVolumeField fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ExportableVolumeField'));
 }
 
 /// Describes Compute Optimizer's integration status with your chosen external
@@ -4885,78 +4709,34 @@ class ExternalMetricStatus {
 
   factory ExternalMetricStatus.fromJson(Map<String, dynamic> json) {
     return ExternalMetricStatus(
-      statusCode: (json['statusCode'] as String?)?.toExternalMetricStatusCode(),
+      statusCode: (json['statusCode'] as String?)
+          ?.let(ExternalMetricStatusCode.fromString),
       statusReason: json['statusReason'] as String?,
     );
   }
 }
 
 enum ExternalMetricStatusCode {
-  noExternalMetricSet,
-  integrationSuccess,
-  datadogIntegrationError,
-  dynatraceIntegrationError,
-  newrelicIntegrationError,
-  instanaIntegrationError,
-  insufficientDatadogMetrics,
-  insufficientDynatraceMetrics,
-  insufficientNewrelicMetrics,
-  insufficientInstanaMetrics,
-}
+  noExternalMetricSet('NO_EXTERNAL_METRIC_SET'),
+  integrationSuccess('INTEGRATION_SUCCESS'),
+  datadogIntegrationError('DATADOG_INTEGRATION_ERROR'),
+  dynatraceIntegrationError('DYNATRACE_INTEGRATION_ERROR'),
+  newrelicIntegrationError('NEWRELIC_INTEGRATION_ERROR'),
+  instanaIntegrationError('INSTANA_INTEGRATION_ERROR'),
+  insufficientDatadogMetrics('INSUFFICIENT_DATADOG_METRICS'),
+  insufficientDynatraceMetrics('INSUFFICIENT_DYNATRACE_METRICS'),
+  insufficientNewrelicMetrics('INSUFFICIENT_NEWRELIC_METRICS'),
+  insufficientInstanaMetrics('INSUFFICIENT_INSTANA_METRICS'),
+  ;
 
-extension ExternalMetricStatusCodeValueExtension on ExternalMetricStatusCode {
-  String toValue() {
-    switch (this) {
-      case ExternalMetricStatusCode.noExternalMetricSet:
-        return 'NO_EXTERNAL_METRIC_SET';
-      case ExternalMetricStatusCode.integrationSuccess:
-        return 'INTEGRATION_SUCCESS';
-      case ExternalMetricStatusCode.datadogIntegrationError:
-        return 'DATADOG_INTEGRATION_ERROR';
-      case ExternalMetricStatusCode.dynatraceIntegrationError:
-        return 'DYNATRACE_INTEGRATION_ERROR';
-      case ExternalMetricStatusCode.newrelicIntegrationError:
-        return 'NEWRELIC_INTEGRATION_ERROR';
-      case ExternalMetricStatusCode.instanaIntegrationError:
-        return 'INSTANA_INTEGRATION_ERROR';
-      case ExternalMetricStatusCode.insufficientDatadogMetrics:
-        return 'INSUFFICIENT_DATADOG_METRICS';
-      case ExternalMetricStatusCode.insufficientDynatraceMetrics:
-        return 'INSUFFICIENT_DYNATRACE_METRICS';
-      case ExternalMetricStatusCode.insufficientNewrelicMetrics:
-        return 'INSUFFICIENT_NEWRELIC_METRICS';
-      case ExternalMetricStatusCode.insufficientInstanaMetrics:
-        return 'INSUFFICIENT_INSTANA_METRICS';
-    }
-  }
-}
+  final String value;
 
-extension ExternalMetricStatusCodeFromString on String {
-  ExternalMetricStatusCode toExternalMetricStatusCode() {
-    switch (this) {
-      case 'NO_EXTERNAL_METRIC_SET':
-        return ExternalMetricStatusCode.noExternalMetricSet;
-      case 'INTEGRATION_SUCCESS':
-        return ExternalMetricStatusCode.integrationSuccess;
-      case 'DATADOG_INTEGRATION_ERROR':
-        return ExternalMetricStatusCode.datadogIntegrationError;
-      case 'DYNATRACE_INTEGRATION_ERROR':
-        return ExternalMetricStatusCode.dynatraceIntegrationError;
-      case 'NEWRELIC_INTEGRATION_ERROR':
-        return ExternalMetricStatusCode.newrelicIntegrationError;
-      case 'INSTANA_INTEGRATION_ERROR':
-        return ExternalMetricStatusCode.instanaIntegrationError;
-      case 'INSUFFICIENT_DATADOG_METRICS':
-        return ExternalMetricStatusCode.insufficientDatadogMetrics;
-      case 'INSUFFICIENT_DYNATRACE_METRICS':
-        return ExternalMetricStatusCode.insufficientDynatraceMetrics;
-      case 'INSUFFICIENT_NEWRELIC_METRICS':
-        return ExternalMetricStatusCode.insufficientNewrelicMetrics;
-      case 'INSUFFICIENT_INSTANA_METRICS':
-        return ExternalMetricStatusCode.insufficientInstanaMetrics;
-    }
-    throw Exception('$this is not known in enum ExternalMetricStatusCode');
-  }
+  const ExternalMetricStatusCode(this.value);
+
+  static ExternalMetricStatusCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExternalMetricStatusCode'));
 }
 
 /// Describes the external metrics preferences for EC2 rightsizing
@@ -4971,77 +4751,47 @@ class ExternalMetricsPreference {
 
   factory ExternalMetricsPreference.fromJson(Map<String, dynamic> json) {
     return ExternalMetricsPreference(
-      source: (json['source'] as String?)?.toExternalMetricsSource(),
+      source:
+          (json['source'] as String?)?.let(ExternalMetricsSource.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final source = this.source;
     return {
-      if (source != null) 'source': source.toValue(),
+      if (source != null) 'source': source.value,
     };
   }
 }
 
 enum ExternalMetricsSource {
-  datadog,
-  dynatrace,
-  newRelic,
-  instana,
-}
+  datadog('Datadog'),
+  dynatrace('Dynatrace'),
+  newRelic('NewRelic'),
+  instana('Instana'),
+  ;
 
-extension ExternalMetricsSourceValueExtension on ExternalMetricsSource {
-  String toValue() {
-    switch (this) {
-      case ExternalMetricsSource.datadog:
-        return 'Datadog';
-      case ExternalMetricsSource.dynatrace:
-        return 'Dynatrace';
-      case ExternalMetricsSource.newRelic:
-        return 'NewRelic';
-      case ExternalMetricsSource.instana:
-        return 'Instana';
-    }
-  }
-}
+  final String value;
 
-extension ExternalMetricsSourceFromString on String {
-  ExternalMetricsSource toExternalMetricsSource() {
-    switch (this) {
-      case 'Datadog':
-        return ExternalMetricsSource.datadog;
-      case 'Dynatrace':
-        return ExternalMetricsSource.dynatrace;
-      case 'NewRelic':
-        return ExternalMetricsSource.newRelic;
-      case 'Instana':
-        return ExternalMetricsSource.instana;
-    }
-    throw Exception('$this is not known in enum ExternalMetricsSource');
-  }
+  const ExternalMetricsSource(this.value);
+
+  static ExternalMetricsSource fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ExternalMetricsSource'));
 }
 
 enum FileFormat {
-  csv,
-}
+  csv('Csv'),
+  ;
 
-extension FileFormatValueExtension on FileFormat {
-  String toValue() {
-    switch (this) {
-      case FileFormat.csv:
-        return 'Csv';
-    }
-  }
-}
+  final String value;
 
-extension FileFormatFromString on String {
-  FileFormat toFileFormat() {
-    switch (this) {
-      case 'Csv':
-        return FileFormat.csv;
-    }
-    throw Exception('$this is not known in enum FileFormat');
-  }
+  const FileFormat(this.value);
+
+  static FileFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FileFormat'));
 }
 
 /// Describes a filter that returns a more specific list of recommendations. Use
@@ -5214,114 +4964,57 @@ class Filter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
 enum FilterName {
-  finding,
-  findingReasonCodes,
-  recommendationSourceType,
-  inferredWorkloadTypes,
-}
+  finding('Finding'),
+  findingReasonCodes('FindingReasonCodes'),
+  recommendationSourceType('RecommendationSourceType'),
+  inferredWorkloadTypes('InferredWorkloadTypes'),
+  ;
 
-extension FilterNameValueExtension on FilterName {
-  String toValue() {
-    switch (this) {
-      case FilterName.finding:
-        return 'Finding';
-      case FilterName.findingReasonCodes:
-        return 'FindingReasonCodes';
-      case FilterName.recommendationSourceType:
-        return 'RecommendationSourceType';
-      case FilterName.inferredWorkloadTypes:
-        return 'InferredWorkloadTypes';
-    }
-  }
-}
+  final String value;
 
-extension FilterNameFromString on String {
-  FilterName toFilterName() {
-    switch (this) {
-      case 'Finding':
-        return FilterName.finding;
-      case 'FindingReasonCodes':
-        return FilterName.findingReasonCodes;
-      case 'RecommendationSourceType':
-        return FilterName.recommendationSourceType;
-      case 'InferredWorkloadTypes':
-        return FilterName.inferredWorkloadTypes;
-    }
-    throw Exception('$this is not known in enum FilterName');
-  }
+  const FilterName(this.value);
+
+  static FilterName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FilterName'));
 }
 
 enum Finding {
-  underprovisioned,
-  overprovisioned,
-  optimized,
-  notOptimized,
-}
+  underprovisioned('Underprovisioned'),
+  overprovisioned('Overprovisioned'),
+  optimized('Optimized'),
+  notOptimized('NotOptimized'),
+  ;
 
-extension FindingValueExtension on Finding {
-  String toValue() {
-    switch (this) {
-      case Finding.underprovisioned:
-        return 'Underprovisioned';
-      case Finding.overprovisioned:
-        return 'Overprovisioned';
-      case Finding.optimized:
-        return 'Optimized';
-      case Finding.notOptimized:
-        return 'NotOptimized';
-    }
-  }
-}
+  final String value;
 
-extension FindingFromString on String {
-  Finding toFinding() {
-    switch (this) {
-      case 'Underprovisioned':
-        return Finding.underprovisioned;
-      case 'Overprovisioned':
-        return Finding.overprovisioned;
-      case 'Optimized':
-        return Finding.optimized;
-      case 'NotOptimized':
-        return Finding.notOptimized;
-    }
-    throw Exception('$this is not known in enum Finding');
-  }
+  const Finding(this.value);
+
+  static Finding fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Finding'));
 }
 
 enum FindingReasonCode {
-  memoryOverprovisioned,
-  memoryUnderprovisioned,
-}
+  memoryOverprovisioned('MemoryOverprovisioned'),
+  memoryUnderprovisioned('MemoryUnderprovisioned'),
+  ;
 
-extension FindingReasonCodeValueExtension on FindingReasonCode {
-  String toValue() {
-    switch (this) {
-      case FindingReasonCode.memoryOverprovisioned:
-        return 'MemoryOverprovisioned';
-      case FindingReasonCode.memoryUnderprovisioned:
-        return 'MemoryUnderprovisioned';
-    }
-  }
-}
+  final String value;
 
-extension FindingReasonCodeFromString on String {
-  FindingReasonCode toFindingReasonCode() {
-    switch (this) {
-      case 'MemoryOverprovisioned':
-        return FindingReasonCode.memoryOverprovisioned;
-      case 'MemoryUnderprovisioned':
-        return FindingReasonCode.memoryUnderprovisioned;
-    }
-    throw Exception('$this is not known in enum FindingReasonCode');
-  }
+  const FindingReasonCode(this.value);
+
+  static FindingReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FindingReasonCode'));
 }
 
 class GetAutoScalingGroupRecommendationsResponse {
@@ -5352,12 +5045,12 @@ class GetAutoScalingGroupRecommendationsResponse {
     return GetAutoScalingGroupRecommendationsResponse(
       autoScalingGroupRecommendations:
           (json['autoScalingGroupRecommendations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AutoScalingGroupRecommendation.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => GetRecommendationError.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5392,13 +5085,13 @@ class GetEBSVolumeRecommendationsResponse {
       Map<String, dynamic> json) {
     return GetEBSVolumeRecommendationsResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => GetRecommendationError.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
       volumeRecommendations: (json['volumeRecommendations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VolumeRecommendation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5431,12 +5124,12 @@ class GetEC2InstanceRecommendationsResponse {
       Map<String, dynamic> json) {
     return GetEC2InstanceRecommendationsResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => GetRecommendationError.fromJson(e as Map<String, dynamic>))
           .toList(),
       instanceRecommendations: (json['instanceRecommendations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => InstanceRecommendation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5459,7 +5152,7 @@ class GetEC2RecommendationProjectedMetricsResponse {
     return GetEC2RecommendationProjectedMetricsResponse(
       recommendedOptionProjectedMetrics:
           (json['recommendedOptionProjectedMetrics'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => RecommendedOptionProjectedMetric.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -5481,7 +5174,7 @@ class GetECSServiceRecommendationProjectedMetricsResponse {
     return GetECSServiceRecommendationProjectedMetricsResponse(
       recommendedOptionProjectedMetrics:
           (json['recommendedOptionProjectedMetrics'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ECSServiceRecommendedOptionProjectedMetric.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -5509,12 +5202,12 @@ class GetECSServiceRecommendationsResponse {
       Map<String, dynamic> json) {
     return GetECSServiceRecommendationsResponse(
       ecsServiceRecommendations: (json['ecsServiceRecommendations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ECSServiceRecommendation.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => GetRecommendationError.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5560,9 +5253,44 @@ class GetEffectiveRecommendationPreferencesResponse {
   /// infrastructure metrics</a> in the <i>Compute Optimizer User Guide</i>.
   final ExternalMetricsPreference? externalMetricsPreference;
 
+  /// The number of days the utilization metrics of the Amazon Web Services
+  /// resource are analyzed.
+  ///
+  /// To validate that the preference is applied to your last generated set of
+  /// recommendations, review the <code>effectiveRecommendationPreferences</code>
+  /// value in the response of the GetAutoScalingGroupRecommendations or
+  /// GetEC2InstanceRecommendations actions.
+  final LookBackPeriodPreference? lookBackPeriod;
+
+  /// The resource type values that are considered as candidates when generating
+  /// rightsizing recommendations. This object resolves any wildcard expressions
+  /// and returns the effective list of candidate resource type values. It also
+  /// considers all applicable preferences that you set at the resource, account,
+  /// and organization level.
+  ///
+  /// To validate that the preference is applied to your last generated set of
+  /// recommendations, review the <code>effectiveRecommendationPreferences</code>
+  /// value in the response of the GetAutoScalingGroupRecommendations or
+  /// GetEC2InstanceRecommendations actions.
+  final List<EffectivePreferredResource>? preferredResources;
+
+  /// The resource’s CPU and memory utilization preferences, such as threshold and
+  /// headroom, that were used to generate rightsizing recommendations. It
+  /// considers all applicable preferences that you set at the resource, account,
+  /// and organization level.
+  ///
+  /// To validate that the preference is applied to your last generated set of
+  /// recommendations, review the <code>effectiveRecommendationPreferences</code>
+  /// value in the response of the GetAutoScalingGroupRecommendations or
+  /// GetEC2InstanceRecommendations actions.
+  final List<UtilizationPreference>? utilizationPreferences;
+
   GetEffectiveRecommendationPreferencesResponse({
     this.enhancedInfrastructureMetrics,
     this.externalMetricsPreference,
+    this.lookBackPeriod,
+    this.preferredResources,
+    this.utilizationPreferences,
   });
 
   factory GetEffectiveRecommendationPreferencesResponse.fromJson(
@@ -5570,11 +5298,22 @@ class GetEffectiveRecommendationPreferencesResponse {
     return GetEffectiveRecommendationPreferencesResponse(
       enhancedInfrastructureMetrics:
           (json['enhancedInfrastructureMetrics'] as String?)
-              ?.toEnhancedInfrastructureMetrics(),
+              ?.let(EnhancedInfrastructureMetrics.fromString),
       externalMetricsPreference: json['externalMetricsPreference'] != null
           ? ExternalMetricsPreference.fromJson(
               json['externalMetricsPreference'] as Map<String, dynamic>)
           : null,
+      lookBackPeriod: (json['lookBackPeriod'] as String?)
+          ?.let(LookBackPeriodPreference.fromString),
+      preferredResources: (json['preferredResources'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              EffectivePreferredResource.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      utilizationPreferences: (json['utilizationPreferences'] as List?)
+          ?.nonNulls
+          .map((e) => UtilizationPreference.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -5616,7 +5355,7 @@ class GetEnrollmentStatusResponse {
       memberAccountsEnrolled: json['memberAccountsEnrolled'] as bool?,
       numberOfMemberAccountsOptedIn:
           json['numberOfMemberAccountsOptedIn'] as int?,
-      status: (json['status'] as String?)?.toStatus(),
+      status: (json['status'] as String?)?.let(Status.fromString),
       statusReason: json['statusReason'] as String?,
     );
   }
@@ -5642,7 +5381,7 @@ class GetEnrollmentStatusesForOrganizationResponse {
       Map<String, dynamic> json) {
     return GetEnrollmentStatusesForOrganizationResponse(
       accountEnrollmentStatuses: (json['accountEnrollmentStatuses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AccountEnrollmentStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5671,9 +5410,42 @@ class GetLambdaFunctionRecommendationsResponse {
     return GetLambdaFunctionRecommendationsResponse(
       lambdaFunctionRecommendations: (json['lambdaFunctionRecommendations']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               LambdaFunctionRecommendation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+}
+
+class GetLicenseRecommendationsResponse {
+  /// An array of objects that describe errors of the request.
+  final List<GetRecommendationError>? errors;
+
+  /// An array of objects that describe license recommendations.
+  final List<LicenseRecommendation>? licenseRecommendations;
+
+  /// The token to use to advance to the next page of license recommendations.
+  final String? nextToken;
+
+  GetLicenseRecommendationsResponse({
+    this.errors,
+    this.licenseRecommendations,
+    this.nextToken,
+  });
+
+  factory GetLicenseRecommendationsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetLicenseRecommendationsResponse(
+      errors: (json['errors'] as List?)
+          ?.nonNulls
+          .map(
+              (e) => GetRecommendationError.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      licenseRecommendations: (json['licenseRecommendations'] as List?)
+          ?.nonNulls
+          .map((e) => LicenseRecommendation.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
     );
@@ -5731,7 +5503,7 @@ class GetRecommendationPreferencesResponse {
       nextToken: json['nextToken'] as String?,
       recommendationPreferencesDetails:
           (json['recommendationPreferencesDetails'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => RecommendationPreferencesDetail.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -5759,8 +5531,49 @@ class GetRecommendationSummariesResponse {
     return GetRecommendationSummariesResponse(
       nextToken: json['nextToken'] as String?,
       recommendationSummaries: (json['recommendationSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecommendationSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+/// Describes the GPU accelerators for the instance type.
+class Gpu {
+  /// The number of GPUs for the instance type.
+  final int? gpuCount;
+
+  /// The total size of the memory for the GPU accelerators for the instance type,
+  /// in MiB.
+  final int? gpuMemorySizeInMiB;
+
+  Gpu({
+    this.gpuCount,
+    this.gpuMemorySizeInMiB,
+  });
+
+  factory Gpu.fromJson(Map<String, dynamic> json) {
+    return Gpu(
+      gpuCount: json['gpuCount'] as int?,
+      gpuMemorySizeInMiB: json['gpuMemorySizeInMiB'] as int?,
+    );
+  }
+}
+
+/// Describes the GPU accelerator settings for the instance type.
+class GpuInfo {
+  /// Describes the GPU accelerators for the instance type.
+  final List<Gpu>? gpus;
+
+  GpuInfo({
+    this.gpus,
+  });
+
+  factory GpuInfo.fromJson(Map<String, dynamic> json) {
+    return GpuInfo(
+      gpus: (json['gpus'] as List?)
+          ?.nonNulls
+          .map((e) => Gpu.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -5832,110 +5645,95 @@ class InferredWorkloadSaving {
               json['estimatedMonthlySavings'] as Map<String, dynamic>)
           : null,
       inferredWorkloadTypes: (json['inferredWorkloadTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toInferredWorkloadType())
+          ?.nonNulls
+          .map((e) => InferredWorkloadType.fromString((e as String)))
           .toList(),
     );
   }
 }
 
 enum InferredWorkloadType {
-  amazonEmr,
-  apacheCassandra,
-  apacheHadoop,
-  memcached,
-  nginx,
-  postgreSql,
-  redis,
-  kafka,
-  sQLServer,
-}
+  amazonEmr('AmazonEmr'),
+  apacheCassandra('ApacheCassandra'),
+  apacheHadoop('ApacheHadoop'),
+  memcached('Memcached'),
+  nginx('Nginx'),
+  postgreSql('PostgreSql'),
+  redis('Redis'),
+  kafka('Kafka'),
+  sQLServer('SQLServer'),
+  ;
 
-extension InferredWorkloadTypeValueExtension on InferredWorkloadType {
-  String toValue() {
-    switch (this) {
-      case InferredWorkloadType.amazonEmr:
-        return 'AmazonEmr';
-      case InferredWorkloadType.apacheCassandra:
-        return 'ApacheCassandra';
-      case InferredWorkloadType.apacheHadoop:
-        return 'ApacheHadoop';
-      case InferredWorkloadType.memcached:
-        return 'Memcached';
-      case InferredWorkloadType.nginx:
-        return 'Nginx';
-      case InferredWorkloadType.postgreSql:
-        return 'PostgreSql';
-      case InferredWorkloadType.redis:
-        return 'Redis';
-      case InferredWorkloadType.kafka:
-        return 'Kafka';
-      case InferredWorkloadType.sQLServer:
-        return 'SQLServer';
-    }
-  }
-}
+  final String value;
 
-extension InferredWorkloadTypeFromString on String {
-  InferredWorkloadType toInferredWorkloadType() {
-    switch (this) {
-      case 'AmazonEmr':
-        return InferredWorkloadType.amazonEmr;
-      case 'ApacheCassandra':
-        return InferredWorkloadType.apacheCassandra;
-      case 'ApacheHadoop':
-        return InferredWorkloadType.apacheHadoop;
-      case 'Memcached':
-        return InferredWorkloadType.memcached;
-      case 'Nginx':
-        return InferredWorkloadType.nginx;
-      case 'PostgreSql':
-        return InferredWorkloadType.postgreSql;
-      case 'Redis':
-        return InferredWorkloadType.redis;
-      case 'Kafka':
-        return InferredWorkloadType.kafka;
-      case 'SQLServer':
-        return InferredWorkloadType.sQLServer;
-    }
-    throw Exception('$this is not known in enum InferredWorkloadType');
-  }
+  const InferredWorkloadType(this.value);
+
+  static InferredWorkloadType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InferredWorkloadType'));
 }
 
 enum InferredWorkloadTypesPreference {
-  active,
-  inactive,
+  active('Active'),
+  inactive('Inactive'),
+  ;
+
+  final String value;
+
+  const InferredWorkloadTypesPreference(this.value);
+
+  static InferredWorkloadTypesPreference fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InferredWorkloadTypesPreference'));
 }
 
-extension InferredWorkloadTypesPreferenceValueExtension
-    on InferredWorkloadTypesPreference {
-  String toValue() {
-    switch (this) {
-      case InferredWorkloadTypesPreference.active:
-        return 'Active';
-      case InferredWorkloadTypesPreference.inactive:
-        return 'Inactive';
-    }
+/// An object that describes the estimated monthly savings possible by adopting
+/// Compute Optimizer’s Amazon EC2 instance recommendations. This is based on
+/// the Savings Plans and Reserved Instances pricing discounts.
+class InstanceEstimatedMonthlySavings {
+  /// The currency of the estimated monthly savings.
+  final Currency? currency;
+
+  /// The value of the estimated monthly savings.
+  final double? value;
+
+  InstanceEstimatedMonthlySavings({
+    this.currency,
+    this.value,
+  });
+
+  factory InstanceEstimatedMonthlySavings.fromJson(Map<String, dynamic> json) {
+    return InstanceEstimatedMonthlySavings(
+      currency: (json['currency'] as String?)?.let(Currency.fromString),
+      value: json['value'] as double?,
+    );
   }
 }
 
-extension InferredWorkloadTypesPreferenceFromString on String {
-  InferredWorkloadTypesPreference toInferredWorkloadTypesPreference() {
-    switch (this) {
-      case 'Active':
-        return InferredWorkloadTypesPreference.active;
-      case 'Inactive':
-        return InferredWorkloadTypesPreference.inactive;
-    }
-    throw Exception(
-        '$this is not known in enum InferredWorkloadTypesPreference');
-  }
+enum InstanceIdle {
+  $true('True'),
+  $false('False'),
+  ;
+
+  final String value;
+
+  const InstanceIdle(this.value);
+
+  static InstanceIdle fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceIdle'));
 }
 
 /// Describes an Amazon EC2 instance recommendation.
 class InstanceRecommendation {
   /// The Amazon Web Services account ID of the instance.
   final String? accountId;
+
+  /// Describes the GPU accelerator settings for the current instance type.
+  final GpuInfo? currentInstanceGpuInfo;
 
   /// The instance type of the current instance.
   final String? currentInstanceType;
@@ -6129,6 +5927,9 @@ class InstanceRecommendation {
   /// </note>
   final List<InstanceRecommendationFindingReasonCode>? findingReasonCodes;
 
+  /// Describes if an Amazon EC2 instance is idle.
+  final InstanceIdle? idle;
+
   /// The applications that might be running on the instance as inferred by
   /// Compute Optimizer.
   ///
@@ -6203,12 +6004,14 @@ class InstanceRecommendation {
 
   InstanceRecommendation({
     this.accountId,
+    this.currentInstanceGpuInfo,
     this.currentInstanceType,
     this.currentPerformanceRisk,
     this.effectiveRecommendationPreferences,
     this.externalMetricStatus,
     this.finding,
     this.findingReasonCodes,
+    this.idle,
     this.inferredWorkloadTypes,
     this.instanceArn,
     this.instanceName,
@@ -6224,9 +6027,13 @@ class InstanceRecommendation {
   factory InstanceRecommendation.fromJson(Map<String, dynamic> json) {
     return InstanceRecommendation(
       accountId: json['accountId'] as String?,
+      currentInstanceGpuInfo: json['currentInstanceGpuInfo'] != null
+          ? GpuInfo.fromJson(
+              json['currentInstanceGpuInfo'] as Map<String, dynamic>)
+          : null,
       currentInstanceType: json['currentInstanceType'] as String?,
       currentPerformanceRisk: (json['currentPerformanceRisk'] as String?)
-          ?.toCurrentPerformanceRisk(),
+          ?.let(CurrentPerformanceRisk.fromString),
       effectiveRecommendationPreferences:
           json['effectiveRecommendationPreferences'] != null
               ? EffectiveRecommendationPreferences.fromJson(
@@ -6237,35 +6044,38 @@ class InstanceRecommendation {
           ? ExternalMetricStatus.fromJson(
               json['externalMetricStatus'] as Map<String, dynamic>)
           : null,
-      finding: (json['finding'] as String?)?.toFinding(),
+      finding: (json['finding'] as String?)?.let(Finding.fromString),
       findingReasonCodes: (json['findingReasonCodes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toInstanceRecommendationFindingReasonCode())
+          ?.nonNulls
+          .map((e) =>
+              InstanceRecommendationFindingReasonCode.fromString((e as String)))
           .toList(),
+      idle: (json['idle'] as String?)?.let(InstanceIdle.fromString),
       inferredWorkloadTypes: (json['inferredWorkloadTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toInferredWorkloadType())
+          ?.nonNulls
+          .map((e) => InferredWorkloadType.fromString((e as String)))
           .toList(),
       instanceArn: json['instanceArn'] as String?,
       instanceName: json['instanceName'] as String?,
-      instanceState: (json['instanceState'] as String?)?.toInstanceState(),
+      instanceState:
+          (json['instanceState'] as String?)?.let(InstanceState.fromString),
       lastRefreshTimestamp: timeStampFromJson(json['lastRefreshTimestamp']),
       lookBackPeriodInDays: json['lookBackPeriodInDays'] as double?,
       recommendationOptions: (json['recommendationOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               InstanceRecommendationOption.fromJson(e as Map<String, dynamic>))
           .toList(),
       recommendationSources: (json['recommendationSources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecommendationSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       utilizationMetrics: (json['utilizationMetrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UtilizationMetric.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6273,121 +6083,43 @@ class InstanceRecommendation {
 }
 
 enum InstanceRecommendationFindingReasonCode {
-  cPUOverprovisioned,
-  cPUUnderprovisioned,
-  memoryOverprovisioned,
-  memoryUnderprovisioned,
-  eBSThroughputOverprovisioned,
-  eBSThroughputUnderprovisioned,
-  eBSIOPSOverprovisioned,
-  eBSIOPSUnderprovisioned,
-  networkBandwidthOverprovisioned,
-  networkBandwidthUnderprovisioned,
-  networkPPSOverprovisioned,
-  networkPPSUnderprovisioned,
-  diskIOPSOverprovisioned,
-  diskIOPSUnderprovisioned,
-  diskThroughputOverprovisioned,
-  diskThroughputUnderprovisioned,
-}
+  cPUOverprovisioned('CPUOverprovisioned'),
+  cPUUnderprovisioned('CPUUnderprovisioned'),
+  memoryOverprovisioned('MemoryOverprovisioned'),
+  memoryUnderprovisioned('MemoryUnderprovisioned'),
+  eBSThroughputOverprovisioned('EBSThroughputOverprovisioned'),
+  eBSThroughputUnderprovisioned('EBSThroughputUnderprovisioned'),
+  eBSIOPSOverprovisioned('EBSIOPSOverprovisioned'),
+  eBSIOPSUnderprovisioned('EBSIOPSUnderprovisioned'),
+  networkBandwidthOverprovisioned('NetworkBandwidthOverprovisioned'),
+  networkBandwidthUnderprovisioned('NetworkBandwidthUnderprovisioned'),
+  networkPPSOverprovisioned('NetworkPPSOverprovisioned'),
+  networkPPSUnderprovisioned('NetworkPPSUnderprovisioned'),
+  diskIOPSOverprovisioned('DiskIOPSOverprovisioned'),
+  diskIOPSUnderprovisioned('DiskIOPSUnderprovisioned'),
+  diskThroughputOverprovisioned('DiskThroughputOverprovisioned'),
+  diskThroughputUnderprovisioned('DiskThroughputUnderprovisioned'),
+  gPUUnderprovisioned('GPUUnderprovisioned'),
+  gPUOverprovisioned('GPUOverprovisioned'),
+  gPUMemoryUnderprovisioned('GPUMemoryUnderprovisioned'),
+  gPUMemoryOverprovisioned('GPUMemoryOverprovisioned'),
+  ;
 
-extension InstanceRecommendationFindingReasonCodeValueExtension
-    on InstanceRecommendationFindingReasonCode {
-  String toValue() {
-    switch (this) {
-      case InstanceRecommendationFindingReasonCode.cPUOverprovisioned:
-        return 'CPUOverprovisioned';
-      case InstanceRecommendationFindingReasonCode.cPUUnderprovisioned:
-        return 'CPUUnderprovisioned';
-      case InstanceRecommendationFindingReasonCode.memoryOverprovisioned:
-        return 'MemoryOverprovisioned';
-      case InstanceRecommendationFindingReasonCode.memoryUnderprovisioned:
-        return 'MemoryUnderprovisioned';
-      case InstanceRecommendationFindingReasonCode.eBSThroughputOverprovisioned:
-        return 'EBSThroughputOverprovisioned';
-      case InstanceRecommendationFindingReasonCode
-            .eBSThroughputUnderprovisioned:
-        return 'EBSThroughputUnderprovisioned';
-      case InstanceRecommendationFindingReasonCode.eBSIOPSOverprovisioned:
-        return 'EBSIOPSOverprovisioned';
-      case InstanceRecommendationFindingReasonCode.eBSIOPSUnderprovisioned:
-        return 'EBSIOPSUnderprovisioned';
-      case InstanceRecommendationFindingReasonCode
-            .networkBandwidthOverprovisioned:
-        return 'NetworkBandwidthOverprovisioned';
-      case InstanceRecommendationFindingReasonCode
-            .networkBandwidthUnderprovisioned:
-        return 'NetworkBandwidthUnderprovisioned';
-      case InstanceRecommendationFindingReasonCode.networkPPSOverprovisioned:
-        return 'NetworkPPSOverprovisioned';
-      case InstanceRecommendationFindingReasonCode.networkPPSUnderprovisioned:
-        return 'NetworkPPSUnderprovisioned';
-      case InstanceRecommendationFindingReasonCode.diskIOPSOverprovisioned:
-        return 'DiskIOPSOverprovisioned';
-      case InstanceRecommendationFindingReasonCode.diskIOPSUnderprovisioned:
-        return 'DiskIOPSUnderprovisioned';
-      case InstanceRecommendationFindingReasonCode
-            .diskThroughputOverprovisioned:
-        return 'DiskThroughputOverprovisioned';
-      case InstanceRecommendationFindingReasonCode
-            .diskThroughputUnderprovisioned:
-        return 'DiskThroughputUnderprovisioned';
-    }
-  }
-}
+  final String value;
 
-extension InstanceRecommendationFindingReasonCodeFromString on String {
-  InstanceRecommendationFindingReasonCode
-      toInstanceRecommendationFindingReasonCode() {
-    switch (this) {
-      case 'CPUOverprovisioned':
-        return InstanceRecommendationFindingReasonCode.cPUOverprovisioned;
-      case 'CPUUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode.cPUUnderprovisioned;
-      case 'MemoryOverprovisioned':
-        return InstanceRecommendationFindingReasonCode.memoryOverprovisioned;
-      case 'MemoryUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode.memoryUnderprovisioned;
-      case 'EBSThroughputOverprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .eBSThroughputOverprovisioned;
-      case 'EBSThroughputUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .eBSThroughputUnderprovisioned;
-      case 'EBSIOPSOverprovisioned':
-        return InstanceRecommendationFindingReasonCode.eBSIOPSOverprovisioned;
-      case 'EBSIOPSUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode.eBSIOPSUnderprovisioned;
-      case 'NetworkBandwidthOverprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .networkBandwidthOverprovisioned;
-      case 'NetworkBandwidthUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .networkBandwidthUnderprovisioned;
-      case 'NetworkPPSOverprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .networkPPSOverprovisioned;
-      case 'NetworkPPSUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .networkPPSUnderprovisioned;
-      case 'DiskIOPSOverprovisioned':
-        return InstanceRecommendationFindingReasonCode.diskIOPSOverprovisioned;
-      case 'DiskIOPSUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode.diskIOPSUnderprovisioned;
-      case 'DiskThroughputOverprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .diskThroughputOverprovisioned;
-      case 'DiskThroughputUnderprovisioned':
-        return InstanceRecommendationFindingReasonCode
-            .diskThroughputUnderprovisioned;
-    }
-    throw Exception(
-        '$this is not known in enum InstanceRecommendationFindingReasonCode');
-  }
+  const InstanceRecommendationFindingReasonCode(this.value);
+
+  static InstanceRecommendationFindingReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstanceRecommendationFindingReasonCode'));
 }
 
 /// Describes a recommendation option for an Amazon EC2 instance.
 class InstanceRecommendationOption {
+  /// Describes the GPU accelerator settings for the recommended instance type.
+  final GpuInfo? instanceGpuInfo;
+
   /// The instance type of the instance recommendation.
   final String? instanceType;
 
@@ -6551,7 +6283,15 @@ class InstanceRecommendationOption {
   /// savings amount and percentage.
   final SavingsOpportunity? savingsOpportunity;
 
+  /// An object that describes the savings opportunity for the instance
+  /// recommendation option that includes Savings Plans and Reserved Instances
+  /// discounts. Savings opportunity includes the estimated monthly savings and
+  /// percentage.
+  final InstanceSavingsOpportunityAfterDiscounts?
+      savingsOpportunityAfterDiscounts;
+
   InstanceRecommendationOption({
+    this.instanceGpuInfo,
     this.instanceType,
     this.migrationEffort,
     this.performanceRisk,
@@ -6559,21 +6299,25 @@ class InstanceRecommendationOption {
     this.projectedUtilizationMetrics,
     this.rank,
     this.savingsOpportunity,
+    this.savingsOpportunityAfterDiscounts,
   });
 
   factory InstanceRecommendationOption.fromJson(Map<String, dynamic> json) {
     return InstanceRecommendationOption(
+      instanceGpuInfo: json['instanceGpuInfo'] != null
+          ? GpuInfo.fromJson(json['instanceGpuInfo'] as Map<String, dynamic>)
+          : null,
       instanceType: json['instanceType'] as String?,
       migrationEffort:
-          (json['migrationEffort'] as String?)?.toMigrationEffort(),
+          (json['migrationEffort'] as String?)?.let(MigrationEffort.fromString),
       performanceRisk: json['performanceRisk'] as double?,
       platformDifferences: (json['platformDifferences'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toPlatformDifference())
+          ?.nonNulls
+          .map((e) => PlatformDifference.fromString((e as String)))
           .toList(),
       projectedUtilizationMetrics:
           (json['projectedUtilizationMetrics'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => UtilizationMetric.fromJson(e as Map<String, dynamic>))
               .toList(),
       rank: json['rank'] as int?,
@@ -6581,56 +6325,102 @@ class InstanceRecommendationOption {
           ? SavingsOpportunity.fromJson(
               json['savingsOpportunity'] as Map<String, dynamic>)
           : null,
+      savingsOpportunityAfterDiscounts:
+          json['savingsOpportunityAfterDiscounts'] != null
+              ? InstanceSavingsOpportunityAfterDiscounts.fromJson(
+                  json['savingsOpportunityAfterDiscounts']
+                      as Map<String, dynamic>)
+              : null,
+    );
+  }
+}
+
+/// Describes the savings estimation mode used for calculating savings
+/// opportunity for Amazon EC2 instances.
+class InstanceSavingsEstimationMode {
+  /// Describes the source for calculating the savings opportunity for Amazon EC2
+  /// instances.
+  final InstanceSavingsEstimationModeSource? source;
+
+  InstanceSavingsEstimationMode({
+    this.source,
+  });
+
+  factory InstanceSavingsEstimationMode.fromJson(Map<String, dynamic> json) {
+    return InstanceSavingsEstimationMode(
+      source: (json['source'] as String?)
+          ?.let(InstanceSavingsEstimationModeSource.fromString),
+    );
+  }
+}
+
+enum InstanceSavingsEstimationModeSource {
+  publicPricing('PublicPricing'),
+  costExplorerRightsizing('CostExplorerRightsizing'),
+  costOptimizationHub('CostOptimizationHub'),
+  ;
+
+  final String value;
+
+  const InstanceSavingsEstimationModeSource(this.value);
+
+  static InstanceSavingsEstimationModeSource fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstanceSavingsEstimationModeSource'));
+}
+
+/// Describes the savings opportunity for instance recommendations after
+/// applying the Savings Plans and Reserved Instances discounts.
+///
+/// Savings opportunity after discounts represents the estimated monthly savings
+/// you can achieve by implementing Compute Optimizer recommendations.
+class InstanceSavingsOpportunityAfterDiscounts {
+  /// An object that describes the estimated monthly savings possible by adopting
+  /// Compute Optimizer’s Amazon EC2 instance recommendations. This is based on
+  /// pricing after applying the Savings Plans and Reserved Instances discounts.
+  final InstanceEstimatedMonthlySavings? estimatedMonthlySavings;
+
+  /// The estimated monthly savings possible as a percentage of monthly cost after
+  /// applying the Savings Plans and Reserved Instances discounts. This saving can
+  /// be achieved by adopting Compute Optimizer’s EC2 instance recommendations.
+  final double? savingsOpportunityPercentage;
+
+  InstanceSavingsOpportunityAfterDiscounts({
+    this.estimatedMonthlySavings,
+    this.savingsOpportunityPercentage,
+  });
+
+  factory InstanceSavingsOpportunityAfterDiscounts.fromJson(
+      Map<String, dynamic> json) {
+    return InstanceSavingsOpportunityAfterDiscounts(
+      estimatedMonthlySavings: json['estimatedMonthlySavings'] != null
+          ? InstanceEstimatedMonthlySavings.fromJson(
+              json['estimatedMonthlySavings'] as Map<String, dynamic>)
+          : null,
+      savingsOpportunityPercentage:
+          json['savingsOpportunityPercentage'] as double?,
     );
   }
 }
 
 enum InstanceState {
-  pending,
-  running,
-  shuttingDown,
-  terminated,
-  stopping,
-  stopped,
-}
+  pending('pending'),
+  running('running'),
+  shuttingDown('shutting-down'),
+  terminated('terminated'),
+  stopping('stopping'),
+  stopped('stopped'),
+  ;
 
-extension InstanceStateValueExtension on InstanceState {
-  String toValue() {
-    switch (this) {
-      case InstanceState.pending:
-        return 'pending';
-      case InstanceState.running:
-        return 'running';
-      case InstanceState.shuttingDown:
-        return 'shutting-down';
-      case InstanceState.terminated:
-        return 'terminated';
-      case InstanceState.stopping:
-        return 'stopping';
-      case InstanceState.stopped:
-        return 'stopped';
-    }
-  }
-}
+  final String value;
 
-extension InstanceStateFromString on String {
-  InstanceState toInstanceState() {
-    switch (this) {
-      case 'pending':
-        return InstanceState.pending;
-      case 'running':
-        return InstanceState.running;
-      case 'shutting-down':
-        return InstanceState.shuttingDown;
-      case 'terminated':
-        return InstanceState.terminated;
-      case 'stopping':
-        return InstanceState.stopping;
-      case 'stopped':
-        return InstanceState.stopped;
-    }
-    throw Exception('$this is not known in enum InstanceState');
-  }
+  const InstanceState(this.value);
+
+  static InstanceState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceState'));
 }
 
 /// Describes a filter that returns a more specific list of recommendation
@@ -6682,136 +6472,115 @@ class JobFilter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
 enum JobFilterName {
-  resourceType,
-  jobStatus,
-}
+  resourceType('ResourceType'),
+  jobStatus('JobStatus'),
+  ;
 
-extension JobFilterNameValueExtension on JobFilterName {
-  String toValue() {
-    switch (this) {
-      case JobFilterName.resourceType:
-        return 'ResourceType';
-      case JobFilterName.jobStatus:
-        return 'JobStatus';
-    }
-  }
-}
+  final String value;
 
-extension JobFilterNameFromString on String {
-  JobFilterName toJobFilterName() {
-    switch (this) {
-      case 'ResourceType':
-        return JobFilterName.resourceType;
-      case 'JobStatus':
-        return JobFilterName.jobStatus;
-    }
-    throw Exception('$this is not known in enum JobFilterName');
-  }
+  const JobFilterName(this.value);
+
+  static JobFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JobFilterName'));
 }
 
 enum JobStatus {
-  queued,
-  inProgress,
-  complete,
-  failed,
+  queued('Queued'),
+  inProgress('InProgress'),
+  complete('Complete'),
+  failed('Failed'),
+  ;
+
+  final String value;
+
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.queued:
-        return 'Queued';
-      case JobStatus.inProgress:
-        return 'InProgress';
-      case JobStatus.complete:
-        return 'Complete';
-      case JobStatus.failed:
-        return 'Failed';
-    }
+/// Describes the effective recommendation preferences for Lambda functions.
+class LambdaEffectiveRecommendationPreferences {
+  /// Describes the savings estimation mode applied for calculating savings
+  /// opportunity for Lambda functions.
+  final LambdaSavingsEstimationMode? savingsEstimationMode;
+
+  LambdaEffectiveRecommendationPreferences({
+    this.savingsEstimationMode,
+  });
+
+  factory LambdaEffectiveRecommendationPreferences.fromJson(
+      Map<String, dynamic> json) {
+    return LambdaEffectiveRecommendationPreferences(
+      savingsEstimationMode: json['savingsEstimationMode'] != null
+          ? LambdaSavingsEstimationMode.fromJson(
+              json['savingsEstimationMode'] as Map<String, dynamic>)
+          : null,
+    );
   }
 }
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'Queued':
-        return JobStatus.queued;
-      case 'InProgress':
-        return JobStatus.inProgress;
-      case 'Complete':
-        return JobStatus.complete;
-      case 'Failed':
-        return JobStatus.failed;
-    }
-    throw Exception('$this is not known in enum JobStatus');
+/// Describes the estimated monthly savings possible for Lambda functions by
+/// adopting Compute Optimizer recommendations. This is based on Lambda
+/// functions pricing after applying Savings Plans discounts.
+class LambdaEstimatedMonthlySavings {
+  /// The currency of the estimated monthly savings.
+  final Currency? currency;
+
+  /// The value of the estimated monthly savings.
+  final double? value;
+
+  LambdaEstimatedMonthlySavings({
+    this.currency,
+    this.value,
+  });
+
+  factory LambdaEstimatedMonthlySavings.fromJson(Map<String, dynamic> json) {
+    return LambdaEstimatedMonthlySavings(
+      currency: (json['currency'] as String?)?.let(Currency.fromString),
+      value: json['value'] as double?,
+    );
   }
 }
 
 enum LambdaFunctionMemoryMetricName {
-  duration,
-}
+  duration('Duration'),
+  ;
 
-extension LambdaFunctionMemoryMetricNameValueExtension
-    on LambdaFunctionMemoryMetricName {
-  String toValue() {
-    switch (this) {
-      case LambdaFunctionMemoryMetricName.duration:
-        return 'Duration';
-    }
-  }
-}
+  final String value;
 
-extension LambdaFunctionMemoryMetricNameFromString on String {
-  LambdaFunctionMemoryMetricName toLambdaFunctionMemoryMetricName() {
-    switch (this) {
-      case 'Duration':
-        return LambdaFunctionMemoryMetricName.duration;
-    }
-    throw Exception(
-        '$this is not known in enum LambdaFunctionMemoryMetricName');
-  }
+  const LambdaFunctionMemoryMetricName(this.value);
+
+  static LambdaFunctionMemoryMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaFunctionMemoryMetricName'));
 }
 
 enum LambdaFunctionMemoryMetricStatistic {
-  lowerBound,
-  upperBound,
-  expected,
-}
+  lowerBound('LowerBound'),
+  upperBound('UpperBound'),
+  expected('Expected'),
+  ;
 
-extension LambdaFunctionMemoryMetricStatisticValueExtension
-    on LambdaFunctionMemoryMetricStatistic {
-  String toValue() {
-    switch (this) {
-      case LambdaFunctionMemoryMetricStatistic.lowerBound:
-        return 'LowerBound';
-      case LambdaFunctionMemoryMetricStatistic.upperBound:
-        return 'UpperBound';
-      case LambdaFunctionMemoryMetricStatistic.expected:
-        return 'Expected';
-    }
-  }
-}
+  final String value;
 
-extension LambdaFunctionMemoryMetricStatisticFromString on String {
-  LambdaFunctionMemoryMetricStatistic toLambdaFunctionMemoryMetricStatistic() {
-    switch (this) {
-      case 'LowerBound':
-        return LambdaFunctionMemoryMetricStatistic.lowerBound;
-      case 'UpperBound':
-        return LambdaFunctionMemoryMetricStatistic.upperBound;
-      case 'Expected':
-        return LambdaFunctionMemoryMetricStatistic.expected;
-    }
-    throw Exception(
-        '$this is not known in enum LambdaFunctionMemoryMetricStatistic');
-  }
+  const LambdaFunctionMemoryMetricStatistic(this.value);
+
+  static LambdaFunctionMemoryMetricStatistic fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaFunctionMemoryMetricStatistic'));
 }
 
 /// Describes a projected utilization metric of an Lambda function
@@ -6835,9 +6604,10 @@ class LambdaFunctionMemoryProjectedMetric {
   factory LambdaFunctionMemoryProjectedMetric.fromJson(
       Map<String, dynamic> json) {
     return LambdaFunctionMemoryProjectedMetric(
-      name: (json['name'] as String?)?.toLambdaFunctionMemoryMetricName(),
+      name: (json['name'] as String?)
+          ?.let(LambdaFunctionMemoryMetricName.fromString),
       statistic: (json['statistic'] as String?)
-          ?.toLambdaFunctionMemoryMetricStatistic(),
+          ?.let(LambdaFunctionMemoryMetricStatistic.fromString),
       value: json['value'] as double?,
     );
   }
@@ -6862,11 +6632,18 @@ class LambdaFunctionMemoryRecommendationOption {
   /// savings amount and percentage.
   final SavingsOpportunity? savingsOpportunity;
 
+  /// An object that describes the savings opportunity for the Lambda
+  /// recommendation option which includes Saving Plans discounts. Savings
+  /// opportunity includes the estimated monthly savings and percentage.
+  final LambdaSavingsOpportunityAfterDiscounts?
+      savingsOpportunityAfterDiscounts;
+
   LambdaFunctionMemoryRecommendationOption({
     this.memorySize,
     this.projectedUtilizationMetrics,
     this.rank,
     this.savingsOpportunity,
+    this.savingsOpportunityAfterDiscounts,
   });
 
   factory LambdaFunctionMemoryRecommendationOption.fromJson(
@@ -6875,7 +6652,7 @@ class LambdaFunctionMemoryRecommendationOption {
       memorySize: json['memorySize'] as int?,
       projectedUtilizationMetrics:
           (json['projectedUtilizationMetrics'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => LambdaFunctionMemoryProjectedMetric.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -6884,65 +6661,44 @@ class LambdaFunctionMemoryRecommendationOption {
           ? SavingsOpportunity.fromJson(
               json['savingsOpportunity'] as Map<String, dynamic>)
           : null,
+      savingsOpportunityAfterDiscounts:
+          json['savingsOpportunityAfterDiscounts'] != null
+              ? LambdaSavingsOpportunityAfterDiscounts.fromJson(
+                  json['savingsOpportunityAfterDiscounts']
+                      as Map<String, dynamic>)
+              : null,
     );
   }
 }
 
 enum LambdaFunctionMetricName {
-  duration,
-  memory,
-}
+  duration('Duration'),
+  memory('Memory'),
+  ;
 
-extension LambdaFunctionMetricNameValueExtension on LambdaFunctionMetricName {
-  String toValue() {
-    switch (this) {
-      case LambdaFunctionMetricName.duration:
-        return 'Duration';
-      case LambdaFunctionMetricName.memory:
-        return 'Memory';
-    }
-  }
-}
+  final String value;
 
-extension LambdaFunctionMetricNameFromString on String {
-  LambdaFunctionMetricName toLambdaFunctionMetricName() {
-    switch (this) {
-      case 'Duration':
-        return LambdaFunctionMetricName.duration;
-      case 'Memory':
-        return LambdaFunctionMetricName.memory;
-    }
-    throw Exception('$this is not known in enum LambdaFunctionMetricName');
-  }
+  const LambdaFunctionMetricName(this.value);
+
+  static LambdaFunctionMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaFunctionMetricName'));
 }
 
 enum LambdaFunctionMetricStatistic {
-  maximum,
-  average,
-}
+  maximum('Maximum'),
+  average('Average'),
+  ;
 
-extension LambdaFunctionMetricStatisticValueExtension
-    on LambdaFunctionMetricStatistic {
-  String toValue() {
-    switch (this) {
-      case LambdaFunctionMetricStatistic.maximum:
-        return 'Maximum';
-      case LambdaFunctionMetricStatistic.average:
-        return 'Average';
-    }
-  }
-}
+  final String value;
 
-extension LambdaFunctionMetricStatisticFromString on String {
-  LambdaFunctionMetricStatistic toLambdaFunctionMetricStatistic() {
-    switch (this) {
-      case 'Maximum':
-        return LambdaFunctionMetricStatistic.maximum;
-      case 'Average':
-        return LambdaFunctionMetricStatistic.average;
-    }
-    throw Exception('$this is not known in enum LambdaFunctionMetricStatistic');
-  }
+  const LambdaFunctionMetricStatistic(this.value);
+
+  static LambdaFunctionMetricStatistic fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaFunctionMetricStatistic'));
 }
 
 /// Describes an Lambda function recommendation.
@@ -6957,6 +6713,10 @@ class LambdaFunctionRecommendation {
   /// its workloads. The higher the risk, the more likely the current Lambda
   /// function requires more memory.
   final CurrentPerformanceRisk? currentPerformanceRisk;
+
+  /// Describes the effective recommendation preferences for Lambda functions.
+  final LambdaEffectiveRecommendationPreferences?
+      effectiveRecommendationPreferences;
 
   /// The finding classification of the function.
   ///
@@ -7065,6 +6825,7 @@ class LambdaFunctionRecommendation {
     this.accountId,
     this.currentMemorySize,
     this.currentPerformanceRisk,
+    this.effectiveRecommendationPreferences,
     this.finding,
     this.findingReasonCodes,
     this.functionArn,
@@ -7082,13 +6843,19 @@ class LambdaFunctionRecommendation {
       accountId: json['accountId'] as String?,
       currentMemorySize: json['currentMemorySize'] as int?,
       currentPerformanceRisk: (json['currentPerformanceRisk'] as String?)
-          ?.toCurrentPerformanceRisk(),
-      finding:
-          (json['finding'] as String?)?.toLambdaFunctionRecommendationFinding(),
+          ?.let(CurrentPerformanceRisk.fromString),
+      effectiveRecommendationPreferences:
+          json['effectiveRecommendationPreferences'] != null
+              ? LambdaEffectiveRecommendationPreferences.fromJson(
+                  json['effectiveRecommendationPreferences']
+                      as Map<String, dynamic>)
+              : null,
+      finding: (json['finding'] as String?)
+          ?.let(LambdaFunctionRecommendationFinding.fromString),
       findingReasonCodes: (json['findingReasonCodes'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as String).toLambdaFunctionRecommendationFindingReasonCode())
+          ?.nonNulls
+          .map((e) => LambdaFunctionRecommendationFindingReasonCode.fromString(
+              (e as String)))
           .toList(),
       functionArn: json['functionArn'] as String?,
       functionVersion: json['functionVersion'] as String?,
@@ -7096,17 +6863,17 @@ class LambdaFunctionRecommendation {
       lookbackPeriodInDays: json['lookbackPeriodInDays'] as double?,
       memorySizeRecommendationOptions:
           (json['memorySizeRecommendationOptions'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => LambdaFunctionMemoryRecommendationOption.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       numberOfInvocations: json['numberOfInvocations'] as int?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       utilizationMetrics: (json['utilizationMetrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LambdaFunctionUtilizationMetric.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7180,119 +6947,59 @@ class LambdaFunctionRecommendationFilter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
 enum LambdaFunctionRecommendationFilterName {
-  finding,
-  findingReasonCode,
-}
+  finding('Finding'),
+  findingReasonCode('FindingReasonCode'),
+  ;
 
-extension LambdaFunctionRecommendationFilterNameValueExtension
-    on LambdaFunctionRecommendationFilterName {
-  String toValue() {
-    switch (this) {
-      case LambdaFunctionRecommendationFilterName.finding:
-        return 'Finding';
-      case LambdaFunctionRecommendationFilterName.findingReasonCode:
-        return 'FindingReasonCode';
-    }
-  }
-}
+  final String value;
 
-extension LambdaFunctionRecommendationFilterNameFromString on String {
-  LambdaFunctionRecommendationFilterName
-      toLambdaFunctionRecommendationFilterName() {
-    switch (this) {
-      case 'Finding':
-        return LambdaFunctionRecommendationFilterName.finding;
-      case 'FindingReasonCode':
-        return LambdaFunctionRecommendationFilterName.findingReasonCode;
-    }
-    throw Exception(
-        '$this is not known in enum LambdaFunctionRecommendationFilterName');
-  }
+  const LambdaFunctionRecommendationFilterName(this.value);
+
+  static LambdaFunctionRecommendationFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaFunctionRecommendationFilterName'));
 }
 
 enum LambdaFunctionRecommendationFinding {
-  optimized,
-  notOptimized,
-  unavailable,
-}
+  optimized('Optimized'),
+  notOptimized('NotOptimized'),
+  unavailable('Unavailable'),
+  ;
 
-extension LambdaFunctionRecommendationFindingValueExtension
-    on LambdaFunctionRecommendationFinding {
-  String toValue() {
-    switch (this) {
-      case LambdaFunctionRecommendationFinding.optimized:
-        return 'Optimized';
-      case LambdaFunctionRecommendationFinding.notOptimized:
-        return 'NotOptimized';
-      case LambdaFunctionRecommendationFinding.unavailable:
-        return 'Unavailable';
-    }
-  }
-}
+  final String value;
 
-extension LambdaFunctionRecommendationFindingFromString on String {
-  LambdaFunctionRecommendationFinding toLambdaFunctionRecommendationFinding() {
-    switch (this) {
-      case 'Optimized':
-        return LambdaFunctionRecommendationFinding.optimized;
-      case 'NotOptimized':
-        return LambdaFunctionRecommendationFinding.notOptimized;
-      case 'Unavailable':
-        return LambdaFunctionRecommendationFinding.unavailable;
-    }
-    throw Exception(
-        '$this is not known in enum LambdaFunctionRecommendationFinding');
-  }
+  const LambdaFunctionRecommendationFinding(this.value);
+
+  static LambdaFunctionRecommendationFinding fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaFunctionRecommendationFinding'));
 }
 
 enum LambdaFunctionRecommendationFindingReasonCode {
-  memoryOverprovisioned,
-  memoryUnderprovisioned,
-  insufficientData,
-  inconclusive,
-}
+  memoryOverprovisioned('MemoryOverprovisioned'),
+  memoryUnderprovisioned('MemoryUnderprovisioned'),
+  insufficientData('InsufficientData'),
+  inconclusive('Inconclusive'),
+  ;
 
-extension LambdaFunctionRecommendationFindingReasonCodeValueExtension
-    on LambdaFunctionRecommendationFindingReasonCode {
-  String toValue() {
-    switch (this) {
-      case LambdaFunctionRecommendationFindingReasonCode.memoryOverprovisioned:
-        return 'MemoryOverprovisioned';
-      case LambdaFunctionRecommendationFindingReasonCode.memoryUnderprovisioned:
-        return 'MemoryUnderprovisioned';
-      case LambdaFunctionRecommendationFindingReasonCode.insufficientData:
-        return 'InsufficientData';
-      case LambdaFunctionRecommendationFindingReasonCode.inconclusive:
-        return 'Inconclusive';
-    }
-  }
-}
+  final String value;
 
-extension LambdaFunctionRecommendationFindingReasonCodeFromString on String {
-  LambdaFunctionRecommendationFindingReasonCode
-      toLambdaFunctionRecommendationFindingReasonCode() {
-    switch (this) {
-      case 'MemoryOverprovisioned':
-        return LambdaFunctionRecommendationFindingReasonCode
-            .memoryOverprovisioned;
-      case 'MemoryUnderprovisioned':
-        return LambdaFunctionRecommendationFindingReasonCode
-            .memoryUnderprovisioned;
-      case 'InsufficientData':
-        return LambdaFunctionRecommendationFindingReasonCode.insufficientData;
-      case 'Inconclusive':
-        return LambdaFunctionRecommendationFindingReasonCode.inconclusive;
-    }
-    throw Exception(
-        '$this is not known in enum LambdaFunctionRecommendationFindingReasonCode');
-  }
+  const LambdaFunctionRecommendationFindingReasonCode(this.value);
+
+  static LambdaFunctionRecommendationFindingReasonCode fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaFunctionRecommendationFindingReasonCode'));
 }
 
 /// Describes a utilization metric of an Lambda function.
@@ -7341,12 +7048,473 @@ class LambdaFunctionUtilizationMetric {
 
   factory LambdaFunctionUtilizationMetric.fromJson(Map<String, dynamic> json) {
     return LambdaFunctionUtilizationMetric(
-      name: (json['name'] as String?)?.toLambdaFunctionMetricName(),
-      statistic:
-          (json['statistic'] as String?)?.toLambdaFunctionMetricStatistic(),
+      name: (json['name'] as String?)?.let(LambdaFunctionMetricName.fromString),
+      statistic: (json['statistic'] as String?)
+          ?.let(LambdaFunctionMetricStatistic.fromString),
       value: json['value'] as double?,
     );
   }
+}
+
+/// Describes the savings estimation used for calculating savings opportunity
+/// for Lambda functions.
+class LambdaSavingsEstimationMode {
+  /// Describes the source for calculation of savings opportunity for Lambda
+  /// functions.
+  final LambdaSavingsEstimationModeSource? source;
+
+  LambdaSavingsEstimationMode({
+    this.source,
+  });
+
+  factory LambdaSavingsEstimationMode.fromJson(Map<String, dynamic> json) {
+    return LambdaSavingsEstimationMode(
+      source: (json['source'] as String?)
+          ?.let(LambdaSavingsEstimationModeSource.fromString),
+    );
+  }
+}
+
+enum LambdaSavingsEstimationModeSource {
+  publicPricing('PublicPricing'),
+  costExplorerRightsizing('CostExplorerRightsizing'),
+  costOptimizationHub('CostOptimizationHub'),
+  ;
+
+  final String value;
+
+  const LambdaSavingsEstimationModeSource(this.value);
+
+  static LambdaSavingsEstimationModeSource fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaSavingsEstimationModeSource'));
+}
+
+/// Describes the savings opportunity for Lambda functions recommendations after
+/// applying Savings Plans discounts.
+///
+/// Savings opportunity represents the estimated monthly savings after applying
+/// Savings Plans discounts. You can achieve this by implementing a given
+/// Compute Optimizer recommendation.
+class LambdaSavingsOpportunityAfterDiscounts {
+  /// The estimated monthly savings possible by adopting Compute Optimizer’s
+  /// Lambda function recommendations. This includes any applicable Savings Plans
+  /// discounts.
+  final LambdaEstimatedMonthlySavings? estimatedMonthlySavings;
+
+  /// The estimated monthly savings possible as a percentage of monthly cost by
+  /// adopting Compute Optimizer’s Lambda function recommendations. This includes
+  /// any applicable Savings Plans discounts.
+  final double? savingsOpportunityPercentage;
+
+  LambdaSavingsOpportunityAfterDiscounts({
+    this.estimatedMonthlySavings,
+    this.savingsOpportunityPercentage,
+  });
+
+  factory LambdaSavingsOpportunityAfterDiscounts.fromJson(
+      Map<String, dynamic> json) {
+    return LambdaSavingsOpportunityAfterDiscounts(
+      estimatedMonthlySavings: json['estimatedMonthlySavings'] != null
+          ? LambdaEstimatedMonthlySavings.fromJson(
+              json['estimatedMonthlySavings'] as Map<String, dynamic>)
+          : null,
+      savingsOpportunityPercentage:
+          json['savingsOpportunityPercentage'] as double?,
+    );
+  }
+}
+
+/// Describes the configuration of a license for an Amazon EC2 instance.
+class LicenseConfiguration {
+  /// The instance type used in the license.
+  final String? instanceType;
+
+  /// The edition of the license for the application that runs on the instance.
+  final LicenseEdition? licenseEdition;
+
+  /// The license type associated with the instance.
+  final LicenseModel? licenseModel;
+
+  /// The name of the license for the application that runs on the instance.
+  final LicenseName? licenseName;
+
+  /// The version of the license for the application that runs on the instance.
+  final String? licenseVersion;
+
+  /// The list of metric sources required to generate recommendations for
+  /// commercial software licenses.
+  final List<MetricSource>? metricsSource;
+
+  /// The current number of cores associated with the instance.
+  final int? numberOfCores;
+
+  /// The operating system of the instance.
+  final String? operatingSystem;
+
+  LicenseConfiguration({
+    this.instanceType,
+    this.licenseEdition,
+    this.licenseModel,
+    this.licenseName,
+    this.licenseVersion,
+    this.metricsSource,
+    this.numberOfCores,
+    this.operatingSystem,
+  });
+
+  factory LicenseConfiguration.fromJson(Map<String, dynamic> json) {
+    return LicenseConfiguration(
+      instanceType: json['instanceType'] as String?,
+      licenseEdition:
+          (json['licenseEdition'] as String?)?.let(LicenseEdition.fromString),
+      licenseModel:
+          (json['licenseModel'] as String?)?.let(LicenseModel.fromString),
+      licenseName:
+          (json['licenseName'] as String?)?.let(LicenseName.fromString),
+      licenseVersion: json['licenseVersion'] as String?,
+      metricsSource: (json['metricsSource'] as List?)
+          ?.nonNulls
+          .map((e) => MetricSource.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      numberOfCores: json['numberOfCores'] as int?,
+      operatingSystem: json['operatingSystem'] as String?,
+    );
+  }
+}
+
+enum LicenseEdition {
+  enterprise('Enterprise'),
+  standard('Standard'),
+  free('Free'),
+  noLicenseEditionFound('NoLicenseEditionFound'),
+  ;
+
+  final String value;
+
+  const LicenseEdition(this.value);
+
+  static LicenseEdition fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LicenseEdition'));
+}
+
+enum LicenseFinding {
+  insufficientMetrics('InsufficientMetrics'),
+  optimized('Optimized'),
+  notOptimized('NotOptimized'),
+  ;
+
+  final String value;
+
+  const LicenseFinding(this.value);
+
+  static LicenseFinding fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LicenseFinding'));
+}
+
+enum LicenseFindingReasonCode {
+  invalidCloudWatchApplicationInsightsSetup(
+      'InvalidCloudWatchApplicationInsightsSetup'),
+  cloudWatchApplicationInsightsError('CloudWatchApplicationInsightsError'),
+  licenseOverprovisioned('LicenseOverprovisioned'),
+  optimized('Optimized'),
+  ;
+
+  final String value;
+
+  const LicenseFindingReasonCode(this.value);
+
+  static LicenseFindingReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LicenseFindingReasonCode'));
+}
+
+enum LicenseModel {
+  licenseIncluded('LicenseIncluded'),
+  bringYourOwnLicense('BringYourOwnLicense'),
+  ;
+
+  final String value;
+
+  const LicenseModel(this.value);
+
+  static LicenseModel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LicenseModel'));
+}
+
+enum LicenseName {
+  sQLServer('SQLServer'),
+  ;
+
+  final String value;
+
+  const LicenseName(this.value);
+
+  static LicenseName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum LicenseName'));
+}
+
+/// Describes a license recommendation for an EC2 instance.
+class LicenseRecommendation {
+  /// The Amazon Web Services account ID of the license.
+  final String? accountId;
+
+  /// An object that describes the current configuration of an instance that runs
+  /// on a license.
+  final LicenseConfiguration? currentLicenseConfiguration;
+
+  /// The finding classification for an instance that runs on a license.
+  ///
+  /// Findings include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>InsufficentMetrics</code> — When Compute Optimizer detects that your
+  /// CloudWatch Application Insights isn't enabled or is enabled with
+  /// insufficient permissions.
+  /// </li>
+  /// <li>
+  /// <code>NotOptimized</code> — When Compute Optimizer detects that your EC2
+  /// infrastructure isn't using any of the SQL server license features you're
+  /// paying for, a license is considered not optimized.
+  /// </li>
+  /// <li>
+  /// <code>Optimized</code> — When Compute Optimizer detects that all
+  /// specifications of your license meet the performance requirements of your
+  /// workload.
+  /// </li>
+  /// </ul>
+  final LicenseFinding? finding;
+
+  /// The reason for the finding classification for an instance that runs on a
+  /// license.
+  ///
+  /// Finding reason codes include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>Optimized</code> — All specifications of your license meet the
+  /// performance requirements of your workload.
+  /// </li>
+  /// <li>
+  /// <code>LicenseOverprovisioned</code> — A license is considered
+  /// over-provisioned when your license can be downgraded while still meeting the
+  /// performance requirements of your workload.
+  /// </li>
+  /// <li>
+  /// <code>InvalidCloudwatchApplicationInsights</code> — CloudWatch Application
+  /// Insights isn't configured properly.
+  /// </li>
+  /// <li>
+  /// <code>CloudwatchApplicationInsightsError</code> — There is a CloudWatch
+  /// Application Insights error.
+  /// </li>
+  /// </ul>
+  final List<LicenseFindingReasonCode>? findingReasonCodes;
+
+  /// The timestamp of when the license recommendation was last generated.
+  final DateTime? lastRefreshTimestamp;
+
+  /// An array of objects that describe the license recommendation options.
+  final List<LicenseRecommendationOption>? licenseRecommendationOptions;
+
+  /// The number of days for which utilization metrics were analyzed for an
+  /// instance that runs on a license.
+  final double? lookbackPeriodInDays;
+
+  /// The ARN that identifies the Amazon EC2 instance.
+  final String? resourceArn;
+
+  /// A list of tags assigned to an EC2 instance.
+  final List<Tag>? tags;
+
+  LicenseRecommendation({
+    this.accountId,
+    this.currentLicenseConfiguration,
+    this.finding,
+    this.findingReasonCodes,
+    this.lastRefreshTimestamp,
+    this.licenseRecommendationOptions,
+    this.lookbackPeriodInDays,
+    this.resourceArn,
+    this.tags,
+  });
+
+  factory LicenseRecommendation.fromJson(Map<String, dynamic> json) {
+    return LicenseRecommendation(
+      accountId: json['accountId'] as String?,
+      currentLicenseConfiguration: json['currentLicenseConfiguration'] != null
+          ? LicenseConfiguration.fromJson(
+              json['currentLicenseConfiguration'] as Map<String, dynamic>)
+          : null,
+      finding: (json['finding'] as String?)?.let(LicenseFinding.fromString),
+      findingReasonCodes: (json['findingReasonCodes'] as List?)
+          ?.nonNulls
+          .map((e) => LicenseFindingReasonCode.fromString((e as String)))
+          .toList(),
+      lastRefreshTimestamp: timeStampFromJson(json['lastRefreshTimestamp']),
+      licenseRecommendationOptions: (json['licenseRecommendationOptions']
+              as List?)
+          ?.nonNulls
+          .map((e) =>
+              LicenseRecommendationOption.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      lookbackPeriodInDays: json['lookbackPeriodInDays'] as double?,
+      resourceArn: json['resourceArn'] as String?,
+      tags: (json['tags'] as List?)
+          ?.nonNulls
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+/// Describes a filter that returns a more specific list of license
+/// recommendations. Use this filter with the
+/// <code>GetLicenseRecommendation</code> action.
+class LicenseRecommendationFilter {
+  /// The name of the filter.
+  ///
+  /// Specify <code>Finding</code> to return recommendations with a specific
+  /// finding classification.
+  ///
+  /// Specify <code>FindingReasonCode</code> to return recommendations with a
+  /// specific finding reason code.
+  ///
+  /// You can filter your license recommendations by <code>tag:key</code> and
+  /// <code>tag-key</code> tags.
+  ///
+  /// A <code>tag:key</code> is a key and value combination of a tag assigned to
+  /// your license recommendations. Use the tag key in the filter name and the tag
+  /// value as the filter value. For example, to find all license recommendations
+  /// that have a tag with the key of <code>Owner</code> and the value of
+  /// <code>TeamA</code>, specify <code>tag:Owner</code> for the filter name and
+  /// <code>TeamA</code> for the filter value.
+  ///
+  /// A <code>tag-key</code> is the key of a tag assigned to your license
+  /// recommendations. Use this filter to find all of your license recommendations
+  /// that have a tag with a specific key. This doesn’t consider the tag value.
+  /// For example, you can find your license recommendations with a tag key value
+  /// of <code>Owner</code> or without any tag keys assigned.
+  final LicenseRecommendationFilterName? name;
+
+  /// The value of the filter.
+  ///
+  /// The valid values for this parameter are as follows, depending on what you
+  /// specify for the <code>name</code> parameter:
+  ///
+  /// <ul>
+  /// <li>
+  /// If you specify the <code>name</code> parameter as <code>Finding</code>, then
+  /// specify <code>Optimized</code>, <code>NotOptimized</code>, or
+  /// <code>InsufficentMetrics</code>.
+  /// </li>
+  /// <li>
+  /// If you specify the <code>name</code> parameter as
+  /// <code>FindingReasonCode</code>, then specify <code>Optimized</code>,
+  /// <code>LicenseOverprovisioned</code>,
+  /// <code>InvalidCloudwatchApplicationInsights</code>, or
+  /// <code>CloudwatchApplicationInsightsError</code>.
+  /// </li>
+  /// </ul>
+  final List<String>? values;
+
+  LicenseRecommendationFilter({
+    this.name,
+    this.values,
+  });
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final values = this.values;
+    return {
+      if (name != null) 'name': name.value,
+      if (values != null) 'values': values,
+    };
+  }
+}
+
+enum LicenseRecommendationFilterName {
+  finding('Finding'),
+  findingReasonCode('FindingReasonCode'),
+  licenseName('LicenseName'),
+  ;
+
+  final String value;
+
+  const LicenseRecommendationFilterName(this.value);
+
+  static LicenseRecommendationFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LicenseRecommendationFilterName'));
+}
+
+/// Describes the recommendation options for licenses.
+class LicenseRecommendationOption {
+  /// The recommended edition of the license for the application that runs on the
+  /// instance.
+  final LicenseEdition? licenseEdition;
+
+  /// The recommended license type associated with the instance.
+  final LicenseModel? licenseModel;
+
+  /// The operating system of a license recommendation option.
+  final String? operatingSystem;
+
+  /// The rank of the license recommendation option.
+  ///
+  /// The top recommendation option is ranked as <code>1</code>.
+  final int? rank;
+  final SavingsOpportunity? savingsOpportunity;
+
+  LicenseRecommendationOption({
+    this.licenseEdition,
+    this.licenseModel,
+    this.operatingSystem,
+    this.rank,
+    this.savingsOpportunity,
+  });
+
+  factory LicenseRecommendationOption.fromJson(Map<String, dynamic> json) {
+    return LicenseRecommendationOption(
+      licenseEdition:
+          (json['licenseEdition'] as String?)?.let(LicenseEdition.fromString),
+      licenseModel:
+          (json['licenseModel'] as String?)?.let(LicenseModel.fromString),
+      operatingSystem: json['operatingSystem'] as String?,
+      rank: json['rank'] as int?,
+      savingsOpportunity: json['savingsOpportunity'] != null
+          ? SavingsOpportunity.fromJson(
+              json['savingsOpportunity'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+enum LookBackPeriodPreference {
+  days_14('DAYS_14'),
+  days_32('DAYS_32'),
+  days_93('DAYS_93'),
+  ;
+
+  final String value;
+
+  const LookBackPeriodPreference(this.value);
+
+  static LookBackPeriodPreference fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LookBackPeriodPreference'));
 }
 
 /// The memory size configurations of a container.
@@ -7371,205 +7539,191 @@ class MemorySizeConfiguration {
 }
 
 enum MetricName {
-  cpu,
-  memory,
-  ebsReadOpsPerSecond,
-  ebsWriteOpsPerSecond,
-  ebsReadBytesPerSecond,
-  ebsWriteBytesPerSecond,
-  diskReadOpsPerSecond,
-  diskWriteOpsPerSecond,
-  diskReadBytesPerSecond,
-  diskWriteBytesPerSecond,
-  networkInBytesPerSecond,
-  networkOutBytesPerSecond,
-  networkPacketsInPerSecond,
-  networkPacketsOutPerSecond,
+  cpu('Cpu'),
+  memory('Memory'),
+  ebsReadOpsPerSecond('EBS_READ_OPS_PER_SECOND'),
+  ebsWriteOpsPerSecond('EBS_WRITE_OPS_PER_SECOND'),
+  ebsReadBytesPerSecond('EBS_READ_BYTES_PER_SECOND'),
+  ebsWriteBytesPerSecond('EBS_WRITE_BYTES_PER_SECOND'),
+  diskReadOpsPerSecond('DISK_READ_OPS_PER_SECOND'),
+  diskWriteOpsPerSecond('DISK_WRITE_OPS_PER_SECOND'),
+  diskReadBytesPerSecond('DISK_READ_BYTES_PER_SECOND'),
+  diskWriteBytesPerSecond('DISK_WRITE_BYTES_PER_SECOND'),
+  networkInBytesPerSecond('NETWORK_IN_BYTES_PER_SECOND'),
+  networkOutBytesPerSecond('NETWORK_OUT_BYTES_PER_SECOND'),
+  networkPacketsInPerSecond('NETWORK_PACKETS_IN_PER_SECOND'),
+  networkPacketsOutPerSecond('NETWORK_PACKETS_OUT_PER_SECOND'),
+  gpuPercentage('GPU_PERCENTAGE'),
+  gpuMemoryPercentage('GPU_MEMORY_PERCENTAGE'),
+  ;
+
+  final String value;
+
+  const MetricName(this.value);
+
+  static MetricName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MetricName'));
 }
 
-extension MetricNameValueExtension on MetricName {
-  String toValue() {
-    switch (this) {
-      case MetricName.cpu:
-        return 'Cpu';
-      case MetricName.memory:
-        return 'Memory';
-      case MetricName.ebsReadOpsPerSecond:
-        return 'EBS_READ_OPS_PER_SECOND';
-      case MetricName.ebsWriteOpsPerSecond:
-        return 'EBS_WRITE_OPS_PER_SECOND';
-      case MetricName.ebsReadBytesPerSecond:
-        return 'EBS_READ_BYTES_PER_SECOND';
-      case MetricName.ebsWriteBytesPerSecond:
-        return 'EBS_WRITE_BYTES_PER_SECOND';
-      case MetricName.diskReadOpsPerSecond:
-        return 'DISK_READ_OPS_PER_SECOND';
-      case MetricName.diskWriteOpsPerSecond:
-        return 'DISK_WRITE_OPS_PER_SECOND';
-      case MetricName.diskReadBytesPerSecond:
-        return 'DISK_READ_BYTES_PER_SECOND';
-      case MetricName.diskWriteBytesPerSecond:
-        return 'DISK_WRITE_BYTES_PER_SECOND';
-      case MetricName.networkInBytesPerSecond:
-        return 'NETWORK_IN_BYTES_PER_SECOND';
-      case MetricName.networkOutBytesPerSecond:
-        return 'NETWORK_OUT_BYTES_PER_SECOND';
-      case MetricName.networkPacketsInPerSecond:
-        return 'NETWORK_PACKETS_IN_PER_SECOND';
-      case MetricName.networkPacketsOutPerSecond:
-        return 'NETWORK_PACKETS_OUT_PER_SECOND';
-    }
+/// The list of metric sources required to generate recommendations for
+/// commercial software licenses.
+class MetricSource {
+  /// The name of the metric source provider.
+  final MetricSourceProvider? provider;
+
+  /// The ARN of the metric source provider.
+  final String? providerArn;
+
+  MetricSource({
+    this.provider,
+    this.providerArn,
+  });
+
+  factory MetricSource.fromJson(Map<String, dynamic> json) {
+    return MetricSource(
+      provider:
+          (json['provider'] as String?)?.let(MetricSourceProvider.fromString),
+      providerArn: json['providerArn'] as String?,
+    );
   }
 }
 
-extension MetricNameFromString on String {
-  MetricName toMetricName() {
-    switch (this) {
-      case 'Cpu':
-        return MetricName.cpu;
-      case 'Memory':
-        return MetricName.memory;
-      case 'EBS_READ_OPS_PER_SECOND':
-        return MetricName.ebsReadOpsPerSecond;
-      case 'EBS_WRITE_OPS_PER_SECOND':
-        return MetricName.ebsWriteOpsPerSecond;
-      case 'EBS_READ_BYTES_PER_SECOND':
-        return MetricName.ebsReadBytesPerSecond;
-      case 'EBS_WRITE_BYTES_PER_SECOND':
-        return MetricName.ebsWriteBytesPerSecond;
-      case 'DISK_READ_OPS_PER_SECOND':
-        return MetricName.diskReadOpsPerSecond;
-      case 'DISK_WRITE_OPS_PER_SECOND':
-        return MetricName.diskWriteOpsPerSecond;
-      case 'DISK_READ_BYTES_PER_SECOND':
-        return MetricName.diskReadBytesPerSecond;
-      case 'DISK_WRITE_BYTES_PER_SECOND':
-        return MetricName.diskWriteBytesPerSecond;
-      case 'NETWORK_IN_BYTES_PER_SECOND':
-        return MetricName.networkInBytesPerSecond;
-      case 'NETWORK_OUT_BYTES_PER_SECOND':
-        return MetricName.networkOutBytesPerSecond;
-      case 'NETWORK_PACKETS_IN_PER_SECOND':
-        return MetricName.networkPacketsInPerSecond;
-      case 'NETWORK_PACKETS_OUT_PER_SECOND':
-        return MetricName.networkPacketsOutPerSecond;
-    }
-    throw Exception('$this is not known in enum MetricName');
-  }
+enum MetricSourceProvider {
+  cloudWatchApplicationInsights('CloudWatchApplicationInsights'),
+  ;
+
+  final String value;
+
+  const MetricSourceProvider(this.value);
+
+  static MetricSourceProvider fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MetricSourceProvider'));
 }
 
 enum MetricStatistic {
-  maximum,
-  average,
-}
+  maximum('Maximum'),
+  average('Average'),
+  ;
 
-extension MetricStatisticValueExtension on MetricStatistic {
-  String toValue() {
-    switch (this) {
-      case MetricStatistic.maximum:
-        return 'Maximum';
-      case MetricStatistic.average:
-        return 'Average';
-    }
-  }
-}
+  final String value;
 
-extension MetricStatisticFromString on String {
-  MetricStatistic toMetricStatistic() {
-    switch (this) {
-      case 'Maximum':
-        return MetricStatistic.maximum;
-      case 'Average':
-        return MetricStatistic.average;
-    }
-    throw Exception('$this is not known in enum MetricStatistic');
-  }
+  const MetricStatistic(this.value);
+
+  static MetricStatistic fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MetricStatistic'));
 }
 
 enum MigrationEffort {
-  veryLow,
-  low,
-  medium,
-  high,
-}
+  veryLow('VeryLow'),
+  low('Low'),
+  medium('Medium'),
+  high('High'),
+  ;
 
-extension MigrationEffortValueExtension on MigrationEffort {
-  String toValue() {
-    switch (this) {
-      case MigrationEffort.veryLow:
-        return 'VeryLow';
-      case MigrationEffort.low:
-        return 'Low';
-      case MigrationEffort.medium:
-        return 'Medium';
-      case MigrationEffort.high:
-        return 'High';
-    }
-  }
-}
+  final String value;
 
-extension MigrationEffortFromString on String {
-  MigrationEffort toMigrationEffort() {
-    switch (this) {
-      case 'VeryLow':
-        return MigrationEffort.veryLow;
-      case 'Low':
-        return MigrationEffort.low;
-      case 'Medium':
-        return MigrationEffort.medium;
-      case 'High':
-        return MigrationEffort.high;
-    }
-    throw Exception('$this is not known in enum MigrationEffort');
-  }
+  const MigrationEffort(this.value);
+
+  static MigrationEffort fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MigrationEffort'));
 }
 
 enum PlatformDifference {
-  hypervisor,
-  networkInterface,
-  storageInterface,
-  instanceStoreAvailability,
-  virtualizationType,
-  architecture,
+  hypervisor('Hypervisor'),
+  networkInterface('NetworkInterface'),
+  storageInterface('StorageInterface'),
+  instanceStoreAvailability('InstanceStoreAvailability'),
+  virtualizationType('VirtualizationType'),
+  architecture('Architecture'),
+  ;
+
+  final String value;
+
+  const PlatformDifference(this.value);
+
+  static PlatformDifference fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PlatformDifference'));
 }
 
-extension PlatformDifferenceValueExtension on PlatformDifference {
-  String toValue() {
-    switch (this) {
-      case PlatformDifference.hypervisor:
-        return 'Hypervisor';
-      case PlatformDifference.networkInterface:
-        return 'NetworkInterface';
-      case PlatformDifference.storageInterface:
-        return 'StorageInterface';
-      case PlatformDifference.instanceStoreAvailability:
-        return 'InstanceStoreAvailability';
-      case PlatformDifference.virtualizationType:
-        return 'VirtualizationType';
-      case PlatformDifference.architecture:
-        return 'Architecture';
-    }
+/// The preference to control which resource type values are considered when
+/// generating rightsizing recommendations. You can specify this preference as a
+/// combination of include and exclude lists. You must specify either an
+/// <code>includeList</code> or <code>excludeList</code>. If the preference is
+/// an empty set of resource type values, an error occurs. For more information,
+/// see <a
+/// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/rightsizing-preferences.html">
+/// Rightsizing recommendation preferences</a> in the <i>Compute Optimizer User
+/// Guide</i>.
+/// <note>
+/// <ul>
+/// <li>
+/// This preference is only available for the Amazon EC2 instance and Auto
+/// Scaling group resource types.
+/// </li>
+/// <li>
+/// Compute Optimizer only supports the customization of
+/// <code>Ec2InstanceTypes</code>.
+/// </li>
+/// </ul> </note>
+class PreferredResource {
+  /// The preferred resource type values to exclude from the recommendation
+  /// candidates. If this isn’t specified, all supported resources are included by
+  /// default. You can specify up to 1000 values in this list.
+  final List<String>? excludeList;
+
+  /// The preferred resource type values to include in the recommendation
+  /// candidates. You can specify the exact resource type value, such as m5.large,
+  /// or use wild card expressions, such as m5. If this isn’t specified, all
+  /// supported resources are included by default. You can specify up to 1000
+  /// values in this list.
+  final List<String>? includeList;
+
+  /// The type of preferred resource to customize.
+  /// <note>
+  /// Compute Optimizer only supports the customization of
+  /// <code>Ec2InstanceTypes</code>.
+  /// </note>
+  final PreferredResourceName? name;
+
+  PreferredResource({
+    this.excludeList,
+    this.includeList,
+    this.name,
+  });
+
+  Map<String, dynamic> toJson() {
+    final excludeList = this.excludeList;
+    final includeList = this.includeList;
+    final name = this.name;
+    return {
+      if (excludeList != null) 'excludeList': excludeList,
+      if (includeList != null) 'includeList': includeList,
+      if (name != null) 'name': name.value,
+    };
   }
 }
 
-extension PlatformDifferenceFromString on String {
-  PlatformDifference toPlatformDifference() {
-    switch (this) {
-      case 'Hypervisor':
-        return PlatformDifference.hypervisor;
-      case 'NetworkInterface':
-        return PlatformDifference.networkInterface;
-      case 'StorageInterface':
-        return PlatformDifference.storageInterface;
-      case 'InstanceStoreAvailability':
-        return PlatformDifference.instanceStoreAvailability;
-      case 'VirtualizationType':
-        return PlatformDifference.virtualizationType;
-      case 'Architecture':
-        return PlatformDifference.architecture;
-    }
-    throw Exception('$this is not known in enum PlatformDifference');
-  }
+enum PreferredResourceName {
+  ec2InstanceTypes('Ec2InstanceTypes'),
+  ;
+
+  final String value;
+
+  const PreferredResourceName(this.value);
+
+  static PreferredResourceName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PreferredResourceName'));
 }
 
 /// Describes a projected utilization metric of a recommendation option, such as
@@ -7580,13 +7734,15 @@ extension PlatformDifferenceFromString on String {
 /// utilization metric data to determine the performance difference between your
 /// current resource and the recommended option.
 /// <note>
-/// The <code>Cpu</code> and <code>Memory</code> metrics are the only projected
-/// utilization metrics returned when you run the
-/// <a>GetEC2RecommendationProjectedMetrics</a> action. Additionally, the
-/// <code>Memory</code> metric is returned only for resources that have the
+/// The <code>Cpu</code>, <code>Memory</code>, <code>GPU</code>, and
+/// <code>GPU_MEMORY</code> metrics are the only projected utilization metrics
+/// returned when you run the <a>GetEC2RecommendationProjectedMetrics</a>
+/// action. Additionally, these metrics are only returned for resources with the
 /// unified CloudWatch agent installed on them. For more information, see <a
 /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/metrics.html#cw-agent">Enabling
-/// Memory Utilization with the CloudWatch Agent</a>.
+/// Memory Utilization with the CloudWatch Agent</a> and <a
+/// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/metrics.html#nvidia-cw-agent">Enabling
+/// NVIDIA GPU utilization with the CloudWatch Agent</a>.
 /// </note>
 class ProjectedMetric {
   /// The name of the projected utilization metric.
@@ -7603,8 +7759,6 @@ class ProjectedMetric {
   /// Depending on the instance type, tools in your operating system can show a
   /// lower percentage than CloudWatch when the instance is not allocated a full
   /// processor core.
-  ///
-  /// Units: Percent
   /// </li>
   /// <li>
   /// <code>Memory</code> - The percentage of memory that would be in use on the
@@ -7614,10 +7768,24 @@ class ProjectedMetric {
   ///
   /// Units: Percent
   /// <note>
-  /// The <code>Memory</code> metric is returned only for resources that have the
+  /// The <code>Memory</code> metric is only returned for resources with the
   /// unified CloudWatch agent installed on them. For more information, see <a
   /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/metrics.html#cw-agent">Enabling
   /// Memory Utilization with the CloudWatch Agent</a>.
+  /// </note> </li>
+  /// <li>
+  /// <code>GPU</code> - The projected percentage of allocated GPUs if you adjust
+  /// your configurations to Compute Optimizer's recommendation option.
+  /// </li>
+  /// <li>
+  /// <code>GPU_MEMORY</code> - The projected percentage of total GPU memory if
+  /// you adjust your configurations to Compute Optimizer's recommendation option.
+  /// <note>
+  /// The <code>GPU</code> and <code>GPU_MEMORY</code> metrics are only returned
+  /// for resources with the unified CloudWatch Agent installed on them. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/metrics.html#nvidia-cw-agent">Enabling
+  /// NVIDIA GPU utilization with the CloudWatch Agent</a>.
   /// </note> </li>
   /// </ul>
   final MetricName? name;
@@ -7636,15 +7804,13 @@ class ProjectedMetric {
 
   factory ProjectedMetric.fromJson(Map<String, dynamic> json) {
     return ProjectedMetric(
-      name: (json['name'] as String?)?.toMetricName(),
+      name: (json['name'] as String?)?.let(MetricName.fromString),
       timestamps: (json['timestamps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(nonNullableTimeStampFromJson)
           .toList(),
-      values: (json['values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as double)
-          .toList(),
+      values:
+          (json['values'] as List?)?.nonNulls.map((e) => e as double).toList(),
     );
   }
 }
@@ -7673,7 +7839,7 @@ class ReasonCodeSummary {
 
   factory ReasonCodeSummary.fromJson(Map<String, dynamic> json) {
     return ReasonCodeSummary(
-      name: (json['name'] as String?)?.toFindingReasonCode(),
+      name: (json['name'] as String?)?.let(FindingReasonCode.fromString),
       value: json['value'] as double?,
     );
   }
@@ -7729,44 +7895,30 @@ class RecommendationExportJob {
       failureReason: json['failureReason'] as String?,
       jobId: json['jobId'] as String?,
       lastUpdatedTimestamp: timeStampFromJson(json['lastUpdatedTimestamp']),
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
-      status: (json['status'] as String?)?.toJobStatus(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+      status: (json['status'] as String?)?.let(JobStatus.fromString),
     );
   }
 }
 
 enum RecommendationPreferenceName {
-  enhancedInfrastructureMetrics,
-  inferredWorkloadTypes,
-  externalMetricsPreference,
-}
+  enhancedInfrastructureMetrics('EnhancedInfrastructureMetrics'),
+  inferredWorkloadTypes('InferredWorkloadTypes'),
+  externalMetricsPreference('ExternalMetricsPreference'),
+  lookBackPeriodPreference('LookBackPeriodPreference'),
+  preferredResources('PreferredResources'),
+  utilizationPreferences('UtilizationPreferences'),
+  ;
 
-extension RecommendationPreferenceNameValueExtension
-    on RecommendationPreferenceName {
-  String toValue() {
-    switch (this) {
-      case RecommendationPreferenceName.enhancedInfrastructureMetrics:
-        return 'EnhancedInfrastructureMetrics';
-      case RecommendationPreferenceName.inferredWorkloadTypes:
-        return 'InferredWorkloadTypes';
-      case RecommendationPreferenceName.externalMetricsPreference:
-        return 'ExternalMetricsPreference';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationPreferenceNameFromString on String {
-  RecommendationPreferenceName toRecommendationPreferenceName() {
-    switch (this) {
-      case 'EnhancedInfrastructureMetrics':
-        return RecommendationPreferenceName.enhancedInfrastructureMetrics;
-      case 'InferredWorkloadTypes':
-        return RecommendationPreferenceName.inferredWorkloadTypes;
-      case 'ExternalMetricsPreference':
-        return RecommendationPreferenceName.externalMetricsPreference;
-    }
-    throw Exception('$this is not known in enum RecommendationPreferenceName');
-  }
+  const RecommendationPreferenceName(this.value);
+
+  static RecommendationPreferenceName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecommendationPreferenceName'));
 }
 
 /// Describes the recommendation preferences to return in the response of a
@@ -7807,7 +7959,7 @@ class RecommendationPreferences {
     return {
       if (cpuVendorArchitectures != null)
         'cpuVendorArchitectures':
-            cpuVendorArchitectures.map((e) => e.toValue()).toList(),
+            cpuVendorArchitectures.map((e) => e.value).toList(),
     };
   }
 }
@@ -7842,6 +7994,17 @@ class RecommendationPreferencesDetail {
   /// recommendations.
   final InferredWorkloadTypesPreference? inferredWorkloadTypes;
 
+  /// The preference to control the number of days the utilization metrics of the
+  /// Amazon Web Services resource are analyzed. If the preference isn’t set, this
+  /// object is null.
+  final LookBackPeriodPreference? lookBackPeriod;
+
+  /// The preference to control which resource type values are considered when
+  /// generating rightsizing recommendations. This object resolves any wildcard
+  /// expressions and returns the effective list of candidate resource type
+  /// values. If the preference isn’t set, this object is null.
+  final List<EffectivePreferredResource>? preferredResources;
+
   /// The target resource type of the recommendation preference to create.
   ///
   /// The <code>Ec2Instance</code> option encompasses standalone instances and
@@ -7849,6 +8012,13 @@ class RecommendationPreferencesDetail {
   /// <code>AutoScalingGroup</code> option encompasses only instances that are
   /// part of an Auto Scaling group.
   final ResourceType? resourceType;
+
+  /// Describes the savings estimation mode used for calculating savings
+  /// opportunity.
+  ///
+  /// Only the account manager or delegated administrator of your organization can
+  /// activate this preference.
+  final SavingsEstimationMode? savingsEstimationMode;
 
   /// An object that describes the scope of the recommendation preference.
   ///
@@ -7860,29 +8030,55 @@ class RecommendationPreferencesDetail {
   /// Guide</i>.
   final Scope? scope;
 
+  /// The preference to control the resource’s CPU utilization threshold, CPU
+  /// utilization headroom, and memory utilization headroom. If the preference
+  /// isn’t set, this object is null.
+  /// <note>
+  /// This preference is only available for the Amazon EC2 instance resource type.
+  /// </note>
+  final List<UtilizationPreference>? utilizationPreferences;
+
   RecommendationPreferencesDetail({
     this.enhancedInfrastructureMetrics,
     this.externalMetricsPreference,
     this.inferredWorkloadTypes,
+    this.lookBackPeriod,
+    this.preferredResources,
     this.resourceType,
+    this.savingsEstimationMode,
     this.scope,
+    this.utilizationPreferences,
   });
 
   factory RecommendationPreferencesDetail.fromJson(Map<String, dynamic> json) {
     return RecommendationPreferencesDetail(
       enhancedInfrastructureMetrics:
           (json['enhancedInfrastructureMetrics'] as String?)
-              ?.toEnhancedInfrastructureMetrics(),
+              ?.let(EnhancedInfrastructureMetrics.fromString),
       externalMetricsPreference: json['externalMetricsPreference'] != null
           ? ExternalMetricsPreference.fromJson(
               json['externalMetricsPreference'] as Map<String, dynamic>)
           : null,
       inferredWorkloadTypes: (json['inferredWorkloadTypes'] as String?)
-          ?.toInferredWorkloadTypesPreference(),
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+          ?.let(InferredWorkloadTypesPreference.fromString),
+      lookBackPeriod: (json['lookBackPeriod'] as String?)
+          ?.let(LookBackPeriodPreference.fromString),
+      preferredResources: (json['preferredResources'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              EffectivePreferredResource.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+      savingsEstimationMode: (json['savingsEstimationMode'] as String?)
+          ?.let(SavingsEstimationMode.fromString),
       scope: json['scope'] != null
           ? Scope.fromJson(json['scope'] as Map<String, dynamic>)
           : null,
+      utilizationPreferences: (json['utilizationPreferences'] as List?)
+          ?.nonNulls
+          .map((e) => UtilizationPreference.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -7905,52 +8101,28 @@ class RecommendationSource {
     return RecommendationSource(
       recommendationSourceArn: json['recommendationSourceArn'] as String?,
       recommendationSourceType: (json['recommendationSourceType'] as String?)
-          ?.toRecommendationSourceType(),
+          ?.let(RecommendationSourceType.fromString),
     );
   }
 }
 
 enum RecommendationSourceType {
-  ec2Instance,
-  autoScalingGroup,
-  ebsVolume,
-  lambdaFunction,
-  ecsService,
-}
+  ec2Instance('Ec2Instance'),
+  autoScalingGroup('AutoScalingGroup'),
+  ebsVolume('EbsVolume'),
+  lambdaFunction('LambdaFunction'),
+  ecsService('EcsService'),
+  license('License'),
+  ;
 
-extension RecommendationSourceTypeValueExtension on RecommendationSourceType {
-  String toValue() {
-    switch (this) {
-      case RecommendationSourceType.ec2Instance:
-        return 'Ec2Instance';
-      case RecommendationSourceType.autoScalingGroup:
-        return 'AutoScalingGroup';
-      case RecommendationSourceType.ebsVolume:
-        return 'EbsVolume';
-      case RecommendationSourceType.lambdaFunction:
-        return 'LambdaFunction';
-      case RecommendationSourceType.ecsService:
-        return 'EcsService';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationSourceTypeFromString on String {
-  RecommendationSourceType toRecommendationSourceType() {
-    switch (this) {
-      case 'Ec2Instance':
-        return RecommendationSourceType.ec2Instance;
-      case 'AutoScalingGroup':
-        return RecommendationSourceType.autoScalingGroup;
-      case 'EbsVolume':
-        return RecommendationSourceType.ebsVolume;
-      case 'LambdaFunction':
-        return RecommendationSourceType.lambdaFunction;
-      case 'EcsService':
-        return RecommendationSourceType.ecsService;
-    }
-    throw Exception('$this is not known in enum RecommendationSourceType');
-  }
+  const RecommendationSourceType(this.value);
+
+  static RecommendationSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecommendationSourceType'));
 }
 
 /// A summary of a recommendation.
@@ -7964,8 +8136,8 @@ class RecommendationSummary {
 
   /// An array of objects that describes the estimated monthly saving amounts for
   /// the instances running on the specified <code>inferredWorkloadTypes</code>.
-  /// The array contains the top three savings opportunites for the instances
-  /// running inferred workload types.
+  /// The array contains the top five savings opportunites for the instances that
+  /// run inferred workload types.
   final List<InferredWorkloadSaving>? inferredWorkloadSavings;
 
   /// The resource type that the recommendation summary applies to.
@@ -7997,19 +8169,19 @@ class RecommendationSummary {
                   json['currentPerformanceRiskRatings'] as Map<String, dynamic>)
               : null,
       inferredWorkloadSavings: (json['inferredWorkloadSavings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => InferredWorkloadSaving.fromJson(e as Map<String, dynamic>))
           .toList(),
       recommendationResourceType:
           (json['recommendationResourceType'] as String?)
-              ?.toRecommendationSourceType(),
+              ?.let(RecommendationSourceType.fromString),
       savingsOpportunity: json['savingsOpportunity'] != null
           ? SavingsOpportunity.fromJson(
               json['savingsOpportunity'] as Map<String, dynamic>)
           : null,
       summaries: (json['summaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Summary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8052,7 +8224,7 @@ class RecommendedOptionProjectedMetric {
   factory RecommendedOptionProjectedMetric.fromJson(Map<String, dynamic> json) {
     return RecommendedOptionProjectedMetric(
       projectedMetrics: (json['projectedMetrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectedMetric.fromJson(e as Map<String, dynamic>))
           .toList(),
       rank: json['rank'] as int?,
@@ -8062,51 +8234,23 @@ class RecommendedOptionProjectedMetric {
 }
 
 enum ResourceType {
-  ec2Instance,
-  autoScalingGroup,
-  ebsVolume,
-  lambdaFunction,
-  notApplicable,
-  ecsService,
-}
+  ec2Instance('Ec2Instance'),
+  autoScalingGroup('AutoScalingGroup'),
+  ebsVolume('EbsVolume'),
+  lambdaFunction('LambdaFunction'),
+  notApplicable('NotApplicable'),
+  ecsService('EcsService'),
+  license('License'),
+  ;
 
-extension ResourceTypeValueExtension on ResourceType {
-  String toValue() {
-    switch (this) {
-      case ResourceType.ec2Instance:
-        return 'Ec2Instance';
-      case ResourceType.autoScalingGroup:
-        return 'AutoScalingGroup';
-      case ResourceType.ebsVolume:
-        return 'EbsVolume';
-      case ResourceType.lambdaFunction:
-        return 'LambdaFunction';
-      case ResourceType.notApplicable:
-        return 'NotApplicable';
-      case ResourceType.ecsService:
-        return 'EcsService';
-    }
-  }
-}
+  final String value;
 
-extension ResourceTypeFromString on String {
-  ResourceType toResourceType() {
-    switch (this) {
-      case 'Ec2Instance':
-        return ResourceType.ec2Instance;
-      case 'AutoScalingGroup':
-        return ResourceType.autoScalingGroup;
-      case 'EbsVolume':
-        return ResourceType.ebsVolume;
-      case 'LambdaFunction':
-        return ResourceType.lambdaFunction;
-      case 'NotApplicable':
-        return ResourceType.notApplicable;
-      case 'EcsService':
-        return ResourceType.ecsService;
-    }
-    throw Exception('$this is not known in enum ResourceType');
-  }
+  const ResourceType(this.value);
+
+  static ResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceType'));
 }
 
 /// Describes the destination Amazon Simple Storage Service (Amazon S3) bucket
@@ -8175,6 +8319,21 @@ class S3DestinationConfig {
       if (keyPrefix != null) 'keyPrefix': keyPrefix,
     };
   }
+}
+
+enum SavingsEstimationMode {
+  afterDiscounts('AfterDiscounts'),
+  beforeDiscounts('BeforeDiscounts'),
+  ;
+
+  final String value;
+
+  const SavingsEstimationMode(this.value);
+
+  static SavingsEstimationMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SavingsEstimationMode'));
 }
 
 /// Describes the savings opportunity for recommendations of a given resource
@@ -8294,7 +8453,7 @@ class Scope {
 
   factory Scope.fromJson(Map<String, dynamic> json) {
     return Scope(
-      name: (json['name'] as String?)?.toScopeName(),
+      name: (json['name'] as String?)?.let(ScopeName.fromString),
       value: json['value'] as String?,
     );
   }
@@ -8303,43 +8462,25 @@ class Scope {
     final name = this.name;
     final value = this.value;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (value != null) 'value': value,
     };
   }
 }
 
 enum ScopeName {
-  organization,
-  accountId,
-  resourceArn,
-}
+  organization('Organization'),
+  accountId('AccountId'),
+  resourceArn('ResourceArn'),
+  ;
 
-extension ScopeNameValueExtension on ScopeName {
-  String toValue() {
-    switch (this) {
-      case ScopeName.organization:
-        return 'Organization';
-      case ScopeName.accountId:
-        return 'AccountId';
-      case ScopeName.resourceArn:
-        return 'ResourceArn';
-    }
-  }
-}
+  final String value;
 
-extension ScopeNameFromString on String {
-  ScopeName toScopeName() {
-    switch (this) {
-      case 'Organization':
-        return ScopeName.organization;
-      case 'AccountId':
-        return ScopeName.accountId;
-      case 'ResourceArn':
-        return ScopeName.resourceArn;
-    }
-    throw Exception('$this is not known in enum ScopeName');
-  }
+  const ScopeName(this.value);
+
+  static ScopeName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ScopeName'));
 }
 
 /// The Amazon ECS service configurations used for recommendations.
@@ -8394,9 +8535,9 @@ class ServiceConfiguration {
   factory ServiceConfiguration.fromJson(Map<String, dynamic> json) {
     return ServiceConfiguration(
       autoScalingConfiguration: (json['autoScalingConfiguration'] as String?)
-          ?.toAutoScalingConfiguration(),
+          ?.let(AutoScalingConfiguration.fromString),
       containerConfigurations: (json['containerConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ContainerConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8408,41 +8549,19 @@ class ServiceConfiguration {
 }
 
 enum Status {
-  active,
-  inactive,
-  pending,
-  failed,
-}
+  active('Active'),
+  inactive('Inactive'),
+  pending('Pending'),
+  failed('Failed'),
+  ;
 
-extension StatusValueExtension on Status {
-  String toValue() {
-    switch (this) {
-      case Status.active:
-        return 'Active';
-      case Status.inactive:
-        return 'Inactive';
-      case Status.pending:
-        return 'Pending';
-      case Status.failed:
-        return 'Failed';
-    }
-  }
-}
+  final String value;
 
-extension StatusFromString on String {
-  Status toStatus() {
-    switch (this) {
-      case 'Active':
-        return Status.active;
-      case 'Inactive':
-        return Status.inactive;
-      case 'Pending':
-        return Status.pending;
-      case 'Failed':
-        return Status.failed;
-    }
-    throw Exception('$this is not known in enum Status');
-  }
+  const Status(this.value);
+
+  static Status fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Status'));
 }
 
 /// The summary of a recommendation.
@@ -8464,9 +8583,9 @@ class Summary {
 
   factory Summary.fromJson(Map<String, dynamic> json) {
     return Summary(
-      name: (json['name'] as String?)?.toFinding(),
+      name: (json['name'] as String?)?.let(Finding.fromString),
       reasonCodeSummaries: (json['reasonCodeSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReasonCodeSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       value: json['value'] as double?,
@@ -8513,7 +8632,7 @@ class UpdateEnrollmentStatusResponse {
 
   factory UpdateEnrollmentStatusResponse.fromJson(Map<String, dynamic> json) {
     return UpdateEnrollmentStatusResponse(
-      status: (json['status'] as String?)?.toStatus(),
+      status: (json['status'] as String?)?.let(Status.fromString),
       statusReason: json['statusReason'] as String?,
     );
   }
@@ -8553,6 +8672,20 @@ class UtilizationMetric {
   /// unified CloudWatch agent installed on them. For more information, see <a
   /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/metrics.html#cw-agent">Enabling
   /// Memory Utilization with the CloudWatch Agent</a>.
+  /// </note> </li>
+  /// <li>
+  /// <code>GPU</code> - The percentage of allocated GPUs that currently run on
+  /// the instance.
+  /// </li>
+  /// <li>
+  /// <code>GPU_MEMORY</code> - The percentage of total GPU memory that currently
+  /// runs on the instance.
+  /// <note>
+  /// The <code>GPU</code> and <code>GPU_MEMORY</code> metrics are only returned
+  /// for resources with the unified CloudWatch Agent installed on them. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/compute-optimizer/latest/ug/metrics.html#nvidia-cw-agent">Enabling
+  /// NVIDIA GPU utilization with the CloudWatch Agent</a>.
   /// </note> </li>
   /// <li>
   /// <code>EBS_READ_OPS_PER_SECOND</code> - The completed read operations from
@@ -8664,10 +8797,49 @@ class UtilizationMetric {
 
   factory UtilizationMetric.fromJson(Map<String, dynamic> json) {
     return UtilizationMetric(
-      name: (json['name'] as String?)?.toMetricName(),
-      statistic: (json['statistic'] as String?)?.toMetricStatistic(),
+      name: (json['name'] as String?)?.let(MetricName.fromString),
+      statistic:
+          (json['statistic'] as String?)?.let(MetricStatistic.fromString),
       value: json['value'] as double?,
     );
+  }
+}
+
+/// The preference to control the resource’s CPU utilization thresholds -
+/// threshold and headroom.
+/// <note>
+/// This preference is only available for the Amazon EC2 instance resource type.
+/// </note>
+class UtilizationPreference {
+  /// The name of the resource utilization metric name to customize.
+  final CustomizableMetricName? metricName;
+
+  /// The parameters to set when customizing the resource utilization thresholds.
+  final CustomizableMetricParameters? metricParameters;
+
+  UtilizationPreference({
+    this.metricName,
+    this.metricParameters,
+  });
+
+  factory UtilizationPreference.fromJson(Map<String, dynamic> json) {
+    return UtilizationPreference(
+      metricName: (json['metricName'] as String?)
+          ?.let(CustomizableMetricName.fromString),
+      metricParameters: json['metricParameters'] != null
+          ? CustomizableMetricParameters.fromJson(
+              json['metricParameters'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final metricName = this.metricName;
+    final metricParameters = this.metricParameters;
+    return {
+      if (metricName != null) 'metricName': metricName.value,
+      if (metricParameters != null) 'metricParameters': metricParameters,
+    };
   }
 }
 
@@ -8736,6 +8908,10 @@ class VolumeRecommendation {
   /// doesn't have sufficient capacity.
   final CurrentPerformanceRisk? currentPerformanceRisk;
 
+  /// Describes the effective recommendation preferences for Amazon EBS volume.
+  final EBSEffectiveRecommendationPreferences?
+      effectiveRecommendationPreferences;
+
   /// The finding classification of the volume.
   ///
   /// Findings for volumes include:
@@ -8778,6 +8954,7 @@ class VolumeRecommendation {
     this.accountId,
     this.currentConfiguration,
     this.currentPerformanceRisk,
+    this.effectiveRecommendationPreferences,
     this.finding,
     this.lastRefreshTimestamp,
     this.lookBackPeriodInDays,
@@ -8795,22 +8972,28 @@ class VolumeRecommendation {
               json['currentConfiguration'] as Map<String, dynamic>)
           : null,
       currentPerformanceRisk: (json['currentPerformanceRisk'] as String?)
-          ?.toCurrentPerformanceRisk(),
-      finding: (json['finding'] as String?)?.toEBSFinding(),
+          ?.let(CurrentPerformanceRisk.fromString),
+      effectiveRecommendationPreferences:
+          json['effectiveRecommendationPreferences'] != null
+              ? EBSEffectiveRecommendationPreferences.fromJson(
+                  json['effectiveRecommendationPreferences']
+                      as Map<String, dynamic>)
+              : null,
+      finding: (json['finding'] as String?)?.let(EBSFinding.fromString),
       lastRefreshTimestamp: timeStampFromJson(json['lastRefreshTimestamp']),
       lookBackPeriodInDays: json['lookBackPeriodInDays'] as double?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       utilizationMetrics: (json['utilizationMetrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EBSUtilizationMetric.fromJson(e as Map<String, dynamic>))
           .toList(),
       volumeArn: json['volumeArn'] as String?,
       volumeRecommendationOptions: (json['volumeRecommendationOptions']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               VolumeRecommendationOption.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8846,11 +9029,17 @@ class VolumeRecommendationOption {
   /// savings amount and percentage.
   final SavingsOpportunity? savingsOpportunity;
 
+  /// An object that describes the savings opportunity for the Amazon EBS volume
+  /// recommendation option with specific discounts. Savings opportunity includes
+  /// the estimated monthly savings and percentage.
+  final EBSSavingsOpportunityAfterDiscounts? savingsOpportunityAfterDiscounts;
+
   VolumeRecommendationOption({
     this.configuration,
     this.performanceRisk,
     this.rank,
     this.savingsOpportunity,
+    this.savingsOpportunityAfterDiscounts,
   });
 
   factory VolumeRecommendationOption.fromJson(Map<String, dynamic> json) {
@@ -8865,6 +9054,12 @@ class VolumeRecommendationOption {
           ? SavingsOpportunity.fromJson(
               json['savingsOpportunity'] as Map<String, dynamic>)
           : null,
+      savingsOpportunityAfterDiscounts:
+          json['savingsOpportunityAfterDiscounts'] != null
+              ? EBSSavingsOpportunityAfterDiscounts.fromJson(
+                  json['savingsOpportunityAfterDiscounts']
+                      as Map<String, dynamic>)
+              : null,
     );
   }
 }

@@ -59,6 +59,13 @@ class VpcLattice {
   /// change the priority of listener rules. This can be useful when bulk
   /// updating or swapping rule priority.
   ///
+  /// <b>Required permissions:</b> <code>vpc-lattice:UpdateRule</code>
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/vpc-lattice/latest/ug/security_iam_service-with-iam.html">How
+  /// Amazon VPC Lattice works with IAM</a> in the <i>Amazon VPC Lattice User
+  /// Guide</i>.
+  ///
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
   /// May throw [ThrottlingException].
@@ -94,7 +101,7 @@ class VpcLattice {
 
   /// Enables access logs to be sent to Amazon CloudWatch, Amazon S3, and Amazon
   /// Kinesis Data Firehose. The service network owner can use the access logs
-  /// to audit the services in the network. The service network owner will only
+  /// to audit the services in the network. The service network owner can only
   /// see access logs from clients and services that are associated with their
   /// service network. Access log entries represent traffic originated from VPCs
   /// associated with that network. For more information, see <a
@@ -162,12 +169,8 @@ class VpcLattice {
   /// May throw [InternalServerException].
   ///
   /// Parameter [defaultAction] :
-  /// The action for the default rule. Each listener has a default rule. Each
-  /// rule consists of a priority, one or more actions, and one or more
-  /// conditions. The default rule is the rule that's used if no other rules
-  /// match. Each rule must include exactly one of the following types of
-  /// actions: <code>forward </code>or <code>fixed-response</code>, and it must
-  /// be the last action to be performed.
+  /// The action for the default rule. Each listener has a default rule. The
+  /// default rule is used if no other rules match.
   ///
   /// Parameter [name] :
   /// The name of the listener. A listener name must be unique within a service.
@@ -175,7 +178,7 @@ class VpcLattice {
   /// as the first or last character, or immediately after another hyphen.
   ///
   /// Parameter [protocol] :
-  /// The listener protocol HTTP or HTTPS.
+  /// The listener protocol.
   ///
   /// Parameter [serviceIdentifier] :
   /// The ID or Amazon Resource Name (ARN) of the service.
@@ -188,9 +191,8 @@ class VpcLattice {
   /// identical, the retry fails.
   ///
   /// Parameter [port] :
-  /// The listener port. You can specify a value from <code>1</code> to
-  /// <code>65535</code>. For HTTP, the default is <code>80</code>. For HTTPS,
-  /// the default is <code>443</code>.
+  /// The listener port. You can specify a value from 1 to 65535. For HTTP, the
+  /// default is 80. For HTTPS, the default is 443.
   ///
   /// Parameter [tags] :
   /// The tags for the listener.
@@ -212,7 +214,7 @@ class VpcLattice {
     final $payload = <String, dynamic>{
       'defaultAction': defaultAction,
       'name': name,
-      'protocol': protocol.toValue(),
+      'protocol': protocol.value,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
       if (port != null) 'port': port,
       if (tags != null) 'tags': tags,
@@ -368,7 +370,7 @@ class VpcLattice {
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (certificateArn != null) 'certificateArn': certificateArn,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
       if (customDomainName != null) 'customDomainName': customDomainName,
@@ -435,7 +437,7 @@ class VpcLattice {
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
       if (tags != null) 'tags': tags,
     };
@@ -448,7 +450,9 @@ class VpcLattice {
     return CreateServiceNetworkResponse.fromJson(response);
   }
 
-  /// Associates a service with a service network.
+  /// Associates a service with a service network. For more information, see <a
+  /// href="https://docs.aws.amazon.com/vpc-lattice/latest/ug/service-network-associations.html#service-network-service-associations">Manage
+  /// service associations</a> in the <i>Amazon VPC Lattice User Guide</i>.
   ///
   /// You can't use this operation if the service and service network are
   /// already associated or if there is a disassociation or deletion in
@@ -462,6 +466,7 @@ class VpcLattice {
   /// network account and the association owner account.
   ///
   /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
   /// May throw [ThrottlingException].
   /// May throw [ResourceNotFoundException].
   /// May throw [ConflictException].
@@ -617,8 +622,7 @@ class VpcLattice {
   /// identical, the retry fails.
   ///
   /// Parameter [config] :
-  /// The target group configuration. If <code>type</code> is set to
-  /// <code>LAMBDA</code>, this parameter doesn't apply.
+  /// The target group configuration.
   ///
   /// Parameter [tags] :
   /// The tags for the target group.
@@ -631,7 +635,7 @@ class VpcLattice {
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      'type': type.toValue(),
+      'type': type.value,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
       if (config != null) 'config': config,
       if (tags != null) 'tags': tags,
@@ -668,10 +672,10 @@ class VpcLattice {
   }
 
   /// Deletes the specified auth policy. If an auth is set to
-  /// <code>AWS_IAM</code> and the auth policy is deleted, all requests will be
-  /// denied by default. If you are trying to remove the auth policy completely,
-  /// you must set the auth_type to <code>NONE</code>. If auth is enabled on the
-  /// resource, but no auth policy is set, all requests will be denied.
+  /// <code>AWS_IAM</code> and the auth policy is deleted, all requests are
+  /// denied. If you are trying to remove the auth policy completely, you must
+  /// set the auth type to <code>NONE</code>. If auth is enabled on the
+  /// resource, but no auth policy is set, all requests are denied.
   ///
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
@@ -838,7 +842,7 @@ class VpcLattice {
   }
 
   /// Deletes the association between a specified service and the specific
-  /// service network. This request will fail if an association is still in
+  /// service network. This operation fails if an association is still in
   /// progress.
   ///
   /// May throw [ValidationException].
@@ -1174,6 +1178,7 @@ class VpcLattice {
   /// Retrieves information about the specified target group.
   ///
   /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
   /// May throw [ThrottlingException].
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalServerException].
@@ -1196,6 +1201,7 @@ class VpcLattice {
   /// service.
   ///
   /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
   /// May throw [ThrottlingException].
   /// May throw [InternalServerException].
   ///
@@ -1328,9 +1334,9 @@ class VpcLattice {
   /// Every association in Amazon VPC Lattice is given a unique Amazon Resource
   /// Name (ARN), such as when a service network is associated with a VPC or
   /// when a service is associated with a service network. If the association is
-  /// for a resource that is shared with another account, the association will
-  /// include the local account ID as the prefix in the ARN for each account the
-  /// resource is shared with.
+  /// for a resource that is shared with another account, the association
+  /// includes the local account ID as the prefix in the ARN for each account
+  /// the resource is shared with.
   ///
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
@@ -1506,6 +1512,7 @@ class VpcLattice {
   /// Lists the tags for the specified resource.
   ///
   /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalServerException].
   ///
@@ -1541,7 +1548,7 @@ class VpcLattice {
   /// The target group type.
   ///
   /// Parameter [vpcIdentifier] :
-  /// The ID or Amazon Resource Name (ARN) of the service.
+  /// The ID or Amazon Resource Name (ARN) of the VPC.
   Future<ListTargetGroupsResponse> listTargetGroups({
     int? maxResults,
     String? nextToken,
@@ -1557,8 +1564,7 @@ class VpcLattice {
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (targetGroupType != null)
-        'targetGroupType': [targetGroupType.toValue()],
+      if (targetGroupType != null) 'targetGroupType': [targetGroupType.value],
       if (vpcIdentifier != null) 'vpcIdentifier': [vpcIdentifier],
     };
     final response = await _protocol.send(
@@ -1591,7 +1597,7 @@ class VpcLattice {
   /// A pagination token for the next page of results.
   ///
   /// Parameter [targets] :
-  /// The targets to list.
+  /// The targets.
   Future<ListTargetsResponse> listTargets({
     required String targetGroupIdentifier,
     int? maxResults,
@@ -1624,6 +1630,10 @@ class VpcLattice {
 
   /// Creates or updates the auth policy. The policy string in JSON must not
   /// contain newlines or blank lines.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/vpc-lattice/latest/ug/auth-policies.html">Auth
+  /// policies</a> in the <i>Amazon VPC Lattice User Guide</i>.
   ///
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
@@ -1751,6 +1761,7 @@ class VpcLattice {
   /// Removes the specified tags from the specified resource.
   ///
   /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalServerException].
   ///
@@ -1932,7 +1943,7 @@ class VpcLattice {
     String? certificateArn,
   }) async {
     final $payload = <String, dynamic>{
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (certificateArn != null) 'certificateArn': certificateArn,
     };
     final response = await _protocol.send(
@@ -1974,7 +1985,7 @@ class VpcLattice {
     required String serviceNetworkIdentifier,
   }) async {
     final $payload = <String, dynamic>{
-      'authType': authType.toValue(),
+      'authType': authType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2025,6 +2036,7 @@ class VpcLattice {
   /// Updates the specified target group.
   ///
   /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
   /// May throw [ThrottlingException].
   /// May throw [ResourceNotFoundException].
   /// May throw [ConflictException].
@@ -2121,59 +2133,32 @@ class AccessLogSubscriptionSummary {
 }
 
 enum AuthPolicyState {
-  active,
-  inactive,
-}
+  active('Active'),
+  inactive('Inactive'),
+  ;
 
-extension AuthPolicyStateValueExtension on AuthPolicyState {
-  String toValue() {
-    switch (this) {
-      case AuthPolicyState.active:
-        return 'Active';
-      case AuthPolicyState.inactive:
-        return 'Inactive';
-    }
-  }
-}
+  final String value;
 
-extension AuthPolicyStateFromString on String {
-  AuthPolicyState toAuthPolicyState() {
-    switch (this) {
-      case 'Active':
-        return AuthPolicyState.active;
-      case 'Inactive':
-        return AuthPolicyState.inactive;
-    }
-    throw Exception('$this is not known in enum AuthPolicyState');
-  }
+  const AuthPolicyState(this.value);
+
+  static AuthPolicyState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AuthPolicyState'));
 }
 
 enum AuthType {
-  none,
-  awsIam,
-}
+  none('NONE'),
+  awsIam('AWS_IAM'),
+  ;
 
-extension AuthTypeValueExtension on AuthType {
-  String toValue() {
-    switch (this) {
-      case AuthType.none:
-        return 'NONE';
-      case AuthType.awsIam:
-        return 'AWS_IAM';
-    }
-  }
-}
+  final String value;
 
-extension AuthTypeFromString on String {
-  AuthType toAuthType() {
-    switch (this) {
-      case 'NONE':
-        return AuthType.none;
-      case 'AWS_IAM':
-        return AuthType.awsIam;
-    }
-    throw Exception('$this is not known in enum AuthType');
-  }
+  const AuthType(this.value);
+
+  static AuthType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AuthType'));
 }
 
 class BatchUpdateRuleResponse {
@@ -2191,11 +2176,11 @@ class BatchUpdateRuleResponse {
   factory BatchUpdateRuleResponse.fromJson(Map<String, dynamic> json) {
     return BatchUpdateRuleResponse(
       successful: (json['successful'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleUpdateSuccess.fromJson(e as Map<String, dynamic>))
           .toList(),
       unsuccessful: (json['unsuccessful'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleUpdateFailure.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2307,7 +2292,7 @@ class CreateListenerResponse {
       id: json['id'] as String?,
       name: json['name'] as String?,
       port: json['port'] as int?,
-      protocol: (json['protocol'] as String?)?.toListenerProtocol(),
+      protocol: (json['protocol'] as String?)?.let(ListenerProtocol.fromString),
       serviceArn: json['serviceArn'] as String?,
       serviceId: json['serviceId'] as String?,
     );
@@ -2328,7 +2313,7 @@ class CreateListenerResponse {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (port != null) 'port': port,
-      if (protocol != null) 'protocol': protocol.toValue(),
+      if (protocol != null) 'protocol': protocol.value,
       if (serviceArn != null) 'serviceArn': serviceArn,
       if (serviceId != null) 'serviceId': serviceId,
     };
@@ -2336,9 +2321,7 @@ class CreateListenerResponse {
 }
 
 class CreateRuleResponse {
-  /// The rule action. Each rule must include exactly one of the following types
-  /// of actions: <code>forward </code>or <code>fixed-response</code>, and it must
-  /// be the last action to be performed.
+  /// The rule action.
   final RuleAction? action;
 
   /// The Amazon Resource Name (ARN) of the rule.
@@ -2424,7 +2407,7 @@ class CreateServiceNetworkResponse {
   factory CreateServiceNetworkResponse.fromJson(Map<String, dynamic> json) {
     return CreateServiceNetworkResponse(
       arn: json['arn'] as String?,
-      authType: (json['authType'] as String?)?.toAuthType(),
+      authType: (json['authType'] as String?)?.let(AuthType.fromString),
       id: json['id'] as String?,
       name: json['name'] as String?,
     );
@@ -2437,7 +2420,7 @@ class CreateServiceNetworkResponse {
     final name = this.name;
     return {
       if (arn != null) 'arn': arn,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
     };
@@ -2460,7 +2443,7 @@ class CreateServiceNetworkServiceAssociationResponse {
   /// The ID of the association.
   final String? id;
 
-  /// The operation's status.
+  /// The association status.
   final ServiceNetworkServiceAssociationStatus? status;
 
   CreateServiceNetworkServiceAssociationResponse({
@@ -2483,7 +2466,7 @@ class CreateServiceNetworkServiceAssociationResponse {
           : null,
       id: json['id'] as String?,
       status: (json['status'] as String?)
-          ?.toServiceNetworkServiceAssociationStatus(),
+          ?.let(ServiceNetworkServiceAssociationStatus.fromString),
     );
   }
 
@@ -2500,7 +2483,7 @@ class CreateServiceNetworkServiceAssociationResponse {
       if (customDomainName != null) 'customDomainName': customDomainName,
       if (dnsEntry != null) 'dnsEntry': dnsEntry,
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2518,7 +2501,7 @@ class CreateServiceNetworkVpcAssociationResponse {
   /// The IDs of the security groups.
   final List<String>? securityGroupIds;
 
-  /// The operation's status.
+  /// The association status.
   final ServiceNetworkVpcAssociationStatus? status;
 
   CreateServiceNetworkVpcAssociationResponse({
@@ -2536,11 +2519,11 @@ class CreateServiceNetworkVpcAssociationResponse {
       createdBy: json['createdBy'] as String?,
       id: json['id'] as String?,
       securityGroupIds: (json['securityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status:
-          (json['status'] as String?)?.toServiceNetworkVpcAssociationStatus(),
+      status: (json['status'] as String?)
+          ?.let(ServiceNetworkVpcAssociationStatus.fromString),
     );
   }
 
@@ -2555,7 +2538,7 @@ class CreateServiceNetworkVpcAssociationResponse {
       if (createdBy != null) 'createdBy': createdBy,
       if (id != null) 'id': id,
       if (securityGroupIds != null) 'securityGroupIds': securityGroupIds,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2582,8 +2565,8 @@ class CreateServiceResponse {
   /// The name of the service.
   final String? name;
 
-  /// The status. If the status is <code>CREATE_FAILED</code>, you will have to
-  /// delete and recreate the service.
+  /// The status. If the status is <code>CREATE_FAILED</code>, you must delete and
+  /// recreate the service.
   final ServiceStatus? status;
 
   CreateServiceResponse({
@@ -2600,7 +2583,7 @@ class CreateServiceResponse {
   factory CreateServiceResponse.fromJson(Map<String, dynamic> json) {
     return CreateServiceResponse(
       arn: json['arn'] as String?,
-      authType: (json['authType'] as String?)?.toAuthType(),
+      authType: (json['authType'] as String?)?.let(AuthType.fromString),
       certificateArn: json['certificateArn'] as String?,
       customDomainName: json['customDomainName'] as String?,
       dnsEntry: json['dnsEntry'] != null
@@ -2608,7 +2591,7 @@ class CreateServiceResponse {
           : null,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toServiceStatus(),
+      status: (json['status'] as String?)?.let(ServiceStatus.fromString),
     );
   }
 
@@ -2623,13 +2606,13 @@ class CreateServiceResponse {
     final status = this.status;
     return {
       if (arn != null) 'arn': arn,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (certificateArn != null) 'certificateArn': certificateArn,
       if (customDomainName != null) 'customDomainName': customDomainName,
       if (dnsEntry != null) 'dnsEntry': dnsEntry,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2638,8 +2621,7 @@ class CreateTargetGroupResponse {
   /// The Amazon Resource Name (ARN) of the target group.
   final String? arn;
 
-  /// The target group configuration. If <code>type</code> is set to
-  /// <code>LAMBDA</code>, this parameter doesn't apply.
+  /// The target group configuration.
   final TargetGroupConfig? config;
 
   /// The ID of the target group.
@@ -2648,7 +2630,7 @@ class CreateTargetGroupResponse {
   /// The name of the target group.
   final String? name;
 
-  /// The operation's status. You can retry the operation if the status is
+  /// The status. You can retry the operation if the status is
   /// <code>CREATE_FAILED</code>. However, if you retry it while the status is
   /// <code>CREATE_IN_PROGRESS</code>, there is no change in the status.
   final TargetGroupStatus? status;
@@ -2673,8 +2655,8 @@ class CreateTargetGroupResponse {
           : null,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toTargetGroupStatus(),
-      type: (json['type'] as String?)?.toTargetGroupType(),
+      status: (json['status'] as String?)?.let(TargetGroupStatus.fromString),
+      type: (json['type'] as String?)?.let(TargetGroupType.fromString),
     );
   }
 
@@ -2690,8 +2672,8 @@ class CreateTargetGroupResponse {
       if (config != null) 'config': config,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
-      if (type != null) 'type': type.toValue(),
+      if (status != null) 'status': status.value,
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -2775,7 +2757,7 @@ class DeleteServiceNetworkServiceAssociationResponse {
   /// The ID of the association.
   final String? id;
 
-  /// The operation's status. You can retry the operation if the status is
+  /// The status. You can retry the operation if the status is
   /// <code>DELETE_FAILED</code>. However, if you retry it when the status is
   /// <code>DELETE_IN_PROGRESS</code>, there is no change in the status.
   final ServiceNetworkServiceAssociationStatus? status;
@@ -2792,7 +2774,7 @@ class DeleteServiceNetworkServiceAssociationResponse {
       arn: json['arn'] as String?,
       id: json['id'] as String?,
       status: (json['status'] as String?)
-          ?.toServiceNetworkServiceAssociationStatus(),
+          ?.let(ServiceNetworkServiceAssociationStatus.fromString),
     );
   }
 
@@ -2803,7 +2785,7 @@ class DeleteServiceNetworkServiceAssociationResponse {
     return {
       if (arn != null) 'arn': arn,
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2816,7 +2798,7 @@ class DeleteServiceNetworkVpcAssociationResponse {
   final String? id;
 
   /// The status. You can retry the operation if the status is
-  /// <code>DELETE_FAILED</code>. However, if you retry it when the status is
+  /// <code>DELETE_FAILED</code>. However, if you retry it while the status is
   /// <code>DELETE_IN_PROGRESS</code>, there is no change in the status.
   final ServiceNetworkVpcAssociationStatus? status;
 
@@ -2831,8 +2813,8 @@ class DeleteServiceNetworkVpcAssociationResponse {
     return DeleteServiceNetworkVpcAssociationResponse(
       arn: json['arn'] as String?,
       id: json['id'] as String?,
-      status:
-          (json['status'] as String?)?.toServiceNetworkVpcAssociationStatus(),
+      status: (json['status'] as String?)
+          ?.let(ServiceNetworkVpcAssociationStatus.fromString),
     );
   }
 
@@ -2843,7 +2825,7 @@ class DeleteServiceNetworkVpcAssociationResponse {
     return {
       if (arn != null) 'arn': arn,
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2875,7 +2857,7 @@ class DeleteServiceResponse {
       arn: json['arn'] as String?,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toServiceStatus(),
+      status: (json['status'] as String?)?.let(ServiceStatus.fromString),
     );
   }
 
@@ -2888,7 +2870,7 @@ class DeleteServiceResponse {
       if (arn != null) 'arn': arn,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2915,7 +2897,7 @@ class DeleteTargetGroupResponse {
     return DeleteTargetGroupResponse(
       arn: json['arn'] as String?,
       id: json['id'] as String?,
-      status: (json['status'] as String?)?.toTargetGroupStatus(),
+      status: (json['status'] as String?)?.let(TargetGroupStatus.fromString),
     );
   }
 
@@ -2926,7 +2908,7 @@ class DeleteTargetGroupResponse {
     return {
       if (arn != null) 'arn': arn,
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2946,11 +2928,11 @@ class DeregisterTargetsResponse {
   factory DeregisterTargetsResponse.fromJson(Map<String, dynamic> json) {
     return DeregisterTargetsResponse(
       successful: (json['successful'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Target.fromJson(e as Map<String, dynamic>))
           .toList(),
       unsuccessful: (json['unsuccessful'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetFailure.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2996,7 +2978,7 @@ class DnsEntry {
   }
 }
 
-/// Information about an action that returns a custom HTTP response.
+/// Describes an action that returns a custom HTTP response.
 class FixedResponseAction {
   /// The HTTP response code.
   final int statusCode;
@@ -3030,7 +3012,7 @@ class ForwardAction {
   /// receives half of the traffic.
   ///
   /// The default value is 1. This means that if only one target group is
-  /// provided, there is no need to set the weight; 100% of traffic will go to
+  /// provided, there is no need to set the weight; 100% of the traffic goes to
   /// that target group.
   final List<WeightedTargetGroup> targetGroups;
 
@@ -3041,7 +3023,7 @@ class ForwardAction {
   factory ForwardAction.fromJson(Map<String, dynamic> json) {
     return ForwardAction(
       targetGroups: (json['targetGroups'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => WeightedTargetGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3138,7 +3120,7 @@ class GetAuthPolicyResponse {
   /// type is set to <code>AWS_IAM</code>. If you provide a policy, then
   /// authentication and authorization decisions are made based on this policy and
   /// the client's IAM policy. If the auth type is <code>NONE</code>, then any
-  /// auth policy you provide will remain inactive. For more information, see <a
+  /// auth policy that you provide remains inactive. For more information, see <a
   /// href="https://docs.aws.amazon.com/vpc-lattice/latest/ug/service-networks.html#create-service-network">Create
   /// a service network</a> in the <i>Amazon VPC Lattice User Guide</i>.
   final AuthPolicyState? state;
@@ -3155,7 +3137,7 @@ class GetAuthPolicyResponse {
       createdAt: timeStampFromJson(json['createdAt']),
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       policy: json['policy'] as String?,
-      state: (json['state'] as String?)?.toAuthPolicyState(),
+      state: (json['state'] as String?)?.let(AuthPolicyState.fromString),
     );
   }
 
@@ -3168,7 +3150,7 @@ class GetAuthPolicyResponse {
       if (createdAt != null) 'createdAt': iso8601ToJson(createdAt),
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
       if (policy != null) 'policy': policy,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
@@ -3230,7 +3212,7 @@ class GetListenerResponse {
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       name: json['name'] as String?,
       port: json['port'] as int?,
-      protocol: (json['protocol'] as String?)?.toListenerProtocol(),
+      protocol: (json['protocol'] as String?)?.let(ListenerProtocol.fromString),
       serviceArn: json['serviceArn'] as String?,
       serviceId: json['serviceId'] as String?,
     );
@@ -3255,7 +3237,7 @@ class GetListenerResponse {
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
       if (name != null) 'name': name,
       if (port != null) 'port': port,
-      if (protocol != null) 'protocol': protocol.toValue(),
+      if (protocol != null) 'protocol': protocol.value,
       if (serviceArn != null) 'serviceArn': serviceArn,
       if (serviceId != null) 'serviceId': serviceId,
     };
@@ -3408,7 +3390,7 @@ class GetServiceNetworkResponse {
   factory GetServiceNetworkResponse.fromJson(Map<String, dynamic> json) {
     return GetServiceNetworkResponse(
       arn: json['arn'] as String?,
-      authType: (json['authType'] as String?)?.toAuthType(),
+      authType: (json['authType'] as String?)?.let(AuthType.fromString),
       createdAt: timeStampFromJson(json['createdAt']),
       id: json['id'] as String?,
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
@@ -3429,7 +3411,7 @@ class GetServiceNetworkResponse {
     final numberOfAssociatedVPCs = this.numberOfAssociatedVPCs;
     return {
       if (arn != null) 'arn': arn,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (createdAt != null) 'createdAt': iso8601ToJson(createdAt),
       if (id != null) 'id': id,
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
@@ -3527,7 +3509,7 @@ class GetServiceNetworkServiceAssociationResponse {
       serviceNetworkId: json['serviceNetworkId'] as String?,
       serviceNetworkName: json['serviceNetworkName'] as String?,
       status: (json['status'] as String?)
-          ?.toServiceNetworkServiceAssociationStatus(),
+          ?.let(ServiceNetworkServiceAssociationStatus.fromString),
     );
   }
 
@@ -3562,7 +3544,7 @@ class GetServiceNetworkServiceAssociationResponse {
       if (serviceNetworkArn != null) 'serviceNetworkArn': serviceNetworkArn,
       if (serviceNetworkId != null) 'serviceNetworkId': serviceNetworkId,
       if (serviceNetworkName != null) 'serviceNetworkName': serviceNetworkName,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3636,14 +3618,14 @@ class GetServiceNetworkVpcAssociationResponse {
       id: json['id'] as String?,
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       securityGroupIds: (json['securityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       serviceNetworkArn: json['serviceNetworkArn'] as String?,
       serviceNetworkId: json['serviceNetworkId'] as String?,
       serviceNetworkName: json['serviceNetworkName'] as String?,
-      status:
-          (json['status'] as String?)?.toServiceNetworkVpcAssociationStatus(),
+      status: (json['status'] as String?)
+          ?.let(ServiceNetworkVpcAssociationStatus.fromString),
       vpcId: json['vpcId'] as String?,
     );
   }
@@ -3674,7 +3656,7 @@ class GetServiceNetworkVpcAssociationResponse {
       if (serviceNetworkArn != null) 'serviceNetworkArn': serviceNetworkArn,
       if (serviceNetworkId != null) 'serviceNetworkId': serviceNetworkId,
       if (serviceNetworkName != null) 'serviceNetworkName': serviceNetworkName,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (vpcId != null) 'vpcId': vpcId,
     };
   }
@@ -3737,7 +3719,7 @@ class GetServiceResponse {
   factory GetServiceResponse.fromJson(Map<String, dynamic> json) {
     return GetServiceResponse(
       arn: json['arn'] as String?,
-      authType: (json['authType'] as String?)?.toAuthType(),
+      authType: (json['authType'] as String?)?.let(AuthType.fromString),
       certificateArn: json['certificateArn'] as String?,
       createdAt: timeStampFromJson(json['createdAt']),
       customDomainName: json['customDomainName'] as String?,
@@ -3749,7 +3731,7 @@ class GetServiceResponse {
       id: json['id'] as String?,
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toServiceStatus(),
+      status: (json['status'] as String?)?.let(ServiceStatus.fromString),
     );
   }
 
@@ -3768,7 +3750,7 @@ class GetServiceResponse {
     final status = this.status;
     return {
       if (arn != null) 'arn': arn,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (certificateArn != null) 'certificateArn': certificateArn,
       if (createdAt != null) 'createdAt': iso8601ToJson(createdAt),
       if (customDomainName != null) 'customDomainName': customDomainName,
@@ -3778,7 +3760,7 @@ class GetServiceResponse {
       if (id != null) 'id': id,
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3846,11 +3828,11 @@ class GetTargetGroupResponse {
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       name: json['name'] as String?,
       serviceArns: (json['serviceArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status: (json['status'] as String?)?.toTargetGroupStatus(),
-      type: (json['type'] as String?)?.toTargetGroupType(),
+      status: (json['status'] as String?)?.let(TargetGroupStatus.fromString),
+      type: (json['type'] as String?)?.let(TargetGroupType.fromString),
     );
   }
 
@@ -3876,8 +3858,8 @@ class GetTargetGroupResponse {
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
       if (name != null) 'name': name,
       if (serviceArns != null) 'serviceArns': serviceArns,
-      if (status != null) 'status': status.toValue(),
-      if (type != null) 'type': type.toValue(),
+      if (status != null) 'status': status.value,
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -3891,7 +3873,7 @@ class HeaderMatch {
   /// The name of the header.
   final String name;
 
-  /// Indicates whether the match is case sensitive. Defaults to false.
+  /// Indicates whether the match is case sensitive.
   final bool? caseSensitive;
 
   HeaderMatch({
@@ -3920,15 +3902,15 @@ class HeaderMatch {
   }
 }
 
-/// Describes a header match type. Only one can be provided.
+/// Describes a header match type.
 class HeaderMatchType {
-  /// Specifies a contains type match.
+  /// A contains type match.
   final String? contains;
 
-  /// Specifies an exact type match.
+  /// An exact type match.
   final String? exact;
 
-  /// Specifies a prefix type match. Matches the value with the prefix.
+  /// A prefix type match. Matches the value with the prefix.
   final String? prefix;
 
   HeaderMatchType({
@@ -3957,9 +3939,9 @@ class HeaderMatchType {
   }
 }
 
-/// The health check configuration of a target group. Health check
-/// configurations aren't used for <code>LAMBDA</code> and <code>ALB</code>
-/// target groups.
+/// Describes the health check configuration of a target group. Health check
+/// configurations aren't used for target groups of type <code>LAMBDA</code> or
+/// <code>ALB</code>.
 class HealthCheckConfig {
   /// Indicates whether health checking is enabled.
   final bool? enabled;
@@ -3978,7 +3960,6 @@ class HealthCheckConfig {
   final int? healthyThresholdCount;
 
   /// The codes to use when checking for a successful response from a target.
-  /// These are called <i>Success codes</i> in the console.
   final Matcher? matcher;
 
   /// The destination for health checks on the targets. If the protocol version is
@@ -4030,9 +4011,10 @@ class HealthCheckConfig {
           : null,
       path: json['path'] as String?,
       port: json['port'] as int?,
-      protocol: (json['protocol'] as String?)?.toTargetGroupProtocol(),
-      protocolVersion:
-          (json['protocolVersion'] as String?)?.toHealthCheckProtocolVersion(),
+      protocol:
+          (json['protocol'] as String?)?.let(TargetGroupProtocol.fromString),
+      protocolVersion: (json['protocolVersion'] as String?)
+          ?.let(HealthCheckProtocolVersion.fromString),
       unhealthyThresholdCount: json['unhealthyThresholdCount'] as int?,
     );
   }
@@ -4059,8 +4041,8 @@ class HealthCheckConfig {
       if (matcher != null) 'matcher': matcher,
       if (path != null) 'path': path,
       if (port != null) 'port': port,
-      if (protocol != null) 'protocol': protocol.toValue(),
-      if (protocolVersion != null) 'protocolVersion': protocolVersion.toValue(),
+      if (protocol != null) 'protocol': protocol.value,
+      if (protocolVersion != null) 'protocolVersion': protocolVersion.value,
       if (unhealthyThresholdCount != null)
         'unhealthyThresholdCount': unhealthyThresholdCount,
     };
@@ -4068,32 +4050,18 @@ class HealthCheckConfig {
 }
 
 enum HealthCheckProtocolVersion {
-  http1,
-  http2,
-}
+  http1('HTTP1'),
+  http2('HTTP2'),
+  ;
 
-extension HealthCheckProtocolVersionValueExtension
-    on HealthCheckProtocolVersion {
-  String toValue() {
-    switch (this) {
-      case HealthCheckProtocolVersion.http1:
-        return 'HTTP1';
-      case HealthCheckProtocolVersion.http2:
-        return 'HTTP2';
-    }
-  }
-}
+  final String value;
 
-extension HealthCheckProtocolVersionFromString on String {
-  HealthCheckProtocolVersion toHealthCheckProtocolVersion() {
-    switch (this) {
-      case 'HTTP1':
-        return HealthCheckProtocolVersion.http1;
-      case 'HTTP2':
-        return HealthCheckProtocolVersion.http2;
-    }
-    throw Exception('$this is not known in enum HealthCheckProtocolVersion');
-  }
+  const HealthCheckProtocolVersion(this.value);
+
+  static HealthCheckProtocolVersion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum HealthCheckProtocolVersion'));
 }
 
 /// Describes criteria that can be applied to incoming requests.
@@ -4117,7 +4085,7 @@ class HttpMatch {
   factory HttpMatch.fromJson(Map<String, dynamic> json) {
     return HttpMatch(
       headerMatches: (json['headerMatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HeaderMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       method: json['method'] as String?,
@@ -4140,35 +4108,37 @@ class HttpMatch {
 }
 
 enum IpAddressType {
-  ipv4,
-  ipv6,
+  ipv4('IPV4'),
+  ipv6('IPV6'),
+  ;
+
+  final String value;
+
+  const IpAddressType(this.value);
+
+  static IpAddressType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IpAddressType'));
 }
 
-extension IpAddressTypeValueExtension on IpAddressType {
-  String toValue() {
-    switch (this) {
-      case IpAddressType.ipv4:
-        return 'IPV4';
-      case IpAddressType.ipv6:
-        return 'IPV6';
-    }
-  }
-}
+enum LambdaEventStructureVersion {
+  v1('V1'),
+  v2('V2'),
+  ;
 
-extension IpAddressTypeFromString on String {
-  IpAddressType toIpAddressType() {
-    switch (this) {
-      case 'IPV4':
-        return IpAddressType.ipv4;
-      case 'IPV6':
-        return IpAddressType.ipv6;
-    }
-    throw Exception('$this is not known in enum IpAddressType');
-  }
+  final String value;
+
+  const LambdaEventStructureVersion(this.value);
+
+  static LambdaEventStructureVersion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LambdaEventStructureVersion'));
 }
 
 class ListAccessLogSubscriptionsResponse {
-  /// The access log subscriptions.
+  /// Information about the access log subscriptions.
   final List<AccessLogSubscriptionSummary> items;
 
   /// A pagination token for the next page of results.
@@ -4183,7 +4153,7 @@ class ListAccessLogSubscriptionsResponse {
       Map<String, dynamic> json) {
     return ListAccessLogSubscriptionsResponse(
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               AccessLogSubscriptionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4217,7 +4187,7 @@ class ListListenersResponse {
   factory ListListenersResponse.fromJson(Map<String, dynamic> json) {
     return ListListenersResponse(
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListenerSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4250,7 +4220,7 @@ class ListRulesResponse {
   factory ListRulesResponse.fromJson(Map<String, dynamic> json) {
     return ListRulesResponse(
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => RuleSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4284,7 +4254,7 @@ class ListServiceNetworkServiceAssociationsResponse {
       Map<String, dynamic> json) {
     return ListServiceNetworkServiceAssociationsResponse(
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ServiceNetworkServiceAssociationSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4319,7 +4289,7 @@ class ListServiceNetworkVpcAssociationsResponse {
       Map<String, dynamic> json) {
     return ListServiceNetworkVpcAssociationsResponse(
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ServiceNetworkVpcAssociationSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4353,7 +4323,7 @@ class ListServiceNetworksResponse {
   factory ListServiceNetworksResponse.fromJson(Map<String, dynamic> json) {
     return ListServiceNetworksResponse(
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ServiceNetworkSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4371,7 +4341,7 @@ class ListServiceNetworksResponse {
 }
 
 class ListServicesResponse {
-  /// The services.
+  /// Information about the services.
   final List<ServiceSummary>? items;
 
   /// If there are additional results, a pagination token for the next page of
@@ -4386,7 +4356,7 @@ class ListServicesResponse {
   factory ListServicesResponse.fromJson(Map<String, dynamic> json) {
     return ListServicesResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4404,7 +4374,7 @@ class ListServicesResponse {
 }
 
 class ListTagsForResourceResponse {
-  /// The tags.
+  /// Information about the tags.
   final Map<String, String>? tags;
 
   ListTagsForResourceResponse({
@@ -4442,7 +4412,7 @@ class ListTargetGroupsResponse {
   factory ListTargetGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListTargetGroupsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetGroupSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4475,7 +4445,7 @@ class ListTargetsResponse {
   factory ListTargetsResponse.fromJson(Map<String, dynamic> json) {
     return ListTargetsResponse(
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => TargetSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4493,31 +4463,19 @@ class ListTargetsResponse {
 }
 
 enum ListenerProtocol {
-  http,
-  https,
-}
+  http('HTTP'),
+  https('HTTPS'),
+  tlsPassthrough('TLS_PASSTHROUGH'),
+  ;
 
-extension ListenerProtocolValueExtension on ListenerProtocol {
-  String toValue() {
-    switch (this) {
-      case ListenerProtocol.http:
-        return 'HTTP';
-      case ListenerProtocol.https:
-        return 'HTTPS';
-    }
-  }
-}
+  final String value;
 
-extension ListenerProtocolFromString on String {
-  ListenerProtocol toListenerProtocol() {
-    switch (this) {
-      case 'HTTP':
-        return ListenerProtocol.http;
-      case 'HTTPS':
-        return ListenerProtocol.https;
-    }
-    throw Exception('$this is not known in enum ListenerProtocol');
-  }
+  const ListenerProtocol(this.value);
+
+  static ListenerProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ListenerProtocol'));
 }
 
 /// Summary information about a listener.
@@ -4563,7 +4521,7 @@ class ListenerSummary {
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       name: json['name'] as String?,
       port: json['port'] as int?,
-      protocol: (json['protocol'] as String?)?.toListenerProtocol(),
+      protocol: (json['protocol'] as String?)?.let(ListenerProtocol.fromString),
     );
   }
 
@@ -4582,13 +4540,13 @@ class ListenerSummary {
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
       if (name != null) 'name': name,
       if (port != null) 'port': port,
-      if (protocol != null) 'protocol': protocol.toValue(),
+      if (protocol != null) 'protocol': protocol.value,
     };
   }
 }
 
-/// The codes to use when checking for a successful response from a target for
-/// health checks.
+/// Describes the codes to use when checking for a successful response from a
+/// target for health checks.
 class Matcher {
   /// The HTTP code to use when checking for a successful response from a target.
   final String? httpCode;
@@ -4617,7 +4575,7 @@ class PathMatch {
   /// The type of path match.
   final PathMatchType match;
 
-  /// Indicates whether the match is case sensitive. Defaults to false.
+  /// Indicates whether the match is case sensitive.
   final bool? caseSensitive;
 
   PathMatch({
@@ -4682,7 +4640,7 @@ class PutAuthPolicyResponse {
   /// type is set to <code>AWS_IAM</code>. If you provide a policy, then
   /// authentication and authorization decisions are made based on this policy and
   /// the client's IAM policy. If the Auth type is <code>NONE</code>, then, any
-  /// auth policy you provide will remain inactive. For more information, see <a
+  /// auth policy that you provide remains inactive. For more information, see <a
   /// href="https://docs.aws.amazon.com/vpc-lattice/latest/ug/service-networks.html#create-service-network">Create
   /// a service network</a> in the <i>Amazon VPC Lattice User Guide</i>.
   final AuthPolicyState? state;
@@ -4695,7 +4653,7 @@ class PutAuthPolicyResponse {
   factory PutAuthPolicyResponse.fromJson(Map<String, dynamic> json) {
     return PutAuthPolicyResponse(
       policy: json['policy'] as String?,
-      state: (json['state'] as String?)?.toAuthPolicyState(),
+      state: (json['state'] as String?)?.let(AuthPolicyState.fromString),
     );
   }
 
@@ -4704,7 +4662,7 @@ class PutAuthPolicyResponse {
     final state = this.state;
     return {
       if (policy != null) 'policy': policy,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
@@ -4736,11 +4694,11 @@ class RegisterTargetsResponse {
   factory RegisterTargetsResponse.fromJson(Map<String, dynamic> json) {
     return RegisterTargetsResponse(
       successful: (json['successful'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Target.fromJson(e as Map<String, dynamic>))
           .toList(),
       unsuccessful: (json['unsuccessful'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetFailure.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4756,11 +4714,9 @@ class RegisterTargetsResponse {
   }
 }
 
-/// Describes the action for a rule. Each rule must include exactly one of the
-/// following types of actions: <code>forward </code>or
-/// <code>fixed-response</code>, and it must be the last action to be performed.
+/// Describes the action for a rule.
 class RuleAction {
-  /// Describes the rule action that returns a custom HTTP response.
+  /// The fixed response action. The rule returns a custom HTTP response.
   final FixedResponseAction? fixedResponse;
 
   /// The forward action. Traffic that matches the rule is forwarded to the
@@ -4831,9 +4787,7 @@ class RuleSummary {
   /// The ID of the rule.
   final String? id;
 
-  /// Indicates whether this is the default rule. Listener rules are created when
-  /// you create a listener. Each listener has a default rule for checking
-  /// connection requests.
+  /// Indicates whether this is the default listener rule.
   final bool? isDefault;
 
   /// The date and time that the listener rule was last updated, specified in
@@ -4888,7 +4842,7 @@ class RuleSummary {
   }
 }
 
-/// Represents an object when updating a rule.
+/// Describes a rule update.
 class RuleUpdate {
   /// The ID or Amazon Resource Name (ARN) of the rule.
   final String ruleIdentifier;
@@ -4963,7 +4917,7 @@ class RuleUpdateFailure {
 
 /// Describes a successful rule update.
 class RuleUpdateSuccess {
-  /// The action for the default rule.
+  /// The action for the rule.
   final RuleAction? action;
 
   /// The Amazon Resource Name (ARN) of the listener.
@@ -5031,49 +4985,21 @@ class RuleUpdateSuccess {
 }
 
 enum ServiceNetworkServiceAssociationStatus {
-  createInProgress,
-  active,
-  deleteInProgress,
-  createFailed,
-  deleteFailed,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  active('ACTIVE'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteFailed('DELETE_FAILED'),
+  ;
 
-extension ServiceNetworkServiceAssociationStatusValueExtension
-    on ServiceNetworkServiceAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case ServiceNetworkServiceAssociationStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case ServiceNetworkServiceAssociationStatus.active:
-        return 'ACTIVE';
-      case ServiceNetworkServiceAssociationStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case ServiceNetworkServiceAssociationStatus.createFailed:
-        return 'CREATE_FAILED';
-      case ServiceNetworkServiceAssociationStatus.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ServiceNetworkServiceAssociationStatusFromString on String {
-  ServiceNetworkServiceAssociationStatus
-      toServiceNetworkServiceAssociationStatus() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return ServiceNetworkServiceAssociationStatus.createInProgress;
-      case 'ACTIVE':
-        return ServiceNetworkServiceAssociationStatus.active;
-      case 'DELETE_IN_PROGRESS':
-        return ServiceNetworkServiceAssociationStatus.deleteInProgress;
-      case 'CREATE_FAILED':
-        return ServiceNetworkServiceAssociationStatus.createFailed;
-      case 'DELETE_FAILED':
-        return ServiceNetworkServiceAssociationStatus.deleteFailed;
-    }
-    throw Exception(
-        '$this is not known in enum ServiceNetworkServiceAssociationStatus');
-  }
+  const ServiceNetworkServiceAssociationStatus(this.value);
+
+  static ServiceNetworkServiceAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ServiceNetworkServiceAssociationStatus'));
 }
 
 /// Summary information about the association between a service network and a
@@ -5092,7 +5018,7 @@ class ServiceNetworkServiceAssociationSummary {
   /// The custom domain name of the service.
   final String? customDomainName;
 
-  /// DNS information about the service.
+  /// The DNS information.
   final DnsEntry? dnsEntry;
 
   /// The ID of the association.
@@ -5153,7 +5079,7 @@ class ServiceNetworkServiceAssociationSummary {
       serviceNetworkId: json['serviceNetworkId'] as String?,
       serviceNetworkName: json['serviceNetworkName'] as String?,
       status: (json['status'] as String?)
-          ?.toServiceNetworkServiceAssociationStatus(),
+          ?.let(ServiceNetworkServiceAssociationStatus.fromString),
     );
   }
 
@@ -5184,7 +5110,7 @@ class ServiceNetworkServiceAssociationSummary {
       if (serviceNetworkArn != null) 'serviceNetworkArn': serviceNetworkArn,
       if (serviceNetworkId != null) 'serviceNetworkId': serviceNetworkId,
       if (serviceNetworkName != null) 'serviceNetworkName': serviceNetworkName,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5259,58 +5185,23 @@ class ServiceNetworkSummary {
 }
 
 enum ServiceNetworkVpcAssociationStatus {
-  createInProgress,
-  active,
-  updateInProgress,
-  deleteInProgress,
-  createFailed,
-  deleteFailed,
-  updateFailed,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  active('ACTIVE'),
+  updateInProgress('UPDATE_IN_PROGRESS'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteFailed('DELETE_FAILED'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension ServiceNetworkVpcAssociationStatusValueExtension
-    on ServiceNetworkVpcAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case ServiceNetworkVpcAssociationStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case ServiceNetworkVpcAssociationStatus.active:
-        return 'ACTIVE';
-      case ServiceNetworkVpcAssociationStatus.updateInProgress:
-        return 'UPDATE_IN_PROGRESS';
-      case ServiceNetworkVpcAssociationStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case ServiceNetworkVpcAssociationStatus.createFailed:
-        return 'CREATE_FAILED';
-      case ServiceNetworkVpcAssociationStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case ServiceNetworkVpcAssociationStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ServiceNetworkVpcAssociationStatusFromString on String {
-  ServiceNetworkVpcAssociationStatus toServiceNetworkVpcAssociationStatus() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return ServiceNetworkVpcAssociationStatus.createInProgress;
-      case 'ACTIVE':
-        return ServiceNetworkVpcAssociationStatus.active;
-      case 'UPDATE_IN_PROGRESS':
-        return ServiceNetworkVpcAssociationStatus.updateInProgress;
-      case 'DELETE_IN_PROGRESS':
-        return ServiceNetworkVpcAssociationStatus.deleteInProgress;
-      case 'CREATE_FAILED':
-        return ServiceNetworkVpcAssociationStatus.createFailed;
-      case 'DELETE_FAILED':
-        return ServiceNetworkVpcAssociationStatus.deleteFailed;
-      case 'UPDATE_FAILED':
-        return ServiceNetworkVpcAssociationStatus.updateFailed;
-    }
-    throw Exception(
-        '$this is not known in enum ServiceNetworkVpcAssociationStatus');
-  }
+  const ServiceNetworkVpcAssociationStatus(this.value);
+
+  static ServiceNetworkVpcAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ServiceNetworkVpcAssociationStatus'));
 }
 
 /// Summary information about an association between a service network and a
@@ -5372,8 +5263,8 @@ class ServiceNetworkVpcAssociationSummary {
       serviceNetworkArn: json['serviceNetworkArn'] as String?,
       serviceNetworkId: json['serviceNetworkId'] as String?,
       serviceNetworkName: json['serviceNetworkName'] as String?,
-      status:
-          (json['status'] as String?)?.toServiceNetworkVpcAssociationStatus(),
+      status: (json['status'] as String?)
+          ?.let(ServiceNetworkVpcAssociationStatus.fromString),
       vpcId: json['vpcId'] as String?,
     );
   }
@@ -5398,53 +5289,28 @@ class ServiceNetworkVpcAssociationSummary {
       if (serviceNetworkArn != null) 'serviceNetworkArn': serviceNetworkArn,
       if (serviceNetworkId != null) 'serviceNetworkId': serviceNetworkId,
       if (serviceNetworkName != null) 'serviceNetworkName': serviceNetworkName,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (vpcId != null) 'vpcId': vpcId,
     };
   }
 }
 
 enum ServiceStatus {
-  active,
-  createInProgress,
-  deleteInProgress,
-  createFailed,
-  deleteFailed,
-}
+  active('ACTIVE'),
+  createInProgress('CREATE_IN_PROGRESS'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteFailed('DELETE_FAILED'),
+  ;
 
-extension ServiceStatusValueExtension on ServiceStatus {
-  String toValue() {
-    switch (this) {
-      case ServiceStatus.active:
-        return 'ACTIVE';
-      case ServiceStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case ServiceStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case ServiceStatus.createFailed:
-        return 'CREATE_FAILED';
-      case ServiceStatus.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ServiceStatusFromString on String {
-  ServiceStatus toServiceStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return ServiceStatus.active;
-      case 'CREATE_IN_PROGRESS':
-        return ServiceStatus.createInProgress;
-      case 'DELETE_IN_PROGRESS':
-        return ServiceStatus.deleteInProgress;
-      case 'CREATE_FAILED':
-        return ServiceStatus.createFailed;
-      case 'DELETE_FAILED':
-        return ServiceStatus.deleteFailed;
-    }
-    throw Exception('$this is not known in enum ServiceStatus');
-  }
+  const ServiceStatus(this.value);
+
+  static ServiceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ServiceStatus'));
 }
 
 /// Summary information about a service.
@@ -5459,7 +5325,7 @@ class ServiceSummary {
   /// The custom domain name of the service.
   final String? customDomainName;
 
-  /// DNS information about the service.
+  /// The DNS information.
   final DnsEntry? dnsEntry;
 
   /// The ID of the service.
@@ -5496,7 +5362,7 @@ class ServiceSummary {
       id: json['id'] as String?,
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toServiceStatus(),
+      status: (json['status'] as String?)?.let(ServiceStatus.fromString),
     );
   }
 
@@ -5517,7 +5383,7 @@ class ServiceSummary {
       if (id != null) 'id': id,
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5536,15 +5402,15 @@ class TagResourceResponse {
 
 /// Describes a target.
 class Target {
-  /// The ID of the target. If the target type of the target group is
-  /// <code>INSTANCE</code>, this is an instance ID. If the target type is
-  /// <code>IP</code> , this is an IP address. If the target type is
-  /// <code>LAMBDA</code>, this is the ARN of the Lambda function. If the target
-  /// type is <code>ALB</code>, this is the ARN of the Application Load Balancer.
+  /// The ID of the target. If the target group type is <code>INSTANCE</code>,
+  /// this is an instance ID. If the target group type is <code>IP</code>, this is
+  /// an IP address. If the target group type is <code>LAMBDA</code>, this is the
+  /// ARN of a Lambda function. If the target group type is <code>ALB</code>, this
+  /// is the ARN of an Application Load Balancer.
   final String id;
 
-  /// The port on which the target is listening. For HTTP, the default is
-  /// <code>80</code>. For HTTPS, the default is <code>443</code>.
+  /// The port on which the target is listening. For HTTP, the default is 80. For
+  /// HTTPS, the default is 443.
   final int? port;
 
   Target({
@@ -5577,11 +5443,11 @@ class TargetFailure {
   /// The failure message.
   final String? failureMessage;
 
-  /// The ID of the target. If the target type of the target group is
-  /// <code>INSTANCE</code>, this is an instance ID. If the target type is
-  /// <code>IP</code> , this is an IP address. If the target type is
-  /// <code>LAMBDA</code>, this is the ARN of the Lambda function. If the target
-  /// type is <code>ALB</code>, this is the ARN of the Application Load Balancer.
+  /// The ID of the target. If the target group type is <code>INSTANCE</code>,
+  /// this is an instance ID. If the target group type is <code>IP</code>, this is
+  /// an IP address. If the target group type is <code>LAMBDA</code>, this is the
+  /// ARN of a Lambda function. If the target group type is <code>ALB</code>, this
+  /// is the ARN of an Application Load Balancer.
   final String? id;
 
   /// The port on which the target is listening. This parameter doesn't apply if
@@ -5618,179 +5484,149 @@ class TargetFailure {
   }
 }
 
-/// Describes the configuration of a target group. Lambda functions don't
-/// support target group configuration.
+/// Describes the configuration of a target group.
+///
+/// For more information, see <a
+/// href="https://docs.aws.amazon.com/vpc-lattice/latest/ug/target-groups.html">Target
+/// groups</a> in the <i>Amazon VPC Lattice User Guide</i>.
 class TargetGroupConfig {
-  /// The port on which the targets are listening. For HTTP, the default is
-  /// <code>80</code>. For HTTPS, the default is <code>443</code>
-  final int port;
-
-  /// The protocol to use for routing traffic to the targets. Default is the
-  /// protocol of a target group.
-  final TargetGroupProtocol protocol;
-
-  /// The ID of the VPC.
-  final String vpcIdentifier;
-
-  /// The health check configuration.
+  /// The health check configuration. Not supported if the target group type is
+  /// <code>LAMBDA</code> or <code>ALB</code>.
   final HealthCheckConfig? healthCheck;
 
-  /// The type of IP address used for the target group. The possible values are
-  /// <code>ipv4</code> and <code>ipv6</code>. This is an optional parameter. If
-  /// not specified, the IP address type defaults to <code>ipv4</code>.
+  /// The type of IP address used for the target group. Supported only if the
+  /// target group type is <code>IP</code>. The default is <code>IPV4</code>.
   final IpAddressType? ipAddressType;
 
-  /// The protocol version. Default value is <code>HTTP1</code>.
+  /// The version of the event structure that your Lambda function receives.
+  /// Supported only if the target group type is <code>LAMBDA</code>. The default
+  /// is <code>V1</code>.
+  final LambdaEventStructureVersion? lambdaEventStructureVersion;
+
+  /// The port on which the targets are listening. For HTTP, the default is 80.
+  /// For HTTPS, the default is 443. Not supported if the target group type is
+  /// <code>LAMBDA</code>.
+  final int? port;
+
+  /// The protocol to use for routing traffic to the targets. The default is the
+  /// protocol of the target group. Not supported if the target group type is
+  /// <code>LAMBDA</code>.
+  final TargetGroupProtocol? protocol;
+
+  /// The protocol version. The default is <code>HTTP1</code>. Not supported if
+  /// the target group type is <code>LAMBDA</code>.
   final TargetGroupProtocolVersion? protocolVersion;
 
+  /// The ID of the VPC. Not supported if the target group type is
+  /// <code>LAMBDA</code>.
+  final String? vpcIdentifier;
+
   TargetGroupConfig({
-    required this.port,
-    required this.protocol,
-    required this.vpcIdentifier,
     this.healthCheck,
     this.ipAddressType,
+    this.lambdaEventStructureVersion,
+    this.port,
+    this.protocol,
     this.protocolVersion,
+    this.vpcIdentifier,
   });
 
   factory TargetGroupConfig.fromJson(Map<String, dynamic> json) {
     return TargetGroupConfig(
-      port: json['port'] as int,
-      protocol: (json['protocol'] as String).toTargetGroupProtocol(),
-      vpcIdentifier: json['vpcIdentifier'] as String,
       healthCheck: json['healthCheck'] != null
           ? HealthCheckConfig.fromJson(
               json['healthCheck'] as Map<String, dynamic>)
           : null,
-      ipAddressType: (json['ipAddressType'] as String?)?.toIpAddressType(),
-      protocolVersion:
-          (json['protocolVersion'] as String?)?.toTargetGroupProtocolVersion(),
+      ipAddressType:
+          (json['ipAddressType'] as String?)?.let(IpAddressType.fromString),
+      lambdaEventStructureVersion:
+          (json['lambdaEventStructureVersion'] as String?)
+              ?.let(LambdaEventStructureVersion.fromString),
+      port: json['port'] as int?,
+      protocol:
+          (json['protocol'] as String?)?.let(TargetGroupProtocol.fromString),
+      protocolVersion: (json['protocolVersion'] as String?)
+          ?.let(TargetGroupProtocolVersion.fromString),
+      vpcIdentifier: json['vpcIdentifier'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
-    final port = this.port;
-    final protocol = this.protocol;
-    final vpcIdentifier = this.vpcIdentifier;
     final healthCheck = this.healthCheck;
     final ipAddressType = this.ipAddressType;
+    final lambdaEventStructureVersion = this.lambdaEventStructureVersion;
+    final port = this.port;
+    final protocol = this.protocol;
     final protocolVersion = this.protocolVersion;
+    final vpcIdentifier = this.vpcIdentifier;
     return {
-      'port': port,
-      'protocol': protocol.toValue(),
-      'vpcIdentifier': vpcIdentifier,
       if (healthCheck != null) 'healthCheck': healthCheck,
-      if (ipAddressType != null) 'ipAddressType': ipAddressType.toValue(),
-      if (protocolVersion != null) 'protocolVersion': protocolVersion.toValue(),
+      if (ipAddressType != null) 'ipAddressType': ipAddressType.value,
+      if (lambdaEventStructureVersion != null)
+        'lambdaEventStructureVersion': lambdaEventStructureVersion.value,
+      if (port != null) 'port': port,
+      if (protocol != null) 'protocol': protocol.value,
+      if (protocolVersion != null) 'protocolVersion': protocolVersion.value,
+      if (vpcIdentifier != null) 'vpcIdentifier': vpcIdentifier,
     };
   }
 }
 
 enum TargetGroupProtocol {
-  http,
-  https,
-}
+  http('HTTP'),
+  https('HTTPS'),
+  tcp('TCP'),
+  ;
 
-extension TargetGroupProtocolValueExtension on TargetGroupProtocol {
-  String toValue() {
-    switch (this) {
-      case TargetGroupProtocol.http:
-        return 'HTTP';
-      case TargetGroupProtocol.https:
-        return 'HTTPS';
-    }
-  }
-}
+  final String value;
 
-extension TargetGroupProtocolFromString on String {
-  TargetGroupProtocol toTargetGroupProtocol() {
-    switch (this) {
-      case 'HTTP':
-        return TargetGroupProtocol.http;
-      case 'HTTPS':
-        return TargetGroupProtocol.https;
-    }
-    throw Exception('$this is not known in enum TargetGroupProtocol');
-  }
+  const TargetGroupProtocol(this.value);
+
+  static TargetGroupProtocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TargetGroupProtocol'));
 }
 
 enum TargetGroupProtocolVersion {
-  http1,
-  http2,
-  grpc,
-}
+  http1('HTTP1'),
+  http2('HTTP2'),
+  grpc('GRPC'),
+  ;
 
-extension TargetGroupProtocolVersionValueExtension
-    on TargetGroupProtocolVersion {
-  String toValue() {
-    switch (this) {
-      case TargetGroupProtocolVersion.http1:
-        return 'HTTP1';
-      case TargetGroupProtocolVersion.http2:
-        return 'HTTP2';
-      case TargetGroupProtocolVersion.grpc:
-        return 'GRPC';
-    }
-  }
-}
+  final String value;
 
-extension TargetGroupProtocolVersionFromString on String {
-  TargetGroupProtocolVersion toTargetGroupProtocolVersion() {
-    switch (this) {
-      case 'HTTP1':
-        return TargetGroupProtocolVersion.http1;
-      case 'HTTP2':
-        return TargetGroupProtocolVersion.http2;
-      case 'GRPC':
-        return TargetGroupProtocolVersion.grpc;
-    }
-    throw Exception('$this is not known in enum TargetGroupProtocolVersion');
-  }
+  const TargetGroupProtocolVersion(this.value);
+
+  static TargetGroupProtocolVersion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TargetGroupProtocolVersion'));
 }
 
 enum TargetGroupStatus {
-  createInProgress,
-  active,
-  deleteInProgress,
-  createFailed,
-  deleteFailed,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  active('ACTIVE'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteFailed('DELETE_FAILED'),
+  ;
 
-extension TargetGroupStatusValueExtension on TargetGroupStatus {
-  String toValue() {
-    switch (this) {
-      case TargetGroupStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case TargetGroupStatus.active:
-        return 'ACTIVE';
-      case TargetGroupStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case TargetGroupStatus.createFailed:
-        return 'CREATE_FAILED';
-      case TargetGroupStatus.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension TargetGroupStatusFromString on String {
-  TargetGroupStatus toTargetGroupStatus() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return TargetGroupStatus.createInProgress;
-      case 'ACTIVE':
-        return TargetGroupStatus.active;
-      case 'DELETE_IN_PROGRESS':
-        return TargetGroupStatus.deleteInProgress;
-      case 'CREATE_FAILED':
-        return TargetGroupStatus.createFailed;
-      case 'DELETE_FAILED':
-        return TargetGroupStatus.deleteFailed;
-    }
-    throw Exception('$this is not known in enum TargetGroupStatus');
-  }
+  const TargetGroupStatus(this.value);
+
+  static TargetGroupStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TargetGroupStatus'));
 }
 
 /// Summary information about a target group.
+///
+/// For more information, see <a
+/// href="https://docs.aws.amazon.com/vpc-lattice/latest/ug/target-groups.html">Target
+/// groups</a> in the <i>Amazon VPC Lattice User Guide</i>.
 class TargetGroupSummary {
   /// The ARN (Amazon Resource Name) of the target group.
   final String? arn;
@@ -5803,9 +5639,13 @@ class TargetGroupSummary {
   final String? id;
 
   /// The type of IP address used for the target group. The possible values are
-  /// <code>ipv4</code> and <code>ipv6</code>. This is an optional parameter. If
-  /// not specified, the IP address type defaults to <code>ipv4</code>.
+  /// <code>IPV4</code> and <code>IPV6</code>. This is an optional parameter. If
+  /// not specified, the default is <code>IPV4</code>.
   final IpAddressType? ipAddressType;
+
+  /// The version of the event structure that your Lambda function receives.
+  /// Supported only if the target group type is <code>LAMBDA</code>.
+  final LambdaEventStructureVersion? lambdaEventStructureVersion;
 
   /// The date and time that the target group was last updated, specified in
   /// ISO-8601 format.
@@ -5820,7 +5660,7 @@ class TargetGroupSummary {
   /// The protocol of the target group.
   final TargetGroupProtocol? protocol;
 
-  /// The list of Amazon Resource Names (ARNs) of the service.
+  /// The Amazon Resource Names (ARNs) of the service.
   final List<String>? serviceArns;
 
   /// The status.
@@ -5837,6 +5677,7 @@ class TargetGroupSummary {
     this.createdAt,
     this.id,
     this.ipAddressType,
+    this.lambdaEventStructureVersion,
     this.lastUpdatedAt,
     this.name,
     this.port,
@@ -5852,17 +5693,22 @@ class TargetGroupSummary {
       arn: json['arn'] as String?,
       createdAt: timeStampFromJson(json['createdAt']),
       id: json['id'] as String?,
-      ipAddressType: (json['ipAddressType'] as String?)?.toIpAddressType(),
+      ipAddressType:
+          (json['ipAddressType'] as String?)?.let(IpAddressType.fromString),
+      lambdaEventStructureVersion:
+          (json['lambdaEventStructureVersion'] as String?)
+              ?.let(LambdaEventStructureVersion.fromString),
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       name: json['name'] as String?,
       port: json['port'] as int?,
-      protocol: (json['protocol'] as String?)?.toTargetGroupProtocol(),
+      protocol:
+          (json['protocol'] as String?)?.let(TargetGroupProtocol.fromString),
       serviceArns: (json['serviceArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status: (json['status'] as String?)?.toTargetGroupStatus(),
-      type: (json['type'] as String?)?.toTargetGroupType(),
+      status: (json['status'] as String?)?.let(TargetGroupStatus.fromString),
+      type: (json['type'] as String?)?.let(TargetGroupType.fromString),
       vpcIdentifier: json['vpcIdentifier'] as String?,
     );
   }
@@ -5872,6 +5718,7 @@ class TargetGroupSummary {
     final createdAt = this.createdAt;
     final id = this.id;
     final ipAddressType = this.ipAddressType;
+    final lambdaEventStructureVersion = this.lambdaEventStructureVersion;
     final lastUpdatedAt = this.lastUpdatedAt;
     final name = this.name;
     final port = this.port;
@@ -5884,112 +5731,64 @@ class TargetGroupSummary {
       if (arn != null) 'arn': arn,
       if (createdAt != null) 'createdAt': iso8601ToJson(createdAt),
       if (id != null) 'id': id,
-      if (ipAddressType != null) 'ipAddressType': ipAddressType.toValue(),
+      if (ipAddressType != null) 'ipAddressType': ipAddressType.value,
+      if (lambdaEventStructureVersion != null)
+        'lambdaEventStructureVersion': lambdaEventStructureVersion.value,
       if (lastUpdatedAt != null) 'lastUpdatedAt': iso8601ToJson(lastUpdatedAt),
       if (name != null) 'name': name,
       if (port != null) 'port': port,
-      if (protocol != null) 'protocol': protocol.toValue(),
+      if (protocol != null) 'protocol': protocol.value,
       if (serviceArns != null) 'serviceArns': serviceArns,
-      if (status != null) 'status': status.toValue(),
-      if (type != null) 'type': type.toValue(),
+      if (status != null) 'status': status.value,
+      if (type != null) 'type': type.value,
       if (vpcIdentifier != null) 'vpcIdentifier': vpcIdentifier,
     };
   }
 }
 
 enum TargetGroupType {
-  ip,
-  lambda,
-  instance,
-  alb,
-}
+  ip('IP'),
+  lambda('LAMBDA'),
+  instance('INSTANCE'),
+  alb('ALB'),
+  ;
 
-extension TargetGroupTypeValueExtension on TargetGroupType {
-  String toValue() {
-    switch (this) {
-      case TargetGroupType.ip:
-        return 'IP';
-      case TargetGroupType.lambda:
-        return 'LAMBDA';
-      case TargetGroupType.instance:
-        return 'INSTANCE';
-      case TargetGroupType.alb:
-        return 'ALB';
-    }
-  }
-}
+  final String value;
 
-extension TargetGroupTypeFromString on String {
-  TargetGroupType toTargetGroupType() {
-    switch (this) {
-      case 'IP':
-        return TargetGroupType.ip;
-      case 'LAMBDA':
-        return TargetGroupType.lambda;
-      case 'INSTANCE':
-        return TargetGroupType.instance;
-      case 'ALB':
-        return TargetGroupType.alb;
-    }
-    throw Exception('$this is not known in enum TargetGroupType');
-  }
+  const TargetGroupType(this.value);
+
+  static TargetGroupType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TargetGroupType'));
 }
 
 enum TargetStatus {
-  draining,
-  unavailable,
-  healthy,
-  unhealthy,
-  initial,
-  unused,
-}
+  draining('DRAINING'),
+  unavailable('UNAVAILABLE'),
+  healthy('HEALTHY'),
+  unhealthy('UNHEALTHY'),
+  initial('INITIAL'),
+  unused('UNUSED'),
+  ;
 
-extension TargetStatusValueExtension on TargetStatus {
-  String toValue() {
-    switch (this) {
-      case TargetStatus.draining:
-        return 'DRAINING';
-      case TargetStatus.unavailable:
-        return 'UNAVAILABLE';
-      case TargetStatus.healthy:
-        return 'HEALTHY';
-      case TargetStatus.unhealthy:
-        return 'UNHEALTHY';
-      case TargetStatus.initial:
-        return 'INITIAL';
-      case TargetStatus.unused:
-        return 'UNUSED';
-    }
-  }
-}
+  final String value;
 
-extension TargetStatusFromString on String {
-  TargetStatus toTargetStatus() {
-    switch (this) {
-      case 'DRAINING':
-        return TargetStatus.draining;
-      case 'UNAVAILABLE':
-        return TargetStatus.unavailable;
-      case 'HEALTHY':
-        return TargetStatus.healthy;
-      case 'UNHEALTHY':
-        return TargetStatus.unhealthy;
-      case 'INITIAL':
-        return TargetStatus.initial;
-      case 'UNUSED':
-        return TargetStatus.unused;
-    }
-    throw Exception('$this is not known in enum TargetStatus');
-  }
+  const TargetStatus(this.value);
+
+  static TargetStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TargetStatus'));
 }
 
 /// Summary information about a target.
 class TargetSummary {
-  /// The ID of the target. If the target type of the target group is
-  /// <code>INSTANCE</code>, this is an instance ID. If the target type is
-  /// <code>IP</code> , this is an IP address. If the target type is
-  /// <code>LAMBDA</code>, this is the ARN of the Lambda function. If the target
-  /// type is <code>ALB</code>, this is the ARN of the Application Load Balancer.
+  /// The ID of the target. If the target group type is <code>INSTANCE</code>,
+  /// this is an instance ID. If the target group type is <code>IP</code>, this is
+  /// an IP address. If the target group type is <code>LAMBDA</code>, this is the
+  /// ARN of a Lambda function. If the target type is <code>ALB</code>, this is
+  /// the ARN of an Application Load Balancer.
   final String? id;
 
   /// The port on which the target is listening.
@@ -6002,26 +5801,26 @@ class TargetSummary {
   ///
   /// <ul>
   /// <li>
-  /// <code>Draining</code>: The target is being deregistered. No new connections
-  /// will be sent to this target while current connections are being drained.
-  /// Default draining time is 5 minutes.
+  /// <code>DRAINING</code>: The target is being deregistered. No new connections
+  /// are sent to this target while current connections are being drained. The
+  /// default draining time is 5 minutes.
   /// </li>
   /// <li>
-  /// <code>Unavailable</code>: Health checks are unavailable for the target
+  /// <code>UNAVAILABLE</code>: Health checks are unavailable for the target
   /// group.
   /// </li>
   /// <li>
-  /// <code>Healthy</code>: The target is healthy.
+  /// <code>HEALTHY</code>: The target is healthy.
   /// </li>
   /// <li>
-  /// <code>Unhealthy</code>: The target is unhealthy.
+  /// <code>UNHEALTHY</code>: The target is unhealthy.
   /// </li>
   /// <li>
-  /// <code>Initial</code>: Initial health checks on the target are being
+  /// <code>INITIAL</code>: Initial health checks on the target are being
   /// performed.
   /// </li>
   /// <li>
-  /// <code>Unused</code>: Target group is not used in a service.
+  /// <code>UNUSED</code>: Target group is not used in a service.
   /// </li>
   /// </ul>
   final TargetStatus? status;
@@ -6038,7 +5837,7 @@ class TargetSummary {
       id: json['id'] as String?,
       port: json['port'] as int?,
       reasonCode: json['reasonCode'] as String?,
-      status: (json['status'] as String?)?.toTargetStatus(),
+      status: (json['status'] as String?)?.let(TargetStatus.fromString),
     );
   }
 
@@ -6051,7 +5850,7 @@ class TargetSummary {
       if (id != null) 'id': id,
       if (port != null) 'port': port,
       if (reasonCode != null) 'reasonCode': reasonCode,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6164,7 +5963,7 @@ class UpdateListenerResponse {
       id: json['id'] as String?,
       name: json['name'] as String?,
       port: json['port'] as int?,
-      protocol: (json['protocol'] as String?)?.toListenerProtocol(),
+      protocol: (json['protocol'] as String?)?.let(ListenerProtocol.fromString),
       serviceArn: json['serviceArn'] as String?,
       serviceId: json['serviceId'] as String?,
     );
@@ -6185,7 +5984,7 @@ class UpdateListenerResponse {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (port != null) 'port': port,
-      if (protocol != null) 'protocol': protocol.toValue(),
+      if (protocol != null) 'protocol': protocol.value,
       if (serviceArn != null) 'serviceArn': serviceArn,
       if (serviceId != null) 'serviceId': serviceId,
     };
@@ -6283,7 +6082,7 @@ class UpdateServiceNetworkResponse {
   factory UpdateServiceNetworkResponse.fromJson(Map<String, dynamic> json) {
     return UpdateServiceNetworkResponse(
       arn: json['arn'] as String?,
-      authType: (json['authType'] as String?)?.toAuthType(),
+      authType: (json['authType'] as String?)?.let(AuthType.fromString),
       id: json['id'] as String?,
       name: json['name'] as String?,
     );
@@ -6296,7 +6095,7 @@ class UpdateServiceNetworkResponse {
     final name = this.name;
     return {
       if (arn != null) 'arn': arn,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
     };
@@ -6336,11 +6135,11 @@ class UpdateServiceNetworkVpcAssociationResponse {
       createdBy: json['createdBy'] as String?,
       id: json['id'] as String?,
       securityGroupIds: (json['securityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status:
-          (json['status'] as String?)?.toServiceNetworkVpcAssociationStatus(),
+      status: (json['status'] as String?)
+          ?.let(ServiceNetworkVpcAssociationStatus.fromString),
     );
   }
 
@@ -6355,7 +6154,7 @@ class UpdateServiceNetworkVpcAssociationResponse {
       if (createdBy != null) 'createdBy': createdBy,
       if (id != null) 'id': id,
       if (securityGroupIds != null) 'securityGroupIds': securityGroupIds,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6391,7 +6190,7 @@ class UpdateServiceResponse {
   factory UpdateServiceResponse.fromJson(Map<String, dynamic> json) {
     return UpdateServiceResponse(
       arn: json['arn'] as String?,
-      authType: (json['authType'] as String?)?.toAuthType(),
+      authType: (json['authType'] as String?)?.let(AuthType.fromString),
       certificateArn: json['certificateArn'] as String?,
       customDomainName: json['customDomainName'] as String?,
       id: json['id'] as String?,
@@ -6408,7 +6207,7 @@ class UpdateServiceResponse {
     final name = this.name;
     return {
       if (arn != null) 'arn': arn,
-      if (authType != null) 'authType': authType.toValue(),
+      if (authType != null) 'authType': authType.value,
       if (certificateArn != null) 'certificateArn': certificateArn,
       if (customDomainName != null) 'customDomainName': customDomainName,
       if (id != null) 'id': id,
@@ -6453,8 +6252,8 @@ class UpdateTargetGroupResponse {
           : null,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toTargetGroupStatus(),
-      type: (json['type'] as String?)?.toTargetGroupType(),
+      status: (json['status'] as String?)?.let(TargetGroupStatus.fromString),
+      type: (json['type'] as String?)?.let(TargetGroupType.fromString),
     );
   }
 
@@ -6470,8 +6269,8 @@ class UpdateTargetGroupResponse {
       if (config != null) 'config': config,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
-      if (type != null) 'type': type.toValue(),
+      if (status != null) 'status': status.value,
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -6482,13 +6281,13 @@ class WeightedTargetGroup {
   final String targetGroupIdentifier;
 
   /// Only required if you specify multiple target groups for a forward action.
-  /// The "weight" determines how requests are distributed to the target group.
-  /// For example, if you specify two target groups, each with a weight of 10,
-  /// each target group receives half the requests. If you specify two target
-  /// groups, one with a weight of 10 and the other with a weight of 20, the
-  /// target group with a weight of 20 receives twice as many requests as the
-  /// other target group. If there's only one target group specified, then the
-  /// default value is 100.
+  /// The weight determines how requests are distributed to the target group. For
+  /// example, if you specify two target groups, each with a weight of 10, each
+  /// target group receives half the requests. If you specify two target groups,
+  /// one with a weight of 10 and the other with a weight of 20, the target group
+  /// with a weight of 20 receives twice as many requests as the other target
+  /// group. If there's only one target group specified, then the default value is
+  /// 100.
   final int? weight;
 
   WeightedTargetGroup({

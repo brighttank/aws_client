@@ -17,13 +17,15 @@ import '../../shared/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'v2014_10_31.meta.dart';
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// Amazon DocumentDB API documentation
+/// Amazon DocumentDB is a fast, reliable, and fully managed database service.
+/// Amazon DocumentDB makes it easy to set up, operate, and scale
+/// MongoDB-compatible databases in the cloud. With Amazon DocumentDB, you can
+/// run the same application code and use the same drivers and tools that you
+/// use with MongoDB.
 class DocDB {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   DocDB({
     required String region,
@@ -31,7 +33,7 @@ class DocDB {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'rds',
@@ -41,9 +43,7 @@ class DocDB {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -89,9 +89,10 @@ class DocDB {
     required String sourceIdentifier,
     required String subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceIdentifier'] = sourceIdentifier;
-    $request['SubscriptionName'] = subscriptionName;
+    final $request = <String, String>{
+      'SourceIdentifier': sourceIdentifier,
+      'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AddSourceIdentifierToSubscription',
@@ -99,8 +100,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddSourceIdentifierToSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'AddSourceIdentifierToSubscriptionResult',
     );
     return AddSourceIdentifierToSubscriptionResult.fromXml($result);
@@ -125,9 +124,15 @@ class DocDB {
     required String resourceName,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'AddTagsToResource',
@@ -135,8 +140,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddTagsToResourceMessage'],
-      shapes: shapes,
     );
   }
 
@@ -180,10 +183,11 @@ class DocDB {
     required String optInType,
     required String resourceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplyAction'] = applyAction;
-    $request['OptInType'] = optInType;
-    $request['ResourceIdentifier'] = resourceIdentifier;
+    final $request = <String, String>{
+      'ApplyAction': applyAction,
+      'OptInType': optInType,
+      'ResourceIdentifier': resourceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ApplyPendingMaintenanceAction',
@@ -191,8 +195,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ApplyPendingMaintenanceActionMessage'],
-      shapes: shapes,
       resultWrapper: 'ApplyPendingMaintenanceActionResult',
     );
     return ApplyPendingMaintenanceActionResult.fromXml($result);
@@ -258,14 +260,21 @@ class DocDB {
     required String targetDBClusterParameterGroupIdentifier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceDBClusterParameterGroupIdentifier'] =
-        sourceDBClusterParameterGroupIdentifier;
-    $request['TargetDBClusterParameterGroupDescription'] =
-        targetDBClusterParameterGroupDescription;
-    $request['TargetDBClusterParameterGroupIdentifier'] =
-        targetDBClusterParameterGroupIdentifier;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SourceDBClusterParameterGroupIdentifier':
+          sourceDBClusterParameterGroupIdentifier,
+      'TargetDBClusterParameterGroupDescription':
+          targetDBClusterParameterGroupDescription,
+      'TargetDBClusterParameterGroupIdentifier':
+          targetDBClusterParameterGroupIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CopyDBClusterParameterGroup',
@@ -273,8 +282,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CopyDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CopyDBClusterParameterGroupResult',
     );
     return CopyDBClusterParameterGroupResult.fromXml($result);
@@ -421,15 +428,20 @@ class DocDB {
     String? preSignedUrl,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceDBClusterSnapshotIdentifier'] =
-        sourceDBClusterSnapshotIdentifier;
-    $request['TargetDBClusterSnapshotIdentifier'] =
-        targetDBClusterSnapshotIdentifier;
-    copyTags?.also((arg) => $request['CopyTags'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    preSignedUrl?.also((arg) => $request['PreSignedUrl'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SourceDBClusterSnapshotIdentifier': sourceDBClusterSnapshotIdentifier,
+      'TargetDBClusterSnapshotIdentifier': targetDBClusterSnapshotIdentifier,
+      if (copyTags != null) 'CopyTags': copyTags.toString(),
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (preSignedUrl != null) 'PreSignedUrl': preSignedUrl,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CopyDBClusterSnapshot',
@@ -437,8 +449,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CopyDBClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'CopyDBClusterSnapshotResult',
     );
     return CopyDBClusterSnapshotResult.fromXml($result);
@@ -634,6 +644,22 @@ class DocDB {
   /// Parameter [storageEncrypted] :
   /// Specifies whether the cluster is encrypted.
   ///
+  /// Parameter [storageType] :
+  /// The storage type to associate with the DB cluster.
+  ///
+  /// For information on storage types for Amazon DocumentDB clusters, see
+  /// Cluster storage configurations in the <i>Amazon DocumentDB Developer
+  /// Guide</i>.
+  ///
+  /// Valid values for storage type - <code>standard | iopt1</code>
+  ///
+  /// Default value is <code>standard </code>
+  /// <note>
+  /// When you create a DocumentDB DB cluster with the storage type set to
+  /// <code>iopt1</code>, the storage type is returned in the response. The
+  /// storage type isn't returned when you set it to <code>standard</code>.
+  /// </note>
+  ///
   /// Parameter [tags] :
   /// The tags to be assigned to the cluster.
   ///
@@ -658,36 +684,64 @@ class DocDB {
     String? preferredBackupWindow,
     String? preferredMaintenanceWindow,
     bool? storageEncrypted,
+    String? storageType,
     List<Tag>? tags,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['Engine'] = engine;
-    availabilityZones?.also((arg) => $request['AvailabilityZones'] = arg);
-    backupRetentionPeriod
-        ?.also((arg) => $request['BackupRetentionPeriod'] = arg);
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    enableCloudwatchLogsExports
-        ?.also((arg) => $request['EnableCloudwatchLogsExports'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    globalClusterIdentifier
-        ?.also((arg) => $request['GlobalClusterIdentifier'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    masterUserPassword?.also((arg) => $request['MasterUserPassword'] = arg);
-    masterUsername?.also((arg) => $request['MasterUsername'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preSignedUrl?.also((arg) => $request['PreSignedUrl'] = arg);
-    preferredBackupWindow
-        ?.also((arg) => $request['PreferredBackupWindow'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    storageEncrypted?.also((arg) => $request['StorageEncrypted'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'Engine': engine,
+      if (availabilityZones != null)
+        if (availabilityZones.isEmpty)
+          'AvailabilityZones': ''
+        else
+          for (var i1 = 0; i1 < availabilityZones.length; i1++)
+            'AvailabilityZones.AvailabilityZone.${i1 + 1}':
+                availabilityZones[i1],
+      if (backupRetentionPeriod != null)
+        'BackupRetentionPeriod': backupRetentionPeriod.toString(),
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (enableCloudwatchLogsExports != null)
+        if (enableCloudwatchLogsExports.isEmpty)
+          'EnableCloudwatchLogsExports': ''
+        else
+          for (var i1 = 0; i1 < enableCloudwatchLogsExports.length; i1++)
+            'EnableCloudwatchLogsExports.member.${i1 + 1}':
+                enableCloudwatchLogsExports[i1],
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (globalClusterIdentifier != null)
+        'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (masterUsername != null) 'MasterUsername': masterUsername,
+      if (port != null) 'Port': port.toString(),
+      if (preSignedUrl != null) 'PreSignedUrl': preSignedUrl,
+      if (preferredBackupWindow != null)
+        'PreferredBackupWindow': preferredBackupWindow,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (storageEncrypted != null)
+        'StorageEncrypted': storageEncrypted.toString(),
+      if (storageType != null) 'StorageType': storageType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBCluster',
@@ -695,8 +749,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBClusterResult',
     );
     return CreateDBClusterResult.fromXml($result);
@@ -754,11 +806,18 @@ class DocDB {
     required String description,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    $request['DBParameterGroupFamily'] = dBParameterGroupFamily;
-    $request['Description'] = description;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      'DBParameterGroupFamily': dBParameterGroupFamily,
+      'Description': description,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBClusterParameterGroup',
@@ -766,8 +825,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBClusterParameterGroupResult',
     );
     return CreateDBClusterParameterGroupResult.fromXml($result);
@@ -820,10 +877,17 @@ class DocDB {
     required String dBClusterSnapshotIdentifier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBClusterSnapshot',
@@ -831,8 +895,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBClusterSnapshotResult',
     );
     return CreateDBClusterSnapshotResult.fromXml($result);
@@ -900,6 +962,17 @@ class DocDB {
   ///
   /// Example: <code>us-east-1d</code>
   ///
+  /// Parameter [cACertificateIdentifier] :
+  /// The CA certificate identifier to use for the DB instance's server
+  /// certificate.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/ca_cert_rotation.html">Updating
+  /// Your Amazon DocumentDB TLS Certificates</a> and <a
+  /// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/security.encryption.ssl.html">
+  /// Encrypting Data in Transit</a> in the <i>Amazon DocumentDB Developer
+  /// Guide</i>.
+  ///
   /// Parameter [copyTagsToSnapshot] :
   /// A value that indicates whether to copy tags from the DB instance to
   /// snapshots of the DB instance. By default, tags are not copied.
@@ -954,6 +1027,7 @@ class DocDB {
     required String engine,
     bool? autoMinorVersionUpgrade,
     String? availabilityZone,
+    String? cACertificateIdentifier,
     bool? copyTagsToSnapshot,
     bool? enablePerformanceInsights,
     String? performanceInsightsKMSKeyId,
@@ -961,23 +1035,33 @@ class DocDB {
     int? promotionTier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['DBInstanceClass'] = dBInstanceClass;
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
-    $request['Engine'] = engine;
-    autoMinorVersionUpgrade
-        ?.also((arg) => $request['AutoMinorVersionUpgrade'] = arg);
-    availabilityZone?.also((arg) => $request['AvailabilityZone'] = arg);
-    copyTagsToSnapshot?.also((arg) => $request['CopyTagsToSnapshot'] = arg);
-    enablePerformanceInsights
-        ?.also((arg) => $request['EnablePerformanceInsights'] = arg);
-    performanceInsightsKMSKeyId
-        ?.also((arg) => $request['PerformanceInsightsKMSKeyId'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    promotionTier?.also((arg) => $request['PromotionTier'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'DBInstanceClass': dBInstanceClass,
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+      'Engine': engine,
+      if (autoMinorVersionUpgrade != null)
+        'AutoMinorVersionUpgrade': autoMinorVersionUpgrade.toString(),
+      if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
+      if (cACertificateIdentifier != null)
+        'CACertificateIdentifier': cACertificateIdentifier,
+      if (copyTagsToSnapshot != null)
+        'CopyTagsToSnapshot': copyTagsToSnapshot.toString(),
+      if (enablePerformanceInsights != null)
+        'EnablePerformanceInsights': enablePerformanceInsights.toString(),
+      if (performanceInsightsKMSKeyId != null)
+        'PerformanceInsightsKMSKeyId': performanceInsightsKMSKeyId,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (promotionTier != null) 'PromotionTier': promotionTier.toString(),
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBInstance',
@@ -985,8 +1069,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBInstanceResult',
     );
     return CreateDBInstanceResult.fromXml($result);
@@ -1023,11 +1105,22 @@ class DocDB {
     required List<String> subnetIds,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBSubnetGroupDescription'] = dBSubnetGroupDescription;
-    $request['DBSubnetGroupName'] = dBSubnetGroupName;
-    $request['SubnetIds'] = subnetIds;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBSubnetGroupDescription': dBSubnetGroupDescription,
+      'DBSubnetGroupName': dBSubnetGroupName,
+      if (subnetIds.isEmpty)
+        'SubnetIds': ''
+      else
+        for (var i1 = 0; i1 < subnetIds.length; i1++)
+          'SubnetIds.SubnetIdentifier.${i1 + 1}': subnetIds[i1],
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBSubnetGroup',
@@ -1035,8 +1128,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBSubnetGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBSubnetGroupResult',
     );
     return CreateDBSubnetGroupResult.fromXml($result);
@@ -1147,14 +1238,31 @@ class DocDB {
     String? sourceType,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnsTopicArn'] = snsTopicArn;
-    $request['SubscriptionName'] = subscriptionName;
-    enabled?.also((arg) => $request['Enabled'] = arg);
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    sourceIds?.also((arg) => $request['SourceIds'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SnsTopicArn': snsTopicArn,
+      'SubscriptionName': subscriptionName,
+      if (enabled != null) 'Enabled': enabled.toString(),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (sourceIds != null)
+        if (sourceIds.isEmpty)
+          'SourceIds': ''
+        else
+          for (var i1 = 0; i1 < sourceIds.length; i1++)
+            'SourceIds.SourceId.${i1 + 1}': sourceIds[i1],
+      if (sourceType != null) 'SourceType': sourceType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateEventSubscription',
@@ -1162,8 +1270,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateEventSubscriptionResult',
     );
     return CreateEventSubscriptionResult.fromXml($result);
@@ -1222,15 +1328,18 @@ class DocDB {
     String? sourceDBClusterIdentifier,
     bool? storageEncrypted,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
-    databaseName?.also((arg) => $request['DatabaseName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    engine?.also((arg) => $request['Engine'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    sourceDBClusterIdentifier
-        ?.also((arg) => $request['SourceDBClusterIdentifier'] = arg);
-    storageEncrypted?.also((arg) => $request['StorageEncrypted'] = arg);
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (databaseName != null) 'DatabaseName': databaseName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (engine != null) 'Engine': engine,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (sourceDBClusterIdentifier != null)
+        'SourceDBClusterIdentifier': sourceDBClusterIdentifier,
+      if (storageEncrypted != null)
+        'StorageEncrypted': storageEncrypted.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateGlobalCluster',
@@ -1238,8 +1347,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateGlobalClusterResult',
     );
     return CreateGlobalClusterResult.fromXml($result);
@@ -1305,11 +1412,13 @@ class DocDB {
     String? finalDBSnapshotIdentifier,
     bool? skipFinalSnapshot,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    finalDBSnapshotIdentifier
-        ?.also((arg) => $request['FinalDBSnapshotIdentifier'] = arg);
-    skipFinalSnapshot?.also((arg) => $request['SkipFinalSnapshot'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      if (finalDBSnapshotIdentifier != null)
+        'FinalDBSnapshotIdentifier': finalDBSnapshotIdentifier,
+      if (skipFinalSnapshot != null)
+        'SkipFinalSnapshot': skipFinalSnapshot.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDBCluster',
@@ -1317,8 +1426,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteDBClusterResult',
     );
     return DeleteDBClusterResult.fromXml($result);
@@ -1349,8 +1456,9 @@ class DocDB {
   Future<void> deleteDBClusterParameterGroup({
     required String dBClusterParameterGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteDBClusterParameterGroup',
@@ -1358,8 +1466,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBClusterParameterGroupMessage'],
-      shapes: shapes,
     );
   }
 
@@ -1381,8 +1487,9 @@ class DocDB {
   Future<DeleteDBClusterSnapshotResult> deleteDBClusterSnapshot({
     required String dBClusterSnapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
+    final $request = <String, String>{
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDBClusterSnapshot',
@@ -1390,8 +1497,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteDBClusterSnapshotResult',
     );
     return DeleteDBClusterSnapshotResult.fromXml($result);
@@ -1419,8 +1524,9 @@ class DocDB {
   Future<DeleteDBInstanceResult> deleteDBInstance({
     required String dBInstanceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
+    final $request = <String, String>{
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDBInstance',
@@ -1428,8 +1534,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteDBInstanceResult',
     );
     return DeleteDBInstanceResult.fromXml($result);
@@ -1459,8 +1563,9 @@ class DocDB {
   Future<void> deleteDBSubnetGroup({
     required String dBSubnetGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBSubnetGroupName'] = dBSubnetGroupName;
+    final $request = <String, String>{
+      'DBSubnetGroupName': dBSubnetGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteDBSubnetGroup',
@@ -1468,8 +1573,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBSubnetGroupMessage'],
-      shapes: shapes,
     );
   }
 
@@ -1484,8 +1587,9 @@ class DocDB {
   Future<DeleteEventSubscriptionResult> deleteEventSubscription({
     required String subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SubscriptionName'] = subscriptionName;
+    final $request = <String, String>{
+      'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteEventSubscription',
@@ -1493,8 +1597,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteEventSubscriptionResult',
     );
     return DeleteEventSubscriptionResult.fromXml($result);
@@ -1514,8 +1616,9 @@ class DocDB {
   Future<DeleteGlobalClusterResult> deleteGlobalCluster({
     required String globalClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteGlobalCluster',
@@ -1523,8 +1626,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteGlobalClusterResult',
     );
     return DeleteGlobalClusterResult.fromXml($result);
@@ -1582,12 +1683,19 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    certificateIdentifier
-        ?.also((arg) => $request['CertificateIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (certificateIdentifier != null)
+        'CertificateIdentifier': certificateIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeCertificates',
@@ -1595,8 +1703,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeCertificatesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeCertificatesResult',
     );
     return CertificateMessage.fromXml($result);
@@ -1643,12 +1749,19 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterParameterGroups',
@@ -1656,8 +1769,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterParameterGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterParameterGroupsResult',
     );
     return DBClusterParameterGroupsMessage.fromXml($result);
@@ -1710,12 +1821,19 @@ class DocDB {
     int? maxRecords,
     String? source,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    source?.also((arg) => $request['Source'] = arg);
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (source != null) 'Source': source,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterParameters',
@@ -1723,8 +1841,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterParametersResult',
     );
     return DBClusterParameterGroupDetails.fromXml($result);
@@ -1750,8 +1866,9 @@ class DocDB {
       describeDBClusterSnapshotAttributes({
     required String dBClusterSnapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
+    final $request = <String, String>{
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterSnapshotAttributes',
@@ -1759,8 +1876,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterSnapshotAttributesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterSnapshotAttributesResult',
     );
     return DescribeDBClusterSnapshotAttributesResult.fromXml($result);
@@ -1877,16 +1992,24 @@ class DocDB {
     int? maxRecords,
     String? snapshotType,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterIdentifier?.also((arg) => $request['DBClusterIdentifier'] = arg);
-    dBClusterSnapshotIdentifier
-        ?.also((arg) => $request['DBClusterSnapshotIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    includePublic?.also((arg) => $request['IncludePublic'] = arg);
-    includeShared?.also((arg) => $request['IncludeShared'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    snapshotType?.also((arg) => $request['SnapshotType'] = arg);
+    final $request = <String, String>{
+      if (dBClusterIdentifier != null)
+        'DBClusterIdentifier': dBClusterIdentifier,
+      if (dBClusterSnapshotIdentifier != null)
+        'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (includePublic != null) 'IncludePublic': includePublic.toString(),
+      if (includeShared != null) 'IncludeShared': includeShared.toString(),
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (snapshotType != null) 'SnapshotType': snapshotType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterSnapshots',
@@ -1894,8 +2017,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterSnapshotsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterSnapshotsResult',
     );
     return DBClusterSnapshotMessage.fromXml($result);
@@ -1956,11 +2077,19 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterIdentifier?.also((arg) => $request['DBClusterIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBClusterIdentifier != null)
+        'DBClusterIdentifier': dBClusterIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusters',
@@ -1968,8 +2097,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClustersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClustersResult',
     );
     return DBClusterMessage.fromXml($result);
@@ -2039,19 +2166,26 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBParameterGroupFamily
-        ?.also((arg) => $request['DBParameterGroupFamily'] = arg);
-    defaultOnly?.also((arg) => $request['DefaultOnly'] = arg);
-    engine?.also((arg) => $request['Engine'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    listSupportedCharacterSets
-        ?.also((arg) => $request['ListSupportedCharacterSets'] = arg);
-    listSupportedTimezones
-        ?.also((arg) => $request['ListSupportedTimezones'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBParameterGroupFamily != null)
+        'DBParameterGroupFamily': dBParameterGroupFamily,
+      if (defaultOnly != null) 'DefaultOnly': defaultOnly.toString(),
+      if (engine != null) 'Engine': engine,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (listSupportedCharacterSets != null)
+        'ListSupportedCharacterSets': listSupportedCharacterSets.toString(),
+      if (listSupportedTimezones != null)
+        'ListSupportedTimezones': listSupportedTimezones.toString(),
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBEngineVersions',
@@ -2059,8 +2193,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBEngineVersionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBEngineVersionsResult',
     );
     return DBEngineVersionMessage.fromXml($result);
@@ -2124,11 +2256,19 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBInstanceIdentifier?.also((arg) => $request['DBInstanceIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBInstanceIdentifier != null)
+        'DBInstanceIdentifier': dBInstanceIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBInstances',
@@ -2136,8 +2276,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBInstancesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBInstancesResult',
     );
     return DBInstanceMessage.fromXml($result);
@@ -2175,11 +2313,18 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBSubnetGroups',
@@ -2187,8 +2332,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBSubnetGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBSubnetGroupsResult',
     );
     return DBSubnetGroupMessage.fromXml($result);
@@ -2225,11 +2368,18 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupFamily'] = dBParameterGroupFamily;
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      'DBParameterGroupFamily': dBParameterGroupFamily,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEngineDefaultClusterParameters',
@@ -2237,8 +2387,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEngineDefaultClusterParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEngineDefaultClusterParametersResult',
     );
     return DescribeEngineDefaultClusterParametersResult.fromXml($result);
@@ -2259,9 +2407,16 @@ class DocDB {
     List<Filter>? filters,
     String? sourceType,
   }) async {
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (sourceType != null) 'SourceType': sourceType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEventCategories',
@@ -2269,8 +2424,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventCategoriesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventCategoriesResult',
     );
     return EventCategoriesMessage.fromXml($result);
@@ -2314,11 +2467,18 @@ class DocDB {
     int? maxRecords,
     String? subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    subscriptionName?.also((arg) => $request['SubscriptionName'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (subscriptionName != null) 'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEventSubscriptions',
@@ -2326,8 +2486,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventSubscriptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventSubscriptionsResult',
     );
     return EventSubscriptionsMessage.fromXml($result);
@@ -2424,16 +2582,28 @@ class DocDB {
     SourceType? sourceType,
     DateTime? startTime,
   }) async {
-    final $request = <String, dynamic>{};
-    duration?.also((arg) => $request['Duration'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    sourceIdentifier?.also((arg) => $request['SourceIdentifier'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg.toValue());
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
+    final $request = <String, String>{
+      if (duration != null) 'Duration': duration.toString(),
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (sourceIdentifier != null) 'SourceIdentifier': sourceIdentifier,
+      if (sourceType != null) 'SourceType': sourceType.value,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEvents',
@@ -2441,8 +2611,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventsResult',
     );
     return EventsMessage.fromXml($result);
@@ -2485,12 +2653,19 @@ class DocDB {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    globalClusterIdentifier
-        ?.also((arg) => $request['GlobalClusterIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (globalClusterIdentifier != null)
+        'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeGlobalClusters',
@@ -2498,8 +2673,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeGlobalClustersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeGlobalClustersResult',
     );
     return GlobalClustersMessage.fromXml($result);
@@ -2553,15 +2726,22 @@ class DocDB {
     int? maxRecords,
     bool? vpc,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Engine'] = engine;
-    dBInstanceClass?.also((arg) => $request['DBInstanceClass'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    licenseModel?.also((arg) => $request['LicenseModel'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    vpc?.also((arg) => $request['Vpc'] = arg);
+    final $request = <String, String>{
+      'Engine': engine,
+      if (dBInstanceClass != null) 'DBInstanceClass': dBInstanceClass,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (licenseModel != null) 'LicenseModel': licenseModel,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (vpc != null) 'Vpc': vpc.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeOrderableDBInstanceOptions',
@@ -2569,8 +2749,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeOrderableDBInstanceOptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeOrderableDBInstanceOptionsResult',
     );
     return OrderableDBInstanceOptionsMessage.fromXml($result);
@@ -2623,11 +2801,18 @@ class DocDB {
     int? maxRecords,
     String? resourceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    resourceIdentifier?.also((arg) => $request['ResourceIdentifier'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (resourceIdentifier != null) 'ResourceIdentifier': resourceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribePendingMaintenanceActions',
@@ -2635,8 +2820,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribePendingMaintenanceActionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribePendingMaintenanceActionsResult',
     );
     return PendingMaintenanceActionsMessage.fromXml($result);
@@ -2677,10 +2860,12 @@ class DocDB {
     String? dBClusterIdentifier,
     String? targetDBInstanceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterIdentifier?.also((arg) => $request['DBClusterIdentifier'] = arg);
-    targetDBInstanceIdentifier
-        ?.also((arg) => $request['TargetDBInstanceIdentifier'] = arg);
+    final $request = <String, String>{
+      if (dBClusterIdentifier != null)
+        'DBClusterIdentifier': dBClusterIdentifier,
+      if (targetDBInstanceIdentifier != null)
+        'TargetDBInstanceIdentifier': targetDBInstanceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'FailoverDBCluster',
@@ -2688,8 +2873,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['FailoverDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'FailoverDBClusterResult',
     );
     return FailoverDBClusterResult.fromXml($result);
@@ -2711,9 +2894,16 @@ class DocDB {
     required String resourceName,
     List<Filter>? filters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    filters?.also((arg) => $request['Filters'] = arg);
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListTagsForResource',
@@ -2721,8 +2911,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListTagsForResourceMessage'],
-      shapes: shapes,
       resultWrapper: 'ListTagsForResourceResult',
     );
     return TagListMessage.fromXml($result);
@@ -2755,6 +2943,13 @@ class DocDB {
   /// Must match the identifier of an existing <code>DBCluster</code>.
   /// </li>
   /// </ul>
+  ///
+  /// Parameter [allowMajorVersionUpgrade] :
+  /// A value that indicates whether major version upgrades are allowed.
+  ///
+  /// Constraints: You must allow major version upgrades when specifying a value
+  /// for the <code>EngineVersion</code> parameter that is a different major
+  /// version than the DB cluster's current version.
   ///
   /// Parameter [applyImmediately] :
   /// A value that specifies whether the changes in this request and any pending
@@ -2805,7 +3000,15 @@ class DocDB {
   ///
   /// Parameter [engineVersion] :
   /// The version number of the database engine to which you want to upgrade.
-  /// Modifying engine version is not supported on Amazon DocumentDB.
+  /// Changing this parameter results in an outage. The change is applied during
+  /// the next maintenance window unless <code>ApplyImmediately</code> is
+  /// enabled.
+  ///
+  /// To list all of the available engine versions for Amazon DocumentDB use the
+  /// following command:
+  ///
+  /// <code>aws docdb describe-db-engine-versions --engine docdb --query
+  /// "DBEngineVersions[].EngineVersion"</code>
   ///
   /// Parameter [masterUserPassword] :
   /// The password for the master database user. This password can contain any
@@ -2879,11 +3082,23 @@ class DocDB {
   ///
   /// Constraints: Minimum 30-minute window.
   ///
+  /// Parameter [storageType] :
+  /// The storage type to associate with the DB cluster.
+  ///
+  /// For information on storage types for Amazon DocumentDB clusters, see
+  /// Cluster storage configurations in the <i>Amazon DocumentDB Developer
+  /// Guide</i>.
+  ///
+  /// Valid values for storage type - <code>standard | iopt1</code>
+  ///
+  /// Default value is <code>standard </code>
+  ///
   /// Parameter [vpcSecurityGroupIds] :
   /// A list of virtual private cloud (VPC) security groups that the cluster
   /// will belong to.
   Future<ModifyDBClusterResult> modifyDBCluster({
     required String dBClusterIdentifier,
+    bool? allowMajorVersionUpgrade,
     bool? applyImmediately,
     int? backupRetentionPeriod,
     CloudwatchLogsExportConfiguration? cloudwatchLogsExportConfiguration,
@@ -2895,28 +3110,42 @@ class DocDB {
     int? port,
     String? preferredBackupWindow,
     String? preferredMaintenanceWindow,
+    String? storageType,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    applyImmediately?.also((arg) => $request['ApplyImmediately'] = arg);
-    backupRetentionPeriod
-        ?.also((arg) => $request['BackupRetentionPeriod'] = arg);
-    cloudwatchLogsExportConfiguration
-        ?.also((arg) => $request['CloudwatchLogsExportConfiguration'] = arg);
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    masterUserPassword?.also((arg) => $request['MasterUserPassword'] = arg);
-    newDBClusterIdentifier
-        ?.also((arg) => $request['NewDBClusterIdentifier'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preferredBackupWindow
-        ?.also((arg) => $request['PreferredBackupWindow'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      if (allowMajorVersionUpgrade != null)
+        'AllowMajorVersionUpgrade': allowMajorVersionUpgrade.toString(),
+      if (applyImmediately != null)
+        'ApplyImmediately': applyImmediately.toString(),
+      if (backupRetentionPeriod != null)
+        'BackupRetentionPeriod': backupRetentionPeriod.toString(),
+      if (cloudwatchLogsExportConfiguration != null)
+        for (var e1 in cloudwatchLogsExportConfiguration.toQueryMap().entries)
+          'CloudwatchLogsExportConfiguration.${e1.key}': e1.value,
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (newDBClusterIdentifier != null)
+        'NewDBClusterIdentifier': newDBClusterIdentifier,
+      if (port != null) 'Port': port.toString(),
+      if (preferredBackupWindow != null)
+        'PreferredBackupWindow': preferredBackupWindow,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (storageType != null) 'StorageType': storageType,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBCluster',
@@ -2924,8 +3153,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBClusterResult',
     );
     return ModifyDBClusterResult.fromXml($result);
@@ -2962,9 +3189,15 @@ class DocDB {
     required String dBClusterParameterGroupName,
     required List<Parameter> parameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    $request['Parameters'] = parameters;
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (parameters.isEmpty)
+        'Parameters': ''
+      else
+        for (var i1 = 0; i1 < parameters.length; i1++)
+          for (var e3 in parameters[i1].toQueryMap().entries)
+            'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBClusterParameterGroup',
@@ -2972,8 +3205,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBClusterParameterGroupResult',
     );
     return DBClusterParameterGroupNameMessage.fromXml($result);
@@ -3040,11 +3271,22 @@ class DocDB {
     List<String>? valuesToAdd,
     List<String>? valuesToRemove,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AttributeName'] = attributeName;
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
-    valuesToAdd?.also((arg) => $request['ValuesToAdd'] = arg);
-    valuesToRemove?.also((arg) => $request['ValuesToRemove'] = arg);
+    final $request = <String, String>{
+      'AttributeName': attributeName,
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+      if (valuesToAdd != null)
+        if (valuesToAdd.isEmpty)
+          'ValuesToAdd': ''
+        else
+          for (var i1 = 0; i1 < valuesToAdd.length; i1++)
+            'ValuesToAdd.AttributeValue.${i1 + 1}': valuesToAdd[i1],
+      if (valuesToRemove != null)
+        if (valuesToRemove.isEmpty)
+          'ValuesToRemove': ''
+        else
+          for (var i1 = 0; i1 < valuesToRemove.length; i1++)
+            'ValuesToRemove.AttributeValue.${i1 + 1}': valuesToRemove[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBClusterSnapshotAttribute',
@@ -3052,8 +3294,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBClusterSnapshotAttributeMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBClusterSnapshotAttributeResult',
     );
     return ModifyDBClusterSnapshotAttributeResult.fromXml($result);
@@ -3105,6 +3345,24 @@ class DocDB {
   ///
   /// Parameter [cACertificateIdentifier] :
   /// Indicates the certificate that needs to be associated with the instance.
+  ///
+  /// Parameter [certificateRotationRestart] :
+  /// Specifies whether the DB instance is restarted when you rotate your
+  /// SSL/TLS certificate.
+  ///
+  /// By default, the DB instance is restarted when you rotate your SSL/TLS
+  /// certificate. The certificate is not updated until the DB instance is
+  /// restarted.
+  /// <important>
+  /// Set this parameter only if you are <i>not</i> using SSL/TLS to connect to
+  /// the DB instance.
+  /// </important>
+  /// If you are using SSL/TLS to connect to the DB instance, see <a
+  /// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/ca_cert_rotation.html">Updating
+  /// Your Amazon DocumentDB TLS Certificates</a> and <a
+  /// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/security.encryption.ssl.html">
+  /// Encrypting Data in Transit</a> in the <i>Amazon DocumentDB Developer
+  /// Guide</i>.
   ///
   /// Parameter [copyTagsToSnapshot] :
   /// A value that indicates whether to copy all tags from the DB instance to
@@ -3194,6 +3452,7 @@ class DocDB {
     bool? applyImmediately,
     bool? autoMinorVersionUpgrade,
     String? cACertificateIdentifier,
+    bool? certificateRotationRestart,
     bool? copyTagsToSnapshot,
     String? dBInstanceClass,
     bool? enablePerformanceInsights,
@@ -3202,24 +3461,29 @@ class DocDB {
     String? preferredMaintenanceWindow,
     int? promotionTier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
-    applyImmediately?.also((arg) => $request['ApplyImmediately'] = arg);
-    autoMinorVersionUpgrade
-        ?.also((arg) => $request['AutoMinorVersionUpgrade'] = arg);
-    cACertificateIdentifier
-        ?.also((arg) => $request['CACertificateIdentifier'] = arg);
-    copyTagsToSnapshot?.also((arg) => $request['CopyTagsToSnapshot'] = arg);
-    dBInstanceClass?.also((arg) => $request['DBInstanceClass'] = arg);
-    enablePerformanceInsights
-        ?.also((arg) => $request['EnablePerformanceInsights'] = arg);
-    newDBInstanceIdentifier
-        ?.also((arg) => $request['NewDBInstanceIdentifier'] = arg);
-    performanceInsightsKMSKeyId
-        ?.also((arg) => $request['PerformanceInsightsKMSKeyId'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    promotionTier?.also((arg) => $request['PromotionTier'] = arg);
+    final $request = <String, String>{
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+      if (applyImmediately != null)
+        'ApplyImmediately': applyImmediately.toString(),
+      if (autoMinorVersionUpgrade != null)
+        'AutoMinorVersionUpgrade': autoMinorVersionUpgrade.toString(),
+      if (cACertificateIdentifier != null)
+        'CACertificateIdentifier': cACertificateIdentifier,
+      if (certificateRotationRestart != null)
+        'CertificateRotationRestart': certificateRotationRestart.toString(),
+      if (copyTagsToSnapshot != null)
+        'CopyTagsToSnapshot': copyTagsToSnapshot.toString(),
+      if (dBInstanceClass != null) 'DBInstanceClass': dBInstanceClass,
+      if (enablePerformanceInsights != null)
+        'EnablePerformanceInsights': enablePerformanceInsights.toString(),
+      if (newDBInstanceIdentifier != null)
+        'NewDBInstanceIdentifier': newDBInstanceIdentifier,
+      if (performanceInsightsKMSKeyId != null)
+        'PerformanceInsightsKMSKeyId': performanceInsightsKMSKeyId,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (promotionTier != null) 'PromotionTier': promotionTier.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBInstance',
@@ -3227,8 +3491,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBInstanceResult',
     );
     return ModifyDBInstanceResult.fromXml($result);
@@ -3263,11 +3525,16 @@ class DocDB {
     required List<String> subnetIds,
     String? dBSubnetGroupDescription,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBSubnetGroupName'] = dBSubnetGroupName;
-    $request['SubnetIds'] = subnetIds;
-    dBSubnetGroupDescription
-        ?.also((arg) => $request['DBSubnetGroupDescription'] = arg);
+    final $request = <String, String>{
+      'DBSubnetGroupName': dBSubnetGroupName,
+      if (subnetIds.isEmpty)
+        'SubnetIds': ''
+      else
+        for (var i1 = 0; i1 < subnetIds.length; i1++)
+          'SubnetIds.SubnetIdentifier.${i1 + 1}': subnetIds[i1],
+      if (dBSubnetGroupDescription != null)
+        'DBSubnetGroupDescription': dBSubnetGroupDescription,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBSubnetGroup',
@@ -3275,8 +3542,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBSubnetGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBSubnetGroupResult',
     );
     return ModifyDBSubnetGroupResult.fromXml($result);
@@ -3321,12 +3586,18 @@ class DocDB {
     String? snsTopicArn,
     String? sourceType,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SubscriptionName'] = subscriptionName;
-    enabled?.also((arg) => $request['Enabled'] = arg);
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    snsTopicArn?.also((arg) => $request['SnsTopicArn'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
+    final $request = <String, String>{
+      'SubscriptionName': subscriptionName,
+      if (enabled != null) 'Enabled': enabled.toString(),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (snsTopicArn != null) 'SnsTopicArn': snsTopicArn,
+      if (sourceType != null) 'SourceType': sourceType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyEventSubscription',
@@ -3334,8 +3605,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyEventSubscriptionResult',
     );
     return ModifyEventSubscriptionResult.fromXml($result);
@@ -3387,11 +3656,13 @@ class DocDB {
     bool? deletionProtection,
     String? newGlobalClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    newGlobalClusterIdentifier
-        ?.also((arg) => $request['NewGlobalClusterIdentifier'] = arg);
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (newGlobalClusterIdentifier != null)
+        'NewGlobalClusterIdentifier': newGlobalClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyGlobalCluster',
@@ -3399,8 +3670,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyGlobalClusterResult',
     );
     return ModifyGlobalClusterResult.fromXml($result);
@@ -3439,9 +3708,10 @@ class DocDB {
     required String dBInstanceIdentifier,
     bool? forceFailover,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
-    forceFailover?.also((arg) => $request['ForceFailover'] = arg);
+    final $request = <String, String>{
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+      if (forceFailover != null) 'ForceFailover': forceFailover.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RebootDBInstance',
@@ -3449,8 +3719,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RebootDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'RebootDBInstanceResult',
     );
     return RebootDBInstanceResult.fromXml($result);
@@ -3478,9 +3746,10 @@ class DocDB {
     required String dbClusterIdentifier,
     required String globalClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DbClusterIdentifier'] = dbClusterIdentifier;
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
+    final $request = <String, String>{
+      'DbClusterIdentifier': dbClusterIdentifier,
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RemoveFromGlobalCluster',
@@ -3488,8 +3757,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveFromGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'RemoveFromGlobalClusterResult',
     );
     return RemoveFromGlobalClusterResult.fromXml($result);
@@ -3513,9 +3780,10 @@ class DocDB {
     required String sourceIdentifier,
     required String subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceIdentifier'] = sourceIdentifier;
-    $request['SubscriptionName'] = subscriptionName;
+    final $request = <String, String>{
+      'SourceIdentifier': sourceIdentifier,
+      'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RemoveSourceIdentifierFromSubscription',
@@ -3523,8 +3791,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveSourceIdentifierFromSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'RemoveSourceIdentifierFromSubscriptionResult',
     );
     return RemoveSourceIdentifierFromSubscriptionResult.fromXml($result);
@@ -3546,9 +3812,14 @@ class DocDB {
     required String resourceName,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'RemoveTagsFromResource',
@@ -3556,8 +3827,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveTagsFromResourceMessage'],
-      shapes: shapes,
     );
   }
 
@@ -3593,10 +3862,18 @@ class DocDB {
     List<Parameter>? parameters,
     bool? resetAllParameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    parameters?.also((arg) => $request['Parameters'] = arg);
-    resetAllParameters?.also((arg) => $request['ResetAllParameters'] = arg);
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (parameters != null)
+        if (parameters.isEmpty)
+          'Parameters': ''
+        else
+          for (var i1 = 0; i1 < parameters.length; i1++)
+            for (var e3 in parameters[i1].toQueryMap().entries)
+              'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+      if (resetAllParameters != null)
+        'ResetAllParameters': resetAllParameters.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ResetDBClusterParameterGroup',
@@ -3604,8 +3881,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResetDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ResetDBClusterParameterGroupResult',
     );
     return DBClusterParameterGroupNameMessage.fromXml($result);
@@ -3748,6 +4023,17 @@ class DocDB {
   ///
   /// Default: The same port as the original cluster.
   ///
+  /// Parameter [storageType] :
+  /// The storage type to associate with the DB cluster.
+  ///
+  /// For information on storage types for Amazon DocumentDB clusters, see
+  /// Cluster storage configurations in the <i>Amazon DocumentDB Developer
+  /// Guide</i>.
+  ///
+  /// Valid values for storage type - <code>standard | iopt1</code>
+  ///
+  /// Default value is <code>standard </code>
+  ///
   /// Parameter [tags] :
   /// The tags to be assigned to the restored cluster.
   ///
@@ -3766,25 +4052,52 @@ class DocDB {
     String? engineVersion,
     String? kmsKeyId,
     int? port,
+    String? storageType,
     List<Tag>? tags,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['Engine'] = engine;
-    $request['SnapshotIdentifier'] = snapshotIdentifier;
-    availabilityZones?.also((arg) => $request['AvailabilityZones'] = arg);
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    enableCloudwatchLogsExports
-        ?.also((arg) => $request['EnableCloudwatchLogsExports'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'Engine': engine,
+      'SnapshotIdentifier': snapshotIdentifier,
+      if (availabilityZones != null)
+        if (availabilityZones.isEmpty)
+          'AvailabilityZones': ''
+        else
+          for (var i1 = 0; i1 < availabilityZones.length; i1++)
+            'AvailabilityZones.AvailabilityZone.${i1 + 1}':
+                availabilityZones[i1],
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (enableCloudwatchLogsExports != null)
+        if (enableCloudwatchLogsExports.isEmpty)
+          'EnableCloudwatchLogsExports': ''
+        else
+          for (var i1 = 0; i1 < enableCloudwatchLogsExports.length; i1++)
+            'EnableCloudwatchLogsExports.member.${i1 + 1}':
+                enableCloudwatchLogsExports[i1],
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (port != null) 'Port': port.toString(),
+      if (storageType != null) 'StorageType': storageType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RestoreDBClusterFromSnapshot',
@@ -3792,8 +4105,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RestoreDBClusterFromSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'RestoreDBClusterFromSnapshotResult',
     );
     return RestoreDBClusterFromSnapshotResult.fromXml($result);
@@ -3953,6 +4264,17 @@ class DocDB {
   /// If you don't specify a <code>RestoreType</code> value, then the new DB
   /// cluster is restored as a full copy of the source DB cluster.
   ///
+  /// Parameter [storageType] :
+  /// The storage type to associate with the DB cluster.
+  ///
+  /// For information on storage types for Amazon DocumentDB clusters, see
+  /// Cluster storage configurations in the <i>Amazon DocumentDB Developer
+  /// Guide</i>.
+  ///
+  /// Valid values for storage type - <code>standard | iopt1</code>
+  ///
+  /// Default value is <code>standard </code>
+  ///
   /// Parameter [tags] :
   /// The tags to be assigned to the restored cluster.
   ///
@@ -3977,26 +4299,47 @@ class DocDB {
     int? port,
     DateTime? restoreToTime,
     String? restoreType,
+    String? storageType,
     List<Tag>? tags,
     bool? useLatestRestorableTime,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['SourceDBClusterIdentifier'] = sourceDBClusterIdentifier;
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    enableCloudwatchLogsExports
-        ?.also((arg) => $request['EnableCloudwatchLogsExports'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    restoreToTime
-        ?.also((arg) => $request['RestoreToTime'] = _s.iso8601ToJson(arg));
-    restoreType?.also((arg) => $request['RestoreType'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    useLatestRestorableTime
-        ?.also((arg) => $request['UseLatestRestorableTime'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'SourceDBClusterIdentifier': sourceDBClusterIdentifier,
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (enableCloudwatchLogsExports != null)
+        if (enableCloudwatchLogsExports.isEmpty)
+          'EnableCloudwatchLogsExports': ''
+        else
+          for (var i1 = 0; i1 < enableCloudwatchLogsExports.length; i1++)
+            'EnableCloudwatchLogsExports.member.${i1 + 1}':
+                enableCloudwatchLogsExports[i1],
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (port != null) 'Port': port.toString(),
+      if (restoreToTime != null)
+        'RestoreToTime': _s.iso8601ToJson(restoreToTime),
+      if (restoreType != null) 'RestoreType': restoreType,
+      if (storageType != null) 'StorageType': storageType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (useLatestRestorableTime != null)
+        'UseLatestRestorableTime': useLatestRestorableTime.toString(),
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RestoreDBClusterToPointInTime',
@@ -4004,8 +4347,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RestoreDBClusterToPointInTimeMessage'],
-      shapes: shapes,
       resultWrapper: 'RestoreDBClusterToPointInTimeResult',
     );
     return RestoreDBClusterToPointInTimeResult.fromXml($result);
@@ -4026,8 +4367,9 @@ class DocDB {
   Future<StartDBClusterResult> startDBCluster({
     required String dBClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'StartDBCluster',
@@ -4035,8 +4377,6 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['StartDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'StartDBClusterResult',
     );
     return StartDBClusterResult.fromXml($result);
@@ -4058,8 +4398,9 @@ class DocDB {
   Future<StopDBClusterResult> stopDBCluster({
     required String dBClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'StopDBCluster',
@@ -4067,11 +4408,73 @@ class DocDB {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['StopDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'StopDBClusterResult',
     );
     return StopDBClusterResult.fromXml($result);
+  }
+
+  /// Switches over the specified secondary Amazon DocumentDB cluster to be the
+  /// new primary Amazon DocumentDB cluster in the global database cluster.
+  ///
+  /// May throw [GlobalClusterNotFoundFault].
+  /// May throw [InvalidGlobalClusterStateFault].
+  /// May throw [DBClusterNotFoundFault].
+  /// May throw [InvalidDBClusterStateFault].
+  ///
+  /// Parameter [globalClusterIdentifier] :
+  /// The identifier of the Amazon DocumentDB global database cluster to switch
+  /// over. The identifier is the unique key assigned by the user when the
+  /// cluster is created. In other words, it's the name of the global cluster.
+  /// This parameter isn’t case-sensitive.
+  ///
+  /// Constraints:
+  ///
+  /// <ul>
+  /// <li>
+  /// Must match the identifier of an existing global cluster (Amazon DocumentDB
+  /// global database).
+  /// </li>
+  /// <li>
+  /// Minimum length of 1. Maximum length of 255.
+  /// </li>
+  /// </ul>
+  /// Pattern: <code>[A-Za-z][0-9A-Za-z-:._]*</code>
+  ///
+  /// Parameter [targetDbClusterIdentifier] :
+  /// The identifier of the secondary Amazon DocumentDB cluster to promote to
+  /// the new primary for the global database cluster. Use the Amazon Resource
+  /// Name (ARN) for the identifier so that Amazon DocumentDB can locate the
+  /// cluster in its Amazon Web Services region.
+  ///
+  /// Constraints:
+  ///
+  /// <ul>
+  /// <li>
+  /// Must match the identifier of an existing secondary cluster.
+  /// </li>
+  /// <li>
+  /// Minimum length of 1. Maximum length of 255.
+  /// </li>
+  /// </ul>
+  /// Pattern: <code>[A-Za-z][0-9A-Za-z-:._]*</code>
+  Future<SwitchoverGlobalClusterResult> switchoverGlobalCluster({
+    required String globalClusterIdentifier,
+    required String targetDbClusterIdentifier,
+  }) async {
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+      'TargetDbClusterIdentifier': targetDbClusterIdentifier,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'SwitchoverGlobalCluster',
+      version: '2014-10-31',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'SwitchoverGlobalClusterResult',
+    );
+    return SwitchoverGlobalClusterResult.fromXml($result);
   }
 }
 
@@ -4098,31 +4501,17 @@ class AddSourceIdentifierToSubscriptionResult {
 }
 
 enum ApplyMethod {
-  immediate,
-  pendingReboot,
-}
+  immediate('immediate'),
+  pendingReboot('pending-reboot'),
+  ;
 
-extension ApplyMethodValueExtension on ApplyMethod {
-  String toValue() {
-    switch (this) {
-      case ApplyMethod.immediate:
-        return 'immediate';
-      case ApplyMethod.pendingReboot:
-        return 'pending-reboot';
-    }
-  }
-}
+  final String value;
 
-extension ApplyMethodFromString on String {
-  ApplyMethod toApplyMethod() {
-    switch (this) {
-      case 'immediate':
-        return ApplyMethod.immediate;
-      case 'pending-reboot':
-        return ApplyMethod.pendingReboot;
-    }
-    throw Exception('$this is not known in enum ApplyMethod');
-  }
+  const ApplyMethod(this.value);
+
+  static ApplyMethod fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ApplyMethod'));
 }
 
 class ApplyPendingMaintenanceActionResult {
@@ -4240,6 +4629,43 @@ class Certificate {
   }
 }
 
+/// Returns the details of the DB instance’s server certificate.
+///
+/// For more information, see <a
+/// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/ca_cert_rotation.html">Updating
+/// Your Amazon DocumentDB TLS Certificates</a> and <a
+/// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/security.encryption.ssl.html">
+/// Encrypting Data in Transit</a> in the <i>Amazon DocumentDB Developer
+/// Guide</i>.
+class CertificateDetails {
+  /// The CA identifier of the CA certificate used for the DB instance's server
+  /// certificate.
+  final String? cAIdentifier;
+
+  /// The expiration date of the DB instance’s server certificate.
+  final DateTime? validTill;
+
+  CertificateDetails({
+    this.cAIdentifier,
+    this.validTill,
+  });
+  factory CertificateDetails.fromXml(_s.XmlElement elem) {
+    return CertificateDetails(
+      cAIdentifier: _s.extractXmlStringValue(elem, 'CAIdentifier'),
+      validTill: _s.extractXmlDateTimeValue(elem, 'ValidTill'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cAIdentifier = this.cAIdentifier;
+    final validTill = this.validTill;
+    return {
+      if (cAIdentifier != null) 'CAIdentifier': cAIdentifier,
+      if (validTill != null) 'ValidTill': iso8601ToJson(validTill),
+    };
+  }
+}
+
 class CertificateMessage {
   /// A list of certificates for this Amazon Web Services account.
   final List<Certificate>? certificates;
@@ -4297,6 +4723,25 @@ class CloudwatchLogsExportConfiguration {
     return {
       if (disableLogTypes != null) 'DisableLogTypes': disableLogTypes,
       if (enableLogTypes != null) 'EnableLogTypes': enableLogTypes,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final disableLogTypes = this.disableLogTypes;
+    final enableLogTypes = this.enableLogTypes;
+    return {
+      if (disableLogTypes != null)
+        if (disableLogTypes.isEmpty)
+          'DisableLogTypes': ''
+        else
+          for (var i1 = 0; i1 < disableLogTypes.length; i1++)
+            'DisableLogTypes.member.${i1 + 1}': disableLogTypes[i1],
+      if (enableLogTypes != null)
+        if (enableLogTypes.isEmpty)
+          'EnableLogTypes': ''
+        else
+          for (var i1 = 0; i1 < enableLogTypes.length; i1++)
+            'EnableLogTypes.member.${i1 + 1}': enableLogTypes[i1],
     };
   }
 }
@@ -4624,6 +5069,18 @@ class DBCluster {
   /// Specifies whether the cluster is encrypted.
   final bool? storageEncrypted;
 
+  /// Storage type associated with your cluster
+  ///
+  /// Storage type associated with your cluster
+  ///
+  /// For information on storage types for Amazon DocumentDB clusters, see Cluster
+  /// storage configurations in the <i>Amazon DocumentDB Developer Guide</i>.
+  ///
+  /// Valid values for storage type - <code>standard | iopt1</code>
+  ///
+  /// Default value is <code>standard </code>
+  final String? storageType;
+
   /// Provides a list of virtual private cloud (VPC) security groups that the
   /// cluster belongs to.
   final List<VpcSecurityGroupMembership>? vpcSecurityGroups;
@@ -4660,6 +5117,7 @@ class DBCluster {
     this.replicationSourceIdentifier,
     this.status,
     this.storageEncrypted,
+    this.storageType,
     this.vpcSecurityGroups,
   });
   factory DBCluster.fromXml(_s.XmlElement elem) {
@@ -4718,6 +5176,7 @@ class DBCluster {
           _s.extractXmlStringValue(elem, 'ReplicationSourceIdentifier'),
       status: _s.extractXmlStringValue(elem, 'Status'),
       storageEncrypted: _s.extractXmlBoolValue(elem, 'StorageEncrypted'),
+      storageType: _s.extractXmlStringValue(elem, 'StorageType'),
       vpcSecurityGroups: _s.extractXmlChild(elem, 'VpcSecurityGroups')?.let(
           (elem) => elem
               .findElements('VpcSecurityGroupMembership')
@@ -4758,6 +5217,7 @@ class DBCluster {
     final replicationSourceIdentifier = this.replicationSourceIdentifier;
     final status = this.status;
     final storageEncrypted = this.storageEncrypted;
+    final storageType = this.storageType;
     final vpcSecurityGroups = this.vpcSecurityGroups;
     return {
       if (associatedRoles != null) 'AssociatedRoles': associatedRoles,
@@ -4803,6 +5263,7 @@ class DBCluster {
         'ReplicationSourceIdentifier': replicationSourceIdentifier,
       if (status != null) 'Status': status,
       if (storageEncrypted != null) 'StorageEncrypted': storageEncrypted,
+      if (storageType != null) 'StorageType': storageType,
       if (vpcSecurityGroups != null) 'VpcSecurityGroups': vpcSecurityGroups,
     };
   }
@@ -5154,6 +5615,16 @@ class DBClusterSnapshot {
   /// Specifies whether the cluster snapshot is encrypted.
   final bool? storageEncrypted;
 
+  /// Storage type associated with your cluster snapshot
+  ///
+  /// For information on storage types for Amazon DocumentDB clusters, see Cluster
+  /// storage configurations in the <i>Amazon DocumentDB Developer Guide</i>.
+  ///
+  /// Valid values for storage type - <code>standard | iopt1</code>
+  ///
+  /// Default value is <code>standard </code>
+  final String? storageType;
+
   /// Provides the virtual private cloud (VPC) ID that is associated with the
   /// cluster snapshot.
   final String? vpcId;
@@ -5175,6 +5646,7 @@ class DBClusterSnapshot {
     this.sourceDBClusterSnapshotArn,
     this.status,
     this.storageEncrypted,
+    this.storageType,
     this.vpcId,
   });
   factory DBClusterSnapshot.fromXml(_s.XmlElement elem) {
@@ -5201,6 +5673,7 @@ class DBClusterSnapshot {
           _s.extractXmlStringValue(elem, 'SourceDBClusterSnapshotArn'),
       status: _s.extractXmlStringValue(elem, 'Status'),
       storageEncrypted: _s.extractXmlBoolValue(elem, 'StorageEncrypted'),
+      storageType: _s.extractXmlStringValue(elem, 'StorageType'),
       vpcId: _s.extractXmlStringValue(elem, 'VpcId'),
     );
   }
@@ -5222,6 +5695,7 @@ class DBClusterSnapshot {
     final sourceDBClusterSnapshotArn = this.sourceDBClusterSnapshotArn;
     final status = this.status;
     final storageEncrypted = this.storageEncrypted;
+    final storageType = this.storageType;
     final vpcId = this.vpcId;
     return {
       if (availabilityZones != null) 'AvailabilityZones': availabilityZones,
@@ -5246,6 +5720,7 @@ class DBClusterSnapshot {
         'SourceDBClusterSnapshotArn': sourceDBClusterSnapshotArn,
       if (status != null) 'Status': status,
       if (storageEncrypted != null) 'StorageEncrypted': storageEncrypted,
+      if (storageType != null) 'StorageType': storageType,
       if (vpcId != null) 'VpcId': vpcId,
     };
   }
@@ -5388,6 +5863,20 @@ class DBEngineVersion {
   /// Amazon CloudWatch Logs.
   final List<String>? exportableLogTypes;
 
+  /// A list of the supported CA certificate identifiers.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/ca_cert_rotation.html">Updating
+  /// Your Amazon DocumentDB TLS Certificates</a> and <a
+  /// href="https://docs.aws.amazon.com/documentdb/latest/developerguide/security.encryption.ssl.html">
+  /// Encrypting Data in Transit</a> in the <i>Amazon DocumentDB Developer
+  /// Guide</i>.
+  final List<String>? supportedCACertificateIdentifiers;
+
+  /// Indicates whether the engine version supports rotating the server
+  /// certificate without rebooting the DB instance.
+  final bool? supportsCertificateRotationWithoutRestart;
+
   /// A value that indicates whether the engine version supports exporting the log
   /// types specified by <code>ExportableLogTypes</code> to CloudWatch Logs.
   final bool? supportsLogExportsToCloudwatchLogs;
@@ -5403,6 +5892,8 @@ class DBEngineVersion {
     this.engine,
     this.engineVersion,
     this.exportableLogTypes,
+    this.supportedCACertificateIdentifiers,
+    this.supportsCertificateRotationWithoutRestart,
     this.supportsLogExportsToCloudwatchLogs,
     this.validUpgradeTarget,
   });
@@ -5419,6 +5910,11 @@ class DBEngineVersion {
       exportableLogTypes: _s
           .extractXmlChild(elem, 'ExportableLogTypes')
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
+      supportedCACertificateIdentifiers: _s
+          .extractXmlChild(elem, 'SupportedCACertificateIdentifiers')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
+      supportsCertificateRotationWithoutRestart: _s.extractXmlBoolValue(
+          elem, 'SupportsCertificateRotationWithoutRestart'),
       supportsLogExportsToCloudwatchLogs:
           _s.extractXmlBoolValue(elem, 'SupportsLogExportsToCloudwatchLogs'),
       validUpgradeTarget: _s.extractXmlChild(elem, 'ValidUpgradeTarget')?.let(
@@ -5436,6 +5932,10 @@ class DBEngineVersion {
     final engine = this.engine;
     final engineVersion = this.engineVersion;
     final exportableLogTypes = this.exportableLogTypes;
+    final supportedCACertificateIdentifiers =
+        this.supportedCACertificateIdentifiers;
+    final supportsCertificateRotationWithoutRestart =
+        this.supportsCertificateRotationWithoutRestart;
     final supportsLogExportsToCloudwatchLogs =
         this.supportsLogExportsToCloudwatchLogs;
     final validUpgradeTarget = this.validUpgradeTarget;
@@ -5449,6 +5949,11 @@ class DBEngineVersion {
       if (engine != null) 'Engine': engine,
       if (engineVersion != null) 'EngineVersion': engineVersion,
       if (exportableLogTypes != null) 'ExportableLogTypes': exportableLogTypes,
+      if (supportedCACertificateIdentifiers != null)
+        'SupportedCACertificateIdentifiers': supportedCACertificateIdentifiers,
+      if (supportsCertificateRotationWithoutRestart != null)
+        'SupportsCertificateRotationWithoutRestart':
+            supportsCertificateRotationWithoutRestart,
       if (supportsLogExportsToCloudwatchLogs != null)
         'SupportsLogExportsToCloudwatchLogs':
             supportsLogExportsToCloudwatchLogs,
@@ -5507,6 +6012,9 @@ class DBInstance {
 
   /// The identifier of the CA certificate for this DB instance.
   final String? cACertificateIdentifier;
+
+  /// The details of the DB instance's server certificate.
+  final CertificateDetails? certificateDetails;
 
   /// A value that indicates whether to copy tags from the DB instance to
   /// snapshots of the DB instance. By default, tags are not copied.
@@ -5567,6 +6075,15 @@ class DBInstance {
   /// subelements.
   final PendingModifiedValues? pendingModifiedValues;
 
+  /// Set to <code>true</code> if Amazon RDS Performance Insights is enabled for
+  /// the DB instance, and otherwise <code>false</code>.
+  final bool? performanceInsightsEnabled;
+
+  /// The KMS key identifier for encryption of Performance Insights data. The KMS
+  /// key ID is the Amazon Resource Name (ARN), KMS key identifier, or the KMS key
+  /// alias for the KMS encryption key.
+  final String? performanceInsightsKMSKeyId;
+
   /// Specifies the daily time range during which automated backups are created if
   /// automated backups are enabled, as determined by the
   /// <code>BackupRetentionPeriod</code>.
@@ -5601,6 +6118,7 @@ class DBInstance {
     this.availabilityZone,
     this.backupRetentionPeriod,
     this.cACertificateIdentifier,
+    this.certificateDetails,
     this.copyTagsToSnapshot,
     this.dBClusterIdentifier,
     this.dBInstanceArn,
@@ -5617,6 +6135,8 @@ class DBInstance {
     this.kmsKeyId,
     this.latestRestorableTime,
     this.pendingModifiedValues,
+    this.performanceInsightsEnabled,
+    this.performanceInsightsKMSKeyId,
     this.preferredBackupWindow,
     this.preferredMaintenanceWindow,
     this.promotionTier,
@@ -5634,6 +6154,9 @@ class DBInstance {
           _s.extractXmlIntValue(elem, 'BackupRetentionPeriod'),
       cACertificateIdentifier:
           _s.extractXmlStringValue(elem, 'CACertificateIdentifier'),
+      certificateDetails: _s
+          .extractXmlChild(elem, 'CertificateDetails')
+          ?.let(CertificateDetails.fromXml),
       copyTagsToSnapshot: _s.extractXmlBoolValue(elem, 'CopyTagsToSnapshot'),
       dBClusterIdentifier:
           _s.extractXmlStringValue(elem, 'DBClusterIdentifier'),
@@ -5659,6 +6182,10 @@ class DBInstance {
       pendingModifiedValues: _s
           .extractXmlChild(elem, 'PendingModifiedValues')
           ?.let(PendingModifiedValues.fromXml),
+      performanceInsightsEnabled:
+          _s.extractXmlBoolValue(elem, 'PerformanceInsightsEnabled'),
+      performanceInsightsKMSKeyId:
+          _s.extractXmlStringValue(elem, 'PerformanceInsightsKMSKeyId'),
       preferredBackupWindow:
           _s.extractXmlStringValue(elem, 'PreferredBackupWindow'),
       preferredMaintenanceWindow:
@@ -5683,6 +6210,7 @@ class DBInstance {
     final availabilityZone = this.availabilityZone;
     final backupRetentionPeriod = this.backupRetentionPeriod;
     final cACertificateIdentifier = this.cACertificateIdentifier;
+    final certificateDetails = this.certificateDetails;
     final copyTagsToSnapshot = this.copyTagsToSnapshot;
     final dBClusterIdentifier = this.dBClusterIdentifier;
     final dBInstanceArn = this.dBInstanceArn;
@@ -5699,6 +6227,8 @@ class DBInstance {
     final kmsKeyId = this.kmsKeyId;
     final latestRestorableTime = this.latestRestorableTime;
     final pendingModifiedValues = this.pendingModifiedValues;
+    final performanceInsightsEnabled = this.performanceInsightsEnabled;
+    final performanceInsightsKMSKeyId = this.performanceInsightsKMSKeyId;
     final preferredBackupWindow = this.preferredBackupWindow;
     final preferredMaintenanceWindow = this.preferredMaintenanceWindow;
     final promotionTier = this.promotionTier;
@@ -5714,6 +6244,7 @@ class DBInstance {
         'BackupRetentionPeriod': backupRetentionPeriod,
       if (cACertificateIdentifier != null)
         'CACertificateIdentifier': cACertificateIdentifier,
+      if (certificateDetails != null) 'CertificateDetails': certificateDetails,
       if (copyTagsToSnapshot != null) 'CopyTagsToSnapshot': copyTagsToSnapshot,
       if (dBClusterIdentifier != null)
         'DBClusterIdentifier': dBClusterIdentifier,
@@ -5736,6 +6267,10 @@ class DBInstance {
         'LatestRestorableTime': iso8601ToJson(latestRestorableTime),
       if (pendingModifiedValues != null)
         'PendingModifiedValues': pendingModifiedValues,
+      if (performanceInsightsEnabled != null)
+        'PerformanceInsightsEnabled': performanceInsightsEnabled,
+      if (performanceInsightsKMSKeyId != null)
+        'PerformanceInsightsKMSKeyId': performanceInsightsKMSKeyId,
       if (preferredBackupWindow != null)
         'PreferredBackupWindow': preferredBackupWindow,
       if (preferredMaintenanceWindow != null)
@@ -6194,7 +6729,9 @@ class Event {
       message: _s.extractXmlStringValue(elem, 'Message'),
       sourceArn: _s.extractXmlStringValue(elem, 'SourceArn'),
       sourceIdentifier: _s.extractXmlStringValue(elem, 'SourceIdentifier'),
-      sourceType: _s.extractXmlStringValue(elem, 'SourceType')?.toSourceType(),
+      sourceType: _s
+          .extractXmlStringValue(elem, 'SourceType')
+          ?.let(SourceType.fromString),
     );
   }
 
@@ -6211,7 +6748,7 @@ class Event {
       if (message != null) 'Message': message,
       if (sourceArn != null) 'SourceArn': sourceArn,
       if (sourceIdentifier != null) 'SourceIdentifier': sourceIdentifier,
-      if (sourceType != null) 'SourceType': sourceType.toValue(),
+      if (sourceType != null) 'SourceType': sourceType.value,
     };
   }
 }
@@ -6497,6 +7034,19 @@ class Filter {
     return {
       'Name': name,
       'Values': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final name = this.name;
+    final values = this.values;
+    return {
+      'Name': name,
+      if (values.isEmpty)
+        'Value': ''
+      else
+        for (var i1 = 0; i1 < values.length; i1++)
+          'Value.Value.${i1 + 1}': values[i1],
     };
   }
 }
@@ -6820,6 +7370,9 @@ class OrderableDBInstanceOption {
   /// The license model for an instance.
   final String? licenseModel;
 
+  /// The storage type to associate with the DB cluster
+  final String? storageType;
+
   /// Indicates whether an instance is in a virtual private cloud (VPC).
   final bool? vpc;
 
@@ -6829,6 +7382,7 @@ class OrderableDBInstanceOption {
     this.engine,
     this.engineVersion,
     this.licenseModel,
+    this.storageType,
     this.vpc,
   });
   factory OrderableDBInstanceOption.fromXml(_s.XmlElement elem) {
@@ -6842,6 +7396,7 @@ class OrderableDBInstanceOption {
       engine: _s.extractXmlStringValue(elem, 'Engine'),
       engineVersion: _s.extractXmlStringValue(elem, 'EngineVersion'),
       licenseModel: _s.extractXmlStringValue(elem, 'LicenseModel'),
+      storageType: _s.extractXmlStringValue(elem, 'StorageType'),
       vpc: _s.extractXmlBoolValue(elem, 'Vpc'),
     );
   }
@@ -6852,6 +7407,7 @@ class OrderableDBInstanceOption {
     final engine = this.engine;
     final engineVersion = this.engineVersion;
     final licenseModel = this.licenseModel;
+    final storageType = this.storageType;
     final vpc = this.vpc;
     return {
       if (availabilityZones != null) 'AvailabilityZones': availabilityZones,
@@ -6859,6 +7415,7 @@ class OrderableDBInstanceOption {
       if (engine != null) 'Engine': engine,
       if (engineVersion != null) 'EngineVersion': engineVersion,
       if (licenseModel != null) 'LicenseModel': licenseModel,
+      if (storageType != null) 'StorageType': storageType,
       if (vpc != null) 'Vpc': vpc,
     };
   }
@@ -6950,8 +7507,9 @@ class Parameter {
   factory Parameter.fromXml(_s.XmlElement elem) {
     return Parameter(
       allowedValues: _s.extractXmlStringValue(elem, 'AllowedValues'),
-      applyMethod:
-          _s.extractXmlStringValue(elem, 'ApplyMethod')?.toApplyMethod(),
+      applyMethod: _s
+          .extractXmlStringValue(elem, 'ApplyMethod')
+          ?.let(ApplyMethod.fromString),
       applyType: _s.extractXmlStringValue(elem, 'ApplyType'),
       dataType: _s.extractXmlStringValue(elem, 'DataType'),
       description: _s.extractXmlStringValue(elem, 'Description'),
@@ -6977,11 +7535,37 @@ class Parameter {
     final source = this.source;
     return {
       if (allowedValues != null) 'AllowedValues': allowedValues,
-      if (applyMethod != null) 'ApplyMethod': applyMethod.toValue(),
+      if (applyMethod != null) 'ApplyMethod': applyMethod.value,
       if (applyType != null) 'ApplyType': applyType,
       if (dataType != null) 'DataType': dataType,
       if (description != null) 'Description': description,
       if (isModifiable != null) 'IsModifiable': isModifiable,
+      if (minimumEngineVersion != null)
+        'MinimumEngineVersion': minimumEngineVersion,
+      if (parameterName != null) 'ParameterName': parameterName,
+      if (parameterValue != null) 'ParameterValue': parameterValue,
+      if (source != null) 'Source': source,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final allowedValues = this.allowedValues;
+    final applyMethod = this.applyMethod;
+    final applyType = this.applyType;
+    final dataType = this.dataType;
+    final description = this.description;
+    final isModifiable = this.isModifiable;
+    final minimumEngineVersion = this.minimumEngineVersion;
+    final parameterName = this.parameterName;
+    final parameterValue = this.parameterValue;
+    final source = this.source;
+    return {
+      if (allowedValues != null) 'AllowedValues': allowedValues,
+      if (applyMethod != null) 'ApplyMethod': applyMethod.value,
+      if (applyType != null) 'ApplyType': applyType,
+      if (dataType != null) 'DataType': dataType,
+      if (description != null) 'Description': description,
+      if (isModifiable != null) 'IsModifiable': isModifiable.toString(),
       if (minimumEngineVersion != null)
         'MinimumEngineVersion': minimumEngineVersion,
       if (parameterName != null) 'ParameterName': parameterName,
@@ -7411,51 +7995,21 @@ class RestoreDBClusterToPointInTimeResult {
 }
 
 enum SourceType {
-  dbInstance,
-  dbParameterGroup,
-  dbSecurityGroup,
-  dbSnapshot,
-  dbCluster,
-  dbClusterSnapshot,
-}
+  dbInstance('db-instance'),
+  dbParameterGroup('db-parameter-group'),
+  dbSecurityGroup('db-security-group'),
+  dbSnapshot('db-snapshot'),
+  dbCluster('db-cluster'),
+  dbClusterSnapshot('db-cluster-snapshot'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.dbInstance:
-        return 'db-instance';
-      case SourceType.dbParameterGroup:
-        return 'db-parameter-group';
-      case SourceType.dbSecurityGroup:
-        return 'db-security-group';
-      case SourceType.dbSnapshot:
-        return 'db-snapshot';
-      case SourceType.dbCluster:
-        return 'db-cluster';
-      case SourceType.dbClusterSnapshot:
-        return 'db-cluster-snapshot';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'db-instance':
-        return SourceType.dbInstance;
-      case 'db-parameter-group':
-        return SourceType.dbParameterGroup;
-      case 'db-security-group':
-        return SourceType.dbSecurityGroup;
-      case 'db-snapshot':
-        return SourceType.dbSnapshot;
-      case 'db-cluster':
-        return SourceType.dbCluster;
-      case 'db-cluster-snapshot':
-        return SourceType.dbClusterSnapshot;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 class StartDBClusterResult {
@@ -7537,6 +8091,27 @@ class Subnet {
   }
 }
 
+class SwitchoverGlobalClusterResult {
+  final GlobalCluster? globalCluster;
+
+  SwitchoverGlobalClusterResult({
+    this.globalCluster,
+  });
+  factory SwitchoverGlobalClusterResult.fromXml(_s.XmlElement elem) {
+    return SwitchoverGlobalClusterResult(
+      globalCluster:
+          _s.extractXmlChild(elem, 'GlobalCluster')?.let(GlobalCluster.fromXml),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final globalCluster = this.globalCluster;
+    return {
+      if (globalCluster != null) 'GlobalCluster': globalCluster,
+    };
+  }
+}
+
 /// Metadata assigned to an Amazon DocumentDB resource consisting of a key-value
 /// pair.
 class Tag {
@@ -7566,6 +8141,15 @@ class Tag {
   }
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      if (key != null) 'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {

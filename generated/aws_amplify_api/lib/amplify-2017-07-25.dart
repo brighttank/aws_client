@@ -20,10 +20,10 @@ import 'package:shared_aws_api/shared.dart'
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// Amplify enables developers to develop and deploy cloud-powered mobile and
-/// web apps. The Amplify Console provides a continuous delivery and hosting
-/// service for web applications. For more information, see the <a
+/// web apps. Amplify Hosting provides a continuous delivery and hosting service
+/// for web applications. For more information, see the <a
 /// href="https://docs.aws.amazon.com/amplify/latest/userguide/welcome.html">Amplify
-/// Console User Guide</a>. The Amplify Framework is a comprehensive set of
+/// Hosting User Guide</a>. The Amplify Framework is a comprehensive set of
 /// SDKs, libraries, tools, and documentation for client app development. For
 /// more information, see the <a href="https://docs.amplify.aws/">Amplify
 /// Framework.</a>
@@ -65,7 +65,7 @@ class Amplify {
   /// May throw [DependentServiceFailureException].
   ///
   /// Parameter [name] :
-  /// The name for an Amplify app.
+  /// The name of the Amplify app.
   ///
   /// Parameter [accessToken] :
   /// The personal access token for a GitHub repository for an Amplify app. The
@@ -82,7 +82,7 @@ class Amplify {
   /// Existing Amplify apps deployed from a GitHub repository using OAuth
   /// continue to work with CI/CD. However, we strongly recommend that you
   /// migrate these apps to use the GitHub App. For more information, see <a
-  /// href="https://docs.aws.amazon.com/amplify/latest/UserGuide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
+  /// href="https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
   /// an existing OAuth app to the Amplify GitHub App</a> in the <i>Amplify User
   /// Guide</i> .
   ///
@@ -107,7 +107,7 @@ class Amplify {
   /// The custom rewrite and redirect rules for an Amplify app.
   ///
   /// Parameter [description] :
-  /// The description for an Amplify app.
+  /// The description of the Amplify app.
   ///
   /// Parameter [enableAutoBranchCreation] :
   /// Enables automated branch creation for an Amplify app.
@@ -120,11 +120,16 @@ class Amplify {
   /// Enables the auto building of branches for an Amplify app.
   ///
   /// Parameter [enableBranchAutoDeletion] :
-  /// Automatically disconnects a branch in the Amplify Console when you delete
+  /// Automatically disconnects a branch in the Amplify console when you delete
   /// a branch from your Git repository.
   ///
   /// Parameter [environmentVariables] :
   /// The environment variables map for an Amplify app.
+  ///
+  /// For a list of the environment variables that are accessible to Amplify by
+  /// default, see <a
+  /// href="https://docs.aws.amazon.com/amplify/latest/userguide/amplify-console-environment-variables.html">Amplify
+  /// Environment variables</a> in the <i>Amplify Hosting User Guide</i>.
   ///
   /// Parameter [iamServiceRoleArn] :
   /// The AWS Identity and Access Management (IAM) service role for an Amplify
@@ -145,7 +150,7 @@ class Amplify {
   /// Existing Amplify apps deployed from a GitHub repository using OAuth
   /// continue to work with CI/CD. However, we strongly recommend that you
   /// migrate these apps to use the GitHub App. For more information, see <a
-  /// href="https://docs.aws.amazon.com/amplify/latest/UserGuide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
+  /// href="https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
   /// an existing OAuth app to the Amplify GitHub App</a> in the <i>Amplify User
   /// Guide</i> .
   ///
@@ -157,7 +162,7 @@ class Amplify {
   /// <code>WEB_DYNAMIC</code>.
   ///
   /// Parameter [repository] :
-  /// The repository for an Amplify app.
+  /// The Git repository for the Amplify app.
   ///
   /// Parameter [tags] :
   /// The tag for an Amplify app.
@@ -206,7 +211,7 @@ class Amplify {
         'environmentVariables': environmentVariables,
       if (iamServiceRoleArn != null) 'iamServiceRoleArn': iamServiceRoleArn,
       if (oauthToken != null) 'oauthToken': oauthToken,
-      if (platform != null) 'platform': platform.toValue(),
+      if (platform != null) 'platform': platform.value,
       if (repository != null) 'repository': repository,
       if (tags != null) 'tags': tags,
     };
@@ -220,6 +225,12 @@ class Amplify {
   }
 
   /// Creates a new backend environment for an Amplify app.
+  ///
+  /// This API is available only to Amplify Gen 1 applications where the backend
+  /// is created using Amplify Studio or the Amplify command line interface
+  /// (CLI). This API isn’t available to Amplify Gen 2 applications. When you
+  /// deploy an application with Amplify Gen 2, you provision the app's backend
+  /// infrastructure using Typescript code.
   ///
   /// May throw [BadRequestException].
   /// May throw [UnauthorizedException].
@@ -274,9 +285,20 @@ class Amplify {
   /// Parameter [branchName] :
   /// The name for the branch.
   ///
+  /// Parameter [backend] :
+  /// The backend for a <code>Branch</code> of an Amplify app. Use for a backend
+  /// created from an CloudFormation stack.
+  ///
+  /// This field is available to Amplify Gen 2 apps only. When you deploy an
+  /// application with Amplify Gen 2, you provision the app's backend
+  /// infrastructure using Typescript code.
+  ///
   /// Parameter [backendEnvironmentArn] :
-  /// The Amazon Resource Name (ARN) for a backend environment that is part of
-  /// an Amplify app.
+  /// The Amazon Resource Name (ARN) for a backend environment that is part of a
+  /// Gen 1 Amplify app.
+  ///
+  /// This field is available to Amplify Gen 1 apps only where the backend is
+  /// created using Amplify Studio or the Amplify command line interface (CLI).
   ///
   /// Parameter [basicAuthCredentials] :
   /// The basic authorization credentials for the branch. You must base64-encode
@@ -332,6 +354,7 @@ class Amplify {
   Future<CreateBranchResult> createBranch({
     required String appId,
     required String branchName,
+    Backend? backend,
     String? backendEnvironmentArn,
     String? basicAuthCredentials,
     String? buildSpec,
@@ -351,6 +374,7 @@ class Amplify {
   }) async {
     final $payload = <String, dynamic>{
       'branchName': branchName,
+      if (backend != null) 'backend': backend,
       if (backendEnvironmentArn != null)
         'backendEnvironmentArn': backendEnvironmentArn,
       if (basicAuthCredentials != null)
@@ -370,7 +394,7 @@ class Amplify {
       if (framework != null) 'framework': framework,
       if (pullRequestEnvironmentName != null)
         'pullRequestEnvironmentName': pullRequestEnvironmentName,
-      if (stage != null) 'stage': stage.toValue(),
+      if (stage != null) 'stage': stage.value,
       if (tags != null) 'tags': tags,
       if (ttl != null) 'ttl': ttl,
     };
@@ -386,6 +410,11 @@ class Amplify {
   /// Creates a deployment for a manually deployed Amplify app. Manually
   /// deployed apps are not connected to a repository.
   ///
+  /// The maximum duration between the <code>CreateDeployment</code> call and
+  /// the <code>StartDeployment</code> call cannot exceed 8 hours. If the
+  /// duration exceeds 8 hours, the <code>StartDeployment</code> call and the
+  /// associated <code>Job</code> will fail.
+  ///
   /// May throw [BadRequestException].
   /// May throw [UnauthorizedException].
   /// May throw [InternalFailureException].
@@ -395,7 +424,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for the branch, for the job.
+  /// The name of the branch to use for the job.
   ///
   /// Parameter [fileMap] :
   /// An optional file map that contains the file name as the key and the file
@@ -446,6 +475,11 @@ class Amplify {
   /// The required AWS Identity and Access Management (IAM) service role for the
   /// Amazon Resource Name (ARN) for automatically creating subdomains.
   ///
+  /// Parameter [certificateSettings] :
+  /// The type of SSL/TLS certificate to use for your custom domain. If you
+  /// don't specify a certificate type, Amplify uses the default certificate
+  /// that it provisions and manages for you.
+  ///
   /// Parameter [enableAutoSubDomain] :
   /// Enables the automated creation of subdomains for branches.
   Future<CreateDomainAssociationResult> createDomainAssociation({
@@ -454,6 +488,7 @@ class Amplify {
     required List<SubDomainSetting> subDomainSettings,
     List<String>? autoSubDomainCreationPatterns,
     String? autoSubDomainIAMRole,
+    CertificateSettings? certificateSettings,
     bool? enableAutoSubDomain,
   }) async {
     final $payload = <String, dynamic>{
@@ -463,6 +498,8 @@ class Amplify {
         'autoSubDomainCreationPatterns': autoSubDomainCreationPatterns,
       if (autoSubDomainIAMRole != null)
         'autoSubDomainIAMRole': autoSubDomainIAMRole,
+      if (certificateSettings != null)
+        'certificateSettings': certificateSettings,
       if (enableAutoSubDomain != null)
         'enableAutoSubDomain': enableAutoSubDomain,
     };
@@ -534,6 +571,12 @@ class Amplify {
 
   /// Deletes a backend environment for an Amplify app.
   ///
+  /// This API is available only to Amplify Gen 1 applications where the backend
+  /// is created using Amplify Studio or the Amplify command line interface
+  /// (CLI). This API isn’t available to Amplify Gen 2 applications. When you
+  /// deploy an application with Amplify Gen 2, you provision the app's backend
+  /// infrastructure using Typescript code.
+  ///
   /// May throw [BadRequestException].
   /// May throw [UnauthorizedException].
   /// May throw [NotFoundException].
@@ -571,7 +614,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for the branch.
+  /// The name of the branch.
   Future<DeleteBranchResult> deleteBranch({
     required String appId,
     required String branchName,
@@ -625,7 +668,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for the branch, for the job.
+  /// The name of the branch to use for the job.
   ///
   /// Parameter [jobId] :
   /// The unique ID for the job.
@@ -707,7 +750,7 @@ class Amplify {
     return GenerateAccessLogsResult.fromJson(response);
   }
 
-  /// Returns an existing Amplify app by appID.
+  /// Returns an existing Amplify app specified by an app ID.
   ///
   /// May throw [BadRequestException].
   /// May throw [NotFoundException].
@@ -752,6 +795,12 @@ class Amplify {
 
   /// Returns a backend environment for an Amplify app.
   ///
+  /// This API is available only to Amplify Gen 1 applications where the backend
+  /// is created using Amplify Studio or the Amplify command line interface
+  /// (CLI). This API isn’t available to Amplify Gen 2 applications. When you
+  /// deploy an application with Amplify Gen 2, you provision the app's backend
+  /// infrastructure using Typescript code.
+  ///
   /// May throw [BadRequestException].
   /// May throw [UnauthorizedException].
   /// May throw [NotFoundException].
@@ -787,7 +836,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for the branch.
+  /// The name of the branch.
   Future<GetBranchResult> getBranch({
     required String appId,
     required String branchName,
@@ -840,7 +889,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The branch name for the job.
+  /// The name of the branch to use for the job.
   ///
   /// Parameter [jobId] :
   /// The unique ID for the job.
@@ -952,7 +1001,7 @@ class Amplify {
       'maxResults',
       maxResults,
       0,
-      100,
+      50,
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
@@ -970,6 +1019,12 @@ class Amplify {
   }
 
   /// Lists the backend environments for an Amplify app.
+  ///
+  /// This API is available only to Amplify Gen 1 applications where the backend
+  /// is created using Amplify Studio or the Amplify command line interface
+  /// (CLI). This API isn’t available to Amplify Gen 2 applications. When you
+  /// deploy an application with Amplify Gen 2, you provision the app's backend
+  /// infrastructure using Typescript code.
   ///
   /// May throw [BadRequestException].
   /// May throw [UnauthorizedException].
@@ -998,7 +1053,7 @@ class Amplify {
       'maxResults',
       maxResults,
       0,
-      100,
+      50,
     );
     final $query = <String, List<String>>{
       if (environmentName != null) 'environmentName': [environmentName],
@@ -1040,7 +1095,7 @@ class Amplify {
       'maxResults',
       maxResults,
       0,
-      100,
+      50,
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
@@ -1081,7 +1136,7 @@ class Amplify {
       'maxResults',
       maxResults,
       0,
-      100,
+      50,
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
@@ -1108,7 +1163,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for a branch.
+  /// The name of the branch to use for the request.
   ///
   /// Parameter [maxResults] :
   /// The maximum number of records to list in a single response.
@@ -1127,7 +1182,7 @@ class Amplify {
       'maxResults',
       maxResults,
       0,
-      100,
+      50,
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
@@ -1190,7 +1245,7 @@ class Amplify {
       'maxResults',
       maxResults,
       0,
-      100,
+      50,
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
@@ -1209,6 +1264,11 @@ class Amplify {
   /// Starts a deployment for a manually deployed app. Manually deployed apps
   /// are not connected to a repository.
   ///
+  /// The maximum duration between the <code>CreateDeployment</code> call and
+  /// the <code>StartDeployment</code> call cannot exceed 8 hours. If the
+  /// duration exceeds 8 hours, the <code>StartDeployment</code> call and the
+  /// associated <code>Job</code> will fail.
+  ///
   /// May throw [BadRequestException].
   /// May throw [UnauthorizedException].
   /// May throw [InternalFailureException].
@@ -1219,7 +1279,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for the branch, for the job.
+  /// The name of the branch to use for the job.
   ///
   /// Parameter [jobId] :
   /// The job ID for this deployment, generated by the create deployment
@@ -1261,14 +1321,15 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The branch name for the job.
+  /// The name of the branch to use for the job.
   ///
   /// Parameter [jobType] :
   /// Describes the type for the job. The job type <code>RELEASE</code> starts a
   /// new job with the latest change from the specified branch. This value is
-  /// available only for apps that are connected to a repository. The job type
-  /// <code>RETRY</code> retries an existing job. If the job type value is
-  /// <code>RETRY</code>, the <code>jobId</code> is also required.
+  /// available only for apps that are connected to a repository.
+  ///
+  /// The job type <code>RETRY</code> retries an existing job. If the job type
+  /// value is <code>RETRY</code>, the <code>jobId</code> is also required.
   ///
   /// Parameter [commitId] :
   /// The commit ID from a third-party repository provider for the job.
@@ -1284,7 +1345,7 @@ class Amplify {
   /// <code>jobType</code> is <code>RETRY</code>.
   ///
   /// Parameter [jobReason] :
-  /// A descriptive reason for starting this job.
+  /// A descriptive reason for starting the job.
   Future<StartJobResult> startJob({
     required String appId,
     required String branchName,
@@ -1296,7 +1357,7 @@ class Amplify {
     String? jobReason,
   }) async {
     final $payload = <String, dynamic>{
-      'jobType': jobType.toValue(),
+      'jobType': jobType.value,
       if (commitId != null) 'commitId': commitId,
       if (commitMessage != null) 'commitMessage': commitMessage,
       if (commitTime != null) 'commitTime': unixTimestampToJson(commitTime),
@@ -1325,7 +1386,7 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for the branch, for the job.
+  /// The name of the branch to use for the stop job request.
   ///
   /// Parameter [jobId] :
   /// The unique id for the job.
@@ -1422,7 +1483,7 @@ class Amplify {
   /// Existing Amplify apps deployed from a GitHub repository using OAuth
   /// continue to work with CI/CD. However, we strongly recommend that you
   /// migrate these apps to use the GitHub App. For more information, see <a
-  /// href="https://docs.aws.amazon.com/amplify/latest/UserGuide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
+  /// href="https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
   /// an existing OAuth app to the Amplify GitHub App</a> in the <i>Amplify User
   /// Guide</i> .
   ///
@@ -1459,7 +1520,7 @@ class Amplify {
   /// Enables branch auto-building for an Amplify app.
   ///
   /// Parameter [enableBranchAutoDeletion] :
-  /// Automatically disconnects a branch in the Amplify Console when you delete
+  /// Automatically disconnects a branch in the Amplify console when you delete
   /// a branch from your Git repository.
   ///
   /// Parameter [environmentVariables] :
@@ -1489,7 +1550,7 @@ class Amplify {
   /// Existing Amplify apps deployed from a GitHub repository using OAuth
   /// continue to work with CI/CD. However, we strongly recommend that you
   /// migrate these apps to use the GitHub App. For more information, see <a
-  /// href="https://docs.aws.amazon.com/amplify/latest/UserGuide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
+  /// href="https://docs.aws.amazon.com/amplify/latest/userguide/setting-up-GitHub-access.html#migrating-to-github-app-auth">Migrating
   /// an existing OAuth app to the Amplify GitHub App</a> in the <i>Amplify User
   /// Guide</i> .
   ///
@@ -1501,7 +1562,7 @@ class Amplify {
   /// <code>WEB_DYNAMIC</code>.
   ///
   /// Parameter [repository] :
-  /// The name of the repository for an Amplify app
+  /// The name of the Git repository for an Amplify app.
   Future<UpdateAppResult> updateApp({
     required String appId,
     String? accessToken,
@@ -1547,7 +1608,7 @@ class Amplify {
       if (iamServiceRoleArn != null) 'iamServiceRoleArn': iamServiceRoleArn,
       if (name != null) 'name': name,
       if (oauthToken != null) 'oauthToken': oauthToken,
-      if (platform != null) 'platform': platform.toValue(),
+      if (platform != null) 'platform': platform.value,
       if (repository != null) 'repository': repository,
     };
     final response = await _protocol.send(
@@ -1571,11 +1632,22 @@ class Amplify {
   /// The unique ID for an Amplify app.
   ///
   /// Parameter [branchName] :
-  /// The name for the branch.
+  /// The name of the branch.
+  ///
+  /// Parameter [backend] :
+  /// The backend for a <code>Branch</code> of an Amplify app. Use for a backend
+  /// created from an CloudFormation stack.
+  ///
+  /// This field is available to Amplify Gen 2 apps only. When you deploy an
+  /// application with Amplify Gen 2, you provision the app's backend
+  /// infrastructure using Typescript code.
   ///
   /// Parameter [backendEnvironmentArn] :
-  /// The Amazon Resource Name (ARN) for a backend environment that is part of
-  /// an Amplify app.
+  /// The Amazon Resource Name (ARN) for a backend environment that is part of a
+  /// Gen 1 Amplify app.
+  ///
+  /// This field is available to Amplify Gen 1 apps only where the backend is
+  /// created using Amplify Studio or the Amplify command line interface (CLI).
   ///
   /// Parameter [basicAuthCredentials] :
   /// The basic authorization credentials for the branch. You must base64-encode
@@ -1628,6 +1700,7 @@ class Amplify {
   Future<UpdateBranchResult> updateBranch({
     required String appId,
     required String branchName,
+    Backend? backend,
     String? backendEnvironmentArn,
     String? basicAuthCredentials,
     String? buildSpec,
@@ -1645,6 +1718,7 @@ class Amplify {
     String? ttl,
   }) async {
     final $payload = <String, dynamic>{
+      if (backend != null) 'backend': backend,
       if (backendEnvironmentArn != null)
         'backendEnvironmentArn': backendEnvironmentArn,
       if (basicAuthCredentials != null)
@@ -1664,7 +1738,7 @@ class Amplify {
       if (framework != null) 'framework': framework,
       if (pullRequestEnvironmentName != null)
         'pullRequestEnvironmentName': pullRequestEnvironmentName,
-      if (stage != null) 'stage': stage.toValue(),
+      if (stage != null) 'stage': stage.value,
       if (ttl != null) 'ttl': ttl,
     };
     final response = await _protocol.send(
@@ -1698,6 +1772,9 @@ class Amplify {
   /// The required AWS Identity and Access Management (IAM) service role for the
   /// Amazon Resource Name (ARN) for automatically creating subdomains.
   ///
+  /// Parameter [certificateSettings] :
+  /// The type of SSL/TLS certificate to use for your custom domain.
+  ///
   /// Parameter [enableAutoSubDomain] :
   /// Enables the automated creation of subdomains for branches.
   ///
@@ -1708,6 +1785,7 @@ class Amplify {
     required String domainName,
     List<String>? autoSubDomainCreationPatterns,
     String? autoSubDomainIAMRole,
+    CertificateSettings? certificateSettings,
     bool? enableAutoSubDomain,
     List<SubDomainSetting>? subDomainSettings,
   }) async {
@@ -1716,6 +1794,8 @@ class Amplify {
         'autoSubDomainCreationPatterns': autoSubDomainCreationPatterns,
       if (autoSubDomainIAMRole != null)
         'autoSubDomainIAMRole': autoSubDomainIAMRole,
+      if (certificateSettings != null)
+        'certificateSettings': certificateSettings,
       if (enableAutoSubDomain != null)
         'enableAutoSubDomain': enableAutoSubDomain,
       if (subDomainSettings != null) 'subDomainSettings': subDomainSettings,
@@ -1790,6 +1870,11 @@ class App {
   final bool enableBranchAutoBuild;
 
   /// The environment variables for the Amplify app.
+  ///
+  /// For a list of the environment variables that are accessible to Amplify by
+  /// default, see <a
+  /// href="https://docs.aws.amazon.com/amplify/latest/userguide/amplify-console-environment-variables.html">Amplify
+  /// Environment variables</a> in the <i>Amplify Hosting User Guide</i>.
   final Map<String, String> environmentVariables;
 
   /// The name for the Amplify app.
@@ -1832,7 +1917,7 @@ class App {
   /// Enables automated branch creation for the Amplify app.
   final bool? enableAutoBranchCreation;
 
-  /// Automatically disconnect a branch in the Amplify Console when you delete a
+  /// Automatically disconnect a branch in the Amplify console when you delete a
   /// branch from your Git repository.
   final bool? enableBranchAutoDeletion;
 
@@ -1896,7 +1981,7 @@ class App {
           (json['environmentVariables'] as Map<String, dynamic>)
               .map((k, e) => MapEntry(k, e as String)),
       name: json['name'] as String,
-      platform: (json['platform'] as String).toPlatform(),
+      platform: Platform.fromString((json['platform'] as String)),
       repository: json['repository'] as String,
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       autoBranchCreationConfig: json['autoBranchCreationConfig'] != null
@@ -1904,14 +1989,14 @@ class App {
               json['autoBranchCreationConfig'] as Map<String, dynamic>)
           : null,
       autoBranchCreationPatterns: (json['autoBranchCreationPatterns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       basicAuthCredentials: json['basicAuthCredentials'] as String?,
       buildSpec: json['buildSpec'] as String?,
       customHeaders: json['customHeaders'] as String?,
       customRules: (json['customRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       enableAutoBranchCreation: json['enableAutoBranchCreation'] as bool?,
@@ -1921,8 +2006,8 @@ class App {
           ? ProductionBranch.fromJson(
               json['productionBranch'] as Map<String, dynamic>)
           : null,
-      repositoryCloneMethod:
-          (json['repositoryCloneMethod'] as String?)?.toRepositoryCloneMethod(),
+      repositoryCloneMethod: (json['repositoryCloneMethod'] as String?)
+          ?.let(RepositoryCloneMethod.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -2014,7 +2099,7 @@ class AutoBranchCreationConfig {
               ?.map((k, e) => MapEntry(k, e as String)),
       framework: json['framework'] as String?,
       pullRequestEnvironmentName: json['pullRequestEnvironmentName'] as String?,
-      stage: (json['stage'] as String?)?.toStage(),
+      stage: (json['stage'] as String?)?.let(Stage.fromString),
     );
   }
 
@@ -2044,12 +2129,41 @@ class AutoBranchCreationConfig {
       if (framework != null) 'framework': framework,
       if (pullRequestEnvironmentName != null)
         'pullRequestEnvironmentName': pullRequestEnvironmentName,
-      if (stage != null) 'stage': stage.toValue(),
+      if (stage != null) 'stage': stage.value,
     };
   }
 }
 
-/// Describes the backend environment for an Amplify app.
+/// Describes the backend associated with an Amplify <code>Branch</code>.
+///
+/// This property is available to Amplify Gen 2 apps only. When you deploy an
+/// application with Amplify Gen 2, you provision the app's backend
+/// infrastructure using Typescript code.
+class Backend {
+  /// The Amazon Resource Name (ARN) for the CloudFormation stack.
+  final String? stackArn;
+
+  Backend({
+    this.stackArn,
+  });
+
+  factory Backend.fromJson(Map<String, dynamic> json) {
+    return Backend(
+      stackArn: json['stackArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final stackArn = this.stackArn;
+    return {
+      if (stackArn != null) 'stackArn': stackArn,
+    };
+  }
+}
+
+/// Describes the backend environment associated with a <code>Branch</code> of a
+/// Gen 1 Amplify app. Amplify Gen 1 applications are created using Amplify
+/// Studio or the Amplify command line interface (CLI).
 class BackendEnvironment {
   /// The Amazon Resource Name (ARN) for a backend environment that is part of an
   /// Amplify app.
@@ -2149,9 +2263,14 @@ class Branch {
 
   /// A list of custom resources that are linked to this branch.
   final List<String>? associatedResources;
+  final Backend? backend;
 
   /// The Amazon Resource Name (ARN) for a backend environment that is part of an
   /// Amplify app.
+  ///
+  /// This property is available to Amplify Gen 1 apps only. When you deploy an
+  /// application with Amplify Gen 2, you provision the app's backend
+  /// infrastructure using Typescript code.
   final String? backendEnvironmentArn;
 
   /// The basic authorization credentials for a branch of an Amplify app. You must
@@ -2204,6 +2323,7 @@ class Branch {
     required this.ttl,
     required this.updateTime,
     this.associatedResources,
+    this.backend,
     this.backendEnvironmentArn,
     this.basicAuthCredentials,
     this.buildSpec,
@@ -2222,7 +2342,7 @@ class Branch {
       branchName: json['branchName'] as String,
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
       customDomains: (json['customDomains'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       description: json['description'] as String,
@@ -2235,14 +2355,17 @@ class Branch {
           (json['environmentVariables'] as Map<String, dynamic>)
               .map((k, e) => MapEntry(k, e as String)),
       framework: json['framework'] as String,
-      stage: (json['stage'] as String).toStage(),
+      stage: Stage.fromString((json['stage'] as String)),
       totalNumberOfJobs: json['totalNumberOfJobs'] as String,
       ttl: json['ttl'] as String,
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       associatedResources: (json['associatedResources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
+      backend: json['backend'] != null
+          ? Backend.fromJson(json['backend'] as Map<String, dynamic>)
+          : null,
       backendEnvironmentArn: json['backendEnvironmentArn'] as String?,
       basicAuthCredentials: json['basicAuthCredentials'] as String?,
       buildSpec: json['buildSpec'] as String?,
@@ -2255,6 +2378,105 @@ class Branch {
       thumbnailUrl: json['thumbnailUrl'] as String?,
     );
   }
+}
+
+/// Describes the current SSL/TLS certificate that is in use for the domain. If
+/// you are using <code>CreateDomainAssociation</code> to create a new domain
+/// association, <code>Certificate</code> describes the new certificate that you
+/// are creating.
+class Certificate {
+  /// The type of SSL/TLS certificate that you want to use.
+  ///
+  /// Specify <code>AMPLIFY_MANAGED</code> to use the default certificate that
+  /// Amplify provisions for you.
+  ///
+  /// Specify <code>CUSTOM</code> to use your own certificate that you have
+  /// already added to Certificate Manager in your Amazon Web Services account.
+  /// Make sure you request (or import) the certificate in the US East (N.
+  /// Virginia) Region (us-east-1). For more information about using ACM, see <a
+  /// href="https://docs.aws.amazon.com/acm/latest/userguide/import-certificate.html">Importing
+  /// certificates into Certificate Manager</a> in the <i>ACM User guide</i> .
+  final CertificateType type;
+
+  /// The DNS record for certificate verification.
+  final String? certificateVerificationDNSRecord;
+
+  /// The Amazon resource name (ARN) for a custom certificate that you have
+  /// already added to Certificate Manager in your Amazon Web Services account.
+  ///
+  /// This field is required only when the certificate type is
+  /// <code>CUSTOM</code>.
+  final String? customCertificateArn;
+
+  Certificate({
+    required this.type,
+    this.certificateVerificationDNSRecord,
+    this.customCertificateArn,
+  });
+
+  factory Certificate.fromJson(Map<String, dynamic> json) {
+    return Certificate(
+      type: CertificateType.fromString((json['type'] as String)),
+      certificateVerificationDNSRecord:
+          json['certificateVerificationDNSRecord'] as String?,
+      customCertificateArn: json['customCertificateArn'] as String?,
+    );
+  }
+}
+
+/// The type of SSL/TLS certificate to use for your custom domain. If a
+/// certificate type isn't specified, Amplify uses the default
+/// <code>AMPLIFY_MANAGED</code> certificate.
+class CertificateSettings {
+  /// The certificate type.
+  ///
+  /// Specify <code>AMPLIFY_MANAGED</code> to use the default certificate that
+  /// Amplify provisions for you.
+  ///
+  /// Specify <code>CUSTOM</code> to use your own certificate that you have
+  /// already added to Certificate Manager in your Amazon Web Services account.
+  /// Make sure you request (or import) the certificate in the US East (N.
+  /// Virginia) Region (us-east-1). For more information about using ACM, see <a
+  /// href="https://docs.aws.amazon.com/acm/latest/userguide/import-certificate.html">Importing
+  /// certificates into Certificate Manager</a> in the <i>ACM User guide</i>.
+  final CertificateType type;
+
+  /// The Amazon resource name (ARN) for the custom certificate that you have
+  /// already added to Certificate Manager in your Amazon Web Services account.
+  ///
+  /// This field is required only when the certificate type is
+  /// <code>CUSTOM</code>.
+  final String? customCertificateArn;
+
+  CertificateSettings({
+    required this.type,
+    this.customCertificateArn,
+  });
+
+  Map<String, dynamic> toJson() {
+    final type = this.type;
+    final customCertificateArn = this.customCertificateArn;
+    return {
+      'type': type.value,
+      if (customCertificateArn != null)
+        'customCertificateArn': customCertificateArn,
+    };
+  }
+}
+
+enum CertificateType {
+  amplifyManaged('AMPLIFY_MANAGED'),
+  custom('CUSTOM'),
+  ;
+
+  final String value;
+
+  const CertificateType(this.value);
+
+  static CertificateType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CertificateType'));
 }
 
 class CreateAppResult {
@@ -2383,7 +2605,7 @@ class CustomRule {
   /// <dl> <dt>200</dt> <dd>
   /// Represents a 200 rewrite rule.
   /// </dd> <dt>301</dt> <dd>
-  /// Represents a 301 (moved pemanently) redirect rule. This and all future
+  /// Represents a 301 (moved permanently) redirect rule. This and all future
   /// requests should be directed to the target URL.
   /// </dd> <dt>302</dt> <dd>
   /// Represents a 302 temporary redirect rule.
@@ -2520,8 +2742,7 @@ class DeleteWebhookResult {
   }
 }
 
-/// Describes a domain association that associates a custom domain with an
-/// Amplify app.
+/// Describes the association between a custom domain and an Amplify app.
 class DomainAssociation {
   /// The Amazon Resource Name (ARN) for the domain association.
   final String domainAssociationArn;
@@ -2535,7 +2756,8 @@ class DomainAssociation {
   /// Enables the automated creation of subdomains for branches.
   final bool enableAutoSubDomain;
 
-  /// The reason for the current status of the domain association.
+  /// Additional information that describes why the domain association is in the
+  /// current state.
   final String statusReason;
 
   /// The subdomains for the domain association.
@@ -2548,8 +2770,46 @@ class DomainAssociation {
   /// Amazon Resource Name (ARN) for automatically creating subdomains.
   final String? autoSubDomainIAMRole;
 
+  /// Describes the SSL/TLS certificate for the domain association. This can be
+  /// your own custom certificate or the default certificate that Amplify
+  /// provisions for you.
+  ///
+  /// If you are updating your domain to use a different certificate,
+  /// <code>certificate</code> points to the new certificate that is being created
+  /// instead of the current active certificate. Otherwise,
+  /// <code>certificate</code> points to the current active certificate.
+  final Certificate? certificate;
+
   /// The DNS record for certificate verification.
   final String? certificateVerificationDNSRecord;
+
+  /// The status of the domain update operation that is currently in progress. The
+  /// following list describes the valid update states.
+  /// <dl> <dt>REQUESTING_CERTIFICATE</dt> <dd>
+  /// The certificate is in the process of being updated.
+  /// </dd> <dt>PENDING_VERIFICATION</dt> <dd>
+  /// Indicates that an Amplify managed certificate is in the process of being
+  /// verified. This occurs during the creation of a custom domain or when a
+  /// custom domain is updated to use a managed certificate.
+  /// </dd> <dt>IMPORTING_CUSTOM_CERTIFICATE</dt> <dd>
+  /// Indicates that an Amplify custom certificate is in the process of being
+  /// imported. This occurs during the creation of a custom domain or when a
+  /// custom domain is updated to use a custom certificate.
+  /// </dd> <dt>PENDING_DEPLOYMENT</dt> <dd>
+  /// Indicates that the subdomain or certificate changes are being propagated.
+  /// </dd> <dt>AWAITING_APP_CNAME</dt> <dd>
+  /// Amplify is waiting for CNAME records corresponding to subdomains to be
+  /// propagated. If your custom domain is on Route 53, Amplify handles this for
+  /// you automatically. For more information about custom domains, see <a
+  /// href="https://docs.aws.amazon.com/amplify/latest/userguide/custom-domains.html">Setting
+  /// up custom domains</a> in the <i>Amplify Hosting User Guide</i>.
+  /// </dd> <dt>UPDATE_COMPLETE</dt> <dd>
+  /// The certificate has been associated with a domain.
+  /// </dd> <dt>UPDATE_FAILED</dt> <dd>
+  /// The certificate has failed to be provisioned or associated, and there is no
+  /// existing active certificate to roll back to.
+  /// </dd> </dl>
+  final UpdateStatus? updateStatus;
 
   DomainAssociation({
     required this.domainAssociationArn,
@@ -2560,88 +2820,60 @@ class DomainAssociation {
     required this.subDomains,
     this.autoSubDomainCreationPatterns,
     this.autoSubDomainIAMRole,
+    this.certificate,
     this.certificateVerificationDNSRecord,
+    this.updateStatus,
   });
 
   factory DomainAssociation.fromJson(Map<String, dynamic> json) {
     return DomainAssociation(
       domainAssociationArn: json['domainAssociationArn'] as String,
       domainName: json['domainName'] as String,
-      domainStatus: (json['domainStatus'] as String).toDomainStatus(),
+      domainStatus: DomainStatus.fromString((json['domainStatus'] as String)),
       enableAutoSubDomain: json['enableAutoSubDomain'] as bool,
       statusReason: json['statusReason'] as String,
       subDomains: (json['subDomains'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SubDomain.fromJson(e as Map<String, dynamic>))
           .toList(),
       autoSubDomainCreationPatterns:
           (json['autoSubDomainCreationPatterns'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       autoSubDomainIAMRole: json['autoSubDomainIAMRole'] as String?,
+      certificate: json['certificate'] != null
+          ? Certificate.fromJson(json['certificate'] as Map<String, dynamic>)
+          : null,
       certificateVerificationDNSRecord:
           json['certificateVerificationDNSRecord'] as String?,
+      updateStatus:
+          (json['updateStatus'] as String?)?.let(UpdateStatus.fromString),
     );
   }
 }
 
 enum DomainStatus {
-  pendingVerification,
-  inProgress,
-  available,
-  pendingDeployment,
-  failed,
-  creating,
-  requestingCertificate,
-  updating,
-}
+  pendingVerification('PENDING_VERIFICATION'),
+  inProgress('IN_PROGRESS'),
+  available('AVAILABLE'),
+  importingCustomCertificate('IMPORTING_CUSTOM_CERTIFICATE'),
+  pendingDeployment('PENDING_DEPLOYMENT'),
+  awaitingAppCname('AWAITING_APP_CNAME'),
+  failed('FAILED'),
+  creating('CREATING'),
+  requestingCertificate('REQUESTING_CERTIFICATE'),
+  updating('UPDATING'),
+  ;
 
-extension DomainStatusValueExtension on DomainStatus {
-  String toValue() {
-    switch (this) {
-      case DomainStatus.pendingVerification:
-        return 'PENDING_VERIFICATION';
-      case DomainStatus.inProgress:
-        return 'IN_PROGRESS';
-      case DomainStatus.available:
-        return 'AVAILABLE';
-      case DomainStatus.pendingDeployment:
-        return 'PENDING_DEPLOYMENT';
-      case DomainStatus.failed:
-        return 'FAILED';
-      case DomainStatus.creating:
-        return 'CREATING';
-      case DomainStatus.requestingCertificate:
-        return 'REQUESTING_CERTIFICATE';
-      case DomainStatus.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension DomainStatusFromString on String {
-  DomainStatus toDomainStatus() {
-    switch (this) {
-      case 'PENDING_VERIFICATION':
-        return DomainStatus.pendingVerification;
-      case 'IN_PROGRESS':
-        return DomainStatus.inProgress;
-      case 'AVAILABLE':
-        return DomainStatus.available;
-      case 'PENDING_DEPLOYMENT':
-        return DomainStatus.pendingDeployment;
-      case 'FAILED':
-        return DomainStatus.failed;
-      case 'CREATING':
-        return DomainStatus.creating;
-      case 'REQUESTING_CERTIFICATE':
-        return DomainStatus.requestingCertificate;
-      case 'UPDATING':
-        return DomainStatus.updating;
-    }
-    throw Exception('$this is not known in enum DomainStatus');
-  }
+  const DomainStatus(this.value);
+
+  static DomainStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DomainStatus'));
 }
 
 /// The result structure for the generate access logs request.
@@ -2790,7 +3022,7 @@ class Job {
   factory Job.fromJson(Map<String, dynamic> json) {
     return Job(
       steps: (json['steps'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Step.fromJson(e as Map<String, dynamic>))
           .toList(),
       summary: JobSummary.fromJson(json['summary'] as Map<String, dynamic>),
@@ -2799,56 +3031,22 @@ class Job {
 }
 
 enum JobStatus {
-  pending,
-  provisioning,
-  running,
-  failed,
-  succeed,
-  cancelling,
-  cancelled,
-}
+  pending('PENDING'),
+  provisioning('PROVISIONING'),
+  running('RUNNING'),
+  failed('FAILED'),
+  succeed('SUCCEED'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.pending:
-        return 'PENDING';
-      case JobStatus.provisioning:
-        return 'PROVISIONING';
-      case JobStatus.running:
-        return 'RUNNING';
-      case JobStatus.failed:
-        return 'FAILED';
-      case JobStatus.succeed:
-        return 'SUCCEED';
-      case JobStatus.cancelling:
-        return 'CANCELLING';
-      case JobStatus.cancelled:
-        return 'CANCELLED';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'PENDING':
-        return JobStatus.pending;
-      case 'PROVISIONING':
-        return JobStatus.provisioning;
-      case 'RUNNING':
-        return JobStatus.running;
-      case 'FAILED':
-        return JobStatus.failed;
-      case 'SUCCEED':
-        return JobStatus.succeed;
-      case 'CANCELLING':
-        return JobStatus.cancelling;
-      case 'CANCELLED':
-        return JobStatus.cancelled;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 /// Describes the summary for an execution job for an Amplify app.
@@ -2903,50 +3101,28 @@ class JobSummary {
       commitTime: nonNullableTimeStampFromJson(json['commitTime'] as Object),
       jobArn: json['jobArn'] as String,
       jobId: json['jobId'] as String,
-      jobType: (json['jobType'] as String).toJobType(),
+      jobType: JobType.fromString((json['jobType'] as String)),
       startTime: nonNullableTimeStampFromJson(json['startTime'] as Object),
-      status: (json['status'] as String).toJobStatus(),
+      status: JobStatus.fromString((json['status'] as String)),
       endTime: timeStampFromJson(json['endTime']),
     );
   }
 }
 
 enum JobType {
-  release,
-  retry,
-  manual,
-  webHook,
-}
+  release('RELEASE'),
+  retry('RETRY'),
+  manual('MANUAL'),
+  webHook('WEB_HOOK'),
+  ;
 
-extension JobTypeValueExtension on JobType {
-  String toValue() {
-    switch (this) {
-      case JobType.release:
-        return 'RELEASE';
-      case JobType.retry:
-        return 'RETRY';
-      case JobType.manual:
-        return 'MANUAL';
-      case JobType.webHook:
-        return 'WEB_HOOK';
-    }
-  }
-}
+  final String value;
 
-extension JobTypeFromString on String {
-  JobType toJobType() {
-    switch (this) {
-      case 'RELEASE':
-        return JobType.release;
-      case 'RETRY':
-        return JobType.retry;
-      case 'MANUAL':
-        return JobType.manual;
-      case 'WEB_HOOK':
-        return JobType.webHook;
-    }
-    throw Exception('$this is not known in enum JobType');
-  }
+  const JobType(this.value);
+
+  static JobType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum JobType'));
 }
 
 /// The result structure for an Amplify app list request.
@@ -2967,7 +3143,7 @@ class ListAppsResult {
   factory ListAppsResult.fromJson(Map<String, dynamic> json) {
     return ListAppsResult(
       apps: (json['apps'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => App.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2992,7 +3168,7 @@ class ListArtifactsResult {
   factory ListArtifactsResult.fromJson(Map<String, dynamic> json) {
     return ListArtifactsResult(
       artifacts: (json['artifacts'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Artifact.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3017,7 +3193,7 @@ class ListBackendEnvironmentsResult {
   factory ListBackendEnvironmentsResult.fromJson(Map<String, dynamic> json) {
     return ListBackendEnvironmentsResult(
       backendEnvironments: (json['backendEnvironments'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BackendEnvironment.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3042,7 +3218,7 @@ class ListBranchesResult {
   factory ListBranchesResult.fromJson(Map<String, dynamic> json) {
     return ListBranchesResult(
       branches: (json['branches'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Branch.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3067,7 +3243,7 @@ class ListDomainAssociationsResult {
   factory ListDomainAssociationsResult.fromJson(Map<String, dynamic> json) {
     return ListDomainAssociationsResult(
       domainAssociations: (json['domainAssociations'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => DomainAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3092,7 +3268,7 @@ class ListJobsResult {
   factory ListJobsResult.fromJson(Map<String, dynamic> json) {
     return ListJobsResult(
       jobSummaries: (json['jobSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => JobSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3134,7 +3310,7 @@ class ListWebhooksResult {
   factory ListWebhooksResult.fromJson(Map<String, dynamic> json) {
     return ListWebhooksResult(
       webhooks: (json['webhooks'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Webhook.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3143,36 +3319,18 @@ class ListWebhooksResult {
 }
 
 enum Platform {
-  web,
-  webDynamic,
-  webCompute,
-}
+  web('WEB'),
+  webDynamic('WEB_DYNAMIC'),
+  webCompute('WEB_COMPUTE'),
+  ;
 
-extension PlatformValueExtension on Platform {
-  String toValue() {
-    switch (this) {
-      case Platform.web:
-        return 'WEB';
-      case Platform.webDynamic:
-        return 'WEB_DYNAMIC';
-      case Platform.webCompute:
-        return 'WEB_COMPUTE';
-    }
-  }
-}
+  final String value;
 
-extension PlatformFromString on String {
-  Platform toPlatform() {
-    switch (this) {
-      case 'WEB':
-        return Platform.web;
-      case 'WEB_DYNAMIC':
-        return Platform.webDynamic;
-      case 'WEB_COMPUTE':
-        return Platform.webCompute;
-    }
-    throw Exception('$this is not known in enum Platform');
-  }
+  const Platform(this.value);
+
+  static Platform fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Platform'));
 }
 
 /// Describes the information about a production branch for an Amplify app.
@@ -3207,79 +3365,36 @@ class ProductionBranch {
 }
 
 enum RepositoryCloneMethod {
-  ssh,
-  token,
-  sigv4,
-}
+  ssh('SSH'),
+  token('TOKEN'),
+  sigv4('SIGV4'),
+  ;
 
-extension RepositoryCloneMethodValueExtension on RepositoryCloneMethod {
-  String toValue() {
-    switch (this) {
-      case RepositoryCloneMethod.ssh:
-        return 'SSH';
-      case RepositoryCloneMethod.token:
-        return 'TOKEN';
-      case RepositoryCloneMethod.sigv4:
-        return 'SIGV4';
-    }
-  }
-}
+  final String value;
 
-extension RepositoryCloneMethodFromString on String {
-  RepositoryCloneMethod toRepositoryCloneMethod() {
-    switch (this) {
-      case 'SSH':
-        return RepositoryCloneMethod.ssh;
-      case 'TOKEN':
-        return RepositoryCloneMethod.token;
-      case 'SIGV4':
-        return RepositoryCloneMethod.sigv4;
-    }
-    throw Exception('$this is not known in enum RepositoryCloneMethod');
-  }
+  const RepositoryCloneMethod(this.value);
+
+  static RepositoryCloneMethod fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RepositoryCloneMethod'));
 }
 
 enum Stage {
-  production,
-  beta,
-  development,
-  experimental,
-  pullRequest,
-}
+  production('PRODUCTION'),
+  beta('BETA'),
+  development('DEVELOPMENT'),
+  experimental('EXPERIMENTAL'),
+  pullRequest('PULL_REQUEST'),
+  ;
 
-extension StageValueExtension on Stage {
-  String toValue() {
-    switch (this) {
-      case Stage.production:
-        return 'PRODUCTION';
-      case Stage.beta:
-        return 'BETA';
-      case Stage.development:
-        return 'DEVELOPMENT';
-      case Stage.experimental:
-        return 'EXPERIMENTAL';
-      case Stage.pullRequest:
-        return 'PULL_REQUEST';
-    }
-  }
-}
+  final String value;
 
-extension StageFromString on String {
-  Stage toStage() {
-    switch (this) {
-      case 'PRODUCTION':
-        return Stage.production;
-      case 'BETA':
-        return Stage.beta;
-      case 'DEVELOPMENT':
-        return Stage.development;
-      case 'EXPERIMENTAL':
-        return Stage.experimental;
-      case 'PULL_REQUEST':
-        return Stage.pullRequest;
-    }
-    throw Exception('$this is not known in enum Stage');
-  }
+  const Stage(this.value);
+
+  static Stage fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Stage'));
 }
 
 /// The result structure for the start a deployment request.
@@ -3370,7 +3485,7 @@ class Step {
     return Step(
       endTime: nonNullableTimeStampFromJson(json['endTime'] as Object),
       startTime: nonNullableTimeStampFromJson(json['startTime'] as Object),
-      status: (json['status'] as String).toJobStatus(),
+      status: JobStatus.fromString((json['status'] as String)),
       stepName: json['stepName'] as String,
       artifactsUrl: json['artifactsUrl'] as String?,
       context: json['context'] as String?,
@@ -3525,6 +3640,26 @@ class UpdateDomainAssociationResult {
           json['domainAssociation'] as Map<String, dynamic>),
     );
   }
+}
+
+enum UpdateStatus {
+  requestingCertificate('REQUESTING_CERTIFICATE'),
+  pendingVerification('PENDING_VERIFICATION'),
+  importingCustomCertificate('IMPORTING_CUSTOM_CERTIFICATE'),
+  pendingDeployment('PENDING_DEPLOYMENT'),
+  awaitingAppCname('AWAITING_APP_CNAME'),
+  updateComplete('UPDATE_COMPLETE'),
+  updateFailed('UPDATE_FAILED'),
+  ;
+
+  final String value;
+
+  const UpdateStatus(this.value);
+
+  static UpdateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateStatus'));
 }
 
 /// The result structure for the update webhook request.

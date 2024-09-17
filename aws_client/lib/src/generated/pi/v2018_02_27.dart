@@ -52,6 +52,112 @@ class PI {
     _protocol.close();
   }
 
+  /// Creates a new performance analysis report for a specific time period for
+  /// the DB instance.
+  ///
+  /// May throw [InvalidArgumentException].
+  /// May throw [InternalServiceError].
+  /// May throw [NotAuthorizedException].
+  ///
+  /// Parameter [endTime] :
+  /// The end time defined for the analysis report.
+  ///
+  /// Parameter [identifier] :
+  /// An immutable, Amazon Web Services Region-unique identifier for a data
+  /// source. Performance Insights gathers metrics from this data source.
+  ///
+  /// To use an Amazon RDS instance as a data source, you specify its
+  /// <code>DbiResourceId</code> value. For example, specify
+  /// <code>db-ADECBTYHKTSAUMUZQYPDS2GW4A</code>.
+  ///
+  /// Parameter [serviceType] :
+  /// The Amazon Web Services service for which Performance Insights will return
+  /// metrics. Valid value is <code>RDS</code>.
+  ///
+  /// Parameter [startTime] :
+  /// The start time defined for the analysis report.
+  ///
+  /// Parameter [tags] :
+  /// The metadata assigned to the analysis report consisting of a key-value
+  /// pair.
+  Future<CreatePerformanceAnalysisReportResponse>
+      createPerformanceAnalysisReport({
+    required DateTime endTime,
+    required String identifier,
+    required ServiceType serviceType,
+    required DateTime startTime,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'PerformanceInsightsv20180227.CreatePerformanceAnalysisReport'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'EndTime': unixTimestampToJson(endTime),
+        'Identifier': identifier,
+        'ServiceType': serviceType.value,
+        'StartTime': unixTimestampToJson(startTime),
+        if (tags != null) 'Tags': tags,
+      },
+    );
+
+    return CreatePerformanceAnalysisReportResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Deletes a performance analysis report.
+  ///
+  /// May throw [InvalidArgumentException].
+  /// May throw [InternalServiceError].
+  /// May throw [NotAuthorizedException].
+  ///
+  /// Parameter [analysisReportId] :
+  /// The unique identifier of the analysis report for deletion.
+  ///
+  /// Parameter [identifier] :
+  /// An immutable identifier for a data source that is unique for an Amazon Web
+  /// Services Region. Performance Insights gathers metrics from this data
+  /// source. In the console, the identifier is shown as <i>ResourceID</i>. When
+  /// you call <code>DescribeDBInstances</code>, the identifier is returned as
+  /// <code>DbiResourceId</code>.
+  ///
+  /// To use a DB instance as a data source, specify its
+  /// <code>DbiResourceId</code> value. For example, specify
+  /// <code>db-ABCDEFGHIJKLMNOPQRSTU1VW2X</code>.
+  ///
+  /// Parameter [serviceType] :
+  /// The Amazon Web Services service for which Performance Insights will return
+  /// metrics. Valid value is <code>RDS</code>.
+  Future<void> deletePerformanceAnalysisReport({
+    required String analysisReportId,
+    required String identifier,
+    required ServiceType serviceType,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'PerformanceInsightsv20180227.DeletePerformanceAnalysisReport'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AnalysisReportId': analysisReportId,
+        'Identifier': identifier,
+        'ServiceType': serviceType.value,
+      },
+    );
+  }
+
   /// For a specific time period, retrieve the top <code>N</code> dimension keys
   /// for a metric.
   /// <note>
@@ -228,7 +334,7 @@ class PI {
         'GroupBy': groupBy,
         'Identifier': identifier,
         'Metric': metric,
-        'ServiceType': serviceType.toValue(),
+        'ServiceType': serviceType.value,
         'StartTime': unixTimestampToJson(startTime),
         if (additionalMetrics != null) 'AdditionalMetrics': additionalMetrics,
         if (filter != null) 'Filter': filter,
@@ -333,13 +439,80 @@ class PI {
         'Group': group,
         'GroupIdentifier': groupIdentifier,
         'Identifier': identifier,
-        'ServiceType': serviceType.toValue(),
+        'ServiceType': serviceType.value,
         if (requestedDimensions != null)
           'RequestedDimensions': requestedDimensions,
       },
     );
 
     return GetDimensionKeyDetailsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Retrieves the report including the report ID, status, time details, and
+  /// the insights with recommendations. The report status can be
+  /// <code>RUNNING</code>, <code>SUCCEEDED</code>, or <code>FAILED</code>. The
+  /// insights include the <code>description</code> and
+  /// <code>recommendation</code> fields.
+  ///
+  /// May throw [InvalidArgumentException].
+  /// May throw [InternalServiceError].
+  /// May throw [NotAuthorizedException].
+  ///
+  /// Parameter [analysisReportId] :
+  /// A unique identifier of the created analysis report. For example,
+  /// <code>report-12345678901234567</code>
+  ///
+  /// Parameter [identifier] :
+  /// An immutable identifier for a data source that is unique for an Amazon Web
+  /// Services Region. Performance Insights gathers metrics from this data
+  /// source. In the console, the identifier is shown as <i>ResourceID</i>. When
+  /// you call <code>DescribeDBInstances</code>, the identifier is returned as
+  /// <code>DbiResourceId</code>.
+  ///
+  /// To use a DB instance as a data source, specify its
+  /// <code>DbiResourceId</code> value. For example, specify
+  /// <code>db-ABCDEFGHIJKLMNOPQRSTU1VW2X</code>.
+  ///
+  /// Parameter [serviceType] :
+  /// The Amazon Web Services service for which Performance Insights will return
+  /// metrics. Valid value is <code>RDS</code>.
+  ///
+  /// Parameter [acceptLanguage] :
+  /// The text language in the report. The default language is
+  /// <code>EN_US</code> (English).
+  ///
+  /// Parameter [textFormat] :
+  /// Indicates the text format in the report. The options are
+  /// <code>PLAIN_TEXT</code> or <code>MARKDOWN</code>. The default value is
+  /// <code>plain text</code>.
+  Future<GetPerformanceAnalysisReportResponse> getPerformanceAnalysisReport({
+    required String analysisReportId,
+    required String identifier,
+    required ServiceType serviceType,
+    AcceptLanguage? acceptLanguage,
+    TextFormat? textFormat,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'PerformanceInsightsv20180227.GetPerformanceAnalysisReport'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AnalysisReportId': analysisReportId,
+        'Identifier': identifier,
+        'ServiceType': serviceType.value,
+        if (acceptLanguage != null) 'AcceptLanguage': acceptLanguage.value,
+        if (textFormat != null) 'TextFormat': textFormat.value,
+      },
+    );
+
+    return GetPerformanceAnalysisReportResponse.fromJson(jsonResponse.body);
   }
 
   /// Retrieve the metadata for different features. For example, the metadata
@@ -376,7 +549,7 @@ class PI {
       headers: headers,
       payload: {
         'Identifier': identifier,
-        'ServiceType': serviceType.toValue(),
+        'ServiceType': serviceType.value,
       },
     );
 
@@ -385,7 +558,8 @@ class PI {
 
   /// Retrieve Performance Insights metrics for a set of data sources over a
   /// time period. You can provide specific dimension groups and dimensions, and
-  /// provide aggregation and filtering criteria for each group.
+  /// provide filtering criteria for each group. You must specify an aggregate
+  /// function for each metric.
   /// <note>
   /// Each response element returns a maximum of 500 bytes. For larger elements,
   /// such as SQL statements, only the first 500 bytes are returned.
@@ -416,8 +590,12 @@ class PI {
   ///
   /// Parameter [metricQueries] :
   /// An array of one or more queries to perform. Each query must specify a
-  /// Performance Insights metric, and can optionally specify aggregation and
-  /// filtering criteria.
+  /// Performance Insights metric and specify an aggregate function, and you can
+  /// provide filtering criteria. You must append the aggregate function to the
+  /// metric. For example, to find the average for the metric
+  /// <code>db.load</code> you must use <code>db.load.avg</code>. Valid values
+  /// for aggregate functions include <code>.avg</code>, <code>.min</code>,
+  /// <code>.max</code>, and <code>.sum</code>.
   ///
   /// Parameter [serviceType] :
   /// The Amazon Web Services service for which Performance Insights returns
@@ -513,12 +691,11 @@ class PI {
         'EndTime': unixTimestampToJson(endTime),
         'Identifier': identifier,
         'MetricQueries': metricQueries,
-        'ServiceType': serviceType.toValue(),
+        'ServiceType': serviceType.value,
         'StartTime': unixTimestampToJson(startTime),
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (periodAlignment != null)
-          'PeriodAlignment': periodAlignment.toValue(),
+        if (periodAlignment != null) 'PeriodAlignment': periodAlignment.value,
         if (periodInSeconds != null) 'PeriodInSeconds': periodInSeconds,
       },
     );
@@ -548,6 +725,15 @@ class PI {
   /// The Amazon Web Services service for which Performance Insights returns
   /// metrics.
   ///
+  /// Parameter [authorizedActions] :
+  /// The actions to discover the dimensions you are authorized to access. If
+  /// you specify multiple actions, then the response will contain the
+  /// dimensions common for all the actions.
+  ///
+  /// When you don't specify this request parameter or provide an empty list,
+  /// the response contains all the available dimensions for the target database
+  /// engine whether or not you are authorized to access them.
+  ///
   /// Parameter [maxResults] :
   /// The maximum number of items to return in the response. If more items exist
   /// than the specified <code>MaxRecords</code> value, a pagination token is
@@ -562,6 +748,7 @@ class PI {
     required String identifier,
     required List<String> metrics,
     required ServiceType serviceType,
+    List<FineGrainedAction>? authorizedActions,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -585,7 +772,9 @@ class PI {
       payload: {
         'Identifier': identifier,
         'Metrics': metrics,
-        'ServiceType': serviceType.toValue(),
+        'ServiceType': serviceType.value,
+        if (authorizedActions != null)
+          'AuthorizedActions': authorizedActions.map((e) => e.value).toList(),
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -670,13 +859,458 @@ class PI {
       payload: {
         'Identifier': identifier,
         'MetricTypes': metricTypes,
-        'ServiceType': serviceType.toValue(),
+        'ServiceType': serviceType.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
     );
 
     return ListAvailableResourceMetricsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Lists all the analysis reports created for the DB instance. The reports
+  /// are sorted based on the start time of each report.
+  ///
+  /// May throw [InvalidArgumentException].
+  /// May throw [InternalServiceError].
+  /// May throw [NotAuthorizedException].
+  ///
+  /// Parameter [identifier] :
+  /// An immutable identifier for a data source that is unique for an Amazon Web
+  /// Services Region. Performance Insights gathers metrics from this data
+  /// source. In the console, the identifier is shown as <i>ResourceID</i>. When
+  /// you call <code>DescribeDBInstances</code>, the identifier is returned as
+  /// <code>DbiResourceId</code>.
+  ///
+  /// To use a DB instance as a data source, specify its
+  /// <code>DbiResourceId</code> value. For example, specify
+  /// <code>db-ABCDEFGHIJKLMNOPQRSTU1VW2X</code>.
+  ///
+  /// Parameter [serviceType] :
+  /// The Amazon Web Services service for which Performance Insights returns
+  /// metrics. Valid value is <code>RDS</code>.
+  ///
+  /// Parameter [listTags] :
+  /// Specifies whether or not to include the list of tags in the response.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of items to return in the response. If more items exist
+  /// than the specified <code>MaxResults</code> value, a pagination token is
+  /// included in the response so that the remaining results can be retrieved.
+  ///
+  /// Parameter [nextToken] :
+  /// An optional pagination token provided by a previous request. If this
+  /// parameter is specified, the response includes only records beyond the
+  /// token, up to the value specified by <code>MaxResults</code>.
+  Future<ListPerformanceAnalysisReportsResponse>
+      listPerformanceAnalysisReports({
+    required String identifier,
+    required ServiceType serviceType,
+    bool? listTags,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      25,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'PerformanceInsightsv20180227.ListPerformanceAnalysisReports'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Identifier': identifier,
+        'ServiceType': serviceType.value,
+        if (listTags != null) 'ListTags': listTags,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListPerformanceAnalysisReportsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Retrieves all the metadata tags associated with Amazon RDS Performance
+  /// Insights resource.
+  ///
+  /// May throw [InvalidArgumentException].
+  /// May throw [InternalServiceError].
+  /// May throw [NotAuthorizedException].
+  ///
+  /// Parameter [resourceARN] :
+  /// Lists all the tags for the Amazon RDS Performance Insights resource. This
+  /// value is an Amazon Resource Name (ARN). For information about creating an
+  /// ARN, see <a
+  /// href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.ARN.html#USER_Tagging.ARN.Constructing">
+  /// Constructing an RDS Amazon Resource Name (ARN)</a>.
+  ///
+  /// Parameter [serviceType] :
+  /// List the tags for the Amazon Web Services service for which Performance
+  /// Insights returns metrics. Valid value is <code>RDS</code>.
+  Future<ListTagsForResourceResponse> listTagsForResource({
+    required String resourceARN,
+    required ServiceType serviceType,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PerformanceInsightsv20180227.ListTagsForResource'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+        'ServiceType': serviceType.value,
+      },
+    );
+
+    return ListTagsForResourceResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Adds metadata tags to the Amazon RDS Performance Insights resource.
+  ///
+  /// May throw [InvalidArgumentException].
+  /// May throw [InternalServiceError].
+  /// May throw [NotAuthorizedException].
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon RDS Performance Insights resource that the tags are added to.
+  /// This value is an Amazon Resource Name (ARN). For information about
+  /// creating an ARN, see <a
+  /// href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.ARN.html#USER_Tagging.ARN.Constructing">
+  /// Constructing an RDS Amazon Resource Name (ARN)</a>.
+  ///
+  /// Parameter [serviceType] :
+  /// The Amazon Web Services service for which Performance Insights returns
+  /// metrics. Valid value is <code>RDS</code>.
+  ///
+  /// Parameter [tags] :
+  /// The metadata assigned to an Amazon RDS resource consisting of a key-value
+  /// pair.
+  Future<void> tagResource({
+    required String resourceARN,
+    required ServiceType serviceType,
+    required List<Tag> tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PerformanceInsightsv20180227.TagResource'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+        'ServiceType': serviceType.value,
+        'Tags': tags,
+      },
+    );
+  }
+
+  /// Deletes the metadata tags from the Amazon RDS Performance Insights
+  /// resource.
+  ///
+  /// May throw [InvalidArgumentException].
+  /// May throw [InternalServiceError].
+  /// May throw [NotAuthorizedException].
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon RDS Performance Insights resource that the tags are added to.
+  /// This value is an Amazon Resource Name (ARN). For information about
+  /// creating an ARN, see <a
+  /// href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_Tagging.ARN.html#USER_Tagging.ARN.Constructing">
+  /// Constructing an RDS Amazon Resource Name (ARN)</a>.
+  ///
+  /// Parameter [serviceType] :
+  /// List the tags for the Amazon Web Services service for which Performance
+  /// Insights returns metrics. Valid value is <code>RDS</code>.
+  ///
+  /// Parameter [tagKeys] :
+  /// The metadata assigned to an Amazon RDS Performance Insights resource
+  /// consisting of a key-value pair.
+  Future<void> untagResource({
+    required String resourceARN,
+    required ServiceType serviceType,
+    required List<String> tagKeys,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PerformanceInsightsv20180227.UntagResource'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+        'ServiceType': serviceType.value,
+        'TagKeys': tagKeys,
+      },
+    );
+  }
+}
+
+enum AcceptLanguage {
+  enUs('EN_US'),
+  ;
+
+  final String value;
+
+  const AcceptLanguage(this.value);
+
+  static AcceptLanguage fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AcceptLanguage'));
+}
+
+/// Retrieves the summary of the performance analysis report created for a time
+/// period.
+class AnalysisReport {
+  /// The name of the analysis report.
+  final String analysisReportId;
+
+  /// The time you created the analysis report.
+  final DateTime? createTime;
+
+  /// The analysis end time in the report.
+  final DateTime? endTime;
+
+  /// The unique identifier of the analysis report.
+  final String? identifier;
+
+  /// The list of identified insights in the analysis report.
+  final List<Insight>? insights;
+
+  /// List the tags for the Amazon Web Services service for which Performance
+  /// Insights returns metrics. Valid values are as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>RDS</code>
+  /// </li>
+  /// <li>
+  /// <code>DOCDB</code>
+  /// </li>
+  /// </ul>
+  final ServiceType? serviceType;
+
+  /// The analysis start time in the report.
+  final DateTime? startTime;
+
+  /// The status of the created analysis report.
+  final AnalysisStatus? status;
+
+  AnalysisReport({
+    required this.analysisReportId,
+    this.createTime,
+    this.endTime,
+    this.identifier,
+    this.insights,
+    this.serviceType,
+    this.startTime,
+    this.status,
+  });
+
+  factory AnalysisReport.fromJson(Map<String, dynamic> json) {
+    return AnalysisReport(
+      analysisReportId: json['AnalysisReportId'] as String,
+      createTime: timeStampFromJson(json['CreateTime']),
+      endTime: timeStampFromJson(json['EndTime']),
+      identifier: json['Identifier'] as String?,
+      insights: (json['Insights'] as List?)
+          ?.nonNulls
+          .map((e) => Insight.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      serviceType:
+          (json['ServiceType'] as String?)?.let(ServiceType.fromString),
+      startTime: timeStampFromJson(json['StartTime']),
+      status: (json['Status'] as String?)?.let(AnalysisStatus.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisReportId = this.analysisReportId;
+    final createTime = this.createTime;
+    final endTime = this.endTime;
+    final identifier = this.identifier;
+    final insights = this.insights;
+    final serviceType = this.serviceType;
+    final startTime = this.startTime;
+    final status = this.status;
+    return {
+      'AnalysisReportId': analysisReportId,
+      if (createTime != null) 'CreateTime': unixTimestampToJson(createTime),
+      if (endTime != null) 'EndTime': unixTimestampToJson(endTime),
+      if (identifier != null) 'Identifier': identifier,
+      if (insights != null) 'Insights': insights,
+      if (serviceType != null) 'ServiceType': serviceType.value,
+      if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
+      if (status != null) 'Status': status.value,
+    };
+  }
+}
+
+/// Retrieves the details of the performance analysis report.
+class AnalysisReportSummary {
+  /// The name of the analysis report.
+  final String? analysisReportId;
+
+  /// The time you created the analysis report.
+  final DateTime? createTime;
+
+  /// The end time of the analysis in the report.
+  final DateTime? endTime;
+
+  /// The start time of the analysis in the report.
+  final DateTime? startTime;
+
+  /// The status of the analysis report.
+  final AnalysisStatus? status;
+
+  /// List of all the tags added to the analysis report.
+  final List<Tag>? tags;
+
+  AnalysisReportSummary({
+    this.analysisReportId,
+    this.createTime,
+    this.endTime,
+    this.startTime,
+    this.status,
+    this.tags,
+  });
+
+  factory AnalysisReportSummary.fromJson(Map<String, dynamic> json) {
+    return AnalysisReportSummary(
+      analysisReportId: json['AnalysisReportId'] as String?,
+      createTime: timeStampFromJson(json['CreateTime']),
+      endTime: timeStampFromJson(json['EndTime']),
+      startTime: timeStampFromJson(json['StartTime']),
+      status: (json['Status'] as String?)?.let(AnalysisStatus.fromString),
+      tags: (json['Tags'] as List?)
+          ?.nonNulls
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisReportId = this.analysisReportId;
+    final createTime = this.createTime;
+    final endTime = this.endTime;
+    final startTime = this.startTime;
+    final status = this.status;
+    final tags = this.tags;
+    return {
+      if (analysisReportId != null) 'AnalysisReportId': analysisReportId,
+      if (createTime != null) 'CreateTime': unixTimestampToJson(createTime),
+      if (endTime != null) 'EndTime': unixTimestampToJson(endTime),
+      if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
+      if (status != null) 'Status': status.value,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+enum AnalysisStatus {
+  running('RUNNING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const AnalysisStatus(this.value);
+
+  static AnalysisStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AnalysisStatus'));
+}
+
+enum ContextType {
+  causal('CAUSAL'),
+  contextual('CONTEXTUAL'),
+  ;
+
+  final String value;
+
+  const ContextType(this.value);
+
+  static ContextType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ContextType'));
+}
+
+class CreatePerformanceAnalysisReportResponse {
+  /// A unique identifier for the created analysis report.
+  final String? analysisReportId;
+
+  CreatePerformanceAnalysisReportResponse({
+    this.analysisReportId,
+  });
+
+  factory CreatePerformanceAnalysisReportResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreatePerformanceAnalysisReportResponse(
+      analysisReportId: json['AnalysisReportId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisReportId = this.analysisReportId;
+    return {
+      if (analysisReportId != null) 'AnalysisReportId': analysisReportId,
+    };
+  }
+}
+
+/// List of data objects which provide details about source metrics. This field
+/// can be used to determine the PI metric to render for the insight. This data
+/// type also includes static values for the metrics for the Insight that were
+/// calculated and included in text and annotations on the DB load chart.
+class Data {
+  /// This field determines the Performance Insights metric to render for the
+  /// insight. The <code>name</code> field refers to a Performance Insights
+  /// metric.
+  final PerformanceInsightsMetric? performanceInsightsMetric;
+
+  Data({
+    this.performanceInsightsMetric,
+  });
+
+  factory Data.fromJson(Map<String, dynamic> json) {
+    return Data(
+      performanceInsightsMetric: json['PerformanceInsightsMetric'] != null
+          ? PerformanceInsightsMetric.fromJson(
+              json['PerformanceInsightsMetric'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final performanceInsightsMetric = this.performanceInsightsMetric;
+    return {
+      if (performanceInsightsMetric != null)
+        'PerformanceInsightsMetric': performanceInsightsMetric,
+    };
   }
 }
 
@@ -708,6 +1342,19 @@ class DataPoint {
       'Timestamp': unixTimestampToJson(timestamp),
       'Value': value,
     };
+  }
+}
+
+class DeletePerformanceAnalysisReportResponse {
+  DeletePerformanceAnalysisReportResponse();
+
+  factory DeletePerformanceAnalysisReportResponse.fromJson(
+      Map<String, dynamic> _) {
+    return DeletePerformanceAnalysisReportResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -751,13 +1398,13 @@ class DescribeDimensionKeysResponse {
       alignedEndTime: timeStampFromJson(json['AlignedEndTime']),
       alignedStartTime: timeStampFromJson(json['AlignedStartTime']),
       keys: (json['Keys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DimensionKeyDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResponsePartitionKey.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -782,36 +1429,19 @@ class DescribeDimensionKeysResponse {
 }
 
 enum DetailStatus {
-  available,
-  processing,
-  unavailable,
-}
+  available('AVAILABLE'),
+  processing('PROCESSING'),
+  unavailable('UNAVAILABLE'),
+  ;
 
-extension DetailStatusValueExtension on DetailStatus {
-  String toValue() {
-    switch (this) {
-      case DetailStatus.available:
-        return 'AVAILABLE';
-      case DetailStatus.processing:
-        return 'PROCESSING';
-      case DetailStatus.unavailable:
-        return 'UNAVAILABLE';
-    }
-  }
-}
+  final String value;
 
-extension DetailStatusFromString on String {
-  DetailStatus toDetailStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return DetailStatus.available;
-      case 'PROCESSING':
-        return DetailStatus.processing;
-      case 'UNAVAILABLE':
-        return DetailStatus.unavailable;
-    }
-    throw Exception('$this is not known in enum DetailStatus');
-  }
+  const DetailStatus(this.value);
+
+  static DetailStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DetailStatus'));
 }
 
 /// The information about a dimension.
@@ -1130,7 +1760,7 @@ class DimensionGroupDetail {
   factory DimensionGroupDetail.fromJson(Map<String, dynamic> json) {
     return DimensionGroupDetail(
       dimensions: (json['Dimensions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DimensionDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       group: json['Group'] as String?,
@@ -1178,7 +1808,7 @@ class DimensionKeyDescription {
       dimensions: (json['Dimensions'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       partitions: (json['Partitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as double)
           .toList(),
       total: json['Total'] as double?,
@@ -1257,7 +1887,7 @@ class DimensionKeyDetail {
   factory DimensionKeyDetail.fromJson(Map<String, dynamic> json) {
     return DimensionKeyDetail(
       dimension: json['Dimension'] as String?,
-      status: (json['Status'] as String?)?.toDetailStatus(),
+      status: (json['Status'] as String?)?.let(DetailStatus.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -1268,7 +1898,7 @@ class DimensionKeyDetail {
     final value = this.value;
     return {
       if (dimension != null) 'Dimension': dimension,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (value != null) 'Value': value,
     };
   }
@@ -1310,64 +1940,51 @@ class FeatureMetadata {
 
   factory FeatureMetadata.fromJson(Map<String, dynamic> json) {
     return FeatureMetadata(
-      status: (json['Status'] as String?)?.toFeatureStatus(),
+      status: (json['Status'] as String?)?.let(FeatureStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum FeatureStatus {
-  enabled,
-  disabled,
-  unsupported,
-  enabledPendingReboot,
-  disabledPendingReboot,
-  unknown,
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  unsupported('UNSUPPORTED'),
+  enabledPendingReboot('ENABLED_PENDING_REBOOT'),
+  disabledPendingReboot('DISABLED_PENDING_REBOOT'),
+  unknown('UNKNOWN'),
+  ;
+
+  final String value;
+
+  const FeatureStatus(this.value);
+
+  static FeatureStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FeatureStatus'));
 }
 
-extension FeatureStatusValueExtension on FeatureStatus {
-  String toValue() {
-    switch (this) {
-      case FeatureStatus.enabled:
-        return 'ENABLED';
-      case FeatureStatus.disabled:
-        return 'DISABLED';
-      case FeatureStatus.unsupported:
-        return 'UNSUPPORTED';
-      case FeatureStatus.enabledPendingReboot:
-        return 'ENABLED_PENDING_REBOOT';
-      case FeatureStatus.disabledPendingReboot:
-        return 'DISABLED_PENDING_REBOOT';
-      case FeatureStatus.unknown:
-        return 'UNKNOWN';
-    }
-  }
-}
+enum FineGrainedAction {
+  describeDimensionKeys('DescribeDimensionKeys'),
+  getDimensionKeyDetails('GetDimensionKeyDetails'),
+  getResourceMetrics('GetResourceMetrics'),
+  ;
 
-extension FeatureStatusFromString on String {
-  FeatureStatus toFeatureStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return FeatureStatus.enabled;
-      case 'DISABLED':
-        return FeatureStatus.disabled;
-      case 'UNSUPPORTED':
-        return FeatureStatus.unsupported;
-      case 'ENABLED_PENDING_REBOOT':
-        return FeatureStatus.enabledPendingReboot;
-      case 'DISABLED_PENDING_REBOOT':
-        return FeatureStatus.disabledPendingReboot;
-      case 'UNKNOWN':
-        return FeatureStatus.unknown;
-    }
-    throw Exception('$this is not known in enum FeatureStatus');
-  }
+  final String value;
+
+  const FineGrainedAction(this.value);
+
+  static FineGrainedAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FineGrainedAction'));
 }
 
 class GetDimensionKeyDetailsResponse {
@@ -1381,7 +1998,7 @@ class GetDimensionKeyDetailsResponse {
   factory GetDimensionKeyDetailsResponse.fromJson(Map<String, dynamic> json) {
     return GetDimensionKeyDetailsResponse(
       dimensions: (json['Dimensions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DimensionKeyDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1391,6 +2008,32 @@ class GetDimensionKeyDetailsResponse {
     final dimensions = this.dimensions;
     return {
       if (dimensions != null) 'Dimensions': dimensions,
+    };
+  }
+}
+
+class GetPerformanceAnalysisReportResponse {
+  /// The summary of the performance analysis report created for a time period.
+  final AnalysisReport? analysisReport;
+
+  GetPerformanceAnalysisReportResponse({
+    this.analysisReport,
+  });
+
+  factory GetPerformanceAnalysisReportResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetPerformanceAnalysisReportResponse(
+      analysisReport: json['AnalysisReport'] != null
+          ? AnalysisReport.fromJson(
+              json['AnalysisReport'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisReport = this.analysisReport;
+    return {
+      if (analysisReport != null) 'AnalysisReport': analysisReport,
     };
   }
 }
@@ -1473,7 +2116,7 @@ class GetResourceMetricsResponse {
       alignedStartTime: timeStampFromJson(json['AlignedStartTime']),
       identifier: json['Identifier'] as String?,
       metricList: (json['MetricList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricKeyDataPoints.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1498,6 +2141,121 @@ class GetResourceMetricsResponse {
   }
 }
 
+/// Retrieves the list of performance issues which are identified.
+class Insight {
+  /// The unique identifier for the insight. For example,
+  /// <code>insight-12345678901234567</code>.
+  final String insightId;
+
+  /// Metric names and values from the timeframe used as baseline to generate the
+  /// insight.
+  final List<Data>? baselineData;
+
+  /// Indicates if the insight is causal or correlated insight.
+  final ContextType? context;
+
+  /// Description of the insight. For example: <code>A high severity Insight found
+  /// between 02:00 to 02:30, where there was an unusually high DB load 600x above
+  /// baseline. Likely performance impact</code>.
+  final String? description;
+
+  /// The end time of the insight. For example, <code>2018-10-30T00:00:00Z</code>.
+  final DateTime? endTime;
+
+  /// List of data objects containing metrics and references from the time range
+  /// while generating the insight.
+  final List<Data>? insightData;
+
+  /// The type of insight. For example, <code>HighDBLoad</code>,
+  /// <code>HighCPU</code>, or <code>DominatingSQLs</code>.
+  final String? insightType;
+
+  /// List of recommendations for the insight. For example, <code>Investigate the
+  /// following SQLs that contributed to 100% of the total DBLoad during that time
+  /// period: sql-id</code>.
+  final List<Recommendation>? recommendations;
+
+  /// The severity of the insight. The values are: <code>Low</code>,
+  /// <code>Medium</code>, or <code>High</code>.
+  final Severity? severity;
+
+  /// The start time of the insight. For example,
+  /// <code>2018-10-30T00:00:00Z</code>.
+  final DateTime? startTime;
+
+  /// List of supporting insights that provide additional factors for the insight.
+  final List<Insight>? supportingInsights;
+
+  Insight({
+    required this.insightId,
+    this.baselineData,
+    this.context,
+    this.description,
+    this.endTime,
+    this.insightData,
+    this.insightType,
+    this.recommendations,
+    this.severity,
+    this.startTime,
+    this.supportingInsights,
+  });
+
+  factory Insight.fromJson(Map<String, dynamic> json) {
+    return Insight(
+      insightId: json['InsightId'] as String,
+      baselineData: (json['BaselineData'] as List?)
+          ?.nonNulls
+          .map((e) => Data.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      context: (json['Context'] as String?)?.let(ContextType.fromString),
+      description: json['Description'] as String?,
+      endTime: timeStampFromJson(json['EndTime']),
+      insightData: (json['InsightData'] as List?)
+          ?.nonNulls
+          .map((e) => Data.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      insightType: json['InsightType'] as String?,
+      recommendations: (json['Recommendations'] as List?)
+          ?.nonNulls
+          .map((e) => Recommendation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      severity: (json['Severity'] as String?)?.let(Severity.fromString),
+      startTime: timeStampFromJson(json['StartTime']),
+      supportingInsights: (json['SupportingInsights'] as List?)
+          ?.nonNulls
+          .map((e) => Insight.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final insightId = this.insightId;
+    final baselineData = this.baselineData;
+    final context = this.context;
+    final description = this.description;
+    final endTime = this.endTime;
+    final insightData = this.insightData;
+    final insightType = this.insightType;
+    final recommendations = this.recommendations;
+    final severity = this.severity;
+    final startTime = this.startTime;
+    final supportingInsights = this.supportingInsights;
+    return {
+      'InsightId': insightId,
+      if (baselineData != null) 'BaselineData': baselineData,
+      if (context != null) 'Context': context.value,
+      if (description != null) 'Description': description,
+      if (endTime != null) 'EndTime': unixTimestampToJson(endTime),
+      if (insightData != null) 'InsightData': insightData,
+      if (insightType != null) 'InsightType': insightType,
+      if (recommendations != null) 'Recommendations': recommendations,
+      if (severity != null) 'Severity': severity.value,
+      if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
+      if (supportingInsights != null) 'SupportingInsights': supportingInsights,
+    };
+  }
+}
+
 class ListAvailableResourceDimensionsResponse {
   /// The dimension information returned for requested metric types.
   final List<MetricDimensionGroups>? metricDimensions;
@@ -1516,7 +2274,7 @@ class ListAvailableResourceDimensionsResponse {
       Map<String, dynamic> json) {
     return ListAvailableResourceDimensionsResponse(
       metricDimensions: (json['MetricDimensions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDimensionGroups.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1553,7 +2311,7 @@ class ListAvailableResourceMetricsResponse {
       Map<String, dynamic> json) {
     return ListAvailableResourceMetricsResponse(
       metrics: (json['Metrics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ResponseResourceMetric.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1567,6 +2325,68 @@ class ListAvailableResourceMetricsResponse {
     return {
       if (metrics != null) 'Metrics': metrics,
       if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListPerformanceAnalysisReportsResponse {
+  /// List of reports including the report identifier, start and end time,
+  /// creation time, and status.
+  final List<AnalysisReportSummary>? analysisReports;
+
+  /// An optional pagination token provided by a previous request. If this
+  /// parameter is specified, the response includes only records beyond the token,
+  /// up to the value specified by <code>MaxResults</code>.
+  final String? nextToken;
+
+  ListPerformanceAnalysisReportsResponse({
+    this.analysisReports,
+    this.nextToken,
+  });
+
+  factory ListPerformanceAnalysisReportsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListPerformanceAnalysisReportsResponse(
+      analysisReports: (json['AnalysisReports'] as List?)
+          ?.nonNulls
+          .map((e) => AnalysisReportSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisReports = this.analysisReports;
+    final nextToken = this.nextToken;
+    return {
+      if (analysisReports != null) 'AnalysisReports': analysisReports,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListTagsForResourceResponse {
+  /// The metadata assigned to an Amazon RDS resource consisting of a key-value
+  /// pair.
+  final List<Tag>? tags;
+
+  ListTagsForResourceResponse({
+    this.tags,
+  });
+
+  factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
+    return ListTagsForResourceResponse(
+      tags: (json['Tags'] as List?)
+          ?.nonNulls
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final tags = this.tags;
+    return {
+      if (tags != null) 'Tags': tags,
     };
   }
 }
@@ -1587,7 +2407,7 @@ class MetricDimensionGroups {
   factory MetricDimensionGroups.fromJson(Map<String, dynamic> json) {
     return MetricDimensionGroups(
       groups: (json['Groups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DimensionGroupDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       metric: json['Metric'] as String?,
@@ -1622,7 +2442,7 @@ class MetricKeyDataPoints {
   factory MetricKeyDataPoints.fromJson(Map<String, dynamic> json) {
     return MetricKeyDataPoints(
       dataPoints: (json['DataPoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataPoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       key: json['Key'] != null
@@ -1642,11 +2462,15 @@ class MetricKeyDataPoints {
   }
 }
 
-/// A single query to be processed. You must provide the metric to query. If no
-/// other parameters are specified, Performance Insights returns all data points
-/// for the specified metric. Optionally, you can request that the data points
-/// be aggregated by dimension group (<code>GroupBy</code>), and return only
-/// those data points that match your criteria (<code>Filter</code>).
+/// A single query to be processed. You must provide the metric to query and
+/// append an aggregate function to the metric. For example, to find the average
+/// for the metric <code>db.load</code> you must use <code>db.load.avg</code>.
+/// Valid values for aggregate functions include <code>.avg</code>,
+/// <code>.min</code>, <code>.max</code>, and <code>.sum</code>. If no other
+/// parameters are specified, Performance Insights returns all data points for
+/// the specified metric. Optionally, you can request that the data points be
+/// aggregated by dimension group (<code>GroupBy</code>), and return only those
+/// data points that match your criteria (<code>Filter</code>).
 class MetricQuery {
   /// The name of a Performance Insights metric to be measured.
   ///
@@ -1666,6 +2490,11 @@ class MetricQuery {
   /// href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/USER_PerfInsights_Counters.html#USER_PerfInsights_Counters.OS">Performance
   /// Insights operating system counters</a> in the <i>Amazon Aurora User
   /// Guide</i>.
+  /// </li>
+  /// <li>
+  /// The counter metrics listed in <a
+  /// href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PerfInsights_Counters.html#USER_PerfInsights_Counters.OS">Performance
+  /// Insights operating system counters</a> in the <i>Amazon RDS User Guide</i>.
   /// </li>
   /// </ul>
   /// If the number of active sessions is less than an internal Performance
@@ -1716,31 +2545,98 @@ class MetricQuery {
   }
 }
 
-enum PeriodAlignment {
-  endTime,
-  startTime,
-}
+/// This data type helps to determine Performance Insights metric to render for
+/// the insight.
+class PerformanceInsightsMetric {
+  /// A dimension map that contains the dimensions for this partition.
+  final Map<String, String>? dimensions;
 
-extension PeriodAlignmentValueExtension on PeriodAlignment {
-  String toValue() {
-    switch (this) {
-      case PeriodAlignment.endTime:
-        return 'END_TIME';
-      case PeriodAlignment.startTime:
-        return 'START_TIME';
-    }
+  /// The Performance Insights metric name.
+  final String? displayName;
+
+  /// The Performance Insights metric.
+  final String? metric;
+
+  /// The value of the metric. For example, <code>9</code> for
+  /// <code>db.load.avg</code>.
+  final double? value;
+
+  PerformanceInsightsMetric({
+    this.dimensions,
+    this.displayName,
+    this.metric,
+    this.value,
+  });
+
+  factory PerformanceInsightsMetric.fromJson(Map<String, dynamic> json) {
+    return PerformanceInsightsMetric(
+      dimensions: (json['Dimensions'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      displayName: json['DisplayName'] as String?,
+      metric: json['Metric'] as String?,
+      value: json['Value'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final dimensions = this.dimensions;
+    final displayName = this.displayName;
+    final metric = this.metric;
+    final value = this.value;
+    return {
+      if (dimensions != null) 'Dimensions': dimensions,
+      if (displayName != null) 'DisplayName': displayName,
+      if (metric != null) 'Metric': metric,
+      if (value != null) 'Value': value,
+    };
   }
 }
 
-extension PeriodAlignmentFromString on String {
-  PeriodAlignment toPeriodAlignment() {
-    switch (this) {
-      case 'END_TIME':
-        return PeriodAlignment.endTime;
-      case 'START_TIME':
-        return PeriodAlignment.startTime;
-    }
-    throw Exception('$this is not known in enum PeriodAlignment');
+enum PeriodAlignment {
+  endTime('END_TIME'),
+  startTime('START_TIME'),
+  ;
+
+  final String value;
+
+  const PeriodAlignment(this.value);
+
+  static PeriodAlignment fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PeriodAlignment'));
+}
+
+/// The list of recommendations for the insight.
+class Recommendation {
+  /// The recommendation details to help resolve the performance issue. For
+  /// example, <code>Investigate the following SQLs that contributed to 100% of
+  /// the total DBLoad during that time period: sql-id</code>
+  final String? recommendationDescription;
+
+  /// The unique identifier for the recommendation.
+  final String? recommendationId;
+
+  Recommendation({
+    this.recommendationDescription,
+    this.recommendationId,
+  });
+
+  factory Recommendation.fromJson(Map<String, dynamic> json) {
+    return Recommendation(
+      recommendationDescription: json['RecommendationDescription'] as String?,
+      recommendationId: json['RecommendationId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final recommendationDescription = this.recommendationDescription;
+    final recommendationId = this.recommendationId;
+    return {
+      if (recommendationDescription != null)
+        'RecommendationDescription': recommendationDescription,
+      if (recommendationId != null) 'RecommendationId': recommendationId,
+    };
   }
 }
 
@@ -1829,6 +2725,11 @@ class ResponseResourceMetricKey {
   /// Insights operating system counters</a> in the <i>Amazon Aurora User
   /// Guide</i>.
   /// </li>
+  /// <li>
+  /// The counter metrics listed in <a
+  /// href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/USER_PerfInsights_Counters.html#USER_PerfInsights_Counters.OS">Performance
+  /// Insights operating system counters</a> in the <i>Amazon RDS User Guide</i>.
+  /// </li>
   /// </ul>
   /// If the number of active sessions is less than an internal Performance
   /// Insights threshold, <code>db.load.avg</code> and
@@ -1867,30 +2768,107 @@ class ResponseResourceMetricKey {
 }
 
 enum ServiceType {
-  rds,
-  docdb,
+  rds('RDS'),
+  docdb('DOCDB'),
+  ;
+
+  final String value;
+
+  const ServiceType(this.value);
+
+  static ServiceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ServiceType'));
 }
 
-extension ServiceTypeValueExtension on ServiceType {
-  String toValue() {
-    switch (this) {
-      case ServiceType.rds:
-        return 'RDS';
-      case ServiceType.docdb:
-        return 'DOCDB';
-    }
+enum Severity {
+  low('LOW'),
+  medium('MEDIUM'),
+  high('HIGH'),
+  ;
+
+  final String value;
+
+  const Severity(this.value);
+
+  static Severity fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Severity'));
+}
+
+/// Metadata assigned to an Amazon RDS resource consisting of a key-value pair.
+class Tag {
+  /// A key is the required name of the tag. The string value can be from 1 to 128
+  /// Unicode characters in length and can't be prefixed with <code>aws:</code> or
+  /// <code>rds:</code>. The string can only contain only the set of Unicode
+  /// letters, digits, white-space, '_', '.', ':', '/', '=', '+', '-', '@' (Java
+  /// regex: <code>"^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$"</code>).
+  final String key;
+
+  /// A value is the optional value of the tag. The string value can be from 1 to
+  /// 256 Unicode characters in length and can't be prefixed with
+  /// <code>aws:</code> or <code>rds:</code>. The string can only contain only the
+  /// set of Unicode letters, digits, white-space, '_', '.', ':', '/', '=', '+',
+  /// '-', '@' (Java regex: "^([\\p{L}\\p{Z}\\p{N}_.:/=+\\-@]*)$").
+  final String value;
+
+  Tag({
+    required this.key,
+    required this.value,
+  });
+
+  factory Tag.fromJson(Map<String, dynamic> json) {
+    return Tag(
+      key: json['Key'] as String,
+      value: json['Value'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      'Value': value,
+    };
   }
 }
 
-extension ServiceTypeFromString on String {
-  ServiceType toServiceType() {
-    switch (this) {
-      case 'RDS':
-        return ServiceType.rds;
-      case 'DOCDB':
-        return ServiceType.docdb;
-    }
-    throw Exception('$this is not known in enum ServiceType');
+class TagResourceResponse {
+  TagResourceResponse();
+
+  factory TagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return TagResourceResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+enum TextFormat {
+  plainText('PLAIN_TEXT'),
+  markdown('MARKDOWN'),
+  ;
+
+  final String value;
+
+  const TextFormat(this.value);
+
+  static TextFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TextFormat'));
+}
+
+class UntagResourceResponse {
+  UntagResourceResponse();
+
+  factory UntagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return UntagResourceResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 

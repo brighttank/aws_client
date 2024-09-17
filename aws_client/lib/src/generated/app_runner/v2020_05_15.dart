@@ -142,15 +142,34 @@ class AppRunner {
   /// <code>1</code> of this name. When you use the same name in subsequent
   /// calls, App Runner creates incremental revisions of the configuration.
   /// <note>
-  /// The name <code>DefaultConfiguration</code> is reserved (it's the
-  /// configuration that App Runner uses if you don't provide a custome one).
-  /// You can't use it to create a new auto scaling configuration, and you can't
-  /// create a revision of it.
+  /// Prior to the release of <a
+  /// href="https://docs.aws.amazon.com/apprunner/latest/relnotes/release-2023-09-22-auto-scale-config.html">Auto
+  /// scale configuration enhancements</a>, the name
+  /// <code>DefaultConfiguration</code> was reserved.
   ///
-  /// When you want to use your own auto scaling configuration for your App
-  /// Runner service, <i>create a configuration with a different name</i>, and
-  /// then provide it when you create or update your service.
-  /// </note>
+  /// This restriction is no longer in place. You can now manage
+  /// <code>DefaultConfiguration</code> the same way you manage your custom auto
+  /// scaling configurations. This means you can do the following with the
+  /// <code>DefaultConfiguration</code> that App Runner provides:
+  ///
+  /// <ul>
+  /// <li>
+  /// Create new revisions of the <code>DefaultConfiguration</code>.
+  /// </li>
+  /// <li>
+  /// Delete the revisions of the <code>DefaultConfiguration</code>.
+  /// </li>
+  /// <li>
+  /// Delete the auto scaling configuration for which the App Runner
+  /// <code>DefaultConfiguration</code> was created.
+  /// </li>
+  /// <li>
+  /// If you delete the auto scaling configuration you can create another custom
+  /// auto scaling configuration with the same <code>DefaultConfiguration</code>
+  /// name. The original <code>DefaultConfiguration</code> resource provided by
+  /// App Runner remains in your account unless you make changes to it.
+  /// </li>
+  /// </ul> </note>
   ///
   /// Parameter [maxConcurrency] :
   /// The maximum number of concurrent requests that you want an instance to
@@ -235,9 +254,9 @@ class AppRunner {
   /// repositories from certain third-party providers. You can share a
   /// connection across multiple services.
   ///
-  /// A connection resource is needed to access GitHub repositories. GitHub
-  /// requires a user interface approval process through the App Runner console
-  /// before you can use the connection.
+  /// A connection resource is needed to access GitHub and Bitbucket
+  /// repositories. Both require a user interface approval process through the
+  /// App Runner console before you can use the connection.
   ///
   /// May throw [InvalidRequestException].
   /// May throw [InternalServiceErrorException].
@@ -271,7 +290,7 @@ class AppRunner {
       headers: headers,
       payload: {
         'ConnectionName': connectionName,
-        'ProviderType': providerType.toValue(),
+        'ProviderType': providerType.value,
         if (tags != null) 'Tags': tags,
       },
     );
@@ -561,8 +580,10 @@ class AppRunner {
   }
 
   /// Delete an App Runner automatic scaling configuration resource. You can
-  /// delete a specific revision or the latest active revision. You can't delete
-  /// a configuration that's used by one or more App Runner services.
+  /// delete a top level auto scaling configuration, a specific revision of one,
+  /// or all revisions associated with the top level configuration. You can't
+  /// delete the default auto scaling configuration or a configuration that's
+  /// used by one or more App Runner services.
   ///
   /// May throw [InvalidRequestException].
   /// May throw [InternalServiceErrorException].
@@ -576,9 +597,18 @@ class AppRunner {
   /// ending with either <code>.../<i>name</i> </code> or
   /// <code>.../<i>name</i>/<i>revision</i> </code>. If a revision isn't
   /// specified, the latest active revision is deleted.
+  ///
+  /// Parameter [deleteAllRevisions] :
+  /// Set to <code>true</code> to delete all of the revisions associated with
+  /// the <code>AutoScalingConfigurationArn</code> parameter value.
+  ///
+  /// When <code>DeleteAllRevisions</code> is set to <code>true</code>, the only
+  /// valid value for the Amazon Resource Name (ARN) is a partial ARN ending
+  /// with: <code>.../name</code>.
   Future<DeleteAutoScalingConfigurationResponse>
       deleteAutoScalingConfiguration({
     required String autoScalingConfigurationArn,
+    bool? deleteAllRevisions,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.0',
@@ -592,6 +622,8 @@ class AppRunner {
       headers: headers,
       payload: {
         'AutoScalingConfigurationArn': autoScalingConfigurationArn,
+        if (deleteAllRevisions != null)
+          'DeleteAllRevisions': deleteAllRevisions,
       },
     );
 
@@ -1369,6 +1401,69 @@ class AppRunner {
     return ListServicesResponse.fromJson(jsonResponse.body);
   }
 
+  /// Returns a list of the associated App Runner services using an auto scaling
+  /// configuration.
+  ///
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [autoScalingConfigurationArn] :
+  /// The Amazon Resource Name (ARN) of the App Runner auto scaling
+  /// configuration that you want to list the services for.
+  ///
+  /// The ARN can be a full auto scaling configuration ARN, or a partial ARN
+  /// ending with either <code>.../<i>name</i> </code> or
+  /// <code>.../<i>name</i>/<i>revision</i> </code>. If a revision isn't
+  /// specified, the latest active revision is used.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to include in each response (result page).
+  /// It's used for a paginated request.
+  ///
+  /// If you don't specify <code>MaxResults</code>, the request retrieves all
+  /// available results in a single response.
+  ///
+  /// Parameter [nextToken] :
+  /// A token from a previous result page. It's used for a paginated request.
+  /// The request retrieves the next result page. All other parameter values
+  /// must be identical to the ones specified in the initial request.
+  ///
+  /// If you don't specify <code>NextToken</code>, the request retrieves the
+  /// first result page.
+  Future<ListServicesForAutoScalingConfigurationResponse>
+      listServicesForAutoScalingConfiguration({
+    required String autoScalingConfigurationArn,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.0',
+      'X-Amz-Target': 'AppRunner.ListServicesForAutoScalingConfiguration'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AutoScalingConfigurationArn': autoScalingConfigurationArn,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListServicesForAutoScalingConfigurationResponse.fromJson(
+        jsonResponse.body);
+  }
+
   /// List tags that are associated with for an App Runner resource. The
   /// response contains a list of tag key-value pairs.
   ///
@@ -1696,6 +1791,45 @@ class AppRunner {
     );
   }
 
+  /// Update an auto scaling configuration to be the default. The existing
+  /// default auto scaling configuration will be set to non-default
+  /// automatically.
+  ///
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [autoScalingConfigurationArn] :
+  /// The Amazon Resource Name (ARN) of the App Runner auto scaling
+  /// configuration that you want to set as the default.
+  ///
+  /// The ARN can be a full auto scaling configuration ARN, or a partial ARN
+  /// ending with either <code>.../<i>name</i> </code> or
+  /// <code>.../<i>name</i>/<i>revision</i> </code>. If a revision isn't
+  /// specified, the latest active revision is set as the default.
+  Future<UpdateDefaultAutoScalingConfigurationResponse>
+      updateDefaultAutoScalingConfiguration({
+    required String autoScalingConfigurationArn,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.0',
+      'X-Amz-Target': 'AppRunner.UpdateDefaultAutoScalingConfiguration'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AutoScalingConfigurationArn': autoScalingConfigurationArn,
+      },
+    );
+
+    return UpdateDefaultAutoScalingConfigurationResponse.fromJson(
+        jsonResponse.body);
+  }
+
   /// Update an App Runner service. You can update the source configuration and
   /// instance configuration of the service. You can also update the ARN of the
   /// auto scaling configuration resource that's associated with the service.
@@ -1869,7 +2003,7 @@ class AssociateCustomDomainResponse {
       dNSTarget: json['DNSTarget'] as String,
       serviceArn: json['ServiceArn'] as String,
       vpcDNSTargets: (json['VpcDNSTargets'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => VpcDNSTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1957,6 +2091,20 @@ class AutoScalingConfiguration {
   /// stamp format.
   final DateTime? deletedAt;
 
+  /// Indicates if this auto scaling configuration has an App Runner service
+  /// associated with it. A value of <code>true</code> indicates one or more
+  /// services are associated. A value of <code>false</code> indicates no services
+  /// are associated.
+  final bool? hasAssociatedService;
+
+  /// Indicates if this auto scaling configuration should be used as the default
+  /// for a new App Runner service that does not have an auto scaling
+  /// configuration ARN specified during creation. Each account can have only one
+  /// default <code>AutoScalingConfiguration</code> per region. The default
+  /// <code>AutoScalingConfiguration</code> can be any revision under the same
+  /// <code>AutoScalingConfigurationName</code>.
+  final bool? isDefault;
+
   /// It's set to <code>true</code> for the configuration with the highest
   /// <code>Revision</code> among all configurations that share the same
   /// <code>AutoScalingConfigurationName</code>. It's set to <code>false</code>
@@ -1995,6 +2143,8 @@ class AutoScalingConfiguration {
     this.autoScalingConfigurationRevision,
     this.createdAt,
     this.deletedAt,
+    this.hasAssociatedService,
+    this.isDefault,
     this.latest,
     this.maxConcurrency,
     this.maxSize,
@@ -2012,11 +2162,14 @@ class AutoScalingConfiguration {
           json['AutoScalingConfigurationRevision'] as int?,
       createdAt: timeStampFromJson(json['CreatedAt']),
       deletedAt: timeStampFromJson(json['DeletedAt']),
+      hasAssociatedService: json['HasAssociatedService'] as bool?,
+      isDefault: json['IsDefault'] as bool?,
       latest: json['Latest'] as bool?,
       maxConcurrency: json['MaxConcurrency'] as int?,
       maxSize: json['MaxSize'] as int?,
       minSize: json['MinSize'] as int?,
-      status: (json['Status'] as String?)?.toAutoScalingConfigurationStatus(),
+      status: (json['Status'] as String?)
+          ?.let(AutoScalingConfigurationStatus.fromString),
     );
   }
 
@@ -2027,6 +2180,8 @@ class AutoScalingConfiguration {
         this.autoScalingConfigurationRevision;
     final createdAt = this.createdAt;
     final deletedAt = this.deletedAt;
+    final hasAssociatedService = this.hasAssociatedService;
+    final isDefault = this.isDefault;
     final latest = this.latest;
     final maxConcurrency = this.maxConcurrency;
     final maxSize = this.maxSize;
@@ -2041,43 +2196,31 @@ class AutoScalingConfiguration {
         'AutoScalingConfigurationRevision': autoScalingConfigurationRevision,
       if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
       if (deletedAt != null) 'DeletedAt': unixTimestampToJson(deletedAt),
+      if (hasAssociatedService != null)
+        'HasAssociatedService': hasAssociatedService,
+      if (isDefault != null) 'IsDefault': isDefault,
       if (latest != null) 'Latest': latest,
       if (maxConcurrency != null) 'MaxConcurrency': maxConcurrency,
       if (maxSize != null) 'MaxSize': maxSize,
       if (minSize != null) 'MinSize': minSize,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum AutoScalingConfigurationStatus {
-  active,
-  inactive,
-}
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  ;
 
-extension AutoScalingConfigurationStatusValueExtension
-    on AutoScalingConfigurationStatus {
-  String toValue() {
-    switch (this) {
-      case AutoScalingConfigurationStatus.active:
-        return 'ACTIVE';
-      case AutoScalingConfigurationStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension AutoScalingConfigurationStatusFromString on String {
-  AutoScalingConfigurationStatus toAutoScalingConfigurationStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return AutoScalingConfigurationStatus.active;
-      case 'INACTIVE':
-        return AutoScalingConfigurationStatus.inactive;
-    }
-    throw Exception(
-        '$this is not known in enum AutoScalingConfigurationStatus');
-  }
+  const AutoScalingConfigurationStatus(this.value);
+
+  static AutoScalingConfigurationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AutoScalingConfigurationStatus'));
 }
 
 /// Provides summary information about an App Runner automatic scaling
@@ -2104,10 +2247,38 @@ class AutoScalingConfigurationSummary {
   /// <code>AutoScalingConfigurationName</code>.
   final int? autoScalingConfigurationRevision;
 
+  /// The time when the auto scaling configuration was created. It's in Unix time
+  /// stamp format.
+  final DateTime? createdAt;
+
+  /// Indicates if this auto scaling configuration has an App Runner service
+  /// associated with it. A value of <code>true</code> indicates one or more
+  /// services are associated. A value of <code>false</code> indicates no services
+  /// are associated.
+  final bool? hasAssociatedService;
+
+  /// Indicates if this auto scaling configuration should be used as the default
+  /// for a new App Runner service that does not have an auto scaling
+  /// configuration ARN specified during creation. Each account can have only one
+  /// default <code>AutoScalingConfiguration</code> per region. The default
+  /// <code>AutoScalingConfiguration</code> can be any revision under the same
+  /// <code>AutoScalingConfigurationName</code>.
+  final bool? isDefault;
+
+  /// The current state of the auto scaling configuration. If the status of a
+  /// configuration revision is <code>INACTIVE</code>, it was deleted and can't be
+  /// used. Inactive configuration revisions are permanently removed some time
+  /// after they are deleted.
+  final AutoScalingConfigurationStatus? status;
+
   AutoScalingConfigurationSummary({
     this.autoScalingConfigurationArn,
     this.autoScalingConfigurationName,
     this.autoScalingConfigurationRevision,
+    this.createdAt,
+    this.hasAssociatedService,
+    this.isDefault,
+    this.status,
   });
 
   factory AutoScalingConfigurationSummary.fromJson(Map<String, dynamic> json) {
@@ -2118,6 +2289,11 @@ class AutoScalingConfigurationSummary {
           json['AutoScalingConfigurationName'] as String?,
       autoScalingConfigurationRevision:
           json['AutoScalingConfigurationRevision'] as int?,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      hasAssociatedService: json['HasAssociatedService'] as bool?,
+      isDefault: json['IsDefault'] as bool?,
+      status: (json['Status'] as String?)
+          ?.let(AutoScalingConfigurationStatus.fromString),
     );
   }
 
@@ -2126,6 +2302,10 @@ class AutoScalingConfigurationSummary {
     final autoScalingConfigurationName = this.autoScalingConfigurationName;
     final autoScalingConfigurationRevision =
         this.autoScalingConfigurationRevision;
+    final createdAt = this.createdAt;
+    final hasAssociatedService = this.hasAssociatedService;
+    final isDefault = this.isDefault;
+    final status = this.status;
     return {
       if (autoScalingConfigurationArn != null)
         'AutoScalingConfigurationArn': autoScalingConfigurationArn,
@@ -2133,6 +2313,11 @@ class AutoScalingConfigurationSummary {
         'AutoScalingConfigurationName': autoScalingConfigurationName,
       if (autoScalingConfigurationRevision != null)
         'AutoScalingConfigurationRevision': autoScalingConfigurationRevision,
+      if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
+      if (hasAssociatedService != null)
+        'HasAssociatedService': hasAssociatedService,
+      if (isDefault != null) 'IsDefault': isDefault,
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -2165,8 +2350,8 @@ class CertificateValidationRecord {
   factory CertificateValidationRecord.fromJson(Map<String, dynamic> json) {
     return CertificateValidationRecord(
       name: json['Name'] as String?,
-      status:
-          (json['Status'] as String?)?.toCertificateValidationRecordStatus(),
+      status: (json['Status'] as String?)
+          ?.let(CertificateValidationRecordStatus.fromString),
       type: json['Type'] as String?,
       value: json['Value'] as String?,
     );
@@ -2179,7 +2364,7 @@ class CertificateValidationRecord {
     final value = this.value;
     return {
       if (name != null) 'Name': name,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (type != null) 'Type': type,
       if (value != null) 'Value': value,
     };
@@ -2187,38 +2372,19 @@ class CertificateValidationRecord {
 }
 
 enum CertificateValidationRecordStatus {
-  pendingValidation,
-  success,
-  failed,
-}
+  pendingValidation('PENDING_VALIDATION'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  ;
 
-extension CertificateValidationRecordStatusValueExtension
-    on CertificateValidationRecordStatus {
-  String toValue() {
-    switch (this) {
-      case CertificateValidationRecordStatus.pendingValidation:
-        return 'PENDING_VALIDATION';
-      case CertificateValidationRecordStatus.success:
-        return 'SUCCESS';
-      case CertificateValidationRecordStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension CertificateValidationRecordStatusFromString on String {
-  CertificateValidationRecordStatus toCertificateValidationRecordStatus() {
-    switch (this) {
-      case 'PENDING_VALIDATION':
-        return CertificateValidationRecordStatus.pendingValidation;
-      case 'SUCCESS':
-        return CertificateValidationRecordStatus.success;
-      case 'FAILED':
-        return CertificateValidationRecordStatus.failed;
-    }
-    throw Exception(
-        '$this is not known in enum CertificateValidationRecordStatus');
-  }
+  const CertificateValidationRecordStatus(this.value);
+
+  static CertificateValidationRecordStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CertificateValidationRecordStatus'));
 }
 
 /// Describes the configuration that App Runner uses to build and run an App
@@ -2254,8 +2420,8 @@ class CodeConfiguration {
 
   factory CodeConfiguration.fromJson(Map<String, dynamic> json) {
     return CodeConfiguration(
-      configurationSource:
-          (json['ConfigurationSource'] as String).toConfigurationSource(),
+      configurationSource: ConfigurationSource.fromString(
+          (json['ConfigurationSource'] as String)),
       codeConfigurationValues: json['CodeConfigurationValues'] != null
           ? CodeConfigurationValues.fromJson(
               json['CodeConfigurationValues'] as Map<String, dynamic>)
@@ -2267,7 +2433,7 @@ class CodeConfiguration {
     final configurationSource = this.configurationSource;
     final codeConfigurationValues = this.codeConfigurationValues;
     return {
-      'ConfigurationSource': configurationSource.toValue(),
+      'ConfigurationSource': configurationSource.value,
       if (codeConfigurationValues != null)
         'CodeConfigurationValues': codeConfigurationValues,
     };
@@ -2329,7 +2495,7 @@ class CodeConfigurationValues {
 
   factory CodeConfigurationValues.fromJson(Map<String, dynamic> json) {
     return CodeConfigurationValues(
-      runtime: (json['Runtime'] as String).toRuntime(),
+      runtime: Runtime.fromString((json['Runtime'] as String)),
       buildCommand: json['BuildCommand'] as String?,
       port: json['Port'] as String?,
       runtimeEnvironmentSecrets:
@@ -2350,7 +2516,7 @@ class CodeConfigurationValues {
     final runtimeEnvironmentVariables = this.runtimeEnvironmentVariables;
     final startCommand = this.startCommand;
     return {
-      'Runtime': runtime.toValue(),
+      'Runtime': runtime.value,
       if (buildCommand != null) 'BuildCommand': buildCommand,
       if (port != null) 'Port': port,
       if (runtimeEnvironmentSecrets != null)
@@ -2378,10 +2544,16 @@ class CodeRepository {
   /// </note>
   final CodeConfiguration? codeConfiguration;
 
+  /// The path of the directory that stores source code and configuration files.
+  /// The build and start commands also execute from here. The path is absolute
+  /// from root and, if not specified, defaults to the repository root.
+  final String? sourceDirectory;
+
   CodeRepository({
     required this.repositoryUrl,
     required this.sourceCodeVersion,
     this.codeConfiguration,
+    this.sourceDirectory,
   });
 
   factory CodeRepository.fromJson(Map<String, dynamic> json) {
@@ -2393,6 +2565,7 @@ class CodeRepository {
           ? CodeConfiguration.fromJson(
               json['CodeConfiguration'] as Map<String, dynamic>)
           : null,
+      sourceDirectory: json['SourceDirectory'] as String?,
     );
   }
 
@@ -2400,40 +2573,29 @@ class CodeRepository {
     final repositoryUrl = this.repositoryUrl;
     final sourceCodeVersion = this.sourceCodeVersion;
     final codeConfiguration = this.codeConfiguration;
+    final sourceDirectory = this.sourceDirectory;
     return {
       'RepositoryUrl': repositoryUrl,
       'SourceCodeVersion': sourceCodeVersion,
       if (codeConfiguration != null) 'CodeConfiguration': codeConfiguration,
+      if (sourceDirectory != null) 'SourceDirectory': sourceDirectory,
     };
   }
 }
 
 enum ConfigurationSource {
-  repository,
-  api,
-}
+  repository('REPOSITORY'),
+  api('API'),
+  ;
 
-extension ConfigurationSourceValueExtension on ConfigurationSource {
-  String toValue() {
-    switch (this) {
-      case ConfigurationSource.repository:
-        return 'REPOSITORY';
-      case ConfigurationSource.api:
-        return 'API';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationSourceFromString on String {
-  ConfigurationSource toConfigurationSource() {
-    switch (this) {
-      case 'REPOSITORY':
-        return ConfigurationSource.repository;
-      case 'API':
-        return ConfigurationSource.api;
-    }
-    throw Exception('$this is not known in enum ConfigurationSource');
-  }
+  const ConfigurationSource(this.value);
+
+  static ConfigurationSource fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConfigurationSource'));
 }
 
 /// Describes an App Runner connection resource.
@@ -2468,8 +2630,9 @@ class Connection {
       connectionArn: json['ConnectionArn'] as String?,
       connectionName: json['ConnectionName'] as String?,
       createdAt: timeStampFromJson(json['CreatedAt']),
-      providerType: (json['ProviderType'] as String?)?.toProviderType(),
-      status: (json['Status'] as String?)?.toConnectionStatus(),
+      providerType:
+          (json['ProviderType'] as String?)?.let(ProviderType.fromString),
+      status: (json['Status'] as String?)?.let(ConnectionStatus.fromString),
     );
   }
 
@@ -2483,48 +2646,27 @@ class Connection {
       if (connectionArn != null) 'ConnectionArn': connectionArn,
       if (connectionName != null) 'ConnectionName': connectionName,
       if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
-      if (providerType != null) 'ProviderType': providerType.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (providerType != null) 'ProviderType': providerType.value,
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum ConnectionStatus {
-  pendingHandshake,
-  available,
-  error,
-  deleted,
-}
+  pendingHandshake('PENDING_HANDSHAKE'),
+  available('AVAILABLE'),
+  error('ERROR'),
+  deleted('DELETED'),
+  ;
 
-extension ConnectionStatusValueExtension on ConnectionStatus {
-  String toValue() {
-    switch (this) {
-      case ConnectionStatus.pendingHandshake:
-        return 'PENDING_HANDSHAKE';
-      case ConnectionStatus.available:
-        return 'AVAILABLE';
-      case ConnectionStatus.error:
-        return 'ERROR';
-      case ConnectionStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension ConnectionStatusFromString on String {
-  ConnectionStatus toConnectionStatus() {
-    switch (this) {
-      case 'PENDING_HANDSHAKE':
-        return ConnectionStatus.pendingHandshake;
-      case 'AVAILABLE':
-        return ConnectionStatus.available;
-      case 'ERROR':
-        return ConnectionStatus.error;
-      case 'DELETED':
-        return ConnectionStatus.deleted;
-    }
-    throw Exception('$this is not known in enum ConnectionStatus');
-  }
+  const ConnectionStatus(this.value);
+
+  static ConnectionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConnectionStatus'));
 }
 
 /// Provides summary information about an App Runner connection resource.
@@ -2559,8 +2701,9 @@ class ConnectionSummary {
       connectionArn: json['ConnectionArn'] as String?,
       connectionName: json['ConnectionName'] as String?,
       createdAt: timeStampFromJson(json['CreatedAt']),
-      providerType: (json['ProviderType'] as String?)?.toProviderType(),
-      status: (json['Status'] as String?)?.toConnectionStatus(),
+      providerType:
+          (json['ProviderType'] as String?)?.let(ProviderType.fromString),
+      status: (json['Status'] as String?)?.let(ConnectionStatus.fromString),
     );
   }
 
@@ -2574,8 +2717,8 @@ class ConnectionSummary {
       if (connectionArn != null) 'ConnectionArn': connectionArn,
       if (connectionName != null) 'ConnectionName': connectionName,
       if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
-      if (providerType != null) 'ProviderType': providerType.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (providerType != null) 'ProviderType': providerType.value,
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -2763,10 +2906,11 @@ class CustomDomain {
     return CustomDomain(
       domainName: json['DomainName'] as String,
       enableWWWSubdomain: json['EnableWWWSubdomain'] as bool,
-      status: (json['Status'] as String).toCustomDomainAssociationStatus(),
+      status:
+          CustomDomainAssociationStatus.fromString((json['Status'] as String)),
       certificateValidationRecords: (json['CertificateValidationRecords']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CertificateValidationRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2781,7 +2925,7 @@ class CustomDomain {
     return {
       'DomainName': domainName,
       'EnableWWWSubdomain': enableWWWSubdomain,
-      'Status': status.toValue(),
+      'Status': status.value,
       if (certificateValidationRecords != null)
         'CertificateValidationRecords': certificateValidationRecords,
     };
@@ -2789,57 +2933,23 @@ class CustomDomain {
 }
 
 enum CustomDomainAssociationStatus {
-  creating,
-  createFailed,
-  active,
-  deleting,
-  deleteFailed,
-  pendingCertificateDnsValidation,
-  bindingCertificate,
-}
+  creating('CREATING'),
+  createFailed('CREATE_FAILED'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  deleteFailed('DELETE_FAILED'),
+  pendingCertificateDnsValidation('PENDING_CERTIFICATE_DNS_VALIDATION'),
+  bindingCertificate('BINDING_CERTIFICATE'),
+  ;
 
-extension CustomDomainAssociationStatusValueExtension
-    on CustomDomainAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case CustomDomainAssociationStatus.creating:
-        return 'CREATING';
-      case CustomDomainAssociationStatus.createFailed:
-        return 'CREATE_FAILED';
-      case CustomDomainAssociationStatus.active:
-        return 'ACTIVE';
-      case CustomDomainAssociationStatus.deleting:
-        return 'DELETING';
-      case CustomDomainAssociationStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case CustomDomainAssociationStatus.pendingCertificateDnsValidation:
-        return 'PENDING_CERTIFICATE_DNS_VALIDATION';
-      case CustomDomainAssociationStatus.bindingCertificate:
-        return 'BINDING_CERTIFICATE';
-    }
-  }
-}
+  final String value;
 
-extension CustomDomainAssociationStatusFromString on String {
-  CustomDomainAssociationStatus toCustomDomainAssociationStatus() {
-    switch (this) {
-      case 'CREATING':
-        return CustomDomainAssociationStatus.creating;
-      case 'CREATE_FAILED':
-        return CustomDomainAssociationStatus.createFailed;
-      case 'ACTIVE':
-        return CustomDomainAssociationStatus.active;
-      case 'DELETING':
-        return CustomDomainAssociationStatus.deleting;
-      case 'DELETE_FAILED':
-        return CustomDomainAssociationStatus.deleteFailed;
-      case 'PENDING_CERTIFICATE_DNS_VALIDATION':
-        return CustomDomainAssociationStatus.pendingCertificateDnsValidation;
-      case 'BINDING_CERTIFICATE':
-        return CustomDomainAssociationStatus.bindingCertificate;
-    }
-    throw Exception('$this is not known in enum CustomDomainAssociationStatus');
-  }
+  const CustomDomainAssociationStatus(this.value);
+
+  static CustomDomainAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomDomainAssociationStatus'));
 }
 
 class DeleteAutoScalingConfigurationResponse {
@@ -3053,13 +3163,13 @@ class DescribeCustomDomainsResponse {
   factory DescribeCustomDomainsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeCustomDomainsResponse(
       customDomains: (json['CustomDomains'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CustomDomain.fromJson(e as Map<String, dynamic>))
           .toList(),
       dNSTarget: json['DNSTarget'] as String,
       serviceArn: json['ServiceArn'] as String,
       vpcDNSTargets: (json['VpcDNSTargets'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => VpcDNSTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3208,7 +3318,7 @@ class DisassociateCustomDomainResponse {
       dNSTarget: json['DNSTarget'] as String,
       serviceArn: json['ServiceArn'] as String,
       vpcDNSTargets: (json['VpcDNSTargets'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => VpcDNSTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3252,7 +3362,7 @@ class EgressConfiguration {
 
   factory EgressConfiguration.fromJson(Map<String, dynamic> json) {
     return EgressConfiguration(
-      egressType: (json['EgressType'] as String?)?.toEgressType(),
+      egressType: (json['EgressType'] as String?)?.let(EgressType.fromString),
       vpcConnectorArn: json['VpcConnectorArn'] as String?,
     );
   }
@@ -3261,38 +3371,24 @@ class EgressConfiguration {
     final egressType = this.egressType;
     final vpcConnectorArn = this.vpcConnectorArn;
     return {
-      if (egressType != null) 'EgressType': egressType.toValue(),
+      if (egressType != null) 'EgressType': egressType.value,
       if (vpcConnectorArn != null) 'VpcConnectorArn': vpcConnectorArn,
     };
   }
 }
 
 enum EgressType {
-  $default,
-  vpc,
-}
+  $default('DEFAULT'),
+  vpc('VPC'),
+  ;
 
-extension EgressTypeValueExtension on EgressType {
-  String toValue() {
-    switch (this) {
-      case EgressType.$default:
-        return 'DEFAULT';
-      case EgressType.vpc:
-        return 'VPC';
-    }
-  }
-}
+  final String value;
 
-extension EgressTypeFromString on String {
-  EgressType toEgressType() {
-    switch (this) {
-      case 'DEFAULT':
-        return EgressType.$default;
-      case 'VPC':
-        return EgressType.vpc;
-    }
-    throw Exception('$this is not known in enum EgressType');
-  }
+  const EgressType(this.value);
+
+  static EgressType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EgressType'));
 }
 
 /// Describes a custom encryption key that App Runner uses to encrypt copies of
@@ -3376,7 +3472,8 @@ class HealthCheckConfiguration {
       healthyThreshold: json['HealthyThreshold'] as int?,
       interval: json['Interval'] as int?,
       path: json['Path'] as String?,
-      protocol: (json['Protocol'] as String?)?.toHealthCheckProtocol(),
+      protocol:
+          (json['Protocol'] as String?)?.let(HealthCheckProtocol.fromString),
       timeout: json['Timeout'] as int?,
       unhealthyThreshold: json['UnhealthyThreshold'] as int?,
     );
@@ -3393,7 +3490,7 @@ class HealthCheckConfiguration {
       if (healthyThreshold != null) 'HealthyThreshold': healthyThreshold,
       if (interval != null) 'Interval': interval,
       if (path != null) 'Path': path,
-      if (protocol != null) 'Protocol': protocol.toValue(),
+      if (protocol != null) 'Protocol': protocol.value,
       if (timeout != null) 'Timeout': timeout,
       if (unhealthyThreshold != null) 'UnhealthyThreshold': unhealthyThreshold,
     };
@@ -3401,31 +3498,18 @@ class HealthCheckConfiguration {
 }
 
 enum HealthCheckProtocol {
-  tcp,
-  http,
-}
+  tcp('TCP'),
+  http('HTTP'),
+  ;
 
-extension HealthCheckProtocolValueExtension on HealthCheckProtocol {
-  String toValue() {
-    switch (this) {
-      case HealthCheckProtocol.tcp:
-        return 'TCP';
-      case HealthCheckProtocol.http:
-        return 'HTTP';
-    }
-  }
-}
+  final String value;
 
-extension HealthCheckProtocolFromString on String {
-  HealthCheckProtocol toHealthCheckProtocol() {
-    switch (this) {
-      case 'TCP':
-        return HealthCheckProtocol.tcp;
-      case 'HTTP':
-        return HealthCheckProtocol.http;
-    }
-    throw Exception('$this is not known in enum HealthCheckProtocol');
-  }
+  const HealthCheckProtocol(this.value);
+
+  static HealthCheckProtocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum HealthCheckProtocol'));
 }
 
 /// Describes the configuration that App Runner uses to run an App Runner
@@ -3527,8 +3611,8 @@ class ImageRepository {
   factory ImageRepository.fromJson(Map<String, dynamic> json) {
     return ImageRepository(
       imageIdentifier: json['ImageIdentifier'] as String,
-      imageRepositoryType:
-          (json['ImageRepositoryType'] as String).toImageRepositoryType(),
+      imageRepositoryType: ImageRepositoryType.fromString(
+          (json['ImageRepositoryType'] as String)),
       imageConfiguration: json['ImageConfiguration'] != null
           ? ImageConfiguration.fromJson(
               json['ImageConfiguration'] as Map<String, dynamic>)
@@ -3542,38 +3626,25 @@ class ImageRepository {
     final imageConfiguration = this.imageConfiguration;
     return {
       'ImageIdentifier': imageIdentifier,
-      'ImageRepositoryType': imageRepositoryType.toValue(),
+      'ImageRepositoryType': imageRepositoryType.value,
       if (imageConfiguration != null) 'ImageConfiguration': imageConfiguration,
     };
   }
 }
 
 enum ImageRepositoryType {
-  ecr,
-  ecrPublic,
-}
+  ecr('ECR'),
+  ecrPublic('ECR_PUBLIC'),
+  ;
 
-extension ImageRepositoryTypeValueExtension on ImageRepositoryType {
-  String toValue() {
-    switch (this) {
-      case ImageRepositoryType.ecr:
-        return 'ECR';
-      case ImageRepositoryType.ecrPublic:
-        return 'ECR_PUBLIC';
-    }
-  }
-}
+  final String value;
 
-extension ImageRepositoryTypeFromString on String {
-  ImageRepositoryType toImageRepositoryType() {
-    switch (this) {
-      case 'ECR':
-        return ImageRepositoryType.ecr;
-      case 'ECR_PUBLIC':
-        return ImageRepositoryType.ecrPublic;
-    }
-    throw Exception('$this is not known in enum ImageRepositoryType');
-  }
+  const ImageRepositoryType(this.value);
+
+  static ImageRepositoryType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ImageRepositoryType'));
 }
 
 /// Network configuration settings for inbound network traffic.
@@ -3681,6 +3752,21 @@ class InstanceConfiguration {
   }
 }
 
+enum IpAddressType {
+  ipv4('IPV4'),
+  dualStack('DUAL_STACK'),
+  ;
+
+  final String value;
+
+  const IpAddressType(this.value);
+
+  static IpAddressType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IpAddressType'));
+}
+
 class ListAutoScalingConfigurationsResponse {
   /// A list of summary information records for auto scaling configurations. In a
   /// paginated request, the request returns up to <code>MaxResults</code> records
@@ -3702,7 +3788,7 @@ class ListAutoScalingConfigurationsResponse {
     return ListAutoScalingConfigurationsResponse(
       autoScalingConfigurationSummaryList:
           (json['AutoScalingConfigurationSummaryList'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => AutoScalingConfigurationSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -3740,7 +3826,7 @@ class ListConnectionsResponse {
   factory ListConnectionsResponse.fromJson(Map<String, dynamic> json) {
     return ListConnectionsResponse(
       connectionSummaryList: (json['ConnectionSummaryList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ConnectionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3778,7 +3864,7 @@ class ListObservabilityConfigurationsResponse {
     return ListObservabilityConfigurationsResponse(
       observabilityConfigurationSummaryList:
           (json['ObservabilityConfigurationSummaryList'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => ObservabilityConfigurationSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -3816,7 +3902,7 @@ class ListOperationsResponse {
     return ListOperationsResponse(
       nextToken: json['NextToken'] as String?,
       operationSummaryList: (json['OperationSummaryList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OperationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3829,6 +3915,41 @@ class ListOperationsResponse {
       if (nextToken != null) 'NextToken': nextToken,
       if (operationSummaryList != null)
         'OperationSummaryList': operationSummaryList,
+    };
+  }
+}
+
+class ListServicesForAutoScalingConfigurationResponse {
+  /// A list of service ARN records. In a paginated request, the request returns
+  /// up to <code>MaxResults</code> records for each call.
+  final List<String> serviceArnList;
+
+  /// The token that you can pass in a subsequent request to get the next result
+  /// page. It's returned in a paginated request.
+  final String? nextToken;
+
+  ListServicesForAutoScalingConfigurationResponse({
+    required this.serviceArnList,
+    this.nextToken,
+  });
+
+  factory ListServicesForAutoScalingConfigurationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListServicesForAutoScalingConfigurationResponse(
+      serviceArnList: (json['ServiceArnList'] as List)
+          .nonNulls
+          .map((e) => e as String)
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final serviceArnList = this.serviceArnList;
+    final nextToken = this.nextToken;
+    return {
+      'ServiceArnList': serviceArnList,
+      if (nextToken != null) 'NextToken': nextToken,
     };
   }
 }
@@ -3850,7 +3971,7 @@ class ListServicesResponse {
   factory ListServicesResponse.fromJson(Map<String, dynamic> json) {
     return ListServicesResponse(
       serviceSummaryList: (json['ServiceSummaryList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ServiceSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3878,7 +3999,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3909,7 +4030,7 @@ class ListVpcConnectorsResponse {
   factory ListVpcConnectorsResponse.fromJson(Map<String, dynamic> json) {
     return ListVpcConnectorsResponse(
       vpcConnectors: (json['VpcConnectors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => VpcConnector.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3971,7 +4092,7 @@ class ListVpcIngressConnectionsResponse {
     return ListVpcIngressConnectionsResponse(
       vpcIngressConnectionSummaryList: (json['VpcIngressConnectionSummaryList']
               as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               VpcIngressConnectionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3999,9 +4120,23 @@ class NetworkConfiguration {
   /// Network configuration settings for inbound message traffic.
   final IngressConfiguration? ingressConfiguration;
 
+  /// App Runner provides you with the option to choose between <i>Internet
+  /// Protocol version 4 (IPv4)</i> and <i>dual stack</i> (IPv4 and IPv6) for your
+  /// incoming public network configuration. This is an optional parameter. If you
+  /// do not specify an <code>IpAddressType</code>, it defaults to select IPv4.
+  /// <note>
+  /// Currently, App Runner supports dual stack for only Public endpoint. Only
+  /// IPv4 is supported for Private endpoint. If you update a service that's using
+  /// dual-stack Public endpoint to a Private endpoint, your App Runner service
+  /// will default to support only IPv4 for Private endpoint and fail to receive
+  /// traffic originating from IPv6 endpoint.
+  /// </note>
+  final IpAddressType? ipAddressType;
+
   NetworkConfiguration({
     this.egressConfiguration,
     this.ingressConfiguration,
+    this.ipAddressType,
   });
 
   factory NetworkConfiguration.fromJson(Map<String, dynamic> json) {
@@ -4014,17 +4149,21 @@ class NetworkConfiguration {
           ? IngressConfiguration.fromJson(
               json['IngressConfiguration'] as Map<String, dynamic>)
           : null,
+      ipAddressType:
+          (json['IpAddressType'] as String?)?.let(IpAddressType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final egressConfiguration = this.egressConfiguration;
     final ingressConfiguration = this.ingressConfiguration;
+    final ipAddressType = this.ipAddressType;
     return {
       if (egressConfiguration != null)
         'EgressConfiguration': egressConfiguration,
       if (ingressConfiguration != null)
         'IngressConfiguration': ingressConfiguration,
+      if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
     };
   }
 }
@@ -4098,7 +4237,8 @@ class ObservabilityConfiguration {
           json['ObservabilityConfigurationName'] as String?,
       observabilityConfigurationRevision:
           json['ObservabilityConfigurationRevision'] as int?,
-      status: (json['Status'] as String?)?.toObservabilityConfigurationStatus(),
+      status: (json['Status'] as String?)
+          ?.let(ObservabilityConfigurationStatus.fromString),
       traceConfiguration: json['TraceConfiguration'] != null
           ? TraceConfiguration.fromJson(
               json['TraceConfiguration'] as Map<String, dynamic>)
@@ -4127,40 +4267,25 @@ class ObservabilityConfiguration {
       if (observabilityConfigurationRevision != null)
         'ObservabilityConfigurationRevision':
             observabilityConfigurationRevision,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (traceConfiguration != null) 'TraceConfiguration': traceConfiguration,
     };
   }
 }
 
 enum ObservabilityConfigurationStatus {
-  active,
-  inactive,
-}
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  ;
 
-extension ObservabilityConfigurationStatusValueExtension
-    on ObservabilityConfigurationStatus {
-  String toValue() {
-    switch (this) {
-      case ObservabilityConfigurationStatus.active:
-        return 'ACTIVE';
-      case ObservabilityConfigurationStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension ObservabilityConfigurationStatusFromString on String {
-  ObservabilityConfigurationStatus toObservabilityConfigurationStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return ObservabilityConfigurationStatus.active;
-      case 'INACTIVE':
-        return ObservabilityConfigurationStatus.inactive;
-    }
-    throw Exception(
-        '$this is not known in enum ObservabilityConfigurationStatus');
-  }
+  const ObservabilityConfigurationStatus(this.value);
+
+  static ObservabilityConfigurationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ObservabilityConfigurationStatus'));
 }
 
 /// Provides summary information about an App Runner observability configuration
@@ -4223,56 +4348,23 @@ class ObservabilityConfigurationSummary {
 }
 
 enum OperationStatus {
-  pending,
-  inProgress,
-  failed,
-  succeeded,
-  rollbackInProgress,
-  rollbackFailed,
-  rollbackSucceeded,
-}
+  pending('PENDING'),
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  succeeded('SUCCEEDED'),
+  rollbackInProgress('ROLLBACK_IN_PROGRESS'),
+  rollbackFailed('ROLLBACK_FAILED'),
+  rollbackSucceeded('ROLLBACK_SUCCEEDED'),
+  ;
 
-extension OperationStatusValueExtension on OperationStatus {
-  String toValue() {
-    switch (this) {
-      case OperationStatus.pending:
-        return 'PENDING';
-      case OperationStatus.inProgress:
-        return 'IN_PROGRESS';
-      case OperationStatus.failed:
-        return 'FAILED';
-      case OperationStatus.succeeded:
-        return 'SUCCEEDED';
-      case OperationStatus.rollbackInProgress:
-        return 'ROLLBACK_IN_PROGRESS';
-      case OperationStatus.rollbackFailed:
-        return 'ROLLBACK_FAILED';
-      case OperationStatus.rollbackSucceeded:
-        return 'ROLLBACK_SUCCEEDED';
-    }
-  }
-}
+  final String value;
 
-extension OperationStatusFromString on String {
-  OperationStatus toOperationStatus() {
-    switch (this) {
-      case 'PENDING':
-        return OperationStatus.pending;
-      case 'IN_PROGRESS':
-        return OperationStatus.inProgress;
-      case 'FAILED':
-        return OperationStatus.failed;
-      case 'SUCCEEDED':
-        return OperationStatus.succeeded;
-      case 'ROLLBACK_IN_PROGRESS':
-        return OperationStatus.rollbackInProgress;
-      case 'ROLLBACK_FAILED':
-        return OperationStatus.rollbackFailed;
-      case 'ROLLBACK_SUCCEEDED':
-        return OperationStatus.rollbackSucceeded;
-    }
-    throw Exception('$this is not known in enum OperationStatus');
-  }
+  const OperationStatus(this.value);
+
+  static OperationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OperationStatus'));
 }
 
 /// Provides summary information for an operation that occurred on an App Runner
@@ -4317,9 +4409,9 @@ class OperationSummary {
       endedAt: timeStampFromJson(json['EndedAt']),
       id: json['Id'] as String?,
       startedAt: timeStampFromJson(json['StartedAt']),
-      status: (json['Status'] as String?)?.toOperationStatus(),
+      status: (json['Status'] as String?)?.let(OperationStatus.fromString),
       targetArn: json['TargetArn'] as String?,
-      type: (json['Type'] as String?)?.toOperationType(),
+      type: (json['Type'] as String?)?.let(OperationType.fromString),
       updatedAt: timeStampFromJson(json['UpdatedAt']),
     );
   }
@@ -4336,60 +4428,31 @@ class OperationSummary {
       if (endedAt != null) 'EndedAt': unixTimestampToJson(endedAt),
       if (id != null) 'Id': id,
       if (startedAt != null) 'StartedAt': unixTimestampToJson(startedAt),
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (targetArn != null) 'TargetArn': targetArn,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (updatedAt != null) 'UpdatedAt': unixTimestampToJson(updatedAt),
     };
   }
 }
 
 enum OperationType {
-  startDeployment,
-  createService,
-  pauseService,
-  resumeService,
-  deleteService,
-  updateService,
-}
+  startDeployment('START_DEPLOYMENT'),
+  createService('CREATE_SERVICE'),
+  pauseService('PAUSE_SERVICE'),
+  resumeService('RESUME_SERVICE'),
+  deleteService('DELETE_SERVICE'),
+  updateService('UPDATE_SERVICE'),
+  ;
 
-extension OperationTypeValueExtension on OperationType {
-  String toValue() {
-    switch (this) {
-      case OperationType.startDeployment:
-        return 'START_DEPLOYMENT';
-      case OperationType.createService:
-        return 'CREATE_SERVICE';
-      case OperationType.pauseService:
-        return 'PAUSE_SERVICE';
-      case OperationType.resumeService:
-        return 'RESUME_SERVICE';
-      case OperationType.deleteService:
-        return 'DELETE_SERVICE';
-      case OperationType.updateService:
-        return 'UPDATE_SERVICE';
-    }
-  }
-}
+  final String value;
 
-extension OperationTypeFromString on String {
-  OperationType toOperationType() {
-    switch (this) {
-      case 'START_DEPLOYMENT':
-        return OperationType.startDeployment;
-      case 'CREATE_SERVICE':
-        return OperationType.createService;
-      case 'PAUSE_SERVICE':
-        return OperationType.pauseService;
-      case 'RESUME_SERVICE':
-        return OperationType.resumeService;
-      case 'DELETE_SERVICE':
-        return OperationType.deleteService;
-      case 'UPDATE_SERVICE':
-        return OperationType.updateService;
-    }
-    throw Exception('$this is not known in enum OperationType');
-  }
+  const OperationType(this.value);
+
+  static OperationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OperationType'));
 }
 
 class PauseServiceResponse {
@@ -4424,26 +4487,18 @@ class PauseServiceResponse {
 }
 
 enum ProviderType {
-  github,
-}
+  github('GITHUB'),
+  bitbucket('BITBUCKET'),
+  ;
 
-extension ProviderTypeValueExtension on ProviderType {
-  String toValue() {
-    switch (this) {
-      case ProviderType.github:
-        return 'GITHUB';
-    }
-  }
-}
+  final String value;
 
-extension ProviderTypeFromString on String {
-  ProviderType toProviderType() {
-    switch (this) {
-      case 'GITHUB':
-        return ProviderType.github;
-    }
-    throw Exception('$this is not known in enum ProviderType');
-  }
+  const ProviderType(this.value);
+
+  static ProviderType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ProviderType'));
 }
 
 class ResumeServiceResponse {
@@ -4478,71 +4533,27 @@ class ResumeServiceResponse {
 }
 
 enum Runtime {
-  python_3,
-  nodejs_12,
-  nodejs_14,
-  corretto_8,
-  corretto_11,
-  nodejs_16,
-  go_1,
-  dotnet_6,
-  php_81,
-  ruby_31,
-}
+  python_3('PYTHON_3'),
+  nodejs_12('NODEJS_12'),
+  nodejs_14('NODEJS_14'),
+  corretto_8('CORRETTO_8'),
+  corretto_11('CORRETTO_11'),
+  nodejs_16('NODEJS_16'),
+  go_1('GO_1'),
+  dotnet_6('DOTNET_6'),
+  php_81('PHP_81'),
+  ruby_31('RUBY_31'),
+  python_311('PYTHON_311'),
+  nodejs_18('NODEJS_18'),
+  ;
 
-extension RuntimeValueExtension on Runtime {
-  String toValue() {
-    switch (this) {
-      case Runtime.python_3:
-        return 'PYTHON_3';
-      case Runtime.nodejs_12:
-        return 'NODEJS_12';
-      case Runtime.nodejs_14:
-        return 'NODEJS_14';
-      case Runtime.corretto_8:
-        return 'CORRETTO_8';
-      case Runtime.corretto_11:
-        return 'CORRETTO_11';
-      case Runtime.nodejs_16:
-        return 'NODEJS_16';
-      case Runtime.go_1:
-        return 'GO_1';
-      case Runtime.dotnet_6:
-        return 'DOTNET_6';
-      case Runtime.php_81:
-        return 'PHP_81';
-      case Runtime.ruby_31:
-        return 'RUBY_31';
-    }
-  }
-}
+  final String value;
 
-extension RuntimeFromString on String {
-  Runtime toRuntime() {
-    switch (this) {
-      case 'PYTHON_3':
-        return Runtime.python_3;
-      case 'NODEJS_12':
-        return Runtime.nodejs_12;
-      case 'NODEJS_14':
-        return Runtime.nodejs_14;
-      case 'CORRETTO_8':
-        return Runtime.corretto_8;
-      case 'CORRETTO_11':
-        return Runtime.corretto_11;
-      case 'NODEJS_16':
-        return Runtime.nodejs_16;
-      case 'GO_1':
-        return Runtime.go_1;
-      case 'DOTNET_6':
-        return Runtime.dotnet_6;
-      case 'PHP_81':
-        return Runtime.php_81;
-      case 'RUBY_31':
-        return Runtime.ruby_31;
-    }
-    throw Exception('$this is not known in enum Runtime');
-  }
+  const Runtime(this.value);
+
+  static Runtime fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Runtime'));
 }
 
 /// Describes an App Runner service. It can describe a service in any state,
@@ -4595,12 +4606,11 @@ class Service {
   ///
   /// <ul>
   /// <li>
-  /// <code>CREATE_FAILED</code> – The service failed to create. To troubleshoot
-  /// this failure, read the failure events and logs, change any parameters that
-  /// need to be fixed, and retry the call to create the service.
-  ///
-  /// The failed service isn't usable, and still counts towards your service
-  /// quota. When you're done analyzing the failure, delete the service.
+  /// <code>CREATE_FAILED</code> – The service failed to create. The failed
+  /// service isn't usable, and still counts towards your service quota. To
+  /// troubleshoot this failure, read the failure events and logs, change any
+  /// parameters that need to be fixed, and rebuild your service using
+  /// <code>UpdateService</code>.
   /// </li>
   /// <li>
   /// <code>DELETE_FAILED</code> – The service failed to delete and can't be
@@ -4667,7 +4677,7 @@ class Service {
       serviceName: json['ServiceName'] as String,
       sourceConfiguration: SourceConfiguration.fromJson(
           json['SourceConfiguration'] as Map<String, dynamic>),
-      status: (json['Status'] as String).toServiceStatus(),
+      status: ServiceStatus.fromString((json['Status'] as String)),
       updatedAt: nonNullableTimeStampFromJson(json['UpdatedAt'] as Object),
       deletedAt: timeStampFromJson(json['DeletedAt']),
       encryptionConfiguration: json['EncryptionConfiguration'] != null
@@ -4712,7 +4722,7 @@ class Service {
       'ServiceId': serviceId,
       'ServiceName': serviceName,
       'SourceConfiguration': sourceConfiguration,
-      'Status': status.toValue(),
+      'Status': status.value,
       'UpdatedAt': unixTimestampToJson(updatedAt),
       if (deletedAt != null) 'DeletedAt': unixTimestampToJson(deletedAt),
       if (encryptionConfiguration != null)
@@ -4774,51 +4784,22 @@ class ServiceObservabilityConfiguration {
 }
 
 enum ServiceStatus {
-  createFailed,
-  running,
-  deleted,
-  deleteFailed,
-  paused,
-  operationInProgress,
-}
+  createFailed('CREATE_FAILED'),
+  running('RUNNING'),
+  deleted('DELETED'),
+  deleteFailed('DELETE_FAILED'),
+  paused('PAUSED'),
+  operationInProgress('OPERATION_IN_PROGRESS'),
+  ;
 
-extension ServiceStatusValueExtension on ServiceStatus {
-  String toValue() {
-    switch (this) {
-      case ServiceStatus.createFailed:
-        return 'CREATE_FAILED';
-      case ServiceStatus.running:
-        return 'RUNNING';
-      case ServiceStatus.deleted:
-        return 'DELETED';
-      case ServiceStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case ServiceStatus.paused:
-        return 'PAUSED';
-      case ServiceStatus.operationInProgress:
-        return 'OPERATION_IN_PROGRESS';
-    }
-  }
-}
+  final String value;
 
-extension ServiceStatusFromString on String {
-  ServiceStatus toServiceStatus() {
-    switch (this) {
-      case 'CREATE_FAILED':
-        return ServiceStatus.createFailed;
-      case 'RUNNING':
-        return ServiceStatus.running;
-      case 'DELETED':
-        return ServiceStatus.deleted;
-      case 'DELETE_FAILED':
-        return ServiceStatus.deleteFailed;
-      case 'PAUSED':
-        return ServiceStatus.paused;
-      case 'OPERATION_IN_PROGRESS':
-        return ServiceStatus.operationInProgress;
-    }
-    throw Exception('$this is not known in enum ServiceStatus');
-  }
+  const ServiceStatus(this.value);
+
+  static ServiceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ServiceStatus'));
 }
 
 /// Provides summary information for an App Runner service.
@@ -4859,12 +4840,11 @@ class ServiceSummary {
   ///
   /// <ul>
   /// <li>
-  /// <code>CREATE_FAILED</code> – The service failed to create. Read the failure
-  /// events and logs, change any parameters that need to be fixed, and retry the
-  /// call to create the service.
-  ///
-  /// The failed service isn't usable, and still counts towards your service
-  /// quota. When you're done analyzing the failure, delete the service.
+  /// <code>CREATE_FAILED</code> – The service failed to create. The failed
+  /// service isn't usable, and still counts towards your service quota. To
+  /// troubleshoot this failure, read the failure events and logs, change any
+  /// parameters that need to be fixed, and rebuild your service using
+  /// <code>UpdateService</code>.
   /// </li>
   /// <li>
   /// <code>DELETE_FAILED</code> – The service failed to delete and can't be
@@ -4895,7 +4875,7 @@ class ServiceSummary {
       serviceId: json['ServiceId'] as String?,
       serviceName: json['ServiceName'] as String?,
       serviceUrl: json['ServiceUrl'] as String?,
-      status: (json['Status'] as String?)?.toServiceStatus(),
+      status: (json['Status'] as String?)?.let(ServiceStatus.fromString),
       updatedAt: timeStampFromJson(json['UpdatedAt']),
     );
   }
@@ -4914,7 +4894,7 @@ class ServiceSummary {
       if (serviceId != null) 'ServiceId': serviceId,
       if (serviceName != null) 'ServiceName': serviceName,
       if (serviceUrl != null) 'ServiceUrl': serviceUrl,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (updatedAt != null) 'UpdatedAt': unixTimestampToJson(updatedAt),
     };
   }
@@ -4941,7 +4921,7 @@ class SourceCodeVersion {
 
   factory SourceCodeVersion.fromJson(Map<String, dynamic> json) {
     return SourceCodeVersion(
-      type: (json['Type'] as String).toSourceCodeVersionType(),
+      type: SourceCodeVersionType.fromString((json['Type'] as String)),
       value: json['Value'] as String,
     );
   }
@@ -4950,33 +4930,24 @@ class SourceCodeVersion {
     final type = this.type;
     final value = this.value;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       'Value': value,
     };
   }
 }
 
 enum SourceCodeVersionType {
-  branch,
-}
+  branch('BRANCH'),
+  ;
 
-extension SourceCodeVersionTypeValueExtension on SourceCodeVersionType {
-  String toValue() {
-    switch (this) {
-      case SourceCodeVersionType.branch:
-        return 'BRANCH';
-    }
-  }
-}
+  final String value;
 
-extension SourceCodeVersionTypeFromString on String {
-  SourceCodeVersionType toSourceCodeVersionType() {
-    switch (this) {
-      case 'BRANCH':
-        return SourceCodeVersionType.branch;
-    }
-    throw Exception('$this is not known in enum SourceCodeVersionType');
-  }
+  const SourceCodeVersionType(this.value);
+
+  static SourceCodeVersionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SourceCodeVersionType'));
 }
 
 /// Describes the source deployed to an App Runner service. It can be a code or
@@ -5129,39 +5100,30 @@ class TraceConfiguration {
 
   factory TraceConfiguration.fromJson(Map<String, dynamic> json) {
     return TraceConfiguration(
-      vendor: (json['Vendor'] as String).toTracingVendor(),
+      vendor: TracingVendor.fromString((json['Vendor'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final vendor = this.vendor;
     return {
-      'Vendor': vendor.toValue(),
+      'Vendor': vendor.value,
     };
   }
 }
 
 enum TracingVendor {
-  awsxray,
-}
+  awsxray('AWSXRAY'),
+  ;
 
-extension TracingVendorValueExtension on TracingVendor {
-  String toValue() {
-    switch (this) {
-      case TracingVendor.awsxray:
-        return 'AWSXRAY';
-    }
-  }
-}
+  final String value;
 
-extension TracingVendorFromString on String {
-  TracingVendor toTracingVendor() {
-    switch (this) {
-      case 'AWSXRAY':
-        return TracingVendor.awsxray;
-    }
-    throw Exception('$this is not known in enum TracingVendor');
-  }
+  const TracingVendor(this.value);
+
+  static TracingVendor fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TracingVendor'));
 }
 
 class UntagResourceResponse {
@@ -5173,6 +5135,31 @@ class UntagResourceResponse {
 
   Map<String, dynamic> toJson() {
     return {};
+  }
+}
+
+class UpdateDefaultAutoScalingConfigurationResponse {
+  /// A description of the App Runner auto scaling configuration that was set as
+  /// default.
+  final AutoScalingConfiguration autoScalingConfiguration;
+
+  UpdateDefaultAutoScalingConfigurationResponse({
+    required this.autoScalingConfiguration,
+  });
+
+  factory UpdateDefaultAutoScalingConfigurationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateDefaultAutoScalingConfigurationResponse(
+      autoScalingConfiguration: AutoScalingConfiguration.fromJson(
+          json['AutoScalingConfiguration'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final autoScalingConfiguration = this.autoScalingConfiguration;
+    return {
+      'AutoScalingConfiguration': autoScalingConfiguration,
+    };
   }
 }
 
@@ -5296,14 +5283,12 @@ class VpcConnector {
       createdAt: timeStampFromJson(json['CreatedAt']),
       deletedAt: timeStampFromJson(json['DeletedAt']),
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status: (json['Status'] as String?)?.toVpcConnectorStatus(),
-      subnets: (json['Subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      status: (json['Status'] as String?)?.let(VpcConnectorStatus.fromString),
+      subnets:
+          (json['Subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
       vpcConnectorArn: json['VpcConnectorArn'] as String?,
       vpcConnectorName: json['VpcConnectorName'] as String?,
       vpcConnectorRevision: json['VpcConnectorRevision'] as int?,
@@ -5323,7 +5308,7 @@ class VpcConnector {
       if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
       if (deletedAt != null) 'DeletedAt': unixTimestampToJson(deletedAt),
       if (securityGroups != null) 'SecurityGroups': securityGroups,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (subnets != null) 'Subnets': subnets,
       if (vpcConnectorArn != null) 'VpcConnectorArn': vpcConnectorArn,
       if (vpcConnectorName != null) 'VpcConnectorName': vpcConnectorName,
@@ -5334,31 +5319,18 @@ class VpcConnector {
 }
 
 enum VpcConnectorStatus {
-  active,
-  inactive,
-}
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  ;
 
-extension VpcConnectorStatusValueExtension on VpcConnectorStatus {
-  String toValue() {
-    switch (this) {
-      case VpcConnectorStatus.active:
-        return 'ACTIVE';
-      case VpcConnectorStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension VpcConnectorStatusFromString on String {
-  VpcConnectorStatus toVpcConnectorStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return VpcConnectorStatus.active;
-      case 'INACTIVE':
-        return VpcConnectorStatus.inactive;
-    }
-    throw Exception('$this is not known in enum VpcConnectorStatus');
-  }
+  const VpcConnectorStatus(this.value);
+
+  static VpcConnectorStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum VpcConnectorStatus'));
 }
 
 /// DNS Target record for a custom domain of this Amazon VPC.
@@ -5483,7 +5455,8 @@ class VpcIngressConnection {
               json['IngressVpcConfiguration'] as Map<String, dynamic>)
           : null,
       serviceArn: json['ServiceArn'] as String?,
-      status: (json['Status'] as String?)?.toVpcIngressConnectionStatus(),
+      status: (json['Status'] as String?)
+          ?.let(VpcIngressConnectionStatus.fromString),
       vpcIngressConnectionArn: json['VpcIngressConnectionArn'] as String?,
       vpcIngressConnectionName: json['VpcIngressConnectionName'] as String?,
     );
@@ -5507,7 +5480,7 @@ class VpcIngressConnection {
       if (ingressVpcConfiguration != null)
         'IngressVpcConfiguration': ingressVpcConfiguration,
       if (serviceArn != null) 'ServiceArn': serviceArn,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (vpcIngressConnectionArn != null)
         'VpcIngressConnectionArn': vpcIngressConnectionArn,
       if (vpcIngressConnectionName != null)
@@ -5517,62 +5490,24 @@ class VpcIngressConnection {
 }
 
 enum VpcIngressConnectionStatus {
-  available,
-  pendingCreation,
-  pendingUpdate,
-  pendingDeletion,
-  failedCreation,
-  failedUpdate,
-  failedDeletion,
-  deleted,
-}
+  available('AVAILABLE'),
+  pendingCreation('PENDING_CREATION'),
+  pendingUpdate('PENDING_UPDATE'),
+  pendingDeletion('PENDING_DELETION'),
+  failedCreation('FAILED_CREATION'),
+  failedUpdate('FAILED_UPDATE'),
+  failedDeletion('FAILED_DELETION'),
+  deleted('DELETED'),
+  ;
 
-extension VpcIngressConnectionStatusValueExtension
-    on VpcIngressConnectionStatus {
-  String toValue() {
-    switch (this) {
-      case VpcIngressConnectionStatus.available:
-        return 'AVAILABLE';
-      case VpcIngressConnectionStatus.pendingCreation:
-        return 'PENDING_CREATION';
-      case VpcIngressConnectionStatus.pendingUpdate:
-        return 'PENDING_UPDATE';
-      case VpcIngressConnectionStatus.pendingDeletion:
-        return 'PENDING_DELETION';
-      case VpcIngressConnectionStatus.failedCreation:
-        return 'FAILED_CREATION';
-      case VpcIngressConnectionStatus.failedUpdate:
-        return 'FAILED_UPDATE';
-      case VpcIngressConnectionStatus.failedDeletion:
-        return 'FAILED_DELETION';
-      case VpcIngressConnectionStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension VpcIngressConnectionStatusFromString on String {
-  VpcIngressConnectionStatus toVpcIngressConnectionStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return VpcIngressConnectionStatus.available;
-      case 'PENDING_CREATION':
-        return VpcIngressConnectionStatus.pendingCreation;
-      case 'PENDING_UPDATE':
-        return VpcIngressConnectionStatus.pendingUpdate;
-      case 'PENDING_DELETION':
-        return VpcIngressConnectionStatus.pendingDeletion;
-      case 'FAILED_CREATION':
-        return VpcIngressConnectionStatus.failedCreation;
-      case 'FAILED_UPDATE':
-        return VpcIngressConnectionStatus.failedUpdate;
-      case 'FAILED_DELETION':
-        return VpcIngressConnectionStatus.failedDeletion;
-      case 'DELETED':
-        return VpcIngressConnectionStatus.deleted;
-    }
-    throw Exception('$this is not known in enum VpcIngressConnectionStatus');
-  }
+  const VpcIngressConnectionStatus(this.value);
+
+  static VpcIngressConnectionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum VpcIngressConnectionStatus'));
 }
 
 /// Provides summary information about an VPC Ingress Connection, which includes

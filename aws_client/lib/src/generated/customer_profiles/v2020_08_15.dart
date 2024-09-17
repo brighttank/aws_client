@@ -105,6 +105,75 @@ class CustomerProfiles {
     return AddProfileKeyResponse.fromJson(response);
   }
 
+  /// Creates a new calculated attribute definition. After creation, new object
+  /// data ingested into Customer Profiles will be included in the calculated
+  /// attribute, which can be retrieved for a profile using the <a
+  /// href="https://docs.aws.amazon.com/customerprofiles/latest/APIReference/API_GetCalculatedAttributeForProfile.html">GetCalculatedAttributeForProfile</a>
+  /// API. Defining a calculated attribute makes it available for all profiles
+  /// within a domain. Each calculated attribute can only reference one
+  /// <code>ObjectType</code> and at most, two fields from that
+  /// <code>ObjectType</code>.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [attributeDetails] :
+  /// Mathematical expression and a list of attribute items specified in that
+  /// expression.
+  ///
+  /// Parameter [calculatedAttributeName] :
+  /// The unique name of the calculated attribute.
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [statistic] :
+  /// The aggregation operation to perform for the calculated attribute.
+  ///
+  /// Parameter [conditions] :
+  /// The conditions including range, object count, and threshold for the
+  /// calculated attribute.
+  ///
+  /// Parameter [description] :
+  /// The description of the calculated attribute.
+  ///
+  /// Parameter [displayName] :
+  /// The display name of the calculated attribute.
+  ///
+  /// Parameter [tags] :
+  /// The tags used to organize, track, or control access for this resource.
+  Future<CreateCalculatedAttributeDefinitionResponse>
+      createCalculatedAttributeDefinition({
+    required AttributeDetails attributeDetails,
+    required String calculatedAttributeName,
+    required String domainName,
+    required Statistic statistic,
+    Conditions? conditions,
+    String? description,
+    String? displayName,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'AttributeDetails': attributeDetails,
+      'Statistic': statistic.value,
+      if (conditions != null) 'Conditions': conditions,
+      if (description != null) 'Description': description,
+      if (displayName != null) 'DisplayName': displayName,
+      if (tags != null) 'Tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/calculated-attributes/${Uri.encodeComponent(calculatedAttributeName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateCalculatedAttributeDefinitionResponse.fromJson(response);
+  }
+
   /// Creates a domain, which is a container for all customer data, such as
   /// customer profile attributes, object types, profile keys, and encryption
   /// keys. You can create multiple domains, and each domain can have multiple
@@ -159,6 +228,16 @@ class CustomerProfiles {
   /// <code>ExportingConfig</code> in the <code>MatchingRequest</code>, you can
   /// download the results from S3.
   ///
+  /// Parameter [ruleBasedMatching] :
+  /// The process of matching duplicate profiles using the Rule-Based matching.
+  /// If <code>RuleBasedMatching</code> = true, Amazon Connect Customer Profiles
+  /// will start to match and merge your profiles according to your
+  /// configuration in the <code>RuleBasedMatchingRequest</code>. You can use
+  /// the <code>ListRuleBasedMatches</code> and <code>GetSimilarProfiles</code>
+  /// API to return and review the results. Also, if you have configured
+  /// <code>ExportingConfig</code> in the <code>RuleBasedMatchingRequest</code>,
+  /// you can download the results from S3.
+  ///
   /// Parameter [tags] :
   /// The tags used to organize, track, or control access for this resource.
   Future<CreateDomainResponse> createDomain({
@@ -167,6 +246,7 @@ class CustomerProfiles {
     String? deadLetterQueueUrl,
     String? defaultEncryptionKey,
     MatchingRequest? matching,
+    RuleBasedMatchingRequest? ruleBasedMatching,
     Map<String, String>? tags,
   }) async {
     _s.validateNumRange(
@@ -182,6 +262,7 @@ class CustomerProfiles {
       if (defaultEncryptionKey != null)
         'DefaultEncryptionKey': defaultEncryptionKey,
       if (matching != null) 'Matching': matching,
+      if (ruleBasedMatching != null) 'RuleBasedMatching': ruleBasedMatching,
       if (tags != null) 'Tags': tags,
     };
     final response = await _protocol.send(
@@ -191,6 +272,52 @@ class CustomerProfiles {
       exceptionFnMap: _exceptionFns,
     );
     return CreateDomainResponse.fromJson(response);
+  }
+
+  /// Creates an event stream, which is a subscription to real-time events, such
+  /// as when profiles are created and updated through Amazon Connect Customer
+  /// Profiles.
+  ///
+  /// Each event stream can be associated with only one Kinesis Data Stream
+  /// destination in the same region and Amazon Web Services account as the
+  /// customer profiles domain
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [eventStreamName] :
+  /// The name of the event stream.
+  ///
+  /// Parameter [uri] :
+  /// The StreamARN of the destination to deliver profile events to. For
+  /// example, arn:aws:kinesis:region:account-id:stream/stream-name
+  ///
+  /// Parameter [tags] :
+  /// The tags used to organize, track, or control access for this resource.
+  Future<CreateEventStreamResponse> createEventStream({
+    required String domainName,
+    required String eventStreamName,
+    required String uri,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'Uri': uri,
+      if (tags != null) 'Tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/event-streams/${Uri.encodeComponent(eventStreamName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateEventStreamResponse.fromJson(response);
   }
 
   /// Creates an integration workflow. An integration workflow is an async
@@ -235,7 +362,7 @@ class CustomerProfiles {
       'IntegrationConfig': integrationConfig,
       'ObjectTypeName': objectTypeName,
       'RoleArn': roleArn,
-      'WorkflowType': workflowType.toValue(),
+      'WorkflowType': workflowType.value,
       if (tags != null) 'Tags': tags,
     };
     final response = await _protocol.send(
@@ -375,14 +502,14 @@ class CustomerProfiles {
         'BusinessPhoneNumber': businessPhoneNumber,
       if (emailAddress != null) 'EmailAddress': emailAddress,
       if (firstName != null) 'FirstName': firstName,
-      if (gender != null) 'Gender': gender.toValue(),
+      if (gender != null) 'Gender': gender.value,
       if (genderString != null) 'GenderString': genderString,
       if (homePhoneNumber != null) 'HomePhoneNumber': homePhoneNumber,
       if (lastName != null) 'LastName': lastName,
       if (mailingAddress != null) 'MailingAddress': mailingAddress,
       if (middleName != null) 'MiddleName': middleName,
       if (mobilePhoneNumber != null) 'MobilePhoneNumber': mobilePhoneNumber,
-      if (partyType != null) 'PartyType': partyType.toValue(),
+      if (partyType != null) 'PartyType': partyType.value,
       if (partyTypeString != null) 'PartyTypeString': partyTypeString,
       if (personalEmailAddress != null)
         'PersonalEmailAddress': personalEmailAddress,
@@ -396,6 +523,35 @@ class CustomerProfiles {
       exceptionFnMap: _exceptionFns,
     );
     return CreateProfileResponse.fromJson(response);
+  }
+
+  /// Deletes an existing calculated attribute definition. Note that deleting a
+  /// default calculated attribute is possible, however once deleted, you will
+  /// be unable to undo that action and will need to recreate it on your own
+  /// using the CreateCalculatedAttributeDefinition API if you want it back.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [calculatedAttributeName] :
+  /// The unique name of the calculated attribute.
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  Future<void> deleteCalculatedAttributeDefinition({
+    required String calculatedAttributeName,
+    required String domainName,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/calculated-attributes/${Uri.encodeComponent(calculatedAttributeName)}',
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Deletes a specific domain and all of its customer data, such as customer
@@ -419,6 +575,32 @@ class CustomerProfiles {
       exceptionFnMap: _exceptionFns,
     );
     return DeleteDomainResponse.fromJson(response);
+  }
+
+  /// Disables and deletes the specified event stream.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [eventStreamName] :
+  /// The name of the event stream
+  Future<void> deleteEventStream({
+    required String domainName,
+    required String eventStreamName,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/event-streams/${Uri.encodeComponent(eventStreamName)}',
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Removes an integration from a specific domain.
@@ -618,6 +800,37 @@ class CustomerProfiles {
     );
   }
 
+  /// The process of detecting profile object type mapping by using given
+  /// objects.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [objects] :
+  /// A string that is serialized from a JSON object.
+  Future<DetectProfileObjectTypeResponse> detectProfileObjectType({
+    required String domainName,
+    required List<String> objects,
+  }) async {
+    final $payload = <String, dynamic>{
+      'Objects': objects,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/detect/object-types',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DetectProfileObjectTypeResponse.fromJson(response);
+  }
+
   /// Tests the auto-merging settings of your Identity Resolution Job without
   /// merging your data. It randomly selects a sample of matching groups from
   /// the existing matching results, and applies the automerging settings that
@@ -684,6 +897,67 @@ class CustomerProfiles {
     return GetAutoMergingPreviewResponse.fromJson(response);
   }
 
+  /// Provides more information on a calculated attribute definition for
+  /// Customer Profiles.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [calculatedAttributeName] :
+  /// The unique name of the calculated attribute.
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  Future<GetCalculatedAttributeDefinitionResponse>
+      getCalculatedAttributeDefinition({
+    required String calculatedAttributeName,
+    required String domainName,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/calculated-attributes/${Uri.encodeComponent(calculatedAttributeName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetCalculatedAttributeDefinitionResponse.fromJson(response);
+  }
+
+  /// Retrieve a calculated attribute for a customer profile.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [calculatedAttributeName] :
+  /// The unique name of the calculated attribute.
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [profileId] :
+  /// The unique identifier of a customer profile.
+  Future<GetCalculatedAttributeForProfileResponse>
+      getCalculatedAttributeForProfile({
+    required String calculatedAttributeName,
+    required String domainName,
+    required String profileId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/profile/${Uri.encodeComponent(profileId)}/calculated-attributes/${Uri.encodeComponent(calculatedAttributeName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetCalculatedAttributeForProfileResponse.fromJson(response);
+  }
+
   /// Returns information about a specific domain.
   ///
   /// May throw [BadRequestException].
@@ -704,6 +978,33 @@ class CustomerProfiles {
       exceptionFnMap: _exceptionFns,
     );
     return GetDomainResponse.fromJson(response);
+  }
+
+  /// Returns information about the specified event stream in a specific domain.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [eventStreamName] :
+  /// The name of the event stream provided during create operations.
+  Future<GetEventStreamResponse> getEventStream({
+    required String domainName,
+    required String eventStreamName,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/event-streams/${Uri.encodeComponent(eventStreamName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetEventStreamResponse.fromJson(response);
   }
 
   /// Returns information about an Identity Resolution Job in a specific domain.
@@ -917,6 +1218,69 @@ class CustomerProfiles {
     return GetProfileObjectTypeTemplateResponse.fromJson(response);
   }
 
+  /// Returns a set of profiles that belong to the same matching group using the
+  /// <code>matchId</code> or <code>profileId</code>. You can also specify the
+  /// type of matching that you want for finding similar profiles using either
+  /// <code>RULE_BASED_MATCHING</code> or <code>ML_BASED_MATCHING</code>.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [matchType] :
+  /// Specify the type of matching to get similar profiles for.
+  ///
+  /// Parameter [searchKey] :
+  /// The string indicating the search key to be used.
+  ///
+  /// Parameter [searchValue] :
+  /// The string based on <code>SearchKey</code> to be searched for similar
+  /// profiles.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of objects returned per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The pagination token from the previous <code>GetSimilarProfiles</code> API
+  /// call.
+  Future<GetSimilarProfilesResponse> getSimilarProfiles({
+    required String domainName,
+    required MatchType matchType,
+    required String searchKey,
+    required String searchValue,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+    };
+    final $payload = <String, dynamic>{
+      'MatchType': matchType.value,
+      'SearchKey': searchKey,
+      'SearchValue': searchValue,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/domains/${Uri.encodeComponent(domainName)}/matches',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetSimilarProfilesResponse.fromJson(response);
+  }
+
   /// Get details of specified workflow.
   ///
   /// May throw [BadRequestException].
@@ -1042,6 +1406,98 @@ class CustomerProfiles {
     return ListAccountIntegrationsResponse.fromJson(response);
   }
 
+  /// Lists calculated attribute definitions for Customer Profiles
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of calculated attribute definitions returned per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The pagination token from the previous call to
+  /// ListCalculatedAttributeDefinitions.
+  Future<ListCalculatedAttributeDefinitionsResponse>
+      listCalculatedAttributeDefinitions({
+    required String domainName,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/calculated-attributes',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListCalculatedAttributeDefinitionsResponse.fromJson(response);
+  }
+
+  /// Retrieve a list of calculated attributes for a customer profile.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [profileId] :
+  /// The unique identifier of a customer profile.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of calculated attributes returned per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The pagination token from the previous call to
+  /// ListCalculatedAttributesForProfile.
+  Future<ListCalculatedAttributesForProfileResponse>
+      listCalculatedAttributesForProfile({
+    required String domainName,
+    required String profileId,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/profile/${Uri.encodeComponent(profileId)}/calculated-attributes',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListCalculatedAttributesForProfileResponse.fromJson(response);
+  }
+
   /// Returns a list of all the domains for an AWS account that have been
   /// created.
   ///
@@ -1078,6 +1534,47 @@ class CustomerProfiles {
       exceptionFnMap: _exceptionFns,
     );
     return ListDomainsResponse.fromJson(response);
+  }
+
+  /// Returns a list of all the event streams in a specific domain.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of objects returned per page.
+  ///
+  /// Parameter [nextToken] :
+  /// Identifies the next page of results to return.
+  Future<ListEventStreamsResponse> listEventStreams({
+    required String domainName,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/domains/${Uri.encodeComponent(domainName)}/event-streams',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListEventStreamsResponse.fromJson(response);
   }
 
   /// Lists all of the Identity Resolution Jobs in your domain. The response
@@ -1276,8 +1773,7 @@ class CustomerProfiles {
   ///
   /// Parameter [objectFilter] :
   /// Applies a filter to the response to include profile objects with the
-  /// specified index values. This filter is only supported for ObjectTypeName
-  /// _asset, _case and _order.
+  /// specified index values.
   Future<ListProfileObjectsResponse> listProfileObjects({
     required String domainName,
     required String objectTypeName,
@@ -1310,6 +1806,49 @@ class CustomerProfiles {
       exceptionFnMap: _exceptionFns,
     );
     return ListProfileObjectsResponse.fromJson(response);
+  }
+
+  /// Returns a set of <code>MatchIds</code> that belong to the given domain.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of <code>MatchIds</code> returned per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The pagination token from the previous <code>ListRuleBasedMatches</code>
+  /// API call.
+  Future<ListRuleBasedMatchesResponse> listRuleBasedMatches({
+    required String domainName,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/profiles/ruleBasedMatches',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListRuleBasedMatchesResponse.fromJson(response);
   }
 
   /// Displays the tags associated with an Amazon Connect Customer Profiles
@@ -1387,8 +1926,8 @@ class CustomerProfiles {
         'QueryEndDate': unixTimestampToJson(queryEndDate),
       if (queryStartDate != null)
         'QueryStartDate': unixTimestampToJson(queryStartDate),
-      if (status != null) 'Status': status.toValue(),
-      if (workflowType != null) 'WorkflowType': workflowType.toValue(),
+      if (status != null) 'Status': status.value,
+      if (workflowType != null) 'WorkflowType': workflowType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1790,7 +2329,7 @@ class CustomerProfiles {
       'Values': values,
       if (additionalSearchKeys != null)
         'AdditionalSearchKeys': additionalSearchKeys,
-      if (logicalOperator != null) 'LogicalOperator': logicalOperator.toValue(),
+      if (logicalOperator != null) 'LogicalOperator': logicalOperator.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1873,6 +2412,55 @@ class CustomerProfiles {
     );
   }
 
+  /// Updates an existing calculated attribute definition. When updating the
+  /// Conditions, note that increasing the date range of a calculated attribute
+  /// will not trigger inclusion of historical data greater than the current
+  /// date range.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [calculatedAttributeName] :
+  /// The unique name of the calculated attribute.
+  ///
+  /// Parameter [domainName] :
+  /// The unique name of the domain.
+  ///
+  /// Parameter [conditions] :
+  /// The conditions including range, object count, and threshold for the
+  /// calculated attribute.
+  ///
+  /// Parameter [description] :
+  /// The description of the calculated attribute.
+  ///
+  /// Parameter [displayName] :
+  /// The display name of the calculated attribute.
+  Future<UpdateCalculatedAttributeDefinitionResponse>
+      updateCalculatedAttributeDefinition({
+    required String calculatedAttributeName,
+    required String domainName,
+    Conditions? conditions,
+    String? description,
+    String? displayName,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (conditions != null) 'Conditions': conditions,
+      if (description != null) 'Description': description,
+      if (displayName != null) 'DisplayName': displayName,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PUT',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainName)}/calculated-attributes/${Uri.encodeComponent(calculatedAttributeName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateCalculatedAttributeDefinitionResponse.fromJson(response);
+  }
+
   /// Updates the properties of a domain, including creating or selecting a dead
   /// letter queue or an encryption key.
   ///
@@ -1930,6 +2518,16 @@ class CustomerProfiles {
   /// <code>ExportingConfig</code> in the <code>MatchingRequest</code>, you can
   /// download the results from S3.
   ///
+  /// Parameter [ruleBasedMatching] :
+  /// The process of matching duplicate profiles using the rule-Based matching.
+  /// If <code>RuleBasedMatching</code> = true, Amazon Connect Customer Profiles
+  /// will start to match and merge your profiles according to your
+  /// configuration in the <code>RuleBasedMatchingRequest</code>. You can use
+  /// the <code>ListRuleBasedMatches</code> and <code>GetSimilarProfiles</code>
+  /// API to return and review the results. Also, if you have configured
+  /// <code>ExportingConfig</code> in the <code>RuleBasedMatchingRequest</code>,
+  /// you can download the results from S3.
+  ///
   /// Parameter [tags] :
   /// The tags used to organize, track, or control access for this resource.
   Future<UpdateDomainResponse> updateDomain({
@@ -1938,6 +2536,7 @@ class CustomerProfiles {
     String? defaultEncryptionKey,
     int? defaultExpirationDays,
     MatchingRequest? matching,
+    RuleBasedMatchingRequest? ruleBasedMatching,
     Map<String, String>? tags,
   }) async {
     _s.validateNumRange(
@@ -1953,6 +2552,7 @@ class CustomerProfiles {
       if (defaultExpirationDays != null)
         'DefaultExpirationDays': defaultExpirationDays,
       if (matching != null) 'Matching': matching,
+      if (ruleBasedMatching != null) 'RuleBasedMatching': ruleBasedMatching,
       if (tags != null) 'Tags': tags,
     };
     final response = await _protocol.send(
@@ -2098,14 +2698,14 @@ class CustomerProfiles {
         'BusinessPhoneNumber': businessPhoneNumber,
       if (emailAddress != null) 'EmailAddress': emailAddress,
       if (firstName != null) 'FirstName': firstName,
-      if (gender != null) 'Gender': gender.toValue(),
+      if (gender != null) 'Gender': gender.value,
       if (genderString != null) 'GenderString': genderString,
       if (homePhoneNumber != null) 'HomePhoneNumber': homePhoneNumber,
       if (lastName != null) 'LastName': lastName,
       if (mailingAddress != null) 'MailingAddress': mailingAddress,
       if (middleName != null) 'MiddleName': middleName,
       if (mobilePhoneNumber != null) 'MobilePhoneNumber': mobilePhoneNumber,
-      if (partyType != null) 'PartyType': partyType.toValue(),
+      if (partyType != null) 'PartyType': partyType.value,
       if (partyTypeString != null) 'PartyTypeString': partyTypeString,
       if (personalEmailAddress != null)
         'PersonalEmailAddress': personalEmailAddress,
@@ -2137,10 +2737,8 @@ class AddProfileKeyResponse {
   factory AddProfileKeyResponse.fromJson(Map<String, dynamic> json) {
     return AddProfileKeyResponse(
       keyName: json['KeyName'] as String?,
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -2317,8 +2915,8 @@ class AppflowIntegrationWorkflowAttributes {
       Map<String, dynamic> json) {
     return AppflowIntegrationWorkflowAttributes(
       connectorProfileName: json['ConnectorProfileName'] as String,
-      sourceConnectorType:
-          (json['SourceConnectorType'] as String).toSourceConnectorType(),
+      sourceConnectorType: SourceConnectorType.fromString(
+          (json['SourceConnectorType'] as String)),
       roleArn: json['RoleArn'] as String?,
     );
   }
@@ -2329,7 +2927,7 @@ class AppflowIntegrationWorkflowAttributes {
     final roleArn = this.roleArn;
     return {
       'ConnectorProfileName': connectorProfileName,
-      'SourceConnectorType': sourceConnectorType.toValue(),
+      'SourceConnectorType': sourceConnectorType.value,
       if (roleArn != null) 'RoleArn': roleArn,
     };
   }
@@ -2429,7 +3027,7 @@ class AppflowIntegrationWorkflowStep {
       lastUpdatedAt:
           nonNullableTimeStampFromJson(json['LastUpdatedAt'] as Object),
       recordsProcessed: json['RecordsProcessed'] as int,
-      status: (json['Status'] as String).toStatus(),
+      status: Status.fromString((json['Status'] as String)),
     );
   }
 
@@ -2450,7 +3048,206 @@ class AppflowIntegrationWorkflowStep {
       'FlowName': flowName,
       'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
       'RecordsProcessed': recordsProcessed,
-      'Status': status.toValue(),
+      'Status': status.value,
+    };
+  }
+}
+
+/// Mathematical expression and a list of attribute items specified in that
+/// expression.
+class AttributeDetails {
+  /// A list of attribute items specified in the mathematical expression.
+  final List<AttributeItem> attributes;
+
+  /// Mathematical expression that is performed on attribute items provided in the
+  /// attribute list. Each element in the expression should follow the structure
+  /// of \"{ObjectTypeName.AttributeName}\".
+  final String expression;
+
+  AttributeDetails({
+    required this.attributes,
+    required this.expression,
+  });
+
+  factory AttributeDetails.fromJson(Map<String, dynamic> json) {
+    return AttributeDetails(
+      attributes: (json['Attributes'] as List)
+          .nonNulls
+          .map((e) => AttributeItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      expression: json['Expression'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final attributes = this.attributes;
+    final expression = this.expression;
+    return {
+      'Attributes': attributes,
+      'Expression': expression,
+    };
+  }
+}
+
+/// The details of a single attribute item specified in the mathematical
+/// expression.
+class AttributeItem {
+  /// The name of an attribute defined in a profile object type.
+  final String name;
+
+  AttributeItem({
+    required this.name,
+  });
+
+  factory AttributeItem.fromJson(Map<String, dynamic> json) {
+    return AttributeItem(
+      name: json['Name'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    return {
+      'Name': name,
+    };
+  }
+}
+
+enum AttributeMatchingModel {
+  oneToOne('ONE_TO_ONE'),
+  manyToMany('MANY_TO_MANY'),
+  ;
+
+  final String value;
+
+  const AttributeMatchingModel(this.value);
+
+  static AttributeMatchingModel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AttributeMatchingModel'));
+}
+
+/// Configuration information about the <code>AttributeTypesSelector
+/// </code>where the rule-based identity resolution uses to match profiles. You
+/// can choose how profiles are compared across attribute types and which
+/// attribute to use for matching from each type. There are three attribute
+/// types you can configure:
+///
+/// <ul>
+/// <li>
+/// Email type
+///
+/// <ul>
+/// <li>
+/// You can choose from <code>Email</code>, <code>BusinessEmail</code>, and
+/// <code>PersonalEmail</code>
+/// </li>
+/// </ul> </li>
+/// <li>
+/// Phone number type
+///
+/// <ul>
+/// <li>
+/// You can choose from <code>Phone</code>, <code>HomePhone</code>, and
+/// <code>MobilePhone</code>
+/// </li>
+/// </ul> </li>
+/// <li>
+/// Address type
+///
+/// <ul>
+/// <li>
+/// You can choose from <code>Address</code>, <code>BusinessAddress</code>,
+/// <code>MaillingAddress</code>, and <code>ShippingAddress</code>
+/// </li>
+/// </ul> </li>
+/// </ul>
+/// You can either choose <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code>
+/// as the <code>AttributeMatchingModel</code>. When choosing
+/// <code>MANY_TO_MANY</code>, the system can match attribute across the
+/// sub-types of an attribute type. For example, if the value of the
+/// <code>Email</code> field of Profile A and the value of
+/// <code>BusinessEmail</code> field of Profile B matches, the two profiles are
+/// matched on the Email type. When choosing <code>ONE_TO_ONE</code> the system
+/// can only match if the sub-types are exact matches. For example, only when
+/// the value of the <code>Email</code> field of Profile A and the value of the
+/// <code>Email</code> field of Profile B matches, the two profiles are matched
+/// on the Email type.
+class AttributeTypesSelector {
+  /// Configures the <code>AttributeMatchingModel</code>, you can either choose
+  /// <code>ONE_TO_ONE</code> or <code>MANY_TO_MANY</code>.
+  final AttributeMatchingModel attributeMatchingModel;
+
+  /// The <code>Address</code> type. You can choose from <code>Address</code>,
+  /// <code>BusinessAddress</code>, <code>MaillingAddress</code>, and
+  /// <code>ShippingAddress</code>.
+  ///
+  /// You only can use the Address type in the <code>MatchingRule</code>. For
+  /// example, if you want to match profile based on
+  /// <code>BusinessAddress.City</code> or <code>MaillingAddress.City</code>, you
+  /// need to choose the <code>BusinessAddress</code> and the
+  /// <code>MaillingAddress</code> to represent the Address type and specify the
+  /// <code>Address.City</code> on the matching rule.
+  final List<String>? address;
+
+  /// The <code>Email</code> type. You can choose from <code>EmailAddress</code>,
+  /// <code>BusinessEmailAddress</code> and <code>PersonalEmailAddress</code>.
+  ///
+  /// You only can use the <code>EmailAddress</code> type in the
+  /// <code>MatchingRule</code>. For example, if you want to match profile based
+  /// on <code>PersonalEmailAddress</code> or <code>BusinessEmailAddress</code>,
+  /// you need to choose the <code>PersonalEmailAddress</code> and the
+  /// <code>BusinessEmailAddress</code> to represent the <code>EmailAddress</code>
+  /// type and only specify the <code>EmailAddress</code> on the matching rule.
+  final List<String>? emailAddress;
+
+  /// The <code>PhoneNumber</code> type. You can choose from
+  /// <code>PhoneNumber</code>, <code>HomePhoneNumber</code>, and
+  /// <code>MobilePhoneNumber</code>.
+  ///
+  /// You only can use the <code>PhoneNumber</code> type in the
+  /// <code>MatchingRule</code>. For example, if you want to match a profile based
+  /// on <code>Phone</code> or <code>HomePhone</code>, you need to choose the
+  /// <code>Phone</code> and the <code>HomePhone</code> to represent the
+  /// <code>PhoneNumber</code> type and only specify the <code>PhoneNumber</code>
+  /// on the matching rule.
+  final List<String>? phoneNumber;
+
+  AttributeTypesSelector({
+    required this.attributeMatchingModel,
+    this.address,
+    this.emailAddress,
+    this.phoneNumber,
+  });
+
+  factory AttributeTypesSelector.fromJson(Map<String, dynamic> json) {
+    return AttributeTypesSelector(
+      attributeMatchingModel: AttributeMatchingModel.fromString(
+          (json['AttributeMatchingModel'] as String)),
+      address:
+          (json['Address'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      emailAddress: (json['EmailAddress'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      phoneNumber: (json['PhoneNumber'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final attributeMatchingModel = this.attributeMatchingModel;
+    final address = this.address;
+    final emailAddress = this.emailAddress;
+    final phoneNumber = this.phoneNumber;
+    return {
+      'AttributeMatchingModel': attributeMatchingModel.value,
+      if (address != null) 'Address': address,
+      if (emailAddress != null) 'EmailAddress': emailAddress,
+      if (phoneNumber != null) 'PhoneNumber': phoneNumber,
     };
   }
 }
@@ -2542,6 +3339,48 @@ class Batch {
   }
 }
 
+/// The conditions including range, object count, and threshold for the
+/// calculated attribute.
+class Conditions {
+  /// The number of profile objects used for the calculated attribute.
+  final int? objectCount;
+
+  /// The relative time period over which data is included in the aggregation.
+  final Range? range;
+
+  /// The threshold for the calculated attribute.
+  final Threshold? threshold;
+
+  Conditions({
+    this.objectCount,
+    this.range,
+    this.threshold,
+  });
+
+  factory Conditions.fromJson(Map<String, dynamic> json) {
+    return Conditions(
+      objectCount: json['ObjectCount'] as int?,
+      range: json['Range'] != null
+          ? Range.fromJson(json['Range'] as Map<String, dynamic>)
+          : null,
+      threshold: json['Threshold'] != null
+          ? Threshold.fromJson(json['Threshold'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final objectCount = this.objectCount;
+    final range = this.range;
+    final threshold = this.threshold;
+    return {
+      if (objectCount != null) 'ObjectCount': objectCount,
+      if (range != null) 'Range': range,
+      if (threshold != null) 'Threshold': threshold,
+    };
+  }
+}
+
 /// How the auto-merging process should resolve conflicts between different
 /// profiles.
 class ConflictResolution {
@@ -2573,8 +3412,8 @@ class ConflictResolution {
 
   factory ConflictResolution.fromJson(Map<String, dynamic> json) {
     return ConflictResolution(
-      conflictResolvingModel:
-          (json['ConflictResolvingModel'] as String).toConflictResolvingModel(),
+      conflictResolvingModel: ConflictResolvingModel.fromString(
+          (json['ConflictResolvingModel'] as String)),
       sourceName: json['SourceName'] as String?,
     );
   }
@@ -2583,38 +3422,25 @@ class ConflictResolution {
     final conflictResolvingModel = this.conflictResolvingModel;
     final sourceName = this.sourceName;
     return {
-      'ConflictResolvingModel': conflictResolvingModel.toValue(),
+      'ConflictResolvingModel': conflictResolvingModel.value,
       if (sourceName != null) 'SourceName': sourceName,
     };
   }
 }
 
 enum ConflictResolvingModel {
-  recency,
-  source,
-}
+  recency('RECENCY'),
+  source('SOURCE'),
+  ;
 
-extension ConflictResolvingModelValueExtension on ConflictResolvingModel {
-  String toValue() {
-    switch (this) {
-      case ConflictResolvingModel.recency:
-        return 'RECENCY';
-      case ConflictResolvingModel.source:
-        return 'SOURCE';
-    }
-  }
-}
+  final String value;
 
-extension ConflictResolvingModelFromString on String {
-  ConflictResolvingModel toConflictResolvingModel() {
-    switch (this) {
-      case 'RECENCY':
-        return ConflictResolvingModel.recency;
-      case 'SOURCE':
-        return ConflictResolvingModel.source;
-    }
-    throw Exception('$this is not known in enum ConflictResolvingModel');
-  }
+  const ConflictResolvingModel(this.value);
+
+  static ConflictResolvingModel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConflictResolvingModel'));
 }
 
 /// The operation to be performed on the provided source fields.
@@ -2649,11 +3475,11 @@ class ConnectorOperator {
     final serviceNow = this.serviceNow;
     final zendesk = this.zendesk;
     return {
-      if (marketo != null) 'Marketo': marketo.toValue(),
-      if (s3 != null) 'S3': s3.toValue(),
-      if (salesforce != null) 'Salesforce': salesforce.toValue(),
-      if (serviceNow != null) 'ServiceNow': serviceNow.toValue(),
-      if (zendesk != null) 'Zendesk': zendesk.toValue(),
+      if (marketo != null) 'Marketo': marketo.value,
+      if (s3 != null) 'S3': s3.value,
+      if (salesforce != null) 'Salesforce': salesforce.value,
+      if (serviceNow != null) 'ServiceNow': serviceNow.value,
+      if (zendesk != null) 'Zendesk': zendesk.value,
     };
   }
 }
@@ -2670,9 +3496,8 @@ class Consolidation {
   factory Consolidation.fromJson(Map<String, dynamic> json) {
     return Consolidation(
       matchingAttributesList: (json['MatchingAttributesList'] as List)
-          .whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          .nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
     );
   }
@@ -2681,6 +3506,96 @@ class Consolidation {
     final matchingAttributesList = this.matchingAttributesList;
     return {
       'MatchingAttributesList': matchingAttributesList,
+    };
+  }
+}
+
+class CreateCalculatedAttributeDefinitionResponse {
+  /// Mathematical expression and a list of attribute items specified in that
+  /// expression.
+  final AttributeDetails? attributeDetails;
+
+  /// The unique name of the calculated attribute.
+  final String? calculatedAttributeName;
+
+  /// The conditions including range, object count, and threshold for the
+  /// calculated attribute.
+  final Conditions? conditions;
+
+  /// The timestamp of when the calculated attribute definition was created.
+  final DateTime? createdAt;
+
+  /// The description of the calculated attribute.
+  final String? description;
+
+  /// The display name of the calculated attribute.
+  final String? displayName;
+
+  /// The timestamp of when the calculated attribute definition was most recently
+  /// edited.
+  final DateTime? lastUpdatedAt;
+
+  /// The aggregation operation to perform for the calculated attribute.
+  final Statistic? statistic;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  CreateCalculatedAttributeDefinitionResponse({
+    this.attributeDetails,
+    this.calculatedAttributeName,
+    this.conditions,
+    this.createdAt,
+    this.description,
+    this.displayName,
+    this.lastUpdatedAt,
+    this.statistic,
+    this.tags,
+  });
+
+  factory CreateCalculatedAttributeDefinitionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreateCalculatedAttributeDefinitionResponse(
+      attributeDetails: json['AttributeDetails'] != null
+          ? AttributeDetails.fromJson(
+              json['AttributeDetails'] as Map<String, dynamic>)
+          : null,
+      calculatedAttributeName: json['CalculatedAttributeName'] as String?,
+      conditions: json['Conditions'] != null
+          ? Conditions.fromJson(json['Conditions'] as Map<String, dynamic>)
+          : null,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      description: json['Description'] as String?,
+      displayName: json['DisplayName'] as String?,
+      lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
+      statistic: (json['Statistic'] as String?)?.let(Statistic.fromString),
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final attributeDetails = this.attributeDetails;
+    final calculatedAttributeName = this.calculatedAttributeName;
+    final conditions = this.conditions;
+    final createdAt = this.createdAt;
+    final description = this.description;
+    final displayName = this.displayName;
+    final lastUpdatedAt = this.lastUpdatedAt;
+    final statistic = this.statistic;
+    final tags = this.tags;
+    return {
+      if (attributeDetails != null) 'AttributeDetails': attributeDetails,
+      if (calculatedAttributeName != null)
+        'CalculatedAttributeName': calculatedAttributeName,
+      if (conditions != null) 'Conditions': conditions,
+      if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
+      if (description != null) 'Description': description,
+      if (displayName != null) 'DisplayName': displayName,
+      if (lastUpdatedAt != null)
+        'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
+      if (statistic != null) 'Statistic': statistic.value,
+      if (tags != null) 'Tags': tags,
     };
   }
 }
@@ -2720,6 +3635,16 @@ class CreateDomainResponse {
   /// download the results from S3.
   final MatchingResponse? matching;
 
+  /// The process of matching duplicate profiles using the Rule-Based matching. If
+  /// <code>RuleBasedMatching</code> = true, Amazon Connect Customer Profiles will
+  /// start to match and merge your profiles according to your configuration in
+  /// the <code>RuleBasedMatchingRequest</code>. You can use the
+  /// <code>ListRuleBasedMatches</code> and <code>GetSimilarProfiles</code> API to
+  /// return and review the results. Also, if you have configured
+  /// <code>ExportingConfig</code> in the <code>RuleBasedMatchingRequest</code>,
+  /// you can download the results from S3.
+  final RuleBasedMatchingResponse? ruleBasedMatching;
+
   /// The tags used to organize, track, or control access for this resource.
   final Map<String, String>? tags;
 
@@ -2731,6 +3656,7 @@ class CreateDomainResponse {
     this.deadLetterQueueUrl,
     this.defaultEncryptionKey,
     this.matching,
+    this.ruleBasedMatching,
     this.tags,
   });
 
@@ -2746,6 +3672,10 @@ class CreateDomainResponse {
       matching: json['Matching'] != null
           ? MatchingResponse.fromJson(json['Matching'] as Map<String, dynamic>)
           : null,
+      ruleBasedMatching: json['RuleBasedMatching'] != null
+          ? RuleBasedMatchingResponse.fromJson(
+              json['RuleBasedMatching'] as Map<String, dynamic>)
+          : null,
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -2759,6 +3689,7 @@ class CreateDomainResponse {
     final deadLetterQueueUrl = this.deadLetterQueueUrl;
     final defaultEncryptionKey = this.defaultEncryptionKey;
     final matching = this.matching;
+    final ruleBasedMatching = this.ruleBasedMatching;
     final tags = this.tags;
     return {
       'CreatedAt': unixTimestampToJson(createdAt),
@@ -2769,6 +3700,37 @@ class CreateDomainResponse {
       if (defaultEncryptionKey != null)
         'DefaultEncryptionKey': defaultEncryptionKey,
       if (matching != null) 'Matching': matching,
+      if (ruleBasedMatching != null) 'RuleBasedMatching': ruleBasedMatching,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+class CreateEventStreamResponse {
+  /// A unique identifier for the event stream.
+  final String eventStreamArn;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  CreateEventStreamResponse({
+    required this.eventStreamArn,
+    this.tags,
+  });
+
+  factory CreateEventStreamResponse.fromJson(Map<String, dynamic> json) {
+    return CreateEventStreamResponse(
+      eventStreamArn: json['EventStreamArn'] as String,
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final eventStreamArn = this.eventStreamArn;
+    final tags = this.tags;
+    return {
+      'EventStreamArn': eventStreamArn,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -2827,30 +3789,30 @@ class CreateProfileResponse {
 }
 
 enum DataPullMode {
-  incremental,
-  complete,
+  incremental('Incremental'),
+  complete('Complete'),
+  ;
+
+  final String value;
+
+  const DataPullMode(this.value);
+
+  static DataPullMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DataPullMode'));
 }
 
-extension DataPullModeValueExtension on DataPullMode {
-  String toValue() {
-    switch (this) {
-      case DataPullMode.incremental:
-        return 'Incremental';
-      case DataPullMode.complete:
-        return 'Complete';
-    }
+class DeleteCalculatedAttributeDefinitionResponse {
+  DeleteCalculatedAttributeDefinitionResponse();
+
+  factory DeleteCalculatedAttributeDefinitionResponse.fromJson(
+      Map<String, dynamic> _) {
+    return DeleteCalculatedAttributeDefinitionResponse();
   }
-}
 
-extension DataPullModeFromString on String {
-  DataPullMode toDataPullMode() {
-    switch (this) {
-      case 'Incremental':
-        return DataPullMode.incremental;
-      case 'Complete':
-        return DataPullMode.complete;
-    }
-    throw Exception('$this is not known in enum DataPullMode');
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -2873,6 +3835,18 @@ class DeleteDomainResponse {
     return {
       'Message': message,
     };
+  }
+}
+
+class DeleteEventStreamResponse {
+  DeleteEventStreamResponse();
+
+  factory DeleteEventStreamResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteEventStreamResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -2998,6 +3972,121 @@ class DeleteWorkflowResponse {
   }
 }
 
+/// Summary information about the Kinesis data stream
+class DestinationSummary {
+  /// The status of enabling the Kinesis stream as a destination for export.
+  final EventStreamDestinationStatus status;
+
+  /// The StreamARN of the destination to deliver profile events to. For example,
+  /// arn:aws:kinesis:region:account-id:stream/stream-name.
+  final String uri;
+
+  /// The timestamp when the status last changed to <code>UNHEALHY</code>.
+  final DateTime? unhealthySince;
+
+  DestinationSummary({
+    required this.status,
+    required this.uri,
+    this.unhealthySince,
+  });
+
+  factory DestinationSummary.fromJson(Map<String, dynamic> json) {
+    return DestinationSummary(
+      status:
+          EventStreamDestinationStatus.fromString((json['Status'] as String)),
+      uri: json['Uri'] as String,
+      unhealthySince: timeStampFromJson(json['UnhealthySince']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    final uri = this.uri;
+    final unhealthySince = this.unhealthySince;
+    return {
+      'Status': status.value,
+      'Uri': uri,
+      if (unhealthySince != null)
+        'UnhealthySince': unixTimestampToJson(unhealthySince),
+    };
+  }
+}
+
+class DetectProfileObjectTypeResponse {
+  /// Detected <code>ProfileObjectType</code> mappings from given objects. A
+  /// maximum of one mapping is supported.
+  final List<DetectedProfileObjectType>? detectedProfileObjectTypes;
+
+  DetectProfileObjectTypeResponse({
+    this.detectedProfileObjectTypes,
+  });
+
+  factory DetectProfileObjectTypeResponse.fromJson(Map<String, dynamic> json) {
+    return DetectProfileObjectTypeResponse(
+      detectedProfileObjectTypes: (json['DetectedProfileObjectTypes'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              DetectedProfileObjectType.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final detectedProfileObjectTypes = this.detectedProfileObjectTypes;
+    return {
+      if (detectedProfileObjectTypes != null)
+        'DetectedProfileObjectTypes': detectedProfileObjectTypes,
+    };
+  }
+}
+
+/// Contains <code>ProfileObjectType</code> mapping information from the model.
+class DetectedProfileObjectType {
+  /// A map of the name and the <code>ObjectType</code> field.
+  final Map<String, ObjectTypeField>? fields;
+
+  /// A list of unique keys that can be used to map data to a profile.
+  final Map<String, List<ObjectTypeKey>>? keys;
+
+  /// The format of <code>sourceLastUpdatedTimestamp</code> that was detected in
+  /// fields.
+  final String? sourceLastUpdatedTimestampFormat;
+
+  DetectedProfileObjectType({
+    this.fields,
+    this.keys,
+    this.sourceLastUpdatedTimestampFormat,
+  });
+
+  factory DetectedProfileObjectType.fromJson(Map<String, dynamic> json) {
+    return DetectedProfileObjectType(
+      fields: (json['Fields'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(k, ObjectTypeField.fromJson(e as Map<String, dynamic>))),
+      keys: (json['Keys'] as Map<String, dynamic>?)?.map((k, e) => MapEntry(
+          k,
+          (e as List)
+              .nonNulls
+              .map((e) => ObjectTypeKey.fromJson(e as Map<String, dynamic>))
+              .toList())),
+      sourceLastUpdatedTimestampFormat:
+          json['SourceLastUpdatedTimestampFormat'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fields = this.fields;
+    final keys = this.keys;
+    final sourceLastUpdatedTimestampFormat =
+        this.sourceLastUpdatedTimestampFormat;
+    return {
+      if (fields != null) 'Fields': fields,
+      if (keys != null) 'Keys': keys,
+      if (sourceLastUpdatedTimestampFormat != null)
+        'SourceLastUpdatedTimestampFormat': sourceLastUpdatedTimestampFormat,
+    };
+  }
+}
+
 /// Usage-specific statistics about the domain.
 class DomainStats {
   /// The number of profiles that you are currently paying for in the domain. If
@@ -3042,6 +4131,154 @@ class DomainStats {
       if (objectCount != null) 'ObjectCount': objectCount,
       if (profileCount != null) 'ProfileCount': profileCount,
       if (totalSize != null) 'TotalSize': totalSize,
+    };
+  }
+}
+
+/// Details of the destination being used for the EventStream.
+class EventStreamDestinationDetails {
+  /// The status of enabling the Kinesis stream as a destination for export.
+  final EventStreamDestinationStatus status;
+
+  /// The StreamARN of the destination to deliver profile events to. For example,
+  /// arn:aws:kinesis:region:account-id:stream/stream-name.
+  final String uri;
+
+  /// The human-readable string that corresponds to the error or success while
+  /// enabling the streaming destination.
+  final String? message;
+
+  /// The timestamp when the status last changed to <code>UNHEALHY</code>.
+  final DateTime? unhealthySince;
+
+  EventStreamDestinationDetails({
+    required this.status,
+    required this.uri,
+    this.message,
+    this.unhealthySince,
+  });
+
+  factory EventStreamDestinationDetails.fromJson(Map<String, dynamic> json) {
+    return EventStreamDestinationDetails(
+      status:
+          EventStreamDestinationStatus.fromString((json['Status'] as String)),
+      uri: json['Uri'] as String,
+      message: json['Message'] as String?,
+      unhealthySince: timeStampFromJson(json['UnhealthySince']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    final uri = this.uri;
+    final message = this.message;
+    final unhealthySince = this.unhealthySince;
+    return {
+      'Status': status.value,
+      'Uri': uri,
+      if (message != null) 'Message': message,
+      if (unhealthySince != null)
+        'UnhealthySince': unixTimestampToJson(unhealthySince),
+    };
+  }
+}
+
+enum EventStreamDestinationStatus {
+  healthy('HEALTHY'),
+  unhealthy('UNHEALTHY'),
+  ;
+
+  final String value;
+
+  const EventStreamDestinationStatus(this.value);
+
+  static EventStreamDestinationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EventStreamDestinationStatus'));
+}
+
+enum EventStreamState {
+  running('RUNNING'),
+  stopped('STOPPED'),
+  ;
+
+  final String value;
+
+  const EventStreamState(this.value);
+
+  static EventStreamState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EventStreamState'));
+}
+
+/// An instance of EventStream in a list of EventStreams.
+class EventStreamSummary {
+  /// The unique name of the domain.
+  final String domainName;
+
+  /// A unique identifier for the event stream.
+  final String eventStreamArn;
+
+  /// The name of the event stream.
+  final String eventStreamName;
+
+  /// The operational state of destination stream for export.
+  final EventStreamState state;
+
+  /// Summary information about the Kinesis data stream.
+  final DestinationSummary? destinationSummary;
+
+  /// The timestamp when the <code>State</code> changed to <code>STOPPED</code>.
+  final DateTime? stoppedSince;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  EventStreamSummary({
+    required this.domainName,
+    required this.eventStreamArn,
+    required this.eventStreamName,
+    required this.state,
+    this.destinationSummary,
+    this.stoppedSince,
+    this.tags,
+  });
+
+  factory EventStreamSummary.fromJson(Map<String, dynamic> json) {
+    return EventStreamSummary(
+      domainName: json['DomainName'] as String,
+      eventStreamArn: json['EventStreamArn'] as String,
+      eventStreamName: json['EventStreamName'] as String,
+      state: EventStreamState.fromString((json['State'] as String)),
+      destinationSummary: json['DestinationSummary'] != null
+          ? DestinationSummary.fromJson(
+              json['DestinationSummary'] as Map<String, dynamic>)
+          : null,
+      stoppedSince: timeStampFromJson(json['StoppedSince']),
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final domainName = this.domainName;
+    final eventStreamArn = this.eventStreamArn;
+    final eventStreamName = this.eventStreamName;
+    final state = this.state;
+    final destinationSummary = this.destinationSummary;
+    final stoppedSince = this.stoppedSince;
+    final tags = this.tags;
+    return {
+      'DomainName': domainName,
+      'EventStreamArn': eventStreamArn,
+      'EventStreamName': eventStreamName,
+      'State': state.value,
+      if (destinationSummary != null) 'DestinationSummary': destinationSummary,
+      if (stoppedSince != null)
+        'StoppedSince': unixTimestampToJson(stoppedSince),
+      if (tags != null) 'Tags': tags,
     };
   }
 }
@@ -3108,46 +4345,21 @@ class ExportingLocation {
 }
 
 enum FieldContentType {
-  string,
-  number,
-  phoneNumber,
-  emailAddress,
-  name,
-}
+  string('STRING'),
+  number('NUMBER'),
+  phoneNumber('PHONE_NUMBER'),
+  emailAddress('EMAIL_ADDRESS'),
+  name('NAME'),
+  ;
 
-extension FieldContentTypeValueExtension on FieldContentType {
-  String toValue() {
-    switch (this) {
-      case FieldContentType.string:
-        return 'STRING';
-      case FieldContentType.number:
-        return 'NUMBER';
-      case FieldContentType.phoneNumber:
-        return 'PHONE_NUMBER';
-      case FieldContentType.emailAddress:
-        return 'EMAIL_ADDRESS';
-      case FieldContentType.name:
-        return 'NAME';
-    }
-  }
-}
+  final String value;
 
-extension FieldContentTypeFromString on String {
-  FieldContentType toFieldContentType() {
-    switch (this) {
-      case 'STRING':
-        return FieldContentType.string;
-      case 'NUMBER':
-        return FieldContentType.number;
-      case 'PHONE_NUMBER':
-        return FieldContentType.phoneNumber;
-      case 'EMAIL_ADDRESS':
-        return FieldContentType.emailAddress;
-      case 'NAME':
-        return FieldContentType.name;
-    }
-    throw Exception('$this is not known in enum FieldContentType');
-  }
+  const FieldContentType(this.value);
+
+  static FieldContentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FieldContentType'));
 }
 
 /// A duplicate customer profile that is to be merged into a main profile.
@@ -3364,10 +4576,8 @@ class FoundByKeyValue {
   factory FoundByKeyValue.fromJson(Map<String, dynamic> json) {
     return FoundByKeyValue(
       keyName: json['KeyName'] as String?,
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -3383,36 +4593,18 @@ class FoundByKeyValue {
 
 @Deprecated('Deprecated')
 enum Gender {
-  male,
-  female,
-  unspecified,
-}
+  male('MALE'),
+  female('FEMALE'),
+  unspecified('UNSPECIFIED'),
+  ;
 
-extension GenderValueExtension on Gender {
-  String toValue() {
-    switch (this) {
-      case Gender.male:
-        return 'MALE';
-      case Gender.female:
-        return 'FEMALE';
-      case Gender.unspecified:
-        return 'UNSPECIFIED';
-    }
-  }
-}
+  final String value;
 
-extension GenderFromString on String {
-  Gender toGender() {
-    switch (this) {
-      case 'MALE':
-        return Gender.male;
-      case 'FEMALE':
-        return Gender.female;
-      case 'UNSPECIFIED':
-        return Gender.unspecified;
-    }
-    throw Exception('$this is not known in enum Gender');
-  }
+  const Gender(this.value);
+
+  static Gender fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Gender'));
 }
 
 class GetAutoMergingPreviewResponse {
@@ -3464,6 +4656,142 @@ class GetAutoMergingPreviewResponse {
   }
 }
 
+class GetCalculatedAttributeDefinitionResponse {
+  /// Mathematical expression and a list of attribute items specified in that
+  /// expression.
+  final AttributeDetails? attributeDetails;
+
+  /// The unique name of the calculated attribute.
+  final String? calculatedAttributeName;
+
+  /// The conditions including range, object count, and threshold for the
+  /// calculated attribute.
+  final Conditions? conditions;
+
+  /// The timestamp of when the calculated attribute definition was created.
+  final DateTime? createdAt;
+
+  /// The description of the calculated attribute.
+  final String? description;
+
+  /// The display name of the calculated attribute.
+  final String? displayName;
+
+  /// The timestamp of when the calculated attribute definition was most recently
+  /// edited.
+  final DateTime? lastUpdatedAt;
+
+  /// The aggregation operation to perform for the calculated attribute.
+  final Statistic? statistic;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  GetCalculatedAttributeDefinitionResponse({
+    this.attributeDetails,
+    this.calculatedAttributeName,
+    this.conditions,
+    this.createdAt,
+    this.description,
+    this.displayName,
+    this.lastUpdatedAt,
+    this.statistic,
+    this.tags,
+  });
+
+  factory GetCalculatedAttributeDefinitionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetCalculatedAttributeDefinitionResponse(
+      attributeDetails: json['AttributeDetails'] != null
+          ? AttributeDetails.fromJson(
+              json['AttributeDetails'] as Map<String, dynamic>)
+          : null,
+      calculatedAttributeName: json['CalculatedAttributeName'] as String?,
+      conditions: json['Conditions'] != null
+          ? Conditions.fromJson(json['Conditions'] as Map<String, dynamic>)
+          : null,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      description: json['Description'] as String?,
+      displayName: json['DisplayName'] as String?,
+      lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
+      statistic: (json['Statistic'] as String?)?.let(Statistic.fromString),
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final attributeDetails = this.attributeDetails;
+    final calculatedAttributeName = this.calculatedAttributeName;
+    final conditions = this.conditions;
+    final createdAt = this.createdAt;
+    final description = this.description;
+    final displayName = this.displayName;
+    final lastUpdatedAt = this.lastUpdatedAt;
+    final statistic = this.statistic;
+    final tags = this.tags;
+    return {
+      if (attributeDetails != null) 'AttributeDetails': attributeDetails,
+      if (calculatedAttributeName != null)
+        'CalculatedAttributeName': calculatedAttributeName,
+      if (conditions != null) 'Conditions': conditions,
+      if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
+      if (description != null) 'Description': description,
+      if (displayName != null) 'DisplayName': displayName,
+      if (lastUpdatedAt != null)
+        'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
+      if (statistic != null) 'Statistic': statistic.value,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+class GetCalculatedAttributeForProfileResponse {
+  /// The unique name of the calculated attribute.
+  final String? calculatedAttributeName;
+
+  /// The display name of the calculated attribute.
+  final String? displayName;
+
+  /// Indicates whether the calculated attribute’s value is based on partial data.
+  /// If data is partial, it is set to true.
+  final String? isDataPartial;
+
+  /// The value of the calculated attribute.
+  final String? value;
+
+  GetCalculatedAttributeForProfileResponse({
+    this.calculatedAttributeName,
+    this.displayName,
+    this.isDataPartial,
+    this.value,
+  });
+
+  factory GetCalculatedAttributeForProfileResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetCalculatedAttributeForProfileResponse(
+      calculatedAttributeName: json['CalculatedAttributeName'] as String?,
+      displayName: json['DisplayName'] as String?,
+      isDataPartial: json['IsDataPartial'] as String?,
+      value: json['Value'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final calculatedAttributeName = this.calculatedAttributeName;
+    final displayName = this.displayName;
+    final isDataPartial = this.isDataPartial;
+    final value = this.value;
+    return {
+      if (calculatedAttributeName != null)
+        'CalculatedAttributeName': calculatedAttributeName,
+      if (displayName != null) 'DisplayName': displayName,
+      if (isDataPartial != null) 'IsDataPartial': isDataPartial,
+      if (value != null) 'Value': value,
+    };
+  }
+}
+
 class GetDomainResponse {
   /// The timestamp of when the domain was created.
   final DateTime createdAt;
@@ -3499,6 +4827,16 @@ class GetDomainResponse {
   /// download the results from S3.
   final MatchingResponse? matching;
 
+  /// The process of matching duplicate profiles using the Rule-Based matching. If
+  /// <code>RuleBasedMatching</code> = true, Amazon Connect Customer Profiles will
+  /// start to match and merge your profiles according to your configuration in
+  /// the <code>RuleBasedMatchingRequest</code>. You can use the
+  /// <code>ListRuleBasedMatches</code> and <code>GetSimilarProfiles</code> API to
+  /// return and review the results. Also, if you have configured
+  /// <code>ExportingConfig</code> in the <code>RuleBasedMatchingRequest</code>,
+  /// you can download the results from S3.
+  final RuleBasedMatchingResponse? ruleBasedMatching;
+
   /// Usage-specific statistics about the domain.
   final DomainStats? stats;
 
@@ -3513,6 +4851,7 @@ class GetDomainResponse {
     this.defaultEncryptionKey,
     this.defaultExpirationDays,
     this.matching,
+    this.ruleBasedMatching,
     this.stats,
     this.tags,
   });
@@ -3528,6 +4867,10 @@ class GetDomainResponse {
       defaultExpirationDays: json['DefaultExpirationDays'] as int?,
       matching: json['Matching'] != null
           ? MatchingResponse.fromJson(json['Matching'] as Map<String, dynamic>)
+          : null,
+      ruleBasedMatching: json['RuleBasedMatching'] != null
+          ? RuleBasedMatchingResponse.fromJson(
+              json['RuleBasedMatching'] as Map<String, dynamic>)
           : null,
       stats: json['Stats'] != null
           ? DomainStats.fromJson(json['Stats'] as Map<String, dynamic>)
@@ -3545,6 +4888,7 @@ class GetDomainResponse {
     final defaultEncryptionKey = this.defaultEncryptionKey;
     final defaultExpirationDays = this.defaultExpirationDays;
     final matching = this.matching;
+    final ruleBasedMatching = this.ruleBasedMatching;
     final stats = this.stats;
     final tags = this.tags;
     return {
@@ -3557,7 +4901,75 @@ class GetDomainResponse {
       if (defaultExpirationDays != null)
         'DefaultExpirationDays': defaultExpirationDays,
       if (matching != null) 'Matching': matching,
+      if (ruleBasedMatching != null) 'RuleBasedMatching': ruleBasedMatching,
       if (stats != null) 'Stats': stats,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+class GetEventStreamResponse {
+  /// The timestamp of when the export was created.
+  final DateTime createdAt;
+
+  /// Details regarding the Kinesis stream.
+  final EventStreamDestinationDetails destinationDetails;
+
+  /// The unique name of the domain.
+  final String domainName;
+
+  /// A unique identifier for the event stream.
+  final String eventStreamArn;
+
+  /// The operational state of destination stream for export.
+  final EventStreamState state;
+
+  /// The timestamp when the <code>State</code> changed to <code>STOPPED</code>.
+  final DateTime? stoppedSince;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  GetEventStreamResponse({
+    required this.createdAt,
+    required this.destinationDetails,
+    required this.domainName,
+    required this.eventStreamArn,
+    required this.state,
+    this.stoppedSince,
+    this.tags,
+  });
+
+  factory GetEventStreamResponse.fromJson(Map<String, dynamic> json) {
+    return GetEventStreamResponse(
+      createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
+      destinationDetails: EventStreamDestinationDetails.fromJson(
+          json['DestinationDetails'] as Map<String, dynamic>),
+      domainName: json['DomainName'] as String,
+      eventStreamArn: json['EventStreamArn'] as String,
+      state: EventStreamState.fromString((json['State'] as String)),
+      stoppedSince: timeStampFromJson(json['StoppedSince']),
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final createdAt = this.createdAt;
+    final destinationDetails = this.destinationDetails;
+    final domainName = this.domainName;
+    final eventStreamArn = this.eventStreamArn;
+    final state = this.state;
+    final stoppedSince = this.stoppedSince;
+    final tags = this.tags;
+    return {
+      'CreatedAt': unixTimestampToJson(createdAt),
+      'DestinationDetails': destinationDetails,
+      'DomainName': domainName,
+      'EventStreamArn': eventStreamArn,
+      'State': state.value,
+      if (stoppedSince != null)
+        'StoppedSince': unixTimestampToJson(stoppedSince),
       if (tags != null) 'Tags': tags,
     };
   }
@@ -3663,7 +5075,8 @@ class GetIdentityResolutionJobResponse {
           : null,
       lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
       message: json['Message'] as String?,
-      status: (json['Status'] as String?)?.toIdentityResolutionJobStatus(),
+      status: (json['Status'] as String?)
+          ?.let(IdentityResolutionJobStatus.fromString),
     );
   }
 
@@ -3693,7 +5106,7 @@ class GetIdentityResolutionJobResponse {
       if (lastUpdatedAt != null)
         'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
       if (message != null) 'Message': message,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -3812,7 +5225,7 @@ class GetMatchesResponse {
     return GetMatchesResponse(
       matchGenerationDate: timeStampFromJson(json['MatchGenerationDate']),
       matches: (json['Matches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MatchItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3907,7 +5320,7 @@ class GetProfileObjectTypeResponse {
       keys: (json['Keys'] as Map<String, dynamic>?)?.map((k, e) => MapEntry(
           k,
           (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => ObjectTypeKey.fromJson(e as Map<String, dynamic>))
               .toList())),
       lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
@@ -4000,7 +5413,7 @@ class GetProfileObjectTypeTemplateResponse {
       keys: (json['Keys'] as Map<String, dynamic>?)?.map((k, e) => MapEntry(
           k,
           (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => ObjectTypeKey.fromJson(e as Map<String, dynamic>))
               .toList())),
       sourceLastUpdatedTimestampFormat:
@@ -4030,6 +5443,76 @@ class GetProfileObjectTypeTemplateResponse {
       if (sourceName != null) 'SourceName': sourceName,
       if (sourceObject != null) 'SourceObject': sourceObject,
       if (templateId != null) 'TemplateId': templateId,
+    };
+  }
+}
+
+class GetSimilarProfilesResponse {
+  /// It only has value when the <code>MatchType</code> is
+  /// <code>ML_BASED_MATCHING</code>.A number between 0 and 1, where a higher
+  /// score means higher similarity. Examining match confidence scores lets you
+  /// distinguish between groups of similar records in which the system is highly
+  /// confident (which you may decide to merge), groups of similar records about
+  /// which the system is uncertain (which you may decide to have reviewed by a
+  /// human), and groups of similar records that the system deems to be unlikely
+  /// (which you may decide to reject). Given confidence scores vary as per the
+  /// data input, it should not be used as an absolute measure of matching
+  /// quality.
+  final double? confidenceScore;
+
+  /// The string <code>matchId</code> that the similar profiles belong to.
+  final String? matchId;
+
+  /// Specify the type of matching to get similar profiles for.
+  final MatchType? matchType;
+
+  /// The pagination token from the previous <code>GetSimilarProfiles</code> API
+  /// call.
+  final String? nextToken;
+
+  /// Set of <code>profileId</code>s that belong to the same matching group.
+  final List<String>? profileIds;
+
+  /// The integer rule level that the profiles matched on.
+  final int? ruleLevel;
+
+  GetSimilarProfilesResponse({
+    this.confidenceScore,
+    this.matchId,
+    this.matchType,
+    this.nextToken,
+    this.profileIds,
+    this.ruleLevel,
+  });
+
+  factory GetSimilarProfilesResponse.fromJson(Map<String, dynamic> json) {
+    return GetSimilarProfilesResponse(
+      confidenceScore: json['ConfidenceScore'] as double?,
+      matchId: json['MatchId'] as String?,
+      matchType: (json['MatchType'] as String?)?.let(MatchType.fromString),
+      nextToken: json['NextToken'] as String?,
+      profileIds: (json['ProfileIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      ruleLevel: json['RuleLevel'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final confidenceScore = this.confidenceScore;
+    final matchId = this.matchId;
+    final matchType = this.matchType;
+    final nextToken = this.nextToken;
+    final profileIds = this.profileIds;
+    final ruleLevel = this.ruleLevel;
+    return {
+      if (confidenceScore != null) 'ConfidenceScore': confidenceScore,
+      if (matchId != null) 'MatchId': matchId,
+      if (matchType != null) 'MatchType': matchType.value,
+      if (nextToken != null) 'NextToken': nextToken,
+      if (profileIds != null) 'ProfileIds': profileIds,
+      if (ruleLevel != null) 'RuleLevel': ruleLevel,
     };
   }
 }
@@ -4082,9 +5565,10 @@ class GetWorkflowResponse {
           ? WorkflowMetrics.fromJson(json['Metrics'] as Map<String, dynamic>)
           : null,
       startDate: timeStampFromJson(json['StartDate']),
-      status: (json['Status'] as String?)?.toStatus(),
+      status: (json['Status'] as String?)?.let(Status.fromString),
       workflowId: json['WorkflowId'] as String?,
-      workflowType: (json['WorkflowType'] as String?)?.toWorkflowType(),
+      workflowType:
+          (json['WorkflowType'] as String?)?.let(WorkflowType.fromString),
     );
   }
 
@@ -4104,9 +5588,9 @@ class GetWorkflowResponse {
         'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
       if (metrics != null) 'Metrics': metrics,
       if (startDate != null) 'StartDate': unixTimestampToJson(startDate),
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (workflowId != null) 'WorkflowId': workflowId,
-      if (workflowType != null) 'WorkflowType': workflowType.toValue(),
+      if (workflowType != null) 'WorkflowType': workflowType.value,
     };
   }
 }
@@ -4135,12 +5619,13 @@ class GetWorkflowStepsResponse {
   factory GetWorkflowStepsResponse.fromJson(Map<String, dynamic> json) {
     return GetWorkflowStepsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowStepItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
       workflowId: json['WorkflowId'] as String?,
-      workflowType: (json['WorkflowType'] as String?)?.toWorkflowType(),
+      workflowType:
+          (json['WorkflowType'] as String?)?.let(WorkflowType.fromString),
     );
   }
 
@@ -4153,7 +5638,7 @@ class GetWorkflowStepsResponse {
       if (items != null) 'Items': items,
       if (nextToken != null) 'NextToken': nextToken,
       if (workflowId != null) 'WorkflowId': workflowId,
-      if (workflowType != null) 'WorkflowType': workflowType.toValue(),
+      if (workflowType != null) 'WorkflowType': workflowType.value,
     };
   }
 }
@@ -4241,7 +5726,8 @@ class IdentityResolutionJob {
           ? JobStats.fromJson(json['JobStats'] as Map<String, dynamic>)
           : null,
       message: json['Message'] as String?,
-      status: (json['Status'] as String?)?.toIdentityResolutionJobStatus(),
+      status: (json['Status'] as String?)
+          ?.let(IdentityResolutionJobStatus.fromString),
     );
   }
 
@@ -4263,63 +5749,29 @@ class IdentityResolutionJob {
         'JobStartTime': unixTimestampToJson(jobStartTime),
       if (jobStats != null) 'JobStats': jobStats,
       if (message != null) 'Message': message,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum IdentityResolutionJobStatus {
-  pending,
-  preprocessing,
-  findMatching,
-  merging,
-  completed,
-  partialSuccess,
-  failed,
-}
+  pending('PENDING'),
+  preprocessing('PREPROCESSING'),
+  findMatching('FIND_MATCHING'),
+  merging('MERGING'),
+  completed('COMPLETED'),
+  partialSuccess('PARTIAL_SUCCESS'),
+  failed('FAILED'),
+  ;
 
-extension IdentityResolutionJobStatusValueExtension
-    on IdentityResolutionJobStatus {
-  String toValue() {
-    switch (this) {
-      case IdentityResolutionJobStatus.pending:
-        return 'PENDING';
-      case IdentityResolutionJobStatus.preprocessing:
-        return 'PREPROCESSING';
-      case IdentityResolutionJobStatus.findMatching:
-        return 'FIND_MATCHING';
-      case IdentityResolutionJobStatus.merging:
-        return 'MERGING';
-      case IdentityResolutionJobStatus.completed:
-        return 'COMPLETED';
-      case IdentityResolutionJobStatus.partialSuccess:
-        return 'PARTIAL_SUCCESS';
-      case IdentityResolutionJobStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension IdentityResolutionJobStatusFromString on String {
-  IdentityResolutionJobStatus toIdentityResolutionJobStatus() {
-    switch (this) {
-      case 'PENDING':
-        return IdentityResolutionJobStatus.pending;
-      case 'PREPROCESSING':
-        return IdentityResolutionJobStatus.preprocessing;
-      case 'FIND_MATCHING':
-        return IdentityResolutionJobStatus.findMatching;
-      case 'MERGING':
-        return IdentityResolutionJobStatus.merging;
-      case 'COMPLETED':
-        return IdentityResolutionJobStatus.completed;
-      case 'PARTIAL_SUCCESS':
-        return IdentityResolutionJobStatus.partialSuccess;
-      case 'FAILED':
-        return IdentityResolutionJobStatus.failed;
-    }
-    throw Exception('$this is not known in enum IdentityResolutionJobStatus');
-  }
+  const IdentityResolutionJobStatus(this.value);
+
+  static IdentityResolutionJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum IdentityResolutionJobStatus'));
 }
 
 /// Specifies the configuration used when importing incremental records from the
@@ -4376,7 +5828,7 @@ class JobSchedule {
   factory JobSchedule.fromJson(Map<String, dynamic> json) {
     return JobSchedule(
       dayOfTheWeek:
-          (json['DayOfTheWeek'] as String).toJobScheduleDayOfTheWeek(),
+          JobScheduleDayOfTheWeek.fromString((json['DayOfTheWeek'] as String)),
       time: json['Time'] as String,
     );
   }
@@ -4385,63 +5837,30 @@ class JobSchedule {
     final dayOfTheWeek = this.dayOfTheWeek;
     final time = this.time;
     return {
-      'DayOfTheWeek': dayOfTheWeek.toValue(),
+      'DayOfTheWeek': dayOfTheWeek.value,
       'Time': time,
     };
   }
 }
 
 enum JobScheduleDayOfTheWeek {
-  sunday,
-  monday,
-  tuesday,
-  wednesday,
-  thursday,
-  friday,
-  saturday,
-}
+  sunday('SUNDAY'),
+  monday('MONDAY'),
+  tuesday('TUESDAY'),
+  wednesday('WEDNESDAY'),
+  thursday('THURSDAY'),
+  friday('FRIDAY'),
+  saturday('SATURDAY'),
+  ;
 
-extension JobScheduleDayOfTheWeekValueExtension on JobScheduleDayOfTheWeek {
-  String toValue() {
-    switch (this) {
-      case JobScheduleDayOfTheWeek.sunday:
-        return 'SUNDAY';
-      case JobScheduleDayOfTheWeek.monday:
-        return 'MONDAY';
-      case JobScheduleDayOfTheWeek.tuesday:
-        return 'TUESDAY';
-      case JobScheduleDayOfTheWeek.wednesday:
-        return 'WEDNESDAY';
-      case JobScheduleDayOfTheWeek.thursday:
-        return 'THURSDAY';
-      case JobScheduleDayOfTheWeek.friday:
-        return 'FRIDAY';
-      case JobScheduleDayOfTheWeek.saturday:
-        return 'SATURDAY';
-    }
-  }
-}
+  final String value;
 
-extension JobScheduleDayOfTheWeekFromString on String {
-  JobScheduleDayOfTheWeek toJobScheduleDayOfTheWeek() {
-    switch (this) {
-      case 'SUNDAY':
-        return JobScheduleDayOfTheWeek.sunday;
-      case 'MONDAY':
-        return JobScheduleDayOfTheWeek.monday;
-      case 'TUESDAY':
-        return JobScheduleDayOfTheWeek.tuesday;
-      case 'WEDNESDAY':
-        return JobScheduleDayOfTheWeek.wednesday;
-      case 'THURSDAY':
-        return JobScheduleDayOfTheWeek.thursday;
-      case 'FRIDAY':
-        return JobScheduleDayOfTheWeek.friday;
-      case 'SATURDAY':
-        return JobScheduleDayOfTheWeek.saturday;
-    }
-    throw Exception('$this is not known in enum JobScheduleDayOfTheWeek');
-  }
+  const JobScheduleDayOfTheWeek(this.value);
+
+  static JobScheduleDayOfTheWeek fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum JobScheduleDayOfTheWeek'));
 }
 
 /// Statistics about the Identity Resolution Job.
@@ -4498,8 +5917,188 @@ class ListAccountIntegrationsResponse {
   factory ListAccountIntegrationsResponse.fromJson(Map<String, dynamic> json) {
     return ListAccountIntegrationsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ListIntegrationItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final items = this.items;
+    final nextToken = this.nextToken;
+    return {
+      if (items != null) 'Items': items,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+/// The details of a single calculated attribute definition.
+class ListCalculatedAttributeDefinitionItem {
+  /// The unique name of the calculated attribute.
+  final String? calculatedAttributeName;
+
+  /// The threshold for the calculated attribute.
+  final DateTime? createdAt;
+
+  /// The threshold for the calculated attribute.
+  final String? description;
+
+  /// The display name of the calculated attribute.
+  final String? displayName;
+
+  /// The timestamp of when the calculated attribute definition was most recently
+  /// edited.
+  final DateTime? lastUpdatedAt;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  ListCalculatedAttributeDefinitionItem({
+    this.calculatedAttributeName,
+    this.createdAt,
+    this.description,
+    this.displayName,
+    this.lastUpdatedAt,
+    this.tags,
+  });
+
+  factory ListCalculatedAttributeDefinitionItem.fromJson(
+      Map<String, dynamic> json) {
+    return ListCalculatedAttributeDefinitionItem(
+      calculatedAttributeName: json['CalculatedAttributeName'] as String?,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      description: json['Description'] as String?,
+      displayName: json['DisplayName'] as String?,
+      lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final calculatedAttributeName = this.calculatedAttributeName;
+    final createdAt = this.createdAt;
+    final description = this.description;
+    final displayName = this.displayName;
+    final lastUpdatedAt = this.lastUpdatedAt;
+    final tags = this.tags;
+    return {
+      if (calculatedAttributeName != null)
+        'CalculatedAttributeName': calculatedAttributeName,
+      if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
+      if (description != null) 'Description': description,
+      if (displayName != null) 'DisplayName': displayName,
+      if (lastUpdatedAt != null)
+        'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
+      if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+class ListCalculatedAttributeDefinitionsResponse {
+  /// The list of calculated attribute definitions.
+  final List<ListCalculatedAttributeDefinitionItem>? items;
+
+  /// The pagination token from the previous call to
+  /// ListCalculatedAttributeDefinitions.
+  final String? nextToken;
+
+  ListCalculatedAttributeDefinitionsResponse({
+    this.items,
+    this.nextToken,
+  });
+
+  factory ListCalculatedAttributeDefinitionsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListCalculatedAttributeDefinitionsResponse(
+      items: (json['Items'] as List?)
+          ?.nonNulls
+          .map((e) => ListCalculatedAttributeDefinitionItem.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final items = this.items;
+    final nextToken = this.nextToken;
+    return {
+      if (items != null) 'Items': items,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+/// The details of a single calculated attribute for a profile.
+class ListCalculatedAttributeForProfileItem {
+  /// The unique name of the calculated attribute.
+  final String? calculatedAttributeName;
+
+  /// The display name of the calculated attribute.
+  final String? displayName;
+
+  /// Indicates whether the calculated attribute’s value is based on partial data.
+  /// If data is partial, it is set to true.
+  final String? isDataPartial;
+
+  /// The value of the calculated attribute.
+  final String? value;
+
+  ListCalculatedAttributeForProfileItem({
+    this.calculatedAttributeName,
+    this.displayName,
+    this.isDataPartial,
+    this.value,
+  });
+
+  factory ListCalculatedAttributeForProfileItem.fromJson(
+      Map<String, dynamic> json) {
+    return ListCalculatedAttributeForProfileItem(
+      calculatedAttributeName: json['CalculatedAttributeName'] as String?,
+      displayName: json['DisplayName'] as String?,
+      isDataPartial: json['IsDataPartial'] as String?,
+      value: json['Value'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final calculatedAttributeName = this.calculatedAttributeName;
+    final displayName = this.displayName;
+    final isDataPartial = this.isDataPartial;
+    final value = this.value;
+    return {
+      if (calculatedAttributeName != null)
+        'CalculatedAttributeName': calculatedAttributeName,
+      if (displayName != null) 'DisplayName': displayName,
+      if (isDataPartial != null) 'IsDataPartial': isDataPartial,
+      if (value != null) 'Value': value,
+    };
+  }
+}
+
+class ListCalculatedAttributesForProfileResponse {
+  /// The list of calculated attributes.
+  final List<ListCalculatedAttributeForProfileItem>? items;
+
+  /// The pagination token from the previous call to
+  /// ListCalculatedAttributesForProfile.
+  final String? nextToken;
+
+  ListCalculatedAttributesForProfileResponse({
+    this.items,
+    this.nextToken,
+  });
+
+  factory ListCalculatedAttributesForProfileResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListCalculatedAttributesForProfileResponse(
+      items: (json['Items'] as List?)
+          ?.nonNulls
+          .map((e) => ListCalculatedAttributeForProfileItem.fromJson(
+              e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
     );
@@ -4576,8 +6175,40 @@ class ListDomainsResponse {
   factory ListDomainsResponse.fromJson(Map<String, dynamic> json) {
     return ListDomainsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ListDomainItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final items = this.items;
+    final nextToken = this.nextToken;
+    return {
+      if (items != null) 'Items': items,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListEventStreamsResponse {
+  /// Contains summary information about an EventStream.
+  final List<EventStreamSummary>? items;
+
+  /// Identifies the next page of results to return.
+  final String? nextToken;
+
+  ListEventStreamsResponse({
+    this.items,
+    this.nextToken,
+  });
+
+  factory ListEventStreamsResponse.fromJson(Map<String, dynamic> json) {
+    return ListEventStreamsResponse(
+      items: (json['Items'] as List?)
+          ?.nonNulls
+          .map((e) => EventStreamSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
     );
@@ -4610,7 +6241,7 @@ class ListIdentityResolutionJobsResponse {
       Map<String, dynamic> json) {
     return ListIdentityResolutionJobsResponse(
       identityResolutionJobsList: (json['IdentityResolutionJobsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IdentityResolutionJob.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4733,7 +6364,7 @@ class ListIntegrationsResponse {
   factory ListIntegrationsResponse.fromJson(Map<String, dynamic> json) {
     return ListIntegrationsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ListIntegrationItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4857,7 +6488,7 @@ class ListProfileObjectTypeTemplatesResponse {
       Map<String, dynamic> json) {
     return ListProfileObjectTypeTemplatesResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ListProfileObjectTypeTemplateItem.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4890,7 +6521,7 @@ class ListProfileObjectTypesResponse {
   factory ListProfileObjectTypesResponse.fromJson(Map<String, dynamic> json) {
     return ListProfileObjectTypesResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ListProfileObjectTypeItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4962,7 +6593,7 @@ class ListProfileObjectsResponse {
   factory ListProfileObjectsResponse.fromJson(Map<String, dynamic> json) {
     return ListProfileObjectsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ListProfileObjectsItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4975,6 +6606,39 @@ class ListProfileObjectsResponse {
     final nextToken = this.nextToken;
     return {
       if (items != null) 'Items': items,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListRuleBasedMatchesResponse {
+  /// The list of <code>MatchIds</code> for the given domain.
+  final List<String>? matchIds;
+
+  /// The pagination token from the previous <code>ListRuleBasedMatches</code> API
+  /// call.
+  final String? nextToken;
+
+  ListRuleBasedMatchesResponse({
+    this.matchIds,
+    this.nextToken,
+  });
+
+  factory ListRuleBasedMatchesResponse.fromJson(Map<String, dynamic> json) {
+    return ListRuleBasedMatchesResponse(
+      matchIds: (json['MatchIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final matchIds = this.matchIds;
+    final nextToken = this.nextToken;
+    return {
+      if (matchIds != null) 'MatchIds': matchIds,
       if (nextToken != null) 'NextToken': nextToken,
     };
   }
@@ -5037,10 +6701,10 @@ class ListWorkflowsItem {
       createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
       lastUpdatedAt:
           nonNullableTimeStampFromJson(json['LastUpdatedAt'] as Object),
-      status: (json['Status'] as String).toStatus(),
+      status: Status.fromString((json['Status'] as String)),
       statusDescription: json['StatusDescription'] as String,
       workflowId: json['WorkflowId'] as String,
-      workflowType: (json['WorkflowType'] as String).toWorkflowType(),
+      workflowType: WorkflowType.fromString((json['WorkflowType'] as String)),
     );
   }
 
@@ -5054,10 +6718,10 @@ class ListWorkflowsItem {
     return {
       'CreatedAt': unixTimestampToJson(createdAt),
       'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
-      'Status': status.toValue(),
+      'Status': status.value,
       'StatusDescription': statusDescription,
       'WorkflowId': workflowId,
-      'WorkflowType': workflowType.toValue(),
+      'WorkflowType': workflowType.value,
     };
   }
 }
@@ -5078,7 +6742,7 @@ class ListWorkflowsResponse {
   factory ListWorkflowsResponse.fromJson(Map<String, dynamic> json) {
     return ListWorkflowsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ListWorkflowsItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5096,101 +6760,32 @@ class ListWorkflowsResponse {
 }
 
 enum MarketoConnectorOperator {
-  projection,
-  lessThan,
-  greaterThan,
-  between,
-  addition,
-  multiplication,
-  division,
-  subtraction,
-  maskAll,
-  maskFirstN,
-  maskLastN,
-  validateNonNull,
-  validateNonZero,
-  validateNonNegative,
-  validateNumeric,
-  noOp,
-}
+  projection('PROJECTION'),
+  lessThan('LESS_THAN'),
+  greaterThan('GREATER_THAN'),
+  between('BETWEEN'),
+  addition('ADDITION'),
+  multiplication('MULTIPLICATION'),
+  division('DIVISION'),
+  subtraction('SUBTRACTION'),
+  maskAll('MASK_ALL'),
+  maskFirstN('MASK_FIRST_N'),
+  maskLastN('MASK_LAST_N'),
+  validateNonNull('VALIDATE_NON_NULL'),
+  validateNonZero('VALIDATE_NON_ZERO'),
+  validateNonNegative('VALIDATE_NON_NEGATIVE'),
+  validateNumeric('VALIDATE_NUMERIC'),
+  noOp('NO_OP'),
+  ;
 
-extension MarketoConnectorOperatorValueExtension on MarketoConnectorOperator {
-  String toValue() {
-    switch (this) {
-      case MarketoConnectorOperator.projection:
-        return 'PROJECTION';
-      case MarketoConnectorOperator.lessThan:
-        return 'LESS_THAN';
-      case MarketoConnectorOperator.greaterThan:
-        return 'GREATER_THAN';
-      case MarketoConnectorOperator.between:
-        return 'BETWEEN';
-      case MarketoConnectorOperator.addition:
-        return 'ADDITION';
-      case MarketoConnectorOperator.multiplication:
-        return 'MULTIPLICATION';
-      case MarketoConnectorOperator.division:
-        return 'DIVISION';
-      case MarketoConnectorOperator.subtraction:
-        return 'SUBTRACTION';
-      case MarketoConnectorOperator.maskAll:
-        return 'MASK_ALL';
-      case MarketoConnectorOperator.maskFirstN:
-        return 'MASK_FIRST_N';
-      case MarketoConnectorOperator.maskLastN:
-        return 'MASK_LAST_N';
-      case MarketoConnectorOperator.validateNonNull:
-        return 'VALIDATE_NON_NULL';
-      case MarketoConnectorOperator.validateNonZero:
-        return 'VALIDATE_NON_ZERO';
-      case MarketoConnectorOperator.validateNonNegative:
-        return 'VALIDATE_NON_NEGATIVE';
-      case MarketoConnectorOperator.validateNumeric:
-        return 'VALIDATE_NUMERIC';
-      case MarketoConnectorOperator.noOp:
-        return 'NO_OP';
-    }
-  }
-}
+  final String value;
 
-extension MarketoConnectorOperatorFromString on String {
-  MarketoConnectorOperator toMarketoConnectorOperator() {
-    switch (this) {
-      case 'PROJECTION':
-        return MarketoConnectorOperator.projection;
-      case 'LESS_THAN':
-        return MarketoConnectorOperator.lessThan;
-      case 'GREATER_THAN':
-        return MarketoConnectorOperator.greaterThan;
-      case 'BETWEEN':
-        return MarketoConnectorOperator.between;
-      case 'ADDITION':
-        return MarketoConnectorOperator.addition;
-      case 'MULTIPLICATION':
-        return MarketoConnectorOperator.multiplication;
-      case 'DIVISION':
-        return MarketoConnectorOperator.division;
-      case 'SUBTRACTION':
-        return MarketoConnectorOperator.subtraction;
-      case 'MASK_ALL':
-        return MarketoConnectorOperator.maskAll;
-      case 'MASK_FIRST_N':
-        return MarketoConnectorOperator.maskFirstN;
-      case 'MASK_LAST_N':
-        return MarketoConnectorOperator.maskLastN;
-      case 'VALIDATE_NON_NULL':
-        return MarketoConnectorOperator.validateNonNull;
-      case 'VALIDATE_NON_ZERO':
-        return MarketoConnectorOperator.validateNonZero;
-      case 'VALIDATE_NON_NEGATIVE':
-        return MarketoConnectorOperator.validateNonNegative;
-      case 'VALIDATE_NUMERIC':
-        return MarketoConnectorOperator.validateNumeric;
-      case 'NO_OP':
-        return MarketoConnectorOperator.noOp;
-    }
-    throw Exception('$this is not known in enum MarketoConnectorOperator');
-  }
+  const MarketoConnectorOperator(this.value);
+
+  static MarketoConnectorOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MarketoConnectorOperator'));
 }
 
 /// The properties that are applied when Marketo is being used as a source.
@@ -5239,7 +6834,7 @@ class MatchItem {
       confidenceScore: json['ConfidenceScore'] as double?,
       matchId: json['MatchId'] as String?,
       profileIds: (json['ProfileIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5255,6 +6850,20 @@ class MatchItem {
       if (profileIds != null) 'ProfileIds': profileIds,
     };
   }
+}
+
+enum MatchType {
+  ruleBasedMatching('RULE_BASED_MATCHING'),
+  mlBasedMatching('ML_BASED_MATCHING'),
+  ;
+
+  final String value;
+
+  const MatchType(this.value);
+
+  static MatchType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MatchType'));
 }
 
 /// The flag that enables the matching process of duplicate profiles.
@@ -5347,6 +6956,86 @@ class MatchingResponse {
   }
 }
 
+/// Specifies how does the rule-based matching process should match profiles.
+/// You can choose from the following attributes to build the matching Rule:
+///
+/// <ul>
+/// <li>
+/// AccountNumber
+/// </li>
+/// <li>
+/// Address.Address
+/// </li>
+/// <li>
+/// Address.City
+/// </li>
+/// <li>
+/// Address.Country
+/// </li>
+/// <li>
+/// Address.County
+/// </li>
+/// <li>
+/// Address.PostalCode
+/// </li>
+/// <li>
+/// Address.State
+/// </li>
+/// <li>
+/// Address.Province
+/// </li>
+/// <li>
+/// BirthDate
+/// </li>
+/// <li>
+/// BusinessName
+/// </li>
+/// <li>
+/// EmailAddress
+/// </li>
+/// <li>
+/// FirstName
+/// </li>
+/// <li>
+/// Gender
+/// </li>
+/// <li>
+/// LastName
+/// </li>
+/// <li>
+/// MiddleName
+/// </li>
+/// <li>
+/// PhoneNumber
+/// </li>
+/// <li>
+/// Any customized profile attributes that start with the
+/// <code>Attributes</code>
+/// </li>
+/// </ul>
+class MatchingRule {
+  /// A single rule level of the <code>MatchRules</code>. Configures how the
+  /// rule-based matching process should match profiles.
+  final List<String> rule;
+
+  MatchingRule({
+    required this.rule,
+  });
+
+  factory MatchingRule.fromJson(Map<String, dynamic> json) {
+    return MatchingRule(
+      rule: (json['Rule'] as List).nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final rule = this.rule;
+    return {
+      'Rule': rule,
+    };
+  }
+}
+
 class MergeProfilesResponse {
   /// A message that indicates the merge request is complete.
   final String? message;
@@ -5369,15 +7058,15 @@ class MergeProfilesResponse {
   }
 }
 
-/// The filter applied to ListProfileObjects response to include profile objects
-/// with the specified index values. This filter is only supported for
-/// ObjectTypeName _asset, _case and _order.
+/// The filter applied to <code>ListProfileObjects</code> response to include
+/// profile objects with the specified index values.
 class ObjectFilter {
-  /// A searchable identifier of a standard profile object. The predefined keys
-  /// you can use to search for _asset include: _assetId, _assetName,
-  /// _serialNumber. The predefined keys you can use to search for _case include:
-  /// _caseId. The predefined keys you can use to search for _order include:
-  /// _orderId.
+  /// A searchable identifier of a profile object. The predefined keys you can use
+  /// to search for <code>_asset</code> include: <code>_assetId</code>,
+  /// <code>_assetName</code>, and <code>_serialNumber</code>. The predefined keys
+  /// you can use to search for <code>_case</code> include: <code>_caseId</code>.
+  /// The predefined keys you can use to search for <code>_order</code> include:
+  /// <code>_orderId</code>.
   final String keyName;
 
   /// A list of key values.
@@ -5420,7 +7109,8 @@ class ObjectTypeField {
 
   factory ObjectTypeField.fromJson(Map<String, dynamic> json) {
     return ObjectTypeField(
-      contentType: (json['ContentType'] as String?)?.toFieldContentType(),
+      contentType:
+          (json['ContentType'] as String?)?.let(FieldContentType.fromString),
       source: json['Source'] as String?,
       target: json['Target'] as String?,
     );
@@ -5431,7 +7121,7 @@ class ObjectTypeField {
     final source = this.source;
     final target = this.target;
     return {
-      if (contentType != null) 'ContentType': contentType.toValue(),
+      if (contentType != null) 'ContentType': contentType.value,
       if (source != null) 'Source': source,
       if (target != null) 'Target': target,
     };
@@ -5464,12 +7154,12 @@ class ObjectTypeKey {
   factory ObjectTypeKey.fromJson(Map<String, dynamic> json) {
     return ObjectTypeKey(
       fieldNames: (json['FieldNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       standardIdentifiers: (json['StandardIdentifiers'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toStandardIdentifier())
+          ?.nonNulls
+          .map((e) => StandardIdentifier.fromString((e as String)))
           .toList(),
     );
   }
@@ -5480,132 +7170,68 @@ class ObjectTypeKey {
     return {
       if (fieldNames != null) 'FieldNames': fieldNames,
       if (standardIdentifiers != null)
-        'StandardIdentifiers':
-            standardIdentifiers.map((e) => e.toValue()).toList(),
+        'StandardIdentifiers': standardIdentifiers.map((e) => e.value).toList(),
     };
   }
 }
 
+enum Operator {
+  equalTo('EQUAL_TO'),
+  greaterThan('GREATER_THAN'),
+  lessThan('LESS_THAN'),
+  notEqualTo('NOT_EQUAL_TO'),
+  ;
+
+  final String value;
+
+  const Operator(this.value);
+
+  static Operator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Operator'));
+}
+
 enum OperatorPropertiesKeys {
-  value,
-  $values,
-  dataType,
-  upperBound,
-  lowerBound,
-  sourceDataType,
-  destinationDataType,
-  validationAction,
-  maskValue,
-  maskLength,
-  truncateLength,
-  mathOperationFieldsOrder,
-  concatFormat,
-  subfieldCategoryMap,
-}
+  $value('VALUE'),
+  $values('VALUES'),
+  dataType('DATA_TYPE'),
+  upperBound('UPPER_BOUND'),
+  lowerBound('LOWER_BOUND'),
+  sourceDataType('SOURCE_DATA_TYPE'),
+  destinationDataType('DESTINATION_DATA_TYPE'),
+  validationAction('VALIDATION_ACTION'),
+  maskValue('MASK_VALUE'),
+  maskLength('MASK_LENGTH'),
+  truncateLength('TRUNCATE_LENGTH'),
+  mathOperationFieldsOrder('MATH_OPERATION_FIELDS_ORDER'),
+  concatFormat('CONCAT_FORMAT'),
+  subfieldCategoryMap('SUBFIELD_CATEGORY_MAP'),
+  ;
 
-extension OperatorPropertiesKeysValueExtension on OperatorPropertiesKeys {
-  String toValue() {
-    switch (this) {
-      case OperatorPropertiesKeys.value:
-        return 'VALUE';
-      case OperatorPropertiesKeys.$values:
-        return 'VALUES';
-      case OperatorPropertiesKeys.dataType:
-        return 'DATA_TYPE';
-      case OperatorPropertiesKeys.upperBound:
-        return 'UPPER_BOUND';
-      case OperatorPropertiesKeys.lowerBound:
-        return 'LOWER_BOUND';
-      case OperatorPropertiesKeys.sourceDataType:
-        return 'SOURCE_DATA_TYPE';
-      case OperatorPropertiesKeys.destinationDataType:
-        return 'DESTINATION_DATA_TYPE';
-      case OperatorPropertiesKeys.validationAction:
-        return 'VALIDATION_ACTION';
-      case OperatorPropertiesKeys.maskValue:
-        return 'MASK_VALUE';
-      case OperatorPropertiesKeys.maskLength:
-        return 'MASK_LENGTH';
-      case OperatorPropertiesKeys.truncateLength:
-        return 'TRUNCATE_LENGTH';
-      case OperatorPropertiesKeys.mathOperationFieldsOrder:
-        return 'MATH_OPERATION_FIELDS_ORDER';
-      case OperatorPropertiesKeys.concatFormat:
-        return 'CONCAT_FORMAT';
-      case OperatorPropertiesKeys.subfieldCategoryMap:
-        return 'SUBFIELD_CATEGORY_MAP';
-    }
-  }
-}
+  final String value;
 
-extension OperatorPropertiesKeysFromString on String {
-  OperatorPropertiesKeys toOperatorPropertiesKeys() {
-    switch (this) {
-      case 'VALUE':
-        return OperatorPropertiesKeys.value;
-      case 'VALUES':
-        return OperatorPropertiesKeys.$values;
-      case 'DATA_TYPE':
-        return OperatorPropertiesKeys.dataType;
-      case 'UPPER_BOUND':
-        return OperatorPropertiesKeys.upperBound;
-      case 'LOWER_BOUND':
-        return OperatorPropertiesKeys.lowerBound;
-      case 'SOURCE_DATA_TYPE':
-        return OperatorPropertiesKeys.sourceDataType;
-      case 'DESTINATION_DATA_TYPE':
-        return OperatorPropertiesKeys.destinationDataType;
-      case 'VALIDATION_ACTION':
-        return OperatorPropertiesKeys.validationAction;
-      case 'MASK_VALUE':
-        return OperatorPropertiesKeys.maskValue;
-      case 'MASK_LENGTH':
-        return OperatorPropertiesKeys.maskLength;
-      case 'TRUNCATE_LENGTH':
-        return OperatorPropertiesKeys.truncateLength;
-      case 'MATH_OPERATION_FIELDS_ORDER':
-        return OperatorPropertiesKeys.mathOperationFieldsOrder;
-      case 'CONCAT_FORMAT':
-        return OperatorPropertiesKeys.concatFormat;
-      case 'SUBFIELD_CATEGORY_MAP':
-        return OperatorPropertiesKeys.subfieldCategoryMap;
-    }
-    throw Exception('$this is not known in enum OperatorPropertiesKeys');
-  }
+  const OperatorPropertiesKeys(this.value);
+
+  static OperatorPropertiesKeys fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OperatorPropertiesKeys'));
 }
 
 @Deprecated('Deprecated')
 enum PartyType {
-  individual,
-  business,
-  other,
-}
+  individual('INDIVIDUAL'),
+  business('BUSINESS'),
+  other('OTHER'),
+  ;
 
-extension PartyTypeValueExtension on PartyType {
-  String toValue() {
-    switch (this) {
-      case PartyType.individual:
-        return 'INDIVIDUAL';
-      case PartyType.business:
-        return 'BUSINESS';
-      case PartyType.other:
-        return 'OTHER';
-    }
-  }
-}
+  final String value;
 
-extension PartyTypeFromString on String {
-  PartyType toPartyType() {
-    switch (this) {
-      case 'INDIVIDUAL':
-        return PartyType.individual;
-      case 'BUSINESS':
-        return PartyType.business;
-      case 'OTHER':
-        return PartyType.other;
-    }
-    throw Exception('$this is not known in enum PartyType');
-  }
+  const PartyType(this.value);
+
+  static PartyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PartyType'));
 }
 
 /// The standard profile of a customer.
@@ -5762,10 +7388,10 @@ class Profile {
       emailAddress: json['EmailAddress'] as String?,
       firstName: json['FirstName'] as String?,
       foundByItems: (json['FoundByItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FoundByKeyValue.fromJson(e as Map<String, dynamic>))
           .toList(),
-      gender: (json['Gender'] as String?)?.toGender(),
+      gender: (json['Gender'] as String?)?.let(Gender.fromString),
       genderString: json['GenderString'] as String?,
       homePhoneNumber: json['HomePhoneNumber'] as String?,
       lastName: json['LastName'] as String?,
@@ -5774,7 +7400,7 @@ class Profile {
           : null,
       middleName: json['MiddleName'] as String?,
       mobilePhoneNumber: json['MobilePhoneNumber'] as String?,
-      partyType: (json['PartyType'] as String?)?.toPartyType(),
+      partyType: (json['PartyType'] as String?)?.let(PartyType.fromString),
       partyTypeString: json['PartyTypeString'] as String?,
       personalEmailAddress: json['PersonalEmailAddress'] as String?,
       phoneNumber: json['PhoneNumber'] as String?,
@@ -5827,14 +7453,14 @@ class Profile {
       if (emailAddress != null) 'EmailAddress': emailAddress,
       if (firstName != null) 'FirstName': firstName,
       if (foundByItems != null) 'FoundByItems': foundByItems,
-      if (gender != null) 'Gender': gender.toValue(),
+      if (gender != null) 'Gender': gender.value,
       if (genderString != null) 'GenderString': genderString,
       if (homePhoneNumber != null) 'HomePhoneNumber': homePhoneNumber,
       if (lastName != null) 'LastName': lastName,
       if (mailingAddress != null) 'MailingAddress': mailingAddress,
       if (middleName != null) 'MiddleName': middleName,
       if (mobilePhoneNumber != null) 'MobilePhoneNumber': mobilePhoneNumber,
-      if (partyType != null) 'PartyType': partyType.toValue(),
+      if (partyType != null) 'PartyType': partyType.value,
       if (partyTypeString != null) 'PartyTypeString': partyTypeString,
       if (personalEmailAddress != null)
         'PersonalEmailAddress': personalEmailAddress,
@@ -6032,7 +7658,7 @@ class PutProfileObjectTypeResponse {
       keys: (json['Keys'] as Map<String, dynamic>?)?.map((k, e) => MapEntry(
           k,
           (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => ObjectTypeKey.fromJson(e as Map<String, dynamic>))
               .toList())),
       lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
@@ -6078,122 +7704,255 @@ class PutProfileObjectTypeResponse {
   }
 }
 
+/// The relative time period over which data is included in the aggregation.
+class Range {
+  /// The unit of time.
+  final Unit unit;
+
+  /// The amount of time of the specified unit.
+  final int value;
+
+  Range({
+    required this.unit,
+    required this.value,
+  });
+
+  factory Range.fromJson(Map<String, dynamic> json) {
+    return Range(
+      unit: Unit.fromString((json['Unit'] as String)),
+      value: json['Value'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final unit = this.unit;
+    final value = this.value;
+    return {
+      'Unit': unit.value,
+      'Value': value,
+    };
+  }
+}
+
+/// The request to enable the rule-based matching.
+class RuleBasedMatchingRequest {
+  /// The flag that enables the rule-based matching process of duplicate profiles.
+  final bool enabled;
+
+  /// Configures information about the <code>AttributeTypesSelector</code> where
+  /// the rule-based identity resolution uses to match profiles.
+  final AttributeTypesSelector? attributeTypesSelector;
+  final ConflictResolution? conflictResolution;
+  final ExportingConfig? exportingConfig;
+
+  /// Configures how the rule-based matching process should match profiles. You
+  /// can have up to 15 <code>MatchingRule</code> in the
+  /// <code>MatchingRules</code>.
+  final List<MatchingRule>? matchingRules;
+
+  /// Indicates the maximum allowed rule level.
+  final int? maxAllowedRuleLevelForMatching;
+
+  /// <a
+  /// href="https://docs.aws.amazon.com/customerprofiles/latest/APIReference/API_MatchingRule.html">MatchingRule</a>
+  final int? maxAllowedRuleLevelForMerging;
+
+  RuleBasedMatchingRequest({
+    required this.enabled,
+    this.attributeTypesSelector,
+    this.conflictResolution,
+    this.exportingConfig,
+    this.matchingRules,
+    this.maxAllowedRuleLevelForMatching,
+    this.maxAllowedRuleLevelForMerging,
+  });
+
+  Map<String, dynamic> toJson() {
+    final enabled = this.enabled;
+    final attributeTypesSelector = this.attributeTypesSelector;
+    final conflictResolution = this.conflictResolution;
+    final exportingConfig = this.exportingConfig;
+    final matchingRules = this.matchingRules;
+    final maxAllowedRuleLevelForMatching = this.maxAllowedRuleLevelForMatching;
+    final maxAllowedRuleLevelForMerging = this.maxAllowedRuleLevelForMerging;
+    return {
+      'Enabled': enabled,
+      if (attributeTypesSelector != null)
+        'AttributeTypesSelector': attributeTypesSelector,
+      if (conflictResolution != null) 'ConflictResolution': conflictResolution,
+      if (exportingConfig != null) 'ExportingConfig': exportingConfig,
+      if (matchingRules != null) 'MatchingRules': matchingRules,
+      if (maxAllowedRuleLevelForMatching != null)
+        'MaxAllowedRuleLevelForMatching': maxAllowedRuleLevelForMatching,
+      if (maxAllowedRuleLevelForMerging != null)
+        'MaxAllowedRuleLevelForMerging': maxAllowedRuleLevelForMerging,
+    };
+  }
+}
+
+/// The response of the Rule-based matching request.
+class RuleBasedMatchingResponse {
+  /// Configures information about the <code>AttributeTypesSelector</code> where
+  /// the rule-based identity resolution uses to match profiles.
+  final AttributeTypesSelector? attributeTypesSelector;
+  final ConflictResolution? conflictResolution;
+
+  /// The flag that enables the rule-based matching process of duplicate profiles.
+  final bool? enabled;
+  final ExportingConfig? exportingConfig;
+
+  /// Configures how the rule-based matching process should match profiles. You
+  /// can have up to 15 <code>MatchingRule</code> in the
+  /// <code>MatchingRules</code>.
+  final List<MatchingRule>? matchingRules;
+
+  /// Indicates the maximum allowed rule level.
+  final int? maxAllowedRuleLevelForMatching;
+
+  /// <a
+  /// href="https://docs.aws.amazon.com/customerprofiles/latest/APIReference/API_MatchingRule.html">MatchingRule</a>
+  final int? maxAllowedRuleLevelForMerging;
+
+  /// PENDING
+  ///
+  /// <ul>
+  /// <li>
+  /// The first status after configuration a rule-based matching rule. If it is an
+  /// existing domain, the rule-based Identity Resolution waits one hour before
+  /// creating the matching rule. If it is a new domain, the system will skip the
+  /// <code>PENDING</code> stage.
+  /// </li>
+  /// </ul>
+  /// IN_PROGRESS
+  ///
+  /// <ul>
+  /// <li>
+  /// The system is creating the rule-based matching rule. Under this status, the
+  /// system is evaluating the existing data and you can no longer change the
+  /// Rule-based matching configuration.
+  /// </li>
+  /// </ul>
+  /// ACTIVE
+  ///
+  /// <ul>
+  /// <li>
+  /// The rule is ready to use. You can change the rule a day after the status is
+  /// in <code>ACTIVE</code>.
+  /// </li>
+  /// </ul>
+  final RuleBasedMatchingStatus? status;
+
+  RuleBasedMatchingResponse({
+    this.attributeTypesSelector,
+    this.conflictResolution,
+    this.enabled,
+    this.exportingConfig,
+    this.matchingRules,
+    this.maxAllowedRuleLevelForMatching,
+    this.maxAllowedRuleLevelForMerging,
+    this.status,
+  });
+
+  factory RuleBasedMatchingResponse.fromJson(Map<String, dynamic> json) {
+    return RuleBasedMatchingResponse(
+      attributeTypesSelector: json['AttributeTypesSelector'] != null
+          ? AttributeTypesSelector.fromJson(
+              json['AttributeTypesSelector'] as Map<String, dynamic>)
+          : null,
+      conflictResolution: json['ConflictResolution'] != null
+          ? ConflictResolution.fromJson(
+              json['ConflictResolution'] as Map<String, dynamic>)
+          : null,
+      enabled: json['Enabled'] as bool?,
+      exportingConfig: json['ExportingConfig'] != null
+          ? ExportingConfig.fromJson(
+              json['ExportingConfig'] as Map<String, dynamic>)
+          : null,
+      matchingRules: (json['MatchingRules'] as List?)
+          ?.nonNulls
+          .map((e) => MatchingRule.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      maxAllowedRuleLevelForMatching:
+          json['MaxAllowedRuleLevelForMatching'] as int?,
+      maxAllowedRuleLevelForMerging:
+          json['MaxAllowedRuleLevelForMerging'] as int?,
+      status:
+          (json['Status'] as String?)?.let(RuleBasedMatchingStatus.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final attributeTypesSelector = this.attributeTypesSelector;
+    final conflictResolution = this.conflictResolution;
+    final enabled = this.enabled;
+    final exportingConfig = this.exportingConfig;
+    final matchingRules = this.matchingRules;
+    final maxAllowedRuleLevelForMatching = this.maxAllowedRuleLevelForMatching;
+    final maxAllowedRuleLevelForMerging = this.maxAllowedRuleLevelForMerging;
+    final status = this.status;
+    return {
+      if (attributeTypesSelector != null)
+        'AttributeTypesSelector': attributeTypesSelector,
+      if (conflictResolution != null) 'ConflictResolution': conflictResolution,
+      if (enabled != null) 'Enabled': enabled,
+      if (exportingConfig != null) 'ExportingConfig': exportingConfig,
+      if (matchingRules != null) 'MatchingRules': matchingRules,
+      if (maxAllowedRuleLevelForMatching != null)
+        'MaxAllowedRuleLevelForMatching': maxAllowedRuleLevelForMatching,
+      if (maxAllowedRuleLevelForMerging != null)
+        'MaxAllowedRuleLevelForMerging': maxAllowedRuleLevelForMerging,
+      if (status != null) 'Status': status.value,
+    };
+  }
+}
+
+enum RuleBasedMatchingStatus {
+  pending('PENDING'),
+  inProgress('IN_PROGRESS'),
+  active('ACTIVE'),
+  ;
+
+  final String value;
+
+  const RuleBasedMatchingStatus(this.value);
+
+  static RuleBasedMatchingStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RuleBasedMatchingStatus'));
+}
+
 enum S3ConnectorOperator {
-  projection,
-  lessThan,
-  greaterThan,
-  between,
-  lessThanOrEqualTo,
-  greaterThanOrEqualTo,
-  equalTo,
-  notEqualTo,
-  addition,
-  multiplication,
-  division,
-  subtraction,
-  maskAll,
-  maskFirstN,
-  maskLastN,
-  validateNonNull,
-  validateNonZero,
-  validateNonNegative,
-  validateNumeric,
-  noOp,
-}
+  projection('PROJECTION'),
+  lessThan('LESS_THAN'),
+  greaterThan('GREATER_THAN'),
+  between('BETWEEN'),
+  lessThanOrEqualTo('LESS_THAN_OR_EQUAL_TO'),
+  greaterThanOrEqualTo('GREATER_THAN_OR_EQUAL_TO'),
+  equalTo('EQUAL_TO'),
+  notEqualTo('NOT_EQUAL_TO'),
+  addition('ADDITION'),
+  multiplication('MULTIPLICATION'),
+  division('DIVISION'),
+  subtraction('SUBTRACTION'),
+  maskAll('MASK_ALL'),
+  maskFirstN('MASK_FIRST_N'),
+  maskLastN('MASK_LAST_N'),
+  validateNonNull('VALIDATE_NON_NULL'),
+  validateNonZero('VALIDATE_NON_ZERO'),
+  validateNonNegative('VALIDATE_NON_NEGATIVE'),
+  validateNumeric('VALIDATE_NUMERIC'),
+  noOp('NO_OP'),
+  ;
 
-extension S3ConnectorOperatorValueExtension on S3ConnectorOperator {
-  String toValue() {
-    switch (this) {
-      case S3ConnectorOperator.projection:
-        return 'PROJECTION';
-      case S3ConnectorOperator.lessThan:
-        return 'LESS_THAN';
-      case S3ConnectorOperator.greaterThan:
-        return 'GREATER_THAN';
-      case S3ConnectorOperator.between:
-        return 'BETWEEN';
-      case S3ConnectorOperator.lessThanOrEqualTo:
-        return 'LESS_THAN_OR_EQUAL_TO';
-      case S3ConnectorOperator.greaterThanOrEqualTo:
-        return 'GREATER_THAN_OR_EQUAL_TO';
-      case S3ConnectorOperator.equalTo:
-        return 'EQUAL_TO';
-      case S3ConnectorOperator.notEqualTo:
-        return 'NOT_EQUAL_TO';
-      case S3ConnectorOperator.addition:
-        return 'ADDITION';
-      case S3ConnectorOperator.multiplication:
-        return 'MULTIPLICATION';
-      case S3ConnectorOperator.division:
-        return 'DIVISION';
-      case S3ConnectorOperator.subtraction:
-        return 'SUBTRACTION';
-      case S3ConnectorOperator.maskAll:
-        return 'MASK_ALL';
-      case S3ConnectorOperator.maskFirstN:
-        return 'MASK_FIRST_N';
-      case S3ConnectorOperator.maskLastN:
-        return 'MASK_LAST_N';
-      case S3ConnectorOperator.validateNonNull:
-        return 'VALIDATE_NON_NULL';
-      case S3ConnectorOperator.validateNonZero:
-        return 'VALIDATE_NON_ZERO';
-      case S3ConnectorOperator.validateNonNegative:
-        return 'VALIDATE_NON_NEGATIVE';
-      case S3ConnectorOperator.validateNumeric:
-        return 'VALIDATE_NUMERIC';
-      case S3ConnectorOperator.noOp:
-        return 'NO_OP';
-    }
-  }
-}
+  final String value;
 
-extension S3ConnectorOperatorFromString on String {
-  S3ConnectorOperator toS3ConnectorOperator() {
-    switch (this) {
-      case 'PROJECTION':
-        return S3ConnectorOperator.projection;
-      case 'LESS_THAN':
-        return S3ConnectorOperator.lessThan;
-      case 'GREATER_THAN':
-        return S3ConnectorOperator.greaterThan;
-      case 'BETWEEN':
-        return S3ConnectorOperator.between;
-      case 'LESS_THAN_OR_EQUAL_TO':
-        return S3ConnectorOperator.lessThanOrEqualTo;
-      case 'GREATER_THAN_OR_EQUAL_TO':
-        return S3ConnectorOperator.greaterThanOrEqualTo;
-      case 'EQUAL_TO':
-        return S3ConnectorOperator.equalTo;
-      case 'NOT_EQUAL_TO':
-        return S3ConnectorOperator.notEqualTo;
-      case 'ADDITION':
-        return S3ConnectorOperator.addition;
-      case 'MULTIPLICATION':
-        return S3ConnectorOperator.multiplication;
-      case 'DIVISION':
-        return S3ConnectorOperator.division;
-      case 'SUBTRACTION':
-        return S3ConnectorOperator.subtraction;
-      case 'MASK_ALL':
-        return S3ConnectorOperator.maskAll;
-      case 'MASK_FIRST_N':
-        return S3ConnectorOperator.maskFirstN;
-      case 'MASK_LAST_N':
-        return S3ConnectorOperator.maskLastN;
-      case 'VALIDATE_NON_NULL':
-        return S3ConnectorOperator.validateNonNull;
-      case 'VALIDATE_NON_ZERO':
-        return S3ConnectorOperator.validateNonZero;
-      case 'VALIDATE_NON_NEGATIVE':
-        return S3ConnectorOperator.validateNonNegative;
-      case 'VALIDATE_NUMERIC':
-        return S3ConnectorOperator.validateNumeric;
-      case 'NO_OP':
-        return S3ConnectorOperator.noOp;
-    }
-    throw Exception('$this is not known in enum S3ConnectorOperator');
-  }
+  const S3ConnectorOperator(this.value);
+
+  static S3ConnectorOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum S3ConnectorOperator'));
 }
 
 /// Configuration information about the S3 bucket where Identity Resolution Jobs
@@ -6286,127 +8045,37 @@ class S3SourceProperties {
 }
 
 enum SalesforceConnectorOperator {
-  projection,
-  lessThan,
-  contains,
-  greaterThan,
-  between,
-  lessThanOrEqualTo,
-  greaterThanOrEqualTo,
-  equalTo,
-  notEqualTo,
-  addition,
-  multiplication,
-  division,
-  subtraction,
-  maskAll,
-  maskFirstN,
-  maskLastN,
-  validateNonNull,
-  validateNonZero,
-  validateNonNegative,
-  validateNumeric,
-  noOp,
-}
+  projection('PROJECTION'),
+  lessThan('LESS_THAN'),
+  contains('CONTAINS'),
+  greaterThan('GREATER_THAN'),
+  between('BETWEEN'),
+  lessThanOrEqualTo('LESS_THAN_OR_EQUAL_TO'),
+  greaterThanOrEqualTo('GREATER_THAN_OR_EQUAL_TO'),
+  equalTo('EQUAL_TO'),
+  notEqualTo('NOT_EQUAL_TO'),
+  addition('ADDITION'),
+  multiplication('MULTIPLICATION'),
+  division('DIVISION'),
+  subtraction('SUBTRACTION'),
+  maskAll('MASK_ALL'),
+  maskFirstN('MASK_FIRST_N'),
+  maskLastN('MASK_LAST_N'),
+  validateNonNull('VALIDATE_NON_NULL'),
+  validateNonZero('VALIDATE_NON_ZERO'),
+  validateNonNegative('VALIDATE_NON_NEGATIVE'),
+  validateNumeric('VALIDATE_NUMERIC'),
+  noOp('NO_OP'),
+  ;
 
-extension SalesforceConnectorOperatorValueExtension
-    on SalesforceConnectorOperator {
-  String toValue() {
-    switch (this) {
-      case SalesforceConnectorOperator.projection:
-        return 'PROJECTION';
-      case SalesforceConnectorOperator.lessThan:
-        return 'LESS_THAN';
-      case SalesforceConnectorOperator.contains:
-        return 'CONTAINS';
-      case SalesforceConnectorOperator.greaterThan:
-        return 'GREATER_THAN';
-      case SalesforceConnectorOperator.between:
-        return 'BETWEEN';
-      case SalesforceConnectorOperator.lessThanOrEqualTo:
-        return 'LESS_THAN_OR_EQUAL_TO';
-      case SalesforceConnectorOperator.greaterThanOrEqualTo:
-        return 'GREATER_THAN_OR_EQUAL_TO';
-      case SalesforceConnectorOperator.equalTo:
-        return 'EQUAL_TO';
-      case SalesforceConnectorOperator.notEqualTo:
-        return 'NOT_EQUAL_TO';
-      case SalesforceConnectorOperator.addition:
-        return 'ADDITION';
-      case SalesforceConnectorOperator.multiplication:
-        return 'MULTIPLICATION';
-      case SalesforceConnectorOperator.division:
-        return 'DIVISION';
-      case SalesforceConnectorOperator.subtraction:
-        return 'SUBTRACTION';
-      case SalesforceConnectorOperator.maskAll:
-        return 'MASK_ALL';
-      case SalesforceConnectorOperator.maskFirstN:
-        return 'MASK_FIRST_N';
-      case SalesforceConnectorOperator.maskLastN:
-        return 'MASK_LAST_N';
-      case SalesforceConnectorOperator.validateNonNull:
-        return 'VALIDATE_NON_NULL';
-      case SalesforceConnectorOperator.validateNonZero:
-        return 'VALIDATE_NON_ZERO';
-      case SalesforceConnectorOperator.validateNonNegative:
-        return 'VALIDATE_NON_NEGATIVE';
-      case SalesforceConnectorOperator.validateNumeric:
-        return 'VALIDATE_NUMERIC';
-      case SalesforceConnectorOperator.noOp:
-        return 'NO_OP';
-    }
-  }
-}
+  final String value;
 
-extension SalesforceConnectorOperatorFromString on String {
-  SalesforceConnectorOperator toSalesforceConnectorOperator() {
-    switch (this) {
-      case 'PROJECTION':
-        return SalesforceConnectorOperator.projection;
-      case 'LESS_THAN':
-        return SalesforceConnectorOperator.lessThan;
-      case 'CONTAINS':
-        return SalesforceConnectorOperator.contains;
-      case 'GREATER_THAN':
-        return SalesforceConnectorOperator.greaterThan;
-      case 'BETWEEN':
-        return SalesforceConnectorOperator.between;
-      case 'LESS_THAN_OR_EQUAL_TO':
-        return SalesforceConnectorOperator.lessThanOrEqualTo;
-      case 'GREATER_THAN_OR_EQUAL_TO':
-        return SalesforceConnectorOperator.greaterThanOrEqualTo;
-      case 'EQUAL_TO':
-        return SalesforceConnectorOperator.equalTo;
-      case 'NOT_EQUAL_TO':
-        return SalesforceConnectorOperator.notEqualTo;
-      case 'ADDITION':
-        return SalesforceConnectorOperator.addition;
-      case 'MULTIPLICATION':
-        return SalesforceConnectorOperator.multiplication;
-      case 'DIVISION':
-        return SalesforceConnectorOperator.division;
-      case 'SUBTRACTION':
-        return SalesforceConnectorOperator.subtraction;
-      case 'MASK_ALL':
-        return SalesforceConnectorOperator.maskAll;
-      case 'MASK_FIRST_N':
-        return SalesforceConnectorOperator.maskFirstN;
-      case 'MASK_LAST_N':
-        return SalesforceConnectorOperator.maskLastN;
-      case 'VALIDATE_NON_NULL':
-        return SalesforceConnectorOperator.validateNonNull;
-      case 'VALIDATE_NON_ZERO':
-        return SalesforceConnectorOperator.validateNonZero;
-      case 'VALIDATE_NON_NEGATIVE':
-        return SalesforceConnectorOperator.validateNonNegative;
-      case 'VALIDATE_NUMERIC':
-        return SalesforceConnectorOperator.validateNumeric;
-      case 'NO_OP':
-        return SalesforceConnectorOperator.noOp;
-    }
-    throw Exception('$this is not known in enum SalesforceConnectorOperator');
-  }
+  const SalesforceConnectorOperator(this.value);
+
+  static SalesforceConnectorOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SalesforceConnectorOperator'));
 }
 
 /// The properties that are applied when Salesforce is being used as a source.
@@ -6490,7 +8159,7 @@ class ScheduledTriggerProperties {
     final timezone = this.timezone;
     return {
       'ScheduleExpression': scheduleExpression,
-      if (dataPullMode != null) 'DataPullMode': dataPullMode.toValue(),
+      if (dataPullMode != null) 'DataPullMode': dataPullMode.value,
       if (firstExecutionFrom != null)
         'FirstExecutionFrom': unixTimestampToJson(firstExecutionFrom),
       if (scheduleEndTime != null)
@@ -6518,7 +8187,7 @@ class SearchProfilesResponse {
   factory SearchProfilesResponse.fromJson(Map<String, dynamic> json) {
     return SearchProfilesResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Profile.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6536,127 +8205,37 @@ class SearchProfilesResponse {
 }
 
 enum ServiceNowConnectorOperator {
-  projection,
-  contains,
-  lessThan,
-  greaterThan,
-  between,
-  lessThanOrEqualTo,
-  greaterThanOrEqualTo,
-  equalTo,
-  notEqualTo,
-  addition,
-  multiplication,
-  division,
-  subtraction,
-  maskAll,
-  maskFirstN,
-  maskLastN,
-  validateNonNull,
-  validateNonZero,
-  validateNonNegative,
-  validateNumeric,
-  noOp,
-}
+  projection('PROJECTION'),
+  contains('CONTAINS'),
+  lessThan('LESS_THAN'),
+  greaterThan('GREATER_THAN'),
+  between('BETWEEN'),
+  lessThanOrEqualTo('LESS_THAN_OR_EQUAL_TO'),
+  greaterThanOrEqualTo('GREATER_THAN_OR_EQUAL_TO'),
+  equalTo('EQUAL_TO'),
+  notEqualTo('NOT_EQUAL_TO'),
+  addition('ADDITION'),
+  multiplication('MULTIPLICATION'),
+  division('DIVISION'),
+  subtraction('SUBTRACTION'),
+  maskAll('MASK_ALL'),
+  maskFirstN('MASK_FIRST_N'),
+  maskLastN('MASK_LAST_N'),
+  validateNonNull('VALIDATE_NON_NULL'),
+  validateNonZero('VALIDATE_NON_ZERO'),
+  validateNonNegative('VALIDATE_NON_NEGATIVE'),
+  validateNumeric('VALIDATE_NUMERIC'),
+  noOp('NO_OP'),
+  ;
 
-extension ServiceNowConnectorOperatorValueExtension
-    on ServiceNowConnectorOperator {
-  String toValue() {
-    switch (this) {
-      case ServiceNowConnectorOperator.projection:
-        return 'PROJECTION';
-      case ServiceNowConnectorOperator.contains:
-        return 'CONTAINS';
-      case ServiceNowConnectorOperator.lessThan:
-        return 'LESS_THAN';
-      case ServiceNowConnectorOperator.greaterThan:
-        return 'GREATER_THAN';
-      case ServiceNowConnectorOperator.between:
-        return 'BETWEEN';
-      case ServiceNowConnectorOperator.lessThanOrEqualTo:
-        return 'LESS_THAN_OR_EQUAL_TO';
-      case ServiceNowConnectorOperator.greaterThanOrEqualTo:
-        return 'GREATER_THAN_OR_EQUAL_TO';
-      case ServiceNowConnectorOperator.equalTo:
-        return 'EQUAL_TO';
-      case ServiceNowConnectorOperator.notEqualTo:
-        return 'NOT_EQUAL_TO';
-      case ServiceNowConnectorOperator.addition:
-        return 'ADDITION';
-      case ServiceNowConnectorOperator.multiplication:
-        return 'MULTIPLICATION';
-      case ServiceNowConnectorOperator.division:
-        return 'DIVISION';
-      case ServiceNowConnectorOperator.subtraction:
-        return 'SUBTRACTION';
-      case ServiceNowConnectorOperator.maskAll:
-        return 'MASK_ALL';
-      case ServiceNowConnectorOperator.maskFirstN:
-        return 'MASK_FIRST_N';
-      case ServiceNowConnectorOperator.maskLastN:
-        return 'MASK_LAST_N';
-      case ServiceNowConnectorOperator.validateNonNull:
-        return 'VALIDATE_NON_NULL';
-      case ServiceNowConnectorOperator.validateNonZero:
-        return 'VALIDATE_NON_ZERO';
-      case ServiceNowConnectorOperator.validateNonNegative:
-        return 'VALIDATE_NON_NEGATIVE';
-      case ServiceNowConnectorOperator.validateNumeric:
-        return 'VALIDATE_NUMERIC';
-      case ServiceNowConnectorOperator.noOp:
-        return 'NO_OP';
-    }
-  }
-}
+  final String value;
 
-extension ServiceNowConnectorOperatorFromString on String {
-  ServiceNowConnectorOperator toServiceNowConnectorOperator() {
-    switch (this) {
-      case 'PROJECTION':
-        return ServiceNowConnectorOperator.projection;
-      case 'CONTAINS':
-        return ServiceNowConnectorOperator.contains;
-      case 'LESS_THAN':
-        return ServiceNowConnectorOperator.lessThan;
-      case 'GREATER_THAN':
-        return ServiceNowConnectorOperator.greaterThan;
-      case 'BETWEEN':
-        return ServiceNowConnectorOperator.between;
-      case 'LESS_THAN_OR_EQUAL_TO':
-        return ServiceNowConnectorOperator.lessThanOrEqualTo;
-      case 'GREATER_THAN_OR_EQUAL_TO':
-        return ServiceNowConnectorOperator.greaterThanOrEqualTo;
-      case 'EQUAL_TO':
-        return ServiceNowConnectorOperator.equalTo;
-      case 'NOT_EQUAL_TO':
-        return ServiceNowConnectorOperator.notEqualTo;
-      case 'ADDITION':
-        return ServiceNowConnectorOperator.addition;
-      case 'MULTIPLICATION':
-        return ServiceNowConnectorOperator.multiplication;
-      case 'DIVISION':
-        return ServiceNowConnectorOperator.division;
-      case 'SUBTRACTION':
-        return ServiceNowConnectorOperator.subtraction;
-      case 'MASK_ALL':
-        return ServiceNowConnectorOperator.maskAll;
-      case 'MASK_FIRST_N':
-        return ServiceNowConnectorOperator.maskFirstN;
-      case 'MASK_LAST_N':
-        return ServiceNowConnectorOperator.maskLastN;
-      case 'VALIDATE_NON_NULL':
-        return ServiceNowConnectorOperator.validateNonNull;
-      case 'VALIDATE_NON_ZERO':
-        return ServiceNowConnectorOperator.validateNonZero;
-      case 'VALIDATE_NON_NEGATIVE':
-        return ServiceNowConnectorOperator.validateNonNegative;
-      case 'VALIDATE_NUMERIC':
-        return ServiceNowConnectorOperator.validateNumeric;
-      case 'NO_OP':
-        return ServiceNowConnectorOperator.noOp;
-    }
-    throw Exception('$this is not known in enum ServiceNowConnectorOperator');
-  }
+  const ServiceNowConnectorOperator(this.value);
+
+  static ServiceNowConnectorOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ServiceNowConnectorOperator'));
 }
 
 /// The properties that are applied when ServiceNow is being used as a source.
@@ -6721,46 +8300,21 @@ class SourceConnectorProperties {
 }
 
 enum SourceConnectorType {
-  salesforce,
-  marketo,
-  zendesk,
-  servicenow,
-  s3,
-}
+  salesforce('Salesforce'),
+  marketo('Marketo'),
+  zendesk('Zendesk'),
+  servicenow('Servicenow'),
+  s3('S3'),
+  ;
 
-extension SourceConnectorTypeValueExtension on SourceConnectorType {
-  String toValue() {
-    switch (this) {
-      case SourceConnectorType.salesforce:
-        return 'Salesforce';
-      case SourceConnectorType.marketo:
-        return 'Marketo';
-      case SourceConnectorType.zendesk:
-        return 'Zendesk';
-      case SourceConnectorType.servicenow:
-        return 'Servicenow';
-      case SourceConnectorType.s3:
-        return 'S3';
-    }
-  }
-}
+  final String value;
 
-extension SourceConnectorTypeFromString on String {
-  SourceConnectorType toSourceConnectorType() {
-    switch (this) {
-      case 'Salesforce':
-        return SourceConnectorType.salesforce;
-      case 'Marketo':
-        return SourceConnectorType.marketo;
-      case 'Zendesk':
-        return SourceConnectorType.zendesk;
-      case 'Servicenow':
-        return SourceConnectorType.servicenow;
-      case 'S3':
-        return SourceConnectorType.s3;
-    }
-    throw Exception('$this is not known in enum SourceConnectorType');
-  }
+  const SourceConnectorType(this.value);
+
+  static SourceConnectorType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SourceConnectorType'));
 }
 
 /// Contains information about the configuration of the source connector used in
@@ -6795,7 +8349,7 @@ class SourceFlowConfig {
     final connectorProfileName = this.connectorProfileName;
     final incrementalPullConfig = this.incrementalPullConfig;
     return {
-      'ConnectorType': connectorType.toValue(),
+      'ConnectorType': connectorType.value,
       'SourceConnectorProperties': sourceConnectorProperties,
       if (connectorProfileName != null)
         'ConnectorProfileName': connectorProfileName,
@@ -6806,114 +8360,63 @@ class SourceFlowConfig {
 }
 
 enum StandardIdentifier {
-  profile,
-  asset,
-  $case,
-  unique,
-  secondary,
-  lookupOnly,
-  newOnly,
-  order,
+  profile('PROFILE'),
+  asset('ASSET'),
+  $case('CASE'),
+  unique('UNIQUE'),
+  secondary('SECONDARY'),
+  lookupOnly('LOOKUP_ONLY'),
+  newOnly('NEW_ONLY'),
+  order('ORDER'),
+  ;
+
+  final String value;
+
+  const StandardIdentifier(this.value);
+
+  static StandardIdentifier fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StandardIdentifier'));
 }
 
-extension StandardIdentifierValueExtension on StandardIdentifier {
-  String toValue() {
-    switch (this) {
-      case StandardIdentifier.profile:
-        return 'PROFILE';
-      case StandardIdentifier.asset:
-        return 'ASSET';
-      case StandardIdentifier.$case:
-        return 'CASE';
-      case StandardIdentifier.unique:
-        return 'UNIQUE';
-      case StandardIdentifier.secondary:
-        return 'SECONDARY';
-      case StandardIdentifier.lookupOnly:
-        return 'LOOKUP_ONLY';
-      case StandardIdentifier.newOnly:
-        return 'NEW_ONLY';
-      case StandardIdentifier.order:
-        return 'ORDER';
-    }
-  }
-}
+enum Statistic {
+  firstOccurrence('FIRST_OCCURRENCE'),
+  lastOccurrence('LAST_OCCURRENCE'),
+  count('COUNT'),
+  sum('SUM'),
+  minimum('MINIMUM'),
+  maximum('MAXIMUM'),
+  average('AVERAGE'),
+  maxOccurrence('MAX_OCCURRENCE'),
+  ;
 
-extension StandardIdentifierFromString on String {
-  StandardIdentifier toStandardIdentifier() {
-    switch (this) {
-      case 'PROFILE':
-        return StandardIdentifier.profile;
-      case 'ASSET':
-        return StandardIdentifier.asset;
-      case 'CASE':
-        return StandardIdentifier.$case;
-      case 'UNIQUE':
-        return StandardIdentifier.unique;
-      case 'SECONDARY':
-        return StandardIdentifier.secondary;
-      case 'LOOKUP_ONLY':
-        return StandardIdentifier.lookupOnly;
-      case 'NEW_ONLY':
-        return StandardIdentifier.newOnly;
-      case 'ORDER':
-        return StandardIdentifier.order;
-    }
-    throw Exception('$this is not known in enum StandardIdentifier');
-  }
+  final String value;
+
+  const Statistic(this.value);
+
+  static Statistic fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Statistic'));
 }
 
 enum Status {
-  notStarted,
-  inProgress,
-  complete,
-  failed,
-  split,
-  retry,
-  cancelled,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  complete('COMPLETE'),
+  failed('FAILED'),
+  split('SPLIT'),
+  retry('RETRY'),
+  cancelled('CANCELLED'),
+  ;
 
-extension StatusValueExtension on Status {
-  String toValue() {
-    switch (this) {
-      case Status.notStarted:
-        return 'NOT_STARTED';
-      case Status.inProgress:
-        return 'IN_PROGRESS';
-      case Status.complete:
-        return 'COMPLETE';
-      case Status.failed:
-        return 'FAILED';
-      case Status.split:
-        return 'SPLIT';
-      case Status.retry:
-        return 'RETRY';
-      case Status.cancelled:
-        return 'CANCELLED';
-    }
-  }
-}
+  final String value;
 
-extension StatusFromString on String {
-  Status toStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return Status.notStarted;
-      case 'IN_PROGRESS':
-        return Status.inProgress;
-      case 'COMPLETE':
-        return Status.complete;
-      case 'FAILED':
-        return Status.failed;
-      case 'SPLIT':
-        return Status.split;
-      case 'RETRY':
-        return Status.retry;
-      case 'CANCELLED':
-        return Status.cancelled;
-    }
-    throw Exception('$this is not known in enum Status');
-  }
+  const Status(this.value);
+
+  static Status fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Status'));
 }
 
 class TagResourceResponse {
@@ -6964,66 +8467,61 @@ class Task {
     final taskProperties = this.taskProperties;
     return {
       'SourceFields': sourceFields,
-      'TaskType': taskType.toValue(),
+      'TaskType': taskType.value,
       if (connectorOperator != null) 'ConnectorOperator': connectorOperator,
       if (destinationField != null) 'DestinationField': destinationField,
       if (taskProperties != null)
-        'TaskProperties':
-            taskProperties.map((k, e) => MapEntry(k.toValue(), e)),
+        'TaskProperties': taskProperties.map((k, e) => MapEntry(k.value, e)),
     };
   }
 }
 
 enum TaskType {
-  arithmetic,
-  filter,
-  map,
-  mask,
-  merge,
-  truncate,
-  validate,
+  arithmetic('Arithmetic'),
+  filter('Filter'),
+  map('Map'),
+  mask('Mask'),
+  merge('Merge'),
+  truncate('Truncate'),
+  validate('Validate'),
+  ;
+
+  final String value;
+
+  const TaskType(this.value);
+
+  static TaskType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TaskType'));
 }
 
-extension TaskTypeValueExtension on TaskType {
-  String toValue() {
-    switch (this) {
-      case TaskType.arithmetic:
-        return 'Arithmetic';
-      case TaskType.filter:
-        return 'Filter';
-      case TaskType.map:
-        return 'Map';
-      case TaskType.mask:
-        return 'Mask';
-      case TaskType.merge:
-        return 'Merge';
-      case TaskType.truncate:
-        return 'Truncate';
-      case TaskType.validate:
-        return 'Validate';
-    }
+/// The threshold for the calculated attribute.
+class Threshold {
+  /// The operator of the threshold.
+  final Operator operator;
+
+  /// The value of the threshold.
+  final String value;
+
+  Threshold({
+    required this.operator,
+    required this.value,
+  });
+
+  factory Threshold.fromJson(Map<String, dynamic> json) {
+    return Threshold(
+      operator: Operator.fromString((json['Operator'] as String)),
+      value: json['Value'] as String,
+    );
   }
-}
 
-extension TaskTypeFromString on String {
-  TaskType toTaskType() {
-    switch (this) {
-      case 'Arithmetic':
-        return TaskType.arithmetic;
-      case 'Filter':
-        return TaskType.filter;
-      case 'Map':
-        return TaskType.map;
-      case 'Mask':
-        return TaskType.mask;
-      case 'Merge':
-        return TaskType.merge;
-      case 'Truncate':
-        return TaskType.truncate;
-      case 'Validate':
-        return TaskType.validate;
-    }
-    throw Exception('$this is not known in enum TaskType');
+  Map<String, dynamic> toJson() {
+    final operator = this.operator;
+    final value = this.value;
+    return {
+      'Operator': operator.value,
+      'Value': value,
+    };
   }
 }
 
@@ -7046,7 +8544,7 @@ class TriggerConfig {
     final triggerType = this.triggerType;
     final triggerProperties = this.triggerProperties;
     return {
-      'TriggerType': triggerType.toValue(),
+      'TriggerType': triggerType.value,
       if (triggerProperties != null) 'TriggerProperties': triggerProperties,
     };
   }
@@ -7072,36 +8570,31 @@ class TriggerProperties {
 }
 
 enum TriggerType {
-  scheduled,
-  event,
-  onDemand,
+  scheduled('Scheduled'),
+  event('Event'),
+  onDemand('OnDemand'),
+  ;
+
+  final String value;
+
+  const TriggerType(this.value);
+
+  static TriggerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TriggerType'));
 }
 
-extension TriggerTypeValueExtension on TriggerType {
-  String toValue() {
-    switch (this) {
-      case TriggerType.scheduled:
-        return 'Scheduled';
-      case TriggerType.event:
-        return 'Event';
-      case TriggerType.onDemand:
-        return 'OnDemand';
-    }
-  }
-}
+enum Unit {
+  days('DAYS'),
+  ;
 
-extension TriggerTypeFromString on String {
-  TriggerType toTriggerType() {
-    switch (this) {
-      case 'Scheduled':
-        return TriggerType.scheduled;
-      case 'Event':
-        return TriggerType.event;
-      case 'OnDemand':
-        return TriggerType.onDemand;
-    }
-    throw Exception('$this is not known in enum TriggerType');
-  }
+  final String value;
+
+  const Unit(this.value);
+
+  static Unit fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Unit'));
 }
 
 class UntagResourceResponse {
@@ -7187,6 +8680,96 @@ class UpdateAddress {
   }
 }
 
+class UpdateCalculatedAttributeDefinitionResponse {
+  /// The mathematical expression and a list of attribute items specified in that
+  /// expression.
+  final AttributeDetails? attributeDetails;
+
+  /// The unique name of the calculated attribute.
+  final String? calculatedAttributeName;
+
+  /// The conditions including range, object count, and threshold for the
+  /// calculated attribute.
+  final Conditions? conditions;
+
+  /// The timestamp of when the calculated attribute definition was created.
+  final DateTime? createdAt;
+
+  /// The description of the calculated attribute.
+  final String? description;
+
+  /// The display name of the calculated attribute.
+  final String? displayName;
+
+  /// The timestamp of when the calculated attribute definition was most recently
+  /// edited.
+  final DateTime? lastUpdatedAt;
+
+  /// The aggregation operation to perform for the calculated attribute.
+  final Statistic? statistic;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  UpdateCalculatedAttributeDefinitionResponse({
+    this.attributeDetails,
+    this.calculatedAttributeName,
+    this.conditions,
+    this.createdAt,
+    this.description,
+    this.displayName,
+    this.lastUpdatedAt,
+    this.statistic,
+    this.tags,
+  });
+
+  factory UpdateCalculatedAttributeDefinitionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateCalculatedAttributeDefinitionResponse(
+      attributeDetails: json['AttributeDetails'] != null
+          ? AttributeDetails.fromJson(
+              json['AttributeDetails'] as Map<String, dynamic>)
+          : null,
+      calculatedAttributeName: json['CalculatedAttributeName'] as String?,
+      conditions: json['Conditions'] != null
+          ? Conditions.fromJson(json['Conditions'] as Map<String, dynamic>)
+          : null,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      description: json['Description'] as String?,
+      displayName: json['DisplayName'] as String?,
+      lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
+      statistic: (json['Statistic'] as String?)?.let(Statistic.fromString),
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final attributeDetails = this.attributeDetails;
+    final calculatedAttributeName = this.calculatedAttributeName;
+    final conditions = this.conditions;
+    final createdAt = this.createdAt;
+    final description = this.description;
+    final displayName = this.displayName;
+    final lastUpdatedAt = this.lastUpdatedAt;
+    final statistic = this.statistic;
+    final tags = this.tags;
+    return {
+      if (attributeDetails != null) 'AttributeDetails': attributeDetails,
+      if (calculatedAttributeName != null)
+        'CalculatedAttributeName': calculatedAttributeName,
+      if (conditions != null) 'Conditions': conditions,
+      if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
+      if (description != null) 'Description': description,
+      if (displayName != null) 'DisplayName': displayName,
+      if (lastUpdatedAt != null)
+        'LastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
+      if (statistic != null) 'Statistic': statistic.value,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
 class UpdateDomainResponse {
   /// The timestamp of when the domain was created.
   final DateTime createdAt;
@@ -7222,6 +8805,16 @@ class UpdateDomainResponse {
   /// download the results from S3.
   final MatchingResponse? matching;
 
+  /// The process of matching duplicate profiles using the rule-Based matching. If
+  /// <code>RuleBasedMatching</code> = true, Amazon Connect Customer Profiles will
+  /// start to match and merge your profiles according to your configuration in
+  /// the <code>RuleBasedMatchingRequest</code>. You can use the
+  /// <code>ListRuleBasedMatches</code> and <code>GetSimilarProfiles</code> API to
+  /// return and review the results. Also, if you have configured
+  /// <code>ExportingConfig</code> in the <code>RuleBasedMatchingRequest</code>,
+  /// you can download the results from S3.
+  final RuleBasedMatchingResponse? ruleBasedMatching;
+
   /// The tags used to organize, track, or control access for this resource.
   final Map<String, String>? tags;
 
@@ -7233,6 +8826,7 @@ class UpdateDomainResponse {
     this.defaultEncryptionKey,
     this.defaultExpirationDays,
     this.matching,
+    this.ruleBasedMatching,
     this.tags,
   });
 
@@ -7248,6 +8842,10 @@ class UpdateDomainResponse {
       matching: json['Matching'] != null
           ? MatchingResponse.fromJson(json['Matching'] as Map<String, dynamic>)
           : null,
+      ruleBasedMatching: json['RuleBasedMatching'] != null
+          ? RuleBasedMatchingResponse.fromJson(
+              json['RuleBasedMatching'] as Map<String, dynamic>)
+          : null,
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -7261,6 +8859,7 @@ class UpdateDomainResponse {
     final defaultEncryptionKey = this.defaultEncryptionKey;
     final defaultExpirationDays = this.defaultExpirationDays;
     final matching = this.matching;
+    final ruleBasedMatching = this.ruleBasedMatching;
     final tags = this.tags;
     return {
       'CreatedAt': unixTimestampToJson(createdAt),
@@ -7272,6 +8871,7 @@ class UpdateDomainResponse {
       if (defaultExpirationDays != null)
         'DefaultExpirationDays': defaultExpirationDays,
       if (matching != null) 'Matching': matching,
+      if (ruleBasedMatching != null) 'RuleBasedMatching': ruleBasedMatching,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -7379,114 +8979,44 @@ class WorkflowStepItem {
 }
 
 enum WorkflowType {
-  appflowIntegration,
-}
+  appflowIntegration('APPFLOW_INTEGRATION'),
+  ;
 
-extension WorkflowTypeValueExtension on WorkflowType {
-  String toValue() {
-    switch (this) {
-      case WorkflowType.appflowIntegration:
-        return 'APPFLOW_INTEGRATION';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowTypeFromString on String {
-  WorkflowType toWorkflowType() {
-    switch (this) {
-      case 'APPFLOW_INTEGRATION':
-        return WorkflowType.appflowIntegration;
-    }
-    throw Exception('$this is not known in enum WorkflowType');
-  }
+  const WorkflowType(this.value);
+
+  static WorkflowType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowType'));
 }
 
 enum ZendeskConnectorOperator {
-  projection,
-  greaterThan,
-  addition,
-  multiplication,
-  division,
-  subtraction,
-  maskAll,
-  maskFirstN,
-  maskLastN,
-  validateNonNull,
-  validateNonZero,
-  validateNonNegative,
-  validateNumeric,
-  noOp,
-}
+  projection('PROJECTION'),
+  greaterThan('GREATER_THAN'),
+  addition('ADDITION'),
+  multiplication('MULTIPLICATION'),
+  division('DIVISION'),
+  subtraction('SUBTRACTION'),
+  maskAll('MASK_ALL'),
+  maskFirstN('MASK_FIRST_N'),
+  maskLastN('MASK_LAST_N'),
+  validateNonNull('VALIDATE_NON_NULL'),
+  validateNonZero('VALIDATE_NON_ZERO'),
+  validateNonNegative('VALIDATE_NON_NEGATIVE'),
+  validateNumeric('VALIDATE_NUMERIC'),
+  noOp('NO_OP'),
+  ;
 
-extension ZendeskConnectorOperatorValueExtension on ZendeskConnectorOperator {
-  String toValue() {
-    switch (this) {
-      case ZendeskConnectorOperator.projection:
-        return 'PROJECTION';
-      case ZendeskConnectorOperator.greaterThan:
-        return 'GREATER_THAN';
-      case ZendeskConnectorOperator.addition:
-        return 'ADDITION';
-      case ZendeskConnectorOperator.multiplication:
-        return 'MULTIPLICATION';
-      case ZendeskConnectorOperator.division:
-        return 'DIVISION';
-      case ZendeskConnectorOperator.subtraction:
-        return 'SUBTRACTION';
-      case ZendeskConnectorOperator.maskAll:
-        return 'MASK_ALL';
-      case ZendeskConnectorOperator.maskFirstN:
-        return 'MASK_FIRST_N';
-      case ZendeskConnectorOperator.maskLastN:
-        return 'MASK_LAST_N';
-      case ZendeskConnectorOperator.validateNonNull:
-        return 'VALIDATE_NON_NULL';
-      case ZendeskConnectorOperator.validateNonZero:
-        return 'VALIDATE_NON_ZERO';
-      case ZendeskConnectorOperator.validateNonNegative:
-        return 'VALIDATE_NON_NEGATIVE';
-      case ZendeskConnectorOperator.validateNumeric:
-        return 'VALIDATE_NUMERIC';
-      case ZendeskConnectorOperator.noOp:
-        return 'NO_OP';
-    }
-  }
-}
+  final String value;
 
-extension ZendeskConnectorOperatorFromString on String {
-  ZendeskConnectorOperator toZendeskConnectorOperator() {
-    switch (this) {
-      case 'PROJECTION':
-        return ZendeskConnectorOperator.projection;
-      case 'GREATER_THAN':
-        return ZendeskConnectorOperator.greaterThan;
-      case 'ADDITION':
-        return ZendeskConnectorOperator.addition;
-      case 'MULTIPLICATION':
-        return ZendeskConnectorOperator.multiplication;
-      case 'DIVISION':
-        return ZendeskConnectorOperator.division;
-      case 'SUBTRACTION':
-        return ZendeskConnectorOperator.subtraction;
-      case 'MASK_ALL':
-        return ZendeskConnectorOperator.maskAll;
-      case 'MASK_FIRST_N':
-        return ZendeskConnectorOperator.maskFirstN;
-      case 'MASK_LAST_N':
-        return ZendeskConnectorOperator.maskLastN;
-      case 'VALIDATE_NON_NULL':
-        return ZendeskConnectorOperator.validateNonNull;
-      case 'VALIDATE_NON_ZERO':
-        return ZendeskConnectorOperator.validateNonZero;
-      case 'VALIDATE_NON_NEGATIVE':
-        return ZendeskConnectorOperator.validateNonNegative;
-      case 'VALIDATE_NUMERIC':
-        return ZendeskConnectorOperator.validateNumeric;
-      case 'NO_OP':
-        return ZendeskConnectorOperator.noOp;
-    }
-    throw Exception('$this is not known in enum ZendeskConnectorOperator');
-  }
+  const ZendeskConnectorOperator(this.value);
+
+  static ZendeskConnectorOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ZendeskConnectorOperator'));
 }
 
 /// The properties that are applied when using Zendesk as a flow source.
@@ -7507,31 +9037,18 @@ class ZendeskSourceProperties {
 }
 
 enum LogicalOperator {
-  and,
-  or,
-}
+  and('AND'),
+  or('OR'),
+  ;
 
-extension LogicalOperatorValueExtension on LogicalOperator {
-  String toValue() {
-    switch (this) {
-      case LogicalOperator.and:
-        return 'AND';
-      case LogicalOperator.or:
-        return 'OR';
-    }
-  }
-}
+  final String value;
 
-extension LogicalOperatorFromString on String {
-  LogicalOperator toLogicalOperator() {
-    switch (this) {
-      case 'AND':
-        return LogicalOperator.and;
-      case 'OR':
-        return LogicalOperator.or;
-    }
-    throw Exception('$this is not known in enum LogicalOperator');
-  }
+  const LogicalOperator(this.value);
+
+  static LogicalOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LogicalOperator'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

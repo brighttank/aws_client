@@ -17,13 +17,11 @@ import 'package:shared_aws_api/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'enum_output.meta.dart';
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// Enum output
 class EnumOutput {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   EnumOutput({
     required String region,
@@ -31,7 +29,7 @@ class EnumOutput {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'EnumOutput',
@@ -40,9 +38,7 @@ class EnumOutput {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -54,7 +50,7 @@ class EnumOutput {
   }
 
   Future<OutputShape> operationName0() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'OperationName',
@@ -62,7 +58,6 @@ class EnumOutput {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
     );
     return OutputShape.fromXml($result);
   }
@@ -78,41 +73,29 @@ class OutputShape {
   });
   factory OutputShape.fromXml(_s.XmlElement elem) {
     return OutputShape(
-      fooEnum: _s.extractXmlStringValue(elem, 'FooEnum')?.toEC2EnumType(),
+      fooEnum: _s
+          .extractXmlStringValue(elem, 'FooEnum')
+          ?.let(EC2EnumType.fromString),
       listEnums: _s.extractXmlChild(elem, 'ListEnums')?.let((elem) => _s
           .extractXmlStringListValues(elem, 'member')
-          .map((s) => s.toEC2EnumType())
+          .map(EC2EnumType.fromString)
           .toList()),
     );
   }
 }
 
 enum EC2EnumType {
-  foo,
-  bar,
-}
+  foo('foo'),
+  bar('bar'),
+  ;
 
-extension EC2EnumTypeValueExtension on EC2EnumType {
-  String toValue() {
-    switch (this) {
-      case EC2EnumType.foo:
-        return 'foo';
-      case EC2EnumType.bar:
-        return 'bar';
-    }
-  }
-}
+  final String value;
 
-extension EC2EnumTypeFromString on String {
-  EC2EnumType toEC2EnumType() {
-    switch (this) {
-      case 'foo':
-        return EC2EnumType.foo;
-      case 'bar':
-        return EC2EnumType.bar;
-    }
-    throw Exception('$this is not known in enum EC2EnumType');
-  }
+  const EC2EnumType(this.value);
+
+  static EC2EnumType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EC2EnumType'));
 }
 
 final _exceptionFns = <String, _s.AwsExceptionFn>{};

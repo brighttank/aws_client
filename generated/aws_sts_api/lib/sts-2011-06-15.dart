@@ -17,7 +17,6 @@ import 'package:shared_aws_api/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'sts-2011-06-15.meta.dart';
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// Security Token Service (STS) enables you to request temporary,
@@ -27,7 +26,6 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// Security Credentials</a>.
 class STS {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   STS({
     String? region,
@@ -35,7 +33,7 @@ class STS {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'sts',
@@ -44,9 +42,7 @@ class STS {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -315,6 +311,17 @@ class STS {
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_session">Session
   /// Policies</a> in the <i>IAM User Guide</i>.
   ///
+  /// Parameter [providedContexts] :
+  /// A list of previously acquired trusted context assertions in the format of
+  /// a JSON array. The trusted context assertion is signed and encrypted by
+  /// Amazon Web Services STS.
+  ///
+  /// The following is an example of a <code>ProvidedContext</code> value that
+  /// includes a single trusted context assertion and the ARN of the context
+  /// provider from which the trusted context assertion was generated.
+  ///
+  /// <code>[{"ProviderArn":"arn:aws:iam::aws:contextProvider/IdentityCenter","ContextAssertion":"trusted-context-assertion"}]</code>
+  ///
   /// Parameter [serialNumber] :
   /// The identification number of the MFA device that is associated with the
   /// user who is making the <code>AssumeRole</code> call. Specify this value if
@@ -421,6 +428,7 @@ class STS {
     String? externalId,
     String? policy,
     List<PolicyDescriptorType>? policyArns,
+    List<ProvidedContext>? providedContexts,
     String? serialNumber,
     String? sourceIdentity,
     List<Tag>? tags,
@@ -433,18 +441,44 @@ class STS {
       900,
       43200,
     );
-    final $request = <String, dynamic>{};
-    $request['RoleArn'] = roleArn;
-    $request['RoleSessionName'] = roleSessionName;
-    durationSeconds?.also((arg) => $request['DurationSeconds'] = arg);
-    externalId?.also((arg) => $request['ExternalId'] = arg);
-    policy?.also((arg) => $request['Policy'] = arg);
-    policyArns?.also((arg) => $request['PolicyArns'] = arg);
-    serialNumber?.also((arg) => $request['SerialNumber'] = arg);
-    sourceIdentity?.also((arg) => $request['SourceIdentity'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    tokenCode?.also((arg) => $request['TokenCode'] = arg);
-    transitiveTagKeys?.also((arg) => $request['TransitiveTagKeys'] = arg);
+    final $request = <String, String>{
+      'RoleArn': roleArn,
+      'RoleSessionName': roleSessionName,
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+      if (externalId != null) 'ExternalId': externalId,
+      if (policy != null) 'Policy': policy,
+      if (policyArns != null)
+        if (policyArns.isEmpty)
+          'PolicyArns': ''
+        else
+          for (var i1 = 0; i1 < policyArns.length; i1++)
+            for (var e3 in policyArns[i1].toQueryMap().entries)
+              'PolicyArns.member.${i1 + 1}.${e3.key}': e3.value,
+      if (providedContexts != null)
+        if (providedContexts.isEmpty)
+          'ProvidedContexts': ''
+        else
+          for (var i1 = 0; i1 < providedContexts.length; i1++)
+            for (var e3 in providedContexts[i1].toQueryMap().entries)
+              'ProvidedContexts.member.${i1 + 1}.${e3.key}': e3.value,
+      if (serialNumber != null) 'SerialNumber': serialNumber,
+      if (sourceIdentity != null) 'SourceIdentity': sourceIdentity,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+      if (tokenCode != null) 'TokenCode': tokenCode,
+      if (transitiveTagKeys != null)
+        if (transitiveTagKeys.isEmpty)
+          'TransitiveTagKeys': ''
+        else
+          for (var i1 = 0; i1 < transitiveTagKeys.length; i1++)
+            'TransitiveTagKeys.member.${i1 + 1}': transitiveTagKeys[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AssumeRole',
@@ -452,8 +486,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AssumeRoleRequest'],
-      shapes: shapes,
       resultWrapper: 'AssumeRoleResult',
     );
     return AssumeRoleResponse.fromXml($result);
@@ -739,13 +771,21 @@ class STS {
       900,
       43200,
     );
-    final $request = <String, dynamic>{};
-    $request['PrincipalArn'] = principalArn;
-    $request['RoleArn'] = roleArn;
-    $request['SAMLAssertion'] = sAMLAssertion;
-    durationSeconds?.also((arg) => $request['DurationSeconds'] = arg);
-    policy?.also((arg) => $request['Policy'] = arg);
-    policyArns?.also((arg) => $request['PolicyArns'] = arg);
+    final $request = <String, String>{
+      'PrincipalArn': principalArn,
+      'RoleArn': roleArn,
+      'SAMLAssertion': sAMLAssertion,
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+      if (policy != null) 'Policy': policy,
+      if (policyArns != null)
+        if (policyArns.isEmpty)
+          'PolicyArns': ''
+        else
+          for (var i1 = 0; i1 < policyArns.length; i1++)
+            for (var e3 in policyArns[i1].toQueryMap().entries)
+              'PolicyArns.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AssumeRoleWithSAML',
@@ -753,8 +793,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AssumeRoleWithSAMLRequest'],
-      shapes: shapes,
       resultWrapper: 'AssumeRoleWithSAMLResult',
     );
     return AssumeRoleWithSAMLResponse.fromXml($result);
@@ -966,7 +1004,8 @@ class STS {
   /// the identity provider. Your application must get this token by
   /// authenticating the user who is using your application with a web identity
   /// provider before the application makes an
-  /// <code>AssumeRoleWithWebIdentity</code> call.
+  /// <code>AssumeRoleWithWebIdentity</code> call. Only tokens with RSA
+  /// algorithms (RS256) are supported.
   ///
   /// Parameter [durationSeconds] :
   /// The duration, in seconds, of the role session. The value can range from
@@ -1077,14 +1116,22 @@ class STS {
       900,
       43200,
     );
-    final $request = <String, dynamic>{};
-    $request['RoleArn'] = roleArn;
-    $request['RoleSessionName'] = roleSessionName;
-    $request['WebIdentityToken'] = webIdentityToken;
-    durationSeconds?.also((arg) => $request['DurationSeconds'] = arg);
-    policy?.also((arg) => $request['Policy'] = arg);
-    policyArns?.also((arg) => $request['PolicyArns'] = arg);
-    providerId?.also((arg) => $request['ProviderId'] = arg);
+    final $request = <String, String>{
+      'RoleArn': roleArn,
+      'RoleSessionName': roleSessionName,
+      'WebIdentityToken': webIdentityToken,
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+      if (policy != null) 'Policy': policy,
+      if (policyArns != null)
+        if (policyArns.isEmpty)
+          'PolicyArns': ''
+        else
+          for (var i1 = 0; i1 < policyArns.length; i1++)
+            for (var e3 in policyArns[i1].toQueryMap().entries)
+              'PolicyArns.member.${i1 + 1}.${e3.key}': e3.value,
+      if (providerId != null) 'ProviderId': providerId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AssumeRoleWithWebIdentity',
@@ -1092,8 +1139,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AssumeRoleWithWebIdentityRequest'],
-      shapes: shapes,
       resultWrapper: 'AssumeRoleWithWebIdentityResult',
     );
     return AssumeRoleWithWebIdentityResponse.fromXml($result);
@@ -1152,8 +1197,9 @@ class STS {
   Future<DecodeAuthorizationMessageResponse> decodeAuthorizationMessage({
     required String encodedMessage,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EncodedMessage'] = encodedMessage;
+    final $request = <String, String>{
+      'EncodedMessage': encodedMessage,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DecodeAuthorizationMessage',
@@ -1161,8 +1207,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DecodeAuthorizationMessageRequest'],
-      shapes: shapes,
       resultWrapper: 'DecodeAuthorizationMessageResult',
     );
     return DecodeAuthorizationMessageResponse.fromXml($result);
@@ -1205,8 +1249,9 @@ class STS {
   Future<GetAccessKeyInfoResponse> getAccessKeyInfo({
     required String accessKeyId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccessKeyId'] = accessKeyId;
+    final $request = <String, String>{
+      'AccessKeyId': accessKeyId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetAccessKeyInfo',
@@ -1214,8 +1259,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetAccessKeyInfoRequest'],
-      shapes: shapes,
       resultWrapper: 'GetAccessKeyInfoResult',
     );
     return GetAccessKeyInfoResponse.fromXml($result);
@@ -1234,7 +1277,7 @@ class STS {
   /// User Guide</i>.
   /// </note>
   Future<GetCallerIdentityResponse> getCallerIdentity() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'GetCallerIdentity',
@@ -1242,8 +1285,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetCallerIdentityRequest'],
-      shapes: shapes,
       resultWrapper: 'GetCallerIdentityResult',
     );
     return GetCallerIdentityResponse.fromXml($result);
@@ -1524,12 +1565,26 @@ class STS {
       900,
       129600,
     );
-    final $request = <String, dynamic>{};
-    $request['Name'] = name;
-    durationSeconds?.also((arg) => $request['DurationSeconds'] = arg);
-    policy?.also((arg) => $request['Policy'] = arg);
-    policyArns?.also((arg) => $request['PolicyArns'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'Name': name,
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+      if (policy != null) 'Policy': policy,
+      if (policyArns != null)
+        if (policyArns.isEmpty)
+          'PolicyArns': ''
+        else
+          for (var i1 = 0; i1 < policyArns.length; i1++)
+            for (var e3 in policyArns[i1].toQueryMap().entries)
+              'PolicyArns.member.${i1 + 1}.${e3.key}': e3.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetFederationToken',
@@ -1537,8 +1592,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetFederationTokenRequest'],
-      shapes: shapes,
       resultWrapper: 'GetFederationTokenResult',
     );
     return GetFederationTokenResponse.fromXml($result);
@@ -1664,10 +1717,12 @@ class STS {
       900,
       129600,
     );
-    final $request = <String, dynamic>{};
-    durationSeconds?.also((arg) => $request['DurationSeconds'] = arg);
-    serialNumber?.also((arg) => $request['SerialNumber'] = arg);
-    tokenCode?.also((arg) => $request['TokenCode'] = arg);
+    final $request = <String, String>{
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+      if (serialNumber != null) 'SerialNumber': serialNumber,
+      if (tokenCode != null) 'TokenCode': tokenCode,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetSessionToken',
@@ -1675,8 +1730,6 @@ class STS {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetSessionTokenRequest'],
-      shapes: shapes,
       resultWrapper: 'GetSessionTokenResult',
     );
     return GetSessionTokenResponse.fromXml($result);
@@ -2196,6 +2249,50 @@ class PolicyDescriptorType {
       if (arn != null) 'arn': arn,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final arn = this.arn;
+    return {
+      if (arn != null) 'arn': arn,
+    };
+  }
+}
+
+/// Contains information about the provided context. This includes the signed
+/// and encrypted trusted context assertion and the context provider ARN from
+/// which the trusted context assertion was generated.
+class ProvidedContext {
+  /// The signed and encrypted trusted context assertion generated by the context
+  /// provider. The trusted context assertion is signed and encrypted by Amazon
+  /// Web Services STS.
+  final String? contextAssertion;
+
+  /// The context provider ARN from which the trusted context assertion was
+  /// generated.
+  final String? providerArn;
+
+  ProvidedContext({
+    this.contextAssertion,
+    this.providerArn,
+  });
+
+  Map<String, dynamic> toJson() {
+    final contextAssertion = this.contextAssertion;
+    final providerArn = this.providerArn;
+    return {
+      if (contextAssertion != null) 'ContextAssertion': contextAssertion,
+      if (providerArn != null) 'ProviderArn': providerArn,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final contextAssertion = this.contextAssertion;
+    final providerArn = this.providerArn;
+    return {
+      if (contextAssertion != null) 'ContextAssertion': contextAssertion,
+      if (providerArn != null) 'ProviderArn': providerArn,
+    };
+  }
 }
 
 /// You can pass custom key-value pair attributes when you assume a role or
@@ -2226,6 +2323,15 @@ class Tag {
   });
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {

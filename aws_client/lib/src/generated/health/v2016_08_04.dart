@@ -226,10 +226,6 @@ class Health {
   /// May throw [InvalidPaginationToken].
   /// May throw [UnsupportedLocale].
   ///
-  /// Parameter [organizationEntityFilters] :
-  /// A JSON set of elements including the <code>awsAccountId</code> and the
-  /// <code>eventArn</code>.
-  ///
   /// Parameter [locale] :
   /// The locale (language) to return information in. English (en) is the
   /// default and the only supported value at this time.
@@ -244,12 +240,21 @@ class Health {
   /// response. To retrieve the next batch of results, reissue the search
   /// request and include the returned token. When all results have been
   /// returned, the response does not contain a pagination token value.
+  ///
+  /// Parameter [organizationEntityAccountFilters] :
+  /// A JSON set of elements including the <code>awsAccountId</code>,
+  /// <code>eventArn</code> and a set of <code>statusCodes</code>.
+  ///
+  /// Parameter [organizationEntityFilters] :
+  /// A JSON set of elements including the <code>awsAccountId</code> and the
+  /// <code>eventArn</code>.
   Future<DescribeAffectedEntitiesForOrganizationResponse>
       describeAffectedEntitiesForOrganization({
-    required List<EventAccountFilter> organizationEntityFilters,
     String? locale,
     int? maxResults,
     String? nextToken,
+    List<EntityAccountFilter>? organizationEntityAccountFilters,
+    List<EventAccountFilter>? organizationEntityFilters,
   }) async {
     _s.validateNumRange(
       'maxResults',
@@ -269,10 +274,13 @@ class Health {
       // TODO queryParams
       headers: headers,
       payload: {
-        'organizationEntityFilters': organizationEntityFilters,
         if (locale != null) 'locale': locale,
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
+        if (organizationEntityAccountFilters != null)
+          'organizationEntityAccountFilters': organizationEntityAccountFilters,
+        if (organizationEntityFilters != null)
+          'organizationEntityFilters': organizationEntityFilters,
       },
     );
 
@@ -306,6 +314,43 @@ class Health {
     );
 
     return DescribeEntityAggregatesResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Returns a list of entity aggregates for your Organizations that are
+  /// affected by each of the specified events.
+  ///
+  /// Parameter [eventArns] :
+  /// A list of event ARNs (unique identifiers). For example:
+  /// <code>"arn:aws:health:us-east-1::event/EC2/EC2_INSTANCE_RETIREMENT_SCHEDULED/EC2_INSTANCE_RETIREMENT_SCHEDULED_ABC123-CDE456",
+  /// "arn:aws:health:us-west-1::event/EBS/AWS_EBS_LOST_VOLUME/AWS_EBS_LOST_VOLUME_CHI789_JKL101"</code>
+  ///
+  /// Parameter [awsAccountIds] :
+  /// A list of 12-digit Amazon Web Services account numbers that contains the
+  /// affected entities.
+  Future<DescribeEntityAggregatesForOrganizationResponse>
+      describeEntityAggregatesForOrganization({
+    required List<String> eventArns,
+    List<String>? awsAccountIds,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'AWSHealth_20160804.DescribeEntityAggregatesForOrganization'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'eventArns': eventArns,
+        if (awsAccountIds != null) 'awsAccountIds': awsAccountIds,
+      },
+    );
+
+    return DescribeEntityAggregatesForOrganizationResponse.fromJson(
+        jsonResponse.body);
   }
 
   /// Returns the number of events of each event type (issue, scheduled change,
@@ -357,7 +402,7 @@ class Health {
       // TODO queryParams
       headers: headers,
       payload: {
-        'aggregateField': aggregateField.toValue(),
+        'aggregateField': aggregateField.value,
         if (filter != null) 'filter': filter,
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
@@ -853,6 +898,48 @@ class Health {
   }
 }
 
+/// The number of entities in an account that are impacted by a specific event
+/// aggregated by the entity status codes.
+class AccountEntityAggregate {
+  /// The 12-digit Amazon Web Services account numbers that contains the affected
+  /// entities.
+  final String? accountId;
+
+  /// The number of entities that match the filter criteria for the specified
+  /// events.
+  final int? count;
+
+  /// The number of affected entities aggregated by the entity status codes.
+  final Map<EntityStatusCode, int>? statuses;
+
+  AccountEntityAggregate({
+    this.accountId,
+    this.count,
+    this.statuses,
+  });
+
+  factory AccountEntityAggregate.fromJson(Map<String, dynamic> json) {
+    return AccountEntityAggregate(
+      accountId: json['accountId'] as String?,
+      count: json['count'] as int?,
+      statuses: (json['statuses'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(EntityStatusCode.fromString(k), e as int)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final count = this.count;
+    final statuses = this.statuses;
+    return {
+      if (accountId != null) 'accountId': accountId,
+      if (count != null) 'count': count,
+      if (statuses != null)
+        'statuses': statuses.map((k, e) => MapEntry(k.value, e)),
+    };
+  }
+}
+
 /// Information about an entity that is affected by a Health event.
 class AffectedEntity {
   /// The 12-digit Amazon Web Services account number that contains the affected
@@ -913,7 +1000,8 @@ class AffectedEntity {
       entityValue: json['entityValue'] as String?,
       eventArn: json['eventArn'] as String?,
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
-      statusCode: (json['statusCode'] as String?)?.toEntityStatusCode(),
+      statusCode:
+          (json['statusCode'] as String?)?.let(EntityStatusCode.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -936,7 +1024,7 @@ class AffectedEntity {
       if (eventArn != null) 'eventArn': eventArn,
       if (lastUpdatedTime != null)
         'lastUpdatedTime': unixTimestampToJson(lastUpdatedTime),
-      if (statusCode != null) 'statusCode': statusCode.toValue(),
+      if (statusCode != null) 'statusCode': statusCode.value,
       if (tags != null) 'tags': tags,
     };
   }
@@ -1021,10 +1109,11 @@ class DescribeAffectedAccountsForOrganizationResponse {
       Map<String, dynamic> json) {
     return DescribeAffectedAccountsForOrganizationResponse(
       affectedAccounts: (json['affectedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      eventScopeCode: (json['eventScopeCode'] as String?)?.toEventScopeCode(),
+      eventScopeCode:
+          (json['eventScopeCode'] as String?)?.let(EventScopeCode.fromString),
       nextToken: json['nextToken'] as String?,
     );
   }
@@ -1035,7 +1124,7 @@ class DescribeAffectedAccountsForOrganizationResponse {
     final nextToken = this.nextToken;
     return {
       if (affectedAccounts != null) 'affectedAccounts': affectedAccounts,
-      if (eventScopeCode != null) 'eventScopeCode': eventScopeCode.toValue(),
+      if (eventScopeCode != null) 'eventScopeCode': eventScopeCode.value,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -1070,11 +1159,11 @@ class DescribeAffectedEntitiesForOrganizationResponse {
       Map<String, dynamic> json) {
     return DescribeAffectedEntitiesForOrganizationResponse(
       entities: (json['entities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AffectedEntity.fromJson(e as Map<String, dynamic>))
           .toList(),
       failedSet: (json['failedSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OrganizationAffectedEntitiesErrorItem.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -1113,7 +1202,7 @@ class DescribeAffectedEntitiesResponse {
   factory DescribeAffectedEntitiesResponse.fromJson(Map<String, dynamic> json) {
     return DescribeAffectedEntitiesResponse(
       entities: (json['entities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AffectedEntity.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1130,6 +1219,36 @@ class DescribeAffectedEntitiesResponse {
   }
 }
 
+class DescribeEntityAggregatesForOrganizationResponse {
+  /// The list of entity aggregates for each of the specified accounts that are
+  /// affected by each of the specified events.
+  final List<OrganizationEntityAggregate>? organizationEntityAggregates;
+
+  DescribeEntityAggregatesForOrganizationResponse({
+    this.organizationEntityAggregates,
+  });
+
+  factory DescribeEntityAggregatesForOrganizationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DescribeEntityAggregatesForOrganizationResponse(
+      organizationEntityAggregates: (json['organizationEntityAggregates']
+              as List?)
+          ?.nonNulls
+          .map((e) =>
+              OrganizationEntityAggregate.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final organizationEntityAggregates = this.organizationEntityAggregates;
+    return {
+      if (organizationEntityAggregates != null)
+        'organizationEntityAggregates': organizationEntityAggregates,
+    };
+  }
+}
+
 class DescribeEntityAggregatesResponse {
   /// The number of entities that are affected by each of the specified events.
   final List<EntityAggregate>? entityAggregates;
@@ -1141,7 +1260,7 @@ class DescribeEntityAggregatesResponse {
   factory DescribeEntityAggregatesResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEntityAggregatesResponse(
       entityAggregates: (json['entityAggregates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EntityAggregate.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1175,7 +1294,7 @@ class DescribeEventAggregatesResponse {
   factory DescribeEventAggregatesResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEventAggregatesResponse(
       eventAggregates: (json['eventAggregates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EventAggregate.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1208,12 +1327,12 @@ class DescribeEventDetailsForOrganizationResponse {
       Map<String, dynamic> json) {
     return DescribeEventDetailsForOrganizationResponse(
       failedSet: (json['failedSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OrganizationEventDetailsErrorItem.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       successfulSet: (json['successfulSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               OrganizationEventDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1245,11 +1364,11 @@ class DescribeEventDetailsResponse {
   factory DescribeEventDetailsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEventDetailsResponse(
       failedSet: (json['failedSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EventDetailsErrorItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       successfulSet: (json['successfulSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EventDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1289,7 +1408,7 @@ class DescribeEventTypesResponse {
   factory DescribeEventTypesResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEventTypesResponse(
       eventTypes: (json['eventTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EventType.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1326,7 +1445,7 @@ class DescribeEventsForOrganizationResponse {
       Map<String, dynamic> json) {
     return DescribeEventsForOrganizationResponse(
       events: (json['events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OrganizationEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1362,7 +1481,7 @@ class DescribeEventsResponse {
   factory DescribeEventsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEventsResponse(
       events: (json['events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Event.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1409,6 +1528,44 @@ class DescribeHealthServiceStatusForOrganizationResponse {
   }
 }
 
+/// A JSON set of elements including the <code>awsAccountId</code>,
+/// <code>eventArn</code> and a set of <code>statusCodes</code>.
+class EntityAccountFilter {
+  /// The unique identifier for the event. The event ARN has the
+  /// <code>arn:aws:health:<i>event-region</i>::event/<i>SERVICE</i>/<i>EVENT_TYPE_CODE</i>/<i>EVENT_TYPE_PLUS_ID</i>
+  /// </code> format.
+  ///
+  /// For example, an event ARN might look like the following:
+  ///
+  /// <code>arn:aws:health:us-east-1::event/EC2/EC2_INSTANCE_RETIREMENT_SCHEDULED/EC2_INSTANCE_RETIREMENT_SCHEDULED_ABC123-DEF456</code>
+  final String eventArn;
+
+  /// The 12-digit Amazon Web Services account numbers that contains the affected
+  /// entities.
+  final String? awsAccountId;
+
+  /// A list of entity status codes.
+  final List<EntityStatusCode>? statusCodes;
+
+  EntityAccountFilter({
+    required this.eventArn,
+    this.awsAccountId,
+    this.statusCodes,
+  });
+
+  Map<String, dynamic> toJson() {
+    final eventArn = this.eventArn;
+    final awsAccountId = this.awsAccountId;
+    final statusCodes = this.statusCodes;
+    return {
+      'eventArn': eventArn,
+      if (awsAccountId != null) 'awsAccountId': awsAccountId,
+      if (statusCodes != null)
+        'statusCodes': statusCodes.map((e) => e.value).toList(),
+    };
+  }
+}
+
 /// The number of entities that are affected by one or more events. Returned by
 /// the <a
 /// href="https://docs.aws.amazon.com/health/latest/APIReference/API_DescribeEntityAggregates.html">DescribeEntityAggregates</a>
@@ -1426,24 +1583,33 @@ class EntityAggregate {
   /// <code>arn:aws:health:us-east-1::event/EC2/EC2_INSTANCE_RETIREMENT_SCHEDULED/EC2_INSTANCE_RETIREMENT_SCHEDULED_ABC123-DEF456</code>
   final String? eventArn;
 
+  /// The number of affected entities aggregated by the entity status codes.
+  final Map<EntityStatusCode, int>? statuses;
+
   EntityAggregate({
     this.count,
     this.eventArn,
+    this.statuses,
   });
 
   factory EntityAggregate.fromJson(Map<String, dynamic> json) {
     return EntityAggregate(
       count: json['count'] as int?,
       eventArn: json['eventArn'] as String?,
+      statuses: (json['statuses'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(EntityStatusCode.fromString(k), e as int)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final count = this.count;
     final eventArn = this.eventArn;
+    final statuses = this.statuses;
     return {
       if (count != null) 'count': count,
       if (eventArn != null) 'eventArn': eventArn,
+      if (statuses != null)
+        'statuses': statuses.map((k, e) => MapEntry(k.value, e)),
     };
   }
 }
@@ -1498,7 +1664,7 @@ class EntityFilter {
       if (entityValues != null) 'entityValues': entityValues,
       if (lastUpdatedTimes != null) 'lastUpdatedTimes': lastUpdatedTimes,
       if (statusCodes != null)
-        'statusCodes': statusCodes.map((e) => e.toValue()).toList(),
+        'statusCodes': statusCodes.map((e) => e.value).toList(),
       if (tags != null) 'tags': tags,
     };
   }
@@ -1614,15 +1780,17 @@ class Event {
       arn: json['arn'] as String?,
       availabilityZone: json['availabilityZone'] as String?,
       endTime: timeStampFromJson(json['endTime']),
-      eventScopeCode: (json['eventScopeCode'] as String?)?.toEventScopeCode(),
-      eventTypeCategory:
-          (json['eventTypeCategory'] as String?)?.toEventTypeCategory(),
+      eventScopeCode:
+          (json['eventScopeCode'] as String?)?.let(EventScopeCode.fromString),
+      eventTypeCategory: (json['eventTypeCategory'] as String?)
+          ?.let(EventTypeCategory.fromString),
       eventTypeCode: json['eventTypeCode'] as String?,
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       region: json['region'] as String?,
       service: json['service'] as String?,
       startTime: timeStampFromJson(json['startTime']),
-      statusCode: (json['statusCode'] as String?)?.toEventStatusCode(),
+      statusCode:
+          (json['statusCode'] as String?)?.let(EventStatusCode.fromString),
     );
   }
 
@@ -1642,16 +1810,16 @@ class Event {
       if (arn != null) 'arn': arn,
       if (availabilityZone != null) 'availabilityZone': availabilityZone,
       if (endTime != null) 'endTime': unixTimestampToJson(endTime),
-      if (eventScopeCode != null) 'eventScopeCode': eventScopeCode.toValue(),
+      if (eventScopeCode != null) 'eventScopeCode': eventScopeCode.value,
       if (eventTypeCategory != null)
-        'eventTypeCategory': eventTypeCategory.toValue(),
+        'eventTypeCategory': eventTypeCategory.value,
       if (eventTypeCode != null) 'eventTypeCode': eventTypeCode,
       if (lastUpdatedTime != null)
         'lastUpdatedTime': unixTimestampToJson(lastUpdatedTime),
       if (region != null) 'region': region,
       if (service != null) 'service': service,
       if (startTime != null) 'startTime': unixTimestampToJson(startTime),
-      if (statusCode != null) 'statusCode': statusCode.toValue(),
+      if (statusCode != null) 'statusCode': statusCode.value,
     };
   }
 }
@@ -1935,10 +2103,9 @@ class EventFilter {
       if (entityValues != null) 'entityValues': entityValues,
       if (eventArns != null) 'eventArns': eventArns,
       if (eventStatusCodes != null)
-        'eventStatusCodes': eventStatusCodes.map((e) => e.toValue()).toList(),
+        'eventStatusCodes': eventStatusCodes.map((e) => e.value).toList(),
       if (eventTypeCategories != null)
-        'eventTypeCategories':
-            eventTypeCategories.map((e) => e.toValue()).toList(),
+        'eventTypeCategories': eventTypeCategories.map((e) => e.value).toList(),
       if (eventTypeCodes != null) 'eventTypeCodes': eventTypeCodes,
       if (lastUpdatedTimes != null) 'lastUpdatedTimes': lastUpdatedTimes,
       if (regions != null) 'regions': regions,
@@ -1989,7 +2156,8 @@ class EventType {
 
   factory EventType.fromJson(Map<String, dynamic> json) {
     return EventType(
-      category: (json['category'] as String?)?.toEventTypeCategory(),
+      category:
+          (json['category'] as String?)?.let(EventTypeCategory.fromString),
       code: json['code'] as String?,
       service: json['service'] as String?,
     );
@@ -2000,7 +2168,7 @@ class EventType {
     final code = this.code;
     final service = this.service;
     return {
-      if (category != null) 'category': category.toValue(),
+      if (category != null) 'category': category.value,
       if (code != null) 'code': code,
       if (service != null) 'service': service,
     };
@@ -2036,8 +2204,7 @@ class EventTypeFilter {
     final services = this.services;
     return {
       if (eventTypeCategories != null)
-        'eventTypeCategories':
-            eventTypeCategories.map((e) => e.toValue()).toList(),
+        'eventTypeCategories': eventTypeCategories.map((e) => e.value).toList(),
       if (eventTypeCodes != null) 'eventTypeCodes': eventTypeCodes,
       if (services != null) 'services': services,
     };
@@ -2101,6 +2268,64 @@ class OrganizationAffectedEntitiesErrorItem {
       if (errorMessage != null) 'errorMessage': errorMessage,
       if (errorName != null) 'errorName': errorName,
       if (eventArn != null) 'eventArn': eventArn,
+    };
+  }
+}
+
+/// The aggregate results of entities affected by the specified event in your
+/// organization. The results are aggregated by the entity status codes for the
+/// specified set of accountsIDs.
+class OrganizationEntityAggregate {
+  /// A list of entity aggregates for each of the specified accounts in your
+  /// organization that are affected by a specific event. If there are no
+  /// <code>awsAccountIds</code> provided in the request, this field will be empty
+  /// in the response.
+  final List<AccountEntityAggregate>? accounts;
+
+  /// The number of entities for the organization that match the filter criteria
+  /// for the specified events.
+  final int? count;
+
+  /// A list of event ARNs (unique identifiers). For example:
+  /// <code>"arn:aws:health:us-east-1::event/EC2/EC2_INSTANCE_RETIREMENT_SCHEDULED/EC2_INSTANCE_RETIREMENT_SCHEDULED_ABC123-CDE456",
+  /// "arn:aws:health:us-west-1::event/EBS/AWS_EBS_LOST_VOLUME/AWS_EBS_LOST_VOLUME_CHI789_JKL101"</code>
+  final String? eventArn;
+
+  /// The number of affected entities aggregated by the entitiy status codes.
+  final Map<EntityStatusCode, int>? statuses;
+
+  OrganizationEntityAggregate({
+    this.accounts,
+    this.count,
+    this.eventArn,
+    this.statuses,
+  });
+
+  factory OrganizationEntityAggregate.fromJson(Map<String, dynamic> json) {
+    return OrganizationEntityAggregate(
+      accounts: (json['accounts'] as List?)
+          ?.nonNulls
+          .map(
+              (e) => AccountEntityAggregate.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      count: json['count'] as int?,
+      eventArn: json['eventArn'] as String?,
+      statuses: (json['statuses'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(EntityStatusCode.fromString(k), e as int)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accounts = this.accounts;
+    final count = this.count;
+    final eventArn = this.eventArn;
+    final statuses = this.statuses;
+    return {
+      if (accounts != null) 'accounts': accounts,
+      if (count != null) 'count': count,
+      if (eventArn != null) 'eventArn': eventArn,
+      if (statuses != null)
+        'statuses': statuses.map((k, e) => MapEntry(k.value, e)),
     };
   }
 }
@@ -2189,15 +2414,17 @@ class OrganizationEvent {
     return OrganizationEvent(
       arn: json['arn'] as String?,
       endTime: timeStampFromJson(json['endTime']),
-      eventScopeCode: (json['eventScopeCode'] as String?)?.toEventScopeCode(),
-      eventTypeCategory:
-          (json['eventTypeCategory'] as String?)?.toEventTypeCategory(),
+      eventScopeCode:
+          (json['eventScopeCode'] as String?)?.let(EventScopeCode.fromString),
+      eventTypeCategory: (json['eventTypeCategory'] as String?)
+          ?.let(EventTypeCategory.fromString),
       eventTypeCode: json['eventTypeCode'] as String?,
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       region: json['region'] as String?,
       service: json['service'] as String?,
       startTime: timeStampFromJson(json['startTime']),
-      statusCode: (json['statusCode'] as String?)?.toEventStatusCode(),
+      statusCode:
+          (json['statusCode'] as String?)?.let(EventStatusCode.fromString),
     );
   }
 
@@ -2215,16 +2442,16 @@ class OrganizationEvent {
     return {
       if (arn != null) 'arn': arn,
       if (endTime != null) 'endTime': unixTimestampToJson(endTime),
-      if (eventScopeCode != null) 'eventScopeCode': eventScopeCode.toValue(),
+      if (eventScopeCode != null) 'eventScopeCode': eventScopeCode.value,
       if (eventTypeCategory != null)
-        'eventTypeCategory': eventTypeCategory.toValue(),
+        'eventTypeCategory': eventTypeCategory.value,
       if (eventTypeCode != null) 'eventTypeCode': eventTypeCode,
       if (lastUpdatedTime != null)
         'lastUpdatedTime': unixTimestampToJson(lastUpdatedTime),
       if (region != null) 'region': region,
       if (service != null) 'service': service,
       if (startTime != null) 'startTime': unixTimestampToJson(startTime),
-      if (statusCode != null) 'statusCode': statusCode.toValue(),
+      if (statusCode != null) 'statusCode': statusCode.value,
     };
   }
 }
@@ -2429,10 +2656,9 @@ class OrganizationEventFilter {
       if (entityArns != null) 'entityArns': entityArns,
       if (entityValues != null) 'entityValues': entityValues,
       if (eventStatusCodes != null)
-        'eventStatusCodes': eventStatusCodes.map((e) => e.toValue()).toList(),
+        'eventStatusCodes': eventStatusCodes.map((e) => e.value).toList(),
       if (eventTypeCategories != null)
-        'eventTypeCategories':
-            eventTypeCategories.map((e) => e.toValue()).toList(),
+        'eventTypeCategories': eventTypeCategories.map((e) => e.value).toList(),
       if (eventTypeCodes != null) 'eventTypeCodes': eventTypeCodes,
       if (lastUpdatedTime != null) 'lastUpdatedTime': lastUpdatedTime,
       if (regions != null) 'regions': regions,
@@ -2443,163 +2669,84 @@ class OrganizationEventFilter {
 }
 
 enum EntityStatusCode {
-  impaired,
-  unimpaired,
-  unknown,
-}
+  impaired('IMPAIRED'),
+  unimpaired('UNIMPAIRED'),
+  unknown('UNKNOWN'),
+  pending('PENDING'),
+  resolved('RESOLVED'),
+  ;
 
-extension EntityStatusCodeValueExtension on EntityStatusCode {
-  String toValue() {
-    switch (this) {
-      case EntityStatusCode.impaired:
-        return 'IMPAIRED';
-      case EntityStatusCode.unimpaired:
-        return 'UNIMPAIRED';
-      case EntityStatusCode.unknown:
-        return 'UNKNOWN';
-    }
-  }
-}
+  final String value;
 
-extension EntityStatusCodeFromString on String {
-  EntityStatusCode toEntityStatusCode() {
-    switch (this) {
-      case 'IMPAIRED':
-        return EntityStatusCode.impaired;
-      case 'UNIMPAIRED':
-        return EntityStatusCode.unimpaired;
-      case 'UNKNOWN':
-        return EntityStatusCode.unknown;
-    }
-    throw Exception('$this is not known in enum EntityStatusCode');
-  }
+  const EntityStatusCode(this.value);
+
+  static EntityStatusCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EntityStatusCode'));
 }
 
 enum EventAggregateField {
-  eventTypeCategory,
-}
+  eventTypeCategory('eventTypeCategory'),
+  ;
 
-extension EventAggregateFieldValueExtension on EventAggregateField {
-  String toValue() {
-    switch (this) {
-      case EventAggregateField.eventTypeCategory:
-        return 'eventTypeCategory';
-    }
-  }
-}
+  final String value;
 
-extension EventAggregateFieldFromString on String {
-  EventAggregateField toEventAggregateField() {
-    switch (this) {
-      case 'eventTypeCategory':
-        return EventAggregateField.eventTypeCategory;
-    }
-    throw Exception('$this is not known in enum EventAggregateField');
-  }
+  const EventAggregateField(this.value);
+
+  static EventAggregateField fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EventAggregateField'));
 }
 
 enum EventScopeCode {
-  public,
-  accountSpecific,
-  none,
-}
+  public('PUBLIC'),
+  accountSpecific('ACCOUNT_SPECIFIC'),
+  none('NONE'),
+  ;
 
-extension EventScopeCodeValueExtension on EventScopeCode {
-  String toValue() {
-    switch (this) {
-      case EventScopeCode.public:
-        return 'PUBLIC';
-      case EventScopeCode.accountSpecific:
-        return 'ACCOUNT_SPECIFIC';
-      case EventScopeCode.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension EventScopeCodeFromString on String {
-  EventScopeCode toEventScopeCode() {
-    switch (this) {
-      case 'PUBLIC':
-        return EventScopeCode.public;
-      case 'ACCOUNT_SPECIFIC':
-        return EventScopeCode.accountSpecific;
-      case 'NONE':
-        return EventScopeCode.none;
-    }
-    throw Exception('$this is not known in enum EventScopeCode');
-  }
+  const EventScopeCode(this.value);
+
+  static EventScopeCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EventScopeCode'));
 }
 
 enum EventStatusCode {
-  open,
-  closed,
-  upcoming,
-}
+  open('open'),
+  closed('closed'),
+  upcoming('upcoming'),
+  ;
 
-extension EventStatusCodeValueExtension on EventStatusCode {
-  String toValue() {
-    switch (this) {
-      case EventStatusCode.open:
-        return 'open';
-      case EventStatusCode.closed:
-        return 'closed';
-      case EventStatusCode.upcoming:
-        return 'upcoming';
-    }
-  }
-}
+  final String value;
 
-extension EventStatusCodeFromString on String {
-  EventStatusCode toEventStatusCode() {
-    switch (this) {
-      case 'open':
-        return EventStatusCode.open;
-      case 'closed':
-        return EventStatusCode.closed;
-      case 'upcoming':
-        return EventStatusCode.upcoming;
-    }
-    throw Exception('$this is not known in enum EventStatusCode');
-  }
+  const EventStatusCode(this.value);
+
+  static EventStatusCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EventStatusCode'));
 }
 
 enum EventTypeCategory {
-  issue,
-  accountNotification,
-  scheduledChange,
-  investigation,
-}
+  issue('issue'),
+  accountNotification('accountNotification'),
+  scheduledChange('scheduledChange'),
+  investigation('investigation'),
+  ;
 
-extension EventTypeCategoryValueExtension on EventTypeCategory {
-  String toValue() {
-    switch (this) {
-      case EventTypeCategory.issue:
-        return 'issue';
-      case EventTypeCategory.accountNotification:
-        return 'accountNotification';
-      case EventTypeCategory.scheduledChange:
-        return 'scheduledChange';
-      case EventTypeCategory.investigation:
-        return 'investigation';
-    }
-  }
-}
+  final String value;
 
-extension EventTypeCategoryFromString on String {
-  EventTypeCategory toEventTypeCategory() {
-    switch (this) {
-      case 'issue':
-        return EventTypeCategory.issue;
-      case 'accountNotification':
-        return EventTypeCategory.accountNotification;
-      case 'scheduledChange':
-        return EventTypeCategory.scheduledChange;
-      case 'investigation':
-        return EventTypeCategory.investigation;
-    }
-    throw Exception('$this is not known in enum EventTypeCategory');
-  }
+  const EventTypeCategory(this.value);
+
+  static EventTypeCategory fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EventTypeCategory'));
 }
 
 class ConcurrentModificationException extends _s.GenericAwsException {

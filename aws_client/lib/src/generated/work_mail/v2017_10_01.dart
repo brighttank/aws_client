@@ -93,15 +93,47 @@ class WorkMail {
   /// May throw [InvalidParameterException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
   ///
   /// Parameter [entityId] :
   /// The member (user or group) to associate to the resource.
+  ///
+  /// The entity ID can accept <i>UserId or GroupID</i>, <i>Username or
+  /// Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity: entity
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The organization under which the resource exists.
   ///
   /// Parameter [resourceId] :
   /// The resource for which members (users or groups) are associated.
+  ///
+  /// The identifier can accept <i>ResourceId</i>, <i>Resourcename</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Resource ID: r-0123456789a0123456789b0123456789
+  /// </li>
+  /// <li>
+  /// Email address: resource@domain.tld
+  /// </li>
+  /// <li>
+  /// Resource name: resource
+  /// </li>
+  /// </ul>
   Future<void> associateDelegateToResource({
     required String entityId,
     required String organizationId,
@@ -139,8 +171,40 @@ class WorkMail {
   /// Parameter [groupId] :
   /// The group to which the member (user or group) is associated.
   ///
+  /// The identifier can accept <i>GroupId</i>, <i>Groupname</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Group ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: group@domain.tld
+  /// </li>
+  /// <li>
+  /// Group name: group
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [memberId] :
   /// The member (user or group) to associate to the group.
+  ///
+  /// The member ID can accept <i>UserID or GroupId</i>, <i>Username or
+  /// Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Member: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: member@domain.tld
+  /// </li>
+  /// <li>
+  /// Member name: member
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The organization under which the group exists.
@@ -363,9 +427,14 @@ class WorkMail {
   ///
   /// Parameter [organizationId] :
   /// The organization under which the group is to be created.
+  ///
+  /// Parameter [hiddenFromGlobalAddressList] :
+  /// If this parameter is enabled, the group will be hidden from the address
+  /// book.
   Future<CreateGroupResponse> createGroup({
     required String name,
     required String organizationId,
+    bool? hiddenFromGlobalAddressList,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -380,6 +449,8 @@ class WorkMail {
       payload: {
         'Name': name,
         'OrganizationId': organizationId,
+        if (hiddenFromGlobalAddressList != null)
+          'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
       },
     );
 
@@ -440,7 +511,7 @@ class WorkMail {
         'Name': name,
         'OrganizationId': organizationId,
         'Rules': rules,
-        'Type': type.toValue(),
+        'Type': type.value,
         'ClientToken': clientToken ?? _s.generateIdempotencyToken(),
         if (description != null) 'Description': description,
       },
@@ -526,7 +597,7 @@ class WorkMail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Effect': effect.toValue(),
+        'Effect': effect.value,
         'Name': name,
         'OrganizationId': organizationId,
         'ClientToken': clientToken ?? _s.generateIdempotencyToken(),
@@ -637,6 +708,7 @@ class WorkMail {
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
   /// May throw [ReservedNameException].
+  /// May throw [UnsupportedOperationException].
   ///
   /// Parameter [name] :
   /// The name of the new resource.
@@ -648,10 +720,19 @@ class WorkMail {
   /// Parameter [type] :
   /// The type of the new resource. The available types are
   /// <code>equipment</code> and <code>room</code>.
+  ///
+  /// Parameter [description] :
+  /// Resource description.
+  ///
+  /// Parameter [hiddenFromGlobalAddressList] :
+  /// If this parameter is enabled, the resource will be hidden from the address
+  /// book.
   Future<CreateResourceResponse> createResource({
     required String name,
     required String organizationId,
     required ResourceType type,
+    String? description,
+    bool? hiddenFromGlobalAddressList,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -666,7 +747,10 @@ class WorkMail {
       payload: {
         'Name': name,
         'OrganizationId': organizationId,
-        'Type': type.toValue(),
+        'Type': type.value,
+        if (description != null) 'Description': description,
+        if (hiddenFromGlobalAddressList != null)
+          'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
       },
     );
 
@@ -696,13 +780,34 @@ class WorkMail {
   /// Parameter [organizationId] :
   /// The identifier of the organization for which the user is created.
   ///
+  /// Parameter [firstName] :
+  /// The first name of the new user.
+  ///
+  /// Parameter [hiddenFromGlobalAddressList] :
+  /// If this parameter is enabled, the user will be hidden from the address
+  /// book.
+  ///
+  /// Parameter [lastName] :
+  /// The last name of the new user.
+  ///
   /// Parameter [password] :
   /// The password for the new user.
+  ///
+  /// Parameter [role] :
+  /// The role of the new user.
+  ///
+  /// You cannot pass <i>SYSTEM_USER</i> or <i>RESOURCE</i> role in a single
+  /// request. When a user role is not selected, the default role of <i>USER</i>
+  /// is selected.
   Future<CreateUserResponse> createUser({
     required String displayName,
     required String name,
     required String organizationId,
-    required String password,
+    String? firstName,
+    bool? hiddenFromGlobalAddressList,
+    String? lastName,
+    String? password,
+    UserRole? role,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -718,7 +823,12 @@ class WorkMail {
         'DisplayName': displayName,
         'Name': name,
         'OrganizationId': organizationId,
-        'Password': password,
+        if (firstName != null) 'FirstName': firstName,
+        if (hiddenFromGlobalAddressList != null)
+          'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
+        if (lastName != null) 'LastName': lastName,
+        if (password != null) 'Password': password,
+        if (role != null) 'Role': role.value,
       },
     );
 
@@ -879,6 +989,19 @@ class WorkMail {
   /// Parameter [groupId] :
   /// The identifier of the group to be deleted.
   ///
+  /// The identifier can be the <i>GroupId</i>, or <i>Groupname</i>. The
+  /// following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Group ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Group name: group
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [organizationId] :
   /// The organization that contains the group.
   Future<void> deleteGroup({
@@ -943,11 +1066,44 @@ class WorkMail {
   /// May throw [OrganizationStateException].
   ///
   /// Parameter [entityId] :
-  /// The identifier of the member (user or group) that owns the mailbox.
+  /// The identifier of the entity that owns the mailbox.
+  ///
+  /// The identifier can be <i>UserId or Group Id</i>, <i>Username or
+  /// Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012,
+  /// r-0123456789a0123456789b0123456789, or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [granteeId] :
-  /// The identifier of the member (user or group) for which to delete granted
-  /// permissions.
+  /// The identifier of the entity for which to delete granted permissions.
+  ///
+  /// The identifier can be <i>UserId, ResourceID, or Group Id</i>, <i>Username
+  /// or Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Grantee ID:
+  /// 12345678-1234-1234-1234-123456789012,r-0123456789a0123456789b0123456789,
+  /// or S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: grantee@domain.tld
+  /// </li>
+  /// <li>
+  /// Grantee name: grantee
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The identifier of the organization under which the member (user or group)
@@ -1091,10 +1247,15 @@ class WorkMail {
   ///
   /// Parameter [clientToken] :
   /// The idempotency token associated with the request.
+  ///
+  /// Parameter [forceDelete] :
+  /// Deletes a WorkMail organization even if the organization has enabled
+  /// users.
   Future<DeleteOrganizationResponse> deleteOrganization({
     required bool deleteDirectory,
     required String organizationId,
     String? clientToken,
+    bool? forceDelete,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -1110,6 +1271,7 @@ class WorkMail {
         'DeleteDirectory': deleteDirectory,
         'OrganizationId': organizationId,
         'ClientToken': clientToken ?? _s.generateIdempotencyToken(),
+        if (forceDelete != null) 'ForceDelete': forceDelete,
       },
     );
 
@@ -1122,6 +1284,7 @@ class WorkMail {
   /// May throw [InvalidParameterException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
   ///
   /// Parameter [organizationId] :
   /// The identifier associated with the organization from which the resource is
@@ -1129,6 +1292,18 @@ class WorkMail {
   ///
   /// Parameter [resourceId] :
   /// The identifier of the resource to be deleted.
+  ///
+  /// The identifier can accept <i>ResourceId</i>, or <i>Resourcename</i>. The
+  /// following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Resource ID: r-0123456789a0123456789b0123456789
+  /// </li>
+  /// <li>
+  /// Resource name: resource
+  /// </li>
+  /// </ul>
   Future<void> deleteResource({
     required String organizationId,
     required String resourceId,
@@ -1202,6 +1377,19 @@ class WorkMail {
   ///
   /// Parameter [userId] :
   /// The identifier of the user to be deleted.
+  ///
+  /// The identifier can be the <i>UserId</i> or <i>Username</i>. The following
+  /// identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// User ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// User name: user
+  /// </li>
+  /// </ul>
   Future<void> deleteUser({
     required String organizationId,
     required String userId,
@@ -1235,7 +1423,24 @@ class WorkMail {
   /// May throw [OrganizationStateException].
   ///
   /// Parameter [entityId] :
-  /// The identifier for the member (user or group) to be updated.
+  /// The identifier for the member to be updated.
+  ///
+  /// The identifier can be <i>UserId, ResourceId, or Group Id</i>, <i>Username,
+  /// Resourcename, or Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012,
+  /// r-0123456789a0123456789b0123456789, or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the WorkMail entity
@@ -1332,6 +1537,41 @@ class WorkMail {
         jsonResponse.body);
   }
 
+  /// Returns basic details about an entity in WorkMail.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [InvalidParameterException].
+  /// May throw [OrganizationNotFoundException].
+  /// May throw [OrganizationStateException].
+  ///
+  /// Parameter [email] :
+  /// The email under which the entity exists.
+  ///
+  /// Parameter [organizationId] :
+  /// The identifier for the organization under which the entity exists.
+  Future<DescribeEntityResponse> describeEntity({
+    required String email,
+    required String organizationId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'WorkMailService.DescribeEntity'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Email': email,
+        'OrganizationId': organizationId,
+      },
+    );
+
+    return DescribeEntityResponse.fromJson(jsonResponse.body);
+  }
+
   /// Returns the data available for the group.
   ///
   /// May throw [EntityNotFoundException].
@@ -1341,6 +1581,22 @@ class WorkMail {
   ///
   /// Parameter [groupId] :
   /// The identifier for the group to be described.
+  ///
+  /// The identifier can accept <i>GroupId</i>, <i>Groupname</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Group ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: group@domain.tld
+  /// </li>
+  /// <li>
+  /// Group name: group
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the group exists.
@@ -1465,6 +1721,7 @@ class WorkMail {
   /// May throw [InvalidParameterException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
   ///
   /// Parameter [organizationId] :
   /// The identifier associated with the organization for which the resource is
@@ -1472,6 +1729,21 @@ class WorkMail {
   ///
   /// Parameter [resourceId] :
   /// The identifier of the resource to be described.
+  ///
+  /// The identifier can accept <i>ResourceId</i>, <i>Resourcename</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Resource ID: r-0123456789a0123456789b0123456789
+  /// </li>
+  /// <li>
+  /// Email address: resource@domain.tld
+  /// </li>
+  /// <li>
+  /// Resource name: resource
+  /// </li>
+  /// </ul>
   Future<DescribeResourceResponse> describeResource({
     required String organizationId,
     required String resourceId,
@@ -1507,6 +1779,22 @@ class WorkMail {
   ///
   /// Parameter [userId] :
   /// The identifier for the user to be described.
+  ///
+  /// The identifier can be the <i>UserId</i>, <i>Username</i>, or <i>email</i>.
+  /// The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// User ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: user@domain.tld
+  /// </li>
+  /// <li>
+  /// User name: user
+  /// </li>
+  /// </ul> <p/>
   Future<DescribeUserResponse> describeUser({
     required String organizationId,
     required String userId,
@@ -1537,10 +1825,27 @@ class WorkMail {
   /// May throw [InvalidParameterException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
   ///
   /// Parameter [entityId] :
   /// The identifier for the member (user, group) to be removed from the
   /// resource's delegates.
+  ///
+  /// The entity ID can accept <i>UserId or GroupID</i>, <i>Username or
+  /// Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity: entity
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the resource exists.
@@ -1548,6 +1853,21 @@ class WorkMail {
   /// Parameter [resourceId] :
   /// The identifier of the resource from which delegates' set members are
   /// removed.
+  ///
+  /// The identifier can accept <i>ResourceId</i>, <i>Resourcename</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Resource ID: r-0123456789a0123456789b0123456789
+  /// </li>
+  /// <li>
+  /// Email address: resource@domain.tld
+  /// </li>
+  /// <li>
+  /// Resource name: resource
+  /// </li>
+  /// </ul>
   Future<void> disassociateDelegateFromResource({
     required String entityId,
     required String organizationId,
@@ -1585,8 +1905,40 @@ class WorkMail {
   /// Parameter [groupId] :
   /// The identifier for the group from which members are removed.
   ///
+  /// The identifier can accept <i>GroupId</i>, <i>Groupname</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Group ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: group@domain.tld
+  /// </li>
+  /// <li>
+  /// Group name: group
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [memberId] :
-  /// The identifier for the member to be removed to the group.
+  /// The identifier for the member to be removed from the group.
+  ///
+  /// The member ID can accept <i>UserID or GroupId</i>, <i>Username or
+  /// Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Member ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: member@domain.tld
+  /// </li>
+  /// <li>
+  /// Member name: member
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the group exists.
@@ -1830,6 +2182,7 @@ class WorkMail {
 
   /// Requests a user's mailbox details for a specified organization and user.
   ///
+  /// May throw [InvalidParameterException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
   /// May throw [EntityNotFoundException].
@@ -1840,6 +2193,22 @@ class WorkMail {
   ///
   /// Parameter [userId] :
   /// The identifier for the user whose mailbox details are being requested.
+  ///
+  /// The identifier can be the <i>UserId</i>, <i>Username</i>, or <i>email</i>.
+  /// The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// User ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: user@domain.tld
+  /// </li>
+  /// <li>
+  /// User name: user
+  /// </li>
+  /// </ul>
   Future<GetMailboxDetailsResponse> getMailboxDetails({
     required String organizationId,
     required String userId,
@@ -2116,6 +2485,22 @@ class WorkMail {
   /// The identifier for the group to which the members (users or groups) are
   /// associated.
   ///
+  /// The identifier can accept <i>GroupId</i>, <i>Groupname</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Group ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: group@domain.tld
+  /// </li>
+  /// <li>
+  /// Group name: group
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the group exists.
   ///
@@ -2168,6 +2553,10 @@ class WorkMail {
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the groups exist.
   ///
+  /// Parameter [filters] :
+  /// Limit the search results based on the filter criteria. Only one filter per
+  /// request is supported.
+  ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return in a single call.
   ///
@@ -2176,6 +2565,7 @@ class WorkMail {
   /// not contain any tokens.
   Future<ListGroupsResponse> listGroups({
     required String organizationId,
+    ListGroupsFilters? filters,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -2197,12 +2587,87 @@ class WorkMail {
       headers: headers,
       payload: {
         'OrganizationId': organizationId,
+        if (filters != null) 'Filters': filters,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
     );
 
     return ListGroupsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Returns all the groups to which an entity belongs.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [EntityStateException].
+  /// May throw [OrganizationNotFoundException].
+  /// May throw [OrganizationStateException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [entityId] :
+  /// The identifier for the entity.
+  ///
+  /// The entity ID can accept <i>UserId or GroupID</i>, <i>Username or
+  /// Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [organizationId] :
+  /// The identifier for the organization under which the entity exists.
+  ///
+  /// Parameter [filters] :
+  /// Limit the search results based on the filter criteria.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return in a single call.
+  ///
+  /// Parameter [nextToken] :
+  /// The token to use to retrieve the next page of results. The first call does
+  /// not contain any tokens.
+  Future<ListGroupsForEntityResponse> listGroupsForEntity({
+    required String entityId,
+    required String organizationId,
+    ListGroupsForEntityFilters? filters,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'WorkMailService.ListGroupsForEntity'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'EntityId': entityId,
+        'OrganizationId': organizationId,
+        if (filters != null) 'Filters': filters,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListGroupsForEntityResponse.fromJson(jsonResponse.body);
   }
 
   /// Lists all the impersonation roles for the given WorkMail organization.
@@ -2352,8 +2817,24 @@ class WorkMail {
   /// May throw [OrganizationStateException].
   ///
   /// Parameter [entityId] :
-  /// The identifier of the user, group, or resource for which to list mailbox
+  /// The identifier of the user, or resource for which to list mailbox
   /// permissions.
+  ///
+  /// The entity ID can accept <i>UserId or ResourceId</i>, <i>Username or
+  /// Resourcename</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012, or
+  /// r-0123456789a0123456789b0123456789
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The identifier of the organization under which the user, group, or
@@ -2549,6 +3030,7 @@ class WorkMail {
   /// May throw [InvalidParameterException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
   ///
   /// Parameter [organizationId] :
   /// The identifier for the organization that contains the resource for which
@@ -2556,6 +3038,21 @@ class WorkMail {
   ///
   /// Parameter [resourceId] :
   /// The identifier for the resource whose delegates are listed.
+  ///
+  /// The identifier can accept <i>ResourceId</i>, <i>Resourcename</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Resource ID: r-0123456789a0123456789b0123456789
+  /// </li>
+  /// <li>
+  /// Email address: resource@domain.tld
+  /// </li>
+  /// <li>
+  /// Resource name: resource
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [maxResults] :
   /// The number of maximum results in a page.
@@ -2601,9 +3098,14 @@ class WorkMail {
   /// May throw [InvalidParameterException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
   ///
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the resources exist.
+  ///
+  /// Parameter [filters] :
+  /// Limit the resource search results based on the filter criteria. You can
+  /// only use one filter per request.
   ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return in a single call.
@@ -2613,6 +3115,7 @@ class WorkMail {
   /// not contain any tokens.
   Future<ListResourcesResponse> listResources({
     required String organizationId,
+    ListResourcesFilters? filters,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -2634,6 +3137,7 @@ class WorkMail {
       headers: headers,
       payload: {
         'OrganizationId': organizationId,
+        if (filters != null) 'Filters': filters,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2678,6 +3182,10 @@ class WorkMail {
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the users exist.
   ///
+  /// Parameter [filters] :
+  /// Limit the user search results based on the filter criteria. You can only
+  /// use one filter per request.
+  ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return in a single call.
   ///
@@ -2686,6 +3194,7 @@ class WorkMail {
   /// not contain any tokens.
   Future<ListUsersResponse> listUsers({
     required String organizationId,
+    ListUsersFilters? filters,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -2707,6 +3216,7 @@ class WorkMail {
       headers: headers,
       payload: {
         'OrganizationId': organizationId,
+        if (filters != null) 'Filters': filters,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2794,7 +3304,7 @@ class WorkMail {
       headers: headers,
       payload: {
         'Description': description,
-        'Effect': effect.toValue(),
+        'Effect': effect.value,
         'Name': name,
         'OrganizationId': organizationId,
         if (actions != null) 'Actions': actions,
@@ -2894,12 +3404,46 @@ class WorkMail {
   /// May throw [OrganizationStateException].
   ///
   /// Parameter [entityId] :
-  /// The identifier of the user, group, or resource for which to update mailbox
+  /// The identifier of the user or resource for which to update mailbox
   /// permissions.
+  ///
+  /// The identifier can be <i>UserId, ResourceID, or Group Id</i>, <i>Username,
+  /// Resourcename, or Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012,
+  /// r-0123456789a0123456789b0123456789, or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [granteeId] :
   /// The identifier of the user, group, or resource to which to grant the
   /// permissions.
+  ///
+  /// The identifier can be <i>UserId, ResourceID, or Group Id</i>, <i>Username,
+  /// Resourcename, or Groupname</i>, or <i>email</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Grantee ID: 12345678-1234-1234-1234-123456789012,
+  /// r-0123456789a0123456789b0123456789, or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: grantee@domain.tld
+  /// </li>
+  /// <li>
+  /// Grantee name: grantee
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [organizationId] :
   /// The identifier of the organization under which the user, group, or
@@ -2933,7 +3477,7 @@ class WorkMail {
         'EntityId': entityId,
         'GranteeId': granteeId,
         'OrganizationId': organizationId,
-        'PermissionValues': permissionValues.map((e) => e.toValue()).toList(),
+        'PermissionValues': permissionValues.map((e) => e.value).toList(),
       },
     );
   }
@@ -2995,7 +3539,7 @@ class WorkMail {
       headers: headers,
       payload: {
         'DeviceId': deviceId,
-        'Effect': effect.toValue(),
+        'Effect': effect.value,
         'OrganizationId': organizationId,
         'UserId': userId,
         if (description != null) 'Description': description,
@@ -3123,6 +3667,21 @@ class WorkMail {
   /// Parameter [entityId] :
   /// The identifier for the user, group, or resource to be updated.
   ///
+  /// The identifier can accept <i>UserId, ResourceId, or GroupId</i>, or
+  /// <i>Username, Resourcename, or Groupname</i>. The following identity
+  /// formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012,
+  /// r-0123456789a0123456789b0123456789, or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [organizationId] :
   /// The identifier for the organization under which the user, group, or
   /// resource exists.
@@ -3208,6 +3767,24 @@ class WorkMail {
   /// Parameter [entityId] :
   /// The identifier of the user or resource associated with the mailbox.
   ///
+  /// The identifier can accept <i>UserId or ResourceId</i>, <i>Username or
+  /// Resourcename</i>, or <i>email</i>. The following identity formats are
+  /// available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012,
+  /// r-0123456789a0123456789b0123456789 , or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [kmsKeyArn] :
   /// The Amazon Resource Name (ARN) of the symmetric AWS Key Management Service
   /// (AWS KMS) key that encrypts the exported mailbox content.
@@ -3267,6 +3844,7 @@ class WorkMail {
 
   /// Applies the specified tags to the specified WorkMailorganization resource.
   ///
+  /// May throw [InvalidParameterException].
   /// May throw [ResourceNotFoundException].
   /// May throw [TooManyTagsException].
   /// May throw [OrganizationStateException].
@@ -3468,6 +4046,63 @@ class WorkMail {
     );
   }
 
+  /// Updates attibutes in a group.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [EntityStateException].
+  /// May throw [OrganizationNotFoundException].
+  /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [groupId] :
+  /// The identifier for the group to be updated.
+  ///
+  /// The identifier can accept <i>GroupId</i>, <i>Groupname</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Group ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: group@domain.tld
+  /// </li>
+  /// <li>
+  /// Group name: group
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [organizationId] :
+  /// The identifier for the organization under which the group exists.
+  ///
+  /// Parameter [hiddenFromGlobalAddressList] :
+  /// If enabled, the group is hidden from the global address list.
+  Future<void> updateGroup({
+    required String groupId,
+    required String organizationId,
+    bool? hiddenFromGlobalAddressList,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'WorkMailService.UpdateGroup'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'GroupId': groupId,
+        'OrganizationId': organizationId,
+        if (hiddenFromGlobalAddressList != null)
+          'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
+      },
+    );
+  }
+
   /// Updates an impersonation role for the given WorkMail organization.
   ///
   /// May throw [InvalidParameterException].
@@ -3518,7 +4153,7 @@ class WorkMail {
         'Name': name,
         'OrganizationId': organizationId,
         'Rules': rules,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (description != null) 'Description': description,
       },
     );
@@ -3542,6 +4177,22 @@ class WorkMail {
   ///
   /// Parameter [userId] :
   /// The identifer for the user for whom to update the mailbox quota.
+  ///
+  /// The identifier can be the <i>UserId</i>, <i>Username</i>, or <i>email</i>.
+  /// The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// User ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: user@domain.tld
+  /// </li>
+  /// <li>
+  /// User name: user
+  /// </li>
+  /// </ul>
   Future<void> updateMailboxQuota({
     required int mailboxQuota,
     required String organizationId,
@@ -3649,7 +4300,7 @@ class WorkMail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Effect': effect.toValue(),
+        'Effect': effect.value,
         'MobileDeviceAccessRuleId': mobileDeviceAccessRuleId,
         'Name': name,
         'OrganizationId': organizationId,
@@ -3693,6 +4344,24 @@ class WorkMail {
   /// Parameter [entityId] :
   /// The user, group, or resource to update.
   ///
+  /// The identifier can accept <i>UseriD, ResourceId, or GroupId</i>,
+  /// <i>Username, Resourcename, or Groupname</i>, or <i>email</i>. The
+  /// following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Entity ID: 12345678-1234-1234-1234-123456789012,
+  /// r-0123456789a0123456789b0123456789, or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: entity@domain.tld
+  /// </li>
+  /// <li>
+  /// Entity name: entity
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [organizationId] :
   /// The organization that contains the user, group, or resource to update.
   Future<void> updatePrimaryEmailAddress({
@@ -3733,6 +4402,8 @@ class WorkMail {
   /// May throw [NameAvailabilityException].
   /// May throw [OrganizationNotFoundException].
   /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
+  /// May throw [InvalidParameterException].
   ///
   /// Parameter [organizationId] :
   /// The identifier associated with the organization for which the resource is
@@ -3741,16 +4412,43 @@ class WorkMail {
   /// Parameter [resourceId] :
   /// The identifier of the resource to be updated.
   ///
+  /// The identifier can accept <i>ResourceId</i>, <i>Resourcename</i>, or
+  /// <i>email</i>. The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// Resource ID: r-0123456789a0123456789b0123456789
+  /// </li>
+  /// <li>
+  /// Email address: resource@domain.tld
+  /// </li>
+  /// <li>
+  /// Resource name: resource
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [bookingOptions] :
   /// The resource's booking options to be updated.
   ///
+  /// Parameter [description] :
+  /// Updates the resource description.
+  ///
+  /// Parameter [hiddenFromGlobalAddressList] :
+  /// If enabled, the resource is hidden from the global address list.
+  ///
   /// Parameter [name] :
   /// The name of the resource to be updated.
+  ///
+  /// Parameter [type] :
+  /// Updates the resource type.
   Future<void> updateResource({
     required String organizationId,
     required String resourceId,
     BookingOptions? bookingOptions,
+    String? description,
+    bool? hiddenFromGlobalAddressList,
     String? name,
+    ResourceType? type,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -3766,7 +4464,145 @@ class WorkMail {
         'OrganizationId': organizationId,
         'ResourceId': resourceId,
         if (bookingOptions != null) 'BookingOptions': bookingOptions,
+        if (description != null) 'Description': description,
+        if (hiddenFromGlobalAddressList != null)
+          'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
         if (name != null) 'Name': name,
+        if (type != null) 'Type': type.value,
+      },
+    );
+  }
+
+  /// Updates data for the user. To have the latest information, it must be
+  /// preceded by a <a>DescribeUser</a> call. The dataset in the request should
+  /// be the one expected when performing another <code>DescribeUser</code>
+  /// call.
+  ///
+  /// May throw [DirectoryServiceAuthenticationFailedException].
+  /// May throw [DirectoryUnavailableException].
+  /// May throw [EntityNotFoundException].
+  /// May throw [InvalidParameterException].
+  /// May throw [OrganizationNotFoundException].
+  /// May throw [OrganizationStateException].
+  /// May throw [UnsupportedOperationException].
+  /// May throw [EntityStateException].
+  ///
+  /// Parameter [organizationId] :
+  /// The identifier for the organization under which the user exists.
+  ///
+  /// Parameter [userId] :
+  /// The identifier for the user to be updated.
+  ///
+  /// The identifier can be the <i>UserId</i>, <i>Username</i>, or <i>email</i>.
+  /// The following identity formats are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// User ID: 12345678-1234-1234-1234-123456789012 or
+  /// S-1-1-12-1234567890-123456789-123456789-1234
+  /// </li>
+  /// <li>
+  /// Email address: user@domain.tld
+  /// </li>
+  /// <li>
+  /// User name: user
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [city] :
+  /// Updates the user's city.
+  ///
+  /// Parameter [company] :
+  /// Updates the user's company.
+  ///
+  /// Parameter [country] :
+  /// Updates the user's country.
+  ///
+  /// Parameter [department] :
+  /// Updates the user's department.
+  ///
+  /// Parameter [displayName] :
+  /// Updates the display name of the user.
+  ///
+  /// Parameter [firstName] :
+  /// Updates the user's first name.
+  ///
+  /// Parameter [hiddenFromGlobalAddressList] :
+  /// If enabled, the user is hidden from the global address list.
+  ///
+  /// Parameter [initials] :
+  /// Updates the user's initials.
+  ///
+  /// Parameter [jobTitle] :
+  /// Updates the user's job title.
+  ///
+  /// Parameter [lastName] :
+  /// Updates the user's last name.
+  ///
+  /// Parameter [office] :
+  /// Updates the user's office.
+  ///
+  /// Parameter [role] :
+  /// Updates the user role.
+  ///
+  /// You cannot pass <i>SYSTEM_USER</i> or <i>RESOURCE</i>.
+  ///
+  /// Parameter [street] :
+  /// Updates the user's street address.
+  ///
+  /// Parameter [telephone] :
+  /// Updates the user's contact details.
+  ///
+  /// Parameter [zipCode] :
+  /// Updates the user's zipcode.
+  Future<void> updateUser({
+    required String organizationId,
+    required String userId,
+    String? city,
+    String? company,
+    String? country,
+    String? department,
+    String? displayName,
+    String? firstName,
+    bool? hiddenFromGlobalAddressList,
+    String? initials,
+    String? jobTitle,
+    String? lastName,
+    String? office,
+    UserRole? role,
+    String? street,
+    String? telephone,
+    String? zipCode,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'WorkMailService.UpdateUser'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'OrganizationId': organizationId,
+        'UserId': userId,
+        if (city != null) 'City': city,
+        if (company != null) 'Company': company,
+        if (country != null) 'Country': country,
+        if (department != null) 'Department': department,
+        if (displayName != null) 'DisplayName': displayName,
+        if (firstName != null) 'FirstName': firstName,
+        if (hiddenFromGlobalAddressList != null)
+          'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
+        if (initials != null) 'Initials': initials,
+        if (jobTitle != null) 'JobTitle': jobTitle,
+        if (lastName != null) 'LastName': lastName,
+        if (office != null) 'Office': office,
+        if (role != null) 'Role': role.value,
+        if (street != null) 'Street': street,
+        if (telephone != null) 'Telephone': telephone,
+        if (zipCode != null) 'ZipCode': zipCode,
       },
     );
   }
@@ -3837,43 +4673,40 @@ class AccessControlRule {
 
   factory AccessControlRule.fromJson(Map<String, dynamic> json) {
     return AccessControlRule(
-      actions: (json['Actions'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      actions:
+          (json['Actions'] as List?)?.nonNulls.map((e) => e as String).toList(),
       dateCreated: timeStampFromJson(json['DateCreated']),
       dateModified: timeStampFromJson(json['DateModified']),
       description: json['Description'] as String?,
-      effect: (json['Effect'] as String?)?.toAccessControlRuleEffect(),
+      effect:
+          (json['Effect'] as String?)?.let(AccessControlRuleEffect.fromString),
       impersonationRoleIds: (json['ImpersonationRoleIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       ipRanges: (json['IpRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       name: json['Name'] as String?,
       notActions: (json['NotActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       notImpersonationRoleIds: (json['NotImpersonationRoleIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       notIpRanges: (json['NotIpRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       notUserIds: (json['NotUserIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      userIds: (json['UserIds'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      userIds:
+          (json['UserIds'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -3897,7 +4730,7 @@ class AccessControlRule {
       if (dateModified != null)
         'DateModified': unixTimestampToJson(dateModified),
       if (description != null) 'Description': description,
-      if (effect != null) 'Effect': effect.toValue(),
+      if (effect != null) 'Effect': effect.value,
       if (impersonationRoleIds != null)
         'ImpersonationRoleIds': impersonationRoleIds,
       if (ipRanges != null) 'IpRanges': ipRanges,
@@ -3913,59 +4746,33 @@ class AccessControlRule {
 }
 
 enum AccessControlRuleEffect {
-  allow,
-  deny,
-}
+  allow('ALLOW'),
+  deny('DENY'),
+  ;
 
-extension AccessControlRuleEffectValueExtension on AccessControlRuleEffect {
-  String toValue() {
-    switch (this) {
-      case AccessControlRuleEffect.allow:
-        return 'ALLOW';
-      case AccessControlRuleEffect.deny:
-        return 'DENY';
-    }
-  }
-}
+  final String value;
 
-extension AccessControlRuleEffectFromString on String {
-  AccessControlRuleEffect toAccessControlRuleEffect() {
-    switch (this) {
-      case 'ALLOW':
-        return AccessControlRuleEffect.allow;
-      case 'DENY':
-        return AccessControlRuleEffect.deny;
-    }
-    throw Exception('$this is not known in enum AccessControlRuleEffect');
-  }
+  const AccessControlRuleEffect(this.value);
+
+  static AccessControlRuleEffect fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AccessControlRuleEffect'));
 }
 
 enum AccessEffect {
-  allow,
-  deny,
-}
+  allow('ALLOW'),
+  deny('DENY'),
+  ;
 
-extension AccessEffectValueExtension on AccessEffect {
-  String toValue() {
-    switch (this) {
-      case AccessEffect.allow:
-        return 'ALLOW';
-      case AccessEffect.deny:
-        return 'DENY';
-    }
-  }
-}
+  final String value;
 
-extension AccessEffectFromString on String {
-  AccessEffect toAccessEffect() {
-    switch (this) {
-      case 'ALLOW':
-        return AccessEffect.allow;
-      case 'DENY':
-        return AccessEffect.deny;
-    }
-    throw Exception('$this is not known in enum AccessEffect');
-  }
+  const AccessEffect(this.value);
+
+  static AccessEffect fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccessEffect'));
 }
 
 class AssociateDelegateToResourceResponse {
@@ -4066,8 +4873,8 @@ class AvailabilityConfiguration {
           ? LambdaAvailabilityProvider.fromJson(
               json['LambdaProvider'] as Map<String, dynamic>)
           : null,
-      providerType:
-          (json['ProviderType'] as String?)?.toAvailabilityProviderType(),
+      providerType: (json['ProviderType'] as String?)
+          ?.let(AvailabilityProviderType.fromString),
     );
   }
 
@@ -4085,37 +4892,24 @@ class AvailabilityConfiguration {
       if (domainName != null) 'DomainName': domainName,
       if (ewsProvider != null) 'EwsProvider': ewsProvider,
       if (lambdaProvider != null) 'LambdaProvider': lambdaProvider,
-      if (providerType != null) 'ProviderType': providerType.toValue(),
+      if (providerType != null) 'ProviderType': providerType.value,
     };
   }
 }
 
 enum AvailabilityProviderType {
-  ews,
-  lambda,
-}
+  ews('EWS'),
+  lambda('LAMBDA'),
+  ;
 
-extension AvailabilityProviderTypeValueExtension on AvailabilityProviderType {
-  String toValue() {
-    switch (this) {
-      case AvailabilityProviderType.ews:
-        return 'EWS';
-      case AvailabilityProviderType.lambda:
-        return 'LAMBDA';
-    }
-  }
-}
+  final String value;
 
-extension AvailabilityProviderTypeFromString on String {
-  AvailabilityProviderType toAvailabilityProviderType() {
-    switch (this) {
-      case 'EWS':
-        return AvailabilityProviderType.ews;
-      case 'LAMBDA':
-        return AvailabilityProviderType.lambda;
-    }
-    throw Exception('$this is not known in enum AvailabilityProviderType');
-  }
+  const AvailabilityProviderType(this.value);
+
+  static AvailabilityProviderType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AvailabilityProviderType'));
 }
 
 /// At least one delegate must be associated to the resource to disable
@@ -4350,7 +5144,7 @@ class Delegate {
   factory Delegate.fromJson(Map<String, dynamic> json) {
     return Delegate(
       id: json['Id'] as String,
-      type: (json['Type'] as String).toMemberType(),
+      type: MemberType.fromString((json['Type'] as String)),
     );
   }
 
@@ -4359,7 +5153,7 @@ class Delegate {
     final type = this.type;
     return {
       'Id': id,
-      'Type': type.toValue(),
+      'Type': type.value,
     };
   }
 }
@@ -4597,6 +5391,42 @@ class DescribeEmailMonitoringConfigurationResponse {
   }
 }
 
+class DescribeEntityResponse {
+  /// The entity ID under which the entity exists.
+  final String? entityId;
+
+  /// Username, GroupName, or ResourceName based on entity type.
+  final String? name;
+
+  /// Entity type.
+  final EntityType? type;
+
+  DescribeEntityResponse({
+    this.entityId,
+    this.name,
+    this.type,
+  });
+
+  factory DescribeEntityResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeEntityResponse(
+      entityId: json['EntityId'] as String?,
+      name: json['Name'] as String?,
+      type: (json['Type'] as String?)?.let(EntityType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final entityId = this.entityId;
+    final name = this.name;
+    final type = this.type;
+    return {
+      if (entityId != null) 'EntityId': entityId,
+      if (name != null) 'Name': name,
+      if (type != null) 'Type': type.value,
+    };
+  }
+}
+
 class DescribeGroupResponse {
   /// The date and time when a user was deregistered from WorkMail, in UNIX epoch
   /// time format.
@@ -4612,6 +5442,10 @@ class DescribeGroupResponse {
   /// The identifier of the described group.
   final String? groupId;
 
+  /// If the value is set to <i>true</i>, the group is hidden from the address
+  /// book.
+  final bool? hiddenFromGlobalAddressList;
+
   /// The name of the described group.
   final String? name;
 
@@ -4624,6 +5458,7 @@ class DescribeGroupResponse {
     this.email,
     this.enabledDate,
     this.groupId,
+    this.hiddenFromGlobalAddressList,
     this.name,
     this.state,
   });
@@ -4634,8 +5469,9 @@ class DescribeGroupResponse {
       email: json['Email'] as String?,
       enabledDate: timeStampFromJson(json['EnabledDate']),
       groupId: json['GroupId'] as String?,
+      hiddenFromGlobalAddressList: json['HiddenFromGlobalAddressList'] as bool?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toEntityState(),
+      state: (json['State'] as String?)?.let(EntityState.fromString),
     );
   }
 
@@ -4644,6 +5480,7 @@ class DescribeGroupResponse {
     final email = this.email;
     final enabledDate = this.enabledDate;
     final groupId = this.groupId;
+    final hiddenFromGlobalAddressList = this.hiddenFromGlobalAddressList;
     final name = this.name;
     final state = this.state;
     return {
@@ -4652,8 +5489,10 @@ class DescribeGroupResponse {
       if (email != null) 'Email': email,
       if (enabledDate != null) 'EnabledDate': unixTimestampToJson(enabledDate),
       if (groupId != null) 'GroupId': groupId,
+      if (hiddenFromGlobalAddressList != null)
+        'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -4749,7 +5588,7 @@ class DescribeMailboxExportJobResponse {
       s3Path: json['S3Path'] as String?,
       s3Prefix: json['S3Prefix'] as String?,
       startTime: timeStampFromJson(json['StartTime']),
-      state: (json['State'] as String?)?.toMailboxExportJobState(),
+      state: (json['State'] as String?)?.let(MailboxExportJobState.fromString),
     );
   }
 
@@ -4778,7 +5617,7 @@ class DescribeMailboxExportJobResponse {
       if (s3Path != null) 'S3Path': s3Path,
       if (s3Prefix != null) 'S3Prefix': s3Prefix,
       if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -4807,6 +5646,13 @@ class DescribeOrganizationResponse {
   /// encountered with regards to the organization.
   final String? errorMessage;
 
+  /// Indicates if interoperability is enabled for this organization.
+  final bool? interoperabilityEnabled;
+
+  /// The user ID of the migration admin if migration is enabled for the
+  /// organization.
+  final String? migrationAdmin;
+
   /// The identifier of an organization.
   final String? organizationId;
 
@@ -4821,6 +5667,8 @@ class DescribeOrganizationResponse {
     this.directoryId,
     this.directoryType,
     this.errorMessage,
+    this.interoperabilityEnabled,
+    this.migrationAdmin,
     this.organizationId,
     this.state,
   });
@@ -4834,6 +5682,8 @@ class DescribeOrganizationResponse {
       directoryId: json['DirectoryId'] as String?,
       directoryType: json['DirectoryType'] as String?,
       errorMessage: json['ErrorMessage'] as String?,
+      interoperabilityEnabled: json['InteroperabilityEnabled'] as bool?,
+      migrationAdmin: json['MigrationAdmin'] as String?,
       organizationId: json['OrganizationId'] as String?,
       state: json['State'] as String?,
     );
@@ -4847,6 +5697,8 @@ class DescribeOrganizationResponse {
     final directoryId = this.directoryId;
     final directoryType = this.directoryType;
     final errorMessage = this.errorMessage;
+    final interoperabilityEnabled = this.interoperabilityEnabled;
+    final migrationAdmin = this.migrationAdmin;
     final organizationId = this.organizationId;
     final state = this.state;
     return {
@@ -4858,6 +5710,9 @@ class DescribeOrganizationResponse {
       if (directoryId != null) 'DirectoryId': directoryId,
       if (directoryType != null) 'DirectoryType': directoryType,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
+      if (interoperabilityEnabled != null)
+        'InteroperabilityEnabled': interoperabilityEnabled,
+      if (migrationAdmin != null) 'MigrationAdmin': migrationAdmin,
       if (organizationId != null) 'OrganizationId': organizationId,
       if (state != null) 'State': state,
     };
@@ -4867,6 +5722,9 @@ class DescribeOrganizationResponse {
 class DescribeResourceResponse {
   /// The booking options for the described resource.
   final BookingOptions? bookingOptions;
+
+  /// Description of the resource.
+  final String? description;
 
   /// The date and time when a resource was disabled from WorkMail, in UNIX epoch
   /// time format.
@@ -4878,6 +5736,9 @@ class DescribeResourceResponse {
   /// The date and time when a resource was enabled for WorkMail, in UNIX epoch
   /// time format.
   final DateTime? enabledDate;
+
+  /// If enabled, the resource is hidden from the global address list.
+  final bool? hiddenFromGlobalAddressList;
 
   /// The name of the described resource.
   final String? name;
@@ -4894,9 +5755,11 @@ class DescribeResourceResponse {
 
   DescribeResourceResponse({
     this.bookingOptions,
+    this.description,
     this.disabledDate,
     this.email,
     this.enabledDate,
+    this.hiddenFromGlobalAddressList,
     this.name,
     this.resourceId,
     this.state,
@@ -4909,40 +5772,59 @@ class DescribeResourceResponse {
           ? BookingOptions.fromJson(
               json['BookingOptions'] as Map<String, dynamic>)
           : null,
+      description: json['Description'] as String?,
       disabledDate: timeStampFromJson(json['DisabledDate']),
       email: json['Email'] as String?,
       enabledDate: timeStampFromJson(json['EnabledDate']),
+      hiddenFromGlobalAddressList: json['HiddenFromGlobalAddressList'] as bool?,
       name: json['Name'] as String?,
       resourceId: json['ResourceId'] as String?,
-      state: (json['State'] as String?)?.toEntityState(),
-      type: (json['Type'] as String?)?.toResourceType(),
+      state: (json['State'] as String?)?.let(EntityState.fromString),
+      type: (json['Type'] as String?)?.let(ResourceType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final bookingOptions = this.bookingOptions;
+    final description = this.description;
     final disabledDate = this.disabledDate;
     final email = this.email;
     final enabledDate = this.enabledDate;
+    final hiddenFromGlobalAddressList = this.hiddenFromGlobalAddressList;
     final name = this.name;
     final resourceId = this.resourceId;
     final state = this.state;
     final type = this.type;
     return {
       if (bookingOptions != null) 'BookingOptions': bookingOptions,
+      if (description != null) 'Description': description,
       if (disabledDate != null)
         'DisabledDate': unixTimestampToJson(disabledDate),
       if (email != null) 'Email': email,
       if (enabledDate != null) 'EnabledDate': unixTimestampToJson(enabledDate),
+      if (hiddenFromGlobalAddressList != null)
+        'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
       if (name != null) 'Name': name,
       if (resourceId != null) 'ResourceId': resourceId,
-      if (state != null) 'State': state.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (state != null) 'State': state.value,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 class DescribeUserResponse {
+  /// City where the user is located.
+  final String? city;
+
+  /// Company of the user.
+  final String? company;
+
+  /// Country where the user is located.
+  final String? country;
+
+  /// Department of the user.
+  final String? department;
+
   /// The date and time at which the user was disabled for WorkMail usage, in UNIX
   /// epoch time format.
   final DateTime? disabledDate;
@@ -4957,12 +5839,42 @@ class DescribeUserResponse {
   /// epoch time format.
   final DateTime? enabledDate;
 
+  /// First name of the user.
+  final String? firstName;
+
+  /// If enabled, the user is hidden from the global address list.
+  final bool? hiddenFromGlobalAddressList;
+
+  /// Initials of the user.
+  final String? initials;
+
+  /// Job title of the user.
+  final String? jobTitle;
+
+  /// Last name of the user.
+  final String? lastName;
+
+  /// The date when the mailbox was removed for the user.
+  final DateTime? mailboxDeprovisionedDate;
+
+  /// The date when the mailbox was created for the user.
+  final DateTime? mailboxProvisionedDate;
+
   /// The name for the user.
   final String? name;
+
+  /// Office where the user is located.
+  final String? office;
 
   /// The state of a user: enabled (registered to WorkMail) or disabled
   /// (deregistered or never registered to WorkMail).
   final EntityState? state;
+
+  /// Street where the user is located.
+  final String? street;
+
+  /// User's contact number.
+  final String? telephone;
 
   /// The identifier for the described user.
   final String? userId;
@@ -4971,53 +5883,121 @@ class DescribeUserResponse {
   /// is enabled, resources are imported into WorkMail as users. Because different
   /// WorkMail organizations rely on different directory types, administrators can
   /// distinguish between an unregistered user (account is disabled and has a user
-  /// role) and the directory administrators. The values are USER, RESOURCE, and
-  /// SYSTEM_USER.
+  /// role) and the directory administrators. The values are USER, RESOURCE,
+  /// SYSTEM_USER, and REMOTE_USER.
   final UserRole? userRole;
 
+  /// Zip code of the user.
+  final String? zipCode;
+
   DescribeUserResponse({
+    this.city,
+    this.company,
+    this.country,
+    this.department,
     this.disabledDate,
     this.displayName,
     this.email,
     this.enabledDate,
+    this.firstName,
+    this.hiddenFromGlobalAddressList,
+    this.initials,
+    this.jobTitle,
+    this.lastName,
+    this.mailboxDeprovisionedDate,
+    this.mailboxProvisionedDate,
     this.name,
+    this.office,
     this.state,
+    this.street,
+    this.telephone,
     this.userId,
     this.userRole,
+    this.zipCode,
   });
 
   factory DescribeUserResponse.fromJson(Map<String, dynamic> json) {
     return DescribeUserResponse(
+      city: json['City'] as String?,
+      company: json['Company'] as String?,
+      country: json['Country'] as String?,
+      department: json['Department'] as String?,
       disabledDate: timeStampFromJson(json['DisabledDate']),
       displayName: json['DisplayName'] as String?,
       email: json['Email'] as String?,
       enabledDate: timeStampFromJson(json['EnabledDate']),
+      firstName: json['FirstName'] as String?,
+      hiddenFromGlobalAddressList: json['HiddenFromGlobalAddressList'] as bool?,
+      initials: json['Initials'] as String?,
+      jobTitle: json['JobTitle'] as String?,
+      lastName: json['LastName'] as String?,
+      mailboxDeprovisionedDate:
+          timeStampFromJson(json['MailboxDeprovisionedDate']),
+      mailboxProvisionedDate: timeStampFromJson(json['MailboxProvisionedDate']),
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toEntityState(),
+      office: json['Office'] as String?,
+      state: (json['State'] as String?)?.let(EntityState.fromString),
+      street: json['Street'] as String?,
+      telephone: json['Telephone'] as String?,
       userId: json['UserId'] as String?,
-      userRole: (json['UserRole'] as String?)?.toUserRole(),
+      userRole: (json['UserRole'] as String?)?.let(UserRole.fromString),
+      zipCode: json['ZipCode'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final city = this.city;
+    final company = this.company;
+    final country = this.country;
+    final department = this.department;
     final disabledDate = this.disabledDate;
     final displayName = this.displayName;
     final email = this.email;
     final enabledDate = this.enabledDate;
+    final firstName = this.firstName;
+    final hiddenFromGlobalAddressList = this.hiddenFromGlobalAddressList;
+    final initials = this.initials;
+    final jobTitle = this.jobTitle;
+    final lastName = this.lastName;
+    final mailboxDeprovisionedDate = this.mailboxDeprovisionedDate;
+    final mailboxProvisionedDate = this.mailboxProvisionedDate;
     final name = this.name;
+    final office = this.office;
     final state = this.state;
+    final street = this.street;
+    final telephone = this.telephone;
     final userId = this.userId;
     final userRole = this.userRole;
+    final zipCode = this.zipCode;
     return {
+      if (city != null) 'City': city,
+      if (company != null) 'Company': company,
+      if (country != null) 'Country': country,
+      if (department != null) 'Department': department,
       if (disabledDate != null)
         'DisabledDate': unixTimestampToJson(disabledDate),
       if (displayName != null) 'DisplayName': displayName,
       if (email != null) 'Email': email,
       if (enabledDate != null) 'EnabledDate': unixTimestampToJson(enabledDate),
+      if (firstName != null) 'FirstName': firstName,
+      if (hiddenFromGlobalAddressList != null)
+        'HiddenFromGlobalAddressList': hiddenFromGlobalAddressList,
+      if (initials != null) 'Initials': initials,
+      if (jobTitle != null) 'JobTitle': jobTitle,
+      if (lastName != null) 'LastName': lastName,
+      if (mailboxDeprovisionedDate != null)
+        'MailboxDeprovisionedDate':
+            unixTimestampToJson(mailboxDeprovisionedDate),
+      if (mailboxProvisionedDate != null)
+        'MailboxProvisionedDate': unixTimestampToJson(mailboxProvisionedDate),
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
+      if (office != null) 'Office': office,
+      if (state != null) 'State': state.value,
+      if (street != null) 'Street': street,
+      if (telephone != null) 'Telephone': telephone,
       if (userId != null) 'UserId': userId,
-      if (userRole != null) 'UserRole': userRole.toValue(),
+      if (userRole != null) 'UserRole': userRole.value,
+      if (zipCode != null) 'ZipCode': zipCode,
     };
   }
 }
@@ -5086,37 +6066,19 @@ class DnsRecord {
 }
 
 enum DnsRecordVerificationStatus {
-  pending,
-  verified,
-  failed,
-}
+  pending('PENDING'),
+  verified('VERIFIED'),
+  failed('FAILED'),
+  ;
 
-extension DnsRecordVerificationStatusValueExtension
-    on DnsRecordVerificationStatus {
-  String toValue() {
-    switch (this) {
-      case DnsRecordVerificationStatus.pending:
-        return 'PENDING';
-      case DnsRecordVerificationStatus.verified:
-        return 'VERIFIED';
-      case DnsRecordVerificationStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension DnsRecordVerificationStatusFromString on String {
-  DnsRecordVerificationStatus toDnsRecordVerificationStatus() {
-    switch (this) {
-      case 'PENDING':
-        return DnsRecordVerificationStatus.pending;
-      case 'VERIFIED':
-        return DnsRecordVerificationStatus.verified;
-      case 'FAILED':
-        return DnsRecordVerificationStatus.failed;
-    }
-    throw Exception('$this is not known in enum DnsRecordVerificationStatus');
-  }
+  const DnsRecordVerificationStatus(this.value);
+
+  static DnsRecordVerificationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DnsRecordVerificationStatus'));
 }
 
 /// The domain to associate with an WorkMail organization.
@@ -5128,14 +6090,14 @@ extension DnsRecordVerificationStatusFromString on String {
 /// a domain</a> in the <i>WorkMail Administrator Guide</i>.
 class Domain {
   /// The fully qualified domain name.
-  final String? domainName;
+  final String domainName;
 
   /// The hosted zone ID for a domain hosted in Route 53. Required when
   /// configuring a domain hosted in Route 53.
   final String? hostedZoneId;
 
   Domain({
-    this.domainName,
+    required this.domainName,
     this.hostedZoneId,
   });
 
@@ -5143,43 +6105,40 @@ class Domain {
     final domainName = this.domainName;
     final hostedZoneId = this.hostedZoneId;
     return {
-      if (domainName != null) 'DomainName': domainName,
+      'DomainName': domainName,
       if (hostedZoneId != null) 'HostedZoneId': hostedZoneId,
     };
   }
 }
 
 enum EntityState {
-  enabled,
-  disabled,
-  deleted,
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  deleted('DELETED'),
+  ;
+
+  final String value;
+
+  const EntityState(this.value);
+
+  static EntityState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EntityState'));
 }
 
-extension EntityStateValueExtension on EntityState {
-  String toValue() {
-    switch (this) {
-      case EntityState.enabled:
-        return 'ENABLED';
-      case EntityState.disabled:
-        return 'DISABLED';
-      case EntityState.deleted:
-        return 'DELETED';
-    }
-  }
-}
+enum EntityType {
+  group('GROUP'),
+  user('USER'),
+  resource('RESOURCE'),
+  ;
 
-extension EntityStateFromString on String {
-  EntityState toEntityState() {
-    switch (this) {
-      case 'ENABLED':
-        return EntityState.enabled;
-      case 'DISABLED':
-        return EntityState.disabled;
-      case 'DELETED':
-        return EntityState.deleted;
-    }
-    throw Exception('$this is not known in enum EntityState');
-  }
+  final String value;
+
+  const EntityType(this.value);
+
+  static EntityType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EntityType'));
 }
 
 /// Describes an EWS based availability provider. This is only used as input to
@@ -5233,8 +6192,8 @@ class FolderConfiguration {
 
   factory FolderConfiguration.fromJson(Map<String, dynamic> json) {
     return FolderConfiguration(
-      action: (json['Action'] as String).toRetentionAction(),
-      name: (json['Name'] as String).toFolderName(),
+      action: RetentionAction.fromString((json['Action'] as String)),
+      name: FolderName.fromString((json['Name'] as String)),
       period: json['Period'] as int?,
     );
   }
@@ -5244,54 +6203,28 @@ class FolderConfiguration {
     final name = this.name;
     final period = this.period;
     return {
-      'Action': action.toValue(),
-      'Name': name.toValue(),
+      'Action': action.value,
+      'Name': name.value,
       if (period != null) 'Period': period,
     };
   }
 }
 
 enum FolderName {
-  inbox,
-  deletedItems,
-  sentItems,
-  drafts,
-  junkEmail,
-}
+  inbox('INBOX'),
+  deletedItems('DELETED_ITEMS'),
+  sentItems('SENT_ITEMS'),
+  drafts('DRAFTS'),
+  junkEmail('JUNK_EMAIL'),
+  ;
 
-extension FolderNameValueExtension on FolderName {
-  String toValue() {
-    switch (this) {
-      case FolderName.inbox:
-        return 'INBOX';
-      case FolderName.deletedItems:
-        return 'DELETED_ITEMS';
-      case FolderName.sentItems:
-        return 'SENT_ITEMS';
-      case FolderName.drafts:
-        return 'DRAFTS';
-      case FolderName.junkEmail:
-        return 'JUNK_EMAIL';
-    }
-  }
-}
+  final String value;
 
-extension FolderNameFromString on String {
-  FolderName toFolderName() {
-    switch (this) {
-      case 'INBOX':
-        return FolderName.inbox;
-      case 'DELETED_ITEMS':
-        return FolderName.deletedItems;
-      case 'SENT_ITEMS':
-        return FolderName.sentItems;
-      case 'DRAFTS':
-        return FolderName.drafts;
-      case 'JUNK_EMAIL':
-        return FolderName.junkEmail;
-    }
-    throw Exception('$this is not known in enum FolderName');
-  }
+  const FolderName(this.value);
+
+  static FolderName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FolderName'));
 }
 
 class GetAccessControlEffectResponse {
@@ -5308,9 +6241,10 @@ class GetAccessControlEffectResponse {
 
   factory GetAccessControlEffectResponse.fromJson(Map<String, dynamic> json) {
     return GetAccessControlEffectResponse(
-      effect: (json['Effect'] as String?)?.toAccessControlRuleEffect(),
+      effect:
+          (json['Effect'] as String?)?.let(AccessControlRuleEffect.fromString),
       matchedRules: (json['MatchedRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5320,7 +6254,7 @@ class GetAccessControlEffectResponse {
     final effect = this.effect;
     final matchedRules = this.matchedRules;
     return {
-      if (effect != null) 'Effect': effect.toValue(),
+      if (effect != null) 'Effect': effect.value,
       if (matchedRules != null) 'MatchedRules': matchedRules,
     };
   }
@@ -5351,7 +6285,7 @@ class GetDefaultRetentionPolicyResponse {
     return GetDefaultRetentionPolicyResponse(
       description: json['Description'] as String?,
       folderConfigurations: (json['FolderConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FolderConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['Id'] as String?,
@@ -5394,13 +6328,13 @@ class GetImpersonationRoleEffectResponse {
   factory GetImpersonationRoleEffectResponse.fromJson(
       Map<String, dynamic> json) {
     return GetImpersonationRoleEffectResponse(
-      effect: (json['Effect'] as String?)?.toAccessEffect(),
+      effect: (json['Effect'] as String?)?.let(AccessEffect.fromString),
       matchedRules: (json['MatchedRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ImpersonationMatchedRule.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['Type'] as String?)?.toImpersonationRoleType(),
+      type: (json['Type'] as String?)?.let(ImpersonationRoleType.fromString),
     );
   }
 
@@ -5409,9 +6343,9 @@ class GetImpersonationRoleEffectResponse {
     final matchedRules = this.matchedRules;
     final type = this.type;
     return {
-      if (effect != null) 'Effect': effect.toValue(),
+      if (effect != null) 'Effect': effect.value,
       if (matchedRules != null) 'MatchedRules': matchedRules,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -5456,10 +6390,10 @@ class GetImpersonationRoleResponse {
       impersonationRoleId: json['ImpersonationRoleId'] as String?,
       name: json['Name'] as String?,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImpersonationRule.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['Type'] as String?)?.toImpersonationRoleType(),
+      type: (json['Type'] as String?)?.let(ImpersonationRoleType.fromString),
     );
   }
 
@@ -5480,7 +6414,7 @@ class GetImpersonationRoleResponse {
         'ImpersonationRoleId': impersonationRoleId,
       if (name != null) 'Name': name,
       if (rules != null) 'Rules': rules,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -5516,14 +6450,14 @@ class GetMailDomainResponse {
   factory GetMailDomainResponse.fromJson(Map<String, dynamic> json) {
     return GetMailDomainResponse(
       dkimVerificationStatus: (json['DkimVerificationStatus'] as String?)
-          ?.toDnsRecordVerificationStatus(),
+          ?.let(DnsRecordVerificationStatus.fromString),
       isDefault: json['IsDefault'] as bool?,
       isTestDomain: json['IsTestDomain'] as bool?,
       ownershipVerificationStatus:
           (json['OwnershipVerificationStatus'] as String?)
-              ?.toDnsRecordVerificationStatus(),
+              ?.let(DnsRecordVerificationStatus.fromString),
       records: (json['Records'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DnsRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5537,11 +6471,11 @@ class GetMailDomainResponse {
     final records = this.records;
     return {
       if (dkimVerificationStatus != null)
-        'DkimVerificationStatus': dkimVerificationStatus.toValue(),
+        'DkimVerificationStatus': dkimVerificationStatus.value,
       if (isDefault != null) 'IsDefault': isDefault,
       if (isTestDomain != null) 'IsTestDomain': isTestDomain,
       if (ownershipVerificationStatus != null)
-        'OwnershipVerificationStatus': ownershipVerificationStatus.toValue(),
+        'OwnershipVerificationStatus': ownershipVerificationStatus.value,
       if (records != null) 'Records': records,
     };
   }
@@ -5594,9 +6528,10 @@ class GetMobileDeviceAccessEffectResponse {
   factory GetMobileDeviceAccessEffectResponse.fromJson(
       Map<String, dynamic> json) {
     return GetMobileDeviceAccessEffectResponse(
-      effect: (json['Effect'] as String?)?.toMobileDeviceAccessRuleEffect(),
+      effect: (json['Effect'] as String?)
+          ?.let(MobileDeviceAccessRuleEffect.fromString),
       matchedRules: (json['MatchedRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               MobileDeviceAccessMatchedRule.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5607,7 +6542,7 @@ class GetMobileDeviceAccessEffectResponse {
     final effect = this.effect;
     final matchedRules = this.matchedRules;
     return {
-      if (effect != null) 'Effect': effect.toValue(),
+      if (effect != null) 'Effect': effect.value,
       if (matchedRules != null) 'MatchedRules': matchedRules,
     };
   }
@@ -5648,7 +6583,8 @@ class GetMobileDeviceAccessOverrideResponse {
       dateModified: timeStampFromJson(json['DateModified']),
       description: json['Description'] as String?,
       deviceId: json['DeviceId'] as String?,
-      effect: (json['Effect'] as String?)?.toMobileDeviceAccessRuleEffect(),
+      effect: (json['Effect'] as String?)
+          ?.let(MobileDeviceAccessRuleEffect.fromString),
       userId: json['UserId'] as String?,
     );
   }
@@ -5666,7 +6602,7 @@ class GetMobileDeviceAccessOverrideResponse {
         'DateModified': unixTimestampToJson(dateModified),
       if (description != null) 'Description': description,
       if (deviceId != null) 'DeviceId': deviceId,
-      if (effect != null) 'Effect': effect.toValue(),
+      if (effect != null) 'Effect': effect.value,
       if (userId != null) 'UserId': userId,
     };
   }
@@ -5708,7 +6644,7 @@ class Group {
       enabledDate: timeStampFromJson(json['EnabledDate']),
       id: json['Id'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toEntityState(),
+      state: (json['State'] as String?)?.let(EntityState.fromString),
     );
   }
 
@@ -5726,7 +6662,37 @@ class Group {
       if (enabledDate != null) 'EnabledDate': unixTimestampToJson(enabledDate),
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
+    };
+  }
+}
+
+/// The identifier that contains the Group ID and name of a group.
+class GroupIdentifier {
+  /// Group ID that matched the group.
+  final String? groupId;
+
+  /// Group name that matched the group.
+  final String? groupName;
+
+  GroupIdentifier({
+    this.groupId,
+    this.groupName,
+  });
+
+  factory GroupIdentifier.fromJson(Map<String, dynamic> json) {
+    return GroupIdentifier(
+      groupId: json['GroupId'] as String?,
+      groupName: json['GroupName'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final groupId = this.groupId;
+    final groupName = this.groupName;
+    return {
+      if (groupId != null) 'GroupId': groupId,
+      if (groupName != null) 'GroupName': groupName,
     };
   }
 }
@@ -5793,7 +6759,7 @@ class ImpersonationRole {
       dateModified: timeStampFromJson(json['DateModified']),
       impersonationRoleId: json['ImpersonationRoleId'] as String?,
       name: json['Name'] as String?,
-      type: (json['Type'] as String?)?.toImpersonationRoleType(),
+      type: (json['Type'] as String?)?.let(ImpersonationRoleType.fromString),
     );
   }
 
@@ -5810,37 +6776,24 @@ class ImpersonationRole {
       if (impersonationRoleId != null)
         'ImpersonationRoleId': impersonationRoleId,
       if (name != null) 'Name': name,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum ImpersonationRoleType {
-  fullAccess,
-  readOnly,
-}
+  fullAccess('FULL_ACCESS'),
+  readOnly('READ_ONLY'),
+  ;
 
-extension ImpersonationRoleTypeValueExtension on ImpersonationRoleType {
-  String toValue() {
-    switch (this) {
-      case ImpersonationRoleType.fullAccess:
-        return 'FULL_ACCESS';
-      case ImpersonationRoleType.readOnly:
-        return 'READ_ONLY';
-    }
-  }
-}
+  final String value;
 
-extension ImpersonationRoleTypeFromString on String {
-  ImpersonationRoleType toImpersonationRoleType() {
-    switch (this) {
-      case 'FULL_ACCESS':
-        return ImpersonationRoleType.fullAccess;
-      case 'READ_ONLY':
-        return ImpersonationRoleType.readOnly;
-    }
-    throw Exception('$this is not known in enum ImpersonationRoleType');
-  }
+  const ImpersonationRoleType(this.value);
+
+  static ImpersonationRoleType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ImpersonationRoleType'));
 }
 
 /// The rules for the given impersonation role.
@@ -5875,16 +6828,16 @@ class ImpersonationRule {
 
   factory ImpersonationRule.fromJson(Map<String, dynamic> json) {
     return ImpersonationRule(
-      effect: (json['Effect'] as String).toAccessEffect(),
+      effect: AccessEffect.fromString((json['Effect'] as String)),
       impersonationRuleId: json['ImpersonationRuleId'] as String,
       description: json['Description'] as String?,
       name: json['Name'] as String?,
       notTargetUsers: (json['NotTargetUsers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       targetUsers: (json['TargetUsers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5898,7 +6851,7 @@ class ImpersonationRule {
     final notTargetUsers = this.notTargetUsers;
     final targetUsers = this.targetUsers;
     return {
-      'Effect': effect.toValue(),
+      'Effect': effect.value,
       'ImpersonationRuleId': impersonationRuleId,
       if (description != null) 'Description': description,
       if (name != null) 'Name': name,
@@ -5943,7 +6896,7 @@ class ListAccessControlRulesResponse {
   factory ListAccessControlRulesResponse.fromJson(Map<String, dynamic> json) {
     return ListAccessControlRulesResponse(
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AccessControlRule.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5972,10 +6925,8 @@ class ListAliasesResponse {
 
   factory ListAliasesResponse.fromJson(Map<String, dynamic> json) {
     return ListAliasesResponse(
-      aliases: (json['Aliases'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      aliases:
+          (json['Aliases'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['NextToken'] as String?,
     );
   }
@@ -6008,7 +6959,7 @@ class ListAvailabilityConfigurationsResponse {
       Map<String, dynamic> json) {
     return ListAvailabilityConfigurationsResponse(
       availabilityConfigurations: (json['AvailabilityConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AvailabilityConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6043,7 +6994,7 @@ class ListGroupMembersResponse {
   factory ListGroupMembersResponse.fromJson(Map<String, dynamic> json) {
     return ListGroupMembersResponse(
       members: (json['Members'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Member.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6055,6 +7006,87 @@ class ListGroupMembersResponse {
     final nextToken = this.nextToken;
     return {
       if (members != null) 'Members': members,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+/// Filtering options for <i>ListGroups</i> operation. This is only used as
+/// input to Operation.
+class ListGroupsFilters {
+  /// Filters only groups with the provided name prefix.
+  final String? namePrefix;
+
+  /// Filters only groups with the provided primary email prefix.
+  final String? primaryEmailPrefix;
+
+  /// Filters only groups with the provided state.
+  final EntityState? state;
+
+  ListGroupsFilters({
+    this.namePrefix,
+    this.primaryEmailPrefix,
+    this.state,
+  });
+
+  Map<String, dynamic> toJson() {
+    final namePrefix = this.namePrefix;
+    final primaryEmailPrefix = this.primaryEmailPrefix;
+    final state = this.state;
+    return {
+      if (namePrefix != null) 'NamePrefix': namePrefix,
+      if (primaryEmailPrefix != null) 'PrimaryEmailPrefix': primaryEmailPrefix,
+      if (state != null) 'State': state.value,
+    };
+  }
+}
+
+/// Filtering options for <i>ListGroupsForEntity</i> operation. This is only
+/// used as input to Operation.
+class ListGroupsForEntityFilters {
+  /// Filters only group names that start with the provided name prefix.
+  final String? groupNamePrefix;
+
+  ListGroupsForEntityFilters({
+    this.groupNamePrefix,
+  });
+
+  Map<String, dynamic> toJson() {
+    final groupNamePrefix = this.groupNamePrefix;
+    return {
+      if (groupNamePrefix != null) 'GroupNamePrefix': groupNamePrefix,
+    };
+  }
+}
+
+class ListGroupsForEntityResponse {
+  /// The overview of groups in an organization.
+  final List<GroupIdentifier>? groups;
+
+  /// The token to use to retrieve the next page of results. This value is `null`
+  /// when there are no more results to return.
+  final String? nextToken;
+
+  ListGroupsForEntityResponse({
+    this.groups,
+    this.nextToken,
+  });
+
+  factory ListGroupsForEntityResponse.fromJson(Map<String, dynamic> json) {
+    return ListGroupsForEntityResponse(
+      groups: (json['Groups'] as List?)
+          ?.nonNulls
+          .map((e) => GroupIdentifier.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final groups = this.groups;
+    final nextToken = this.nextToken;
+    return {
+      if (groups != null) 'Groups': groups,
       if (nextToken != null) 'NextToken': nextToken,
     };
   }
@@ -6076,7 +7108,7 @@ class ListGroupsResponse {
   factory ListGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListGroupsResponse(
       groups: (json['Groups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Group.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6110,7 +7142,7 @@ class ListImpersonationRolesResponse {
     return ListImpersonationRolesResponse(
       nextToken: json['NextToken'] as String?,
       roles: (json['Roles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImpersonationRole.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6144,7 +7176,7 @@ class ListMailDomainsResponse {
   factory ListMailDomainsResponse.fromJson(Map<String, dynamic> json) {
     return ListMailDomainsResponse(
       mailDomains: (json['MailDomains'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MailDomainSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6176,7 +7208,7 @@ class ListMailboxExportJobsResponse {
   factory ListMailboxExportJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListMailboxExportJobsResponse(
       jobs: (json['Jobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MailboxExportJob.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6210,7 +7242,7 @@ class ListMailboxPermissionsResponse {
     return ListMailboxPermissionsResponse(
       nextToken: json['NextToken'] as String?,
       permissions: (json['Permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Permission.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6245,7 +7277,7 @@ class ListMobileDeviceAccessOverridesResponse {
     return ListMobileDeviceAccessOverridesResponse(
       nextToken: json['NextToken'] as String?,
       overrides: (json['Overrides'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               MobileDeviceAccessOverride.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6275,7 +7307,7 @@ class ListMobileDeviceAccessRulesResponse {
       Map<String, dynamic> json) {
     return ListMobileDeviceAccessRulesResponse(
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => MobileDeviceAccessRule.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6308,7 +7340,7 @@ class ListOrganizationsResponse {
     return ListOrganizationsResponse(
       nextToken: json['NextToken'] as String?,
       organizationSummaries: (json['OrganizationSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OrganizationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6342,7 +7374,7 @@ class ListResourceDelegatesResponse {
   factory ListResourceDelegatesResponse.fromJson(Map<String, dynamic> json) {
     return ListResourceDelegatesResponse(
       delegates: (json['Delegates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Delegate.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6355,6 +7387,36 @@ class ListResourceDelegatesResponse {
     return {
       if (delegates != null) 'Delegates': delegates,
       if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+/// Filtering options for <i>ListResources</i> operation. This is only used as
+/// input to Operation.
+class ListResourcesFilters {
+  /// Filters only resource that start with the entered name prefix .
+  final String? namePrefix;
+
+  /// Filters only resource with the provided primary email prefix.
+  final String? primaryEmailPrefix;
+
+  /// Filters only resource with the provided state.
+  final EntityState? state;
+
+  ListResourcesFilters({
+    this.namePrefix,
+    this.primaryEmailPrefix,
+    this.state,
+  });
+
+  Map<String, dynamic> toJson() {
+    final namePrefix = this.namePrefix;
+    final primaryEmailPrefix = this.primaryEmailPrefix;
+    final state = this.state;
+    return {
+      if (namePrefix != null) 'NamePrefix': namePrefix,
+      if (primaryEmailPrefix != null) 'PrimaryEmailPrefix': primaryEmailPrefix,
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -6377,7 +7439,7 @@ class ListResourcesResponse {
     return ListResourcesResponse(
       nextToken: json['NextToken'] as String?,
       resources: (json['Resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Resource.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6404,7 +7466,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6414,6 +7476,42 @@ class ListTagsForResourceResponse {
     final tags = this.tags;
     return {
       if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+/// Filtering options for <i>ListUsers</i> operation. This is only used as input
+/// to Operation.
+class ListUsersFilters {
+  /// Filters only users with the provided display name prefix.
+  final String? displayNamePrefix;
+
+  /// Filters only users with the provided email prefix.
+  final String? primaryEmailPrefix;
+
+  /// Filters only users with the provided state.
+  final EntityState? state;
+
+  /// Filters only users with the provided username prefix.
+  final String? usernamePrefix;
+
+  ListUsersFilters({
+    this.displayNamePrefix,
+    this.primaryEmailPrefix,
+    this.state,
+    this.usernamePrefix,
+  });
+
+  Map<String, dynamic> toJson() {
+    final displayNamePrefix = this.displayNamePrefix;
+    final primaryEmailPrefix = this.primaryEmailPrefix;
+    final state = this.state;
+    final usernamePrefix = this.usernamePrefix;
+    return {
+      if (displayNamePrefix != null) 'DisplayNamePrefix': displayNamePrefix,
+      if (primaryEmailPrefix != null) 'PrimaryEmailPrefix': primaryEmailPrefix,
+      if (state != null) 'State': state.value,
+      if (usernamePrefix != null) 'UsernamePrefix': usernamePrefix,
     };
   }
 }
@@ -6435,7 +7533,7 @@ class ListUsersResponse {
     return ListUsersResponse(
       nextToken: json['NextToken'] as String?,
       users: (json['Users'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => User.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6534,7 +7632,7 @@ class MailboxExportJob {
       s3BucketName: json['S3BucketName'] as String?,
       s3Path: json['S3Path'] as String?,
       startTime: timeStampFromJson(json['StartTime']),
-      state: (json['State'] as String?)?.toMailboxExportJobState(),
+      state: (json['State'] as String?)?.let(MailboxExportJobState.fromString),
     );
   }
 
@@ -6557,47 +7655,26 @@ class MailboxExportJob {
       if (s3BucketName != null) 'S3BucketName': s3BucketName,
       if (s3Path != null) 'S3Path': s3Path,
       if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
 
 enum MailboxExportJobState {
-  running,
-  completed,
-  failed,
-  cancelled,
-}
+  running('RUNNING'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  cancelled('CANCELLED'),
+  ;
 
-extension MailboxExportJobStateValueExtension on MailboxExportJobState {
-  String toValue() {
-    switch (this) {
-      case MailboxExportJobState.running:
-        return 'RUNNING';
-      case MailboxExportJobState.completed:
-        return 'COMPLETED';
-      case MailboxExportJobState.failed:
-        return 'FAILED';
-      case MailboxExportJobState.cancelled:
-        return 'CANCELLED';
-    }
-  }
-}
+  final String value;
 
-extension MailboxExportJobStateFromString on String {
-  MailboxExportJobState toMailboxExportJobState() {
-    switch (this) {
-      case 'RUNNING':
-        return MailboxExportJobState.running;
-      case 'COMPLETED':
-        return MailboxExportJobState.completed;
-      case 'FAILED':
-        return MailboxExportJobState.failed;
-      case 'CANCELLED':
-        return MailboxExportJobState.cancelled;
-    }
-    throw Exception('$this is not known in enum MailboxExportJobState');
-  }
+  const MailboxExportJobState(this.value);
+
+  static MailboxExportJobState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MailboxExportJobState'));
 }
 
 /// The representation of a user or group.
@@ -6635,8 +7712,8 @@ class Member {
       enabledDate: timeStampFromJson(json['EnabledDate']),
       id: json['Id'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toEntityState(),
-      type: (json['Type'] as String?)?.toMemberType(),
+      state: (json['State'] as String?)?.let(EntityState.fromString),
+      type: (json['Type'] as String?)?.let(MemberType.fromString),
     );
   }
 
@@ -6653,38 +7730,24 @@ class Member {
       if (enabledDate != null) 'EnabledDate': unixTimestampToJson(enabledDate),
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (state != null) 'State': state.value,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum MemberType {
-  group,
-  user,
-}
+  group('GROUP'),
+  user('USER'),
+  ;
 
-extension MemberTypeValueExtension on MemberType {
-  String toValue() {
-    switch (this) {
-      case MemberType.group:
-        return 'GROUP';
-      case MemberType.user:
-        return 'USER';
-    }
-  }
-}
+  final String value;
 
-extension MemberTypeFromString on String {
-  MemberType toMemberType() {
-    switch (this) {
-      case 'GROUP':
-        return MemberType.group;
-      case 'USER':
-        return MemberType.user;
-    }
-    throw Exception('$this is not known in enum MemberType');
-  }
+  const MemberType(this.value);
+
+  static MemberType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MemberType'));
 }
 
 /// The rule that a simulated user matches.
@@ -6753,7 +7816,8 @@ class MobileDeviceAccessOverride {
       dateModified: timeStampFromJson(json['DateModified']),
       description: json['Description'] as String?,
       deviceId: json['DeviceId'] as String?,
-      effect: (json['Effect'] as String?)?.toMobileDeviceAccessRuleEffect(),
+      effect: (json['Effect'] as String?)
+          ?.let(MobileDeviceAccessRuleEffect.fromString),
       userId: json['UserId'] as String?,
     );
   }
@@ -6771,7 +7835,7 @@ class MobileDeviceAccessOverride {
         'DateModified': unixTimestampToJson(dateModified),
       if (description != null) 'Description': description,
       if (deviceId != null) 'DeviceId': deviceId,
-      if (effect != null) 'Effect': effect.toValue(),
+      if (effect != null) 'Effect': effect.value,
       if (userId != null) 'UserId': userId,
     };
   }
@@ -6849,38 +7913,39 @@ class MobileDeviceAccessRule {
       dateModified: timeStampFromJson(json['DateModified']),
       description: json['Description'] as String?,
       deviceModels: (json['DeviceModels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       deviceOperatingSystems: (json['DeviceOperatingSystems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       deviceTypes: (json['DeviceTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       deviceUserAgents: (json['DeviceUserAgents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      effect: (json['Effect'] as String?)?.toMobileDeviceAccessRuleEffect(),
+      effect: (json['Effect'] as String?)
+          ?.let(MobileDeviceAccessRuleEffect.fromString),
       mobileDeviceAccessRuleId: json['MobileDeviceAccessRuleId'] as String?,
       name: json['Name'] as String?,
       notDeviceModels: (json['NotDeviceModels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       notDeviceOperatingSystems: (json['NotDeviceOperatingSystems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       notDeviceTypes: (json['NotDeviceTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       notDeviceUserAgents: (json['NotDeviceUserAgents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6911,7 +7976,7 @@ class MobileDeviceAccessRule {
         'DeviceOperatingSystems': deviceOperatingSystems,
       if (deviceTypes != null) 'DeviceTypes': deviceTypes,
       if (deviceUserAgents != null) 'DeviceUserAgents': deviceUserAgents,
-      if (effect != null) 'Effect': effect.toValue(),
+      if (effect != null) 'Effect': effect.value,
       if (mobileDeviceAccessRuleId != null)
         'MobileDeviceAccessRuleId': mobileDeviceAccessRuleId,
       if (name != null) 'Name': name,
@@ -6926,32 +7991,18 @@ class MobileDeviceAccessRule {
 }
 
 enum MobileDeviceAccessRuleEffect {
-  allow,
-  deny,
-}
+  allow('ALLOW'),
+  deny('DENY'),
+  ;
 
-extension MobileDeviceAccessRuleEffectValueExtension
-    on MobileDeviceAccessRuleEffect {
-  String toValue() {
-    switch (this) {
-      case MobileDeviceAccessRuleEffect.allow:
-        return 'ALLOW';
-      case MobileDeviceAccessRuleEffect.deny:
-        return 'DENY';
-    }
-  }
-}
+  final String value;
 
-extension MobileDeviceAccessRuleEffectFromString on String {
-  MobileDeviceAccessRuleEffect toMobileDeviceAccessRuleEffect() {
-    switch (this) {
-      case 'ALLOW':
-        return MobileDeviceAccessRuleEffect.allow;
-      case 'DENY':
-        return MobileDeviceAccessRuleEffect.deny;
-    }
-    throw Exception('$this is not known in enum MobileDeviceAccessRuleEffect');
-  }
+  const MobileDeviceAccessRuleEffect(this.value);
+
+  static MobileDeviceAccessRuleEffect fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MobileDeviceAccessRuleEffect'));
 }
 
 /// The representation of an organization.
@@ -7034,10 +8085,10 @@ class Permission {
   factory Permission.fromJson(Map<String, dynamic> json) {
     return Permission(
       granteeId: json['GranteeId'] as String,
-      granteeType: (json['GranteeType'] as String).toMemberType(),
+      granteeType: MemberType.fromString((json['GranteeType'] as String)),
       permissionValues: (json['PermissionValues'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toPermissionType())
+          .nonNulls
+          .map((e) => PermissionType.fromString((e as String)))
           .toList(),
     );
   }
@@ -7048,43 +8099,26 @@ class Permission {
     final permissionValues = this.permissionValues;
     return {
       'GranteeId': granteeId,
-      'GranteeType': granteeType.toValue(),
-      'PermissionValues': permissionValues.map((e) => e.toValue()).toList(),
+      'GranteeType': granteeType.value,
+      'PermissionValues': permissionValues.map((e) => e.value).toList(),
     };
   }
 }
 
 enum PermissionType {
-  fullAccess,
-  sendAs,
-  sendOnBehalf,
-}
+  fullAccess('FULL_ACCESS'),
+  sendAs('SEND_AS'),
+  sendOnBehalf('SEND_ON_BEHALF'),
+  ;
 
-extension PermissionTypeValueExtension on PermissionType {
-  String toValue() {
-    switch (this) {
-      case PermissionType.fullAccess:
-        return 'FULL_ACCESS';
-      case PermissionType.sendAs:
-        return 'SEND_AS';
-      case PermissionType.sendOnBehalf:
-        return 'SEND_ON_BEHALF';
-    }
-  }
-}
+  final String value;
 
-extension PermissionTypeFromString on String {
-  PermissionType toPermissionType() {
-    switch (this) {
-      case 'FULL_ACCESS':
-        return PermissionType.fullAccess;
-      case 'SEND_AS':
-        return PermissionType.sendAs;
-      case 'SEND_ON_BEHALF':
-        return PermissionType.sendOnBehalf;
-    }
-    throw Exception('$this is not known in enum PermissionType');
-  }
+  const PermissionType(this.value);
+
+  static PermissionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PermissionType'));
 }
 
 class PutAccessControlRuleResponse {
@@ -7230,6 +8264,9 @@ class ResetPasswordResponse {
 
 /// The representation of a resource.
 class Resource {
+  /// Resource description.
+  final String? description;
+
   /// The date indicating when the resource was disabled from WorkMail use.
   final DateTime? disabledDate;
 
@@ -7252,6 +8289,7 @@ class Resource {
   final ResourceType? type;
 
   Resource({
+    this.description,
     this.disabledDate,
     this.email,
     this.enabledDate,
@@ -7263,17 +8301,19 @@ class Resource {
 
   factory Resource.fromJson(Map<String, dynamic> json) {
     return Resource(
+      description: json['Description'] as String?,
       disabledDate: timeStampFromJson(json['DisabledDate']),
       email: json['Email'] as String?,
       enabledDate: timeStampFromJson(json['EnabledDate']),
       id: json['Id'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toEntityState(),
-      type: (json['Type'] as String?)?.toResourceType(),
+      state: (json['State'] as String?)?.let(EntityState.fromString),
+      type: (json['Type'] as String?)?.let(ResourceType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
+    final description = this.description;
     final disabledDate = this.disabledDate;
     final email = this.email;
     final enabledDate = this.enabledDate;
@@ -7282,77 +8322,48 @@ class Resource {
     final state = this.state;
     final type = this.type;
     return {
+      if (description != null) 'Description': description,
       if (disabledDate != null)
         'DisabledDate': unixTimestampToJson(disabledDate),
       if (email != null) 'Email': email,
       if (enabledDate != null) 'EnabledDate': unixTimestampToJson(enabledDate),
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (state != null) 'State': state.value,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum ResourceType {
-  room,
-  equipment,
-}
+  room('ROOM'),
+  equipment('EQUIPMENT'),
+  ;
 
-extension ResourceTypeValueExtension on ResourceType {
-  String toValue() {
-    switch (this) {
-      case ResourceType.room:
-        return 'ROOM';
-      case ResourceType.equipment:
-        return 'EQUIPMENT';
-    }
-  }
-}
+  final String value;
 
-extension ResourceTypeFromString on String {
-  ResourceType toResourceType() {
-    switch (this) {
-      case 'ROOM':
-        return ResourceType.room;
-      case 'EQUIPMENT':
-        return ResourceType.equipment;
-    }
-    throw Exception('$this is not known in enum ResourceType');
-  }
+  const ResourceType(this.value);
+
+  static ResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceType'));
 }
 
 enum RetentionAction {
-  none,
-  delete,
-  permanentlyDelete,
-}
+  none('NONE'),
+  delete('DELETE'),
+  permanentlyDelete('PERMANENTLY_DELETE'),
+  ;
 
-extension RetentionActionValueExtension on RetentionAction {
-  String toValue() {
-    switch (this) {
-      case RetentionAction.none:
-        return 'NONE';
-      case RetentionAction.delete:
-        return 'DELETE';
-      case RetentionAction.permanentlyDelete:
-        return 'PERMANENTLY_DELETE';
-    }
-  }
-}
+  final String value;
 
-extension RetentionActionFromString on String {
-  RetentionAction toRetentionAction() {
-    switch (this) {
-      case 'NONE':
-        return RetentionAction.none;
-      case 'DELETE':
-        return RetentionAction.delete;
-      case 'PERMANENTLY_DELETE':
-        return RetentionAction.permanentlyDelete;
-    }
-    throw Exception('$this is not known in enum RetentionAction');
-  }
+  const RetentionAction(this.value);
+
+  static RetentionAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RetentionAction'));
 }
 
 class StartMailboxExportJobResponse {
@@ -7487,6 +8498,18 @@ class UpdateDefaultMailDomainResponse {
   }
 }
 
+class UpdateGroupResponse {
+  UpdateGroupResponse();
+
+  factory UpdateGroupResponse.fromJson(Map<String, dynamic> _) {
+    return UpdateGroupResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 class UpdateImpersonationRoleResponse {
   UpdateImpersonationRoleResponse();
 
@@ -7548,6 +8571,18 @@ class UpdateResourceResponse {
   }
 }
 
+class UpdateUserResponse {
+  UpdateUserResponse();
+
+  factory UpdateUserResponse.fromJson(Map<String, dynamic> _) {
+    return UpdateUserResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 /// The representation of an WorkMail user.
 class User {
   /// The date indicating when the user was disabled from WorkMail use.
@@ -7593,8 +8628,8 @@ class User {
       enabledDate: timeStampFromJson(json['EnabledDate']),
       id: json['Id'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toEntityState(),
-      userRole: (json['UserRole'] as String?)?.toUserRole(),
+      state: (json['State'] as String?)?.let(EntityState.fromString),
+      userRole: (json['UserRole'] as String?)?.let(UserRole.fromString),
     );
   }
 
@@ -7615,43 +8650,26 @@ class User {
       if (enabledDate != null) 'EnabledDate': unixTimestampToJson(enabledDate),
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
-      if (userRole != null) 'UserRole': userRole.toValue(),
+      if (state != null) 'State': state.value,
+      if (userRole != null) 'UserRole': userRole.value,
     };
   }
 }
 
 enum UserRole {
-  user,
-  resource,
-  systemUser,
-}
+  user('USER'),
+  resource('RESOURCE'),
+  systemUser('SYSTEM_USER'),
+  remoteUser('REMOTE_USER'),
+  ;
 
-extension UserRoleValueExtension on UserRole {
-  String toValue() {
-    switch (this) {
-      case UserRole.user:
-        return 'USER';
-      case UserRole.resource:
-        return 'RESOURCE';
-      case UserRole.systemUser:
-        return 'SYSTEM_USER';
-    }
-  }
-}
+  final String value;
 
-extension UserRoleFromString on String {
-  UserRole toUserRole() {
-    switch (this) {
-      case 'USER':
-        return UserRole.user;
-      case 'RESOURCE':
-        return UserRole.resource;
-      case 'SYSTEM_USER':
-        return UserRole.systemUser;
-    }
-    throw Exception('$this is not known in enum UserRole');
-  }
+  const UserRole(this.value);
+
+  static UserRole fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum UserRole'));
 }
 
 class DirectoryInUseException extends _s.GenericAwsException {

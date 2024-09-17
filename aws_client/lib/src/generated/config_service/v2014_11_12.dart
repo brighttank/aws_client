@@ -915,7 +915,7 @@ class ConfigService {
       headers: headers,
       payload: {
         if (complianceTypes != null)
-          'ComplianceTypes': complianceTypes.map((e) => e.toValue()).toList(),
+          'ComplianceTypes': complianceTypes.map((e) => e.value).toList(),
         if (configRuleNames != null) 'ConfigRuleNames': configRuleNames,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -1007,7 +1007,7 @@ class ConfigService {
       headers: headers,
       payload: {
         if (complianceTypes != null)
-          'ComplianceTypes': complianceTypes.map((e) => e.toValue()).toList(),
+          'ComplianceTypes': complianceTypes.map((e) => e.value).toList(),
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
         if (resourceId != null) 'ResourceId': resourceId,
@@ -1036,7 +1036,7 @@ class ConfigService {
   /// The number of rule evaluation results that you want returned.
   ///
   /// This parameter is required if the rule limit for your account is more than
-  /// the default of 150 rules.
+  /// the default of 1000 rules.
   ///
   /// For information about requesting a rule limit increase, see <a
   /// href="http://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html#limits_config">Config
@@ -1093,7 +1093,7 @@ class ConfigService {
   /// API returns an unfiltered list. For more information on Detective or
   /// Proactive Config rules, see <a
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config-rules.html">
-  /// <b>Evaluation Mode</b> </a> in the Config Developer Guide.
+  /// <b>Evaluation Mode</b> </a> in the <i>Config Developer Guide</i>.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> string returned on a previous page that you use
@@ -1187,7 +1187,7 @@ class ConfigService {
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
         if (updateStatus != null)
-          'UpdateStatus': updateStatus.map((e) => e.toValue()).toList(),
+          'UpdateStatus': updateStatus.map((e) => e.value).toList(),
       },
     );
 
@@ -1252,10 +1252,10 @@ class ConfigService {
   /// configuration recorder is not specified, this action returns the status of
   /// all configuration recorders associated with the account.
   /// <note>
-  /// Currently, you can specify only one configuration recorder per region in
-  /// your account. For a detailed status of recording events over time, add
-  /// your Config events to Amazon CloudWatch metrics and use CloudWatch
-  /// metrics.
+  /// &gt;You can specify only one configuration recorder for each Amazon Web
+  /// Services Region for each account. For a detailed status of recording
+  /// events over time, add your Config events to Amazon CloudWatch metrics and
+  /// use CloudWatch metrics.
   /// </note>
   ///
   /// May throw [NoSuchConfigurationRecorderException].
@@ -1292,8 +1292,8 @@ class ConfigService {
   /// configuration recorder is not specified, this action returns the details
   /// for all configuration recorders associated with the account.
   /// <note>
-  /// Currently, you can specify only one configuration recorder per region in
-  /// your account.
+  /// You can specify only one configuration recorder for each Amazon Web
+  /// Services Region for each account.
   /// </note>
   ///
   /// May throw [NoSuchConfigurationRecorderException].
@@ -1624,7 +1624,7 @@ class ConfigService {
   /// rule names. It is only applicable, when you request all the organization
   /// Config rules.
   ///
-  /// <i>For accounts within an organzation</i>
+  /// <i>For accounts within an organization</i>
   ///
   /// If you deploy an organizational rule or conformance pack in an
   /// organization administrator account, and then establish a delegated
@@ -1765,7 +1765,7 @@ class ConfigService {
   /// conformance packs names. They are only applicable, when you request all
   /// the organization conformance packs.
   ///
-  /// <i>For accounts within an organzation</i>
+  /// <i>For accounts within an organization</i>
   ///
   /// If you deploy an organizational rule or conformance pack in an
   /// organization administrator account, and then establish a delegated
@@ -2152,7 +2152,7 @@ class ConfigService {
         'AwsRegion': awsRegion,
         'ConfigRuleName': configRuleName,
         'ConfigurationAggregatorName': configurationAggregatorName,
-        if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+        if (complianceType != null) 'ComplianceType': complianceType.value,
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2220,7 +2220,7 @@ class ConfigService {
       payload: {
         'ConfigurationAggregatorName': configurationAggregatorName,
         if (filters != null) 'Filters': filters,
-        if (groupByKey != null) 'GroupByKey': groupByKey.toValue(),
+        if (groupByKey != null) 'GroupByKey': groupByKey.value,
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2290,7 +2290,7 @@ class ConfigService {
       payload: {
         'ConfigurationAggregatorName': configurationAggregatorName,
         if (filters != null) 'Filters': filters,
-        if (groupByKey != null) 'GroupByKey': groupByKey.toValue(),
+        if (groupByKey != null) 'GroupByKey': groupByKey.value,
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2359,7 +2359,7 @@ class ConfigService {
       payload: {
         'ConfigurationAggregatorName': configurationAggregatorName,
         if (filters != null) 'Filters': filters,
-        if (groupByKey != null) 'GroupByKey': groupByKey.toValue(),
+        if (groupByKey != null) 'GroupByKey': groupByKey.value,
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2459,7 +2459,7 @@ class ConfigService {
       payload: {
         'ConfigRuleName': configRuleName,
         if (complianceTypes != null)
-          'ComplianceTypes': complianceTypes.map((e) => e.toValue()).toList(),
+          'ComplianceTypes': complianceTypes.map((e) => e.value).toList(),
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2522,7 +2522,7 @@ class ConfigService {
       headers: headers,
       payload: {
         if (complianceTypes != null)
-          'ComplianceTypes': complianceTypes.map((e) => e.toValue()).toList(),
+          'ComplianceTypes': complianceTypes.map((e) => e.value).toList(),
         if (nextToken != null) 'NextToken': nextToken,
         if (resourceEvaluationId != null)
           'ResourceEvaluationId': resourceEvaluationId,
@@ -2981,6 +2981,13 @@ class ConfigService {
     return GetOrganizationCustomRulePolicyResponse.fromJson(jsonResponse.body);
   }
 
+  /// <important>
+  /// For accurate reporting on the compliance status, you must record the
+  /// <code>AWS::Config::ResourceCompliance</code> resource type. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/select-resources.html">Selecting
+  /// Which Resources Config Records</a>.
+  /// </important>
   /// Returns a list of <code>ConfigurationItems</code> for the specified
   /// resource. The list contains details about each state of the resource
   /// during the specified time interval. If you specified a retention period to
@@ -3019,13 +3026,14 @@ class ConfigService {
   /// results are listed in reverse chronological order.
   ///
   /// Parameter [earlierTime] :
-  /// The time stamp that indicates an earlier time. If not specified, the
-  /// action returns paginated results that contain configuration items that
-  /// start when the first configuration item was recorded.
+  /// The chronologically earliest time in the time range for which the history
+  /// requested. If not specified, the action returns paginated results that
+  /// contain configuration items that start when the first configuration item
+  /// was recorded.
   ///
   /// Parameter [laterTime] :
-  /// The time stamp that indicates a later time. If not specified, current time
-  /// is taken.
+  /// The chronologically latest time in the time range for which the history
+  /// requested. If not specified, current time is taken.
   ///
   /// Parameter [limit] :
   /// The maximum number of configuration items returned on each page. The
@@ -3062,9 +3070,9 @@ class ConfigService {
       headers: headers,
       payload: {
         'resourceId': resourceId,
-        'resourceType': resourceType.toValue(),
+        'resourceType': resourceType.value,
         if (chronologicalOrder != null)
-          'chronologicalOrder': chronologicalOrder.toValue(),
+          'chronologicalOrder': chronologicalOrder.value,
         if (earlierTime != null)
           'earlierTime': unixTimestampToJson(earlierTime),
         if (laterTime != null) 'laterTime': unixTimestampToJson(laterTime),
@@ -3204,7 +3212,7 @@ class ConfigService {
       headers: headers,
       payload: {
         'ConfigurationAggregatorName': configurationAggregatorName,
-        'ResourceType': resourceType.toValue(),
+        'ResourceType': resourceType.value,
         if (filters != null) 'Filters': filters,
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
@@ -3295,8 +3303,8 @@ class ConfigService {
         if (filters != null) 'Filters': filters,
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
-        if (sortBy != null) 'SortBy': sortBy.toValue(),
-        if (sortOrder != null) 'SortOrder': sortOrder.toValue(),
+        if (sortBy != null) 'SortBy': sortBy.value,
+        if (sortOrder != null) 'SortOrder': sortOrder.value,
       },
     );
 
@@ -3377,7 +3385,7 @@ class ConfigService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'resourceType': resourceType.toValue(),
+        'resourceType': resourceType.value,
         if (includeDeletedResources != null)
           'includeDeletedResources': includeDeletedResources,
         if (limit != null) 'limit': limit,
@@ -3746,29 +3754,33 @@ class ConfigService {
     return PutConfigurationAggregatorResponse.fromJson(jsonResponse.body);
   }
 
-  /// Creates a new configuration recorder to record the selected resource
-  /// configurations.
+  /// Creates a new configuration recorder to record configuration changes for
+  /// specified resource types.
   ///
-  /// You can use this action to change the role <code>roleARN</code> or the
-  /// <code>recordingGroup</code> of an existing recorder. To change the role,
-  /// call the action on the existing configuration recorder and specify a role.
+  /// You can also use this action to change the <code>roleARN</code> or the
+  /// <code>recordingGroup</code> of an existing recorder. For more information,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html">
+  /// <b>Managing the Configuration Recorder</b> </a> in the <i>Config Developer
+  /// Guide</i>.
   /// <note>
-  /// Currently, you can specify only one configuration recorder per region in
-  /// your account.
+  /// You can specify only one configuration recorder for each Amazon Web
+  /// Services Region for each account.
   ///
-  /// If <code>ConfigurationRecorder</code> does not have the
-  /// <b>recordingGroup</b> parameter specified, the default is to record all
+  /// If the configuration recorder does not have the
+  /// <code>recordingGroup</code> field specified, the default is to record all
   /// supported resource types.
   /// </note>
   ///
   /// May throw [MaxNumberOfConfigurationRecordersExceededException].
+  /// May throw [ValidationException].
   /// May throw [InvalidConfigurationRecorderNameException].
   /// May throw [InvalidRoleException].
   /// May throw [InvalidRecordingGroupException].
   ///
   /// Parameter [configurationRecorder] :
-  /// The configuration recorder object that records each configuration change
-  /// made to the resources.
+  /// An object for the configuration recorder to record configuration changes
+  /// for specified resource types.
   Future<void> putConfigurationRecorder({
     required ConfigurationRecorder configurationRecorder,
   }) async {
@@ -3793,7 +3805,7 @@ class ConfigService {
   /// across an organization. For information on how many conformance packs you
   /// can have per account, see <a
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/configlimits.html">
-  /// <b>Service Limits</b> </a> in the Config Developer Guide.
+  /// <b>Service Limits</b> </a> in the <i>Config Developer Guide</i>.
   ///
   /// This API creates a service-linked role
   /// <code>AWSServiceRoleForConfigConforms</code> in your account. The
@@ -3846,7 +3858,10 @@ class ConfigService {
   /// pack template (max size: 300 KB) that is located in an Amazon S3 bucket in
   /// the same Region as the conformance pack.
   /// <note>
-  /// You must have access to read Amazon S3 bucket.
+  /// You must have access to read Amazon S3 bucket. In addition, in order to
+  /// ensure a successful deployment, the template object must not be in an <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html">archived
+  /// storage class</a> if this parameter is passed.
   /// </note>
   ///
   /// Parameter [templateSSMDocumentDetails] :
@@ -3890,8 +3905,11 @@ class ConfigService {
     return PutConformancePackResponse.fromJson(jsonResponse.body);
   }
 
-  /// Creates a delivery channel object to deliver configuration information to
-  /// an Amazon S3 bucket and Amazon SNS topic.
+  /// Creates a delivery channel object to deliver configuration information and
+  /// other compliance information to an Amazon S3 bucket and Amazon SNS topic.
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/notifications-for-AWS-Config.html">Notifications
+  /// that Config Sends to an Amazon SNS topic</a>.
   ///
   /// Before you can create a delivery channel, you must create a configuration
   /// recorder.
@@ -4163,7 +4181,7 @@ class ConfigService {
   /// Organization. For information on how many organization conformance packs
   /// and how many Config rules you can have per account, see <a
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/configlimits.html">
-  /// <b>Service Limits</b> </a> in the Config Developer Guide.
+  /// <b>Service Limits</b> </a> in the <i>Config Developer Guide</i>.
   ///
   /// Only a management account and a delegated administrator can call this API.
   /// When calling this API with a delegated administrator, you must ensure
@@ -4236,7 +4254,10 @@ class ConfigService {
   /// Location of file containing the template body. The uri must point to the
   /// conformance pack template (max size: 300 KB).
   /// <note>
-  /// You must have access to read Amazon S3 bucket.
+  /// You must have access to read Amazon S3 bucket. In addition, in order to
+  /// ensure a successful deployment, the template object must not be in an <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-class-intro.html">archived
+  /// storage class</a> if this parameter is passed.
   /// </note>
   Future<PutOrganizationConformancePackResponse>
       putOrganizationConformancePack({
@@ -4281,6 +4302,8 @@ class ConfigService {
   /// The target (SSM document) must exist and have permissions to use the
   /// target.
   /// <note>
+  /// <b>Be aware of backward incompatible changes</b>
+  ///
   /// If you make backward incompatible changes to the SSM document, you must
   /// call this again to ensure the remediations can run.
   ///
@@ -4289,6 +4312,8 @@ class ConfigService {
   /// deployed by conformance packs, and rules deployed by Amazon Web Services
   /// Security Hub.
   /// </note> <note>
+  /// <b>Required fields</b>
+  ///
   /// For manual remediation configuration, you need to provide a value for
   /// <code>automationAssumeRole</code> or use a value in the
   /// <code>assumeRole</code>field to remediate your resources. The SSM
@@ -4299,6 +4324,22 @@ class ConfigService {
   /// <code>assumeRole</code> field value is <code>AutomationAssumeRole</code>
   /// and you need to provide a value for <code>AutomationAssumeRole</code> to
   /// remediate your resources.
+  /// </note> <note>
+  /// <b>Auto remediation can be initiated even for compliant resources</b>
+  ///
+  /// If you enable auto remediation for a specific Config rule using the <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/emAPI_PutRemediationConfigurations.html">PutRemediationConfigurations</a>
+  /// API or the Config console, it initiates the remediation process for all
+  /// non-compliant resources for that specific rule. The auto remediation
+  /// process relies on the compliance data snapshot which is captured on a
+  /// periodic basis. Any non-compliant resource that is updated between the
+  /// snapshot schedule will continue to be remediated based on the last known
+  /// compliance data snapshot.
+  ///
+  /// This means that in some cases auto remediation can be initiated even for
+  /// compliant resources, since the bootstrap processor uses a database that
+  /// can have stale evaluation results based on the last known compliance data
+  /// snapshot.
   /// </note>
   ///
   /// May throw [InsufficientPermissionsException].
@@ -4332,10 +4373,14 @@ class ConfigService {
   /// an existing exception for a specified resource with a specified Config
   /// rule.
   /// <note>
+  /// <b>Exceptions block auto remediation</b>
+  ///
   /// Config generates a remediation exception when a problem occurs running a
   /// remediation action for a specified resource. Remediation exceptions blocks
   /// auto-remediation until the exception is cleared.
   /// </note> <note>
+  /// <b>Manual remediation is recommended when placing an exception</b>
+  ///
   /// When placing an exception on an Amazon Web Services resource, it is
   /// recommended that remediation is set as manual remediation until the given
   /// Config rule for the specified resource evaluates the resource as
@@ -4346,13 +4391,31 @@ class ConfigService {
   /// <code>NON_COMPLIANT</code> evaluation result can delete resources before
   /// the exception is applied.
   /// </note> <note>
+  /// <b>Exceptions can only be performed on non-compliant resources</b>
+  ///
   /// Placing an exception can only be performed on resources that are
   /// <code>NON_COMPLIANT</code>. If you use this API for <code>COMPLIANT</code>
   /// resources or resources that are <code>NOT_APPLICABLE</code>, a remediation
   /// exception will not be generated. For more information on the conditions
   /// that initiate the possible Config evaluation results, see <a
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/config-concepts.html#aws-config-rules">Concepts
-  /// | Config Rules</a> in the Config Developer Guide.
+  /// | Config Rules</a> in the <i>Config Developer Guide</i>.
+  /// </note> <note>
+  /// <b>Auto remediation can be initiated even for compliant resources</b>
+  ///
+  /// If you enable auto remediation for a specific Config rule using the <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/emAPI_PutRemediationConfigurations.html">PutRemediationConfigurations</a>
+  /// API or the Config console, it initiates the remediation process for all
+  /// non-compliant resources for that specific rule. The auto remediation
+  /// process relies on the compliance data snapshot which is captured on a
+  /// periodic basis. Any non-compliant resource that is updated between the
+  /// snapshot schedule will continue to be remediated based on the last known
+  /// compliance data snapshot.
+  ///
+  /// This means that in some cases auto remediation can be initiated even for
+  /// compliant resources, since the bootstrap processor uses a database that
+  /// can have stale evaluation results based on the last known compliance data
+  /// snapshot.
   /// </note>
   ///
   /// May throw [InvalidParameterValueException].
@@ -4590,7 +4653,7 @@ class ConfigService {
   ///
   /// For more information about query components, see the <a
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/query-components.html">
-  /// <b>Query Components</b> </a> section in the Config Developer Guide.
+  /// <b>Query Components</b> </a> section in the <i>Config Developer Guide</i>.
   /// <note>
   /// If you run an aggregation query (i.e., using <code>GROUP BY</code> or
   /// using aggregate functions such as <code>COUNT</code>; e.g., <code>SELECT
@@ -4938,7 +5001,7 @@ class ConfigService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'EvaluationMode': evaluationMode.toValue(),
+        'EvaluationMode': evaluationMode.value,
         'ResourceDetails': resourceDetails,
         if (clientToken != null) 'ClientToken': clientToken,
         if (evaluationContext != null) 'EvaluationContext': evaluationContext,
@@ -5070,12 +5133,12 @@ class AccountAggregationSource {
   factory AccountAggregationSource.fromJson(Map<String, dynamic> json) {
     return AccountAggregationSource(
       accountIds: (json['AccountIds'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       allAwsRegions: json['AllAwsRegions'] as bool?,
       awsRegions: (json['AwsRegions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5276,7 +5339,7 @@ class AggregateConformancePackCompliance {
       Map<String, dynamic> json) {
     return AggregateConformancePackCompliance(
       complianceType: (json['ComplianceType'] as String?)
-          ?.toConformancePackComplianceType(),
+          ?.let(ConformancePackComplianceType.fromString),
       compliantRuleCount: json['CompliantRuleCount'] as int?,
       nonCompliantRuleCount: json['NonCompliantRuleCount'] as int?,
       totalRuleCount: json['TotalRuleCount'] as int?,
@@ -5289,7 +5352,7 @@ class AggregateConformancePackCompliance {
     final nonCompliantRuleCount = this.nonCompliantRuleCount;
     final totalRuleCount = this.totalRuleCount;
     return {
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (compliantRuleCount != null) 'CompliantRuleCount': compliantRuleCount,
       if (nonCompliantRuleCount != null)
         'NonCompliantRuleCount': nonCompliantRuleCount,
@@ -5364,7 +5427,7 @@ class AggregateConformancePackComplianceFilters {
     return {
       if (accountId != null) 'AccountId': accountId,
       if (awsRegion != null) 'AwsRegion': awsRegion,
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (conformancePackName != null)
         'ConformancePackName': conformancePackName,
     };
@@ -5430,35 +5493,19 @@ class AggregateConformancePackComplianceSummaryFilters {
 }
 
 enum AggregateConformancePackComplianceSummaryGroupKey {
-  accountId,
-  awsRegion,
-}
+  accountId('ACCOUNT_ID'),
+  awsRegion('AWS_REGION'),
+  ;
 
-extension AggregateConformancePackComplianceSummaryGroupKeyValueExtension
-    on AggregateConformancePackComplianceSummaryGroupKey {
-  String toValue() {
-    switch (this) {
-      case AggregateConformancePackComplianceSummaryGroupKey.accountId:
-        return 'ACCOUNT_ID';
-      case AggregateConformancePackComplianceSummaryGroupKey.awsRegion:
-        return 'AWS_REGION';
-    }
-  }
-}
+  final String value;
 
-extension AggregateConformancePackComplianceSummaryGroupKeyFromString
-    on String {
-  AggregateConformancePackComplianceSummaryGroupKey
-      toAggregateConformancePackComplianceSummaryGroupKey() {
-    switch (this) {
-      case 'ACCOUNT_ID':
-        return AggregateConformancePackComplianceSummaryGroupKey.accountId;
-      case 'AWS_REGION':
-        return AggregateConformancePackComplianceSummaryGroupKey.awsRegion;
-    }
-    throw Exception(
-        '$this is not known in enum AggregateConformancePackComplianceSummaryGroupKey');
-  }
+  const AggregateConformancePackComplianceSummaryGroupKey(this.value);
+
+  static AggregateConformancePackComplianceSummaryGroupKey fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AggregateConformancePackComplianceSummaryGroupKey'));
 }
 
 /// The details of an Config evaluation for an account ID and region in an
@@ -5508,7 +5555,8 @@ class AggregateEvaluationResult {
       accountId: json['AccountId'] as String?,
       annotation: json['Annotation'] as String?,
       awsRegion: json['AwsRegion'] as String?,
-      complianceType: (json['ComplianceType'] as String?)?.toComplianceType(),
+      complianceType:
+          (json['ComplianceType'] as String?)?.let(ComplianceType.fromString),
       configRuleInvokedTime: timeStampFromJson(json['ConfigRuleInvokedTime']),
       evaluationResultIdentifier: json['EvaluationResultIdentifier'] != null
           ? EvaluationResultIdentifier.fromJson(
@@ -5530,7 +5578,7 @@ class AggregateEvaluationResult {
       if (accountId != null) 'AccountId': accountId,
       if (annotation != null) 'Annotation': annotation,
       if (awsRegion != null) 'AwsRegion': awsRegion,
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (configRuleInvokedTime != null)
         'ConfigRuleInvokedTime': unixTimestampToJson(configRuleInvokedTime),
       if (evaluationResultIdentifier != null)
@@ -5571,7 +5619,7 @@ class AggregateResourceIdentifier {
   factory AggregateResourceIdentifier.fromJson(Map<String, dynamic> json) {
     return AggregateResourceIdentifier(
       resourceId: json['ResourceId'] as String,
-      resourceType: (json['ResourceType'] as String).toResourceType(),
+      resourceType: ResourceType.fromString((json['ResourceType'] as String)),
       sourceAccountId: json['SourceAccountId'] as String,
       sourceRegion: json['SourceRegion'] as String,
       resourceName: json['ResourceName'] as String?,
@@ -5586,7 +5634,7 @@ class AggregateResourceIdentifier {
     final resourceName = this.resourceName;
     return {
       'ResourceId': resourceId,
-      'ResourceType': resourceType.toValue(),
+      'ResourceType': resourceType.value,
       'SourceAccountId': sourceAccountId,
       'SourceRegion': sourceRegion,
       if (resourceName != null) 'ResourceName': resourceName,
@@ -5646,11 +5694,12 @@ class AggregatedSourceStatus {
       awsRegion: json['AwsRegion'] as String?,
       lastErrorCode: json['LastErrorCode'] as String?,
       lastErrorMessage: json['LastErrorMessage'] as String?,
-      lastUpdateStatus:
-          (json['LastUpdateStatus'] as String?)?.toAggregatedSourceStatusType(),
+      lastUpdateStatus: (json['LastUpdateStatus'] as String?)
+          ?.let(AggregatedSourceStatusType.fromString),
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
       sourceId: json['SourceId'] as String?,
-      sourceType: (json['SourceType'] as String?)?.toAggregatedSourceType(),
+      sourceType:
+          (json['SourceType'] as String?)?.let(AggregatedSourceType.fromString),
     );
   }
 
@@ -5666,76 +5715,44 @@ class AggregatedSourceStatus {
       if (awsRegion != null) 'AwsRegion': awsRegion,
       if (lastErrorCode != null) 'LastErrorCode': lastErrorCode,
       if (lastErrorMessage != null) 'LastErrorMessage': lastErrorMessage,
-      if (lastUpdateStatus != null)
-        'LastUpdateStatus': lastUpdateStatus.toValue(),
+      if (lastUpdateStatus != null) 'LastUpdateStatus': lastUpdateStatus.value,
       if (lastUpdateTime != null)
         'LastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (sourceId != null) 'SourceId': sourceId,
-      if (sourceType != null) 'SourceType': sourceType.toValue(),
+      if (sourceType != null) 'SourceType': sourceType.value,
     };
   }
 }
 
 enum AggregatedSourceStatusType {
-  failed,
-  succeeded,
-  outdated,
-}
+  failed('FAILED'),
+  succeeded('SUCCEEDED'),
+  outdated('OUTDATED'),
+  ;
 
-extension AggregatedSourceStatusTypeValueExtension
-    on AggregatedSourceStatusType {
-  String toValue() {
-    switch (this) {
-      case AggregatedSourceStatusType.failed:
-        return 'FAILED';
-      case AggregatedSourceStatusType.succeeded:
-        return 'SUCCEEDED';
-      case AggregatedSourceStatusType.outdated:
-        return 'OUTDATED';
-    }
-  }
-}
+  final String value;
 
-extension AggregatedSourceStatusTypeFromString on String {
-  AggregatedSourceStatusType toAggregatedSourceStatusType() {
-    switch (this) {
-      case 'FAILED':
-        return AggregatedSourceStatusType.failed;
-      case 'SUCCEEDED':
-        return AggregatedSourceStatusType.succeeded;
-      case 'OUTDATED':
-        return AggregatedSourceStatusType.outdated;
-    }
-    throw Exception('$this is not known in enum AggregatedSourceStatusType');
-  }
+  const AggregatedSourceStatusType(this.value);
+
+  static AggregatedSourceStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AggregatedSourceStatusType'));
 }
 
 enum AggregatedSourceType {
-  account,
-  organization,
-}
+  account('ACCOUNT'),
+  organization('ORGANIZATION'),
+  ;
 
-extension AggregatedSourceTypeValueExtension on AggregatedSourceType {
-  String toValue() {
-    switch (this) {
-      case AggregatedSourceType.account:
-        return 'ACCOUNT';
-      case AggregatedSourceType.organization:
-        return 'ORGANIZATION';
-    }
-  }
-}
+  final String value;
 
-extension AggregatedSourceTypeFromString on String {
-  AggregatedSourceType toAggregatedSourceType() {
-    switch (this) {
-      case 'ACCOUNT':
-        return AggregatedSourceType.account;
-      case 'ORGANIZATION':
-        return AggregatedSourceType.organization;
-    }
-    throw Exception('$this is not known in enum AggregatedSourceType');
-  }
+  const AggregatedSourceType(this.value);
+
+  static AggregatedSourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AggregatedSourceType'));
 }
 
 /// An object that represents the authorizations granted to aggregator accounts
@@ -5788,7 +5805,7 @@ class AggregationAuthorization {
   }
 }
 
-/// The detailed configuration of a specified resource.
+/// The detailed configurations of a specified resource.
 class BaseConfigurationItem {
   /// The 12-digit Amazon Web Services account ID associated with the resource.
   final String? accountId;
@@ -5805,39 +5822,53 @@ class BaseConfigurationItem {
   /// The description of the resource configuration.
   final String? configuration;
 
-  /// The time when the configuration recording was initiated.
+  /// The time when the recording of configuration changes was initiated for the
+  /// resource.
   final DateTime? configurationItemCaptureTime;
 
-  /// The configuration item status. The valid values are:
+  /// The time when configuration changes for the resource were delivered.
+  /// <note>
+  /// This field is optional and is not guaranteed to be present in a
+  /// configuration item (CI). If you are using daily recording, this field will
+  /// be populated. However, if you are using continuous recording, this field
+  /// will be omitted since the delivery time is instantaneous as the CI is
+  /// available right away. For more information on daily recording and continuous
+  /// recording, see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/select-resources.html#select-resources-recording-frequency">Recording
+  /// Frequency</a> in the <i>Config Developer Guide</i>.
+  /// </note>
+  final DateTime? configurationItemDeliveryTime;
+
+  /// The configuration item status. Valid values include:
   ///
   /// <ul>
   /// <li>
-  /// OK – The resource configuration has been updated
+  /// OK – The resource configuration has been updated.
   /// </li>
   /// <li>
-  /// ResourceDiscovered – The resource was newly discovered
+  /// ResourceDiscovered – The resource was newly discovered.
   /// </li>
   /// <li>
-  /// ResourceNotRecorded – The resource was discovered but its configuration was
-  /// not recorded since the recorder excludes the recording of resources of this
-  /// type
+  /// ResourceNotRecorded – The resource was discovered, but its configuration was
+  /// not recorded since the recorder doesn't record resources of this type.
   /// </li>
   /// <li>
   /// ResourceDeleted – The resource was deleted
   /// </li>
   /// <li>
-  /// ResourceDeletedNotRecorded – The resource was deleted but its configuration
-  /// was not recorded since the recorder excludes the recording of resources of
-  /// this type
+  /// ResourceDeletedNotRecorded – The resource was deleted, but its configuration
+  /// was not recorded since the recorder doesn't record resources of this type.
   /// </li>
-  /// </ul> <note>
-  /// The CIs do not incur any cost.
-  /// </note>
+  /// </ul>
   final ConfigurationItemStatus? configurationItemStatus;
 
   /// An identifier that indicates the ordering of the configuration items of a
   /// resource.
   final String? configurationStateId;
+
+  /// The recording frequency that Config uses to record configuration changes for
+  /// the resource.
+  final RecordingFrequency? recordingFrequency;
 
   /// The time stamp when the resource was created.
   final DateTime? resourceCreationTime;
@@ -5865,8 +5896,10 @@ class BaseConfigurationItem {
     this.awsRegion,
     this.configuration,
     this.configurationItemCaptureTime,
+    this.configurationItemDeliveryTime,
     this.configurationItemStatus,
     this.configurationStateId,
+    this.recordingFrequency,
     this.resourceCreationTime,
     this.resourceId,
     this.resourceName,
@@ -5884,13 +5917,18 @@ class BaseConfigurationItem {
       configuration: json['configuration'] as String?,
       configurationItemCaptureTime:
           timeStampFromJson(json['configurationItemCaptureTime']),
+      configurationItemDeliveryTime:
+          timeStampFromJson(json['configurationItemDeliveryTime']),
       configurationItemStatus: (json['configurationItemStatus'] as String?)
-          ?.toConfigurationItemStatus(),
+          ?.let(ConfigurationItemStatus.fromString),
       configurationStateId: json['configurationStateId'] as String?,
+      recordingFrequency: (json['recordingFrequency'] as String?)
+          ?.let(RecordingFrequency.fromString),
       resourceCreationTime: timeStampFromJson(json['resourceCreationTime']),
       resourceId: json['resourceId'] as String?,
       resourceName: json['resourceName'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       supplementaryConfiguration:
           (json['supplementaryConfiguration'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
@@ -5905,8 +5943,10 @@ class BaseConfigurationItem {
     final awsRegion = this.awsRegion;
     final configuration = this.configuration;
     final configurationItemCaptureTime = this.configurationItemCaptureTime;
+    final configurationItemDeliveryTime = this.configurationItemDeliveryTime;
     final configurationItemStatus = this.configurationItemStatus;
     final configurationStateId = this.configurationStateId;
+    final recordingFrequency = this.recordingFrequency;
     final resourceCreationTime = this.resourceCreationTime;
     final resourceId = this.resourceId;
     final resourceName = this.resourceName;
@@ -5922,15 +5962,20 @@ class BaseConfigurationItem {
       if (configurationItemCaptureTime != null)
         'configurationItemCaptureTime':
             unixTimestampToJson(configurationItemCaptureTime),
+      if (configurationItemDeliveryTime != null)
+        'configurationItemDeliveryTime':
+            unixTimestampToJson(configurationItemDeliveryTime),
       if (configurationItemStatus != null)
-        'configurationItemStatus': configurationItemStatus.toValue(),
+        'configurationItemStatus': configurationItemStatus.value,
       if (configurationStateId != null)
         'configurationStateId': configurationStateId,
+      if (recordingFrequency != null)
+        'recordingFrequency': recordingFrequency.value,
       if (resourceCreationTime != null)
         'resourceCreationTime': unixTimestampToJson(resourceCreationTime),
       if (resourceId != null) 'resourceId': resourceId,
       if (resourceName != null) 'resourceName': resourceName,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
       if (supplementaryConfiguration != null)
         'supplementaryConfiguration': supplementaryConfiguration,
       if (version != null) 'version': version,
@@ -5955,12 +6000,12 @@ class BatchGetAggregateResourceConfigResponse {
       Map<String, dynamic> json) {
     return BatchGetAggregateResourceConfigResponse(
       baseConfigurationItems: (json['BaseConfigurationItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BaseConfigurationItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedResourceIdentifiers: (json['UnprocessedResourceIdentifiers']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AggregateResourceIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5998,11 +6043,11 @@ class BatchGetResourceConfigResponse {
   factory BatchGetResourceConfigResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetResourceConfigResponse(
       baseConfigurationItems: (json['baseConfigurationItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BaseConfigurationItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedResourceKeys: (json['unprocessedResourceKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceKey.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6021,31 +6066,18 @@ class BatchGetResourceConfigResponse {
 }
 
 enum ChronologicalOrder {
-  reverse,
-  forward,
-}
+  reverse('Reverse'),
+  forward('Forward'),
+  ;
 
-extension ChronologicalOrderValueExtension on ChronologicalOrder {
-  String toValue() {
-    switch (this) {
-      case ChronologicalOrder.reverse:
-        return 'Reverse';
-      case ChronologicalOrder.forward:
-        return 'Forward';
-    }
-  }
-}
+  final String value;
 
-extension ChronologicalOrderFromString on String {
-  ChronologicalOrder toChronologicalOrder() {
-    switch (this) {
-      case 'Reverse':
-        return ChronologicalOrder.reverse;
-      case 'Forward':
-        return ChronologicalOrder.forward;
-    }
-    throw Exception('$this is not known in enum ChronologicalOrder');
-  }
+  const ChronologicalOrder(this.value);
+
+  static ChronologicalOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ChronologicalOrder'));
 }
 
 /// Indicates whether an Amazon Web Services resource or Config rule is
@@ -6086,7 +6118,8 @@ class Compliance {
           ? ComplianceContributorCount.fromJson(
               json['ComplianceContributorCount'] as Map<String, dynamic>)
           : null,
-      complianceType: (json['ComplianceType'] as String?)?.toComplianceType(),
+      complianceType:
+          (json['ComplianceType'] as String?)?.let(ComplianceType.fromString),
     );
   }
 
@@ -6096,7 +6129,7 @@ class Compliance {
     return {
       if (complianceContributorCount != null)
         'ComplianceContributorCount': complianceContributorCount,
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
     };
   }
 }
@@ -6297,41 +6330,20 @@ class ComplianceSummaryByResourceType {
 }
 
 enum ComplianceType {
-  compliant,
-  nonCompliant,
-  notApplicable,
-  insufficientData,
-}
+  compliant('COMPLIANT'),
+  nonCompliant('NON_COMPLIANT'),
+  notApplicable('NOT_APPLICABLE'),
+  insufficientData('INSUFFICIENT_DATA'),
+  ;
 
-extension ComplianceTypeValueExtension on ComplianceType {
-  String toValue() {
-    switch (this) {
-      case ComplianceType.compliant:
-        return 'COMPLIANT';
-      case ComplianceType.nonCompliant:
-        return 'NON_COMPLIANT';
-      case ComplianceType.notApplicable:
-        return 'NOT_APPLICABLE';
-      case ComplianceType.insufficientData:
-        return 'INSUFFICIENT_DATA';
-    }
-  }
-}
+  final String value;
 
-extension ComplianceTypeFromString on String {
-  ComplianceType toComplianceType() {
-    switch (this) {
-      case 'COMPLIANT':
-        return ComplianceType.compliant;
-      case 'NON_COMPLIANT':
-        return ComplianceType.nonCompliant;
-      case 'NOT_APPLICABLE':
-        return ComplianceType.notApplicable;
-      case 'INSUFFICIENT_DATA':
-        return ComplianceType.insufficientData;
-    }
-    throw Exception('$this is not known in enum ComplianceType');
-  }
+  const ComplianceType(this.value);
+
+  static ComplianceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ComplianceType'));
 }
 
 /// Provides status of the delivery of the snapshot or the configuration history
@@ -6370,7 +6382,8 @@ class ConfigExportDeliveryInfo {
       lastAttemptTime: timeStampFromJson(json['lastAttemptTime']),
       lastErrorCode: json['lastErrorCode'] as String?,
       lastErrorMessage: json['lastErrorMessage'] as String?,
-      lastStatus: (json['lastStatus'] as String?)?.toDeliveryStatus(),
+      lastStatus:
+          (json['lastStatus'] as String?)?.let(DeliveryStatus.fromString),
       lastSuccessfulTime: timeStampFromJson(json['lastSuccessfulTime']),
       nextDeliveryTime: timeStampFromJson(json['nextDeliveryTime']),
     );
@@ -6388,7 +6401,7 @@ class ConfigExportDeliveryInfo {
         'lastAttemptTime': unixTimestampToJson(lastAttemptTime),
       if (lastErrorCode != null) 'lastErrorCode': lastErrorCode,
       if (lastErrorMessage != null) 'lastErrorMessage': lastErrorMessage,
-      if (lastStatus != null) 'lastStatus': lastStatus.toValue(),
+      if (lastStatus != null) 'lastStatus': lastStatus.value,
       if (lastSuccessfulTime != null)
         'lastSuccessfulTime': unixTimestampToJson(lastSuccessfulTime),
       if (nextDeliveryTime != null)
@@ -6530,17 +6543,17 @@ class ConfigRule {
       configRuleId: json['ConfigRuleId'] as String?,
       configRuleName: json['ConfigRuleName'] as String?,
       configRuleState:
-          (json['ConfigRuleState'] as String?)?.toConfigRuleState(),
+          (json['ConfigRuleState'] as String?)?.let(ConfigRuleState.fromString),
       createdBy: json['CreatedBy'] as String?,
       description: json['Description'] as String?,
       evaluationModes: (json['EvaluationModes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               EvaluationModeConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       inputParameters: json['InputParameters'] as String?,
       maximumExecutionFrequency: (json['MaximumExecutionFrequency'] as String?)
-          ?.toMaximumExecutionFrequency(),
+          ?.let(MaximumExecutionFrequency.fromString),
       scope: json['Scope'] != null
           ? Scope.fromJson(json['Scope'] as Map<String, dynamic>)
           : null,
@@ -6564,13 +6577,13 @@ class ConfigRule {
       if (configRuleArn != null) 'ConfigRuleArn': configRuleArn,
       if (configRuleId != null) 'ConfigRuleId': configRuleId,
       if (configRuleName != null) 'ConfigRuleName': configRuleName,
-      if (configRuleState != null) 'ConfigRuleState': configRuleState.toValue(),
+      if (configRuleState != null) 'ConfigRuleState': configRuleState.value,
       if (createdBy != null) 'CreatedBy': createdBy,
       if (description != null) 'Description': description,
       if (evaluationModes != null) 'EvaluationModes': evaluationModes,
       if (inputParameters != null) 'InputParameters': inputParameters,
       if (maximumExecutionFrequency != null)
-        'MaximumExecutionFrequency': maximumExecutionFrequency.toValue(),
+        'MaximumExecutionFrequency': maximumExecutionFrequency.value,
       if (scope != null) 'Scope': scope,
     };
   }
@@ -6611,7 +6624,7 @@ class ConfigRuleComplianceFilters {
     return {
       if (accountId != null) 'AccountId': accountId,
       if (awsRegion != null) 'AwsRegion': awsRegion,
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (configRuleName != null) 'ConfigRuleName': configRuleName,
     };
   }
@@ -6641,33 +6654,18 @@ class ConfigRuleComplianceSummaryFilters {
 }
 
 enum ConfigRuleComplianceSummaryGroupKey {
-  accountId,
-  awsRegion,
-}
+  accountId('ACCOUNT_ID'),
+  awsRegion('AWS_REGION'),
+  ;
 
-extension ConfigRuleComplianceSummaryGroupKeyValueExtension
-    on ConfigRuleComplianceSummaryGroupKey {
-  String toValue() {
-    switch (this) {
-      case ConfigRuleComplianceSummaryGroupKey.accountId:
-        return 'ACCOUNT_ID';
-      case ConfigRuleComplianceSummaryGroupKey.awsRegion:
-        return 'AWS_REGION';
-    }
-  }
-}
+  final String value;
 
-extension ConfigRuleComplianceSummaryGroupKeyFromString on String {
-  ConfigRuleComplianceSummaryGroupKey toConfigRuleComplianceSummaryGroupKey() {
-    switch (this) {
-      case 'ACCOUNT_ID':
-        return ConfigRuleComplianceSummaryGroupKey.accountId;
-      case 'AWS_REGION':
-        return ConfigRuleComplianceSummaryGroupKey.awsRegion;
-    }
-    throw Exception(
-        '$this is not known in enum ConfigRuleComplianceSummaryGroupKey');
-  }
+  const ConfigRuleComplianceSummaryGroupKey(this.value);
+
+  static ConfigRuleComplianceSummaryGroupKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigRuleComplianceSummaryGroupKey'));
 }
 
 /// Status information for your Config Managed rules and Config Custom Policy
@@ -6838,41 +6836,20 @@ class ConfigRuleEvaluationStatus {
 }
 
 enum ConfigRuleState {
-  active,
-  deleting,
-  deletingResults,
-  evaluating,
-}
+  active('ACTIVE'),
+  deleting('DELETING'),
+  deletingResults('DELETING_RESULTS'),
+  evaluating('EVALUATING'),
+  ;
 
-extension ConfigRuleStateValueExtension on ConfigRuleState {
-  String toValue() {
-    switch (this) {
-      case ConfigRuleState.active:
-        return 'ACTIVE';
-      case ConfigRuleState.deleting:
-        return 'DELETING';
-      case ConfigRuleState.deletingResults:
-        return 'DELETING_RESULTS';
-      case ConfigRuleState.evaluating:
-        return 'EVALUATING';
-    }
-  }
-}
+  final String value;
 
-extension ConfigRuleStateFromString on String {
-  ConfigRuleState toConfigRuleState() {
-    switch (this) {
-      case 'ACTIVE':
-        return ConfigRuleState.active;
-      case 'DELETING':
-        return ConfigRuleState.deleting;
-      case 'DELETING_RESULTS':
-        return ConfigRuleState.deletingResults;
-      case 'EVALUATING':
-        return ConfigRuleState.evaluating;
-    }
-    throw Exception('$this is not known in enum ConfigRuleState');
-  }
+  const ConfigRuleState(this.value);
+
+  static ConfigRuleState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConfigRuleState'));
 }
 
 /// Provides options for how often Config delivers configuration snapshots to
@@ -6933,8 +6910,8 @@ class ConfigSnapshotDeliveryProperties {
 
   factory ConfigSnapshotDeliveryProperties.fromJson(Map<String, dynamic> json) {
     return ConfigSnapshotDeliveryProperties(
-      deliveryFrequency:
-          (json['deliveryFrequency'] as String?)?.toMaximumExecutionFrequency(),
+      deliveryFrequency: (json['deliveryFrequency'] as String?)
+          ?.let(MaximumExecutionFrequency.fromString),
     );
   }
 
@@ -6942,7 +6919,7 @@ class ConfigSnapshotDeliveryProperties {
     final deliveryFrequency = this.deliveryFrequency;
     return {
       if (deliveryFrequency != null)
-        'deliveryFrequency': deliveryFrequency.toValue(),
+        'deliveryFrequency': deliveryFrequency.value,
     };
   }
 }
@@ -6978,7 +6955,8 @@ class ConfigStreamDeliveryInfo {
     return ConfigStreamDeliveryInfo(
       lastErrorCode: json['lastErrorCode'] as String?,
       lastErrorMessage: json['lastErrorMessage'] as String?,
-      lastStatus: (json['lastStatus'] as String?)?.toDeliveryStatus(),
+      lastStatus:
+          (json['lastStatus'] as String?)?.let(DeliveryStatus.fromString),
       lastStatusChangeTime: timeStampFromJson(json['lastStatusChangeTime']),
     );
   }
@@ -6991,7 +6969,7 @@ class ConfigStreamDeliveryInfo {
     return {
       if (lastErrorCode != null) 'lastErrorCode': lastErrorCode,
       if (lastErrorMessage != null) 'lastErrorMessage': lastErrorMessage,
-      if (lastStatus != null) 'lastStatus': lastStatus.toValue(),
+      if (lastStatus != null) 'lastStatus': lastStatus.value,
       if (lastStatusChangeTime != null)
         'lastStatusChangeTime': unixTimestampToJson(lastStatusChangeTime),
     };
@@ -7035,7 +7013,7 @@ class ConfigurationAggregator {
   factory ConfigurationAggregator.fromJson(Map<String, dynamic> json) {
     return ConfigurationAggregator(
       accountAggregationSources: (json['AccountAggregationSources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AccountAggregationSource.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7096,8 +7074,22 @@ class ConfigurationItem {
   /// The description of the resource configuration.
   final String? configuration;
 
-  /// The time when the configuration recording was initiated.
+  /// The time when the recording of configuration changes was initiated for the
+  /// resource.
   final DateTime? configurationItemCaptureTime;
+
+  /// The time when configuration changes for the resource were delivered.
+  /// <note>
+  /// This field is optional and is not guaranteed to be present in a
+  /// configuration item (CI). If you are using daily recording, this field will
+  /// be populated. However, if you are using continuous recording, this field
+  /// will be omitted since the delivery time is instantaneous as the CI is
+  /// available right away. For more information on daily recording and continuous
+  /// recording, see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/select-resources.html#select-resources-recording-frequency">Recording
+  /// Frequency</a> in the <i>Config Developer Guide</i>.
+  /// </note>
+  final DateTime? configurationItemDeliveryTime;
 
   /// Unique MD5 hash that represents the configuration item's state.
   ///
@@ -7105,7 +7097,7 @@ class ConfigurationItem {
   /// items that are associated with the same resource.
   final String? configurationItemMD5Hash;
 
-  /// The configuration item status. The valid values are:
+  /// The configuration item status. Valid values include:
   ///
   /// <ul>
   /// <li>
@@ -7116,25 +7108,25 @@ class ConfigurationItem {
   /// </li>
   /// <li>
   /// ResourceNotRecorded – The resource was discovered but its configuration was
-  /// not recorded since the recorder excludes the recording of resources of this
-  /// type
+  /// not recorded since the recorder doesn't record resources of this type
   /// </li>
   /// <li>
   /// ResourceDeleted – The resource was deleted
   /// </li>
   /// <li>
   /// ResourceDeletedNotRecorded – The resource was deleted but its configuration
-  /// was not recorded since the recorder excludes the recording of resources of
-  /// this type
+  /// was not recorded since the recorder doesn't record resources of this type
   /// </li>
-  /// </ul> <note>
-  /// The CIs do not incur any cost.
-  /// </note>
+  /// </ul>
   final ConfigurationItemStatus? configurationItemStatus;
 
   /// An identifier that indicates the ordering of the configuration items of a
   /// resource.
   final String? configurationStateId;
+
+  /// The recording frequency that Config uses to record configuration changes for
+  /// the resource.
+  final RecordingFrequency? recordingFrequency;
 
   /// A list of CloudTrail event IDs.
   ///
@@ -7185,9 +7177,11 @@ class ConfigurationItem {
     this.awsRegion,
     this.configuration,
     this.configurationItemCaptureTime,
+    this.configurationItemDeliveryTime,
     this.configurationItemMD5Hash,
     this.configurationItemStatus,
     this.configurationStateId,
+    this.recordingFrequency,
     this.relatedEvents,
     this.relationships,
     this.resourceCreationTime,
@@ -7208,22 +7202,27 @@ class ConfigurationItem {
       configuration: json['configuration'] as String?,
       configurationItemCaptureTime:
           timeStampFromJson(json['configurationItemCaptureTime']),
+      configurationItemDeliveryTime:
+          timeStampFromJson(json['configurationItemDeliveryTime']),
       configurationItemMD5Hash: json['configurationItemMD5Hash'] as String?,
       configurationItemStatus: (json['configurationItemStatus'] as String?)
-          ?.toConfigurationItemStatus(),
+          ?.let(ConfigurationItemStatus.fromString),
       configurationStateId: json['configurationStateId'] as String?,
+      recordingFrequency: (json['recordingFrequency'] as String?)
+          ?.let(RecordingFrequency.fromString),
       relatedEvents: (json['relatedEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       relationships: (json['relationships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Relationship.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceCreationTime: timeStampFromJson(json['resourceCreationTime']),
       resourceId: json['resourceId'] as String?,
       resourceName: json['resourceName'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       supplementaryConfiguration:
           (json['supplementaryConfiguration'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
@@ -7240,9 +7239,11 @@ class ConfigurationItem {
     final awsRegion = this.awsRegion;
     final configuration = this.configuration;
     final configurationItemCaptureTime = this.configurationItemCaptureTime;
+    final configurationItemDeliveryTime = this.configurationItemDeliveryTime;
     final configurationItemMD5Hash = this.configurationItemMD5Hash;
     final configurationItemStatus = this.configurationItemStatus;
     final configurationStateId = this.configurationStateId;
+    final recordingFrequency = this.recordingFrequency;
     final relatedEvents = this.relatedEvents;
     final relationships = this.relationships;
     final resourceCreationTime = this.resourceCreationTime;
@@ -7261,19 +7262,24 @@ class ConfigurationItem {
       if (configurationItemCaptureTime != null)
         'configurationItemCaptureTime':
             unixTimestampToJson(configurationItemCaptureTime),
+      if (configurationItemDeliveryTime != null)
+        'configurationItemDeliveryTime':
+            unixTimestampToJson(configurationItemDeliveryTime),
       if (configurationItemMD5Hash != null)
         'configurationItemMD5Hash': configurationItemMD5Hash,
       if (configurationItemStatus != null)
-        'configurationItemStatus': configurationItemStatus.toValue(),
+        'configurationItemStatus': configurationItemStatus.value,
       if (configurationStateId != null)
         'configurationStateId': configurationStateId,
+      if (recordingFrequency != null)
+        'recordingFrequency': recordingFrequency.value,
       if (relatedEvents != null) 'relatedEvents': relatedEvents,
       if (relationships != null) 'relationships': relationships,
       if (resourceCreationTime != null)
         'resourceCreationTime': unixTimestampToJson(resourceCreationTime),
       if (resourceId != null) 'resourceId': resourceId,
       if (resourceName != null) 'resourceName': resourceName,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
       if (supplementaryConfiguration != null)
         'supplementaryConfiguration': supplementaryConfiguration,
       if (tags != null) 'tags': tags,
@@ -7283,71 +7289,112 @@ class ConfigurationItem {
 }
 
 enum ConfigurationItemStatus {
-  ok,
-  resourceDiscovered,
-  resourceNotRecorded,
-  resourceDeleted,
-  resourceDeletedNotRecorded,
+  ok('OK'),
+  resourceDiscovered('ResourceDiscovered'),
+  resourceNotRecorded('ResourceNotRecorded'),
+  resourceDeleted('ResourceDeleted'),
+  resourceDeletedNotRecorded('ResourceDeletedNotRecorded'),
+  ;
+
+  final String value;
+
+  const ConfigurationItemStatus(this.value);
+
+  static ConfigurationItemStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigurationItemStatus'));
 }
 
-extension ConfigurationItemStatusValueExtension on ConfigurationItemStatus {
-  String toValue() {
-    switch (this) {
-      case ConfigurationItemStatus.ok:
-        return 'OK';
-      case ConfigurationItemStatus.resourceDiscovered:
-        return 'ResourceDiscovered';
-      case ConfigurationItemStatus.resourceNotRecorded:
-        return 'ResourceNotRecorded';
-      case ConfigurationItemStatus.resourceDeleted:
-        return 'ResourceDeleted';
-      case ConfigurationItemStatus.resourceDeletedNotRecorded:
-        return 'ResourceDeletedNotRecorded';
-    }
-  }
-}
-
-extension ConfigurationItemStatusFromString on String {
-  ConfigurationItemStatus toConfigurationItemStatus() {
-    switch (this) {
-      case 'OK':
-        return ConfigurationItemStatus.ok;
-      case 'ResourceDiscovered':
-        return ConfigurationItemStatus.resourceDiscovered;
-      case 'ResourceNotRecorded':
-        return ConfigurationItemStatus.resourceNotRecorded;
-      case 'ResourceDeleted':
-        return ConfigurationItemStatus.resourceDeleted;
-      case 'ResourceDeletedNotRecorded':
-        return ConfigurationItemStatus.resourceDeletedNotRecorded;
-    }
-    throw Exception('$this is not known in enum ConfigurationItemStatus');
-  }
-}
-
-/// An object that represents the recording of configuration changes of an
-/// Amazon Web Services resource.
+/// Records configuration changes to your specified resource types. For more
+/// information about the configuration recorder, see <a
+/// href="https://docs.aws.amazon.com/config/latest/developerguide/stop-start-recorder.html">
+/// <b>Managing the Configuration Recorder</b> </a> in the <i>Config Developer
+/// Guide</i>.
 class ConfigurationRecorder {
-  /// The name of the recorder. By default, Config automatically assigns the name
-  /// "default" when creating the configuration recorder. You cannot change the
-  /// assigned name.
+  /// The name of the configuration recorder. Config automatically assigns the
+  /// name of "default" when creating the configuration recorder.
+  /// <note>
+  /// You cannot change the name of the configuration recorder after it has been
+  /// created. To change the configuration recorder name, you must delete it and
+  /// create a new configuration recorder with a new name.
+  /// </note>
   final String? name;
 
-  /// Specifies the types of Amazon Web Services resources for which Config
-  /// records configuration changes.
+  /// Specifies which resource types Config records for configuration changes.
+  /// <note>
+  /// <b> High Number of Config Evaluations</b>
+  ///
+  /// You may notice increased activity in your account during your initial month
+  /// recording with Config when compared to subsequent months. During the initial
+  /// bootstrapping process, Config runs evaluations on all the resources in your
+  /// account that you have selected for Config to record.
+  ///
+  /// If you are running ephemeral workloads, you may see increased activity from
+  /// Config as it records configuration changes associated with creating and
+  /// deleting these temporary resources. An <i>ephemeral workload</i> is a
+  /// temporary use of computing resources that are loaded and run when needed.
+  /// Examples include Amazon Elastic Compute Cloud (Amazon EC2) Spot Instances,
+  /// Amazon EMR jobs, and Auto Scaling. If you want to avoid the increased
+  /// activity from running ephemeral workloads, you can run these types of
+  /// workloads in a separate account with Config turned off to avoid increased
+  /// configuration recording and rule evaluations.
+  /// </note>
   final RecordingGroup? recordingGroup;
 
-  /// Amazon Resource Name (ARN) of the IAM role used to describe the Amazon Web
-  /// Services resources associated with the account.
+  /// Specifies the default recording frequency that Config uses to record
+  /// configuration changes. Config supports <i>Continuous recording</i> and
+  /// <i>Daily recording</i>.
+  ///
+  /// <ul>
+  /// <li>
+  /// Continuous recording allows you to record configuration changes continuously
+  /// whenever a change occurs.
+  /// </li>
+  /// <li>
+  /// Daily recording allows you to receive a configuration item (CI) representing
+  /// the most recent state of your resources over the last 24-hour period, only
+  /// if it’s different from the previous CI recorded.
+  /// </li>
+  /// </ul> <note>
+  /// Firewall Manager depends on continuous recording to monitor your resources.
+  /// If you are using Firewall Manager, it is recommended that you set the
+  /// recording frequency to Continuous.
+  /// </note>
+  /// You can also override the recording frequency for specific resource types.
+  final RecordingMode? recordingMode;
+
+  /// Amazon Resource Name (ARN) of the IAM role assumed by Config and used by the
+  /// configuration recorder.
   /// <note>
   /// While the API model does not require this field, the server will reject a
-  /// request without a defined roleARN for the configuration recorder.
+  /// request without a defined <code>roleARN</code> for the configuration
+  /// recorder.
+  /// </note> <note>
+  /// <b>Pre-existing Config role</b>
+  ///
+  /// If you have used an Amazon Web Services service that uses Config, such as
+  /// Security Hub or Control Tower, and an Config role has already been created,
+  /// make sure that the IAM role that you use when setting up Config keeps the
+  /// same minimum permissions as the already created Config role. You must do
+  /// this so that the other Amazon Web Services service continues to run as
+  /// expected.
+  ///
+  /// For example, if Control Tower has an IAM role that allows Config to read
+  /// Amazon Simple Storage Service (Amazon S3) objects, make sure that the same
+  /// permissions are granted within the IAM role you use when setting up Config.
+  /// Otherwise, it may interfere with how Control Tower operates. For more
+  /// information about IAM roles for Config, see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/security-iam.html">
+  /// <b>Identity and Access Management for Config</b> </a> in the <i>Config
+  /// Developer Guide</i>.
   /// </note>
   final String? roleARN;
 
   ConfigurationRecorder({
     this.name,
     this.recordingGroup,
+    this.recordingMode,
     this.roleARN,
   });
 
@@ -7358,6 +7405,10 @@ class ConfigurationRecorder {
           ? RecordingGroup.fromJson(
               json['recordingGroup'] as Map<String, dynamic>)
           : null,
+      recordingMode: json['recordingMode'] != null
+          ? RecordingMode.fromJson(
+              json['recordingMode'] as Map<String, dynamic>)
+          : null,
       roleARN: json['roleARN'] as String?,
     );
   }
@@ -7365,10 +7416,12 @@ class ConfigurationRecorder {
   Map<String, dynamic> toJson() {
     final name = this.name;
     final recordingGroup = this.recordingGroup;
+    final recordingMode = this.recordingMode;
     final roleARN = this.roleARN;
     return {
       if (name != null) 'name': name,
       if (recordingGroup != null) 'recordingGroup': recordingGroup,
+      if (recordingMode != null) 'recordingMode': recordingMode,
       if (roleARN != null) 'roleARN': roleARN,
     };
   }
@@ -7421,7 +7474,8 @@ class ConfigurationRecorderStatus {
       lastErrorCode: json['lastErrorCode'] as String?,
       lastErrorMessage: json['lastErrorMessage'] as String?,
       lastStartTime: timeStampFromJson(json['lastStartTime']),
-      lastStatus: (json['lastStatus'] as String?)?.toRecorderStatus(),
+      lastStatus:
+          (json['lastStatus'] as String?)?.let(RecorderStatus.fromString),
       lastStatusChangeTime: timeStampFromJson(json['lastStatusChangeTime']),
       lastStopTime: timeStampFromJson(json['lastStopTime']),
       name: json['name'] as String?,
@@ -7443,7 +7497,7 @@ class ConfigurationRecorderStatus {
       if (lastErrorMessage != null) 'lastErrorMessage': lastErrorMessage,
       if (lastStartTime != null)
         'lastStartTime': unixTimestampToJson(lastStartTime),
-      if (lastStatus != null) 'lastStatus': lastStatus.toValue(),
+      if (lastStatus != null) 'lastStatus': lastStatus.value,
       if (lastStatusChangeTime != null)
         'lastStatusChangeTime': unixTimestampToJson(lastStatusChangeTime),
       if (lastStopTime != null)
@@ -7474,7 +7528,7 @@ class ConformancePackComplianceFilters {
     final complianceType = this.complianceType;
     final configRuleNames = this.configRuleNames;
     return {
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (configRuleNames != null) 'ConfigRuleNames': configRuleNames,
     };
   }
@@ -7563,9 +7617,8 @@ class ConformancePackComplianceSummary {
 
   factory ConformancePackComplianceSummary.fromJson(Map<String, dynamic> json) {
     return ConformancePackComplianceSummary(
-      conformancePackComplianceStatus:
-          (json['ConformancePackComplianceStatus'] as String)
-              .toConformancePackComplianceType(),
+      conformancePackComplianceStatus: ConformancePackComplianceType.fromString(
+          (json['ConformancePackComplianceStatus'] as String)),
       conformancePackName: json['ConformancePackName'] as String,
     );
   }
@@ -7575,45 +7628,26 @@ class ConformancePackComplianceSummary {
         this.conformancePackComplianceStatus;
     final conformancePackName = this.conformancePackName;
     return {
-      'ConformancePackComplianceStatus':
-          conformancePackComplianceStatus.toValue(),
+      'ConformancePackComplianceStatus': conformancePackComplianceStatus.value,
       'ConformancePackName': conformancePackName,
     };
   }
 }
 
 enum ConformancePackComplianceType {
-  compliant,
-  nonCompliant,
-  insufficientData,
-}
+  compliant('COMPLIANT'),
+  nonCompliant('NON_COMPLIANT'),
+  insufficientData('INSUFFICIENT_DATA'),
+  ;
 
-extension ConformancePackComplianceTypeValueExtension
-    on ConformancePackComplianceType {
-  String toValue() {
-    switch (this) {
-      case ConformancePackComplianceType.compliant:
-        return 'COMPLIANT';
-      case ConformancePackComplianceType.nonCompliant:
-        return 'NON_COMPLIANT';
-      case ConformancePackComplianceType.insufficientData:
-        return 'INSUFFICIENT_DATA';
-    }
-  }
-}
+  final String value;
 
-extension ConformancePackComplianceTypeFromString on String {
-  ConformancePackComplianceType toConformancePackComplianceType() {
-    switch (this) {
-      case 'COMPLIANT':
-        return ConformancePackComplianceType.compliant;
-      case 'NON_COMPLIANT':
-        return ConformancePackComplianceType.nonCompliant;
-      case 'INSUFFICIENT_DATA':
-        return ConformancePackComplianceType.insufficientData;
-    }
-    throw Exception('$this is not known in enum ConformancePackComplianceType');
-  }
+  const ConformancePackComplianceType(this.value);
+
+  static ConformancePackComplianceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConformancePackComplianceType'));
 }
 
 /// Returns details of a conformance pack. A conformance pack is a collection of
@@ -7675,7 +7709,7 @@ class ConformancePackDetail {
       conformancePackName: json['ConformancePackName'] as String,
       conformancePackInputParameters: (json['ConformancePackInputParameters']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ConformancePackInputParameter.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7755,7 +7789,7 @@ class ConformancePackEvaluationFilters {
     final resourceIds = this.resourceIds;
     final resourceType = this.resourceType;
     return {
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (configRuleNames != null) 'ConfigRuleNames': configRuleNames,
       if (resourceIds != null) 'ResourceIds': resourceIds,
       if (resourceType != null) 'ResourceType': resourceType,
@@ -7792,8 +7826,8 @@ class ConformancePackEvaluationResult {
 
   factory ConformancePackEvaluationResult.fromJson(Map<String, dynamic> json) {
     return ConformancePackEvaluationResult(
-      complianceType:
-          (json['ComplianceType'] as String).toConformancePackComplianceType(),
+      complianceType: ConformancePackComplianceType.fromString(
+          (json['ComplianceType'] as String)),
       configRuleInvokedTime:
           nonNullableTimeStampFromJson(json['ConfigRuleInvokedTime'] as Object),
       evaluationResultIdentifier: EvaluationResultIdentifier.fromJson(
@@ -7811,7 +7845,7 @@ class ConformancePackEvaluationResult {
     final resultRecordedTime = this.resultRecordedTime;
     final annotation = this.annotation;
     return {
-      'ComplianceType': complianceType.toValue(),
+      'ComplianceType': complianceType.value,
       'ConfigRuleInvokedTime': unixTimestampToJson(configRuleInvokedTime),
       'EvaluationResultIdentifier': evaluationResultIdentifier,
       'ResultRecordedTime': unixTimestampToJson(resultRecordedTime),
@@ -7876,10 +7910,10 @@ class ConformancePackRuleCompliance {
   factory ConformancePackRuleCompliance.fromJson(Map<String, dynamic> json) {
     return ConformancePackRuleCompliance(
       complianceType: (json['ComplianceType'] as String?)
-          ?.toConformancePackComplianceType(),
+          ?.let(ConformancePackComplianceType.fromString),
       configRuleName: json['ConfigRuleName'] as String?,
       controls: (json['Controls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -7890,7 +7924,7 @@ class ConformancePackRuleCompliance {
     final configRuleName = this.configRuleName;
     final controls = this.controls;
     return {
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (configRuleName != null) 'ConfigRuleName': configRuleName,
       if (controls != null) 'Controls': controls,
     };
@@ -7898,46 +7932,21 @@ class ConformancePackRuleCompliance {
 }
 
 enum ConformancePackState {
-  createInProgress,
-  createComplete,
-  createFailed,
-  deleteInProgress,
-  deleteFailed,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  createComplete('CREATE_COMPLETE'),
+  createFailed('CREATE_FAILED'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  deleteFailed('DELETE_FAILED'),
+  ;
 
-extension ConformancePackStateValueExtension on ConformancePackState {
-  String toValue() {
-    switch (this) {
-      case ConformancePackState.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case ConformancePackState.createComplete:
-        return 'CREATE_COMPLETE';
-      case ConformancePackState.createFailed:
-        return 'CREATE_FAILED';
-      case ConformancePackState.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case ConformancePackState.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ConformancePackStateFromString on String {
-  ConformancePackState toConformancePackState() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return ConformancePackState.createInProgress;
-      case 'CREATE_COMPLETE':
-        return ConformancePackState.createComplete;
-      case 'CREATE_FAILED':
-        return ConformancePackState.createFailed;
-      case 'DELETE_IN_PROGRESS':
-        return ConformancePackState.deleteInProgress;
-      case 'DELETE_FAILED':
-        return ConformancePackState.deleteFailed;
-    }
-    throw Exception('$this is not known in enum ConformancePackState');
-  }
+  const ConformancePackState(this.value);
+
+  static ConformancePackState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConformancePackState'));
 }
 
 /// Status details of a conformance pack.
@@ -8004,8 +8013,8 @@ class ConformancePackStatusDetail {
       conformancePackArn: json['ConformancePackArn'] as String,
       conformancePackId: json['ConformancePackId'] as String,
       conformancePackName: json['ConformancePackName'] as String,
-      conformancePackState:
-          (json['ConformancePackState'] as String).toConformancePackState(),
+      conformancePackState: ConformancePackState.fromString(
+          (json['ConformancePackState'] as String)),
       lastUpdateRequestedTime: nonNullableTimeStampFromJson(
           json['LastUpdateRequestedTime'] as Object),
       stackArn: json['StackArn'] as String,
@@ -8029,7 +8038,7 @@ class ConformancePackStatusDetail {
       'ConformancePackArn': conformancePackArn,
       'ConformancePackId': conformancePackId,
       'ConformancePackName': conformancePackName,
-      'ConformancePackState': conformancePackState.toValue(),
+      'ConformancePackState': conformancePackState.value,
       'LastUpdateRequestedTime': unixTimestampToJson(lastUpdateRequestedTime),
       'StackArn': stackArn,
       if (conformancePackStatusReason != null)
@@ -8126,7 +8135,7 @@ class DeleteRemediationExceptionsResponse {
       Map<String, dynamic> json) {
     return DeleteRemediationExceptionsResponse(
       failedBatches: (json['FailedBatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FailedDeleteRemediationExceptionsBatch.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -8324,36 +8333,19 @@ class DeliveryChannelStatus {
 }
 
 enum DeliveryStatus {
-  success,
-  failure,
-  notApplicable,
-}
+  success('Success'),
+  failure('Failure'),
+  notApplicable('Not_Applicable'),
+  ;
 
-extension DeliveryStatusValueExtension on DeliveryStatus {
-  String toValue() {
-    switch (this) {
-      case DeliveryStatus.success:
-        return 'Success';
-      case DeliveryStatus.failure:
-        return 'Failure';
-      case DeliveryStatus.notApplicable:
-        return 'Not_Applicable';
-    }
-  }
-}
+  final String value;
 
-extension DeliveryStatusFromString on String {
-  DeliveryStatus toDeliveryStatus() {
-    switch (this) {
-      case 'Success':
-        return DeliveryStatus.success;
-      case 'Failure':
-        return DeliveryStatus.failure;
-      case 'Not_Applicable':
-        return DeliveryStatus.notApplicable;
-    }
-    throw Exception('$this is not known in enum DeliveryStatus');
-  }
+  const DeliveryStatus(this.value);
+
+  static DeliveryStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeliveryStatus'));
 }
 
 class DescribeAggregateComplianceByConfigRulesResponse {
@@ -8374,7 +8366,7 @@ class DescribeAggregateComplianceByConfigRulesResponse {
     return DescribeAggregateComplianceByConfigRulesResponse(
       aggregateComplianceByConfigRules:
           (json['AggregateComplianceByConfigRules'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AggregateComplianceByConfigRule.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -8413,7 +8405,7 @@ class DescribeAggregateComplianceByConformancePacksResponse {
     return DescribeAggregateComplianceByConformancePacksResponse(
       aggregateComplianceByConformancePacks:
           (json['AggregateComplianceByConformancePacks'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AggregateComplianceByConformancePack.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -8452,7 +8444,7 @@ class DescribeAggregationAuthorizationsResponse {
       Map<String, dynamic> json) {
     return DescribeAggregationAuthorizationsResponse(
       aggregationAuthorizations: (json['AggregationAuthorizations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AggregationAuthorization.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8489,7 +8481,7 @@ class DescribeComplianceByConfigRuleResponse {
       Map<String, dynamic> json) {
     return DescribeComplianceByConfigRuleResponse(
       complianceByConfigRules: (json['ComplianceByConfigRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ComplianceByConfigRule.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8527,7 +8519,7 @@ class DescribeComplianceByResourceResponse {
       Map<String, dynamic> json) {
     return DescribeComplianceByResourceResponse(
       complianceByResources: (json['ComplianceByResources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ComplianceByResource.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -8564,7 +8556,7 @@ class DescribeConfigRuleEvaluationStatusResponse {
     return DescribeConfigRuleEvaluationStatusResponse(
       configRulesEvaluationStatus: (json['ConfigRulesEvaluationStatus']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ConfigRuleEvaluationStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8587,7 +8579,7 @@ class DescribeConfigRuleEvaluationStatusResponse {
 /// if the filter is not defined, this API returns an unfiltered list. For more
 /// information on Detective or Proactive Config rules, see <a
 /// href="https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config-rules.html">
-/// <b>Evaluation Mode</b> </a> in the Config Developer Guide.
+/// <b>Evaluation Mode</b> </a> in the <i>Config Developer Guide</i>.
 class DescribeConfigRulesFilters {
   /// The mode of an evaluation. The valid values are Detective or Proactive.
   final EvaluationMode? evaluationMode;
@@ -8599,7 +8591,7 @@ class DescribeConfigRulesFilters {
   Map<String, dynamic> toJson() {
     final evaluationMode = this.evaluationMode;
     return {
-      if (evaluationMode != null) 'EvaluationMode': evaluationMode.toValue(),
+      if (evaluationMode != null) 'EvaluationMode': evaluationMode.value,
     };
   }
 }
@@ -8621,7 +8613,7 @@ class DescribeConfigRulesResponse {
   factory DescribeConfigRulesResponse.fromJson(Map<String, dynamic> json) {
     return DescribeConfigRulesResponse(
       configRules: (json['ConfigRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConfigRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -8655,7 +8647,7 @@ class DescribeConfigurationAggregatorSourcesStatusResponse {
       Map<String, dynamic> json) {
     return DescribeConfigurationAggregatorSourcesStatusResponse(
       aggregatedSourceStatusList: (json['AggregatedSourceStatusList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AggregatedSourceStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8691,7 +8683,7 @@ class DescribeConfigurationAggregatorsResponse {
       Map<String, dynamic> json) {
     return DescribeConfigurationAggregatorsResponse(
       configurationAggregators: (json['ConfigurationAggregators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ConfigurationAggregator.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8725,7 +8717,7 @@ class DescribeConfigurationRecorderStatusResponse {
     return DescribeConfigurationRecorderStatusResponse(
       configurationRecordersStatus: (json['ConfigurationRecordersStatus']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ConfigurationRecorderStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8755,7 +8747,7 @@ class DescribeConfigurationRecordersResponse {
       Map<String, dynamic> json) {
     return DescribeConfigurationRecordersResponse(
       configurationRecorders: (json['ConfigurationRecorders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConfigurationRecorder.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8793,7 +8785,7 @@ class DescribeConformancePackComplianceResponse {
       conformancePackName: json['ConformancePackName'] as String,
       conformancePackRuleComplianceList:
           (json['ConformancePackRuleComplianceList'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => ConformancePackRuleCompliance.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -8832,7 +8824,7 @@ class DescribeConformancePackStatusResponse {
     return DescribeConformancePackStatusResponse(
       conformancePackStatusDetails: (json['ConformancePackStatusDetails']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ConformancePackStatusDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8867,7 +8859,7 @@ class DescribeConformancePacksResponse {
   factory DescribeConformancePacksResponse.fromJson(Map<String, dynamic> json) {
     return DescribeConformancePacksResponse(
       conformancePackDetails: (json['ConformancePackDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConformancePackDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -8898,7 +8890,7 @@ class DescribeDeliveryChannelStatusResponse {
       Map<String, dynamic> json) {
     return DescribeDeliveryChannelStatusResponse(
       deliveryChannelsStatus: (json['DeliveryChannelsStatus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DeliveryChannelStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8925,7 +8917,7 @@ class DescribeDeliveryChannelsResponse {
   factory DescribeDeliveryChannelsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeDeliveryChannelsResponse(
       deliveryChannels: (json['DeliveryChannels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DeliveryChannel.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8958,7 +8950,7 @@ class DescribeOrganizationConfigRuleStatusesResponse {
       nextToken: json['NextToken'] as String?,
       organizationConfigRuleStatuses: (json['OrganizationConfigRuleStatuses']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               OrganizationConfigRuleStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8994,7 +8986,7 @@ class DescribeOrganizationConfigRulesResponse {
     return DescribeOrganizationConfigRulesResponse(
       nextToken: json['NextToken'] as String?,
       organizationConfigRules: (json['OrganizationConfigRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => OrganizationConfigRule.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9032,7 +9024,7 @@ class DescribeOrganizationConformancePackStatusesResponse {
       nextToken: json['NextToken'] as String?,
       organizationConformancePackStatuses:
           (json['OrganizationConformancePackStatuses'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => OrganizationConformancePackStatus.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -9071,7 +9063,7 @@ class DescribeOrganizationConformancePacksResponse {
       nextToken: json['NextToken'] as String?,
       organizationConformancePacks: (json['OrganizationConformancePacks']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               OrganizationConformancePack.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9107,7 +9099,7 @@ class DescribePendingAggregationRequestsResponse {
     return DescribePendingAggregationRequestsResponse(
       nextToken: json['NextToken'] as String?,
       pendingAggregationRequests: (json['PendingAggregationRequests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               PendingAggregationRequest.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9137,7 +9129,7 @@ class DescribeRemediationConfigurationsResponse {
       Map<String, dynamic> json) {
     return DescribeRemediationConfigurationsResponse(
       remediationConfigurations: (json['RemediationConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RemediationConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9171,7 +9163,7 @@ class DescribeRemediationExceptionsResponse {
     return DescribeRemediationExceptionsResponse(
       nextToken: json['NextToken'] as String?,
       remediationExceptions: (json['RemediationExceptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RemediationException.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9207,7 +9199,7 @@ class DescribeRemediationExecutionStatusResponse {
       nextToken: json['NextToken'] as String?,
       remediationExecutionStatuses: (json['RemediationExecutionStatuses']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RemediationExecutionStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9243,7 +9235,7 @@ class DescribeRetentionConfigurationsResponse {
     return DescribeRetentionConfigurationsResponse(
       nextToken: json['NextToken'] as String?,
       retentionConfigurations: (json['RetentionConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => RetentionConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9307,7 +9299,8 @@ class Evaluation {
     return Evaluation(
       complianceResourceId: json['ComplianceResourceId'] as String,
       complianceResourceType: json['ComplianceResourceType'] as String,
-      complianceType: (json['ComplianceType'] as String).toComplianceType(),
+      complianceType:
+          ComplianceType.fromString((json['ComplianceType'] as String)),
       orderingTimestamp:
           nonNullableTimeStampFromJson(json['OrderingTimestamp'] as Object),
       annotation: json['Annotation'] as String?,
@@ -9323,7 +9316,7 @@ class Evaluation {
     return {
       'ComplianceResourceId': complianceResourceId,
       'ComplianceResourceType': complianceResourceType,
-      'ComplianceType': complianceType.toValue(),
+      'ComplianceType': complianceType.value,
       'OrderingTimestamp': unixTimestampToJson(orderingTimestamp),
       if (annotation != null) 'Annotation': annotation,
     };
@@ -9358,34 +9351,21 @@ class EvaluationContext {
 }
 
 enum EvaluationMode {
-  detective,
-  proactive,
+  detective('DETECTIVE'),
+  proactive('PROACTIVE'),
+  ;
+
+  final String value;
+
+  const EvaluationMode(this.value);
+
+  static EvaluationMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EvaluationMode'));
 }
 
-extension EvaluationModeValueExtension on EvaluationMode {
-  String toValue() {
-    switch (this) {
-      case EvaluationMode.detective:
-        return 'DETECTIVE';
-      case EvaluationMode.proactive:
-        return 'PROACTIVE';
-    }
-  }
-}
-
-extension EvaluationModeFromString on String {
-  EvaluationMode toEvaluationMode() {
-    switch (this) {
-      case 'DETECTIVE':
-        return EvaluationMode.detective;
-      case 'PROACTIVE':
-        return EvaluationMode.proactive;
-    }
-    throw Exception('$this is not known in enum EvaluationMode');
-  }
-}
-
-/// The configuration object for Config rule evaluation mode. The Supported
+/// The configuration object for Config rule evaluation mode. The supported
 /// valid values are Detective or Proactive.
 class EvaluationModeConfiguration {
   /// The mode of an evaluation. The valid values are Detective or Proactive.
@@ -9397,14 +9377,14 @@ class EvaluationModeConfiguration {
 
   factory EvaluationModeConfiguration.fromJson(Map<String, dynamic> json) {
     return EvaluationModeConfiguration(
-      mode: (json['Mode'] as String?)?.toEvaluationMode(),
+      mode: (json['Mode'] as String?)?.let(EvaluationMode.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final mode = this.mode;
     return {
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
     };
   }
 }
@@ -9453,7 +9433,8 @@ class EvaluationResult {
   factory EvaluationResult.fromJson(Map<String, dynamic> json) {
     return EvaluationResult(
       annotation: json['Annotation'] as String?,
-      complianceType: (json['ComplianceType'] as String?)?.toComplianceType(),
+      complianceType:
+          (json['ComplianceType'] as String?)?.let(ComplianceType.fromString),
       configRuleInvokedTime: timeStampFromJson(json['ConfigRuleInvokedTime']),
       evaluationResultIdentifier: json['EvaluationResultIdentifier'] != null
           ? EvaluationResultIdentifier.fromJson(
@@ -9473,7 +9454,7 @@ class EvaluationResult {
     final resultToken = this.resultToken;
     return {
       if (annotation != null) 'Annotation': annotation,
-      if (complianceType != null) 'ComplianceType': complianceType.toValue(),
+      if (complianceType != null) 'ComplianceType': complianceType.value,
       if (configRuleInvokedTime != null)
         'ConfigRuleInvokedTime': unixTimestampToJson(configRuleInvokedTime),
       if (evaluationResultIdentifier != null)
@@ -9558,7 +9539,8 @@ class EvaluationResultQualifier {
   factory EvaluationResultQualifier.fromJson(Map<String, dynamic> json) {
     return EvaluationResultQualifier(
       configRuleName: json['ConfigRuleName'] as String?,
-      evaluationMode: (json['EvaluationMode'] as String?)?.toEvaluationMode(),
+      evaluationMode:
+          (json['EvaluationMode'] as String?)?.let(EvaluationMode.fromString),
       resourceId: json['ResourceId'] as String?,
       resourceType: json['ResourceType'] as String?,
     );
@@ -9571,7 +9553,7 @@ class EvaluationResultQualifier {
     final resourceType = this.resourceType;
     return {
       if (configRuleName != null) 'ConfigRuleName': configRuleName,
-      if (evaluationMode != null) 'EvaluationMode': evaluationMode.toValue(),
+      if (evaluationMode != null) 'EvaluationMode': evaluationMode.value,
       if (resourceId != null) 'ResourceId': resourceId,
       if (resourceType != null) 'ResourceType': resourceType,
     };
@@ -9594,7 +9576,7 @@ class EvaluationStatus {
 
   factory EvaluationStatus.fromJson(Map<String, dynamic> json) {
     return EvaluationStatus(
-      status: (json['Status'] as String).toResourceEvaluationStatus(),
+      status: ResourceEvaluationStatus.fromString((json['Status'] as String)),
       failureReason: json['FailureReason'] as String?,
     );
   }
@@ -9603,32 +9585,103 @@ class EvaluationStatus {
     final status = this.status;
     final failureReason = this.failureReason;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
       if (failureReason != null) 'FailureReason': failureReason,
     };
   }
 }
 
 enum EventSource {
-  awsConfig,
+  awsConfig('aws.config'),
+  ;
+
+  final String value;
+
+  const EventSource(this.value);
+
+  static EventSource fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EventSource'));
 }
 
-extension EventSourceValueExtension on EventSource {
-  String toValue() {
-    switch (this) {
-      case EventSource.awsConfig:
-        return 'aws.config';
-    }
+/// Specifies whether the configuration recorder excludes certain resource types
+/// from being recorded. Use the <code>resourceTypes</code> field to enter a
+/// comma-separated list of resource types you want to exclude from recording.
+///
+/// By default, when Config adds support for a new resource type in the Region
+/// where you set up the configuration recorder, including global resource
+/// types, Config starts recording resources of that type automatically.
+/// <note>
+/// <b>How to use the exclusion recording strategy </b>
+///
+/// To use this option, you must set the <code>useOnly</code> field of <a
+/// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingStrategy.html">RecordingStrategy</a>
+/// to <code>EXCLUSION_BY_RESOURCE_TYPES</code>.
+///
+/// Config will then record configuration changes for all supported resource
+/// types, except the resource types that you specify to exclude from being
+/// recorded.
+///
+/// <b>Global resource types and the exclusion recording strategy </b>
+///
+/// Unless specifically listed as exclusions,
+/// <code>AWS::RDS::GlobalCluster</code> will be recorded automatically in all
+/// supported Config Regions were the configuration recorder is enabled.
+///
+/// IAM users, groups, roles, and customer managed policies will be recorded in
+/// the Region where you set up the configuration recorder if that is a Region
+/// where Config was available before February 2022. You cannot be record the
+/// global IAM resouce types in Regions supported by Config after February 2022.
+/// This list where you cannot record the global IAM resource types includes the
+/// following Regions:
+///
+/// <ul>
+/// <li>
+/// Asia Pacific (Hyderabad)
+/// </li>
+/// <li>
+/// Asia Pacific (Melbourne)
+/// </li>
+/// <li>
+/// Canada West (Calgary)
+/// </li>
+/// <li>
+/// Europe (Spain)
+/// </li>
+/// <li>
+/// Europe (Zurich)
+/// </li>
+/// <li>
+/// Israel (Tel Aviv)
+/// </li>
+/// <li>
+/// Middle East (UAE)
+/// </li>
+/// </ul> </note>
+class ExclusionByResourceTypes {
+  /// A comma-separated list of resource types to exclude from recording by the
+  /// configuration recorder.
+  final List<ResourceType>? resourceTypes;
+
+  ExclusionByResourceTypes({
+    this.resourceTypes,
+  });
+
+  factory ExclusionByResourceTypes.fromJson(Map<String, dynamic> json) {
+    return ExclusionByResourceTypes(
+      resourceTypes: (json['resourceTypes'] as List?)
+          ?.nonNulls
+          .map((e) => ResourceType.fromString((e as String)))
+          .toList(),
+    );
   }
-}
 
-extension EventSourceFromString on String {
-  EventSource toEventSource() {
-    switch (this) {
-      case 'aws.config':
-        return EventSource.awsConfig;
-    }
-    throw Exception('$this is not known in enum EventSource');
+  Map<String, dynamic> toJson() {
+    final resourceTypes = this.resourceTypes;
+    return {
+      if (resourceTypes != null)
+        'resourceTypes': resourceTypes.map((e) => e.value).toList(),
+    };
   }
 }
 
@@ -9696,7 +9749,7 @@ class ExternalEvaluation {
     return {
       'ComplianceResourceId': complianceResourceId,
       'ComplianceResourceType': complianceResourceType,
-      'ComplianceType': complianceType.toValue(),
+      'ComplianceType': complianceType.value,
       'OrderingTimestamp': unixTimestampToJson(orderingTimestamp),
       if (annotation != null) 'Annotation': annotation,
     };
@@ -9722,7 +9775,7 @@ class FailedDeleteRemediationExceptionsBatch {
       Map<String, dynamic> json) {
     return FailedDeleteRemediationExceptionsBatch(
       failedItems: (json['FailedItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RemediationExceptionResourceKey.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -9756,7 +9809,7 @@ class FailedRemediationBatch {
   factory FailedRemediationBatch.fromJson(Map<String, dynamic> json) {
     return FailedRemediationBatch(
       failedItems: (json['FailedItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RemediationConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9790,7 +9843,7 @@ class FailedRemediationExceptionBatch {
   factory FailedRemediationExceptionBatch.fromJson(Map<String, dynamic> json) {
     return FailedRemediationExceptionBatch(
       failedItems: (json['FailedItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RemediationException.fromJson(e as Map<String, dynamic>))
           .toList(),
       failureMessage: json['FailureMessage'] as String?,
@@ -9847,7 +9900,7 @@ class GetAggregateComplianceDetailsByConfigRuleResponse {
       Map<String, dynamic> json) {
     return GetAggregateComplianceDetailsByConfigRuleResponse(
       aggregateEvaluationResults: (json['AggregateEvaluationResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AggregateEvaluationResult.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9887,7 +9940,7 @@ class GetAggregateConfigRuleComplianceSummaryResponse {
       Map<String, dynamic> json) {
     return GetAggregateConfigRuleComplianceSummaryResponse(
       aggregateComplianceCounts: (json['AggregateComplianceCounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AggregateComplianceCount.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9934,7 +9987,7 @@ class GetAggregateConformancePackComplianceSummaryResponse {
     return GetAggregateConformancePackComplianceSummaryResponse(
       aggregateConformancePackComplianceSummaries:
           (json['AggregateConformancePackComplianceSummaries'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AggregateConformancePackComplianceSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -9987,7 +10040,7 @@ class GetAggregateDiscoveredResourceCountsResponse {
       totalDiscoveredResources: json['TotalDiscoveredResources'] as int,
       groupByKey: json['GroupByKey'] as String?,
       groupedResourceCounts: (json['GroupedResourceCounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GroupedResourceCount.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -10054,7 +10107,7 @@ class GetComplianceDetailsByConfigRuleResponse {
       Map<String, dynamic> json) {
     return GetComplianceDetailsByConfigRuleResponse(
       evaluationResults: (json['EvaluationResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EvaluationResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -10090,7 +10143,7 @@ class GetComplianceDetailsByResourceResponse {
       Map<String, dynamic> json) {
     return GetComplianceDetailsByResourceResponse(
       evaluationResults: (json['EvaluationResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EvaluationResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -10153,7 +10206,7 @@ class GetComplianceSummaryByResourceTypeResponse {
     return GetComplianceSummaryByResourceTypeResponse(
       complianceSummariesByResourceType:
           (json['ComplianceSummariesByResourceType'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ComplianceSummaryByResourceType.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -10194,7 +10247,7 @@ class GetConformancePackComplianceDetailsResponse {
       conformancePackName: json['ConformancePackName'] as String,
       conformancePackRuleEvaluationResults:
           (json['ConformancePackRuleEvaluationResults'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ConformancePackEvaluationResult.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -10236,7 +10289,7 @@ class GetConformancePackComplianceSummaryResponse {
     return GetConformancePackComplianceSummaryResponse(
       conformancePackComplianceSummaryList:
           (json['ConformancePackComplianceSummaryList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ConformancePackComplianceSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -10320,7 +10373,7 @@ class GetDiscoveredResourceCountsResponse {
     return GetDiscoveredResourceCountsResponse(
       nextToken: json['nextToken'] as String?,
       resourceCounts: (json['resourceCounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceCount.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalDiscoveredResources: json['totalDiscoveredResources'] as int?,
@@ -10359,7 +10412,7 @@ class GetOrganizationConfigRuleDetailedStatusResponse {
       nextToken: json['NextToken'] as String?,
       organizationConfigRuleDetailedStatus: (json[
               'OrganizationConfigRuleDetailedStatus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MemberAccountStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10398,7 +10451,7 @@ class GetOrganizationConformancePackDetailedStatusResponse {
       nextToken: json['NextToken'] as String?,
       organizationConformancePackDetailedStatuses:
           (json['OrganizationConformancePackDetailedStatuses'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => OrganizationConformancePackDetailedStatus.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -10459,7 +10512,7 @@ class GetResourceConfigHistoryResponse {
   factory GetResourceConfigHistoryResponse.fromJson(Map<String, dynamic> json) {
     return GetResourceConfigHistoryResponse(
       configurationItems: (json['configurationItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConfigurationItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -10514,12 +10567,14 @@ class GetResourceEvaluationSummaryResponse {
   factory GetResourceEvaluationSummaryResponse.fromJson(
       Map<String, dynamic> json) {
     return GetResourceEvaluationSummaryResponse(
-      compliance: (json['Compliance'] as String?)?.toComplianceType(),
+      compliance:
+          (json['Compliance'] as String?)?.let(ComplianceType.fromString),
       evaluationContext: json['EvaluationContext'] != null
           ? EvaluationContext.fromJson(
               json['EvaluationContext'] as Map<String, dynamic>)
           : null,
-      evaluationMode: (json['EvaluationMode'] as String?)?.toEvaluationMode(),
+      evaluationMode:
+          (json['EvaluationMode'] as String?)?.let(EvaluationMode.fromString),
       evaluationStartTimestamp:
           timeStampFromJson(json['EvaluationStartTimestamp']),
       evaluationStatus: json['EvaluationStatus'] != null
@@ -10543,9 +10598,9 @@ class GetResourceEvaluationSummaryResponse {
     final resourceDetails = this.resourceDetails;
     final resourceEvaluationId = this.resourceEvaluationId;
     return {
-      if (compliance != null) 'Compliance': compliance.toValue(),
+      if (compliance != null) 'Compliance': compliance.value,
       if (evaluationContext != null) 'EvaluationContext': evaluationContext,
-      if (evaluationMode != null) 'EvaluationMode': evaluationMode.toValue(),
+      if (evaluationMode != null) 'EvaluationMode': evaluationMode.value,
       if (evaluationStartTimestamp != null)
         'EvaluationStartTimestamp':
             unixTimestampToJson(evaluationStartTimestamp),
@@ -10631,7 +10686,7 @@ class ListAggregateDiscoveredResourcesResponse {
     return ListAggregateDiscoveredResourcesResponse(
       nextToken: json['NextToken'] as String?,
       resourceIdentifiers: (json['ResourceIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AggregateResourceIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -10667,7 +10722,7 @@ class ListConformancePackComplianceScoresResponse {
     return ListConformancePackComplianceScoresResponse(
       conformancePackComplianceScores:
           (json['ConformancePackComplianceScores'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => ConformancePackComplianceScore.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -10705,7 +10760,7 @@ class ListDiscoveredResourcesResponse {
     return ListDiscoveredResourcesResponse(
       nextToken: json['nextToken'] as String?,
       resourceIdentifiers: (json['resourceIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10739,7 +10794,7 @@ class ListResourceEvaluationsResponse {
     return ListResourceEvaluationsResponse(
       nextToken: json['NextToken'] as String?,
       resourceEvaluations: (json['ResourceEvaluations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceEvaluation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10777,7 +10832,7 @@ class ListStoredQueriesResponse {
     return ListStoredQueriesResponse(
       nextToken: json['NextToken'] as String?,
       storedQueryMetadata: (json['StoredQueryMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StoredQueryMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10811,7 +10866,7 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10828,109 +10883,43 @@ class ListTagsForResourceResponse {
 }
 
 enum MaximumExecutionFrequency {
-  oneHour,
-  threeHours,
-  sixHours,
-  twelveHours,
-  twentyFourHours,
-}
+  oneHour('One_Hour'),
+  threeHours('Three_Hours'),
+  sixHours('Six_Hours'),
+  twelveHours('Twelve_Hours'),
+  twentyFourHours('TwentyFour_Hours'),
+  ;
 
-extension MaximumExecutionFrequencyValueExtension on MaximumExecutionFrequency {
-  String toValue() {
-    switch (this) {
-      case MaximumExecutionFrequency.oneHour:
-        return 'One_Hour';
-      case MaximumExecutionFrequency.threeHours:
-        return 'Three_Hours';
-      case MaximumExecutionFrequency.sixHours:
-        return 'Six_Hours';
-      case MaximumExecutionFrequency.twelveHours:
-        return 'Twelve_Hours';
-      case MaximumExecutionFrequency.twentyFourHours:
-        return 'TwentyFour_Hours';
-    }
-  }
-}
+  final String value;
 
-extension MaximumExecutionFrequencyFromString on String {
-  MaximumExecutionFrequency toMaximumExecutionFrequency() {
-    switch (this) {
-      case 'One_Hour':
-        return MaximumExecutionFrequency.oneHour;
-      case 'Three_Hours':
-        return MaximumExecutionFrequency.threeHours;
-      case 'Six_Hours':
-        return MaximumExecutionFrequency.sixHours;
-      case 'Twelve_Hours':
-        return MaximumExecutionFrequency.twelveHours;
-      case 'TwentyFour_Hours':
-        return MaximumExecutionFrequency.twentyFourHours;
-    }
-    throw Exception('$this is not known in enum MaximumExecutionFrequency');
-  }
+  const MaximumExecutionFrequency(this.value);
+
+  static MaximumExecutionFrequency fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MaximumExecutionFrequency'));
 }
 
 enum MemberAccountRuleStatus {
-  createSuccessful,
-  createInProgress,
-  createFailed,
-  deleteSuccessful,
-  deleteFailed,
-  deleteInProgress,
-  updateSuccessful,
-  updateInProgress,
-  updateFailed,
-}
+  createSuccessful('CREATE_SUCCESSFUL'),
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteSuccessful('DELETE_SUCCESSFUL'),
+  deleteFailed('DELETE_FAILED'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  updateSuccessful('UPDATE_SUCCESSFUL'),
+  updateInProgress('UPDATE_IN_PROGRESS'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension MemberAccountRuleStatusValueExtension on MemberAccountRuleStatus {
-  String toValue() {
-    switch (this) {
-      case MemberAccountRuleStatus.createSuccessful:
-        return 'CREATE_SUCCESSFUL';
-      case MemberAccountRuleStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case MemberAccountRuleStatus.createFailed:
-        return 'CREATE_FAILED';
-      case MemberAccountRuleStatus.deleteSuccessful:
-        return 'DELETE_SUCCESSFUL';
-      case MemberAccountRuleStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case MemberAccountRuleStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case MemberAccountRuleStatus.updateSuccessful:
-        return 'UPDATE_SUCCESSFUL';
-      case MemberAccountRuleStatus.updateInProgress:
-        return 'UPDATE_IN_PROGRESS';
-      case MemberAccountRuleStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension MemberAccountRuleStatusFromString on String {
-  MemberAccountRuleStatus toMemberAccountRuleStatus() {
-    switch (this) {
-      case 'CREATE_SUCCESSFUL':
-        return MemberAccountRuleStatus.createSuccessful;
-      case 'CREATE_IN_PROGRESS':
-        return MemberAccountRuleStatus.createInProgress;
-      case 'CREATE_FAILED':
-        return MemberAccountRuleStatus.createFailed;
-      case 'DELETE_SUCCESSFUL':
-        return MemberAccountRuleStatus.deleteSuccessful;
-      case 'DELETE_FAILED':
-        return MemberAccountRuleStatus.deleteFailed;
-      case 'DELETE_IN_PROGRESS':
-        return MemberAccountRuleStatus.deleteInProgress;
-      case 'UPDATE_SUCCESSFUL':
-        return MemberAccountRuleStatus.updateSuccessful;
-      case 'UPDATE_IN_PROGRESS':
-        return MemberAccountRuleStatus.updateInProgress;
-      case 'UPDATE_FAILED':
-        return MemberAccountRuleStatus.updateFailed;
-    }
-    throw Exception('$this is not known in enum MemberAccountRuleStatus');
-  }
+  const MemberAccountRuleStatus(this.value);
+
+  static MemberAccountRuleStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MemberAccountRuleStatus'));
 }
 
 /// Organization Config rule creation or deletion status in each member account.
@@ -11018,8 +11007,8 @@ class MemberAccountStatus {
     return MemberAccountStatus(
       accountId: json['AccountId'] as String,
       configRuleName: json['ConfigRuleName'] as String,
-      memberAccountRuleStatus: (json['MemberAccountRuleStatus'] as String)
-          .toMemberAccountRuleStatus(),
+      memberAccountRuleStatus: MemberAccountRuleStatus.fromString(
+          (json['MemberAccountRuleStatus'] as String)),
       errorCode: json['ErrorCode'] as String?,
       errorMessage: json['ErrorMessage'] as String?,
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
@@ -11036,7 +11025,7 @@ class MemberAccountStatus {
     return {
       'AccountId': accountId,
       'ConfigRuleName': configRuleName,
-      'MemberAccountRuleStatus': memberAccountRuleStatus.toValue(),
+      'MemberAccountRuleStatus': memberAccountRuleStatus.value,
       if (errorCode != null) 'ErrorCode': errorCode,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (lastUpdateTime != null)
@@ -11046,41 +11035,21 @@ class MemberAccountStatus {
 }
 
 enum MessageType {
-  configurationItemChangeNotification,
-  configurationSnapshotDeliveryCompleted,
-  scheduledNotification,
-  oversizedConfigurationItemChangeNotification,
-}
+  configurationItemChangeNotification('ConfigurationItemChangeNotification'),
+  configurationSnapshotDeliveryCompleted(
+      'ConfigurationSnapshotDeliveryCompleted'),
+  scheduledNotification('ScheduledNotification'),
+  oversizedConfigurationItemChangeNotification(
+      'OversizedConfigurationItemChangeNotification'),
+  ;
 
-extension MessageTypeValueExtension on MessageType {
-  String toValue() {
-    switch (this) {
-      case MessageType.configurationItemChangeNotification:
-        return 'ConfigurationItemChangeNotification';
-      case MessageType.configurationSnapshotDeliveryCompleted:
-        return 'ConfigurationSnapshotDeliveryCompleted';
-      case MessageType.scheduledNotification:
-        return 'ScheduledNotification';
-      case MessageType.oversizedConfigurationItemChangeNotification:
-        return 'OversizedConfigurationItemChangeNotification';
-    }
-  }
-}
+  final String value;
 
-extension MessageTypeFromString on String {
-  MessageType toMessageType() {
-    switch (this) {
-      case 'ConfigurationItemChangeNotification':
-        return MessageType.configurationItemChangeNotification;
-      case 'ConfigurationSnapshotDeliveryCompleted':
-        return MessageType.configurationSnapshotDeliveryCompleted;
-      case 'ScheduledNotification':
-        return MessageType.scheduledNotification;
-      case 'OversizedConfigurationItemChangeNotification':
-        return MessageType.oversizedConfigurationItemChangeNotification;
-    }
-    throw Exception('$this is not known in enum MessageType');
-  }
+  const MessageType(this.value);
+
+  static MessageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MessageType'));
 }
 
 /// This object contains regions to set up the aggregator and an IAM role to
@@ -11107,7 +11076,7 @@ class OrganizationAggregationSource {
       roleArn: json['RoleArn'] as String,
       allAwsRegions: json['AllAwsRegions'] as bool?,
       awsRegions: (json['AwsRegions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11170,7 +11139,7 @@ class OrganizationConfigRule {
       organizationConfigRuleArn: json['OrganizationConfigRuleArn'] as String,
       organizationConfigRuleName: json['OrganizationConfigRuleName'] as String,
       excludedAccounts: (json['ExcludedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
@@ -11300,8 +11269,8 @@ class OrganizationConfigRuleStatus {
   factory OrganizationConfigRuleStatus.fromJson(Map<String, dynamic> json) {
     return OrganizationConfigRuleStatus(
       organizationConfigRuleName: json['OrganizationConfigRuleName'] as String,
-      organizationRuleStatus:
-          (json['OrganizationRuleStatus'] as String).toOrganizationRuleStatus(),
+      organizationRuleStatus: OrganizationRuleStatus.fromString(
+          (json['OrganizationRuleStatus'] as String)),
       errorCode: json['ErrorCode'] as String?,
       errorMessage: json['ErrorMessage'] as String?,
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
@@ -11316,7 +11285,7 @@ class OrganizationConfigRuleStatus {
     final lastUpdateTime = this.lastUpdateTime;
     return {
       'OrganizationConfigRuleName': organizationConfigRuleName,
-      'OrganizationRuleStatus': organizationRuleStatus.toValue(),
+      'OrganizationRuleStatus': organizationRuleStatus.value,
       if (errorCode != null) 'ErrorCode': errorCode,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (lastUpdateTime != null)
@@ -11326,77 +11295,36 @@ class OrganizationConfigRuleStatus {
 }
 
 enum OrganizationConfigRuleTriggerType {
-  configurationItemChangeNotification,
-  oversizedConfigurationItemChangeNotification,
-  scheduledNotification,
-}
+  configurationItemChangeNotification('ConfigurationItemChangeNotification'),
+  oversizedConfigurationItemChangeNotification(
+      'OversizedConfigurationItemChangeNotification'),
+  scheduledNotification('ScheduledNotification'),
+  ;
 
-extension OrganizationConfigRuleTriggerTypeValueExtension
-    on OrganizationConfigRuleTriggerType {
-  String toValue() {
-    switch (this) {
-      case OrganizationConfigRuleTriggerType
-            .configurationItemChangeNotification:
-        return 'ConfigurationItemChangeNotification';
-      case OrganizationConfigRuleTriggerType
-            .oversizedConfigurationItemChangeNotification:
-        return 'OversizedConfigurationItemChangeNotification';
-      case OrganizationConfigRuleTriggerType.scheduledNotification:
-        return 'ScheduledNotification';
-    }
-  }
-}
+  final String value;
 
-extension OrganizationConfigRuleTriggerTypeFromString on String {
-  OrganizationConfigRuleTriggerType toOrganizationConfigRuleTriggerType() {
-    switch (this) {
-      case 'ConfigurationItemChangeNotification':
-        return OrganizationConfigRuleTriggerType
-            .configurationItemChangeNotification;
-      case 'OversizedConfigurationItemChangeNotification':
-        return OrganizationConfigRuleTriggerType
-            .oversizedConfigurationItemChangeNotification;
-      case 'ScheduledNotification':
-        return OrganizationConfigRuleTriggerType.scheduledNotification;
-    }
-    throw Exception(
-        '$this is not known in enum OrganizationConfigRuleTriggerType');
-  }
+  const OrganizationConfigRuleTriggerType(this.value);
+
+  static OrganizationConfigRuleTriggerType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationConfigRuleTriggerType'));
 }
 
 enum OrganizationConfigRuleTriggerTypeNoSN {
-  configurationItemChangeNotification,
-  oversizedConfigurationItemChangeNotification,
-}
+  configurationItemChangeNotification('ConfigurationItemChangeNotification'),
+  oversizedConfigurationItemChangeNotification(
+      'OversizedConfigurationItemChangeNotification'),
+  ;
 
-extension OrganizationConfigRuleTriggerTypeNoSNValueExtension
-    on OrganizationConfigRuleTriggerTypeNoSN {
-  String toValue() {
-    switch (this) {
-      case OrganizationConfigRuleTriggerTypeNoSN
-            .configurationItemChangeNotification:
-        return 'ConfigurationItemChangeNotification';
-      case OrganizationConfigRuleTriggerTypeNoSN
-            .oversizedConfigurationItemChangeNotification:
-        return 'OversizedConfigurationItemChangeNotification';
-    }
-  }
-}
+  final String value;
 
-extension OrganizationConfigRuleTriggerTypeNoSNFromString on String {
-  OrganizationConfigRuleTriggerTypeNoSN
-      toOrganizationConfigRuleTriggerTypeNoSN() {
-    switch (this) {
-      case 'ConfigurationItemChangeNotification':
-        return OrganizationConfigRuleTriggerTypeNoSN
-            .configurationItemChangeNotification;
-      case 'OversizedConfigurationItemChangeNotification':
-        return OrganizationConfigRuleTriggerTypeNoSN
-            .oversizedConfigurationItemChangeNotification;
-    }
-    throw Exception(
-        '$this is not known in enum OrganizationConfigRuleTriggerTypeNoSN');
-  }
+  const OrganizationConfigRuleTriggerTypeNoSN(this.value);
+
+  static OrganizationConfigRuleTriggerTypeNoSN fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationConfigRuleTriggerTypeNoSN'));
 }
 
 /// An organization conformance pack that has information about conformance
@@ -11451,14 +11379,14 @@ class OrganizationConformancePack {
           json['OrganizationConformancePackName'] as String,
       conformancePackInputParameters: (json['ConformancePackInputParameters']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ConformancePackInputParameter.fromJson(e as Map<String, dynamic>))
           .toList(),
       deliveryS3Bucket: json['DeliveryS3Bucket'] as String?,
       deliveryS3KeyPrefix: json['DeliveryS3KeyPrefix'] as String?,
       excludedAccounts: (json['ExcludedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11575,7 +11503,8 @@ class OrganizationConformancePackDetailedStatus {
     return OrganizationConformancePackDetailedStatus(
       accountId: json['AccountId'] as String,
       conformancePackName: json['ConformancePackName'] as String,
-      status: (json['Status'] as String).toOrganizationResourceDetailedStatus(),
+      status: OrganizationResourceDetailedStatus.fromString(
+          (json['Status'] as String)),
       errorCode: json['ErrorCode'] as String?,
       errorMessage: json['ErrorMessage'] as String?,
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
@@ -11592,7 +11521,7 @@ class OrganizationConformancePackDetailedStatus {
     return {
       'AccountId': accountId,
       'ConformancePackName': conformancePackName,
-      'Status': status.toValue(),
+      'Status': status.value,
       if (errorCode != null) 'ErrorCode': errorCode,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (lastUpdateTime != null)
@@ -11683,7 +11612,7 @@ class OrganizationConformancePackStatus {
     return OrganizationConformancePackStatus(
       organizationConformancePackName:
           json['OrganizationConformancePackName'] as String,
-      status: (json['Status'] as String).toOrganizationResourceStatus(),
+      status: OrganizationResourceStatus.fromString((json['Status'] as String)),
       errorCode: json['ErrorCode'] as String?,
       errorMessage: json['ErrorMessage'] as String?,
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
@@ -11699,7 +11628,7 @@ class OrganizationConformancePackStatus {
     final lastUpdateTime = this.lastUpdateTime;
     return {
       'OrganizationConformancePackName': organizationConformancePackName,
-      'Status': status.toValue(),
+      'Status': status.value,
       if (errorCode != null) 'ErrorCode': errorCode,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (lastUpdateTime != null)
@@ -11814,10 +11743,10 @@ class OrganizationCustomPolicyRuleMetadata {
       if (description != null) 'Description': description,
       if (inputParameters != null) 'InputParameters': inputParameters,
       if (maximumExecutionFrequency != null)
-        'MaximumExecutionFrequency': maximumExecutionFrequency.toValue(),
+        'MaximumExecutionFrequency': maximumExecutionFrequency.value,
       if (organizationConfigRuleTriggerTypes != null)
         'OrganizationConfigRuleTriggerTypes':
-            organizationConfigRuleTriggerTypes.map((e) => e.toValue()).toList(),
+            organizationConfigRuleTriggerTypes.map((e) => e.value).toList(),
       if (resourceIdScope != null) 'ResourceIdScope': resourceIdScope,
       if (resourceTypesScope != null) 'ResourceTypesScope': resourceTypesScope,
       if (tagKeyScope != null) 'TagKeyScope': tagKeyScope,
@@ -11826,11 +11755,11 @@ class OrganizationCustomPolicyRuleMetadata {
   }
 }
 
-/// An object that specifies metadata for your organization Config Custom Policy
-/// rule including the runtime system in use, which accounts have debug logging
-/// enabled, and other custom rule metadata such as resource type, resource ID
-/// of Amazon Web Services resource, and organization trigger types that trigger
-/// Config to evaluate Amazon Web Services resources against a rule.
+/// metadata for your organization Config Custom Policy rule including the
+/// runtime system in use, which accounts have debug logging enabled, and other
+/// custom rule metadata such as resource type, resource ID of Amazon Web
+/// Services resource, and organization trigger types that trigger Config to
+/// evaluate Amazon Web Services resources against a rule.
 class OrganizationCustomPolicyRuleMetadataNoPolicy {
   /// A list of accounts that you can enable debug logging for your organization
   /// Config Custom Policy rule. List is null when debug logging is enabled for
@@ -11909,22 +11838,23 @@ class OrganizationCustomPolicyRuleMetadataNoPolicy {
       Map<String, dynamic> json) {
     return OrganizationCustomPolicyRuleMetadataNoPolicy(
       debugLogDeliveryAccounts: (json['DebugLogDeliveryAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       description: json['Description'] as String?,
       inputParameters: json['InputParameters'] as String?,
       maximumExecutionFrequency: (json['MaximumExecutionFrequency'] as String?)
-          ?.toMaximumExecutionFrequency(),
-      organizationConfigRuleTriggerTypes: (json[
-              'OrganizationConfigRuleTriggerTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toOrganizationConfigRuleTriggerTypeNoSN())
-          .toList(),
+          ?.let(MaximumExecutionFrequency.fromString),
+      organizationConfigRuleTriggerTypes:
+          (json['OrganizationConfigRuleTriggerTypes'] as List?)
+              ?.nonNulls
+              .map((e) => OrganizationConfigRuleTriggerTypeNoSN.fromString(
+                  (e as String)))
+              .toList(),
       policyRuntime: json['PolicyRuntime'] as String?,
       resourceIdScope: json['ResourceIdScope'] as String?,
       resourceTypesScope: (json['ResourceTypesScope'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tagKeyScope: json['TagKeyScope'] as String?,
@@ -11950,10 +11880,10 @@ class OrganizationCustomPolicyRuleMetadataNoPolicy {
       if (description != null) 'Description': description,
       if (inputParameters != null) 'InputParameters': inputParameters,
       if (maximumExecutionFrequency != null)
-        'MaximumExecutionFrequency': maximumExecutionFrequency.toValue(),
+        'MaximumExecutionFrequency': maximumExecutionFrequency.value,
       if (organizationConfigRuleTriggerTypes != null)
         'OrganizationConfigRuleTriggerTypes':
-            organizationConfigRuleTriggerTypes.map((e) => e.toValue()).toList(),
+            organizationConfigRuleTriggerTypes.map((e) => e.value).toList(),
       if (policyRuntime != null) 'PolicyRuntime': policyRuntime,
       if (resourceIdScope != null) 'ResourceIdScope': resourceIdScope,
       if (resourceTypesScope != null) 'ResourceTypesScope': resourceTypesScope,
@@ -12043,16 +11973,17 @@ class OrganizationCustomRuleMetadata {
       lambdaFunctionArn: json['LambdaFunctionArn'] as String,
       organizationConfigRuleTriggerTypes:
           (json['OrganizationConfigRuleTriggerTypes'] as List)
-              .whereNotNull()
-              .map((e) => (e as String).toOrganizationConfigRuleTriggerType())
+              .nonNulls
+              .map((e) =>
+                  OrganizationConfigRuleTriggerType.fromString((e as String)))
               .toList(),
       description: json['Description'] as String?,
       inputParameters: json['InputParameters'] as String?,
       maximumExecutionFrequency: (json['MaximumExecutionFrequency'] as String?)
-          ?.toMaximumExecutionFrequency(),
+          ?.let(MaximumExecutionFrequency.fromString),
       resourceIdScope: json['ResourceIdScope'] as String?,
       resourceTypesScope: (json['ResourceTypesScope'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tagKeyScope: json['TagKeyScope'] as String?,
@@ -12074,11 +12005,11 @@ class OrganizationCustomRuleMetadata {
     return {
       'LambdaFunctionArn': lambdaFunctionArn,
       'OrganizationConfigRuleTriggerTypes':
-          organizationConfigRuleTriggerTypes.map((e) => e.toValue()).toList(),
+          organizationConfigRuleTriggerTypes.map((e) => e.value).toList(),
       if (description != null) 'Description': description,
       if (inputParameters != null) 'InputParameters': inputParameters,
       if (maximumExecutionFrequency != null)
-        'MaximumExecutionFrequency': maximumExecutionFrequency.toValue(),
+        'MaximumExecutionFrequency': maximumExecutionFrequency.value,
       if (resourceIdScope != null) 'ResourceIdScope': resourceIdScope,
       if (resourceTypesScope != null) 'ResourceTypesScope': resourceTypesScope,
       if (tagKeyScope != null) 'TagKeyScope': tagKeyScope,
@@ -12146,10 +12077,10 @@ class OrganizationManagedRuleMetadata {
       description: json['Description'] as String?,
       inputParameters: json['InputParameters'] as String?,
       maximumExecutionFrequency: (json['MaximumExecutionFrequency'] as String?)
-          ?.toMaximumExecutionFrequency(),
+          ?.let(MaximumExecutionFrequency.fromString),
       resourceIdScope: json['ResourceIdScope'] as String?,
       resourceTypesScope: (json['ResourceTypesScope'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tagKeyScope: json['TagKeyScope'] as String?,
@@ -12171,7 +12102,7 @@ class OrganizationManagedRuleMetadata {
       if (description != null) 'Description': description,
       if (inputParameters != null) 'InputParameters': inputParameters,
       if (maximumExecutionFrequency != null)
-        'MaximumExecutionFrequency': maximumExecutionFrequency.toValue(),
+        'MaximumExecutionFrequency': maximumExecutionFrequency.value,
       if (resourceIdScope != null) 'ResourceIdScope': resourceIdScope,
       if (resourceTypesScope != null) 'ResourceTypesScope': resourceTypesScope,
       if (tagKeyScope != null) 'TagKeyScope': tagKeyScope,
@@ -12181,68 +12112,25 @@ class OrganizationManagedRuleMetadata {
 }
 
 enum OrganizationResourceDetailedStatus {
-  createSuccessful,
-  createInProgress,
-  createFailed,
-  deleteSuccessful,
-  deleteFailed,
-  deleteInProgress,
-  updateSuccessful,
-  updateInProgress,
-  updateFailed,
-}
+  createSuccessful('CREATE_SUCCESSFUL'),
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteSuccessful('DELETE_SUCCESSFUL'),
+  deleteFailed('DELETE_FAILED'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  updateSuccessful('UPDATE_SUCCESSFUL'),
+  updateInProgress('UPDATE_IN_PROGRESS'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension OrganizationResourceDetailedStatusValueExtension
-    on OrganizationResourceDetailedStatus {
-  String toValue() {
-    switch (this) {
-      case OrganizationResourceDetailedStatus.createSuccessful:
-        return 'CREATE_SUCCESSFUL';
-      case OrganizationResourceDetailedStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case OrganizationResourceDetailedStatus.createFailed:
-        return 'CREATE_FAILED';
-      case OrganizationResourceDetailedStatus.deleteSuccessful:
-        return 'DELETE_SUCCESSFUL';
-      case OrganizationResourceDetailedStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case OrganizationResourceDetailedStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case OrganizationResourceDetailedStatus.updateSuccessful:
-        return 'UPDATE_SUCCESSFUL';
-      case OrganizationResourceDetailedStatus.updateInProgress:
-        return 'UPDATE_IN_PROGRESS';
-      case OrganizationResourceDetailedStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension OrganizationResourceDetailedStatusFromString on String {
-  OrganizationResourceDetailedStatus toOrganizationResourceDetailedStatus() {
-    switch (this) {
-      case 'CREATE_SUCCESSFUL':
-        return OrganizationResourceDetailedStatus.createSuccessful;
-      case 'CREATE_IN_PROGRESS':
-        return OrganizationResourceDetailedStatus.createInProgress;
-      case 'CREATE_FAILED':
-        return OrganizationResourceDetailedStatus.createFailed;
-      case 'DELETE_SUCCESSFUL':
-        return OrganizationResourceDetailedStatus.deleteSuccessful;
-      case 'DELETE_FAILED':
-        return OrganizationResourceDetailedStatus.deleteFailed;
-      case 'DELETE_IN_PROGRESS':
-        return OrganizationResourceDetailedStatus.deleteInProgress;
-      case 'UPDATE_SUCCESSFUL':
-        return OrganizationResourceDetailedStatus.updateSuccessful;
-      case 'UPDATE_IN_PROGRESS':
-        return OrganizationResourceDetailedStatus.updateInProgress;
-      case 'UPDATE_FAILED':
-        return OrganizationResourceDetailedStatus.updateFailed;
-    }
-    throw Exception(
-        '$this is not known in enum OrganizationResourceDetailedStatus');
-  }
+  const OrganizationResourceDetailedStatus(this.value);
+
+  static OrganizationResourceDetailedStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationResourceDetailedStatus'));
 }
 
 /// Status filter object to filter results based on specific member account ID
@@ -12313,169 +12201,68 @@ class OrganizationResourceDetailedStatusFilters {
     final status = this.status;
     return {
       if (accountId != null) 'AccountId': accountId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum OrganizationResourceStatus {
-  createSuccessful,
-  createInProgress,
-  createFailed,
-  deleteSuccessful,
-  deleteFailed,
-  deleteInProgress,
-  updateSuccessful,
-  updateInProgress,
-  updateFailed,
-}
+  createSuccessful('CREATE_SUCCESSFUL'),
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteSuccessful('DELETE_SUCCESSFUL'),
+  deleteFailed('DELETE_FAILED'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  updateSuccessful('UPDATE_SUCCESSFUL'),
+  updateInProgress('UPDATE_IN_PROGRESS'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension OrganizationResourceStatusValueExtension
-    on OrganizationResourceStatus {
-  String toValue() {
-    switch (this) {
-      case OrganizationResourceStatus.createSuccessful:
-        return 'CREATE_SUCCESSFUL';
-      case OrganizationResourceStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case OrganizationResourceStatus.createFailed:
-        return 'CREATE_FAILED';
-      case OrganizationResourceStatus.deleteSuccessful:
-        return 'DELETE_SUCCESSFUL';
-      case OrganizationResourceStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case OrganizationResourceStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case OrganizationResourceStatus.updateSuccessful:
-        return 'UPDATE_SUCCESSFUL';
-      case OrganizationResourceStatus.updateInProgress:
-        return 'UPDATE_IN_PROGRESS';
-      case OrganizationResourceStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension OrganizationResourceStatusFromString on String {
-  OrganizationResourceStatus toOrganizationResourceStatus() {
-    switch (this) {
-      case 'CREATE_SUCCESSFUL':
-        return OrganizationResourceStatus.createSuccessful;
-      case 'CREATE_IN_PROGRESS':
-        return OrganizationResourceStatus.createInProgress;
-      case 'CREATE_FAILED':
-        return OrganizationResourceStatus.createFailed;
-      case 'DELETE_SUCCESSFUL':
-        return OrganizationResourceStatus.deleteSuccessful;
-      case 'DELETE_FAILED':
-        return OrganizationResourceStatus.deleteFailed;
-      case 'DELETE_IN_PROGRESS':
-        return OrganizationResourceStatus.deleteInProgress;
-      case 'UPDATE_SUCCESSFUL':
-        return OrganizationResourceStatus.updateSuccessful;
-      case 'UPDATE_IN_PROGRESS':
-        return OrganizationResourceStatus.updateInProgress;
-      case 'UPDATE_FAILED':
-        return OrganizationResourceStatus.updateFailed;
-    }
-    throw Exception('$this is not known in enum OrganizationResourceStatus');
-  }
+  const OrganizationResourceStatus(this.value);
+
+  static OrganizationResourceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationResourceStatus'));
 }
 
 enum OrganizationRuleStatus {
-  createSuccessful,
-  createInProgress,
-  createFailed,
-  deleteSuccessful,
-  deleteFailed,
-  deleteInProgress,
-  updateSuccessful,
-  updateInProgress,
-  updateFailed,
-}
+  createSuccessful('CREATE_SUCCESSFUL'),
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  deleteSuccessful('DELETE_SUCCESSFUL'),
+  deleteFailed('DELETE_FAILED'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  updateSuccessful('UPDATE_SUCCESSFUL'),
+  updateInProgress('UPDATE_IN_PROGRESS'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension OrganizationRuleStatusValueExtension on OrganizationRuleStatus {
-  String toValue() {
-    switch (this) {
-      case OrganizationRuleStatus.createSuccessful:
-        return 'CREATE_SUCCESSFUL';
-      case OrganizationRuleStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case OrganizationRuleStatus.createFailed:
-        return 'CREATE_FAILED';
-      case OrganizationRuleStatus.deleteSuccessful:
-        return 'DELETE_SUCCESSFUL';
-      case OrganizationRuleStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case OrganizationRuleStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case OrganizationRuleStatus.updateSuccessful:
-        return 'UPDATE_SUCCESSFUL';
-      case OrganizationRuleStatus.updateInProgress:
-        return 'UPDATE_IN_PROGRESS';
-      case OrganizationRuleStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension OrganizationRuleStatusFromString on String {
-  OrganizationRuleStatus toOrganizationRuleStatus() {
-    switch (this) {
-      case 'CREATE_SUCCESSFUL':
-        return OrganizationRuleStatus.createSuccessful;
-      case 'CREATE_IN_PROGRESS':
-        return OrganizationRuleStatus.createInProgress;
-      case 'CREATE_FAILED':
-        return OrganizationRuleStatus.createFailed;
-      case 'DELETE_SUCCESSFUL':
-        return OrganizationRuleStatus.deleteSuccessful;
-      case 'DELETE_FAILED':
-        return OrganizationRuleStatus.deleteFailed;
-      case 'DELETE_IN_PROGRESS':
-        return OrganizationRuleStatus.deleteInProgress;
-      case 'UPDATE_SUCCESSFUL':
-        return OrganizationRuleStatus.updateSuccessful;
-      case 'UPDATE_IN_PROGRESS':
-        return OrganizationRuleStatus.updateInProgress;
-      case 'UPDATE_FAILED':
-        return OrganizationRuleStatus.updateFailed;
-    }
-    throw Exception('$this is not known in enum OrganizationRuleStatus');
-  }
+  const OrganizationRuleStatus(this.value);
+
+  static OrganizationRuleStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationRuleStatus'));
 }
 
 enum Owner {
-  customLambda,
-  aws,
-  customPolicy,
-}
+  customLambda('CUSTOM_LAMBDA'),
+  aws('AWS'),
+  customPolicy('CUSTOM_POLICY'),
+  ;
 
-extension OwnerValueExtension on Owner {
-  String toValue() {
-    switch (this) {
-      case Owner.customLambda:
-        return 'CUSTOM_LAMBDA';
-      case Owner.aws:
-        return 'AWS';
-      case Owner.customPolicy:
-        return 'CUSTOM_POLICY';
-    }
-  }
-}
+  final String value;
 
-extension OwnerFromString on String {
-  Owner toOwner() {
-    switch (this) {
-      case 'CUSTOM_LAMBDA':
-        return Owner.customLambda;
-      case 'AWS':
-        return Owner.aws;
-      case 'CUSTOM_POLICY':
-        return Owner.customPolicy;
-    }
-    throw Exception('$this is not known in enum Owner');
-  }
+  const Owner(this.value);
+
+  static Owner fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Owner'));
 }
 
 /// An object that represents the account ID and region of an aggregator account
@@ -12597,7 +12384,7 @@ class PutEvaluationsResponse {
   factory PutEvaluationsResponse.fromJson(Map<String, dynamic> json) {
     return PutEvaluationsResponse(
       failedEvaluations: (json['FailedEvaluations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Evaluation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12684,7 +12471,7 @@ class PutRemediationConfigurationsResponse {
       Map<String, dynamic> json) {
     return PutRemediationConfigurationsResponse(
       failedBatches: (json['FailedBatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => FailedRemediationBatch.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -12711,7 +12498,7 @@ class PutRemediationExceptionsResponse {
   factory PutRemediationExceptionsResponse.fromJson(Map<String, dynamic> json) {
     return PutRemediationExceptionsResponse(
       failedBatches: (json['FailedBatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FailedRemediationExceptionBatch.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -12788,7 +12575,7 @@ class QueryInfo {
   factory QueryInfo.fromJson(Map<String, dynamic> json) {
     return QueryInfo(
       selectFields: (json['SelectFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FieldInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12803,156 +12590,684 @@ class QueryInfo {
 }
 
 enum RecorderStatus {
-  pending,
-  success,
-  failure,
+  pending('Pending'),
+  success('Success'),
+  failure('Failure'),
+  ;
+
+  final String value;
+
+  const RecorderStatus(this.value);
+
+  static RecorderStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RecorderStatus'));
 }
 
-extension RecorderStatusValueExtension on RecorderStatus {
-  String toValue() {
-    switch (this) {
-      case RecorderStatus.pending:
-        return 'Pending';
-      case RecorderStatus.success:
-        return 'Success';
-      case RecorderStatus.failure:
-        return 'Failure';
-    }
-  }
+enum RecordingFrequency {
+  continuous('CONTINUOUS'),
+  daily('DAILY'),
+  ;
+
+  final String value;
+
+  const RecordingFrequency(this.value);
+
+  static RecordingFrequency fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecordingFrequency'));
 }
 
-extension RecorderStatusFromString on String {
-  RecorderStatus toRecorderStatus() {
-    switch (this) {
-      case 'Pending':
-        return RecorderStatus.pending;
-      case 'Success':
-        return RecorderStatus.success;
-      case 'Failure':
-        return RecorderStatus.failure;
-    }
-    throw Exception('$this is not known in enum RecorderStatus');
-  }
-}
-
-/// Specifies which Amazon Web Services resource types Config records for
-/// configuration changes. In the recording group, you specify whether you want
-/// to record all supported resource types or only specific types of resources.
+/// Specifies which resource types Config records for configuration changes. By
+/// default, Config records configuration changes for all current and future
+/// supported resource types in the Amazon Web Services Region where you have
+/// enabled Config, excluding the global IAM resource types: IAM users, groups,
+/// roles, and customer managed policies.
 ///
-/// By default, Config records the configuration changes for all supported types
-/// of <i>regional resources</i> that Config discovers in the region in which it
-/// is running. Regional resources are tied to a region and can be used only in
-/// that region. Examples of regional resources are EC2 instances and EBS
-/// volumes.
-///
-/// You can also have Config record supported types of <i>global resources</i>.
-/// Global resources are not tied to a specific region and can be used in all
-/// regions. The global resource types that Config supports include IAM users,
-/// groups, roles, and customer managed policies.
-/// <important>
-/// Global resource types onboarded to Config recording after February 2022 will
-/// only be recorded in the service's home region for the commercial partition
-/// and Amazon Web Services GovCloud (US) West for the GovCloud partition. You
-/// can view the Configuration Items for these new global resource types only in
-/// their home region and Amazon Web Services GovCloud (US) West.
-///
-/// Supported global resource types onboarded before February 2022 such as
-/// <code>AWS::IAM::Group</code>, <code>AWS::IAM::Policy</code>,
-/// <code>AWS::IAM::Role</code>, <code>AWS::IAM::User</code> remain unchanged,
-/// and they will continue to deliver Configuration Items in all supported
-/// regions in Config. The change will only affect new global resource types
-/// onboarded after February 2022.
-///
-/// To record global resource types onboarded after February 2022, enable All
-/// Supported Resource Types in the home region of the global resource type you
-/// want to record.
-/// </important>
-/// If you don't want Config to record all resources, you can specify which
-/// types of resources it will record with the <code>resourceTypes</code>
-/// parameter.
-///
-/// For a list of supported resource types, see <a
+/// In the recording group, you specify whether you want to record all supported
+/// current and future supported resource types or to include or exclude
+/// specific resources types. For a list of supported resource types, see <a
 /// href="https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html#supported-resources">Supported
-/// Resource Types</a>.
+/// Resource Types</a> in the <i>Config developer guide</i>.
 ///
-/// For more information and a table of the Home Regions for Global Resource
-/// Types Onboarded after February 2022, see <a
-/// href="https://docs.aws.amazon.com/config/latest/developerguide/select-resources.html">Selecting
-/// Which Resources Config Records</a>.
+/// If you don't want Config to record all current and future supported resource
+/// types (excluding the global IAM resource types), use one of the following
+/// recording strategies:
+/// <ol>
+/// <li>
+/// <b>Record all current and future resource types with exclusions</b>
+/// (<code>EXCLUSION_BY_RESOURCE_TYPES</code>), or
+/// </li>
+/// <li>
+/// <b>Record specific resource types</b>
+/// (<code>INCLUSION_BY_RESOURCE_TYPES</code>).
+/// </li> </ol>
+/// If you use the recording strategy to <b>Record all current and future
+/// resource types</b> (<code>ALL_SUPPORTED_RESOURCE_TYPES</code>), you can use
+/// the flag <code>includeGlobalResourceTypes</code> to include the global IAM
+/// resource types in your recording.
+/// <important>
+/// <b>Aurora global clusters are recorded in all enabled Regions</b>
+///
+/// The <code>AWS::RDS::GlobalCluster</code> resource type will be recorded in
+/// all supported Config Regions where the configuration recorder is enabled.
+///
+/// If you do not want to record <code>AWS::RDS::GlobalCluster</code> in all
+/// enabled Regions, use the <code>EXCLUSION_BY_RESOURCE_TYPES</code> or
+/// <code>INCLUSION_BY_RESOURCE_TYPES</code> recording strategy.
+/// </important>
 class RecordingGroup {
-  /// Specifies whether Config records configuration changes for every supported
-  /// type of regional resource.
+  /// Specifies whether Config records configuration changes for all supported
+  /// resource types, excluding the global IAM resource types.
   ///
-  /// If you set this option to <code>true</code>, when Config adds support for a
-  /// new type of regional resource, it starts recording resources of that type
+  /// If you set this field to <code>true</code>, when Config adds support for a
+  /// new resource type, Config starts recording resources of that type
   /// automatically.
   ///
-  /// If you set this option to <code>true</code>, you cannot enumerate a list of
-  /// <code>resourceTypes</code>.
+  /// If you set this field to <code>true</code>, you cannot enumerate specific
+  /// resource types to record in the <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>,
+  /// or to exclude in the <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_ExclusionByResourceTypes.html">ExclusionByResourceTypes</a>.
+  /// <note>
+  /// <b>Region availability</b>
+  ///
+  /// Check <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/what-is-resource-config-coverage.html">Resource
+  /// Coverage by Region Availability</a> to see if a resource type is supported
+  /// in the Amazon Web Services Region where you set up Config.
+  /// </note>
   final bool? allSupported;
 
-  /// Specifies whether Config includes all supported types of global resources
-  /// (for example, IAM resources) with the resources that it records.
+  /// An object that specifies how Config excludes resource types from being
+  /// recorded by the configuration recorder.
+  /// <note>
+  /// <b>Required fields</b>
   ///
-  /// Before you can set this option to <code>true</code>, you must set the
-  /// <code>allSupported</code> option to <code>true</code>.
+  /// To use this option, you must set the <code>useOnly</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingStrategy.html">RecordingStrategy</a>
+  /// to <code>EXCLUSION_BY_RESOURCE_TYPES</code>.
+  /// </note>
+  final ExclusionByResourceTypes? exclusionByResourceTypes;
+
+  /// This option is a bundle which only applies to the global IAM resource types:
+  /// IAM users, groups, roles, and customer managed policies. These global IAM
+  /// resource types can only be recorded by Config in Regions where Config was
+  /// available before February 2022. You cannot be record the global IAM resouce
+  /// types in Regions supported by Config after February 2022. This list where
+  /// you cannot record the global IAM resource types includes the following
+  /// Regions:
   ///
-  /// If you set this option to <code>true</code>, when Config adds support for a
-  /// new type of global resource, it starts recording resources of that type
-  /// automatically.
+  /// <ul>
+  /// <li>
+  /// Asia Pacific (Hyderabad)
+  /// </li>
+  /// <li>
+  /// Asia Pacific (Melbourne)
+  /// </li>
+  /// <li>
+  /// Canada West (Calgary)
+  /// </li>
+  /// <li>
+  /// Europe (Spain)
+  /// </li>
+  /// <li>
+  /// Europe (Zurich)
+  /// </li>
+  /// <li>
+  /// Israel (Tel Aviv)
+  /// </li>
+  /// <li>
+  /// Middle East (UAE)
+  /// </li>
+  /// </ul> <important>
+  /// <b>Aurora global clusters are recorded in all enabled Regions</b>
   ///
-  /// The configuration details for any global resource are the same in all
-  /// regions. To prevent duplicate configuration items, you should consider
-  /// customizing Config in only one region to record global resources.
+  /// The <code>AWS::RDS::GlobalCluster</code> resource type will be recorded in
+  /// all supported Config Regions where the configuration recorder is enabled,
+  /// even if <code>includeGlobalResourceTypes</code> is set<code>false</code>.
+  /// The <code>includeGlobalResourceTypes</code> option is a bundle which only
+  /// applies to IAM users, groups, roles, and customer managed policies.
+  ///
+  /// If you do not want to record <code>AWS::RDS::GlobalCluster</code> in all
+  /// enabled Regions, use one of the following recording strategies:
+  /// <ol>
+  /// <li>
+  /// <b>Record all current and future resource types with exclusions</b>
+  /// (<code>EXCLUSION_BY_RESOURCE_TYPES</code>), or
+  /// </li>
+  /// <li>
+  /// <b>Record specific resource types</b>
+  /// (<code>INCLUSION_BY_RESOURCE_TYPES</code>).
+  /// </li> </ol>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/select-resources.html#select-resources-all">Selecting
+  /// Which Resources are Recorded</a> in the <i>Config developer guide</i>.
+  /// </important> <important>
+  /// <b>includeGlobalResourceTypes and the exclusion recording strategy</b>
+  ///
+  /// The <code>includeGlobalResourceTypes</code> field has no impact on the
+  /// <code>EXCLUSION_BY_RESOURCE_TYPES</code> recording strategy. This means that
+  /// the global IAM resource types (IAM users, groups, roles, and customer
+  /// managed policies) will not be automatically added as exclusions for
+  /// <code>exclusionByResourceTypes</code> when
+  /// <code>includeGlobalResourceTypes</code> is set to <code>false</code>.
+  ///
+  /// The <code>includeGlobalResourceTypes</code> field should only be used to
+  /// modify the <code>AllSupported</code> field, as the default for the
+  /// <code>AllSupported</code> field is to record configuration changes for all
+  /// supported resource types excluding the global IAM resource types. To include
+  /// the global IAM resource types when <code>AllSupported</code> is set to
+  /// <code>true</code>, make sure to set <code>includeGlobalResourceTypes</code>
+  /// to <code>true</code>.
+  ///
+  /// To exclude the global IAM resource types for the
+  /// <code>EXCLUSION_BY_RESOURCE_TYPES</code> recording strategy, you need to
+  /// manually add them to the <code>resourceTypes</code> field of
+  /// <code>exclusionByResourceTypes</code>.
+  /// </important> <note>
+  /// <b>Required and optional fields</b>
+  ///
+  /// Before you set this field to <code>true</code>, set the
+  /// <code>allSupported</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>
+  /// to <code>true</code>. Optionally, you can set the <code>useOnly</code> field
+  /// of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingStrategy.html">RecordingStrategy</a>
+  /// to <code>ALL_SUPPORTED_RESOURCE_TYPES</code>.
+  /// </note> <note>
+  /// <b>Overriding fields</b>
+  ///
+  /// If you set this field to <code>false</code> but list global IAM resource
+  /// types in the <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>,
+  /// Config will still record configuration changes for those specified resource
+  /// types <i>regardless</i> of if you set the
+  /// <code>includeGlobalResourceTypes</code> field to false.
+  ///
+  /// If you do not want to record configuration changes to the global IAM
+  /// resource types (IAM users, groups, roles, and customer managed policies),
+  /// make sure to not list them in the <code>resourceTypes</code> field in
+  /// addition to setting the <code>includeGlobalResourceTypes</code> field to
+  /// false.
+  /// </note>
   final bool? includeGlobalResourceTypes;
 
-  /// A comma-separated list that specifies the types of Amazon Web Services
-  /// resources for which Config records configuration changes (for example,
-  /// <code>AWS::EC2::Instance</code> or <code>AWS::CloudTrail::Trail</code>).
+  /// An object that specifies the recording strategy for the configuration
+  /// recorder.
   ///
-  /// To record all configuration changes, you must set the
-  /// <code>allSupported</code> option to <code>true</code>.
+  /// <ul>
+  /// <li>
+  /// If you set the <code>useOnly</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingStrategy.html">RecordingStrategy</a>
+  /// to <code>ALL_SUPPORTED_RESOURCE_TYPES</code>, Config records configuration
+  /// changes for all supported resource types, excluding the global IAM resource
+  /// types. You also must set the <code>allSupported</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>
+  /// to <code>true</code>. When Config adds support for a new resource type,
+  /// Config automatically starts recording resources of that type.
+  /// </li>
+  /// <li>
+  /// If you set the <code>useOnly</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingStrategy.html">RecordingStrategy</a>
+  /// to <code>INCLUSION_BY_RESOURCE_TYPES</code>, Config records configuration
+  /// changes for only the resource types you specify in the
+  /// <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>.
+  /// </li>
+  /// <li>
+  /// If you set the <code>useOnly</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingStrategy.html">RecordingStrategy</a>
+  /// to <code>EXCLUSION_BY_RESOURCE_TYPES</code>, Config records configuration
+  /// changes for all supported resource types except the resource types that you
+  /// specify to exclude from being recorded in the <code>resourceTypes</code>
+  /// field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_ExclusionByResourceTypes.html">ExclusionByResourceTypes</a>.
+  /// </li>
+  /// </ul> <note>
+  /// <b>Required and optional fields</b>
   ///
-  /// If you set the <code>AllSupported</code> option to false and populate the
-  /// <code>ResourceTypes</code> option with values, when Config adds support for
-  /// a new type of resource, it will not record resources of that type unless you
-  /// manually add that type to your recording group.
+  /// The <code>recordingStrategy</code> field is optional when you set the
+  /// <code>allSupported</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>
+  /// to <code>true</code>.
   ///
-  /// For a list of valid <code>resourceTypes</code> values, see the
-  /// <b>resourceType Value</b> column in <a
+  /// The <code>recordingStrategy</code> field is optional when you list resource
+  /// types in the <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>.
+  ///
+  /// The <code>recordingStrategy</code> field is required if you list resource
+  /// types to exclude from recording in the <code>resourceTypes</code> field of
+  /// <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_ExclusionByResourceTypes.html">ExclusionByResourceTypes</a>.
+  /// </note> <note>
+  /// <b>Overriding fields</b>
+  ///
+  /// If you choose <code>EXCLUSION_BY_RESOURCE_TYPES</code> for the recording
+  /// strategy, the <code>exclusionByResourceTypes</code> field will override
+  /// other properties in the request.
+  ///
+  /// For example, even if you set <code>includeGlobalResourceTypes</code> to
+  /// false, global IAM resource types will still be automatically recorded in
+  /// this option unless those resource types are specifically listed as
+  /// exclusions in the <code>resourceTypes</code> field of
+  /// <code>exclusionByResourceTypes</code>.
+  /// </note> <note>
+  /// <b>Global resources types and the resource exclusion recording strategy</b>
+  ///
+  /// By default, if you choose the <code>EXCLUSION_BY_RESOURCE_TYPES</code>
+  /// recording strategy, when Config adds support for a new resource type in the
+  /// Region where you set up the configuration recorder, including global
+  /// resource types, Config starts recording resources of that type
+  /// automatically.
+  ///
+  /// Unless specifically listed as exclusions,
+  /// <code>AWS::RDS::GlobalCluster</code> will be recorded automatically in all
+  /// supported Config Regions were the configuration recorder is enabled.
+  ///
+  /// IAM users, groups, roles, and customer managed policies will be recorded in
+  /// the Region where you set up the configuration recorder if that is a Region
+  /// where Config was available before February 2022. You cannot be record the
+  /// global IAM resouce types in Regions supported by Config after February 2022.
+  /// This list where you cannot record the global IAM resource types includes the
+  /// following Regions:
+  ///
+  /// <ul>
+  /// <li>
+  /// Asia Pacific (Hyderabad)
+  /// </li>
+  /// <li>
+  /// Asia Pacific (Melbourne)
+  /// </li>
+  /// <li>
+  /// Canada West (Calgary)
+  /// </li>
+  /// <li>
+  /// Europe (Spain)
+  /// </li>
+  /// <li>
+  /// Europe (Zurich)
+  /// </li>
+  /// <li>
+  /// Israel (Tel Aviv)
+  /// </li>
+  /// <li>
+  /// Middle East (UAE)
+  /// </li>
+  /// </ul> </note>
+  final RecordingStrategy? recordingStrategy;
+
+  /// A comma-separated list that specifies which resource types Config records.
+  ///
+  /// For a list of valid <code>resourceTypes</code> values, see the <b>Resource
+  /// Type Value</b> column in <a
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html#supported-resources">Supported
-  /// Amazon Web Services resource Types</a>.
+  /// Amazon Web Services resource Types</a> in the <i>Config developer guide</i>.
+  /// <note>
+  /// <b>Required and optional fields</b>
+  ///
+  /// Optionally, you can set the <code>useOnly</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingStrategy.html">RecordingStrategy</a>
+  /// to <code>INCLUSION_BY_RESOURCE_TYPES</code>.
+  ///
+  /// To record all configuration changes, set the <code>allSupported</code> field
+  /// of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>
+  /// to <code>true</code>, and either omit this field or don't specify any
+  /// resource types in this field. If you set the <code>allSupported</code> field
+  /// to <code>false</code> and specify values for <code>resourceTypes</code>,
+  /// when Config adds support for a new type of resource, it will not record
+  /// resources of that type unless you manually add that type to your recording
+  /// group.
+  /// </note> <note>
+  /// <b>Region availability</b>
+  ///
+  /// Before specifying a resource type for Config to track, check <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/what-is-resource-config-coverage.html">Resource
+  /// Coverage by Region Availability</a> to see if the resource type is supported
+  /// in the Amazon Web Services Region where you set up Config. If a resource
+  /// type is supported by Config in at least one Region, you can enable the
+  /// recording of that resource type in all Regions supported by Config, even if
+  /// the specified resource type is not supported in the Amazon Web Services
+  /// Region where you set up Config.
+  /// </note>
   final List<ResourceType>? resourceTypes;
 
   RecordingGroup({
     this.allSupported,
+    this.exclusionByResourceTypes,
     this.includeGlobalResourceTypes,
+    this.recordingStrategy,
     this.resourceTypes,
   });
 
   factory RecordingGroup.fromJson(Map<String, dynamic> json) {
     return RecordingGroup(
       allSupported: json['allSupported'] as bool?,
+      exclusionByResourceTypes: json['exclusionByResourceTypes'] != null
+          ? ExclusionByResourceTypes.fromJson(
+              json['exclusionByResourceTypes'] as Map<String, dynamic>)
+          : null,
       includeGlobalResourceTypes: json['includeGlobalResourceTypes'] as bool?,
+      recordingStrategy: json['recordingStrategy'] != null
+          ? RecordingStrategy.fromJson(
+              json['recordingStrategy'] as Map<String, dynamic>)
+          : null,
       resourceTypes: (json['resourceTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toResourceType())
+          ?.nonNulls
+          .map((e) => ResourceType.fromString((e as String)))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
     final allSupported = this.allSupported;
+    final exclusionByResourceTypes = this.exclusionByResourceTypes;
     final includeGlobalResourceTypes = this.includeGlobalResourceTypes;
+    final recordingStrategy = this.recordingStrategy;
     final resourceTypes = this.resourceTypes;
     return {
       if (allSupported != null) 'allSupported': allSupported,
+      if (exclusionByResourceTypes != null)
+        'exclusionByResourceTypes': exclusionByResourceTypes,
       if (includeGlobalResourceTypes != null)
         'includeGlobalResourceTypes': includeGlobalResourceTypes,
+      if (recordingStrategy != null) 'recordingStrategy': recordingStrategy,
       if (resourceTypes != null)
-        'resourceTypes': resourceTypes.map((e) => e.toValue()).toList(),
+        'resourceTypes': resourceTypes.map((e) => e.value).toList(),
     };
   }
+}
+
+/// Specifies the default recording frequency that Config uses to record
+/// configuration changes. Config supports <i>Continuous recording</i> and
+/// <i>Daily recording</i>.
+///
+/// <ul>
+/// <li>
+/// Continuous recording allows you to record configuration changes continuously
+/// whenever a change occurs.
+/// </li>
+/// <li>
+/// Daily recording allows you to receive a configuration item (CI) representing
+/// the most recent state of your resources over the last 24-hour period, only
+/// if it’s different from the previous CI recorded.
+/// </li>
+/// </ul> <note>
+/// Firewall Manager depends on continuous recording to monitor your resources.
+/// If you are using Firewall Manager, it is recommended that you set the
+/// recording frequency to Continuous.
+/// </note>
+/// You can also override the recording frequency for specific resource types.
+class RecordingMode {
+  /// The default recording frequency that Config uses to record configuration
+  /// changes.
+  /// <important>
+  /// Daily recording is not supported for the following resource types:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>AWS::Config::ResourceCompliance</code>
+  /// </li>
+  /// <li>
+  /// <code>AWS::Config::ConformancePackCompliance</code>
+  /// </li>
+  /// <li>
+  /// <code>AWS::Config::ConfigurationRecorder</code>
+  /// </li>
+  /// </ul>
+  /// For the <b>allSupported</b> (<code>ALL_SUPPORTED_RESOURCE_TYPES</code>)
+  /// recording strategy, these resource types will be set to Continuous
+  /// recording.
+  /// </important>
+  final RecordingFrequency recordingFrequency;
+
+  /// An array of <code>recordingModeOverride</code> objects for you to specify
+  /// your overrides for the recording mode. The
+  /// <code>recordingModeOverride</code> object in the
+  /// <code>recordingModeOverrides</code> array consists of three fields: a
+  /// <code>description</code>, the new <code>recordingFrequency</code>, and an
+  /// array of <code>resourceTypes</code> to override.
+  final List<RecordingModeOverride>? recordingModeOverrides;
+
+  RecordingMode({
+    required this.recordingFrequency,
+    this.recordingModeOverrides,
+  });
+
+  factory RecordingMode.fromJson(Map<String, dynamic> json) {
+    return RecordingMode(
+      recordingFrequency:
+          RecordingFrequency.fromString((json['recordingFrequency'] as String)),
+      recordingModeOverrides: (json['recordingModeOverrides'] as List?)
+          ?.nonNulls
+          .map((e) => RecordingModeOverride.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final recordingFrequency = this.recordingFrequency;
+    final recordingModeOverrides = this.recordingModeOverrides;
+    return {
+      'recordingFrequency': recordingFrequency.value,
+      if (recordingModeOverrides != null)
+        'recordingModeOverrides': recordingModeOverrides,
+    };
+  }
+}
+
+/// An object for you to specify your overrides for the recording mode.
+class RecordingModeOverride {
+  /// The recording frequency that will be applied to all the resource types
+  /// specified in the override.
+  ///
+  /// <ul>
+  /// <li>
+  /// Continuous recording allows you to record configuration changes continuously
+  /// whenever a change occurs.
+  /// </li>
+  /// <li>
+  /// Daily recording allows you to receive a configuration item (CI) representing
+  /// the most recent state of your resources over the last 24-hour period, only
+  /// if it’s different from the previous CI recorded.
+  /// </li>
+  /// </ul> <note>
+  /// Firewall Manager depends on continuous recording to monitor your resources.
+  /// If you are using Firewall Manager, it is recommended that you set the
+  /// recording frequency to Continuous.
+  /// </note>
+  final RecordingFrequency recordingFrequency;
+
+  /// A comma-separated list that specifies which resource types Config includes
+  /// in the override.
+  /// <important>
+  /// Daily recording is not supported for the following resource types:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>AWS::Config::ResourceCompliance</code>
+  /// </li>
+  /// <li>
+  /// <code>AWS::Config::ConformancePackCompliance</code>
+  /// </li>
+  /// <li>
+  /// <code>AWS::Config::ConfigurationRecorder</code>
+  /// </li>
+  /// </ul> </important>
+  final List<ResourceType> resourceTypes;
+
+  /// A description that you provide for the override.
+  final String? description;
+
+  RecordingModeOverride({
+    required this.recordingFrequency,
+    required this.resourceTypes,
+    this.description,
+  });
+
+  factory RecordingModeOverride.fromJson(Map<String, dynamic> json) {
+    return RecordingModeOverride(
+      recordingFrequency:
+          RecordingFrequency.fromString((json['recordingFrequency'] as String)),
+      resourceTypes: (json['resourceTypes'] as List)
+          .nonNulls
+          .map((e) => ResourceType.fromString((e as String)))
+          .toList(),
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final recordingFrequency = this.recordingFrequency;
+    final resourceTypes = this.resourceTypes;
+    final description = this.description;
+    return {
+      'recordingFrequency': recordingFrequency.value,
+      'resourceTypes': resourceTypes.map((e) => e.value).toList(),
+      if (description != null) 'description': description,
+    };
+  }
+}
+
+/// Specifies the recording strategy of the configuration recorder.
+class RecordingStrategy {
+  /// The recording strategy for the configuration recorder.
+  ///
+  /// <ul>
+  /// <li>
+  /// If you set this option to <code>ALL_SUPPORTED_RESOURCE_TYPES</code>, Config
+  /// records configuration changes for all supported resource types, excluding
+  /// the global IAM resource types. You also must set the
+  /// <code>allSupported</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>
+  /// to <code>true</code>. When Config adds support for a new resource type,
+  /// Config automatically starts recording resources of that type. For a list of
+  /// supported resource types, see <a
+  /// href="https://docs.aws.amazon.com/config/latest/developerguide/resource-config-reference.html#supported-resources">Supported
+  /// Resource Types</a> in the <i>Config developer guide</i>.
+  /// </li>
+  /// <li>
+  /// If you set this option to <code>INCLUSION_BY_RESOURCE_TYPES</code>, Config
+  /// records configuration changes for only the resource types that you specify
+  /// in the <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>.
+  /// </li>
+  /// <li>
+  /// If you set this option to <code>EXCLUSION_BY_RESOURCE_TYPES</code>, Config
+  /// records configuration changes for all supported resource types, except the
+  /// resource types that you specify to exclude from being recorded in the
+  /// <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_ExclusionByResourceTypes.html">ExclusionByResourceTypes</a>.
+  /// </li>
+  /// </ul> <note>
+  /// <b>Required and optional fields</b>
+  ///
+  /// The <code>recordingStrategy</code> field is optional when you set the
+  /// <code>allSupported</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>
+  /// to <code>true</code>.
+  ///
+  /// The <code>recordingStrategy</code> field is optional when you list resource
+  /// types in the <code>resourceTypes</code> field of <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_RecordingGroup.html">RecordingGroup</a>.
+  ///
+  /// The <code>recordingStrategy</code> field is required if you list resource
+  /// types to exclude from recording in the <code>resourceTypes</code> field of
+  /// <a
+  /// href="https://docs.aws.amazon.com/config/latest/APIReference/API_ExclusionByResourceTypes.html">ExclusionByResourceTypes</a>.
+  /// </note> <note>
+  /// <b>Overriding fields</b>
+  ///
+  /// If you choose <code>EXCLUSION_BY_RESOURCE_TYPES</code> for the recording
+  /// strategy, the <code>exclusionByResourceTypes</code> field will override
+  /// other properties in the request.
+  ///
+  /// For example, even if you set <code>includeGlobalResourceTypes</code> to
+  /// false, global IAM resource types will still be automatically recorded in
+  /// this option unless those resource types are specifically listed as
+  /// exclusions in the <code>resourceTypes</code> field of
+  /// <code>exclusionByResourceTypes</code>.
+  /// </note> <note>
+  /// <b>Global resource types and the exclusion recording strategy</b>
+  ///
+  /// By default, if you choose the <code>EXCLUSION_BY_RESOURCE_TYPES</code>
+  /// recording strategy, when Config adds support for a new resource type in the
+  /// Region where you set up the configuration recorder, including global
+  /// resource types, Config starts recording resources of that type
+  /// automatically.
+  ///
+  /// Unless specifically listed as exclusions,
+  /// <code>AWS::RDS::GlobalCluster</code> will be recorded automatically in all
+  /// supported Config Regions were the configuration recorder is enabled.
+  ///
+  /// IAM users, groups, roles, and customer managed policies will be recorded in
+  /// the Region where you set up the configuration recorder if that is a Region
+  /// where Config was available before February 2022. You cannot be record the
+  /// global IAM resouce types in Regions supported by Config after February 2022.
+  /// This list where you cannot record the global IAM resource types includes the
+  /// following Regions:
+  ///
+  /// <ul>
+  /// <li>
+  /// Asia Pacific (Hyderabad)
+  /// </li>
+  /// <li>
+  /// Asia Pacific (Melbourne)
+  /// </li>
+  /// <li>
+  /// Canada West (Calgary)
+  /// </li>
+  /// <li>
+  /// Europe (Spain)
+  /// </li>
+  /// <li>
+  /// Europe (Zurich)
+  /// </li>
+  /// <li>
+  /// Israel (Tel Aviv)
+  /// </li>
+  /// <li>
+  /// Middle East (UAE)
+  /// </li>
+  /// </ul> </note>
+  final RecordingStrategyType? useOnly;
+
+  RecordingStrategy({
+    this.useOnly,
+  });
+
+  factory RecordingStrategy.fromJson(Map<String, dynamic> json) {
+    return RecordingStrategy(
+      useOnly:
+          (json['useOnly'] as String?)?.let(RecordingStrategyType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final useOnly = this.useOnly;
+    return {
+      if (useOnly != null) 'useOnly': useOnly.value,
+    };
+  }
+}
+
+enum RecordingStrategyType {
+  allSupportedResourceTypes('ALL_SUPPORTED_RESOURCE_TYPES'),
+  inclusionByResourceTypes('INCLUSION_BY_RESOURCE_TYPES'),
+  exclusionByResourceTypes('EXCLUSION_BY_RESOURCE_TYPES'),
+  ;
+
+  final String value;
+
+  const RecordingStrategyType(this.value);
+
+  static RecordingStrategyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecordingStrategyType'));
 }
 
 /// The relationship of the related resource to the main resource.
@@ -12981,7 +13296,8 @@ class Relationship {
       relationshipName: json['relationshipName'] as String?,
       resourceId: json['resourceId'] as String?,
       resourceName: json['resourceName'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
     );
   }
 
@@ -12994,7 +13310,7 @@ class Relationship {
       if (relationshipName != null) 'relationshipName': relationshipName,
       if (resourceId != null) 'resourceId': resourceId,
       if (resourceName != null) 'resourceName': resourceName,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
     };
   }
 }
@@ -13040,12 +13356,17 @@ class RemediationConfiguration {
   /// The type of a resource.
   final String? resourceType;
 
-  /// Maximum time in seconds that Config runs auto-remediation. If you do not
-  /// select a number, the default is 60 seconds.
+  /// Time window to determine whether or not to add a remediation exception to
+  /// prevent infinite remediation attempts. If
+  /// <code>MaximumAutomaticAttempts</code> remediation attempts have been made
+  /// under <code>RetryAttemptSeconds</code>, a remediation exception will be
+  /// added to the resource. If you do not select a number, the default is 60
+  /// seconds.
   ///
-  /// For example, if you specify RetryAttemptSeconds as 50 seconds and
-  /// MaximumAutomaticAttempts as 5, Config will run auto-remediations 5 times
-  /// within 50 seconds before throwing an exception.
+  /// For example, if you specify <code>RetryAttemptSeconds</code> as 50 seconds
+  /// and <code>MaximumAutomaticAttempts</code> as 5, Config will run
+  /// auto-remediations 5 times within 50 seconds before adding a remediation
+  /// exception to the resource.
   final int? retryAttemptSeconds;
 
   /// Version of the target. For example, version of the SSM document.
@@ -13074,7 +13395,8 @@ class RemediationConfiguration {
     return RemediationConfiguration(
       configRuleName: json['ConfigRuleName'] as String,
       targetId: json['TargetId'] as String,
-      targetType: (json['TargetType'] as String).toRemediationTargetType(),
+      targetType:
+          RemediationTargetType.fromString((json['TargetType'] as String)),
       arn: json['Arn'] as String?,
       automatic: json['Automatic'] as bool?,
       createdByService: json['CreatedByService'] as String?,
@@ -13108,7 +13430,7 @@ class RemediationConfiguration {
     return {
       'ConfigRuleName': configRuleName,
       'TargetId': targetId,
-      'TargetType': targetType.toValue(),
+      'TargetType': targetType.value,
       if (arn != null) 'Arn': arn,
       if (automatic != null) 'Automatic': automatic,
       if (createdByService != null) 'CreatedByService': createdByService,
@@ -13210,41 +13532,20 @@ class RemediationExceptionResourceKey {
 }
 
 enum RemediationExecutionState {
-  queued,
-  inProgress,
-  succeeded,
-  failed,
-}
+  queued('QUEUED'),
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
 
-extension RemediationExecutionStateValueExtension on RemediationExecutionState {
-  String toValue() {
-    switch (this) {
-      case RemediationExecutionState.queued:
-        return 'QUEUED';
-      case RemediationExecutionState.inProgress:
-        return 'IN_PROGRESS';
-      case RemediationExecutionState.succeeded:
-        return 'SUCCEEDED';
-      case RemediationExecutionState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension RemediationExecutionStateFromString on String {
-  RemediationExecutionState toRemediationExecutionState() {
-    switch (this) {
-      case 'QUEUED':
-        return RemediationExecutionState.queued;
-      case 'IN_PROGRESS':
-        return RemediationExecutionState.inProgress;
-      case 'SUCCEEDED':
-        return RemediationExecutionState.succeeded;
-      case 'FAILED':
-        return RemediationExecutionState.failed;
-    }
-    throw Exception('$this is not known in enum RemediationExecutionState');
-  }
+  const RemediationExecutionState(this.value);
+
+  static RemediationExecutionState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RemediationExecutionState'));
 }
 
 /// Provides details of the current status of the invoked remediation action for
@@ -13278,9 +13579,10 @@ class RemediationExecutionStatus {
       resourceKey: json['ResourceKey'] != null
           ? ResourceKey.fromJson(json['ResourceKey'] as Map<String, dynamic>)
           : null,
-      state: (json['State'] as String?)?.toRemediationExecutionState(),
+      state:
+          (json['State'] as String?)?.let(RemediationExecutionState.fromString),
       stepDetails: (json['StepDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RemediationExecutionStep.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -13299,7 +13601,7 @@ class RemediationExecutionStatus {
       if (lastUpdatedTime != null)
         'LastUpdatedTime': unixTimestampToJson(lastUpdatedTime),
       if (resourceKey != null) 'ResourceKey': resourceKey,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (stepDetails != null) 'StepDetails': stepDetails,
     };
   }
@@ -13335,7 +13637,8 @@ class RemediationExecutionStep {
       errorMessage: json['ErrorMessage'] as String?,
       name: json['Name'] as String?,
       startTime: timeStampFromJson(json['StartTime']),
-      state: (json['State'] as String?)?.toRemediationExecutionStepState(),
+      state: (json['State'] as String?)
+          ?.let(RemediationExecutionStepState.fromString),
       stopTime: timeStampFromJson(json['StopTime']),
     );
   }
@@ -13350,44 +13653,26 @@ class RemediationExecutionStep {
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (name != null) 'Name': name,
       if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (stopTime != null) 'StopTime': unixTimestampToJson(stopTime),
     };
   }
 }
 
 enum RemediationExecutionStepState {
-  succeeded,
-  pending,
-  failed,
-}
+  succeeded('SUCCEEDED'),
+  pending('PENDING'),
+  failed('FAILED'),
+  ;
 
-extension RemediationExecutionStepStateValueExtension
-    on RemediationExecutionStepState {
-  String toValue() {
-    switch (this) {
-      case RemediationExecutionStepState.succeeded:
-        return 'SUCCEEDED';
-      case RemediationExecutionStepState.pending:
-        return 'PENDING';
-      case RemediationExecutionStepState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension RemediationExecutionStepStateFromString on String {
-  RemediationExecutionStepState toRemediationExecutionStepState() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return RemediationExecutionStepState.succeeded;
-      case 'PENDING':
-        return RemediationExecutionStepState.pending;
-      case 'FAILED':
-        return RemediationExecutionStepState.failed;
-    }
-    throw Exception('$this is not known in enum RemediationExecutionStepState');
-  }
+  const RemediationExecutionStepState(this.value);
+
+  static RemediationExecutionStepState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RemediationExecutionStepState'));
 }
 
 /// The value is either a dynamic (resource) value or a static value. You must
@@ -13427,51 +13712,31 @@ class RemediationParameterValue {
 }
 
 enum RemediationTargetType {
-  ssmDocument,
-}
+  ssmDocument('SSM_DOCUMENT'),
+  ;
 
-extension RemediationTargetTypeValueExtension on RemediationTargetType {
-  String toValue() {
-    switch (this) {
-      case RemediationTargetType.ssmDocument:
-        return 'SSM_DOCUMENT';
-    }
-  }
-}
+  final String value;
 
-extension RemediationTargetTypeFromString on String {
-  RemediationTargetType toRemediationTargetType() {
-    switch (this) {
-      case 'SSM_DOCUMENT':
-        return RemediationTargetType.ssmDocument;
-    }
-    throw Exception('$this is not known in enum RemediationTargetType');
-  }
+  const RemediationTargetType(this.value);
+
+  static RemediationTargetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RemediationTargetType'));
 }
 
 enum ResourceConfigurationSchemaType {
-  cfnResourceSchema,
-}
+  cfnResourceSchema('CFN_RESOURCE_SCHEMA'),
+  ;
 
-extension ResourceConfigurationSchemaTypeValueExtension
-    on ResourceConfigurationSchemaType {
-  String toValue() {
-    switch (this) {
-      case ResourceConfigurationSchemaType.cfnResourceSchema:
-        return 'CFN_RESOURCE_SCHEMA';
-    }
-  }
-}
+  final String value;
 
-extension ResourceConfigurationSchemaTypeFromString on String {
-  ResourceConfigurationSchemaType toResourceConfigurationSchemaType() {
-    switch (this) {
-      case 'CFN_RESOURCE_SCHEMA':
-        return ResourceConfigurationSchemaType.cfnResourceSchema;
-    }
-    throw Exception(
-        '$this is not known in enum ResourceConfigurationSchemaType');
-  }
+  const ResourceConfigurationSchemaType(this.value);
+
+  static ResourceConfigurationSchemaType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceConfigurationSchemaType'));
 }
 
 /// An object that contains the resource type and the number of resources.
@@ -13490,7 +13755,8 @@ class ResourceCount {
   factory ResourceCount.fromJson(Map<String, dynamic> json) {
     return ResourceCount(
       count: json['count'] as int?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
     );
   }
 
@@ -13499,7 +13765,7 @@ class ResourceCount {
     final resourceType = this.resourceType;
     return {
       if (count != null) 'count': count,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
     };
   }
 }
@@ -13528,42 +13794,25 @@ class ResourceCountFilters {
     return {
       if (accountId != null) 'AccountId': accountId,
       if (region != null) 'Region': region,
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
     };
   }
 }
 
 enum ResourceCountGroupKey {
-  resourceType,
-  accountId,
-  awsRegion,
-}
+  resourceType('RESOURCE_TYPE'),
+  accountId('ACCOUNT_ID'),
+  awsRegion('AWS_REGION'),
+  ;
 
-extension ResourceCountGroupKeyValueExtension on ResourceCountGroupKey {
-  String toValue() {
-    switch (this) {
-      case ResourceCountGroupKey.resourceType:
-        return 'RESOURCE_TYPE';
-      case ResourceCountGroupKey.accountId:
-        return 'ACCOUNT_ID';
-      case ResourceCountGroupKey.awsRegion:
-        return 'AWS_REGION';
-    }
-  }
-}
+  final String value;
 
-extension ResourceCountGroupKeyFromString on String {
-  ResourceCountGroupKey toResourceCountGroupKey() {
-    switch (this) {
-      case 'RESOURCE_TYPE':
-        return ResourceCountGroupKey.resourceType;
-      case 'ACCOUNT_ID':
-        return ResourceCountGroupKey.accountId;
-      case 'AWS_REGION':
-        return ResourceCountGroupKey.awsRegion;
-    }
-    throw Exception('$this is not known in enum ResourceCountGroupKey');
-  }
+  const ResourceCountGroupKey(this.value);
+
+  static ResourceCountGroupKey fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceCountGroupKey'));
 }
 
 /// Returns information about the resource being evaluated.
@@ -13610,7 +13859,7 @@ class ResourceDetails {
       resourceType: json['ResourceType'] as String,
       resourceConfigurationSchemaType:
           (json['ResourceConfigurationSchemaType'] as String?)
-              ?.toResourceConfigurationSchemaType(),
+              ?.let(ResourceConfigurationSchemaType.fromString),
     );
   }
 
@@ -13626,7 +13875,7 @@ class ResourceDetails {
       'ResourceType': resourceType,
       if (resourceConfigurationSchemaType != null)
         'ResourceConfigurationSchemaType':
-            resourceConfigurationSchemaType.toValue(),
+            resourceConfigurationSchemaType.value,
     };
   }
 }
@@ -13650,7 +13899,8 @@ class ResourceEvaluation {
 
   factory ResourceEvaluation.fromJson(Map<String, dynamic> json) {
     return ResourceEvaluation(
-      evaluationMode: (json['EvaluationMode'] as String?)?.toEvaluationMode(),
+      evaluationMode:
+          (json['EvaluationMode'] as String?)?.let(EvaluationMode.fromString),
       evaluationStartTimestamp:
           timeStampFromJson(json['EvaluationStartTimestamp']),
       resourceEvaluationId: json['ResourceEvaluationId'] as String?,
@@ -13662,7 +13912,7 @@ class ResourceEvaluation {
     final evaluationStartTimestamp = this.evaluationStartTimestamp;
     final resourceEvaluationId = this.resourceEvaluationId;
     return {
-      if (evaluationMode != null) 'EvaluationMode': evaluationMode.toValue(),
+      if (evaluationMode != null) 'EvaluationMode': evaluationMode.value,
       if (evaluationStartTimestamp != null)
         'EvaluationStartTimestamp':
             unixTimestampToJson(evaluationStartTimestamp),
@@ -13678,8 +13928,11 @@ class ResourceEvaluationFilters {
   /// Stack.
   final String? evaluationContextIdentifier;
 
-  /// Filters all resource evaluations results based on an evaluation mode. the
-  /// valid value for this API is <code>Proactive</code>.
+  /// Filters all resource evaluations results based on an evaluation mode.
+  /// <important>
+  /// Currently, <code>DECTECTIVE</code> is not supported as a valid value. Ignore
+  /// other documentation stating otherwise.
+  /// </important>
   final EvaluationMode? evaluationMode;
 
   /// Returns a <code>TimeWindow</code> object.
@@ -13698,43 +13951,26 @@ class ResourceEvaluationFilters {
     return {
       if (evaluationContextIdentifier != null)
         'EvaluationContextIdentifier': evaluationContextIdentifier,
-      if (evaluationMode != null) 'EvaluationMode': evaluationMode.toValue(),
+      if (evaluationMode != null) 'EvaluationMode': evaluationMode.value,
       if (timeWindow != null) 'TimeWindow': timeWindow,
     };
   }
 }
 
 enum ResourceEvaluationStatus {
-  inProgress,
-  failed,
-  succeeded,
-}
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  succeeded('SUCCEEDED'),
+  ;
 
-extension ResourceEvaluationStatusValueExtension on ResourceEvaluationStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceEvaluationStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ResourceEvaluationStatus.failed:
-        return 'FAILED';
-      case ResourceEvaluationStatus.succeeded:
-        return 'SUCCEEDED';
-    }
-  }
-}
+  final String value;
 
-extension ResourceEvaluationStatusFromString on String {
-  ResourceEvaluationStatus toResourceEvaluationStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return ResourceEvaluationStatus.inProgress;
-      case 'FAILED':
-        return ResourceEvaluationStatus.failed;
-      case 'SUCCEEDED':
-        return ResourceEvaluationStatus.succeeded;
-    }
-    throw Exception('$this is not known in enum ResourceEvaluationStatus');
-  }
+  const ResourceEvaluationStatus(this.value);
+
+  static ResourceEvaluationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceEvaluationStatus'));
 }
 
 /// Filters the results by resource account ID, region, resource ID, and
@@ -13800,7 +14036,8 @@ class ResourceIdentifier {
       resourceDeletionTime: timeStampFromJson(json['resourceDeletionTime']),
       resourceId: json['resourceId'] as String?,
       resourceName: json['resourceName'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
     );
   }
 
@@ -13814,7 +14051,7 @@ class ResourceIdentifier {
         'resourceDeletionTime': unixTimestampToJson(resourceDeletionTime),
       if (resourceId != null) 'resourceId': resourceId,
       if (resourceName != null) 'resourceName': resourceName,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
     };
   }
 }
@@ -13836,7 +14073,7 @@ class ResourceKey {
   factory ResourceKey.fromJson(Map<String, dynamic> json) {
     return ResourceKey(
       resourceId: json['resourceId'] as String,
-      resourceType: (json['resourceType'] as String).toResourceType(),
+      resourceType: ResourceType.fromString((json['resourceType'] as String)),
     );
   }
 
@@ -13845,1512 +14082,461 @@ class ResourceKey {
     final resourceType = this.resourceType;
     return {
       'resourceId': resourceId,
-      'resourceType': resourceType.toValue(),
+      'resourceType': resourceType.value,
     };
   }
 }
 
 enum ResourceType {
-  awsEc2CustomerGateway,
-  awsEc2Eip,
-  awsEc2Host,
-  awsEc2Instance,
-  awsEc2InternetGateway,
-  awsEc2NetworkAcl,
-  awsEc2NetworkInterface,
-  awsEc2RouteTable,
-  awsEc2SecurityGroup,
-  awsEc2Subnet,
-  awsCloudTrailTrail,
-  awsEc2Volume,
-  awsEc2Vpc,
-  awsEc2VPNConnection,
-  awsEc2VPNGateway,
-  awsEc2RegisteredHAInstance,
-  awsEc2NatGateway,
-  awsEc2EgressOnlyInternetGateway,
-  awsEc2VPCEndpoint,
-  awsEc2VPCEndpointService,
-  awsEc2FlowLog,
-  awsEc2VPCPeeringConnection,
-  awsElasticsearchDomain,
-  awsIamGroup,
-  awsIamPolicy,
-  awsIamRole,
-  awsIamUser,
-  awsElasticLoadBalancingV2LoadBalancer,
-  awsAcmCertificate,
-  awsRdsDBInstance,
-  awsRdsDBSubnetGroup,
-  awsRdsDBSecurityGroup,
-  awsRdsDBSnapshot,
-  awsRdsDBCluster,
-  awsRdsDBClusterSnapshot,
-  awsRdsEventSubscription,
-  awsS3Bucket,
-  awsS3AccountPublicAccessBlock,
-  awsRedshiftCluster,
-  awsRedshiftClusterSnapshot,
-  awsRedshiftClusterParameterGroup,
-  awsRedshiftClusterSecurityGroup,
-  awsRedshiftClusterSubnetGroup,
-  awsRedshiftEventSubscription,
-  awsSsmManagedInstanceInventory,
-  awsCloudWatchAlarm,
-  awsCloudFormationStack,
-  awsElasticLoadBalancingLoadBalancer,
-  awsAutoScalingAutoScalingGroup,
-  awsAutoScalingLaunchConfiguration,
-  awsAutoScalingScalingPolicy,
-  awsAutoScalingScheduledAction,
-  awsDynamoDBTable,
-  awsCodeBuildProject,
-  awsWafRateBasedRule,
-  awsWafRule,
-  awsWafRuleGroup,
-  awsWafWebACL,
-  awsWAFRegionalRateBasedRule,
-  awsWAFRegionalRule,
-  awsWAFRegionalRuleGroup,
-  awsWAFRegionalWebACL,
-  awsCloudFrontDistribution,
-  awsCloudFrontStreamingDistribution,
-  awsLambdaFunction,
-  awsNetworkFirewallFirewall,
-  awsNetworkFirewallFirewallPolicy,
-  awsNetworkFirewallRuleGroup,
-  awsElasticBeanstalkApplication,
-  awsElasticBeanstalkApplicationVersion,
-  awsElasticBeanstalkEnvironment,
-  awsWAFv2WebACL,
-  awsWAFv2RuleGroup,
-  awsWAFv2IPSet,
-  awsWAFv2RegexPatternSet,
-  awsWAFv2ManagedRuleSet,
-  awsXRayEncryptionConfig,
-  awsSsmAssociationCompliance,
-  awsSsmPatchCompliance,
-  awsShieldProtection,
-  awsShieldRegionalProtection,
-  awsConfigConformancePackCompliance,
-  awsConfigResourceCompliance,
-  awsApiGatewayStage,
-  awsApiGatewayRestApi,
-  awsApiGatewayV2Stage,
-  awsApiGatewayV2Api,
-  awsCodePipelinePipeline,
-  awsServiceCatalogCloudFormationProvisionedProduct,
-  awsServiceCatalogCloudFormationProduct,
-  awsServiceCatalogPortfolio,
-  awsSqsQueue,
-  awsKmsKey,
-  awsQldbLedger,
-  awsSecretsManagerSecret,
-  awsSnsTopic,
-  awsSsmFileData,
-  awsBackupBackupPlan,
-  awsBackupBackupSelection,
-  awsBackupBackupVault,
-  awsBackupRecoveryPoint,
-  awsEcrRepository,
-  awsEcsCluster,
-  awsEcsService,
-  awsEcsTaskDefinition,
-  awsEfsAccessPoint,
-  awsEfsFileSystem,
-  awsEksCluster,
-  awsOpenSearchDomain,
-  awsEc2TransitGateway,
-  awsKinesisStream,
-  awsKinesisStreamConsumer,
-  awsCodeDeployApplication,
-  awsCodeDeployDeploymentConfig,
-  awsCodeDeployDeploymentGroup,
-  awsEc2LaunchTemplate,
-  awsEcrPublicRepository,
-  awsGuardDutyDetector,
-  awsEmrSecurityConfiguration,
-  awsSageMakerCodeRepository,
-  awsRoute53ResolverResolverEndpoint,
-  awsRoute53ResolverResolverRule,
-  awsRoute53ResolverResolverRuleAssociation,
-  awsDmsReplicationSubnetGroup,
-  awsDmsEventSubscription,
-  awsMskCluster,
-  awsStepFunctionsActivity,
-  awsWorkSpacesWorkspace,
-  awsWorkSpacesConnectionAlias,
-  awsSageMakerModel,
-  awsElasticLoadBalancingV2Listener,
-  awsStepFunctionsStateMachine,
-  awsBatchJobQueue,
-  awsBatchComputeEnvironment,
-  awsAccessAnalyzerAnalyzer,
-  awsAthenaWorkGroup,
-  awsAthenaDataCatalog,
-  awsDetectiveGraph,
-  awsGlobalAcceleratorAccelerator,
-  awsGlobalAcceleratorEndpointGroup,
-  awsGlobalAcceleratorListener,
-  awsEc2TransitGatewayAttachment,
-  awsEc2TransitGatewayRouteTable,
-  awsDmsCertificate,
-  awsAppConfigApplication,
-  awsAppSyncGraphQLApi,
-  awsDataSyncLocationSMB,
-  awsDataSyncLocationFSxLustre,
-  awsDataSyncLocationS3,
-  awsDataSyncLocationEFS,
-  awsDataSyncTask,
-  awsDataSyncLocationNFS,
-  awsEc2NetworkInsightsAccessScopeAnalysis,
-  awsEksFargateProfile,
-  awsGlueJob,
-  awsGuardDutyThreatIntelSet,
-  awsGuardDutyIPSet,
-  awsSageMakerWorkteam,
-  awsSageMakerNotebookInstanceLifecycleConfig,
-  awsServiceDiscoveryService,
-  awsServiceDiscoveryPublicDnsNamespace,
-  awsSesContactList,
-  awsSesConfigurationSet,
-  awsRoute53HostedZone,
-  awsIoTEventsInput,
-  awsIoTEventsDetectorModel,
-  awsIoTEventsAlarmModel,
-  awsServiceDiscoveryHttpNamespace,
-  awsEventsEventBus,
-  awsImageBuilderContainerRecipe,
-  awsImageBuilderDistributionConfiguration,
-  awsImageBuilderInfrastructureConfiguration,
-  awsDataSyncLocationObjectStorage,
-  awsDataSyncLocationHDFS,
-  awsGlueClassifier,
-  awsRoute53RecoveryReadinessCell,
-  awsRoute53RecoveryReadinessReadinessCheck,
-  awsEcrRegistryPolicy,
-  awsBackupReportPlan,
-  awsLightsailCertificate,
-  awsRumAppMonitor,
-  awsEventsEndpoint,
-  awsSesReceiptRuleSet,
-  awsEventsArchive,
-  awsEventsApiDestination,
-  awsLightsailDisk,
-  awsFisExperimentTemplate,
-  awsDataSyncLocationFSxWindows,
-  awsSesReceiptFilter,
-  awsGuardDutyFilter,
-  awsSesTemplate,
-  awsAmazonMQBroker,
-  awsAppConfigEnvironment,
-  awsAppConfigConfigurationProfile,
-  awsCloud9EnvironmentEC2,
-  awsEventSchemasRegistry,
-  awsEventSchemasRegistryPolicy,
-  awsEventSchemasDiscoverer,
-  awsFraudDetectorLabel,
-  awsFraudDetectorEntityType,
-  awsFraudDetectorVariable,
-  awsFraudDetectorOutcome,
-  awsIoTAuthorizer,
-  awsIoTSecurityProfile,
-  awsIoTRoleAlias,
-  awsIoTDimension,
-  awsIoTAnalyticsDatastore,
-  awsLightsailBucket,
-  awsLightsailStaticIp,
-  awsMediaPackagePackagingGroup,
-  awsRoute53RecoveryReadinessRecoveryGroup,
-  awsResilienceHubResiliencyPolicy,
-  awsTransferWorkflow,
-  awsEksIdentityProviderConfig,
-  awsEksAddon,
-  awsGlueMLTransform,
-  awsIoTPolicy,
-  awsIoTMitigationAction,
-  awsIoTTwinMakerWorkspace,
-  awsIoTTwinMakerEntity,
-  awsIoTAnalyticsDataset,
-  awsIoTAnalyticsPipeline,
-  awsIoTAnalyticsChannel,
-  awsIoTSiteWiseDashboard,
-  awsIoTSiteWiseProject,
-  awsIoTSiteWisePortal,
-  awsIoTSiteWiseAssetModel,
-  awsIvsChannel,
-  awsIvsRecordingConfiguration,
-  awsIvsPlaybackKeyPair,
-  awsKinesisAnalyticsV2Application,
-  awsRdsGlobalCluster,
-  awsS3MultiRegionAccessPoint,
-  awsDeviceFarmTestGridProject,
-  awsBudgetsBudgetsAction,
-  awsLexBot,
-  awsCodeGuruReviewerRepositoryAssociation,
-  awsIoTCustomMetric,
-  awsRoute53ResolverFirewallDomainList,
-  awsRoboMakerRobotApplicationVersion,
-  awsEc2TrafficMirrorSession,
-  awsIoTSiteWiseGateway,
-  awsLexBotAlias,
-  awsLookoutMetricsAlert,
-  awsIoTAccountAuditConfiguration,
-  awsEc2TrafficMirrorTarget,
-  awsS3StorageLens,
-  awsIoTScheduledAudit,
-  awsEventsConnection,
-  awsEventSchemasSchema,
-  awsMediaPackagePackagingConfiguration,
-  awsKinesisVideoSignalingChannel,
-  awsAppStreamDirectoryConfig,
-  awsLookoutVisionProject,
-  awsRoute53RecoveryControlCluster,
-  awsRoute53RecoveryControlSafetyRule,
-  awsRoute53RecoveryControlControlPanel,
-  awsRoute53RecoveryControlRoutingControl,
-  awsRoute53RecoveryReadinessResourceSet,
-  awsRoboMakerSimulationApplication,
-  awsRoboMakerRobotApplication,
-  awsHealthLakeFHIRDatastore,
-  awsPinpointSegment,
-  awsPinpointApplicationSettings,
-  awsEventsRule,
-  awsEc2DHCPOptions,
-  awsEc2NetworkInsightsPath,
-  awsEc2TrafficMirrorFilter,
-  awsEc2Ipam,
-  awsIoTTwinMakerScene,
-  awsNetworkManagerTransitGatewayRegistration,
-  awsCustomerProfilesDomain,
-  awsAutoScalingWarmPool,
-  awsConnectPhoneNumber,
-  awsAppConfigDeploymentStrategy,
-  awsAppFlowFlow,
-  awsAuditManagerAssessment,
-  awsCloudWatchMetricStream,
-  awsDeviceFarmInstanceProfile,
-  awsDeviceFarmProject,
-  awsEc2EC2Fleet,
-  awsEc2SubnetRouteTableAssociation,
-  awsEcrPullThroughCacheRule,
-  awsGroundStationConfig,
-  awsImageBuilderImagePipeline,
-  awsIoTFleetMetric,
-  awsIoTWirelessServiceProfile,
-  awsNetworkManagerDevice,
-  awsNetworkManagerGlobalNetwork,
-  awsNetworkManagerLink,
-  awsNetworkManagerSite,
-  awsPanoramaPackage,
-  awsPinpointApp,
-  awsRedshiftScheduledAction,
-  awsRoute53ResolverFirewallRuleGroupAssociation,
-  awsSageMakerAppImageConfig,
-  awsSageMakerImage,
-}
+  awsEc2CustomerGateway('AWS::EC2::CustomerGateway'),
+  awsEc2Eip('AWS::EC2::EIP'),
+  awsEc2Host('AWS::EC2::Host'),
+  awsEc2Instance('AWS::EC2::Instance'),
+  awsEc2InternetGateway('AWS::EC2::InternetGateway'),
+  awsEc2NetworkAcl('AWS::EC2::NetworkAcl'),
+  awsEc2NetworkInterface('AWS::EC2::NetworkInterface'),
+  awsEc2RouteTable('AWS::EC2::RouteTable'),
+  awsEc2SecurityGroup('AWS::EC2::SecurityGroup'),
+  awsEc2Subnet('AWS::EC2::Subnet'),
+  awsCloudTrailTrail('AWS::CloudTrail::Trail'),
+  awsEc2Volume('AWS::EC2::Volume'),
+  awsEc2Vpc('AWS::EC2::VPC'),
+  awsEc2VPNConnection('AWS::EC2::VPNConnection'),
+  awsEc2VPNGateway('AWS::EC2::VPNGateway'),
+  awsEc2RegisteredHAInstance('AWS::EC2::RegisteredHAInstance'),
+  awsEc2NatGateway('AWS::EC2::NatGateway'),
+  awsEc2EgressOnlyInternetGateway('AWS::EC2::EgressOnlyInternetGateway'),
+  awsEc2VPCEndpoint('AWS::EC2::VPCEndpoint'),
+  awsEc2VPCEndpointService('AWS::EC2::VPCEndpointService'),
+  awsEc2FlowLog('AWS::EC2::FlowLog'),
+  awsEc2VPCPeeringConnection('AWS::EC2::VPCPeeringConnection'),
+  awsElasticsearchDomain('AWS::Elasticsearch::Domain'),
+  awsIamGroup('AWS::IAM::Group'),
+  awsIamPolicy('AWS::IAM::Policy'),
+  awsIamRole('AWS::IAM::Role'),
+  awsIamUser('AWS::IAM::User'),
+  awsElasticLoadBalancingV2LoadBalancer(
+      'AWS::ElasticLoadBalancingV2::LoadBalancer'),
+  awsAcmCertificate('AWS::ACM::Certificate'),
+  awsRdsDBInstance('AWS::RDS::DBInstance'),
+  awsRdsDBSubnetGroup('AWS::RDS::DBSubnetGroup'),
+  awsRdsDBSecurityGroup('AWS::RDS::DBSecurityGroup'),
+  awsRdsDBSnapshot('AWS::RDS::DBSnapshot'),
+  awsRdsDBCluster('AWS::RDS::DBCluster'),
+  awsRdsDBClusterSnapshot('AWS::RDS::DBClusterSnapshot'),
+  awsRdsEventSubscription('AWS::RDS::EventSubscription'),
+  awsS3Bucket('AWS::S3::Bucket'),
+  awsS3AccountPublicAccessBlock('AWS::S3::AccountPublicAccessBlock'),
+  awsRedshiftCluster('AWS::Redshift::Cluster'),
+  awsRedshiftClusterSnapshot('AWS::Redshift::ClusterSnapshot'),
+  awsRedshiftClusterParameterGroup('AWS::Redshift::ClusterParameterGroup'),
+  awsRedshiftClusterSecurityGroup('AWS::Redshift::ClusterSecurityGroup'),
+  awsRedshiftClusterSubnetGroup('AWS::Redshift::ClusterSubnetGroup'),
+  awsRedshiftEventSubscription('AWS::Redshift::EventSubscription'),
+  awsSsmManagedInstanceInventory('AWS::SSM::ManagedInstanceInventory'),
+  awsCloudWatchAlarm('AWS::CloudWatch::Alarm'),
+  awsCloudFormationStack('AWS::CloudFormation::Stack'),
+  awsElasticLoadBalancingLoadBalancer(
+      'AWS::ElasticLoadBalancing::LoadBalancer'),
+  awsAutoScalingAutoScalingGroup('AWS::AutoScaling::AutoScalingGroup'),
+  awsAutoScalingLaunchConfiguration('AWS::AutoScaling::LaunchConfiguration'),
+  awsAutoScalingScalingPolicy('AWS::AutoScaling::ScalingPolicy'),
+  awsAutoScalingScheduledAction('AWS::AutoScaling::ScheduledAction'),
+  awsDynamoDBTable('AWS::DynamoDB::Table'),
+  awsCodeBuildProject('AWS::CodeBuild::Project'),
+  awsWafRateBasedRule('AWS::WAF::RateBasedRule'),
+  awsWafRule('AWS::WAF::Rule'),
+  awsWafRuleGroup('AWS::WAF::RuleGroup'),
+  awsWafWebACL('AWS::WAF::WebACL'),
+  awsWAFRegionalRateBasedRule('AWS::WAFRegional::RateBasedRule'),
+  awsWAFRegionalRule('AWS::WAFRegional::Rule'),
+  awsWAFRegionalRuleGroup('AWS::WAFRegional::RuleGroup'),
+  awsWAFRegionalWebACL('AWS::WAFRegional::WebACL'),
+  awsCloudFrontDistribution('AWS::CloudFront::Distribution'),
+  awsCloudFrontStreamingDistribution('AWS::CloudFront::StreamingDistribution'),
+  awsLambdaFunction('AWS::Lambda::Function'),
+  awsNetworkFirewallFirewall('AWS::NetworkFirewall::Firewall'),
+  awsNetworkFirewallFirewallPolicy('AWS::NetworkFirewall::FirewallPolicy'),
+  awsNetworkFirewallRuleGroup('AWS::NetworkFirewall::RuleGroup'),
+  awsElasticBeanstalkApplication('AWS::ElasticBeanstalk::Application'),
+  awsElasticBeanstalkApplicationVersion(
+      'AWS::ElasticBeanstalk::ApplicationVersion'),
+  awsElasticBeanstalkEnvironment('AWS::ElasticBeanstalk::Environment'),
+  awsWAFv2WebACL('AWS::WAFv2::WebACL'),
+  awsWAFv2RuleGroup('AWS::WAFv2::RuleGroup'),
+  awsWAFv2IPSet('AWS::WAFv2::IPSet'),
+  awsWAFv2RegexPatternSet('AWS::WAFv2::RegexPatternSet'),
+  awsWAFv2ManagedRuleSet('AWS::WAFv2::ManagedRuleSet'),
+  awsXRayEncryptionConfig('AWS::XRay::EncryptionConfig'),
+  awsSsmAssociationCompliance('AWS::SSM::AssociationCompliance'),
+  awsSsmPatchCompliance('AWS::SSM::PatchCompliance'),
+  awsShieldProtection('AWS::Shield::Protection'),
+  awsShieldRegionalProtection('AWS::ShieldRegional::Protection'),
+  awsConfigConformancePackCompliance('AWS::Config::ConformancePackCompliance'),
+  awsConfigResourceCompliance('AWS::Config::ResourceCompliance'),
+  awsApiGatewayStage('AWS::ApiGateway::Stage'),
+  awsApiGatewayRestApi('AWS::ApiGateway::RestApi'),
+  awsApiGatewayV2Stage('AWS::ApiGatewayV2::Stage'),
+  awsApiGatewayV2Api('AWS::ApiGatewayV2::Api'),
+  awsCodePipelinePipeline('AWS::CodePipeline::Pipeline'),
+  awsServiceCatalogCloudFormationProvisionedProduct(
+      'AWS::ServiceCatalog::CloudFormationProvisionedProduct'),
+  awsServiceCatalogCloudFormationProduct(
+      'AWS::ServiceCatalog::CloudFormationProduct'),
+  awsServiceCatalogPortfolio('AWS::ServiceCatalog::Portfolio'),
+  awsSqsQueue('AWS::SQS::Queue'),
+  awsKmsKey('AWS::KMS::Key'),
+  awsQldbLedger('AWS::QLDB::Ledger'),
+  awsSecretsManagerSecret('AWS::SecretsManager::Secret'),
+  awsSnsTopic('AWS::SNS::Topic'),
+  awsSsmFileData('AWS::SSM::FileData'),
+  awsBackupBackupPlan('AWS::Backup::BackupPlan'),
+  awsBackupBackupSelection('AWS::Backup::BackupSelection'),
+  awsBackupBackupVault('AWS::Backup::BackupVault'),
+  awsBackupRecoveryPoint('AWS::Backup::RecoveryPoint'),
+  awsEcrRepository('AWS::ECR::Repository'),
+  awsEcsCluster('AWS::ECS::Cluster'),
+  awsEcsService('AWS::ECS::Service'),
+  awsEcsTaskDefinition('AWS::ECS::TaskDefinition'),
+  awsEfsAccessPoint('AWS::EFS::AccessPoint'),
+  awsEfsFileSystem('AWS::EFS::FileSystem'),
+  awsEksCluster('AWS::EKS::Cluster'),
+  awsOpenSearchDomain('AWS::OpenSearch::Domain'),
+  awsEc2TransitGateway('AWS::EC2::TransitGateway'),
+  awsKinesisStream('AWS::Kinesis::Stream'),
+  awsKinesisStreamConsumer('AWS::Kinesis::StreamConsumer'),
+  awsCodeDeployApplication('AWS::CodeDeploy::Application'),
+  awsCodeDeployDeploymentConfig('AWS::CodeDeploy::DeploymentConfig'),
+  awsCodeDeployDeploymentGroup('AWS::CodeDeploy::DeploymentGroup'),
+  awsEc2LaunchTemplate('AWS::EC2::LaunchTemplate'),
+  awsEcrPublicRepository('AWS::ECR::PublicRepository'),
+  awsGuardDutyDetector('AWS::GuardDuty::Detector'),
+  awsEmrSecurityConfiguration('AWS::EMR::SecurityConfiguration'),
+  awsSageMakerCodeRepository('AWS::SageMaker::CodeRepository'),
+  awsRoute53ResolverResolverEndpoint('AWS::Route53Resolver::ResolverEndpoint'),
+  awsRoute53ResolverResolverRule('AWS::Route53Resolver::ResolverRule'),
+  awsRoute53ResolverResolverRuleAssociation(
+      'AWS::Route53Resolver::ResolverRuleAssociation'),
+  awsDmsReplicationSubnetGroup('AWS::DMS::ReplicationSubnetGroup'),
+  awsDmsEventSubscription('AWS::DMS::EventSubscription'),
+  awsMskCluster('AWS::MSK::Cluster'),
+  awsStepFunctionsActivity('AWS::StepFunctions::Activity'),
+  awsWorkSpacesWorkspace('AWS::WorkSpaces::Workspace'),
+  awsWorkSpacesConnectionAlias('AWS::WorkSpaces::ConnectionAlias'),
+  awsSageMakerModel('AWS::SageMaker::Model'),
+  awsElasticLoadBalancingV2Listener('AWS::ElasticLoadBalancingV2::Listener'),
+  awsStepFunctionsStateMachine('AWS::StepFunctions::StateMachine'),
+  awsBatchJobQueue('AWS::Batch::JobQueue'),
+  awsBatchComputeEnvironment('AWS::Batch::ComputeEnvironment'),
+  awsAccessAnalyzerAnalyzer('AWS::AccessAnalyzer::Analyzer'),
+  awsAthenaWorkGroup('AWS::Athena::WorkGroup'),
+  awsAthenaDataCatalog('AWS::Athena::DataCatalog'),
+  awsDetectiveGraph('AWS::Detective::Graph'),
+  awsGlobalAcceleratorAccelerator('AWS::GlobalAccelerator::Accelerator'),
+  awsGlobalAcceleratorEndpointGroup('AWS::GlobalAccelerator::EndpointGroup'),
+  awsGlobalAcceleratorListener('AWS::GlobalAccelerator::Listener'),
+  awsEc2TransitGatewayAttachment('AWS::EC2::TransitGatewayAttachment'),
+  awsEc2TransitGatewayRouteTable('AWS::EC2::TransitGatewayRouteTable'),
+  awsDmsCertificate('AWS::DMS::Certificate'),
+  awsAppConfigApplication('AWS::AppConfig::Application'),
+  awsAppSyncGraphQLApi('AWS::AppSync::GraphQLApi'),
+  awsDataSyncLocationSMB('AWS::DataSync::LocationSMB'),
+  awsDataSyncLocationFSxLustre('AWS::DataSync::LocationFSxLustre'),
+  awsDataSyncLocationS3('AWS::DataSync::LocationS3'),
+  awsDataSyncLocationEFS('AWS::DataSync::LocationEFS'),
+  awsDataSyncTask('AWS::DataSync::Task'),
+  awsDataSyncLocationNFS('AWS::DataSync::LocationNFS'),
+  awsEc2NetworkInsightsAccessScopeAnalysis(
+      'AWS::EC2::NetworkInsightsAccessScopeAnalysis'),
+  awsEksFargateProfile('AWS::EKS::FargateProfile'),
+  awsGlueJob('AWS::Glue::Job'),
+  awsGuardDutyThreatIntelSet('AWS::GuardDuty::ThreatIntelSet'),
+  awsGuardDutyIPSet('AWS::GuardDuty::IPSet'),
+  awsSageMakerWorkteam('AWS::SageMaker::Workteam'),
+  awsSageMakerNotebookInstanceLifecycleConfig(
+      'AWS::SageMaker::NotebookInstanceLifecycleConfig'),
+  awsServiceDiscoveryService('AWS::ServiceDiscovery::Service'),
+  awsServiceDiscoveryPublicDnsNamespace(
+      'AWS::ServiceDiscovery::PublicDnsNamespace'),
+  awsSesContactList('AWS::SES::ContactList'),
+  awsSesConfigurationSet('AWS::SES::ConfigurationSet'),
+  awsRoute53HostedZone('AWS::Route53::HostedZone'),
+  awsIoTEventsInput('AWS::IoTEvents::Input'),
+  awsIoTEventsDetectorModel('AWS::IoTEvents::DetectorModel'),
+  awsIoTEventsAlarmModel('AWS::IoTEvents::AlarmModel'),
+  awsServiceDiscoveryHttpNamespace('AWS::ServiceDiscovery::HttpNamespace'),
+  awsEventsEventBus('AWS::Events::EventBus'),
+  awsImageBuilderContainerRecipe('AWS::ImageBuilder::ContainerRecipe'),
+  awsImageBuilderDistributionConfiguration(
+      'AWS::ImageBuilder::DistributionConfiguration'),
+  awsImageBuilderInfrastructureConfiguration(
+      'AWS::ImageBuilder::InfrastructureConfiguration'),
+  awsDataSyncLocationObjectStorage('AWS::DataSync::LocationObjectStorage'),
+  awsDataSyncLocationHDFS('AWS::DataSync::LocationHDFS'),
+  awsGlueClassifier('AWS::Glue::Classifier'),
+  awsRoute53RecoveryReadinessCell('AWS::Route53RecoveryReadiness::Cell'),
+  awsRoute53RecoveryReadinessReadinessCheck(
+      'AWS::Route53RecoveryReadiness::ReadinessCheck'),
+  awsEcrRegistryPolicy('AWS::ECR::RegistryPolicy'),
+  awsBackupReportPlan('AWS::Backup::ReportPlan'),
+  awsLightsailCertificate('AWS::Lightsail::Certificate'),
+  awsRumAppMonitor('AWS::RUM::AppMonitor'),
+  awsEventsEndpoint('AWS::Events::Endpoint'),
+  awsSesReceiptRuleSet('AWS::SES::ReceiptRuleSet'),
+  awsEventsArchive('AWS::Events::Archive'),
+  awsEventsApiDestination('AWS::Events::ApiDestination'),
+  awsLightsailDisk('AWS::Lightsail::Disk'),
+  awsFisExperimentTemplate('AWS::FIS::ExperimentTemplate'),
+  awsDataSyncLocationFSxWindows('AWS::DataSync::LocationFSxWindows'),
+  awsSesReceiptFilter('AWS::SES::ReceiptFilter'),
+  awsGuardDutyFilter('AWS::GuardDuty::Filter'),
+  awsSesTemplate('AWS::SES::Template'),
+  awsAmazonMQBroker('AWS::AmazonMQ::Broker'),
+  awsAppConfigEnvironment('AWS::AppConfig::Environment'),
+  awsAppConfigConfigurationProfile('AWS::AppConfig::ConfigurationProfile'),
+  awsCloud9EnvironmentEC2('AWS::Cloud9::EnvironmentEC2'),
+  awsEventSchemasRegistry('AWS::EventSchemas::Registry'),
+  awsEventSchemasRegistryPolicy('AWS::EventSchemas::RegistryPolicy'),
+  awsEventSchemasDiscoverer('AWS::EventSchemas::Discoverer'),
+  awsFraudDetectorLabel('AWS::FraudDetector::Label'),
+  awsFraudDetectorEntityType('AWS::FraudDetector::EntityType'),
+  awsFraudDetectorVariable('AWS::FraudDetector::Variable'),
+  awsFraudDetectorOutcome('AWS::FraudDetector::Outcome'),
+  awsIoTAuthorizer('AWS::IoT::Authorizer'),
+  awsIoTSecurityProfile('AWS::IoT::SecurityProfile'),
+  awsIoTRoleAlias('AWS::IoT::RoleAlias'),
+  awsIoTDimension('AWS::IoT::Dimension'),
+  awsIoTAnalyticsDatastore('AWS::IoTAnalytics::Datastore'),
+  awsLightsailBucket('AWS::Lightsail::Bucket'),
+  awsLightsailStaticIp('AWS::Lightsail::StaticIp'),
+  awsMediaPackagePackagingGroup('AWS::MediaPackage::PackagingGroup'),
+  awsRoute53RecoveryReadinessRecoveryGroup(
+      'AWS::Route53RecoveryReadiness::RecoveryGroup'),
+  awsResilienceHubResiliencyPolicy('AWS::ResilienceHub::ResiliencyPolicy'),
+  awsTransferWorkflow('AWS::Transfer::Workflow'),
+  awsEksIdentityProviderConfig('AWS::EKS::IdentityProviderConfig'),
+  awsEksAddon('AWS::EKS::Addon'),
+  awsGlueMLTransform('AWS::Glue::MLTransform'),
+  awsIoTPolicy('AWS::IoT::Policy'),
+  awsIoTMitigationAction('AWS::IoT::MitigationAction'),
+  awsIoTTwinMakerWorkspace('AWS::IoTTwinMaker::Workspace'),
+  awsIoTTwinMakerEntity('AWS::IoTTwinMaker::Entity'),
+  awsIoTAnalyticsDataset('AWS::IoTAnalytics::Dataset'),
+  awsIoTAnalyticsPipeline('AWS::IoTAnalytics::Pipeline'),
+  awsIoTAnalyticsChannel('AWS::IoTAnalytics::Channel'),
+  awsIoTSiteWiseDashboard('AWS::IoTSiteWise::Dashboard'),
+  awsIoTSiteWiseProject('AWS::IoTSiteWise::Project'),
+  awsIoTSiteWisePortal('AWS::IoTSiteWise::Portal'),
+  awsIoTSiteWiseAssetModel('AWS::IoTSiteWise::AssetModel'),
+  awsIvsChannel('AWS::IVS::Channel'),
+  awsIvsRecordingConfiguration('AWS::IVS::RecordingConfiguration'),
+  awsIvsPlaybackKeyPair('AWS::IVS::PlaybackKeyPair'),
+  awsKinesisAnalyticsV2Application('AWS::KinesisAnalyticsV2::Application'),
+  awsRdsGlobalCluster('AWS::RDS::GlobalCluster'),
+  awsS3MultiRegionAccessPoint('AWS::S3::MultiRegionAccessPoint'),
+  awsDeviceFarmTestGridProject('AWS::DeviceFarm::TestGridProject'),
+  awsBudgetsBudgetsAction('AWS::Budgets::BudgetsAction'),
+  awsLexBot('AWS::Lex::Bot'),
+  awsCodeGuruReviewerRepositoryAssociation(
+      'AWS::CodeGuruReviewer::RepositoryAssociation'),
+  awsIoTCustomMetric('AWS::IoT::CustomMetric'),
+  awsRoute53ResolverFirewallDomainList(
+      'AWS::Route53Resolver::FirewallDomainList'),
+  awsRoboMakerRobotApplicationVersion(
+      'AWS::RoboMaker::RobotApplicationVersion'),
+  awsEc2TrafficMirrorSession('AWS::EC2::TrafficMirrorSession'),
+  awsIoTSiteWiseGateway('AWS::IoTSiteWise::Gateway'),
+  awsLexBotAlias('AWS::Lex::BotAlias'),
+  awsLookoutMetricsAlert('AWS::LookoutMetrics::Alert'),
+  awsIoTAccountAuditConfiguration('AWS::IoT::AccountAuditConfiguration'),
+  awsEc2TrafficMirrorTarget('AWS::EC2::TrafficMirrorTarget'),
+  awsS3StorageLens('AWS::S3::StorageLens'),
+  awsIoTScheduledAudit('AWS::IoT::ScheduledAudit'),
+  awsEventsConnection('AWS::Events::Connection'),
+  awsEventSchemasSchema('AWS::EventSchemas::Schema'),
+  awsMediaPackagePackagingConfiguration(
+      'AWS::MediaPackage::PackagingConfiguration'),
+  awsKinesisVideoSignalingChannel('AWS::KinesisVideo::SignalingChannel'),
+  awsAppStreamDirectoryConfig('AWS::AppStream::DirectoryConfig'),
+  awsLookoutVisionProject('AWS::LookoutVision::Project'),
+  awsRoute53RecoveryControlCluster('AWS::Route53RecoveryControl::Cluster'),
+  awsRoute53RecoveryControlSafetyRule(
+      'AWS::Route53RecoveryControl::SafetyRule'),
+  awsRoute53RecoveryControlControlPanel(
+      'AWS::Route53RecoveryControl::ControlPanel'),
+  awsRoute53RecoveryControlRoutingControl(
+      'AWS::Route53RecoveryControl::RoutingControl'),
+  awsRoute53RecoveryReadinessResourceSet(
+      'AWS::Route53RecoveryReadiness::ResourceSet'),
+  awsRoboMakerSimulationApplication('AWS::RoboMaker::SimulationApplication'),
+  awsRoboMakerRobotApplication('AWS::RoboMaker::RobotApplication'),
+  awsHealthLakeFHIRDatastore('AWS::HealthLake::FHIRDatastore'),
+  awsPinpointSegment('AWS::Pinpoint::Segment'),
+  awsPinpointApplicationSettings('AWS::Pinpoint::ApplicationSettings'),
+  awsEventsRule('AWS::Events::Rule'),
+  awsEc2DHCPOptions('AWS::EC2::DHCPOptions'),
+  awsEc2NetworkInsightsPath('AWS::EC2::NetworkInsightsPath'),
+  awsEc2TrafficMirrorFilter('AWS::EC2::TrafficMirrorFilter'),
+  awsEc2Ipam('AWS::EC2::IPAM'),
+  awsIoTTwinMakerScene('AWS::IoTTwinMaker::Scene'),
+  awsNetworkManagerTransitGatewayRegistration(
+      'AWS::NetworkManager::TransitGatewayRegistration'),
+  awsCustomerProfilesDomain('AWS::CustomerProfiles::Domain'),
+  awsAutoScalingWarmPool('AWS::AutoScaling::WarmPool'),
+  awsConnectPhoneNumber('AWS::Connect::PhoneNumber'),
+  awsAppConfigDeploymentStrategy('AWS::AppConfig::DeploymentStrategy'),
+  awsAppFlowFlow('AWS::AppFlow::Flow'),
+  awsAuditManagerAssessment('AWS::AuditManager::Assessment'),
+  awsCloudWatchMetricStream('AWS::CloudWatch::MetricStream'),
+  awsDeviceFarmInstanceProfile('AWS::DeviceFarm::InstanceProfile'),
+  awsDeviceFarmProject('AWS::DeviceFarm::Project'),
+  awsEc2EC2Fleet('AWS::EC2::EC2Fleet'),
+  awsEc2SubnetRouteTableAssociation('AWS::EC2::SubnetRouteTableAssociation'),
+  awsEcrPullThroughCacheRule('AWS::ECR::PullThroughCacheRule'),
+  awsGroundStationConfig('AWS::GroundStation::Config'),
+  awsImageBuilderImagePipeline('AWS::ImageBuilder::ImagePipeline'),
+  awsIoTFleetMetric('AWS::IoT::FleetMetric'),
+  awsIoTWirelessServiceProfile('AWS::IoTWireless::ServiceProfile'),
+  awsNetworkManagerDevice('AWS::NetworkManager::Device'),
+  awsNetworkManagerGlobalNetwork('AWS::NetworkManager::GlobalNetwork'),
+  awsNetworkManagerLink('AWS::NetworkManager::Link'),
+  awsNetworkManagerSite('AWS::NetworkManager::Site'),
+  awsPanoramaPackage('AWS::Panorama::Package'),
+  awsPinpointApp('AWS::Pinpoint::App'),
+  awsRedshiftScheduledAction('AWS::Redshift::ScheduledAction'),
+  awsRoute53ResolverFirewallRuleGroupAssociation(
+      'AWS::Route53Resolver::FirewallRuleGroupAssociation'),
+  awsSageMakerAppImageConfig('AWS::SageMaker::AppImageConfig'),
+  awsSageMakerImage('AWS::SageMaker::Image'),
+  awsEcsTaskSet('AWS::ECS::TaskSet'),
+  awsCassandraKeyspace('AWS::Cassandra::Keyspace'),
+  awsSignerSigningProfile('AWS::Signer::SigningProfile'),
+  awsAmplifyApp('AWS::Amplify::App'),
+  awsAppMeshVirtualNode('AWS::AppMesh::VirtualNode'),
+  awsAppMeshVirtualService('AWS::AppMesh::VirtualService'),
+  awsAppRunnerVpcConnector('AWS::AppRunner::VpcConnector'),
+  awsAppStreamApplication('AWS::AppStream::Application'),
+  awsCodeArtifactRepository('AWS::CodeArtifact::Repository'),
+  awsEc2PrefixList('AWS::EC2::PrefixList'),
+  awsEc2SpotFleet('AWS::EC2::SpotFleet'),
+  awsEvidentlyProject('AWS::Evidently::Project'),
+  awsForecastDataset('AWS::Forecast::Dataset'),
+  awsIamSAMLProvider('AWS::IAM::SAMLProvider'),
+  awsIamServerCertificate('AWS::IAM::ServerCertificate'),
+  awsPinpointCampaign('AWS::Pinpoint::Campaign'),
+  awsPinpointInAppTemplate('AWS::Pinpoint::InAppTemplate'),
+  awsSageMakerDomain('AWS::SageMaker::Domain'),
+  awsTransferAgreement('AWS::Transfer::Agreement'),
+  awsTransferConnector('AWS::Transfer::Connector'),
+  awsKinesisFirehoseDeliveryStream('AWS::KinesisFirehose::DeliveryStream'),
+  awsAmplifyBranch('AWS::Amplify::Branch'),
+  awsAppIntegrationsEventIntegration('AWS::AppIntegrations::EventIntegration'),
+  awsAppMeshRoute('AWS::AppMesh::Route'),
+  awsAthenaPreparedStatement('AWS::Athena::PreparedStatement'),
+  awsEc2IPAMScope('AWS::EC2::IPAMScope'),
+  awsEvidentlyLaunch('AWS::Evidently::Launch'),
+  awsForecastDatasetGroup('AWS::Forecast::DatasetGroup'),
+  awsGreengrassV2ComponentVersion('AWS::GreengrassV2::ComponentVersion'),
+  awsGroundStationMissionProfile('AWS::GroundStation::MissionProfile'),
+  awsMediaConnectFlowEntitlement('AWS::MediaConnect::FlowEntitlement'),
+  awsMediaConnectFlowVpcInterface('AWS::MediaConnect::FlowVpcInterface'),
+  awsMediaTailorPlaybackConfiguration(
+      'AWS::MediaTailor::PlaybackConfiguration'),
+  awsMskConfiguration('AWS::MSK::Configuration'),
+  awsPersonalizeDataset('AWS::Personalize::Dataset'),
+  awsPersonalizeSchema('AWS::Personalize::Schema'),
+  awsPersonalizeSolution('AWS::Personalize::Solution'),
+  awsPinpointEmailTemplate('AWS::Pinpoint::EmailTemplate'),
+  awsPinpointEventStream('AWS::Pinpoint::EventStream'),
+  awsResilienceHubApp('AWS::ResilienceHub::App'),
+  awsAcmpcaCertificateAuthority('AWS::ACMPCA::CertificateAuthority'),
+  awsAppConfigHostedConfigurationVersion(
+      'AWS::AppConfig::HostedConfigurationVersion'),
+  awsAppMeshVirtualGateway('AWS::AppMesh::VirtualGateway'),
+  awsAppMeshVirtualRouter('AWS::AppMesh::VirtualRouter'),
+  awsAppRunnerService('AWS::AppRunner::Service'),
+  awsCustomerProfilesObjectType('AWS::CustomerProfiles::ObjectType'),
+  awsDmsEndpoint('AWS::DMS::Endpoint'),
+  awsEc2CapacityReservation('AWS::EC2::CapacityReservation'),
+  awsEc2ClientVpnEndpoint('AWS::EC2::ClientVpnEndpoint'),
+  awsKendraIndex('AWS::Kendra::Index'),
+  awsKinesisVideoStream('AWS::KinesisVideo::Stream'),
+  awsLogsDestination('AWS::Logs::Destination'),
+  awsPinpointEmailChannel('AWS::Pinpoint::EmailChannel'),
+  awsS3AccessPoint('AWS::S3::AccessPoint'),
+  awsNetworkManagerCustomerGatewayAssociation(
+      'AWS::NetworkManager::CustomerGatewayAssociation'),
+  awsNetworkManagerLinkAssociation('AWS::NetworkManager::LinkAssociation'),
+  awsIoTWirelessMulticastGroup('AWS::IoTWireless::MulticastGroup'),
+  awsPersonalizeDatasetGroup('AWS::Personalize::DatasetGroup'),
+  awsIoTTwinMakerComponentType('AWS::IoTTwinMaker::ComponentType'),
+  awsCodeBuildReportGroup('AWS::CodeBuild::ReportGroup'),
+  awsSageMakerFeatureGroup('AWS::SageMaker::FeatureGroup'),
+  awsMskBatchScramSecret('AWS::MSK::BatchScramSecret'),
+  awsAppStreamStack('AWS::AppStream::Stack'),
+  awsIoTJobTemplate('AWS::IoT::JobTemplate'),
+  awsIoTWirelessFuotaTask('AWS::IoTWireless::FuotaTask'),
+  awsIoTProvisioningTemplate('AWS::IoT::ProvisioningTemplate'),
+  awsInspectorV2Filter('AWS::InspectorV2::Filter'),
+  awsRoute53ResolverResolverQueryLoggingConfigAssociation(
+      'AWS::Route53Resolver::ResolverQueryLoggingConfigAssociation'),
+  awsServiceDiscoveryInstance('AWS::ServiceDiscovery::Instance'),
+  awsTransferCertificate('AWS::Transfer::Certificate'),
+  awsMediaConnectFlowSource('AWS::MediaConnect::FlowSource'),
+  awsApsRuleGroupsNamespace('AWS::APS::RuleGroupsNamespace'),
+  awsCodeGuruProfilerProfilingGroup('AWS::CodeGuruProfiler::ProfilingGroup'),
+  awsRoute53ResolverResolverQueryLoggingConfig(
+      'AWS::Route53Resolver::ResolverQueryLoggingConfig'),
+  awsBatchSchedulingPolicy('AWS::Batch::SchedulingPolicy'),
+  awsAcmpcaCertificateAuthorityActivation(
+      'AWS::ACMPCA::CertificateAuthorityActivation'),
+  awsAppMeshGatewayRoute('AWS::AppMesh::GatewayRoute'),
+  awsAppMeshMesh('AWS::AppMesh::Mesh'),
+  awsConnectInstance('AWS::Connect::Instance'),
+  awsConnectQuickConnect('AWS::Connect::QuickConnect'),
+  awsEc2CarrierGateway('AWS::EC2::CarrierGateway'),
+  awsEc2IPAMPool('AWS::EC2::IPAMPool'),
+  awsEc2TransitGatewayConnect('AWS::EC2::TransitGatewayConnect'),
+  awsEc2TransitGatewayMulticastDomain(
+      'AWS::EC2::TransitGatewayMulticastDomain'),
+  awsEcsCapacityProvider('AWS::ECS::CapacityProvider'),
+  awsIamInstanceProfile('AWS::IAM::InstanceProfile'),
+  awsIoTCACertificate('AWS::IoT::CACertificate'),
+  awsIoTTwinMakerSyncJob('AWS::IoTTwinMaker::SyncJob'),
+  awsKafkaConnectConnector('AWS::KafkaConnect::Connector'),
+  awsLambdaCodeSigningConfig('AWS::Lambda::CodeSigningConfig'),
+  awsNetworkManagerConnectPeer('AWS::NetworkManager::ConnectPeer'),
+  awsResourceExplorer2Index('AWS::ResourceExplorer2::Index'),
+  awsAppStreamFleet('AWS::AppStream::Fleet'),
+  awsCognitoUserPool('AWS::Cognito::UserPool'),
+  awsCognitoUserPoolClient('AWS::Cognito::UserPoolClient'),
+  awsCognitoUserPoolGroup('AWS::Cognito::UserPoolGroup'),
+  awsEc2NetworkInsightsAccessScope('AWS::EC2::NetworkInsightsAccessScope'),
+  awsEc2NetworkInsightsAnalysis('AWS::EC2::NetworkInsightsAnalysis'),
+  awsGrafanaWorkspace('AWS::Grafana::Workspace'),
+  awsGroundStationDataflowEndpointGroup(
+      'AWS::GroundStation::DataflowEndpointGroup'),
+  awsImageBuilderImageRecipe('AWS::ImageBuilder::ImageRecipe'),
+  awsKmsAlias('AWS::KMS::Alias'),
+  awsM2Environment('AWS::M2::Environment'),
+  awsQuickSightDataSource('AWS::QuickSight::DataSource'),
+  awsQuickSightTemplate('AWS::QuickSight::Template'),
+  awsQuickSightTheme('AWS::QuickSight::Theme'),
+  awsRdsOptionGroup('AWS::RDS::OptionGroup'),
+  awsRedshiftEndpointAccess('AWS::Redshift::EndpointAccess'),
+  awsRoute53ResolverFirewallRuleGroup(
+      'AWS::Route53Resolver::FirewallRuleGroup'),
+  awsSsmDocument('AWS::SSM::Document'),
+  ;
 
-extension ResourceTypeValueExtension on ResourceType {
-  String toValue() {
-    switch (this) {
-      case ResourceType.awsEc2CustomerGateway:
-        return 'AWS::EC2::CustomerGateway';
-      case ResourceType.awsEc2Eip:
-        return 'AWS::EC2::EIP';
-      case ResourceType.awsEc2Host:
-        return 'AWS::EC2::Host';
-      case ResourceType.awsEc2Instance:
-        return 'AWS::EC2::Instance';
-      case ResourceType.awsEc2InternetGateway:
-        return 'AWS::EC2::InternetGateway';
-      case ResourceType.awsEc2NetworkAcl:
-        return 'AWS::EC2::NetworkAcl';
-      case ResourceType.awsEc2NetworkInterface:
-        return 'AWS::EC2::NetworkInterface';
-      case ResourceType.awsEc2RouteTable:
-        return 'AWS::EC2::RouteTable';
-      case ResourceType.awsEc2SecurityGroup:
-        return 'AWS::EC2::SecurityGroup';
-      case ResourceType.awsEc2Subnet:
-        return 'AWS::EC2::Subnet';
-      case ResourceType.awsCloudTrailTrail:
-        return 'AWS::CloudTrail::Trail';
-      case ResourceType.awsEc2Volume:
-        return 'AWS::EC2::Volume';
-      case ResourceType.awsEc2Vpc:
-        return 'AWS::EC2::VPC';
-      case ResourceType.awsEc2VPNConnection:
-        return 'AWS::EC2::VPNConnection';
-      case ResourceType.awsEc2VPNGateway:
-        return 'AWS::EC2::VPNGateway';
-      case ResourceType.awsEc2RegisteredHAInstance:
-        return 'AWS::EC2::RegisteredHAInstance';
-      case ResourceType.awsEc2NatGateway:
-        return 'AWS::EC2::NatGateway';
-      case ResourceType.awsEc2EgressOnlyInternetGateway:
-        return 'AWS::EC2::EgressOnlyInternetGateway';
-      case ResourceType.awsEc2VPCEndpoint:
-        return 'AWS::EC2::VPCEndpoint';
-      case ResourceType.awsEc2VPCEndpointService:
-        return 'AWS::EC2::VPCEndpointService';
-      case ResourceType.awsEc2FlowLog:
-        return 'AWS::EC2::FlowLog';
-      case ResourceType.awsEc2VPCPeeringConnection:
-        return 'AWS::EC2::VPCPeeringConnection';
-      case ResourceType.awsElasticsearchDomain:
-        return 'AWS::Elasticsearch::Domain';
-      case ResourceType.awsIamGroup:
-        return 'AWS::IAM::Group';
-      case ResourceType.awsIamPolicy:
-        return 'AWS::IAM::Policy';
-      case ResourceType.awsIamRole:
-        return 'AWS::IAM::Role';
-      case ResourceType.awsIamUser:
-        return 'AWS::IAM::User';
-      case ResourceType.awsElasticLoadBalancingV2LoadBalancer:
-        return 'AWS::ElasticLoadBalancingV2::LoadBalancer';
-      case ResourceType.awsAcmCertificate:
-        return 'AWS::ACM::Certificate';
-      case ResourceType.awsRdsDBInstance:
-        return 'AWS::RDS::DBInstance';
-      case ResourceType.awsRdsDBSubnetGroup:
-        return 'AWS::RDS::DBSubnetGroup';
-      case ResourceType.awsRdsDBSecurityGroup:
-        return 'AWS::RDS::DBSecurityGroup';
-      case ResourceType.awsRdsDBSnapshot:
-        return 'AWS::RDS::DBSnapshot';
-      case ResourceType.awsRdsDBCluster:
-        return 'AWS::RDS::DBCluster';
-      case ResourceType.awsRdsDBClusterSnapshot:
-        return 'AWS::RDS::DBClusterSnapshot';
-      case ResourceType.awsRdsEventSubscription:
-        return 'AWS::RDS::EventSubscription';
-      case ResourceType.awsS3Bucket:
-        return 'AWS::S3::Bucket';
-      case ResourceType.awsS3AccountPublicAccessBlock:
-        return 'AWS::S3::AccountPublicAccessBlock';
-      case ResourceType.awsRedshiftCluster:
-        return 'AWS::Redshift::Cluster';
-      case ResourceType.awsRedshiftClusterSnapshot:
-        return 'AWS::Redshift::ClusterSnapshot';
-      case ResourceType.awsRedshiftClusterParameterGroup:
-        return 'AWS::Redshift::ClusterParameterGroup';
-      case ResourceType.awsRedshiftClusterSecurityGroup:
-        return 'AWS::Redshift::ClusterSecurityGroup';
-      case ResourceType.awsRedshiftClusterSubnetGroup:
-        return 'AWS::Redshift::ClusterSubnetGroup';
-      case ResourceType.awsRedshiftEventSubscription:
-        return 'AWS::Redshift::EventSubscription';
-      case ResourceType.awsSsmManagedInstanceInventory:
-        return 'AWS::SSM::ManagedInstanceInventory';
-      case ResourceType.awsCloudWatchAlarm:
-        return 'AWS::CloudWatch::Alarm';
-      case ResourceType.awsCloudFormationStack:
-        return 'AWS::CloudFormation::Stack';
-      case ResourceType.awsElasticLoadBalancingLoadBalancer:
-        return 'AWS::ElasticLoadBalancing::LoadBalancer';
-      case ResourceType.awsAutoScalingAutoScalingGroup:
-        return 'AWS::AutoScaling::AutoScalingGroup';
-      case ResourceType.awsAutoScalingLaunchConfiguration:
-        return 'AWS::AutoScaling::LaunchConfiguration';
-      case ResourceType.awsAutoScalingScalingPolicy:
-        return 'AWS::AutoScaling::ScalingPolicy';
-      case ResourceType.awsAutoScalingScheduledAction:
-        return 'AWS::AutoScaling::ScheduledAction';
-      case ResourceType.awsDynamoDBTable:
-        return 'AWS::DynamoDB::Table';
-      case ResourceType.awsCodeBuildProject:
-        return 'AWS::CodeBuild::Project';
-      case ResourceType.awsWafRateBasedRule:
-        return 'AWS::WAF::RateBasedRule';
-      case ResourceType.awsWafRule:
-        return 'AWS::WAF::Rule';
-      case ResourceType.awsWafRuleGroup:
-        return 'AWS::WAF::RuleGroup';
-      case ResourceType.awsWafWebACL:
-        return 'AWS::WAF::WebACL';
-      case ResourceType.awsWAFRegionalRateBasedRule:
-        return 'AWS::WAFRegional::RateBasedRule';
-      case ResourceType.awsWAFRegionalRule:
-        return 'AWS::WAFRegional::Rule';
-      case ResourceType.awsWAFRegionalRuleGroup:
-        return 'AWS::WAFRegional::RuleGroup';
-      case ResourceType.awsWAFRegionalWebACL:
-        return 'AWS::WAFRegional::WebACL';
-      case ResourceType.awsCloudFrontDistribution:
-        return 'AWS::CloudFront::Distribution';
-      case ResourceType.awsCloudFrontStreamingDistribution:
-        return 'AWS::CloudFront::StreamingDistribution';
-      case ResourceType.awsLambdaFunction:
-        return 'AWS::Lambda::Function';
-      case ResourceType.awsNetworkFirewallFirewall:
-        return 'AWS::NetworkFirewall::Firewall';
-      case ResourceType.awsNetworkFirewallFirewallPolicy:
-        return 'AWS::NetworkFirewall::FirewallPolicy';
-      case ResourceType.awsNetworkFirewallRuleGroup:
-        return 'AWS::NetworkFirewall::RuleGroup';
-      case ResourceType.awsElasticBeanstalkApplication:
-        return 'AWS::ElasticBeanstalk::Application';
-      case ResourceType.awsElasticBeanstalkApplicationVersion:
-        return 'AWS::ElasticBeanstalk::ApplicationVersion';
-      case ResourceType.awsElasticBeanstalkEnvironment:
-        return 'AWS::ElasticBeanstalk::Environment';
-      case ResourceType.awsWAFv2WebACL:
-        return 'AWS::WAFv2::WebACL';
-      case ResourceType.awsWAFv2RuleGroup:
-        return 'AWS::WAFv2::RuleGroup';
-      case ResourceType.awsWAFv2IPSet:
-        return 'AWS::WAFv2::IPSet';
-      case ResourceType.awsWAFv2RegexPatternSet:
-        return 'AWS::WAFv2::RegexPatternSet';
-      case ResourceType.awsWAFv2ManagedRuleSet:
-        return 'AWS::WAFv2::ManagedRuleSet';
-      case ResourceType.awsXRayEncryptionConfig:
-        return 'AWS::XRay::EncryptionConfig';
-      case ResourceType.awsSsmAssociationCompliance:
-        return 'AWS::SSM::AssociationCompliance';
-      case ResourceType.awsSsmPatchCompliance:
-        return 'AWS::SSM::PatchCompliance';
-      case ResourceType.awsShieldProtection:
-        return 'AWS::Shield::Protection';
-      case ResourceType.awsShieldRegionalProtection:
-        return 'AWS::ShieldRegional::Protection';
-      case ResourceType.awsConfigConformancePackCompliance:
-        return 'AWS::Config::ConformancePackCompliance';
-      case ResourceType.awsConfigResourceCompliance:
-        return 'AWS::Config::ResourceCompliance';
-      case ResourceType.awsApiGatewayStage:
-        return 'AWS::ApiGateway::Stage';
-      case ResourceType.awsApiGatewayRestApi:
-        return 'AWS::ApiGateway::RestApi';
-      case ResourceType.awsApiGatewayV2Stage:
-        return 'AWS::ApiGatewayV2::Stage';
-      case ResourceType.awsApiGatewayV2Api:
-        return 'AWS::ApiGatewayV2::Api';
-      case ResourceType.awsCodePipelinePipeline:
-        return 'AWS::CodePipeline::Pipeline';
-      case ResourceType.awsServiceCatalogCloudFormationProvisionedProduct:
-        return 'AWS::ServiceCatalog::CloudFormationProvisionedProduct';
-      case ResourceType.awsServiceCatalogCloudFormationProduct:
-        return 'AWS::ServiceCatalog::CloudFormationProduct';
-      case ResourceType.awsServiceCatalogPortfolio:
-        return 'AWS::ServiceCatalog::Portfolio';
-      case ResourceType.awsSqsQueue:
-        return 'AWS::SQS::Queue';
-      case ResourceType.awsKmsKey:
-        return 'AWS::KMS::Key';
-      case ResourceType.awsQldbLedger:
-        return 'AWS::QLDB::Ledger';
-      case ResourceType.awsSecretsManagerSecret:
-        return 'AWS::SecretsManager::Secret';
-      case ResourceType.awsSnsTopic:
-        return 'AWS::SNS::Topic';
-      case ResourceType.awsSsmFileData:
-        return 'AWS::SSM::FileData';
-      case ResourceType.awsBackupBackupPlan:
-        return 'AWS::Backup::BackupPlan';
-      case ResourceType.awsBackupBackupSelection:
-        return 'AWS::Backup::BackupSelection';
-      case ResourceType.awsBackupBackupVault:
-        return 'AWS::Backup::BackupVault';
-      case ResourceType.awsBackupRecoveryPoint:
-        return 'AWS::Backup::RecoveryPoint';
-      case ResourceType.awsEcrRepository:
-        return 'AWS::ECR::Repository';
-      case ResourceType.awsEcsCluster:
-        return 'AWS::ECS::Cluster';
-      case ResourceType.awsEcsService:
-        return 'AWS::ECS::Service';
-      case ResourceType.awsEcsTaskDefinition:
-        return 'AWS::ECS::TaskDefinition';
-      case ResourceType.awsEfsAccessPoint:
-        return 'AWS::EFS::AccessPoint';
-      case ResourceType.awsEfsFileSystem:
-        return 'AWS::EFS::FileSystem';
-      case ResourceType.awsEksCluster:
-        return 'AWS::EKS::Cluster';
-      case ResourceType.awsOpenSearchDomain:
-        return 'AWS::OpenSearch::Domain';
-      case ResourceType.awsEc2TransitGateway:
-        return 'AWS::EC2::TransitGateway';
-      case ResourceType.awsKinesisStream:
-        return 'AWS::Kinesis::Stream';
-      case ResourceType.awsKinesisStreamConsumer:
-        return 'AWS::Kinesis::StreamConsumer';
-      case ResourceType.awsCodeDeployApplication:
-        return 'AWS::CodeDeploy::Application';
-      case ResourceType.awsCodeDeployDeploymentConfig:
-        return 'AWS::CodeDeploy::DeploymentConfig';
-      case ResourceType.awsCodeDeployDeploymentGroup:
-        return 'AWS::CodeDeploy::DeploymentGroup';
-      case ResourceType.awsEc2LaunchTemplate:
-        return 'AWS::EC2::LaunchTemplate';
-      case ResourceType.awsEcrPublicRepository:
-        return 'AWS::ECR::PublicRepository';
-      case ResourceType.awsGuardDutyDetector:
-        return 'AWS::GuardDuty::Detector';
-      case ResourceType.awsEmrSecurityConfiguration:
-        return 'AWS::EMR::SecurityConfiguration';
-      case ResourceType.awsSageMakerCodeRepository:
-        return 'AWS::SageMaker::CodeRepository';
-      case ResourceType.awsRoute53ResolverResolverEndpoint:
-        return 'AWS::Route53Resolver::ResolverEndpoint';
-      case ResourceType.awsRoute53ResolverResolverRule:
-        return 'AWS::Route53Resolver::ResolverRule';
-      case ResourceType.awsRoute53ResolverResolverRuleAssociation:
-        return 'AWS::Route53Resolver::ResolverRuleAssociation';
-      case ResourceType.awsDmsReplicationSubnetGroup:
-        return 'AWS::DMS::ReplicationSubnetGroup';
-      case ResourceType.awsDmsEventSubscription:
-        return 'AWS::DMS::EventSubscription';
-      case ResourceType.awsMskCluster:
-        return 'AWS::MSK::Cluster';
-      case ResourceType.awsStepFunctionsActivity:
-        return 'AWS::StepFunctions::Activity';
-      case ResourceType.awsWorkSpacesWorkspace:
-        return 'AWS::WorkSpaces::Workspace';
-      case ResourceType.awsWorkSpacesConnectionAlias:
-        return 'AWS::WorkSpaces::ConnectionAlias';
-      case ResourceType.awsSageMakerModel:
-        return 'AWS::SageMaker::Model';
-      case ResourceType.awsElasticLoadBalancingV2Listener:
-        return 'AWS::ElasticLoadBalancingV2::Listener';
-      case ResourceType.awsStepFunctionsStateMachine:
-        return 'AWS::StepFunctions::StateMachine';
-      case ResourceType.awsBatchJobQueue:
-        return 'AWS::Batch::JobQueue';
-      case ResourceType.awsBatchComputeEnvironment:
-        return 'AWS::Batch::ComputeEnvironment';
-      case ResourceType.awsAccessAnalyzerAnalyzer:
-        return 'AWS::AccessAnalyzer::Analyzer';
-      case ResourceType.awsAthenaWorkGroup:
-        return 'AWS::Athena::WorkGroup';
-      case ResourceType.awsAthenaDataCatalog:
-        return 'AWS::Athena::DataCatalog';
-      case ResourceType.awsDetectiveGraph:
-        return 'AWS::Detective::Graph';
-      case ResourceType.awsGlobalAcceleratorAccelerator:
-        return 'AWS::GlobalAccelerator::Accelerator';
-      case ResourceType.awsGlobalAcceleratorEndpointGroup:
-        return 'AWS::GlobalAccelerator::EndpointGroup';
-      case ResourceType.awsGlobalAcceleratorListener:
-        return 'AWS::GlobalAccelerator::Listener';
-      case ResourceType.awsEc2TransitGatewayAttachment:
-        return 'AWS::EC2::TransitGatewayAttachment';
-      case ResourceType.awsEc2TransitGatewayRouteTable:
-        return 'AWS::EC2::TransitGatewayRouteTable';
-      case ResourceType.awsDmsCertificate:
-        return 'AWS::DMS::Certificate';
-      case ResourceType.awsAppConfigApplication:
-        return 'AWS::AppConfig::Application';
-      case ResourceType.awsAppSyncGraphQLApi:
-        return 'AWS::AppSync::GraphQLApi';
-      case ResourceType.awsDataSyncLocationSMB:
-        return 'AWS::DataSync::LocationSMB';
-      case ResourceType.awsDataSyncLocationFSxLustre:
-        return 'AWS::DataSync::LocationFSxLustre';
-      case ResourceType.awsDataSyncLocationS3:
-        return 'AWS::DataSync::LocationS3';
-      case ResourceType.awsDataSyncLocationEFS:
-        return 'AWS::DataSync::LocationEFS';
-      case ResourceType.awsDataSyncTask:
-        return 'AWS::DataSync::Task';
-      case ResourceType.awsDataSyncLocationNFS:
-        return 'AWS::DataSync::LocationNFS';
-      case ResourceType.awsEc2NetworkInsightsAccessScopeAnalysis:
-        return 'AWS::EC2::NetworkInsightsAccessScopeAnalysis';
-      case ResourceType.awsEksFargateProfile:
-        return 'AWS::EKS::FargateProfile';
-      case ResourceType.awsGlueJob:
-        return 'AWS::Glue::Job';
-      case ResourceType.awsGuardDutyThreatIntelSet:
-        return 'AWS::GuardDuty::ThreatIntelSet';
-      case ResourceType.awsGuardDutyIPSet:
-        return 'AWS::GuardDuty::IPSet';
-      case ResourceType.awsSageMakerWorkteam:
-        return 'AWS::SageMaker::Workteam';
-      case ResourceType.awsSageMakerNotebookInstanceLifecycleConfig:
-        return 'AWS::SageMaker::NotebookInstanceLifecycleConfig';
-      case ResourceType.awsServiceDiscoveryService:
-        return 'AWS::ServiceDiscovery::Service';
-      case ResourceType.awsServiceDiscoveryPublicDnsNamespace:
-        return 'AWS::ServiceDiscovery::PublicDnsNamespace';
-      case ResourceType.awsSesContactList:
-        return 'AWS::SES::ContactList';
-      case ResourceType.awsSesConfigurationSet:
-        return 'AWS::SES::ConfigurationSet';
-      case ResourceType.awsRoute53HostedZone:
-        return 'AWS::Route53::HostedZone';
-      case ResourceType.awsIoTEventsInput:
-        return 'AWS::IoTEvents::Input';
-      case ResourceType.awsIoTEventsDetectorModel:
-        return 'AWS::IoTEvents::DetectorModel';
-      case ResourceType.awsIoTEventsAlarmModel:
-        return 'AWS::IoTEvents::AlarmModel';
-      case ResourceType.awsServiceDiscoveryHttpNamespace:
-        return 'AWS::ServiceDiscovery::HttpNamespace';
-      case ResourceType.awsEventsEventBus:
-        return 'AWS::Events::EventBus';
-      case ResourceType.awsImageBuilderContainerRecipe:
-        return 'AWS::ImageBuilder::ContainerRecipe';
-      case ResourceType.awsImageBuilderDistributionConfiguration:
-        return 'AWS::ImageBuilder::DistributionConfiguration';
-      case ResourceType.awsImageBuilderInfrastructureConfiguration:
-        return 'AWS::ImageBuilder::InfrastructureConfiguration';
-      case ResourceType.awsDataSyncLocationObjectStorage:
-        return 'AWS::DataSync::LocationObjectStorage';
-      case ResourceType.awsDataSyncLocationHDFS:
-        return 'AWS::DataSync::LocationHDFS';
-      case ResourceType.awsGlueClassifier:
-        return 'AWS::Glue::Classifier';
-      case ResourceType.awsRoute53RecoveryReadinessCell:
-        return 'AWS::Route53RecoveryReadiness::Cell';
-      case ResourceType.awsRoute53RecoveryReadinessReadinessCheck:
-        return 'AWS::Route53RecoveryReadiness::ReadinessCheck';
-      case ResourceType.awsEcrRegistryPolicy:
-        return 'AWS::ECR::RegistryPolicy';
-      case ResourceType.awsBackupReportPlan:
-        return 'AWS::Backup::ReportPlan';
-      case ResourceType.awsLightsailCertificate:
-        return 'AWS::Lightsail::Certificate';
-      case ResourceType.awsRumAppMonitor:
-        return 'AWS::RUM::AppMonitor';
-      case ResourceType.awsEventsEndpoint:
-        return 'AWS::Events::Endpoint';
-      case ResourceType.awsSesReceiptRuleSet:
-        return 'AWS::SES::ReceiptRuleSet';
-      case ResourceType.awsEventsArchive:
-        return 'AWS::Events::Archive';
-      case ResourceType.awsEventsApiDestination:
-        return 'AWS::Events::ApiDestination';
-      case ResourceType.awsLightsailDisk:
-        return 'AWS::Lightsail::Disk';
-      case ResourceType.awsFisExperimentTemplate:
-        return 'AWS::FIS::ExperimentTemplate';
-      case ResourceType.awsDataSyncLocationFSxWindows:
-        return 'AWS::DataSync::LocationFSxWindows';
-      case ResourceType.awsSesReceiptFilter:
-        return 'AWS::SES::ReceiptFilter';
-      case ResourceType.awsGuardDutyFilter:
-        return 'AWS::GuardDuty::Filter';
-      case ResourceType.awsSesTemplate:
-        return 'AWS::SES::Template';
-      case ResourceType.awsAmazonMQBroker:
-        return 'AWS::AmazonMQ::Broker';
-      case ResourceType.awsAppConfigEnvironment:
-        return 'AWS::AppConfig::Environment';
-      case ResourceType.awsAppConfigConfigurationProfile:
-        return 'AWS::AppConfig::ConfigurationProfile';
-      case ResourceType.awsCloud9EnvironmentEC2:
-        return 'AWS::Cloud9::EnvironmentEC2';
-      case ResourceType.awsEventSchemasRegistry:
-        return 'AWS::EventSchemas::Registry';
-      case ResourceType.awsEventSchemasRegistryPolicy:
-        return 'AWS::EventSchemas::RegistryPolicy';
-      case ResourceType.awsEventSchemasDiscoverer:
-        return 'AWS::EventSchemas::Discoverer';
-      case ResourceType.awsFraudDetectorLabel:
-        return 'AWS::FraudDetector::Label';
-      case ResourceType.awsFraudDetectorEntityType:
-        return 'AWS::FraudDetector::EntityType';
-      case ResourceType.awsFraudDetectorVariable:
-        return 'AWS::FraudDetector::Variable';
-      case ResourceType.awsFraudDetectorOutcome:
-        return 'AWS::FraudDetector::Outcome';
-      case ResourceType.awsIoTAuthorizer:
-        return 'AWS::IoT::Authorizer';
-      case ResourceType.awsIoTSecurityProfile:
-        return 'AWS::IoT::SecurityProfile';
-      case ResourceType.awsIoTRoleAlias:
-        return 'AWS::IoT::RoleAlias';
-      case ResourceType.awsIoTDimension:
-        return 'AWS::IoT::Dimension';
-      case ResourceType.awsIoTAnalyticsDatastore:
-        return 'AWS::IoTAnalytics::Datastore';
-      case ResourceType.awsLightsailBucket:
-        return 'AWS::Lightsail::Bucket';
-      case ResourceType.awsLightsailStaticIp:
-        return 'AWS::Lightsail::StaticIp';
-      case ResourceType.awsMediaPackagePackagingGroup:
-        return 'AWS::MediaPackage::PackagingGroup';
-      case ResourceType.awsRoute53RecoveryReadinessRecoveryGroup:
-        return 'AWS::Route53RecoveryReadiness::RecoveryGroup';
-      case ResourceType.awsResilienceHubResiliencyPolicy:
-        return 'AWS::ResilienceHub::ResiliencyPolicy';
-      case ResourceType.awsTransferWorkflow:
-        return 'AWS::Transfer::Workflow';
-      case ResourceType.awsEksIdentityProviderConfig:
-        return 'AWS::EKS::IdentityProviderConfig';
-      case ResourceType.awsEksAddon:
-        return 'AWS::EKS::Addon';
-      case ResourceType.awsGlueMLTransform:
-        return 'AWS::Glue::MLTransform';
-      case ResourceType.awsIoTPolicy:
-        return 'AWS::IoT::Policy';
-      case ResourceType.awsIoTMitigationAction:
-        return 'AWS::IoT::MitigationAction';
-      case ResourceType.awsIoTTwinMakerWorkspace:
-        return 'AWS::IoTTwinMaker::Workspace';
-      case ResourceType.awsIoTTwinMakerEntity:
-        return 'AWS::IoTTwinMaker::Entity';
-      case ResourceType.awsIoTAnalyticsDataset:
-        return 'AWS::IoTAnalytics::Dataset';
-      case ResourceType.awsIoTAnalyticsPipeline:
-        return 'AWS::IoTAnalytics::Pipeline';
-      case ResourceType.awsIoTAnalyticsChannel:
-        return 'AWS::IoTAnalytics::Channel';
-      case ResourceType.awsIoTSiteWiseDashboard:
-        return 'AWS::IoTSiteWise::Dashboard';
-      case ResourceType.awsIoTSiteWiseProject:
-        return 'AWS::IoTSiteWise::Project';
-      case ResourceType.awsIoTSiteWisePortal:
-        return 'AWS::IoTSiteWise::Portal';
-      case ResourceType.awsIoTSiteWiseAssetModel:
-        return 'AWS::IoTSiteWise::AssetModel';
-      case ResourceType.awsIvsChannel:
-        return 'AWS::IVS::Channel';
-      case ResourceType.awsIvsRecordingConfiguration:
-        return 'AWS::IVS::RecordingConfiguration';
-      case ResourceType.awsIvsPlaybackKeyPair:
-        return 'AWS::IVS::PlaybackKeyPair';
-      case ResourceType.awsKinesisAnalyticsV2Application:
-        return 'AWS::KinesisAnalyticsV2::Application';
-      case ResourceType.awsRdsGlobalCluster:
-        return 'AWS::RDS::GlobalCluster';
-      case ResourceType.awsS3MultiRegionAccessPoint:
-        return 'AWS::S3::MultiRegionAccessPoint';
-      case ResourceType.awsDeviceFarmTestGridProject:
-        return 'AWS::DeviceFarm::TestGridProject';
-      case ResourceType.awsBudgetsBudgetsAction:
-        return 'AWS::Budgets::BudgetsAction';
-      case ResourceType.awsLexBot:
-        return 'AWS::Lex::Bot';
-      case ResourceType.awsCodeGuruReviewerRepositoryAssociation:
-        return 'AWS::CodeGuruReviewer::RepositoryAssociation';
-      case ResourceType.awsIoTCustomMetric:
-        return 'AWS::IoT::CustomMetric';
-      case ResourceType.awsRoute53ResolverFirewallDomainList:
-        return 'AWS::Route53Resolver::FirewallDomainList';
-      case ResourceType.awsRoboMakerRobotApplicationVersion:
-        return 'AWS::RoboMaker::RobotApplicationVersion';
-      case ResourceType.awsEc2TrafficMirrorSession:
-        return 'AWS::EC2::TrafficMirrorSession';
-      case ResourceType.awsIoTSiteWiseGateway:
-        return 'AWS::IoTSiteWise::Gateway';
-      case ResourceType.awsLexBotAlias:
-        return 'AWS::Lex::BotAlias';
-      case ResourceType.awsLookoutMetricsAlert:
-        return 'AWS::LookoutMetrics::Alert';
-      case ResourceType.awsIoTAccountAuditConfiguration:
-        return 'AWS::IoT::AccountAuditConfiguration';
-      case ResourceType.awsEc2TrafficMirrorTarget:
-        return 'AWS::EC2::TrafficMirrorTarget';
-      case ResourceType.awsS3StorageLens:
-        return 'AWS::S3::StorageLens';
-      case ResourceType.awsIoTScheduledAudit:
-        return 'AWS::IoT::ScheduledAudit';
-      case ResourceType.awsEventsConnection:
-        return 'AWS::Events::Connection';
-      case ResourceType.awsEventSchemasSchema:
-        return 'AWS::EventSchemas::Schema';
-      case ResourceType.awsMediaPackagePackagingConfiguration:
-        return 'AWS::MediaPackage::PackagingConfiguration';
-      case ResourceType.awsKinesisVideoSignalingChannel:
-        return 'AWS::KinesisVideo::SignalingChannel';
-      case ResourceType.awsAppStreamDirectoryConfig:
-        return 'AWS::AppStream::DirectoryConfig';
-      case ResourceType.awsLookoutVisionProject:
-        return 'AWS::LookoutVision::Project';
-      case ResourceType.awsRoute53RecoveryControlCluster:
-        return 'AWS::Route53RecoveryControl::Cluster';
-      case ResourceType.awsRoute53RecoveryControlSafetyRule:
-        return 'AWS::Route53RecoveryControl::SafetyRule';
-      case ResourceType.awsRoute53RecoveryControlControlPanel:
-        return 'AWS::Route53RecoveryControl::ControlPanel';
-      case ResourceType.awsRoute53RecoveryControlRoutingControl:
-        return 'AWS::Route53RecoveryControl::RoutingControl';
-      case ResourceType.awsRoute53RecoveryReadinessResourceSet:
-        return 'AWS::Route53RecoveryReadiness::ResourceSet';
-      case ResourceType.awsRoboMakerSimulationApplication:
-        return 'AWS::RoboMaker::SimulationApplication';
-      case ResourceType.awsRoboMakerRobotApplication:
-        return 'AWS::RoboMaker::RobotApplication';
-      case ResourceType.awsHealthLakeFHIRDatastore:
-        return 'AWS::HealthLake::FHIRDatastore';
-      case ResourceType.awsPinpointSegment:
-        return 'AWS::Pinpoint::Segment';
-      case ResourceType.awsPinpointApplicationSettings:
-        return 'AWS::Pinpoint::ApplicationSettings';
-      case ResourceType.awsEventsRule:
-        return 'AWS::Events::Rule';
-      case ResourceType.awsEc2DHCPOptions:
-        return 'AWS::EC2::DHCPOptions';
-      case ResourceType.awsEc2NetworkInsightsPath:
-        return 'AWS::EC2::NetworkInsightsPath';
-      case ResourceType.awsEc2TrafficMirrorFilter:
-        return 'AWS::EC2::TrafficMirrorFilter';
-      case ResourceType.awsEc2Ipam:
-        return 'AWS::EC2::IPAM';
-      case ResourceType.awsIoTTwinMakerScene:
-        return 'AWS::IoTTwinMaker::Scene';
-      case ResourceType.awsNetworkManagerTransitGatewayRegistration:
-        return 'AWS::NetworkManager::TransitGatewayRegistration';
-      case ResourceType.awsCustomerProfilesDomain:
-        return 'AWS::CustomerProfiles::Domain';
-      case ResourceType.awsAutoScalingWarmPool:
-        return 'AWS::AutoScaling::WarmPool';
-      case ResourceType.awsConnectPhoneNumber:
-        return 'AWS::Connect::PhoneNumber';
-      case ResourceType.awsAppConfigDeploymentStrategy:
-        return 'AWS::AppConfig::DeploymentStrategy';
-      case ResourceType.awsAppFlowFlow:
-        return 'AWS::AppFlow::Flow';
-      case ResourceType.awsAuditManagerAssessment:
-        return 'AWS::AuditManager::Assessment';
-      case ResourceType.awsCloudWatchMetricStream:
-        return 'AWS::CloudWatch::MetricStream';
-      case ResourceType.awsDeviceFarmInstanceProfile:
-        return 'AWS::DeviceFarm::InstanceProfile';
-      case ResourceType.awsDeviceFarmProject:
-        return 'AWS::DeviceFarm::Project';
-      case ResourceType.awsEc2EC2Fleet:
-        return 'AWS::EC2::EC2Fleet';
-      case ResourceType.awsEc2SubnetRouteTableAssociation:
-        return 'AWS::EC2::SubnetRouteTableAssociation';
-      case ResourceType.awsEcrPullThroughCacheRule:
-        return 'AWS::ECR::PullThroughCacheRule';
-      case ResourceType.awsGroundStationConfig:
-        return 'AWS::GroundStation::Config';
-      case ResourceType.awsImageBuilderImagePipeline:
-        return 'AWS::ImageBuilder::ImagePipeline';
-      case ResourceType.awsIoTFleetMetric:
-        return 'AWS::IoT::FleetMetric';
-      case ResourceType.awsIoTWirelessServiceProfile:
-        return 'AWS::IoTWireless::ServiceProfile';
-      case ResourceType.awsNetworkManagerDevice:
-        return 'AWS::NetworkManager::Device';
-      case ResourceType.awsNetworkManagerGlobalNetwork:
-        return 'AWS::NetworkManager::GlobalNetwork';
-      case ResourceType.awsNetworkManagerLink:
-        return 'AWS::NetworkManager::Link';
-      case ResourceType.awsNetworkManagerSite:
-        return 'AWS::NetworkManager::Site';
-      case ResourceType.awsPanoramaPackage:
-        return 'AWS::Panorama::Package';
-      case ResourceType.awsPinpointApp:
-        return 'AWS::Pinpoint::App';
-      case ResourceType.awsRedshiftScheduledAction:
-        return 'AWS::Redshift::ScheduledAction';
-      case ResourceType.awsRoute53ResolverFirewallRuleGroupAssociation:
-        return 'AWS::Route53Resolver::FirewallRuleGroupAssociation';
-      case ResourceType.awsSageMakerAppImageConfig:
-        return 'AWS::SageMaker::AppImageConfig';
-      case ResourceType.awsSageMakerImage:
-        return 'AWS::SageMaker::Image';
-    }
-  }
-}
+  final String value;
 
-extension ResourceTypeFromString on String {
-  ResourceType toResourceType() {
-    switch (this) {
-      case 'AWS::EC2::CustomerGateway':
-        return ResourceType.awsEc2CustomerGateway;
-      case 'AWS::EC2::EIP':
-        return ResourceType.awsEc2Eip;
-      case 'AWS::EC2::Host':
-        return ResourceType.awsEc2Host;
-      case 'AWS::EC2::Instance':
-        return ResourceType.awsEc2Instance;
-      case 'AWS::EC2::InternetGateway':
-        return ResourceType.awsEc2InternetGateway;
-      case 'AWS::EC2::NetworkAcl':
-        return ResourceType.awsEc2NetworkAcl;
-      case 'AWS::EC2::NetworkInterface':
-        return ResourceType.awsEc2NetworkInterface;
-      case 'AWS::EC2::RouteTable':
-        return ResourceType.awsEc2RouteTable;
-      case 'AWS::EC2::SecurityGroup':
-        return ResourceType.awsEc2SecurityGroup;
-      case 'AWS::EC2::Subnet':
-        return ResourceType.awsEc2Subnet;
-      case 'AWS::CloudTrail::Trail':
-        return ResourceType.awsCloudTrailTrail;
-      case 'AWS::EC2::Volume':
-        return ResourceType.awsEc2Volume;
-      case 'AWS::EC2::VPC':
-        return ResourceType.awsEc2Vpc;
-      case 'AWS::EC2::VPNConnection':
-        return ResourceType.awsEc2VPNConnection;
-      case 'AWS::EC2::VPNGateway':
-        return ResourceType.awsEc2VPNGateway;
-      case 'AWS::EC2::RegisteredHAInstance':
-        return ResourceType.awsEc2RegisteredHAInstance;
-      case 'AWS::EC2::NatGateway':
-        return ResourceType.awsEc2NatGateway;
-      case 'AWS::EC2::EgressOnlyInternetGateway':
-        return ResourceType.awsEc2EgressOnlyInternetGateway;
-      case 'AWS::EC2::VPCEndpoint':
-        return ResourceType.awsEc2VPCEndpoint;
-      case 'AWS::EC2::VPCEndpointService':
-        return ResourceType.awsEc2VPCEndpointService;
-      case 'AWS::EC2::FlowLog':
-        return ResourceType.awsEc2FlowLog;
-      case 'AWS::EC2::VPCPeeringConnection':
-        return ResourceType.awsEc2VPCPeeringConnection;
-      case 'AWS::Elasticsearch::Domain':
-        return ResourceType.awsElasticsearchDomain;
-      case 'AWS::IAM::Group':
-        return ResourceType.awsIamGroup;
-      case 'AWS::IAM::Policy':
-        return ResourceType.awsIamPolicy;
-      case 'AWS::IAM::Role':
-        return ResourceType.awsIamRole;
-      case 'AWS::IAM::User':
-        return ResourceType.awsIamUser;
-      case 'AWS::ElasticLoadBalancingV2::LoadBalancer':
-        return ResourceType.awsElasticLoadBalancingV2LoadBalancer;
-      case 'AWS::ACM::Certificate':
-        return ResourceType.awsAcmCertificate;
-      case 'AWS::RDS::DBInstance':
-        return ResourceType.awsRdsDBInstance;
-      case 'AWS::RDS::DBSubnetGroup':
-        return ResourceType.awsRdsDBSubnetGroup;
-      case 'AWS::RDS::DBSecurityGroup':
-        return ResourceType.awsRdsDBSecurityGroup;
-      case 'AWS::RDS::DBSnapshot':
-        return ResourceType.awsRdsDBSnapshot;
-      case 'AWS::RDS::DBCluster':
-        return ResourceType.awsRdsDBCluster;
-      case 'AWS::RDS::DBClusterSnapshot':
-        return ResourceType.awsRdsDBClusterSnapshot;
-      case 'AWS::RDS::EventSubscription':
-        return ResourceType.awsRdsEventSubscription;
-      case 'AWS::S3::Bucket':
-        return ResourceType.awsS3Bucket;
-      case 'AWS::S3::AccountPublicAccessBlock':
-        return ResourceType.awsS3AccountPublicAccessBlock;
-      case 'AWS::Redshift::Cluster':
-        return ResourceType.awsRedshiftCluster;
-      case 'AWS::Redshift::ClusterSnapshot':
-        return ResourceType.awsRedshiftClusterSnapshot;
-      case 'AWS::Redshift::ClusterParameterGroup':
-        return ResourceType.awsRedshiftClusterParameterGroup;
-      case 'AWS::Redshift::ClusterSecurityGroup':
-        return ResourceType.awsRedshiftClusterSecurityGroup;
-      case 'AWS::Redshift::ClusterSubnetGroup':
-        return ResourceType.awsRedshiftClusterSubnetGroup;
-      case 'AWS::Redshift::EventSubscription':
-        return ResourceType.awsRedshiftEventSubscription;
-      case 'AWS::SSM::ManagedInstanceInventory':
-        return ResourceType.awsSsmManagedInstanceInventory;
-      case 'AWS::CloudWatch::Alarm':
-        return ResourceType.awsCloudWatchAlarm;
-      case 'AWS::CloudFormation::Stack':
-        return ResourceType.awsCloudFormationStack;
-      case 'AWS::ElasticLoadBalancing::LoadBalancer':
-        return ResourceType.awsElasticLoadBalancingLoadBalancer;
-      case 'AWS::AutoScaling::AutoScalingGroup':
-        return ResourceType.awsAutoScalingAutoScalingGroup;
-      case 'AWS::AutoScaling::LaunchConfiguration':
-        return ResourceType.awsAutoScalingLaunchConfiguration;
-      case 'AWS::AutoScaling::ScalingPolicy':
-        return ResourceType.awsAutoScalingScalingPolicy;
-      case 'AWS::AutoScaling::ScheduledAction':
-        return ResourceType.awsAutoScalingScheduledAction;
-      case 'AWS::DynamoDB::Table':
-        return ResourceType.awsDynamoDBTable;
-      case 'AWS::CodeBuild::Project':
-        return ResourceType.awsCodeBuildProject;
-      case 'AWS::WAF::RateBasedRule':
-        return ResourceType.awsWafRateBasedRule;
-      case 'AWS::WAF::Rule':
-        return ResourceType.awsWafRule;
-      case 'AWS::WAF::RuleGroup':
-        return ResourceType.awsWafRuleGroup;
-      case 'AWS::WAF::WebACL':
-        return ResourceType.awsWafWebACL;
-      case 'AWS::WAFRegional::RateBasedRule':
-        return ResourceType.awsWAFRegionalRateBasedRule;
-      case 'AWS::WAFRegional::Rule':
-        return ResourceType.awsWAFRegionalRule;
-      case 'AWS::WAFRegional::RuleGroup':
-        return ResourceType.awsWAFRegionalRuleGroup;
-      case 'AWS::WAFRegional::WebACL':
-        return ResourceType.awsWAFRegionalWebACL;
-      case 'AWS::CloudFront::Distribution':
-        return ResourceType.awsCloudFrontDistribution;
-      case 'AWS::CloudFront::StreamingDistribution':
-        return ResourceType.awsCloudFrontStreamingDistribution;
-      case 'AWS::Lambda::Function':
-        return ResourceType.awsLambdaFunction;
-      case 'AWS::NetworkFirewall::Firewall':
-        return ResourceType.awsNetworkFirewallFirewall;
-      case 'AWS::NetworkFirewall::FirewallPolicy':
-        return ResourceType.awsNetworkFirewallFirewallPolicy;
-      case 'AWS::NetworkFirewall::RuleGroup':
-        return ResourceType.awsNetworkFirewallRuleGroup;
-      case 'AWS::ElasticBeanstalk::Application':
-        return ResourceType.awsElasticBeanstalkApplication;
-      case 'AWS::ElasticBeanstalk::ApplicationVersion':
-        return ResourceType.awsElasticBeanstalkApplicationVersion;
-      case 'AWS::ElasticBeanstalk::Environment':
-        return ResourceType.awsElasticBeanstalkEnvironment;
-      case 'AWS::WAFv2::WebACL':
-        return ResourceType.awsWAFv2WebACL;
-      case 'AWS::WAFv2::RuleGroup':
-        return ResourceType.awsWAFv2RuleGroup;
-      case 'AWS::WAFv2::IPSet':
-        return ResourceType.awsWAFv2IPSet;
-      case 'AWS::WAFv2::RegexPatternSet':
-        return ResourceType.awsWAFv2RegexPatternSet;
-      case 'AWS::WAFv2::ManagedRuleSet':
-        return ResourceType.awsWAFv2ManagedRuleSet;
-      case 'AWS::XRay::EncryptionConfig':
-        return ResourceType.awsXRayEncryptionConfig;
-      case 'AWS::SSM::AssociationCompliance':
-        return ResourceType.awsSsmAssociationCompliance;
-      case 'AWS::SSM::PatchCompliance':
-        return ResourceType.awsSsmPatchCompliance;
-      case 'AWS::Shield::Protection':
-        return ResourceType.awsShieldProtection;
-      case 'AWS::ShieldRegional::Protection':
-        return ResourceType.awsShieldRegionalProtection;
-      case 'AWS::Config::ConformancePackCompliance':
-        return ResourceType.awsConfigConformancePackCompliance;
-      case 'AWS::Config::ResourceCompliance':
-        return ResourceType.awsConfigResourceCompliance;
-      case 'AWS::ApiGateway::Stage':
-        return ResourceType.awsApiGatewayStage;
-      case 'AWS::ApiGateway::RestApi':
-        return ResourceType.awsApiGatewayRestApi;
-      case 'AWS::ApiGatewayV2::Stage':
-        return ResourceType.awsApiGatewayV2Stage;
-      case 'AWS::ApiGatewayV2::Api':
-        return ResourceType.awsApiGatewayV2Api;
-      case 'AWS::CodePipeline::Pipeline':
-        return ResourceType.awsCodePipelinePipeline;
-      case 'AWS::ServiceCatalog::CloudFormationProvisionedProduct':
-        return ResourceType.awsServiceCatalogCloudFormationProvisionedProduct;
-      case 'AWS::ServiceCatalog::CloudFormationProduct':
-        return ResourceType.awsServiceCatalogCloudFormationProduct;
-      case 'AWS::ServiceCatalog::Portfolio':
-        return ResourceType.awsServiceCatalogPortfolio;
-      case 'AWS::SQS::Queue':
-        return ResourceType.awsSqsQueue;
-      case 'AWS::KMS::Key':
-        return ResourceType.awsKmsKey;
-      case 'AWS::QLDB::Ledger':
-        return ResourceType.awsQldbLedger;
-      case 'AWS::SecretsManager::Secret':
-        return ResourceType.awsSecretsManagerSecret;
-      case 'AWS::SNS::Topic':
-        return ResourceType.awsSnsTopic;
-      case 'AWS::SSM::FileData':
-        return ResourceType.awsSsmFileData;
-      case 'AWS::Backup::BackupPlan':
-        return ResourceType.awsBackupBackupPlan;
-      case 'AWS::Backup::BackupSelection':
-        return ResourceType.awsBackupBackupSelection;
-      case 'AWS::Backup::BackupVault':
-        return ResourceType.awsBackupBackupVault;
-      case 'AWS::Backup::RecoveryPoint':
-        return ResourceType.awsBackupRecoveryPoint;
-      case 'AWS::ECR::Repository':
-        return ResourceType.awsEcrRepository;
-      case 'AWS::ECS::Cluster':
-        return ResourceType.awsEcsCluster;
-      case 'AWS::ECS::Service':
-        return ResourceType.awsEcsService;
-      case 'AWS::ECS::TaskDefinition':
-        return ResourceType.awsEcsTaskDefinition;
-      case 'AWS::EFS::AccessPoint':
-        return ResourceType.awsEfsAccessPoint;
-      case 'AWS::EFS::FileSystem':
-        return ResourceType.awsEfsFileSystem;
-      case 'AWS::EKS::Cluster':
-        return ResourceType.awsEksCluster;
-      case 'AWS::OpenSearch::Domain':
-        return ResourceType.awsOpenSearchDomain;
-      case 'AWS::EC2::TransitGateway':
-        return ResourceType.awsEc2TransitGateway;
-      case 'AWS::Kinesis::Stream':
-        return ResourceType.awsKinesisStream;
-      case 'AWS::Kinesis::StreamConsumer':
-        return ResourceType.awsKinesisStreamConsumer;
-      case 'AWS::CodeDeploy::Application':
-        return ResourceType.awsCodeDeployApplication;
-      case 'AWS::CodeDeploy::DeploymentConfig':
-        return ResourceType.awsCodeDeployDeploymentConfig;
-      case 'AWS::CodeDeploy::DeploymentGroup':
-        return ResourceType.awsCodeDeployDeploymentGroup;
-      case 'AWS::EC2::LaunchTemplate':
-        return ResourceType.awsEc2LaunchTemplate;
-      case 'AWS::ECR::PublicRepository':
-        return ResourceType.awsEcrPublicRepository;
-      case 'AWS::GuardDuty::Detector':
-        return ResourceType.awsGuardDutyDetector;
-      case 'AWS::EMR::SecurityConfiguration':
-        return ResourceType.awsEmrSecurityConfiguration;
-      case 'AWS::SageMaker::CodeRepository':
-        return ResourceType.awsSageMakerCodeRepository;
-      case 'AWS::Route53Resolver::ResolverEndpoint':
-        return ResourceType.awsRoute53ResolverResolverEndpoint;
-      case 'AWS::Route53Resolver::ResolverRule':
-        return ResourceType.awsRoute53ResolverResolverRule;
-      case 'AWS::Route53Resolver::ResolverRuleAssociation':
-        return ResourceType.awsRoute53ResolverResolverRuleAssociation;
-      case 'AWS::DMS::ReplicationSubnetGroup':
-        return ResourceType.awsDmsReplicationSubnetGroup;
-      case 'AWS::DMS::EventSubscription':
-        return ResourceType.awsDmsEventSubscription;
-      case 'AWS::MSK::Cluster':
-        return ResourceType.awsMskCluster;
-      case 'AWS::StepFunctions::Activity':
-        return ResourceType.awsStepFunctionsActivity;
-      case 'AWS::WorkSpaces::Workspace':
-        return ResourceType.awsWorkSpacesWorkspace;
-      case 'AWS::WorkSpaces::ConnectionAlias':
-        return ResourceType.awsWorkSpacesConnectionAlias;
-      case 'AWS::SageMaker::Model':
-        return ResourceType.awsSageMakerModel;
-      case 'AWS::ElasticLoadBalancingV2::Listener':
-        return ResourceType.awsElasticLoadBalancingV2Listener;
-      case 'AWS::StepFunctions::StateMachine':
-        return ResourceType.awsStepFunctionsStateMachine;
-      case 'AWS::Batch::JobQueue':
-        return ResourceType.awsBatchJobQueue;
-      case 'AWS::Batch::ComputeEnvironment':
-        return ResourceType.awsBatchComputeEnvironment;
-      case 'AWS::AccessAnalyzer::Analyzer':
-        return ResourceType.awsAccessAnalyzerAnalyzer;
-      case 'AWS::Athena::WorkGroup':
-        return ResourceType.awsAthenaWorkGroup;
-      case 'AWS::Athena::DataCatalog':
-        return ResourceType.awsAthenaDataCatalog;
-      case 'AWS::Detective::Graph':
-        return ResourceType.awsDetectiveGraph;
-      case 'AWS::GlobalAccelerator::Accelerator':
-        return ResourceType.awsGlobalAcceleratorAccelerator;
-      case 'AWS::GlobalAccelerator::EndpointGroup':
-        return ResourceType.awsGlobalAcceleratorEndpointGroup;
-      case 'AWS::GlobalAccelerator::Listener':
-        return ResourceType.awsGlobalAcceleratorListener;
-      case 'AWS::EC2::TransitGatewayAttachment':
-        return ResourceType.awsEc2TransitGatewayAttachment;
-      case 'AWS::EC2::TransitGatewayRouteTable':
-        return ResourceType.awsEc2TransitGatewayRouteTable;
-      case 'AWS::DMS::Certificate':
-        return ResourceType.awsDmsCertificate;
-      case 'AWS::AppConfig::Application':
-        return ResourceType.awsAppConfigApplication;
-      case 'AWS::AppSync::GraphQLApi':
-        return ResourceType.awsAppSyncGraphQLApi;
-      case 'AWS::DataSync::LocationSMB':
-        return ResourceType.awsDataSyncLocationSMB;
-      case 'AWS::DataSync::LocationFSxLustre':
-        return ResourceType.awsDataSyncLocationFSxLustre;
-      case 'AWS::DataSync::LocationS3':
-        return ResourceType.awsDataSyncLocationS3;
-      case 'AWS::DataSync::LocationEFS':
-        return ResourceType.awsDataSyncLocationEFS;
-      case 'AWS::DataSync::Task':
-        return ResourceType.awsDataSyncTask;
-      case 'AWS::DataSync::LocationNFS':
-        return ResourceType.awsDataSyncLocationNFS;
-      case 'AWS::EC2::NetworkInsightsAccessScopeAnalysis':
-        return ResourceType.awsEc2NetworkInsightsAccessScopeAnalysis;
-      case 'AWS::EKS::FargateProfile':
-        return ResourceType.awsEksFargateProfile;
-      case 'AWS::Glue::Job':
-        return ResourceType.awsGlueJob;
-      case 'AWS::GuardDuty::ThreatIntelSet':
-        return ResourceType.awsGuardDutyThreatIntelSet;
-      case 'AWS::GuardDuty::IPSet':
-        return ResourceType.awsGuardDutyIPSet;
-      case 'AWS::SageMaker::Workteam':
-        return ResourceType.awsSageMakerWorkteam;
-      case 'AWS::SageMaker::NotebookInstanceLifecycleConfig':
-        return ResourceType.awsSageMakerNotebookInstanceLifecycleConfig;
-      case 'AWS::ServiceDiscovery::Service':
-        return ResourceType.awsServiceDiscoveryService;
-      case 'AWS::ServiceDiscovery::PublicDnsNamespace':
-        return ResourceType.awsServiceDiscoveryPublicDnsNamespace;
-      case 'AWS::SES::ContactList':
-        return ResourceType.awsSesContactList;
-      case 'AWS::SES::ConfigurationSet':
-        return ResourceType.awsSesConfigurationSet;
-      case 'AWS::Route53::HostedZone':
-        return ResourceType.awsRoute53HostedZone;
-      case 'AWS::IoTEvents::Input':
-        return ResourceType.awsIoTEventsInput;
-      case 'AWS::IoTEvents::DetectorModel':
-        return ResourceType.awsIoTEventsDetectorModel;
-      case 'AWS::IoTEvents::AlarmModel':
-        return ResourceType.awsIoTEventsAlarmModel;
-      case 'AWS::ServiceDiscovery::HttpNamespace':
-        return ResourceType.awsServiceDiscoveryHttpNamespace;
-      case 'AWS::Events::EventBus':
-        return ResourceType.awsEventsEventBus;
-      case 'AWS::ImageBuilder::ContainerRecipe':
-        return ResourceType.awsImageBuilderContainerRecipe;
-      case 'AWS::ImageBuilder::DistributionConfiguration':
-        return ResourceType.awsImageBuilderDistributionConfiguration;
-      case 'AWS::ImageBuilder::InfrastructureConfiguration':
-        return ResourceType.awsImageBuilderInfrastructureConfiguration;
-      case 'AWS::DataSync::LocationObjectStorage':
-        return ResourceType.awsDataSyncLocationObjectStorage;
-      case 'AWS::DataSync::LocationHDFS':
-        return ResourceType.awsDataSyncLocationHDFS;
-      case 'AWS::Glue::Classifier':
-        return ResourceType.awsGlueClassifier;
-      case 'AWS::Route53RecoveryReadiness::Cell':
-        return ResourceType.awsRoute53RecoveryReadinessCell;
-      case 'AWS::Route53RecoveryReadiness::ReadinessCheck':
-        return ResourceType.awsRoute53RecoveryReadinessReadinessCheck;
-      case 'AWS::ECR::RegistryPolicy':
-        return ResourceType.awsEcrRegistryPolicy;
-      case 'AWS::Backup::ReportPlan':
-        return ResourceType.awsBackupReportPlan;
-      case 'AWS::Lightsail::Certificate':
-        return ResourceType.awsLightsailCertificate;
-      case 'AWS::RUM::AppMonitor':
-        return ResourceType.awsRumAppMonitor;
-      case 'AWS::Events::Endpoint':
-        return ResourceType.awsEventsEndpoint;
-      case 'AWS::SES::ReceiptRuleSet':
-        return ResourceType.awsSesReceiptRuleSet;
-      case 'AWS::Events::Archive':
-        return ResourceType.awsEventsArchive;
-      case 'AWS::Events::ApiDestination':
-        return ResourceType.awsEventsApiDestination;
-      case 'AWS::Lightsail::Disk':
-        return ResourceType.awsLightsailDisk;
-      case 'AWS::FIS::ExperimentTemplate':
-        return ResourceType.awsFisExperimentTemplate;
-      case 'AWS::DataSync::LocationFSxWindows':
-        return ResourceType.awsDataSyncLocationFSxWindows;
-      case 'AWS::SES::ReceiptFilter':
-        return ResourceType.awsSesReceiptFilter;
-      case 'AWS::GuardDuty::Filter':
-        return ResourceType.awsGuardDutyFilter;
-      case 'AWS::SES::Template':
-        return ResourceType.awsSesTemplate;
-      case 'AWS::AmazonMQ::Broker':
-        return ResourceType.awsAmazonMQBroker;
-      case 'AWS::AppConfig::Environment':
-        return ResourceType.awsAppConfigEnvironment;
-      case 'AWS::AppConfig::ConfigurationProfile':
-        return ResourceType.awsAppConfigConfigurationProfile;
-      case 'AWS::Cloud9::EnvironmentEC2':
-        return ResourceType.awsCloud9EnvironmentEC2;
-      case 'AWS::EventSchemas::Registry':
-        return ResourceType.awsEventSchemasRegistry;
-      case 'AWS::EventSchemas::RegistryPolicy':
-        return ResourceType.awsEventSchemasRegistryPolicy;
-      case 'AWS::EventSchemas::Discoverer':
-        return ResourceType.awsEventSchemasDiscoverer;
-      case 'AWS::FraudDetector::Label':
-        return ResourceType.awsFraudDetectorLabel;
-      case 'AWS::FraudDetector::EntityType':
-        return ResourceType.awsFraudDetectorEntityType;
-      case 'AWS::FraudDetector::Variable':
-        return ResourceType.awsFraudDetectorVariable;
-      case 'AWS::FraudDetector::Outcome':
-        return ResourceType.awsFraudDetectorOutcome;
-      case 'AWS::IoT::Authorizer':
-        return ResourceType.awsIoTAuthorizer;
-      case 'AWS::IoT::SecurityProfile':
-        return ResourceType.awsIoTSecurityProfile;
-      case 'AWS::IoT::RoleAlias':
-        return ResourceType.awsIoTRoleAlias;
-      case 'AWS::IoT::Dimension':
-        return ResourceType.awsIoTDimension;
-      case 'AWS::IoTAnalytics::Datastore':
-        return ResourceType.awsIoTAnalyticsDatastore;
-      case 'AWS::Lightsail::Bucket':
-        return ResourceType.awsLightsailBucket;
-      case 'AWS::Lightsail::StaticIp':
-        return ResourceType.awsLightsailStaticIp;
-      case 'AWS::MediaPackage::PackagingGroup':
-        return ResourceType.awsMediaPackagePackagingGroup;
-      case 'AWS::Route53RecoveryReadiness::RecoveryGroup':
-        return ResourceType.awsRoute53RecoveryReadinessRecoveryGroup;
-      case 'AWS::ResilienceHub::ResiliencyPolicy':
-        return ResourceType.awsResilienceHubResiliencyPolicy;
-      case 'AWS::Transfer::Workflow':
-        return ResourceType.awsTransferWorkflow;
-      case 'AWS::EKS::IdentityProviderConfig':
-        return ResourceType.awsEksIdentityProviderConfig;
-      case 'AWS::EKS::Addon':
-        return ResourceType.awsEksAddon;
-      case 'AWS::Glue::MLTransform':
-        return ResourceType.awsGlueMLTransform;
-      case 'AWS::IoT::Policy':
-        return ResourceType.awsIoTPolicy;
-      case 'AWS::IoT::MitigationAction':
-        return ResourceType.awsIoTMitigationAction;
-      case 'AWS::IoTTwinMaker::Workspace':
-        return ResourceType.awsIoTTwinMakerWorkspace;
-      case 'AWS::IoTTwinMaker::Entity':
-        return ResourceType.awsIoTTwinMakerEntity;
-      case 'AWS::IoTAnalytics::Dataset':
-        return ResourceType.awsIoTAnalyticsDataset;
-      case 'AWS::IoTAnalytics::Pipeline':
-        return ResourceType.awsIoTAnalyticsPipeline;
-      case 'AWS::IoTAnalytics::Channel':
-        return ResourceType.awsIoTAnalyticsChannel;
-      case 'AWS::IoTSiteWise::Dashboard':
-        return ResourceType.awsIoTSiteWiseDashboard;
-      case 'AWS::IoTSiteWise::Project':
-        return ResourceType.awsIoTSiteWiseProject;
-      case 'AWS::IoTSiteWise::Portal':
-        return ResourceType.awsIoTSiteWisePortal;
-      case 'AWS::IoTSiteWise::AssetModel':
-        return ResourceType.awsIoTSiteWiseAssetModel;
-      case 'AWS::IVS::Channel':
-        return ResourceType.awsIvsChannel;
-      case 'AWS::IVS::RecordingConfiguration':
-        return ResourceType.awsIvsRecordingConfiguration;
-      case 'AWS::IVS::PlaybackKeyPair':
-        return ResourceType.awsIvsPlaybackKeyPair;
-      case 'AWS::KinesisAnalyticsV2::Application':
-        return ResourceType.awsKinesisAnalyticsV2Application;
-      case 'AWS::RDS::GlobalCluster':
-        return ResourceType.awsRdsGlobalCluster;
-      case 'AWS::S3::MultiRegionAccessPoint':
-        return ResourceType.awsS3MultiRegionAccessPoint;
-      case 'AWS::DeviceFarm::TestGridProject':
-        return ResourceType.awsDeviceFarmTestGridProject;
-      case 'AWS::Budgets::BudgetsAction':
-        return ResourceType.awsBudgetsBudgetsAction;
-      case 'AWS::Lex::Bot':
-        return ResourceType.awsLexBot;
-      case 'AWS::CodeGuruReviewer::RepositoryAssociation':
-        return ResourceType.awsCodeGuruReviewerRepositoryAssociation;
-      case 'AWS::IoT::CustomMetric':
-        return ResourceType.awsIoTCustomMetric;
-      case 'AWS::Route53Resolver::FirewallDomainList':
-        return ResourceType.awsRoute53ResolverFirewallDomainList;
-      case 'AWS::RoboMaker::RobotApplicationVersion':
-        return ResourceType.awsRoboMakerRobotApplicationVersion;
-      case 'AWS::EC2::TrafficMirrorSession':
-        return ResourceType.awsEc2TrafficMirrorSession;
-      case 'AWS::IoTSiteWise::Gateway':
-        return ResourceType.awsIoTSiteWiseGateway;
-      case 'AWS::Lex::BotAlias':
-        return ResourceType.awsLexBotAlias;
-      case 'AWS::LookoutMetrics::Alert':
-        return ResourceType.awsLookoutMetricsAlert;
-      case 'AWS::IoT::AccountAuditConfiguration':
-        return ResourceType.awsIoTAccountAuditConfiguration;
-      case 'AWS::EC2::TrafficMirrorTarget':
-        return ResourceType.awsEc2TrafficMirrorTarget;
-      case 'AWS::S3::StorageLens':
-        return ResourceType.awsS3StorageLens;
-      case 'AWS::IoT::ScheduledAudit':
-        return ResourceType.awsIoTScheduledAudit;
-      case 'AWS::Events::Connection':
-        return ResourceType.awsEventsConnection;
-      case 'AWS::EventSchemas::Schema':
-        return ResourceType.awsEventSchemasSchema;
-      case 'AWS::MediaPackage::PackagingConfiguration':
-        return ResourceType.awsMediaPackagePackagingConfiguration;
-      case 'AWS::KinesisVideo::SignalingChannel':
-        return ResourceType.awsKinesisVideoSignalingChannel;
-      case 'AWS::AppStream::DirectoryConfig':
-        return ResourceType.awsAppStreamDirectoryConfig;
-      case 'AWS::LookoutVision::Project':
-        return ResourceType.awsLookoutVisionProject;
-      case 'AWS::Route53RecoveryControl::Cluster':
-        return ResourceType.awsRoute53RecoveryControlCluster;
-      case 'AWS::Route53RecoveryControl::SafetyRule':
-        return ResourceType.awsRoute53RecoveryControlSafetyRule;
-      case 'AWS::Route53RecoveryControl::ControlPanel':
-        return ResourceType.awsRoute53RecoveryControlControlPanel;
-      case 'AWS::Route53RecoveryControl::RoutingControl':
-        return ResourceType.awsRoute53RecoveryControlRoutingControl;
-      case 'AWS::Route53RecoveryReadiness::ResourceSet':
-        return ResourceType.awsRoute53RecoveryReadinessResourceSet;
-      case 'AWS::RoboMaker::SimulationApplication':
-        return ResourceType.awsRoboMakerSimulationApplication;
-      case 'AWS::RoboMaker::RobotApplication':
-        return ResourceType.awsRoboMakerRobotApplication;
-      case 'AWS::HealthLake::FHIRDatastore':
-        return ResourceType.awsHealthLakeFHIRDatastore;
-      case 'AWS::Pinpoint::Segment':
-        return ResourceType.awsPinpointSegment;
-      case 'AWS::Pinpoint::ApplicationSettings':
-        return ResourceType.awsPinpointApplicationSettings;
-      case 'AWS::Events::Rule':
-        return ResourceType.awsEventsRule;
-      case 'AWS::EC2::DHCPOptions':
-        return ResourceType.awsEc2DHCPOptions;
-      case 'AWS::EC2::NetworkInsightsPath':
-        return ResourceType.awsEc2NetworkInsightsPath;
-      case 'AWS::EC2::TrafficMirrorFilter':
-        return ResourceType.awsEc2TrafficMirrorFilter;
-      case 'AWS::EC2::IPAM':
-        return ResourceType.awsEc2Ipam;
-      case 'AWS::IoTTwinMaker::Scene':
-        return ResourceType.awsIoTTwinMakerScene;
-      case 'AWS::NetworkManager::TransitGatewayRegistration':
-        return ResourceType.awsNetworkManagerTransitGatewayRegistration;
-      case 'AWS::CustomerProfiles::Domain':
-        return ResourceType.awsCustomerProfilesDomain;
-      case 'AWS::AutoScaling::WarmPool':
-        return ResourceType.awsAutoScalingWarmPool;
-      case 'AWS::Connect::PhoneNumber':
-        return ResourceType.awsConnectPhoneNumber;
-      case 'AWS::AppConfig::DeploymentStrategy':
-        return ResourceType.awsAppConfigDeploymentStrategy;
-      case 'AWS::AppFlow::Flow':
-        return ResourceType.awsAppFlowFlow;
-      case 'AWS::AuditManager::Assessment':
-        return ResourceType.awsAuditManagerAssessment;
-      case 'AWS::CloudWatch::MetricStream':
-        return ResourceType.awsCloudWatchMetricStream;
-      case 'AWS::DeviceFarm::InstanceProfile':
-        return ResourceType.awsDeviceFarmInstanceProfile;
-      case 'AWS::DeviceFarm::Project':
-        return ResourceType.awsDeviceFarmProject;
-      case 'AWS::EC2::EC2Fleet':
-        return ResourceType.awsEc2EC2Fleet;
-      case 'AWS::EC2::SubnetRouteTableAssociation':
-        return ResourceType.awsEc2SubnetRouteTableAssociation;
-      case 'AWS::ECR::PullThroughCacheRule':
-        return ResourceType.awsEcrPullThroughCacheRule;
-      case 'AWS::GroundStation::Config':
-        return ResourceType.awsGroundStationConfig;
-      case 'AWS::ImageBuilder::ImagePipeline':
-        return ResourceType.awsImageBuilderImagePipeline;
-      case 'AWS::IoT::FleetMetric':
-        return ResourceType.awsIoTFleetMetric;
-      case 'AWS::IoTWireless::ServiceProfile':
-        return ResourceType.awsIoTWirelessServiceProfile;
-      case 'AWS::NetworkManager::Device':
-        return ResourceType.awsNetworkManagerDevice;
-      case 'AWS::NetworkManager::GlobalNetwork':
-        return ResourceType.awsNetworkManagerGlobalNetwork;
-      case 'AWS::NetworkManager::Link':
-        return ResourceType.awsNetworkManagerLink;
-      case 'AWS::NetworkManager::Site':
-        return ResourceType.awsNetworkManagerSite;
-      case 'AWS::Panorama::Package':
-        return ResourceType.awsPanoramaPackage;
-      case 'AWS::Pinpoint::App':
-        return ResourceType.awsPinpointApp;
-      case 'AWS::Redshift::ScheduledAction':
-        return ResourceType.awsRedshiftScheduledAction;
-      case 'AWS::Route53Resolver::FirewallRuleGroupAssociation':
-        return ResourceType.awsRoute53ResolverFirewallRuleGroupAssociation;
-      case 'AWS::SageMaker::AppImageConfig':
-        return ResourceType.awsSageMakerAppImageConfig;
-      case 'AWS::SageMaker::Image':
-        return ResourceType.awsSageMakerImage;
-    }
-    throw Exception('$this is not known in enum ResourceType');
-  }
+  const ResourceType(this.value);
+
+  static ResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceType'));
 }
 
 /// The dynamic value of the resource.
@@ -15364,39 +14550,30 @@ class ResourceValue {
 
   factory ResourceValue.fromJson(Map<String, dynamic> json) {
     return ResourceValue(
-      value: (json['Value'] as String).toResourceValueType(),
+      value: ResourceValueType.fromString((json['Value'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final value = this.value;
     return {
-      'Value': value.toValue(),
+      'Value': value.value,
     };
   }
 }
 
 enum ResourceValueType {
-  resourceId,
-}
+  resourceId('RESOURCE_ID'),
+  ;
 
-extension ResourceValueTypeValueExtension on ResourceValueType {
-  String toValue() {
-    switch (this) {
-      case ResourceValueType.resourceId:
-        return 'RESOURCE_ID';
-    }
-  }
-}
+  final String value;
 
-extension ResourceValueTypeFromString on String {
-  ResourceValueType toResourceValueType() {
-    switch (this) {
-      case 'RESOURCE_ID':
-        return ResourceValueType.resourceId;
-    }
-    throw Exception('$this is not known in enum ResourceValueType');
-  }
+  const ResourceValueType(this.value);
+
+  static ResourceValueType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceValueType'));
 }
 
 /// An object with the name of the retention configuration and the retention
@@ -15472,7 +14649,7 @@ class Scope {
     return Scope(
       complianceResourceId: json['ComplianceResourceId'] as String?,
       complianceResourceTypes: (json['ComplianceResourceTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tagKey: json['TagKey'] as String?,
@@ -15518,10 +14695,8 @@ class SelectAggregateResourceConfigResponse {
       queryInfo: json['QueryInfo'] != null
           ? QueryInfo.fromJson(json['QueryInfo'] as Map<String, dynamic>)
           : null,
-      results: (json['Results'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      results:
+          (json['Results'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -15560,10 +14735,8 @@ class SelectResourceConfigResponse {
       queryInfo: json['QueryInfo'] != null
           ? QueryInfo.fromJson(json['QueryInfo'] as Map<String, dynamic>)
           : null,
-      results: (json['Results'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      results:
+          (json['Results'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -15580,54 +14753,30 @@ class SelectResourceConfigResponse {
 }
 
 enum SortBy {
-  score,
-}
+  score('SCORE'),
+  ;
 
-extension SortByValueExtension on SortBy {
-  String toValue() {
-    switch (this) {
-      case SortBy.score:
-        return 'SCORE';
-    }
-  }
-}
+  final String value;
 
-extension SortByFromString on String {
-  SortBy toSortBy() {
-    switch (this) {
-      case 'SCORE':
-        return SortBy.score;
-    }
-    throw Exception('$this is not known in enum SortBy');
-  }
+  const SortBy(this.value);
+
+  static SortBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum SortBy'));
 }
 
 enum SortOrder {
-  ascending,
-  descending,
-}
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
 
-extension SortOrderValueExtension on SortOrder {
-  String toValue() {
-    switch (this) {
-      case SortOrder.ascending:
-        return 'ASCENDING';
-      case SortOrder.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortOrderFromString on String {
-  SortOrder toSortOrder() {
-    switch (this) {
-      case 'ASCENDING':
-        return SortOrder.ascending;
-      case 'DESCENDING':
-        return SortOrder.descending;
-    }
-    throw Exception('$this is not known in enum SortOrder');
-  }
+  const SortOrder(this.value);
+
+  static SortOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortOrder'));
 }
 
 /// Provides the CustomPolicyDetails, the rule owner (<code>Amazon Web
@@ -15688,13 +14837,13 @@ class Source {
 
   factory Source.fromJson(Map<String, dynamic> json) {
     return Source(
-      owner: (json['Owner'] as String).toOwner(),
+      owner: Owner.fromString((json['Owner'] as String)),
       customPolicyDetails: json['CustomPolicyDetails'] != null
           ? CustomPolicyDetails.fromJson(
               json['CustomPolicyDetails'] as Map<String, dynamic>)
           : null,
       sourceDetails: (json['SourceDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SourceDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       sourceIdentifier: json['SourceIdentifier'] as String?,
@@ -15707,7 +14856,7 @@ class Source {
     final sourceDetails = this.sourceDetails;
     final sourceIdentifier = this.sourceIdentifier;
     return {
-      'Owner': owner.toValue(),
+      'Owner': owner.value,
       if (customPolicyDetails != null)
         'CustomPolicyDetails': customPolicyDetails,
       if (sourceDetails != null) 'SourceDetails': sourceDetails,
@@ -15779,10 +14928,12 @@ class SourceDetail {
 
   factory SourceDetail.fromJson(Map<String, dynamic> json) {
     return SourceDetail(
-      eventSource: (json['EventSource'] as String?)?.toEventSource(),
+      eventSource:
+          (json['EventSource'] as String?)?.let(EventSource.fromString),
       maximumExecutionFrequency: (json['MaximumExecutionFrequency'] as String?)
-          ?.toMaximumExecutionFrequency(),
-      messageType: (json['MessageType'] as String?)?.toMessageType(),
+          ?.let(MaximumExecutionFrequency.fromString),
+      messageType:
+          (json['MessageType'] as String?)?.let(MessageType.fromString),
     );
   }
 
@@ -15791,10 +14942,10 @@ class SourceDetail {
     final maximumExecutionFrequency = this.maximumExecutionFrequency;
     final messageType = this.messageType;
     return {
-      if (eventSource != null) 'EventSource': eventSource.toValue(),
+      if (eventSource != null) 'EventSource': eventSource.value,
       if (maximumExecutionFrequency != null)
-        'MaximumExecutionFrequency': maximumExecutionFrequency.toValue(),
-      if (messageType != null) 'MessageType': messageType.toValue(),
+        'MaximumExecutionFrequency': maximumExecutionFrequency.value,
+      if (messageType != null) 'MessageType': messageType.value,
     };
   }
 }
@@ -15869,7 +15020,7 @@ class StartRemediationExecutionResponse {
       Map<String, dynamic> json) {
     return StartRemediationExecutionResponse(
       failedItems: (json['FailedItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceKey.fromJson(e as Map<String, dynamic>))
           .toList(),
       failureMessage: json['FailureMessage'] as String?,
@@ -15920,10 +15071,8 @@ class StaticValue {
 
   factory StaticValue.fromJson(Map<String, dynamic> json) {
     return StaticValue(
-      values: (json['Values'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List).nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -16003,7 +15152,7 @@ class StatusDetailFilters {
     return {
       if (accountId != null) 'AccountId': accountId,
       if (memberAccountRuleStatus != null)
-        'MemberAccountRuleStatus': memberAccountRuleStatus.toValue(),
+        'MemberAccountRuleStatus': memberAccountRuleStatus.value,
     };
   }
 }
@@ -16158,9 +15307,7 @@ class Tag {
 class TemplateSSMDocumentDetails {
   /// The name or Amazon Resource Name (ARN) of the SSM document to use to create
   /// a conformance pack. If you use the document name, Config checks only your
-  /// account and Amazon Web Services Region for the SSM document. If you want to
-  /// use an SSM document from another Region or account, you must provide the
-  /// ARN.
+  /// account and Amazon Web Services Region for the SSM document.
   final String documentName;
 
   /// The version of the SSM document to use to create a conformance pack. By

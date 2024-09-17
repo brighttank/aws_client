@@ -162,7 +162,7 @@ class Route53Resolver {
         'VpcId': vpcId,
         'CreatorRequestId': creatorRequestId ?? _s.generateIdempotencyToken(),
         if (mutationProtection != null)
-          'MutationProtection': mutationProtection.toValue(),
+          'MutationProtection': mutationProtection.value,
         if (tags != null) 'Tags': tags,
       },
     );
@@ -474,6 +474,70 @@ class Route53Resolver {
   /// failed requests without the risk of running the operation twice.
   /// <code>CreatorRequestId</code> can be any unique string, for example, a
   /// date/time stamp.
+  ///
+  /// Parameter [firewallDomainRedirectionAction] :
+  /// How you want the the rule to evaluate DNS redirection in the DNS
+  /// redirection chain, such as CNAME or DNAME.
+  ///
+  /// <code>Inspect_Redirection_Domain </code>(Default) inspects all domains in
+  /// the redirection chain. The individual domains in the redirection chain
+  /// must be added to the domain list.
+  ///
+  /// <code>Trust_Redirection_Domain </code> inspects only the first domain in
+  /// the redirection chain. You don't need to add the subsequent domains in the
+  /// domain in the redirection list to the domain list.
+  ///
+  /// Parameter [qtype] :
+  /// The DNS query type you want the rule to evaluate. Allowed values are;
+  ///
+  /// <ul>
+  /// <li>
+  /// A: Returns an IPv4 address.
+  /// </li>
+  /// <li>
+  /// AAAA: Returns an Ipv6 address.
+  /// </li>
+  /// <li>
+  /// CAA: Restricts CAs that can create SSL/TLS certifications for the domain.
+  /// </li>
+  /// <li>
+  /// CNAME: Returns another domain name.
+  /// </li>
+  /// <li>
+  /// DS: Record that identifies the DNSSEC signing key of a delegated zone.
+  /// </li>
+  /// <li>
+  /// MX: Specifies mail servers.
+  /// </li>
+  /// <li>
+  /// NAPTR: Regular-expression-based rewriting of domain names.
+  /// </li>
+  /// <li>
+  /// NS: Authoritative name servers.
+  /// </li>
+  /// <li>
+  /// PTR: Maps an IP address to a domain name.
+  /// </li>
+  /// <li>
+  /// SOA: Start of authority record for the zone.
+  /// </li>
+  /// <li>
+  /// SPF: Lists the servers authorized to send emails from a domain.
+  /// </li>
+  /// <li>
+  /// SRV: Application specific values that identify servers.
+  /// </li>
+  /// <li>
+  /// TXT: Verifies email senders and application-specific values.
+  /// </li>
+  /// <li>
+  /// A query type you define by using the DNS type ID, for example 28 for AAAA.
+  /// The values must be defined as TYPENUMBER, where the NUMBER can be 1-65334,
+  /// for example, TYPE28. For more information, see <a
+  /// href="https://en.wikipedia.org/wiki/List_of_DNS_record_types">List of DNS
+  /// record types</a>.
+  /// </li>
+  /// </ul>
   Future<CreateFirewallRuleResponse> createFirewallRule({
     required Action action,
     required String firewallDomainListId,
@@ -485,6 +549,8 @@ class Route53Resolver {
     int? blockOverrideTtl,
     BlockResponse? blockResponse,
     String? creatorRequestId,
+    FirewallDomainRedirectionAction? firewallDomainRedirectionAction,
+    String? qtype,
   }) async {
     _s.validateNumRange(
       'blockOverrideTtl',
@@ -503,18 +569,22 @@ class Route53Resolver {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Action': action.toValue(),
+        'Action': action.value,
         'FirewallDomainListId': firewallDomainListId,
         'FirewallRuleGroupId': firewallRuleGroupId,
         'Name': name,
         'Priority': priority,
         if (blockOverrideDnsType != null)
-          'BlockOverrideDnsType': blockOverrideDnsType.toValue(),
+          'BlockOverrideDnsType': blockOverrideDnsType.value,
         if (blockOverrideDomain != null)
           'BlockOverrideDomain': blockOverrideDomain,
         if (blockOverrideTtl != null) 'BlockOverrideTtl': blockOverrideTtl,
-        if (blockResponse != null) 'BlockResponse': blockResponse.toValue(),
+        if (blockResponse != null) 'BlockResponse': blockResponse.value,
         'CreatorRequestId': creatorRequestId ?? _s.generateIdempotencyToken(),
+        if (firewallDomainRedirectionAction != null)
+          'FirewallDomainRedirectionAction':
+              firewallDomainRedirectionAction.value,
+        if (qtype != null) 'Qtype': qtype,
       },
     );
 
@@ -567,6 +637,71 @@ class Route53Resolver {
     return CreateFirewallRuleGroupResponse.fromJson(jsonResponse.body);
   }
 
+  /// Creates a Route 53 Resolver on an Outpost.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [creatorRequestId] :
+  /// A unique string that identifies the request and that allows failed
+  /// requests to be retried without the risk of running the operation twice.
+  ///
+  /// <code>CreatorRequestId</code> can be any unique string, for example, a
+  /// date/time stamp.
+  ///
+  /// Parameter [name] :
+  /// A friendly name that lets you easily find a configuration in the Resolver
+  /// dashboard in the Route 53 console.
+  ///
+  /// Parameter [outpostArn] :
+  /// The Amazon Resource Name (ARN) of the Outpost. If you specify this, you
+  /// must also specify a value for the <code>PreferredInstanceType</code>.
+  ///
+  /// Parameter [preferredInstanceType] :
+  /// The Amazon EC2 instance type. If you specify this, you must also specify a
+  /// value for the <code>OutpostArn</code>.
+  ///
+  /// Parameter [instanceCount] :
+  /// Number of Amazon EC2 instances for the Resolver on Outpost. The default
+  /// and minimal value is 4.
+  ///
+  /// Parameter [tags] :
+  /// A string that helps identify the Route 53 Resolvers on Outpost.
+  Future<CreateOutpostResolverResponse> createOutpostResolver({
+    required String creatorRequestId,
+    required String name,
+    required String outpostArn,
+    required String preferredInstanceType,
+    int? instanceCount,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Route53Resolver.CreateOutpostResolver'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CreatorRequestId': creatorRequestId,
+        'Name': name,
+        'OutpostArn': outpostArn,
+        'PreferredInstanceType': preferredInstanceType,
+        if (instanceCount != null) 'InstanceCount': instanceCount,
+        if (tags != null) 'Tags': tags,
+      },
+    );
+
+    return CreateOutpostResolverResponse.fromJson(jsonResponse.body);
+  }
+
   /// Creates a Resolver endpoint. There are two types of Resolver endpoints,
   /// inbound and outbound:
   ///
@@ -585,6 +720,7 @@ class Route53Resolver {
   /// May throw [ResourceNotFoundException].
   /// May throw [InvalidRequestException].
   /// May throw [ResourceExistsException].
+  /// May throw [AccessDeniedException].
   /// May throw [LimitExceededException].
   /// May throw [InternalServiceErrorException].
   /// May throw [ThrottlingException].
@@ -613,6 +749,10 @@ class Route53Resolver {
   /// The subnets and IP addresses in your VPC that DNS queries originate from
   /// (for outbound endpoints) or that you forward DNS queries to (for inbound
   /// endpoints). The subnet ID uniquely identifies a VPC.
+  /// <note>
+  /// Even though the minimum is 1, Route 53 requires that you create at least
+  /// two.
+  /// </note>
   ///
   /// Parameter [securityGroupIds] :
   /// The ID of one or more security groups that you want to use to control
@@ -622,12 +762,72 @@ class Route53Resolver {
   /// TCP and UDP access. For inbound access, open port 53. For outbound access,
   /// open the port that you're using for DNS queries on your network.
   ///
+  /// Some security group rules will cause your connection to be tracked. For
+  /// outbound resolver endpoint, it can potentially impact the maximum queries
+  /// per second from outbound endpoint to your target name server. For inbound
+  /// resolver endpoint, it can bring down the overall maximum queries per
+  /// second per IP address to as low as 1500. To avoid connection tracking
+  /// caused by security group, see <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/security-group-connection-tracking.html#untracked-connectionsl">Untracked
+  /// connections</a>.
+  ///
   /// Parameter [name] :
   /// A friendly name that lets you easily find a configuration in the Resolver
   /// dashboard in the Route 53 console.
   ///
+  /// Parameter [outpostArn] :
+  /// The Amazon Resource Name (ARN) of the Outpost. If you specify this, you
+  /// must also specify a value for the <code>PreferredInstanceType</code>.
+  ///
+  /// Parameter [preferredInstanceType] :
+  /// The instance type. If you specify this, you must also specify a value for
+  /// the <code>OutpostArn</code>.
+  ///
+  /// Parameter [protocols] :
+  /// The protocols you want to use for the endpoint. DoH-FIPS is applicable for
+  /// inbound endpoints only.
+  ///
+  /// For an inbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 and DoH-FIPS in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// DoH-FIPS alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul>
+  /// For an outbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [resolverEndpointType] :
-  /// For the endpoint type you can choose either IPv4, IPv6. or dual-stack. A
+  /// For the endpoint type you can choose either IPv4, IPv6, or dual-stack. A
   /// dual-stack endpoint means that it will resolve via both IPv4 and IPv6.
   /// This endpoint type is applied to all IP addresses.
   ///
@@ -640,6 +840,9 @@ class Route53Resolver {
     required List<IpAddressRequest> ipAddresses,
     required List<String> securityGroupIds,
     String? name,
+    String? outpostArn,
+    String? preferredInstanceType,
+    List<Protocol>? protocols,
     ResolverEndpointType? resolverEndpointType,
     List<Tag>? tags,
   }) async {
@@ -655,12 +858,17 @@ class Route53Resolver {
       headers: headers,
       payload: {
         'CreatorRequestId': creatorRequestId,
-        'Direction': direction.toValue(),
+        'Direction': direction.value,
         'IpAddresses': ipAddresses,
         'SecurityGroupIds': securityGroupIds,
         if (name != null) 'Name': name,
+        if (outpostArn != null) 'OutpostArn': outpostArn,
+        if (preferredInstanceType != null)
+          'PreferredInstanceType': preferredInstanceType,
+        if (protocols != null)
+          'Protocols': protocols.map((e) => e.value).toList(),
         if (resolverEndpointType != null)
-          'ResolverEndpointType': resolverEndpointType.toValue(),
+          'ResolverEndpointType': resolverEndpointType.value,
         if (tags != null) 'Tags': tags,
       },
     );
@@ -771,6 +979,7 @@ class Route53Resolver {
   /// May throw [ResourceExistsException].
   /// May throw [ResourceUnavailableException].
   /// May throw [InternalServiceErrorException].
+  /// May throw [AccessDeniedException].
   /// May throw [ThrottlingException].
   ///
   /// Parameter [creatorRequestId] :
@@ -778,13 +987,6 @@ class Route53Resolver {
   /// requests to be retried without the risk of running the operation twice.
   /// <code>CreatorRequestId</code> can be any unique string, for example, a
   /// date/time stamp.
-  ///
-  /// Parameter [domainName] :
-  /// DNS queries for this domain name are forwarded to the IP addresses that
-  /// you specify in <code>TargetIps</code>. If a query matches multiple
-  /// Resolver rules (example.com and www.example.com), outbound DNS queries are
-  /// routed using the Resolver rule that contains the most specific domain name
-  /// (www.example.com).
   ///
   /// Parameter [ruleType] :
   /// When you want to forward DNS queries for specified domain name to
@@ -803,6 +1005,13 @@ class Route53Resolver {
   /// Currently, only Resolver can create rules that have a value of
   /// <code>RECURSIVE</code> for <code>RuleType</code>.
   ///
+  /// Parameter [domainName] :
+  /// DNS queries for this domain name are forwarded to the IP addresses that
+  /// you specify in <code>TargetIps</code>. If a query matches multiple
+  /// Resolver rules (example.com and www.example.com), outbound DNS queries are
+  /// routed using the Resolver rule that contains the most specific domain name
+  /// (www.example.com).
+  ///
   /// Parameter [name] :
   /// A friendly name that lets you easily find a rule in the Resolver dashboard
   /// in the Route 53 console.
@@ -817,14 +1026,15 @@ class Route53Resolver {
   ///
   /// Parameter [targetIps] :
   /// The IPs that you want Resolver to forward DNS queries to. You can specify
-  /// only IPv4 addresses. Separate IP addresses with a space.
+  /// either Ipv4 or Ipv6 addresses but not both in the same rule. Separate IP
+  /// addresses with a space.
   ///
   /// <code>TargetIps</code> is available only when the value of <code>Rule
   /// type</code> is <code>FORWARD</code>.
   Future<CreateResolverRuleResponse> createResolverRule({
     required String creatorRequestId,
-    required String domainName,
     required RuleTypeOption ruleType,
+    String? domainName,
     String? name,
     String? resolverEndpointId,
     List<Tag>? tags,
@@ -842,8 +1052,8 @@ class Route53Resolver {
       headers: headers,
       payload: {
         'CreatorRequestId': creatorRequestId,
-        'DomainName': domainName,
-        'RuleType': ruleType.toValue(),
+        'RuleType': ruleType.value,
+        if (domainName != null) 'DomainName': domainName,
         if (name != null) 'Name': name,
         if (resolverEndpointId != null)
           'ResolverEndpointId': resolverEndpointId,
@@ -899,9 +1109,63 @@ class Route53Resolver {
   /// Parameter [firewallRuleGroupId] :
   /// The unique identifier of the firewall rule group that you want to delete
   /// the rule from.
+  ///
+  /// Parameter [qtype] :
+  /// The DNS query type that the rule you are deleting evaluates. Allowed
+  /// values are;
+  ///
+  /// <ul>
+  /// <li>
+  /// A: Returns an IPv4 address.
+  /// </li>
+  /// <li>
+  /// AAAA: Returns an Ipv6 address.
+  /// </li>
+  /// <li>
+  /// CAA: Restricts CAs that can create SSL/TLS certifications for the domain.
+  /// </li>
+  /// <li>
+  /// CNAME: Returns another domain name.
+  /// </li>
+  /// <li>
+  /// DS: Record that identifies the DNSSEC signing key of a delegated zone.
+  /// </li>
+  /// <li>
+  /// MX: Specifies mail servers.
+  /// </li>
+  /// <li>
+  /// NAPTR: Regular-expression-based rewriting of domain names.
+  /// </li>
+  /// <li>
+  /// NS: Authoritative name servers.
+  /// </li>
+  /// <li>
+  /// PTR: Maps an IP address to a domain name.
+  /// </li>
+  /// <li>
+  /// SOA: Start of authority record for the zone.
+  /// </li>
+  /// <li>
+  /// SPF: Lists the servers authorized to send emails from a domain.
+  /// </li>
+  /// <li>
+  /// SRV: Application specific values that identify servers.
+  /// </li>
+  /// <li>
+  /// TXT: Verifies email senders and application-specific values.
+  /// </li>
+  /// <li>
+  /// A query type you define by using the DNS type ID, for example 28 for AAAA.
+  /// The values must be defined as TYPENUMBER, where the NUMBER can be 1-65334,
+  /// for example, TYPE28. For more information, see <a
+  /// href="https://en.wikipedia.org/wiki/List_of_DNS_record_types">List of DNS
+  /// record types</a>.
+  /// </li>
+  /// </ul>
   Future<DeleteFirewallRuleResponse> deleteFirewallRule({
     required String firewallDomainListId,
     required String firewallRuleGroupId,
+    String? qtype,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -916,6 +1180,7 @@ class Route53Resolver {
       payload: {
         'FirewallDomainListId': firewallDomainListId,
         'FirewallRuleGroupId': firewallRuleGroupId,
+        if (qtype != null) 'Qtype': qtype,
       },
     );
 
@@ -952,6 +1217,38 @@ class Route53Resolver {
     );
 
     return DeleteFirewallRuleGroupResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Deletes a Resolver on the Outpost.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [id] :
+  /// A unique string that identifies the Resolver on the Outpost.
+  Future<DeleteOutpostResolverResponse> deleteOutpostResolver({
+    required String id,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Route53Resolver.DeleteOutpostResolver'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Id': id,
+      },
+    );
+
+    return DeleteOutpostResolverResponse.fromJson(jsonResponse.body);
   }
 
   /// Deletes a Resolver endpoint. The effect of deleting a Resolver endpoint
@@ -1414,6 +1711,38 @@ class Route53Resolver {
     return GetFirewallRuleGroupPolicyResponse.fromJson(jsonResponse.body);
   }
 
+  /// Gets information about a specified Resolver on the Outpost, such as its
+  /// instance count and type, name, and the current status of the Resolver.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [id] :
+  /// The ID of the Resolver on the Outpost.
+  Future<GetOutpostResolverResponse> getOutpostResolver({
+    required String id,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Route53Resolver.GetOutpostResolver'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Id': id,
+      },
+    );
+
+    return GetOutpostResolverResponse.fromJson(jsonResponse.body);
+  }
+
   /// Retrieves the behavior configuration of Route 53 Resolver behavior for a
   /// single VPC from Amazon Virtual Private Cloud.
   ///
@@ -1782,7 +2111,7 @@ class Route53Resolver {
       payload: {
         'DomainFileUrl': domainFileUrl,
         'FirewallDomainListId': firewallDomainListId,
-        'Operation': operation.toValue(),
+        'Operation': operation.value,
       },
     );
 
@@ -2046,7 +2375,7 @@ class Route53Resolver {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (priority != null) 'Priority': priority,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
         if (vpcId != null) 'VpcId': vpcId,
       },
     );
@@ -2199,7 +2528,7 @@ class Route53Resolver {
       headers: headers,
       payload: {
         'FirewallRuleGroupId': firewallRuleGroupId,
-        if (action != null) 'Action': action.toValue(),
+        if (action != null) 'Action': action.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (priority != null) 'Priority': priority,
@@ -2207,6 +2536,58 @@ class Route53Resolver {
     );
 
     return ListFirewallRulesResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Lists all the Resolvers on Outposts that were created using the current
+  /// Amazon Web Services account.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of Resolvers on the Outpost that you want to return in
+  /// the response to a <code>ListOutpostResolver</code> request. If you don't
+  /// specify a value for <code>MaxResults</code>, the request returns up to 100
+  /// Resolvers.
+  ///
+  /// Parameter [nextToken] :
+  /// For the first <code>ListOutpostResolver</code> request, omit this value.
+  /// <p/>
+  ///
+  /// Parameter [outpostArn] :
+  /// The Amazon Resource Name (ARN) of the Outpost.
+  Future<ListOutpostResolversResponse> listOutpostResolvers({
+    int? maxResults,
+    String? nextToken,
+    String? outpostArn,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Route53Resolver.ListOutpostResolvers'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+        if (outpostArn != null) 'OutpostArn': outpostArn,
+      },
+    );
+
+    return ListOutpostResolversResponse.fromJson(jsonResponse.body);
   }
 
   /// Retrieves the Resolver configurations that you have defined. Route 53
@@ -2597,7 +2978,7 @@ class Route53Resolver {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (sortBy != null) 'SortBy': sortBy,
-        if (sortOrder != null) 'SortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'SortOrder': sortOrder.value,
       },
     );
 
@@ -2759,7 +3140,7 @@ class Route53Resolver {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (sortBy != null) 'SortBy': sortBy,
-        if (sortOrder != null) 'SortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'SortOrder': sortOrder.value,
       },
     );
 
@@ -3016,9 +3397,6 @@ class Route53Resolver {
   /// </li>
   /// <li>
   /// <code>route53resolver:DisassociateResolverQueryLogConfig</code>
-  /// </li>
-  /// <li>
-  /// <code>route53resolver:ListResolverQueryLogConfigAssociations</code>
   /// </li>
   /// <li>
   /// <code>route53resolver:ListResolverQueryLogConfigs</code>
@@ -3289,7 +3667,7 @@ class Route53Resolver {
       // TODO queryParams
       headers: headers,
       payload: {
-        'FirewallFailOpen': firewallFailOpen.toValue(),
+        'FirewallFailOpen': firewallFailOpen.value,
         'ResourceId': resourceId,
       },
     );
@@ -3367,7 +3745,7 @@ class Route53Resolver {
       payload: {
         'Domains': domains,
         'FirewallDomainListId': firewallDomainListId,
-        'Operation': operation.toValue(),
+        'Operation': operation.value,
       },
     );
 
@@ -3444,6 +3822,18 @@ class Route53Resolver {
   /// </li>
   /// </ul>
   ///
+  /// Parameter [firewallDomainRedirectionAction] :
+  /// How you want the the rule to evaluate DNS redirection in the DNS
+  /// redirection chain, such as CNAME or DNAME.
+  ///
+  /// <code>Inspect_Redirection_Domain </code>(Default) inspects all domains in
+  /// the redirection chain. The individual domains in the redirection chain
+  /// must be added to the domain list.
+  ///
+  /// <code>Trust_Redirection_Domain </code> inspects only the first domain in
+  /// the redirection chain. You don't need to add the subsequent domains in the
+  /// domain in the redirection list to the domain list.
+  ///
   /// Parameter [name] :
   /// The name of the rule.
   ///
@@ -3456,6 +3846,58 @@ class Route53Resolver {
   /// it easier to insert rules later, leave space between the numbers, for
   /// example, use 100, 200, and so on. You can change the priority setting for
   /// the rules in a rule group at any time.
+  ///
+  /// Parameter [qtype] :
+  /// The DNS query type you want the rule to evaluate. Allowed values are;
+  ///
+  /// <ul>
+  /// <li>
+  /// A: Returns an IPv4 address.
+  /// </li>
+  /// <li>
+  /// AAAA: Returns an Ipv6 address.
+  /// </li>
+  /// <li>
+  /// CAA: Restricts CAs that can create SSL/TLS certifications for the domain.
+  /// </li>
+  /// <li>
+  /// CNAME: Returns another domain name.
+  /// </li>
+  /// <li>
+  /// DS: Record that identifies the DNSSEC signing key of a delegated zone.
+  /// </li>
+  /// <li>
+  /// MX: Specifies mail servers.
+  /// </li>
+  /// <li>
+  /// NAPTR: Regular-expression-based rewriting of domain names.
+  /// </li>
+  /// <li>
+  /// NS: Authoritative name servers.
+  /// </li>
+  /// <li>
+  /// PTR: Maps an IP address to a domain name.
+  /// </li>
+  /// <li>
+  /// SOA: Start of authority record for the zone.
+  /// </li>
+  /// <li>
+  /// SPF: Lists the servers authorized to send emails from a domain.
+  /// </li>
+  /// <li>
+  /// SRV: Application specific values that identify servers.
+  /// </li>
+  /// <li>
+  /// TXT: Verifies email senders and application-specific values.
+  /// </li>
+  /// <li>
+  /// A query type you define by using the DNS type ID, for example 28 for AAAA.
+  /// The values must be defined as TYPENUMBER, where the NUMBER can be 1-65334,
+  /// for example, TYPE28. For more information, see <a
+  /// href="https://en.wikipedia.org/wiki/List_of_DNS_record_types">List of DNS
+  /// record types</a>.
+  /// </li>
+  /// </ul>
   Future<UpdateFirewallRuleResponse> updateFirewallRule({
     required String firewallDomainListId,
     required String firewallRuleGroupId,
@@ -3464,8 +3906,10 @@ class Route53Resolver {
     String? blockOverrideDomain,
     int? blockOverrideTtl,
     BlockResponse? blockResponse,
+    FirewallDomainRedirectionAction? firewallDomainRedirectionAction,
     String? name,
     int? priority,
+    String? qtype,
   }) async {
     _s.validateNumRange(
       'blockOverrideTtl',
@@ -3486,15 +3930,19 @@ class Route53Resolver {
       payload: {
         'FirewallDomainListId': firewallDomainListId,
         'FirewallRuleGroupId': firewallRuleGroupId,
-        if (action != null) 'Action': action.toValue(),
+        if (action != null) 'Action': action.value,
         if (blockOverrideDnsType != null)
-          'BlockOverrideDnsType': blockOverrideDnsType.toValue(),
+          'BlockOverrideDnsType': blockOverrideDnsType.value,
         if (blockOverrideDomain != null)
           'BlockOverrideDomain': blockOverrideDomain,
         if (blockOverrideTtl != null) 'BlockOverrideTtl': blockOverrideTtl,
-        if (blockResponse != null) 'BlockResponse': blockResponse.toValue(),
+        if (blockResponse != null) 'BlockResponse': blockResponse.value,
+        if (firewallDomainRedirectionAction != null)
+          'FirewallDomainRedirectionAction':
+              firewallDomainRedirectionAction.value,
         if (name != null) 'Name': name,
         if (priority != null) 'Priority': priority,
+        if (qtype != null) 'Qtype': qtype,
       },
     );
 
@@ -3553,7 +4001,7 @@ class Route53Resolver {
       payload: {
         'FirewallRuleGroupAssociationId': firewallRuleGroupAssociationId,
         if (mutationProtection != null)
-          'MutationProtection': mutationProtection.toValue(),
+          'MutationProtection': mutationProtection.value,
         if (name != null) 'Name': name,
         if (priority != null) 'Priority': priority,
       },
@@ -3561,6 +4009,56 @@ class Route53Resolver {
 
     return UpdateFirewallRuleGroupAssociationResponse.fromJson(
         jsonResponse.body);
+  }
+
+  /// You can use <code>UpdateOutpostResolver</code> to update the instance
+  /// count, type, or name of a Resolver on an Outpost.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [id] :
+  /// A unique string that identifies Resolver on an Outpost.
+  ///
+  /// Parameter [instanceCount] :
+  /// The Amazon EC2 instance count for a Resolver on the Outpost.
+  ///
+  /// Parameter [name] :
+  /// Name of the Resolver on the Outpost.
+  ///
+  /// Parameter [preferredInstanceType] :
+  /// Amazon EC2 instance type.
+  Future<UpdateOutpostResolverResponse> updateOutpostResolver({
+    required String id,
+    int? instanceCount,
+    String? name,
+    String? preferredInstanceType,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Route53Resolver.UpdateOutpostResolver'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Id': id,
+        if (instanceCount != null) 'InstanceCount': instanceCount,
+        if (name != null) 'Name': name,
+        if (preferredInstanceType != null)
+          'PreferredInstanceType': preferredInstanceType,
+      },
+    );
+
+    return UpdateOutpostResolverResponse.fromJson(jsonResponse.body);
   }
 
   /// Updates the behavior configuration of Route 53 Resolver behavior for a
@@ -3613,7 +4111,7 @@ class Route53Resolver {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AutodefinedReverseFlag': autodefinedReverseFlag.toValue(),
+        'AutodefinedReverseFlag': autodefinedReverseFlag.value,
         'ResourceId': resourceId,
       },
     );
@@ -3655,20 +4153,21 @@ class Route53Resolver {
       headers: headers,
       payload: {
         'ResourceId': resourceId,
-        'Validation': validation.toValue(),
+        'Validation': validation.value,
       },
     );
 
     return UpdateResolverDnssecConfigResponse.fromJson(jsonResponse.body);
   }
 
-  /// Updates the name, or enpoint type for an inbound or an outbound Resolver
+  /// Updates the name, or endpoint type for an inbound or an outbound Resolver
   /// endpoint. You can only update between IPV4 and DUALSTACK, IPV6 endpoint
   /// type can't be updated to other type.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [InvalidParameterException].
   /// May throw [InvalidRequestException].
+  /// May throw [AccessDeniedException].
   /// May throw [InternalServiceErrorException].
   /// May throw [ThrottlingException].
   ///
@@ -3678,15 +4177,70 @@ class Route53Resolver {
   /// Parameter [name] :
   /// The name of the Resolver endpoint that you want to update.
   ///
+  /// Parameter [protocols] :
+  /// The protocols you want to use for the endpoint. DoH-FIPS is applicable for
+  /// inbound endpoints only.
+  ///
+  /// For an inbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 and DoH-FIPS in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// DoH-FIPS alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul>
+  /// For an outbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul> <important>
+  /// You can't change the protocol of an inbound endpoint directly from only
+  /// Do53 to only DoH, or DoH-FIPS. This is to prevent a sudden disruption to
+  /// incoming traffic that relies on Do53. To change the protocol from Do53 to
+  /// DoH, or DoH-FIPS, you must first enable both Do53 and DoH, or Do53 and
+  /// DoH-FIPS, to make sure that all incoming traffic has transferred to using
+  /// the DoH protocol, or DoH-FIPS, and then remove the Do53.
+  /// </important>
+  ///
   /// Parameter [resolverEndpointType] :
   /// Specifies the endpoint type for what type of IP address the endpoint uses
   /// to forward DNS queries.
   ///
+  /// Updating to <code>IPV6</code> type isn't currently supported.
+  ///
   /// Parameter [updateIpAddresses] :
-  /// Updates the Resolver endpoint type to IpV4, Ipv6, or dual-stack.
+  /// Specifies the IPv6 address when you update the Resolver endpoint from IPv4
+  /// to dual-stack. If you don't specify an IPv6 address, one will be
+  /// automatically chosen from your subnet.
   Future<UpdateResolverEndpointResponse> updateResolverEndpoint({
     required String resolverEndpointId,
     String? name,
+    List<Protocol>? protocols,
     ResolverEndpointType? resolverEndpointType,
     List<UpdateIpAddress>? updateIpAddresses,
   }) async {
@@ -3703,8 +4257,10 @@ class Route53Resolver {
       payload: {
         'ResolverEndpointId': resolverEndpointId,
         if (name != null) 'Name': name,
+        if (protocols != null)
+          'Protocols': protocols.map((e) => e.value).toList(),
         if (resolverEndpointType != null)
-          'ResolverEndpointType': resolverEndpointType.toValue(),
+          'ResolverEndpointType': resolverEndpointType.value,
         if (updateIpAddresses != null) 'UpdateIpAddresses': updateIpAddresses,
       },
     );
@@ -3723,6 +4279,7 @@ class Route53Resolver {
   /// May throw [LimitExceededException].
   /// May throw [InternalServiceErrorException].
   /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [config] :
   /// The new settings for the Resolver rule.
@@ -3754,36 +4311,18 @@ class Route53Resolver {
 }
 
 enum Action {
-  allow,
-  block,
-  alert,
-}
+  allow('ALLOW'),
+  block('BLOCK'),
+  alert('ALERT'),
+  ;
 
-extension ActionValueExtension on Action {
-  String toValue() {
-    switch (this) {
-      case Action.allow:
-        return 'ALLOW';
-      case Action.block:
-        return 'BLOCK';
-      case Action.alert:
-        return 'ALERT';
-    }
-  }
-}
+  final String value;
 
-extension ActionFromString on String {
-  Action toAction() {
-    switch (this) {
-      case 'ALLOW':
-        return Action.allow;
-      case 'BLOCK':
-        return Action.block;
-      case 'ALERT':
-        return Action.alert;
-    }
-    throw Exception('$this is not known in enum Action');
-  }
+  const Action(this.value);
+
+  static Action fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Action'));
 }
 
 class AssociateFirewallRuleGroupResponse {
@@ -3899,92 +4438,49 @@ class AssociateResolverRuleResponse {
 }
 
 enum AutodefinedReverseFlag {
-  enable,
-  disable,
-  useLocalResourceSetting,
-}
+  enable('ENABLE'),
+  disable('DISABLE'),
+  useLocalResourceSetting('USE_LOCAL_RESOURCE_SETTING'),
+  ;
 
-extension AutodefinedReverseFlagValueExtension on AutodefinedReverseFlag {
-  String toValue() {
-    switch (this) {
-      case AutodefinedReverseFlag.enable:
-        return 'ENABLE';
-      case AutodefinedReverseFlag.disable:
-        return 'DISABLE';
-      case AutodefinedReverseFlag.useLocalResourceSetting:
-        return 'USE_LOCAL_RESOURCE_SETTING';
-    }
-  }
-}
+  final String value;
 
-extension AutodefinedReverseFlagFromString on String {
-  AutodefinedReverseFlag toAutodefinedReverseFlag() {
-    switch (this) {
-      case 'ENABLE':
-        return AutodefinedReverseFlag.enable;
-      case 'DISABLE':
-        return AutodefinedReverseFlag.disable;
-      case 'USE_LOCAL_RESOURCE_SETTING':
-        return AutodefinedReverseFlag.useLocalResourceSetting;
-    }
-    throw Exception('$this is not known in enum AutodefinedReverseFlag');
-  }
+  const AutodefinedReverseFlag(this.value);
+
+  static AutodefinedReverseFlag fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AutodefinedReverseFlag'));
 }
 
 enum BlockOverrideDnsType {
-  cname,
-}
+  cname('CNAME'),
+  ;
 
-extension BlockOverrideDnsTypeValueExtension on BlockOverrideDnsType {
-  String toValue() {
-    switch (this) {
-      case BlockOverrideDnsType.cname:
-        return 'CNAME';
-    }
-  }
-}
+  final String value;
 
-extension BlockOverrideDnsTypeFromString on String {
-  BlockOverrideDnsType toBlockOverrideDnsType() {
-    switch (this) {
-      case 'CNAME':
-        return BlockOverrideDnsType.cname;
-    }
-    throw Exception('$this is not known in enum BlockOverrideDnsType');
-  }
+  const BlockOverrideDnsType(this.value);
+
+  static BlockOverrideDnsType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum BlockOverrideDnsType'));
 }
 
 enum BlockResponse {
-  nodata,
-  nxdomain,
-  override,
-}
+  nodata('NODATA'),
+  nxdomain('NXDOMAIN'),
+  override('OVERRIDE'),
+  ;
 
-extension BlockResponseValueExtension on BlockResponse {
-  String toValue() {
-    switch (this) {
-      case BlockResponse.nodata:
-        return 'NODATA';
-      case BlockResponse.nxdomain:
-        return 'NXDOMAIN';
-      case BlockResponse.override:
-        return 'OVERRIDE';
-    }
-  }
-}
+  final String value;
 
-extension BlockResponseFromString on String {
-  BlockResponse toBlockResponse() {
-    switch (this) {
-      case 'NODATA':
-        return BlockResponse.nodata;
-      case 'NXDOMAIN':
-        return BlockResponse.nxdomain;
-      case 'OVERRIDE':
-        return BlockResponse.override;
-    }
-    throw Exception('$this is not known in enum BlockResponse');
-  }
+  const BlockResponse(this.value);
+
+  static BlockResponse fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BlockResponse'));
 }
 
 class CreateFirewallDomainListResponse {
@@ -4057,6 +4553,32 @@ class CreateFirewallRuleResponse {
     final firewallRule = this.firewallRule;
     return {
       if (firewallRule != null) 'FirewallRule': firewallRule,
+    };
+  }
+}
+
+class CreateOutpostResolverResponse {
+  /// Information about the <code>CreateOutpostResolver</code> request, including
+  /// the status of the request.
+  final OutpostResolver? outpostResolver;
+
+  CreateOutpostResolverResponse({
+    this.outpostResolver,
+  });
+
+  factory CreateOutpostResolverResponse.fromJson(Map<String, dynamic> json) {
+    return CreateOutpostResolverResponse(
+      outpostResolver: json['OutpostResolver'] != null
+          ? OutpostResolver.fromJson(
+              json['OutpostResolver'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final outpostResolver = this.outpostResolver;
+    return {
+      if (outpostResolver != null) 'OutpostResolver': outpostResolver,
     };
   }
 }
@@ -4210,6 +4732,32 @@ class DeleteFirewallRuleResponse {
     final firewallRule = this.firewallRule;
     return {
       if (firewallRule != null) 'FirewallRule': firewallRule,
+    };
+  }
+}
+
+class DeleteOutpostResolverResponse {
+  /// Information about the <code>DeleteOutpostResolver</code> request, including
+  /// the status of the request.
+  final OutpostResolver? outpostResolver;
+
+  DeleteOutpostResolverResponse({
+    this.outpostResolver,
+  });
+
+  factory DeleteOutpostResolverResponse.fromJson(Map<String, dynamic> json) {
+    return DeleteOutpostResolverResponse(
+      outpostResolver: json['OutpostResolver'] != null
+          ? OutpostResolver.fromJson(
+              json['OutpostResolver'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final outpostResolver = this.outpostResolver;
+    return {
+      if (outpostResolver != null) 'OutpostResolver': outpostResolver,
     };
   }
 }
@@ -4722,8 +5270,8 @@ class FirewallConfig {
 
   factory FirewallConfig.fromJson(Map<String, dynamic> json) {
     return FirewallConfig(
-      firewallFailOpen:
-          (json['FirewallFailOpen'] as String?)?.toFirewallFailOpenStatus(),
+      firewallFailOpen: (json['FirewallFailOpen'] as String?)
+          ?.let(FirewallFailOpenStatus.fromString),
       id: json['Id'] as String?,
       ownerId: json['OwnerId'] as String?,
       resourceId: json['ResourceId'] as String?,
@@ -4736,8 +5284,7 @@ class FirewallConfig {
     final ownerId = this.ownerId;
     final resourceId = this.resourceId;
     return {
-      if (firewallFailOpen != null)
-        'FirewallFailOpen': firewallFailOpen.toValue(),
+      if (firewallFailOpen != null) 'FirewallFailOpen': firewallFailOpen.value,
       if (id != null) 'Id': id,
       if (ownerId != null) 'OwnerId': ownerId,
       if (resourceId != null) 'ResourceId': resourceId,
@@ -4746,27 +5293,17 @@ class FirewallConfig {
 }
 
 enum FirewallDomainImportOperation {
-  replace,
-}
+  replace('REPLACE'),
+  ;
 
-extension FirewallDomainImportOperationValueExtension
-    on FirewallDomainImportOperation {
-  String toValue() {
-    switch (this) {
-      case FirewallDomainImportOperation.replace:
-        return 'REPLACE';
-    }
-  }
-}
+  final String value;
 
-extension FirewallDomainImportOperationFromString on String {
-  FirewallDomainImportOperation toFirewallDomainImportOperation() {
-    switch (this) {
-      case 'REPLACE':
-        return FirewallDomainImportOperation.replace;
-    }
-    throw Exception('$this is not known in enum FirewallDomainImportOperation');
-  }
+  const FirewallDomainImportOperation(this.value);
+
+  static FirewallDomainImportOperation fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallDomainImportOperation'));
 }
 
 /// High-level information about a list of firewall domains for use in a
@@ -4835,7 +5372,8 @@ class FirewallDomainList {
       managedOwnerName: json['ManagedOwnerName'] as String?,
       modificationTime: json['ModificationTime'] as String?,
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toFirewallDomainListStatus(),
+      status:
+          (json['Status'] as String?)?.let(FirewallDomainListStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
     );
   }
@@ -4860,7 +5398,7 @@ class FirewallDomainList {
       if (managedOwnerName != null) 'ManagedOwnerName': managedOwnerName,
       if (modificationTime != null) 'ModificationTime': modificationTime,
       if (name != null) 'Name': name,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
     };
   }
@@ -4927,113 +5465,68 @@ class FirewallDomainListMetadata {
 }
 
 enum FirewallDomainListStatus {
-  complete,
-  completeImportFailed,
-  importing,
-  deleting,
-  updating,
+  complete('COMPLETE'),
+  completeImportFailed('COMPLETE_IMPORT_FAILED'),
+  importing('IMPORTING'),
+  deleting('DELETING'),
+  updating('UPDATING'),
+  ;
+
+  final String value;
+
+  const FirewallDomainListStatus(this.value);
+
+  static FirewallDomainListStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallDomainListStatus'));
 }
 
-extension FirewallDomainListStatusValueExtension on FirewallDomainListStatus {
-  String toValue() {
-    switch (this) {
-      case FirewallDomainListStatus.complete:
-        return 'COMPLETE';
-      case FirewallDomainListStatus.completeImportFailed:
-        return 'COMPLETE_IMPORT_FAILED';
-      case FirewallDomainListStatus.importing:
-        return 'IMPORTING';
-      case FirewallDomainListStatus.deleting:
-        return 'DELETING';
-      case FirewallDomainListStatus.updating:
-        return 'UPDATING';
-    }
-  }
-}
+enum FirewallDomainRedirectionAction {
+  inspectRedirectionDomain('INSPECT_REDIRECTION_DOMAIN'),
+  trustRedirectionDomain('TRUST_REDIRECTION_DOMAIN'),
+  ;
 
-extension FirewallDomainListStatusFromString on String {
-  FirewallDomainListStatus toFirewallDomainListStatus() {
-    switch (this) {
-      case 'COMPLETE':
-        return FirewallDomainListStatus.complete;
-      case 'COMPLETE_IMPORT_FAILED':
-        return FirewallDomainListStatus.completeImportFailed;
-      case 'IMPORTING':
-        return FirewallDomainListStatus.importing;
-      case 'DELETING':
-        return FirewallDomainListStatus.deleting;
-      case 'UPDATING':
-        return FirewallDomainListStatus.updating;
-    }
-    throw Exception('$this is not known in enum FirewallDomainListStatus');
-  }
+  final String value;
+
+  const FirewallDomainRedirectionAction(this.value);
+
+  static FirewallDomainRedirectionAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallDomainRedirectionAction'));
 }
 
 enum FirewallDomainUpdateOperation {
-  add,
-  remove,
-  replace,
-}
+  add('ADD'),
+  remove('REMOVE'),
+  replace('REPLACE'),
+  ;
 
-extension FirewallDomainUpdateOperationValueExtension
-    on FirewallDomainUpdateOperation {
-  String toValue() {
-    switch (this) {
-      case FirewallDomainUpdateOperation.add:
-        return 'ADD';
-      case FirewallDomainUpdateOperation.remove:
-        return 'REMOVE';
-      case FirewallDomainUpdateOperation.replace:
-        return 'REPLACE';
-    }
-  }
-}
+  final String value;
 
-extension FirewallDomainUpdateOperationFromString on String {
-  FirewallDomainUpdateOperation toFirewallDomainUpdateOperation() {
-    switch (this) {
-      case 'ADD':
-        return FirewallDomainUpdateOperation.add;
-      case 'REMOVE':
-        return FirewallDomainUpdateOperation.remove;
-      case 'REPLACE':
-        return FirewallDomainUpdateOperation.replace;
-    }
-    throw Exception('$this is not known in enum FirewallDomainUpdateOperation');
-  }
+  const FirewallDomainUpdateOperation(this.value);
+
+  static FirewallDomainUpdateOperation fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallDomainUpdateOperation'));
 }
 
 enum FirewallFailOpenStatus {
-  enabled,
-  disabled,
-  useLocalResourceSetting,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  useLocalResourceSetting('USE_LOCAL_RESOURCE_SETTING'),
+  ;
 
-extension FirewallFailOpenStatusValueExtension on FirewallFailOpenStatus {
-  String toValue() {
-    switch (this) {
-      case FirewallFailOpenStatus.enabled:
-        return 'ENABLED';
-      case FirewallFailOpenStatus.disabled:
-        return 'DISABLED';
-      case FirewallFailOpenStatus.useLocalResourceSetting:
-        return 'USE_LOCAL_RESOURCE_SETTING';
-    }
-  }
-}
+  final String value;
 
-extension FirewallFailOpenStatusFromString on String {
-  FirewallFailOpenStatus toFirewallFailOpenStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return FirewallFailOpenStatus.enabled;
-      case 'DISABLED':
-        return FirewallFailOpenStatus.disabled;
-      case 'USE_LOCAL_RESOURCE_SETTING':
-        return FirewallFailOpenStatus.useLocalResourceSetting;
-    }
-    throw Exception('$this is not known in enum FirewallFailOpenStatus');
-  }
+  const FirewallFailOpenStatus(this.value);
+
+  static FirewallFailOpenStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallFailOpenStatus'));
 }
 
 /// A single firewall rule in a rule group.
@@ -5106,6 +5599,18 @@ class FirewallRule {
   /// The ID of the domain list that's used in the rule.
   final String? firewallDomainListId;
 
+  /// How you want the the rule to evaluate DNS redirection in the DNS redirection
+  /// chain, such as CNAME or DNAME.
+  ///
+  /// <code>Inspect_Redirection_Domain </code>(Default) inspects all domains in
+  /// the redirection chain. The individual domains in the redirection chain must
+  /// be added to the domain list.
+  ///
+  /// <code>Trust_Redirection_Domain </code> inspects only the first domain in the
+  /// redirection chain. You don't need to add the subsequent domains in the
+  /// domain in the redirection list to the domain list.
+  final FirewallDomainRedirectionAction? firewallDomainRedirectionAction;
+
   /// The unique identifier of the firewall rule group of the rule.
   final String? firewallRuleGroupId;
 
@@ -5121,6 +5626,58 @@ class FirewallRule {
   /// priority, starting from the lowest setting.
   final int? priority;
 
+  /// The DNS query type you want the rule to evaluate. Allowed values are;
+  ///
+  /// <ul>
+  /// <li>
+  /// A: Returns an IPv4 address.
+  /// </li>
+  /// <li>
+  /// AAAA: Returns an Ipv6 address.
+  /// </li>
+  /// <li>
+  /// CAA: Restricts CAs that can create SSL/TLS certifications for the domain.
+  /// </li>
+  /// <li>
+  /// CNAME: Returns another domain name.
+  /// </li>
+  /// <li>
+  /// DS: Record that identifies the DNSSEC signing key of a delegated zone.
+  /// </li>
+  /// <li>
+  /// MX: Specifies mail servers.
+  /// </li>
+  /// <li>
+  /// NAPTR: Regular-expression-based rewriting of domain names.
+  /// </li>
+  /// <li>
+  /// NS: Authoritative name servers.
+  /// </li>
+  /// <li>
+  /// PTR: Maps an IP address to a domain name.
+  /// </li>
+  /// <li>
+  /// SOA: Start of authority record for the zone.
+  /// </li>
+  /// <li>
+  /// SPF: Lists the servers authorized to send emails from a domain.
+  /// </li>
+  /// <li>
+  /// SRV: Application specific values that identify servers.
+  /// </li>
+  /// <li>
+  /// TXT: Verifies email senders and application-specific values.
+  /// </li>
+  /// <li>
+  /// A query type you define by using the DNS type ID, for example 28 for AAAA.
+  /// The values must be defined as TYPENUMBER, where the NUMBER can be 1-65334,
+  /// for example, TYPE28. For more information, see <a
+  /// href="https://en.wikipedia.org/wiki/List_of_DNS_record_types">List of DNS
+  /// record types</a>.
+  /// </li>
+  /// </ul>
+  final String? qtype;
+
   FirewallRule({
     this.action,
     this.blockOverrideDnsType,
@@ -5130,27 +5687,34 @@ class FirewallRule {
     this.creationTime,
     this.creatorRequestId,
     this.firewallDomainListId,
+    this.firewallDomainRedirectionAction,
     this.firewallRuleGroupId,
     this.modificationTime,
     this.name,
     this.priority,
+    this.qtype,
   });
 
   factory FirewallRule.fromJson(Map<String, dynamic> json) {
     return FirewallRule(
-      action: (json['Action'] as String?)?.toAction(),
-      blockOverrideDnsType:
-          (json['BlockOverrideDnsType'] as String?)?.toBlockOverrideDnsType(),
+      action: (json['Action'] as String?)?.let(Action.fromString),
+      blockOverrideDnsType: (json['BlockOverrideDnsType'] as String?)
+          ?.let(BlockOverrideDnsType.fromString),
       blockOverrideDomain: json['BlockOverrideDomain'] as String?,
       blockOverrideTtl: json['BlockOverrideTtl'] as int?,
-      blockResponse: (json['BlockResponse'] as String?)?.toBlockResponse(),
+      blockResponse:
+          (json['BlockResponse'] as String?)?.let(BlockResponse.fromString),
       creationTime: json['CreationTime'] as String?,
       creatorRequestId: json['CreatorRequestId'] as String?,
       firewallDomainListId: json['FirewallDomainListId'] as String?,
+      firewallDomainRedirectionAction:
+          (json['FirewallDomainRedirectionAction'] as String?)
+              ?.let(FirewallDomainRedirectionAction.fromString),
       firewallRuleGroupId: json['FirewallRuleGroupId'] as String?,
       modificationTime: json['ModificationTime'] as String?,
       name: json['Name'] as String?,
       priority: json['Priority'] as int?,
+      qtype: json['Qtype'] as String?,
     );
   }
 
@@ -5163,27 +5727,34 @@ class FirewallRule {
     final creationTime = this.creationTime;
     final creatorRequestId = this.creatorRequestId;
     final firewallDomainListId = this.firewallDomainListId;
+    final firewallDomainRedirectionAction =
+        this.firewallDomainRedirectionAction;
     final firewallRuleGroupId = this.firewallRuleGroupId;
     final modificationTime = this.modificationTime;
     final name = this.name;
     final priority = this.priority;
+    final qtype = this.qtype;
     return {
-      if (action != null) 'Action': action.toValue(),
+      if (action != null) 'Action': action.value,
       if (blockOverrideDnsType != null)
-        'BlockOverrideDnsType': blockOverrideDnsType.toValue(),
+        'BlockOverrideDnsType': blockOverrideDnsType.value,
       if (blockOverrideDomain != null)
         'BlockOverrideDomain': blockOverrideDomain,
       if (blockOverrideTtl != null) 'BlockOverrideTtl': blockOverrideTtl,
-      if (blockResponse != null) 'BlockResponse': blockResponse.toValue(),
+      if (blockResponse != null) 'BlockResponse': blockResponse.value,
       if (creationTime != null) 'CreationTime': creationTime,
       if (creatorRequestId != null) 'CreatorRequestId': creatorRequestId,
       if (firewallDomainListId != null)
         'FirewallDomainListId': firewallDomainListId,
+      if (firewallDomainRedirectionAction != null)
+        'FirewallDomainRedirectionAction':
+            firewallDomainRedirectionAction.value,
       if (firewallRuleGroupId != null)
         'FirewallRuleGroupId': firewallRuleGroupId,
       if (modificationTime != null) 'ModificationTime': modificationTime,
       if (name != null) 'Name': name,
       if (priority != null) 'Priority': priority,
+      if (qtype != null) 'Qtype': qtype,
     };
   }
 }
@@ -5258,8 +5829,10 @@ class FirewallRuleGroup {
       name: json['Name'] as String?,
       ownerId: json['OwnerId'] as String?,
       ruleCount: json['RuleCount'] as int?,
-      shareStatus: (json['ShareStatus'] as String?)?.toShareStatus(),
-      status: (json['Status'] as String?)?.toFirewallRuleGroupStatus(),
+      shareStatus:
+          (json['ShareStatus'] as String?)?.let(ShareStatus.fromString),
+      status:
+          (json['Status'] as String?)?.let(FirewallRuleGroupStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
     );
   }
@@ -5285,8 +5858,8 @@ class FirewallRuleGroup {
       if (name != null) 'Name': name,
       if (ownerId != null) 'OwnerId': ownerId,
       if (ruleCount != null) 'RuleCount': ruleCount,
-      if (shareStatus != null) 'ShareStatus': shareStatus.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (shareStatus != null) 'ShareStatus': shareStatus.value,
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
     };
   }
@@ -5369,12 +5942,12 @@ class FirewallRuleGroupAssociation {
       id: json['Id'] as String?,
       managedOwnerName: json['ManagedOwnerName'] as String?,
       modificationTime: json['ModificationTime'] as String?,
-      mutationProtection:
-          (json['MutationProtection'] as String?)?.toMutationProtectionStatus(),
+      mutationProtection: (json['MutationProtection'] as String?)
+          ?.let(MutationProtectionStatus.fromString),
       name: json['Name'] as String?,
       priority: json['Priority'] as int?,
-      status:
-          (json['Status'] as String?)?.toFirewallRuleGroupAssociationStatus(),
+      status: (json['Status'] as String?)
+          ?.let(FirewallRuleGroupAssociationStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       vpcId: json['VpcId'] as String?,
     );
@@ -5404,10 +5977,10 @@ class FirewallRuleGroupAssociation {
       if (managedOwnerName != null) 'ManagedOwnerName': managedOwnerName,
       if (modificationTime != null) 'ModificationTime': modificationTime,
       if (mutationProtection != null)
-        'MutationProtection': mutationProtection.toValue(),
+        'MutationProtection': mutationProtection.value,
       if (name != null) 'Name': name,
       if (priority != null) 'Priority': priority,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
       if (vpcId != null) 'VpcId': vpcId,
     };
@@ -5415,38 +5988,19 @@ class FirewallRuleGroupAssociation {
 }
 
 enum FirewallRuleGroupAssociationStatus {
-  complete,
-  deleting,
-  updating,
-}
+  complete('COMPLETE'),
+  deleting('DELETING'),
+  updating('UPDATING'),
+  ;
 
-extension FirewallRuleGroupAssociationStatusValueExtension
-    on FirewallRuleGroupAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case FirewallRuleGroupAssociationStatus.complete:
-        return 'COMPLETE';
-      case FirewallRuleGroupAssociationStatus.deleting:
-        return 'DELETING';
-      case FirewallRuleGroupAssociationStatus.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension FirewallRuleGroupAssociationStatusFromString on String {
-  FirewallRuleGroupAssociationStatus toFirewallRuleGroupAssociationStatus() {
-    switch (this) {
-      case 'COMPLETE':
-        return FirewallRuleGroupAssociationStatus.complete;
-      case 'DELETING':
-        return FirewallRuleGroupAssociationStatus.deleting;
-      case 'UPDATING':
-        return FirewallRuleGroupAssociationStatus.updating;
-    }
-    throw Exception(
-        '$this is not known in enum FirewallRuleGroupAssociationStatus');
-  }
+  const FirewallRuleGroupAssociationStatus(this.value);
+
+  static FirewallRuleGroupAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallRuleGroupAssociationStatus'));
 }
 
 /// Minimal high-level information for a firewall rule group. The action
@@ -5495,7 +6049,8 @@ class FirewallRuleGroupMetadata {
       id: json['Id'] as String?,
       name: json['Name'] as String?,
       ownerId: json['OwnerId'] as String?,
-      shareStatus: (json['ShareStatus'] as String?)?.toShareStatus(),
+      shareStatus:
+          (json['ShareStatus'] as String?)?.let(ShareStatus.fromString),
     );
   }
 
@@ -5512,42 +6067,25 @@ class FirewallRuleGroupMetadata {
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
       if (ownerId != null) 'OwnerId': ownerId,
-      if (shareStatus != null) 'ShareStatus': shareStatus.toValue(),
+      if (shareStatus != null) 'ShareStatus': shareStatus.value,
     };
   }
 }
 
 enum FirewallRuleGroupStatus {
-  complete,
-  deleting,
-  updating,
-}
+  complete('COMPLETE'),
+  deleting('DELETING'),
+  updating('UPDATING'),
+  ;
 
-extension FirewallRuleGroupStatusValueExtension on FirewallRuleGroupStatus {
-  String toValue() {
-    switch (this) {
-      case FirewallRuleGroupStatus.complete:
-        return 'COMPLETE';
-      case FirewallRuleGroupStatus.deleting:
-        return 'DELETING';
-      case FirewallRuleGroupStatus.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension FirewallRuleGroupStatusFromString on String {
-  FirewallRuleGroupStatus toFirewallRuleGroupStatus() {
-    switch (this) {
-      case 'COMPLETE':
-        return FirewallRuleGroupStatus.complete;
-      case 'DELETING':
-        return FirewallRuleGroupStatus.deleting;
-      case 'UPDATING':
-        return FirewallRuleGroupStatus.updating;
-    }
-    throw Exception('$this is not known in enum FirewallRuleGroupStatus');
-  }
+  const FirewallRuleGroupStatus(this.value);
+
+  static FirewallRuleGroupStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallRuleGroupStatus'));
 }
 
 class GetFirewallConfigResponse {
@@ -5675,6 +6213,32 @@ class GetFirewallRuleGroupResponse {
     final firewallRuleGroup = this.firewallRuleGroup;
     return {
       if (firewallRuleGroup != null) 'FirewallRuleGroup': firewallRuleGroup,
+    };
+  }
+}
+
+class GetOutpostResolverResponse {
+  /// Information about the <code>GetOutpostResolver</code> request, including the
+  /// status of the request.
+  final OutpostResolver? outpostResolver;
+
+  GetOutpostResolverResponse({
+    this.outpostResolver,
+  });
+
+  factory GetOutpostResolverResponse.fromJson(Map<String, dynamic> json) {
+    return GetOutpostResolverResponse(
+      outpostResolver: json['OutpostResolver'] != null
+          ? OutpostResolver.fromJson(
+              json['OutpostResolver'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final outpostResolver = this.outpostResolver;
+    return {
+      if (outpostResolver != null) 'OutpostResolver': outpostResolver,
     };
   }
 }
@@ -5943,7 +6507,8 @@ class ImportFirewallDomainsResponse {
     return ImportFirewallDomainsResponse(
       id: json['Id'] as String?,
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toFirewallDomainListStatus(),
+      status:
+          (json['Status'] as String?)?.let(FirewallDomainListStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
     );
   }
@@ -5956,7 +6521,7 @@ class ImportFirewallDomainsResponse {
     return {
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
     };
   }
@@ -6046,7 +6611,7 @@ class IpAddressResponse {
       ipId: json['IpId'] as String?,
       ipv6: json['Ipv6'] as String?,
       modificationTime: json['ModificationTime'] as String?,
-      status: (json['Status'] as String?)?.toIpAddressStatus(),
+      status: (json['Status'] as String?)?.let(IpAddressStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       subnetId: json['SubnetId'] as String?,
     );
@@ -6067,7 +6632,7 @@ class IpAddressResponse {
       if (ipId != null) 'IpId': ipId,
       if (ipv6 != null) 'Ipv6': ipv6,
       if (modificationTime != null) 'ModificationTime': modificationTime,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
       if (subnetId != null) 'SubnetId': subnetId,
     };
@@ -6075,76 +6640,28 @@ class IpAddressResponse {
 }
 
 enum IpAddressStatus {
-  creating,
-  failedCreation,
-  attaching,
-  attached,
-  remapDetaching,
-  remapAttaching,
-  detaching,
-  failedResourceGone,
-  deleting,
-  deleteFailedFasExpired,
-  updating,
-}
+  creating('CREATING'),
+  failedCreation('FAILED_CREATION'),
+  attaching('ATTACHING'),
+  attached('ATTACHED'),
+  remapDetaching('REMAP_DETACHING'),
+  remapAttaching('REMAP_ATTACHING'),
+  detaching('DETACHING'),
+  failedResourceGone('FAILED_RESOURCE_GONE'),
+  deleting('DELETING'),
+  deleteFailedFasExpired('DELETE_FAILED_FAS_EXPIRED'),
+  updating('UPDATING'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension IpAddressStatusValueExtension on IpAddressStatus {
-  String toValue() {
-    switch (this) {
-      case IpAddressStatus.creating:
-        return 'CREATING';
-      case IpAddressStatus.failedCreation:
-        return 'FAILED_CREATION';
-      case IpAddressStatus.attaching:
-        return 'ATTACHING';
-      case IpAddressStatus.attached:
-        return 'ATTACHED';
-      case IpAddressStatus.remapDetaching:
-        return 'REMAP_DETACHING';
-      case IpAddressStatus.remapAttaching:
-        return 'REMAP_ATTACHING';
-      case IpAddressStatus.detaching:
-        return 'DETACHING';
-      case IpAddressStatus.failedResourceGone:
-        return 'FAILED_RESOURCE_GONE';
-      case IpAddressStatus.deleting:
-        return 'DELETING';
-      case IpAddressStatus.deleteFailedFasExpired:
-        return 'DELETE_FAILED_FAS_EXPIRED';
-      case IpAddressStatus.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension IpAddressStatusFromString on String {
-  IpAddressStatus toIpAddressStatus() {
-    switch (this) {
-      case 'CREATING':
-        return IpAddressStatus.creating;
-      case 'FAILED_CREATION':
-        return IpAddressStatus.failedCreation;
-      case 'ATTACHING':
-        return IpAddressStatus.attaching;
-      case 'ATTACHED':
-        return IpAddressStatus.attached;
-      case 'REMAP_DETACHING':
-        return IpAddressStatus.remapDetaching;
-      case 'REMAP_ATTACHING':
-        return IpAddressStatus.remapAttaching;
-      case 'DETACHING':
-        return IpAddressStatus.detaching;
-      case 'FAILED_RESOURCE_GONE':
-        return IpAddressStatus.failedResourceGone;
-      case 'DELETING':
-        return IpAddressStatus.deleting;
-      case 'DELETE_FAILED_FAS_EXPIRED':
-        return IpAddressStatus.deleteFailedFasExpired;
-      case 'UPDATING':
-        return IpAddressStatus.updating;
-    }
-    throw Exception('$this is not known in enum IpAddressStatus');
-  }
+  const IpAddressStatus(this.value);
+
+  static IpAddressStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IpAddressStatus'));
 }
 
 /// In an <a
@@ -6206,7 +6723,7 @@ class ListFirewallConfigsResponse {
   factory ListFirewallConfigsResponse.fromJson(Map<String, dynamic> json) {
     return ListFirewallConfigsResponse(
       firewallConfigs: (json['FirewallConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FirewallConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6243,7 +6760,7 @@ class ListFirewallDomainListsResponse {
   factory ListFirewallDomainListsResponse.fromJson(Map<String, dynamic> json) {
     return ListFirewallDomainListsResponse(
       firewallDomainLists: (json['FirewallDomainLists'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               FirewallDomainListMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6281,10 +6798,8 @@ class ListFirewallDomainsResponse {
 
   factory ListFirewallDomainsResponse.fromJson(Map<String, dynamic> json) {
     return ListFirewallDomainsResponse(
-      domains: (json['Domains'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      domains:
+          (json['Domains'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['NextToken'] as String?,
     );
   }
@@ -6321,7 +6836,7 @@ class ListFirewallRuleGroupAssociationsResponse {
     return ListFirewallRuleGroupAssociationsResponse(
       firewallRuleGroupAssociations: (json['FirewallRuleGroupAssociations']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               FirewallRuleGroupAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6360,7 +6875,7 @@ class ListFirewallRuleGroupsResponse {
   factory ListFirewallRuleGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListFirewallRuleGroupsResponse(
       firewallRuleGroups: (json['FirewallRuleGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               FirewallRuleGroupMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6398,7 +6913,7 @@ class ListFirewallRulesResponse {
   factory ListFirewallRulesResponse.fromJson(Map<String, dynamic> json) {
     return ListFirewallRulesResponse(
       firewallRules: (json['FirewallRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FirewallRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6411,6 +6926,42 @@ class ListFirewallRulesResponse {
     return {
       if (firewallRules != null) 'FirewallRules': firewallRules,
       if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListOutpostResolversResponse {
+  /// If more than <code>MaxResults</code> Resolvers match the specified criteria,
+  /// you can submit another <code>ListOutpostResolver</code> request to get the
+  /// next group of results. In the next request, specify the value of
+  /// <code>NextToken</code> from the previous response.
+  final String? nextToken;
+
+  /// The Resolvers on Outposts that were created by using the current Amazon Web
+  /// Services account, and that match the specified filters, if any.
+  final List<OutpostResolver>? outpostResolvers;
+
+  ListOutpostResolversResponse({
+    this.nextToken,
+    this.outpostResolvers,
+  });
+
+  factory ListOutpostResolversResponse.fromJson(Map<String, dynamic> json) {
+    return ListOutpostResolversResponse(
+      nextToken: json['NextToken'] as String?,
+      outpostResolvers: (json['OutpostResolvers'] as List?)
+          ?.nonNulls
+          .map((e) => OutpostResolver.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nextToken = this.nextToken;
+    final outpostResolvers = this.outpostResolvers;
+    return {
+      if (nextToken != null) 'NextToken': nextToken,
+      if (outpostResolvers != null) 'OutpostResolvers': outpostResolvers,
     };
   }
 }
@@ -6441,7 +6992,7 @@ class ListResolverConfigsResponse {
     return ListResolverConfigsResponse(
       nextToken: json['NextToken'] as String?,
       resolverConfigs: (json['ResolverConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResolverConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6473,7 +7024,8 @@ class ListResolverDnssecConfigsResponse {
   /// An array that contains one <a
   /// href="https://docs.aws.amazon.com/Route53/latest/APIReference/API_ResolverDnssecConfig.html">ResolverDnssecConfig</a>
   /// element for each configuration for DNSSEC validation that is associated with
-  /// the current Amazon Web Services account.
+  /// the current Amazon Web Services account. It doesn't contain disabled DNSSEC
+  /// configurations for the resource.
   final List<ResolverDnssecConfig>? resolverDnssecConfigs;
 
   ListResolverDnssecConfigsResponse({
@@ -6486,7 +7038,7 @@ class ListResolverDnssecConfigsResponse {
     return ListResolverDnssecConfigsResponse(
       nextToken: json['NextToken'] as String?,
       resolverDnssecConfigs: (json['ResolverDnssecConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResolverDnssecConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6529,7 +7081,7 @@ class ListResolverEndpointIpAddressesResponse {
       Map<String, dynamic> json) {
     return ListResolverEndpointIpAddressesResponse(
       ipAddresses: (json['IpAddresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IpAddressResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
       maxResults: json['MaxResults'] as int?,
@@ -6574,7 +7126,7 @@ class ListResolverEndpointsResponse {
       maxResults: json['MaxResults'] as int?,
       nextToken: json['NextToken'] as String?,
       resolverEndpoints: (json['ResolverEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResolverEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6632,7 +7184,7 @@ class ListResolverQueryLogConfigAssociationsResponse {
       nextToken: json['NextToken'] as String?,
       resolverQueryLogConfigAssociations:
           (json['ResolverQueryLogConfigAssociations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ResolverQueryLogConfigAssociation.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -6696,7 +7248,7 @@ class ListResolverQueryLogConfigsResponse {
     return ListResolverQueryLogConfigsResponse(
       nextToken: json['NextToken'] as String?,
       resolverQueryLogConfigs: (json['ResolverQueryLogConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ResolverQueryLogConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6747,7 +7299,7 @@ class ListResolverRuleAssociationsResponse {
       maxResults: json['MaxResults'] as int?,
       nextToken: json['NextToken'] as String?,
       resolverRuleAssociations: (json['ResolverRuleAssociations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResolverRuleAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6792,7 +7344,7 @@ class ListResolverRulesResponse {
       maxResults: json['MaxResults'] as int?,
       nextToken: json['NextToken'] as String?,
       resolverRules: (json['ResolverRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResolverRule.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6830,7 +7382,7 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6847,31 +7399,153 @@ class ListTagsForResourceResponse {
 }
 
 enum MutationProtectionStatus {
-  enabled,
-  disabled,
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const MutationProtectionStatus(this.value);
+
+  static MutationProtectionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MutationProtectionStatus'));
 }
 
-extension MutationProtectionStatusValueExtension on MutationProtectionStatus {
-  String toValue() {
-    switch (this) {
-      case MutationProtectionStatus.enabled:
-        return 'ENABLED';
-      case MutationProtectionStatus.disabled:
-        return 'DISABLED';
-    }
+/// A complex type that contains settings for an existing Resolver on an
+/// Outpost.
+class OutpostResolver {
+  /// The ARN (Amazon Resource Name) for the Resolver on an Outpost.
+  final String? arn;
+
+  /// The date and time that the Outpost Resolver was created, in Unix time format
+  /// and Coordinated Universal Time (UTC).
+  final String? creationTime;
+
+  /// A unique string that identifies the request that created the Resolver
+  /// endpoint. The <code>CreatorRequestId</code> allows failed requests to be
+  /// retried without the risk of running the operation twice.
+  final String? creatorRequestId;
+
+  /// The ID of the Resolver on Outpost.
+  final String? id;
+
+  /// Amazon EC2 instance count for the Resolver on the Outpost.
+  final int? instanceCount;
+
+  /// The date and time that the Outpost Resolver was modified, in Unix time
+  /// format and Coordinated Universal Time (UTC).
+  final String? modificationTime;
+
+  /// Name of the Resolver.
+  final String? name;
+
+  /// The ARN (Amazon Resource Name) for the Outpost.
+  final String? outpostArn;
+
+  /// The Amazon EC2 instance type.
+  final String? preferredInstanceType;
+
+  /// Status of the Resolver.
+  final OutpostResolverStatus? status;
+
+  /// A detailed description of the Resolver.
+  final String? statusMessage;
+
+  OutpostResolver({
+    this.arn,
+    this.creationTime,
+    this.creatorRequestId,
+    this.id,
+    this.instanceCount,
+    this.modificationTime,
+    this.name,
+    this.outpostArn,
+    this.preferredInstanceType,
+    this.status,
+    this.statusMessage,
+  });
+
+  factory OutpostResolver.fromJson(Map<String, dynamic> json) {
+    return OutpostResolver(
+      arn: json['Arn'] as String?,
+      creationTime: json['CreationTime'] as String?,
+      creatorRequestId: json['CreatorRequestId'] as String?,
+      id: json['Id'] as String?,
+      instanceCount: json['InstanceCount'] as int?,
+      modificationTime: json['ModificationTime'] as String?,
+      name: json['Name'] as String?,
+      outpostArn: json['OutpostArn'] as String?,
+      preferredInstanceType: json['PreferredInstanceType'] as String?,
+      status:
+          (json['Status'] as String?)?.let(OutpostResolverStatus.fromString),
+      statusMessage: json['StatusMessage'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final creationTime = this.creationTime;
+    final creatorRequestId = this.creatorRequestId;
+    final id = this.id;
+    final instanceCount = this.instanceCount;
+    final modificationTime = this.modificationTime;
+    final name = this.name;
+    final outpostArn = this.outpostArn;
+    final preferredInstanceType = this.preferredInstanceType;
+    final status = this.status;
+    final statusMessage = this.statusMessage;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (creationTime != null) 'CreationTime': creationTime,
+      if (creatorRequestId != null) 'CreatorRequestId': creatorRequestId,
+      if (id != null) 'Id': id,
+      if (instanceCount != null) 'InstanceCount': instanceCount,
+      if (modificationTime != null) 'ModificationTime': modificationTime,
+      if (name != null) 'Name': name,
+      if (outpostArn != null) 'OutpostArn': outpostArn,
+      if (preferredInstanceType != null)
+        'PreferredInstanceType': preferredInstanceType,
+      if (status != null) 'Status': status.value,
+      if (statusMessage != null) 'StatusMessage': statusMessage,
+    };
   }
 }
 
-extension MutationProtectionStatusFromString on String {
-  MutationProtectionStatus toMutationProtectionStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return MutationProtectionStatus.enabled;
-      case 'DISABLED':
-        return MutationProtectionStatus.disabled;
-    }
-    throw Exception('$this is not known in enum MutationProtectionStatus');
-  }
+enum OutpostResolverStatus {
+  creating('CREATING'),
+  operational('OPERATIONAL'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  actionNeeded('ACTION_NEEDED'),
+  failedCreation('FAILED_CREATION'),
+  failedDeletion('FAILED_DELETION'),
+  ;
+
+  final String value;
+
+  const OutpostResolverStatus(this.value);
+
+  static OutpostResolverStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum OutpostResolverStatus'));
+}
+
+enum Protocol {
+  doH('DoH'),
+  do53('Do53'),
+  doHFips('DoH-FIPS'),
+  ;
+
+  final String value;
+
+  const Protocol(this.value);
+
+  static Protocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Protocol'));
 }
 
 class PutFirewallRuleGroupPolicyResponse {
@@ -6946,54 +7620,22 @@ class PutResolverRulePolicyResponse {
 }
 
 enum ResolverAutodefinedReverseStatus {
-  enabling,
-  enabled,
-  disabling,
-  disabled,
-  updatingToUseLocalResourceSetting,
-  useLocalResourceSetting,
-}
+  enabling('ENABLING'),
+  enabled('ENABLED'),
+  disabling('DISABLING'),
+  disabled('DISABLED'),
+  updatingToUseLocalResourceSetting('UPDATING_TO_USE_LOCAL_RESOURCE_SETTING'),
+  useLocalResourceSetting('USE_LOCAL_RESOURCE_SETTING'),
+  ;
 
-extension ResolverAutodefinedReverseStatusValueExtension
-    on ResolverAutodefinedReverseStatus {
-  String toValue() {
-    switch (this) {
-      case ResolverAutodefinedReverseStatus.enabling:
-        return 'ENABLING';
-      case ResolverAutodefinedReverseStatus.enabled:
-        return 'ENABLED';
-      case ResolverAutodefinedReverseStatus.disabling:
-        return 'DISABLING';
-      case ResolverAutodefinedReverseStatus.disabled:
-        return 'DISABLED';
-      case ResolverAutodefinedReverseStatus.updatingToUseLocalResourceSetting:
-        return 'UPDATING_TO_USE_LOCAL_RESOURCE_SETTING';
-      case ResolverAutodefinedReverseStatus.useLocalResourceSetting:
-        return 'USE_LOCAL_RESOURCE_SETTING';
-    }
-  }
-}
+  final String value;
 
-extension ResolverAutodefinedReverseStatusFromString on String {
-  ResolverAutodefinedReverseStatus toResolverAutodefinedReverseStatus() {
-    switch (this) {
-      case 'ENABLING':
-        return ResolverAutodefinedReverseStatus.enabling;
-      case 'ENABLED':
-        return ResolverAutodefinedReverseStatus.enabled;
-      case 'DISABLING':
-        return ResolverAutodefinedReverseStatus.disabling;
-      case 'DISABLED':
-        return ResolverAutodefinedReverseStatus.disabled;
-      case 'UPDATING_TO_USE_LOCAL_RESOURCE_SETTING':
-        return ResolverAutodefinedReverseStatus
-            .updatingToUseLocalResourceSetting;
-      case 'USE_LOCAL_RESOURCE_SETTING':
-        return ResolverAutodefinedReverseStatus.useLocalResourceSetting;
-    }
-    throw Exception(
-        '$this is not known in enum ResolverAutodefinedReverseStatus');
-  }
+  const ResolverAutodefinedReverseStatus(this.value);
+
+  static ResolverAutodefinedReverseStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverAutodefinedReverseStatus'));
 }
 
 /// A complex type that contains information about a Resolver configuration for
@@ -7041,7 +7683,7 @@ class ResolverConfig {
   factory ResolverConfig.fromJson(Map<String, dynamic> json) {
     return ResolverConfig(
       autodefinedReverse: (json['AutodefinedReverse'] as String?)
-          ?.toResolverAutodefinedReverseStatus(),
+          ?.let(ResolverAutodefinedReverseStatus.fromString),
       id: json['Id'] as String?,
       ownerId: json['OwnerId'] as String?,
       resourceId: json['ResourceId'] as String?,
@@ -7055,7 +7697,7 @@ class ResolverConfig {
     final resourceId = this.resourceId;
     return {
       if (autodefinedReverse != null)
-        'AutodefinedReverse': autodefinedReverse.toValue(),
+        'AutodefinedReverse': autodefinedReverse.value,
       if (id != null) 'Id': id,
       if (ownerId != null) 'OwnerId': ownerId,
       if (resourceId != null) 'ResourceId': resourceId,
@@ -7064,53 +7706,22 @@ class ResolverConfig {
 }
 
 enum ResolverDNSSECValidationStatus {
-  enabling,
-  enabled,
-  disabling,
-  disabled,
-  updatingToUseLocalResourceSetting,
-  useLocalResourceSetting,
-}
+  enabling('ENABLING'),
+  enabled('ENABLED'),
+  disabling('DISABLING'),
+  disabled('DISABLED'),
+  updatingToUseLocalResourceSetting('UPDATING_TO_USE_LOCAL_RESOURCE_SETTING'),
+  useLocalResourceSetting('USE_LOCAL_RESOURCE_SETTING'),
+  ;
 
-extension ResolverDNSSECValidationStatusValueExtension
-    on ResolverDNSSECValidationStatus {
-  String toValue() {
-    switch (this) {
-      case ResolverDNSSECValidationStatus.enabling:
-        return 'ENABLING';
-      case ResolverDNSSECValidationStatus.enabled:
-        return 'ENABLED';
-      case ResolverDNSSECValidationStatus.disabling:
-        return 'DISABLING';
-      case ResolverDNSSECValidationStatus.disabled:
-        return 'DISABLED';
-      case ResolverDNSSECValidationStatus.updatingToUseLocalResourceSetting:
-        return 'UPDATING_TO_USE_LOCAL_RESOURCE_SETTING';
-      case ResolverDNSSECValidationStatus.useLocalResourceSetting:
-        return 'USE_LOCAL_RESOURCE_SETTING';
-    }
-  }
-}
+  final String value;
 
-extension ResolverDNSSECValidationStatusFromString on String {
-  ResolverDNSSECValidationStatus toResolverDNSSECValidationStatus() {
-    switch (this) {
-      case 'ENABLING':
-        return ResolverDNSSECValidationStatus.enabling;
-      case 'ENABLED':
-        return ResolverDNSSECValidationStatus.enabled;
-      case 'DISABLING':
-        return ResolverDNSSECValidationStatus.disabling;
-      case 'DISABLED':
-        return ResolverDNSSECValidationStatus.disabled;
-      case 'UPDATING_TO_USE_LOCAL_RESOURCE_SETTING':
-        return ResolverDNSSECValidationStatus.updatingToUseLocalResourceSetting;
-      case 'USE_LOCAL_RESOURCE_SETTING':
-        return ResolverDNSSECValidationStatus.useLocalResourceSetting;
-    }
-    throw Exception(
-        '$this is not known in enum ResolverDNSSECValidationStatus');
-  }
+  const ResolverDNSSECValidationStatus(this.value);
+
+  static ResolverDNSSECValidationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverDNSSECValidationStatus'));
 }
 
 /// A complex type that contains information about a configuration for DNSSEC
@@ -7159,7 +7770,7 @@ class ResolverDnssecConfig {
       ownerId: json['OwnerId'] as String?,
       resourceId: json['ResourceId'] as String?,
       validationStatus: (json['ValidationStatus'] as String?)
-          ?.toResolverDNSSECValidationStatus(),
+          ?.let(ResolverDNSSECValidationStatus.fromString),
     );
   }
 
@@ -7172,8 +7783,7 @@ class ResolverDnssecConfig {
       if (id != null) 'Id': id,
       if (ownerId != null) 'OwnerId': ownerId,
       if (resourceId != null) 'ResourceId': resourceId,
-      if (validationStatus != null)
-        'ValidationStatus': validationStatus.toValue(),
+      if (validationStatus != null) 'ValidationStatus': validationStatus.value,
     };
   }
 }
@@ -7232,6 +7842,55 @@ class ResolverEndpoint {
   /// href="https://docs.aws.amazon.com/Route53/latest/APIReference/API_route53resolver_CreateResolverEndpoint.html">CreateResolverEndpoint</a>
   /// request.
   final String? name;
+
+  /// The ARN (Amazon Resource Name) for the Outpost.
+  final String? outpostArn;
+
+  /// The Amazon EC2 instance type.
+  final String? preferredInstanceType;
+
+  /// Protocols used for the endpoint. DoH-FIPS is applicable for inbound
+  /// endpoints only.
+  ///
+  /// For an inbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 and DoH-FIPS in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// DoH-FIPS alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul>
+  /// For an outbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul>
+  final List<Protocol>? protocols;
 
   /// The Resolver endpoint IP address type.
   final ResolverEndpointType? resolverEndpointType;
@@ -7309,6 +7968,9 @@ class ResolverEndpoint {
     this.ipAddressCount,
     this.modificationTime,
     this.name,
+    this.outpostArn,
+    this.preferredInstanceType,
+    this.protocols,
     this.resolverEndpointType,
     this.securityGroupIds,
     this.status,
@@ -7320,19 +7982,27 @@ class ResolverEndpoint {
       arn: json['Arn'] as String?,
       creationTime: json['CreationTime'] as String?,
       creatorRequestId: json['CreatorRequestId'] as String?,
-      direction: (json['Direction'] as String?)?.toResolverEndpointDirection(),
+      direction: (json['Direction'] as String?)
+          ?.let(ResolverEndpointDirection.fromString),
       hostVPCId: json['HostVPCId'] as String?,
       id: json['Id'] as String?,
       ipAddressCount: json['IpAddressCount'] as int?,
       modificationTime: json['ModificationTime'] as String?,
       name: json['Name'] as String?,
-      resolverEndpointType:
-          (json['ResolverEndpointType'] as String?)?.toResolverEndpointType(),
+      outpostArn: json['OutpostArn'] as String?,
+      preferredInstanceType: json['PreferredInstanceType'] as String?,
+      protocols: (json['Protocols'] as List?)
+          ?.nonNulls
+          .map((e) => Protocol.fromString((e as String)))
+          .toList(),
+      resolverEndpointType: (json['ResolverEndpointType'] as String?)
+          ?.let(ResolverEndpointType.fromString),
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status: (json['Status'] as String?)?.toResolverEndpointStatus(),
+      status:
+          (json['Status'] as String?)?.let(ResolverEndpointStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
     );
   }
@@ -7347,6 +8017,9 @@ class ResolverEndpoint {
     final ipAddressCount = this.ipAddressCount;
     final modificationTime = this.modificationTime;
     final name = this.name;
+    final outpostArn = this.outpostArn;
+    final preferredInstanceType = this.preferredInstanceType;
+    final protocols = this.protocols;
     final resolverEndpointType = this.resolverEndpointType;
     final securityGroupIds = this.securityGroupIds;
     final status = this.status;
@@ -7355,128 +8028,74 @@ class ResolverEndpoint {
       if (arn != null) 'Arn': arn,
       if (creationTime != null) 'CreationTime': creationTime,
       if (creatorRequestId != null) 'CreatorRequestId': creatorRequestId,
-      if (direction != null) 'Direction': direction.toValue(),
+      if (direction != null) 'Direction': direction.value,
       if (hostVPCId != null) 'HostVPCId': hostVPCId,
       if (id != null) 'Id': id,
       if (ipAddressCount != null) 'IpAddressCount': ipAddressCount,
       if (modificationTime != null) 'ModificationTime': modificationTime,
       if (name != null) 'Name': name,
+      if (outpostArn != null) 'OutpostArn': outpostArn,
+      if (preferredInstanceType != null)
+        'PreferredInstanceType': preferredInstanceType,
+      if (protocols != null)
+        'Protocols': protocols.map((e) => e.value).toList(),
       if (resolverEndpointType != null)
-        'ResolverEndpointType': resolverEndpointType.toValue(),
+        'ResolverEndpointType': resolverEndpointType.value,
       if (securityGroupIds != null) 'SecurityGroupIds': securityGroupIds,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
     };
   }
 }
 
 enum ResolverEndpointDirection {
-  inbound,
-  outbound,
-}
+  inbound('INBOUND'),
+  outbound('OUTBOUND'),
+  ;
 
-extension ResolverEndpointDirectionValueExtension on ResolverEndpointDirection {
-  String toValue() {
-    switch (this) {
-      case ResolverEndpointDirection.inbound:
-        return 'INBOUND';
-      case ResolverEndpointDirection.outbound:
-        return 'OUTBOUND';
-    }
-  }
-}
+  final String value;
 
-extension ResolverEndpointDirectionFromString on String {
-  ResolverEndpointDirection toResolverEndpointDirection() {
-    switch (this) {
-      case 'INBOUND':
-        return ResolverEndpointDirection.inbound;
-      case 'OUTBOUND':
-        return ResolverEndpointDirection.outbound;
-    }
-    throw Exception('$this is not known in enum ResolverEndpointDirection');
-  }
+  const ResolverEndpointDirection(this.value);
+
+  static ResolverEndpointDirection fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverEndpointDirection'));
 }
 
 enum ResolverEndpointStatus {
-  creating,
-  operational,
-  updating,
-  autoRecovering,
-  actionNeeded,
-  deleting,
-}
+  creating('CREATING'),
+  operational('OPERATIONAL'),
+  updating('UPDATING'),
+  autoRecovering('AUTO_RECOVERING'),
+  actionNeeded('ACTION_NEEDED'),
+  deleting('DELETING'),
+  ;
 
-extension ResolverEndpointStatusValueExtension on ResolverEndpointStatus {
-  String toValue() {
-    switch (this) {
-      case ResolverEndpointStatus.creating:
-        return 'CREATING';
-      case ResolverEndpointStatus.operational:
-        return 'OPERATIONAL';
-      case ResolverEndpointStatus.updating:
-        return 'UPDATING';
-      case ResolverEndpointStatus.autoRecovering:
-        return 'AUTO_RECOVERING';
-      case ResolverEndpointStatus.actionNeeded:
-        return 'ACTION_NEEDED';
-      case ResolverEndpointStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension ResolverEndpointStatusFromString on String {
-  ResolverEndpointStatus toResolverEndpointStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ResolverEndpointStatus.creating;
-      case 'OPERATIONAL':
-        return ResolverEndpointStatus.operational;
-      case 'UPDATING':
-        return ResolverEndpointStatus.updating;
-      case 'AUTO_RECOVERING':
-        return ResolverEndpointStatus.autoRecovering;
-      case 'ACTION_NEEDED':
-        return ResolverEndpointStatus.actionNeeded;
-      case 'DELETING':
-        return ResolverEndpointStatus.deleting;
-    }
-    throw Exception('$this is not known in enum ResolverEndpointStatus');
-  }
+  const ResolverEndpointStatus(this.value);
+
+  static ResolverEndpointStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverEndpointStatus'));
 }
 
 enum ResolverEndpointType {
-  ipv6,
-  ipv4,
-  dualstack,
-}
+  ipv6('IPV6'),
+  ipv4('IPV4'),
+  dualstack('DUALSTACK'),
+  ;
 
-extension ResolverEndpointTypeValueExtension on ResolverEndpointType {
-  String toValue() {
-    switch (this) {
-      case ResolverEndpointType.ipv6:
-        return 'IPV6';
-      case ResolverEndpointType.ipv4:
-        return 'IPV4';
-      case ResolverEndpointType.dualstack:
-        return 'DUALSTACK';
-    }
-  }
-}
+  final String value;
 
-extension ResolverEndpointTypeFromString on String {
-  ResolverEndpointType toResolverEndpointType() {
-    switch (this) {
-      case 'IPV6':
-        return ResolverEndpointType.ipv6;
-      case 'IPV4':
-        return ResolverEndpointType.ipv4;
-      case 'DUALSTACK':
-        return ResolverEndpointType.dualstack;
-    }
-    throw Exception('$this is not known in enum ResolverEndpointType');
-  }
+  const ResolverEndpointType(this.value);
+
+  static ResolverEndpointType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResolverEndpointType'));
 }
 
 /// In the response to a <a
@@ -7579,8 +8198,10 @@ class ResolverQueryLogConfig {
       id: json['Id'] as String?,
       name: json['Name'] as String?,
       ownerId: json['OwnerId'] as String?,
-      shareStatus: (json['ShareStatus'] as String?)?.toShareStatus(),
-      status: (json['Status'] as String?)?.toResolverQueryLogConfigStatus(),
+      shareStatus:
+          (json['ShareStatus'] as String?)?.let(ShareStatus.fromString),
+      status: (json['Status'] as String?)
+          ?.let(ResolverQueryLogConfigStatus.fromString),
     );
   }
 
@@ -7604,8 +8225,8 @@ class ResolverQueryLogConfig {
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
       if (ownerId != null) 'OwnerId': ownerId,
-      if (shareStatus != null) 'ShareStatus': shareStatus.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (shareStatus != null) 'ShareStatus': shareStatus.value,
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -7695,13 +8316,13 @@ class ResolverQueryLogConfigAssociation {
     return ResolverQueryLogConfigAssociation(
       creationTime: json['CreationTime'] as String?,
       error: (json['Error'] as String?)
-          ?.toResolverQueryLogConfigAssociationError(),
+          ?.let(ResolverQueryLogConfigAssociationError.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       id: json['Id'] as String?,
       resolverQueryLogConfigId: json['ResolverQueryLogConfigId'] as String?,
       resourceId: json['ResourceId'] as String?,
       status: (json['Status'] as String?)
-          ?.toResolverQueryLogConfigAssociationStatus(),
+          ?.let(ResolverQueryLogConfigAssociationStatus.fromString),
     );
   }
 
@@ -7715,141 +8336,67 @@ class ResolverQueryLogConfigAssociation {
     final status = this.status;
     return {
       if (creationTime != null) 'CreationTime': creationTime,
-      if (error != null) 'Error': error.toValue(),
+      if (error != null) 'Error': error.value,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (id != null) 'Id': id,
       if (resolverQueryLogConfigId != null)
         'ResolverQueryLogConfigId': resolverQueryLogConfigId,
       if (resourceId != null) 'ResourceId': resourceId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum ResolverQueryLogConfigAssociationError {
-  none,
-  destinationNotFound,
-  accessDenied,
-  internalServiceError,
-}
+  none('NONE'),
+  destinationNotFound('DESTINATION_NOT_FOUND'),
+  accessDenied('ACCESS_DENIED'),
+  internalServiceError('INTERNAL_SERVICE_ERROR'),
+  ;
 
-extension ResolverQueryLogConfigAssociationErrorValueExtension
-    on ResolverQueryLogConfigAssociationError {
-  String toValue() {
-    switch (this) {
-      case ResolverQueryLogConfigAssociationError.none:
-        return 'NONE';
-      case ResolverQueryLogConfigAssociationError.destinationNotFound:
-        return 'DESTINATION_NOT_FOUND';
-      case ResolverQueryLogConfigAssociationError.accessDenied:
-        return 'ACCESS_DENIED';
-      case ResolverQueryLogConfigAssociationError.internalServiceError:
-        return 'INTERNAL_SERVICE_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ResolverQueryLogConfigAssociationErrorFromString on String {
-  ResolverQueryLogConfigAssociationError
-      toResolverQueryLogConfigAssociationError() {
-    switch (this) {
-      case 'NONE':
-        return ResolverQueryLogConfigAssociationError.none;
-      case 'DESTINATION_NOT_FOUND':
-        return ResolverQueryLogConfigAssociationError.destinationNotFound;
-      case 'ACCESS_DENIED':
-        return ResolverQueryLogConfigAssociationError.accessDenied;
-      case 'INTERNAL_SERVICE_ERROR':
-        return ResolverQueryLogConfigAssociationError.internalServiceError;
-    }
-    throw Exception(
-        '$this is not known in enum ResolverQueryLogConfigAssociationError');
-  }
+  const ResolverQueryLogConfigAssociationError(this.value);
+
+  static ResolverQueryLogConfigAssociationError fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverQueryLogConfigAssociationError'));
 }
 
 enum ResolverQueryLogConfigAssociationStatus {
-  creating,
-  active,
-  actionNeeded,
-  deleting,
-  failed,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  actionNeeded('ACTION_NEEDED'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  ;
 
-extension ResolverQueryLogConfigAssociationStatusValueExtension
-    on ResolverQueryLogConfigAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case ResolverQueryLogConfigAssociationStatus.creating:
-        return 'CREATING';
-      case ResolverQueryLogConfigAssociationStatus.active:
-        return 'ACTIVE';
-      case ResolverQueryLogConfigAssociationStatus.actionNeeded:
-        return 'ACTION_NEEDED';
-      case ResolverQueryLogConfigAssociationStatus.deleting:
-        return 'DELETING';
-      case ResolverQueryLogConfigAssociationStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ResolverQueryLogConfigAssociationStatusFromString on String {
-  ResolverQueryLogConfigAssociationStatus
-      toResolverQueryLogConfigAssociationStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ResolverQueryLogConfigAssociationStatus.creating;
-      case 'ACTIVE':
-        return ResolverQueryLogConfigAssociationStatus.active;
-      case 'ACTION_NEEDED':
-        return ResolverQueryLogConfigAssociationStatus.actionNeeded;
-      case 'DELETING':
-        return ResolverQueryLogConfigAssociationStatus.deleting;
-      case 'FAILED':
-        return ResolverQueryLogConfigAssociationStatus.failed;
-    }
-    throw Exception(
-        '$this is not known in enum ResolverQueryLogConfigAssociationStatus');
-  }
+  const ResolverQueryLogConfigAssociationStatus(this.value);
+
+  static ResolverQueryLogConfigAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverQueryLogConfigAssociationStatus'));
 }
 
 enum ResolverQueryLogConfigStatus {
-  creating,
-  created,
-  deleting,
-  failed,
-}
+  creating('CREATING'),
+  created('CREATED'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  ;
 
-extension ResolverQueryLogConfigStatusValueExtension
-    on ResolverQueryLogConfigStatus {
-  String toValue() {
-    switch (this) {
-      case ResolverQueryLogConfigStatus.creating:
-        return 'CREATING';
-      case ResolverQueryLogConfigStatus.created:
-        return 'CREATED';
-      case ResolverQueryLogConfigStatus.deleting:
-        return 'DELETING';
-      case ResolverQueryLogConfigStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ResolverQueryLogConfigStatusFromString on String {
-  ResolverQueryLogConfigStatus toResolverQueryLogConfigStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ResolverQueryLogConfigStatus.creating;
-      case 'CREATED':
-        return ResolverQueryLogConfigStatus.created;
-      case 'DELETING':
-        return ResolverQueryLogConfigStatus.deleting;
-      case 'FAILED':
-        return ResolverQueryLogConfigStatus.failed;
-    }
-    throw Exception('$this is not known in enum ResolverQueryLogConfigStatus');
-  }
+  const ResolverQueryLogConfigStatus(this.value);
+
+  static ResolverQueryLogConfigStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverQueryLogConfigStatus'));
 }
 
 /// For queries that originate in your VPC, detailed information about a
@@ -7933,7 +8480,7 @@ class ResolverRule {
 
   /// An array that contains the IP addresses and ports that an outbound endpoint
   /// forwards DNS queries to. Typically, these are the IP addresses of DNS
-  /// resolvers on your network. Specify IPv4 addresses. IPv6 is not supported.
+  /// resolvers on your network.
   final List<TargetAddress>? targetIps;
 
   ResolverRule({
@@ -7964,12 +8511,13 @@ class ResolverRule {
       name: json['Name'] as String?,
       ownerId: json['OwnerId'] as String?,
       resolverEndpointId: json['ResolverEndpointId'] as String?,
-      ruleType: (json['RuleType'] as String?)?.toRuleTypeOption(),
-      shareStatus: (json['ShareStatus'] as String?)?.toShareStatus(),
-      status: (json['Status'] as String?)?.toResolverRuleStatus(),
+      ruleType: (json['RuleType'] as String?)?.let(RuleTypeOption.fromString),
+      shareStatus:
+          (json['ShareStatus'] as String?)?.let(ShareStatus.fromString),
+      status: (json['Status'] as String?)?.let(ResolverRuleStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       targetIps: (json['TargetIps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetAddress.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8000,9 +8548,9 @@ class ResolverRule {
       if (name != null) 'Name': name,
       if (ownerId != null) 'OwnerId': ownerId,
       if (resolverEndpointId != null) 'ResolverEndpointId': resolverEndpointId,
-      if (ruleType != null) 'RuleType': ruleType.toValue(),
-      if (shareStatus != null) 'ShareStatus': shareStatus.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (ruleType != null) 'RuleType': ruleType.value,
+      if (shareStatus != null) 'ShareStatus': shareStatus.value,
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
       if (targetIps != null) 'TargetIps': targetIps,
     };
@@ -8057,7 +8605,8 @@ class ResolverRuleAssociation {
       id: json['Id'] as String?,
       name: json['Name'] as String?,
       resolverRuleId: json['ResolverRuleId'] as String?,
-      status: (json['Status'] as String?)?.toResolverRuleAssociationStatus(),
+      status: (json['Status'] as String?)
+          ?.let(ResolverRuleAssociationStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       vPCId: json['VPCId'] as String?,
     );
@@ -8074,7 +8623,7 @@ class ResolverRuleAssociation {
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
       if (resolverRuleId != null) 'ResolverRuleId': resolverRuleId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
       if (vPCId != null) 'VPCId': vPCId,
     };
@@ -8082,47 +8631,21 @@ class ResolverRuleAssociation {
 }
 
 enum ResolverRuleAssociationStatus {
-  creating,
-  complete,
-  deleting,
-  failed,
-  overridden,
-}
+  creating('CREATING'),
+  complete('COMPLETE'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  overridden('OVERRIDDEN'),
+  ;
 
-extension ResolverRuleAssociationStatusValueExtension
-    on ResolverRuleAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case ResolverRuleAssociationStatus.creating:
-        return 'CREATING';
-      case ResolverRuleAssociationStatus.complete:
-        return 'COMPLETE';
-      case ResolverRuleAssociationStatus.deleting:
-        return 'DELETING';
-      case ResolverRuleAssociationStatus.failed:
-        return 'FAILED';
-      case ResolverRuleAssociationStatus.overridden:
-        return 'OVERRIDDEN';
-    }
-  }
-}
+  final String value;
 
-extension ResolverRuleAssociationStatusFromString on String {
-  ResolverRuleAssociationStatus toResolverRuleAssociationStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ResolverRuleAssociationStatus.creating;
-      case 'COMPLETE':
-        return ResolverRuleAssociationStatus.complete;
-      case 'DELETING':
-        return ResolverRuleAssociationStatus.deleting;
-      case 'FAILED':
-        return ResolverRuleAssociationStatus.failed;
-      case 'OVERRIDDEN':
-        return ResolverRuleAssociationStatus.overridden;
-    }
-    throw Exception('$this is not known in enum ResolverRuleAssociationStatus');
-  }
+  const ResolverRuleAssociationStatus(this.value);
+
+  static ResolverRuleAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverRuleAssociationStatus'));
 }
 
 /// In an <a
@@ -8160,135 +8683,65 @@ class ResolverRuleConfig {
 }
 
 enum ResolverRuleStatus {
-  complete,
-  deleting,
-  updating,
-  failed,
-}
+  complete('COMPLETE'),
+  deleting('DELETING'),
+  updating('UPDATING'),
+  failed('FAILED'),
+  ;
 
-extension ResolverRuleStatusValueExtension on ResolverRuleStatus {
-  String toValue() {
-    switch (this) {
-      case ResolverRuleStatus.complete:
-        return 'COMPLETE';
-      case ResolverRuleStatus.deleting:
-        return 'DELETING';
-      case ResolverRuleStatus.updating:
-        return 'UPDATING';
-      case ResolverRuleStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ResolverRuleStatusFromString on String {
-  ResolverRuleStatus toResolverRuleStatus() {
-    switch (this) {
-      case 'COMPLETE':
-        return ResolverRuleStatus.complete;
-      case 'DELETING':
-        return ResolverRuleStatus.deleting;
-      case 'UPDATING':
-        return ResolverRuleStatus.updating;
-      case 'FAILED':
-        return ResolverRuleStatus.failed;
-    }
-    throw Exception('$this is not known in enum ResolverRuleStatus');
-  }
+  const ResolverRuleStatus(this.value);
+
+  static ResolverRuleStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResolverRuleStatus'));
 }
 
 enum RuleTypeOption {
-  forward,
-  system,
-  recursive,
-}
+  forward('FORWARD'),
+  system('SYSTEM'),
+  recursive('RECURSIVE'),
+  ;
 
-extension RuleTypeOptionValueExtension on RuleTypeOption {
-  String toValue() {
-    switch (this) {
-      case RuleTypeOption.forward:
-        return 'FORWARD';
-      case RuleTypeOption.system:
-        return 'SYSTEM';
-      case RuleTypeOption.recursive:
-        return 'RECURSIVE';
-    }
-  }
-}
+  final String value;
 
-extension RuleTypeOptionFromString on String {
-  RuleTypeOption toRuleTypeOption() {
-    switch (this) {
-      case 'FORWARD':
-        return RuleTypeOption.forward;
-      case 'SYSTEM':
-        return RuleTypeOption.system;
-      case 'RECURSIVE':
-        return RuleTypeOption.recursive;
-    }
-    throw Exception('$this is not known in enum RuleTypeOption');
-  }
+  const RuleTypeOption(this.value);
+
+  static RuleTypeOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RuleTypeOption'));
 }
 
 enum ShareStatus {
-  notShared,
-  sharedWithMe,
-  sharedByMe,
-}
+  notShared('NOT_SHARED'),
+  sharedWithMe('SHARED_WITH_ME'),
+  sharedByMe('SHARED_BY_ME'),
+  ;
 
-extension ShareStatusValueExtension on ShareStatus {
-  String toValue() {
-    switch (this) {
-      case ShareStatus.notShared:
-        return 'NOT_SHARED';
-      case ShareStatus.sharedWithMe:
-        return 'SHARED_WITH_ME';
-      case ShareStatus.sharedByMe:
-        return 'SHARED_BY_ME';
-    }
-  }
-}
+  final String value;
 
-extension ShareStatusFromString on String {
-  ShareStatus toShareStatus() {
-    switch (this) {
-      case 'NOT_SHARED':
-        return ShareStatus.notShared;
-      case 'SHARED_WITH_ME':
-        return ShareStatus.sharedWithMe;
-      case 'SHARED_BY_ME':
-        return ShareStatus.sharedByMe;
-    }
-    throw Exception('$this is not known in enum ShareStatus');
-  }
+  const ShareStatus(this.value);
+
+  static ShareStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ShareStatus'));
 }
 
 enum SortOrder {
-  ascending,
-  descending,
-}
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
 
-extension SortOrderValueExtension on SortOrder {
-  String toValue() {
-    switch (this) {
-      case SortOrder.ascending:
-        return 'ASCENDING';
-      case SortOrder.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortOrderFromString on String {
-  SortOrder toSortOrder() {
-    switch (this) {
-      case 'ASCENDING':
-        return SortOrder.ascending;
-      case 'DESCENDING':
-        return SortOrder.descending;
-    }
-    throw Exception('$this is not known in enum SortOrder');
-  }
+  const SortOrder(this.value);
+
+  static SortOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortOrder'));
 }
 
 /// One tag that you want to add to the specified resource. A tag consists of a
@@ -8351,10 +8804,54 @@ class TargetAddress {
   /// The port at <code>Ip</code> that you want to forward DNS queries to.
   final int? port;
 
+  /// The protocols for the Resolver endpoints. DoH-FIPS is applicable for inbound
+  /// endpoints only.
+  ///
+  /// For an inbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 and DoH-FIPS in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// DoH-FIPS alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul>
+  /// For an outbound endpoint you can apply the protocols as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do53 and DoH in combination.
+  /// </li>
+  /// <li>
+  /// Do53 alone.
+  /// </li>
+  /// <li>
+  /// DoH alone.
+  /// </li>
+  /// <li>
+  /// None, which is treated as Do53.
+  /// </li>
+  /// </ul>
+  final Protocol? protocol;
+
   TargetAddress({
     this.ip,
     this.ipv6,
     this.port,
+    this.protocol,
   });
 
   factory TargetAddress.fromJson(Map<String, dynamic> json) {
@@ -8362,6 +8859,7 @@ class TargetAddress {
       ip: json['Ip'] as String?,
       ipv6: json['Ipv6'] as String?,
       port: json['Port'] as int?,
+      protocol: (json['Protocol'] as String?)?.let(Protocol.fromString),
     );
   }
 
@@ -8369,10 +8867,12 @@ class TargetAddress {
     final ip = this.ip;
     final ipv6 = this.ipv6;
     final port = this.port;
+    final protocol = this.protocol;
     return {
       if (ip != null) 'Ip': ip,
       if (ipv6 != null) 'Ipv6': ipv6,
       if (port != null) 'Port': port,
+      if (protocol != null) 'Protocol': protocol.value,
     };
   }
 }
@@ -8439,7 +8939,8 @@ class UpdateFirewallDomainsResponse {
     return UpdateFirewallDomainsResponse(
       id: json['Id'] as String?,
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toFirewallDomainListStatus(),
+      status:
+          (json['Status'] as String?)?.let(FirewallDomainListStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
     );
   }
@@ -8452,7 +8953,7 @@ class UpdateFirewallDomainsResponse {
     return {
       if (id != null) 'Id': id,
       if (name != null) 'Name': name,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
     };
   }
@@ -8529,6 +9030,31 @@ class UpdateIpAddress {
     return {
       'IpId': ipId,
       'Ipv6': ipv6,
+    };
+  }
+}
+
+class UpdateOutpostResolverResponse {
+  /// The response to an <code>UpdateOutpostResolver</code> request.
+  final OutpostResolver? outpostResolver;
+
+  UpdateOutpostResolverResponse({
+    this.outpostResolver,
+  });
+
+  factory UpdateOutpostResolverResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateOutpostResolverResponse(
+      outpostResolver: json['OutpostResolver'] != null
+          ? OutpostResolver.fromJson(
+              json['OutpostResolver'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final outpostResolver = this.outpostResolver;
+    return {
+      if (outpostResolver != null) 'OutpostResolver': outpostResolver,
     };
   }
 }
@@ -8636,36 +9162,18 @@ class UpdateResolverRuleResponse {
 }
 
 enum Validation {
-  enable,
-  disable,
-  useLocalResourceSetting,
-}
+  enable('ENABLE'),
+  disable('DISABLE'),
+  useLocalResourceSetting('USE_LOCAL_RESOURCE_SETTING'),
+  ;
 
-extension ValidationValueExtension on Validation {
-  String toValue() {
-    switch (this) {
-      case Validation.enable:
-        return 'ENABLE';
-      case Validation.disable:
-        return 'DISABLE';
-      case Validation.useLocalResourceSetting:
-        return 'USE_LOCAL_RESOURCE_SETTING';
-    }
-  }
-}
+  final String value;
 
-extension ValidationFromString on String {
-  Validation toValidation() {
-    switch (this) {
-      case 'ENABLE':
-        return Validation.enable;
-      case 'DISABLE':
-        return Validation.disable;
-      case 'USE_LOCAL_RESOURCE_SETTING':
-        return Validation.useLocalResourceSetting;
-    }
-    throw Exception('$this is not known in enum Validation');
-  }
+  const Validation(this.value);
+
+  static Validation fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Validation'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {
@@ -8737,6 +9245,14 @@ class ResourceUnavailableException extends _s.GenericAwsException {
             type: type, code: 'ResourceUnavailableException', message: message);
 }
 
+class ServiceQuotaExceededException extends _s.GenericAwsException {
+  ServiceQuotaExceededException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'ServiceQuotaExceededException',
+            message: message);
+}
+
 class ThrottlingException extends _s.GenericAwsException {
   ThrottlingException({String? type, String? message})
       : super(type: type, code: 'ThrottlingException', message: message);
@@ -8779,6 +9295,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       ResourceNotFoundException(type: type, message: message),
   'ResourceUnavailableException': (type, message) =>
       ResourceUnavailableException(type: type, message: message),
+  'ServiceQuotaExceededException': (type, message) =>
+      ServiceQuotaExceededException(type: type, message: message),
   'ThrottlingException': (type, message) =>
       ThrottlingException(type: type, message: message),
   'UnknownResourceException': (type, message) =>

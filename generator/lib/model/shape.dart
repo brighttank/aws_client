@@ -325,9 +325,11 @@ extension NameStuff on String? {
         'continue',
         'default',
         'do',
+        'dynamic',
         'else',
         'enum',
         'false',
+        'final',
         'for',
         'if',
         'in',
@@ -344,6 +346,7 @@ extension NameStuff on String? {
       isReserved ||
       <String>{
         'index',
+        'value',
         'values',
       }.contains(this);
 

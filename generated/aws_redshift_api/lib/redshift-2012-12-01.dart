@@ -17,7 +17,6 @@ import 'package:shared_aws_api/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'redshift-2012-12-01.meta.dart';
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// This is an interface reference for Amazon Redshift. It contains
@@ -33,7 +32,6 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// the Amazon Redshift Management Interfaces</a>.
 class Redshift {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   Redshift({
     required String region,
@@ -41,7 +39,7 @@ class Redshift {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'redshift',
@@ -50,9 +48,7 @@ class Redshift {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -87,9 +83,10 @@ class Redshift {
     required String reservedNodeId,
     required String targetReservedNodeOfferingId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ReservedNodeId'] = reservedNodeId;
-    $request['TargetReservedNodeOfferingId'] = targetReservedNodeOfferingId;
+    final $request = <String, String>{
+      'ReservedNodeId': reservedNodeId,
+      'TargetReservedNodeOfferingId': targetReservedNodeOfferingId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AcceptReservedNodeExchange',
@@ -97,8 +94,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AcceptReservedNodeExchangeInputMessage'],
-      shapes: shapes,
       resultWrapper: 'AcceptReservedNodeExchangeResult',
     );
     return AcceptReservedNodeExchangeOutputMessage.fromXml($result);
@@ -111,6 +106,7 @@ class Redshift {
   /// May throw [PartnerNotFoundFault].
   /// May throw [ClusterNotFoundFault].
   /// May throw [UnauthorizedPartnerIntegrationFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [accountId] :
   /// The Amazon Web Services account ID that owns the cluster.
@@ -129,11 +125,12 @@ class Redshift {
     required String databaseName,
     required String partnerName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountId'] = accountId;
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['DatabaseName'] = databaseName;
-    $request['PartnerName'] = partnerName;
+    final $request = <String, String>{
+      'AccountId': accountId,
+      'ClusterIdentifier': clusterIdentifier,
+      'DatabaseName': databaseName,
+      'PartnerName': partnerName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AddPartner',
@@ -141,8 +138,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PartnerIntegrationInputMessage'],
-      shapes: shapes,
       resultWrapper: 'AddPartnerResult',
     );
     return PartnerIntegrationOutputMessage.fromXml($result);
@@ -157,15 +152,18 @@ class Redshift {
   ///
   /// Parameter [dataShareArn] :
   /// The Amazon Resource Name (ARN) of the datashare that the consumer is to
-  /// use with the account or the namespace.
+  /// use.
+  ///
+  /// Parameter [allowWrites] :
+  /// If set to true, allows write operations for a datashare.
   ///
   /// Parameter [associateEntireAccount] :
   /// A value that specifies whether the datashare is associated with the entire
   /// account.
   ///
   /// Parameter [consumerArn] :
-  /// The Amazon Resource Name (ARN) of the consumer that is associated with the
-  /// datashare.
+  /// The Amazon Resource Name (ARN) of the consumer namespace associated with
+  /// the datashare.
   ///
   /// Parameter [consumerRegion] :
   /// From a datashare consumer account, associates a datashare with all
@@ -173,16 +171,19 @@ class Redshift {
   /// Region.
   Future<DataShare> associateDataShareConsumer({
     required String dataShareArn,
+    bool? allowWrites,
     bool? associateEntireAccount,
     String? consumerArn,
     String? consumerRegion,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DataShareArn'] = dataShareArn;
-    associateEntireAccount
-        ?.also((arg) => $request['AssociateEntireAccount'] = arg);
-    consumerArn?.also((arg) => $request['ConsumerArn'] = arg);
-    consumerRegion?.also((arg) => $request['ConsumerRegion'] = arg);
+    final $request = <String, String>{
+      'DataShareArn': dataShareArn,
+      if (allowWrites != null) 'AllowWrites': allowWrites.toString(),
+      if (associateEntireAccount != null)
+        'AssociateEntireAccount': associateEntireAccount.toString(),
+      if (consumerArn != null) 'ConsumerArn': consumerArn,
+      if (consumerRegion != null) 'ConsumerRegion': consumerRegion,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AssociateDataShareConsumer',
@@ -190,8 +191,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AssociateDataShareConsumerMessage'],
-      shapes: shapes,
       resultWrapper: 'AssociateDataShareConsumerResult',
     );
     return DataShare.fromXml($result);
@@ -249,12 +248,14 @@ class Redshift {
     String? eC2SecurityGroupName,
     String? eC2SecurityGroupOwnerId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterSecurityGroupName'] = clusterSecurityGroupName;
-    cidrip?.also((arg) => $request['CIDRIP'] = arg);
-    eC2SecurityGroupName?.also((arg) => $request['EC2SecurityGroupName'] = arg);
-    eC2SecurityGroupOwnerId
-        ?.also((arg) => $request['EC2SecurityGroupOwnerId'] = arg);
+    final $request = <String, String>{
+      'ClusterSecurityGroupName': clusterSecurityGroupName,
+      if (cidrip != null) 'CIDRIP': cidrip,
+      if (eC2SecurityGroupName != null)
+        'EC2SecurityGroupName': eC2SecurityGroupName,
+      if (eC2SecurityGroupOwnerId != null)
+        'EC2SecurityGroupOwnerId': eC2SecurityGroupOwnerId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AuthorizeClusterSecurityGroupIngress',
@@ -262,8 +263,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AuthorizeClusterSecurityGroupIngressMessage'],
-      shapes: shapes,
       resultWrapper: 'AuthorizeClusterSecurityGroupIngressResult',
     );
     return AuthorizeClusterSecurityGroupIngressResult.fromXml($result);
@@ -282,15 +281,21 @@ class Redshift {
   /// keyword, such as ADX.
   ///
   /// Parameter [dataShareArn] :
-  /// The Amazon Resource Name (ARN) of the datashare that producers are to
-  /// authorize sharing for.
+  /// The Amazon Resource Name (ARN) of the datashare namespace that producers
+  /// are to authorize sharing for.
+  ///
+  /// Parameter [allowWrites] :
+  /// If set to true, allows write operations for a datashare.
   Future<DataShare> authorizeDataShare({
     required String consumerIdentifier,
     required String dataShareArn,
+    bool? allowWrites,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ConsumerIdentifier'] = consumerIdentifier;
-    $request['DataShareArn'] = dataShareArn;
+    final $request = <String, String>{
+      'ConsumerIdentifier': consumerIdentifier,
+      'DataShareArn': dataShareArn,
+      if (allowWrites != null) 'AllowWrites': allowWrites.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AuthorizeDataShare',
@@ -298,8 +303,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AuthorizeDataShareMessage'],
-      shapes: shapes,
       resultWrapper: 'AuthorizeDataShareResult',
     );
     return DataShare.fromXml($result);
@@ -327,10 +330,16 @@ class Redshift {
     String? clusterIdentifier,
     List<String>? vpcIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Account'] = account;
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    vpcIds?.also((arg) => $request['VpcIds'] = arg);
+    final $request = <String, String>{
+      'Account': account,
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (vpcIds != null)
+        if (vpcIds.isEmpty)
+          'VpcIds': ''
+        else
+          for (var i1 = 0; i1 < vpcIds.length; i1++)
+            'VpcIds.VpcIdentifier.${i1 + 1}': vpcIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AuthorizeEndpointAccess',
@@ -338,8 +347,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AuthorizeEndpointAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'AuthorizeEndpointAccessResult',
     );
     return EndpointAuthorization.fromXml($result);
@@ -372,10 +379,21 @@ class Redshift {
   /// The Amazon Resource Name (ARN) of the snapshot to authorize access to.
   ///
   /// Parameter [snapshotClusterIdentifier] :
-  /// The identifier of the cluster the snapshot was created from. This
-  /// parameter is required if your IAM user or role has a policy containing a
-  /// snapshot resource element that specifies anything other than * for the
-  /// cluster name.
+  /// The identifier of the cluster the snapshot was created from.
+  ///
+  /// <ul>
+  /// <li>
+  /// <i>If the snapshot to access doesn't exist and the associated IAM policy
+  /// doesn't allow access to all (*) snapshots</i> - This parameter is
+  /// required. Otherwise, permissions aren't available to check if the snapshot
+  /// exists.
+  /// </li>
+  /// <li>
+  /// <i>If the snapshot to access exists</i> - This parameter isn't required.
+  /// Redshift can retrieve the cluster identifier and use it to validate
+  /// snapshot authorization.
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [snapshotIdentifier] :
   /// The identifier of the snapshot the account is authorized to restore.
@@ -385,12 +403,13 @@ class Redshift {
     String? snapshotClusterIdentifier,
     String? snapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountWithRestoreAccess'] = accountWithRestoreAccess;
-    snapshotArn?.also((arg) => $request['SnapshotArn'] = arg);
-    snapshotClusterIdentifier
-        ?.also((arg) => $request['SnapshotClusterIdentifier'] = arg);
-    snapshotIdentifier?.also((arg) => $request['SnapshotIdentifier'] = arg);
+    final $request = <String, String>{
+      'AccountWithRestoreAccess': accountWithRestoreAccess,
+      if (snapshotArn != null) 'SnapshotArn': snapshotArn,
+      if (snapshotClusterIdentifier != null)
+        'SnapshotClusterIdentifier': snapshotClusterIdentifier,
+      if (snapshotIdentifier != null) 'SnapshotIdentifier': snapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AuthorizeSnapshotAccess',
@@ -398,8 +417,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AuthorizeSnapshotAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'AuthorizeSnapshotAccessResult',
     );
     return AuthorizeSnapshotAccessResult.fromXml($result);
@@ -414,8 +431,15 @@ class Redshift {
   Future<BatchDeleteClusterSnapshotsResult> batchDeleteClusterSnapshots({
     required List<DeleteClusterSnapshotMessage> identifiers,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Identifiers'] = identifiers;
+    final $request = <String, String>{
+      if (identifiers.isEmpty)
+        'Identifiers': ''
+      else
+        for (var i1 = 0; i1 < identifiers.length; i1++)
+          for (var e3 in identifiers[i1].toQueryMap().entries)
+            'Identifiers.DeleteClusterSnapshotMessage.${i1 + 1}.${e3.key}':
+                e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'BatchDeleteClusterSnapshots',
@@ -423,8 +447,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['BatchDeleteClusterSnapshotsRequest'],
-      shapes: shapes,
       resultWrapper: 'BatchDeleteClusterSnapshotsResult',
     );
     return BatchDeleteClusterSnapshotsResult.fromXml($result);
@@ -457,11 +479,17 @@ class Redshift {
     bool? force,
     int? manualSnapshotRetentionPeriod,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnapshotIdentifierList'] = snapshotIdentifierList;
-    force?.also((arg) => $request['Force'] = arg);
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
+    final $request = <String, String>{
+      if (snapshotIdentifierList.isEmpty)
+        'SnapshotIdentifierList': ''
+      else
+        for (var i1 = 0; i1 < snapshotIdentifierList.length; i1++)
+          'SnapshotIdentifierList.String.${i1 + 1}': snapshotIdentifierList[i1],
+      if (force != null) 'Force': force.toString(),
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'BatchModifyClusterSnapshots',
@@ -469,8 +497,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['BatchModifyClusterSnapshotsMessage'],
-      shapes: shapes,
       resultWrapper: 'BatchModifyClusterSnapshotsResult',
     );
     return BatchModifyClusterSnapshotsOutputMessage.fromXml($result);
@@ -489,8 +515,9 @@ class Redshift {
   Future<ResizeProgressMessage> cancelResize({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CancelResize',
@@ -498,8 +525,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CancelResizeMessage'],
-      shapes: shapes,
       resultWrapper: 'CancelResizeResult',
     );
     return ResizeProgressMessage.fromXml($result);
@@ -520,6 +545,7 @@ class Redshift {
   /// Redshift Snapshots</a> in the <i>Amazon Redshift Cluster Management
   /// Guide</i>.
   ///
+  /// May throw [ClusterNotFoundFault].
   /// May throw [ClusterSnapshotAlreadyExistsFault].
   /// May throw [ClusterSnapshotNotFoundFault].
   /// May throw [InvalidClusterSnapshotStateFault].
@@ -572,9 +598,9 @@ class Redshift {
   ///
   /// Parameter [sourceSnapshotClusterIdentifier] :
   /// The identifier of the cluster the source snapshot was created from. This
-  /// parameter is required if your IAM user or role has a policy containing a
-  /// snapshot resource element that specifies anything other than * for the
-  /// cluster name.
+  /// parameter is required if your IAM user has a policy containing a snapshot
+  /// resource element that specifies anything other than * for the cluster
+  /// name.
   ///
   /// Constraints:
   ///
@@ -589,13 +615,15 @@ class Redshift {
     int? manualSnapshotRetentionPeriod,
     String? sourceSnapshotClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceSnapshotIdentifier'] = sourceSnapshotIdentifier;
-    $request['TargetSnapshotIdentifier'] = targetSnapshotIdentifier;
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
-    sourceSnapshotClusterIdentifier
-        ?.also((arg) => $request['SourceSnapshotClusterIdentifier'] = arg);
+    final $request = <String, String>{
+      'SourceSnapshotIdentifier': sourceSnapshotIdentifier,
+      'TargetSnapshotIdentifier': targetSnapshotIdentifier,
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+      if (sourceSnapshotClusterIdentifier != null)
+        'SourceSnapshotClusterIdentifier': sourceSnapshotClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CopyClusterSnapshot',
@@ -603,8 +631,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CopyClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'CopyClusterSnapshotResult',
     );
     return CopyClusterSnapshotResult.fromXml($result);
@@ -626,9 +652,10 @@ class Redshift {
     required String authenticationProfileContent,
     required String authenticationProfileName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AuthenticationProfileContent'] = authenticationProfileContent;
-    $request['AuthenticationProfileName'] = authenticationProfileName;
+    final $request = <String, String>{
+      'AuthenticationProfileContent': authenticationProfileContent,
+      'AuthenticationProfileName': authenticationProfileName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateAuthenticationProfile',
@@ -636,8 +663,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateAuthenticationProfileMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateAuthenticationProfileResult',
     );
     return CreateAuthenticationProfileResult.fromXml($result);
@@ -675,6 +700,9 @@ class Redshift {
   /// May throw [InvalidClusterTrackFault].
   /// May throw [SnapshotScheduleNotFoundFault].
   /// May throw [InvalidRetentionPeriodFault].
+  /// May throw [Ipv6CidrBlockNotFoundFault].
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [RedshiftIdcApplicationNotExistsFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// A unique identifier for the cluster. You use this identifier to refer to
@@ -702,35 +730,9 @@ class Redshift {
   /// </ul>
   /// Example: <code>myexamplecluster</code>
   ///
-  /// Parameter [masterUserPassword] :
-  /// The password associated with the admin user for the cluster that is being
-  /// created.
-  ///
-  /// Constraints:
-  ///
-  /// <ul>
-  /// <li>
-  /// Must be between 8 and 64 characters in length.
-  /// </li>
-  /// <li>
-  /// Must contain at least one uppercase letter.
-  /// </li>
-  /// <li>
-  /// Must contain at least one lowercase letter.
-  /// </li>
-  /// <li>
-  /// Must contain one number.
-  /// </li>
-  /// <li>
-  /// Can be any printable ASCII character (ASCII code 33-126) except
-  /// <code>'</code> (single quote), <code>"</code> (double quote),
-  /// <code>\</code>, <code>/</code>, or <code>@</code>.
-  /// </li>
-  /// </ul>
-  ///
   /// Parameter [masterUsername] :
-  /// The user name associated with the admin user for the cluster that is being
-  /// created.
+  /// The user name associated with the admin user account for the cluster that
+  /// is being created.
   ///
   /// Constraints:
   ///
@@ -956,6 +958,10 @@ class Redshift {
   /// href="https://docs.aws.amazon.com/redshift/latest/mgmt/amazon-redshift-limits.html">Quotas
   /// and limits</a> in the <i>Amazon Redshift Cluster Management Guide</i>.
   ///
+  /// Parameter [ipAddressType] :
+  /// The IP address types that the cluster supports. Possible values are
+  /// <code>ipv4</code> and <code>dualstack</code>.
+  ///
   /// Parameter [kmsKeyId] :
   /// The Key Management Service (KMS) key ID of the encryption key that you
   /// want to use to encrypt data in the cluster.
@@ -969,12 +975,58 @@ class Redshift {
   /// cluster. If you don't provide a maintenance track name, the cluster is
   /// assigned to the <code>current</code> track.
   ///
+  /// Parameter [manageMasterPassword] :
+  /// If <code>true</code>, Amazon Redshift uses Secrets Manager to manage this
+  /// cluster's admin credentials. You can't use <code>MasterUserPassword</code>
+  /// if <code>ManageMasterPassword</code> is true. If
+  /// <code>ManageMasterPassword</code> is false or not set, Amazon Redshift
+  /// uses <code>MasterUserPassword</code> for the admin user account's
+  /// password.
+  ///
   /// Parameter [manualSnapshotRetentionPeriod] :
   /// The default number of days to retain a manual snapshot. If the value is
   /// -1, the snapshot is retained indefinitely. This setting doesn't change the
   /// retention period of existing snapshots.
   ///
   /// The value must be either -1 or an integer between 1 and 3,653.
+  ///
+  /// Parameter [masterPasswordSecretKmsKeyId] :
+  /// The ID of the Key Management Service (KMS) key used to encrypt and store
+  /// the cluster's admin credentials secret. You can only use this parameter if
+  /// <code>ManageMasterPassword</code> is true.
+  ///
+  /// Parameter [masterUserPassword] :
+  /// The password associated with the admin user account for the cluster that
+  /// is being created.
+  ///
+  /// You can't use <code>MasterUserPassword</code> if
+  /// <code>ManageMasterPassword</code> is <code>true</code>.
+  ///
+  /// Constraints:
+  ///
+  /// <ul>
+  /// <li>
+  /// Must be between 8 and 64 characters in length.
+  /// </li>
+  /// <li>
+  /// Must contain at least one uppercase letter.
+  /// </li>
+  /// <li>
+  /// Must contain at least one lowercase letter.
+  /// </li>
+  /// <li>
+  /// Must contain one number.
+  /// </li>
+  /// <li>
+  /// Can be any printable ASCII character (ASCII code 33-126) except
+  /// <code>'</code> (single quote), <code>"</code> (double quote),
+  /// <code>\</code>, <code>/</code>, or <code>@</code>.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [multiAZ] :
+  /// If true, Amazon Redshift will deploy the cluster in two Availability Zones
+  /// (AZ).
   ///
   /// Parameter [numberOfNodes] :
   /// The number of compute nodes in the cluster. This parameter is required
@@ -1003,7 +1055,20 @@ class Redshift {
   ///
   /// Default: <code>5439</code>
   ///
-  /// Valid Values: <code>1150-65535</code>
+  /// Valid Values:
+  ///
+  /// <ul>
+  /// <li>
+  /// For clusters with ra3 nodes - Select a port within the ranges
+  /// <code>5431-5455</code> or <code>8191-8215</code>. (If you have an existing
+  /// cluster with ra3 nodes, it isn't required that you change the port to
+  /// these ranges.)
+  /// </li>
+  /// <li>
+  /// For clusters with ds2 or dc2 nodes - Select a port within the range
+  /// <code>1150-65535</code>.
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [preferredMaintenanceWindow] :
   /// The weekly time range (in UTC) during which automated cluster maintenance
@@ -1024,6 +1089,10 @@ class Redshift {
   /// Parameter [publiclyAccessible] :
   /// If <code>true</code>, the cluster can be accessed from a public network.
   ///
+  /// Parameter [redshiftIdcApplicationArn] :
+  /// The Amazon resource name (ARN) of the Amazon Redshift IAM Identity Center
+  /// application.
+  ///
   /// Parameter [snapshotScheduleIdentifier] :
   /// A unique identifier for the snapshot schedule.
   ///
@@ -1037,7 +1106,6 @@ class Redshift {
   /// Default: The default VPC security group is associated with the cluster.
   Future<CreateClusterResult> createCluster({
     required String clusterIdentifier,
-    required String masterUserPassword,
     required String masterUsername,
     required String nodeType,
     String? additionalInfo,
@@ -1059,64 +1127,107 @@ class Redshift {
     String? hsmClientCertificateIdentifier,
     String? hsmConfigurationIdentifier,
     List<String>? iamRoles,
+    String? ipAddressType,
     String? kmsKeyId,
     String? loadSampleData,
     String? maintenanceTrackName,
+    bool? manageMasterPassword,
     int? manualSnapshotRetentionPeriod,
+    String? masterPasswordSecretKmsKeyId,
+    String? masterUserPassword,
+    bool? multiAZ,
     int? numberOfNodes,
     int? port,
     String? preferredMaintenanceWindow,
     bool? publiclyAccessible,
+    String? redshiftIdcApplicationArn,
     String? snapshotScheduleIdentifier,
     List<Tag>? tags,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['MasterUserPassword'] = masterUserPassword;
-    $request['MasterUsername'] = masterUsername;
-    $request['NodeType'] = nodeType;
-    additionalInfo?.also((arg) => $request['AdditionalInfo'] = arg);
-    allowVersionUpgrade?.also((arg) => $request['AllowVersionUpgrade'] = arg);
-    aquaConfigurationStatus
-        ?.also((arg) => $request['AquaConfigurationStatus'] = arg.toValue());
-    automatedSnapshotRetentionPeriod
-        ?.also((arg) => $request['AutomatedSnapshotRetentionPeriod'] = arg);
-    availabilityZone?.also((arg) => $request['AvailabilityZone'] = arg);
-    availabilityZoneRelocation
-        ?.also((arg) => $request['AvailabilityZoneRelocation'] = arg);
-    clusterParameterGroupName
-        ?.also((arg) => $request['ClusterParameterGroupName'] = arg);
-    clusterSecurityGroups
-        ?.also((arg) => $request['ClusterSecurityGroups'] = arg);
-    clusterSubnetGroupName
-        ?.also((arg) => $request['ClusterSubnetGroupName'] = arg);
-    clusterType?.also((arg) => $request['ClusterType'] = arg);
-    clusterVersion?.also((arg) => $request['ClusterVersion'] = arg);
-    dBName?.also((arg) => $request['DBName'] = arg);
-    defaultIamRoleArn?.also((arg) => $request['DefaultIamRoleArn'] = arg);
-    elasticIp?.also((arg) => $request['ElasticIp'] = arg);
-    encrypted?.also((arg) => $request['Encrypted'] = arg);
-    enhancedVpcRouting?.also((arg) => $request['EnhancedVpcRouting'] = arg);
-    hsmClientCertificateIdentifier
-        ?.also((arg) => $request['HsmClientCertificateIdentifier'] = arg);
-    hsmConfigurationIdentifier
-        ?.also((arg) => $request['HsmConfigurationIdentifier'] = arg);
-    iamRoles?.also((arg) => $request['IamRoles'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    loadSampleData?.also((arg) => $request['LoadSampleData'] = arg);
-    maintenanceTrackName?.also((arg) => $request['MaintenanceTrackName'] = arg);
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
-    numberOfNodes?.also((arg) => $request['NumberOfNodes'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    publiclyAccessible?.also((arg) => $request['PubliclyAccessible'] = arg);
-    snapshotScheduleIdentifier
-        ?.also((arg) => $request['SnapshotScheduleIdentifier'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'MasterUsername': masterUsername,
+      'NodeType': nodeType,
+      if (additionalInfo != null) 'AdditionalInfo': additionalInfo,
+      if (allowVersionUpgrade != null)
+        'AllowVersionUpgrade': allowVersionUpgrade.toString(),
+      if (aquaConfigurationStatus != null)
+        'AquaConfigurationStatus': aquaConfigurationStatus.value,
+      if (automatedSnapshotRetentionPeriod != null)
+        'AutomatedSnapshotRetentionPeriod':
+            automatedSnapshotRetentionPeriod.toString(),
+      if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
+      if (availabilityZoneRelocation != null)
+        'AvailabilityZoneRelocation': availabilityZoneRelocation.toString(),
+      if (clusterParameterGroupName != null)
+        'ClusterParameterGroupName': clusterParameterGroupName,
+      if (clusterSecurityGroups != null)
+        if (clusterSecurityGroups.isEmpty)
+          'ClusterSecurityGroups': ''
+        else
+          for (var i1 = 0; i1 < clusterSecurityGroups.length; i1++)
+            'ClusterSecurityGroups.ClusterSecurityGroupName.${i1 + 1}':
+                clusterSecurityGroups[i1],
+      if (clusterSubnetGroupName != null)
+        'ClusterSubnetGroupName': clusterSubnetGroupName,
+      if (clusterType != null) 'ClusterType': clusterType,
+      if (clusterVersion != null) 'ClusterVersion': clusterVersion,
+      if (dBName != null) 'DBName': dBName,
+      if (defaultIamRoleArn != null) 'DefaultIamRoleArn': defaultIamRoleArn,
+      if (elasticIp != null) 'ElasticIp': elasticIp,
+      if (encrypted != null) 'Encrypted': encrypted.toString(),
+      if (enhancedVpcRouting != null)
+        'EnhancedVpcRouting': enhancedVpcRouting.toString(),
+      if (hsmClientCertificateIdentifier != null)
+        'HsmClientCertificateIdentifier': hsmClientCertificateIdentifier,
+      if (hsmConfigurationIdentifier != null)
+        'HsmConfigurationIdentifier': hsmConfigurationIdentifier,
+      if (iamRoles != null)
+        if (iamRoles.isEmpty)
+          'IamRoles': ''
+        else
+          for (var i1 = 0; i1 < iamRoles.length; i1++)
+            'IamRoles.IamRoleArn.${i1 + 1}': iamRoles[i1],
+      if (ipAddressType != null) 'IpAddressType': ipAddressType,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (loadSampleData != null) 'LoadSampleData': loadSampleData,
+      if (maintenanceTrackName != null)
+        'MaintenanceTrackName': maintenanceTrackName,
+      if (manageMasterPassword != null)
+        'ManageMasterPassword': manageMasterPassword.toString(),
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+      if (masterPasswordSecretKmsKeyId != null)
+        'MasterPasswordSecretKmsKeyId': masterPasswordSecretKmsKeyId,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (multiAZ != null) 'MultiAZ': multiAZ.toString(),
+      if (numberOfNodes != null) 'NumberOfNodes': numberOfNodes.toString(),
+      if (port != null) 'Port': port.toString(),
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (publiclyAccessible != null)
+        'PubliclyAccessible': publiclyAccessible.toString(),
+      if (redshiftIdcApplicationArn != null)
+        'RedshiftIdcApplicationArn': redshiftIdcApplicationArn,
+      if (snapshotScheduleIdentifier != null)
+        'SnapshotScheduleIdentifier': snapshotScheduleIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateCluster',
@@ -1124,8 +1235,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateClusterResult',
     );
     return CreateClusterResult.fromXml($result);
@@ -1195,11 +1304,18 @@ class Redshift {
     required String parameterGroupName,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Description'] = description;
-    $request['ParameterGroupFamily'] = parameterGroupFamily;
-    $request['ParameterGroupName'] = parameterGroupName;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'Description': description,
+      'ParameterGroupFamily': parameterGroupFamily,
+      'ParameterGroupName': parameterGroupName,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateClusterParameterGroup',
@@ -1207,8 +1323,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateClusterParameterGroupResult',
     );
     return CreateClusterParameterGroupResult.fromXml($result);
@@ -1257,10 +1371,17 @@ class Redshift {
     required String description,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterSecurityGroupName'] = clusterSecurityGroupName;
-    $request['Description'] = description;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'ClusterSecurityGroupName': clusterSecurityGroupName,
+      'Description': description,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateClusterSecurityGroup',
@@ -1268,8 +1389,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateClusterSecurityGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateClusterSecurityGroupResult',
     );
     return CreateClusterSecurityGroupResult.fromXml($result);
@@ -1333,12 +1452,20 @@ class Redshift {
     int? manualSnapshotRetentionPeriod,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['SnapshotIdentifier'] = snapshotIdentifier;
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'SnapshotIdentifier': snapshotIdentifier,
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateClusterSnapshot',
@@ -1346,8 +1473,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateClusterSnapshotResult',
     );
     return CreateClusterSnapshotResult.fromXml($result);
@@ -1406,11 +1531,22 @@ class Redshift {
     required List<String> subnetIds,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterSubnetGroupName'] = clusterSubnetGroupName;
-    $request['Description'] = description;
-    $request['SubnetIds'] = subnetIds;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'ClusterSubnetGroupName': clusterSubnetGroupName,
+      'Description': description,
+      if (subnetIds.isEmpty)
+        'SubnetIds': ''
+      else
+        for (var i1 = 0; i1 < subnetIds.length; i1++)
+          'SubnetIds.SubnetIdentifier.${i1 + 1}': subnetIds[i1],
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateClusterSubnetGroup',
@@ -1418,11 +1554,48 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateClusterSubnetGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateClusterSubnetGroupResult',
     );
     return CreateClusterSubnetGroupResult.fromXml($result);
+  }
+
+  /// Used to create a custom domain name for a cluster. Properties include the
+  /// custom domain name, the cluster the custom domain is associated with, and
+  /// the certificate Amazon Resource Name (ARN).
+  ///
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [ClusterNotFoundFault].
+  /// May throw [CustomCnameAssociationFault].
+  ///
+  /// Parameter [clusterIdentifier] :
+  /// The cluster identifier that the custom domain is associated with.
+  ///
+  /// Parameter [customDomainCertificateArn] :
+  /// The certificate Amazon Resource Name (ARN) for the custom domain name
+  /// association.
+  ///
+  /// Parameter [customDomainName] :
+  /// The custom domain name for a custom domain association.
+  Future<CreateCustomDomainAssociationResult> createCustomDomainAssociation({
+    required String clusterIdentifier,
+    required String customDomainCertificateArn,
+    required String customDomainName,
+  }) async {
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'CustomDomainCertificateArn': customDomainCertificateArn,
+      'CustomDomainName': customDomainName,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'CreateCustomDomainAssociation',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'CreateCustomDomainAssociationResult',
+    );
+    return CreateCustomDomainAssociationResult.fromXml($result);
   }
 
   /// Creates a Redshift-managed VPC endpoint.
@@ -1466,12 +1639,19 @@ class Redshift {
     String? resourceOwner,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EndpointName'] = endpointName;
-    $request['SubnetGroupName'] = subnetGroupName;
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    resourceOwner?.also((arg) => $request['ResourceOwner'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'EndpointName': endpointName,
+      'SubnetGroupName': subnetGroupName,
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (resourceOwner != null) 'ResourceOwner': resourceOwner,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateEndpointAccess',
@@ -1479,8 +1659,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateEndpointAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateEndpointAccessResult',
     );
     return EndpointAccess.fromXml($result);
@@ -1598,15 +1776,32 @@ class Redshift {
     String? sourceType,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnsTopicArn'] = snsTopicArn;
-    $request['SubscriptionName'] = subscriptionName;
-    enabled?.also((arg) => $request['Enabled'] = arg);
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    severity?.also((arg) => $request['Severity'] = arg);
-    sourceIds?.also((arg) => $request['SourceIds'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SnsTopicArn': snsTopicArn,
+      'SubscriptionName': subscriptionName,
+      if (enabled != null) 'Enabled': enabled.toString(),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (severity != null) 'Severity': severity,
+      if (sourceIds != null)
+        if (sourceIds.isEmpty)
+          'SourceIds': ''
+        else
+          for (var i1 = 0; i1 < sourceIds.length; i1++)
+            'SourceIds.SourceId.${i1 + 1}': sourceIds[i1],
+      if (sourceType != null) 'SourceType': sourceType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateEventSubscription',
@@ -1614,8 +1809,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateEventSubscriptionResult',
     );
     return CreateEventSubscriptionResult.fromXml($result);
@@ -1650,9 +1843,16 @@ class Redshift {
     required String hsmClientCertificateIdentifier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['HsmClientCertificateIdentifier'] = hsmClientCertificateIdentifier;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'HsmClientCertificateIdentifier': hsmClientCertificateIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateHsmClientCertificate',
@@ -1660,8 +1860,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateHsmClientCertificateMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateHsmClientCertificateResult',
     );
     return CreateHsmClientCertificateResult.fromXml($result);
@@ -1716,14 +1914,21 @@ class Redshift {
     required String hsmServerPublicCertificate,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Description'] = description;
-    $request['HsmConfigurationIdentifier'] = hsmConfigurationIdentifier;
-    $request['HsmIpAddress'] = hsmIpAddress;
-    $request['HsmPartitionName'] = hsmPartitionName;
-    $request['HsmPartitionPassword'] = hsmPartitionPassword;
-    $request['HsmServerPublicCertificate'] = hsmServerPublicCertificate;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'Description': description,
+      'HsmConfigurationIdentifier': hsmConfigurationIdentifier,
+      'HsmIpAddress': hsmIpAddress,
+      'HsmPartitionName': hsmPartitionName,
+      'HsmPartitionPassword': hsmPartitionPassword,
+      'HsmServerPublicCertificate': hsmServerPublicCertificate,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateHsmConfiguration',
@@ -1731,23 +1936,101 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateHsmConfigurationMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateHsmConfigurationResult',
     );
     return CreateHsmConfigurationResult.fromXml($result);
+  }
+
+  /// Creates an Amazon Redshift application for use with IAM Identity Center.
+  ///
+  /// May throw [RedshiftIdcApplicationAlreadyExistsFault].
+  /// May throw [DependentServiceUnavailableFault].
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [DependentServiceAccessDeniedFault].
+  /// May throw [RedshiftIdcApplicationQuotaExceededFault].
+  ///
+  /// Parameter [iamRoleArn] :
+  /// The IAM role ARN for the Amazon Redshift IAM Identity Center application
+  /// instance. It has the required permissions to be assumed and invoke the IDC
+  /// Identity Center API.
+  ///
+  /// Parameter [idcDisplayName] :
+  /// The display name for the Amazon Redshift IAM Identity Center application
+  /// instance. It appears in the console.
+  ///
+  /// Parameter [idcInstanceArn] :
+  /// The Amazon resource name (ARN) of the IAM Identity Center instance where
+  /// Amazon Redshift creates a new managed application.
+  ///
+  /// Parameter [redshiftIdcApplicationName] :
+  /// The name of the Redshift application in IAM Identity Center.
+  ///
+  /// Parameter [authorizedTokenIssuerList] :
+  /// The token issuer list for the Amazon Redshift IAM Identity Center
+  /// application instance.
+  ///
+  /// Parameter [identityNamespace] :
+  /// The namespace for the Amazon Redshift IAM Identity Center application
+  /// instance. It determines which managed application verifies the connection
+  /// token.
+  ///
+  /// Parameter [serviceIntegrations] :
+  /// A collection of service integrations for the Redshift IAM Identity Center
+  /// application.
+  Future<CreateRedshiftIdcApplicationResult> createRedshiftIdcApplication({
+    required String iamRoleArn,
+    required String idcDisplayName,
+    required String idcInstanceArn,
+    required String redshiftIdcApplicationName,
+    List<AuthorizedTokenIssuer>? authorizedTokenIssuerList,
+    String? identityNamespace,
+    List<ServiceIntegrationsUnion>? serviceIntegrations,
+  }) async {
+    final $request = <String, String>{
+      'IamRoleArn': iamRoleArn,
+      'IdcDisplayName': idcDisplayName,
+      'IdcInstanceArn': idcInstanceArn,
+      'RedshiftIdcApplicationName': redshiftIdcApplicationName,
+      if (authorizedTokenIssuerList != null)
+        if (authorizedTokenIssuerList.isEmpty)
+          'AuthorizedTokenIssuerList': ''
+        else
+          for (var i1 = 0; i1 < authorizedTokenIssuerList.length; i1++)
+            for (var e3 in authorizedTokenIssuerList[i1].toQueryMap().entries)
+              'AuthorizedTokenIssuerList.member.${i1 + 1}.${e3.key}': e3.value,
+      if (identityNamespace != null) 'IdentityNamespace': identityNamespace,
+      if (serviceIntegrations != null)
+        if (serviceIntegrations.isEmpty)
+          'ServiceIntegrations': ''
+        else
+          for (var i1 = 0; i1 < serviceIntegrations.length; i1++)
+            for (var e3 in serviceIntegrations[i1].toQueryMap().entries)
+              'ServiceIntegrations.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'CreateRedshiftIdcApplication',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'CreateRedshiftIdcApplicationResult',
+    );
+    return CreateRedshiftIdcApplicationResult.fromXml($result);
   }
 
   /// Creates a scheduled action. A scheduled action contains a schedule and an
   /// Amazon Redshift API action. For example, you can create a schedule of when
   /// to run the <code>ResizeCluster</code> API operation.
   ///
+  /// May throw [ClusterNotFoundFault].
   /// May throw [ScheduledActionAlreadyExistsFault].
   /// May throw [ScheduledActionQuotaExceededFault].
   /// May throw [ScheduledActionTypeUnsupportedFault].
   /// May throw [InvalidScheduleFault].
   /// May throw [InvalidScheduledActionFault].
   /// May throw [UnauthorizedOperation].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [iamRole] :
   /// The IAM role to assume to run the target action. For more information
@@ -1794,16 +2077,18 @@ class Redshift {
     String? scheduledActionDescription,
     DateTime? startTime,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['IamRole'] = iamRole;
-    $request['Schedule'] = schedule;
-    $request['ScheduledActionName'] = scheduledActionName;
-    $request['TargetAction'] = targetAction;
-    enable?.also((arg) => $request['Enable'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    scheduledActionDescription
-        ?.also((arg) => $request['ScheduledActionDescription'] = arg);
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
+    final $request = <String, String>{
+      'IamRole': iamRole,
+      'Schedule': schedule,
+      'ScheduledActionName': scheduledActionName,
+      for (var e1 in targetAction.toQueryMap().entries)
+        'TargetAction.${e1.key}': e1.value,
+      if (enable != null) 'Enable': enable.toString(),
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (scheduledActionDescription != null)
+        'ScheduledActionDescription': scheduledActionDescription,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateScheduledAction',
@@ -1811,8 +2096,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateScheduledActionMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateScheduledActionResult',
     );
     return ScheduledAction.fromXml($result);
@@ -1870,10 +2153,17 @@ class Redshift {
     String? kmsKeyId,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnapshotCopyGrantName'] = snapshotCopyGrantName;
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SnapshotCopyGrantName': snapshotCopyGrantName,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateSnapshotCopyGrant',
@@ -1881,8 +2171,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateSnapshotCopyGrantMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateSnapshotCopyGrantResult',
     );
     return CreateSnapshotCopyGrantResult.fromXml($result);
@@ -1925,13 +2213,28 @@ class Redshift {
     String? scheduleIdentifier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    dryRun?.also((arg) => $request['DryRun'] = arg);
-    nextInvocations?.also((arg) => $request['NextInvocations'] = arg);
-    scheduleDefinitions?.also((arg) => $request['ScheduleDefinitions'] = arg);
-    scheduleDescription?.also((arg) => $request['ScheduleDescription'] = arg);
-    scheduleIdentifier?.also((arg) => $request['ScheduleIdentifier'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      if (dryRun != null) 'DryRun': dryRun.toString(),
+      if (nextInvocations != null)
+        'NextInvocations': nextInvocations.toString(),
+      if (scheduleDefinitions != null)
+        if (scheduleDefinitions.isEmpty)
+          'ScheduleDefinitions': ''
+        else
+          for (var i1 = 0; i1 < scheduleDefinitions.length; i1++)
+            'ScheduleDefinitions.ScheduleDefinition.${i1 + 1}':
+                scheduleDefinitions[i1],
+      if (scheduleDescription != null)
+        'ScheduleDescription': scheduleDescription,
+      if (scheduleIdentifier != null) 'ScheduleIdentifier': scheduleIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateSnapshotSchedule',
@@ -1939,8 +2242,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateSnapshotScheduleMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateSnapshotScheduleResult',
     );
     return SnapshotSchedule.fromXml($result);
@@ -1975,9 +2276,15 @@ class Redshift {
     required String resourceName,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'CreateTags',
@@ -1985,8 +2292,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateTagsMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2042,14 +2347,21 @@ class Redshift {
     UsageLimitPeriod? period,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Amount'] = amount;
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['FeatureType'] = featureType.toValue();
-    $request['LimitType'] = limitType.toValue();
-    breachAction?.also((arg) => $request['BreachAction'] = arg.toValue());
-    period?.also((arg) => $request['Period'] = arg.toValue());
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'Amount': amount.toString(),
+      'ClusterIdentifier': clusterIdentifier,
+      'FeatureType': featureType.value,
+      'LimitType': limitType.value,
+      if (breachAction != null) 'BreachAction': breachAction.value,
+      if (period != null) 'Period': period.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateUsageLimit',
@@ -2057,8 +2369,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateUsageLimitMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateUsageLimitResult',
     );
     return UsageLimit.fromXml($result);
@@ -2075,15 +2385,16 @@ class Redshift {
   /// or a keyword, such as ADX.
   ///
   /// Parameter [dataShareArn] :
-  /// The Amazon Resource Name (ARN) of the datashare to remove authorization
-  /// from.
+  /// The namespace Amazon Resource Name (ARN) of the datashare to remove
+  /// authorization from.
   Future<DataShare> deauthorizeDataShare({
     required String consumerIdentifier,
     required String dataShareArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ConsumerIdentifier'] = consumerIdentifier;
-    $request['DataShareArn'] = dataShareArn;
+    final $request = <String, String>{
+      'ConsumerIdentifier': consumerIdentifier,
+      'DataShareArn': dataShareArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeauthorizeDataShare',
@@ -2091,8 +2402,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeauthorizeDataShareMessage'],
-      shapes: shapes,
       resultWrapper: 'DeauthorizeDataShareResult',
     );
     return DataShare.fromXml($result);
@@ -2108,8 +2417,9 @@ class Redshift {
   Future<DeleteAuthenticationProfileResult> deleteAuthenticationProfile({
     required String authenticationProfileName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AuthenticationProfileName'] = authenticationProfileName;
+    final $request = <String, String>{
+      'AuthenticationProfileName': authenticationProfileName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteAuthenticationProfile',
@@ -2117,8 +2427,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteAuthenticationProfileMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteAuthenticationProfileResult',
     );
     return DeleteAuthenticationProfileResult.fromXml($result);
@@ -2216,14 +2524,16 @@ class Redshift {
     int? finalClusterSnapshotRetentionPeriod,
     bool? skipFinalClusterSnapshot,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    finalClusterSnapshotIdentifier
-        ?.also((arg) => $request['FinalClusterSnapshotIdentifier'] = arg);
-    finalClusterSnapshotRetentionPeriod
-        ?.also((arg) => $request['FinalClusterSnapshotRetentionPeriod'] = arg);
-    skipFinalClusterSnapshot
-        ?.also((arg) => $request['SkipFinalClusterSnapshot'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (finalClusterSnapshotIdentifier != null)
+        'FinalClusterSnapshotIdentifier': finalClusterSnapshotIdentifier,
+      if (finalClusterSnapshotRetentionPeriod != null)
+        'FinalClusterSnapshotRetentionPeriod':
+            finalClusterSnapshotRetentionPeriod.toString(),
+      if (skipFinalClusterSnapshot != null)
+        'SkipFinalClusterSnapshot': skipFinalClusterSnapshot.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteCluster',
@@ -2231,8 +2541,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteClusterResult',
     );
     return DeleteClusterResult.fromXml($result);
@@ -2262,8 +2570,9 @@ class Redshift {
   Future<void> deleteClusterParameterGroup({
     required String parameterGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ParameterGroupName'] = parameterGroupName;
+    final $request = <String, String>{
+      'ParameterGroupName': parameterGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteClusterParameterGroup',
@@ -2271,8 +2580,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteClusterParameterGroupMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2294,8 +2601,9 @@ class Redshift {
   Future<void> deleteClusterSecurityGroup({
     required String clusterSecurityGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterSecurityGroupName'] = clusterSecurityGroupName;
+    final $request = <String, String>{
+      'ClusterSecurityGroupName': clusterSecurityGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteClusterSecurityGroup',
@@ -2303,8 +2611,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteClusterSecurityGroupMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2330,19 +2636,20 @@ class Redshift {
   ///
   /// Parameter [snapshotClusterIdentifier] :
   /// The unique identifier of the cluster the snapshot was created from. This
-  /// parameter is required if your IAM user or role has a policy containing a
-  /// snapshot resource element that specifies anything other than * for the
-  /// cluster name.
+  /// parameter is required if your IAM user has a policy containing a snapshot
+  /// resource element that specifies anything other than * for the cluster
+  /// name.
   ///
   /// Constraints: Must be the name of valid cluster.
   Future<DeleteClusterSnapshotResult> deleteClusterSnapshot({
     required String snapshotIdentifier,
     String? snapshotClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnapshotIdentifier'] = snapshotIdentifier;
-    snapshotClusterIdentifier
-        ?.also((arg) => $request['SnapshotClusterIdentifier'] = arg);
+    final $request = <String, String>{
+      'SnapshotIdentifier': snapshotIdentifier,
+      if (snapshotClusterIdentifier != null)
+        'SnapshotClusterIdentifier': snapshotClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteClusterSnapshot',
@@ -2350,8 +2657,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteClusterSnapshotResult',
     );
     return DeleteClusterSnapshotResult.fromXml($result);
@@ -2368,8 +2673,9 @@ class Redshift {
   Future<void> deleteClusterSubnetGroup({
     required String clusterSubnetGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterSubnetGroupName'] = clusterSubnetGroupName;
+    final $request = <String, String>{
+      'ClusterSubnetGroupName': clusterSubnetGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteClusterSubnetGroup',
@@ -2377,8 +2683,37 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteClusterSubnetGroupMessage'],
-      shapes: shapes,
+    );
+  }
+
+  /// Contains information about deleting a custom domain association for a
+  /// cluster.
+  ///
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [ClusterNotFoundFault].
+  /// May throw [CustomCnameAssociationFault].
+  /// May throw [CustomDomainAssociationNotFoundFault].
+  ///
+  /// Parameter [clusterIdentifier] :
+  /// The identifier of the cluster to delete a custom domain association for.
+  ///
+  /// Parameter [customDomainName] :
+  /// The custom domain name for the custom domain association.
+  Future<void> deleteCustomDomainAssociation({
+    required String clusterIdentifier,
+    required String customDomainName,
+  }) async {
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'CustomDomainName': customDomainName,
+    };
+    await _protocol.send(
+      $request,
+      action: 'DeleteCustomDomainAssociation',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
     );
   }
 
@@ -2395,8 +2730,9 @@ class Redshift {
   Future<EndpointAccess> deleteEndpointAccess({
     required String endpointName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EndpointName'] = endpointName;
+    final $request = <String, String>{
+      'EndpointName': endpointName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteEndpointAccess',
@@ -2404,8 +2740,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteEndpointAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteEndpointAccessResult',
     );
     return EndpointAccess.fromXml($result);
@@ -2422,8 +2756,9 @@ class Redshift {
   Future<void> deleteEventSubscription({
     required String subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SubscriptionName'] = subscriptionName;
+    final $request = <String, String>{
+      'SubscriptionName': subscriptionName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteEventSubscription',
@@ -2431,8 +2766,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteEventSubscriptionMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2446,8 +2779,9 @@ class Redshift {
   Future<void> deleteHsmClientCertificate({
     required String hsmClientCertificateIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['HsmClientCertificateIdentifier'] = hsmClientCertificateIdentifier;
+    final $request = <String, String>{
+      'HsmClientCertificateIdentifier': hsmClientCertificateIdentifier,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteHsmClientCertificate',
@@ -2455,8 +2789,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteHsmClientCertificateMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2470,8 +2802,9 @@ class Redshift {
   Future<void> deleteHsmConfiguration({
     required String hsmConfigurationIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['HsmConfigurationIdentifier'] = hsmConfigurationIdentifier;
+    final $request = <String, String>{
+      'HsmConfigurationIdentifier': hsmConfigurationIdentifier,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteHsmConfiguration',
@@ -2479,8 +2812,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteHsmConfigurationMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2490,6 +2821,7 @@ class Redshift {
   /// May throw [PartnerNotFoundFault].
   /// May throw [ClusterNotFoundFault].
   /// May throw [UnauthorizedPartnerIntegrationFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [accountId] :
   /// The Amazon Web Services account ID that owns the cluster.
@@ -2508,11 +2840,12 @@ class Redshift {
     required String databaseName,
     required String partnerName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountId'] = accountId;
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['DatabaseName'] = databaseName;
-    $request['PartnerName'] = partnerName;
+    final $request = <String, String>{
+      'AccountId': accountId,
+      'ClusterIdentifier': clusterIdentifier,
+      'DatabaseName': databaseName,
+      'PartnerName': partnerName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeletePartner',
@@ -2520,11 +2853,58 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PartnerIntegrationInputMessage'],
-      shapes: shapes,
       resultWrapper: 'DeletePartnerResult',
     );
     return PartnerIntegrationOutputMessage.fromXml($result);
+  }
+
+  /// Deletes an Amazon Redshift IAM Identity Center application.
+  ///
+  /// May throw [RedshiftIdcApplicationNotExistsFault].
+  /// May throw [DependentServiceUnavailableFault].
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [DependentServiceAccessDeniedFault].
+  ///
+  /// Parameter [redshiftIdcApplicationArn] :
+  /// The ARN for a deleted Amazon Redshift IAM Identity Center application.
+  Future<void> deleteRedshiftIdcApplication({
+    required String redshiftIdcApplicationArn,
+  }) async {
+    final $request = <String, String>{
+      'RedshiftIdcApplicationArn': redshiftIdcApplicationArn,
+    };
+    await _protocol.send(
+      $request,
+      action: 'DeleteRedshiftIdcApplication',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes the resource policy for a specified resource.
+  ///
+  /// May throw [ResourceNotFoundFault].
+  /// May throw [UnsupportedOperationFault].
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the resource of which its resource
+  /// policy is deleted.
+  Future<void> deleteResourcePolicy({
+    required String resourceArn,
+  }) async {
+    final $request = <String, String>{
+      'ResourceArn': resourceArn,
+    };
+    await _protocol.send(
+      $request,
+      action: 'DeleteResourcePolicy',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Deletes a scheduled action.
@@ -2537,8 +2917,9 @@ class Redshift {
   Future<void> deleteScheduledAction({
     required String scheduledActionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ScheduledActionName'] = scheduledActionName;
+    final $request = <String, String>{
+      'ScheduledActionName': scheduledActionName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteScheduledAction',
@@ -2546,8 +2927,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteScheduledActionMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2561,8 +2940,9 @@ class Redshift {
   Future<void> deleteSnapshotCopyGrant({
     required String snapshotCopyGrantName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnapshotCopyGrantName'] = snapshotCopyGrantName;
+    final $request = <String, String>{
+      'SnapshotCopyGrantName': snapshotCopyGrantName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteSnapshotCopyGrant',
@@ -2570,8 +2950,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteSnapshotCopyGrantMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2585,8 +2963,9 @@ class Redshift {
   Future<void> deleteSnapshotSchedule({
     required String scheduleIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ScheduleIdentifier'] = scheduleIdentifier;
+    final $request = <String, String>{
+      'ScheduleIdentifier': scheduleIdentifier,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteSnapshotSchedule',
@@ -2594,8 +2973,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteSnapshotScheduleMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2616,9 +2993,14 @@ class Redshift {
     required String resourceName,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'DeleteTags',
@@ -2626,8 +3008,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteTagsMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2641,8 +3021,9 @@ class Redshift {
   Future<void> deleteUsageLimit({
     required String usageLimitId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UsageLimitId'] = usageLimitId;
+    final $request = <String, String>{
+      'UsageLimitId': usageLimitId,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteUsageLimit',
@@ -2650,8 +3031,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteUsageLimitMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2662,8 +3041,14 @@ class Redshift {
   Future<AccountAttributeList> describeAccountAttributes({
     List<String>? attributeNames,
   }) async {
-    final $request = <String, dynamic>{};
-    attributeNames?.also((arg) => $request['AttributeNames'] = arg);
+    final $request = <String, String>{
+      if (attributeNames != null)
+        if (attributeNames.isEmpty)
+          'AttributeNames': ''
+        else
+          for (var i1 = 0; i1 < attributeNames.length; i1++)
+            'AttributeNames.AttributeName.${i1 + 1}': attributeNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAccountAttributes',
@@ -2671,8 +3056,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAccountAttributesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeAccountAttributesResult',
     );
     return AccountAttributeList.fromXml($result);
@@ -2689,9 +3072,10 @@ class Redshift {
   Future<DescribeAuthenticationProfilesResult> describeAuthenticationProfiles({
     String? authenticationProfileName,
   }) async {
-    final $request = <String, dynamic>{};
-    authenticationProfileName
-        ?.also((arg) => $request['AuthenticationProfileName'] = arg);
+    final $request = <String, String>{
+      if (authenticationProfileName != null)
+        'AuthenticationProfileName': authenticationProfileName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAuthenticationProfiles',
@@ -2699,8 +3083,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAuthenticationProfilesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeAuthenticationProfilesResult',
     );
     return DescribeAuthenticationProfilesResult.fromXml($result);
@@ -2744,10 +3126,11 @@ class Redshift {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterDbRevisions',
@@ -2755,8 +3138,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterDbRevisionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterDbRevisionsResult',
     );
     return ClusterDbRevisionsMessage.fromXml($result);
@@ -2836,12 +3217,23 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    parameterGroupName?.also((arg) => $request['ParameterGroupName'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (parameterGroupName != null) 'ParameterGroupName': parameterGroupName,
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterParameterGroups',
@@ -2849,8 +3241,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterParameterGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterParameterGroupsResult',
     );
     return ClusterParameterGroupsMessage.fromXml($result);
@@ -2911,11 +3301,12 @@ class Redshift {
     int? maxRecords,
     String? source,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ParameterGroupName'] = parameterGroupName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    source?.also((arg) => $request['Source'] = arg);
+    final $request = <String, String>{
+      'ParameterGroupName': parameterGroupName,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (source != null) 'Source': source,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterParameters',
@@ -2923,8 +3314,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterParametersResult',
     );
     return ClusterParameterGroupDetails.fromXml($result);
@@ -3007,13 +3396,24 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterSecurityGroupName
-        ?.also((arg) => $request['ClusterSecurityGroupName'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (clusterSecurityGroupName != null)
+        'ClusterSecurityGroupName': clusterSecurityGroupName,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterSecurityGroups',
@@ -3021,8 +3421,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterSecurityGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterSecurityGroupsResult',
     );
     return ClusterSecurityGroupMessage.fromXml($result);
@@ -3109,7 +3507,7 @@ class Redshift {
   ///
   /// Default: <code>100</code>
   ///
-  /// Constraints: minimum 20, maximum 500.
+  /// Constraints: minimum 20, maximum 100.
   ///
   /// Parameter [ownerAccount] :
   /// The Amazon Web Services account used to create or copy the snapshot. Use
@@ -3172,20 +3570,38 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterExists?.also((arg) => $request['ClusterExists'] = arg);
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    ownerAccount?.also((arg) => $request['OwnerAccount'] = arg);
-    snapshotArn?.also((arg) => $request['SnapshotArn'] = arg);
-    snapshotIdentifier?.also((arg) => $request['SnapshotIdentifier'] = arg);
-    snapshotType?.also((arg) => $request['SnapshotType'] = arg);
-    sortingEntities?.also((arg) => $request['SortingEntities'] = arg);
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (clusterExists != null) 'ClusterExists': clusterExists.toString(),
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (ownerAccount != null) 'OwnerAccount': ownerAccount,
+      if (snapshotArn != null) 'SnapshotArn': snapshotArn,
+      if (snapshotIdentifier != null) 'SnapshotIdentifier': snapshotIdentifier,
+      if (snapshotType != null) 'SnapshotType': snapshotType,
+      if (sortingEntities != null)
+        if (sortingEntities.isEmpty)
+          'SortingEntities': ''
+        else
+          for (var i1 = 0; i1 < sortingEntities.length; i1++)
+            for (var e3 in sortingEntities[i1].toQueryMap().entries)
+              'SortingEntities.SnapshotSortingEntity.${i1 + 1}.${e3.key}':
+                  e3.value,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterSnapshots',
@@ -3193,8 +3609,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterSnapshotsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterSnapshotsResult',
     );
     return SnapshotMessage.fromXml($result);
@@ -3266,13 +3680,24 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterSubnetGroupName
-        ?.also((arg) => $request['ClusterSubnetGroupName'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (clusterSubnetGroupName != null)
+        'ClusterSubnetGroupName': clusterSubnetGroupName,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterSubnetGroups',
@@ -3280,8 +3705,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterSubnetGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterSubnetGroupsResult',
     );
     return ClusterSubnetGroupMessage.fromXml($result);
@@ -3311,10 +3734,12 @@ class Redshift {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    maintenanceTrackName?.also((arg) => $request['MaintenanceTrackName'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (maintenanceTrackName != null)
+        'MaintenanceTrackName': maintenanceTrackName,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterTracks',
@@ -3322,8 +3747,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterTracksMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterTracksResult',
     );
     return TrackListMessage.fromXml($result);
@@ -3385,12 +3808,13 @@ class Redshift {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterParameterGroupFamily
-        ?.also((arg) => $request['ClusterParameterGroupFamily'] = arg);
-    clusterVersion?.also((arg) => $request['ClusterVersion'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (clusterParameterGroupFamily != null)
+        'ClusterParameterGroupFamily': clusterParameterGroupFamily,
+      if (clusterVersion != null) 'ClusterVersion': clusterVersion,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusterVersions',
@@ -3398,8 +3822,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClusterVersionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClusterVersionsResult',
     );
     return ClusterVersionsMessage.fromXml($result);
@@ -3478,12 +3900,23 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeClusters',
@@ -3491,11 +3924,51 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeClustersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeClustersResult',
     );
     return ClustersMessage.fromXml($result);
+  }
+
+  /// Contains information about custom domain associations for a cluster.
+  ///
+  /// May throw [CustomDomainAssociationNotFoundFault].
+  /// May throw [UnsupportedOperationFault].
+  ///
+  /// Parameter [customDomainCertificateArn] :
+  /// The certificate Amazon Resource Name (ARN) for the custom domain
+  /// association.
+  ///
+  /// Parameter [customDomainName] :
+  /// The custom domain name for the custom domain association.
+  ///
+  /// Parameter [marker] :
+  /// The marker for the custom domain association.
+  ///
+  /// Parameter [maxRecords] :
+  /// The maximum records setting for the associated custom domain.
+  Future<CustomDomainAssociationsMessage> describeCustomDomainAssociations({
+    String? customDomainCertificateArn,
+    String? customDomainName,
+    String? marker,
+    int? maxRecords,
+  }) async {
+    final $request = <String, String>{
+      if (customDomainCertificateArn != null)
+        'CustomDomainCertificateArn': customDomainCertificateArn,
+      if (customDomainName != null) 'CustomDomainName': customDomainName,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'DescribeCustomDomainAssociations',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'DescribeCustomDomainAssociationsResult',
+    );
+    return CustomDomainAssociationsMessage.fromXml($result);
   }
 
   /// Shows the status of any inbound or outbound datashares available in the
@@ -3504,7 +3977,7 @@ class Redshift {
   /// May throw [InvalidDataShareFault].
   ///
   /// Parameter [dataShareArn] :
-  /// The identifier of the datashare to describe details of.
+  /// The Amazon resource name (ARN) of the datashare to describe details of.
   ///
   /// Parameter [marker] :
   /// An optional parameter that specifies the starting point to return a set of
@@ -3525,10 +3998,11 @@ class Redshift {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dataShareArn?.also((arg) => $request['DataShareArn'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dataShareArn != null) 'DataShareArn': dataShareArn,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDataShares',
@@ -3536,8 +4010,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDataSharesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDataSharesResult',
     );
     return DescribeDataSharesResult.fromXml($result);
@@ -3549,8 +4021,8 @@ class Redshift {
   /// May throw [InvalidNamespaceFault].
   ///
   /// Parameter [consumerArn] :
-  /// The Amazon Resource Name (ARN) of the consumer that returns in the list of
-  /// datashares.
+  /// The Amazon Resource Name (ARN) of the consumer namespace that returns in
+  /// the list of datashares.
   ///
   /// Parameter [marker] :
   /// An optional parameter that specifies the starting point to return a set of
@@ -3578,11 +4050,12 @@ class Redshift {
     int? maxRecords,
     DataShareStatusForConsumer? status,
   }) async {
-    final $request = <String, dynamic>{};
-    consumerArn?.also((arg) => $request['ConsumerArn'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    status?.also((arg) => $request['Status'] = arg.toValue());
+    final $request = <String, String>{
+      if (consumerArn != null) 'ConsumerArn': consumerArn,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (status != null) 'Status': status.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDataSharesForConsumer',
@@ -3590,8 +4063,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDataSharesForConsumerMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDataSharesForConsumerResult',
     );
     return DescribeDataSharesForConsumerResult.fromXml($result);
@@ -3619,8 +4090,8 @@ class Redshift {
   /// of records by retrying the command with the returned marker value.
   ///
   /// Parameter [producerArn] :
-  /// The Amazon Resource Name (ARN) of the producer that returns in the list of
-  /// datashares.
+  /// The Amazon Resource Name (ARN) of the producer namespace that returns in
+  /// the list of datashares.
   ///
   /// Parameter [status] :
   /// An identifier giving the status of a datashare in the producer. If this
@@ -3632,11 +4103,12 @@ class Redshift {
     String? producerArn,
     DataShareStatusForProducer? status,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    producerArn?.also((arg) => $request['ProducerArn'] = arg);
-    status?.also((arg) => $request['Status'] = arg.toValue());
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (producerArn != null) 'ProducerArn': producerArn,
+      if (status != null) 'Status': status.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDataSharesForProducer',
@@ -3644,8 +4116,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDataSharesForProducerMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDataSharesForProducerResult',
     );
     return DescribeDataSharesForProducerResult.fromXml($result);
@@ -3687,10 +4157,11 @@ class Redshift {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ParameterGroupFamily'] = parameterGroupFamily;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      'ParameterGroupFamily': parameterGroupFamily,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDefaultClusterParameters',
@@ -3698,8 +4169,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDefaultClusterParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDefaultClusterParametersResult',
     );
     return DescribeDefaultClusterParametersResult.fromXml($result);
@@ -3742,13 +4211,14 @@ class Redshift {
     String? resourceOwner,
     String? vpcId,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    endpointName?.also((arg) => $request['EndpointName'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    resourceOwner?.also((arg) => $request['ResourceOwner'] = arg);
-    vpcId?.also((arg) => $request['VpcId'] = arg);
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (endpointName != null) 'EndpointName': endpointName,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (resourceOwner != null) 'ResourceOwner': resourceOwner,
+      if (vpcId != null) 'VpcId': vpcId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEndpointAccess',
@@ -3756,8 +4226,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEndpointAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEndpointAccessResult',
     );
     return EndpointAccessList.fromXml($result);
@@ -3800,12 +4268,13 @@ class Redshift {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    account?.also((arg) => $request['Account'] = arg);
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    grantee?.also((arg) => $request['Grantee'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (account != null) 'Account': account,
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (grantee != null) 'Grantee': grantee.toString(),
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEndpointAuthorization',
@@ -3813,8 +4282,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEndpointAuthorizationMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEndpointAuthorizationResult',
     );
     return EndpointAuthorizationList.fromXml($result);
@@ -3835,8 +4302,9 @@ class Redshift {
   Future<EventCategoriesMessage> describeEventCategories({
     String? sourceType,
   }) async {
-    final $request = <String, dynamic>{};
-    sourceType?.also((arg) => $request['SourceType'] = arg);
+    final $request = <String, String>{
+      if (sourceType != null) 'SourceType': sourceType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEventCategories',
@@ -3844,8 +4312,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventCategoriesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventCategoriesResult',
     );
     return EventCategoriesMessage.fromXml($result);
@@ -3916,12 +4382,23 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    subscriptionName?.also((arg) => $request['SubscriptionName'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (subscriptionName != null) 'SubscriptionName': subscriptionName,
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEventSubscriptions',
@@ -3929,8 +4406,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventSubscriptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventSubscriptionsResult',
     );
     return EventSubscriptionsMessage.fromXml($result);
@@ -4048,14 +4523,15 @@ class Redshift {
     SourceType? sourceType,
     DateTime? startTime,
   }) async {
-    final $request = <String, dynamic>{};
-    duration?.also((arg) => $request['Duration'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    sourceIdentifier?.also((arg) => $request['SourceIdentifier'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg.toValue());
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
+    final $request = <String, String>{
+      if (duration != null) 'Duration': duration.toString(),
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (sourceIdentifier != null) 'SourceIdentifier': sourceIdentifier,
+      if (sourceType != null) 'SourceType': sourceType.value,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEvents',
@@ -4063,8 +4539,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventsResult',
     );
     return EventsMessage.fromXml($result);
@@ -4137,13 +4611,24 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    hsmClientCertificateIdentifier
-        ?.also((arg) => $request['HsmClientCertificateIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (hsmClientCertificateIdentifier != null)
+        'HsmClientCertificateIdentifier': hsmClientCertificateIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeHsmClientCertificates',
@@ -4151,8 +4636,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeHsmClientCertificatesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeHsmClientCertificatesResult',
     );
     return HsmClientCertificateMessage.fromXml($result);
@@ -4225,13 +4708,24 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    hsmConfigurationIdentifier
-        ?.also((arg) => $request['HsmConfigurationIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (hsmConfigurationIdentifier != null)
+        'HsmConfigurationIdentifier': hsmConfigurationIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeHsmConfigurations',
@@ -4239,17 +4733,71 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeHsmConfigurationsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeHsmConfigurationsResult',
     );
     return HsmConfigurationMessage.fromXml($result);
+  }
+
+  /// Returns a list of inbound integrations.
+  ///
+  /// May throw [IntegrationNotFoundFault].
+  /// May throw [InvalidNamespaceFault].
+  /// May throw [UnsupportedOperationFault].
+  ///
+  /// Parameter [integrationArn] :
+  /// The Amazon Resource Name (ARN) of the inbound integration.
+  ///
+  /// Parameter [marker] :
+  /// An optional parameter that specifies the starting point to return a set of
+  /// response records. When the results of a <a>DescribeInboundIntegrations</a>
+  /// request exceed the value specified in <code>MaxRecords</code>, Amazon Web
+  /// Services returns a value in the <code>Marker</code> field of the response.
+  /// You can retrieve the next set of response records by providing the
+  /// returned marker value in the <code>Marker</code> parameter and retrying
+  /// the request.
+  ///
+  /// Parameter [maxRecords] :
+  /// The maximum number of response records to return in each call. If the
+  /// number of remaining response records exceeds the specified
+  /// <code>MaxRecords</code> value, a value is returned in a
+  /// <code>marker</code> field of the response. You can retrieve the next set
+  /// of records by retrying the command with the returned marker value.
+  ///
+  /// Default: <code>100</code>
+  ///
+  /// Constraints: minimum 20, maximum 100.
+  ///
+  /// Parameter [targetArn] :
+  /// The Amazon Resource Name (ARN) of the target of an inbound integration.
+  Future<InboundIntegrationsMessage> describeInboundIntegrations({
+    String? integrationArn,
+    String? marker,
+    int? maxRecords,
+    String? targetArn,
+  }) async {
+    final $request = <String, String>{
+      if (integrationArn != null) 'IntegrationArn': integrationArn,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (targetArn != null) 'TargetArn': targetArn,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'DescribeInboundIntegrations',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'DescribeInboundIntegrationsResult',
+    );
+    return InboundIntegrationsMessage.fromXml($result);
   }
 
   /// Describes whether information, such as queries and connection attempts, is
   /// being logged for the specified Amazon Redshift cluster.
   ///
   /// May throw [ClusterNotFoundFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The identifier of the cluster from which to get the logging status.
@@ -4258,8 +4806,9 @@ class Redshift {
   Future<LoggingStatus> describeLoggingStatus({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeLoggingStatus',
@@ -4267,8 +4816,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeLoggingStatusMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeLoggingStatusResult',
     );
     return LoggingStatus.fromXml($result);
@@ -4340,15 +4887,23 @@ class Redshift {
     String? snapshotArn,
     String? snapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ActionType'] = actionType.toValue();
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    ownerAccount?.also((arg) => $request['OwnerAccount'] = arg);
-    snapshotArn?.also((arg) => $request['SnapshotArn'] = arg);
-    snapshotIdentifier?.also((arg) => $request['SnapshotIdentifier'] = arg);
+    final $request = <String, String>{
+      'ActionType': actionType.value,
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.NodeConfigurationOptionsFilter.${i1 + 1}.${e3.key}':
+                  e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (ownerAccount != null) 'OwnerAccount': ownerAccount,
+      if (snapshotArn != null) 'SnapshotArn': snapshotArn,
+      if (snapshotIdentifier != null) 'SnapshotIdentifier': snapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeNodeConfigurationOptions',
@@ -4356,8 +4911,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeNodeConfigurationOptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeNodeConfigurationOptionsResult',
     );
     return NodeConfigurationOptionsMessage.fromXml($result);
@@ -4413,11 +4966,12 @@ class Redshift {
     int? maxRecords,
     String? nodeType,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterVersion?.also((arg) => $request['ClusterVersion'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nodeType?.also((arg) => $request['NodeType'] = arg);
+    final $request = <String, String>{
+      if (clusterVersion != null) 'ClusterVersion': clusterVersion,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nodeType != null) 'NodeType': nodeType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeOrderableClusterOptions',
@@ -4425,8 +4979,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeOrderableClusterOptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeOrderableClusterOptionsResult',
     );
     return OrderableClusterOptionsMessage.fromXml($result);
@@ -4436,6 +4988,7 @@ class Redshift {
   ///
   /// May throw [ClusterNotFoundFault].
   /// May throw [UnauthorizedPartnerIntegrationFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [accountId] :
   /// The Amazon Web Services account ID that owns the cluster.
@@ -4458,11 +5011,12 @@ class Redshift {
     String? databaseName,
     String? partnerName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountId'] = accountId;
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    databaseName?.also((arg) => $request['DatabaseName'] = arg);
-    partnerName?.also((arg) => $request['PartnerName'] = arg);
+    final $request = <String, String>{
+      'AccountId': accountId,
+      'ClusterIdentifier': clusterIdentifier,
+      if (databaseName != null) 'DatabaseName': databaseName,
+      if (partnerName != null) 'PartnerName': partnerName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribePartners',
@@ -4470,11 +5024,57 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribePartnersInputMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribePartnersResult',
     );
     return DescribePartnersOutputMessage.fromXml($result);
+  }
+
+  /// Lists the Amazon Redshift IAM Identity Center applications.
+  ///
+  /// May throw [RedshiftIdcApplicationNotExistsFault].
+  /// May throw [DependentServiceUnavailableFault].
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [DependentServiceAccessDeniedFault].
+  ///
+  /// Parameter [marker] :
+  /// A value that indicates the starting point for the next set of response
+  /// records in a subsequent request. If a value is returned in a response, you
+  /// can retrieve the next set of records by providing this returned marker
+  /// value in the Marker parameter and retrying the command. If the Marker
+  /// field is empty, all response records have been retrieved for the request.
+  ///
+  /// Parameter [maxRecords] :
+  /// The maximum number of response records to return in each call. If the
+  /// number of remaining response records exceeds the specified MaxRecords
+  /// value, a value is returned in a marker field of the response. You can
+  /// retrieve the next set of records by retrying the command with the returned
+  /// marker value.
+  ///
+  /// Parameter [redshiftIdcApplicationArn] :
+  /// The ARN for the Redshift application that integrates with IAM Identity
+  /// Center.
+  Future<DescribeRedshiftIdcApplicationsResult>
+      describeRedshiftIdcApplications({
+    String? marker,
+    int? maxRecords,
+    String? redshiftIdcApplicationArn,
+  }) async {
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (redshiftIdcApplicationArn != null)
+        'RedshiftIdcApplicationArn': redshiftIdcApplicationArn,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'DescribeRedshiftIdcApplications',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'DescribeRedshiftIdcApplicationsResult',
+    );
+    return DescribeRedshiftIdcApplicationsResult.fromXml($result);
   }
 
   /// Returns exchange status details and associated metadata for a
@@ -4513,12 +5113,13 @@ class Redshift {
     String? reservedNodeExchangeRequestId,
     String? reservedNodeId,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    reservedNodeExchangeRequestId
-        ?.also((arg) => $request['ReservedNodeExchangeRequestId'] = arg);
-    reservedNodeId?.also((arg) => $request['ReservedNodeId'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (reservedNodeExchangeRequestId != null)
+        'ReservedNodeExchangeRequestId': reservedNodeExchangeRequestId,
+      if (reservedNodeId != null) 'ReservedNodeId': reservedNodeId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeReservedNodeExchangeStatus',
@@ -4526,8 +5127,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeReservedNodeExchangeStatusInputMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeReservedNodeExchangeStatusResult',
     );
     return DescribeReservedNodeExchangeStatusOutputMessage.fromXml($result);
@@ -4576,11 +5175,12 @@ class Redshift {
     int? maxRecords,
     String? reservedNodeOfferingId,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    reservedNodeOfferingId
-        ?.also((arg) => $request['ReservedNodeOfferingId'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (reservedNodeOfferingId != null)
+        'ReservedNodeOfferingId': reservedNodeOfferingId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeReservedNodeOfferings',
@@ -4588,8 +5188,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeReservedNodeOfferingsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeReservedNodeOfferingsResult',
     );
     return ReservedNodeOfferingsMessage.fromXml($result);
@@ -4627,10 +5225,11 @@ class Redshift {
     int? maxRecords,
     String? reservedNodeId,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    reservedNodeId?.also((arg) => $request['ReservedNodeId'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (reservedNodeId != null) 'ReservedNodeId': reservedNodeId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeReservedNodes',
@@ -4638,8 +5237,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeReservedNodesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeReservedNodesResult',
     );
     return ReservedNodesMessage.fromXml($result);
@@ -4656,6 +5253,7 @@ class Redshift {
   ///
   /// May throw [ClusterNotFoundFault].
   /// May throw [ResizeNotFoundFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The unique identifier of a cluster whose resize progress you are
@@ -4666,8 +5264,9 @@ class Redshift {
   Future<ResizeProgressMessage> describeResize({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeResize',
@@ -4675,8 +5274,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeResizeMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeResizeResult',
     );
     return ResizeProgressMessage.fromXml($result);
@@ -4737,16 +5334,23 @@ class Redshift {
     DateTime? startTime,
     ScheduledActionTypeValues? targetActionType,
   }) async {
-    final $request = <String, dynamic>{};
-    active?.also((arg) => $request['Active'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    scheduledActionName?.also((arg) => $request['ScheduledActionName'] = arg);
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
-    targetActionType
-        ?.also((arg) => $request['TargetActionType'] = arg.toValue());
+    final $request = <String, String>{
+      if (active != null) 'Active': active.toString(),
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.ScheduledActionFilter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (scheduledActionName != null)
+        'ScheduledActionName': scheduledActionName,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+      if (targetActionType != null) 'TargetActionType': targetActionType.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeScheduledActions',
@@ -4754,8 +5358,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeScheduledActionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeScheduledActionsResult',
     );
     return ScheduledActionsMessage.fromXml($result);
@@ -4821,13 +5423,24 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    snapshotCopyGrantName
-        ?.also((arg) => $request['SnapshotCopyGrantName'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (snapshotCopyGrantName != null)
+        'SnapshotCopyGrantName': snapshotCopyGrantName,
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeSnapshotCopyGrants',
@@ -4835,8 +5448,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeSnapshotCopyGrantsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeSnapshotCopyGrantsResult',
     );
     return SnapshotCopyGrantMessage.fromXml($result);
@@ -4880,13 +5491,24 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    scheduleIdentifier?.also((arg) => $request['ScheduleIdentifier'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (scheduleIdentifier != null) 'ScheduleIdentifier': scheduleIdentifier,
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeSnapshotSchedules',
@@ -4894,8 +5516,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeSnapshotSchedulesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeSnapshotSchedulesResult',
     );
     return DescribeSnapshotSchedulesOutputMessage.fromXml($result);
@@ -4903,7 +5523,7 @@ class Redshift {
 
   /// Returns account level backups storage size and provisional storage.
   Future<CustomerStorageMessage> describeStorage() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'DescribeStorage',
@@ -4911,7 +5531,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'DescribeStorageResult',
     );
     return CustomerStorageMessage.fromXml($result);
@@ -4954,12 +5573,13 @@ class Redshift {
     int? maxRecords,
     String? tableRestoreRequestId,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    tableRestoreRequestId
-        ?.also((arg) => $request['TableRestoreRequestId'] = arg);
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (tableRestoreRequestId != null)
+        'TableRestoreRequestId': tableRestoreRequestId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeTableRestoreStatus',
@@ -4967,8 +5587,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeTableRestoreStatusMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeTableRestoreStatusResult',
     );
     return TableRestoreStatusMessage.fromXml($result);
@@ -5095,13 +5713,24 @@ class Redshift {
     List<String>? tagKeys,
     List<String>? tagValues,
   }) async {
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    resourceName?.also((arg) => $request['ResourceName'] = arg);
-    resourceType?.also((arg) => $request['ResourceType'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (resourceName != null) 'ResourceName': resourceName,
+      if (resourceType != null) 'ResourceType': resourceType,
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeTags',
@@ -5109,8 +5738,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeTagsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeTagsResult',
     );
     return TaggedResourceListMessage.fromXml($result);
@@ -5197,14 +5824,25 @@ class Redshift {
     List<String>? tagValues,
     String? usageLimitId,
   }) async {
-    final $request = <String, dynamic>{};
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    featureType?.also((arg) => $request['FeatureType'] = arg.toValue());
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    tagKeys?.also((arg) => $request['TagKeys'] = arg);
-    tagValues?.also((arg) => $request['TagValues'] = arg);
-    usageLimitId?.also((arg) => $request['UsageLimitId'] = arg);
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (featureType != null) 'FeatureType': featureType.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (tagKeys != null)
+        if (tagKeys.isEmpty)
+          'TagKeys': ''
+        else
+          for (var i1 = 0; i1 < tagKeys.length; i1++)
+            'TagKeys.TagKey.${i1 + 1}': tagKeys[i1],
+      if (tagValues != null)
+        if (tagValues.isEmpty)
+          'TagValues': ''
+        else
+          for (var i1 = 0; i1 < tagValues.length; i1++)
+            'TagValues.TagValue.${i1 + 1}': tagValues[i1],
+      if (usageLimitId != null) 'UsageLimitId': usageLimitId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeUsageLimits',
@@ -5212,8 +5850,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeUsageLimitsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeUsageLimitsResult',
     );
     return UsageLimitList.fromXml($result);
@@ -5224,6 +5860,7 @@ class Redshift {
   ///
   /// May throw [ClusterNotFoundFault].
   /// May throw [InvalidClusterStateFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The identifier of the cluster on which logging is to be stopped.
@@ -5232,8 +5869,9 @@ class Redshift {
   Future<LoggingStatus> disableLogging({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DisableLogging',
@@ -5241,8 +5879,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DisableLoggingMessage'],
-      shapes: shapes,
       resultWrapper: 'DisableLoggingResult',
     );
     return LoggingStatus.fromXml($result);
@@ -5260,6 +5896,7 @@ class Redshift {
   /// May throw [SnapshotCopyAlreadyDisabledFault].
   /// May throw [InvalidClusterStateFault].
   /// May throw [UnauthorizedOperation].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The unique identifier of the source cluster that you want to disable
@@ -5270,8 +5907,9 @@ class Redshift {
   Future<DisableSnapshotCopyResult> disableSnapshotCopy({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DisableSnapshotCopy',
@@ -5279,8 +5917,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DisableSnapshotCopyMessage'],
-      shapes: shapes,
       resultWrapper: 'DisableSnapshotCopyResult',
     );
     return DisableSnapshotCopyResult.fromXml($result);
@@ -5296,8 +5932,8 @@ class Redshift {
   /// The Amazon Resource Name (ARN) of the datashare to remove association for.
   ///
   /// Parameter [consumerArn] :
-  /// The Amazon Resource Name (ARN) of the consumer that association for the
-  /// datashare is removed from.
+  /// The Amazon Resource Name (ARN) of the consumer namespace that association
+  /// for the datashare is removed from.
   ///
   /// Parameter [consumerRegion] :
   /// From a datashare consumer account, removes association of a datashare from
@@ -5313,12 +5949,13 @@ class Redshift {
     String? consumerRegion,
     bool? disassociateEntireAccount,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DataShareArn'] = dataShareArn;
-    consumerArn?.also((arg) => $request['ConsumerArn'] = arg);
-    consumerRegion?.also((arg) => $request['ConsumerRegion'] = arg);
-    disassociateEntireAccount
-        ?.also((arg) => $request['DisassociateEntireAccount'] = arg);
+    final $request = <String, String>{
+      'DataShareArn': dataShareArn,
+      if (consumerArn != null) 'ConsumerArn': consumerArn,
+      if (consumerRegion != null) 'ConsumerRegion': consumerRegion,
+      if (disassociateEntireAccount != null)
+        'DisassociateEntireAccount': disassociateEntireAccount.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DisassociateDataShareConsumer',
@@ -5326,8 +5963,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DisassociateDataShareConsumerMessage'],
-      shapes: shapes,
       resultWrapper: 'DisassociateDataShareConsumerResult',
     );
     return DataShare.fromXml($result);
@@ -5342,6 +5977,7 @@ class Redshift {
   /// May throw [InvalidS3KeyPrefixFault].
   /// May throw [InvalidS3BucketNameFault].
   /// May throw [InvalidClusterStateFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The identifier of the cluster on which logging is to be started.
@@ -5410,13 +6046,19 @@ class Redshift {
     List<String>? logExports,
     String? s3KeyPrefix,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    bucketName?.also((arg) => $request['BucketName'] = arg);
-    logDestinationType
-        ?.also((arg) => $request['LogDestinationType'] = arg.toValue());
-    logExports?.also((arg) => $request['LogExports'] = arg);
-    s3KeyPrefix?.also((arg) => $request['S3KeyPrefix'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (bucketName != null) 'BucketName': bucketName,
+      if (logDestinationType != null)
+        'LogDestinationType': logDestinationType.value,
+      if (logExports != null)
+        if (logExports.isEmpty)
+          'LogExports': ''
+        else
+          for (var i1 = 0; i1 < logExports.length; i1++)
+            'LogExports.member.${i1 + 1}': logExports[i1],
+      if (s3KeyPrefix != null) 'S3KeyPrefix': s3KeyPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'EnableLogging',
@@ -5424,8 +6066,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['EnableLoggingMessage'],
-      shapes: shapes,
       resultWrapper: 'EnableLoggingResult',
     );
     return LoggingStatus.fromXml($result);
@@ -5487,14 +6127,17 @@ class Redshift {
     int? retentionPeriod,
     String? snapshotCopyGrantName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['DestinationRegion'] = destinationRegion;
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
-    retentionPeriod?.also((arg) => $request['RetentionPeriod'] = arg);
-    snapshotCopyGrantName
-        ?.also((arg) => $request['SnapshotCopyGrantName'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'DestinationRegion': destinationRegion,
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+      if (retentionPeriod != null)
+        'RetentionPeriod': retentionPeriod.toString(),
+      if (snapshotCopyGrantName != null)
+        'SnapshotCopyGrantName': snapshotCopyGrantName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'EnableSnapshotCopy',
@@ -5502,11 +6145,38 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['EnableSnapshotCopyMessage'],
-      shapes: shapes,
       resultWrapper: 'EnableSnapshotCopyResult',
     );
     return EnableSnapshotCopyResult.fromXml($result);
+  }
+
+  /// Fails over the primary compute unit of the specified Multi-AZ cluster to
+  /// another Availability Zone.
+  ///
+  /// May throw [ClusterNotFoundFault].
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [UnauthorizedOperation].
+  /// May throw [InvalidClusterStateFault].
+  ///
+  /// Parameter [clusterIdentifier] :
+  /// The unique identifier of the cluster for which the primary compute unit
+  /// will be failed over to another Availability Zone.
+  Future<FailoverPrimaryComputeResult> failoverPrimaryCompute({
+    required String clusterIdentifier,
+  }) async {
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'FailoverPrimaryCompute',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'FailoverPrimaryComputeResult',
+    );
+    return FailoverPrimaryComputeResult.fromXml($result);
   }
 
   /// Returns a database user name and temporary password with temporary
@@ -5544,10 +6214,6 @@ class Redshift {
   ///
   /// May throw [ClusterNotFoundFault].
   /// May throw [UnsupportedOperationFault].
-  ///
-  /// Parameter [clusterIdentifier] :
-  /// The unique identifier of the cluster that contains the database for which
-  /// you are requesting credentials. This parameter is case sensitive.
   ///
   /// Parameter [dbUser] :
   /// The name of a database user. If a user name matching <code>DbUser</code>
@@ -5591,6 +6257,13 @@ class Redshift {
   /// Parameter [autoCreate] :
   /// Create a database user with the name specified for the user named in
   /// <code>DbUser</code> if one does not exist.
+  ///
+  /// Parameter [clusterIdentifier] :
+  /// The unique identifier of the cluster that contains the database for which
+  /// you are requesting credentials. This parameter is case sensitive.
+  ///
+  /// Parameter [customDomainName] :
+  /// The custom domain name for the cluster credentials.
   ///
   /// Parameter [dbGroups] :
   /// A list of the names of existing database groups that the user named in
@@ -5656,20 +6329,29 @@ class Redshift {
   ///
   /// Default: 900
   Future<ClusterCredentials> getClusterCredentials({
-    required String clusterIdentifier,
     required String dbUser,
     bool? autoCreate,
+    String? clusterIdentifier,
+    String? customDomainName,
     List<String>? dbGroups,
     String? dbName,
     int? durationSeconds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['DbUser'] = dbUser;
-    autoCreate?.also((arg) => $request['AutoCreate'] = arg);
-    dbGroups?.also((arg) => $request['DbGroups'] = arg);
-    dbName?.also((arg) => $request['DbName'] = arg);
-    durationSeconds?.also((arg) => $request['DurationSeconds'] = arg);
+    final $request = <String, String>{
+      'DbUser': dbUser,
+      if (autoCreate != null) 'AutoCreate': autoCreate.toString(),
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (customDomainName != null) 'CustomDomainName': customDomainName,
+      if (dbGroups != null)
+        if (dbGroups.isEmpty)
+          'DbGroups': ''
+        else
+          for (var i1 = 0; i1 < dbGroups.length; i1++)
+            'DbGroups.DbGroup.${i1 + 1}': dbGroups[i1],
+      if (dbName != null) 'DbName': dbName,
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetClusterCredentials',
@@ -5677,8 +6359,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetClusterCredentialsMessage'],
-      shapes: shapes,
       resultWrapper: 'GetClusterCredentialsResult',
     );
     return ClusterCredentials.fromXml($result);
@@ -5706,6 +6386,9 @@ class Redshift {
   /// The unique identifier of the cluster that contains the database for which
   /// you are requesting credentials.
   ///
+  /// Parameter [customDomainName] :
+  /// The custom domain name for the IAM message cluster credentials.
+  ///
   /// Parameter [dbName] :
   /// The name of the database for which you are requesting credentials. If the
   /// database name is specified, the IAM policy must allow access to the
@@ -5717,14 +6400,18 @@ class Redshift {
   ///
   /// Range: 900-3600. Default: 900.
   Future<ClusterExtendedCredentials> getClusterCredentialsWithIAM({
-    required String clusterIdentifier,
+    String? clusterIdentifier,
+    String? customDomainName,
     String? dbName,
     int? durationSeconds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    dbName?.also((arg) => $request['DbName'] = arg);
-    durationSeconds?.also((arg) => $request['DurationSeconds'] = arg);
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (customDomainName != null) 'CustomDomainName': customDomainName,
+      if (dbName != null) 'DbName': dbName,
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetClusterCredentialsWithIAM',
@@ -5732,8 +6419,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetClusterCredentialsWithIAMMessage'],
-      shapes: shapes,
       resultWrapper: 'GetClusterCredentialsWithIAMResult',
     );
     return ClusterExtendedCredentials.fromXml($result);
@@ -5788,12 +6473,13 @@ class Redshift {
     int? maxRecords,
     String? snapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ActionType'] = actionType.toValue();
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    snapshotIdentifier?.also((arg) => $request['SnapshotIdentifier'] = arg);
+    final $request = <String, String>{
+      'ActionType': actionType.value,
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (snapshotIdentifier != null) 'SnapshotIdentifier': snapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetReservedNodeExchangeConfigurationOptions',
@@ -5801,8 +6487,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetReservedNodeExchangeConfigurationOptionsInputMessage'],
-      shapes: shapes,
       resultWrapper: 'GetReservedNodeExchangeConfigurationOptionsResult',
     );
     return GetReservedNodeExchangeConfigurationOptionsOutputMessage.fromXml(
@@ -5836,10 +6520,11 @@ class Redshift {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ReservedNodeId'] = reservedNodeId;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      'ReservedNodeId': reservedNodeId,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetReservedNodeExchangeOfferings',
@@ -5847,11 +6532,91 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetReservedNodeExchangeOfferingsInputMessage'],
-      shapes: shapes,
       resultWrapper: 'GetReservedNodeExchangeOfferingsResult',
     );
     return GetReservedNodeExchangeOfferingsOutputMessage.fromXml($result);
+  }
+
+  /// Get the resource policy for a specified resource.
+  ///
+  /// May throw [ResourceNotFoundFault].
+  /// May throw [InvalidPolicyFault].
+  /// May throw [UnsupportedOperationFault].
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the resource of which its resource
+  /// policy is fetched.
+  Future<GetResourcePolicyResult> getResourcePolicy({
+    required String resourceArn,
+  }) async {
+    final $request = <String, String>{
+      'ResourceArn': resourceArn,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'GetResourcePolicy',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'GetResourcePolicyResult',
+    );
+    return GetResourcePolicyResult.fromXml($result);
+  }
+
+  /// List the Amazon Redshift Advisor recommendations for one or multiple
+  /// Amazon Redshift clusters in an Amazon Web Services account.
+  ///
+  /// May throw [ClusterNotFoundFault].
+  /// May throw [UnsupportedOperationFault].
+  ///
+  /// Parameter [clusterIdentifier] :
+  /// The unique identifier of the Amazon Redshift cluster for which the list of
+  /// Advisor recommendations is returned. If the neither the cluster identifier
+  /// and the cluster namespace ARN parameters are specified, then
+  /// recommendations for all clusters in the account are returned.
+  ///
+  /// Parameter [marker] :
+  /// A value that indicates the starting point for the next set of response
+  /// records in a subsequent request. If a value is returned in a response, you
+  /// can retrieve the next set of records by providing this returned marker
+  /// value in the Marker parameter and retrying the command. If the Marker
+  /// field is empty, all response records have been retrieved for the request.
+  ///
+  /// Parameter [maxRecords] :
+  /// The maximum number of response records to return in each call. If the
+  /// number of remaining response records exceeds the specified MaxRecords
+  /// value, a value is returned in a marker field of the response. You can
+  /// retrieve the next set of records by retrying the command with the returned
+  /// marker value.
+  ///
+  /// Parameter [namespaceArn] :
+  /// The Amazon Redshift cluster namespace Amazon Resource Name (ARN) for which
+  /// the list of Advisor recommendations is returned. If the neither the
+  /// cluster identifier and the cluster namespace ARN parameters are specified,
+  /// then recommendations for all clusters in the account are returned.
+  Future<ListRecommendationsResult> listRecommendations({
+    String? clusterIdentifier,
+    String? marker,
+    int? maxRecords,
+    String? namespaceArn,
+  }) async {
+    final $request = <String, String>{
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (namespaceArn != null) 'NamespaceArn': namespaceArn,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'ListRecommendations',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'ListRecommendationsResult',
+    );
+    return ListRecommendationsResult.fromXml($result);
   }
 
   /// This operation is retired. Calling this operation does not change AQUA
@@ -5872,10 +6637,11 @@ class Redshift {
     required String clusterIdentifier,
     AquaConfigurationStatus? aquaConfigurationStatus,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    aquaConfigurationStatus
-        ?.also((arg) => $request['AquaConfigurationStatus'] = arg.toValue());
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (aquaConfigurationStatus != null)
+        'AquaConfigurationStatus': aquaConfigurationStatus.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyAquaConfiguration',
@@ -5883,8 +6649,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyAquaInputMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyAquaConfigurationResult',
     );
     return ModifyAquaOutputMessage.fromXml($result);
@@ -5906,9 +6670,10 @@ class Redshift {
     required String authenticationProfileContent,
     required String authenticationProfileName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AuthenticationProfileContent'] = authenticationProfileContent;
-    $request['AuthenticationProfileName'] = authenticationProfileName;
+    final $request = <String, String>{
+      'AuthenticationProfileContent': authenticationProfileContent,
+      'AuthenticationProfileName': authenticationProfileName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyAuthenticationProfile',
@@ -5916,8 +6681,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyAuthenticationProfileMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyAuthenticationProfileResult',
     );
     return ModifyAuthenticationProfileResult.fromXml($result);
@@ -5957,6 +6720,9 @@ class Redshift {
   /// May throw [TableLimitExceededFault].
   /// May throw [InvalidClusterTrackFault].
   /// May throw [InvalidRetentionPeriodFault].
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [CustomCnameAssociationFault].
+  /// May throw [Ipv6CidrBlockNotFoundFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The unique identifier of the cluster to be modified.
@@ -6089,6 +6855,10 @@ class Redshift {
   /// Specifies the name of the HSM configuration that contains the information
   /// the Amazon Redshift cluster can use to retrieve and store keys in an HSM.
   ///
+  /// Parameter [ipAddressType] :
+  /// The IP address types that the cluster supports. Possible values are
+  /// <code>ipv4</code> and <code>dualstack</code>.
+  ///
   /// Parameter [kmsKeyId] :
   /// The Key Management Service (KMS) key ID of the encryption key that you
   /// want to use to encrypt data in the cluster.
@@ -6101,6 +6871,14 @@ class Redshift {
   /// switched to the latest cluster release available for the maintenance
   /// track. At this point, the maintenance track name is applied.
   ///
+  /// Parameter [manageMasterPassword] :
+  /// If <code>true</code>, Amazon Redshift uses Secrets Manager to manage this
+  /// cluster's admin credentials. You can't use <code>MasterUserPassword</code>
+  /// if <code>ManageMasterPassword</code> is true. If
+  /// <code>ManageMasterPassword</code> is false or not set, Amazon Redshift
+  /// uses <code>MasterUserPassword</code> for the admin user account's
+  /// password.
+  ///
   /// Parameter [manualSnapshotRetentionPeriod] :
   /// The default for number of days that a newly created manual snapshot is
   /// retained. If the value is -1, the manual snapshot is retained
@@ -6111,15 +6889,24 @@ class Redshift {
   ///
   /// The default value is -1.
   ///
+  /// Parameter [masterPasswordSecretKmsKeyId] :
+  /// The ID of the Key Management Service (KMS) key used to encrypt and store
+  /// the cluster's admin credentials secret. You can only use this parameter if
+  /// <code>ManageMasterPassword</code> is true.
+  ///
   /// Parameter [masterUserPassword] :
   /// The new password for the cluster admin user. This change is asynchronously
   /// applied as soon as possible. Between the time of the request and the
   /// completion of the request, the <code>MasterUserPassword</code> element
   /// exists in the <code>PendingModifiedValues</code> element of the operation
   /// response.
+  ///
+  /// You can't use <code>MasterUserPassword</code> if
+  /// <code>ManageMasterPassword</code> is <code>true</code>.
   /// <note>
   /// Operations never return the password, so this operation provides a way to
-  /// regain access to the admin user for a cluster if the password is lost.
+  /// regain access to the admin user account for a cluster if the password is
+  /// lost.
   /// </note>
   /// Default: Uses existing setting.
   ///
@@ -6144,6 +6931,11 @@ class Redshift {
   /// <code>\</code>, <code>/</code>, or <code>@</code>.
   /// </li>
   /// </ul>
+  ///
+  /// Parameter [multiAZ] :
+  /// If true and the cluster is currently only deployed in a single
+  /// Availability Zone, the cluster will be modified to be deployed in two
+  /// Availability Zones.
   ///
   /// Parameter [newClusterIdentifier] :
   /// The new identifier for the cluster.
@@ -6197,6 +6989,21 @@ class Redshift {
   /// Parameter [port] :
   /// The option to change the port of an Amazon Redshift cluster.
   ///
+  /// Valid Values:
+  ///
+  /// <ul>
+  /// <li>
+  /// For clusters with ra3 nodes - Select a port within the ranges
+  /// <code>5431-5455</code> or <code>8191-8215</code>. (If you have an existing
+  /// cluster with ra3 nodes, it isn't required that you change the port to
+  /// these ranges.)
+  /// </li>
+  /// <li>
+  /// For clusters with ds2 or dc2 nodes - Select a port within the range
+  /// <code>1150-65535</code>.
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [preferredMaintenanceWindow] :
   /// The weekly time range (in UTC) during which system maintenance can occur,
   /// if necessary. If system maintenance is necessary during the window, it may
@@ -6239,10 +7046,14 @@ class Redshift {
     bool? enhancedVpcRouting,
     String? hsmClientCertificateIdentifier,
     String? hsmConfigurationIdentifier,
+    String? ipAddressType,
     String? kmsKeyId,
     String? maintenanceTrackName,
+    bool? manageMasterPassword,
     int? manualSnapshotRetentionPeriod,
+    String? masterPasswordSecretKmsKeyId,
     String? masterUserPassword,
+    bool? multiAZ,
     String? newClusterIdentifier,
     String? nodeType,
     int? numberOfNodes,
@@ -6251,40 +7062,65 @@ class Redshift {
     bool? publiclyAccessible,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    allowVersionUpgrade?.also((arg) => $request['AllowVersionUpgrade'] = arg);
-    automatedSnapshotRetentionPeriod
-        ?.also((arg) => $request['AutomatedSnapshotRetentionPeriod'] = arg);
-    availabilityZone?.also((arg) => $request['AvailabilityZone'] = arg);
-    availabilityZoneRelocation
-        ?.also((arg) => $request['AvailabilityZoneRelocation'] = arg);
-    clusterParameterGroupName
-        ?.also((arg) => $request['ClusterParameterGroupName'] = arg);
-    clusterSecurityGroups
-        ?.also((arg) => $request['ClusterSecurityGroups'] = arg);
-    clusterType?.also((arg) => $request['ClusterType'] = arg);
-    clusterVersion?.also((arg) => $request['ClusterVersion'] = arg);
-    elasticIp?.also((arg) => $request['ElasticIp'] = arg);
-    encrypted?.also((arg) => $request['Encrypted'] = arg);
-    enhancedVpcRouting?.also((arg) => $request['EnhancedVpcRouting'] = arg);
-    hsmClientCertificateIdentifier
-        ?.also((arg) => $request['HsmClientCertificateIdentifier'] = arg);
-    hsmConfigurationIdentifier
-        ?.also((arg) => $request['HsmConfigurationIdentifier'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    maintenanceTrackName?.also((arg) => $request['MaintenanceTrackName'] = arg);
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
-    masterUserPassword?.also((arg) => $request['MasterUserPassword'] = arg);
-    newClusterIdentifier?.also((arg) => $request['NewClusterIdentifier'] = arg);
-    nodeType?.also((arg) => $request['NodeType'] = arg);
-    numberOfNodes?.also((arg) => $request['NumberOfNodes'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    publiclyAccessible?.also((arg) => $request['PubliclyAccessible'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (allowVersionUpgrade != null)
+        'AllowVersionUpgrade': allowVersionUpgrade.toString(),
+      if (automatedSnapshotRetentionPeriod != null)
+        'AutomatedSnapshotRetentionPeriod':
+            automatedSnapshotRetentionPeriod.toString(),
+      if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
+      if (availabilityZoneRelocation != null)
+        'AvailabilityZoneRelocation': availabilityZoneRelocation.toString(),
+      if (clusterParameterGroupName != null)
+        'ClusterParameterGroupName': clusterParameterGroupName,
+      if (clusterSecurityGroups != null)
+        if (clusterSecurityGroups.isEmpty)
+          'ClusterSecurityGroups': ''
+        else
+          for (var i1 = 0; i1 < clusterSecurityGroups.length; i1++)
+            'ClusterSecurityGroups.ClusterSecurityGroupName.${i1 + 1}':
+                clusterSecurityGroups[i1],
+      if (clusterType != null) 'ClusterType': clusterType,
+      if (clusterVersion != null) 'ClusterVersion': clusterVersion,
+      if (elasticIp != null) 'ElasticIp': elasticIp,
+      if (encrypted != null) 'Encrypted': encrypted.toString(),
+      if (enhancedVpcRouting != null)
+        'EnhancedVpcRouting': enhancedVpcRouting.toString(),
+      if (hsmClientCertificateIdentifier != null)
+        'HsmClientCertificateIdentifier': hsmClientCertificateIdentifier,
+      if (hsmConfigurationIdentifier != null)
+        'HsmConfigurationIdentifier': hsmConfigurationIdentifier,
+      if (ipAddressType != null) 'IpAddressType': ipAddressType,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (maintenanceTrackName != null)
+        'MaintenanceTrackName': maintenanceTrackName,
+      if (manageMasterPassword != null)
+        'ManageMasterPassword': manageMasterPassword.toString(),
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+      if (masterPasswordSecretKmsKeyId != null)
+        'MasterPasswordSecretKmsKeyId': masterPasswordSecretKmsKeyId,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (multiAZ != null) 'MultiAZ': multiAZ.toString(),
+      if (newClusterIdentifier != null)
+        'NewClusterIdentifier': newClusterIdentifier,
+      if (nodeType != null) 'NodeType': nodeType,
+      if (numberOfNodes != null) 'NumberOfNodes': numberOfNodes.toString(),
+      if (port != null) 'Port': port.toString(),
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (publiclyAccessible != null)
+        'PubliclyAccessible': publiclyAccessible.toString(),
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyCluster',
@@ -6292,8 +7128,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyClusterResult',
     );
     return ModifyClusterResult.fromXml($result);
@@ -6305,6 +7139,7 @@ class Redshift {
   /// May throw [ClusterNotFoundFault].
   /// May throw [ClusterOnLatestRevisionFault].
   /// May throw [InvalidClusterStateFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The unique identifier of a cluster whose database revision you want to
@@ -6319,9 +7154,10 @@ class Redshift {
     required String clusterIdentifier,
     required String revisionTarget,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['RevisionTarget'] = revisionTarget;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'RevisionTarget': revisionTarget,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyClusterDbRevision',
@@ -6329,8 +7165,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterDbRevisionMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyClusterDbRevisionResult',
     );
     return ModifyClusterDbRevisionResult.fromXml($result);
@@ -6367,11 +7201,22 @@ class Redshift {
     String? defaultIamRoleArn,
     List<String>? removeIamRoles,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    addIamRoles?.also((arg) => $request['AddIamRoles'] = arg);
-    defaultIamRoleArn?.also((arg) => $request['DefaultIamRoleArn'] = arg);
-    removeIamRoles?.also((arg) => $request['RemoveIamRoles'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (addIamRoles != null)
+        if (addIamRoles.isEmpty)
+          'AddIamRoles': ''
+        else
+          for (var i1 = 0; i1 < addIamRoles.length; i1++)
+            'AddIamRoles.IamRoleArn.${i1 + 1}': addIamRoles[i1],
+      if (defaultIamRoleArn != null) 'DefaultIamRoleArn': defaultIamRoleArn,
+      if (removeIamRoles != null)
+        if (removeIamRoles.isEmpty)
+          'RemoveIamRoles': ''
+        else
+          for (var i1 = 0; i1 < removeIamRoles.length; i1++)
+            'RemoveIamRoles.IamRoleArn.${i1 + 1}': removeIamRoles[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyClusterIamRoles',
@@ -6379,8 +7224,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterIamRolesMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyClusterIamRolesResult',
     );
     return ModifyClusterIamRolesResult.fromXml($result);
@@ -6419,17 +7262,20 @@ class Redshift {
     String? deferMaintenanceIdentifier,
     DateTime? deferMaintenanceStartTime,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    deferMaintenance?.also((arg) => $request['DeferMaintenance'] = arg);
-    deferMaintenanceDuration
-        ?.also((arg) => $request['DeferMaintenanceDuration'] = arg);
-    deferMaintenanceEndTime?.also(
-        (arg) => $request['DeferMaintenanceEndTime'] = _s.iso8601ToJson(arg));
-    deferMaintenanceIdentifier
-        ?.also((arg) => $request['DeferMaintenanceIdentifier'] = arg);
-    deferMaintenanceStartTime?.also(
-        (arg) => $request['DeferMaintenanceStartTime'] = _s.iso8601ToJson(arg));
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (deferMaintenance != null)
+        'DeferMaintenance': deferMaintenance.toString(),
+      if (deferMaintenanceDuration != null)
+        'DeferMaintenanceDuration': deferMaintenanceDuration.toString(),
+      if (deferMaintenanceEndTime != null)
+        'DeferMaintenanceEndTime': _s.iso8601ToJson(deferMaintenanceEndTime),
+      if (deferMaintenanceIdentifier != null)
+        'DeferMaintenanceIdentifier': deferMaintenanceIdentifier,
+      if (deferMaintenanceStartTime != null)
+        'DeferMaintenanceStartTime':
+            _s.iso8601ToJson(deferMaintenanceStartTime),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyClusterMaintenance',
@@ -6437,8 +7283,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterMaintenanceMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyClusterMaintenanceResult',
     );
     return ModifyClusterMaintenanceResult.fromXml($result);
@@ -6472,9 +7316,15 @@ class Redshift {
     required String parameterGroupName,
     required List<Parameter> parameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ParameterGroupName'] = parameterGroupName;
-    $request['Parameters'] = parameters;
+    final $request = <String, String>{
+      'ParameterGroupName': parameterGroupName,
+      if (parameters.isEmpty)
+        'Parameters': ''
+      else
+        for (var i1 = 0; i1 < parameters.length; i1++)
+          for (var e3 in parameters[i1].toQueryMap().entries)
+            'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyClusterParameterGroup',
@@ -6482,8 +7332,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyClusterParameterGroupResult',
     );
     return ClusterParameterGroupNameMessage.fromXml($result);
@@ -6518,11 +7366,13 @@ class Redshift {
     bool? force,
     int? manualSnapshotRetentionPeriod,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnapshotIdentifier'] = snapshotIdentifier;
-    force?.also((arg) => $request['Force'] = arg);
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
+    final $request = <String, String>{
+      'SnapshotIdentifier': snapshotIdentifier,
+      if (force != null) 'Force': force.toString(),
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyClusterSnapshot',
@@ -6530,8 +7380,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyClusterSnapshotResult',
     );
     return ModifyClusterSnapshotResult.fromXml($result);
@@ -6559,10 +7407,12 @@ class Redshift {
     bool? disassociateSchedule,
     String? scheduleIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    disassociateSchedule?.also((arg) => $request['DisassociateSchedule'] = arg);
-    scheduleIdentifier?.also((arg) => $request['ScheduleIdentifier'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (disassociateSchedule != null)
+        'DisassociateSchedule': disassociateSchedule.toString(),
+      if (scheduleIdentifier != null) 'ScheduleIdentifier': scheduleIdentifier,
+    };
     await _protocol.send(
       $request,
       action: 'ModifyClusterSnapshotSchedule',
@@ -6570,8 +7420,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterSnapshotScheduleMessage'],
-      shapes: shapes,
     );
   }
 
@@ -6600,10 +7448,15 @@ class Redshift {
     required List<String> subnetIds,
     String? description,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterSubnetGroupName'] = clusterSubnetGroupName;
-    $request['SubnetIds'] = subnetIds;
-    description?.also((arg) => $request['Description'] = arg);
+    final $request = <String, String>{
+      'ClusterSubnetGroupName': clusterSubnetGroupName,
+      if (subnetIds.isEmpty)
+        'SubnetIds': ''
+      else
+        for (var i1 = 0; i1 < subnetIds.length; i1++)
+          'SubnetIds.SubnetIdentifier.${i1 + 1}': subnetIds[i1],
+      if (description != null) 'Description': description,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyClusterSubnetGroup',
@@ -6611,11 +7464,47 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyClusterSubnetGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyClusterSubnetGroupResult',
     );
     return ModifyClusterSubnetGroupResult.fromXml($result);
+  }
+
+  /// Contains information for changing a custom domain association.
+  ///
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [ClusterNotFoundFault].
+  /// May throw [CustomCnameAssociationFault].
+  /// May throw [CustomDomainAssociationNotFoundFault].
+  ///
+  /// Parameter [clusterIdentifier] :
+  /// The identifier of the cluster to change a custom domain association for.
+  ///
+  /// Parameter [customDomainCertificateArn] :
+  /// The certificate Amazon Resource Name (ARN) for the changed custom domain
+  /// association.
+  ///
+  /// Parameter [customDomainName] :
+  /// The custom domain name for a changed custom domain association.
+  Future<ModifyCustomDomainAssociationResult> modifyCustomDomainAssociation({
+    required String clusterIdentifier,
+    required String customDomainCertificateArn,
+    required String customDomainName,
+  }) async {
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'CustomDomainCertificateArn': customDomainCertificateArn,
+      'CustomDomainName': customDomainName,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'ModifyCustomDomainAssociation',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'ModifyCustomDomainAssociationResult',
+    );
+    return ModifyCustomDomainAssociationResult.fromXml($result);
   }
 
   /// Modifies a Redshift-managed VPC endpoint.
@@ -6637,9 +7526,16 @@ class Redshift {
     required String endpointName,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EndpointName'] = endpointName;
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'EndpointName': endpointName,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyEndpointAccess',
@@ -6647,8 +7543,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyEndpointAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyEndpointAccessResult',
     );
     return EndpointAccess.fromXml($result);
@@ -6718,14 +7612,25 @@ class Redshift {
     List<String>? sourceIds,
     String? sourceType,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SubscriptionName'] = subscriptionName;
-    enabled?.also((arg) => $request['Enabled'] = arg);
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    severity?.also((arg) => $request['Severity'] = arg);
-    snsTopicArn?.also((arg) => $request['SnsTopicArn'] = arg);
-    sourceIds?.also((arg) => $request['SourceIds'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
+    final $request = <String, String>{
+      'SubscriptionName': subscriptionName,
+      if (enabled != null) 'Enabled': enabled.toString(),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (severity != null) 'Severity': severity,
+      if (snsTopicArn != null) 'SnsTopicArn': snsTopicArn,
+      if (sourceIds != null)
+        if (sourceIds.isEmpty)
+          'SourceIds': ''
+        else
+          for (var i1 = 0; i1 < sourceIds.length; i1++)
+            'SourceIds.SourceId.${i1 + 1}': sourceIds[i1],
+      if (sourceType != null) 'SourceType': sourceType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyEventSubscription',
@@ -6733,20 +7638,91 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyEventSubscriptionResult',
     );
     return ModifyEventSubscriptionResult.fromXml($result);
   }
 
+  /// Changes an existing Amazon Redshift IAM Identity Center application.
+  ///
+  /// May throw [RedshiftIdcApplicationNotExistsFault].
+  /// May throw [DependentServiceUnavailableFault].
+  /// May throw [UnsupportedOperationFault].
+  /// May throw [DependentServiceAccessDeniedFault].
+  ///
+  /// Parameter [redshiftIdcApplicationArn] :
+  /// The ARN for the Redshift application that integrates with IAM Identity
+  /// Center.
+  ///
+  /// Parameter [authorizedTokenIssuerList] :
+  /// The authorized token issuer list for the Amazon Redshift IAM Identity
+  /// Center application to change.
+  ///
+  /// Parameter [iamRoleArn] :
+  /// The IAM role ARN associated with the Amazon Redshift IAM Identity Center
+  /// application to change. It has the required permissions to be assumed and
+  /// invoke the IDC Identity Center API.
+  ///
+  /// Parameter [idcDisplayName] :
+  /// The display name for the Amazon Redshift IAM Identity Center application
+  /// to change. It appears on the console.
+  ///
+  /// Parameter [identityNamespace] :
+  /// The namespace for the Amazon Redshift IAM Identity Center application to
+  /// change. It determines which managed application verifies the connection
+  /// token.
+  ///
+  /// Parameter [serviceIntegrations] :
+  /// A collection of service integrations associated with the application.
+  Future<ModifyRedshiftIdcApplicationResult> modifyRedshiftIdcApplication({
+    required String redshiftIdcApplicationArn,
+    List<AuthorizedTokenIssuer>? authorizedTokenIssuerList,
+    String? iamRoleArn,
+    String? idcDisplayName,
+    String? identityNamespace,
+    List<ServiceIntegrationsUnion>? serviceIntegrations,
+  }) async {
+    final $request = <String, String>{
+      'RedshiftIdcApplicationArn': redshiftIdcApplicationArn,
+      if (authorizedTokenIssuerList != null)
+        if (authorizedTokenIssuerList.isEmpty)
+          'AuthorizedTokenIssuerList': ''
+        else
+          for (var i1 = 0; i1 < authorizedTokenIssuerList.length; i1++)
+            for (var e3 in authorizedTokenIssuerList[i1].toQueryMap().entries)
+              'AuthorizedTokenIssuerList.member.${i1 + 1}.${e3.key}': e3.value,
+      if (iamRoleArn != null) 'IamRoleArn': iamRoleArn,
+      if (idcDisplayName != null) 'IdcDisplayName': idcDisplayName,
+      if (identityNamespace != null) 'IdentityNamespace': identityNamespace,
+      if (serviceIntegrations != null)
+        if (serviceIntegrations.isEmpty)
+          'ServiceIntegrations': ''
+        else
+          for (var i1 = 0; i1 < serviceIntegrations.length; i1++)
+            for (var e3 in serviceIntegrations[i1].toQueryMap().entries)
+              'ServiceIntegrations.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'ModifyRedshiftIdcApplication',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'ModifyRedshiftIdcApplicationResult',
+    );
+    return ModifyRedshiftIdcApplicationResult.fromXml($result);
+  }
+
   /// Modifies a scheduled action.
   ///
+  /// May throw [ClusterNotFoundFault].
   /// May throw [ScheduledActionNotFoundFault].
   /// May throw [ScheduledActionTypeUnsupportedFault].
   /// May throw [InvalidScheduleFault].
   /// May throw [InvalidScheduledActionFault].
   /// May throw [UnauthorizedOperation].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [scheduledActionName] :
   /// The name of the scheduled action to modify.
@@ -6788,16 +7764,19 @@ class Redshift {
     DateTime? startTime,
     ScheduledActionType? targetAction,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ScheduledActionName'] = scheduledActionName;
-    enable?.also((arg) => $request['Enable'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    iamRole?.also((arg) => $request['IamRole'] = arg);
-    schedule?.also((arg) => $request['Schedule'] = arg);
-    scheduledActionDescription
-        ?.also((arg) => $request['ScheduledActionDescription'] = arg);
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
-    targetAction?.also((arg) => $request['TargetAction'] = arg);
+    final $request = <String, String>{
+      'ScheduledActionName': scheduledActionName,
+      if (enable != null) 'Enable': enable.toString(),
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (iamRole != null) 'IamRole': iamRole,
+      if (schedule != null) 'Schedule': schedule,
+      if (scheduledActionDescription != null)
+        'ScheduledActionDescription': scheduledActionDescription,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+      if (targetAction != null)
+        for (var e1 in targetAction.toQueryMap().entries)
+          'TargetAction.${e1.key}': e1.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyScheduledAction',
@@ -6805,8 +7784,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyScheduledActionMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyScheduledActionResult',
     );
     return ScheduledAction.fromXml($result);
@@ -6870,10 +7847,11 @@ class Redshift {
     required int retentionPeriod,
     bool? manual,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['RetentionPeriod'] = retentionPeriod;
-    manual?.also((arg) => $request['Manual'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'RetentionPeriod': retentionPeriod.toString(),
+      if (manual != null) 'Manual': manual.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifySnapshotCopyRetentionPeriod',
@@ -6881,8 +7859,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifySnapshotCopyRetentionPeriodMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifySnapshotCopyRetentionPeriodResult',
     );
     return ModifySnapshotCopyRetentionPeriodResult.fromXml($result);
@@ -6905,9 +7881,15 @@ class Redshift {
     required List<String> scheduleDefinitions,
     required String scheduleIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ScheduleDefinitions'] = scheduleDefinitions;
-    $request['ScheduleIdentifier'] = scheduleIdentifier;
+    final $request = <String, String>{
+      if (scheduleDefinitions.isEmpty)
+        'ScheduleDefinitions': ''
+      else
+        for (var i1 = 0; i1 < scheduleDefinitions.length; i1++)
+          'ScheduleDefinitions.ScheduleDefinition.${i1 + 1}':
+              scheduleDefinitions[i1],
+      'ScheduleIdentifier': scheduleIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifySnapshotSchedule',
@@ -6915,8 +7897,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifySnapshotScheduleMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifySnapshotScheduleResult',
     );
     return SnapshotSchedule.fromXml($result);
@@ -6944,10 +7924,11 @@ class Redshift {
     int? amount,
     UsageLimitBreachAction? breachAction,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UsageLimitId'] = usageLimitId;
-    amount?.also((arg) => $request['Amount'] = arg);
-    breachAction?.also((arg) => $request['BreachAction'] = arg.toValue());
+    final $request = <String, String>{
+      'UsageLimitId': usageLimitId,
+      if (amount != null) 'Amount': amount.toString(),
+      if (breachAction != null) 'BreachAction': breachAction.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyUsageLimit',
@@ -6955,8 +7936,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyUsageLimitMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyUsageLimitResult',
     );
     return UsageLimit.fromXml($result);
@@ -6966,14 +7945,16 @@ class Redshift {
   ///
   /// May throw [ClusterNotFoundFault].
   /// May throw [InvalidClusterStateFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The identifier of the cluster to be paused.
   Future<PauseClusterResult> pauseCluster({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'PauseCluster',
@@ -6981,8 +7962,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PauseClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'PauseClusterResult',
     );
     return PauseClusterResult.fromXml($result);
@@ -7015,9 +7994,10 @@ class Redshift {
     required String reservedNodeOfferingId,
     int? nodeCount,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ReservedNodeOfferingId'] = reservedNodeOfferingId;
-    nodeCount?.also((arg) => $request['NodeCount'] = arg);
+    final $request = <String, String>{
+      'ReservedNodeOfferingId': reservedNodeOfferingId,
+      if (nodeCount != null) 'NodeCount': nodeCount.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'PurchaseReservedNodeOffering',
@@ -7025,11 +8005,42 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PurchaseReservedNodeOfferingMessage'],
-      shapes: shapes,
       resultWrapper: 'PurchaseReservedNodeOfferingResult',
     );
     return PurchaseReservedNodeOfferingResult.fromXml($result);
+  }
+
+  /// Updates the resource policy for a specified resource.
+  ///
+  /// May throw [ResourceNotFoundFault].
+  /// May throw [InvalidPolicyFault].
+  /// May throw [ConflictPolicyUpdateFault].
+  /// May throw [UnsupportedOperationFault].
+  ///
+  /// Parameter [policy] :
+  /// The content of the resource policy being updated.
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the resource of which its resource
+  /// policy is updated.
+  Future<PutResourcePolicyResult> putResourcePolicy({
+    required String policy,
+    required String resourceArn,
+  }) async {
+    final $request = <String, String>{
+      'Policy': policy,
+      'ResourceArn': resourceArn,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'PutResourcePolicy',
+      version: '2012-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'PutResourcePolicyResult',
+    );
+    return PutResourcePolicyResult.fromXml($result);
   }
 
   /// Reboots a cluster. This action is taken as soon as possible. It results in
@@ -7050,8 +8061,9 @@ class Redshift {
   Future<RebootClusterResult> rebootCluster({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RebootCluster',
@@ -7059,8 +8071,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RebootClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'RebootClusterResult',
     );
     return RebootClusterResult.fromXml($result);
@@ -7075,8 +8085,9 @@ class Redshift {
   Future<DataShare> rejectDataShare({
     required String dataShareArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DataShareArn'] = dataShareArn;
+    final $request = <String, String>{
+      'DataShareArn': dataShareArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RejectDataShare',
@@ -7084,8 +8095,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RejectDataShareMessage'],
-      shapes: shapes,
       resultWrapper: 'RejectDataShareResult',
     );
     return DataShare.fromXml($result);
@@ -7119,10 +8128,18 @@ class Redshift {
     List<Parameter>? parameters,
     bool? resetAllParameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ParameterGroupName'] = parameterGroupName;
-    parameters?.also((arg) => $request['Parameters'] = arg);
-    resetAllParameters?.also((arg) => $request['ResetAllParameters'] = arg);
+    final $request = <String, String>{
+      'ParameterGroupName': parameterGroupName,
+      if (parameters != null)
+        if (parameters.isEmpty)
+          'Parameters': ''
+        else
+          for (var i1 = 0; i1 < parameters.length; i1++)
+            for (var e3 in parameters[i1].toQueryMap().entries)
+              'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+      if (resetAllParameters != null)
+        'ResetAllParameters': resetAllParameters.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ResetClusterParameterGroup',
@@ -7130,8 +8147,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResetClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ResetClusterParameterGroupResult',
     );
     return ClusterParameterGroupNameMessage.fromXml($result);
@@ -7232,15 +8247,16 @@ class Redshift {
     String? reservedNodeId,
     String? targetReservedNodeOfferingId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    classic?.also((arg) => $request['Classic'] = arg);
-    clusterType?.also((arg) => $request['ClusterType'] = arg);
-    nodeType?.also((arg) => $request['NodeType'] = arg);
-    numberOfNodes?.also((arg) => $request['NumberOfNodes'] = arg);
-    reservedNodeId?.also((arg) => $request['ReservedNodeId'] = arg);
-    targetReservedNodeOfferingId
-        ?.also((arg) => $request['TargetReservedNodeOfferingId'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (classic != null) 'Classic': classic.toString(),
+      if (clusterType != null) 'ClusterType': clusterType,
+      if (nodeType != null) 'NodeType': nodeType,
+      if (numberOfNodes != null) 'NumberOfNodes': numberOfNodes.toString(),
+      if (reservedNodeId != null) 'ReservedNodeId': reservedNodeId,
+      if (targetReservedNodeOfferingId != null)
+        'TargetReservedNodeOfferingId': targetReservedNodeOfferingId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ResizeCluster',
@@ -7248,8 +8264,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResizeClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'ResizeClusterResult',
     );
     return ResizeClusterResult.fromXml($result);
@@ -7304,6 +8318,7 @@ class Redshift {
   /// May throw [DependentServiceUnavailableFault].
   /// May throw [ReservedNodeAlreadyExistsFault].
   /// May throw [UnsupportedOperationFault].
+  /// May throw [Ipv6CidrBlockNotFoundFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The identifier of the cluster that will be created from restoring the
@@ -7447,6 +8462,10 @@ class Redshift {
   /// href="https://docs.aws.amazon.com/redshift/latest/mgmt/amazon-redshift-limits.html">Quotas
   /// and limits</a> in the <i>Amazon Redshift Cluster Management Guide</i>.
   ///
+  /// Parameter [ipAddressType] :
+  /// The IP address type for the cluster. Possible values are <code>ipv4</code>
+  /// and <code>dualstack</code>.
+  ///
   /// Parameter [kmsKeyId] :
   /// The Key Management Service (KMS) key ID of the encryption key that
   /// encrypts data in the cluster restored from a shared snapshot. You can also
@@ -7465,12 +8484,27 @@ class Redshift {
   /// change the cluster to be on the trailing track. In this case, the snapshot
   /// and the source cluster are on different tracks.
   ///
+  /// Parameter [manageMasterPassword] :
+  /// If <code>true</code>, Amazon Redshift uses Secrets Manager to manage the
+  /// restored cluster's admin credentials. If <code>ManageMasterPassword</code>
+  /// is false or not set, Amazon Redshift uses the admin credentials the
+  /// cluster had at the time the snapshot was taken.
+  ///
   /// Parameter [manualSnapshotRetentionPeriod] :
   /// The default number of days to retain a manual snapshot. If the value is
   /// -1, the snapshot is retained indefinitely. This setting doesn't change the
   /// retention period of existing snapshots.
   ///
   /// The value must be either -1 or an integer between 1 and 3,653.
+  ///
+  /// Parameter [masterPasswordSecretKmsKeyId] :
+  /// The ID of the Key Management Service (KMS) key used to encrypt and store
+  /// the cluster's admin credentials secret. You can only use this parameter if
+  /// <code>ManageMasterPassword</code> is true.
+  ///
+  /// Parameter [multiAZ] :
+  /// If true, the snapshot will be restored to a cluster deployed in two
+  /// Availability Zones.
   ///
   /// Parameter [nodeType] :
   /// The node type that the restored cluster will be provisioned with.
@@ -7502,7 +8536,10 @@ class Redshift {
   ///
   /// Default: The same port as the original cluster.
   ///
-  /// Constraints: Must be between <code>1115</code> and <code>65535</code>.
+  /// Valid values: For clusters with ds2 or dc2 nodes, must be within the range
+  /// <code>1150</code>-<code>65535</code>. For clusters with ra3 nodes, must be
+  /// within the ranges <code>5431</code>-<code>5455</code> or
+  /// <code>8191</code>-<code>8215</code>.
   ///
   /// Parameter [preferredMaintenanceWindow] :
   /// The weekly time range (in UTC) during which automated cluster maintenance
@@ -7532,9 +8569,9 @@ class Redshift {
   ///
   /// Parameter [snapshotClusterIdentifier] :
   /// The name of the cluster the source snapshot was created from. This
-  /// parameter is required if your IAM user or role has a policy containing a
-  /// snapshot resource element that specifies anything other than * for the
-  /// cluster name.
+  /// parameter is required if your IAM user has a policy containing a snapshot
+  /// resource element that specifies anything other than * for the cluster
+  /// name.
   ///
   /// Parameter [snapshotIdentifier] :
   /// The name of the snapshot from which to create the new cluster. This
@@ -7574,9 +8611,13 @@ class Redshift {
     String? hsmClientCertificateIdentifier,
     String? hsmConfigurationIdentifier,
     List<String>? iamRoles,
+    String? ipAddressType,
     String? kmsKeyId,
     String? maintenanceTrackName,
+    bool? manageMasterPassword,
     int? manualSnapshotRetentionPeriod,
+    String? masterPasswordSecretKmsKeyId,
+    bool? multiAZ,
     String? nodeType,
     int? numberOfNodes,
     String? ownerAccount,
@@ -7591,53 +8632,82 @@ class Redshift {
     String? targetReservedNodeOfferingId,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    additionalInfo?.also((arg) => $request['AdditionalInfo'] = arg);
-    allowVersionUpgrade?.also((arg) => $request['AllowVersionUpgrade'] = arg);
-    aquaConfigurationStatus
-        ?.also((arg) => $request['AquaConfigurationStatus'] = arg.toValue());
-    automatedSnapshotRetentionPeriod
-        ?.also((arg) => $request['AutomatedSnapshotRetentionPeriod'] = arg);
-    availabilityZone?.also((arg) => $request['AvailabilityZone'] = arg);
-    availabilityZoneRelocation
-        ?.also((arg) => $request['AvailabilityZoneRelocation'] = arg);
-    clusterParameterGroupName
-        ?.also((arg) => $request['ClusterParameterGroupName'] = arg);
-    clusterSecurityGroups
-        ?.also((arg) => $request['ClusterSecurityGroups'] = arg);
-    clusterSubnetGroupName
-        ?.also((arg) => $request['ClusterSubnetGroupName'] = arg);
-    defaultIamRoleArn?.also((arg) => $request['DefaultIamRoleArn'] = arg);
-    elasticIp?.also((arg) => $request['ElasticIp'] = arg);
-    encrypted?.also((arg) => $request['Encrypted'] = arg);
-    enhancedVpcRouting?.also((arg) => $request['EnhancedVpcRouting'] = arg);
-    hsmClientCertificateIdentifier
-        ?.also((arg) => $request['HsmClientCertificateIdentifier'] = arg);
-    hsmConfigurationIdentifier
-        ?.also((arg) => $request['HsmConfigurationIdentifier'] = arg);
-    iamRoles?.also((arg) => $request['IamRoles'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    maintenanceTrackName?.also((arg) => $request['MaintenanceTrackName'] = arg);
-    manualSnapshotRetentionPeriod
-        ?.also((arg) => $request['ManualSnapshotRetentionPeriod'] = arg);
-    nodeType?.also((arg) => $request['NodeType'] = arg);
-    numberOfNodes?.also((arg) => $request['NumberOfNodes'] = arg);
-    ownerAccount?.also((arg) => $request['OwnerAccount'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    publiclyAccessible?.also((arg) => $request['PubliclyAccessible'] = arg);
-    reservedNodeId?.also((arg) => $request['ReservedNodeId'] = arg);
-    snapshotArn?.also((arg) => $request['SnapshotArn'] = arg);
-    snapshotClusterIdentifier
-        ?.also((arg) => $request['SnapshotClusterIdentifier'] = arg);
-    snapshotIdentifier?.also((arg) => $request['SnapshotIdentifier'] = arg);
-    snapshotScheduleIdentifier
-        ?.also((arg) => $request['SnapshotScheduleIdentifier'] = arg);
-    targetReservedNodeOfferingId
-        ?.also((arg) => $request['TargetReservedNodeOfferingId'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      if (additionalInfo != null) 'AdditionalInfo': additionalInfo,
+      if (allowVersionUpgrade != null)
+        'AllowVersionUpgrade': allowVersionUpgrade.toString(),
+      if (aquaConfigurationStatus != null)
+        'AquaConfigurationStatus': aquaConfigurationStatus.value,
+      if (automatedSnapshotRetentionPeriod != null)
+        'AutomatedSnapshotRetentionPeriod':
+            automatedSnapshotRetentionPeriod.toString(),
+      if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
+      if (availabilityZoneRelocation != null)
+        'AvailabilityZoneRelocation': availabilityZoneRelocation.toString(),
+      if (clusterParameterGroupName != null)
+        'ClusterParameterGroupName': clusterParameterGroupName,
+      if (clusterSecurityGroups != null)
+        if (clusterSecurityGroups.isEmpty)
+          'ClusterSecurityGroups': ''
+        else
+          for (var i1 = 0; i1 < clusterSecurityGroups.length; i1++)
+            'ClusterSecurityGroups.ClusterSecurityGroupName.${i1 + 1}':
+                clusterSecurityGroups[i1],
+      if (clusterSubnetGroupName != null)
+        'ClusterSubnetGroupName': clusterSubnetGroupName,
+      if (defaultIamRoleArn != null) 'DefaultIamRoleArn': defaultIamRoleArn,
+      if (elasticIp != null) 'ElasticIp': elasticIp,
+      if (encrypted != null) 'Encrypted': encrypted.toString(),
+      if (enhancedVpcRouting != null)
+        'EnhancedVpcRouting': enhancedVpcRouting.toString(),
+      if (hsmClientCertificateIdentifier != null)
+        'HsmClientCertificateIdentifier': hsmClientCertificateIdentifier,
+      if (hsmConfigurationIdentifier != null)
+        'HsmConfigurationIdentifier': hsmConfigurationIdentifier,
+      if (iamRoles != null)
+        if (iamRoles.isEmpty)
+          'IamRoles': ''
+        else
+          for (var i1 = 0; i1 < iamRoles.length; i1++)
+            'IamRoles.IamRoleArn.${i1 + 1}': iamRoles[i1],
+      if (ipAddressType != null) 'IpAddressType': ipAddressType,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (maintenanceTrackName != null)
+        'MaintenanceTrackName': maintenanceTrackName,
+      if (manageMasterPassword != null)
+        'ManageMasterPassword': manageMasterPassword.toString(),
+      if (manualSnapshotRetentionPeriod != null)
+        'ManualSnapshotRetentionPeriod':
+            manualSnapshotRetentionPeriod.toString(),
+      if (masterPasswordSecretKmsKeyId != null)
+        'MasterPasswordSecretKmsKeyId': masterPasswordSecretKmsKeyId,
+      if (multiAZ != null) 'MultiAZ': multiAZ.toString(),
+      if (nodeType != null) 'NodeType': nodeType,
+      if (numberOfNodes != null) 'NumberOfNodes': numberOfNodes.toString(),
+      if (ownerAccount != null) 'OwnerAccount': ownerAccount,
+      if (port != null) 'Port': port.toString(),
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (publiclyAccessible != null)
+        'PubliclyAccessible': publiclyAccessible.toString(),
+      if (reservedNodeId != null) 'ReservedNodeId': reservedNodeId,
+      if (snapshotArn != null) 'SnapshotArn': snapshotArn,
+      if (snapshotClusterIdentifier != null)
+        'SnapshotClusterIdentifier': snapshotClusterIdentifier,
+      if (snapshotIdentifier != null) 'SnapshotIdentifier': snapshotIdentifier,
+      if (snapshotScheduleIdentifier != null)
+        'SnapshotScheduleIdentifier': snapshotScheduleIdentifier,
+      if (targetReservedNodeOfferingId != null)
+        'TargetReservedNodeOfferingId': targetReservedNodeOfferingId,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RestoreFromClusterSnapshot',
@@ -7645,8 +8715,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RestoreFromClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'RestoreFromClusterSnapshotResult',
     );
     return RestoreFromClusterSnapshotResult.fromXml($result);
@@ -7723,17 +8791,19 @@ class Redshift {
     String? targetDatabaseName,
     String? targetSchemaName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['NewTableName'] = newTableName;
-    $request['SnapshotIdentifier'] = snapshotIdentifier;
-    $request['SourceDatabaseName'] = sourceDatabaseName;
-    $request['SourceTableName'] = sourceTableName;
-    enableCaseSensitiveIdentifier
-        ?.also((arg) => $request['EnableCaseSensitiveIdentifier'] = arg);
-    sourceSchemaName?.also((arg) => $request['SourceSchemaName'] = arg);
-    targetDatabaseName?.also((arg) => $request['TargetDatabaseName'] = arg);
-    targetSchemaName?.also((arg) => $request['TargetSchemaName'] = arg);
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+      'NewTableName': newTableName,
+      'SnapshotIdentifier': snapshotIdentifier,
+      'SourceDatabaseName': sourceDatabaseName,
+      'SourceTableName': sourceTableName,
+      if (enableCaseSensitiveIdentifier != null)
+        'EnableCaseSensitiveIdentifier':
+            enableCaseSensitiveIdentifier.toString(),
+      if (sourceSchemaName != null) 'SourceSchemaName': sourceSchemaName,
+      if (targetDatabaseName != null) 'TargetDatabaseName': targetDatabaseName,
+      if (targetSchemaName != null) 'TargetSchemaName': targetSchemaName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RestoreTableFromClusterSnapshot',
@@ -7741,8 +8811,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RestoreTableFromClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'RestoreTableFromClusterSnapshotResult',
     );
     return RestoreTableFromClusterSnapshotResult.fromXml($result);
@@ -7753,14 +8821,16 @@ class Redshift {
   /// May throw [ClusterNotFoundFault].
   /// May throw [InvalidClusterStateFault].
   /// May throw [InsufficientClusterCapacityFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The identifier of the cluster to be resumed.
   Future<ResumeClusterResult> resumeCluster({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ResumeCluster',
@@ -7768,8 +8838,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResumeClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'ResumeClusterResult',
     );
     return ResumeClusterResult.fromXml($result);
@@ -7818,12 +8886,14 @@ class Redshift {
     String? eC2SecurityGroupName,
     String? eC2SecurityGroupOwnerId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterSecurityGroupName'] = clusterSecurityGroupName;
-    cidrip?.also((arg) => $request['CIDRIP'] = arg);
-    eC2SecurityGroupName?.also((arg) => $request['EC2SecurityGroupName'] = arg);
-    eC2SecurityGroupOwnerId
-        ?.also((arg) => $request['EC2SecurityGroupOwnerId'] = arg);
+    final $request = <String, String>{
+      'ClusterSecurityGroupName': clusterSecurityGroupName,
+      if (cidrip != null) 'CIDRIP': cidrip,
+      if (eC2SecurityGroupName != null)
+        'EC2SecurityGroupName': eC2SecurityGroupName,
+      if (eC2SecurityGroupOwnerId != null)
+        'EC2SecurityGroupOwnerId': eC2SecurityGroupOwnerId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RevokeClusterSecurityGroupIngress',
@@ -7831,8 +8901,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RevokeClusterSecurityGroupIngressMessage'],
-      shapes: shapes,
       resultWrapper: 'RevokeClusterSecurityGroupIngressResult',
     );
     return RevokeClusterSecurityGroupIngressResult.fromXml($result);
@@ -7868,11 +8936,17 @@ class Redshift {
     bool? force,
     List<String>? vpcIds,
   }) async {
-    final $request = <String, dynamic>{};
-    account?.also((arg) => $request['Account'] = arg);
-    clusterIdentifier?.also((arg) => $request['ClusterIdentifier'] = arg);
-    force?.also((arg) => $request['Force'] = arg);
-    vpcIds?.also((arg) => $request['VpcIds'] = arg);
+    final $request = <String, String>{
+      if (account != null) 'Account': account,
+      if (clusterIdentifier != null) 'ClusterIdentifier': clusterIdentifier,
+      if (force != null) 'Force': force.toString(),
+      if (vpcIds != null)
+        if (vpcIds.isEmpty)
+          'VpcIds': ''
+        else
+          for (var i1 = 0; i1 < vpcIds.length; i1++)
+            'VpcIds.VpcIdentifier.${i1 + 1}': vpcIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RevokeEndpointAccess',
@@ -7880,8 +8954,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RevokeEndpointAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'RevokeEndpointAccessResult',
     );
     return EndpointAuthorization.fromXml($result);
@@ -7911,9 +8983,9 @@ class Redshift {
   ///
   /// Parameter [snapshotClusterIdentifier] :
   /// The identifier of the cluster the snapshot was created from. This
-  /// parameter is required if your IAM user or role has a policy containing a
-  /// snapshot resource element that specifies anything other than * for the
-  /// cluster name.
+  /// parameter is required if your IAM user has a policy containing a snapshot
+  /// resource element that specifies anything other than * for the cluster
+  /// name.
   ///
   /// Parameter [snapshotIdentifier] :
   /// The identifier of the snapshot that the account can no longer access.
@@ -7923,12 +8995,13 @@ class Redshift {
     String? snapshotClusterIdentifier,
     String? snapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountWithRestoreAccess'] = accountWithRestoreAccess;
-    snapshotArn?.also((arg) => $request['SnapshotArn'] = arg);
-    snapshotClusterIdentifier
-        ?.also((arg) => $request['SnapshotClusterIdentifier'] = arg);
-    snapshotIdentifier?.also((arg) => $request['SnapshotIdentifier'] = arg);
+    final $request = <String, String>{
+      'AccountWithRestoreAccess': accountWithRestoreAccess,
+      if (snapshotArn != null) 'SnapshotArn': snapshotArn,
+      if (snapshotClusterIdentifier != null)
+        'SnapshotClusterIdentifier': snapshotClusterIdentifier,
+      if (snapshotIdentifier != null) 'SnapshotIdentifier': snapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RevokeSnapshotAccess',
@@ -7936,8 +9009,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RevokeSnapshotAccessMessage'],
-      shapes: shapes,
       resultWrapper: 'RevokeSnapshotAccessResult',
     );
     return RevokeSnapshotAccessResult.fromXml($result);
@@ -7948,6 +9019,7 @@ class Redshift {
   /// May throw [ClusterNotFoundFault].
   /// May throw [InvalidClusterStateFault].
   /// May throw [DependentServiceRequestThrottlingFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [clusterIdentifier] :
   /// The unique identifier of the cluster that you want to rotate the
@@ -7958,8 +9030,9 @@ class Redshift {
   Future<RotateEncryptionKeyResult> rotateEncryptionKey({
     required String clusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClusterIdentifier'] = clusterIdentifier;
+    final $request = <String, String>{
+      'ClusterIdentifier': clusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RotateEncryptionKey',
@@ -7967,8 +9040,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RotateEncryptionKeyMessage'],
-      shapes: shapes,
       resultWrapper: 'RotateEncryptionKeyResult',
     );
     return RotateEncryptionKeyResult.fromXml($result);
@@ -7979,6 +9050,7 @@ class Redshift {
   /// May throw [PartnerNotFoundFault].
   /// May throw [ClusterNotFoundFault].
   /// May throw [UnauthorizedPartnerIntegrationFault].
+  /// May throw [UnsupportedOperationFault].
   ///
   /// Parameter [accountId] :
   /// The Amazon Web Services account ID that owns the cluster.
@@ -8007,13 +9079,14 @@ class Redshift {
     required PartnerIntegrationStatus status,
     String? statusMessage,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountId'] = accountId;
-    $request['ClusterIdentifier'] = clusterIdentifier;
-    $request['DatabaseName'] = databaseName;
-    $request['PartnerName'] = partnerName;
-    $request['Status'] = status.toValue();
-    statusMessage?.also((arg) => $request['StatusMessage'] = arg);
+    final $request = <String, String>{
+      'AccountId': accountId,
+      'ClusterIdentifier': clusterIdentifier,
+      'DatabaseName': databaseName,
+      'PartnerName': partnerName,
+      'Status': status.value,
+      if (statusMessage != null) 'StatusMessage': statusMessage,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdatePartnerStatus',
@@ -8021,8 +9094,6 @@ class Redshift {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdatePartnerStatusInputMessage'],
-      shapes: shapes,
       resultWrapper: 'UpdatePartnerStatusResult',
     );
     return PartnerIntegrationOutputMessage.fromXml($result);
@@ -8111,36 +9182,18 @@ class AccountWithRestoreAccess {
 }
 
 enum ActionType {
-  restoreCluster,
-  recommendNodeConfig,
-  resizeCluster,
-}
+  restoreCluster('restore-cluster'),
+  recommendNodeConfig('recommend-node-config'),
+  resizeCluster('resize-cluster'),
+  ;
 
-extension ActionTypeValueExtension on ActionType {
-  String toValue() {
-    switch (this) {
-      case ActionType.restoreCluster:
-        return 'restore-cluster';
-      case ActionType.recommendNodeConfig:
-        return 'recommend-node-config';
-      case ActionType.resizeCluster:
-        return 'resize-cluster';
-    }
-  }
-}
+  final String value;
 
-extension ActionTypeFromString on String {
-  ActionType toActionType() {
-    switch (this) {
-      case 'restore-cluster':
-        return ActionType.restoreCluster;
-      case 'recommend-node-config':
-        return ActionType.recommendNodeConfig;
-      case 'resize-cluster':
-        return ActionType.resizeCluster;
-    }
-    throw Exception('$this is not known in enum ActionType');
-  }
+  const ActionType(this.value);
+
+  static ActionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ActionType'));
 }
 
 /// The operation that uses this structure is retired. Amazon Redshift
@@ -8162,75 +9215,76 @@ class AquaConfiguration {
     return AquaConfiguration(
       aquaConfigurationStatus: _s
           .extractXmlStringValue(elem, 'AquaConfigurationStatus')
-          ?.toAquaConfigurationStatus(),
-      aquaStatus: _s.extractXmlStringValue(elem, 'AquaStatus')?.toAquaStatus(),
+          ?.let(AquaConfigurationStatus.fromString),
+      aquaStatus: _s
+          .extractXmlStringValue(elem, 'AquaStatus')
+          ?.let(AquaStatus.fromString),
     );
   }
 }
 
 enum AquaConfigurationStatus {
-  enabled,
-  disabled,
-  auto,
-}
+  enabled('enabled'),
+  disabled('disabled'),
+  auto('auto'),
+  ;
 
-extension AquaConfigurationStatusValueExtension on AquaConfigurationStatus {
-  String toValue() {
-    switch (this) {
-      case AquaConfigurationStatus.enabled:
-        return 'enabled';
-      case AquaConfigurationStatus.disabled:
-        return 'disabled';
-      case AquaConfigurationStatus.auto:
-        return 'auto';
-    }
-  }
-}
+  final String value;
 
-extension AquaConfigurationStatusFromString on String {
-  AquaConfigurationStatus toAquaConfigurationStatus() {
-    switch (this) {
-      case 'enabled':
-        return AquaConfigurationStatus.enabled;
-      case 'disabled':
-        return AquaConfigurationStatus.disabled;
-      case 'auto':
-        return AquaConfigurationStatus.auto;
-    }
-    throw Exception('$this is not known in enum AquaConfigurationStatus');
-  }
+  const AquaConfigurationStatus(this.value);
+
+  static AquaConfigurationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AquaConfigurationStatus'));
 }
 
 enum AquaStatus {
-  enabled,
-  disabled,
-  applying,
+  enabled('enabled'),
+  disabled('disabled'),
+  applying('applying'),
+  ;
+
+  final String value;
+
+  const AquaStatus(this.value);
+
+  static AquaStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AquaStatus'));
 }
 
-extension AquaStatusValueExtension on AquaStatus {
-  String toValue() {
-    switch (this) {
-      case AquaStatus.enabled:
-        return 'enabled';
-      case AquaStatus.disabled:
-        return 'disabled';
-      case AquaStatus.applying:
-        return 'applying';
-    }
-  }
-}
+/// Contains information about the custom domain name association.
+class Association {
+  /// A list of all associated clusters and domain names tied to a specific
+  /// certificate.
+  final List<CertificateAssociation>? certificateAssociations;
 
-extension AquaStatusFromString on String {
-  AquaStatus toAquaStatus() {
-    switch (this) {
-      case 'enabled':
-        return AquaStatus.enabled;
-      case 'disabled':
-        return AquaStatus.disabled;
-      case 'applying':
-        return AquaStatus.applying;
-    }
-    throw Exception('$this is not known in enum AquaStatus');
+  /// The Amazon Resource Name (ARN) for the certificate associated with the
+  /// custom domain.
+  final String? customDomainCertificateArn;
+
+  /// The expiration date for the certificate.
+  final DateTime? customDomainCertificateExpiryDate;
+
+  Association({
+    this.certificateAssociations,
+    this.customDomainCertificateArn,
+    this.customDomainCertificateExpiryDate,
+  });
+  factory Association.fromXml(_s.XmlElement elem) {
+    return Association(
+      certificateAssociations: _s
+          .extractXmlChild(elem, 'CertificateAssociations')
+          ?.let((elem) => elem
+              .findElements('CertificateAssociation')
+              .map(CertificateAssociation.fromXml)
+              .toList()),
+      customDomainCertificateArn:
+          _s.extractXmlStringValue(elem, 'CustomDomainCertificateArn'),
+      customDomainCertificateExpiryDate:
+          _s.extractXmlDateTimeValue(elem, 'CustomDomainCertificateExpiryDate'),
+    );
   }
 }
 
@@ -8273,31 +9327,18 @@ class AuthenticationProfile {
 }
 
 enum AuthorizationStatus {
-  authorized,
-  revoking,
-}
+  authorized('Authorized'),
+  revoking('Revoking'),
+  ;
 
-extension AuthorizationStatusValueExtension on AuthorizationStatus {
-  String toValue() {
-    switch (this) {
-      case AuthorizationStatus.authorized:
-        return 'Authorized';
-      case AuthorizationStatus.revoking:
-        return 'Revoking';
-    }
-  }
-}
+  final String value;
 
-extension AuthorizationStatusFromString on String {
-  AuthorizationStatus toAuthorizationStatus() {
-    switch (this) {
-      case 'Authorized':
-        return AuthorizationStatus.authorized;
-      case 'Revoking':
-        return AuthorizationStatus.revoking;
-    }
-    throw Exception('$this is not known in enum AuthorizationStatus');
-  }
+  const AuthorizationStatus(this.value);
+
+  static AuthorizationStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AuthorizationStatus'));
 }
 
 class AuthorizeClusterSecurityGroupIngressResult {
@@ -8326,6 +9367,59 @@ class AuthorizeSnapshotAccessResult {
     return AuthorizeSnapshotAccessResult(
       snapshot: _s.extractXmlChild(elem, 'Snapshot')?.let(Snapshot.fromXml),
     );
+  }
+}
+
+/// The authorized token issuer for the Amazon Redshift IAM Identity Center
+/// application.
+class AuthorizedTokenIssuer {
+  /// The list of audiences for the authorized token issuer for integrating Amazon
+  /// Redshift with IDC Identity Center.
+  final List<String>? authorizedAudiencesList;
+
+  /// The ARN for the authorized token issuer for integrating Amazon Redshift with
+  /// IDC Identity Center.
+  final String? trustedTokenIssuerArn;
+
+  AuthorizedTokenIssuer({
+    this.authorizedAudiencesList,
+    this.trustedTokenIssuerArn,
+  });
+  factory AuthorizedTokenIssuer.fromXml(_s.XmlElement elem) {
+    return AuthorizedTokenIssuer(
+      authorizedAudiencesList: _s
+          .extractXmlChild(elem, 'AuthorizedAudiencesList')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
+      trustedTokenIssuerArn:
+          _s.extractXmlStringValue(elem, 'TrustedTokenIssuerArn'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authorizedAudiencesList = this.authorizedAudiencesList;
+    final trustedTokenIssuerArn = this.trustedTokenIssuerArn;
+    return {
+      if (authorizedAudiencesList != null)
+        'AuthorizedAudiencesList': authorizedAudiencesList,
+      if (trustedTokenIssuerArn != null)
+        'TrustedTokenIssuerArn': trustedTokenIssuerArn,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final authorizedAudiencesList = this.authorizedAudiencesList;
+    final trustedTokenIssuerArn = this.trustedTokenIssuerArn;
+    return {
+      if (authorizedAudiencesList != null)
+        if (authorizedAudiencesList.isEmpty)
+          'AuthorizedAudiencesList': ''
+        else
+          for (var i1 = 0; i1 < authorizedAudiencesList.length; i1++)
+            'AuthorizedAudiencesList.member.${i1 + 1}':
+                authorizedAudiencesList[i1],
+      if (trustedTokenIssuerArn != null)
+        'TrustedTokenIssuerArn': trustedTokenIssuerArn,
+    };
   }
 }
 
@@ -8397,6 +9491,27 @@ class BatchModifyClusterSnapshotsOutputMessage {
       resources: _s
           .extractXmlChild(elem, 'Resources')
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'String')),
+    );
+  }
+}
+
+/// A cluster ID and custom domain name tied to a specific certificate. These
+/// are typically returned in a list.
+class CertificateAssociation {
+  /// The cluster identifier for the certificate association.
+  final String? clusterIdentifier;
+
+  /// The custom domain name for the certificate association.
+  final String? customDomainName;
+
+  CertificateAssociation({
+    this.clusterIdentifier,
+    this.customDomainName,
+  });
+  factory CertificateAssociation.fromXml(_s.XmlElement elem) {
+    return CertificateAssociation(
+      clusterIdentifier: _s.extractXmlStringValue(elem, 'ClusterIdentifier'),
+      customDomainName: _s.extractXmlStringValue(elem, 'CustomDomainName'),
     );
   }
 }
@@ -8555,6 +9670,16 @@ class Cluster {
   /// The version ID of the Amazon Redshift engine that is running on the cluster.
   final String? clusterVersion;
 
+  /// The certificate Amazon Resource Name (ARN) for the custom domain name.
+  final String? customDomainCertificateArn;
+
+  /// The expiration date for the certificate associated with the custom domain
+  /// name.
+  final DateTime? customDomainCertificateExpiryDate;
+
+  /// The custom domain name associated with the cluster.
+  final String? customDomainName;
+
   /// The name of the initial database that was created when the cluster was
   /// created. This same name is returned for the life of the cluster. If an
   /// initial database was not specified, a database named <code>dev</code>dev was
@@ -8624,6 +9749,10 @@ class Cluster {
   /// cluster to access other Amazon Web Services services.
   final List<ClusterIamRole>? iamRoles;
 
+  /// The IP address type for the cluster. Possible values are <code>ipv4</code>
+  /// and <code>dualstack</code>.
+  final String? ipAddressType;
+
   /// The Key Management Service (KMS) key ID of the encryption key used to
   /// encrypt data in the cluster.
   final String? kmsKeyId;
@@ -8638,12 +9767,28 @@ class Cluster {
   /// The value must be either -1 or an integer between 1 and 3,653.
   final int? manualSnapshotRetentionPeriod;
 
+  /// The Amazon Resource Name (ARN) for the cluster's admin user credentials
+  /// secret.
+  final String? masterPasswordSecretArn;
+
+  /// The ID of the Key Management Service (KMS) key used to encrypt and store the
+  /// cluster's admin credentials secret.
+  final String? masterPasswordSecretKmsKeyId;
+
   /// The admin user name for the cluster. This name is used to connect to the
   /// database that is specified in the <b>DBName</b> parameter.
   final String? masterUsername;
 
   /// The status of a modify operation, if any, initiated for the cluster.
   final String? modifyStatus;
+
+  /// A boolean value that, if true, indicates that the cluster is deployed in two
+  /// Availability Zones.
+  final String? multiAZ;
+
+  /// The secondary compute unit of a cluster, if Multi-AZ deployment is turned
+  /// on.
+  final SecondaryClusterInfo? multiAZSecondary;
 
   /// The date and time in UTC when system maintenance can begin.
   final DateTime? nextMaintenanceWindowStartTime;
@@ -8730,6 +9875,9 @@ class Cluster {
     this.clusterStatus,
     this.clusterSubnetGroupName,
     this.clusterVersion,
+    this.customDomainCertificateArn,
+    this.customDomainCertificateExpiryDate,
+    this.customDomainName,
     this.dBName,
     this.dataTransferProgress,
     this.defaultIamRoleArn,
@@ -8743,11 +9891,16 @@ class Cluster {
     this.expectedNextSnapshotScheduleTimeStatus,
     this.hsmStatus,
     this.iamRoles,
+    this.ipAddressType,
     this.kmsKeyId,
     this.maintenanceTrackName,
     this.manualSnapshotRetentionPeriod,
+    this.masterPasswordSecretArn,
+    this.masterPasswordSecretKmsKeyId,
     this.masterUsername,
     this.modifyStatus,
+    this.multiAZ,
+    this.multiAZSecondary,
     this.nextMaintenanceWindowStartTime,
     this.nodeType,
     this.numberOfNodes,
@@ -8806,6 +9959,11 @@ class Cluster {
       clusterSubnetGroupName:
           _s.extractXmlStringValue(elem, 'ClusterSubnetGroupName'),
       clusterVersion: _s.extractXmlStringValue(elem, 'ClusterVersion'),
+      customDomainCertificateArn:
+          _s.extractXmlStringValue(elem, 'CustomDomainCertificateArn'),
+      customDomainCertificateExpiryDate:
+          _s.extractXmlDateTimeValue(elem, 'CustomDomainCertificateExpiryDate'),
+      customDomainName: _s.extractXmlStringValue(elem, 'CustomDomainName'),
       dBName: _s.extractXmlStringValue(elem, 'DBName'),
       dataTransferProgress: _s
           .extractXmlChild(elem, 'DataTransferProgress')
@@ -8834,13 +9992,22 @@ class Cluster {
           .findElements('ClusterIamRole')
           .map(ClusterIamRole.fromXml)
           .toList()),
+      ipAddressType: _s.extractXmlStringValue(elem, 'IpAddressType'),
       kmsKeyId: _s.extractXmlStringValue(elem, 'KmsKeyId'),
       maintenanceTrackName:
           _s.extractXmlStringValue(elem, 'MaintenanceTrackName'),
       manualSnapshotRetentionPeriod:
           _s.extractXmlIntValue(elem, 'ManualSnapshotRetentionPeriod'),
+      masterPasswordSecretArn:
+          _s.extractXmlStringValue(elem, 'MasterPasswordSecretArn'),
+      masterPasswordSecretKmsKeyId:
+          _s.extractXmlStringValue(elem, 'MasterPasswordSecretKmsKeyId'),
       masterUsername: _s.extractXmlStringValue(elem, 'MasterUsername'),
       modifyStatus: _s.extractXmlStringValue(elem, 'ModifyStatus'),
+      multiAZ: _s.extractXmlStringValue(elem, 'MultiAZ'),
+      multiAZSecondary: _s
+          .extractXmlChild(elem, 'MultiAZSecondary')
+          ?.let(SecondaryClusterInfo.fromXml),
       nextMaintenanceWindowStartTime:
           _s.extractXmlDateTimeValue(elem, 'NextMaintenanceWindowStartTime'),
       nodeType: _s.extractXmlStringValue(elem, 'NodeType'),
@@ -8865,7 +10032,7 @@ class Cluster {
           _s.extractXmlStringValue(elem, 'SnapshotScheduleIdentifier'),
       snapshotScheduleState: _s
           .extractXmlStringValue(elem, 'SnapshotScheduleState')
-          ?.toScheduleState(),
+          ?.let(ScheduleState.fromString),
       tags: _s
           .extractXmlChild(elem, 'Tags')
           ?.let((elem) => elem.findElements('Tag').map(Tag.fromXml).toList()),
@@ -8898,7 +10065,7 @@ class ClusterAssociatedToSchedule {
       clusterIdentifier: _s.extractXmlStringValue(elem, 'ClusterIdentifier'),
       scheduleAssociationState: _s
           .extractXmlStringValue(elem, 'ScheduleAssociationState')
-          ?.toScheduleState(),
+          ?.let(ScheduleState.fromString),
     );
   }
 }
@@ -9456,6 +10623,10 @@ class ClusterSubnetGroup {
   /// A list of the VPC <a>Subnet</a> elements.
   final List<Subnet>? subnets;
 
+  /// The IP address types supported by this cluster subnet group. Possible values
+  /// are <code>ipv4</code> and <code>dualstack</code>.
+  final List<String>? supportedClusterIpAddressTypes;
+
   /// The list of tags for the cluster subnet group.
   final List<Tag>? tags;
 
@@ -9467,6 +10638,7 @@ class ClusterSubnetGroup {
     this.description,
     this.subnetGroupStatus,
     this.subnets,
+    this.supportedClusterIpAddressTypes,
     this.tags,
     this.vpcId,
   });
@@ -9478,6 +10650,9 @@ class ClusterSubnetGroup {
       subnetGroupStatus: _s.extractXmlStringValue(elem, 'SubnetGroupStatus'),
       subnets: _s.extractXmlChild(elem, 'Subnets')?.let(
           (elem) => elem.findElements('Subnet').map(Subnet.fromXml).toList()),
+      supportedClusterIpAddressTypes: _s
+          .extractXmlChild(elem, 'SupportedClusterIpAddressTypes')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'item')),
       tags: _s
           .extractXmlChild(elem, 'Tags')
           ?.let((elem) => elem.findElements('Tag').map(Tag.fromXml).toList()),
@@ -9703,6 +10878,38 @@ class CreateClusterSubnetGroupResult {
   }
 }
 
+class CreateCustomDomainAssociationResult {
+  /// The identifier of the cluster that the custom domain is associated with.
+  final String? clusterIdentifier;
+
+  /// The expiration time for the certificate for the custom domain.
+  final String? customDomainCertExpiryTime;
+
+  /// The Amazon Resource Name (ARN) for the certificate associated with the
+  /// custom domain name.
+  final String? customDomainCertificateArn;
+
+  /// The custom domain name for the association result.
+  final String? customDomainName;
+
+  CreateCustomDomainAssociationResult({
+    this.clusterIdentifier,
+    this.customDomainCertExpiryTime,
+    this.customDomainCertificateArn,
+    this.customDomainName,
+  });
+  factory CreateCustomDomainAssociationResult.fromXml(_s.XmlElement elem) {
+    return CreateCustomDomainAssociationResult(
+      clusterIdentifier: _s.extractXmlStringValue(elem, 'ClusterIdentifier'),
+      customDomainCertExpiryTime:
+          _s.extractXmlStringValue(elem, 'CustomDomainCertExpiryTime'),
+      customDomainCertificateArn:
+          _s.extractXmlStringValue(elem, 'CustomDomainCertificateArn'),
+      customDomainName: _s.extractXmlStringValue(elem, 'CustomDomainName'),
+    );
+  }
+}
+
 class CreateEventSubscriptionResult {
   final EventSubscription? eventSubscription;
 
@@ -9748,6 +10955,21 @@ class CreateHsmConfigurationResult {
   }
 }
 
+class CreateRedshiftIdcApplicationResult {
+  final RedshiftIdcApplication? redshiftIdcApplication;
+
+  CreateRedshiftIdcApplicationResult({
+    this.redshiftIdcApplication,
+  });
+  factory CreateRedshiftIdcApplicationResult.fromXml(_s.XmlElement elem) {
+    return CreateRedshiftIdcApplicationResult(
+      redshiftIdcApplication: _s
+          .extractXmlChild(elem, 'RedshiftIdcApplication')
+          ?.let(RedshiftIdcApplication.fromXml),
+    );
+  }
+}
+
 class CreateSnapshotCopyGrantResult {
   final SnapshotCopyGrant? snapshotCopyGrant;
 
@@ -9759,6 +10981,26 @@ class CreateSnapshotCopyGrantResult {
       snapshotCopyGrant: _s
           .extractXmlChild(elem, 'SnapshotCopyGrant')
           ?.let(SnapshotCopyGrant.fromXml),
+    );
+  }
+}
+
+class CustomDomainAssociationsMessage {
+  /// The associations for the custom domain.
+  final List<Association>? associations;
+
+  /// The marker for the custom domain association.
+  final String? marker;
+
+  CustomDomainAssociationsMessage({
+    this.associations,
+    this.marker,
+  });
+  factory CustomDomainAssociationsMessage.fromXml(_s.XmlElement elem) {
+    return CustomDomainAssociationsMessage(
+      associations: _s.extractXmlChild(elem, 'Associations')?.let((elem) =>
+          elem.findElements('Association').map(Association.fromXml).toList()),
+      marker: _s.extractXmlStringValue(elem, 'Marker'),
     );
   }
 }
@@ -9789,10 +11031,7 @@ class DataShare {
   /// accessible cluster.
   final bool? allowPubliclyAccessibleConsumers;
 
-  /// An Amazon Resource Name (ARN) that references the datashare that is owned by
-  /// a specific namespace of the producer cluster. A datashare ARN is in the
-  /// <code>arn:aws:redshift:{region}:{account-id}:{datashare}:{namespace-guid}/{datashare-name}</code>
-  /// format.
+  /// The Amazon Resource Name (ARN) of the datashare that the consumer is to use.
   final String? dataShareArn;
 
   /// A value that specifies when the datashare has an association between
@@ -9802,7 +11041,7 @@ class DataShare {
   /// The identifier of a datashare to show its managing entity.
   final String? managedBy;
 
-  /// The Amazon Resource Name (ARN) of the producer.
+  /// The Amazon Resource Name (ARN) of the producer namespace.
   final String? producerArn;
 
   DataShare({
@@ -9831,6 +11070,10 @@ class DataShare {
 
 /// The association of a datashare from a producer account with a data consumer.
 class DataShareAssociation {
+  /// Specifies whether write operations were allowed during data share
+  /// association.
+  final bool? consumerAcceptedWrites;
+
   /// The name of the consumer accounts that have an association with a producer
   /// datashare.
   final String? consumerIdentifier;
@@ -9842,6 +11085,10 @@ class DataShareAssociation {
   /// The creation date of the datashare that is associated.
   final DateTime? createdDate;
 
+  /// Specifies whether write operations were allowed during data share
+  /// authorization.
+  final bool? producerAllowedWrites;
+
   /// The status of the datashare that is associated.
   final DataShareStatus? status;
 
@@ -9849,142 +11096,81 @@ class DataShareAssociation {
   final DateTime? statusChangeDate;
 
   DataShareAssociation({
+    this.consumerAcceptedWrites,
     this.consumerIdentifier,
     this.consumerRegion,
     this.createdDate,
+    this.producerAllowedWrites,
     this.status,
     this.statusChangeDate,
   });
   factory DataShareAssociation.fromXml(_s.XmlElement elem) {
     return DataShareAssociation(
+      consumerAcceptedWrites:
+          _s.extractXmlBoolValue(elem, 'ConsumerAcceptedWrites'),
       consumerIdentifier: _s.extractXmlStringValue(elem, 'ConsumerIdentifier'),
       consumerRegion: _s.extractXmlStringValue(elem, 'ConsumerRegion'),
       createdDate: _s.extractXmlDateTimeValue(elem, 'CreatedDate'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toDataShareStatus(),
+      producerAllowedWrites:
+          _s.extractXmlBoolValue(elem, 'ProducerAllowedWrites'),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(DataShareStatus.fromString),
       statusChangeDate: _s.extractXmlDateTimeValue(elem, 'StatusChangeDate'),
     );
   }
 }
 
 enum DataShareStatus {
-  active,
-  pendingAuthorization,
-  authorized,
-  deauthorized,
-  rejected,
-  available,
-}
+  active('ACTIVE'),
+  pendingAuthorization('PENDING_AUTHORIZATION'),
+  authorized('AUTHORIZED'),
+  deauthorized('DEAUTHORIZED'),
+  rejected('REJECTED'),
+  available('AVAILABLE'),
+  ;
 
-extension DataShareStatusValueExtension on DataShareStatus {
-  String toValue() {
-    switch (this) {
-      case DataShareStatus.active:
-        return 'ACTIVE';
-      case DataShareStatus.pendingAuthorization:
-        return 'PENDING_AUTHORIZATION';
-      case DataShareStatus.authorized:
-        return 'AUTHORIZED';
-      case DataShareStatus.deauthorized:
-        return 'DEAUTHORIZED';
-      case DataShareStatus.rejected:
-        return 'REJECTED';
-      case DataShareStatus.available:
-        return 'AVAILABLE';
-    }
-  }
-}
+  final String value;
 
-extension DataShareStatusFromString on String {
-  DataShareStatus toDataShareStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return DataShareStatus.active;
-      case 'PENDING_AUTHORIZATION':
-        return DataShareStatus.pendingAuthorization;
-      case 'AUTHORIZED':
-        return DataShareStatus.authorized;
-      case 'DEAUTHORIZED':
-        return DataShareStatus.deauthorized;
-      case 'REJECTED':
-        return DataShareStatus.rejected;
-      case 'AVAILABLE':
-        return DataShareStatus.available;
-    }
-    throw Exception('$this is not known in enum DataShareStatus');
-  }
+  const DataShareStatus(this.value);
+
+  static DataShareStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DataShareStatus'));
 }
 
 enum DataShareStatusForConsumer {
-  active,
-  available,
-}
+  active('ACTIVE'),
+  available('AVAILABLE'),
+  ;
 
-extension DataShareStatusForConsumerValueExtension
-    on DataShareStatusForConsumer {
-  String toValue() {
-    switch (this) {
-      case DataShareStatusForConsumer.active:
-        return 'ACTIVE';
-      case DataShareStatusForConsumer.available:
-        return 'AVAILABLE';
-    }
-  }
-}
+  final String value;
 
-extension DataShareStatusForConsumerFromString on String {
-  DataShareStatusForConsumer toDataShareStatusForConsumer() {
-    switch (this) {
-      case 'ACTIVE':
-        return DataShareStatusForConsumer.active;
-      case 'AVAILABLE':
-        return DataShareStatusForConsumer.available;
-    }
-    throw Exception('$this is not known in enum DataShareStatusForConsumer');
-  }
+  const DataShareStatusForConsumer(this.value);
+
+  static DataShareStatusForConsumer fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataShareStatusForConsumer'));
 }
 
 enum DataShareStatusForProducer {
-  active,
-  authorized,
-  pendingAuthorization,
-  deauthorized,
-  rejected,
-}
+  active('ACTIVE'),
+  authorized('AUTHORIZED'),
+  pendingAuthorization('PENDING_AUTHORIZATION'),
+  deauthorized('DEAUTHORIZED'),
+  rejected('REJECTED'),
+  ;
 
-extension DataShareStatusForProducerValueExtension
-    on DataShareStatusForProducer {
-  String toValue() {
-    switch (this) {
-      case DataShareStatusForProducer.active:
-        return 'ACTIVE';
-      case DataShareStatusForProducer.authorized:
-        return 'AUTHORIZED';
-      case DataShareStatusForProducer.pendingAuthorization:
-        return 'PENDING_AUTHORIZATION';
-      case DataShareStatusForProducer.deauthorized:
-        return 'DEAUTHORIZED';
-      case DataShareStatusForProducer.rejected:
-        return 'REJECTED';
-    }
-  }
-}
+  final String value;
 
-extension DataShareStatusForProducerFromString on String {
-  DataShareStatusForProducer toDataShareStatusForProducer() {
-    switch (this) {
-      case 'ACTIVE':
-        return DataShareStatusForProducer.active;
-      case 'AUTHORIZED':
-        return DataShareStatusForProducer.authorized;
-      case 'PENDING_AUTHORIZATION':
-        return DataShareStatusForProducer.pendingAuthorization;
-      case 'DEAUTHORIZED':
-        return DataShareStatusForProducer.deauthorized;
-      case 'REJECTED':
-        return DataShareStatusForProducer.rejected;
-    }
-    throw Exception('$this is not known in enum DataShareStatusForProducer');
-  }
+  const DataShareStatusForProducer(this.value);
+
+  static DataShareStatusForProducer fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataShareStatusForProducer'));
 }
 
 /// Describes the status of a cluster while it is in the process of resizing
@@ -10132,9 +11318,8 @@ class DeleteClusterSnapshotMessage {
   final String snapshotIdentifier;
 
   /// The unique identifier of the cluster the snapshot was created from. This
-  /// parameter is required if your IAM user or role has a policy containing a
-  /// snapshot resource element that specifies anything other than * for the
-  /// cluster name.
+  /// parameter is required if your IAM user has a policy containing a snapshot
+  /// resource element that specifies anything other than * for the cluster name.
   ///
   /// Constraints: Must be the name of valid cluster.
   final String? snapshotClusterIdentifier;
@@ -10145,6 +11330,16 @@ class DeleteClusterSnapshotMessage {
   });
 
   Map<String, dynamic> toJson() {
+    final snapshotIdentifier = this.snapshotIdentifier;
+    final snapshotClusterIdentifier = this.snapshotClusterIdentifier;
+    return {
+      'SnapshotIdentifier': snapshotIdentifier,
+      if (snapshotClusterIdentifier != null)
+        'SnapshotClusterIdentifier': snapshotClusterIdentifier,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final snapshotIdentifier = this.snapshotIdentifier;
     final snapshotClusterIdentifier = this.snapshotClusterIdentifier;
     return {
@@ -10291,6 +11486,34 @@ class DescribePartnersOutputMessage {
           ?.let((elem) => elem
               .findElements('PartnerIntegrationInfo')
               .map(PartnerIntegrationInfo.fromXml)
+              .toList()),
+    );
+  }
+}
+
+class DescribeRedshiftIdcApplicationsResult {
+  /// A value that indicates the starting point for the next set of response
+  /// records in a subsequent request. If a value is returned in a response, you
+  /// can retrieve the next set of records by providing this returned marker value
+  /// in the Marker parameter and retrying the command. If the Marker field is
+  /// empty, all response records have been retrieved for the request.
+  final String? marker;
+
+  /// The list of Amazon Redshift IAM Identity Center applications.
+  final List<RedshiftIdcApplication>? redshiftIdcApplications;
+
+  DescribeRedshiftIdcApplicationsResult({
+    this.marker,
+    this.redshiftIdcApplications,
+  });
+  factory DescribeRedshiftIdcApplicationsResult.fromXml(_s.XmlElement elem) {
+    return DescribeRedshiftIdcApplicationsResult(
+      marker: _s.extractXmlStringValue(elem, 'Marker'),
+      redshiftIdcApplications: _s
+          .extractXmlChild(elem, 'RedshiftIdcApplications')
+          ?.let((elem) => elem
+              .findElements('member')
+              .map(RedshiftIdcApplication.fromXml)
               .toList()),
     );
   }
@@ -10600,7 +11823,9 @@ class EndpointAuthorization {
       endpointCount: _s.extractXmlIntValue(elem, 'EndpointCount'),
       grantee: _s.extractXmlStringValue(elem, 'Grantee'),
       grantor: _s.extractXmlStringValue(elem, 'Grantor'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toAuthorizationStatus(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(AuthorizationStatus.fromString),
     );
   }
 }
@@ -10678,7 +11903,9 @@ class Event {
       message: _s.extractXmlStringValue(elem, 'Message'),
       severity: _s.extractXmlStringValue(elem, 'Severity'),
       sourceIdentifier: _s.extractXmlStringValue(elem, 'SourceIdentifier'),
-      sourceType: _s.extractXmlStringValue(elem, 'SourceType')?.toSourceType(),
+      sourceType: _s
+          .extractXmlStringValue(elem, 'SourceType')
+          ?.let(SourceType.fromString),
     );
   }
 }
@@ -10913,6 +12140,19 @@ class EventsMessage {
   }
 }
 
+class FailoverPrimaryComputeResult {
+  final Cluster? cluster;
+
+  FailoverPrimaryComputeResult({
+    this.cluster,
+  });
+  factory FailoverPrimaryComputeResult.fromXml(_s.XmlElement elem) {
+    return FailoverPrimaryComputeResult(
+      cluster: _s.extractXmlChild(elem, 'Cluster')?.let(Cluster.fromXml),
+    );
+  }
+}
+
 class GetReservedNodeExchangeConfigurationOptionsOutputMessage {
   /// A pagination token provided by a previous
   /// <code>GetReservedNodeExchangeConfigurationOptions</code> request.
@@ -10970,6 +12210,22 @@ class GetReservedNodeExchangeOfferingsOutputMessage {
               .findElements('ReservedNodeOffering')
               .map(ReservedNodeOffering.fromXml)
               .toList()),
+    );
+  }
+}
+
+class GetResourcePolicyResult {
+  /// The content of the resource policy.
+  final ResourcePolicy? resourcePolicy;
+
+  GetResourcePolicyResult({
+    this.resourcePolicy,
+  });
+  factory GetResourcePolicyResult.fromXml(_s.XmlElement elem) {
+    return GetResourcePolicyResult(
+      resourcePolicy: _s
+          .extractXmlChild(elem, 'ResourcePolicy')
+          ?.let(ResourcePolicy.fromXml),
     );
   }
 }
@@ -11167,32 +12423,220 @@ class IPRange {
   }
 }
 
+enum ImpactRankingType {
+  high('HIGH'),
+  medium('MEDIUM'),
+  low('LOW'),
+  ;
+
+  final String value;
+
+  const ImpactRankingType(this.value);
+
+  static ImpactRankingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ImpactRankingType'));
+}
+
+/// The content of an inbound integration.
+class InboundIntegration {
+  /// The creation time of an inbound integration.
+  final DateTime? createTime;
+
+  /// The outstanding errors of an inbound integration. Each item is an
+  /// "IntegrationError". This is null if there is no error.
+  final List<IntegrationError>? errors;
+
+  /// The Amazon Resource Name (ARN) of an inbound integration.
+  final String? integrationArn;
+
+  /// The Amazon Resource Name (ARN) of the source of an inbound integration.
+  final String? sourceArn;
+
+  /// The status of an inbound integration.
+  final ZeroETLIntegrationStatus? status;
+
+  /// The Amazon Resource Name (ARN) of the target of an inbound integration.
+  final String? targetArn;
+
+  InboundIntegration({
+    this.createTime,
+    this.errors,
+    this.integrationArn,
+    this.sourceArn,
+    this.status,
+    this.targetArn,
+  });
+  factory InboundIntegration.fromXml(_s.XmlElement elem) {
+    return InboundIntegration(
+      createTime: _s.extractXmlDateTimeValue(elem, 'CreateTime'),
+      errors: _s.extractXmlChild(elem, 'Errors')?.let((elem) => elem
+          .findElements('IntegrationError')
+          .map(IntegrationError.fromXml)
+          .toList()),
+      integrationArn: _s.extractXmlStringValue(elem, 'IntegrationArn'),
+      sourceArn: _s.extractXmlStringValue(elem, 'SourceArn'),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(ZeroETLIntegrationStatus.fromString),
+      targetArn: _s.extractXmlStringValue(elem, 'TargetArn'),
+    );
+  }
+}
+
+class InboundIntegrationsMessage {
+  /// A list of <a>InboundIntegration</a> instances.
+  final List<InboundIntegration>? inboundIntegrations;
+
+  /// A value that indicates the starting point for the next set of response
+  /// records in a subsequent request. If a value is returned in a response, you
+  /// can retrieve the next set of records by providing this returned marker value
+  /// in the <code>Marker</code> parameter and retrying the command. If the
+  /// <code>Marker</code> field is empty, all response records have been retrieved
+  /// for the request.
+  final String? marker;
+
+  InboundIntegrationsMessage({
+    this.inboundIntegrations,
+    this.marker,
+  });
+  factory InboundIntegrationsMessage.fromXml(_s.XmlElement elem) {
+    return InboundIntegrationsMessage(
+      inboundIntegrations: _s.extractXmlChild(elem, 'InboundIntegrations')?.let(
+          (elem) => elem
+              .findElements('InboundIntegration')
+              .map(InboundIntegration.fromXml)
+              .toList()),
+      marker: _s.extractXmlStringValue(elem, 'Marker'),
+    );
+  }
+}
+
+/// The error of an inbound integration.
+class IntegrationError {
+  /// The error code of an inbound integration error.
+  final String errorCode;
+
+  /// The error message of an inbound integration error.
+  final String? errorMessage;
+
+  IntegrationError({
+    required this.errorCode,
+    this.errorMessage,
+  });
+  factory IntegrationError.fromXml(_s.XmlElement elem) {
+    return IntegrationError(
+      errorCode: _s.extractXmlStringValue(elem, 'ErrorCode')!,
+      errorMessage: _s.extractXmlStringValue(elem, 'ErrorMessage'),
+    );
+  }
+}
+
+/// The Lake Formation scope.
+class LakeFormationQuery {
+  /// Determines whether the query scope is enabled or disabled.
+  final ServiceAuthorization authorization;
+
+  LakeFormationQuery({
+    required this.authorization,
+  });
+  factory LakeFormationQuery.fromXml(_s.XmlElement elem) {
+    return LakeFormationQuery(
+      authorization: _s
+          .extractXmlStringValue(elem, 'Authorization')!
+          .let(ServiceAuthorization.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authorization = this.authorization;
+    return {
+      'Authorization': authorization.value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final authorization = this.authorization;
+    return {
+      'Authorization': authorization.value,
+    };
+  }
+}
+
+/// A list of scopes set up for Lake Formation integration.
+class LakeFormationScopeUnion {
+  /// The Lake Formation scope.
+  final LakeFormationQuery? lakeFormationQuery;
+
+  LakeFormationScopeUnion({
+    this.lakeFormationQuery,
+  });
+  factory LakeFormationScopeUnion.fromXml(_s.XmlElement elem) {
+    return LakeFormationScopeUnion(
+      lakeFormationQuery: _s
+          .extractXmlChild(elem, 'LakeFormationQuery')
+          ?.let(LakeFormationQuery.fromXml),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final lakeFormationQuery = this.lakeFormationQuery;
+    return {
+      if (lakeFormationQuery != null) 'LakeFormationQuery': lakeFormationQuery,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final lakeFormationQuery = this.lakeFormationQuery;
+    return {
+      if (lakeFormationQuery != null)
+        for (var e1 in lakeFormationQuery.toQueryMap().entries)
+          'LakeFormationQuery.${e1.key}': e1.value,
+    };
+  }
+}
+
+class ListRecommendationsResult {
+  /// A value that indicates the starting point for the next set of response
+  /// records in a subsequent request. If a value is returned in a response, you
+  /// can retrieve the next set of records by providing this returned marker value
+  /// in the Marker parameter and retrying the command. If the Marker field is
+  /// empty, all response records have been retrieved for the request.
+  final String? marker;
+
+  /// The Advisor recommendations for action on the Amazon Redshift cluster.
+  final List<Recommendation>? recommendations;
+
+  ListRecommendationsResult({
+    this.marker,
+    this.recommendations,
+  });
+  factory ListRecommendationsResult.fromXml(_s.XmlElement elem) {
+    return ListRecommendationsResult(
+      marker: _s.extractXmlStringValue(elem, 'Marker'),
+      recommendations: _s.extractXmlChild(elem, 'Recommendations')?.let(
+          (elem) => elem
+              .findElements('Recommendation')
+              .map(Recommendation.fromXml)
+              .toList()),
+    );
+  }
+}
+
 enum LogDestinationType {
-  s3,
-  cloudwatch,
-}
+  s3('s3'),
+  cloudwatch('cloudwatch'),
+  ;
 
-extension LogDestinationTypeValueExtension on LogDestinationType {
-  String toValue() {
-    switch (this) {
-      case LogDestinationType.s3:
-        return 's3';
-      case LogDestinationType.cloudwatch:
-        return 'cloudwatch';
-    }
-  }
-}
+  final String value;
 
-extension LogDestinationTypeFromString on String {
-  LogDestinationType toLogDestinationType() {
-    switch (this) {
-      case 's3':
-        return LogDestinationType.s3;
-      case 'cloudwatch':
-        return LogDestinationType.cloudwatch;
-    }
-    throw Exception('$this is not known in enum LogDestinationType');
-  }
+  const LogDestinationType(this.value);
+
+  static LogDestinationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LogDestinationType'));
 }
 
 /// Describes the status of logging for a cluster.
@@ -11243,7 +12687,7 @@ class LoggingStatus {
           _s.extractXmlDateTimeValue(elem, 'LastSuccessfulDeliveryTime'),
       logDestinationType: _s
           .extractXmlStringValue(elem, 'LogDestinationType')
-          ?.toLogDestinationType(),
+          ?.let(LogDestinationType.fromString),
       logExports: _s
           .extractXmlChild(elem, 'LogExports')
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
@@ -11288,31 +12732,17 @@ class MaintenanceTrack {
 }
 
 enum Mode {
-  standard,
-  highPerformance,
-}
+  standard('standard'),
+  highPerformance('high-performance'),
+  ;
 
-extension ModeValueExtension on Mode {
-  String toValue() {
-    switch (this) {
-      case Mode.standard:
-        return 'standard';
-      case Mode.highPerformance:
-        return 'high-performance';
-    }
-  }
-}
+  final String value;
 
-extension ModeFromString on String {
-  Mode toMode() {
-    switch (this) {
-      case 'standard':
-        return Mode.standard;
-      case 'high-performance':
-        return Mode.highPerformance;
-    }
-    throw Exception('$this is not known in enum Mode');
-  }
+  const Mode(this.value);
+
+  static Mode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Mode'));
 }
 
 class ModifyAquaOutputMessage {
@@ -11433,6 +12863,41 @@ class ModifyClusterSubnetGroupResult {
   }
 }
 
+class ModifyCustomDomainAssociationResult {
+  /// The identifier of the cluster associated with the result for the changed
+  /// custom domain association.
+  final String? clusterIdentifier;
+
+  /// The certificate expiration time associated with the result for the changed
+  /// custom domain association.
+  final String? customDomainCertExpiryTime;
+
+  /// The certificate Amazon Resource Name (ARN) associated with the result for
+  /// the changed custom domain association.
+  final String? customDomainCertificateArn;
+
+  /// The custom domain name associated with the result for the changed custom
+  /// domain association.
+  final String? customDomainName;
+
+  ModifyCustomDomainAssociationResult({
+    this.clusterIdentifier,
+    this.customDomainCertExpiryTime,
+    this.customDomainCertificateArn,
+    this.customDomainName,
+  });
+  factory ModifyCustomDomainAssociationResult.fromXml(_s.XmlElement elem) {
+    return ModifyCustomDomainAssociationResult(
+      clusterIdentifier: _s.extractXmlStringValue(elem, 'ClusterIdentifier'),
+      customDomainCertExpiryTime:
+          _s.extractXmlStringValue(elem, 'CustomDomainCertExpiryTime'),
+      customDomainCertificateArn:
+          _s.extractXmlStringValue(elem, 'CustomDomainCertificateArn'),
+      customDomainName: _s.extractXmlStringValue(elem, 'CustomDomainName'),
+    );
+  }
+}
+
 class ModifyEventSubscriptionResult {
   final EventSubscription? eventSubscription;
 
@@ -11444,6 +12909,21 @@ class ModifyEventSubscriptionResult {
       eventSubscription: _s
           .extractXmlChild(elem, 'EventSubscription')
           ?.let(EventSubscription.fromXml),
+    );
+  }
+}
+
+class ModifyRedshiftIdcApplicationResult {
+  final RedshiftIdcApplication? redshiftIdcApplication;
+
+  ModifyRedshiftIdcApplicationResult({
+    this.redshiftIdcApplication,
+  });
+  factory ModifyRedshiftIdcApplicationResult.fromXml(_s.XmlElement elem) {
+    return ModifyRedshiftIdcApplicationResult(
+      redshiftIdcApplication: _s
+          .extractXmlChild(elem, 'RedshiftIdcApplication')
+          ?.let(RedshiftIdcApplication.fromXml),
     );
   }
 }
@@ -11466,6 +12946,9 @@ class NetworkInterface {
   /// The Availability Zone.
   final String? availabilityZone;
 
+  /// The IPv6 address of the network interface within the subnet.
+  final String? ipv6Address;
+
   /// The network interface identifier.
   final String? networkInterfaceId;
 
@@ -11477,6 +12960,7 @@ class NetworkInterface {
 
   NetworkInterface({
     this.availabilityZone,
+    this.ipv6Address,
     this.networkInterfaceId,
     this.privateIpAddress,
     this.subnetId,
@@ -11484,6 +12968,7 @@ class NetworkInterface {
   factory NetworkInterface.fromXml(_s.XmlElement elem) {
     return NetworkInterface(
       availabilityZone: _s.extractXmlStringValue(elem, 'AvailabilityZone'),
+      ipv6Address: _s.extractXmlStringValue(elem, 'Ipv6Address'),
       networkInterfaceId: _s.extractXmlStringValue(elem, 'NetworkInterfaceId'),
       privateIpAddress: _s.extractXmlStringValue(elem, 'PrivateIpAddress'),
       subnetId: _s.extractXmlStringValue(elem, 'SubnetId'),
@@ -11515,7 +13000,7 @@ class NodeConfigurationOption {
     return NodeConfigurationOption(
       estimatedDiskUtilizationPercent:
           _s.extractXmlDoubleValue(elem, 'EstimatedDiskUtilizationPercent'),
-      mode: _s.extractXmlStringValue(elem, 'Mode')?.toMode(),
+      mode: _s.extractXmlStringValue(elem, 'Mode')?.let(Mode.fromString),
       nodeType: _s.extractXmlStringValue(elem, 'NodeType'),
       numberOfNodes: _s.extractXmlIntValue(elem, 'NumberOfNodes'),
     );
@@ -11550,52 +13035,44 @@ class NodeConfigurationOptionsFilter {
     final operator = this.operator;
     final values = this.values;
     return {
-      if (name != null) 'Name': name.toValue(),
-      if (operator != null) 'Operator': operator.toValue(),
+      if (name != null) 'Name': name.value,
+      if (operator != null) 'Operator': operator.value,
       if (values != null) 'Value': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final name = this.name;
+    final operator = this.operator;
+    final values = this.values;
+    return {
+      if (name != null) 'Name': name.value,
+      if (operator != null) 'Operator': operator.value,
+      if (values != null)
+        if (values.isEmpty)
+          'Value': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Value.item.${i1 + 1}': values[i1],
     };
   }
 }
 
 enum NodeConfigurationOptionsFilterName {
-  nodeType,
-  numberOfNodes,
-  estimatedDiskUtilizationPercent,
-  mode,
-}
+  nodeType('NodeType'),
+  numberOfNodes('NumberOfNodes'),
+  estimatedDiskUtilizationPercent('EstimatedDiskUtilizationPercent'),
+  mode('Mode'),
+  ;
 
-extension NodeConfigurationOptionsFilterNameValueExtension
-    on NodeConfigurationOptionsFilterName {
-  String toValue() {
-    switch (this) {
-      case NodeConfigurationOptionsFilterName.nodeType:
-        return 'NodeType';
-      case NodeConfigurationOptionsFilterName.numberOfNodes:
-        return 'NumberOfNodes';
-      case NodeConfigurationOptionsFilterName.estimatedDiskUtilizationPercent:
-        return 'EstimatedDiskUtilizationPercent';
-      case NodeConfigurationOptionsFilterName.mode:
-        return 'Mode';
-    }
-  }
-}
+  final String value;
 
-extension NodeConfigurationOptionsFilterNameFromString on String {
-  NodeConfigurationOptionsFilterName toNodeConfigurationOptionsFilterName() {
-    switch (this) {
-      case 'NodeType':
-        return NodeConfigurationOptionsFilterName.nodeType;
-      case 'NumberOfNodes':
-        return NodeConfigurationOptionsFilterName.numberOfNodes;
-      case 'EstimatedDiskUtilizationPercent':
-        return NodeConfigurationOptionsFilterName
-            .estimatedDiskUtilizationPercent;
-      case 'Mode':
-        return NodeConfigurationOptionsFilterName.mode;
-    }
-    throw Exception(
-        '$this is not known in enum NodeConfigurationOptionsFilterName');
-  }
+  const NodeConfigurationOptionsFilterName(this.value);
+
+  static NodeConfigurationOptionsFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum NodeConfigurationOptionsFilterName'));
 }
 
 class NodeConfigurationOptionsMessage {
@@ -11628,56 +13105,23 @@ class NodeConfigurationOptionsMessage {
 }
 
 enum OperatorType {
-  eq,
-  lt,
-  gt,
-  le,
-  ge,
-  $in,
-  between,
-}
+  eq('eq'),
+  lt('lt'),
+  gt('gt'),
+  le('le'),
+  ge('ge'),
+  $in('in'),
+  between('between'),
+  ;
 
-extension OperatorTypeValueExtension on OperatorType {
-  String toValue() {
-    switch (this) {
-      case OperatorType.eq:
-        return 'eq';
-      case OperatorType.lt:
-        return 'lt';
-      case OperatorType.gt:
-        return 'gt';
-      case OperatorType.le:
-        return 'le';
-      case OperatorType.ge:
-        return 'ge';
-      case OperatorType.$in:
-        return 'in';
-      case OperatorType.between:
-        return 'between';
-    }
-  }
-}
+  final String value;
 
-extension OperatorTypeFromString on String {
-  OperatorType toOperatorType() {
-    switch (this) {
-      case 'eq':
-        return OperatorType.eq;
-      case 'lt':
-        return OperatorType.lt;
-      case 'gt':
-        return OperatorType.gt;
-      case 'le':
-        return OperatorType.le;
-      case 'ge':
-        return OperatorType.ge;
-      case 'in':
-        return OperatorType.$in;
-      case 'between':
-        return OperatorType.between;
-    }
-    throw Exception('$this is not known in enum OperatorType');
-  }
+  const OperatorType(this.value);
+
+  static OperatorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OperatorType'));
 }
 
 /// Describes an orderable cluster option.
@@ -11797,8 +13241,9 @@ class Parameter {
   factory Parameter.fromXml(_s.XmlElement elem) {
     return Parameter(
       allowedValues: _s.extractXmlStringValue(elem, 'AllowedValues'),
-      applyType:
-          _s.extractXmlStringValue(elem, 'ApplyType')?.toParameterApplyType(),
+      applyType: _s
+          .extractXmlStringValue(elem, 'ApplyType')
+          ?.let(ParameterApplyType.fromString),
       dataType: _s.extractXmlStringValue(elem, 'DataType'),
       description: _s.extractXmlStringValue(elem, 'Description'),
       isModifiable: _s.extractXmlBoolValue(elem, 'IsModifiable'),
@@ -11822,7 +13267,7 @@ class Parameter {
     final source = this.source;
     return {
       if (allowedValues != null) 'AllowedValues': allowedValues,
-      if (applyType != null) 'ApplyType': applyType.toValue(),
+      if (applyType != null) 'ApplyType': applyType.value,
       if (dataType != null) 'DataType': dataType,
       if (description != null) 'Description': description,
       if (isModifiable != null) 'IsModifiable': isModifiable,
@@ -11833,34 +13278,45 @@ class Parameter {
       if (source != null) 'Source': source,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final allowedValues = this.allowedValues;
+    final applyType = this.applyType;
+    final dataType = this.dataType;
+    final description = this.description;
+    final isModifiable = this.isModifiable;
+    final minimumEngineVersion = this.minimumEngineVersion;
+    final parameterName = this.parameterName;
+    final parameterValue = this.parameterValue;
+    final source = this.source;
+    return {
+      if (allowedValues != null) 'AllowedValues': allowedValues,
+      if (applyType != null) 'ApplyType': applyType.value,
+      if (dataType != null) 'DataType': dataType,
+      if (description != null) 'Description': description,
+      if (isModifiable != null) 'IsModifiable': isModifiable.toString(),
+      if (minimumEngineVersion != null)
+        'MinimumEngineVersion': minimumEngineVersion,
+      if (parameterName != null) 'ParameterName': parameterName,
+      if (parameterValue != null) 'ParameterValue': parameterValue,
+      if (source != null) 'Source': source,
+    };
+  }
 }
 
 enum ParameterApplyType {
-  static,
-  dynamic,
-}
+  static('static'),
+  $dynamic('dynamic'),
+  ;
 
-extension ParameterApplyTypeValueExtension on ParameterApplyType {
-  String toValue() {
-    switch (this) {
-      case ParameterApplyType.static:
-        return 'static';
-      case ParameterApplyType.dynamic:
-        return 'dynamic';
-    }
-  }
-}
+  final String value;
 
-extension ParameterApplyTypeFromString on String {
-  ParameterApplyType toParameterApplyType() {
-    switch (this) {
-      case 'static':
-        return ParameterApplyType.static;
-      case 'dynamic':
-        return ParameterApplyType.dynamic;
-    }
-    throw Exception('$this is not known in enum ParameterApplyType');
-  }
+  const ParameterApplyType(this.value);
+
+  static ParameterApplyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ParameterApplyType'));
 }
 
 /// Describes a partner integration.
@@ -11899,7 +13355,7 @@ class PartnerIntegrationInfo {
       partnerName: _s.extractXmlStringValue(elem, 'PartnerName'),
       status: _s
           .extractXmlStringValue(elem, 'Status')
-          ?.toPartnerIntegrationStatus(),
+          ?.let(PartnerIntegrationStatus.fromString),
       statusMessage: _s.extractXmlStringValue(elem, 'StatusMessage'),
       updatedAt: _s.extractXmlDateTimeValue(elem, 'UpdatedAt'),
     );
@@ -11926,41 +13382,20 @@ class PartnerIntegrationOutputMessage {
 }
 
 enum PartnerIntegrationStatus {
-  active,
-  inactive,
-  runtimeFailure,
-  connectionFailure,
-}
+  active('Active'),
+  inactive('Inactive'),
+  runtimeFailure('RuntimeFailure'),
+  connectionFailure('ConnectionFailure'),
+  ;
 
-extension PartnerIntegrationStatusValueExtension on PartnerIntegrationStatus {
-  String toValue() {
-    switch (this) {
-      case PartnerIntegrationStatus.active:
-        return 'Active';
-      case PartnerIntegrationStatus.inactive:
-        return 'Inactive';
-      case PartnerIntegrationStatus.runtimeFailure:
-        return 'RuntimeFailure';
-      case PartnerIntegrationStatus.connectionFailure:
-        return 'ConnectionFailure';
-    }
-  }
-}
+  final String value;
 
-extension PartnerIntegrationStatusFromString on String {
-  PartnerIntegrationStatus toPartnerIntegrationStatus() {
-    switch (this) {
-      case 'Active':
-        return PartnerIntegrationStatus.active;
-      case 'Inactive':
-        return PartnerIntegrationStatus.inactive;
-      case 'RuntimeFailure':
-        return PartnerIntegrationStatus.runtimeFailure;
-      case 'ConnectionFailure':
-        return PartnerIntegrationStatus.connectionFailure;
-    }
-    throw Exception('$this is not known in enum PartnerIntegrationStatus');
-  }
+  const PartnerIntegrationStatus(this.value);
+
+  static PartnerIntegrationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PartnerIntegrationStatus'));
 }
 
 /// Describes a pause cluster operation. For example, a scheduled action to run
@@ -11979,6 +13414,13 @@ class PauseClusterMessage {
   }
 
   Map<String, dynamic> toJson() {
+    final clusterIdentifier = this.clusterIdentifier;
+    return {
+      'ClusterIdentifier': clusterIdentifier,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final clusterIdentifier = this.clusterIdentifier;
     return {
       'ClusterIdentifier': clusterIdentifier,
@@ -12093,6 +13535,22 @@ class PurchaseReservedNodeOfferingResult {
   }
 }
 
+class PutResourcePolicyResult {
+  /// The content of the updated resource policy.
+  final ResourcePolicy? resourcePolicy;
+
+  PutResourcePolicyResult({
+    this.resourcePolicy,
+  });
+  factory PutResourcePolicyResult.fromXml(_s.XmlElement elem) {
+    return PutResourcePolicyResult(
+      resourcePolicy: _s
+          .extractXmlChild(elem, 'ResourcePolicy')
+          ?.let(ResourcePolicy.fromXml),
+    );
+  }
+}
+
 class RebootClusterResult {
   final Cluster? cluster;
 
@@ -12104,6 +13562,138 @@ class RebootClusterResult {
       cluster: _s.extractXmlChild(elem, 'Cluster')?.let(Cluster.fromXml),
     );
   }
+}
+
+/// An Amazon Redshift Advisor recommended action on the Amazon Redshift
+/// cluster.
+class Recommendation {
+  /// The unique identifier of the cluster for which the recommendation is
+  /// returned.
+  final String? clusterIdentifier;
+
+  /// The date and time (UTC) that the recommendation was created.
+  final DateTime? createdAt;
+
+  /// The description of the recommendation.
+  final String? description;
+
+  /// A unique identifier of the Advisor recommendation.
+  final String? id;
+
+  /// The scale of the impact that the Advisor recommendation has to the
+  /// performance and cost of the cluster.
+  final ImpactRankingType? impactRanking;
+
+  /// The Amazon Redshift cluster namespace ARN for which the recommendations is
+  /// returned.
+  final String? namespaceArn;
+
+  /// The description of what was observed about your cluster.
+  final String? observation;
+
+  /// The description of the recommendation.
+  final String? recommendationText;
+
+  /// The type of Advisor recommendation.
+  final String? recommendationType;
+
+  /// List of Amazon Redshift recommended actions.
+  final List<RecommendedAction>? recommendedActions;
+
+  /// List of helpful links for more information about the Advisor recommendation.
+  final List<ReferenceLink>? referenceLinks;
+
+  /// The title of the recommendation.
+  final String? title;
+
+  Recommendation({
+    this.clusterIdentifier,
+    this.createdAt,
+    this.description,
+    this.id,
+    this.impactRanking,
+    this.namespaceArn,
+    this.observation,
+    this.recommendationText,
+    this.recommendationType,
+    this.recommendedActions,
+    this.referenceLinks,
+    this.title,
+  });
+  factory Recommendation.fromXml(_s.XmlElement elem) {
+    return Recommendation(
+      clusterIdentifier: _s.extractXmlStringValue(elem, 'ClusterIdentifier'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      description: _s.extractXmlStringValue(elem, 'Description'),
+      id: _s.extractXmlStringValue(elem, 'Id'),
+      impactRanking: _s
+          .extractXmlStringValue(elem, 'ImpactRanking')
+          ?.let(ImpactRankingType.fromString),
+      namespaceArn: _s.extractXmlStringValue(elem, 'NamespaceArn'),
+      observation: _s.extractXmlStringValue(elem, 'Observation'),
+      recommendationText: _s.extractXmlStringValue(elem, 'RecommendationText'),
+      recommendationType: _s.extractXmlStringValue(elem, 'RecommendationType'),
+      recommendedActions: _s.extractXmlChild(elem, 'RecommendedActions')?.let(
+          (elem) => elem
+              .findElements('RecommendedAction')
+              .map(RecommendedAction.fromXml)
+              .toList()),
+      referenceLinks: _s.extractXmlChild(elem, 'ReferenceLinks')?.let((elem) =>
+          elem
+              .findElements('ReferenceLink')
+              .map(ReferenceLink.fromXml)
+              .toList()),
+      title: _s.extractXmlStringValue(elem, 'Title'),
+    );
+  }
+}
+
+/// The recommended action from the Amazon Redshift Advisor recommendation.
+class RecommendedAction {
+  /// The command to run.
+  final String? command;
+
+  /// The database name to perform the action on. Only applicable if the type of
+  /// command is SQL.
+  final String? database;
+
+  /// The specific instruction about the command.
+  final String? text;
+
+  /// The type of command.
+  final RecommendedActionType? type;
+
+  RecommendedAction({
+    this.command,
+    this.database,
+    this.text,
+    this.type,
+  });
+  factory RecommendedAction.fromXml(_s.XmlElement elem) {
+    return RecommendedAction(
+      command: _s.extractXmlStringValue(elem, 'Command'),
+      database: _s.extractXmlStringValue(elem, 'Database'),
+      text: _s.extractXmlStringValue(elem, 'Text'),
+      type: _s
+          .extractXmlStringValue(elem, 'Type')
+          ?.let(RecommendedActionType.fromString),
+    );
+  }
+}
+
+enum RecommendedActionType {
+  sql('SQL'),
+  cli('CLI'),
+  ;
+
+  final String value;
+
+  const RecommendedActionType(this.value);
+
+  static RecommendedActionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecommendedActionType'));
 }
 
 /// Describes a recurring charge.
@@ -12125,6 +13715,107 @@ class RecurringCharge {
           _s.extractXmlDoubleValue(elem, 'RecurringChargeAmount'),
       recurringChargeFrequency:
           _s.extractXmlStringValue(elem, 'RecurringChargeFrequency'),
+    );
+  }
+}
+
+/// Contains properties for the Redshift IDC application.
+class RedshiftIdcApplication {
+  /// The authorized token issuer list for the Amazon Redshift IAM Identity Center
+  /// application.
+  final List<AuthorizedTokenIssuer>? authorizedTokenIssuerList;
+
+  /// The ARN for the Amazon Redshift IAM Identity Center application. It has the
+  /// required permissions to be assumed and invoke the IDC Identity Center API.
+  final String? iamRoleArn;
+
+  /// The display name for the Amazon Redshift IAM Identity Center application. It
+  /// appears on the console.
+  final String? idcDisplayName;
+
+  /// The ARN for the IAM Identity Center instance that Redshift integrates with.
+  final String? idcInstanceArn;
+
+  /// The ARN for the Amazon Redshift IAM Identity Center application.
+  final String? idcManagedApplicationArn;
+
+  /// The onboarding status for the Amazon Redshift IAM Identity Center
+  /// application.
+  final String? idcOnboardStatus;
+
+  /// The identity namespace for the Amazon Redshift IAM Identity Center
+  /// application. It determines which managed application verifies the connection
+  /// token.
+  final String? identityNamespace;
+
+  /// The ARN for the Redshift application that integrates with IAM Identity
+  /// Center.
+  final String? redshiftIdcApplicationArn;
+
+  /// The name of the Redshift application in IAM Identity Center.
+  final String? redshiftIdcApplicationName;
+
+  /// A list of service integrations for the Redshift IAM Identity Center
+  /// application.
+  final List<ServiceIntegrationsUnion>? serviceIntegrations;
+
+  RedshiftIdcApplication({
+    this.authorizedTokenIssuerList,
+    this.iamRoleArn,
+    this.idcDisplayName,
+    this.idcInstanceArn,
+    this.idcManagedApplicationArn,
+    this.idcOnboardStatus,
+    this.identityNamespace,
+    this.redshiftIdcApplicationArn,
+    this.redshiftIdcApplicationName,
+    this.serviceIntegrations,
+  });
+  factory RedshiftIdcApplication.fromXml(_s.XmlElement elem) {
+    return RedshiftIdcApplication(
+      authorizedTokenIssuerList: _s
+          .extractXmlChild(elem, 'AuthorizedTokenIssuerList')
+          ?.let((elem) => elem
+              .findElements('member')
+              .map(AuthorizedTokenIssuer.fromXml)
+              .toList()),
+      iamRoleArn: _s.extractXmlStringValue(elem, 'IamRoleArn'),
+      idcDisplayName: _s.extractXmlStringValue(elem, 'IdcDisplayName'),
+      idcInstanceArn: _s.extractXmlStringValue(elem, 'IdcInstanceArn'),
+      idcManagedApplicationArn:
+          _s.extractXmlStringValue(elem, 'IdcManagedApplicationArn'),
+      idcOnboardStatus: _s.extractXmlStringValue(elem, 'IdcOnboardStatus'),
+      identityNamespace: _s.extractXmlStringValue(elem, 'IdentityNamespace'),
+      redshiftIdcApplicationArn:
+          _s.extractXmlStringValue(elem, 'RedshiftIdcApplicationArn'),
+      redshiftIdcApplicationName:
+          _s.extractXmlStringValue(elem, 'RedshiftIdcApplicationName'),
+      serviceIntegrations: _s.extractXmlChild(elem, 'ServiceIntegrations')?.let(
+          (elem) => elem
+              .findElements('member')
+              .map(ServiceIntegrationsUnion.fromXml)
+              .toList()),
+    );
+  }
+}
+
+/// A link to an Amazon Redshift Advisor reference for more information about a
+/// recommendation.
+class ReferenceLink {
+  /// The URL address to find more information.
+  final String? link;
+
+  /// The hyperlink text that describes the link to more information.
+  final String? text;
+
+  ReferenceLink({
+    this.link,
+    this.text,
+  });
+  factory ReferenceLink.fromXml(_s.XmlElement elem) {
+    return ReferenceLink(
+      link: _s.extractXmlStringValue(elem, 'Link'),
+      text: _s.extractXmlStringValue(elem, 'Text'),
     );
   }
 }
@@ -12229,7 +13920,7 @@ class ReservedNode {
           _s.extractXmlStringValue(elem, 'ReservedNodeOfferingId'),
       reservedNodeOfferingType: _s
           .extractXmlStringValue(elem, 'ReservedNodeOfferingType')
-          ?.toReservedNodeOfferingType(),
+          ?.let(ReservedNodeOfferingType.fromString),
       startTime: _s.extractXmlDateTimeValue(elem, 'StartTime'),
       state: _s.extractXmlStringValue(elem, 'State'),
       usagePrice: _s.extractXmlDoubleValue(elem, 'UsagePrice'),
@@ -12266,33 +13957,18 @@ class ReservedNodeConfigurationOption {
 }
 
 enum ReservedNodeExchangeActionType {
-  restoreCluster,
-  resizeCluster,
-}
+  restoreCluster('restore-cluster'),
+  resizeCluster('resize-cluster'),
+  ;
 
-extension ReservedNodeExchangeActionTypeValueExtension
-    on ReservedNodeExchangeActionType {
-  String toValue() {
-    switch (this) {
-      case ReservedNodeExchangeActionType.restoreCluster:
-        return 'restore-cluster';
-      case ReservedNodeExchangeActionType.resizeCluster:
-        return 'resize-cluster';
-    }
-  }
-}
+  final String value;
 
-extension ReservedNodeExchangeActionTypeFromString on String {
-  ReservedNodeExchangeActionType toReservedNodeExchangeActionType() {
-    switch (this) {
-      case 'restore-cluster':
-        return ReservedNodeExchangeActionType.restoreCluster;
-      case 'resize-cluster':
-        return ReservedNodeExchangeActionType.resizeCluster;
-    }
-    throw Exception(
-        '$this is not known in enum ReservedNodeExchangeActionType');
-  }
+  const ReservedNodeExchangeActionType(this.value);
+
+  static ReservedNodeExchangeActionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReservedNodeExchangeActionType'));
 }
 
 /// Reserved-node status details, such as the source reserved-node identifier,
@@ -12351,7 +14027,7 @@ class ReservedNodeExchangeStatus {
           _s.extractXmlStringValue(elem, 'SourceReservedNodeType'),
       status: _s
           .extractXmlStringValue(elem, 'Status')
-          ?.toReservedNodeExchangeStatusType(),
+          ?.let(ReservedNodeExchangeStatusType.fromString),
       targetReservedNodeCount:
           _s.extractXmlIntValue(elem, 'TargetReservedNodeCount'),
       targetReservedNodeOfferingId:
@@ -12363,53 +14039,22 @@ class ReservedNodeExchangeStatus {
 }
 
 enum ReservedNodeExchangeStatusType {
-  requested,
-  pending,
-  inProgress,
-  retrying,
-  succeeded,
-  failed,
-}
+  requested('REQUESTED'),
+  pending('PENDING'),
+  inProgress('IN_PROGRESS'),
+  retrying('RETRYING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
 
-extension ReservedNodeExchangeStatusTypeValueExtension
-    on ReservedNodeExchangeStatusType {
-  String toValue() {
-    switch (this) {
-      case ReservedNodeExchangeStatusType.requested:
-        return 'REQUESTED';
-      case ReservedNodeExchangeStatusType.pending:
-        return 'PENDING';
-      case ReservedNodeExchangeStatusType.inProgress:
-        return 'IN_PROGRESS';
-      case ReservedNodeExchangeStatusType.retrying:
-        return 'RETRYING';
-      case ReservedNodeExchangeStatusType.succeeded:
-        return 'SUCCEEDED';
-      case ReservedNodeExchangeStatusType.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReservedNodeExchangeStatusTypeFromString on String {
-  ReservedNodeExchangeStatusType toReservedNodeExchangeStatusType() {
-    switch (this) {
-      case 'REQUESTED':
-        return ReservedNodeExchangeStatusType.requested;
-      case 'PENDING':
-        return ReservedNodeExchangeStatusType.pending;
-      case 'IN_PROGRESS':
-        return ReservedNodeExchangeStatusType.inProgress;
-      case 'RETRYING':
-        return ReservedNodeExchangeStatusType.retrying;
-      case 'SUCCEEDED':
-        return ReservedNodeExchangeStatusType.succeeded;
-      case 'FAILED':
-        return ReservedNodeExchangeStatusType.failed;
-    }
-    throw Exception(
-        '$this is not known in enum ReservedNodeExchangeStatusType');
-  }
+  const ReservedNodeExchangeStatusType(this.value);
+
+  static ReservedNodeExchangeStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReservedNodeExchangeStatusType'));
 }
 
 /// Describes a reserved node offering.
@@ -12473,38 +14118,25 @@ class ReservedNodeOffering {
           _s.extractXmlStringValue(elem, 'ReservedNodeOfferingId'),
       reservedNodeOfferingType: _s
           .extractXmlStringValue(elem, 'ReservedNodeOfferingType')
-          ?.toReservedNodeOfferingType(),
+          ?.let(ReservedNodeOfferingType.fromString),
       usagePrice: _s.extractXmlDoubleValue(elem, 'UsagePrice'),
     );
   }
 }
 
 enum ReservedNodeOfferingType {
-  regular,
-  upgradable,
-}
+  regular('Regular'),
+  upgradable('Upgradable'),
+  ;
 
-extension ReservedNodeOfferingTypeValueExtension on ReservedNodeOfferingType {
-  String toValue() {
-    switch (this) {
-      case ReservedNodeOfferingType.regular:
-        return 'Regular';
-      case ReservedNodeOfferingType.upgradable:
-        return 'Upgradable';
-    }
-  }
-}
+  final String value;
 
-extension ReservedNodeOfferingTypeFromString on String {
-  ReservedNodeOfferingType toReservedNodeOfferingType() {
-    switch (this) {
-      case 'Regular':
-        return ReservedNodeOfferingType.regular;
-      case 'Upgradable':
-        return ReservedNodeOfferingType.upgradable;
-    }
-    throw Exception('$this is not known in enum ReservedNodeOfferingType');
-  }
+  const ReservedNodeOfferingType(this.value);
+
+  static ReservedNodeOfferingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReservedNodeOfferingType'));
 }
 
 /// <p/>
@@ -12627,6 +14259,26 @@ class ResizeClusterMessage {
       if (clusterType != null) 'ClusterType': clusterType,
       if (nodeType != null) 'NodeType': nodeType,
       if (numberOfNodes != null) 'NumberOfNodes': numberOfNodes,
+      if (reservedNodeId != null) 'ReservedNodeId': reservedNodeId,
+      if (targetReservedNodeOfferingId != null)
+        'TargetReservedNodeOfferingId': targetReservedNodeOfferingId,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final clusterIdentifier = this.clusterIdentifier;
+    final classic = this.classic;
+    final clusterType = this.clusterType;
+    final nodeType = this.nodeType;
+    final numberOfNodes = this.numberOfNodes;
+    final reservedNodeId = this.reservedNodeId;
+    final targetReservedNodeOfferingId = this.targetReservedNodeOfferingId;
+    return {
+      'ClusterIdentifier': clusterIdentifier,
+      if (classic != null) 'Classic': classic.toString(),
+      if (clusterType != null) 'ClusterType': clusterType,
+      if (nodeType != null) 'NodeType': nodeType,
+      if (numberOfNodes != null) 'NumberOfNodes': numberOfNodes.toString(),
       if (reservedNodeId != null) 'ReservedNodeId': reservedNodeId,
       if (targetReservedNodeOfferingId != null)
         'TargetReservedNodeOfferingId': targetReservedNodeOfferingId,
@@ -12798,6 +14450,26 @@ class ResizeProgressMessage {
   }
 }
 
+/// The policy that is attached to a resource.
+class ResourcePolicy {
+  /// The content of a resource policy.
+  final String? policy;
+
+  /// The resources that a policy is attached to.
+  final String? resourceArn;
+
+  ResourcePolicy({
+    this.policy,
+    this.resourceArn,
+  });
+  factory ResourcePolicy.fromXml(_s.XmlElement elem) {
+    return ResourcePolicy(
+      policy: _s.extractXmlStringValue(elem, 'Policy'),
+      resourceArn: _s.extractXmlStringValue(elem, 'ResourceArn'),
+    );
+  }
+}
+
 class RestoreFromClusterSnapshotResult {
   final Cluster? cluster;
 
@@ -12900,6 +14572,13 @@ class ResumeClusterMessage {
       'ClusterIdentifier': clusterIdentifier,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final clusterIdentifier = this.clusterIdentifier;
+    return {
+      'ClusterIdentifier': clusterIdentifier,
+    };
+  }
 }
 
 class ResumeClusterResult {
@@ -12985,36 +14664,19 @@ class RotateEncryptionKeyResult {
 }
 
 enum ScheduleState {
-  modifying,
-  active,
-  failed,
-}
+  modifying('MODIFYING'),
+  active('ACTIVE'),
+  failed('FAILED'),
+  ;
 
-extension ScheduleStateValueExtension on ScheduleState {
-  String toValue() {
-    switch (this) {
-      case ScheduleState.modifying:
-        return 'MODIFYING';
-      case ScheduleState.active:
-        return 'ACTIVE';
-      case ScheduleState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ScheduleStateFromString on String {
-  ScheduleState toScheduleState() {
-    switch (this) {
-      case 'MODIFYING':
-        return ScheduleState.modifying;
-      case 'ACTIVE':
-        return ScheduleState.active;
-      case 'FAILED':
-        return ScheduleState.failed;
-    }
-    throw Exception('$this is not known in enum ScheduleState');
-  }
+  const ScheduleState(this.value);
+
+  static ScheduleState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ScheduleState'));
 }
 
 /// Describes a scheduled action. You can use a scheduled action to trigger some
@@ -13095,7 +14757,9 @@ class ScheduledAction {
       scheduledActionName:
           _s.extractXmlStringValue(elem, 'ScheduledActionName'),
       startTime: _s.extractXmlDateTimeValue(elem, 'StartTime'),
-      state: _s.extractXmlStringValue(elem, 'State')?.toScheduledActionState(),
+      state: _s
+          .extractXmlStringValue(elem, 'State')
+          ?.let(ScheduledActionState.fromString),
       targetAction: _s
           .extractXmlChild(elem, 'TargetAction')
           ?.let(ScheduledActionType.fromXml),
@@ -13121,66 +14785,53 @@ class ScheduledActionFilter {
     final name = this.name;
     final values = this.values;
     return {
-      'Name': name.toValue(),
+      'Name': name.value,
       'Values': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final name = this.name;
+    final values = this.values;
+    return {
+      'Name': name.value,
+      if (values.isEmpty)
+        'item': ''
+      else
+        for (var i1 = 0; i1 < values.length; i1++)
+          'item.item.${i1 + 1}': values[i1],
     };
   }
 }
 
 enum ScheduledActionFilterName {
-  clusterIdentifier,
-  iamRole,
-}
+  clusterIdentifier('cluster-identifier'),
+  iamRole('iam-role'),
+  ;
 
-extension ScheduledActionFilterNameValueExtension on ScheduledActionFilterName {
-  String toValue() {
-    switch (this) {
-      case ScheduledActionFilterName.clusterIdentifier:
-        return 'cluster-identifier';
-      case ScheduledActionFilterName.iamRole:
-        return 'iam-role';
-    }
-  }
-}
+  final String value;
 
-extension ScheduledActionFilterNameFromString on String {
-  ScheduledActionFilterName toScheduledActionFilterName() {
-    switch (this) {
-      case 'cluster-identifier':
-        return ScheduledActionFilterName.clusterIdentifier;
-      case 'iam-role':
-        return ScheduledActionFilterName.iamRole;
-    }
-    throw Exception('$this is not known in enum ScheduledActionFilterName');
-  }
+  const ScheduledActionFilterName(this.value);
+
+  static ScheduledActionFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ScheduledActionFilterName'));
 }
 
 enum ScheduledActionState {
-  active,
-  disabled,
-}
+  active('ACTIVE'),
+  disabled('DISABLED'),
+  ;
 
-extension ScheduledActionStateValueExtension on ScheduledActionState {
-  String toValue() {
-    switch (this) {
-      case ScheduledActionState.active:
-        return 'ACTIVE';
-      case ScheduledActionState.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension ScheduledActionStateFromString on String {
-  ScheduledActionState toScheduledActionState() {
-    switch (this) {
-      case 'ACTIVE':
-        return ScheduledActionState.active;
-      case 'DISABLED':
-        return ScheduledActionState.disabled;
-    }
-    throw Exception('$this is not known in enum ScheduledActionState');
-  }
+  const ScheduledActionState(this.value);
+
+  static ScheduledActionState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ScheduledActionState'));
 }
 
 /// The action type that specifies an Amazon Redshift API operation that is
@@ -13224,39 +14875,39 @@ class ScheduledActionType {
       if (resumeCluster != null) 'ResumeCluster': resumeCluster,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final pauseCluster = this.pauseCluster;
+    final resizeCluster = this.resizeCluster;
+    final resumeCluster = this.resumeCluster;
+    return {
+      if (pauseCluster != null)
+        for (var e1 in pauseCluster.toQueryMap().entries)
+          'PauseCluster.${e1.key}': e1.value,
+      if (resizeCluster != null)
+        for (var e1 in resizeCluster.toQueryMap().entries)
+          'ResizeCluster.${e1.key}': e1.value,
+      if (resumeCluster != null)
+        for (var e1 in resumeCluster.toQueryMap().entries)
+          'ResumeCluster.${e1.key}': e1.value,
+    };
+  }
 }
 
 enum ScheduledActionTypeValues {
-  resizeCluster,
-  pauseCluster,
-  resumeCluster,
-}
+  resizeCluster('ResizeCluster'),
+  pauseCluster('PauseCluster'),
+  resumeCluster('ResumeCluster'),
+  ;
 
-extension ScheduledActionTypeValuesValueExtension on ScheduledActionTypeValues {
-  String toValue() {
-    switch (this) {
-      case ScheduledActionTypeValues.resizeCluster:
-        return 'ResizeCluster';
-      case ScheduledActionTypeValues.pauseCluster:
-        return 'PauseCluster';
-      case ScheduledActionTypeValues.resumeCluster:
-        return 'ResumeCluster';
-    }
-  }
-}
+  final String value;
 
-extension ScheduledActionTypeValuesFromString on String {
-  ScheduledActionTypeValues toScheduledActionTypeValues() {
-    switch (this) {
-      case 'ResizeCluster':
-        return ScheduledActionTypeValues.resizeCluster;
-      case 'PauseCluster':
-        return ScheduledActionTypeValues.pauseCluster;
-      case 'ResumeCluster':
-        return ScheduledActionTypeValues.resumeCluster;
-    }
-    throw Exception('$this is not known in enum ScheduledActionTypeValues');
-  }
+  const ScheduledActionTypeValues(this.value);
+
+  static ScheduledActionTypeValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ScheduledActionTypeValues'));
 }
 
 class ScheduledActionsMessage {
@@ -13284,6 +14935,83 @@ class ScheduledActionsMessage {
               .map(ScheduledAction.fromXml)
               .toList()),
     );
+  }
+}
+
+/// The AvailabilityZone and ClusterNodes information of the secondary compute
+/// unit.
+class SecondaryClusterInfo {
+  /// The name of the Availability Zone in which the secondary compute unit of the
+  /// cluster is located.
+  final String? availabilityZone;
+
+  /// The nodes in the secondary compute unit.
+  final List<ClusterNode>? clusterNodes;
+
+  SecondaryClusterInfo({
+    this.availabilityZone,
+    this.clusterNodes,
+  });
+  factory SecondaryClusterInfo.fromXml(_s.XmlElement elem) {
+    return SecondaryClusterInfo(
+      availabilityZone: _s.extractXmlStringValue(elem, 'AvailabilityZone'),
+      clusterNodes: _s.extractXmlChild(elem, 'ClusterNodes')?.let((elem) =>
+          elem.findElements('member').map(ClusterNode.fromXml).toList()),
+    );
+  }
+}
+
+enum ServiceAuthorization {
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
+
+  final String value;
+
+  const ServiceAuthorization(this.value);
+
+  static ServiceAuthorization fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ServiceAuthorization'));
+}
+
+/// A list of service integrations.
+class ServiceIntegrationsUnion {
+  /// A list of scopes set up for Lake Formation integration.
+  final List<LakeFormationScopeUnion>? lakeFormation;
+
+  ServiceIntegrationsUnion({
+    this.lakeFormation,
+  });
+  factory ServiceIntegrationsUnion.fromXml(_s.XmlElement elem) {
+    return ServiceIntegrationsUnion(
+      lakeFormation: _s.extractXmlChild(elem, 'LakeFormation')?.let((elem) =>
+          elem
+              .findElements('member')
+              .map(LakeFormationScopeUnion.fromXml)
+              .toList()),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final lakeFormation = this.lakeFormation;
+    return {
+      if (lakeFormation != null) 'LakeFormation': lakeFormation,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final lakeFormation = this.lakeFormation;
+    return {
+      if (lakeFormation != null)
+        if (lakeFormation.isEmpty)
+          'LakeFormation': ''
+        else
+          for (var i1 = 0; i1 < lakeFormation.length; i1++)
+            for (var e3 in lakeFormation[i1].toQueryMap().entries)
+              'LakeFormation.member.${i1 + 1}.${e3.key}': e3.value,
+    };
   }
 }
 
@@ -13366,6 +15094,14 @@ class Snapshot {
   /// The value must be either -1 or an integer between 1 and 3,653.
   final int? manualSnapshotRetentionPeriod;
 
+  /// The Amazon Resource Name (ARN) for the cluster's admin user credentials
+  /// secret.
+  final String? masterPasswordSecretArn;
+
+  /// The ID of the Key Management Service (KMS) key used to encrypt and store the
+  /// cluster's admin credentials secret.
+  final String? masterPasswordSecretKmsKeyId;
+
   /// The admin user name for the cluster.
   final String? masterUsername;
 
@@ -13385,6 +15121,9 @@ class Snapshot {
 
   /// The list of node types that this cluster snapshot is able to restore into.
   final List<String>? restorableNodeTypes;
+
+  /// The Amazon Resource Name (ARN) of the snapshot.
+  final String? snapshotArn;
 
   /// The time (in UTC format) when Amazon Redshift began the snapshot. A snapshot
   /// contains a copy of the cluster data as of this exact time.
@@ -13452,12 +15191,15 @@ class Snapshot {
     this.maintenanceTrackName,
     this.manualSnapshotRemainingDays,
     this.manualSnapshotRetentionPeriod,
+    this.masterPasswordSecretArn,
+    this.masterPasswordSecretKmsKeyId,
     this.masterUsername,
     this.nodeType,
     this.numberOfNodes,
     this.ownerAccount,
     this.port,
     this.restorableNodeTypes,
+    this.snapshotArn,
     this.snapshotCreateTime,
     this.snapshotIdentifier,
     this.snapshotRetentionStartTime,
@@ -13501,6 +15243,10 @@ class Snapshot {
           _s.extractXmlIntValue(elem, 'ManualSnapshotRemainingDays'),
       manualSnapshotRetentionPeriod:
           _s.extractXmlIntValue(elem, 'ManualSnapshotRetentionPeriod'),
+      masterPasswordSecretArn:
+          _s.extractXmlStringValue(elem, 'MasterPasswordSecretArn'),
+      masterPasswordSecretKmsKeyId:
+          _s.extractXmlStringValue(elem, 'MasterPasswordSecretKmsKeyId'),
       masterUsername: _s.extractXmlStringValue(elem, 'MasterUsername'),
       nodeType: _s.extractXmlStringValue(elem, 'NodeType'),
       numberOfNodes: _s.extractXmlIntValue(elem, 'NumberOfNodes'),
@@ -13509,6 +15255,7 @@ class Snapshot {
       restorableNodeTypes: _s
           .extractXmlChild(elem, 'RestorableNodeTypes')
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'NodeType')),
+      snapshotArn: _s.extractXmlStringValue(elem, 'SnapshotArn'),
       snapshotCreateTime:
           _s.extractXmlDateTimeValue(elem, 'SnapshotCreateTime'),
       snapshotIdentifier: _s.extractXmlStringValue(elem, 'SnapshotIdentifier'),
@@ -13528,36 +15275,19 @@ class Snapshot {
 }
 
 enum SnapshotAttributeToSortBy {
-  sourceType,
-  totalSize,
-  createTime,
-}
+  sourceType('SOURCE_TYPE'),
+  totalSize('TOTAL_SIZE'),
+  createTime('CREATE_TIME'),
+  ;
 
-extension SnapshotAttributeToSortByValueExtension on SnapshotAttributeToSortBy {
-  String toValue() {
-    switch (this) {
-      case SnapshotAttributeToSortBy.sourceType:
-        return 'SOURCE_TYPE';
-      case SnapshotAttributeToSortBy.totalSize:
-        return 'TOTAL_SIZE';
-      case SnapshotAttributeToSortBy.createTime:
-        return 'CREATE_TIME';
-    }
-  }
-}
+  final String value;
 
-extension SnapshotAttributeToSortByFromString on String {
-  SnapshotAttributeToSortBy toSnapshotAttributeToSortBy() {
-    switch (this) {
-      case 'SOURCE_TYPE':
-        return SnapshotAttributeToSortBy.sourceType;
-      case 'TOTAL_SIZE':
-        return SnapshotAttributeToSortBy.totalSize;
-      case 'CREATE_TIME':
-        return SnapshotAttributeToSortBy.createTime;
-    }
-    throw Exception('$this is not known in enum SnapshotAttributeToSortBy');
-  }
+  const SnapshotAttributeToSortBy(this.value);
+
+  static SnapshotAttributeToSortBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SnapshotAttributeToSortBy'));
 }
 
 /// The snapshot copy grant that grants Amazon Redshift permission to encrypt
@@ -13760,81 +15490,50 @@ class SnapshotSortingEntity {
     final attribute = this.attribute;
     final sortOrder = this.sortOrder;
     return {
-      'Attribute': attribute.toValue(),
-      if (sortOrder != null) 'SortOrder': sortOrder.toValue(),
+      'Attribute': attribute.value,
+      if (sortOrder != null) 'SortOrder': sortOrder.value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final attribute = this.attribute;
+    final sortOrder = this.sortOrder;
+    return {
+      'Attribute': attribute.value,
+      if (sortOrder != null) 'SortOrder': sortOrder.value,
     };
   }
 }
 
 enum SortByOrder {
-  asc,
-  desc,
-}
+  asc('ASC'),
+  desc('DESC'),
+  ;
 
-extension SortByOrderValueExtension on SortByOrder {
-  String toValue() {
-    switch (this) {
-      case SortByOrder.asc:
-        return 'ASC';
-      case SortByOrder.desc:
-        return 'DESC';
-    }
-  }
-}
+  final String value;
 
-extension SortByOrderFromString on String {
-  SortByOrder toSortByOrder() {
-    switch (this) {
-      case 'ASC':
-        return SortByOrder.asc;
-      case 'DESC':
-        return SortByOrder.desc;
-    }
-    throw Exception('$this is not known in enum SortByOrder');
-  }
+  const SortByOrder(this.value);
+
+  static SortByOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortByOrder'));
 }
 
 enum SourceType {
-  cluster,
-  clusterParameterGroup,
-  clusterSecurityGroup,
-  clusterSnapshot,
-  scheduledAction,
-}
+  cluster('cluster'),
+  clusterParameterGroup('cluster-parameter-group'),
+  clusterSecurityGroup('cluster-security-group'),
+  clusterSnapshot('cluster-snapshot'),
+  scheduledAction('scheduled-action'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.cluster:
-        return 'cluster';
-      case SourceType.clusterParameterGroup:
-        return 'cluster-parameter-group';
-      case SourceType.clusterSecurityGroup:
-        return 'cluster-security-group';
-      case SourceType.clusterSnapshot:
-        return 'cluster-snapshot';
-      case SourceType.scheduledAction:
-        return 'scheduled-action';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'cluster':
-        return SourceType.cluster;
-      case 'cluster-parameter-group':
-        return SourceType.clusterParameterGroup;
-      case 'cluster-security-group':
-        return SourceType.clusterSecurityGroup;
-      case 'cluster-snapshot':
-        return SourceType.clusterSnapshot;
-      case 'scheduled-action':
-        return SourceType.scheduledAction;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 /// Describes a subnet.
@@ -13972,8 +15671,9 @@ class TableRestoreStatus {
       sourceDatabaseName: _s.extractXmlStringValue(elem, 'SourceDatabaseName'),
       sourceSchemaName: _s.extractXmlStringValue(elem, 'SourceSchemaName'),
       sourceTableName: _s.extractXmlStringValue(elem, 'SourceTableName'),
-      status:
-          _s.extractXmlStringValue(elem, 'Status')?.toTableRestoreStatusType(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(TableRestoreStatusType.fromString),
       tableRestoreRequestId:
           _s.extractXmlStringValue(elem, 'TableRestoreRequestId'),
       targetDatabaseName: _s.extractXmlStringValue(elem, 'TargetDatabaseName'),
@@ -14010,46 +15710,21 @@ class TableRestoreStatusMessage {
 }
 
 enum TableRestoreStatusType {
-  pending,
-  inProgress,
-  succeeded,
-  failed,
-  canceled,
-}
+  pending('PENDING'),
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  canceled('CANCELED'),
+  ;
 
-extension TableRestoreStatusTypeValueExtension on TableRestoreStatusType {
-  String toValue() {
-    switch (this) {
-      case TableRestoreStatusType.pending:
-        return 'PENDING';
-      case TableRestoreStatusType.inProgress:
-        return 'IN_PROGRESS';
-      case TableRestoreStatusType.succeeded:
-        return 'SUCCEEDED';
-      case TableRestoreStatusType.failed:
-        return 'FAILED';
-      case TableRestoreStatusType.canceled:
-        return 'CANCELED';
-    }
-  }
-}
+  final String value;
 
-extension TableRestoreStatusTypeFromString on String {
-  TableRestoreStatusType toTableRestoreStatusType() {
-    switch (this) {
-      case 'PENDING':
-        return TableRestoreStatusType.pending;
-      case 'IN_PROGRESS':
-        return TableRestoreStatusType.inProgress;
-      case 'SUCCEEDED':
-        return TableRestoreStatusType.succeeded;
-      case 'FAILED':
-        return TableRestoreStatusType.failed;
-      case 'CANCELED':
-        return TableRestoreStatusType.canceled;
-    }
-    throw Exception('$this is not known in enum TableRestoreStatusType');
-  }
+  const TableRestoreStatusType(this.value);
+
+  static TableRestoreStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TableRestoreStatusType'));
 }
 
 /// A tag consisting of a name/value pair for a resource.
@@ -14072,6 +15747,15 @@ class Tag {
   }
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      if (key != null) 'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {
@@ -14285,14 +15969,17 @@ class UsageLimit {
       amount: _s.extractXmlIntValue(elem, 'Amount'),
       breachAction: _s
           .extractXmlStringValue(elem, 'BreachAction')
-          ?.toUsageLimitBreachAction(),
+          ?.let(UsageLimitBreachAction.fromString),
       clusterIdentifier: _s.extractXmlStringValue(elem, 'ClusterIdentifier'),
       featureType: _s
           .extractXmlStringValue(elem, 'FeatureType')
-          ?.toUsageLimitFeatureType(),
-      limitType:
-          _s.extractXmlStringValue(elem, 'LimitType')?.toUsageLimitLimitType(),
-      period: _s.extractXmlStringValue(elem, 'Period')?.toUsageLimitPeriod(),
+          ?.let(UsageLimitFeatureType.fromString),
+      limitType: _s
+          .extractXmlStringValue(elem, 'LimitType')
+          ?.let(UsageLimitLimitType.fromString),
+      period: _s
+          .extractXmlStringValue(elem, 'Period')
+          ?.let(UsageLimitPeriod.fromString),
       tags: _s
           .extractXmlChild(elem, 'Tags')
           ?.let((elem) => elem.findElements('Tag').map(Tag.fromXml).toList()),
@@ -14302,97 +15989,50 @@ class UsageLimit {
 }
 
 enum UsageLimitBreachAction {
-  log,
-  emitMetric,
-  disable,
-}
+  log('log'),
+  emitMetric('emit-metric'),
+  disable('disable'),
+  ;
 
-extension UsageLimitBreachActionValueExtension on UsageLimitBreachAction {
-  String toValue() {
-    switch (this) {
-      case UsageLimitBreachAction.log:
-        return 'log';
-      case UsageLimitBreachAction.emitMetric:
-        return 'emit-metric';
-      case UsageLimitBreachAction.disable:
-        return 'disable';
-    }
-  }
-}
+  final String value;
 
-extension UsageLimitBreachActionFromString on String {
-  UsageLimitBreachAction toUsageLimitBreachAction() {
-    switch (this) {
-      case 'log':
-        return UsageLimitBreachAction.log;
-      case 'emit-metric':
-        return UsageLimitBreachAction.emitMetric;
-      case 'disable':
-        return UsageLimitBreachAction.disable;
-    }
-    throw Exception('$this is not known in enum UsageLimitBreachAction');
-  }
+  const UsageLimitBreachAction(this.value);
+
+  static UsageLimitBreachAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum UsageLimitBreachAction'));
 }
 
 enum UsageLimitFeatureType {
-  spectrum,
-  concurrencyScaling,
-  crossRegionDatasharing,
-}
+  spectrum('spectrum'),
+  concurrencyScaling('concurrency-scaling'),
+  crossRegionDatasharing('cross-region-datasharing'),
+  ;
 
-extension UsageLimitFeatureTypeValueExtension on UsageLimitFeatureType {
-  String toValue() {
-    switch (this) {
-      case UsageLimitFeatureType.spectrum:
-        return 'spectrum';
-      case UsageLimitFeatureType.concurrencyScaling:
-        return 'concurrency-scaling';
-      case UsageLimitFeatureType.crossRegionDatasharing:
-        return 'cross-region-datasharing';
-    }
-  }
-}
+  final String value;
 
-extension UsageLimitFeatureTypeFromString on String {
-  UsageLimitFeatureType toUsageLimitFeatureType() {
-    switch (this) {
-      case 'spectrum':
-        return UsageLimitFeatureType.spectrum;
-      case 'concurrency-scaling':
-        return UsageLimitFeatureType.concurrencyScaling;
-      case 'cross-region-datasharing':
-        return UsageLimitFeatureType.crossRegionDatasharing;
-    }
-    throw Exception('$this is not known in enum UsageLimitFeatureType');
-  }
+  const UsageLimitFeatureType(this.value);
+
+  static UsageLimitFeatureType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum UsageLimitFeatureType'));
 }
 
 enum UsageLimitLimitType {
-  time,
-  dataScanned,
-}
+  time('time'),
+  dataScanned('data-scanned'),
+  ;
 
-extension UsageLimitLimitTypeValueExtension on UsageLimitLimitType {
-  String toValue() {
-    switch (this) {
-      case UsageLimitLimitType.time:
-        return 'time';
-      case UsageLimitLimitType.dataScanned:
-        return 'data-scanned';
-    }
-  }
-}
+  final String value;
 
-extension UsageLimitLimitTypeFromString on String {
-  UsageLimitLimitType toUsageLimitLimitType() {
-    switch (this) {
-      case 'time':
-        return UsageLimitLimitType.time;
-      case 'data-scanned':
-        return UsageLimitLimitType.dataScanned;
-    }
-    throw Exception('$this is not known in enum UsageLimitLimitType');
-  }
+  const UsageLimitLimitType(this.value);
+
+  static UsageLimitLimitType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum UsageLimitLimitType'));
 }
 
 class UsageLimitList {
@@ -14421,36 +16061,19 @@ class UsageLimitList {
 }
 
 enum UsageLimitPeriod {
-  daily,
-  weekly,
-  monthly,
-}
+  daily('daily'),
+  weekly('weekly'),
+  monthly('monthly'),
+  ;
 
-extension UsageLimitPeriodValueExtension on UsageLimitPeriod {
-  String toValue() {
-    switch (this) {
-      case UsageLimitPeriod.daily:
-        return 'daily';
-      case UsageLimitPeriod.weekly:
-        return 'weekly';
-      case UsageLimitPeriod.monthly:
-        return 'monthly';
-    }
-  }
-}
+  final String value;
 
-extension UsageLimitPeriodFromString on String {
-  UsageLimitPeriod toUsageLimitPeriod() {
-    switch (this) {
-      case 'daily':
-        return UsageLimitPeriod.daily;
-      case 'weekly':
-        return UsageLimitPeriod.weekly;
-      case 'monthly':
-        return UsageLimitPeriod.monthly;
-    }
-    throw Exception('$this is not known in enum UsageLimitPeriod');
-  }
+  const UsageLimitPeriod(this.value);
+
+  static UsageLimitPeriod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UsageLimitPeriod'));
 }
 
 /// The connection endpoint for connecting to an Amazon Redshift cluster through
@@ -14503,6 +16126,26 @@ class VpcSecurityGroupMembership {
       vpcSecurityGroupId: _s.extractXmlStringValue(elem, 'VpcSecurityGroupId'),
     );
   }
+}
+
+enum ZeroETLIntegrationStatus {
+  creating('creating'),
+  active('active'),
+  modifying('modifying'),
+  failed('failed'),
+  deleting('deleting'),
+  syncing('syncing'),
+  needsAttention('needs_attention'),
+  ;
+
+  final String value;
+
+  const ZeroETLIntegrationStatus(this.value);
+
+  static ZeroETLIntegrationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ZeroETLIntegrationStatus'));
 }
 
 class AccessToClusterDeniedFault extends _s.GenericAwsException {
@@ -14706,9 +16349,36 @@ class ClusterSubnetQuotaExceededFault extends _s.GenericAwsException {
             message: message);
 }
 
+class ConflictPolicyUpdateFault extends _s.GenericAwsException {
+  ConflictPolicyUpdateFault({String? type, String? message})
+      : super(type: type, code: 'ConflictPolicyUpdateFault', message: message);
+}
+
 class CopyToRegionDisabledFault extends _s.GenericAwsException {
   CopyToRegionDisabledFault({String? type, String? message})
       : super(type: type, code: 'CopyToRegionDisabledFault', message: message);
+}
+
+class CustomCnameAssociationFault extends _s.GenericAwsException {
+  CustomCnameAssociationFault({String? type, String? message})
+      : super(
+            type: type, code: 'CustomCnameAssociationFault', message: message);
+}
+
+class CustomDomainAssociationNotFoundFault extends _s.GenericAwsException {
+  CustomDomainAssociationNotFoundFault({String? type, String? message})
+      : super(
+            type: type,
+            code: 'CustomDomainAssociationNotFoundFault',
+            message: message);
+}
+
+class DependentServiceAccessDeniedFault extends _s.GenericAwsException {
+  DependentServiceAccessDeniedFault({String? type, String? message})
+      : super(
+            type: type,
+            code: 'DependentServiceAccessDeniedFault',
+            message: message);
 }
 
 class DependentServiceRequestThrottlingFault extends _s.GenericAwsException {
@@ -14866,6 +16536,11 @@ class InsufficientS3BucketPolicyFault extends _s.GenericAwsException {
             message: message);
 }
 
+class IntegrationNotFoundFault extends _s.GenericAwsException {
+  IntegrationNotFoundFault({String? type, String? message})
+      : super(type: type, code: 'IntegrationNotFoundFault', message: message);
+}
+
 class InvalidAuthenticationProfileRequestFault extends _s.GenericAwsException {
   InvalidAuthenticationProfileRequestFault({String? type, String? message})
       : super(
@@ -14976,6 +16651,11 @@ class InvalidNamespaceFault extends _s.GenericAwsException {
       : super(type: type, code: 'InvalidNamespaceFault', message: message);
 }
 
+class InvalidPolicyFault extends _s.GenericAwsException {
+  InvalidPolicyFault({String? type, String? message})
+      : super(type: type, code: 'InvalidPolicyFault', message: message);
+}
+
 class InvalidReservedNodeStateFault extends _s.GenericAwsException {
   InvalidReservedNodeStateFault({String? type, String? message})
       : super(
@@ -15061,6 +16741,11 @@ class InvalidVPCNetworkStateFault extends _s.GenericAwsException {
             type: type, code: 'InvalidVPCNetworkStateFault', message: message);
 }
 
+class Ipv6CidrBlockNotFoundFault extends _s.GenericAwsException {
+  Ipv6CidrBlockNotFoundFault({String? type, String? message})
+      : super(type: type, code: 'Ipv6CidrBlockNotFoundFault', message: message);
+}
+
 class LimitExceededFault extends _s.GenericAwsException {
   LimitExceededFault({String? type, String? message})
       : super(type: type, code: 'LimitExceededFault', message: message);
@@ -15085,6 +16770,30 @@ class NumberOfNodesQuotaExceededFault extends _s.GenericAwsException {
 class PartnerNotFoundFault extends _s.GenericAwsException {
   PartnerNotFoundFault({String? type, String? message})
       : super(type: type, code: 'PartnerNotFoundFault', message: message);
+}
+
+class RedshiftIdcApplicationAlreadyExistsFault extends _s.GenericAwsException {
+  RedshiftIdcApplicationAlreadyExistsFault({String? type, String? message})
+      : super(
+            type: type,
+            code: 'RedshiftIdcApplicationAlreadyExistsFault',
+            message: message);
+}
+
+class RedshiftIdcApplicationNotExistsFault extends _s.GenericAwsException {
+  RedshiftIdcApplicationNotExistsFault({String? type, String? message})
+      : super(
+            type: type,
+            code: 'RedshiftIdcApplicationNotExistsFault',
+            message: message);
+}
+
+class RedshiftIdcApplicationQuotaExceededFault extends _s.GenericAwsException {
+  RedshiftIdcApplicationQuotaExceededFault({String? type, String? message})
+      : super(
+            type: type,
+            code: 'RedshiftIdcApplicationQuotaExceededFault',
+            message: message);
 }
 
 class ReservedNodeAlreadyExistsFault extends _s.GenericAwsException {
@@ -15434,8 +17143,16 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       ClusterSubnetGroupQuotaExceededFault(type: type, message: message),
   'ClusterSubnetQuotaExceededFault': (type, message) =>
       ClusterSubnetQuotaExceededFault(type: type, message: message),
+  'ConflictPolicyUpdateFault': (type, message) =>
+      ConflictPolicyUpdateFault(type: type, message: message),
   'CopyToRegionDisabledFault': (type, message) =>
       CopyToRegionDisabledFault(type: type, message: message),
+  'CustomCnameAssociationFault': (type, message) =>
+      CustomCnameAssociationFault(type: type, message: message),
+  'CustomDomainAssociationNotFoundFault': (type, message) =>
+      CustomDomainAssociationNotFoundFault(type: type, message: message),
+  'DependentServiceAccessDeniedFault': (type, message) =>
+      DependentServiceAccessDeniedFault(type: type, message: message),
   'DependentServiceRequestThrottlingFault': (type, message) =>
       DependentServiceRequestThrottlingFault(type: type, message: message),
   'DependentServiceUnavailableFault': (type, message) =>
@@ -15477,6 +17194,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       InsufficientClusterCapacityFault(type: type, message: message),
   'InsufficientS3BucketPolicyFault': (type, message) =>
       InsufficientS3BucketPolicyFault(type: type, message: message),
+  'IntegrationNotFoundFault': (type, message) =>
+      IntegrationNotFoundFault(type: type, message: message),
   'InvalidAuthenticationProfileRequestFault': (type, message) =>
       InvalidAuthenticationProfileRequestFault(type: type, message: message),
   'InvalidAuthorizationStateFault': (type, message) =>
@@ -15509,6 +17228,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       InvalidHsmConfigurationStateFault(type: type, message: message),
   'InvalidNamespaceFault': (type, message) =>
       InvalidNamespaceFault(type: type, message: message),
+  'InvalidPolicyFault': (type, message) =>
+      InvalidPolicyFault(type: type, message: message),
   'InvalidReservedNodeStateFault': (type, message) =>
       InvalidReservedNodeStateFault(type: type, message: message),
   'InvalidRestoreFault': (type, message) =>
@@ -15537,6 +17258,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       InvalidUsageLimitFault(type: type, message: message),
   'InvalidVPCNetworkStateFault': (type, message) =>
       InvalidVPCNetworkStateFault(type: type, message: message),
+  'Ipv6CidrBlockNotFoundFault': (type, message) =>
+      Ipv6CidrBlockNotFoundFault(type: type, message: message),
   'LimitExceededFault': (type, message) =>
       LimitExceededFault(type: type, message: message),
   'NumberOfNodesPerClusterLimitExceededFault': (type, message) =>
@@ -15545,6 +17268,12 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       NumberOfNodesQuotaExceededFault(type: type, message: message),
   'PartnerNotFoundFault': (type, message) =>
       PartnerNotFoundFault(type: type, message: message),
+  'RedshiftIdcApplicationAlreadyExistsFault': (type, message) =>
+      RedshiftIdcApplicationAlreadyExistsFault(type: type, message: message),
+  'RedshiftIdcApplicationNotExistsFault': (type, message) =>
+      RedshiftIdcApplicationNotExistsFault(type: type, message: message),
+  'RedshiftIdcApplicationQuotaExceededFault': (type, message) =>
+      RedshiftIdcApplicationQuotaExceededFault(type: type, message: message),
   'ReservedNodeAlreadyExistsFault': (type, message) =>
       ReservedNodeAlreadyExistsFault(type: type, message: message),
   'ReservedNodeAlreadyMigratedFault': (type, message) =>

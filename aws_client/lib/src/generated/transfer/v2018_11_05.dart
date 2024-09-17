@@ -67,11 +67,11 @@ class Transfer {
   /// files to the server. An administrator can use <code>CreateAccess</code> to
   /// limit the access to the correct set of users who need this ability.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [externalId] :
   /// A unique identifier that is required to identify specific groups within
@@ -110,6 +110,10 @@ class Transfer {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   ///
   /// Parameter [homeDirectoryMappings] :
   /// Logical directory mappings that specify what Amazon S3 or Amazon EFS paths
@@ -143,11 +147,20 @@ class Transfer {
   /// Parameter [homeDirectoryType] :
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
-  /// <code>LOGICAL</code>, you need to provide mappings in the
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or
+  /// Amazon EFS path as is in their file transfer protocol clients. If you set
+  /// it to <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must
+  /// provide mappings, using the <code>HomeDirectoryMappings</code> parameter.
+  /// If, on the other hand, <code>HomeDirectoryType</code> is
+  /// <code>PATH</code>, you provide an absolute path using the
+  /// <code>HomeDirectory</code> parameter. You cannot have both
+  /// <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code> in your
+  /// template.
+  /// </note>
   ///
   /// Parameter [policy] :
   /// A session policy for your user so that you can use the same Identity and
@@ -200,7 +213,7 @@ class Transfer {
         if (homeDirectoryMappings != null)
           'HomeDirectoryMappings': homeDirectoryMappings,
         if (homeDirectoryType != null)
-          'HomeDirectoryType': homeDirectoryType.toValue(),
+          'HomeDirectoryType': homeDirectoryType.value,
         if (policy != null) 'Policy': policy,
         if (posixProfile != null) 'PosixProfile': posixProfile,
       },
@@ -219,14 +232,20 @@ class Transfer {
   /// The partner is identified with the <code>PartnerProfileId</code>, and the
   /// AS2 process is identified with the <code>LocalProfileId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [accessRole] :
+  /// Connectors are used to send files using either the AS2 or SFTP protocol.
+  /// For the access role, provide the Amazon Resource Name (ARN) of the
+  /// Identity and Access Management role to use.
+  ///
+  /// <b>For AS2 connectors</b>
+  ///
   /// With AS2, you can send files by calling <code>StartFileTransfer</code> and
   /// specifying the file paths in the request parameter,
   /// <code>SendFilePaths</code>. We use the file’s parent directory (for
@@ -239,6 +258,20 @@ class Transfer {
   /// <code>StartFileTransfer</code> request. Additionally, you need to provide
   /// read and write access to the parent directory of the files that you intend
   /// to send with <code>StartFileTransfer</code>.
+  ///
+  /// If you are using Basic authentication for your AS2 connector, the access
+  /// role requires the <code>secretsmanager:GetSecretValue</code> permission
+  /// for the secret. If the secret is encrypted using a customer-managed key
+  /// instead of the Amazon Web Services managed key in Secrets Manager, then
+  /// the role also needs the <code>kms:Decrypt</code> permission for that key.
+  ///
+  /// <b>For SFTP connectors</b>
+  ///
+  /// Make sure that the access role provides read and write access to the
+  /// parent directory of the file location that's used in the
+  /// <code>StartFileTransfer</code> request. Additionally, make sure that the
+  /// role provides <code>secretsmanager:GetSecretValue</code> permission to
+  /// Secrets Manager.
   ///
   /// Parameter [baseDirectory] :
   /// The landing directory (folder) for files transferred by using the AS2
@@ -293,7 +326,7 @@ class Transfer {
         'PartnerProfileId': partnerProfileId,
         'ServerId': serverId,
         if (description != null) 'Description': description,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
         if (tags != null) 'Tags': tags,
       },
     );
@@ -301,21 +334,34 @@ class Transfer {
     return CreateAgreementResponse.fromJson(jsonResponse.body);
   }
 
-  /// Creates the connector, which captures the parameters for an outbound
-  /// connection for the AS2 protocol. The connector is required for sending
-  /// files to an externally hosted AS2 server. For more details about
-  /// connectors, see <a
-  /// href="https://docs.aws.amazon.com/transfer/latest/userguide/create-b2b-server.html#configure-as2-connector">Create
-  /// AS2 connectors</a>.
+  /// Creates the connector, which captures the parameters for a connection for
+  /// the AS2 or SFTP protocol. For AS2, the connector is required for sending
+  /// files to an externally hosted AS2 server. For SFTP, the connector is
+  /// required when sending files to an SFTP server or receiving files from an
+  /// SFTP server. For more details about connectors, see <a
+  /// href="https://docs.aws.amazon.com/transfer/latest/userguide/configure-as2-connector.html">Configure
+  /// AS2 connectors</a> and <a
+  /// href="https://docs.aws.amazon.com/transfer/latest/userguide/configure-sftp-connector.html">Create
+  /// SFTP connectors</a>.
+  /// <note>
+  /// You must specify exactly one configuration object: either for AS2
+  /// (<code>As2Config</code>) or SFTP (<code>SftpConfig</code>).
+  /// </note>
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [accessRole] :
+  /// Connectors are used to send files using either the AS2 or SFTP protocol.
+  /// For the access role, provide the Amazon Resource Name (ARN) of the
+  /// Identity and Access Management role to use.
+  ///
+  /// <b>For AS2 connectors</b>
+  ///
   /// With AS2, you can send files by calling <code>StartFileTransfer</code> and
   /// specifying the file paths in the request parameter,
   /// <code>SendFilePaths</code>. We use the file’s parent directory (for
@@ -329,25 +375,47 @@ class Transfer {
   /// read and write access to the parent directory of the files that you intend
   /// to send with <code>StartFileTransfer</code>.
   ///
-  /// Parameter [as2Config] :
-  /// A structure that contains the parameters for a connector object.
+  /// If you are using Basic authentication for your AS2 connector, the access
+  /// role requires the <code>secretsmanager:GetSecretValue</code> permission
+  /// for the secret. If the secret is encrypted using a customer-managed key
+  /// instead of the Amazon Web Services managed key in Secrets Manager, then
+  /// the role also needs the <code>kms:Decrypt</code> permission for that key.
+  ///
+  /// <b>For SFTP connectors</b>
+  ///
+  /// Make sure that the access role provides read and write access to the
+  /// parent directory of the file location that's used in the
+  /// <code>StartFileTransfer</code> request. Additionally, make sure that the
+  /// role provides <code>secretsmanager:GetSecretValue</code> permission to
+  /// Secrets Manager.
   ///
   /// Parameter [url] :
-  /// The URL of the partner's AS2 endpoint.
+  /// The URL of the partner's AS2 or SFTP endpoint.
+  ///
+  /// Parameter [as2Config] :
+  /// A structure that contains the parameters for an AS2 connector object.
   ///
   /// Parameter [loggingRole] :
   /// The Amazon Resource Name (ARN) of the Identity and Access Management (IAM)
   /// role that allows a connector to turn on CloudWatch logging for Amazon S3
   /// events. When set, you can view connector activity in your CloudWatch logs.
   ///
+  /// Parameter [securityPolicyName] :
+  /// Specifies the name of the security policy for the connector.
+  ///
+  /// Parameter [sftpConfig] :
+  /// A structure that contains the parameters for an SFTP connector object.
+  ///
   /// Parameter [tags] :
   /// Key-value pairs that can be used to group and search for connectors. Tags
   /// are metadata attached to connectors for any purpose.
   Future<CreateConnectorResponse> createConnector({
     required String accessRole,
-    required As2ConnectorConfig as2Config,
     required String url,
+    As2ConnectorConfig? as2Config,
     String? loggingRole,
+    String? securityPolicyName,
+    SftpConnectorConfig? sftpConfig,
     List<Tag>? tags,
   }) async {
     final headers = <String, String>{
@@ -362,9 +430,12 @@ class Transfer {
       headers: headers,
       payload: {
         'AccessRole': accessRole,
-        'As2Config': as2Config,
         'Url': url,
+        if (as2Config != null) 'As2Config': as2Config,
         if (loggingRole != null) 'LoggingRole': loggingRole,
+        if (securityPolicyName != null)
+          'SecurityPolicyName': securityPolicyName,
+        if (sftpConfig != null) 'SftpConfig': sftpConfig,
         if (tags != null) 'Tags': tags,
       },
     );
@@ -374,11 +445,11 @@ class Transfer {
 
   /// Creates the local or partner profile to use for AS2 transfers.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [as2Id] :
   /// The <code>As2Id</code> is the <i>AS2-name</i>, as defined in the <a
@@ -427,7 +498,7 @@ class Transfer {
       headers: headers,
       payload: {
         'As2Id': as2Id,
-        'ProfileType': profileType.toValue(),
+        'ProfileType': profileType.value,
         if (certificateIds != null) 'CertificateIds': certificateIds,
         if (tags != null) 'Tags': tags,
       },
@@ -442,13 +513,13 @@ class Transfer {
   /// service-generated <code>ServerId</code> property that is assigned to the
   /// newly created server.
   ///
-  /// May throw [AccessDeniedException].
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [certificate] :
   /// The Amazon Resource Name (ARN) of the Certificate Manager (ACM)
@@ -710,8 +781,35 @@ class Transfer {
   /// </li>
   /// </ul> </note>
   ///
+  /// Parameter [s3StorageOptions] :
+  /// Specifies whether or not performance for your Amazon S3 directories is
+  /// optimized. This is disabled by default.
+  ///
+  /// By default, home directory mappings have a <code>TYPE</code> of
+  /// <code>DIRECTORY</code>. If you enable this option, you would then need to
+  /// explicitly set the <code>HomeDirectoryMapEntry</code> <code>Type</code> to
+  /// <code>FILE</code> if you want a mapping to have a file target.
+  ///
   /// Parameter [securityPolicyName] :
-  /// Specifies the name of the security policy that is attached to the server.
+  /// Specifies the name of the security policy for the server.
+  ///
+  /// Parameter [structuredLogDestinations] :
+  /// Specifies the log groups to which your server logs are sent.
+  ///
+  /// To specify a log group, you must provide the ARN for an existing log
+  /// group. In this case, the format of the log group is as follows:
+  ///
+  /// <code>arn:aws:logs:region-name:amazon-account-id:log-group:log-group-name:*</code>
+  ///
+  /// For example,
+  /// <code>arn:aws:logs:us-east-1:111122223333:log-group:mytestgroup:*</code>
+  ///
+  /// If you have previously specified a log group for a server, you can clear
+  /// it, and in effect turn off structured logging, by providing an empty value
+  /// for this parameter in an <code>update-server</code> call. For example:
+  ///
+  /// <code>update-server --server-id s-1234567890abcdef0
+  /// --structured-log-destinations</code>
   ///
   /// Parameter [tags] :
   /// Key-value pairs that can be used to group and search for servers.
@@ -738,7 +836,9 @@ class Transfer {
     String? preAuthenticationLoginBanner,
     ProtocolDetails? protocolDetails,
     List<Protocol>? protocols,
+    S3StorageOptions? s3StorageOptions,
     String? securityPolicyName,
+    List<String>? structuredLogDestinations,
     List<Tag>? tags,
     WorkflowDetails? workflowDetails,
   }) async {
@@ -754,14 +854,14 @@ class Transfer {
       headers: headers,
       payload: {
         if (certificate != null) 'Certificate': certificate,
-        if (domain != null) 'Domain': domain.toValue(),
+        if (domain != null) 'Domain': domain.value,
         if (endpointDetails != null) 'EndpointDetails': endpointDetails,
-        if (endpointType != null) 'EndpointType': endpointType.toValue(),
+        if (endpointType != null) 'EndpointType': endpointType.value,
         if (hostKey != null) 'HostKey': hostKey,
         if (identityProviderDetails != null)
           'IdentityProviderDetails': identityProviderDetails,
         if (identityProviderType != null)
-          'IdentityProviderType': identityProviderType.toValue(),
+          'IdentityProviderType': identityProviderType.value,
         if (loggingRole != null) 'LoggingRole': loggingRole,
         if (postAuthenticationLoginBanner != null)
           'PostAuthenticationLoginBanner': postAuthenticationLoginBanner,
@@ -769,9 +869,12 @@ class Transfer {
           'PreAuthenticationLoginBanner': preAuthenticationLoginBanner,
         if (protocolDetails != null) 'ProtocolDetails': protocolDetails,
         if (protocols != null)
-          'Protocols': protocols.map((e) => e.toValue()).toList(),
+          'Protocols': protocols.map((e) => e.value).toList(),
+        if (s3StorageOptions != null) 'S3StorageOptions': s3StorageOptions,
         if (securityPolicyName != null)
           'SecurityPolicyName': securityPolicyName,
+        if (structuredLogDestinations != null)
+          'StructuredLogDestinations': structuredLogDestinations,
         if (tags != null) 'Tags': tags,
         if (workflowDetails != null) 'WorkflowDetails': workflowDetails,
       },
@@ -790,11 +893,11 @@ class Transfer {
   /// policy, and assign metadata with tags that can be used to group and search
   /// for users.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [role] :
   /// The Amazon Resource Name (ARN) of the Identity and Access Management (IAM)
@@ -822,6 +925,10 @@ class Transfer {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   ///
   /// Parameter [homeDirectoryMappings] :
   /// Logical directory mappings that specify what Amazon S3 or Amazon EFS paths
@@ -843,8 +950,8 @@ class Transfer {
   /// In most cases, you can use this value instead of the session policy to
   /// lock your user down to the designated home directory
   /// ("<code>chroot</code>"). To do this, you can set <code>Entry</code> to
-  /// <code>/</code> and set <code>Target</code> to the HomeDirectory parameter
-  /// value.
+  /// <code>/</code> and set <code>Target</code> to the value the user should
+  /// see for their home directory when they log in.
   ///
   /// The following is an <code>Entry</code> and <code>Target</code> pair
   /// example for <code>chroot</code>.
@@ -855,11 +962,20 @@ class Transfer {
   /// Parameter [homeDirectoryType] :
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
-  /// <code>LOGICAL</code>, you need to provide mappings in the
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or
+  /// Amazon EFS path as is in their file transfer protocol clients. If you set
+  /// it to <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must
+  /// provide mappings, using the <code>HomeDirectoryMappings</code> parameter.
+  /// If, on the other hand, <code>HomeDirectoryType</code> is
+  /// <code>PATH</code>, you provide an absolute path using the
+  /// <code>HomeDirectory</code> parameter. You cannot have both
+  /// <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code> in your
+  /// template.
+  /// </note>
   ///
   /// Parameter [policy] :
   /// A session policy for your user so that you can use the same Identity and
@@ -950,7 +1066,7 @@ class Transfer {
         if (homeDirectoryMappings != null)
           'HomeDirectoryMappings': homeDirectoryMappings,
         if (homeDirectoryType != null)
-          'HomeDirectoryType': homeDirectoryType.toValue(),
+          'HomeDirectoryType': homeDirectoryType.value,
         if (policy != null) 'Policy': policy,
         if (posixProfile != null) 'PosixProfile': posixProfile,
         if (sshPublicKeyBody != null) 'SshPublicKeyBody': sshPublicKeyBody,
@@ -967,12 +1083,12 @@ class Transfer {
   /// specifying the <code>workflow-details</code> field in
   /// <code>CreateServer</code> and <code>UpdateServer</code> operations.
   ///
-  /// May throw [AccessDeniedException].
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
   /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [steps] :
   /// Specifies the details for the steps that are in the specified workflow.
@@ -1050,10 +1166,10 @@ class Transfer {
   /// Allows you to delete the access specified in the <code>ServerID</code> and
   /// <code>ExternalID</code> parameters.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [externalId] :
   /// A unique identifier that is required to identify specific groups within
@@ -1100,10 +1216,10 @@ class Transfer {
   /// Delete the agreement that's specified in the provided
   /// <code>AgreementId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [agreementId] :
   /// A unique identifier for the agreement. This identifier is returned when
@@ -1135,10 +1251,10 @@ class Transfer {
   /// Deletes the certificate that's specified in the <code>CertificateId</code>
   /// parameter.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [certificateId] :
   /// The identifier of the certificate object that you are deleting.
@@ -1161,13 +1277,13 @@ class Transfer {
     );
   }
 
-  /// Deletes the agreement that's specified in the provided
+  /// Deletes the connector that's specified in the provided
   /// <code>ConnectorId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [connectorId] :
   /// The unique identifier for the connector.
@@ -1193,11 +1309,11 @@ class Transfer {
   /// Deletes the host key that's specified in the <code>HostKeyId</code>
   /// parameter.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [hostKeyId] :
   /// The identifier of the host key that you are deleting.
@@ -1229,10 +1345,10 @@ class Transfer {
   /// Deletes the profile that's specified in the <code>ProfileId</code>
   /// parameter.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [profileId] :
   /// The identifier of the profile that you are deleting.
@@ -1259,11 +1375,11 @@ class Transfer {
   ///
   /// No response returns from this operation.
   ///
-  /// May throw [AccessDeniedException].
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [serverId] :
   /// A unique system-assigned identifier for a server instance.
@@ -1288,11 +1404,11 @@ class Transfer {
 
   /// Deletes a user's Secure Shell (SSH) public key.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a file transfer protocol-enabled
@@ -1334,10 +1450,10 @@ class Transfer {
   /// When you delete a user from a server, the user's information is lost.
   /// </note>
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server instance that has the
@@ -1369,11 +1485,11 @@ class Transfer {
 
   /// Deletes the specified workflow.
   ///
-  /// May throw [AccessDeniedException].
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [workflowId] :
   /// A unique identifier for the workflow.
@@ -1403,10 +1519,10 @@ class Transfer {
   /// The response from this call returns the properties of the access that is
   /// associated with the <code>ServerId</code> value that was specified.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [externalId] :
   /// A unique identifier that is required to identify specific groups within
@@ -1454,10 +1570,10 @@ class Transfer {
 
   /// Describes the agreement that's identified by the <code>AgreementId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [agreementId] :
   /// A unique identifier for the agreement. This identifier is returned when
@@ -1491,10 +1607,10 @@ class Transfer {
   /// Describes the certificate that's identified by the
   /// <code>CertificateId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [certificateId] :
   /// An array of identifiers for the imported certificates. You use this
@@ -1522,10 +1638,10 @@ class Transfer {
 
   /// Describes the connector that's identified by the <code>ConnectorId.</code>
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [connectorId] :
   /// The unique identifier for the connector.
@@ -1560,10 +1676,10 @@ class Transfer {
   /// <code>ResourceNotFound</code> exception.
   /// </note>
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [executionId] :
   /// A unique identifier for the execution of a workflow.
@@ -1596,10 +1712,10 @@ class Transfer {
   /// Returns the details of the host key that's specified by the
   /// <code>HostKeyId</code> and <code>ServerId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [hostKeyId] :
   /// The identifier of the host key that you want described.
@@ -1633,10 +1749,10 @@ class Transfer {
   /// Returns the details of the profile that's specified by the
   /// <code>ProfileId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [profileId] :
   /// The identifier of the profile that you want described.
@@ -1661,20 +1777,22 @@ class Transfer {
     return DescribeProfileResponse.fromJson(jsonResponse.body);
   }
 
-  /// Describes the security policy that is attached to your file transfer
-  /// protocol-enabled server. The response contains a description of the
-  /// security policy's properties. For more information about security
-  /// policies, see <a
+  /// Describes the security policy that is attached to your server or SFTP
+  /// connector. The response contains a description of the security policy's
+  /// properties. For more information about security policies, see <a
   /// href="https://docs.aws.amazon.com/transfer/latest/userguide/security-policies.html">Working
-  /// with security policies</a>.
+  /// with security policies for servers</a> or <a
+  /// href="https://docs.aws.amazon.com/transfer/latest/userguide/security-policies-connectors.html">Working
+  /// with security policies for SFTP connectors</a>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [securityPolicyName] :
-  /// Specifies the name of the security policy that is attached to the server.
+  /// Specify the text name of the security policy for which you want the
+  /// details.
   Future<DescribeSecurityPolicyResponse> describeSecurityPolicy({
     required String securityPolicyName,
   }) async {
@@ -1703,10 +1821,10 @@ class Transfer {
   /// <code>EndpointType</code> to VPC, the response will contain the
   /// <code>EndpointDetails</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server.
@@ -1737,10 +1855,10 @@ class Transfer {
   /// The response from this call returns the properties of the user associated
   /// with the <code>ServerId</code> value that was specified.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server that has this user
@@ -1775,10 +1893,10 @@ class Transfer {
 
   /// Describes the specified workflow.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [workflowId] :
   /// A unique identifier for the workflow.
@@ -1806,10 +1924,10 @@ class Transfer {
   /// Imports the signing and encryption certificates that you need to create
   /// local (AS2) profiles and partner profiles.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [certificate] :
   /// <ul>
@@ -1825,7 +1943,20 @@ class Transfer {
   /// </ul>
   ///
   /// Parameter [usage] :
-  /// Specifies whether this certificate is used for signing or encryption.
+  /// Specifies how this certificate is used. It can be used in the following
+  /// ways:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SIGNING</code>: For signing AS2 messages
+  /// </li>
+  /// <li>
+  /// <code>ENCRYPTION</code>: For encrypting AS2 messages
+  /// </li>
+  /// <li>
+  /// <code>TLS</code>: For securing AS2 communications sent over HTTPS
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [activeDate] :
   /// An optional date that specifies when the certificate becomes active.
@@ -1877,7 +2008,7 @@ class Transfer {
       headers: headers,
       payload: {
         'Certificate': certificate,
-        'Usage': usage.toValue(),
+        'Usage': usage.value,
         if (activeDate != null) 'ActiveDate': unixTimestampToJson(activeDate),
         if (certificateChain != null) 'CertificateChain': certificateChain,
         if (description != null) 'Description': description,
@@ -1894,12 +2025,12 @@ class Transfer {
   /// Adds a host key to the server that's specified by the
   /// <code>ServerId</code> parameter.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [hostKeyBody] :
   /// The private key portion of an SSH key pair.
@@ -1950,12 +2081,12 @@ class Transfer {
   /// <code>ServerId</code> value, and the name of the
   /// <code>SshPublicKeyId</code>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server.
@@ -1995,11 +2126,11 @@ class Transfer {
 
   /// Lists the details for all the accesses you have on your server.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server that has users assigned
@@ -2051,11 +2182,11 @@ class Transfer {
   /// <code>NextToken</code>, you can supply that value to continue listing
   /// agreements from where you left off.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [serverId] :
   /// The identifier of the server for which you want a list of agreements.
@@ -2106,11 +2237,11 @@ class Transfer {
   /// parameter, you can supply that value to continue listing certificates from
   /// where you left off.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [maxResults] :
   /// The maximum number of certificates to return.
@@ -2151,11 +2282,11 @@ class Transfer {
 
   /// Lists the connectors for the specified Region.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [maxResults] :
   /// The maximum number of connectors to return.
@@ -2200,11 +2331,11 @@ class Transfer {
   /// returns a <code>ResourceNotFound</code> exception.
   /// </note>
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [workflowId] :
   /// A unique identifier for the workflow.
@@ -2267,11 +2398,11 @@ class Transfer {
   /// Returns a list of host keys for the server that's specified by the
   /// <code>ServerId</code> parameter.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [serverId] :
   /// The identifier of the server that contains the host keys that you want to
@@ -2321,11 +2452,11 @@ class Transfer {
   /// received a value for <code>NextToken</code>, you can supply that value to
   /// continue listing profiles from where you left off.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [maxResults] :
   /// The maximum number of profiles to return.
@@ -2363,20 +2494,24 @@ class Transfer {
       payload: {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (profileType != null) 'ProfileType': profileType.toValue(),
+        if (profileType != null) 'ProfileType': profileType.value,
       },
     );
 
     return ListProfilesResponse.fromJson(jsonResponse.body);
   }
 
-  /// Lists the security policies that are attached to your file transfer
-  /// protocol-enabled servers.
+  /// Lists the security policies that are attached to your servers and SFTP
+  /// connectors. For more information about security policies, see <a
+  /// href="https://docs.aws.amazon.com/transfer/latest/userguide/security-policies.html">Working
+  /// with security policies for servers</a> or <a
+  /// href="https://docs.aws.amazon.com/transfer/latest/userguide/security-policies-connectors.html">Working
+  /// with security policies for SFTP connectors</a>.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
   /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [maxResults] :
   /// Specifies the number of security policies to return as a response to the
@@ -2420,10 +2555,10 @@ class Transfer {
   /// Lists the file transfer protocol-enabled servers that are associated with
   /// your Amazon Web Services account.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
   /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [maxResults] :
   /// Specifies the number of servers to return as a response to the
@@ -2466,10 +2601,10 @@ class Transfer {
   /// Lists all of the tags associated with the Amazon Resource Name (ARN) that
   /// you specify. The resource can be a user, server, or role.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
   /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [arn] :
   /// Requests the tags associated with a particular Amazon Resource Name (ARN).
@@ -2520,11 +2655,11 @@ class Transfer {
   /// Lists the users for a file transfer protocol-enabled server that you
   /// specify by passing the <code>ServerId</code> parameter.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server that has users assigned
@@ -2535,10 +2670,10 @@ class Transfer {
   /// <code>ListUsers</code> request.
   ///
   /// Parameter [nextToken] :
-  /// When you can get additional results from the <code>ListUsers</code> call,
-  /// a <code>NextToken</code> parameter is returned in the output. You can then
-  /// pass in a subsequent command to the <code>NextToken</code> parameter to
-  /// continue listing additional users.
+  /// If there are additional results from the <code>ListUsers</code> call, a
+  /// <code>NextToken</code> parameter is returned in the output. You can then
+  /// pass the <code>NextToken</code> to a subsequent <code>ListUsers</code>
+  /// command, to continue listing additional users.
   Future<ListUsersResponse> listUsers({
     required String serverId,
     int? maxResults,
@@ -2573,10 +2708,10 @@ class Transfer {
   /// Lists all workflows associated with your Amazon Web Services account for
   /// your current region.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidNextTokenException].
   /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [maxResults] :
   /// Specifies the maximum number of workflows to return.
@@ -2621,12 +2756,12 @@ class Transfer {
   /// custom step of a workflow. You must include those with their callback as
   /// well as providing a status.
   ///
-  /// May throw [AccessDeniedException].
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [executionId] :
   /// A unique identifier for the execution of a workflow.
@@ -2658,32 +2793,183 @@ class Transfer {
       headers: headers,
       payload: {
         'ExecutionId': executionId,
-        'Status': status.toValue(),
+        'Status': status.value,
         'Token': token,
         'WorkflowId': workflowId,
       },
     );
   }
 
-  /// Begins an outbound file transfer to a remote AS2 server. You specify the
-  /// <code>ConnectorId</code> and the file paths for where to send the files.
+  /// Retrieves a list of the contents of a directory from a remote SFTP server.
+  /// You specify the connector ID, the output path, and the remote directory
+  /// path. You can also specify the optional <code>MaxItems</code> value to
+  /// control the maximum number of items that are listed from the remote
+  /// directory. This API returns a list of all files and directories in the
+  /// remote directory (up to the maximum value), but does not return files or
+  /// folders in sub-directories. That is, it only returns a list of files and
+  /// directories one-level deep.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
+  /// After you receive the listing file, you can provide the files that you
+  /// want to transfer to the <code>RetrieveFilePaths</code> parameter of the
+  /// <code>StartFileTransfer</code> API call.
+  ///
+  /// The naming convention for the output file is <code>
+  /// <i>connector-ID</i>-<i>listing-ID</i>.json</code>. The output file
+  /// contains the following information:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>filePath</code>: the complete path of a remote file, relative to the
+  /// directory of the listing request for your SFTP connector on the remote
+  /// server.
+  /// </li>
+  /// <li>
+  /// <code>modifiedTimestamp</code>: the last time the file was modified, in
+  /// UTC time format. This field is optional. If the remote file attributes
+  /// don't contain a timestamp, it is omitted from the file listing.
+  /// </li>
+  /// <li>
+  /// <code>size</code>: the size of the file, in bytes. This field is optional.
+  /// If the remote file attributes don't contain a file size, it is omitted
+  /// from the file listing.
+  /// </li>
+  /// <li>
+  /// <code>path</code>: the complete path of a remote directory, relative to
+  /// the directory of the listing request for your SFTP connector on the remote
+  /// server.
+  /// </li>
+  /// <li>
+  /// <code>truncated</code>: a flag indicating whether the list output contains
+  /// all of the items contained in the remote directory or not. If your
+  /// <code>Truncated</code> output value is true, you can increase the value
+  /// provided in the optional <code>max-items</code> input attribute to be able
+  /// to list more items (up to the maximum allowed list size of 10,000 items).
+  /// </li>
+  /// </ul>
+  ///
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [connectorId] :
   /// The unique identifier for the connector.
   ///
+  /// Parameter [outputDirectoryPath] :
+  /// Specifies the path (bucket and prefix) in Amazon S3 storage to store the
+  /// results of the directory listing.
+  ///
+  /// Parameter [remoteDirectoryPath] :
+  /// Specifies the directory on the remote SFTP server for which you want to
+  /// list its contents.
+  ///
+  /// Parameter [maxItems] :
+  /// An optional parameter where you can specify the maximum number of
+  /// file/directory names to retrieve. The default value is 1,000.
+  Future<StartDirectoryListingResponse> startDirectoryListing({
+    required String connectorId,
+    required String outputDirectoryPath,
+    required String remoteDirectoryPath,
+    int? maxItems,
+  }) async {
+    _s.validateNumRange(
+      'maxItems',
+      maxItems,
+      1,
+      10000,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'TransferService.StartDirectoryListing'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ConnectorId': connectorId,
+        'OutputDirectoryPath': outputDirectoryPath,
+        'RemoteDirectoryPath': remoteDirectoryPath,
+        if (maxItems != null) 'MaxItems': maxItems,
+      },
+    );
+
+    return StartDirectoryListingResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Begins a file transfer between local Amazon Web Services storage and a
+  /// remote AS2 or SFTP server.
+  ///
+  /// <ul>
+  /// <li>
+  /// For an AS2 connector, you specify the <code>ConnectorId</code> and one or
+  /// more <code>SendFilePaths</code> to identify the files you want to
+  /// transfer.
+  /// </li>
+  /// <li>
+  /// For an SFTP connector, the file transfer can be either outbound or
+  /// inbound. In both cases, you specify the <code>ConnectorId</code>.
+  /// Depending on the direction of the transfer, you also specify the following
+  /// items:
+  ///
+  /// <ul>
+  /// <li>
+  /// If you are transferring file from a partner's SFTP server to Amazon Web
+  /// Services storage, you specify one or more <code>RetrieveFilePaths</code>
+  /// to identify the files you want to transfer, and a
+  /// <code>LocalDirectoryPath</code> to specify the destination folder.
+  /// </li>
+  /// <li>
+  /// If you are transferring file to a partner's SFTP server from Amazon Web
+  /// Services storage, you specify one or more <code>SendFilePaths</code> to
+  /// identify the files you want to transfer, and a
+  /// <code>RemoteDirectoryPath</code> to specify the destination folder.
+  /// </li>
+  /// </ul> </li>
+  /// </ul>
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  ///
+  /// Parameter [connectorId] :
+  /// The unique identifier for the connector.
+  ///
+  /// Parameter [localDirectoryPath] :
+  /// For an inbound transfer, the <code>LocaDirectoryPath</code> specifies the
+  /// destination for one or more files that are transferred from the partner's
+  /// SFTP server.
+  ///
+  /// Parameter [remoteDirectoryPath] :
+  /// For an outbound transfer, the <code>RemoteDirectoryPath</code> specifies
+  /// the destination for one or more files that are transferred to the
+  /// partner's SFTP server. If you don't specify a
+  /// <code>RemoteDirectoryPath</code>, the destination for transferred files is
+  /// the SFTP user's home directory.
+  ///
+  /// Parameter [retrieveFilePaths] :
+  /// One or more source paths for the partner's SFTP server. Each string
+  /// represents a source file path for one inbound file transfer.
+  ///
   /// Parameter [sendFilePaths] :
-  /// An array of strings. Each string represents the absolute path for one
-  /// outbound file transfer. For example, <code>
+  /// One or more source paths for the Amazon S3 storage. Each string represents
+  /// a source file path for one outbound file transfer. For example, <code>
   /// <i>DOC-EXAMPLE-BUCKET</i>/<i>myfile.txt</i> </code>.
+  /// <note>
+  /// Replace <code> <i>DOC-EXAMPLE-BUCKET</i> </code> with one of your actual
+  /// buckets.
+  /// </note>
   Future<StartFileTransferResponse> startFileTransfer({
     required String connectorId,
-    required List<String> sendFilePaths,
+    String? localDirectoryPath,
+    String? remoteDirectoryPath,
+    List<String>? retrieveFilePaths,
+    List<String>? sendFilePaths,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -2697,7 +2983,12 @@ class Transfer {
       headers: headers,
       payload: {
         'ConnectorId': connectorId,
-        'SendFilePaths': sendFilePaths,
+        if (localDirectoryPath != null)
+          'LocalDirectoryPath': localDirectoryPath,
+        if (remoteDirectoryPath != null)
+          'RemoteDirectoryPath': remoteDirectoryPath,
+        if (retrieveFilePaths != null) 'RetrieveFilePaths': retrieveFilePaths,
+        if (sendFilePaths != null) 'SendFilePaths': sendFilePaths,
       },
     );
 
@@ -2715,11 +3006,11 @@ class Transfer {
   ///
   /// No response is returned from this call.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server that you start.
@@ -2758,11 +3049,11 @@ class Transfer {
   ///
   /// No response is returned from this call.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server that you stopped.
@@ -2791,10 +3082,10 @@ class Transfer {
   ///
   /// There is no response returned from this call.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [arn] :
   /// An Amazon Resource Name (ARN) for a specific Amazon Web Services resource,
@@ -2823,6 +3114,39 @@ class Transfer {
         'Tags': tags,
       },
     );
+  }
+
+  /// Tests whether your SFTP connector is set up successfully. We highly
+  /// recommend that you call this operation to test your ability to transfer
+  /// files between local Amazon Web Services storage and a trading partner's
+  /// SFTP server.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  ///
+  /// Parameter [connectorId] :
+  /// The unique identifier for the connector.
+  Future<TestConnectionResponse> testConnection({
+    required String connectorId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'TransferService.TestConnection'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ConnectorId': connectorId,
+      },
+    );
+
+    return TestConnectionResponse.fromJson(jsonResponse.body);
   }
 
   /// If the <code>IdentityProviderType</code> of a file transfer
@@ -2880,10 +3204,10 @@ class Transfer {
   /// </li>
   /// </ul>
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned identifier for a specific server. That server's user
@@ -2937,7 +3261,7 @@ class Transfer {
       payload: {
         'ServerId': serverId,
         'UserName': userName,
-        if (serverProtocol != null) 'ServerProtocol': serverProtocol.toValue(),
+        if (serverProtocol != null) 'ServerProtocol': serverProtocol.value,
         if (sourceIp != null) 'SourceIp': sourceIp,
         if (userPassword != null) 'UserPassword': userPassword,
       },
@@ -2952,10 +3276,10 @@ class Transfer {
   ///
   /// No response is returned from this call.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [arn] :
   /// The value of the resource that will have the tag removed. An Amazon
@@ -2990,12 +3314,12 @@ class Transfer {
   /// Allows you to update parameters for the access specified in the
   /// <code>ServerID</code> and <code>ExternalID</code> parameters.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [externalId] :
   /// A unique identifier that is required to identify specific groups within
@@ -3025,6 +3349,10 @@ class Transfer {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   ///
   /// Parameter [homeDirectoryMappings] :
   /// Logical directory mappings that specify what Amazon S3 or Amazon EFS paths
@@ -3058,11 +3386,20 @@ class Transfer {
   /// Parameter [homeDirectoryType] :
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
-  /// <code>LOGICAL</code>, you need to provide mappings in the
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or
+  /// Amazon EFS path as is in their file transfer protocol clients. If you set
+  /// it to <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must
+  /// provide mappings, using the <code>HomeDirectoryMappings</code> parameter.
+  /// If, on the other hand, <code>HomeDirectoryType</code> is
+  /// <code>PATH</code>, you provide an absolute path using the
+  /// <code>HomeDirectory</code> parameter. You cannot have both
+  /// <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code> in your
+  /// template.
+  /// </note>
   ///
   /// Parameter [policy] :
   /// A session policy for your user so that you can use the same Identity and
@@ -3123,7 +3460,7 @@ class Transfer {
         if (homeDirectoryMappings != null)
           'HomeDirectoryMappings': homeDirectoryMappings,
         if (homeDirectoryType != null)
-          'HomeDirectoryType': homeDirectoryType.toValue(),
+          'HomeDirectoryType': homeDirectoryType.value,
         if (policy != null) 'Policy': policy,
         if (posixProfile != null) 'PosixProfile': posixProfile,
         if (role != null) 'Role': role,
@@ -3138,12 +3475,12 @@ class Transfer {
   /// that you want to update, along with the new values for the parameters to
   /// update.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [agreementId] :
   /// A unique identifier for the agreement. This identifier is returned when
@@ -3154,6 +3491,12 @@ class Transfer {
   /// specific server that the agreement uses.
   ///
   /// Parameter [accessRole] :
+  /// Connectors are used to send files using either the AS2 or SFTP protocol.
+  /// For the access role, provide the Amazon Resource Name (ARN) of the
+  /// Identity and Access Management role to use.
+  ///
+  /// <b>For AS2 connectors</b>
+  ///
   /// With AS2, you can send files by calling <code>StartFileTransfer</code> and
   /// specifying the file paths in the request parameter,
   /// <code>SendFilePaths</code>. We use the file’s parent directory (for
@@ -3166,6 +3509,20 @@ class Transfer {
   /// <code>StartFileTransfer</code> request. Additionally, you need to provide
   /// read and write access to the parent directory of the files that you intend
   /// to send with <code>StartFileTransfer</code>.
+  ///
+  /// If you are using Basic authentication for your AS2 connector, the access
+  /// role requires the <code>secretsmanager:GetSecretValue</code> permission
+  /// for the secret. If the secret is encrypted using a customer-managed key
+  /// instead of the Amazon Web Services managed key in Secrets Manager, then
+  /// the role also needs the <code>kms:Decrypt</code> permission for that key.
+  ///
+  /// <b>For SFTP connectors</b>
+  ///
+  /// Make sure that the access role provides read and write access to the
+  /// parent directory of the file location that's used in the
+  /// <code>StartFileTransfer</code> request. Additionally, make sure that the
+  /// role provides <code>secretsmanager:GetSecretValue</code> permission to
+  /// Secrets Manager.
   ///
   /// Parameter [baseDirectory] :
   /// To change the landing directory (folder) for files that are transferred,
@@ -3216,7 +3573,7 @@ class Transfer {
         if (description != null) 'Description': description,
         if (localProfileId != null) 'LocalProfileId': localProfileId,
         if (partnerProfileId != null) 'PartnerProfileId': partnerProfileId,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
       },
     );
 
@@ -3225,11 +3582,11 @@ class Transfer {
 
   /// Updates the active and inactive dates for a certificate.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [certificateId] :
   /// The identifier of the certificate object that you are updating.
@@ -3274,17 +3631,23 @@ class Transfer {
   /// <code>ConnectorId</code> for the connector that you want to update, along
   /// with the new values for the parameters to update.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
   ///
   /// Parameter [connectorId] :
   /// The unique identifier for the connector.
   ///
   /// Parameter [accessRole] :
+  /// Connectors are used to send files using either the AS2 or SFTP protocol.
+  /// For the access role, provide the Amazon Resource Name (ARN) of the
+  /// Identity and Access Management role to use.
+  ///
+  /// <b>For AS2 connectors</b>
+  ///
   /// With AS2, you can send files by calling <code>StartFileTransfer</code> and
   /// specifying the file paths in the request parameter,
   /// <code>SendFilePaths</code>. We use the file’s parent directory (for
@@ -3298,21 +3661,43 @@ class Transfer {
   /// read and write access to the parent directory of the files that you intend
   /// to send with <code>StartFileTransfer</code>.
   ///
+  /// If you are using Basic authentication for your AS2 connector, the access
+  /// role requires the <code>secretsmanager:GetSecretValue</code> permission
+  /// for the secret. If the secret is encrypted using a customer-managed key
+  /// instead of the Amazon Web Services managed key in Secrets Manager, then
+  /// the role also needs the <code>kms:Decrypt</code> permission for that key.
+  ///
+  /// <b>For SFTP connectors</b>
+  ///
+  /// Make sure that the access role provides read and write access to the
+  /// parent directory of the file location that's used in the
+  /// <code>StartFileTransfer</code> request. Additionally, make sure that the
+  /// role provides <code>secretsmanager:GetSecretValue</code> permission to
+  /// Secrets Manager.
+  ///
   /// Parameter [as2Config] :
-  /// A structure that contains the parameters for a connector object.
+  /// A structure that contains the parameters for an AS2 connector object.
   ///
   /// Parameter [loggingRole] :
   /// The Amazon Resource Name (ARN) of the Identity and Access Management (IAM)
   /// role that allows a connector to turn on CloudWatch logging for Amazon S3
   /// events. When set, you can view connector activity in your CloudWatch logs.
   ///
+  /// Parameter [securityPolicyName] :
+  /// Specifies the name of the security policy for the connector.
+  ///
+  /// Parameter [sftpConfig] :
+  /// A structure that contains the parameters for an SFTP connector object.
+  ///
   /// Parameter [url] :
-  /// The URL of the partner's AS2 endpoint.
+  /// The URL of the partner's AS2 or SFTP endpoint.
   Future<UpdateConnectorResponse> updateConnector({
     required String connectorId,
     String? accessRole,
     As2ConnectorConfig? as2Config,
     String? loggingRole,
+    String? securityPolicyName,
+    SftpConnectorConfig? sftpConfig,
     String? url,
   }) async {
     final headers = <String, String>{
@@ -3330,6 +3715,9 @@ class Transfer {
         if (accessRole != null) 'AccessRole': accessRole,
         if (as2Config != null) 'As2Config': as2Config,
         if (loggingRole != null) 'LoggingRole': loggingRole,
+        if (securityPolicyName != null)
+          'SecurityPolicyName': securityPolicyName,
+        if (sftpConfig != null) 'SftpConfig': sftpConfig,
         if (url != null) 'Url': url,
       },
     );
@@ -3340,11 +3728,11 @@ class Transfer {
   /// Updates the description for the host key that's specified by the
   /// <code>ServerId</code> and <code>HostKeyId</code> parameters.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [description] :
   /// An updated description for the host key.
@@ -3384,11 +3772,11 @@ class Transfer {
   /// <code>ProfileId</code> for the profile that you want to update, along with
   /// the new values for the parameters to update.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [profileId] :
   /// The identifier of the profile object that you are updating.
@@ -3425,14 +3813,14 @@ class Transfer {
   /// The <code>UpdateServer</code> call returns the <code>ServerId</code> of
   /// the server you updated.
   ///
-  /// May throw [AccessDeniedException].
-  /// May throw [ServiceUnavailableException].
   /// May throw [ConflictException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
-  /// May throw [ResourceExistsException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ResourceExistsException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a server instance that the
@@ -3664,8 +4052,35 @@ class Transfer {
   /// </li>
   /// </ul> </note>
   ///
+  /// Parameter [s3StorageOptions] :
+  /// Specifies whether or not performance for your Amazon S3 directories is
+  /// optimized. This is disabled by default.
+  ///
+  /// By default, home directory mappings have a <code>TYPE</code> of
+  /// <code>DIRECTORY</code>. If you enable this option, you would then need to
+  /// explicitly set the <code>HomeDirectoryMapEntry</code> <code>Type</code> to
+  /// <code>FILE</code> if you want a mapping to have a file target.
+  ///
   /// Parameter [securityPolicyName] :
-  /// Specifies the name of the security policy that is attached to the server.
+  /// Specifies the name of the security policy for the server.
+  ///
+  /// Parameter [structuredLogDestinations] :
+  /// Specifies the log groups to which your server logs are sent.
+  ///
+  /// To specify a log group, you must provide the ARN for an existing log
+  /// group. In this case, the format of the log group is as follows:
+  ///
+  /// <code>arn:aws:logs:region-name:amazon-account-id:log-group:log-group-name:*</code>
+  ///
+  /// For example,
+  /// <code>arn:aws:logs:us-east-1:111122223333:log-group:mytestgroup:*</code>
+  ///
+  /// If you have previously specified a log group for a server, you can clear
+  /// it, and in effect turn off structured logging, by providing an empty value
+  /// for this parameter in an <code>update-server</code> call. For example:
+  ///
+  /// <code>update-server --server-id s-1234567890abcdef0
+  /// --structured-log-destinations</code>
   ///
   /// Parameter [workflowDetails] :
   /// Specifies the workflow ID for the workflow to assign and the execution
@@ -3694,7 +4109,9 @@ class Transfer {
     String? preAuthenticationLoginBanner,
     ProtocolDetails? protocolDetails,
     List<Protocol>? protocols,
+    S3StorageOptions? s3StorageOptions,
     String? securityPolicyName,
+    List<String>? structuredLogDestinations,
     WorkflowDetails? workflowDetails,
   }) async {
     final headers = <String, String>{
@@ -3711,7 +4128,7 @@ class Transfer {
         'ServerId': serverId,
         if (certificate != null) 'Certificate': certificate,
         if (endpointDetails != null) 'EndpointDetails': endpointDetails,
-        if (endpointType != null) 'EndpointType': endpointType.toValue(),
+        if (endpointType != null) 'EndpointType': endpointType.value,
         if (hostKey != null) 'HostKey': hostKey,
         if (identityProviderDetails != null)
           'IdentityProviderDetails': identityProviderDetails,
@@ -3722,9 +4139,12 @@ class Transfer {
           'PreAuthenticationLoginBanner': preAuthenticationLoginBanner,
         if (protocolDetails != null) 'ProtocolDetails': protocolDetails,
         if (protocols != null)
-          'Protocols': protocols.map((e) => e.toValue()).toList(),
+          'Protocols': protocols.map((e) => e.value).toList(),
+        if (s3StorageOptions != null) 'S3StorageOptions': s3StorageOptions,
         if (securityPolicyName != null)
           'SecurityPolicyName': securityPolicyName,
+        if (structuredLogDestinations != null)
+          'StructuredLogDestinations': structuredLogDestinations,
         if (workflowDetails != null) 'WorkflowDetails': workflowDetails,
       },
     );
@@ -3739,11 +4159,28 @@ class Transfer {
   /// The response returns the <code>ServerId</code> and the
   /// <code>UserName</code> for the updated user.
   ///
-  /// May throw [ServiceUnavailableException].
-  /// May throw [InternalServiceError].
-  /// May throw [InvalidRequestException].
+  /// In the console, you can select <i>Restricted</i> when you create or update
+  /// a user. This ensures that the user can't access anything outside of their
+  /// home directory. The programmatic way to configure this behavior is to
+  /// update the user. Set their <code>HomeDirectoryType</code> to
+  /// <code>LOGICAL</code>, and specify <code>HomeDirectoryMappings</code> with
+  /// <code>Entry</code> as root (<code>/</code>) and <code>Target</code> as
+  /// their home directory.
+  ///
+  /// For example, if the user's home directory is
+  /// <code>/test/admin-user</code>, the following command updates the user so
+  /// that their configuration in the console shows the <i>Restricted</i> flag
+  /// as selected.
+  ///
+  /// <code> aws transfer update-user --server-id &lt;server-id&gt; --user-name
+  /// admin-user --home-directory-type LOGICAL --home-directory-mappings
+  /// "[{\"Entry\":\"/\", \"Target\":\"/test/admin-user\"}]"</code>
+  ///
   /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
+  /// May throw [InternalServiceError].
+  /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [serverId] :
   /// A system-assigned unique identifier for a Transfer Family server instance
@@ -3762,6 +4199,10 @@ class Transfer {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   ///
   /// Parameter [homeDirectoryMappings] :
   /// Logical directory mappings that specify what Amazon S3 or Amazon EFS paths
@@ -3794,11 +4235,20 @@ class Transfer {
   /// Parameter [homeDirectoryType] :
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
-  /// <code>LOGICAL</code>, you need to provide mappings in the
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or
+  /// Amazon EFS path as is in their file transfer protocol clients. If you set
+  /// it to <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must
+  /// provide mappings, using the <code>HomeDirectoryMappings</code> parameter.
+  /// If, on the other hand, <code>HomeDirectoryType</code> is
+  /// <code>PATH</code>, you provide an absolute path using the
+  /// <code>HomeDirectory</code> parameter. You cannot have both
+  /// <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code> in your
+  /// template.
+  /// </note>
   ///
   /// Parameter [policy] :
   /// A session policy for your user so that you can use the same Identity and
@@ -3868,7 +4318,7 @@ class Transfer {
         if (homeDirectoryMappings != null)
           'HomeDirectoryMappings': homeDirectoryMappings,
         if (homeDirectoryType != null)
-          'HomeDirectoryType': homeDirectoryType.toValue(),
+          'HomeDirectoryType': homeDirectoryType.value,
         if (policy != null) 'Policy': policy,
         if (posixProfile != null) 'PosixProfile': posixProfile,
         if (role != null) 'Role': role,
@@ -3880,45 +4330,79 @@ class Transfer {
 }
 
 enum AgreementStatusType {
-  active,
-  inactive,
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  ;
+
+  final String value;
+
+  const AgreementStatusType(this.value);
+
+  static AgreementStatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AgreementStatusType'));
 }
 
-extension AgreementStatusTypeValueExtension on AgreementStatusType {
-  String toValue() {
-    switch (this) {
-      case AgreementStatusType.active:
-        return 'ACTIVE';
-      case AgreementStatusType.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
-
-extension AgreementStatusTypeFromString on String {
-  AgreementStatusType toAgreementStatusType() {
-    switch (this) {
-      case 'ACTIVE':
-        return AgreementStatusType.active;
-      case 'INACTIVE':
-        return AgreementStatusType.inactive;
-    }
-    throw Exception('$this is not known in enum AgreementStatusType');
-  }
-}
-
-/// Contains the details for a connector object. The connector object is used
-/// for AS2 outbound processes, to connect the Transfer Family customer with the
-/// trading partner.
+/// Contains the details for an AS2 connector object. The connector object is
+/// used for AS2 outbound processes, to connect the Transfer Family customer
+/// with the trading partner.
 class As2ConnectorConfig {
+  /// Provides Basic authentication support to the AS2 Connectors API. To use
+  /// Basic authentication, you must provide the name or Amazon Resource Name
+  /// (ARN) of a secret in Secrets Manager.
+  ///
+  /// The default value for this parameter is <code>null</code>, which indicates
+  /// that Basic authentication is not enabled for the connector.
+  ///
+  /// If the connector should use Basic authentication, the secret needs to be in
+  /// the following format:
+  ///
+  /// <code>{ "Username": "user-name", "Password": "user-password" }</code>
+  ///
+  /// Replace <code>user-name</code> and <code>user-password</code> with the
+  /// credentials for the actual user that is being authenticated.
+  ///
+  /// Note the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// You are storing these credentials in Secrets Manager, <i>not passing them
+  /// directly</i> into this API.
+  /// </li>
+  /// <li>
+  /// If you are using the API, SDKs, or CloudFormation to configure your
+  /// connector, then you must create the secret before you can enable Basic
+  /// authentication. However, if you are using the Amazon Web Services management
+  /// console, you can have the system create the secret for you.
+  /// </li>
+  /// </ul>
+  /// If you have previously enabled Basic authentication for a connector, you can
+  /// disable it by using the <code>UpdateConnector</code> API call. For example,
+  /// if you are using the CLI, you can run the following command to remove Basic
+  /// authentication:
+  ///
+  /// <code>update-connector --connector-id my-connector-id --as2-config
+  /// 'BasicAuthSecretId=""'</code>
+  final String? basicAuthSecretId;
+
   /// Specifies whether the AS2 file is compressed.
   final CompressionEnum? compression;
 
   /// The algorithm that is used to encrypt the file.
-  /// <note>
+  ///
+  /// Note the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// Do not use the <code>DES_EDE3_CBC</code> algorithm unless you must support a
+  /// legacy client that requires it, as it is a weak encryption algorithm.
+  /// </li>
+  /// <li>
   /// You can only specify <code>NONE</code> if the URL for your connector uses
-  /// HTTPS. This ensures that no traffic is sent in clear text.
-  /// </note>
+  /// HTTPS. Using HTTPS ensures that no traffic is sent in clear text.
+  /// </li>
+  /// </ul>
   final EncryptionAlg? encryptionAlgorithm;
 
   /// A unique identifier for the AS2 local profile.
@@ -3957,6 +4441,7 @@ class As2ConnectorConfig {
   final SigningAlg? signingAlgorithm;
 
   As2ConnectorConfig({
+    this.basicAuthSecretId,
     this.compression,
     this.encryptionAlgorithm,
     this.localProfileId,
@@ -3969,20 +4454,25 @@ class As2ConnectorConfig {
 
   factory As2ConnectorConfig.fromJson(Map<String, dynamic> json) {
     return As2ConnectorConfig(
-      compression: (json['Compression'] as String?)?.toCompressionEnum(),
-      encryptionAlgorithm:
-          (json['EncryptionAlgorithm'] as String?)?.toEncryptionAlg(),
+      basicAuthSecretId: json['BasicAuthSecretId'] as String?,
+      compression:
+          (json['Compression'] as String?)?.let(CompressionEnum.fromString),
+      encryptionAlgorithm: (json['EncryptionAlgorithm'] as String?)
+          ?.let(EncryptionAlg.fromString),
       localProfileId: json['LocalProfileId'] as String?,
-      mdnResponse: (json['MdnResponse'] as String?)?.toMdnResponse(),
-      mdnSigningAlgorithm:
-          (json['MdnSigningAlgorithm'] as String?)?.toMdnSigningAlg(),
+      mdnResponse:
+          (json['MdnResponse'] as String?)?.let(MdnResponse.fromString),
+      mdnSigningAlgorithm: (json['MdnSigningAlgorithm'] as String?)
+          ?.let(MdnSigningAlg.fromString),
       messageSubject: json['MessageSubject'] as String?,
       partnerProfileId: json['PartnerProfileId'] as String?,
-      signingAlgorithm: (json['SigningAlgorithm'] as String?)?.toSigningAlg(),
+      signingAlgorithm:
+          (json['SigningAlgorithm'] as String?)?.let(SigningAlg.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
+    final basicAuthSecretId = this.basicAuthSecretId;
     final compression = this.compression;
     final encryptionAlgorithm = this.encryptionAlgorithm;
     final localProfileId = this.localProfileId;
@@ -3992,159 +4482,95 @@ class As2ConnectorConfig {
     final partnerProfileId = this.partnerProfileId;
     final signingAlgorithm = this.signingAlgorithm;
     return {
-      if (compression != null) 'Compression': compression.toValue(),
+      if (basicAuthSecretId != null) 'BasicAuthSecretId': basicAuthSecretId,
+      if (compression != null) 'Compression': compression.value,
       if (encryptionAlgorithm != null)
-        'EncryptionAlgorithm': encryptionAlgorithm.toValue(),
+        'EncryptionAlgorithm': encryptionAlgorithm.value,
       if (localProfileId != null) 'LocalProfileId': localProfileId,
-      if (mdnResponse != null) 'MdnResponse': mdnResponse.toValue(),
+      if (mdnResponse != null) 'MdnResponse': mdnResponse.value,
       if (mdnSigningAlgorithm != null)
-        'MdnSigningAlgorithm': mdnSigningAlgorithm.toValue(),
+        'MdnSigningAlgorithm': mdnSigningAlgorithm.value,
       if (messageSubject != null) 'MessageSubject': messageSubject,
       if (partnerProfileId != null) 'PartnerProfileId': partnerProfileId,
-      if (signingAlgorithm != null)
-        'SigningAlgorithm': signingAlgorithm.toValue(),
+      if (signingAlgorithm != null) 'SigningAlgorithm': signingAlgorithm.value,
     };
   }
 }
 
 enum As2Transport {
-  http,
-}
+  http('HTTP'),
+  ;
 
-extension As2TransportValueExtension on As2Transport {
-  String toValue() {
-    switch (this) {
-      case As2Transport.http:
-        return 'HTTP';
-    }
-  }
-}
+  final String value;
 
-extension As2TransportFromString on String {
-  As2Transport toAs2Transport() {
-    switch (this) {
-      case 'HTTP':
-        return As2Transport.http;
-    }
-    throw Exception('$this is not known in enum As2Transport');
-  }
+  const As2Transport(this.value);
+
+  static As2Transport fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum As2Transport'));
 }
 
 enum CertificateStatusType {
-  active,
-  pendingRotation,
-  inactive,
-}
+  active('ACTIVE'),
+  pendingRotation('PENDING_ROTATION'),
+  inactive('INACTIVE'),
+  ;
 
-extension CertificateStatusTypeValueExtension on CertificateStatusType {
-  String toValue() {
-    switch (this) {
-      case CertificateStatusType.active:
-        return 'ACTIVE';
-      case CertificateStatusType.pendingRotation:
-        return 'PENDING_ROTATION';
-      case CertificateStatusType.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension CertificateStatusTypeFromString on String {
-  CertificateStatusType toCertificateStatusType() {
-    switch (this) {
-      case 'ACTIVE':
-        return CertificateStatusType.active;
-      case 'PENDING_ROTATION':
-        return CertificateStatusType.pendingRotation;
-      case 'INACTIVE':
-        return CertificateStatusType.inactive;
-    }
-    throw Exception('$this is not known in enum CertificateStatusType');
-  }
+  const CertificateStatusType(this.value);
+
+  static CertificateStatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CertificateStatusType'));
 }
 
 enum CertificateType {
-  certificate,
-  certificateWithPrivateKey,
-}
+  certificate('CERTIFICATE'),
+  certificateWithPrivateKey('CERTIFICATE_WITH_PRIVATE_KEY'),
+  ;
 
-extension CertificateTypeValueExtension on CertificateType {
-  String toValue() {
-    switch (this) {
-      case CertificateType.certificate:
-        return 'CERTIFICATE';
-      case CertificateType.certificateWithPrivateKey:
-        return 'CERTIFICATE_WITH_PRIVATE_KEY';
-    }
-  }
-}
+  final String value;
 
-extension CertificateTypeFromString on String {
-  CertificateType toCertificateType() {
-    switch (this) {
-      case 'CERTIFICATE':
-        return CertificateType.certificate;
-      case 'CERTIFICATE_WITH_PRIVATE_KEY':
-        return CertificateType.certificateWithPrivateKey;
-    }
-    throw Exception('$this is not known in enum CertificateType');
-  }
+  const CertificateType(this.value);
+
+  static CertificateType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CertificateType'));
 }
 
 enum CertificateUsageType {
-  signing,
-  encryption,
-}
+  signing('SIGNING'),
+  encryption('ENCRYPTION'),
+  tls('TLS'),
+  ;
 
-extension CertificateUsageTypeValueExtension on CertificateUsageType {
-  String toValue() {
-    switch (this) {
-      case CertificateUsageType.signing:
-        return 'SIGNING';
-      case CertificateUsageType.encryption:
-        return 'ENCRYPTION';
-    }
-  }
-}
+  final String value;
 
-extension CertificateUsageTypeFromString on String {
-  CertificateUsageType toCertificateUsageType() {
-    switch (this) {
-      case 'SIGNING':
-        return CertificateUsageType.signing;
-      case 'ENCRYPTION':
-        return CertificateUsageType.encryption;
-    }
-    throw Exception('$this is not known in enum CertificateUsageType');
-  }
+  const CertificateUsageType(this.value);
+
+  static CertificateUsageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CertificateUsageType'));
 }
 
 enum CompressionEnum {
-  zlib,
-  disabled,
-}
+  zlib('ZLIB'),
+  disabled('DISABLED'),
+  ;
 
-extension CompressionEnumValueExtension on CompressionEnum {
-  String toValue() {
-    switch (this) {
-      case CompressionEnum.zlib:
-        return 'ZLIB';
-      case CompressionEnum.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension CompressionEnumFromString on String {
-  CompressionEnum toCompressionEnum() {
-    switch (this) {
-      case 'ZLIB':
-        return CompressionEnum.zlib;
-      case 'DISABLED':
-        return CompressionEnum.disabled;
-    }
-    throw Exception('$this is not known in enum CompressionEnum');
-  }
+  const CompressionEnum(this.value);
+
+  static CompressionEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CompressionEnum'));
 }
 
 /// Each step type has its own <code>StepDetails</code> structure.
@@ -4223,8 +4649,8 @@ class CopyStepDetails {
               json['DestinationFileLocation'] as Map<String, dynamic>)
           : null,
       name: json['Name'] as String?,
-      overwriteExisting:
-          (json['OverwriteExisting'] as String?)?.toOverwriteExisting(),
+      overwriteExisting: (json['OverwriteExisting'] as String?)
+          ?.let(OverwriteExisting.fromString),
       sourceFileLocation: json['SourceFileLocation'] as String?,
     );
   }
@@ -4239,7 +4665,7 @@ class CopyStepDetails {
         'DestinationFileLocation': destinationFileLocation,
       if (name != null) 'Name': name,
       if (overwriteExisting != null)
-        'OverwriteExisting': overwriteExisting.toValue(),
+        'OverwriteExisting': overwriteExisting.value,
       if (sourceFileLocation != null) 'SourceFileLocation': sourceFileLocation,
     };
   }
@@ -4476,31 +4902,18 @@ class CustomStepDetails {
 }
 
 enum CustomStepStatus {
-  success,
-  failure,
-}
+  success('SUCCESS'),
+  failure('FAILURE'),
+  ;
 
-extension CustomStepStatusValueExtension on CustomStepStatus {
-  String toValue() {
-    switch (this) {
-      case CustomStepStatus.success:
-        return 'SUCCESS';
-      case CustomStepStatus.failure:
-        return 'FAILURE';
-    }
-  }
-}
+  final String value;
 
-extension CustomStepStatusFromString on String {
-  CustomStepStatus toCustomStepStatus() {
-    switch (this) {
-      case 'SUCCESS':
-        return CustomStepStatus.success;
-      case 'FAILURE':
-        return CustomStepStatus.failure;
-    }
-    throw Exception('$this is not known in enum CustomStepStatus');
-  }
+  const CustomStepStatus(this.value);
+
+  static CustomStepStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CustomStepStatus'));
 }
 
 /// Each step type has its own <code>StepDetails</code> structure.
@@ -4580,10 +4993,10 @@ class DecryptStepDetails {
     return DecryptStepDetails(
       destinationFileLocation: InputFileLocation.fromJson(
           json['DestinationFileLocation'] as Map<String, dynamic>),
-      type: (json['Type'] as String).toEncryptionType(),
+      type: EncryptionType.fromString((json['Type'] as String)),
       name: json['Name'] as String?,
-      overwriteExisting:
-          (json['OverwriteExisting'] as String?)?.toOverwriteExisting(),
+      overwriteExisting: (json['OverwriteExisting'] as String?)
+          ?.let(OverwriteExisting.fromString),
       sourceFileLocation: json['SourceFileLocation'] as String?,
     );
   }
@@ -4596,10 +5009,10 @@ class DecryptStepDetails {
     final sourceFileLocation = this.sourceFileLocation;
     return {
       'DestinationFileLocation': destinationFileLocation,
-      'Type': type.toValue(),
+      'Type': type.value,
       if (name != null) 'Name': name,
       if (overwriteExisting != null)
-        'OverwriteExisting': overwriteExisting.toValue(),
+        'OverwriteExisting': overwriteExisting.value,
       if (sourceFileLocation != null) 'SourceFileLocation': sourceFileLocation,
     };
   }
@@ -4949,6 +5362,10 @@ class DescribedAccess {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   final String? homeDirectory;
 
   /// Logical directory mappings that specify what Amazon S3 or Amazon EFS paths
@@ -4970,11 +5387,19 @@ class DescribedAccess {
 
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or Amazon
+  /// EFS path as is in their file transfer protocol clients. If you set it to
   /// <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must provide
+  /// mappings, using the <code>HomeDirectoryMappings</code> parameter. If, on the
+  /// other hand, <code>HomeDirectoryType</code> is <code>PATH</code>, you provide
+  /// an absolute path using the <code>HomeDirectory</code> parameter. You cannot
+  /// have both <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code>
+  /// in your template.
+  /// </note>
   final HomeDirectoryType? homeDirectoryType;
 
   /// A session policy for your user so that you can use the same Identity and
@@ -5010,11 +5435,11 @@ class DescribedAccess {
       externalId: json['ExternalId'] as String?,
       homeDirectory: json['HomeDirectory'] as String?,
       homeDirectoryMappings: (json['HomeDirectoryMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HomeDirectoryMapEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
-      homeDirectoryType:
-          (json['HomeDirectoryType'] as String?)?.toHomeDirectoryType(),
+      homeDirectoryType: (json['HomeDirectoryType'] as String?)
+          ?.let(HomeDirectoryType.fromString),
       policy: json['Policy'] as String?,
       posixProfile: json['PosixProfile'] != null
           ? PosixProfile.fromJson(json['PosixProfile'] as Map<String, dynamic>)
@@ -5037,7 +5462,7 @@ class DescribedAccess {
       if (homeDirectoryMappings != null)
         'HomeDirectoryMappings': homeDirectoryMappings,
       if (homeDirectoryType != null)
-        'HomeDirectoryType': homeDirectoryType.toValue(),
+        'HomeDirectoryType': homeDirectoryType.value,
       if (policy != null) 'Policy': policy,
       if (posixProfile != null) 'PosixProfile': posixProfile,
       if (role != null) 'Role': role,
@@ -5050,6 +5475,12 @@ class DescribedAgreement {
   /// The unique Amazon Resource Name (ARN) for the agreement.
   final String arn;
 
+  /// Connectors are used to send files using either the AS2 or SFTP protocol. For
+  /// the access role, provide the Amazon Resource Name (ARN) of the Identity and
+  /// Access Management role to use.
+  ///
+  /// <b>For AS2 connectors</b>
+  ///
   /// With AS2, you can send files by calling <code>StartFileTransfer</code> and
   /// specifying the file paths in the request parameter,
   /// <code>SendFilePaths</code>. We use the file’s parent directory (for example,
@@ -5062,6 +5493,20 @@ class DescribedAgreement {
   /// request. Additionally, you need to provide read and write access to the
   /// parent directory of the files that you intend to send with
   /// <code>StartFileTransfer</code>.
+  ///
+  /// If you are using Basic authentication for your AS2 connector, the access
+  /// role requires the <code>secretsmanager:GetSecretValue</code> permission for
+  /// the secret. If the secret is encrypted using a customer-managed key instead
+  /// of the Amazon Web Services managed key in Secrets Manager, then the role
+  /// also needs the <code>kms:Decrypt</code> permission for that key.
+  ///
+  /// <b>For SFTP connectors</b>
+  ///
+  /// Make sure that the access role provides read and write access to the parent
+  /// directory of the file location that's used in the
+  /// <code>StartFileTransfer</code> request. Additionally, make sure that the
+  /// role provides <code>secretsmanager:GetSecretValue</code> permission to
+  /// Secrets Manager.
   final String? accessRole;
 
   /// A unique identifier for the agreement. This identifier is returned when you
@@ -5115,9 +5560,9 @@ class DescribedAgreement {
       localProfileId: json['LocalProfileId'] as String?,
       partnerProfileId: json['PartnerProfileId'] as String?,
       serverId: json['ServerId'] as String?,
-      status: (json['Status'] as String?)?.toAgreementStatusType(),
+      status: (json['Status'] as String?)?.let(AgreementStatusType.fromString),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5143,7 +5588,7 @@ class DescribedAgreement {
       if (localProfileId != null) 'LocalProfileId': localProfileId,
       if (partnerProfileId != null) 'PartnerProfileId': partnerProfileId,
       if (serverId != null) 'ServerId': serverId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -5196,7 +5641,20 @@ class DescribedCertificate {
   /// type is <code>CERTIFICATE</code>.
   final CertificateType? type;
 
-  /// Specifies whether this certificate is used for signing or encryption.
+  /// Specifies how this certificate is used. It can be used in the following
+  /// ways:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SIGNING</code>: For signing AS2 messages
+  /// </li>
+  /// <li>
+  /// <code>ENCRYPTION</code>: For encrypting AS2 messages
+  /// </li>
+  /// <li>
+  /// <code>TLS</code>: For securing AS2 communications sent over HTTPS
+  /// </li>
+  /// </ul>
   final CertificateUsageType? usage;
 
   DescribedCertificate({
@@ -5228,13 +5686,14 @@ class DescribedCertificate {
       notAfterDate: timeStampFromJson(json['NotAfterDate']),
       notBeforeDate: timeStampFromJson(json['NotBeforeDate']),
       serial: json['Serial'] as String?,
-      status: (json['Status'] as String?)?.toCertificateStatusType(),
+      status:
+          (json['Status'] as String?)?.let(CertificateStatusType.fromString),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['Type'] as String?)?.toCertificateType(),
-      usage: (json['Usage'] as String?)?.toCertificateUsageType(),
+      type: (json['Type'] as String?)?.let(CertificateType.fromString),
+      usage: (json['Usage'] as String?)?.let(CertificateUsageType.fromString),
     );
   }
 
@@ -5267,10 +5726,10 @@ class DescribedCertificate {
       if (notBeforeDate != null)
         'NotBeforeDate': unixTimestampToJson(notBeforeDate),
       if (serial != null) 'Serial': serial,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (tags != null) 'Tags': tags,
-      if (type != null) 'Type': type.toValue(),
-      if (usage != null) 'Usage': usage.toValue(),
+      if (type != null) 'Type': type.value,
+      if (usage != null) 'Usage': usage.value,
     };
   }
 }
@@ -5281,6 +5740,12 @@ class DescribedConnector {
   /// The unique Amazon Resource Name (ARN) for the connector.
   final String arn;
 
+  /// Connectors are used to send files using either the AS2 or SFTP protocol. For
+  /// the access role, provide the Amazon Resource Name (ARN) of the Identity and
+  /// Access Management role to use.
+  ///
+  /// <b>For AS2 connectors</b>
+  ///
   /// With AS2, you can send files by calling <code>StartFileTransfer</code> and
   /// specifying the file paths in the request parameter,
   /// <code>SendFilePaths</code>. We use the file’s parent directory (for example,
@@ -5293,9 +5758,23 @@ class DescribedConnector {
   /// request. Additionally, you need to provide read and write access to the
   /// parent directory of the files that you intend to send with
   /// <code>StartFileTransfer</code>.
+  ///
+  /// If you are using Basic authentication for your AS2 connector, the access
+  /// role requires the <code>secretsmanager:GetSecretValue</code> permission for
+  /// the secret. If the secret is encrypted using a customer-managed key instead
+  /// of the Amazon Web Services managed key in Secrets Manager, then the role
+  /// also needs the <code>kms:Decrypt</code> permission for that key.
+  ///
+  /// <b>For SFTP connectors</b>
+  ///
+  /// Make sure that the access role provides read and write access to the parent
+  /// directory of the file location that's used in the
+  /// <code>StartFileTransfer</code> request. Additionally, make sure that the
+  /// role provides <code>secretsmanager:GetSecretValue</code> permission to
+  /// Secrets Manager.
   final String? accessRole;
 
-  /// A structure that contains the parameters for a connector object.
+  /// A structure that contains the parameters for an AS2 connector object.
   final As2ConnectorConfig? as2Config;
 
   /// The unique identifier for the connector.
@@ -5306,10 +5785,20 @@ class DescribedConnector {
   /// events. When set, you can view connector activity in your CloudWatch logs.
   final String? loggingRole;
 
+  /// The text name of the security policy for the specified connector.
+  final String? securityPolicyName;
+
+  /// The list of egress IP addresses of this connector. These IP addresses are
+  /// assigned automatically when you create the connector.
+  final List<String>? serviceManagedEgressIpAddresses;
+
+  /// A structure that contains the parameters for an SFTP connector object.
+  final SftpConnectorConfig? sftpConfig;
+
   /// Key-value pairs that can be used to group and search for connectors.
   final List<Tag>? tags;
 
-  /// The URL of the partner's AS2 endpoint.
+  /// The URL of the partner's AS2 or SFTP endpoint.
   final String? url;
 
   DescribedConnector({
@@ -5318,6 +5807,9 @@ class DescribedConnector {
     this.as2Config,
     this.connectorId,
     this.loggingRole,
+    this.securityPolicyName,
+    this.serviceManagedEgressIpAddresses,
+    this.sftpConfig,
     this.tags,
     this.url,
   });
@@ -5332,8 +5824,18 @@ class DescribedConnector {
           : null,
       connectorId: json['ConnectorId'] as String?,
       loggingRole: json['LoggingRole'] as String?,
+      securityPolicyName: json['SecurityPolicyName'] as String?,
+      serviceManagedEgressIpAddresses:
+          (json['ServiceManagedEgressIpAddresses'] as List?)
+              ?.nonNulls
+              .map((e) => e as String)
+              .toList(),
+      sftpConfig: json['SftpConfig'] != null
+          ? SftpConnectorConfig.fromJson(
+              json['SftpConfig'] as Map<String, dynamic>)
+          : null,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       url: json['Url'] as String?,
@@ -5346,6 +5848,10 @@ class DescribedConnector {
     final as2Config = this.as2Config;
     final connectorId = this.connectorId;
     final loggingRole = this.loggingRole;
+    final securityPolicyName = this.securityPolicyName;
+    final serviceManagedEgressIpAddresses =
+        this.serviceManagedEgressIpAddresses;
+    final sftpConfig = this.sftpConfig;
     final tags = this.tags;
     final url = this.url;
     return {
@@ -5354,6 +5860,10 @@ class DescribedConnector {
       if (as2Config != null) 'As2Config': as2Config,
       if (connectorId != null) 'ConnectorId': connectorId,
       if (loggingRole != null) 'LoggingRole': loggingRole,
+      if (securityPolicyName != null) 'SecurityPolicyName': securityPolicyName,
+      if (serviceManagedEgressIpAddresses != null)
+        'ServiceManagedEgressIpAddresses': serviceManagedEgressIpAddresses,
+      if (sftpConfig != null) 'SftpConfig': sftpConfig,
       if (tags != null) 'Tags': tags,
       if (url != null) 'Url': url,
     };
@@ -5423,7 +5933,7 @@ class DescribedExecution {
           ? ServiceMetadata.fromJson(
               json['ServiceMetadata'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toExecutionStatus(),
+      status: (json['Status'] as String?)?.let(ExecutionStatus.fromString),
     );
   }
 
@@ -5446,7 +5956,7 @@ class DescribedExecution {
       if (posixProfile != null) 'PosixProfile': posixProfile,
       if (results != null) 'Results': results,
       if (serviceMetadata != null) 'ServiceMetadata': serviceMetadata,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -5513,7 +6023,7 @@ class DescribedHostKey {
       hostKeyFingerprint: json['HostKeyFingerprint'] as String?,
       hostKeyId: json['HostKeyId'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       type: json['Type'] as String?,
@@ -5584,13 +6094,14 @@ class DescribedProfile {
       arn: json['Arn'] as String,
       as2Id: json['As2Id'] as String?,
       certificateIds: (json['CertificateIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       profileId: json['ProfileId'] as String?,
-      profileType: (json['ProfileType'] as String?)?.toProfileType(),
+      profileType:
+          (json['ProfileType'] as String?)?.let(ProfileType.fromString),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5608,86 +6119,126 @@ class DescribedProfile {
       if (as2Id != null) 'As2Id': as2Id,
       if (certificateIds != null) 'CertificateIds': certificateIds,
       if (profileId != null) 'ProfileId': profileId,
-      if (profileType != null) 'ProfileType': profileType.toValue(),
+      if (profileType != null) 'ProfileType': profileType.value,
       if (tags != null) 'Tags': tags,
     };
   }
 }
 
-/// Describes the properties of a security policy that was specified. For more
+/// Describes the properties of a security policy that you specify. For more
 /// information about security policies, see <a
 /// href="https://docs.aws.amazon.com/transfer/latest/userguide/security-policies.html">Working
-/// with security policies</a>.
+/// with security policies for servers</a> or <a
+/// href="https://docs.aws.amazon.com/transfer/latest/userguide/security-policies-connectors.html">Working
+/// with security policies for SFTP connectors</a>.
 class DescribedSecurityPolicy {
-  /// Specifies the name of the security policy that is attached to the server.
+  /// The text name of the specified security policy.
   final String securityPolicyName;
 
   /// Specifies whether this policy enables Federal Information Processing
-  /// Standards (FIPS).
+  /// Standards (FIPS). This parameter applies to both server and connector
+  /// security policies.
   final bool? fips;
 
-  /// Specifies the enabled Secure Shell (SSH) cipher encryption algorithms in the
-  /// security policy that is attached to the server.
+  /// Lists the file transfer protocols that the security policy applies to.
+  final List<SecurityPolicyProtocol>? protocols;
+
+  /// Lists the enabled Secure Shell (SSH) cipher encryption algorithms in the
+  /// security policy that is attached to the server or connector. This parameter
+  /// applies to both server and connector security policies.
   final List<String>? sshCiphers;
 
-  /// Specifies the enabled SSH key exchange (KEX) encryption algorithms in the
-  /// security policy that is attached to the server.
+  /// Lists the host key algorithms for the security policy.
+  /// <note>
+  /// This parameter only applies to security policies for connectors.
+  /// </note>
+  final List<String>? sshHostKeyAlgorithms;
+
+  /// Lists the enabled SSH key exchange (KEX) encryption algorithms in the
+  /// security policy that is attached to the server or connector. This parameter
+  /// applies to both server and connector security policies.
   final List<String>? sshKexs;
 
-  /// Specifies the enabled SSH message authentication code (MAC) encryption
-  /// algorithms in the security policy that is attached to the server.
+  /// Lists the enabled SSH message authentication code (MAC) encryption
+  /// algorithms in the security policy that is attached to the server or
+  /// connector. This parameter applies to both server and connector security
+  /// policies.
   final List<String>? sshMacs;
 
-  /// Specifies the enabled Transport Layer Security (TLS) cipher encryption
+  /// Lists the enabled Transport Layer Security (TLS) cipher encryption
   /// algorithms in the security policy that is attached to the server.
+  /// <note>
+  /// This parameter only applies to security policies for servers.
+  /// </note>
   final List<String>? tlsCiphers;
+
+  /// The resource type to which the security policy applies, either server or
+  /// connector.
+  final SecurityPolicyResourceType? type;
 
   DescribedSecurityPolicy({
     required this.securityPolicyName,
     this.fips,
+    this.protocols,
     this.sshCiphers,
+    this.sshHostKeyAlgorithms,
     this.sshKexs,
     this.sshMacs,
     this.tlsCiphers,
+    this.type,
   });
 
   factory DescribedSecurityPolicy.fromJson(Map<String, dynamic> json) {
     return DescribedSecurityPolicy(
       securityPolicyName: json['SecurityPolicyName'] as String,
       fips: json['Fips'] as bool?,
+      protocols: (json['Protocols'] as List?)
+          ?.nonNulls
+          .map((e) => SecurityPolicyProtocol.fromString((e as String)))
+          .toList(),
       sshCiphers: (json['SshCiphers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      sshKexs: (json['SshKexs'] as List?)
-          ?.whereNotNull()
+      sshHostKeyAlgorithms: (json['SshHostKeyAlgorithms'] as List?)
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      sshMacs: (json['SshMacs'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      sshKexs:
+          (json['SshKexs'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      sshMacs:
+          (json['SshMacs'] as List?)?.nonNulls.map((e) => e as String).toList(),
       tlsCiphers: (json['TlsCiphers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
+      type:
+          (json['Type'] as String?)?.let(SecurityPolicyResourceType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final securityPolicyName = this.securityPolicyName;
     final fips = this.fips;
+    final protocols = this.protocols;
     final sshCiphers = this.sshCiphers;
+    final sshHostKeyAlgorithms = this.sshHostKeyAlgorithms;
     final sshKexs = this.sshKexs;
     final sshMacs = this.sshMacs;
     final tlsCiphers = this.tlsCiphers;
+    final type = this.type;
     return {
       'SecurityPolicyName': securityPolicyName,
       if (fips != null) 'Fips': fips,
+      if (protocols != null)
+        'Protocols': protocols.map((e) => e.value).toList(),
       if (sshCiphers != null) 'SshCiphers': sshCiphers,
+      if (sshHostKeyAlgorithms != null)
+        'SshHostKeyAlgorithms': sshHostKeyAlgorithms,
       if (sshKexs != null) 'SshKexs': sshKexs,
       if (sshMacs != null) 'SshMacs': sshMacs,
       if (tlsCiphers != null) 'TlsCiphers': tlsCiphers,
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -5698,12 +6249,23 @@ class DescribedServer {
   /// Specifies the unique Amazon Resource Name (ARN) of the server.
   final String arn;
 
+  /// The list of egress IP addresses of this server. These IP addresses are only
+  /// relevant for servers that use the AS2 protocol. They are used for sending
+  /// asynchronous MDNs.
+  ///
+  /// These IP addresses are assigned automatically when you create an AS2 server.
+  /// Additionally, if you update an existing server and add the AS2 protocol,
+  /// static IP addresses are assigned as well.
+  final List<String>? as2ServiceManagedEgressIpAddresses;
+
   /// Specifies the ARN of the Amazon Web ServicesCertificate Manager (ACM)
   /// certificate. Required when <code>Protocols</code> is set to
   /// <code>FTPS</code>.
   final String? certificate;
 
   /// Specifies the domain of the storage system that is used for file transfers.
+  /// There are two domains available: Amazon Simple Storage Service (Amazon S3)
+  /// and Amazon Elastic File System (Amazon EFS). The default value is S3.
   final Domain? domain;
 
   /// The virtual private cloud (VPC) endpoint settings that are configured for
@@ -5858,7 +6420,16 @@ class DescribedServer {
   /// </ul> </note>
   final List<Protocol>? protocols;
 
-  /// Specifies the name of the security policy that is attached to the server.
+  /// Specifies whether or not performance for your Amazon S3 directories is
+  /// optimized. This is disabled by default.
+  ///
+  /// By default, home directory mappings have a <code>TYPE</code> of
+  /// <code>DIRECTORY</code>. If you enable this option, you would then need to
+  /// explicitly set the <code>HomeDirectoryMapEntry</code> <code>Type</code> to
+  /// <code>FILE</code> if you want a mapping to have a file target.
+  final S3StorageOptions? s3StorageOptions;
+
+  /// Specifies the name of the security policy for the server.
   final String? securityPolicyName;
 
   /// Specifies the unique system-assigned identifier for a server that you
@@ -5875,6 +6446,24 @@ class DescribedServer {
   /// not fully offline. The values of <code>START_FAILED</code> or
   /// <code>STOP_FAILED</code> can indicate an error condition.
   final State? state;
+
+  /// Specifies the log groups to which your server logs are sent.
+  ///
+  /// To specify a log group, you must provide the ARN for an existing log group.
+  /// In this case, the format of the log group is as follows:
+  ///
+  /// <code>arn:aws:logs:region-name:amazon-account-id:log-group:log-group-name:*</code>
+  ///
+  /// For example,
+  /// <code>arn:aws:logs:us-east-1:111122223333:log-group:mytestgroup:*</code>
+  ///
+  /// If you have previously specified a log group for a server, you can clear it,
+  /// and in effect turn off structured logging, by providing an empty value for
+  /// this parameter in an <code>update-server</code> call. For example:
+  ///
+  /// <code>update-server --server-id s-1234567890abcdef0
+  /// --structured-log-destinations</code>
+  final List<String>? structuredLogDestinations;
 
   /// Specifies the key-value pairs that you can use to search for and group
   /// servers that were assigned to the server that was described.
@@ -5895,6 +6484,7 @@ class DescribedServer {
 
   DescribedServer({
     required this.arn,
+    this.as2ServiceManagedEgressIpAddresses,
     this.certificate,
     this.domain,
     this.endpointDetails,
@@ -5907,9 +6497,11 @@ class DescribedServer {
     this.preAuthenticationLoginBanner,
     this.protocolDetails,
     this.protocols,
+    this.s3StorageOptions,
     this.securityPolicyName,
     this.serverId,
     this.state,
+    this.structuredLogDestinations,
     this.tags,
     this.userCount,
     this.workflowDetails,
@@ -5918,20 +6510,26 @@ class DescribedServer {
   factory DescribedServer.fromJson(Map<String, dynamic> json) {
     return DescribedServer(
       arn: json['Arn'] as String,
+      as2ServiceManagedEgressIpAddresses:
+          (json['As2ServiceManagedEgressIpAddresses'] as List?)
+              ?.nonNulls
+              .map((e) => e as String)
+              .toList(),
       certificate: json['Certificate'] as String?,
-      domain: (json['Domain'] as String?)?.toDomain(),
+      domain: (json['Domain'] as String?)?.let(Domain.fromString),
       endpointDetails: json['EndpointDetails'] != null
           ? EndpointDetails.fromJson(
               json['EndpointDetails'] as Map<String, dynamic>)
           : null,
-      endpointType: (json['EndpointType'] as String?)?.toEndpointType(),
+      endpointType:
+          (json['EndpointType'] as String?)?.let(EndpointType.fromString),
       hostKeyFingerprint: json['HostKeyFingerprint'] as String?,
       identityProviderDetails: json['IdentityProviderDetails'] != null
           ? IdentityProviderDetails.fromJson(
               json['IdentityProviderDetails'] as Map<String, dynamic>)
           : null,
-      identityProviderType:
-          (json['IdentityProviderType'] as String?)?.toIdentityProviderType(),
+      identityProviderType: (json['IdentityProviderType'] as String?)
+          ?.let(IdentityProviderType.fromString),
       loggingRole: json['LoggingRole'] as String?,
       postAuthenticationLoginBanner:
           json['PostAuthenticationLoginBanner'] as String?,
@@ -5942,14 +6540,22 @@ class DescribedServer {
               json['ProtocolDetails'] as Map<String, dynamic>)
           : null,
       protocols: (json['Protocols'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toProtocol())
+          ?.nonNulls
+          .map((e) => Protocol.fromString((e as String)))
           .toList(),
+      s3StorageOptions: json['S3StorageOptions'] != null
+          ? S3StorageOptions.fromJson(
+              json['S3StorageOptions'] as Map<String, dynamic>)
+          : null,
       securityPolicyName: json['SecurityPolicyName'] as String?,
       serverId: json['ServerId'] as String?,
-      state: (json['State'] as String?)?.toState(),
+      state: (json['State'] as String?)?.let(State.fromString),
+      structuredLogDestinations: (json['StructuredLogDestinations'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       userCount: json['UserCount'] as int?,
@@ -5962,6 +6568,8 @@ class DescribedServer {
 
   Map<String, dynamic> toJson() {
     final arn = this.arn;
+    final as2ServiceManagedEgressIpAddresses =
+        this.as2ServiceManagedEgressIpAddresses;
     final certificate = this.certificate;
     final domain = this.domain;
     final endpointDetails = this.endpointDetails;
@@ -5974,23 +6582,28 @@ class DescribedServer {
     final preAuthenticationLoginBanner = this.preAuthenticationLoginBanner;
     final protocolDetails = this.protocolDetails;
     final protocols = this.protocols;
+    final s3StorageOptions = this.s3StorageOptions;
     final securityPolicyName = this.securityPolicyName;
     final serverId = this.serverId;
     final state = this.state;
+    final structuredLogDestinations = this.structuredLogDestinations;
     final tags = this.tags;
     final userCount = this.userCount;
     final workflowDetails = this.workflowDetails;
     return {
       'Arn': arn,
+      if (as2ServiceManagedEgressIpAddresses != null)
+        'As2ServiceManagedEgressIpAddresses':
+            as2ServiceManagedEgressIpAddresses,
       if (certificate != null) 'Certificate': certificate,
-      if (domain != null) 'Domain': domain.toValue(),
+      if (domain != null) 'Domain': domain.value,
       if (endpointDetails != null) 'EndpointDetails': endpointDetails,
-      if (endpointType != null) 'EndpointType': endpointType.toValue(),
+      if (endpointType != null) 'EndpointType': endpointType.value,
       if (hostKeyFingerprint != null) 'HostKeyFingerprint': hostKeyFingerprint,
       if (identityProviderDetails != null)
         'IdentityProviderDetails': identityProviderDetails,
       if (identityProviderType != null)
-        'IdentityProviderType': identityProviderType.toValue(),
+        'IdentityProviderType': identityProviderType.value,
       if (loggingRole != null) 'LoggingRole': loggingRole,
       if (postAuthenticationLoginBanner != null)
         'PostAuthenticationLoginBanner': postAuthenticationLoginBanner,
@@ -5998,10 +6611,13 @@ class DescribedServer {
         'PreAuthenticationLoginBanner': preAuthenticationLoginBanner,
       if (protocolDetails != null) 'ProtocolDetails': protocolDetails,
       if (protocols != null)
-        'Protocols': protocols.map((e) => e.toValue()).toList(),
+        'Protocols': protocols.map((e) => e.value).toList(),
+      if (s3StorageOptions != null) 'S3StorageOptions': s3StorageOptions,
       if (securityPolicyName != null) 'SecurityPolicyName': securityPolicyName,
       if (serverId != null) 'ServerId': serverId,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
+      if (structuredLogDestinations != null)
+        'StructuredLogDestinations': structuredLogDestinations,
       if (tags != null) 'Tags': tags,
       if (userCount != null) 'UserCount': userCount,
       if (workflowDetails != null) 'WorkflowDetails': workflowDetails,
@@ -6020,6 +6636,10 @@ class DescribedUser {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   final String? homeDirectory;
 
   /// Logical directory mappings that specify what Amazon S3 or Amazon EFS paths
@@ -6040,11 +6660,19 @@ class DescribedUser {
 
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or Amazon
+  /// EFS path as is in their file transfer protocol clients. If you set it to
   /// <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must provide
+  /// mappings, using the <code>HomeDirectoryMappings</code> parameter. If, on the
+  /// other hand, <code>HomeDirectoryType</code> is <code>PATH</code>, you provide
+  /// an absolute path using the <code>HomeDirectory</code> parameter. You cannot
+  /// have both <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code>
+  /// in your template.
+  /// </note>
   final HomeDirectoryType? homeDirectoryType;
 
   /// A session policy for your user so that you can use the same Identity and
@@ -6104,22 +6732,22 @@ class DescribedUser {
       arn: json['Arn'] as String,
       homeDirectory: json['HomeDirectory'] as String?,
       homeDirectoryMappings: (json['HomeDirectoryMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HomeDirectoryMapEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
-      homeDirectoryType:
-          (json['HomeDirectoryType'] as String?)?.toHomeDirectoryType(),
+      homeDirectoryType: (json['HomeDirectoryType'] as String?)
+          ?.let(HomeDirectoryType.fromString),
       policy: json['Policy'] as String?,
       posixProfile: json['PosixProfile'] != null
           ? PosixProfile.fromJson(json['PosixProfile'] as Map<String, dynamic>)
           : null,
       role: json['Role'] as String?,
       sshPublicKeys: (json['SshPublicKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SshPublicKey.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       userName: json['UserName'] as String?,
@@ -6143,7 +6771,7 @@ class DescribedUser {
       if (homeDirectoryMappings != null)
         'HomeDirectoryMappings': homeDirectoryMappings,
       if (homeDirectoryType != null)
-        'HomeDirectoryType': homeDirectoryType.toValue(),
+        'HomeDirectoryType': homeDirectoryType.value,
       if (policy != null) 'Policy': policy,
       if (posixProfile != null) 'PosixProfile': posixProfile,
       if (role != null) 'Role': role,
@@ -6190,15 +6818,15 @@ class DescribedWorkflow {
       arn: json['Arn'] as String,
       description: json['Description'] as String?,
       onExceptionSteps: (json['OnExceptionSteps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowStep.fromJson(e as Map<String, dynamic>))
           .toList(),
       steps: (json['Steps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowStep.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       workflowId: json['WorkflowId'] as String?,
@@ -6223,32 +6851,35 @@ class DescribedWorkflow {
   }
 }
 
+/// Indicates whether optimization to directory listing on S3 servers is used.
+/// Disabled by default for compatibility.
+enum DirectoryListingOptimization {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const DirectoryListingOptimization(this.value);
+
+  static DirectoryListingOptimization fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DirectoryListingOptimization'));
+}
+
 enum Domain {
-  s3,
-  efs,
-}
+  s3('S3'),
+  efs('EFS'),
+  ;
 
-extension DomainValueExtension on Domain {
-  String toValue() {
-    switch (this) {
-      case Domain.s3:
-        return 'S3';
-      case Domain.efs:
-        return 'EFS';
-    }
-  }
-}
+  final String value;
 
-extension DomainFromString on String {
-  Domain toDomain() {
-    switch (this) {
-      case 'S3':
-        return Domain.s3;
-      case 'EFS':
-        return Domain.efs;
-    }
-    throw Exception('$this is not known in enum Domain');
-  }
+  const Domain(this.value);
+
+  static Domain fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Domain'));
 }
 
 /// Specifies the details for the file location for the file that's being used
@@ -6286,64 +6917,35 @@ class EfsFileLocation {
 }
 
 enum EncryptionAlg {
-  aes128Cbc,
-  aes192Cbc,
-  aes256Cbc,
-  none,
-}
+  aes128Cbc('AES128_CBC'),
+  aes192Cbc('AES192_CBC'),
+  aes256Cbc('AES256_CBC'),
+  desEde3Cbc('DES_EDE3_CBC'),
+  none('NONE'),
+  ;
 
-extension EncryptionAlgValueExtension on EncryptionAlg {
-  String toValue() {
-    switch (this) {
-      case EncryptionAlg.aes128Cbc:
-        return 'AES128_CBC';
-      case EncryptionAlg.aes192Cbc:
-        return 'AES192_CBC';
-      case EncryptionAlg.aes256Cbc:
-        return 'AES256_CBC';
-      case EncryptionAlg.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionAlgFromString on String {
-  EncryptionAlg toEncryptionAlg() {
-    switch (this) {
-      case 'AES128_CBC':
-        return EncryptionAlg.aes128Cbc;
-      case 'AES192_CBC':
-        return EncryptionAlg.aes192Cbc;
-      case 'AES256_CBC':
-        return EncryptionAlg.aes256Cbc;
-      case 'NONE':
-        return EncryptionAlg.none;
-    }
-    throw Exception('$this is not known in enum EncryptionAlg');
-  }
+  const EncryptionAlg(this.value);
+
+  static EncryptionAlg fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionAlg'));
 }
 
 enum EncryptionType {
-  pgp,
-}
+  pgp('PGP'),
+  ;
 
-extension EncryptionTypeValueExtension on EncryptionType {
-  String toValue() {
-    switch (this) {
-      case EncryptionType.pgp:
-        return 'PGP';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionTypeFromString on String {
-  EncryptionType toEncryptionType() {
-    switch (this) {
-      case 'PGP':
-        return EncryptionType.pgp;
-    }
-    throw Exception('$this is not known in enum EncryptionType');
-  }
+  const EncryptionType(this.value);
+
+  static EncryptionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionType'));
 }
 
 /// The virtual private cloud (VPC) endpoint settings that are configured for
@@ -6365,10 +6967,47 @@ extension EncryptionTypeFromString on String {
 class EndpointDetails {
   /// A list of address allocation IDs that are required to attach an Elastic IP
   /// address to your server's endpoint.
+  ///
+  /// An address allocation ID corresponds to the allocation ID of an Elastic IP
+  /// address. This value can be retrieved from the <code>allocationId</code>
+  /// field from the Amazon EC2 <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_Address.html">Address</a>
+  /// data type. One way to retrieve this value is by calling the EC2 <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_DescribeAddresses.html">DescribeAddresses</a>
+  /// API.
+  ///
+  /// This parameter is optional. Set this parameter if you want to make your VPC
+  /// endpoint public-facing. For details, see <a
+  /// href="https://docs.aws.amazon.com/transfer/latest/userguide/create-server-in-vpc.html#create-internet-facing-endpoint">Create
+  /// an internet-facing endpoint for your server</a>.
   /// <note>
-  /// This property can only be set when <code>EndpointType</code> is set to
-  /// <code>VPC</code> and it is only valid in the <code>UpdateServer</code> API.
-  /// </note>
+  /// This property can only be set as follows:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>EndpointType</code> must be set to <code>VPC</code>
+  /// </li>
+  /// <li>
+  /// The Transfer Family server must be offline.
+  /// </li>
+  /// <li>
+  /// You cannot set this parameter for Transfer Family servers that use the FTP
+  /// protocol.
+  /// </li>
+  /// <li>
+  /// The server must already have <code>SubnetIds</code> populated
+  /// (<code>SubnetIds</code> and <code>AddressAllocationIds</code> cannot be
+  /// updated simultaneously).
+  /// </li>
+  /// <li>
+  /// <code>AddressAllocationIds</code> can't contain duplicates, and must be
+  /// equal in length to <code>SubnetIds</code>. For example, if you have three
+  /// subnet IDs, you must also specify three address allocation IDs.
+  /// </li>
+  /// <li>
+  /// Call the <code>UpdateServer</code> API to set or change this parameter.
+  /// </li>
+  /// </ul> </note>
   final List<String>? addressAllocationIds;
 
   /// A list of security groups IDs that are available to attach to your server's
@@ -6424,15 +7063,15 @@ class EndpointDetails {
   factory EndpointDetails.fromJson(Map<String, dynamic> json) {
     return EndpointDetails(
       addressAllocationIds: (json['AddressAllocationIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vpcEndpointId: json['VpcEndpointId'] as String?,
@@ -6458,36 +7097,19 @@ class EndpointDetails {
 }
 
 enum EndpointType {
-  public,
-  vpc,
-  vpcEndpoint,
-}
+  public('PUBLIC'),
+  vpc('VPC'),
+  vpcEndpoint('VPC_ENDPOINT'),
+  ;
 
-extension EndpointTypeValueExtension on EndpointType {
-  String toValue() {
-    switch (this) {
-      case EndpointType.public:
-        return 'PUBLIC';
-      case EndpointType.vpc:
-        return 'VPC';
-      case EndpointType.vpcEndpoint:
-        return 'VPC_ENDPOINT';
-    }
-  }
-}
+  final String value;
 
-extension EndpointTypeFromString on String {
-  EndpointType toEndpointType() {
-    switch (this) {
-      case 'PUBLIC':
-        return EndpointType.public;
-      case 'VPC':
-        return EndpointType.vpc;
-      case 'VPC_ENDPOINT':
-        return EndpointType.vpcEndpoint;
-    }
-    throw Exception('$this is not known in enum EndpointType');
-  }
+  const EndpointType(this.value);
+
+  static EndpointType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EndpointType'));
 }
 
 /// Specifies the error message and type, for an error that occurs during the
@@ -6547,7 +7169,7 @@ class ExecutionError {
   factory ExecutionError.fromJson(Map<String, dynamic> json) {
     return ExecutionError(
       message: json['Message'] as String,
-      type: (json['Type'] as String).toExecutionErrorType(),
+      type: ExecutionErrorType.fromString((json['Type'] as String)),
     );
   }
 
@@ -6556,67 +7178,30 @@ class ExecutionError {
     final type = this.type;
     return {
       'Message': message,
-      'Type': type.toValue(),
+      'Type': type.value,
     };
   }
 }
 
 enum ExecutionErrorType {
-  permissionDenied,
-  customStepFailed,
-  throttled,
-  alreadyExists,
-  notFound,
-  badRequest,
-  timeout,
-  internalServerError,
-}
+  permissionDenied('PERMISSION_DENIED'),
+  customStepFailed('CUSTOM_STEP_FAILED'),
+  throttled('THROTTLED'),
+  alreadyExists('ALREADY_EXISTS'),
+  notFound('NOT_FOUND'),
+  badRequest('BAD_REQUEST'),
+  timeout('TIMEOUT'),
+  internalServerError('INTERNAL_SERVER_ERROR'),
+  ;
 
-extension ExecutionErrorTypeValueExtension on ExecutionErrorType {
-  String toValue() {
-    switch (this) {
-      case ExecutionErrorType.permissionDenied:
-        return 'PERMISSION_DENIED';
-      case ExecutionErrorType.customStepFailed:
-        return 'CUSTOM_STEP_FAILED';
-      case ExecutionErrorType.throttled:
-        return 'THROTTLED';
-      case ExecutionErrorType.alreadyExists:
-        return 'ALREADY_EXISTS';
-      case ExecutionErrorType.notFound:
-        return 'NOT_FOUND';
-      case ExecutionErrorType.badRequest:
-        return 'BAD_REQUEST';
-      case ExecutionErrorType.timeout:
-        return 'TIMEOUT';
-      case ExecutionErrorType.internalServerError:
-        return 'INTERNAL_SERVER_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ExecutionErrorTypeFromString on String {
-  ExecutionErrorType toExecutionErrorType() {
-    switch (this) {
-      case 'PERMISSION_DENIED':
-        return ExecutionErrorType.permissionDenied;
-      case 'CUSTOM_STEP_FAILED':
-        return ExecutionErrorType.customStepFailed;
-      case 'THROTTLED':
-        return ExecutionErrorType.throttled;
-      case 'ALREADY_EXISTS':
-        return ExecutionErrorType.alreadyExists;
-      case 'NOT_FOUND':
-        return ExecutionErrorType.notFound;
-      case 'BAD_REQUEST':
-        return ExecutionErrorType.badRequest;
-      case 'TIMEOUT':
-        return ExecutionErrorType.timeout;
-      case 'INTERNAL_SERVER_ERROR':
-        return ExecutionErrorType.internalServerError;
-    }
-    throw Exception('$this is not known in enum ExecutionErrorType');
-  }
+  const ExecutionErrorType(this.value);
+
+  static ExecutionErrorType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ExecutionErrorType'));
 }
 
 /// Specifies the steps in the workflow, as well as the steps to execute in case
@@ -6637,11 +7222,11 @@ class ExecutionResults {
   factory ExecutionResults.fromJson(Map<String, dynamic> json) {
     return ExecutionResults(
       onExceptionSteps: (json['OnExceptionSteps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExecutionStepResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       steps: (json['Steps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExecutionStepResult.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6658,41 +7243,20 @@ class ExecutionResults {
 }
 
 enum ExecutionStatus {
-  inProgress,
-  completed,
-  exception,
-  handlingException,
-}
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  exception('EXCEPTION'),
+  handlingException('HANDLING_EXCEPTION'),
+  ;
 
-extension ExecutionStatusValueExtension on ExecutionStatus {
-  String toValue() {
-    switch (this) {
-      case ExecutionStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ExecutionStatus.completed:
-        return 'COMPLETED';
-      case ExecutionStatus.exception:
-        return 'EXCEPTION';
-      case ExecutionStatus.handlingException:
-        return 'HANDLING_EXCEPTION';
-    }
-  }
-}
+  final String value;
 
-extension ExecutionStatusFromString on String {
-  ExecutionStatus toExecutionStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return ExecutionStatus.inProgress;
-      case 'COMPLETED':
-        return ExecutionStatus.completed;
-      case 'EXCEPTION':
-        return ExecutionStatus.exception;
-      case 'HANDLING_EXCEPTION':
-        return ExecutionStatus.handlingException;
-    }
-    throw Exception('$this is not known in enum ExecutionStatus');
-  }
+  const ExecutionStatus(this.value);
+
+  static ExecutionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExecutionStatus'));
 }
 
 /// Specifies the following details for the step: error (if any), outputs (if
@@ -6741,7 +7305,7 @@ class ExecutionStepResult {
           ? ExecutionError.fromJson(json['Error'] as Map<String, dynamic>)
           : null,
       outputs: json['Outputs'] as String?,
-      stepType: (json['StepType'] as String?)?.toWorkflowStepType(),
+      stepType: (json['StepType'] as String?)?.let(WorkflowStepType.fromString),
     );
   }
 
@@ -6752,7 +7316,7 @@ class ExecutionStepResult {
     return {
       if (error != null) 'Error': error,
       if (outputs != null) 'Outputs': outputs,
-      if (stepType != null) 'StepType': stepType.toValue(),
+      if (stepType != null) 'StepType': stepType.value,
     };
   }
 }
@@ -6806,65 +7370,67 @@ class HomeDirectoryMapEntry {
   final String entry;
 
   /// Represents the map target that is used in a
-  /// <code>HomeDirectorymapEntry</code>.
+  /// <code>HomeDirectoryMapEntry</code>.
   final String target;
+
+  /// Specifies the type of mapping. Set the type to <code>FILE</code> if you want
+  /// the mapping to point to a file, or <code>DIRECTORY</code> for the directory
+  /// to point to a directory.
+  /// <note>
+  /// By default, home directory mappings have a <code>Type</code> of
+  /// <code>DIRECTORY</code> when you create a Transfer Family server. You would
+  /// need to explicitly set <code>Type</code> to <code>FILE</code> if you want a
+  /// mapping to have a file target.
+  /// </note>
+  final MapType? type;
 
   HomeDirectoryMapEntry({
     required this.entry,
     required this.target,
+    this.type,
   });
 
   factory HomeDirectoryMapEntry.fromJson(Map<String, dynamic> json) {
     return HomeDirectoryMapEntry(
       entry: json['Entry'] as String,
       target: json['Target'] as String,
+      type: (json['Type'] as String?)?.let(MapType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final entry = this.entry;
     final target = this.target;
+    final type = this.type;
     return {
       'Entry': entry,
       'Target': target,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum HomeDirectoryType {
-  path,
-  logical,
-}
+  path('PATH'),
+  logical('LOGICAL'),
+  ;
 
-extension HomeDirectoryTypeValueExtension on HomeDirectoryType {
-  String toValue() {
-    switch (this) {
-      case HomeDirectoryType.path:
-        return 'PATH';
-      case HomeDirectoryType.logical:
-        return 'LOGICAL';
-    }
-  }
-}
+  final String value;
 
-extension HomeDirectoryTypeFromString on String {
-  HomeDirectoryType toHomeDirectoryType() {
-    switch (this) {
-      case 'PATH':
-        return HomeDirectoryType.path;
-      case 'LOGICAL':
-        return HomeDirectoryType.logical;
-    }
-    throw Exception('$this is not known in enum HomeDirectoryType');
-  }
+  const HomeDirectoryType(this.value);
+
+  static HomeDirectoryType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum HomeDirectoryType'));
 }
 
 /// Returns information related to the type of user authentication that is in
 /// use for a file transfer protocol-enabled server's users. A server can have
 /// only one method of authentication.
 class IdentityProviderDetails {
-  /// The identifier of the Directory Service directory that you want to stop
-  /// sharing.
+  /// The identifier of the Directory Service directory that you want to use as
+  /// your identity provider.
   final String? directoryId;
 
   /// The ARN for a Lambda function to use for the Identity provider.
@@ -6915,7 +7481,7 @@ class IdentityProviderDetails {
       function: json['Function'] as String?,
       invocationRole: json['InvocationRole'] as String?,
       sftpAuthenticationMethods: (json['SftpAuthenticationMethods'] as String?)
-          ?.toSftpAuthenticationMethods(),
+          ?.let(SftpAuthenticationMethods.fromString),
       url: json['Url'] as String?,
     );
   }
@@ -6931,7 +7497,7 @@ class IdentityProviderDetails {
       if (function != null) 'Function': function,
       if (invocationRole != null) 'InvocationRole': invocationRole,
       if (sftpAuthenticationMethods != null)
-        'SftpAuthenticationMethods': sftpAuthenticationMethods.toValue(),
+        'SftpAuthenticationMethods': sftpAuthenticationMethods.value,
       if (url != null) 'Url': url,
     };
   }
@@ -6957,41 +7523,20 @@ class IdentityProviderDetails {
 /// for the Lambda function in the <code>Function</code> parameter for the
 /// <code>IdentityProviderDetails</code> data type.
 enum IdentityProviderType {
-  serviceManaged,
-  apiGateway,
-  awsDirectoryService,
-  awsLambda,
-}
+  serviceManaged('SERVICE_MANAGED'),
+  apiGateway('API_GATEWAY'),
+  awsDirectoryService('AWS_DIRECTORY_SERVICE'),
+  awsLambda('AWS_LAMBDA'),
+  ;
 
-extension IdentityProviderTypeValueExtension on IdentityProviderType {
-  String toValue() {
-    switch (this) {
-      case IdentityProviderType.serviceManaged:
-        return 'SERVICE_MANAGED';
-      case IdentityProviderType.apiGateway:
-        return 'API_GATEWAY';
-      case IdentityProviderType.awsDirectoryService:
-        return 'AWS_DIRECTORY_SERVICE';
-      case IdentityProviderType.awsLambda:
-        return 'AWS_LAMBDA';
-    }
-  }
-}
+  final String value;
 
-extension IdentityProviderTypeFromString on String {
-  IdentityProviderType toIdentityProviderType() {
-    switch (this) {
-      case 'SERVICE_MANAGED':
-        return IdentityProviderType.serviceManaged;
-      case 'API_GATEWAY':
-        return IdentityProviderType.apiGateway;
-      case 'AWS_DIRECTORY_SERVICE':
-        return IdentityProviderType.awsDirectoryService;
-      case 'AWS_LAMBDA':
-        return IdentityProviderType.awsLambda;
-    }
-    throw Exception('$this is not known in enum IdentityProviderType');
-  }
+  const IdentityProviderType(this.value);
+
+  static IdentityProviderType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum IdentityProviderType'));
 }
 
 class ImportCertificateResponse {
@@ -7147,7 +7692,7 @@ class ListAccessesResponse {
   factory ListAccessesResponse.fromJson(Map<String, dynamic> json) {
     return ListAccessesResponse(
       accesses: (json['Accesses'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedAccess.fromJson(e as Map<String, dynamic>))
           .toList(),
       serverId: json['ServerId'] as String,
@@ -7183,7 +7728,7 @@ class ListAgreementsResponse {
   factory ListAgreementsResponse.fromJson(Map<String, dynamic> json) {
     return ListAgreementsResponse(
       agreements: (json['Agreements'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedAgreement.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7216,7 +7761,7 @@ class ListCertificatesResponse {
   factory ListCertificatesResponse.fromJson(Map<String, dynamic> json) {
     return ListCertificatesResponse(
       certificates: (json['Certificates'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedCertificate.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7249,7 +7794,7 @@ class ListConnectorsResponse {
   factory ListConnectorsResponse.fromJson(Map<String, dynamic> json) {
     return ListConnectorsResponse(
       connectors: (json['Connectors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedConnector.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7288,7 +7833,7 @@ class ListExecutionsResponse {
   factory ListExecutionsResponse.fromJson(Map<String, dynamic> json) {
     return ListExecutionsResponse(
       executions: (json['Executions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedExecution.fromJson(e as Map<String, dynamic>))
           .toList(),
       workflowId: json['WorkflowId'] as String,
@@ -7328,7 +7873,7 @@ class ListHostKeysResponse {
   factory ListHostKeysResponse.fromJson(Map<String, dynamic> json) {
     return ListHostKeysResponse(
       hostKeys: (json['HostKeys'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedHostKey.fromJson(e as Map<String, dynamic>))
           .toList(),
       serverId: json['ServerId'] as String,
@@ -7364,7 +7909,7 @@ class ListProfilesResponse {
   factory ListProfilesResponse.fromJson(Map<String, dynamic> json) {
     return ListProfilesResponse(
       profiles: (json['Profiles'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedProfile.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7399,7 +7944,7 @@ class ListSecurityPoliciesResponse {
   factory ListSecurityPoliciesResponse.fromJson(Map<String, dynamic> json) {
     return ListSecurityPoliciesResponse(
       securityPolicyNames: (json['SecurityPolicyNames'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7434,7 +7979,7 @@ class ListServersResponse {
   factory ListServersResponse.fromJson(Map<String, dynamic> json) {
     return ListServersResponse(
       servers: (json['Servers'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedServer.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7476,7 +8021,7 @@ class ListTagsForResourceResponse {
       arn: json['Arn'] as String?,
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7519,7 +8064,7 @@ class ListUsersResponse {
     return ListUsersResponse(
       serverId: json['ServerId'] as String,
       users: (json['Users'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedUser.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7556,7 +8101,7 @@ class ListWorkflowsResponse {
   factory ListWorkflowsResponse.fromJson(Map<String, dynamic> json) {
     return ListWorkflowsResponse(
       workflows: (json['Workflows'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ListedWorkflow.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7598,15 +8143,27 @@ class ListedAccess {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   final String? homeDirectory;
 
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or Amazon
+  /// EFS path as is in their file transfer protocol clients. If you set it to
   /// <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must provide
+  /// mappings, using the <code>HomeDirectoryMappings</code> parameter. If, on the
+  /// other hand, <code>HomeDirectoryType</code> is <code>PATH</code>, you provide
+  /// an absolute path using the <code>HomeDirectory</code> parameter. You cannot
+  /// have both <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code>
+  /// in your template.
+  /// </note>
   final HomeDirectoryType? homeDirectoryType;
 
   /// The Amazon Resource Name (ARN) of the Identity and Access Management (IAM)
@@ -7629,8 +8186,8 @@ class ListedAccess {
     return ListedAccess(
       externalId: json['ExternalId'] as String?,
       homeDirectory: json['HomeDirectory'] as String?,
-      homeDirectoryType:
-          (json['HomeDirectoryType'] as String?)?.toHomeDirectoryType(),
+      homeDirectoryType: (json['HomeDirectoryType'] as String?)
+          ?.let(HomeDirectoryType.fromString),
       role: json['Role'] as String?,
     );
   }
@@ -7644,7 +8201,7 @@ class ListedAccess {
       if (externalId != null) 'ExternalId': externalId,
       if (homeDirectory != null) 'HomeDirectory': homeDirectory,
       if (homeDirectoryType != null)
-        'HomeDirectoryType': homeDirectoryType.toValue(),
+        'HomeDirectoryType': homeDirectoryType.value,
       if (role != null) 'Role': role,
     };
   }
@@ -7693,7 +8250,7 @@ class ListedAgreement {
       localProfileId: json['LocalProfileId'] as String?,
       partnerProfileId: json['PartnerProfileId'] as String?,
       serverId: json['ServerId'] as String?,
-      status: (json['Status'] as String?)?.toAgreementStatusType(),
+      status: (json['Status'] as String?)?.let(AgreementStatusType.fromString),
     );
   }
 
@@ -7712,7 +8269,7 @@ class ListedAgreement {
       if (localProfileId != null) 'LocalProfileId': localProfileId,
       if (partnerProfileId != null) 'PartnerProfileId': partnerProfileId,
       if (serverId != null) 'ServerId': serverId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -7746,7 +8303,20 @@ class ListedCertificate {
   /// is no private key, the type is <code>CERTIFICATE</code>.
   final CertificateType? type;
 
-  /// Specifies whether this certificate is used for signing or encryption.
+  /// Specifies how this certificate is used. It can be used in the following
+  /// ways:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SIGNING</code>: For signing AS2 messages
+  /// </li>
+  /// <li>
+  /// <code>ENCRYPTION</code>: For encrypting AS2 messages
+  /// </li>
+  /// <li>
+  /// <code>TLS</code>: For securing AS2 communications sent over HTTPS
+  /// </li>
+  /// </ul>
   final CertificateUsageType? usage;
 
   ListedCertificate({
@@ -7767,9 +8337,10 @@ class ListedCertificate {
       certificateId: json['CertificateId'] as String?,
       description: json['Description'] as String?,
       inactiveDate: timeStampFromJson(json['InactiveDate']),
-      status: (json['Status'] as String?)?.toCertificateStatusType(),
-      type: (json['Type'] as String?)?.toCertificateType(),
-      usage: (json['Usage'] as String?)?.toCertificateUsageType(),
+      status:
+          (json['Status'] as String?)?.let(CertificateStatusType.fromString),
+      type: (json['Type'] as String?)?.let(CertificateType.fromString),
+      usage: (json['Usage'] as String?)?.let(CertificateUsageType.fromString),
     );
   }
 
@@ -7789,9 +8360,9 @@ class ListedCertificate {
       if (description != null) 'Description': description,
       if (inactiveDate != null)
         'InactiveDate': unixTimestampToJson(inactiveDate),
-      if (status != null) 'Status': status.toValue(),
-      if (type != null) 'Type': type.toValue(),
-      if (usage != null) 'Usage': usage.toValue(),
+      if (status != null) 'Status': status.value,
+      if (type != null) 'Type': type.value,
+      if (usage != null) 'Usage': usage.value,
     };
   }
 }
@@ -7804,7 +8375,7 @@ class ListedConnector {
   /// The unique identifier for the connector.
   final String? connectorId;
 
-  /// The URL of the partner's AS2 endpoint.
+  /// The URL of the partner's AS2 or SFTP endpoint.
   final String? url;
 
   ListedConnector({
@@ -7869,7 +8440,7 @@ class ListedExecution {
           ? ServiceMetadata.fromJson(
               json['ServiceMetadata'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toExecutionStatus(),
+      status: (json['Status'] as String?)?.let(ExecutionStatus.fromString),
     );
   }
 
@@ -7883,7 +8454,7 @@ class ListedExecution {
       if (initialFileLocation != null)
         'InitialFileLocation': initialFileLocation,
       if (serviceMetadata != null) 'ServiceMetadata': serviceMetadata,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -8003,7 +8574,8 @@ class ListedProfile {
       arn: json['Arn'] as String?,
       as2Id: json['As2Id'] as String?,
       profileId: json['ProfileId'] as String?,
-      profileType: (json['ProfileType'] as String?)?.toProfileType(),
+      profileType:
+          (json['ProfileType'] as String?)?.let(ProfileType.fromString),
     );
   }
 
@@ -8016,7 +8588,7 @@ class ListedProfile {
       if (arn != null) 'Arn': arn,
       if (as2Id != null) 'As2Id': as2Id,
       if (profileId != null) 'ProfileId': profileId,
-      if (profileType != null) 'ProfileType': profileType.toValue(),
+      if (profileType != null) 'ProfileType': profileType.value,
     };
   }
 }
@@ -8028,6 +8600,8 @@ class ListedServer {
   final String arn;
 
   /// Specifies the domain of the storage system that is used for file transfers.
+  /// There are two domains available: Amazon Simple Storage Service (Amazon S3)
+  /// and Amazon Elastic File System (Amazon EFS). The default value is S3.
   final Domain? domain;
 
   /// Specifies the type of VPC endpoint that your server is connected to. If your
@@ -8095,13 +8669,14 @@ class ListedServer {
   factory ListedServer.fromJson(Map<String, dynamic> json) {
     return ListedServer(
       arn: json['Arn'] as String,
-      domain: (json['Domain'] as String?)?.toDomain(),
-      endpointType: (json['EndpointType'] as String?)?.toEndpointType(),
-      identityProviderType:
-          (json['IdentityProviderType'] as String?)?.toIdentityProviderType(),
+      domain: (json['Domain'] as String?)?.let(Domain.fromString),
+      endpointType:
+          (json['EndpointType'] as String?)?.let(EndpointType.fromString),
+      identityProviderType: (json['IdentityProviderType'] as String?)
+          ?.let(IdentityProviderType.fromString),
       loggingRole: json['LoggingRole'] as String?,
       serverId: json['ServerId'] as String?,
-      state: (json['State'] as String?)?.toState(),
+      state: (json['State'] as String?)?.let(State.fromString),
       userCount: json['UserCount'] as int?,
     );
   }
@@ -8117,13 +8692,13 @@ class ListedServer {
     final userCount = this.userCount;
     return {
       'Arn': arn,
-      if (domain != null) 'Domain': domain.toValue(),
-      if (endpointType != null) 'EndpointType': endpointType.toValue(),
+      if (domain != null) 'Domain': domain.value,
+      if (endpointType != null) 'EndpointType': endpointType.value,
       if (identityProviderType != null)
-        'IdentityProviderType': identityProviderType.toValue(),
+        'IdentityProviderType': identityProviderType.value,
       if (loggingRole != null) 'LoggingRole': loggingRole,
       if (serverId != null) 'ServerId': serverId,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (userCount != null) 'UserCount': userCount,
     };
   }
@@ -8140,15 +8715,27 @@ class ListedUser {
   ///
   /// A <code>HomeDirectory</code> example is
   /// <code>/bucket_name/home/mydirectory</code>.
+  /// <note>
+  /// The <code>HomeDirectory</code> parameter is only used if
+  /// <code>HomeDirectoryType</code> is set to <code>PATH</code>.
+  /// </note>
   final String? homeDirectory;
 
   /// The type of landing directory (folder) that you want your users' home
   /// directory to be when they log in to the server. If you set it to
-  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or EFS
-  /// paths as is in their file transfer protocol clients. If you set it
+  /// <code>PATH</code>, the user will see the absolute Amazon S3 bucket or Amazon
+  /// EFS path as is in their file transfer protocol clients. If you set it to
   /// <code>LOGICAL</code>, you need to provide mappings in the
   /// <code>HomeDirectoryMappings</code> for how you want to make Amazon S3 or
   /// Amazon EFS paths visible to your users.
+  /// <note>
+  /// If <code>HomeDirectoryType</code> is <code>LOGICAL</code>, you must provide
+  /// mappings, using the <code>HomeDirectoryMappings</code> parameter. If, on the
+  /// other hand, <code>HomeDirectoryType</code> is <code>PATH</code>, you provide
+  /// an absolute path using the <code>HomeDirectory</code> parameter. You cannot
+  /// have both <code>HomeDirectory</code> and <code>HomeDirectoryMappings</code>
+  /// in your template.
+  /// </note>
   final HomeDirectoryType? homeDirectoryType;
 
   /// The Amazon Resource Name (ARN) of the Identity and Access Management (IAM)
@@ -8189,8 +8776,8 @@ class ListedUser {
     return ListedUser(
       arn: json['Arn'] as String,
       homeDirectory: json['HomeDirectory'] as String?,
-      homeDirectoryType:
-          (json['HomeDirectoryType'] as String?)?.toHomeDirectoryType(),
+      homeDirectoryType: (json['HomeDirectoryType'] as String?)
+          ?.let(HomeDirectoryType.fromString),
       role: json['Role'] as String?,
       sshPublicKeyCount: json['SshPublicKeyCount'] as int?,
       userName: json['UserName'] as String?,
@@ -8208,7 +8795,7 @@ class ListedUser {
       'Arn': arn,
       if (homeDirectory != null) 'HomeDirectory': homeDirectory,
       if (homeDirectoryType != null)
-        'HomeDirectoryType': homeDirectoryType.toValue(),
+        'HomeDirectoryType': homeDirectoryType.value,
       if (role != null) 'Role': role,
       if (sshPublicKeyCount != null) 'SshPublicKeyCount': sshPublicKeyCount,
       if (userName != null) 'UserName': userName,
@@ -8288,108 +8875,66 @@ class LoggingConfiguration {
   }
 }
 
+enum MapType {
+  file('FILE'),
+  directory('DIRECTORY'),
+  ;
+
+  final String value;
+
+  const MapType(this.value);
+
+  static MapType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum MapType'));
+}
+
 enum MdnResponse {
-  sync,
-  none,
-}
+  sync('SYNC'),
+  none('NONE'),
+  ;
 
-extension MdnResponseValueExtension on MdnResponse {
-  String toValue() {
-    switch (this) {
-      case MdnResponse.sync:
-        return 'SYNC';
-      case MdnResponse.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension MdnResponseFromString on String {
-  MdnResponse toMdnResponse() {
-    switch (this) {
-      case 'SYNC':
-        return MdnResponse.sync;
-      case 'NONE':
-        return MdnResponse.none;
-    }
-    throw Exception('$this is not known in enum MdnResponse');
-  }
+  const MdnResponse(this.value);
+
+  static MdnResponse fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MdnResponse'));
 }
 
 enum MdnSigningAlg {
-  sha256,
-  sha384,
-  sha512,
-  sha1,
-  none,
-  $default,
-}
+  sha256('SHA256'),
+  sha384('SHA384'),
+  sha512('SHA512'),
+  sha1('SHA1'),
+  none('NONE'),
+  $default('DEFAULT'),
+  ;
 
-extension MdnSigningAlgValueExtension on MdnSigningAlg {
-  String toValue() {
-    switch (this) {
-      case MdnSigningAlg.sha256:
-        return 'SHA256';
-      case MdnSigningAlg.sha384:
-        return 'SHA384';
-      case MdnSigningAlg.sha512:
-        return 'SHA512';
-      case MdnSigningAlg.sha1:
-        return 'SHA1';
-      case MdnSigningAlg.none:
-        return 'NONE';
-      case MdnSigningAlg.$default:
-        return 'DEFAULT';
-    }
-  }
-}
+  final String value;
 
-extension MdnSigningAlgFromString on String {
-  MdnSigningAlg toMdnSigningAlg() {
-    switch (this) {
-      case 'SHA256':
-        return MdnSigningAlg.sha256;
-      case 'SHA384':
-        return MdnSigningAlg.sha384;
-      case 'SHA512':
-        return MdnSigningAlg.sha512;
-      case 'SHA1':
-        return MdnSigningAlg.sha1;
-      case 'NONE':
-        return MdnSigningAlg.none;
-      case 'DEFAULT':
-        return MdnSigningAlg.$default;
-    }
-    throw Exception('$this is not known in enum MdnSigningAlg');
-  }
+  const MdnSigningAlg(this.value);
+
+  static MdnSigningAlg fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MdnSigningAlg'));
 }
 
 enum OverwriteExisting {
-  $true,
-  $false,
-}
+  $true('TRUE'),
+  $false('FALSE'),
+  ;
 
-extension OverwriteExistingValueExtension on OverwriteExisting {
-  String toValue() {
-    switch (this) {
-      case OverwriteExisting.$true:
-        return 'TRUE';
-      case OverwriteExisting.$false:
-        return 'FALSE';
-    }
-  }
-}
+  final String value;
 
-extension OverwriteExistingFromString on String {
-  OverwriteExisting toOverwriteExisting() {
-    switch (this) {
-      case 'TRUE':
-        return OverwriteExisting.$true;
-      case 'FALSE':
-        return OverwriteExisting.$false;
-    }
-    throw Exception('$this is not known in enum OverwriteExisting');
-  }
+  const OverwriteExisting(this.value);
+
+  static OverwriteExisting fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OverwriteExisting'));
 }
 
 /// The full POSIX identity, including user ID (<code>Uid</code>), group ID
@@ -8419,7 +8964,7 @@ class PosixProfile {
       gid: json['Gid'] as int,
       uid: json['Uid'] as int,
       secondaryGids: (json['SecondaryGids'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as int)
           .toList(),
     );
@@ -8438,69 +8983,33 @@ class PosixProfile {
 }
 
 enum ProfileType {
-  local,
-  partner,
-}
+  local('LOCAL'),
+  partner('PARTNER'),
+  ;
 
-extension ProfileTypeValueExtension on ProfileType {
-  String toValue() {
-    switch (this) {
-      case ProfileType.local:
-        return 'LOCAL';
-      case ProfileType.partner:
-        return 'PARTNER';
-    }
-  }
-}
+  final String value;
 
-extension ProfileTypeFromString on String {
-  ProfileType toProfileType() {
-    switch (this) {
-      case 'LOCAL':
-        return ProfileType.local;
-      case 'PARTNER':
-        return ProfileType.partner;
-    }
-    throw Exception('$this is not known in enum ProfileType');
-  }
+  const ProfileType(this.value);
+
+  static ProfileType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ProfileType'));
 }
 
 enum Protocol {
-  sftp,
-  ftp,
-  ftps,
-  as2,
-}
+  sftp('SFTP'),
+  ftp('FTP'),
+  ftps('FTPS'),
+  as2('AS2'),
+  ;
 
-extension ProtocolValueExtension on Protocol {
-  String toValue() {
-    switch (this) {
-      case Protocol.sftp:
-        return 'SFTP';
-      case Protocol.ftp:
-        return 'FTP';
-      case Protocol.ftps:
-        return 'FTPS';
-      case Protocol.as2:
-        return 'AS2';
-    }
-  }
-}
+  final String value;
 
-extension ProtocolFromString on String {
-  Protocol toProtocol() {
-    switch (this) {
-      case 'SFTP':
-        return Protocol.sftp;
-      case 'FTP':
-        return Protocol.ftp;
-      case 'FTPS':
-        return Protocol.ftps;
-      case 'AS2':
-        return Protocol.as2;
-    }
-    throw Exception('$this is not known in enum Protocol');
-  }
+  const Protocol(this.value);
+
+  static Protocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Protocol'));
 }
 
 /// The protocol settings that are configured for your server.
@@ -8614,13 +9123,14 @@ class ProtocolDetails {
   factory ProtocolDetails.fromJson(Map<String, dynamic> json) {
     return ProtocolDetails(
       as2Transports: (json['As2Transports'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toAs2Transport())
+          ?.nonNulls
+          .map((e) => As2Transport.fromString((e as String)))
           .toList(),
       passiveIp: json['PassiveIp'] as String?,
-      setStatOption: (json['SetStatOption'] as String?)?.toSetStatOption(),
+      setStatOption:
+          (json['SetStatOption'] as String?)?.let(SetStatOption.fromString),
       tlsSessionResumptionMode: (json['TlsSessionResumptionMode'] as String?)
-          ?.toTlsSessionResumptionMode(),
+          ?.let(TlsSessionResumptionMode.fromString),
     );
   }
 
@@ -8631,11 +9141,11 @@ class ProtocolDetails {
     final tlsSessionResumptionMode = this.tlsSessionResumptionMode;
     return {
       if (as2Transports != null)
-        'As2Transports': as2Transports.map((e) => e.toValue()).toList(),
+        'As2Transports': as2Transports.map((e) => e.value).toList(),
       if (passiveIp != null) 'PassiveIp': passiveIp,
-      if (setStatOption != null) 'SetStatOption': setStatOption.toValue(),
+      if (setStatOption != null) 'SetStatOption': setStatOption.value,
       if (tlsSessionResumptionMode != null)
-        'TlsSessionResumptionMode': tlsSessionResumptionMode.toValue(),
+        'TlsSessionResumptionMode': tlsSessionResumptionMode.value,
     };
   }
 }
@@ -8734,6 +9244,38 @@ class S3InputFileLocation {
   }
 }
 
+/// The Amazon S3 storage options that are configured for your server.
+class S3StorageOptions {
+  /// Specifies whether or not performance for your Amazon S3 directories is
+  /// optimized. This is disabled by default.
+  ///
+  /// By default, home directory mappings have a <code>TYPE</code> of
+  /// <code>DIRECTORY</code>. If you enable this option, you would then need to
+  /// explicitly set the <code>HomeDirectoryMapEntry</code> <code>Type</code> to
+  /// <code>FILE</code> if you want a mapping to have a file target.
+  final DirectoryListingOptimization? directoryListingOptimization;
+
+  S3StorageOptions({
+    this.directoryListingOptimization,
+  });
+
+  factory S3StorageOptions.fromJson(Map<String, dynamic> json) {
+    return S3StorageOptions(
+      directoryListingOptimization:
+          (json['DirectoryListingOptimization'] as String?)
+              ?.let(DirectoryListingOptimization.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final directoryListingOptimization = this.directoryListingOptimization;
+    return {
+      if (directoryListingOptimization != null)
+        'DirectoryListingOptimization': directoryListingOptimization.value,
+    };
+  }
+}
+
 /// Specifies the key-value pair that are assigned to a file during the
 /// execution of a Tagging step.
 class S3Tag {
@@ -8763,6 +9305,36 @@ class S3Tag {
       'Value': value,
     };
   }
+}
+
+enum SecurityPolicyProtocol {
+  sftp('SFTP'),
+  ftps('FTPS'),
+  ;
+
+  final String value;
+
+  const SecurityPolicyProtocol(this.value);
+
+  static SecurityPolicyProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SecurityPolicyProtocol'));
+}
+
+enum SecurityPolicyResourceType {
+  server('SERVER'),
+  connector('CONNECTOR'),
+  ;
+
+  final String value;
+
+  const SecurityPolicyResourceType(this.value);
+
+  static SecurityPolicyResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SecurityPolicyResourceType'));
 }
 
 class SendWorkflowStepStateResponse {
@@ -8804,112 +9376,132 @@ class ServiceMetadata {
 }
 
 enum SetStatOption {
-  $default,
-  enableNoOp,
-}
+  $default('DEFAULT'),
+  enableNoOp('ENABLE_NO_OP'),
+  ;
 
-extension SetStatOptionValueExtension on SetStatOption {
-  String toValue() {
-    switch (this) {
-      case SetStatOption.$default:
-        return 'DEFAULT';
-      case SetStatOption.enableNoOp:
-        return 'ENABLE_NO_OP';
-    }
-  }
-}
+  final String value;
 
-extension SetStatOptionFromString on String {
-  SetStatOption toSetStatOption() {
-    switch (this) {
-      case 'DEFAULT':
-        return SetStatOption.$default;
-      case 'ENABLE_NO_OP':
-        return SetStatOption.enableNoOp;
-    }
-    throw Exception('$this is not known in enum SetStatOption');
-  }
+  const SetStatOption(this.value);
+
+  static SetStatOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SetStatOption'));
 }
 
 enum SftpAuthenticationMethods {
-  password,
-  publicKey,
-  publicKeyOrPassword,
-  publicKeyAndPassword,
+  password('PASSWORD'),
+  publicKey('PUBLIC_KEY'),
+  publicKeyOrPassword('PUBLIC_KEY_OR_PASSWORD'),
+  publicKeyAndPassword('PUBLIC_KEY_AND_PASSWORD'),
+  ;
+
+  final String value;
+
+  const SftpAuthenticationMethods(this.value);
+
+  static SftpAuthenticationMethods fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SftpAuthenticationMethods'));
 }
 
-extension SftpAuthenticationMethodsValueExtension on SftpAuthenticationMethods {
-  String toValue() {
-    switch (this) {
-      case SftpAuthenticationMethods.password:
-        return 'PASSWORD';
-      case SftpAuthenticationMethods.publicKey:
-        return 'PUBLIC_KEY';
-      case SftpAuthenticationMethods.publicKeyOrPassword:
-        return 'PUBLIC_KEY_OR_PASSWORD';
-      case SftpAuthenticationMethods.publicKeyAndPassword:
-        return 'PUBLIC_KEY_AND_PASSWORD';
-    }
+/// Contains the details for an SFTP connector object. The connector object is
+/// used for transferring files to and from a partner's SFTP server.
+/// <note>
+/// Because the <code>SftpConnectorConfig</code> data type is used for both
+/// creating and updating SFTP connectors, its parameters,
+/// <code>TrustedHostKeys</code> and <code>UserSecretId</code> are marked as not
+/// required. This is a bit misleading, as they are not required when you are
+/// updating an existing SFTP connector, but <i>are required</i> when you are
+/// creating a new SFTP connector.
+/// </note>
+class SftpConnectorConfig {
+  /// The public portion of the host key, or keys, that are used to identify the
+  /// external server to which you are connecting. You can use the
+  /// <code>ssh-keyscan</code> command against the SFTP server to retrieve the
+  /// necessary key.
+  ///
+  /// The three standard SSH public key format elements are <code>&lt;key
+  /// type&gt;</code>, <code>&lt;body base64&gt;</code>, and an optional
+  /// <code>&lt;comment&gt;</code>, with spaces between each element. Specify only
+  /// the <code>&lt;key type&gt;</code> and <code>&lt;body base64&gt;</code>: do
+  /// not enter the <code>&lt;comment&gt;</code> portion of the key.
+  ///
+  /// For the trusted host key, Transfer Family accepts RSA and ECDSA keys.
+  ///
+  /// <ul>
+  /// <li>
+  /// For RSA keys, the <code>&lt;key type&gt;</code> string is
+  /// <code>ssh-rsa</code>.
+  /// </li>
+  /// <li>
+  /// For ECDSA keys, the <code>&lt;key type&gt;</code> string is either
+  /// <code>ecdsa-sha2-nistp256</code>, <code>ecdsa-sha2-nistp384</code>, or
+  /// <code>ecdsa-sha2-nistp521</code>, depending on the size of the key you
+  /// generated.
+  /// </li>
+  /// </ul>
+  /// Run this command to retrieve the SFTP server host key, where your SFTP
+  /// server name is <code>ftp.host.com</code>.
+  ///
+  /// <code>ssh-keyscan ftp.host.com</code>
+  ///
+  /// This prints the public host key to standard output.
+  ///
+  /// <code>ftp.host.com ssh-rsa AAAAB3Nza...&lt;long-string-for-public-key</code>
+  ///
+  /// Copy and paste this string into the <code>TrustedHostKeys</code> field for
+  /// the <code>create-connector</code> command or into the <b>Trusted host
+  /// keys</b> field in the console.
+  final List<String>? trustedHostKeys;
+
+  /// The identifier for the secret (in Amazon Web Services Secrets Manager) that
+  /// contains the SFTP user's private key, password, or both. The identifier must
+  /// be the Amazon Resource Name (ARN) of the secret.
+  final String? userSecretId;
+
+  SftpConnectorConfig({
+    this.trustedHostKeys,
+    this.userSecretId,
+  });
+
+  factory SftpConnectorConfig.fromJson(Map<String, dynamic> json) {
+    return SftpConnectorConfig(
+      trustedHostKeys: (json['TrustedHostKeys'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      userSecretId: json['UserSecretId'] as String?,
+    );
   }
-}
 
-extension SftpAuthenticationMethodsFromString on String {
-  SftpAuthenticationMethods toSftpAuthenticationMethods() {
-    switch (this) {
-      case 'PASSWORD':
-        return SftpAuthenticationMethods.password;
-      case 'PUBLIC_KEY':
-        return SftpAuthenticationMethods.publicKey;
-      case 'PUBLIC_KEY_OR_PASSWORD':
-        return SftpAuthenticationMethods.publicKeyOrPassword;
-      case 'PUBLIC_KEY_AND_PASSWORD':
-        return SftpAuthenticationMethods.publicKeyAndPassword;
-    }
-    throw Exception('$this is not known in enum SftpAuthenticationMethods');
+  Map<String, dynamic> toJson() {
+    final trustedHostKeys = this.trustedHostKeys;
+    final userSecretId = this.userSecretId;
+    return {
+      if (trustedHostKeys != null) 'TrustedHostKeys': trustedHostKeys,
+      if (userSecretId != null) 'UserSecretId': userSecretId,
+    };
   }
 }
 
 enum SigningAlg {
-  sha256,
-  sha384,
-  sha512,
-  sha1,
-  none,
-}
+  sha256('SHA256'),
+  sha384('SHA384'),
+  sha512('SHA512'),
+  sha1('SHA1'),
+  none('NONE'),
+  ;
 
-extension SigningAlgValueExtension on SigningAlg {
-  String toValue() {
-    switch (this) {
-      case SigningAlg.sha256:
-        return 'SHA256';
-      case SigningAlg.sha384:
-        return 'SHA384';
-      case SigningAlg.sha512:
-        return 'SHA512';
-      case SigningAlg.sha1:
-        return 'SHA1';
-      case SigningAlg.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension SigningAlgFromString on String {
-  SigningAlg toSigningAlg() {
-    switch (this) {
-      case 'SHA256':
-        return SigningAlg.sha256;
-      case 'SHA384':
-        return SigningAlg.sha384;
-      case 'SHA512':
-        return SigningAlg.sha512;
-      case 'SHA1':
-        return SigningAlg.sha1;
-      case 'NONE':
-        return SigningAlg.none;
-    }
-    throw Exception('$this is not known in enum SigningAlg');
-  }
+  const SigningAlg(this.value);
+
+  static SigningAlg fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SigningAlg'));
 }
 
 /// Provides information about the public Secure Shell (SSH) key that is
@@ -8960,8 +9552,39 @@ class SshPublicKey {
   }
 }
 
+class StartDirectoryListingResponse {
+  /// Returns a unique identifier for the directory listing call.
+  final String listingId;
+
+  /// Returns the file name where the results are stored. This is a combination of
+  /// the connector ID and the listing ID:
+  /// <code>&lt;connector-id&gt;-&lt;listing-id&gt;.json</code>.
+  final String outputFileName;
+
+  StartDirectoryListingResponse({
+    required this.listingId,
+    required this.outputFileName,
+  });
+
+  factory StartDirectoryListingResponse.fromJson(Map<String, dynamic> json) {
+    return StartDirectoryListingResponse(
+      listingId: json['ListingId'] as String,
+      outputFileName: json['OutputFileName'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final listingId = this.listingId;
+    final outputFileName = this.outputFileName;
+    return {
+      'ListingId': listingId,
+      'OutputFileName': outputFileName,
+    };
+  }
+}
+
 class StartFileTransferResponse {
-  /// Returns the unique identifier for this file transfer.
+  /// Returns the unique identifier for the file transfer.
   final String transferId;
 
   StartFileTransferResponse({
@@ -8996,51 +9619,21 @@ class StartFileTransferResponse {
 /// minutes for the server to be completely operational. Both
 /// <code>START_FAILED</code> and <code>STOP_FAILED</code> are error conditions.
 enum State {
-  offline,
-  online,
-  starting,
-  stopping,
-  startFailed,
-  stopFailed,
-}
+  offline('OFFLINE'),
+  online('ONLINE'),
+  starting('STARTING'),
+  stopping('STOPPING'),
+  startFailed('START_FAILED'),
+  stopFailed('STOP_FAILED'),
+  ;
 
-extension StateValueExtension on State {
-  String toValue() {
-    switch (this) {
-      case State.offline:
-        return 'OFFLINE';
-      case State.online:
-        return 'ONLINE';
-      case State.starting:
-        return 'STARTING';
-      case State.stopping:
-        return 'STOPPING';
-      case State.startFailed:
-        return 'START_FAILED';
-      case State.stopFailed:
-        return 'STOP_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension StateFromString on String {
-  State toState() {
-    switch (this) {
-      case 'OFFLINE':
-        return State.offline;
-      case 'ONLINE':
-        return State.online;
-      case 'STARTING':
-        return State.starting;
-      case 'STOPPING':
-        return State.stopping;
-      case 'START_FAILED':
-        return State.startFailed;
-      case 'STOP_FAILED':
-        return State.stopFailed;
-    }
-    throw Exception('$this is not known in enum State');
-  }
+  const State(this.value);
+
+  static State fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum State'));
 }
 
 /// Creates a key-value pair for a specific resource. Tags are metadata that you
@@ -9116,7 +9709,7 @@ class TagStepDetails {
       name: json['Name'] as String?,
       sourceFileLocation: json['SourceFileLocation'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => S3Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9130,6 +9723,64 @@ class TagStepDetails {
       if (name != null) 'Name': name,
       if (sourceFileLocation != null) 'SourceFileLocation': sourceFileLocation,
       if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+class TestConnectionResponse {
+  /// Returns the identifier of the connector object that you are testing.
+  final String? connectorId;
+
+  /// Returns <code>OK</code> for successful test, or <code>ERROR</code> if the
+  /// test fails.
+  final String? status;
+
+  /// Returns <code>Connection succeeded</code> if the test is successful. Or,
+  /// returns a descriptive error message if the test fails. The following list
+  /// provides troubleshooting details, depending on the error message that you
+  /// receive.
+  ///
+  /// <ul>
+  /// <li>
+  /// Verify that your secret name aligns with the one in Transfer Role
+  /// permissions.
+  /// </li>
+  /// <li>
+  /// Verify the server URL in the connector configuration , and verify that the
+  /// login credentials work successfully outside of the connector.
+  /// </li>
+  /// <li>
+  /// Verify that the secret exists and is formatted correctly.
+  /// </li>
+  /// <li>
+  /// Verify that the trusted host key in the connector configuration matches the
+  /// <code>ssh-keyscan</code> output.
+  /// </li>
+  /// </ul>
+  final String? statusMessage;
+
+  TestConnectionResponse({
+    this.connectorId,
+    this.status,
+    this.statusMessage,
+  });
+
+  factory TestConnectionResponse.fromJson(Map<String, dynamic> json) {
+    return TestConnectionResponse(
+      connectorId: json['ConnectorId'] as String?,
+      status: json['Status'] as String?,
+      statusMessage: json['StatusMessage'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final connectorId = this.connectorId;
+    final status = this.status;
+    final statusMessage = this.statusMessage;
+    return {
+      if (connectorId != null) 'ConnectorId': connectorId,
+      if (status != null) 'Status': status,
+      if (statusMessage != null) 'StatusMessage': statusMessage,
     };
   }
 }
@@ -9183,36 +9834,19 @@ class TestIdentityProviderResponse {
 }
 
 enum TlsSessionResumptionMode {
-  disabled,
-  enabled,
-  enforced,
-}
+  disabled('DISABLED'),
+  enabled('ENABLED'),
+  enforced('ENFORCED'),
+  ;
 
-extension TlsSessionResumptionModeValueExtension on TlsSessionResumptionMode {
-  String toValue() {
-    switch (this) {
-      case TlsSessionResumptionMode.disabled:
-        return 'DISABLED';
-      case TlsSessionResumptionMode.enabled:
-        return 'ENABLED';
-      case TlsSessionResumptionMode.enforced:
-        return 'ENFORCED';
-    }
-  }
-}
+  final String value;
 
-extension TlsSessionResumptionModeFromString on String {
-  TlsSessionResumptionMode toTlsSessionResumptionMode() {
-    switch (this) {
-      case 'DISABLED':
-        return TlsSessionResumptionMode.disabled;
-      case 'ENABLED':
-        return TlsSessionResumptionMode.enabled;
-      case 'ENFORCED':
-        return TlsSessionResumptionMode.enforced;
-    }
-    throw Exception('$this is not known in enum TlsSessionResumptionMode');
-  }
+  const TlsSessionResumptionMode(this.value);
+
+  static TlsSessionResumptionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TlsSessionResumptionMode'));
 }
 
 class UpdateAccessResponse {
@@ -9527,11 +10161,11 @@ class WorkflowDetails {
   factory WorkflowDetails.fromJson(Map<String, dynamic> json) {
     return WorkflowDetails(
       onPartialUpload: (json['OnPartialUpload'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       onUpload: (json['OnUpload'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9660,7 +10294,7 @@ class WorkflowStep {
           ? TagStepDetails.fromJson(
               json['TagStepDetails'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toWorkflowStepType(),
+      type: (json['Type'] as String?)?.let(WorkflowStepType.fromString),
     );
   }
 
@@ -9677,52 +10311,27 @@ class WorkflowStep {
       if (decryptStepDetails != null) 'DecryptStepDetails': decryptStepDetails,
       if (deleteStepDetails != null) 'DeleteStepDetails': deleteStepDetails,
       if (tagStepDetails != null) 'TagStepDetails': tagStepDetails,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum WorkflowStepType {
-  copy,
-  custom,
-  tag,
-  delete,
-  decrypt,
-}
+  copy('COPY'),
+  custom('CUSTOM'),
+  tag('TAG'),
+  delete('DELETE'),
+  decrypt('DECRYPT'),
+  ;
 
-extension WorkflowStepTypeValueExtension on WorkflowStepType {
-  String toValue() {
-    switch (this) {
-      case WorkflowStepType.copy:
-        return 'COPY';
-      case WorkflowStepType.custom:
-        return 'CUSTOM';
-      case WorkflowStepType.tag:
-        return 'TAG';
-      case WorkflowStepType.delete:
-        return 'DELETE';
-      case WorkflowStepType.decrypt:
-        return 'DECRYPT';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowStepTypeFromString on String {
-  WorkflowStepType toWorkflowStepType() {
-    switch (this) {
-      case 'COPY':
-        return WorkflowStepType.copy;
-      case 'CUSTOM':
-        return WorkflowStepType.custom;
-      case 'TAG':
-        return WorkflowStepType.tag;
-      case 'DELETE':
-        return WorkflowStepType.delete;
-      case 'DECRYPT':
-        return WorkflowStepType.decrypt;
-    }
-    throw Exception('$this is not known in enum WorkflowStepType');
-  }
+  const WorkflowStepType(this.value);
+
+  static WorkflowStepType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowStepType'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

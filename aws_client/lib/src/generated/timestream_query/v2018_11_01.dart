@@ -234,6 +234,33 @@ class TimestreamQuery {
     );
   }
 
+  /// Describes the settings for your account that include the query pricing
+  /// model and the configured maximum TCUs the service can use for your query
+  /// workload.
+  ///
+  /// You're charged only for the duration of compute units used for your
+  /// workloads.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [InvalidEndpointException].
+  Future<DescribeAccountSettingsResponse> describeAccountSettings() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.0',
+      'X-Amz-Target': 'Timestream_20181101.DescribeAccountSettings'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+    );
+
+    return DescribeAccountSettingsResponse.fromJson(jsonResponse.body);
+  }
+
   /// DescribeEndpoints returns a list of available endpoints to make Timestream
   /// API calls against. This API is available through both Write and Query.
   ///
@@ -449,8 +476,8 @@ class TimestreamQuery {
 
   /// A synchronous operation that allows you to submit a query with parameters
   /// to be stored by Timestream for later running. Timestream only supports
-  /// using this operation with the
-  /// <code>PrepareQueryRequest$ValidateOnly</code> set to <code>true</code>.
+  /// using this operation with <code>ValidateOnly</code> set to
+  /// <code>true</code>.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [InternalServerException].
@@ -735,6 +762,59 @@ class TimestreamQuery {
     );
   }
 
+  /// Transitions your account to use TCUs for query pricing and modifies the
+  /// maximum query compute units that you've configured. If you reduce the
+  /// value of <code>MaxQueryTCU</code> to a desired configuration, the new
+  /// value can take up to 24 hours to be effective.
+  /// <note>
+  /// After you've transitioned your account to use TCUs for query pricing, you
+  /// can't transition to using bytes scanned for query pricing.
+  /// </note>
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [InvalidEndpointException].
+  ///
+  /// Parameter [maxQueryTCU] :
+  /// The maximum number of compute units the service will use at any point in
+  /// time to serve your queries. To run queries, you must set a minimum
+  /// capacity of 4 TCU. You can set the maximum number of TCU in multiples of
+  /// 4, for example, 4, 8, 16, 32, and so on.
+  ///
+  /// The maximum value supported for <code>MaxQueryTCU</code> is 1000. To
+  /// request an increase to this soft limit, contact Amazon Web Services
+  /// Support. For information about the default quota for maxQueryTCU, see <a
+  /// href="https://docs.aws.amazon.com/timestream/latest/developerguide/ts-limits.html#limits.default">Default
+  /// quotas</a>.
+  ///
+  /// Parameter [queryPricingModel] :
+  /// The pricing model for queries in an account.
+  Future<UpdateAccountSettingsResponse> updateAccountSettings({
+    int? maxQueryTCU,
+    QueryPricingModel? queryPricingModel,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.0',
+      'X-Amz-Target': 'Timestream_20181101.UpdateAccountSettings'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxQueryTCU != null) 'MaxQueryTCU': maxQueryTCU,
+        if (queryPricingModel != null)
+          'QueryPricingModel': queryPricingModel.value,
+      },
+    );
+
+    return UpdateAccountSettingsResponse.fromJson(jsonResponse.body);
+  }
+
   /// Update a scheduled query.
   ///
   /// May throw [AccessDeniedException].
@@ -765,7 +845,7 @@ class TimestreamQuery {
       headers: headers,
       payload: {
         'ScheduledQueryArn': scheduledQueryArn,
-        'State': state.toValue(),
+        'State': state.value,
       },
     );
   }
@@ -881,7 +961,7 @@ class Datum {
   factory Datum.fromJson(Map<String, dynamic> json) {
     return Datum(
       arrayValue: (json['ArrayValue'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Datum.fromJson(e as Map<String, dynamic>))
           .toList(),
       nullValue: json['NullValue'] as bool?,
@@ -890,7 +970,7 @@ class Datum {
           : null,
       scalarValue: json['ScalarValue'] as String?,
       timeSeriesValue: (json['TimeSeriesValue'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TimeSeriesDataPoint.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -912,6 +992,40 @@ class Datum {
   }
 }
 
+class DescribeAccountSettingsResponse {
+  /// The maximum number of <a
+  /// href="https://docs.aws.amazon.com/timestream/latest/developerguide/tcu.html">Timestream
+  /// compute units</a> (TCUs) the service will use at any point in time to serve
+  /// your queries.
+  final int? maxQueryTCU;
+
+  /// The pricing model for queries in your account.
+  final QueryPricingModel? queryPricingModel;
+
+  DescribeAccountSettingsResponse({
+    this.maxQueryTCU,
+    this.queryPricingModel,
+  });
+
+  factory DescribeAccountSettingsResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeAccountSettingsResponse(
+      maxQueryTCU: json['MaxQueryTCU'] as int?,
+      queryPricingModel: (json['QueryPricingModel'] as String?)
+          ?.let(QueryPricingModel.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final maxQueryTCU = this.maxQueryTCU;
+    final queryPricingModel = this.queryPricingModel;
+    return {
+      if (maxQueryTCU != null) 'MaxQueryTCU': maxQueryTCU,
+      if (queryPricingModel != null)
+        'QueryPricingModel': queryPricingModel.value,
+    };
+  }
+}
+
 class DescribeEndpointsResponse {
   /// An <code>Endpoints</code> object is returned when a
   /// <code>DescribeEndpoints</code> request is made.
@@ -924,7 +1038,7 @@ class DescribeEndpointsResponse {
   factory DescribeEndpointsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEndpointsResponse(
       endpoints: (json['Endpoints'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Endpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -978,7 +1092,7 @@ class DimensionMapping {
   factory DimensionMapping.fromJson(Map<String, dynamic> json) {
     return DimensionMapping(
       dimensionValueType:
-          (json['DimensionValueType'] as String).toDimensionValueType(),
+          DimensionValueType.fromString((json['DimensionValueType'] as String)),
       name: json['Name'] as String,
     );
   }
@@ -987,33 +1101,24 @@ class DimensionMapping {
     final dimensionValueType = this.dimensionValueType;
     final name = this.name;
     return {
-      'DimensionValueType': dimensionValueType.toValue(),
+      'DimensionValueType': dimensionValueType.value,
       'Name': name,
     };
   }
 }
 
 enum DimensionValueType {
-  varchar,
-}
+  varchar('VARCHAR'),
+  ;
 
-extension DimensionValueTypeValueExtension on DimensionValueType {
-  String toValue() {
-    switch (this) {
-      case DimensionValueType.varchar:
-        return 'VARCHAR';
-    }
-  }
-}
+  final String value;
 
-extension DimensionValueTypeFromString on String {
-  DimensionValueType toDimensionValueType() {
-    switch (this) {
-      case 'VARCHAR':
-        return DimensionValueType.varchar;
-    }
-    throw Exception('$this is not known in enum DimensionValueType');
-  }
+  const DimensionValueType(this.value);
+
+  static DimensionValueType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DimensionValueType'));
 }
 
 /// Represents an available endpoint against which to make API calls against, as
@@ -1103,6 +1208,9 @@ class ExecutionStats {
   /// Bytes metered for a single scheduled query run.
   final int? bytesMetered;
 
+  /// Bytes scanned for a single scheduled query run.
+  final int? cumulativeBytesScanned;
+
   /// Data writes metered for records ingested in a single scheduled query run.
   final int? dataWrites;
 
@@ -1119,6 +1227,7 @@ class ExecutionStats {
 
   ExecutionStats({
     this.bytesMetered,
+    this.cumulativeBytesScanned,
     this.dataWrites,
     this.executionTimeInMillis,
     this.queryResultRows,
@@ -1128,6 +1237,7 @@ class ExecutionStats {
   factory ExecutionStats.fromJson(Map<String, dynamic> json) {
     return ExecutionStats(
       bytesMetered: json['BytesMetered'] as int?,
+      cumulativeBytesScanned: json['CumulativeBytesScanned'] as int?,
       dataWrites: json['DataWrites'] as int?,
       executionTimeInMillis: json['ExecutionTimeInMillis'] as int?,
       queryResultRows: json['QueryResultRows'] as int?,
@@ -1137,12 +1247,15 @@ class ExecutionStats {
 
   Map<String, dynamic> toJson() {
     final bytesMetered = this.bytesMetered;
+    final cumulativeBytesScanned = this.cumulativeBytesScanned;
     final dataWrites = this.dataWrites;
     final executionTimeInMillis = this.executionTimeInMillis;
     final queryResultRows = this.queryResultRows;
     final recordsIngested = this.recordsIngested;
     return {
       if (bytesMetered != null) 'BytesMetered': bytesMetered,
+      if (cumulativeBytesScanned != null)
+        'CumulativeBytesScanned': cumulativeBytesScanned,
       if (dataWrites != null) 'DataWrites': dataWrites,
       if (executionTimeInMillis != null)
         'ExecutionTimeInMillis': executionTimeInMillis,
@@ -1168,7 +1281,7 @@ class ListScheduledQueriesResponse {
   factory ListScheduledQueriesResponse.fromJson(Map<String, dynamic> json) {
     return ListScheduledQueriesResponse(
       scheduledQueries: (json['ScheduledQueries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ScheduledQuery.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1201,7 +1314,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1219,46 +1332,21 @@ class ListTagsForResourceResponse {
 }
 
 enum MeasureValueType {
-  bigint,
-  boolean,
-  double,
-  varchar,
-  multi,
-}
+  bigint('BIGINT'),
+  boolean('BOOLEAN'),
+  double('DOUBLE'),
+  varchar('VARCHAR'),
+  multi('MULTI'),
+  ;
 
-extension MeasureValueTypeValueExtension on MeasureValueType {
-  String toValue() {
-    switch (this) {
-      case MeasureValueType.bigint:
-        return 'BIGINT';
-      case MeasureValueType.boolean:
-        return 'BOOLEAN';
-      case MeasureValueType.double:
-        return 'DOUBLE';
-      case MeasureValueType.varchar:
-        return 'VARCHAR';
-      case MeasureValueType.multi:
-        return 'MULTI';
-    }
-  }
-}
+  final String value;
 
-extension MeasureValueTypeFromString on String {
-  MeasureValueType toMeasureValueType() {
-    switch (this) {
-      case 'BIGINT':
-        return MeasureValueType.bigint;
-      case 'BOOLEAN':
-        return MeasureValueType.boolean;
-      case 'DOUBLE':
-        return MeasureValueType.double;
-      case 'VARCHAR':
-        return MeasureValueType.varchar;
-      case 'MULTI':
-        return MeasureValueType.multi;
-    }
-    throw Exception('$this is not known in enum MeasureValueType');
-  }
+  const MeasureValueType(this.value);
+
+  static MeasureValueType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MeasureValueType'));
 }
 
 /// MixedMeasureMappings are mappings that can be used to ingest data into a
@@ -1295,11 +1383,11 @@ class MixedMeasureMapping {
   factory MixedMeasureMapping.fromJson(Map<String, dynamic> json) {
     return MixedMeasureMapping(
       measureValueType:
-          (json['MeasureValueType'] as String).toMeasureValueType(),
+          MeasureValueType.fromString((json['MeasureValueType'] as String)),
       measureName: json['MeasureName'] as String?,
       multiMeasureAttributeMappings: (json['MultiMeasureAttributeMappings']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               MultiMeasureAttributeMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1315,7 +1403,7 @@ class MixedMeasureMapping {
     final sourceColumn = this.sourceColumn;
     final targetMeasureName = this.targetMeasureName;
     return {
-      'MeasureValueType': measureValueType.toValue(),
+      'MeasureValueType': measureValueType.value,
       if (measureName != null) 'MeasureName': measureName,
       if (multiMeasureAttributeMappings != null)
         'MultiMeasureAttributeMappings': multiMeasureAttributeMappings,
@@ -1345,8 +1433,8 @@ class MultiMeasureAttributeMapping {
 
   factory MultiMeasureAttributeMapping.fromJson(Map<String, dynamic> json) {
     return MultiMeasureAttributeMapping(
-      measureValueType:
-          (json['MeasureValueType'] as String).toScalarMeasureValueType(),
+      measureValueType: ScalarMeasureValueType.fromString(
+          (json['MeasureValueType'] as String)),
       sourceColumn: json['SourceColumn'] as String,
       targetMultiMeasureAttributeName:
           json['TargetMultiMeasureAttributeName'] as String?,
@@ -1359,7 +1447,7 @@ class MultiMeasureAttributeMapping {
     final targetMultiMeasureAttributeName =
         this.targetMultiMeasureAttributeName;
     return {
-      'MeasureValueType': measureValueType.toValue(),
+      'MeasureValueType': measureValueType.value,
       'SourceColumn': sourceColumn,
       if (targetMultiMeasureAttributeName != null)
         'TargetMultiMeasureAttributeName': targetMultiMeasureAttributeName,
@@ -1389,7 +1477,7 @@ class MultiMeasureMappings {
     return MultiMeasureMappings(
       multiMeasureAttributeMappings: (json['MultiMeasureAttributeMappings']
               as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               MultiMeasureAttributeMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1481,11 +1569,11 @@ class PrepareQueryResponse {
   factory PrepareQueryResponse.fromJson(Map<String, dynamic> json) {
     return PrepareQueryResponse(
       columns: (json['Columns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SelectColumn.fromJson(e as Map<String, dynamic>))
           .toList(),
       parameters: (json['Parameters'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ParameterMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       queryString: json['QueryString'] as String,
@@ -1502,6 +1590,21 @@ class PrepareQueryResponse {
       'QueryString': queryString,
     };
   }
+}
+
+enum QueryPricingModel {
+  bytesScanned('BYTES_SCANNED'),
+  computeUnits('COMPUTE_UNITS'),
+  ;
+
+  final String value;
+
+  const QueryPricingModel(this.value);
+
+  static QueryPricingModel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum QueryPricingModel'));
 }
 
 class QueryResponse {
@@ -1533,12 +1636,12 @@ class QueryResponse {
   factory QueryResponse.fromJson(Map<String, dynamic> json) {
     return QueryResponse(
       columnInfo: (json['ColumnInfo'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ColumnInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       queryId: json['QueryId'] as String,
       rows: (json['Rows'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Row.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1622,7 +1725,7 @@ class Row {
   factory Row.fromJson(Map<String, dynamic> json) {
     return Row(
       data: (json['Data'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Datum.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1658,8 +1761,8 @@ class S3Configuration {
   factory S3Configuration.fromJson(Map<String, dynamic> json) {
     return S3Configuration(
       bucketName: json['BucketName'] as String,
-      encryptionOption:
-          (json['EncryptionOption'] as String?)?.toS3EncryptionOption(),
+      encryptionOption: (json['EncryptionOption'] as String?)
+          ?.let(S3EncryptionOption.fromString),
       objectKeyPrefix: json['ObjectKeyPrefix'] as String?,
     );
   }
@@ -1670,39 +1773,25 @@ class S3Configuration {
     final objectKeyPrefix = this.objectKeyPrefix;
     return {
       'BucketName': bucketName,
-      if (encryptionOption != null)
-        'EncryptionOption': encryptionOption.toValue(),
+      if (encryptionOption != null) 'EncryptionOption': encryptionOption.value,
       if (objectKeyPrefix != null) 'ObjectKeyPrefix': objectKeyPrefix,
     };
   }
 }
 
 enum S3EncryptionOption {
-  sseS3,
-  sseKms,
-}
+  sseS3('SSE_S3'),
+  sseKms('SSE_KMS'),
+  ;
 
-extension S3EncryptionOptionValueExtension on S3EncryptionOption {
-  String toValue() {
-    switch (this) {
-      case S3EncryptionOption.sseS3:
-        return 'SSE_S3';
-      case S3EncryptionOption.sseKms:
-        return 'SSE_KMS';
-    }
-  }
-}
+  final String value;
 
-extension S3EncryptionOptionFromString on String {
-  S3EncryptionOption toS3EncryptionOption() {
-    switch (this) {
-      case 'SSE_S3':
-        return S3EncryptionOption.sseS3;
-      case 'SSE_KMS':
-        return S3EncryptionOption.sseKms;
-    }
-    throw Exception('$this is not known in enum S3EncryptionOption');
-  }
+  const S3EncryptionOption(this.value);
+
+  static S3EncryptionOption fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum S3EncryptionOption'));
 }
 
 /// S3 report location for the scheduled query run.
@@ -1736,119 +1825,44 @@ class S3ReportLocation {
 }
 
 enum ScalarMeasureValueType {
-  bigint,
-  boolean,
-  double,
-  varchar,
-  timestamp,
-}
+  bigint('BIGINT'),
+  boolean('BOOLEAN'),
+  double('DOUBLE'),
+  varchar('VARCHAR'),
+  timestamp('TIMESTAMP'),
+  ;
 
-extension ScalarMeasureValueTypeValueExtension on ScalarMeasureValueType {
-  String toValue() {
-    switch (this) {
-      case ScalarMeasureValueType.bigint:
-        return 'BIGINT';
-      case ScalarMeasureValueType.boolean:
-        return 'BOOLEAN';
-      case ScalarMeasureValueType.double:
-        return 'DOUBLE';
-      case ScalarMeasureValueType.varchar:
-        return 'VARCHAR';
-      case ScalarMeasureValueType.timestamp:
-        return 'TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension ScalarMeasureValueTypeFromString on String {
-  ScalarMeasureValueType toScalarMeasureValueType() {
-    switch (this) {
-      case 'BIGINT':
-        return ScalarMeasureValueType.bigint;
-      case 'BOOLEAN':
-        return ScalarMeasureValueType.boolean;
-      case 'DOUBLE':
-        return ScalarMeasureValueType.double;
-      case 'VARCHAR':
-        return ScalarMeasureValueType.varchar;
-      case 'TIMESTAMP':
-        return ScalarMeasureValueType.timestamp;
-    }
-    throw Exception('$this is not known in enum ScalarMeasureValueType');
-  }
+  const ScalarMeasureValueType(this.value);
+
+  static ScalarMeasureValueType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ScalarMeasureValueType'));
 }
 
 enum ScalarType {
-  varchar,
-  boolean,
-  bigint,
-  double,
-  timestamp,
-  date,
-  time,
-  intervalDayToSecond,
-  intervalYearToMonth,
-  unknown,
-  integer,
-}
+  varchar('VARCHAR'),
+  boolean('BOOLEAN'),
+  bigint('BIGINT'),
+  double('DOUBLE'),
+  timestamp('TIMESTAMP'),
+  date('DATE'),
+  time('TIME'),
+  intervalDayToSecond('INTERVAL_DAY_TO_SECOND'),
+  intervalYearToMonth('INTERVAL_YEAR_TO_MONTH'),
+  unknown('UNKNOWN'),
+  integer('INTEGER'),
+  ;
 
-extension ScalarTypeValueExtension on ScalarType {
-  String toValue() {
-    switch (this) {
-      case ScalarType.varchar:
-        return 'VARCHAR';
-      case ScalarType.boolean:
-        return 'BOOLEAN';
-      case ScalarType.bigint:
-        return 'BIGINT';
-      case ScalarType.double:
-        return 'DOUBLE';
-      case ScalarType.timestamp:
-        return 'TIMESTAMP';
-      case ScalarType.date:
-        return 'DATE';
-      case ScalarType.time:
-        return 'TIME';
-      case ScalarType.intervalDayToSecond:
-        return 'INTERVAL_DAY_TO_SECOND';
-      case ScalarType.intervalYearToMonth:
-        return 'INTERVAL_YEAR_TO_MONTH';
-      case ScalarType.unknown:
-        return 'UNKNOWN';
-      case ScalarType.integer:
-        return 'INTEGER';
-    }
-  }
-}
+  final String value;
 
-extension ScalarTypeFromString on String {
-  ScalarType toScalarType() {
-    switch (this) {
-      case 'VARCHAR':
-        return ScalarType.varchar;
-      case 'BOOLEAN':
-        return ScalarType.boolean;
-      case 'BIGINT':
-        return ScalarType.bigint;
-      case 'DOUBLE':
-        return ScalarType.double;
-      case 'TIMESTAMP':
-        return ScalarType.timestamp;
-      case 'DATE':
-        return ScalarType.date;
-      case 'TIME':
-        return ScalarType.time;
-      case 'INTERVAL_DAY_TO_SECOND':
-        return ScalarType.intervalDayToSecond;
-      case 'INTERVAL_YEAR_TO_MONTH':
-        return ScalarType.intervalYearToMonth;
-      case 'UNKNOWN':
-        return ScalarType.unknown;
-      case 'INTEGER':
-        return ScalarType.integer;
-    }
-    throw Exception('$this is not known in enum ScalarType');
-  }
+  const ScalarType(this.value);
+
+  static ScalarType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ScalarType'));
 }
 
 /// Configuration of the schedule of the query.
@@ -1920,14 +1934,14 @@ class ScheduledQuery {
     return ScheduledQuery(
       arn: json['Arn'] as String,
       name: json['Name'] as String,
-      state: (json['State'] as String).toScheduledQueryState(),
+      state: ScheduledQueryState.fromString((json['State'] as String)),
       creationTime: timeStampFromJson(json['CreationTime']),
       errorReportConfiguration: json['ErrorReportConfiguration'] != null
           ? ErrorReportConfiguration.fromJson(
               json['ErrorReportConfiguration'] as Map<String, dynamic>)
           : null,
-      lastRunStatus:
-          (json['LastRunStatus'] as String?)?.toScheduledQueryRunStatus(),
+      lastRunStatus: (json['LastRunStatus'] as String?)
+          ?.let(ScheduledQueryRunStatus.fromString),
       nextInvocationTime: timeStampFromJson(json['NextInvocationTime']),
       previousInvocationTime: timeStampFromJson(json['PreviousInvocationTime']),
       targetDestination: json['TargetDestination'] != null
@@ -1950,12 +1964,12 @@ class ScheduledQuery {
     return {
       'Arn': arn,
       'Name': name,
-      'State': state.toValue(),
+      'State': state.value,
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
       if (errorReportConfiguration != null)
         'ErrorReportConfiguration': errorReportConfiguration,
-      if (lastRunStatus != null) 'LastRunStatus': lastRunStatus.toValue(),
+      if (lastRunStatus != null) 'LastRunStatus': lastRunStatus.value,
       if (nextInvocationTime != null)
         'NextInvocationTime': unixTimestampToJson(nextInvocationTime),
       if (previousInvocationTime != null)
@@ -2039,7 +2053,7 @@ class ScheduledQueryDescription {
       queryString: json['QueryString'] as String,
       scheduleConfiguration: ScheduleConfiguration.fromJson(
           json['ScheduleConfiguration'] as Map<String, dynamic>),
-      state: (json['State'] as String).toScheduledQueryState(),
+      state: ScheduledQueryState.fromString((json['State'] as String)),
       creationTime: timeStampFromJson(json['CreationTime']),
       errorReportConfiguration: json['ErrorReportConfiguration'] != null
           ? ErrorReportConfiguration.fromJson(
@@ -2053,7 +2067,7 @@ class ScheduledQueryDescription {
       nextInvocationTime: timeStampFromJson(json['NextInvocationTime']),
       previousInvocationTime: timeStampFromJson(json['PreviousInvocationTime']),
       recentlyFailedRuns: (json['RecentlyFailedRuns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ScheduledQueryRunSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2088,7 +2102,7 @@ class ScheduledQueryDescription {
       'NotificationConfiguration': notificationConfiguration,
       'QueryString': queryString,
       'ScheduleConfiguration': scheduleConfiguration,
-      'State': state.toValue(),
+      'State': state.value,
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
       if (errorReportConfiguration != null)
@@ -2109,41 +2123,20 @@ class ScheduledQueryDescription {
 }
 
 enum ScheduledQueryRunStatus {
-  autoTriggerSuccess,
-  autoTriggerFailure,
-  manualTriggerSuccess,
-  manualTriggerFailure,
-}
+  autoTriggerSuccess('AUTO_TRIGGER_SUCCESS'),
+  autoTriggerFailure('AUTO_TRIGGER_FAILURE'),
+  manualTriggerSuccess('MANUAL_TRIGGER_SUCCESS'),
+  manualTriggerFailure('MANUAL_TRIGGER_FAILURE'),
+  ;
 
-extension ScheduledQueryRunStatusValueExtension on ScheduledQueryRunStatus {
-  String toValue() {
-    switch (this) {
-      case ScheduledQueryRunStatus.autoTriggerSuccess:
-        return 'AUTO_TRIGGER_SUCCESS';
-      case ScheduledQueryRunStatus.autoTriggerFailure:
-        return 'AUTO_TRIGGER_FAILURE';
-      case ScheduledQueryRunStatus.manualTriggerSuccess:
-        return 'MANUAL_TRIGGER_SUCCESS';
-      case ScheduledQueryRunStatus.manualTriggerFailure:
-        return 'MANUAL_TRIGGER_FAILURE';
-    }
-  }
-}
+  final String value;
 
-extension ScheduledQueryRunStatusFromString on String {
-  ScheduledQueryRunStatus toScheduledQueryRunStatus() {
-    switch (this) {
-      case 'AUTO_TRIGGER_SUCCESS':
-        return ScheduledQueryRunStatus.autoTriggerSuccess;
-      case 'AUTO_TRIGGER_FAILURE':
-        return ScheduledQueryRunStatus.autoTriggerFailure;
-      case 'MANUAL_TRIGGER_SUCCESS':
-        return ScheduledQueryRunStatus.manualTriggerSuccess;
-      case 'MANUAL_TRIGGER_FAILURE':
-        return ScheduledQueryRunStatus.manualTriggerFailure;
-    }
-    throw Exception('$this is not known in enum ScheduledQueryRunStatus');
-  }
+  const ScheduledQueryRunStatus(this.value);
+
+  static ScheduledQueryRunStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ScheduledQueryRunStatus'));
 }
 
 /// Run summary for the scheduled query
@@ -2190,7 +2183,8 @@ class ScheduledQueryRunSummary {
           : null,
       failureReason: json['FailureReason'] as String?,
       invocationTime: timeStampFromJson(json['InvocationTime']),
-      runStatus: (json['RunStatus'] as String?)?.toScheduledQueryRunStatus(),
+      runStatus: (json['RunStatus'] as String?)
+          ?.let(ScheduledQueryRunStatus.fromString),
       triggerTime: timeStampFromJson(json['TriggerTime']),
     );
   }
@@ -2209,38 +2203,25 @@ class ScheduledQueryRunSummary {
       if (failureReason != null) 'FailureReason': failureReason,
       if (invocationTime != null)
         'InvocationTime': unixTimestampToJson(invocationTime),
-      if (runStatus != null) 'RunStatus': runStatus.toValue(),
+      if (runStatus != null) 'RunStatus': runStatus.value,
       if (triggerTime != null) 'TriggerTime': unixTimestampToJson(triggerTime),
     };
   }
 }
 
 enum ScheduledQueryState {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension ScheduledQueryStateValueExtension on ScheduledQueryState {
-  String toValue() {
-    switch (this) {
-      case ScheduledQueryState.enabled:
-        return 'ENABLED';
-      case ScheduledQueryState.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension ScheduledQueryStateFromString on String {
-  ScheduledQueryState toScheduledQueryState() {
-    switch (this) {
-      case 'ENABLED':
-        return ScheduledQueryState.enabled;
-      case 'DISABLED':
-        return ScheduledQueryState.disabled;
-    }
-    throw Exception('$this is not known in enum ScheduledQueryState');
-  }
+  const ScheduledQueryState(this.value);
+
+  static ScheduledQueryState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ScheduledQueryState'));
 }
 
 /// Details of the column that is returned by the query.
@@ -2491,14 +2472,14 @@ class TimestreamConfiguration {
     return TimestreamConfiguration(
       databaseName: json['DatabaseName'] as String,
       dimensionMappings: (json['DimensionMappings'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => DimensionMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       tableName: json['TableName'] as String,
       timeColumn: json['TimeColumn'] as String,
       measureNameColumn: json['MeasureNameColumn'] as String?,
       mixedMeasureMappings: (json['MixedMeasureMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MixedMeasureMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       multiMeasureMappings: json['MultiMeasureMappings'] != null
@@ -2572,7 +2553,9 @@ class Type {
   final List<ColumnInfo>? rowColumnInfo;
 
   /// Indicates if the column is of type string, integer, Boolean, double,
-  /// timestamp, date, time.
+  /// timestamp, date, time. For more information, see <a
+  /// href="https://docs.aws.amazon.com/timestream/latest/developerguide/supported-data-types.html">Supported
+  /// data types</a>.
   final ScalarType? scalarType;
 
   /// Indicates if the column is a timeseries data type.
@@ -2591,10 +2574,10 @@ class Type {
           ? ColumnInfo.fromJson(json['ArrayColumnInfo'] as Map<String, dynamic>)
           : null,
       rowColumnInfo: (json['RowColumnInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
-      scalarType: (json['ScalarType'] as String?)?.toScalarType(),
+      scalarType: (json['ScalarType'] as String?)?.let(ScalarType.fromString),
       timeSeriesMeasureValueColumnInfo:
           json['TimeSeriesMeasureValueColumnInfo'] != null
               ? ColumnInfo.fromJson(json['TimeSeriesMeasureValueColumnInfo']
@@ -2612,7 +2595,7 @@ class Type {
     return {
       if (arrayColumnInfo != null) 'ArrayColumnInfo': arrayColumnInfo,
       if (rowColumnInfo != null) 'RowColumnInfo': rowColumnInfo,
-      if (scalarType != null) 'ScalarType': scalarType.toValue(),
+      if (scalarType != null) 'ScalarType': scalarType.value,
       if (timeSeriesMeasureValueColumnInfo != null)
         'TimeSeriesMeasureValueColumnInfo': timeSeriesMeasureValueColumnInfo,
     };
@@ -2628,6 +2611,38 @@ class UntagResourceResponse {
 
   Map<String, dynamic> toJson() {
     return {};
+  }
+}
+
+class UpdateAccountSettingsResponse {
+  /// The configured maximum number of compute units the service will use at any
+  /// point in time to serve your queries.
+  final int? maxQueryTCU;
+
+  /// The pricing model for an account.
+  final QueryPricingModel? queryPricingModel;
+
+  UpdateAccountSettingsResponse({
+    this.maxQueryTCU,
+    this.queryPricingModel,
+  });
+
+  factory UpdateAccountSettingsResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateAccountSettingsResponse(
+      maxQueryTCU: json['MaxQueryTCU'] as int?,
+      queryPricingModel: (json['QueryPricingModel'] as String?)
+          ?.let(QueryPricingModel.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final maxQueryTCU = this.maxQueryTCU;
+    final queryPricingModel = this.queryPricingModel;
+    return {
+      if (maxQueryTCU != null) 'MaxQueryTCU': maxQueryTCU,
+      if (queryPricingModel != null)
+        'QueryPricingModel': queryPricingModel.value,
+    };
   }
 }
 

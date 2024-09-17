@@ -242,6 +242,9 @@ class Mediapackagev2 {
   /// A unique, case-sensitive token that you provide to ensure the idempotency
   /// of the request.
   ///
+  /// Parameter [dashManifests] :
+  /// A DASH manifest configuration.
+  ///
   /// Parameter [description] :
   /// Enter any descriptive text that helps you to identify the origin endpoint.
   ///
@@ -274,6 +277,7 @@ class Mediapackagev2 {
     required ContainerType containerType,
     required String originEndpointName,
     String? clientToken,
+    List<CreateDashManifestConfiguration>? dashManifests,
     String? description,
     List<CreateHlsManifestConfiguration>? hlsManifests,
     List<CreateLowLatencyHlsManifestConfiguration>? lowLatencyHlsManifests,
@@ -291,8 +295,9 @@ class Mediapackagev2 {
       if (clientToken != null) 'x-amzn-client-token': clientToken.toString(),
     };
     final $payload = <String, dynamic>{
-      'ContainerType': containerType.toValue(),
+      'ContainerType': containerType.value,
       'OriginEndpointName': originEndpointName,
+      if (dashManifests != null) 'DashManifests': dashManifests,
       if (description != null) 'Description': description,
       if (hlsManifests != null) 'HlsManifests': hlsManifests,
       if (lowLatencyHlsManifests != null)
@@ -689,6 +694,7 @@ class Mediapackagev2 {
   /// May throw [InternalServerException].
   /// May throw [AccessDeniedException].
   /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [channelGroupName] :
   /// The name that describes the channel group. The name is the primary
@@ -971,11 +977,20 @@ class Mediapackagev2 {
   /// Parameter [description] :
   /// Any descriptive information that you want to add to the channel for future
   /// identification purposes.
+  ///
+  /// Parameter [eTag] :
+  /// The expected current Entity Tag (ETag) for the resource. If the specified
+  /// ETag does not match the resource's current entity tag, the update request
+  /// will be rejected.
   Future<UpdateChannelResponse> updateChannel({
     required String channelGroupName,
     required String channelName,
     String? description,
+    String? eTag,
   }) async {
+    final headers = <String, String>{
+      if (eTag != null) 'x-amzn-update-if-match': eTag.toString(),
+    };
     final $payload = <String, dynamic>{
       if (description != null) 'Description': description,
     };
@@ -984,6 +999,7 @@ class Mediapackagev2 {
       method: 'PUT',
       requestUri:
           '/channelGroup/${Uri.encodeComponent(channelGroupName)}/channel/${Uri.encodeComponent(channelName)}/',
+      headers: headers,
       exceptionFnMap: _exceptionFns,
     );
     return UpdateChannelResponse.fromJson(response);
@@ -1011,10 +1027,19 @@ class Mediapackagev2 {
   /// Parameter [description] :
   /// Any descriptive information that you want to add to the channel group for
   /// future identification purposes.
+  ///
+  /// Parameter [eTag] :
+  /// The expected current Entity Tag (ETag) for the resource. If the specified
+  /// ETag does not match the resource's current entity tag, the update request
+  /// will be rejected.
   Future<UpdateChannelGroupResponse> updateChannelGroup({
     required String channelGroupName,
     String? description,
+    String? eTag,
   }) async {
+    final headers = <String, String>{
+      if (eTag != null) 'x-amzn-update-if-match': eTag.toString(),
+    };
     final $payload = <String, dynamic>{
       if (description != null) 'Description': description,
     };
@@ -1022,6 +1047,7 @@ class Mediapackagev2 {
       payload: $payload,
       method: 'PUT',
       requestUri: '/channelGroup/${Uri.encodeComponent(channelGroupName)}',
+      headers: headers,
       exceptionFnMap: _exceptionFns,
     );
     return UpdateChannelGroupResponse.fromJson(response);
@@ -1062,9 +1088,17 @@ class Mediapackagev2 {
   /// identifier for the origin endpoint, and and must be unique for your
   /// account in the AWS Region and channel.
   ///
+  /// Parameter [dashManifests] :
+  /// A DASH manifest configuration.
+  ///
   /// Parameter [description] :
   /// Any descriptive information that you want to add to the origin endpoint
   /// for future identification purposes.
+  ///
+  /// Parameter [eTag] :
+  /// The expected current Entity Tag (ETag) for the resource. If the specified
+  /// ETag does not match the resource's current entity tag, the update request
+  /// will be rejected.
   ///
   /// Parameter [hlsManifests] :
   /// An HTTP live streaming (HLS) manifest configuration.
@@ -1086,7 +1120,9 @@ class Mediapackagev2 {
     required String channelName,
     required ContainerType containerType,
     required String originEndpointName,
+    List<CreateDashManifestConfiguration>? dashManifests,
     String? description,
+    String? eTag,
     List<CreateHlsManifestConfiguration>? hlsManifests,
     List<CreateLowLatencyHlsManifestConfiguration>? lowLatencyHlsManifests,
     Segment? segment,
@@ -1098,8 +1134,12 @@ class Mediapackagev2 {
       60,
       1209600,
     );
+    final headers = <String, String>{
+      if (eTag != null) 'x-amzn-update-if-match': eTag.toString(),
+    };
     final $payload = <String, dynamic>{
-      'ContainerType': containerType.toValue(),
+      'ContainerType': containerType.value,
+      if (dashManifests != null) 'DashManifests': dashManifests,
       if (description != null) 'Description': description,
       if (hlsManifests != null) 'HlsManifests': hlsManifests,
       if (lowLatencyHlsManifests != null)
@@ -1113,33 +1153,39 @@ class Mediapackagev2 {
       method: 'PUT',
       requestUri:
           '/channelGroup/${Uri.encodeComponent(channelGroupName)}/channel/${Uri.encodeComponent(channelName)}/originEndpoint/${Uri.encodeComponent(originEndpointName)}',
+      headers: headers,
       exceptionFnMap: _exceptionFns,
     );
     return UpdateOriginEndpointResponse.fromJson(response);
   }
 }
 
+enum AdMarkerDash {
+  binary('BINARY'),
+  xml('XML'),
+  ;
+
+  final String value;
+
+  const AdMarkerDash(this.value);
+
+  static AdMarkerDash fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AdMarkerDash'));
+}
+
 enum AdMarkerHls {
-  daterange,
-}
+  daterange('DATERANGE'),
+  ;
 
-extension AdMarkerHlsValueExtension on AdMarkerHls {
-  String toValue() {
-    switch (this) {
-      case AdMarkerHls.daterange:
-        return 'DATERANGE';
-    }
-  }
-}
+  final String value;
 
-extension AdMarkerHlsFromString on String {
-  AdMarkerHls toAdMarkerHls() {
-    switch (this) {
-      case 'DATERANGE':
-        return AdMarkerHls.daterange;
-    }
-    throw Exception('$this is not known in enum AdMarkerHls');
-  }
+  const AdMarkerHls(this.value);
+
+  static AdMarkerHls fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AdMarkerHls'));
 }
 
 /// The configuration of the channel group.
@@ -1260,59 +1306,33 @@ class ChannelListConfiguration {
 }
 
 enum CmafEncryptionMethod {
-  cenc,
-  cbcs,
-}
+  cenc('CENC'),
+  cbcs('CBCS'),
+  ;
 
-extension CmafEncryptionMethodValueExtension on CmafEncryptionMethod {
-  String toValue() {
-    switch (this) {
-      case CmafEncryptionMethod.cenc:
-        return 'CENC';
-      case CmafEncryptionMethod.cbcs:
-        return 'CBCS';
-    }
-  }
-}
+  final String value;
 
-extension CmafEncryptionMethodFromString on String {
-  CmafEncryptionMethod toCmafEncryptionMethod() {
-    switch (this) {
-      case 'CENC':
-        return CmafEncryptionMethod.cenc;
-      case 'CBCS':
-        return CmafEncryptionMethod.cbcs;
-    }
-    throw Exception('$this is not known in enum CmafEncryptionMethod');
-  }
+  const CmafEncryptionMethod(this.value);
+
+  static CmafEncryptionMethod fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CmafEncryptionMethod'));
 }
 
 enum ContainerType {
-  ts,
-  cmaf,
-}
+  ts('TS'),
+  cmaf('CMAF'),
+  ;
 
-extension ContainerTypeValueExtension on ContainerType {
-  String toValue() {
-    switch (this) {
-      case ContainerType.ts:
-        return 'TS';
-      case ContainerType.cmaf:
-        return 'CMAF';
-    }
-  }
-}
+  final String value;
 
-extension ContainerTypeFromString on String {
-  ContainerType toContainerType() {
-    switch (this) {
-      case 'TS':
-        return ContainerType.ts;
-      case 'CMAF':
-        return ContainerType.cmaf;
-    }
-    throw Exception('$this is not known in enum ContainerType');
-  }
+  const ContainerType(this.value);
+
+  static ContainerType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContainerType'));
 }
 
 class CreateChannelGroupResponse {
@@ -1338,6 +1358,10 @@ class CreateChannelGroupResponse {
   /// The description for your channel group.
   final String? description;
 
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
+
   /// The comma-separated list of tag key:value pairs assigned to the channel
   /// group.
   final Map<String, String>? tags;
@@ -1349,6 +1373,7 @@ class CreateChannelGroupResponse {
     required this.egressDomain,
     required this.modifiedAt,
     this.description,
+    this.eTag,
     this.tags,
   });
 
@@ -1360,6 +1385,7 @@ class CreateChannelGroupResponse {
       egressDomain: json['EgressDomain'] as String,
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -1372,6 +1398,7 @@ class CreateChannelGroupResponse {
     final egressDomain = this.egressDomain;
     final modifiedAt = this.modifiedAt;
     final description = this.description;
+    final eTag = this.eTag;
     final tags = this.tags;
     return {
       'Arn': arn,
@@ -1380,6 +1407,7 @@ class CreateChannelGroupResponse {
       'EgressDomain': egressDomain,
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -1407,6 +1435,10 @@ class CreateChannelResponse {
 
   /// The description for your channel.
   final String? description;
+
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
   final List<IngestEndpoint>? ingestEndpoints;
 
   /// The comma-separated list of tag key:value pairs assigned to the channel.
@@ -1419,6 +1451,7 @@ class CreateChannelResponse {
     required this.createdAt,
     required this.modifiedAt,
     this.description,
+    this.eTag,
     this.ingestEndpoints,
     this.tags,
   });
@@ -1431,8 +1464,9 @@ class CreateChannelResponse {
       createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       ingestEndpoints: (json['IngestEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IngestEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['Tags'] as Map<String, dynamic>?)
@@ -1447,6 +1481,7 @@ class CreateChannelResponse {
     final createdAt = this.createdAt;
     final modifiedAt = this.modifiedAt;
     final description = this.description;
+    final eTag = this.eTag;
     final ingestEndpoints = this.ingestEndpoints;
     final tags = this.tags;
     return {
@@ -1456,8 +1491,118 @@ class CreateChannelResponse {
       'CreatedAt': unixTimestampToJson(createdAt),
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (ingestEndpoints != null) 'IngestEndpoints': ingestEndpoints,
       if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+/// Create a DASH manifest configuration.
+class CreateDashManifestConfiguration {
+  /// A short string that's appended to the endpoint URL. The child manifest name
+  /// creates a unique path to this endpoint.
+  final String manifestName;
+
+  /// Determines how the DASH manifest signals the DRM content.
+  final DashDrmSignaling? drmSignaling;
+  final FilterConfiguration? filterConfiguration;
+
+  /// The total duration (in seconds) of the manifest's content.
+  final int? manifestWindowSeconds;
+
+  /// Minimum amount of content (in seconds) that a player must keep available in
+  /// the buffer.
+  final int? minBufferTimeSeconds;
+
+  /// Minimum amount of time (in seconds) that the player should wait before
+  /// requesting updates to the manifest.
+  final int? minUpdatePeriodSeconds;
+
+  /// A list of triggers that controls when AWS Elemental MediaPackage separates
+  /// the MPEG-DASH manifest into multiple periods. Type <code>ADS</code> to
+  /// indicate that AWS Elemental MediaPackage must create periods in the output
+  /// manifest that correspond to SCTE-35 ad markers in the input source. Leave
+  /// this value empty to indicate that the manifest is contained all in one
+  /// period. For more information about periods in the DASH manifest, see <a
+  /// href="https://docs.aws.amazon.com/mediapackage/latest/userguide/multi-period.html">Multi-period
+  /// DASH in AWS Elemental MediaPackage</a>.
+  final List<DashPeriodTrigger>? periodTriggers;
+
+  /// The SCTE configuration.
+  final ScteDash? scteDash;
+
+  /// Determines the type of variable used in the <code>media</code> URL of the
+  /// <code>SegmentTemplate</code> tag in the manifest. Also specifies if segment
+  /// timeline information is included in <code>SegmentTimeline</code> or
+  /// <code>SegmentTemplate</code>.
+  ///
+  /// Value description:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>NUMBER_WITH_TIMELINE</code> - The <code>$Number$</code> variable is
+  /// used in the <code>media</code> URL. The value of this variable is the
+  /// sequential number of the segment. A full <code>SegmentTimeline</code> object
+  /// is presented in each <code>SegmentTemplate</code>.
+  /// </li>
+  /// </ul>
+  final DashSegmentTemplateFormat? segmentTemplateFormat;
+
+  /// The amount of time (in seconds) that the player should be from the end of
+  /// the manifest.
+  final int? suggestedPresentationDelaySeconds;
+
+  /// Determines the type of UTC timing included in the DASH Media Presentation
+  /// Description (MPD).
+  final DashUtcTiming? utcTiming;
+
+  CreateDashManifestConfiguration({
+    required this.manifestName,
+    this.drmSignaling,
+    this.filterConfiguration,
+    this.manifestWindowSeconds,
+    this.minBufferTimeSeconds,
+    this.minUpdatePeriodSeconds,
+    this.periodTriggers,
+    this.scteDash,
+    this.segmentTemplateFormat,
+    this.suggestedPresentationDelaySeconds,
+    this.utcTiming,
+  });
+
+  Map<String, dynamic> toJson() {
+    final manifestName = this.manifestName;
+    final drmSignaling = this.drmSignaling;
+    final filterConfiguration = this.filterConfiguration;
+    final manifestWindowSeconds = this.manifestWindowSeconds;
+    final minBufferTimeSeconds = this.minBufferTimeSeconds;
+    final minUpdatePeriodSeconds = this.minUpdatePeriodSeconds;
+    final periodTriggers = this.periodTriggers;
+    final scteDash = this.scteDash;
+    final segmentTemplateFormat = this.segmentTemplateFormat;
+    final suggestedPresentationDelaySeconds =
+        this.suggestedPresentationDelaySeconds;
+    final utcTiming = this.utcTiming;
+    return {
+      'ManifestName': manifestName,
+      if (drmSignaling != null) 'DrmSignaling': drmSignaling.value,
+      if (filterConfiguration != null)
+        'FilterConfiguration': filterConfiguration,
+      if (manifestWindowSeconds != null)
+        'ManifestWindowSeconds': manifestWindowSeconds,
+      if (minBufferTimeSeconds != null)
+        'MinBufferTimeSeconds': minBufferTimeSeconds,
+      if (minUpdatePeriodSeconds != null)
+        'MinUpdatePeriodSeconds': minUpdatePeriodSeconds,
+      if (periodTriggers != null)
+        'PeriodTriggers': periodTriggers.map((e) => e.value).toList(),
+      if (scteDash != null) 'ScteDash': scteDash,
+      if (segmentTemplateFormat != null)
+        'SegmentTemplateFormat': segmentTemplateFormat.value,
+      if (suggestedPresentationDelaySeconds != null)
+        'SuggestedPresentationDelaySeconds': suggestedPresentationDelaySeconds,
+      if (utcTiming != null) 'UtcTiming': utcTiming,
     };
   }
 }
@@ -1479,6 +1624,7 @@ class CreateHlsManifestConfiguration {
   /// distinguish it from the manifest name. The manifestName on the HLSManifest
   /// object overrides the manifestName you provided on the originEndpoint object.
   final String? childManifestName;
+  final FilterConfiguration? filterConfiguration;
 
   /// The total duration (in seconds) of the manifest's content.
   final int? manifestWindowSeconds;
@@ -1498,6 +1644,7 @@ class CreateHlsManifestConfiguration {
   CreateHlsManifestConfiguration({
     required this.manifestName,
     this.childManifestName,
+    this.filterConfiguration,
     this.manifestWindowSeconds,
     this.programDateTimeIntervalSeconds,
     this.scteHls,
@@ -1506,12 +1653,15 @@ class CreateHlsManifestConfiguration {
   Map<String, dynamic> toJson() {
     final manifestName = this.manifestName;
     final childManifestName = this.childManifestName;
+    final filterConfiguration = this.filterConfiguration;
     final manifestWindowSeconds = this.manifestWindowSeconds;
     final programDateTimeIntervalSeconds = this.programDateTimeIntervalSeconds;
     final scteHls = this.scteHls;
     return {
       'ManifestName': manifestName,
       if (childManifestName != null) 'ChildManifestName': childManifestName,
+      if (filterConfiguration != null)
+        'FilterConfiguration': filterConfiguration,
       if (manifestWindowSeconds != null)
         'ManifestWindowSeconds': manifestWindowSeconds,
       if (programDateTimeIntervalSeconds != null)
@@ -1538,6 +1688,7 @@ class CreateLowLatencyHlsManifestConfiguration {
   /// distinguish it from the manifest name. The manifestName on the HLSManifest
   /// object overrides the manifestName you provided on the originEndpoint object.
   final String? childManifestName;
+  final FilterConfiguration? filterConfiguration;
 
   /// The total duration (in seconds) of the manifest's content.
   final int? manifestWindowSeconds;
@@ -1557,6 +1708,7 @@ class CreateLowLatencyHlsManifestConfiguration {
   CreateLowLatencyHlsManifestConfiguration({
     required this.manifestName,
     this.childManifestName,
+    this.filterConfiguration,
     this.manifestWindowSeconds,
     this.programDateTimeIntervalSeconds,
     this.scteHls,
@@ -1565,12 +1717,15 @@ class CreateLowLatencyHlsManifestConfiguration {
   Map<String, dynamic> toJson() {
     final manifestName = this.manifestName;
     final childManifestName = this.childManifestName;
+    final filterConfiguration = this.filterConfiguration;
     final manifestWindowSeconds = this.manifestWindowSeconds;
     final programDateTimeIntervalSeconds = this.programDateTimeIntervalSeconds;
     final scteHls = this.scteHls;
     return {
       'ManifestName': manifestName,
       if (childManifestName != null) 'ChildManifestName': childManifestName,
+      if (filterConfiguration != null)
+        'FilterConfiguration': filterConfiguration,
       if (manifestWindowSeconds != null)
         'ManifestWindowSeconds': manifestWindowSeconds,
       if (programDateTimeIntervalSeconds != null)
@@ -1612,8 +1767,15 @@ class CreateOriginEndpointResponse {
   /// configuration values.
   final Segment segment;
 
+  /// A DASH manifest configuration.
+  final List<GetDashManifestConfiguration>? dashManifests;
+
   /// The description for your origin endpoint.
   final String? description;
+
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
 
   /// An HTTP live streaming (HLS) manifest configuration.
   final List<GetHlsManifestConfiguration>? hlsManifests;
@@ -1639,7 +1801,9 @@ class CreateOriginEndpointResponse {
     required this.modifiedAt,
     required this.originEndpointName,
     required this.segment,
+    this.dashManifests,
     this.description,
+    this.eTag,
     this.hlsManifests,
     this.lowLatencyHlsManifests,
     this.startoverWindowSeconds,
@@ -1651,19 +1815,26 @@ class CreateOriginEndpointResponse {
       arn: json['Arn'] as String,
       channelGroupName: json['ChannelGroupName'] as String,
       channelName: json['ChannelName'] as String,
-      containerType: (json['ContainerType'] as String).toContainerType(),
+      containerType:
+          ContainerType.fromString((json['ContainerType'] as String)),
       createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       originEndpointName: json['OriginEndpointName'] as String,
       segment: Segment.fromJson(json['Segment'] as Map<String, dynamic>),
+      dashManifests: (json['DashManifests'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              GetDashManifestConfiguration.fromJson(e as Map<String, dynamic>))
+          .toList(),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       hlsManifests: (json['HlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               GetHlsManifestConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       lowLatencyHlsManifests: (json['LowLatencyHlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GetLowLatencyHlsManifestConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -1682,7 +1853,9 @@ class CreateOriginEndpointResponse {
     final modifiedAt = this.modifiedAt;
     final originEndpointName = this.originEndpointName;
     final segment = this.segment;
+    final dashManifests = this.dashManifests;
     final description = this.description;
+    final eTag = this.eTag;
     final hlsManifests = this.hlsManifests;
     final lowLatencyHlsManifests = this.lowLatencyHlsManifests;
     final startoverWindowSeconds = this.startoverWindowSeconds;
@@ -1691,12 +1864,14 @@ class CreateOriginEndpointResponse {
       'Arn': arn,
       'ChannelGroupName': channelGroupName,
       'ChannelName': channelName,
-      'ContainerType': containerType.toValue(),
+      'ContainerType': containerType.value,
       'CreatedAt': unixTimestampToJson(createdAt),
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       'OriginEndpointName': originEndpointName,
       'Segment': segment,
+      if (dashManifests != null) 'DashManifests': dashManifests,
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (hlsManifests != null) 'HlsManifests': hlsManifests,
       if (lowLatencyHlsManifests != null)
         'LowLatencyHlsManifests': lowLatencyHlsManifests,
@@ -1705,6 +1880,103 @@ class CreateOriginEndpointResponse {
       if (tags != null) 'Tags': tags,
     };
   }
+}
+
+enum DashDrmSignaling {
+  individual('INDIVIDUAL'),
+  referenced('REFERENCED'),
+  ;
+
+  final String value;
+
+  const DashDrmSignaling(this.value);
+
+  static DashDrmSignaling fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DashDrmSignaling'));
+}
+
+enum DashPeriodTrigger {
+  avails('AVAILS'),
+  drmKeyRotation('DRM_KEY_ROTATION'),
+  sourceChanges('SOURCE_CHANGES'),
+  sourceDisruptions('SOURCE_DISRUPTIONS'),
+  none('NONE'),
+  ;
+
+  final String value;
+
+  const DashPeriodTrigger(this.value);
+
+  static DashPeriodTrigger fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DashPeriodTrigger'));
+}
+
+enum DashSegmentTemplateFormat {
+  numberWithTimeline('NUMBER_WITH_TIMELINE'),
+  ;
+
+  final String value;
+
+  const DashSegmentTemplateFormat(this.value);
+
+  static DashSegmentTemplateFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DashSegmentTemplateFormat'));
+}
+
+/// Determines the type of UTC timing included in the DASH Media Presentation
+/// Description (MPD).
+class DashUtcTiming {
+  /// The UTC timing mode.
+  final DashUtcTimingMode? timingMode;
+
+  /// The the method that the player uses to synchronize to coordinated universal
+  /// time (UTC) wall clock time.
+  final String? timingSource;
+
+  DashUtcTiming({
+    this.timingMode,
+    this.timingSource,
+  });
+
+  factory DashUtcTiming.fromJson(Map<String, dynamic> json) {
+    return DashUtcTiming(
+      timingMode:
+          (json['TimingMode'] as String?)?.let(DashUtcTimingMode.fromString),
+      timingSource: json['TimingSource'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final timingMode = this.timingMode;
+    final timingSource = this.timingSource;
+    return {
+      if (timingMode != null) 'TimingMode': timingMode.value,
+      if (timingSource != null) 'TimingSource': timingSource,
+    };
+  }
+}
+
+enum DashUtcTimingMode {
+  httpHead('HTTP_HEAD'),
+  httpIso('HTTP_ISO'),
+  httpXsdate('HTTP_XSDATE'),
+  utcDirect('UTC_DIRECT'),
+  ;
+
+  final String value;
+
+  const DashUtcTimingMode(this.value);
+
+  static DashUtcTimingMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DashUtcTimingMode'));
 }
 
 class DeleteChannelGroupResponse {
@@ -1768,41 +2040,19 @@ class DeleteOriginEndpointResponse {
 }
 
 enum DrmSystem {
-  clearKeyAes_128,
-  fairplay,
-  playready,
-  widevine,
-}
+  clearKeyAes_128('CLEAR_KEY_AES_128'),
+  fairplay('FAIRPLAY'),
+  playready('PLAYREADY'),
+  widevine('WIDEVINE'),
+  ;
 
-extension DrmSystemValueExtension on DrmSystem {
-  String toValue() {
-    switch (this) {
-      case DrmSystem.clearKeyAes_128:
-        return 'CLEAR_KEY_AES_128';
-      case DrmSystem.fairplay:
-        return 'FAIRPLAY';
-      case DrmSystem.playready:
-        return 'PLAYREADY';
-      case DrmSystem.widevine:
-        return 'WIDEVINE';
-    }
-  }
-}
+  final String value;
 
-extension DrmSystemFromString on String {
-  DrmSystem toDrmSystem() {
-    switch (this) {
-      case 'CLEAR_KEY_AES_128':
-        return DrmSystem.clearKeyAes_128;
-      case 'FAIRPLAY':
-        return DrmSystem.fairplay;
-      case 'PLAYREADY':
-        return DrmSystem.playready;
-      case 'WIDEVINE':
-        return DrmSystem.widevine;
-    }
-    throw Exception('$this is not known in enum DrmSystem');
-  }
+  const DrmSystem(this.value);
+
+  static DrmSystem fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum DrmSystem'));
 }
 
 /// The parameters for encrypting content.
@@ -1961,9 +2211,9 @@ class EncryptionContractConfiguration {
   factory EncryptionContractConfiguration.fromJson(Map<String, dynamic> json) {
     return EncryptionContractConfiguration(
       presetSpeke20Audio:
-          (json['PresetSpeke20Audio'] as String).toPresetSpeke20Audio(),
+          PresetSpeke20Audio.fromString((json['PresetSpeke20Audio'] as String)),
       presetSpeke20Video:
-          (json['PresetSpeke20Video'] as String).toPresetSpeke20Video(),
+          PresetSpeke20Video.fromString((json['PresetSpeke20Video'] as String)),
     );
   }
 
@@ -1971,8 +2221,8 @@ class EncryptionContractConfiguration {
     final presetSpeke20Audio = this.presetSpeke20Audio;
     final presetSpeke20Video = this.presetSpeke20Video;
     return {
-      'PresetSpeke20Audio': presetSpeke20Audio.toValue(),
-      'PresetSpeke20Video': presetSpeke20Video.toValue(),
+      'PresetSpeke20Audio': presetSpeke20Audio.value,
+      'PresetSpeke20Video': presetSpeke20Video.value,
     };
   }
 }
@@ -1992,10 +2242,10 @@ class EncryptionMethod {
 
   factory EncryptionMethod.fromJson(Map<String, dynamic> json) {
     return EncryptionMethod(
-      cmafEncryptionMethod:
-          (json['CmafEncryptionMethod'] as String?)?.toCmafEncryptionMethod(),
-      tsEncryptionMethod:
-          (json['TsEncryptionMethod'] as String?)?.toTsEncryptionMethod(),
+      cmafEncryptionMethod: (json['CmafEncryptionMethod'] as String?)
+          ?.let(CmafEncryptionMethod.fromString),
+      tsEncryptionMethod: (json['TsEncryptionMethod'] as String?)
+          ?.let(TsEncryptionMethod.fromString),
     );
   }
 
@@ -2004,9 +2254,65 @@ class EncryptionMethod {
     final tsEncryptionMethod = this.tsEncryptionMethod;
     return {
       if (cmafEncryptionMethod != null)
-        'CmafEncryptionMethod': cmafEncryptionMethod.toValue(),
+        'CmafEncryptionMethod': cmafEncryptionMethod.value,
       if (tsEncryptionMethod != null)
-        'TsEncryptionMethod': tsEncryptionMethod.toValue(),
+        'TsEncryptionMethod': tsEncryptionMethod.value,
+    };
+  }
+}
+
+/// Filter configuration includes settings for manifest filtering, start and end
+/// times, and time delay that apply to all of your egress requests for this
+/// manifest.
+class FilterConfiguration {
+  /// Optionally specify the end time for all of your manifest egress requests.
+  /// When you include end time, note that you cannot use end time query
+  /// parameters for this manifest's endpoint URL.
+  final DateTime? end;
+
+  /// Optionally specify one or more manifest filters for all of your manifest
+  /// egress requests. When you include a manifest filter, note that you cannot
+  /// use an identical manifest filter query parameter for this manifest's
+  /// endpoint URL.
+  final String? manifestFilter;
+
+  /// Optionally specify the start time for all of your manifest egress requests.
+  /// When you include start time, note that you cannot use start time query
+  /// parameters for this manifest's endpoint URL.
+  final DateTime? start;
+
+  /// Optionally specify the time delay for all of your manifest egress requests.
+  /// Enter a value that is smaller than your endpoint's startover window. When
+  /// you include time delay, note that you cannot use time delay query parameters
+  /// for this manifest's endpoint URL.
+  final int? timeDelaySeconds;
+
+  FilterConfiguration({
+    this.end,
+    this.manifestFilter,
+    this.start,
+    this.timeDelaySeconds,
+  });
+
+  factory FilterConfiguration.fromJson(Map<String, dynamic> json) {
+    return FilterConfiguration(
+      end: timeStampFromJson(json['End']),
+      manifestFilter: json['ManifestFilter'] as String?,
+      start: timeStampFromJson(json['Start']),
+      timeDelaySeconds: json['TimeDelaySeconds'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final end = this.end;
+    final manifestFilter = this.manifestFilter;
+    final start = this.start;
+    final timeDelaySeconds = this.timeDelaySeconds;
+    return {
+      if (end != null) 'End': unixTimestampToJson(end),
+      if (manifestFilter != null) 'ManifestFilter': manifestFilter,
+      if (start != null) 'Start': unixTimestampToJson(start),
+      if (timeDelaySeconds != null) 'TimeDelaySeconds': timeDelaySeconds,
     };
   }
 }
@@ -2033,6 +2339,10 @@ class GetChannelGroupResponse {
   /// The description for your channel group.
   final String? description;
 
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
+
   /// The comma-separated list of tag key:value pairs assigned to the channel
   /// group.
   final Map<String, String>? tags;
@@ -2044,6 +2354,7 @@ class GetChannelGroupResponse {
     required this.egressDomain,
     required this.modifiedAt,
     this.description,
+    this.eTag,
     this.tags,
   });
 
@@ -2055,6 +2366,7 @@ class GetChannelGroupResponse {
       egressDomain: json['EgressDomain'] as String,
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -2067,6 +2379,7 @@ class GetChannelGroupResponse {
     final egressDomain = this.egressDomain;
     final modifiedAt = this.modifiedAt;
     final description = this.description;
+    final eTag = this.eTag;
     final tags = this.tags;
     return {
       'Arn': arn,
@@ -2075,6 +2388,7 @@ class GetChannelGroupResponse {
       'EgressDomain': egressDomain,
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (tags != null) 'tags': tags,
     };
   }
@@ -2142,6 +2456,10 @@ class GetChannelResponse {
 
   /// The description for your channel.
   final String? description;
+
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
   final List<IngestEndpoint>? ingestEndpoints;
 
   /// The comma-separated list of tag key:value pairs assigned to the channel.
@@ -2154,6 +2472,7 @@ class GetChannelResponse {
     required this.createdAt,
     required this.modifiedAt,
     this.description,
+    this.eTag,
     this.ingestEndpoints,
     this.tags,
   });
@@ -2166,8 +2485,9 @@ class GetChannelResponse {
       createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       ingestEndpoints: (json['IngestEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IngestEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['Tags'] as Map<String, dynamic>?)
@@ -2182,6 +2502,7 @@ class GetChannelResponse {
     final createdAt = this.createdAt;
     final modifiedAt = this.modifiedAt;
     final description = this.description;
+    final eTag = this.eTag;
     final ingestEndpoints = this.ingestEndpoints;
     final tags = this.tags;
     return {
@@ -2191,8 +2512,153 @@ class GetChannelResponse {
       'CreatedAt': unixTimestampToJson(createdAt),
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (ingestEndpoints != null) 'IngestEndpoints': ingestEndpoints,
       if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
+/// Retrieve the DASH manifest configuration.
+class GetDashManifestConfiguration {
+  /// A short string that's appended to the endpoint URL. The manifest name
+  /// creates a unique path to this endpoint. If you don't enter a value,
+  /// MediaPackage uses the default manifest name, index.
+  final String manifestName;
+
+  /// The egress domain URL for stream delivery from MediaPackage.
+  final String url;
+
+  /// Determines how the DASH manifest signals the DRM content.
+  final DashDrmSignaling? drmSignaling;
+  final FilterConfiguration? filterConfiguration;
+
+  /// The total duration (in seconds) of the manifest's content.
+  final int? manifestWindowSeconds;
+
+  /// Minimum amount of content (in seconds) that a player must keep available in
+  /// the buffer.
+  final int? minBufferTimeSeconds;
+
+  /// Minimum amount of time (in seconds) that the player should wait before
+  /// requesting updates to the manifest.
+  final int? minUpdatePeriodSeconds;
+
+  /// A list of triggers that controls when AWS Elemental MediaPackage separates
+  /// the MPEG-DASH manifest into multiple periods. Leave this value empty to
+  /// indicate that the manifest is contained all in one period. For more
+  /// information about periods in the DASH manifest, see <a
+  /// href="https://docs.aws.amazon.com/mediapackage/latest/userguide/multi-period.html">Multi-period
+  /// DASH in AWS Elemental MediaPackage</a>.
+  final List<DashPeriodTrigger>? periodTriggers;
+
+  /// The SCTE configuration.
+  final ScteDash? scteDash;
+
+  /// Determines the type of variable used in the <code>media</code> URL of the
+  /// <code>SegmentTemplate</code> tag in the manifest. Also specifies if segment
+  /// timeline information is included in <code>SegmentTimeline</code> or
+  /// <code>SegmentTemplate</code>.
+  ///
+  /// Value description:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>NUMBER_WITH_TIMELINE</code> - The <code>$Number$</code> variable is
+  /// used in the <code>media</code> URL. The value of this variable is the
+  /// sequential number of the segment. A full <code>SegmentTimeline</code> object
+  /// is presented in each <code>SegmentTemplate</code>.
+  /// </li>
+  /// </ul>
+  final DashSegmentTemplateFormat? segmentTemplateFormat;
+
+  /// The amount of time (in seconds) that the player should be from the end of
+  /// the manifest.
+  final int? suggestedPresentationDelaySeconds;
+
+  /// Determines the type of UTC timing included in the DASH Media Presentation
+  /// Description (MPD).
+  final DashUtcTiming? utcTiming;
+
+  GetDashManifestConfiguration({
+    required this.manifestName,
+    required this.url,
+    this.drmSignaling,
+    this.filterConfiguration,
+    this.manifestWindowSeconds,
+    this.minBufferTimeSeconds,
+    this.minUpdatePeriodSeconds,
+    this.periodTriggers,
+    this.scteDash,
+    this.segmentTemplateFormat,
+    this.suggestedPresentationDelaySeconds,
+    this.utcTiming,
+  });
+
+  factory GetDashManifestConfiguration.fromJson(Map<String, dynamic> json) {
+    return GetDashManifestConfiguration(
+      manifestName: json['ManifestName'] as String,
+      url: json['Url'] as String,
+      drmSignaling:
+          (json['DrmSignaling'] as String?)?.let(DashDrmSignaling.fromString),
+      filterConfiguration: json['FilterConfiguration'] != null
+          ? FilterConfiguration.fromJson(
+              json['FilterConfiguration'] as Map<String, dynamic>)
+          : null,
+      manifestWindowSeconds: json['ManifestWindowSeconds'] as int?,
+      minBufferTimeSeconds: json['MinBufferTimeSeconds'] as int?,
+      minUpdatePeriodSeconds: json['MinUpdatePeriodSeconds'] as int?,
+      periodTriggers: (json['PeriodTriggers'] as List?)
+          ?.nonNulls
+          .map((e) => DashPeriodTrigger.fromString((e as String)))
+          .toList(),
+      scteDash: json['ScteDash'] != null
+          ? ScteDash.fromJson(json['ScteDash'] as Map<String, dynamic>)
+          : null,
+      segmentTemplateFormat: (json['SegmentTemplateFormat'] as String?)
+          ?.let(DashSegmentTemplateFormat.fromString),
+      suggestedPresentationDelaySeconds:
+          json['SuggestedPresentationDelaySeconds'] as int?,
+      utcTiming: json['UtcTiming'] != null
+          ? DashUtcTiming.fromJson(json['UtcTiming'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final manifestName = this.manifestName;
+    final url = this.url;
+    final drmSignaling = this.drmSignaling;
+    final filterConfiguration = this.filterConfiguration;
+    final manifestWindowSeconds = this.manifestWindowSeconds;
+    final minBufferTimeSeconds = this.minBufferTimeSeconds;
+    final minUpdatePeriodSeconds = this.minUpdatePeriodSeconds;
+    final periodTriggers = this.periodTriggers;
+    final scteDash = this.scteDash;
+    final segmentTemplateFormat = this.segmentTemplateFormat;
+    final suggestedPresentationDelaySeconds =
+        this.suggestedPresentationDelaySeconds;
+    final utcTiming = this.utcTiming;
+    return {
+      'ManifestName': manifestName,
+      'Url': url,
+      if (drmSignaling != null) 'DrmSignaling': drmSignaling.value,
+      if (filterConfiguration != null)
+        'FilterConfiguration': filterConfiguration,
+      if (manifestWindowSeconds != null)
+        'ManifestWindowSeconds': manifestWindowSeconds,
+      if (minBufferTimeSeconds != null)
+        'MinBufferTimeSeconds': minBufferTimeSeconds,
+      if (minUpdatePeriodSeconds != null)
+        'MinUpdatePeriodSeconds': minUpdatePeriodSeconds,
+      if (periodTriggers != null)
+        'PeriodTriggers': periodTriggers.map((e) => e.value).toList(),
+      if (scteDash != null) 'ScteDash': scteDash,
+      if (segmentTemplateFormat != null)
+        'SegmentTemplateFormat': segmentTemplateFormat.value,
+      if (suggestedPresentationDelaySeconds != null)
+        'SuggestedPresentationDelaySeconds': suggestedPresentationDelaySeconds,
+      if (utcTiming != null) 'UtcTiming': utcTiming,
     };
   }
 }
@@ -2217,6 +2683,7 @@ class GetHlsManifestConfiguration {
   /// on the HLSManifest object overrides the manifestName you provided on the
   /// originEndpoint object.
   final String? childManifestName;
+  final FilterConfiguration? filterConfiguration;
 
   /// The total duration (in seconds) of the manifest's content.
   final int? manifestWindowSeconds;
@@ -2237,6 +2704,7 @@ class GetHlsManifestConfiguration {
     required this.manifestName,
     required this.url,
     this.childManifestName,
+    this.filterConfiguration,
     this.manifestWindowSeconds,
     this.programDateTimeIntervalSeconds,
     this.scteHls,
@@ -2247,6 +2715,10 @@ class GetHlsManifestConfiguration {
       manifestName: json['ManifestName'] as String,
       url: json['Url'] as String,
       childManifestName: json['ChildManifestName'] as String?,
+      filterConfiguration: json['FilterConfiguration'] != null
+          ? FilterConfiguration.fromJson(
+              json['FilterConfiguration'] as Map<String, dynamic>)
+          : null,
       manifestWindowSeconds: json['ManifestWindowSeconds'] as int?,
       programDateTimeIntervalSeconds:
           json['ProgramDateTimeIntervalSeconds'] as int?,
@@ -2260,6 +2732,7 @@ class GetHlsManifestConfiguration {
     final manifestName = this.manifestName;
     final url = this.url;
     final childManifestName = this.childManifestName;
+    final filterConfiguration = this.filterConfiguration;
     final manifestWindowSeconds = this.manifestWindowSeconds;
     final programDateTimeIntervalSeconds = this.programDateTimeIntervalSeconds;
     final scteHls = this.scteHls;
@@ -2267,6 +2740,8 @@ class GetHlsManifestConfiguration {
       'ManifestName': manifestName,
       'Url': url,
       if (childManifestName != null) 'ChildManifestName': childManifestName,
+      if (filterConfiguration != null)
+        'FilterConfiguration': filterConfiguration,
       if (manifestWindowSeconds != null)
         'ManifestWindowSeconds': manifestWindowSeconds,
       if (programDateTimeIntervalSeconds != null)
@@ -2296,6 +2771,7 @@ class GetLowLatencyHlsManifestConfiguration {
   /// on the HLSManifest object overrides the manifestName you provided on the
   /// originEndpoint object.
   final String? childManifestName;
+  final FilterConfiguration? filterConfiguration;
 
   /// The total duration (in seconds) of the manifest's content.
   final int? manifestWindowSeconds;
@@ -2316,6 +2792,7 @@ class GetLowLatencyHlsManifestConfiguration {
     required this.manifestName,
     required this.url,
     this.childManifestName,
+    this.filterConfiguration,
     this.manifestWindowSeconds,
     this.programDateTimeIntervalSeconds,
     this.scteHls,
@@ -2327,6 +2804,10 @@ class GetLowLatencyHlsManifestConfiguration {
       manifestName: json['ManifestName'] as String,
       url: json['Url'] as String,
       childManifestName: json['ChildManifestName'] as String?,
+      filterConfiguration: json['FilterConfiguration'] != null
+          ? FilterConfiguration.fromJson(
+              json['FilterConfiguration'] as Map<String, dynamic>)
+          : null,
       manifestWindowSeconds: json['ManifestWindowSeconds'] as int?,
       programDateTimeIntervalSeconds:
           json['ProgramDateTimeIntervalSeconds'] as int?,
@@ -2340,6 +2821,7 @@ class GetLowLatencyHlsManifestConfiguration {
     final manifestName = this.manifestName;
     final url = this.url;
     final childManifestName = this.childManifestName;
+    final filterConfiguration = this.filterConfiguration;
     final manifestWindowSeconds = this.manifestWindowSeconds;
     final programDateTimeIntervalSeconds = this.programDateTimeIntervalSeconds;
     final scteHls = this.scteHls;
@@ -2347,6 +2829,8 @@ class GetLowLatencyHlsManifestConfiguration {
       'ManifestName': manifestName,
       'Url': url,
       if (childManifestName != null) 'ChildManifestName': childManifestName,
+      if (filterConfiguration != null)
+        'FilterConfiguration': filterConfiguration,
       if (manifestWindowSeconds != null)
         'ManifestWindowSeconds': manifestWindowSeconds,
       if (programDateTimeIntervalSeconds != null)
@@ -2434,8 +2918,15 @@ class GetOriginEndpointResponse {
   final String originEndpointName;
   final Segment segment;
 
+  /// A DASH manifest configuration.
+  final List<GetDashManifestConfiguration>? dashManifests;
+
   /// The description for your origin endpoint.
   final String? description;
+
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
 
   /// An HTTP live streaming (HLS) manifest configuration.
   final List<GetHlsManifestConfiguration>? hlsManifests;
@@ -2461,7 +2952,9 @@ class GetOriginEndpointResponse {
     required this.modifiedAt,
     required this.originEndpointName,
     required this.segment,
+    this.dashManifests,
     this.description,
+    this.eTag,
     this.hlsManifests,
     this.lowLatencyHlsManifests,
     this.startoverWindowSeconds,
@@ -2473,19 +2966,26 @@ class GetOriginEndpointResponse {
       arn: json['Arn'] as String,
       channelGroupName: json['ChannelGroupName'] as String,
       channelName: json['ChannelName'] as String,
-      containerType: (json['ContainerType'] as String).toContainerType(),
+      containerType:
+          ContainerType.fromString((json['ContainerType'] as String)),
       createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       originEndpointName: json['OriginEndpointName'] as String,
       segment: Segment.fromJson(json['Segment'] as Map<String, dynamic>),
+      dashManifests: (json['DashManifests'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              GetDashManifestConfiguration.fromJson(e as Map<String, dynamic>))
+          .toList(),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       hlsManifests: (json['HlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               GetHlsManifestConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       lowLatencyHlsManifests: (json['LowLatencyHlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GetLowLatencyHlsManifestConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -2504,7 +3004,9 @@ class GetOriginEndpointResponse {
     final modifiedAt = this.modifiedAt;
     final originEndpointName = this.originEndpointName;
     final segment = this.segment;
+    final dashManifests = this.dashManifests;
     final description = this.description;
+    final eTag = this.eTag;
     final hlsManifests = this.hlsManifests;
     final lowLatencyHlsManifests = this.lowLatencyHlsManifests;
     final startoverWindowSeconds = this.startoverWindowSeconds;
@@ -2513,12 +3015,14 @@ class GetOriginEndpointResponse {
       'Arn': arn,
       'ChannelGroupName': channelGroupName,
       'ChannelName': channelName,
-      'ContainerType': containerType.toValue(),
+      'ContainerType': containerType.value,
       'CreatedAt': unixTimestampToJson(createdAt),
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       'OriginEndpointName': originEndpointName,
       'Segment': segment,
+      if (dashManifests != null) 'DashManifests': dashManifests,
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (hlsManifests != null) 'HlsManifests': hlsManifests,
       if (lowLatencyHlsManifests != null)
         'LowLatencyHlsManifests': lowLatencyHlsManifests,
@@ -2575,7 +3079,7 @@ class ListChannelGroupsResponse {
   factory ListChannelGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListChannelGroupsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ChannelGroupListConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2608,7 +3112,7 @@ class ListChannelsResponse {
   factory ListChannelsResponse.fromJson(Map<String, dynamic> json) {
     return ListChannelsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ChannelListConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2622,6 +3126,38 @@ class ListChannelsResponse {
     return {
       if (items != null) 'Items': items,
       if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+/// List the DASH manifest configuration.
+class ListDashManifestConfiguration {
+  /// A short string that's appended to the endpoint URL. The manifest name
+  /// creates a unique path to this endpoint. If you don't enter a value,
+  /// MediaPackage uses the default manifest name, index.
+  final String manifestName;
+
+  /// The egress domain URL for stream delivery from MediaPackage.
+  final String? url;
+
+  ListDashManifestConfiguration({
+    required this.manifestName,
+    this.url,
+  });
+
+  factory ListDashManifestConfiguration.fromJson(Map<String, dynamic> json) {
+    return ListDashManifestConfiguration(
+      manifestName: json['ManifestName'] as String,
+      url: json['Url'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final manifestName = this.manifestName;
+    final url = this.url;
+    return {
+      'ManifestName': manifestName,
+      if (url != null) 'Url': url,
     };
   }
 }
@@ -2737,7 +3273,7 @@ class ListOriginEndpointsResponse {
   factory ListOriginEndpointsResponse.fromJson(Map<String, dynamic> json) {
     return ListOriginEndpointsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OriginEndpointListConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -2807,6 +3343,9 @@ class OriginEndpointListConfiguration {
   /// The date and time the origin endpoint was created.
   final DateTime? createdAt;
 
+  /// A DASH manifest configuration.
+  final List<ListDashManifestConfiguration>? dashManifests;
+
   /// Any descriptive information that you want to add to the origin endpoint for
   /// future identification purposes.
   final String? description;
@@ -2827,6 +3366,7 @@ class OriginEndpointListConfiguration {
     required this.containerType,
     required this.originEndpointName,
     this.createdAt,
+    this.dashManifests,
     this.description,
     this.hlsManifests,
     this.lowLatencyHlsManifests,
@@ -2838,17 +3378,23 @@ class OriginEndpointListConfiguration {
       arn: json['Arn'] as String,
       channelGroupName: json['ChannelGroupName'] as String,
       channelName: json['ChannelName'] as String,
-      containerType: (json['ContainerType'] as String).toContainerType(),
+      containerType:
+          ContainerType.fromString((json['ContainerType'] as String)),
       originEndpointName: json['OriginEndpointName'] as String,
       createdAt: timeStampFromJson(json['CreatedAt']),
+      dashManifests: (json['DashManifests'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              ListDashManifestConfiguration.fromJson(e as Map<String, dynamic>))
+          .toList(),
       description: json['Description'] as String?,
       hlsManifests: (json['HlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ListHlsManifestConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       lowLatencyHlsManifests: (json['LowLatencyHlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ListLowLatencyHlsManifestConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -2863,6 +3409,7 @@ class OriginEndpointListConfiguration {
     final containerType = this.containerType;
     final originEndpointName = this.originEndpointName;
     final createdAt = this.createdAt;
+    final dashManifests = this.dashManifests;
     final description = this.description;
     final hlsManifests = this.hlsManifests;
     final lowLatencyHlsManifests = this.lowLatencyHlsManifests;
@@ -2871,9 +3418,10 @@ class OriginEndpointListConfiguration {
       'Arn': arn,
       'ChannelGroupName': channelGroupName,
       'ChannelName': channelName,
-      'ContainerType': containerType.toValue(),
+      'ContainerType': containerType.value,
       'OriginEndpointName': originEndpointName,
       if (createdAt != null) 'CreatedAt': unixTimestampToJson(createdAt),
+      if (dashManifests != null) 'DashManifests': dashManifests,
       if (description != null) 'Description': description,
       if (hlsManifests != null) 'HlsManifests': hlsManifests,
       if (lowLatencyHlsManifests != null)
@@ -2884,114 +3432,44 @@ class OriginEndpointListConfiguration {
 }
 
 enum PresetSpeke20Audio {
-  presetAudio_1,
-  presetAudio_2,
-  presetAudio_3,
-  shared,
-  unencrypted,
-}
+  presetAudio_1('PRESET_AUDIO_1'),
+  presetAudio_2('PRESET_AUDIO_2'),
+  presetAudio_3('PRESET_AUDIO_3'),
+  shared('SHARED'),
+  unencrypted('UNENCRYPTED'),
+  ;
 
-extension PresetSpeke20AudioValueExtension on PresetSpeke20Audio {
-  String toValue() {
-    switch (this) {
-      case PresetSpeke20Audio.presetAudio_1:
-        return 'PRESET_AUDIO_1';
-      case PresetSpeke20Audio.presetAudio_2:
-        return 'PRESET_AUDIO_2';
-      case PresetSpeke20Audio.presetAudio_3:
-        return 'PRESET_AUDIO_3';
-      case PresetSpeke20Audio.shared:
-        return 'SHARED';
-      case PresetSpeke20Audio.unencrypted:
-        return 'UNENCRYPTED';
-    }
-  }
-}
+  final String value;
 
-extension PresetSpeke20AudioFromString on String {
-  PresetSpeke20Audio toPresetSpeke20Audio() {
-    switch (this) {
-      case 'PRESET_AUDIO_1':
-        return PresetSpeke20Audio.presetAudio_1;
-      case 'PRESET_AUDIO_2':
-        return PresetSpeke20Audio.presetAudio_2;
-      case 'PRESET_AUDIO_3':
-        return PresetSpeke20Audio.presetAudio_3;
-      case 'SHARED':
-        return PresetSpeke20Audio.shared;
-      case 'UNENCRYPTED':
-        return PresetSpeke20Audio.unencrypted;
-    }
-    throw Exception('$this is not known in enum PresetSpeke20Audio');
-  }
+  const PresetSpeke20Audio(this.value);
+
+  static PresetSpeke20Audio fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PresetSpeke20Audio'));
 }
 
 enum PresetSpeke20Video {
-  presetVideo_1,
-  presetVideo_2,
-  presetVideo_3,
-  presetVideo_4,
-  presetVideo_5,
-  presetVideo_6,
-  presetVideo_7,
-  presetVideo_8,
-  shared,
-  unencrypted,
-}
+  presetVideo_1('PRESET_VIDEO_1'),
+  presetVideo_2('PRESET_VIDEO_2'),
+  presetVideo_3('PRESET_VIDEO_3'),
+  presetVideo_4('PRESET_VIDEO_4'),
+  presetVideo_5('PRESET_VIDEO_5'),
+  presetVideo_6('PRESET_VIDEO_6'),
+  presetVideo_7('PRESET_VIDEO_7'),
+  presetVideo_8('PRESET_VIDEO_8'),
+  shared('SHARED'),
+  unencrypted('UNENCRYPTED'),
+  ;
 
-extension PresetSpeke20VideoValueExtension on PresetSpeke20Video {
-  String toValue() {
-    switch (this) {
-      case PresetSpeke20Video.presetVideo_1:
-        return 'PRESET_VIDEO_1';
-      case PresetSpeke20Video.presetVideo_2:
-        return 'PRESET_VIDEO_2';
-      case PresetSpeke20Video.presetVideo_3:
-        return 'PRESET_VIDEO_3';
-      case PresetSpeke20Video.presetVideo_4:
-        return 'PRESET_VIDEO_4';
-      case PresetSpeke20Video.presetVideo_5:
-        return 'PRESET_VIDEO_5';
-      case PresetSpeke20Video.presetVideo_6:
-        return 'PRESET_VIDEO_6';
-      case PresetSpeke20Video.presetVideo_7:
-        return 'PRESET_VIDEO_7';
-      case PresetSpeke20Video.presetVideo_8:
-        return 'PRESET_VIDEO_8';
-      case PresetSpeke20Video.shared:
-        return 'SHARED';
-      case PresetSpeke20Video.unencrypted:
-        return 'UNENCRYPTED';
-    }
-  }
-}
+  final String value;
 
-extension PresetSpeke20VideoFromString on String {
-  PresetSpeke20Video toPresetSpeke20Video() {
-    switch (this) {
-      case 'PRESET_VIDEO_1':
-        return PresetSpeke20Video.presetVideo_1;
-      case 'PRESET_VIDEO_2':
-        return PresetSpeke20Video.presetVideo_2;
-      case 'PRESET_VIDEO_3':
-        return PresetSpeke20Video.presetVideo_3;
-      case 'PRESET_VIDEO_4':
-        return PresetSpeke20Video.presetVideo_4;
-      case 'PRESET_VIDEO_5':
-        return PresetSpeke20Video.presetVideo_5;
-      case 'PRESET_VIDEO_6':
-        return PresetSpeke20Video.presetVideo_6;
-      case 'PRESET_VIDEO_7':
-        return PresetSpeke20Video.presetVideo_7;
-      case 'PRESET_VIDEO_8':
-        return PresetSpeke20Video.presetVideo_8;
-      case 'SHARED':
-        return PresetSpeke20Video.shared;
-      case 'UNENCRYPTED':
-        return PresetSpeke20Video.unencrypted;
-    }
-    throw Exception('$this is not known in enum PresetSpeke20Video');
-  }
+  const PresetSpeke20Video(this.value);
+
+  static PresetSpeke20Video fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PresetSpeke20Video'));
 }
 
 class PutChannelPolicyResponse {
@@ -3031,8 +3509,8 @@ class Scte {
   factory Scte.fromJson(Map<String, dynamic> json) {
     return Scte(
       scteFilter: (json['ScteFilter'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toScteFilter())
+          ?.nonNulls
+          .map((e) => ScteFilter.fromString((e as String)))
           .toList(),
     );
   }
@@ -3041,72 +3519,69 @@ class Scte {
     final scteFilter = this.scteFilter;
     return {
       if (scteFilter != null)
-        'ScteFilter': scteFilter.map((e) => e.toValue()).toList(),
+        'ScteFilter': scteFilter.map((e) => e.value).toList(),
+    };
+  }
+}
+
+/// The SCTE configuration.
+class ScteDash {
+  /// Choose how ad markers are included in the packaged content. If you include
+  /// ad markers in the content stream in your upstream encoders, then you need to
+  /// inform MediaPackage what to do with the ad markers in the output.
+  ///
+  /// Value description:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>Binary</code> - The SCTE-35 marker is expressed as a hex-string
+  /// (Base64 string) rather than full XML.
+  /// </li>
+  /// <li>
+  /// <code>XML</code> - The SCTE marker is expressed fully in XML.
+  /// </li>
+  /// </ul>
+  final AdMarkerDash? adMarkerDash;
+
+  ScteDash({
+    this.adMarkerDash,
+  });
+
+  factory ScteDash.fromJson(Map<String, dynamic> json) {
+    return ScteDash(
+      adMarkerDash:
+          (json['AdMarkerDash'] as String?)?.let(AdMarkerDash.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final adMarkerDash = this.adMarkerDash;
+    return {
+      if (adMarkerDash != null) 'AdMarkerDash': adMarkerDash.value,
     };
   }
 }
 
 enum ScteFilter {
-  spliceInsert,
-  $break,
-  providerAdvertisement,
-  distributorAdvertisement,
-  providerPlacementOpportunity,
-  distributorPlacementOpportunity,
-  providerOverlayPlacementOpportunity,
-  distributorOverlayPlacementOpportunity,
-  program,
-}
+  spliceInsert('SPLICE_INSERT'),
+  $break('BREAK'),
+  providerAdvertisement('PROVIDER_ADVERTISEMENT'),
+  distributorAdvertisement('DISTRIBUTOR_ADVERTISEMENT'),
+  providerPlacementOpportunity('PROVIDER_PLACEMENT_OPPORTUNITY'),
+  distributorPlacementOpportunity('DISTRIBUTOR_PLACEMENT_OPPORTUNITY'),
+  providerOverlayPlacementOpportunity('PROVIDER_OVERLAY_PLACEMENT_OPPORTUNITY'),
+  distributorOverlayPlacementOpportunity(
+      'DISTRIBUTOR_OVERLAY_PLACEMENT_OPPORTUNITY'),
+  program('PROGRAM'),
+  ;
 
-extension ScteFilterValueExtension on ScteFilter {
-  String toValue() {
-    switch (this) {
-      case ScteFilter.spliceInsert:
-        return 'SPLICE_INSERT';
-      case ScteFilter.$break:
-        return 'BREAK';
-      case ScteFilter.providerAdvertisement:
-        return 'PROVIDER_ADVERTISEMENT';
-      case ScteFilter.distributorAdvertisement:
-        return 'DISTRIBUTOR_ADVERTISEMENT';
-      case ScteFilter.providerPlacementOpportunity:
-        return 'PROVIDER_PLACEMENT_OPPORTUNITY';
-      case ScteFilter.distributorPlacementOpportunity:
-        return 'DISTRIBUTOR_PLACEMENT_OPPORTUNITY';
-      case ScteFilter.providerOverlayPlacementOpportunity:
-        return 'PROVIDER_OVERLAY_PLACEMENT_OPPORTUNITY';
-      case ScteFilter.distributorOverlayPlacementOpportunity:
-        return 'DISTRIBUTOR_OVERLAY_PLACEMENT_OPPORTUNITY';
-      case ScteFilter.program:
-        return 'PROGRAM';
-    }
-  }
-}
+  final String value;
 
-extension ScteFilterFromString on String {
-  ScteFilter toScteFilter() {
-    switch (this) {
-      case 'SPLICE_INSERT':
-        return ScteFilter.spliceInsert;
-      case 'BREAK':
-        return ScteFilter.$break;
-      case 'PROVIDER_ADVERTISEMENT':
-        return ScteFilter.providerAdvertisement;
-      case 'DISTRIBUTOR_ADVERTISEMENT':
-        return ScteFilter.distributorAdvertisement;
-      case 'PROVIDER_PLACEMENT_OPPORTUNITY':
-        return ScteFilter.providerPlacementOpportunity;
-      case 'DISTRIBUTOR_PLACEMENT_OPPORTUNITY':
-        return ScteFilter.distributorPlacementOpportunity;
-      case 'PROVIDER_OVERLAY_PLACEMENT_OPPORTUNITY':
-        return ScteFilter.providerOverlayPlacementOpportunity;
-      case 'DISTRIBUTOR_OVERLAY_PLACEMENT_OPPORTUNITY':
-        return ScteFilter.distributorOverlayPlacementOpportunity;
-      case 'PROGRAM':
-        return ScteFilter.program;
-    }
-    throw Exception('$this is not known in enum ScteFilter');
-  }
+  const ScteFilter(this.value);
+
+  static ScteFilter fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ScteFilter'));
 }
 
 /// The SCTE configuration.
@@ -3136,14 +3611,15 @@ class ScteHls {
 
   factory ScteHls.fromJson(Map<String, dynamic> json) {
     return ScteHls(
-      adMarkerHls: (json['AdMarkerHls'] as String?)?.toAdMarkerHls(),
+      adMarkerHls:
+          (json['AdMarkerHls'] as String?)?.let(AdMarkerHls.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final adMarkerHls = this.adMarkerHls;
     return {
-      if (adMarkerHls != null) 'AdMarkerHls': adMarkerHls.toValue(),
+      if (adMarkerHls != null) 'AdMarkerHls': adMarkerHls.value,
     };
   }
 }
@@ -3289,8 +3765,8 @@ class SpekeKeyProvider {
   factory SpekeKeyProvider.fromJson(Map<String, dynamic> json) {
     return SpekeKeyProvider(
       drmSystems: (json['DrmSystems'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toDrmSystem())
+          .nonNulls
+          .map((e) => DrmSystem.fromString((e as String)))
           .toList(),
       encryptionContractConfiguration: EncryptionContractConfiguration.fromJson(
           json['EncryptionContractConfiguration'] as Map<String, dynamic>),
@@ -3308,7 +3784,7 @@ class SpekeKeyProvider {
     final roleArn = this.roleArn;
     final url = this.url;
     return {
-      'DrmSystems': drmSystems.map((e) => e.toValue()).toList(),
+      'DrmSystems': drmSystems.map((e) => e.value).toList(),
       'EncryptionContractConfiguration': encryptionContractConfiguration,
       'ResourceId': resourceId,
       'RoleArn': roleArn,
@@ -3318,31 +3794,18 @@ class SpekeKeyProvider {
 }
 
 enum TsEncryptionMethod {
-  aes_128,
-  sampleAes,
-}
+  aes_128('AES_128'),
+  sampleAes('SAMPLE_AES'),
+  ;
 
-extension TsEncryptionMethodValueExtension on TsEncryptionMethod {
-  String toValue() {
-    switch (this) {
-      case TsEncryptionMethod.aes_128:
-        return 'AES_128';
-      case TsEncryptionMethod.sampleAes:
-        return 'SAMPLE_AES';
-    }
-  }
-}
+  final String value;
 
-extension TsEncryptionMethodFromString on String {
-  TsEncryptionMethod toTsEncryptionMethod() {
-    switch (this) {
-      case 'AES_128':
-        return TsEncryptionMethod.aes_128;
-      case 'SAMPLE_AES':
-        return TsEncryptionMethod.sampleAes;
-    }
-    throw Exception('$this is not known in enum TsEncryptionMethod');
-  }
+  const TsEncryptionMethod(this.value);
+
+  static TsEncryptionMethod fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TsEncryptionMethod'));
 }
 
 class UpdateChannelGroupResponse {
@@ -3367,6 +3830,10 @@ class UpdateChannelGroupResponse {
   /// The description for your channel group.
   final String? description;
 
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
+
   /// The comma-separated list of tag key:value pairs assigned to the channel
   /// group.
   final Map<String, String>? tags;
@@ -3378,6 +3845,7 @@ class UpdateChannelGroupResponse {
     required this.egressDomain,
     required this.modifiedAt,
     this.description,
+    this.eTag,
     this.tags,
   });
 
@@ -3389,6 +3857,7 @@ class UpdateChannelGroupResponse {
       egressDomain: json['EgressDomain'] as String,
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -3401,6 +3870,7 @@ class UpdateChannelGroupResponse {
     final egressDomain = this.egressDomain;
     final modifiedAt = this.modifiedAt;
     final description = this.description;
+    final eTag = this.eTag;
     final tags = this.tags;
     return {
       'Arn': arn,
@@ -3409,6 +3879,7 @@ class UpdateChannelGroupResponse {
       'EgressDomain': egressDomain,
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (tags != null) 'tags': tags,
     };
   }
@@ -3436,6 +3907,10 @@ class UpdateChannelResponse {
 
   /// The description for your channel.
   final String? description;
+
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
   final List<IngestEndpoint>? ingestEndpoints;
 
   /// The comma-separated list of tag key:value pairs assigned to the channel.
@@ -3448,6 +3923,7 @@ class UpdateChannelResponse {
     required this.createdAt,
     required this.modifiedAt,
     this.description,
+    this.eTag,
     this.ingestEndpoints,
     this.tags,
   });
@@ -3460,8 +3936,9 @@ class UpdateChannelResponse {
       createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       ingestEndpoints: (json['IngestEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IngestEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
@@ -3476,6 +3953,7 @@ class UpdateChannelResponse {
     final createdAt = this.createdAt;
     final modifiedAt = this.modifiedAt;
     final description = this.description;
+    final eTag = this.eTag;
     final ingestEndpoints = this.ingestEndpoints;
     final tags = this.tags;
     return {
@@ -3485,6 +3963,7 @@ class UpdateChannelResponse {
       'CreatedAt': unixTimestampToJson(createdAt),
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (ingestEndpoints != null) 'IngestEndpoints': ingestEndpoints,
       if (tags != null) 'tags': tags,
     };
@@ -3523,8 +4002,15 @@ class UpdateOriginEndpointResponse {
   /// configuration values.
   final Segment segment;
 
+  /// A DASH manifest configuration.
+  final List<GetDashManifestConfiguration>? dashManifests;
+
   /// The description of the origin endpoint.
   final String? description;
+
+  /// The current Entity Tag (ETag) associated with this resource. The entity tag
+  /// can be used to safely make concurrent updates to the resource.
+  final String? eTag;
 
   /// An HTTP live streaming (HLS) manifest configuration.
   final List<GetHlsManifestConfiguration>? hlsManifests;
@@ -3550,7 +4036,9 @@ class UpdateOriginEndpointResponse {
     required this.modifiedAt,
     required this.originEndpointName,
     required this.segment,
+    this.dashManifests,
     this.description,
+    this.eTag,
     this.hlsManifests,
     this.lowLatencyHlsManifests,
     this.startoverWindowSeconds,
@@ -3562,19 +4050,26 @@ class UpdateOriginEndpointResponse {
       arn: json['Arn'] as String,
       channelGroupName: json['ChannelGroupName'] as String,
       channelName: json['ChannelName'] as String,
-      containerType: (json['ContainerType'] as String).toContainerType(),
+      containerType:
+          ContainerType.fromString((json['ContainerType'] as String)),
       createdAt: nonNullableTimeStampFromJson(json['CreatedAt'] as Object),
       modifiedAt: nonNullableTimeStampFromJson(json['ModifiedAt'] as Object),
       originEndpointName: json['OriginEndpointName'] as String,
       segment: Segment.fromJson(json['Segment'] as Map<String, dynamic>),
+      dashManifests: (json['DashManifests'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              GetDashManifestConfiguration.fromJson(e as Map<String, dynamic>))
+          .toList(),
       description: json['Description'] as String?,
+      eTag: json['ETag'] as String?,
       hlsManifests: (json['HlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               GetHlsManifestConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       lowLatencyHlsManifests: (json['LowLatencyHlsManifests'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GetLowLatencyHlsManifestConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3593,7 +4088,9 @@ class UpdateOriginEndpointResponse {
     final modifiedAt = this.modifiedAt;
     final originEndpointName = this.originEndpointName;
     final segment = this.segment;
+    final dashManifests = this.dashManifests;
     final description = this.description;
+    final eTag = this.eTag;
     final hlsManifests = this.hlsManifests;
     final lowLatencyHlsManifests = this.lowLatencyHlsManifests;
     final startoverWindowSeconds = this.startoverWindowSeconds;
@@ -3602,12 +4099,14 @@ class UpdateOriginEndpointResponse {
       'Arn': arn,
       'ChannelGroupName': channelGroupName,
       'ChannelName': channelName,
-      'ContainerType': containerType.toValue(),
+      'ContainerType': containerType.value,
       'CreatedAt': unixTimestampToJson(createdAt),
       'ModifiedAt': unixTimestampToJson(modifiedAt),
       'OriginEndpointName': originEndpointName,
       'Segment': segment,
+      if (dashManifests != null) 'DashManifests': dashManifests,
       if (description != null) 'Description': description,
+      if (eTag != null) 'ETag': eTag,
       if (hlsManifests != null) 'HlsManifests': hlsManifests,
       if (lowLatencyHlsManifests != null)
         'LowLatencyHlsManifests': lowLatencyHlsManifests,

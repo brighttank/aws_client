@@ -237,7 +237,7 @@ class DynamoDBStreams {
       headers: headers,
       payload: {
         'ShardId': shardId,
-        'ShardIteratorType': shardIteratorType.toValue(),
+        'ShardIteratorType': shardIteratorType.value,
         'StreamArn': streamArn,
         if (sequenceNumber != null) 'SequenceNumber': sequenceNumber,
       },
@@ -386,26 +386,20 @@ class AttributeValue {
       b: _s.decodeNullableUint8List(json['B'] as String?),
       boolValue: json['BOOL'] as bool?,
       bs: (json['BS'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => _s.decodeUint8List(e as String))
           .toList(),
       l: (json['L'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       m: (json['M'] as Map<String, dynamic>?)?.map((k, e) =>
           MapEntry(k, AttributeValue.fromJson(e as Map<String, dynamic>))),
       n: json['N'] as String?,
-      ns: (json['NS'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ns: (json['NS'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nullValue: json['NULL'] as bool?,
       s: json['S'] as String?,
-      ss: (json['SS'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ss: (json['SS'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -484,7 +478,7 @@ class GetRecordsOutput {
     return GetRecordsOutput(
       nextShardIterator: json['NextShardIterator'] as String?,
       records: (json['Records'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Record.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -603,7 +597,7 @@ class KeySchemaElement {
   factory KeySchemaElement.fromJson(Map<String, dynamic> json) {
     return KeySchemaElement(
       attributeName: json['AttributeName'] as String,
-      keyType: (json['KeyType'] as String).toKeyType(),
+      keyType: KeyType.fromString((json['KeyType'] as String)),
     );
   }
 
@@ -612,37 +606,23 @@ class KeySchemaElement {
     final keyType = this.keyType;
     return {
       'AttributeName': attributeName,
-      'KeyType': keyType.toValue(),
+      'KeyType': keyType.value,
     };
   }
 }
 
 enum KeyType {
-  hash,
-  range,
-}
+  hash('HASH'),
+  range('RANGE'),
+  ;
 
-extension KeyTypeValueExtension on KeyType {
-  String toValue() {
-    switch (this) {
-      case KeyType.hash:
-        return 'HASH';
-      case KeyType.range:
-        return 'RANGE';
-    }
-  }
-}
+  final String value;
 
-extension KeyTypeFromString on String {
-  KeyType toKeyType() {
-    switch (this) {
-      case 'HASH':
-        return KeyType.hash;
-      case 'RANGE':
-        return KeyType.range;
-    }
-    throw Exception('$this is not known in enum KeyType');
-  }
+  const KeyType(this.value);
+
+  static KeyType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum KeyType'));
 }
 
 /// Represents the output of a <code>ListStreams</code> operation.
@@ -673,7 +653,7 @@ class ListStreamsOutput {
     return ListStreamsOutput(
       lastEvaluatedStreamArn: json['LastEvaluatedStreamArn'] as String?,
       streams: (json['Streams'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Stream.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -691,36 +671,19 @@ class ListStreamsOutput {
 }
 
 enum OperationType {
-  insert,
-  modify,
-  remove,
-}
+  insert('INSERT'),
+  modify('MODIFY'),
+  remove('REMOVE'),
+  ;
 
-extension OperationTypeValueExtension on OperationType {
-  String toValue() {
-    switch (this) {
-      case OperationType.insert:
-        return 'INSERT';
-      case OperationType.modify:
-        return 'MODIFY';
-      case OperationType.remove:
-        return 'REMOVE';
-    }
-  }
-}
+  final String value;
 
-extension OperationTypeFromString on String {
-  OperationType toOperationType() {
-    switch (this) {
-      case 'INSERT':
-        return OperationType.insert;
-      case 'MODIFY':
-        return OperationType.modify;
-      case 'REMOVE':
-        return OperationType.remove;
-    }
-    throw Exception('$this is not known in enum OperationType');
-  }
+  const OperationType(this.value);
+
+  static OperationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OperationType'));
 }
 
 /// A description of a unique event within a stream.
@@ -752,8 +715,8 @@ class Record {
   /// </ul>
   final OperationType? eventName;
 
-  /// The AWS service from which the stream record originated. For DynamoDB
-  /// Streams, this is <code>aws:dynamodb</code>.
+  /// The Amazon Web Services service from which the stream record originated. For
+  /// DynamoDB Streams, this is <code>aws:dynamodb</code>.
   final String? eventSource;
 
   /// The version number of the stream record format. This number is updated
@@ -799,7 +762,7 @@ class Record {
           ? StreamRecord.fromJson(json['dynamodb'] as Map<String, dynamic>)
           : null,
       eventID: json['eventID'] as String?,
-      eventName: (json['eventName'] as String?)?.toOperationType(),
+      eventName: (json['eventName'] as String?)?.let(OperationType.fromString),
       eventSource: json['eventSource'] as String?,
       eventVersion: json['eventVersion'] as String?,
       userIdentity: json['userIdentity'] != null
@@ -820,7 +783,7 @@ class Record {
       if (awsRegion != null) 'awsRegion': awsRegion,
       if (dynamodb != null) 'dynamodb': dynamodb,
       if (eventID != null) 'eventID': eventID,
-      if (eventName != null) 'eventName': eventName.toValue(),
+      if (eventName != null) 'eventName': eventName.value,
       if (eventSource != null) 'eventSource': eventSource,
       if (eventVersion != null) 'eventVersion': eventVersion,
       if (userIdentity != null) 'userIdentity': userIdentity,
@@ -905,41 +868,20 @@ class Shard {
 }
 
 enum ShardIteratorType {
-  trimHorizon,
-  latest,
-  atSequenceNumber,
-  afterSequenceNumber,
-}
+  trimHorizon('TRIM_HORIZON'),
+  latest('LATEST'),
+  atSequenceNumber('AT_SEQUENCE_NUMBER'),
+  afterSequenceNumber('AFTER_SEQUENCE_NUMBER'),
+  ;
 
-extension ShardIteratorTypeValueExtension on ShardIteratorType {
-  String toValue() {
-    switch (this) {
-      case ShardIteratorType.trimHorizon:
-        return 'TRIM_HORIZON';
-      case ShardIteratorType.latest:
-        return 'LATEST';
-      case ShardIteratorType.atSequenceNumber:
-        return 'AT_SEQUENCE_NUMBER';
-      case ShardIteratorType.afterSequenceNumber:
-        return 'AFTER_SEQUENCE_NUMBER';
-    }
-  }
-}
+  final String value;
 
-extension ShardIteratorTypeFromString on String {
-  ShardIteratorType toShardIteratorType() {
-    switch (this) {
-      case 'TRIM_HORIZON':
-        return ShardIteratorType.trimHorizon;
-      case 'LATEST':
-        return ShardIteratorType.latest;
-      case 'AT_SEQUENCE_NUMBER':
-        return ShardIteratorType.atSequenceNumber;
-      case 'AFTER_SEQUENCE_NUMBER':
-        return ShardIteratorType.afterSequenceNumber;
-    }
-    throw Exception('$this is not known in enum ShardIteratorType');
-  }
+  const ShardIteratorType(this.value);
+
+  static ShardIteratorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ShardIteratorType'));
 }
 
 /// Represents all of the data describing a particular stream.
@@ -956,7 +898,7 @@ class Stream {
   ///
   /// <ul>
   /// <li>
-  /// the AWS customer ID.
+  /// the Amazon Web Services customer ID.
   /// </li>
   /// <li>
   /// the table name
@@ -1033,7 +975,7 @@ class StreamDescription {
   ///
   /// <ul>
   /// <li>
-  /// the AWS customer ID.
+  /// the Amazon Web Services customer ID.
   /// </li>
   /// <li>
   /// the table name
@@ -1106,18 +1048,20 @@ class StreamDescription {
       creationRequestDateTime:
           timeStampFromJson(json['CreationRequestDateTime']),
       keySchema: (json['KeySchema'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => KeySchemaElement.fromJson(e as Map<String, dynamic>))
           .toList(),
       lastEvaluatedShardId: json['LastEvaluatedShardId'] as String?,
       shards: (json['Shards'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Shard.fromJson(e as Map<String, dynamic>))
           .toList(),
       streamArn: json['StreamArn'] as String?,
       streamLabel: json['StreamLabel'] as String?,
-      streamStatus: (json['StreamStatus'] as String?)?.toStreamStatus(),
-      streamViewType: (json['StreamViewType'] as String?)?.toStreamViewType(),
+      streamStatus:
+          (json['StreamStatus'] as String?)?.let(StreamStatus.fromString),
+      streamViewType:
+          (json['StreamViewType'] as String?)?.let(StreamViewType.fromString),
       tableName: json['TableName'] as String?,
     );
   }
@@ -1141,8 +1085,8 @@ class StreamDescription {
       if (shards != null) 'Shards': shards,
       if (streamArn != null) 'StreamArn': streamArn,
       if (streamLabel != null) 'StreamLabel': streamLabel,
-      if (streamStatus != null) 'StreamStatus': streamStatus.toValue(),
-      if (streamViewType != null) 'StreamViewType': streamViewType.toValue(),
+      if (streamStatus != null) 'StreamStatus': streamStatus.value,
+      if (streamViewType != null) 'StreamViewType': streamViewType.value,
       if (tableName != null) 'TableName': tableName,
     };
   }
@@ -1152,7 +1096,8 @@ class StreamDescription {
 /// a DynamoDB table.
 class StreamRecord {
   /// The approximate date and time when the stream record was created, in <a
-  /// href="http://www.epochconverter.com/">UNIX epoch time</a> format.
+  /// href="http://www.epochconverter.com/">UNIX epoch time</a> format and rounded
+  /// down to the closest second.
   final DateTime? approximateCreationDateTime;
 
   /// The primary key attribute(s) for the DynamoDB item that was modified.
@@ -1214,7 +1159,8 @@ class StreamRecord {
           MapEntry(k, AttributeValue.fromJson(e as Map<String, dynamic>))),
       sequenceNumber: json['SequenceNumber'] as String?,
       sizeBytes: json['SizeBytes'] as int?,
-      streamViewType: (json['StreamViewType'] as String?)?.toStreamViewType(),
+      streamViewType:
+          (json['StreamViewType'] as String?)?.let(StreamViewType.fromString),
     );
   }
 
@@ -1235,85 +1181,43 @@ class StreamRecord {
       if (oldImage != null) 'OldImage': oldImage,
       if (sequenceNumber != null) 'SequenceNumber': sequenceNumber,
       if (sizeBytes != null) 'SizeBytes': sizeBytes,
-      if (streamViewType != null) 'StreamViewType': streamViewType.toValue(),
+      if (streamViewType != null) 'StreamViewType': streamViewType.value,
     };
   }
 }
 
 enum StreamStatus {
-  enabling,
-  enabled,
-  disabling,
-  disabled,
-}
+  enabling('ENABLING'),
+  enabled('ENABLED'),
+  disabling('DISABLING'),
+  disabled('DISABLED'),
+  ;
 
-extension StreamStatusValueExtension on StreamStatus {
-  String toValue() {
-    switch (this) {
-      case StreamStatus.enabling:
-        return 'ENABLING';
-      case StreamStatus.enabled:
-        return 'ENABLED';
-      case StreamStatus.disabling:
-        return 'DISABLING';
-      case StreamStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension StreamStatusFromString on String {
-  StreamStatus toStreamStatus() {
-    switch (this) {
-      case 'ENABLING':
-        return StreamStatus.enabling;
-      case 'ENABLED':
-        return StreamStatus.enabled;
-      case 'DISABLING':
-        return StreamStatus.disabling;
-      case 'DISABLED':
-        return StreamStatus.disabled;
-    }
-    throw Exception('$this is not known in enum StreamStatus');
-  }
+  const StreamStatus(this.value);
+
+  static StreamStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StreamStatus'));
 }
 
 enum StreamViewType {
-  newImage,
-  oldImage,
-  newAndOldImages,
-  keysOnly,
-}
+  newImage('NEW_IMAGE'),
+  oldImage('OLD_IMAGE'),
+  newAndOldImages('NEW_AND_OLD_IMAGES'),
+  keysOnly('KEYS_ONLY'),
+  ;
 
-extension StreamViewTypeValueExtension on StreamViewType {
-  String toValue() {
-    switch (this) {
-      case StreamViewType.newImage:
-        return 'NEW_IMAGE';
-      case StreamViewType.oldImage:
-        return 'OLD_IMAGE';
-      case StreamViewType.newAndOldImages:
-        return 'NEW_AND_OLD_IMAGES';
-      case StreamViewType.keysOnly:
-        return 'KEYS_ONLY';
-    }
-  }
-}
+  final String value;
 
-extension StreamViewTypeFromString on String {
-  StreamViewType toStreamViewType() {
-    switch (this) {
-      case 'NEW_IMAGE':
-        return StreamViewType.newImage;
-      case 'OLD_IMAGE':
-        return StreamViewType.oldImage;
-      case 'NEW_AND_OLD_IMAGES':
-        return StreamViewType.newAndOldImages;
-      case 'KEYS_ONLY':
-        return StreamViewType.keysOnly;
-    }
-    throw Exception('$this is not known in enum StreamViewType');
-  }
+  const StreamViewType(this.value);
+
+  static StreamViewType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StreamViewType'));
 }
 
 class ExpiredIteratorException extends _s.GenericAwsException {

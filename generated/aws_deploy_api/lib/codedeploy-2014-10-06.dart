@@ -262,7 +262,7 @@ class CodeDeploy {
   /// May throw [DeploymentConfigDoesNotExistException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the applicable IAM
+  /// The name of an CodeDeploy application associated with the applicable user
   /// or Amazon Web Services account.
   ///
   /// Parameter [deploymentGroupNames] :
@@ -404,8 +404,8 @@ class CodeDeploy {
   /// </li>
   /// </ul>
   Future<BatchGetDeploymentTargetsOutput> batchGetDeploymentTargets({
-    String? deploymentId,
-    List<String>? targetIds,
+    required String deploymentId,
+    required List<String> targetIds,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -418,8 +418,8 @@ class CodeDeploy {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (deploymentId != null) 'deploymentId': deploymentId,
-        if (targetIds != null) 'targetIds': targetIds,
+        'deploymentId': deploymentId,
+        'targetIds': targetIds,
       },
     );
 
@@ -530,7 +530,7 @@ class CodeDeploy {
       payload: {
         if (deploymentId != null) 'deploymentId': deploymentId,
         if (deploymentWaitType != null)
-          'deploymentWaitType': deploymentWaitType.toValue(),
+          'deploymentWaitType': deploymentWaitType.value,
       },
     );
   }
@@ -546,7 +546,7 @@ class CodeDeploy {
   ///
   /// Parameter [applicationName] :
   /// The name of the application. This name must be unique with the applicable
-  /// IAM or Amazon Web Services account.
+  /// user or Amazon Web Services account.
   ///
   /// Parameter [computePlatform] :
   /// The destination platform type for the deployment (<code>Lambda</code>,
@@ -573,8 +573,7 @@ class CodeDeploy {
       headers: headers,
       payload: {
         'applicationName': applicationName,
-        if (computePlatform != null)
-          'computePlatform': computePlatform.toValue(),
+        if (computePlatform != null) 'computePlatform': computePlatform.value,
         if (tags != null) 'tags': tags,
       },
     );
@@ -612,16 +611,16 @@ class CodeDeploy {
   /// May throw [InvalidTrafficRoutingConfigurationException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   ///
   /// Parameter [autoRollbackConfiguration] :
   /// Configuration information for an automatic rollback that is added when a
   /// deployment is created.
   ///
   /// Parameter [deploymentConfigName] :
-  /// The name of a deployment configuration associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of a deployment configuration associated with the user or Amazon
+  /// Web Services account.
   ///
   /// If not specified, the value configured in the deployment group is used as
   /// the default. If the deployment group does not have a deployment
@@ -747,7 +746,7 @@ class CodeDeploy {
           'deploymentGroupName': deploymentGroupName,
         if (description != null) 'description': description,
         if (fileExistsBehavior != null)
-          'fileExistsBehavior': fileExistsBehavior.toValue(),
+          'fileExistsBehavior': fileExistsBehavior.value,
         if (ignoreApplicationStopFailures != null)
           'ignoreApplicationStopFailures': ignoreApplicationStopFailures,
         if (overrideAlarmConfiguration != null)
@@ -771,6 +770,7 @@ class CodeDeploy {
   /// May throw [DeploymentConfigLimitExceededException].
   /// May throw [InvalidComputePlatformException].
   /// May throw [InvalidTrafficRoutingConfigurationException].
+  /// May throw [InvalidZonalDeploymentConfigurationException].
   ///
   /// Parameter [deploymentConfigName] :
   /// The name of the deployment configuration to create.
@@ -806,11 +806,22 @@ class CodeDeploy {
   ///
   /// Parameter [trafficRoutingConfig] :
   /// The configuration that specifies how the deployment traffic is routed.
+  ///
+  /// Parameter [zonalConfig] :
+  /// Configure the <code>ZonalConfig</code> object if you want CodeDeploy to
+  /// deploy your application to one <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-availability-zones">Availability
+  /// Zone</a> at a time, within an Amazon Web Services Region.
+  ///
+  /// For more information about the zonal configuration feature, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations-create.html#zonal-config">zonal
+  /// configuration</a> in the <i>CodeDeploy User Guide</i>.
   Future<CreateDeploymentConfigOutput> createDeploymentConfig({
     required String deploymentConfigName,
     ComputePlatform? computePlatform,
     MinimumHealthyHosts? minimumHealthyHosts,
     TrafficRoutingConfig? trafficRoutingConfig,
+    ZonalConfig? zonalConfig,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -824,12 +835,12 @@ class CodeDeploy {
       headers: headers,
       payload: {
         'deploymentConfigName': deploymentConfigName,
-        if (computePlatform != null)
-          'computePlatform': computePlatform.toValue(),
+        if (computePlatform != null) 'computePlatform': computePlatform.value,
         if (minimumHealthyHosts != null)
           'minimumHealthyHosts': minimumHealthyHosts,
         if (trafficRoutingConfig != null)
           'trafficRoutingConfig': trafficRoutingConfig,
+        if (zonalConfig != null) 'zonalConfig': zonalConfig,
       },
     );
 
@@ -873,8 +884,8 @@ class CodeDeploy {
   /// May throw [InvalidTrafficRoutingConfigurationException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   ///
   /// Parameter [deploymentGroupName] :
   /// The name of a new deployment group for the specified application.
@@ -966,6 +977,27 @@ class CodeDeploy {
   /// organize and categorize them. Each tag consists of a key and an optional
   /// value, both of which you define.
   ///
+  /// Parameter [terminationHookEnabled] :
+  /// This parameter only applies if you are using CodeDeploy with Amazon EC2
+  /// Auto Scaling. For more information, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html">Integrating
+  /// CodeDeploy with Amazon EC2 Auto Scaling</a> in the <i>CodeDeploy User
+  /// Guide</i>.
+  ///
+  /// Set <code>terminationHookEnabled</code> to <code>true</code> to have
+  /// CodeDeploy install a termination hook into your Auto Scaling group when
+  /// you create a deployment group. When this hook is installed, CodeDeploy
+  /// will perform termination deployments.
+  ///
+  /// For information about termination deployments, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html#integrations-aws-auto-scaling-behaviors-hook-enable">Enabling
+  /// termination deployments during Auto Scaling scale-in events</a> in the
+  /// <i>CodeDeploy User Guide</i>.
+  ///
+  /// For more information about Auto Scaling scale-in events, see the <a
+  /// href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-lifecycle.html#as-lifecycle-scale-in">Scale
+  /// in</a> topic in the <i>Amazon EC2 Auto Scaling User Guide</i>.
+  ///
   /// Parameter [triggerConfigurations] :
   /// Information about triggers to create when the deployment group is created.
   /// For examples, see <a
@@ -989,6 +1021,7 @@ class CodeDeploy {
     OnPremisesTagSet? onPremisesTagSet,
     OutdatedInstancesStrategy? outdatedInstancesStrategy,
     List<Tag>? tags,
+    bool? terminationHookEnabled,
     List<TriggerConfig>? triggerConfigurations,
   }) async {
     final headers = <String, String>{
@@ -1023,8 +1056,10 @@ class CodeDeploy {
           'onPremisesInstanceTagFilters': onPremisesInstanceTagFilters,
         if (onPremisesTagSet != null) 'onPremisesTagSet': onPremisesTagSet,
         if (outdatedInstancesStrategy != null)
-          'outdatedInstancesStrategy': outdatedInstancesStrategy.toValue(),
+          'outdatedInstancesStrategy': outdatedInstancesStrategy.value,
         if (tags != null) 'tags': tags,
+        if (terminationHookEnabled != null)
+          'terminationHookEnabled': terminationHookEnabled,
         if (triggerConfigurations != null)
           'triggerConfigurations': triggerConfigurations,
       },
@@ -1040,8 +1075,8 @@ class CodeDeploy {
   /// May throw [InvalidRoleException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   Future<void> deleteApplication({
     required String applicationName,
   }) async {
@@ -1073,8 +1108,8 @@ class CodeDeploy {
   /// May throw [InvalidOperationException].
   ///
   /// Parameter [deploymentConfigName] :
-  /// The name of a deployment configuration associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of a deployment configuration associated with the user or Amazon
+  /// Web Services account.
   Future<void> deleteDeploymentConfig({
     required String deploymentConfigName,
   }) async {
@@ -1103,8 +1138,8 @@ class CodeDeploy {
   /// May throw [InvalidRoleException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   ///
   /// Parameter [deploymentGroupName] :
   /// The name of a deployment group for the specified application.
@@ -1162,7 +1197,14 @@ class CodeDeploy {
     return DeleteGitHubAccountTokenOutput.fromJson(jsonResponse.body);
   }
 
-  /// Deletes resources linked to an external ID.
+  /// Deletes resources linked to an external ID. This action only applies if
+  /// you have configured blue/green deployments through CloudFormation.
+  /// <note>
+  /// It is not necessary to call this action directly. CloudFormation calls it
+  /// on your behalf when it needs to delete stack resources. This action is
+  /// offered publicly in case you need to delete resources to comply with
+  /// General Data Protection Regulation (GDPR) requirements.
+  /// </note>
   ///
   /// Parameter [externalId] :
   /// The unique ID of an external resource (for example, a CloudFormation stack
@@ -1219,8 +1261,8 @@ class CodeDeploy {
   /// May throw [ApplicationDoesNotExistException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   Future<GetApplicationOutput> getApplication({
     required String applicationName,
   }) async {
@@ -1294,7 +1336,7 @@ class CodeDeploy {
   /// May throw [DeploymentDoesNotExistException].
   ///
   /// Parameter [deploymentId] :
-  /// The unique ID of a deployment associated with the IAM user or Amazon Web
+  /// The unique ID of a deployment associated with the user or Amazon Web
   /// Services account.
   Future<GetDeploymentOutput> getDeployment({
     required String deploymentId,
@@ -1325,8 +1367,8 @@ class CodeDeploy {
   /// May throw [InvalidComputePlatformException].
   ///
   /// Parameter [deploymentConfigName] :
-  /// The name of a deployment configuration associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of a deployment configuration associated with the user or Amazon
+  /// Web Services account.
   Future<GetDeploymentConfigOutput> getDeploymentConfig({
     required String deploymentConfigName,
   }) async {
@@ -1359,8 +1401,8 @@ class CodeDeploy {
   /// May throw [DeploymentConfigDoesNotExistException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   ///
   /// Parameter [deploymentGroupName] :
   /// The name of a deployment group for the specified application.
@@ -1443,8 +1485,8 @@ class CodeDeploy {
   /// Parameter [targetId] :
   /// The unique ID of a deployment target.
   Future<GetDeploymentTargetOutput> getDeploymentTarget({
-    String? deploymentId,
-    String? targetId,
+    required String deploymentId,
+    required String targetId,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -1457,8 +1499,8 @@ class CodeDeploy {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (deploymentId != null) 'deploymentId': deploymentId,
-        if (targetId != null) 'targetId': targetId,
+        'deploymentId': deploymentId,
+        'targetId': targetId,
       },
     );
 
@@ -1508,8 +1550,8 @@ class CodeDeploy {
   /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   ///
   /// Parameter [deployed] :
   /// Whether to list revisions based on whether the revision is the target
@@ -1598,19 +1640,19 @@ class CodeDeploy {
       headers: headers,
       payload: {
         'applicationName': applicationName,
-        if (deployed != null) 'deployed': deployed.toValue(),
+        if (deployed != null) 'deployed': deployed.value,
         if (nextToken != null) 'nextToken': nextToken,
         if (s3Bucket != null) 's3Bucket': s3Bucket,
         if (s3KeyPrefix != null) 's3KeyPrefix': s3KeyPrefix,
-        if (sortBy != null) 'sortBy': sortBy.toValue(),
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortBy != null) 'sortBy': sortBy.value,
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
     return ListApplicationRevisionsOutput.fromJson(jsonResponse.body);
   }
 
-  /// Lists the applications registered with the IAM user or Amazon Web Services
+  /// Lists the applications registered with the user or Amazon Web Services
   /// account.
   ///
   /// May throw [InvalidNextTokenException].
@@ -1639,8 +1681,8 @@ class CodeDeploy {
     return ListApplicationsOutput.fromJson(jsonResponse.body);
   }
 
-  /// Lists the deployment configurations with the IAM user or Amazon Web
-  /// Services account.
+  /// Lists the deployment configurations with the user or Amazon Web Services
+  /// account.
   ///
   /// May throw [InvalidNextTokenException].
   ///
@@ -1669,8 +1711,8 @@ class CodeDeploy {
     return ListDeploymentConfigsOutput.fromJson(jsonResponse.body);
   }
 
-  /// Lists the deployment groups for an application registered with the IAM
-  /// user or Amazon Web Services account.
+  /// Lists the deployment groups for an application registered with the Amazon
+  /// Web Services user or Amazon Web Services account.
   ///
   /// May throw [ApplicationNameRequiredException].
   /// May throw [InvalidApplicationNameException].
@@ -1678,8 +1720,8 @@ class CodeDeploy {
   /// May throw [InvalidNextTokenException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   ///
   /// Parameter [nextToken] :
   /// An identifier returned from the previous list deployment groups call. It
@@ -1713,8 +1755,8 @@ class CodeDeploy {
   /// <code>ListDeploymentInstances</code> throws an exception if it is used
   /// with a compute platform other than EC2/On-premises or Lambda.
   /// </note>
-  /// Lists the instance for a deployment associated with the IAM user or Amazon
-  /// Web Services account.
+  /// Lists the instance for a deployment associated with the user or Amazon Web
+  /// Services account.
   ///
   /// May throw [DeploymentIdRequiredException].
   /// May throw [DeploymentDoesNotExistException].
@@ -1787,10 +1829,9 @@ class CodeDeploy {
         'deploymentId': deploymentId,
         if (instanceStatusFilter != null)
           'instanceStatusFilter':
-              instanceStatusFilter.map((e) => e.toValue()).toList(),
+              instanceStatusFilter.map((e) => e.value).toList(),
         if (instanceTypeFilter != null)
-          'instanceTypeFilter':
-              instanceTypeFilter.map((e) => e.toValue()).toList(),
+          'instanceTypeFilter': instanceTypeFilter.map((e) => e.value).toList(),
         if (nextToken != null) 'nextToken': nextToken,
       },
     );
@@ -1808,6 +1849,7 @@ class CodeDeploy {
   /// May throw [InvalidInstanceStatusException].
   /// May throw [InvalidInstanceTypeException].
   /// May throw [InvalidDeploymentInstanceTypeException].
+  /// May throw [InvalidTargetFilterNameException].
   ///
   /// Parameter [deploymentId] :
   /// The unique ID of a deployment.
@@ -1833,7 +1875,7 @@ class CodeDeploy {
   /// </li>
   /// </ul>
   Future<ListDeploymentTargetsOutput> listDeploymentTargets({
-    String? deploymentId,
+    required String deploymentId,
     String? nextToken,
     Map<TargetFilterName, List<String>>? targetFilters,
   }) async {
@@ -1848,11 +1890,10 @@ class CodeDeploy {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (deploymentId != null) 'deploymentId': deploymentId,
+        'deploymentId': deploymentId,
         if (nextToken != null) 'nextToken': nextToken,
         if (targetFilters != null)
-          'targetFilters':
-              targetFilters.map((k, e) => MapEntry(k.toValue(), e)),
+          'targetFilters': targetFilters.map((k, e) => MapEntry(k.value, e)),
       },
     );
 
@@ -1860,7 +1901,7 @@ class CodeDeploy {
   }
 
   /// Lists the deployments in a deployment group for an application registered
-  /// with the IAM user or Amazon Web Services account.
+  /// with the user or Amazon Web Services account.
   ///
   /// May throw [ApplicationNameRequiredException].
   /// May throw [InvalidApplicationNameException].
@@ -1875,8 +1916,8 @@ class CodeDeploy {
   /// May throw [InvalidInputException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   /// <note>
   /// If <code>applicationName</code> is specified, then
   /// <code>deploymentGroupName</code> must be specified. If it is not
@@ -1954,7 +1995,7 @@ class CodeDeploy {
         if (externalId != null) 'externalId': externalId,
         if (includeOnlyStatuses != null)
           'includeOnlyStatuses':
-              includeOnlyStatuses.map((e) => e.toValue()).toList(),
+              includeOnlyStatuses.map((e) => e.value).toList(),
         if (nextToken != null) 'nextToken': nextToken,
       },
     );
@@ -2043,7 +2084,7 @@ class CodeDeploy {
       payload: {
         if (nextToken != null) 'nextToken': nextToken,
         if (registrationStatus != null)
-          'registrationStatus': registrationStatus.toValue(),
+          'registrationStatus': registrationStatus.value,
         if (tagFilters != null) 'tagFilters': tagFilters,
       },
     );
@@ -2146,7 +2187,7 @@ class CodeDeploy {
         if (deploymentId != null) 'deploymentId': deploymentId,
         if (lifecycleEventHookExecutionId != null)
           'lifecycleEventHookExecutionId': lifecycleEventHookExecutionId,
-        if (status != null) 'status': status.toValue(),
+        if (status != null) 'status': status.value,
       },
     );
 
@@ -2164,8 +2205,8 @@ class CodeDeploy {
   /// May throw [InvalidRevisionException].
   ///
   /// Parameter [applicationName] :
-  /// The name of an CodeDeploy application associated with the IAM user or
-  /// Amazon Web Services account.
+  /// The name of an CodeDeploy application associated with the user or Amazon
+  /// Web Services account.
   ///
   /// Parameter [revision] :
   /// Information about the application revision to register, including type and
@@ -2220,7 +2261,7 @@ class CodeDeploy {
   /// The ARN of the IAM session to associate with the on-premises instance.
   ///
   /// Parameter [iamUserArn] :
-  /// The ARN of the IAM user to associate with the on-premises instance.
+  /// The ARN of the user to associate with the on-premises instance.
   Future<void> registerOnPremisesInstance({
     required String instanceName,
     String? iamSessionArn,
@@ -2533,7 +2574,7 @@ class CodeDeploy {
   /// To remove Auto Scaling groups, specify a non-null empty list of Auto
   /// Scaling group names to detach all CodeDeploy-managed Auto Scaling
   /// lifecycle hooks. For examples, see <a
-  /// href="https://docs.aws.amazon.com/https:/docs.aws.amazon.com/codedeploy/latest/userguide/troubleshooting-auto-scaling.html#troubleshooting-auto-scaling-heartbeat">Amazon
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/troubleshooting-auto-scaling.html#troubleshooting-auto-scaling-heartbeat">Amazon
   /// EC2 instances in an Amazon EC2 Auto Scaling group fail to launch and
   /// receive the error "Heartbeat Timeout"</a> in the <i>CodeDeploy User
   /// Guide</i>.
@@ -2599,6 +2640,27 @@ class CodeDeploy {
   /// Parameter [serviceRoleArn] :
   /// A replacement ARN for the service role, if you want to change it.
   ///
+  /// Parameter [terminationHookEnabled] :
+  /// This parameter only applies if you are using CodeDeploy with Amazon EC2
+  /// Auto Scaling. For more information, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html">Integrating
+  /// CodeDeploy with Amazon EC2 Auto Scaling</a> in the <i>CodeDeploy User
+  /// Guide</i>.
+  ///
+  /// Set <code>terminationHookEnabled</code> to <code>true</code> to have
+  /// CodeDeploy install a termination hook into your Auto Scaling group when
+  /// you update a deployment group. When this hook is installed, CodeDeploy
+  /// will perform termination deployments.
+  ///
+  /// For information about termination deployments, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html#integrations-aws-auto-scaling-behaviors-hook-enable">Enabling
+  /// termination deployments during Auto Scaling scale-in events</a> in the
+  /// <i>CodeDeploy User Guide</i>.
+  ///
+  /// For more information about Auto Scaling scale-in events, see the <a
+  /// href="https://docs.aws.amazon.com/autoscaling/ec2/userguide/ec2-auto-scaling-lifecycle.html#as-lifecycle-scale-in">Scale
+  /// in</a> topic in the <i>Amazon EC2 Auto Scaling User Guide</i>.
+  ///
   /// Parameter [triggerConfigurations] :
   /// Information about triggers to change when the deployment group is updated.
   /// For examples, see <a
@@ -2623,6 +2685,7 @@ class CodeDeploy {
     OnPremisesTagSet? onPremisesTagSet,
     OutdatedInstancesStrategy? outdatedInstancesStrategy,
     String? serviceRoleArn,
+    bool? terminationHookEnabled,
     List<TriggerConfig>? triggerConfigurations,
   }) async {
     final headers = <String, String>{
@@ -2658,8 +2721,10 @@ class CodeDeploy {
           'onPremisesInstanceTagFilters': onPremisesInstanceTagFilters,
         if (onPremisesTagSet != null) 'onPremisesTagSet': onPremisesTagSet,
         if (outdatedInstancesStrategy != null)
-          'outdatedInstancesStrategy': outdatedInstancesStrategy.toValue(),
+          'outdatedInstancesStrategy': outdatedInstancesStrategy.value,
         if (serviceRoleArn != null) 'serviceRoleArn': serviceRoleArn,
+        if (terminationHookEnabled != null)
+          'terminationHookEnabled': terminationHookEnabled,
         if (triggerConfigurations != null)
           'triggerConfigurations': triggerConfigurations,
       },
@@ -2727,7 +2792,7 @@ class AlarmConfiguration {
   factory AlarmConfiguration.fromJson(Map<String, dynamic> json) {
     return AlarmConfiguration(
       alarms: (json['alarms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Alarm.fromJson(e as Map<String, dynamic>))
           .toList(),
       enabled: json['enabled'] as bool?,
@@ -2830,7 +2895,7 @@ class ApplicationInfo {
       applicationId: json['applicationId'] as String?,
       applicationName: json['applicationName'] as String?,
       computePlatform:
-          (json['computePlatform'] as String?)?.toComputePlatform(),
+          (json['computePlatform'] as String?)?.let(ComputePlatform.fromString),
       createTime: timeStampFromJson(json['createTime']),
       gitHubAccountName: json['gitHubAccountName'] as String?,
       linkedToGitHub: json['linkedToGitHub'] as bool?,
@@ -2839,36 +2904,19 @@ class ApplicationInfo {
 }
 
 enum ApplicationRevisionSortBy {
-  registerTime,
-  firstUsedTime,
-  lastUsedTime,
-}
+  registerTime('registerTime'),
+  firstUsedTime('firstUsedTime'),
+  lastUsedTime('lastUsedTime'),
+  ;
 
-extension ApplicationRevisionSortByValueExtension on ApplicationRevisionSortBy {
-  String toValue() {
-    switch (this) {
-      case ApplicationRevisionSortBy.registerTime:
-        return 'registerTime';
-      case ApplicationRevisionSortBy.firstUsedTime:
-        return 'firstUsedTime';
-      case ApplicationRevisionSortBy.lastUsedTime:
-        return 'lastUsedTime';
-    }
-  }
-}
+  final String value;
 
-extension ApplicationRevisionSortByFromString on String {
-  ApplicationRevisionSortBy toApplicationRevisionSortBy() {
-    switch (this) {
-      case 'registerTime':
-        return ApplicationRevisionSortBy.registerTime;
-      case 'firstUsedTime':
-        return ApplicationRevisionSortBy.firstUsedTime;
-      case 'lastUsedTime':
-        return ApplicationRevisionSortBy.lastUsedTime;
-    }
-    throw Exception('$this is not known in enum ApplicationRevisionSortBy');
-  }
+  const ApplicationRevisionSortBy(this.value);
+
+  static ApplicationRevisionSortBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ApplicationRevisionSortBy'));
 }
 
 /// Information about a configuration for automatically rolling back to a
@@ -2891,8 +2939,8 @@ class AutoRollbackConfiguration {
     return AutoRollbackConfiguration(
       enabled: json['enabled'] as bool?,
       events: (json['events'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toAutoRollbackEvent())
+          ?.nonNulls
+          .map((e) => AutoRollbackEvent.fromString((e as String)))
           .toList(),
     );
   }
@@ -2902,61 +2950,61 @@ class AutoRollbackConfiguration {
     final events = this.events;
     return {
       if (enabled != null) 'enabled': enabled,
-      if (events != null) 'events': events.map((e) => e.toValue()).toList(),
+      if (events != null) 'events': events.map((e) => e.value).toList(),
     };
   }
 }
 
 enum AutoRollbackEvent {
-  deploymentFailure,
-  deploymentStopOnAlarm,
-  deploymentStopOnRequest,
-}
+  deploymentFailure('DEPLOYMENT_FAILURE'),
+  deploymentStopOnAlarm('DEPLOYMENT_STOP_ON_ALARM'),
+  deploymentStopOnRequest('DEPLOYMENT_STOP_ON_REQUEST'),
+  ;
 
-extension AutoRollbackEventValueExtension on AutoRollbackEvent {
-  String toValue() {
-    switch (this) {
-      case AutoRollbackEvent.deploymentFailure:
-        return 'DEPLOYMENT_FAILURE';
-      case AutoRollbackEvent.deploymentStopOnAlarm:
-        return 'DEPLOYMENT_STOP_ON_ALARM';
-      case AutoRollbackEvent.deploymentStopOnRequest:
-        return 'DEPLOYMENT_STOP_ON_REQUEST';
-    }
-  }
-}
+  final String value;
 
-extension AutoRollbackEventFromString on String {
-  AutoRollbackEvent toAutoRollbackEvent() {
-    switch (this) {
-      case 'DEPLOYMENT_FAILURE':
-        return AutoRollbackEvent.deploymentFailure;
-      case 'DEPLOYMENT_STOP_ON_ALARM':
-        return AutoRollbackEvent.deploymentStopOnAlarm;
-      case 'DEPLOYMENT_STOP_ON_REQUEST':
-        return AutoRollbackEvent.deploymentStopOnRequest;
-    }
-    throw Exception('$this is not known in enum AutoRollbackEvent');
-  }
+  const AutoRollbackEvent(this.value);
+
+  static AutoRollbackEvent fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AutoRollbackEvent'));
 }
 
 /// Information about an Auto Scaling group.
 class AutoScalingGroup {
-  /// An Auto Scaling lifecycle event hook name.
+  /// The name of the launch hook that CodeDeploy installed into the Auto Scaling
+  /// group.
+  ///
+  /// For more information about the launch hook, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html#integrations-aws-auto-scaling-behaviors">How
+  /// Amazon EC2 Auto Scaling works with CodeDeploy</a> in the <i>CodeDeploy User
+  /// Guide</i>.
   final String? hook;
 
   /// The Auto Scaling group name.
   final String? name;
 
+  /// The name of the termination hook that CodeDeploy installed into the Auto
+  /// Scaling group.
+  ///
+  /// For more information about the termination hook, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html#integrations-aws-auto-scaling-behaviors-hook-enable">Enabling
+  /// termination deployments during Auto Scaling scale-in events</a> in the
+  /// <i>CodeDeploy User Guide</i>.
+  final String? terminationHook;
+
   AutoScalingGroup({
     this.hook,
     this.name,
+    this.terminationHook,
   });
 
   factory AutoScalingGroup.fromJson(Map<String, dynamic> json) {
     return AutoScalingGroup(
       hook: json['hook'] as String?,
       name: json['name'] as String?,
+      terminationHook: json['terminationHook'] as String?,
     );
   }
 }
@@ -2985,7 +3033,7 @@ class BatchGetApplicationRevisionsOutput {
       applicationName: json['applicationName'] as String?,
       errorMessage: json['errorMessage'] as String?,
       revisions: (json['revisions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RevisionInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3004,7 +3052,7 @@ class BatchGetApplicationsOutput {
   factory BatchGetApplicationsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetApplicationsOutput(
       applicationsInfo: (json['applicationsInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApplicationInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3027,7 +3075,7 @@ class BatchGetDeploymentGroupsOutput {
   factory BatchGetDeploymentGroupsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetDeploymentGroupsOutput(
       deploymentGroupsInfo: (json['deploymentGroupsInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DeploymentGroupInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       errorMessage: json['errorMessage'] as String?,
@@ -3054,7 +3102,7 @@ class BatchGetDeploymentInstancesOutput {
     return BatchGetDeploymentInstancesOutput(
       errorMessage: json['errorMessage'] as String?,
       instancesSummary: (json['instancesSummary'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3092,7 +3140,7 @@ class BatchGetDeploymentTargetsOutput {
   factory BatchGetDeploymentTargetsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetDeploymentTargetsOutput(
       deploymentTargets: (json['deploymentTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DeploymentTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3111,7 +3159,7 @@ class BatchGetDeploymentsOutput {
   factory BatchGetDeploymentsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetDeploymentsOutput(
       deploymentsInfo: (json['deploymentsInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DeploymentInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3132,7 +3180,7 @@ class BatchGetOnPremisesInstancesOutput {
       Map<String, dynamic> json) {
     return BatchGetOnPremisesInstancesOutput(
       instanceInfos: (json['instanceInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3234,7 +3282,7 @@ class BlueInstanceTerminationOption {
 
   factory BlueInstanceTerminationOption.fromJson(Map<String, dynamic> json) {
     return BlueInstanceTerminationOption(
-      action: (json['action'] as String?)?.toInstanceAction(),
+      action: (json['action'] as String?)?.let(InstanceAction.fromString),
       terminationWaitTimeInMinutes:
           json['terminationWaitTimeInMinutes'] as int?,
     );
@@ -3244,7 +3292,7 @@ class BlueInstanceTerminationOption {
     final action = this.action;
     final terminationWaitTimeInMinutes = this.terminationWaitTimeInMinutes;
     return {
-      if (action != null) 'action': action.toValue(),
+      if (action != null) 'action': action.value,
       if (terminationWaitTimeInMinutes != null)
         'terminationWaitTimeInMinutes': terminationWaitTimeInMinutes,
     };
@@ -3252,46 +3300,20 @@ class BlueInstanceTerminationOption {
 }
 
 enum BundleType {
-  tar,
-  tgz,
-  zip,
-  yaml,
-  json,
-}
+  tar('tar'),
+  tgz('tgz'),
+  zip('zip'),
+  yaml('YAML'),
+  json('JSON'),
+  ;
 
-extension BundleTypeValueExtension on BundleType {
-  String toValue() {
-    switch (this) {
-      case BundleType.tar:
-        return 'tar';
-      case BundleType.tgz:
-        return 'tgz';
-      case BundleType.zip:
-        return 'zip';
-      case BundleType.yaml:
-        return 'YAML';
-      case BundleType.json:
-        return 'JSON';
-    }
-  }
-}
+  final String value;
 
-extension BundleTypeFromString on String {
-  BundleType toBundleType() {
-    switch (this) {
-      case 'tar':
-        return BundleType.tar;
-      case 'tgz':
-        return BundleType.tgz;
-      case 'zip':
-        return BundleType.zip;
-      case 'YAML':
-        return BundleType.yaml;
-      case 'JSON':
-        return BundleType.json;
-    }
-    throw Exception('$this is not known in enum BundleType');
-  }
+  const BundleType(this.value);
+
+  static BundleType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum BundleType'));
 }
 
 /// Information about the target to be updated by an CloudFormation blue/green
@@ -3338,11 +3360,11 @@ class CloudFormationTarget {
       deploymentId: json['deploymentId'] as String?,
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       lifecycleEvents: (json['lifecycleEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LifecycleEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceType: json['resourceType'] as String?,
-      status: (json['status'] as String?)?.toTargetStatus(),
+      status: (json['status'] as String?)?.let(TargetStatus.fromString),
       targetId: json['targetId'] as String?,
       targetVersionWeight: json['targetVersionWeight'] as double?,
     );
@@ -3350,36 +3372,19 @@ class CloudFormationTarget {
 }
 
 enum ComputePlatform {
-  server,
-  lambda,
-  ecs,
-}
+  server('Server'),
+  lambda('Lambda'),
+  ecs('ECS'),
+  ;
 
-extension ComputePlatformValueExtension on ComputePlatform {
-  String toValue() {
-    switch (this) {
-      case ComputePlatform.server:
-        return 'Server';
-      case ComputePlatform.lambda:
-        return 'Lambda';
-      case ComputePlatform.ecs:
-        return 'ECS';
-    }
-  }
-}
+  final String value;
 
-extension ComputePlatformFromString on String {
-  ComputePlatform toComputePlatform() {
-    switch (this) {
-      case 'Server':
-        return ComputePlatform.server;
-      case 'Lambda':
-        return ComputePlatform.lambda;
-      case 'ECS':
-        return ComputePlatform.ecs;
-    }
-    throw Exception('$this is not known in enum ComputePlatform');
-  }
+  const ComputePlatform(this.value);
+
+  static ComputePlatform fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ComputePlatform'));
 }
 
 /// Represents the output of a <code>CreateApplication</code> operation.
@@ -3463,7 +3468,7 @@ class DeleteDeploymentGroupOutput {
   factory DeleteDeploymentGroupOutput.fromJson(Map<String, dynamic> json) {
     return DeleteDeploymentGroupOutput(
       hooksNotCleanedUp: (json['hooksNotCleanedUp'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AutoScalingGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3509,12 +3514,15 @@ class DeploymentConfigInfo {
   /// The deployment configuration name.
   final String? deploymentConfigName;
 
-  /// Information about the number or percentage of minimum healthy instance.
+  /// Information about the number or percentage of minimum healthy instances.
   final MinimumHealthyHosts? minimumHealthyHosts;
 
   /// The configuration that specifies how the deployment traffic is routed. Used
   /// for deployments with a Lambda or Amazon ECS compute platform only.
   final TrafficRoutingConfig? trafficRoutingConfig;
+
+  /// Information about a zonal configuration.
+  final ZonalConfig? zonalConfig;
 
   DeploymentConfigInfo({
     this.computePlatform,
@@ -3523,12 +3531,13 @@ class DeploymentConfigInfo {
     this.deploymentConfigName,
     this.minimumHealthyHosts,
     this.trafficRoutingConfig,
+    this.zonalConfig,
   });
 
   factory DeploymentConfigInfo.fromJson(Map<String, dynamic> json) {
     return DeploymentConfigInfo(
       computePlatform:
-          (json['computePlatform'] as String?)?.toComputePlatform(),
+          (json['computePlatform'] as String?)?.let(ComputePlatform.fromString),
       createTime: timeStampFromJson(json['createTime']),
       deploymentConfigId: json['deploymentConfigId'] as String?,
       deploymentConfigName: json['deploymentConfigName'] as String?,
@@ -3540,61 +3549,32 @@ class DeploymentConfigInfo {
           ? TrafficRoutingConfig.fromJson(
               json['trafficRoutingConfig'] as Map<String, dynamic>)
           : null,
+      zonalConfig: json['zonalConfig'] != null
+          ? ZonalConfig.fromJson(json['zonalConfig'] as Map<String, dynamic>)
+          : null,
     );
   }
 }
 
 enum DeploymentCreator {
-  user,
-  autoscaling,
-  codeDeployRollback,
-  codeDeploy,
-  codeDeployAutoUpdate,
-  cloudFormation,
-  cloudFormationRollback,
-}
+  user('user'),
+  autoscaling('autoscaling'),
+  codeDeployRollback('codeDeployRollback'),
+  codeDeploy('CodeDeploy'),
+  codeDeployAutoUpdate('CodeDeployAutoUpdate'),
+  cloudFormation('CloudFormation'),
+  cloudFormationRollback('CloudFormationRollback'),
+  autoscalingTermination('autoscalingTermination'),
+  ;
 
-extension DeploymentCreatorValueExtension on DeploymentCreator {
-  String toValue() {
-    switch (this) {
-      case DeploymentCreator.user:
-        return 'user';
-      case DeploymentCreator.autoscaling:
-        return 'autoscaling';
-      case DeploymentCreator.codeDeployRollback:
-        return 'codeDeployRollback';
-      case DeploymentCreator.codeDeploy:
-        return 'CodeDeploy';
-      case DeploymentCreator.codeDeployAutoUpdate:
-        return 'CodeDeployAutoUpdate';
-      case DeploymentCreator.cloudFormation:
-        return 'CloudFormation';
-      case DeploymentCreator.cloudFormationRollback:
-        return 'CloudFormationRollback';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentCreatorFromString on String {
-  DeploymentCreator toDeploymentCreator() {
-    switch (this) {
-      case 'user':
-        return DeploymentCreator.user;
-      case 'autoscaling':
-        return DeploymentCreator.autoscaling;
-      case 'codeDeployRollback':
-        return DeploymentCreator.codeDeployRollback;
-      case 'CodeDeploy':
-        return DeploymentCreator.codeDeploy;
-      case 'CodeDeployAutoUpdate':
-        return DeploymentCreator.codeDeployAutoUpdate;
-      case 'CloudFormation':
-        return DeploymentCreator.cloudFormation;
-      case 'CloudFormationRollback':
-        return DeploymentCreator.cloudFormationRollback;
-    }
-    throw Exception('$this is not known in enum DeploymentCreator');
-  }
+  const DeploymentCreator(this.value);
+
+  static DeploymentCreator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeploymentCreator'));
 }
 
 /// Information about a deployment group.
@@ -3690,6 +3670,15 @@ class DeploymentGroupInfo {
   /// location.
   final RevisionLocation? targetRevision;
 
+  /// Indicates whether the deployment group was configured to have CodeDeploy
+  /// install a termination hook into an Auto Scaling group.
+  ///
+  /// For more information about the termination hook, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/integrations-aws-auto-scaling.html#integrations-aws-auto-scaling-behaviors">How
+  /// Amazon EC2 Auto Scaling works with CodeDeploy</a> in the <i>CodeDeploy User
+  /// Guide</i>.
+  final bool? terminationHookEnabled;
+
   /// Information about triggers associated with the deployment group.
   final List<TriggerConfig>? triggerConfigurations;
 
@@ -3715,6 +3704,7 @@ class DeploymentGroupInfo {
     this.outdatedInstancesStrategy,
     this.serviceRoleArn,
     this.targetRevision,
+    this.terminationHookEnabled,
     this.triggerConfigurations,
   });
 
@@ -3730,7 +3720,7 @@ class DeploymentGroupInfo {
               json['autoRollbackConfiguration'] as Map<String, dynamic>)
           : null,
       autoScalingGroups: (json['autoScalingGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AutoScalingGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       blueGreenDeploymentConfiguration:
@@ -3740,7 +3730,7 @@ class DeploymentGroupInfo {
                       as Map<String, dynamic>)
               : null,
       computePlatform:
-          (json['computePlatform'] as String?)?.toComputePlatform(),
+          (json['computePlatform'] as String?)?.let(ComputePlatform.fromString),
       deploymentConfigName: json['deploymentConfigName'] as String?,
       deploymentGroupId: json['deploymentGroupId'] as String?,
       deploymentGroupName: json['deploymentGroupName'] as String?,
@@ -3749,14 +3739,14 @@ class DeploymentGroupInfo {
               json['deploymentStyle'] as Map<String, dynamic>)
           : null,
       ec2TagFilters: (json['ec2TagFilters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EC2TagFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       ec2TagSet: json['ec2TagSet'] != null
           ? EC2TagSet.fromJson(json['ec2TagSet'] as Map<String, dynamic>)
           : null,
       ecsServices: (json['ecsServices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ECSService.fromJson(e as Map<String, dynamic>))
           .toList(),
       lastAttemptedDeployment: json['lastAttemptedDeployment'] != null
@@ -3773,7 +3763,7 @@ class DeploymentGroupInfo {
           : null,
       onPremisesInstanceTagFilters:
           (json['onPremisesInstanceTagFilters'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => TagFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       onPremisesTagSet: json['onPremisesTagSet'] != null
@@ -3781,14 +3771,15 @@ class DeploymentGroupInfo {
               json['onPremisesTagSet'] as Map<String, dynamic>)
           : null,
       outdatedInstancesStrategy: (json['outdatedInstancesStrategy'] as String?)
-          ?.toOutdatedInstancesStrategy(),
+          ?.let(OutdatedInstancesStrategy.fromString),
       serviceRoleArn: json['serviceRoleArn'] as String?,
       targetRevision: json['targetRevision'] != null
           ? RevisionLocation.fromJson(
               json['targetRevision'] as Map<String, dynamic>)
           : null,
+      terminationHookEnabled: json['terminationHookEnabled'] as bool?,
       triggerConfigurations: (json['triggerConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TriggerConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4011,9 +4002,9 @@ class DeploymentInfo {
               : null,
       completeTime: timeStampFromJson(json['completeTime']),
       computePlatform:
-          (json['computePlatform'] as String?)?.toComputePlatform(),
+          (json['computePlatform'] as String?)?.let(ComputePlatform.fromString),
       createTime: timeStampFromJson(json['createTime']),
-      creator: (json['creator'] as String?)?.toDeploymentCreator(),
+      creator: (json['creator'] as String?)?.let(DeploymentCreator.fromString),
       deploymentConfigName: json['deploymentConfigName'] as String?,
       deploymentGroupName: json['deploymentGroupName'] as String?,
       deploymentId: json['deploymentId'] as String?,
@@ -4022,7 +4013,7 @@ class DeploymentInfo {
               json['deploymentOverview'] as Map<String, dynamic>)
           : null,
       deploymentStatusMessages: (json['deploymentStatusMessages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       deploymentStyle: json['deploymentStyle'] != null
@@ -4035,8 +4026,8 @@ class DeploymentInfo {
               json['errorInformation'] as Map<String, dynamic>)
           : null,
       externalId: json['externalId'] as String?,
-      fileExistsBehavior:
-          (json['fileExistsBehavior'] as String?)?.toFileExistsBehavior(),
+      fileExistsBehavior: (json['fileExistsBehavior'] as String?)
+          ?.let(FileExistsBehavior.fromString),
       ignoreApplicationStopFailures:
           json['ignoreApplicationStopFailures'] as bool?,
       instanceTerminationWaitTimeStarted:
@@ -4064,7 +4055,7 @@ class DeploymentInfo {
           ? RollbackInfo.fromJson(json['rollbackInfo'] as Map<String, dynamic>)
           : null,
       startTime: timeStampFromJson(json['startTime']),
-      status: (json['status'] as String?)?.toDeploymentStatus(),
+      status: (json['status'] as String?)?.let(DeploymentStatus.fromString),
       targetInstances: json['targetInstances'] != null
           ? TargetInstances.fromJson(
               json['targetInstances'] as Map<String, dynamic>)
@@ -4075,31 +4066,18 @@ class DeploymentInfo {
 }
 
 enum DeploymentOption {
-  withTrafficControl,
-  withoutTrafficControl,
-}
+  withTrafficControl('WITH_TRAFFIC_CONTROL'),
+  withoutTrafficControl('WITHOUT_TRAFFIC_CONTROL'),
+  ;
 
-extension DeploymentOptionValueExtension on DeploymentOption {
-  String toValue() {
-    switch (this) {
-      case DeploymentOption.withTrafficControl:
-        return 'WITH_TRAFFIC_CONTROL';
-      case DeploymentOption.withoutTrafficControl:
-        return 'WITHOUT_TRAFFIC_CONTROL';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentOptionFromString on String {
-  DeploymentOption toDeploymentOption() {
-    switch (this) {
-      case 'WITH_TRAFFIC_CONTROL':
-        return DeploymentOption.withTrafficControl;
-      case 'WITHOUT_TRAFFIC_CONTROL':
-        return DeploymentOption.withoutTrafficControl;
-    }
-    throw Exception('$this is not known in enum DeploymentOption');
-  }
+  const DeploymentOption(this.value);
+
+  static DeploymentOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeploymentOption'));
 }
 
 /// Information about the deployment status of the instances in the deployment.
@@ -4146,31 +4124,18 @@ class DeploymentOverview {
 }
 
 enum DeploymentReadyAction {
-  continueDeployment,
-  stopDeployment,
-}
+  continueDeployment('CONTINUE_DEPLOYMENT'),
+  stopDeployment('STOP_DEPLOYMENT'),
+  ;
 
-extension DeploymentReadyActionValueExtension on DeploymentReadyAction {
-  String toValue() {
-    switch (this) {
-      case DeploymentReadyAction.continueDeployment:
-        return 'CONTINUE_DEPLOYMENT';
-      case DeploymentReadyAction.stopDeployment:
-        return 'STOP_DEPLOYMENT';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentReadyActionFromString on String {
-  DeploymentReadyAction toDeploymentReadyAction() {
-    switch (this) {
-      case 'CONTINUE_DEPLOYMENT':
-        return DeploymentReadyAction.continueDeployment;
-      case 'STOP_DEPLOYMENT':
-        return DeploymentReadyAction.stopDeployment;
-    }
-    throw Exception('$this is not known in enum DeploymentReadyAction');
-  }
+  const DeploymentReadyAction(this.value);
+
+  static DeploymentReadyAction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DeploymentReadyAction'));
 }
 
 /// Information about how traffic is rerouted to instances in a replacement
@@ -4206,8 +4171,8 @@ class DeploymentReadyOption {
 
   factory DeploymentReadyOption.fromJson(Map<String, dynamic> json) {
     return DeploymentReadyOption(
-      actionOnTimeout:
-          (json['actionOnTimeout'] as String?)?.toDeploymentReadyAction(),
+      actionOnTimeout: (json['actionOnTimeout'] as String?)
+          ?.let(DeploymentReadyAction.fromString),
       waitTimeInMinutes: json['waitTimeInMinutes'] as int?,
     );
   }
@@ -4216,68 +4181,31 @@ class DeploymentReadyOption {
     final actionOnTimeout = this.actionOnTimeout;
     final waitTimeInMinutes = this.waitTimeInMinutes;
     return {
-      if (actionOnTimeout != null) 'actionOnTimeout': actionOnTimeout.toValue(),
+      if (actionOnTimeout != null) 'actionOnTimeout': actionOnTimeout.value,
       if (waitTimeInMinutes != null) 'waitTimeInMinutes': waitTimeInMinutes,
     };
   }
 }
 
 enum DeploymentStatus {
-  created,
-  queued,
-  inProgress,
-  baking,
-  succeeded,
-  failed,
-  stopped,
-  ready,
-}
+  created('Created'),
+  queued('Queued'),
+  inProgress('InProgress'),
+  baking('Baking'),
+  succeeded('Succeeded'),
+  failed('Failed'),
+  stopped('Stopped'),
+  ready('Ready'),
+  ;
 
-extension DeploymentStatusValueExtension on DeploymentStatus {
-  String toValue() {
-    switch (this) {
-      case DeploymentStatus.created:
-        return 'Created';
-      case DeploymentStatus.queued:
-        return 'Queued';
-      case DeploymentStatus.inProgress:
-        return 'InProgress';
-      case DeploymentStatus.baking:
-        return 'Baking';
-      case DeploymentStatus.succeeded:
-        return 'Succeeded';
-      case DeploymentStatus.failed:
-        return 'Failed';
-      case DeploymentStatus.stopped:
-        return 'Stopped';
-      case DeploymentStatus.ready:
-        return 'Ready';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentStatusFromString on String {
-  DeploymentStatus toDeploymentStatus() {
-    switch (this) {
-      case 'Created':
-        return DeploymentStatus.created;
-      case 'Queued':
-        return DeploymentStatus.queued;
-      case 'InProgress':
-        return DeploymentStatus.inProgress;
-      case 'Baking':
-        return DeploymentStatus.baking;
-      case 'Succeeded':
-        return DeploymentStatus.succeeded;
-      case 'Failed':
-        return DeploymentStatus.failed;
-      case 'Stopped':
-        return DeploymentStatus.stopped;
-      case 'Ready':
-        return DeploymentStatus.ready;
-    }
-    throw Exception('$this is not known in enum DeploymentStatus');
-  }
+  const DeploymentStatus(this.value);
+
+  static DeploymentStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeploymentStatus'));
 }
 
 /// Information about the type of deployment, either in-place or blue/green, you
@@ -4296,9 +4224,10 @@ class DeploymentStyle {
 
   factory DeploymentStyle.fromJson(Map<String, dynamic> json) {
     return DeploymentStyle(
-      deploymentOption:
-          (json['deploymentOption'] as String?)?.toDeploymentOption(),
-      deploymentType: (json['deploymentType'] as String?)?.toDeploymentType(),
+      deploymentOption: (json['deploymentOption'] as String?)
+          ?.let(DeploymentOption.fromString),
+      deploymentType:
+          (json['deploymentType'] as String?)?.let(DeploymentType.fromString),
     );
   }
 
@@ -4306,9 +4235,8 @@ class DeploymentStyle {
     final deploymentOption = this.deploymentOption;
     final deploymentType = this.deploymentType;
     return {
-      if (deploymentOption != null)
-        'deploymentOption': deploymentOption.toValue(),
-      if (deploymentType != null) 'deploymentType': deploymentType.toValue(),
+      if (deploymentOption != null) 'deploymentOption': deploymentOption.value,
+      if (deploymentType != null) 'deploymentType': deploymentType.value,
     };
   }
 }
@@ -4347,8 +4275,8 @@ class DeploymentTarget {
           ? CloudFormationTarget.fromJson(
               json['cloudFormationTarget'] as Map<String, dynamic>)
           : null,
-      deploymentTargetType:
-          (json['deploymentTargetType'] as String?)?.toDeploymentTargetType(),
+      deploymentTargetType: (json['deploymentTargetType'] as String?)
+          ?.let(DeploymentTargetType.fromString),
       ecsTarget: json['ecsTarget'] != null
           ? ECSTarget.fromJson(json['ecsTarget'] as Map<String, dynamic>)
           : null,
@@ -4364,97 +4292,50 @@ class DeploymentTarget {
 }
 
 enum DeploymentTargetType {
-  instanceTarget,
-  lambdaTarget,
-  eCSTarget,
-  cloudFormationTarget,
-}
+  instanceTarget('InstanceTarget'),
+  lambdaTarget('LambdaTarget'),
+  eCSTarget('ECSTarget'),
+  cloudFormationTarget('CloudFormationTarget'),
+  ;
 
-extension DeploymentTargetTypeValueExtension on DeploymentTargetType {
-  String toValue() {
-    switch (this) {
-      case DeploymentTargetType.instanceTarget:
-        return 'InstanceTarget';
-      case DeploymentTargetType.lambdaTarget:
-        return 'LambdaTarget';
-      case DeploymentTargetType.eCSTarget:
-        return 'ECSTarget';
-      case DeploymentTargetType.cloudFormationTarget:
-        return 'CloudFormationTarget';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentTargetTypeFromString on String {
-  DeploymentTargetType toDeploymentTargetType() {
-    switch (this) {
-      case 'InstanceTarget':
-        return DeploymentTargetType.instanceTarget;
-      case 'LambdaTarget':
-        return DeploymentTargetType.lambdaTarget;
-      case 'ECSTarget':
-        return DeploymentTargetType.eCSTarget;
-      case 'CloudFormationTarget':
-        return DeploymentTargetType.cloudFormationTarget;
-    }
-    throw Exception('$this is not known in enum DeploymentTargetType');
-  }
+  const DeploymentTargetType(this.value);
+
+  static DeploymentTargetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DeploymentTargetType'));
 }
 
 enum DeploymentType {
-  inPlace,
-  blueGreen,
-}
+  inPlace('IN_PLACE'),
+  blueGreen('BLUE_GREEN'),
+  ;
 
-extension DeploymentTypeValueExtension on DeploymentType {
-  String toValue() {
-    switch (this) {
-      case DeploymentType.inPlace:
-        return 'IN_PLACE';
-      case DeploymentType.blueGreen:
-        return 'BLUE_GREEN';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentTypeFromString on String {
-  DeploymentType toDeploymentType() {
-    switch (this) {
-      case 'IN_PLACE':
-        return DeploymentType.inPlace;
-      case 'BLUE_GREEN':
-        return DeploymentType.blueGreen;
-    }
-    throw Exception('$this is not known in enum DeploymentType');
-  }
+  const DeploymentType(this.value);
+
+  static DeploymentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeploymentType'));
 }
 
 enum DeploymentWaitType {
-  readyWait,
-  terminationWait,
-}
+  readyWait('READY_WAIT'),
+  terminationWait('TERMINATION_WAIT'),
+  ;
 
-extension DeploymentWaitTypeValueExtension on DeploymentWaitType {
-  String toValue() {
-    switch (this) {
-      case DeploymentWaitType.readyWait:
-        return 'READY_WAIT';
-      case DeploymentWaitType.terminationWait:
-        return 'TERMINATION_WAIT';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentWaitTypeFromString on String {
-  DeploymentWaitType toDeploymentWaitType() {
-    switch (this) {
-      case 'READY_WAIT':
-        return DeploymentWaitType.readyWait;
-      case 'TERMINATION_WAIT':
-        return DeploymentWaitType.terminationWait;
-    }
-    throw Exception('$this is not known in enum DeploymentWaitType');
-  }
+  const DeploymentWaitType(this.value);
+
+  static DeploymentWaitType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DeploymentWaitType'));
 }
 
 /// Diagnostic information about executable scripts that are part of a
@@ -4506,7 +4387,8 @@ class Diagnostics {
 
   factory Diagnostics.fromJson(Map<String, dynamic> json) {
     return Diagnostics(
-      errorCode: (json['errorCode'] as String?)?.toLifecycleErrorCode(),
+      errorCode:
+          (json['errorCode'] as String?)?.let(LifecycleErrorCode.fromString),
       logTail: json['logTail'] as String?,
       message: json['message'] as String?,
       scriptName: json['scriptName'] as String?,
@@ -4546,7 +4428,7 @@ class EC2TagFilter {
   factory EC2TagFilter.fromJson(Map<String, dynamic> json) {
     return EC2TagFilter(
       key: json['Key'] as String?,
-      type: (json['Type'] as String?)?.toEC2TagFilterType(),
+      type: (json['Type'] as String?)?.let(EC2TagFilterType.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -4557,43 +4439,26 @@ class EC2TagFilter {
     final value = this.value;
     return {
       if (key != null) 'Key': key,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum EC2TagFilterType {
-  keyOnly,
-  valueOnly,
-  keyAndValue,
-}
+  keyOnly('KEY_ONLY'),
+  valueOnly('VALUE_ONLY'),
+  keyAndValue('KEY_AND_VALUE'),
+  ;
 
-extension EC2TagFilterTypeValueExtension on EC2TagFilterType {
-  String toValue() {
-    switch (this) {
-      case EC2TagFilterType.keyOnly:
-        return 'KEY_ONLY';
-      case EC2TagFilterType.valueOnly:
-        return 'VALUE_ONLY';
-      case EC2TagFilterType.keyAndValue:
-        return 'KEY_AND_VALUE';
-    }
-  }
-}
+  final String value;
 
-extension EC2TagFilterTypeFromString on String {
-  EC2TagFilterType toEC2TagFilterType() {
-    switch (this) {
-      case 'KEY_ONLY':
-        return EC2TagFilterType.keyOnly;
-      case 'VALUE_ONLY':
-        return EC2TagFilterType.valueOnly;
-      case 'KEY_AND_VALUE':
-        return EC2TagFilterType.keyAndValue;
-    }
-    throw Exception('$this is not known in enum EC2TagFilterType');
-  }
+  const EC2TagFilterType(this.value);
+
+  static EC2TagFilterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EC2TagFilterType'));
 }
 
 /// Information about groups of Amazon EC2 instance tags.
@@ -4610,9 +4475,9 @@ class EC2TagSet {
   factory EC2TagSet.fromJson(Map<String, dynamic> json) {
     return EC2TagSet(
       ec2TagSetList: (json['ec2TagSetList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => EC2TagFilter.fromJson(e as Map<String, dynamic>))
               .toList())
           .toList(),
@@ -4699,14 +4564,14 @@ class ECSTarget {
       deploymentId: json['deploymentId'] as String?,
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       lifecycleEvents: (json['lifecycleEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LifecycleEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toTargetStatus(),
+      status: (json['status'] as String?)?.let(TargetStatus.fromString),
       targetArn: json['targetArn'] as String?,
       targetId: json['targetId'] as String?,
       taskSetsInfo: (json['taskSetsInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ECSTaskSet.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4791,20 +4656,21 @@ class ECSTaskSet {
           ? TargetGroupInfo.fromJson(
               json['targetGroup'] as Map<String, dynamic>)
           : null,
-      taskSetLabel: (json['taskSetLabel'] as String?)?.toTargetLabel(),
+      taskSetLabel:
+          (json['taskSetLabel'] as String?)?.let(TargetLabel.fromString),
       trafficWeight: json['trafficWeight'] as double?,
     );
   }
 }
 
-/// Information about a load balancer in Elastic Load Balancing to use in a
-/// deployment. Instances are registered directly with a load balancer, and
+/// Information about a Classic Load Balancer in Elastic Load Balancing to use
+/// in a deployment. Instances are registered directly with a load balancer, and
 /// traffic is routed to the load balancer.
 class ELBInfo {
-  /// For blue/green deployments, the name of the load balancer that is used to
-  /// route traffic from original instances to replacement instances in a
-  /// blue/green deployment. For in-place deployments, the name of the load
-  /// balancer that instances are deregistered from so they are not serving
+  /// For blue/green deployments, the name of the Classic Load Balancer that is
+  /// used to route traffic from original instances to replacement instances in a
+  /// blue/green deployment. For in-place deployments, the name of the Classic
+  /// Load Balancer that instances are deregistered from so they are not serving
   /// traffic during a deployment, and then re-registered with after the
   /// deployment is complete.
   final String? name;
@@ -4828,191 +4694,50 @@ class ELBInfo {
 }
 
 enum ErrorCode {
-  agentIssue,
-  alarmActive,
-  applicationMissing,
-  autoscalingValidationError,
-  autoScalingConfiguration,
-  autoScalingIamRolePermissions,
-  codedeployResourceCannotBeFound,
-  customerApplicationUnhealthy,
-  deploymentGroupMissing,
-  ecsUpdateError,
-  elasticLoadBalancingInvalid,
-  elbInvalidInstance,
-  healthConstraints,
-  healthConstraintsInvalid,
-  hookExecutionFailure,
-  iamRoleMissing,
-  iamRolePermissions,
-  internalError,
-  invalidEcsService,
-  invalidLambdaConfiguration,
-  invalidLambdaFunction,
-  invalidRevision,
-  manualStop,
-  missingBlueGreenDeploymentConfiguration,
-  missingElbInformation,
-  missingGithubToken,
-  noEc2Subscription,
-  noInstances,
-  overMaxInstances,
-  resourceLimitExceeded,
-  revisionMissing,
-  throttled,
-  timeout,
-  cloudformationStackFailure,
-}
+  agentIssue('AGENT_ISSUE'),
+  alarmActive('ALARM_ACTIVE'),
+  applicationMissing('APPLICATION_MISSING'),
+  autoscalingValidationError('AUTOSCALING_VALIDATION_ERROR'),
+  autoScalingConfiguration('AUTO_SCALING_CONFIGURATION'),
+  autoScalingIamRolePermissions('AUTO_SCALING_IAM_ROLE_PERMISSIONS'),
+  codedeployResourceCannotBeFound('CODEDEPLOY_RESOURCE_CANNOT_BE_FOUND'),
+  customerApplicationUnhealthy('CUSTOMER_APPLICATION_UNHEALTHY'),
+  deploymentGroupMissing('DEPLOYMENT_GROUP_MISSING'),
+  ecsUpdateError('ECS_UPDATE_ERROR'),
+  elasticLoadBalancingInvalid('ELASTIC_LOAD_BALANCING_INVALID'),
+  elbInvalidInstance('ELB_INVALID_INSTANCE'),
+  healthConstraints('HEALTH_CONSTRAINTS'),
+  healthConstraintsInvalid('HEALTH_CONSTRAINTS_INVALID'),
+  hookExecutionFailure('HOOK_EXECUTION_FAILURE'),
+  iamRoleMissing('IAM_ROLE_MISSING'),
+  iamRolePermissions('IAM_ROLE_PERMISSIONS'),
+  internalError('INTERNAL_ERROR'),
+  invalidEcsService('INVALID_ECS_SERVICE'),
+  invalidLambdaConfiguration('INVALID_LAMBDA_CONFIGURATION'),
+  invalidLambdaFunction('INVALID_LAMBDA_FUNCTION'),
+  invalidRevision('INVALID_REVISION'),
+  manualStop('MANUAL_STOP'),
+  missingBlueGreenDeploymentConfiguration(
+      'MISSING_BLUE_GREEN_DEPLOYMENT_CONFIGURATION'),
+  missingElbInformation('MISSING_ELB_INFORMATION'),
+  missingGithubToken('MISSING_GITHUB_TOKEN'),
+  noEc2Subscription('NO_EC2_SUBSCRIPTION'),
+  noInstances('NO_INSTANCES'),
+  overMaxInstances('OVER_MAX_INSTANCES'),
+  resourceLimitExceeded('RESOURCE_LIMIT_EXCEEDED'),
+  revisionMissing('REVISION_MISSING'),
+  throttled('THROTTLED'),
+  timeout('TIMEOUT'),
+  cloudformationStackFailure('CLOUDFORMATION_STACK_FAILURE'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.agentIssue:
-        return 'AGENT_ISSUE';
-      case ErrorCode.alarmActive:
-        return 'ALARM_ACTIVE';
-      case ErrorCode.applicationMissing:
-        return 'APPLICATION_MISSING';
-      case ErrorCode.autoscalingValidationError:
-        return 'AUTOSCALING_VALIDATION_ERROR';
-      case ErrorCode.autoScalingConfiguration:
-        return 'AUTO_SCALING_CONFIGURATION';
-      case ErrorCode.autoScalingIamRolePermissions:
-        return 'AUTO_SCALING_IAM_ROLE_PERMISSIONS';
-      case ErrorCode.codedeployResourceCannotBeFound:
-        return 'CODEDEPLOY_RESOURCE_CANNOT_BE_FOUND';
-      case ErrorCode.customerApplicationUnhealthy:
-        return 'CUSTOMER_APPLICATION_UNHEALTHY';
-      case ErrorCode.deploymentGroupMissing:
-        return 'DEPLOYMENT_GROUP_MISSING';
-      case ErrorCode.ecsUpdateError:
-        return 'ECS_UPDATE_ERROR';
-      case ErrorCode.elasticLoadBalancingInvalid:
-        return 'ELASTIC_LOAD_BALANCING_INVALID';
-      case ErrorCode.elbInvalidInstance:
-        return 'ELB_INVALID_INSTANCE';
-      case ErrorCode.healthConstraints:
-        return 'HEALTH_CONSTRAINTS';
-      case ErrorCode.healthConstraintsInvalid:
-        return 'HEALTH_CONSTRAINTS_INVALID';
-      case ErrorCode.hookExecutionFailure:
-        return 'HOOK_EXECUTION_FAILURE';
-      case ErrorCode.iamRoleMissing:
-        return 'IAM_ROLE_MISSING';
-      case ErrorCode.iamRolePermissions:
-        return 'IAM_ROLE_PERMISSIONS';
-      case ErrorCode.internalError:
-        return 'INTERNAL_ERROR';
-      case ErrorCode.invalidEcsService:
-        return 'INVALID_ECS_SERVICE';
-      case ErrorCode.invalidLambdaConfiguration:
-        return 'INVALID_LAMBDA_CONFIGURATION';
-      case ErrorCode.invalidLambdaFunction:
-        return 'INVALID_LAMBDA_FUNCTION';
-      case ErrorCode.invalidRevision:
-        return 'INVALID_REVISION';
-      case ErrorCode.manualStop:
-        return 'MANUAL_STOP';
-      case ErrorCode.missingBlueGreenDeploymentConfiguration:
-        return 'MISSING_BLUE_GREEN_DEPLOYMENT_CONFIGURATION';
-      case ErrorCode.missingElbInformation:
-        return 'MISSING_ELB_INFORMATION';
-      case ErrorCode.missingGithubToken:
-        return 'MISSING_GITHUB_TOKEN';
-      case ErrorCode.noEc2Subscription:
-        return 'NO_EC2_SUBSCRIPTION';
-      case ErrorCode.noInstances:
-        return 'NO_INSTANCES';
-      case ErrorCode.overMaxInstances:
-        return 'OVER_MAX_INSTANCES';
-      case ErrorCode.resourceLimitExceeded:
-        return 'RESOURCE_LIMIT_EXCEEDED';
-      case ErrorCode.revisionMissing:
-        return 'REVISION_MISSING';
-      case ErrorCode.throttled:
-        return 'THROTTLED';
-      case ErrorCode.timeout:
-        return 'TIMEOUT';
-      case ErrorCode.cloudformationStackFailure:
-        return 'CLOUDFORMATION_STACK_FAILURE';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'AGENT_ISSUE':
-        return ErrorCode.agentIssue;
-      case 'ALARM_ACTIVE':
-        return ErrorCode.alarmActive;
-      case 'APPLICATION_MISSING':
-        return ErrorCode.applicationMissing;
-      case 'AUTOSCALING_VALIDATION_ERROR':
-        return ErrorCode.autoscalingValidationError;
-      case 'AUTO_SCALING_CONFIGURATION':
-        return ErrorCode.autoScalingConfiguration;
-      case 'AUTO_SCALING_IAM_ROLE_PERMISSIONS':
-        return ErrorCode.autoScalingIamRolePermissions;
-      case 'CODEDEPLOY_RESOURCE_CANNOT_BE_FOUND':
-        return ErrorCode.codedeployResourceCannotBeFound;
-      case 'CUSTOMER_APPLICATION_UNHEALTHY':
-        return ErrorCode.customerApplicationUnhealthy;
-      case 'DEPLOYMENT_GROUP_MISSING':
-        return ErrorCode.deploymentGroupMissing;
-      case 'ECS_UPDATE_ERROR':
-        return ErrorCode.ecsUpdateError;
-      case 'ELASTIC_LOAD_BALANCING_INVALID':
-        return ErrorCode.elasticLoadBalancingInvalid;
-      case 'ELB_INVALID_INSTANCE':
-        return ErrorCode.elbInvalidInstance;
-      case 'HEALTH_CONSTRAINTS':
-        return ErrorCode.healthConstraints;
-      case 'HEALTH_CONSTRAINTS_INVALID':
-        return ErrorCode.healthConstraintsInvalid;
-      case 'HOOK_EXECUTION_FAILURE':
-        return ErrorCode.hookExecutionFailure;
-      case 'IAM_ROLE_MISSING':
-        return ErrorCode.iamRoleMissing;
-      case 'IAM_ROLE_PERMISSIONS':
-        return ErrorCode.iamRolePermissions;
-      case 'INTERNAL_ERROR':
-        return ErrorCode.internalError;
-      case 'INVALID_ECS_SERVICE':
-        return ErrorCode.invalidEcsService;
-      case 'INVALID_LAMBDA_CONFIGURATION':
-        return ErrorCode.invalidLambdaConfiguration;
-      case 'INVALID_LAMBDA_FUNCTION':
-        return ErrorCode.invalidLambdaFunction;
-      case 'INVALID_REVISION':
-        return ErrorCode.invalidRevision;
-      case 'MANUAL_STOP':
-        return ErrorCode.manualStop;
-      case 'MISSING_BLUE_GREEN_DEPLOYMENT_CONFIGURATION':
-        return ErrorCode.missingBlueGreenDeploymentConfiguration;
-      case 'MISSING_ELB_INFORMATION':
-        return ErrorCode.missingElbInformation;
-      case 'MISSING_GITHUB_TOKEN':
-        return ErrorCode.missingGithubToken;
-      case 'NO_EC2_SUBSCRIPTION':
-        return ErrorCode.noEc2Subscription;
-      case 'NO_INSTANCES':
-        return ErrorCode.noInstances;
-      case 'OVER_MAX_INSTANCES':
-        return ErrorCode.overMaxInstances;
-      case 'RESOURCE_LIMIT_EXCEEDED':
-        return ErrorCode.resourceLimitExceeded;
-      case 'REVISION_MISSING':
-        return ErrorCode.revisionMissing;
-      case 'THROTTLED':
-        return ErrorCode.throttled;
-      case 'TIMEOUT':
-        return ErrorCode.timeout;
-      case 'CLOUDFORMATION_STACK_FAILURE':
-        return ErrorCode.cloudformationStackFailure;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 /// Information about a deployment error.
@@ -5088,43 +4813,26 @@ class ErrorInformation {
 
   factory ErrorInformation.fromJson(Map<String, dynamic> json) {
     return ErrorInformation(
-      code: (json['code'] as String?)?.toErrorCode(),
+      code: (json['code'] as String?)?.let(ErrorCode.fromString),
       message: json['message'] as String?,
     );
   }
 }
 
 enum FileExistsBehavior {
-  disallow,
-  overwrite,
-  retain,
-}
+  disallow('DISALLOW'),
+  overwrite('OVERWRITE'),
+  retain('RETAIN'),
+  ;
 
-extension FileExistsBehaviorValueExtension on FileExistsBehavior {
-  String toValue() {
-    switch (this) {
-      case FileExistsBehavior.disallow:
-        return 'DISALLOW';
-      case FileExistsBehavior.overwrite:
-        return 'OVERWRITE';
-      case FileExistsBehavior.retain:
-        return 'RETAIN';
-    }
-  }
-}
+  final String value;
 
-extension FileExistsBehaviorFromString on String {
-  FileExistsBehavior toFileExistsBehavior() {
-    switch (this) {
-      case 'DISALLOW':
-        return FileExistsBehavior.disallow;
-      case 'OVERWRITE':
-        return FileExistsBehavior.overwrite;
-      case 'RETAIN':
-        return FileExistsBehavior.retain;
-    }
-    throw Exception('$this is not known in enum FileExistsBehavior');
-  }
+  const FileExistsBehavior(this.value);
+
+  static FileExistsBehavior fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FileExistsBehavior'));
 }
 
 /// Information about an application revision.
@@ -5155,7 +4863,7 @@ class GenericRevisionInfo {
   factory GenericRevisionInfo.fromJson(Map<String, dynamic> json) {
     return GenericRevisionInfo(
       deploymentGroups: (json['deploymentGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       description: json['description'] as String?,
@@ -5367,32 +5075,18 @@ class GitHubLocation {
 }
 
 enum GreenFleetProvisioningAction {
-  discoverExisting,
-  copyAutoScalingGroup,
-}
+  discoverExisting('DISCOVER_EXISTING'),
+  copyAutoScalingGroup('COPY_AUTO_SCALING_GROUP'),
+  ;
 
-extension GreenFleetProvisioningActionValueExtension
-    on GreenFleetProvisioningAction {
-  String toValue() {
-    switch (this) {
-      case GreenFleetProvisioningAction.discoverExisting:
-        return 'DISCOVER_EXISTING';
-      case GreenFleetProvisioningAction.copyAutoScalingGroup:
-        return 'COPY_AUTO_SCALING_GROUP';
-    }
-  }
-}
+  final String value;
 
-extension GreenFleetProvisioningActionFromString on String {
-  GreenFleetProvisioningAction toGreenFleetProvisioningAction() {
-    switch (this) {
-      case 'DISCOVER_EXISTING':
-        return GreenFleetProvisioningAction.discoverExisting;
-      case 'COPY_AUTO_SCALING_GROUP':
-        return GreenFleetProvisioningAction.copyAutoScalingGroup;
-    }
-    throw Exception('$this is not known in enum GreenFleetProvisioningAction');
-  }
+  const GreenFleetProvisioningAction(this.value);
+
+  static GreenFleetProvisioningAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GreenFleetProvisioningAction'));
 }
 
 /// Information about the instances that belong to the replacement environment
@@ -5418,44 +5112,32 @@ class GreenFleetProvisioningOption {
 
   factory GreenFleetProvisioningOption.fromJson(Map<String, dynamic> json) {
     return GreenFleetProvisioningOption(
-      action: (json['action'] as String?)?.toGreenFleetProvisioningAction(),
+      action: (json['action'] as String?)
+          ?.let(GreenFleetProvisioningAction.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final action = this.action;
     return {
-      if (action != null) 'action': action.toValue(),
+      if (action != null) 'action': action.value,
     };
   }
 }
 
 enum InstanceAction {
-  terminate,
-  keepAlive,
-}
+  terminate('TERMINATE'),
+  keepAlive('KEEP_ALIVE'),
+  ;
 
-extension InstanceActionValueExtension on InstanceAction {
-  String toValue() {
-    switch (this) {
-      case InstanceAction.terminate:
-        return 'TERMINATE';
-      case InstanceAction.keepAlive:
-        return 'KEEP_ALIVE';
-    }
-  }
-}
+  final String value;
 
-extension InstanceActionFromString on String {
-  InstanceAction toInstanceAction() {
-    switch (this) {
-      case 'TERMINATE':
-        return InstanceAction.terminate;
-      case 'KEEP_ALIVE':
-        return InstanceAction.keepAlive;
-    }
-    throw Exception('$this is not known in enum InstanceAction');
-  }
+  const InstanceAction(this.value);
+
+  static InstanceAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceAction'));
 }
 
 /// Information about an on-premises instance.
@@ -5467,7 +5149,7 @@ class InstanceInfo {
   /// The ARN of the IAM session associated with the on-premises instance.
   final String? iamSessionArn;
 
-  /// The IAM user ARN associated with the on-premises instance.
+  /// The user ARN associated with the on-premises instance.
   final String? iamUserArn;
 
   /// The ARN of the on-premises instance.
@@ -5501,7 +5183,7 @@ class InstanceInfo {
       instanceName: json['instanceName'] as String?,
       registerTime: timeStampFromJson(json['registerTime']),
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5510,56 +5192,23 @@ class InstanceInfo {
 
 @Deprecated('InstanceStatus is deprecated, use TargetStatus instead.')
 enum InstanceStatus {
-  pending,
-  inProgress,
-  succeeded,
-  failed,
-  skipped,
-  unknown,
-  ready,
-}
+  pending('Pending'),
+  inProgress('InProgress'),
+  succeeded('Succeeded'),
+  failed('Failed'),
+  skipped('Skipped'),
+  unknown('Unknown'),
+  ready('Ready'),
+  ;
 
-extension InstanceStatusValueExtension on InstanceStatus {
-  String toValue() {
-    switch (this) {
-      case InstanceStatus.pending:
-        return 'Pending';
-      case InstanceStatus.inProgress:
-        return 'InProgress';
-      case InstanceStatus.succeeded:
-        return 'Succeeded';
-      case InstanceStatus.failed:
-        return 'Failed';
-      case InstanceStatus.skipped:
-        return 'Skipped';
-      case InstanceStatus.unknown:
-        return 'Unknown';
-      case InstanceStatus.ready:
-        return 'Ready';
-    }
-  }
-}
+  final String value;
 
-extension InstanceStatusFromString on String {
-  InstanceStatus toInstanceStatus() {
-    switch (this) {
-      case 'Pending':
-        return InstanceStatus.pending;
-      case 'InProgress':
-        return InstanceStatus.inProgress;
-      case 'Succeeded':
-        return InstanceStatus.succeeded;
-      case 'Failed':
-        return InstanceStatus.failed;
-      case 'Skipped':
-        return InstanceStatus.skipped;
-      case 'Unknown':
-        return InstanceStatus.unknown;
-      case 'Ready':
-        return InstanceStatus.ready;
-    }
-    throw Exception('$this is not known in enum InstanceStatus');
-  }
+  const InstanceStatus(this.value);
+
+  static InstanceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceStatus'));
 }
 
 /// Information about an instance in a deployment.
@@ -5627,13 +5276,14 @@ class InstanceSummary {
     return InstanceSummary(
       deploymentId: json['deploymentId'] as String?,
       instanceId: json['instanceId'] as String?,
-      instanceType: (json['instanceType'] as String?)?.toInstanceType(),
+      instanceType:
+          (json['instanceType'] as String?)?.let(InstanceType.fromString),
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       lifecycleEvents: (json['lifecycleEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LifecycleEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toInstanceStatus(),
+      status: (json['status'] as String?)?.let(InstanceStatus.fromString),
     );
   }
 }
@@ -5677,13 +5327,14 @@ class InstanceTarget {
   factory InstanceTarget.fromJson(Map<String, dynamic> json) {
     return InstanceTarget(
       deploymentId: json['deploymentId'] as String?,
-      instanceLabel: (json['instanceLabel'] as String?)?.toTargetLabel(),
+      instanceLabel:
+          (json['instanceLabel'] as String?)?.let(TargetLabel.fromString),
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       lifecycleEvents: (json['lifecycleEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LifecycleEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toTargetStatus(),
+      status: (json['status'] as String?)?.let(TargetStatus.fromString),
       targetArn: json['targetArn'] as String?,
       targetId: json['targetId'] as String?,
     );
@@ -5691,31 +5342,18 @@ class InstanceTarget {
 }
 
 enum InstanceType {
-  blue,
-  green,
-}
+  blue('Blue'),
+  green('Green'),
+  ;
 
-extension InstanceTypeValueExtension on InstanceType {
-  String toValue() {
-    switch (this) {
-      case InstanceType.blue:
-        return 'Blue';
-      case InstanceType.green:
-        return 'Green';
-    }
-  }
-}
+  final String value;
 
-extension InstanceTypeFromString on String {
-  InstanceType toInstanceType() {
-    switch (this) {
-      case 'Blue':
-        return InstanceType.blue;
-      case 'Green':
-        return InstanceType.green;
-    }
-    throw Exception('$this is not known in enum InstanceType');
-  }
+  const InstanceType(this.value);
+
+  static InstanceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceType'));
 }
 
 /// Information about a Lambda function specified in a deployment.
@@ -5803,10 +5441,10 @@ class LambdaTarget {
           : null,
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       lifecycleEvents: (json['lifecycleEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LifecycleEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toTargetStatus(),
+      status: (json['status'] as String?)?.let(TargetStatus.fromString),
       targetArn: json['targetArn'] as String?,
       targetId: json['targetId'] as String?,
     );
@@ -5842,57 +5480,28 @@ class LastDeploymentInfo {
       createTime: timeStampFromJson(json['createTime']),
       deploymentId: json['deploymentId'] as String?,
       endTime: timeStampFromJson(json['endTime']),
-      status: (json['status'] as String?)?.toDeploymentStatus(),
+      status: (json['status'] as String?)?.let(DeploymentStatus.fromString),
     );
   }
 }
 
 enum LifecycleErrorCode {
-  success,
-  scriptMissing,
-  scriptNotExecutable,
-  scriptTimedOut,
-  scriptFailed,
-  unknownError,
-}
+  success('Success'),
+  scriptMissing('ScriptMissing'),
+  scriptNotExecutable('ScriptNotExecutable'),
+  scriptTimedOut('ScriptTimedOut'),
+  scriptFailed('ScriptFailed'),
+  unknownError('UnknownError'),
+  ;
 
-extension LifecycleErrorCodeValueExtension on LifecycleErrorCode {
-  String toValue() {
-    switch (this) {
-      case LifecycleErrorCode.success:
-        return 'Success';
-      case LifecycleErrorCode.scriptMissing:
-        return 'ScriptMissing';
-      case LifecycleErrorCode.scriptNotExecutable:
-        return 'ScriptNotExecutable';
-      case LifecycleErrorCode.scriptTimedOut:
-        return 'ScriptTimedOut';
-      case LifecycleErrorCode.scriptFailed:
-        return 'ScriptFailed';
-      case LifecycleErrorCode.unknownError:
-        return 'UnknownError';
-    }
-  }
-}
+  final String value;
 
-extension LifecycleErrorCodeFromString on String {
-  LifecycleErrorCode toLifecycleErrorCode() {
-    switch (this) {
-      case 'Success':
-        return LifecycleErrorCode.success;
-      case 'ScriptMissing':
-        return LifecycleErrorCode.scriptMissing;
-      case 'ScriptNotExecutable':
-        return LifecycleErrorCode.scriptNotExecutable;
-      case 'ScriptTimedOut':
-        return LifecycleErrorCode.scriptTimedOut;
-      case 'ScriptFailed':
-        return LifecycleErrorCode.scriptFailed;
-      case 'UnknownError':
-        return LifecycleErrorCode.unknownError;
-    }
-    throw Exception('$this is not known in enum LifecycleErrorCode');
-  }
+  const LifecycleErrorCode(this.value);
+
+  static LifecycleErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LifecycleErrorCode'));
 }
 
 /// Information about a deployment lifecycle event.
@@ -5951,57 +5560,28 @@ class LifecycleEvent {
       endTime: timeStampFromJson(json['endTime']),
       lifecycleEventName: json['lifecycleEventName'] as String?,
       startTime: timeStampFromJson(json['startTime']),
-      status: (json['status'] as String?)?.toLifecycleEventStatus(),
+      status: (json['status'] as String?)?.let(LifecycleEventStatus.fromString),
     );
   }
 }
 
 enum LifecycleEventStatus {
-  pending,
-  inProgress,
-  succeeded,
-  failed,
-  skipped,
-  unknown,
-}
+  pending('Pending'),
+  inProgress('InProgress'),
+  succeeded('Succeeded'),
+  failed('Failed'),
+  skipped('Skipped'),
+  unknown('Unknown'),
+  ;
 
-extension LifecycleEventStatusValueExtension on LifecycleEventStatus {
-  String toValue() {
-    switch (this) {
-      case LifecycleEventStatus.pending:
-        return 'Pending';
-      case LifecycleEventStatus.inProgress:
-        return 'InProgress';
-      case LifecycleEventStatus.succeeded:
-        return 'Succeeded';
-      case LifecycleEventStatus.failed:
-        return 'Failed';
-      case LifecycleEventStatus.skipped:
-        return 'Skipped';
-      case LifecycleEventStatus.unknown:
-        return 'Unknown';
-    }
-  }
-}
+  final String value;
 
-extension LifecycleEventStatusFromString on String {
-  LifecycleEventStatus toLifecycleEventStatus() {
-    switch (this) {
-      case 'Pending':
-        return LifecycleEventStatus.pending;
-      case 'InProgress':
-        return LifecycleEventStatus.inProgress;
-      case 'Succeeded':
-        return LifecycleEventStatus.succeeded;
-      case 'Failed':
-        return LifecycleEventStatus.failed;
-      case 'Skipped':
-        return LifecycleEventStatus.skipped;
-      case 'Unknown':
-        return LifecycleEventStatus.unknown;
-    }
-    throw Exception('$this is not known in enum LifecycleEventStatus');
-  }
+  const LifecycleEventStatus(this.value);
+
+  static LifecycleEventStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LifecycleEventStatus'));
 }
 
 /// Represents the output of a <code>ListApplicationRevisions</code> operation.
@@ -6023,7 +5603,7 @@ class ListApplicationRevisionsOutput {
     return ListApplicationRevisionsOutput(
       nextToken: json['nextToken'] as String?,
       revisions: (json['revisions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RevisionLocation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6048,7 +5628,7 @@ class ListApplicationsOutput {
   factory ListApplicationsOutput.fromJson(Map<String, dynamic> json) {
     return ListApplicationsOutput(
       applications: (json['applications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6075,7 +5655,7 @@ class ListDeploymentConfigsOutput {
   factory ListDeploymentConfigsOutput.fromJson(Map<String, dynamic> json) {
     return ListDeploymentConfigsOutput(
       deploymentConfigsList: (json['deploymentConfigsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6106,7 +5686,7 @@ class ListDeploymentGroupsOutput {
     return ListDeploymentGroupsOutput(
       applicationName: json['applicationName'] as String?,
       deploymentGroups: (json['deploymentGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6132,7 +5712,7 @@ class ListDeploymentInstancesOutput {
   factory ListDeploymentInstancesOutput.fromJson(Map<String, dynamic> json) {
     return ListDeploymentInstancesOutput(
       instancesList: (json['instancesList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6158,7 +5738,7 @@ class ListDeploymentTargetsOutput {
     return ListDeploymentTargetsOutput(
       nextToken: json['nextToken'] as String?,
       targetIds: (json['targetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6183,7 +5763,7 @@ class ListDeploymentsOutput {
   factory ListDeploymentsOutput.fromJson(Map<String, dynamic> json) {
     return ListDeploymentsOutput(
       deployments: (json['deployments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6213,7 +5793,7 @@ class ListGitHubAccountTokenNamesOutput {
     return ListGitHubAccountTokenNamesOutput(
       nextToken: json['nextToken'] as String?,
       tokenNameList: (json['tokenNameList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6238,7 +5818,7 @@ class ListOnPremisesInstancesOutput {
   factory ListOnPremisesInstancesOutput.fromJson(Map<String, dynamic> json) {
     return ListOnPremisesInstancesOutput(
       instanceNames: (json['instanceNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6247,36 +5827,19 @@ class ListOnPremisesInstancesOutput {
 }
 
 enum ListStateFilterAction {
-  include,
-  exclude,
-  ignore,
-}
+  include('include'),
+  exclude('exclude'),
+  ignore('ignore'),
+  ;
 
-extension ListStateFilterActionValueExtension on ListStateFilterAction {
-  String toValue() {
-    switch (this) {
-      case ListStateFilterAction.include:
-        return 'include';
-      case ListStateFilterAction.exclude:
-        return 'exclude';
-      case ListStateFilterAction.ignore:
-        return 'ignore';
-    }
-  }
-}
+  final String value;
 
-extension ListStateFilterActionFromString on String {
-  ListStateFilterAction toListStateFilterAction() {
-    switch (this) {
-      case 'include':
-        return ListStateFilterAction.include;
-      case 'exclude':
-        return ListStateFilterAction.exclude;
-      case 'ignore':
-        return ListStateFilterAction.ignore;
-    }
-    throw Exception('$this is not known in enum ListStateFilterAction');
-  }
+  const ListStateFilterAction(this.value);
+
+  static ListStateFilterAction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ListStateFilterAction'));
 }
 
 class ListTagsForResourceOutput {
@@ -6299,7 +5862,7 @@ class ListTagsForResourceOutput {
     return ListTagsForResourceOutput(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6308,20 +5871,33 @@ class ListTagsForResourceOutput {
 
 /// Information about the Elastic Load Balancing load balancer or target group
 /// used in a deployment.
+///
+/// You can use load balancers and target groups in combination. For example, if
+/// you have two Classic Load Balancers, and five target groups tied to an
+/// Application Load Balancer, you can specify the two Classic Load Balancers in
+/// <code>elbInfoList</code>, and the five target groups in
+/// <code>targetGroupInfoList</code>.
 class LoadBalancerInfo {
-  /// An array that contains information about the load balancer to use for load
-  /// balancing in a deployment. In Elastic Load Balancing, load balancers are
-  /// used with Classic Load Balancers.
+  /// An array that contains information about the load balancers to use for load
+  /// balancing in a deployment. If you're using Classic Load Balancers, specify
+  /// those load balancers in this array.
   /// <note>
-  /// Adding more than one load balancer to the array is not supported.
+  /// You can add up to 10 load balancers to the array.
+  /// </note> <note>
+  /// If you're using Application Load Balancers or Network Load Balancers, use
+  /// the <code>targetGroupInfoList</code> array instead of this one.
   /// </note>
   final List<ELBInfo>? elbInfoList;
 
-  /// An array that contains information about the target group to use for load
-  /// balancing in a deployment. In Elastic Load Balancing, target groups are used
-  /// with Application Load Balancers.
+  /// An array that contains information about the target groups to use for load
+  /// balancing in a deployment. If you're using Application Load Balancers and
+  /// Network Load Balancers, specify their associated target groups in this
+  /// array.
   /// <note>
-  /// Adding more than one target group to the array is not supported.
+  /// You can add up to 10 target groups to the array.
+  /// </note> <note>
+  /// If you're using Classic Load Balancers, use the <code>elbInfoList</code>
+  /// array instead of this one.
   /// </note>
   final List<TargetGroupInfo>? targetGroupInfoList;
 
@@ -6338,15 +5914,15 @@ class LoadBalancerInfo {
   factory LoadBalancerInfo.fromJson(Map<String, dynamic> json) {
     return LoadBalancerInfo(
       elbInfoList: (json['elbInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ELBInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       targetGroupInfoList: (json['targetGroupInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetGroupInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       targetGroupPairInfoList: (json['targetGroupPairInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetGroupPairInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6366,7 +5942,7 @@ class LoadBalancerInfo {
   }
 }
 
-/// Information about minimum healthy instance.
+/// Information about the minimum number of healthy instances.
 class MinimumHealthyHosts {
   /// The minimum healthy instance type:
   ///
@@ -6413,7 +5989,7 @@ class MinimumHealthyHosts {
 
   factory MinimumHealthyHosts.fromJson(Map<String, dynamic> json) {
     return MinimumHealthyHosts(
-      type: (json['type'] as String?)?.toMinimumHealthyHostsType(),
+      type: (json['type'] as String?)?.let(MinimumHealthyHostsType.fromString),
       value: json['value'] as int?,
     );
   }
@@ -6422,38 +5998,74 @@ class MinimumHealthyHosts {
     final type = this.type;
     final value = this.value;
     return {
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
       if (value != null) 'value': value,
     };
   }
 }
 
+/// Information about the minimum number of healthy instances per Availability
+/// Zone.
+class MinimumHealthyHostsPerZone {
+  /// The <code>type</code> associated with the
+  /// <code>MinimumHealthyHostsPerZone</code> option.
+  final MinimumHealthyHostsPerZoneType? type;
+
+  /// The <code>value</code> associated with the
+  /// <code>MinimumHealthyHostsPerZone</code> option.
+  final int? value;
+
+  MinimumHealthyHostsPerZone({
+    this.type,
+    this.value,
+  });
+
+  factory MinimumHealthyHostsPerZone.fromJson(Map<String, dynamic> json) {
+    return MinimumHealthyHostsPerZone(
+      type: (json['type'] as String?)
+          ?.let(MinimumHealthyHostsPerZoneType.fromString),
+      value: json['value'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final type = this.type;
+    final value = this.value;
+    return {
+      if (type != null) 'type': type.value,
+      if (value != null) 'value': value,
+    };
+  }
+}
+
+enum MinimumHealthyHostsPerZoneType {
+  hostCount('HOST_COUNT'),
+  fleetPercent('FLEET_PERCENT'),
+  ;
+
+  final String value;
+
+  const MinimumHealthyHostsPerZoneType(this.value);
+
+  static MinimumHealthyHostsPerZoneType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MinimumHealthyHostsPerZoneType'));
+}
+
 enum MinimumHealthyHostsType {
-  hostCount,
-  fleetPercent,
-}
+  hostCount('HOST_COUNT'),
+  fleetPercent('FLEET_PERCENT'),
+  ;
 
-extension MinimumHealthyHostsTypeValueExtension on MinimumHealthyHostsType {
-  String toValue() {
-    switch (this) {
-      case MinimumHealthyHostsType.hostCount:
-        return 'HOST_COUNT';
-      case MinimumHealthyHostsType.fleetPercent:
-        return 'FLEET_PERCENT';
-    }
-  }
-}
+  final String value;
 
-extension MinimumHealthyHostsTypeFromString on String {
-  MinimumHealthyHostsType toMinimumHealthyHostsType() {
-    switch (this) {
-      case 'HOST_COUNT':
-        return MinimumHealthyHostsType.hostCount;
-      case 'FLEET_PERCENT':
-        return MinimumHealthyHostsType.fleetPercent;
-    }
-    throw Exception('$this is not known in enum MinimumHealthyHostsType');
-  }
+  const MinimumHealthyHostsType(this.value);
+
+  static MinimumHealthyHostsType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MinimumHealthyHostsType'));
 }
 
 /// Information about groups of on-premises instance tags.
@@ -6470,9 +6082,9 @@ class OnPremisesTagSet {
   factory OnPremisesTagSet.fromJson(Map<String, dynamic> json) {
     return OnPremisesTagSet(
       onPremisesTagSetList: (json['onPremisesTagSetList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => TagFilter.fromJson(e as Map<String, dynamic>))
               .toList())
           .toList(),
@@ -6489,31 +6101,18 @@ class OnPremisesTagSet {
 }
 
 enum OutdatedInstancesStrategy {
-  update,
-  ignore,
-}
+  update('UPDATE'),
+  ignore('IGNORE'),
+  ;
 
-extension OutdatedInstancesStrategyValueExtension on OutdatedInstancesStrategy {
-  String toValue() {
-    switch (this) {
-      case OutdatedInstancesStrategy.update:
-        return 'UPDATE';
-      case OutdatedInstancesStrategy.ignore:
-        return 'IGNORE';
-    }
-  }
-}
+  final String value;
 
-extension OutdatedInstancesStrategyFromString on String {
-  OutdatedInstancesStrategy toOutdatedInstancesStrategy() {
-    switch (this) {
-      case 'UPDATE':
-        return OutdatedInstancesStrategy.update;
-      case 'IGNORE':
-        return OutdatedInstancesStrategy.ignore;
-    }
-    throw Exception('$this is not known in enum OutdatedInstancesStrategy');
-  }
+  const OutdatedInstancesStrategy(this.value);
+
+  static OutdatedInstancesStrategy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OutdatedInstancesStrategy'));
 }
 
 class PutLifecycleEventHookExecutionStatusOutput {
@@ -6571,31 +6170,18 @@ class RawString {
 }
 
 enum RegistrationStatus {
-  registered,
-  deregistered,
-}
+  registered('Registered'),
+  deregistered('Deregistered'),
+  ;
 
-extension RegistrationStatusValueExtension on RegistrationStatus {
-  String toValue() {
-    switch (this) {
-      case RegistrationStatus.registered:
-        return 'Registered';
-      case RegistrationStatus.deregistered:
-        return 'Deregistered';
-    }
-  }
-}
+  final String value;
 
-extension RegistrationStatusFromString on String {
-  RegistrationStatus toRegistrationStatus() {
-    switch (this) {
-      case 'Registered':
-        return RegistrationStatus.registered;
-      case 'Deregistered':
-        return RegistrationStatus.deregistered;
-    }
-    throw Exception('$this is not known in enum RegistrationStatus');
-  }
+  const RegistrationStatus(this.value);
+
+  static RegistrationStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RegistrationStatus'));
 }
 
 /// Information about deployments related to the specified deployment.
@@ -6616,7 +6202,7 @@ class RelatedDeployments {
     return RelatedDeployments(
       autoUpdateOutdatedInstancesDeploymentIds:
           (json['autoUpdateOutdatedInstancesDeploymentIds'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       autoUpdateOutdatedInstancesRootDeploymentId:
@@ -6708,7 +6294,8 @@ class RevisionLocation {
           ? GitHubLocation.fromJson(
               json['gitHubLocation'] as Map<String, dynamic>)
           : null,
-      revisionType: (json['revisionType'] as String?)?.toRevisionLocationType(),
+      revisionType: (json['revisionType'] as String?)
+          ?.let(RevisionLocationType.fromString),
       s3Location: json['s3Location'] != null
           ? S3Location.fromJson(json['s3Location'] as Map<String, dynamic>)
           : null,
@@ -6727,7 +6314,7 @@ class RevisionLocation {
     return {
       if (appSpecContent != null) 'appSpecContent': appSpecContent,
       if (gitHubLocation != null) 'gitHubLocation': gitHubLocation,
-      if (revisionType != null) 'revisionType': revisionType.toValue(),
+      if (revisionType != null) 'revisionType': revisionType.value,
       if (s3Location != null) 's3Location': s3Location,
       if (string != null) 'string': string,
     };
@@ -6735,41 +6322,20 @@ class RevisionLocation {
 }
 
 enum RevisionLocationType {
-  s3,
-  gitHub,
-  string,
-  appSpecContent,
-}
+  s3('S3'),
+  gitHub('GitHub'),
+  string('String'),
+  appSpecContent('AppSpecContent'),
+  ;
 
-extension RevisionLocationTypeValueExtension on RevisionLocationType {
-  String toValue() {
-    switch (this) {
-      case RevisionLocationType.s3:
-        return 'S3';
-      case RevisionLocationType.gitHub:
-        return 'GitHub';
-      case RevisionLocationType.string:
-        return 'String';
-      case RevisionLocationType.appSpecContent:
-        return 'AppSpecContent';
-    }
-  }
-}
+  final String value;
 
-extension RevisionLocationTypeFromString on String {
-  RevisionLocationType toRevisionLocationType() {
-    switch (this) {
-      case 'S3':
-        return RevisionLocationType.s3;
-      case 'GitHub':
-        return RevisionLocationType.gitHub;
-      case 'String':
-        return RevisionLocationType.string;
-      case 'AppSpecContent':
-        return RevisionLocationType.appSpecContent;
-    }
-    throw Exception('$this is not known in enum RevisionLocationType');
-  }
+  const RevisionLocationType(this.value);
+
+  static RevisionLocationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RevisionLocationType'));
 }
 
 /// Information about a deployment rollback.
@@ -6819,6 +6385,12 @@ class S3Location {
   /// <li>
   /// <code>zip</code>: A zip archive file.
   /// </li>
+  /// <li>
+  /// <code>YAML</code>: A YAML-formatted file.
+  /// </li>
+  /// <li>
+  /// <code>JSON</code>: A JSON-formatted file.
+  /// </li>
   /// </ul>
   final BundleType? bundleType;
 
@@ -6851,7 +6423,7 @@ class S3Location {
   factory S3Location.fromJson(Map<String, dynamic> json) {
     return S3Location(
       bucket: json['bucket'] as String?,
-      bundleType: (json['bundleType'] as String?)?.toBundleType(),
+      bundleType: (json['bundleType'] as String?)?.let(BundleType.fromString),
       eTag: json['eTag'] as String?,
       key: json['key'] as String?,
       version: json['version'] as String?,
@@ -6866,7 +6438,7 @@ class S3Location {
     final version = this.version;
     return {
       if (bucket != null) 'bucket': bucket,
-      if (bundleType != null) 'bundleType': bundleType.toValue(),
+      if (bundleType != null) 'bundleType': bundleType.value,
       if (eTag != null) 'eTag': eTag,
       if (key != null) 'key': key,
       if (version != null) 'version': version,
@@ -6875,31 +6447,17 @@ class S3Location {
 }
 
 enum SortOrder {
-  ascending,
-  descending,
-}
+  ascending('ascending'),
+  descending('descending'),
+  ;
 
-extension SortOrderValueExtension on SortOrder {
-  String toValue() {
-    switch (this) {
-      case SortOrder.ascending:
-        return 'ascending';
-      case SortOrder.descending:
-        return 'descending';
-    }
-  }
-}
+  final String value;
 
-extension SortOrderFromString on String {
-  SortOrder toSortOrder() {
-    switch (this) {
-      case 'ascending':
-        return SortOrder.ascending;
-      case 'descending':
-        return SortOrder.descending;
-    }
-    throw Exception('$this is not known in enum SortOrder');
-  }
+  const SortOrder(this.value);
+
+  static SortOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortOrder'));
 }
 
 /// Represents the output of a <code>StopDeployment</code> operation.
@@ -6926,38 +6484,24 @@ class StopDeploymentOutput {
 
   factory StopDeploymentOutput.fromJson(Map<String, dynamic> json) {
     return StopDeploymentOutput(
-      status: (json['status'] as String?)?.toStopStatus(),
+      status: (json['status'] as String?)?.let(StopStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
     );
   }
 }
 
 enum StopStatus {
-  pending,
-  succeeded,
-}
+  pending('Pending'),
+  succeeded('Succeeded'),
+  ;
 
-extension StopStatusValueExtension on StopStatus {
-  String toValue() {
-    switch (this) {
-      case StopStatus.pending:
-        return 'Pending';
-      case StopStatus.succeeded:
-        return 'Succeeded';
-    }
-  }
-}
+  final String value;
 
-extension StopStatusFromString on String {
-  StopStatus toStopStatus() {
-    switch (this) {
-      case 'Pending':
-        return StopStatus.pending;
-      case 'Succeeded':
-        return StopStatus.succeeded;
-    }
-    throw Exception('$this is not known in enum StopStatus');
-  }
+  const StopStatus(this.value);
+
+  static StopStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StopStatus'));
 }
 
 /// Information about a tag.
@@ -7022,7 +6566,7 @@ class TagFilter {
   factory TagFilter.fromJson(Map<String, dynamic> json) {
     return TagFilter(
       key: json['Key'] as String?,
-      type: (json['Type'] as String?)?.toTagFilterType(),
+      type: (json['Type'] as String?)?.let(TagFilterType.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -7033,43 +6577,26 @@ class TagFilter {
     final value = this.value;
     return {
       if (key != null) 'Key': key,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum TagFilterType {
-  keyOnly,
-  valueOnly,
-  keyAndValue,
-}
+  keyOnly('KEY_ONLY'),
+  valueOnly('VALUE_ONLY'),
+  keyAndValue('KEY_AND_VALUE'),
+  ;
 
-extension TagFilterTypeValueExtension on TagFilterType {
-  String toValue() {
-    switch (this) {
-      case TagFilterType.keyOnly:
-        return 'KEY_ONLY';
-      case TagFilterType.valueOnly:
-        return 'VALUE_ONLY';
-      case TagFilterType.keyAndValue:
-        return 'KEY_AND_VALUE';
-    }
-  }
-}
+  final String value;
 
-extension TagFilterTypeFromString on String {
-  TagFilterType toTagFilterType() {
-    switch (this) {
-      case 'KEY_ONLY':
-        return TagFilterType.keyOnly;
-      case 'VALUE_ONLY':
-        return TagFilterType.valueOnly;
-      case 'KEY_AND_VALUE':
-        return TagFilterType.keyAndValue;
-    }
-    throw Exception('$this is not known in enum TagFilterType');
-  }
+  const TagFilterType(this.value);
+
+  static TagFilterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TagFilterType'));
 }
 
 class TagResourceOutput {
@@ -7081,31 +6608,18 @@ class TagResourceOutput {
 }
 
 enum TargetFilterName {
-  targetStatus,
-  serverInstanceLabel,
-}
+  targetStatus('TargetStatus'),
+  serverInstanceLabel('ServerInstanceLabel'),
+  ;
 
-extension TargetFilterNameValueExtension on TargetFilterName {
-  String toValue() {
-    switch (this) {
-      case TargetFilterName.targetStatus:
-        return 'TargetStatus';
-      case TargetFilterName.serverInstanceLabel:
-        return 'ServerInstanceLabel';
-    }
-  }
-}
+  final String value;
 
-extension TargetFilterNameFromString on String {
-  TargetFilterName toTargetFilterName() {
-    switch (this) {
-      case 'TargetStatus':
-        return TargetFilterName.targetStatus;
-      case 'ServerInstanceLabel':
-        return TargetFilterName.serverInstanceLabel;
-    }
-    throw Exception('$this is not known in enum TargetFilterName');
-  }
+  const TargetFilterName(this.value);
+
+  static TargetFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TargetFilterName'));
 }
 
 /// Information about a target group in Elastic Load Balancing to use in a
@@ -7168,7 +6682,7 @@ class TargetGroupPairInfo {
               json['prodTrafficRoute'] as Map<String, dynamic>)
           : null,
       targetGroups: (json['targetGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetGroupInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       testTrafficRoute: json['testTrafficRoute'] != null
@@ -7217,14 +6731,14 @@ class TargetInstances {
   factory TargetInstances.fromJson(Map<String, dynamic> json) {
     return TargetInstances(
       autoScalingGroups: (json['autoScalingGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       ec2TagSet: json['ec2TagSet'] != null
           ? EC2TagSet.fromJson(json['ec2TagSet'] as Map<String, dynamic>)
           : null,
       tagFilters: (json['tagFilters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EC2TagFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7243,84 +6757,37 @@ class TargetInstances {
 }
 
 enum TargetLabel {
-  blue,
-  green,
-}
+  blue('Blue'),
+  green('Green'),
+  ;
 
-extension TargetLabelValueExtension on TargetLabel {
-  String toValue() {
-    switch (this) {
-      case TargetLabel.blue:
-        return 'Blue';
-      case TargetLabel.green:
-        return 'Green';
-    }
-  }
-}
+  final String value;
 
-extension TargetLabelFromString on String {
-  TargetLabel toTargetLabel() {
-    switch (this) {
-      case 'Blue':
-        return TargetLabel.blue;
-      case 'Green':
-        return TargetLabel.green;
-    }
-    throw Exception('$this is not known in enum TargetLabel');
-  }
+  const TargetLabel(this.value);
+
+  static TargetLabel fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TargetLabel'));
 }
 
 enum TargetStatus {
-  pending,
-  inProgress,
-  succeeded,
-  failed,
-  skipped,
-  unknown,
-  ready,
-}
+  pending('Pending'),
+  inProgress('InProgress'),
+  succeeded('Succeeded'),
+  failed('Failed'),
+  skipped('Skipped'),
+  unknown('Unknown'),
+  ready('Ready'),
+  ;
 
-extension TargetStatusValueExtension on TargetStatus {
-  String toValue() {
-    switch (this) {
-      case TargetStatus.pending:
-        return 'Pending';
-      case TargetStatus.inProgress:
-        return 'InProgress';
-      case TargetStatus.succeeded:
-        return 'Succeeded';
-      case TargetStatus.failed:
-        return 'Failed';
-      case TargetStatus.skipped:
-        return 'Skipped';
-      case TargetStatus.unknown:
-        return 'Unknown';
-      case TargetStatus.ready:
-        return 'Ready';
-    }
-  }
-}
+  final String value;
 
-extension TargetStatusFromString on String {
-  TargetStatus toTargetStatus() {
-    switch (this) {
-      case 'Pending':
-        return TargetStatus.pending;
-      case 'InProgress':
-        return TargetStatus.inProgress;
-      case 'Succeeded':
-        return TargetStatus.succeeded;
-      case 'Failed':
-        return TargetStatus.failed;
-      case 'Skipped':
-        return TargetStatus.skipped;
-      case 'Unknown':
-        return TargetStatus.unknown;
-      case 'Ready':
-        return TargetStatus.ready;
-    }
-    throw Exception('$this is not known in enum TargetStatus');
-  }
+  const TargetStatus(this.value);
+
+  static TargetStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TargetStatus'));
 }
 
 /// A configuration that shifts traffic from one version of a Lambda function or
@@ -7437,7 +6904,7 @@ class TrafficRoute {
   factory TrafficRoute.fromJson(Map<String, dynamic> json) {
     return TrafficRoute(
       listenerArns: (json['listenerArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -7488,7 +6955,7 @@ class TrafficRoutingConfig {
           ? TimeBasedLinear.fromJson(
               json['timeBasedLinear'] as Map<String, dynamic>)
           : null,
-      type: (json['type'] as String?)?.toTrafficRoutingType(),
+      type: (json['type'] as String?)?.let(TrafficRoutingType.fromString),
     );
   }
 
@@ -7499,42 +6966,25 @@ class TrafficRoutingConfig {
     return {
       if (timeBasedCanary != null) 'timeBasedCanary': timeBasedCanary,
       if (timeBasedLinear != null) 'timeBasedLinear': timeBasedLinear,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
 enum TrafficRoutingType {
-  timeBasedCanary,
-  timeBasedLinear,
-  allAtOnce,
-}
+  timeBasedCanary('TimeBasedCanary'),
+  timeBasedLinear('TimeBasedLinear'),
+  allAtOnce('AllAtOnce'),
+  ;
 
-extension TrafficRoutingTypeValueExtension on TrafficRoutingType {
-  String toValue() {
-    switch (this) {
-      case TrafficRoutingType.timeBasedCanary:
-        return 'TimeBasedCanary';
-      case TrafficRoutingType.timeBasedLinear:
-        return 'TimeBasedLinear';
-      case TrafficRoutingType.allAtOnce:
-        return 'AllAtOnce';
-    }
-  }
-}
+  final String value;
 
-extension TrafficRoutingTypeFromString on String {
-  TrafficRoutingType toTrafficRoutingType() {
-    switch (this) {
-      case 'TimeBasedCanary':
-        return TrafficRoutingType.timeBasedCanary;
-      case 'TimeBasedLinear':
-        return TrafficRoutingType.timeBasedLinear;
-      case 'AllAtOnce':
-        return TrafficRoutingType.allAtOnce;
-    }
-    throw Exception('$this is not known in enum TrafficRoutingType');
-  }
+  const TrafficRoutingType(this.value);
+
+  static TrafficRoutingType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TrafficRoutingType'));
 }
 
 /// Information about notification triggers for the deployment group.
@@ -7559,8 +7009,8 @@ class TriggerConfig {
   factory TriggerConfig.fromJson(Map<String, dynamic> json) {
     return TriggerConfig(
       triggerEvents: (json['triggerEvents'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toTriggerEventType())
+          ?.nonNulls
+          .map((e) => TriggerEventType.fromString((e as String)))
           .toList(),
       triggerName: json['triggerName'] as String?,
       triggerTargetArn: json['triggerTargetArn'] as String?,
@@ -7573,7 +7023,7 @@ class TriggerConfig {
     final triggerTargetArn = this.triggerTargetArn;
     return {
       if (triggerEvents != null)
-        'triggerEvents': triggerEvents.map((e) => e.toValue()).toList(),
+        'triggerEvents': triggerEvents.map((e) => e.value).toList(),
       if (triggerName != null) 'triggerName': triggerName,
       if (triggerTargetArn != null) 'triggerTargetArn': triggerTargetArn,
     };
@@ -7581,71 +7031,26 @@ class TriggerConfig {
 }
 
 enum TriggerEventType {
-  deploymentStart,
-  deploymentSuccess,
-  deploymentFailure,
-  deploymentStop,
-  deploymentRollback,
-  deploymentReady,
-  instanceStart,
-  instanceSuccess,
-  instanceFailure,
-  instanceReady,
-}
+  deploymentStart('DeploymentStart'),
+  deploymentSuccess('DeploymentSuccess'),
+  deploymentFailure('DeploymentFailure'),
+  deploymentStop('DeploymentStop'),
+  deploymentRollback('DeploymentRollback'),
+  deploymentReady('DeploymentReady'),
+  instanceStart('InstanceStart'),
+  instanceSuccess('InstanceSuccess'),
+  instanceFailure('InstanceFailure'),
+  instanceReady('InstanceReady'),
+  ;
 
-extension TriggerEventTypeValueExtension on TriggerEventType {
-  String toValue() {
-    switch (this) {
-      case TriggerEventType.deploymentStart:
-        return 'DeploymentStart';
-      case TriggerEventType.deploymentSuccess:
-        return 'DeploymentSuccess';
-      case TriggerEventType.deploymentFailure:
-        return 'DeploymentFailure';
-      case TriggerEventType.deploymentStop:
-        return 'DeploymentStop';
-      case TriggerEventType.deploymentRollback:
-        return 'DeploymentRollback';
-      case TriggerEventType.deploymentReady:
-        return 'DeploymentReady';
-      case TriggerEventType.instanceStart:
-        return 'InstanceStart';
-      case TriggerEventType.instanceSuccess:
-        return 'InstanceSuccess';
-      case TriggerEventType.instanceFailure:
-        return 'InstanceFailure';
-      case TriggerEventType.instanceReady:
-        return 'InstanceReady';
-    }
-  }
-}
+  final String value;
 
-extension TriggerEventTypeFromString on String {
-  TriggerEventType toTriggerEventType() {
-    switch (this) {
-      case 'DeploymentStart':
-        return TriggerEventType.deploymentStart;
-      case 'DeploymentSuccess':
-        return TriggerEventType.deploymentSuccess;
-      case 'DeploymentFailure':
-        return TriggerEventType.deploymentFailure;
-      case 'DeploymentStop':
-        return TriggerEventType.deploymentStop;
-      case 'DeploymentRollback':
-        return TriggerEventType.deploymentRollback;
-      case 'DeploymentReady':
-        return TriggerEventType.deploymentReady;
-      case 'InstanceStart':
-        return TriggerEventType.instanceStart;
-      case 'InstanceSuccess':
-        return TriggerEventType.instanceSuccess;
-      case 'InstanceFailure':
-        return TriggerEventType.instanceFailure;
-      case 'InstanceReady':
-        return TriggerEventType.instanceReady;
-    }
-    throw Exception('$this is not known in enum TriggerEventType');
-  }
+  const TriggerEventType(this.value);
+
+  static TriggerEventType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TriggerEventType'));
 }
 
 class UntagResourceOutput {
@@ -7673,10 +7078,99 @@ class UpdateDeploymentGroupOutput {
   factory UpdateDeploymentGroupOutput.fromJson(Map<String, dynamic> json) {
     return UpdateDeploymentGroupOutput(
       hooksNotCleanedUp: (json['hooksNotCleanedUp'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AutoScalingGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
+  }
+}
+
+/// Configure the <code>ZonalConfig</code> object if you want CodeDeploy to
+/// deploy your application to one <a
+/// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/using-regions-availability-zones.html#concepts-availability-zones">Availability
+/// Zone</a> at a time, within an Amazon Web Services Region. By deploying to
+/// one Availability Zone at a time, you can expose your deployment to a
+/// progressively larger audience as confidence in the deployment's performance
+/// and viability grows. If you don't configure the <code>ZonalConfig</code>
+/// object, CodeDeploy deploys your application to a random selection of hosts
+/// across a Region.
+///
+/// For more information about the zonal configuration feature, see <a
+/// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations-create.html#zonal-config">zonal
+/// configuration</a> in the <i>CodeDeploy User Guide</i>.
+class ZonalConfig {
+  /// The period of time, in seconds, that CodeDeploy must wait after completing a
+  /// deployment to the <i>first</i> Availability Zone. CodeDeploy will wait this
+  /// amount of time before starting a deployment to the second Availability Zone.
+  /// You might set this option if you want to allow extra bake time for the first
+  /// Availability Zone. If you don't specify a value for
+  /// <code>firstZoneMonitorDurationInSeconds</code>, then CodeDeploy uses the
+  /// <code>monitorDurationInSeconds</code> value for the first Availability Zone.
+  ///
+  /// For more information about the zonal configuration feature, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations-create.html#zonal-config">zonal
+  /// configuration</a> in the <i>CodeDeploy User Guide</i>.
+  final int? firstZoneMonitorDurationInSeconds;
+
+  /// The number or percentage of instances that must remain available per
+  /// Availability Zone during a deployment. This option works in conjunction with
+  /// the <code>MinimumHealthyHosts</code> option. For more information, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/instances-health.html#minimum-healthy-hosts-az">About
+  /// the minimum number of healthy hosts per Availability Zone</a> in the
+  /// <i>CodeDeploy User Guide</i>.
+  ///
+  /// If you don't specify the <code>minimumHealthyHostsPerZone</code> option,
+  /// then CodeDeploy uses a default value of <code>0</code> percent.
+  ///
+  /// For more information about the zonal configuration feature, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations-create.html#zonal-config">zonal
+  /// configuration</a> in the <i>CodeDeploy User Guide</i>.
+  final MinimumHealthyHostsPerZone? minimumHealthyHostsPerZone;
+
+  /// The period of time, in seconds, that CodeDeploy must wait after completing a
+  /// deployment to an Availability Zone. CodeDeploy will wait this amount of time
+  /// before starting a deployment to the next Availability Zone. Consider adding
+  /// a monitor duration to give the deployment some time to prove itself (or
+  /// 'bake') in one Availability Zone before it is released in the next zone. If
+  /// you don't specify a <code>monitorDurationInSeconds</code>, CodeDeploy starts
+  /// deploying to the next Availability Zone immediately.
+  ///
+  /// For more information about the zonal configuration feature, see <a
+  /// href="https://docs.aws.amazon.com/codedeploy/latest/userguide/deployment-configurations-create.html#zonal-config">zonal
+  /// configuration</a> in the <i>CodeDeploy User Guide</i>.
+  final int? monitorDurationInSeconds;
+
+  ZonalConfig({
+    this.firstZoneMonitorDurationInSeconds,
+    this.minimumHealthyHostsPerZone,
+    this.monitorDurationInSeconds,
+  });
+
+  factory ZonalConfig.fromJson(Map<String, dynamic> json) {
+    return ZonalConfig(
+      firstZoneMonitorDurationInSeconds:
+          json['firstZoneMonitorDurationInSeconds'] as int?,
+      minimumHealthyHostsPerZone: json['minimumHealthyHostsPerZone'] != null
+          ? MinimumHealthyHostsPerZone.fromJson(
+              json['minimumHealthyHostsPerZone'] as Map<String, dynamic>)
+          : null,
+      monitorDurationInSeconds: json['monitorDurationInSeconds'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final firstZoneMonitorDurationInSeconds =
+        this.firstZoneMonitorDurationInSeconds;
+    final minimumHealthyHostsPerZone = this.minimumHealthyHostsPerZone;
+    final monitorDurationInSeconds = this.monitorDurationInSeconds;
+    return {
+      if (firstZoneMonitorDurationInSeconds != null)
+        'firstZoneMonitorDurationInSeconds': firstZoneMonitorDurationInSeconds,
+      if (minimumHealthyHostsPerZone != null)
+        'minimumHealthyHostsPerZone': minimumHealthyHostsPerZone,
+      if (monitorDurationInSeconds != null)
+        'monitorDurationInSeconds': monitorDurationInSeconds,
+    };
   }
 }
 
@@ -8370,6 +7864,15 @@ class InvalidUpdateOutdatedInstancesOnlyValueException
             message: message);
 }
 
+class InvalidZonalDeploymentConfigurationException
+    extends _s.GenericAwsException {
+  InvalidZonalDeploymentConfigurationException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'InvalidZonalDeploymentConfigurationException',
+            message: message);
+}
+
 class LifecycleEventAlreadyCompletedException extends _s.GenericAwsException {
   LifecycleEventAlreadyCompletedException({String? type, String? message})
       : super(
@@ -8665,6 +8168,9 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       InvalidTriggerConfigException(type: type, message: message),
   'InvalidUpdateOutdatedInstancesOnlyValueException': (type, message) =>
       InvalidUpdateOutdatedInstancesOnlyValueException(
+          type: type, message: message),
+  'InvalidZonalDeploymentConfigurationException': (type, message) =>
+      InvalidZonalDeploymentConfigurationException(
           type: type, message: message),
   'LifecycleEventAlreadyCompletedException': (type, message) =>
       LifecycleEventAlreadyCompletedException(type: type, message: message),

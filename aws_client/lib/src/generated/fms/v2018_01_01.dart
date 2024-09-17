@@ -129,7 +129,7 @@ class Fms {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ThirdPartyFirewall': thirdPartyFirewall.toValue(),
+        'ThirdPartyFirewall': thirdPartyFirewall.value,
       },
     );
 
@@ -303,7 +303,11 @@ class Fms {
   /// Deletes the security group if it was created through Firewall Manager and
   /// if it's no longer associated with any resources through another policy
   /// </li>
-  /// </ul>
+  /// </ul> <note>
+  /// For security group common policies, even if set to <code>False</code>,
+  /// Firewall Manager deletes all security groups created by Firewall Manager
+  /// that aren't associated with any other resources through another policy.
+  /// </note>
   /// After the cleanup, in-scope resources are no longer protected by web ACLs
   /// in this policy. Protection of out-of-scope resources remains unchanged.
   /// Scope is determined by tags that you create and accounts that you
@@ -447,7 +451,7 @@ class Fms {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ThirdPartyFirewall': thirdPartyFirewall.toValue(),
+        'ThirdPartyFirewall': thirdPartyFirewall.value,
       },
     );
 
@@ -477,7 +481,7 @@ class Fms {
   }
 
   /// Returns information about the specified account's administrative scope.
-  /// The admistrative scope defines the resources that an Firewall Manager
+  /// The administrative scope defines the resources that an Firewall Manager
   /// administrator can manage.
   ///
   /// May throw [InvalidOperationException].
@@ -487,7 +491,7 @@ class Fms {
   /// May throw [LimitExceededException].
   ///
   /// Parameter [adminAccount] :
-  /// The administator account that you want to get the details for.
+  /// The administrator account that you want to get the details for.
   Future<GetAdminScopeResponse> getAdminScope({
     required String adminAccount,
   }) async {
@@ -550,30 +554,8 @@ class Fms {
   /// account. Details include resources that are in and out of compliance with
   /// the specified policy.
   ///
-  /// <ul>
-  /// <li>
-  /// Resources are considered noncompliant for WAF and Shield Advanced policies
-  /// if the specified policy has not been applied to them.
-  /// </li>
-  /// <li>
-  /// Resources are considered noncompliant for security group policies if they
-  /// are in scope of the policy, they violate one or more of the policy rules,
-  /// and remediation is disabled or not possible.
-  /// </li>
-  /// <li>
-  /// Resources are considered noncompliant for Network Firewall policies if a
-  /// firewall is missing in the VPC, if the firewall endpoint isn't set up in
-  /// an expected Availability Zone and subnet, if a subnet created by the
-  /// Firewall Manager doesn't have the expected route table, and for
-  /// modifications to a firewall policy that violate the Firewall Manager
-  /// policy's rules.
-  /// </li>
-  /// <li>
-  /// Resources are considered noncompliant for DNS Firewall policies if a DNS
-  /// Firewall rule group is missing from the rule group associations for the
-  /// VPC.
-  /// </li>
-  /// </ul>
+  /// The reasons for resources being considered compliant depend on the
+  /// Firewall Manager policy type.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalErrorException].
@@ -836,7 +818,7 @@ class Fms {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ThirdPartyFirewall': thirdPartyFirewall.toValue(),
+        'ThirdPartyFirewall': thirdPartyFirewall.value,
       },
     );
 
@@ -855,8 +837,29 @@ class Fms {
   /// The Amazon Web Services account ID that you want the details for.
   ///
   /// Parameter [policyId] :
-  /// The ID of the Firewall Manager policy that you want the details for. This
-  /// currently only supports security group content audit policies.
+  /// The ID of the Firewall Manager policy that you want the details for. You
+  /// can get violation details for the following policy types:
+  ///
+  /// <ul>
+  /// <li>
+  /// DNS Firewall
+  /// </li>
+  /// <li>
+  /// Imported Network Firewall
+  /// </li>
+  /// <li>
+  /// Network Firewall
+  /// </li>
+  /// <li>
+  /// Security group content audit
+  /// </li>
+  /// <li>
+  /// Network ACL
+  /// </li>
+  /// <li>
+  /// Third-party firewall
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [resourceId] :
   /// The ID of the resource that has violations.
@@ -1533,7 +1536,7 @@ class Fms {
       headers: headers,
       payload: {
         'MaxResults': maxResults,
-        'ThirdPartyFirewall': thirdPartyFirewall.toValue(),
+        'ThirdPartyFirewall': thirdPartyFirewall.value,
         if (nextToken != null) 'NextToken': nextToken,
       },
     );
@@ -1679,40 +1682,67 @@ class Fms {
 
   /// Creates an Firewall Manager policy.
   ///
+  /// A Firewall Manager policy is specific to the individual policy type. If
+  /// you want to enforce multiple policy types across accounts, you can create
+  /// multiple policies. You can create more than one policy for each type.
+  ///
+  /// If you add a new account to an organization that you created with
+  /// Organizations, Firewall Manager automatically applies the policy to the
+  /// resources in that account that are within scope of the policy.
+  ///
   /// Firewall Manager provides the following types of policies:
   ///
   /// <ul>
   /// <li>
-  /// An WAF policy (type WAFV2), which defines rule groups to run first in the
-  /// corresponding WAF web ACL and rule groups to run last in the web ACL.
-  /// </li>
-  /// <li>
-  /// An WAF Classic policy (type WAF), which defines a rule group.
-  /// </li>
-  /// <li>
-  /// A Shield Advanced policy, which applies Shield Advanced protection to
+  /// <b>WAF policy</b> - This policy applies WAF web ACL protections to
   /// specified accounts and resources.
   /// </li>
   /// <li>
-  /// A security group policy, which manages VPC security groups across your
-  /// Amazon Web Services organization.
+  /// <b>Shield Advanced policy</b> - This policy applies Shield Advanced
+  /// protection to specified accounts and resources.
   /// </li>
   /// <li>
-  /// An Network Firewall policy, which provides firewall rules to filter
-  /// network traffic in specified Amazon VPCs.
+  /// <b>Security Groups policy</b> - This type of policy gives you control over
+  /// security groups that are in use throughout your organization in
+  /// Organizations and lets you enforce a baseline set of rules across your
+  /// organization.
   /// </li>
   /// <li>
-  /// A DNS Firewall policy, which provides Route 53 Resolver DNS Firewall rules
-  /// to filter DNS queries for specified VPCs.
+  /// <b>Network ACL policy</b> - This type of policy gives you control over the
+  /// network ACLs that are in use throughout your organization in Organizations
+  /// and lets you enforce a baseline set of first and last network ACL rules
+  /// across your organization.
   /// </li>
-  /// </ul>
-  /// Each policy is specific to one of the types. If you want to enforce more
-  /// than one policy type across accounts, create multiple policies. You can
-  /// create multiple policies for each type.
+  /// <li>
+  /// <b>Network Firewall policy</b> - This policy applies Network Firewall
+  /// protection to your organization's VPCs.
+  /// </li>
+  /// <li>
+  /// <b>DNS Firewall policy</b> - This policy applies Amazon Route 53 Resolver
+  /// DNS Firewall protections to your organization's VPCs.
+  /// </li>
+  /// <li>
+  /// <b>Third-party firewall policy</b> - This policy applies third-party
+  /// firewall protections. Third-party firewalls are available by subscription
+  /// through the Amazon Web Services Marketplace console at <a
+  /// href="http://aws.amazon.com/marketplace">Amazon Web Services
+  /// Marketplace</a>.
   ///
-  /// You must be subscribed to Shield Advanced to create a Shield Advanced
-  /// policy. For more information about subscribing to Shield Advanced, see <a
-  /// href="https://docs.aws.amazon.com/waf/latest/DDOSAPIReference/API_CreateSubscription.html">CreateSubscription</a>.
+  /// <ul>
+  /// <li>
+  /// <b>Palo Alto Networks Cloud NGFW policy</b> - This policy applies Palo
+  /// Alto Networks Cloud Next Generation Firewall (NGFW) protections and Palo
+  /// Alto Networks Cloud NGFW rulestacks to your organization's VPCs.
+  /// </li>
+  /// <li>
+  /// <b>Fortigate CNF policy</b> - This policy applies Fortigate Cloud Native
+  /// Firewall (CNF) protections. Fortigate CNF is a cloud-centered solution
+  /// that blocks Zero-Day threats and secures cloud infrastructures with
+  /// industry-leading advanced threat prevention, smart web application
+  /// firewalls (WAF), and API protection.
+  /// </li>
+  /// </ul> </li>
+  /// </ul>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [InvalidOperationException].
@@ -1901,46 +1931,21 @@ class Fms {
 }
 
 enum AccountRoleStatus {
-  ready,
-  creating,
-  pendingDeletion,
-  deleting,
-  deleted,
-}
+  ready('READY'),
+  creating('CREATING'),
+  pendingDeletion('PENDING_DELETION'),
+  deleting('DELETING'),
+  deleted('DELETED'),
+  ;
 
-extension AccountRoleStatusValueExtension on AccountRoleStatus {
-  String toValue() {
-    switch (this) {
-      case AccountRoleStatus.ready:
-        return 'READY';
-      case AccountRoleStatus.creating:
-        return 'CREATING';
-      case AccountRoleStatus.pendingDeletion:
-        return 'PENDING_DELETION';
-      case AccountRoleStatus.deleting:
-        return 'DELETING';
-      case AccountRoleStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension AccountRoleStatusFromString on String {
-  AccountRoleStatus toAccountRoleStatus() {
-    switch (this) {
-      case 'READY':
-        return AccountRoleStatus.ready;
-      case 'CREATING':
-        return AccountRoleStatus.creating;
-      case 'PENDING_DELETION':
-        return AccountRoleStatus.pendingDeletion;
-      case 'DELETING':
-        return AccountRoleStatus.deleting;
-      case 'DELETED':
-        return AccountRoleStatus.deleted;
-    }
-    throw Exception('$this is not known in enum AccountRoleStatus');
-  }
+  const AccountRoleStatus(this.value);
+
+  static AccountRoleStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccountRoleStatus'));
 }
 
 /// Configures the accounts within the administrator's Organizations
@@ -1985,7 +1990,7 @@ class AccountScope {
   factory AccountScope.fromJson(Map<String, dynamic> json) {
     return AccountScope(
       accounts: (json['Accounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       allAccountsEnabled: json['AllAccountsEnabled'] as bool?,
@@ -2055,7 +2060,7 @@ class AdminAccountSummary {
   final bool? defaultAdmin;
 
   /// The current status of the request to onboard a member account as an Firewall
-  /// Manager administator.
+  /// Manager administrator.
   ///
   /// <ul>
   /// <li>
@@ -2088,7 +2093,7 @@ class AdminAccountSummary {
     return AdminAccountSummary(
       adminAccount: json['AdminAccount'] as String?,
       defaultAdmin: json['DefaultAdmin'] as bool?,
-      status: (json['Status'] as String?)?.toOrganizationStatus(),
+      status: (json['Status'] as String?)?.let(OrganizationStatus.fromString),
     );
   }
 
@@ -2099,7 +2104,7 @@ class AdminAccountSummary {
     return {
       if (adminAccount != null) 'AdminAccount': adminAccount,
       if (defaultAdmin != null) 'DefaultAdmin': defaultAdmin,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -2250,7 +2255,7 @@ class AppsListData {
   factory AppsListData.fromJson(Map<String, dynamic> json) {
     return AppsListData(
       appsList: (json['AppsList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => App.fromJson(e as Map<String, dynamic>))
           .toList(),
       listName: json['ListName'] as String,
@@ -2262,7 +2267,7 @@ class AppsListData {
           ?.map((k, e) => MapEntry(
               k,
               (e as List)
-                  .whereNotNull()
+                  .nonNulls
                   .map((e) => App.fromJson(e as Map<String, dynamic>))
                   .toList())),
     );
@@ -2314,7 +2319,7 @@ class AppsListDataSummary {
   factory AppsListDataSummary.fromJson(Map<String, dynamic> json) {
     return AppsListDataSummary(
       appsList: (json['AppsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => App.fromJson(e as Map<String, dynamic>))
           .toList(),
       listArn: json['ListArn'] as String?,
@@ -2373,7 +2378,7 @@ class AssociateThirdPartyFirewallResponse {
       Map<String, dynamic> json) {
     return AssociateThirdPartyFirewallResponse(
       thirdPartyFirewallStatus: (json['ThirdPartyFirewallStatus'] as String?)
-          ?.toThirdPartyFirewallAssociationStatus(),
+          ?.let(ThirdPartyFirewallAssociationStatus.fromString),
     );
   }
 
@@ -2381,7 +2386,7 @@ class AssociateThirdPartyFirewallResponse {
     final thirdPartyFirewallStatus = this.thirdPartyFirewallStatus;
     return {
       if (thirdPartyFirewallStatus != null)
-        'ThirdPartyFirewallStatus': thirdPartyFirewallStatus.toValue(),
+        'ThirdPartyFirewallStatus': thirdPartyFirewallStatus.value,
     };
   }
 }
@@ -2403,7 +2408,7 @@ class AwsEc2InstanceViolation {
     return AwsEc2InstanceViolation(
       awsEc2NetworkInterfaceViolations:
           (json['AwsEc2NetworkInterfaceViolations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AwsEc2NetworkInterfaceViolation.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -2440,7 +2445,7 @@ class AwsEc2NetworkInterfaceViolation {
   factory AwsEc2NetworkInterfaceViolation.fromJson(Map<String, dynamic> json) {
     return AwsEc2NetworkInterfaceViolation(
       violatingSecurityGroups: (json['ViolatingSecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       violationTarget: json['ViolationTarget'] as String?,
@@ -2486,12 +2491,12 @@ class AwsVPCSecurityGroupViolation {
   factory AwsVPCSecurityGroupViolation.fromJson(Map<String, dynamic> json) {
     return AwsVPCSecurityGroupViolation(
       partialMatches: (json['PartialMatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PartialMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       possibleSecurityGroupRemediationActions:
           (json['PossibleSecurityGroupRemediationActions'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => SecurityGroupRemediationAction.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -2534,7 +2539,7 @@ class BatchAssociateResourceResponse {
   factory BatchAssociateResourceResponse.fromJson(Map<String, dynamic> json) {
     return BatchAssociateResourceResponse(
       failedItems: (json['FailedItems'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FailedItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceSetIdentifier: json['ResourceSetIdentifier'] as String,
@@ -2568,7 +2573,7 @@ class BatchDisassociateResourceResponse {
       Map<String, dynamic> json) {
     return BatchDisassociateResourceResponse(
       failedItems: (json['FailedItems'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FailedItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceSetIdentifier: json['ResourceSetIdentifier'] as String,
@@ -2618,7 +2623,7 @@ class ComplianceViolator {
       resourceId: json['ResourceId'] as String?,
       resourceType: json['ResourceType'] as String?,
       violationReason:
-          (json['ViolationReason'] as String?)?.toViolationReason(),
+          (json['ViolationReason'] as String?)?.let(ViolationReason.fromString),
     );
   }
 
@@ -2631,136 +2636,225 @@ class ComplianceViolator {
       if (metadata != null) 'Metadata': metadata,
       if (resourceId != null) 'ResourceId': resourceId,
       if (resourceType != null) 'ResourceType': resourceType,
-      if (violationReason != null) 'ViolationReason': violationReason.toValue(),
+      if (violationReason != null) 'ViolationReason': violationReason.value,
+    };
+  }
+}
+
+/// Information about the <code>CreateNetworkAcl</code> action in Amazon EC2.
+/// This is a remediation option in <code>RemediationAction</code>.
+class CreateNetworkAclAction {
+  /// Brief description of this remediation action.
+  final String? description;
+
+  /// Indicates whether it is possible for Firewall Manager to perform this
+  /// remediation action. A false value indicates that auto remediation is
+  /// disabled or Firewall Manager is unable to perform the action due to a
+  /// conflict of some kind.
+  final bool? fMSCanRemediate;
+
+  /// The VPC that's associated with the remediation action.
+  final ActionTarget? vpc;
+
+  CreateNetworkAclAction({
+    this.description,
+    this.fMSCanRemediate,
+    this.vpc,
+  });
+
+  factory CreateNetworkAclAction.fromJson(Map<String, dynamic> json) {
+    return CreateNetworkAclAction(
+      description: json['Description'] as String?,
+      fMSCanRemediate: json['FMSCanRemediate'] as bool?,
+      vpc: json['Vpc'] != null
+          ? ActionTarget.fromJson(json['Vpc'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final description = this.description;
+    final fMSCanRemediate = this.fMSCanRemediate;
+    final vpc = this.vpc;
+    return {
+      if (description != null) 'Description': description,
+      if (fMSCanRemediate != null) 'FMSCanRemediate': fMSCanRemediate,
+      if (vpc != null) 'Vpc': vpc,
+    };
+  }
+}
+
+/// Information about the <code>CreateNetworkAclEntries</code> action in Amazon
+/// EC2. This is a remediation option in <code>RemediationAction</code>.
+class CreateNetworkAclEntriesAction {
+  /// Brief description of this remediation action.
+  final String? description;
+
+  /// Indicates whether it is possible for Firewall Manager to perform this
+  /// remediation action. A false value indicates that auto remediation is
+  /// disabled or Firewall Manager is unable to perform the action due to a
+  /// conflict of some kind.
+  final bool? fMSCanRemediate;
+
+  /// Lists the entries that the remediation action would create.
+  final List<EntryDescription>? networkAclEntriesToBeCreated;
+
+  /// The network ACL that's associated with the remediation action.
+  final ActionTarget? networkAclId;
+
+  CreateNetworkAclEntriesAction({
+    this.description,
+    this.fMSCanRemediate,
+    this.networkAclEntriesToBeCreated,
+    this.networkAclId,
+  });
+
+  factory CreateNetworkAclEntriesAction.fromJson(Map<String, dynamic> json) {
+    return CreateNetworkAclEntriesAction(
+      description: json['Description'] as String?,
+      fMSCanRemediate: json['FMSCanRemediate'] as bool?,
+      networkAclEntriesToBeCreated:
+          (json['NetworkAclEntriesToBeCreated'] as List?)
+              ?.nonNulls
+              .map((e) => EntryDescription.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      networkAclId: json['NetworkAclId'] != null
+          ? ActionTarget.fromJson(json['NetworkAclId'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final description = this.description;
+    final fMSCanRemediate = this.fMSCanRemediate;
+    final networkAclEntriesToBeCreated = this.networkAclEntriesToBeCreated;
+    final networkAclId = this.networkAclId;
+    return {
+      if (description != null) 'Description': description,
+      if (fMSCanRemediate != null) 'FMSCanRemediate': fMSCanRemediate,
+      if (networkAclEntriesToBeCreated != null)
+        'NetworkAclEntriesToBeCreated': networkAclEntriesToBeCreated,
+      if (networkAclId != null) 'NetworkAclId': networkAclId,
     };
   }
 }
 
 enum CustomerPolicyScopeIdType {
-  account,
-  orgUnit,
-}
+  account('ACCOUNT'),
+  orgUnit('ORG_UNIT'),
+  ;
 
-extension CustomerPolicyScopeIdTypeValueExtension on CustomerPolicyScopeIdType {
-  String toValue() {
-    switch (this) {
-      case CustomerPolicyScopeIdType.account:
-        return 'ACCOUNT';
-      case CustomerPolicyScopeIdType.orgUnit:
-        return 'ORG_UNIT';
-    }
-  }
-}
+  final String value;
 
-extension CustomerPolicyScopeIdTypeFromString on String {
-  CustomerPolicyScopeIdType toCustomerPolicyScopeIdType() {
-    switch (this) {
-      case 'ACCOUNT':
-        return CustomerPolicyScopeIdType.account;
-      case 'ORG_UNIT':
-        return CustomerPolicyScopeIdType.orgUnit;
-    }
-    throw Exception('$this is not known in enum CustomerPolicyScopeIdType');
-  }
+  const CustomerPolicyScopeIdType(this.value);
+
+  static CustomerPolicyScopeIdType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomerPolicyScopeIdType'));
 }
 
 enum CustomerPolicyStatus {
-  active,
-  outOfAdminScope,
+  active('ACTIVE'),
+  outOfAdminScope('OUT_OF_ADMIN_SCOPE'),
+  ;
+
+  final String value;
+
+  const CustomerPolicyStatus(this.value);
+
+  static CustomerPolicyStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CustomerPolicyStatus'));
 }
 
-extension CustomerPolicyStatusValueExtension on CustomerPolicyStatus {
-  String toValue() {
-    switch (this) {
-      case CustomerPolicyStatus.active:
-        return 'ACTIVE';
-      case CustomerPolicyStatus.outOfAdminScope:
-        return 'OUT_OF_ADMIN_SCOPE';
-    }
+/// Information about the <code>DeleteNetworkAclEntries</code> action in Amazon
+/// EC2. This is a remediation option in <code>RemediationAction</code>.
+class DeleteNetworkAclEntriesAction {
+  /// Brief description of this remediation action.
+  final String? description;
+
+  /// Indicates whether it is possible for Firewall Manager to perform this
+  /// remediation action. A false value indicates that auto remediation is
+  /// disabled or Firewall Manager is unable to perform the action due to a
+  /// conflict of some kind.
+  final bool? fMSCanRemediate;
+
+  /// Lists the entries that the remediation action would delete.
+  final List<EntryDescription>? networkAclEntriesToBeDeleted;
+
+  /// The network ACL that's associated with the remediation action.
+  final ActionTarget? networkAclId;
+
+  DeleteNetworkAclEntriesAction({
+    this.description,
+    this.fMSCanRemediate,
+    this.networkAclEntriesToBeDeleted,
+    this.networkAclId,
+  });
+
+  factory DeleteNetworkAclEntriesAction.fromJson(Map<String, dynamic> json) {
+    return DeleteNetworkAclEntriesAction(
+      description: json['Description'] as String?,
+      fMSCanRemediate: json['FMSCanRemediate'] as bool?,
+      networkAclEntriesToBeDeleted:
+          (json['NetworkAclEntriesToBeDeleted'] as List?)
+              ?.nonNulls
+              .map((e) => EntryDescription.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      networkAclId: json['NetworkAclId'] != null
+          ? ActionTarget.fromJson(json['NetworkAclId'] as Map<String, dynamic>)
+          : null,
+    );
   }
-}
 
-extension CustomerPolicyStatusFromString on String {
-  CustomerPolicyStatus toCustomerPolicyStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return CustomerPolicyStatus.active;
-      case 'OUT_OF_ADMIN_SCOPE':
-        return CustomerPolicyStatus.outOfAdminScope;
-    }
-    throw Exception('$this is not known in enum CustomerPolicyStatus');
+  Map<String, dynamic> toJson() {
+    final description = this.description;
+    final fMSCanRemediate = this.fMSCanRemediate;
+    final networkAclEntriesToBeDeleted = this.networkAclEntriesToBeDeleted;
+    final networkAclId = this.networkAclId;
+    return {
+      if (description != null) 'Description': description,
+      if (fMSCanRemediate != null) 'FMSCanRemediate': fMSCanRemediate,
+      if (networkAclEntriesToBeDeleted != null)
+        'NetworkAclEntriesToBeDeleted': networkAclEntriesToBeDeleted,
+      if (networkAclId != null) 'NetworkAclId': networkAclId,
+    };
   }
 }
 
 enum DependentServiceName {
-  awsconfig,
-  awswaf,
-  awsshieldAdvanced,
-  awsvpc,
-}
+  awsconfig('AWSCONFIG'),
+  awswaf('AWSWAF'),
+  awsshieldAdvanced('AWSSHIELD_ADVANCED'),
+  awsvpc('AWSVPC'),
+  ;
 
-extension DependentServiceNameValueExtension on DependentServiceName {
-  String toValue() {
-    switch (this) {
-      case DependentServiceName.awsconfig:
-        return 'AWSCONFIG';
-      case DependentServiceName.awswaf:
-        return 'AWSWAF';
-      case DependentServiceName.awsshieldAdvanced:
-        return 'AWSSHIELD_ADVANCED';
-      case DependentServiceName.awsvpc:
-        return 'AWSVPC';
-    }
-  }
-}
+  final String value;
 
-extension DependentServiceNameFromString on String {
-  DependentServiceName toDependentServiceName() {
-    switch (this) {
-      case 'AWSCONFIG':
-        return DependentServiceName.awsconfig;
-      case 'AWSWAF':
-        return DependentServiceName.awswaf;
-      case 'AWSSHIELD_ADVANCED':
-        return DependentServiceName.awsshieldAdvanced;
-      case 'AWSVPC':
-        return DependentServiceName.awsvpc;
-    }
-    throw Exception('$this is not known in enum DependentServiceName');
-  }
+  const DependentServiceName(this.value);
+
+  static DependentServiceName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DependentServiceName'));
 }
 
 enum DestinationType {
-  ipv4,
-  ipv6,
-  prefixList,
-}
+  ipv4('IPV4'),
+  ipv6('IPV6'),
+  prefixList('PREFIX_LIST'),
+  ;
 
-extension DestinationTypeValueExtension on DestinationType {
-  String toValue() {
-    switch (this) {
-      case DestinationType.ipv4:
-        return 'IPV4';
-      case DestinationType.ipv6:
-        return 'IPV6';
-      case DestinationType.prefixList:
-        return 'PREFIX_LIST';
-    }
-  }
-}
+  final String value;
 
-extension DestinationTypeFromString on String {
-  DestinationType toDestinationType() {
-    switch (this) {
-      case 'IPV4':
-        return DestinationType.ipv4;
-      case 'IPV6':
-        return DestinationType.ipv6;
-      case 'PREFIX_LIST':
-        return DestinationType.prefixList;
-    }
-    throw Exception('$this is not known in enum DestinationType');
-  }
+  const DestinationType(this.value);
+
+  static DestinationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DestinationType'));
 }
 
 class DisassociateThirdPartyFirewallResponse {
@@ -2776,7 +2870,7 @@ class DisassociateThirdPartyFirewallResponse {
       Map<String, dynamic> json) {
     return DisassociateThirdPartyFirewallResponse(
       thirdPartyFirewallStatus: (json['ThirdPartyFirewallStatus'] as String?)
-          ?.toThirdPartyFirewallAssociationStatus(),
+          ?.let(ThirdPartyFirewallAssociationStatus.fromString),
     );
   }
 
@@ -2784,7 +2878,7 @@ class DisassociateThirdPartyFirewallResponse {
     final thirdPartyFirewallStatus = this.thirdPartyFirewallStatus;
     return {
       if (thirdPartyFirewallStatus != null)
-        'ThirdPartyFirewallStatus': thirdPartyFirewallStatus.toValue(),
+        'ThirdPartyFirewallStatus': thirdPartyFirewallStatus.value,
     };
   }
 }
@@ -2948,7 +3042,7 @@ class DnsRuleGroupPriorityConflictViolation {
       conflictingPolicyId: json['ConflictingPolicyId'] as String?,
       conflictingPriority: json['ConflictingPriority'] as int?,
       unavailablePriorities: (json['UnavailablePriorities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as int)
           .toList(),
       violationTarget: json['ViolationTarget'] as String?,
@@ -3343,6 +3437,180 @@ class EC2ReplaceRouteTableAssociationAction {
   }
 }
 
+/// Describes a single rule in a network ACL.
+class EntryDescription {
+  /// Describes a rule in a network ACL.
+  ///
+  /// Each network ACL has a set of numbered ingress rules and a separate set of
+  /// numbered egress rules. When determining whether a packet should be allowed
+  /// in or out of a subnet associated with the network ACL, Amazon Web Services
+  /// processes the entries in the network ACL according to the rule numbers, in
+  /// ascending order.
+  ///
+  /// When you manage an individual network ACL, you explicitly specify the rule
+  /// numbers. When you specify the network ACL rules in a Firewall Manager
+  /// policy, you provide the rules to run first, in the order that you want them
+  /// to run, and the rules to run last, in the order that you want them to run.
+  /// Firewall Manager assigns the rule numbers for you when you save the network
+  /// ACL policy specification.
+  final NetworkAclEntry? entryDetail;
+
+  /// The rule number for the entry. ACL entries are processed in ascending order
+  /// by rule number. In a Firewall Manager network ACL policy, Firewall Manager
+  /// assigns rule numbers.
+  final int? entryRuleNumber;
+
+  /// Specifies whether the entry is managed by Firewall Manager or by a user,
+  /// and, for Firewall Manager-managed entries, specifies whether the entry is
+  /// among those that run first in the network ACL or those that run last.
+  final EntryType? entryType;
+
+  EntryDescription({
+    this.entryDetail,
+    this.entryRuleNumber,
+    this.entryType,
+  });
+
+  factory EntryDescription.fromJson(Map<String, dynamic> json) {
+    return EntryDescription(
+      entryDetail: json['EntryDetail'] != null
+          ? NetworkAclEntry.fromJson(
+              json['EntryDetail'] as Map<String, dynamic>)
+          : null,
+      entryRuleNumber: json['EntryRuleNumber'] as int?,
+      entryType: (json['EntryType'] as String?)?.let(EntryType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final entryDetail = this.entryDetail;
+    final entryRuleNumber = this.entryRuleNumber;
+    final entryType = this.entryType;
+    return {
+      if (entryDetail != null) 'EntryDetail': entryDetail,
+      if (entryRuleNumber != null) 'EntryRuleNumber': entryRuleNumber,
+      if (entryType != null) 'EntryType': entryType.value,
+    };
+  }
+}
+
+enum EntryType {
+  fmsManagedFirstEntry('FMS_MANAGED_FIRST_ENTRY'),
+  fmsManagedLastEntry('FMS_MANAGED_LAST_ENTRY'),
+  customEntry('CUSTOM_ENTRY'),
+  ;
+
+  final String value;
+
+  const EntryType(this.value);
+
+  static EntryType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EntryType'));
+}
+
+/// Detailed information about an entry violation in a network ACL. The
+/// violation is against the network ACL specification inside the Firewall
+/// Manager network ACL policy. This data object is part of
+/// <code>InvalidNetworkAclEntriesViolation</code>.
+class EntryViolation {
+  /// The evaluation location within the ordered list of entries where the
+  /// <code>ExpectedEntry</code> is currently located.
+  final String? actualEvaluationOrder;
+
+  /// The list of entries that are in conflict with <code>ExpectedEntry</code>.
+  final List<EntryDescription>? entriesWithConflicts;
+
+  /// The entry that's currently in the <code>ExpectedEvaluationOrder</code>
+  /// location, in place of the expected entry.
+  final EntryDescription? entryAtExpectedEvaluationOrder;
+
+  /// Descriptions of the violations that Firewall Manager found for these
+  /// entries.
+  final List<EntryViolationReason>? entryViolationReasons;
+
+  /// The Firewall Manager-managed network ACL entry that is involved in the entry
+  /// violation.
+  final EntryDescription? expectedEntry;
+
+  /// The evaluation location within the ordered list of entries where the
+  /// <code>ExpectedEntry</code> should be, according to the network ACL policy
+  /// specifications.
+  final String? expectedEvaluationOrder;
+
+  EntryViolation({
+    this.actualEvaluationOrder,
+    this.entriesWithConflicts,
+    this.entryAtExpectedEvaluationOrder,
+    this.entryViolationReasons,
+    this.expectedEntry,
+    this.expectedEvaluationOrder,
+  });
+
+  factory EntryViolation.fromJson(Map<String, dynamic> json) {
+    return EntryViolation(
+      actualEvaluationOrder: json['ActualEvaluationOrder'] as String?,
+      entriesWithConflicts: (json['EntriesWithConflicts'] as List?)
+          ?.nonNulls
+          .map((e) => EntryDescription.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      entryAtExpectedEvaluationOrder: json['EntryAtExpectedEvaluationOrder'] !=
+              null
+          ? EntryDescription.fromJson(
+              json['EntryAtExpectedEvaluationOrder'] as Map<String, dynamic>)
+          : null,
+      entryViolationReasons: (json['EntryViolationReasons'] as List?)
+          ?.nonNulls
+          .map((e) => EntryViolationReason.fromString((e as String)))
+          .toList(),
+      expectedEntry: json['ExpectedEntry'] != null
+          ? EntryDescription.fromJson(
+              json['ExpectedEntry'] as Map<String, dynamic>)
+          : null,
+      expectedEvaluationOrder: json['ExpectedEvaluationOrder'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final actualEvaluationOrder = this.actualEvaluationOrder;
+    final entriesWithConflicts = this.entriesWithConflicts;
+    final entryAtExpectedEvaluationOrder = this.entryAtExpectedEvaluationOrder;
+    final entryViolationReasons = this.entryViolationReasons;
+    final expectedEntry = this.expectedEntry;
+    final expectedEvaluationOrder = this.expectedEvaluationOrder;
+    return {
+      if (actualEvaluationOrder != null)
+        'ActualEvaluationOrder': actualEvaluationOrder,
+      if (entriesWithConflicts != null)
+        'EntriesWithConflicts': entriesWithConflicts,
+      if (entryAtExpectedEvaluationOrder != null)
+        'EntryAtExpectedEvaluationOrder': entryAtExpectedEvaluationOrder,
+      if (entryViolationReasons != null)
+        'EntryViolationReasons':
+            entryViolationReasons.map((e) => e.value).toList(),
+      if (expectedEntry != null) 'ExpectedEntry': expectedEntry,
+      if (expectedEvaluationOrder != null)
+        'ExpectedEvaluationOrder': expectedEvaluationOrder,
+    };
+  }
+}
+
+enum EntryViolationReason {
+  missingExpectedEntry('MISSING_EXPECTED_ENTRY'),
+  incorrectEntryOrder('INCORRECT_ENTRY_ORDER'),
+  entryConflict('ENTRY_CONFLICT'),
+  ;
+
+  final String value;
+
+  const EntryViolationReason(this.value);
+
+  static EntryViolationReason fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EntryViolationReason'));
+}
+
 /// Describes the compliance status for the account. An account is considered
 /// noncompliant if it includes resources that are not protected by the
 /// specified policy or that don't comply with the policy.
@@ -3370,8 +3638,8 @@ class EvaluationResult {
 
   factory EvaluationResult.fromJson(Map<String, dynamic> json) {
     return EvaluationResult(
-      complianceStatus:
-          (json['ComplianceStatus'] as String?)?.toPolicyComplianceStatusType(),
+      complianceStatus: (json['ComplianceStatus'] as String?)
+          ?.let(PolicyComplianceStatusType.fromString),
       evaluationLimitExceeded: json['EvaluationLimitExceeded'] as bool?,
       violatorCount: json['ViolatorCount'] as int?,
     );
@@ -3382,8 +3650,7 @@ class EvaluationResult {
     final evaluationLimitExceeded = this.evaluationLimitExceeded;
     final violatorCount = this.violatorCount;
     return {
-      if (complianceStatus != null)
-        'ComplianceStatus': complianceStatus.toValue(),
+      if (complianceStatus != null) 'ComplianceStatus': complianceStatus.value,
       if (evaluationLimitExceeded != null)
         'EvaluationLimitExceeded': evaluationLimitExceeded,
       if (violatorCount != null) 'ViolatorCount': violatorCount,
@@ -3423,11 +3690,11 @@ class ExpectedRoute {
   factory ExpectedRoute.fromJson(Map<String, dynamic> json) {
     return ExpectedRoute(
       allowedTargets: (json['AllowedTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       contributingSubnets: (json['ContributingSubnets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       ipV4Cidr: json['IpV4Cidr'] as String?,
@@ -3511,7 +3778,7 @@ class FailedItem {
 
   factory FailedItem.fromJson(Map<String, dynamic> json) {
     return FailedItem(
-      reason: (json['Reason'] as String?)?.toFailedItemReason(),
+      reason: (json['Reason'] as String?)?.let(FailedItemReason.fromString),
       uri: json['URI'] as String?,
     );
   }
@@ -3520,86 +3787,44 @@ class FailedItem {
     final reason = this.reason;
     final uri = this.uri;
     return {
-      if (reason != null) 'Reason': reason.toValue(),
+      if (reason != null) 'Reason': reason.value,
       if (uri != null) 'URI': uri,
     };
   }
 }
 
 enum FailedItemReason {
-  notValidArn,
-  notValidPartition,
-  notValidRegion,
-  notValidService,
-  notValidResourceType,
-  notValidAccountId,
-}
+  notValidArn('NOT_VALID_ARN'),
+  notValidPartition('NOT_VALID_PARTITION'),
+  notValidRegion('NOT_VALID_REGION'),
+  notValidService('NOT_VALID_SERVICE'),
+  notValidResourceType('NOT_VALID_RESOURCE_TYPE'),
+  notValidAccountId('NOT_VALID_ACCOUNT_ID'),
+  ;
 
-extension FailedItemReasonValueExtension on FailedItemReason {
-  String toValue() {
-    switch (this) {
-      case FailedItemReason.notValidArn:
-        return 'NOT_VALID_ARN';
-      case FailedItemReason.notValidPartition:
-        return 'NOT_VALID_PARTITION';
-      case FailedItemReason.notValidRegion:
-        return 'NOT_VALID_REGION';
-      case FailedItemReason.notValidService:
-        return 'NOT_VALID_SERVICE';
-      case FailedItemReason.notValidResourceType:
-        return 'NOT_VALID_RESOURCE_TYPE';
-      case FailedItemReason.notValidAccountId:
-        return 'NOT_VALID_ACCOUNT_ID';
-    }
-  }
-}
+  final String value;
 
-extension FailedItemReasonFromString on String {
-  FailedItemReason toFailedItemReason() {
-    switch (this) {
-      case 'NOT_VALID_ARN':
-        return FailedItemReason.notValidArn;
-      case 'NOT_VALID_PARTITION':
-        return FailedItemReason.notValidPartition;
-      case 'NOT_VALID_REGION':
-        return FailedItemReason.notValidRegion;
-      case 'NOT_VALID_SERVICE':
-        return FailedItemReason.notValidService;
-      case 'NOT_VALID_RESOURCE_TYPE':
-        return FailedItemReason.notValidResourceType;
-      case 'NOT_VALID_ACCOUNT_ID':
-        return FailedItemReason.notValidAccountId;
-    }
-    throw Exception('$this is not known in enum FailedItemReason');
-  }
+  const FailedItemReason(this.value);
+
+  static FailedItemReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FailedItemReason'));
 }
 
 enum FirewallDeploymentModel {
-  centralized,
-  distributed,
-}
+  centralized('CENTRALIZED'),
+  distributed('DISTRIBUTED'),
+  ;
 
-extension FirewallDeploymentModelValueExtension on FirewallDeploymentModel {
-  String toValue() {
-    switch (this) {
-      case FirewallDeploymentModel.centralized:
-        return 'CENTRALIZED';
-      case FirewallDeploymentModel.distributed:
-        return 'DISTRIBUTED';
-    }
-  }
-}
+  final String value;
 
-extension FirewallDeploymentModelFromString on String {
-  FirewallDeploymentModel toFirewallDeploymentModel() {
-    switch (this) {
-      case 'CENTRALIZED':
-        return FirewallDeploymentModel.centralized;
-      case 'DISTRIBUTED':
-        return FirewallDeploymentModel.distributed;
-    }
-    throw Exception('$this is not known in enum FirewallDeploymentModel');
-  }
+  const FirewallDeploymentModel(this.value);
+
+  static FirewallDeploymentModel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FirewallDeploymentModel'));
 }
 
 /// Contains details about the firewall subnet that violates the policy scope.
@@ -3721,7 +3946,8 @@ class GetAdminAccountResponse {
   factory GetAdminAccountResponse.fromJson(Map<String, dynamic> json) {
     return GetAdminAccountResponse(
       adminAccount: json['AdminAccount'] as String?,
-      roleStatus: (json['RoleStatus'] as String?)?.toAccountRoleStatus(),
+      roleStatus:
+          (json['RoleStatus'] as String?)?.let(AccountRoleStatus.fromString),
     );
   }
 
@@ -3730,7 +3956,7 @@ class GetAdminAccountResponse {
     final roleStatus = this.roleStatus;
     return {
       if (adminAccount != null) 'AdminAccount': adminAccount,
-      if (roleStatus != null) 'RoleStatus': roleStatus.toValue(),
+      if (roleStatus != null) 'RoleStatus': roleStatus.value,
     };
   }
 }
@@ -3740,7 +3966,7 @@ class GetAdminScopeResponse {
   final AdminScope? adminScope;
 
   /// The current status of the request to onboard a member account as an Firewall
-  /// Manager administator.
+  /// Manager administrator.
   ///
   /// <ul>
   /// <li>
@@ -3773,7 +3999,7 @@ class GetAdminScopeResponse {
       adminScope: json['AdminScope'] != null
           ? AdminScope.fromJson(json['AdminScope'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toOrganizationStatus(),
+      status: (json['Status'] as String?)?.let(OrganizationStatus.fromString),
     );
   }
 
@@ -3782,7 +4008,7 @@ class GetAdminScopeResponse {
     final status = this.status;
     return {
       if (adminScope != null) 'AdminScope': adminScope,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -3961,7 +4187,8 @@ class GetProtectionStatusResponse {
       adminAccountId: json['AdminAccountId'] as String?,
       data: json['Data'] as String?,
       nextToken: json['NextToken'] as String?,
-      serviceType: (json['ServiceType'] as String?)?.toSecurityServiceType(),
+      serviceType:
+          (json['ServiceType'] as String?)?.let(SecurityServiceType.fromString),
     );
   }
 
@@ -3974,7 +4201,7 @@ class GetProtectionStatusResponse {
       if (adminAccountId != null) 'AdminAccountId': adminAccountId,
       if (data != null) 'Data': data,
       if (nextToken != null) 'NextToken': nextToken,
-      if (serviceType != null) 'ServiceType': serviceType.toValue(),
+      if (serviceType != null) 'ServiceType': serviceType.value,
     };
   }
 }
@@ -4101,9 +4328,9 @@ class GetThirdPartyFirewallAssociationStatusResponse {
     return GetThirdPartyFirewallAssociationStatusResponse(
       marketplaceOnboardingStatus:
           (json['MarketplaceOnboardingStatus'] as String?)
-              ?.toMarketplaceSubscriptionOnboardingStatus(),
+              ?.let(MarketplaceSubscriptionOnboardingStatus.fromString),
       thirdPartyFirewallStatus: (json['ThirdPartyFirewallStatus'] as String?)
-          ?.toThirdPartyFirewallAssociationStatus(),
+          ?.let(ThirdPartyFirewallAssociationStatus.fromString),
     );
   }
 
@@ -4112,9 +4339,9 @@ class GetThirdPartyFirewallAssociationStatusResponse {
     final thirdPartyFirewallStatus = this.thirdPartyFirewallStatus;
     return {
       if (marketplaceOnboardingStatus != null)
-        'MarketplaceOnboardingStatus': marketplaceOnboardingStatus.toValue(),
+        'MarketplaceOnboardingStatus': marketplaceOnboardingStatus.value,
       if (thirdPartyFirewallStatus != null)
-        'ThirdPartyFirewallStatus': thirdPartyFirewallStatus.toValue(),
+        'ThirdPartyFirewallStatus': thirdPartyFirewallStatus.value,
     };
   }
 }
@@ -4144,6 +4371,64 @@ class GetViolationDetailsResponse {
   }
 }
 
+/// Violation detail for the entries in a network ACL resource.
+class InvalidNetworkAclEntriesViolation {
+  /// The network ACL containing the entry violations.
+  final String? currentAssociatedNetworkAcl;
+
+  /// Detailed information about the entry violations in the network ACL.
+  final List<EntryViolation>? entryViolations;
+
+  /// The subnet that's associated with the network ACL.
+  final String? subnet;
+
+  /// The Availability Zone where the network ACL is in use.
+  final String? subnetAvailabilityZone;
+
+  /// The VPC where the violation was found.
+  final String? vpc;
+
+  InvalidNetworkAclEntriesViolation({
+    this.currentAssociatedNetworkAcl,
+    this.entryViolations,
+    this.subnet,
+    this.subnetAvailabilityZone,
+    this.vpc,
+  });
+
+  factory InvalidNetworkAclEntriesViolation.fromJson(
+      Map<String, dynamic> json) {
+    return InvalidNetworkAclEntriesViolation(
+      currentAssociatedNetworkAcl:
+          json['CurrentAssociatedNetworkAcl'] as String?,
+      entryViolations: (json['EntryViolations'] as List?)
+          ?.nonNulls
+          .map((e) => EntryViolation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      subnet: json['Subnet'] as String?,
+      subnetAvailabilityZone: json['SubnetAvailabilityZone'] as String?,
+      vpc: json['Vpc'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final currentAssociatedNetworkAcl = this.currentAssociatedNetworkAcl;
+    final entryViolations = this.entryViolations;
+    final subnet = this.subnet;
+    final subnetAvailabilityZone = this.subnetAvailabilityZone;
+    final vpc = this.vpc;
+    return {
+      if (currentAssociatedNetworkAcl != null)
+        'CurrentAssociatedNetworkAcl': currentAssociatedNetworkAcl,
+      if (entryViolations != null) 'EntryViolations': entryViolations,
+      if (subnet != null) 'Subnet': subnet,
+      if (subnetAvailabilityZone != null)
+        'SubnetAvailabilityZone': subnetAvailabilityZone,
+      if (vpc != null) 'Vpc': vpc,
+    };
+  }
+}
+
 class ListAdminAccountsForOrganizationResponse {
   /// A list of Firewall Manager administrator accounts within the organization
   /// that were onboarded as administrators by <a>AssociateAdminAccount</a> or
@@ -4166,7 +4451,7 @@ class ListAdminAccountsForOrganizationResponse {
       Map<String, dynamic> json) {
     return ListAdminAccountsForOrganizationResponse(
       adminAccounts: (json['AdminAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AdminAccountSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4204,7 +4489,7 @@ class ListAdminsManagingAccountResponse {
       Map<String, dynamic> json) {
     return ListAdminsManagingAccountResponse(
       adminAccounts: (json['AdminAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4239,7 +4524,7 @@ class ListAppsListsResponse {
   factory ListAppsListsResponse.fromJson(Map<String, dynamic> json) {
     return ListAppsListsResponse(
       appsLists: (json['AppsLists'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AppsListDataSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4278,7 +4563,7 @@ class ListComplianceStatusResponse {
     return ListComplianceStatusResponse(
       nextToken: json['NextToken'] as String?,
       policyComplianceStatusList: (json['PolicyComplianceStatusList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => PolicyComplianceStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4315,7 +4600,7 @@ class ListDiscoveredResourcesResponse {
   factory ListDiscoveredResourcesResponse.fromJson(Map<String, dynamic> json) {
     return ListDiscoveredResourcesResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DiscoveredResource.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4352,7 +4637,7 @@ class ListMemberAccountsResponse {
   factory ListMemberAccountsResponse.fromJson(Map<String, dynamic> json) {
     return ListMemberAccountsResponse(
       memberAccounts: (json['MemberAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4390,7 +4675,7 @@ class ListPoliciesResponse {
     return ListPoliciesResponse(
       nextToken: json['NextToken'] as String?,
       policyList: (json['PolicyList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4425,7 +4710,7 @@ class ListProtocolsListsResponse {
     return ListProtocolsListsResponse(
       nextToken: json['NextToken'] as String?,
       protocolsLists: (json['ProtocolsLists'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ProtocolsListDataSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4461,7 +4746,7 @@ class ListResourceSetResourcesResponse {
   factory ListResourceSetResourcesResponse.fromJson(Map<String, dynamic> json) {
     return ListResourceSetResourcesResponse(
       items: (json['Items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Resource.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4498,7 +4783,7 @@ class ListResourceSetsResponse {
     return ListResourceSetsResponse(
       nextToken: json['NextToken'] as String?,
       resourceSets: (json['ResourceSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceSetSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4525,7 +4810,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tagList: (json['TagList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4563,7 +4848,7 @@ class ListThirdPartyFirewallFirewallPoliciesResponse {
       nextToken: json['NextToken'] as String?,
       thirdPartyFirewallFirewallPolicies:
           (json['ThirdPartyFirewallFirewallPolicies'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ThirdPartyFirewallFirewallPolicy.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -4584,39 +4869,298 @@ class ListThirdPartyFirewallFirewallPoliciesResponse {
 }
 
 enum MarketplaceSubscriptionOnboardingStatus {
-  noSubscription,
-  notComplete,
-  complete,
+  noSubscription('NO_SUBSCRIPTION'),
+  notComplete('NOT_COMPLETE'),
+  complete('COMPLETE'),
+  ;
+
+  final String value;
+
+  const MarketplaceSubscriptionOnboardingStatus(this.value);
+
+  static MarketplaceSubscriptionOnboardingStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MarketplaceSubscriptionOnboardingStatus'));
 }
 
-extension MarketplaceSubscriptionOnboardingStatusValueExtension
-    on MarketplaceSubscriptionOnboardingStatus {
-  String toValue() {
-    switch (this) {
-      case MarketplaceSubscriptionOnboardingStatus.noSubscription:
-        return 'NO_SUBSCRIPTION';
-      case MarketplaceSubscriptionOnboardingStatus.notComplete:
-        return 'NOT_COMPLETE';
-      case MarketplaceSubscriptionOnboardingStatus.complete:
-        return 'COMPLETE';
-    }
+/// Defines a Firewall Manager network ACL policy. This is used in the
+/// <code>PolicyOption</code> of a <code>SecurityServicePolicyData</code> for a
+/// <code>Policy</code>, when the <code>SecurityServicePolicyData</code> type is
+/// set to <code>NETWORK_ACL_COMMON</code>.
+///
+/// For information about network ACLs, see <a
+/// href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-network-acls.html">Control
+/// traffic to subnets using network ACLs</a> in the <i>Amazon Virtual Private
+/// Cloud User Guide</i>.
+class NetworkAclCommonPolicy {
+  /// The definition of the first and last rules for the network ACL policy.
+  final NetworkAclEntrySet networkAclEntrySet;
+
+  NetworkAclCommonPolicy({
+    required this.networkAclEntrySet,
+  });
+
+  factory NetworkAclCommonPolicy.fromJson(Map<String, dynamic> json) {
+    return NetworkAclCommonPolicy(
+      networkAclEntrySet: NetworkAclEntrySet.fromJson(
+          json['NetworkAclEntrySet'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final networkAclEntrySet = this.networkAclEntrySet;
+    return {
+      'NetworkAclEntrySet': networkAclEntrySet,
+    };
   }
 }
 
-extension MarketplaceSubscriptionOnboardingStatusFromString on String {
-  MarketplaceSubscriptionOnboardingStatus
-      toMarketplaceSubscriptionOnboardingStatus() {
-    switch (this) {
-      case 'NO_SUBSCRIPTION':
-        return MarketplaceSubscriptionOnboardingStatus.noSubscription;
-      case 'NOT_COMPLETE':
-        return MarketplaceSubscriptionOnboardingStatus.notComplete;
-      case 'COMPLETE':
-        return MarketplaceSubscriptionOnboardingStatus.complete;
-    }
-    throw Exception(
-        '$this is not known in enum MarketplaceSubscriptionOnboardingStatus');
+/// Describes a rule in a network ACL.
+///
+/// Each network ACL has a set of numbered ingress rules and a separate set of
+/// numbered egress rules. When determining whether a packet should be allowed
+/// in or out of a subnet associated with the network ACL, Amazon Web Services
+/// processes the entries in the network ACL according to the rule numbers, in
+/// ascending order.
+///
+/// When you manage an individual network ACL, you explicitly specify the rule
+/// numbers. When you specify the network ACL rules in a Firewall Manager
+/// policy, you provide the rules to run first, in the order that you want them
+/// to run, and the rules to run last, in the order that you want them to run.
+/// Firewall Manager assigns the rule numbers for you when you save the network
+/// ACL policy specification.
+class NetworkAclEntry {
+  /// Indicates whether the rule is an egress, or outbound, rule (applied to
+  /// traffic leaving the subnet). If it's not an egress rule, then it's an
+  /// ingress, or inbound, rule.
+  final bool egress;
+
+  /// The protocol number. A value of "-1" means all protocols.
+  final String protocol;
+
+  /// Indicates whether to allow or deny the traffic that matches the rule.
+  final NetworkAclRuleAction ruleAction;
+
+  /// The IPv4 network range to allow or deny, in CIDR notation.
+  final String? cidrBlock;
+
+  /// ICMP protocol: The ICMP type and code.
+  final NetworkAclIcmpTypeCode? icmpTypeCode;
+
+  /// The IPv6 network range to allow or deny, in CIDR notation.
+  final String? ipv6CidrBlock;
+
+  /// TCP or UDP protocols: The range of ports the rule applies to.
+  final NetworkAclPortRange? portRange;
+
+  NetworkAclEntry({
+    required this.egress,
+    required this.protocol,
+    required this.ruleAction,
+    this.cidrBlock,
+    this.icmpTypeCode,
+    this.ipv6CidrBlock,
+    this.portRange,
+  });
+
+  factory NetworkAclEntry.fromJson(Map<String, dynamic> json) {
+    return NetworkAclEntry(
+      egress: json['Egress'] as bool,
+      protocol: json['Protocol'] as String,
+      ruleAction:
+          NetworkAclRuleAction.fromString((json['RuleAction'] as String)),
+      cidrBlock: json['CidrBlock'] as String?,
+      icmpTypeCode: json['IcmpTypeCode'] != null
+          ? NetworkAclIcmpTypeCode.fromJson(
+              json['IcmpTypeCode'] as Map<String, dynamic>)
+          : null,
+      ipv6CidrBlock: json['Ipv6CidrBlock'] as String?,
+      portRange: json['PortRange'] != null
+          ? NetworkAclPortRange.fromJson(
+              json['PortRange'] as Map<String, dynamic>)
+          : null,
+    );
   }
+
+  Map<String, dynamic> toJson() {
+    final egress = this.egress;
+    final protocol = this.protocol;
+    final ruleAction = this.ruleAction;
+    final cidrBlock = this.cidrBlock;
+    final icmpTypeCode = this.icmpTypeCode;
+    final ipv6CidrBlock = this.ipv6CidrBlock;
+    final portRange = this.portRange;
+    return {
+      'Egress': egress,
+      'Protocol': protocol,
+      'RuleAction': ruleAction.value,
+      if (cidrBlock != null) 'CidrBlock': cidrBlock,
+      if (icmpTypeCode != null) 'IcmpTypeCode': icmpTypeCode,
+      if (ipv6CidrBlock != null) 'Ipv6CidrBlock': ipv6CidrBlock,
+      if (portRange != null) 'PortRange': portRange,
+    };
+  }
+}
+
+/// The configuration of the first and last rules for the network ACL policy,
+/// and the remediation settings for each.
+class NetworkAclEntrySet {
+  /// Applies only when remediation is enabled for the policy as a whole. Firewall
+  /// Manager uses this setting when it finds policy violations that involve
+  /// conflicts between the custom entries and the policy entries.
+  ///
+  /// If forced remediation is disabled, Firewall Manager marks the network ACL as
+  /// noncompliant and does not try to remediate. For more information about the
+  /// remediation behavior, see <a
+  /// href="https://docs.aws.amazon.com/waf/latest/developerguide/network-acl-policies.html#network-acls-remediation">Remediation
+  /// for managed network ACLs</a> in the <i>Firewall Manager Developer Guide</i>.
+  final bool forceRemediateForFirstEntries;
+
+  /// Applies only when remediation is enabled for the policy as a whole. Firewall
+  /// Manager uses this setting when it finds policy violations that involve
+  /// conflicts between the custom entries and the policy entries.
+  ///
+  /// If forced remediation is disabled, Firewall Manager marks the network ACL as
+  /// noncompliant and does not try to remediate. For more information about the
+  /// remediation behavior, see <a
+  /// href="https://docs.aws.amazon.com/waf/latest/developerguide/network-acl-policies.html#network-acls-remediation">Remediation
+  /// for managed network ACLs</a> in the <i>Firewall Manager Developer Guide</i>.
+  final bool forceRemediateForLastEntries;
+
+  /// The rules that you want to run first in the Firewall Manager managed network
+  /// ACLs.
+  /// <note>
+  /// Provide these in the order in which you want them to run. Firewall Manager
+  /// will assign the specific rule numbers for you, in the network ACLs that it
+  /// creates.
+  /// </note>
+  /// You must specify at least one first entry or one last entry in any network
+  /// ACL policy.
+  final List<NetworkAclEntry>? firstEntries;
+
+  /// The rules that you want to run last in the Firewall Manager managed network
+  /// ACLs.
+  /// <note>
+  /// Provide these in the order in which you want them to run. Firewall Manager
+  /// will assign the specific rule numbers for you, in the network ACLs that it
+  /// creates.
+  /// </note>
+  /// You must specify at least one first entry or one last entry in any network
+  /// ACL policy.
+  final List<NetworkAclEntry>? lastEntries;
+
+  NetworkAclEntrySet({
+    required this.forceRemediateForFirstEntries,
+    required this.forceRemediateForLastEntries,
+    this.firstEntries,
+    this.lastEntries,
+  });
+
+  factory NetworkAclEntrySet.fromJson(Map<String, dynamic> json) {
+    return NetworkAclEntrySet(
+      forceRemediateForFirstEntries:
+          json['ForceRemediateForFirstEntries'] as bool,
+      forceRemediateForLastEntries:
+          json['ForceRemediateForLastEntries'] as bool,
+      firstEntries: (json['FirstEntries'] as List?)
+          ?.nonNulls
+          .map((e) => NetworkAclEntry.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      lastEntries: (json['LastEntries'] as List?)
+          ?.nonNulls
+          .map((e) => NetworkAclEntry.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final forceRemediateForFirstEntries = this.forceRemediateForFirstEntries;
+    final forceRemediateForLastEntries = this.forceRemediateForLastEntries;
+    final firstEntries = this.firstEntries;
+    final lastEntries = this.lastEntries;
+    return {
+      'ForceRemediateForFirstEntries': forceRemediateForFirstEntries,
+      'ForceRemediateForLastEntries': forceRemediateForLastEntries,
+      if (firstEntries != null) 'FirstEntries': firstEntries,
+      if (lastEntries != null) 'LastEntries': lastEntries,
+    };
+  }
+}
+
+/// ICMP protocol: The ICMP type and code.
+class NetworkAclIcmpTypeCode {
+  /// ICMP code.
+  final int? code;
+
+  /// ICMP type.
+  final int? type;
+
+  NetworkAclIcmpTypeCode({
+    this.code,
+    this.type,
+  });
+
+  factory NetworkAclIcmpTypeCode.fromJson(Map<String, dynamic> json) {
+    return NetworkAclIcmpTypeCode(
+      code: json['Code'] as int?,
+      type: json['Type'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final code = this.code;
+    final type = this.type;
+    return {
+      if (code != null) 'Code': code,
+      if (type != null) 'Type': type,
+    };
+  }
+}
+
+/// TCP or UDP protocols: The range of ports the rule applies to.
+class NetworkAclPortRange {
+  /// The beginning port number of the range.
+  final int? from;
+
+  /// The ending port number of the range.
+  final int? to;
+
+  NetworkAclPortRange({
+    this.from,
+    this.to,
+  });
+
+  factory NetworkAclPortRange.fromJson(Map<String, dynamic> json) {
+    return NetworkAclPortRange(
+      from: json['From'] as int?,
+      to: json['To'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final from = this.from;
+    final to = this.to;
+    return {
+      if (from != null) 'From': from,
+      if (to != null) 'To': to,
+    };
+  }
+}
+
+enum NetworkAclRuleAction {
+  allow('allow'),
+  deny('deny'),
+  ;
+
+  final String value;
+
+  const NetworkAclRuleAction(this.value);
+
+  static NetworkAclRuleAction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum NetworkAclRuleAction'));
 }
 
 /// Violation detail for an internet gateway route with an inactive state in the
@@ -4646,7 +5190,7 @@ class NetworkFirewallBlackHoleRouteDetectedViolation {
     return NetworkFirewallBlackHoleRouteDetectedViolation(
       routeTableId: json['RouteTableId'] as String?,
       violatingRoutes: (json['ViolatingRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       violationTarget: json['ViolationTarget'] as String?,
@@ -4739,12 +5283,12 @@ class NetworkFirewallInternetTrafficNotInspectedViolation {
       Map<String, dynamic> json) {
     return NetworkFirewallInternetTrafficNotInspectedViolation(
       actualFirewallSubnetRoutes: (json['ActualFirewallSubnetRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       actualInternetGatewayRoutes:
           (json['ActualInternetGatewayRoutes'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => Route.fromJson(e as Map<String, dynamic>))
               .toList(),
       currentFirewallSubnetRouteTable:
@@ -4754,12 +5298,12 @@ class NetworkFirewallInternetTrafficNotInspectedViolation {
       expectedFirewallEndpoint: json['ExpectedFirewallEndpoint'] as String?,
       expectedFirewallSubnetRoutes:
           (json['ExpectedFirewallSubnetRoutes'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ExpectedRoute.fromJson(e as Map<String, dynamic>))
               .toList(),
       expectedInternetGatewayRoutes:
           (json['ExpectedInternetGatewayRoutes'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ExpectedRoute.fromJson(e as Map<String, dynamic>))
               .toList(),
       firewallSubnetId: json['FirewallSubnetId'] as String?,
@@ -4770,7 +5314,7 @@ class NetworkFirewallInternetTrafficNotInspectedViolation {
       subnetAvailabilityZone: json['SubnetAvailabilityZone'] as String?,
       subnetId: json['SubnetId'] as String?,
       violatingRoutes: (json['ViolatingRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -4902,16 +5446,16 @@ class NetworkFirewallInvalidRouteConfigurationViolation {
       actualFirewallEndpoint: json['ActualFirewallEndpoint'] as String?,
       actualFirewallSubnetId: json['ActualFirewallSubnetId'] as String?,
       actualFirewallSubnetRoutes: (json['ActualFirewallSubnetRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       actualInternetGatewayRoutes:
           (json['ActualInternetGatewayRoutes'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => Route.fromJson(e as Map<String, dynamic>))
               .toList(),
       affectedSubnets: (json['AffectedSubnets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       currentFirewallSubnetRouteTable:
@@ -4922,12 +5466,12 @@ class NetworkFirewallInvalidRouteConfigurationViolation {
       expectedFirewallSubnetId: json['ExpectedFirewallSubnetId'] as String?,
       expectedFirewallSubnetRoutes:
           (json['ExpectedFirewallSubnetRoutes'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ExpectedRoute.fromJson(e as Map<String, dynamic>))
               .toList(),
       expectedInternetGatewayRoutes:
           (json['ExpectedInternetGatewayRoutes'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ExpectedRoute.fromJson(e as Map<String, dynamic>))
               .toList(),
       internetGatewayId: json['InternetGatewayId'] as String?,
@@ -5068,7 +5612,7 @@ class NetworkFirewallMissingExpectedRoutesViolation {
       Map<String, dynamic> json) {
     return NetworkFirewallMissingExpectedRoutesViolation(
       expectedRoutes: (json['ExpectedRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExpectedRoute.fromJson(e as Map<String, dynamic>))
           .toList(),
       violationTarget: json['ViolationTarget'] as String?,
@@ -5183,27 +5727,17 @@ class NetworkFirewallMissingSubnetViolation {
 }
 
 enum NetworkFirewallOverrideAction {
-  dropToAlert,
-}
+  dropToAlert('DROP_TO_ALERT'),
+  ;
 
-extension NetworkFirewallOverrideActionValueExtension
-    on NetworkFirewallOverrideAction {
-  String toValue() {
-    switch (this) {
-      case NetworkFirewallOverrideAction.dropToAlert:
-        return 'DROP_TO_ALERT';
-    }
-  }
-}
+  final String value;
 
-extension NetworkFirewallOverrideActionFromString on String {
-  NetworkFirewallOverrideAction toNetworkFirewallOverrideAction() {
-    switch (this) {
-      case 'DROP_TO_ALERT':
-        return NetworkFirewallOverrideAction.dropToAlert;
-    }
-    throw Exception('$this is not known in enum NetworkFirewallOverrideAction');
-  }
+  const NetworkFirewallOverrideAction(this.value);
+
+  static NetworkFirewallOverrideAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum NetworkFirewallOverrideAction'));
 }
 
 /// Configures the firewall policy deployment model of Network Firewall. For
@@ -5225,7 +5759,7 @@ class NetworkFirewallPolicy {
   factory NetworkFirewallPolicy.fromJson(Map<String, dynamic> json) {
     return NetworkFirewallPolicy(
       firewallDeploymentModel: (json['FirewallDeploymentModel'] as String?)
-          ?.toFirewallDeploymentModel(),
+          ?.let(FirewallDeploymentModel.fromString),
     );
   }
 
@@ -5233,7 +5767,7 @@ class NetworkFirewallPolicy {
     final firewallDeploymentModel = this.firewallDeploymentModel;
     return {
       if (firewallDeploymentModel != null)
-        'FirewallDeploymentModel': firewallDeploymentModel.toValue(),
+        'FirewallDeploymentModel': firewallDeploymentModel.value,
     };
   }
 }
@@ -5300,7 +5834,7 @@ class NetworkFirewallPolicyDescription {
   factory NetworkFirewallPolicyDescription.fromJson(Map<String, dynamic> json) {
     return NetworkFirewallPolicyDescription(
       statefulDefaultActions: (json['StatefulDefaultActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       statefulEngineOptions: json['StatefulEngineOptions'] != null
@@ -5308,24 +5842,24 @@ class NetworkFirewallPolicyDescription {
               json['StatefulEngineOptions'] as Map<String, dynamic>)
           : null,
       statefulRuleGroups: (json['StatefulRuleGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StatefulRuleGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       statelessCustomActions: (json['StatelessCustomActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       statelessDefaultActions: (json['StatelessDefaultActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       statelessFragmentDefaultActions:
           (json['StatelessFragmentDefaultActions'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       statelessRuleGroups: (json['StatelessRuleGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StatelessRuleGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5421,14 +5955,15 @@ class NetworkFirewallStatefulRuleGroupOverride {
   factory NetworkFirewallStatefulRuleGroupOverride.fromJson(
       Map<String, dynamic> json) {
     return NetworkFirewallStatefulRuleGroupOverride(
-      action: (json['Action'] as String?)?.toNetworkFirewallOverrideAction(),
+      action: (json['Action'] as String?)
+          ?.let(NetworkFirewallOverrideAction.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final action = this.action;
     return {
-      if (action != null) 'Action': action.toValue(),
+      if (action != null) 'Action': action.value,
     };
   }
 }
@@ -5465,7 +6000,7 @@ class NetworkFirewallUnexpectedFirewallRoutesViolation {
       firewallSubnetId: json['FirewallSubnetId'] as String?,
       routeTableId: json['RouteTableId'] as String?,
       violatingRoutes: (json['ViolatingRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -5516,7 +6051,7 @@ class NetworkFirewallUnexpectedGatewayRoutesViolation {
       gatewayId: json['GatewayId'] as String?,
       routeTableId: json['RouteTableId'] as String?,
       violatingRoutes: (json['ViolatingRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -5538,41 +6073,20 @@ class NetworkFirewallUnexpectedGatewayRoutesViolation {
 }
 
 enum OrganizationStatus {
-  onboarding,
-  onboardingComplete,
-  offboarding,
-  offboardingComplete,
-}
+  onboarding('ONBOARDING'),
+  onboardingComplete('ONBOARDING_COMPLETE'),
+  offboarding('OFFBOARDING'),
+  offboardingComplete('OFFBOARDING_COMPLETE'),
+  ;
 
-extension OrganizationStatusValueExtension on OrganizationStatus {
-  String toValue() {
-    switch (this) {
-      case OrganizationStatus.onboarding:
-        return 'ONBOARDING';
-      case OrganizationStatus.onboardingComplete:
-        return 'ONBOARDING_COMPLETE';
-      case OrganizationStatus.offboarding:
-        return 'OFFBOARDING';
-      case OrganizationStatus.offboardingComplete:
-        return 'OFFBOARDING_COMPLETE';
-    }
-  }
-}
+  final String value;
 
-extension OrganizationStatusFromString on String {
-  OrganizationStatus toOrganizationStatus() {
-    switch (this) {
-      case 'ONBOARDING':
-        return OrganizationStatus.onboarding;
-      case 'ONBOARDING_COMPLETE':
-        return OrganizationStatus.onboardingComplete;
-      case 'OFFBOARDING':
-        return OrganizationStatus.offboarding;
-      case 'OFFBOARDING_COMPLETE':
-        return OrganizationStatus.offboardingComplete;
-    }
-    throw Exception('$this is not known in enum OrganizationStatus');
-  }
+  const OrganizationStatus(this.value);
+
+  static OrganizationStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum OrganizationStatus'));
 }
 
 /// Defines the Organizations organizational units (OUs) that the specified
@@ -5625,7 +6139,7 @@ class OrganizationalUnitScope {
       excludeSpecifiedOrganizationalUnits:
           json['ExcludeSpecifiedOrganizationalUnits'] as bool?,
       organizationalUnits: (json['OrganizationalUnits'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5667,7 +6181,7 @@ class PartialMatch {
     return PartialMatch(
       reference: json['Reference'] as String?,
       targetViolationReasons: (json['TargetViolationReasons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5705,18 +6219,41 @@ class Policy {
   /// resource types, specify a resource type of <code>ResourceTypeList</code> and
   /// then specify the resource types in a <code>ResourceTypeList</code>.
   ///
-  /// For WAF and Shield Advanced, resource types include
-  /// <code>AWS::ElasticLoadBalancingV2::LoadBalancer</code>,
+  /// The following are valid resource types for each Firewall Manager policy
+  /// type:
+  ///
+  /// <ul>
+  /// <li>
+  /// Amazon Web Services WAF Classic - <code>AWS::ApiGateway::Stage</code>,
+  /// <code>AWS::CloudFront::Distribution</code>, and
+  /// <code>AWS::ElasticLoadBalancingV2::LoadBalancer</code>.
+  /// </li>
+  /// <li>
+  /// WAF - <code>AWS::ApiGateway::Stage</code>,
+  /// <code>AWS::ElasticLoadBalancingV2::LoadBalancer</code>, and
+  /// <code>AWS::CloudFront::Distribution</code>.
+  /// </li>
+  /// <li>
+  /// Shield Advanced - <code>AWS::ElasticLoadBalancingV2::LoadBalancer</code>,
   /// <code>AWS::ElasticLoadBalancing::LoadBalancer</code>,
   /// <code>AWS::EC2::EIP</code>, and <code>AWS::CloudFront::Distribution</code>.
-  /// For a security group common policy, valid values are
-  /// <code>AWS::EC2::NetworkInterface</code> and <code>AWS::EC2::Instance</code>.
-  /// For a security group content audit policy, valid values are
-  /// <code>AWS::EC2::SecurityGroup</code>,
+  /// </li>
+  /// <li>
+  /// Network ACL - <code>AWS::EC2::Subnet</code>.
+  /// </li>
+  /// <li>
+  /// Security group usage audit - <code>AWS::EC2::SecurityGroup</code>.
+  /// </li>
+  /// <li>
+  /// Security group content audit - <code>AWS::EC2::SecurityGroup</code>,
   /// <code>AWS::EC2::NetworkInterface</code>, and
-  /// <code>AWS::EC2::Instance</code>. For a security group usage audit policy,
-  /// the value is <code>AWS::EC2::SecurityGroup</code>. For an Network Firewall
-  /// policy or DNS Firewall policy, the value is <code>AWS::EC2::VPC</code>.
+  /// <code>AWS::EC2::Instance</code>.
+  /// </li>
+  /// <li>
+  /// DNS Firewall, Network Firewall, and third-party firewall -
+  /// <code>AWS::EC2::VPC</code>.
+  /// </li>
+  /// </ul>
   final String resourceType;
 
   /// Details about the security service that is being used to protect the
@@ -5802,7 +6339,7 @@ class Policy {
   /// </ul>
   final Map<CustomerPolicyScopeIdType, List<String>>? includeMap;
 
-  /// The definition of the Network Firewall firewall policy.
+  /// Your description of the Firewall Manager policy.
   final String? policyDescription;
 
   /// The ID of the Firewall Manager policy.
@@ -5871,25 +6408,26 @@ class Policy {
       deleteUnusedFMManagedResources:
           json['DeleteUnusedFMManagedResources'] as bool?,
       excludeMap: (json['ExcludeMap'] as Map<String, dynamic>?)?.map((k, e) =>
-          MapEntry(k.toCustomerPolicyScopeIdType(),
-              (e as List).whereNotNull().map((e) => e as String).toList())),
+          MapEntry(CustomerPolicyScopeIdType.fromString(k),
+              (e as List).nonNulls.map((e) => e as String).toList())),
       includeMap: (json['IncludeMap'] as Map<String, dynamic>?)?.map((k, e) =>
-          MapEntry(k.toCustomerPolicyScopeIdType(),
-              (e as List).whereNotNull().map((e) => e as String).toList())),
+          MapEntry(CustomerPolicyScopeIdType.fromString(k),
+              (e as List).nonNulls.map((e) => e as String).toList())),
       policyDescription: json['PolicyDescription'] as String?,
       policyId: json['PolicyId'] as String?,
-      policyStatus: (json['PolicyStatus'] as String?)?.toCustomerPolicyStatus(),
+      policyStatus: (json['PolicyStatus'] as String?)
+          ?.let(CustomerPolicyStatus.fromString),
       policyUpdateToken: json['PolicyUpdateToken'] as String?,
       resourceSetIds: (json['ResourceSetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceTag.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceTypeList: (json['ResourceTypeList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5920,12 +6458,12 @@ class Policy {
       if (deleteUnusedFMManagedResources != null)
         'DeleteUnusedFMManagedResources': deleteUnusedFMManagedResources,
       if (excludeMap != null)
-        'ExcludeMap': excludeMap.map((k, e) => MapEntry(k.toValue(), e)),
+        'ExcludeMap': excludeMap.map((k, e) => MapEntry(k.value, e)),
       if (includeMap != null)
-        'IncludeMap': includeMap.map((k, e) => MapEntry(k.toValue(), e)),
+        'IncludeMap': includeMap.map((k, e) => MapEntry(k.value, e)),
       if (policyDescription != null) 'PolicyDescription': policyDescription,
       if (policyId != null) 'PolicyId': policyId,
-      if (policyStatus != null) 'PolicyStatus': policyStatus.toValue(),
+      if (policyStatus != null) 'PolicyStatus': policyStatus.value,
       if (policyUpdateToken != null) 'PolicyUpdateToken': policyUpdateToken,
       if (resourceSetIds != null) 'ResourceSetIds': resourceSetIds,
       if (resourceTags != null) 'ResourceTags': resourceTags,
@@ -5978,13 +6516,13 @@ class PolicyComplianceDetail {
     return PolicyComplianceDetail(
       evaluationLimitExceeded: json['EvaluationLimitExceeded'] as bool?,
       expiredAt: timeStampFromJson(json['ExpiredAt']),
-      issueInfoMap: (json['IssueInfoMap'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toDependentServiceName(), e as String)),
+      issueInfoMap: (json['IssueInfoMap'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(DependentServiceName.fromString(k), e as String)),
       memberAccount: json['MemberAccount'] as String?,
       policyId: json['PolicyId'] as String?,
       policyOwner: json['PolicyOwner'] as String?,
       violators: (json['Violators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ComplianceViolator.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6003,7 +6541,7 @@ class PolicyComplianceDetail {
         'EvaluationLimitExceeded': evaluationLimitExceeded,
       if (expiredAt != null) 'ExpiredAt': unixTimestampToJson(expiredAt),
       if (issueInfoMap != null)
-        'IssueInfoMap': issueInfoMap.map((k, e) => MapEntry(k.toValue(), e)),
+        'IssueInfoMap': issueInfoMap.map((k, e) => MapEntry(k.value, e)),
       if (memberAccount != null) 'MemberAccount': memberAccount,
       if (policyId != null) 'PolicyId': policyId,
       if (policyOwner != null) 'PolicyOwner': policyOwner,
@@ -6052,11 +6590,11 @@ class PolicyComplianceStatus {
   factory PolicyComplianceStatus.fromJson(Map<String, dynamic> json) {
     return PolicyComplianceStatus(
       evaluationResults: (json['EvaluationResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EvaluationResult.fromJson(e as Map<String, dynamic>))
           .toList(),
-      issueInfoMap: (json['IssueInfoMap'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toDependentServiceName(), e as String)),
+      issueInfoMap: (json['IssueInfoMap'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(DependentServiceName.fromString(k), e as String)),
       lastUpdated: timeStampFromJson(json['LastUpdated']),
       memberAccount: json['MemberAccount'] as String?,
       policyId: json['PolicyId'] as String?,
@@ -6076,7 +6614,7 @@ class PolicyComplianceStatus {
     return {
       if (evaluationResults != null) 'EvaluationResults': evaluationResults,
       if (issueInfoMap != null)
-        'IssueInfoMap': issueInfoMap.map((k, e) => MapEntry(k.toValue(), e)),
+        'IssueInfoMap': issueInfoMap.map((k, e) => MapEntry(k.value, e)),
       if (lastUpdated != null) 'LastUpdated': unixTimestampToJson(lastUpdated),
       if (memberAccount != null) 'MemberAccount': memberAccount,
       if (policyId != null) 'PolicyId': policyId,
@@ -6087,37 +6625,26 @@ class PolicyComplianceStatus {
 }
 
 enum PolicyComplianceStatusType {
-  compliant,
-  nonCompliant,
+  compliant('COMPLIANT'),
+  nonCompliant('NON_COMPLIANT'),
+  ;
+
+  final String value;
+
+  const PolicyComplianceStatusType(this.value);
+
+  static PolicyComplianceStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PolicyComplianceStatusType'));
 }
 
-extension PolicyComplianceStatusTypeValueExtension
-    on PolicyComplianceStatusType {
-  String toValue() {
-    switch (this) {
-      case PolicyComplianceStatusType.compliant:
-        return 'COMPLIANT';
-      case PolicyComplianceStatusType.nonCompliant:
-        return 'NON_COMPLIANT';
-    }
-  }
-}
-
-extension PolicyComplianceStatusTypeFromString on String {
-  PolicyComplianceStatusType toPolicyComplianceStatusType() {
-    switch (this) {
-      case 'COMPLIANT':
-        return PolicyComplianceStatusType.compliant;
-      case 'NON_COMPLIANT':
-        return PolicyComplianceStatusType.nonCompliant;
-    }
-    throw Exception('$this is not known in enum PolicyComplianceStatusType');
-  }
-}
-
-/// Contains the Network Firewall firewall policy options to configure the
-/// policy's deployment model and third-party firewall policy settings.
+/// Contains the settings to configure a network ACL policy, a Network Firewall
+/// firewall policy deployment model, or a third-party firewall policy.
 class PolicyOption {
+  /// Defines a Firewall Manager network ACL policy.
+  final NetworkAclCommonPolicy? networkAclCommonPolicy;
+
   /// Defines the deployment model to use for the firewall policy.
   final NetworkFirewallPolicy? networkFirewallPolicy;
 
@@ -6125,12 +6652,17 @@ class PolicyOption {
   final ThirdPartyFirewallPolicy? thirdPartyFirewallPolicy;
 
   PolicyOption({
+    this.networkAclCommonPolicy,
     this.networkFirewallPolicy,
     this.thirdPartyFirewallPolicy,
   });
 
   factory PolicyOption.fromJson(Map<String, dynamic> json) {
     return PolicyOption(
+      networkAclCommonPolicy: json['NetworkAclCommonPolicy'] != null
+          ? NetworkAclCommonPolicy.fromJson(
+              json['NetworkAclCommonPolicy'] as Map<String, dynamic>)
+          : null,
       networkFirewallPolicy: json['NetworkFirewallPolicy'] != null
           ? NetworkFirewallPolicy.fromJson(
               json['NetworkFirewallPolicy'] as Map<String, dynamic>)
@@ -6143,9 +6675,12 @@ class PolicyOption {
   }
 
   Map<String, dynamic> toJson() {
+    final networkAclCommonPolicy = this.networkAclCommonPolicy;
     final networkFirewallPolicy = this.networkFirewallPolicy;
     final thirdPartyFirewallPolicy = this.thirdPartyFirewallPolicy;
     return {
+      if (networkAclCommonPolicy != null)
+        'NetworkAclCommonPolicy': networkAclCommonPolicy,
       if (networkFirewallPolicy != null)
         'NetworkFirewallPolicy': networkFirewallPolicy,
       if (thirdPartyFirewallPolicy != null)
@@ -6200,16 +6735,7 @@ class PolicySummary {
   /// The type of resource protected by or in scope of the policy. This is in the
   /// format shown in the <a
   /// href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html">Amazon
-  /// Web Services Resource Types Reference</a>. For WAF and Shield Advanced,
-  /// examples include <code>AWS::ElasticLoadBalancingV2::LoadBalancer</code> and
-  /// <code>AWS::CloudFront::Distribution</code>. For a security group common
-  /// policy, valid values are <code>AWS::EC2::NetworkInterface</code> and
-  /// <code>AWS::EC2::Instance</code>. For a security group content audit policy,
-  /// valid values are <code>AWS::EC2::SecurityGroup</code>,
-  /// <code>AWS::EC2::NetworkInterface</code>, and
-  /// <code>AWS::EC2::Instance</code>. For a security group usage audit policy,
-  /// the value is <code>AWS::EC2::SecurityGroup</code>. For an Network Firewall
-  /// policy or DNS Firewall policy, the value is <code>AWS::EC2::VPC</code>.
+  /// Web Services Resource Types Reference</a>.
   final String? resourceType;
 
   /// The service that the policy is using to protect the resources. This
@@ -6235,11 +6761,12 @@ class PolicySummary {
       policyArn: json['PolicyArn'] as String?,
       policyId: json['PolicyId'] as String?,
       policyName: json['PolicyName'] as String?,
-      policyStatus: (json['PolicyStatus'] as String?)?.toCustomerPolicyStatus(),
+      policyStatus: (json['PolicyStatus'] as String?)
+          ?.let(CustomerPolicyStatus.fromString),
       remediationEnabled: json['RemediationEnabled'] as bool?,
       resourceType: json['ResourceType'] as String?,
-      securityServiceType:
-          (json['SecurityServiceType'] as String?)?.toSecurityServiceType(),
+      securityServiceType: (json['SecurityServiceType'] as String?)
+          ?.let(SecurityServiceType.fromString),
     );
   }
 
@@ -6258,11 +6785,11 @@ class PolicySummary {
       if (policyArn != null) 'PolicyArn': policyArn,
       if (policyId != null) 'PolicyId': policyId,
       if (policyName != null) 'PolicyName': policyName,
-      if (policyStatus != null) 'PolicyStatus': policyStatus.toValue(),
+      if (policyStatus != null) 'PolicyStatus': policyStatus.value,
       if (remediationEnabled != null) 'RemediationEnabled': remediationEnabled,
       if (resourceType != null) 'ResourceType': resourceType,
       if (securityServiceType != null)
-        'SecurityServiceType': securityServiceType.toValue(),
+        'SecurityServiceType': securityServiceType.value,
     };
   }
 }
@@ -6289,8 +6816,8 @@ class PolicyTypeScope {
     return PolicyTypeScope(
       allPolicyTypesEnabled: json['AllPolicyTypesEnabled'] as bool?,
       policyTypes: (json['PolicyTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toSecurityServiceType())
+          ?.nonNulls
+          .map((e) => SecurityServiceType.fromString((e as String)))
           .toList(),
     );
   }
@@ -6302,7 +6829,7 @@ class PolicyTypeScope {
       if (allPolicyTypesEnabled != null)
         'AllPolicyTypesEnabled': allPolicyTypesEnabled,
       if (policyTypes != null)
-        'PolicyTypes': policyTypes.map((e) => e.toValue()).toList(),
+        'PolicyTypes': policyTypes.map((e) => e.value).toList(),
     };
   }
 }
@@ -6327,7 +6854,7 @@ class PossibleRemediationAction {
   factory PossibleRemediationAction.fromJson(Map<String, dynamic> json) {
     return PossibleRemediationAction(
       orderedRemediationActions: (json['OrderedRemediationActions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               RemediationActionWithOrder.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6365,7 +6892,7 @@ class PossibleRemediationActions {
   factory PossibleRemediationActions.fromJson(Map<String, dynamic> json) {
     return PossibleRemediationActions(
       actions: (json['Actions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               PossibleRemediationAction.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6422,17 +6949,17 @@ class ProtocolsListData {
     return ProtocolsListData(
       listName: json['ListName'] as String,
       protocolsList: (json['ProtocolsList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       createTime: timeStampFromJson(json['CreateTime']),
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
       listId: json['ListId'] as String?,
       listUpdateToken: json['ListUpdateToken'] as String?,
-      previousProtocolsList: (json['PreviousProtocolsList']
-              as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(
-              k, (e as List).whereNotNull().map((e) => e as String).toList())),
+      previousProtocolsList:
+          (json['PreviousProtocolsList'] as Map<String, dynamic>?)?.map(
+              (k, e) => MapEntry(
+                  k, (e as List).nonNulls.map((e) => e as String).toList())),
     );
   }
 
@@ -6485,7 +7012,7 @@ class ProtocolsListDataSummary {
       listId: json['ListId'] as String?,
       listName: json['ListName'] as String?,
       protocolsList: (json['ProtocolsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6648,10 +7175,8 @@ class RegionScope {
   factory RegionScope.fromJson(Map<String, dynamic> json) {
     return RegionScope(
       allRegionsEnabled: json['AllRegionsEnabled'] as bool?,
-      regions: (json['Regions'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      regions:
+          (json['Regions'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -6668,6 +7193,17 @@ class RegionScope {
 /// Information about an individual action you can take to remediate a
 /// violation.
 class RemediationAction {
+  /// Information about the <code>CreateNetworkAcl</code> action in Amazon EC2.
+  final CreateNetworkAclAction? createNetworkAclAction;
+
+  /// Information about the <code>CreateNetworkAclEntries</code> action in Amazon
+  /// EC2.
+  final CreateNetworkAclEntriesAction? createNetworkAclEntriesAction;
+
+  /// Information about the <code>DeleteNetworkAclEntries</code> action in Amazon
+  /// EC2.
+  final DeleteNetworkAclEntriesAction? deleteNetworkAclEntriesAction;
+
   /// A description of a remediation action.
   final String? description;
 
@@ -6698,7 +7234,14 @@ class RemediationAction {
   final FMSPolicyUpdateFirewallCreationConfigAction?
       fMSPolicyUpdateFirewallCreationConfigAction;
 
+  /// Information about the <code>ReplaceNetworkAclAssociation</code> action in
+  /// Amazon EC2.
+  final ReplaceNetworkAclAssociationAction? replaceNetworkAclAssociationAction;
+
   RemediationAction({
+    this.createNetworkAclAction,
+    this.createNetworkAclEntriesAction,
+    this.deleteNetworkAclEntriesAction,
     this.description,
     this.eC2AssociateRouteTableAction,
     this.eC2CopyRouteTableAction,
@@ -6708,10 +7251,25 @@ class RemediationAction {
     this.eC2ReplaceRouteAction,
     this.eC2ReplaceRouteTableAssociationAction,
     this.fMSPolicyUpdateFirewallCreationConfigAction,
+    this.replaceNetworkAclAssociationAction,
   });
 
   factory RemediationAction.fromJson(Map<String, dynamic> json) {
     return RemediationAction(
+      createNetworkAclAction: json['CreateNetworkAclAction'] != null
+          ? CreateNetworkAclAction.fromJson(
+              json['CreateNetworkAclAction'] as Map<String, dynamic>)
+          : null,
+      createNetworkAclEntriesAction:
+          json['CreateNetworkAclEntriesAction'] != null
+              ? CreateNetworkAclEntriesAction.fromJson(
+                  json['CreateNetworkAclEntriesAction'] as Map<String, dynamic>)
+              : null,
+      deleteNetworkAclEntriesAction:
+          json['DeleteNetworkAclEntriesAction'] != null
+              ? DeleteNetworkAclEntriesAction.fromJson(
+                  json['DeleteNetworkAclEntriesAction'] as Map<String, dynamic>)
+              : null,
       description: json['Description'] as String?,
       eC2AssociateRouteTableAction: json['EC2AssociateRouteTableAction'] != null
           ? EC2AssociateRouteTableAction.fromJson(
@@ -6749,10 +7307,19 @@ class RemediationAction {
                   json['FMSPolicyUpdateFirewallCreationConfigAction']
                       as Map<String, dynamic>)
               : null,
+      replaceNetworkAclAssociationAction:
+          json['ReplaceNetworkAclAssociationAction'] != null
+              ? ReplaceNetworkAclAssociationAction.fromJson(
+                  json['ReplaceNetworkAclAssociationAction']
+                      as Map<String, dynamic>)
+              : null,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final createNetworkAclAction = this.createNetworkAclAction;
+    final createNetworkAclEntriesAction = this.createNetworkAclEntriesAction;
+    final deleteNetworkAclEntriesAction = this.deleteNetworkAclEntriesAction;
     final description = this.description;
     final eC2AssociateRouteTableAction = this.eC2AssociateRouteTableAction;
     final eC2CopyRouteTableAction = this.eC2CopyRouteTableAction;
@@ -6764,7 +7331,15 @@ class RemediationAction {
         this.eC2ReplaceRouteTableAssociationAction;
     final fMSPolicyUpdateFirewallCreationConfigAction =
         this.fMSPolicyUpdateFirewallCreationConfigAction;
+    final replaceNetworkAclAssociationAction =
+        this.replaceNetworkAclAssociationAction;
     return {
+      if (createNetworkAclAction != null)
+        'CreateNetworkAclAction': createNetworkAclAction,
+      if (createNetworkAclEntriesAction != null)
+        'CreateNetworkAclEntriesAction': createNetworkAclEntriesAction,
+      if (deleteNetworkAclEntriesAction != null)
+        'DeleteNetworkAclEntriesAction': deleteNetworkAclEntriesAction,
       if (description != null) 'Description': description,
       if (eC2AssociateRouteTableAction != null)
         'EC2AssociateRouteTableAction': eC2AssociateRouteTableAction,
@@ -6784,36 +7359,26 @@ class RemediationAction {
       if (fMSPolicyUpdateFirewallCreationConfigAction != null)
         'FMSPolicyUpdateFirewallCreationConfigAction':
             fMSPolicyUpdateFirewallCreationConfigAction,
+      if (replaceNetworkAclAssociationAction != null)
+        'ReplaceNetworkAclAssociationAction':
+            replaceNetworkAclAssociationAction,
     };
   }
 }
 
 enum RemediationActionType {
-  remove,
-  modify,
-}
+  remove('REMOVE'),
+  modify('MODIFY'),
+  ;
 
-extension RemediationActionTypeValueExtension on RemediationActionType {
-  String toValue() {
-    switch (this) {
-      case RemediationActionType.remove:
-        return 'REMOVE';
-      case RemediationActionType.modify:
-        return 'MODIFY';
-    }
-  }
-}
+  final String value;
 
-extension RemediationActionTypeFromString on String {
-  RemediationActionType toRemediationActionType() {
-    switch (this) {
-      case 'REMOVE':
-        return RemediationActionType.remove;
-      case 'MODIFY':
-        return RemediationActionType.modify;
-    }
-    throw Exception('$this is not known in enum RemediationActionType');
-  }
+  const RemediationActionType(this.value);
+
+  static RemediationActionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RemediationActionType'));
 }
 
 /// An ordered list of actions you can take to remediate a violation.
@@ -6845,6 +7410,58 @@ class RemediationActionWithOrder {
     return {
       if (order != null) 'Order': order,
       if (remediationAction != null) 'RemediationAction': remediationAction,
+    };
+  }
+}
+
+/// Information about the <code>ReplaceNetworkAclAssociation</code> action in
+/// Amazon EC2. This is a remediation option in <code>RemediationAction</code>.
+class ReplaceNetworkAclAssociationAction {
+  final ActionTarget? associationId;
+
+  /// Brief description of this remediation action.
+  final String? description;
+
+  /// Indicates whether it is possible for Firewall Manager to perform this
+  /// remediation action. A false value indicates that auto remediation is
+  /// disabled or Firewall Manager is unable to perform the action due to a
+  /// conflict of some kind.
+  final bool? fMSCanRemediate;
+
+  /// The network ACL that's associated with the remediation action.
+  final ActionTarget? networkAclId;
+
+  ReplaceNetworkAclAssociationAction({
+    this.associationId,
+    this.description,
+    this.fMSCanRemediate,
+    this.networkAclId,
+  });
+
+  factory ReplaceNetworkAclAssociationAction.fromJson(
+      Map<String, dynamic> json) {
+    return ReplaceNetworkAclAssociationAction(
+      associationId: json['AssociationId'] != null
+          ? ActionTarget.fromJson(json['AssociationId'] as Map<String, dynamic>)
+          : null,
+      description: json['Description'] as String?,
+      fMSCanRemediate: json['FMSCanRemediate'] as bool?,
+      networkAclId: json['NetworkAclId'] != null
+          ? ActionTarget.fromJson(json['NetworkAclId'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associationId = this.associationId;
+    final description = this.description;
+    final fMSCanRemediate = this.fMSCanRemediate;
+    final networkAclId = this.networkAclId;
+    return {
+      if (associationId != null) 'AssociationId': associationId,
+      if (description != null) 'Description': description,
+      if (fMSCanRemediate != null) 'FMSCanRemediate': fMSCanRemediate,
+      if (networkAclId != null) 'NetworkAclId': networkAclId,
     };
   }
 }
@@ -6952,14 +7569,14 @@ class ResourceSet {
     return ResourceSet(
       name: json['Name'] as String,
       resourceTypeList: (json['ResourceTypeList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       description: json['Description'] as String?,
       id: json['Id'] as String?,
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
-      resourceSetStatus:
-          (json['ResourceSetStatus'] as String?)?.toResourceSetStatus(),
+      resourceSetStatus: (json['ResourceSetStatus'] as String?)
+          ?.let(ResourceSetStatus.fromString),
       updateToken: json['UpdateToken'] as String?,
     );
   }
@@ -6980,38 +7597,25 @@ class ResourceSet {
       if (lastUpdateTime != null)
         'LastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (resourceSetStatus != null)
-        'ResourceSetStatus': resourceSetStatus.toValue(),
+        'ResourceSetStatus': resourceSetStatus.value,
       if (updateToken != null) 'UpdateToken': updateToken,
     };
   }
 }
 
 enum ResourceSetStatus {
-  active,
-  outOfAdminScope,
-}
+  active('ACTIVE'),
+  outOfAdminScope('OUT_OF_ADMIN_SCOPE'),
+  ;
 
-extension ResourceSetStatusValueExtension on ResourceSetStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceSetStatus.active:
-        return 'ACTIVE';
-      case ResourceSetStatus.outOfAdminScope:
-        return 'OUT_OF_ADMIN_SCOPE';
-    }
-  }
-}
+  final String value;
 
-extension ResourceSetStatusFromString on String {
-  ResourceSetStatus toResourceSetStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return ResourceSetStatus.active;
-      case 'OUT_OF_ADMIN_SCOPE':
-        return ResourceSetStatus.outOfAdminScope;
-    }
-    throw Exception('$this is not known in enum ResourceSetStatus');
-  }
+  const ResourceSetStatus(this.value);
+
+  static ResourceSetStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceSetStatus'));
 }
 
 /// Summarizes the resource sets used in a policy.
@@ -7061,8 +7665,8 @@ class ResourceSetSummary {
       id: json['Id'] as String?,
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
       name: json['Name'] as String?,
-      resourceSetStatus:
-          (json['ResourceSetStatus'] as String?)?.toResourceSetStatus(),
+      resourceSetStatus: (json['ResourceSetStatus'] as String?)
+          ?.let(ResourceSetStatus.fromString),
     );
   }
 
@@ -7079,7 +7683,7 @@ class ResourceSetSummary {
         'LastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (name != null) 'Name': name,
       if (resourceSetStatus != null)
-        'ResourceSetStatus': resourceSetStatus.toValue(),
+        'ResourceSetStatus': resourceSetStatus.value,
     };
   }
 }
@@ -7094,11 +7698,19 @@ class ResourceSetSummary {
 /// more information, see <a
 /// href="https://docs.aws.amazon.com/awsconsolehelpdocs/latest/gsg/tag-editor.html">Working
 /// with Tag Editor</a>.
+///
+/// Every resource tag must have a string value, either a non-empty string or an
+/// empty string. If you don't provide a value for a resource tag, Firewall
+/// Manager saves the value as an empty string: "". When Firewall Manager
+/// compares tags, it only matches two tags if they have the same key and the
+/// same value. A tag with an empty string value only matches with tags that
+/// also have an empty string value.
 class ResourceTag {
   /// The resource tag key.
   final String key;
 
-  /// The resource tag value.
+  /// The resource tag value. To specify an empty string value, either don't
+  /// provide this or specify it as "".
   final String? value;
 
   ResourceTag({
@@ -7158,6 +7770,9 @@ class ResourceViolation {
   /// was deleted.
   final FirewallSubnetMissingVPCEndpointViolation?
       firewallSubnetMissingVPCEndpointViolation;
+
+  /// Violation detail for the entries in a network ACL resource.
+  final InvalidNetworkAclEntriesViolation? invalidNetworkAclEntriesViolation;
   final NetworkFirewallBlackHoleRouteDetectedViolation?
       networkFirewallBlackHoleRouteDetectedViolation;
 
@@ -7237,6 +7852,7 @@ class ResourceViolation {
     this.dnsRuleGroupPriorityConflictViolation,
     this.firewallSubnetIsOutOfScopeViolation,
     this.firewallSubnetMissingVPCEndpointViolation,
+    this.invalidNetworkAclEntriesViolation,
     this.networkFirewallBlackHoleRouteDetectedViolation,
     this.networkFirewallInternetTrafficNotInspectedViolation,
     this.networkFirewallInvalidRouteConfigurationViolation,
@@ -7297,6 +7913,12 @@ class ResourceViolation {
           json['FirewallSubnetMissingVPCEndpointViolation'] != null
               ? FirewallSubnetMissingVPCEndpointViolation.fromJson(
                   json['FirewallSubnetMissingVPCEndpointViolation']
+                      as Map<String, dynamic>)
+              : null,
+      invalidNetworkAclEntriesViolation:
+          json['InvalidNetworkAclEntriesViolation'] != null
+              ? InvalidNetworkAclEntriesViolation.fromJson(
+                  json['InvalidNetworkAclEntriesViolation']
                       as Map<String, dynamic>)
               : null,
       networkFirewallBlackHoleRouteDetectedViolation:
@@ -7404,6 +8026,8 @@ class ResourceViolation {
         this.firewallSubnetIsOutOfScopeViolation;
     final firewallSubnetMissingVPCEndpointViolation =
         this.firewallSubnetMissingVPCEndpointViolation;
+    final invalidNetworkAclEntriesViolation =
+        this.invalidNetworkAclEntriesViolation;
     final networkFirewallBlackHoleRouteDetectedViolation =
         this.networkFirewallBlackHoleRouteDetectedViolation;
     final networkFirewallInternetTrafficNotInspectedViolation =
@@ -7454,6 +8078,8 @@ class ResourceViolation {
       if (firewallSubnetMissingVPCEndpointViolation != null)
         'FirewallSubnetMissingVPCEndpointViolation':
             firewallSubnetMissingVPCEndpointViolation,
+      if (invalidNetworkAclEntriesViolation != null)
+        'InvalidNetworkAclEntriesViolation': invalidNetworkAclEntriesViolation,
       if (networkFirewallBlackHoleRouteDetectedViolation != null)
         'NetworkFirewallBlackHoleRouteDetectedViolation':
             networkFirewallBlackHoleRouteDetectedViolation,
@@ -7527,9 +8153,9 @@ class Route {
     return Route(
       destination: json['Destination'] as String?,
       destinationType:
-          (json['DestinationType'] as String?)?.toDestinationType(),
+          (json['DestinationType'] as String?)?.let(DestinationType.fromString),
       target: json['Target'] as String?,
-      targetType: (json['TargetType'] as String?)?.toTargetType(),
+      targetType: (json['TargetType'] as String?)?.let(TargetType.fromString),
     );
   }
 
@@ -7540,9 +8166,9 @@ class Route {
     final targetType = this.targetType;
     return {
       if (destination != null) 'Destination': destination,
-      if (destinationType != null) 'DestinationType': destinationType.toValue(),
+      if (destinationType != null) 'DestinationType': destinationType.value,
       if (target != null) 'Target': target,
-      if (targetType != null) 'TargetType': targetType.toValue(),
+      if (targetType != null) 'TargetType': targetType.value,
     };
   }
 }
@@ -7610,12 +8236,12 @@ class RouteHasOutOfScopeEndpointViolation {
           json['CurrentInternetGatewayRouteTable'] as String?,
       firewallSubnetId: json['FirewallSubnetId'] as String?,
       firewallSubnetRoutes: (json['FirewallSubnetRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       internetGatewayId: json['InternetGatewayId'] as String?,
       internetGatewayRoutes: (json['InternetGatewayRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       routeTableId: json['RouteTableId'] as String?,
@@ -7623,7 +8249,7 @@ class RouteHasOutOfScopeEndpointViolation {
       subnetAvailabilityZoneId: json['SubnetAvailabilityZoneId'] as String?,
       subnetId: json['SubnetId'] as String?,
       violatingRoutes: (json['ViolatingRoutes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Route.fromJson(e as Map<String, dynamic>))
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -7669,31 +8295,17 @@ class RouteHasOutOfScopeEndpointViolation {
 }
 
 enum RuleOrder {
-  strictOrder,
-  defaultActionOrder,
-}
+  strictOrder('STRICT_ORDER'),
+  defaultActionOrder('DEFAULT_ACTION_ORDER'),
+  ;
 
-extension RuleOrderValueExtension on RuleOrder {
-  String toValue() {
-    switch (this) {
-      case RuleOrder.strictOrder:
-        return 'STRICT_ORDER';
-      case RuleOrder.defaultActionOrder:
-        return 'DEFAULT_ACTION_ORDER';
-    }
-  }
-}
+  final String value;
 
-extension RuleOrderFromString on String {
-  RuleOrder toRuleOrder() {
-    switch (this) {
-      case 'STRICT_ORDER':
-        return RuleOrder.strictOrder;
-      case 'DEFAULT_ACTION_ORDER':
-        return RuleOrder.defaultActionOrder;
-    }
-    throw Exception('$this is not known in enum RuleOrder');
-  }
+  const RuleOrder(this.value);
+
+  static RuleOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RuleOrder'));
 }
 
 /// Remediation option for the rule specified in the
@@ -7723,8 +8335,8 @@ class SecurityGroupRemediationAction {
     return SecurityGroupRemediationAction(
       description: json['Description'] as String?,
       isDefaultAction: json['IsDefaultAction'] as bool?,
-      remediationActionType:
-          (json['RemediationActionType'] as String?)?.toRemediationActionType(),
+      remediationActionType: (json['RemediationActionType'] as String?)
+          ?.let(RemediationActionType.fromString),
       remediationResult: json['RemediationResult'] != null
           ? SecurityGroupRuleDescription.fromJson(
               json['RemediationResult'] as Map<String, dynamic>)
@@ -7741,7 +8353,7 @@ class SecurityGroupRemediationAction {
       if (description != null) 'Description': description,
       if (isDefaultAction != null) 'IsDefaultAction': isDefaultAction,
       if (remediationActionType != null)
-        'RemediationActionType': remediationActionType.toValue(),
+        'RemediationActionType': remediationActionType.value,
       if (remediationResult != null) 'RemediationResult': remediationResult,
     };
   }
@@ -7834,6 +8446,7 @@ class SecurityServicePolicyData {
   /// </note> </li>
   /// <li>
   /// Example: <code>IMPORT_NETWORK_FIREWALL</code>
+  ///
   /// <code>"{\"type\":\"IMPORT_NETWORK_FIREWALL\",\"awsNetworkFirewallConfig\":{\"networkFirewallStatelessRuleGroupReferences\":[{\"resourceARN\":\"arn:aws:network-firewall:us-west-2:000000000000:stateless-rulegroup\/rg1\",\"priority\":1}],\"networkFirewallStatelessDefaultActions\":[\"aws:drop\"],\"networkFirewallStatelessFragmentDefaultActions\":[\"aws:pass\"],\"networkFirewallStatelessCustomActions\":[],\"networkFirewallStatefulRuleGroupReferences\":[{\"resourceARN\":\"arn:aws:network-firewall:us-west-2:aws-managed:stateful-rulegroup\/ThreatSignaturesEmergingEventsStrictOrder\",\"priority\":8}],\"networkFirewallStatefulEngineOptions\":{\"ruleOrder\":\"STRICT_ORDER\"},\"networkFirewallStatefulDefaultActions\":[\"aws:drop_strict\"]}}"</code>
   ///
   /// <code>"{\"type\":\"DNS_FIREWALL\",\"preProcessRuleGroups\":[{\"ruleGroupId\":\"rslvr-frg-1\",\"priority\":10}],\"postProcessRuleGroups\":[{\"ruleGroupId\":\"rslvr-frg-2\",\"priority\":9911}]}"</code>
@@ -7912,18 +8525,6 @@ class SecurityServicePolicyData {
   /// to <code>NULL</code>.
   /// </li>
   /// <li>
-  /// Example: <code>THIRD_PARTY_FIREWALL</code>
-  ///
-  /// <code>"{ "type":"THIRD_PARTY_FIREWALL",
-  /// "thirdPartyFirewall":"PALO_ALTO_NETWORKS_CLOUD_NGFW",
-  /// "thirdPartyFirewallConfig":{ "thirdPartyFirewallPolicyList":["global-1"] },
-  /// "firewallDeploymentModel":{ "distributedFirewallDeploymentModel":{
-  /// "distributedFirewallOrchestrationConfig":{ "firewallCreationConfig":{
-  /// "endpointLocation":{ "availabilityZoneConfigList":[ {
-  /// "availabilityZoneName":"${AvailabilityZone}" } ] } },
-  /// "allowedIPV4CidrList":[ ] } } } }"</code>
-  /// </li>
-  /// <li>
   /// Example: <code>SECURITY_GROUPS_COMMON</code>
   ///
   /// <code>"{\"type\":\"SECURITY_GROUPS_COMMON\",\"revertManualSecurityGroupChanges\":false,\"exclusiveResourceSecurityGroupManagement\":false,
@@ -7945,7 +8546,7 @@ class SecurityServicePolicyData {
   /// identifies and reports when the security groups created by this policy
   /// become non-compliant.
   ///
-  /// Firewall Manager won't distrubute system tags added by Amazon Web Services
+  /// Firewall Manager won't distribute system tags added by Amazon Web Services
   /// services into the replica security groups. System tags begin with the
   /// <code>aws:</code> prefix.
   /// </li>
@@ -7975,13 +8576,39 @@ class SecurityServicePolicyData {
   /// <code>"{\"type\":\"SECURITY_GROUPS_USAGE_AUDIT\",\"deleteUnusedSecurityGroups\":true,\"coalesceRedundantSecurityGroups\":true}"</code>
   /// </li>
   /// <li>
+  /// Example: <code>SHIELD_ADVANCED</code> with web ACL management
+  ///
+  /// <code>"{\"type\":\"SHIELD_ADVANCED\",\"optimizeUnassociatedWebACL\":true}"</code>
+  ///
+  /// If you set <code>optimizeUnassociatedWebACL</code> to <code>true</code>,
+  /// Firewall Manager creates web ACLs in accounts within the policy scope if the
+  /// web ACLs will be used by at least one resource. Firewall Manager creates web
+  /// ACLs in the accounts within policy scope only if the web ACLs will be used
+  /// by at least one resource. If at any time an account comes into policy scope,
+  /// Firewall Manager automatically creates a web ACL in the account if at least
+  /// one resource will use the web ACL.
+  ///
+  /// Upon enablement, Firewall Manager performs a one-time cleanup of unused web
+  /// ACLs in your account. The cleanup process can take several hours. If a
+  /// resource leaves policy scope after Firewall Manager creates a web ACL,
+  /// Firewall Manager doesn't disassociate the resource from the web ACL. If you
+  /// want Firewall Manager to clean up the web ACL, you must first manually
+  /// disassociate the resources from the web ACL, and then enable the manage
+  /// unused web ACLs option in your policy.
+  ///
+  /// If you set <code>optimizeUnassociatedWebACL</code> to <code>false</code>,
+  /// and Firewall Manager automatically creates an empty web ACL in each account
+  /// that's within policy scope.
+  /// </li>
+  /// <li>
   /// Specification for <code>SHIELD_ADVANCED</code> for Amazon CloudFront
   /// distributions
   ///
   /// <code>"{\"type\":\"SHIELD_ADVANCED\",\"automaticResponseConfiguration\":
   /// {\"automaticResponseStatus\":\"ENABLED|IGNORED|DISABLED\",
   /// \"automaticResponseAction\":\"BLOCK|COUNT\"},
-  /// \"overrideCustomerWebaclClassic\":true|false}"</code>
+  /// \"overrideCustomerWebaclClassic\":true|false,
+  /// \"optimizeUnassociatedWebACL\":true|false}"</code>
   ///
   /// For example:
   /// <code>"{\"type\":\"SHIELD_ADVANCED\",\"automaticResponseConfiguration\":
@@ -7998,12 +8625,33 @@ class SecurityServicePolicyData {
   /// this <code>ManagedServiceData</code> configuration is an empty string.
   /// </li>
   /// <li>
-  /// Example: <code>WAFV2</code> - Account takeover prevention and Bot Control
-  /// managed rule groups, and rule action override
+  /// Example: <code>THIRD_PARTY_FIREWALL</code>
   ///
-  /// <code>"{\"type\":\"WAFV2\",\"preProcessRuleGroups\":[{\"ruleGroupArn\":null,\"overrideAction\":{\"type\":\"NONE\"},\"managedRuleGroupIdentifier\":{\"versionEnabled\":null,\"version\":null,\"vendorName\":\"AWS\",\"managedRuleGroupName\":\"AWSManagedRulesATPRuleSet\",\"managedRuleGroupConfigs\":[{\"awsmanagedRulesATPRuleSet\":{\"loginPath\":\"/loginpath\",\"requestInspection\":{\"payloadType\":\"FORM_ENCODED|JSON\",\"usernameField\":{\"identifier\":\"/form/username\"},\"passwordField\":{\"identifier\":\"/form/password\"}}}}]},\"ruleGroupType\":\"ManagedRuleGroup\",\"excludeRules\":[],\"sampledRequestsEnabled\":true},{\"ruleGroupArn\":null,\"overrideAction\":{\"type\":\"NONE\"},\"managedRuleGroupIdentifier\":{\"versionEnabled\":null,\"version\":null,\"vendorName\":\"AWS\",\"managedRuleGroupName\":\"AWSManagedRulesBotControlRuleSet\",\"managedRuleGroupConfigs\":[{\"awsmanagedRulesBotControlRuleSet\":{\"inspectionLevel\":\"TARGETED|COMMON\"}}]},\"ruleGroupType\":\"ManagedRuleGroup\",\"excludeRules\":[],\"sampledRequestsEnabled\":true,\"ruleActionOverrides\":[{\"name\":\"Rule1\",\"actionToUse\":{\"allow|block|count|captcha|challenge\":{}}},{\"name\":\"Rule2\",\"actionToUse\":{\"allow|block|count|captcha|challenge\":{}}}]}],\"postProcessRuleGroups\":[],\"defaultAction\":{\"type\":\"ALLOW\"},\"customRequestHandling\":null,\"customResponse\":null,\"overrideCustomerWebACLAssociation\":false,\"loggingConfiguration\":null,\"sampledRequestsEnabledForDefaultActions\":true}"</code>
+  /// Replace <code>THIRD_PARTY_FIREWALL_NAME</code> with the name of the
+  /// third-party firewall.
+  ///
+  /// <code>"{ "type":"THIRD_PARTY_FIREWALL",
+  /// "thirdPartyFirewall":"THIRD_PARTY_FIREWALL_NAME",
+  /// "thirdPartyFirewallConfig":{ "thirdPartyFirewallPolicyList":["global-1"] },
+  /// "firewallDeploymentModel":{ "distributedFirewallDeploymentModel":{
+  /// "distributedFirewallOrchestrationConfig":{ "firewallCreationConfig":{
+  /// "endpointLocation":{ "availabilityZoneConfigList":[ {
+  /// "availabilityZoneName":"${AvailabilityZone}" } ] } },
+  /// "allowedIPV4CidrList":[ ] } } } }"</code>
+  /// </li>
+  /// <li>
+  /// Example: <code>WAFV2</code> - Account takeover prevention, Bot Control
+  /// managed rule groups, optimize unassociated web ACL, and rule action override
+  ///
+  /// <code>"{\"type\":\"WAFV2\",\"preProcessRuleGroups\":[{\"ruleGroupArn\":null,\"overrideAction\":{\"type\":\"NONE\"},\"managedRuleGroupIdentifier\":{\"versionEnabled\":null,\"version\":null,\"vendorName\":\"AWS\",\"managedRuleGroupName\":\"AWSManagedRulesATPRuleSet\",\"managedRuleGroupConfigs\":[{\"awsmanagedRulesATPRuleSet\":{\"loginPath\":\"/loginpath\",\"requestInspection\":{\"payloadType\":\"FORM_ENCODED|JSON\",\"usernameField\":{\"identifier\":\"/form/username\"},\"passwordField\":{\"identifier\":\"/form/password\"}}}}]},\"ruleGroupType\":\"ManagedRuleGroup\",\"excludeRules\":[],\"sampledRequestsEnabled\":true},{\"ruleGroupArn\":null,\"overrideAction\":{\"type\":\"NONE\"},\"managedRuleGroupIdentifier\":{\"versionEnabled\":null,\"version\":null,\"vendorName\":\"AWS\",\"managedRuleGroupName\":\"AWSManagedRulesBotControlRuleSet\",\"managedRuleGroupConfigs\":[{\"awsmanagedRulesBotControlRuleSet\":{\"inspectionLevel\":\"TARGETED|COMMON\"}}]},\"ruleGroupType\":\"ManagedRuleGroup\",\"excludeRules\":[],\"sampledRequestsEnabled\":true,\"ruleActionOverrides\":[{\"name\":\"Rule1\",\"actionToUse\":{\"allow|block|count|captcha|challenge\":{}}},{\"name\":\"Rule2\",\"actionToUse\":{\"allow|block|count|captcha|challenge\":{}}}]}],\"postProcessRuleGroups\":[],\"defaultAction\":{\"type\":\"ALLOW\"},\"customRequestHandling\":null,\"customResponse\":null,\"overrideCustomerWebACLAssociation\":false,\"loggingConfiguration\":null,\"sampledRequestsEnabledForDefaultActions\":true,\"optimizeUnassociatedWebACL\":true}"</code>
   ///
   /// <ul>
+  /// <li>
+  /// Bot Control - For information about
+  /// <code>AWSManagedRulesBotControlRuleSet</code> managed rule groups, see <a
+  /// href="https://docs.aws.amazon.com/waf/latest/APIReference/API_AWSManagedRulesBotControlRuleSet.html">AWSManagedRulesBotControlRuleSet</a>
+  /// in the <i>WAF API Reference</i>.
+  /// </li>
   /// <li>
   /// Fraud Control account takeover prevention (ATP) - For information about the
   /// properties available for <code>AWSManagedRulesATPRuleSet</code> managed rule
@@ -8012,10 +8660,26 @@ class SecurityServicePolicyData {
   /// in the <i>WAF API Reference</i>.
   /// </li>
   /// <li>
-  /// Bot Control - For information about
-  /// <code>AWSManagedRulesBotControlRuleSet</code> managed rule groups, see <a
-  /// href="https://docs.aws.amazon.com/waf/latest/APIReference/API_AWSManagedRulesBotControlRuleSet.html">AWSManagedRulesBotControlRuleSet</a>
-  /// in the <i>WAF API Reference</i>.
+  /// Optimize unassociated web ACL - If you set
+  /// <code>optimizeUnassociatedWebACL</code> to <code>true</code>, Firewall
+  /// Manager creates web ACLs in accounts within the policy scope if the web ACLs
+  /// will be used by at least one resource. Firewall Manager creates web ACLs in
+  /// the accounts within policy scope only if the web ACLs will be used by at
+  /// least one resource. If at any time an account comes into policy scope,
+  /// Firewall Manager automatically creates a web ACL in the account if at least
+  /// one resource will use the web ACL.
+  ///
+  /// Upon enablement, Firewall Manager performs a one-time cleanup of unused web
+  /// ACLs in your account. The cleanup process can take several hours. If a
+  /// resource leaves policy scope after Firewall Manager creates a web ACL,
+  /// Firewall Manager disassociates the resource from the web ACL, but won't
+  /// clean up the unused web ACL. Firewall Manager only cleans up unused web ACLs
+  /// when you first enable management of unused web ACLs in a policy.
+  ///
+  /// If you set <code>optimizeUnassociatedWebACL</code> to <code>false</code>
+  /// Firewall Manager doesn't manage unused web ACLs, and Firewall Manager
+  /// automatically creates an empty web ACL in each account that's within policy
+  /// scope.
   /// </li>
   /// <li>
   /// Rule action overrides - Firewall Manager supports rule action overrides only
@@ -8031,20 +8695,34 @@ class SecurityServicePolicyData {
   /// Example: <code>WAFV2</code> - <code>CAPTCHA</code> and
   /// <code>Challenge</code> configs
   ///
-  /// <code>"{\"type\":\"WAFV2\",\"preProcessRuleGroups\":[{\"ruleGroupArn\":null,\"overrideAction\":{\"type\":\"NONE\"},\"managedRuleGroupIdentifier\":{\"versionEnabled\":null,\"version\":null,\"vendorName\":\"AWS\",\"managedRuleGroupName\":\"AWSManagedRulesAdminProtectionRuleSet\"},\"ruleGroupType\":\"ManagedRuleGroup\",\"excludeRules\":[],\"sampledRequestsEnabled\":true}],\"postProcessRuleGroups\":[],\"defaultAction\":{\"type\":\"ALLOW\"},\"customRequestHandling\":null,\"customResponse\":null,\"overrideCustomerWebACLAssociation\":false,\"loggingConfiguration\":null,\"sampledRequestsEnabledForDefaultActions\":true,\"captchaConfig\":{\"immunityTimeProperty\":{\"immunityTime\":500}},\"challengeConfig\":{\"immunityTimeProperty\":{\"immunityTime\":800}},\"tokenDomains\":[\"google.com\",\"amazon.com\"]}"</code>
+  /// <code>"{\"type\":\"WAFV2\",\"preProcessRuleGroups\":[{\"ruleGroupArn\":null,\"overrideAction\":{\"type\":\"NONE\"},\"managedRuleGroupIdentifier\":{\"versionEnabled\":null,\"version\":null,\"vendorName\":\"AWS\",\"managedRuleGroupName\":\"AWSManagedRulesAdminProtectionRuleSet\"},\"ruleGroupType\":\"ManagedRuleGroup\",\"excludeRules\":[],\"sampledRequestsEnabled\":true}],\"postProcessRuleGroups\":[],\"defaultAction\":{\"type\":\"ALLOW\"},\"customRequestHandling\":null,\"customResponse\":null,\"overrideCustomerWebACLAssociation\":false,\"loggingConfiguration\":null,\"sampledRequestsEnabledForDefaultActions\":true,\"captchaConfig\":{\"immunityTimeProperty\":{\"immunityTime\":500}},\"challengeConfig\":{\"immunityTimeProperty\":{\"immunityTime\":800}},\"tokenDomains\":[\"google.com\",\"amazon.com\"],\"associationConfig\":{\"requestBody\":{\"CLOUDFRONT\":{\"defaultSizeInspectionLimit\":\"KB_16\"}}}}"</code>
   ///
-  /// If you update the policy's values for <code>captchaConfig</code>,
-  /// <code>challengeConfig</code>, or <code>tokenDomains</code>, Firewall Manager
-  /// will overwrite your local web ACLs to contain the new value(s). However, if
-  /// you don't update the policy's <code>captchaConfig</code>,
+  /// <ul>
+  /// <li>
+  /// <code>CAPTCHA</code> and <code>Challenge</code> configs - If you update the
+  /// policy's values for <code>associationConfig</code>,
+  /// <code>captchaConfig</code>, <code>challengeConfig</code>, or
+  /// <code>tokenDomains</code>, Firewall Manager will overwrite your local web
+  /// ACLs to contain the new value(s). However, if you don't update the policy's
+  /// <code>associationConfig</code>, <code>captchaConfig</code>,
   /// <code>challengeConfig</code>, or <code>tokenDomains</code> values, the
   /// values in your local web ACLs will remain unchanged. For information about
-  /// CAPTCHA and Challenge configs, see <a
+  /// association configs, see <a
+  /// href="https://docs.aws.amazon.com/waf/latest/APIReference/API_AssociationConfig.html">AssociationConfig</a>.
+  /// For information about CAPTCHA and Challenge configs, see <a
   /// href="https://docs.aws.amazon.com/waf/latest/APIReference/API_CaptchaConfig.html">CaptchaConfig</a>
   /// and <a
   /// href="https://docs.aws.amazon.com/waf/latest/APIReference/API_ChallengeConfig.html">ChallengeConfig</a>
   /// in the <i>WAF API Reference</i>.
   /// </li>
+  /// <li>
+  /// <code>defaultSizeInspectionLimit</code> - Specifies the maximum size of the
+  /// web request body component that an associated Amazon CloudFront distribution
+  /// should send to WAF for inspection. For more information, see <a
+  /// href="https://docs.aws.amazon.com/waf/latest/APIReference/API_RequestBodyAssociatedResourceTypeConfig.html#WAF-Type-RequestBodyAssociatedResourceTypeConfig-DefaultSizeInspectionLimit">DefaultSizeInspectionLimit</a>
+  /// in the <i>WAF API Reference</i>.
+  /// </li>
+  /// </ul> </li>
   /// <li>
   /// Example: <code>WAFV2</code> - Firewall Manager support for WAF managed rule
   /// group versioning
@@ -8100,8 +8778,8 @@ class SecurityServicePolicyData {
   /// </ul>
   final String? managedServiceData;
 
-  /// Contains the Network Firewall firewall policy options to configure a
-  /// centralized deployment model.
+  /// Contains the settings to configure a network ACL policy, a Network Firewall
+  /// firewall policy deployment model, or a third-party firewall policy.
   final PolicyOption? policyOption;
 
   SecurityServicePolicyData({
@@ -8112,7 +8790,7 @@ class SecurityServicePolicyData {
 
   factory SecurityServicePolicyData.fromJson(Map<String, dynamic> json) {
     return SecurityServicePolicyData(
-      type: (json['Type'] as String).toSecurityServiceType(),
+      type: SecurityServiceType.fromString((json['Type'] as String)),
       managedServiceData: json['ManagedServiceData'] as String?,
       policyOption: json['PolicyOption'] != null
           ? PolicyOption.fromJson(json['PolicyOption'] as Map<String, dynamic>)
@@ -8125,7 +8803,7 @@ class SecurityServicePolicyData {
     final managedServiceData = this.managedServiceData;
     final policyOption = this.policyOption;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (managedServiceData != null) 'ManagedServiceData': managedServiceData,
       if (policyOption != null) 'PolicyOption': policyOption,
     };
@@ -8133,99 +8811,103 @@ class SecurityServicePolicyData {
 }
 
 enum SecurityServiceType {
-  waf,
-  wafv2,
-  shieldAdvanced,
-  securityGroupsCommon,
-  securityGroupsContentAudit,
-  securityGroupsUsageAudit,
-  networkFirewall,
-  dnsFirewall,
-  thirdPartyFirewall,
-  importNetworkFirewall,
-}
+  waf('WAF'),
+  wafv2('WAFV2'),
+  shieldAdvanced('SHIELD_ADVANCED'),
+  securityGroupsCommon('SECURITY_GROUPS_COMMON'),
+  securityGroupsContentAudit('SECURITY_GROUPS_CONTENT_AUDIT'),
+  securityGroupsUsageAudit('SECURITY_GROUPS_USAGE_AUDIT'),
+  networkFirewall('NETWORK_FIREWALL'),
+  dnsFirewall('DNS_FIREWALL'),
+  thirdPartyFirewall('THIRD_PARTY_FIREWALL'),
+  importNetworkFirewall('IMPORT_NETWORK_FIREWALL'),
+  networkAclCommon('NETWORK_ACL_COMMON'),
+  ;
 
-extension SecurityServiceTypeValueExtension on SecurityServiceType {
-  String toValue() {
-    switch (this) {
-      case SecurityServiceType.waf:
-        return 'WAF';
-      case SecurityServiceType.wafv2:
-        return 'WAFV2';
-      case SecurityServiceType.shieldAdvanced:
-        return 'SHIELD_ADVANCED';
-      case SecurityServiceType.securityGroupsCommon:
-        return 'SECURITY_GROUPS_COMMON';
-      case SecurityServiceType.securityGroupsContentAudit:
-        return 'SECURITY_GROUPS_CONTENT_AUDIT';
-      case SecurityServiceType.securityGroupsUsageAudit:
-        return 'SECURITY_GROUPS_USAGE_AUDIT';
-      case SecurityServiceType.networkFirewall:
-        return 'NETWORK_FIREWALL';
-      case SecurityServiceType.dnsFirewall:
-        return 'DNS_FIREWALL';
-      case SecurityServiceType.thirdPartyFirewall:
-        return 'THIRD_PARTY_FIREWALL';
-      case SecurityServiceType.importNetworkFirewall:
-        return 'IMPORT_NETWORK_FIREWALL';
-    }
-  }
-}
+  final String value;
 
-extension SecurityServiceTypeFromString on String {
-  SecurityServiceType toSecurityServiceType() {
-    switch (this) {
-      case 'WAF':
-        return SecurityServiceType.waf;
-      case 'WAFV2':
-        return SecurityServiceType.wafv2;
-      case 'SHIELD_ADVANCED':
-        return SecurityServiceType.shieldAdvanced;
-      case 'SECURITY_GROUPS_COMMON':
-        return SecurityServiceType.securityGroupsCommon;
-      case 'SECURITY_GROUPS_CONTENT_AUDIT':
-        return SecurityServiceType.securityGroupsContentAudit;
-      case 'SECURITY_GROUPS_USAGE_AUDIT':
-        return SecurityServiceType.securityGroupsUsageAudit;
-      case 'NETWORK_FIREWALL':
-        return SecurityServiceType.networkFirewall;
-      case 'DNS_FIREWALL':
-        return SecurityServiceType.dnsFirewall;
-      case 'THIRD_PARTY_FIREWALL':
-        return SecurityServiceType.thirdPartyFirewall;
-      case 'IMPORT_NETWORK_FIREWALL':
-        return SecurityServiceType.importNetworkFirewall;
-    }
-    throw Exception('$this is not known in enum SecurityServiceType');
-  }
+  const SecurityServiceType(this.value);
+
+  static SecurityServiceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SecurityServiceType'));
 }
 
 /// Configuration settings for the handling of the stateful rule groups in a
 /// Network Firewall firewall policy.
 class StatefulEngineOptions {
   /// Indicates how to manage the order of stateful rule evaluation for the
-  /// policy. <code>DEFAULT_ACTION_ORDER</code> is the default behavior. Stateful
-  /// rules are provided to the rule engine as Suricata compatible strings, and
-  /// Suricata evaluates them based on certain settings. For more information, see
-  /// <a
+  /// policy. Stateful rules are provided to the rule engine as Suricata
+  /// compatible strings, and Suricata evaluates them based on certain settings.
+  /// For more information, see <a
   /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/suricata-rule-evaluation-order.html">Evaluation
   /// order for stateful rules</a> in the <i>Network Firewall Developer Guide</i>.
+  ///
+  /// Default: <code>DEFAULT_ACTION_ORDER</code>
   final RuleOrder? ruleOrder;
+
+  /// Indicates how Network Firewall should handle traffic when a network
+  /// connection breaks midstream.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>DROP</code> - Fail closed and drop all subsequent traffic going to the
+  /// firewall.
+  /// </li>
+  /// <li>
+  /// <code>CONTINUE</code> - Continue to apply rules to subsequent traffic
+  /// without context from traffic before the break. This impacts the behavior of
+  /// rules that depend on context. For example, with a stateful rule that drops
+  /// HTTP traffic, Network Firewall won't match subsequent traffic because the it
+  /// won't have the context from session initialization, which defines the
+  /// application layer protocol as HTTP. However, a TCP-layer rule using a
+  /// <code>flow:stateless</code> rule would still match, and so would the
+  /// <code>aws:drop_strict</code> default action.
+  /// </li>
+  /// <li>
+  /// <code>REJECT</code> - Fail closed and drop all subsequent traffic going to
+  /// the firewall. With this option, Network Firewall also sends a TCP reject
+  /// packet back to the client so the client can immediately establish a new
+  /// session. With the new session, Network Firewall will have context and will
+  /// apply rules appropriately.
+  ///
+  /// For applications that are reliant on long-lived TCP connections that trigger
+  /// Gateway Load Balancer idle timeouts, this is the recommended setting.
+  /// </li>
+  /// <li>
+  /// <code>FMS_IGNORE</code> - Firewall Manager doesn't monitor or modify the
+  /// Network Firewall stream exception policy settings.
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/stream-exception-policy.html">Stream
+  /// exception policy in your firewall policy</a> in the <i>Network Firewall
+  /// Developer Guide</i>.
+  ///
+  /// Default: <code>FMS_IGNORE</code>
+  final StreamExceptionPolicy? streamExceptionPolicy;
 
   StatefulEngineOptions({
     this.ruleOrder,
+    this.streamExceptionPolicy,
   });
 
   factory StatefulEngineOptions.fromJson(Map<String, dynamic> json) {
     return StatefulEngineOptions(
-      ruleOrder: (json['RuleOrder'] as String?)?.toRuleOrder(),
+      ruleOrder: (json['RuleOrder'] as String?)?.let(RuleOrder.fromString),
+      streamExceptionPolicy: (json['StreamExceptionPolicy'] as String?)
+          ?.let(StreamExceptionPolicy.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final ruleOrder = this.ruleOrder;
+    final streamExceptionPolicy = this.streamExceptionPolicy;
     return {
-      if (ruleOrder != null) 'RuleOrder': ruleOrder.toValue(),
+      if (ruleOrder != null) 'RuleOrder': ruleOrder.value,
+      if (streamExceptionPolicy != null)
+        'StreamExceptionPolicy': streamExceptionPolicy.value,
     };
   }
 }
@@ -8329,6 +9011,23 @@ class StatelessRuleGroup {
   }
 }
 
+enum StreamExceptionPolicy {
+  drop('DROP'),
+  $continue('CONTINUE'),
+  reject('REJECT'),
+  fmsIgnore('FMS_IGNORE'),
+  ;
+
+  final String value;
+
+  const StreamExceptionPolicy(this.value);
+
+  static StreamExceptionPolicy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StreamExceptionPolicy'));
+}
+
 /// A collection of key:value pairs associated with an Amazon Web Services
 /// resource. The key:value pair can be anything you define. Typically, the tag
 /// key represents a category (such as "environment") and the tag value
@@ -8381,144 +9080,58 @@ class TagResourceResponse {
 }
 
 enum TargetType {
-  gateway,
-  carrierGateway,
-  instance,
-  localGateway,
-  natGateway,
-  networkInterface,
-  vpcEndpoint,
-  vpcPeeringConnection,
-  egressOnlyInternetGateway,
-  transitGateway,
-}
+  gateway('GATEWAY'),
+  carrierGateway('CARRIER_GATEWAY'),
+  instance('INSTANCE'),
+  localGateway('LOCAL_GATEWAY'),
+  natGateway('NAT_GATEWAY'),
+  networkInterface('NETWORK_INTERFACE'),
+  vpcEndpoint('VPC_ENDPOINT'),
+  vpcPeeringConnection('VPC_PEERING_CONNECTION'),
+  egressOnlyInternetGateway('EGRESS_ONLY_INTERNET_GATEWAY'),
+  transitGateway('TRANSIT_GATEWAY'),
+  ;
 
-extension TargetTypeValueExtension on TargetType {
-  String toValue() {
-    switch (this) {
-      case TargetType.gateway:
-        return 'GATEWAY';
-      case TargetType.carrierGateway:
-        return 'CARRIER_GATEWAY';
-      case TargetType.instance:
-        return 'INSTANCE';
-      case TargetType.localGateway:
-        return 'LOCAL_GATEWAY';
-      case TargetType.natGateway:
-        return 'NAT_GATEWAY';
-      case TargetType.networkInterface:
-        return 'NETWORK_INTERFACE';
-      case TargetType.vpcEndpoint:
-        return 'VPC_ENDPOINT';
-      case TargetType.vpcPeeringConnection:
-        return 'VPC_PEERING_CONNECTION';
-      case TargetType.egressOnlyInternetGateway:
-        return 'EGRESS_ONLY_INTERNET_GATEWAY';
-      case TargetType.transitGateway:
-        return 'TRANSIT_GATEWAY';
-    }
-  }
-}
+  final String value;
 
-extension TargetTypeFromString on String {
-  TargetType toTargetType() {
-    switch (this) {
-      case 'GATEWAY':
-        return TargetType.gateway;
-      case 'CARRIER_GATEWAY':
-        return TargetType.carrierGateway;
-      case 'INSTANCE':
-        return TargetType.instance;
-      case 'LOCAL_GATEWAY':
-        return TargetType.localGateway;
-      case 'NAT_GATEWAY':
-        return TargetType.natGateway;
-      case 'NETWORK_INTERFACE':
-        return TargetType.networkInterface;
-      case 'VPC_ENDPOINT':
-        return TargetType.vpcEndpoint;
-      case 'VPC_PEERING_CONNECTION':
-        return TargetType.vpcPeeringConnection;
-      case 'EGRESS_ONLY_INTERNET_GATEWAY':
-        return TargetType.egressOnlyInternetGateway;
-      case 'TRANSIT_GATEWAY':
-        return TargetType.transitGateway;
-    }
-    throw Exception('$this is not known in enum TargetType');
-  }
+  const TargetType(this.value);
+
+  static TargetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TargetType'));
 }
 
 enum ThirdPartyFirewall {
-  paloAltoNetworksCloudNgfw,
-  fortigateCloudNativeFirewall,
-}
+  paloAltoNetworksCloudNgfw('PALO_ALTO_NETWORKS_CLOUD_NGFW'),
+  fortigateCloudNativeFirewall('FORTIGATE_CLOUD_NATIVE_FIREWALL'),
+  ;
 
-extension ThirdPartyFirewallValueExtension on ThirdPartyFirewall {
-  String toValue() {
-    switch (this) {
-      case ThirdPartyFirewall.paloAltoNetworksCloudNgfw:
-        return 'PALO_ALTO_NETWORKS_CLOUD_NGFW';
-      case ThirdPartyFirewall.fortigateCloudNativeFirewall:
-        return 'FORTIGATE_CLOUD_NATIVE_FIREWALL';
-    }
-  }
-}
+  final String value;
 
-extension ThirdPartyFirewallFromString on String {
-  ThirdPartyFirewall toThirdPartyFirewall() {
-    switch (this) {
-      case 'PALO_ALTO_NETWORKS_CLOUD_NGFW':
-        return ThirdPartyFirewall.paloAltoNetworksCloudNgfw;
-      case 'FORTIGATE_CLOUD_NATIVE_FIREWALL':
-        return ThirdPartyFirewall.fortigateCloudNativeFirewall;
-    }
-    throw Exception('$this is not known in enum ThirdPartyFirewall');
-  }
+  const ThirdPartyFirewall(this.value);
+
+  static ThirdPartyFirewall fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ThirdPartyFirewall'));
 }
 
 enum ThirdPartyFirewallAssociationStatus {
-  onboarding,
-  onboardComplete,
-  offboarding,
-  offboardComplete,
-  notExist,
-}
+  onboarding('ONBOARDING'),
+  onboardComplete('ONBOARD_COMPLETE'),
+  offboarding('OFFBOARDING'),
+  offboardComplete('OFFBOARD_COMPLETE'),
+  notExist('NOT_EXIST'),
+  ;
 
-extension ThirdPartyFirewallAssociationStatusValueExtension
-    on ThirdPartyFirewallAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case ThirdPartyFirewallAssociationStatus.onboarding:
-        return 'ONBOARDING';
-      case ThirdPartyFirewallAssociationStatus.onboardComplete:
-        return 'ONBOARD_COMPLETE';
-      case ThirdPartyFirewallAssociationStatus.offboarding:
-        return 'OFFBOARDING';
-      case ThirdPartyFirewallAssociationStatus.offboardComplete:
-        return 'OFFBOARD_COMPLETE';
-      case ThirdPartyFirewallAssociationStatus.notExist:
-        return 'NOT_EXIST';
-    }
-  }
-}
+  final String value;
 
-extension ThirdPartyFirewallAssociationStatusFromString on String {
-  ThirdPartyFirewallAssociationStatus toThirdPartyFirewallAssociationStatus() {
-    switch (this) {
-      case 'ONBOARDING':
-        return ThirdPartyFirewallAssociationStatus.onboarding;
-      case 'ONBOARD_COMPLETE':
-        return ThirdPartyFirewallAssociationStatus.onboardComplete;
-      case 'OFFBOARDING':
-        return ThirdPartyFirewallAssociationStatus.offboarding;
-      case 'OFFBOARD_COMPLETE':
-        return ThirdPartyFirewallAssociationStatus.offboardComplete;
-      case 'NOT_EXIST':
-        return ThirdPartyFirewallAssociationStatus.notExist;
-    }
-    throw Exception(
-        '$this is not known in enum ThirdPartyFirewallAssociationStatus');
-  }
+  const ThirdPartyFirewallAssociationStatus(this.value);
+
+  static ThirdPartyFirewallAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ThirdPartyFirewallAssociationStatus'));
 }
 
 /// Configures the third-party firewall's firewall policy.
@@ -8717,7 +9330,7 @@ class ThirdPartyFirewallPolicy {
   factory ThirdPartyFirewallPolicy.fromJson(Map<String, dynamic> json) {
     return ThirdPartyFirewallPolicy(
       firewallDeploymentModel: (json['FirewallDeploymentModel'] as String?)
-          ?.toFirewallDeploymentModel(),
+          ?.let(FirewallDeploymentModel.fromString),
     );
   }
 
@@ -8725,7 +9338,7 @@ class ThirdPartyFirewallPolicy {
     final firewallDeploymentModel = this.firewallDeploymentModel;
     return {
       if (firewallDeploymentModel != null)
-        'FirewallDeploymentModel': firewallDeploymentModel.toValue(),
+        'FirewallDeploymentModel': firewallDeploymentModel.value,
     };
   }
 }
@@ -8785,12 +9398,12 @@ class ViolationDetail {
       resourceId: json['ResourceId'] as String,
       resourceType: json['ResourceType'] as String,
       resourceViolations: (json['ResourceViolations'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ResourceViolation.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceDescription: json['ResourceDescription'] as String?,
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8818,161 +9431,48 @@ class ViolationDetail {
 }
 
 enum ViolationReason {
-  webAclMissingRuleGroup,
-  resourceMissingWebAcl,
-  resourceIncorrectWebAcl,
-  resourceMissingShieldProtection,
-  resourceMissingWebAclOrShieldProtection,
-  resourceMissingSecurityGroup,
-  resourceViolatesAuditSecurityGroup,
-  securityGroupUnused,
-  securityGroupRedundant,
-  fmsCreatedSecurityGroupEdited,
-  missingFirewall,
-  missingFirewallSubnetInAz,
-  missingExpectedRouteTable,
-  networkFirewallPolicyModified,
-  firewallSubnetIsOutOfScope,
-  internetGatewayMissingExpectedRoute,
-  firewallSubnetMissingExpectedRoute,
-  unexpectedFirewallRoutes,
-  unexpectedTargetGatewayRoutes,
-  trafficInspectionCrossesAzBoundary,
-  invalidRouteConfiguration,
-  missingTargetGateway,
-  internetTrafficNotInspected,
-  blackHoleRouteDetected,
-  blackHoleRouteDetectedInFirewallSubnet,
-  resourceMissingDnsFirewall,
-  routeHasOutOfScopeEndpoint,
-  firewallSubnetMissingVpceEndpoint,
-}
+  webAclMissingRuleGroup('WEB_ACL_MISSING_RULE_GROUP'),
+  resourceMissingWebAcl('RESOURCE_MISSING_WEB_ACL'),
+  resourceIncorrectWebAcl('RESOURCE_INCORRECT_WEB_ACL'),
+  resourceMissingShieldProtection('RESOURCE_MISSING_SHIELD_PROTECTION'),
+  resourceMissingWebAclOrShieldProtection(
+      'RESOURCE_MISSING_WEB_ACL_OR_SHIELD_PROTECTION'),
+  resourceMissingSecurityGroup('RESOURCE_MISSING_SECURITY_GROUP'),
+  resourceViolatesAuditSecurityGroup('RESOURCE_VIOLATES_AUDIT_SECURITY_GROUP'),
+  securityGroupUnused('SECURITY_GROUP_UNUSED'),
+  securityGroupRedundant('SECURITY_GROUP_REDUNDANT'),
+  fmsCreatedSecurityGroupEdited('FMS_CREATED_SECURITY_GROUP_EDITED'),
+  missingFirewall('MISSING_FIREWALL'),
+  missingFirewallSubnetInAz('MISSING_FIREWALL_SUBNET_IN_AZ'),
+  missingExpectedRouteTable('MISSING_EXPECTED_ROUTE_TABLE'),
+  networkFirewallPolicyModified('NETWORK_FIREWALL_POLICY_MODIFIED'),
+  firewallSubnetIsOutOfScope('FIREWALL_SUBNET_IS_OUT_OF_SCOPE'),
+  internetGatewayMissingExpectedRoute(
+      'INTERNET_GATEWAY_MISSING_EXPECTED_ROUTE'),
+  firewallSubnetMissingExpectedRoute('FIREWALL_SUBNET_MISSING_EXPECTED_ROUTE'),
+  unexpectedFirewallRoutes('UNEXPECTED_FIREWALL_ROUTES'),
+  unexpectedTargetGatewayRoutes('UNEXPECTED_TARGET_GATEWAY_ROUTES'),
+  trafficInspectionCrossesAzBoundary('TRAFFIC_INSPECTION_CROSSES_AZ_BOUNDARY'),
+  invalidRouteConfiguration('INVALID_ROUTE_CONFIGURATION'),
+  missingTargetGateway('MISSING_TARGET_GATEWAY'),
+  internetTrafficNotInspected('INTERNET_TRAFFIC_NOT_INSPECTED'),
+  blackHoleRouteDetected('BLACK_HOLE_ROUTE_DETECTED'),
+  blackHoleRouteDetectedInFirewallSubnet(
+      'BLACK_HOLE_ROUTE_DETECTED_IN_FIREWALL_SUBNET'),
+  resourceMissingDnsFirewall('RESOURCE_MISSING_DNS_FIREWALL'),
+  routeHasOutOfScopeEndpoint('ROUTE_HAS_OUT_OF_SCOPE_ENDPOINT'),
+  firewallSubnetMissingVpceEndpoint('FIREWALL_SUBNET_MISSING_VPCE_ENDPOINT'),
+  invalidNetworkAclEntry('INVALID_NETWORK_ACL_ENTRY'),
+  ;
 
-extension ViolationReasonValueExtension on ViolationReason {
-  String toValue() {
-    switch (this) {
-      case ViolationReason.webAclMissingRuleGroup:
-        return 'WEB_ACL_MISSING_RULE_GROUP';
-      case ViolationReason.resourceMissingWebAcl:
-        return 'RESOURCE_MISSING_WEB_ACL';
-      case ViolationReason.resourceIncorrectWebAcl:
-        return 'RESOURCE_INCORRECT_WEB_ACL';
-      case ViolationReason.resourceMissingShieldProtection:
-        return 'RESOURCE_MISSING_SHIELD_PROTECTION';
-      case ViolationReason.resourceMissingWebAclOrShieldProtection:
-        return 'RESOURCE_MISSING_WEB_ACL_OR_SHIELD_PROTECTION';
-      case ViolationReason.resourceMissingSecurityGroup:
-        return 'RESOURCE_MISSING_SECURITY_GROUP';
-      case ViolationReason.resourceViolatesAuditSecurityGroup:
-        return 'RESOURCE_VIOLATES_AUDIT_SECURITY_GROUP';
-      case ViolationReason.securityGroupUnused:
-        return 'SECURITY_GROUP_UNUSED';
-      case ViolationReason.securityGroupRedundant:
-        return 'SECURITY_GROUP_REDUNDANT';
-      case ViolationReason.fmsCreatedSecurityGroupEdited:
-        return 'FMS_CREATED_SECURITY_GROUP_EDITED';
-      case ViolationReason.missingFirewall:
-        return 'MISSING_FIREWALL';
-      case ViolationReason.missingFirewallSubnetInAz:
-        return 'MISSING_FIREWALL_SUBNET_IN_AZ';
-      case ViolationReason.missingExpectedRouteTable:
-        return 'MISSING_EXPECTED_ROUTE_TABLE';
-      case ViolationReason.networkFirewallPolicyModified:
-        return 'NETWORK_FIREWALL_POLICY_MODIFIED';
-      case ViolationReason.firewallSubnetIsOutOfScope:
-        return 'FIREWALL_SUBNET_IS_OUT_OF_SCOPE';
-      case ViolationReason.internetGatewayMissingExpectedRoute:
-        return 'INTERNET_GATEWAY_MISSING_EXPECTED_ROUTE';
-      case ViolationReason.firewallSubnetMissingExpectedRoute:
-        return 'FIREWALL_SUBNET_MISSING_EXPECTED_ROUTE';
-      case ViolationReason.unexpectedFirewallRoutes:
-        return 'UNEXPECTED_FIREWALL_ROUTES';
-      case ViolationReason.unexpectedTargetGatewayRoutes:
-        return 'UNEXPECTED_TARGET_GATEWAY_ROUTES';
-      case ViolationReason.trafficInspectionCrossesAzBoundary:
-        return 'TRAFFIC_INSPECTION_CROSSES_AZ_BOUNDARY';
-      case ViolationReason.invalidRouteConfiguration:
-        return 'INVALID_ROUTE_CONFIGURATION';
-      case ViolationReason.missingTargetGateway:
-        return 'MISSING_TARGET_GATEWAY';
-      case ViolationReason.internetTrafficNotInspected:
-        return 'INTERNET_TRAFFIC_NOT_INSPECTED';
-      case ViolationReason.blackHoleRouteDetected:
-        return 'BLACK_HOLE_ROUTE_DETECTED';
-      case ViolationReason.blackHoleRouteDetectedInFirewallSubnet:
-        return 'BLACK_HOLE_ROUTE_DETECTED_IN_FIREWALL_SUBNET';
-      case ViolationReason.resourceMissingDnsFirewall:
-        return 'RESOURCE_MISSING_DNS_FIREWALL';
-      case ViolationReason.routeHasOutOfScopeEndpoint:
-        return 'ROUTE_HAS_OUT_OF_SCOPE_ENDPOINT';
-      case ViolationReason.firewallSubnetMissingVpceEndpoint:
-        return 'FIREWALL_SUBNET_MISSING_VPCE_ENDPOINT';
-    }
-  }
-}
+  final String value;
 
-extension ViolationReasonFromString on String {
-  ViolationReason toViolationReason() {
-    switch (this) {
-      case 'WEB_ACL_MISSING_RULE_GROUP':
-        return ViolationReason.webAclMissingRuleGroup;
-      case 'RESOURCE_MISSING_WEB_ACL':
-        return ViolationReason.resourceMissingWebAcl;
-      case 'RESOURCE_INCORRECT_WEB_ACL':
-        return ViolationReason.resourceIncorrectWebAcl;
-      case 'RESOURCE_MISSING_SHIELD_PROTECTION':
-        return ViolationReason.resourceMissingShieldProtection;
-      case 'RESOURCE_MISSING_WEB_ACL_OR_SHIELD_PROTECTION':
-        return ViolationReason.resourceMissingWebAclOrShieldProtection;
-      case 'RESOURCE_MISSING_SECURITY_GROUP':
-        return ViolationReason.resourceMissingSecurityGroup;
-      case 'RESOURCE_VIOLATES_AUDIT_SECURITY_GROUP':
-        return ViolationReason.resourceViolatesAuditSecurityGroup;
-      case 'SECURITY_GROUP_UNUSED':
-        return ViolationReason.securityGroupUnused;
-      case 'SECURITY_GROUP_REDUNDANT':
-        return ViolationReason.securityGroupRedundant;
-      case 'FMS_CREATED_SECURITY_GROUP_EDITED':
-        return ViolationReason.fmsCreatedSecurityGroupEdited;
-      case 'MISSING_FIREWALL':
-        return ViolationReason.missingFirewall;
-      case 'MISSING_FIREWALL_SUBNET_IN_AZ':
-        return ViolationReason.missingFirewallSubnetInAz;
-      case 'MISSING_EXPECTED_ROUTE_TABLE':
-        return ViolationReason.missingExpectedRouteTable;
-      case 'NETWORK_FIREWALL_POLICY_MODIFIED':
-        return ViolationReason.networkFirewallPolicyModified;
-      case 'FIREWALL_SUBNET_IS_OUT_OF_SCOPE':
-        return ViolationReason.firewallSubnetIsOutOfScope;
-      case 'INTERNET_GATEWAY_MISSING_EXPECTED_ROUTE':
-        return ViolationReason.internetGatewayMissingExpectedRoute;
-      case 'FIREWALL_SUBNET_MISSING_EXPECTED_ROUTE':
-        return ViolationReason.firewallSubnetMissingExpectedRoute;
-      case 'UNEXPECTED_FIREWALL_ROUTES':
-        return ViolationReason.unexpectedFirewallRoutes;
-      case 'UNEXPECTED_TARGET_GATEWAY_ROUTES':
-        return ViolationReason.unexpectedTargetGatewayRoutes;
-      case 'TRAFFIC_INSPECTION_CROSSES_AZ_BOUNDARY':
-        return ViolationReason.trafficInspectionCrossesAzBoundary;
-      case 'INVALID_ROUTE_CONFIGURATION':
-        return ViolationReason.invalidRouteConfiguration;
-      case 'MISSING_TARGET_GATEWAY':
-        return ViolationReason.missingTargetGateway;
-      case 'INTERNET_TRAFFIC_NOT_INSPECTED':
-        return ViolationReason.internetTrafficNotInspected;
-      case 'BLACK_HOLE_ROUTE_DETECTED':
-        return ViolationReason.blackHoleRouteDetected;
-      case 'BLACK_HOLE_ROUTE_DETECTED_IN_FIREWALL_SUBNET':
-        return ViolationReason.blackHoleRouteDetectedInFirewallSubnet;
-      case 'RESOURCE_MISSING_DNS_FIREWALL':
-        return ViolationReason.resourceMissingDnsFirewall;
-      case 'ROUTE_HAS_OUT_OF_SCOPE_ENDPOINT':
-        return ViolationReason.routeHasOutOfScopeEndpoint;
-      case 'FIREWALL_SUBNET_MISSING_VPCE_ENDPOINT':
-        return ViolationReason.firewallSubnetMissingVpceEndpoint;
-    }
-    throw Exception('$this is not known in enum ViolationReason');
-  }
+  const ViolationReason(this.value);
+
+  static ViolationReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ViolationReason'));
 }
 
 class InternalErrorException extends _s.GenericAwsException {

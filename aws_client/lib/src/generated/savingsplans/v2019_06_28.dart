@@ -19,12 +19,13 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// Savings Plans are a pricing model that offer significant savings on AWS
-/// usage (for example, on Amazon EC2 instances). You commit to a consistent
-/// amount of usage, in USD per hour, for a term of 1 or 3 years, and receive a
-/// lower price for that usage. For more information, see the <a
-/// href="https://docs.aws.amazon.com/savingsplans/latest/userguide/">AWS
-/// Savings Plans User Guide</a>.
+/// Savings Plans are a pricing model that offer significant savings on Amazon
+/// Web Services usage (for example, on Amazon EC2 instances). You commit to a
+/// consistent amount of usage per hour, in the specified currency, for a term
+/// of one or three years, and receive a lower price for that usage. For more
+/// information, see the <a
+/// href="https://docs.aws.amazon.com/savingsplans/latest/userguide/">Amazon Web
+/// Services Savings Plans User Guide</a>.
 class SavingsPlans {
   final _s.RestJsonProtocol _protocol;
   SavingsPlans({
@@ -61,18 +62,19 @@ class SavingsPlans {
   /// May throw [ServiceQuotaExceededException].
   ///
   /// Parameter [commitment] :
-  /// The hourly commitment, in USD. This is a value between 0.001 and 1
+  /// The hourly commitment, in the same currency of the
+  /// <code>savingsPlanOfferingId</code>. This is a value between 0.001 and 1
   /// million. You cannot specify more than five digits after the decimal point.
   ///
   /// Parameter [savingsPlanOfferingId] :
   /// The ID of the offering.
   ///
   /// Parameter [clientToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [purchaseTime] :
-  /// The time at which to purchase the Savings Plan, in UTC format
+  /// The purchase time of the Savings Plan in UTC format
   /// (YYYY-MM-DDTHH:MM:SSZ).
   ///
   /// Parameter [tags] :
@@ -80,8 +82,8 @@ class SavingsPlans {
   ///
   /// Parameter [upfrontPaymentAmount] :
   /// The up-front payment amount. This is a whole number between 50 and 99
-  /// percent of the total value of the Savings Plan. This parameter is
-  /// supported only if the payment option is <code>Partial Upfront</code>.
+  /// percent of the total value of the Savings Plan. This parameter is only
+  /// supported if the payment option is <code>Partial Upfront</code>.
   Future<CreateSavingsPlanResponse> createSavingsPlan({
     required String commitment,
     required String savingsPlanOfferingId,
@@ -132,7 +134,7 @@ class SavingsPlans {
     );
   }
 
-  /// Describes the specified Savings Plans rates.
+  /// Describes the rates for the specified Savings Plan.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -198,7 +200,7 @@ class SavingsPlans {
   /// The IDs of the Savings Plans.
   ///
   /// Parameter [states] :
-  /// The states.
+  /// The current states of the Savings Plans.
   Future<DescribeSavingsPlansResponse> describeSavingsPlans({
     List<SavingsPlanFilter>? filters,
     int? maxResults,
@@ -219,7 +221,7 @@ class SavingsPlans {
       if (nextToken != null) 'nextToken': nextToken,
       if (savingsPlanArns != null) 'savingsPlanArns': savingsPlanArns,
       if (savingsPlanIds != null) 'savingsPlanIds': savingsPlanIds,
-      if (states != null) 'states': states.map((e) => e.toValue()).toList(),
+      if (states != null) 'states': states.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -230,7 +232,7 @@ class SavingsPlans {
     return DescribeSavingsPlansResponse.fromJson(response);
   }
 
-  /// Describes the specified Savings Plans offering rates.
+  /// Describes the offering rates for the specified Savings Plans.
   ///
   /// May throw [ValidationException].
   /// May throw [InternalServerException].
@@ -246,10 +248,11 @@ class SavingsPlans {
   /// The token for the next page of results.
   ///
   /// Parameter [operations] :
-  /// The specific AWS operation for the line item in the billing report.
+  /// The specific Amazon Web Services operation for the line item in the
+  /// billing report.
   ///
   /// Parameter [products] :
-  /// The AWS products.
+  /// The Amazon Web Services products.
   ///
   /// Parameter [savingsPlanOfferingIds] :
   /// The IDs of the offerings.
@@ -289,17 +292,16 @@ class SavingsPlans {
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
       if (operations != null) 'operations': operations,
-      if (products != null)
-        'products': products.map((e) => e.toValue()).toList(),
+      if (products != null) 'products': products.map((e) => e.value).toList(),
       if (savingsPlanOfferingIds != null)
         'savingsPlanOfferingIds': savingsPlanOfferingIds,
       if (savingsPlanPaymentOptions != null)
         'savingsPlanPaymentOptions':
-            savingsPlanPaymentOptions.map((e) => e.toValue()).toList(),
+            savingsPlanPaymentOptions.map((e) => e.value).toList(),
       if (savingsPlanTypes != null)
-        'savingsPlanTypes': savingsPlanTypes.map((e) => e.toValue()).toList(),
+        'savingsPlanTypes': savingsPlanTypes.map((e) => e.value).toList(),
       if (serviceCodes != null)
-        'serviceCodes': serviceCodes.map((e) => e.toValue()).toList(),
+        'serviceCodes': serviceCodes.map((e) => e.value).toList(),
       if (usageTypes != null) 'usageTypes': usageTypes,
     };
     final response = await _protocol.send(
@@ -311,7 +313,7 @@ class SavingsPlans {
     return DescribeSavingsPlansOfferingRatesResponse.fromJson(response);
   }
 
-  /// Describes the specified Savings Plans offerings.
+  /// Describes the offerings for the specified Savings Plans.
   ///
   /// May throw [ValidationException].
   /// May throw [InternalServerException].
@@ -323,7 +325,7 @@ class SavingsPlans {
   /// The descriptions.
   ///
   /// Parameter [durations] :
-  /// The durations, in seconds.
+  /// The duration, in seconds.
   ///
   /// Parameter [filters] :
   /// The filters.
@@ -339,13 +341,14 @@ class SavingsPlans {
   /// The IDs of the offerings.
   ///
   /// Parameter [operations] :
-  /// The specific AWS operation for the line item in the billing report.
+  /// The specific Amazon Web Services operation for the line item in the
+  /// billing report.
   ///
   /// Parameter [paymentOptions] :
   /// The payment options.
   ///
   /// Parameter [planTypes] :
-  /// The plan type.
+  /// The plan types.
   ///
   /// Parameter [productType] :
   /// The product type.
@@ -378,7 +381,7 @@ class SavingsPlans {
     );
     final $payload = <String, dynamic>{
       if (currencies != null)
-        'currencies': currencies.map((e) => e.toValue()).toList(),
+        'currencies': currencies.map((e) => e.value).toList(),
       if (descriptions != null) 'descriptions': descriptions,
       if (durations != null) 'durations': durations,
       if (filters != null) 'filters': filters,
@@ -387,10 +390,10 @@ class SavingsPlans {
       if (offeringIds != null) 'offeringIds': offeringIds,
       if (operations != null) 'operations': operations,
       if (paymentOptions != null)
-        'paymentOptions': paymentOptions.map((e) => e.toValue()).toList(),
+        'paymentOptions': paymentOptions.map((e) => e.value).toList(),
       if (planTypes != null)
-        'planTypes': planTypes.map((e) => e.toValue()).toList(),
-      if (productType != null) 'productType': productType.toValue(),
+        'planTypes': planTypes.map((e) => e.value).toList(),
+      if (productType != null) 'productType': productType.value,
       if (serviceCodes != null) 'serviceCodes': serviceCodes,
       if (usageTypes != null) 'usageTypes': usageTypes,
     };
@@ -424,6 +427,36 @@ class SavingsPlans {
       exceptionFnMap: _exceptionFns,
     );
     return ListTagsForResourceResponse.fromJson(response);
+  }
+
+  /// Returns the specified Savings Plan.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  ///
+  /// Parameter [savingsPlanId] :
+  /// The ID of the Savings Plan.
+  ///
+  /// Parameter [clientToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
+  Future<ReturnSavingsPlanResponse> returnSavingsPlan({
+    required String savingsPlanId,
+    String? clientToken,
+  }) async {
+    final $payload = <String, dynamic>{
+      'savingsPlanId': savingsPlanId,
+      'clientToken': clientToken ?? _s.generateIdempotencyToken(),
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/ReturnSavingsPlan',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ReturnSavingsPlanResponse.fromJson(response);
   }
 
   /// Adds the specified tags to the specified resource.
@@ -506,31 +539,18 @@ class CreateSavingsPlanResponse {
 }
 
 enum CurrencyCode {
-  cny,
-  usd,
-}
+  cny('CNY'),
+  usd('USD'),
+  ;
 
-extension CurrencyCodeValueExtension on CurrencyCode {
-  String toValue() {
-    switch (this) {
-      case CurrencyCode.cny:
-        return 'CNY';
-      case CurrencyCode.usd:
-        return 'USD';
-    }
-  }
-}
+  final String value;
 
-extension CurrencyCodeFromString on String {
-  CurrencyCode toCurrencyCode() {
-    switch (this) {
-      case 'CNY':
-        return CurrencyCode.cny;
-      case 'USD':
-        return CurrencyCode.usd;
-    }
-    throw Exception('$this is not known in enum CurrencyCode');
-  }
+  const CurrencyCode(this.value);
+
+  static CurrencyCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CurrencyCode'));
 }
 
 class DeleteQueuedSavingsPlanResponse {
@@ -553,7 +573,7 @@ class DescribeSavingsPlanRatesResponse {
   /// The ID of the Savings Plan.
   final String? savingsPlanId;
 
-  /// Information about the Savings Plans rates.
+  /// Information about the Savings Plan rates.
   final List<SavingsPlanRate>? searchResults;
 
   DescribeSavingsPlanRatesResponse({
@@ -567,7 +587,7 @@ class DescribeSavingsPlanRatesResponse {
       nextToken: json['nextToken'] as String?,
       savingsPlanId: json['savingsPlanId'] as String?,
       searchResults: (json['searchResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SavingsPlanRate.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -603,7 +623,7 @@ class DescribeSavingsPlansOfferingRatesResponse {
     return DescribeSavingsPlansOfferingRatesResponse(
       nextToken: json['nextToken'] as String?,
       searchResults: (json['searchResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SavingsPlanOfferingRate.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -638,7 +658,7 @@ class DescribeSavingsPlansOfferingsResponse {
     return DescribeSavingsPlansOfferingsResponse(
       nextToken: json['nextToken'] as String?,
       searchResults: (json['searchResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SavingsPlanOffering.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -671,7 +691,7 @@ class DescribeSavingsPlansResponse {
     return DescribeSavingsPlansResponse(
       nextToken: json['nextToken'] as String?,
       savingsPlans: (json['savingsPlans'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SavingsPlan.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -741,13 +761,13 @@ class ParentSavingsPlanOffering {
 
   factory ParentSavingsPlanOffering.fromJson(Map<String, dynamic> json) {
     return ParentSavingsPlanOffering(
-      currency: (json['currency'] as String?)?.toCurrencyCode(),
+      currency: (json['currency'] as String?)?.let(CurrencyCode.fromString),
       durationSeconds: json['durationSeconds'] as int?,
       offeringId: json['offeringId'] as String?,
-      paymentOption:
-          (json['paymentOption'] as String?)?.toSavingsPlanPaymentOption(),
+      paymentOption: (json['paymentOption'] as String?)
+          ?.let(SavingsPlanPaymentOption.fromString),
       planDescription: json['planDescription'] as String?,
-      planType: (json['planType'] as String?)?.toSavingsPlanType(),
+      planType: (json['planType'] as String?)?.let(SavingsPlanType.fromString),
     );
   }
 
@@ -759,19 +779,41 @@ class ParentSavingsPlanOffering {
     final planDescription = this.planDescription;
     final planType = this.planType;
     return {
-      if (currency != null) 'currency': currency.toValue(),
+      if (currency != null) 'currency': currency.value,
       if (durationSeconds != null) 'durationSeconds': durationSeconds,
       if (offeringId != null) 'offeringId': offeringId,
-      if (paymentOption != null) 'paymentOption': paymentOption.toValue(),
+      if (paymentOption != null) 'paymentOption': paymentOption.value,
       if (planDescription != null) 'planDescription': planDescription,
-      if (planType != null) 'planType': planType.toValue(),
+      if (planType != null) 'planType': planType.value,
+    };
+  }
+}
+
+class ReturnSavingsPlanResponse {
+  /// The ID of the Savings Plan.
+  final String? savingsPlanId;
+
+  ReturnSavingsPlanResponse({
+    this.savingsPlanId,
+  });
+
+  factory ReturnSavingsPlanResponse.fromJson(Map<String, dynamic> json) {
+    return ReturnSavingsPlanResponse(
+      savingsPlanId: json['savingsPlanId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final savingsPlanId = this.savingsPlanId;
+    return {
+      if (savingsPlanId != null) 'savingsPlanId': savingsPlanId,
     };
   }
 }
 
 /// Information about a Savings Plan.
 class SavingsPlan {
-  /// The hourly commitment, in USD.
+  /// The hourly commitment amount in the specified currency.
   final String? commitment;
 
   /// The currency.
@@ -798,8 +840,13 @@ class SavingsPlan {
   /// The recurring payment amount.
   final String? recurringPaymentAmount;
 
-  /// The AWS Region.
+  /// The Amazon Web Services Region.
   final String? region;
+
+  /// The time until when a return for the Savings Plan can be requested. If the
+  /// Savings Plan is not returnable, the field reflects the Savings Plan start
+  /// time.
+  final String? returnableUntil;
 
   /// The Amazon Resource Name (ARN) of the Savings Plan.
   final String? savingsPlanArn;
@@ -813,7 +860,7 @@ class SavingsPlan {
   /// The start time.
   final String? start;
 
-  /// The state.
+  /// The current state.
   final SavingsPlanState? state;
 
   /// One or more tags.
@@ -836,6 +883,7 @@ class SavingsPlan {
     this.productTypes,
     this.recurringPaymentAmount,
     this.region,
+    this.returnableUntil,
     this.savingsPlanArn,
     this.savingsPlanId,
     this.savingsPlanType,
@@ -849,25 +897,26 @@ class SavingsPlan {
   factory SavingsPlan.fromJson(Map<String, dynamic> json) {
     return SavingsPlan(
       commitment: json['commitment'] as String?,
-      currency: (json['currency'] as String?)?.toCurrencyCode(),
+      currency: (json['currency'] as String?)?.let(CurrencyCode.fromString),
       description: json['description'] as String?,
       ec2InstanceFamily: json['ec2InstanceFamily'] as String?,
       end: json['end'] as String?,
       offeringId: json['offeringId'] as String?,
-      paymentOption:
-          (json['paymentOption'] as String?)?.toSavingsPlanPaymentOption(),
+      paymentOption: (json['paymentOption'] as String?)
+          ?.let(SavingsPlanPaymentOption.fromString),
       productTypes: (json['productTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toSavingsPlanProductType())
+          ?.nonNulls
+          .map((e) => SavingsPlanProductType.fromString((e as String)))
           .toList(),
       recurringPaymentAmount: json['recurringPaymentAmount'] as String?,
       region: json['region'] as String?,
+      returnableUntil: json['returnableUntil'] as String?,
       savingsPlanArn: json['savingsPlanArn'] as String?,
       savingsPlanId: json['savingsPlanId'] as String?,
       savingsPlanType:
-          (json['savingsPlanType'] as String?)?.toSavingsPlanType(),
+          (json['savingsPlanType'] as String?)?.let(SavingsPlanType.fromString),
       start: json['start'] as String?,
-      state: (json['state'] as String?)?.toSavingsPlanState(),
+      state: (json['state'] as String?)?.let(SavingsPlanState.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       termDurationInSeconds: json['termDurationInSeconds'] as int?,
@@ -886,6 +935,7 @@ class SavingsPlan {
     final productTypes = this.productTypes;
     final recurringPaymentAmount = this.recurringPaymentAmount;
     final region = this.region;
+    final returnableUntil = this.returnableUntil;
     final savingsPlanArn = this.savingsPlanArn;
     final savingsPlanId = this.savingsPlanId;
     final savingsPlanType = this.savingsPlanType;
@@ -896,22 +946,23 @@ class SavingsPlan {
     final upfrontPaymentAmount = this.upfrontPaymentAmount;
     return {
       if (commitment != null) 'commitment': commitment,
-      if (currency != null) 'currency': currency.toValue(),
+      if (currency != null) 'currency': currency.value,
       if (description != null) 'description': description,
       if (ec2InstanceFamily != null) 'ec2InstanceFamily': ec2InstanceFamily,
       if (end != null) 'end': end,
       if (offeringId != null) 'offeringId': offeringId,
-      if (paymentOption != null) 'paymentOption': paymentOption.toValue(),
+      if (paymentOption != null) 'paymentOption': paymentOption.value,
       if (productTypes != null)
-        'productTypes': productTypes.map((e) => e.toValue()).toList(),
+        'productTypes': productTypes.map((e) => e.value).toList(),
       if (recurringPaymentAmount != null)
         'recurringPaymentAmount': recurringPaymentAmount,
       if (region != null) 'region': region,
+      if (returnableUntil != null) 'returnableUntil': returnableUntil,
       if (savingsPlanArn != null) 'savingsPlanArn': savingsPlanArn,
       if (savingsPlanId != null) 'savingsPlanId': savingsPlanId,
-      if (savingsPlanType != null) 'savingsPlanType': savingsPlanType.toValue(),
+      if (savingsPlanType != null) 'savingsPlanType': savingsPlanType.value,
       if (start != null) 'start': start,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
       if (tags != null) 'tags': tags,
       if (termDurationInSeconds != null)
         'termDurationInSeconds': termDurationInSeconds,
@@ -921,7 +972,7 @@ class SavingsPlan {
   }
 }
 
-/// Information about a filter.
+/// Information about a Savings Plan filter.
 class SavingsPlanFilter {
   /// The filter name.
   final SavingsPlansFilterName? name;
@@ -938,7 +989,7 @@ class SavingsPlanFilter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
@@ -958,7 +1009,8 @@ class SavingsPlanOffering {
   /// The ID of the offering.
   final String? offeringId;
 
-  /// The specific AWS operation for the line item in the billing report.
+  /// The specific Amazon Web Services operation for the line item in the billing
+  /// report.
   final String? operation;
 
   /// The payment option.
@@ -995,20 +1047,20 @@ class SavingsPlanOffering {
 
   factory SavingsPlanOffering.fromJson(Map<String, dynamic> json) {
     return SavingsPlanOffering(
-      currency: (json['currency'] as String?)?.toCurrencyCode(),
+      currency: (json['currency'] as String?)?.let(CurrencyCode.fromString),
       description: json['description'] as String?,
       durationSeconds: json['durationSeconds'] as int?,
       offeringId: json['offeringId'] as String?,
       operation: json['operation'] as String?,
-      paymentOption:
-          (json['paymentOption'] as String?)?.toSavingsPlanPaymentOption(),
-      planType: (json['planType'] as String?)?.toSavingsPlanType(),
+      paymentOption: (json['paymentOption'] as String?)
+          ?.let(SavingsPlanPaymentOption.fromString),
+      planType: (json['planType'] as String?)?.let(SavingsPlanType.fromString),
       productTypes: (json['productTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toSavingsPlanProductType())
+          ?.nonNulls
+          .map((e) => SavingsPlanProductType.fromString((e as String)))
           .toList(),
       properties: (json['properties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SavingsPlanOfferingProperty.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1030,15 +1082,15 @@ class SavingsPlanOffering {
     final serviceCode = this.serviceCode;
     final usageType = this.usageType;
     return {
-      if (currency != null) 'currency': currency.toValue(),
+      if (currency != null) 'currency': currency.value,
       if (description != null) 'description': description,
       if (durationSeconds != null) 'durationSeconds': durationSeconds,
       if (offeringId != null) 'offeringId': offeringId,
       if (operation != null) 'operation': operation,
-      if (paymentOption != null) 'paymentOption': paymentOption.toValue(),
-      if (planType != null) 'planType': planType.toValue(),
+      if (paymentOption != null) 'paymentOption': paymentOption.value,
+      if (planType != null) 'planType': planType.value,
       if (productTypes != null)
-        'productTypes': productTypes.map((e) => e.toValue()).toList(),
+        'productTypes': productTypes.map((e) => e.value).toList(),
       if (properties != null) 'properties': properties,
       if (serviceCode != null) 'serviceCode': serviceCode,
       if (usageType != null) 'usageType': usageType,
@@ -1047,36 +1099,21 @@ class SavingsPlanOffering {
 }
 
 enum SavingsPlanOfferingFilterAttribute {
-  region,
-  instanceFamily,
+  region('region'),
+  instanceFamily('instanceFamily'),
+  ;
+
+  final String value;
+
+  const SavingsPlanOfferingFilterAttribute(this.value);
+
+  static SavingsPlanOfferingFilterAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanOfferingFilterAttribute'));
 }
 
-extension SavingsPlanOfferingFilterAttributeValueExtension
-    on SavingsPlanOfferingFilterAttribute {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanOfferingFilterAttribute.region:
-        return 'region';
-      case SavingsPlanOfferingFilterAttribute.instanceFamily:
-        return 'instanceFamily';
-    }
-  }
-}
-
-extension SavingsPlanOfferingFilterAttributeFromString on String {
-  SavingsPlanOfferingFilterAttribute toSavingsPlanOfferingFilterAttribute() {
-    switch (this) {
-      case 'region':
-        return SavingsPlanOfferingFilterAttribute.region;
-      case 'instanceFamily':
-        return SavingsPlanOfferingFilterAttribute.instanceFamily;
-    }
-    throw Exception(
-        '$this is not known in enum SavingsPlanOfferingFilterAttribute');
-  }
-}
-
-/// Information about a filter.
+/// Information about a Savings Plan offering filter.
 class SavingsPlanOfferingFilterElement {
   /// The filter name.
   final SavingsPlanOfferingFilterAttribute? name;
@@ -1093,13 +1130,13 @@ class SavingsPlanOfferingFilterElement {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
-/// Information about a property.
+/// Information about a Savings Plan offering property.
 class SavingsPlanOfferingProperty {
   /// The property name.
   final SavingsPlanOfferingPropertyKey? name;
@@ -1114,7 +1151,8 @@ class SavingsPlanOfferingProperty {
 
   factory SavingsPlanOfferingProperty.fromJson(Map<String, dynamic> json) {
     return SavingsPlanOfferingProperty(
-      name: (json['name'] as String?)?.toSavingsPlanOfferingPropertyKey(),
+      name: (json['name'] as String?)
+          ?.let(SavingsPlanOfferingPropertyKey.fromString),
       value: json['value'] as String?,
     );
   }
@@ -1123,45 +1161,31 @@ class SavingsPlanOfferingProperty {
     final name = this.name;
     final value = this.value;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (value != null) 'value': value,
     };
   }
 }
 
 enum SavingsPlanOfferingPropertyKey {
-  region,
-  instanceFamily,
-}
+  region('region'),
+  instanceFamily('instanceFamily'),
+  ;
 
-extension SavingsPlanOfferingPropertyKeyValueExtension
-    on SavingsPlanOfferingPropertyKey {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanOfferingPropertyKey.region:
-        return 'region';
-      case SavingsPlanOfferingPropertyKey.instanceFamily:
-        return 'instanceFamily';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanOfferingPropertyKeyFromString on String {
-  SavingsPlanOfferingPropertyKey toSavingsPlanOfferingPropertyKey() {
-    switch (this) {
-      case 'region':
-        return SavingsPlanOfferingPropertyKey.region;
-      case 'instanceFamily':
-        return SavingsPlanOfferingPropertyKey.instanceFamily;
-    }
-    throw Exception(
-        '$this is not known in enum SavingsPlanOfferingPropertyKey');
-  }
+  const SavingsPlanOfferingPropertyKey(this.value);
+
+  static SavingsPlanOfferingPropertyKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanOfferingPropertyKey'));
 }
 
 /// Information about a Savings Plan offering rate.
 class SavingsPlanOfferingRate {
-  /// The specific AWS operation for the line item in the billing report.
+  /// The specific Amazon Web Services operation for the line item in the billing
+  /// report.
   final String? operation;
 
   /// The product type.
@@ -1199,9 +1223,10 @@ class SavingsPlanOfferingRate {
   factory SavingsPlanOfferingRate.fromJson(Map<String, dynamic> json) {
     return SavingsPlanOfferingRate(
       operation: json['operation'] as String?,
-      productType: (json['productType'] as String?)?.toSavingsPlanProductType(),
+      productType: (json['productType'] as String?)
+          ?.let(SavingsPlanProductType.fromString),
       properties: (json['properties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SavingsPlanOfferingRateProperty.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -1210,9 +1235,9 @@ class SavingsPlanOfferingRate {
           ? ParentSavingsPlanOffering.fromJson(
               json['savingsPlanOffering'] as Map<String, dynamic>)
           : null,
-      serviceCode:
-          (json['serviceCode'] as String?)?.toSavingsPlanRateServiceCode(),
-      unit: (json['unit'] as String?)?.toSavingsPlanRateUnit(),
+      serviceCode: (json['serviceCode'] as String?)
+          ?.let(SavingsPlanRateServiceCode.fromString),
+      unit: (json['unit'] as String?)?.let(SavingsPlanRateUnit.fromString),
       usageType: json['usageType'] as String?,
     );
   }
@@ -1228,19 +1253,19 @@ class SavingsPlanOfferingRate {
     final usageType = this.usageType;
     return {
       if (operation != null) 'operation': operation,
-      if (productType != null) 'productType': productType.toValue(),
+      if (productType != null) 'productType': productType.value,
       if (properties != null) 'properties': properties,
       if (rate != null) 'rate': rate,
       if (savingsPlanOffering != null)
         'savingsPlanOffering': savingsPlanOffering,
-      if (serviceCode != null) 'serviceCode': serviceCode.toValue(),
-      if (unit != null) 'unit': unit.toValue(),
+      if (serviceCode != null) 'serviceCode': serviceCode.value,
+      if (unit != null) 'unit': unit.value,
       if (usageType != null) 'usageType': usageType,
     };
   }
 }
 
-/// Information about a filter.
+/// Information about a Savings Plan offering rate filter.
 class SavingsPlanOfferingRateFilterElement {
   /// The filter name.
   final SavingsPlanRateFilterAttribute? name;
@@ -1257,13 +1282,13 @@ class SavingsPlanOfferingRateFilterElement {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
-/// Information about a property.
+/// Information about a Savings Plan offering rate property.
 class SavingsPlanOfferingRateProperty {
   /// The property name.
   final String? name;
@@ -1294,74 +1319,36 @@ class SavingsPlanOfferingRateProperty {
 }
 
 enum SavingsPlanPaymentOption {
-  allUpfront,
-  partialUpfront,
-  noUpfront,
-}
+  allUpfront('All Upfront'),
+  partialUpfront('Partial Upfront'),
+  noUpfront('No Upfront'),
+  ;
 
-extension SavingsPlanPaymentOptionValueExtension on SavingsPlanPaymentOption {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanPaymentOption.allUpfront:
-        return 'All Upfront';
-      case SavingsPlanPaymentOption.partialUpfront:
-        return 'Partial Upfront';
-      case SavingsPlanPaymentOption.noUpfront:
-        return 'No Upfront';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanPaymentOptionFromString on String {
-  SavingsPlanPaymentOption toSavingsPlanPaymentOption() {
-    switch (this) {
-      case 'All Upfront':
-        return SavingsPlanPaymentOption.allUpfront;
-      case 'Partial Upfront':
-        return SavingsPlanPaymentOption.partialUpfront;
-      case 'No Upfront':
-        return SavingsPlanPaymentOption.noUpfront;
-    }
-    throw Exception('$this is not known in enum SavingsPlanPaymentOption');
-  }
+  const SavingsPlanPaymentOption(this.value);
+
+  static SavingsPlanPaymentOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanPaymentOption'));
 }
 
 enum SavingsPlanProductType {
-  ec2,
-  fargate,
-  lambda,
-  sageMaker,
-}
+  ec2('EC2'),
+  fargate('Fargate'),
+  lambda('Lambda'),
+  sageMaker('SageMaker'),
+  ;
 
-extension SavingsPlanProductTypeValueExtension on SavingsPlanProductType {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanProductType.ec2:
-        return 'EC2';
-      case SavingsPlanProductType.fargate:
-        return 'Fargate';
-      case SavingsPlanProductType.lambda:
-        return 'Lambda';
-      case SavingsPlanProductType.sageMaker:
-        return 'SageMaker';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanProductTypeFromString on String {
-  SavingsPlanProductType toSavingsPlanProductType() {
-    switch (this) {
-      case 'EC2':
-        return SavingsPlanProductType.ec2;
-      case 'Fargate':
-        return SavingsPlanProductType.fargate;
-      case 'Lambda':
-        return SavingsPlanProductType.lambda;
-      case 'SageMaker':
-        return SavingsPlanProductType.sageMaker;
-    }
-    throw Exception('$this is not known in enum SavingsPlanProductType');
-  }
+  const SavingsPlanProductType(this.value);
+
+  static SavingsPlanProductType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanProductType'));
 }
 
 /// Information about a Savings Plan rate.
@@ -1369,7 +1356,8 @@ class SavingsPlanRate {
   /// The currency.
   final CurrencyCode? currency;
 
-  /// The specific AWS operation for the line item in the billing report.
+  /// The specific Amazon Web Services operation for the line item in the billing
+  /// report.
   final String? operation;
 
   /// The product type.
@@ -1403,18 +1391,19 @@ class SavingsPlanRate {
 
   factory SavingsPlanRate.fromJson(Map<String, dynamic> json) {
     return SavingsPlanRate(
-      currency: (json['currency'] as String?)?.toCurrencyCode(),
+      currency: (json['currency'] as String?)?.let(CurrencyCode.fromString),
       operation: json['operation'] as String?,
-      productType: (json['productType'] as String?)?.toSavingsPlanProductType(),
+      productType: (json['productType'] as String?)
+          ?.let(SavingsPlanProductType.fromString),
       properties: (json['properties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SavingsPlanRateProperty.fromJson(e as Map<String, dynamic>))
           .toList(),
       rate: json['rate'] as String?,
-      serviceCode:
-          (json['serviceCode'] as String?)?.toSavingsPlanRateServiceCode(),
-      unit: (json['unit'] as String?)?.toSavingsPlanRateUnit(),
+      serviceCode: (json['serviceCode'] as String?)
+          ?.let(SavingsPlanRateServiceCode.fromString),
+      unit: (json['unit'] as String?)?.let(SavingsPlanRateUnit.fromString),
       usageType: json['usageType'] as String?,
     );
   }
@@ -1429,19 +1418,19 @@ class SavingsPlanRate {
     final unit = this.unit;
     final usageType = this.usageType;
     return {
-      if (currency != null) 'currency': currency.toValue(),
+      if (currency != null) 'currency': currency.value,
       if (operation != null) 'operation': operation,
-      if (productType != null) 'productType': productType.toValue(),
+      if (productType != null) 'productType': productType.value,
       if (properties != null) 'properties': properties,
       if (rate != null) 'rate': rate,
-      if (serviceCode != null) 'serviceCode': serviceCode.toValue(),
-      if (unit != null) 'unit': unit.toValue(),
+      if (serviceCode != null) 'serviceCode': serviceCode.value,
+      if (unit != null) 'unit': unit.value,
       if (usageType != null) 'usageType': usageType,
     };
   }
 }
 
-/// Information about a filter.
+/// Information about a Savings Plan rate filter.
 class SavingsPlanRateFilter {
   /// The filter name.
   final SavingsPlanRateFilterName? name;
@@ -1458,121 +1447,53 @@ class SavingsPlanRateFilter {
     final name = this.name;
     final values = this.values;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (values != null) 'values': values,
     };
   }
 }
 
 enum SavingsPlanRateFilterAttribute {
-  region,
-  instanceFamily,
-  instanceType,
-  productDescription,
-  tenancy,
-  productId,
-}
+  region('region'),
+  instanceFamily('instanceFamily'),
+  instanceType('instanceType'),
+  productDescription('productDescription'),
+  tenancy('tenancy'),
+  productId('productId'),
+  ;
 
-extension SavingsPlanRateFilterAttributeValueExtension
-    on SavingsPlanRateFilterAttribute {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanRateFilterAttribute.region:
-        return 'region';
-      case SavingsPlanRateFilterAttribute.instanceFamily:
-        return 'instanceFamily';
-      case SavingsPlanRateFilterAttribute.instanceType:
-        return 'instanceType';
-      case SavingsPlanRateFilterAttribute.productDescription:
-        return 'productDescription';
-      case SavingsPlanRateFilterAttribute.tenancy:
-        return 'tenancy';
-      case SavingsPlanRateFilterAttribute.productId:
-        return 'productId';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanRateFilterAttributeFromString on String {
-  SavingsPlanRateFilterAttribute toSavingsPlanRateFilterAttribute() {
-    switch (this) {
-      case 'region':
-        return SavingsPlanRateFilterAttribute.region;
-      case 'instanceFamily':
-        return SavingsPlanRateFilterAttribute.instanceFamily;
-      case 'instanceType':
-        return SavingsPlanRateFilterAttribute.instanceType;
-      case 'productDescription':
-        return SavingsPlanRateFilterAttribute.productDescription;
-      case 'tenancy':
-        return SavingsPlanRateFilterAttribute.tenancy;
-      case 'productId':
-        return SavingsPlanRateFilterAttribute.productId;
-    }
-    throw Exception(
-        '$this is not known in enum SavingsPlanRateFilterAttribute');
-  }
+  const SavingsPlanRateFilterAttribute(this.value);
+
+  static SavingsPlanRateFilterAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanRateFilterAttribute'));
 }
 
 enum SavingsPlanRateFilterName {
-  region,
-  instanceType,
-  productDescription,
-  tenancy,
-  productType,
-  serviceCode,
-  usageType,
-  operation,
+  region('region'),
+  instanceType('instanceType'),
+  productDescription('productDescription'),
+  tenancy('tenancy'),
+  productType('productType'),
+  serviceCode('serviceCode'),
+  usageType('usageType'),
+  operation('operation'),
+  ;
+
+  final String value;
+
+  const SavingsPlanRateFilterName(this.value);
+
+  static SavingsPlanRateFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanRateFilterName'));
 }
 
-extension SavingsPlanRateFilterNameValueExtension on SavingsPlanRateFilterName {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanRateFilterName.region:
-        return 'region';
-      case SavingsPlanRateFilterName.instanceType:
-        return 'instanceType';
-      case SavingsPlanRateFilterName.productDescription:
-        return 'productDescription';
-      case SavingsPlanRateFilterName.tenancy:
-        return 'tenancy';
-      case SavingsPlanRateFilterName.productType:
-        return 'productType';
-      case SavingsPlanRateFilterName.serviceCode:
-        return 'serviceCode';
-      case SavingsPlanRateFilterName.usageType:
-        return 'usageType';
-      case SavingsPlanRateFilterName.operation:
-        return 'operation';
-    }
-  }
-}
-
-extension SavingsPlanRateFilterNameFromString on String {
-  SavingsPlanRateFilterName toSavingsPlanRateFilterName() {
-    switch (this) {
-      case 'region':
-        return SavingsPlanRateFilterName.region;
-      case 'instanceType':
-        return SavingsPlanRateFilterName.instanceType;
-      case 'productDescription':
-        return SavingsPlanRateFilterName.productDescription;
-      case 'tenancy':
-        return SavingsPlanRateFilterName.tenancy;
-      case 'productType':
-        return SavingsPlanRateFilterName.productType;
-      case 'serviceCode':
-        return SavingsPlanRateFilterName.serviceCode;
-      case 'usageType':
-        return SavingsPlanRateFilterName.usageType;
-      case 'operation':
-        return SavingsPlanRateFilterName.operation;
-    }
-    throw Exception('$this is not known in enum SavingsPlanRateFilterName');
-  }
-}
-
-/// Information about a property.
+/// Information about a Savings Plan rate property.
 class SavingsPlanRateProperty {
   /// The property name.
   final SavingsPlanRatePropertyKey? name;
@@ -1587,7 +1508,8 @@ class SavingsPlanRateProperty {
 
   factory SavingsPlanRateProperty.fromJson(Map<String, dynamic> json) {
     return SavingsPlanRateProperty(
-      name: (json['name'] as String?)?.toSavingsPlanRatePropertyKey(),
+      name:
+          (json['name'] as String?)?.let(SavingsPlanRatePropertyKey.fromString),
       value: json['value'] as String?,
     );
   }
@@ -1596,275 +1518,121 @@ class SavingsPlanRateProperty {
     final name = this.name;
     final value = this.value;
     return {
-      if (name != null) 'name': name.toValue(),
+      if (name != null) 'name': name.value,
       if (value != null) 'value': value,
     };
   }
 }
 
 enum SavingsPlanRatePropertyKey {
-  region,
-  instanceType,
-  instanceFamily,
-  productDescription,
-  tenancy,
-}
+  region('region'),
+  instanceType('instanceType'),
+  instanceFamily('instanceFamily'),
+  productDescription('productDescription'),
+  tenancy('tenancy'),
+  ;
 
-extension SavingsPlanRatePropertyKeyValueExtension
-    on SavingsPlanRatePropertyKey {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanRatePropertyKey.region:
-        return 'region';
-      case SavingsPlanRatePropertyKey.instanceType:
-        return 'instanceType';
-      case SavingsPlanRatePropertyKey.instanceFamily:
-        return 'instanceFamily';
-      case SavingsPlanRatePropertyKey.productDescription:
-        return 'productDescription';
-      case SavingsPlanRatePropertyKey.tenancy:
-        return 'tenancy';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanRatePropertyKeyFromString on String {
-  SavingsPlanRatePropertyKey toSavingsPlanRatePropertyKey() {
-    switch (this) {
-      case 'region':
-        return SavingsPlanRatePropertyKey.region;
-      case 'instanceType':
-        return SavingsPlanRatePropertyKey.instanceType;
-      case 'instanceFamily':
-        return SavingsPlanRatePropertyKey.instanceFamily;
-      case 'productDescription':
-        return SavingsPlanRatePropertyKey.productDescription;
-      case 'tenancy':
-        return SavingsPlanRatePropertyKey.tenancy;
-    }
-    throw Exception('$this is not known in enum SavingsPlanRatePropertyKey');
-  }
+  const SavingsPlanRatePropertyKey(this.value);
+
+  static SavingsPlanRatePropertyKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanRatePropertyKey'));
 }
 
 enum SavingsPlanRateServiceCode {
-  amazonEC2,
-  amazonECS,
-  amazonEKS,
-  awsLambda,
-  amazonSageMaker,
-}
+  amazonEC2('AmazonEC2'),
+  amazonECS('AmazonECS'),
+  amazonEKS('AmazonEKS'),
+  awsLambda('AWSLambda'),
+  amazonSageMaker('AmazonSageMaker'),
+  ;
 
-extension SavingsPlanRateServiceCodeValueExtension
-    on SavingsPlanRateServiceCode {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanRateServiceCode.amazonEC2:
-        return 'AmazonEC2';
-      case SavingsPlanRateServiceCode.amazonECS:
-        return 'AmazonECS';
-      case SavingsPlanRateServiceCode.amazonEKS:
-        return 'AmazonEKS';
-      case SavingsPlanRateServiceCode.awsLambda:
-        return 'AWSLambda';
-      case SavingsPlanRateServiceCode.amazonSageMaker:
-        return 'AmazonSageMaker';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanRateServiceCodeFromString on String {
-  SavingsPlanRateServiceCode toSavingsPlanRateServiceCode() {
-    switch (this) {
-      case 'AmazonEC2':
-        return SavingsPlanRateServiceCode.amazonEC2;
-      case 'AmazonECS':
-        return SavingsPlanRateServiceCode.amazonECS;
-      case 'AmazonEKS':
-        return SavingsPlanRateServiceCode.amazonEKS;
-      case 'AWSLambda':
-        return SavingsPlanRateServiceCode.awsLambda;
-      case 'AmazonSageMaker':
-        return SavingsPlanRateServiceCode.amazonSageMaker;
-    }
-    throw Exception('$this is not known in enum SavingsPlanRateServiceCode');
-  }
+  const SavingsPlanRateServiceCode(this.value);
+
+  static SavingsPlanRateServiceCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlanRateServiceCode'));
 }
 
 enum SavingsPlanRateUnit {
-  hrs,
-  lambdaGbSecond,
-  request,
-}
+  hrs('Hrs'),
+  lambdaGbSecond('Lambda-GB-Second'),
+  request('Request'),
+  ;
 
-extension SavingsPlanRateUnitValueExtension on SavingsPlanRateUnit {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanRateUnit.hrs:
-        return 'Hrs';
-      case SavingsPlanRateUnit.lambdaGbSecond:
-        return 'Lambda-GB-Second';
-      case SavingsPlanRateUnit.request:
-        return 'Request';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanRateUnitFromString on String {
-  SavingsPlanRateUnit toSavingsPlanRateUnit() {
-    switch (this) {
-      case 'Hrs':
-        return SavingsPlanRateUnit.hrs;
-      case 'Lambda-GB-Second':
-        return SavingsPlanRateUnit.lambdaGbSecond;
-      case 'Request':
-        return SavingsPlanRateUnit.request;
-    }
-    throw Exception('$this is not known in enum SavingsPlanRateUnit');
-  }
+  const SavingsPlanRateUnit(this.value);
+
+  static SavingsPlanRateUnit fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SavingsPlanRateUnit'));
 }
 
 enum SavingsPlanState {
-  paymentPending,
-  paymentFailed,
-  active,
-  retired,
-  queued,
-  queuedDeleted,
-}
+  paymentPending('payment-pending'),
+  paymentFailed('payment-failed'),
+  active('active'),
+  retired('retired'),
+  queued('queued'),
+  queuedDeleted('queued-deleted'),
+  pendingReturn('pending-return'),
+  returned('returned'),
+  ;
 
-extension SavingsPlanStateValueExtension on SavingsPlanState {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanState.paymentPending:
-        return 'payment-pending';
-      case SavingsPlanState.paymentFailed:
-        return 'payment-failed';
-      case SavingsPlanState.active:
-        return 'active';
-      case SavingsPlanState.retired:
-        return 'retired';
-      case SavingsPlanState.queued:
-        return 'queued';
-      case SavingsPlanState.queuedDeleted:
-        return 'queued-deleted';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanStateFromString on String {
-  SavingsPlanState toSavingsPlanState() {
-    switch (this) {
-      case 'payment-pending':
-        return SavingsPlanState.paymentPending;
-      case 'payment-failed':
-        return SavingsPlanState.paymentFailed;
-      case 'active':
-        return SavingsPlanState.active;
-      case 'retired':
-        return SavingsPlanState.retired;
-      case 'queued':
-        return SavingsPlanState.queued;
-      case 'queued-deleted':
-        return SavingsPlanState.queuedDeleted;
-    }
-    throw Exception('$this is not known in enum SavingsPlanState');
-  }
+  const SavingsPlanState(this.value);
+
+  static SavingsPlanState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SavingsPlanState'));
 }
 
 enum SavingsPlanType {
-  compute,
-  eC2Instance,
-  sageMaker,
-}
+  compute('Compute'),
+  eC2Instance('EC2Instance'),
+  sageMaker('SageMaker'),
+  ;
 
-extension SavingsPlanTypeValueExtension on SavingsPlanType {
-  String toValue() {
-    switch (this) {
-      case SavingsPlanType.compute:
-        return 'Compute';
-      case SavingsPlanType.eC2Instance:
-        return 'EC2Instance';
-      case SavingsPlanType.sageMaker:
-        return 'SageMaker';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlanTypeFromString on String {
-  SavingsPlanType toSavingsPlanType() {
-    switch (this) {
-      case 'Compute':
-        return SavingsPlanType.compute;
-      case 'EC2Instance':
-        return SavingsPlanType.eC2Instance;
-      case 'SageMaker':
-        return SavingsPlanType.sageMaker;
-    }
-    throw Exception('$this is not known in enum SavingsPlanType');
-  }
+  const SavingsPlanType(this.value);
+
+  static SavingsPlanType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SavingsPlanType'));
 }
 
 enum SavingsPlansFilterName {
-  region,
-  ec2InstanceFamily,
-  commitment,
-  upfront,
-  term,
-  savingsPlanType,
-  paymentOption,
-  start,
-  end,
-}
+  region('region'),
+  ec2InstanceFamily('ec2-instance-family'),
+  commitment('commitment'),
+  upfront('upfront'),
+  term('term'),
+  savingsPlanType('savings-plan-type'),
+  paymentOption('payment-option'),
+  start('start'),
+  end('end'),
+  ;
 
-extension SavingsPlansFilterNameValueExtension on SavingsPlansFilterName {
-  String toValue() {
-    switch (this) {
-      case SavingsPlansFilterName.region:
-        return 'region';
-      case SavingsPlansFilterName.ec2InstanceFamily:
-        return 'ec2-instance-family';
-      case SavingsPlansFilterName.commitment:
-        return 'commitment';
-      case SavingsPlansFilterName.upfront:
-        return 'upfront';
-      case SavingsPlansFilterName.term:
-        return 'term';
-      case SavingsPlansFilterName.savingsPlanType:
-        return 'savings-plan-type';
-      case SavingsPlansFilterName.paymentOption:
-        return 'payment-option';
-      case SavingsPlansFilterName.start:
-        return 'start';
-      case SavingsPlansFilterName.end:
-        return 'end';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlansFilterNameFromString on String {
-  SavingsPlansFilterName toSavingsPlansFilterName() {
-    switch (this) {
-      case 'region':
-        return SavingsPlansFilterName.region;
-      case 'ec2-instance-family':
-        return SavingsPlansFilterName.ec2InstanceFamily;
-      case 'commitment':
-        return SavingsPlansFilterName.commitment;
-      case 'upfront':
-        return SavingsPlansFilterName.upfront;
-      case 'term':
-        return SavingsPlansFilterName.term;
-      case 'savings-plan-type':
-        return SavingsPlansFilterName.savingsPlanType;
-      case 'payment-option':
-        return SavingsPlansFilterName.paymentOption;
-      case 'start':
-        return SavingsPlansFilterName.start;
-      case 'end':
-        return SavingsPlansFilterName.end;
-    }
-    throw Exception('$this is not known in enum SavingsPlansFilterName');
-  }
+  const SavingsPlansFilterName(this.value);
+
+  static SavingsPlansFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SavingsPlansFilterName'));
 }
 
 class TagResourceResponse {

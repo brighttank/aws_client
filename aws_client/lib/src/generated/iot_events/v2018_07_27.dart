@@ -200,8 +200,7 @@ class IoTEvents {
       'roleArn': roleArn,
       if (detectorModelDescription != null)
         'detectorModelDescription': detectorModelDescription,
-      if (evaluationMethod != null)
-        'evaluationMethod': evaluationMethod.toValue(),
+      if (evaluationMethod != null) 'evaluationMethod': evaluationMethod.value,
       if (key != null) 'key': key,
       if (tags != null) 'tags': tags,
     };
@@ -984,8 +983,7 @@ class IoTEvents {
       'roleArn': roleArn,
       if (detectorModelDescription != null)
         'detectorModelDescription': detectorModelDescription,
-      if (evaluationMethod != null)
-        'evaluationMethod': evaluationMethod.toValue(),
+      if (evaluationMethod != null) 'evaluationMethod': evaluationMethod.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1356,7 +1354,7 @@ class AlarmEventActions {
   factory AlarmEventActions.fromJson(Map<String, dynamic> json) {
     return AlarmEventActions(
       alarmActions: (json['alarmActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AlarmAction.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1410,41 +1408,20 @@ class AlarmModelSummary {
 }
 
 enum AlarmModelVersionStatus {
-  active,
-  activating,
-  inactive,
-  failed,
-}
+  active('ACTIVE'),
+  activating('ACTIVATING'),
+  inactive('INACTIVE'),
+  failed('FAILED'),
+  ;
 
-extension AlarmModelVersionStatusValueExtension on AlarmModelVersionStatus {
-  String toValue() {
-    switch (this) {
-      case AlarmModelVersionStatus.active:
-        return 'ACTIVE';
-      case AlarmModelVersionStatus.activating:
-        return 'ACTIVATING';
-      case AlarmModelVersionStatus.inactive:
-        return 'INACTIVE';
-      case AlarmModelVersionStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension AlarmModelVersionStatusFromString on String {
-  AlarmModelVersionStatus toAlarmModelVersionStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return AlarmModelVersionStatus.active;
-      case 'ACTIVATING':
-        return AlarmModelVersionStatus.activating;
-      case 'INACTIVE':
-        return AlarmModelVersionStatus.inactive;
-      case 'FAILED':
-        return AlarmModelVersionStatus.failed;
-    }
-    throw Exception('$this is not known in enum AlarmModelVersionStatus');
-  }
+  const AlarmModelVersionStatus(this.value);
+
+  static AlarmModelVersionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AlarmModelVersionStatus'));
 }
 
 /// Contains a summary of an alarm model version.
@@ -1518,7 +1495,8 @@ class AlarmModelVersionSummary {
       creationTime: timeStampFromJson(json['creationTime']),
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
       roleArn: json['roleArn'] as String?,
-      status: (json['status'] as String?)?.toAlarmModelVersionStatus(),
+      status:
+          (json['status'] as String?)?.let(AlarmModelVersionStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
     );
   }
@@ -1541,7 +1519,7 @@ class AlarmModelVersionSummary {
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (roleArn != null) 'roleArn': roleArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
     };
   }
@@ -1560,7 +1538,7 @@ class AlarmNotification {
   factory AlarmNotification.fromJson(Map<String, dynamic> json) {
     return AlarmNotification(
       notificationActions: (json['notificationActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NotificationAction.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1682,9 +1660,9 @@ class AnalysisResult {
 
   factory AnalysisResult.fromJson(Map<String, dynamic> json) {
     return AnalysisResult(
-      level: (json['level'] as String?)?.toAnalysisResultLevel(),
+      level: (json['level'] as String?)?.let(AnalysisResultLevel.fromString),
       locations: (json['locations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AnalysisResultLocation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1699,7 +1677,7 @@ class AnalysisResult {
     final message = this.message;
     final type = this.type;
     return {
-      if (level != null) 'level': level.toValue(),
+      if (level != null) 'level': level.value,
       if (locations != null) 'locations': locations,
       if (message != null) 'message': message,
       if (type != null) 'type': type,
@@ -1708,36 +1686,19 @@ class AnalysisResult {
 }
 
 enum AnalysisResultLevel {
-  info,
-  warning,
-  error,
-}
+  info('INFO'),
+  warning('WARNING'),
+  error('ERROR'),
+  ;
 
-extension AnalysisResultLevelValueExtension on AnalysisResultLevel {
-  String toValue() {
-    switch (this) {
-      case AnalysisResultLevel.info:
-        return 'INFO';
-      case AnalysisResultLevel.warning:
-        return 'WARNING';
-      case AnalysisResultLevel.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension AnalysisResultLevelFromString on String {
-  AnalysisResultLevel toAnalysisResultLevel() {
-    switch (this) {
-      case 'INFO':
-        return AnalysisResultLevel.info;
-      case 'WARNING':
-        return AnalysisResultLevel.warning;
-      case 'ERROR':
-        return AnalysisResultLevel.error;
-    }
-    throw Exception('$this is not known in enum AnalysisResultLevel');
-  }
+  const AnalysisResultLevel(this.value);
+
+  static AnalysisResultLevel fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AnalysisResultLevel'));
 }
 
 /// Contains information that you can use to locate the field in your detector
@@ -1766,36 +1727,19 @@ class AnalysisResultLocation {
 }
 
 enum AnalysisStatus {
-  running,
-  complete,
-  failed,
-}
+  running('RUNNING'),
+  complete('COMPLETE'),
+  failed('FAILED'),
+  ;
 
-extension AnalysisStatusValueExtension on AnalysisStatus {
-  String toValue() {
-    switch (this) {
-      case AnalysisStatus.running:
-        return 'RUNNING';
-      case AnalysisStatus.complete:
-        return 'COMPLETE';
-      case AnalysisStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension AnalysisStatusFromString on String {
-  AnalysisStatus toAnalysisStatus() {
-    switch (this) {
-      case 'RUNNING':
-        return AnalysisStatus.running;
-      case 'COMPLETE':
-        return AnalysisStatus.complete;
-      case 'FAILED':
-        return AnalysisStatus.failed;
-    }
-    throw Exception('$this is not known in enum AnalysisStatus');
-  }
+  const AnalysisStatus(this.value);
+
+  static AnalysisStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AnalysisStatus'));
 }
 
 /// A structure that contains timestamp information. For more information, see
@@ -2080,51 +2024,22 @@ class ClearTimerAction {
 }
 
 enum ComparisonOperator {
-  greater,
-  greaterOrEqual,
-  less,
-  lessOrEqual,
-  equal,
-  notEqual,
-}
+  greater('GREATER'),
+  greaterOrEqual('GREATER_OR_EQUAL'),
+  less('LESS'),
+  lessOrEqual('LESS_OR_EQUAL'),
+  equal('EQUAL'),
+  notEqual('NOT_EQUAL'),
+  ;
 
-extension ComparisonOperatorValueExtension on ComparisonOperator {
-  String toValue() {
-    switch (this) {
-      case ComparisonOperator.greater:
-        return 'GREATER';
-      case ComparisonOperator.greaterOrEqual:
-        return 'GREATER_OR_EQUAL';
-      case ComparisonOperator.less:
-        return 'LESS';
-      case ComparisonOperator.lessOrEqual:
-        return 'LESS_OR_EQUAL';
-      case ComparisonOperator.equal:
-        return 'EQUAL';
-      case ComparisonOperator.notEqual:
-        return 'NOT_EQUAL';
-    }
-  }
-}
+  final String value;
 
-extension ComparisonOperatorFromString on String {
-  ComparisonOperator toComparisonOperator() {
-    switch (this) {
-      case 'GREATER':
-        return ComparisonOperator.greater;
-      case 'GREATER_OR_EQUAL':
-        return ComparisonOperator.greaterOrEqual;
-      case 'LESS':
-        return ComparisonOperator.less;
-      case 'LESS_OR_EQUAL':
-        return ComparisonOperator.lessOrEqual;
-      case 'EQUAL':
-        return ComparisonOperator.equal;
-      case 'NOT_EQUAL':
-        return ComparisonOperator.notEqual;
-    }
-    throw Exception('$this is not known in enum ComparisonOperator');
-  }
+  const ComparisonOperator(this.value);
+
+  static ComparisonOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComparisonOperator'));
 }
 
 class CreateAlarmModelResponse {
@@ -2180,7 +2095,8 @@ class CreateAlarmModelResponse {
       alarmModelVersion: json['alarmModelVersion'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
-      status: (json['status'] as String?)?.toAlarmModelVersionStatus(),
+      status:
+          (json['status'] as String?)?.let(AlarmModelVersionStatus.fromString),
     );
   }
 
@@ -2197,7 +2113,7 @@ class CreateAlarmModelResponse {
         'creationTime': unixTimestampToJson(creationTime),
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2408,7 +2324,8 @@ class DescribeAlarmModelResponse {
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
       roleArn: json['roleArn'] as String?,
       severity: json['severity'] as int?,
-      status: (json['status'] as String?)?.toAlarmModelVersionStatus(),
+      status:
+          (json['status'] as String?)?.let(AlarmModelVersionStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
     );
   }
@@ -2446,7 +2363,7 @@ class DescribeAlarmModelResponse {
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (roleArn != null) 'roleArn': roleArn,
       if (severity != null) 'severity': severity,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
     };
   }
@@ -2479,14 +2396,14 @@ class DescribeDetectorModelAnalysisResponse {
   factory DescribeDetectorModelAnalysisResponse.fromJson(
       Map<String, dynamic> json) {
     return DescribeDetectorModelAnalysisResponse(
-      status: (json['status'] as String?)?.toAnalysisStatus(),
+      status: (json['status'] as String?)?.let(AnalysisStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2697,12 +2614,13 @@ class DetectorModelConfiguration {
       detectorModelDescription: json['detectorModelDescription'] as String?,
       detectorModelName: json['detectorModelName'] as String?,
       detectorModelVersion: json['detectorModelVersion'] as String?,
-      evaluationMethod:
-          (json['evaluationMethod'] as String?)?.toEvaluationMethod(),
+      evaluationMethod: (json['evaluationMethod'] as String?)
+          ?.let(EvaluationMethod.fromString),
       key: json['key'] as String?,
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
       roleArn: json['roleArn'] as String?,
-      status: (json['status'] as String?)?.toDetectorModelVersionStatus(),
+      status: (json['status'] as String?)
+          ?.let(DetectorModelVersionStatus.fromString),
     );
   }
 
@@ -2726,13 +2644,12 @@ class DetectorModelConfiguration {
       if (detectorModelName != null) 'detectorModelName': detectorModelName,
       if (detectorModelVersion != null)
         'detectorModelVersion': detectorModelVersion,
-      if (evaluationMethod != null)
-        'evaluationMethod': evaluationMethod.toValue(),
+      if (evaluationMethod != null) 'evaluationMethod': evaluationMethod.value,
       if (key != null) 'key': key,
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (roleArn != null) 'roleArn': roleArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2754,7 +2671,7 @@ class DetectorModelDefinition {
     return DetectorModelDefinition(
       initialStateName: json['initialStateName'] as String,
       states: (json['states'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => State.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2810,57 +2727,23 @@ class DetectorModelSummary {
 }
 
 enum DetectorModelVersionStatus {
-  active,
-  activating,
-  inactive,
-  deprecated,
-  draft,
-  paused,
-  failed,
-}
+  active('ACTIVE'),
+  activating('ACTIVATING'),
+  inactive('INACTIVE'),
+  deprecated('DEPRECATED'),
+  draft('DRAFT'),
+  paused('PAUSED'),
+  failed('FAILED'),
+  ;
 
-extension DetectorModelVersionStatusValueExtension
-    on DetectorModelVersionStatus {
-  String toValue() {
-    switch (this) {
-      case DetectorModelVersionStatus.active:
-        return 'ACTIVE';
-      case DetectorModelVersionStatus.activating:
-        return 'ACTIVATING';
-      case DetectorModelVersionStatus.inactive:
-        return 'INACTIVE';
-      case DetectorModelVersionStatus.deprecated:
-        return 'DEPRECATED';
-      case DetectorModelVersionStatus.draft:
-        return 'DRAFT';
-      case DetectorModelVersionStatus.paused:
-        return 'PAUSED';
-      case DetectorModelVersionStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension DetectorModelVersionStatusFromString on String {
-  DetectorModelVersionStatus toDetectorModelVersionStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return DetectorModelVersionStatus.active;
-      case 'ACTIVATING':
-        return DetectorModelVersionStatus.activating;
-      case 'INACTIVE':
-        return DetectorModelVersionStatus.inactive;
-      case 'DEPRECATED':
-        return DetectorModelVersionStatus.deprecated;
-      case 'DRAFT':
-        return DetectorModelVersionStatus.draft;
-      case 'PAUSED':
-        return DetectorModelVersionStatus.paused;
-      case 'FAILED':
-        return DetectorModelVersionStatus.failed;
-    }
-    throw Exception('$this is not known in enum DetectorModelVersionStatus');
-  }
+  const DetectorModelVersionStatus(this.value);
+
+  static DetectorModelVersionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DetectorModelVersionStatus'));
 }
 
 /// Information about the detector model version.
@@ -2908,11 +2791,12 @@ class DetectorModelVersionSummary {
       detectorModelArn: json['detectorModelArn'] as String?,
       detectorModelName: json['detectorModelName'] as String?,
       detectorModelVersion: json['detectorModelVersion'] as String?,
-      evaluationMethod:
-          (json['evaluationMethod'] as String?)?.toEvaluationMethod(),
+      evaluationMethod: (json['evaluationMethod'] as String?)
+          ?.let(EvaluationMethod.fromString),
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
       roleArn: json['roleArn'] as String?,
-      status: (json['status'] as String?)?.toDetectorModelVersionStatus(),
+      status: (json['status'] as String?)
+          ?.let(DetectorModelVersionStatus.fromString),
     );
   }
 
@@ -2932,12 +2816,11 @@ class DetectorModelVersionSummary {
       if (detectorModelName != null) 'detectorModelName': detectorModelName,
       if (detectorModelVersion != null)
         'detectorModelVersion': detectorModelVersion,
-      if (evaluationMethod != null)
-        'evaluationMethod': evaluationMethod.toValue(),
+      if (evaluationMethod != null) 'evaluationMethod': evaluationMethod.value,
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (roleArn != null) 'roleArn': roleArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3316,7 +3199,7 @@ class EmailRecipients {
   factory EmailRecipients.fromJson(Map<String, dynamic> json) {
     return EmailRecipients(
       to: (json['to'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecipientDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3331,31 +3214,18 @@ class EmailRecipients {
 }
 
 enum EvaluationMethod {
-  batch,
-  serial,
-}
+  batch('BATCH'),
+  serial('SERIAL'),
+  ;
 
-extension EvaluationMethodValueExtension on EvaluationMethod {
-  String toValue() {
-    switch (this) {
-      case EvaluationMethod.batch:
-        return 'BATCH';
-      case EvaluationMethod.serial:
-        return 'SERIAL';
-    }
-  }
-}
+  final String value;
 
-extension EvaluationMethodFromString on String {
-  EvaluationMethod toEvaluationMethod() {
-    switch (this) {
-      case 'BATCH':
-        return EvaluationMethod.batch;
-      case 'SERIAL':
-        return EvaluationMethod.serial;
-    }
-    throw Exception('$this is not known in enum EvaluationMethod');
-  }
+  const EvaluationMethod(this.value);
+
+  static EvaluationMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EvaluationMethod'));
 }
 
 /// Specifies the <code>actions</code> to be performed when the
@@ -3383,7 +3253,7 @@ class Event {
     return Event(
       eventName: json['eventName'] as String,
       actions: (json['actions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Action.fromJson(e as Map<String, dynamic>))
           .toList(),
       condition: json['condition'] as String?,
@@ -3463,7 +3333,7 @@ class GetDetectorModelAnalysisResultsResponse {
       Map<String, dynamic> json) {
     return GetDetectorModelAnalysisResultsResponse(
       analysisResults: (json['analysisResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AnalysisResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3579,7 +3449,7 @@ class InputConfiguration {
       inputName: json['inputName'] as String,
       lastUpdateTime:
           nonNullableTimeStampFromJson(json['lastUpdateTime'] as Object),
-      status: (json['status'] as String).toInputStatus(),
+      status: InputStatus.fromString((json['status'] as String)),
       inputDescription: json['inputDescription'] as String?,
     );
   }
@@ -3596,7 +3466,7 @@ class InputConfiguration {
       'inputArn': inputArn,
       'inputName': inputName,
       'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      'status': status.toValue(),
+      'status': status.value,
       if (inputDescription != null) 'inputDescription': inputDescription,
     };
   }
@@ -3619,7 +3489,7 @@ class InputDefinition {
   factory InputDefinition.fromJson(Map<String, dynamic> json) {
     return InputDefinition(
       attributes: (json['attributes'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Attribute.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3659,41 +3529,19 @@ class InputIdentifier {
 }
 
 enum InputStatus {
-  creating,
-  updating,
-  active,
-  deleting,
-}
+  creating('CREATING'),
+  updating('UPDATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  ;
 
-extension InputStatusValueExtension on InputStatus {
-  String toValue() {
-    switch (this) {
-      case InputStatus.creating:
-        return 'CREATING';
-      case InputStatus.updating:
-        return 'UPDATING';
-      case InputStatus.active:
-        return 'ACTIVE';
-      case InputStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension InputStatusFromString on String {
-  InputStatus toInputStatus() {
-    switch (this) {
-      case 'CREATING':
-        return InputStatus.creating;
-      case 'UPDATING':
-        return InputStatus.updating;
-      case 'ACTIVE':
-        return InputStatus.active;
-      case 'DELETING':
-        return InputStatus.deleting;
-    }
-    throw Exception('$this is not known in enum InputStatus');
-  }
+  const InputStatus(this.value);
+
+  static InputStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum InputStatus'));
 }
 
 /// Information about the input.
@@ -3732,7 +3580,7 @@ class InputSummary {
       inputDescription: json['inputDescription'] as String?,
       inputName: json['inputName'] as String?,
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
-      status: (json['status'] as String?)?.toInputStatus(),
+      status: (json['status'] as String?)?.let(InputStatus.fromString),
     );
   }
 
@@ -3751,7 +3599,7 @@ class InputSummary {
       if (inputName != null) 'inputName': inputName,
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -4034,7 +3882,7 @@ class ListAlarmModelVersionsResponse {
   factory ListAlarmModelVersionsResponse.fromJson(Map<String, dynamic> json) {
     return ListAlarmModelVersionsResponse(
       alarmModelVersionSummaries: (json['alarmModelVersionSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AlarmModelVersionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4069,7 +3917,7 @@ class ListAlarmModelsResponse {
   factory ListAlarmModelsResponse.fromJson(Map<String, dynamic> json) {
     return ListAlarmModelsResponse(
       alarmModelSummaries: (json['alarmModelSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AlarmModelSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4105,7 +3953,7 @@ class ListDetectorModelVersionsResponse {
     return ListDetectorModelVersionsResponse(
       detectorModelVersionSummaries: (json['detectorModelVersionSummaries']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DetectorModelVersionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4140,7 +3988,7 @@ class ListDetectorModelsResponse {
   factory ListDetectorModelsResponse.fromJson(Map<String, dynamic> json) {
     return ListDetectorModelsResponse(
       detectorModelSummaries: (json['detectorModelSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DetectorModelSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4175,7 +4023,7 @@ class ListInputRoutingsResponse {
     return ListInputRoutingsResponse(
       nextToken: json['nextToken'] as String?,
       routedResources: (json['routedResources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RoutedResource.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4207,7 +4055,7 @@ class ListInputsResponse {
   factory ListInputsResponse.fromJson(Map<String, dynamic> json) {
     return ListInputsResponse(
       inputSummaries: (json['inputSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InputSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4235,7 +4083,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4250,36 +4098,19 @@ class ListTagsForResourceResponse {
 }
 
 enum LoggingLevel {
-  error,
-  info,
-  debug,
-}
+  error('ERROR'),
+  info('INFO'),
+  debug('DEBUG'),
+  ;
 
-extension LoggingLevelValueExtension on LoggingLevel {
-  String toValue() {
-    switch (this) {
-      case LoggingLevel.error:
-        return 'ERROR';
-      case LoggingLevel.info:
-        return 'INFO';
-      case LoggingLevel.debug:
-        return 'DEBUG';
-    }
-  }
-}
+  final String value;
 
-extension LoggingLevelFromString on String {
-  LoggingLevel toLoggingLevel() {
-    switch (this) {
-      case 'ERROR':
-        return LoggingLevel.error;
-      case 'INFO':
-        return LoggingLevel.info;
-      case 'DEBUG':
-        return LoggingLevel.debug;
-    }
-    throw Exception('$this is not known in enum LoggingLevel');
-  }
+  const LoggingLevel(this.value);
+
+  static LoggingLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LoggingLevel'));
 }
 
 /// The values of the AWS IoT Events logging options.
@@ -4308,10 +4139,10 @@ class LoggingOptions {
   factory LoggingOptions.fromJson(Map<String, dynamic> json) {
     return LoggingOptions(
       enabled: json['enabled'] as bool,
-      level: (json['level'] as String).toLoggingLevel(),
+      level: LoggingLevel.fromString((json['level'] as String)),
       roleArn: json['roleArn'] as String,
       detectorDebugOptions: (json['detectorDebugOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DetectorDebugOption.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4324,7 +4155,7 @@ class LoggingOptions {
     final detectorDebugOptions = this.detectorDebugOptions;
     return {
       'enabled': enabled,
-      'level': level.toValue(),
+      'level': level.value,
       'roleArn': roleArn,
       if (detectorDebugOptions != null)
         'detectorDebugOptions': detectorDebugOptions,
@@ -4358,11 +4189,11 @@ class NotificationAction {
       action: NotificationTargetActions.fromJson(
           json['action'] as Map<String, dynamic>),
       emailConfigurations: (json['emailConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EmailConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       smsConfigurations: (json['smsConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SMSConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4422,7 +4253,7 @@ class OnEnterLifecycle {
   factory OnEnterLifecycle.fromJson(Map<String, dynamic> json) {
     return OnEnterLifecycle(
       events: (json['events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Event.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4450,7 +4281,7 @@ class OnExitLifecycle {
   factory OnExitLifecycle.fromJson(Map<String, dynamic> json) {
     return OnExitLifecycle(
       events: (json['events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Event.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4483,11 +4314,11 @@ class OnInputLifecycle {
   factory OnInputLifecycle.fromJson(Map<String, dynamic> json) {
     return OnInputLifecycle(
       events: (json['events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Event.fromJson(e as Map<String, dynamic>))
           .toList(),
       transitionEvents: (json['transitionEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TransitionEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4531,7 +4362,7 @@ class Payload {
   factory Payload.fromJson(Map<String, dynamic> json) {
     return Payload(
       contentExpression: json['contentExpression'] as String,
-      type: (json['type'] as String).toPayloadType(),
+      type: PayloadType.fromString((json['type'] as String)),
     );
   }
 
@@ -4540,37 +4371,23 @@ class Payload {
     final type = this.type;
     return {
       'contentExpression': contentExpression,
-      'type': type.toValue(),
+      'type': type.value,
     };
   }
 }
 
 enum PayloadType {
-  string,
-  json,
-}
+  string('STRING'),
+  json('JSON'),
+  ;
 
-extension PayloadTypeValueExtension on PayloadType {
-  String toValue() {
-    switch (this) {
-      case PayloadType.string:
-        return 'STRING';
-      case PayloadType.json:
-        return 'JSON';
-    }
-  }
-}
+  final String value;
 
-extension PayloadTypeFromString on String {
-  PayloadType toPayloadType() {
-    switch (this) {
-      case 'STRING':
-        return PayloadType.string;
-      case 'JSON':
-        return PayloadType.json;
-    }
-    throw Exception('$this is not known in enum PayloadType');
-  }
+  const PayloadType(this.value);
+
+  static PayloadType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PayloadType'));
 }
 
 /// The information that identifies the recipient.
@@ -4680,7 +4497,7 @@ class SMSConfiguration {
   factory SMSConfiguration.fromJson(Map<String, dynamic> json) {
     return SMSConfiguration(
       recipients: (json['recipients'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => RecipientDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       additionalMessage: json['additionalMessage'] as String?,
@@ -4863,7 +4680,7 @@ class SimpleRule {
   factory SimpleRule.fromJson(Map<String, dynamic> json) {
     return SimpleRule(
       comparisonOperator:
-          (json['comparisonOperator'] as String).toComparisonOperator(),
+          ComparisonOperator.fromString((json['comparisonOperator'] as String)),
       inputProperty: json['inputProperty'] as String,
       threshold: json['threshold'] as String,
     );
@@ -4874,7 +4691,7 @@ class SimpleRule {
     final inputProperty = this.inputProperty;
     final threshold = this.threshold;
     return {
-      'comparisonOperator': comparisonOperator.toValue(),
+      'comparisonOperator': comparisonOperator.value,
       'inputProperty': inputProperty,
       'threshold': threshold,
     };
@@ -5070,7 +4887,7 @@ class TransitionEvent {
       eventName: json['eventName'] as String,
       nextState: json['nextState'] as String,
       actions: (json['actions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Action.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5155,7 +4972,8 @@ class UpdateAlarmModelResponse {
       alarmModelVersion: json['alarmModelVersion'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
-      status: (json['status'] as String?)?.toAlarmModelVersionStatus(),
+      status:
+          (json['status'] as String?)?.let(AlarmModelVersionStatus.fromString),
     );
   }
 
@@ -5172,7 +4990,7 @@ class UpdateAlarmModelResponse {
         'creationTime': unixTimestampToJson(creationTime),
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }

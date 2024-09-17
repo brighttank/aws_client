@@ -281,12 +281,12 @@ class GroundStation {
   /// ARN of a tracking <code>Config</code>.
   ///
   /// Parameter [contactPostPassDurationSeconds] :
-  /// Amount of time after a contact ends that you’d like to receive a
-  /// CloudWatch event indicating the pass has finished.
+  /// Amount of time after a contact ends that you’d like to receive a Ground
+  /// Station Contact State Change event indicating the pass has finished.
   ///
   /// Parameter [contactPrePassDurationSeconds] :
-  /// Amount of time prior to contact start you’d like to receive a CloudWatch
-  /// event indicating an upcoming pass.
+  /// Amount of time prior to contact start you’d like to receive a Ground
+  /// Station Contact State Change event indicating an upcoming pass.
   ///
   /// Parameter [streamsKmsKey] :
   /// KMS key to use for encrypting streams.
@@ -368,7 +368,7 @@ class GroundStation {
       payload: null,
       method: 'DELETE',
       requestUri:
-          '/config/${Uri.encodeComponent(configType.toValue())}/${Uri.encodeComponent(configId)}',
+          '/config/${Uri.encodeComponent(configType.value)}/${Uri.encodeComponent(configId)}',
       exceptionFnMap: _exceptionFns,
     );
     return ConfigIdResponse.fromJson(response);
@@ -519,7 +519,7 @@ class GroundStation {
       payload: null,
       method: 'GET',
       requestUri:
-          '/config/${Uri.encodeComponent(configType.toValue())}/${Uri.encodeComponent(configId)}',
+          '/config/${Uri.encodeComponent(configType.value)}/${Uri.encodeComponent(configId)}',
       exceptionFnMap: _exceptionFns,
     );
     return GetConfigResponse.fromJson(response);
@@ -546,7 +546,7 @@ class GroundStation {
     return GetDataflowEndpointGroupResponse.fromJson(response);
   }
 
-  /// Returns the number of minutes used by account.
+  /// Returns the number of reserved minutes used by account.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [DependencyException].
@@ -717,7 +717,7 @@ class GroundStation {
     final $payload = <String, dynamic>{
       'endTime': unixTimestampToJson(endTime),
       'startTime': unixTimestampToJson(startTime),
-      'statusList': statusList.map((e) => e.toValue()).toList(),
+      'statusList': statusList.map((e) => e.value).toList(),
       if (groundStation != null) 'groundStation': groundStation,
       if (maxResults != null) 'maxResults': maxResults,
       if (missionProfileArn != null) 'missionProfileArn': missionProfileArn,
@@ -820,7 +820,7 @@ class GroundStation {
       'satelliteId': satelliteId,
       'startTime': unixTimestampToJson(startTime),
       if (statusList != null)
-        'statusList': statusList.map((e) => e.toValue()).toList(),
+        'statusList': statusList.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1172,7 +1172,7 @@ class GroundStation {
       payload: $payload,
       method: 'PUT',
       requestUri:
-          '/config/${Uri.encodeComponent(configType.toValue())}/${Uri.encodeComponent(configId)}',
+          '/config/${Uri.encodeComponent(configType.value)}/${Uri.encodeComponent(configId)}',
       exceptionFnMap: _exceptionFns,
     );
     return ConfigIdResponse.fromJson(response);
@@ -1242,12 +1242,12 @@ class GroundStation {
   /// UUID of a mission profile.
   ///
   /// Parameter [contactPostPassDurationSeconds] :
-  /// Amount of time after a contact ends that you’d like to receive a
-  /// CloudWatch event indicating the pass has finished.
+  /// Amount of time after a contact ends that you’d like to receive a Ground
+  /// Station Contact State Change event indicating the pass has finished.
   ///
   /// Parameter [contactPrePassDurationSeconds] :
-  /// Amount of time after a contact ends that you’d like to receive a
-  /// CloudWatch event indicating the pass has finished.
+  /// Amount of time after a contact ends that you’d like to receive a Ground
+  /// Station Contact State Change event indicating the pass has finished.
   ///
   /// Parameter [dataflowEdges] :
   /// A list of lists of ARNs. Each list of ARNs is an edge, with a <i>from</i>
@@ -1374,41 +1374,19 @@ class AgentDetails {
 }
 
 enum AgentStatus {
-  success,
-  failed,
-  active,
-  inactive,
-}
+  success('SUCCESS'),
+  failed('FAILED'),
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  ;
 
-extension AgentStatusValueExtension on AgentStatus {
-  String toValue() {
-    switch (this) {
-      case AgentStatus.success:
-        return 'SUCCESS';
-      case AgentStatus.failed:
-        return 'FAILED';
-      case AgentStatus.active:
-        return 'ACTIVE';
-      case AgentStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension AgentStatusFromString on String {
-  AgentStatus toAgentStatus() {
-    switch (this) {
-      case 'SUCCESS':
-        return AgentStatus.success;
-      case 'FAILED':
-        return AgentStatus.failed;
-      case 'ACTIVE':
-        return AgentStatus.active;
-      case 'INACTIVE':
-        return AgentStatus.inactive;
-    }
-    throw Exception('$this is not known in enum AgentStatus');
-  }
+  const AgentStatus(this.value);
+
+  static AgentStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AgentStatus'));
 }
 
 /// Aggregate status of Agent components.
@@ -1428,38 +1406,24 @@ class AggregateStatus {
     final status = this.status;
     final signatureMap = this.signatureMap;
     return {
-      'status': status.toValue(),
+      'status': status.value,
       if (signatureMap != null) 'signatureMap': signatureMap,
     };
   }
 }
 
 enum AngleUnits {
-  degreeAngle,
-  radian,
-}
+  degreeAngle('DEGREE_ANGLE'),
+  radian('RADIAN'),
+  ;
 
-extension AngleUnitsValueExtension on AngleUnits {
-  String toValue() {
-    switch (this) {
-      case AngleUnits.degreeAngle:
-        return 'DEGREE_ANGLE';
-      case AngleUnits.radian:
-        return 'RADIAN';
-    }
-  }
-}
+  final String value;
 
-extension AngleUnitsFromString on String {
-  AngleUnits toAngleUnits() {
-    switch (this) {
-      case 'DEGREE_ANGLE':
-        return AngleUnits.degreeAngle;
-      case 'RADIAN':
-        return AngleUnits.radian;
-    }
-    throw Exception('$this is not known in enum AngleUnits');
-  }
+  const AngleUnits(this.value);
+
+  static AngleUnits fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AngleUnits'));
 }
 
 /// Details about an antenna demod decode <code>Config</code> used in a contact.
@@ -1583,31 +1547,18 @@ class AntennaUplinkConfig {
 }
 
 enum AuditResults {
-  healthy,
-  unhealthy,
-}
+  healthy('HEALTHY'),
+  unhealthy('UNHEALTHY'),
+  ;
 
-extension AuditResultsValueExtension on AuditResults {
-  String toValue() {
-    switch (this) {
-      case AuditResults.healthy:
-        return 'HEALTHY';
-      case AuditResults.unhealthy:
-        return 'UNHEALTHY';
-    }
-  }
-}
+  final String value;
 
-extension AuditResultsFromString on String {
-  AuditResults toAuditResults() {
-    switch (this) {
-      case 'HEALTHY':
-        return AuditResults.healthy;
-      case 'UNHEALTHY':
-        return AuditResults.unhealthy;
-    }
-    throw Exception('$this is not known in enum AuditResults');
-  }
+  const AuditResults(this.value);
+
+  static AuditResults fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AuditResults'));
 }
 
 /// Information about AwsGroundStationAgentEndpoint.
@@ -1643,8 +1594,10 @@ class AwsGroundStationAgentEndpoint {
       ingressAddress: RangedConnectionDetails.fromJson(
           json['ingressAddress'] as Map<String, dynamic>),
       name: json['name'] as String,
-      agentStatus: (json['agentStatus'] as String?)?.toAgentStatus(),
-      auditResults: (json['auditResults'] as String?)?.toAuditResults(),
+      agentStatus:
+          (json['agentStatus'] as String?)?.let(AgentStatus.fromString),
+      auditResults:
+          (json['auditResults'] as String?)?.let(AuditResults.fromString),
     );
   }
 
@@ -1658,124 +1611,61 @@ class AwsGroundStationAgentEndpoint {
       'egressAddress': egressAddress,
       'ingressAddress': ingressAddress,
       'name': name,
-      if (agentStatus != null) 'agentStatus': agentStatus.toValue(),
-      if (auditResults != null) 'auditResults': auditResults.toValue(),
+      if (agentStatus != null) 'agentStatus': agentStatus.value,
+      if (auditResults != null) 'auditResults': auditResults.value,
     };
   }
 }
 
 enum BandwidthUnits {
-  gHz,
-  mHz,
-  kHz,
-}
+  gHz('GHz'),
+  mHz('MHz'),
+  kHz('kHz'),
+  ;
 
-extension BandwidthUnitsValueExtension on BandwidthUnits {
-  String toValue() {
-    switch (this) {
-      case BandwidthUnits.gHz:
-        return 'GHz';
-      case BandwidthUnits.mHz:
-        return 'MHz';
-      case BandwidthUnits.kHz:
-        return 'kHz';
-    }
-  }
-}
+  final String value;
 
-extension BandwidthUnitsFromString on String {
-  BandwidthUnits toBandwidthUnits() {
-    switch (this) {
-      case 'GHz':
-        return BandwidthUnits.gHz;
-      case 'MHz':
-        return BandwidthUnits.mHz;
-      case 'kHz':
-        return BandwidthUnits.kHz;
-    }
-    throw Exception('$this is not known in enum BandwidthUnits');
-  }
+  const BandwidthUnits(this.value);
+
+  static BandwidthUnits fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BandwidthUnits'));
 }
 
 enum CapabilityHealth {
-  unhealthy,
-  healthy,
-}
+  unhealthy('UNHEALTHY'),
+  healthy('HEALTHY'),
+  ;
 
-extension CapabilityHealthValueExtension on CapabilityHealth {
-  String toValue() {
-    switch (this) {
-      case CapabilityHealth.unhealthy:
-        return 'UNHEALTHY';
-      case CapabilityHealth.healthy:
-        return 'HEALTHY';
-    }
-  }
-}
+  final String value;
 
-extension CapabilityHealthFromString on String {
-  CapabilityHealth toCapabilityHealth() {
-    switch (this) {
-      case 'UNHEALTHY':
-        return CapabilityHealth.unhealthy;
-      case 'HEALTHY':
-        return CapabilityHealth.healthy;
-    }
-    throw Exception('$this is not known in enum CapabilityHealth');
-  }
+  const CapabilityHealth(this.value);
+
+  static CapabilityHealth fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CapabilityHealth'));
 }
 
 enum CapabilityHealthReason {
-  noRegisteredAgent,
-  invalidIpOwnership,
-  notAuthorizedToCreateSlr,
-  unverifiedIpOwnership,
-  initializingDataplane,
-  dataplaneFailure,
-  healthy,
-}
+  noRegisteredAgent('NO_REGISTERED_AGENT'),
+  invalidIpOwnership('INVALID_IP_OWNERSHIP'),
+  notAuthorizedToCreateSlr('NOT_AUTHORIZED_TO_CREATE_SLR'),
+  unverifiedIpOwnership('UNVERIFIED_IP_OWNERSHIP'),
+  initializingDataplane('INITIALIZING_DATAPLANE'),
+  dataplaneFailure('DATAPLANE_FAILURE'),
+  healthy('HEALTHY'),
+  ;
 
-extension CapabilityHealthReasonValueExtension on CapabilityHealthReason {
-  String toValue() {
-    switch (this) {
-      case CapabilityHealthReason.noRegisteredAgent:
-        return 'NO_REGISTERED_AGENT';
-      case CapabilityHealthReason.invalidIpOwnership:
-        return 'INVALID_IP_OWNERSHIP';
-      case CapabilityHealthReason.notAuthorizedToCreateSlr:
-        return 'NOT_AUTHORIZED_TO_CREATE_SLR';
-      case CapabilityHealthReason.unverifiedIpOwnership:
-        return 'UNVERIFIED_IP_OWNERSHIP';
-      case CapabilityHealthReason.initializingDataplane:
-        return 'INITIALIZING_DATAPLANE';
-      case CapabilityHealthReason.dataplaneFailure:
-        return 'DATAPLANE_FAILURE';
-      case CapabilityHealthReason.healthy:
-        return 'HEALTHY';
-    }
-  }
-}
+  final String value;
 
-extension CapabilityHealthReasonFromString on String {
-  CapabilityHealthReason toCapabilityHealthReason() {
-    switch (this) {
-      case 'NO_REGISTERED_AGENT':
-        return CapabilityHealthReason.noRegisteredAgent;
-      case 'INVALID_IP_OWNERSHIP':
-        return CapabilityHealthReason.invalidIpOwnership;
-      case 'NOT_AUTHORIZED_TO_CREATE_SLR':
-        return CapabilityHealthReason.notAuthorizedToCreateSlr;
-      case 'UNVERIFIED_IP_OWNERSHIP':
-        return CapabilityHealthReason.unverifiedIpOwnership;
-      case 'INITIALIZING_DATAPLANE':
-        return CapabilityHealthReason.initializingDataplane;
-      case 'DATAPLANE_FAILURE':
-        return CapabilityHealthReason.dataplaneFailure;
-      case 'HEALTHY':
-        return CapabilityHealthReason.healthy;
-    }
-    throw Exception('$this is not known in enum CapabilityHealthReason');
-  }
+  const CapabilityHealthReason(this.value);
+
+  static CapabilityHealthReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CapabilityHealthReason'));
 }
 
 /// Data on the status of agent components.
@@ -1823,7 +1713,7 @@ class ComponentStatusData {
       'capabilityArn': capabilityArn,
       'componentType': componentType,
       'dataflowId': dataflowId,
-      'status': status.toValue(),
+      'status': status.value,
       if (bytesReceived != null) 'bytesReceived': bytesReceived,
       if (bytesSent != null) 'bytesSent': bytesSent,
       if (packetsDropped != null) 'packetsDropped': packetsDropped,
@@ -1855,56 +1745,23 @@ class ComponentVersion {
 }
 
 enum ConfigCapabilityType {
-  antennaDownlink,
-  antennaDownlinkDemodDecode,
-  antennaUplink,
-  dataflowEndpoint,
-  tracking,
-  uplinkEcho,
-  s3Recording,
-}
+  antennaDownlink('antenna-downlink'),
+  antennaDownlinkDemodDecode('antenna-downlink-demod-decode'),
+  antennaUplink('antenna-uplink'),
+  dataflowEndpoint('dataflow-endpoint'),
+  tracking('tracking'),
+  uplinkEcho('uplink-echo'),
+  s3Recording('s3-recording'),
+  ;
 
-extension ConfigCapabilityTypeValueExtension on ConfigCapabilityType {
-  String toValue() {
-    switch (this) {
-      case ConfigCapabilityType.antennaDownlink:
-        return 'antenna-downlink';
-      case ConfigCapabilityType.antennaDownlinkDemodDecode:
-        return 'antenna-downlink-demod-decode';
-      case ConfigCapabilityType.antennaUplink:
-        return 'antenna-uplink';
-      case ConfigCapabilityType.dataflowEndpoint:
-        return 'dataflow-endpoint';
-      case ConfigCapabilityType.tracking:
-        return 'tracking';
-      case ConfigCapabilityType.uplinkEcho:
-        return 'uplink-echo';
-      case ConfigCapabilityType.s3Recording:
-        return 's3-recording';
-    }
-  }
-}
+  final String value;
 
-extension ConfigCapabilityTypeFromString on String {
-  ConfigCapabilityType toConfigCapabilityType() {
-    switch (this) {
-      case 'antenna-downlink':
-        return ConfigCapabilityType.antennaDownlink;
-      case 'antenna-downlink-demod-decode':
-        return ConfigCapabilityType.antennaDownlinkDemodDecode;
-      case 'antenna-uplink':
-        return ConfigCapabilityType.antennaUplink;
-      case 'dataflow-endpoint':
-        return ConfigCapabilityType.dataflowEndpoint;
-      case 'tracking':
-        return ConfigCapabilityType.tracking;
-      case 'uplink-echo':
-        return ConfigCapabilityType.uplinkEcho;
-      case 's3-recording':
-        return ConfigCapabilityType.s3Recording;
-    }
-    throw Exception('$this is not known in enum ConfigCapabilityType');
-  }
+  const ConfigCapabilityType(this.value);
+
+  static ConfigCapabilityType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConfigCapabilityType'));
 }
 
 /// Details for certain <code>Config</code> object types in a contact.
@@ -1961,7 +1818,8 @@ class ConfigIdResponse {
     return ConfigIdResponse(
       configArn: json['configArn'] as String?,
       configId: json['configId'] as String?,
-      configType: (json['configType'] as String?)?.toConfigCapabilityType(),
+      configType:
+          (json['configType'] as String?)?.let(ConfigCapabilityType.fromString),
     );
   }
 }
@@ -1991,7 +1849,8 @@ class ConfigListItem {
     return ConfigListItem(
       configArn: json['configArn'] as String?,
       configId: json['configId'] as String?,
-      configType: (json['configType'] as String?)?.toConfigCapabilityType(),
+      configType:
+          (json['configType'] as String?)?.let(ConfigCapabilityType.fromString),
       name: json['name'] as String?,
     );
   }
@@ -2175,6 +2034,22 @@ class ContactData {
   /// Tags assigned to a contact.
   final Map<String, String>? tags;
 
+  /// Projected time in UTC your satellite will set below the <a
+  /// href="https://docs.aws.amazon.com/ground-station/latest/ug/site-masks.html">receive
+  /// mask</a>. This time is based on the satellite's current active ephemeris for
+  /// future contacts and the ephemeris that was active during contact execution
+  /// for completed contacts. <i>This field is not present for contacts with a
+  /// <code>SCHEDULING</code> or <code>SCHEDULED</code> status.</i>
+  final DateTime? visibilityEndTime;
+
+  /// Projected time in UTC your satellite will rise above the <a
+  /// href="https://docs.aws.amazon.com/ground-station/latest/ug/site-masks.html">receive
+  /// mask</a>. This time is based on the satellite's current active ephemeris for
+  /// future contacts and the ephemeris that was active during contact execution
+  /// for completed contacts. <i>This field is not present for contacts with a
+  /// <code>SCHEDULING</code> or <code>SCHEDULED</code> status.</i>
+  final DateTime? visibilityStartTime;
+
   ContactData({
     this.contactId,
     this.contactStatus,
@@ -2189,12 +2064,15 @@ class ContactData {
     this.satelliteArn,
     this.startTime,
     this.tags,
+    this.visibilityEndTime,
+    this.visibilityStartTime,
   });
 
   factory ContactData.fromJson(Map<String, dynamic> json) {
     return ContactData(
       contactId: json['contactId'] as String?,
-      contactStatus: (json['contactStatus'] as String?)?.toContactStatus(),
+      contactStatus:
+          (json['contactStatus'] as String?)?.let(ContactStatus.fromString),
       endTime: timeStampFromJson(json['endTime']),
       errorMessage: json['errorMessage'] as String?,
       groundStation: json['groundStation'] as String?,
@@ -2209,6 +2087,8 @@ class ContactData {
       startTime: timeStampFromJson(json['startTime']),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
+      visibilityEndTime: timeStampFromJson(json['visibilityEndTime']),
+      visibilityStartTime: timeStampFromJson(json['visibilityStartTime']),
     );
   }
 }
@@ -2230,119 +2110,44 @@ class ContactIdResponse {
 }
 
 enum ContactStatus {
-  available,
-  awsCancelled,
-  awsFailed,
-  cancelled,
-  cancelling,
-  completed,
-  failed,
-  failedToSchedule,
-  pass,
-  postpass,
-  prepass,
-  scheduled,
-  scheduling,
-}
+  available('AVAILABLE'),
+  awsCancelled('AWS_CANCELLED'),
+  awsFailed('AWS_FAILED'),
+  cancelled('CANCELLED'),
+  cancelling('CANCELLING'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  failedToSchedule('FAILED_TO_SCHEDULE'),
+  pass('PASS'),
+  postpass('POSTPASS'),
+  prepass('PREPASS'),
+  scheduled('SCHEDULED'),
+  scheduling('SCHEDULING'),
+  ;
 
-extension ContactStatusValueExtension on ContactStatus {
-  String toValue() {
-    switch (this) {
-      case ContactStatus.available:
-        return 'AVAILABLE';
-      case ContactStatus.awsCancelled:
-        return 'AWS_CANCELLED';
-      case ContactStatus.awsFailed:
-        return 'AWS_FAILED';
-      case ContactStatus.cancelled:
-        return 'CANCELLED';
-      case ContactStatus.cancelling:
-        return 'CANCELLING';
-      case ContactStatus.completed:
-        return 'COMPLETED';
-      case ContactStatus.failed:
-        return 'FAILED';
-      case ContactStatus.failedToSchedule:
-        return 'FAILED_TO_SCHEDULE';
-      case ContactStatus.pass:
-        return 'PASS';
-      case ContactStatus.postpass:
-        return 'POSTPASS';
-      case ContactStatus.prepass:
-        return 'PREPASS';
-      case ContactStatus.scheduled:
-        return 'SCHEDULED';
-      case ContactStatus.scheduling:
-        return 'SCHEDULING';
-    }
-  }
-}
+  final String value;
 
-extension ContactStatusFromString on String {
-  ContactStatus toContactStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return ContactStatus.available;
-      case 'AWS_CANCELLED':
-        return ContactStatus.awsCancelled;
-      case 'AWS_FAILED':
-        return ContactStatus.awsFailed;
-      case 'CANCELLED':
-        return ContactStatus.cancelled;
-      case 'CANCELLING':
-        return ContactStatus.cancelling;
-      case 'COMPLETED':
-        return ContactStatus.completed;
-      case 'FAILED':
-        return ContactStatus.failed;
-      case 'FAILED_TO_SCHEDULE':
-        return ContactStatus.failedToSchedule;
-      case 'PASS':
-        return ContactStatus.pass;
-      case 'POSTPASS':
-        return ContactStatus.postpass;
-      case 'PREPASS':
-        return ContactStatus.prepass;
-      case 'SCHEDULED':
-        return ContactStatus.scheduled;
-      case 'SCHEDULING':
-        return ContactStatus.scheduling;
-    }
-    throw Exception('$this is not known in enum ContactStatus');
-  }
+  const ContactStatus(this.value);
+
+  static ContactStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContactStatus'));
 }
 
 enum Criticality {
-  preferred,
-  removed,
-  required,
-}
+  preferred('PREFERRED'),
+  removed('REMOVED'),
+  required('REQUIRED'),
+  ;
 
-extension CriticalityValueExtension on Criticality {
-  String toValue() {
-    switch (this) {
-      case Criticality.preferred:
-        return 'PREFERRED';
-      case Criticality.removed:
-        return 'REMOVED';
-      case Criticality.required:
-        return 'REQUIRED';
-    }
-  }
-}
+  final String value;
 
-extension CriticalityFromString on String {
-  Criticality toCriticality() {
-    switch (this) {
-      case 'PREFERRED':
-        return Criticality.preferred;
-      case 'REMOVED':
-        return Criticality.removed;
-      case 'REQUIRED':
-        return Criticality.required;
-    }
-    throw Exception('$this is not known in enum Criticality');
-  }
+  const Criticality(this.value);
+
+  static Criticality fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Criticality'));
 }
 
 /// Information about a dataflow edge used in a contact.
@@ -2400,7 +2205,7 @@ class DataflowEndpoint {
           : null,
       mtu: json['mtu'] as int?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toEndpointStatus(),
+      status: (json['status'] as String?)?.let(EndpointStatus.fromString),
     );
   }
 
@@ -2413,7 +2218,7 @@ class DataflowEndpoint {
       if (address != null) 'address': address,
       if (mtu != null) 'mtu': mtu,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2578,6 +2383,20 @@ class DescribeContactResponse {
   /// Tags assigned to a contact.
   final Map<String, String>? tags;
 
+  /// Projected time in UTC your satellite will set below the <a
+  /// href="https://docs.aws.amazon.com/ground-station/latest/ug/site-masks.html">receive
+  /// mask</a>. This time is based on the satellite's current active ephemeris for
+  /// future contacts and the ephemeris that was active during contact execution
+  /// for completed contacts.
+  final DateTime? visibilityEndTime;
+
+  /// Projected time in UTC your satellite will rise above the <a
+  /// href="https://docs.aws.amazon.com/ground-station/latest/ug/site-masks.html">receive
+  /// mask</a>. This time is based on the satellite's current active ephemeris for
+  /// future contacts and the ephemeris that was active during contact execution
+  /// for completed contacts.
+  final DateTime? visibilityStartTime;
+
   DescribeContactResponse({
     this.contactId,
     this.contactStatus,
@@ -2593,14 +2412,17 @@ class DescribeContactResponse {
     this.satelliteArn,
     this.startTime,
     this.tags,
+    this.visibilityEndTime,
+    this.visibilityStartTime,
   });
 
   factory DescribeContactResponse.fromJson(Map<String, dynamic> json) {
     return DescribeContactResponse(
       contactId: json['contactId'] as String?,
-      contactStatus: (json['contactStatus'] as String?)?.toContactStatus(),
+      contactStatus:
+          (json['contactStatus'] as String?)?.let(ContactStatus.fromString),
       dataflowList: (json['dataflowList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataflowDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       endTime: timeStampFromJson(json['endTime']),
@@ -2617,6 +2439,8 @@ class DescribeContactResponse {
       startTime: timeStampFromJson(json['startTime']),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
+      visibilityEndTime: timeStampFromJson(json['visibilityEndTime']),
+      visibilityStartTime: timeStampFromJson(json['visibilityStartTime']),
     );
   }
 }
@@ -2678,12 +2502,12 @@ class DescribeEphemerisResponse {
       creationTime: timeStampFromJson(json['creationTime']),
       enabled: json['enabled'] as bool?,
       ephemerisId: json['ephemerisId'] as String?,
-      invalidReason:
-          (json['invalidReason'] as String?)?.toEphemerisInvalidReason(),
+      invalidReason: (json['invalidReason'] as String?)
+          ?.let(EphemerisInvalidReason.fromString),
       name: json['name'] as String?,
       priority: json['priority'] as int?,
       satelliteId: json['satelliteId'] as String?,
-      status: (json['status'] as String?)?.toEphemerisStatus(),
+      status: (json['status'] as String?)?.let(EphemerisStatus.fromString),
       suppliedData: json['suppliedData'] != null
           ? EphemerisTypeDescription.fromJson(
               json['suppliedData'] as Map<String, dynamic>)
@@ -2723,7 +2547,8 @@ class Destination {
               json['configDetails'] as Map<String, dynamic>)
           : null,
       configId: json['configId'] as String?,
-      configType: (json['configType'] as String?)?.toConfigCapabilityType(),
+      configType:
+          (json['configType'] as String?)?.let(ConfigCapabilityType.fromString),
       dataflowDestinationRegion: json['dataflowDestinationRegion'] as String?,
     );
   }
@@ -2773,7 +2598,7 @@ class Eirp {
 
   factory Eirp.fromJson(Map<String, dynamic> json) {
     return Eirp(
-      units: (json['units'] as String).toEirpUnits(),
+      units: EirpUnits.fromString((json['units'] as String)),
       value: json['value'] as double,
     );
   }
@@ -2782,33 +2607,23 @@ class Eirp {
     final units = this.units;
     final value = this.value;
     return {
-      'units': units.toValue(),
+      'units': units.value,
       'value': value,
     };
   }
 }
 
 enum EirpUnits {
-  dbw,
-}
+  dbw('dBW'),
+  ;
 
-extension EirpUnitsValueExtension on EirpUnits {
-  String toValue() {
-    switch (this) {
-      case EirpUnits.dbw:
-        return 'dBW';
-    }
-  }
-}
+  final String value;
 
-extension EirpUnitsFromString on String {
-  EirpUnits toEirpUnits() {
-    switch (this) {
-      case 'dBW':
-        return EirpUnits.dbw;
-    }
-    throw Exception('$this is not known in enum EirpUnits');
-  }
+  const EirpUnits(this.value);
+
+  static EirpUnits fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EirpUnits'));
 }
 
 /// Elevation angle of the satellite in the sky during a contact.
@@ -2826,7 +2641,7 @@ class Elevation {
 
   factory Elevation.fromJson(Map<String, dynamic> json) {
     return Elevation(
-      unit: (json['unit'] as String).toAngleUnits(),
+      unit: AngleUnits.fromString((json['unit'] as String)),
       value: json['value'] as double,
     );
   }
@@ -2871,10 +2686,11 @@ class EndpointDetails {
           ? DataflowEndpoint.fromJson(json['endpoint'] as Map<String, dynamic>)
           : null,
       healthReasons: (json['healthReasons'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toCapabilityHealthReason())
+          ?.nonNulls
+          .map((e) => CapabilityHealthReason.fromString((e as String)))
           .toList(),
-      healthStatus: (json['healthStatus'] as String?)?.toCapabilityHealth(),
+      healthStatus:
+          (json['healthStatus'] as String?)?.let(CapabilityHealth.fromString),
       securityDetails: json['securityDetails'] != null
           ? SecurityDetails.fromJson(
               json['securityDetails'] as Map<String, dynamic>)
@@ -2893,54 +2709,29 @@ class EndpointDetails {
         'awsGroundStationAgentEndpoint': awsGroundStationAgentEndpoint,
       if (endpoint != null) 'endpoint': endpoint,
       if (healthReasons != null)
-        'healthReasons': healthReasons.map((e) => e.toValue()).toList(),
-      if (healthStatus != null) 'healthStatus': healthStatus.toValue(),
+        'healthReasons': healthReasons.map((e) => e.value).toList(),
+      if (healthStatus != null) 'healthStatus': healthStatus.value,
       if (securityDetails != null) 'securityDetails': securityDetails,
     };
   }
 }
 
 enum EndpointStatus {
-  created,
-  creating,
-  deleted,
-  deleting,
-  failed,
-}
+  created('created'),
+  creating('creating'),
+  deleted('deleted'),
+  deleting('deleting'),
+  failed('failed'),
+  ;
 
-extension EndpointStatusValueExtension on EndpointStatus {
-  String toValue() {
-    switch (this) {
-      case EndpointStatus.created:
-        return 'created';
-      case EndpointStatus.creating:
-        return 'creating';
-      case EndpointStatus.deleted:
-        return 'deleted';
-      case EndpointStatus.deleting:
-        return 'deleting';
-      case EndpointStatus.failed:
-        return 'failed';
-    }
-  }
-}
+  final String value;
 
-extension EndpointStatusFromString on String {
-  EndpointStatus toEndpointStatus() {
-    switch (this) {
-      case 'created':
-        return EndpointStatus.created;
-      case 'creating':
-        return EndpointStatus.creating;
-      case 'deleted':
-        return EndpointStatus.deleted;
-      case 'deleting':
-        return EndpointStatus.deleting;
-      case 'failed':
-        return EndpointStatus.failed;
-    }
-    throw Exception('$this is not known in enum EndpointStatus');
-  }
+  const EndpointStatus(this.value);
+
+  static EndpointStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EndpointStatus'));
 }
 
 /// Ephemeris data.
@@ -3002,46 +2793,21 @@ class EphemerisIdResponse {
 }
 
 enum EphemerisInvalidReason {
-  metadataInvalid,
-  timeRangeInvalid,
-  trajectoryInvalid,
-  kmsKeyInvalid,
-  validationError,
-}
+  metadataInvalid('METADATA_INVALID'),
+  timeRangeInvalid('TIME_RANGE_INVALID'),
+  trajectoryInvalid('TRAJECTORY_INVALID'),
+  kmsKeyInvalid('KMS_KEY_INVALID'),
+  validationError('VALIDATION_ERROR'),
+  ;
 
-extension EphemerisInvalidReasonValueExtension on EphemerisInvalidReason {
-  String toValue() {
-    switch (this) {
-      case EphemerisInvalidReason.metadataInvalid:
-        return 'METADATA_INVALID';
-      case EphemerisInvalidReason.timeRangeInvalid:
-        return 'TIME_RANGE_INVALID';
-      case EphemerisInvalidReason.trajectoryInvalid:
-        return 'TRAJECTORY_INVALID';
-      case EphemerisInvalidReason.kmsKeyInvalid:
-        return 'KMS_KEY_INVALID';
-      case EphemerisInvalidReason.validationError:
-        return 'VALIDATION_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension EphemerisInvalidReasonFromString on String {
-  EphemerisInvalidReason toEphemerisInvalidReason() {
-    switch (this) {
-      case 'METADATA_INVALID':
-        return EphemerisInvalidReason.metadataInvalid;
-      case 'TIME_RANGE_INVALID':
-        return EphemerisInvalidReason.timeRangeInvalid;
-      case 'TRAJECTORY_INVALID':
-        return EphemerisInvalidReason.trajectoryInvalid;
-      case 'KMS_KEY_INVALID':
-        return EphemerisInvalidReason.kmsKeyInvalid;
-      case 'VALIDATION_ERROR':
-        return EphemerisInvalidReason.validationError;
-    }
-    throw Exception('$this is not known in enum EphemerisInvalidReason');
-  }
+  const EphemerisInvalidReason(this.value);
+
+  static EphemerisInvalidReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EphemerisInvalidReason'));
 }
 
 /// Ephemeris item.
@@ -3094,7 +2860,7 @@ class EphemerisItem {
       sourceS3Object: json['sourceS3Object'] != null
           ? S3Object.fromJson(json['sourceS3Object'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toEphemerisStatus(),
+      status: (json['status'] as String?)?.let(EphemerisStatus.fromString),
     );
   }
 }
@@ -3130,7 +2896,7 @@ class EphemerisMetaData {
 
   factory EphemerisMetaData.fromJson(Map<String, dynamic> json) {
     return EphemerisMetaData(
-      source: (json['source'] as String).toEphemerisSource(),
+      source: EphemerisSource.fromString((json['source'] as String)),
       ephemerisId: json['ephemerisId'] as String?,
       epoch: timeStampFromJson(json['epoch']),
       name: json['name'] as String?,
@@ -3139,79 +2905,37 @@ class EphemerisMetaData {
 }
 
 enum EphemerisSource {
-  customerProvided,
-  spaceTrack,
-}
+  customerProvided('CUSTOMER_PROVIDED'),
+  spaceTrack('SPACE_TRACK'),
+  ;
 
-extension EphemerisSourceValueExtension on EphemerisSource {
-  String toValue() {
-    switch (this) {
-      case EphemerisSource.customerProvided:
-        return 'CUSTOMER_PROVIDED';
-      case EphemerisSource.spaceTrack:
-        return 'SPACE_TRACK';
-    }
-  }
-}
+  final String value;
 
-extension EphemerisSourceFromString on String {
-  EphemerisSource toEphemerisSource() {
-    switch (this) {
-      case 'CUSTOMER_PROVIDED':
-        return EphemerisSource.customerProvided;
-      case 'SPACE_TRACK':
-        return EphemerisSource.spaceTrack;
-    }
-    throw Exception('$this is not known in enum EphemerisSource');
-  }
+  const EphemerisSource(this.value);
+
+  static EphemerisSource fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EphemerisSource'));
 }
 
 enum EphemerisStatus {
-  validating,
-  invalid,
-  error,
-  enabled,
-  disabled,
-  expired,
-}
+  validating('VALIDATING'),
+  invalid('INVALID'),
+  error('ERROR'),
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  expired('EXPIRED'),
+  ;
 
-extension EphemerisStatusValueExtension on EphemerisStatus {
-  String toValue() {
-    switch (this) {
-      case EphemerisStatus.validating:
-        return 'VALIDATING';
-      case EphemerisStatus.invalid:
-        return 'INVALID';
-      case EphemerisStatus.error:
-        return 'ERROR';
-      case EphemerisStatus.enabled:
-        return 'ENABLED';
-      case EphemerisStatus.disabled:
-        return 'DISABLED';
-      case EphemerisStatus.expired:
-        return 'EXPIRED';
-    }
-  }
-}
+  final String value;
 
-extension EphemerisStatusFromString on String {
-  EphemerisStatus toEphemerisStatus() {
-    switch (this) {
-      case 'VALIDATING':
-        return EphemerisStatus.validating;
-      case 'INVALID':
-        return EphemerisStatus.invalid;
-      case 'ERROR':
-        return EphemerisStatus.error;
-      case 'ENABLED':
-        return EphemerisStatus.enabled;
-      case 'DISABLED':
-        return EphemerisStatus.disabled;
-      case 'EXPIRED':
-        return EphemerisStatus.expired;
-    }
-    throw Exception('$this is not known in enum EphemerisStatus');
-  }
+  const EphemerisStatus(this.value);
+
+  static EphemerisStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EphemerisStatus'));
 }
 
 /// <p/>
@@ -3252,7 +2976,7 @@ class Frequency {
 
   factory Frequency.fromJson(Map<String, dynamic> json) {
     return Frequency(
-      units: (json['units'] as String).toFrequencyUnits(),
+      units: FrequencyUnits.fromString((json['units'] as String)),
       value: json['value'] as double,
     );
   }
@@ -3261,7 +2985,7 @@ class Frequency {
     final units = this.units;
     final value = this.value;
     return {
-      'units': units.toValue(),
+      'units': units.value,
       'value': value,
     };
   }
@@ -3298,7 +3022,7 @@ class FrequencyBandwidth {
 
   factory FrequencyBandwidth.fromJson(Map<String, dynamic> json) {
     return FrequencyBandwidth(
-      units: (json['units'] as String).toBandwidthUnits(),
+      units: BandwidthUnits.fromString((json['units'] as String)),
       value: json['value'] as double,
     );
   }
@@ -3307,43 +3031,26 @@ class FrequencyBandwidth {
     final units = this.units;
     final value = this.value;
     return {
-      'units': units.toValue(),
+      'units': units.value,
       'value': value,
     };
   }
 }
 
 enum FrequencyUnits {
-  gHz,
-  mHz,
-  kHz,
-}
+  gHz('GHz'),
+  mHz('MHz'),
+  kHz('kHz'),
+  ;
 
-extension FrequencyUnitsValueExtension on FrequencyUnits {
-  String toValue() {
-    switch (this) {
-      case FrequencyUnits.gHz:
-        return 'GHz';
-      case FrequencyUnits.mHz:
-        return 'MHz';
-      case FrequencyUnits.kHz:
-        return 'kHz';
-    }
-  }
-}
+  final String value;
 
-extension FrequencyUnitsFromString on String {
-  FrequencyUnits toFrequencyUnits() {
-    switch (this) {
-      case 'GHz':
-        return FrequencyUnits.gHz;
-      case 'MHz':
-        return FrequencyUnits.mHz;
-      case 'kHz':
-        return FrequencyUnits.kHz;
-    }
-    throw Exception('$this is not known in enum FrequencyUnits');
-  }
+  const FrequencyUnits(this.value);
+
+  static FrequencyUnits fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FrequencyUnits'));
 }
 
 class GetAgentConfigurationResponse {
@@ -3402,7 +3109,8 @@ class GetConfigResponse {
           ConfigTypeData.fromJson(json['configData'] as Map<String, dynamic>),
       configId: json['configId'] as String,
       name: json['name'] as String,
-      configType: (json['configType'] as String?)?.toConfigCapabilityType(),
+      configType:
+          (json['configType'] as String?)?.let(ConfigCapabilityType.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -3453,7 +3161,7 @@ class GetDataflowEndpointGroupResponse {
       dataflowEndpointGroupArn: json['dataflowEndpointGroupArn'] as String?,
       dataflowEndpointGroupId: json['dataflowEndpointGroupId'] as String?,
       endpointsDetails: (json['endpointsDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EndpointDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
@@ -3569,9 +3277,8 @@ class GetMissionProfileResponse {
       contactPrePassDurationSeconds:
           json['contactPrePassDurationSeconds'] as int?,
       dataflowEdges: (json['dataflowEdges'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       minimumViableContactDurationSeconds:
           json['minimumViableContactDurationSeconds'] as int?,
@@ -3622,7 +3329,7 @@ class GetSatelliteResponse {
               json['currentEphemeris'] as Map<String, dynamic>)
           : null,
       groundStations: (json['groundStations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       noradSatelliteID: json['noradSatelliteID'] as int?,
@@ -3693,26 +3400,33 @@ class KmsKey {
   /// KMS Alias Arn.
   final String? kmsAliasArn;
 
+  /// KMS Alias Name.
+  final String? kmsAliasName;
+
   /// KMS Key Arn.
   final String? kmsKeyArn;
 
   KmsKey({
     this.kmsAliasArn,
+    this.kmsAliasName,
     this.kmsKeyArn,
   });
 
   factory KmsKey.fromJson(Map<String, dynamic> json) {
     return KmsKey(
       kmsAliasArn: json['kmsAliasArn'] as String?,
+      kmsAliasName: json['kmsAliasName'] as String?,
       kmsKeyArn: json['kmsKeyArn'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final kmsAliasArn = this.kmsAliasArn;
+    final kmsAliasName = this.kmsAliasName;
     final kmsKeyArn = this.kmsKeyArn;
     return {
       if (kmsAliasArn != null) 'kmsAliasArn': kmsAliasArn,
+      if (kmsAliasName != null) 'kmsAliasName': kmsAliasName,
       if (kmsKeyArn != null) 'kmsKeyArn': kmsKeyArn,
     };
   }
@@ -3735,7 +3449,7 @@ class ListConfigsResponse {
   factory ListConfigsResponse.fromJson(Map<String, dynamic> json) {
     return ListConfigsResponse(
       configList: (json['configList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConfigListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3760,7 +3474,7 @@ class ListContactsResponse {
   factory ListContactsResponse.fromJson(Map<String, dynamic> json) {
     return ListContactsResponse(
       contactList: (json['contactList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ContactData.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3787,7 +3501,7 @@ class ListDataflowEndpointGroupsResponse {
       Map<String, dynamic> json) {
     return ListDataflowEndpointGroupsResponse(
       dataflowEndpointGroupList: (json['dataflowEndpointGroupList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DataflowEndpointListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3811,7 +3525,7 @@ class ListEphemeridesResponse {
   factory ListEphemeridesResponse.fromJson(Map<String, dynamic> json) {
     return ListEphemeridesResponse(
       ephemerides: (json['ephemerides'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EphemerisItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3836,7 +3550,7 @@ class ListGroundStationsResponse {
   factory ListGroundStationsResponse.fromJson(Map<String, dynamic> json) {
     return ListGroundStationsResponse(
       groundStationList: (json['groundStationList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GroundStationData.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3861,7 +3575,7 @@ class ListMissionProfilesResponse {
   factory ListMissionProfilesResponse.fromJson(Map<String, dynamic> json) {
     return ListMissionProfilesResponse(
       missionProfileList: (json['missionProfileList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => MissionProfileListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3888,7 +3602,7 @@ class ListSatellitesResponse {
     return ListSatellitesResponse(
       nextToken: json['nextToken'] as String?,
       satellites: (json['satellites'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SatelliteListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3984,36 +3698,19 @@ class OEMEphemeris {
 }
 
 enum Polarization {
-  leftHand,
-  none,
-  rightHand,
-}
+  leftHand('LEFT_HAND'),
+  none('NONE'),
+  rightHand('RIGHT_HAND'),
+  ;
 
-extension PolarizationValueExtension on Polarization {
-  String toValue() {
-    switch (this) {
-      case Polarization.leftHand:
-        return 'LEFT_HAND';
-      case Polarization.none:
-        return 'NONE';
-      case Polarization.rightHand:
-        return 'RIGHT_HAND';
-    }
-  }
-}
+  final String value;
 
-extension PolarizationFromString on String {
-  Polarization toPolarization() {
-    switch (this) {
-      case 'LEFT_HAND':
-        return Polarization.leftHand;
-      case 'NONE':
-        return Polarization.none;
-      case 'RIGHT_HAND':
-        return Polarization.rightHand;
-    }
-    throw Exception('$this is not known in enum Polarization');
-  }
+  const Polarization(this.value);
+
+  static Polarization fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum Polarization'));
 }
 
 /// Ingress address of AgentEndpoint with a port range and an optional mtu.
@@ -4220,7 +3917,7 @@ class SatelliteListItem {
               json['currentEphemeris'] as Map<String, dynamic>)
           : null,
       groundStations: (json['groundStations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       noradSatelliteID: json['noradSatelliteID'] as int?,
@@ -4252,13 +3949,11 @@ class SecurityDetails {
     return SecurityDetails(
       roleArn: json['roleArn'] as String,
       securityGroupIds: (json['securityGroupIds'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
-      subnetIds: (json['subnetIds'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      subnetIds:
+          (json['subnetIds'] as List).nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -4333,7 +4028,8 @@ class Source {
               json['configDetails'] as Map<String, dynamic>)
           : null,
       configId: json['configId'] as String?,
-      configType: (json['configType'] as String?)?.toConfigCapabilityType(),
+      configType:
+          (json['configType'] as String?)?.let(ConfigCapabilityType.fromString),
       dataflowSourceRegion: json['dataflowSourceRegion'] as String?,
     );
   }
@@ -4382,7 +4078,8 @@ class SpectrumConfig {
           json['bandwidth'] as Map<String, dynamic>),
       centerFrequency:
           Frequency.fromJson(json['centerFrequency'] as Map<String, dynamic>),
-      polarization: (json['polarization'] as String?)?.toPolarization(),
+      polarization:
+          (json['polarization'] as String?)?.let(Polarization.fromString),
     );
   }
 
@@ -4393,7 +4090,7 @@ class SpectrumConfig {
     return {
       'bandwidth': bandwidth,
       'centerFrequency': centerFrequency,
-      if (polarization != null) 'polarization': polarization.toValue(),
+      if (polarization != null) 'polarization': polarization.value,
     };
   }
 }
@@ -4495,14 +4192,14 @@ class TrackingConfig {
 
   factory TrackingConfig.fromJson(Map<String, dynamic> json) {
     return TrackingConfig(
-      autotrack: (json['autotrack'] as String).toCriticality(),
+      autotrack: Criticality.fromString((json['autotrack'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final autotrack = this.autotrack;
     return {
-      'autotrack': autotrack.toValue(),
+      'autotrack': autotrack.value,
     };
   }
 }
@@ -4585,7 +4282,8 @@ class UplinkSpectrumConfig {
     return UplinkSpectrumConfig(
       centerFrequency:
           Frequency.fromJson(json['centerFrequency'] as Map<String, dynamic>),
-      polarization: (json['polarization'] as String?)?.toPolarization(),
+      polarization:
+          (json['polarization'] as String?)?.let(Polarization.fromString),
     );
   }
 
@@ -4594,7 +4292,7 @@ class UplinkSpectrumConfig {
     final polarization = this.polarization;
     return {
       'centerFrequency': centerFrequency,
-      if (polarization != null) 'polarization': polarization.toValue(),
+      if (polarization != null) 'polarization': polarization.value,
     };
   }
 }

@@ -61,7 +61,9 @@ class ConnectParticipant {
   }
 
   /// Allows you to confirm that the attachment has been uploaded using the
-  /// pre-signed URL provided in StartAttachmentUpload API.
+  /// pre-signed URL provided in StartAttachmentUpload API. A conflict exception
+  /// is thrown when an attachment with that identifier is already being
+  /// uploaded.
   /// <note>
   /// <code>ConnectionToken</code> is used for invoking this API instead of
   /// <code>ParticipantToken</code>.
@@ -169,8 +171,9 @@ class ConnectParticipant {
   /// manager participant in non-streaming chats.
   ///
   /// Parameter [type] :
-  /// Type of connection information required. This can be omitted if
-  /// <code>ConnectParticipant</code> is <code>true</code>.
+  /// Type of connection information required. If you need
+  /// <code>CONNECTION_CREDENTIALS</code> along with marking participant as
+  /// connected, pass <code>CONNECTION_CREDENTIALS</code> in <code>Type</code>.
   Future<CreateParticipantConnectionResponse> createParticipantConnection({
     required String participantToken,
     bool? connectParticipant,
@@ -181,7 +184,7 @@ class ConnectParticipant {
     };
     final $payload = <String, dynamic>{
       if (connectParticipant != null) 'ConnectParticipant': connectParticipant,
-      if (type != null) 'Type': type.map((e) => e.toValue()).toList(),
+      if (type != null) 'Type': type.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -191,6 +194,37 @@ class ConnectParticipant {
       exceptionFnMap: _exceptionFns,
     );
     return CreateParticipantConnectionResponse.fromJson(response);
+  }
+
+  /// Retrieves the view for the specified view token.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [connectionToken] :
+  /// The connection token.
+  ///
+  /// Parameter [viewToken] :
+  /// An encrypted token originating from the interactive message of a ShowView
+  /// block operation. Represents the desired view.
+  Future<DescribeViewResponse> describeView({
+    required String connectionToken,
+    required String viewToken,
+  }) async {
+    final headers = <String, String>{
+      'X-Amz-Bearer': connectionToken.toString(),
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/participant/views/${Uri.encodeComponent(viewToken)}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribeViewResponse.fromJson(response);
   }
 
   /// Disconnects a participant.
@@ -280,7 +314,28 @@ class ConnectParticipant {
   /// for a persistent chat, see <a
   /// href="https://docs.aws.amazon.com/connect/latest/adminguide/chat-persistence.html">Enable
   /// persistent chat</a>.
-  /// <note>
+  ///
+  /// If you have a process that consumes events in the transcript of an chat
+  /// that has ended, note that chat transcripts contain the following event
+  /// content types if the event has occurred during the chat session:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>application/vnd.amazonaws.connect.event.participant.left</code>
+  /// </li>
+  /// <li>
+  /// <code>application/vnd.amazonaws.connect.event.participant.joined</code>
+  /// </li>
+  /// <li>
+  /// <code>application/vnd.amazonaws.connect.event.chat.ended</code>
+  /// </li>
+  /// <li>
+  /// <code>application/vnd.amazonaws.connect.event.transfer.succeeded</code>
+  /// </li>
+  /// <li>
+  /// <code>application/vnd.amazonaws.connect.event.transfer.failed</code>
+  /// </li>
+  /// </ul> <note>
   /// <code>ConnectionToken</code> is used for invoking this API instead of
   /// <code>ParticipantToken</code>.
   /// </note>
@@ -338,8 +393,8 @@ class ConnectParticipant {
       if (contactId != null) 'ContactId': contactId,
       if (maxResults != null) 'MaxResults': maxResults,
       if (nextToken != null) 'NextToken': nextToken,
-      if (scanDirection != null) 'ScanDirection': scanDirection.toValue(),
-      if (sortOrder != null) 'SortOrder': sortOrder.toValue(),
+      if (scanDirection != null) 'ScanDirection': scanDirection.value,
+      if (sortOrder != null) 'SortOrder': sortOrder.value,
       if (startPosition != null) 'StartPosition': startPosition,
     };
     final response = await _protocol.send(
@@ -352,7 +407,18 @@ class ConnectParticipant {
     return GetTranscriptResponse.fromJson(response);
   }
 
-  /// Sends an event.
+  /// <note>
+  /// The
+  /// <code>application/vnd.amazonaws.connect.event.connection.acknowledged</code>
+  /// ContentType will no longer be supported starting December 31, 2024. This
+  /// event has been migrated to the <a
+  /// href="https://docs.aws.amazon.com/connect-participant/latest/APIReference/API_CreateParticipantConnection.html">CreateParticipantConnection</a>
+  /// API using the <code>ConnectParticipant</code> field.
+  /// </note>
+  /// Sends an event. Message receipts are not supported when there are more
+  /// than two active participants in the chat. Using the SendEvent API for
+  /// message receipts when a supervisor is barged-in will result in a conflict
+  /// exception.
   /// <note>
   /// <code>ConnectionToken</code> is used for invoking this API instead of
   /// <code>ParticipantToken</code>.
@@ -365,6 +431,7 @@ class ConnectParticipant {
   /// May throw [InternalServerException].
   /// May throw [ThrottlingException].
   /// May throw [ValidationException].
+  /// May throw [ConflictException].
   ///
   /// Parameter [connectionToken] :
   /// The authentication token associated with the participant's connection.
@@ -377,7 +444,8 @@ class ConnectParticipant {
   /// application/vnd.amazonaws.connect.event.typing
   /// </li>
   /// <li>
-  /// application/vnd.amazonaws.connect.event.connection.acknowledged
+  /// application/vnd.amazonaws.connect.event.connection.acknowledged (will be
+  /// deprecated on December 31, 2024)
   /// </li>
   /// <li>
   /// application/vnd.amazonaws.connect.event.message.delivered
@@ -567,36 +635,19 @@ class ConnectParticipant {
 }
 
 enum ArtifactStatus {
-  approved,
-  rejected,
-  inProgress,
-}
+  approved('APPROVED'),
+  rejected('REJECTED'),
+  inProgress('IN_PROGRESS'),
+  ;
 
-extension ArtifactStatusValueExtension on ArtifactStatus {
-  String toValue() {
-    switch (this) {
-      case ArtifactStatus.approved:
-        return 'APPROVED';
-      case ArtifactStatus.rejected:
-        return 'REJECTED';
-      case ArtifactStatus.inProgress:
-        return 'IN_PROGRESS';
-    }
-  }
-}
+  final String value;
 
-extension ArtifactStatusFromString on String {
-  ArtifactStatus toArtifactStatus() {
-    switch (this) {
-      case 'APPROVED':
-        return ArtifactStatus.approved;
-      case 'REJECTED':
-        return ArtifactStatus.rejected;
-      case 'IN_PROGRESS':
-        return ArtifactStatus.inProgress;
-    }
-    throw Exception('$this is not known in enum ArtifactStatus');
-  }
+  const ArtifactStatus(this.value);
+
+  static ArtifactStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ArtifactStatus'));
 }
 
 /// The case-insensitive input to indicate standard MIME type that describes the
@@ -629,7 +680,7 @@ class AttachmentItem {
       attachmentId: json['AttachmentId'] as String?,
       attachmentName: json['AttachmentName'] as String?,
       contentType: json['ContentType'] as String?,
-      status: (json['Status'] as String?)?.toArtifactStatus(),
+      status: (json['Status'] as String?)?.let(ArtifactStatus.fromString),
     );
   }
 
@@ -642,87 +693,34 @@ class AttachmentItem {
       if (attachmentId != null) 'AttachmentId': attachmentId,
       if (attachmentName != null) 'AttachmentName': attachmentName,
       if (contentType != null) 'ContentType': contentType,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum ChatItemType {
-  typing,
-  participantJoined,
-  participantLeft,
-  chatEnded,
-  transferSucceeded,
-  transferFailed,
-  message,
-  event,
-  attachment,
-  connectionAck,
-  messageDelivered,
-  messageRead,
-}
+  typing('TYPING'),
+  participantJoined('PARTICIPANT_JOINED'),
+  participantLeft('PARTICIPANT_LEFT'),
+  chatEnded('CHAT_ENDED'),
+  transferSucceeded('TRANSFER_SUCCEEDED'),
+  transferFailed('TRANSFER_FAILED'),
+  message('MESSAGE'),
+  event('EVENT'),
+  attachment('ATTACHMENT'),
+  connectionAck('CONNECTION_ACK'),
+  messageDelivered('MESSAGE_DELIVERED'),
+  messageRead('MESSAGE_READ'),
+  ;
 
-extension ChatItemTypeValueExtension on ChatItemType {
-  String toValue() {
-    switch (this) {
-      case ChatItemType.typing:
-        return 'TYPING';
-      case ChatItemType.participantJoined:
-        return 'PARTICIPANT_JOINED';
-      case ChatItemType.participantLeft:
-        return 'PARTICIPANT_LEFT';
-      case ChatItemType.chatEnded:
-        return 'CHAT_ENDED';
-      case ChatItemType.transferSucceeded:
-        return 'TRANSFER_SUCCEEDED';
-      case ChatItemType.transferFailed:
-        return 'TRANSFER_FAILED';
-      case ChatItemType.message:
-        return 'MESSAGE';
-      case ChatItemType.event:
-        return 'EVENT';
-      case ChatItemType.attachment:
-        return 'ATTACHMENT';
-      case ChatItemType.connectionAck:
-        return 'CONNECTION_ACK';
-      case ChatItemType.messageDelivered:
-        return 'MESSAGE_DELIVERED';
-      case ChatItemType.messageRead:
-        return 'MESSAGE_READ';
-    }
-  }
-}
+  final String value;
 
-extension ChatItemTypeFromString on String {
-  ChatItemType toChatItemType() {
-    switch (this) {
-      case 'TYPING':
-        return ChatItemType.typing;
-      case 'PARTICIPANT_JOINED':
-        return ChatItemType.participantJoined;
-      case 'PARTICIPANT_LEFT':
-        return ChatItemType.participantLeft;
-      case 'CHAT_ENDED':
-        return ChatItemType.chatEnded;
-      case 'TRANSFER_SUCCEEDED':
-        return ChatItemType.transferSucceeded;
-      case 'TRANSFER_FAILED':
-        return ChatItemType.transferFailed;
-      case 'MESSAGE':
-        return ChatItemType.message;
-      case 'EVENT':
-        return ChatItemType.event;
-      case 'ATTACHMENT':
-        return ChatItemType.attachment;
-      case 'CONNECTION_ACK':
-        return ChatItemType.connectionAck;
-      case 'MESSAGE_DELIVERED':
-        return ChatItemType.messageDelivered;
-      case 'MESSAGE_READ':
-        return ChatItemType.messageRead;
-    }
-    throw Exception('$this is not known in enum ChatItemType');
-  }
+  const ChatItemType(this.value);
+
+  static ChatItemType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ChatItemType'));
 }
 
 class CompleteAttachmentUploadResponse {
@@ -771,31 +769,18 @@ class ConnectionCredentials {
 }
 
 enum ConnectionType {
-  websocket,
-  connectionCredentials,
-}
+  websocket('WEBSOCKET'),
+  connectionCredentials('CONNECTION_CREDENTIALS'),
+  ;
 
-extension ConnectionTypeValueExtension on ConnectionType {
-  String toValue() {
-    switch (this) {
-      case ConnectionType.websocket:
-        return 'WEBSOCKET';
-      case ConnectionType.connectionCredentials:
-        return 'CONNECTION_CREDENTIALS';
-    }
-  }
-}
+  final String value;
 
-extension ConnectionTypeFromString on String {
-  ConnectionType toConnectionType() {
-    switch (this) {
-      case 'WEBSOCKET':
-        return ConnectionType.websocket;
-      case 'CONNECTION_CREDENTIALS':
-        return ConnectionType.connectionCredentials;
-    }
-    throw Exception('$this is not known in enum ConnectionType');
-  }
+  const ConnectionType(this.value);
+
+  static ConnectionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConnectionType'));
 }
 
 class CreateParticipantConnectionResponse {
@@ -831,6 +816,31 @@ class CreateParticipantConnectionResponse {
       if (connectionCredentials != null)
         'ConnectionCredentials': connectionCredentials,
       if (websocket != null) 'Websocket': websocket,
+    };
+  }
+}
+
+class DescribeViewResponse {
+  /// A view resource object. Contains metadata and content necessary to render
+  /// the view.
+  final View? view;
+
+  DescribeViewResponse({
+    this.view,
+  });
+
+  factory DescribeViewResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeViewResponse(
+      view: json['View'] != null
+          ? View.fromJson(json['View'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final view = this.view;
+    return {
+      if (view != null) 'View': view,
     };
   }
 }
@@ -901,7 +911,7 @@ class GetTranscriptResponse {
       initialContactId: json['InitialContactId'] as String?,
       nextToken: json['NextToken'] as String?,
       transcript: (json['Transcript'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Item.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -985,7 +995,7 @@ class Item {
     return Item(
       absoluteTime: json['AbsoluteTime'] as String?,
       attachments: (json['Attachments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttachmentItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       contactId: json['ContactId'] as String?,
@@ -999,9 +1009,9 @@ class Item {
           : null,
       participantId: json['ParticipantId'] as String?,
       participantRole:
-          (json['ParticipantRole'] as String?)?.toParticipantRole(),
+          (json['ParticipantRole'] as String?)?.let(ParticipantRole.fromString),
       relatedContactId: json['RelatedContactId'] as String?,
-      type: (json['Type'] as String?)?.toChatItemType(),
+      type: (json['Type'] as String?)?.let(ChatItemType.fromString),
     );
   }
 
@@ -1028,9 +1038,9 @@ class Item {
       if (id != null) 'Id': id,
       if (messageMetadata != null) 'MessageMetadata': messageMetadata,
       if (participantId != null) 'ParticipantId': participantId,
-      if (participantRole != null) 'ParticipantRole': participantRole.toValue(),
+      if (participantRole != null) 'ParticipantRole': participantRole.value,
       if (relatedContactId != null) 'RelatedContactId': relatedContactId,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -1052,7 +1062,7 @@ class MessageMetadata {
     return MessageMetadata(
       messageId: json['MessageId'] as String?,
       receipts: (json['Receipts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Receipt.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1069,36 +1079,21 @@ class MessageMetadata {
 }
 
 enum ParticipantRole {
-  agent,
-  customer,
-  system,
-}
+  agent('AGENT'),
+  customer('CUSTOMER'),
+  system('SYSTEM'),
+  customBot('CUSTOM_BOT'),
+  supervisor('SUPERVISOR'),
+  ;
 
-extension ParticipantRoleValueExtension on ParticipantRole {
-  String toValue() {
-    switch (this) {
-      case ParticipantRole.agent:
-        return 'AGENT';
-      case ParticipantRole.customer:
-        return 'CUSTOMER';
-      case ParticipantRole.system:
-        return 'SYSTEM';
-    }
-  }
-}
+  final String value;
 
-extension ParticipantRoleFromString on String {
-  ParticipantRole toParticipantRole() {
-    switch (this) {
-      case 'AGENT':
-        return ParticipantRole.agent;
-      case 'CUSTOMER':
-        return ParticipantRole.customer;
-      case 'SYSTEM':
-        return ParticipantRole.system;
-    }
-    throw Exception('$this is not known in enum ParticipantRole');
-  }
+  const ParticipantRole(this.value);
+
+  static ParticipantRole fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ParticipantRole'));
 }
 
 /// The receipt for the message delivered to the recipient.
@@ -1140,31 +1135,18 @@ class Receipt {
 }
 
 enum ScanDirection {
-  forward,
-  backward,
-}
+  forward('FORWARD'),
+  backward('BACKWARD'),
+  ;
 
-extension ScanDirectionValueExtension on ScanDirection {
-  String toValue() {
-    switch (this) {
-      case ScanDirection.forward:
-        return 'FORWARD';
-      case ScanDirection.backward:
-        return 'BACKWARD';
-    }
-  }
-}
+  final String value;
 
-extension ScanDirectionFromString on String {
-  ScanDirection toScanDirection() {
-    switch (this) {
-      case 'FORWARD':
-        return ScanDirection.forward;
-      case 'BACKWARD':
-        return ScanDirection.backward;
-    }
-    throw Exception('$this is not known in enum ScanDirection');
-  }
+  const ScanDirection(this.value);
+
+  static ScanDirection fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ScanDirection'));
 }
 
 class SendEventResponse {
@@ -1232,31 +1214,17 @@ class SendMessageResponse {
 }
 
 enum SortKey {
-  descending,
-  ascending,
-}
+  descending('DESCENDING'),
+  ascending('ASCENDING'),
+  ;
 
-extension SortKeyValueExtension on SortKey {
-  String toValue() {
-    switch (this) {
-      case SortKey.descending:
-        return 'DESCENDING';
-      case SortKey.ascending:
-        return 'ASCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortKeyFromString on String {
-  SortKey toSortKey() {
-    switch (this) {
-      case 'DESCENDING':
-        return SortKey.descending;
-      case 'ASCENDING':
-        return SortKey.ascending;
-    }
-    throw Exception('$this is not known in enum SortKey');
-  }
+  const SortKey(this.value);
+
+  static SortKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum SortKey'));
 }
 
 class StartAttachmentUploadResponse {
@@ -1365,6 +1333,101 @@ class UploadMetadata {
   }
 }
 
+/// A view resource object. Contains metadata and content necessary to render
+/// the view.
+class View {
+  /// The Amazon Resource Name (ARN) of the view.
+  final String? arn;
+
+  /// View content containing all content necessary to render a view except for
+  /// runtime input data.
+  final ViewContent? content;
+
+  /// The identifier of the view.
+  final String? id;
+
+  /// The name of the view.
+  final String? name;
+
+  /// The current version of the view.
+  final int? version;
+
+  View({
+    this.arn,
+    this.content,
+    this.id,
+    this.name,
+    this.version,
+  });
+
+  factory View.fromJson(Map<String, dynamic> json) {
+    return View(
+      arn: json['Arn'] as String?,
+      content: json['Content'] != null
+          ? ViewContent.fromJson(json['Content'] as Map<String, dynamic>)
+          : null,
+      id: json['Id'] as String?,
+      name: json['Name'] as String?,
+      version: json['Version'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final content = this.content;
+    final id = this.id;
+    final name = this.name;
+    final version = this.version;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (content != null) 'Content': content,
+      if (id != null) 'Id': id,
+      if (name != null) 'Name': name,
+      if (version != null) 'Version': version,
+    };
+  }
+}
+
+/// View content containing all content necessary to render a view except for
+/// runtime input data.
+class ViewContent {
+  /// A list of actions possible from the view
+  final List<String>? actions;
+
+  /// The schema representing the input data that the view template must be
+  /// supplied to render.
+  final String? inputSchema;
+
+  /// The view template representing the structure of the view.
+  final String? template;
+
+  ViewContent({
+    this.actions,
+    this.inputSchema,
+    this.template,
+  });
+
+  factory ViewContent.fromJson(Map<String, dynamic> json) {
+    return ViewContent(
+      actions:
+          (json['Actions'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      inputSchema: json['InputSchema'] as String?,
+      template: json['Template'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final actions = this.actions;
+    final inputSchema = this.inputSchema;
+    final template = this.template;
+    return {
+      if (actions != null) 'Actions': actions,
+      if (inputSchema != null) 'InputSchema': inputSchema,
+      if (template != null) 'Template': template,
+    };
+  }
+}
+
 /// The websocket for the participant's connection.
 class Websocket {
   /// The URL expiration timestamp in ISO date format.
@@ -1413,6 +1476,11 @@ class InternalServerException extends _s.GenericAwsException {
       : super(type: type, code: 'InternalServerException', message: message);
 }
 
+class ResourceNotFoundException extends _s.GenericAwsException {
+  ResourceNotFoundException({String? type, String? message})
+      : super(type: type, code: 'ResourceNotFoundException', message: message);
+}
+
 class ServiceQuotaExceededException extends _s.GenericAwsException {
   ServiceQuotaExceededException({String? type, String? message})
       : super(
@@ -1438,6 +1506,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       ConflictException(type: type, message: message),
   'InternalServerException': (type, message) =>
       InternalServerException(type: type, message: message),
+  'ResourceNotFoundException': (type, message) =>
+      ResourceNotFoundException(type: type, message: message),
   'ServiceQuotaExceededException': (type, message) =>
       ServiceQuotaExceededException(type: type, message: message),
   'ThrottlingException': (type, message) =>

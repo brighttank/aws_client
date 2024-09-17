@@ -17,7 +17,6 @@ import '../../shared/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'v2011_02_01.meta.dart';
 export '../../shared/shared.dart' show AwsClientCredentials;
 
 /// You use the configuration service to create, configure, and manage search
@@ -26,7 +25,6 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// GET or POST with a query parameter named Action.
 class CloudSearch {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   CloudSearch({
     required String region,
@@ -34,7 +32,7 @@ class CloudSearch {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'cloudsearch',
@@ -43,9 +41,7 @@ class CloudSearch {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -64,8 +60,9 @@ class CloudSearch {
   Future<CreateDomainResponse> createDomain({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDomain',
@@ -73,8 +70,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDomainRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateDomainResult',
     );
     return CreateDomainResponse.fromXml($result);
@@ -94,9 +89,11 @@ class CloudSearch {
     required String domainName,
     required IndexField indexField,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['IndexField'] = indexField;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      for (var e1 in indexField.toQueryMap().entries)
+        'IndexField.${e1.key}': e1.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DefineIndexField',
@@ -104,8 +101,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DefineIndexFieldRequest'],
-      shapes: shapes,
       resultWrapper: 'DefineIndexFieldResult',
     );
     return DefineIndexFieldResponse.fromXml($result);
@@ -125,9 +120,11 @@ class CloudSearch {
     required String domainName,
     required NamedRankExpression rankExpression,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['RankExpression'] = rankExpression;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      for (var e1 in rankExpression.toQueryMap().entries)
+        'RankExpression.${e1.key}': e1.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DefineRankExpression',
@@ -135,8 +132,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DefineRankExpressionRequest'],
-      shapes: shapes,
       resultWrapper: 'DefineRankExpressionResult',
     );
     return DefineRankExpressionResponse.fromXml($result);
@@ -149,8 +144,9 @@ class CloudSearch {
   Future<DeleteDomainResponse> deleteDomain({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDomain',
@@ -158,8 +154,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDomainRequest'],
-      shapes: shapes,
       resultWrapper: 'DeleteDomainResult',
     );
     return DeleteDomainResponse.fromXml($result);
@@ -175,9 +169,10 @@ class CloudSearch {
     required String domainName,
     required String indexFieldName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['IndexFieldName'] = indexFieldName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      'IndexFieldName': indexFieldName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteIndexField',
@@ -185,8 +180,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteIndexFieldRequest'],
-      shapes: shapes,
       resultWrapper: 'DeleteIndexFieldResult',
     );
     return DeleteIndexFieldResponse.fromXml($result);
@@ -205,9 +198,10 @@ class CloudSearch {
     required String domainName,
     required String rankName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['RankName'] = rankName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      'RankName': rankName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteRankExpression',
@@ -215,8 +209,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteRankExpressionRequest'],
-      shapes: shapes,
       resultWrapper: 'DeleteRankExpressionResult',
     );
     return DeleteRankExpressionResponse.fromXml($result);
@@ -242,8 +234,9 @@ class CloudSearch {
   Future<DescribeAvailabilityOptionsResponse> describeAvailabilityOptions({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAvailabilityOptions',
@@ -251,8 +244,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAvailabilityOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeAvailabilityOptionsResult',
     );
     return DescribeAvailabilityOptionsResponse.fromXml($result);
@@ -266,8 +257,9 @@ class CloudSearch {
   Future<DescribeDefaultSearchFieldResponse> describeDefaultSearchField({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDefaultSearchField',
@@ -275,8 +267,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDefaultSearchFieldRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeDefaultSearchFieldResult',
     );
     return DescribeDefaultSearchFieldResponse.fromXml($result);
@@ -293,8 +283,14 @@ class CloudSearch {
   Future<DescribeDomainsResponse> describeDomains({
     List<String>? domainNames,
   }) async {
-    final $request = <String, dynamic>{};
-    domainNames?.also((arg) => $request['DomainNames'] = arg);
+    final $request = <String, String>{
+      if (domainNames != null)
+        if (domainNames.isEmpty)
+          'DomainNames': ''
+        else
+          for (var i1 = 0; i1 < domainNames.length; i1++)
+            'DomainNames.member.${i1 + 1}': domainNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDomains',
@@ -302,8 +298,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDomainsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeDomainsResult',
     );
     return DescribeDomainsResponse.fromXml($result);
@@ -323,9 +317,15 @@ class CloudSearch {
     required String domainName,
     List<String>? fieldNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    fieldNames?.also((arg) => $request['FieldNames'] = arg);
+    final $request = <String, String>{
+      'DomainName': domainName,
+      if (fieldNames != null)
+        if (fieldNames.isEmpty)
+          'FieldNames': ''
+        else
+          for (var i1 = 0; i1 < fieldNames.length; i1++)
+            'FieldNames.member.${i1 + 1}': fieldNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeIndexFields',
@@ -333,8 +333,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeIndexFieldsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeIndexFieldsResult',
     );
     return DescribeIndexFieldsResponse.fromXml($result);
@@ -355,9 +353,15 @@ class CloudSearch {
     required String domainName,
     List<String>? rankNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    rankNames?.also((arg) => $request['RankNames'] = arg);
+    final $request = <String, String>{
+      'DomainName': domainName,
+      if (rankNames != null)
+        if (rankNames.isEmpty)
+          'RankNames': ''
+        else
+          for (var i1 = 0; i1 < rankNames.length; i1++)
+            'RankNames.member.${i1 + 1}': rankNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeRankExpressions',
@@ -365,8 +369,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeRankExpressionsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeRankExpressionsResult',
     );
     return DescribeRankExpressionsResponse.fromXml($result);
@@ -381,8 +383,9 @@ class CloudSearch {
   Future<DescribeServiceAccessPoliciesResponse> describeServiceAccessPolicies({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeServiceAccessPolicies',
@@ -390,8 +393,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeServiceAccessPoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeServiceAccessPoliciesResult',
     );
     return DescribeServiceAccessPoliciesResponse.fromXml($result);
@@ -405,8 +406,9 @@ class CloudSearch {
   Future<DescribeStemmingOptionsResponse> describeStemmingOptions({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeStemmingOptions',
@@ -414,8 +416,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeStemmingOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeStemmingOptionsResult',
     );
     return DescribeStemmingOptionsResponse.fromXml($result);
@@ -429,8 +429,9 @@ class CloudSearch {
   Future<DescribeStopwordOptionsResponse> describeStopwordOptions({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeStopwordOptions',
@@ -438,8 +439,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeStopwordOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeStopwordOptionsResult',
     );
     return DescribeStopwordOptionsResponse.fromXml($result);
@@ -453,8 +452,9 @@ class CloudSearch {
   Future<DescribeSynonymOptionsResponse> describeSynonymOptions({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeSynonymOptions',
@@ -462,8 +462,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeSynonymOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeSynonymOptionsResult',
     );
     return DescribeSynonymOptionsResponse.fromXml($result);
@@ -481,8 +479,9 @@ class CloudSearch {
   Future<IndexDocumentsResponse> indexDocuments({
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'IndexDocuments',
@@ -490,8 +489,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['IndexDocumentsRequest'],
-      shapes: shapes,
       resultWrapper: 'IndexDocumentsResult',
     );
     return IndexDocumentsResponse.fromXml($result);
@@ -522,9 +519,10 @@ class CloudSearch {
     required String domainName,
     required bool multiAZ,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['MultiAZ'] = multiAZ;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      'MultiAZ': multiAZ.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateAvailabilityOptions',
@@ -532,8 +530,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateAvailabilityOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateAvailabilityOptionsResult',
     );
     return UpdateAvailabilityOptionsResponse.fromXml($result);
@@ -560,9 +556,10 @@ class CloudSearch {
     required String defaultSearchField,
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DefaultSearchField'] = defaultSearchField;
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'DefaultSearchField': defaultSearchField,
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateDefaultSearchField',
@@ -570,8 +567,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateDefaultSearchFieldRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateDefaultSearchFieldResult',
     );
     return UpdateDefaultSearchFieldResponse.fromXml($result);
@@ -589,9 +584,10 @@ class CloudSearch {
     required String accessPolicies,
     required String domainName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccessPolicies'] = accessPolicies;
-    $request['DomainName'] = domainName;
+    final $request = <String, String>{
+      'AccessPolicies': accessPolicies,
+      'DomainName': domainName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateServiceAccessPolicies',
@@ -599,8 +595,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateServiceAccessPoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateServiceAccessPoliciesResult',
     );
     return UpdateServiceAccessPoliciesResponse.fromXml($result);
@@ -619,9 +613,10 @@ class CloudSearch {
     required String domainName,
     required String stems,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['Stems'] = stems;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      'Stems': stems,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateStemmingOptions',
@@ -629,8 +624,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateStemmingOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateStemmingOptionsResult',
     );
     return UpdateStemmingOptionsResponse.fromXml($result);
@@ -649,9 +642,10 @@ class CloudSearch {
     required String domainName,
     required String stopwords,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['Stopwords'] = stopwords;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      'Stopwords': stopwords,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateStopwordOptions',
@@ -659,8 +653,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateStopwordOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateStopwordOptionsResult',
     );
     return UpdateStopwordOptionsResponse.fromXml($result);
@@ -680,9 +672,10 @@ class CloudSearch {
     required String domainName,
     required String synonyms,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DomainName'] = domainName;
-    $request['Synonyms'] = synonyms;
+    final $request = <String, String>{
+      'DomainName': domainName,
+      'Synonyms': synonyms,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateSynonymOptions',
@@ -690,8 +683,6 @@ class CloudSearch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateSynonymOptionsRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateSynonymOptionsResult',
     );
     return UpdateSynonymOptionsResponse.fromXml($result);
@@ -1362,8 +1353,9 @@ class IndexField {
   factory IndexField.fromXml(_s.XmlElement elem) {
     return IndexField(
       indexFieldName: _s.extractXmlStringValue(elem, 'IndexFieldName')!,
-      indexFieldType:
-          _s.extractXmlStringValue(elem, 'IndexFieldType')!.toIndexFieldType(),
+      indexFieldType: _s
+          .extractXmlStringValue(elem, 'IndexFieldType')!
+          .let(IndexFieldType.fromString),
       literalOptions: _s
           .extractXmlChild(elem, 'LiteralOptions')
           ?.let(LiteralOptions.fromXml),
@@ -1388,11 +1380,40 @@ class IndexField {
     final uIntOptions = this.uIntOptions;
     return {
       'IndexFieldName': indexFieldName,
-      'IndexFieldType': indexFieldType.toValue(),
+      'IndexFieldType': indexFieldType.value,
       if (literalOptions != null) 'LiteralOptions': literalOptions,
       if (sourceAttributes != null) 'SourceAttributes': sourceAttributes,
       if (textOptions != null) 'TextOptions': textOptions,
       if (uIntOptions != null) 'UIntOptions': uIntOptions,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final indexFieldName = this.indexFieldName;
+    final indexFieldType = this.indexFieldType;
+    final literalOptions = this.literalOptions;
+    final sourceAttributes = this.sourceAttributes;
+    final textOptions = this.textOptions;
+    final uIntOptions = this.uIntOptions;
+    return {
+      'IndexFieldName': indexFieldName,
+      'IndexFieldType': indexFieldType.value,
+      if (literalOptions != null)
+        for (var e1 in literalOptions.toQueryMap().entries)
+          'LiteralOptions.${e1.key}': e1.value,
+      if (sourceAttributes != null)
+        if (sourceAttributes.isEmpty)
+          'SourceAttributes': ''
+        else
+          for (var i1 = 0; i1 < sourceAttributes.length; i1++)
+            for (var e3 in sourceAttributes[i1].toQueryMap().entries)
+              'SourceAttributes.member.${i1 + 1}.${e3.key}': e3.value,
+      if (textOptions != null)
+        for (var e1 in textOptions.toQueryMap().entries)
+          'TextOptions.${e1.key}': e1.value,
+      if (uIntOptions != null)
+        for (var e1 in uIntOptions.toQueryMap().entries)
+          'UIntOptions.${e1.key}': e1.value,
     };
   }
 }
@@ -1425,36 +1446,19 @@ class IndexFieldStatus {
 
 /// The type of <code>IndexField</code>.
 enum IndexFieldType {
-  uint,
-  literal,
-  text,
-}
+  uint('uint'),
+  literal('literal'),
+  text('text'),
+  ;
 
-extension IndexFieldTypeValueExtension on IndexFieldType {
-  String toValue() {
-    switch (this) {
-      case IndexFieldType.uint:
-        return 'uint';
-      case IndexFieldType.literal:
-        return 'literal';
-      case IndexFieldType.text:
-        return 'text';
-    }
-  }
-}
+  final String value;
 
-extension IndexFieldTypeFromString on String {
-  IndexFieldType toIndexFieldType() {
-    switch (this) {
-      case 'uint':
-        return IndexFieldType.uint;
-      case 'literal':
-        return IndexFieldType.literal;
-      case 'text':
-        return IndexFieldType.text;
-    }
-    throw Exception('$this is not known in enum IndexFieldType');
-  }
+  const IndexFieldType(this.value);
+
+  static IndexFieldType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IndexFieldType'));
 }
 
 /// An internal error occurred while processing the request. If this problem
@@ -1543,6 +1547,19 @@ class LiteralOptions {
       if (searchEnabled != null) 'SearchEnabled': searchEnabled,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final defaultValue = this.defaultValue;
+    final facetEnabled = this.facetEnabled;
+    final resultEnabled = this.resultEnabled;
+    final searchEnabled = this.searchEnabled;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (facetEnabled != null) 'FacetEnabled': facetEnabled.toString(),
+      if (resultEnabled != null) 'ResultEnabled': resultEnabled.toString(),
+      if (searchEnabled != null) 'SearchEnabled': searchEnabled.toString(),
+    };
+  }
 }
 
 /// A named expression that can be evaluated at search time and used for ranking
@@ -1616,40 +1633,31 @@ class NamedRankExpression {
       'RankName': rankName,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final rankExpression = this.rankExpression;
+    final rankName = this.rankName;
+    return {
+      'RankExpression': rankExpression,
+      'RankName': rankName,
+    };
+  }
 }
 
 /// The state of processing a change to an option.
 enum OptionState {
-  requiresIndexDocuments,
-  processing,
-  active,
-}
+  requiresIndexDocuments('RequiresIndexDocuments'),
+  processing('Processing'),
+  active('Active'),
+  ;
 
-extension OptionStateValueExtension on OptionState {
-  String toValue() {
-    switch (this) {
-      case OptionState.requiresIndexDocuments:
-        return 'RequiresIndexDocuments';
-      case OptionState.processing:
-        return 'Processing';
-      case OptionState.active:
-        return 'Active';
-    }
-  }
-}
+  final String value;
 
-extension OptionStateFromString on String {
-  OptionState toOptionState() {
-    switch (this) {
-      case 'RequiresIndexDocuments':
-        return OptionState.requiresIndexDocuments;
-      case 'Processing':
-        return OptionState.processing;
-      case 'Active':
-        return OptionState.active;
-    }
-    throw Exception('$this is not known in enum OptionState');
-  }
+  const OptionState(this.value);
+
+  static OptionState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum OptionState'));
 }
 
 /// The status of an option, including when it was last updated and whether it
@@ -1691,7 +1699,8 @@ class OptionStatus {
   factory OptionStatus.fromXml(_s.XmlElement elem) {
     return OptionStatus(
       creationDate: _s.extractXmlDateTimeValue(elem, 'CreationDate')!,
-      state: _s.extractXmlStringValue(elem, 'State')!.toOptionState(),
+      state:
+          _s.extractXmlStringValue(elem, 'State')!.let(OptionState.fromString),
       updateDate: _s.extractXmlDateTimeValue(elem, 'UpdateDate')!,
       pendingDeletion: _s.extractXmlBoolValue(elem, 'PendingDeletion'),
       updateVersion: _s.extractXmlIntValue(elem, 'UpdateVersion'),
@@ -1706,7 +1715,7 @@ class OptionStatus {
     final updateVersion = this.updateVersion;
     return {
       'CreationDate': iso8601ToJson(creationDate),
-      'State': state.toValue(),
+      'State': state.value,
       'UpdateDate': iso8601ToJson(updateDate),
       if (pendingDeletion != null) 'PendingDeletion': pendingDeletion,
       if (updateVersion != null) 'UpdateVersion': updateVersion,
@@ -1818,7 +1827,7 @@ class SourceAttribute {
     return SourceAttribute(
       sourceDataFunction: _s
           .extractXmlStringValue(elem, 'SourceDataFunction')!
-          .toSourceDataFunction(),
+          .let(SourceDataFunction.fromString),
       sourceDataCopy:
           _s.extractXmlChild(elem, 'SourceDataCopy')?.let(SourceData.fromXml),
       sourceDataMap:
@@ -1835,11 +1844,30 @@ class SourceAttribute {
     final sourceDataMap = this.sourceDataMap;
     final sourceDataTrimTitle = this.sourceDataTrimTitle;
     return {
-      'SourceDataFunction': sourceDataFunction.toValue(),
+      'SourceDataFunction': sourceDataFunction.value,
       if (sourceDataCopy != null) 'SourceDataCopy': sourceDataCopy,
       if (sourceDataMap != null) 'SourceDataMap': sourceDataMap,
       if (sourceDataTrimTitle != null)
         'SourceDataTrimTitle': sourceDataTrimTitle,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final sourceDataFunction = this.sourceDataFunction;
+    final sourceDataCopy = this.sourceDataCopy;
+    final sourceDataMap = this.sourceDataMap;
+    final sourceDataTrimTitle = this.sourceDataTrimTitle;
+    return {
+      'SourceDataFunction': sourceDataFunction.value,
+      if (sourceDataCopy != null)
+        for (var e1 in sourceDataCopy.toQueryMap().entries)
+          'SourceDataCopy.${e1.key}': e1.value,
+      if (sourceDataMap != null)
+        for (var e1 in sourceDataMap.toQueryMap().entries)
+          'SourceDataMap.${e1.key}': e1.value,
+      if (sourceDataTrimTitle != null)
+        for (var e1 in sourceDataTrimTitle.toQueryMap().entries)
+          'SourceDataTrimTitle.${e1.key}': e1.value,
     };
   }
 }
@@ -1874,39 +1902,31 @@ class SourceData {
       if (defaultValue != null) 'DefaultValue': defaultValue,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final sourceName = this.sourceName;
+    final defaultValue = this.defaultValue;
+    return {
+      'SourceName': sourceName,
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+    };
+  }
 }
 
 enum SourceDataFunction {
-  copy,
-  trimTitle,
-  map,
-}
+  copy('Copy'),
+  trimTitle('TrimTitle'),
+  map('Map'),
+  ;
 
-extension SourceDataFunctionValueExtension on SourceDataFunction {
-  String toValue() {
-    switch (this) {
-      case SourceDataFunction.copy:
-        return 'Copy';
-      case SourceDataFunction.trimTitle:
-        return 'TrimTitle';
-      case SourceDataFunction.map:
-        return 'Map';
-    }
-  }
-}
+  final String value;
 
-extension SourceDataFunctionFromString on String {
-  SourceDataFunction toSourceDataFunction() {
-    switch (this) {
-      case 'Copy':
-        return SourceDataFunction.copy;
-      case 'TrimTitle':
-        return SourceDataFunction.trimTitle;
-      case 'Map':
-        return SourceDataFunction.map;
-    }
-    throw Exception('$this is not known in enum SourceDataFunction');
-  }
+  const SourceDataFunction(this.value);
+
+  static SourceDataFunction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SourceDataFunction'));
 }
 
 /// Specifies how to map source attribute values to custom values when
@@ -1954,6 +1974,21 @@ class SourceDataMap {
       if (defaultValue != null) 'DefaultValue': defaultValue,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final sourceName = this.sourceName;
+    final cases = this.cases;
+    final defaultValue = this.defaultValue;
+    return {
+      'SourceName': sourceName,
+      if (cases != null)
+        for (var e1 in cases.entries.toList().asMap().entries) ...{
+          'Cases.entry.${e1.key + 1}.key': e1.value.key,
+          'Cases.entry.${e1.key + 1}.value': e1.value.value,
+        },
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+    };
+  }
 }
 
 /// Specifies how to trim common words from the beginning of a field to enable
@@ -1987,6 +2022,19 @@ class SourceDataTrimTitle {
   }
 
   Map<String, dynamic> toJson() {
+    final sourceName = this.sourceName;
+    final defaultValue = this.defaultValue;
+    final language = this.language;
+    final separator = this.separator;
+    return {
+      'SourceName': sourceName,
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (language != null) 'Language': language,
+      if (separator != null) 'Separator': separator,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final sourceName = this.sourceName;
     final defaultValue = this.defaultValue;
     final language = this.language;
@@ -2129,6 +2177,19 @@ class TextOptions {
       if (textProcessor != null) 'TextProcessor': textProcessor,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final defaultValue = this.defaultValue;
+    final facetEnabled = this.facetEnabled;
+    final resultEnabled = this.resultEnabled;
+    final textProcessor = this.textProcessor;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (facetEnabled != null) 'FacetEnabled': facetEnabled.toString(),
+      if (resultEnabled != null) 'ResultEnabled': resultEnabled.toString(),
+      if (textProcessor != null) 'TextProcessor': textProcessor,
+    };
+  }
 }
 
 /// Options that define a <code>uint</code> field in the search index.
@@ -2149,6 +2210,13 @@ class UIntOptions {
     final defaultValue = this.defaultValue;
     return {
       if (defaultValue != null) 'DefaultValue': defaultValue,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final defaultValue = this.defaultValue;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue.toString(),
     };
   }
 }

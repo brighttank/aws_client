@@ -35,7 +35,7 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// retention period expires and the resource is not restored, the resource is
 /// permanently deleted from the Recycle Bin and is no longer available for
 /// recovery. For more information about Recycle Bin, see <a
-/// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/snapshot-recycle-bin.html">
+/// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/recycle-bin.html">
 /// Recycle Bin</a> in the <i>Amazon Elastic Compute Cloud User Guide</i>.
 class RecycleBin {
   final _s.RestJsonProtocol _protocol;
@@ -119,7 +119,7 @@ class RecycleBin {
     List<Tag>? tags,
   }) async {
     final $payload = <String, dynamic>{
-      'ResourceType': resourceType.toValue(),
+      'ResourceType': resourceType.value,
       'RetentionPeriod': retentionPeriod,
       if (description != null) 'Description': description,
       if (lockConfiguration != null) 'LockConfiguration': lockConfiguration,
@@ -220,8 +220,8 @@ class RecycleBin {
       1000,
     );
     final $payload = <String, dynamic>{
-      'ResourceType': resourceType.toValue(),
-      if (lockState != null) 'LockState': lockState.toValue(),
+      'ResourceType': resourceType.value,
+      if (lockState != null) 'LockState': lockState.value,
       if (maxResults != null) 'MaxResults': maxResults,
       if (nextToken != null) 'NextToken': nextToken,
       if (resourceTags != null) 'ResourceTags': resourceTags,
@@ -373,6 +373,7 @@ class RecycleBin {
   /// May throw [InternalServerException].
   /// May throw [ResourceNotFoundException].
   /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
   ///
   /// Parameter [identifier] :
   /// The unique ID of the retention rule.
@@ -416,7 +417,7 @@ class RecycleBin {
     final $payload = <String, dynamic>{
       if (description != null) 'Description': description,
       if (resourceTags != null) 'ResourceTags': resourceTags,
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (retentionPeriod != null) 'RetentionPeriod': retentionPeriod,
     };
     final response = await _protocol.send(
@@ -472,6 +473,9 @@ class CreateRuleResponse {
   final ResourceType? resourceType;
   final RetentionPeriod? retentionPeriod;
 
+  /// The Amazon Resource Name (ARN) of the retention rule.
+  final String? ruleArn;
+
   /// The state of the retention rule. Only retention rules that are in the
   /// <code>available</code> state retain resources.
   final RuleStatus? status;
@@ -487,6 +491,7 @@ class CreateRuleResponse {
     this.resourceTags,
     this.resourceType,
     this.retentionPeriod,
+    this.ruleArn,
     this.status,
     this.tags,
   });
@@ -499,19 +504,21 @@ class CreateRuleResponse {
           ? LockConfiguration.fromJson(
               json['LockConfiguration'] as Map<String, dynamic>)
           : null,
-      lockState: (json['LockState'] as String?)?.toLockState(),
+      lockState: (json['LockState'] as String?)?.let(LockState.fromString),
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceTag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      resourceType: (json['ResourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['ResourceType'] as String?)?.let(ResourceType.fromString),
       retentionPeriod: json['RetentionPeriod'] != null
           ? RetentionPeriod.fromJson(
               json['RetentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toRuleStatus(),
+      ruleArn: json['RuleArn'] as String?,
+      status: (json['Status'] as String?)?.let(RuleStatus.fromString),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -525,17 +532,19 @@ class CreateRuleResponse {
     final resourceTags = this.resourceTags;
     final resourceType = this.resourceType;
     final retentionPeriod = this.retentionPeriod;
+    final ruleArn = this.ruleArn;
     final status = this.status;
     final tags = this.tags;
     return {
       if (description != null) 'Description': description,
       if (identifier != null) 'Identifier': identifier,
       if (lockConfiguration != null) 'LockConfiguration': lockConfiguration,
-      if (lockState != null) 'LockState': lockState.toValue(),
+      if (lockState != null) 'LockState': lockState.value,
       if (resourceTags != null) 'ResourceTags': resourceTags,
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (retentionPeriod != null) 'RetentionPeriod': retentionPeriod,
-      if (status != null) 'Status': status.toValue(),
+      if (ruleArn != null) 'RuleArn': ruleArn,
+      if (status != null) 'Status': status.value,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -604,6 +613,9 @@ class GetRuleResponse {
   /// retain resources.
   final RetentionPeriod? retentionPeriod;
 
+  /// The Amazon Resource Name (ARN) of the retention rule.
+  final String? ruleArn;
+
   /// The state of the retention rule. Only retention rules that are in the
   /// <code>available</code> state retain resources.
   final RuleStatus? status;
@@ -617,6 +629,7 @@ class GetRuleResponse {
     this.resourceTags,
     this.resourceType,
     this.retentionPeriod,
+    this.ruleArn,
     this.status,
   });
 
@@ -629,17 +642,19 @@ class GetRuleResponse {
               json['LockConfiguration'] as Map<String, dynamic>)
           : null,
       lockEndTime: timeStampFromJson(json['LockEndTime']),
-      lockState: (json['LockState'] as String?)?.toLockState(),
+      lockState: (json['LockState'] as String?)?.let(LockState.fromString),
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceTag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      resourceType: (json['ResourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['ResourceType'] as String?)?.let(ResourceType.fromString),
       retentionPeriod: json['RetentionPeriod'] != null
           ? RetentionPeriod.fromJson(
               json['RetentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toRuleStatus(),
+      ruleArn: json['RuleArn'] as String?,
+      status: (json['Status'] as String?)?.let(RuleStatus.fromString),
     );
   }
 
@@ -652,17 +667,19 @@ class GetRuleResponse {
     final resourceTags = this.resourceTags;
     final resourceType = this.resourceType;
     final retentionPeriod = this.retentionPeriod;
+    final ruleArn = this.ruleArn;
     final status = this.status;
     return {
       if (description != null) 'Description': description,
       if (identifier != null) 'Identifier': identifier,
       if (lockConfiguration != null) 'LockConfiguration': lockConfiguration,
       if (lockEndTime != null) 'LockEndTime': unixTimestampToJson(lockEndTime),
-      if (lockState != null) 'LockState': lockState.toValue(),
+      if (lockState != null) 'LockState': lockState.value,
       if (resourceTags != null) 'ResourceTags': resourceTags,
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (retentionPeriod != null) 'RetentionPeriod': retentionPeriod,
-      if (status != null) 'Status': status.toValue(),
+      if (ruleArn != null) 'RuleArn': ruleArn,
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -684,7 +701,7 @@ class ListRulesResponse {
     return ListRulesResponse(
       nextToken: json['NextToken'] as String?,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -711,7 +728,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -792,6 +809,9 @@ class LockRuleResponse {
   final ResourceType? resourceType;
   final RetentionPeriod? retentionPeriod;
 
+  /// The Amazon Resource Name (ARN) of the retention rule.
+  final String? ruleArn;
+
   /// The state of the retention rule. Only retention rules that are in the
   /// <code>available</code> state retain resources.
   final RuleStatus? status;
@@ -804,6 +824,7 @@ class LockRuleResponse {
     this.resourceTags,
     this.resourceType,
     this.retentionPeriod,
+    this.ruleArn,
     this.status,
   });
 
@@ -815,17 +836,19 @@ class LockRuleResponse {
           ? LockConfiguration.fromJson(
               json['LockConfiguration'] as Map<String, dynamic>)
           : null,
-      lockState: (json['LockState'] as String?)?.toLockState(),
+      lockState: (json['LockState'] as String?)?.let(LockState.fromString),
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceTag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      resourceType: (json['ResourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['ResourceType'] as String?)?.let(ResourceType.fromString),
       retentionPeriod: json['RetentionPeriod'] != null
           ? RetentionPeriod.fromJson(
               json['RetentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toRuleStatus(),
+      ruleArn: json['RuleArn'] as String?,
+      status: (json['Status'] as String?)?.let(RuleStatus.fromString),
     );
   }
 
@@ -837,51 +860,35 @@ class LockRuleResponse {
     final resourceTags = this.resourceTags;
     final resourceType = this.resourceType;
     final retentionPeriod = this.retentionPeriod;
+    final ruleArn = this.ruleArn;
     final status = this.status;
     return {
       if (description != null) 'Description': description,
       if (identifier != null) 'Identifier': identifier,
       if (lockConfiguration != null) 'LockConfiguration': lockConfiguration,
-      if (lockState != null) 'LockState': lockState.toValue(),
+      if (lockState != null) 'LockState': lockState.value,
       if (resourceTags != null) 'ResourceTags': resourceTags,
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (retentionPeriod != null) 'RetentionPeriod': retentionPeriod,
-      if (status != null) 'Status': status.toValue(),
+      if (ruleArn != null) 'RuleArn': ruleArn,
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum LockState {
-  locked,
-  pendingUnlock,
-  unlocked,
-}
+  locked('locked'),
+  pendingUnlock('pending_unlock'),
+  unlocked('unlocked'),
+  ;
 
-extension LockStateValueExtension on LockState {
-  String toValue() {
-    switch (this) {
-      case LockState.locked:
-        return 'locked';
-      case LockState.pendingUnlock:
-        return 'pending_unlock';
-      case LockState.unlocked:
-        return 'unlocked';
-    }
-  }
-}
+  final String value;
 
-extension LockStateFromString on String {
-  LockState toLockState() {
-    switch (this) {
-      case 'locked':
-        return LockState.locked;
-      case 'pending_unlock':
-        return LockState.pendingUnlock;
-      case 'unlocked':
-        return LockState.unlocked;
-    }
-    throw Exception('$this is not known in enum LockState');
-  }
+  const LockState(this.value);
+
+  static LockState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum LockState'));
 }
 
 /// Information about the resource tags used to identify resources that are
@@ -916,31 +923,18 @@ class ResourceTag {
 }
 
 enum ResourceType {
-  ebsSnapshot,
-  ec2Image,
-}
+  ebsSnapshot('EBS_SNAPSHOT'),
+  ec2Image('EC2_IMAGE'),
+  ;
 
-extension ResourceTypeValueExtension on ResourceType {
-  String toValue() {
-    switch (this) {
-      case ResourceType.ebsSnapshot:
-        return 'EBS_SNAPSHOT';
-      case ResourceType.ec2Image:
-        return 'EC2_IMAGE';
-    }
-  }
-}
+  final String value;
 
-extension ResourceTypeFromString on String {
-  ResourceType toResourceType() {
-    switch (this) {
-      case 'EBS_SNAPSHOT':
-        return ResourceType.ebsSnapshot;
-      case 'EC2_IMAGE':
-        return ResourceType.ec2Image;
-    }
-    throw Exception('$this is not known in enum ResourceType');
-  }
+  const ResourceType(this.value);
+
+  static ResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceType'));
 }
 
 /// Information about the retention period for which the retention rule is to
@@ -961,8 +955,8 @@ class RetentionPeriod {
 
   factory RetentionPeriod.fromJson(Map<String, dynamic> json) {
     return RetentionPeriod(
-      retentionPeriodUnit:
-          (json['RetentionPeriodUnit'] as String).toRetentionPeriodUnit(),
+      retentionPeriodUnit: RetentionPeriodUnit.fromString(
+          (json['RetentionPeriodUnit'] as String)),
       retentionPeriodValue: json['RetentionPeriodValue'] as int,
     );
   }
@@ -971,61 +965,38 @@ class RetentionPeriod {
     final retentionPeriodUnit = this.retentionPeriodUnit;
     final retentionPeriodValue = this.retentionPeriodValue;
     return {
-      'RetentionPeriodUnit': retentionPeriodUnit.toValue(),
+      'RetentionPeriodUnit': retentionPeriodUnit.value,
       'RetentionPeriodValue': retentionPeriodValue,
     };
   }
 }
 
 enum RetentionPeriodUnit {
-  days,
-}
+  days('DAYS'),
+  ;
 
-extension RetentionPeriodUnitValueExtension on RetentionPeriodUnit {
-  String toValue() {
-    switch (this) {
-      case RetentionPeriodUnit.days:
-        return 'DAYS';
-    }
-  }
-}
+  final String value;
 
-extension RetentionPeriodUnitFromString on String {
-  RetentionPeriodUnit toRetentionPeriodUnit() {
-    switch (this) {
-      case 'DAYS':
-        return RetentionPeriodUnit.days;
-    }
-    throw Exception('$this is not known in enum RetentionPeriodUnit');
-  }
+  const RetentionPeriodUnit(this.value);
+
+  static RetentionPeriodUnit fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RetentionPeriodUnit'));
 }
 
 enum RuleStatus {
-  pending,
-  available,
-}
+  pending('pending'),
+  available('available'),
+  ;
 
-extension RuleStatusValueExtension on RuleStatus {
-  String toValue() {
-    switch (this) {
-      case RuleStatus.pending:
-        return 'pending';
-      case RuleStatus.available:
-        return 'available';
-    }
-  }
-}
+  final String value;
 
-extension RuleStatusFromString on String {
-  RuleStatus toRuleStatus() {
-    switch (this) {
-      case 'pending':
-        return RuleStatus.pending;
-      case 'available':
-        return RuleStatus.available;
-    }
-    throw Exception('$this is not known in enum RuleStatus');
-  }
+  const RuleStatus(this.value);
+
+  static RuleStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RuleStatus'));
 }
 
 /// Information about a Recycle Bin retention rule.
@@ -1065,22 +1036,27 @@ class RuleSummary {
   /// retain resources.
   final RetentionPeriod? retentionPeriod;
 
+  /// The Amazon Resource Name (ARN) of the retention rule.
+  final String? ruleArn;
+
   RuleSummary({
     this.description,
     this.identifier,
     this.lockState,
     this.retentionPeriod,
+    this.ruleArn,
   });
 
   factory RuleSummary.fromJson(Map<String, dynamic> json) {
     return RuleSummary(
       description: json['Description'] as String?,
       identifier: json['Identifier'] as String?,
-      lockState: (json['LockState'] as String?)?.toLockState(),
+      lockState: (json['LockState'] as String?)?.let(LockState.fromString),
       retentionPeriod: json['RetentionPeriod'] != null
           ? RetentionPeriod.fromJson(
               json['RetentionPeriod'] as Map<String, dynamic>)
           : null,
+      ruleArn: json['RuleArn'] as String?,
     );
   }
 
@@ -1089,11 +1065,13 @@ class RuleSummary {
     final identifier = this.identifier;
     final lockState = this.lockState;
     final retentionPeriod = this.retentionPeriod;
+    final ruleArn = this.ruleArn;
     return {
       if (description != null) 'Description': description,
       if (identifier != null) 'Identifier': identifier,
-      if (lockState != null) 'LockState': lockState.toValue(),
+      if (lockState != null) 'LockState': lockState.value,
       if (retentionPeriod != null) 'RetentionPeriod': retentionPeriod,
+      if (ruleArn != null) 'RuleArn': ruleArn,
     };
   }
 }
@@ -1160,7 +1138,8 @@ class UnlockDelay {
 
   factory UnlockDelay.fromJson(Map<String, dynamic> json) {
     return UnlockDelay(
-      unlockDelayUnit: (json['UnlockDelayUnit'] as String).toUnlockDelayUnit(),
+      unlockDelayUnit:
+          UnlockDelayUnit.fromString((json['UnlockDelayUnit'] as String)),
       unlockDelayValue: json['UnlockDelayValue'] as int,
     );
   }
@@ -1169,33 +1148,24 @@ class UnlockDelay {
     final unlockDelayUnit = this.unlockDelayUnit;
     final unlockDelayValue = this.unlockDelayValue;
     return {
-      'UnlockDelayUnit': unlockDelayUnit.toValue(),
+      'UnlockDelayUnit': unlockDelayUnit.value,
       'UnlockDelayValue': unlockDelayValue,
     };
   }
 }
 
 enum UnlockDelayUnit {
-  days,
-}
+  days('DAYS'),
+  ;
 
-extension UnlockDelayUnitValueExtension on UnlockDelayUnit {
-  String toValue() {
-    switch (this) {
-      case UnlockDelayUnit.days:
-        return 'DAYS';
-    }
-  }
-}
+  final String value;
 
-extension UnlockDelayUnitFromString on String {
-  UnlockDelayUnit toUnlockDelayUnit() {
-    switch (this) {
-      case 'DAYS':
-        return UnlockDelayUnit.days;
-    }
-    throw Exception('$this is not known in enum UnlockDelayUnit');
-  }
+  const UnlockDelayUnit(this.value);
+
+  static UnlockDelayUnit fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UnlockDelayUnit'));
 }
 
 class UnlockRuleResponse {
@@ -1246,6 +1216,9 @@ class UnlockRuleResponse {
   final ResourceType? resourceType;
   final RetentionPeriod? retentionPeriod;
 
+  /// The Amazon Resource Name (ARN) of the retention rule.
+  final String? ruleArn;
+
   /// The state of the retention rule. Only retention rules that are in the
   /// <code>available</code> state retain resources.
   final RuleStatus? status;
@@ -1259,6 +1232,7 @@ class UnlockRuleResponse {
     this.resourceTags,
     this.resourceType,
     this.retentionPeriod,
+    this.ruleArn,
     this.status,
   });
 
@@ -1271,17 +1245,19 @@ class UnlockRuleResponse {
               json['LockConfiguration'] as Map<String, dynamic>)
           : null,
       lockEndTime: timeStampFromJson(json['LockEndTime']),
-      lockState: (json['LockState'] as String?)?.toLockState(),
+      lockState: (json['LockState'] as String?)?.let(LockState.fromString),
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceTag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      resourceType: (json['ResourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['ResourceType'] as String?)?.let(ResourceType.fromString),
       retentionPeriod: json['RetentionPeriod'] != null
           ? RetentionPeriod.fromJson(
               json['RetentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toRuleStatus(),
+      ruleArn: json['RuleArn'] as String?,
+      status: (json['Status'] as String?)?.let(RuleStatus.fromString),
     );
   }
 
@@ -1294,17 +1270,19 @@ class UnlockRuleResponse {
     final resourceTags = this.resourceTags;
     final resourceType = this.resourceType;
     final retentionPeriod = this.retentionPeriod;
+    final ruleArn = this.ruleArn;
     final status = this.status;
     return {
       if (description != null) 'Description': description,
       if (identifier != null) 'Identifier': identifier,
       if (lockConfiguration != null) 'LockConfiguration': lockConfiguration,
       if (lockEndTime != null) 'LockEndTime': unixTimestampToJson(lockEndTime),
-      if (lockState != null) 'LockState': lockState.toValue(),
+      if (lockState != null) 'LockState': lockState.value,
       if (resourceTags != null) 'ResourceTags': resourceTags,
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (retentionPeriod != null) 'RetentionPeriod': retentionPeriod,
-      if (status != null) 'Status': status.toValue(),
+      if (ruleArn != null) 'RuleArn': ruleArn,
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -1366,6 +1344,9 @@ class UpdateRuleResponse {
   final ResourceType? resourceType;
   final RetentionPeriod? retentionPeriod;
 
+  /// The Amazon Resource Name (ARN) of the retention rule.
+  final String? ruleArn;
+
   /// The state of the retention rule. Only retention rules that are in the
   /// <code>available</code> state retain resources.
   final RuleStatus? status;
@@ -1378,6 +1359,7 @@ class UpdateRuleResponse {
     this.resourceTags,
     this.resourceType,
     this.retentionPeriod,
+    this.ruleArn,
     this.status,
   });
 
@@ -1386,17 +1368,19 @@ class UpdateRuleResponse {
       description: json['Description'] as String?,
       identifier: json['Identifier'] as String?,
       lockEndTime: timeStampFromJson(json['LockEndTime']),
-      lockState: (json['LockState'] as String?)?.toLockState(),
+      lockState: (json['LockState'] as String?)?.let(LockState.fromString),
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceTag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      resourceType: (json['ResourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['ResourceType'] as String?)?.let(ResourceType.fromString),
       retentionPeriod: json['RetentionPeriod'] != null
           ? RetentionPeriod.fromJson(
               json['RetentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toRuleStatus(),
+      ruleArn: json['RuleArn'] as String?,
+      status: (json['Status'] as String?)?.let(RuleStatus.fromString),
     );
   }
 
@@ -1408,16 +1392,18 @@ class UpdateRuleResponse {
     final resourceTags = this.resourceTags;
     final resourceType = this.resourceType;
     final retentionPeriod = this.retentionPeriod;
+    final ruleArn = this.ruleArn;
     final status = this.status;
     return {
       if (description != null) 'Description': description,
       if (identifier != null) 'Identifier': identifier,
       if (lockEndTime != null) 'LockEndTime': unixTimestampToJson(lockEndTime),
-      if (lockState != null) 'LockState': lockState.toValue(),
+      if (lockState != null) 'LockState': lockState.value,
       if (resourceTags != null) 'ResourceTags': resourceTags,
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (retentionPeriod != null) 'RetentionPeriod': retentionPeriod,
-      if (status != null) 'Status': status.toValue(),
+      if (ruleArn != null) 'RuleArn': ruleArn,
+      if (status != null) 'Status': status.value,
     };
   }
 }

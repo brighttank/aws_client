@@ -82,7 +82,7 @@ class KinesisVideo {
   }) async {
     final $payload = <String, dynamic>{
       'ChannelName': channelName,
-      if (channelType != null) 'ChannelType': channelType.toValue(),
+      if (channelType != null) 'ChannelType': channelType.value,
       if (singleMasterConfiguration != null)
         'SingleMasterConfiguration': singleMasterConfiguration,
       if (tags != null) 'Tags': tags,
@@ -149,7 +149,7 @@ class KinesisVideo {
   /// Streams to use to encrypt stream data.
   ///
   /// If no key ID is specified, the default, Kinesis Video-managed key
-  /// (<code>aws/kinesisvideo</code>) is used.
+  /// (<code>Amazon Web Services/kinesisvideo</code>) is used.
   ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/kms/latest/APIReference/API_DescribeKey.html#API_DescribeKey_RequestParameters">DescribeKey</a>.
@@ -201,6 +201,48 @@ class KinesisVideo {
       exceptionFnMap: _exceptionFns,
     );
     return CreateStreamOutput.fromJson(response);
+  }
+
+  /// An asynchronous API that deletes a stream’s existing edge configuration,
+  /// as well as the corresponding media from the Edge Agent.
+  ///
+  /// When you invoke this API, the sync status is set to <code>DELETING</code>.
+  /// A deletion process starts, in which active edge jobs are stopped and all
+  /// media is deleted from the edge device. The time to delete varies,
+  /// depending on the total amount of stored media. If the deletion process
+  /// fails, the sync status changes to <code>DELETE_FAILED</code>. You will
+  /// need to re-try the deletion.
+  ///
+  /// When the deletion process has completed successfully, the edge
+  /// configuration is no longer accessible.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ClientLimitExceededException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [StreamEdgeConfigurationNotFoundException].
+  ///
+  /// Parameter [streamARN] :
+  /// The Amazon Resource Name (ARN) of the stream. Specify either the
+  /// <code>StreamName</code> or the <code>StreamARN</code>.
+  ///
+  /// Parameter [streamName] :
+  /// The name of the stream from which to delete the edge configuration.
+  /// Specify either the <code>StreamName</code> or the <code>StreamARN</code>.
+  Future<void> deleteEdgeConfiguration({
+    String? streamARN,
+    String? streamName,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (streamARN != null) 'StreamARN': streamARN,
+      if (streamName != null) 'StreamName': streamName,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/deleteEdgeConfiguration',
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Deletes a specified signaling channel. <code>DeleteSignalingChannel</code>
@@ -291,9 +333,10 @@ class KinesisVideo {
   }
 
   /// Describes a stream’s edge configuration that was set using the
-  /// <code>StartEdgeConfigurationUpdate</code> API. Use this API to get the
-  /// status of the configuration if the configuration is in sync with the Edge
-  /// Agent.
+  /// <code>StartEdgeConfigurationUpdate</code> API and the latest status of the
+  /// edge agent's recorder and uploader jobs. Use this API to get the status of
+  /// the configuration to determine if the configuration is in sync with the
+  /// Edge Agent. Use this API to evaluate the health of the Edge Agent.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [ClientLimitExceededException].
@@ -360,9 +403,6 @@ class KinesisVideo {
     return DescribeImageGenerationConfigurationOutput.fromJson(response);
   }
 
-  /// Returns the most current information about the stream. Either streamName
-  /// or streamARN should be provided in the input.
-  ///
   /// Returns the most current information about the stream. The
   /// <code>streamName</code> or <code>streamARN</code> should be provided in
   /// the input.
@@ -572,7 +612,7 @@ class KinesisVideo {
     String? streamName,
   }) async {
     final $payload = <String, dynamic>{
-      'APIName': aPIName.toValue(),
+      'APIName': aPIName.value,
       if (streamARN != null) 'StreamARN': streamARN,
       if (streamName != null) 'StreamName': streamName,
     };
@@ -633,6 +673,52 @@ class KinesisVideo {
       exceptionFnMap: _exceptionFns,
     );
     return GetSignalingChannelEndpointOutput.fromJson(response);
+  }
+
+  /// Returns an array of edge configurations associated with the specified Edge
+  /// Agent.
+  ///
+  /// In the request, you must specify the Edge Agent <code>HubDeviceArn</code>.
+  ///
+  /// May throw [NotAuthorizedException].
+  /// May throw [ClientLimitExceededException].
+  /// May throw [InvalidArgumentException].
+  ///
+  /// Parameter [hubDeviceArn] :
+  /// The "Internet of Things (IoT) Thing" Arn of the edge agent.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of edge configurations to return in the response. The
+  /// default is 5.
+  ///
+  /// Parameter [nextToken] :
+  /// If you specify this parameter, when the result of a
+  /// <code>ListEdgeAgentConfigurations</code> operation is truncated, the call
+  /// returns the <code>NextToken</code> in the response. To get another batch
+  /// of edge configurations, provide this token in your next request.
+  Future<ListEdgeAgentConfigurationsOutput> listEdgeAgentConfigurations({
+    required String hubDeviceArn,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      10,
+    );
+    final $payload = <String, dynamic>{
+      'HubDeviceArn': hubDeviceArn,
+      if (maxResults != null) 'MaxResults': maxResults,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/listEdgeAgentConfigurations',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListEdgeAgentConfigurationsOutput.fromJson(response);
   }
 
   /// Returns an array of <code>ChannelInfo</code> objects. Each object
@@ -821,6 +907,11 @@ class KinesisVideo {
   /// connectivity of the stream’s edge configuration and the Edge Agent will be
   /// retried for 15 minutes. After 15 minutes, the status will transition into
   /// the <code>SYNC_FAILED</code> state.
+  ///
+  /// To move an edge configuration from one device to another, use
+  /// <a>DeleteEdgeConfiguration</a> to delete the current edge configuration.
+  /// You can then invoke StartEdgeConfigurationUpdate with an updated Hub
+  /// Device ARN.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [ClientLimitExceededException].
@@ -1024,9 +1115,7 @@ class KinesisVideo {
   /// data retention period, specify the <code>Operation</code> parameter in the
   /// request body. In the request, you must specify either the
   /// <code>StreamName</code> or the <code>StreamARN</code>.
-  /// <note>
-  /// The retention period that you specify replaces the current value.
-  /// </note>
+  ///
   /// This operation requires permission for the
   /// <code>KinesisVideo:UpdateDataRetention</code> action.
   ///
@@ -1061,8 +1150,12 @@ class KinesisVideo {
   /// <code>ListStreams</code> API.
   ///
   /// Parameter [dataRetentionChangeInHours] :
-  /// The retention period, in hours. The value you specify replaces the current
-  /// value. The maximum value for this parameter is 87600 (ten years).
+  /// The number of hours to adjust the current retention by. The value you
+  /// specify is added to or subtracted from the current value, depending on the
+  /// <code>operation</code>.
+  ///
+  /// The minimum value for data retention is 0 and the maximum value is 87600
+  /// (ten years).
   ///
   /// Parameter [operation] :
   /// Indicates whether you want to increase or decrease the retention period.
@@ -1090,7 +1183,7 @@ class KinesisVideo {
     final $payload = <String, dynamic>{
       'CurrentVersion': currentVersion,
       'DataRetentionChangeInHours': dataRetentionChangeInHours,
-      'Operation': operation.toValue(),
+      'Operation': operation.value,
       if (streamARN != null) 'StreamARN': streamARN,
       if (streamName != null) 'StreamName': streamName,
     };
@@ -1146,18 +1239,25 @@ class KinesisVideo {
   }
 
   /// Associates a <code>SignalingChannel</code> to a stream to store the media.
-  /// There are two signaling modes that can specified :
+  /// There are two signaling modes that you can specify :
   ///
   /// <ul>
   /// <li>
-  /// If the <code>StorageStatus</code> is disabled, no data will be stored, and
-  /// the <code>StreamARN</code> parameter will not be needed.
+  /// If <code>StorageStatus</code> is enabled, the data will be stored in the
+  /// <code>StreamARN</code> provided. In order for WebRTC Ingestion to work,
+  /// the stream must have data retention enabled.
   /// </li>
   /// <li>
-  /// If the <code>StorageStatus</code> is enabled, the data will be stored in
-  /// the <code>StreamARN</code> provided.
+  /// If <code>StorageStatus</code> is disabled, no data will be stored, and the
+  /// <code>StreamARN</code> parameter will not be needed.
   /// </li>
-  /// </ul>
+  /// </ul> <important>
+  /// If <code>StorageStatus</code> is enabled, direct peer-to-peer
+  /// (master-viewer) connections no longer occur. Peers connect directly to the
+  /// storage session. You must call the <code>JoinStorageSession</code> API to
+  /// trigger an SDP offer send and establish a connection between a peer and
+  /// the storage session.
+  /// </important>
   ///
   /// May throw [ResourceInUseException].
   /// May throw [InvalidArgumentException].
@@ -1350,61 +1450,23 @@ class KinesisVideo {
 }
 
 enum APIName {
-  putMedia,
-  getMedia,
-  listFragments,
-  getMediaForFragmentList,
-  getHlsStreamingSessionUrl,
-  getDashStreamingSessionUrl,
-  getClip,
-  getImages,
-}
+  putMedia('PUT_MEDIA'),
+  getMedia('GET_MEDIA'),
+  listFragments('LIST_FRAGMENTS'),
+  getMediaForFragmentList('GET_MEDIA_FOR_FRAGMENT_LIST'),
+  getHlsStreamingSessionUrl('GET_HLS_STREAMING_SESSION_URL'),
+  getDashStreamingSessionUrl('GET_DASH_STREAMING_SESSION_URL'),
+  getClip('GET_CLIP'),
+  getImages('GET_IMAGES'),
+  ;
 
-extension APINameValueExtension on APIName {
-  String toValue() {
-    switch (this) {
-      case APIName.putMedia:
-        return 'PUT_MEDIA';
-      case APIName.getMedia:
-        return 'GET_MEDIA';
-      case APIName.listFragments:
-        return 'LIST_FRAGMENTS';
-      case APIName.getMediaForFragmentList:
-        return 'GET_MEDIA_FOR_FRAGMENT_LIST';
-      case APIName.getHlsStreamingSessionUrl:
-        return 'GET_HLS_STREAMING_SESSION_URL';
-      case APIName.getDashStreamingSessionUrl:
-        return 'GET_DASH_STREAMING_SESSION_URL';
-      case APIName.getClip:
-        return 'GET_CLIP';
-      case APIName.getImages:
-        return 'GET_IMAGES';
-    }
-  }
-}
+  final String value;
 
-extension APINameFromString on String {
-  APIName toAPIName() {
-    switch (this) {
-      case 'PUT_MEDIA':
-        return APIName.putMedia;
-      case 'GET_MEDIA':
-        return APIName.getMedia;
-      case 'LIST_FRAGMENTS':
-        return APIName.listFragments;
-      case 'GET_MEDIA_FOR_FRAGMENT_LIST':
-        return APIName.getMediaForFragmentList;
-      case 'GET_HLS_STREAMING_SESSION_URL':
-        return APIName.getHlsStreamingSessionUrl;
-      case 'GET_DASH_STREAMING_SESSION_URL':
-        return APIName.getDashStreamingSessionUrl;
-      case 'GET_CLIP':
-        return APIName.getClip;
-      case 'GET_IMAGES':
-        return APIName.getImages;
-    }
-    throw Exception('$this is not known in enum APIName');
-  }
+  const APIName(this.value);
+
+  static APIName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum APIName'));
 }
 
 /// A structure that encapsulates a signaling channel's metadata and properties.
@@ -1445,8 +1507,9 @@ class ChannelInfo {
     return ChannelInfo(
       channelARN: json['ChannelARN'] as String?,
       channelName: json['ChannelName'] as String?,
-      channelStatus: (json['ChannelStatus'] as String?)?.toStatus(),
-      channelType: (json['ChannelType'] as String?)?.toChannelType(),
+      channelStatus: (json['ChannelStatus'] as String?)?.let(Status.fromString),
+      channelType:
+          (json['ChannelType'] as String?)?.let(ChannelType.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       singleMasterConfiguration: json['SingleMasterConfiguration'] != null
           ? SingleMasterConfiguration.fromJson(
@@ -1480,150 +1543,83 @@ class ChannelNameCondition {
     final comparisonValue = this.comparisonValue;
     return {
       if (comparisonOperator != null)
-        'ComparisonOperator': comparisonOperator.toValue(),
+        'ComparisonOperator': comparisonOperator.value,
       if (comparisonValue != null) 'ComparisonValue': comparisonValue,
     };
   }
 }
 
 enum ChannelProtocol {
-  wss,
-  https,
-  webrtc,
-}
+  wss('WSS'),
+  https('HTTPS'),
+  webrtc('WEBRTC'),
+  ;
 
-extension ChannelProtocolValueExtension on ChannelProtocol {
-  String toValue() {
-    switch (this) {
-      case ChannelProtocol.wss:
-        return 'WSS';
-      case ChannelProtocol.https:
-        return 'HTTPS';
-      case ChannelProtocol.webrtc:
-        return 'WEBRTC';
-    }
-  }
-}
+  final String value;
 
-extension ChannelProtocolFromString on String {
-  ChannelProtocol toChannelProtocol() {
-    switch (this) {
-      case 'WSS':
-        return ChannelProtocol.wss;
-      case 'HTTPS':
-        return ChannelProtocol.https;
-      case 'WEBRTC':
-        return ChannelProtocol.webrtc;
-    }
-    throw Exception('$this is not known in enum ChannelProtocol');
-  }
+  const ChannelProtocol(this.value);
+
+  static ChannelProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ChannelProtocol'));
 }
 
 enum ChannelRole {
-  master,
-  viewer,
-}
+  master('MASTER'),
+  viewer('VIEWER'),
+  ;
 
-extension ChannelRoleValueExtension on ChannelRole {
-  String toValue() {
-    switch (this) {
-      case ChannelRole.master:
-        return 'MASTER';
-      case ChannelRole.viewer:
-        return 'VIEWER';
-    }
-  }
-}
+  final String value;
 
-extension ChannelRoleFromString on String {
-  ChannelRole toChannelRole() {
-    switch (this) {
-      case 'MASTER':
-        return ChannelRole.master;
-      case 'VIEWER':
-        return ChannelRole.viewer;
-    }
-    throw Exception('$this is not known in enum ChannelRole');
-  }
+  const ChannelRole(this.value);
+
+  static ChannelRole fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ChannelRole'));
 }
 
 enum ChannelType {
-  singleMaster,
-  fullMesh,
-}
+  singleMaster('SINGLE_MASTER'),
+  fullMesh('FULL_MESH'),
+  ;
 
-extension ChannelTypeValueExtension on ChannelType {
-  String toValue() {
-    switch (this) {
-      case ChannelType.singleMaster:
-        return 'SINGLE_MASTER';
-      case ChannelType.fullMesh:
-        return 'FULL_MESH';
-    }
-  }
-}
+  final String value;
 
-extension ChannelTypeFromString on String {
-  ChannelType toChannelType() {
-    switch (this) {
-      case 'SINGLE_MASTER':
-        return ChannelType.singleMaster;
-      case 'FULL_MESH':
-        return ChannelType.fullMesh;
-    }
-    throw Exception('$this is not known in enum ChannelType');
-  }
+  const ChannelType(this.value);
+
+  static ChannelType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ChannelType'));
 }
 
 enum ComparisonOperator {
-  beginsWith,
-}
+  beginsWith('BEGINS_WITH'),
+  ;
 
-extension ComparisonOperatorValueExtension on ComparisonOperator {
-  String toValue() {
-    switch (this) {
-      case ComparisonOperator.beginsWith:
-        return 'BEGINS_WITH';
-    }
-  }
-}
+  final String value;
 
-extension ComparisonOperatorFromString on String {
-  ComparisonOperator toComparisonOperator() {
-    switch (this) {
-      case 'BEGINS_WITH':
-        return ComparisonOperator.beginsWith;
-    }
-    throw Exception('$this is not known in enum ComparisonOperator');
-  }
+  const ComparisonOperator(this.value);
+
+  static ComparisonOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComparisonOperator'));
 }
 
 enum ConfigurationStatus {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension ConfigurationStatusValueExtension on ConfigurationStatus {
-  String toValue() {
-    switch (this) {
-      case ConfigurationStatus.enabled:
-        return 'ENABLED';
-      case ConfigurationStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationStatusFromString on String {
-  ConfigurationStatus toConfigurationStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return ConfigurationStatus.enabled;
-      case 'DISABLED':
-        return ConfigurationStatus.disabled;
-    }
-    throw Exception('$this is not known in enum ConfigurationStatus');
-  }
+  const ConfigurationStatus(this.value);
+
+  static ConfigurationStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConfigurationStatus'));
 }
 
 class CreateSignalingChannelOutput {
@@ -1656,6 +1652,14 @@ class CreateStreamOutput {
   }
 }
 
+class DeleteEdgeConfigurationOutput {
+  DeleteEdgeConfigurationOutput();
+
+  factory DeleteEdgeConfigurationOutput.fromJson(Map<String, dynamic> _) {
+    return DeleteEdgeConfigurationOutput();
+  }
+}
+
 class DeleteSignalingChannelOutput {
   DeleteSignalingChannelOutput();
 
@@ -1684,7 +1688,7 @@ class DeletionConfig {
   ///
   /// Since the default value is set to <code>true</code>, configure the uploader
   /// schedule such that the media files are not being deleted before they are
-  /// initially uploaded to AWS cloud.
+  /// initially uploaded to the Amazon Web Services cloud.
   final bool? deleteAfterUpload;
 
   /// The number of hours that you want to retain the data in the stream on the
@@ -1730,6 +1734,11 @@ class DescribeEdgeConfigurationOutput {
   /// The timestamp at which a stream’s edge configuration was first created.
   final DateTime? creationTime;
 
+  /// An object that contains the latest status details for an edge agent's
+  /// recorder and uploader jobs. Use this information to determine the current
+  /// health of an edge agent.
+  final EdgeAgentStatus? edgeAgentStatus;
+
   /// A description of the stream's edge configuration that will be used to sync
   /// with the Edge Agent IoT Greengrass component. The Edge Agent component will
   /// run on an IoT Hub Device setup at your premise.
@@ -1752,6 +1761,7 @@ class DescribeEdgeConfigurationOutput {
 
   DescribeEdgeConfigurationOutput({
     this.creationTime,
+    this.edgeAgentStatus,
     this.edgeConfig,
     this.failedStatusDetails,
     this.lastUpdatedTime,
@@ -1763,6 +1773,10 @@ class DescribeEdgeConfigurationOutput {
   factory DescribeEdgeConfigurationOutput.fromJson(Map<String, dynamic> json) {
     return DescribeEdgeConfigurationOutput(
       creationTime: timeStampFromJson(json['CreationTime']),
+      edgeAgentStatus: json['EdgeAgentStatus'] != null
+          ? EdgeAgentStatus.fromJson(
+              json['EdgeAgentStatus'] as Map<String, dynamic>)
+          : null,
       edgeConfig: json['EdgeConfig'] != null
           ? EdgeConfig.fromJson(json['EdgeConfig'] as Map<String, dynamic>)
           : null,
@@ -1770,7 +1784,7 @@ class DescribeEdgeConfigurationOutput {
       lastUpdatedTime: timeStampFromJson(json['LastUpdatedTime']),
       streamARN: json['StreamARN'] as String?,
       streamName: json['StreamName'] as String?,
-      syncStatus: (json['SyncStatus'] as String?)?.toSyncStatus(),
+      syncStatus: (json['SyncStatus'] as String?)?.let(SyncStatus.fromString),
     );
   }
 }
@@ -1816,7 +1830,7 @@ class DescribeMappedResourceConfigurationOutput {
     return DescribeMappedResourceConfigurationOutput(
       mappedResourceConfigurationList:
           (json['MappedResourceConfigurationList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => MappedResourceConfigurationListItem.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -1900,6 +1914,35 @@ class DescribeStreamOutput {
   }
 }
 
+/// An object that contains the latest status details for an edge agent's
+/// recorder and uploader jobs. Use this information to determine the current
+/// health of an edge agent.
+class EdgeAgentStatus {
+  /// The latest status of a stream’s edge recording job.
+  final LastRecorderStatus? lastRecorderStatus;
+
+  /// The latest status of a stream’s edge to cloud uploader job.
+  final LastUploaderStatus? lastUploaderStatus;
+
+  EdgeAgentStatus({
+    this.lastRecorderStatus,
+    this.lastUploaderStatus,
+  });
+
+  factory EdgeAgentStatus.fromJson(Map<String, dynamic> json) {
+    return EdgeAgentStatus(
+      lastRecorderStatus: json['LastRecorderStatus'] != null
+          ? LastRecorderStatus.fromJson(
+              json['LastRecorderStatus'] as Map<String, dynamic>)
+          : null,
+      lastUploaderStatus: json['LastUploaderStatus'] != null
+          ? LastUploaderStatus.fromJson(
+              json['LastUploaderStatus'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
 /// A description of the stream's edge configuration that will be used to sync
 /// with the Edge Agent IoT Greengrass component. The Edge Agent component will
 /// run on an IoT Hub Device setup at your premise.
@@ -1960,54 +2003,31 @@ class EdgeConfig {
 }
 
 enum Format {
-  jpeg,
-  png,
-}
+  jpeg('JPEG'),
+  png('PNG'),
+  ;
 
-extension FormatValueExtension on Format {
-  String toValue() {
-    switch (this) {
-      case Format.jpeg:
-        return 'JPEG';
-      case Format.png:
-        return 'PNG';
-    }
-  }
-}
+  final String value;
 
-extension FormatFromString on String {
-  Format toFormat() {
-    switch (this) {
-      case 'JPEG':
-        return Format.jpeg;
-      case 'PNG':
-        return Format.png;
-    }
-    throw Exception('$this is not known in enum Format');
-  }
+  const Format(this.value);
+
+  static Format fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Format'));
 }
 
 enum FormatConfigKey {
-  jPEGQuality,
-}
+  jPEGQuality('JPEGQuality'),
+  ;
 
-extension FormatConfigKeyValueExtension on FormatConfigKey {
-  String toValue() {
-    switch (this) {
-      case FormatConfigKey.jPEGQuality:
-        return 'JPEGQuality';
-    }
-  }
-}
+  final String value;
 
-extension FormatConfigKeyFromString on String {
-  FormatConfigKey toFormatConfigKey() {
-    switch (this) {
-      case 'JPEGQuality':
-        return FormatConfigKey.jPEGQuality;
-    }
-    throw Exception('$this is not known in enum FormatConfigKey');
-  }
+  const FormatConfigKey(this.value);
+
+  static FormatConfigKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FormatConfigKey'));
 }
 
 class GetDataEndpointOutput {
@@ -2038,7 +2058,7 @@ class GetSignalingChannelEndpointOutput {
       Map<String, dynamic> json) {
     return GetSignalingChannelEndpointOutput(
       resourceEndpointList: (json['ResourceEndpointList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResourceEndpointListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2061,10 +2081,9 @@ class ImageGenerationConfiguration {
   final ImageSelectorType imageSelectorType;
 
   /// The time interval in milliseconds (ms) at which the images need to be
-  /// generated from the stream. The minimum value that can be provided is 33 ms,
-  /// because a camera that generates content at 30 FPS would create a frame every
-  /// 33.3 ms. If the timestamp range is less than the sampling interval, the
-  /// Image from the <code>StartTimestamp</code> will be returned if available.
+  /// generated from the stream. The minimum value that can be provided is 200 ms.
+  /// If the timestamp range is less than the sampling interval, the Image from
+  /// the <code>StartTimestamp</code> will be returned if available.
   final int samplingInterval;
 
   /// Indicates whether the <code>ContinuousImageGenerationConfigurations</code>
@@ -2115,13 +2134,13 @@ class ImageGenerationConfiguration {
     return ImageGenerationConfiguration(
       destinationConfig: ImageGenerationDestinationConfig.fromJson(
           json['DestinationConfig'] as Map<String, dynamic>),
-      format: (json['Format'] as String).toFormat(),
+      format: Format.fromString((json['Format'] as String)),
       imageSelectorType:
-          (json['ImageSelectorType'] as String).toImageSelectorType(),
+          ImageSelectorType.fromString((json['ImageSelectorType'] as String)),
       samplingInterval: json['SamplingInterval'] as int,
-      status: (json['Status'] as String).toConfigurationStatus(),
+      status: ConfigurationStatus.fromString((json['Status'] as String)),
       formatConfig: (json['FormatConfig'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toFormatConfigKey(), e as String)),
+          ?.map((k, e) => MapEntry(FormatConfigKey.fromString(k), e as String)),
       heightPixels: json['HeightPixels'] as int?,
       widthPixels: json['WidthPixels'] as int?,
     );
@@ -2138,12 +2157,12 @@ class ImageGenerationConfiguration {
     final widthPixels = this.widthPixels;
     return {
       'DestinationConfig': destinationConfig,
-      'Format': format.toValue(),
-      'ImageSelectorType': imageSelectorType.toValue(),
+      'Format': format.value,
+      'ImageSelectorType': imageSelectorType.value,
       'SamplingInterval': samplingInterval,
-      'Status': status.toValue(),
+      'Status': status.value,
       if (formatConfig != null)
-        'FormatConfig': formatConfig.map((k, e) => MapEntry(k.toValue(), e)),
+        'FormatConfig': formatConfig.map((k, e) => MapEntry(k.value, e)),
       if (heightPixels != null) 'HeightPixels': heightPixels,
       if (widthPixels != null) 'WidthPixels': widthPixels,
     };
@@ -2153,9 +2172,9 @@ class ImageGenerationConfiguration {
 /// The structure that contains the information required to deliver images to a
 /// customer.
 class ImageGenerationDestinationConfig {
-  /// The AWS Region of the S3 bucket where images will be delivered. This
-  /// <code>DestinationRegion</code> must match the Region where the stream is
-  /// located.
+  /// The Amazon Web Services Region of the S3 bucket where images will be
+  /// delivered. This <code>DestinationRegion</code> must match the Region where
+  /// the stream is located.
   final String destinationRegion;
 
   /// The Uniform Resource Identifier (URI) that identifies where the images will
@@ -2185,30 +2204,157 @@ class ImageGenerationDestinationConfig {
 }
 
 enum ImageSelectorType {
-  serverTimestamp,
-  producerTimestamp,
+  serverTimestamp('SERVER_TIMESTAMP'),
+  producerTimestamp('PRODUCER_TIMESTAMP'),
+  ;
+
+  final String value;
+
+  const ImageSelectorType(this.value);
+
+  static ImageSelectorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ImageSelectorType'));
 }
 
-extension ImageSelectorTypeValueExtension on ImageSelectorType {
-  String toValue() {
-    switch (this) {
-      case ImageSelectorType.serverTimestamp:
-        return 'SERVER_TIMESTAMP';
-      case ImageSelectorType.producerTimestamp:
-        return 'PRODUCER_TIMESTAMP';
-    }
+/// The latest status of a stream's edge recording job.
+class LastRecorderStatus {
+  /// A description of a recorder job’s latest status.
+  final String? jobStatusDetails;
+
+  /// The timestamp at which the recorder job was last executed and media stored
+  /// to local disk.
+  final DateTime? lastCollectedTime;
+
+  /// The timestamp at which the recorder status was last updated.
+  final DateTime? lastUpdatedTime;
+
+  /// The status of the latest recorder job.
+  final RecorderStatus? recorderStatus;
+
+  LastRecorderStatus({
+    this.jobStatusDetails,
+    this.lastCollectedTime,
+    this.lastUpdatedTime,
+    this.recorderStatus,
+  });
+
+  factory LastRecorderStatus.fromJson(Map<String, dynamic> json) {
+    return LastRecorderStatus(
+      jobStatusDetails: json['JobStatusDetails'] as String?,
+      lastCollectedTime: timeStampFromJson(json['LastCollectedTime']),
+      lastUpdatedTime: timeStampFromJson(json['LastUpdatedTime']),
+      recorderStatus:
+          (json['RecorderStatus'] as String?)?.let(RecorderStatus.fromString),
+    );
   }
 }
 
-extension ImageSelectorTypeFromString on String {
-  ImageSelectorType toImageSelectorType() {
-    switch (this) {
-      case 'SERVER_TIMESTAMP':
-        return ImageSelectorType.serverTimestamp;
-      case 'PRODUCER_TIMESTAMP':
-        return ImageSelectorType.producerTimestamp;
-    }
-    throw Exception('$this is not known in enum ImageSelectorType');
+/// The latest status of a stream’s edge to cloud uploader job.
+class LastUploaderStatus {
+  /// A description of an uploader job’s latest status.
+  final String? jobStatusDetails;
+
+  /// The timestamp at which the uploader job was last executed and media
+  /// collected to the cloud.
+  final DateTime? lastCollectedTime;
+
+  /// The timestamp at which the uploader status was last updated.
+  final DateTime? lastUpdatedTime;
+
+  /// The status of the latest uploader job.
+  final UploaderStatus? uploaderStatus;
+
+  LastUploaderStatus({
+    this.jobStatusDetails,
+    this.lastCollectedTime,
+    this.lastUpdatedTime,
+    this.uploaderStatus,
+  });
+
+  factory LastUploaderStatus.fromJson(Map<String, dynamic> json) {
+    return LastUploaderStatus(
+      jobStatusDetails: json['JobStatusDetails'] as String?,
+      lastCollectedTime: timeStampFromJson(json['LastCollectedTime']),
+      lastUpdatedTime: timeStampFromJson(json['LastUpdatedTime']),
+      uploaderStatus:
+          (json['UploaderStatus'] as String?)?.let(UploaderStatus.fromString),
+    );
+  }
+}
+
+/// A description of a single stream's edge configuration.
+class ListEdgeAgentConfigurationsEdgeConfig {
+  /// The timestamp when the stream first created the edge config.
+  final DateTime? creationTime;
+  final EdgeConfig? edgeConfig;
+
+  /// A description of the generated failure status.
+  final String? failedStatusDetails;
+
+  /// The timestamp when the stream last updated the edge config.
+  final DateTime? lastUpdatedTime;
+
+  /// The Amazon Resource Name (ARN) of the stream.
+  final String? streamARN;
+
+  /// The name of the stream.
+  final String? streamName;
+
+  /// The current sync status of the stream's edge configuration.
+  final SyncStatus? syncStatus;
+
+  ListEdgeAgentConfigurationsEdgeConfig({
+    this.creationTime,
+    this.edgeConfig,
+    this.failedStatusDetails,
+    this.lastUpdatedTime,
+    this.streamARN,
+    this.streamName,
+    this.syncStatus,
+  });
+
+  factory ListEdgeAgentConfigurationsEdgeConfig.fromJson(
+      Map<String, dynamic> json) {
+    return ListEdgeAgentConfigurationsEdgeConfig(
+      creationTime: timeStampFromJson(json['CreationTime']),
+      edgeConfig: json['EdgeConfig'] != null
+          ? EdgeConfig.fromJson(json['EdgeConfig'] as Map<String, dynamic>)
+          : null,
+      failedStatusDetails: json['FailedStatusDetails'] as String?,
+      lastUpdatedTime: timeStampFromJson(json['LastUpdatedTime']),
+      streamARN: json['StreamARN'] as String?,
+      streamName: json['StreamName'] as String?,
+      syncStatus: (json['SyncStatus'] as String?)?.let(SyncStatus.fromString),
+    );
+  }
+}
+
+class ListEdgeAgentConfigurationsOutput {
+  /// A description of a single stream's edge configuration.
+  final List<ListEdgeAgentConfigurationsEdgeConfig>? edgeConfigs;
+
+  /// If the response is truncated, the call returns this element with a given
+  /// token. To get the next batch of edge configurations, use this token in your
+  /// next request.
+  final String? nextToken;
+
+  ListEdgeAgentConfigurationsOutput({
+    this.edgeConfigs,
+    this.nextToken,
+  });
+
+  factory ListEdgeAgentConfigurationsOutput.fromJson(
+      Map<String, dynamic> json) {
+    return ListEdgeAgentConfigurationsOutput(
+      edgeConfigs: (json['EdgeConfigs'] as List?)
+          ?.nonNulls
+          .map((e) => ListEdgeAgentConfigurationsEdgeConfig.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
   }
 }
 
@@ -2228,7 +2374,7 @@ class ListSignalingChannelsOutput {
   factory ListSignalingChannelsOutput.fromJson(Map<String, dynamic> json) {
     return ListSignalingChannelsOutput(
       channelInfoList: (json['ChannelInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2253,7 +2399,7 @@ class ListStreamsOutput {
     return ListStreamsOutput(
       nextToken: json['NextToken'] as String?,
       streamInfoList: (json['StreamInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StreamInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2329,8 +2475,8 @@ class LocalSizeConfig {
   factory LocalSizeConfig.fromJson(Map<String, dynamic> json) {
     return LocalSizeConfig(
       maxLocalMediaSizeInMB: json['MaxLocalMediaSizeInMB'] as int?,
-      strategyOnFullSize:
-          (json['StrategyOnFullSize'] as String?)?.toStrategyOnFullSize(),
+      strategyOnFullSize: (json['StrategyOnFullSize'] as String?)
+          ?.let(StrategyOnFullSize.fromString),
     );
   }
 
@@ -2341,7 +2487,7 @@ class LocalSizeConfig {
       if (maxLocalMediaSizeInMB != null)
         'MaxLocalMediaSizeInMB': maxLocalMediaSizeInMB,
       if (strategyOnFullSize != null)
-        'StrategyOnFullSize': strategyOnFullSize.toValue(),
+        'StrategyOnFullSize': strategyOnFullSize.value,
     };
   }
 }
@@ -2374,8 +2520,8 @@ class MappedResourceConfigurationListItem {
 /// (<code>MediaUriSecretArn</code> and <code>MediaUriType</code>) to access the
 /// media files that are streamed to the camera.
 class MediaSourceConfig {
-  /// The AWS Secrets Manager ARN for the username and password of the camera, or
-  /// a local media file location.
+  /// The Amazon Web Services Secrets Manager ARN for the username and password of
+  /// the camera, or a local media file location.
   final String mediaUriSecretArn;
 
   /// The Uniform Resource Identifier (URI) type. The <code>FILE_URI</code> value
@@ -2393,7 +2539,7 @@ class MediaSourceConfig {
   factory MediaSourceConfig.fromJson(Map<String, dynamic> json) {
     return MediaSourceConfig(
       mediaUriSecretArn: json['MediaUriSecretArn'] as String,
-      mediaUriType: (json['MediaUriType'] as String).toMediaUriType(),
+      mediaUriType: MediaUriType.fromString((json['MediaUriType'] as String)),
     );
   }
 
@@ -2402,18 +2548,30 @@ class MediaSourceConfig {
     final mediaUriType = this.mediaUriType;
     return {
       'MediaUriSecretArn': mediaUriSecretArn,
-      'MediaUriType': mediaUriType.toValue(),
+      'MediaUriType': mediaUriType.value,
     };
   }
 }
 
 /// A structure that encapsulates, or contains, the media storage configuration
 /// properties.
+///
+/// <ul>
+/// <li>
+/// If <code>StorageStatus</code> is enabled, the data will be stored in the
+/// <code>StreamARN</code> provided. In order for WebRTC Ingestion to work, the
+/// stream must have data retention enabled.
+/// </li>
+/// <li>
+/// If <code>StorageStatus</code> is disabled, no data will be stored, and the
+/// <code>StreamARN</code> parameter will not be needed.
+/// </li>
+/// </ul>
 class MediaStorageConfiguration {
   /// The status of the media storage configuration.
   final MediaStorageConfigurationStatus status;
 
-  /// The Amazon Resource Name (ARN) of the stream
+  /// The Amazon Resource Name (ARN) of the stream.
   final String? streamARN;
 
   MediaStorageConfiguration({
@@ -2423,7 +2581,8 @@ class MediaStorageConfiguration {
 
   factory MediaStorageConfiguration.fromJson(Map<String, dynamic> json) {
     return MediaStorageConfiguration(
-      status: (json['Status'] as String).toMediaStorageConfigurationStatus(),
+      status: MediaStorageConfigurationStatus.fromString(
+          (json['Status'] as String)),
       streamARN: json['StreamARN'] as String?,
     );
   }
@@ -2432,68 +2591,40 @@ class MediaStorageConfiguration {
     final status = this.status;
     final streamARN = this.streamARN;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
       if (streamARN != null) 'StreamARN': streamARN,
     };
   }
 }
 
 enum MediaStorageConfigurationStatus {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension MediaStorageConfigurationStatusValueExtension
-    on MediaStorageConfigurationStatus {
-  String toValue() {
-    switch (this) {
-      case MediaStorageConfigurationStatus.enabled:
-        return 'ENABLED';
-      case MediaStorageConfigurationStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension MediaStorageConfigurationStatusFromString on String {
-  MediaStorageConfigurationStatus toMediaStorageConfigurationStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return MediaStorageConfigurationStatus.enabled;
-      case 'DISABLED':
-        return MediaStorageConfigurationStatus.disabled;
-    }
-    throw Exception(
-        '$this is not known in enum MediaStorageConfigurationStatus');
-  }
+  const MediaStorageConfigurationStatus(this.value);
+
+  static MediaStorageConfigurationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MediaStorageConfigurationStatus'));
 }
 
 enum MediaUriType {
-  rtspUri,
-  fileUri,
-}
+  rtspUri('RTSP_URI'),
+  fileUri('FILE_URI'),
+  ;
 
-extension MediaUriTypeValueExtension on MediaUriType {
-  String toValue() {
-    switch (this) {
-      case MediaUriType.rtspUri:
-        return 'RTSP_URI';
-      case MediaUriType.fileUri:
-        return 'FILE_URI';
-    }
-  }
-}
+  final String value;
 
-extension MediaUriTypeFromString on String {
-  MediaUriType toMediaUriType() {
-    switch (this) {
-      case 'RTSP_URI':
-        return MediaUriType.rtspUri;
-      case 'FILE_URI':
-        return MediaUriType.fileUri;
-    }
-    throw Exception('$this is not known in enum MediaUriType');
-  }
+  const MediaUriType(this.value);
+
+  static MediaUriType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MediaUriType'));
 }
 
 /// The structure that contains the notification information for the KVS images
@@ -2516,7 +2647,7 @@ class NotificationConfiguration {
     return NotificationConfiguration(
       destinationConfig: NotificationDestinationConfig.fromJson(
           json['DestinationConfig'] as Map<String, dynamic>),
-      status: (json['Status'] as String).toConfigurationStatus(),
+      status: ConfigurationStatus.fromString((json['Status'] as String)),
     );
   }
 
@@ -2525,7 +2656,7 @@ class NotificationConfiguration {
     final status = this.status;
     return {
       'DestinationConfig': destinationConfig,
-      'Status': status.toValue(),
+      'Status': status.value,
     };
   }
 }
@@ -2597,8 +2728,27 @@ class RecorderConfig {
   }
 }
 
+enum RecorderStatus {
+  success('SUCCESS'),
+  userError('USER_ERROR'),
+  systemError('SYSTEM_ERROR'),
+  ;
+
+  final String value;
+
+  const RecorderStatus(this.value);
+
+  static RecorderStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RecorderStatus'));
+}
+
 /// An object that describes the endpoint of the signaling channel returned by
 /// the <code>GetSignalingChannelEndpoint</code> API.
+///
+/// The media server endpoint will correspond to the <code>WEBRTC</code>
+/// Protocol.
 class ResourceEndpointListItem {
   /// The protocol of the signaling channel returned by the
   /// <code>GetSignalingChannelEndpoint</code> API.
@@ -2615,7 +2765,7 @@ class ResourceEndpointListItem {
 
   factory ResourceEndpointListItem.fromJson(Map<String, dynamic> json) {
     return ResourceEndpointListItem(
-      protocol: (json['Protocol'] as String?)?.toChannelProtocol(),
+      protocol: (json['Protocol'] as String?)?.let(ChannelProtocol.fromString),
       resourceEndpoint: json['ResourceEndpoint'] as String?,
     );
   }
@@ -2626,8 +2776,13 @@ class ResourceEndpointListItem {
 /// consists of the <code>ScheduleExpression</code> and the
 /// <code>DurationInMinutes</code> attributes.
 ///
-/// If the <code>ScheduleExpression</code> is not provided, then the Edge Agent
-/// will always be set to recording mode.
+/// If the <code>ScheduleConfig</code> is not provided in the
+/// <code>RecorderConfig</code>, then the Edge Agent will always be set to
+/// recording mode.
+///
+/// If the <code>ScheduleConfig</code> is not provided in the
+/// <code>UploaderConfig</code>, then the Edge Agent will upload at regular
+/// intervals (every 1 hour).
 class ScheduleConfig {
   /// The total duration to record the media. If the
   /// <code>ScheduleExpression</code> attribute is provided, then the
@@ -2696,8 +2851,8 @@ class SingleMasterChannelEndpointConfiguration {
     final role = this.role;
     return {
       if (protocols != null)
-        'Protocols': protocols.map((e) => e.toValue()).toList(),
-      if (role != null) 'Role': role.toValue(),
+        'Protocols': protocols.map((e) => e.value).toList(),
+      if (role != null) 'Role': role.value,
     };
   }
 }
@@ -2775,75 +2930,40 @@ class StartEdgeConfigurationUpdateOutput {
       lastUpdatedTime: timeStampFromJson(json['LastUpdatedTime']),
       streamARN: json['StreamARN'] as String?,
       streamName: json['StreamName'] as String?,
-      syncStatus: (json['SyncStatus'] as String?)?.toSyncStatus(),
+      syncStatus: (json['SyncStatus'] as String?)?.let(SyncStatus.fromString),
     );
   }
 }
 
 enum Status {
-  creating,
-  active,
-  updating,
-  deleting,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  ;
 
-extension StatusValueExtension on Status {
-  String toValue() {
-    switch (this) {
-      case Status.creating:
-        return 'CREATING';
-      case Status.active:
-        return 'ACTIVE';
-      case Status.updating:
-        return 'UPDATING';
-      case Status.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension StatusFromString on String {
-  Status toStatus() {
-    switch (this) {
-      case 'CREATING':
-        return Status.creating;
-      case 'ACTIVE':
-        return Status.active;
-      case 'UPDATING':
-        return Status.updating;
-      case 'DELETING':
-        return Status.deleting;
-    }
-    throw Exception('$this is not known in enum Status');
-  }
+  const Status(this.value);
+
+  static Status fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Status'));
 }
 
 enum StrategyOnFullSize {
-  deleteOldestMedia,
-  denyNewMedia,
-}
+  deleteOldestMedia('DELETE_OLDEST_MEDIA'),
+  denyNewMedia('DENY_NEW_MEDIA'),
+  ;
 
-extension StrategyOnFullSizeValueExtension on StrategyOnFullSize {
-  String toValue() {
-    switch (this) {
-      case StrategyOnFullSize.deleteOldestMedia:
-        return 'DELETE_OLDEST_MEDIA';
-      case StrategyOnFullSize.denyNewMedia:
-        return 'DENY_NEW_MEDIA';
-    }
-  }
-}
+  final String value;
 
-extension StrategyOnFullSizeFromString on String {
-  StrategyOnFullSize toStrategyOnFullSize() {
-    switch (this) {
-      case 'DELETE_OLDEST_MEDIA':
-        return StrategyOnFullSize.deleteOldestMedia;
-      case 'DENY_NEW_MEDIA':
-        return StrategyOnFullSize.denyNewMedia;
-    }
-    throw Exception('$this is not known in enum StrategyOnFullSize');
-  }
+  const StrategyOnFullSize(this.value);
+
+  static StrategyOnFullSize fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StrategyOnFullSize'));
 }
 
 /// An object describing a Kinesis video stream.
@@ -2895,7 +3015,7 @@ class StreamInfo {
       deviceName: json['DeviceName'] as String?,
       kmsKeyId: json['KmsKeyId'] as String?,
       mediaType: json['MediaType'] as String?,
-      status: (json['Status'] as String?)?.toStatus(),
+      status: (json['Status'] as String?)?.let(Status.fromString),
       streamARN: json['StreamARN'] as String?,
       streamName: json['StreamName'] as String?,
       version: json['Version'] as String?,
@@ -2927,58 +3047,29 @@ class StreamNameCondition {
     final comparisonValue = this.comparisonValue;
     return {
       if (comparisonOperator != null)
-        'ComparisonOperator': comparisonOperator.toValue(),
+        'ComparisonOperator': comparisonOperator.value,
       if (comparisonValue != null) 'ComparisonValue': comparisonValue,
     };
   }
 }
 
 enum SyncStatus {
-  syncing,
-  acknowledged,
-  inSync,
-  syncFailed,
-  deleting,
-  deleteFailed,
-}
+  syncing('SYNCING'),
+  acknowledged('ACKNOWLEDGED'),
+  inSync('IN_SYNC'),
+  syncFailed('SYNC_FAILED'),
+  deleting('DELETING'),
+  deleteFailed('DELETE_FAILED'),
+  deletingAcknowledged('DELETING_ACKNOWLEDGED'),
+  ;
 
-extension SyncStatusValueExtension on SyncStatus {
-  String toValue() {
-    switch (this) {
-      case SyncStatus.syncing:
-        return 'SYNCING';
-      case SyncStatus.acknowledged:
-        return 'ACKNOWLEDGED';
-      case SyncStatus.inSync:
-        return 'IN_SYNC';
-      case SyncStatus.syncFailed:
-        return 'SYNC_FAILED';
-      case SyncStatus.deleting:
-        return 'DELETING';
-      case SyncStatus.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension SyncStatusFromString on String {
-  SyncStatus toSyncStatus() {
-    switch (this) {
-      case 'SYNCING':
-        return SyncStatus.syncing;
-      case 'ACKNOWLEDGED':
-        return SyncStatus.acknowledged;
-      case 'IN_SYNC':
-        return SyncStatus.inSync;
-      case 'SYNC_FAILED':
-        return SyncStatus.syncFailed;
-      case 'DELETING':
-        return SyncStatus.deleting;
-      case 'DELETE_FAILED':
-        return SyncStatus.deleteFailed;
-    }
-    throw Exception('$this is not known in enum SyncStatus');
-  }
+  const SyncStatus(this.value);
+
+  static SyncStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SyncStatus'));
 }
 
 /// A key and value pair that is associated with the specified signaling
@@ -3039,32 +3130,18 @@ class UntagStreamOutput {
 }
 
 enum UpdateDataRetentionOperation {
-  increaseDataRetention,
-  decreaseDataRetention,
-}
+  increaseDataRetention('INCREASE_DATA_RETENTION'),
+  decreaseDataRetention('DECREASE_DATA_RETENTION'),
+  ;
 
-extension UpdateDataRetentionOperationValueExtension
-    on UpdateDataRetentionOperation {
-  String toValue() {
-    switch (this) {
-      case UpdateDataRetentionOperation.increaseDataRetention:
-        return 'INCREASE_DATA_RETENTION';
-      case UpdateDataRetentionOperation.decreaseDataRetention:
-        return 'DECREASE_DATA_RETENTION';
-    }
-  }
-}
+  final String value;
 
-extension UpdateDataRetentionOperationFromString on String {
-  UpdateDataRetentionOperation toUpdateDataRetentionOperation() {
-    switch (this) {
-      case 'INCREASE_DATA_RETENTION':
-        return UpdateDataRetentionOperation.increaseDataRetention;
-      case 'DECREASE_DATA_RETENTION':
-        return UpdateDataRetentionOperation.decreaseDataRetention;
-    }
-    throw Exception('$this is not known in enum UpdateDataRetentionOperation');
-  }
+  const UpdateDataRetentionOperation(this.value);
+
+  static UpdateDataRetentionOperation fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum UpdateDataRetentionOperation'));
 }
 
 class UpdateDataRetentionOutput {
@@ -3119,16 +3196,18 @@ class UpdateStreamOutput {
 }
 
 /// The configuration that consists of the <code>ScheduleExpression</code> and
-/// the <code>DurationInMinutesdetails</code>, that specify the scheduling to
+/// the <code>DurationInMinutes</code> details that specify the scheduling to
 /// record from a camera, or local media file, onto the Edge Agent. If the
-/// <code>ScheduleExpression</code> is not provided, then the Edge Agent will
-/// always be in upload mode.
+/// <code>ScheduleConfig</code> is not provided in the
+/// <code>UploaderConfig</code>, then the Edge Agent will upload at regular
+/// intervals (every 1 hour).
 class UploaderConfig {
   /// The configuration that consists of the <code>ScheduleExpression</code> and
-  /// the <code>DurationInMinutes</code>details that specify the scheduling to
+  /// the <code>DurationInMinutes</code> details that specify the scheduling to
   /// record from a camera, or local media file, onto the Edge Agent. If the
-  /// <code>ScheduleExpression</code> is not provided, then the Edge Agent will
-  /// always be in recording mode.
+  /// <code>ScheduleConfig</code> is not provided in this
+  /// <code>UploaderConfig</code>, then the Edge Agent will upload at regular
+  /// intervals (every 1 hour).
   final ScheduleConfig scheduleConfig;
 
   UploaderConfig({
@@ -3148,6 +3227,22 @@ class UploaderConfig {
       'ScheduleConfig': scheduleConfig,
     };
   }
+}
+
+enum UploaderStatus {
+  success('SUCCESS'),
+  userError('USER_ERROR'),
+  systemError('SYSTEM_ERROR'),
+  ;
+
+  final String value;
+
+  const UploaderStatus(this.value);
+
+  static UploaderStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UploaderStatus'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

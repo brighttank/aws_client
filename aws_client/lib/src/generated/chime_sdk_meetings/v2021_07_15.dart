@@ -20,9 +20,9 @@ import '../../shared/shared.dart'
 export '../../shared/shared.dart' show AwsClientCredentials;
 
 /// The Amazon Chime SDK meetings APIs in this section allow software developers
-/// to create Amazon Chime SDK meetings, set the AWS Regions for meetings,
-/// create and manage users, and send and receive meeting notifications. For
-/// more information about the meeting APIs, see <a
+/// to create Amazon Chime SDK meetings, set the Amazon Web Services Regions for
+/// meetings, create and manage users, and send and receive meeting
+/// notifications. For more information about the meeting APIs, see <a
 /// href="https://docs.aws.amazon.com/chime/latest/APIReference/API_Operations_Amazon_Chime_SDK_Meetings.html">Amazon
 /// Chime SDK meetings</a>.
 class ChimeSdkMeetings {
@@ -102,6 +102,20 @@ class ChimeSdkMeetings {
   ///
   /// <ul>
   /// <li>
+  /// If you specify <code>MeetingFeatures:Video:MaxResolution:None</code> when
+  /// you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Video</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
+  /// <li>
+  /// If you specify <code>MeetingFeatures:Content:MaxResolution:None</code>
+  /// when you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Content</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
+  /// <li>
   /// You can't set <code>content</code> capabilities to
   /// <code>SendReceive</code> or <code>Receive</code> unless you also set
   /// <code>video</code> capabilities to <code>SendReceive</code> or
@@ -132,6 +146,8 @@ class ChimeSdkMeetings {
   /// May throw [NotFoundException].
   /// May throw [ForbiddenException].
   /// May throw [ServiceUnavailableException].
+  /// May throw [ServiceFailureException].
+  /// May throw [ThrottlingException].
   ///
   /// Parameter [capabilities] :
   /// The capabilities (<code>audio</code>, <code>video</code>, or
@@ -202,6 +218,20 @@ class ChimeSdkMeetings {
   ///
   /// <ul>
   /// <li>
+  /// If you specify <code>MeetingFeatures:Video:MaxResolution:None</code> when
+  /// you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Video</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
+  /// <li>
+  /// If you specify <code>MeetingFeatures:Content:MaxResolution:None</code>
+  /// when you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Content</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
+  /// <li>
   /// You can't set <code>content</code> capabilities to
   /// <code>SendReceive</code> or <code>Receive</code> unless you also set
   /// <code>video</code> capabilities to <code>SendReceive</code> or
@@ -253,6 +283,7 @@ class ChimeSdkMeetings {
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime Developer Guide</i>.
   ///
   /// May throw [BadRequestException].
+  /// May throw [ConflictException].
   /// May throw [ForbiddenException].
   /// May throw [UnauthorizedException].
   /// May throw [ThrottlingException].
@@ -280,8 +311,8 @@ class ChimeSdkMeetings {
   /// <code>us-east-1</code>, <code>us-east-2</code>, <code>us-west-1</code>,
   /// <code>us-west-2</code>.
   ///
-  /// Available values in AWS GovCloud (US) Regions: <code>us-gov-east-1</code>,
-  /// <code>us-gov-west-1</code>.
+  /// Available values in Amazon Web Services GovCloud (US) Regions:
+  /// <code>us-gov-east-1</code>, <code>us-gov-west-1</code>.
   ///
   /// Parameter [clientRequestToken] :
   /// The unique identifier for the client request. Use a different token for
@@ -322,8 +353,8 @@ class ChimeSdkMeetings {
   /// Naming and Usage Conventions</a> in the <i>AWS General Reference</i>.
   /// </li>
   /// <li>
-  /// You can only tag resources that are located in the specified AWS Region
-  /// for the AWS account.
+  /// You can only tag resources that are located in the specified Amazon Web
+  /// Services Region for the Amazon Web Services account.
   /// </li>
   /// <li>
   /// To add tags to a resource, you need the necessary permissions for the
@@ -399,6 +430,7 @@ class ChimeSdkMeetings {
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime Developer Guide</i>.
   ///
   /// May throw [BadRequestException].
+  /// May throw [ConflictException].
   /// May throw [ForbiddenException].
   /// May throw [UnauthorizedException].
   /// May throw [ThrottlingException].
@@ -429,8 +461,8 @@ class ChimeSdkMeetings {
   /// <code>us-east-1</code>, <code>us-east-2</code>, <code>us-west-1</code>,
   /// <code>us-west-2</code>.
   ///
-  /// Available values in AWS GovCloud (US) Regions: <code>us-gov-east-1</code>,
-  /// <code>us-gov-west-1</code>.
+  /// Available values in Amazon Web Services GovCloud (US) Regions:
+  /// <code>us-gov-east-1</code>, <code>us-gov-west-1</code>.
   ///
   /// Parameter [clientRequestToken] :
   /// The unique identifier for the client request. Use a different token for
@@ -658,6 +690,13 @@ class ChimeSdkMeetings {
 
   /// Returns a list of the tags available for the specified resource.
   ///
+  /// May throw [BadRequestException].
+  /// May throw [ForbiddenException].
+  /// May throw [UnauthorizedException].
+  /// May throw [LimitExceededException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ServiceFailureException].
+  /// May throw [ThrottlingException].
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [resourceARN] :
@@ -691,13 +730,21 @@ class ChimeSdkMeetings {
   /// the <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/APIReference/API_streaming_StartStreamTranscription.html">StartStreamTranscription</a>
   /// API in the <i>Amazon Transcribe Developer Guide</i>.
-  /// <important>
-  /// Amazon Chime SDK live transcription is powered by Amazon Transcribe. Use
-  /// of Amazon Transcribe is subject to the <a
-  /// href="https://aws.amazon.com/service-terms/">AWS Service Terms</a>,
-  /// including the terms specific to the AWS Machine Learning and Artificial
-  /// Intelligence Services.
-  /// </important>
+  /// <note>
+  /// By default, Amazon Transcribe may use and store audio content processed by
+  /// the service to develop and improve Amazon Web Services AI/ML services as
+  /// further described in section 50 of the <a
+  /// href="https://aws.amazon.com/service-terms/">Amazon Web Services Service
+  /// Terms</a>. Using Amazon Transcribe may be subject to federal and state
+  /// laws or regulations regarding the recording or interception of electronic
+  /// communications. It is your and your end users’ responsibility to comply
+  /// with all applicable laws regarding the recording, including properly
+  /// notifying all participants in a recorded session or communication that the
+  /// session or communication is being recorded, and obtaining all necessary
+  /// consents. You can opt out from Amazon Web Services using audio content to
+  /// develop and improve AWS AI/ML services by configuring an AI services opt
+  /// out policy using Amazon Web Services Organizations.
+  /// </note>
   ///
   /// May throw [NotFoundException].
   /// May throw [ForbiddenException].
@@ -738,11 +785,19 @@ class ChimeSdkMeetings {
   /// Using Amazon Chime SDK live transcription </a> in the <i>Amazon Chime SDK
   /// Developer Guide</i>.
   /// <important>
-  /// Amazon Chime SDK live transcription is powered by Amazon Transcribe. Use
-  /// of Amazon Transcribe is subject to the <a
-  /// href="https://aws.amazon.com/service-terms/">AWS Service Terms</a>,
-  /// including the terms specific to the AWS Machine Learning and Artificial
-  /// Intelligence Services.
+  /// By default, Amazon Transcribe may use and store audio content processed by
+  /// the service to develop and improve Amazon Web Services AI/ML services as
+  /// further described in section 50 of the <a
+  /// href="https://aws.amazon.com/service-terms/">Amazon Web Services Service
+  /// Terms</a>. Using Amazon Transcribe may be subject to federal and state
+  /// laws or regulations regarding the recording or interception of electronic
+  /// communications. It is your and your end users’ responsibility to comply
+  /// with all applicable laws regarding the recording, including properly
+  /// notifying all participants in a recorded session or communication that the
+  /// session or communication is being recorded, and obtaining all necessary
+  /// consents. You can opt out from Amazon Web Services using audio content to
+  /// develop and improve Amazon Web Services AI/ML services by configuring an
+  /// AI services opt out policy using Amazon Web Services Organizations.
   /// </important>
   ///
   /// May throw [ForbiddenException].
@@ -771,6 +826,12 @@ class ChimeSdkMeetings {
   /// The resource that supports tags.
   ///
   /// May throw [BadRequestException].
+  /// May throw [ForbiddenException].
+  /// May throw [UnauthorizedException].
+  /// May throw [LimitExceededException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ServiceFailureException].
+  /// May throw [ThrottlingException].
   /// May throw [ResourceNotFoundException].
   /// May throw [TooManyTagsException].
   ///
@@ -808,8 +869,8 @@ class ChimeSdkMeetings {
   /// resource you want to untag.
   /// </li>
   /// <li>
-  /// You can only tag resources that are located in the specified AWS Region
-  /// for the calling AWS account.
+  /// You can only tag resources that are located in the specified Amazon Web
+  /// Services Region for the calling Amazon Web Services account.
   /// </li>
   /// </ul>
   /// <b>Minimum permissions</b>
@@ -825,6 +886,12 @@ class ChimeSdkMeetings {
   /// <code>ChimeSDKMeetings:DeleteTags</code>
   ///
   /// May throw [BadRequestException].
+  /// May throw [ForbiddenException].
+  /// May throw [UnauthorizedException].
+  /// May throw [LimitExceededException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [ServiceFailureException].
+  /// May throw [ThrottlingException].
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [resourceARN] :
@@ -858,6 +925,20 @@ class ChimeSdkMeetings {
   ///
   /// <ul>
   /// <li>
+  /// If you specify <code>MeetingFeatures:Video:MaxResolution:None</code> when
+  /// you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Video</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
+  /// <li>
+  /// If you specify <code>MeetingFeatures:Content:MaxResolution:None</code>
+  /// when you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Content</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
+  /// <li>
   /// You can't set <code>content</code> capabilities to
   /// <code>SendReceive</code> or <code>Receive</code> unless you also set
   /// <code>video</code> capabilities to <code>SendReceive</code> or
@@ -888,6 +969,8 @@ class ChimeSdkMeetings {
   /// May throw [NotFoundException].
   /// May throw [ForbiddenException].
   /// May throw [ServiceUnavailableException].
+  /// May throw [ServiceFailureException].
+  /// May throw [ThrottlingException].
   ///
   /// Parameter [attendeeId] :
   /// The ID of the attendee associated with the update request.
@@ -939,6 +1022,20 @@ class Attendee {
   /// When using capabilities, be aware of these corner cases:
   ///
   /// <ul>
+  /// <li>
+  /// If you specify <code>MeetingFeatures:Video:MaxResolution:None</code> when
+  /// you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Video</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
+  /// <li>
+  /// If you specify <code>MeetingFeatures:Content:MaxResolution:None</code> when
+  /// you create a meeting, all API requests that include
+  /// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+  /// <code>AttendeeCapabilities:Content</code> will be rejected with
+  /// <code>ValidationError 400</code>.
+  /// </li>
   /// <li>
   /// You can't set <code>content</code> capabilities to <code>SendReceive</code>
   /// or <code>Receive</code> unless you also set <code>video</code> capabilities
@@ -1013,11 +1110,25 @@ class Attendee {
 /// <note>
 /// You use the capabilities with a set of values that control what the
 /// capabilities can do, such as <code>SendReceive</code> data. For more
-/// information about those values, see .
+/// information, refer to and .
 /// </note>
 /// When using capabilities, be aware of these corner cases:
 ///
 /// <ul>
+/// <li>
+/// If you specify <code>MeetingFeatures:Video:MaxResolution:None</code> when
+/// you create a meeting, all API requests that include
+/// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+/// <code>AttendeeCapabilities:Video</code> will be rejected with
+/// <code>ValidationError 400</code>.
+/// </li>
+/// <li>
+/// If you specify <code>MeetingFeatures:Content:MaxResolution:None</code> when
+/// you create a meeting, all API requests that include
+/// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+/// <code>AttendeeCapabilities:Content</code> will be rejected with
+/// <code>ValidationError 400</code>.
+/// </li>
 /// <li>
 /// You can't set <code>content</code> capabilities to <code>SendReceive</code>
 /// or <code>Receive</code> unless you also set <code>video</code> capabilities
@@ -1030,15 +1141,15 @@ class Attendee {
 /// <li>
 /// When you change an <code>audio</code> capability from <code>None</code> or
 /// <code>Receive</code> to <code>Send</code> or <code>SendReceive</code> , and
-/// if the attendee left their microphone unmuted, audio will flow from the
-/// attendee to the other meeting participants.
+/// an attendee unmutes their microphone, audio flows from the attendee to the
+/// other meeting participants.
 /// </li>
 /// <li>
 /// When you change a <code>video</code> or <code>content</code> capability from
 /// <code>None</code> or <code>Receive</code> to <code>Send</code> or
-/// <code>SendReceive</code> , and if the attendee turned on their video or
-/// content streams, remote attendees can receive those streams, but only after
-/// media renegotiation between the client and the Amazon Chime back-end server.
+/// <code>SendReceive</code> , and the attendee turns on their video or content
+/// streams, remote attendees can receive those streams, but only after media
+/// renegotiation between the client and the Amazon Chime back-end server.
 /// </li>
 /// </ul>
 class AttendeeCapabilities {
@@ -1059,9 +1170,9 @@ class AttendeeCapabilities {
 
   factory AttendeeCapabilities.fromJson(Map<String, dynamic> json) {
     return AttendeeCapabilities(
-      audio: (json['Audio'] as String).toMediaCapabilities(),
-      content: (json['Content'] as String).toMediaCapabilities(),
-      video: (json['Video'] as String).toMediaCapabilities(),
+      audio: MediaCapabilities.fromString((json['Audio'] as String)),
+      content: MediaCapabilities.fromString((json['Content'] as String)),
+      video: MediaCapabilities.fromString((json['Video'] as String)),
     );
   }
 
@@ -1070,9 +1181,39 @@ class AttendeeCapabilities {
     final content = this.content;
     final video = this.video;
     return {
-      'Audio': audio.toValue(),
-      'Content': content.toValue(),
-      'Video': video.toValue(),
+      'Audio': audio.value,
+      'Content': content.value,
+      'Video': video.value,
+    };
+  }
+}
+
+/// Lists the maximum number of attendees allowed into the meeting.
+/// <note>
+/// If you specify <code>FHD</code> for
+/// <code>MeetingFeatures:Video:MaxResolution</code>, or if you specify
+/// <code>UHD</code> for <code>MeetingFeatures:Content:MaxResolution</code>, the
+/// maximum number of attendees changes from the default of <code>250</code> to
+/// <code>25</code>.
+/// </note>
+class AttendeeFeatures {
+  /// The maximum number of attendees allowed into the meeting.
+  final int? maxCount;
+
+  AttendeeFeatures({
+    this.maxCount,
+  });
+
+  factory AttendeeFeatures.fromJson(Map<String, dynamic> json) {
+    return AttendeeFeatures(
+      maxCount: json['MaxCount'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final maxCount = this.maxCount;
+    return {
+      if (maxCount != null) 'MaxCount': maxCount,
     };
   }
 }
@@ -1106,15 +1247,15 @@ class AudioFeatures {
 
   factory AudioFeatures.fromJson(Map<String, dynamic> json) {
     return AudioFeatures(
-      echoReduction:
-          (json['EchoReduction'] as String?)?.toMeetingFeatureStatus(),
+      echoReduction: (json['EchoReduction'] as String?)
+          ?.let(MeetingFeatureStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final echoReduction = this.echoReduction;
     return {
-      if (echoReduction != null) 'EchoReduction': echoReduction.toValue(),
+      if (echoReduction != null) 'EchoReduction': echoReduction.value,
     };
   }
 }
@@ -1135,11 +1276,11 @@ class BatchCreateAttendeeResponse {
   factory BatchCreateAttendeeResponse.fromJson(Map<String, dynamic> json) {
     return BatchCreateAttendeeResponse(
       attendees: (json['Attendees'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Attendee.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CreateAttendeeError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1153,6 +1294,59 @@ class BatchCreateAttendeeResponse {
       if (errors != null) 'Errors': errors,
     };
   }
+}
+
+/// Lists the content (screen share) features for the meeting. Applies to all
+/// attendees.
+/// <note>
+/// If you specify <code>MeetingFeatures:Content:MaxResolution:None</code> when
+/// you create a meeting, all API requests that include
+/// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+/// <code>AttendeeCapabilities:Content</code> will be rejected with
+/// <code>ValidationError 400</code>.
+/// </note>
+class ContentFeatures {
+  /// The maximum resolution for the meeting content.
+  /// <note>
+  /// Defaults to <code>FHD</code>. To use <code>UHD</code>, you must also provide
+  /// a <code>MeetingFeatures:Attendee:MaxCount</code> value and override the
+  /// default size limit of 250 attendees.
+  /// </note>
+  final ContentResolution? maxResolution;
+
+  ContentFeatures({
+    this.maxResolution,
+  });
+
+  factory ContentFeatures.fromJson(Map<String, dynamic> json) {
+    return ContentFeatures(
+      maxResolution:
+          (json['MaxResolution'] as String?)?.let(ContentResolution.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final maxResolution = this.maxResolution;
+    return {
+      if (maxResolution != null) 'MaxResolution': maxResolution.value,
+    };
+  }
+}
+
+enum ContentResolution {
+  none('None'),
+  fhd('FHD'),
+  uhd('UHD'),
+  ;
+
+  final String value;
+
+  const ContentResolution(this.value);
+
+  static ContentResolution fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContentResolution'));
 }
 
 /// The list of errors returned when errors are encountered during the
@@ -1301,11 +1495,11 @@ class CreateMeetingWithAttendeesResponse {
       Map<String, dynamic> json) {
     return CreateMeetingWithAttendeesResponse(
       attendees: (json['Attendees'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Attendee.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CreateAttendeeError.fromJson(e as Map<String, dynamic>))
           .toList(),
       meeting: json['Meeting'] != null
@@ -1341,8 +1535,8 @@ class EngineTranscribeMedicalSettings {
   /// in the transcription output.
   final TranscribeMedicalContentIdentificationType? contentIdentificationType;
 
-  /// The AWS Region passed to Amazon Transcribe Medical. If you don't specify a
-  /// Region, Amazon Chime uses the meeting's Region.
+  /// The Amazon Web Services Region passed to Amazon Transcribe Medical. If you
+  /// don't specify a Region, Amazon Chime uses the meeting's Region.
   final TranscribeMedicalRegion? region;
 
   /// The name of the vocabulary passed to Amazon Transcribe Medical.
@@ -1365,12 +1559,12 @@ class EngineTranscribeMedicalSettings {
     final region = this.region;
     final vocabularyName = this.vocabularyName;
     return {
-      'LanguageCode': languageCode.toValue(),
-      'Specialty': specialty.toValue(),
-      'Type': type.toValue(),
+      'LanguageCode': languageCode.value,
+      'Specialty': specialty.value,
+      'Type': type.value,
       if (contentIdentificationType != null)
-        'ContentIdentificationType': contentIdentificationType.toValue(),
-      if (region != null) 'Region': region.toValue(),
+        'ContentIdentificationType': contentIdentificationType.value,
+      if (region != null) 'Region': region.value,
       if (vocabularyName != null) 'VocabularyName': vocabularyName,
     };
   }
@@ -1489,7 +1683,7 @@ class EngineTranscribeSettings {
   /// and <code>LanguageOptions</code>.
   final TranscribeLanguageCode? preferredLanguage;
 
-  /// The AWS Region in which to use Amazon Transcribe.
+  /// The Amazon Web Services Region in which to use Amazon Transcribe.
   ///
   /// If you don't specify a Region, then the <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_CreateMeeting.html">MediaRegion</a>
@@ -1599,23 +1793,23 @@ class EngineTranscribeSettings {
     final vocabularyNames = this.vocabularyNames;
     return {
       if (contentIdentificationType != null)
-        'ContentIdentificationType': contentIdentificationType.toValue(),
+        'ContentIdentificationType': contentIdentificationType.value,
       if (contentRedactionType != null)
-        'ContentRedactionType': contentRedactionType.toValue(),
+        'ContentRedactionType': contentRedactionType.value,
       if (enablePartialResultsStabilization != null)
         'EnablePartialResultsStabilization': enablePartialResultsStabilization,
       if (identifyLanguage != null) 'IdentifyLanguage': identifyLanguage,
-      if (languageCode != null) 'LanguageCode': languageCode.toValue(),
+      if (languageCode != null) 'LanguageCode': languageCode.value,
       if (languageModelName != null) 'LanguageModelName': languageModelName,
       if (languageOptions != null) 'LanguageOptions': languageOptions,
       if (partialResultsStability != null)
-        'PartialResultsStability': partialResultsStability.toValue(),
+        'PartialResultsStability': partialResultsStability.value,
       if (piiEntityTypes != null) 'PiiEntityTypes': piiEntityTypes,
       if (preferredLanguage != null)
-        'PreferredLanguage': preferredLanguage.toValue(),
-      if (region != null) 'Region': region.toValue(),
+        'PreferredLanguage': preferredLanguage.value,
+      if (region != null) 'Region': region.value,
       if (vocabularyFilterMethod != null)
-        'VocabularyFilterMethod': vocabularyFilterMethod.toValue(),
+        'VocabularyFilterMethod': vocabularyFilterMethod.value,
       if (vocabularyFilterName != null)
         'VocabularyFilterName': vocabularyFilterName,
       if (vocabularyFilterNames != null)
@@ -1689,7 +1883,7 @@ class ListAttendeesResponse {
   factory ListAttendeesResponse.fromJson(Map<String, dynamic> json) {
     return ListAttendeesResponse(
       attendees: (json['Attendees'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Attendee.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1717,7 +1911,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1732,41 +1926,20 @@ class ListTagsForResourceResponse {
 }
 
 enum MediaCapabilities {
-  sendReceive,
-  send,
-  receive,
-  none,
-}
+  sendReceive('SendReceive'),
+  send('Send'),
+  receive('Receive'),
+  none('None'),
+  ;
 
-extension MediaCapabilitiesValueExtension on MediaCapabilities {
-  String toValue() {
-    switch (this) {
-      case MediaCapabilities.sendReceive:
-        return 'SendReceive';
-      case MediaCapabilities.send:
-        return 'Send';
-      case MediaCapabilities.receive:
-        return 'Receive';
-      case MediaCapabilities.none:
-        return 'None';
-    }
-  }
-}
+  final String value;
 
-extension MediaCapabilitiesFromString on String {
-  MediaCapabilities toMediaCapabilities() {
-    switch (this) {
-      case 'SendReceive':
-        return MediaCapabilities.sendReceive;
-      case 'Send':
-        return MediaCapabilities.send;
-      case 'Receive':
-        return MediaCapabilities.receive;
-      case 'None':
-        return MediaCapabilities.none;
-    }
-    throw Exception('$this is not known in enum MediaCapabilities');
-  }
+  const MediaCapabilities(this.value);
+
+  static MediaCapabilities fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MediaCapabilities'));
 }
 
 /// A set of endpoints used by clients to connect to the media service group for
@@ -1782,18 +1955,34 @@ class MediaPlacement {
   final String? eventIngestionUrl;
 
   /// The screen data URL.
+  /// <important>
+  /// <b>This parameter is deprecated and no longer used by the Amazon Chime
+  /// SDK.</b>
+  /// </important>
   final String? screenDataUrl;
 
   /// The screen sharing URL.
+  /// <important>
+  /// <b>This parameter is deprecated and no longer used by the Amazon Chime
+  /// SDK.</b>
+  /// </important>
   final String? screenSharingUrl;
 
   /// The screen viewing URL.
+  /// <important>
+  /// <b>This parameter is deprecated and no longer used by the Amazon Chime
+  /// SDK.</b>
+  /// </important>
   final String? screenViewingUrl;
 
   /// The signaling URL.
   final String? signalingUrl;
 
   /// The turn control URL.
+  /// <important>
+  /// <b>This parameter is deprecated and no longer used by the Amazon Chime
+  /// SDK.</b>
+  /// </important>
   final String? turnControlUrl;
 
   MediaPlacement({
@@ -1865,8 +2054,8 @@ class Meeting {
   /// <code>us-east-1</code>, <code>us-east-2</code>, <code>us-west-1</code>,
   /// <code>us-west-2</code>.
   ///
-  /// Available values in AWS GovCloud (US) Regions: <code>us-gov-east-1</code>,
-  /// <code>us-gov-west-1</code>.
+  /// Available values in Amazon Web Services GovCloud (US) Regions:
+  /// <code>us-gov-east-1</code>, <code>us-gov-west-1</code>.
   final String? mediaRegion;
 
   /// The ARN of the meeting.
@@ -1917,7 +2106,7 @@ class Meeting {
       meetingId: json['MeetingId'] as String?,
       primaryMeetingId: json['PrimaryMeetingId'] as String?,
       tenantIds: (json['TenantIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -1948,54 +2137,68 @@ class Meeting {
 }
 
 enum MeetingFeatureStatus {
-  available,
-  unavailable,
-}
+  available('AVAILABLE'),
+  unavailable('UNAVAILABLE'),
+  ;
 
-extension MeetingFeatureStatusValueExtension on MeetingFeatureStatus {
-  String toValue() {
-    switch (this) {
-      case MeetingFeatureStatus.available:
-        return 'AVAILABLE';
-      case MeetingFeatureStatus.unavailable:
-        return 'UNAVAILABLE';
-    }
-  }
-}
+  final String value;
 
-extension MeetingFeatureStatusFromString on String {
-  MeetingFeatureStatus toMeetingFeatureStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return MeetingFeatureStatus.available;
-      case 'UNAVAILABLE':
-        return MeetingFeatureStatus.unavailable;
-    }
-    throw Exception('$this is not known in enum MeetingFeatureStatus');
-  }
+  const MeetingFeatureStatus(this.value);
+
+  static MeetingFeatureStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MeetingFeatureStatus'));
 }
 
 /// The configuration settings of the features available to a meeting.
 class MeetingFeaturesConfiguration {
+  /// The configuration settings for the attendee features available to a meeting.
+  final AttendeeFeatures? attendee;
+
   /// The configuration settings for the audio features available to a meeting.
   final AudioFeatures? audio;
 
+  /// The configuration settings for the content features available to a meeting.
+  final ContentFeatures? content;
+
+  /// The configuration settings for the video features available to a meeting.
+  final VideoFeatures? video;
+
   MeetingFeaturesConfiguration({
+    this.attendee,
     this.audio,
+    this.content,
+    this.video,
   });
 
   factory MeetingFeaturesConfiguration.fromJson(Map<String, dynamic> json) {
     return MeetingFeaturesConfiguration(
+      attendee: json['Attendee'] != null
+          ? AttendeeFeatures.fromJson(json['Attendee'] as Map<String, dynamic>)
+          : null,
       audio: json['Audio'] != null
           ? AudioFeatures.fromJson(json['Audio'] as Map<String, dynamic>)
+          : null,
+      content: json['Content'] != null
+          ? ContentFeatures.fromJson(json['Content'] as Map<String, dynamic>)
+          : null,
+      video: json['Video'] != null
+          ? VideoFeatures.fromJson(json['Video'] as Map<String, dynamic>)
           : null,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final attendee = this.attendee;
     final audio = this.audio;
+    final content = this.content;
+    final video = this.video;
     return {
+      if (attendee != null) 'Attendee': attendee,
       if (audio != null) 'Audio': audio,
+      if (content != null) 'Content': content,
+      if (video != null) 'Video': video,
     };
   }
 }
@@ -2003,7 +2206,8 @@ class MeetingFeaturesConfiguration {
 /// The configuration for resource targets to receive notifications when meeting
 /// and attendee events occur.
 class NotificationsConfiguration {
-  /// The ARN of the AWS Lambda function in the notifications configuration.
+  /// The ARN of the Amazon Web Services Lambda function in the notifications
+  /// configuration.
   final String? lambdaFunctionArn;
 
   /// The ARN of the SNS topic.
@@ -2073,474 +2277,198 @@ class TagResourceResponse {
 }
 
 enum TranscribeContentIdentificationType {
-  pii,
-}
+  pii('PII'),
+  ;
 
-extension TranscribeContentIdentificationTypeValueExtension
-    on TranscribeContentIdentificationType {
-  String toValue() {
-    switch (this) {
-      case TranscribeContentIdentificationType.pii:
-        return 'PII';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeContentIdentificationTypeFromString on String {
-  TranscribeContentIdentificationType toTranscribeContentIdentificationType() {
-    switch (this) {
-      case 'PII':
-        return TranscribeContentIdentificationType.pii;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeContentIdentificationType');
-  }
+  const TranscribeContentIdentificationType(this.value);
+
+  static TranscribeContentIdentificationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeContentIdentificationType'));
 }
 
 enum TranscribeContentRedactionType {
-  pii,
-}
+  pii('PII'),
+  ;
 
-extension TranscribeContentRedactionTypeValueExtension
-    on TranscribeContentRedactionType {
-  String toValue() {
-    switch (this) {
-      case TranscribeContentRedactionType.pii:
-        return 'PII';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeContentRedactionTypeFromString on String {
-  TranscribeContentRedactionType toTranscribeContentRedactionType() {
-    switch (this) {
-      case 'PII':
-        return TranscribeContentRedactionType.pii;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeContentRedactionType');
-  }
+  const TranscribeContentRedactionType(this.value);
+
+  static TranscribeContentRedactionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeContentRedactionType'));
 }
 
 enum TranscribeLanguageCode {
-  enUs,
-  enGb,
-  esUs,
-  frCa,
-  frFr,
-  enAu,
-  itIt,
-  deDe,
-  ptBr,
-  jaJp,
-  koKr,
-  zhCn,
-  thTh,
-  hiIn,
-}
+  enUs('en-US'),
+  enGb('en-GB'),
+  esUs('es-US'),
+  frCa('fr-CA'),
+  frFr('fr-FR'),
+  enAu('en-AU'),
+  itIt('it-IT'),
+  deDe('de-DE'),
+  ptBr('pt-BR'),
+  jaJp('ja-JP'),
+  koKr('ko-KR'),
+  zhCn('zh-CN'),
+  thTh('th-TH'),
+  hiIn('hi-IN'),
+  ;
 
-extension TranscribeLanguageCodeValueExtension on TranscribeLanguageCode {
-  String toValue() {
-    switch (this) {
-      case TranscribeLanguageCode.enUs:
-        return 'en-US';
-      case TranscribeLanguageCode.enGb:
-        return 'en-GB';
-      case TranscribeLanguageCode.esUs:
-        return 'es-US';
-      case TranscribeLanguageCode.frCa:
-        return 'fr-CA';
-      case TranscribeLanguageCode.frFr:
-        return 'fr-FR';
-      case TranscribeLanguageCode.enAu:
-        return 'en-AU';
-      case TranscribeLanguageCode.itIt:
-        return 'it-IT';
-      case TranscribeLanguageCode.deDe:
-        return 'de-DE';
-      case TranscribeLanguageCode.ptBr:
-        return 'pt-BR';
-      case TranscribeLanguageCode.jaJp:
-        return 'ja-JP';
-      case TranscribeLanguageCode.koKr:
-        return 'ko-KR';
-      case TranscribeLanguageCode.zhCn:
-        return 'zh-CN';
-      case TranscribeLanguageCode.thTh:
-        return 'th-TH';
-      case TranscribeLanguageCode.hiIn:
-        return 'hi-IN';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeLanguageCodeFromString on String {
-  TranscribeLanguageCode toTranscribeLanguageCode() {
-    switch (this) {
-      case 'en-US':
-        return TranscribeLanguageCode.enUs;
-      case 'en-GB':
-        return TranscribeLanguageCode.enGb;
-      case 'es-US':
-        return TranscribeLanguageCode.esUs;
-      case 'fr-CA':
-        return TranscribeLanguageCode.frCa;
-      case 'fr-FR':
-        return TranscribeLanguageCode.frFr;
-      case 'en-AU':
-        return TranscribeLanguageCode.enAu;
-      case 'it-IT':
-        return TranscribeLanguageCode.itIt;
-      case 'de-DE':
-        return TranscribeLanguageCode.deDe;
-      case 'pt-BR':
-        return TranscribeLanguageCode.ptBr;
-      case 'ja-JP':
-        return TranscribeLanguageCode.jaJp;
-      case 'ko-KR':
-        return TranscribeLanguageCode.koKr;
-      case 'zh-CN':
-        return TranscribeLanguageCode.zhCn;
-      case 'th-TH':
-        return TranscribeLanguageCode.thTh;
-      case 'hi-IN':
-        return TranscribeLanguageCode.hiIn;
-    }
-    throw Exception('$this is not known in enum TranscribeLanguageCode');
-  }
+  const TranscribeLanguageCode(this.value);
+
+  static TranscribeLanguageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeLanguageCode'));
 }
 
 enum TranscribeMedicalContentIdentificationType {
-  phi,
-}
+  phi('PHI'),
+  ;
 
-extension TranscribeMedicalContentIdentificationTypeValueExtension
-    on TranscribeMedicalContentIdentificationType {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalContentIdentificationType.phi:
-        return 'PHI';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalContentIdentificationTypeFromString on String {
-  TranscribeMedicalContentIdentificationType
-      toTranscribeMedicalContentIdentificationType() {
-    switch (this) {
-      case 'PHI':
-        return TranscribeMedicalContentIdentificationType.phi;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeMedicalContentIdentificationType');
-  }
+  const TranscribeMedicalContentIdentificationType(this.value);
+
+  static TranscribeMedicalContentIdentificationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalContentIdentificationType'));
 }
 
 enum TranscribeMedicalLanguageCode {
-  enUs,
-}
+  enUs('en-US'),
+  ;
 
-extension TranscribeMedicalLanguageCodeValueExtension
-    on TranscribeMedicalLanguageCode {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalLanguageCode.enUs:
-        return 'en-US';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalLanguageCodeFromString on String {
-  TranscribeMedicalLanguageCode toTranscribeMedicalLanguageCode() {
-    switch (this) {
-      case 'en-US':
-        return TranscribeMedicalLanguageCode.enUs;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalLanguageCode');
-  }
+  const TranscribeMedicalLanguageCode(this.value);
+
+  static TranscribeMedicalLanguageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalLanguageCode'));
 }
 
 enum TranscribeMedicalRegion {
-  usEast_1,
-  usEast_2,
-  usWest_2,
-  apSoutheast_2,
-  caCentral_1,
-  euWest_1,
-  auto,
-}
+  usEast_1('us-east-1'),
+  usEast_2('us-east-2'),
+  usWest_2('us-west-2'),
+  apSoutheast_2('ap-southeast-2'),
+  caCentral_1('ca-central-1'),
+  euWest_1('eu-west-1'),
+  auto('auto'),
+  ;
 
-extension TranscribeMedicalRegionValueExtension on TranscribeMedicalRegion {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalRegion.usEast_1:
-        return 'us-east-1';
-      case TranscribeMedicalRegion.usEast_2:
-        return 'us-east-2';
-      case TranscribeMedicalRegion.usWest_2:
-        return 'us-west-2';
-      case TranscribeMedicalRegion.apSoutheast_2:
-        return 'ap-southeast-2';
-      case TranscribeMedicalRegion.caCentral_1:
-        return 'ca-central-1';
-      case TranscribeMedicalRegion.euWest_1:
-        return 'eu-west-1';
-      case TranscribeMedicalRegion.auto:
-        return 'auto';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalRegionFromString on String {
-  TranscribeMedicalRegion toTranscribeMedicalRegion() {
-    switch (this) {
-      case 'us-east-1':
-        return TranscribeMedicalRegion.usEast_1;
-      case 'us-east-2':
-        return TranscribeMedicalRegion.usEast_2;
-      case 'us-west-2':
-        return TranscribeMedicalRegion.usWest_2;
-      case 'ap-southeast-2':
-        return TranscribeMedicalRegion.apSoutheast_2;
-      case 'ca-central-1':
-        return TranscribeMedicalRegion.caCentral_1;
-      case 'eu-west-1':
-        return TranscribeMedicalRegion.euWest_1;
-      case 'auto':
-        return TranscribeMedicalRegion.auto;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalRegion');
-  }
+  const TranscribeMedicalRegion(this.value);
+
+  static TranscribeMedicalRegion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalRegion'));
 }
 
 enum TranscribeMedicalSpecialty {
-  primarycare,
-  cardiology,
-  neurology,
-  oncology,
-  radiology,
-  urology,
-}
+  primarycare('PRIMARYCARE'),
+  cardiology('CARDIOLOGY'),
+  neurology('NEUROLOGY'),
+  oncology('ONCOLOGY'),
+  radiology('RADIOLOGY'),
+  urology('UROLOGY'),
+  ;
 
-extension TranscribeMedicalSpecialtyValueExtension
-    on TranscribeMedicalSpecialty {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalSpecialty.primarycare:
-        return 'PRIMARYCARE';
-      case TranscribeMedicalSpecialty.cardiology:
-        return 'CARDIOLOGY';
-      case TranscribeMedicalSpecialty.neurology:
-        return 'NEUROLOGY';
-      case TranscribeMedicalSpecialty.oncology:
-        return 'ONCOLOGY';
-      case TranscribeMedicalSpecialty.radiology:
-        return 'RADIOLOGY';
-      case TranscribeMedicalSpecialty.urology:
-        return 'UROLOGY';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalSpecialtyFromString on String {
-  TranscribeMedicalSpecialty toTranscribeMedicalSpecialty() {
-    switch (this) {
-      case 'PRIMARYCARE':
-        return TranscribeMedicalSpecialty.primarycare;
-      case 'CARDIOLOGY':
-        return TranscribeMedicalSpecialty.cardiology;
-      case 'NEUROLOGY':
-        return TranscribeMedicalSpecialty.neurology;
-      case 'ONCOLOGY':
-        return TranscribeMedicalSpecialty.oncology;
-      case 'RADIOLOGY':
-        return TranscribeMedicalSpecialty.radiology;
-      case 'UROLOGY':
-        return TranscribeMedicalSpecialty.urology;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalSpecialty');
-  }
+  const TranscribeMedicalSpecialty(this.value);
+
+  static TranscribeMedicalSpecialty fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalSpecialty'));
 }
 
 enum TranscribeMedicalType {
-  conversation,
-  dictation,
-}
+  conversation('CONVERSATION'),
+  dictation('DICTATION'),
+  ;
 
-extension TranscribeMedicalTypeValueExtension on TranscribeMedicalType {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalType.conversation:
-        return 'CONVERSATION';
-      case TranscribeMedicalType.dictation:
-        return 'DICTATION';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalTypeFromString on String {
-  TranscribeMedicalType toTranscribeMedicalType() {
-    switch (this) {
-      case 'CONVERSATION':
-        return TranscribeMedicalType.conversation;
-      case 'DICTATION':
-        return TranscribeMedicalType.dictation;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalType');
-  }
+  const TranscribeMedicalType(this.value);
+
+  static TranscribeMedicalType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TranscribeMedicalType'));
 }
 
 enum TranscribePartialResultsStability {
-  low,
-  medium,
-  high,
-}
+  low('low'),
+  medium('medium'),
+  high('high'),
+  ;
 
-extension TranscribePartialResultsStabilityValueExtension
-    on TranscribePartialResultsStability {
-  String toValue() {
-    switch (this) {
-      case TranscribePartialResultsStability.low:
-        return 'low';
-      case TranscribePartialResultsStability.medium:
-        return 'medium';
-      case TranscribePartialResultsStability.high:
-        return 'high';
-    }
-  }
-}
+  final String value;
 
-extension TranscribePartialResultsStabilityFromString on String {
-  TranscribePartialResultsStability toTranscribePartialResultsStability() {
-    switch (this) {
-      case 'low':
-        return TranscribePartialResultsStability.low;
-      case 'medium':
-        return TranscribePartialResultsStability.medium;
-      case 'high':
-        return TranscribePartialResultsStability.high;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribePartialResultsStability');
-  }
+  const TranscribePartialResultsStability(this.value);
+
+  static TranscribePartialResultsStability fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribePartialResultsStability'));
 }
 
 enum TranscribeRegion {
-  usEast_2,
-  usEast_1,
-  usWest_2,
-  apNortheast_2,
-  apSoutheast_2,
-  apNortheast_1,
-  caCentral_1,
-  euCentral_1,
-  euWest_1,
-  euWest_2,
-  saEast_1,
-  auto,
-  usGovWest_1,
-}
+  usEast_2('us-east-2'),
+  usEast_1('us-east-1'),
+  usWest_2('us-west-2'),
+  apNortheast_2('ap-northeast-2'),
+  apSoutheast_2('ap-southeast-2'),
+  apNortheast_1('ap-northeast-1'),
+  caCentral_1('ca-central-1'),
+  euCentral_1('eu-central-1'),
+  euWest_1('eu-west-1'),
+  euWest_2('eu-west-2'),
+  saEast_1('sa-east-1'),
+  auto('auto'),
+  usGovWest_1('us-gov-west-1'),
+  ;
 
-extension TranscribeRegionValueExtension on TranscribeRegion {
-  String toValue() {
-    switch (this) {
-      case TranscribeRegion.usEast_2:
-        return 'us-east-2';
-      case TranscribeRegion.usEast_1:
-        return 'us-east-1';
-      case TranscribeRegion.usWest_2:
-        return 'us-west-2';
-      case TranscribeRegion.apNortheast_2:
-        return 'ap-northeast-2';
-      case TranscribeRegion.apSoutheast_2:
-        return 'ap-southeast-2';
-      case TranscribeRegion.apNortheast_1:
-        return 'ap-northeast-1';
-      case TranscribeRegion.caCentral_1:
-        return 'ca-central-1';
-      case TranscribeRegion.euCentral_1:
-        return 'eu-central-1';
-      case TranscribeRegion.euWest_1:
-        return 'eu-west-1';
-      case TranscribeRegion.euWest_2:
-        return 'eu-west-2';
-      case TranscribeRegion.saEast_1:
-        return 'sa-east-1';
-      case TranscribeRegion.auto:
-        return 'auto';
-      case TranscribeRegion.usGovWest_1:
-        return 'us-gov-west-1';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeRegionFromString on String {
-  TranscribeRegion toTranscribeRegion() {
-    switch (this) {
-      case 'us-east-2':
-        return TranscribeRegion.usEast_2;
-      case 'us-east-1':
-        return TranscribeRegion.usEast_1;
-      case 'us-west-2':
-        return TranscribeRegion.usWest_2;
-      case 'ap-northeast-2':
-        return TranscribeRegion.apNortheast_2;
-      case 'ap-southeast-2':
-        return TranscribeRegion.apSoutheast_2;
-      case 'ap-northeast-1':
-        return TranscribeRegion.apNortheast_1;
-      case 'ca-central-1':
-        return TranscribeRegion.caCentral_1;
-      case 'eu-central-1':
-        return TranscribeRegion.euCentral_1;
-      case 'eu-west-1':
-        return TranscribeRegion.euWest_1;
-      case 'eu-west-2':
-        return TranscribeRegion.euWest_2;
-      case 'sa-east-1':
-        return TranscribeRegion.saEast_1;
-      case 'auto':
-        return TranscribeRegion.auto;
-      case 'us-gov-west-1':
-        return TranscribeRegion.usGovWest_1;
-    }
-    throw Exception('$this is not known in enum TranscribeRegion');
-  }
+  const TranscribeRegion(this.value);
+
+  static TranscribeRegion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TranscribeRegion'));
 }
 
 enum TranscribeVocabularyFilterMethod {
-  remove,
-  mask,
-  tag,
-}
+  remove('remove'),
+  mask('mask'),
+  tag('tag'),
+  ;
 
-extension TranscribeVocabularyFilterMethodValueExtension
-    on TranscribeVocabularyFilterMethod {
-  String toValue() {
-    switch (this) {
-      case TranscribeVocabularyFilterMethod.remove:
-        return 'remove';
-      case TranscribeVocabularyFilterMethod.mask:
-        return 'mask';
-      case TranscribeVocabularyFilterMethod.tag:
-        return 'tag';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeVocabularyFilterMethodFromString on String {
-  TranscribeVocabularyFilterMethod toTranscribeVocabularyFilterMethod() {
-    switch (this) {
-      case 'remove':
-        return TranscribeVocabularyFilterMethod.remove;
-      case 'mask':
-        return TranscribeVocabularyFilterMethod.mask;
-      case 'tag':
-        return TranscribeVocabularyFilterMethod.tag;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeVocabularyFilterMethod');
-  }
+  const TranscribeVocabularyFilterMethod(this.value);
+
+  static TranscribeVocabularyFilterMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeVocabularyFilterMethod'));
 }
 
 /// The configuration for the current transcription operation. Must contain
@@ -2607,6 +2535,58 @@ class UpdateAttendeeCapabilitiesResponse {
       if (attendee != null) 'Attendee': attendee,
     };
   }
+}
+
+/// The video features set for the meeting. Applies to all attendees.
+/// <note>
+/// If you specify <code>MeetingFeatures:Video:MaxResolution:None</code> when
+/// you create a meeting, all API requests that include
+/// <code>SendReceive</code>, <code>Send</code>, or <code>Receive</code> for
+/// <code>AttendeeCapabilities:Video</code> will be rejected with
+/// <code>ValidationError 400</code>.
+/// </note>
+class VideoFeatures {
+  /// The maximum video resolution for the meeting. Applies to all attendees.
+  /// <note>
+  /// Defaults to <code>HD</code>. To use <code>FHD</code>, you must also provide
+  /// a <code>MeetingFeatures:Attendee:MaxCount</code> value and override the
+  /// default size limit of 250 attendees.
+  /// </note>
+  final VideoResolution? maxResolution;
+
+  VideoFeatures({
+    this.maxResolution,
+  });
+
+  factory VideoFeatures.fromJson(Map<String, dynamic> json) {
+    return VideoFeatures(
+      maxResolution:
+          (json['MaxResolution'] as String?)?.let(VideoResolution.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final maxResolution = this.maxResolution;
+    return {
+      if (maxResolution != null) 'MaxResolution': maxResolution.value,
+    };
+  }
+}
+
+enum VideoResolution {
+  none('None'),
+  hd('HD'),
+  fhd('FHD'),
+  ;
+
+  final String value;
+
+  const VideoResolution(this.value);
+
+  static VideoResolution fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VideoResolution'));
 }
 
 class BadRequestException extends _s.GenericAwsException {

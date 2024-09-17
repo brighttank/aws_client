@@ -274,7 +274,7 @@ class Translate {
       payload: {
         'Name': name,
         if (terminologyDataFormat != null)
-          'TerminologyDataFormat': terminologyDataFormat.toValue(),
+          'TerminologyDataFormat': terminologyDataFormat.value,
       },
     );
 
@@ -341,7 +341,7 @@ class Translate {
       // TODO queryParams
       headers: headers,
       payload: {
-        'MergeStrategy': mergeStrategy.toValue(),
+        'MergeStrategy': mergeStrategy.value,
         'Name': name,
         'TerminologyData': terminologyData,
         if (description != null) 'Description': description,
@@ -394,7 +394,7 @@ class Translate {
       headers: headers,
       payload: {
         if (displayLanguageCode != null)
-          'DisplayLanguageCode': displayLanguageCode.toValue(),
+          'DisplayLanguageCode': displayLanguageCode.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -652,9 +652,20 @@ class Translate {
   /// Customizing your translations with parallel data</a>.
   ///
   /// Parameter [settings] :
-  /// Settings to configure your translation output, including the option to set
-  /// the formality level of the output text and the option to mask profane
-  /// words and phrases.
+  /// Settings to configure your translation output. You can configure the
+  /// following options:
+  ///
+  /// <ul>
+  /// <li>
+  /// Brevity: not supported.
+  /// </li>
+  /// <li>
+  /// Formality: sets the formality level of the output text.
+  /// </li>
+  /// <li>
+  /// Profanity: masks profane words and phrases in your translation output.
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [terminologyNames] :
   /// The name of a custom terminology resource to add to the translation job.
@@ -793,13 +804,11 @@ class Translate {
   }
 
   /// Translates the input document from the source language to the target
-  /// language. This synchronous operation supports plain text or HTML for the
-  /// input document. <code>TranslateDocument</code> supports translations from
-  /// English to any supported language, and from any supported language to
-  /// English. Therefore, specify either the source language code or the target
-  /// language code as “en” (English).
-  ///
-  /// <code>TranslateDocument</code> does not support language auto-detection.
+  /// language. This synchronous operation supports text, HTML, or Word
+  /// documents as the input document. <code>TranslateDocument</code> supports
+  /// translations from English to any supported language, and from any
+  /// supported language to English. Therefore, specify either the source
+  /// language code or the target language code as “en” (English).
   ///
   /// If you set the <code>Formality</code> parameter, the request will fail if
   /// the target language does not support formality. For a list of target
@@ -820,17 +829,44 @@ class Translate {
   /// document size must not exceed 100 KB.
   ///
   /// Parameter [sourceLanguageCode] :
-  /// The language code for the language of the source text. Do not use
-  /// <code>auto</code>, because <code>TranslateDocument</code> does not support
-  /// language auto-detection. For a list of supported language codes, see <a
+  /// The language code for the language of the source text. For a list of
+  /// supported language codes, see <a
   /// href="https://docs.aws.amazon.com/translate/latest/dg/what-is-languages.html">Supported
   /// languages</a>.
+  ///
+  /// To have Amazon Translate determine the source language of your text, you
+  /// can specify <code>auto</code> in the <code>SourceLanguageCode</code>
+  /// field. If you specify <code>auto</code>, Amazon Translate will call <a
+  /// href="https://docs.aws.amazon.com/comprehend/latest/dg/comprehend-general.html">Amazon
+  /// Comprehend</a> to determine the source language.
+  /// <note>
+  /// If you specify <code>auto</code>, you must send the
+  /// <code>TranslateDocument</code> request in a region that supports Amazon
+  /// Comprehend. Otherwise, the request returns an error indicating that
+  /// autodetect is not supported.
+  /// </note>
   ///
   /// Parameter [targetLanguageCode] :
   /// The language code requested for the translated document. For a list of
   /// supported language codes, see <a
   /// href="https://docs.aws.amazon.com/translate/latest/dg/what-is-languages.html">Supported
   /// languages</a>.
+  ///
+  /// Parameter [settings] :
+  /// Settings to configure your translation output. You can configure the
+  /// following options:
+  ///
+  /// <ul>
+  /// <li>
+  /// Brevity: not supported.
+  /// </li>
+  /// <li>
+  /// Formality: sets the formality level of the output text.
+  /// </li>
+  /// <li>
+  /// Profanity: masks profane words and phrases in your translation output.
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [terminologyNames] :
   /// The name of a terminology list file to add to the translation job. This
@@ -917,9 +953,21 @@ class Translate {
   /// characters.
   ///
   /// Parameter [settings] :
-  /// Settings to configure your translation output, including the option to set
-  /// the formality level of the output text and the option to mask profane
-  /// words and phrases.
+  /// Settings to configure your translation output. You can configure the
+  /// following options:
+  ///
+  /// <ul>
+  /// <li>
+  /// Brevity: reduces the length of the translated output for most
+  /// translations.
+  /// </li>
+  /// <li>
+  /// Formality: sets the formality level of the output text.
+  /// </li>
+  /// <li>
+  /// Profanity: masks profane words and phrases in your translation output.
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [terminologyNames] :
   /// The name of a terminology list file to add to the translation job. This
@@ -1077,11 +1125,24 @@ class AppliedTerminology {
     return AppliedTerminology(
       name: json['Name'] as String?,
       terms: (json['Terms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Term.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
+}
+
+enum Brevity {
+  on('ON'),
+  ;
+
+  final String value;
+
+  const Brevity(this.value);
+
+  static Brevity fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Brevity'));
 }
 
 class CreateParallelDataResponse {
@@ -1100,7 +1161,7 @@ class CreateParallelDataResponse {
   factory CreateParallelDataResponse.fromJson(Map<String, dynamic> json) {
     return CreateParallelDataResponse(
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toParallelDataStatus(),
+      status: (json['Status'] as String?)?.let(ParallelDataStatus.fromString),
     );
   }
 }
@@ -1120,7 +1181,7 @@ class DeleteParallelDataResponse {
   factory DeleteParallelDataResponse.fromJson(Map<String, dynamic> json) {
     return DeleteParallelDataResponse(
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toParallelDataStatus(),
+      status: (json['Status'] as String?)?.let(ParallelDataStatus.fromString),
     );
   }
 }
@@ -1146,99 +1207,41 @@ class DescribeTextTranslationJobResponse {
 }
 
 enum Directionality {
-  uni,
-  multi,
-}
+  uni('UNI'),
+  multi('MULTI'),
+  ;
 
-extension DirectionalityValueExtension on Directionality {
-  String toValue() {
-    switch (this) {
-      case Directionality.uni:
-        return 'UNI';
-      case Directionality.multi:
-        return 'MULTI';
-    }
-  }
-}
+  final String value;
 
-extension DirectionalityFromString on String {
-  Directionality toDirectionality() {
-    switch (this) {
-      case 'UNI':
-        return Directionality.uni;
-      case 'MULTI':
-        return Directionality.multi;
-    }
-    throw Exception('$this is not known in enum Directionality');
-  }
+  const Directionality(this.value);
+
+  static Directionality fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum Directionality'));
 }
 
 enum DisplayLanguageCode {
-  de,
-  en,
-  es,
-  fr,
-  it,
-  ja,
-  ko,
-  pt,
-  zh,
-  zhTw,
-}
+  de('de'),
+  en('en'),
+  es('es'),
+  fr('fr'),
+  it('it'),
+  ja('ja'),
+  ko('ko'),
+  pt('pt'),
+  zh('zh'),
+  zhTw('zh-TW'),
+  ;
 
-extension DisplayLanguageCodeValueExtension on DisplayLanguageCode {
-  String toValue() {
-    switch (this) {
-      case DisplayLanguageCode.de:
-        return 'de';
-      case DisplayLanguageCode.en:
-        return 'en';
-      case DisplayLanguageCode.es:
-        return 'es';
-      case DisplayLanguageCode.fr:
-        return 'fr';
-      case DisplayLanguageCode.it:
-        return 'it';
-      case DisplayLanguageCode.ja:
-        return 'ja';
-      case DisplayLanguageCode.ko:
-        return 'ko';
-      case DisplayLanguageCode.pt:
-        return 'pt';
-      case DisplayLanguageCode.zh:
-        return 'zh';
-      case DisplayLanguageCode.zhTw:
-        return 'zh-TW';
-    }
-  }
-}
+  final String value;
 
-extension DisplayLanguageCodeFromString on String {
-  DisplayLanguageCode toDisplayLanguageCode() {
-    switch (this) {
-      case 'de':
-        return DisplayLanguageCode.de;
-      case 'en':
-        return DisplayLanguageCode.en;
-      case 'es':
-        return DisplayLanguageCode.es;
-      case 'fr':
-        return DisplayLanguageCode.fr;
-      case 'it':
-        return DisplayLanguageCode.it;
-      case 'ja':
-        return DisplayLanguageCode.ja;
-      case 'ko':
-        return DisplayLanguageCode.ko;
-      case 'pt':
-        return DisplayLanguageCode.pt;
-      case 'zh':
-        return DisplayLanguageCode.zh;
-      case 'zh-TW':
-        return DisplayLanguageCode.zhTw;
-    }
-    throw Exception('$this is not known in enum DisplayLanguageCode');
-  }
+  const DisplayLanguageCode(this.value);
+
+  static DisplayLanguageCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DisplayLanguageCode'));
 }
 
 /// The content and content type of a document.
@@ -1253,12 +1256,16 @@ class Document {
   ///
   /// <ul>
   /// <li>
-  /// text/html - The input data consists of HTML content. Amazon Translate
-  /// translates only the text in the HTML element.
+  /// <code>text/html</code> - The input data consists of HTML content. Amazon
+  /// Translate translates only the text in the HTML element.
   /// </li>
   /// <li>
-  /// text/plain - The input data consists of unformatted text. Amazon Translate
-  /// translates every character in the content.
+  /// <code>text/plain</code> - The input data consists of unformatted text.
+  /// Amazon Translate translates every character in the content.
+  /// </li>
+  /// <li>
+  /// <code>application/vnd.openxmlformats-officedocument.wordprocessingml.document</code>
+  /// - The input data consists of a Word document (.docx).
   /// </li>
   /// </ul>
   final String contentType;
@@ -1295,7 +1302,7 @@ class EncryptionKey {
   factory EncryptionKey.fromJson(Map<String, dynamic> json) {
     return EncryptionKey(
       id: json['Id'] as String,
-      type: (json['Type'] as String).toEncryptionKeyType(),
+      type: EncryptionKeyType.fromString((json['Type'] as String)),
     );
   }
 
@@ -1304,60 +1311,37 @@ class EncryptionKey {
     final type = this.type;
     return {
       'Id': id,
-      'Type': type.toValue(),
+      'Type': type.value,
     };
   }
 }
 
 enum EncryptionKeyType {
-  kms,
-}
+  kms('KMS'),
+  ;
 
-extension EncryptionKeyTypeValueExtension on EncryptionKeyType {
-  String toValue() {
-    switch (this) {
-      case EncryptionKeyType.kms:
-        return 'KMS';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionKeyTypeFromString on String {
-  EncryptionKeyType toEncryptionKeyType() {
-    switch (this) {
-      case 'KMS':
-        return EncryptionKeyType.kms;
-    }
-    throw Exception('$this is not known in enum EncryptionKeyType');
-  }
+  const EncryptionKeyType(this.value);
+
+  static EncryptionKeyType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionKeyType'));
 }
 
 enum Formality {
-  formal,
-  informal,
-}
+  formal('FORMAL'),
+  informal('INFORMAL'),
+  ;
 
-extension FormalityValueExtension on Formality {
-  String toValue() {
-    switch (this) {
-      case Formality.formal:
-        return 'FORMAL';
-      case Formality.informal:
-        return 'INFORMAL';
-    }
-  }
-}
+  final String value;
 
-extension FormalityFromString on String {
-  Formality toFormality() {
-    switch (this) {
-      case 'FORMAL':
-        return Formality.formal;
-      case 'INFORMAL':
-        return Formality.informal;
-    }
-    throw Exception('$this is not known in enum Formality');
-  }
+  const Formality(this.value);
+
+  static Formality fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Formality'));
 }
 
 class GetParallelDataResponse {
@@ -1604,56 +1588,22 @@ class JobDetails {
 }
 
 enum JobStatus {
-  submitted,
-  inProgress,
-  completed,
-  completedWithError,
-  failed,
-  stopRequested,
-  stopped,
-}
+  submitted('SUBMITTED'),
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  completedWithError('COMPLETED_WITH_ERROR'),
+  failed('FAILED'),
+  stopRequested('STOP_REQUESTED'),
+  stopped('STOPPED'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.submitted:
-        return 'SUBMITTED';
-      case JobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case JobStatus.completed:
-        return 'COMPLETED';
-      case JobStatus.completedWithError:
-        return 'COMPLETED_WITH_ERROR';
-      case JobStatus.failed:
-        return 'FAILED';
-      case JobStatus.stopRequested:
-        return 'STOP_REQUESTED';
-      case JobStatus.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return JobStatus.submitted;
-      case 'IN_PROGRESS':
-        return JobStatus.inProgress;
-      case 'COMPLETED':
-        return JobStatus.completed;
-      case 'COMPLETED_WITH_ERROR':
-        return JobStatus.completedWithError;
-      case 'FAILED':
-        return JobStatus.failed;
-      case 'STOP_REQUESTED':
-        return JobStatus.stopRequested;
-      case 'STOPPED':
-        return JobStatus.stopped;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 /// A supported language.
@@ -1696,10 +1646,10 @@ class ListLanguagesResponse {
 
   factory ListLanguagesResponse.fromJson(Map<String, dynamic> json) {
     return ListLanguagesResponse(
-      displayLanguageCode:
-          (json['DisplayLanguageCode'] as String?)?.toDisplayLanguageCode(),
+      displayLanguageCode: (json['DisplayLanguageCode'] as String?)
+          ?.let(DisplayLanguageCode.fromString),
       languages: (json['Languages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Language.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1724,7 +1674,7 @@ class ListParallelDataResponse {
     return ListParallelDataResponse(
       nextToken: json['NextToken'] as String?,
       parallelDataPropertiesList: (json['ParallelDataPropertiesList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ParallelDataProperties.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1746,7 +1696,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1771,7 +1721,7 @@ class ListTerminologiesResponse {
     return ListTerminologiesResponse(
       nextToken: json['NextToken'] as String?,
       terminologyPropertiesList: (json['TerminologyPropertiesList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TerminologyProperties.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1796,7 +1746,7 @@ class ListTextTranslationJobsResponse {
       nextToken: json['NextToken'] as String?,
       textTranslationJobPropertiesList:
           (json['TextTranslationJobPropertiesList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => TextTranslationJobProperties.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -1805,26 +1755,17 @@ class ListTextTranslationJobsResponse {
 }
 
 enum MergeStrategy {
-  overwrite,
-}
+  overwrite('OVERWRITE'),
+  ;
 
-extension MergeStrategyValueExtension on MergeStrategy {
-  String toValue() {
-    switch (this) {
-      case MergeStrategy.overwrite:
-        return 'OVERWRITE';
-    }
-  }
-}
+  final String value;
 
-extension MergeStrategyFromString on String {
-  MergeStrategy toMergeStrategy() {
-    switch (this) {
-      case 'OVERWRITE':
-        return MergeStrategy.overwrite;
-    }
-    throw Exception('$this is not known in enum MergeStrategy');
-  }
+  const MergeStrategy(this.value);
+
+  static MergeStrategy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MergeStrategy'));
 }
 
 /// The output configuration properties for a batch translation job.
@@ -1862,21 +1803,21 @@ class OutputDataConfig {
 /// Specifies the format and S3 location of the parallel data input file.
 class ParallelDataConfig {
   /// The format of the parallel data input file.
-  final ParallelDataFormat format;
+  final ParallelDataFormat? format;
 
   /// The URI of the Amazon S3 folder that contains the parallel data input file.
   /// The folder must be in the same Region as the API endpoint you are calling.
-  final String s3Uri;
+  final String? s3Uri;
 
   ParallelDataConfig({
-    required this.format,
-    required this.s3Uri,
+    this.format,
+    this.s3Uri,
   });
 
   factory ParallelDataConfig.fromJson(Map<String, dynamic> json) {
     return ParallelDataConfig(
-      format: (json['Format'] as String).toParallelDataFormat(),
-      s3Uri: json['S3Uri'] as String,
+      format: (json['Format'] as String?)?.let(ParallelDataFormat.fromString),
+      s3Uri: json['S3Uri'] as String?,
     );
   }
 
@@ -1884,8 +1825,8 @@ class ParallelDataConfig {
     final format = this.format;
     final s3Uri = this.s3Uri;
     return {
-      'Format': format.toValue(),
-      'S3Uri': s3Uri,
+      if (format != null) 'Format': format.value,
+      if (s3Uri != null) 'S3Uri': s3Uri,
     };
   }
 }
@@ -1926,36 +1867,19 @@ class ParallelDataDataLocation {
 }
 
 enum ParallelDataFormat {
-  tsv,
-  csv,
-  tmx,
-}
+  tsv('TSV'),
+  csv('CSV'),
+  tmx('TMX'),
+  ;
 
-extension ParallelDataFormatValueExtension on ParallelDataFormat {
-  String toValue() {
-    switch (this) {
-      case ParallelDataFormat.tsv:
-        return 'TSV';
-      case ParallelDataFormat.csv:
-        return 'CSV';
-      case ParallelDataFormat.tmx:
-        return 'TMX';
-    }
-  }
-}
+  final String value;
 
-extension ParallelDataFormatFromString on String {
-  ParallelDataFormat toParallelDataFormat() {
-    switch (this) {
-      case 'TSV':
-        return ParallelDataFormat.tsv;
-      case 'CSV':
-        return ParallelDataFormat.csv;
-      case 'TMX':
-        return ParallelDataFormat.tmx;
-    }
-    throw Exception('$this is not known in enum ParallelDataFormat');
-  }
+  const ParallelDataFormat(this.value);
+
+  static ParallelDataFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ParallelDataFormat'));
 }
 
 /// The properties of a parallel data resource.
@@ -2055,7 +1979,7 @@ class ParallelDataProperties {
       lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
       latestUpdateAttemptAt: timeStampFromJson(json['LatestUpdateAttemptAt']),
       latestUpdateAttemptStatus: (json['LatestUpdateAttemptStatus'] as String?)
-          ?.toParallelDataStatus(),
+          ?.let(ParallelDataStatus.fromString),
       message: json['Message'] as String?,
       name: json['Name'] as String?,
       parallelDataConfig: json['ParallelDataConfig'] != null
@@ -2064,9 +1988,9 @@ class ParallelDataProperties {
           : null,
       skippedRecordCount: json['SkippedRecordCount'] as int?,
       sourceLanguageCode: json['SourceLanguageCode'] as String?,
-      status: (json['Status'] as String?)?.toParallelDataStatus(),
+      status: (json['Status'] as String?)?.let(ParallelDataStatus.fromString),
       targetLanguageCodes: (json['TargetLanguageCodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2074,69 +1998,34 @@ class ParallelDataProperties {
 }
 
 enum ParallelDataStatus {
-  creating,
-  updating,
-  active,
-  deleting,
-  failed,
-}
+  creating('CREATING'),
+  updating('UPDATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  ;
 
-extension ParallelDataStatusValueExtension on ParallelDataStatus {
-  String toValue() {
-    switch (this) {
-      case ParallelDataStatus.creating:
-        return 'CREATING';
-      case ParallelDataStatus.updating:
-        return 'UPDATING';
-      case ParallelDataStatus.active:
-        return 'ACTIVE';
-      case ParallelDataStatus.deleting:
-        return 'DELETING';
-      case ParallelDataStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ParallelDataStatusFromString on String {
-  ParallelDataStatus toParallelDataStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ParallelDataStatus.creating;
-      case 'UPDATING':
-        return ParallelDataStatus.updating;
-      case 'ACTIVE':
-        return ParallelDataStatus.active;
-      case 'DELETING':
-        return ParallelDataStatus.deleting;
-      case 'FAILED':
-        return ParallelDataStatus.failed;
-    }
-    throw Exception('$this is not known in enum ParallelDataStatus');
-  }
+  const ParallelDataStatus(this.value);
+
+  static ParallelDataStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ParallelDataStatus'));
 }
 
 enum Profanity {
-  mask,
-}
+  mask('MASK'),
+  ;
 
-extension ProfanityValueExtension on Profanity {
-  String toValue() {
-    switch (this) {
-      case Profanity.mask:
-        return 'MASK';
-    }
-  }
-}
+  final String value;
 
-extension ProfanityFromString on String {
-  Profanity toProfanity() {
-    switch (this) {
-      case 'MASK':
-        return Profanity.mask;
-    }
-    throw Exception('$this is not known in enum Profanity');
-  }
+  const Profanity(this.value);
+
+  static Profanity fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Profanity'));
 }
 
 class StartTextTranslationJobResponse {
@@ -2184,7 +2073,7 @@ class StartTextTranslationJobResponse {
   factory StartTextTranslationJobResponse.fromJson(Map<String, dynamic> json) {
     return StartTextTranslationJobResponse(
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
     );
   }
 }
@@ -2205,7 +2094,7 @@ class StopTextTranslationJobResponse {
   factory StopTextTranslationJobResponse.fromJson(Map<String, dynamic> json) {
     return StopTextTranslationJobResponse(
       jobId: json['JobId'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
     );
   }
 }
@@ -2314,43 +2203,26 @@ class TerminologyData {
     final directionality = this.directionality;
     return {
       'File': base64Encode(file),
-      'Format': format.toValue(),
-      if (directionality != null) 'Directionality': directionality.toValue(),
+      'Format': format.value,
+      if (directionality != null) 'Directionality': directionality.value,
     };
   }
 }
 
 enum TerminologyDataFormat {
-  csv,
-  tmx,
-  tsv,
-}
+  csv('CSV'),
+  tmx('TMX'),
+  tsv('TSV'),
+  ;
 
-extension TerminologyDataFormatValueExtension on TerminologyDataFormat {
-  String toValue() {
-    switch (this) {
-      case TerminologyDataFormat.csv:
-        return 'CSV';
-      case TerminologyDataFormat.tmx:
-        return 'TMX';
-      case TerminologyDataFormat.tsv:
-        return 'TSV';
-    }
-  }
-}
+  final String value;
 
-extension TerminologyDataFormatFromString on String {
-  TerminologyDataFormat toTerminologyDataFormat() {
-    switch (this) {
-      case 'CSV':
-        return TerminologyDataFormat.csv;
-      case 'TMX':
-        return TerminologyDataFormat.tmx;
-      case 'TSV':
-        return TerminologyDataFormat.tsv;
-    }
-    throw Exception('$this is not known in enum TerminologyDataFormat');
-  }
+  const TerminologyDataFormat(this.value);
+
+  static TerminologyDataFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TerminologyDataFormat'));
 }
 
 /// The location of the custom terminology data.
@@ -2466,12 +2338,14 @@ class TerminologyProperties {
       arn: json['Arn'] as String?,
       createdAt: timeStampFromJson(json['CreatedAt']),
       description: json['Description'] as String?,
-      directionality: (json['Directionality'] as String?)?.toDirectionality(),
+      directionality:
+          (json['Directionality'] as String?)?.let(Directionality.fromString),
       encryptionKey: json['EncryptionKey'] != null
           ? EncryptionKey.fromJson(
               json['EncryptionKey'] as Map<String, dynamic>)
           : null,
-      format: (json['Format'] as String?)?.toTerminologyDataFormat(),
+      format:
+          (json['Format'] as String?)?.let(TerminologyDataFormat.fromString),
       lastUpdatedAt: timeStampFromJson(json['LastUpdatedAt']),
       message: json['Message'] as String?,
       name: json['Name'] as String?,
@@ -2479,7 +2353,7 @@ class TerminologyProperties {
       skippedTermCount: json['SkippedTermCount'] as int?,
       sourceLanguageCode: json['SourceLanguageCode'] as String?,
       targetLanguageCodes: (json['TargetLanguageCodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       termCount: json['TermCount'] as int?,
@@ -2520,7 +2394,7 @@ class TextTranslationJobFilter {
     final submittedBeforeTime = this.submittedBeforeTime;
     return {
       if (jobName != null) 'JobName': jobName,
-      if (jobStatus != null) 'JobStatus': jobStatus.toValue(),
+      if (jobStatus != null) 'JobStatus': jobStatus.value,
       if (submittedAfterTime != null)
         'SubmittedAfterTime': unixTimestampToJson(submittedAfterTime),
       if (submittedBeforeTime != null)
@@ -2618,14 +2492,14 @@ class TextTranslationJobProperties {
           : null,
       jobId: json['JobId'] as String?,
       jobName: json['JobName'] as String?,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       message: json['Message'] as String?,
       outputDataConfig: json['OutputDataConfig'] != null
           ? OutputDataConfig.fromJson(
               json['OutputDataConfig'] as Map<String, dynamic>)
           : null,
       parallelDataNames: (json['ParallelDataNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       settings: json['Settings'] != null
@@ -2635,11 +2509,11 @@ class TextTranslationJobProperties {
       sourceLanguageCode: json['SourceLanguageCode'] as String?,
       submittedTime: timeStampFromJson(json['SubmittedTime']),
       targetLanguageCodes: (json['TargetLanguageCodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       terminologyNames: (json['TerminologyNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2681,7 +2555,7 @@ class TranslateDocumentResponse {
               json['AppliedSettings'] as Map<String, dynamic>)
           : null,
       appliedTerminologies: (json['AppliedTerminologies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AppliedTerminology.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2723,7 +2597,7 @@ class TranslateTextResponse {
               json['AppliedSettings'] as Map<String, dynamic>)
           : null,
       appliedTerminologies: (json['AppliedTerminologies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AppliedTerminology.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2746,13 +2620,37 @@ class TranslatedDocument {
   }
 }
 
-/// Settings to configure your translation output, including the option to set
-/// the formality level of the output text and the option to mask profane words
-/// and phrases.
+/// Settings to configure your translation output. You can configure the
+/// following options:
+///
+/// <ul>
+/// <li>
+/// Brevity: reduces the length of the translation output for most translations.
+/// Available for <code>TranslateText</code> only.
+/// </li>
+/// <li>
+/// Formality: sets the formality level of the translation output.
+/// </li>
+/// <li>
+/// Profanity: masks profane words and phrases in the translation output.
+/// </li>
+/// </ul>
 class TranslationSettings {
-  /// You can optionally specify the desired level of formality for translations
-  /// to supported target languages. The formality setting controls the level of
-  /// formal language usage (also known as <a
+  /// When you turn on brevity, Amazon Translate reduces the length of the
+  /// translation output for most translations (when compared with the same
+  /// translation with brevity turned off). By default, brevity is turned off.
+  ///
+  /// If you turn on brevity for a translation request with an unsupported
+  /// language pair, the translation proceeds with the brevity setting turned off.
+  ///
+  /// For the language pairs that brevity supports, see <a
+  /// href="https://docs.aws.amazon.com/translate/latest/dg/customizing-translations-brevity">Using
+  /// brevity</a> in the Amazon Translate Developer Guide.
+  final Brevity? brevity;
+
+  /// You can specify the desired level of formality for translations to supported
+  /// target languages. The formality setting controls the level of formal
+  /// language usage (also known as <a
   /// href="https://en.wikipedia.org/wiki/Register_(sociolinguistics)">register</a>)
   /// in the translation output. You can set the value to informal or formal. If
   /// you don't specify a value for formality, or if the target language doesn't
@@ -2766,8 +2664,8 @@ class TranslationSettings {
   /// languages</a> in the Amazon Translate Developer Guide.
   final Formality? formality;
 
-  /// Enable the profanity setting if you want Amazon Translate to mask profane
-  /// words and phrases in your translation output.
+  /// You can enable the profanity setting if you want to mask profane words and
+  /// phrases in your translation output.
   ///
   /// To mask profane words and phrases, Amazon Translate replaces them with the
   /// grawlix string “?$#@$“. This 5-character sequence is used for each profane
@@ -2785,23 +2683,27 @@ class TranslationSettings {
   final Profanity? profanity;
 
   TranslationSettings({
+    this.brevity,
     this.formality,
     this.profanity,
   });
 
   factory TranslationSettings.fromJson(Map<String, dynamic> json) {
     return TranslationSettings(
-      formality: (json['Formality'] as String?)?.toFormality(),
-      profanity: (json['Profanity'] as String?)?.toProfanity(),
+      brevity: (json['Brevity'] as String?)?.let(Brevity.fromString),
+      formality: (json['Formality'] as String?)?.let(Formality.fromString),
+      profanity: (json['Profanity'] as String?)?.let(Profanity.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
+    final brevity = this.brevity;
     final formality = this.formality;
     final profanity = this.profanity;
     return {
-      if (formality != null) 'Formality': formality.toValue(),
-      if (profanity != null) 'Profanity': profanity.toValue(),
+      if (brevity != null) 'Brevity': brevity.value,
+      if (formality != null) 'Formality': formality.value,
+      if (profanity != null) 'Profanity': profanity.value,
     };
   }
 }
@@ -2841,9 +2743,9 @@ class UpdateParallelDataResponse {
     return UpdateParallelDataResponse(
       latestUpdateAttemptAt: timeStampFromJson(json['LatestUpdateAttemptAt']),
       latestUpdateAttemptStatus: (json['LatestUpdateAttemptStatus'] as String?)
-          ?.toParallelDataStatus(),
+          ?.let(ParallelDataStatus.fromString),
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toParallelDataStatus(),
+      status: (json['Status'] as String?)?.let(ParallelDataStatus.fromString),
     );
   }
 }

@@ -19,31 +19,76 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// Security Hub provides you with a comprehensive view of the security state of
-/// your Amazon Web Services environment and resources. It also provides you
-/// with the readiness status of your environment based on controls from
-/// supported security standards. Security Hub collects security data from
-/// Amazon Web Services accounts, services, and integrated third-party products
-/// and helps you analyze security trends in your environment to identify the
-/// highest priority security issues. For more information about Security Hub,
-/// see the <a
-/// href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html">Security
-/// HubUser Guide</a>.
+/// Security Hub provides you with a comprehensive view of your security state
+/// in Amazon Web Services and helps you assess your Amazon Web Services
+/// environment against security industry standards and best practices.
 ///
-/// When you use operations in the Security Hub API, the requests are executed
-/// only in the Amazon Web Services Region that is currently active or in the
-/// specific Amazon Web Services Region that you specify in your request. Any
-/// configuration or settings change that results from the operation is applied
-/// only to that Region. To make the same change in other Regions, run the same
-/// command for each Region in which you want to apply the change.
+/// Security Hub collects security data across Amazon Web Services accounts,
+/// Amazon Web Services, and supported third-party products and helps you
+/// analyze your security trends and identify the highest priority security
+/// issues.
 ///
-/// For example, if your Region is set to <code>us-west-2</code>, when you use
-/// <code>CreateMembers</code> to add a member account to Security Hub, the
-/// association of the member account with the administrator account is created
-/// only in the <code>us-west-2</code> Region. Security Hub must be enabled for
-/// the member account in the same Region that the invitation was sent from.
+/// To help you manage the security state of your organization, Security Hub
+/// supports multiple security standards. These include the Amazon Web Services
+/// Foundational Security Best Practices (FSBP) standard developed by Amazon Web
+/// Services, and external compliance frameworks such as the Center for Internet
+/// Security (CIS), the Payment Card Industry Data Security Standard (PCI DSS),
+/// and the National Institute of Standards and Technology (NIST). Each standard
+/// includes several security controls, each of which represents a security best
+/// practice. Security Hub runs checks against security controls and generates
+/// control findings to help you assess your compliance against security best
+/// practices.
 ///
-/// The following throttling limits apply to using Security Hub API operations.
+/// In addition to generating control findings, Security Hub also receives
+/// findings from other Amazon Web Services, such as Amazon GuardDuty and Amazon
+/// Inspector, and supported third-party products. This gives you a single pane
+/// of glass into a variety of security-related issues. You can also send
+/// Security Hub findings to other Amazon Web Services and supported third-party
+/// products.
+///
+/// Security Hub offers automation features that help you triage and remediate
+/// security issues. For example, you can use automation rules to automatically
+/// update critical findings when a security check fails. You can also leverage
+/// the integration with Amazon EventBridge to trigger automatic responses to
+/// specific findings.
+///
+/// This guide, the <i>Security Hub API Reference</i>, provides information
+/// about the Security Hub API. This includes supported resources, HTTP methods,
+/// parameters, and schemas. If you're new to Security Hub, you might find it
+/// helpful to also review the <a
+/// href="https://docs.aws.amazon.com/securityhub/latest/userguide/what-is-securityhub.html">
+/// <i>Security Hub User Guide</i> </a>. The user guide explains key concepts
+/// and provides procedures that demonstrate how to use Security Hub features.
+/// It also provides information about topics such as integrating Security Hub
+/// with other Amazon Web Services.
+///
+/// In addition to interacting with Security Hub by making calls to the Security
+/// Hub API, you can use a current version of an Amazon Web Services command
+/// line tool or SDK. Amazon Web Services provides tools and SDKs that consist
+/// of libraries and sample code for various languages and platforms, such as
+/// PowerShell, Java, Go, Python, C++, and .NET. These tools and SDKs provide
+/// convenient, programmatic access to Security Hub and other Amazon Web
+/// Services . They also handle tasks such as signing requests, managing errors,
+/// and retrying requests automatically. For information about installing and
+/// using the Amazon Web Services tools and SDKs, see <a
+/// href="http://aws.amazon.com/developer/tools/">Tools to Build on Amazon Web
+/// Services</a>.
+///
+/// With the exception of operations that are related to central configuration,
+/// Security Hub API requests are executed only in the Amazon Web Services
+/// Region that is currently active or in the specific Amazon Web Services
+/// Region that you specify in your request. Any configuration or settings
+/// change that results from the operation is applied only to that Region. To
+/// make the same change in other Regions, call the same API operation in each
+/// Region in which you want to apply the change. When you use central
+/// configuration, API requests for enabling Security Hub, standards, and
+/// controls are executed in the home Region and all linked Regions. For a list
+/// of central configuration operations, see the <a
+/// href="https://docs.aws.amazon.com/securityhub/latest/userguide/central-configuration-intro.html#central-configuration-concepts">Central
+/// configuration terms and concepts</a> section of the <i>Security Hub User
+/// Guide</i>.
+///
+/// The following throttling limits apply to Security Hub API operations.
 ///
 /// <ul>
 /// <li>
@@ -192,6 +237,32 @@ class SecurityHub {
     );
   }
 
+  /// Deletes one or more automation rules.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [automationRulesArns] :
+  /// A list of Amazon Resource Names (ARNs) for the rules that are to be
+  /// deleted.
+  Future<BatchDeleteAutomationRulesResponse> batchDeleteAutomationRules({
+    required List<String> automationRulesArns,
+  }) async {
+    final $payload = <String, dynamic>{
+      'AutomationRulesArns': automationRulesArns,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/automationrules/delete',
+      exceptionFnMap: _exceptionFns,
+    );
+    return BatchDeleteAutomationRulesResponse.fromJson(response);
+  }
+
   /// Disables the standards specified by the provided
   /// <code>StandardsSubscriptionArns</code>.
   ///
@@ -203,6 +274,7 @@ class SecurityHub {
   /// May throw [InvalidInputException].
   /// May throw [InvalidAccessException].
   /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [standardsSubscriptionArns] :
   /// The ARNs of the standards subscriptions to disable.
@@ -233,6 +305,7 @@ class SecurityHub {
   /// May throw [InvalidInputException].
   /// May throw [InvalidAccessException].
   /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [standardsSubscriptionRequests] :
   /// The list of standards checks to enable.
@@ -249,6 +322,67 @@ class SecurityHub {
       exceptionFnMap: _exceptionFns,
     );
     return BatchEnableStandardsResponse.fromJson(response);
+  }
+
+  /// Retrieves a list of details for automation rules based on rule Amazon
+  /// Resource Names (ARNs).
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [automationRulesArns] :
+  /// A list of rule ARNs to get details for.
+  Future<BatchGetAutomationRulesResponse> batchGetAutomationRules({
+    required List<String> automationRulesArns,
+  }) async {
+    final $payload = <String, dynamic>{
+      'AutomationRulesArns': automationRulesArns,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/automationrules/get',
+      exceptionFnMap: _exceptionFns,
+    );
+    return BatchGetAutomationRulesResponse.fromJson(response);
+  }
+
+  /// Returns associations between an Security Hub configuration and a batch of
+  /// target accounts, organizational units, or the root. Only the Security Hub
+  /// delegated administrator can invoke this operation from the home Region. A
+  /// configuration can refer to a configuration policy or to a self-managed
+  /// configuration.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [configurationPolicyAssociationIdentifiers] :
+  /// Specifies one or more target account IDs, organizational unit (OU) IDs, or
+  /// the root ID to retrieve associations for.
+  Future<BatchGetConfigurationPolicyAssociationsResponse>
+      batchGetConfigurationPolicyAssociations({
+    required List<ConfigurationPolicyAssociation>
+        configurationPolicyAssociationIdentifiers,
+  }) async {
+    final $payload = <String, dynamic>{
+      'ConfigurationPolicyAssociationIdentifiers':
+          configurationPolicyAssociationIdentifiers,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/configurationPolicyAssociation/batchget',
+      exceptionFnMap: _exceptionFns,
+    );
+    return BatchGetConfigurationPolicyAssociationsResponse.fromJson(response);
   }
 
   /// Provides details about a batch of security controls for the current Amazon
@@ -401,6 +535,34 @@ class SecurityHub {
       exceptionFnMap: _exceptionFns,
     );
     return BatchImportFindingsResponse.fromJson(response);
+  }
+
+  /// Updates one or more automation rules based on rule Amazon Resource Names
+  /// (ARNs) and input parameters.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [updateAutomationRulesRequestItems] :
+  /// An array of ARNs for the rules that are to be updated. Optionally, you can
+  /// also include <code>RuleStatus</code> and <code>RuleOrder</code>.
+  Future<BatchUpdateAutomationRulesResponse> batchUpdateAutomationRules({
+    required List<UpdateAutomationRulesRequestItem>
+        updateAutomationRulesRequestItems,
+  }) async {
+    final $payload = <String, dynamic>{
+      'UpdateAutomationRulesRequestItems': updateAutomationRulesRequestItems,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PATCH',
+      requestUri: '/automationrules/update',
+      exceptionFnMap: _exceptionFns,
+    );
+    return BatchUpdateAutomationRulesResponse.fromJson(response);
   }
 
   /// Used by Security Hub customers to update information about their
@@ -573,7 +735,7 @@ class SecurityHub {
       if (types != null) 'Types': types,
       if (userDefinedFields != null) 'UserDefinedFields': userDefinedFields,
       if (verificationState != null)
-        'VerificationState': verificationState.toValue(),
+        'VerificationState': verificationState.value,
       if (workflow != null) 'Workflow': workflow,
     };
     final response = await _protocol.send(
@@ -592,6 +754,7 @@ class SecurityHub {
   /// May throw [LimitExceededException].
   /// May throw [InvalidAccessException].
   /// May throw [InvalidInputException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [standardsControlAssociationUpdates] :
   /// Updates the enablement status of a security control in a specified
@@ -650,6 +813,144 @@ class SecurityHub {
       exceptionFnMap: _exceptionFns,
     );
     return CreateActionTargetResponse.fromJson(response);
+  }
+
+  /// Creates an automation rule based on input parameters.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  ///
+  /// Parameter [actions] :
+  /// One or more actions to update finding fields if a finding matches the
+  /// conditions specified in <code>Criteria</code>.
+  ///
+  /// Parameter [criteria] :
+  /// A set of ASFF finding field attributes and corresponding expected values
+  /// that Security Hub uses to filter findings. If a rule is enabled and a
+  /// finding matches the conditions specified in this parameter, Security Hub
+  /// applies the rule action to the finding.
+  ///
+  /// Parameter [description] :
+  /// A description of the rule.
+  ///
+  /// Parameter [ruleName] :
+  /// The name of the rule.
+  ///
+  /// Parameter [ruleOrder] :
+  /// An integer ranging from 1 to 1000 that represents the order in which the
+  /// rule action is applied to findings. Security Hub applies rules with lower
+  /// values for this parameter first.
+  ///
+  /// Parameter [isTerminal] :
+  /// Specifies whether a rule is the last to be applied with respect to a
+  /// finding that matches the rule criteria. This is useful when a finding
+  /// matches the criteria for multiple rules, and each rule has different
+  /// actions. If a rule is terminal, Security Hub applies the rule action to a
+  /// finding that matches the rule criteria and doesn't evaluate other rules
+  /// for the finding. By default, a rule isn't terminal.
+  ///
+  /// Parameter [ruleStatus] :
+  /// Whether the rule is active after it is created. If this parameter is equal
+  /// to <code>ENABLED</code>, Security Hub starts applying the rule to findings
+  /// and finding updates after the rule is created. To change the value of this
+  /// parameter after creating a rule, use <a
+  /// href="https://docs.aws.amazon.com/securityhub/1.0/APIReference/API_BatchUpdateAutomationRules.html">
+  /// <code>BatchUpdateAutomationRules</code> </a>.
+  ///
+  /// Parameter [tags] :
+  /// User-defined tags associated with an automation rule.
+  Future<CreateAutomationRuleResponse> createAutomationRule({
+    required List<AutomationRulesAction> actions,
+    required AutomationRulesFindingFilters criteria,
+    required String description,
+    required String ruleName,
+    required int ruleOrder,
+    bool? isTerminal,
+    RuleStatus? ruleStatus,
+    Map<String, String>? tags,
+  }) async {
+    _s.validateNumRange(
+      'ruleOrder',
+      ruleOrder,
+      1,
+      1000,
+      isRequired: true,
+    );
+    final $payload = <String, dynamic>{
+      'Actions': actions,
+      'Criteria': criteria,
+      'Description': description,
+      'RuleName': ruleName,
+      'RuleOrder': ruleOrder,
+      if (isTerminal != null) 'IsTerminal': isTerminal,
+      if (ruleStatus != null) 'RuleStatus': ruleStatus.value,
+      if (tags != null) 'Tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/automationrules/create',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateAutomationRuleResponse.fromJson(response);
+  }
+
+  /// Creates a configuration policy with the defined configuration. Only the
+  /// Security Hub delegated administrator can invoke this operation from the
+  /// home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceConflictException].
+  ///
+  /// Parameter [configurationPolicy] :
+  /// An object that defines how Security Hub is configured. It includes whether
+  /// Security Hub is enabled or disabled, a list of enabled security standards,
+  /// a list of enabled or disabled security controls, and a list of custom
+  /// parameter values for specified controls. If you provide a list of security
+  /// controls that are enabled in the configuration policy, Security Hub
+  /// disables all other controls (including newly released controls). If you
+  /// provide a list of security controls that are disabled in the configuration
+  /// policy, Security Hub enables all other controls (including newly released
+  /// controls).
+  ///
+  /// Parameter [name] :
+  /// The name of the configuration policy. Alphanumeric characters and the
+  /// following ASCII characters are permitted: <code>-, ., !, *, /</code>.
+  ///
+  /// Parameter [description] :
+  /// The description of the configuration policy.
+  ///
+  /// Parameter [tags] :
+  /// User-defined tags associated with a configuration policy. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/tagging-resources.html">Tagging
+  /// Security Hub resources</a> in the <i>Security Hub user guide</i>.
+  Future<CreateConfigurationPolicyResponse> createConfigurationPolicy({
+    required Policy configurationPolicy,
+    required String name,
+    String? description,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'ConfigurationPolicy': configurationPolicy,
+      'Name': name,
+      if (description != null) 'Description': description,
+      if (tags != null) 'Tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/configurationPolicy/create',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateConfigurationPolicyResponse.fromJson(response);
   }
 
   /// Used to enable finding aggregation. Must be called from the aggregation
@@ -828,6 +1129,7 @@ class SecurityHub {
   /// May throw [LimitExceededException].
   /// May throw [InvalidAccessException].
   /// May throw [ResourceConflictException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [accountDetails] :
   /// The list of accounts to associate with the Security Hub administrator
@@ -903,6 +1205,34 @@ class SecurityHub {
       exceptionFnMap: _exceptionFns,
     );
     return DeleteActionTargetResponse.fromJson(response);
+  }
+
+  /// Deletes a configuration policy. Only the Security Hub delegated
+  /// administrator can invoke this operation from the home Region. For the
+  /// deletion to succeed, you must first disassociate a configuration policy
+  /// from target accounts, organizational units, or the root by invoking the
+  /// <code>StartConfigurationPolicyDisassociation</code> operation.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ResourceConflictException].
+  ///
+  /// Parameter [identifier] :
+  /// The Amazon Resource Name (ARN) or universally unique identifier (UUID) of
+  /// the configuration policy.
+  Future<void> deleteConfigurationPolicy({
+    required String identifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri: '/configurationPolicy/${Uri.encodeComponent(identifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Deletes a finding aggregator. When you delete the finding aggregator, you
@@ -993,8 +1323,9 @@ class SecurityHub {
 
   /// Deletes the specified member accounts from Security Hub.
   ///
-  /// Can be used to delete member accounts that belong to an organization as
-  /// well as member accounts that were invited manually.
+  /// You can invoke this API only to delete accounts that became members
+  /// through invitation. You can't invoke this API to delete accounts that
+  /// belong to an Organizations organization.
   ///
   /// May throw [InternalException].
   /// May throw [InvalidInputException].
@@ -1093,8 +1424,9 @@ class SecurityHub {
     return DescribeHubResponse.fromJson(response);
   }
 
-  /// Returns information about the Organizations configuration for Security
-  /// Hub. Can only be called from a Security Hub administrator account.
+  /// Returns information about the way your organization is configured in
+  /// Security Hub. Only the Security Hub administrator account can invoke this
+  /// operation.
   ///
   /// May throw [InternalException].
   /// May throw [InvalidInputException].
@@ -1288,6 +1620,7 @@ class SecurityHub {
   /// May throw [InvalidInputException].
   /// May throw [InvalidAccessException].
   /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [adminAccountId] :
   /// The Amazon Web Services account identifier of the Security Hub
@@ -1306,12 +1639,12 @@ class SecurityHub {
     );
   }
 
-  /// Disables Security Hub in your account only in the current Region. To
-  /// disable Security Hub in all Regions, you must submit one request per
-  /// Region where you have enabled Security Hub.
+  /// Disables Security Hub in your account only in the current Amazon Web
+  /// Services Region. To disable Security Hub in all Regions, you must submit
+  /// one request per Region where you have enabled Security Hub.
   ///
-  /// When you disable Security Hub for an administrator account, it doesn't
-  /// disable Security Hub for any associated member accounts.
+  /// You can't disable Security Hub in an account that is currently the
+  /// Security Hub administrator.
   ///
   /// When you disable Security Hub, your existing findings and insights and any
   /// Security Hub configuration settings are deleted after 90 days and cannot
@@ -1325,6 +1658,7 @@ class SecurityHub {
   /// May throw [LimitExceededException].
   /// May throw [InvalidAccessException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
   Future<void> disableSecurityHub() async {
     final response = await _protocol.send(
       payload: null,
@@ -1401,6 +1735,7 @@ class SecurityHub {
   /// May throw [InvalidAccessException].
   /// May throw [LimitExceededException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [accountIds] :
   /// The account IDs of the member accounts to disassociate from the
@@ -1456,6 +1791,7 @@ class SecurityHub {
   /// May throw [InvalidInputException].
   /// May throw [InvalidAccessException].
   /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [adminAccountId] :
   /// The Amazon Web Services account identifier of the account to designate as
@@ -1544,7 +1880,7 @@ class SecurityHub {
   }) async {
     final $payload = <String, dynamic>{
       if (controlFindingGenerator != null)
-        'ControlFindingGenerator': controlFindingGenerator.toValue(),
+        'ControlFindingGenerator': controlFindingGenerator.value,
       if (enableDefaultStandards != null)
         'EnableDefaultStandards': enableDefaultStandards,
       if (tags != null) 'Tags': tags,
@@ -1576,6 +1912,62 @@ class SecurityHub {
       exceptionFnMap: _exceptionFns,
     );
     return GetAdministratorAccountResponse.fromJson(response);
+  }
+
+  /// Provides information about a configuration policy. Only the Security Hub
+  /// delegated administrator can invoke this operation from the home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [identifier] :
+  /// The Amazon Resource Name (ARN) or universally unique identifier (UUID) of
+  /// the configuration policy.
+  Future<GetConfigurationPolicyResponse> getConfigurationPolicy({
+    required String identifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/configurationPolicy/get/${Uri.encodeComponent(identifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetConfigurationPolicyResponse.fromJson(response);
+  }
+
+  /// Returns the association between a configuration and a target account,
+  /// organizational unit, or the root. The configuration can be a configuration
+  /// policy or self-managed behavior. Only the Security Hub delegated
+  /// administrator can invoke this operation from the home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [target] :
+  /// The target account ID, organizational unit ID, or the root ID to retrieve
+  /// the association for.
+  Future<GetConfigurationPolicyAssociationResponse>
+      getConfigurationPolicyAssociation({
+    required Target target,
+  }) async {
+    final $payload = <String, dynamic>{
+      'Target': target,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/configurationPolicyAssociation/get',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetConfigurationPolicyAssociationResponse.fromJson(response);
   }
 
   /// Returns a list of the standards that are currently enabled.
@@ -1660,12 +2052,7 @@ class SecurityHub {
   ///
   /// Parameter [endTime] :
   /// An ISO 8601-formatted timestamp that indicates the end time of the
-  /// requested finding history. A correctly formatted example is
-  /// <code>2020-05-21T20:16:34.724Z</code>. The value cannot contain spaces,
-  /// and date and time should be separated by <code>T</code>. For more
-  /// information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// requested finding history.
   ///
   /// If you provide values for both <code>StartTime</code> and
   /// <code>EndTime</code>, Security Hub returns finding history for the
@@ -1681,6 +2068,35 @@ class SecurityHub {
   /// time at which the API is called. In all of these scenarios, the response
   /// is limited to 100 results, and the maximum time period is limited to 90
   /// days.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>.
+  /// The time-secfrac after seconds is limited to a maximum of 9 digits. The
+  /// offset is bounded by +/-18:00. Here are valid timestamp formats with
+  /// examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [maxResults] :
   /// The maximum number of results to be returned. If you don’t provide it,
@@ -1694,13 +2110,8 @@ class SecurityHub {
   /// finding history for each request.
   ///
   /// Parameter [startTime] :
-  /// An ISO 8601-formatted timestamp that indicates the start time of the
-  /// requested finding history. A correctly formatted example is
-  /// <code>2020-05-21T20:16:34.724Z</code>. The value cannot contain spaces,
-  /// and date and time should be separated by <code>T</code>. For more
-  /// information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// A timestamp that indicates the start time of the requested finding
+  /// history.
   ///
   /// If you provide values for both <code>StartTime</code> and
   /// <code>EndTime</code>, Security Hub returns finding history for the
@@ -1716,6 +2127,35 @@ class SecurityHub {
   /// time at which the API is called. In all of these scenarios, the response
   /// is limited to 100 results, and the maximum time period is limited to 90
   /// days.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>.
+  /// The time-secfrac after seconds is limited to a maximum of 9 digits. The
+  /// offset is bounded by +/-18:00. Here are valid timestamp formats with
+  /// examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   Future<GetFindingHistoryResponse> getFindingHistory({
     required AwsSecurityFindingIdentifier findingIdentifier,
     DateTime? endTime,
@@ -1966,6 +2406,35 @@ class SecurityHub {
     return GetMembersResponse.fromJson(response);
   }
 
+  /// Retrieves the definition of a security control. The definition includes
+  /// the control title, description, Region availability, parameter
+  /// definitions, and other details.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidInputException].
+  /// May throw [InvalidAccessException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [securityControlId] :
+  /// The ID of the security control to retrieve the definition for. This field
+  /// doesn’t accept an Amazon Resource Name (ARN).
+  Future<GetSecurityControlDefinitionResponse> getSecurityControlDefinition({
+    required String securityControlId,
+  }) async {
+    final $query = <String, List<String>>{
+      'SecurityControlId': [securityControlId],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/securityControl/definition',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetSecurityControlDefinitionResponse.fromJson(response);
+  }
+
   /// Invites other Amazon Web Services accounts to become member accounts for
   /// the Security Hub administrator account that the invitation is sent from.
   ///
@@ -2002,6 +2471,161 @@ class SecurityHub {
       exceptionFnMap: _exceptionFns,
     );
     return InviteMembersResponse.fromJson(response);
+  }
+
+  /// A list of automation rules and their metadata for the calling account.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of rules to return in the response. This currently
+  /// ranges from 1 to 100.
+  ///
+  /// Parameter [nextToken] :
+  /// A token to specify where to start paginating the response. This is the
+  /// <code>NextToken</code> from a previously truncated response. On your first
+  /// call to the <code>ListAutomationRules</code> API, set the value of this
+  /// parameter to <code>NULL</code>.
+  Future<ListAutomationRulesResponse> listAutomationRules({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'MaxResults': [maxResults.toString()],
+      if (nextToken != null) 'NextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/automationrules/list',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAutomationRulesResponse.fromJson(response);
+  }
+
+  /// Lists the configuration policies that the Security Hub delegated
+  /// administrator has created for your organization. Only the delegated
+  /// administrator can invoke this operation from the home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results that's returned by
+  /// <code>ListConfigurationPolicies</code> in each page of the response. When
+  /// this parameter is used, <code>ListConfigurationPolicies</code> returns the
+  /// specified number of results in a single page and a <code>NextToken</code>
+  /// response element. You can see the remaining results of the initial request
+  /// by sending another <code>ListConfigurationPolicies</code> request with the
+  /// returned <code>NextToken</code> value. A valid range for
+  /// <code>MaxResults</code> is between 1 and 100.
+  ///
+  /// Parameter [nextToken] :
+  /// The NextToken value that's returned from a previous paginated
+  /// <code>ListConfigurationPolicies</code> request where
+  /// <code>MaxResults</code> was used but the results exceeded the value of
+  /// that parameter. Pagination continues from the <code>MaxResults</code> was
+  /// used but the results exceeded the value of that parameter. Pagination
+  /// continues from the end of the previous response that returned the
+  /// <code>NextToken</code> value. This value is <code>null</code> when there
+  /// are no more results to return.
+  Future<ListConfigurationPoliciesResponse> listConfigurationPolicies({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'MaxResults': [maxResults.toString()],
+      if (nextToken != null) 'NextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/configurationPolicy/list',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListConfigurationPoliciesResponse.fromJson(response);
+  }
+
+  /// Provides information about the associations for your configuration
+  /// policies and self-managed behavior. Only the Security Hub delegated
+  /// administrator can invoke this operation from the home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [filters] :
+  /// Options for filtering the <code>ListConfigurationPolicyAssociations</code>
+  /// response. You can filter by the Amazon Resource Name (ARN) or universally
+  /// unique identifier (UUID) of a configuration, <code>AssociationType</code>,
+  /// or <code>AssociationStatus</code>.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results that's returned by
+  /// <code>ListConfigurationPolicies</code> in each page of the response. When
+  /// this parameter is used, <code>ListConfigurationPolicyAssociations</code>
+  /// returns the specified number of results in a single page and a
+  /// <code>NextToken</code> response element. You can see the remaining results
+  /// of the initial request by sending another
+  /// <code>ListConfigurationPolicyAssociations</code> request with the returned
+  /// <code>NextToken</code> value. A valid range for <code>MaxResults</code> is
+  /// between 1 and 100.
+  ///
+  /// Parameter [nextToken] :
+  /// The <code>NextToken</code> value that's returned from a previous paginated
+  /// <code>ListConfigurationPolicyAssociations</code> request where
+  /// <code>MaxResults</code> was used but the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous response
+  /// that returned the <code>NextToken</code> value. This value is
+  /// <code>null</code> when there are no more results to return.
+  Future<ListConfigurationPolicyAssociationsResponse>
+      listConfigurationPolicyAssociations({
+    AssociationFilters? filters,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $payload = <String, dynamic>{
+      if (filters != null) 'Filters': filters,
+      if (maxResults != null) 'MaxResults': maxResults,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/configurationPolicyAssociation/list',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListConfigurationPolicyAssociationsResponse.fromJson(response);
   }
 
   /// Lists all findings-generating solutions (products) that you are subscribed
@@ -2353,6 +2977,83 @@ class SecurityHub {
     return ListTagsForResourceResponse.fromJson(response);
   }
 
+  /// Associates a target account, organizational unit, or the root with a
+  /// specified configuration. The target can be associated with a configuration
+  /// policy or self-managed behavior. Only the Security Hub delegated
+  /// administrator can invoke this operation from the home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [configurationPolicyIdentifier] :
+  /// The Amazon Resource Name (ARN) of a configuration policy, the universally
+  /// unique identifier (UUID) of a configuration policy, or a value of
+  /// <code>SELF_MANAGED_SECURITY_HUB</code> for a self-managed configuration.
+  ///
+  /// Parameter [target] :
+  /// The identifier of the target account, organizational unit, or the root to
+  /// associate with the specified configuration.
+  Future<StartConfigurationPolicyAssociationResponse>
+      startConfigurationPolicyAssociation({
+    required String configurationPolicyIdentifier,
+    required Target target,
+  }) async {
+    final $payload = <String, dynamic>{
+      'ConfigurationPolicyIdentifier': configurationPolicyIdentifier,
+      'Target': target,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/configurationPolicyAssociation/associate',
+      exceptionFnMap: _exceptionFns,
+    );
+    return StartConfigurationPolicyAssociationResponse.fromJson(response);
+  }
+
+  /// Disassociates a target account, organizational unit, or the root from a
+  /// specified configuration. When you disassociate a configuration from its
+  /// target, the target inherits the configuration of the closest parent. If
+  /// there’s no configuration to inherit, the target retains its settings but
+  /// becomes a self-managed account. A target can be disassociated from a
+  /// configuration policy or self-managed behavior. Only the Security Hub
+  /// delegated administrator can invoke this operation from the home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [configurationPolicyIdentifier] :
+  /// The Amazon Resource Name (ARN) of a configuration policy, the universally
+  /// unique identifier (UUID) of a configuration policy, or a value of
+  /// <code>SELF_MANAGED_SECURITY_HUB</code> for a self-managed configuration.
+  ///
+  /// Parameter [target] :
+  /// The identifier of the target account, organizational unit, or the root to
+  /// disassociate from the specified configuration.
+  Future<void> startConfigurationPolicyDisassociation({
+    required String configurationPolicyIdentifier,
+    Target? target,
+  }) async {
+    final $payload = <String, dynamic>{
+      'ConfigurationPolicyIdentifier': configurationPolicyIdentifier,
+      if (target != null) 'Target': target,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/configurationPolicyAssociation/disassociate',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
   /// Adds one or more tags to a resource.
   ///
   /// May throw [InternalException].
@@ -2444,6 +3145,69 @@ class SecurityHub {
     );
   }
 
+  /// Updates a configuration policy. Only the Security Hub delegated
+  /// administrator can invoke this operation from the home Region.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidAccessException].
+  /// May throw [InvalidInputException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceConflictException].
+  ///
+  /// Parameter [identifier] :
+  /// The Amazon Resource Name (ARN) or universally unique identifier (UUID) of
+  /// the configuration policy.
+  ///
+  /// Parameter [configurationPolicy] :
+  /// An object that defines how Security Hub is configured. It includes whether
+  /// Security Hub is enabled or disabled, a list of enabled security standards,
+  /// a list of enabled or disabled security controls, and a list of custom
+  /// parameter values for specified controls. If you provide a list of security
+  /// controls that are enabled in the configuration policy, Security Hub
+  /// disables all other controls (including newly released controls). If you
+  /// provide a list of security controls that are disabled in the configuration
+  /// policy, Security Hub enables all other controls (including newly released
+  /// controls).
+  ///
+  /// When updating a configuration policy, provide a complete list of standards
+  /// that you want to enable and a complete list of controls that you want to
+  /// enable or disable. The updated configuration replaces the current
+  /// configuration.
+  ///
+  /// Parameter [description] :
+  /// The description of the configuration policy.
+  ///
+  /// Parameter [name] :
+  /// The name of the configuration policy. Alphanumeric characters and the
+  /// following ASCII characters are permitted: <code>-, ., !, *, /</code>.
+  ///
+  /// Parameter [updatedReason] :
+  /// The reason for updating the configuration policy.
+  Future<UpdateConfigurationPolicyResponse> updateConfigurationPolicy({
+    required String identifier,
+    Policy? configurationPolicy,
+    String? description,
+    String? name,
+    String? updatedReason,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (configurationPolicy != null)
+        'ConfigurationPolicy': configurationPolicy,
+      if (description != null) 'Description': description,
+      if (name != null) 'Name': name,
+      if (updatedReason != null) 'UpdatedReason': updatedReason,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PATCH',
+      requestUri: '/configurationPolicy/${Uri.encodeComponent(identifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateConfigurationPolicyResponse.fromJson(response);
+  }
+
   /// Updates the finding aggregation configuration. Used to update the Region
   /// linking mode and the list of included or excluded Regions. You cannot use
   /// <code>UpdateFindingAggregator</code> to change the aggregation Region.
@@ -2521,12 +3285,17 @@ class SecurityHub {
     return UpdateFindingAggregatorResponse.fromJson(response);
   }
 
-  /// <code>UpdateFindings</code> is deprecated. Instead of
-  /// <code>UpdateFindings</code>, use <code>BatchUpdateFindings</code>.
+  /// <code>UpdateFindings</code> is a deprecated operation. Instead of
+  /// <code>UpdateFindings</code>, use the <code>BatchUpdateFindings</code>
+  /// operation.
   ///
   /// Updates the <code>Note</code> and <code>RecordState</code> of the Security
   /// Hub-aggregated findings that the filter attributes specify. Any member
   /// account that can view the finding also sees the update to the finding.
+  ///
+  /// Finding updates made with <code>UpdateFindings</code> might not be
+  /// persisted if the same finding is later updated by the finding provider
+  /// through the <code>BatchImportFindings</code> operation.
   ///
   /// May throw [InternalException].
   /// May throw [InvalidInputException].
@@ -2550,7 +3319,7 @@ class SecurityHub {
     final $payload = <String, dynamic>{
       'Filters': filters,
       if (note != null) 'Note': note,
-      if (recordState != null) 'RecordState': recordState.toValue(),
+      if (recordState != null) 'RecordState': recordState.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2599,48 +3368,107 @@ class SecurityHub {
     );
   }
 
-  /// Used to update the configuration related to Organizations. Can only be
-  /// called from a Security Hub administrator account.
+  /// Updates the configuration of your organization in Security Hub. Only the
+  /// Security Hub administrator account can invoke this operation.
   ///
   /// May throw [InternalException].
   /// May throw [InvalidInputException].
   /// May throw [InvalidAccessException].
   /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ResourceConflictException].
   ///
   /// Parameter [autoEnable] :
-  /// Whether to automatically enable Security Hub for new accounts in the
-  /// organization.
+  /// Whether to automatically enable Security Hub in new member accounts when
+  /// they join the organization.
   ///
-  /// By default, this is <code>false</code>, and new accounts are not added
-  /// automatically.
+  /// If set to <code>true</code>, then Security Hub is automatically enabled in
+  /// new accounts. If set to <code>false</code>, then Security Hub isn't
+  /// enabled in new accounts automatically. The default value is
+  /// <code>false</code>.
   ///
-  /// To automatically enable Security Hub for new accounts, set this to
-  /// <code>true</code>.
+  /// If the <code>ConfigurationType</code> of your organization is set to
+  /// <code>CENTRAL</code>, then this field is set to <code>false</code> and
+  /// can't be changed in the home Region and linked Regions. However, in that
+  /// case, the delegated administrator can create a configuration policy in
+  /// which Security Hub is enabled and associate the policy with new
+  /// organization accounts.
   ///
   /// Parameter [autoEnableStandards] :
   /// Whether to automatically enable Security Hub <a
   /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards-enable-disable.html">default
-  /// standards</a> for new member accounts in the organization.
+  /// standards</a> in new member accounts when they join the organization.
   ///
-  /// By default, this parameter is equal to <code>DEFAULT</code>, and new
-  /// member accounts are automatically enabled with default Security Hub
-  /// standards.
+  /// The default value of this parameter is equal to <code>DEFAULT</code>.
   ///
-  /// To opt out of enabling default standards for new member accounts, set this
-  /// parameter equal to <code>NONE</code>.
+  /// If equal to <code>DEFAULT</code>, then Security Hub default standards are
+  /// automatically enabled for new member accounts. If equal to
+  /// <code>NONE</code>, then default standards are not automatically enabled
+  /// for new member accounts.
+  ///
+  /// If the <code>ConfigurationType</code> of your organization is set to
+  /// <code>CENTRAL</code>, then this field is set to <code>NONE</code> and
+  /// can't be changed in the home Region and linked Regions. However, in that
+  /// case, the delegated administrator can create a configuration policy in
+  /// which specific security standards are enabled and associate the policy
+  /// with new organization accounts.
   Future<void> updateOrganizationConfiguration({
     required bool autoEnable,
     AutoEnableStandards? autoEnableStandards,
+    OrganizationConfiguration? organizationConfiguration,
   }) async {
     final $payload = <String, dynamic>{
       'AutoEnable': autoEnable,
       if (autoEnableStandards != null)
-        'AutoEnableStandards': autoEnableStandards.toValue(),
+        'AutoEnableStandards': autoEnableStandards.value,
+      if (organizationConfiguration != null)
+        'OrganizationConfiguration': organizationConfiguration,
     };
     final response = await _protocol.send(
       payload: $payload,
       method: 'POST',
       requestUri: '/organization/configuration',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Updates the properties of a security control.
+  ///
+  /// May throw [InternalException].
+  /// May throw [InvalidInputException].
+  /// May throw [InvalidAccessException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ResourceInUseException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ResourceInUseException].
+  ///
+  /// Parameter [parameters] :
+  /// An object that specifies which security control parameters to update.
+  ///
+  /// Parameter [securityControlId] :
+  /// The Amazon Resource Name (ARN) or ID of the control to update.
+  ///
+  /// Parameter [lastUpdateReason] :
+  /// The most recent reason for updating the properties of the security
+  /// control. This field accepts alphanumeric characters in addition to white
+  /// spaces, dashes, and underscores.
+  Future<void> updateSecurityControl({
+    required Map<String, ParameterConfiguration> parameters,
+    required String securityControlId,
+    String? lastUpdateReason,
+  }) async {
+    final $payload = <String, dynamic>{
+      'Parameters': parameters,
+      'SecurityControlId': securityControlId,
+      if (lastUpdateReason != null) 'LastUpdateReason': lastUpdateReason,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PATCH',
+      requestUri: '/securityControl/update',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -2652,6 +3480,7 @@ class SecurityHub {
   /// May throw [InvalidAccessException].
   /// May throw [LimitExceededException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [autoEnableControls] :
   /// Whether to automatically enable new controls when they are added to
@@ -2680,7 +3509,7 @@ class SecurityHub {
     final $payload = <String, dynamic>{
       if (autoEnableControls != null) 'AutoEnableControls': autoEnableControls,
       if (controlFindingGenerator != null)
-        'ControlFindingGenerator': controlFindingGenerator.toValue(),
+        'ControlFindingGenerator': controlFindingGenerator.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2697,6 +3526,7 @@ class SecurityHub {
   /// May throw [InvalidInputException].
   /// May throw [InvalidAccessException].
   /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
   ///
   /// Parameter [standardsControlArn] :
   /// The ARN of the security standard control to enable or disable.
@@ -2713,7 +3543,7 @@ class SecurityHub {
     String? disabledReason,
   }) async {
     final $payload = <String, dynamic>{
-      if (controlStatus != null) 'ControlStatus': controlStatus.toValue(),
+      if (controlStatus != null) 'ControlStatus': controlStatus.value,
       if (disabledReason != null) 'DisabledReason': disabledReason,
     };
     final response = await _protocol.send(
@@ -2904,6 +3734,8 @@ class ActionLocalPortDetails {
   final int? port;
 
   /// The port name of the local connection.
+  ///
+  /// Length Constraints: 128.
   final String? portName;
 
   ActionLocalPortDetails({
@@ -2998,6 +3830,8 @@ class ActionRemotePortDetails {
   final int? port;
 
   /// The port name of the remote connection.
+  ///
+  /// Length Constraints: 128.
   final String? portName;
 
   ActionRemotePortDetails({
@@ -3108,7 +3942,7 @@ class AdminAccount {
   factory AdminAccount.fromJson(Map<String, dynamic> json) {
     return AdminAccount(
       accountId: json['AccountId'] as String?,
-      status: (json['Status'] as String?)?.toAdminStatus(),
+      status: (json['Status'] as String?)?.let(AdminStatus.fromString),
     );
   }
 
@@ -3117,37 +3951,23 @@ class AdminAccount {
     final status = this.status;
     return {
       if (accountId != null) 'AccountId': accountId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum AdminStatus {
-  enabled,
-  disableInProgress,
-}
+  enabled('ENABLED'),
+  disableInProgress('DISABLE_IN_PROGRESS'),
+  ;
 
-extension AdminStatusValueExtension on AdminStatus {
-  String toValue() {
-    switch (this) {
-      case AdminStatus.enabled:
-        return 'ENABLED';
-      case AdminStatus.disableInProgress:
-        return 'DISABLE_IN_PROGRESS';
-    }
-  }
-}
+  final String value;
 
-extension AdminStatusFromString on String {
-  AdminStatus toAdminStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return AdminStatus.enabled;
-      case 'DISABLE_IN_PROGRESS':
-        return AdminStatus.disableInProgress;
-    }
-    throw Exception('$this is not known in enum AdminStatus');
-  }
+  const AdminStatus(this.value);
+
+  static AdminStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AdminStatus'));
 }
 
 /// Information about an enabled security standard in which a security control
@@ -3174,6 +3994,43 @@ class AssociatedStandard {
     final standardsId = this.standardsId;
     return {
       if (standardsId != null) 'StandardsId': standardsId,
+    };
+  }
+}
+
+/// Options for filtering the <code>ListConfigurationPolicyAssociations</code>
+/// response. You can filter by the Amazon Resource Name (ARN) or universally
+/// unique identifier (UUID) of a configuration policy,
+/// <code>AssociationType</code>, or <code>AssociationStatus</code>.
+class AssociationFilters {
+  /// The current status of the association between a target and a configuration
+  /// policy.
+  final ConfigurationPolicyAssociationStatus? associationStatus;
+
+  /// Indicates whether the association between a target and a configuration was
+  /// directly applied by the Security Hub delegated administrator or inherited
+  /// from a parent.
+  final AssociationType? associationType;
+
+  /// The ARN or UUID of the configuration policy.
+  final String? configurationPolicyId;
+
+  AssociationFilters({
+    this.associationStatus,
+    this.associationType,
+    this.configurationPolicyId,
+  });
+
+  Map<String, dynamic> toJson() {
+    final associationStatus = this.associationStatus;
+    final associationType = this.associationType;
+    final configurationPolicyId = this.configurationPolicyId;
+    return {
+      if (associationStatus != null)
+        'AssociationStatus': associationStatus.value,
+      if (associationType != null) 'AssociationType': associationType.value,
+      if (configurationPolicyId != null)
+        'ConfigurationPolicyId': configurationPolicyId,
     };
   }
 }
@@ -3273,58 +4130,1169 @@ class AssociationStateDetails {
 }
 
 enum AssociationStatus {
-  enabled,
-  disabled,
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const AssociationStatus(this.value);
+
+  static AssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssociationStatus'));
 }
 
-extension AssociationStatusValueExtension on AssociationStatus {
-  String toValue() {
-    switch (this) {
-      case AssociationStatus.enabled:
-        return 'ENABLED';
-      case AssociationStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+enum AssociationType {
+  inherited('INHERITED'),
+  applied('APPLIED'),
+  ;
 
-extension AssociationStatusFromString on String {
-  AssociationStatus toAssociationStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return AssociationStatus.enabled;
-      case 'DISABLED':
-        return AssociationStatus.disabled;
-    }
-    throw Exception('$this is not known in enum AssociationStatus');
-  }
+  final String value;
+
+  const AssociationType(this.value);
+
+  static AssociationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssociationType'));
 }
 
 enum AutoEnableStandards {
-  none,
-  $default,
+  none('NONE'),
+  $default('DEFAULT'),
+  ;
+
+  final String value;
+
+  const AutoEnableStandards(this.value);
+
+  static AutoEnableStandards fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AutoEnableStandards'));
 }
 
-extension AutoEnableStandardsValueExtension on AutoEnableStandards {
-  String toValue() {
-    switch (this) {
-      case AutoEnableStandards.none:
-        return 'NONE';
-      case AutoEnableStandards.$default:
-        return 'DEFAULT';
-    }
+/// One or more actions to update finding fields if a finding matches the
+/// defined criteria of the rule.
+class AutomationRulesAction {
+  /// Specifies that the automation rule action is an update to a finding field.
+  final AutomationRulesFindingFieldsUpdate? findingFieldsUpdate;
+
+  /// Specifies that the rule action should update the <code>Types</code> finding
+  /// field. The <code>Types</code> finding field classifies findings in the
+  /// format of namespace/category/classifier. For more information, see <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings-format-type-taxonomy.html">Types
+  /// taxonomy for ASFF</a> in the <i>Security Hub User Guide</i>.
+  final AutomationRulesActionType? type;
+
+  AutomationRulesAction({
+    this.findingFieldsUpdate,
+    this.type,
+  });
+
+  factory AutomationRulesAction.fromJson(Map<String, dynamic> json) {
+    return AutomationRulesAction(
+      findingFieldsUpdate: json['FindingFieldsUpdate'] != null
+          ? AutomationRulesFindingFieldsUpdate.fromJson(
+              json['FindingFieldsUpdate'] as Map<String, dynamic>)
+          : null,
+      type:
+          (json['Type'] as String?)?.let(AutomationRulesActionType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final findingFieldsUpdate = this.findingFieldsUpdate;
+    final type = this.type;
+    return {
+      if (findingFieldsUpdate != null)
+        'FindingFieldsUpdate': findingFieldsUpdate,
+      if (type != null) 'Type': type.value,
+    };
   }
 }
 
-extension AutoEnableStandardsFromString on String {
-  AutoEnableStandards toAutoEnableStandards() {
-    switch (this) {
-      case 'NONE':
-        return AutoEnableStandards.none;
-      case 'DEFAULT':
-        return AutoEnableStandards.$default;
-    }
-    throw Exception('$this is not known in enum AutoEnableStandards');
+enum AutomationRulesActionType {
+  findingFieldsUpdate('FINDING_FIELDS_UPDATE'),
+  ;
+
+  final String value;
+
+  const AutomationRulesActionType(this.value);
+
+  static AutomationRulesActionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AutomationRulesActionType'));
+}
+
+/// Defines the configuration of an automation rule.
+class AutomationRulesConfig {
+  /// One or more actions to update finding fields if a finding matches the
+  /// defined criteria of the rule.
+  final List<AutomationRulesAction>? actions;
+
+  /// A timestamp that indicates when the rule was created.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  final DateTime? createdAt;
+
+  /// The principal that created a rule.
+  final String? createdBy;
+
+  /// A set of <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings-format.html">Amazon
+  /// Web Services Security Finding Format</a> finding field attributes and
+  /// corresponding expected values that Security Hub uses to filter findings. If
+  /// a rule is enabled and a finding matches the conditions specified in this
+  /// parameter, Security Hub applies the rule action to the finding.
+  final AutomationRulesFindingFilters? criteria;
+
+  /// A description of the rule.
+  final String? description;
+
+  /// Specifies whether a rule is the last to be applied with respect to a finding
+  /// that matches the rule criteria. This is useful when a finding matches the
+  /// criteria for multiple rules, and each rule has different actions. If a rule
+  /// is terminal, Security Hub applies the rule action to a finding that matches
+  /// the rule criteria and doesn't evaluate other rules for the finding. By
+  /// default, a rule isn't terminal.
+  final bool? isTerminal;
+
+  /// The Amazon Resource Name (ARN) of a rule.
+  final String? ruleArn;
+
+  /// The name of the rule.
+  final String? ruleName;
+
+  /// An integer ranging from 1 to 1000 that represents the order in which the
+  /// rule action is applied to findings. Security Hub applies rules with lower
+  /// values for this parameter first.
+  final int? ruleOrder;
+
+  /// Whether the rule is active after it is created. If this parameter is equal
+  /// to <code>ENABLED</code>, Security Hub starts applying the rule to findings
+  /// and finding updates after the rule is created.
+  final RuleStatus? ruleStatus;
+
+  /// A timestamp that indicates when the rule was most recently updated.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  final DateTime? updatedAt;
+
+  AutomationRulesConfig({
+    this.actions,
+    this.createdAt,
+    this.createdBy,
+    this.criteria,
+    this.description,
+    this.isTerminal,
+    this.ruleArn,
+    this.ruleName,
+    this.ruleOrder,
+    this.ruleStatus,
+    this.updatedAt,
+  });
+
+  factory AutomationRulesConfig.fromJson(Map<String, dynamic> json) {
+    return AutomationRulesConfig(
+      actions: (json['Actions'] as List?)
+          ?.nonNulls
+          .map((e) => AutomationRulesAction.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      createdBy: json['CreatedBy'] as String?,
+      criteria: json['Criteria'] != null
+          ? AutomationRulesFindingFilters.fromJson(
+              json['Criteria'] as Map<String, dynamic>)
+          : null,
+      description: json['Description'] as String?,
+      isTerminal: json['IsTerminal'] as bool?,
+      ruleArn: json['RuleArn'] as String?,
+      ruleName: json['RuleName'] as String?,
+      ruleOrder: json['RuleOrder'] as int?,
+      ruleStatus: (json['RuleStatus'] as String?)?.let(RuleStatus.fromString),
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final actions = this.actions;
+    final createdAt = this.createdAt;
+    final createdBy = this.createdBy;
+    final criteria = this.criteria;
+    final description = this.description;
+    final isTerminal = this.isTerminal;
+    final ruleArn = this.ruleArn;
+    final ruleName = this.ruleName;
+    final ruleOrder = this.ruleOrder;
+    final ruleStatus = this.ruleStatus;
+    final updatedAt = this.updatedAt;
+    return {
+      if (actions != null) 'Actions': actions,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (createdBy != null) 'CreatedBy': createdBy,
+      if (criteria != null) 'Criteria': criteria,
+      if (description != null) 'Description': description,
+      if (isTerminal != null) 'IsTerminal': isTerminal,
+      if (ruleArn != null) 'RuleArn': ruleArn,
+      if (ruleName != null) 'RuleName': ruleName,
+      if (ruleOrder != null) 'RuleOrder': ruleOrder,
+      if (ruleStatus != null) 'RuleStatus': ruleStatus.value,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
+  }
+}
+
+/// Identifies the finding fields that the automation rule action updates when a
+/// finding matches the defined criteria.
+class AutomationRulesFindingFieldsUpdate {
+  /// The rule action updates the <code>Confidence</code> field of a finding.
+  final int? confidence;
+
+  /// The rule action updates the <code>Criticality</code> field of a finding.
+  final int? criticality;
+  final NoteUpdate? note;
+
+  /// The rule action updates the <code>RelatedFindings</code> field of a finding.
+  final List<RelatedFinding>? relatedFindings;
+  final SeverityUpdate? severity;
+
+  /// The rule action updates the <code>Types</code> field of a finding.
+  final List<String>? types;
+
+  /// The rule action updates the <code>UserDefinedFields</code> field of a
+  /// finding.
+  final Map<String, String>? userDefinedFields;
+
+  /// The rule action updates the <code>VerificationState</code> field of a
+  /// finding.
+  final VerificationState? verificationState;
+  final WorkflowUpdate? workflow;
+
+  AutomationRulesFindingFieldsUpdate({
+    this.confidence,
+    this.criticality,
+    this.note,
+    this.relatedFindings,
+    this.severity,
+    this.types,
+    this.userDefinedFields,
+    this.verificationState,
+    this.workflow,
+  });
+
+  factory AutomationRulesFindingFieldsUpdate.fromJson(
+      Map<String, dynamic> json) {
+    return AutomationRulesFindingFieldsUpdate(
+      confidence: json['Confidence'] as int?,
+      criticality: json['Criticality'] as int?,
+      note: json['Note'] != null
+          ? NoteUpdate.fromJson(json['Note'] as Map<String, dynamic>)
+          : null,
+      relatedFindings: (json['RelatedFindings'] as List?)
+          ?.nonNulls
+          .map((e) => RelatedFinding.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      severity: json['Severity'] != null
+          ? SeverityUpdate.fromJson(json['Severity'] as Map<String, dynamic>)
+          : null,
+      types:
+          (json['Types'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      userDefinedFields: (json['UserDefinedFields'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      verificationState: (json['VerificationState'] as String?)
+          ?.let(VerificationState.fromString),
+      workflow: json['Workflow'] != null
+          ? WorkflowUpdate.fromJson(json['Workflow'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final confidence = this.confidence;
+    final criticality = this.criticality;
+    final note = this.note;
+    final relatedFindings = this.relatedFindings;
+    final severity = this.severity;
+    final types = this.types;
+    final userDefinedFields = this.userDefinedFields;
+    final verificationState = this.verificationState;
+    final workflow = this.workflow;
+    return {
+      if (confidence != null) 'Confidence': confidence,
+      if (criticality != null) 'Criticality': criticality,
+      if (note != null) 'Note': note,
+      if (relatedFindings != null) 'RelatedFindings': relatedFindings,
+      if (severity != null) 'Severity': severity,
+      if (types != null) 'Types': types,
+      if (userDefinedFields != null) 'UserDefinedFields': userDefinedFields,
+      if (verificationState != null)
+        'VerificationState': verificationState.value,
+      if (workflow != null) 'Workflow': workflow,
+    };
+  }
+}
+
+/// The criteria that determine which findings a rule applies to.
+class AutomationRulesFindingFilters {
+  /// The Amazon Web Services account ID in which a finding was generated.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 100 items.
+  final List<StringFilter>? awsAccountId;
+
+  /// The name of the Amazon Web Services account in which a finding was
+  /// generated.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? awsAccountName;
+
+  /// The name of the company for the product that generated the finding. For
+  /// control-based findings, the company is Amazon Web Services.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? companyName;
+
+  /// The unique identifier of a standard in which a control is enabled. This
+  /// field consists of the resource portion of the Amazon Resource Name (ARN)
+  /// returned for a standard in the <a
+  /// href="https://docs.aws.amazon.com/securityhub/1.0/APIReference/API_DescribeStandards.html">DescribeStandards</a>
+  /// API response.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? complianceAssociatedStandardsId;
+
+  /// The security control ID for which a finding was generated. Security control
+  /// IDs are the same across standards.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? complianceSecurityControlId;
+
+  /// The result of a security check. This field is only used for findings
+  /// generated from controls.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? complianceStatus;
+
+  /// The likelihood that a finding accurately identifies the behavior or issue
+  /// that it was intended to identify. <code>Confidence</code> is scored on a
+  /// 0–100 basis using a ratio scale. A value of <code>0</code> means 0 percent
+  /// confidence, and a value of <code>100</code> means 100 percent confidence.
+  /// For example, a data exfiltration detection based on a statistical deviation
+  /// of network traffic has low confidence because an actual exfiltration hasn't
+  /// been verified. For more information, see <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/asff-top-level-attributes.html#asff-confidence">Confidence</a>
+  /// in the <i>Security Hub User Guide</i>.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<NumberFilter>? confidence;
+
+  /// A timestamp that indicates when this finding record was created.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<DateFilter>? createdAt;
+
+  /// The level of importance that is assigned to the resources that are
+  /// associated with a finding. <code>Criticality</code> is scored on a 0–100
+  /// basis, using a ratio scale that supports only full integers. A score of
+  /// <code>0</code> means that the underlying resources have no criticality, and
+  /// a score of <code>100</code> is reserved for the most critical resources. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/asff-top-level-attributes.html#asff-criticality">Criticality</a>
+  /// in the <i>Security Hub User Guide</i>.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<NumberFilter>? criticality;
+
+  /// A finding's description.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? description;
+
+  /// A timestamp that indicates when the potential security issue captured by a
+  /// finding was first observed by the security findings product.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<DateFilter>? firstObservedAt;
+
+  /// The identifier for the solution-specific component that generated a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 100 items.
+  final List<StringFilter>? generatorId;
+
+  /// The product-specific identifier for a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? id;
+
+  /// A timestamp that indicates when the potential security issue captured by a
+  /// finding was most recently observed by the security findings product.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<DateFilter>? lastObservedAt;
+
+  /// The text of a user-defined note that's added to a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? noteText;
+
+  /// The timestamp of when the note was updated.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<DateFilter>? noteUpdatedAt;
+
+  /// The principal that created a note.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? noteUpdatedBy;
+
+  /// The Amazon Resource Name (ARN) for a third-party product that generated a
+  /// finding in Security Hub.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? productArn;
+
+  /// Provides the name of the product that generated the finding. For
+  /// control-based findings, the product name is Security Hub.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? productName;
+
+  /// Provides the current state of a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? recordState;
+
+  /// The product-generated identifier for a related finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? relatedFindingsId;
+
+  /// The ARN for the product that generated a related finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? relatedFindingsProductArn;
+
+  /// The Amazon Resource Name (ARN) of the application that is related to a
+  /// finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? resourceApplicationArn;
+
+  /// The name of the application that is related to a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? resourceApplicationName;
+
+  /// Custom fields and values about the resource that a finding pertains to.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<MapFilter>? resourceDetailsOther;
+
+  /// The identifier for the given resource type. For Amazon Web Services
+  /// resources that are identified by Amazon Resource Names (ARNs), this is the
+  /// ARN. For Amazon Web Services resources that lack ARNs, this is the
+  /// identifier as defined by the Amazon Web Service that created the resource.
+  /// For non-Amazon Web Services resources, this is a unique identifier that is
+  /// associated with the resource.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 100 items.
+  final List<StringFilter>? resourceId;
+
+  /// The partition in which the resource that the finding pertains to is located.
+  /// A partition is a group of Amazon Web Services Regions. Each Amazon Web
+  /// Services account is scoped to one partition.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? resourcePartition;
+
+  /// The Amazon Web Services Region where the resource that a finding pertains to
+  /// is located.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? resourceRegion;
+
+  /// A list of Amazon Web Services tags associated with a resource at the time
+  /// the finding was processed.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<MapFilter>? resourceTags;
+
+  /// The type of resource that the finding pertains to.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? resourceType;
+
+  /// The severity value of the finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? severityLabel;
+
+  /// Provides a URL that links to a page about the current finding in the finding
+  /// product.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? sourceUrl;
+
+  /// A finding's title.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 100 items.
+  final List<StringFilter>? title;
+
+  /// One or more finding types in the format of namespace/category/classifier
+  /// that classify a finding. For a list of namespaces, classifiers, and
+  /// categories, see <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-findings-format-type-taxonomy.html">Types
+  /// taxonomy for ASFF</a> in the <i>Security Hub User Guide</i>.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? type;
+
+  /// A timestamp that indicates when the finding record was most recently
+  /// updated.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<DateFilter>? updatedAt;
+
+  /// A list of user-defined name and value string pairs added to a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<MapFilter>? userDefinedFields;
+
+  /// Provides the veracity of a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? verificationState;
+
+  /// Provides information about the status of the investigation into a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 20 items.
+  final List<StringFilter>? workflowStatus;
+
+  AutomationRulesFindingFilters({
+    this.awsAccountId,
+    this.awsAccountName,
+    this.companyName,
+    this.complianceAssociatedStandardsId,
+    this.complianceSecurityControlId,
+    this.complianceStatus,
+    this.confidence,
+    this.createdAt,
+    this.criticality,
+    this.description,
+    this.firstObservedAt,
+    this.generatorId,
+    this.id,
+    this.lastObservedAt,
+    this.noteText,
+    this.noteUpdatedAt,
+    this.noteUpdatedBy,
+    this.productArn,
+    this.productName,
+    this.recordState,
+    this.relatedFindingsId,
+    this.relatedFindingsProductArn,
+    this.resourceApplicationArn,
+    this.resourceApplicationName,
+    this.resourceDetailsOther,
+    this.resourceId,
+    this.resourcePartition,
+    this.resourceRegion,
+    this.resourceTags,
+    this.resourceType,
+    this.severityLabel,
+    this.sourceUrl,
+    this.title,
+    this.type,
+    this.updatedAt,
+    this.userDefinedFields,
+    this.verificationState,
+    this.workflowStatus,
+  });
+
+  factory AutomationRulesFindingFilters.fromJson(Map<String, dynamic> json) {
+    return AutomationRulesFindingFilters(
+      awsAccountId: (json['AwsAccountId'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      awsAccountName: (json['AwsAccountName'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      companyName: (json['CompanyName'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      complianceAssociatedStandardsId:
+          (json['ComplianceAssociatedStandardsId'] as List?)
+              ?.nonNulls
+              .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      complianceSecurityControlId:
+          (json['ComplianceSecurityControlId'] as List?)
+              ?.nonNulls
+              .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      complianceStatus: (json['ComplianceStatus'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      confidence: (json['Confidence'] as List?)
+          ?.nonNulls
+          .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      createdAt: (json['CreatedAt'] as List?)
+          ?.nonNulls
+          .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      criticality: (json['Criticality'] as List?)
+          ?.nonNulls
+          .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      description: (json['Description'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      firstObservedAt: (json['FirstObservedAt'] as List?)
+          ?.nonNulls
+          .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      generatorId: (json['GeneratorId'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      id: (json['Id'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      lastObservedAt: (json['LastObservedAt'] as List?)
+          ?.nonNulls
+          .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      noteText: (json['NoteText'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      noteUpdatedAt: (json['NoteUpdatedAt'] as List?)
+          ?.nonNulls
+          .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      noteUpdatedBy: (json['NoteUpdatedBy'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      productArn: (json['ProductArn'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      productName: (json['ProductName'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      recordState: (json['RecordState'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      relatedFindingsId: (json['RelatedFindingsId'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      relatedFindingsProductArn: (json['RelatedFindingsProductArn'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceApplicationArn: (json['ResourceApplicationArn'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceApplicationName: (json['ResourceApplicationName'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceDetailsOther: (json['ResourceDetailsOther'] as List?)
+          ?.nonNulls
+          .map((e) => MapFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceId: (json['ResourceId'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourcePartition: (json['ResourcePartition'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceRegion: (json['ResourceRegion'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceTags: (json['ResourceTags'] as List?)
+          ?.nonNulls
+          .map((e) => MapFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceType: (json['ResourceType'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      severityLabel: (json['SeverityLabel'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      sourceUrl: (json['SourceUrl'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      title: (json['Title'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      type: (json['Type'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      updatedAt: (json['UpdatedAt'] as List?)
+          ?.nonNulls
+          .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      userDefinedFields: (json['UserDefinedFields'] as List?)
+          ?.nonNulls
+          .map((e) => MapFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      verificationState: (json['VerificationState'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      workflowStatus: (json['WorkflowStatus'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final awsAccountId = this.awsAccountId;
+    final awsAccountName = this.awsAccountName;
+    final companyName = this.companyName;
+    final complianceAssociatedStandardsId =
+        this.complianceAssociatedStandardsId;
+    final complianceSecurityControlId = this.complianceSecurityControlId;
+    final complianceStatus = this.complianceStatus;
+    final confidence = this.confidence;
+    final createdAt = this.createdAt;
+    final criticality = this.criticality;
+    final description = this.description;
+    final firstObservedAt = this.firstObservedAt;
+    final generatorId = this.generatorId;
+    final id = this.id;
+    final lastObservedAt = this.lastObservedAt;
+    final noteText = this.noteText;
+    final noteUpdatedAt = this.noteUpdatedAt;
+    final noteUpdatedBy = this.noteUpdatedBy;
+    final productArn = this.productArn;
+    final productName = this.productName;
+    final recordState = this.recordState;
+    final relatedFindingsId = this.relatedFindingsId;
+    final relatedFindingsProductArn = this.relatedFindingsProductArn;
+    final resourceApplicationArn = this.resourceApplicationArn;
+    final resourceApplicationName = this.resourceApplicationName;
+    final resourceDetailsOther = this.resourceDetailsOther;
+    final resourceId = this.resourceId;
+    final resourcePartition = this.resourcePartition;
+    final resourceRegion = this.resourceRegion;
+    final resourceTags = this.resourceTags;
+    final resourceType = this.resourceType;
+    final severityLabel = this.severityLabel;
+    final sourceUrl = this.sourceUrl;
+    final title = this.title;
+    final type = this.type;
+    final updatedAt = this.updatedAt;
+    final userDefinedFields = this.userDefinedFields;
+    final verificationState = this.verificationState;
+    final workflowStatus = this.workflowStatus;
+    return {
+      if (awsAccountId != null) 'AwsAccountId': awsAccountId,
+      if (awsAccountName != null) 'AwsAccountName': awsAccountName,
+      if (companyName != null) 'CompanyName': companyName,
+      if (complianceAssociatedStandardsId != null)
+        'ComplianceAssociatedStandardsId': complianceAssociatedStandardsId,
+      if (complianceSecurityControlId != null)
+        'ComplianceSecurityControlId': complianceSecurityControlId,
+      if (complianceStatus != null) 'ComplianceStatus': complianceStatus,
+      if (confidence != null) 'Confidence': confidence,
+      if (createdAt != null) 'CreatedAt': createdAt,
+      if (criticality != null) 'Criticality': criticality,
+      if (description != null) 'Description': description,
+      if (firstObservedAt != null) 'FirstObservedAt': firstObservedAt,
+      if (generatorId != null) 'GeneratorId': generatorId,
+      if (id != null) 'Id': id,
+      if (lastObservedAt != null) 'LastObservedAt': lastObservedAt,
+      if (noteText != null) 'NoteText': noteText,
+      if (noteUpdatedAt != null) 'NoteUpdatedAt': noteUpdatedAt,
+      if (noteUpdatedBy != null) 'NoteUpdatedBy': noteUpdatedBy,
+      if (productArn != null) 'ProductArn': productArn,
+      if (productName != null) 'ProductName': productName,
+      if (recordState != null) 'RecordState': recordState,
+      if (relatedFindingsId != null) 'RelatedFindingsId': relatedFindingsId,
+      if (relatedFindingsProductArn != null)
+        'RelatedFindingsProductArn': relatedFindingsProductArn,
+      if (resourceApplicationArn != null)
+        'ResourceApplicationArn': resourceApplicationArn,
+      if (resourceApplicationName != null)
+        'ResourceApplicationName': resourceApplicationName,
+      if (resourceDetailsOther != null)
+        'ResourceDetailsOther': resourceDetailsOther,
+      if (resourceId != null) 'ResourceId': resourceId,
+      if (resourcePartition != null) 'ResourcePartition': resourcePartition,
+      if (resourceRegion != null) 'ResourceRegion': resourceRegion,
+      if (resourceTags != null) 'ResourceTags': resourceTags,
+      if (resourceType != null) 'ResourceType': resourceType,
+      if (severityLabel != null) 'SeverityLabel': severityLabel,
+      if (sourceUrl != null) 'SourceUrl': sourceUrl,
+      if (title != null) 'Title': title,
+      if (type != null) 'Type': type,
+      if (updatedAt != null) 'UpdatedAt': updatedAt,
+      if (userDefinedFields != null) 'UserDefinedFields': userDefinedFields,
+      if (verificationState != null) 'VerificationState': verificationState,
+      if (workflowStatus != null) 'WorkflowStatus': workflowStatus,
+    };
+  }
+}
+
+/// Metadata for automation rules in the calling account. The response includes
+/// rules with a <code>RuleStatus</code> of <code>ENABLED</code> and
+/// <code>DISABLED</code>.
+class AutomationRulesMetadata {
+  /// A timestamp that indicates when the rule was created.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  final DateTime? createdAt;
+
+  /// The principal that created a rule.
+  final String? createdBy;
+
+  /// A description of the rule.
+  final String? description;
+
+  /// Specifies whether a rule is the last to be applied with respect to a finding
+  /// that matches the rule criteria. This is useful when a finding matches the
+  /// criteria for multiple rules, and each rule has different actions. If a rule
+  /// is terminal, Security Hub applies the rule action to a finding that matches
+  /// the rule criteria and doesn't evaluate other rules for the finding. By
+  /// default, a rule isn't terminal.
+  final bool? isTerminal;
+
+  /// The Amazon Resource Name (ARN) for the rule.
+  final String? ruleArn;
+
+  /// The name of the rule.
+  final String? ruleName;
+
+  /// An integer ranging from 1 to 1000 that represents the order in which the
+  /// rule action is applied to findings. Security Hub applies rules with lower
+  /// values for this parameter first.
+  final int? ruleOrder;
+
+  /// Whether the rule is active after it is created. If this parameter is equal
+  /// to <code>ENABLED</code>, Security Hub starts applying the rule to findings
+  /// and finding updates after the rule is created. To change the value of this
+  /// parameter after creating a rule, use <a
+  /// href="https://docs.aws.amazon.com/securityhub/1.0/APIReference/API_BatchUpdateAutomationRules.html">
+  /// <code>BatchUpdateAutomationRules</code> </a>.
+  final RuleStatus? ruleStatus;
+
+  /// A timestamp that indicates when the rule was most recently updated.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  final DateTime? updatedAt;
+
+  AutomationRulesMetadata({
+    this.createdAt,
+    this.createdBy,
+    this.description,
+    this.isTerminal,
+    this.ruleArn,
+    this.ruleName,
+    this.ruleOrder,
+    this.ruleStatus,
+    this.updatedAt,
+  });
+
+  factory AutomationRulesMetadata.fromJson(Map<String, dynamic> json) {
+    return AutomationRulesMetadata(
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      createdBy: json['CreatedBy'] as String?,
+      description: json['Description'] as String?,
+      isTerminal: json['IsTerminal'] as bool?,
+      ruleArn: json['RuleArn'] as String?,
+      ruleName: json['RuleName'] as String?,
+      ruleOrder: json['RuleOrder'] as int?,
+      ruleStatus: (json['RuleStatus'] as String?)?.let(RuleStatus.fromString),
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final createdAt = this.createdAt;
+    final createdBy = this.createdBy;
+    final description = this.description;
+    final isTerminal = this.isTerminal;
+    final ruleArn = this.ruleArn;
+    final ruleName = this.ruleName;
+    final ruleOrder = this.ruleOrder;
+    final ruleStatus = this.ruleStatus;
+    final updatedAt = this.updatedAt;
+    return {
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (createdBy != null) 'CreatedBy': createdBy,
+      if (description != null) 'Description': description,
+      if (isTerminal != null) 'IsTerminal': isTerminal,
+      if (ruleArn != null) 'RuleArn': ruleArn,
+      if (ruleName != null) 'RuleName': ruleName,
+      if (ruleOrder != null) 'RuleOrder': ruleOrder,
+      if (ruleStatus != null) 'RuleStatus': ruleStatus.value,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
   }
 }
 
@@ -3358,6 +5326,479 @@ class AvailabilityZone {
   }
 }
 
+/// Provides details about an Amazon MQ message broker. A message broker allows
+/// software applications and components to communicate using various
+/// programming languages, operating systems, and formal messaging protocols.
+class AwsAmazonMqBrokerDetails {
+  /// The authentication strategy used to secure the broker. The default is
+  /// <code>SIMPLE</code>.
+  final String? authenticationStrategy;
+
+  /// Whether automatically upgrade new minor versions for brokers, as new
+  /// versions are released and supported by Amazon MQ. Automatic upgrades occur
+  /// during the scheduled maintenance window of the broker or after a manual
+  /// broker reboot.
+  final bool? autoMinorVersionUpgrade;
+
+  /// The Amazon Resource Name (ARN) of the broker.
+  final String? brokerArn;
+
+  /// The unique ID that Amazon MQ generates for the broker.
+  final String? brokerId;
+
+  /// The broker's name.
+  final String? brokerName;
+
+  /// The broker's deployment mode.
+  final String? deploymentMode;
+
+  /// Encryption options for the broker. Doesn’t apply to RabbitMQ brokers.
+  final AwsAmazonMqBrokerEncryptionOptionsDetails? encryptionOptions;
+
+  /// The type of broker engine.
+  final String? engineType;
+
+  /// The version of the broker engine.
+  final String? engineVersion;
+
+  /// The broker's instance type.
+  final String? hostInstanceType;
+
+  /// The metadata of the Lightweight Directory Access Protocol (LDAP) server used
+  /// to authenticate and authorize connections to the broker. This is an optional
+  /// failover server.
+  final AwsAmazonMqBrokerLdapServerMetadataDetails? ldapServerMetadata;
+
+  /// Turns on Amazon CloudWatch logging for brokers.
+  final AwsAmazonMqBrokerLogsDetails? logs;
+
+  /// The scheduled time period (UTC) during which Amazon MQ begins to apply
+  /// pending updates or patches to the broker.
+  final AwsAmazonMqBrokerMaintenanceWindowStartTimeDetails?
+      maintenanceWindowStartTime;
+
+  /// Permits connections from applications outside of the VPC that hosts the
+  /// broker's subnets.
+  final bool? publiclyAccessible;
+
+  /// The list of rules (one minimum, 125 maximum) that authorize connections to
+  /// brokers.
+  final List<String>? securityGroups;
+
+  /// The broker's storage type.
+  final String? storageType;
+
+  /// The list of groups that define which subnets and IP ranges the broker can
+  /// use from different Availability Zones.
+  final List<String>? subnetIds;
+
+  /// The list of all broker usernames for the specified broker. Doesn't apply to
+  /// RabbitMQ brokers.
+  final List<AwsAmazonMqBrokerUsersDetails>? users;
+
+  AwsAmazonMqBrokerDetails({
+    this.authenticationStrategy,
+    this.autoMinorVersionUpgrade,
+    this.brokerArn,
+    this.brokerId,
+    this.brokerName,
+    this.deploymentMode,
+    this.encryptionOptions,
+    this.engineType,
+    this.engineVersion,
+    this.hostInstanceType,
+    this.ldapServerMetadata,
+    this.logs,
+    this.maintenanceWindowStartTime,
+    this.publiclyAccessible,
+    this.securityGroups,
+    this.storageType,
+    this.subnetIds,
+    this.users,
+  });
+
+  factory AwsAmazonMqBrokerDetails.fromJson(Map<String, dynamic> json) {
+    return AwsAmazonMqBrokerDetails(
+      authenticationStrategy: json['AuthenticationStrategy'] as String?,
+      autoMinorVersionUpgrade: json['AutoMinorVersionUpgrade'] as bool?,
+      brokerArn: json['BrokerArn'] as String?,
+      brokerId: json['BrokerId'] as String?,
+      brokerName: json['BrokerName'] as String?,
+      deploymentMode: json['DeploymentMode'] as String?,
+      encryptionOptions: json['EncryptionOptions'] != null
+          ? AwsAmazonMqBrokerEncryptionOptionsDetails.fromJson(
+              json['EncryptionOptions'] as Map<String, dynamic>)
+          : null,
+      engineType: json['EngineType'] as String?,
+      engineVersion: json['EngineVersion'] as String?,
+      hostInstanceType: json['HostInstanceType'] as String?,
+      ldapServerMetadata: json['LdapServerMetadata'] != null
+          ? AwsAmazonMqBrokerLdapServerMetadataDetails.fromJson(
+              json['LdapServerMetadata'] as Map<String, dynamic>)
+          : null,
+      logs: json['Logs'] != null
+          ? AwsAmazonMqBrokerLogsDetails.fromJson(
+              json['Logs'] as Map<String, dynamic>)
+          : null,
+      maintenanceWindowStartTime: json['MaintenanceWindowStartTime'] != null
+          ? AwsAmazonMqBrokerMaintenanceWindowStartTimeDetails.fromJson(
+              json['MaintenanceWindowStartTime'] as Map<String, dynamic>)
+          : null,
+      publiclyAccessible: json['PubliclyAccessible'] as bool?,
+      securityGroups: (json['SecurityGroups'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      storageType: json['StorageType'] as String?,
+      subnetIds: (json['SubnetIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      users: (json['Users'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              AwsAmazonMqBrokerUsersDetails.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authenticationStrategy = this.authenticationStrategy;
+    final autoMinorVersionUpgrade = this.autoMinorVersionUpgrade;
+    final brokerArn = this.brokerArn;
+    final brokerId = this.brokerId;
+    final brokerName = this.brokerName;
+    final deploymentMode = this.deploymentMode;
+    final encryptionOptions = this.encryptionOptions;
+    final engineType = this.engineType;
+    final engineVersion = this.engineVersion;
+    final hostInstanceType = this.hostInstanceType;
+    final ldapServerMetadata = this.ldapServerMetadata;
+    final logs = this.logs;
+    final maintenanceWindowStartTime = this.maintenanceWindowStartTime;
+    final publiclyAccessible = this.publiclyAccessible;
+    final securityGroups = this.securityGroups;
+    final storageType = this.storageType;
+    final subnetIds = this.subnetIds;
+    final users = this.users;
+    return {
+      if (authenticationStrategy != null)
+        'AuthenticationStrategy': authenticationStrategy,
+      if (autoMinorVersionUpgrade != null)
+        'AutoMinorVersionUpgrade': autoMinorVersionUpgrade,
+      if (brokerArn != null) 'BrokerArn': brokerArn,
+      if (brokerId != null) 'BrokerId': brokerId,
+      if (brokerName != null) 'BrokerName': brokerName,
+      if (deploymentMode != null) 'DeploymentMode': deploymentMode,
+      if (encryptionOptions != null) 'EncryptionOptions': encryptionOptions,
+      if (engineType != null) 'EngineType': engineType,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (hostInstanceType != null) 'HostInstanceType': hostInstanceType,
+      if (ldapServerMetadata != null) 'LdapServerMetadata': ldapServerMetadata,
+      if (logs != null) 'Logs': logs,
+      if (maintenanceWindowStartTime != null)
+        'MaintenanceWindowStartTime': maintenanceWindowStartTime,
+      if (publiclyAccessible != null) 'PubliclyAccessible': publiclyAccessible,
+      if (securityGroups != null) 'SecurityGroups': securityGroups,
+      if (storageType != null) 'StorageType': storageType,
+      if (subnetIds != null) 'SubnetIds': subnetIds,
+      if (users != null) 'Users': users,
+    };
+  }
+}
+
+/// Provides details about broker encryption options.
+class AwsAmazonMqBrokerEncryptionOptionsDetails {
+  /// The KMS key that’s used to encrypt your data at rest. If not provided,
+  /// Amazon MQ will use a default KMS key to encrypt your data.
+  final String? kmsKeyId;
+
+  /// Specifies that an KMS key should be used for at-rest encryption. Set to
+  /// <code>true</code> by default if no value is provided (for example, for
+  /// RabbitMQ brokers).
+  final bool? useAwsOwnedKey;
+
+  AwsAmazonMqBrokerEncryptionOptionsDetails({
+    this.kmsKeyId,
+    this.useAwsOwnedKey,
+  });
+
+  factory AwsAmazonMqBrokerEncryptionOptionsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAmazonMqBrokerEncryptionOptionsDetails(
+      kmsKeyId: json['KmsKeyId'] as String?,
+      useAwsOwnedKey: json['UseAwsOwnedKey'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final kmsKeyId = this.kmsKeyId;
+    final useAwsOwnedKey = this.useAwsOwnedKey;
+    return {
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (useAwsOwnedKey != null) 'UseAwsOwnedKey': useAwsOwnedKey,
+    };
+  }
+}
+
+/// The metadata of the Lightweight Directory Access Protocol (LDAP) server used
+/// to authenticate and authorize connections to the broker. This is an optional
+/// failover server.
+class AwsAmazonMqBrokerLdapServerMetadataDetails {
+  /// Specifies the location of the LDAP server, such as Amazon Web Services
+  /// Directory Service for Microsoft Active Directory.
+  final List<String>? hosts;
+
+  /// The distinguished name of the node in the directory information tree (DIT)
+  /// to search for roles or groups.
+  final String? roleBase;
+
+  /// The group name attribute in a role entry whose value is the name of that
+  /// role.
+  final String? roleName;
+
+  /// The LDAP search filter used to find roles within the <code>roleBase</code>.
+  final String? roleSearchMatching;
+
+  /// The directory search scope for the role. If set to <code>true</code>, the
+  /// scope is to search the entire subtree.
+  final bool? roleSearchSubtree;
+
+  /// A username for the service account, which is an account in your LDAP server
+  /// that has access to initiate a connection.
+  final String? serviceAccountUsername;
+
+  /// Selects a particular subtree of the directory information tree (DIT) to
+  /// search for user entries.
+  final String? userBase;
+
+  /// The name of the LDAP attribute in the user's directory entry for the user's
+  /// group membership.
+  final String? userRoleName;
+
+  /// The LDAP search filter used to find users within the <code>userBase</code>.
+  final String? userSearchMatching;
+
+  /// The directory search scope for the user. If set to true, the scope is to
+  /// search the entire subtree.
+  final bool? userSearchSubtree;
+
+  AwsAmazonMqBrokerLdapServerMetadataDetails({
+    this.hosts,
+    this.roleBase,
+    this.roleName,
+    this.roleSearchMatching,
+    this.roleSearchSubtree,
+    this.serviceAccountUsername,
+    this.userBase,
+    this.userRoleName,
+    this.userSearchMatching,
+    this.userSearchSubtree,
+  });
+
+  factory AwsAmazonMqBrokerLdapServerMetadataDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAmazonMqBrokerLdapServerMetadataDetails(
+      hosts:
+          (json['Hosts'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      roleBase: json['RoleBase'] as String?,
+      roleName: json['RoleName'] as String?,
+      roleSearchMatching: json['RoleSearchMatching'] as String?,
+      roleSearchSubtree: json['RoleSearchSubtree'] as bool?,
+      serviceAccountUsername: json['ServiceAccountUsername'] as String?,
+      userBase: json['UserBase'] as String?,
+      userRoleName: json['UserRoleName'] as String?,
+      userSearchMatching: json['UserSearchMatching'] as String?,
+      userSearchSubtree: json['UserSearchSubtree'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final hosts = this.hosts;
+    final roleBase = this.roleBase;
+    final roleName = this.roleName;
+    final roleSearchMatching = this.roleSearchMatching;
+    final roleSearchSubtree = this.roleSearchSubtree;
+    final serviceAccountUsername = this.serviceAccountUsername;
+    final userBase = this.userBase;
+    final userRoleName = this.userRoleName;
+    final userSearchMatching = this.userSearchMatching;
+    final userSearchSubtree = this.userSearchSubtree;
+    return {
+      if (hosts != null) 'Hosts': hosts,
+      if (roleBase != null) 'RoleBase': roleBase,
+      if (roleName != null) 'RoleName': roleName,
+      if (roleSearchMatching != null) 'RoleSearchMatching': roleSearchMatching,
+      if (roleSearchSubtree != null) 'RoleSearchSubtree': roleSearchSubtree,
+      if (serviceAccountUsername != null)
+        'ServiceAccountUsername': serviceAccountUsername,
+      if (userBase != null) 'UserBase': userBase,
+      if (userRoleName != null) 'UserRoleName': userRoleName,
+      if (userSearchMatching != null) 'UserSearchMatching': userSearchMatching,
+      if (userSearchSubtree != null) 'UserSearchSubtree': userSearchSubtree,
+    };
+  }
+}
+
+/// Provides information about logs to be activated for the specified broker.
+class AwsAmazonMqBrokerLogsDetails {
+  /// Activates audit logging. Every user management action made using JMX or the
+  /// ActiveMQ Web Console is logged. Doesn't apply to RabbitMQ brokers.
+  final bool? audit;
+
+  /// The location of the CloudWatch Logs log group where audit logs are sent.
+  final String? auditLogGroup;
+
+  /// Activates general logging.
+  final bool? general;
+
+  /// The location of the CloudWatch Logs log group where general logs are sent.
+  final String? generalLogGroup;
+
+  /// The list of information about logs that are to be turned on for the
+  /// specified broker.
+  final AwsAmazonMqBrokerLogsPendingDetails? pending;
+
+  AwsAmazonMqBrokerLogsDetails({
+    this.audit,
+    this.auditLogGroup,
+    this.general,
+    this.generalLogGroup,
+    this.pending,
+  });
+
+  factory AwsAmazonMqBrokerLogsDetails.fromJson(Map<String, dynamic> json) {
+    return AwsAmazonMqBrokerLogsDetails(
+      audit: json['Audit'] as bool?,
+      auditLogGroup: json['AuditLogGroup'] as String?,
+      general: json['General'] as bool?,
+      generalLogGroup: json['GeneralLogGroup'] as String?,
+      pending: json['Pending'] != null
+          ? AwsAmazonMqBrokerLogsPendingDetails.fromJson(
+              json['Pending'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final audit = this.audit;
+    final auditLogGroup = this.auditLogGroup;
+    final general = this.general;
+    final generalLogGroup = this.generalLogGroup;
+    final pending = this.pending;
+    return {
+      if (audit != null) 'Audit': audit,
+      if (auditLogGroup != null) 'AuditLogGroup': auditLogGroup,
+      if (general != null) 'General': general,
+      if (generalLogGroup != null) 'GeneralLogGroup': generalLogGroup,
+      if (pending != null) 'Pending': pending,
+    };
+  }
+}
+
+/// Provides information about logs to be activated for the specified broker.
+class AwsAmazonMqBrokerLogsPendingDetails {
+  /// Activates audit logging. Every user management action made using JMX or the
+  /// ActiveMQ Web Console is logged. Doesn't apply to RabbitMQ brokers.
+  final bool? audit;
+
+  /// Activates general logging.
+  final bool? general;
+
+  AwsAmazonMqBrokerLogsPendingDetails({
+    this.audit,
+    this.general,
+  });
+
+  factory AwsAmazonMqBrokerLogsPendingDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAmazonMqBrokerLogsPendingDetails(
+      audit: json['Audit'] as bool?,
+      general: json['General'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final audit = this.audit;
+    final general = this.general;
+    return {
+      if (audit != null) 'Audit': audit,
+      if (general != null) 'General': general,
+    };
+  }
+}
+
+/// The scheduled time period (UTC) during which Amazon MQ begins to apply
+/// pending updates or patches to the broker.
+class AwsAmazonMqBrokerMaintenanceWindowStartTimeDetails {
+  /// The day of the week on which the maintenance window falls.
+  final String? dayOfWeek;
+
+  /// The time, in 24-hour format, on which the maintenance window falls.
+  final String? timeOfDay;
+
+  /// The time zone in either the Country/City format or the UTC offset format.
+  /// UTC is the default format.
+  final String? timeZone;
+
+  AwsAmazonMqBrokerMaintenanceWindowStartTimeDetails({
+    this.dayOfWeek,
+    this.timeOfDay,
+    this.timeZone,
+  });
+
+  factory AwsAmazonMqBrokerMaintenanceWindowStartTimeDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAmazonMqBrokerMaintenanceWindowStartTimeDetails(
+      dayOfWeek: json['DayOfWeek'] as String?,
+      timeOfDay: json['TimeOfDay'] as String?,
+      timeZone: json['TimeZone'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final dayOfWeek = this.dayOfWeek;
+    final timeOfDay = this.timeOfDay;
+    final timeZone = this.timeZone;
+    return {
+      if (dayOfWeek != null) 'DayOfWeek': dayOfWeek,
+      if (timeOfDay != null) 'TimeOfDay': timeOfDay,
+      if (timeZone != null) 'TimeZone': timeZone,
+    };
+  }
+}
+
+/// Provides details about the broker usernames for the specified broker.
+/// Doesn't apply to RabbitMQ brokers.
+class AwsAmazonMqBrokerUsersDetails {
+  /// The type of change pending for the broker user.
+  final String? pendingChange;
+
+  /// The username of the broker user.
+  final String? username;
+
+  AwsAmazonMqBrokerUsersDetails({
+    this.pendingChange,
+    this.username,
+  });
+
+  factory AwsAmazonMqBrokerUsersDetails.fromJson(Map<String, dynamic> json) {
+    return AwsAmazonMqBrokerUsersDetails(
+      pendingChange: json['PendingChange'] as String?,
+      username: json['Username'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final pendingChange = this.pendingChange;
+    final username = this.username;
+    return {
+      if (pendingChange != null) 'PendingChange': pendingChange,
+      if (username != null) 'Username': username,
+    };
+  }
+}
+
 /// Provided if <code>ActionType</code> is <code>AWS_API_CALL</code>. It
 /// provides details about the API call that was detected.
 class AwsApiCallAction {
@@ -3365,6 +5806,8 @@ class AwsApiCallAction {
   final Map<String, String>? affectedResources;
 
   /// The name of the API method that was issued.
+  ///
+  /// Length Constraints: 128.
   final String? api;
 
   /// Indicates whether the API call originated from a remote IP address
@@ -3375,24 +5818,66 @@ class AwsApiCallAction {
   /// information about the DNS domain that the API call originated from.
   final AwsApiCallActionDomainDetails? domainDetails;
 
-  /// An ISO8601-formatted timestamp that indicates when the API call was first
-  /// observed.
+  /// A timestamp that indicates when the API call was first observed.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? firstSeen;
 
-  /// An ISO8601-formatted timestamp that indicates when the API call was most
-  /// recently observed.
+  /// A timestamp that indicates when the API call was most recently observed.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastSeen;
 
   /// Provided if <code>CallerType</code> is <code>remoteIp</code>. Provides
@@ -3400,6 +5885,8 @@ class AwsApiCallAction {
   final ActionRemoteIpDetails? remoteIpDetails;
 
   /// The name of the Amazon Web Services service that the API method belongs to.
+  ///
+  /// Length Constraints: 128.
   final String? serviceName;
 
   AwsApiCallAction({
@@ -3459,6 +5946,8 @@ class AwsApiCallAction {
 /// information about the DNS domain that issued the API call.
 class AwsApiCallActionDomainDetails {
   /// The name of the DNS domain that issued the API call.
+  ///
+  /// Length Constraints: 128.
   final String? domain;
 
   AwsApiCallActionDomainDetails({
@@ -3578,10 +6067,8 @@ class AwsApiGatewayEndpointConfiguration {
   factory AwsApiGatewayEndpointConfiguration.fromJson(
       Map<String, dynamic> json) {
     return AwsApiGatewayEndpointConfiguration(
-      types: (json['Types'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      types:
+          (json['Types'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -3744,11 +6231,33 @@ class AwsApiGatewayRestApiDetails {
 
   /// Indicates when the API was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdDate;
 
   /// A description of the REST API.
@@ -3789,7 +6298,7 @@ class AwsApiGatewayRestApiDetails {
     return AwsApiGatewayRestApiDetails(
       apiKeySource: json['ApiKeySource'] as String?,
       binaryMediaTypes: (json['BinaryMediaTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       createdDate: json['CreatedDate'] as String?,
@@ -3853,11 +6362,33 @@ class AwsApiGatewayStageDetails {
 
   /// Indicates when the stage was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdDate;
 
   /// The identifier of the deployment that the stage points to.
@@ -3871,11 +6402,33 @@ class AwsApiGatewayStageDetails {
 
   /// Indicates when the stage was most recently updated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastUpdatedDate;
 
   /// Defines the method settings for the stage.
@@ -3948,7 +6501,7 @@ class AwsApiGatewayStageDetails {
       documentationVersion: json['DocumentationVersion'] as String?,
       lastUpdatedDate: json['LastUpdatedDate'] as String?,
       methodSettings: (json['MethodSettings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsApiGatewayMethodSettings.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4024,11 +6577,33 @@ class AwsApiGatewayV2ApiDetails {
 
   /// Indicates when the API was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdDate;
 
   /// A description of the API.
@@ -4194,11 +6769,33 @@ class AwsApiGatewayV2StageDetails {
 
   /// Indicates when the stage was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdDate;
 
   /// Default route settings for the stage.
@@ -4216,11 +6813,33 @@ class AwsApiGatewayV2StageDetails {
 
   /// Indicates when the stage was most recently updated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastUpdatedDate;
 
   /// The route settings for the stage.
@@ -4328,6 +6947,542 @@ class AwsApiGatewayV2StageDetails {
   }
 }
 
+/// A list of additional authentication providers for the GraphqlApi API.
+class AwsAppSyncGraphQlApiAdditionalAuthenticationProvidersDetails {
+  /// The type of security configuration for your GraphQL API: API key, Identity
+  /// and Access Management (IAM), OpenID Connect (OIDC), Amazon Cognito user
+  /// pools, or Lambda.
+  final String? authenticationType;
+
+  /// The configuration for Lambda function authorization.
+  final AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails?
+      lambdaAuthorizerConfig;
+
+  /// The OpenID Connect configuration.
+  final AwsAppSyncGraphQlApiOpenIdConnectConfigDetails? openIdConnectConfig;
+
+  /// The Amazon Cognito user pools configuration.
+  final AwsAppSyncGraphQlApiUserPoolConfigDetails? userPoolConfig;
+
+  AwsAppSyncGraphQlApiAdditionalAuthenticationProvidersDetails({
+    this.authenticationType,
+    this.lambdaAuthorizerConfig,
+    this.openIdConnectConfig,
+    this.userPoolConfig,
+  });
+
+  factory AwsAppSyncGraphQlApiAdditionalAuthenticationProvidersDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAppSyncGraphQlApiAdditionalAuthenticationProvidersDetails(
+      authenticationType: json['AuthenticationType'] as String?,
+      lambdaAuthorizerConfig: json['LambdaAuthorizerConfig'] != null
+          ? AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails.fromJson(
+              json['LambdaAuthorizerConfig'] as Map<String, dynamic>)
+          : null,
+      openIdConnectConfig: json['OpenIdConnectConfig'] != null
+          ? AwsAppSyncGraphQlApiOpenIdConnectConfigDetails.fromJson(
+              json['OpenIdConnectConfig'] as Map<String, dynamic>)
+          : null,
+      userPoolConfig: json['UserPoolConfig'] != null
+          ? AwsAppSyncGraphQlApiUserPoolConfigDetails.fromJson(
+              json['UserPoolConfig'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authenticationType = this.authenticationType;
+    final lambdaAuthorizerConfig = this.lambdaAuthorizerConfig;
+    final openIdConnectConfig = this.openIdConnectConfig;
+    final userPoolConfig = this.userPoolConfig;
+    return {
+      if (authenticationType != null) 'AuthenticationType': authenticationType,
+      if (lambdaAuthorizerConfig != null)
+        'LambdaAuthorizerConfig': lambdaAuthorizerConfig,
+      if (openIdConnectConfig != null)
+        'OpenIdConnectConfig': openIdConnectConfig,
+      if (userPoolConfig != null) 'UserPoolConfig': userPoolConfig,
+    };
+  }
+}
+
+/// Provides details about an AppSync Graph QL API, which lets you query
+/// multiple databases, microservices, and APIs from a single GraphQL endpoint.
+class AwsAppSyncGraphQlApiDetails {
+  /// A list of additional authentication providers for the GraphQL API.
+  final List<AwsAppSyncGraphQlApiAdditionalAuthenticationProvidersDetails>?
+      additionalAuthenticationProviders;
+
+  /// The unique identifier for the API.
+  final String? apiId;
+
+  /// The Amazon Resource Name (ARN) of the API.
+  final String? arn;
+
+  /// The type of security configuration for your GraphQL API: API key, Identity
+  /// and Access Management (IAM), OpenID Connect (OIDC), Amazon Cognito user
+  /// pools, or Lambda.
+  final String? authenticationType;
+
+  /// The unique identifier for the API.
+  final String? id;
+
+  /// Specifies the configuration for Lambda function authorization.
+  final AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails?
+      lambdaAuthorizerConfig;
+
+  /// The Amazon CloudWatch Logs configuration.
+  final AwsAppSyncGraphQlApiLogConfigDetails? logConfig;
+
+  /// The API name.
+  final String? name;
+
+  /// Specifies the authorization configuration for using an OpenID Connect
+  /// compliant service with an AppSync GraphQL API endpoint.
+  final AwsAppSyncGraphQlApiOpenIdConnectConfigDetails? openIdConnectConfig;
+
+  /// The Amazon Cognito user pools configuration.
+  final AwsAppSyncGraphQlApiUserPoolConfigDetails? userPoolConfig;
+
+  /// The Amazon Resource Name (ARN) of the WAF web access control list (web ACL)
+  /// associated with this GraphQL API, if one exists.
+  final String? wafWebAclArn;
+
+  /// Indicates whether to use X-Ray tracing for the GraphQL API.
+  final bool? xrayEnabled;
+
+  AwsAppSyncGraphQlApiDetails({
+    this.additionalAuthenticationProviders,
+    this.apiId,
+    this.arn,
+    this.authenticationType,
+    this.id,
+    this.lambdaAuthorizerConfig,
+    this.logConfig,
+    this.name,
+    this.openIdConnectConfig,
+    this.userPoolConfig,
+    this.wafWebAclArn,
+    this.xrayEnabled,
+  });
+
+  factory AwsAppSyncGraphQlApiDetails.fromJson(Map<String, dynamic> json) {
+    return AwsAppSyncGraphQlApiDetails(
+      additionalAuthenticationProviders:
+          (json['AdditionalAuthenticationProviders'] as List?)
+              ?.nonNulls
+              .map((e) =>
+                  AwsAppSyncGraphQlApiAdditionalAuthenticationProvidersDetails
+                      .fromJson(e as Map<String, dynamic>))
+              .toList(),
+      apiId: json['ApiId'] as String?,
+      arn: json['Arn'] as String?,
+      authenticationType: json['AuthenticationType'] as String?,
+      id: json['Id'] as String?,
+      lambdaAuthorizerConfig: json['LambdaAuthorizerConfig'] != null
+          ? AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails.fromJson(
+              json['LambdaAuthorizerConfig'] as Map<String, dynamic>)
+          : null,
+      logConfig: json['LogConfig'] != null
+          ? AwsAppSyncGraphQlApiLogConfigDetails.fromJson(
+              json['LogConfig'] as Map<String, dynamic>)
+          : null,
+      name: json['Name'] as String?,
+      openIdConnectConfig: json['OpenIdConnectConfig'] != null
+          ? AwsAppSyncGraphQlApiOpenIdConnectConfigDetails.fromJson(
+              json['OpenIdConnectConfig'] as Map<String, dynamic>)
+          : null,
+      userPoolConfig: json['UserPoolConfig'] != null
+          ? AwsAppSyncGraphQlApiUserPoolConfigDetails.fromJson(
+              json['UserPoolConfig'] as Map<String, dynamic>)
+          : null,
+      wafWebAclArn: json['WafWebAclArn'] as String?,
+      xrayEnabled: json['XrayEnabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final additionalAuthenticationProviders =
+        this.additionalAuthenticationProviders;
+    final apiId = this.apiId;
+    final arn = this.arn;
+    final authenticationType = this.authenticationType;
+    final id = this.id;
+    final lambdaAuthorizerConfig = this.lambdaAuthorizerConfig;
+    final logConfig = this.logConfig;
+    final name = this.name;
+    final openIdConnectConfig = this.openIdConnectConfig;
+    final userPoolConfig = this.userPoolConfig;
+    final wafWebAclArn = this.wafWebAclArn;
+    final xrayEnabled = this.xrayEnabled;
+    return {
+      if (additionalAuthenticationProviders != null)
+        'AdditionalAuthenticationProviders': additionalAuthenticationProviders,
+      if (apiId != null) 'ApiId': apiId,
+      if (arn != null) 'Arn': arn,
+      if (authenticationType != null) 'AuthenticationType': authenticationType,
+      if (id != null) 'Id': id,
+      if (lambdaAuthorizerConfig != null)
+        'LambdaAuthorizerConfig': lambdaAuthorizerConfig,
+      if (logConfig != null) 'LogConfig': logConfig,
+      if (name != null) 'Name': name,
+      if (openIdConnectConfig != null)
+        'OpenIdConnectConfig': openIdConnectConfig,
+      if (userPoolConfig != null) 'UserPoolConfig': userPoolConfig,
+      if (wafWebAclArn != null) 'WafWebAclArn': wafWebAclArn,
+      if (xrayEnabled != null) 'XrayEnabled': xrayEnabled,
+    };
+  }
+}
+
+/// Specifies the authorization configuration for using an Lambda function with
+/// your AppSync GraphQL API endpoint.
+class AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails {
+  /// The number of seconds a response should be cached for. The default is 5
+  /// minutes (300 seconds).
+  final int? authorizerResultTtlInSeconds;
+
+  /// The Amazon Resource Name (ARN) of the Lambda function to be called for
+  /// authorization. This can be a standard Lambda ARN, a version ARN (.../v3), or
+  /// an alias ARN.
+  final String? authorizerUri;
+
+  /// A regular expression for validation of tokens before the Lambda function is
+  /// called.
+  final String? identityValidationExpression;
+
+  AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails({
+    this.authorizerResultTtlInSeconds,
+    this.authorizerUri,
+    this.identityValidationExpression,
+  });
+
+  factory AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAppSyncGraphQlApiLambdaAuthorizerConfigDetails(
+      authorizerResultTtlInSeconds:
+          json['AuthorizerResultTtlInSeconds'] as int?,
+      authorizerUri: json['AuthorizerUri'] as String?,
+      identityValidationExpression:
+          json['IdentityValidationExpression'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authorizerResultTtlInSeconds = this.authorizerResultTtlInSeconds;
+    final authorizerUri = this.authorizerUri;
+    final identityValidationExpression = this.identityValidationExpression;
+    return {
+      if (authorizerResultTtlInSeconds != null)
+        'AuthorizerResultTtlInSeconds': authorizerResultTtlInSeconds,
+      if (authorizerUri != null) 'AuthorizerUri': authorizerUri,
+      if (identityValidationExpression != null)
+        'IdentityValidationExpression': identityValidationExpression,
+    };
+  }
+}
+
+/// Specifies the logging configuration when writing GraphQL operations and
+/// tracing to Amazon CloudWatch for an AppSync GraphQL API.
+class AwsAppSyncGraphQlApiLogConfigDetails {
+  /// The Amazon Resource Name (ARN) of the service role that AppSync assumes to
+  /// publish to CloudWatch Logs in your account.
+  final String? cloudWatchLogsRoleArn;
+
+  /// Set to <code>TRUE</code> to exclude sections that contain information such
+  /// as headers, context, and evaluated mapping templates, regardless of logging
+  /// level.
+  final bool? excludeVerboseContent;
+
+  /// The field logging level.
+  final String? fieldLogLevel;
+
+  AwsAppSyncGraphQlApiLogConfigDetails({
+    this.cloudWatchLogsRoleArn,
+    this.excludeVerboseContent,
+    this.fieldLogLevel,
+  });
+
+  factory AwsAppSyncGraphQlApiLogConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAppSyncGraphQlApiLogConfigDetails(
+      cloudWatchLogsRoleArn: json['CloudWatchLogsRoleArn'] as String?,
+      excludeVerboseContent: json['ExcludeVerboseContent'] as bool?,
+      fieldLogLevel: json['FieldLogLevel'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cloudWatchLogsRoleArn = this.cloudWatchLogsRoleArn;
+    final excludeVerboseContent = this.excludeVerboseContent;
+    final fieldLogLevel = this.fieldLogLevel;
+    return {
+      if (cloudWatchLogsRoleArn != null)
+        'CloudWatchLogsRoleArn': cloudWatchLogsRoleArn,
+      if (excludeVerboseContent != null)
+        'ExcludeVerboseContent': excludeVerboseContent,
+      if (fieldLogLevel != null) 'FieldLogLevel': fieldLogLevel,
+    };
+  }
+}
+
+/// Specifies the authorization configuration for using an OpenID Connect
+/// compliant service with your AppSync GraphQL API endpoint.
+class AwsAppSyncGraphQlApiOpenIdConnectConfigDetails {
+  /// The number of milliseconds that a token is valid after being authenticated.
+  final int? authTtL;
+
+  /// The client identifier of the relying party at the OpenID identity provider.
+  /// This identifier is typically obtained when the relying party is registered
+  /// with the OpenID identity provider. You can specify a regular expression so
+  /// that AppSync can validate against multiple client identifiers at a time.
+  final String? clientId;
+
+  /// The number of milliseconds that a token is valid after it's issued to a
+  /// user.
+  final int? iatTtL;
+
+  /// The issuer for the OIDC configuration. The issuer returned by discovery must
+  /// exactly match the value of <code>iss</code> in the ID token.
+  final String? issuer;
+
+  AwsAppSyncGraphQlApiOpenIdConnectConfigDetails({
+    this.authTtL,
+    this.clientId,
+    this.iatTtL,
+    this.issuer,
+  });
+
+  factory AwsAppSyncGraphQlApiOpenIdConnectConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAppSyncGraphQlApiOpenIdConnectConfigDetails(
+      authTtL: json['AuthTtL'] as int?,
+      clientId: json['ClientId'] as String?,
+      iatTtL: json['IatTtL'] as int?,
+      issuer: json['Issuer'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authTtL = this.authTtL;
+    final clientId = this.clientId;
+    final iatTtL = this.iatTtL;
+    final issuer = this.issuer;
+    return {
+      if (authTtL != null) 'AuthTtL': authTtL,
+      if (clientId != null) 'ClientId': clientId,
+      if (iatTtL != null) 'IatTtL': iatTtL,
+      if (issuer != null) 'Issuer': issuer,
+    };
+  }
+}
+
+/// Specifies the authorization configuration for using Amazon Cognito user
+/// pools with your AppSync GraphQL API endpoint.
+class AwsAppSyncGraphQlApiUserPoolConfigDetails {
+  /// A regular expression for validating the incoming Amazon Cognito user pools
+  /// app client ID. If this value isn't set, no filtering is applied.
+  final String? appIdClientRegex;
+
+  /// The Amazon Web Services Region in which the user pool was created.
+  final String? awsRegion;
+
+  /// The action that you want your GraphQL API to take when a request that uses
+  /// Amazon Cognito user pools authentication doesn't match the Amazon Cognito
+  /// user pools configuration.
+  final String? defaultAction;
+
+  /// The user pool ID.
+  final String? userPoolId;
+
+  AwsAppSyncGraphQlApiUserPoolConfigDetails({
+    this.appIdClientRegex,
+    this.awsRegion,
+    this.defaultAction,
+    this.userPoolId,
+  });
+
+  factory AwsAppSyncGraphQlApiUserPoolConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAppSyncGraphQlApiUserPoolConfigDetails(
+      appIdClientRegex: json['AppIdClientRegex'] as String?,
+      awsRegion: json['AwsRegion'] as String?,
+      defaultAction: json['DefaultAction'] as String?,
+      userPoolId: json['UserPoolId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final appIdClientRegex = this.appIdClientRegex;
+    final awsRegion = this.awsRegion;
+    final defaultAction = this.defaultAction;
+    final userPoolId = this.userPoolId;
+    return {
+      if (appIdClientRegex != null) 'AppIdClientRegex': appIdClientRegex,
+      if (awsRegion != null) 'AwsRegion': awsRegion,
+      if (defaultAction != null) 'DefaultAction': defaultAction,
+      if (userPoolId != null) 'UserPoolId': userPoolId,
+    };
+  }
+}
+
+/// The configuration of the workgroup, which includes the location in Amazon
+/// Simple Storage Service (Amazon S3) where query results are stored, the
+/// encryption option, if any, used for query results, whether Amazon CloudWatch
+/// metrics are enabled for the workgroup, and the limit for the amount of bytes
+/// scanned (cutoff) per query, if it is specified.
+class AwsAthenaWorkGroupConfigurationDetails {
+  /// The location in Amazon S3 where query and calculation results are stored and
+  /// the encryption option, if any, used for query and calculation results. These
+  /// are known as client-side settings. If workgroup settings override
+  /// client-side settings, then the query uses the workgroup settings.
+  final AwsAthenaWorkGroupConfigurationResultConfigurationDetails?
+      resultConfiguration;
+
+  AwsAthenaWorkGroupConfigurationDetails({
+    this.resultConfiguration,
+  });
+
+  factory AwsAthenaWorkGroupConfigurationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAthenaWorkGroupConfigurationDetails(
+      resultConfiguration: json['ResultConfiguration'] != null
+          ? AwsAthenaWorkGroupConfigurationResultConfigurationDetails.fromJson(
+              json['ResultConfiguration'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final resultConfiguration = this.resultConfiguration;
+    return {
+      if (resultConfiguration != null)
+        'ResultConfiguration': resultConfiguration,
+    };
+  }
+}
+
+/// The location in Amazon Simple Storage Service (Amazon S3) where query and
+/// calculation results are stored and the encryption option, if any, used for
+/// query and calculation results. These are known as client-side settings. If
+/// workgroup settings override client-side settings, then the query uses the
+/// workgroup settings.
+class AwsAthenaWorkGroupConfigurationResultConfigurationDetails {
+  /// Specifies the method used to encrypt the user’s data stores in the Athena
+  /// workgroup.
+  final AwsAthenaWorkGroupConfigurationResultConfigurationEncryptionConfigurationDetails?
+      encryptionConfiguration;
+
+  AwsAthenaWorkGroupConfigurationResultConfigurationDetails({
+    this.encryptionConfiguration,
+  });
+
+  factory AwsAthenaWorkGroupConfigurationResultConfigurationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAthenaWorkGroupConfigurationResultConfigurationDetails(
+      encryptionConfiguration: json['EncryptionConfiguration'] != null
+          ? AwsAthenaWorkGroupConfigurationResultConfigurationEncryptionConfigurationDetails
+              .fromJson(json['EncryptionConfiguration'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final encryptionConfiguration = this.encryptionConfiguration;
+    return {
+      if (encryptionConfiguration != null)
+        'EncryptionConfiguration': encryptionConfiguration,
+    };
+  }
+}
+
+/// Specifies the method used to encrypt the user’s data stores in the Athena
+/// workgroup.
+class AwsAthenaWorkGroupConfigurationResultConfigurationEncryptionConfigurationDetails {
+  /// Indicates whether Amazon Simple Storage Service (Amazon S3) server-side
+  /// encryption with Amazon S3 managed keys (SSE_S3), server-side encryption with
+  /// KMS keys (SSE_KMS), or client-side encryption with KMS customer managed keys
+  /// (CSE_KMS) is used.
+  final String? encryptionOption;
+
+  /// For <code>SSE_KMS</code> and <code>CSE_KMS</code>, this is the KMS key
+  /// Amazon Resource Name (ARN) or ID.
+  final String? kmsKey;
+
+  AwsAthenaWorkGroupConfigurationResultConfigurationEncryptionConfigurationDetails({
+    this.encryptionOption,
+    this.kmsKey,
+  });
+
+  factory AwsAthenaWorkGroupConfigurationResultConfigurationEncryptionConfigurationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsAthenaWorkGroupConfigurationResultConfigurationEncryptionConfigurationDetails(
+      encryptionOption: json['EncryptionOption'] as String?,
+      kmsKey: json['KmsKey'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final encryptionOption = this.encryptionOption;
+    final kmsKey = this.kmsKey;
+    return {
+      if (encryptionOption != null) 'EncryptionOption': encryptionOption,
+      if (kmsKey != null) 'KmsKey': kmsKey,
+    };
+  }
+}
+
+/// Provides information about an Amazon Athena workgroup.
+class AwsAthenaWorkGroupDetails {
+  /// The configuration of the workgroup, which includes the location in Amazon
+  /// Simple Storage Service (Amazon S3) where query results are stored, the
+  /// encryption option, if any, used for query results, whether Amazon CloudWatch
+  /// metrics are enabled for the workgroup, and the limit for the amount of bytes
+  /// scanned (cutoff) per query, if it is specified.
+  final AwsAthenaWorkGroupConfigurationDetails? configuration;
+
+  /// The workgroup description.
+  final String? description;
+
+  /// The workgroup name.
+  final String? name;
+
+  /// Whether the workgroup is enabled or disabled.
+  final String? state;
+
+  AwsAthenaWorkGroupDetails({
+    this.configuration,
+    this.description,
+    this.name,
+    this.state,
+  });
+
+  factory AwsAthenaWorkGroupDetails.fromJson(Map<String, dynamic> json) {
+    return AwsAthenaWorkGroupDetails(
+      configuration: json['Configuration'] != null
+          ? AwsAthenaWorkGroupConfigurationDetails.fromJson(
+              json['Configuration'] as Map<String, dynamic>)
+          : null,
+      description: json['Description'] as String?,
+      name: json['Name'] as String?,
+      state: json['State'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configuration = this.configuration;
+    final description = this.description;
+    final name = this.name;
+    final state = this.state;
+    return {
+      if (configuration != null) 'Configuration': configuration,
+      if (description != null) 'Description': description,
+      if (name != null) 'Name': name,
+      if (state != null) 'State': state,
+    };
+  }
+}
+
 /// An Availability Zone for the automatic scaling group.
 class AwsAutoScalingAutoScalingGroupAvailabilityZonesListDetails {
   /// The name of the Availability Zone.
@@ -4363,11 +7518,33 @@ class AwsAutoScalingAutoScalingGroupDetails {
 
   /// Indicates when the auto scaling group was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdTime;
 
   /// The amount of time, in seconds, that Amazon EC2 Auto Scaling waits before it
@@ -4408,7 +7585,7 @@ class AwsAutoScalingAutoScalingGroupDetails {
       Map<String, dynamic> json) {
     return AwsAutoScalingAutoScalingGroupDetails(
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsAutoScalingAutoScalingGroupAvailabilityZonesListDetails
               .fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4422,7 +7599,7 @@ class AwsAutoScalingAutoScalingGroupDetails {
               .fromJson(json['LaunchTemplate'] as Map<String, dynamic>)
           : null,
       loadBalancerNames: (json['LoadBalancerNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       mixedInstancesPolicy: json['MixedInstancesPolicy'] != null
@@ -4653,7 +7830,7 @@ class AwsAutoScalingAutoScalingGroupMixedInstancesPolicyLaunchTemplateDetails {
                   json['LaunchTemplateSpecification'] as Map<String, dynamic>)
           : null,
       overrides: (json['Overrides'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsAutoScalingAutoScalingGroupMixedInstancesPolicyLaunchTemplateOverridesListDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -4931,11 +8108,33 @@ class AwsAutoScalingLaunchConfigurationDetails {
 
   /// The creation date and time for the launch configuration.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdTime;
 
   /// Whether the launch configuration is optimized for Amazon EBS I/O.
@@ -5014,7 +8213,7 @@ class AwsAutoScalingLaunchConfigurationDetails {
     return AwsAutoScalingLaunchConfigurationDetails(
       associatePublicIpAddress: json['AssociatePublicIpAddress'] as bool?,
       blockDeviceMappings: (json['BlockDeviceMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsAutoScalingLaunchConfigurationBlockDeviceMappingsDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -5022,7 +8221,7 @@ class AwsAutoScalingLaunchConfigurationDetails {
       classicLinkVpcId: json['ClassicLinkVpcId'] as String?,
       classicLinkVpcSecurityGroups:
           (json['ClassicLinkVpcSecurityGroups'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       createdTime: json['CreatedTime'] as String?,
@@ -5044,7 +8243,7 @@ class AwsAutoScalingLaunchConfigurationDetails {
       placementTenancy: json['PlacementTenancy'] as String?,
       ramdiskId: json['RamdiskId'] as String?,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       spotPrice: json['SpotPrice'] as String?,
@@ -5243,13 +8442,13 @@ class AwsBackupBackupPlanBackupPlanDetails {
       Map<String, dynamic> json) {
     return AwsBackupBackupPlanBackupPlanDetails(
       advancedBackupSettings: (json['AdvancedBackupSettings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsBackupBackupPlanAdvancedBackupSettingsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       backupPlanName: json['BackupPlanName'] as String?,
       backupPlanRule: (json['BackupPlanRule'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsBackupBackupPlanRuleDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -5460,7 +8659,7 @@ class AwsBackupBackupPlanRuleDetails {
     return AwsBackupBackupPlanRuleDetails(
       completionWindowMinutes: json['CompletionWindowMinutes'] as int?,
       copyActions: (json['CopyActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsBackupBackupPlanRuleCopyActionsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -5601,7 +8800,7 @@ class AwsBackupBackupVaultNotificationsDetails {
       Map<String, dynamic> json) {
     return AwsBackupBackupVaultNotificationsDetails(
       backupVaultEvents: (json['BackupVaultEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       snsTopicArn: json['SnsTopicArn'] as String?,
@@ -5962,11 +9161,33 @@ class AwsCertificateManagerCertificateDetails {
 
   /// Indicates when the certificate was requested.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdAt;
 
   /// The fully qualified domain name (FQDN), such as www.example.com, that is
@@ -6003,11 +9224,33 @@ class AwsCertificateManagerCertificateDetails {
   /// Indicates when the certificate was imported. Provided if the certificate
   /// type is <code>IMPORTED</code>.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? importedAt;
 
   /// The list of ARNs for the Amazon Web Services resources that use the
@@ -6017,11 +9260,33 @@ class AwsCertificateManagerCertificateDetails {
   /// Indicates when the certificate was issued. Provided if the certificate type
   /// is <code>AMAZON_ISSUED</code>.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? issuedAt;
 
   /// The name of the certificate authority that issued and signed the
@@ -6040,20 +9305,64 @@ class AwsCertificateManagerCertificateDetails {
 
   /// The time after which the certificate becomes invalid.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? notAfter;
 
   /// The time before which the certificate is not valid.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? notBefore;
 
   /// Provides a value that specifies whether to add the certificate to a
@@ -6139,27 +9448,25 @@ class AwsCertificateManagerCertificateDetails {
       createdAt: json['CreatedAt'] as String?,
       domainName: json['DomainName'] as String?,
       domainValidationOptions: (json['DomainValidationOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsCertificateManagerCertificateDomainValidationOption.fromJson(
                   e as Map<String, dynamic>))
           .toList(),
       extendedKeyUsages: (json['ExtendedKeyUsages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCertificateManagerCertificateExtendedKeyUsage.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       failureReason: json['FailureReason'] as String?,
       importedAt: json['ImportedAt'] as String?,
-      inUseBy: (json['InUseBy'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inUseBy:
+          (json['InUseBy'] as List?)?.nonNulls.map((e) => e as String).toList(),
       issuedAt: json['IssuedAt'] as String?,
       issuer: json['Issuer'] as String?,
       keyAlgorithm: json['KeyAlgorithm'] as String?,
       keyUsages: (json['KeyUsages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCertificateManagerCertificateKeyUsage.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -6179,7 +9486,7 @@ class AwsCertificateManagerCertificateDetails {
       status: json['Status'] as String?,
       subject: json['Subject'] as String?,
       subjectAlternativeNames: (json['SubjectAlternativeNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       type: json['Type'] as String?,
@@ -6293,7 +9600,7 @@ class AwsCertificateManagerCertificateDomainValidationOption {
           : null,
       validationDomain: json['ValidationDomain'] as String?,
       validationEmails: (json['ValidationEmails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       validationMethod: json['ValidationMethod'] as String?,
@@ -6439,11 +9746,33 @@ class AwsCertificateManagerCertificateRenewalSummary {
 
   /// Indicates when the renewal summary was last updated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? updatedAt;
 
   AwsCertificateManagerCertificateRenewalSummary({
@@ -6457,7 +9786,7 @@ class AwsCertificateManagerCertificateRenewalSummary {
       Map<String, dynamic> json) {
     return AwsCertificateManagerCertificateRenewalSummary(
       domainValidationOptions: (json['DomainValidationOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsCertificateManagerCertificateDomainValidationOption.fromJson(
                   e as Map<String, dynamic>))
@@ -6597,7 +9926,7 @@ class AwsCloudFormationStackDetails {
   factory AwsCloudFormationStackDetails.fromJson(Map<String, dynamic> json) {
     return AwsCloudFormationStackDetails(
       capabilities: (json['Capabilities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       creationTime: json['CreationTime'] as String?,
@@ -6610,11 +9939,11 @@ class AwsCloudFormationStackDetails {
       enableTerminationProtection: json['EnableTerminationProtection'] as bool?,
       lastUpdatedTime: json['LastUpdatedTime'] as String?,
       notificationArns: (json['NotificationArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       outputs: (json['Outputs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCloudFormationStackOutputsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -6782,7 +10111,7 @@ class AwsCloudFrontDistributionCacheBehaviors {
       Map<String, dynamic> json) {
     return AwsCloudFrontDistributionCacheBehaviors(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCloudFrontDistributionCacheBehavior.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -6861,11 +10190,33 @@ class AwsCloudFrontDistributionDetails {
 
   /// Indicates when that the distribution was last modified.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastModifiedTime;
 
   /// A complex type that controls whether access logs are written for the
@@ -7158,10 +10509,7 @@ class AwsCloudFrontDistributionOriginGroupFailoverStatusCodes {
   factory AwsCloudFrontDistributionOriginGroupFailoverStatusCodes.fromJson(
       Map<String, dynamic> json) {
     return AwsCloudFrontDistributionOriginGroupFailoverStatusCodes(
-      items: (json['Items'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      items: (json['Items'] as List?)?.nonNulls.map((e) => e as int).toList(),
       quantity: json['Quantity'] as int?,
     );
   }
@@ -7190,7 +10538,7 @@ class AwsCloudFrontDistributionOriginGroups {
       Map<String, dynamic> json) {
     return AwsCloudFrontDistributionOriginGroups(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCloudFrontDistributionOriginGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7206,7 +10554,7 @@ class AwsCloudFrontDistributionOriginGroups {
 }
 
 /// A complex type that describes the Amazon S3 bucket, HTTP server (for
-/// example, a web server), AWS Elemental MediaStore, or other server from which
+/// example, a web server), Elemental MediaStore, or other server from which
 /// CloudFront gets your files.
 class AwsCloudFrontDistributionOriginItem {
   /// An origin that is not an Amazon S3 bucket, with one exception. If the Amazon
@@ -7315,10 +10663,8 @@ class AwsCloudFrontDistributionOriginSslProtocols {
   factory AwsCloudFrontDistributionOriginSslProtocols.fromJson(
       Map<String, dynamic> json) {
     return AwsCloudFrontDistributionOriginSslProtocols(
-      items: (json['Items'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      items:
+          (json['Items'] as List?)?.nonNulls.map((e) => e as String).toList(),
       quantity: json['Quantity'] as int?,
     );
   }
@@ -7346,7 +10692,7 @@ class AwsCloudFrontDistributionOrigins {
   factory AwsCloudFrontDistributionOrigins.fromJson(Map<String, dynamic> json) {
     return AwsCloudFrontDistributionOrigins(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCloudFrontDistributionOriginItem.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7702,7 +11048,7 @@ class AwsCloudWatchAlarmDetails {
     return AwsCloudWatchAlarmDetails(
       actionsEnabled: json['ActionsEnabled'] as bool?,
       alarmActions: (json['AlarmActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       alarmArn: json['AlarmArn'] as String?,
@@ -7713,7 +11059,7 @@ class AwsCloudWatchAlarmDetails {
       comparisonOperator: json['ComparisonOperator'] as String?,
       datapointsToAlarm: json['DatapointsToAlarm'] as int?,
       dimensions: (json['Dimensions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCloudWatchAlarmDimensionsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7722,13 +11068,13 @@ class AwsCloudWatchAlarmDetails {
       evaluationPeriods: json['EvaluationPeriods'] as int?,
       extendedStatistic: json['ExtendedStatistic'] as String?,
       insufficientDataActions: (json['InsufficientDataActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       metricName: json['MetricName'] as String?,
       namespace: json['Namespace'] as String?,
       okActions: (json['OkActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       period: json['Period'] as int?,
@@ -7966,7 +11312,7 @@ class AwsCodeBuildProjectDetails {
   factory AwsCodeBuildProjectDetails.fromJson(Map<String, dynamic> json) {
     return AwsCodeBuildProjectDetails(
       artifacts: (json['Artifacts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCodeBuildProjectArtifactsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7981,7 +11327,7 @@ class AwsCodeBuildProjectDetails {
           : null,
       name: json['Name'] as String?,
       secondaryArtifacts: (json['SecondaryArtifacts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCodeBuildProjectArtifactsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -8095,7 +11441,7 @@ class AwsCodeBuildProjectEnvironment {
     return AwsCodeBuildProjectEnvironment(
       certificate: json['Certificate'] as String?,
       environmentVariables: (json['EnvironmentVariables'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsCodeBuildProjectEnvironmentEnvironmentVariablesDetails
               .fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8449,13 +11795,11 @@ class AwsCodeBuildProjectVpcConfig {
   factory AwsCodeBuildProjectVpcConfig.fromJson(Map<String, dynamic> json) {
     return AwsCodeBuildProjectVpcConfig(
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      subnets: (json['Subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      subnets:
+          (json['Subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
       vpcId: json['VpcId'] as String?,
     );
   }
@@ -8507,19 +11851,19 @@ class AwsCorsConfiguration {
     return AwsCorsConfiguration(
       allowCredentials: json['AllowCredentials'] as bool?,
       allowHeaders: (json['AllowHeaders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       allowMethods: (json['AllowMethods'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       allowOrigins: (json['AllowOrigins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       exposeHeaders: (json['ExposeHeaders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       maxAge: json['MaxAge'] as int?,
@@ -8540,6 +11884,435 @@ class AwsCorsConfiguration {
       if (allowOrigins != null) 'AllowOrigins': allowOrigins,
       if (exposeHeaders != null) 'ExposeHeaders': exposeHeaders,
       if (maxAge != null) 'MaxAge': maxAge,
+    };
+  }
+}
+
+/// Provides details about an Database Migration Service (DMS) endpoint. An
+/// endpoint provides connection, data store type, and location information
+/// about your data store.
+class AwsDmsEndpointDetails {
+  /// The Amazon Resource Name (ARN) for the SSL certificate that encrypts
+  /// connections between the DMS endpoint and the replication instance.
+  final String? certificateArn;
+
+  /// The name of the endpoint database.
+  final String? databaseName;
+
+  /// The Amazon Resource Name (ARN) of the endpoint.
+  final String? endpointArn;
+
+  /// The database endpoint identifier.
+  final String? endpointIdentifier;
+
+  /// The type of endpoint. Valid values are source and target.
+  final String? endpointType;
+
+  /// The type of engine for the endpoint, depending on the
+  /// <code>EndpointType</code> value.
+  final String? engineName;
+
+  /// A value that can be used for cross-account validation.
+  final String? externalId;
+
+  /// Additional attributes associated with the connection.
+  final String? extraConnectionAttributes;
+
+  /// An DMS key identifier that is used to encrypt the connection parameters for
+  /// the endpoint. If you don't specify a value for the <code>KmsKeyId</code>
+  /// parameter, then DMS uses your default encryption key. KMS creates the
+  /// default encryption key for your Amazon Web Services account. Your Amazon Web
+  /// Services account has a different default encryption key for each Amazon Web
+  /// Services Region.
+  final String? kmsKeyId;
+
+  /// The port used to access the endpoint.
+  final int? port;
+
+  /// The name of the server where the endpoint database resides.
+  final String? serverName;
+
+  /// The SSL mode used to connect to the endpoint. The default is none.
+  final String? sslMode;
+
+  /// The user name to be used to log in to the endpoint database.
+  final String? username;
+
+  AwsDmsEndpointDetails({
+    this.certificateArn,
+    this.databaseName,
+    this.endpointArn,
+    this.endpointIdentifier,
+    this.endpointType,
+    this.engineName,
+    this.externalId,
+    this.extraConnectionAttributes,
+    this.kmsKeyId,
+    this.port,
+    this.serverName,
+    this.sslMode,
+    this.username,
+  });
+
+  factory AwsDmsEndpointDetails.fromJson(Map<String, dynamic> json) {
+    return AwsDmsEndpointDetails(
+      certificateArn: json['CertificateArn'] as String?,
+      databaseName: json['DatabaseName'] as String?,
+      endpointArn: json['EndpointArn'] as String?,
+      endpointIdentifier: json['EndpointIdentifier'] as String?,
+      endpointType: json['EndpointType'] as String?,
+      engineName: json['EngineName'] as String?,
+      externalId: json['ExternalId'] as String?,
+      extraConnectionAttributes: json['ExtraConnectionAttributes'] as String?,
+      kmsKeyId: json['KmsKeyId'] as String?,
+      port: json['Port'] as int?,
+      serverName: json['ServerName'] as String?,
+      sslMode: json['SslMode'] as String?,
+      username: json['Username'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final certificateArn = this.certificateArn;
+    final databaseName = this.databaseName;
+    final endpointArn = this.endpointArn;
+    final endpointIdentifier = this.endpointIdentifier;
+    final endpointType = this.endpointType;
+    final engineName = this.engineName;
+    final externalId = this.externalId;
+    final extraConnectionAttributes = this.extraConnectionAttributes;
+    final kmsKeyId = this.kmsKeyId;
+    final port = this.port;
+    final serverName = this.serverName;
+    final sslMode = this.sslMode;
+    final username = this.username;
+    return {
+      if (certificateArn != null) 'CertificateArn': certificateArn,
+      if (databaseName != null) 'DatabaseName': databaseName,
+      if (endpointArn != null) 'EndpointArn': endpointArn,
+      if (endpointIdentifier != null) 'EndpointIdentifier': endpointIdentifier,
+      if (endpointType != null) 'EndpointType': endpointType,
+      if (engineName != null) 'EngineName': engineName,
+      if (externalId != null) 'ExternalId': externalId,
+      if (extraConnectionAttributes != null)
+        'ExtraConnectionAttributes': extraConnectionAttributes,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (port != null) 'Port': port,
+      if (serverName != null) 'ServerName': serverName,
+      if (sslMode != null) 'SslMode': sslMode,
+      if (username != null) 'Username': username,
+    };
+  }
+}
+
+/// Provides details about an Database Migration Service (DMS) replication
+/// instance. DMS uses a replication instance to connect to your source data
+/// store, read the source data, and format the data for consumption by the
+/// target data store.
+class AwsDmsReplicationInstanceDetails {
+  /// The amount of storage (in gigabytes) that is allocated for the replication
+  /// instance.
+  final int? allocatedStorage;
+
+  /// Indicates whether minor engine upgrades are applied automatically to the
+  /// replication instance during the maintenance window.
+  final bool? autoMinorVersionUpgrade;
+
+  /// The Availability Zone that the replication instance is created in. The
+  /// default value is a random, system-chosen Availability Zone in the endpoint's
+  /// Amazon Web Services Region, such as <code>us-east-1d</code>.
+  final String? availabilityZone;
+
+  /// The engine version number of the replication instance. If an engine version
+  /// number is not specified when a replication instance is created, the default
+  /// is the latest engine version available.
+  final String? engineVersion;
+
+  /// An KMS key identifier that is used to encrypt the data on the replication
+  /// instance. If you don't specify a value for the <code>KmsKeyId</code>
+  /// parameter, DMS uses your default encryption key. KMS creates the default
+  /// encryption key for your Amazon Web Services account. Your Amazon Web
+  /// Services account has a different default encryption key for each Amazon Web
+  /// Services Region.
+  final String? kmsKeyId;
+
+  /// Specifies whether the replication instance is deployed across multiple
+  /// Availability Zones (AZs). You can't set the <code>AvailabilityZone</code>
+  /// parameter if the <code>MultiAZ</code> parameter is set to <code>true</code>.
+  final bool? multiAZ;
+
+  /// The maintenance window times for the replication instance. Upgrades to the
+  /// replication instance are performed during this time.
+  final String? preferredMaintenanceWindow;
+
+  /// Specifies the accessibility options for the replication instance. A value of
+  /// <code>true</code> represents an instance with a public IP address. A value
+  /// of <code>false</code> represents an instance with a private IP address. The
+  /// default value is <code>true</code>.
+  final bool? publiclyAccessible;
+
+  /// The compute and memory capacity of the replication instance as defined for
+  /// the specified replication instance class.
+  final String? replicationInstanceClass;
+
+  /// The replication instance identifier.
+  final String? replicationInstanceIdentifier;
+
+  /// The subnet group for the replication instance.
+  final AwsDmsReplicationInstanceReplicationSubnetGroupDetails?
+      replicationSubnetGroup;
+
+  /// The virtual private cloud (VPC) security group for the replication instance.
+  final List<AwsDmsReplicationInstanceVpcSecurityGroupsDetails>?
+      vpcSecurityGroups;
+
+  AwsDmsReplicationInstanceDetails({
+    this.allocatedStorage,
+    this.autoMinorVersionUpgrade,
+    this.availabilityZone,
+    this.engineVersion,
+    this.kmsKeyId,
+    this.multiAZ,
+    this.preferredMaintenanceWindow,
+    this.publiclyAccessible,
+    this.replicationInstanceClass,
+    this.replicationInstanceIdentifier,
+    this.replicationSubnetGroup,
+    this.vpcSecurityGroups,
+  });
+
+  factory AwsDmsReplicationInstanceDetails.fromJson(Map<String, dynamic> json) {
+    return AwsDmsReplicationInstanceDetails(
+      allocatedStorage: json['AllocatedStorage'] as int?,
+      autoMinorVersionUpgrade: json['AutoMinorVersionUpgrade'] as bool?,
+      availabilityZone: json['AvailabilityZone'] as String?,
+      engineVersion: json['EngineVersion'] as String?,
+      kmsKeyId: json['KmsKeyId'] as String?,
+      multiAZ: json['MultiAZ'] as bool?,
+      preferredMaintenanceWindow: json['PreferredMaintenanceWindow'] as String?,
+      publiclyAccessible: json['PubliclyAccessible'] as bool?,
+      replicationInstanceClass: json['ReplicationInstanceClass'] as String?,
+      replicationInstanceIdentifier:
+          json['ReplicationInstanceIdentifier'] as String?,
+      replicationSubnetGroup: json['ReplicationSubnetGroup'] != null
+          ? AwsDmsReplicationInstanceReplicationSubnetGroupDetails.fromJson(
+              json['ReplicationSubnetGroup'] as Map<String, dynamic>)
+          : null,
+      vpcSecurityGroups: (json['VpcSecurityGroups'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              AwsDmsReplicationInstanceVpcSecurityGroupsDetails.fromJson(
+                  e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final allocatedStorage = this.allocatedStorage;
+    final autoMinorVersionUpgrade = this.autoMinorVersionUpgrade;
+    final availabilityZone = this.availabilityZone;
+    final engineVersion = this.engineVersion;
+    final kmsKeyId = this.kmsKeyId;
+    final multiAZ = this.multiAZ;
+    final preferredMaintenanceWindow = this.preferredMaintenanceWindow;
+    final publiclyAccessible = this.publiclyAccessible;
+    final replicationInstanceClass = this.replicationInstanceClass;
+    final replicationInstanceIdentifier = this.replicationInstanceIdentifier;
+    final replicationSubnetGroup = this.replicationSubnetGroup;
+    final vpcSecurityGroups = this.vpcSecurityGroups;
+    return {
+      if (allocatedStorage != null) 'AllocatedStorage': allocatedStorage,
+      if (autoMinorVersionUpgrade != null)
+        'AutoMinorVersionUpgrade': autoMinorVersionUpgrade,
+      if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (multiAZ != null) 'MultiAZ': multiAZ,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (publiclyAccessible != null) 'PubliclyAccessible': publiclyAccessible,
+      if (replicationInstanceClass != null)
+        'ReplicationInstanceClass': replicationInstanceClass,
+      if (replicationInstanceIdentifier != null)
+        'ReplicationInstanceIdentifier': replicationInstanceIdentifier,
+      if (replicationSubnetGroup != null)
+        'ReplicationSubnetGroup': replicationSubnetGroup,
+      if (vpcSecurityGroups != null) 'VpcSecurityGroups': vpcSecurityGroups,
+    };
+  }
+}
+
+/// Provides details about the replication subnet group.
+class AwsDmsReplicationInstanceReplicationSubnetGroupDetails {
+  /// The identifier of the replication subnet group.
+  final String? replicationSubnetGroupIdentifier;
+
+  AwsDmsReplicationInstanceReplicationSubnetGroupDetails({
+    this.replicationSubnetGroupIdentifier,
+  });
+
+  factory AwsDmsReplicationInstanceReplicationSubnetGroupDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsDmsReplicationInstanceReplicationSubnetGroupDetails(
+      replicationSubnetGroupIdentifier:
+          json['ReplicationSubnetGroupIdentifier'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final replicationSubnetGroupIdentifier =
+        this.replicationSubnetGroupIdentifier;
+    return {
+      if (replicationSubnetGroupIdentifier != null)
+        'ReplicationSubnetGroupIdentifier': replicationSubnetGroupIdentifier,
+    };
+  }
+}
+
+/// Provides details about the virtual private cloud (VPC) security group that’s
+/// associated with the replication instance.
+class AwsDmsReplicationInstanceVpcSecurityGroupsDetails {
+  /// The identifier of the VPC security group that’s associated with the
+  /// replication instance.
+  final String? vpcSecurityGroupId;
+
+  AwsDmsReplicationInstanceVpcSecurityGroupsDetails({
+    this.vpcSecurityGroupId,
+  });
+
+  factory AwsDmsReplicationInstanceVpcSecurityGroupsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsDmsReplicationInstanceVpcSecurityGroupsDetails(
+      vpcSecurityGroupId: json['VpcSecurityGroupId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final vpcSecurityGroupId = this.vpcSecurityGroupId;
+    return {
+      if (vpcSecurityGroupId != null) 'VpcSecurityGroupId': vpcSecurityGroupId,
+    };
+  }
+}
+
+/// Provides details about an Database Migration Service (DMS) replication task.
+/// A replication task moves a set of data from the source endpoint to the
+/// target endpoint.
+class AwsDmsReplicationTaskDetails {
+  /// Indicates when you want a change data capture (CDC) operation to start.
+  /// <code>CCdcStartPosition</code> or <code>CCdcStartTime</code> specifies when
+  /// you want a CDC operation to start. Only a value for one of these fields is
+  /// included.
+  final String? cdcStartPosition;
+
+  /// Indicates the start time for a CDC operation. <code>CdcStartPosition</code>
+  /// or <code>CCdcStartTime</code> specifies when you want a CDC operation to
+  /// start. Only a value for one of these fields is included.
+  final String? cdcStartTime;
+
+  /// Indicates when you want a CDC operation to stop. The value can be either
+  /// server time or commit time.
+  final String? cdcStopPosition;
+
+  /// The identifier of the replication task.
+  final String? id;
+
+  /// The migration type.
+  final String? migrationType;
+
+  /// The Amazon Resource Name (ARN) of a replication instance.
+  final String? replicationInstanceArn;
+
+  /// The user-defined replication task identifier or name.
+  final String? replicationTaskIdentifier;
+
+  /// The settings for the replication task.
+  final String? replicationTaskSettings;
+
+  /// A display name for the resource identifier at the end of the
+  /// <code>EndpointArn</code> response parameter. If you don't specify a
+  /// <code>ResourceIdentifier</code> value, DMS generates a default identifier
+  /// value for the end of <code>EndpointArn</code>.
+  final String? resourceIdentifier;
+
+  /// The ARN of the source endpoint.
+  final String? sourceEndpointArn;
+
+  /// The table mappings for the replication task, in JSON format.
+  final String? tableMappings;
+
+  /// The ARN of the target endpoint.
+  final String? targetEndpointArn;
+
+  /// Supplemental information that the task requires to migrate the data for
+  /// certain source and target endpoints.
+  final String? taskData;
+
+  AwsDmsReplicationTaskDetails({
+    this.cdcStartPosition,
+    this.cdcStartTime,
+    this.cdcStopPosition,
+    this.id,
+    this.migrationType,
+    this.replicationInstanceArn,
+    this.replicationTaskIdentifier,
+    this.replicationTaskSettings,
+    this.resourceIdentifier,
+    this.sourceEndpointArn,
+    this.tableMappings,
+    this.targetEndpointArn,
+    this.taskData,
+  });
+
+  factory AwsDmsReplicationTaskDetails.fromJson(Map<String, dynamic> json) {
+    return AwsDmsReplicationTaskDetails(
+      cdcStartPosition: json['CdcStartPosition'] as String?,
+      cdcStartTime: json['CdcStartTime'] as String?,
+      cdcStopPosition: json['CdcStopPosition'] as String?,
+      id: json['Id'] as String?,
+      migrationType: json['MigrationType'] as String?,
+      replicationInstanceArn: json['ReplicationInstanceArn'] as String?,
+      replicationTaskIdentifier: json['ReplicationTaskIdentifier'] as String?,
+      replicationTaskSettings: json['ReplicationTaskSettings'] as String?,
+      resourceIdentifier: json['ResourceIdentifier'] as String?,
+      sourceEndpointArn: json['SourceEndpointArn'] as String?,
+      tableMappings: json['TableMappings'] as String?,
+      targetEndpointArn: json['TargetEndpointArn'] as String?,
+      taskData: json['TaskData'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cdcStartPosition = this.cdcStartPosition;
+    final cdcStartTime = this.cdcStartTime;
+    final cdcStopPosition = this.cdcStopPosition;
+    final id = this.id;
+    final migrationType = this.migrationType;
+    final replicationInstanceArn = this.replicationInstanceArn;
+    final replicationTaskIdentifier = this.replicationTaskIdentifier;
+    final replicationTaskSettings = this.replicationTaskSettings;
+    final resourceIdentifier = this.resourceIdentifier;
+    final sourceEndpointArn = this.sourceEndpointArn;
+    final tableMappings = this.tableMappings;
+    final targetEndpointArn = this.targetEndpointArn;
+    final taskData = this.taskData;
+    return {
+      if (cdcStartPosition != null) 'CdcStartPosition': cdcStartPosition,
+      if (cdcStartTime != null) 'CdcStartTime': cdcStartTime,
+      if (cdcStopPosition != null) 'CdcStopPosition': cdcStopPosition,
+      if (id != null) 'Id': id,
+      if (migrationType != null) 'MigrationType': migrationType,
+      if (replicationInstanceArn != null)
+        'ReplicationInstanceArn': replicationInstanceArn,
+      if (replicationTaskIdentifier != null)
+        'ReplicationTaskIdentifier': replicationTaskIdentifier,
+      if (replicationTaskSettings != null)
+        'ReplicationTaskSettings': replicationTaskSettings,
+      if (resourceIdentifier != null) 'ResourceIdentifier': resourceIdentifier,
+      if (sourceEndpointArn != null) 'SourceEndpointArn': sourceEndpointArn,
+      if (tableMappings != null) 'TableMappings': tableMappings,
+      if (targetEndpointArn != null) 'TargetEndpointArn': targetEndpointArn,
+      if (taskData != null) 'TaskData': taskData,
     };
   }
 }
@@ -8584,11 +12357,33 @@ class AwsDynamoDbTableBillingModeSummary {
   /// If the billing mode is <code>PAY_PER_REQUEST</code>, indicates when the
   /// billing mode was set to that value.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastUpdateToPayPerRequestDateTime;
 
   AwsDynamoDbTableBillingModeSummary({
@@ -8627,12 +12422,38 @@ class AwsDynamoDbTableDetails {
 
   /// Indicates when the table was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? creationDateTime;
+
+  /// Indicates whether deletion protection is to be enabled (true) or disabled
+  /// (false) on the table.
+  final bool? deletionProtectionEnabled;
 
   /// List of global secondary indexes for the table.
   final List<AwsDynamoDbTableGlobalSecondaryIndex>? globalSecondaryIndexes;
@@ -8710,6 +12531,7 @@ class AwsDynamoDbTableDetails {
     this.attributeDefinitions,
     this.billingModeSummary,
     this.creationDateTime,
+    this.deletionProtectionEnabled,
     this.globalSecondaryIndexes,
     this.globalTableVersion,
     this.itemCount,
@@ -8731,7 +12553,7 @@ class AwsDynamoDbTableDetails {
   factory AwsDynamoDbTableDetails.fromJson(Map<String, dynamic> json) {
     return AwsDynamoDbTableDetails(
       attributeDefinitions: (json['AttributeDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsDynamoDbTableAttributeDefinition.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -8740,22 +12562,23 @@ class AwsDynamoDbTableDetails {
               json['BillingModeSummary'] as Map<String, dynamic>)
           : null,
       creationDateTime: json['CreationDateTime'] as String?,
+      deletionProtectionEnabled: json['DeletionProtectionEnabled'] as bool?,
       globalSecondaryIndexes: (json['GlobalSecondaryIndexes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsDynamoDbTableGlobalSecondaryIndex.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       globalTableVersion: json['GlobalTableVersion'] as String?,
       itemCount: json['ItemCount'] as int?,
       keySchema: (json['KeySchema'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsDynamoDbTableKeySchema.fromJson(e as Map<String, dynamic>))
           .toList(),
       latestStreamArn: json['LatestStreamArn'] as String?,
       latestStreamLabel: json['LatestStreamLabel'] as String?,
       localSecondaryIndexes: (json['LocalSecondaryIndexes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsDynamoDbTableLocalSecondaryIndex.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -8764,7 +12587,7 @@ class AwsDynamoDbTableDetails {
               json['ProvisionedThroughput'] as Map<String, dynamic>)
           : null,
       replicas: (json['Replicas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsDynamoDbTableReplica.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8791,6 +12614,7 @@ class AwsDynamoDbTableDetails {
     final attributeDefinitions = this.attributeDefinitions;
     final billingModeSummary = this.billingModeSummary;
     final creationDateTime = this.creationDateTime;
+    final deletionProtectionEnabled = this.deletionProtectionEnabled;
     final globalSecondaryIndexes = this.globalSecondaryIndexes;
     final globalTableVersion = this.globalTableVersion;
     final itemCount = this.itemCount;
@@ -8812,6 +12636,8 @@ class AwsDynamoDbTableDetails {
         'AttributeDefinitions': attributeDefinitions,
       if (billingModeSummary != null) 'BillingModeSummary': billingModeSummary,
       if (creationDateTime != null) 'CreationDateTime': creationDateTime,
+      if (deletionProtectionEnabled != null)
+        'DeletionProtectionEnabled': deletionProtectionEnabled,
       if (globalSecondaryIndexes != null)
         'GlobalSecondaryIndexes': globalSecondaryIndexes,
       if (globalTableVersion != null) 'GlobalTableVersion': globalTableVersion,
@@ -8902,7 +12728,7 @@ class AwsDynamoDbTableGlobalSecondaryIndex {
       indexStatus: json['IndexStatus'] as String?,
       itemCount: json['ItemCount'] as int?,
       keySchema: (json['KeySchema'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsDynamoDbTableKeySchema.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9003,7 +12829,7 @@ class AwsDynamoDbTableLocalSecondaryIndex {
       indexArn: json['IndexArn'] as String?,
       indexName: json['IndexName'] as String?,
       keySchema: (json['KeySchema'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsDynamoDbTableKeySchema.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9059,7 +12885,7 @@ class AwsDynamoDbTableProjection {
   factory AwsDynamoDbTableProjection.fromJson(Map<String, dynamic> json) {
     return AwsDynamoDbTableProjection(
       nonKeyAttributes: (json['NonKeyAttributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       projectionType: json['ProjectionType'] as String?,
@@ -9081,20 +12907,64 @@ class AwsDynamoDbTableProjection {
 class AwsDynamoDbTableProvisionedThroughput {
   /// Indicates when the provisioned throughput was last decreased.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastDecreaseDateTime;
 
   /// Indicates when the provisioned throughput was last increased.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastIncreaseDateTime;
 
   /// The number of times during the current UTC calendar day that the provisioned
@@ -9224,7 +13094,7 @@ class AwsDynamoDbTableReplica {
   factory AwsDynamoDbTableReplica.fromJson(Map<String, dynamic> json) {
     return AwsDynamoDbTableReplica(
       globalSecondaryIndexes: (json['GlobalSecondaryIndexes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsDynamoDbTableReplicaGlobalSecondaryIndex.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -9302,11 +13172,33 @@ class AwsDynamoDbTableReplicaGlobalSecondaryIndex {
 class AwsDynamoDbTableRestoreSummary {
   /// Indicates the point in time that the table was restored to.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? restoreDateTime;
 
   /// Whether a restore is currently in progress.
@@ -9353,11 +13245,33 @@ class AwsDynamoDbTableSseDescription {
   /// If the key is inaccessible, the date and time when DynamoDB detected that
   /// the key was inaccessible.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? inaccessibleEncryptionDateTime;
 
   /// The ARN of the KMS key that is used for the KMS encryption.
@@ -9428,6 +13342,466 @@ class AwsDynamoDbTableStreamSpecification {
     return {
       if (streamEnabled != null) 'StreamEnabled': streamEnabled,
       if (streamViewType != null) 'StreamViewType': streamViewType,
+    };
+  }
+}
+
+/// Provides details about an Active Directory that’s used to authenticate an
+/// Client VPN endpoint.
+class AwsEc2ClientVpnEndpointAuthenticationOptionsActiveDirectoryDetails {
+  /// The ID of the Active Directory used for authentication.
+  final String? directoryId;
+
+  AwsEc2ClientVpnEndpointAuthenticationOptionsActiveDirectoryDetails({
+    this.directoryId,
+  });
+
+  factory AwsEc2ClientVpnEndpointAuthenticationOptionsActiveDirectoryDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointAuthenticationOptionsActiveDirectoryDetails(
+      directoryId: json['DirectoryId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final directoryId = this.directoryId;
+    return {
+      if (directoryId != null) 'DirectoryId': directoryId,
+    };
+  }
+}
+
+/// Information about the authentication method used by the Client VPN endpoint.
+class AwsEc2ClientVpnEndpointAuthenticationOptionsDetails {
+  /// Information about the Active Directory, if applicable. With Active Directory
+  /// authentication, clients are authenticated against existing Active Directory
+  /// groups.
+  final AwsEc2ClientVpnEndpointAuthenticationOptionsActiveDirectoryDetails?
+      activeDirectory;
+
+  /// Information about the IAM SAML identity provider, if applicable.
+  final AwsEc2ClientVpnEndpointAuthenticationOptionsFederatedAuthenticationDetails?
+      federatedAuthentication;
+
+  /// Information about the authentication certificates, if applicable.
+  final AwsEc2ClientVpnEndpointAuthenticationOptionsMutualAuthenticationDetails?
+      mutualAuthentication;
+
+  /// The authentication type used.
+  final String? type;
+
+  AwsEc2ClientVpnEndpointAuthenticationOptionsDetails({
+    this.activeDirectory,
+    this.federatedAuthentication,
+    this.mutualAuthentication,
+    this.type,
+  });
+
+  factory AwsEc2ClientVpnEndpointAuthenticationOptionsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointAuthenticationOptionsDetails(
+      activeDirectory: json['ActiveDirectory'] != null
+          ? AwsEc2ClientVpnEndpointAuthenticationOptionsActiveDirectoryDetails
+              .fromJson(json['ActiveDirectory'] as Map<String, dynamic>)
+          : null,
+      federatedAuthentication: json['FederatedAuthentication'] != null
+          ? AwsEc2ClientVpnEndpointAuthenticationOptionsFederatedAuthenticationDetails
+              .fromJson(json['FederatedAuthentication'] as Map<String, dynamic>)
+          : null,
+      mutualAuthentication: json['MutualAuthentication'] != null
+          ? AwsEc2ClientVpnEndpointAuthenticationOptionsMutualAuthenticationDetails
+              .fromJson(json['MutualAuthentication'] as Map<String, dynamic>)
+          : null,
+      type: json['Type'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final activeDirectory = this.activeDirectory;
+    final federatedAuthentication = this.federatedAuthentication;
+    final mutualAuthentication = this.mutualAuthentication;
+    final type = this.type;
+    return {
+      if (activeDirectory != null) 'ActiveDirectory': activeDirectory,
+      if (federatedAuthentication != null)
+        'FederatedAuthentication': federatedAuthentication,
+      if (mutualAuthentication != null)
+        'MutualAuthentication': mutualAuthentication,
+      if (type != null) 'Type': type,
+    };
+  }
+}
+
+/// Describes the IAM SAML identity providers used for federated authentication.
+class AwsEc2ClientVpnEndpointAuthenticationOptionsFederatedAuthenticationDetails {
+  /// The Amazon Resource Name (ARN) of the IAM SAML identity provider.
+  final String? samlProviderArn;
+
+  /// The Amazon Resource Name (ARN) of the IAM SAML identity provider for the
+  /// self-service portal.
+  final String? selfServiceSamlProviderArn;
+
+  AwsEc2ClientVpnEndpointAuthenticationOptionsFederatedAuthenticationDetails({
+    this.samlProviderArn,
+    this.selfServiceSamlProviderArn,
+  });
+
+  factory AwsEc2ClientVpnEndpointAuthenticationOptionsFederatedAuthenticationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointAuthenticationOptionsFederatedAuthenticationDetails(
+      samlProviderArn: json['SamlProviderArn'] as String?,
+      selfServiceSamlProviderArn: json['SelfServiceSamlProviderArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final samlProviderArn = this.samlProviderArn;
+    final selfServiceSamlProviderArn = this.selfServiceSamlProviderArn;
+    return {
+      if (samlProviderArn != null) 'SamlProviderArn': samlProviderArn,
+      if (selfServiceSamlProviderArn != null)
+        'SelfServiceSamlProviderArn': selfServiceSamlProviderArn,
+    };
+  }
+}
+
+/// Information about the client certificate used for authentication.
+class AwsEc2ClientVpnEndpointAuthenticationOptionsMutualAuthenticationDetails {
+  /// The Amazon Resource Name (ARN) of the client certificate.
+  final String? clientRootCertificateChain;
+
+  AwsEc2ClientVpnEndpointAuthenticationOptionsMutualAuthenticationDetails({
+    this.clientRootCertificateChain,
+  });
+
+  factory AwsEc2ClientVpnEndpointAuthenticationOptionsMutualAuthenticationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointAuthenticationOptionsMutualAuthenticationDetails(
+      clientRootCertificateChain: json['ClientRootCertificateChain'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final clientRootCertificateChain = this.clientRootCertificateChain;
+    return {
+      if (clientRootCertificateChain != null)
+        'ClientRootCertificateChain': clientRootCertificateChain,
+    };
+  }
+}
+
+/// The options for managing connection authorization for new client
+/// connections.
+class AwsEc2ClientVpnEndpointClientConnectOptionsDetails {
+  /// Indicates whether client connect options are enabled.
+  final bool? enabled;
+
+  /// The Amazon Resource Name (ARN) of the Lambda function used for connection
+  /// authorization.
+  final String? lambdaFunctionArn;
+
+  /// The status of any updates to the client connect options.
+  final AwsEc2ClientVpnEndpointClientConnectOptionsStatusDetails? status;
+
+  AwsEc2ClientVpnEndpointClientConnectOptionsDetails({
+    this.enabled,
+    this.lambdaFunctionArn,
+    this.status,
+  });
+
+  factory AwsEc2ClientVpnEndpointClientConnectOptionsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointClientConnectOptionsDetails(
+      enabled: json['Enabled'] as bool?,
+      lambdaFunctionArn: json['LambdaFunctionArn'] as String?,
+      status: json['Status'] != null
+          ? AwsEc2ClientVpnEndpointClientConnectOptionsStatusDetails.fromJson(
+              json['Status'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enabled = this.enabled;
+    final lambdaFunctionArn = this.lambdaFunctionArn;
+    final status = this.status;
+    return {
+      if (enabled != null) 'Enabled': enabled,
+      if (lambdaFunctionArn != null) 'LambdaFunctionArn': lambdaFunctionArn,
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// Describes the status of the Client VPN endpoint attribute.
+class AwsEc2ClientVpnEndpointClientConnectOptionsStatusDetails {
+  /// The status code.
+  final String? code;
+
+  /// The status message.
+  final String? message;
+
+  AwsEc2ClientVpnEndpointClientConnectOptionsStatusDetails({
+    this.code,
+    this.message,
+  });
+
+  factory AwsEc2ClientVpnEndpointClientConnectOptionsStatusDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointClientConnectOptionsStatusDetails(
+      code: json['Code'] as String?,
+      message: json['Message'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final code = this.code;
+    final message = this.message;
+    return {
+      if (code != null) 'Code': code,
+      if (message != null) 'Message': message,
+    };
+  }
+}
+
+/// Options for enabling a customizable text banner that will be displayed on
+/// Amazon Web Services provided clients when a VPN session is established.
+class AwsEc2ClientVpnEndpointClientLoginBannerOptionsDetails {
+  /// Customizable text that will be displayed in a banner on Amazon Web Services
+  /// provided clients when a VPN session is established.
+  final String? bannerText;
+
+  /// Current state of text banner feature.
+  final bool? enabled;
+
+  AwsEc2ClientVpnEndpointClientLoginBannerOptionsDetails({
+    this.bannerText,
+    this.enabled,
+  });
+
+  factory AwsEc2ClientVpnEndpointClientLoginBannerOptionsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointClientLoginBannerOptionsDetails(
+      bannerText: json['BannerText'] as String?,
+      enabled: json['Enabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final bannerText = this.bannerText;
+    final enabled = this.enabled;
+    return {
+      if (bannerText != null) 'BannerText': bannerText,
+      if (enabled != null) 'Enabled': enabled,
+    };
+  }
+}
+
+/// Information about the client connection logging options for the Client VPN
+/// endpoint.
+class AwsEc2ClientVpnEndpointConnectionLogOptionsDetails {
+  /// The name of the Amazon CloudWatch Logs log group to which connection logging
+  /// data is published.
+  final String? cloudwatchLogGroup;
+
+  /// The name of the Amazon CloudWatch Logs log stream to which connection
+  /// logging data is published.
+  final String? cloudwatchLogStream;
+
+  /// Indicates whether client connection logging is enabled for the Client VPN
+  /// endpoint.
+  final bool? enabled;
+
+  AwsEc2ClientVpnEndpointConnectionLogOptionsDetails({
+    this.cloudwatchLogGroup,
+    this.cloudwatchLogStream,
+    this.enabled,
+  });
+
+  factory AwsEc2ClientVpnEndpointConnectionLogOptionsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointConnectionLogOptionsDetails(
+      cloudwatchLogGroup: json['CloudwatchLogGroup'] as String?,
+      cloudwatchLogStream: json['CloudwatchLogStream'] as String?,
+      enabled: json['Enabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cloudwatchLogGroup = this.cloudwatchLogGroup;
+    final cloudwatchLogStream = this.cloudwatchLogStream;
+    final enabled = this.enabled;
+    return {
+      if (cloudwatchLogGroup != null) 'CloudwatchLogGroup': cloudwatchLogGroup,
+      if (cloudwatchLogStream != null)
+        'CloudwatchLogStream': cloudwatchLogStream,
+      if (enabled != null) 'Enabled': enabled,
+    };
+  }
+}
+
+/// Describes an Client VPN endpoint. A Client VPN endpoint is the resource that
+/// you create and configure to enable and manage client VPN sessions. It's the
+/// termination point for all client VPN sessions.
+class AwsEc2ClientVpnEndpointDetails {
+  /// Information about the authentication method used by the Client VPN endpoint.
+  final List<AwsEc2ClientVpnEndpointAuthenticationOptionsDetails>?
+      authenticationOptions;
+
+  /// The IPv4 address range, in CIDR notation, from which client IP addresses are
+  /// assigned.
+  final String? clientCidrBlock;
+
+  /// The options for managing connection authorization for new client
+  /// connections.
+  final AwsEc2ClientVpnEndpointClientConnectOptionsDetails?
+      clientConnectOptions;
+
+  /// Options for enabling a customizable text banner that will be displayed on
+  /// Amazon Web Services provided clients when a VPN session is established.
+  final AwsEc2ClientVpnEndpointClientLoginBannerOptionsDetails?
+      clientLoginBannerOptions;
+
+  /// The ID of the Client VPN endpoint.
+  final String? clientVpnEndpointId;
+
+  /// Information about the client connection logging options for the Client VPN
+  /// endpoint.
+  final AwsEc2ClientVpnEndpointConnectionLogOptionsDetails?
+      connectionLogOptions;
+
+  /// A brief description of the endpoint.
+  final String? description;
+
+  /// Information about the DNS servers to be used for DNS resolution.
+  final List<String>? dnsServer;
+
+  /// The IDs of the security groups for the target network.
+  final List<String>? securityGroupIdSet;
+
+  /// The URL of the self-service portal.
+  final String? selfServicePortalUrl;
+
+  /// The Amazon Resource Name (ARN) of the server certificate.
+  final String? serverCertificateArn;
+
+  /// The maximum VPN session duration time in hours.
+  final int? sessionTimeoutHours;
+
+  /// Indicates whether split-tunnel is enabled in the Client VPN endpoint.
+  final bool? splitTunnel;
+
+  /// The transport protocol used by the Client VPN endpoint.
+  final String? transportProtocol;
+
+  /// The ID of the VPC.
+  final String? vpcId;
+
+  /// The port number for the Client VPN endpoint.
+  final int? vpnPort;
+
+  AwsEc2ClientVpnEndpointDetails({
+    this.authenticationOptions,
+    this.clientCidrBlock,
+    this.clientConnectOptions,
+    this.clientLoginBannerOptions,
+    this.clientVpnEndpointId,
+    this.connectionLogOptions,
+    this.description,
+    this.dnsServer,
+    this.securityGroupIdSet,
+    this.selfServicePortalUrl,
+    this.serverCertificateArn,
+    this.sessionTimeoutHours,
+    this.splitTunnel,
+    this.transportProtocol,
+    this.vpcId,
+    this.vpnPort,
+  });
+
+  factory AwsEc2ClientVpnEndpointDetails.fromJson(Map<String, dynamic> json) {
+    return AwsEc2ClientVpnEndpointDetails(
+      authenticationOptions: (json['AuthenticationOptions'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              AwsEc2ClientVpnEndpointAuthenticationOptionsDetails.fromJson(
+                  e as Map<String, dynamic>))
+          .toList(),
+      clientCidrBlock: json['ClientCidrBlock'] as String?,
+      clientConnectOptions: json['ClientConnectOptions'] != null
+          ? AwsEc2ClientVpnEndpointClientConnectOptionsDetails.fromJson(
+              json['ClientConnectOptions'] as Map<String, dynamic>)
+          : null,
+      clientLoginBannerOptions: json['ClientLoginBannerOptions'] != null
+          ? AwsEc2ClientVpnEndpointClientLoginBannerOptionsDetails.fromJson(
+              json['ClientLoginBannerOptions'] as Map<String, dynamic>)
+          : null,
+      clientVpnEndpointId: json['ClientVpnEndpointId'] as String?,
+      connectionLogOptions: json['ConnectionLogOptions'] != null
+          ? AwsEc2ClientVpnEndpointConnectionLogOptionsDetails.fromJson(
+              json['ConnectionLogOptions'] as Map<String, dynamic>)
+          : null,
+      description: json['Description'] as String?,
+      dnsServer: (json['DnsServer'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      securityGroupIdSet: (json['SecurityGroupIdSet'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      selfServicePortalUrl: json['SelfServicePortalUrl'] as String?,
+      serverCertificateArn: json['ServerCertificateArn'] as String?,
+      sessionTimeoutHours: json['SessionTimeoutHours'] as int?,
+      splitTunnel: json['SplitTunnel'] as bool?,
+      transportProtocol: json['TransportProtocol'] as String?,
+      vpcId: json['VpcId'] as String?,
+      vpnPort: json['VpnPort'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authenticationOptions = this.authenticationOptions;
+    final clientCidrBlock = this.clientCidrBlock;
+    final clientConnectOptions = this.clientConnectOptions;
+    final clientLoginBannerOptions = this.clientLoginBannerOptions;
+    final clientVpnEndpointId = this.clientVpnEndpointId;
+    final connectionLogOptions = this.connectionLogOptions;
+    final description = this.description;
+    final dnsServer = this.dnsServer;
+    final securityGroupIdSet = this.securityGroupIdSet;
+    final selfServicePortalUrl = this.selfServicePortalUrl;
+    final serverCertificateArn = this.serverCertificateArn;
+    final sessionTimeoutHours = this.sessionTimeoutHours;
+    final splitTunnel = this.splitTunnel;
+    final transportProtocol = this.transportProtocol;
+    final vpcId = this.vpcId;
+    final vpnPort = this.vpnPort;
+    return {
+      if (authenticationOptions != null)
+        'AuthenticationOptions': authenticationOptions,
+      if (clientCidrBlock != null) 'ClientCidrBlock': clientCidrBlock,
+      if (clientConnectOptions != null)
+        'ClientConnectOptions': clientConnectOptions,
+      if (clientLoginBannerOptions != null)
+        'ClientLoginBannerOptions': clientLoginBannerOptions,
+      if (clientVpnEndpointId != null)
+        'ClientVpnEndpointId': clientVpnEndpointId,
+      if (connectionLogOptions != null)
+        'ConnectionLogOptions': connectionLogOptions,
+      if (description != null) 'Description': description,
+      if (dnsServer != null) 'DnsServer': dnsServer,
+      if (securityGroupIdSet != null) 'SecurityGroupIdSet': securityGroupIdSet,
+      if (selfServicePortalUrl != null)
+        'SelfServicePortalUrl': selfServicePortalUrl,
+      if (serverCertificateArn != null)
+        'ServerCertificateArn': serverCertificateArn,
+      if (sessionTimeoutHours != null)
+        'SessionTimeoutHours': sessionTimeoutHours,
+      if (splitTunnel != null) 'SplitTunnel': splitTunnel,
+      if (transportProtocol != null) 'TransportProtocol': transportProtocol,
+      if (vpcId != null) 'VpcId': vpcId,
+      if (vpnPort != null) 'VpnPort': vpnPort,
     };
   }
 }
@@ -9545,11 +13919,33 @@ class AwsEc2InstanceDetails {
 
   /// Indicates when the instance was launched.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? launchedAt;
 
   /// Details about the metadata options for the Amazon EC2 instance.
@@ -9597,11 +13993,11 @@ class AwsEc2InstanceDetails {
       iamInstanceProfileArn: json['IamInstanceProfileArn'] as String?,
       imageId: json['ImageId'] as String?,
       ipV4Addresses: (json['IpV4Addresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       ipV6Addresses: (json['IpV6Addresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       keyName: json['KeyName'] as String?,
@@ -9615,7 +14011,7 @@ class AwsEc2InstanceDetails {
               json['Monitoring'] as Map<String, dynamic>)
           : null,
       networkInterfaces: (json['NetworkInterfaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2InstanceNetworkInterfacesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -10201,7 +14597,7 @@ class AwsEc2LaunchTemplateDataDetails {
   factory AwsEc2LaunchTemplateDataDetails.fromJson(Map<String, dynamic> json) {
     return AwsEc2LaunchTemplateDataDetails(
       blockDeviceMappingSet: (json['BlockDeviceMappingSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2LaunchTemplateDataBlockDeviceMappingSetDetails.fromJson(
                   e as Map<String, dynamic>))
@@ -10224,13 +14620,13 @@ class AwsEc2LaunchTemplateDataDetails {
       disableApiTermination: json['DisableApiTermination'] as bool?,
       ebsOptimized: json['EbsOptimized'] as bool?,
       elasticGpuSpecificationSet: (json['ElasticGpuSpecificationSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2LaunchTemplateDataElasticGpuSpecificationSetDetails
               .fromJson(e as Map<String, dynamic>))
           .toList(),
       elasticInferenceAcceleratorSet:
           (json['ElasticInferenceAcceleratorSet'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   AwsEc2LaunchTemplateDataElasticInferenceAcceleratorSetDetails
                       .fromJson(e as Map<String, dynamic>))
@@ -10262,7 +14658,7 @@ class AwsEc2LaunchTemplateDataDetails {
       kernelId: json['KernelId'] as String?,
       keyName: json['KeyName'] as String?,
       licenseSet: (json['LicenseSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2LaunchTemplateDataLicenseSetDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -10279,7 +14675,7 @@ class AwsEc2LaunchTemplateDataDetails {
               json['Monitoring'] as Map<String, dynamic>)
           : null,
       networkInterfaceSet: (json['NetworkInterfaceSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2LaunchTemplateDataNetworkInterfaceSetDetails.fromJson(
                   e as Map<String, dynamic>))
@@ -10294,11 +14690,11 @@ class AwsEc2LaunchTemplateDataDetails {
           : null,
       ramDiskId: json['RamDiskId'] as String?,
       securityGroupIdSet: (json['SecurityGroupIdSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       securityGroupSet: (json['SecurityGroupSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       userData: json['UserData'] as String?,
@@ -10855,11 +15251,11 @@ class AwsEc2LaunchTemplateDataInstanceRequirementsDetails {
               .fromJson(json['AcceleratorCount'] as Map<String, dynamic>)
           : null,
       acceleratorManufacturers: (json['AcceleratorManufacturers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       acceleratorNames: (json['AcceleratorNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       acceleratorTotalMemoryMiB: json['AcceleratorTotalMemoryMiB'] != null
@@ -10868,7 +15264,7 @@ class AwsEc2LaunchTemplateDataInstanceRequirementsDetails {
                   json['AcceleratorTotalMemoryMiB'] as Map<String, dynamic>)
           : null,
       acceleratorTypes: (json['AcceleratorTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       bareMetal: json['BareMetal'] as String?,
@@ -10879,20 +15275,20 @@ class AwsEc2LaunchTemplateDataInstanceRequirementsDetails {
           : null,
       burstablePerformance: json['BurstablePerformance'] as String?,
       cpuManufacturers: (json['CpuManufacturers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       excludedInstanceTypes: (json['ExcludedInstanceTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       instanceGenerations: (json['InstanceGenerations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       localStorage: json['LocalStorage'] as String?,
       localStorageTypes: (json['LocalStorageTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       memoryGiBPerVCpu: json['MemoryGiBPerVCpu'] != null
@@ -11402,28 +15798,26 @@ class AwsEc2LaunchTemplateDataNetworkInterfaceSetDetails {
       deleteOnTermination: json['DeleteOnTermination'] as bool?,
       description: json['Description'] as String?,
       deviceIndex: json['DeviceIndex'] as int?,
-      groups: (json['Groups'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      groups:
+          (json['Groups'] as List?)?.nonNulls.map((e) => e as String).toList(),
       interfaceType: json['InterfaceType'] as String?,
       ipv4PrefixCount: json['Ipv4PrefixCount'] as int?,
       ipv4Prefixes: (json['Ipv4Prefixes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2LaunchTemplateDataNetworkInterfaceSetIpv4PrefixesDetails
                   .fromJson(e as Map<String, dynamic>))
           .toList(),
       ipv6AddressCount: json['Ipv6AddressCount'] as int?,
       ipv6Addresses: (json['Ipv6Addresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2LaunchTemplateDataNetworkInterfaceSetIpv6AddressesDetails
                   .fromJson(e as Map<String, dynamic>))
           .toList(),
       ipv6PrefixCount: json['Ipv6PrefixCount'] as int?,
       ipv6Prefixes: (json['Ipv6Prefixes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2LaunchTemplateDataNetworkInterfaceSetIpv6PrefixesDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -11432,7 +15826,7 @@ class AwsEc2LaunchTemplateDataNetworkInterfaceSetDetails {
       networkInterfaceId: json['NetworkInterfaceId'] as String?,
       privateIpAddress: json['PrivateIpAddress'] as String?,
       privateIpAddresses: (json['PrivateIpAddresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2LaunchTemplateDataNetworkInterfaceSetPrivateIpAddressesDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -11848,12 +16242,12 @@ class AwsEc2NetworkAclDetails {
   factory AwsEc2NetworkAclDetails.fromJson(Map<String, dynamic> json) {
     return AwsEc2NetworkAclDetails(
       associations: (json['Associations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2NetworkAclAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
       entries: (json['Entries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2NetworkAclEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       isDefault: json['IsDefault'] as bool?,
@@ -11965,11 +16359,33 @@ class AwsEc2NetworkAclEntry {
 class AwsEc2NetworkInterfaceAttachment {
   /// Indicates when the attachment initiated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? attachTime;
 
   /// The identifier of the network interface attachment
@@ -12081,20 +16497,20 @@ class AwsEc2NetworkInterfaceDetails {
               json['Attachment'] as Map<String, dynamic>)
           : null,
       ipV6Addresses: (json['IpV6Addresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2NetworkInterfaceIpV6AddressDetail.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       networkInterfaceId: json['NetworkInterfaceId'] as String?,
       privateIpAddresses: (json['PrivateIpAddresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2NetworkInterfacePrivateIpAddressDetail.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       publicDnsName: json['PublicDnsName'] as String?,
       publicIp: json['PublicIp'] as String?,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2NetworkInterfaceSecurityGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -12244,17 +16660,17 @@ class AwsEc2RouteTableDetails {
   factory AwsEc2RouteTableDetails.fromJson(Map<String, dynamic> json) {
     return AwsEc2RouteTableDetails(
       associationSet: (json['AssociationSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AssociationSetDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       ownerId: json['OwnerId'] as String?,
       propagatingVgwSet: (json['PropagatingVgwSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               PropagatingVgwSetDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       routeSet: (json['RouteSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RouteSetDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       routeTableId: json['RouteTableId'] as String?,
@@ -12314,12 +16730,12 @@ class AwsEc2SecurityGroupDetails {
       groupId: json['GroupId'] as String?,
       groupName: json['GroupName'] as String?,
       ipPermissions: (json['IpPermissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2SecurityGroupIpPermission.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       ipPermissionsEgress: (json['IpPermissionsEgress'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2SecurityGroupIpPermission.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -12409,23 +16825,23 @@ class AwsEc2SecurityGroupIpPermission {
       fromPort: json['FromPort'] as int?,
       ipProtocol: json['IpProtocol'] as String?,
       ipRanges: (json['IpRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2SecurityGroupIpRange.fromJson(e as Map<String, dynamic>))
           .toList(),
       ipv6Ranges: (json['Ipv6Ranges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEc2SecurityGroupIpv6Range.fromJson(e as Map<String, dynamic>))
           .toList(),
       prefixListIds: (json['PrefixListIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2SecurityGroupPrefixListId.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       toPort: json['ToPort'] as int?,
       userIdGroupPairs: (json['UserIdGroupPairs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2SecurityGroupUserIdGroupPair.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -12662,7 +17078,7 @@ class AwsEc2SubnetDetails {
       defaultForAz: json['DefaultForAz'] as bool?,
       ipv6CidrBlockAssociationSet:
           (json['Ipv6CidrBlockAssociationSet'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   Ipv6CidrBlockAssociation.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -12786,7 +17202,7 @@ class AwsEc2TransitGatewayDetails {
       propagationDefaultRouteTableId:
           json['PropagationDefaultRouteTableId'] as String?,
       transitGatewayCidrBlocks: (json['TransitGatewayCidrBlocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vpnEcmpSupport: json['VpnEcmpSupport'] as String?,
@@ -12899,11 +17315,33 @@ class AwsEc2VolumeDetails {
 
   /// Indicates when the volume was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createTime;
 
   /// The device name for the volume that is attached to the instance.
@@ -12972,7 +17410,7 @@ class AwsEc2VolumeDetails {
   factory AwsEc2VolumeDetails.fromJson(Map<String, dynamic> json) {
     return AwsEc2VolumeDetails(
       attachments: (json['Attachments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AwsEc2VolumeAttachment.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -13044,13 +17482,13 @@ class AwsEc2VpcDetails {
   factory AwsEc2VpcDetails.fromJson(Map<String, dynamic> json) {
     return AwsEc2VpcDetails(
       cidrBlockAssociationSet: (json['CidrBlockAssociationSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CidrBlockAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
       dhcpOptionsId: json['DhcpOptionsId'] as String?,
       ipv6CidrBlockAssociationSet:
           (json['Ipv6CidrBlockAssociationSet'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   Ipv6CidrBlockAssociation.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -13146,20 +17584,20 @@ class AwsEc2VpcEndpointServiceDetails {
     return AwsEc2VpcEndpointServiceDetails(
       acceptanceRequired: json['AcceptanceRequired'] as bool?,
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       baseEndpointDnsNames: (json['BaseEndpointDnsNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       gatewayLoadBalancerArns: (json['GatewayLoadBalancerArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       managesVpcEndpoints: json['ManagesVpcEndpoints'] as bool?,
       networkLoadBalancerArns: (json['NetworkLoadBalancerArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       privateDnsName: json['PrivateDnsName'] as String?,
@@ -13167,7 +17605,7 @@ class AwsEc2VpcEndpointServiceDetails {
       serviceName: json['ServiceName'] as String?,
       serviceState: json['ServiceState'] as String?,
       serviceType: (json['ServiceType'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2VpcEndpointServiceServiceTypeDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -13364,12 +17802,12 @@ class AwsEc2VpcPeeringConnectionVpcInfoDetails {
     return AwsEc2VpcPeeringConnectionVpcInfoDetails(
       cidrBlock: json['CidrBlock'] as String?,
       cidrBlockSet: (json['CidrBlockSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               VpcInfoCidrBlockSetDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       ipv6CidrBlockSet: (json['Ipv6CidrBlockSet'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VpcInfoIpv6CidrBlockSetDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -13484,7 +17922,7 @@ class AwsEc2VpnConnectionDetails {
               json['Options'] as Map<String, dynamic>)
           : null,
       routes: (json['Routes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2VpnConnectionRoutesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -13492,7 +17930,7 @@ class AwsEc2VpnConnectionDetails {
       transitGatewayId: json['TransitGatewayId'] as String?,
       type: json['Type'] as String?,
       vgwTelemetry: (json['VgwTelemetry'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2VpnConnectionVgwTelemetryDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -13548,7 +17986,7 @@ class AwsEc2VpnConnectionOptionsDetails {
     return AwsEc2VpnConnectionOptionsDetails(
       staticRoutesOnly: json['StaticRoutesOnly'] as bool?,
       tunnelOptions: (json['TunnelOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEc2VpnConnectionOptionsTunnelOptionsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -13652,33 +18090,33 @@ class AwsEc2VpnConnectionOptionsTunnelOptionsDetails {
     return AwsEc2VpnConnectionOptionsTunnelOptionsDetails(
       dpdTimeoutSeconds: json['DpdTimeoutSeconds'] as int?,
       ikeVersions: (json['IkeVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       outsideIpAddress: json['OutsideIpAddress'] as String?,
       phase1DhGroupNumbers: (json['Phase1DhGroupNumbers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as int)
           .toList(),
       phase1EncryptionAlgorithms: (json['Phase1EncryptionAlgorithms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       phase1IntegrityAlgorithms: (json['Phase1IntegrityAlgorithms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       phase1LifetimeSeconds: json['Phase1LifetimeSeconds'] as int?,
       phase2DhGroupNumbers: (json['Phase2DhGroupNumbers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as int)
           .toList(),
       phase2EncryptionAlgorithms: (json['Phase2EncryptionAlgorithms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       phase2IntegrityAlgorithms: (json['Phase2IntegrityAlgorithms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       phase2LifetimeSeconds: json['Phase2LifetimeSeconds'] as int?,
@@ -13779,11 +18217,33 @@ class AwsEc2VpnConnectionVgwTelemetryDetails {
 
   /// The date and time of the last change in status.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastStatusChange;
 
   /// The Internet-routable IP address of the virtual private gateway's outside
@@ -13858,11 +18318,33 @@ class AwsEcrContainerImageDetails {
 
   /// The date and time when the image was pushed to the repository.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? imagePublishedAt;
 
   /// The list of tags that are associated with the image.
@@ -13890,7 +18372,7 @@ class AwsEcrContainerImageDetails {
       imageDigest: json['ImageDigest'] as String?,
       imagePublishedAt: json['ImagePublishedAt'] as String?,
       imageTags: (json['ImageTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       registryId: json['RegistryId'] as String?,
@@ -14305,13 +18787,13 @@ class AwsEcsClusterDetails {
     return AwsEcsClusterDetails(
       activeServicesCount: json['ActiveServicesCount'] as int?,
       capacityProviders: (json['CapacityProviders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       clusterArn: json['ClusterArn'] as String?,
       clusterName: json['ClusterName'] as String?,
       clusterSettings: (json['ClusterSettings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsClusterClusterSettingsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -14321,7 +18803,7 @@ class AwsEcsClusterDetails {
           : null,
       defaultCapacityProviderStrategy:
           (json['DefaultCapacityProviderStrategy'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   AwsEcsClusterDefaultCapacityProviderStrategyDetails.fromJson(
                       e as Map<String, dynamic>))
@@ -14390,7 +18872,7 @@ class AwsEcsContainerDetails {
     return AwsEcsContainerDetails(
       image: json['Image'] as String?,
       mountPoints: (json['MountPoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsMountPoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
@@ -14730,7 +19212,7 @@ class AwsEcsServiceDetails {
   factory AwsEcsServiceDetails.fromJson(Map<String, dynamic> json) {
     return AwsEcsServiceDetails(
       capacityProviderStrategy: (json['CapacityProviderStrategy'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsServiceCapacityProviderStrategyDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -14750,7 +19232,7 @@ class AwsEcsServiceDetails {
           json['HealthCheckGracePeriodSeconds'] as int?,
       launchType: json['LaunchType'] as String?,
       loadBalancers: (json['LoadBalancers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsServiceLoadBalancersDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -14760,12 +19242,12 @@ class AwsEcsServiceDetails {
               json['NetworkConfiguration'] as Map<String, dynamic>)
           : null,
       placementConstraints: (json['PlacementConstraints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsServicePlacementConstraintsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       placementStrategies: (json['PlacementStrategies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsServicePlacementStrategiesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -14776,7 +19258,7 @@ class AwsEcsServiceDetails {
       serviceArn: json['ServiceArn'] as String?,
       serviceName: json['ServiceName'] as String?,
       serviceRegistries: (json['ServiceRegistries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsServiceServiceRegistriesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -14930,13 +19412,11 @@ class AwsEcsServiceNetworkConfigurationAwsVpcConfigurationDetails {
     return AwsEcsServiceNetworkConfigurationAwsVpcConfigurationDetails(
       assignPublicIp: json['AssignPublicIp'] as String?,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      subnets: (json['Subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      subnets:
+          (json['Subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -15402,50 +19882,48 @@ class AwsEcsTaskDefinitionContainerDefinitionsDetails {
   factory AwsEcsTaskDefinitionContainerDefinitionsDetails.fromJson(
       Map<String, dynamic> json) {
     return AwsEcsTaskDefinitionContainerDefinitionsDetails(
-      command: (json['Command'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      command:
+          (json['Command'] as List?)?.nonNulls.map((e) => e as String).toList(),
       cpu: json['Cpu'] as int?,
       dependsOn: (json['DependsOn'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsDependsOnDetails.fromJson(
                   e as Map<String, dynamic>))
           .toList(),
       disableNetworking: json['DisableNetworking'] as bool?,
       dnsSearchDomains: (json['DnsSearchDomains'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       dnsServers: (json['DnsServers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       dockerLabels: (json['DockerLabels'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       dockerSecurityOptions: (json['DockerSecurityOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       entryPoint: (json['EntryPoint'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       environment: (json['Environment'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionContainerDefinitionsEnvironmentDetails
               .fromJson(e as Map<String, dynamic>))
           .toList(),
       environmentFiles: (json['EnvironmentFiles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsEnvironmentFilesDetails
                   .fromJson(e as Map<String, dynamic>))
           .toList(),
       essential: json['Essential'] as bool?,
       extraHosts: (json['ExtraHosts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionContainerDefinitionsExtraHostsDetails
               .fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -15460,10 +19938,8 @@ class AwsEcsTaskDefinitionContainerDefinitionsDetails {
       hostname: json['Hostname'] as String?,
       image: json['Image'] as String?,
       interactive: json['Interactive'] as bool?,
-      links: (json['Links'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      links:
+          (json['Links'] as List?)?.nonNulls.map((e) => e as String).toList(),
       linuxParameters: json['LinuxParameters'] != null
           ? AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersDetails
               .fromJson(json['LinuxParameters'] as Map<String, dynamic>)
@@ -15475,13 +19951,13 @@ class AwsEcsTaskDefinitionContainerDefinitionsDetails {
       memory: json['Memory'] as int?,
       memoryReservation: json['MemoryReservation'] as int?,
       mountPoints: (json['MountPoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionContainerDefinitionsMountPointsDetails
               .fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
       portMappings: (json['PortMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsPortMappingsDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -15494,13 +19970,13 @@ class AwsEcsTaskDefinitionContainerDefinitionsDetails {
               .fromJson(json['RepositoryCredentials'] as Map<String, dynamic>)
           : null,
       resourceRequirements: (json['ResourceRequirements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsResourceRequirementsDetails
                   .fromJson(e as Map<String, dynamic>))
           .toList(),
       secrets: (json['Secrets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsSecretsDetails.fromJson(
                   e as Map<String, dynamic>))
@@ -15508,20 +19984,20 @@ class AwsEcsTaskDefinitionContainerDefinitionsDetails {
       startTimeout: json['StartTimeout'] as int?,
       stopTimeout: json['StopTimeout'] as int?,
       systemControls: (json['SystemControls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsSystemControlsDetails
                   .fromJson(e as Map<String, dynamic>))
           .toList(),
       ulimits: (json['Ulimits'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsUlimitsDetails.fromJson(
                   e as Map<String, dynamic>))
           .toList(),
       user: json['User'] as String?,
       volumesFrom: (json['VolumesFrom'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionContainerDefinitionsVolumesFromDetails
               .fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -15797,10 +20273,8 @@ class AwsEcsTaskDefinitionContainerDefinitionsHealthCheckDetails {
   factory AwsEcsTaskDefinitionContainerDefinitionsHealthCheckDetails.fromJson(
       Map<String, dynamic> json) {
     return AwsEcsTaskDefinitionContainerDefinitionsHealthCheckDetails(
-      command: (json['Command'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      command:
+          (json['Command'] as List?)?.nonNulls.map((e) => e as String).toList(),
       interval: json['Interval'] as int?,
       retries: json['Retries'] as int?,
       startPeriod: json['StartPeriod'] as int?,
@@ -15877,14 +20351,8 @@ class AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersCapabilitiesDetails
   factory AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersCapabilitiesDetails.fromJson(
       Map<String, dynamic> json) {
     return AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersCapabilitiesDetails(
-      add: (json['Add'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      drop: (json['Drop'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      add: (json['Add'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      drop: (json['Drop'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -15949,7 +20417,7 @@ class AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersDetails {
               .fromJson(json['Capabilities'] as Map<String, dynamic>)
           : null,
       devices: (json['Devices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersDevicesDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -15959,7 +20427,7 @@ class AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersDetails {
       sharedMemorySize: json['SharedMemorySize'] as int?,
       swappiness: json['Swappiness'] as int?,
       tmpfs: (json['Tmpfs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersTmpfsDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -16012,7 +20480,7 @@ class AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersDevicesDetails {
       containerPath: json['ContainerPath'] as String?,
       hostPath: json['HostPath'] as String?,
       permissions: (json['Permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -16068,7 +20536,7 @@ class AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersTmpfsDetails {
     return AwsEcsTaskDefinitionContainerDefinitionsLinuxParametersTmpfsDetails(
       containerPath: json['ContainerPath'] as String?,
       mountOptions: (json['MountOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       size: json['Size'] as int?,
@@ -16159,7 +20627,7 @@ class AwsEcsTaskDefinitionContainerDefinitionsLogConfigurationDetails {
       options: (json['Options'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       secretOptions: (json['SecretOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionContainerDefinitionsLogConfigurationSecretOptionsDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -16637,6 +21105,9 @@ class AwsEcsTaskDefinitionDetails {
   /// The task launch types that the task definition was validated against.
   final List<String>? requiresCompatibilities;
 
+  /// The status of the task definition.
+  final String? status;
+
   /// The short name or ARN of the IAM role that grants containers in the task
   /// permission to call Amazon Web Services API operations on your behalf.
   final String? taskRoleArn;
@@ -16657,6 +21128,7 @@ class AwsEcsTaskDefinitionDetails {
     this.placementConstraints,
     this.proxyConfiguration,
     this.requiresCompatibilities,
+    this.status,
     this.taskRoleArn,
     this.volumes,
   });
@@ -16664,7 +21136,7 @@ class AwsEcsTaskDefinitionDetails {
   factory AwsEcsTaskDefinitionDetails.fromJson(Map<String, dynamic> json) {
     return AwsEcsTaskDefinitionDetails(
       containerDefinitions: (json['ContainerDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionContainerDefinitionsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -16672,7 +21144,7 @@ class AwsEcsTaskDefinitionDetails {
       executionRoleArn: json['ExecutionRoleArn'] as String?,
       family: json['Family'] as String?,
       inferenceAccelerators: (json['InferenceAccelerators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionInferenceAcceleratorsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -16681,7 +21153,7 @@ class AwsEcsTaskDefinitionDetails {
       networkMode: json['NetworkMode'] as String?,
       pidMode: json['PidMode'] as String?,
       placementConstraints: (json['PlacementConstraints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionPlacementConstraintsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -16690,12 +21162,13 @@ class AwsEcsTaskDefinitionDetails {
               json['ProxyConfiguration'] as Map<String, dynamic>)
           : null,
       requiresCompatibilities: (json['RequiresCompatibilities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
+      status: json['Status'] as String?,
       taskRoleArn: json['TaskRoleArn'] as String?,
       volumes: (json['Volumes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEcsTaskDefinitionVolumesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -16715,6 +21188,7 @@ class AwsEcsTaskDefinitionDetails {
     final placementConstraints = this.placementConstraints;
     final proxyConfiguration = this.proxyConfiguration;
     final requiresCompatibilities = this.requiresCompatibilities;
+    final status = this.status;
     final taskRoleArn = this.taskRoleArn;
     final volumes = this.volumes;
     return {
@@ -16734,6 +21208,7 @@ class AwsEcsTaskDefinitionDetails {
       if (proxyConfiguration != null) 'ProxyConfiguration': proxyConfiguration,
       if (requiresCompatibilities != null)
         'RequiresCompatibilities': requiresCompatibilities,
+      if (status != null) 'Status': status,
       if (taskRoleArn != null) 'TaskRoleArn': taskRoleArn,
       if (volumes != null) 'Volumes': volumes,
     };
@@ -16828,7 +21303,7 @@ class AwsEcsTaskDefinitionProxyConfigurationDetails {
       containerName: json['ContainerName'] as String?,
       proxyConfigurationProperties: (json['ProxyConfigurationProperties']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskDefinitionProxyConfigurationProxyConfigurationPropertiesDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -17170,7 +21645,7 @@ class AwsEcsTaskDetails {
     return AwsEcsTaskDetails(
       clusterArn: json['ClusterArn'] as String?,
       containers: (json['Containers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AwsEcsContainerDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17181,7 +21656,7 @@ class AwsEcsTaskDetails {
       taskDefinitionArn: json['TaskDefinitionArn'] as String?,
       version: json['Version'] as String?,
       volumes: (json['Volumes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsEcsTaskVolumeDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17369,7 +21844,7 @@ class AwsEfsAccessPointPosixUserDetails {
     return AwsEfsAccessPointPosixUserDetails(
       gid: json['Gid'] as String?,
       secondaryGids: (json['SecondaryGids'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       uid: json['Uid'] as String?,
@@ -17611,10 +22086,8 @@ class AwsEksClusterLoggingClusterLoggingDetails {
       Map<String, dynamic> json) {
     return AwsEksClusterLoggingClusterLoggingDetails(
       enabled: json['Enabled'] as bool?,
-      types: (json['Types'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      types:
+          (json['Types'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -17640,7 +22113,7 @@ class AwsEksClusterLoggingDetails {
   factory AwsEksClusterLoggingDetails.fromJson(Map<String, dynamic> json) {
     return AwsEksClusterLoggingDetails(
       clusterLogging: (json['ClusterLogging'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsEksClusterLoggingClusterLoggingDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -17682,11 +22155,11 @@ class AwsEksClusterResourcesVpcConfigDetails {
     return AwsEksClusterResourcesVpcConfigDetails(
       endpointPublicAccess: json['EndpointPublicAccess'] as bool?,
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -17815,13 +22288,13 @@ class AwsElasticBeanstalkEnvironmentDetails {
       environmentArn: json['EnvironmentArn'] as String?,
       environmentId: json['EnvironmentId'] as String?,
       environmentLinks: (json['EnvironmentLinks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsElasticBeanstalkEnvironmentEnvironmentLink.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       environmentName: json['EnvironmentName'] as String?,
       optionSettings: (json['OptionSettings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsElasticBeanstalkEnvironmentOptionSetting.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -18560,15 +23033,15 @@ class AwsElasticsearchDomainVPCOptions {
   factory AwsElasticsearchDomainVPCOptions.fromJson(Map<String, dynamic> json) {
     return AwsElasticsearchDomainVPCOptions(
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vPCId: json['VPCId'] as String?,
@@ -18786,7 +23259,7 @@ class AwsElbLoadBalancerAttributes {
               json['AccessLog'] as Map<String, dynamic>)
           : null,
       additionalAttributes: (json['AdditionalAttributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsElbLoadBalancerAdditionalAttribute.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -18842,7 +23315,7 @@ class AwsElbLoadBalancerBackendServerDescription {
     return AwsElbLoadBalancerBackendServerDescription(
       instancePort: json['InstancePort'] as int?,
       policyNames: (json['PolicyNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -18958,11 +23431,33 @@ class AwsElbLoadBalancerDetails {
 
   /// Indicates when the load balancer was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdTime;
 
   /// The DNS name of the load balancer.
@@ -19032,11 +23527,11 @@ class AwsElbLoadBalancerDetails {
   factory AwsElbLoadBalancerDetails.fromJson(Map<String, dynamic> json) {
     return AwsElbLoadBalancerDetails(
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       backendServerDescriptions: (json['BackendServerDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsElbLoadBalancerBackendServerDescription.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -19049,12 +23544,12 @@ class AwsElbLoadBalancerDetails {
               json['HealthCheck'] as Map<String, dynamic>)
           : null,
       instances: (json['Instances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsElbLoadBalancerInstance.fromJson(e as Map<String, dynamic>))
           .toList(),
       listenerDescriptions: (json['ListenerDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsElbLoadBalancerListenerDescription.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -19069,17 +23564,15 @@ class AwsElbLoadBalancerDetails {
           : null,
       scheme: json['Scheme'] as String?,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       sourceSecurityGroup: json['SourceSecurityGroup'] != null
           ? AwsElbLoadBalancerSourceSecurityGroup.fromJson(
               json['SourceSecurityGroup'] as Map<String, dynamic>)
           : null,
-      subnets: (json['Subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      subnets:
+          (json['Subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
       vpcId: json['VpcId'] as String?,
     );
   }
@@ -19306,7 +23799,7 @@ class AwsElbLoadBalancerListenerDescription {
               json['Listener'] as Map<String, dynamic>)
           : null,
       policyNames: (json['PolicyNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -19345,17 +23838,17 @@ class AwsElbLoadBalancerPolicies {
     return AwsElbLoadBalancerPolicies(
       appCookieStickinessPolicies:
           (json['AppCookieStickinessPolicies'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AwsElbAppCookieStickinessPolicy.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       lbCookieStickinessPolicies: (json['LbCookieStickinessPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsElbLbCookieStickinessPolicy.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       otherPolicies: (json['OtherPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -19446,11 +23939,33 @@ class AwsElbv2LoadBalancerDetails {
 
   /// Indicates when the load balancer was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdTime;
 
   /// The public DNS name of the load balancer.
@@ -19496,7 +24011,7 @@ class AwsElbv2LoadBalancerDetails {
   factory AwsElbv2LoadBalancerDetails.fromJson(Map<String, dynamic> json) {
     return AwsElbv2LoadBalancerDetails(
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AvailabilityZone.fromJson(e as Map<String, dynamic>))
           .toList(),
       canonicalHostedZoneId: json['CanonicalHostedZoneId'] as String?,
@@ -19504,13 +24019,13 @@ class AwsElbv2LoadBalancerDetails {
       dNSName: json['DNSName'] as String?,
       ipAddressType: json['IpAddressType'] as String?,
       loadBalancerAttributes: (json['LoadBalancerAttributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsElbv2LoadBalancerAttribute.fromJson(e as Map<String, dynamic>))
           .toList(),
       scheme: json['Scheme'] as String?,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       state: json['State'] != null
@@ -19551,6 +24066,803 @@ class AwsElbv2LoadBalancerDetails {
   }
 }
 
+/// A schema defines the structure of events that are sent to Amazon
+/// EventBridge. Schema registries are containers for schemas. They collect and
+/// organize schemas so that your schemas are in logical groups.
+class AwsEventSchemasRegistryDetails {
+  /// A description of the registry to be created.
+  final String? description;
+
+  /// The Amazon Resource Name (ARN) of the registry.
+  final String? registryArn;
+
+  /// The name of the schema registry.
+  final String? registryName;
+
+  AwsEventSchemasRegistryDetails({
+    this.description,
+    this.registryArn,
+    this.registryName,
+  });
+
+  factory AwsEventSchemasRegistryDetails.fromJson(Map<String, dynamic> json) {
+    return AwsEventSchemasRegistryDetails(
+      description: json['Description'] as String?,
+      registryArn: json['RegistryArn'] as String?,
+      registryName: json['RegistryName'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final description = this.description;
+    final registryArn = this.registryArn;
+    final registryName = this.registryName;
+    return {
+      if (description != null) 'Description': description,
+      if (registryArn != null) 'RegistryArn': registryArn,
+      if (registryName != null) 'RegistryName': registryName,
+    };
+  }
+}
+
+/// Provides details about an Amazon EventBridge global endpoint. The endpoint
+/// can improve your application’s availability by making it Regional-fault
+/// tolerant.
+class AwsEventsEndpointDetails {
+  /// The Amazon Resource Name (ARN) of the endpoint.
+  final String? arn;
+
+  /// A description of the endpoint.
+  final String? description;
+
+  /// The URL subdomain of the endpoint. For example, if <code>EndpointUrl</code>
+  /// is <code>https://abcde.veo.endpoints.event.amazonaws.com</code>, then the
+  /// <code>EndpointId</code> is <code>abcde.veo</code>.
+  final String? endpointId;
+
+  /// The URL of the endpoint.
+  final String? endpointUrl;
+
+  /// The event buses being used by the endpoint.
+  final List<AwsEventsEndpointEventBusesDetails>? eventBuses;
+
+  /// The name of the endpoint.
+  final String? name;
+
+  /// Whether event replication was enabled or disabled for this endpoint. The
+  /// default state is <code>ENABLED</code>, which means you must supply a
+  /// <code>RoleArn</code>. If you don't have a <code>RoleArn</code> or you don't
+  /// want event replication enabled, set the state to <code>DISABLED</code>.
+  final AwsEventsEndpointReplicationConfigDetails? replicationConfig;
+
+  /// The ARN of the role used by event replication for the endpoint.
+  final String? roleArn;
+
+  /// The routing configuration of the endpoint.
+  final AwsEventsEndpointRoutingConfigDetails? routingConfig;
+
+  /// The current state of the endpoint.
+  final String? state;
+
+  /// The reason the endpoint is in its current state.
+  final String? stateReason;
+
+  AwsEventsEndpointDetails({
+    this.arn,
+    this.description,
+    this.endpointId,
+    this.endpointUrl,
+    this.eventBuses,
+    this.name,
+    this.replicationConfig,
+    this.roleArn,
+    this.routingConfig,
+    this.state,
+    this.stateReason,
+  });
+
+  factory AwsEventsEndpointDetails.fromJson(Map<String, dynamic> json) {
+    return AwsEventsEndpointDetails(
+      arn: json['Arn'] as String?,
+      description: json['Description'] as String?,
+      endpointId: json['EndpointId'] as String?,
+      endpointUrl: json['EndpointUrl'] as String?,
+      eventBuses: (json['EventBuses'] as List?)
+          ?.nonNulls
+          .map((e) => AwsEventsEndpointEventBusesDetails.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      name: json['Name'] as String?,
+      replicationConfig: json['ReplicationConfig'] != null
+          ? AwsEventsEndpointReplicationConfigDetails.fromJson(
+              json['ReplicationConfig'] as Map<String, dynamic>)
+          : null,
+      roleArn: json['RoleArn'] as String?,
+      routingConfig: json['RoutingConfig'] != null
+          ? AwsEventsEndpointRoutingConfigDetails.fromJson(
+              json['RoutingConfig'] as Map<String, dynamic>)
+          : null,
+      state: json['State'] as String?,
+      stateReason: json['StateReason'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final description = this.description;
+    final endpointId = this.endpointId;
+    final endpointUrl = this.endpointUrl;
+    final eventBuses = this.eventBuses;
+    final name = this.name;
+    final replicationConfig = this.replicationConfig;
+    final roleArn = this.roleArn;
+    final routingConfig = this.routingConfig;
+    final state = this.state;
+    final stateReason = this.stateReason;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (description != null) 'Description': description,
+      if (endpointId != null) 'EndpointId': endpointId,
+      if (endpointUrl != null) 'EndpointUrl': endpointUrl,
+      if (eventBuses != null) 'EventBuses': eventBuses,
+      if (name != null) 'Name': name,
+      if (replicationConfig != null) 'ReplicationConfig': replicationConfig,
+      if (roleArn != null) 'RoleArn': roleArn,
+      if (routingConfig != null) 'RoutingConfig': routingConfig,
+      if (state != null) 'State': state,
+      if (stateReason != null) 'StateReason': stateReason,
+    };
+  }
+}
+
+/// Provides details about the Amazon EventBridge event buses that the endpoint
+/// is associated with.
+class AwsEventsEndpointEventBusesDetails {
+  /// The Amazon Resource Name (ARN) of the event bus that the endpoint is
+  /// associated with.
+  final String? eventBusArn;
+
+  AwsEventsEndpointEventBusesDetails({
+    this.eventBusArn,
+  });
+
+  factory AwsEventsEndpointEventBusesDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEventsEndpointEventBusesDetails(
+      eventBusArn: json['EventBusArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final eventBusArn = this.eventBusArn;
+    return {
+      if (eventBusArn != null) 'EventBusArn': eventBusArn,
+    };
+  }
+}
+
+/// Indicates whether replication is enabled or disabled for the endpoint. If
+/// enabled, the endpoint can replicate all events to a secondary Amazon Web
+/// Services Region.
+class AwsEventsEndpointReplicationConfigDetails {
+  /// The state of event replication.
+  final String? state;
+
+  AwsEventsEndpointReplicationConfigDetails({
+    this.state,
+  });
+
+  factory AwsEventsEndpointReplicationConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEventsEndpointReplicationConfigDetails(
+      state: json['State'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final state = this.state;
+    return {
+      if (state != null) 'State': state,
+    };
+  }
+}
+
+/// Provides details about the routing configuration of the endpoint.
+class AwsEventsEndpointRoutingConfigDetails {
+  /// The failover configuration for an endpoint. This includes what triggers
+  /// failover and what happens when it's triggered.
+  final AwsEventsEndpointRoutingConfigFailoverConfigDetails? failoverConfig;
+
+  AwsEventsEndpointRoutingConfigDetails({
+    this.failoverConfig,
+  });
+
+  factory AwsEventsEndpointRoutingConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEventsEndpointRoutingConfigDetails(
+      failoverConfig: json['FailoverConfig'] != null
+          ? AwsEventsEndpointRoutingConfigFailoverConfigDetails.fromJson(
+              json['FailoverConfig'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final failoverConfig = this.failoverConfig;
+    return {
+      if (failoverConfig != null) 'FailoverConfig': failoverConfig,
+    };
+  }
+}
+
+/// The failover configuration for an endpoint. This includes what triggers
+/// failover and what happens when it's triggered.
+class AwsEventsEndpointRoutingConfigFailoverConfigDetails {
+  /// The main Region of the endpoint.
+  final AwsEventsEndpointRoutingConfigFailoverConfigPrimaryDetails? primary;
+
+  /// The Region that events are routed to when failover is triggered or event
+  /// replication is enabled.
+  final AwsEventsEndpointRoutingConfigFailoverConfigSecondaryDetails? secondary;
+
+  AwsEventsEndpointRoutingConfigFailoverConfigDetails({
+    this.primary,
+    this.secondary,
+  });
+
+  factory AwsEventsEndpointRoutingConfigFailoverConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEventsEndpointRoutingConfigFailoverConfigDetails(
+      primary: json['Primary'] != null
+          ? AwsEventsEndpointRoutingConfigFailoverConfigPrimaryDetails.fromJson(
+              json['Primary'] as Map<String, dynamic>)
+          : null,
+      secondary: json['Secondary'] != null
+          ? AwsEventsEndpointRoutingConfigFailoverConfigSecondaryDetails
+              .fromJson(json['Secondary'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final primary = this.primary;
+    final secondary = this.secondary;
+    return {
+      if (primary != null) 'Primary': primary,
+      if (secondary != null) 'Secondary': secondary,
+    };
+  }
+}
+
+/// Provides details about the primary Amazon Web Services Region of the
+/// endpoint.
+class AwsEventsEndpointRoutingConfigFailoverConfigPrimaryDetails {
+  /// The Amazon Resource Name (ARN) of the health check used by the endpoint to
+  /// determine whether failover is triggered.
+  final String? healthCheck;
+
+  AwsEventsEndpointRoutingConfigFailoverConfigPrimaryDetails({
+    this.healthCheck,
+  });
+
+  factory AwsEventsEndpointRoutingConfigFailoverConfigPrimaryDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEventsEndpointRoutingConfigFailoverConfigPrimaryDetails(
+      healthCheck: json['HealthCheck'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final healthCheck = this.healthCheck;
+    return {
+      if (healthCheck != null) 'HealthCheck': healthCheck,
+    };
+  }
+}
+
+/// The Amazon Web Services Region that events are routed to when failover is
+/// triggered or event replication is enabled.
+class AwsEventsEndpointRoutingConfigFailoverConfigSecondaryDetails {
+  /// Defines the secondary Region.
+  final String? route;
+
+  AwsEventsEndpointRoutingConfigFailoverConfigSecondaryDetails({
+    this.route,
+  });
+
+  factory AwsEventsEndpointRoutingConfigFailoverConfigSecondaryDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsEventsEndpointRoutingConfigFailoverConfigSecondaryDetails(
+      route: json['Route'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final route = this.route;
+    return {
+      if (route != null) 'Route': route,
+    };
+  }
+}
+
+/// Provides details about Amazon EventBridge event bus. An event bus is a
+/// router that receives events and delivers them to zero or more destinations,
+/// or targets. This can be a custom event bus which you can use to receive
+/// events from your custom applications and services, or it can be a partner
+/// event bus which can be matched to a partner event source.
+class AwsEventsEventbusDetails {
+  /// The Amazon Resource Name (ARN) of the account permitted to write events to
+  /// the current account.
+  final String? arn;
+
+  /// The name of the event bus.
+  final String? name;
+
+  /// The policy that enables the external account to send events to your account.
+  final String? policy;
+
+  AwsEventsEventbusDetails({
+    this.arn,
+    this.name,
+    this.policy,
+  });
+
+  factory AwsEventsEventbusDetails.fromJson(Map<String, dynamic> json) {
+    return AwsEventsEventbusDetails(
+      arn: json['Arn'] as String?,
+      name: json['Name'] as String?,
+      policy: json['Policy'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final name = this.name;
+    final policy = this.policy;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (name != null) 'Name': name,
+      if (policy != null) 'Policy': policy,
+    };
+  }
+}
+
+/// An object that contains information on the status of CloudTrail as a data
+/// source for the detector.
+class AwsGuardDutyDetectorDataSourcesCloudTrailDetails {
+  /// Specifies whether CloudTrail is activated as a data source for the detector.
+  final String? status;
+
+  AwsGuardDutyDetectorDataSourcesCloudTrailDetails({
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesCloudTrailDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesCloudTrailDetails(
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// Describes which data sources are activated for the detector.
+class AwsGuardDutyDetectorDataSourcesDetails {
+  /// An object that contains information on the status of CloudTrail as a data
+  /// source for the detector.
+  final AwsGuardDutyDetectorDataSourcesCloudTrailDetails? cloudTrail;
+
+  /// An object that contains information on the status of DNS logs as a data
+  /// source for the detector.
+  final AwsGuardDutyDetectorDataSourcesDnsLogsDetails? dnsLogs;
+
+  /// An object that contains information on the status of VPC Flow Logs as a data
+  /// source for the detector.
+  final AwsGuardDutyDetectorDataSourcesFlowLogsDetails? flowLogs;
+
+  /// An object that contains information on the status of Kubernetes data sources
+  /// for the detector.
+  final AwsGuardDutyDetectorDataSourcesKubernetesDetails? kubernetes;
+
+  /// An object that contains information on the status of Malware Protection as a
+  /// data source for the detector.
+  final AwsGuardDutyDetectorDataSourcesMalwareProtectionDetails?
+      malwareProtection;
+
+  /// An object that contains information on the status of S3 Data event logs as a
+  /// data source for the detector.
+  final AwsGuardDutyDetectorDataSourcesS3LogsDetails? s3Logs;
+
+  AwsGuardDutyDetectorDataSourcesDetails({
+    this.cloudTrail,
+    this.dnsLogs,
+    this.flowLogs,
+    this.kubernetes,
+    this.malwareProtection,
+    this.s3Logs,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesDetails(
+      cloudTrail: json['CloudTrail'] != null
+          ? AwsGuardDutyDetectorDataSourcesCloudTrailDetails.fromJson(
+              json['CloudTrail'] as Map<String, dynamic>)
+          : null,
+      dnsLogs: json['DnsLogs'] != null
+          ? AwsGuardDutyDetectorDataSourcesDnsLogsDetails.fromJson(
+              json['DnsLogs'] as Map<String, dynamic>)
+          : null,
+      flowLogs: json['FlowLogs'] != null
+          ? AwsGuardDutyDetectorDataSourcesFlowLogsDetails.fromJson(
+              json['FlowLogs'] as Map<String, dynamic>)
+          : null,
+      kubernetes: json['Kubernetes'] != null
+          ? AwsGuardDutyDetectorDataSourcesKubernetesDetails.fromJson(
+              json['Kubernetes'] as Map<String, dynamic>)
+          : null,
+      malwareProtection: json['MalwareProtection'] != null
+          ? AwsGuardDutyDetectorDataSourcesMalwareProtectionDetails.fromJson(
+              json['MalwareProtection'] as Map<String, dynamic>)
+          : null,
+      s3Logs: json['S3Logs'] != null
+          ? AwsGuardDutyDetectorDataSourcesS3LogsDetails.fromJson(
+              json['S3Logs'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cloudTrail = this.cloudTrail;
+    final dnsLogs = this.dnsLogs;
+    final flowLogs = this.flowLogs;
+    final kubernetes = this.kubernetes;
+    final malwareProtection = this.malwareProtection;
+    final s3Logs = this.s3Logs;
+    return {
+      if (cloudTrail != null) 'CloudTrail': cloudTrail,
+      if (dnsLogs != null) 'DnsLogs': dnsLogs,
+      if (flowLogs != null) 'FlowLogs': flowLogs,
+      if (kubernetes != null) 'Kubernetes': kubernetes,
+      if (malwareProtection != null) 'MalwareProtection': malwareProtection,
+      if (s3Logs != null) 'S3Logs': s3Logs,
+    };
+  }
+}
+
+/// An object that contains information on the status of DNS logs as a data
+/// source for the detector.
+class AwsGuardDutyDetectorDataSourcesDnsLogsDetails {
+  /// Describes whether DNS logs is enabled as a data source for the detector.
+  final String? status;
+
+  AwsGuardDutyDetectorDataSourcesDnsLogsDetails({
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesDnsLogsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesDnsLogsDetails(
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// An object that contains information on the status of VPC Flow Logs as a data
+/// source for the detector.
+class AwsGuardDutyDetectorDataSourcesFlowLogsDetails {
+  /// Describes whether VPC Flow Logs are activated as a data source for the
+  /// detector.
+  final String? status;
+
+  AwsGuardDutyDetectorDataSourcesFlowLogsDetails({
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesFlowLogsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesFlowLogsDetails(
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// An object that contains information on the status of Kubernetes audit logs
+/// as a data source for the detector.
+class AwsGuardDutyDetectorDataSourcesKubernetesAuditLogsDetails {
+  /// Describes whether Kubernetes audit logs are activated as a data source for
+  /// the detector.
+  final String? status;
+
+  AwsGuardDutyDetectorDataSourcesKubernetesAuditLogsDetails({
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesKubernetesAuditLogsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesKubernetesAuditLogsDetails(
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// An object that contains information on the status of Kubernetes data sources
+/// for the detector.
+class AwsGuardDutyDetectorDataSourcesKubernetesDetails {
+  /// Describes whether Kubernetes audit logs are activated as a data source for
+  /// the detector.
+  final AwsGuardDutyDetectorDataSourcesKubernetesAuditLogsDetails? auditLogs;
+
+  AwsGuardDutyDetectorDataSourcesKubernetesDetails({
+    this.auditLogs,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesKubernetesDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesKubernetesDetails(
+      auditLogs: json['AuditLogs'] != null
+          ? AwsGuardDutyDetectorDataSourcesKubernetesAuditLogsDetails.fromJson(
+              json['AuditLogs'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final auditLogs = this.auditLogs;
+    return {
+      if (auditLogs != null) 'AuditLogs': auditLogs,
+    };
+  }
+}
+
+/// An object that contains information on the status of Malware Protection as a
+/// data source for the detector.
+class AwsGuardDutyDetectorDataSourcesMalwareProtectionDetails {
+  /// Describes the configuration of Malware Protection for EC2 instances with
+  /// findings.
+  final AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsDetails?
+      scanEc2InstanceWithFindings;
+
+  /// The GuardDuty Malware Protection service role.
+  final String? serviceRole;
+
+  AwsGuardDutyDetectorDataSourcesMalwareProtectionDetails({
+    this.scanEc2InstanceWithFindings,
+    this.serviceRole,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesMalwareProtectionDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesMalwareProtectionDetails(
+      scanEc2InstanceWithFindings: json['ScanEc2InstanceWithFindings'] != null
+          ? AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsDetails
+              .fromJson(
+                  json['ScanEc2InstanceWithFindings'] as Map<String, dynamic>)
+          : null,
+      serviceRole: json['ServiceRole'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final scanEc2InstanceWithFindings = this.scanEc2InstanceWithFindings;
+    final serviceRole = this.serviceRole;
+    return {
+      if (scanEc2InstanceWithFindings != null)
+        'ScanEc2InstanceWithFindings': scanEc2InstanceWithFindings,
+      if (serviceRole != null) 'ServiceRole': serviceRole,
+    };
+  }
+}
+
+/// Describes the configuration of Malware Protection for EC2 instances with
+/// findings.
+class AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsDetails {
+  /// Describes the configuration of scanning EBS volumes (Malware Protection) as
+  /// a data source.
+  final AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsEbsVolumesDetails?
+      ebsVolumes;
+
+  AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsDetails({
+    this.ebsVolumes,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsDetails(
+      ebsVolumes: json['EbsVolumes'] != null
+          ? AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsEbsVolumesDetails
+              .fromJson(json['EbsVolumes'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final ebsVolumes = this.ebsVolumes;
+    return {
+      if (ebsVolumes != null) 'EbsVolumes': ebsVolumes,
+    };
+  }
+}
+
+/// Describes the configuration of scanning EBS volumes (Malware Protection) as
+/// a data source.
+class AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsEbsVolumesDetails {
+  /// Specifies the reason why scanning EBS volumes (Malware Protection) isn’t
+  /// activated as a data source.
+  final String? reason;
+
+  /// Describes whether scanning EBS volumes is activated as a data source for the
+  /// detector.
+  final String? status;
+
+  AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsEbsVolumesDetails({
+    this.reason,
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsEbsVolumesDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesMalwareProtectionScanEc2InstanceWithFindingsEbsVolumesDetails(
+      reason: json['Reason'] as String?,
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final reason = this.reason;
+    final status = this.status;
+    return {
+      if (reason != null) 'Reason': reason,
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// An object that contains information on the status of S3 data event logs as a
+/// data source for the detector.
+class AwsGuardDutyDetectorDataSourcesS3LogsDetails {
+  /// A value that describes whether S3 data event logs are automatically enabled
+  /// for new members of an organization.
+  final String? status;
+
+  AwsGuardDutyDetectorDataSourcesS3LogsDetails({
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorDataSourcesS3LogsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDataSourcesS3LogsDetails(
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// Provides details about an Amazon GuardDuty detector. A detector is an object
+/// that represents the GuardDuty service. A detector is required for GuardDuty
+/// to become operational.
+class AwsGuardDutyDetectorDetails {
+  /// Describes which data sources are activated for the detector.
+  final AwsGuardDutyDetectorDataSourcesDetails? dataSources;
+
+  /// Describes which features are activated for the detector.
+  final List<AwsGuardDutyDetectorFeaturesDetails>? features;
+
+  /// The publishing frequency of the finding.
+  final String? findingPublishingFrequency;
+
+  /// The GuardDuty service role.
+  final String? serviceRole;
+
+  /// The activation status of the detector.
+  final String? status;
+
+  AwsGuardDutyDetectorDetails({
+    this.dataSources,
+    this.features,
+    this.findingPublishingFrequency,
+    this.serviceRole,
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorDetails.fromJson(Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorDetails(
+      dataSources: json['DataSources'] != null
+          ? AwsGuardDutyDetectorDataSourcesDetails.fromJson(
+              json['DataSources'] as Map<String, dynamic>)
+          : null,
+      features: (json['Features'] as List?)
+          ?.nonNulls
+          .map((e) => AwsGuardDutyDetectorFeaturesDetails.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      findingPublishingFrequency: json['FindingPublishingFrequency'] as String?,
+      serviceRole: json['ServiceRole'] as String?,
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final dataSources = this.dataSources;
+    final features = this.features;
+    final findingPublishingFrequency = this.findingPublishingFrequency;
+    final serviceRole = this.serviceRole;
+    final status = this.status;
+    return {
+      if (dataSources != null) 'DataSources': dataSources,
+      if (features != null) 'Features': features,
+      if (findingPublishingFrequency != null)
+        'FindingPublishingFrequency': findingPublishingFrequency,
+      if (serviceRole != null) 'ServiceRole': serviceRole,
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
+/// Describes which features are activated for the detector.
+class AwsGuardDutyDetectorFeaturesDetails {
+  /// Indicates the name of the feature that is activated for the detector.
+  final String? name;
+
+  /// Indicates the status of the feature that is activated for the detector.
+  final String? status;
+
+  AwsGuardDutyDetectorFeaturesDetails({
+    this.name,
+    this.status,
+  });
+
+  factory AwsGuardDutyDetectorFeaturesDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsGuardDutyDetectorFeaturesDetails(
+      name: json['Name'] as String?,
+      status: json['Status'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final status = this.status;
+    return {
+      if (name != null) 'Name': name,
+      if (status != null) 'Status': status,
+    };
+  }
+}
+
 /// IAM access key details related to a finding.
 class AwsIamAccessKeyDetails {
   /// The identifier of the access key.
@@ -19561,11 +24873,33 @@ class AwsIamAccessKeyDetails {
 
   /// Indicates when the IAM access key was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdAt;
 
   /// The ID of the principal associated with an access key.
@@ -19614,7 +24948,8 @@ class AwsIamAccessKeyDetails {
           ? AwsIamAccessKeySessionContext.fromJson(
               json['SessionContext'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toAwsIamAccessKeyStatus(),
+      status:
+          (json['Status'] as String?)?.let(AwsIamAccessKeyStatus.fromString),
       userName: json['UserName'] as String?,
     );
   }
@@ -19637,7 +24972,7 @@ class AwsIamAccessKeyDetails {
       if (principalName != null) 'PrincipalName': principalName,
       if (principalType != null) 'PrincipalType': principalType,
       if (sessionContext != null) 'SessionContext': sessionContext,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (userName != null) 'UserName': userName,
     };
   }
@@ -19683,11 +25018,33 @@ class AwsIamAccessKeySessionContext {
 class AwsIamAccessKeySessionContextAttributes {
   /// Indicates when the session was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? creationDate;
 
   /// Indicates whether the session used multi-factor authentication (MFA).
@@ -19770,31 +25127,18 @@ class AwsIamAccessKeySessionContextSessionIssuer {
 }
 
 enum AwsIamAccessKeyStatus {
-  active,
-  inactive,
-}
+  active('Active'),
+  inactive('Inactive'),
+  ;
 
-extension AwsIamAccessKeyStatusValueExtension on AwsIamAccessKeyStatus {
-  String toValue() {
-    switch (this) {
-      case AwsIamAccessKeyStatus.active:
-        return 'Active';
-      case AwsIamAccessKeyStatus.inactive:
-        return 'Inactive';
-    }
-  }
-}
+  final String value;
 
-extension AwsIamAccessKeyStatusFromString on String {
-  AwsIamAccessKeyStatus toAwsIamAccessKeyStatus() {
-    switch (this) {
-      case 'Active':
-        return AwsIamAccessKeyStatus.active;
-      case 'Inactive':
-        return AwsIamAccessKeyStatus.inactive;
-    }
-    throw Exception('$this is not known in enum AwsIamAccessKeyStatus');
-  }
+  const AwsIamAccessKeyStatus(this.value);
+
+  static AwsIamAccessKeyStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AwsIamAccessKeyStatus'));
 }
 
 /// A managed policy that is attached to an IAM principal.
@@ -19834,11 +25178,33 @@ class AwsIamGroupDetails {
 
   /// Indicates when the IAM group was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createDate;
 
   /// The identifier of the IAM group.
@@ -19865,7 +25231,7 @@ class AwsIamGroupDetails {
   factory AwsIamGroupDetails.fromJson(Map<String, dynamic> json) {
     return AwsIamGroupDetails(
       attachedManagedPolicies: (json['AttachedManagedPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsIamAttachedManagedPolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -19873,7 +25239,7 @@ class AwsIamGroupDetails {
       groupId: json['GroupId'] as String?,
       groupName: json['GroupName'] as String?,
       groupPolicyList: (json['GroupPolicyList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsIamGroupPolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
       path: json['Path'] as String?,
@@ -19929,11 +25295,33 @@ class AwsIamInstanceProfile {
 
   /// Indicates when the instance profile was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createDate;
 
   /// The identifier of the instance profile.
@@ -19965,7 +25353,7 @@ class AwsIamInstanceProfile {
       instanceProfileName: json['InstanceProfileName'] as String?,
       path: json['Path'] as String?,
       roles: (json['Roles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsIamInstanceProfileRole.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -20001,11 +25389,33 @@ class AwsIamInstanceProfileRole {
 
   /// Indicates when the role was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createDate;
 
   /// The path to the role.
@@ -20096,11 +25506,33 @@ class AwsIamPolicyDetails {
 
   /// When the policy was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createDate;
 
   /// The identifier of the default version of the policy.
@@ -20130,11 +25562,33 @@ class AwsIamPolicyDetails {
 
   /// When the policy was most recently updated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? updateDate;
 
   AwsIamPolicyDetails({
@@ -20164,7 +25618,7 @@ class AwsIamPolicyDetails {
       policyId: json['PolicyId'] as String?,
       policyName: json['PolicyName'] as String?,
       policyVersionList: (json['PolicyVersionList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsIamPolicyVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
       updateDate: json['UpdateDate'] as String?,
@@ -20204,11 +25658,33 @@ class AwsIamPolicyDetails {
 class AwsIamPolicyVersion {
   /// Indicates when the version was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createDate;
 
   /// Whether the version is the default version.
@@ -20254,11 +25730,33 @@ class AwsIamRoleDetails {
 
   /// Indicates when the role was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createDate;
 
   /// The list of instance profiles that contain this role.
@@ -20298,13 +25796,13 @@ class AwsIamRoleDetails {
     return AwsIamRoleDetails(
       assumeRolePolicyDocument: json['AssumeRolePolicyDocument'] as String?,
       attachedManagedPolicies: (json['AttachedManagedPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsIamAttachedManagedPolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
       createDate: json['CreateDate'] as String?,
       instanceProfileList: (json['InstanceProfileList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsIamInstanceProfile.fromJson(e as Map<String, dynamic>))
           .toList(),
       maxSessionDuration: json['MaxSessionDuration'] as int?,
@@ -20316,7 +25814,7 @@ class AwsIamRoleDetails {
       roleId: json['RoleId'] as String?,
       roleName: json['RoleName'] as String?,
       rolePolicyList: (json['RolePolicyList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsIamRolePolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -20382,11 +25880,33 @@ class AwsIamUserDetails {
 
   /// Indicates when the user was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createDate;
 
   /// A list of IAM groups that the user belongs to.
@@ -20421,13 +25941,13 @@ class AwsIamUserDetails {
   factory AwsIamUserDetails.fromJson(Map<String, dynamic> json) {
     return AwsIamUserDetails(
       attachedManagedPolicies: (json['AttachedManagedPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsIamAttachedManagedPolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
       createDate: json['CreateDate'] as String?,
       groupList: (json['GroupList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       path: json['Path'] as String?,
@@ -20438,7 +25958,7 @@ class AwsIamUserDetails {
       userId: json['UserId'] as String?,
       userName: json['UserName'] as String?,
       userPolicyList: (json['UserPolicyList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsIamUserPolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -20590,11 +26110,33 @@ class AwsKmsKeyDetails {
 
   /// Indicates when the KMS key was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final double? creationDate;
 
   /// A description of the KMS key.
@@ -20791,11 +26333,33 @@ class AwsLambdaFunctionDetails {
 
   /// Indicates when the function was last updated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastModified;
 
   /// The function's layers.
@@ -20859,7 +26423,7 @@ class AwsLambdaFunctionDetails {
   factory AwsLambdaFunctionDetails.fromJson(Map<String, dynamic> json) {
     return AwsLambdaFunctionDetails(
       architectures: (json['Architectures'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       code: json['Code'] != null
@@ -20879,7 +26443,7 @@ class AwsLambdaFunctionDetails {
       kmsKeyArn: json['KmsKeyArn'] as String?,
       lastModified: json['LastModified'] as String?,
       layers: (json['Layers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AwsLambdaFunctionLayer.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -21086,11 +26650,11 @@ class AwsLambdaFunctionVpcConfig {
   factory AwsLambdaFunctionVpcConfig.fromJson(Map<String, dynamic> json) {
     return AwsLambdaFunctionVpcConfig(
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -21111,22 +26675,55 @@ class AwsLambdaFunctionVpcConfig {
 
 /// Details about a Lambda layer version.
 class AwsLambdaLayerVersionDetails {
-  /// The layer's compatible runtimes. Maximum number of five items.
+  /// The layer's compatible <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html">function
+  /// runtimes</a>.
   ///
-  /// Valid values: <code>nodejs10.x</code> | <code>nodejs12.x</code> |
-  /// <code>java8</code> | <code>java11</code> | <code>python2.7</code> |
-  /// <code>python3.6</code> | <code>python3.7</code> | <code>python3.8</code> |
-  /// <code>dotnetcore1.0</code> | <code>dotnetcore2.1</code> | <code>go1.x</code>
-  /// | <code>ruby2.5</code> | <code>provided</code>
+  /// The following list includes deprecated runtimes. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtime-support-policy">Runtime
+  /// deprecation policy</a> in the <i>Lambda Developer Guide</i>.
+  ///
+  /// Array Members: Maximum number of 5 items.
+  ///
+  /// Valid Values: <code>nodejs | nodejs4.3 | nodejs6.10 | nodejs8.10 |
+  /// nodejs10.x | nodejs12.x | nodejs14.x | nodejs16.x | java8 | java8.al2 |
+  /// java11 | python2.7 | python3.6 | python3.7 | python3.8 | python3.9 |
+  /// dotnetcore1.0 | dotnetcore2.0 | dotnetcore2.1 | dotnetcore3.1 | dotnet6 |
+  /// nodejs4.3-edge | go1.x | ruby2.5 | ruby2.7 | provided | provided.al2 |
+  /// nodejs18.x | python3.10 | java17 | ruby3.2 | python3.11 | nodejs20.x |
+  /// provided.al2023 | python3.12 | java21</code>
   final List<String>? compatibleRuntimes;
 
   /// Indicates when the version was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdDate;
 
   /// The version number.
@@ -21141,7 +26738,7 @@ class AwsLambdaLayerVersionDetails {
   factory AwsLambdaLayerVersionDetails.fromJson(Map<String, dynamic> json) {
     return AwsLambdaLayerVersionDetails(
       compatibleRuntimes: (json['CompatibleRuntimes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       createdDate: json['CreatedDate'] as String?,
@@ -21188,6 +26785,403 @@ class AwsMountPoint {
     return {
       if (containerPath != null) 'ContainerPath': containerPath,
       if (sourceVolume != null) 'SourceVolume': sourceVolume,
+    };
+  }
+}
+
+/// Provides details about different modes of client authentication.
+class AwsMskClusterClusterInfoClientAuthenticationDetails {
+  /// Provides details for client authentication using SASL.
+  final AwsMskClusterClusterInfoClientAuthenticationSaslDetails? sasl;
+
+  /// Provides details for client authentication using TLS.
+  final AwsMskClusterClusterInfoClientAuthenticationTlsDetails? tls;
+
+  /// Provides details for allowing no client authentication.
+  final AwsMskClusterClusterInfoClientAuthenticationUnauthenticatedDetails?
+      unauthenticated;
+
+  AwsMskClusterClusterInfoClientAuthenticationDetails({
+    this.sasl,
+    this.tls,
+    this.unauthenticated,
+  });
+
+  factory AwsMskClusterClusterInfoClientAuthenticationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoClientAuthenticationDetails(
+      sasl: json['Sasl'] != null
+          ? AwsMskClusterClusterInfoClientAuthenticationSaslDetails.fromJson(
+              json['Sasl'] as Map<String, dynamic>)
+          : null,
+      tls: json['Tls'] != null
+          ? AwsMskClusterClusterInfoClientAuthenticationTlsDetails.fromJson(
+              json['Tls'] as Map<String, dynamic>)
+          : null,
+      unauthenticated: json['Unauthenticated'] != null
+          ? AwsMskClusterClusterInfoClientAuthenticationUnauthenticatedDetails
+              .fromJson(json['Unauthenticated'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sasl = this.sasl;
+    final tls = this.tls;
+    final unauthenticated = this.unauthenticated;
+    return {
+      if (sasl != null) 'Sasl': sasl,
+      if (tls != null) 'Tls': tls,
+      if (unauthenticated != null) 'Unauthenticated': unauthenticated,
+    };
+  }
+}
+
+/// Provides details for client authentication using SASL.
+class AwsMskClusterClusterInfoClientAuthenticationSaslDetails {
+  /// Provides details for SASL client authentication using IAM.
+  final AwsMskClusterClusterInfoClientAuthenticationSaslIamDetails? iam;
+
+  /// Details for SASL client authentication using SCRAM.
+  final AwsMskClusterClusterInfoClientAuthenticationSaslScramDetails? scram;
+
+  AwsMskClusterClusterInfoClientAuthenticationSaslDetails({
+    this.iam,
+    this.scram,
+  });
+
+  factory AwsMskClusterClusterInfoClientAuthenticationSaslDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoClientAuthenticationSaslDetails(
+      iam: json['Iam'] != null
+          ? AwsMskClusterClusterInfoClientAuthenticationSaslIamDetails.fromJson(
+              json['Iam'] as Map<String, dynamic>)
+          : null,
+      scram: json['Scram'] != null
+          ? AwsMskClusterClusterInfoClientAuthenticationSaslScramDetails
+              .fromJson(json['Scram'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final iam = this.iam;
+    final scram = this.scram;
+    return {
+      if (iam != null) 'Iam': iam,
+      if (scram != null) 'Scram': scram,
+    };
+  }
+}
+
+/// Details for SASL/IAM client authentication.
+class AwsMskClusterClusterInfoClientAuthenticationSaslIamDetails {
+  /// Indicates whether SASL/IAM authentication is enabled or not.
+  final bool? enabled;
+
+  AwsMskClusterClusterInfoClientAuthenticationSaslIamDetails({
+    this.enabled,
+  });
+
+  factory AwsMskClusterClusterInfoClientAuthenticationSaslIamDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoClientAuthenticationSaslIamDetails(
+      enabled: json['Enabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enabled = this.enabled;
+    return {
+      if (enabled != null) 'Enabled': enabled,
+    };
+  }
+}
+
+/// Details for SASL/SCRAM client authentication.
+class AwsMskClusterClusterInfoClientAuthenticationSaslScramDetails {
+  /// Indicates whether SASL/SCRAM authentication is enabled or not.
+  final bool? enabled;
+
+  AwsMskClusterClusterInfoClientAuthenticationSaslScramDetails({
+    this.enabled,
+  });
+
+  factory AwsMskClusterClusterInfoClientAuthenticationSaslScramDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoClientAuthenticationSaslScramDetails(
+      enabled: json['Enabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enabled = this.enabled;
+    return {
+      if (enabled != null) 'Enabled': enabled,
+    };
+  }
+}
+
+/// Provides details for client authentication using TLS.
+class AwsMskClusterClusterInfoClientAuthenticationTlsDetails {
+  /// List of Amazon Web Services Private CA Amazon Resource Names (ARNs). Amazon
+  /// Web Services Private CA enables creation of private certificate authority
+  /// (CA) hierarchies, including root and subordinate CAs, without the investment
+  /// and maintenance costs of operating an on-premises CA.
+  final List<String>? certificateAuthorityArnList;
+
+  /// Indicates whether TLS authentication is enabled or not.
+  final bool? enabled;
+
+  AwsMskClusterClusterInfoClientAuthenticationTlsDetails({
+    this.certificateAuthorityArnList,
+    this.enabled,
+  });
+
+  factory AwsMskClusterClusterInfoClientAuthenticationTlsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoClientAuthenticationTlsDetails(
+      certificateAuthorityArnList:
+          (json['CertificateAuthorityArnList'] as List?)
+              ?.nonNulls
+              .map((e) => e as String)
+              .toList(),
+      enabled: json['Enabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final certificateAuthorityArnList = this.certificateAuthorityArnList;
+    final enabled = this.enabled;
+    return {
+      if (certificateAuthorityArnList != null)
+        'CertificateAuthorityArnList': certificateAuthorityArnList,
+      if (enabled != null) 'Enabled': enabled,
+    };
+  }
+}
+
+/// Provides details for allowing no client authentication.
+class AwsMskClusterClusterInfoClientAuthenticationUnauthenticatedDetails {
+  /// Indicates whether unauthenticated is allowed or not.
+  final bool? enabled;
+
+  AwsMskClusterClusterInfoClientAuthenticationUnauthenticatedDetails({
+    this.enabled,
+  });
+
+  factory AwsMskClusterClusterInfoClientAuthenticationUnauthenticatedDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoClientAuthenticationUnauthenticatedDetails(
+      enabled: json['Enabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enabled = this.enabled;
+    return {
+      if (enabled != null) 'Enabled': enabled,
+    };
+  }
+}
+
+/// Provide details about an Amazon Managed Streaming for Apache Kafka (Amazon
+/// MSK) cluster.
+class AwsMskClusterClusterInfoDetails {
+  /// Provides information for different modes of client authentication.
+  final AwsMskClusterClusterInfoClientAuthenticationDetails?
+      clientAuthentication;
+
+  /// The name of the cluster.
+  final String? clusterName;
+
+  /// The current version of the cluster.
+  final String? currentVersion;
+
+  /// Includes encryption-related information, such as the KMS key used for
+  /// encrypting data at rest and whether you want Amazon MSK to encrypt your data
+  /// in transit.
+  final AwsMskClusterClusterInfoEncryptionInfoDetails? encryptionInfo;
+
+  /// Specifies the level of monitoring for the cluster.
+  final String? enhancedMonitoring;
+
+  /// The number of broker nodes in the cluster.
+  final int? numberOfBrokerNodes;
+
+  AwsMskClusterClusterInfoDetails({
+    this.clientAuthentication,
+    this.clusterName,
+    this.currentVersion,
+    this.encryptionInfo,
+    this.enhancedMonitoring,
+    this.numberOfBrokerNodes,
+  });
+
+  factory AwsMskClusterClusterInfoDetails.fromJson(Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoDetails(
+      clientAuthentication: json['ClientAuthentication'] != null
+          ? AwsMskClusterClusterInfoClientAuthenticationDetails.fromJson(
+              json['ClientAuthentication'] as Map<String, dynamic>)
+          : null,
+      clusterName: json['ClusterName'] as String?,
+      currentVersion: json['CurrentVersion'] as String?,
+      encryptionInfo: json['EncryptionInfo'] != null
+          ? AwsMskClusterClusterInfoEncryptionInfoDetails.fromJson(
+              json['EncryptionInfo'] as Map<String, dynamic>)
+          : null,
+      enhancedMonitoring: json['EnhancedMonitoring'] as String?,
+      numberOfBrokerNodes: json['NumberOfBrokerNodes'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final clientAuthentication = this.clientAuthentication;
+    final clusterName = this.clusterName;
+    final currentVersion = this.currentVersion;
+    final encryptionInfo = this.encryptionInfo;
+    final enhancedMonitoring = this.enhancedMonitoring;
+    final numberOfBrokerNodes = this.numberOfBrokerNodes;
+    return {
+      if (clientAuthentication != null)
+        'ClientAuthentication': clientAuthentication,
+      if (clusterName != null) 'ClusterName': clusterName,
+      if (currentVersion != null) 'CurrentVersion': currentVersion,
+      if (encryptionInfo != null) 'EncryptionInfo': encryptionInfo,
+      if (enhancedMonitoring != null) 'EnhancedMonitoring': enhancedMonitoring,
+      if (numberOfBrokerNodes != null)
+        'NumberOfBrokerNodes': numberOfBrokerNodes,
+    };
+  }
+}
+
+/// Includes encryption-related information, such as the KMS key used for
+/// encrypting data at rest and whether you want MSK to encrypt your data in
+/// transit.
+class AwsMskClusterClusterInfoEncryptionInfoDetails {
+  /// The data-volume encryption details. You can't update encryption at rest
+  /// settings for existing clusters.
+  final AwsMskClusterClusterInfoEncryptionInfoEncryptionAtRestDetails?
+      encryptionAtRest;
+
+  /// The settings for encrypting data in transit.
+  final AwsMskClusterClusterInfoEncryptionInfoEncryptionInTransitDetails?
+      encryptionInTransit;
+
+  AwsMskClusterClusterInfoEncryptionInfoDetails({
+    this.encryptionAtRest,
+    this.encryptionInTransit,
+  });
+
+  factory AwsMskClusterClusterInfoEncryptionInfoDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoEncryptionInfoDetails(
+      encryptionAtRest: json['EncryptionAtRest'] != null
+          ? AwsMskClusterClusterInfoEncryptionInfoEncryptionAtRestDetails
+              .fromJson(json['EncryptionAtRest'] as Map<String, dynamic>)
+          : null,
+      encryptionInTransit: json['EncryptionInTransit'] != null
+          ? AwsMskClusterClusterInfoEncryptionInfoEncryptionInTransitDetails
+              .fromJson(json['EncryptionInTransit'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final encryptionAtRest = this.encryptionAtRest;
+    final encryptionInTransit = this.encryptionInTransit;
+    return {
+      if (encryptionAtRest != null) 'EncryptionAtRest': encryptionAtRest,
+      if (encryptionInTransit != null)
+        'EncryptionInTransit': encryptionInTransit,
+    };
+  }
+}
+
+/// The data-volume encryption details. You can't update encryption at rest
+/// settings for existing clusters.
+class AwsMskClusterClusterInfoEncryptionInfoEncryptionAtRestDetails {
+  /// The Amazon Resource Name (ARN) of the KMS key for encrypting data at rest.
+  /// If you don't specify a KMS key, MSK creates one for you and uses it.
+  final String? dataVolumeKMSKeyId;
+
+  AwsMskClusterClusterInfoEncryptionInfoEncryptionAtRestDetails({
+    this.dataVolumeKMSKeyId,
+  });
+
+  factory AwsMskClusterClusterInfoEncryptionInfoEncryptionAtRestDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoEncryptionInfoEncryptionAtRestDetails(
+      dataVolumeKMSKeyId: json['DataVolumeKMSKeyId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final dataVolumeKMSKeyId = this.dataVolumeKMSKeyId;
+    return {
+      if (dataVolumeKMSKeyId != null) 'DataVolumeKMSKeyId': dataVolumeKMSKeyId,
+    };
+  }
+}
+
+/// The settings for encrypting data in transit.
+class AwsMskClusterClusterInfoEncryptionInfoEncryptionInTransitDetails {
+  /// Indicates the encryption setting for data in transit between clients and
+  /// brokers.
+  final String? clientBroker;
+
+  /// When set to <code>true</code>, it indicates that data communication among
+  /// the broker nodes of the cluster is encrypted. When set to
+  /// <code>false</code>, the communication happens in plain text. The default
+  /// value is <code>true</code>.
+  final bool? inCluster;
+
+  AwsMskClusterClusterInfoEncryptionInfoEncryptionInTransitDetails({
+    this.clientBroker,
+    this.inCluster,
+  });
+
+  factory AwsMskClusterClusterInfoEncryptionInfoEncryptionInTransitDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsMskClusterClusterInfoEncryptionInfoEncryptionInTransitDetails(
+      clientBroker: json['ClientBroker'] as String?,
+      inCluster: json['InCluster'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final clientBroker = this.clientBroker;
+    final inCluster = this.inCluster;
+    return {
+      if (clientBroker != null) 'ClientBroker': clientBroker,
+      if (inCluster != null) 'InCluster': inCluster,
+    };
+  }
+}
+
+/// Provides details about an Amazon Managed Streaming for Apache Kafka (Amazon
+/// MSK) cluster.
+class AwsMskClusterDetails {
+  /// Provides information about a cluster.
+  final AwsMskClusterClusterInfoDetails? clusterInfo;
+
+  AwsMskClusterDetails({
+    this.clusterInfo,
+  });
+
+  factory AwsMskClusterDetails.fromJson(Map<String, dynamic> json) {
+    return AwsMskClusterDetails(
+      clusterInfo: json['ClusterInfo'] != null
+          ? AwsMskClusterClusterInfoDetails.fromJson(
+              json['ClusterInfo'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final clusterInfo = this.clusterInfo;
+    return {
+      if (clusterInfo != null) 'ClusterInfo': clusterInfo,
     };
   }
 }
@@ -21256,7 +27250,7 @@ class AwsNetworkFirewallFirewallDetails {
           json['FirewallPolicyChangeProtection'] as bool?,
       subnetChangeProtection: json['SubnetChangeProtection'] as bool?,
       subnetMappings: (json['SubnetMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsNetworkFirewallFirewallSubnetMappingsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -22137,11 +28131,11 @@ class AwsOpenSearchServiceDomainVpcOptionsDetails {
       Map<String, dynamic> json) {
     return AwsOpenSearchServiceDomainVpcOptionsDetails(
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -22227,6 +28221,10 @@ class AwsRdsDbClusterDetails {
   /// A list of the IAM roles that are associated with the DB cluster.
   final List<AwsRdsDbClusterAssociatedRole>? associatedRoles;
 
+  /// Indicates if minor version upgrades are automatically applied to the
+  /// cluster.
+  final bool? autoMinorVersionUpgrade;
+
   /// A list of Availability Zones (AZs) where instances in the DB cluster can be
   /// created.
   final List<String>? availabilityZones;
@@ -22237,11 +28235,33 @@ class AwsRdsDbClusterDetails {
   /// Indicates when the DB cluster was created, in Universal Coordinated Time
   /// (UTC).
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? clusterCreateTime;
 
   /// Whether tags are copied from the DB cluster to snapshots of the DB cluster.
@@ -22395,6 +28415,7 @@ class AwsRdsDbClusterDetails {
     this.activityStreamStatus,
     this.allocatedStorage,
     this.associatedRoles,
+    this.autoMinorVersionUpgrade,
     this.availabilityZones,
     this.backupRetentionPeriod,
     this.clusterCreateTime,
@@ -22436,12 +28457,13 @@ class AwsRdsDbClusterDetails {
       activityStreamStatus: json['ActivityStreamStatus'] as String?,
       allocatedStorage: json['AllocatedStorage'] as int?,
       associatedRoles: (json['AssociatedRoles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbClusterAssociatedRole.fromJson(e as Map<String, dynamic>))
           .toList(),
+      autoMinorVersionUpgrade: json['AutoMinorVersionUpgrade'] as bool?,
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       backupRetentionPeriod: json['BackupRetentionPeriod'] as int?,
@@ -22449,18 +28471,18 @@ class AwsRdsDbClusterDetails {
       copyTagsToSnapshot: json['CopyTagsToSnapshot'] as bool?,
       crossAccountClone: json['CrossAccountClone'] as bool?,
       customEndpoints: (json['CustomEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       databaseName: json['DatabaseName'] as String?,
       dbClusterIdentifier: json['DbClusterIdentifier'] as String?,
       dbClusterMembers: (json['DbClusterMembers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRdsDbClusterMember.fromJson(e as Map<String, dynamic>))
           .toList(),
       dbClusterOptionGroupMemberships:
           (json['DbClusterOptionGroupMemberships'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AwsRdsDbClusterOptionGroupMembership.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -22469,13 +28491,13 @@ class AwsRdsDbClusterDetails {
       dbSubnetGroup: json['DbSubnetGroup'] as String?,
       deletionProtection: json['DeletionProtection'] as bool?,
       domainMemberships: (json['DomainMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbDomainMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
       enabledCloudWatchLogsExports:
           (json['EnabledCloudWatchLogsExports'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       endpoint: json['Endpoint'] as String?,
@@ -22493,14 +28515,14 @@ class AwsRdsDbClusterDetails {
       preferredBackupWindow: json['PreferredBackupWindow'] as String?,
       preferredMaintenanceWindow: json['PreferredMaintenanceWindow'] as String?,
       readReplicaIdentifiers: (json['ReadReplicaIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       readerEndpoint: json['ReaderEndpoint'] as String?,
       status: json['Status'] as String?,
       storageEncrypted: json['StorageEncrypted'] as bool?,
       vpcSecurityGroups: (json['VpcSecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRdsDbInstanceVpcSecurityGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -22511,6 +28533,7 @@ class AwsRdsDbClusterDetails {
     final activityStreamStatus = this.activityStreamStatus;
     final allocatedStorage = this.allocatedStorage;
     final associatedRoles = this.associatedRoles;
+    final autoMinorVersionUpgrade = this.autoMinorVersionUpgrade;
     final availabilityZones = this.availabilityZones;
     final backupRetentionPeriod = this.backupRetentionPeriod;
     final clusterCreateTime = this.clusterCreateTime;
@@ -22552,6 +28575,8 @@ class AwsRdsDbClusterDetails {
         'ActivityStreamStatus': activityStreamStatus,
       if (allocatedStorage != null) 'AllocatedStorage': allocatedStorage,
       if (associatedRoles != null) 'AssociatedRoles': associatedRoles,
+      if (autoMinorVersionUpgrade != null)
+        'AutoMinorVersionUpgrade': autoMinorVersionUpgrade,
       if (availabilityZones != null) 'AvailabilityZones': availabilityZones,
       if (backupRetentionPeriod != null)
         'BackupRetentionPeriod': backupRetentionPeriod,
@@ -22682,6 +28707,48 @@ class AwsRdsDbClusterOptionGroupMembership {
   }
 }
 
+/// Contains the name and values of a manual Amazon Relational Database Service
+/// (RDS) DB cluster snapshot attribute.
+class AwsRdsDbClusterSnapshotDbClusterSnapshotAttribute {
+  /// The name of the manual DB cluster snapshot attribute. The attribute named
+  /// <code>restore</code> refers to the list of Amazon Web Services accounts that
+  /// have permission to copy or restore the manual DB cluster snapshot.
+  final String? attributeName;
+
+  /// The value(s) for the manual DB cluster snapshot attribute. If the
+  /// <code>AttributeName</code> field is set to <code>restore</code>, then this
+  /// element returns a list of IDs of the Amazon Web Services accounts that are
+  /// authorized to copy or restore the manual DB cluster snapshot. If a value of
+  /// <code>all</code> is in the list, then the manual DB cluster snapshot is
+  /// public and available for any Amazon Web Services account to copy or restore.
+  final List<String>? attributeValues;
+
+  AwsRdsDbClusterSnapshotDbClusterSnapshotAttribute({
+    this.attributeName,
+    this.attributeValues,
+  });
+
+  factory AwsRdsDbClusterSnapshotDbClusterSnapshotAttribute.fromJson(
+      Map<String, dynamic> json) {
+    return AwsRdsDbClusterSnapshotDbClusterSnapshotAttribute(
+      attributeName: json['AttributeName'] as String?,
+      attributeValues: (json['AttributeValues'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final attributeName = this.attributeName;
+    final attributeValues = this.attributeValues;
+    return {
+      if (attributeName != null) 'AttributeName': attributeName,
+      if (attributeValues != null) 'AttributeValues': attributeValues,
+    };
+  }
+}
+
 /// Information about an Amazon RDS DB cluster snapshot.
 class AwsRdsDbClusterSnapshotDetails {
   /// Specifies the allocated storage size in gibibytes (GiB).
@@ -22694,15 +28761,41 @@ class AwsRdsDbClusterSnapshotDetails {
   /// Indicates when the DB cluster was created, in Universal Coordinated Time
   /// (UTC).
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? clusterCreateTime;
 
   /// The DB cluster identifier.
   final String? dbClusterIdentifier;
+
+  /// Contains the name and values of a manual DB cluster snapshot attribute.
+  final List<AwsRdsDbClusterSnapshotDbClusterSnapshotAttribute>?
+      dbClusterSnapshotAttributes;
 
   /// The identifier of the DB cluster snapshot.
   final String? dbClusterSnapshotIdentifier;
@@ -22735,11 +28828,33 @@ class AwsRdsDbClusterSnapshotDetails {
 
   /// Indicates when the snapshot was taken.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? snapshotCreateTime;
 
   /// The type of DB cluster snapshot.
@@ -22759,6 +28874,7 @@ class AwsRdsDbClusterSnapshotDetails {
     this.availabilityZones,
     this.clusterCreateTime,
     this.dbClusterIdentifier,
+    this.dbClusterSnapshotAttributes,
     this.dbClusterSnapshotIdentifier,
     this.engine,
     this.engineVersion,
@@ -22779,11 +28895,18 @@ class AwsRdsDbClusterSnapshotDetails {
     return AwsRdsDbClusterSnapshotDetails(
       allocatedStorage: json['AllocatedStorage'] as int?,
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       clusterCreateTime: json['ClusterCreateTime'] as String?,
       dbClusterIdentifier: json['DbClusterIdentifier'] as String?,
+      dbClusterSnapshotAttributes:
+          (json['DbClusterSnapshotAttributes'] as List?)
+              ?.nonNulls
+              .map((e) =>
+                  AwsRdsDbClusterSnapshotDbClusterSnapshotAttribute.fromJson(
+                      e as Map<String, dynamic>))
+              .toList(),
       dbClusterSnapshotIdentifier:
           json['DbClusterSnapshotIdentifier'] as String?,
       engine: json['Engine'] as String?,
@@ -22808,6 +28931,7 @@ class AwsRdsDbClusterSnapshotDetails {
     final availabilityZones = this.availabilityZones;
     final clusterCreateTime = this.clusterCreateTime;
     final dbClusterIdentifier = this.dbClusterIdentifier;
+    final dbClusterSnapshotAttributes = this.dbClusterSnapshotAttributes;
     final dbClusterSnapshotIdentifier = this.dbClusterSnapshotIdentifier;
     final engine = this.engine;
     final engineVersion = this.engineVersion;
@@ -22829,6 +28953,8 @@ class AwsRdsDbClusterSnapshotDetails {
       if (clusterCreateTime != null) 'ClusterCreateTime': clusterCreateTime,
       if (dbClusterIdentifier != null)
         'DbClusterIdentifier': dbClusterIdentifier,
+      if (dbClusterSnapshotAttributes != null)
+        'DbClusterSnapshotAttributes': dbClusterSnapshotAttributes,
       if (dbClusterSnapshotIdentifier != null)
         'DbClusterSnapshotIdentifier': dbClusterSnapshotIdentifier,
       if (engine != null) 'Engine': engine,
@@ -23072,11 +29198,33 @@ class AwsRdsDbInstanceDetails {
 
   /// Indicates when the DB instance was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? instanceCreateTime;
 
   /// Specifies the provisioned IOPS (I/O operations per second) for this DB
@@ -23090,11 +29238,33 @@ class AwsRdsDbInstanceDetails {
   /// Specifies the latest time to which a database can be restored with
   /// point-in-time restore.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? latestRestorableTime;
 
   /// License model information for this DB instance.
@@ -23268,7 +29438,7 @@ class AwsRdsDbInstanceDetails {
     return AwsRdsDbInstanceDetails(
       allocatedStorage: json['AllocatedStorage'] as int?,
       associatedRoles: (json['AssociatedRoles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRdsDbInstanceAssociatedRole.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -23285,12 +29455,12 @@ class AwsRdsDbInstanceDetails {
       dbInstancePort: json['DbInstancePort'] as int?,
       dbInstanceStatus: json['DbInstanceStatus'] as String?,
       dbParameterGroups: (json['DbParameterGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AwsRdsDbParameterGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       dbSecurityGroups: (json['DbSecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       dbSubnetGroup: json['DbSubnetGroup'] != null
@@ -23300,13 +29470,13 @@ class AwsRdsDbInstanceDetails {
       dbiResourceId: json['DbiResourceId'] as String?,
       deletionProtection: json['DeletionProtection'] as bool?,
       domainMemberships: (json['DomainMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbDomainMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
       enabledCloudWatchLogsExports:
           (json['EnabledCloudWatchLogsExports'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       endpoint: json['Endpoint'] != null
@@ -23334,7 +29504,7 @@ class AwsRdsDbInstanceDetails {
       monitoringRoleArn: json['MonitoringRoleArn'] as String?,
       multiAz: json['MultiAz'] as bool?,
       optionGroupMemberships: (json['OptionGroupMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbOptionGroupMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -23350,7 +29520,7 @@ class AwsRdsDbInstanceDetails {
       preferredBackupWindow: json['PreferredBackupWindow'] as String?,
       preferredMaintenanceWindow: json['PreferredMaintenanceWindow'] as String?,
       processorFeatures: (json['ProcessorFeatures'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbProcessorFeature.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -23358,19 +29528,19 @@ class AwsRdsDbInstanceDetails {
       publiclyAccessible: json['PubliclyAccessible'] as bool?,
       readReplicaDBClusterIdentifiers:
           (json['ReadReplicaDBClusterIdentifiers'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       readReplicaDBInstanceIdentifiers:
           (json['ReadReplicaDBInstanceIdentifiers'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       readReplicaSourceDBInstanceIdentifier:
           json['ReadReplicaSourceDBInstanceIdentifier'] as String?,
       secondaryAvailabilityZone: json['SecondaryAvailabilityZone'] as String?,
       statusInfos: (json['StatusInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRdsDbStatusInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       storageEncrypted: json['StorageEncrypted'] as bool?,
@@ -23378,7 +29548,7 @@ class AwsRdsDbInstanceDetails {
       tdeCredentialArn: json['TdeCredentialArn'] as String?,
       timezone: json['Timezone'] as String?,
       vpcSecurityGroups: (json['VpcSecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRdsDbInstanceVpcSecurityGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -23747,7 +29917,7 @@ class AwsRdsDbPendingModifiedValues {
           : null,
       port: json['Port'] as int?,
       processorFeatures: (json['ProcessorFeatures'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbProcessorFeature.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -23866,12 +30036,12 @@ class AwsRdsDbSecurityGroupDetails {
       dbSecurityGroupDescription: json['DbSecurityGroupDescription'] as String?,
       dbSecurityGroupName: json['DbSecurityGroupName'] as String?,
       ec2SecurityGroups: (json['Ec2SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRdsDbSecurityGroupEc2SecurityGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       ipRanges: (json['IpRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbSecurityGroupIpRange.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -24181,7 +30351,7 @@ class AwsRdsDbSnapshotDetails {
       percentProgress: json['PercentProgress'] as int?,
       port: json['Port'] as int?,
       processorFeatures: (json['ProcessorFeatures'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbProcessorFeature.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -24343,7 +30513,7 @@ class AwsRdsDbSubnetGroup {
       dbSubnetGroupName: json['DbSubnetGroupName'] as String?,
       subnetGroupStatus: json['SubnetGroupStatus'] as String?,
       subnets: (json['Subnets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRdsDbSubnetGroupSubnet.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -24472,11 +30642,33 @@ class AwsRdsEventSubscriptionDetails {
 
   /// The datetime when the event notification subscription was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? subscriptionCreationTime;
 
   AwsRdsEventSubscriptionDetails({
@@ -24498,13 +30690,13 @@ class AwsRdsEventSubscriptionDetails {
       customerAwsId: json['CustomerAwsId'] as String?,
       enabled: json['Enabled'] as bool?,
       eventCategoriesList: (json['EventCategoriesList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       eventSubscriptionArn: json['EventSubscriptionArn'] as String?,
       snsTopicArn: json['SnsTopicArn'] as String?,
       sourceIdsList: (json['SourceIdsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       sourceType: json['SourceType'] as String?,
@@ -24559,11 +30751,11 @@ class AwsRdsPendingCloudWatchLogsExports {
       Map<String, dynamic> json) {
     return AwsRdsPendingCloudWatchLogsExports(
       logTypesToDisable: (json['LogTypesToDisable'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       logTypesToEnable: (json['LogTypesToEnable'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -24639,7 +30831,7 @@ class AwsRedshiftClusterClusterParameterGroup {
       Map<String, dynamic> json) {
     return AwsRedshiftClusterClusterParameterGroup(
       clusterParameterStatusList: (json['ClusterParameterStatusList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRedshiftClusterClusterParameterStatus.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -24806,11 +30998,33 @@ class AwsRedshiftClusterClusterSnapshotCopyStatus {
 class AwsRedshiftClusterDeferredMaintenanceWindow {
   /// The end of the time window for which maintenance was deferred.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? deferMaintenanceEndTime;
 
   /// The identifier of the maintenance window.
@@ -24818,11 +31032,33 @@ class AwsRedshiftClusterDeferredMaintenanceWindow {
 
   /// The start of the time window for which maintenance was deferred.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? deferMaintenanceStartTime;
 
   AwsRedshiftClusterDeferredMaintenanceWindow({
@@ -24893,11 +31129,33 @@ class AwsRedshiftClusterDetails {
 
   /// Indicates when the cluster was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? clusterCreateTime;
 
   /// The unique identifier of the cluster.
@@ -24974,11 +31232,33 @@ class AwsRedshiftClusterDetails {
   /// Indicates when the next snapshot is expected to be taken. The cluster must
   /// have a valid snapshot schedule and have backups enabled.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? expectedNextSnapshotScheduleTime;
 
   /// The status of the next expected snapshot.
@@ -25020,11 +31300,33 @@ class AwsRedshiftClusterDetails {
 
   /// Indicates the start of the next maintenance window.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? nextMaintenanceWindowStartTime;
 
   /// The node type for the nodes in the cluster.
@@ -25135,19 +31437,19 @@ class AwsRedshiftClusterDetails {
       clusterCreateTime: json['ClusterCreateTime'] as String?,
       clusterIdentifier: json['ClusterIdentifier'] as String?,
       clusterNodes: (json['ClusterNodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRedshiftClusterClusterNode.fromJson(e as Map<String, dynamic>))
           .toList(),
       clusterParameterGroups: (json['ClusterParameterGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRedshiftClusterClusterParameterGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       clusterPublicKey: json['ClusterPublicKey'] as String?,
       clusterRevisionNumber: json['ClusterRevisionNumber'] as String?,
       clusterSecurityGroups: (json['ClusterSecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRedshiftClusterClusterSecurityGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -25160,7 +31462,7 @@ class AwsRedshiftClusterDetails {
       clusterVersion: json['ClusterVersion'] as String?,
       dBName: json['DBName'] as String?,
       deferredMaintenanceWindows: (json['DeferredMaintenanceWindows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRedshiftClusterDeferredMaintenanceWindow.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -25185,7 +31487,7 @@ class AwsRedshiftClusterDetails {
               json['HsmStatus'] as Map<String, dynamic>)
           : null,
       iamRoles: (json['IamRoles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsRedshiftClusterIamRole.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -25203,7 +31505,7 @@ class AwsRedshiftClusterDetails {
       nodeType: json['NodeType'] as String?,
       numberOfNodes: json['NumberOfNodes'] as int?,
       pendingActions: (json['PendingActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       pendingModifiedValues: json['PendingModifiedValues'] != null
@@ -25224,7 +31526,7 @@ class AwsRedshiftClusterDetails {
       snapshotScheduleState: json['SnapshotScheduleState'] as String?,
       vpcId: json['VpcId'] as String?,
       vpcSecurityGroups: (json['VpcSecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsRedshiftClusterVpcSecurityGroup.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -25503,20 +31805,64 @@ class AwsRedshiftClusterLoggingStatus {
 
   /// The last time when logs failed to be delivered.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastFailureTime;
 
   /// The last time that logs were delivered successfully.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastSuccessfulDeliveryTime;
 
   /// Indicates whether logging is enabled.
@@ -25816,6 +32162,305 @@ class AwsRedshiftClusterVpcSecurityGroup {
   }
 }
 
+/// An object that contains an optional comment about your Amazon Route 53
+/// hosted zone.
+class AwsRoute53HostedZoneConfigDetails {
+  /// Any comments that you include about the hosted zone.
+  final String? comment;
+
+  AwsRoute53HostedZoneConfigDetails({
+    this.comment,
+  });
+
+  factory AwsRoute53HostedZoneConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsRoute53HostedZoneConfigDetails(
+      comment: json['Comment'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final comment = this.comment;
+    return {
+      if (comment != null) 'Comment': comment,
+    };
+  }
+}
+
+/// Provides details about a specified Amazon Route 53 hosted zone, including
+/// the four name servers assigned to the hosted zone. A hosted zone represents
+/// a collection of records that can be managed together, belonging to a single
+/// parent domain name.
+class AwsRoute53HostedZoneDetails {
+  /// An object that contains information about the specified hosted zone.
+  final AwsRoute53HostedZoneObjectDetails? hostedZone;
+
+  /// An object that contains a list of the authoritative name servers for a
+  /// hosted zone or for a reusable delegation set.
+  final List<String>? nameServers;
+
+  /// An array that contains one <code>QueryLoggingConfig</code> element for each
+  /// DNS query logging configuration that is associated with the current Amazon
+  /// Web Services account.
+  final AwsRoute53QueryLoggingConfigDetails? queryLoggingConfig;
+
+  /// An object that contains information about the Amazon Virtual Private Clouds
+  /// (Amazon VPCs) that are associated with the specified hosted zone.
+  final List<AwsRoute53HostedZoneVpcDetails>? vpcs;
+
+  AwsRoute53HostedZoneDetails({
+    this.hostedZone,
+    this.nameServers,
+    this.queryLoggingConfig,
+    this.vpcs,
+  });
+
+  factory AwsRoute53HostedZoneDetails.fromJson(Map<String, dynamic> json) {
+    return AwsRoute53HostedZoneDetails(
+      hostedZone: json['HostedZone'] != null
+          ? AwsRoute53HostedZoneObjectDetails.fromJson(
+              json['HostedZone'] as Map<String, dynamic>)
+          : null,
+      nameServers: (json['NameServers'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      queryLoggingConfig: json['QueryLoggingConfig'] != null
+          ? AwsRoute53QueryLoggingConfigDetails.fromJson(
+              json['QueryLoggingConfig'] as Map<String, dynamic>)
+          : null,
+      vpcs: (json['Vpcs'] as List?)
+          ?.nonNulls
+          .map((e) => AwsRoute53HostedZoneVpcDetails.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final hostedZone = this.hostedZone;
+    final nameServers = this.nameServers;
+    final queryLoggingConfig = this.queryLoggingConfig;
+    final vpcs = this.vpcs;
+    return {
+      if (hostedZone != null) 'HostedZone': hostedZone,
+      if (nameServers != null) 'NameServers': nameServers,
+      if (queryLoggingConfig != null) 'QueryLoggingConfig': queryLoggingConfig,
+      if (vpcs != null) 'Vpcs': vpcs,
+    };
+  }
+}
+
+/// An object that contains information about an Amazon Route 53 hosted zone.
+class AwsRoute53HostedZoneObjectDetails {
+  /// An object that includes the <code>Comment</code> element.
+  final AwsRoute53HostedZoneConfigDetails? config;
+
+  /// The ID that Route 53 assigns to the hosted zone when you create it.
+  final String? id;
+
+  /// The name of the domain. For public hosted zones, this is the name that you
+  /// have registered with your DNS registrar.
+  final String? name;
+
+  AwsRoute53HostedZoneObjectDetails({
+    this.config,
+    this.id,
+    this.name,
+  });
+
+  factory AwsRoute53HostedZoneObjectDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsRoute53HostedZoneObjectDetails(
+      config: json['Config'] != null
+          ? AwsRoute53HostedZoneConfigDetails.fromJson(
+              json['Config'] as Map<String, dynamic>)
+          : null,
+      id: json['Id'] as String?,
+      name: json['Name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final config = this.config;
+    final id = this.id;
+    final name = this.name;
+    return {
+      if (config != null) 'Config': config,
+      if (id != null) 'Id': id,
+      if (name != null) 'Name': name,
+    };
+  }
+}
+
+/// For private hosted zones, this is a complex type that contains information
+/// about an Amazon VPC.
+class AwsRoute53HostedZoneVpcDetails {
+  /// The identifier of an Amazon VPC.
+  final String? id;
+
+  /// The Amazon Web Services Region that an Amazon VPC was created in.
+  final String? region;
+
+  AwsRoute53HostedZoneVpcDetails({
+    this.id,
+    this.region,
+  });
+
+  factory AwsRoute53HostedZoneVpcDetails.fromJson(Map<String, dynamic> json) {
+    return AwsRoute53HostedZoneVpcDetails(
+      id: json['Id'] as String?,
+      region: json['Region'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final id = this.id;
+    final region = this.region;
+    return {
+      if (id != null) 'Id': id,
+      if (region != null) 'Region': region,
+    };
+  }
+}
+
+/// Provides details about a specified Amazon Route 53 configuration for DNS
+/// query logging.
+class AwsRoute53QueryLoggingConfigDetails {
+  /// The Amazon Resource Name (ARN) of the Amazon CloudWatch Logs log group that
+  /// Route 53 is publishing logs to.
+  final CloudWatchLogsLogGroupArnConfigDetails? cloudWatchLogsLogGroupArn;
+
+  AwsRoute53QueryLoggingConfigDetails({
+    this.cloudWatchLogsLogGroupArn,
+  });
+
+  factory AwsRoute53QueryLoggingConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsRoute53QueryLoggingConfigDetails(
+      cloudWatchLogsLogGroupArn: json['CloudWatchLogsLogGroupArn'] != null
+          ? CloudWatchLogsLogGroupArnConfigDetails.fromJson(
+              json['CloudWatchLogsLogGroupArn'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cloudWatchLogsLogGroupArn = this.cloudWatchLogsLogGroupArn;
+    return {
+      if (cloudWatchLogsLogGroupArn != null)
+        'CloudWatchLogsLogGroupArn': cloudWatchLogsLogGroupArn,
+    };
+  }
+}
+
+/// Returns configuration information about the specified Amazon S3 access
+/// point. S3 access points are named network endpoints that are attached to
+/// buckets that you can use to perform S3 object operations.
+class AwsS3AccessPointDetails {
+  /// The Amazon Resource Name (ARN) of the access point.
+  final String? accessPointArn;
+
+  /// The name or alias of the access point.
+  final String? alias;
+
+  /// The name of the S3 bucket associated with the specified access point.
+  final String? bucket;
+
+  /// The Amazon Web Services account ID associated with the S3 bucket associated
+  /// with this access point.
+  final String? bucketAccountId;
+
+  /// The name of the specified access point.
+  final String? name;
+
+  /// Indicates whether this access point allows access from the public internet.
+  final String? networkOrigin;
+  final AwsS3AccountPublicAccessBlockDetails? publicAccessBlockConfiguration;
+
+  /// Contains the virtual private cloud (VPC) configuration for the specified
+  /// access point.
+  final AwsS3AccessPointVpcConfigurationDetails? vpcConfiguration;
+
+  AwsS3AccessPointDetails({
+    this.accessPointArn,
+    this.alias,
+    this.bucket,
+    this.bucketAccountId,
+    this.name,
+    this.networkOrigin,
+    this.publicAccessBlockConfiguration,
+    this.vpcConfiguration,
+  });
+
+  factory AwsS3AccessPointDetails.fromJson(Map<String, dynamic> json) {
+    return AwsS3AccessPointDetails(
+      accessPointArn: json['AccessPointArn'] as String?,
+      alias: json['Alias'] as String?,
+      bucket: json['Bucket'] as String?,
+      bucketAccountId: json['BucketAccountId'] as String?,
+      name: json['Name'] as String?,
+      networkOrigin: json['NetworkOrigin'] as String?,
+      publicAccessBlockConfiguration: json['PublicAccessBlockConfiguration'] !=
+              null
+          ? AwsS3AccountPublicAccessBlockDetails.fromJson(
+              json['PublicAccessBlockConfiguration'] as Map<String, dynamic>)
+          : null,
+      vpcConfiguration: json['VpcConfiguration'] != null
+          ? AwsS3AccessPointVpcConfigurationDetails.fromJson(
+              json['VpcConfiguration'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessPointArn = this.accessPointArn;
+    final alias = this.alias;
+    final bucket = this.bucket;
+    final bucketAccountId = this.bucketAccountId;
+    final name = this.name;
+    final networkOrigin = this.networkOrigin;
+    final publicAccessBlockConfiguration = this.publicAccessBlockConfiguration;
+    final vpcConfiguration = this.vpcConfiguration;
+    return {
+      if (accessPointArn != null) 'AccessPointArn': accessPointArn,
+      if (alias != null) 'Alias': alias,
+      if (bucket != null) 'Bucket': bucket,
+      if (bucketAccountId != null) 'BucketAccountId': bucketAccountId,
+      if (name != null) 'Name': name,
+      if (networkOrigin != null) 'NetworkOrigin': networkOrigin,
+      if (publicAccessBlockConfiguration != null)
+        'PublicAccessBlockConfiguration': publicAccessBlockConfiguration,
+      if (vpcConfiguration != null) 'VpcConfiguration': vpcConfiguration,
+    };
+  }
+}
+
+/// The virtual private cloud (VPC) configuration for an Amazon S3 access point.
+class AwsS3AccessPointVpcConfigurationDetails {
+  /// If this field is specified, this access point will only allow connections
+  /// from the specified VPC ID.
+  final String? vpcId;
+
+  AwsS3AccessPointVpcConfigurationDetails({
+    this.vpcId,
+  });
+
+  factory AwsS3AccessPointVpcConfigurationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsS3AccessPointVpcConfigurationDetails(
+      vpcId: json['VpcId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final vpcId = this.vpcId;
+    return {
+      if (vpcId != null) 'VpcId': vpcId,
+    };
+  }
+}
+
 /// provides information about the Amazon S3 Public Access Block configuration
 /// for accounts.
 class AwsS3AccountPublicAccessBlockDetails {
@@ -25881,7 +32526,7 @@ class AwsS3BucketBucketLifecycleConfigurationDetails {
       Map<String, dynamic> json) {
     return AwsS3BucketBucketLifecycleConfigurationDetails(
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsS3BucketBucketLifecycleConfigurationRulesDetails.fromJson(
                   e as Map<String, dynamic>))
@@ -25932,11 +32577,33 @@ class AwsS3BucketBucketLifecycleConfigurationRulesDetails {
 
   /// The date when objects are moved or deleted.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? expirationDate;
 
   /// The length in days of the lifetime for objects that are subject to the rule.
@@ -26013,7 +32680,7 @@ class AwsS3BucketBucketLifecycleConfigurationRulesDetails {
           json['NoncurrentVersionExpirationInDays'] as int?,
       noncurrentVersionTransitions: (json['NoncurrentVersionTransitions']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsS3BucketBucketLifecycleConfigurationRulesNoncurrentVersionTransitionsDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -26021,7 +32688,7 @@ class AwsS3BucketBucketLifecycleConfigurationRulesDetails {
       prefix: json['Prefix'] as String?,
       status: json['Status'] as String?,
       transitions: (json['Transitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsS3BucketBucketLifecycleConfigurationRulesTransitionsDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -26120,7 +32787,7 @@ class AwsS3BucketBucketLifecycleConfigurationRulesFilterPredicateDetails {
       Map<String, dynamic> json) {
     return AwsS3BucketBucketLifecycleConfigurationRulesFilterPredicateDetails(
       operands: (json['Operands'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsS3BucketBucketLifecycleConfigurationRulesFilterPredicateOperandsDetails
                   .fromJson(e as Map<String, dynamic>))
@@ -26292,11 +32959,33 @@ class AwsS3BucketBucketLifecycleConfigurationRulesTransitionsDetails {
   /// A date on which to transition objects to the specified storage class. If you
   /// provide <code>Date</code>, you cannot provide <code>Days</code>.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? date;
 
   /// The number of days after which to transition the object to the specified
@@ -26386,12 +33075,12 @@ class AwsS3BucketBucketVersioningConfiguration {
   }
 }
 
-/// The details of an Amazon S3 bucket.
+/// The details of an Amazon Simple Storage Service (Amazon S3) bucket.
 class AwsS3BucketDetails {
   /// The access control list for the S3 bucket.
   final String? accessControlList;
 
-  /// The lifecycle configuration for objects in the S3 bucket.
+  /// The lifecycle configuration for objects in the specified bucket.
   final AwsS3BucketBucketLifecycleConfigurationDetails?
       bucketLifecycleConfiguration;
 
@@ -26409,15 +33098,40 @@ class AwsS3BucketDetails {
 
   /// Indicates when the S3 bucket was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? createdAt;
 
+  /// The name of the bucket.
+  final String? name;
+
   /// Specifies which rule Amazon S3 applies by default to every new object placed
-  /// in the specified bucket.
+  /// in the bucket.
   final AwsS3BucketObjectLockConfiguration? objectLockConfiguration;
 
   /// The Amazon Web Services account identifier of the account that owns the S3
@@ -26446,6 +33160,7 @@ class AwsS3BucketDetails {
     this.bucketVersioningConfiguration,
     this.bucketWebsiteConfiguration,
     this.createdAt,
+    this.name,
     this.objectLockConfiguration,
     this.ownerAccountId,
     this.ownerId,
@@ -26481,6 +33196,7 @@ class AwsS3BucketDetails {
               json['BucketWebsiteConfiguration'] as Map<String, dynamic>)
           : null,
       createdAt: json['CreatedAt'] as String?,
+      name: json['Name'] as String?,
       objectLockConfiguration: json['ObjectLockConfiguration'] != null
           ? AwsS3BucketObjectLockConfiguration.fromJson(
               json['ObjectLockConfiguration'] as Map<String, dynamic>)
@@ -26511,6 +33227,7 @@ class AwsS3BucketDetails {
     final bucketVersioningConfiguration = this.bucketVersioningConfiguration;
     final bucketWebsiteConfiguration = this.bucketWebsiteConfiguration;
     final createdAt = this.createdAt;
+    final name = this.name;
     final objectLockConfiguration = this.objectLockConfiguration;
     final ownerAccountId = this.ownerAccountId;
     final ownerId = this.ownerId;
@@ -26531,6 +33248,7 @@ class AwsS3BucketDetails {
       if (bucketWebsiteConfiguration != null)
         'BucketWebsiteConfiguration': bucketWebsiteConfiguration,
       if (createdAt != null) 'CreatedAt': createdAt,
+      if (name != null) 'Name': name,
       if (objectLockConfiguration != null)
         'ObjectLockConfiguration': objectLockConfiguration,
       if (ownerAccountId != null) 'OwnerAccountId': ownerAccountId,
@@ -26588,7 +33306,7 @@ class AwsS3BucketNotificationConfiguration {
       Map<String, dynamic> json) {
     return AwsS3BucketNotificationConfiguration(
       configurations: (json['Configurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsS3BucketNotificationConfigurationDetail.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -26643,10 +33361,8 @@ class AwsS3BucketNotificationConfigurationDetail {
       Map<String, dynamic> json) {
     return AwsS3BucketNotificationConfigurationDetail(
       destination: json['Destination'] as String?,
-      events: (json['Events'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      events:
+          (json['Events'] as List?)?.nonNulls.map((e) => e as String).toList(),
       filter: json['Filter'] != null
           ? AwsS3BucketNotificationConfigurationFilter.fromJson(
               json['Filter'] as Map<String, dynamic>)
@@ -26710,7 +33426,7 @@ class AwsS3BucketNotificationConfigurationS3KeyFilter {
       Map<String, dynamic> json) {
     return AwsS3BucketNotificationConfigurationS3KeyFilter(
       filterRules: (json['FilterRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsS3BucketNotificationConfigurationS3KeyFilterRule.fromJson(
                   e as Map<String, dynamic>))
@@ -26743,8 +33459,8 @@ class AwsS3BucketNotificationConfigurationS3KeyFilterRule {
   factory AwsS3BucketNotificationConfigurationS3KeyFilterRule.fromJson(
       Map<String, dynamic> json) {
     return AwsS3BucketNotificationConfigurationS3KeyFilterRule(
-      name: (json['Name'] as String?)
-          ?.toAwsS3BucketNotificationConfigurationS3KeyFilterRuleName(),
+      name: (json['Name'] as String?)?.let(
+          AwsS3BucketNotificationConfigurationS3KeyFilterRuleName.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -26753,42 +33469,26 @@ class AwsS3BucketNotificationConfigurationS3KeyFilterRule {
     final name = this.name;
     final value = this.value;
     return {
-      if (name != null) 'Name': name.toValue(),
+      if (name != null) 'Name': name.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum AwsS3BucketNotificationConfigurationS3KeyFilterRuleName {
-  prefix,
-  suffix,
-}
+  prefix('Prefix'),
+  suffix('Suffix'),
+  ;
 
-extension AwsS3BucketNotificationConfigurationS3KeyFilterRuleNameValueExtension
-    on AwsS3BucketNotificationConfigurationS3KeyFilterRuleName {
-  String toValue() {
-    switch (this) {
-      case AwsS3BucketNotificationConfigurationS3KeyFilterRuleName.prefix:
-        return 'Prefix';
-      case AwsS3BucketNotificationConfigurationS3KeyFilterRuleName.suffix:
-        return 'Suffix';
-    }
-  }
-}
+  final String value;
 
-extension AwsS3BucketNotificationConfigurationS3KeyFilterRuleNameFromString
-    on String {
-  AwsS3BucketNotificationConfigurationS3KeyFilterRuleName
-      toAwsS3BucketNotificationConfigurationS3KeyFilterRuleName() {
-    switch (this) {
-      case 'Prefix':
-        return AwsS3BucketNotificationConfigurationS3KeyFilterRuleName.prefix;
-      case 'Suffix':
-        return AwsS3BucketNotificationConfigurationS3KeyFilterRuleName.suffix;
-    }
-    throw Exception(
-        '$this is not known in enum AwsS3BucketNotificationConfigurationS3KeyFilterRuleName');
-  }
+  const AwsS3BucketNotificationConfigurationS3KeyFilterRuleName(this.value);
+
+  static AwsS3BucketNotificationConfigurationS3KeyFilterRuleName fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AwsS3BucketNotificationConfigurationS3KeyFilterRuleName'));
 }
 
 /// The container element for S3 Object Lock configuration parameters. In Amazon
@@ -26946,7 +33646,7 @@ class AwsS3BucketServerSideEncryptionConfiguration {
       Map<String, dynamic> json) {
     return AwsS3BucketServerSideEncryptionConfiguration(
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsS3BucketServerSideEncryptionRule.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -27026,7 +33726,7 @@ class AwsS3BucketWebsiteConfiguration {
               json['RedirectAllRequestsTo'] as Map<String, dynamic>)
           : null,
       routingRules: (json['RoutingRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsS3BucketWebsiteConfigurationRoutingRule.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -27223,11 +33923,33 @@ class AwsS3ObjectDetails {
 
   /// Indicates when the object was last modified.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastModified;
 
   /// The identifier of the KMS symmetric customer managed key that was used for
@@ -27404,11 +34126,11 @@ class AwsSageMakerNotebookInstanceDetails {
       Map<String, dynamic> json) {
     return AwsSageMakerNotebookInstanceDetails(
       acceleratorTypes: (json['AcceleratorTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       additionalCodeRepositories: (json['AdditionalCodeRepositories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       defaultCodeRepository: json['DefaultCodeRepository'] as String?,
@@ -27432,7 +34154,7 @@ class AwsSageMakerNotebookInstanceDetails {
       roleArn: json['RoleArn'] as String?,
       rootAccess: json['RootAccess'] as String?,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetId: json['SubnetId'] as String?,
@@ -27643,64 +34365,123 @@ class AwsSecretsManagerSecretRotationRules {
 /// </note>
 class AwsSecurityFinding {
   /// The Amazon Web Services account ID that a finding is generated in.
+  ///
+  /// Length Constraints: 12.
   final String awsAccountId;
 
   /// Indicates when the security findings provider created the potential security
   /// issue that a finding captured.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String createdAt;
 
-  /// A finding's description.
-  /// <note>
-  /// In this release, <code>Description</code> is a required property.
-  /// </note>
+  /// A finding's description. <code>Description</code> is a required property.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 1024.
   final String description;
 
   /// The identifier for the solution-specific component (a discrete unit of
   /// logic) that generated a finding. In various security findings providers'
   /// solutions, this generator can be called a rule, a check, a detector, a
-  /// plugin, etc.
+  /// plugin, or something else.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 512.
   final String generatorId;
 
   /// The security findings provider-specific identifier for a finding.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 512.
   final String id;
 
   /// The ARN generated by Security Hub that uniquely identifies a product that
   /// generates findings. This can be the ARN for a third-party product that is
   /// integrated with Security Hub, or the ARN for a custom integration.
+  ///
+  /// Length Constraints: Minimum length of 12. Maximum length of 2048.
   final String productArn;
 
   /// A set of resource data types that describe the resources that the finding
   /// refers to.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 32 items.
   final List<Resource> resources;
 
-  /// The schema version that a finding is formatted for.
+  /// The schema version that a finding is formatted for. The value is
+  /// <code>2018-10-08</code>.
   final String schemaVersion;
 
-  /// A finding's title.
-  /// <note>
-  /// In this release, <code>Title</code> is a required property.
-  /// </note>
+  /// A finding's title. <code>Title</code> is a required property.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 256.
   final String title;
 
   /// Indicates when the security findings provider last updated the finding
   /// record.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String updatedAt;
 
   /// Provides details about an action that affects or that was taken on a
   /// resource.
   final Action? action;
+
+  /// The name of the Amazon Web Services account from which a finding was
+  /// generated.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 50.
+  final String? awsAccountName;
 
   /// The name of the company for the product that generated the finding.
   ///
@@ -27711,6 +34492,8 @@ class AwsSecurityFinding {
   ///
   /// When you use the Security Hub console or API to filter findings by company
   /// name, you use this attribute.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 128.
   final String? companyName;
 
   /// This data type is exclusive to findings that are generated as the result of
@@ -27742,24 +34525,77 @@ class AwsSecurityFinding {
   /// Indicates when the security findings provider first observed the potential
   /// security issue that a finding captured.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? firstObservedAt;
+
+  /// Provides metadata for the Amazon CodeGuru detector associated with a
+  /// finding. This field pertains to findings that relate to Lambda functions.
+  /// Amazon Inspector identifies policy violations and vulnerabilities in Lambda
+  /// function code based on internal detectors developed in collaboration with
+  /// Amazon CodeGuru. Security Hub receives those findings.
+  final GeneratorDetails? generatorDetails;
 
   /// Indicates when the security findings provider most recently observed the
   /// potential security issue that a finding captured.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastObservedAt;
 
   /// A list of malware related to a finding.
+  ///
+  /// Array Members: Maximum number of 5 items.
   final List<Malware>? malware;
 
   /// The details of network-related information about a finding.
@@ -27780,6 +34616,38 @@ class AwsSecurityFinding {
   /// The details of process-related information about a finding.
   final ProcessDetails? process;
 
+  /// A timestamp that indicates when Security Hub received a finding and begins
+  /// to process it.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
+  final String? processedAt;
+
   /// A data type where security findings providers can include additional
   /// solution-specific details that aren't part of the defined
   /// <code>AwsSecurityFinding</code> format.
@@ -27798,6 +34666,8 @@ class AwsSecurityFinding {
   ///
   /// When you use the Security Hub console or API to filter findings by product
   /// name, you use this attribute.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 128.
   final String? productName;
 
   /// The record state of a finding.
@@ -27808,9 +34678,13 @@ class AwsSecurityFinding {
   /// Security Hub populates this attribute automatically for each finding. You
   /// cannot update it using <code>BatchImportFindings</code> or
   /// <code>BatchUpdateFindings</code>.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 16.
   final String? region;
 
   /// A list of related findings.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 10 items.
   final List<RelatedFinding>? relatedFindings;
 
   /// A data type that describes the remediation options for a finding.
@@ -27827,10 +34701,14 @@ class AwsSecurityFinding {
   final String? sourceUrl;
 
   /// Threat intelligence details related to a finding.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 5 items.
   final List<ThreatIntelIndicator>? threatIntelIndicators;
 
   /// Details about the threat detected in a security finding and the file paths
   /// that were affected by the threat.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 32 items.
   final List<Threat>? threats;
 
   /// One or more finding types in the format of
@@ -27838,10 +34716,16 @@ class AwsSecurityFinding {
   ///
   /// Valid namespace values are: Software and Configuration Checks | TTPs |
   /// Effects | Unusual Behaviors | Sensitive Data Identifications
+  ///
+  /// Array Members: Maximum number of 50 items.
   final List<String>? types;
 
   /// A list of name/value string pairs associated with the finding. These are
   /// custom, user-defined fields added to a finding.
+  ///
+  /// Can contain up to 50 key-value pairs. For each key-value pair, the key can
+  /// contain up to 128 characters, and the value can contain up to 1024
+  /// characters.
   final Map<String, String>? userDefinedFields;
 
   /// Indicates the veracity of a finding.
@@ -27868,12 +34752,14 @@ class AwsSecurityFinding {
     required this.title,
     required this.updatedAt,
     this.action,
+    this.awsAccountName,
     this.companyName,
     this.compliance,
     this.confidence,
     this.criticality,
     this.findingProviderFields,
     this.firstObservedAt,
+    this.generatorDetails,
     this.lastObservedAt,
     this.malware,
     this.network,
@@ -27881,6 +34767,7 @@ class AwsSecurityFinding {
     this.note,
     this.patchSummary,
     this.process,
+    this.processedAt,
     this.productFields,
     this.productName,
     this.recordState,
@@ -27909,7 +34796,7 @@ class AwsSecurityFinding {
       id: json['Id'] as String,
       productArn: json['ProductArn'] as String,
       resources: (json['Resources'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Resource.fromJson(e as Map<String, dynamic>))
           .toList(),
       schemaVersion: json['SchemaVersion'] as String,
@@ -27918,6 +34805,7 @@ class AwsSecurityFinding {
       action: json['Action'] != null
           ? Action.fromJson(json['Action'] as Map<String, dynamic>)
           : null,
+      awsAccountName: json['AwsAccountName'] as String?,
       companyName: json['CompanyName'] as String?,
       compliance: json['Compliance'] != null
           ? Compliance.fromJson(json['Compliance'] as Map<String, dynamic>)
@@ -27929,16 +34817,20 @@ class AwsSecurityFinding {
               json['FindingProviderFields'] as Map<String, dynamic>)
           : null,
       firstObservedAt: json['FirstObservedAt'] as String?,
+      generatorDetails: json['GeneratorDetails'] != null
+          ? GeneratorDetails.fromJson(
+              json['GeneratorDetails'] as Map<String, dynamic>)
+          : null,
       lastObservedAt: json['LastObservedAt'] as String?,
       malware: (json['Malware'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Malware.fromJson(e as Map<String, dynamic>))
           .toList(),
       network: json['Network'] != null
           ? Network.fromJson(json['Network'] as Map<String, dynamic>)
           : null,
       networkPath: (json['NetworkPath'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NetworkPathComponent.fromJson(e as Map<String, dynamic>))
           .toList(),
       note: json['Note'] != null
@@ -27950,13 +34842,15 @@ class AwsSecurityFinding {
       process: json['Process'] != null
           ? ProcessDetails.fromJson(json['Process'] as Map<String, dynamic>)
           : null,
+      processedAt: json['ProcessedAt'] as String?,
       productFields: (json['ProductFields'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       productName: json['ProductName'] as String?,
-      recordState: (json['RecordState'] as String?)?.toRecordState(),
+      recordState:
+          (json['RecordState'] as String?)?.let(RecordState.fromString),
       region: json['Region'] as String?,
       relatedFindings: (json['RelatedFindings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RelatedFinding.fromJson(e as Map<String, dynamic>))
           .toList(),
       remediation: json['Remediation'] != null
@@ -27968,29 +34862,28 @@ class AwsSecurityFinding {
           : null,
       sourceUrl: json['SourceUrl'] as String?,
       threatIntelIndicators: (json['ThreatIntelIndicators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ThreatIntelIndicator.fromJson(e as Map<String, dynamic>))
           .toList(),
       threats: (json['Threats'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Threat.fromJson(e as Map<String, dynamic>))
           .toList(),
-      types: (json['Types'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      types:
+          (json['Types'] as List?)?.nonNulls.map((e) => e as String).toList(),
       userDefinedFields: (json['UserDefinedFields'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      verificationState:
-          (json['VerificationState'] as String?)?.toVerificationState(),
+      verificationState: (json['VerificationState'] as String?)
+          ?.let(VerificationState.fromString),
       vulnerabilities: (json['Vulnerabilities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Vulnerability.fromJson(e as Map<String, dynamic>))
           .toList(),
       workflow: json['Workflow'] != null
           ? Workflow.fromJson(json['Workflow'] as Map<String, dynamic>)
           : null,
-      workflowState: (json['WorkflowState'] as String?)?.toWorkflowState(),
+      workflowState:
+          (json['WorkflowState'] as String?)?.let(WorkflowState.fromString),
     );
   }
 
@@ -28006,12 +34899,14 @@ class AwsSecurityFinding {
     final title = this.title;
     final updatedAt = this.updatedAt;
     final action = this.action;
+    final awsAccountName = this.awsAccountName;
     final companyName = this.companyName;
     final compliance = this.compliance;
     final confidence = this.confidence;
     final criticality = this.criticality;
     final findingProviderFields = this.findingProviderFields;
     final firstObservedAt = this.firstObservedAt;
+    final generatorDetails = this.generatorDetails;
     final lastObservedAt = this.lastObservedAt;
     final malware = this.malware;
     final network = this.network;
@@ -28019,6 +34914,7 @@ class AwsSecurityFinding {
     final note = this.note;
     final patchSummary = this.patchSummary;
     final process = this.process;
+    final processedAt = this.processedAt;
     final productFields = this.productFields;
     final productName = this.productName;
     final recordState = this.recordState;
@@ -28048,6 +34944,7 @@ class AwsSecurityFinding {
       'Title': title,
       'UpdatedAt': updatedAt,
       if (action != null) 'Action': action,
+      if (awsAccountName != null) 'AwsAccountName': awsAccountName,
       if (companyName != null) 'CompanyName': companyName,
       if (compliance != null) 'Compliance': compliance,
       if (confidence != null) 'Confidence': confidence,
@@ -28055,6 +34952,7 @@ class AwsSecurityFinding {
       if (findingProviderFields != null)
         'FindingProviderFields': findingProviderFields,
       if (firstObservedAt != null) 'FirstObservedAt': firstObservedAt,
+      if (generatorDetails != null) 'GeneratorDetails': generatorDetails,
       if (lastObservedAt != null) 'LastObservedAt': lastObservedAt,
       if (malware != null) 'Malware': malware,
       if (network != null) 'Network': network,
@@ -28062,9 +34960,10 @@ class AwsSecurityFinding {
       if (note != null) 'Note': note,
       if (patchSummary != null) 'PatchSummary': patchSummary,
       if (process != null) 'Process': process,
+      if (processedAt != null) 'ProcessedAt': processedAt,
       if (productFields != null) 'ProductFields': productFields,
       if (productName != null) 'ProductName': productName,
-      if (recordState != null) 'RecordState': recordState.toValue(),
+      if (recordState != null) 'RecordState': recordState.value,
       if (region != null) 'Region': region,
       if (relatedFindings != null) 'RelatedFindings': relatedFindings,
       if (remediation != null) 'Remediation': remediation,
@@ -28077,23 +34976,25 @@ class AwsSecurityFinding {
       if (types != null) 'Types': types,
       if (userDefinedFields != null) 'UserDefinedFields': userDefinedFields,
       if (verificationState != null)
-        'VerificationState': verificationState.toValue(),
+        'VerificationState': verificationState.value,
       if (vulnerabilities != null) 'Vulnerabilities': vulnerabilities,
       if (workflow != null) 'Workflow': workflow,
-      if (workflowState != null) 'WorkflowState': workflowState.toValue(),
+      if (workflowState != null) 'WorkflowState': workflowState.value,
     };
   }
 }
 
-/// A collection of attributes that are applied to all active Security
-/// Hub-aggregated findings and that result in a subset of findings that are
-/// included in this insight.
+/// A collection of filters that are applied to all active findings aggregated
+/// by Security Hub.
 ///
-/// You can filter by up to 10 finding attributes. For each attribute, you can
+/// You can filter by up to ten finding attributes. For each attribute, you can
 /// provide up to 20 filter values.
 class AwsSecurityFindingFilters {
-  /// The Amazon Web Services account ID that a finding is generated in.
+  /// The Amazon Web Services account ID in which a finding is generated.
   final List<StringFilter>? awsAccountId;
+
+  /// The name of the Amazon Web Services account in which a finding is generated.
+  final List<StringFilter>? awsAccountName;
 
   /// The name of the findings provider (company) that owns the solution (product)
   /// that generates findings.
@@ -28111,6 +35012,12 @@ class AwsSecurityFindingFilters {
   /// APIGateway.5.
   final List<StringFilter>? complianceSecurityControlId;
 
+  /// The name of a security control parameter.
+  final List<StringFilter>? complianceSecurityControlParametersName;
+
+  /// The current value of a security control parameter.
+  final List<StringFilter>? complianceSecurityControlParametersValue;
+
   /// Exclusive to findings that are generated as the result of a check run
   /// against a specific rule in a supported standard, such as CIS Amazon Web
   /// Services Foundations. Contains security standard-related finding details.
@@ -28124,14 +35031,36 @@ class AwsSecurityFindingFilters {
   /// zero percent confidence and 100 means 100 percent confidence.
   final List<NumberFilter>? confidence;
 
-  /// An ISO8601-formatted timestamp that indicates when the security findings
-  /// provider captured the potential security issue that a finding captured.
+  /// A timestamp that indicates when the security findings provider created the
+  /// potential security issue that a finding reflects.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final List<DateFilter>? createdAt;
 
   /// The level of importance assigned to the resources associated with the
@@ -28181,15 +35110,36 @@ class AwsSecurityFindingFilters {
   /// Effects | Unusual Behaviors | Sensitive Data Identifications
   final List<StringFilter>? findingProviderFieldsTypes;
 
-  /// An ISO8601-formatted timestamp that indicates when the security findings
-  /// provider first observed the potential security issue that a finding
-  /// captured.
+  /// A timestamp that indicates when the security findings provider first
+  /// observed the potential security issue that a finding captured.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final List<DateFilter>? firstObservedAt;
 
   /// The identifier for the solution-specific component (a discrete unit of
@@ -28204,15 +35154,36 @@ class AwsSecurityFindingFilters {
   /// A keyword for a finding.
   final List<KeywordFilter>? keyword;
 
-  /// An ISO8601-formatted timestamp that indicates when the security findings
-  /// provider most recently observed the potential security issue that a finding
-  /// captured.
+  /// A timestamp that indicates when the security findings provider most recently
+  /// observed the potential security issue that a finding captured.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final List<DateFilter>? lastObservedAt;
 
   /// The name of the malware that was observed.
@@ -28272,11 +35243,33 @@ class AwsSecurityFindingFilters {
 
   /// A timestamp that identifies when the process was launched.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final List<DateFilter>? processLaunchedAt;
 
   /// The name of the process.
@@ -28294,11 +35287,33 @@ class AwsSecurityFindingFilters {
 
   /// A timestamp that identifies when the process was terminated.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final List<DateFilter>? processTerminatedAt;
 
   /// The ARN generated by Security Hub that uniquely identifies a third-party
@@ -28328,6 +35343,12 @@ class AwsSecurityFindingFilters {
 
   /// The ARN of the solution that generated a related finding.
   final List<StringFilter>? relatedFindingsProductArn;
+
+  /// The ARN of the application that is related to a finding.
+  final List<StringFilter>? resourceApplicationArn;
+
+  /// The name of the application that is related to a finding.
+  final List<StringFilter>? resourceApplicationName;
 
   /// The IAM profile ARN of the instance.
   final List<StringFilter>? resourceAwsEc2InstanceIamInstanceProfileArn;
@@ -28385,11 +35406,33 @@ class AwsSecurityFindingFilters {
 
   /// A timestamp that identifies when the container was started.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final List<DateFilter>? resourceContainerLaunchedAt;
 
   /// The name of the container related to a finding.
@@ -28460,14 +35503,36 @@ class AwsSecurityFindingFilters {
   /// that classifies a finding.
   final List<StringFilter>? type;
 
-  /// An ISO8601-formatted timestamp that indicates when the security findings
-  /// provider last updated the finding record.
+  /// A timestamp that indicates when the security findings provider last updated
+  /// the finding record.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final List<DateFilter>? updatedAt;
 
   /// A list of name/value string pairs associated with the finding. These are
@@ -28476,6 +35541,16 @@ class AwsSecurityFindingFilters {
 
   /// The veracity of a finding.
   final List<StringFilter>? verificationState;
+
+  /// Indicates whether a software vulnerability in your environment has a known
+  /// exploit. You can filter findings by this field only if you use Security Hub
+  /// and Amazon Inspector.
+  final List<StringFilter>? vulnerabilitiesExploitAvailable;
+
+  /// Indicates whether a vulnerability is fixed in a newer version of the
+  /// affected software packages. You can filter findings by this field only if
+  /// you use Security Hub and Amazon Inspector.
+  final List<StringFilter>? vulnerabilitiesFixAvailable;
 
   /// The workflow state of a finding.
   ///
@@ -28558,9 +35633,12 @@ class AwsSecurityFindingFilters {
 
   AwsSecurityFindingFilters({
     this.awsAccountId,
+    this.awsAccountName,
     this.companyName,
     this.complianceAssociatedStandardsId,
     this.complianceSecurityControlId,
+    this.complianceSecurityControlParametersName,
+    this.complianceSecurityControlParametersValue,
     this.complianceStatus,
     this.confidence,
     this.createdAt,
@@ -28610,6 +35688,8 @@ class AwsSecurityFindingFilters {
     this.region,
     this.relatedFindingsId,
     this.relatedFindingsProductArn,
+    this.resourceApplicationArn,
+    this.resourceApplicationName,
     this.resourceAwsEc2InstanceIamInstanceProfileArn,
     this.resourceAwsEc2InstanceImageId,
     this.resourceAwsEc2InstanceIpV4Addresses,
@@ -28652,6 +35732,8 @@ class AwsSecurityFindingFilters {
     this.updatedAt,
     this.userDefinedFields,
     this.verificationState,
+    this.vulnerabilitiesExploitAvailable,
+    this.vulnerabilitiesFixAvailable,
     this.workflowState,
     this.workflowStatus,
   });
@@ -28659,416 +35741,448 @@ class AwsSecurityFindingFilters {
   factory AwsSecurityFindingFilters.fromJson(Map<String, dynamic> json) {
     return AwsSecurityFindingFilters(
       awsAccountId: (json['AwsAccountId'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      awsAccountName: (json['AwsAccountName'] as List?)
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       companyName: (json['CompanyName'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       complianceAssociatedStandardsId:
           (json['ComplianceAssociatedStandardsId'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       complianceSecurityControlId:
           (json['ComplianceSecurityControlId'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
+              .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      complianceSecurityControlParametersName:
+          (json['ComplianceSecurityControlParametersName'] as List?)
+              ?.nonNulls
+              .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      complianceSecurityControlParametersValue:
+          (json['ComplianceSecurityControlParametersValue'] as List?)
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       complianceStatus: (json['ComplianceStatus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       confidence: (json['Confidence'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       createdAt: (json['CreatedAt'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       criticality: (json['Criticality'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: (json['Description'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       findingProviderFieldsConfidence:
           (json['FindingProviderFieldsConfidence'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       findingProviderFieldsCriticality:
           (json['FindingProviderFieldsCriticality'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       findingProviderFieldsRelatedFindingsId:
           (json['FindingProviderFieldsRelatedFindingsId'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       findingProviderFieldsRelatedFindingsProductArn:
           (json['FindingProviderFieldsRelatedFindingsProductArn'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       findingProviderFieldsSeverityLabel:
           (json['FindingProviderFieldsSeverityLabel'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       findingProviderFieldsSeverityOriginal:
           (json['FindingProviderFieldsSeverityOriginal'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       findingProviderFieldsTypes: (json['FindingProviderFieldsTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       firstObservedAt: (json['FirstObservedAt'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       generatorId: (json['GeneratorId'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: (json['Id'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       keyword: (json['Keyword'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => KeywordFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       lastObservedAt: (json['LastObservedAt'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       malwareName: (json['MalwareName'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       malwarePath: (json['MalwarePath'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       malwareState: (json['MalwareState'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       malwareType: (json['MalwareType'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkDestinationDomain: (json['NetworkDestinationDomain'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkDestinationIpV4: (json['NetworkDestinationIpV4'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IpFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkDestinationIpV6: (json['NetworkDestinationIpV6'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IpFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkDestinationPort: (json['NetworkDestinationPort'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkDirection: (json['NetworkDirection'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkProtocol: (json['NetworkProtocol'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkSourceDomain: (json['NetworkSourceDomain'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkSourceIpV4: (json['NetworkSourceIpV4'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IpFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkSourceIpV6: (json['NetworkSourceIpV6'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IpFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkSourceMac: (json['NetworkSourceMac'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       networkSourcePort: (json['NetworkSourcePort'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       noteText: (json['NoteText'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       noteUpdatedAt: (json['NoteUpdatedAt'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       noteUpdatedBy: (json['NoteUpdatedBy'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       processLaunchedAt: (json['ProcessLaunchedAt'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       processName: (json['ProcessName'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       processParentPid: (json['ProcessParentPid'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       processPath: (json['ProcessPath'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       processPid: (json['ProcessPid'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       processTerminatedAt: (json['ProcessTerminatedAt'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       productArn: (json['ProductArn'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       productFields: (json['ProductFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MapFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       productName: (json['ProductName'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       recommendationText: (json['RecommendationText'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       recordState: (json['RecordState'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       region: (json['Region'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       relatedFindingsId: (json['RelatedFindingsId'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       relatedFindingsProductArn: (json['RelatedFindingsProductArn'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceApplicationArn: (json['ResourceApplicationArn'] as List?)
+          ?.nonNulls
+          .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      resourceApplicationName: (json['ResourceApplicationName'] as List?)
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceAwsEc2InstanceIamInstanceProfileArn:
           (json['ResourceAwsEc2InstanceIamInstanceProfileArn'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsEc2InstanceImageId:
           (json['ResourceAwsEc2InstanceImageId'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsEc2InstanceIpV4Addresses:
           (json['ResourceAwsEc2InstanceIpV4Addresses'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => IpFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsEc2InstanceIpV6Addresses:
           (json['ResourceAwsEc2InstanceIpV6Addresses'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => IpFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsEc2InstanceKeyName:
           (json['ResourceAwsEc2InstanceKeyName'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsEc2InstanceLaunchedAt:
           (json['ResourceAwsEc2InstanceLaunchedAt'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsEc2InstanceSubnetId:
           (json['ResourceAwsEc2InstanceSubnetId'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsEc2InstanceType: (json['ResourceAwsEc2InstanceType'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceAwsEc2InstanceVpcId:
           (json['ResourceAwsEc2InstanceVpcId'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsIamAccessKeyCreatedAt:
           (json['ResourceAwsIamAccessKeyCreatedAt'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsIamAccessKeyPrincipalName:
           (json['ResourceAwsIamAccessKeyPrincipalName'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsIamAccessKeyStatus:
           (json['ResourceAwsIamAccessKeyStatus'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsIamAccessKeyUserName:
           (json['ResourceAwsIamAccessKeyUserName'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceAwsIamUserUserName: (json['ResourceAwsIamUserUserName'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceAwsS3BucketOwnerId: (json['ResourceAwsS3BucketOwnerId'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceAwsS3BucketOwnerName:
           (json['ResourceAwsS3BucketOwnerName'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceContainerImageId: (json['ResourceContainerImageId'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceContainerImageName: (json['ResourceContainerImageName'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceContainerLaunchedAt:
           (json['ResourceContainerLaunchedAt'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       resourceContainerName: (json['ResourceContainerName'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceDetailsOther: (json['ResourceDetailsOther'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MapFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceId: (json['ResourceId'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourcePartition: (json['ResourcePartition'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceRegion: (json['ResourceRegion'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MapFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceType: (json['ResourceType'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       sample: (json['Sample'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BooleanFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       severityLabel: (json['SeverityLabel'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       severityNormalized: (json['SeverityNormalized'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       severityProduct: (json['SeverityProduct'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NumberFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       sourceUrl: (json['SourceUrl'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       threatIntelIndicatorCategory:
           (json['ThreatIntelIndicatorCategory'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       threatIntelIndicatorLastObservedAt:
           (json['ThreatIntelIndicatorLastObservedAt'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       threatIntelIndicatorSource: (json['ThreatIntelIndicatorSource'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       threatIntelIndicatorSourceUrl:
           (json['ThreatIntelIndicatorSourceUrl'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
               .toList(),
       threatIntelIndicatorType: (json['ThreatIntelIndicatorType'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       threatIntelIndicatorValue: (json['ThreatIntelIndicatorValue'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       title: (json['Title'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       type: (json['Type'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       updatedAt: (json['UpdatedAt'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DateFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       userDefinedFields: (json['UserDefinedFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MapFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       verificationState: (json['VerificationState'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
+      vulnerabilitiesExploitAvailable:
+          (json['VulnerabilitiesExploitAvailable'] as List?)
+              ?.nonNulls
+              .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+              .toList(),
+      vulnerabilitiesFixAvailable:
+          (json['VulnerabilitiesFixAvailable'] as List?)
+              ?.nonNulls
+              .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
+              .toList(),
       workflowState: (json['WorkflowState'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
       workflowStatus: (json['WorkflowStatus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StringFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -29076,10 +36190,15 @@ class AwsSecurityFindingFilters {
 
   Map<String, dynamic> toJson() {
     final awsAccountId = this.awsAccountId;
+    final awsAccountName = this.awsAccountName;
     final companyName = this.companyName;
     final complianceAssociatedStandardsId =
         this.complianceAssociatedStandardsId;
     final complianceSecurityControlId = this.complianceSecurityControlId;
+    final complianceSecurityControlParametersName =
+        this.complianceSecurityControlParametersName;
+    final complianceSecurityControlParametersValue =
+        this.complianceSecurityControlParametersValue;
     final complianceStatus = this.complianceStatus;
     final confidence = this.confidence;
     final createdAt = this.createdAt;
@@ -29135,6 +36254,8 @@ class AwsSecurityFindingFilters {
     final region = this.region;
     final relatedFindingsId = this.relatedFindingsId;
     final relatedFindingsProductArn = this.relatedFindingsProductArn;
+    final resourceApplicationArn = this.resourceApplicationArn;
+    final resourceApplicationName = this.resourceApplicationName;
     final resourceAwsEc2InstanceIamInstanceProfileArn =
         this.resourceAwsEc2InstanceIamInstanceProfileArn;
     final resourceAwsEc2InstanceImageId = this.resourceAwsEc2InstanceImageId;
@@ -29185,15 +36306,25 @@ class AwsSecurityFindingFilters {
     final updatedAt = this.updatedAt;
     final userDefinedFields = this.userDefinedFields;
     final verificationState = this.verificationState;
+    final vulnerabilitiesExploitAvailable =
+        this.vulnerabilitiesExploitAvailable;
+    final vulnerabilitiesFixAvailable = this.vulnerabilitiesFixAvailable;
     final workflowState = this.workflowState;
     final workflowStatus = this.workflowStatus;
     return {
       if (awsAccountId != null) 'AwsAccountId': awsAccountId,
+      if (awsAccountName != null) 'AwsAccountName': awsAccountName,
       if (companyName != null) 'CompanyName': companyName,
       if (complianceAssociatedStandardsId != null)
         'ComplianceAssociatedStandardsId': complianceAssociatedStandardsId,
       if (complianceSecurityControlId != null)
         'ComplianceSecurityControlId': complianceSecurityControlId,
+      if (complianceSecurityControlParametersName != null)
+        'ComplianceSecurityControlParametersName':
+            complianceSecurityControlParametersName,
+      if (complianceSecurityControlParametersValue != null)
+        'ComplianceSecurityControlParametersValue':
+            complianceSecurityControlParametersValue,
       if (complianceStatus != null) 'ComplianceStatus': complianceStatus,
       if (confidence != null) 'Confidence': confidence,
       if (createdAt != null) 'CreatedAt': createdAt,
@@ -29261,6 +36392,10 @@ class AwsSecurityFindingFilters {
       if (relatedFindingsId != null) 'RelatedFindingsId': relatedFindingsId,
       if (relatedFindingsProductArn != null)
         'RelatedFindingsProductArn': relatedFindingsProductArn,
+      if (resourceApplicationArn != null)
+        'ResourceApplicationArn': resourceApplicationArn,
+      if (resourceApplicationName != null)
+        'ResourceApplicationName': resourceApplicationName,
       if (resourceAwsEc2InstanceIamInstanceProfileArn != null)
         'ResourceAwsEc2InstanceIamInstanceProfileArn':
             resourceAwsEc2InstanceIamInstanceProfileArn,
@@ -29335,6 +36470,10 @@ class AwsSecurityFindingFilters {
       if (updatedAt != null) 'UpdatedAt': updatedAt,
       if (userDefinedFields != null) 'UserDefinedFields': userDefinedFields,
       if (verificationState != null) 'VerificationState': verificationState,
+      if (vulnerabilitiesExploitAvailable != null)
+        'VulnerabilitiesExploitAvailable': vulnerabilitiesExploitAvailable,
+      if (vulnerabilitiesFixAvailable != null)
+        'VulnerabilitiesFixAvailable': vulnerabilitiesFixAvailable,
       if (workflowState != null) 'WorkflowState': workflowState,
       if (workflowStatus != null) 'WorkflowStatus': workflowStatus,
     };
@@ -29447,7 +36586,7 @@ class AwsSnsTopicDetails {
       sqsFailureFeedbackRoleArn: json['SqsFailureFeedbackRoleArn'] as String?,
       sqsSuccessFeedbackRoleArn: json['SqsSuccessFeedbackRoleArn'] as String?,
       subscription: (json['Subscription'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsSnsTopicSubscription.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -29827,6 +36966,229 @@ class AwsSsmPatchComplianceDetails {
   }
 }
 
+/// Provides details about an Step Functions state machine, which is a workflow
+/// consisting of a series of event- driven steps.
+class AwsStepFunctionStateMachineDetails {
+  /// A user-defined or an auto-generated string that identifies a
+  /// <code>Map</code> state. This parameter is present only if the
+  /// <code>stateMachineArn</code> specified in input is a qualified state machine
+  /// ARN.
+  final String? label;
+
+  /// Used to set CloudWatch Logs options.
+  final AwsStepFunctionStateMachineLoggingConfigurationDetails?
+      loggingConfiguration;
+
+  /// The name of the state machine.
+  final String? name;
+
+  /// The Amazon Resource Name (ARN) of the IAM role used when creating this state
+  /// machine.
+  final String? roleArn;
+
+  /// The ARN that identifies the state machine.
+  final String? stateMachineArn;
+
+  /// The current status of the state machine.
+  final String? status;
+
+  /// Specifies whether X-Ray tracing is enabled.
+  final AwsStepFunctionStateMachineTracingConfigurationDetails?
+      tracingConfiguration;
+
+  /// The type of the state machine (STANDARD or EXPRESS).
+  final String? type;
+
+  AwsStepFunctionStateMachineDetails({
+    this.label,
+    this.loggingConfiguration,
+    this.name,
+    this.roleArn,
+    this.stateMachineArn,
+    this.status,
+    this.tracingConfiguration,
+    this.type,
+  });
+
+  factory AwsStepFunctionStateMachineDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsStepFunctionStateMachineDetails(
+      label: json['Label'] as String?,
+      loggingConfiguration: json['LoggingConfiguration'] != null
+          ? AwsStepFunctionStateMachineLoggingConfigurationDetails.fromJson(
+              json['LoggingConfiguration'] as Map<String, dynamic>)
+          : null,
+      name: json['Name'] as String?,
+      roleArn: json['RoleArn'] as String?,
+      stateMachineArn: json['StateMachineArn'] as String?,
+      status: json['Status'] as String?,
+      tracingConfiguration: json['TracingConfiguration'] != null
+          ? AwsStepFunctionStateMachineTracingConfigurationDetails.fromJson(
+              json['TracingConfiguration'] as Map<String, dynamic>)
+          : null,
+      type: json['Type'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final label = this.label;
+    final loggingConfiguration = this.loggingConfiguration;
+    final name = this.name;
+    final roleArn = this.roleArn;
+    final stateMachineArn = this.stateMachineArn;
+    final status = this.status;
+    final tracingConfiguration = this.tracingConfiguration;
+    final type = this.type;
+    return {
+      if (label != null) 'Label': label,
+      if (loggingConfiguration != null)
+        'LoggingConfiguration': loggingConfiguration,
+      if (name != null) 'Name': name,
+      if (roleArn != null) 'RoleArn': roleArn,
+      if (stateMachineArn != null) 'StateMachineArn': stateMachineArn,
+      if (status != null) 'Status': status,
+      if (tracingConfiguration != null)
+        'TracingConfiguration': tracingConfiguration,
+      if (type != null) 'Type': type,
+    };
+  }
+}
+
+/// An object describing a CloudWatch log group. For more information, see <a
+/// href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">
+/// Amazon Web Services::Logs::LogGroup</a> in the <i>CloudFormation User
+/// Guide</i>.
+class AwsStepFunctionStateMachineLoggingConfigurationDestinationsCloudWatchLogsLogGroupDetails {
+  /// The ARN (ends with <code>:*</code>) of the CloudWatch Logs log group to
+  /// which you want your logs emitted.
+  final String? logGroupArn;
+
+  AwsStepFunctionStateMachineLoggingConfigurationDestinationsCloudWatchLogsLogGroupDetails({
+    this.logGroupArn,
+  });
+
+  factory AwsStepFunctionStateMachineLoggingConfigurationDestinationsCloudWatchLogsLogGroupDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsStepFunctionStateMachineLoggingConfigurationDestinationsCloudWatchLogsLogGroupDetails(
+      logGroupArn: json['LogGroupArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final logGroupArn = this.logGroupArn;
+    return {
+      if (logGroupArn != null) 'LogGroupArn': logGroupArn,
+    };
+  }
+}
+
+/// An array of objects that describes where your execution history events will
+/// be logged.
+class AwsStepFunctionStateMachineLoggingConfigurationDestinationsDetails {
+  /// An object describing a CloudWatch Logs log group. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-logs-loggroup.html">
+  /// Amazon Web Services::Logs::LogGroup</a> in the <i>CloudFormation User
+  /// Guide</i>.
+  final AwsStepFunctionStateMachineLoggingConfigurationDestinationsCloudWatchLogsLogGroupDetails?
+      cloudWatchLogsLogGroup;
+
+  AwsStepFunctionStateMachineLoggingConfigurationDestinationsDetails({
+    this.cloudWatchLogsLogGroup,
+  });
+
+  factory AwsStepFunctionStateMachineLoggingConfigurationDestinationsDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsStepFunctionStateMachineLoggingConfigurationDestinationsDetails(
+      cloudWatchLogsLogGroup: json['CloudWatchLogsLogGroup'] != null
+          ? AwsStepFunctionStateMachineLoggingConfigurationDestinationsCloudWatchLogsLogGroupDetails
+              .fromJson(json['CloudWatchLogsLogGroup'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cloudWatchLogsLogGroup = this.cloudWatchLogsLogGroup;
+    return {
+      if (cloudWatchLogsLogGroup != null)
+        'CloudWatchLogsLogGroup': cloudWatchLogsLogGroup,
+    };
+  }
+}
+
+/// The <code>LoggingConfiguration</code> data type is used to set CloudWatch
+/// Logs options.
+class AwsStepFunctionStateMachineLoggingConfigurationDetails {
+  /// An array of objects that describes where your execution history events will
+  /// be logged.
+  final List<
+          AwsStepFunctionStateMachineLoggingConfigurationDestinationsDetails>?
+      destinations;
+
+  /// Determines whether execution data is included in your log. When set to
+  /// false, data is excluded.
+  final bool? includeExecutionData;
+
+  /// Defines which category of execution history events are logged.
+  final String? level;
+
+  AwsStepFunctionStateMachineLoggingConfigurationDetails({
+    this.destinations,
+    this.includeExecutionData,
+    this.level,
+  });
+
+  factory AwsStepFunctionStateMachineLoggingConfigurationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsStepFunctionStateMachineLoggingConfigurationDetails(
+      destinations: (json['Destinations'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              AwsStepFunctionStateMachineLoggingConfigurationDestinationsDetails
+                  .fromJson(e as Map<String, dynamic>))
+          .toList(),
+      includeExecutionData: json['IncludeExecutionData'] as bool?,
+      level: json['Level'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final destinations = this.destinations;
+    final includeExecutionData = this.includeExecutionData;
+    final level = this.level;
+    return {
+      if (destinations != null) 'Destinations': destinations,
+      if (includeExecutionData != null)
+        'IncludeExecutionData': includeExecutionData,
+      if (level != null) 'Level': level,
+    };
+  }
+}
+
+/// Specifies whether X-Ray tracing is enabled.
+class AwsStepFunctionStateMachineTracingConfigurationDetails {
+  /// When set to true, X-Ray tracing is enabled.
+  final bool? enabled;
+
+  AwsStepFunctionStateMachineTracingConfigurationDetails({
+    this.enabled,
+  });
+
+  factory AwsStepFunctionStateMachineTracingConfigurationDetails.fromJson(
+      Map<String, dynamic> json) {
+    return AwsStepFunctionStateMachineTracingConfigurationDetails(
+      enabled: json['Enabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enabled = this.enabled;
+    return {
+      if (enabled != null) 'Enabled': enabled,
+    };
+  }
+}
+
 /// Details about a rate-based rule for global resources. A rate-based rule
 /// provides settings to indicate when to allow, block, or count a request.
 /// Rate-based rules include the number of requests that arrive over a specified
@@ -29867,7 +37229,7 @@ class AwsWafRateBasedRuleDetails {
   factory AwsWafRateBasedRuleDetails.fromJson(Map<String, dynamic> json) {
     return AwsWafRateBasedRuleDetails(
       matchPredicates: (json['MatchPredicates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafRateBasedRuleMatchPredicate.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -30005,7 +37367,7 @@ class AwsWafRegionalRateBasedRuleDetails {
       Map<String, dynamic> json) {
     return AwsWafRegionalRateBasedRuleDetails(
       matchPredicates: (json['MatchPredicates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafRegionalRateBasedRuleMatchPredicate.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -30133,7 +37495,7 @@ class AwsWafRegionalRuleDetails {
       metricName: json['MetricName'] as String?,
       name: json['Name'] as String?,
       predicateList: (json['PredicateList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafRegionalRulePredicateListDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -30184,7 +37546,7 @@ class AwsWafRegionalRuleGroupDetails {
       name: json['Name'] as String?,
       ruleGroupId: json['RuleGroupId'] as String?,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafRegionalRuleGroupRulesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -30366,7 +37728,7 @@ class AwsWafRegionalWebAclDetails {
       metricName: json['MetricName'] as String?,
       name: json['Name'] as String?,
       rulesList: (json['RulesList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafRegionalWebAclRulesListDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -30534,7 +37896,7 @@ class AwsWafRuleDetails {
       metricName: json['MetricName'] as String?,
       name: json['Name'] as String?,
       predicateList: (json['PredicateList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafRulePredicateListDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -30585,7 +37947,7 @@ class AwsWafRuleGroupDetails {
       name: json['Name'] as String?,
       ruleGroupId: json['RuleGroupId'] as String?,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsWafRuleGroupRulesDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -30757,7 +38119,7 @@ class AwsWafWebAclDetails {
       defaultAction: json['DefaultAction'] as String?,
       name: json['Name'] as String?,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafWebAclRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       webAclId: json['WebAclId'] as String?,
@@ -30840,7 +38202,7 @@ class AwsWafWebAclRule {
           ? WafAction.fromJson(json['Action'] as Map<String, dynamic>)
           : null,
       excludedRules: (json['ExcludedRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WafExcludedRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       overrideAction: json['OverrideAction'] != null
@@ -30976,7 +38338,7 @@ class AwsWafv2CustomRequestHandlingDetails {
       Map<String, dynamic> json) {
     return AwsWafv2CustomRequestHandlingDetails(
       insertHeaders: (json['InsertHeaders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsWafv2CustomHttpHeader.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -31019,7 +38381,7 @@ class AwsWafv2CustomResponseDetails {
       customResponseBodyKey: json['CustomResponseBodyKey'] as String?,
       responseCode: json['ResponseCode'] as int?,
       responseHeaders: (json['ResponseHeaders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AwsWafv2CustomHttpHeader.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -31092,7 +38454,7 @@ class AwsWafv2RuleGroupDetails {
       id: json['Id'] as String?,
       name: json['Name'] as String?,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafv2RulesDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       scope: json['Scope'] as String?,
@@ -31520,7 +38882,7 @@ class AwsWafv2WebAclDetails {
       managedbyFirewallManager: json['ManagedbyFirewallManager'] as bool?,
       name: json['Name'] as String?,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AwsWafv2RulesDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       visibilityConfig: json['VisibilityConfig'] != null
@@ -31600,6 +38962,47 @@ class AwsXrayEncryptionConfigDetails {
   }
 }
 
+class BatchDeleteAutomationRulesResponse {
+  /// A list of properly processed rule ARNs.
+  final List<String>? processedAutomationRules;
+
+  /// A list of objects containing <code>RuleArn</code>, <code>ErrorCode</code>,
+  /// and <code>ErrorMessage</code>. This parameter tells you which automation
+  /// rules the request didn't delete and why.
+  final List<UnprocessedAutomationRule>? unprocessedAutomationRules;
+
+  BatchDeleteAutomationRulesResponse({
+    this.processedAutomationRules,
+    this.unprocessedAutomationRules,
+  });
+
+  factory BatchDeleteAutomationRulesResponse.fromJson(
+      Map<String, dynamic> json) {
+    return BatchDeleteAutomationRulesResponse(
+      processedAutomationRules: (json['ProcessedAutomationRules'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      unprocessedAutomationRules: (json['UnprocessedAutomationRules'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              UnprocessedAutomationRule.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final processedAutomationRules = this.processedAutomationRules;
+    final unprocessedAutomationRules = this.unprocessedAutomationRules;
+    return {
+      if (processedAutomationRules != null)
+        'ProcessedAutomationRules': processedAutomationRules,
+      if (unprocessedAutomationRules != null)
+        'UnprocessedAutomationRules': unprocessedAutomationRules,
+    };
+  }
+}
+
 class BatchDisableStandardsResponse {
   /// The details of the standards subscriptions that were disabled.
   final List<StandardsSubscription>? standardsSubscriptions;
@@ -31611,7 +39014,7 @@ class BatchDisableStandardsResponse {
   factory BatchDisableStandardsResponse.fromJson(Map<String, dynamic> json) {
     return BatchDisableStandardsResponse(
       standardsSubscriptions: (json['StandardsSubscriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StandardsSubscription.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -31637,7 +39040,7 @@ class BatchEnableStandardsResponse {
   factory BatchEnableStandardsResponse.fromJson(Map<String, dynamic> json) {
     return BatchEnableStandardsResponse(
       standardsSubscriptions: (json['StandardsSubscriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StandardsSubscription.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -31648,6 +39051,94 @@ class BatchEnableStandardsResponse {
     return {
       if (standardsSubscriptions != null)
         'StandardsSubscriptions': standardsSubscriptions,
+    };
+  }
+}
+
+class BatchGetAutomationRulesResponse {
+  /// A list of rule details for the provided rule ARNs.
+  final List<AutomationRulesConfig>? rules;
+
+  /// A list of objects containing <code>RuleArn</code>, <code>ErrorCode</code>,
+  /// and <code>ErrorMessage</code>. This parameter tells you which automation
+  /// rules the request didn't retrieve and why.
+  final List<UnprocessedAutomationRule>? unprocessedAutomationRules;
+
+  BatchGetAutomationRulesResponse({
+    this.rules,
+    this.unprocessedAutomationRules,
+  });
+
+  factory BatchGetAutomationRulesResponse.fromJson(Map<String, dynamic> json) {
+    return BatchGetAutomationRulesResponse(
+      rules: (json['Rules'] as List?)
+          ?.nonNulls
+          .map((e) => AutomationRulesConfig.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      unprocessedAutomationRules: (json['UnprocessedAutomationRules'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              UnprocessedAutomationRule.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final rules = this.rules;
+    final unprocessedAutomationRules = this.unprocessedAutomationRules;
+    return {
+      if (rules != null) 'Rules': rules,
+      if (unprocessedAutomationRules != null)
+        'UnprocessedAutomationRules': unprocessedAutomationRules,
+    };
+  }
+}
+
+class BatchGetConfigurationPolicyAssociationsResponse {
+  /// Describes associations for the target accounts, OUs, or the root.
+  final List<ConfigurationPolicyAssociationSummary>?
+      configurationPolicyAssociations;
+
+  /// An array of configuration policy associations, one for each configuration
+  /// policy association identifier, that was specified in the request but
+  /// couldn’t be processed due to an error.
+  final List<UnprocessedConfigurationPolicyAssociation>?
+      unprocessedConfigurationPolicyAssociations;
+
+  BatchGetConfigurationPolicyAssociationsResponse({
+    this.configurationPolicyAssociations,
+    this.unprocessedConfigurationPolicyAssociations,
+  });
+
+  factory BatchGetConfigurationPolicyAssociationsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return BatchGetConfigurationPolicyAssociationsResponse(
+      configurationPolicyAssociations:
+          (json['ConfigurationPolicyAssociations'] as List?)
+              ?.nonNulls
+              .map((e) => ConfigurationPolicyAssociationSummary.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      unprocessedConfigurationPolicyAssociations:
+          (json['UnprocessedConfigurationPolicyAssociations'] as List?)
+              ?.nonNulls
+              .map((e) => UnprocessedConfigurationPolicyAssociation.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configurationPolicyAssociations =
+        this.configurationPolicyAssociations;
+    final unprocessedConfigurationPolicyAssociations =
+        this.unprocessedConfigurationPolicyAssociations;
+    return {
+      if (configurationPolicyAssociations != null)
+        'ConfigurationPolicyAssociations': configurationPolicyAssociations,
+      if (unprocessedConfigurationPolicyAssociations != null)
+        'UnprocessedConfigurationPolicyAssociations':
+            unprocessedConfigurationPolicyAssociations,
     };
   }
 }
@@ -31672,11 +39163,11 @@ class BatchGetSecurityControlsResponse {
   factory BatchGetSecurityControlsResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetSecurityControlsResponse(
       securityControls: (json['SecurityControls'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SecurityControl.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedIds: (json['UnprocessedIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               UnprocessedSecurityControl.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -31714,12 +39205,12 @@ class BatchGetStandardsControlAssociationsResponse {
     return BatchGetStandardsControlAssociationsResponse(
       standardsControlAssociationDetails:
           (json['StandardsControlAssociationDetails'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => StandardsControlAssociationDetail.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       unprocessedAssociations: (json['UnprocessedAssociations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UnprocessedStandardsControlAssociation.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -31759,7 +39250,7 @@ class BatchImportFindingsResponse {
       failedCount: json['FailedCount'] as int,
       successCount: json['SuccessCount'] as int,
       failedFindings: (json['FailedFindings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImportFindingsError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -31773,6 +39264,47 @@ class BatchImportFindingsResponse {
       'FailedCount': failedCount,
       'SuccessCount': successCount,
       if (failedFindings != null) 'FailedFindings': failedFindings,
+    };
+  }
+}
+
+class BatchUpdateAutomationRulesResponse {
+  /// A list of properly processed rule ARNs.
+  final List<String>? processedAutomationRules;
+
+  /// A list of objects containing <code>RuleArn</code>, <code>ErrorCode</code>,
+  /// and <code>ErrorMessage</code>. This parameter tells you which automation
+  /// rules the request didn't update and why.
+  final List<UnprocessedAutomationRule>? unprocessedAutomationRules;
+
+  BatchUpdateAutomationRulesResponse({
+    this.processedAutomationRules,
+    this.unprocessedAutomationRules,
+  });
+
+  factory BatchUpdateAutomationRulesResponse.fromJson(
+      Map<String, dynamic> json) {
+    return BatchUpdateAutomationRulesResponse(
+      processedAutomationRules: (json['ProcessedAutomationRules'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      unprocessedAutomationRules: (json['UnprocessedAutomationRules'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              UnprocessedAutomationRule.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final processedAutomationRules = this.processedAutomationRules;
+    final unprocessedAutomationRules = this.unprocessedAutomationRules;
+    return {
+      if (processedAutomationRules != null)
+        'ProcessedAutomationRules': processedAutomationRules,
+      if (unprocessedAutomationRules != null)
+        'UnprocessedAutomationRules': unprocessedAutomationRules,
     };
   }
 }
@@ -31792,12 +39324,12 @@ class BatchUpdateFindingsResponse {
   factory BatchUpdateFindingsResponse.fromJson(Map<String, dynamic> json) {
     return BatchUpdateFindingsResponse(
       processedFindings: (json['ProcessedFindings'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               AwsSecurityFindingIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedFindings: (json['UnprocessedFindings'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BatchUpdateFindingsUnprocessedFinding.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -31925,7 +39457,7 @@ class BatchUpdateStandardsControlAssociationsResponse {
     return BatchUpdateStandardsControlAssociationsResponse(
       unprocessedAssociationUpdates:
           (json['UnprocessedAssociationUpdates'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => UnprocessedStandardsControlAssociationUpdate.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -31937,6 +39469,31 @@ class BatchUpdateStandardsControlAssociationsResponse {
     return {
       if (unprocessedAssociationUpdates != null)
         'UnprocessedAssociationUpdates': unprocessedAssociationUpdates,
+    };
+  }
+}
+
+/// The options for customizing a security control parameter with a boolean. For
+/// a boolean parameter, the options are <code>true</code> and
+/// <code>false</code>.
+class BooleanConfigurationOptions {
+  /// The Security Hub default value for a boolean parameter.
+  final bool? defaultValue;
+
+  BooleanConfigurationOptions({
+    this.defaultValue,
+  });
+
+  factory BooleanConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return BooleanConfigurationOptions(
+      defaultValue: json['DefaultValue'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final defaultValue = this.defaultValue;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
     };
   }
 }
@@ -32116,7 +39673,7 @@ class ClassificationResult {
           : null,
       mimeType: json['MimeType'] as String?,
       sensitiveData: (json['SensitiveData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SensitiveDataResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       sizeClassified: json['SizeClassified'] as int?,
@@ -32177,6 +39734,94 @@ class ClassificationStatus {
   }
 }
 
+/// The Amazon Resource Name (ARN) and other details of the Amazon CloudWatch
+/// Logs log group that Amazon Route 53 is publishing logs to.
+class CloudWatchLogsLogGroupArnConfigDetails {
+  /// The ARN of the CloudWatch Logs log group that Route 53 is publishing logs
+  /// to.
+  final String? cloudWatchLogsLogGroupArn;
+
+  /// The ID of the hosted zone that CloudWatch Logs is logging queries for.
+  final String? hostedZoneId;
+
+  /// The ID for a DNS query logging configuration.
+  final String? id;
+
+  CloudWatchLogsLogGroupArnConfigDetails({
+    this.cloudWatchLogsLogGroupArn,
+    this.hostedZoneId,
+    this.id,
+  });
+
+  factory CloudWatchLogsLogGroupArnConfigDetails.fromJson(
+      Map<String, dynamic> json) {
+    return CloudWatchLogsLogGroupArnConfigDetails(
+      cloudWatchLogsLogGroupArn: json['CloudWatchLogsLogGroupArn'] as String?,
+      hostedZoneId: json['HostedZoneId'] as String?,
+      id: json['Id'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cloudWatchLogsLogGroupArn = this.cloudWatchLogsLogGroupArn;
+    final hostedZoneId = this.hostedZoneId;
+    final id = this.id;
+    return {
+      if (cloudWatchLogsLogGroupArn != null)
+        'CloudWatchLogsLogGroupArn': cloudWatchLogsLogGroupArn,
+      if (hostedZoneId != null) 'HostedZoneId': hostedZoneId,
+      if (id != null) 'Id': id,
+    };
+  }
+}
+
+/// Provides details about where a code vulnerability is located in your Lambda
+/// function.
+class CodeVulnerabilitiesFilePath {
+  /// The line number of the last line of code in which the vulnerability is
+  /// located.
+  final int? endLine;
+
+  /// The name of the file in which the code vulnerability is located.
+  final String? fileName;
+
+  /// The file path to the code in which the vulnerability is located.
+  final String? filePath;
+
+  /// The line number of the first line of code in which the vulnerability is
+  /// located.
+  final int? startLine;
+
+  CodeVulnerabilitiesFilePath({
+    this.endLine,
+    this.fileName,
+    this.filePath,
+    this.startLine,
+  });
+
+  factory CodeVulnerabilitiesFilePath.fromJson(Map<String, dynamic> json) {
+    return CodeVulnerabilitiesFilePath(
+      endLine: json['EndLine'] as int?,
+      fileName: json['FileName'] as String?,
+      filePath: json['FilePath'] as String?,
+      startLine: json['StartLine'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final endLine = this.endLine;
+    final fileName = this.fileName;
+    final filePath = this.filePath;
+    final startLine = this.startLine;
+    return {
+      if (endLine != null) 'EndLine': endLine,
+      if (fileName != null) 'FileName': fileName,
+      if (filePath != null) 'FilePath': filePath,
+      if (startLine != null) 'StartLine': startLine,
+    };
+  }
+}
+
 /// Contains finding details that are specific to control-based findings. Only
 /// returned for findings generated from controls.
 class Compliance {
@@ -32187,12 +39832,17 @@ class Compliance {
   /// For a control, the industry or regulatory framework requirements that are
   /// related to the control. The check for that control is aligned with these
   /// requirements.
+  ///
+  /// Array Members: Maximum number of 32 items.
   final List<String>? relatedRequirements;
 
   /// The unique identifier of a control across standards. Values for this field
   /// typically consist of an Amazon Web Service and a number, such as
   /// APIGateway.5.
   final String? securityControlId;
+
+  /// An object that includes security control parameter names and values.
+  final List<SecurityControlParameter>? securityControlParameters;
 
   /// The result of a standards check.
   ///
@@ -32216,8 +39866,8 @@ class Compliance {
   /// <code>NOT_AVAILABLE</code> - Check could not be performed due to a service
   /// outage, API error, or because the result of the Config evaluation was
   /// <code>NOT_APPLICABLE</code>. If the Config evaluation result was
-  /// <code>NOT_APPLICABLE</code>, then after 3 days, Security Hub automatically
-  /// archives the finding.
+  /// <code>NOT_APPLICABLE</code> for a Security Hub control, Security Hub
+  /// automatically archives the finding after 3 days.
   /// </li>
   /// </ul> </li>
   /// </ul>
@@ -32234,6 +39884,7 @@ class Compliance {
     this.associatedStandards,
     this.relatedRequirements,
     this.securityControlId,
+    this.securityControlParameters,
     this.status,
     this.statusReasons,
   });
@@ -32241,17 +39892,22 @@ class Compliance {
   factory Compliance.fromJson(Map<String, dynamic> json) {
     return Compliance(
       associatedStandards: (json['AssociatedStandards'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AssociatedStandard.fromJson(e as Map<String, dynamic>))
           .toList(),
       relatedRequirements: (json['RelatedRequirements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       securityControlId: json['SecurityControlId'] as String?,
-      status: (json['Status'] as String?)?.toComplianceStatus(),
+      securityControlParameters: (json['SecurityControlParameters'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              SecurityControlParameter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      status: (json['Status'] as String?)?.let(ComplianceStatus.fromString),
       statusReasons: (json['StatusReasons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StatusReason.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -32261,6 +39917,7 @@ class Compliance {
     final associatedStandards = this.associatedStandards;
     final relatedRequirements = this.relatedRequirements;
     final securityControlId = this.securityControlId;
+    final securityControlParameters = this.securityControlParameters;
     final status = this.status;
     final statusReasons = this.statusReasons;
     return {
@@ -32269,47 +39926,315 @@ class Compliance {
       if (relatedRequirements != null)
         'RelatedRequirements': relatedRequirements,
       if (securityControlId != null) 'SecurityControlId': securityControlId,
-      if (status != null) 'Status': status.toValue(),
+      if (securityControlParameters != null)
+        'SecurityControlParameters': securityControlParameters,
+      if (status != null) 'Status': status.value,
       if (statusReasons != null) 'StatusReasons': statusReasons,
     };
   }
 }
 
 enum ComplianceStatus {
-  passed,
-  warning,
-  failed,
-  notAvailable,
+  passed('PASSED'),
+  warning('WARNING'),
+  failed('FAILED'),
+  notAvailable('NOT_AVAILABLE'),
+  ;
+
+  final String value;
+
+  const ComplianceStatus(this.value);
+
+  static ComplianceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ComplianceStatus'));
 }
 
-extension ComplianceStatusValueExtension on ComplianceStatus {
-  String toValue() {
-    switch (this) {
-      case ComplianceStatus.passed:
-        return 'PASSED';
-      case ComplianceStatus.warning:
-        return 'WARNING';
-      case ComplianceStatus.failed:
-        return 'FAILED';
-      case ComplianceStatus.notAvailable:
-        return 'NOT_AVAILABLE';
-    }
+/// The options for customizing a security control parameter.
+class ConfigurationOptions {
+  /// The options for customizing a security control parameter that is a boolean.
+  /// For a boolean parameter, the options are <code>true</code> and
+  /// <code>false</code>.
+  final BooleanConfigurationOptions? boolean;
+
+  /// The options for customizing a security control parameter that is a double.
+  final DoubleConfigurationOptions? doubleValue;
+
+  /// The options for customizing a security control parameter that is an enum.
+  final EnumConfigurationOptions? enumValue;
+
+  /// The options for customizing a security control parameter that is a list of
+  /// enums.
+  final EnumListConfigurationOptions? enumList;
+
+  /// The options for customizing a security control parameter that is an integer.
+  final IntegerConfigurationOptions? integer;
+
+  /// The options for customizing a security control parameter that is a list of
+  /// integers.
+  final IntegerListConfigurationOptions? integerList;
+
+  /// The options for customizing a security control parameter that is a string
+  /// data type.
+  final StringConfigurationOptions? string;
+
+  /// The options for customizing a security control parameter that is a list of
+  /// strings.
+  final StringListConfigurationOptions? stringList;
+
+  ConfigurationOptions({
+    this.boolean,
+    this.doubleValue,
+    this.enumValue,
+    this.enumList,
+    this.integer,
+    this.integerList,
+    this.string,
+    this.stringList,
+  });
+
+  factory ConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return ConfigurationOptions(
+      boolean: json['Boolean'] != null
+          ? BooleanConfigurationOptions.fromJson(
+              json['Boolean'] as Map<String, dynamic>)
+          : null,
+      doubleValue: json['Double'] != null
+          ? DoubleConfigurationOptions.fromJson(
+              json['Double'] as Map<String, dynamic>)
+          : null,
+      enumValue: json['Enum'] != null
+          ? EnumConfigurationOptions.fromJson(
+              json['Enum'] as Map<String, dynamic>)
+          : null,
+      enumList: json['EnumList'] != null
+          ? EnumListConfigurationOptions.fromJson(
+              json['EnumList'] as Map<String, dynamic>)
+          : null,
+      integer: json['Integer'] != null
+          ? IntegerConfigurationOptions.fromJson(
+              json['Integer'] as Map<String, dynamic>)
+          : null,
+      integerList: json['IntegerList'] != null
+          ? IntegerListConfigurationOptions.fromJson(
+              json['IntegerList'] as Map<String, dynamic>)
+          : null,
+      string: json['String'] != null
+          ? StringConfigurationOptions.fromJson(
+              json['String'] as Map<String, dynamic>)
+          : null,
+      stringList: json['StringList'] != null
+          ? StringListConfigurationOptions.fromJson(
+              json['StringList'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final boolean = this.boolean;
+    final doubleValue = this.doubleValue;
+    final enumValue = this.enumValue;
+    final enumList = this.enumList;
+    final integer = this.integer;
+    final integerList = this.integerList;
+    final string = this.string;
+    final stringList = this.stringList;
+    return {
+      if (boolean != null) 'Boolean': boolean,
+      if (doubleValue != null) 'Double': doubleValue,
+      if (enumValue != null) 'Enum': enumValue,
+      if (enumList != null) 'EnumList': enumList,
+      if (integer != null) 'Integer': integer,
+      if (integerList != null) 'IntegerList': integerList,
+      if (string != null) 'String': string,
+      if (stringList != null) 'StringList': stringList,
+    };
   }
 }
 
-extension ComplianceStatusFromString on String {
-  ComplianceStatus toComplianceStatus() {
-    switch (this) {
-      case 'PASSED':
-        return ComplianceStatus.passed;
-      case 'WARNING':
-        return ComplianceStatus.warning;
-      case 'FAILED':
-        return ComplianceStatus.failed;
-      case 'NOT_AVAILABLE':
-        return ComplianceStatus.notAvailable;
-    }
-    throw Exception('$this is not known in enum ComplianceStatus');
+/// Provides details about the association between an Security Hub configuration
+/// and a target account, organizational unit, or the root. An association can
+/// exist between a target and a configuration policy, or between a target and
+/// self-managed behavior.
+class ConfigurationPolicyAssociation {
+  /// The target account, organizational unit, or the root.
+  final Target? target;
+
+  ConfigurationPolicyAssociation({
+    this.target,
+  });
+
+  factory ConfigurationPolicyAssociation.fromJson(Map<String, dynamic> json) {
+    return ConfigurationPolicyAssociation(
+      target: json['Target'] != null
+          ? Target.fromJson(json['Target'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final target = this.target;
+    return {
+      if (target != null) 'Target': target,
+    };
+  }
+}
+
+enum ConfigurationPolicyAssociationStatus {
+  pending('PENDING'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const ConfigurationPolicyAssociationStatus(this.value);
+
+  static ConfigurationPolicyAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigurationPolicyAssociationStatus'));
+}
+
+/// An object that contains the details of a configuration policy association
+/// that’s returned in a <code>ListConfigurationPolicyAssociations</code>
+/// request.
+class ConfigurationPolicyAssociationSummary {
+  /// The current status of the association between the specified target and the
+  /// configuration.
+  final ConfigurationPolicyAssociationStatus? associationStatus;
+
+  /// The explanation for a <code>FAILED</code> value for
+  /// <code>AssociationStatus</code>.
+  final String? associationStatusMessage;
+
+  /// Indicates whether the association between the specified target and the
+  /// configuration was directly applied by the Security Hub delegated
+  /// administrator or inherited from a parent.
+  final AssociationType? associationType;
+
+  /// The universally unique identifier (UUID) of the configuration policy.
+  final String? configurationPolicyId;
+
+  /// The identifier of the target account, organizational unit, or the root.
+  final String? targetId;
+
+  /// Specifies whether the target is an Amazon Web Services account,
+  /// organizational unit, or the root.
+  final TargetType? targetType;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// association was last updated.
+  final DateTime? updatedAt;
+
+  ConfigurationPolicyAssociationSummary({
+    this.associationStatus,
+    this.associationStatusMessage,
+    this.associationType,
+    this.configurationPolicyId,
+    this.targetId,
+    this.targetType,
+    this.updatedAt,
+  });
+
+  factory ConfigurationPolicyAssociationSummary.fromJson(
+      Map<String, dynamic> json) {
+    return ConfigurationPolicyAssociationSummary(
+      associationStatus: (json['AssociationStatus'] as String?)
+          ?.let(ConfigurationPolicyAssociationStatus.fromString),
+      associationStatusMessage: json['AssociationStatusMessage'] as String?,
+      associationType:
+          (json['AssociationType'] as String?)?.let(AssociationType.fromString),
+      configurationPolicyId: json['ConfigurationPolicyId'] as String?,
+      targetId: json['TargetId'] as String?,
+      targetType: (json['TargetType'] as String?)?.let(TargetType.fromString),
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associationStatus = this.associationStatus;
+    final associationStatusMessage = this.associationStatusMessage;
+    final associationType = this.associationType;
+    final configurationPolicyId = this.configurationPolicyId;
+    final targetId = this.targetId;
+    final targetType = this.targetType;
+    final updatedAt = this.updatedAt;
+    return {
+      if (associationStatus != null)
+        'AssociationStatus': associationStatus.value,
+      if (associationStatusMessage != null)
+        'AssociationStatusMessage': associationStatusMessage,
+      if (associationType != null) 'AssociationType': associationType.value,
+      if (configurationPolicyId != null)
+        'ConfigurationPolicyId': configurationPolicyId,
+      if (targetId != null) 'TargetId': targetId,
+      if (targetType != null) 'TargetType': targetType.value,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
+  }
+}
+
+/// An object that contains the details of an Security Hub configuration policy
+/// that’s returned in a <code>ListConfigurationPolicies</code> request.
+class ConfigurationPolicySummary {
+  /// The Amazon Resource Name (ARN) of the configuration policy.
+  final String? arn;
+
+  /// The description of the configuration policy.
+  final String? description;
+
+  /// The universally unique identifier (UUID) of the configuration policy.
+  final String? id;
+
+  /// The name of the configuration policy. Alphanumeric characters and the
+  /// following ASCII characters are permitted: <code>-, ., !, *, /</code>.
+  final String? name;
+
+  /// Indicates whether the service that the configuration policy applies to is
+  /// enabled in the policy.
+  final bool? serviceEnabled;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// was last updated.
+  final DateTime? updatedAt;
+
+  ConfigurationPolicySummary({
+    this.arn,
+    this.description,
+    this.id,
+    this.name,
+    this.serviceEnabled,
+    this.updatedAt,
+  });
+
+  factory ConfigurationPolicySummary.fromJson(Map<String, dynamic> json) {
+    return ConfigurationPolicySummary(
+      arn: json['Arn'] as String?,
+      description: json['Description'] as String?,
+      id: json['Id'] as String?,
+      name: json['Name'] as String?,
+      serviceEnabled: json['ServiceEnabled'] as bool?,
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final description = this.description;
+    final id = this.id;
+    final name = this.name;
+    final serviceEnabled = this.serviceEnabled;
+    final updatedAt = this.updatedAt;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (description != null) 'Description': description,
+      if (id != null) 'Id': id,
+      if (name != null) 'Name': name,
+      if (serviceEnabled != null) 'ServiceEnabled': serviceEnabled,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
   }
 }
 
@@ -32326,11 +40251,33 @@ class ContainerDetails {
 
   /// Indicates when the container started.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? launchedAt;
 
   /// The name of the container related to a finding.
@@ -32362,7 +40309,7 @@ class ContainerDetails {
       name: json['Name'] as String?,
       privileged: json['Privileged'] as bool?,
       volumeMounts: (json['VolumeMounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VolumeMount.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -32389,59 +40336,33 @@ class ContainerDetails {
 }
 
 enum ControlFindingGenerator {
-  standardControl,
-  securityControl,
-}
+  standardControl('STANDARD_CONTROL'),
+  securityControl('SECURITY_CONTROL'),
+  ;
 
-extension ControlFindingGeneratorValueExtension on ControlFindingGenerator {
-  String toValue() {
-    switch (this) {
-      case ControlFindingGenerator.standardControl:
-        return 'STANDARD_CONTROL';
-      case ControlFindingGenerator.securityControl:
-        return 'SECURITY_CONTROL';
-    }
-  }
-}
+  final String value;
 
-extension ControlFindingGeneratorFromString on String {
-  ControlFindingGenerator toControlFindingGenerator() {
-    switch (this) {
-      case 'STANDARD_CONTROL':
-        return ControlFindingGenerator.standardControl;
-      case 'SECURITY_CONTROL':
-        return ControlFindingGenerator.securityControl;
-    }
-    throw Exception('$this is not known in enum ControlFindingGenerator');
-  }
+  const ControlFindingGenerator(this.value);
+
+  static ControlFindingGenerator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ControlFindingGenerator'));
 }
 
 enum ControlStatus {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension ControlStatusValueExtension on ControlStatus {
-  String toValue() {
-    switch (this) {
-      case ControlStatus.enabled:
-        return 'ENABLED';
-      case ControlStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension ControlStatusFromString on String {
-  ControlStatus toControlStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return ControlStatus.enabled;
-      case 'DISABLED':
-        return ControlStatus.disabled;
-    }
-    throw Exception('$this is not known in enum ControlStatus');
-  }
+  const ControlStatus(this.value);
+
+  static ControlStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ControlStatus'));
 }
 
 /// Information about a country.
@@ -32496,6 +40417,106 @@ class CreateActionTargetResponse {
   }
 }
 
+class CreateAutomationRuleResponse {
+  /// The Amazon Resource Name (ARN) of the automation rule that you created.
+  final String? ruleArn;
+
+  CreateAutomationRuleResponse({
+    this.ruleArn,
+  });
+
+  factory CreateAutomationRuleResponse.fromJson(Map<String, dynamic> json) {
+    return CreateAutomationRuleResponse(
+      ruleArn: json['RuleArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final ruleArn = this.ruleArn;
+    return {
+      if (ruleArn != null) 'RuleArn': ruleArn,
+    };
+  }
+}
+
+class CreateConfigurationPolicyResponse {
+  /// The Amazon Resource Name (ARN) of the configuration policy.
+  final String? arn;
+
+  /// An object that defines how Security Hub is configured. It includes whether
+  /// Security Hub is enabled or disabled, a list of enabled security standards, a
+  /// list of enabled or disabled security controls, and a list of custom
+  /// parameter values for specified controls. If the request included a list of
+  /// security controls that are enabled in the configuration policy, Security Hub
+  /// disables all other controls (including newly released controls). If the
+  /// request included a list of security controls that are disabled in the
+  /// configuration policy, Security Hub enables all other controls (including
+  /// newly released controls).
+  final Policy? configurationPolicy;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// was created.
+  final DateTime? createdAt;
+
+  /// The description of the configuration policy.
+  final String? description;
+
+  /// The universally unique identifier (UUID) of the configuration policy.
+  final String? id;
+
+  /// The name of the configuration policy.
+  final String? name;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// was last updated.
+  final DateTime? updatedAt;
+
+  CreateConfigurationPolicyResponse({
+    this.arn,
+    this.configurationPolicy,
+    this.createdAt,
+    this.description,
+    this.id,
+    this.name,
+    this.updatedAt,
+  });
+
+  factory CreateConfigurationPolicyResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreateConfigurationPolicyResponse(
+      arn: json['Arn'] as String?,
+      configurationPolicy: json['ConfigurationPolicy'] != null
+          ? Policy.fromJson(json['ConfigurationPolicy'] as Map<String, dynamic>)
+          : null,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      description: json['Description'] as String?,
+      id: json['Id'] as String?,
+      name: json['Name'] as String?,
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final configurationPolicy = this.configurationPolicy;
+    final createdAt = this.createdAt;
+    final description = this.description;
+    final id = this.id;
+    final name = this.name;
+    final updatedAt = this.updatedAt;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (configurationPolicy != null)
+        'ConfigurationPolicy': configurationPolicy,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (description != null) 'Description': description,
+      if (id != null) 'Id': id,
+      if (name != null) 'Name': name,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
+  }
+}
+
 class CreateFindingAggregatorResponse {
   /// The aggregation Region.
   final String? findingAggregationRegion;
@@ -32523,10 +40544,8 @@ class CreateFindingAggregatorResponse {
       findingAggregationRegion: json['FindingAggregationRegion'] as String?,
       findingAggregatorArn: json['FindingAggregatorArn'] as String?,
       regionLinkingMode: json['RegionLinkingMode'] as String?,
-      regions: (json['Regions'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      regions:
+          (json['Regions'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -32580,7 +40599,7 @@ class CreateMembersResponse {
   factory CreateMembersResponse.fromJson(Map<String, dynamic> json) {
     return CreateMembersResponse(
       unprocessedAccounts: (json['UnprocessedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Result.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -32658,7 +40677,7 @@ class CustomDataIdentifiersResult {
   factory CustomDataIdentifiersResult.fromJson(Map<String, dynamic> json) {
     return CustomDataIdentifiersResult(
       detections: (json['Detections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomDataIdentifiersDetections.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -32704,7 +40723,7 @@ class Cvss {
   factory Cvss.fromJson(Map<String, dynamic> json) {
     return Cvss(
       adjustments: (json['Adjustments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Adjustment.fromJson(e as Map<String, dynamic>))
           .toList(),
       baseScore: json['BaseScore'] as double?,
@@ -32771,20 +40790,64 @@ class DateFilter {
 
   /// A timestamp that provides the end date for the date filter.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? end;
 
   /// A timestamp that provides the start date for the date filter.
   ///
-  /// A correctly formatted example is <code>2020-05-21T20:16:34.724Z</code>. The
-  /// value cannot contain spaces, and date and time should be separated by
-  /// <code>T</code>. For more information, see <a
-  /// href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339 section
-  /// 5.6, Internet Date/Time Format</a>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? start;
 
   DateFilter({
@@ -32830,7 +40893,7 @@ class DateRange {
 
   factory DateRange.fromJson(Map<String, dynamic> json) {
     return DateRange(
-      unit: (json['Unit'] as String?)?.toDateRangeUnit(),
+      unit: (json['Unit'] as String?)?.let(DateRangeUnit.fromString),
       value: json['Value'] as int?,
     );
   }
@@ -32839,33 +40902,24 @@ class DateRange {
     final unit = this.unit;
     final value = this.value;
     return {
-      if (unit != null) 'Unit': unit.toValue(),
+      if (unit != null) 'Unit': unit.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum DateRangeUnit {
-  days,
-}
+  days('DAYS'),
+  ;
 
-extension DateRangeUnitValueExtension on DateRangeUnit {
-  String toValue() {
-    switch (this) {
-      case DateRangeUnit.days:
-        return 'DAYS';
-    }
-  }
-}
+  final String value;
 
-extension DateRangeUnitFromString on String {
-  DateRangeUnit toDateRangeUnit() {
-    switch (this) {
-      case 'DAYS':
-        return DateRangeUnit.days;
-    }
-    throw Exception('$this is not known in enum DateRangeUnit');
-  }
+  const DateRangeUnit(this.value);
+
+  static DateRangeUnit fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DateRangeUnit'));
 }
 
 class DeclineInvitationsResponse {
@@ -32880,7 +40934,7 @@ class DeclineInvitationsResponse {
   factory DeclineInvitationsResponse.fromJson(Map<String, dynamic> json) {
     return DeclineInvitationsResponse(
       unprocessedAccounts: (json['UnprocessedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Result.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -32914,6 +40968,18 @@ class DeleteActionTargetResponse {
     return {
       'ActionTargetArn': actionTargetArn,
     };
+  }
+}
+
+class DeleteConfigurationPolicyResponse {
+  DeleteConfigurationPolicyResponse();
+
+  factory DeleteConfigurationPolicyResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteConfigurationPolicyResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -32964,7 +41030,7 @@ class DeleteInvitationsResponse {
   factory DeleteInvitationsResponse.fromJson(Map<String, dynamic> json) {
     return DeleteInvitationsResponse(
       unprocessedAccounts: (json['UnprocessedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Result.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -32991,7 +41057,7 @@ class DeleteMembersResponse {
   factory DeleteMembersResponse.fromJson(Map<String, dynamic> json) {
     return DeleteMembersResponse(
       unprocessedAccounts: (json['UnprocessedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Result.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -33023,7 +41089,7 @@ class DescribeActionTargetsResponse {
   factory DescribeActionTargetsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeActionTargetsResponse(
       actionTargets: (json['ActionTargets'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ActionTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -33081,7 +41147,7 @@ class DescribeHubResponse {
     return DescribeHubResponse(
       autoEnableControls: json['AutoEnableControls'] as bool?,
       controlFindingGenerator: (json['ControlFindingGenerator'] as String?)
-          ?.toControlFindingGenerator(),
+          ?.let(ControlFindingGenerator.fromString),
       hubArn: json['HubArn'] as String?,
       subscribedAt: json['SubscribedAt'] as String?,
     );
@@ -33095,7 +41161,7 @@ class DescribeHubResponse {
     return {
       if (autoEnableControls != null) 'AutoEnableControls': autoEnableControls,
       if (controlFindingGenerator != null)
-        'ControlFindingGenerator': controlFindingGenerator.toValue(),
+        'ControlFindingGenerator': controlFindingGenerator.value,
       if (hubArn != null) 'HubArn': hubArn,
       if (subscribedAt != null) 'SubscribedAt': subscribedAt,
     };
@@ -33103,42 +41169,61 @@ class DescribeHubResponse {
 }
 
 class DescribeOrganizationConfigurationResponse {
-  /// Whether to automatically enable Security Hub for new accounts in the
-  /// organization.
+  /// Whether to automatically enable Security Hub in new member accounts when
+  /// they join the organization.
   ///
-  /// If set to <code>true</code>, then Security Hub is enabled for new accounts.
-  /// If set to false, then new accounts are not added automatically.
+  /// If set to <code>true</code>, then Security Hub is automatically enabled in
+  /// new accounts. If set to <code>false</code>, then Security Hub isn't enabled
+  /// in new accounts automatically. The default value is <code>false</code>.
+  ///
+  /// If the <code>ConfigurationType</code> of your organization is set to
+  /// <code>CENTRAL</code>, then this field is set to <code>false</code> and can't
+  /// be changed in the home Region and linked Regions. However, in that case, the
+  /// delegated administrator can create a configuration policy in which Security
+  /// Hub is enabled and associate the policy with new organization accounts.
   final bool? autoEnable;
 
   /// Whether to automatically enable Security Hub <a
   /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/securityhub-standards-enable-disable.html">default
-  /// standards</a> for new member accounts in the organization.
-  ///
-  /// The default value of this parameter is equal to <code>DEFAULT</code>.
+  /// standards</a> in new member accounts when they join the organization.
   ///
   /// If equal to <code>DEFAULT</code>, then Security Hub default standards are
   /// automatically enabled for new member accounts. If equal to
   /// <code>NONE</code>, then default standards are not automatically enabled for
-  /// new member accounts.
+  /// new member accounts. The default value of this parameter is equal to
+  /// <code>DEFAULT</code>.
+  ///
+  /// If the <code>ConfigurationType</code> of your organization is set to
+  /// <code>CENTRAL</code>, then this field is set to <code>NONE</code> and can't
+  /// be changed in the home Region and linked Regions. However, in that case, the
+  /// delegated administrator can create a configuration policy in which specific
+  /// security standards are enabled and associate the policy with new
+  /// organization accounts.
   final AutoEnableStandards? autoEnableStandards;
 
   /// Whether the maximum number of allowed member accounts are already associated
   /// with the Security Hub administrator account.
   final bool? memberAccountLimitReached;
+  final OrganizationConfiguration? organizationConfiguration;
 
   DescribeOrganizationConfigurationResponse({
     this.autoEnable,
     this.autoEnableStandards,
     this.memberAccountLimitReached,
+    this.organizationConfiguration,
   });
 
   factory DescribeOrganizationConfigurationResponse.fromJson(
       Map<String, dynamic> json) {
     return DescribeOrganizationConfigurationResponse(
       autoEnable: json['AutoEnable'] as bool?,
-      autoEnableStandards:
-          (json['AutoEnableStandards'] as String?)?.toAutoEnableStandards(),
+      autoEnableStandards: (json['AutoEnableStandards'] as String?)
+          ?.let(AutoEnableStandards.fromString),
       memberAccountLimitReached: json['MemberAccountLimitReached'] as bool?,
+      organizationConfiguration: json['OrganizationConfiguration'] != null
+          ? OrganizationConfiguration.fromJson(
+              json['OrganizationConfiguration'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -33146,12 +41231,15 @@ class DescribeOrganizationConfigurationResponse {
     final autoEnable = this.autoEnable;
     final autoEnableStandards = this.autoEnableStandards;
     final memberAccountLimitReached = this.memberAccountLimitReached;
+    final organizationConfiguration = this.organizationConfiguration;
     return {
       if (autoEnable != null) 'AutoEnable': autoEnable,
       if (autoEnableStandards != null)
-        'AutoEnableStandards': autoEnableStandards.toValue(),
+        'AutoEnableStandards': autoEnableStandards.value,
       if (memberAccountLimitReached != null)
         'MemberAccountLimitReached': memberAccountLimitReached,
+      if (organizationConfiguration != null)
+        'OrganizationConfiguration': organizationConfiguration,
     };
   }
 }
@@ -33171,7 +41259,7 @@ class DescribeProductsResponse {
   factory DescribeProductsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeProductsResponse(
       products: (json['Products'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Product.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -33204,7 +41292,7 @@ class DescribeStandardsControlsResponse {
       Map<String, dynamic> json) {
     return DescribeStandardsControlsResponse(
       controls: (json['Controls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StandardsControl.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -33237,7 +41325,7 @@ class DescribeStandardsResponse {
     return DescribeStandardsResponse(
       nextToken: json['NextToken'] as String?,
       standards: (json['Standards'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Standard.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -33336,9 +41424,13 @@ class DnsRequestAction {
   final bool? blocked;
 
   /// The DNS domain that is associated with the DNS request.
+  ///
+  /// Length Constraints: 128.
   final String? domain;
 
   /// The protocol that was used for the DNS request.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 64.
   final String? protocol;
 
   DnsRequestAction({
@@ -33363,6 +41455,43 @@ class DnsRequestAction {
       if (blocked != null) 'Blocked': blocked,
       if (domain != null) 'Domain': domain,
       if (protocol != null) 'Protocol': protocol,
+    };
+  }
+}
+
+/// The options for customizing a security control parameter that is a double.
+class DoubleConfigurationOptions {
+  /// The Security Hub default value for a control parameter that is a double.
+  final double? defaultValue;
+
+  /// The maximum valid value for a control parameter that is a double.
+  final double? max;
+
+  /// The minimum valid value for a control parameter that is a double.
+  final double? min;
+
+  DoubleConfigurationOptions({
+    this.defaultValue,
+    this.max,
+    this.min,
+  });
+
+  factory DoubleConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return DoubleConfigurationOptions(
+      defaultValue: json['DefaultValue'] as double?,
+      max: json['Max'] as double?,
+      min: json['Min'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final defaultValue = this.defaultValue;
+    final max = this.max;
+    final min = this.min;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (max != null) 'Max': max,
+      if (min != null) 'Min': min,
     };
   }
 }
@@ -33416,19 +41545,106 @@ class EnableSecurityHubResponse {
   }
 }
 
+/// The options for customizing a security control parameter that is an enum.
+class EnumConfigurationOptions {
+  /// The valid values for a control parameter that is an enum.
+  final List<String>? allowedValues;
+
+  /// The Security Hub default value for a control parameter that is an enum.
+  final String? defaultValue;
+
+  EnumConfigurationOptions({
+    this.allowedValues,
+    this.defaultValue,
+  });
+
+  factory EnumConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return EnumConfigurationOptions(
+      allowedValues: (json['AllowedValues'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      defaultValue: json['DefaultValue'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final allowedValues = this.allowedValues;
+    final defaultValue = this.defaultValue;
+    return {
+      if (allowedValues != null) 'AllowedValues': allowedValues,
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+    };
+  }
+}
+
+/// The options for customizing a security control parameter that is a list of
+/// enums.
+class EnumListConfigurationOptions {
+  /// The valid values for a control parameter that is a list of enums.
+  final List<String>? allowedValues;
+
+  /// The Security Hub default value for a control parameter that is a list of
+  /// enums.
+  final List<String>? defaultValue;
+
+  /// The maximum number of list items that an enum list control parameter can
+  /// accept.
+  final int? maxItems;
+
+  EnumListConfigurationOptions({
+    this.allowedValues,
+    this.defaultValue,
+    this.maxItems,
+  });
+
+  factory EnumListConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return EnumListConfigurationOptions(
+      allowedValues: (json['AllowedValues'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      defaultValue: (json['DefaultValue'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      maxItems: json['MaxItems'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final allowedValues = this.allowedValues;
+    final defaultValue = this.defaultValue;
+    final maxItems = this.maxItems;
+    return {
+      if (allowedValues != null) 'AllowedValues': allowedValues,
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (maxItems != null) 'MaxItems': maxItems,
+    };
+  }
+}
+
 /// Provides information about the file paths that were affected by the threat.
 class FilePaths {
   /// The name of the infected or suspicious file corresponding to the hash.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 128 length.
   final String? fileName;
 
   /// Path to the infected or suspicious file on the resource it was detected on.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 128 length.
   final String? filePath;
 
   /// The hash value for the infected or suspicious file.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 128 length.
   final String? hash;
 
   /// The Amazon Resource Name (ARN) of the resource on which the threat was
   /// detected.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 128 length.
   final String? resourceId;
 
   FilePaths({
@@ -33512,12 +41728,36 @@ class FindingHistoryRecord {
   /// <code>BatchUpdateFindings</code> </a>.
   final FindingHistoryUpdateSource? updateSource;
 
-  /// An ISO 8601-formatted timestamp that indicates when the security findings
-  /// provider last updated the finding record. A correctly formatted example is
-  /// <code>2020-05-21T20:16:34.724Z</code>. The value cannot contain spaces, and
-  /// date and time should be separated by <code>T</code>. For more information,
-  /// see <a href="https://www.rfc-editor.org/rfc/rfc3339#section-5.6">RFC 3339
-  /// section 5.6, Internet Date/Time Format</a>.
+  /// A timestamp that indicates when Security Hub processed the updated finding
+  /// record.
+  ///
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final DateTime? updateTime;
 
   /// An array of objects that provides details about the finding change event,
@@ -33549,7 +41789,7 @@ class FindingHistoryRecord {
           : null,
       updateTime: timeStampFromJson(json['UpdateTime']),
       updates: (json['Updates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FindingHistoryUpdate.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -33639,7 +41879,8 @@ class FindingHistoryUpdateSource {
   factory FindingHistoryUpdateSource.fromJson(Map<String, dynamic> json) {
     return FindingHistoryUpdateSource(
       identity: json['Identity'] as String?,
-      type: (json['Type'] as String?)?.toFindingHistoryUpdateSourceType(),
+      type: (json['Type'] as String?)
+          ?.let(FindingHistoryUpdateSourceType.fromString),
     );
   }
 
@@ -33648,39 +41889,24 @@ class FindingHistoryUpdateSource {
     final type = this.type;
     return {
       if (identity != null) 'Identity': identity,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum FindingHistoryUpdateSourceType {
-  batchUpdateFindings,
-  batchImportFindings,
-}
+  batchUpdateFindings('BATCH_UPDATE_FINDINGS'),
+  batchImportFindings('BATCH_IMPORT_FINDINGS'),
+  ;
 
-extension FindingHistoryUpdateSourceTypeValueExtension
-    on FindingHistoryUpdateSourceType {
-  String toValue() {
-    switch (this) {
-      case FindingHistoryUpdateSourceType.batchUpdateFindings:
-        return 'BATCH_UPDATE_FINDINGS';
-      case FindingHistoryUpdateSourceType.batchImportFindings:
-        return 'BATCH_IMPORT_FINDINGS';
-    }
-  }
-}
+  final String value;
 
-extension FindingHistoryUpdateSourceTypeFromString on String {
-  FindingHistoryUpdateSourceType toFindingHistoryUpdateSourceType() {
-    switch (this) {
-      case 'BATCH_UPDATE_FINDINGS':
-        return FindingHistoryUpdateSourceType.batchUpdateFindings;
-      case 'BATCH_IMPORT_FINDINGS':
-        return FindingHistoryUpdateSourceType.batchImportFindings;
-    }
-    throw Exception(
-        '$this is not known in enum FindingHistoryUpdateSourceType');
-  }
+  const FindingHistoryUpdateSourceType(this.value);
+
+  static FindingHistoryUpdateSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FindingHistoryUpdateSourceType'));
 }
 
 /// In a <code>BatchImportFindings</code> request, finding providers use
@@ -33728,17 +41954,15 @@ class FindingProviderFields {
       confidence: json['Confidence'] as int?,
       criticality: json['Criticality'] as int?,
       relatedFindings: (json['RelatedFindings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RelatedFinding.fromJson(e as Map<String, dynamic>))
           .toList(),
       severity: json['Severity'] != null
           ? FindingProviderSeverity.fromJson(
               json['Severity'] as Map<String, dynamic>)
           : null,
-      types: (json['Types'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      types:
+          (json['Types'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -33764,6 +41988,8 @@ class FindingProviderSeverity {
   final SeverityLabel? label;
 
   /// The finding provider's original value for the severity.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 64.
   final String? original;
 
   FindingProviderSeverity({
@@ -33773,7 +41999,7 @@ class FindingProviderSeverity {
 
   factory FindingProviderSeverity.fromJson(Map<String, dynamic> json) {
     return FindingProviderSeverity(
-      label: (json['Label'] as String?)?.toSeverityLabel(),
+      label: (json['Label'] as String?)?.let(SeverityLabel.fromString),
       original: json['Original'] as String?,
     );
   }
@@ -33782,7 +42008,7 @@ class FindingProviderSeverity {
     final label = this.label;
     final original = this.original;
     return {
-      if (label != null) 'Label': label.toValue(),
+      if (label != null) 'Label': label.value,
       if (original != null) 'Original': original,
     };
   }
@@ -33831,27 +42057,27 @@ class FirewallPolicyDetails {
     return FirewallPolicyDetails(
       statefulRuleGroupReferences: (json['StatefulRuleGroupReferences']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FirewallPolicyStatefulRuleGroupReferencesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       statelessCustomActions: (json['StatelessCustomActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FirewallPolicyStatelessCustomActionsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       statelessDefaultActions: (json['StatelessDefaultActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       statelessFragmentDefaultActions:
           (json['StatelessFragmentDefaultActions'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       statelessRuleGroupReferences:
           (json['StatelessRuleGroupReferences'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   FirewallPolicyStatelessRuleGroupReferencesDetails.fromJson(
                       e as Map<String, dynamic>))
@@ -33970,6 +42196,50 @@ class FirewallPolicyStatelessRuleGroupReferencesDetails {
   }
 }
 
+/// Provides metadata for the Amazon CodeGuru detector associated with a
+/// finding. This field pertains to findings that relate to Lambda functions.
+/// Amazon Inspector identifies policy violations and vulnerabilities in Lambda
+/// function code based on internal detectors developed in collaboration with
+/// Amazon CodeGuru. Security Hub receives those findings.
+class GeneratorDetails {
+  /// The description of the detector used to identify the code vulnerability.
+  final String? description;
+
+  /// An array of tags used to identify the detector associated with the finding.
+  ///
+  /// Array Members: Minimum number of 0 items. Maximum number of 10 items.
+  final List<String>? labels;
+
+  /// The name of the detector used to identify the code vulnerability.
+  final String? name;
+
+  GeneratorDetails({
+    this.description,
+    this.labels,
+    this.name,
+  });
+
+  factory GeneratorDetails.fromJson(Map<String, dynamic> json) {
+    return GeneratorDetails(
+      description: json['Description'] as String?,
+      labels:
+          (json['Labels'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      name: json['Name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final description = this.description;
+    final labels = this.labels;
+    final name = this.name;
+    return {
+      if (description != null) 'Description': description,
+      if (labels != null) 'Labels': labels,
+      if (name != null) 'Name': name,
+    };
+  }
+}
+
 /// Provides the latitude and longitude coordinates of a location.
 class GeoLocation {
   /// The latitude of the location.
@@ -34023,6 +42293,160 @@ class GetAdministratorAccountResponse {
   }
 }
 
+class GetConfigurationPolicyAssociationResponse {
+  /// The current status of the association between the specified target and the
+  /// configuration.
+  final ConfigurationPolicyAssociationStatus? associationStatus;
+
+  /// The explanation for a <code>FAILED</code> value for
+  /// <code>AssociationStatus</code>.
+  final String? associationStatusMessage;
+
+  /// Indicates whether the association between the specified target and the
+  /// configuration was directly applied by the Security Hub delegated
+  /// administrator or inherited from a parent.
+  final AssociationType? associationType;
+
+  /// The universally unique identifier (UUID) of a configuration policy. For
+  /// self-managed behavior, the value is <code>SELF_MANAGED_SECURITY_HUB</code>.
+  final String? configurationPolicyId;
+
+  /// The target account ID, organizational unit ID, or the root ID for which the
+  /// association is retrieved.
+  final String? targetId;
+
+  /// Specifies whether the target is an Amazon Web Services account,
+  /// organizational unit, or the organization root.
+  final TargetType? targetType;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// association was last updated.
+  final DateTime? updatedAt;
+
+  GetConfigurationPolicyAssociationResponse({
+    this.associationStatus,
+    this.associationStatusMessage,
+    this.associationType,
+    this.configurationPolicyId,
+    this.targetId,
+    this.targetType,
+    this.updatedAt,
+  });
+
+  factory GetConfigurationPolicyAssociationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetConfigurationPolicyAssociationResponse(
+      associationStatus: (json['AssociationStatus'] as String?)
+          ?.let(ConfigurationPolicyAssociationStatus.fromString),
+      associationStatusMessage: json['AssociationStatusMessage'] as String?,
+      associationType:
+          (json['AssociationType'] as String?)?.let(AssociationType.fromString),
+      configurationPolicyId: json['ConfigurationPolicyId'] as String?,
+      targetId: json['TargetId'] as String?,
+      targetType: (json['TargetType'] as String?)?.let(TargetType.fromString),
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associationStatus = this.associationStatus;
+    final associationStatusMessage = this.associationStatusMessage;
+    final associationType = this.associationType;
+    final configurationPolicyId = this.configurationPolicyId;
+    final targetId = this.targetId;
+    final targetType = this.targetType;
+    final updatedAt = this.updatedAt;
+    return {
+      if (associationStatus != null)
+        'AssociationStatus': associationStatus.value,
+      if (associationStatusMessage != null)
+        'AssociationStatusMessage': associationStatusMessage,
+      if (associationType != null) 'AssociationType': associationType.value,
+      if (configurationPolicyId != null)
+        'ConfigurationPolicyId': configurationPolicyId,
+      if (targetId != null) 'TargetId': targetId,
+      if (targetType != null) 'TargetType': targetType.value,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
+  }
+}
+
+class GetConfigurationPolicyResponse {
+  /// The ARN of the configuration policy.
+  final String? arn;
+
+  /// An object that defines how Security Hub is configured. It includes whether
+  /// Security Hub is enabled or disabled, a list of enabled security standards, a
+  /// list of enabled or disabled security controls, and a list of custom
+  /// parameter values for specified controls. If the policy includes a list of
+  /// security controls that are enabled, Security Hub disables all other controls
+  /// (including newly released controls). If the policy includes a list of
+  /// security controls that are disabled, Security Hub enables all other controls
+  /// (including newly released controls).
+  final Policy? configurationPolicy;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// was created.
+  final DateTime? createdAt;
+
+  /// The description of the configuration policy.
+  final String? description;
+
+  /// The UUID of the configuration policy.
+  final String? id;
+
+  /// The name of the configuration policy.
+  final String? name;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// was last updated.
+  final DateTime? updatedAt;
+
+  GetConfigurationPolicyResponse({
+    this.arn,
+    this.configurationPolicy,
+    this.createdAt,
+    this.description,
+    this.id,
+    this.name,
+    this.updatedAt,
+  });
+
+  factory GetConfigurationPolicyResponse.fromJson(Map<String, dynamic> json) {
+    return GetConfigurationPolicyResponse(
+      arn: json['Arn'] as String?,
+      configurationPolicy: json['ConfigurationPolicy'] != null
+          ? Policy.fromJson(json['ConfigurationPolicy'] as Map<String, dynamic>)
+          : null,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      description: json['Description'] as String?,
+      id: json['Id'] as String?,
+      name: json['Name'] as String?,
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final configurationPolicy = this.configurationPolicy;
+    final createdAt = this.createdAt;
+    final description = this.description;
+    final id = this.id;
+    final name = this.name;
+    final updatedAt = this.updatedAt;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (configurationPolicy != null)
+        'ConfigurationPolicy': configurationPolicy,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (description != null) 'Description': description,
+      if (id != null) 'Id': id,
+      if (name != null) 'Name': name,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
+  }
+}
+
 class GetEnabledStandardsResponse {
   /// The pagination token to use to request the next page of results.
   final String? nextToken;
@@ -34040,7 +42464,7 @@ class GetEnabledStandardsResponse {
     return GetEnabledStandardsResponse(
       nextToken: json['NextToken'] as String?,
       standardsSubscriptions: (json['StandardsSubscriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StandardsSubscription.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -34083,10 +42507,8 @@ class GetFindingAggregatorResponse {
       findingAggregationRegion: json['FindingAggregationRegion'] as String?,
       findingAggregatorArn: json['FindingAggregatorArn'] as String?,
       regionLinkingMode: json['RegionLinkingMode'] as String?,
-      regions: (json['Regions'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      regions:
+          (json['Regions'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -34126,7 +42548,7 @@ class GetFindingHistoryResponse {
     return GetFindingHistoryResponse(
       nextToken: json['NextToken'] as String?,
       records: (json['Records'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FindingHistoryRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -34157,7 +42579,7 @@ class GetFindingsResponse {
   factory GetFindingsResponse.fromJson(Map<String, dynamic> json) {
     return GetFindingsResponse(
       findings: (json['Findings'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AwsSecurityFinding.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -34212,7 +42634,7 @@ class GetInsightsResponse {
   factory GetInsightsResponse.fromJson(Map<String, dynamic> json) {
     return GetInsightsResponse(
       insights: (json['Insights'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Insight.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -34293,11 +42715,11 @@ class GetMembersResponse {
   factory GetMembersResponse.fromJson(Map<String, dynamic> json) {
     return GetMembersResponse(
       members: (json['Members'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Member.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedAccounts: (json['UnprocessedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Result.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -34310,6 +42732,29 @@ class GetMembersResponse {
       if (members != null) 'Members': members,
       if (unprocessedAccounts != null)
         'UnprocessedAccounts': unprocessedAccounts,
+    };
+  }
+}
+
+class GetSecurityControlDefinitionResponse {
+  final SecurityControlDefinition securityControlDefinition;
+
+  GetSecurityControlDefinitionResponse({
+    required this.securityControlDefinition,
+  });
+
+  factory GetSecurityControlDefinitionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetSecurityControlDefinitionResponse(
+      securityControlDefinition: SecurityControlDefinition.fromJson(
+          json['SecurityControlDefinition'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final securityControlDefinition = this.securityControlDefinition;
+    return {
+      'SecurityControlDefinition': securityControlDefinition,
     };
   }
 }
@@ -34389,8 +42834,9 @@ class ImportFindingsError {
 /// Contains information about a Security Hub insight.
 class Insight {
   /// One or more attributes used to filter the findings included in the insight.
-  /// The insight only includes findings that match the criteria defined in the
-  /// filters.
+  /// You can filter by up to ten finding attributes. For each attribute, you can
+  /// provide up to 20 filter values. The insight only includes findings that
+  /// match the criteria defined in the filters.
   final AwsSecurityFindingFilters filters;
 
   /// The grouping attribute for the insight's findings. Indicates how to group
@@ -34494,7 +42940,7 @@ class InsightResults {
       groupByAttribute: json['GroupByAttribute'] as String,
       insightArn: json['InsightArn'] as String,
       resultValues: (json['ResultValues'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => InsightResultValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -34512,37 +42958,107 @@ class InsightResults {
   }
 }
 
+/// The options for customizing a security control parameter that is an integer.
+class IntegerConfigurationOptions {
+  /// The Security Hub default value for a control parameter that is an integer.
+  final int? defaultValue;
+
+  /// The maximum valid value for a control parameter that is an integer.
+  final int? max;
+
+  /// The minimum valid value for a control parameter that is an integer.
+  final int? min;
+
+  IntegerConfigurationOptions({
+    this.defaultValue,
+    this.max,
+    this.min,
+  });
+
+  factory IntegerConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return IntegerConfigurationOptions(
+      defaultValue: json['DefaultValue'] as int?,
+      max: json['Max'] as int?,
+      min: json['Min'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final defaultValue = this.defaultValue;
+    final max = this.max;
+    final min = this.min;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (max != null) 'Max': max,
+      if (min != null) 'Min': min,
+    };
+  }
+}
+
+/// The options for customizing a security control parameter that is a list of
+/// integers.
+class IntegerListConfigurationOptions {
+  /// The Security Hub default value for a control parameter that is a list of
+  /// integers.
+  final List<int>? defaultValue;
+
+  /// The maximum valid value for a control parameter that is a list of integers.
+  final int? max;
+
+  /// The maximum number of list items that an interger list control parameter can
+  /// accept.
+  final int? maxItems;
+
+  /// The minimum valid value for a control parameter that is a list of integers.
+  final int? min;
+
+  IntegerListConfigurationOptions({
+    this.defaultValue,
+    this.max,
+    this.maxItems,
+    this.min,
+  });
+
+  factory IntegerListConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return IntegerListConfigurationOptions(
+      defaultValue: (json['DefaultValue'] as List?)
+          ?.nonNulls
+          .map((e) => e as int)
+          .toList(),
+      max: json['Max'] as int?,
+      maxItems: json['MaxItems'] as int?,
+      min: json['Min'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final defaultValue = this.defaultValue;
+    final max = this.max;
+    final maxItems = this.maxItems;
+    final min = this.min;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (max != null) 'Max': max,
+      if (maxItems != null) 'MaxItems': maxItems,
+      if (min != null) 'Min': min,
+    };
+  }
+}
+
 enum IntegrationType {
-  sendFindingsToSecurityHub,
-  receiveFindingsFromSecurityHub,
-  updateFindingsInSecurityHub,
-}
+  sendFindingsToSecurityHub('SEND_FINDINGS_TO_SECURITY_HUB'),
+  receiveFindingsFromSecurityHub('RECEIVE_FINDINGS_FROM_SECURITY_HUB'),
+  updateFindingsInSecurityHub('UPDATE_FINDINGS_IN_SECURITY_HUB'),
+  ;
 
-extension IntegrationTypeValueExtension on IntegrationType {
-  String toValue() {
-    switch (this) {
-      case IntegrationType.sendFindingsToSecurityHub:
-        return 'SEND_FINDINGS_TO_SECURITY_HUB';
-      case IntegrationType.receiveFindingsFromSecurityHub:
-        return 'RECEIVE_FINDINGS_FROM_SECURITY_HUB';
-      case IntegrationType.updateFindingsInSecurityHub:
-        return 'UPDATE_FINDINGS_IN_SECURITY_HUB';
-    }
-  }
-}
+  final String value;
 
-extension IntegrationTypeFromString on String {
-  IntegrationType toIntegrationType() {
-    switch (this) {
-      case 'SEND_FINDINGS_TO_SECURITY_HUB':
-        return IntegrationType.sendFindingsToSecurityHub;
-      case 'RECEIVE_FINDINGS_FROM_SECURITY_HUB':
-        return IntegrationType.receiveFindingsFromSecurityHub;
-      case 'UPDATE_FINDINGS_IN_SECURITY_HUB':
-        return IntegrationType.updateFindingsInSecurityHub;
-    }
-    throw Exception('$this is not known in enum IntegrationType');
-  }
+  const IntegrationType(this.value);
+
+  static IntegrationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IntegrationType'));
 }
 
 /// Details about an invitation.
@@ -34603,7 +43119,7 @@ class InviteMembersResponse {
   factory InviteMembersResponse.fromJson(Map<String, dynamic> json) {
     return InviteMembersResponse(
       unprocessedAccounts: (json['UnprocessedAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Result.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -34766,6 +43282,128 @@ class KeywordFilter {
   }
 }
 
+class ListAutomationRulesResponse {
+  /// Metadata for rules in the calling account. The response includes rules with
+  /// a <code>RuleStatus</code> of <code>ENABLED</code> and <code>DISABLED</code>.
+  final List<AutomationRulesMetadata>? automationRulesMetadata;
+
+  /// A pagination token for the response.
+  final String? nextToken;
+
+  ListAutomationRulesResponse({
+    this.automationRulesMetadata,
+    this.nextToken,
+  });
+
+  factory ListAutomationRulesResponse.fromJson(Map<String, dynamic> json) {
+    return ListAutomationRulesResponse(
+      automationRulesMetadata: (json['AutomationRulesMetadata'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              AutomationRulesMetadata.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final automationRulesMetadata = this.automationRulesMetadata;
+    final nextToken = this.nextToken;
+    return {
+      if (automationRulesMetadata != null)
+        'AutomationRulesMetadata': automationRulesMetadata,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListConfigurationPoliciesResponse {
+  /// Provides metadata for each of your configuration policies.
+  final List<ConfigurationPolicySummary>? configurationPolicySummaries;
+
+  /// The <code>NextToken</code> value to include in the next
+  /// <code>ListConfigurationPolicies</code> request. When the results of a
+  /// <code>ListConfigurationPolicies</code> request exceed
+  /// <code>MaxResults</code>, this value can be used to retrieve the next page of
+  /// results. This value is <code>null</code> when there are no more results to
+  /// return.
+  final String? nextToken;
+
+  ListConfigurationPoliciesResponse({
+    this.configurationPolicySummaries,
+    this.nextToken,
+  });
+
+  factory ListConfigurationPoliciesResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListConfigurationPoliciesResponse(
+      configurationPolicySummaries: (json['ConfigurationPolicySummaries']
+              as List?)
+          ?.nonNulls
+          .map((e) =>
+              ConfigurationPolicySummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configurationPolicySummaries = this.configurationPolicySummaries;
+    final nextToken = this.nextToken;
+    return {
+      if (configurationPolicySummaries != null)
+        'ConfigurationPolicySummaries': configurationPolicySummaries,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListConfigurationPolicyAssociationsResponse {
+  /// An object that contains the details of each configuration policy association
+  /// that’s returned in a <code>ListConfigurationPolicyAssociations</code>
+  /// request.
+  final List<ConfigurationPolicyAssociationSummary>?
+      configurationPolicyAssociationSummaries;
+
+  /// The <code>NextToken</code> value to include in the next
+  /// <code>ListConfigurationPolicyAssociations</code> request. When the results
+  /// of a <code>ListConfigurationPolicyAssociations</code> request exceed
+  /// <code>MaxResults</code>, this value can be used to retrieve the next page of
+  /// results. This value is <code>null</code> when there are no more results to
+  /// return.
+  final String? nextToken;
+
+  ListConfigurationPolicyAssociationsResponse({
+    this.configurationPolicyAssociationSummaries,
+    this.nextToken,
+  });
+
+  factory ListConfigurationPolicyAssociationsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListConfigurationPolicyAssociationsResponse(
+      configurationPolicyAssociationSummaries:
+          (json['ConfigurationPolicyAssociationSummaries'] as List?)
+              ?.nonNulls
+              .map((e) => ConfigurationPolicyAssociationSummary.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configurationPolicyAssociationSummaries =
+        this.configurationPolicyAssociationSummaries;
+    final nextToken = this.nextToken;
+    return {
+      if (configurationPolicyAssociationSummaries != null)
+        'ConfigurationPolicyAssociationSummaries':
+            configurationPolicyAssociationSummaries,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
 class ListEnabledProductsForImportResponse {
   /// The pagination token to use to request the next page of results.
   final String? nextToken;
@@ -34784,7 +43422,7 @@ class ListEnabledProductsForImportResponse {
     return ListEnabledProductsForImportResponse(
       nextToken: json['NextToken'] as String?,
       productSubscriptions: (json['ProductSubscriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -34820,7 +43458,7 @@ class ListFindingAggregatorsResponse {
   factory ListFindingAggregatorsResponse.fromJson(Map<String, dynamic> json) {
     return ListFindingAggregatorsResponse(
       findingAggregators: (json['FindingAggregators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FindingAggregator.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -34852,7 +43490,7 @@ class ListInvitationsResponse {
   factory ListInvitationsResponse.fromJson(Map<String, dynamic> json) {
     return ListInvitationsResponse(
       invitations: (json['Invitations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Invitation.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -34884,7 +43522,7 @@ class ListMembersResponse {
   factory ListMembersResponse.fromJson(Map<String, dynamic> json) {
     return ListMembersResponse(
       members: (json['Members'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Member.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -34917,7 +43555,7 @@ class ListOrganizationAdminAccountsResponse {
       Map<String, dynamic> json) {
     return ListOrganizationAdminAccountsResponse(
       adminAccounts: (json['AdminAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AdminAccount.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -34951,7 +43589,7 @@ class ListSecurityControlDefinitionsResponse {
       Map<String, dynamic> json) {
     return ListSecurityControlDefinitionsResponse(
       securityControlDefinitions: (json['SecurityControlDefinitions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               SecurityControlDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -34989,7 +43627,7 @@ class ListStandardsControlAssociationsResponse {
     return ListStandardsControlAssociationsResponse(
       standardsControlAssociationSummaries:
           (json['StandardsControlAssociationSummaries'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => StandardsControlAssociationSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -35070,9 +43708,13 @@ class LoadBalancerState {
 /// A list of malware related to a finding.
 class Malware {
   /// The name of the malware that was observed.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 64.
   final String name;
 
   /// The file system path of the malware that was observed.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 512.
   final String? path;
 
   /// The state of the malware that was observed.
@@ -35092,8 +43734,8 @@ class Malware {
     return Malware(
       name: json['Name'] as String,
       path: json['Path'] as String?,
-      state: (json['State'] as String?)?.toMalwareState(),
-      type: (json['Type'] as String?)?.toMalwareType(),
+      state: (json['State'] as String?)?.let(MalwareState.fromString),
+      type: (json['Type'] as String?)?.let(MalwareType.fromString),
     );
   }
 
@@ -35105,163 +43747,124 @@ class Malware {
     return {
       'Name': name,
       if (path != null) 'Path': path,
-      if (state != null) 'State': state.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (state != null) 'State': state.value,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum MalwareState {
-  observed,
-  removalFailed,
-  removed,
-}
+  observed('OBSERVED'),
+  removalFailed('REMOVAL_FAILED'),
+  removed('REMOVED'),
+  ;
 
-extension MalwareStateValueExtension on MalwareState {
-  String toValue() {
-    switch (this) {
-      case MalwareState.observed:
-        return 'OBSERVED';
-      case MalwareState.removalFailed:
-        return 'REMOVAL_FAILED';
-      case MalwareState.removed:
-        return 'REMOVED';
-    }
-  }
-}
+  final String value;
 
-extension MalwareStateFromString on String {
-  MalwareState toMalwareState() {
-    switch (this) {
-      case 'OBSERVED':
-        return MalwareState.observed;
-      case 'REMOVAL_FAILED':
-        return MalwareState.removalFailed;
-      case 'REMOVED':
-        return MalwareState.removed;
-    }
-    throw Exception('$this is not known in enum MalwareState');
-  }
+  const MalwareState(this.value);
+
+  static MalwareState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MalwareState'));
 }
 
 enum MalwareType {
-  adware,
-  blendedThreat,
-  botnetAgent,
-  coinMiner,
-  exploitKit,
-  keylogger,
-  macro,
-  potentiallyUnwanted,
-  spyware,
-  ransomware,
-  remoteAccess,
-  rootkit,
-  trojan,
-  virus,
-  worm,
+  adware('ADWARE'),
+  blendedThreat('BLENDED_THREAT'),
+  botnetAgent('BOTNET_AGENT'),
+  coinMiner('COIN_MINER'),
+  exploitKit('EXPLOIT_KIT'),
+  keylogger('KEYLOGGER'),
+  macro('MACRO'),
+  potentiallyUnwanted('POTENTIALLY_UNWANTED'),
+  spyware('SPYWARE'),
+  ransomware('RANSOMWARE'),
+  remoteAccess('REMOTE_ACCESS'),
+  rootkit('ROOTKIT'),
+  trojan('TROJAN'),
+  virus('VIRUS'),
+  worm('WORM'),
+  ;
+
+  final String value;
+
+  const MalwareType(this.value);
+
+  static MalwareType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MalwareType'));
 }
 
-extension MalwareTypeValueExtension on MalwareType {
-  String toValue() {
-    switch (this) {
-      case MalwareType.adware:
-        return 'ADWARE';
-      case MalwareType.blendedThreat:
-        return 'BLENDED_THREAT';
-      case MalwareType.botnetAgent:
-        return 'BOTNET_AGENT';
-      case MalwareType.coinMiner:
-        return 'COIN_MINER';
-      case MalwareType.exploitKit:
-        return 'EXPLOIT_KIT';
-      case MalwareType.keylogger:
-        return 'KEYLOGGER';
-      case MalwareType.macro:
-        return 'MACRO';
-      case MalwareType.potentiallyUnwanted:
-        return 'POTENTIALLY_UNWANTED';
-      case MalwareType.spyware:
-        return 'SPYWARE';
-      case MalwareType.ransomware:
-        return 'RANSOMWARE';
-      case MalwareType.remoteAccess:
-        return 'REMOTE_ACCESS';
-      case MalwareType.rootkit:
-        return 'ROOTKIT';
-      case MalwareType.trojan:
-        return 'TROJAN';
-      case MalwareType.virus:
-        return 'VIRUS';
-      case MalwareType.worm:
-        return 'WORM';
-    }
-  }
-}
-
-extension MalwareTypeFromString on String {
-  MalwareType toMalwareType() {
-    switch (this) {
-      case 'ADWARE':
-        return MalwareType.adware;
-      case 'BLENDED_THREAT':
-        return MalwareType.blendedThreat;
-      case 'BOTNET_AGENT':
-        return MalwareType.botnetAgent;
-      case 'COIN_MINER':
-        return MalwareType.coinMiner;
-      case 'EXPLOIT_KIT':
-        return MalwareType.exploitKit;
-      case 'KEYLOGGER':
-        return MalwareType.keylogger;
-      case 'MACRO':
-        return MalwareType.macro;
-      case 'POTENTIALLY_UNWANTED':
-        return MalwareType.potentiallyUnwanted;
-      case 'SPYWARE':
-        return MalwareType.spyware;
-      case 'RANSOMWARE':
-        return MalwareType.ransomware;
-      case 'REMOTE_ACCESS':
-        return MalwareType.remoteAccess;
-      case 'ROOTKIT':
-        return MalwareType.rootkit;
-      case 'TROJAN':
-        return MalwareType.trojan;
-      case 'VIRUS':
-        return MalwareType.virus;
-      case 'WORM':
-        return MalwareType.worm;
-    }
-    throw Exception('$this is not known in enum MalwareType');
-  }
-}
-
-/// A map filter for querying findings. Each map filter provides the field to
-/// check, the value to look for, and the comparison operator.
+/// A map filter for filtering Security Hub findings. Each map filter provides
+/// the field to check for, the value to check for, and the comparison operator.
 class MapFilter {
-  /// The condition to apply to the key value when querying for findings with a
-  /// map filter.
+  /// The condition to apply to the key value when filtering Security Hub findings
+  /// with a map filter.
   ///
+  /// To search for values that have the filter value, use one of the following
+  /// comparison operators:
+  ///
+  /// <ul>
+  /// <li>
+  /// To search for values that include the filter value, use
+  /// <code>CONTAINS</code>. For example, for the <code>ResourceTags</code> field,
+  /// the filter <code>Department CONTAINS Security</code> matches findings that
+  /// include the value <code>Security</code> for the <code>Department</code> tag.
+  /// In the same example, a finding with a value of <code>Security team</code>
+  /// for the <code>Department</code> tag is a match.
+  /// </li>
+  /// <li>
   /// To search for values that exactly match the filter value, use
   /// <code>EQUALS</code>. For example, for the <code>ResourceTags</code> field,
   /// the filter <code>Department EQUALS Security</code> matches findings that
-  /// have the value <code>Security</code> for the tag <code>Department</code>.
+  /// have the value <code>Security</code> for the <code>Department</code> tag.
+  /// </li>
+  /// </ul>
+  /// <code>CONTAINS</code> and <code>EQUALS</code> filters on the same field are
+  /// joined by <code>OR</code>. A finding matches if it matches any one of those
+  /// filters. For example, the filters <code>Department CONTAINS Security OR
+  /// Department CONTAINS Finance</code> match a finding that includes either
+  /// <code>Security</code>, <code>Finance</code>, or both values.
   ///
+  /// To search for values that don't have the filter value, use one of the
+  /// following comparison operators:
+  ///
+  /// <ul>
+  /// <li>
+  /// To search for values that exclude the filter value, use
+  /// <code>NOT_CONTAINS</code>. For example, for the <code>ResourceTags</code>
+  /// field, the filter <code>Department NOT_CONTAINS Finance</code> matches
+  /// findings that exclude the value <code>Finance</code> for the
+  /// <code>Department</code> tag.
+  /// </li>
+  /// <li>
   /// To search for values other than the filter value, use
   /// <code>NOT_EQUALS</code>. For example, for the <code>ResourceTags</code>
   /// field, the filter <code>Department NOT_EQUALS Finance</code> matches
-  /// findings that do not have the value <code>Finance</code> for the tag
-  /// <code>Department</code>.
+  /// findings that don’t have the value <code>Finance</code> for the
+  /// <code>Department</code> tag.
+  /// </li>
+  /// </ul>
+  /// <code>NOT_CONTAINS</code> and <code>NOT_EQUALS</code> filters on the same
+  /// field are joined by <code>AND</code>. A finding matches only if it matches
+  /// all of those filters. For example, the filters <code>Department NOT_CONTAINS
+  /// Security AND Department NOT_CONTAINS Finance</code> match a finding that
+  /// excludes both the <code>Security</code> and <code>Finance</code> values.
   ///
-  /// <code>EQUALS</code> filters on the same field are joined by <code>OR</code>.
-  /// A finding matches if it matches any one of those filters.
+  /// <code>CONTAINS</code> filters can only be used with other
+  /// <code>CONTAINS</code> filters. <code>NOT_CONTAINS</code> filters can only be
+  /// used with other <code>NOT_CONTAINS</code> filters.
   ///
-  /// <code>NOT_EQUALS</code> filters on the same field are joined by
-  /// <code>AND</code>. A finding matches only if it matches all of those filters.
+  /// You can’t have both a <code>CONTAINS</code> filter and a
+  /// <code>NOT_CONTAINS</code> filter on the same field. Similarly, you can’t
+  /// have both an <code>EQUALS</code> filter and a <code>NOT_EQUALS</code> filter
+  /// on the same field. Combining filters in this way returns an error.
   ///
-  /// You cannot have both an <code>EQUALS</code> filter and a
-  /// <code>NOT_EQUALS</code> filter on the same field.
+  /// <code>CONTAINS</code> and <code>NOT_CONTAINS</code> operators can be used
+  /// only with automation rules. For more information, see <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html">Automation
+  /// rules</a> in the <i>Security Hub User Guide</i>.
   final MapFilterComparison? comparison;
 
   /// The key of the map filter. For example, for <code>ResourceTags</code>,
@@ -35272,7 +43875,7 @@ class MapFilter {
   /// The value for the key in the map filter. Filter values are case sensitive.
   /// For example, one of the values for a tag called <code>Department</code>
   /// might be <code>Security</code>. If you provide <code>security</code> as the
-  /// filter value, then there is no match.
+  /// filter value, then there's no match.
   final String? value;
 
   MapFilter({
@@ -35283,7 +43886,8 @@ class MapFilter {
 
   factory MapFilter.fromJson(Map<String, dynamic> json) {
     return MapFilter(
-      comparison: (json['Comparison'] as String?)?.toMapFilterComparison(),
+      comparison:
+          (json['Comparison'] as String?)?.let(MapFilterComparison.fromString),
       key: json['Key'] as String?,
       value: json['Value'] as String?,
     );
@@ -35294,7 +43898,7 @@ class MapFilter {
     final key = this.key;
     final value = this.value;
     return {
-      if (comparison != null) 'Comparison': comparison.toValue(),
+      if (comparison != null) 'Comparison': comparison.value,
       if (key != null) 'Key': key,
       if (value != null) 'Value': value,
     };
@@ -35302,31 +43906,20 @@ class MapFilter {
 }
 
 enum MapFilterComparison {
-  equals,
-  notEquals,
-}
+  equals('EQUALS'),
+  notEquals('NOT_EQUALS'),
+  contains('CONTAINS'),
+  notContains('NOT_CONTAINS'),
+  ;
 
-extension MapFilterComparisonValueExtension on MapFilterComparison {
-  String toValue() {
-    switch (this) {
-      case MapFilterComparison.equals:
-        return 'EQUALS';
-      case MapFilterComparison.notEquals:
-        return 'NOT_EQUALS';
-    }
-  }
-}
+  final String value;
 
-extension MapFilterComparisonFromString on String {
-  MapFilterComparison toMapFilterComparison() {
-    switch (this) {
-      case 'EQUALS':
-        return MapFilterComparison.equals;
-      case 'NOT_EQUALS':
-        return MapFilterComparison.notEquals;
-    }
-    throw Exception('$this is not known in enum MapFilterComparison');
-  }
+  const MapFilterComparison(this.value);
+
+  static MapFilterComparison fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MapFilterComparison'));
 }
 
 /// The details about a member account.
@@ -35438,6 +44031,8 @@ class Member {
 /// The details of network-related information about a finding.
 class Network {
   /// The destination domain of network-related information about a finding.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 128.
   final String? destinationDomain;
 
   /// The destination IPv4 address of network-related information about a finding.
@@ -35456,9 +44051,13 @@ class Network {
   final PortRange? openPortRange;
 
   /// The protocol of network-related information about a finding.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 16.
   final String? protocol;
 
   /// The source domain of network-related information about a finding.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 128.
   final String? sourceDomain;
 
   /// The source IPv4 address of network-related information about a finding.
@@ -35495,7 +44094,8 @@ class Network {
       destinationIpV4: json['DestinationIpV4'] as String?,
       destinationIpV6: json['DestinationIpV6'] as String?,
       destinationPort: json['DestinationPort'] as int?,
-      direction: (json['Direction'] as String?)?.toNetworkDirection(),
+      direction:
+          (json['Direction'] as String?)?.let(NetworkDirection.fromString),
       openPortRange: json['OpenPortRange'] != null
           ? PortRange.fromJson(json['OpenPortRange'] as Map<String, dynamic>)
           : null,
@@ -35526,7 +44126,7 @@ class Network {
       if (destinationIpV4 != null) 'DestinationIpV4': destinationIpV4,
       if (destinationIpV6 != null) 'DestinationIpV6': destinationIpV6,
       if (destinationPort != null) 'DestinationPort': destinationPort,
-      if (direction != null) 'Direction': direction.toValue(),
+      if (direction != null) 'Direction': direction.value,
       if (openPortRange != null) 'OpenPortRange': openPortRange,
       if (protocol != null) 'Protocol': protocol,
       if (sourceDomain != null) 'SourceDomain': sourceDomain,
@@ -35552,6 +44152,8 @@ class NetworkConnectionAction {
   final ActionLocalPortDetails? localPortDetails;
 
   /// The protocol used to make the network connection request.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 64.
   final String? protocol;
 
   /// Information about the remote IP address that issued the network connection
@@ -35610,31 +44212,18 @@ class NetworkConnectionAction {
 }
 
 enum NetworkDirection {
-  $in,
-  out,
-}
+  $in('IN'),
+  out('OUT'),
+  ;
 
-extension NetworkDirectionValueExtension on NetworkDirection {
-  String toValue() {
-    switch (this) {
-      case NetworkDirection.$in:
-        return 'IN';
-      case NetworkDirection.out:
-        return 'OUT';
-    }
-  }
-}
+  final String value;
 
-extension NetworkDirectionFromString on String {
-  NetworkDirection toNetworkDirection() {
-    switch (this) {
-      case 'IN':
-        return NetworkDirection.$in;
-      case 'OUT':
-        return NetworkDirection.out;
-    }
-    throw Exception('$this is not known in enum NetworkDirection');
-  }
+  const NetworkDirection(this.value);
+
+  static NetworkDirection fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum NetworkDirection'));
 }
 
 /// Details about a network path component that occurs before or after the
@@ -35644,6 +44233,8 @@ class NetworkHeader {
   final NetworkPathComponentDetails? destination;
 
   /// The protocol used for the component.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 16.
   final String? protocol;
 
   /// Information about the origin of the component.
@@ -35684,9 +44275,13 @@ class NetworkHeader {
 /// Information about a network path component.
 class NetworkPathComponent {
   /// The identifier of a component in the network path.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 32.
   final String? componentId;
 
   /// The type of component.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 32.
   final String? componentType;
 
   /// Information about the component that comes after the current component in
@@ -35746,12 +44341,10 @@ class NetworkPathComponentDetails {
 
   factory NetworkPathComponentDetails.fromJson(Map<String, dynamic> json) {
     return NetworkPathComponentDetails(
-      address: (json['Address'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      address:
+          (json['Address'] as List?)?.nonNulls.map((e) => e as String).toList(),
       portRanges: (json['PortRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -35770,15 +44363,39 @@ class NetworkPathComponentDetails {
 /// A user-defined note added to a finding.
 class Note {
   /// The text of a note.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 512.
   final String text;
 
-  /// The timestamp of when the note was updated.
+  /// A timestamp that indicates when the note was updated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String updatedAt;
 
   /// The principal that created a note.
@@ -35823,6 +44440,13 @@ class NoteUpdate {
     required this.updatedBy,
   });
 
+  factory NoteUpdate.fromJson(Map<String, dynamic> json) {
+    return NoteUpdate(
+      text: json['Text'] as String,
+      updatedBy: json['UpdatedBy'] as String,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final text = this.text;
     final updatedBy = this.updatedBy;
@@ -35839,9 +44463,17 @@ class NumberFilter {
   /// findings.
   final double? eq;
 
+  /// The greater-than condition to be applied to a single field when querying for
+  /// findings.
+  final double? gt;
+
   /// The greater-than-equal condition to be applied to a single field when
   /// querying for findings.
   final double? gte;
+
+  /// The less-than condition to be applied to a single field when querying for
+  /// findings.
+  final double? lt;
 
   /// The less-than-equal condition to be applied to a single field when querying
   /// for findings.
@@ -35849,25 +44481,33 @@ class NumberFilter {
 
   NumberFilter({
     this.eq,
+    this.gt,
     this.gte,
+    this.lt,
     this.lte,
   });
 
   factory NumberFilter.fromJson(Map<String, dynamic> json) {
     return NumberFilter(
       eq: json['Eq'] as double?,
+      gt: json['Gt'] as double?,
       gte: json['Gte'] as double?,
+      lt: json['Lt'] as double?,
       lte: json['Lte'] as double?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final eq = this.eq;
+    final gt = this.gt;
     final gte = this.gte;
+    final lt = this.lt;
     final lte = this.lte;
     return {
       if (eq != null) 'Eq': eq,
+      if (gt != null) 'Gt': gt,
       if (gte != null) 'Gte': gte,
+      if (lt != null) 'Lt': lt,
       if (lte != null) 'Lte': lte,
     };
   }
@@ -35906,23 +44546,23 @@ class Occurrences {
   factory Occurrences.fromJson(Map<String, dynamic> json) {
     return Occurrences(
       cells: (json['Cells'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Cell.fromJson(e as Map<String, dynamic>))
           .toList(),
       lineRanges: (json['LineRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Range.fromJson(e as Map<String, dynamic>))
           .toList(),
       offsetRanges: (json['OffsetRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Range.fromJson(e as Map<String, dynamic>))
           .toList(),
       pages: (json['Pages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Page.fromJson(e as Map<String, dynamic>))
           .toList(),
       records: (json['Records'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Record.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -35942,6 +44582,98 @@ class Occurrences {
       if (records != null) 'Records': records,
     };
   }
+}
+
+/// Provides information about the way an organization is configured in Security
+/// Hub.
+class OrganizationConfiguration {
+  /// Indicates whether the organization uses local or central configuration.
+  ///
+  /// If you use local configuration, the Security Hub delegated administrator can
+  /// set <code>AutoEnable</code> to <code>true</code> and
+  /// <code>AutoEnableStandards</code> to <code>DEFAULT</code>. This automatically
+  /// enables Security Hub and default security standards in new organization
+  /// accounts. These new account settings must be set separately in each Amazon
+  /// Web Services Region, and settings may be different in each Region.
+  ///
+  /// If you use central configuration, the delegated administrator can create
+  /// configuration policies. Configuration policies can be used to configure
+  /// Security Hub, security standards, and security controls in multiple accounts
+  /// and Regions. If you want new organization accounts to use a specific
+  /// configuration, you can create a configuration policy and associate it with
+  /// the root or specific organizational units (OUs). New accounts will inherit
+  /// the policy from the root or their assigned OU.
+  final OrganizationConfigurationConfigurationType? configurationType;
+
+  /// Describes whether central configuration could be enabled as the
+  /// <code>ConfigurationType</code> for the organization. If your
+  /// <code>ConfigurationType</code> is local configuration, then the value of
+  /// <code>Status</code> is always <code>ENABLED</code>.
+  final OrganizationConfigurationStatus? status;
+
+  /// Provides an explanation if the value of <code>Status</code> is equal to
+  /// <code>FAILED</code> when <code>ConfigurationType</code> is equal to
+  /// <code>CENTRAL</code>.
+  final String? statusMessage;
+
+  OrganizationConfiguration({
+    this.configurationType,
+    this.status,
+    this.statusMessage,
+  });
+
+  factory OrganizationConfiguration.fromJson(Map<String, dynamic> json) {
+    return OrganizationConfiguration(
+      configurationType: (json['ConfigurationType'] as String?)
+          ?.let(OrganizationConfigurationConfigurationType.fromString),
+      status: (json['Status'] as String?)
+          ?.let(OrganizationConfigurationStatus.fromString),
+      statusMessage: json['StatusMessage'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configurationType = this.configurationType;
+    final status = this.status;
+    final statusMessage = this.statusMessage;
+    return {
+      if (configurationType != null)
+        'ConfigurationType': configurationType.value,
+      if (status != null) 'Status': status.value,
+      if (statusMessage != null) 'StatusMessage': statusMessage,
+    };
+  }
+}
+
+enum OrganizationConfigurationConfigurationType {
+  central('CENTRAL'),
+  local('LOCAL'),
+  ;
+
+  final String value;
+
+  const OrganizationConfigurationConfigurationType(this.value);
+
+  static OrganizationConfigurationConfigurationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationConfigurationConfigurationType'));
+}
+
+enum OrganizationConfigurationStatus {
+  pending('PENDING'),
+  enabled('ENABLED'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const OrganizationConfigurationStatus(this.value);
+
+  static OrganizationConfigurationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationConfigurationStatus'));
 }
 
 /// An occurrence of sensitive data in an Adobe Portable Document Format (PDF)
@@ -35988,37 +44720,192 @@ class Page {
   }
 }
 
+/// An object that provides the current value of a security control parameter
+/// and identifies whether it has been customized.
+class ParameterConfiguration {
+  /// Identifies whether a control parameter uses a custom user-defined value or
+  /// subscribes to the default Security Hub behavior.
+  ///
+  /// When <code>ValueType</code> is set equal to <code>DEFAULT</code>, the
+  /// default behavior can be a specific Security Hub default value, or the
+  /// default behavior can be to ignore a specific parameter. When
+  /// <code>ValueType</code> is set equal to <code>DEFAULT</code>, Security Hub
+  /// ignores user-provided input for the <code>Value</code> field.
+  ///
+  /// When <code>ValueType</code> is set equal to <code>CUSTOM</code>, the
+  /// <code>Value</code> field can't be empty.
+  final ParameterValueType valueType;
+
+  /// The current value of a control parameter.
+  final ParameterValue? value;
+
+  ParameterConfiguration({
+    required this.valueType,
+    this.value,
+  });
+
+  factory ParameterConfiguration.fromJson(Map<String, dynamic> json) {
+    return ParameterConfiguration(
+      valueType: ParameterValueType.fromString((json['ValueType'] as String)),
+      value: json['Value'] != null
+          ? ParameterValue.fromJson(json['Value'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final valueType = this.valueType;
+    final value = this.value;
+    return {
+      'ValueType': valueType.value,
+      if (value != null) 'Value': value,
+    };
+  }
+}
+
+/// An object that describes a security control parameter and the options for
+/// customizing it.
+class ParameterDefinition {
+  /// The options for customizing a control parameter. Customization options vary
+  /// based on the data type of the parameter.
+  final ConfigurationOptions configurationOptions;
+
+  /// Description of a control parameter.
+  final String description;
+
+  ParameterDefinition({
+    required this.configurationOptions,
+    required this.description,
+  });
+
+  factory ParameterDefinition.fromJson(Map<String, dynamic> json) {
+    return ParameterDefinition(
+      configurationOptions: ConfigurationOptions.fromJson(
+          json['ConfigurationOptions'] as Map<String, dynamic>),
+      description: json['Description'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configurationOptions = this.configurationOptions;
+    final description = this.description;
+    return {
+      'ConfigurationOptions': configurationOptions,
+      'Description': description,
+    };
+  }
+}
+
+/// An object that includes the data type of a security control parameter and
+/// its current value.
+class ParameterValue {
+  /// A control parameter that is a boolean.
+  final bool? boolean;
+
+  /// A control parameter that is a double.
+  final double? doubleValue;
+
+  /// A control parameter that is an enum.
+  final String? enumValue;
+
+  /// A control parameter that is a list of enums.
+  final List<String>? enumList;
+
+  /// A control parameter that is an integer.
+  final int? integer;
+
+  /// A control parameter that is a list of integers.
+  final List<int>? integerList;
+
+  /// A control parameter that is a string.
+  final String? string;
+
+  /// A control parameter that is a list of strings.
+  final List<String>? stringList;
+
+  ParameterValue({
+    this.boolean,
+    this.doubleValue,
+    this.enumValue,
+    this.enumList,
+    this.integer,
+    this.integerList,
+    this.string,
+    this.stringList,
+  });
+
+  factory ParameterValue.fromJson(Map<String, dynamic> json) {
+    return ParameterValue(
+      boolean: json['Boolean'] as bool?,
+      doubleValue: json['Double'] as double?,
+      enumValue: json['Enum'] as String?,
+      enumList: (json['EnumList'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      integer: json['Integer'] as int?,
+      integerList: (json['IntegerList'] as List?)
+          ?.nonNulls
+          .map((e) => e as int)
+          .toList(),
+      string: json['String'] as String?,
+      stringList: (json['StringList'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final boolean = this.boolean;
+    final doubleValue = this.doubleValue;
+    final enumValue = this.enumValue;
+    final enumList = this.enumList;
+    final integer = this.integer;
+    final integerList = this.integerList;
+    final string = this.string;
+    final stringList = this.stringList;
+    return {
+      if (boolean != null) 'Boolean': boolean,
+      if (doubleValue != null) 'Double': doubleValue,
+      if (enumValue != null) 'Enum': enumValue,
+      if (enumList != null) 'EnumList': enumList,
+      if (integer != null) 'Integer': integer,
+      if (integerList != null) 'IntegerList': integerList,
+      if (string != null) 'String': string,
+      if (stringList != null) 'StringList': stringList,
+    };
+  }
+}
+
+enum ParameterValueType {
+  $default('DEFAULT'),
+  custom('CUSTOM'),
+  ;
+
+  final String value;
+
+  const ParameterValueType(this.value);
+
+  static ParameterValueType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ParameterValueType'));
+}
+
 enum Partition {
-  aws,
-  awsCn,
-  awsUsGov,
-}
+  aws('aws'),
+  awsCn('aws-cn'),
+  awsUsGov('aws-us-gov'),
+  ;
 
-extension PartitionValueExtension on Partition {
-  String toValue() {
-    switch (this) {
-      case Partition.aws:
-        return 'aws';
-      case Partition.awsCn:
-        return 'aws-cn';
-      case Partition.awsUsGov:
-        return 'aws-us-gov';
-    }
-  }
-}
+  final String value;
 
-extension PartitionFromString on String {
-  Partition toPartition() {
-    switch (this) {
-      case 'aws':
-        return Partition.aws;
-      case 'aws-cn':
-        return Partition.awsCn;
-      case 'aws-us-gov':
-        return Partition.awsUsGov;
-    }
-    throw Exception('$this is not known in enum Partition');
-  }
+  const Partition(this.value);
+
+  static Partition fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Partition'));
 }
 
 /// Provides an overview of the patch compliance status for an instance against
@@ -36026,54 +44913,116 @@ extension PartitionFromString on String {
 class PatchSummary {
   /// The identifier of the compliance standard that was used to determine the
   /// patch compliance status.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 256.
   final String id;
 
   /// The number of patches from the compliance standard that failed to install.
+  ///
+  /// The value can be an integer from <code>0</code> to <code>100000</code>.
   final int? failedCount;
 
   /// The number of patches from the compliance standard that were installed
   /// successfully.
+  ///
+  /// The value can be an integer from <code>0</code> to <code>100000</code>.
   final int? installedCount;
 
   /// The number of installed patches that are not part of the compliance
   /// standard.
+  ///
+  /// The value can be an integer from <code>0</code> to <code>100000</code>.
   final int? installedOtherCount;
 
   /// The number of patches that were applied, but that require the instance to be
   /// rebooted in order to be marked as installed.
+  ///
+  /// The value can be an integer from <code>0</code> to <code>100000</code>.
   final int? installedPendingReboot;
 
   /// The number of patches that are installed but are also on a list of patches
   /// that the customer rejected.
+  ///
+  /// The value can be an integer from <code>0</code> to <code>100000</code>.
   final int? installedRejectedCount;
 
   /// The number of patches that are part of the compliance standard but are not
   /// installed. The count includes patches that failed to install.
+  ///
+  /// The value can be an integer from <code>0</code> to <code>100000</code>.
   final int? missingCount;
 
   /// The type of patch operation performed. For Patch Manager, the values are
   /// <code>SCAN</code> and <code>INSTALL</code>.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 256.
   final String? operation;
 
   /// Indicates when the operation completed.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? operationEndTime;
 
   /// Indicates when the operation started.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? operationStartTime;
 
   /// The reboot option specified for the instance.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 256.
   final String? rebootOption;
 
   PatchSummary({
@@ -36137,6 +45086,39 @@ class PatchSummary {
   }
 }
 
+/// An object that defines how Security Hub is configured. It includes whether
+/// Security Hub is enabled or disabled, a list of enabled security standards, a
+/// list of enabled or disabled security controls, and a list of custom
+/// parameter values for specified controls. If you provide a list of security
+/// controls that are enabled in the configuration policy, Security Hub disables
+/// all other controls (including newly released controls). If you provide a
+/// list of security controls that are disabled in the configuration policy,
+/// Security Hub enables all other controls (including newly released controls).
+class Policy {
+  /// The Amazon Web Service that the configuration policy applies to.
+  final SecurityHubPolicy? securityHub;
+
+  Policy({
+    this.securityHub,
+  });
+
+  factory Policy.fromJson(Map<String, dynamic> json) {
+    return Policy(
+      securityHub: json['SecurityHub'] != null
+          ? SecurityHubPolicy.fromJson(
+              json['SecurityHub'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final securityHub = this.securityHub;
+    return {
+      if (securityHub != null) 'SecurityHub': securityHub,
+    };
+  }
+}
+
 /// Provided if <code>ActionType</code> is <code>PORT_PROBE</code>. It provides
 /// details about the attempted port probe that was detected.
 class PortProbeAction {
@@ -36155,7 +45137,7 @@ class PortProbeAction {
     return PortProbeAction(
       blocked: json['Blocked'] as bool?,
       portProbeDetails: (json['PortProbeDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortProbeDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -36283,14 +45265,38 @@ class PortRangeFromTo {
 class ProcessDetails {
   /// Indicates when the process was launched.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? launchedAt;
 
   /// The name of the process.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 64.
   final String? name;
 
   /// The parent process ID. This field accepts positive integers between
@@ -36298,6 +45304,8 @@ class ProcessDetails {
   final int? parentPid;
 
   /// The path to the process executable.
+  ///
+  /// Length Constraints: Minimum of 1. Maximum of 512.
   final String? path;
 
   /// The process ID.
@@ -36305,11 +45313,33 @@ class ProcessDetails {
 
   /// Indicates when the process was terminated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? terminatedAt;
 
   ProcessDetails({
@@ -36418,14 +45448,14 @@ class Product {
       productArn: json['ProductArn'] as String,
       activationUrl: json['ActivationUrl'] as String?,
       categories: (json['Categories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       companyName: json['CompanyName'] as String?,
       description: json['Description'] as String?,
       integrationTypes: (json['IntegrationTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toIntegrationType())
+          ?.nonNulls
+          .map((e) => IntegrationType.fromString((e as String)))
           .toList(),
       marketplaceUrl: json['MarketplaceUrl'] as String?,
       productName: json['ProductName'] as String?,
@@ -36452,7 +45482,7 @@ class Product {
       if (companyName != null) 'CompanyName': companyName,
       if (description != null) 'Description': description,
       if (integrationTypes != null)
-        'IntegrationTypes': integrationTypes.map((e) => e.toValue()).toList(),
+        'IntegrationTypes': integrationTypes.map((e) => e.value).toList(),
       if (marketplaceUrl != null) 'MarketplaceUrl': marketplaceUrl,
       if (productName != null) 'ProductName': productName,
       if (productSubscriptionResourcePolicy != null)
@@ -36528,6 +45558,8 @@ class Range {
 class Recommendation {
   /// Describes the recommended steps to take to remediate an issue identified in
   /// a finding.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 512 length.
   final String? text;
 
   /// A URL to a page or site that contains information about how to remediate a
@@ -36590,59 +45622,32 @@ class Record {
 }
 
 enum RecordState {
-  active,
-  archived,
-}
+  active('ACTIVE'),
+  archived('ARCHIVED'),
+  ;
 
-extension RecordStateValueExtension on RecordState {
-  String toValue() {
-    switch (this) {
-      case RecordState.active:
-        return 'ACTIVE';
-      case RecordState.archived:
-        return 'ARCHIVED';
-    }
-  }
-}
+  final String value;
 
-extension RecordStateFromString on String {
-  RecordState toRecordState() {
-    switch (this) {
-      case 'ACTIVE':
-        return RecordState.active;
-      case 'ARCHIVED':
-        return RecordState.archived;
-    }
-    throw Exception('$this is not known in enum RecordState');
-  }
+  const RecordState(this.value);
+
+  static RecordState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RecordState'));
 }
 
 enum RegionAvailabilityStatus {
-  available,
-  unavailable,
-}
+  available('AVAILABLE'),
+  unavailable('UNAVAILABLE'),
+  ;
 
-extension RegionAvailabilityStatusValueExtension on RegionAvailabilityStatus {
-  String toValue() {
-    switch (this) {
-      case RegionAvailabilityStatus.available:
-        return 'AVAILABLE';
-      case RegionAvailabilityStatus.unavailable:
-        return 'UNAVAILABLE';
-    }
-  }
-}
+  final String value;
 
-extension RegionAvailabilityStatusFromString on String {
-  RegionAvailabilityStatus toRegionAvailabilityStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return RegionAvailabilityStatus.available;
-      case 'UNAVAILABLE':
-        return RegionAvailabilityStatus.unavailable;
-    }
-    throw Exception('$this is not known in enum RegionAvailabilityStatus');
-  }
+  const RegionAvailabilityStatus(this.value);
+
+  static RegionAvailabilityStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RegionAvailabilityStatus'));
 }
 
 /// Details about a related finding.
@@ -36714,7 +45719,16 @@ class Resource {
   ///
   /// If the resource does not match any of the provided types, then set
   /// <code>Type</code> to <code>Other</code>.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 256.
   final String type;
+
+  /// The Amazon Resource Name (ARN) of the application that is related to a
+  /// finding.
+  final String? applicationArn;
+
+  /// The name of the application that is related to a finding.
+  final String? applicationName;
 
   /// Contains information about sensitive data that was detected on the resource.
   final DataClassificationDetails? dataClassification;
@@ -36728,6 +45742,8 @@ class Resource {
 
   /// The canonical Amazon Web Services external Region name where this resource
   /// is located.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 16.
   final String? region;
 
   /// Identifies the role of the resource in the finding. A resource is either the
@@ -36735,12 +45751,16 @@ class Resource {
   final String? resourceRole;
 
   /// A list of Amazon Web Services tags associated with a resource at the time
-  /// the finding was processed.
+  /// the finding was processed. Tags must follow <a
+  /// href="https://docs.aws.amazon.com/tag-editor/latest/userguide/tagging.html#tag-conventions">Amazon
+  /// Web Services tag naming limits and requirements</a>.
   final Map<String, String>? tags;
 
   Resource({
     required this.id,
     required this.type,
+    this.applicationArn,
+    this.applicationName,
     this.dataClassification,
     this.details,
     this.partition,
@@ -36753,6 +45773,8 @@ class Resource {
     return Resource(
       id: json['Id'] as String,
       type: json['Type'] as String,
+      applicationArn: json['ApplicationArn'] as String?,
+      applicationName: json['ApplicationName'] as String?,
       dataClassification: json['DataClassification'] != null
           ? DataClassificationDetails.fromJson(
               json['DataClassification'] as Map<String, dynamic>)
@@ -36760,7 +45782,7 @@ class Resource {
       details: json['Details'] != null
           ? ResourceDetails.fromJson(json['Details'] as Map<String, dynamic>)
           : null,
-      partition: (json['Partition'] as String?)?.toPartition(),
+      partition: (json['Partition'] as String?)?.let(Partition.fromString),
       region: json['Region'] as String?,
       resourceRole: json['ResourceRole'] as String?,
       tags: (json['Tags'] as Map<String, dynamic>?)
@@ -36771,6 +45793,8 @@ class Resource {
   Map<String, dynamic> toJson() {
     final id = this.id;
     final type = this.type;
+    final applicationArn = this.applicationArn;
+    final applicationName = this.applicationName;
     final dataClassification = this.dataClassification;
     final details = this.details;
     final partition = this.partition;
@@ -36780,9 +45804,11 @@ class Resource {
     return {
       'Id': id,
       'Type': type,
+      if (applicationArn != null) 'ApplicationArn': applicationArn,
+      if (applicationName != null) 'ApplicationName': applicationName,
       if (dataClassification != null) 'DataClassification': dataClassification,
       if (details != null) 'Details': details,
-      if (partition != null) 'Partition': partition.toValue(),
+      if (partition != null) 'Partition': partition.value,
       if (region != null) 'Region': region,
       if (resourceRole != null) 'ResourceRole': resourceRole,
       if (tags != null) 'Tags': tags,
@@ -36803,6 +45829,11 @@ class Resource {
 /// You also use the <code>Other</code> object to populate the details when the
 /// selected type does not have a corresponding object.
 class ResourceDetails {
+  /// Provides details about AppSync message broker. A message broker allows
+  /// software applications and components to communicate using various
+  /// programming languages, operating systems, and formal messaging protocols.
+  final AwsAmazonMqBrokerDetails? awsAmazonMqBroker;
+
   /// Provides information about a REST API in version 1 of Amazon API Gateway.
   final AwsApiGatewayRestApiDetails? awsApiGatewayRestApi;
 
@@ -36814,6 +45845,15 @@ class ResourceDetails {
 
   /// Provides information about a version 2 stage for Amazon API Gateway.
   final AwsApiGatewayV2StageDetails? awsApiGatewayV2Stage;
+
+  /// Provides details about an AppSync Graph QL API, which lets you query
+  /// multiple databases, microservices, and APIs from a single GraphQL endpoint.
+  final AwsAppSyncGraphQlApiDetails? awsAppSyncGraphQlApi;
+
+  /// Provides information about an Amazon Athena workgroup. A workgroup helps you
+  /// separate users, teams, applications, or workloads. It also helps you set
+  /// limits on data processing and track costs.
+  final AwsAthenaWorkGroupDetails? awsAthenaWorkGroup;
 
   /// Details for an autoscaling group.
   final AwsAutoScalingAutoScalingGroupDetails? awsAutoScalingAutoScalingGroup;
@@ -36853,8 +45893,27 @@ class ResourceDetails {
   /// Details for an CodeBuild project.
   final AwsCodeBuildProjectDetails? awsCodeBuildProject;
 
+  /// Provides details about an Database Migration Service (DMS) endpoint. An
+  /// endpoint provides connection, data store type, and location information
+  /// about your data store.
+  final AwsDmsEndpointDetails? awsDmsEndpoint;
+
+  /// Provides details about an DMS replication instance. DMS uses a replication
+  /// instance to connect to your source data store, read the source data, and
+  /// format the data for consumption by the target data store.
+  final AwsDmsReplicationInstanceDetails? awsDmsReplicationInstance;
+
+  /// Provides details about an DMS replication task. A replication task moves a
+  /// set of data from the source endpoint to the target endpoint.
+  final AwsDmsReplicationTaskDetails? awsDmsReplicationTask;
+
   /// Details about a DynamoDB table.
   final AwsDynamoDbTableDetails? awsDynamoDbTable;
+
+  /// Provides details about an Client VPN endpoint. A Client VPN endpoint is the
+  /// resource that you create and configure to enable and manage client VPN
+  /// sessions. It's the termination point for all client VPN sessions.
+  final AwsEc2ClientVpnEndpointDetails? awsEc2ClientVpnEndpoint;
 
   /// Details about an Elastic IP address.
   final AwsEc2EipDetails? awsEc2Eip;
@@ -36944,6 +46003,26 @@ class ResourceDetails {
   /// Details about a load balancer.
   final AwsElbv2LoadBalancerDetails? awsElbv2LoadBalancer;
 
+  /// A schema defines the structure of events that are sent to Amazon
+  /// EventBridge. Schema registries are containers for schemas. They collect and
+  /// organize schemas so that your schemas are in logical groups.
+  final AwsEventSchemasRegistryDetails? awsEventSchemasRegistry;
+
+  /// Provides details about an Amazon EventBridge global endpoint. The endpoint
+  /// can improve your application’s availability by making it Regional-fault
+  /// tolerant.
+  final AwsEventsEndpointDetails? awsEventsEndpoint;
+
+  /// Provides details about Amazon EventBridge event bus for an endpoint. An
+  /// event bus is a router that receives events and delivers them to zero or more
+  /// destinations, or targets.
+  final AwsEventsEventbusDetails? awsEventsEventbus;
+
+  /// Provides details about an Amazon GuardDuty detector. A detector is an object
+  /// that represents the GuardDuty service. A detector is required for GuardDuty
+  /// to become operational.
+  final AwsGuardDutyDetectorDetails? awsGuardDutyDetector;
+
   /// Details about an IAM access key related to a finding.
   final AwsIamAccessKeyDetails? awsIamAccessKey;
 
@@ -36970,6 +46049,10 @@ class ResourceDetails {
 
   /// Details for a Lambda layer version.
   final AwsLambdaLayerVersionDetails? awsLambdaLayerVersion;
+
+  /// Provides details about an Amazon Managed Streaming for Apache Kafka (Amazon
+  /// MSK) cluster.
+  final AwsMskClusterDetails? awsMskCluster;
 
   /// Details about an Network Firewall firewall.
   final AwsNetworkFirewallFirewallDetails? awsNetworkFirewallFirewall;
@@ -37005,6 +46088,17 @@ class ResourceDetails {
   /// Contains details about an Amazon Redshift cluster.
   final AwsRedshiftClusterDetails? awsRedshiftCluster;
 
+  /// Provides details about an Amazon Route 53 hosted zone, including the four
+  /// name servers assigned to the hosted zone. A hosted zone represents a
+  /// collection of records that can be managed together, belonging to a single
+  /// parent domain name.
+  final AwsRoute53HostedZoneDetails? awsRoute53HostedZone;
+
+  /// Provides details about an Amazon Simple Storage Service (Amazon S3) access
+  /// point. S3 access points are named network endpoints that are attached to S3
+  /// buckets that you can use to perform S3 object operations.
+  final AwsS3AccessPointDetails? awsS3AccessPoint;
+
   /// Details about the Amazon S3 Public Access Block configuration for an
   /// account.
   final AwsS3AccountPublicAccessBlockDetails? awsS3AccountPublicAccessBlock;
@@ -37028,6 +46122,10 @@ class ResourceDetails {
   /// Provides information about the state of a patch on an instance based on the
   /// patch baseline that was used to patch the instance.
   final AwsSsmPatchComplianceDetails? awsSsmPatchCompliance;
+
+  /// Provides details about an Step Functions state machine, which is a workflow
+  /// consisting of a series of event-driven steps.
+  final AwsStepFunctionStateMachineDetails? awsStepFunctionStateMachine;
 
   /// Details about a rate-based rule for global resources.
   final AwsWafRateBasedRuleDetails? awsWafRateBasedRule;
@@ -37080,10 +46178,13 @@ class ResourceDetails {
   final Map<String, String>? other;
 
   ResourceDetails({
+    this.awsAmazonMqBroker,
     this.awsApiGatewayRestApi,
     this.awsApiGatewayStage,
     this.awsApiGatewayV2Api,
     this.awsApiGatewayV2Stage,
+    this.awsAppSyncGraphQlApi,
+    this.awsAthenaWorkGroup,
     this.awsAutoScalingAutoScalingGroup,
     this.awsAutoScalingLaunchConfiguration,
     this.awsBackupBackupPlan,
@@ -37095,7 +46196,11 @@ class ResourceDetails {
     this.awsCloudTrailTrail,
     this.awsCloudWatchAlarm,
     this.awsCodeBuildProject,
+    this.awsDmsEndpoint,
+    this.awsDmsReplicationInstance,
+    this.awsDmsReplicationTask,
     this.awsDynamoDbTable,
+    this.awsEc2ClientVpnEndpoint,
     this.awsEc2Eip,
     this.awsEc2Instance,
     this.awsEc2LaunchTemplate,
@@ -37123,6 +46228,10 @@ class ResourceDetails {
     this.awsElasticsearchDomain,
     this.awsElbLoadBalancer,
     this.awsElbv2LoadBalancer,
+    this.awsEventSchemasRegistry,
+    this.awsEventsEndpoint,
+    this.awsEventsEventbus,
+    this.awsGuardDutyDetector,
     this.awsIamAccessKey,
     this.awsIamGroup,
     this.awsIamPolicy,
@@ -37132,6 +46241,7 @@ class ResourceDetails {
     this.awsKmsKey,
     this.awsLambdaFunction,
     this.awsLambdaLayerVersion,
+    this.awsMskCluster,
     this.awsNetworkFirewallFirewall,
     this.awsNetworkFirewallFirewallPolicy,
     this.awsNetworkFirewallRuleGroup,
@@ -37143,6 +46253,8 @@ class ResourceDetails {
     this.awsRdsDbSnapshot,
     this.awsRdsEventSubscription,
     this.awsRedshiftCluster,
+    this.awsRoute53HostedZone,
+    this.awsS3AccessPoint,
     this.awsS3AccountPublicAccessBlock,
     this.awsS3Bucket,
     this.awsS3Object,
@@ -37151,6 +46263,7 @@ class ResourceDetails {
     this.awsSnsTopic,
     this.awsSqsQueue,
     this.awsSsmPatchCompliance,
+    this.awsStepFunctionStateMachine,
     this.awsWafRateBasedRule,
     this.awsWafRegionalRateBasedRule,
     this.awsWafRegionalRule,
@@ -37168,6 +46281,10 @@ class ResourceDetails {
 
   factory ResourceDetails.fromJson(Map<String, dynamic> json) {
     return ResourceDetails(
+      awsAmazonMqBroker: json['AwsAmazonMqBroker'] != null
+          ? AwsAmazonMqBrokerDetails.fromJson(
+              json['AwsAmazonMqBroker'] as Map<String, dynamic>)
+          : null,
       awsApiGatewayRestApi: json['AwsApiGatewayRestApi'] != null
           ? AwsApiGatewayRestApiDetails.fromJson(
               json['AwsApiGatewayRestApi'] as Map<String, dynamic>)
@@ -37183,6 +46300,14 @@ class ResourceDetails {
       awsApiGatewayV2Stage: json['AwsApiGatewayV2Stage'] != null
           ? AwsApiGatewayV2StageDetails.fromJson(
               json['AwsApiGatewayV2Stage'] as Map<String, dynamic>)
+          : null,
+      awsAppSyncGraphQlApi: json['AwsAppSyncGraphQlApi'] != null
+          ? AwsAppSyncGraphQlApiDetails.fromJson(
+              json['AwsAppSyncGraphQlApi'] as Map<String, dynamic>)
+          : null,
+      awsAthenaWorkGroup: json['AwsAthenaWorkGroup'] != null
+          ? AwsAthenaWorkGroupDetails.fromJson(
+              json['AwsAthenaWorkGroup'] as Map<String, dynamic>)
           : null,
       awsAutoScalingAutoScalingGroup: json['AwsAutoScalingAutoScalingGroup'] !=
               null
@@ -37233,9 +46358,25 @@ class ResourceDetails {
           ? AwsCodeBuildProjectDetails.fromJson(
               json['AwsCodeBuildProject'] as Map<String, dynamic>)
           : null,
+      awsDmsEndpoint: json['AwsDmsEndpoint'] != null
+          ? AwsDmsEndpointDetails.fromJson(
+              json['AwsDmsEndpoint'] as Map<String, dynamic>)
+          : null,
+      awsDmsReplicationInstance: json['AwsDmsReplicationInstance'] != null
+          ? AwsDmsReplicationInstanceDetails.fromJson(
+              json['AwsDmsReplicationInstance'] as Map<String, dynamic>)
+          : null,
+      awsDmsReplicationTask: json['AwsDmsReplicationTask'] != null
+          ? AwsDmsReplicationTaskDetails.fromJson(
+              json['AwsDmsReplicationTask'] as Map<String, dynamic>)
+          : null,
       awsDynamoDbTable: json['AwsDynamoDbTable'] != null
           ? AwsDynamoDbTableDetails.fromJson(
               json['AwsDynamoDbTable'] as Map<String, dynamic>)
+          : null,
+      awsEc2ClientVpnEndpoint: json['AwsEc2ClientVpnEndpoint'] != null
+          ? AwsEc2ClientVpnEndpointDetails.fromJson(
+              json['AwsEc2ClientVpnEndpoint'] as Map<String, dynamic>)
           : null,
       awsEc2Eip: json['AwsEc2Eip'] != null
           ? AwsEc2EipDetails.fromJson(json['AwsEc2Eip'] as Map<String, dynamic>)
@@ -37344,6 +46485,22 @@ class ResourceDetails {
           ? AwsElbv2LoadBalancerDetails.fromJson(
               json['AwsElbv2LoadBalancer'] as Map<String, dynamic>)
           : null,
+      awsEventSchemasRegistry: json['AwsEventSchemasRegistry'] != null
+          ? AwsEventSchemasRegistryDetails.fromJson(
+              json['AwsEventSchemasRegistry'] as Map<String, dynamic>)
+          : null,
+      awsEventsEndpoint: json['AwsEventsEndpoint'] != null
+          ? AwsEventsEndpointDetails.fromJson(
+              json['AwsEventsEndpoint'] as Map<String, dynamic>)
+          : null,
+      awsEventsEventbus: json['AwsEventsEventbus'] != null
+          ? AwsEventsEventbusDetails.fromJson(
+              json['AwsEventsEventbus'] as Map<String, dynamic>)
+          : null,
+      awsGuardDutyDetector: json['AwsGuardDutyDetector'] != null
+          ? AwsGuardDutyDetectorDetails.fromJson(
+              json['AwsGuardDutyDetector'] as Map<String, dynamic>)
+          : null,
       awsIamAccessKey: json['AwsIamAccessKey'] != null
           ? AwsIamAccessKeyDetails.fromJson(
               json['AwsIamAccessKey'] as Map<String, dynamic>)
@@ -37378,6 +46535,10 @@ class ResourceDetails {
       awsLambdaLayerVersion: json['AwsLambdaLayerVersion'] != null
           ? AwsLambdaLayerVersionDetails.fromJson(
               json['AwsLambdaLayerVersion'] as Map<String, dynamic>)
+          : null,
+      awsMskCluster: json['AwsMskCluster'] != null
+          ? AwsMskClusterDetails.fromJson(
+              json['AwsMskCluster'] as Map<String, dynamic>)
           : null,
       awsNetworkFirewallFirewall: json['AwsNetworkFirewallFirewall'] != null
           ? AwsNetworkFirewallFirewallDetails.fromJson(
@@ -37425,6 +46586,14 @@ class ResourceDetails {
           ? AwsRedshiftClusterDetails.fromJson(
               json['AwsRedshiftCluster'] as Map<String, dynamic>)
           : null,
+      awsRoute53HostedZone: json['AwsRoute53HostedZone'] != null
+          ? AwsRoute53HostedZoneDetails.fromJson(
+              json['AwsRoute53HostedZone'] as Map<String, dynamic>)
+          : null,
+      awsS3AccessPoint: json['AwsS3AccessPoint'] != null
+          ? AwsS3AccessPointDetails.fromJson(
+              json['AwsS3AccessPoint'] as Map<String, dynamic>)
+          : null,
       awsS3AccountPublicAccessBlock:
           json['AwsS3AccountPublicAccessBlock'] != null
               ? AwsS3AccountPublicAccessBlockDetails.fromJson(
@@ -37457,6 +46626,10 @@ class ResourceDetails {
       awsSsmPatchCompliance: json['AwsSsmPatchCompliance'] != null
           ? AwsSsmPatchComplianceDetails.fromJson(
               json['AwsSsmPatchCompliance'] as Map<String, dynamic>)
+          : null,
+      awsStepFunctionStateMachine: json['AwsStepFunctionStateMachine'] != null
+          ? AwsStepFunctionStateMachineDetails.fromJson(
+              json['AwsStepFunctionStateMachine'] as Map<String, dynamic>)
           : null,
       awsWafRateBasedRule: json['AwsWafRateBasedRule'] != null
           ? AwsWafRateBasedRuleDetails.fromJson(
@@ -37511,10 +46684,13 @@ class ResourceDetails {
   }
 
   Map<String, dynamic> toJson() {
+    final awsAmazonMqBroker = this.awsAmazonMqBroker;
     final awsApiGatewayRestApi = this.awsApiGatewayRestApi;
     final awsApiGatewayStage = this.awsApiGatewayStage;
     final awsApiGatewayV2Api = this.awsApiGatewayV2Api;
     final awsApiGatewayV2Stage = this.awsApiGatewayV2Stage;
+    final awsAppSyncGraphQlApi = this.awsAppSyncGraphQlApi;
+    final awsAthenaWorkGroup = this.awsAthenaWorkGroup;
     final awsAutoScalingAutoScalingGroup = this.awsAutoScalingAutoScalingGroup;
     final awsAutoScalingLaunchConfiguration =
         this.awsAutoScalingLaunchConfiguration;
@@ -37528,7 +46704,11 @@ class ResourceDetails {
     final awsCloudTrailTrail = this.awsCloudTrailTrail;
     final awsCloudWatchAlarm = this.awsCloudWatchAlarm;
     final awsCodeBuildProject = this.awsCodeBuildProject;
+    final awsDmsEndpoint = this.awsDmsEndpoint;
+    final awsDmsReplicationInstance = this.awsDmsReplicationInstance;
+    final awsDmsReplicationTask = this.awsDmsReplicationTask;
     final awsDynamoDbTable = this.awsDynamoDbTable;
+    final awsEc2ClientVpnEndpoint = this.awsEc2ClientVpnEndpoint;
     final awsEc2Eip = this.awsEc2Eip;
     final awsEc2Instance = this.awsEc2Instance;
     final awsEc2LaunchTemplate = this.awsEc2LaunchTemplate;
@@ -37556,6 +46736,10 @@ class ResourceDetails {
     final awsElasticsearchDomain = this.awsElasticsearchDomain;
     final awsElbLoadBalancer = this.awsElbLoadBalancer;
     final awsElbv2LoadBalancer = this.awsElbv2LoadBalancer;
+    final awsEventSchemasRegistry = this.awsEventSchemasRegistry;
+    final awsEventsEndpoint = this.awsEventsEndpoint;
+    final awsEventsEventbus = this.awsEventsEventbus;
+    final awsGuardDutyDetector = this.awsGuardDutyDetector;
     final awsIamAccessKey = this.awsIamAccessKey;
     final awsIamGroup = this.awsIamGroup;
     final awsIamPolicy = this.awsIamPolicy;
@@ -37565,6 +46749,7 @@ class ResourceDetails {
     final awsKmsKey = this.awsKmsKey;
     final awsLambdaFunction = this.awsLambdaFunction;
     final awsLambdaLayerVersion = this.awsLambdaLayerVersion;
+    final awsMskCluster = this.awsMskCluster;
     final awsNetworkFirewallFirewall = this.awsNetworkFirewallFirewall;
     final awsNetworkFirewallFirewallPolicy =
         this.awsNetworkFirewallFirewallPolicy;
@@ -37577,6 +46762,8 @@ class ResourceDetails {
     final awsRdsDbSnapshot = this.awsRdsDbSnapshot;
     final awsRdsEventSubscription = this.awsRdsEventSubscription;
     final awsRedshiftCluster = this.awsRedshiftCluster;
+    final awsRoute53HostedZone = this.awsRoute53HostedZone;
+    final awsS3AccessPoint = this.awsS3AccessPoint;
     final awsS3AccountPublicAccessBlock = this.awsS3AccountPublicAccessBlock;
     final awsS3Bucket = this.awsS3Bucket;
     final awsS3Object = this.awsS3Object;
@@ -37585,6 +46772,7 @@ class ResourceDetails {
     final awsSnsTopic = this.awsSnsTopic;
     final awsSqsQueue = this.awsSqsQueue;
     final awsSsmPatchCompliance = this.awsSsmPatchCompliance;
+    final awsStepFunctionStateMachine = this.awsStepFunctionStateMachine;
     final awsWafRateBasedRule = this.awsWafRateBasedRule;
     final awsWafRegionalRateBasedRule = this.awsWafRegionalRateBasedRule;
     final awsWafRegionalRule = this.awsWafRegionalRule;
@@ -37599,12 +46787,16 @@ class ResourceDetails {
     final container = this.container;
     final other = this.other;
     return {
+      if (awsAmazonMqBroker != null) 'AwsAmazonMqBroker': awsAmazonMqBroker,
       if (awsApiGatewayRestApi != null)
         'AwsApiGatewayRestApi': awsApiGatewayRestApi,
       if (awsApiGatewayStage != null) 'AwsApiGatewayStage': awsApiGatewayStage,
       if (awsApiGatewayV2Api != null) 'AwsApiGatewayV2Api': awsApiGatewayV2Api,
       if (awsApiGatewayV2Stage != null)
         'AwsApiGatewayV2Stage': awsApiGatewayV2Stage,
+      if (awsAppSyncGraphQlApi != null)
+        'AwsAppSyncGraphQlApi': awsAppSyncGraphQlApi,
+      if (awsAthenaWorkGroup != null) 'AwsAthenaWorkGroup': awsAthenaWorkGroup,
       if (awsAutoScalingAutoScalingGroup != null)
         'AwsAutoScalingAutoScalingGroup': awsAutoScalingAutoScalingGroup,
       if (awsAutoScalingLaunchConfiguration != null)
@@ -37625,7 +46817,14 @@ class ResourceDetails {
       if (awsCloudWatchAlarm != null) 'AwsCloudWatchAlarm': awsCloudWatchAlarm,
       if (awsCodeBuildProject != null)
         'AwsCodeBuildProject': awsCodeBuildProject,
+      if (awsDmsEndpoint != null) 'AwsDmsEndpoint': awsDmsEndpoint,
+      if (awsDmsReplicationInstance != null)
+        'AwsDmsReplicationInstance': awsDmsReplicationInstance,
+      if (awsDmsReplicationTask != null)
+        'AwsDmsReplicationTask': awsDmsReplicationTask,
       if (awsDynamoDbTable != null) 'AwsDynamoDbTable': awsDynamoDbTable,
+      if (awsEc2ClientVpnEndpoint != null)
+        'AwsEc2ClientVpnEndpoint': awsEc2ClientVpnEndpoint,
       if (awsEc2Eip != null) 'AwsEc2Eip': awsEc2Eip,
       if (awsEc2Instance != null) 'AwsEc2Instance': awsEc2Instance,
       if (awsEc2LaunchTemplate != null)
@@ -37665,6 +46864,12 @@ class ResourceDetails {
       if (awsElbLoadBalancer != null) 'AwsElbLoadBalancer': awsElbLoadBalancer,
       if (awsElbv2LoadBalancer != null)
         'AwsElbv2LoadBalancer': awsElbv2LoadBalancer,
+      if (awsEventSchemasRegistry != null)
+        'AwsEventSchemasRegistry': awsEventSchemasRegistry,
+      if (awsEventsEndpoint != null) 'AwsEventsEndpoint': awsEventsEndpoint,
+      if (awsEventsEventbus != null) 'AwsEventsEventbus': awsEventsEventbus,
+      if (awsGuardDutyDetector != null)
+        'AwsGuardDutyDetector': awsGuardDutyDetector,
       if (awsIamAccessKey != null) 'AwsIamAccessKey': awsIamAccessKey,
       if (awsIamGroup != null) 'AwsIamGroup': awsIamGroup,
       if (awsIamPolicy != null) 'AwsIamPolicy': awsIamPolicy,
@@ -37675,6 +46880,7 @@ class ResourceDetails {
       if (awsLambdaFunction != null) 'AwsLambdaFunction': awsLambdaFunction,
       if (awsLambdaLayerVersion != null)
         'AwsLambdaLayerVersion': awsLambdaLayerVersion,
+      if (awsMskCluster != null) 'AwsMskCluster': awsMskCluster,
       if (awsNetworkFirewallFirewall != null)
         'AwsNetworkFirewallFirewall': awsNetworkFirewallFirewall,
       if (awsNetworkFirewallFirewallPolicy != null)
@@ -37693,6 +46899,9 @@ class ResourceDetails {
       if (awsRdsEventSubscription != null)
         'AwsRdsEventSubscription': awsRdsEventSubscription,
       if (awsRedshiftCluster != null) 'AwsRedshiftCluster': awsRedshiftCluster,
+      if (awsRoute53HostedZone != null)
+        'AwsRoute53HostedZone': awsRoute53HostedZone,
+      if (awsS3AccessPoint != null) 'AwsS3AccessPoint': awsS3AccessPoint,
       if (awsS3AccountPublicAccessBlock != null)
         'AwsS3AccountPublicAccessBlock': awsS3AccountPublicAccessBlock,
       if (awsS3Bucket != null) 'AwsS3Bucket': awsS3Bucket,
@@ -37705,6 +46914,8 @@ class ResourceDetails {
       if (awsSqsQueue != null) 'AwsSqsQueue': awsSqsQueue,
       if (awsSsmPatchCompliance != null)
         'AwsSsmPatchCompliance': awsSsmPatchCompliance,
+      if (awsStepFunctionStateMachine != null)
+        'AwsStepFunctionStateMachine': awsStepFunctionStateMachine,
       if (awsWafRateBasedRule != null)
         'AwsWafRateBasedRule': awsWafRateBasedRule,
       if (awsWafRegionalRateBasedRule != null)
@@ -37965,7 +47176,7 @@ class RuleGroupSource {
           : null,
       rulesString: json['RulesString'] as String?,
       statefulRules: (json['StatefulRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleGroupSourceStatefulRulesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -38054,13 +47265,11 @@ class RuleGroupSourceListDetails {
     return RuleGroupSourceListDetails(
       generatedRulesType: json['GeneratedRulesType'] as String?,
       targetTypes: (json['TargetTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      targets: (json['Targets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      targets:
+          (json['Targets'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -38103,7 +47312,7 @@ class RuleGroupSourceStatefulRulesDetails {
               json['Header'] as Map<String, dynamic>)
           : null,
       ruleOptions: (json['RuleOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleGroupSourceStatefulRulesOptionsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -38210,7 +47419,7 @@ class RuleGroupSourceStatefulRulesOptionsDetails {
     return RuleGroupSourceStatefulRulesOptionsDetails(
       keyword: json['Keyword'] as String?,
       settings: (json['Settings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -38246,10 +47455,8 @@ class RuleGroupSourceStatelessRuleDefinition {
   factory RuleGroupSourceStatelessRuleDefinition.fromJson(
       Map<String, dynamic> json) {
     return RuleGroupSourceStatelessRuleDefinition(
-      actions: (json['Actions'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      actions:
+          (json['Actions'] as List?)?.nonNulls.map((e) => e as String).toList(),
       matchAttributes: json['MatchAttributes'] != null
           ? RuleGroupSourceStatelessRuleMatchAttributes.fromJson(
               json['MatchAttributes'] as Map<String, dynamic>)
@@ -38304,35 +47511,33 @@ class RuleGroupSourceStatelessRuleMatchAttributes {
       Map<String, dynamic> json) {
     return RuleGroupSourceStatelessRuleMatchAttributes(
       destinationPorts: (json['DestinationPorts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RuleGroupSourceStatelessRuleMatchAttributesDestinationPorts
                   .fromJson(e as Map<String, dynamic>))
           .toList(),
       destinations: (json['Destinations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RuleGroupSourceStatelessRuleMatchAttributesDestinations.fromJson(
                   e as Map<String, dynamic>))
           .toList(),
-      protocols: (json['Protocols'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      protocols:
+          (json['Protocols'] as List?)?.nonNulls.map((e) => e as int).toList(),
       sourcePorts: (json['SourcePorts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RuleGroupSourceStatelessRuleMatchAttributesSourcePorts.fromJson(
                   e as Map<String, dynamic>))
           .toList(),
       sources: (json['Sources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RuleGroupSourceStatelessRuleMatchAttributesSources.fromJson(
                   e as Map<String, dynamic>))
           .toList(),
       tcpFlags: (json['TcpFlags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RuleGroupSourceStatelessRuleMatchAttributesTcpFlags.fromJson(
                   e as Map<String, dynamic>))
@@ -38487,14 +47692,10 @@ class RuleGroupSourceStatelessRuleMatchAttributesTcpFlags {
   factory RuleGroupSourceStatelessRuleMatchAttributesTcpFlags.fromJson(
       Map<String, dynamic> json) {
     return RuleGroupSourceStatelessRuleMatchAttributesTcpFlags(
-      flags: (json['Flags'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      masks: (json['Masks'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      flags:
+          (json['Flags'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      masks:
+          (json['Masks'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -38525,12 +47726,12 @@ class RuleGroupSourceStatelessRulesAndCustomActionsDetails {
       Map<String, dynamic> json) {
     return RuleGroupSourceStatelessRulesAndCustomActionsDetails(
       customActions: (json['CustomActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleGroupSourceCustomActionsDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       statelessRules: (json['StatelessRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleGroupSourceStatelessRulesDetails.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -38630,7 +47831,7 @@ class RuleGroupVariablesIpSetsDetails {
   factory RuleGroupVariablesIpSetsDetails.fromJson(Map<String, dynamic> json) {
     return RuleGroupVariablesIpSetsDetails(
       definition: (json['Definition'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -38657,7 +47858,7 @@ class RuleGroupVariablesPortSetsDetails {
       Map<String, dynamic> json) {
     return RuleGroupVariablesPortSetsDetails(
       definition: (json['Definition'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -38669,6 +47870,20 @@ class RuleGroupVariablesPortSetsDetails {
       if (definition != null) 'Definition': definition,
     };
   }
+}
+
+enum RuleStatus {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const RuleStatus(this.value);
+
+  static RuleStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RuleStatus'));
 }
 
 /// A security control in Security Hub describes a security best practice
@@ -38695,12 +47910,7 @@ class SecurityControl {
   /// such as APIGateway.3.
   final String securityControlId;
 
-  /// The status of a security control based on the compliance status of its
-  /// findings. For more information about how control status is determined, see
-  /// <a
-  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/controls-overall-status.html">Determining
-  /// the overall status of a control from its findings</a> in the <i>Security Hub
-  /// User Guide</i>.
+  /// The enablement status of a security control in a specific standard.
   final ControlStatus securityControlStatus;
 
   /// The severity of a security control. For more information about how Security
@@ -38712,6 +47922,27 @@ class SecurityControl {
   /// The title of a security control.
   final String title;
 
+  /// The most recent reason for updating the customizable properties of a
+  /// security control. This differs from the <code>UpdateReason</code> field of
+  /// the <a
+  /// href="https://docs.aws.amazon.com/securityhub/1.0/APIReference/API_BatchUpdateStandardsControlAssociations.html">
+  /// <code>BatchUpdateStandardsControlAssociations</code> </a> API, which tracks
+  /// the reason for updating the enablement status of a control. This field
+  /// accepts alphanumeric characters in addition to white spaces, dashes, and
+  /// underscores.
+  final String? lastUpdateReason;
+
+  /// An object that identifies the name of a control parameter, its current
+  /// value, and whether it has been customized.
+  final Map<String, ParameterConfiguration>? parameters;
+
+  /// Identifies whether customizable properties of a security control are
+  /// reflected in Security Hub findings. A status of <code>READY</code> indicates
+  /// findings include the current parameter values. A status of
+  /// <code>UPDATING</code> indicates that all findings may not include the
+  /// current parameter values.
+  final UpdateStatus? updateStatus;
+
   SecurityControl({
     required this.description,
     required this.remediationUrl,
@@ -38720,6 +47951,9 @@ class SecurityControl {
     required this.securityControlStatus,
     required this.severityRating,
     required this.title,
+    this.lastUpdateReason,
+    this.parameters,
+    this.updateStatus,
   });
 
   factory SecurityControl.fromJson(Map<String, dynamic> json) {
@@ -38729,9 +47963,16 @@ class SecurityControl {
       securityControlArn: json['SecurityControlArn'] as String,
       securityControlId: json['SecurityControlId'] as String,
       securityControlStatus:
-          (json['SecurityControlStatus'] as String).toControlStatus(),
-      severityRating: (json['SeverityRating'] as String).toSeverityRating(),
+          ControlStatus.fromString((json['SecurityControlStatus'] as String)),
+      severityRating:
+          SeverityRating.fromString((json['SeverityRating'] as String)),
       title: json['Title'] as String,
+      lastUpdateReason: json['LastUpdateReason'] as String?,
+      parameters: (json['Parameters'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(
+              k, ParameterConfiguration.fromJson(e as Map<String, dynamic>))),
+      updateStatus:
+          (json['UpdateStatus'] as String?)?.let(UpdateStatus.fromString),
     );
   }
 
@@ -38743,14 +47984,54 @@ class SecurityControl {
     final securityControlStatus = this.securityControlStatus;
     final severityRating = this.severityRating;
     final title = this.title;
+    final lastUpdateReason = this.lastUpdateReason;
+    final parameters = this.parameters;
+    final updateStatus = this.updateStatus;
     return {
       'Description': description,
       'RemediationUrl': remediationUrl,
       'SecurityControlArn': securityControlArn,
       'SecurityControlId': securityControlId,
-      'SecurityControlStatus': securityControlStatus.toValue(),
-      'SeverityRating': severityRating.toValue(),
+      'SecurityControlStatus': securityControlStatus.value,
+      'SeverityRating': severityRating.value,
       'Title': title,
+      if (lastUpdateReason != null) 'LastUpdateReason': lastUpdateReason,
+      if (parameters != null) 'Parameters': parameters,
+      if (updateStatus != null) 'UpdateStatus': updateStatus.value,
+    };
+  }
+}
+
+/// A list of security controls and control parameter values that are included
+/// in a configuration policy.
+class SecurityControlCustomParameter {
+  /// An object that specifies parameter values for a control in a configuration
+  /// policy.
+  final Map<String, ParameterConfiguration>? parameters;
+
+  /// The ID of the security control.
+  final String? securityControlId;
+
+  SecurityControlCustomParameter({
+    this.parameters,
+    this.securityControlId,
+  });
+
+  factory SecurityControlCustomParameter.fromJson(Map<String, dynamic> json) {
+    return SecurityControlCustomParameter(
+      parameters: (json['Parameters'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(
+              k, ParameterConfiguration.fromJson(e as Map<String, dynamic>))),
+      securityControlId: json['SecurityControlId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final parameters = this.parameters;
+    final securityControlId = this.securityControlId;
+    return {
+      if (parameters != null) 'Parameters': parameters,
+      if (securityControlId != null) 'SecurityControlId': securityControlId,
     };
   }
 }
@@ -38791,6 +48072,16 @@ class SecurityControlDefinition {
   /// The title of a security control.
   final String title;
 
+  /// Security control properties that you can customize. Currently, only
+  /// parameter customization is supported for select controls. An empty array is
+  /// returned for controls that don’t support custom properties.
+  final List<SecurityControlProperty>? customizableProperties;
+
+  /// An object that provides a security control parameter name, description, and
+  /// the options for customizing it. This object is excluded for a control that
+  /// doesn't support custom parameters.
+  final Map<String, ParameterDefinition>? parameterDefinitions;
+
   SecurityControlDefinition({
     required this.currentRegionAvailability,
     required this.description,
@@ -38798,17 +48089,28 @@ class SecurityControlDefinition {
     required this.securityControlId,
     required this.severityRating,
     required this.title,
+    this.customizableProperties,
+    this.parameterDefinitions,
   });
 
   factory SecurityControlDefinition.fromJson(Map<String, dynamic> json) {
     return SecurityControlDefinition(
-      currentRegionAvailability: (json['CurrentRegionAvailability'] as String)
-          .toRegionAvailabilityStatus(),
+      currentRegionAvailability: RegionAvailabilityStatus.fromString(
+          (json['CurrentRegionAvailability'] as String)),
       description: json['Description'] as String,
       remediationUrl: json['RemediationUrl'] as String,
       securityControlId: json['SecurityControlId'] as String,
-      severityRating: (json['SeverityRating'] as String).toSeverityRating(),
+      severityRating:
+          SeverityRating.fromString((json['SeverityRating'] as String)),
       title: json['Title'] as String,
+      customizableProperties: (json['CustomizableProperties'] as List?)
+          ?.nonNulls
+          .map((e) => SecurityControlProperty.fromString((e as String)))
+          .toList(),
+      parameterDefinitions:
+          (json['ParameterDefinitions'] as Map<String, dynamic>?)?.map((k, e) =>
+              MapEntry(
+                  k, ParameterDefinition.fromJson(e as Map<String, dynamic>))),
     );
   }
 
@@ -38819,13 +48121,186 @@ class SecurityControlDefinition {
     final securityControlId = this.securityControlId;
     final severityRating = this.severityRating;
     final title = this.title;
+    final customizableProperties = this.customizableProperties;
+    final parameterDefinitions = this.parameterDefinitions;
     return {
-      'CurrentRegionAvailability': currentRegionAvailability.toValue(),
+      'CurrentRegionAvailability': currentRegionAvailability.value,
       'Description': description,
       'RemediationUrl': remediationUrl,
       'SecurityControlId': securityControlId,
-      'SeverityRating': severityRating.toValue(),
+      'SeverityRating': severityRating.value,
       'Title': title,
+      if (customizableProperties != null)
+        'CustomizableProperties':
+            customizableProperties.map((e) => e.value).toList(),
+      if (parameterDefinitions != null)
+        'ParameterDefinitions': parameterDefinitions,
+    };
+  }
+}
+
+/// A parameter that a security control accepts.
+class SecurityControlParameter {
+  /// The name of a
+  final String? name;
+
+  /// The current value of a control parameter.
+  final List<String>? value;
+
+  SecurityControlParameter({
+    this.name,
+    this.value,
+  });
+
+  factory SecurityControlParameter.fromJson(Map<String, dynamic> json) {
+    return SecurityControlParameter(
+      name: json['Name'] as String?,
+      value:
+          (json['Value'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final value = this.value;
+    return {
+      if (name != null) 'Name': name,
+      if (value != null) 'Value': value,
+    };
+  }
+}
+
+enum SecurityControlProperty {
+  parameters('Parameters'),
+  ;
+
+  final String value;
+
+  const SecurityControlProperty(this.value);
+
+  static SecurityControlProperty fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SecurityControlProperty'));
+}
+
+/// An object that defines which security controls are enabled in an Security
+/// Hub configuration policy. The enablement status of a control is aligned
+/// across all of the enabled standards in an account.
+class SecurityControlsConfiguration {
+  /// A list of security controls that are disabled in the configuration policy.
+  /// Security Hub enables all other controls (including newly released controls)
+  /// other than the listed controls.
+  final List<String>? disabledSecurityControlIdentifiers;
+
+  /// A list of security controls that are enabled in the configuration policy.
+  /// Security Hub disables all other controls (including newly released controls)
+  /// other than the listed controls.
+  final List<String>? enabledSecurityControlIdentifiers;
+
+  /// A list of security controls and control parameter values that are included
+  /// in a configuration policy.
+  final List<SecurityControlCustomParameter>? securityControlCustomParameters;
+
+  SecurityControlsConfiguration({
+    this.disabledSecurityControlIdentifiers,
+    this.enabledSecurityControlIdentifiers,
+    this.securityControlCustomParameters,
+  });
+
+  factory SecurityControlsConfiguration.fromJson(Map<String, dynamic> json) {
+    return SecurityControlsConfiguration(
+      disabledSecurityControlIdentifiers:
+          (json['DisabledSecurityControlIdentifiers'] as List?)
+              ?.nonNulls
+              .map((e) => e as String)
+              .toList(),
+      enabledSecurityControlIdentifiers:
+          (json['EnabledSecurityControlIdentifiers'] as List?)
+              ?.nonNulls
+              .map((e) => e as String)
+              .toList(),
+      securityControlCustomParameters:
+          (json['SecurityControlCustomParameters'] as List?)
+              ?.nonNulls
+              .map((e) => SecurityControlCustomParameter.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final disabledSecurityControlIdentifiers =
+        this.disabledSecurityControlIdentifiers;
+    final enabledSecurityControlIdentifiers =
+        this.enabledSecurityControlIdentifiers;
+    final securityControlCustomParameters =
+        this.securityControlCustomParameters;
+    return {
+      if (disabledSecurityControlIdentifiers != null)
+        'DisabledSecurityControlIdentifiers':
+            disabledSecurityControlIdentifiers,
+      if (enabledSecurityControlIdentifiers != null)
+        'EnabledSecurityControlIdentifiers': enabledSecurityControlIdentifiers,
+      if (securityControlCustomParameters != null)
+        'SecurityControlCustomParameters': securityControlCustomParameters,
+    };
+  }
+}
+
+/// An object that defines how Security Hub is configured. The configuration
+/// policy includes whether Security Hub is enabled or disabled, a list of
+/// enabled security standards, a list of enabled or disabled security controls,
+/// and a list of custom parameter values for specified controls. If you provide
+/// a list of security controls that are enabled in the configuration policy,
+/// Security Hub disables all other controls (including newly released
+/// controls). If you provide a list of security controls that are disabled in
+/// the configuration policy, Security Hub enables all other controls (including
+/// newly released controls).
+class SecurityHubPolicy {
+  /// A list that defines which security standards are enabled in the
+  /// configuration policy.
+  final List<String>? enabledStandardIdentifiers;
+
+  /// An object that defines which security controls are enabled in the
+  /// configuration policy. The enablement status of a control is aligned across
+  /// all of the enabled standards in an account.
+  final SecurityControlsConfiguration? securityControlsConfiguration;
+
+  /// Indicates whether Security Hub is enabled in the policy.
+  final bool? serviceEnabled;
+
+  SecurityHubPolicy({
+    this.enabledStandardIdentifiers,
+    this.securityControlsConfiguration,
+    this.serviceEnabled,
+  });
+
+  factory SecurityHubPolicy.fromJson(Map<String, dynamic> json) {
+    return SecurityHubPolicy(
+      enabledStandardIdentifiers: (json['EnabledStandardIdentifiers'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      securityControlsConfiguration:
+          json['SecurityControlsConfiguration'] != null
+              ? SecurityControlsConfiguration.fromJson(
+                  json['SecurityControlsConfiguration'] as Map<String, dynamic>)
+              : null,
+      serviceEnabled: json['ServiceEnabled'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enabledStandardIdentifiers = this.enabledStandardIdentifiers;
+    final securityControlsConfiguration = this.securityControlsConfiguration;
+    final serviceEnabled = this.serviceEnabled;
+    return {
+      if (enabledStandardIdentifiers != null)
+        'EnabledStandardIdentifiers': enabledStandardIdentifiers,
+      if (securityControlsConfiguration != null)
+        'SecurityControlsConfiguration': securityControlsConfiguration,
+      if (serviceEnabled != null) 'ServiceEnabled': serviceEnabled,
     };
   }
 }
@@ -38894,7 +48369,7 @@ class SensitiveDataResult {
     return SensitiveDataResult(
       category: json['Category'] as String?,
       detections: (json['Detections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SensitiveDataDetections.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -38967,9 +48442,11 @@ class Severity {
   /// </ul>
   final SeverityLabel? label;
 
-  /// Deprecated. The normalized severity of a finding. This attribute is being
-  /// deprecated. Instead of providing <code>Normalized</code>, provide
-  /// <code>Label</code>.
+  /// Deprecated. The normalized severity of a finding. Instead of providing
+  /// <code>Normalized</code>, provide <code>Label</code>.
+  ///
+  /// The value of <code>Normalized</code> can be an integer between
+  /// <code>0</code> and <code>100</code>.
   ///
   /// If you provide <code>Label</code> and do not provide
   /// <code>Normalized</code>, then <code>Normalized</code> is set automatically
@@ -38995,9 +48472,11 @@ class Severity {
   final int? normalized;
 
   /// The native severity from the finding product that generated the finding.
+  ///
+  /// Length Constraints: Minimum length of 1. Maximum length of 64.
   final String? original;
 
-  /// Deprecated. This attribute is being deprecated. Instead of providing
+  /// Deprecated. This attribute isn't included in findings. Instead of providing
   /// <code>Product</code>, provide <code>Original</code>.
   ///
   /// The native severity as defined by the Amazon Web Services service or
@@ -39013,7 +48492,7 @@ class Severity {
 
   factory Severity.fromJson(Map<String, dynamic> json) {
     return Severity(
-      label: (json['Label'] as String?)?.toSeverityLabel(),
+      label: (json['Label'] as String?)?.let(SeverityLabel.fromString),
       normalized: json['Normalized'] as int?,
       original: json['Original'] as String?,
       product: json['Product'] as double?,
@@ -39026,7 +48505,7 @@ class Severity {
     final original = this.original;
     final product = this.product;
     return {
-      if (label != null) 'Label': label.toValue(),
+      if (label != null) 'Label': label.value,
       if (normalized != null) 'Normalized': normalized,
       if (original != null) 'Original': original,
       if (product != null) 'Product': product,
@@ -39035,84 +48514,38 @@ class Severity {
 }
 
 enum SeverityLabel {
-  informational,
-  low,
-  medium,
-  high,
-  critical,
-}
+  informational('INFORMATIONAL'),
+  low('LOW'),
+  medium('MEDIUM'),
+  high('HIGH'),
+  critical('CRITICAL'),
+  ;
 
-extension SeverityLabelValueExtension on SeverityLabel {
-  String toValue() {
-    switch (this) {
-      case SeverityLabel.informational:
-        return 'INFORMATIONAL';
-      case SeverityLabel.low:
-        return 'LOW';
-      case SeverityLabel.medium:
-        return 'MEDIUM';
-      case SeverityLabel.high:
-        return 'HIGH';
-      case SeverityLabel.critical:
-        return 'CRITICAL';
-    }
-  }
-}
+  final String value;
 
-extension SeverityLabelFromString on String {
-  SeverityLabel toSeverityLabel() {
-    switch (this) {
-      case 'INFORMATIONAL':
-        return SeverityLabel.informational;
-      case 'LOW':
-        return SeverityLabel.low;
-      case 'MEDIUM':
-        return SeverityLabel.medium;
-      case 'HIGH':
-        return SeverityLabel.high;
-      case 'CRITICAL':
-        return SeverityLabel.critical;
-    }
-    throw Exception('$this is not known in enum SeverityLabel');
-  }
+  const SeverityLabel(this.value);
+
+  static SeverityLabel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SeverityLabel'));
 }
 
 enum SeverityRating {
-  low,
-  medium,
-  high,
-  critical,
-}
+  low('LOW'),
+  medium('MEDIUM'),
+  high('HIGH'),
+  critical('CRITICAL'),
+  ;
 
-extension SeverityRatingValueExtension on SeverityRating {
-  String toValue() {
-    switch (this) {
-      case SeverityRating.low:
-        return 'LOW';
-      case SeverityRating.medium:
-        return 'MEDIUM';
-      case SeverityRating.high:
-        return 'HIGH';
-      case SeverityRating.critical:
-        return 'CRITICAL';
-    }
-  }
-}
+  final String value;
 
-extension SeverityRatingFromString on String {
-  SeverityRating toSeverityRating() {
-    switch (this) {
-      case 'LOW':
-        return SeverityRating.low;
-      case 'MEDIUM':
-        return SeverityRating.medium;
-      case 'HIGH':
-        return SeverityRating.high;
-      case 'CRITICAL':
-        return SeverityRating.critical;
-    }
-    throw Exception('$this is not known in enum SeverityRating');
-  }
+  const SeverityRating(this.value);
+
+  static SeverityRating fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SeverityRating'));
 }
 
 /// Updates to the severity information for a finding.
@@ -39174,12 +48607,20 @@ class SeverityUpdate {
     this.product,
   });
 
+  factory SeverityUpdate.fromJson(Map<String, dynamic> json) {
+    return SeverityUpdate(
+      label: (json['Label'] as String?)?.let(SeverityLabel.fromString),
+      normalized: json['Normalized'] as int?,
+      product: json['Product'] as double?,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final label = this.label;
     final normalized = this.normalized;
     final product = this.product;
     return {
-      if (label != null) 'Label': label.toValue(),
+      if (label != null) 'Label': label.value,
       if (normalized != null) 'Normalized': normalized,
       if (product != null) 'Product': product,
     };
@@ -39299,37 +48740,23 @@ class SortCriterion {
     final sortOrder = this.sortOrder;
     return {
       if (field != null) 'Field': field,
-      if (sortOrder != null) 'SortOrder': sortOrder.toValue(),
+      if (sortOrder != null) 'SortOrder': sortOrder.value,
     };
   }
 }
 
 enum SortOrder {
-  asc,
-  desc,
-}
+  asc('asc'),
+  desc('desc'),
+  ;
 
-extension SortOrderValueExtension on SortOrder {
-  String toValue() {
-    switch (this) {
-      case SortOrder.asc:
-        return 'asc';
-      case SortOrder.desc:
-        return 'desc';
-    }
-  }
-}
+  final String value;
 
-extension SortOrderFromString on String {
-  SortOrder toSortOrder() {
-    switch (this) {
-      case 'asc':
-        return SortOrder.asc;
-      case 'desc':
-        return SortOrder.desc;
-    }
-    throw Exception('$this is not known in enum SortOrder');
-  }
+  const SortOrder(this.value);
+
+  static SortOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortOrder'));
 }
 
 /// Provides information about a specific security standard.
@@ -39448,16 +48875,18 @@ class StandardsControl {
   factory StandardsControl.fromJson(Map<String, dynamic> json) {
     return StandardsControl(
       controlId: json['ControlId'] as String?,
-      controlStatus: (json['ControlStatus'] as String?)?.toControlStatus(),
+      controlStatus:
+          (json['ControlStatus'] as String?)?.let(ControlStatus.fromString),
       controlStatusUpdatedAt: timeStampFromJson(json['ControlStatusUpdatedAt']),
       description: json['Description'] as String?,
       disabledReason: json['DisabledReason'] as String?,
       relatedRequirements: (json['RelatedRequirements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       remediationUrl: json['RemediationUrl'] as String?,
-      severityRating: (json['SeverityRating'] as String?)?.toSeverityRating(),
+      severityRating:
+          (json['SeverityRating'] as String?)?.let(SeverityRating.fromString),
       standardsControlArn: json['StandardsControlArn'] as String?,
       title: json['Title'] as String?,
     );
@@ -39476,7 +48905,7 @@ class StandardsControl {
     final title = this.title;
     return {
       if (controlId != null) 'ControlId': controlId,
-      if (controlStatus != null) 'ControlStatus': controlStatus.toValue(),
+      if (controlStatus != null) 'ControlStatus': controlStatus.value,
       if (controlStatusUpdatedAt != null)
         'ControlStatusUpdatedAt': iso8601ToJson(controlStatusUpdatedAt),
       if (description != null) 'Description': description,
@@ -39484,7 +48913,7 @@ class StandardsControl {
       if (relatedRequirements != null)
         'RelatedRequirements': relatedRequirements,
       if (remediationUrl != null) 'RemediationUrl': remediationUrl,
-      if (severityRating != null) 'SeverityRating': severityRating.toValue(),
+      if (severityRating != null) 'SeverityRating': severityRating.value,
       if (standardsControlArn != null)
         'StandardsControlArn': standardsControlArn,
       if (title != null) 'Title': title,
@@ -39554,16 +48983,16 @@ class StandardsControlAssociationDetail {
       Map<String, dynamic> json) {
     return StandardsControlAssociationDetail(
       associationStatus:
-          (json['AssociationStatus'] as String).toAssociationStatus(),
+          AssociationStatus.fromString((json['AssociationStatus'] as String)),
       securityControlArn: json['SecurityControlArn'] as String,
       securityControlId: json['SecurityControlId'] as String,
       standardsArn: json['StandardsArn'] as String,
       relatedRequirements: (json['RelatedRequirements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       standardsControlArns: (json['StandardsControlArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       standardsControlDescription:
@@ -39586,7 +49015,7 @@ class StandardsControlAssociationDetail {
     final updatedAt = this.updatedAt;
     final updatedReason = this.updatedReason;
     return {
-      'AssociationStatus': associationStatus.toValue(),
+      'AssociationStatus': associationStatus.value,
       'SecurityControlArn': securityControlArn,
       'SecurityControlId': securityControlId,
       'StandardsArn': standardsArn,
@@ -39675,7 +49104,7 @@ class StandardsControlAssociationSummary {
   /// updated.
   final DateTime? updatedAt;
 
-  /// The reason for updating the control's enablement status in a specified
+  /// The reason for updating a control's enablement status in a specified
   /// standard.
   final String? updatedReason;
 
@@ -39695,12 +49124,12 @@ class StandardsControlAssociationSummary {
       Map<String, dynamic> json) {
     return StandardsControlAssociationSummary(
       associationStatus:
-          (json['AssociationStatus'] as String).toAssociationStatus(),
+          AssociationStatus.fromString((json['AssociationStatus'] as String)),
       securityControlArn: json['SecurityControlArn'] as String,
       securityControlId: json['SecurityControlId'] as String,
       standardsArn: json['StandardsArn'] as String,
       relatedRequirements: (json['RelatedRequirements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       standardsControlDescription:
@@ -39722,7 +49151,7 @@ class StandardsControlAssociationSummary {
     final updatedAt = this.updatedAt;
     final updatedReason = this.updatedReason;
     return {
-      'AssociationStatus': associationStatus.toValue(),
+      'AssociationStatus': associationStatus.value,
       'SecurityControlArn': securityControlArn,
       'SecurityControlId': securityControlId,
       'StandardsArn': standardsArn,
@@ -39768,7 +49197,7 @@ class StandardsControlAssociationUpdate {
       Map<String, dynamic> json) {
     return StandardsControlAssociationUpdate(
       associationStatus:
-          (json['AssociationStatus'] as String).toAssociationStatus(),
+          AssociationStatus.fromString((json['AssociationStatus'] as String)),
       securityControlId: json['SecurityControlId'] as String,
       standardsArn: json['StandardsArn'] as String,
       updatedReason: json['UpdatedReason'] as String?,
@@ -39781,7 +49210,7 @@ class StandardsControlAssociationUpdate {
     final standardsArn = this.standardsArn;
     final updatedReason = this.updatedReason;
     return {
-      'AssociationStatus': associationStatus.toValue(),
+      'AssociationStatus': associationStatus.value,
       'SecurityControlId': securityControlId,
       'StandardsArn': standardsArn,
       if (updatedReason != null) 'UpdatedReason': updatedReason,
@@ -39823,46 +49252,21 @@ class StandardsManagedBy {
 }
 
 enum StandardsStatus {
-  pending,
-  ready,
-  failed,
-  deleting,
-  incomplete,
-}
+  pending('PENDING'),
+  ready('READY'),
+  failed('FAILED'),
+  deleting('DELETING'),
+  incomplete('INCOMPLETE'),
+  ;
 
-extension StandardsStatusValueExtension on StandardsStatus {
-  String toValue() {
-    switch (this) {
-      case StandardsStatus.pending:
-        return 'PENDING';
-      case StandardsStatus.ready:
-        return 'READY';
-      case StandardsStatus.failed:
-        return 'FAILED';
-      case StandardsStatus.deleting:
-        return 'DELETING';
-      case StandardsStatus.incomplete:
-        return 'INCOMPLETE';
-    }
-  }
-}
+  final String value;
 
-extension StandardsStatusFromString on String {
-  StandardsStatus toStandardsStatus() {
-    switch (this) {
-      case 'PENDING':
-        return StandardsStatus.pending;
-      case 'READY':
-        return StandardsStatus.ready;
-      case 'FAILED':
-        return StandardsStatus.failed;
-      case 'DELETING':
-        return StandardsStatus.deleting;
-      case 'INCOMPLETE':
-        return StandardsStatus.incomplete;
-    }
-    throw Exception('$this is not known in enum StandardsStatus');
-  }
+  const StandardsStatus(this.value);
+
+  static StandardsStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StandardsStatus'));
 }
 
 /// The reason for the current status of a standard subscription.
@@ -39878,14 +49282,14 @@ class StandardsStatusReason {
   factory StandardsStatusReason.fromJson(Map<String, dynamic> json) {
     return StandardsStatusReason(
       statusReasonCode:
-          (json['StatusReasonCode'] as String).toStatusReasonCode(),
+          StatusReasonCode.fromString((json['StatusReasonCode'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final statusReasonCode = this.statusReasonCode;
     return {
-      'StatusReasonCode': statusReasonCode.toValue(),
+      'StatusReasonCode': statusReasonCode.value,
     };
   }
 }
@@ -39942,7 +49346,8 @@ class StandardsSubscription {
       standardsArn: json['StandardsArn'] as String,
       standardsInput: (json['StandardsInput'] as Map<String, dynamic>)
           .map((k, e) => MapEntry(k, e as String)),
-      standardsStatus: (json['StandardsStatus'] as String).toStandardsStatus(),
+      standardsStatus:
+          StandardsStatus.fromString((json['StandardsStatus'] as String)),
       standardsSubscriptionArn: json['StandardsSubscriptionArn'] as String,
       standardsStatusReason: json['StandardsStatusReason'] != null
           ? StandardsStatusReason.fromJson(
@@ -39960,7 +49365,7 @@ class StandardsSubscription {
     return {
       'StandardsArn': standardsArn,
       'StandardsInput': standardsInput,
-      'StandardsStatus': standardsStatus.toValue(),
+      'StandardsStatus': standardsStatus.value,
       'StandardsSubscriptionArn': standardsSubscriptionArn,
       if (standardsStatusReason != null)
         'StandardsStatusReason': standardsStatusReason,
@@ -39990,6 +49395,96 @@ class StandardsSubscriptionRequest {
       'StandardsArn': standardsArn,
       if (standardsInput != null) 'StandardsInput': standardsInput,
     };
+  }
+}
+
+class StartConfigurationPolicyAssociationResponse {
+  /// The current status of the association between the specified target and the
+  /// configuration.
+  final ConfigurationPolicyAssociationStatus? associationStatus;
+
+  /// An explanation for a <code>FAILED</code> value for
+  /// <code>AssociationStatus</code>.
+  final String? associationStatusMessage;
+
+  /// Indicates whether the association between the specified target and the
+  /// configuration was directly applied by the Security Hub delegated
+  /// administrator or inherited from a parent.
+  final AssociationType? associationType;
+
+  /// The UUID of the configuration policy.
+  final String? configurationPolicyId;
+
+  /// The identifier of the target account, organizational unit, or the
+  /// organization root with which the configuration is associated.
+  final String? targetId;
+
+  /// Indicates whether the target is an Amazon Web Services account,
+  /// organizational unit, or the organization root.
+  final TargetType? targetType;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// association was last updated.
+  final DateTime? updatedAt;
+
+  StartConfigurationPolicyAssociationResponse({
+    this.associationStatus,
+    this.associationStatusMessage,
+    this.associationType,
+    this.configurationPolicyId,
+    this.targetId,
+    this.targetType,
+    this.updatedAt,
+  });
+
+  factory StartConfigurationPolicyAssociationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return StartConfigurationPolicyAssociationResponse(
+      associationStatus: (json['AssociationStatus'] as String?)
+          ?.let(ConfigurationPolicyAssociationStatus.fromString),
+      associationStatusMessage: json['AssociationStatusMessage'] as String?,
+      associationType:
+          (json['AssociationType'] as String?)?.let(AssociationType.fromString),
+      configurationPolicyId: json['ConfigurationPolicyId'] as String?,
+      targetId: json['TargetId'] as String?,
+      targetType: (json['TargetType'] as String?)?.let(TargetType.fromString),
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associationStatus = this.associationStatus;
+    final associationStatusMessage = this.associationStatusMessage;
+    final associationType = this.associationType;
+    final configurationPolicyId = this.configurationPolicyId;
+    final targetId = this.targetId;
+    final targetType = this.targetType;
+    final updatedAt = this.updatedAt;
+    return {
+      if (associationStatus != null)
+        'AssociationStatus': associationStatus.value,
+      if (associationStatusMessage != null)
+        'AssociationStatusMessage': associationStatusMessage,
+      if (associationType != null) 'AssociationType': associationType.value,
+      if (configurationPolicyId != null)
+        'ConfigurationPolicyId': configurationPolicyId,
+      if (targetId != null) 'TargetId': targetId,
+      if (targetType != null) 'TargetType': targetType.value,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
+  }
+}
+
+class StartConfigurationPolicyDisassociationResponse {
+  StartConfigurationPolicyDisassociationResponse();
+
+  factory StartConfigurationPolicyDisassociationResponse.fromJson(
+      Map<String, dynamic> _) {
+    return StartConfigurationPolicyDisassociationResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -40034,7 +49529,7 @@ class StatelessCustomPublishMetricAction {
       Map<String, dynamic> json) {
     return StatelessCustomPublishMetricAction(
       dimensions: (json['Dimensions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StatelessCustomPublishMetricActionDimension.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -40107,102 +49602,142 @@ class StatusReason {
 }
 
 enum StatusReasonCode {
-  noAvailableConfigurationRecorder,
-  internalError,
+  noAvailableConfigurationRecorder('NO_AVAILABLE_CONFIGURATION_RECORDER'),
+  internalError('INTERNAL_ERROR'),
+  ;
+
+  final String value;
+
+  const StatusReasonCode(this.value);
+
+  static StatusReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StatusReasonCode'));
 }
 
-extension StatusReasonCodeValueExtension on StatusReasonCode {
-  String toValue() {
-    switch (this) {
-      case StatusReasonCode.noAvailableConfigurationRecorder:
-        return 'NO_AVAILABLE_CONFIGURATION_RECORDER';
-      case StatusReasonCode.internalError:
-        return 'INTERNAL_ERROR';
-    }
+/// The options for customizing a security control parameter that is a string.
+class StringConfigurationOptions {
+  /// The Security Hub default value for a control parameter that is a string.
+  final String? defaultValue;
+
+  /// The description of the RE2 regular expression.
+  final String? expressionDescription;
+
+  /// An RE2 regular expression that Security Hub uses to validate a user-provided
+  /// control parameter string.
+  final String? re2Expression;
+
+  StringConfigurationOptions({
+    this.defaultValue,
+    this.expressionDescription,
+    this.re2Expression,
+  });
+
+  factory StringConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return StringConfigurationOptions(
+      defaultValue: json['DefaultValue'] as String?,
+      expressionDescription: json['ExpressionDescription'] as String?,
+      re2Expression: json['Re2Expression'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final defaultValue = this.defaultValue;
+    final expressionDescription = this.expressionDescription;
+    final re2Expression = this.re2Expression;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (expressionDescription != null)
+        'ExpressionDescription': expressionDescription,
+      if (re2Expression != null) 'Re2Expression': re2Expression,
+    };
   }
 }
 
-extension StatusReasonCodeFromString on String {
-  StatusReasonCode toStatusReasonCode() {
-    switch (this) {
-      case 'NO_AVAILABLE_CONFIGURATION_RECORDER':
-        return StatusReasonCode.noAvailableConfigurationRecorder;
-      case 'INTERNAL_ERROR':
-        return StatusReasonCode.internalError;
-    }
-    throw Exception('$this is not known in enum StatusReasonCode');
-  }
-}
-
-/// A string filter for querying findings.
+/// A string filter for filtering Security Hub findings.
 class StringFilter {
-  /// The condition to apply to a string value when querying for findings. To
-  /// search for values that contain the filter criteria value, use one of the
+  /// The condition to apply to a string value when filtering Security Hub
+  /// findings.
+  ///
+  /// To search for values that have the filter value, use one of the following
+  /// comparison operators:
+  ///
+  /// <ul>
+  /// <li>
+  /// To search for values that include the filter value, use
+  /// <code>CONTAINS</code>. For example, the filter <code>Title CONTAINS
+  /// CloudFront</code> matches findings that have a <code>Title</code> that
+  /// includes the string CloudFront.
+  /// </li>
+  /// <li>
+  /// To search for values that exactly match the filter value, use
+  /// <code>EQUALS</code>. For example, the filter <code>AwsAccountId EQUALS
+  /// 123456789012</code> only matches findings that have an account ID of
+  /// <code>123456789012</code>.
+  /// </li>
+  /// <li>
+  /// To search for values that start with the filter value, use
+  /// <code>PREFIX</code>. For example, the filter <code>ResourceRegion PREFIX
+  /// us</code> matches findings that have a <code>ResourceRegion</code> that
+  /// starts with <code>us</code>. A <code>ResourceRegion</code> that starts with
+  /// a different value, such as <code>af</code>, <code>ap</code>, or
+  /// <code>ca</code>, doesn't match.
+  /// </li>
+  /// </ul>
+  /// <code>CONTAINS</code>, <code>EQUALS</code>, and <code>PREFIX</code> filters
+  /// on the same field are joined by <code>OR</code>. A finding matches if it
+  /// matches any one of those filters. For example, the filters <code>Title
+  /// CONTAINS CloudFront OR Title CONTAINS CloudWatch</code> match a finding that
+  /// includes either <code>CloudFront</code>, <code>CloudWatch</code>, or both
+  /// strings in the title.
+  ///
+  /// To search for values that don’t have the filter value, use one of the
   /// following comparison operators:
   ///
   /// <ul>
   /// <li>
-  /// To search for values that exactly match the filter value, use
-  /// <code>EQUALS</code>.
-  ///
-  /// For example, the filter <code>ResourceType EQUALS AwsEc2SecurityGroup</code>
-  /// only matches findings that have a resource type of
-  /// <code>AwsEc2SecurityGroup</code>.
+  /// To search for values that exclude the filter value, use
+  /// <code>NOT_CONTAINS</code>. For example, the filter <code>Title NOT_CONTAINS
+  /// CloudFront</code> matches findings that have a <code>Title</code> that
+  /// excludes the string CloudFront.
   /// </li>
   /// <li>
-  /// To search for values that start with the filter value, use
-  /// <code>PREFIX</code>.
-  ///
-  /// For example, the filter <code>ResourceType PREFIX AwsIam</code> matches
-  /// findings that have a resource type that starts with <code>AwsIam</code>.
-  /// Findings with a resource type of <code>AwsIamPolicy</code>,
-  /// <code>AwsIamRole</code>, or <code>AwsIamUser</code> would all match.
+  /// To search for values other than the filter value, use
+  /// <code>NOT_EQUALS</code>. For example, the filter <code>AwsAccountId
+  /// NOT_EQUALS 123456789012</code> only matches findings that have an account ID
+  /// other than <code>123456789012</code>.
+  /// </li>
+  /// <li>
+  /// To search for values that don't start with the filter value, use
+  /// <code>PREFIX_NOT_EQUALS</code>. For example, the filter <code>ResourceRegion
+  /// PREFIX_NOT_EQUALS us</code> matches findings with a
+  /// <code>ResourceRegion</code> that starts with a value other than
+  /// <code>us</code>.
   /// </li>
   /// </ul>
-  /// <code>EQUALS</code> and <code>PREFIX</code> filters on the same field are
-  /// joined by <code>OR</code>. A finding matches if it matches any one of those
-  /// filters.
+  /// <code>NOT_CONTAINS</code>, <code>NOT_EQUALS</code>, and
+  /// <code>PREFIX_NOT_EQUALS</code> filters on the same field are joined by
+  /// <code>AND</code>. A finding matches only if it matches all of those filters.
+  /// For example, the filters <code>Title NOT_CONTAINS CloudFront AND Title
+  /// NOT_CONTAINS CloudWatch</code> match a finding that excludes both
+  /// <code>CloudFront</code> and <code>CloudWatch</code> in the title.
   ///
-  /// To search for values that do not contain the filter criteria value, use one
-  /// of the following comparison operators:
-  ///
-  /// <ul>
-  /// <li>
-  /// To search for values that do not exactly match the filter value, use
-  /// <code>NOT_EQUALS</code>.
-  ///
-  /// For example, the filter <code>ResourceType NOT_EQUALS AwsIamPolicy</code>
-  /// matches findings that have a resource type other than
-  /// <code>AwsIamPolicy</code>.
-  /// </li>
-  /// <li>
-  /// To search for values that do not start with the filter value, use
-  /// <code>PREFIX_NOT_EQUALS</code>.
-  ///
-  /// For example, the filter <code>ResourceType PREFIX_NOT_EQUALS AwsIam</code>
-  /// matches findings that have a resource type that does not start with
-  /// <code>AwsIam</code>. Findings with a resource type of
-  /// <code>AwsIamPolicy</code>, <code>AwsIamRole</code>, or
-  /// <code>AwsIamUser</code> would all be excluded from the results.
-  /// </li>
-  /// </ul>
-  /// <code>NOT_EQUALS</code> and <code>PREFIX_NOT_EQUALS</code> filters on the
-  /// same field are joined by <code>AND</code>. A finding matches only if it
-  /// matches all of those filters.
-  ///
-  /// For filters on the same field, you cannot provide both an
-  /// <code>EQUALS</code> filter and a <code>NOT_EQUALS</code> or
-  /// <code>PREFIX_NOT_EQUALS</code> filter. Combining filters in this way always
-  /// returns an error, even if the provided filter values would return valid
-  /// results.
+  /// You can’t have both a <code>CONTAINS</code> filter and a
+  /// <code>NOT_CONTAINS</code> filter on the same field. Similarly, you can't
+  /// provide both an <code>EQUALS</code> filter and a <code>NOT_EQUALS</code> or
+  /// <code>PREFIX_NOT_EQUALS</code> filter on the same field. Combining filters
+  /// in this way returns an error. <code>CONTAINS</code> filters can only be used
+  /// with other <code>CONTAINS</code> filters. <code>NOT_CONTAINS</code> filters
+  /// can only be used with other <code>NOT_CONTAINS</code> filters.
   ///
   /// You can combine <code>PREFIX</code> filters with <code>NOT_EQUALS</code> or
   /// <code>PREFIX_NOT_EQUALS</code> filters for the same field. Security Hub
-  /// first processes the <code>PREFIX</code> filters, then the
+  /// first processes the <code>PREFIX</code> filters, and then the
   /// <code>NOT_EQUALS</code> or <code>PREFIX_NOT_EQUALS</code> filters.
   ///
-  /// For example, for the following filter, Security Hub first identifies
-  /// findings that have resource types that start with either <code>AwsIAM</code>
+  /// For example, for the following filters, Security Hub first identifies
+  /// findings that have resource types that start with either <code>AwsIam</code>
   /// or <code>AwsEc2</code>. It then excludes findings that have a resource type
   /// of <code>AwsIamPolicy</code> and findings that have a resource type of
   /// <code>AwsEc2NetworkInterface</code>.
@@ -40221,12 +49756,15 @@ class StringFilter {
   /// <code>ResourceType NOT_EQUALS AwsEc2NetworkInterface</code>
   /// </li>
   /// </ul>
+  /// <code>CONTAINS</code> and <code>NOT_CONTAINS</code> operators can be used
+  /// only with automation rules. For more information, see <a
+  /// href="https://docs.aws.amazon.com/securityhub/latest/userguide/automation-rules.html">Automation
+  /// rules</a> in the <i>Security Hub User Guide</i>.
   final StringFilterComparison? comparison;
 
   /// The string filter value. Filter values are case sensitive. For example, the
   /// product name for control-based findings is <code>Security Hub</code>. If you
-  /// provide <code>security hub</code> as the filter text, then there is no
-  /// match.
+  /// provide <code>security hub</code> as the filter value, there's no match.
   final String? value;
 
   StringFilter({
@@ -40236,7 +49774,8 @@ class StringFilter {
 
   factory StringFilter.fromJson(Map<String, dynamic> json) {
     return StringFilter(
-      comparison: (json['Comparison'] as String?)?.toStringFilterComparison(),
+      comparison: (json['Comparison'] as String?)
+          ?.let(StringFilterComparison.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -40245,47 +49784,80 @@ class StringFilter {
     final comparison = this.comparison;
     final value = this.value;
     return {
-      if (comparison != null) 'Comparison': comparison.toValue(),
+      if (comparison != null) 'Comparison': comparison.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum StringFilterComparison {
-  equals,
-  prefix,
-  notEquals,
-  prefixNotEquals,
+  equals('EQUALS'),
+  prefix('PREFIX'),
+  notEquals('NOT_EQUALS'),
+  prefixNotEquals('PREFIX_NOT_EQUALS'),
+  contains('CONTAINS'),
+  notContains('NOT_CONTAINS'),
+  ;
+
+  final String value;
+
+  const StringFilterComparison(this.value);
+
+  static StringFilterComparison fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum StringFilterComparison'));
 }
 
-extension StringFilterComparisonValueExtension on StringFilterComparison {
-  String toValue() {
-    switch (this) {
-      case StringFilterComparison.equals:
-        return 'EQUALS';
-      case StringFilterComparison.prefix:
-        return 'PREFIX';
-      case StringFilterComparison.notEquals:
-        return 'NOT_EQUALS';
-      case StringFilterComparison.prefixNotEquals:
-        return 'PREFIX_NOT_EQUALS';
-    }
+/// The options for customizing a security control parameter that is a list of
+/// strings.
+class StringListConfigurationOptions {
+  /// The Security Hub default value for a control parameter that is a list of
+  /// strings.
+  final List<String>? defaultValue;
+
+  /// The description of the RE2 regular expression.
+  final String? expressionDescription;
+
+  /// The maximum number of list items that a string list control parameter can
+  /// accept.
+  final int? maxItems;
+
+  /// An RE2 regular expression that Security Hub uses to validate a user-provided
+  /// list of strings for a control parameter.
+  final String? re2Expression;
+
+  StringListConfigurationOptions({
+    this.defaultValue,
+    this.expressionDescription,
+    this.maxItems,
+    this.re2Expression,
+  });
+
+  factory StringListConfigurationOptions.fromJson(Map<String, dynamic> json) {
+    return StringListConfigurationOptions(
+      defaultValue: (json['DefaultValue'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      expressionDescription: json['ExpressionDescription'] as String?,
+      maxItems: json['MaxItems'] as int?,
+      re2Expression: json['Re2Expression'] as String?,
+    );
   }
-}
 
-extension StringFilterComparisonFromString on String {
-  StringFilterComparison toStringFilterComparison() {
-    switch (this) {
-      case 'EQUALS':
-        return StringFilterComparison.equals;
-      case 'PREFIX':
-        return StringFilterComparison.prefix;
-      case 'NOT_EQUALS':
-        return StringFilterComparison.notEquals;
-      case 'PREFIX_NOT_EQUALS':
-        return StringFilterComparison.prefixNotEquals;
-    }
-    throw Exception('$this is not known in enum StringFilterComparison');
+  Map<String, dynamic> toJson() {
+    final defaultValue = this.defaultValue;
+    final expressionDescription = this.expressionDescription;
+    final maxItems = this.maxItems;
+    final re2Expression = this.re2Expression;
+    return {
+      if (defaultValue != null) 'DefaultValue': defaultValue,
+      if (expressionDescription != null)
+        'ExpressionDescription': expressionDescription,
+      if (maxItems != null) 'MaxItems': maxItems,
+      if (re2Expression != null) 'Re2Expression': re2Expression,
+    };
   }
 }
 
@@ -40301,19 +49873,80 @@ class TagResourceResponse {
   }
 }
 
+/// The target account, organizational unit, or the root that is associated with
+/// an Security Hub configuration. The configuration can be a configuration
+/// policy or self-managed behavior.
+class Target {
+  /// The Amazon Web Services account ID of the target account.
+  final String? accountId;
+
+  /// The organizational unit ID of the target organizational unit.
+  final String? organizationalUnitId;
+
+  /// The ID of the organization root.
+  final String? rootId;
+
+  Target({
+    this.accountId,
+    this.organizationalUnitId,
+    this.rootId,
+  });
+
+  factory Target.fromJson(Map<String, dynamic> json) {
+    return Target(
+      accountId: json['AccountId'] as String?,
+      organizationalUnitId: json['OrganizationalUnitId'] as String?,
+      rootId: json['RootId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final organizationalUnitId = this.organizationalUnitId;
+    final rootId = this.rootId;
+    return {
+      if (accountId != null) 'AccountId': accountId,
+      if (organizationalUnitId != null)
+        'OrganizationalUnitId': organizationalUnitId,
+      if (rootId != null) 'RootId': rootId,
+    };
+  }
+}
+
+enum TargetType {
+  account('ACCOUNT'),
+  organizationalUnit('ORGANIZATIONAL_UNIT'),
+  root('ROOT'),
+  ;
+
+  final String value;
+
+  const TargetType(this.value);
+
+  static TargetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TargetType'));
+}
+
 /// Provides information about the threat detected in a security finding and the
 /// file paths that were affected by the threat.
 class Threat {
   /// Provides information about the file paths that were affected by the threat.
+  ///
+  /// Array Members: Minimum number of 1 item. Maximum number of 5 items.
   final List<FilePaths>? filePaths;
 
   /// This total number of items in which the threat has been detected.
   final int? itemCount;
 
   /// The name of the threat.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 128 length.
   final String? name;
 
   /// The severity of the threat.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 128 length.
   final String? severity;
 
   Threat({
@@ -40326,7 +49959,7 @@ class Threat {
   factory Threat.fromJson(Map<String, dynamic> json) {
     return Threat(
       filePaths: (json['FilePaths'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FilePaths.fromJson(e as Map<String, dynamic>))
           .toList(),
       itemCount: json['ItemCount'] as int?,
@@ -40357,14 +49990,38 @@ class ThreatIntelIndicator {
   /// Indicates when the most recent instance of a threat intelligence indicator
   /// was observed.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? lastObservedAt;
 
   /// The source of the threat intelligence indicator.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 64 length.
   final String? source;
 
   /// The URL to the page or site where you can get more information about the
@@ -40375,6 +50032,8 @@ class ThreatIntelIndicator {
   final ThreatIntelIndicatorType? type;
 
   /// The value of a threat intelligence indicator.
+  ///
+  /// Length Constraints: Minimum of 1 length. Maximum of 512 length.
   final String? value;
 
   ThreatIntelIndicator({
@@ -40388,11 +50047,12 @@ class ThreatIntelIndicator {
 
   factory ThreatIntelIndicator.fromJson(Map<String, dynamic> json) {
     return ThreatIntelIndicator(
-      category: (json['Category'] as String?)?.toThreatIntelIndicatorCategory(),
+      category: (json['Category'] as String?)
+          ?.let(ThreatIntelIndicatorCategory.fromString),
       lastObservedAt: json['LastObservedAt'] as String?,
       source: json['Source'] as String?,
       sourceUrl: json['SourceUrl'] as String?,
-      type: (json['Type'] as String?)?.toThreatIntelIndicatorType(),
+      type: (json['Type'] as String?)?.let(ThreatIntelIndicatorType.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -40405,174 +50065,166 @@ class ThreatIntelIndicator {
     final type = this.type;
     final value = this.value;
     return {
-      if (category != null) 'Category': category.toValue(),
+      if (category != null) 'Category': category.value,
       if (lastObservedAt != null) 'LastObservedAt': lastObservedAt,
       if (source != null) 'Source': source,
       if (sourceUrl != null) 'SourceUrl': sourceUrl,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum ThreatIntelIndicatorCategory {
-  backdoor,
-  cardStealer,
-  commandAndControl,
-  dropSite,
-  exploitSite,
-  keylogger,
-}
+  backdoor('BACKDOOR'),
+  cardStealer('CARD_STEALER'),
+  commandAndControl('COMMAND_AND_CONTROL'),
+  dropSite('DROP_SITE'),
+  exploitSite('EXPLOIT_SITE'),
+  keylogger('KEYLOGGER'),
+  ;
 
-extension ThreatIntelIndicatorCategoryValueExtension
-    on ThreatIntelIndicatorCategory {
-  String toValue() {
-    switch (this) {
-      case ThreatIntelIndicatorCategory.backdoor:
-        return 'BACKDOOR';
-      case ThreatIntelIndicatorCategory.cardStealer:
-        return 'CARD_STEALER';
-      case ThreatIntelIndicatorCategory.commandAndControl:
-        return 'COMMAND_AND_CONTROL';
-      case ThreatIntelIndicatorCategory.dropSite:
-        return 'DROP_SITE';
-      case ThreatIntelIndicatorCategory.exploitSite:
-        return 'EXPLOIT_SITE';
-      case ThreatIntelIndicatorCategory.keylogger:
-        return 'KEYLOGGER';
-    }
-  }
-}
+  final String value;
 
-extension ThreatIntelIndicatorCategoryFromString on String {
-  ThreatIntelIndicatorCategory toThreatIntelIndicatorCategory() {
-    switch (this) {
-      case 'BACKDOOR':
-        return ThreatIntelIndicatorCategory.backdoor;
-      case 'CARD_STEALER':
-        return ThreatIntelIndicatorCategory.cardStealer;
-      case 'COMMAND_AND_CONTROL':
-        return ThreatIntelIndicatorCategory.commandAndControl;
-      case 'DROP_SITE':
-        return ThreatIntelIndicatorCategory.dropSite;
-      case 'EXPLOIT_SITE':
-        return ThreatIntelIndicatorCategory.exploitSite;
-      case 'KEYLOGGER':
-        return ThreatIntelIndicatorCategory.keylogger;
-    }
-    throw Exception('$this is not known in enum ThreatIntelIndicatorCategory');
-  }
+  const ThreatIntelIndicatorCategory(this.value);
+
+  static ThreatIntelIndicatorCategory fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ThreatIntelIndicatorCategory'));
 }
 
 enum ThreatIntelIndicatorType {
-  domain,
-  emailAddress,
-  hashMd5,
-  hashSha1,
-  hashSha256,
-  hashSha512,
-  ipv4Address,
-  ipv6Address,
-  mutex,
-  process,
-  url,
+  domain('DOMAIN'),
+  emailAddress('EMAIL_ADDRESS'),
+  hashMd5('HASH_MD5'),
+  hashSha1('HASH_SHA1'),
+  hashSha256('HASH_SHA256'),
+  hashSha512('HASH_SHA512'),
+  ipv4Address('IPV4_ADDRESS'),
+  ipv6Address('IPV6_ADDRESS'),
+  mutex('MUTEX'),
+  process('PROCESS'),
+  url('URL'),
+  ;
+
+  final String value;
+
+  const ThreatIntelIndicatorType(this.value);
+
+  static ThreatIntelIndicatorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ThreatIntelIndicatorType'));
 }
 
-extension ThreatIntelIndicatorTypeValueExtension on ThreatIntelIndicatorType {
-  String toValue() {
-    switch (this) {
-      case ThreatIntelIndicatorType.domain:
-        return 'DOMAIN';
-      case ThreatIntelIndicatorType.emailAddress:
-        return 'EMAIL_ADDRESS';
-      case ThreatIntelIndicatorType.hashMd5:
-        return 'HASH_MD5';
-      case ThreatIntelIndicatorType.hashSha1:
-        return 'HASH_SHA1';
-      case ThreatIntelIndicatorType.hashSha256:
-        return 'HASH_SHA256';
-      case ThreatIntelIndicatorType.hashSha512:
-        return 'HASH_SHA512';
-      case ThreatIntelIndicatorType.ipv4Address:
-        return 'IPV4_ADDRESS';
-      case ThreatIntelIndicatorType.ipv6Address:
-        return 'IPV6_ADDRESS';
-      case ThreatIntelIndicatorType.mutex:
-        return 'MUTEX';
-      case ThreatIntelIndicatorType.process:
-        return 'PROCESS';
-      case ThreatIntelIndicatorType.url:
-        return 'URL';
-    }
+/// A list of objects containing <code>RuleArn</code>, <code>ErrorCode</code>,
+/// and <code>ErrorMessage</code>. This parameter tells you which automation
+/// rules the request didn't process and why.
+class UnprocessedAutomationRule {
+  /// The error code associated with the unprocessed automation rule.
+  final int? errorCode;
+
+  /// An error message describing why a request didn't process a specific rule.
+  final String? errorMessage;
+
+  /// The Amazon Resource Name (ARN) for the unprocessed automation rule.
+  final String? ruleArn;
+
+  UnprocessedAutomationRule({
+    this.errorCode,
+    this.errorMessage,
+    this.ruleArn,
+  });
+
+  factory UnprocessedAutomationRule.fromJson(Map<String, dynamic> json) {
+    return UnprocessedAutomationRule(
+      errorCode: json['ErrorCode'] as int?,
+      errorMessage: json['ErrorMessage'] as String?,
+      ruleArn: json['RuleArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final errorCode = this.errorCode;
+    final errorMessage = this.errorMessage;
+    final ruleArn = this.ruleArn;
+    return {
+      if (errorCode != null) 'ErrorCode': errorCode,
+      if (errorMessage != null) 'ErrorMessage': errorMessage,
+      if (ruleArn != null) 'RuleArn': ruleArn,
+    };
   }
 }
 
-extension ThreatIntelIndicatorTypeFromString on String {
-  ThreatIntelIndicatorType toThreatIntelIndicatorType() {
-    switch (this) {
-      case 'DOMAIN':
-        return ThreatIntelIndicatorType.domain;
-      case 'EMAIL_ADDRESS':
-        return ThreatIntelIndicatorType.emailAddress;
-      case 'HASH_MD5':
-        return ThreatIntelIndicatorType.hashMd5;
-      case 'HASH_SHA1':
-        return ThreatIntelIndicatorType.hashSha1;
-      case 'HASH_SHA256':
-        return ThreatIntelIndicatorType.hashSha256;
-      case 'HASH_SHA512':
-        return ThreatIntelIndicatorType.hashSha512;
-      case 'IPV4_ADDRESS':
-        return ThreatIntelIndicatorType.ipv4Address;
-      case 'IPV6_ADDRESS':
-        return ThreatIntelIndicatorType.ipv6Address;
-      case 'MUTEX':
-        return ThreatIntelIndicatorType.mutex;
-      case 'PROCESS':
-        return ThreatIntelIndicatorType.process;
-      case 'URL':
-        return ThreatIntelIndicatorType.url;
-    }
-    throw Exception('$this is not known in enum ThreatIntelIndicatorType');
+/// An array of configuration policy associations, one for each configuration
+/// policy association identifier, that was specified in a
+/// <code>BatchGetConfigurationPolicyAssociations</code> request but couldn’t be
+/// processed due to an error.
+class UnprocessedConfigurationPolicyAssociation {
+  /// Configuration policy association identifiers that were specified in a
+  /// <code>BatchGetConfigurationPolicyAssociations</code> request but couldn’t be
+  /// processed due to an error.
+  final ConfigurationPolicyAssociation?
+      configurationPolicyAssociationIdentifiers;
+
+  /// An HTTP status code that identifies why the configuration policy association
+  /// failed.
+  final String? errorCode;
+
+  /// A string that identifies why the configuration policy association failed.
+  final String? errorReason;
+
+  UnprocessedConfigurationPolicyAssociation({
+    this.configurationPolicyAssociationIdentifiers,
+    this.errorCode,
+    this.errorReason,
+  });
+
+  factory UnprocessedConfigurationPolicyAssociation.fromJson(
+      Map<String, dynamic> json) {
+    return UnprocessedConfigurationPolicyAssociation(
+      configurationPolicyAssociationIdentifiers:
+          json['ConfigurationPolicyAssociationIdentifiers'] != null
+              ? ConfigurationPolicyAssociation.fromJson(
+                  json['ConfigurationPolicyAssociationIdentifiers']
+                      as Map<String, dynamic>)
+              : null,
+      errorCode: json['ErrorCode'] as String?,
+      errorReason: json['ErrorReason'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configurationPolicyAssociationIdentifiers =
+        this.configurationPolicyAssociationIdentifiers;
+    final errorCode = this.errorCode;
+    final errorReason = this.errorReason;
+    return {
+      if (configurationPolicyAssociationIdentifiers != null)
+        'ConfigurationPolicyAssociationIdentifiers':
+            configurationPolicyAssociationIdentifiers,
+      if (errorCode != null) 'ErrorCode': errorCode,
+      if (errorReason != null) 'ErrorReason': errorReason,
+    };
   }
 }
 
 enum UnprocessedErrorCode {
-  invalidInput,
-  accessDenied,
-  notFound,
-  limitExceeded,
-}
+  invalidInput('INVALID_INPUT'),
+  accessDenied('ACCESS_DENIED'),
+  notFound('NOT_FOUND'),
+  limitExceeded('LIMIT_EXCEEDED'),
+  ;
 
-extension UnprocessedErrorCodeValueExtension on UnprocessedErrorCode {
-  String toValue() {
-    switch (this) {
-      case UnprocessedErrorCode.invalidInput:
-        return 'INVALID_INPUT';
-      case UnprocessedErrorCode.accessDenied:
-        return 'ACCESS_DENIED';
-      case UnprocessedErrorCode.notFound:
-        return 'NOT_FOUND';
-      case UnprocessedErrorCode.limitExceeded:
-        return 'LIMIT_EXCEEDED';
-    }
-  }
-}
+  final String value;
 
-extension UnprocessedErrorCodeFromString on String {
-  UnprocessedErrorCode toUnprocessedErrorCode() {
-    switch (this) {
-      case 'INVALID_INPUT':
-        return UnprocessedErrorCode.invalidInput;
-      case 'ACCESS_DENIED':
-        return UnprocessedErrorCode.accessDenied;
-      case 'NOT_FOUND':
-        return UnprocessedErrorCode.notFound;
-      case 'LIMIT_EXCEEDED':
-        return UnprocessedErrorCode.limitExceeded;
-    }
-    throw Exception('$this is not known in enum UnprocessedErrorCode');
-  }
+  const UnprocessedErrorCode(this.value);
+
+  static UnprocessedErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum UnprocessedErrorCode'));
 }
 
 /// Provides details about a security control for which a response couldn't be
@@ -40597,7 +50249,7 @@ class UnprocessedSecurityControl {
 
   factory UnprocessedSecurityControl.fromJson(Map<String, dynamic> json) {
     return UnprocessedSecurityControl(
-      errorCode: (json['ErrorCode'] as String).toUnprocessedErrorCode(),
+      errorCode: UnprocessedErrorCode.fromString((json['ErrorCode'] as String)),
       securityControlId: json['SecurityControlId'] as String,
       errorReason: json['ErrorReason'] as String?,
     );
@@ -40608,7 +50260,7 @@ class UnprocessedSecurityControl {
     final securityControlId = this.securityControlId;
     final errorReason = this.errorReason;
     return {
-      'ErrorCode': errorCode.toValue(),
+      'ErrorCode': errorCode.value,
       'SecurityControlId': securityControlId,
       if (errorReason != null) 'ErrorReason': errorReason,
     };
@@ -40644,7 +50296,7 @@ class UnprocessedStandardsControlAssociation {
   factory UnprocessedStandardsControlAssociation.fromJson(
       Map<String, dynamic> json) {
     return UnprocessedStandardsControlAssociation(
-      errorCode: (json['ErrorCode'] as String).toUnprocessedErrorCode(),
+      errorCode: UnprocessedErrorCode.fromString((json['ErrorCode'] as String)),
       standardsControlAssociationId: StandardsControlAssociationId.fromJson(
           json['StandardsControlAssociationId'] as Map<String, dynamic>),
       errorReason: json['ErrorReason'] as String?,
@@ -40656,7 +50308,7 @@ class UnprocessedStandardsControlAssociation {
     final standardsControlAssociationId = this.standardsControlAssociationId;
     final errorReason = this.errorReason;
     return {
-      'ErrorCode': errorCode.toValue(),
+      'ErrorCode': errorCode.value,
       'StandardsControlAssociationId': standardsControlAssociationId,
       if (errorReason != null) 'ErrorReason': errorReason,
     };
@@ -40691,7 +50343,7 @@ class UnprocessedStandardsControlAssociationUpdate {
   factory UnprocessedStandardsControlAssociationUpdate.fromJson(
       Map<String, dynamic> json) {
     return UnprocessedStandardsControlAssociationUpdate(
-      errorCode: (json['ErrorCode'] as String).toUnprocessedErrorCode(),
+      errorCode: UnprocessedErrorCode.fromString((json['ErrorCode'] as String)),
       standardsControlAssociationUpdate:
           StandardsControlAssociationUpdate.fromJson(
               json['StandardsControlAssociationUpdate']
@@ -40706,7 +50358,7 @@ class UnprocessedStandardsControlAssociationUpdate {
         this.standardsControlAssociationUpdate;
     final errorReason = this.errorReason;
     return {
-      'ErrorCode': errorCode.toValue(),
+      'ErrorCode': errorCode.value,
       'StandardsControlAssociationUpdate': standardsControlAssociationUpdate,
       if (errorReason != null) 'ErrorReason': errorReason,
     };
@@ -40737,6 +50389,159 @@ class UpdateActionTargetResponse {
   }
 }
 
+/// Specifies the parameters to update in an existing automation rule.
+class UpdateAutomationRulesRequestItem {
+  /// The Amazon Resource Name (ARN) for the rule.
+  final String ruleArn;
+
+  /// One or more actions to update finding fields if a finding matches the
+  /// conditions specified in <code>Criteria</code>.
+  final List<AutomationRulesAction>? actions;
+
+  /// A set of ASFF finding field attributes and corresponding expected values
+  /// that Security Hub uses to filter findings. If a rule is enabled and a
+  /// finding matches the conditions specified in this parameter, Security Hub
+  /// applies the rule action to the finding.
+  final AutomationRulesFindingFilters? criteria;
+
+  /// A description of the rule.
+  final String? description;
+
+  /// Specifies whether a rule is the last to be applied with respect to a finding
+  /// that matches the rule criteria. This is useful when a finding matches the
+  /// criteria for multiple rules, and each rule has different actions. If a rule
+  /// is terminal, Security Hub applies the rule action to a finding that matches
+  /// the rule criteria and doesn't evaluate other rules for the finding. By
+  /// default, a rule isn't terminal.
+  final bool? isTerminal;
+
+  /// The name of the rule.
+  final String? ruleName;
+
+  /// An integer ranging from 1 to 1000 that represents the order in which the
+  /// rule action is applied to findings. Security Hub applies rules with lower
+  /// values for this parameter first.
+  final int? ruleOrder;
+
+  /// Whether the rule is active after it is created. If this parameter is equal
+  /// to <code>ENABLED</code>, Security Hub starts applying the rule to findings
+  /// and finding updates after the rule is created. To change the value of this
+  /// parameter after creating a rule, use <a
+  /// href="https://docs.aws.amazon.com/securityhub/1.0/APIReference/API_BatchUpdateAutomationRules.html">
+  /// <code>BatchUpdateAutomationRules</code> </a>.
+  final RuleStatus? ruleStatus;
+
+  UpdateAutomationRulesRequestItem({
+    required this.ruleArn,
+    this.actions,
+    this.criteria,
+    this.description,
+    this.isTerminal,
+    this.ruleName,
+    this.ruleOrder,
+    this.ruleStatus,
+  });
+
+  Map<String, dynamic> toJson() {
+    final ruleArn = this.ruleArn;
+    final actions = this.actions;
+    final criteria = this.criteria;
+    final description = this.description;
+    final isTerminal = this.isTerminal;
+    final ruleName = this.ruleName;
+    final ruleOrder = this.ruleOrder;
+    final ruleStatus = this.ruleStatus;
+    return {
+      'RuleArn': ruleArn,
+      if (actions != null) 'Actions': actions,
+      if (criteria != null) 'Criteria': criteria,
+      if (description != null) 'Description': description,
+      if (isTerminal != null) 'IsTerminal': isTerminal,
+      if (ruleName != null) 'RuleName': ruleName,
+      if (ruleOrder != null) 'RuleOrder': ruleOrder,
+      if (ruleStatus != null) 'RuleStatus': ruleStatus.value,
+    };
+  }
+}
+
+class UpdateConfigurationPolicyResponse {
+  /// The ARN of the configuration policy.
+  final String? arn;
+
+  /// An object that defines how Security Hub is configured. It includes whether
+  /// Security Hub is enabled or disabled, a list of enabled security standards, a
+  /// list of enabled or disabled security controls, and a list of custom
+  /// parameter values for specified controls. If the request included a list of
+  /// security controls that are enabled in the configuration policy, Security Hub
+  /// disables all other controls (including newly released controls). If the
+  /// request included a list of security controls that are disabled in the
+  /// configuration policy, Security Hub enables all other controls (including
+  /// newly released controls).
+  final Policy? configurationPolicy;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// was created.
+  final DateTime? createdAt;
+
+  /// The description of the configuration policy.
+  final String? description;
+
+  /// The UUID of the configuration policy.
+  final String? id;
+
+  /// The name of the configuration policy.
+  final String? name;
+
+  /// The date and time, in UTC and ISO 8601 format, that the configuration policy
+  /// was last updated.
+  final DateTime? updatedAt;
+
+  UpdateConfigurationPolicyResponse({
+    this.arn,
+    this.configurationPolicy,
+    this.createdAt,
+    this.description,
+    this.id,
+    this.name,
+    this.updatedAt,
+  });
+
+  factory UpdateConfigurationPolicyResponse.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateConfigurationPolicyResponse(
+      arn: json['Arn'] as String?,
+      configurationPolicy: json['ConfigurationPolicy'] != null
+          ? Policy.fromJson(json['ConfigurationPolicy'] as Map<String, dynamic>)
+          : null,
+      createdAt: timeStampFromJson(json['CreatedAt']),
+      description: json['Description'] as String?,
+      id: json['Id'] as String?,
+      name: json['Name'] as String?,
+      updatedAt: timeStampFromJson(json['UpdatedAt']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final configurationPolicy = this.configurationPolicy;
+    final createdAt = this.createdAt;
+    final description = this.description;
+    final id = this.id;
+    final name = this.name;
+    final updatedAt = this.updatedAt;
+    return {
+      if (arn != null) 'Arn': arn,
+      if (configurationPolicy != null)
+        'ConfigurationPolicy': configurationPolicy,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (description != null) 'Description': description,
+      if (id != null) 'Id': id,
+      if (name != null) 'Name': name,
+      if (updatedAt != null) 'UpdatedAt': iso8601ToJson(updatedAt),
+    };
+  }
+}
+
 class UpdateFindingAggregatorResponse {
   /// The aggregation Region.
   final String? findingAggregationRegion;
@@ -40763,10 +50568,8 @@ class UpdateFindingAggregatorResponse {
       findingAggregationRegion: json['FindingAggregationRegion'] as String?,
       findingAggregatorArn: json['FindingAggregatorArn'] as String?,
       regionLinkingMode: json['RegionLinkingMode'] as String?,
-      regions: (json['Regions'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      regions:
+          (json['Regions'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -40823,6 +50626,18 @@ class UpdateOrganizationConfigurationResponse {
   }
 }
 
+class UpdateSecurityControlResponse {
+  UpdateSecurityControlResponse();
+
+  factory UpdateSecurityControlResponse.fromJson(Map<String, dynamic> _) {
+    return UpdateSecurityControlResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 class UpdateSecurityHubConfigurationResponse {
   UpdateSecurityHubConfigurationResponse();
 
@@ -40848,42 +50663,36 @@ class UpdateStandardsControlResponse {
   }
 }
 
+enum UpdateStatus {
+  ready('READY'),
+  updating('UPDATING'),
+  ;
+
+  final String value;
+
+  const UpdateStatus(this.value);
+
+  static UpdateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateStatus'));
+}
+
 enum VerificationState {
-  unknown,
-  truePositive,
-  falsePositive,
-  benignPositive,
-}
+  unknown('UNKNOWN'),
+  truePositive('TRUE_POSITIVE'),
+  falsePositive('FALSE_POSITIVE'),
+  benignPositive('BENIGN_POSITIVE'),
+  ;
 
-extension VerificationStateValueExtension on VerificationState {
-  String toValue() {
-    switch (this) {
-      case VerificationState.unknown:
-        return 'UNKNOWN';
-      case VerificationState.truePositive:
-        return 'TRUE_POSITIVE';
-      case VerificationState.falsePositive:
-        return 'FALSE_POSITIVE';
-      case VerificationState.benignPositive:
-        return 'BENIGN_POSITIVE';
-    }
-  }
-}
+  final String value;
 
-extension VerificationStateFromString on String {
-  VerificationState toVerificationState() {
-    switch (this) {
-      case 'UNKNOWN':
-        return VerificationState.unknown;
-      case 'TRUE_POSITIVE':
-        return VerificationState.truePositive;
-      case 'FALSE_POSITIVE':
-        return VerificationState.falsePositive;
-      case 'BENIGN_POSITIVE':
-        return VerificationState.benignPositive;
-    }
-    throw Exception('$this is not known in enum VerificationState');
-  }
+  const VerificationState(this.value);
+
+  static VerificationState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VerificationState'));
 }
 
 /// Describes the mounting of a volume in a container.
@@ -41019,8 +50828,18 @@ class Vulnerability {
   /// The identifier of the vulnerability.
   final String id;
 
+  /// The vulnerabilities found in your Lambda function code. This field pertains
+  /// to findings that Security Hub receives from Amazon Inspector.
+  final List<VulnerabilityCodeVulnerabilities>? codeVulnerabilities;
+
   /// CVSS scores from the advisory related to the vulnerability.
   final List<Cvss>? cvss;
+
+  /// The Exploit Prediction Scoring System (EPSS) score for a finding.
+  final double? epssScore;
+
+  /// Whether an exploit is available for a finding.
+  final VulnerabilityExploitAvailable? exploitAvailable;
 
   /// Specifies if all vulnerable packages in a finding have a value for
   /// <code>FixedInVersion</code> and <code>Remediation</code>. This field is
@@ -41043,6 +50862,10 @@ class Vulnerability {
   /// </ul>
   final VulnerabilityFixAvailable? fixAvailable;
 
+  /// The date and time of the last exploit associated with a finding discovered
+  /// in your environment.
+  final String? lastKnownExploitAt;
+
   /// A list of URLs that provide additional information about the vulnerability.
   final List<String>? referenceUrls;
 
@@ -41057,8 +50880,12 @@ class Vulnerability {
 
   Vulnerability({
     required this.id,
+    this.codeVulnerabilities,
     this.cvss,
+    this.epssScore,
+    this.exploitAvailable,
     this.fixAvailable,
+    this.lastKnownExploitAt,
     this.referenceUrls,
     this.relatedVulnerabilities,
     this.vendor,
@@ -41068,25 +50895,34 @@ class Vulnerability {
   factory Vulnerability.fromJson(Map<String, dynamic> json) {
     return Vulnerability(
       id: json['Id'] as String,
+      codeVulnerabilities: (json['CodeVulnerabilities'] as List?)
+          ?.nonNulls
+          .map((e) => VulnerabilityCodeVulnerabilities.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
       cvss: (json['Cvss'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Cvss.fromJson(e as Map<String, dynamic>))
           .toList(),
-      fixAvailable:
-          (json['FixAvailable'] as String?)?.toVulnerabilityFixAvailable(),
+      epssScore: json['EpssScore'] as double?,
+      exploitAvailable: (json['ExploitAvailable'] as String?)
+          ?.let(VulnerabilityExploitAvailable.fromString),
+      fixAvailable: (json['FixAvailable'] as String?)
+          ?.let(VulnerabilityFixAvailable.fromString),
+      lastKnownExploitAt: json['LastKnownExploitAt'] as String?,
       referenceUrls: (json['ReferenceUrls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       relatedVulnerabilities: (json['RelatedVulnerabilities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vendor: json['Vendor'] != null
           ? VulnerabilityVendor.fromJson(json['Vendor'] as Map<String, dynamic>)
           : null,
       vulnerablePackages: (json['VulnerablePackages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SoftwarePackage.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -41094,16 +50930,25 @@ class Vulnerability {
 
   Map<String, dynamic> toJson() {
     final id = this.id;
+    final codeVulnerabilities = this.codeVulnerabilities;
     final cvss = this.cvss;
+    final epssScore = this.epssScore;
+    final exploitAvailable = this.exploitAvailable;
     final fixAvailable = this.fixAvailable;
+    final lastKnownExploitAt = this.lastKnownExploitAt;
     final referenceUrls = this.referenceUrls;
     final relatedVulnerabilities = this.relatedVulnerabilities;
     final vendor = this.vendor;
     final vulnerablePackages = this.vulnerablePackages;
     return {
       'Id': id,
+      if (codeVulnerabilities != null)
+        'CodeVulnerabilities': codeVulnerabilities,
       if (cvss != null) 'Cvss': cvss,
-      if (fixAvailable != null) 'FixAvailable': fixAvailable.toValue(),
+      if (epssScore != null) 'EpssScore': epssScore,
+      if (exploitAvailable != null) 'ExploitAvailable': exploitAvailable.value,
+      if (fixAvailable != null) 'FixAvailable': fixAvailable.value,
+      if (lastKnownExploitAt != null) 'LastKnownExploitAt': lastKnownExploitAt,
       if (referenceUrls != null) 'ReferenceUrls': referenceUrls,
       if (relatedVulnerabilities != null)
         'RelatedVulnerabilities': relatedVulnerabilities,
@@ -41113,37 +50958,80 @@ class Vulnerability {
   }
 }
 
+/// Provides details about the vulnerabilities found in your Lambda function
+/// code. This field pertains to findings that Security Hub receives from Amazon
+/// Inspector.
+class VulnerabilityCodeVulnerabilities {
+  /// The Common Weakness Enumeration (CWE) item associated with the detected code
+  /// vulnerability.
+  final List<String>? cwes;
+
+  /// Provides details about where a code vulnerability is located in your Lambda
+  /// function.
+  final CodeVulnerabilitiesFilePath? filePath;
+
+  /// The Amazon Resource Name (ARN) of the Lambda layer in which the code
+  /// vulnerability is located.
+  final String? sourceArn;
+
+  VulnerabilityCodeVulnerabilities({
+    this.cwes,
+    this.filePath,
+    this.sourceArn,
+  });
+
+  factory VulnerabilityCodeVulnerabilities.fromJson(Map<String, dynamic> json) {
+    return VulnerabilityCodeVulnerabilities(
+      cwes: (json['Cwes'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      filePath: json['FilePath'] != null
+          ? CodeVulnerabilitiesFilePath.fromJson(
+              json['FilePath'] as Map<String, dynamic>)
+          : null,
+      sourceArn: json['SourceArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cwes = this.cwes;
+    final filePath = this.filePath;
+    final sourceArn = this.sourceArn;
+    return {
+      if (cwes != null) 'Cwes': cwes,
+      if (filePath != null) 'FilePath': filePath,
+      if (sourceArn != null) 'SourceArn': sourceArn,
+    };
+  }
+}
+
+enum VulnerabilityExploitAvailable {
+  yes('YES'),
+  no('NO'),
+  ;
+
+  final String value;
+
+  const VulnerabilityExploitAvailable(this.value);
+
+  static VulnerabilityExploitAvailable fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum VulnerabilityExploitAvailable'));
+}
+
 enum VulnerabilityFixAvailable {
-  yes,
-  no,
-  partial,
-}
+  yes('YES'),
+  no('NO'),
+  partial('PARTIAL'),
+  ;
 
-extension VulnerabilityFixAvailableValueExtension on VulnerabilityFixAvailable {
-  String toValue() {
-    switch (this) {
-      case VulnerabilityFixAvailable.yes:
-        return 'YES';
-      case VulnerabilityFixAvailable.no:
-        return 'NO';
-      case VulnerabilityFixAvailable.partial:
-        return 'PARTIAL';
-    }
-  }
-}
+  final String value;
 
-extension VulnerabilityFixAvailableFromString on String {
-  VulnerabilityFixAvailable toVulnerabilityFixAvailable() {
-    switch (this) {
-      case 'YES':
-        return VulnerabilityFixAvailable.yes;
-      case 'NO':
-        return VulnerabilityFixAvailable.no;
-      case 'PARTIAL':
-        return VulnerabilityFixAvailable.partial;
-    }
-    throw Exception('$this is not known in enum VulnerabilityFixAvailable');
-  }
+  const VulnerabilityFixAvailable(this.value);
+
+  static VulnerabilityFixAvailable fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum VulnerabilityFixAvailable'));
 }
 
 /// A vendor that generates a vulnerability report.
@@ -41156,11 +51044,33 @@ class VulnerabilityVendor {
 
   /// Indicates when the vulnerability advisory was created.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? vendorCreatedAt;
 
   /// The severity that the vendor assigned to the vulnerability.
@@ -41168,11 +51078,33 @@ class VulnerabilityVendor {
 
   /// Indicates when the vulnerability advisory was last updated.
   ///
-  /// Uses the <code>date-time</code> format specified in <a
-  /// href="https://tools.ietf.org/html/rfc3339#section-5.6">RFC 3339 section 5.6,
-  /// Internet Date/Time Format</a>. The value cannot contain spaces, and date and
-  /// time should be separated by <code>T</code>. For example,
-  /// <code>2020-03-22T13:22:13.933Z</code>.
+  /// This field accepts only the specified formats. Timestamps can end with
+  /// <code>Z</code> or <code>("+" / "-") time-hour [":" time-minute]</code>. The
+  /// time-secfrac after seconds is limited to a maximum of 9 digits. The offset
+  /// is bounded by +/-18:00. Here are valid timestamp formats with examples:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SSZ</code> (for example,
+  /// <code>2019-01-31T23:00:00Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmmZ</code> (for example,
+  /// <code>2019-01-31T23:00:00.123456789Z</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10+17:59</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS-HHMM</code> (for example,
+  /// <code>2024-01-04T15:25:10-1759</code>)
+  /// </li>
+  /// <li>
+  /// <code>YYYY-MM-DDTHH:MM:SS.mmmmmmmmm+HH:MM</code> (for example,
+  /// <code>2024-01-04T15:25:10.123456789+17:59</code>)
+  /// </li>
+  /// </ul>
   final String? vendorUpdatedAt;
 
   VulnerabilityVendor({
@@ -41300,7 +51232,7 @@ class WafOverrideAction {
   }
 }
 
-/// Provides information about the status of the investigation into a finding.
+/// Provides details about the status of the investigation into a finding.
 class Workflow {
   /// The status of the investigation into the finding. The workflow status is
   /// specific to an individual finding. It does not affect the generation of new
@@ -41349,14 +51281,14 @@ class Workflow {
 
   factory Workflow.fromJson(Map<String, dynamic> json) {
     return Workflow(
-      status: (json['Status'] as String?)?.toWorkflowStatus(),
+      status: (json['Status'] as String?)?.let(WorkflowStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -41364,84 +51296,38 @@ class Workflow {
 @Deprecated(
     'This filter is deprecated. Instead, use SeverityLabel or FindingProviderFieldsSeverityLabel.')
 enum WorkflowState {
-  $new,
-  assigned,
-  inProgress,
-  deferred,
-  resolved,
-}
+  $new('NEW'),
+  assigned('ASSIGNED'),
+  inProgress('IN_PROGRESS'),
+  deferred('DEFERRED'),
+  resolved('RESOLVED'),
+  ;
 
-extension WorkflowStateValueExtension on WorkflowState {
-  String toValue() {
-    switch (this) {
-      case WorkflowState.$new:
-        return 'NEW';
-      case WorkflowState.assigned:
-        return 'ASSIGNED';
-      case WorkflowState.inProgress:
-        return 'IN_PROGRESS';
-      case WorkflowState.deferred:
-        return 'DEFERRED';
-      case WorkflowState.resolved:
-        return 'RESOLVED';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowStateFromString on String {
-  WorkflowState toWorkflowState() {
-    switch (this) {
-      case 'NEW':
-        return WorkflowState.$new;
-      case 'ASSIGNED':
-        return WorkflowState.assigned;
-      case 'IN_PROGRESS':
-        return WorkflowState.inProgress;
-      case 'DEFERRED':
-        return WorkflowState.deferred;
-      case 'RESOLVED':
-        return WorkflowState.resolved;
-    }
-    throw Exception('$this is not known in enum WorkflowState');
-  }
+  const WorkflowState(this.value);
+
+  static WorkflowState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowState'));
 }
 
 enum WorkflowStatus {
-  $new,
-  notified,
-  resolved,
-  suppressed,
-}
+  $new('NEW'),
+  notified('NOTIFIED'),
+  resolved('RESOLVED'),
+  suppressed('SUPPRESSED'),
+  ;
 
-extension WorkflowStatusValueExtension on WorkflowStatus {
-  String toValue() {
-    switch (this) {
-      case WorkflowStatus.$new:
-        return 'NEW';
-      case WorkflowStatus.notified:
-        return 'NOTIFIED';
-      case WorkflowStatus.resolved:
-        return 'RESOLVED';
-      case WorkflowStatus.suppressed:
-        return 'SUPPRESSED';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowStatusFromString on String {
-  WorkflowStatus toWorkflowStatus() {
-    switch (this) {
-      case 'NEW':
-        return WorkflowStatus.$new;
-      case 'NOTIFIED':
-        return WorkflowStatus.notified;
-      case 'RESOLVED':
-        return WorkflowStatus.resolved;
-      case 'SUPPRESSED':
-        return WorkflowStatus.suppressed;
-    }
-    throw Exception('$this is not known in enum WorkflowStatus');
-  }
+  const WorkflowStatus(this.value);
+
+  static WorkflowStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowStatus'));
 }
 
 /// Used to update information about the investigation into the finding.
@@ -41491,10 +51377,16 @@ class WorkflowUpdate {
     this.status,
   });
 
+  factory WorkflowUpdate.fromJson(Map<String, dynamic> json) {
+    return WorkflowUpdate(
+      status: (json['Status'] as String?)?.let(WorkflowStatus.fromString),
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -41529,6 +51421,11 @@ class ResourceConflictException extends _s.GenericAwsException {
       : super(type: type, code: 'ResourceConflictException', message: message);
 }
 
+class ResourceInUseException extends _s.GenericAwsException {
+  ResourceInUseException({String? type, String? message})
+      : super(type: type, code: 'ResourceInUseException', message: message);
+}
+
 class ResourceNotFoundException extends _s.GenericAwsException {
   ResourceNotFoundException({String? type, String? message})
       : super(type: type, code: 'ResourceNotFoundException', message: message);
@@ -41547,6 +51444,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       LimitExceededException(type: type, message: message),
   'ResourceConflictException': (type, message) =>
       ResourceConflictException(type: type, message: message),
+  'ResourceInUseException': (type, message) =>
+      ResourceInUseException(type: type, message: message),
   'ResourceNotFoundException': (type, message) =>
       ResourceNotFoundException(type: type, message: message),
 };

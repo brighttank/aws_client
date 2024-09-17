@@ -436,6 +436,25 @@ class Route53RecoveryControlConfig {
     return DescribeSafetyRuleResponse.fromJson(response);
   }
 
+  /// Get information about the resource policy for a cluster.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the resource.
+  Future<GetResourcePolicyResponse> getResourcePolicy({
+    required String resourceArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/resourcePolicy/${Uri.encodeComponent(resourceArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetResourcePolicyResponse.fromJson(response);
+  }
+
   /// Returns an array of all Amazon Route 53 health checks associated with a
   /// specific routing control.
   ///
@@ -858,6 +877,9 @@ class AssertionRule {
   /// value.
   final int waitPeriodMs;
 
+  /// The Amazon Web Services account ID of the assertion rule owner.
+  final String? owner;
+
   AssertionRule({
     required this.assertedControls,
     required this.controlPanelArn,
@@ -866,12 +888,13 @@ class AssertionRule {
     required this.safetyRuleArn,
     required this.status,
     required this.waitPeriodMs,
+    this.owner,
   });
 
   factory AssertionRule.fromJson(Map<String, dynamic> json) {
     return AssertionRule(
       assertedControls: (json['AssertedControls'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       controlPanelArn: json['ControlPanelArn'] as String,
@@ -879,8 +902,9 @@ class AssertionRule {
       ruleConfig:
           RuleConfig.fromJson(json['RuleConfig'] as Map<String, dynamic>),
       safetyRuleArn: json['SafetyRuleArn'] as String,
-      status: (json['Status'] as String).toStatus(),
+      status: Status.fromString((json['Status'] as String)),
       waitPeriodMs: json['WaitPeriodMs'] as int,
+      owner: json['Owner'] as String?,
     );
   }
 
@@ -892,14 +916,16 @@ class AssertionRule {
     final safetyRuleArn = this.safetyRuleArn;
     final status = this.status;
     final waitPeriodMs = this.waitPeriodMs;
+    final owner = this.owner;
     return {
       'AssertedControls': assertedControls,
       'ControlPanelArn': controlPanelArn,
       'Name': name,
       'RuleConfig': ruleConfig,
       'SafetyRuleArn': safetyRuleArn,
-      'Status': status.toValue(),
+      'Status': status.value,
       'WaitPeriodMs': waitPeriodMs,
+      if (owner != null) 'Owner': owner,
     };
   }
 }
@@ -956,6 +982,9 @@ class Cluster {
   /// The name of the cluster.
   final String? name;
 
+  /// The Amazon Web Services account ID of the cluster owner.
+  final String? owner;
+
   /// Deployment status of a resource. Status can be one of the following:
   /// PENDING, DEPLOYED, PENDING_DELETION.
   final Status? status;
@@ -964,6 +993,7 @@ class Cluster {
     this.clusterArn,
     this.clusterEndpoints,
     this.name,
+    this.owner,
     this.status,
   });
 
@@ -971,11 +1001,12 @@ class Cluster {
     return Cluster(
       clusterArn: json['ClusterArn'] as String?,
       clusterEndpoints: (json['ClusterEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ClusterEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toStatus(),
+      owner: json['Owner'] as String?,
+      status: (json['Status'] as String?)?.let(Status.fromString),
     );
   }
 
@@ -983,12 +1014,14 @@ class Cluster {
     final clusterArn = this.clusterArn;
     final clusterEndpoints = this.clusterEndpoints;
     final name = this.name;
+    final owner = this.owner;
     final status = this.status;
     return {
       if (clusterArn != null) 'ClusterArn': clusterArn,
       if (clusterEndpoints != null) 'ClusterEndpoints': clusterEndpoints,
       if (name != null) 'Name': name,
-      if (status != null) 'Status': status.toValue(),
+      if (owner != null) 'Owner': owner,
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -1049,6 +1082,9 @@ class ControlPanel {
   /// the name.
   final String? name;
 
+  /// The Amazon Web Services account ID of the control panel owner.
+  final String? owner;
+
   /// The number of routing controls in the control panel.
   final int? routingControlCount;
 
@@ -1061,6 +1097,7 @@ class ControlPanel {
     this.controlPanelArn,
     this.defaultControlPanel,
     this.name,
+    this.owner,
     this.routingControlCount,
     this.status,
   });
@@ -1071,8 +1108,9 @@ class ControlPanel {
       controlPanelArn: json['ControlPanelArn'] as String?,
       defaultControlPanel: json['DefaultControlPanel'] as bool?,
       name: json['Name'] as String?,
+      owner: json['Owner'] as String?,
       routingControlCount: json['RoutingControlCount'] as int?,
-      status: (json['Status'] as String?)?.toStatus(),
+      status: (json['Status'] as String?)?.let(Status.fromString),
     );
   }
 
@@ -1081,6 +1119,7 @@ class ControlPanel {
     final controlPanelArn = this.controlPanelArn;
     final defaultControlPanel = this.defaultControlPanel;
     final name = this.name;
+    final owner = this.owner;
     final routingControlCount = this.routingControlCount;
     final status = this.status;
     return {
@@ -1089,9 +1128,10 @@ class ControlPanel {
       if (defaultControlPanel != null)
         'DefaultControlPanel': defaultControlPanel,
       if (name != null) 'Name': name,
+      if (owner != null) 'Owner': owner,
       if (routingControlCount != null)
         'RoutingControlCount': routingControlCount,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -1408,6 +1448,9 @@ class GatingRule {
   /// value.
   final int waitPeriodMs;
 
+  /// The Amazon Web Services account ID of the gating rule owner.
+  final String? owner;
+
   GatingRule({
     required this.controlPanelArn,
     required this.gatingControls,
@@ -1417,25 +1460,27 @@ class GatingRule {
     required this.status,
     required this.targetControls,
     required this.waitPeriodMs,
+    this.owner,
   });
 
   factory GatingRule.fromJson(Map<String, dynamic> json) {
     return GatingRule(
       controlPanelArn: json['ControlPanelArn'] as String,
       gatingControls: (json['GatingControls'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       name: json['Name'] as String,
       ruleConfig:
           RuleConfig.fromJson(json['RuleConfig'] as Map<String, dynamic>),
       safetyRuleArn: json['SafetyRuleArn'] as String,
-      status: (json['Status'] as String).toStatus(),
+      status: Status.fromString((json['Status'] as String)),
       targetControls: (json['TargetControls'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       waitPeriodMs: json['WaitPeriodMs'] as int,
+      owner: json['Owner'] as String?,
     );
   }
 
@@ -1448,15 +1493,17 @@ class GatingRule {
     final status = this.status;
     final targetControls = this.targetControls;
     final waitPeriodMs = this.waitPeriodMs;
+    final owner = this.owner;
     return {
       'ControlPanelArn': controlPanelArn,
       'GatingControls': gatingControls,
       'Name': name,
       'RuleConfig': ruleConfig,
       'SafetyRuleArn': safetyRuleArn,
-      'Status': status.toValue(),
+      'Status': status.value,
       'TargetControls': targetControls,
       'WaitPeriodMs': waitPeriodMs,
+      if (owner != null) 'Owner': owner,
     };
   }
 }
@@ -1496,6 +1543,28 @@ class GatingRuleUpdate {
   }
 }
 
+class GetResourcePolicyResponse {
+  /// The resource policy.
+  final String? policy;
+
+  GetResourcePolicyResponse({
+    this.policy,
+  });
+
+  factory GetResourcePolicyResponse.fromJson(Map<String, dynamic> json) {
+    return GetResourcePolicyResponse(
+      policy: json['Policy'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final policy = this.policy;
+    return {
+      if (policy != null) 'Policy': policy,
+    };
+  }
+}
+
 class ListAssociatedRoute53HealthChecksResponse {
   /// Identifiers for the health checks.
   final List<String>? healthCheckIds;
@@ -1512,7 +1581,7 @@ class ListAssociatedRoute53HealthChecksResponse {
       Map<String, dynamic> json) {
     return ListAssociatedRoute53HealthChecksResponse(
       healthCheckIds: (json['HealthCheckIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1544,7 +1613,7 @@ class ListClustersResponse {
   factory ListClustersResponse.fromJson(Map<String, dynamic> json) {
     return ListClustersResponse(
       clusters: (json['Clusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Cluster.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1576,7 +1645,7 @@ class ListControlPanelsResponse {
   factory ListControlPanelsResponse.fromJson(Map<String, dynamic> json) {
     return ListControlPanelsResponse(
       controlPanels: (json['ControlPanels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ControlPanel.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1609,7 +1678,7 @@ class ListRoutingControlsResponse {
     return ListRoutingControlsResponse(
       nextToken: json['NextToken'] as String?,
       routingControls: (json['RoutingControls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RoutingControl.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1641,7 +1710,7 @@ class ListSafetyRulesResponse {
     return ListSafetyRulesResponse(
       nextToken: json['NextToken'] as String?,
       safetyRules: (json['SafetyRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Rule.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1806,6 +1875,9 @@ class RoutingControl {
   /// The name of the routing control.
   final String? name;
 
+  /// The Amazon Web Services account ID of the routing control owner.
+  final String? owner;
+
   /// The Amazon Resource Name (ARN) of the routing control.
   final String? routingControlArn;
 
@@ -1816,6 +1888,7 @@ class RoutingControl {
   RoutingControl({
     this.controlPanelArn,
     this.name,
+    this.owner,
     this.routingControlArn,
     this.status,
   });
@@ -1824,21 +1897,24 @@ class RoutingControl {
     return RoutingControl(
       controlPanelArn: json['ControlPanelArn'] as String?,
       name: json['Name'] as String?,
+      owner: json['Owner'] as String?,
       routingControlArn: json['RoutingControlArn'] as String?,
-      status: (json['Status'] as String?)?.toStatus(),
+      status: (json['Status'] as String?)?.let(Status.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final controlPanelArn = this.controlPanelArn;
     final name = this.name;
+    final owner = this.owner;
     final routingControlArn = this.routingControlArn;
     final status = this.status;
     return {
       if (controlPanelArn != null) 'ControlPanelArn': controlPanelArn,
       if (name != null) 'Name': name,
+      if (owner != null) 'Owner': owner,
       if (routingControlArn != null) 'RoutingControlArn': routingControlArn,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -1916,7 +1992,7 @@ class RuleConfig {
     return RuleConfig(
       inverted: json['Inverted'] as bool,
       threshold: json['Threshold'] as int,
-      type: (json['Type'] as String).toRuleType(),
+      type: RuleType.fromString((json['Type'] as String)),
     );
   }
 
@@ -1927,7 +2003,7 @@ class RuleConfig {
     return {
       'Inverted': inverted,
       'Threshold': threshold,
-      'Type': type.toValue(),
+      'Type': type.value,
     };
   }
 }
@@ -1944,36 +2020,18 @@ class RuleConfig {
 /// OR - Any control must be set. This is a shortcut for "At least N," where N
 /// is 1.
 enum RuleType {
-  atleast,
-  and,
-  or,
-}
+  atleast('ATLEAST'),
+  and('AND'),
+  or('OR'),
+  ;
 
-extension RuleTypeValueExtension on RuleType {
-  String toValue() {
-    switch (this) {
-      case RuleType.atleast:
-        return 'ATLEAST';
-      case RuleType.and:
-        return 'AND';
-      case RuleType.or:
-        return 'OR';
-    }
-  }
-}
+  final String value;
 
-extension RuleTypeFromString on String {
-  RuleType toRuleType() {
-    switch (this) {
-      case 'ATLEAST':
-        return RuleType.atleast;
-      case 'AND':
-        return RuleType.and;
-      case 'OR':
-        return RuleType.or;
-    }
-    throw Exception('$this is not known in enum RuleType');
-  }
+  const RuleType(this.value);
+
+  static RuleType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RuleType'));
 }
 
 /// The deployment status of a resource. Status can be one of the following:
@@ -1986,36 +2044,18 @@ extension RuleTypeFromString on String {
 /// PENDING_DELETION: Amazon Route 53 Application Recovery Controller is
 /// deleting the resource.
 enum Status {
-  pending,
-  deployed,
-  pendingDeletion,
-}
+  pending('PENDING'),
+  deployed('DEPLOYED'),
+  pendingDeletion('PENDING_DELETION'),
+  ;
 
-extension StatusValueExtension on Status {
-  String toValue() {
-    switch (this) {
-      case Status.pending:
-        return 'PENDING';
-      case Status.deployed:
-        return 'DEPLOYED';
-      case Status.pendingDeletion:
-        return 'PENDING_DELETION';
-    }
-  }
-}
+  final String value;
 
-extension StatusFromString on String {
-  Status toStatus() {
-    switch (this) {
-      case 'PENDING':
-        return Status.pending;
-      case 'DEPLOYED':
-        return Status.deployed;
-      case 'PENDING_DELETION':
-        return Status.pendingDeletion;
-    }
-    throw Exception('$this is not known in enum Status');
-  }
+  const Status(this.value);
+
+  static Status fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Status'));
 }
 
 class TagResourceResponse {

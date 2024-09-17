@@ -84,7 +84,11 @@ class IamRolesAnywhere {
   /// request.
   ///
   /// Parameter [durationSeconds] :
-  /// The number of seconds the vended session credentials are valid for.
+  /// Used to determine how long sessions vended using this profile are valid
+  /// for. See the <code>Expiration</code> section of the <a
+  /// href="https://docs.aws.amazon.com/rolesanywhere/latest/userguide/authentication-create-session.html#credentials-object">CreateSession
+  /// API documentation</a> page for more details. In requests, if this value is
+  /// not provided, the default value will be 3600.
   ///
   /// Parameter [enabled] :
   /// Specifies whether the profile is enabled.
@@ -117,7 +121,7 @@ class IamRolesAnywhere {
       'durationSeconds',
       durationSeconds,
       900,
-      3600,
+      43200,
     );
     final $payload = <String, dynamic>{
       'name': name,
@@ -188,6 +192,41 @@ class IamRolesAnywhere {
       exceptionFnMap: _exceptionFns,
     );
     return TrustAnchorDetailResponse.fromJson(response);
+  }
+
+  /// Delete an entry from the attribute mapping rules enforced by a given
+  /// profile.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [certificateField] :
+  /// Fields (x509Subject, x509Issuer and x509SAN) within X.509 certificates.
+  ///
+  /// Parameter [profileId] :
+  /// The unique identifier of the profile.
+  ///
+  /// Parameter [specifiers] :
+  /// A list of specifiers of a certificate field; for example, CN, OU, UID from
+  /// a Subject.
+  Future<DeleteAttributeMappingResponse> deleteAttributeMapping({
+    required CertificateField certificateField,
+    required String profileId,
+    List<String>? specifiers,
+  }) async {
+    final $query = <String, List<String>>{
+      'certificateField': [certificateField.value],
+      if (specifiers != null) 'specifiers': specifiers,
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri: '/profiles/${Uri.encodeComponent(profileId)}/mappings',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeleteAttributeMappingResponse.fromJson(response);
   }
 
   /// Deletes a certificate revocation list (CRL).
@@ -476,8 +515,8 @@ class IamRolesAnywhere {
 
   /// Imports the certificate revocation list (CRL). A CRL is a list of
   /// certificates that have been revoked by the issuing certificate Authority
-  /// (CA). IAM Roles Anywhere validates against the CRL before issuing
-  /// credentials.
+  /// (CA).In order to be properly imported, a CRL must be in PEM format. IAM
+  /// Roles Anywhere validates against the CRL before issuing credentials.
   ///
   /// <b>Required permissions: </b> <code>rolesanywhere:ImportCrl</code>.
   ///
@@ -681,6 +720,40 @@ class IamRolesAnywhere {
     return ListTrustAnchorsResponse.fromJson(response);
   }
 
+  /// Put an entry in the attribute mapping rules that will be enforced by a
+  /// given profile. A mapping specifies a certificate field and one or more
+  /// specifiers that have contextual meanings.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [certificateField] :
+  /// Fields (x509Subject, x509Issuer and x509SAN) within X.509 certificates.
+  ///
+  /// Parameter [mappingRules] :
+  /// A list of mapping entries for every supported specifier or sub-field.
+  ///
+  /// Parameter [profileId] :
+  /// The unique identifier of the profile.
+  Future<PutAttributeMappingResponse> putAttributeMapping({
+    required CertificateField certificateField,
+    required List<MappingRule> mappingRules,
+    required String profileId,
+  }) async {
+    final $payload = <String, dynamic>{
+      'certificateField': certificateField.value,
+      'mappingRules': mappingRules,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PUT',
+      requestUri: '/profiles/${Uri.encodeComponent(profileId)}/mappings',
+      exceptionFnMap: _exceptionFns,
+    );
+    return PutAttributeMappingResponse.fromJson(response);
+  }
+
   /// Attaches a list of <i>notification settings</i> to a trust anchor.
   ///
   /// A notification setting includes information such as event name, threshold,
@@ -858,7 +931,11 @@ class IamRolesAnywhere {
   /// The unique identifier of the profile.
   ///
   /// Parameter [durationSeconds] :
-  /// The number of seconds the vended session credentials are valid for.
+  /// Used to determine how long sessions vended using this profile are valid
+  /// for. See the <code>Expiration</code> section of the <a
+  /// href="https://docs.aws.amazon.com/rolesanywhere/latest/userguide/authentication-create-session.html#credentials-object">CreateSession
+  /// API documentation</a> page for more details. In requests, if this value is
+  /// not provided, the default value will be 3600.
   ///
   /// Parameter [managedPolicyArns] :
   /// A list of managed policy ARNs that apply to the vended session
@@ -886,7 +963,7 @@ class IamRolesAnywhere {
       'durationSeconds',
       durationSeconds,
       900,
-      3600,
+      43200,
     );
     final $payload = <String, dynamic>{
       if (durationSeconds != null) 'durationSeconds': durationSeconds,
@@ -943,6 +1020,56 @@ class IamRolesAnywhere {
     );
     return TrustAnchorDetailResponse.fromJson(response);
   }
+}
+
+/// A mapping applied to the authenticating end-entity certificate.
+class AttributeMapping {
+  /// Fields (x509Subject, x509Issuer and x509SAN) within X.509 certificates.
+  final CertificateField? certificateField;
+
+  /// A list of mapping entries for every supported specifier or sub-field.
+  final List<MappingRule>? mappingRules;
+
+  AttributeMapping({
+    this.certificateField,
+    this.mappingRules,
+  });
+
+  factory AttributeMapping.fromJson(Map<String, dynamic> json) {
+    return AttributeMapping(
+      certificateField: (json['certificateField'] as String?)
+          ?.let(CertificateField.fromString),
+      mappingRules: (json['mappingRules'] as List?)
+          ?.nonNulls
+          .map((e) => MappingRule.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final certificateField = this.certificateField;
+    final mappingRules = this.mappingRules;
+    return {
+      if (certificateField != null) 'certificateField': certificateField.value,
+      if (mappingRules != null) 'mappingRules': mappingRules,
+    };
+  }
+}
+
+enum CertificateField {
+  x509Subject('x509Subject'),
+  x509Issuer('x509Issuer'),
+  x509san('x509SAN'),
+  ;
+
+  final String value;
+
+  const CertificateField(this.value);
+
+  static CertificateField fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CertificateField'));
 }
 
 /// A record of a presented X509 credential from a temporary credential request.
@@ -1106,6 +1233,28 @@ class CrlDetailResponse {
   }
 }
 
+class DeleteAttributeMappingResponse {
+  /// The state of the profile after a read or write operation.
+  final ProfileDetail profile;
+
+  DeleteAttributeMappingResponse({
+    required this.profile,
+  });
+
+  factory DeleteAttributeMappingResponse.fromJson(Map<String, dynamic> json) {
+    return DeleteAttributeMappingResponse(
+      profile: ProfileDetail.fromJson(json['profile'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final profile = this.profile;
+    return {
+      'profile': profile,
+    };
+  }
+}
+
 /// A key-value pair you set that identifies a property of the authenticating
 /// instance.
 class InstanceProperty {
@@ -1163,7 +1312,7 @@ class ListCrlsResponse {
   factory ListCrlsResponse.fromJson(Map<String, dynamic> json) {
     return ListCrlsResponse(
       crls: (json['crls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CrlDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1198,7 +1347,7 @@ class ListProfilesResponse {
     return ListProfilesResponse(
       nextToken: json['nextToken'] as String?,
       profiles: (json['profiles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProfileDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1232,7 +1381,7 @@ class ListSubjectsResponse {
     return ListSubjectsResponse(
       nextToken: json['nextToken'] as String?,
       subjects: (json['subjects'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SubjectSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1259,7 +1408,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1291,7 +1440,7 @@ class ListTrustAnchorsResponse {
     return ListTrustAnchorsResponse(
       nextToken: json['nextToken'] as String?,
       trustAnchors: (json['trustAnchors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TrustAnchorDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1307,55 +1456,57 @@ class ListTrustAnchorsResponse {
   }
 }
 
+/// A single mapping entry for each supported specifier or sub-field.
+class MappingRule {
+  /// Specifier within a certificate field, such as CN, OU, or UID from the
+  /// Subject field.
+  final String specifier;
+
+  MappingRule({
+    required this.specifier,
+  });
+
+  factory MappingRule.fromJson(Map<String, dynamic> json) {
+    return MappingRule(
+      specifier: json['specifier'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final specifier = this.specifier;
+    return {
+      'specifier': specifier,
+    };
+  }
+}
+
 enum NotificationChannel {
-  all,
-}
+  all('ALL'),
+  ;
 
-extension NotificationChannelValueExtension on NotificationChannel {
-  String toValue() {
-    switch (this) {
-      case NotificationChannel.all:
-        return 'ALL';
-    }
-  }
-}
+  final String value;
 
-extension NotificationChannelFromString on String {
-  NotificationChannel toNotificationChannel() {
-    switch (this) {
-      case 'ALL':
-        return NotificationChannel.all;
-    }
-    throw Exception('$this is not known in enum NotificationChannel');
-  }
+  const NotificationChannel(this.value);
+
+  static NotificationChannel fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum NotificationChannel'));
 }
 
 enum NotificationEvent {
-  caCertificateExpiry,
-  endEntityCertificateExpiry,
-}
+  caCertificateExpiry('CA_CERTIFICATE_EXPIRY'),
+  endEntityCertificateExpiry('END_ENTITY_CERTIFICATE_EXPIRY'),
+  ;
 
-extension NotificationEventValueExtension on NotificationEvent {
-  String toValue() {
-    switch (this) {
-      case NotificationEvent.caCertificateExpiry:
-        return 'CA_CERTIFICATE_EXPIRY';
-      case NotificationEvent.endEntityCertificateExpiry:
-        return 'END_ENTITY_CERTIFICATE_EXPIRY';
-    }
-  }
-}
+  final String value;
 
-extension NotificationEventFromString on String {
-  NotificationEvent toNotificationEvent() {
-    switch (this) {
-      case 'CA_CERTIFICATE_EXPIRY':
-        return NotificationEvent.caCertificateExpiry;
-      case 'END_ENTITY_CERTIFICATE_EXPIRY':
-        return NotificationEvent.endEntityCertificateExpiry;
-    }
-    throw Exception('$this is not known in enum NotificationEvent');
-  }
+  const NotificationEvent(this.value);
+
+  static NotificationEvent fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum NotificationEvent'));
 }
 
 /// Customizable notification settings that will be applied to notification
@@ -1394,8 +1545,8 @@ class NotificationSetting {
     final threshold = this.threshold;
     return {
       'enabled': enabled,
-      'event': event.toValue(),
-      if (channel != null) 'channel': channel.toValue(),
+      'event': event.value,
+      if (channel != null) 'channel': channel.value,
       if (threshold != null) 'threshold': threshold,
     };
   }
@@ -1440,8 +1591,9 @@ class NotificationSettingDetail {
   factory NotificationSettingDetail.fromJson(Map<String, dynamic> json) {
     return NotificationSettingDetail(
       enabled: json['enabled'] as bool,
-      event: (json['event'] as String).toNotificationEvent(),
-      channel: (json['channel'] as String?)?.toNotificationChannel(),
+      event: NotificationEvent.fromString((json['event'] as String)),
+      channel:
+          (json['channel'] as String?)?.let(NotificationChannel.fromString),
       configuredBy: json['configuredBy'] as String?,
       threshold: json['threshold'] as int?,
     );
@@ -1455,8 +1607,8 @@ class NotificationSettingDetail {
     final threshold = this.threshold;
     return {
       'enabled': enabled,
-      'event': event.toValue(),
-      if (channel != null) 'channel': channel.toValue(),
+      'event': event.value,
+      if (channel != null) 'channel': channel.value,
       if (configuredBy != null) 'configuredBy': configuredBy,
       if (threshold != null) 'threshold': threshold,
     };
@@ -1481,21 +1633,28 @@ class NotificationSettingKey {
     final event = this.event;
     final channel = this.channel;
     return {
-      'event': event.toValue(),
-      if (channel != null) 'channel': channel.toValue(),
+      'event': event.value,
+      if (channel != null) 'channel': channel.value,
     };
   }
 }
 
 /// The state of the profile after a read or write operation.
 class ProfileDetail {
+  /// A mapping applied to the authenticating end-entity certificate.
+  final List<AttributeMapping>? attributeMappings;
+
   /// The ISO-8601 timestamp when the profile was created.
   final DateTime? createdAt;
 
   /// The Amazon Web Services account that created the profile.
   final String? createdBy;
 
-  /// The number of seconds the vended session credentials are valid for.
+  /// Used to determine how long sessions vended using this profile are valid for.
+  /// See the <code>Expiration</code> section of the <a
+  /// href="https://docs.aws.amazon.com/rolesanywhere/latest/userguide/authentication-create-session.html#credentials-object">CreateSession
+  /// API documentation</a> page for more details. In requests, if this value is
+  /// not provided, the default value will be 3600.
   final int? durationSeconds;
 
   /// Indicates whether the profile is enabled.
@@ -1529,6 +1688,7 @@ class ProfileDetail {
   final DateTime? updatedAt;
 
   ProfileDetail({
+    this.attributeMappings,
     this.createdAt,
     this.createdBy,
     this.durationSeconds,
@@ -1545,12 +1705,16 @@ class ProfileDetail {
 
   factory ProfileDetail.fromJson(Map<String, dynamic> json) {
     return ProfileDetail(
+      attributeMappings: (json['attributeMappings'] as List?)
+          ?.nonNulls
+          .map((e) => AttributeMapping.fromJson(e as Map<String, dynamic>))
+          .toList(),
       createdAt: timeStampFromJson(json['createdAt']),
       createdBy: json['createdBy'] as String?,
       durationSeconds: json['durationSeconds'] as int?,
       enabled: json['enabled'] as bool?,
       managedPolicyArns: (json['managedPolicyArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       name: json['name'] as String?,
@@ -1558,7 +1722,7 @@ class ProfileDetail {
       profileId: json['profileId'] as String?,
       requireInstanceProperties: json['requireInstanceProperties'] as bool?,
       roleArns: (json['roleArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       sessionPolicy: json['sessionPolicy'] as String?,
@@ -1567,6 +1731,7 @@ class ProfileDetail {
   }
 
   Map<String, dynamic> toJson() {
+    final attributeMappings = this.attributeMappings;
     final createdAt = this.createdAt;
     final createdBy = this.createdBy;
     final durationSeconds = this.durationSeconds;
@@ -1580,6 +1745,7 @@ class ProfileDetail {
     final sessionPolicy = this.sessionPolicy;
     final updatedAt = this.updatedAt;
     return {
+      if (attributeMappings != null) 'attributeMappings': attributeMappings,
       if (createdAt != null) 'createdAt': iso8601ToJson(createdAt),
       if (createdBy != null) 'createdBy': createdBy,
       if (durationSeconds != null) 'durationSeconds': durationSeconds,
@@ -1617,6 +1783,28 @@ class ProfileDetailResponse {
     final profile = this.profile;
     return {
       if (profile != null) 'profile': profile,
+    };
+  }
+}
+
+class PutAttributeMappingResponse {
+  /// The state of the profile after a read or write operation.
+  final ProfileDetail profile;
+
+  PutAttributeMappingResponse({
+    required this.profile,
+  });
+
+  factory PutAttributeMappingResponse.fromJson(Map<String, dynamic> json) {
+    return PutAttributeMappingResponse(
+      profile: ProfileDetail.fromJson(json['profile'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final profile = this.profile;
+    return {
+      'profile': profile,
     };
   }
 }
@@ -1684,7 +1872,8 @@ class Source {
       sourceData: json['sourceData'] != null
           ? SourceData.fromJson(json['sourceData'] as Map<String, dynamic>)
           : null,
-      sourceType: (json['sourceType'] as String?)?.toTrustAnchorType(),
+      sourceType:
+          (json['sourceType'] as String?)?.let(TrustAnchorType.fromString),
     );
   }
 
@@ -1693,7 +1882,7 @@ class Source {
     final sourceType = this.sourceType;
     return {
       if (sourceData != null) 'sourceData': sourceData,
-      if (sourceType != null) 'sourceType': sourceType.toValue(),
+      if (sourceType != null) 'sourceType': sourceType.value,
     };
   }
 }
@@ -1779,12 +1968,12 @@ class SubjectDetail {
     return SubjectDetail(
       createdAt: timeStampFromJson(json['createdAt']),
       credentials: (json['credentials'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CredentialSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       enabled: json['enabled'] as bool?,
       instanceProperties: (json['instanceProperties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceProperty.fromJson(e as Map<String, dynamic>))
           .toList(),
       lastSeenAt: timeStampFromJson(json['lastSeenAt']),
@@ -1995,7 +2184,7 @@ class TrustAnchorDetail {
       enabled: json['enabled'] as bool?,
       name: json['name'] as String?,
       notificationSettings: (json['notificationSettings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               NotificationSettingDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2055,36 +2244,19 @@ class TrustAnchorDetailResponse {
 }
 
 enum TrustAnchorType {
-  awsAcmPca,
-  certificateBundle,
-  selfSignedRepository,
-}
+  awsAcmPca('AWS_ACM_PCA'),
+  certificateBundle('CERTIFICATE_BUNDLE'),
+  selfSignedRepository('SELF_SIGNED_REPOSITORY'),
+  ;
 
-extension TrustAnchorTypeValueExtension on TrustAnchorType {
-  String toValue() {
-    switch (this) {
-      case TrustAnchorType.awsAcmPca:
-        return 'AWS_ACM_PCA';
-      case TrustAnchorType.certificateBundle:
-        return 'CERTIFICATE_BUNDLE';
-      case TrustAnchorType.selfSignedRepository:
-        return 'SELF_SIGNED_REPOSITORY';
-    }
-  }
-}
+  final String value;
 
-extension TrustAnchorTypeFromString on String {
-  TrustAnchorType toTrustAnchorType() {
-    switch (this) {
-      case 'AWS_ACM_PCA':
-        return TrustAnchorType.awsAcmPca;
-      case 'CERTIFICATE_BUNDLE':
-        return TrustAnchorType.certificateBundle;
-      case 'SELF_SIGNED_REPOSITORY':
-        return TrustAnchorType.selfSignedRepository;
-    }
-    throw Exception('$this is not known in enum TrustAnchorType');
-  }
+  const TrustAnchorType(this.value);
+
+  static TrustAnchorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TrustAnchorType'));
 }
 
 class UntagResourceResponse {

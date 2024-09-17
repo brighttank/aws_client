@@ -17,7 +17,6 @@ import 'package:shared_aws_api/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'monitoring-2010-08-01.meta.dart';
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// Amazon CloudWatch monitors your Amazon Web Services (Amazon Web Services)
@@ -38,7 +37,6 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// and operational health.
 class CloudWatch {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   CloudWatch({
     required String region,
@@ -46,7 +44,7 @@ class CloudWatch {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'monitoring',
@@ -55,9 +53,7 @@ class CloudWatch {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -103,8 +99,13 @@ class CloudWatch {
   Future<void> deleteAlarms({
     required List<String> alarmNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AlarmNames'] = alarmNames;
+    final $request = <String, String>{
+      if (alarmNames.isEmpty)
+        'AlarmNames': ''
+      else
+        for (var i1 = 0; i1 < alarmNames.length; i1++)
+          'AlarmNames.member.${i1 + 1}': alarmNames[i1],
+    };
     await _protocol.send(
       $request,
       action: 'DeleteAlarms',
@@ -112,8 +113,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteAlarmsInput'],
-      shapes: shapes,
     );
   }
 
@@ -202,15 +201,24 @@ class CloudWatch {
     SingleMetricAnomalyDetector? singleMetricAnomalyDetector,
     String? stat,
   }) async {
-    final $request = <String, dynamic>{};
-    dimensions?.also((arg) => $request['Dimensions'] = arg);
-    metricMathAnomalyDetector
-        ?.also((arg) => $request['MetricMathAnomalyDetector'] = arg);
-    metricName?.also((arg) => $request['MetricName'] = arg);
-    namespace?.also((arg) => $request['Namespace'] = arg);
-    singleMetricAnomalyDetector
-        ?.also((arg) => $request['SingleMetricAnomalyDetector'] = arg);
-    stat?.also((arg) => $request['Stat'] = arg);
+    final $request = <String, String>{
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (metricMathAnomalyDetector != null)
+        for (var e1 in metricMathAnomalyDetector.toQueryMap().entries)
+          'MetricMathAnomalyDetector.${e1.key}': e1.value,
+      if (metricName != null) 'MetricName': metricName,
+      if (namespace != null) 'Namespace': namespace,
+      if (singleMetricAnomalyDetector != null)
+        for (var e1 in singleMetricAnomalyDetector.toQueryMap().entries)
+          'SingleMetricAnomalyDetector.${e1.key}': e1.value,
+      if (stat != null) 'Stat': stat,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteAnomalyDetector',
@@ -218,8 +226,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteAnomalyDetectorInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteAnomalyDetectorResult',
     );
   }
@@ -237,8 +243,13 @@ class CloudWatch {
   Future<void> deleteDashboards({
     required List<String> dashboardNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DashboardNames'] = dashboardNames;
+    final $request = <String, String>{
+      if (dashboardNames.isEmpty)
+        'DashboardNames': ''
+      else
+        for (var i1 = 0; i1 < dashboardNames.length; i1++)
+          'DashboardNames.member.${i1 + 1}': dashboardNames[i1],
+    };
     await _protocol.send(
       $request,
       action: 'DeleteDashboards',
@@ -246,8 +257,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDashboardsInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteDashboardsResult',
     );
   }
@@ -268,8 +277,13 @@ class CloudWatch {
   Future<DeleteInsightRulesOutput> deleteInsightRules({
     required List<String> ruleNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RuleNames'] = ruleNames;
+    final $request = <String, String>{
+      if (ruleNames.isEmpty)
+        'RuleNames': ''
+      else
+        for (var i1 = 0; i1 < ruleNames.length; i1++)
+          'RuleNames.member.${i1 + 1}': ruleNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteInsightRules',
@@ -277,8 +291,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteInsightRulesInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteInsightRulesResult',
     );
     return DeleteInsightRulesOutput.fromXml($result);
@@ -295,8 +307,9 @@ class CloudWatch {
   Future<void> deleteMetricStream({
     required String name,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Name'] = name;
+    final $request = <String, String>{
+      'Name': name,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteMetricStream',
@@ -304,8 +317,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteMetricStreamInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteMetricStreamResult',
     );
   }
@@ -371,16 +382,21 @@ class CloudWatch {
       1,
       100,
     );
-    final $request = <String, dynamic>{};
-    alarmName?.also((arg) => $request['AlarmName'] = arg);
-    alarmTypes?.also(
-        (arg) => $request['AlarmTypes'] = arg.map((e) => e.toValue()).toList());
-    endDate?.also((arg) => $request['EndDate'] = _s.iso8601ToJson(arg));
-    historyItemType?.also((arg) => $request['HistoryItemType'] = arg.toValue());
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
-    scanBy?.also((arg) => $request['ScanBy'] = arg.toValue());
-    startDate?.also((arg) => $request['StartDate'] = _s.iso8601ToJson(arg));
+    final $request = <String, String>{
+      if (alarmName != null) 'AlarmName': alarmName,
+      if (alarmTypes != null)
+        if (alarmTypes.isEmpty)
+          'AlarmTypes': ''
+        else
+          for (var i1 = 0; i1 < alarmTypes.length; i1++)
+            'AlarmTypes.member.${i1 + 1}': alarmTypes[i1].value,
+      if (endDate != null) 'EndDate': _s.iso8601ToJson(endDate),
+      if (historyItemType != null) 'HistoryItemType': historyItemType.value,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+      if (scanBy != null) 'ScanBy': scanBy.value,
+      if (startDate != null) 'StartDate': _s.iso8601ToJson(startDate),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAlarmHistory',
@@ -388,8 +404,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAlarmHistoryInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeAlarmHistoryResult',
     );
     return DescribeAlarmHistoryOutput.fromXml($result);
@@ -425,7 +439,15 @@ class CloudWatch {
   /// Parameter [alarmTypes] :
   /// Use this parameter to specify whether you want the operation to return
   /// metric alarms or composite alarms. If you omit this parameter, only metric
-  /// alarms are returned.
+  /// alarms are returned, even if composite alarms exist in the account.
+  ///
+  /// For example, if you omit this parameter or specify
+  /// <code>MetricAlarms</code>, the operation returns only a list of metric
+  /// alarms. It does not return any composite alarms, even if composite alarms
+  /// exist in the account.
+  ///
+  /// If you specify <code>CompositeAlarms</code>, the operation returns only a
+  /// list of composite alarms, and does not return any metric alarms.
   ///
   /// Parameter [childrenOfAlarmName] :
   /// If you use this parameter and specify the name of a composite alarm, the
@@ -492,17 +514,28 @@ class CloudWatch {
       1,
       100,
     );
-    final $request = <String, dynamic>{};
-    actionPrefix?.also((arg) => $request['ActionPrefix'] = arg);
-    alarmNamePrefix?.also((arg) => $request['AlarmNamePrefix'] = arg);
-    alarmNames?.also((arg) => $request['AlarmNames'] = arg);
-    alarmTypes?.also(
-        (arg) => $request['AlarmTypes'] = arg.map((e) => e.toValue()).toList());
-    childrenOfAlarmName?.also((arg) => $request['ChildrenOfAlarmName'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
-    parentsOfAlarmName?.also((arg) => $request['ParentsOfAlarmName'] = arg);
-    stateValue?.also((arg) => $request['StateValue'] = arg.toValue());
+    final $request = <String, String>{
+      if (actionPrefix != null) 'ActionPrefix': actionPrefix,
+      if (alarmNamePrefix != null) 'AlarmNamePrefix': alarmNamePrefix,
+      if (alarmNames != null)
+        if (alarmNames.isEmpty)
+          'AlarmNames': ''
+        else
+          for (var i1 = 0; i1 < alarmNames.length; i1++)
+            'AlarmNames.member.${i1 + 1}': alarmNames[i1],
+      if (alarmTypes != null)
+        if (alarmTypes.isEmpty)
+          'AlarmTypes': ''
+        else
+          for (var i1 = 0; i1 < alarmTypes.length; i1++)
+            'AlarmTypes.member.${i1 + 1}': alarmTypes[i1].value,
+      if (childrenOfAlarmName != null)
+        'ChildrenOfAlarmName': childrenOfAlarmName,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+      if (parentsOfAlarmName != null) 'ParentsOfAlarmName': parentsOfAlarmName,
+      if (stateValue != null) 'StateValue': stateValue.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAlarms',
@@ -510,8 +543,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAlarmsInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeAlarmsResult',
     );
     return DescribeAlarmsOutput.fromXml($result);
@@ -564,14 +595,21 @@ class CloudWatch {
       1,
       1152921504606846976,
     );
-    final $request = <String, dynamic>{};
-    $request['MetricName'] = metricName;
-    $request['Namespace'] = namespace;
-    dimensions?.also((arg) => $request['Dimensions'] = arg);
-    extendedStatistic?.also((arg) => $request['ExtendedStatistic'] = arg);
-    period?.also((arg) => $request['Period'] = arg);
-    statistic?.also((arg) => $request['Statistic'] = arg.toValue());
-    unit?.also((arg) => $request['Unit'] = arg.toValue());
+    final $request = <String, String>{
+      'MetricName': metricName,
+      'Namespace': namespace,
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (extendedStatistic != null) 'ExtendedStatistic': extendedStatistic,
+      if (period != null) 'Period': period.toString(),
+      if (statistic != null) 'Statistic': statistic.value,
+      if (unit != null) 'Unit': unit.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAlarmsForMetric',
@@ -579,8 +617,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAlarmsForMetricInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeAlarmsForMetricResult',
     );
     return DescribeAlarmsForMetricOutput.fromXml($result);
@@ -644,14 +680,26 @@ class CloudWatch {
       1,
       1152921504606846976,
     );
-    final $request = <String, dynamic>{};
-    anomalyDetectorTypes?.also((arg) => $request['AnomalyDetectorTypes'] =
-        arg.map((e) => e.toValue()).toList());
-    dimensions?.also((arg) => $request['Dimensions'] = arg);
-    maxResults?.also((arg) => $request['MaxResults'] = arg);
-    metricName?.also((arg) => $request['MetricName'] = arg);
-    namespace?.also((arg) => $request['Namespace'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (anomalyDetectorTypes != null)
+        if (anomalyDetectorTypes.isEmpty)
+          'AnomalyDetectorTypes': ''
+        else
+          for (var i1 = 0; i1 < anomalyDetectorTypes.length; i1++)
+            'AnomalyDetectorTypes.member.${i1 + 1}':
+                anomalyDetectorTypes[i1].value,
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (maxResults != null) 'MaxResults': maxResults.toString(),
+      if (metricName != null) 'MetricName': metricName,
+      if (namespace != null) 'Namespace': namespace,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAnomalyDetectors',
@@ -659,8 +707,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAnomalyDetectorsInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeAnomalyDetectorsResult',
     );
     return DescribeAnomalyDetectorsOutput.fromXml($result);
@@ -691,9 +737,10 @@ class CloudWatch {
       1,
       500,
     );
-    final $request = <String, dynamic>{};
-    maxResults?.also((arg) => $request['MaxResults'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (maxResults != null) 'MaxResults': maxResults.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeInsightRules',
@@ -701,8 +748,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeInsightRulesInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeInsightRulesResult',
     );
     return DescribeInsightRulesOutput.fromXml($result);
@@ -716,8 +761,13 @@ class CloudWatch {
   Future<void> disableAlarmActions({
     required List<String> alarmNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AlarmNames'] = alarmNames;
+    final $request = <String, String>{
+      if (alarmNames.isEmpty)
+        'AlarmNames': ''
+      else
+        for (var i1 = 0; i1 < alarmNames.length; i1++)
+          'AlarmNames.member.${i1 + 1}': alarmNames[i1],
+    };
     await _protocol.send(
       $request,
       action: 'DisableAlarmActions',
@@ -725,8 +775,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DisableAlarmActionsInput'],
-      shapes: shapes,
     );
   }
 
@@ -743,8 +791,13 @@ class CloudWatch {
   Future<DisableInsightRulesOutput> disableInsightRules({
     required List<String> ruleNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RuleNames'] = ruleNames;
+    final $request = <String, String>{
+      if (ruleNames.isEmpty)
+        'RuleNames': ''
+      else
+        for (var i1 = 0; i1 < ruleNames.length; i1++)
+          'RuleNames.member.${i1 + 1}': ruleNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DisableInsightRules',
@@ -752,8 +805,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DisableInsightRulesInput'],
-      shapes: shapes,
       resultWrapper: 'DisableInsightRulesResult',
     );
     return DisableInsightRulesOutput.fromXml($result);
@@ -766,8 +817,13 @@ class CloudWatch {
   Future<void> enableAlarmActions({
     required List<String> alarmNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AlarmNames'] = alarmNames;
+    final $request = <String, String>{
+      if (alarmNames.isEmpty)
+        'AlarmNames': ''
+      else
+        for (var i1 = 0; i1 < alarmNames.length; i1++)
+          'AlarmNames.member.${i1 + 1}': alarmNames[i1],
+    };
     await _protocol.send(
       $request,
       action: 'EnableAlarmActions',
@@ -775,8 +831,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['EnableAlarmActionsInput'],
-      shapes: shapes,
     );
   }
 
@@ -794,8 +848,13 @@ class CloudWatch {
   Future<EnableInsightRulesOutput> enableInsightRules({
     required List<String> ruleNames,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RuleNames'] = ruleNames;
+    final $request = <String, String>{
+      if (ruleNames.isEmpty)
+        'RuleNames': ''
+      else
+        for (var i1 = 0; i1 < ruleNames.length; i1++)
+          'RuleNames.member.${i1 + 1}': ruleNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'EnableInsightRules',
@@ -803,8 +862,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['EnableInsightRulesInput'],
-      shapes: shapes,
       resultWrapper: 'EnableInsightRulesResult',
     );
     return EnableInsightRulesOutput.fromXml($result);
@@ -826,8 +883,9 @@ class CloudWatch {
   Future<GetDashboardOutput> getDashboard({
     required String dashboardName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DashboardName'] = dashboardName;
+    final $request = <String, String>{
+      'DashboardName': dashboardName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetDashboard',
@@ -835,8 +893,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetDashboardInput'],
-      shapes: shapes,
       resultWrapper: 'GetDashboardResult',
     );
     return GetDashboardOutput.fromXml($result);
@@ -954,7 +1010,7 @@ class CloudWatch {
   ///
   /// Parameter [orderBy] :
   /// Determines what statistic to use to rank the contributors. Valid values
-  /// are SUM and MAXIMUM.
+  /// are <code>Sum</code> and <code>Maximum</code>.
   Future<GetInsightRuleReportOutput> getInsightRuleReport({
     required DateTime endTime,
     required int period,
@@ -971,14 +1027,21 @@ class CloudWatch {
       1152921504606846976,
       isRequired: true,
     );
-    final $request = <String, dynamic>{};
-    $request['EndTime'] = _s.iso8601ToJson(endTime);
-    $request['Period'] = period;
-    $request['RuleName'] = ruleName;
-    $request['StartTime'] = _s.iso8601ToJson(startTime);
-    maxContributorCount?.also((arg) => $request['MaxContributorCount'] = arg);
-    metrics?.also((arg) => $request['Metrics'] = arg);
-    orderBy?.also((arg) => $request['OrderBy'] = arg);
+    final $request = <String, String>{
+      'EndTime': _s.iso8601ToJson(endTime),
+      'Period': period.toString(),
+      'RuleName': ruleName,
+      'StartTime': _s.iso8601ToJson(startTime),
+      if (maxContributorCount != null)
+        'MaxContributorCount': maxContributorCount.toString(),
+      if (metrics != null)
+        if (metrics.isEmpty)
+          'Metrics': ''
+        else
+          for (var i1 = 0; i1 < metrics.length; i1++)
+            'Metrics.member.${i1 + 1}': metrics[i1],
+      if (orderBy != null) 'OrderBy': orderBy,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetInsightRuleReport',
@@ -986,8 +1049,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetInsightRuleReportInput'],
-      shapes: shapes,
       resultWrapper: 'GetInsightRuleReportResult',
     );
     return GetInsightRuleReportOutput.fromXml($result);
@@ -1149,6 +1210,9 @@ class CloudWatch {
   /// paginates when the <code>MaxDatapoints</code> limit is reached.
   /// <code>TimestampAscending</code> returns the oldest data first and
   /// paginates when the <code>MaxDatapoints</code> limit is reached.
+  ///
+  /// If you omit this parameter, the default of
+  /// <code>TimestampDescending</code> is used.
   Future<GetMetricDataOutput> getMetricData({
     required DateTime endTime,
     required List<MetricDataQuery> metricDataQueries,
@@ -1158,14 +1222,22 @@ class CloudWatch {
     String? nextToken,
     ScanBy? scanBy,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EndTime'] = _s.iso8601ToJson(endTime);
-    $request['MetricDataQueries'] = metricDataQueries;
-    $request['StartTime'] = _s.iso8601ToJson(startTime);
-    labelOptions?.also((arg) => $request['LabelOptions'] = arg);
-    maxDatapoints?.also((arg) => $request['MaxDatapoints'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
-    scanBy?.also((arg) => $request['ScanBy'] = arg.toValue());
+    final $request = <String, String>{
+      'EndTime': _s.iso8601ToJson(endTime),
+      if (metricDataQueries.isEmpty)
+        'MetricDataQueries': ''
+      else
+        for (var i1 = 0; i1 < metricDataQueries.length; i1++)
+          for (var e3 in metricDataQueries[i1].toQueryMap().entries)
+            'MetricDataQueries.member.${i1 + 1}.${e3.key}': e3.value,
+      'StartTime': _s.iso8601ToJson(startTime),
+      if (labelOptions != null)
+        for (var e1 in labelOptions.toQueryMap().entries)
+          'LabelOptions.${e1.key}': e1.value,
+      if (maxDatapoints != null) 'MaxDatapoints': maxDatapoints.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+      if (scanBy != null) 'ScanBy': scanBy.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetMetricData',
@@ -1173,8 +1245,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetMetricDataInput'],
-      shapes: shapes,
       resultWrapper: 'GetMetricDataResult',
     );
     return GetMetricDataOutput.fromXml($result);
@@ -1381,17 +1451,33 @@ class CloudWatch {
       1152921504606846976,
       isRequired: true,
     );
-    final $request = <String, dynamic>{};
-    $request['EndTime'] = _s.iso8601ToJson(endTime);
-    $request['MetricName'] = metricName;
-    $request['Namespace'] = namespace;
-    $request['Period'] = period;
-    $request['StartTime'] = _s.iso8601ToJson(startTime);
-    dimensions?.also((arg) => $request['Dimensions'] = arg);
-    extendedStatistics?.also((arg) => $request['ExtendedStatistics'] = arg);
-    statistics?.also(
-        (arg) => $request['Statistics'] = arg.map((e) => e.toValue()).toList());
-    unit?.also((arg) => $request['Unit'] = arg.toValue());
+    final $request = <String, String>{
+      'EndTime': _s.iso8601ToJson(endTime),
+      'MetricName': metricName,
+      'Namespace': namespace,
+      'Period': period.toString(),
+      'StartTime': _s.iso8601ToJson(startTime),
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (extendedStatistics != null)
+        if (extendedStatistics.isEmpty)
+          'ExtendedStatistics': ''
+        else
+          for (var i1 = 0; i1 < extendedStatistics.length; i1++)
+            'ExtendedStatistics.member.${i1 + 1}': extendedStatistics[i1],
+      if (statistics != null)
+        if (statistics.isEmpty)
+          'Statistics': ''
+        else
+          for (var i1 = 0; i1 < statistics.length; i1++)
+            'Statistics.member.${i1 + 1}': statistics[i1].value,
+      if (unit != null) 'Unit': unit.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetMetricStatistics',
@@ -1399,8 +1485,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetMetricStatisticsInput'],
-      shapes: shapes,
       resultWrapper: 'GetMetricStatisticsResult',
     );
     return GetMetricStatisticsOutput.fromXml($result);
@@ -1419,8 +1503,9 @@ class CloudWatch {
   Future<GetMetricStreamOutput> getMetricStream({
     required String name,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Name'] = name;
+    final $request = <String, String>{
+      'Name': name,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetMetricStream',
@@ -1428,8 +1513,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetMetricStreamInput'],
-      shapes: shapes,
       resultWrapper: 'GetMetricStreamResult',
     );
     return GetMetricStreamOutput.fromXml($result);
@@ -1510,9 +1593,10 @@ class CloudWatch {
     required String metricWidget,
     String? outputFormat,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['MetricWidget'] = metricWidget;
-    outputFormat?.also((arg) => $request['OutputFormat'] = arg);
+    final $request = <String, String>{
+      'MetricWidget': metricWidget,
+      if (outputFormat != null) 'OutputFormat': outputFormat,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetMetricWidgetImage',
@@ -1520,8 +1604,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetMetricWidgetImageInput'],
-      shapes: shapes,
       resultWrapper: 'GetMetricWidgetImageResult',
     );
     return GetMetricWidgetImageOutput.fromXml($result);
@@ -1553,9 +1635,11 @@ class CloudWatch {
     String? dashboardNamePrefix,
     String? nextToken,
   }) async {
-    final $request = <String, dynamic>{};
-    dashboardNamePrefix?.also((arg) => $request['DashboardNamePrefix'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (dashboardNamePrefix != null)
+        'DashboardNamePrefix': dashboardNamePrefix,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListDashboards',
@@ -1563,8 +1647,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListDashboardsInput'],
-      shapes: shapes,
       resultWrapper: 'ListDashboardsResult',
     );
     return ListDashboardsOutput.fromXml($result);
@@ -1600,10 +1682,11 @@ class CloudWatch {
       1,
       500,
     );
-    final $request = <String, dynamic>{};
-    $request['ResourceARN'] = resourceARN;
-    maxResults?.also((arg) => $request['MaxResults'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      'ResourceARN': resourceARN,
+      if (maxResults != null) 'MaxResults': maxResults.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListManagedInsightRules',
@@ -1611,8 +1694,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListManagedInsightRulesInput'],
-      shapes: shapes,
       resultWrapper: 'ListManagedInsightRulesResult',
     );
     return ListManagedInsightRulesOutput.fromXml($result);
@@ -1641,9 +1722,10 @@ class CloudWatch {
       1,
       500,
     );
-    final $request = <String, dynamic>{};
-    maxResults?.also((arg) => $request['MaxResults'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (maxResults != null) 'MaxResults': maxResults.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListMetricStreams',
@@ -1651,8 +1733,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListMetricStreamsInput'],
-      shapes: shapes,
       resultWrapper: 'ListMetricStreamsResult',
     );
     return ListMetricStreamsOutput.fromXml($result);
@@ -1736,15 +1816,22 @@ class CloudWatch {
     String? owningAccount,
     RecentlyActive? recentlyActive,
   }) async {
-    final $request = <String, dynamic>{};
-    dimensions?.also((arg) => $request['Dimensions'] = arg);
-    includeLinkedAccounts
-        ?.also((arg) => $request['IncludeLinkedAccounts'] = arg);
-    metricName?.also((arg) => $request['MetricName'] = arg);
-    namespace?.also((arg) => $request['Namespace'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
-    owningAccount?.also((arg) => $request['OwningAccount'] = arg);
-    recentlyActive?.also((arg) => $request['RecentlyActive'] = arg.toValue());
+    final $request = <String, String>{
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (includeLinkedAccounts != null)
+        'IncludeLinkedAccounts': includeLinkedAccounts.toString(),
+      if (metricName != null) 'MetricName': metricName,
+      if (namespace != null) 'Namespace': namespace,
+      if (nextToken != null) 'NextToken': nextToken,
+      if (owningAccount != null) 'OwningAccount': owningAccount,
+      if (recentlyActive != null) 'RecentlyActive': recentlyActive.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListMetrics',
@@ -1752,8 +1839,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListMetricsInput'],
-      shapes: shapes,
       resultWrapper: 'ListMetricsResult',
     );
     return ListMetricsOutput.fromXml($result);
@@ -1774,7 +1859,7 @@ class CloudWatch {
   /// </code>
   ///
   /// The ARN format of a Contributor Insights rule is
-  /// <code>arn:aws:cloudwatch:<i>Region</i>:<i>account-id</i>:insight-rule:<i>insight-rule-name</i>
+  /// <code>arn:aws:cloudwatch:<i>Region</i>:<i>account-id</i>:insight-rule/<i>insight-rule-name</i>
   /// </code>
   ///
   /// For more information about ARN format, see <a
@@ -1784,8 +1869,9 @@ class CloudWatch {
   Future<ListTagsForResourceOutput> listTagsForResource({
     required String resourceARN,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceARN'] = resourceARN;
+    final $request = <String, String>{
+      'ResourceARN': resourceARN,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListTagsForResource',
@@ -1793,8 +1879,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListTagsForResourceInput'],
-      shapes: shapes,
       resultWrapper: 'ListTagsForResourceResult',
     );
     return ListTagsForResourceOutput.fromXml($result);
@@ -1803,6 +1887,11 @@ class CloudWatch {
   /// Creates an anomaly detection model for a CloudWatch metric. You can use
   /// the model to display a band of expected normal values when the metric is
   /// graphed.
+  ///
+  /// If you have enabled unified cross-account observability, and this account
+  /// is a monitoring account, the metric can be in the same account or a source
+  /// account. You can specify the account ID in the object you specify in the
+  /// <code>SingleMetricAnomalyDetector</code> parameter.
   ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch_Anomaly_Detection.html">CloudWatch
@@ -1823,6 +1912,11 @@ class CloudWatch {
   ///
   /// Parameter [dimensions] :
   /// The metric dimensions to create the anomaly detection model for.
+  ///
+  /// Parameter [metricCharacteristics] :
+  /// Use this object to include parameters to provide information about your
+  /// metric to CloudWatch to help it build more accurate anomaly detection
+  /// models. Currently, it includes the <code>PeriodicSpikes</code> parameter.
   ///
   /// Parameter [metricMathAnomalyDetector] :
   /// The metric math anomaly detector to be created.
@@ -1877,7 +1971,7 @@ class CloudWatch {
   /// <code>Stat</code>
   /// </li>
   /// <li>
-  /// the <code>MetricMatchAnomalyDetector</code> parameters of
+  /// the <code>MetricMathAnomalyDetector</code> parameters of
   /// <code>PutAnomalyDetectorInput</code>
   /// </li>
   /// </ul>
@@ -1889,22 +1983,37 @@ class CloudWatch {
   Future<void> putAnomalyDetector({
     AnomalyDetectorConfiguration? configuration,
     List<Dimension>? dimensions,
+    MetricCharacteristics? metricCharacteristics,
     MetricMathAnomalyDetector? metricMathAnomalyDetector,
     String? metricName,
     String? namespace,
     SingleMetricAnomalyDetector? singleMetricAnomalyDetector,
     String? stat,
   }) async {
-    final $request = <String, dynamic>{};
-    configuration?.also((arg) => $request['Configuration'] = arg);
-    dimensions?.also((arg) => $request['Dimensions'] = arg);
-    metricMathAnomalyDetector
-        ?.also((arg) => $request['MetricMathAnomalyDetector'] = arg);
-    metricName?.also((arg) => $request['MetricName'] = arg);
-    namespace?.also((arg) => $request['Namespace'] = arg);
-    singleMetricAnomalyDetector
-        ?.also((arg) => $request['SingleMetricAnomalyDetector'] = arg);
-    stat?.also((arg) => $request['Stat'] = arg);
+    final $request = <String, String>{
+      if (configuration != null)
+        for (var e1 in configuration.toQueryMap().entries)
+          'Configuration.${e1.key}': e1.value,
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (metricCharacteristics != null)
+        for (var e1 in metricCharacteristics.toQueryMap().entries)
+          'MetricCharacteristics.${e1.key}': e1.value,
+      if (metricMathAnomalyDetector != null)
+        for (var e1 in metricMathAnomalyDetector.toQueryMap().entries)
+          'MetricMathAnomalyDetector.${e1.key}': e1.value,
+      if (metricName != null) 'MetricName': metricName,
+      if (namespace != null) 'Namespace': namespace,
+      if (singleMetricAnomalyDetector != null)
+        for (var e1 in singleMetricAnomalyDetector.toQueryMap().entries)
+          'SingleMetricAnomalyDetector.${e1.key}': e1.value,
+      if (stat != null) 'Stat': stat,
+    };
     await _protocol.send(
       $request,
       action: 'PutAnomalyDetector',
@@ -1912,8 +2021,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutAnomalyDetectorInput'],
-      shapes: shapes,
       resultWrapper: 'PutAnomalyDetectorResult',
     );
   }
@@ -1935,9 +2042,22 @@ class CloudWatch {
   /// that goes into ALARM state only when more than one of the underlying
   /// metric alarms are in ALARM state.
   ///
-  /// Currently, the only alarm actions that can be taken by composite alarms
-  /// are notifying SNS topics.
-  /// <note>
+  /// Composite alarms can take the following actions:
+  ///
+  /// <ul>
+  /// <li>
+  /// Notify Amazon SNS topics.
+  /// </li>
+  /// <li>
+  /// Invoke Lambda functions.
+  /// </li>
+  /// <li>
+  /// Create OpsItems in Systems Manager Ops Center.
+  /// </li>
+  /// <li>
+  /// Create incidents in Systems Manager Incident Manager.
+  /// </li>
+  /// </ul> <note>
   /// It is possible to create a loop or cycle of composite alarms, where
   /// composite alarm A depends on composite alarm B, and composite alarm B also
   /// depends on composite alarm A. In this scenario, you can't delete any
@@ -2079,9 +2199,34 @@ class CloudWatch {
   /// <code>ALARM</code> state from any other state. Each action is specified as
   /// an Amazon Resource Name (ARN).
   ///
-  /// Valid Values:
+  /// Valid Values: ]
+  ///
+  /// <b>Amazon SNS actions:</b>
+  ///
   /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>
-  /// </code> |
+  /// </code>
+  ///
+  /// <b>Lambda actions:</b>
+  ///
+  /// <ul>
+  /// <li>
+  /// Invoke the latest version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a specific version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>version-number</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a function by using an alias Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>alias-name</i>
+  /// </code>
+  /// </li>
+  /// </ul>
+  /// <b>Systems Manager actions:</b>
+  ///
   /// <code>arn:aws:ssm:<i>region</i>:<i>account-id</i>:opsitem:<i>severity</i>
   /// </code>
   ///
@@ -2093,26 +2238,81 @@ class CloudWatch {
   /// <code>INSUFFICIENT_DATA</code> state from any other state. Each action is
   /// specified as an Amazon Resource Name (ARN).
   ///
-  /// Valid Values:
+  /// Valid Values: ]
+  ///
+  /// <b>Amazon SNS actions:</b>
+  ///
   /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>
   /// </code>
+  ///
+  /// <b>Lambda actions:</b>
+  ///
+  /// <ul>
+  /// <li>
+  /// Invoke the latest version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a specific version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>version-number</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a function by using an alias Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>alias-name</i>
+  /// </code>
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [oKActions] :
   /// The actions to execute when this alarm transitions to an <code>OK</code>
   /// state from any other state. Each action is specified as an Amazon Resource
   /// Name (ARN).
   ///
-  /// Valid Values:
+  /// Valid Values: ]
+  ///
+  /// <b>Amazon SNS actions:</b>
+  ///
   /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>
   /// </code>
   ///
+  /// <b>Lambda actions:</b>
+  ///
+  /// <ul>
+  /// <li>
+  /// Invoke the latest version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a specific version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>version-number</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a function by using an alias Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>alias-name</i>
+  /// </code>
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [tags] :
-  /// A list of key-value pairs to associate with the composite alarm. You can
-  /// associate as many as 50 tags with an alarm.
+  /// A list of key-value pairs to associate with the alarm. You can associate
+  /// as many as 50 tags with an alarm. To be able to associate tags with the
+  /// alarm when you create the alarm, you must have the
+  /// <code>cloudwatch:TagResource</code> permission.
   ///
   /// Tags can help you organize and categorize your resources. You can also use
-  /// them to scope user permissions, by granting a user permission to access or
+  /// them to scope user permissions by granting a user permission to access or
   /// change only resources with certain tag values.
+  ///
+  /// If you are using this operation to update an existing alarm, any tags you
+  /// specify in this parameter are ignored. To change the tags of an existing
+  /// alarm, use <a
+  /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_TagResource.html">TagResource</a>
+  /// or <a
+  /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_UntagResource.html">UntagResource</a>.
   Future<void> putCompositeAlarm({
     required String alarmName,
     required String alarmRule,
@@ -2126,21 +2326,44 @@ class CloudWatch {
     List<String>? oKActions,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AlarmName'] = alarmName;
-    $request['AlarmRule'] = alarmRule;
-    actionsEnabled?.also((arg) => $request['ActionsEnabled'] = arg);
-    actionsSuppressor?.also((arg) => $request['ActionsSuppressor'] = arg);
-    actionsSuppressorExtensionPeriod
-        ?.also((arg) => $request['ActionsSuppressorExtensionPeriod'] = arg);
-    actionsSuppressorWaitPeriod
-        ?.also((arg) => $request['ActionsSuppressorWaitPeriod'] = arg);
-    alarmActions?.also((arg) => $request['AlarmActions'] = arg);
-    alarmDescription?.also((arg) => $request['AlarmDescription'] = arg);
-    insufficientDataActions
-        ?.also((arg) => $request['InsufficientDataActions'] = arg);
-    oKActions?.also((arg) => $request['OKActions'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'AlarmName': alarmName,
+      'AlarmRule': alarmRule,
+      if (actionsEnabled != null) 'ActionsEnabled': actionsEnabled.toString(),
+      if (actionsSuppressor != null) 'ActionsSuppressor': actionsSuppressor,
+      if (actionsSuppressorExtensionPeriod != null)
+        'ActionsSuppressorExtensionPeriod':
+            actionsSuppressorExtensionPeriod.toString(),
+      if (actionsSuppressorWaitPeriod != null)
+        'ActionsSuppressorWaitPeriod': actionsSuppressorWaitPeriod.toString(),
+      if (alarmActions != null)
+        if (alarmActions.isEmpty)
+          'AlarmActions': ''
+        else
+          for (var i1 = 0; i1 < alarmActions.length; i1++)
+            'AlarmActions.member.${i1 + 1}': alarmActions[i1],
+      if (alarmDescription != null) 'AlarmDescription': alarmDescription,
+      if (insufficientDataActions != null)
+        if (insufficientDataActions.isEmpty)
+          'InsufficientDataActions': ''
+        else
+          for (var i1 = 0; i1 < insufficientDataActions.length; i1++)
+            'InsufficientDataActions.member.${i1 + 1}':
+                insufficientDataActions[i1],
+      if (oKActions != null)
+        if (oKActions.isEmpty)
+          'OKActions': ''
+        else
+          for (var i1 = 0; i1 < oKActions.length; i1++)
+            'OKActions.member.${i1 + 1}': oKActions[i1],
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'PutCompositeAlarm',
@@ -2148,8 +2371,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutCompositeAlarmInput'],
-      shapes: shapes,
     );
   }
 
@@ -2196,9 +2417,10 @@ class CloudWatch {
     required String dashboardBody,
     required String dashboardName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DashboardBody'] = dashboardBody;
-    $request['DashboardName'] = dashboardName;
+    final $request = <String, String>{
+      'DashboardBody': dashboardBody,
+      'DashboardName': dashboardName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'PutDashboard',
@@ -2206,8 +2428,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutDashboardInput'],
-      shapes: shapes,
       resultWrapper: 'PutDashboardResult',
     );
     return PutDashboardOutput.fromXml($result);
@@ -2261,11 +2481,18 @@ class CloudWatch {
     String? ruleState,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RuleDefinition'] = ruleDefinition;
-    $request['RuleName'] = ruleName;
-    ruleState?.also((arg) => $request['RuleState'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'RuleDefinition': ruleDefinition,
+      'RuleName': ruleName,
+      if (ruleState != null) 'RuleState': ruleState,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'PutInsightRule',
@@ -2273,8 +2500,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutInsightRuleInput'],
-      shapes: shapes,
       resultWrapper: 'PutInsightRuleResult',
     );
   }
@@ -2297,8 +2522,14 @@ class CloudWatch {
   Future<PutManagedInsightRulesOutput> putManagedInsightRules({
     required List<ManagedRule> managedRules,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ManagedRules'] = managedRules;
+    final $request = <String, String>{
+      if (managedRules.isEmpty)
+        'ManagedRules': ''
+      else
+        for (var i1 = 0; i1 < managedRules.length; i1++)
+          for (var e3 in managedRules[i1].toQueryMap().entries)
+            'ManagedRules.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'PutManagedInsightRules',
@@ -2306,8 +2537,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutManagedInsightRulesInput'],
-      shapes: shapes,
       resultWrapper: 'PutManagedInsightRulesResult',
     );
     return PutManagedInsightRulesOutput.fromXml($result);
@@ -2458,11 +2687,30 @@ class CloudWatch {
   /// </code>
   /// </li>
   /// </ul>
+  /// <b>Lambda actions:</b>
+  ///
+  /// <ul>
+  /// <li>
+  /// Invoke the latest version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a specific version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>version-number</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a function by using an alias Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>alias-name</i>
+  /// </code>
+  /// </li>
+  /// </ul>
   /// <b>SNS notification action:</b>
   ///
   /// <ul>
   /// <li>
-  /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>:autoScalingGroupName/<i>group-friendly-name</i>:policyName/<i>policy-friendly-name</i>
+  /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>
   /// </code>
   /// </li>
   /// </ul>
@@ -2505,11 +2753,56 @@ class CloudWatch {
   /// Valid Values: <code>evaluate | ignore</code>
   ///
   /// Parameter [extendedStatistic] :
-  /// The percentile statistic for the metric specified in
-  /// <code>MetricName</code>. Specify a value between p0.0 and p100. When you
-  /// call <code>PutMetricAlarm</code> and specify a <code>MetricName</code>,
-  /// you must specify either <code>Statistic</code> or
-  /// <code>ExtendedStatistic,</code> but not both.
+  /// The extended statistic for the metric specified in
+  /// <code>MetricName</code>. When you call <code>PutMetricAlarm</code> and
+  /// specify a <code>MetricName</code>, you must specify either
+  /// <code>Statistic</code> or <code>ExtendedStatistic</code> but not both.
+  ///
+  /// If you specify <code>ExtendedStatistic</code>, the following are valid
+  /// values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>p90</code>
+  /// </li>
+  /// <li>
+  /// <code>tm90</code>
+  /// </li>
+  /// <li>
+  /// <code>tc90</code>
+  /// </li>
+  /// <li>
+  /// <code>ts90</code>
+  /// </li>
+  /// <li>
+  /// <code>wm90</code>
+  /// </li>
+  /// <li>
+  /// <code>IQM</code>
+  /// </li>
+  /// <li>
+  /// <code>PR(<i>n</i>:<i>m</i>)</code> where n and m are values of the metric
+  /// </li>
+  /// <li>
+  /// <code>TC(<i>X</i>%:<i>X</i>%)</code> where X is between 10 and 90
+  /// inclusive.
+  /// </li>
+  /// <li>
+  /// <code>TM(<i>X</i>%:<i>X</i>%)</code> where X is between 10 and 90
+  /// inclusive.
+  /// </li>
+  /// <li>
+  /// <code>TS(<i>X</i>%:<i>X</i>%)</code> where X is between 10 and 90
+  /// inclusive.
+  /// </li>
+  /// <li>
+  /// <code>WM(<i>X</i>%:<i>X</i>%)</code> where X is between 10 and 90
+  /// inclusive.
+  /// </li>
+  /// </ul>
+  /// For more information about these extended statistics, see <a
+  /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Statistics-definitions.html">CloudWatch
+  /// statistics definitions</a>.
   ///
   /// Parameter [insufficientDataActions] :
   /// The actions to execute when this alarm transitions to the
@@ -2552,11 +2845,30 @@ class CloudWatch {
   /// </code>
   /// </li>
   /// </ul>
+  /// <b>Lambda actions:</b>
+  ///
+  /// <ul>
+  /// <li>
+  /// Invoke the latest version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a specific version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>version-number</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a function by using an alias Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>alias-name</i>
+  /// </code>
+  /// </li>
+  /// </ul>
   /// <b>SNS notification action:</b>
   ///
   /// <ul>
   /// <li>
-  /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>:autoScalingGroupName/<i>group-friendly-name</i>:policyName/<i>policy-friendly-name</i>
+  /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>
   /// </code>
   /// </li>
   /// </ul>
@@ -2579,10 +2891,11 @@ class CloudWatch {
   /// <code>MetricName</code> or a <code>Metrics</code> array.
   ///
   /// If you are creating an alarm based on a math expression, you cannot
-  /// specify this parameter, or any of the <code>Dimensions</code>,
-  /// <code>Period</code>, <code>Namespace</code>, <code>Statistic</code>, or
-  /// <code>ExtendedStatistic</code> parameters. Instead, you specify all this
-  /// information in the <code>Metrics</code> array.
+  /// specify this parameter, or any of the <code>Namespace</code>,
+  /// <code>Dimensions</code>, <code>Period</code>, <code>Unit</code>,
+  /// <code>Statistic</code>, or <code>ExtendedStatistic</code> parameters.
+  /// Instead, you specify all this information in the <code>Metrics</code>
+  /// array.
   ///
   /// Parameter [metrics] :
   /// An array of <code>MetricDataQuery</code> structures that enable you to
@@ -2600,8 +2913,8 @@ class CloudWatch {
   /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/APIReference/API_MetricDataQuery.html">MetricDataQuery</a>.
   ///
   /// If you use the <code>Metrics</code> parameter, you cannot include the
-  /// <code>MetricName</code>, <code>Dimensions</code>, <code>Period</code>,
-  /// <code>Namespace</code>, <code>Statistic</code>, or
+  /// <code>Namespace</code>, <code>MetricName</code>, <code>Dimensions</code>,
+  /// <code>Period</code>, <code>Unit</code>, <code>Statistic</code>, or
   /// <code>ExtendedStatistic</code> parameters of <code>PutMetricAlarm</code>
   /// in the same operation. Instead, you retrieve the metrics you are using in
   /// your math expression as part of the <code>Metrics</code> array.
@@ -2651,11 +2964,30 @@ class CloudWatch {
   /// </code>
   /// </li>
   /// </ul>
+  /// <b>Lambda actions:</b>
+  ///
+  /// <ul>
+  /// <li>
+  /// Invoke the latest version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a specific version of a Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>version-number</i>
+  /// </code>
+  /// </li>
+  /// <li>
+  /// Invoke a function by using an alias Lambda function:
+  /// <code>arn:aws:lambda:<i>region</i>:<i>account-id</i>:function:<i>function-name</i>:<i>alias-name</i>
+  /// </code>
+  /// </li>
+  /// </ul>
   /// <b>SNS notification action:</b>
   ///
   /// <ul>
   /// <li>
-  /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>:autoScalingGroupName/<i>group-friendly-name</i>:policyName/<i>policy-friendly-name</i>
+  /// <code>arn:aws:sns:<i>region</i>:<i>account-id</i>:<i>sns-topic-name</i>
   /// </code>
   /// </li>
   /// </ul>
@@ -2707,7 +3039,9 @@ class CloudWatch {
   ///
   /// Parameter [tags] :
   /// A list of key-value pairs to associate with the alarm. You can associate
-  /// as many as 50 tags with an alarm.
+  /// as many as 50 tags with an alarm. To be able to associate tags with the
+  /// alarm when you create the alarm, you must have the
+  /// <code>cloudwatch:TagResource</code> permission.
   ///
   /// Tags can help you organize and categorize your resources. You can also use
   /// them to scope user permissions by granting a user permission to access or
@@ -2757,7 +3091,10 @@ class CloudWatch {
   /// of bytes that an instance receives on all network interfaces. You can also
   /// specify a unit when you create a custom metric. Units help provide
   /// conceptual meaning to your data. Metric data points that specify a unit of
-  /// measure, such as Percent, are aggregated separately.
+  /// measure, such as Percent, are aggregated separately. If you are creating
+  /// an alarm based on a metric math expression, you can specify the unit for
+  /// each metric (if needed) within the objects in the <code>Metrics</code>
+  /// array.
   ///
   /// If you don't specify <code>Unit</code>, CloudWatch retrieves all unit
   /// types that have been published for the metric and attempts to evaluate the
@@ -2814,31 +3151,66 @@ class CloudWatch {
       1,
       1152921504606846976,
     );
-    final $request = <String, dynamic>{};
-    $request['AlarmName'] = alarmName;
-    $request['ComparisonOperator'] = comparisonOperator.toValue();
-    $request['EvaluationPeriods'] = evaluationPeriods;
-    actionsEnabled?.also((arg) => $request['ActionsEnabled'] = arg);
-    alarmActions?.also((arg) => $request['AlarmActions'] = arg);
-    alarmDescription?.also((arg) => $request['AlarmDescription'] = arg);
-    datapointsToAlarm?.also((arg) => $request['DatapointsToAlarm'] = arg);
-    dimensions?.also((arg) => $request['Dimensions'] = arg);
-    evaluateLowSampleCountPercentile
-        ?.also((arg) => $request['EvaluateLowSampleCountPercentile'] = arg);
-    extendedStatistic?.also((arg) => $request['ExtendedStatistic'] = arg);
-    insufficientDataActions
-        ?.also((arg) => $request['InsufficientDataActions'] = arg);
-    metricName?.also((arg) => $request['MetricName'] = arg);
-    metrics?.also((arg) => $request['Metrics'] = arg);
-    namespace?.also((arg) => $request['Namespace'] = arg);
-    oKActions?.also((arg) => $request['OKActions'] = arg);
-    period?.also((arg) => $request['Period'] = arg);
-    statistic?.also((arg) => $request['Statistic'] = arg.toValue());
-    tags?.also((arg) => $request['Tags'] = arg);
-    threshold?.also((arg) => $request['Threshold'] = arg);
-    thresholdMetricId?.also((arg) => $request['ThresholdMetricId'] = arg);
-    treatMissingData?.also((arg) => $request['TreatMissingData'] = arg);
-    unit?.also((arg) => $request['Unit'] = arg.toValue());
+    final $request = <String, String>{
+      'AlarmName': alarmName,
+      'ComparisonOperator': comparisonOperator.value,
+      'EvaluationPeriods': evaluationPeriods.toString(),
+      if (actionsEnabled != null) 'ActionsEnabled': actionsEnabled.toString(),
+      if (alarmActions != null)
+        if (alarmActions.isEmpty)
+          'AlarmActions': ''
+        else
+          for (var i1 = 0; i1 < alarmActions.length; i1++)
+            'AlarmActions.member.${i1 + 1}': alarmActions[i1],
+      if (alarmDescription != null) 'AlarmDescription': alarmDescription,
+      if (datapointsToAlarm != null)
+        'DatapointsToAlarm': datapointsToAlarm.toString(),
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (evaluateLowSampleCountPercentile != null)
+        'EvaluateLowSampleCountPercentile': evaluateLowSampleCountPercentile,
+      if (extendedStatistic != null) 'ExtendedStatistic': extendedStatistic,
+      if (insufficientDataActions != null)
+        if (insufficientDataActions.isEmpty)
+          'InsufficientDataActions': ''
+        else
+          for (var i1 = 0; i1 < insufficientDataActions.length; i1++)
+            'InsufficientDataActions.member.${i1 + 1}':
+                insufficientDataActions[i1],
+      if (metricName != null) 'MetricName': metricName,
+      if (metrics != null)
+        if (metrics.isEmpty)
+          'Metrics': ''
+        else
+          for (var i1 = 0; i1 < metrics.length; i1++)
+            for (var e3 in metrics[i1].toQueryMap().entries)
+              'Metrics.member.${i1 + 1}.${e3.key}': e3.value,
+      if (namespace != null) 'Namespace': namespace,
+      if (oKActions != null)
+        if (oKActions.isEmpty)
+          'OKActions': ''
+        else
+          for (var i1 = 0; i1 < oKActions.length; i1++)
+            'OKActions.member.${i1 + 1}': oKActions[i1],
+      if (period != null) 'Period': period.toString(),
+      if (statistic != null) 'Statistic': statistic.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+      if (threshold != null) 'Threshold': threshold.toString(),
+      if (thresholdMetricId != null) 'ThresholdMetricId': thresholdMetricId,
+      if (treatMissingData != null) 'TreatMissingData': treatMissingData,
+      if (unit != null) 'Unit': unit.value,
+    };
     await _protocol.send(
       $request,
       action: 'PutMetricAlarm',
@@ -2846,8 +3218,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutMetricAlarmInput'],
-      shapes: shapes,
     );
   }
 
@@ -2861,7 +3231,7 @@ class CloudWatch {
   /// You can publish either individual data points in the <code>Value</code>
   /// field, or arrays of values and the number of times each value occurred
   /// during the period by using the <code>Values</code> and <code>Counts</code>
-  /// fields in the <code>MetricDatum</code> structure. Using the
+  /// fields in the <code>MetricData</code> structure. Using the
   /// <code>Values</code> and <code>Counts</code> method enables you to publish
   /// up to 150 values per metric with one <code>PutMetricData</code> request,
   /// and supports retrieving percentile statistics on this data.
@@ -2932,9 +3302,15 @@ class CloudWatch {
     required List<MetricDatum> metricData,
     required String namespace,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['MetricData'] = metricData;
-    $request['Namespace'] = namespace;
+    final $request = <String, String>{
+      if (metricData.isEmpty)
+        'MetricData': ''
+      else
+        for (var i1 = 0; i1 < metricData.length; i1++)
+          for (var e3 in metricData[i1].toQueryMap().entries)
+            'MetricData.member.${i1 + 1}.${e3.key}': e3.value,
+      'Namespace': namespace,
+    };
     await _protocol.send(
       $request,
       action: 'PutMetricData',
@@ -2942,8 +3318,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutMetricDataInput'],
-      shapes: shapes,
     );
   }
 
@@ -3016,9 +3390,9 @@ class CloudWatch {
   /// Valid characters are A-Z, a-z, 0-9, "-" and "_".
   ///
   /// Parameter [outputFormat] :
-  /// The output format for the stream. Valid values are <code>json</code> and
-  /// <code>opentelemetry0.7</code>. For more information about metric stream
-  /// output formats, see <a
+  /// The output format for the stream. Valid values are <code>json</code>,
+  /// <code>opentelemetry1.0</code>, and <code>opentelemetry0.7</code>. For more
+  /// information about metric stream output formats, see <a
   /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-metric-streams-formats.html">
   /// Metric streams output formats</a>.
   ///
@@ -3071,8 +3445,8 @@ class CloudWatch {
   /// supported by CloudWatch, listed in <a
   /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/Statistics-definitions.html.html">
   /// CloudWatch statistics definitions</a>. If the <code>OutputFormat</code> is
-  /// <code>opentelemetry0.7</code>, you can stream percentile statistics such
-  /// as p95, p99.9, and so on.
+  /// <code>opentelemetry1.0</code> or <code>opentelemetry0.7</code>, you can
+  /// stream percentile statistics such as p95, p99.9, and so on.
   ///
   /// Parameter [tags] :
   /// A list of key-value pairs to associate with the metric stream. You can
@@ -3100,18 +3474,42 @@ class CloudWatch {
     List<MetricStreamStatisticsConfiguration>? statisticsConfigurations,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['FirehoseArn'] = firehoseArn;
-    $request['Name'] = name;
-    $request['OutputFormat'] = outputFormat.toValue();
-    $request['RoleArn'] = roleArn;
-    excludeFilters?.also((arg) => $request['ExcludeFilters'] = arg);
-    includeFilters?.also((arg) => $request['IncludeFilters'] = arg);
-    includeLinkedAccountsMetrics
-        ?.also((arg) => $request['IncludeLinkedAccountsMetrics'] = arg);
-    statisticsConfigurations
-        ?.also((arg) => $request['StatisticsConfigurations'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'FirehoseArn': firehoseArn,
+      'Name': name,
+      'OutputFormat': outputFormat.value,
+      'RoleArn': roleArn,
+      if (excludeFilters != null)
+        if (excludeFilters.isEmpty)
+          'ExcludeFilters': ''
+        else
+          for (var i1 = 0; i1 < excludeFilters.length; i1++)
+            for (var e3 in excludeFilters[i1].toQueryMap().entries)
+              'ExcludeFilters.member.${i1 + 1}.${e3.key}': e3.value,
+      if (includeFilters != null)
+        if (includeFilters.isEmpty)
+          'IncludeFilters': ''
+        else
+          for (var i1 = 0; i1 < includeFilters.length; i1++)
+            for (var e3 in includeFilters[i1].toQueryMap().entries)
+              'IncludeFilters.member.${i1 + 1}.${e3.key}': e3.value,
+      if (includeLinkedAccountsMetrics != null)
+        'IncludeLinkedAccountsMetrics': includeLinkedAccountsMetrics.toString(),
+      if (statisticsConfigurations != null)
+        if (statisticsConfigurations.isEmpty)
+          'StatisticsConfigurations': ''
+        else
+          for (var i1 = 0; i1 < statisticsConfigurations.length; i1++)
+            for (var e3 in statisticsConfigurations[i1].toQueryMap().entries)
+              'StatisticsConfigurations.member.${i1 + 1}.${e3.key}': e3.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'PutMetricStream',
@@ -3119,8 +3517,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutMetricStreamInput'],
-      shapes: shapes,
       resultWrapper: 'PutMetricStreamResult',
     );
     return PutMetricStreamOutput.fromXml($result);
@@ -3171,11 +3567,12 @@ class CloudWatch {
     required StateValue stateValue,
     String? stateReasonData,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AlarmName'] = alarmName;
-    $request['StateReason'] = stateReason;
-    $request['StateValue'] = stateValue.toValue();
-    stateReasonData?.also((arg) => $request['StateReasonData'] = arg);
+    final $request = <String, String>{
+      'AlarmName': alarmName,
+      'StateReason': stateReason,
+      'StateValue': stateValue.value,
+      if (stateReasonData != null) 'StateReasonData': stateReasonData,
+    };
     await _protocol.send(
       $request,
       action: 'SetAlarmState',
@@ -3183,8 +3580,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SetAlarmStateInput'],
-      shapes: shapes,
     );
   }
 
@@ -3203,8 +3598,13 @@ class CloudWatch {
   Future<void> startMetricStreams({
     required List<String> names,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Names'] = names;
+    final $request = <String, String>{
+      if (names.isEmpty)
+        'Names': ''
+      else
+        for (var i1 = 0; i1 < names.length; i1++)
+          'Names.member.${i1 + 1}': names[i1],
+    };
     await _protocol.send(
       $request,
       action: 'StartMetricStreams',
@@ -3212,8 +3612,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['StartMetricStreamsInput'],
-      shapes: shapes,
       resultWrapper: 'StartMetricStreamsResult',
     );
   }
@@ -3233,8 +3631,13 @@ class CloudWatch {
   Future<void> stopMetricStreams({
     required List<String> names,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Names'] = names;
+    final $request = <String, String>{
+      if (names.isEmpty)
+        'Names': ''
+      else
+        for (var i1 = 0; i1 < names.length; i1++)
+          'Names.member.${i1 + 1}': names[i1],
+    };
     await _protocol.send(
       $request,
       action: 'StopMetricStreams',
@@ -3242,8 +3645,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['StopMetricStreamsInput'],
-      shapes: shapes,
       resultWrapper: 'StopMetricStreamsResult',
     );
   }
@@ -3280,7 +3681,7 @@ class CloudWatch {
   /// </code>
   ///
   /// The ARN format of a Contributor Insights rule is
-  /// <code>arn:aws:cloudwatch:<i>Region</i>:<i>account-id</i>:insight-rule:<i>insight-rule-name</i>
+  /// <code>arn:aws:cloudwatch:<i>Region</i>:<i>account-id</i>:insight-rule/<i>insight-rule-name</i>
   /// </code>
   ///
   /// For more information about ARN format, see <a
@@ -3294,9 +3695,15 @@ class CloudWatch {
     required String resourceARN,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceARN'] = resourceARN;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'ResourceARN': resourceARN,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagResource',
@@ -3304,8 +3711,6 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagResourceInput'],
-      shapes: shapes,
       resultWrapper: 'TagResourceResult',
     );
   }
@@ -3325,7 +3730,7 @@ class CloudWatch {
   /// </code>
   ///
   /// The ARN format of a Contributor Insights rule is
-  /// <code>arn:aws:cloudwatch:<i>Region</i>:<i>account-id</i>:insight-rule:<i>insight-rule-name</i>
+  /// <code>arn:aws:cloudwatch:<i>Region</i>:<i>account-id</i>:insight-rule/<i>insight-rule-name</i>
   /// </code>
   ///
   /// For more information about ARN format, see <a
@@ -3339,9 +3744,14 @@ class CloudWatch {
     required String resourceARN,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceARN'] = resourceARN;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'ResourceARN': resourceARN,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagResource',
@@ -3349,44 +3759,25 @@ class CloudWatch {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagResourceInput'],
-      shapes: shapes,
       resultWrapper: 'UntagResourceResult',
     );
   }
 }
 
 enum ActionsSuppressedBy {
-  waitPeriod,
-  extensionPeriod,
-  alarm,
-}
+  waitPeriod('WaitPeriod'),
+  extensionPeriod('ExtensionPeriod'),
+  alarm('Alarm'),
+  ;
 
-extension ActionsSuppressedByValueExtension on ActionsSuppressedBy {
-  String toValue() {
-    switch (this) {
-      case ActionsSuppressedBy.waitPeriod:
-        return 'WaitPeriod';
-      case ActionsSuppressedBy.extensionPeriod:
-        return 'ExtensionPeriod';
-      case ActionsSuppressedBy.alarm:
-        return 'Alarm';
-    }
-  }
-}
+  final String value;
 
-extension ActionsSuppressedByFromString on String {
-  ActionsSuppressedBy toActionsSuppressedBy() {
-    switch (this) {
-      case 'WaitPeriod':
-        return ActionsSuppressedBy.waitPeriod;
-      case 'ExtensionPeriod':
-        return ActionsSuppressedBy.extensionPeriod;
-      case 'Alarm':
-        return ActionsSuppressedBy.alarm;
-    }
-    throw Exception('$this is not known in enum ActionsSuppressedBy');
-  }
+  const ActionsSuppressedBy(this.value);
+
+  static ActionsSuppressedBy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ActionsSuppressedBy'));
 }
 
 /// Represents the history of a specific alarm.
@@ -3420,11 +3811,13 @@ class AlarmHistoryItem {
   factory AlarmHistoryItem.fromXml(_s.XmlElement elem) {
     return AlarmHistoryItem(
       alarmName: _s.extractXmlStringValue(elem, 'AlarmName'),
-      alarmType: _s.extractXmlStringValue(elem, 'AlarmType')?.toAlarmType(),
+      alarmType: _s
+          .extractXmlStringValue(elem, 'AlarmType')
+          ?.let(AlarmType.fromString),
       historyData: _s.extractXmlStringValue(elem, 'HistoryData'),
       historyItemType: _s
           .extractXmlStringValue(elem, 'HistoryItemType')
-          ?.toHistoryItemType(),
+          ?.let(HistoryItemType.fromString),
       historySummary: _s.extractXmlStringValue(elem, 'HistorySummary'),
       timestamp: _s.extractXmlDateTimeValue(elem, 'Timestamp'),
     );
@@ -3432,36 +3825,26 @@ class AlarmHistoryItem {
 }
 
 enum AlarmType {
-  compositeAlarm,
-  metricAlarm,
-}
+  compositeAlarm('CompositeAlarm'),
+  metricAlarm('MetricAlarm'),
+  ;
 
-extension AlarmTypeValueExtension on AlarmType {
-  String toValue() {
-    switch (this) {
-      case AlarmType.compositeAlarm:
-        return 'CompositeAlarm';
-      case AlarmType.metricAlarm:
-        return 'MetricAlarm';
-    }
-  }
-}
+  final String value;
 
-extension AlarmTypeFromString on String {
-  AlarmType toAlarmType() {
-    switch (this) {
-      case 'CompositeAlarm':
-        return AlarmType.compositeAlarm;
-      case 'MetricAlarm':
-        return AlarmType.metricAlarm;
-    }
-    throw Exception('$this is not known in enum AlarmType');
-  }
+  const AlarmType(this.value);
+
+  static AlarmType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AlarmType'));
 }
 
 /// An anomaly detection model associated with a particular CloudWatch metric,
 /// statistic, or metric math expression. You can use the model to display a
 /// band of expected, normal values when the metric is graphed.
+///
+/// If you have enabled unified cross-account observability, and this account is
+/// a monitoring account, the metric can be in the same account or a source
+/// account.
 class AnomalyDetector {
   /// The configuration specifies details about how the anomaly detection model is
   /// to be trained, including time ranges to exclude from use for training the
@@ -3470,6 +3853,12 @@ class AnomalyDetector {
 
   /// The metric dimensions associated with the anomaly detection model.
   final List<Dimension>? dimensions;
+
+  /// This object includes parameters that you can use to provide information
+  /// about your metric to CloudWatch to help it build more accurate anomaly
+  /// detection models. Currently, it includes the <code>PeriodicSpikes</code>
+  /// parameter.
+  final MetricCharacteristics? metricCharacteristics;
 
   /// The CloudWatch metric math expression for this anomaly detector.
   final MetricMathAnomalyDetector? metricMathAnomalyDetector;
@@ -3486,13 +3875,13 @@ class AnomalyDetector {
   /// The statistic associated with the anomaly detection model.
   final String? stat;
 
-  /// The current status of the anomaly detector's training. The possible values
-  /// are <code>TRAINED | PENDING_TRAINING | TRAINED_INSUFFICIENT_DATA</code>
+  /// The current status of the anomaly detector's training.
   final AnomalyDetectorStateValue? stateValue;
 
   AnomalyDetector({
     this.configuration,
     this.dimensions,
+    this.metricCharacteristics,
     this.metricMathAnomalyDetector,
     this.metricName,
     this.namespace,
@@ -3507,6 +3896,9 @@ class AnomalyDetector {
           ?.let(AnomalyDetectorConfiguration.fromXml),
       dimensions: _s.extractXmlChild(elem, 'Dimensions')?.let((elem) =>
           elem.findElements('member').map(Dimension.fromXml).toList()),
+      metricCharacteristics: _s
+          .extractXmlChild(elem, 'MetricCharacteristics')
+          ?.let(MetricCharacteristics.fromXml),
       metricMathAnomalyDetector: _s
           .extractXmlChild(elem, 'MetricMathAnomalyDetector')
           ?.let(MetricMathAnomalyDetector.fromXml),
@@ -3518,7 +3910,7 @@ class AnomalyDetector {
       stat: _s.extractXmlStringValue(elem, 'Stat'),
       stateValue: _s
           .extractXmlStringValue(elem, 'StateValue')
-          ?.toAnomalyDetectorStateValue(),
+          ?.let(AnomalyDetectorStateValue.fromString),
     );
   }
 }
@@ -3562,120 +3954,73 @@ class AnomalyDetectorConfiguration {
       if (metricTimezone != null) 'MetricTimezone': metricTimezone,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final excludedTimeRanges = this.excludedTimeRanges;
+    final metricTimezone = this.metricTimezone;
+    return {
+      if (excludedTimeRanges != null)
+        if (excludedTimeRanges.isEmpty)
+          'ExcludedTimeRanges': ''
+        else
+          for (var i1 = 0; i1 < excludedTimeRanges.length; i1++)
+            for (var e3 in excludedTimeRanges[i1].toQueryMap().entries)
+              'ExcludedTimeRanges.member.${i1 + 1}.${e3.key}': e3.value,
+      if (metricTimezone != null) 'MetricTimezone': metricTimezone,
+    };
+  }
 }
 
 enum AnomalyDetectorStateValue {
-  pendingTraining,
-  trainedInsufficientData,
-  trained,
-}
+  pendingTraining('PENDING_TRAINING'),
+  trainedInsufficientData('TRAINED_INSUFFICIENT_DATA'),
+  trained('TRAINED'),
+  ;
 
-extension AnomalyDetectorStateValueValueExtension on AnomalyDetectorStateValue {
-  String toValue() {
-    switch (this) {
-      case AnomalyDetectorStateValue.pendingTraining:
-        return 'PENDING_TRAINING';
-      case AnomalyDetectorStateValue.trainedInsufficientData:
-        return 'TRAINED_INSUFFICIENT_DATA';
-      case AnomalyDetectorStateValue.trained:
-        return 'TRAINED';
-    }
-  }
-}
+  final String value;
 
-extension AnomalyDetectorStateValueFromString on String {
-  AnomalyDetectorStateValue toAnomalyDetectorStateValue() {
-    switch (this) {
-      case 'PENDING_TRAINING':
-        return AnomalyDetectorStateValue.pendingTraining;
-      case 'TRAINED_INSUFFICIENT_DATA':
-        return AnomalyDetectorStateValue.trainedInsufficientData;
-      case 'TRAINED':
-        return AnomalyDetectorStateValue.trained;
-    }
-    throw Exception('$this is not known in enum AnomalyDetectorStateValue');
-  }
+  const AnomalyDetectorStateValue(this.value);
+
+  static AnomalyDetectorStateValue fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AnomalyDetectorStateValue'));
 }
 
 enum AnomalyDetectorType {
-  singleMetric,
-  metricMath,
-}
+  singleMetric('SINGLE_METRIC'),
+  metricMath('METRIC_MATH'),
+  ;
 
-extension AnomalyDetectorTypeValueExtension on AnomalyDetectorType {
-  String toValue() {
-    switch (this) {
-      case AnomalyDetectorType.singleMetric:
-        return 'SINGLE_METRIC';
-      case AnomalyDetectorType.metricMath:
-        return 'METRIC_MATH';
-    }
-  }
-}
+  final String value;
 
-extension AnomalyDetectorTypeFromString on String {
-  AnomalyDetectorType toAnomalyDetectorType() {
-    switch (this) {
-      case 'SINGLE_METRIC':
-        return AnomalyDetectorType.singleMetric;
-      case 'METRIC_MATH':
-        return AnomalyDetectorType.metricMath;
-    }
-    throw Exception('$this is not known in enum AnomalyDetectorType');
-  }
+  const AnomalyDetectorType(this.value);
+
+  static AnomalyDetectorType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AnomalyDetectorType'));
 }
 
 enum ComparisonOperator {
-  greaterThanOrEqualToThreshold,
-  greaterThanThreshold,
-  lessThanThreshold,
-  lessThanOrEqualToThreshold,
-  lessThanLowerOrGreaterThanUpperThreshold,
-  lessThanLowerThreshold,
-  greaterThanUpperThreshold,
-}
+  greaterThanOrEqualToThreshold('GreaterThanOrEqualToThreshold'),
+  greaterThanThreshold('GreaterThanThreshold'),
+  lessThanThreshold('LessThanThreshold'),
+  lessThanOrEqualToThreshold('LessThanOrEqualToThreshold'),
+  lessThanLowerOrGreaterThanUpperThreshold(
+      'LessThanLowerOrGreaterThanUpperThreshold'),
+  lessThanLowerThreshold('LessThanLowerThreshold'),
+  greaterThanUpperThreshold('GreaterThanUpperThreshold'),
+  ;
 
-extension ComparisonOperatorValueExtension on ComparisonOperator {
-  String toValue() {
-    switch (this) {
-      case ComparisonOperator.greaterThanOrEqualToThreshold:
-        return 'GreaterThanOrEqualToThreshold';
-      case ComparisonOperator.greaterThanThreshold:
-        return 'GreaterThanThreshold';
-      case ComparisonOperator.lessThanThreshold:
-        return 'LessThanThreshold';
-      case ComparisonOperator.lessThanOrEqualToThreshold:
-        return 'LessThanOrEqualToThreshold';
-      case ComparisonOperator.lessThanLowerOrGreaterThanUpperThreshold:
-        return 'LessThanLowerOrGreaterThanUpperThreshold';
-      case ComparisonOperator.lessThanLowerThreshold:
-        return 'LessThanLowerThreshold';
-      case ComparisonOperator.greaterThanUpperThreshold:
-        return 'GreaterThanUpperThreshold';
-    }
-  }
-}
+  final String value;
 
-extension ComparisonOperatorFromString on String {
-  ComparisonOperator toComparisonOperator() {
-    switch (this) {
-      case 'GreaterThanOrEqualToThreshold':
-        return ComparisonOperator.greaterThanOrEqualToThreshold;
-      case 'GreaterThanThreshold':
-        return ComparisonOperator.greaterThanThreshold;
-      case 'LessThanThreshold':
-        return ComparisonOperator.lessThanThreshold;
-      case 'LessThanOrEqualToThreshold':
-        return ComparisonOperator.lessThanOrEqualToThreshold;
-      case 'LessThanLowerOrGreaterThanUpperThreshold':
-        return ComparisonOperator.lessThanLowerOrGreaterThanUpperThreshold;
-      case 'LessThanLowerThreshold':
-        return ComparisonOperator.lessThanLowerThreshold;
-      case 'GreaterThanUpperThreshold':
-        return ComparisonOperator.greaterThanUpperThreshold;
-    }
-    throw Exception('$this is not known in enum ComparisonOperator');
-  }
+  const ComparisonOperator(this.value);
+
+  static ComparisonOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComparisonOperator'));
 }
 
 /// The details about a composite alarm.
@@ -3794,7 +4139,7 @@ class CompositeAlarm {
       actionsEnabled: _s.extractXmlBoolValue(elem, 'ActionsEnabled'),
       actionsSuppressedBy: _s
           .extractXmlStringValue(elem, 'ActionsSuppressedBy')
-          ?.toActionsSuppressedBy(),
+          ?.let(ActionsSuppressedBy.fromString),
       actionsSuppressedReason:
           _s.extractXmlStringValue(elem, 'ActionsSuppressedReason'),
       actionsSuppressor: _s.extractXmlStringValue(elem, 'ActionsSuppressor'),
@@ -3823,7 +4168,9 @@ class CompositeAlarm {
           _s.extractXmlDateTimeValue(elem, 'StateTransitionedTimestamp'),
       stateUpdatedTimestamp:
           _s.extractXmlDateTimeValue(elem, 'StateUpdatedTimestamp'),
-      stateValue: _s.extractXmlStringValue(elem, 'StateValue')?.toStateValue(),
+      stateValue: _s
+          .extractXmlStringValue(elem, 'StateValue')
+          ?.let(StateValue.fromString),
     );
   }
 }
@@ -3934,7 +4281,8 @@ class Datapoint {
       sampleCount: _s.extractXmlDoubleValue(elem, 'SampleCount'),
       sum: _s.extractXmlDoubleValue(elem, 'Sum'),
       timestamp: _s.extractXmlDateTimeValue(elem, 'Timestamp'),
-      unit: _s.extractXmlStringValue(elem, 'Unit')?.toStandardUnit(),
+      unit:
+          _s.extractXmlStringValue(elem, 'Unit')?.let(StandardUnit.fromString),
     );
   }
 }
@@ -4131,6 +4479,15 @@ class Dimension {
       'Value': value,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final name = this.name;
+    final value = this.value;
+    return {
+      'Name': name,
+      'Value': value,
+    };
+  }
 }
 
 /// Represents filters for a dimension.
@@ -4147,6 +4504,15 @@ class DimensionFilter {
   });
 
   Map<String, dynamic> toJson() {
+    final name = this.name;
+    final value = this.value;
+    return {
+      'Name': name,
+      if (value != null) 'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final name = this.name;
     final value = this.value;
     return {
@@ -4189,26 +4555,17 @@ class EnableInsightRulesOutput {
 }
 
 enum EvaluationState {
-  partialData,
-}
+  partialData('PARTIAL_DATA'),
+  ;
 
-extension EvaluationStateValueExtension on EvaluationState {
-  String toValue() {
-    switch (this) {
-      case EvaluationState.partialData:
-        return 'PARTIAL_DATA';
-    }
-  }
-}
+  final String value;
 
-extension EvaluationStateFromString on String {
-  EvaluationState toEvaluationState() {
-    switch (this) {
-      case 'PARTIAL_DATA':
-        return EvaluationState.partialData;
-    }
-    throw Exception('$this is not known in enum EvaluationState');
-  }
+  const EvaluationState(this.value);
+
+  static EvaluationState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EvaluationState'));
 }
 
 class GetDashboardOutput {
@@ -4386,9 +4743,9 @@ class GetMetricStreamOutput {
   /// The name of the metric stream.
   final String? name;
 
-  /// The output format for the stream. Valid values are <code>json</code> and
-  /// <code>opentelemetry0.7</code>. For more information about metric stream
-  /// output formats, see <a
+  /// The output format for the stream. Valid values are <code>json</code>,
+  /// <code>opentelemetry1.0</code>, and <code>opentelemetry0.7</code>. For more
+  /// information about metric stream output formats, see <a
   /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-metric-streams-formats.html">Metric
   /// streams output formats</a>.
   final MetricStreamOutputFormat? outputFormat;
@@ -4436,7 +4793,7 @@ class GetMetricStreamOutput {
       name: _s.extractXmlStringValue(elem, 'Name'),
       outputFormat: _s
           .extractXmlStringValue(elem, 'OutputFormat')
-          ?.toMetricStreamOutputFormat(),
+          ?.let(MetricStreamOutputFormat.fromString),
       roleArn: _s.extractXmlStringValue(elem, 'RoleArn'),
       state: _s.extractXmlStringValue(elem, 'State'),
       statisticsConfigurations: _s
@@ -4465,36 +4822,19 @@ class GetMetricWidgetImageOutput {
 }
 
 enum HistoryItemType {
-  configurationUpdate,
-  stateUpdate,
-  action,
-}
+  configurationUpdate('ConfigurationUpdate'),
+  stateUpdate('StateUpdate'),
+  action('Action'),
+  ;
 
-extension HistoryItemTypeValueExtension on HistoryItemType {
-  String toValue() {
-    switch (this) {
-      case HistoryItemType.configurationUpdate:
-        return 'ConfigurationUpdate';
-      case HistoryItemType.stateUpdate:
-        return 'StateUpdate';
-      case HistoryItemType.action:
-        return 'Action';
-    }
-  }
-}
+  final String value;
 
-extension HistoryItemTypeFromString on String {
-  HistoryItemType toHistoryItemType() {
-    switch (this) {
-      case 'ConfigurationUpdate':
-        return HistoryItemType.configurationUpdate;
-      case 'StateUpdate':
-        return HistoryItemType.stateUpdate;
-      case 'Action':
-        return HistoryItemType.action;
-    }
-    throw Exception('$this is not known in enum HistoryItemType');
-  }
+  const HistoryItemType(this.value);
+
+  static HistoryItemType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum HistoryItemType'));
 }
 
 /// This structure contains the definition for a Contributor Insights rule. For
@@ -4718,6 +5058,13 @@ class LabelOptions {
       if (timezone != null) 'Timezone': timezone,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final timezone = this.timezone;
+    return {
+      if (timezone != null) 'Timezone': timezone,
+    };
+  }
 }
 
 class ListDashboardsOutput {
@@ -4873,6 +5220,23 @@ class ManagedRule {
       if (tags != null) 'Tags': tags,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final resourceARN = this.resourceARN;
+    final templateName = this.templateName;
+    final tags = this.tags;
+    return {
+      'ResourceARN': resourceARN,
+      'TemplateName': templateName,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+  }
 }
 
 /// Contains information about managed Contributor Insights rules, as returned
@@ -4985,6 +5349,23 @@ class Metric {
     final namespace = this.namespace;
     return {
       if (dimensions != null) 'Dimensions': dimensions,
+      if (metricName != null) 'MetricName': metricName,
+      if (namespace != null) 'Namespace': namespace,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final dimensions = this.dimensions;
+    final metricName = this.metricName;
+    final namespace = this.namespace;
+    return {
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
       if (metricName != null) 'MetricName': metricName,
       if (namespace != null) 'Namespace': namespace,
     };
@@ -5159,7 +5540,7 @@ class MetricAlarm {
       alarmName: _s.extractXmlStringValue(elem, 'AlarmName'),
       comparisonOperator: _s
           .extractXmlStringValue(elem, 'ComparisonOperator')
-          ?.toComparisonOperator(),
+          ?.let(ComparisonOperator.fromString),
       datapointsToAlarm: _s.extractXmlIntValue(elem, 'DatapointsToAlarm'),
       dimensions: _s.extractXmlChild(elem, 'Dimensions')?.let((elem) =>
           elem.findElements('member').map(Dimension.fromXml).toList()),
@@ -5168,7 +5549,7 @@ class MetricAlarm {
       evaluationPeriods: _s.extractXmlIntValue(elem, 'EvaluationPeriods'),
       evaluationState: _s
           .extractXmlStringValue(elem, 'EvaluationState')
-          ?.toEvaluationState(),
+          ?.let(EvaluationState.fromString),
       extendedStatistic: _s.extractXmlStringValue(elem, 'ExtendedStatistic'),
       insufficientDataActions: _s
           .extractXmlChild(elem, 'InsufficientDataActions')
@@ -5187,13 +5568,52 @@ class MetricAlarm {
           _s.extractXmlDateTimeValue(elem, 'StateTransitionedTimestamp'),
       stateUpdatedTimestamp:
           _s.extractXmlDateTimeValue(elem, 'StateUpdatedTimestamp'),
-      stateValue: _s.extractXmlStringValue(elem, 'StateValue')?.toStateValue(),
-      statistic: _s.extractXmlStringValue(elem, 'Statistic')?.toStatistic(),
+      stateValue: _s
+          .extractXmlStringValue(elem, 'StateValue')
+          ?.let(StateValue.fromString),
+      statistic: _s
+          .extractXmlStringValue(elem, 'Statistic')
+          ?.let(Statistic.fromString),
       threshold: _s.extractXmlDoubleValue(elem, 'Threshold'),
       thresholdMetricId: _s.extractXmlStringValue(elem, 'ThresholdMetricId'),
       treatMissingData: _s.extractXmlStringValue(elem, 'TreatMissingData'),
-      unit: _s.extractXmlStringValue(elem, 'Unit')?.toStandardUnit(),
+      unit:
+          _s.extractXmlStringValue(elem, 'Unit')?.let(StandardUnit.fromString),
     );
+  }
+}
+
+/// This object includes parameters that you can use to provide information to
+/// CloudWatch to help it build more accurate anomaly detection models.
+class MetricCharacteristics {
+  /// Set this parameter to <code>true</code> if values for this metric
+  /// consistently include spikes that should not be considered to be anomalies.
+  /// With this set to <code>true</code>, CloudWatch will expect to see spikes
+  /// that occurred consistently during the model training period, and won't flag
+  /// future similar spikes as anomalies.
+  final bool? periodicSpikes;
+
+  MetricCharacteristics({
+    this.periodicSpikes,
+  });
+  factory MetricCharacteristics.fromXml(_s.XmlElement elem) {
+    return MetricCharacteristics(
+      periodicSpikes: _s.extractXmlBoolValue(elem, 'PeriodicSpikes'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final periodicSpikes = this.periodicSpikes;
+    return {
+      if (periodicSpikes != null) 'PeriodicSpikes': periodicSpikes,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final periodicSpikes = this.periodicSpikes;
+    return {
+      if (periodicSpikes != null) 'PeriodicSpikes': periodicSpikes.toString(),
+    };
   }
 }
 
@@ -5344,6 +5764,27 @@ class MetricDataQuery {
       if (returnData != null) 'ReturnData': returnData,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final id = this.id;
+    final accountId = this.accountId;
+    final expression = this.expression;
+    final label = this.label;
+    final metricStat = this.metricStat;
+    final period = this.period;
+    final returnData = this.returnData;
+    return {
+      'Id': id,
+      if (accountId != null) 'AccountId': accountId,
+      if (expression != null) 'Expression': expression,
+      if (label != null) 'Label': label,
+      if (metricStat != null)
+        for (var e1 in metricStat.toQueryMap().entries)
+          'MetricStat.${e1.key}': e1.value,
+      if (period != null) 'Period': period.toString(),
+      if (returnData != null) 'ReturnData': returnData.toString(),
+    };
+  }
 }
 
 /// A <code>GetMetricData</code> call returns an array of
@@ -5394,7 +5835,9 @@ class MetricDataResult {
       label: _s.extractXmlStringValue(elem, 'Label'),
       messages: _s.extractXmlChild(elem, 'Messages')?.let((elem) =>
           elem.findElements('member').map(MessageData.fromXml).toList()),
-      statusCode: _s.extractXmlStringValue(elem, 'StatusCode')?.toStatusCode(),
+      statusCode: _s
+          .extractXmlStringValue(elem, 'StatusCode')
+          ?.let(StatusCode.fromString),
       timestamps: _s
           .extractXmlChild(elem, 'Timestamps')
           ?.let((elem) => _s.extractXmlDateTimeListValues(elem, 'member')),
@@ -5500,9 +5943,51 @@ class MetricDatum {
       if (statisticValues != null) 'StatisticValues': statisticValues,
       if (storageResolution != null) 'StorageResolution': storageResolution,
       if (timestamp != null) 'Timestamp': iso8601ToJson(timestamp),
-      if (unit != null) 'Unit': unit.toValue(),
+      if (unit != null) 'Unit': unit.value,
       if (value != null) 'Value': value,
       if (values != null) 'Values': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final metricName = this.metricName;
+    final counts = this.counts;
+    final dimensions = this.dimensions;
+    final statisticValues = this.statisticValues;
+    final storageResolution = this.storageResolution;
+    final timestamp = this.timestamp;
+    final unit = this.unit;
+    final value = this.value;
+    final values = this.values;
+    return {
+      'MetricName': metricName,
+      if (counts != null)
+        if (counts.isEmpty)
+          'Counts': ''
+        else
+          for (var i1 = 0; i1 < counts.length; i1++)
+            'Counts.member.${i1 + 1}': counts[i1].toString(),
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (statisticValues != null)
+        for (var e1 in statisticValues.toQueryMap().entries)
+          'StatisticValues.${e1.key}': e1.value,
+      if (storageResolution != null)
+        'StorageResolution': storageResolution.toString(),
+      if (timestamp != null) 'Timestamp': _s.iso8601ToJson(timestamp),
+      if (unit != null) 'Unit': unit.value,
+      if (value != null) 'Value': value.toString(),
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1].toString(),
     };
   }
 }
@@ -5539,6 +6024,19 @@ class MetricMathAnomalyDetector {
     final metricDataQueries = this.metricDataQueries;
     return {
       if (metricDataQueries != null) 'MetricDataQueries': metricDataQueries,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final metricDataQueries = this.metricDataQueries;
+    return {
+      if (metricDataQueries != null)
+        if (metricDataQueries.isEmpty)
+          'MetricDataQueries': ''
+        else
+          for (var i1 = 0; i1 < metricDataQueries.length; i1++)
+            for (var e3 in metricDataQueries[i1].toQueryMap().entries)
+              'MetricDataQueries.member.${i1 + 1}.${e3.key}': e3.value,
     };
   }
 }
@@ -5604,7 +6102,8 @@ class MetricStat {
       metric: Metric.fromXml(_s.extractXmlChild(elem, 'Metric')!),
       period: _s.extractXmlIntValue(elem, 'Period')!,
       stat: _s.extractXmlStringValue(elem, 'Stat')!,
-      unit: _s.extractXmlStringValue(elem, 'Unit')?.toStandardUnit(),
+      unit:
+          _s.extractXmlStringValue(elem, 'Unit')?.let(StandardUnit.fromString),
     );
   }
 
@@ -5617,7 +6116,20 @@ class MetricStat {
       'Metric': metric,
       'Period': period,
       'Stat': stat,
-      if (unit != null) 'Unit': unit.toValue(),
+      if (unit != null) 'Unit': unit.value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final metric = this.metric;
+    final period = this.period;
+    final stat = this.stat;
+    final unit = this.unit;
+    return {
+      for (var e1 in metric.toQueryMap().entries) 'Metric.${e1.key}': e1.value,
+      'Period': period.toString(),
+      'Stat': stat,
+      if (unit != null) 'Unit': unit.value,
     };
   }
 }
@@ -5642,8 +6154,8 @@ class MetricStreamEntry {
   /// The name of the metric stream.
   final String? name;
 
-  /// The output format of this metric stream. Valid values are <code>json</code>
-  /// and <code>opentelemetry0.7</code>.
+  /// The output format of this metric stream. Valid values are <code>json</code>,
+  /// <code>opentelemetry1.0</code>, and <code>opentelemetry0.7</code>.
   final MetricStreamOutputFormat? outputFormat;
 
   /// The current state of this stream. Valid values are <code>running</code> and
@@ -5668,7 +6180,7 @@ class MetricStreamEntry {
       name: _s.extractXmlStringValue(elem, 'Name'),
       outputFormat: _s
           .extractXmlStringValue(elem, 'OutputFormat')
-          ?.toMetricStreamOutputFormat(),
+          ?.let(MetricStreamOutputFormat.fromString),
       state: _s.extractXmlStringValue(elem, 'State'),
     );
   }
@@ -5721,34 +6233,36 @@ class MetricStreamFilter {
       if (namespace != null) 'Namespace': namespace,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final metricNames = this.metricNames;
+    final namespace = this.namespace;
+    return {
+      if (metricNames != null)
+        if (metricNames.isEmpty)
+          'MetricNames': ''
+        else
+          for (var i1 = 0; i1 < metricNames.length; i1++)
+            'MetricNames.member.${i1 + 1}': metricNames[i1],
+      if (namespace != null) 'Namespace': namespace,
+    };
+  }
 }
 
 enum MetricStreamOutputFormat {
-  json,
-  opentelemetry0_7,
-}
+  json('json'),
+  opentelemetry0_7('opentelemetry0.7'),
+  opentelemetry1_0('opentelemetry1.0'),
+  ;
 
-extension MetricStreamOutputFormatValueExtension on MetricStreamOutputFormat {
-  String toValue() {
-    switch (this) {
-      case MetricStreamOutputFormat.json:
-        return 'json';
-      case MetricStreamOutputFormat.opentelemetry0_7:
-        return 'opentelemetry0.7';
-    }
-  }
-}
+  final String value;
 
-extension MetricStreamOutputFormatFromString on String {
-  MetricStreamOutputFormat toMetricStreamOutputFormat() {
-    switch (this) {
-      case 'json':
-        return MetricStreamOutputFormat.json;
-      case 'opentelemetry0.7':
-        return MetricStreamOutputFormat.opentelemetry0_7;
-    }
-    throw Exception('$this is not known in enum MetricStreamOutputFormat');
-  }
+  const MetricStreamOutputFormat(this.value);
+
+  static MetricStreamOutputFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MetricStreamOutputFormat'));
 }
 
 /// By default, a metric stream always sends the <code>MAX</code>,
@@ -5764,9 +6278,9 @@ class MetricStreamStatisticsConfiguration {
   /// can include as many as 20 statistics.
   ///
   /// If the <code>OutputFormat</code> for the stream is
-  /// <code>opentelemetry0.7</code>, the only valid values are <code>p<i>??</i>
-  /// </code> percentile statistics such as <code>p90</code>, <code>p99</code> and
-  /// so on.
+  /// <code>opentelemetry1.0</code> or <code>opentelemetry0.7</code>, the only
+  /// valid values are <code>p<i>??</i> </code> percentile statistics such as
+  /// <code>p90</code>, <code>p99</code> and so on.
   ///
   /// If the <code>OutputFormat</code> for the stream is <code>json</code>, the
   /// valid values include the abbreviations for all of the statistics listed in
@@ -5808,6 +6322,24 @@ class MetricStreamStatisticsConfiguration {
       'IncludeMetrics': includeMetrics,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final additionalStatistics = this.additionalStatistics;
+    final includeMetrics = this.includeMetrics;
+    return {
+      if (additionalStatistics.isEmpty)
+        'AdditionalStatistics': ''
+      else
+        for (var i1 = 0; i1 < additionalStatistics.length; i1++)
+          'AdditionalStatistics.member.${i1 + 1}': additionalStatistics[i1],
+      if (includeMetrics.isEmpty)
+        'IncludeMetrics': ''
+      else
+        for (var i1 = 0; i1 < includeMetrics.length; i1++)
+          for (var e3 in includeMetrics[i1].toQueryMap().entries)
+            'IncludeMetrics.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+  }
 }
 
 /// This object contains the information for one metric that is to be streamed
@@ -5831,6 +6363,15 @@ class MetricStreamStatisticsMetric {
   }
 
   Map<String, dynamic> toJson() {
+    final metricName = this.metricName;
+    final namespace = this.namespace;
+    return {
+      'MetricName': metricName,
+      'Namespace': namespace,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final metricName = this.metricName;
     final namespace = this.namespace;
     return {
@@ -5978,62 +6519,55 @@ class Range {
       'StartTime': iso8601ToJson(startTime),
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final endTime = this.endTime;
+    final startTime = this.startTime;
+    return {
+      'EndTime': _s.iso8601ToJson(endTime),
+      'StartTime': _s.iso8601ToJson(startTime),
+    };
+  }
 }
 
 enum RecentlyActive {
-  pt3h,
-}
+  pt3h('PT3H'),
+  ;
 
-extension RecentlyActiveValueExtension on RecentlyActive {
-  String toValue() {
-    switch (this) {
-      case RecentlyActive.pt3h:
-        return 'PT3H';
-    }
-  }
-}
+  final String value;
 
-extension RecentlyActiveFromString on String {
-  RecentlyActive toRecentlyActive() {
-    switch (this) {
-      case 'PT3H':
-        return RecentlyActive.pt3h;
-    }
-    throw Exception('$this is not known in enum RecentlyActive');
-  }
+  const RecentlyActive(this.value);
+
+  static RecentlyActive fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RecentlyActive'));
 }
 
 enum ScanBy {
-  timestampDescending,
-  timestampAscending,
-}
+  timestampDescending('TimestampDescending'),
+  timestampAscending('TimestampAscending'),
+  ;
 
-extension ScanByValueExtension on ScanBy {
-  String toValue() {
-    switch (this) {
-      case ScanBy.timestampDescending:
-        return 'TimestampDescending';
-      case ScanBy.timestampAscending:
-        return 'TimestampAscending';
-    }
-  }
-}
+  final String value;
 
-extension ScanByFromString on String {
-  ScanBy toScanBy() {
-    switch (this) {
-      case 'TimestampDescending':
-        return ScanBy.timestampDescending;
-      case 'TimestampAscending':
-        return ScanBy.timestampAscending;
-    }
-    throw Exception('$this is not known in enum ScanBy');
-  }
+  const ScanBy(this.value);
+
+  static ScanBy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum ScanBy'));
 }
 
 /// Designates the CloudWatch metric and statistic that provides the time series
-/// the anomaly detector uses as input.
+/// the anomaly detector uses as input. If you have enabled unified
+/// cross-account observability, and this account is a monitoring account, the
+/// metric can be in the same account or a source account.
 class SingleMetricAnomalyDetector {
+  /// If the CloudWatch metric that provides the time series that the anomaly
+  /// detector uses as input is in another account, specify that account ID here.
+  /// If you omit this parameter, the current account is used.
+  final String? accountId;
+
   /// The metric dimensions to create the anomaly detection model for.
   final List<Dimension>? dimensions;
 
@@ -6047,6 +6581,7 @@ class SingleMetricAnomalyDetector {
   final String? stat;
 
   SingleMetricAnomalyDetector({
+    this.accountId,
     this.dimensions,
     this.metricName,
     this.namespace,
@@ -6054,6 +6589,7 @@ class SingleMetricAnomalyDetector {
   });
   factory SingleMetricAnomalyDetector.fromXml(_s.XmlElement elem) {
     return SingleMetricAnomalyDetector(
+      accountId: _s.extractXmlStringValue(elem, 'AccountId'),
       dimensions: _s.extractXmlChild(elem, 'Dimensions')?.let((elem) =>
           elem.findElements('member').map(Dimension.fromXml).toList()),
       metricName: _s.extractXmlStringValue(elem, 'MetricName'),
@@ -6063,12 +6599,35 @@ class SingleMetricAnomalyDetector {
   }
 
   Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
     final dimensions = this.dimensions;
     final metricName = this.metricName;
     final namespace = this.namespace;
     final stat = this.stat;
     return {
+      if (accountId != null) 'AccountId': accountId,
       if (dimensions != null) 'Dimensions': dimensions,
+      if (metricName != null) 'MetricName': metricName,
+      if (namespace != null) 'Namespace': namespace,
+      if (stat != null) 'Stat': stat,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final accountId = this.accountId;
+    final dimensions = this.dimensions;
+    final metricName = this.metricName;
+    final namespace = this.namespace;
+    final stat = this.stat;
+    return {
+      if (accountId != null) 'AccountId': accountId,
+      if (dimensions != null)
+        if (dimensions.isEmpty)
+          'Dimensions': ''
+        else
+          for (var i1 = 0; i1 < dimensions.length; i1++)
+            for (var e3 in dimensions[i1].toQueryMap().entries)
+              'Dimensions.member.${i1 + 1}.${e3.key}': e3.value,
       if (metricName != null) 'MetricName': metricName,
       if (namespace != null) 'Namespace': namespace,
       if (stat != null) 'Stat': stat,
@@ -6077,156 +6636,43 @@ class SingleMetricAnomalyDetector {
 }
 
 enum StandardUnit {
-  seconds,
-  microseconds,
-  milliseconds,
-  bytes,
-  kilobytes,
-  megabytes,
-  gigabytes,
-  terabytes,
-  bits,
-  kilobits,
-  megabits,
-  gigabits,
-  terabits,
-  percent,
-  count,
-  bytesSecond,
-  kilobytesSecond,
-  megabytesSecond,
-  gigabytesSecond,
-  terabytesSecond,
-  bitsSecond,
-  kilobitsSecond,
-  megabitsSecond,
-  gigabitsSecond,
-  terabitsSecond,
-  countSecond,
-  none,
-}
+  seconds('Seconds'),
+  microseconds('Microseconds'),
+  milliseconds('Milliseconds'),
+  bytes('Bytes'),
+  kilobytes('Kilobytes'),
+  megabytes('Megabytes'),
+  gigabytes('Gigabytes'),
+  terabytes('Terabytes'),
+  bits('Bits'),
+  kilobits('Kilobits'),
+  megabits('Megabits'),
+  gigabits('Gigabits'),
+  terabits('Terabits'),
+  percent('Percent'),
+  count('Count'),
+  bytesSecond('Bytes/Second'),
+  kilobytesSecond('Kilobytes/Second'),
+  megabytesSecond('Megabytes/Second'),
+  gigabytesSecond('Gigabytes/Second'),
+  terabytesSecond('Terabytes/Second'),
+  bitsSecond('Bits/Second'),
+  kilobitsSecond('Kilobits/Second'),
+  megabitsSecond('Megabits/Second'),
+  gigabitsSecond('Gigabits/Second'),
+  terabitsSecond('Terabits/Second'),
+  countSecond('Count/Second'),
+  none('None'),
+  ;
 
-extension StandardUnitValueExtension on StandardUnit {
-  String toValue() {
-    switch (this) {
-      case StandardUnit.seconds:
-        return 'Seconds';
-      case StandardUnit.microseconds:
-        return 'Microseconds';
-      case StandardUnit.milliseconds:
-        return 'Milliseconds';
-      case StandardUnit.bytes:
-        return 'Bytes';
-      case StandardUnit.kilobytes:
-        return 'Kilobytes';
-      case StandardUnit.megabytes:
-        return 'Megabytes';
-      case StandardUnit.gigabytes:
-        return 'Gigabytes';
-      case StandardUnit.terabytes:
-        return 'Terabytes';
-      case StandardUnit.bits:
-        return 'Bits';
-      case StandardUnit.kilobits:
-        return 'Kilobits';
-      case StandardUnit.megabits:
-        return 'Megabits';
-      case StandardUnit.gigabits:
-        return 'Gigabits';
-      case StandardUnit.terabits:
-        return 'Terabits';
-      case StandardUnit.percent:
-        return 'Percent';
-      case StandardUnit.count:
-        return 'Count';
-      case StandardUnit.bytesSecond:
-        return 'Bytes/Second';
-      case StandardUnit.kilobytesSecond:
-        return 'Kilobytes/Second';
-      case StandardUnit.megabytesSecond:
-        return 'Megabytes/Second';
-      case StandardUnit.gigabytesSecond:
-        return 'Gigabytes/Second';
-      case StandardUnit.terabytesSecond:
-        return 'Terabytes/Second';
-      case StandardUnit.bitsSecond:
-        return 'Bits/Second';
-      case StandardUnit.kilobitsSecond:
-        return 'Kilobits/Second';
-      case StandardUnit.megabitsSecond:
-        return 'Megabits/Second';
-      case StandardUnit.gigabitsSecond:
-        return 'Gigabits/Second';
-      case StandardUnit.terabitsSecond:
-        return 'Terabits/Second';
-      case StandardUnit.countSecond:
-        return 'Count/Second';
-      case StandardUnit.none:
-        return 'None';
-    }
-  }
-}
+  final String value;
 
-extension StandardUnitFromString on String {
-  StandardUnit toStandardUnit() {
-    switch (this) {
-      case 'Seconds':
-        return StandardUnit.seconds;
-      case 'Microseconds':
-        return StandardUnit.microseconds;
-      case 'Milliseconds':
-        return StandardUnit.milliseconds;
-      case 'Bytes':
-        return StandardUnit.bytes;
-      case 'Kilobytes':
-        return StandardUnit.kilobytes;
-      case 'Megabytes':
-        return StandardUnit.megabytes;
-      case 'Gigabytes':
-        return StandardUnit.gigabytes;
-      case 'Terabytes':
-        return StandardUnit.terabytes;
-      case 'Bits':
-        return StandardUnit.bits;
-      case 'Kilobits':
-        return StandardUnit.kilobits;
-      case 'Megabits':
-        return StandardUnit.megabits;
-      case 'Gigabits':
-        return StandardUnit.gigabits;
-      case 'Terabits':
-        return StandardUnit.terabits;
-      case 'Percent':
-        return StandardUnit.percent;
-      case 'Count':
-        return StandardUnit.count;
-      case 'Bytes/Second':
-        return StandardUnit.bytesSecond;
-      case 'Kilobytes/Second':
-        return StandardUnit.kilobytesSecond;
-      case 'Megabytes/Second':
-        return StandardUnit.megabytesSecond;
-      case 'Gigabytes/Second':
-        return StandardUnit.gigabytesSecond;
-      case 'Terabytes/Second':
-        return StandardUnit.terabytesSecond;
-      case 'Bits/Second':
-        return StandardUnit.bitsSecond;
-      case 'Kilobits/Second':
-        return StandardUnit.kilobitsSecond;
-      case 'Megabits/Second':
-        return StandardUnit.megabitsSecond;
-      case 'Gigabits/Second':
-        return StandardUnit.gigabitsSecond;
-      case 'Terabits/Second':
-        return StandardUnit.terabitsSecond;
-      case 'Count/Second':
-        return StandardUnit.countSecond;
-      case 'None':
-        return StandardUnit.none;
-    }
-    throw Exception('$this is not known in enum StandardUnit');
-  }
+  const StandardUnit(this.value);
+
+  static StandardUnit fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StandardUnit'));
 }
 
 class StartMetricStreamsOutput {
@@ -6239,79 +6685,35 @@ class StartMetricStreamsOutput {
 }
 
 enum StateValue {
-  ok,
-  alarm,
-  insufficientData,
-}
+  ok('OK'),
+  alarm('ALARM'),
+  insufficientData('INSUFFICIENT_DATA'),
+  ;
 
-extension StateValueValueExtension on StateValue {
-  String toValue() {
-    switch (this) {
-      case StateValue.ok:
-        return 'OK';
-      case StateValue.alarm:
-        return 'ALARM';
-      case StateValue.insufficientData:
-        return 'INSUFFICIENT_DATA';
-    }
-  }
-}
+  final String value;
 
-extension StateValueFromString on String {
-  StateValue toStateValue() {
-    switch (this) {
-      case 'OK':
-        return StateValue.ok;
-      case 'ALARM':
-        return StateValue.alarm;
-      case 'INSUFFICIENT_DATA':
-        return StateValue.insufficientData;
-    }
-    throw Exception('$this is not known in enum StateValue');
-  }
+  const StateValue(this.value);
+
+  static StateValue fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StateValue'));
 }
 
 enum Statistic {
-  sampleCount,
-  average,
-  sum,
-  minimum,
-  maximum,
-}
+  sampleCount('SampleCount'),
+  average('Average'),
+  sum('Sum'),
+  minimum('Minimum'),
+  maximum('Maximum'),
+  ;
 
-extension StatisticValueExtension on Statistic {
-  String toValue() {
-    switch (this) {
-      case Statistic.sampleCount:
-        return 'SampleCount';
-      case Statistic.average:
-        return 'Average';
-      case Statistic.sum:
-        return 'Sum';
-      case Statistic.minimum:
-        return 'Minimum';
-      case Statistic.maximum:
-        return 'Maximum';
-    }
-  }
-}
+  final String value;
 
-extension StatisticFromString on String {
-  Statistic toStatistic() {
-    switch (this) {
-      case 'SampleCount':
-        return Statistic.sampleCount;
-      case 'Average':
-        return Statistic.average;
-      case 'Sum':
-        return Statistic.sum;
-      case 'Minimum':
-        return Statistic.minimum;
-      case 'Maximum':
-        return Statistic.maximum;
-    }
-    throw Exception('$this is not known in enum Statistic');
-  }
+  const Statistic(this.value);
+
+  static Statistic fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Statistic'));
 }
 
 /// Represents a set of statistics that describes a specific metric.
@@ -6347,44 +6749,35 @@ class StatisticSet {
       'Sum': sum,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final maximum = this.maximum;
+    final minimum = this.minimum;
+    final sampleCount = this.sampleCount;
+    final sum = this.sum;
+    return {
+      'Maximum': maximum.toString(),
+      'Minimum': minimum.toString(),
+      'SampleCount': sampleCount.toString(),
+      'Sum': sum.toString(),
+    };
+  }
 }
 
 enum StatusCode {
-  complete,
-  internalError,
-  partialData,
-  forbidden,
-}
+  complete('Complete'),
+  internalError('InternalError'),
+  partialData('PartialData'),
+  forbidden('Forbidden'),
+  ;
 
-extension StatusCodeValueExtension on StatusCode {
-  String toValue() {
-    switch (this) {
-      case StatusCode.complete:
-        return 'Complete';
-      case StatusCode.internalError:
-        return 'InternalError';
-      case StatusCode.partialData:
-        return 'PartialData';
-      case StatusCode.forbidden:
-        return 'Forbidden';
-    }
-  }
-}
+  final String value;
 
-extension StatusCodeFromString on String {
-  StatusCode toStatusCode() {
-    switch (this) {
-      case 'Complete':
-        return StatusCode.complete;
-      case 'InternalError':
-        return StatusCode.internalError;
-      case 'PartialData':
-        return StatusCode.partialData;
-      case 'Forbidden':
-        return StatusCode.forbidden;
-    }
-    throw Exception('$this is not known in enum StatusCode');
-  }
+  const StatusCode(this.value);
+
+  static StatusCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StatusCode'));
 }
 
 class StopMetricStreamsOutput {
@@ -6417,6 +6810,15 @@ class Tag {
   }
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {

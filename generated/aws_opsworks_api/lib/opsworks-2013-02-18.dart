@@ -19,8 +19,8 @@ import 'package:shared_aws_api/shared.dart'
 
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
-/// Welcome to the <i>AWS OpsWorks Stacks API Reference</i>. This guide provides
-/// descriptions, syntax, and usage examples for AWS OpsWorks Stacks actions and
+/// Welcome to the <i>OpsWorks Stacks API Reference</i>. This guide provides
+/// descriptions, syntax, and usage examples for OpsWorks Stacks actions and
 /// data types, including common parameters and error codes.
 class OpsWorks {
   final _s.JsonProtocol _protocol;
@@ -60,13 +60,13 @@ class OpsWorks {
   /// You can assign registered Amazon EC2 instances only to custom layers.
   /// </li>
   /// <li>
-  /// You cannot use this action with instances that were created with AWS
-  /// OpsWorks Stacks.
+  /// You cannot use this action with instances that were created with OpsWorks
+  /// Stacks.
   /// </li>
   /// </ul>
-  /// <b>Required Permissions</b>: To use this action, an AWS Identity and
-  /// Access Management (IAM) user must have a Manage permissions level for the
-  /// stack or an attached policy that explicitly grants permissions. For more
+  /// <b>Required Permissions</b>: To use this action, an Identity and Access
+  /// Management (IAM) user must have a Manage permissions level for the stack
+  /// or an attached policy that explicitly grants permissions. For more
   /// information on user permissions, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-users.html">Managing
   /// User Permissions</a>.
@@ -187,18 +187,18 @@ class OpsWorks {
     );
   }
 
-  /// Attaches an Elastic Load Balancing load balancer to a specified layer. AWS
+  /// Attaches an Elastic Load Balancing load balancer to a specified layer.
   /// OpsWorks Stacks does not support Application Load Balancer. You can only
-  /// use Classic Load Balancer with AWS OpsWorks Stacks. For more information,
-  /// see <a
+  /// use Classic Load Balancer with OpsWorks Stacks. For more information, see
+  /// <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/layers-elb.html">Elastic
   /// Load Balancing</a>.
   /// <note>
   /// You must create the Elastic Load Balancing instance separately, by using
   /// the Elastic Load Balancing console, API, or CLI. For more information, see
-  /// <a
-  /// href="https://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/Welcome.html">
-  /// Elastic Load Balancing Developer Guide</a>.
+  /// the <a
+  /// href="https://docs.aws.amazon.com/ElasticLoadBalancing/latest/DeveloperGuide/Welcome.html">Elastic
+  /// Load Balancing Developer Guide</a>.
   /// </note>
   /// <b>Required Permissions</b>: To use this action, an IAM user must have a
   /// Manage permissions level for the stack, or an attached policy that
@@ -252,11 +252,11 @@ class OpsWorks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [serviceRoleArn] :
-  /// The stack AWS Identity and Access Management (IAM) role, which allows AWS
-  /// OpsWorks Stacks to work with AWS resources on your behalf. You must set
-  /// this parameter to the Amazon Resource Name (ARN) for an existing IAM role.
-  /// If you create a stack by using the AWS OpsWorks Stacks console, it creates
-  /// the role for you. You can obtain an existing stack's IAM ARN
+  /// The stack Identity and Access Management (IAM) role, which allows OpsWorks
+  /// Stacks to work with Amazon Web Services resources on your behalf. You must
+  /// set this parameter to the Amazon Resource Name (ARN) for an existing IAM
+  /// role. If you create a stack by using the OpsWorkss Stacks console, it
+  /// creates the role for you. You can obtain an existing stack's IAM ARN
   /// programmatically by calling <a>DescribePermissions</a>. For more
   /// information about IAM ARNs, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_Identifiers.html">Using
@@ -271,20 +271,19 @@ class OpsWorks {
   /// The source stack ID.
   ///
   /// Parameter [agentVersion] :
-  /// The default AWS OpsWorks Stacks agent version. You have the following
-  /// options:
+  /// The default OpsWorks Stacks agent version. You have the following options:
   ///
   /// <ul>
   /// <li>
-  /// Auto-update - Set this parameter to <code>LATEST</code>. AWS OpsWorks
-  /// Stacks automatically installs new agent versions on the stack's instances
-  /// as soon as they are available.
+  /// Auto-update - Set this parameter to <code>LATEST</code>. OpsWorks Stacks
+  /// automatically installs new agent versions on the stack's instances as soon
+  /// as they are available.
   /// </li>
   /// <li>
   /// Fixed version - Set this parameter to your preferred agent version. To
   /// update the agent version, you must edit the stack configuration and
-  /// specify a new version. AWS OpsWorks Stacks then automatically installs
-  /// that version on the stack's instances.
+  /// specify a new version. OpsWorks Stacks automatically installs that version
+  /// on the stack's instances.
   /// </li>
   /// </ul>
   /// The default setting is <code>LATEST</code>. To specify an agent version,
@@ -359,15 +358,15 @@ class OpsWorks {
   /// <ul>
   /// <li>
   /// A supported Linux operating system: An Amazon Linux version, such as
-  /// <code>Amazon Linux 2018.03</code>, <code>Amazon Linux 2017.09</code>,
-  /// <code>Amazon Linux 2017.03</code>, <code>Amazon Linux 2016.09</code>,
-  /// <code>Amazon Linux 2016.03</code>, <code>Amazon Linux 2015.09</code>, or
-  /// <code>Amazon Linux 2015.03</code>.
+  /// <code>Amazon Linux 2</code>, <code>Amazon Linux 2018.03</code>,
+  /// <code>Amazon Linux 2017.09</code>, <code>Amazon Linux 2017.03</code>,
+  /// <code>Amazon Linux 2016.09</code>, <code>Amazon Linux 2016.03</code>,
+  /// <code>Amazon Linux 2015.09</code>, or <code>Amazon Linux 2015.03</code>.
   /// </li>
   /// <li>
-  /// A supported Ubuntu operating system, such as <code>Ubuntu 16.04
-  /// LTS</code>, <code>Ubuntu 14.04 LTS</code>, or <code>Ubuntu 12.04
-  /// LTS</code>.
+  /// A supported Ubuntu operating system, such as <code>Ubuntu 18.04
+  /// LTS</code>, <code>Ubuntu 16.04 LTS</code>, <code>Ubuntu 14.04 LTS</code>,
+  /// or <code>Ubuntu 12.04 LTS</code>.
   /// </li>
   /// <li>
   /// <code>CentOS Linux 7</code>
@@ -389,10 +388,11 @@ class OpsWorks {
   /// Custom AMIs</a>.
   /// </li>
   /// </ul>
-  /// The default option is the parent stack's operating system. For more
+  /// The default option is the parent stack's operating system. Not all
+  /// operating systems are supported with all versions of Chef. For more
   /// information about supported operating systems, see <a
-  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">AWS
-  /// OpsWorks Stacks Operating Systems</a>.
+  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">OpsWorks
+  /// Stacks Operating Systems</a>.
   /// <note>
   /// You can specify a different Linux operating system for the cloned stack,
   /// but you cannot change from Linux to Windows or Windows to Linux.
@@ -407,9 +407,9 @@ class OpsWorks {
   ///
   /// Parameter [defaultSshKeyName] :
   /// A default Amazon EC2 key pair name. The default value is none. If you
-  /// specify a key pair name, AWS OpsWorks installs the public key on the
-  /// instance and you can use the private key with an SSH client to log in to
-  /// the instance. For more information, see <a
+  /// specify a key pair name, OpsWorks installs the public key on the instance
+  /// and you can use the private key with an SSH client to log in to the
+  /// instance. For more information, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-ssh.html">
   /// Using SSH to Communicate with an Instance</a> and <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/security-ssh-access.html">
@@ -473,11 +473,12 @@ class OpsWorks {
   /// which returns a host name based on the current theme.
   ///
   /// Parameter [name] :
-  /// The cloned stack name.
+  /// The cloned stack name. Stack names can be a maximum of 64 characters.
   ///
   /// Parameter [region] :
-  /// The cloned stack AWS region, such as "ap-northeast-2". For more
-  /// information about AWS regions, see <a
+  /// The cloned stack Amazon Web Services Region, such as
+  /// <code>ap-northeast-2</code>. For more information about Amazon Web
+  /// Services Regions, see <a
   /// href="https://docs.aws.amazon.com/general/latest/gr/rande.html">Regions
   /// and Endpoints</a>.
   ///
@@ -485,29 +486,29 @@ class OpsWorks {
   /// Whether to use custom cookbooks.
   ///
   /// Parameter [useOpsworksSecurityGroups] :
-  /// Whether to associate the AWS OpsWorks Stacks built-in security groups with
-  /// the stack's layers.
+  /// Whether to associate the OpsWorks Stacks built-in security groups with the
+  /// stack's layers.
   ///
-  /// AWS OpsWorks Stacks provides a standard set of built-in security groups,
-  /// one for each layer, which are associated with layers by default. With
+  /// OpsWorks Stacks provides a standard set of security groups, one for each
+  /// layer, which are associated with layers by default. With
   /// <code>UseOpsworksSecurityGroups</code> you can instead provide your own
   /// custom security groups. <code>UseOpsworksSecurityGroups</code> has the
   /// following settings:
   ///
   /// <ul>
   /// <li>
-  /// True - AWS OpsWorks Stacks automatically associates the appropriate
-  /// built-in security group with each layer (default setting). You can
-  /// associate additional security groups with a layer after you create it but
-  /// you cannot delete the built-in security group.
+  /// True - OpsWorks Stacks automatically associates the appropriate built-in
+  /// security group with each layer (default setting). You can associate
+  /// additional security groups with a layer after you create it but you cannot
+  /// delete the built-in security group.
   /// </li>
   /// <li>
-  /// False - AWS OpsWorks Stacks does not associate built-in security groups
-  /// with layers. You must create appropriate Amazon Elastic Compute Cloud
-  /// (Amazon EC2) security groups and associate a security group with each
-  /// layer that you create. However, you can still manually associate a
-  /// built-in security group with a layer on creation; custom security groups
-  /// are required only for those layers that need custom settings.
+  /// False - OpsWorks Stacks does not associate built-in security groups with
+  /// layers. You must create appropriate Amazon EC2 security groups and
+  /// associate a security group with each layer that you create. However, you
+  /// can still manually associate a built-in security group with a layer on
+  /// creation; custom security groups are required only for those layers that
+  /// need custom settings.
   /// </li>
   /// </ul>
   /// For more information, see <a
@@ -530,10 +531,10 @@ class OpsWorks {
   /// </ul>
   /// If the VPC ID corresponds to a default VPC and you have specified either
   /// the <code>DefaultAvailabilityZone</code> or the
-  /// <code>DefaultSubnetId</code> parameter only, AWS OpsWorks Stacks infers
-  /// the value of the other parameter. If you specify neither parameter, AWS
-  /// OpsWorks Stacks sets these parameters to the first valid Availability Zone
-  /// for the specified region and the corresponding default VPC subnet ID,
+  /// <code>DefaultSubnetId</code> parameter only, OpsWorks Stacks infers the
+  /// value of the other parameter. If you specify neither parameter, OpsWorks
+  /// Stacks sets these parameters to the first valid Availability Zone for the
+  /// specified region and the corresponding default VPC subnet ID,
   /// respectively.
   ///
   /// If you specify a nondefault VPC ID, note the following:
@@ -546,8 +547,7 @@ class OpsWorks {
   /// You must specify a value for <code>DefaultSubnetId</code>.
   /// </li>
   /// </ul>
-  /// For more information about how to use AWS OpsWorks Stacks with a VPC, see
-  /// <a
+  /// For more information about how to use OpsWorks Stacks with a VPC, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-vpc.html">Running
   /// a Stack in a VPC</a>. For more information about default VPC and EC2
   /// Classic, see <a
@@ -592,7 +592,7 @@ class OpsWorks {
         'SourceStackId': sourceStackId,
         if (agentVersion != null) 'AgentVersion': agentVersion,
         if (attributes != null)
-          'Attributes': attributes.map((k, e) => MapEntry(k.toValue(), e)),
+          'Attributes': attributes.map((k, e) => MapEntry(k.value, e)),
         if (chefConfiguration != null) 'ChefConfiguration': chefConfiguration,
         if (cloneAppIds != null) 'CloneAppIds': cloneAppIds,
         if (clonePermissions != null) 'ClonePermissions': clonePermissions,
@@ -607,7 +607,7 @@ class OpsWorks {
           'DefaultInstanceProfileArn': defaultInstanceProfileArn,
         if (defaultOs != null) 'DefaultOs': defaultOs,
         if (defaultRootDeviceType != null)
-          'DefaultRootDeviceType': defaultRootDeviceType.toValue(),
+          'DefaultRootDeviceType': defaultRootDeviceType.value,
         if (defaultSshKeyName != null) 'DefaultSshKeyName': defaultSshKeyName,
         if (defaultSubnetId != null) 'DefaultSubnetId': defaultSubnetId,
         if (hostnameTheme != null) 'HostnameTheme': hostnameTheme,
@@ -646,11 +646,10 @@ class OpsWorks {
   ///
   /// Parameter [type] :
   /// The app type. Each supported type is associated with a particular layer.
-  /// For example, PHP applications are associated with a PHP layer. AWS
-  /// OpsWorks Stacks deploys an application to those instances that are members
-  /// of the corresponding layer. If your app isn't one of the standard types,
-  /// or you prefer to implement your own Deploy recipes, specify
-  /// <code>other</code>.
+  /// For example, PHP applications are associated with a PHP layer. OpsWorks
+  /// Stacks deploys an application to those instances that are members of the
+  /// corresponding layer. If your app isn't one of the standard types, or you
+  /// prefer to implement your own Deploy recipes, specify <code>other</code>.
   ///
   /// Parameter [appSource] :
   /// A <code>Source</code> object that specifies the app repository.
@@ -723,10 +722,10 @@ class OpsWorks {
       payload: {
         'Name': name,
         'StackId': stackId,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (appSource != null) 'AppSource': appSource,
         if (attributes != null)
-          'Attributes': attributes.map((k, e) => MapEntry(k.toValue(), e)),
+          'Attributes': attributes.map((k, e) => MapEntry(k.value, e)),
         if (dataSources != null) 'DataSources': dataSources,
         if (description != null) 'Description': description,
         if (domains != null) 'Domains': domains,
@@ -852,8 +851,7 @@ class OpsWorks {
   /// The stack ID.
   ///
   /// Parameter [agentVersion] :
-  /// The default AWS OpsWorks Stacks agent version. You have the following
-  /// options:
+  /// The default OpsWorks Stacks agent version. You have the following options:
   ///
   /// <ul>
   /// <li>
@@ -862,8 +860,8 @@ class OpsWorks {
   /// <li>
   /// <i>version_number</i> - Use the specified agent version. This value
   /// overrides the stack's default setting. To update the agent version, edit
-  /// the instance configuration and specify a new version. AWS OpsWorks Stacks
-  /// then automatically installs that version on the instance.
+  /// the instance configuration and specify a new version. OpsWorks Stacks
+  /// installs that version on the instance.
   /// </li>
   /// </ul>
   /// The default setting is <code>INHERIT</code>. To specify an agent version,
@@ -909,7 +907,17 @@ class OpsWorks {
   /// Whether to create an Amazon EBS-optimized instance.
   ///
   /// Parameter [hostname] :
-  /// The instance host name.
+  /// The instance host name. The following are character limits for instance
+  /// host names.
+  ///
+  /// <ul>
+  /// <li>
+  /// Linux-based instances: 63 characters
+  /// </li>
+  /// <li>
+  /// Windows-based instances: 15 characters
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [installUpdatesOnBoot] :
   /// Whether to install operating system and package updates when the instance
@@ -931,15 +939,15 @@ class OpsWorks {
   /// <ul>
   /// <li>
   /// A supported Linux operating system: An Amazon Linux version, such as
-  /// <code>Amazon Linux 2018.03</code>, <code>Amazon Linux 2017.09</code>,
-  /// <code>Amazon Linux 2017.03</code>, <code>Amazon Linux 2016.09</code>,
-  /// <code>Amazon Linux 2016.03</code>, <code>Amazon Linux 2015.09</code>, or
-  /// <code>Amazon Linux 2015.03</code>.
+  /// <code>Amazon Linux 2</code>, <code>Amazon Linux 2018.03</code>,
+  /// <code>Amazon Linux 2017.09</code>, <code>Amazon Linux 2017.03</code>,
+  /// <code>Amazon Linux 2016.09</code>, <code>Amazon Linux 2016.03</code>,
+  /// <code>Amazon Linux 2015.09</code>, or <code>Amazon Linux 2015.03</code>.
   /// </li>
   /// <li>
-  /// A supported Ubuntu operating system, such as <code>Ubuntu 16.04
-  /// LTS</code>, <code>Ubuntu 14.04 LTS</code>, or <code>Ubuntu 12.04
-  /// LTS</code>.
+  /// A supported Ubuntu operating system, such as <code>Ubuntu 18.04
+  /// LTS</code>, <code>Ubuntu 16.04 LTS</code>, <code>Ubuntu 14.04 LTS</code>,
+  /// or <code>Ubuntu 12.04 LTS</code>.
   /// </li>
   /// <li>
   /// <code>CentOS Linux 7</code>
@@ -958,19 +966,17 @@ class OpsWorks {
   /// A custom AMI: <code>Custom</code>.
   /// </li>
   /// </ul>
-  /// For more information about the supported operating systems, see <a
-  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">AWS
-  /// OpsWorks Stacks Operating Systems</a>.
+  /// Not all operating systems are supported with all versions of Chef. For
+  /// more information about the supported operating systems, see <a
+  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">OpsWorks
+  /// Stacks Operating Systems</a>.
   ///
   /// The default option is the current Amazon Linux version. If you set this
   /// parameter to <code>Custom</code>, you must use the <a>CreateInstance</a>
   /// action's AmiId parameter to specify the custom AMI that you want to use.
   /// Block device mappings are not supported if the value is
-  /// <code>Custom</code>. For more information about supported operating
-  /// systems, see <a
-  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">Operating
-  /// Systems</a>For more information about how to use custom AMIs with AWS
-  /// OpsWorks Stacks, see <a
+  /// <code>Custom</code>. For more information about how to use custom AMIs
+  /// with OpsWorks Stacks, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html">Using
   /// Custom AMIs</a>.
   ///
@@ -985,7 +991,7 @@ class OpsWorks {
   /// Parameter [subnetId] :
   /// The ID of the instance's subnet. If the stack is running in a VPC, you can
   /// use this parameter to override the stack's default subnet ID value and
-  /// direct AWS OpsWorks Stacks to launch the instance in a different subnet.
+  /// direct OpsWorks Stacks to launch the instance in a different subnet.
   ///
   /// Parameter [tenancy] :
   /// The instance's tenancy option. The default option is no tenancy, or if the
@@ -1043,9 +1049,8 @@ class OpsWorks {
         'StackId': stackId,
         if (agentVersion != null) 'AgentVersion': agentVersion,
         if (amiId != null) 'AmiId': amiId,
-        if (architecture != null) 'Architecture': architecture.toValue(),
-        if (autoScalingType != null)
-          'AutoScalingType': autoScalingType.toValue(),
+        if (architecture != null) 'Architecture': architecture.value,
+        if (autoScalingType != null) 'AutoScalingType': autoScalingType.value,
         if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
         if (blockDeviceMappings != null)
           'BlockDeviceMappings': blockDeviceMappings,
@@ -1054,7 +1059,7 @@ class OpsWorks {
         if (installUpdatesOnBoot != null)
           'InstallUpdatesOnBoot': installUpdatesOnBoot,
         if (os != null) 'Os': os,
-        if (rootDeviceType != null) 'RootDeviceType': rootDeviceType.toValue(),
+        if (rootDeviceType != null) 'RootDeviceType': rootDeviceType.value,
         if (sshKeyName != null) 'SshKeyName': sshKeyName,
         if (subnetId != null) 'SubnetId': subnetId,
         if (tenancy != null) 'Tenancy': tenancy,
@@ -1088,17 +1093,18 @@ class OpsWorks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [name] :
-  /// The layer name, which is used by the console.
+  /// The layer name, which is used by the console. Layer names can be a maximum
+  /// of 32 characters.
   ///
   /// Parameter [shortname] :
   /// For custom layers only, use this parameter to specify the layer's short
-  /// name, which is used internally by AWS OpsWorks Stacks and by Chef recipes.
-  /// The short name is also used as the name for the directory where your app
-  /// files are installed. It can have a maximum of 200 characters, which are
-  /// limited to the alphanumeric characters, '-', '_', and '.'.
+  /// name, which is used internally by OpsWorks Stacks and by Chef recipes. The
+  /// short name is also used as the name for the directory where your app files
+  /// are installed. It can have a maximum of 32 characters, which are limited
+  /// to the alphanumeric characters, '-', '_', and '.'.
   ///
-  /// The built-in layers' short names are defined by AWS OpsWorks Stacks. For
-  /// more information, see the <a
+  /// Built-in layer short names are defined by OpsWorks Stacks. For more
+  /// information, see the <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/layers.html">Layer
   /// Reference</a>.
   ///
@@ -1146,7 +1152,7 @@ class OpsWorks {
   /// information, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workingcookbook-json-override.html">
   /// Using Custom JSON</a>. This feature is supported as of version 1.7.42 of
-  /// the AWS CLI.
+  /// the CLI.
   ///
   /// Parameter [customRecipes] :
   /// A <code>LayerCustomRecipes</code> object that specifies the layer custom
@@ -1220,9 +1226,9 @@ class OpsWorks {
         'Name': name,
         'Shortname': shortname,
         'StackId': stackId,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (attributes != null)
-          'Attributes': attributes.map((k, e) => MapEntry(k.toValue(), e)),
+          'Attributes': attributes.map((k, e) => MapEntry(k.value, e)),
         if (autoAssignElasticIps != null)
           'AutoAssignElasticIps': autoAssignElasticIps,
         if (autoAssignPublicIps != null)
@@ -1271,57 +1277,56 @@ class OpsWorks {
   /// Identifiers</a>.
   ///
   /// Parameter [name] :
-  /// The stack name.
+  /// The stack name. Stack names can be a maximum of 64 characters.
   ///
   /// Parameter [region] :
-  /// The stack's AWS region, such as <code>ap-south-1</code>. For more
-  /// information about Amazon regions, see <a
+  /// The stack's Amazon Web Services Region, such as <code>ap-south-1</code>.
+  /// For more information about Amazon Web Services Regions, see <a
   /// href="https://docs.aws.amazon.com/general/latest/gr/rande.html">Regions
   /// and Endpoints</a>.
   /// <note>
-  /// In the AWS CLI, this API maps to the <code>--stack-region</code>
-  /// parameter. If the <code>--stack-region</code> parameter and the AWS CLI
-  /// common parameter <code>--region</code> are set to the same value, the
-  /// stack uses a <i>regional</i> endpoint. If the <code>--stack-region</code>
-  /// parameter is not set, but the AWS CLI <code>--region</code> parameter is,
-  /// this also results in a stack with a <i>regional</i> endpoint. However, if
-  /// the <code>--region</code> parameter is set to <code>us-east-1</code>, and
-  /// the <code>--stack-region</code> parameter is set to one of the following,
-  /// then the stack uses a legacy or <i>classic</i> region: <code>us-west-1,
+  /// In the CLI, this API maps to the <code>--stack-region</code> parameter. If
+  /// the <code>--stack-region</code> parameter and the CLI common parameter
+  /// <code>--region</code> are set to the same value, the stack uses a
+  /// <i>regional</i> endpoint. If the <code>--stack-region</code> parameter is
+  /// not set, but the CLI <code>--region</code> parameter is, this also results
+  /// in a stack with a <i>regional</i> endpoint. However, if the
+  /// <code>--region</code> parameter is set to <code>us-east-1</code>, and the
+  /// <code>--stack-region</code> parameter is set to one of the following, then
+  /// the stack uses a legacy or <i>classic</i> region: <code>us-west-1,
   /// us-west-2, sa-east-1, eu-central-1, eu-west-1, ap-northeast-1,
   /// ap-southeast-1, ap-southeast-2</code>. In this case, the actual API
   /// endpoint of the stack is in <code>us-east-1</code>. Only the preceding
   /// regions are supported as classic regions in the <code>us-east-1</code> API
   /// endpoint. Because it is a best practice to choose the regional endpoint
-  /// that is closest to where you manage AWS, we recommend that you use
-  /// regional endpoints for new stacks. The AWS CLI common
+  /// that is closest to where you manage Amazon Web Services, we recommend that
+  /// you use regional endpoints for new stacks. The CLI common
   /// <code>--region</code> parameter always specifies a regional API endpoint;
-  /// it cannot be used to specify a classic AWS OpsWorks Stacks region.
+  /// it cannot be used to specify a classic OpsWorks Stacks region.
   /// </note>
   ///
   /// Parameter [serviceRoleArn] :
-  /// The stack's AWS Identity and Access Management (IAM) role, which allows
-  /// AWS OpsWorks Stacks to work with AWS resources on your behalf. You must
-  /// set this parameter to the Amazon Resource Name (ARN) for an existing IAM
-  /// role. For more information about IAM ARNs, see <a
+  /// The stack's IAM role, which allows OpsWorks Stacks to work with Amazon Web
+  /// Services resources on your behalf. You must set this parameter to the
+  /// Amazon Resource Name (ARN) for an existing IAM role. For more information
+  /// about IAM ARNs, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_Identifiers.html">Using
   /// Identifiers</a>.
   ///
   /// Parameter [agentVersion] :
-  /// The default AWS OpsWorks Stacks agent version. You have the following
-  /// options:
+  /// The default OpsWorks Stacks agent version. You have the following options:
   ///
   /// <ul>
   /// <li>
-  /// Auto-update - Set this parameter to <code>LATEST</code>. AWS OpsWorks
-  /// Stacks automatically installs new agent versions on the stack's instances
-  /// as soon as they are available.
+  /// Auto-update - Set this parameter to <code>LATEST</code>. OpsWorks Stacks
+  /// automatically installs new agent versions on the stack's instances as soon
+  /// as they are available.
   /// </li>
   /// <li>
   /// Fixed version - Set this parameter to your preferred agent version. To
   /// update the agent version, you must edit the stack configuration and
-  /// specify a new version. AWS OpsWorks Stacks then automatically installs
-  /// that version on the stack's instances.
+  /// specify a new version. OpsWorks Stacks installs that version on the
+  /// stack's instances.
   /// </li>
   /// </ul>
   /// The default setting is the most recent release of the agent. To specify an
@@ -1386,15 +1391,15 @@ class OpsWorks {
   /// <ul>
   /// <li>
   /// A supported Linux operating system: An Amazon Linux version, such as
-  /// <code>Amazon Linux 2018.03</code>, <code>Amazon Linux 2017.09</code>,
-  /// <code>Amazon Linux 2017.03</code>, <code>Amazon Linux 2016.09</code>,
-  /// <code>Amazon Linux 2016.03</code>, <code>Amazon Linux 2015.09</code>, or
-  /// <code>Amazon Linux 2015.03</code>.
+  /// <code>Amazon Linux 2</code>, <code>Amazon Linux 2018.03</code>,
+  /// <code>Amazon Linux 2017.09</code>, <code>Amazon Linux 2017.03</code>,
+  /// <code>Amazon Linux 2016.09</code>, <code>Amazon Linux 2016.03</code>,
+  /// <code>Amazon Linux 2015.09</code>, or <code>Amazon Linux 2015.03</code>.
   /// </li>
   /// <li>
-  /// A supported Ubuntu operating system, such as <code>Ubuntu 16.04
-  /// LTS</code>, <code>Ubuntu 14.04 LTS</code>, or <code>Ubuntu 12.04
-  /// LTS</code>.
+  /// A supported Ubuntu operating system, such as <code>Ubuntu 18.04
+  /// LTS</code>, <code>Ubuntu 16.04 LTS</code>, <code>Ubuntu 14.04 LTS</code>,
+  /// or <code>Ubuntu 12.04 LTS</code>.
   /// </li>
   /// <li>
   /// <code>CentOS Linux 7</code>
@@ -1416,10 +1421,11 @@ class OpsWorks {
   /// Using Custom AMIs</a>.
   /// </li>
   /// </ul>
-  /// The default option is the current Amazon Linux version. For more
-  /// information about supported operating systems, see <a
-  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">AWS
-  /// OpsWorks Stacks Operating Systems</a>.
+  /// The default option is the current Amazon Linux version. Not all operating
+  /// systems are supported with all versions of Chef. For more information
+  /// about supported operating systems, see <a
+  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">OpsWorks
+  /// Stacks Operating Systems</a>.
   ///
   /// Parameter [defaultRootDeviceType] :
   /// The default root device type. This value is the default for all instances
@@ -1431,9 +1437,9 @@ class OpsWorks {
   ///
   /// Parameter [defaultSshKeyName] :
   /// A default Amazon EC2 key pair name. The default value is none. If you
-  /// specify a key pair name, AWS OpsWorks installs the public key on the
-  /// instance and you can use the private key with an SSH client to log in to
-  /// the instance. For more information, see <a
+  /// specify a key pair name, OpsWorks installs the public key on the instance
+  /// and you can use the private key with an SSH client to log in to the
+  /// instance. For more information, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-ssh.html">
   /// Using SSH to Communicate with an Instance</a> and <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/security-ssh-access.html">
@@ -1500,26 +1506,26 @@ class OpsWorks {
   /// Whether the stack uses custom cookbooks.
   ///
   /// Parameter [useOpsworksSecurityGroups] :
-  /// Whether to associate the AWS OpsWorks Stacks built-in security groups with
-  /// the stack's layers.
+  /// Whether to associate the OpsWorks Stacks built-in security groups with the
+  /// stack's layers.
   ///
-  /// AWS OpsWorks Stacks provides a standard set of built-in security groups,
-  /// one for each layer, which are associated with layers by default. With
+  /// OpsWorks Stacks provides a standard set of built-in security groups, one
+  /// for each layer, which are associated with layers by default. With
   /// <code>UseOpsworksSecurityGroups</code> you can instead provide your own
   /// custom security groups. <code>UseOpsworksSecurityGroups</code> has the
   /// following settings:
   ///
   /// <ul>
   /// <li>
-  /// True - AWS OpsWorks Stacks automatically associates the appropriate
-  /// built-in security group with each layer (default setting). You can
-  /// associate additional security groups with a layer after you create it, but
-  /// you cannot delete the built-in security group.
+  /// True - OpsWorks Stacks automatically associates the appropriate built-in
+  /// security group with each layer (default setting). You can associate
+  /// additional security groups with a layer after you create it, but you
+  /// cannot delete the built-in security group.
   /// </li>
   /// <li>
-  /// False - AWS OpsWorks Stacks does not associate built-in security groups
-  /// with layers. You must create appropriate EC2 security groups and associate
-  /// a security group with each layer that you create. However, you can still
+  /// False - OpsWorks Stacks does not associate built-in security groups with
+  /// layers. You must create appropriate EC2 security groups and associate a
+  /// security group with each layer that you create. However, you can still
   /// manually associate a built-in security group with a layer on creation;
   /// custom security groups are required only for those layers that need custom
   /// settings.
@@ -1546,10 +1552,10 @@ class OpsWorks {
   /// </ul>
   /// If the VPC ID corresponds to a default VPC and you have specified either
   /// the <code>DefaultAvailabilityZone</code> or the
-  /// <code>DefaultSubnetId</code> parameter only, AWS OpsWorks Stacks infers
-  /// the value of the other parameter. If you specify neither parameter, AWS
-  /// OpsWorks Stacks sets these parameters to the first valid Availability Zone
-  /// for the specified region and the corresponding default VPC subnet ID,
+  /// <code>DefaultSubnetId</code> parameter only, OpsWorks Stacks infers the
+  /// value of the other parameter. If you specify neither parameter, OpsWorks
+  /// Stacks sets these parameters to the first valid Availability Zone for the
+  /// specified region and the corresponding default VPC subnet ID,
   /// respectively.
   ///
   /// If you specify a nondefault VPC ID, note the following:
@@ -1562,8 +1568,7 @@ class OpsWorks {
   /// You must specify a value for <code>DefaultSubnetId</code>.
   /// </li>
   /// </ul>
-  /// For more information about how to use AWS OpsWorks Stacks with a VPC, see
-  /// <a
+  /// For more information about how to use OpsWorks Stacks with a VPC, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workingstacks-vpc.html">Running
   /// a Stack in a VPC</a>. For more information about default VPC and
   /// EC2-Classic, see <a
@@ -1607,7 +1612,7 @@ class OpsWorks {
         'ServiceRoleArn': serviceRoleArn,
         if (agentVersion != null) 'AgentVersion': agentVersion,
         if (attributes != null)
-          'Attributes': attributes.map((k, e) => MapEntry(k.toValue(), e)),
+          'Attributes': attributes.map((k, e) => MapEntry(k.value, e)),
         if (chefConfiguration != null) 'ChefConfiguration': chefConfiguration,
         if (configurationManager != null)
           'ConfigurationManager': configurationManager,
@@ -1618,7 +1623,7 @@ class OpsWorks {
           'DefaultAvailabilityZone': defaultAvailabilityZone,
         if (defaultOs != null) 'DefaultOs': defaultOs,
         if (defaultRootDeviceType != null)
-          'DefaultRootDeviceType': defaultRootDeviceType.toValue(),
+          'DefaultRootDeviceType': defaultRootDeviceType.value,
         if (defaultSshKeyName != null) 'DefaultSshKeyName': defaultSshKeyName,
         if (defaultSubnetId != null) 'DefaultSubnetId': defaultSubnetId,
         if (hostnameTheme != null) 'HostnameTheme': hostnameTheme,
@@ -1658,9 +1663,9 @@ class OpsWorks {
   /// Parameter [sshUsername] :
   /// The user's SSH user name. The allowable characters are [a-z], [A-Z],
   /// [0-9], '-', and '_'. If the specified name includes other punctuation
-  /// marks, AWS OpsWorks Stacks removes them. For example, <code>my.name</code>
-  /// will be changed to <code>myname</code>. If you do not specify an SSH user
-  /// name, AWS OpsWorks Stacks generates one from the IAM user name.
+  /// marks, OpsWorks Stacks removes them. For example, <code>my.name</code> is
+  /// changed to <code>myname</code>. If you do not specify an SSH user name,
+  /// OpsWorks Stacks generates one from the IAM user name.
   Future<CreateUserProfileResult> createUserProfile({
     required String iamUserArn,
     bool? allowSelfManagement,
@@ -1910,8 +1915,8 @@ class OpsWorks {
     );
   }
 
-  /// Deregisters a specified Elastic IP address. The address can then be
-  /// registered by another stack. For more information, see <a
+  /// Deregisters a specified Elastic IP address. The address can be registered
+  /// by another stack after it is deregistered. For more information, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/resources.html">Resource
   /// Management</a>.
   ///
@@ -1946,10 +1951,10 @@ class OpsWorks {
     );
   }
 
-  /// Deregister a registered Amazon EC2 or on-premises instance. This action
-  /// removes the instance from the stack and returns it to your control. This
-  /// action cannot be used with instances that were created with AWS OpsWorks
-  /// Stacks.
+  /// Deregister an instance from OpsWorks Stacks. The instance can be a
+  /// registered instance (Amazon EC2 or on-premises) or an instance created
+  /// with OpsWorks. This action removes the instance from the stack and returns
+  /// it to your control.
   ///
   /// <b>Required Permissions</b>: To use this action, an IAM user must have a
   /// Manage permissions level for the stack or an attached policy that
@@ -2031,9 +2036,9 @@ class OpsWorks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [volumeId] :
-  /// The AWS OpsWorks Stacks volume ID, which is the GUID that AWS OpsWorks
-  /// Stacks assigned to the instance when you registered the volume with the
-  /// stack, not the Amazon EC2 volume ID.
+  /// The OpsWorks Stacks volume ID, which is the GUID that OpsWorks Stacks
+  /// assigned to the instance when you registered the volume with the stack,
+  /// not the Amazon EC2 volume ID.
   Future<void> deregisterVolume({
     required String volumeId,
   }) async {
@@ -2053,10 +2058,10 @@ class OpsWorks {
     );
   }
 
-  /// Describes the available AWS OpsWorks Stacks agent versions. You must
-  /// specify a stack ID or a configuration manager.
-  /// <code>DescribeAgentVersions</code> returns a list of available agent
-  /// versions for the specified stack or configuration manager.
+  /// Describes the available OpsWorks Stacks agent versions. You must specify a
+  /// stack ID or a configuration manager. <code>DescribeAgentVersions</code>
+  /// returns a list of available agent versions for the specified stack or
+  /// configuration manager.
   ///
   /// May throw [ValidationException].
   /// May throw [ResourceNotFoundException].
@@ -2241,7 +2246,7 @@ class OpsWorks {
 
   /// Describes Amazon ECS clusters that are registered with a stack. If you
   /// specify only a stack ID, you can use the <code>MaxResults</code> and
-  /// <code>NextToken</code> parameters to paginate the response. However, AWS
+  /// <code>NextToken</code> parameters to paginate the response. However,
   /// OpsWorks Stacks currently supports only one cluster per layer, so the
   /// result set has a maximum of one element.
   ///
@@ -2561,7 +2566,7 @@ class OpsWorks {
     return DescribeMyUserProfileResult.fromJson(jsonResponse.body);
   }
 
-  /// Describes the operating systems that are supported by AWS OpsWorks Stacks.
+  /// Describes the operating systems that are supported by OpsWorks Stacks.
   Future<DescribeOperatingSystemsResponse> describeOperatingSystems() async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -2715,7 +2720,7 @@ class OpsWorks {
     return DescribeRdsDbInstancesResult.fromJson(jsonResponse.body);
   }
 
-  /// Describes AWS OpsWorks Stacks service errors.
+  /// Describes OpsWorks Stacks service errors.
   ///
   /// <b>Required Permissions</b>: To use this action, an IAM user must have a
   /// Show, Deploy, or Manage permissions level for the stack, or an attached
@@ -2856,8 +2861,13 @@ class OpsWorks {
   ///
   /// Parameter [stackIds] :
   /// An array of stack IDs that specify the stacks to be described. If you omit
-  /// this parameter, <code>DescribeStacks</code> returns a description of every
-  /// stack.
+  /// this parameter, and have permissions to get information about all stacks,
+  /// <code>DescribeStacks</code> returns a description of every stack. If the
+  /// IAM policy that is attached to an IAM user limits the
+  /// <code>DescribeStacks</code> action to specific stack ARNs, this parameter
+  /// is required, and the user must specify a stack ARN that is allowed by the
+  /// policy. Otherwise, <code>DescribeStacks</code> returns an
+  /// <code>AccessDenied</code> error.
   Future<DescribeStacksResult> describeStacks({
     List<String>? stackIds,
   }) async {
@@ -3129,13 +3139,13 @@ class OpsWorks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [instanceId] :
-  /// The instance's AWS OpsWorks Stacks ID.
+  /// The instance's OpsWorks Stacks ID.
   ///
   /// Parameter [validForInMinutes] :
   /// The length of time (in minutes) that the grant is valid. When the grant
   /// expires at the end of this period, the user will no longer be able to use
-  /// the credentials to log in. If the user is logged in at the time, he or she
-  /// automatically will be logged out.
+  /// the credentials to log in. If the user is logged in at the time, they are
+  /// logged out.
   Future<GrantAccessResult> grantAccess({
     required String instanceId,
     int? validForInMinutes,
@@ -3329,17 +3339,17 @@ class OpsWorks {
     return RegisterElasticIpResult.fromJson(jsonResponse.body);
   }
 
-  /// Registers instances that were created outside of AWS OpsWorks Stacks with
-  /// a specified stack.
+  /// Registers instances that were created outside of OpsWorks Stacks with a
+  /// specified stack.
   /// <note>
   /// We do not recommend using this action to register instances. The complete
-  /// registration operation includes two tasks: installing the AWS OpsWorks
-  /// Stacks agent on the instance, and registering the instance with the stack.
+  /// registration operation includes two tasks: installing the OpsWorks Stacks
+  /// agent on the instance, and registering the instance with the stack.
   /// <code>RegisterInstance</code> handles only the second step. You should
-  /// instead use the AWS CLI <code>register</code> command, which performs the
+  /// instead use the CLI <code>register</code> command, which performs the
   /// entire registration operation. For more information, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/registered-instances-register.html">
-  /// Registering an Instance with an AWS OpsWorks Stacks Stack</a>.
+  /// Registering an Instance with an OpsWorks Stacks Stack</a>.
   /// </note>
   /// Registered instances have the same requirements as instances that are
   /// created by using the <a>CreateInstance</a> API. For example, registered
@@ -3363,7 +3373,17 @@ class OpsWorks {
   /// The ID of the stack that the instance is to be registered with.
   ///
   /// Parameter [hostname] :
-  /// The instance's hostname.
+  /// The instance's host name. The following are character limits for instance
+  /// host names.
+  ///
+  /// <ul>
+  /// <li>
+  /// Linux-based instances: 63 characters
+  /// </li>
+  /// <li>
+  /// Windows-based instances: 15 characters
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [instanceIdentity] :
   /// An InstanceIdentity object that contains the instance's identity.
@@ -3533,7 +3553,7 @@ class OpsWorks {
   /// Parameter [downScaling] :
   /// An <code>AutoScalingThresholds</code> object with the downscaling
   /// threshold configuration. If the load falls below these thresholds for a
-  /// specified amount of time, AWS OpsWorks Stacks stops a specified number of
+  /// specified amount of time, OpsWorks Stacks stops a specified number of
   /// instances.
   ///
   /// Parameter [enable] :
@@ -3542,7 +3562,7 @@ class OpsWorks {
   /// Parameter [upScaling] :
   /// An <code>AutoScalingThresholds</code> object with the upscaling threshold
   /// configuration. If the load exceeds these thresholds for a specified amount
-  /// of time, AWS OpsWorks Stacks starts a specified number of instances.
+  /// of time, OpsWorks Stacks starts a specified number of instances.
   Future<void> setLoadBasedAutoScaling({
     required String layerId,
     AutoScalingThresholds? downScaling,
@@ -3780,10 +3800,10 @@ class OpsWorks {
   /// Specifies whether to force an instance to stop. If the instance's root
   /// device type is <code>ebs</code>, or EBS-backed, adding the
   /// <code>Force</code> parameter to the <code>StopInstances</code> API call
-  /// disassociates the AWS OpsWorks Stacks instance from EC2, and forces
-  /// deletion of <i>only</i> the OpsWorks Stacks instance. You must also delete
-  /// the formerly-associated instance in EC2 after troubleshooting and
-  /// replacing the AWS OpsWorks Stacks instance with a new one.
+  /// disassociates the OpsWorks Stacks instance from EC2, and forces deletion
+  /// of <i>only</i> the OpsWorks Stacks instance. You must also delete the
+  /// formerly-associated instance in EC2 after troubleshooting and replacing
+  /// the OpsWorks Stacks instance with a new one.
   Future<void> stopInstance({
     required String instanceId,
     bool? force,
@@ -3838,10 +3858,10 @@ class OpsWorks {
     );
   }
 
-  /// Apply cost-allocation tags to a specified stack or layer in AWS OpsWorks
+  /// Apply cost-allocation tags to a specified stack or layer in OpsWorks
   /// Stacks. For more information about how tagging works, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/tagging.html">Tags</a>
-  /// in the AWS OpsWorks User Guide.
+  /// in the OpsWorks User Guide.
   ///
   /// May throw [ValidationException].
   /// May throw [ResourceNotFoundException].
@@ -3898,7 +3918,7 @@ class OpsWorks {
   /// Unassigns a registered instance from all layers that are using the
   /// instance. The instance remains in the stack as an unassigned instance, and
   /// can be assigned to another layer as needed. You cannot use this action
-  /// with instances that were created with AWS OpsWorks Stacks.
+  /// with instances that were created with OpsWorks Stacks.
   ///
   /// <b>Required Permissions</b>: To use this action, an IAM user must have a
   /// Manage permissions level for the stack or an attached policy that
@@ -4087,7 +4107,7 @@ class OpsWorks {
         'AppId': appId,
         if (appSource != null) 'AppSource': appSource,
         if (attributes != null)
-          'Attributes': attributes.map((k, e) => MapEntry(k.toValue(), e)),
+          'Attributes': attributes.map((k, e) => MapEntry(k.value, e)),
         if (dataSources != null) 'DataSources': dataSources,
         if (description != null) 'Description': description,
         if (domains != null) 'Domains': domains,
@@ -4095,7 +4115,7 @@ class OpsWorks {
         if (environment != null) 'Environment': environment,
         if (name != null) 'Name': name,
         if (sslConfiguration != null) 'SslConfiguration': sslConfiguration,
-        if (type != null) 'Type': type.toValue(),
+        if (type != null) 'Type': type.value,
       },
     );
   }
@@ -4119,7 +4139,7 @@ class OpsWorks {
   /// The IP address for which you want to update the name.
   ///
   /// Parameter [name] :
-  /// The new name.
+  /// The new name, which can be a maximum of 32 characters.
   Future<void> updateElasticIp({
     required String elasticIp,
     String? name,
@@ -4157,8 +4177,7 @@ class OpsWorks {
   /// The instance ID.
   ///
   /// Parameter [agentVersion] :
-  /// The default AWS OpsWorks Stacks agent version. You have the following
-  /// options:
+  /// The default OpsWorks Stacks agent version. You have the following options:
   ///
   /// <ul>
   /// <li>
@@ -4167,8 +4186,8 @@ class OpsWorks {
   /// <li>
   /// <i>version_number</i> - Use the specified agent version. This value
   /// overrides the stack's default setting. To update the agent version, you
-  /// must edit the instance configuration and specify a new version. AWS
-  /// OpsWorks Stacks then automatically installs that version on the instance.
+  /// must edit the instance configuration and specify a new version. OpsWorks
+  /// Stacks installs that version on the instance.
   /// </li>
   /// </ul>
   /// The default setting is <code>INHERIT</code>. To specify an agent version,
@@ -4199,7 +4218,17 @@ class OpsWorks {
   /// This property cannot be updated.
   ///
   /// Parameter [hostname] :
-  /// The instance host name.
+  /// The instance host name. The following are character limits for instance
+  /// host names.
+  ///
+  /// <ul>
+  /// <li>
+  /// Linux-based instances: 63 characters
+  /// </li>
+  /// <li>
+  /// Windows-based instances: 15 characters
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [installUpdatesOnBoot] :
   /// Whether to install operating system and package updates when the instance
@@ -4234,15 +4263,15 @@ class OpsWorks {
   /// <ul>
   /// <li>
   /// A supported Linux operating system: An Amazon Linux version, such as
-  /// <code>Amazon Linux 2018.03</code>, <code>Amazon Linux 2017.09</code>,
-  /// <code>Amazon Linux 2017.03</code>, <code>Amazon Linux 2016.09</code>,
-  /// <code>Amazon Linux 2016.03</code>, <code>Amazon Linux 2015.09</code>, or
-  /// <code>Amazon Linux 2015.03</code>.
+  /// <code>Amazon Linux 2</code>, <code>Amazon Linux 2018.03</code>,
+  /// <code>Amazon Linux 2017.09</code>, <code>Amazon Linux 2017.03</code>,
+  /// <code>Amazon Linux 2016.09</code>, <code>Amazon Linux 2016.03</code>,
+  /// <code>Amazon Linux 2015.09</code>, or <code>Amazon Linux 2015.03</code>.
   /// </li>
   /// <li>
-  /// A supported Ubuntu operating system, such as <code>Ubuntu 16.04
-  /// LTS</code>, <code>Ubuntu 14.04 LTS</code>, or <code>Ubuntu 12.04
-  /// LTS</code>.
+  /// A supported Ubuntu operating system, such as <code>Ubuntu 18.04
+  /// LTS</code>, <code>Ubuntu 16.04 LTS</code>, <code>Ubuntu 14.04 LTS</code>,
+  /// or <code>Ubuntu 12.04 LTS</code>.
   /// </li>
   /// <li>
   /// <code>CentOS Linux 7</code>
@@ -4258,17 +4287,15 @@ class OpsWorks {
   /// Server Web</code>.
   /// </li>
   /// </ul>
-  /// For more information about supported operating systems, see <a
-  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">AWS
-  /// OpsWorks Stacks Operating Systems</a>.
+  /// Not all operating systems are supported with all versions of Chef. For
+  /// more information about supported operating systems, see <a
+  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">OpsWorks
+  /// Stacks Operating Systems</a>.
   ///
   /// The default option is the current Amazon Linux version. If you set this
   /// parameter to <code>Custom</code>, you must use the AmiId parameter to
   /// specify the custom AMI that you want to use. For more information about
-  /// supported operating systems, see <a
-  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">Operating
-  /// Systems</a>. For more information about how to use custom AMIs with
-  /// OpsWorks, see <a
+  /// how to use custom AMIs with OpsWorks, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-custom-ami.html">Using
   /// Custom AMIs</a>.
   /// <note>
@@ -4306,9 +4333,8 @@ class OpsWorks {
         'InstanceId': instanceId,
         if (agentVersion != null) 'AgentVersion': agentVersion,
         if (amiId != null) 'AmiId': amiId,
-        if (architecture != null) 'Architecture': architecture.toValue(),
-        if (autoScalingType != null)
-          'AutoScalingType': autoScalingType.toValue(),
+        if (architecture != null) 'Architecture': architecture.value,
+        if (autoScalingType != null) 'AutoScalingType': autoScalingType.value,
         if (ebsOptimized != null) 'EbsOptimized': ebsOptimized,
         if (hostname != null) 'Hostname': hostname,
         if (installUpdatesOnBoot != null)
@@ -4397,7 +4423,8 @@ class OpsWorks {
   /// <p/>
   ///
   /// Parameter [name] :
-  /// The layer name, which is used by the console.
+  /// The layer name, which is used by the console. Layer names can be a maximum
+  /// of 32 characters.
   ///
   /// Parameter [packages] :
   /// An array of <code>Package</code> objects that describe the layer's
@@ -4405,15 +4432,15 @@ class OpsWorks {
   ///
   /// Parameter [shortname] :
   /// For custom layers only, use this parameter to specify the layer's short
-  /// name, which is used internally by AWS OpsWorks Stacks and by Chef. The
-  /// short name is also used as the name for the directory where your app files
-  /// are installed. It can have a maximum of 200 characters and must be in the
+  /// name, which is used internally by OpsWorks Stacks and by Chef. The short
+  /// name is also used as the name for the directory where your app files are
+  /// installed. It can have a maximum of 32 characters and must be in the
   /// following format: /\A[a-z0-9\-\_\.]+\Z/.
   ///
-  /// The built-in layers' short names are defined by AWS OpsWorks Stacks. For
-  /// more information, see the <a
+  /// Built-in layer short names are defined by OpsWorks Stacks. For more
+  /// information, see the <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/layers.html">Layer
-  /// Reference</a>
+  /// reference</a> in the OpsWorks User Guide.
   ///
   /// Parameter [useEbsOptimizedInstances] :
   /// Whether to use Amazon EBS-optimized instances.
@@ -4453,7 +4480,7 @@ class OpsWorks {
       payload: {
         'LayerId': layerId,
         if (attributes != null)
-          'Attributes': attributes.map((k, e) => MapEntry(k.toValue(), e)),
+          'Attributes': attributes.map((k, e) => MapEntry(k.value, e)),
         if (autoAssignElasticIps != null)
           'AutoAssignElasticIps': autoAssignElasticIps,
         if (autoAssignPublicIps != null)
@@ -4572,20 +4599,19 @@ class OpsWorks {
   /// The stack ID.
   ///
   /// Parameter [agentVersion] :
-  /// The default AWS OpsWorks Stacks agent version. You have the following
-  /// options:
+  /// The default OpsWorks Stacks agent version. You have the following options:
   ///
   /// <ul>
   /// <li>
-  /// Auto-update - Set this parameter to <code>LATEST</code>. AWS OpsWorks
-  /// Stacks automatically installs new agent versions on the stack's instances
-  /// as soon as they are available.
+  /// Auto-update - Set this parameter to <code>LATEST</code>. OpsWorks Stacks
+  /// automatically installs new agent versions on the stack's instances as soon
+  /// as they are available.
   /// </li>
   /// <li>
   /// Fixed version - Set this parameter to your preferred agent version. To
   /// update the agent version, you must edit the stack configuration and
-  /// specify a new version. AWS OpsWorks Stacks then automatically installs
-  /// that version on the stack's instances.
+  /// specify a new version. OpsWorks Stacks installs that version on the
+  /// stack's instances.
   /// </li>
   /// </ul>
   /// The default setting is <code>LATEST</code>. To specify an agent version,
@@ -4653,15 +4679,15 @@ class OpsWorks {
   /// <ul>
   /// <li>
   /// A supported Linux operating system: An Amazon Linux version, such as
-  /// <code>Amazon Linux 2018.03</code>, <code>Amazon Linux 2017.09</code>,
-  /// <code>Amazon Linux 2017.03</code>, <code>Amazon Linux 2016.09</code>,
-  /// <code>Amazon Linux 2016.03</code>, <code>Amazon Linux 2015.09</code>, or
-  /// <code>Amazon Linux 2015.03</code>.
+  /// <code>Amazon Linux 2</code>, <code>Amazon Linux 2018.03</code>,
+  /// <code>Amazon Linux 2017.09</code>, <code>Amazon Linux 2017.03</code>,
+  /// <code>Amazon Linux 2016.09</code>, <code>Amazon Linux 2016.03</code>,
+  /// <code>Amazon Linux 2015.09</code>, or <code>Amazon Linux 2015.03</code>.
   /// </li>
   /// <li>
-  /// A supported Ubuntu operating system, such as <code>Ubuntu 16.04
-  /// LTS</code>, <code>Ubuntu 14.04 LTS</code>, or <code>Ubuntu 12.04
-  /// LTS</code>.
+  /// A supported Ubuntu operating system, such as <code>Ubuntu 18.04
+  /// LTS</code>, <code>Ubuntu 16.04 LTS</code>, <code>Ubuntu 14.04 LTS</code>,
+  /// or <code>Ubuntu 12.04 LTS</code>.
   /// </li>
   /// <li>
   /// <code>CentOS Linux 7</code>
@@ -4684,10 +4710,11 @@ class OpsWorks {
   /// Custom AMIs</a>.
   /// </li>
   /// </ul>
-  /// The default option is the stack's current operating system. For more
+  /// The default option is the stack's current operating system. Not all
+  /// operating systems are supported with all versions of Chef. For more
   /// information about supported operating systems, see <a
-  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">AWS
-  /// OpsWorks Stacks Operating Systems</a>.
+  /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-os.html">OpsWorks
+  /// Stacks Operating Systems</a>.
   ///
   /// Parameter [defaultRootDeviceType] :
   /// The default root device type. This value is used by default for all
@@ -4698,7 +4725,7 @@ class OpsWorks {
   ///
   /// Parameter [defaultSshKeyName] :
   /// A default Amazon EC2 key-pair name. The default value is
-  /// <code>none</code>. If you specify a key-pair name, AWS OpsWorks Stacks
+  /// <code>none</code>. If you specify a key-pair name, OpsWorks Stacks
   /// installs the public key on the instance and you can use the private key
   /// with an SSH client to log in to the instance. For more information, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/workinginstances-ssh.html">
@@ -4764,7 +4791,7 @@ class OpsWorks {
   /// which returns a host name based on the current theme.
   ///
   /// Parameter [name] :
-  /// The stack's new name.
+  /// The stack's new name. Stack names can be a maximum of 64 characters.
   ///
   /// Parameter [serviceRoleArn] :
   /// Do not use this parameter. You cannot update a stack's service role.
@@ -4773,26 +4800,26 @@ class OpsWorks {
   /// Whether the stack uses custom cookbooks.
   ///
   /// Parameter [useOpsworksSecurityGroups] :
-  /// Whether to associate the AWS OpsWorks Stacks built-in security groups with
-  /// the stack's layers.
+  /// Whether to associate the OpsWorks Stacks built-in security groups with the
+  /// stack's layers.
   ///
-  /// AWS OpsWorks Stacks provides a standard set of built-in security groups,
-  /// one for each layer, which are associated with layers by default.
+  /// OpsWorks Stacks provides a standard set of built-in security groups, one
+  /// for each layer, which are associated with layers by default.
   /// <code>UseOpsworksSecurityGroups</code> allows you to provide your own
   /// custom security groups instead of using the built-in groups.
   /// <code>UseOpsworksSecurityGroups</code> has the following settings:
   ///
   /// <ul>
   /// <li>
-  /// True - AWS OpsWorks Stacks automatically associates the appropriate
-  /// built-in security group with each layer (default setting). You can
-  /// associate additional security groups with a layer after you create it, but
-  /// you cannot delete the built-in security group.
+  /// True - OpsWorks Stacks automatically associates the appropriate built-in
+  /// security group with each layer (default setting). You can associate
+  /// additional security groups with a layer after you create it, but you
+  /// cannot delete the built-in security group.
   /// </li>
   /// <li>
-  /// False - AWS OpsWorks Stacks does not associate built-in security groups
-  /// with layers. You must create appropriate EC2 security groups and associate
-  /// a security group with each layer that you create. However, you can still
+  /// False - OpsWorks Stacks does not associate built-in security groups with
+  /// layers. You must create appropriate EC2 security groups and associate a
+  /// security group with each layer that you create. However, you can still
   /// manually associate a built-in security group with a layer on. Custom
   /// security groups are required only for those layers that need custom
   /// settings.
@@ -4835,7 +4862,7 @@ class OpsWorks {
         'StackId': stackId,
         if (agentVersion != null) 'AgentVersion': agentVersion,
         if (attributes != null)
-          'Attributes': attributes.map((k, e) => MapEntry(k.toValue(), e)),
+          'Attributes': attributes.map((k, e) => MapEntry(k.value, e)),
         if (chefConfiguration != null) 'ChefConfiguration': chefConfiguration,
         if (configurationManager != null)
           'ConfigurationManager': configurationManager,
@@ -4848,7 +4875,7 @@ class OpsWorks {
           'DefaultInstanceProfileArn': defaultInstanceProfileArn,
         if (defaultOs != null) 'DefaultOs': defaultOs,
         if (defaultRootDeviceType != null)
-          'DefaultRootDeviceType': defaultRootDeviceType.toValue(),
+          'DefaultRootDeviceType': defaultRootDeviceType.value,
         if (defaultSshKeyName != null) 'DefaultSshKeyName': defaultSshKeyName,
         if (defaultSubnetId != null) 'DefaultSubnetId': defaultSubnetId,
         if (hostnameTheme != null) 'HostnameTheme': hostnameTheme,
@@ -4888,9 +4915,9 @@ class OpsWorks {
   /// Parameter [sshUsername] :
   /// The user's SSH user name. The allowable characters are [a-z], [A-Z],
   /// [0-9], '-', and '_'. If the specified name includes other punctuation
-  /// marks, AWS OpsWorks Stacks removes them. For example, <code>my.name</code>
+  /// marks, OpsWorks Stacks removes them. For example, <code>my.name</code>
   /// will be changed to <code>myname</code>. If you do not specify an SSH user
-  /// name, AWS OpsWorks Stacks generates one from the IAM user name.
+  /// name, OpsWorks Stacks generates one from the IAM user name.
   Future<void> updateUserProfile({
     required String iamUserArn,
     bool? allowSelfManagement,
@@ -4939,7 +4966,7 @@ class OpsWorks {
   /// The new mount point.
   ///
   /// Parameter [name] :
-  /// The new name.
+  /// The new name. Volume names can be a maximum of 128 characters.
   Future<void> updateVolume({
     required String volumeId,
     String? mountPoint,
@@ -5069,21 +5096,19 @@ class App {
       appSource: json['AppSource'] != null
           ? Source.fromJson(json['AppSource'] as Map<String, dynamic>)
           : null,
-      attributes: (json['Attributes'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toAppAttributesKeys(), e as String)),
+      attributes: (json['Attributes'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(AppAttributesKeys.fromString(k), e as String)),
       createdAt: json['CreatedAt'] as String?,
       dataSources: (json['DataSources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: json['Description'] as String?,
-      domains: (json['Domains'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      domains:
+          (json['Domains'] as List?)?.nonNulls.map((e) => e as String).toList(),
       enableSsl: json['EnableSsl'] as bool?,
       environment: (json['Environment'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EnvironmentVariable.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
@@ -5093,144 +5118,76 @@ class App {
               json['SslConfiguration'] as Map<String, dynamic>)
           : null,
       stackId: json['StackId'] as String?,
-      type: (json['Type'] as String?)?.toAppType(),
+      type: (json['Type'] as String?)?.let(AppType.fromString),
     );
   }
 }
 
 enum AppAttributesKeys {
-  documentRoot,
-  railsEnv,
-  autoBundleOnDeploy,
-  awsFlowRubySettings,
-}
+  documentRoot('DocumentRoot'),
+  railsEnv('RailsEnv'),
+  autoBundleOnDeploy('AutoBundleOnDeploy'),
+  awsFlowRubySettings('AwsFlowRubySettings'),
+  ;
 
-extension AppAttributesKeysValueExtension on AppAttributesKeys {
-  String toValue() {
-    switch (this) {
-      case AppAttributesKeys.documentRoot:
-        return 'DocumentRoot';
-      case AppAttributesKeys.railsEnv:
-        return 'RailsEnv';
-      case AppAttributesKeys.autoBundleOnDeploy:
-        return 'AutoBundleOnDeploy';
-      case AppAttributesKeys.awsFlowRubySettings:
-        return 'AwsFlowRubySettings';
-    }
-  }
-}
+  final String value;
 
-extension AppAttributesKeysFromString on String {
-  AppAttributesKeys toAppAttributesKeys() {
-    switch (this) {
-      case 'DocumentRoot':
-        return AppAttributesKeys.documentRoot;
-      case 'RailsEnv':
-        return AppAttributesKeys.railsEnv;
-      case 'AutoBundleOnDeploy':
-        return AppAttributesKeys.autoBundleOnDeploy;
-      case 'AwsFlowRubySettings':
-        return AppAttributesKeys.awsFlowRubySettings;
-    }
-    throw Exception('$this is not known in enum AppAttributesKeys');
-  }
+  const AppAttributesKeys(this.value);
+
+  static AppAttributesKeys fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AppAttributesKeys'));
 }
 
 enum AppType {
-  awsFlowRuby,
-  java,
-  rails,
-  php,
-  nodejs,
-  static,
-  other,
-}
+  awsFlowRuby('aws-flow-ruby'),
+  java('java'),
+  rails('rails'),
+  php('php'),
+  nodejs('nodejs'),
+  static('static'),
+  other('other'),
+  ;
 
-extension AppTypeValueExtension on AppType {
-  String toValue() {
-    switch (this) {
-      case AppType.awsFlowRuby:
-        return 'aws-flow-ruby';
-      case AppType.java:
-        return 'java';
-      case AppType.rails:
-        return 'rails';
-      case AppType.php:
-        return 'php';
-      case AppType.nodejs:
-        return 'nodejs';
-      case AppType.static:
-        return 'static';
-      case AppType.other:
-        return 'other';
-    }
-  }
-}
+  final String value;
 
-extension AppTypeFromString on String {
-  AppType toAppType() {
-    switch (this) {
-      case 'aws-flow-ruby':
-        return AppType.awsFlowRuby;
-      case 'java':
-        return AppType.java;
-      case 'rails':
-        return AppType.rails;
-      case 'php':
-        return AppType.php;
-      case 'nodejs':
-        return AppType.nodejs;
-      case 'static':
-        return AppType.static;
-      case 'other':
-        return AppType.other;
-    }
-    throw Exception('$this is not known in enum AppType');
-  }
+  const AppType(this.value);
+
+  static AppType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum AppType'));
 }
 
 enum Architecture {
-  x86_64,
-  i386,
-}
+  x86_64('x86_64'),
+  i386('i386'),
+  ;
 
-extension ArchitectureValueExtension on Architecture {
-  String toValue() {
-    switch (this) {
-      case Architecture.x86_64:
-        return 'x86_64';
-      case Architecture.i386:
-        return 'i386';
-    }
-  }
-}
+  final String value;
 
-extension ArchitectureFromString on String {
-  Architecture toArchitecture() {
-    switch (this) {
-      case 'x86_64':
-        return Architecture.x86_64;
-      case 'i386':
-        return Architecture.i386;
-    }
-    throw Exception('$this is not known in enum Architecture');
-  }
+  const Architecture(this.value);
+
+  static Architecture fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum Architecture'));
 }
 
 /// Describes a load-based auto scaling upscaling or downscaling threshold
-/// configuration, which specifies when AWS OpsWorks Stacks starts or stops
+/// configuration, which specifies when OpsWorks Stacks starts or stops
 /// load-based instances.
 class AutoScalingThresholds {
-  /// Custom Cloudwatch auto scaling alarms, to be used as thresholds. This
+  /// Custom CloudWatch auto scaling alarms, to be used as thresholds. This
   /// parameter takes a list of up to five alarm names, which are case sensitive
   /// and must be in the same region as the stack.
   /// <note>
   /// To use custom alarms, you must update your service role to allow
-  /// <code>cloudwatch:DescribeAlarms</code>. You can either have AWS OpsWorks
-  /// Stacks update the role for you when you first use this feature or you can
-  /// edit the role manually. For more information, see <a
+  /// <code>cloudwatch:DescribeAlarms</code>. You can either have OpsWorks Stacks
+  /// update the role for you when you first use this feature or you can edit the
+  /// role manually. For more information, see <a
   /// href="https://docs.aws.amazon.com/opsworks/latest/userguide/opsworks-security-servicerole.html">Allowing
-  /// AWS OpsWorks Stacks to Act on Your Behalf</a>.
+  /// OpsWorks Stacks to Act on Your Behalf</a>.
   /// </note>
   final List<String>? alarms;
 
@@ -5238,13 +5195,13 @@ class AutoScalingThresholds {
   /// -1 disables the threshold.
   final double? cpuThreshold;
 
-  /// The amount of time (in minutes) after a scaling event occurs that AWS
-  /// OpsWorks Stacks should ignore metrics and suppress additional scaling
-  /// events. For example, AWS OpsWorks Stacks adds new instances following an
-  /// upscaling event but the instances won't start reducing the load until they
-  /// have been booted and configured. There is no point in raising additional
-  /// scaling events during that operation, which typically takes several minutes.
-  /// <code>IgnoreMetricsTime</code> allows you to direct AWS OpsWorks Stacks to
+  /// The amount of time (in minutes) after a scaling event occurs that OpsWorks
+  /// Stacks should ignore metrics and suppress additional scaling events. For
+  /// example, OpsWorks Stacks adds new instances following an upscaling event but
+  /// the instances won't start reducing the load until they have been booted and
+  /// configured. There is no point in raising additional scaling events during
+  /// that operation, which typically takes several minutes.
+  /// <code>IgnoreMetricsTime</code> allows you to direct OpsWorks Stacks to
   /// suppress scaling events long enough to get the new instances online.
   final int? ignoreMetricsTime;
 
@@ -5277,10 +5234,8 @@ class AutoScalingThresholds {
 
   factory AutoScalingThresholds.fromJson(Map<String, dynamic> json) {
     return AutoScalingThresholds(
-      alarms: (json['Alarms'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      alarms:
+          (json['Alarms'] as List?)?.nonNulls.map((e) => e as String).toList(),
       cpuThreshold: json['CpuThreshold'] as double?,
       ignoreMetricsTime: json['IgnoreMetricsTime'] as int?,
       instanceCount: json['InstanceCount'] as int?,
@@ -5311,31 +5266,18 @@ class AutoScalingThresholds {
 }
 
 enum AutoScalingType {
-  load,
-  timer,
-}
+  load('load'),
+  timer('timer'),
+  ;
 
-extension AutoScalingTypeValueExtension on AutoScalingType {
-  String toValue() {
-    switch (this) {
-      case AutoScalingType.load:
-        return 'load';
-      case AutoScalingType.timer:
-        return 'timer';
-    }
-  }
-}
+  final String value;
 
-extension AutoScalingTypeFromString on String {
-  AutoScalingType toAutoScalingType() {
-    switch (this) {
-      case 'load':
-        return AutoScalingType.load;
-      case 'timer':
-        return AutoScalingType.timer;
-    }
-    throw Exception('$this is not known in enum AutoScalingType');
-  }
+  const AutoScalingType(this.value);
+
+  static AutoScalingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AutoScalingType'));
 }
 
 /// Describes a block device mapping. This data type maps directly to the Amazon
@@ -5345,8 +5287,8 @@ extension AutoScalingTypeFromString on String {
 class BlockDeviceMapping {
   /// The device name that is exposed to the instance, such as
   /// <code>/dev/sdh</code>. For the root device, you can use the explicit device
-  /// name or you can set this parameter to <code>ROOT_DEVICE</code> and AWS
-  /// OpsWorks Stacks will provide the correct device name.
+  /// name or you can set this parameter to <code>ROOT_DEVICE</code> and OpsWorks
+  /// Stacks will provide the correct device name.
   final String? deviceName;
 
   /// An <code>EBSBlockDevice</code> that defines how to configure an Amazon EBS
@@ -5438,7 +5380,7 @@ class CloneStackResult {
   }
 }
 
-/// Describes the Amazon CloudWatch logs configuration for a layer.
+/// Describes the Amazon CloudWatch Logs configuration for a layer.
 class CloudWatchLogsConfiguration {
   /// Whether CloudWatch Logs is enabled for a layer.
   final bool? enabled;
@@ -5455,7 +5397,7 @@ class CloudWatchLogsConfiguration {
     return CloudWatchLogsConfiguration(
       enabled: json['Enabled'] as bool?,
       logStreams: (json['LogStreams'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CloudWatchLogsLogStream.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5476,516 +5418,129 @@ class CloudWatchLogsConfiguration {
 /// correctly. The default is <code>utf_8</code>. Encodings supported by Python
 /// <code>codecs.decode()</code> can be used here.
 enum CloudWatchLogsEncoding {
-  ascii,
-  big5,
-  big5hkscs,
-  cp037,
-  cp424,
-  cp437,
-  cp500,
-  cp720,
-  cp737,
-  cp775,
-  cp850,
-  cp852,
-  cp855,
-  cp856,
-  cp857,
-  cp858,
-  cp860,
-  cp861,
-  cp862,
-  cp863,
-  cp864,
-  cp865,
-  cp866,
-  cp869,
-  cp874,
-  cp875,
-  cp932,
-  cp949,
-  cp950,
-  cp1006,
-  cp1026,
-  cp1140,
-  cp1250,
-  cp1251,
-  cp1252,
-  cp1253,
-  cp1254,
-  cp1255,
-  cp1256,
-  cp1257,
-  cp1258,
-  eucJp,
-  eucJis_2004,
-  eucJisx0213,
-  eucKr,
-  gb2312,
-  gbk,
-  gb18030,
-  hz,
-  iso2022Jp,
-  iso2022Jp_1,
-  iso2022Jp_2,
-  iso2022Jp_2004,
-  iso2022Jp_3,
-  iso2022JpExt,
-  iso2022Kr,
-  latin_1,
-  iso8859_2,
-  iso8859_3,
-  iso8859_4,
-  iso8859_5,
-  iso8859_6,
-  iso8859_7,
-  iso8859_8,
-  iso8859_9,
-  iso8859_10,
-  iso8859_13,
-  iso8859_14,
-  iso8859_15,
-  iso8859_16,
-  johab,
-  koi8R,
-  koi8U,
-  macCyrillic,
-  macGreek,
-  macIceland,
-  macLatin2,
-  macRoman,
-  macTurkish,
-  ptcp154,
-  shiftJis,
-  shiftJis_2004,
-  shiftJisx0213,
-  utf_32,
-  utf_32Be,
-  utf_32Le,
-  utf_16,
-  utf_16Be,
-  utf_16Le,
-  utf_7,
-  utf_8,
-  utf_8Sig,
-}
+  ascii('ascii'),
+  big5('big5'),
+  big5hkscs('big5hkscs'),
+  cp037('cp037'),
+  cp424('cp424'),
+  cp437('cp437'),
+  cp500('cp500'),
+  cp720('cp720'),
+  cp737('cp737'),
+  cp775('cp775'),
+  cp850('cp850'),
+  cp852('cp852'),
+  cp855('cp855'),
+  cp856('cp856'),
+  cp857('cp857'),
+  cp858('cp858'),
+  cp860('cp860'),
+  cp861('cp861'),
+  cp862('cp862'),
+  cp863('cp863'),
+  cp864('cp864'),
+  cp865('cp865'),
+  cp866('cp866'),
+  cp869('cp869'),
+  cp874('cp874'),
+  cp875('cp875'),
+  cp932('cp932'),
+  cp949('cp949'),
+  cp950('cp950'),
+  cp1006('cp1006'),
+  cp1026('cp1026'),
+  cp1140('cp1140'),
+  cp1250('cp1250'),
+  cp1251('cp1251'),
+  cp1252('cp1252'),
+  cp1253('cp1253'),
+  cp1254('cp1254'),
+  cp1255('cp1255'),
+  cp1256('cp1256'),
+  cp1257('cp1257'),
+  cp1258('cp1258'),
+  eucJp('euc_jp'),
+  eucJis_2004('euc_jis_2004'),
+  eucJisx0213('euc_jisx0213'),
+  eucKr('euc_kr'),
+  gb2312('gb2312'),
+  gbk('gbk'),
+  gb18030('gb18030'),
+  hz('hz'),
+  iso2022Jp('iso2022_jp'),
+  iso2022Jp_1('iso2022_jp_1'),
+  iso2022Jp_2('iso2022_jp_2'),
+  iso2022Jp_2004('iso2022_jp_2004'),
+  iso2022Jp_3('iso2022_jp_3'),
+  iso2022JpExt('iso2022_jp_ext'),
+  iso2022Kr('iso2022_kr'),
+  latin_1('latin_1'),
+  iso8859_2('iso8859_2'),
+  iso8859_3('iso8859_3'),
+  iso8859_4('iso8859_4'),
+  iso8859_5('iso8859_5'),
+  iso8859_6('iso8859_6'),
+  iso8859_7('iso8859_7'),
+  iso8859_8('iso8859_8'),
+  iso8859_9('iso8859_9'),
+  iso8859_10('iso8859_10'),
+  iso8859_13('iso8859_13'),
+  iso8859_14('iso8859_14'),
+  iso8859_15('iso8859_15'),
+  iso8859_16('iso8859_16'),
+  johab('johab'),
+  koi8R('koi8_r'),
+  koi8U('koi8_u'),
+  macCyrillic('mac_cyrillic'),
+  macGreek('mac_greek'),
+  macIceland('mac_iceland'),
+  macLatin2('mac_latin2'),
+  macRoman('mac_roman'),
+  macTurkish('mac_turkish'),
+  ptcp154('ptcp154'),
+  shiftJis('shift_jis'),
+  shiftJis_2004('shift_jis_2004'),
+  shiftJisx0213('shift_jisx0213'),
+  utf_32('utf_32'),
+  utf_32Be('utf_32_be'),
+  utf_32Le('utf_32_le'),
+  utf_16('utf_16'),
+  utf_16Be('utf_16_be'),
+  utf_16Le('utf_16_le'),
+  utf_7('utf_7'),
+  utf_8('utf_8'),
+  utf_8Sig('utf_8_sig'),
+  ;
 
-extension CloudWatchLogsEncodingValueExtension on CloudWatchLogsEncoding {
-  String toValue() {
-    switch (this) {
-      case CloudWatchLogsEncoding.ascii:
-        return 'ascii';
-      case CloudWatchLogsEncoding.big5:
-        return 'big5';
-      case CloudWatchLogsEncoding.big5hkscs:
-        return 'big5hkscs';
-      case CloudWatchLogsEncoding.cp037:
-        return 'cp037';
-      case CloudWatchLogsEncoding.cp424:
-        return 'cp424';
-      case CloudWatchLogsEncoding.cp437:
-        return 'cp437';
-      case CloudWatchLogsEncoding.cp500:
-        return 'cp500';
-      case CloudWatchLogsEncoding.cp720:
-        return 'cp720';
-      case CloudWatchLogsEncoding.cp737:
-        return 'cp737';
-      case CloudWatchLogsEncoding.cp775:
-        return 'cp775';
-      case CloudWatchLogsEncoding.cp850:
-        return 'cp850';
-      case CloudWatchLogsEncoding.cp852:
-        return 'cp852';
-      case CloudWatchLogsEncoding.cp855:
-        return 'cp855';
-      case CloudWatchLogsEncoding.cp856:
-        return 'cp856';
-      case CloudWatchLogsEncoding.cp857:
-        return 'cp857';
-      case CloudWatchLogsEncoding.cp858:
-        return 'cp858';
-      case CloudWatchLogsEncoding.cp860:
-        return 'cp860';
-      case CloudWatchLogsEncoding.cp861:
-        return 'cp861';
-      case CloudWatchLogsEncoding.cp862:
-        return 'cp862';
-      case CloudWatchLogsEncoding.cp863:
-        return 'cp863';
-      case CloudWatchLogsEncoding.cp864:
-        return 'cp864';
-      case CloudWatchLogsEncoding.cp865:
-        return 'cp865';
-      case CloudWatchLogsEncoding.cp866:
-        return 'cp866';
-      case CloudWatchLogsEncoding.cp869:
-        return 'cp869';
-      case CloudWatchLogsEncoding.cp874:
-        return 'cp874';
-      case CloudWatchLogsEncoding.cp875:
-        return 'cp875';
-      case CloudWatchLogsEncoding.cp932:
-        return 'cp932';
-      case CloudWatchLogsEncoding.cp949:
-        return 'cp949';
-      case CloudWatchLogsEncoding.cp950:
-        return 'cp950';
-      case CloudWatchLogsEncoding.cp1006:
-        return 'cp1006';
-      case CloudWatchLogsEncoding.cp1026:
-        return 'cp1026';
-      case CloudWatchLogsEncoding.cp1140:
-        return 'cp1140';
-      case CloudWatchLogsEncoding.cp1250:
-        return 'cp1250';
-      case CloudWatchLogsEncoding.cp1251:
-        return 'cp1251';
-      case CloudWatchLogsEncoding.cp1252:
-        return 'cp1252';
-      case CloudWatchLogsEncoding.cp1253:
-        return 'cp1253';
-      case CloudWatchLogsEncoding.cp1254:
-        return 'cp1254';
-      case CloudWatchLogsEncoding.cp1255:
-        return 'cp1255';
-      case CloudWatchLogsEncoding.cp1256:
-        return 'cp1256';
-      case CloudWatchLogsEncoding.cp1257:
-        return 'cp1257';
-      case CloudWatchLogsEncoding.cp1258:
-        return 'cp1258';
-      case CloudWatchLogsEncoding.eucJp:
-        return 'euc_jp';
-      case CloudWatchLogsEncoding.eucJis_2004:
-        return 'euc_jis_2004';
-      case CloudWatchLogsEncoding.eucJisx0213:
-        return 'euc_jisx0213';
-      case CloudWatchLogsEncoding.eucKr:
-        return 'euc_kr';
-      case CloudWatchLogsEncoding.gb2312:
-        return 'gb2312';
-      case CloudWatchLogsEncoding.gbk:
-        return 'gbk';
-      case CloudWatchLogsEncoding.gb18030:
-        return 'gb18030';
-      case CloudWatchLogsEncoding.hz:
-        return 'hz';
-      case CloudWatchLogsEncoding.iso2022Jp:
-        return 'iso2022_jp';
-      case CloudWatchLogsEncoding.iso2022Jp_1:
-        return 'iso2022_jp_1';
-      case CloudWatchLogsEncoding.iso2022Jp_2:
-        return 'iso2022_jp_2';
-      case CloudWatchLogsEncoding.iso2022Jp_2004:
-        return 'iso2022_jp_2004';
-      case CloudWatchLogsEncoding.iso2022Jp_3:
-        return 'iso2022_jp_3';
-      case CloudWatchLogsEncoding.iso2022JpExt:
-        return 'iso2022_jp_ext';
-      case CloudWatchLogsEncoding.iso2022Kr:
-        return 'iso2022_kr';
-      case CloudWatchLogsEncoding.latin_1:
-        return 'latin_1';
-      case CloudWatchLogsEncoding.iso8859_2:
-        return 'iso8859_2';
-      case CloudWatchLogsEncoding.iso8859_3:
-        return 'iso8859_3';
-      case CloudWatchLogsEncoding.iso8859_4:
-        return 'iso8859_4';
-      case CloudWatchLogsEncoding.iso8859_5:
-        return 'iso8859_5';
-      case CloudWatchLogsEncoding.iso8859_6:
-        return 'iso8859_6';
-      case CloudWatchLogsEncoding.iso8859_7:
-        return 'iso8859_7';
-      case CloudWatchLogsEncoding.iso8859_8:
-        return 'iso8859_8';
-      case CloudWatchLogsEncoding.iso8859_9:
-        return 'iso8859_9';
-      case CloudWatchLogsEncoding.iso8859_10:
-        return 'iso8859_10';
-      case CloudWatchLogsEncoding.iso8859_13:
-        return 'iso8859_13';
-      case CloudWatchLogsEncoding.iso8859_14:
-        return 'iso8859_14';
-      case CloudWatchLogsEncoding.iso8859_15:
-        return 'iso8859_15';
-      case CloudWatchLogsEncoding.iso8859_16:
-        return 'iso8859_16';
-      case CloudWatchLogsEncoding.johab:
-        return 'johab';
-      case CloudWatchLogsEncoding.koi8R:
-        return 'koi8_r';
-      case CloudWatchLogsEncoding.koi8U:
-        return 'koi8_u';
-      case CloudWatchLogsEncoding.macCyrillic:
-        return 'mac_cyrillic';
-      case CloudWatchLogsEncoding.macGreek:
-        return 'mac_greek';
-      case CloudWatchLogsEncoding.macIceland:
-        return 'mac_iceland';
-      case CloudWatchLogsEncoding.macLatin2:
-        return 'mac_latin2';
-      case CloudWatchLogsEncoding.macRoman:
-        return 'mac_roman';
-      case CloudWatchLogsEncoding.macTurkish:
-        return 'mac_turkish';
-      case CloudWatchLogsEncoding.ptcp154:
-        return 'ptcp154';
-      case CloudWatchLogsEncoding.shiftJis:
-        return 'shift_jis';
-      case CloudWatchLogsEncoding.shiftJis_2004:
-        return 'shift_jis_2004';
-      case CloudWatchLogsEncoding.shiftJisx0213:
-        return 'shift_jisx0213';
-      case CloudWatchLogsEncoding.utf_32:
-        return 'utf_32';
-      case CloudWatchLogsEncoding.utf_32Be:
-        return 'utf_32_be';
-      case CloudWatchLogsEncoding.utf_32Le:
-        return 'utf_32_le';
-      case CloudWatchLogsEncoding.utf_16:
-        return 'utf_16';
-      case CloudWatchLogsEncoding.utf_16Be:
-        return 'utf_16_be';
-      case CloudWatchLogsEncoding.utf_16Le:
-        return 'utf_16_le';
-      case CloudWatchLogsEncoding.utf_7:
-        return 'utf_7';
-      case CloudWatchLogsEncoding.utf_8:
-        return 'utf_8';
-      case CloudWatchLogsEncoding.utf_8Sig:
-        return 'utf_8_sig';
-    }
-  }
-}
+  final String value;
 
-extension CloudWatchLogsEncodingFromString on String {
-  CloudWatchLogsEncoding toCloudWatchLogsEncoding() {
-    switch (this) {
-      case 'ascii':
-        return CloudWatchLogsEncoding.ascii;
-      case 'big5':
-        return CloudWatchLogsEncoding.big5;
-      case 'big5hkscs':
-        return CloudWatchLogsEncoding.big5hkscs;
-      case 'cp037':
-        return CloudWatchLogsEncoding.cp037;
-      case 'cp424':
-        return CloudWatchLogsEncoding.cp424;
-      case 'cp437':
-        return CloudWatchLogsEncoding.cp437;
-      case 'cp500':
-        return CloudWatchLogsEncoding.cp500;
-      case 'cp720':
-        return CloudWatchLogsEncoding.cp720;
-      case 'cp737':
-        return CloudWatchLogsEncoding.cp737;
-      case 'cp775':
-        return CloudWatchLogsEncoding.cp775;
-      case 'cp850':
-        return CloudWatchLogsEncoding.cp850;
-      case 'cp852':
-        return CloudWatchLogsEncoding.cp852;
-      case 'cp855':
-        return CloudWatchLogsEncoding.cp855;
-      case 'cp856':
-        return CloudWatchLogsEncoding.cp856;
-      case 'cp857':
-        return CloudWatchLogsEncoding.cp857;
-      case 'cp858':
-        return CloudWatchLogsEncoding.cp858;
-      case 'cp860':
-        return CloudWatchLogsEncoding.cp860;
-      case 'cp861':
-        return CloudWatchLogsEncoding.cp861;
-      case 'cp862':
-        return CloudWatchLogsEncoding.cp862;
-      case 'cp863':
-        return CloudWatchLogsEncoding.cp863;
-      case 'cp864':
-        return CloudWatchLogsEncoding.cp864;
-      case 'cp865':
-        return CloudWatchLogsEncoding.cp865;
-      case 'cp866':
-        return CloudWatchLogsEncoding.cp866;
-      case 'cp869':
-        return CloudWatchLogsEncoding.cp869;
-      case 'cp874':
-        return CloudWatchLogsEncoding.cp874;
-      case 'cp875':
-        return CloudWatchLogsEncoding.cp875;
-      case 'cp932':
-        return CloudWatchLogsEncoding.cp932;
-      case 'cp949':
-        return CloudWatchLogsEncoding.cp949;
-      case 'cp950':
-        return CloudWatchLogsEncoding.cp950;
-      case 'cp1006':
-        return CloudWatchLogsEncoding.cp1006;
-      case 'cp1026':
-        return CloudWatchLogsEncoding.cp1026;
-      case 'cp1140':
-        return CloudWatchLogsEncoding.cp1140;
-      case 'cp1250':
-        return CloudWatchLogsEncoding.cp1250;
-      case 'cp1251':
-        return CloudWatchLogsEncoding.cp1251;
-      case 'cp1252':
-        return CloudWatchLogsEncoding.cp1252;
-      case 'cp1253':
-        return CloudWatchLogsEncoding.cp1253;
-      case 'cp1254':
-        return CloudWatchLogsEncoding.cp1254;
-      case 'cp1255':
-        return CloudWatchLogsEncoding.cp1255;
-      case 'cp1256':
-        return CloudWatchLogsEncoding.cp1256;
-      case 'cp1257':
-        return CloudWatchLogsEncoding.cp1257;
-      case 'cp1258':
-        return CloudWatchLogsEncoding.cp1258;
-      case 'euc_jp':
-        return CloudWatchLogsEncoding.eucJp;
-      case 'euc_jis_2004':
-        return CloudWatchLogsEncoding.eucJis_2004;
-      case 'euc_jisx0213':
-        return CloudWatchLogsEncoding.eucJisx0213;
-      case 'euc_kr':
-        return CloudWatchLogsEncoding.eucKr;
-      case 'gb2312':
-        return CloudWatchLogsEncoding.gb2312;
-      case 'gbk':
-        return CloudWatchLogsEncoding.gbk;
-      case 'gb18030':
-        return CloudWatchLogsEncoding.gb18030;
-      case 'hz':
-        return CloudWatchLogsEncoding.hz;
-      case 'iso2022_jp':
-        return CloudWatchLogsEncoding.iso2022Jp;
-      case 'iso2022_jp_1':
-        return CloudWatchLogsEncoding.iso2022Jp_1;
-      case 'iso2022_jp_2':
-        return CloudWatchLogsEncoding.iso2022Jp_2;
-      case 'iso2022_jp_2004':
-        return CloudWatchLogsEncoding.iso2022Jp_2004;
-      case 'iso2022_jp_3':
-        return CloudWatchLogsEncoding.iso2022Jp_3;
-      case 'iso2022_jp_ext':
-        return CloudWatchLogsEncoding.iso2022JpExt;
-      case 'iso2022_kr':
-        return CloudWatchLogsEncoding.iso2022Kr;
-      case 'latin_1':
-        return CloudWatchLogsEncoding.latin_1;
-      case 'iso8859_2':
-        return CloudWatchLogsEncoding.iso8859_2;
-      case 'iso8859_3':
-        return CloudWatchLogsEncoding.iso8859_3;
-      case 'iso8859_4':
-        return CloudWatchLogsEncoding.iso8859_4;
-      case 'iso8859_5':
-        return CloudWatchLogsEncoding.iso8859_5;
-      case 'iso8859_6':
-        return CloudWatchLogsEncoding.iso8859_6;
-      case 'iso8859_7':
-        return CloudWatchLogsEncoding.iso8859_7;
-      case 'iso8859_8':
-        return CloudWatchLogsEncoding.iso8859_8;
-      case 'iso8859_9':
-        return CloudWatchLogsEncoding.iso8859_9;
-      case 'iso8859_10':
-        return CloudWatchLogsEncoding.iso8859_10;
-      case 'iso8859_13':
-        return CloudWatchLogsEncoding.iso8859_13;
-      case 'iso8859_14':
-        return CloudWatchLogsEncoding.iso8859_14;
-      case 'iso8859_15':
-        return CloudWatchLogsEncoding.iso8859_15;
-      case 'iso8859_16':
-        return CloudWatchLogsEncoding.iso8859_16;
-      case 'johab':
-        return CloudWatchLogsEncoding.johab;
-      case 'koi8_r':
-        return CloudWatchLogsEncoding.koi8R;
-      case 'koi8_u':
-        return CloudWatchLogsEncoding.koi8U;
-      case 'mac_cyrillic':
-        return CloudWatchLogsEncoding.macCyrillic;
-      case 'mac_greek':
-        return CloudWatchLogsEncoding.macGreek;
-      case 'mac_iceland':
-        return CloudWatchLogsEncoding.macIceland;
-      case 'mac_latin2':
-        return CloudWatchLogsEncoding.macLatin2;
-      case 'mac_roman':
-        return CloudWatchLogsEncoding.macRoman;
-      case 'mac_turkish':
-        return CloudWatchLogsEncoding.macTurkish;
-      case 'ptcp154':
-        return CloudWatchLogsEncoding.ptcp154;
-      case 'shift_jis':
-        return CloudWatchLogsEncoding.shiftJis;
-      case 'shift_jis_2004':
-        return CloudWatchLogsEncoding.shiftJis_2004;
-      case 'shift_jisx0213':
-        return CloudWatchLogsEncoding.shiftJisx0213;
-      case 'utf_32':
-        return CloudWatchLogsEncoding.utf_32;
-      case 'utf_32_be':
-        return CloudWatchLogsEncoding.utf_32Be;
-      case 'utf_32_le':
-        return CloudWatchLogsEncoding.utf_32Le;
-      case 'utf_16':
-        return CloudWatchLogsEncoding.utf_16;
-      case 'utf_16_be':
-        return CloudWatchLogsEncoding.utf_16Be;
-      case 'utf_16_le':
-        return CloudWatchLogsEncoding.utf_16Le;
-      case 'utf_7':
-        return CloudWatchLogsEncoding.utf_7;
-      case 'utf_8':
-        return CloudWatchLogsEncoding.utf_8;
-      case 'utf_8_sig':
-        return CloudWatchLogsEncoding.utf_8Sig;
-    }
-    throw Exception('$this is not known in enum CloudWatchLogsEncoding');
-  }
+  const CloudWatchLogsEncoding(this.value);
+
+  static CloudWatchLogsEncoding fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CloudWatchLogsEncoding'));
 }
 
 /// Specifies where to start to read data (start_of_file or end_of_file). The
 /// default is start_of_file. It's only used if there is no state persisted for
 /// that log stream.
 enum CloudWatchLogsInitialPosition {
-  startOfFile,
-  endOfFile,
+  startOfFile('start_of_file'),
+  endOfFile('end_of_file'),
+  ;
+
+  final String value;
+
+  const CloudWatchLogsInitialPosition(this.value);
+
+  static CloudWatchLogsInitialPosition fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CloudWatchLogsInitialPosition'));
 }
 
-extension CloudWatchLogsInitialPositionValueExtension
-    on CloudWatchLogsInitialPosition {
-  String toValue() {
-    switch (this) {
-      case CloudWatchLogsInitialPosition.startOfFile:
-        return 'start_of_file';
-      case CloudWatchLogsInitialPosition.endOfFile:
-        return 'end_of_file';
-    }
-  }
-}
-
-extension CloudWatchLogsInitialPositionFromString on String {
-  CloudWatchLogsInitialPosition toCloudWatchLogsInitialPosition() {
-    switch (this) {
-      case 'start_of_file':
-        return CloudWatchLogsInitialPosition.startOfFile;
-      case 'end_of_file':
-        return CloudWatchLogsInitialPosition.endOfFile;
-    }
-    throw Exception('$this is not known in enum CloudWatchLogsInitialPosition');
-  }
-}
-
-/// Describes the Amazon CloudWatch logs configuration for a layer. For detailed
+/// Describes the CloudWatch Logs configuration for a layer. For detailed
 /// information about members of this data type, see the <a
 /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/logs/AgentReference.html">CloudWatch
 /// Logs Agent Reference</a>.
@@ -6075,14 +5630,16 @@ class CloudWatchLogsLogStream {
       batchSize: json['BatchSize'] as int?,
       bufferDuration: json['BufferDuration'] as int?,
       datetimeFormat: json['DatetimeFormat'] as String?,
-      encoding: (json['Encoding'] as String?)?.toCloudWatchLogsEncoding(),
+      encoding:
+          (json['Encoding'] as String?)?.let(CloudWatchLogsEncoding.fromString),
       file: json['File'] as String?,
       fileFingerprintLines: json['FileFingerprintLines'] as String?,
       initialPosition: (json['InitialPosition'] as String?)
-          ?.toCloudWatchLogsInitialPosition(),
+          ?.let(CloudWatchLogsInitialPosition.fromString),
       logGroupName: json['LogGroupName'] as String?,
       multiLineStartPattern: json['MultiLineStartPattern'] as String?,
-      timeZone: (json['TimeZone'] as String?)?.toCloudWatchLogsTimeZone(),
+      timeZone:
+          (json['TimeZone'] as String?)?.let(CloudWatchLogsTimeZone.fromString),
     );
   }
 
@@ -6103,15 +5660,15 @@ class CloudWatchLogsLogStream {
       if (batchSize != null) 'BatchSize': batchSize,
       if (bufferDuration != null) 'BufferDuration': bufferDuration,
       if (datetimeFormat != null) 'DatetimeFormat': datetimeFormat,
-      if (encoding != null) 'Encoding': encoding.toValue(),
+      if (encoding != null) 'Encoding': encoding.value,
       if (file != null) 'File': file,
       if (fileFingerprintLines != null)
         'FileFingerprintLines': fileFingerprintLines,
-      if (initialPosition != null) 'InitialPosition': initialPosition.toValue(),
+      if (initialPosition != null) 'InitialPosition': initialPosition.value,
       if (logGroupName != null) 'LogGroupName': logGroupName,
       if (multiLineStartPattern != null)
         'MultiLineStartPattern': multiLineStartPattern,
-      if (timeZone != null) 'TimeZone': timeZone.toValue(),
+      if (timeZone != null) 'TimeZone': timeZone.value,
     };
   }
 }
@@ -6119,31 +5676,18 @@ class CloudWatchLogsLogStream {
 /// The preferred time zone for logs streamed to CloudWatch Logs. Valid values
 /// are <code>LOCAL</code> and <code>UTC</code>, for Coordinated Universal Time.
 enum CloudWatchLogsTimeZone {
-  local,
-  utc,
-}
+  local('LOCAL'),
+  utc('UTC'),
+  ;
 
-extension CloudWatchLogsTimeZoneValueExtension on CloudWatchLogsTimeZone {
-  String toValue() {
-    switch (this) {
-      case CloudWatchLogsTimeZone.local:
-        return 'LOCAL';
-      case CloudWatchLogsTimeZone.utc:
-        return 'UTC';
-    }
-  }
-}
+  final String value;
 
-extension CloudWatchLogsTimeZoneFromString on String {
-  CloudWatchLogsTimeZone toCloudWatchLogsTimeZone() {
-    switch (this) {
-      case 'LOCAL':
-        return CloudWatchLogsTimeZone.local;
-      case 'UTC':
-        return CloudWatchLogsTimeZone.utc;
-    }
-    throw Exception('$this is not known in enum CloudWatchLogsTimeZone');
-  }
+  const CloudWatchLogsTimeZone(this.value);
+
+  static CloudWatchLogsTimeZone fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CloudWatchLogsTimeZone'));
 }
 
 /// Describes a command.
@@ -6485,7 +6029,7 @@ class Deployment {
       duration: json['Duration'] as int?,
       iamUserArn: json['IamUserArn'] as String?,
       instanceIds: (json['InstanceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       stackId: json['StackId'] as String?,
@@ -6533,9 +6077,9 @@ class DeploymentCommand {
   /// </li>
   /// <li>
   /// <code>rollback</code> Roll the app back to the previous version. When you
-  /// update an app, AWS OpsWorks Stacks stores the previous version, up to a
-  /// maximum of five versions. You can use this command to roll an app back as
-  /// many as four versions.
+  /// update an app, OpsWorks Stacks stores the previous version, up to a maximum
+  /// of five versions. You can use this command to roll an app back as many as
+  /// four versions.
   /// </li>
   /// <li>
   /// <code>start</code>: Start the app's web or application server.
@@ -6562,22 +6106,21 @@ class DeploymentCommand {
   ///
   /// <ul>
   /// <li>
-  /// <code>upgrade_os_to</code> - Specifies the desired Amazon Linux version for
-  /// instances whose OS you want to upgrade, such as <code>Amazon Linux
-  /// 2016.09</code>. You must also set the <code>allow_reboot</code> argument to
-  /// true.
+  /// <code>upgrade_os_to</code> - Specifies the Amazon Linux version that you
+  /// want instances to run, such as <code>Amazon Linux 2</code>. You must also
+  /// set the <code>allow_reboot</code> argument to true.
   /// </li>
   /// <li>
-  /// <code>allow_reboot</code> - Specifies whether to allow AWS OpsWorks Stacks
-  /// to reboot the instances if necessary, after installing the updates. This
+  /// <code>allow_reboot</code> - Specifies whether to allow OpsWorks Stacks to
+  /// reboot the instances if necessary, after installing the updates. This
   /// argument can be set to either <code>true</code> or <code>false</code>. The
   /// default value is <code>false</code>.
   /// </li>
   /// </ul>
-  /// For example, to upgrade an instance to Amazon Linux 2016.09, set
+  /// For example, to upgrade an instance to Amazon Linux 2018.03, set
   /// <code>Args</code> to the following.
   ///
-  /// <code> { "upgrade_os_to":["Amazon Linux 2016.09"], "allow_reboot":["true"] }
+  /// <code> { "upgrade_os_to":["Amazon Linux 2018.03"], "allow_reboot":["true"] }
   /// </code>
   final Map<String, List<String>>? args;
 
@@ -6588,9 +6131,9 @@ class DeploymentCommand {
 
   factory DeploymentCommand.fromJson(Map<String, dynamic> json) {
     return DeploymentCommand(
-      name: (json['Name'] as String).toDeploymentCommandName(),
-      args: (json['Args'] as Map<String, dynamic>?)?.map((k, e) => MapEntry(
-          k, (e as List).whereNotNull().map((e) => e as String).toList())),
+      name: DeploymentCommandName.fromString((json['Name'] as String)),
+      args: (json['Args'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(k, (e as List).nonNulls.map((e) => e as String).toList())),
     );
   }
 
@@ -6598,88 +6141,35 @@ class DeploymentCommand {
     final name = this.name;
     final args = this.args;
     return {
-      'Name': name.toValue(),
+      'Name': name.value,
       if (args != null) 'Args': args,
     };
   }
 }
 
 enum DeploymentCommandName {
-  installDependencies,
-  updateDependencies,
-  updateCustomCookbooks,
-  executeRecipes,
-  configure,
-  setup,
-  deploy,
-  rollback,
-  start,
-  stop,
-  restart,
-  undeploy,
-}
+  installDependencies('install_dependencies'),
+  updateDependencies('update_dependencies'),
+  updateCustomCookbooks('update_custom_cookbooks'),
+  executeRecipes('execute_recipes'),
+  configure('configure'),
+  setup('setup'),
+  deploy('deploy'),
+  rollback('rollback'),
+  start('start'),
+  stop('stop'),
+  restart('restart'),
+  undeploy('undeploy'),
+  ;
 
-extension DeploymentCommandNameValueExtension on DeploymentCommandName {
-  String toValue() {
-    switch (this) {
-      case DeploymentCommandName.installDependencies:
-        return 'install_dependencies';
-      case DeploymentCommandName.updateDependencies:
-        return 'update_dependencies';
-      case DeploymentCommandName.updateCustomCookbooks:
-        return 'update_custom_cookbooks';
-      case DeploymentCommandName.executeRecipes:
-        return 'execute_recipes';
-      case DeploymentCommandName.configure:
-        return 'configure';
-      case DeploymentCommandName.setup:
-        return 'setup';
-      case DeploymentCommandName.deploy:
-        return 'deploy';
-      case DeploymentCommandName.rollback:
-        return 'rollback';
-      case DeploymentCommandName.start:
-        return 'start';
-      case DeploymentCommandName.stop:
-        return 'stop';
-      case DeploymentCommandName.restart:
-        return 'restart';
-      case DeploymentCommandName.undeploy:
-        return 'undeploy';
-    }
-  }
-}
+  final String value;
 
-extension DeploymentCommandNameFromString on String {
-  DeploymentCommandName toDeploymentCommandName() {
-    switch (this) {
-      case 'install_dependencies':
-        return DeploymentCommandName.installDependencies;
-      case 'update_dependencies':
-        return DeploymentCommandName.updateDependencies;
-      case 'update_custom_cookbooks':
-        return DeploymentCommandName.updateCustomCookbooks;
-      case 'execute_recipes':
-        return DeploymentCommandName.executeRecipes;
-      case 'configure':
-        return DeploymentCommandName.configure;
-      case 'setup':
-        return DeploymentCommandName.setup;
-      case 'deploy':
-        return DeploymentCommandName.deploy;
-      case 'rollback':
-        return DeploymentCommandName.rollback;
-      case 'start':
-        return DeploymentCommandName.start;
-      case 'stop':
-        return DeploymentCommandName.stop;
-      case 'restart':
-        return DeploymentCommandName.restart;
-      case 'undeploy':
-        return DeploymentCommandName.undeploy;
-    }
-    throw Exception('$this is not known in enum DeploymentCommandName');
-  }
+  const DeploymentCommandName(this.value);
+
+  static DeploymentCommandName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DeploymentCommandName'));
 }
 
 /// Contains the response to a <code>DescribeAgentVersions</code> request.
@@ -6696,7 +6186,7 @@ class DescribeAgentVersionsResult {
   factory DescribeAgentVersionsResult.fromJson(Map<String, dynamic> json) {
     return DescribeAgentVersionsResult(
       agentVersions: (json['AgentVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AgentVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6715,7 +6205,7 @@ class DescribeAppsResult {
   factory DescribeAppsResult.fromJson(Map<String, dynamic> json) {
     return DescribeAppsResult(
       apps: (json['Apps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => App.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6735,7 +6225,7 @@ class DescribeCommandsResult {
   factory DescribeCommandsResult.fromJson(Map<String, dynamic> json) {
     return DescribeCommandsResult(
       commands: (json['Commands'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Command.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6754,7 +6244,7 @@ class DescribeDeploymentsResult {
   factory DescribeDeploymentsResult.fromJson(Map<String, dynamic> json) {
     return DescribeDeploymentsResult(
       deployments: (json['Deployments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Deployment.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6782,7 +6272,7 @@ class DescribeEcsClustersResult {
   factory DescribeEcsClustersResult.fromJson(Map<String, dynamic> json) {
     return DescribeEcsClustersResult(
       ecsClusters: (json['EcsClusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EcsCluster.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6803,7 +6293,7 @@ class DescribeElasticIpsResult {
   factory DescribeElasticIpsResult.fromJson(Map<String, dynamic> json) {
     return DescribeElasticIpsResult(
       elasticIps: (json['ElasticIps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ElasticIp.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6825,7 +6315,7 @@ class DescribeElasticLoadBalancersResult {
       Map<String, dynamic> json) {
     return DescribeElasticLoadBalancersResult(
       elasticLoadBalancers: (json['ElasticLoadBalancers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ElasticLoadBalancer.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6844,7 +6334,7 @@ class DescribeInstancesResult {
   factory DescribeInstancesResult.fromJson(Map<String, dynamic> json) {
     return DescribeInstancesResult(
       instances: (json['Instances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Instance.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6863,7 +6353,7 @@ class DescribeLayersResult {
   factory DescribeLayersResult.fromJson(Map<String, dynamic> json) {
     return DescribeLayersResult(
       layers: (json['Layers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Layer.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6887,7 +6377,7 @@ class DescribeLoadBasedAutoScalingResult {
     return DescribeLoadBasedAutoScalingResult(
       loadBasedAutoScalingConfigurations:
           (json['LoadBasedAutoScalingConfigurations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => LoadBasedAutoScalingConfiguration.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -6927,7 +6417,7 @@ class DescribeOperatingSystemsResponse {
   factory DescribeOperatingSystemsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeOperatingSystemsResponse(
       operatingSystems: (json['OperatingSystems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OperatingSystem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6965,7 +6455,7 @@ class DescribePermissionsResult {
   factory DescribePermissionsResult.fromJson(Map<String, dynamic> json) {
     return DescribePermissionsResult(
       permissions: (json['Permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Permission.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6984,7 +6474,7 @@ class DescribeRaidArraysResult {
   factory DescribeRaidArraysResult.fromJson(Map<String, dynamic> json) {
     return DescribeRaidArraysResult(
       raidArrays: (json['RaidArrays'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RaidArray.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7004,7 +6494,7 @@ class DescribeRdsDbInstancesResult {
   factory DescribeRdsDbInstancesResult.fromJson(Map<String, dynamic> json) {
     return DescribeRdsDbInstancesResult(
       rdsDbInstances: (json['RdsDbInstances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RdsDbInstance.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7024,7 +6514,7 @@ class DescribeServiceErrorsResult {
   factory DescribeServiceErrorsResult.fromJson(Map<String, dynamic> json) {
     return DescribeServiceErrorsResult(
       serviceErrors: (json['ServiceErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7034,7 +6524,7 @@ class DescribeServiceErrorsResult {
 /// Contains the response to a <code>DescribeStackProvisioningParameters</code>
 /// request.
 class DescribeStackProvisioningParametersResult {
-  /// The AWS OpsWorks Stacks agent installer's URL.
+  /// The OpsWorks Stacks agent installer's URL.
   final String? agentInstallerUrl;
 
   /// An embedded object that contains the provisioning parameters.
@@ -7085,7 +6575,7 @@ class DescribeStacksResult {
   factory DescribeStacksResult.fromJson(Map<String, dynamic> json) {
     return DescribeStacksResult(
       stacks: (json['Stacks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Stack.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7109,7 +6599,7 @@ class DescribeTimeBasedAutoScalingResult {
     return DescribeTimeBasedAutoScalingResult(
       timeBasedAutoScalingConfigurations:
           (json['TimeBasedAutoScalingConfigurations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => TimeBasedAutoScalingConfiguration.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -7129,7 +6619,7 @@ class DescribeUserProfilesResult {
   factory DescribeUserProfilesResult.fromJson(Map<String, dynamic> json) {
     return DescribeUserProfilesResult(
       userProfiles: (json['UserProfiles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UserProfile.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7148,7 +6638,7 @@ class DescribeVolumesResult {
   factory DescribeVolumesResult.fromJson(Map<String, dynamic> json) {
     return DescribeVolumesResult(
       volumes: (json['Volumes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Volume.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7182,9 +6672,9 @@ class EbsBlockDevice {
   ///
   /// If you specify the <code>io1</code> volume type, you must also specify a
   /// value for the <code>Iops</code> attribute. The maximum ratio of provisioned
-  /// IOPS to requested volume size (in GiB) is 50:1. AWS uses the default volume
-  /// size (in GiB) specified in the AMI attributes to set IOPS to 50 x (volume
-  /// size).
+  /// IOPS to requested volume size (in GiB) is 50:1. Amazon Web Services uses the
+  /// default volume size (in GiB) specified in the AMI attributes to set IOPS to
+  /// 50 x (volume size).
   final VolumeType? volumeType;
 
   EbsBlockDevice({
@@ -7201,7 +6691,7 @@ class EbsBlockDevice {
       iops: json['Iops'] as int?,
       snapshotId: json['SnapshotId'] as String?,
       volumeSize: json['VolumeSize'] as int?,
-      volumeType: (json['VolumeType'] as String?)?.toVolumeType(),
+      volumeType: (json['VolumeType'] as String?)?.let(VolumeType.fromString),
     );
   }
 
@@ -7217,7 +6707,7 @@ class EbsBlockDevice {
       if (iops != null) 'Iops': iops,
       if (snapshotId != null) 'SnapshotId': snapshotId,
       if (volumeSize != null) 'VolumeSize': volumeSize,
-      if (volumeType != null) 'VolumeType': volumeType.toValue(),
+      if (volumeType != null) 'VolumeType': volumeType.value,
     };
   }
 }
@@ -7264,10 +6754,10 @@ class ElasticIp {
   /// The IP address.
   final String? ip;
 
-  /// The name.
+  /// The name, which can be a maximum of 32 characters.
   final String? name;
 
-  /// The AWS region. For more information, see <a
+  /// The Amazon Web Services Region. For more information, see <a
   /// href="https://docs.aws.amazon.com/general/latest/gr/rande.html">Regions and
   /// Endpoints</a>.
   final String? region;
@@ -7299,20 +6789,20 @@ class ElasticLoadBalancer {
   /// The instance's public DNS name.
   final String? dnsName;
 
-  /// A list of the EC2 instances that the Elastic Load Balancing instance is
-  /// managing traffic for.
+  /// A list of the EC2 instances for which the Elastic Load Balancing instance is
+  /// managing traffic.
   final List<String>? ec2InstanceIds;
 
-  /// The Elastic Load Balancing instance's name.
+  /// The Elastic Load Balancing instance name.
   final String? elasticLoadBalancerName;
 
-  /// The ID of the layer that the instance is attached to.
+  /// The ID of the layer to which the instance is attached.
   final String? layerId;
 
-  /// The instance's AWS region.
+  /// The instance's Amazon Web Services Region.
   final String? region;
 
-  /// The ID of the stack that the instance is associated with.
+  /// The ID of the stack with which the instance is associated.
   final String? stackId;
 
   /// A list of subnet IDs, if the stack is running in a VPC.
@@ -7336,12 +6826,12 @@ class ElasticLoadBalancer {
   factory ElasticLoadBalancer.fromJson(Map<String, dynamic> json) {
     return ElasticLoadBalancer(
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       dnsName: json['DnsName'] as String?,
       ec2InstanceIds: (json['Ec2InstanceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       elasticLoadBalancerName: json['ElasticLoadBalancerName'] as String?,
@@ -7349,7 +6839,7 @@ class ElasticLoadBalancer {
       region: json['Region'] as String?,
       stackId: json['StackId'] as String?,
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -7370,11 +6860,11 @@ class EnvironmentVariable {
   /// printable.
   final String value;
 
-  /// (Optional) Whether the variable's value will be returned by the
-  /// <a>DescribeApps</a> action. To conceal an environment variable's value, set
-  /// <code>Secure</code> to <code>true</code>. <code>DescribeApps</code> then
-  /// returns <code>*****FILTERED*****</code> instead of the actual value. The
-  /// default value for <code>Secure</code> is <code>false</code>.
+  /// (Optional) Whether the variable's value is returned by the
+  /// <a>DescribeApps</a> action. To hide an environment variable's value, set
+  /// <code>Secure</code> to <code>true</code>. <code>DescribeApps</code> returns
+  /// <code>*****FILTERED*****</code> instead of the actual value. The default
+  /// value for <code>Secure</code> is <code>false</code>.
   final bool? secure;
 
   EnvironmentVariable({
@@ -7492,10 +6982,20 @@ class Instance {
 
   /// The instance <a
   /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/elastic-ip-addresses-eip.html">Elastic
-  /// IP address </a>.
+  /// IP address</a>.
   final String? elasticIp;
 
-  /// The instance host name.
+  /// The instance host name. The following are character limits for instance host
+  /// names.
+  ///
+  /// <ul>
+  /// <li>
+  /// Linux-based instances: 63 characters
+  /// </li>
+  /// <li>
+  /// Windows-based instances: 15 characters
+  /// </li>
+  /// </ul>
   final String? hostname;
 
   /// For registered instances, the infrastructure class: <code>ec2</code> or
@@ -7504,13 +7004,13 @@ class Instance {
 
   /// Whether to install operating system and package updates when the instance
   /// boots. The default value is <code>true</code>. If this value is set to
-  /// <code>false</code>, you must then update your instances manually by using
+  /// <code>false</code>, you must update instances manually by using
   /// <a>CreateDeployment</a> to run the <code>update_dependencies</code> stack
   /// command or by manually running <code>yum</code> (Amazon Linux) or
   /// <code>apt-get</code> (Ubuntu) on the instances.
   /// <note>
-  /// We strongly recommend using the default value of <code>true</code>, to
-  /// ensure that your instances have the latest security updates.
+  /// We strongly recommend using the default value of <code>true</code> to ensure
+  /// that your instances have the latest security updates.
   /// </note>
   final bool? installUpdatesOnBoot;
 
@@ -7554,7 +7054,7 @@ class Instance {
   /// For registered instances, who performed the registration.
   final String? registeredBy;
 
-  /// The instance's reported AWS OpsWorks Stacks agent version.
+  /// The instance's reported OpsWorks Stacks agent version.
   final String? reportedAgentVersion;
 
   /// For registered instances, the reported operating system.
@@ -7693,13 +7193,14 @@ class Instance {
     return Instance(
       agentVersion: json['AgentVersion'] as String?,
       amiId: json['AmiId'] as String?,
-      architecture: (json['Architecture'] as String?)?.toArchitecture(),
+      architecture:
+          (json['Architecture'] as String?)?.let(Architecture.fromString),
       arn: json['Arn'] as String?,
       autoScalingType:
-          (json['AutoScalingType'] as String?)?.toAutoScalingType(),
+          (json['AutoScalingType'] as String?)?.let(AutoScalingType.fromString),
       availabilityZone: json['AvailabilityZone'] as String?,
       blockDeviceMappings: (json['BlockDeviceMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BlockDeviceMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       createdAt: json['CreatedAt'] as String?,
@@ -7716,7 +7217,7 @@ class Instance {
       instanceType: json['InstanceType'] as String?,
       lastServiceErrorId: json['LastServiceErrorId'] as String?,
       layerIds: (json['LayerIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       os: json['Os'] as String?,
@@ -7730,10 +7231,11 @@ class Instance {
       reportedOs: json['ReportedOs'] != null
           ? ReportedOs.fromJson(json['ReportedOs'] as Map<String, dynamic>)
           : null,
-      rootDeviceType: (json['RootDeviceType'] as String?)?.toRootDeviceType(),
+      rootDeviceType:
+          (json['RootDeviceType'] as String?)?.let(RootDeviceType.fromString),
       rootDeviceVolumeId: json['RootDeviceVolumeId'] as String?,
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       sshHostDsaKeyFingerprint: json['SshHostDsaKeyFingerprint'] as String?,
@@ -7743,8 +7245,8 @@ class Instance {
       status: json['Status'] as String?,
       subnetId: json['SubnetId'] as String?,
       tenancy: json['Tenancy'] as String?,
-      virtualizationType:
-          (json['VirtualizationType'] as String?)?.toVirtualizationType(),
+      virtualizationType: (json['VirtualizationType'] as String?)
+          ?.let(VirtualizationType.fromString),
     );
   }
 }
@@ -7895,10 +7397,10 @@ class Layer {
   /// The layer attributes.
   ///
   /// For the <code>HaproxyStatsPassword</code>, <code>MysqlRootPassword</code>,
-  /// and <code>GangliaPassword</code> attributes, AWS OpsWorks Stacks returns
+  /// and <code>GangliaPassword</code> attributes, OpsWorks Stacks returns
   /// <code>*****FILTERED*****</code> instead of the actual value
   ///
-  /// For an ECS Cluster layer, AWS OpsWorks Stacks the <code>EcsClusterArn</code>
+  /// For an ECS Cluster layer, OpsWorks Stacks the <code>EcsClusterArn</code>
   /// attribute is set to the cluster's ARN.
   final Map<LayerAttributesKeys, String>? attributes;
 
@@ -7938,11 +7440,11 @@ class Layer {
   /// An array containing the layer's custom security group IDs.
   final List<String>? customSecurityGroupIds;
 
-  /// AWS OpsWorks Stacks supports five lifecycle events: <b>setup</b>,
+  /// OpsWorks Stacks supports five lifecycle events: <b>setup</b>,
   /// <b>configuration</b>, <b>deploy</b>, <b>undeploy</b>, and <b>shutdown</b>.
-  /// For each layer, AWS OpsWorks Stacks runs a set of standard recipes for each
+  /// For each layer, OpsWorks Stacks runs a set of standard recipes for each
   /// event. You can also provide custom recipes for any or all layers and events.
-  /// AWS OpsWorks Stacks runs custom event recipes after the standard recipes.
+  /// OpsWorks Stacks runs custom event recipes after the standard recipes.
   /// <code>LayerCustomRecipes</code> specifies the custom recipes for a
   /// particular layer to be run in response to each of the five events.
   ///
@@ -7978,7 +7480,7 @@ class Layer {
   /// Shutdown event configuration.
   final LifecycleEventConfiguration? lifecycleEventConfiguration;
 
-  /// The layer name.
+  /// The layer name. Layer names can be a maximum of 32 characters.
   final String? name;
 
   /// An array of <code>Package</code> objects that describe the layer's packages.
@@ -8029,8 +7531,8 @@ class Layer {
   factory Layer.fromJson(Map<String, dynamic> json) {
     return Layer(
       arn: json['Arn'] as String?,
-      attributes: (json['Attributes'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toLayerAttributesKeys(), e as String)),
+      attributes: (json['Attributes'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(LayerAttributesKeys.fromString(k), e as String)),
       autoAssignElasticIps: json['AutoAssignElasticIps'] as bool?,
       autoAssignPublicIps: json['AutoAssignPublicIps'] as bool?,
       cloudWatchLogsConfiguration: json['CloudWatchLogsConfiguration'] != null
@@ -8044,14 +7546,14 @@ class Layer {
           ? Recipes.fromJson(json['CustomRecipes'] as Map<String, dynamic>)
           : null,
       customSecurityGroupIds: (json['CustomSecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       defaultRecipes: json['DefaultRecipes'] != null
           ? Recipes.fromJson(json['DefaultRecipes'] as Map<String, dynamic>)
           : null,
       defaultSecurityGroupNames: (json['DefaultSecurityGroupNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       enableAutoHealing: json['EnableAutoHealing'] as bool?,
@@ -8063,15 +7565,15 @@ class Layer {
           : null,
       name: json['Name'] as String?,
       packages: (json['Packages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       shortname: json['Shortname'] as String?,
       stackId: json['StackId'] as String?,
-      type: (json['Type'] as String?)?.toLayerType(),
+      type: (json['Type'] as String?)?.let(LayerType.fromString),
       useEbsOptimizedInstances: json['UseEbsOptimizedInstances'] as bool?,
       volumeConfigurations: (json['VolumeConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VolumeConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8079,224 +7581,65 @@ class Layer {
 }
 
 enum LayerAttributesKeys {
-  ecsClusterArn,
-  enableHaproxyStats,
-  haproxyStatsUrl,
-  haproxyStatsUser,
-  haproxyStatsPassword,
-  haproxyHealthCheckUrl,
-  haproxyHealthCheckMethod,
-  mysqlRootPassword,
-  mysqlRootPasswordUbiquitous,
-  gangliaUrl,
-  gangliaUser,
-  gangliaPassword,
-  memcachedMemory,
-  nodejsVersion,
-  rubyVersion,
-  rubygemsVersion,
-  manageBundler,
-  bundlerVersion,
-  railsStack,
-  passengerVersion,
-  jvm,
-  jvmVersion,
-  jvmOptions,
-  javaAppServer,
-  javaAppServerVersion,
-}
+  ecsClusterArn('EcsClusterArn'),
+  enableHaproxyStats('EnableHaproxyStats'),
+  haproxyStatsUrl('HaproxyStatsUrl'),
+  haproxyStatsUser('HaproxyStatsUser'),
+  haproxyStatsPassword('HaproxyStatsPassword'),
+  haproxyHealthCheckUrl('HaproxyHealthCheckUrl'),
+  haproxyHealthCheckMethod('HaproxyHealthCheckMethod'),
+  mysqlRootPassword('MysqlRootPassword'),
+  mysqlRootPasswordUbiquitous('MysqlRootPasswordUbiquitous'),
+  gangliaUrl('GangliaUrl'),
+  gangliaUser('GangliaUser'),
+  gangliaPassword('GangliaPassword'),
+  memcachedMemory('MemcachedMemory'),
+  nodejsVersion('NodejsVersion'),
+  rubyVersion('RubyVersion'),
+  rubygemsVersion('RubygemsVersion'),
+  manageBundler('ManageBundler'),
+  bundlerVersion('BundlerVersion'),
+  railsStack('RailsStack'),
+  passengerVersion('PassengerVersion'),
+  jvm('Jvm'),
+  jvmVersion('JvmVersion'),
+  jvmOptions('JvmOptions'),
+  javaAppServer('JavaAppServer'),
+  javaAppServerVersion('JavaAppServerVersion'),
+  ;
 
-extension LayerAttributesKeysValueExtension on LayerAttributesKeys {
-  String toValue() {
-    switch (this) {
-      case LayerAttributesKeys.ecsClusterArn:
-        return 'EcsClusterArn';
-      case LayerAttributesKeys.enableHaproxyStats:
-        return 'EnableHaproxyStats';
-      case LayerAttributesKeys.haproxyStatsUrl:
-        return 'HaproxyStatsUrl';
-      case LayerAttributesKeys.haproxyStatsUser:
-        return 'HaproxyStatsUser';
-      case LayerAttributesKeys.haproxyStatsPassword:
-        return 'HaproxyStatsPassword';
-      case LayerAttributesKeys.haproxyHealthCheckUrl:
-        return 'HaproxyHealthCheckUrl';
-      case LayerAttributesKeys.haproxyHealthCheckMethod:
-        return 'HaproxyHealthCheckMethod';
-      case LayerAttributesKeys.mysqlRootPassword:
-        return 'MysqlRootPassword';
-      case LayerAttributesKeys.mysqlRootPasswordUbiquitous:
-        return 'MysqlRootPasswordUbiquitous';
-      case LayerAttributesKeys.gangliaUrl:
-        return 'GangliaUrl';
-      case LayerAttributesKeys.gangliaUser:
-        return 'GangliaUser';
-      case LayerAttributesKeys.gangliaPassword:
-        return 'GangliaPassword';
-      case LayerAttributesKeys.memcachedMemory:
-        return 'MemcachedMemory';
-      case LayerAttributesKeys.nodejsVersion:
-        return 'NodejsVersion';
-      case LayerAttributesKeys.rubyVersion:
-        return 'RubyVersion';
-      case LayerAttributesKeys.rubygemsVersion:
-        return 'RubygemsVersion';
-      case LayerAttributesKeys.manageBundler:
-        return 'ManageBundler';
-      case LayerAttributesKeys.bundlerVersion:
-        return 'BundlerVersion';
-      case LayerAttributesKeys.railsStack:
-        return 'RailsStack';
-      case LayerAttributesKeys.passengerVersion:
-        return 'PassengerVersion';
-      case LayerAttributesKeys.jvm:
-        return 'Jvm';
-      case LayerAttributesKeys.jvmVersion:
-        return 'JvmVersion';
-      case LayerAttributesKeys.jvmOptions:
-        return 'JvmOptions';
-      case LayerAttributesKeys.javaAppServer:
-        return 'JavaAppServer';
-      case LayerAttributesKeys.javaAppServerVersion:
-        return 'JavaAppServerVersion';
-    }
-  }
-}
+  final String value;
 
-extension LayerAttributesKeysFromString on String {
-  LayerAttributesKeys toLayerAttributesKeys() {
-    switch (this) {
-      case 'EcsClusterArn':
-        return LayerAttributesKeys.ecsClusterArn;
-      case 'EnableHaproxyStats':
-        return LayerAttributesKeys.enableHaproxyStats;
-      case 'HaproxyStatsUrl':
-        return LayerAttributesKeys.haproxyStatsUrl;
-      case 'HaproxyStatsUser':
-        return LayerAttributesKeys.haproxyStatsUser;
-      case 'HaproxyStatsPassword':
-        return LayerAttributesKeys.haproxyStatsPassword;
-      case 'HaproxyHealthCheckUrl':
-        return LayerAttributesKeys.haproxyHealthCheckUrl;
-      case 'HaproxyHealthCheckMethod':
-        return LayerAttributesKeys.haproxyHealthCheckMethod;
-      case 'MysqlRootPassword':
-        return LayerAttributesKeys.mysqlRootPassword;
-      case 'MysqlRootPasswordUbiquitous':
-        return LayerAttributesKeys.mysqlRootPasswordUbiquitous;
-      case 'GangliaUrl':
-        return LayerAttributesKeys.gangliaUrl;
-      case 'GangliaUser':
-        return LayerAttributesKeys.gangliaUser;
-      case 'GangliaPassword':
-        return LayerAttributesKeys.gangliaPassword;
-      case 'MemcachedMemory':
-        return LayerAttributesKeys.memcachedMemory;
-      case 'NodejsVersion':
-        return LayerAttributesKeys.nodejsVersion;
-      case 'RubyVersion':
-        return LayerAttributesKeys.rubyVersion;
-      case 'RubygemsVersion':
-        return LayerAttributesKeys.rubygemsVersion;
-      case 'ManageBundler':
-        return LayerAttributesKeys.manageBundler;
-      case 'BundlerVersion':
-        return LayerAttributesKeys.bundlerVersion;
-      case 'RailsStack':
-        return LayerAttributesKeys.railsStack;
-      case 'PassengerVersion':
-        return LayerAttributesKeys.passengerVersion;
-      case 'Jvm':
-        return LayerAttributesKeys.jvm;
-      case 'JvmVersion':
-        return LayerAttributesKeys.jvmVersion;
-      case 'JvmOptions':
-        return LayerAttributesKeys.jvmOptions;
-      case 'JavaAppServer':
-        return LayerAttributesKeys.javaAppServer;
-      case 'JavaAppServerVersion':
-        return LayerAttributesKeys.javaAppServerVersion;
-    }
-    throw Exception('$this is not known in enum LayerAttributesKeys');
-  }
+  const LayerAttributesKeys(this.value);
+
+  static LayerAttributesKeys fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LayerAttributesKeys'));
 }
 
 enum LayerType {
-  awsFlowRuby,
-  ecsCluster,
-  javaApp,
-  lb,
-  web,
-  phpApp,
-  railsApp,
-  nodejsApp,
-  memcached,
-  dbMaster,
-  monitoringMaster,
-  custom,
-}
+  awsFlowRuby('aws-flow-ruby'),
+  ecsCluster('ecs-cluster'),
+  javaApp('java-app'),
+  lb('lb'),
+  web('web'),
+  phpApp('php-app'),
+  railsApp('rails-app'),
+  nodejsApp('nodejs-app'),
+  memcached('memcached'),
+  dbMaster('db-master'),
+  monitoringMaster('monitoring-master'),
+  custom('custom'),
+  ;
 
-extension LayerTypeValueExtension on LayerType {
-  String toValue() {
-    switch (this) {
-      case LayerType.awsFlowRuby:
-        return 'aws-flow-ruby';
-      case LayerType.ecsCluster:
-        return 'ecs-cluster';
-      case LayerType.javaApp:
-        return 'java-app';
-      case LayerType.lb:
-        return 'lb';
-      case LayerType.web:
-        return 'web';
-      case LayerType.phpApp:
-        return 'php-app';
-      case LayerType.railsApp:
-        return 'rails-app';
-      case LayerType.nodejsApp:
-        return 'nodejs-app';
-      case LayerType.memcached:
-        return 'memcached';
-      case LayerType.dbMaster:
-        return 'db-master';
-      case LayerType.monitoringMaster:
-        return 'monitoring-master';
-      case LayerType.custom:
-        return 'custom';
-    }
-  }
-}
+  final String value;
 
-extension LayerTypeFromString on String {
-  LayerType toLayerType() {
-    switch (this) {
-      case 'aws-flow-ruby':
-        return LayerType.awsFlowRuby;
-      case 'ecs-cluster':
-        return LayerType.ecsCluster;
-      case 'java-app':
-        return LayerType.javaApp;
-      case 'lb':
-        return LayerType.lb;
-      case 'web':
-        return LayerType.web;
-      case 'php-app':
-        return LayerType.phpApp;
-      case 'rails-app':
-        return LayerType.railsApp;
-      case 'nodejs-app':
-        return LayerType.nodejsApp;
-      case 'memcached':
-        return LayerType.memcached;
-      case 'db-master':
-        return LayerType.dbMaster;
-      case 'monitoring-master':
-        return LayerType.monitoringMaster;
-      case 'custom':
-        return LayerType.custom;
-    }
-    throw Exception('$this is not known in enum LayerType');
-  }
+  const LayerType(this.value);
+
+  static LayerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum LayerType'));
 }
 
 /// Specifies the lifecycle event configuration
@@ -8356,8 +7699,8 @@ class ListTagsResult {
 /// Describes a layer's load-based auto scaling configuration.
 class LoadBasedAutoScalingConfiguration {
   /// An <code>AutoScalingThresholds</code> object that describes the downscaling
-  /// configuration, which defines how and when AWS OpsWorks Stacks reduces the
-  /// number of instances.
+  /// configuration, which defines how and when OpsWorks Stacks reduces the number
+  /// of instances.
   final AutoScalingThresholds? downScaling;
 
   /// Whether load-based auto scaling is enabled for the layer.
@@ -8367,7 +7710,7 @@ class LoadBasedAutoScalingConfiguration {
   final String? layerId;
 
   /// An <code>AutoScalingThresholds</code> object that describes the upscaling
-  /// configuration, which defines how and when AWS OpsWorks Stacks increases the
+  /// configuration, which defines how and when OpsWorks Stacks increases the
   /// number of instances.
   final AutoScalingThresholds? upScaling;
 
@@ -8395,17 +7738,16 @@ class LoadBasedAutoScalingConfiguration {
   }
 }
 
-/// Describes supported operating systems in AWS OpsWorks Stacks.
+/// Describes supported operating systems in OpsWorks Stacks.
 class OperatingSystem {
-  /// Supported configuration manager name and versions for an AWS OpsWorks Stacks
+  /// Supported configuration manager name and versions for an OpsWorks Stacks
   /// operating system.
   final List<OperatingSystemConfigurationManager>? configurationManagers;
 
-  /// The ID of a supported operating system, such as <code>Amazon Linux
-  /// 2018.03</code>.
+  /// The ID of a supported operating system, such as <code>Amazon Linux 2</code>.
   final String? id;
 
-  /// The name of the operating system, such as <code>Amazon Linux 2018.03</code>.
+  /// The name of the operating system, such as <code>Amazon Linux 2</code>.
   final String? name;
 
   /// A short name for the operating system manufacturer.
@@ -8435,7 +7777,7 @@ class OperatingSystem {
   factory OperatingSystem.fromJson(Map<String, dynamic> json) {
     return OperatingSystem(
       configurationManagers: (json['ConfigurationManagers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OperatingSystemConfigurationManager.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -8482,8 +7824,8 @@ class Permission {
   /// Whether the user can use <b>sudo</b>.
   final bool? allowSudo;
 
-  /// The Amazon Resource Name (ARN) for an AWS Identity and Access Management
-  /// (IAM) role. For more information about IAM ARNs, see <a
+  /// The Amazon Resource Name (ARN) for an Identity and Access Management (IAM)
+  /// role. For more information about IAM ARNs, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/Using_Identifiers.html">Using
   /// Identifiers</a>.
   final String? iamUserArn;
@@ -8618,10 +7960,10 @@ class RdsDbInstance {
   /// The instance's address.
   final String? address;
 
-  /// The DB instance identifier.
+  /// The database instance identifier.
   final String? dbInstanceIdentifier;
 
-  /// AWS OpsWorks Stacks returns <code>*****FILTERED*****</code> instead of the
+  /// OpsWorks Stacks returns <code>*****FILTERED*****</code> instead of the
   /// actual value.
   final String? dbPassword;
 
@@ -8631,16 +7973,16 @@ class RdsDbInstance {
   /// The instance's database engine.
   final String? engine;
 
-  /// Set to <code>true</code> if AWS OpsWorks Stacks is unable to discover the
-  /// Amazon RDS instance. AWS OpsWorks Stacks attempts to discover the instance
-  /// only once. If this value is set to <code>true</code>, you must deregister
-  /// the instance, and then register it again.
+  /// Set to <code>true</code> if OpsWorks Stacks is unable to discover the Amazon
+  /// RDS instance. OpsWorks Stacks attempts to discover the instance only once.
+  /// If this value is set to <code>true</code>, you must deregister the instance,
+  /// and then register it again.
   final bool? missingOnRds;
 
   /// The instance's ARN.
   final String? rdsDbInstanceArn;
 
-  /// The instance's AWS region.
+  /// The instance's Amazon Web Services Region.
   final String? region;
 
   /// The ID of the stack with which the instance is registered.
@@ -8673,11 +8015,11 @@ class RdsDbInstance {
   }
 }
 
-/// AWS OpsWorks Stacks supports five lifecycle events: <b>setup</b>,
+/// OpsWorks Stacks supports five lifecycle events: <b>setup</b>,
 /// <b>configuration</b>, <b>deploy</b>, <b>undeploy</b>, and <b>shutdown</b>.
-/// For each layer, AWS OpsWorks Stacks runs a set of standard recipes for each
+/// For each layer, OpsWorks Stacks runs a set of standard recipes for each
 /// event. In addition, you can provide custom recipes for any or all layers and
-/// events. AWS OpsWorks Stacks runs custom event recipes after the standard
+/// events. OpsWorks Stacks runs custom event recipes after the standard
 /// recipes. <code>LayerCustomRecipes</code> specifies the custom recipes for a
 /// particular layer to be run in response to each of the five events.
 ///
@@ -8717,23 +8059,19 @@ class Recipes {
   factory Recipes.fromJson(Map<String, dynamic> json) {
     return Recipes(
       configure: (json['Configure'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      deploy: (json['Deploy'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      setup: (json['Setup'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      deploy:
+          (json['Deploy'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      setup:
+          (json['Setup'] as List?)?.nonNulls.map((e) => e as String).toList(),
       shutdown: (json['Shutdown'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       undeploy: (json['Undeploy'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -8789,7 +8127,7 @@ class RegisterElasticIpResult {
 
 /// Contains the response to a <code>RegisterInstanceResult</code> request.
 class RegisterInstanceResult {
-  /// The registered instance's AWS OpsWorks Stacks ID.
+  /// The registered instance's OpsWorks Stacks ID.
   final String? instanceId;
 
   RegisterInstanceResult({
@@ -8846,31 +8184,18 @@ class ReportedOs {
 }
 
 enum RootDeviceType {
-  ebs,
-  instanceStore,
-}
+  ebs('ebs'),
+  instanceStore('instance-store'),
+  ;
 
-extension RootDeviceTypeValueExtension on RootDeviceType {
-  String toValue() {
-    switch (this) {
-      case RootDeviceType.ebs:
-        return 'ebs';
-      case RootDeviceType.instanceStore:
-        return 'instance-store';
-    }
-  }
-}
+  final String value;
 
-extension RootDeviceTypeFromString on String {
-  RootDeviceType toRootDeviceType() {
-    switch (this) {
-      case 'ebs':
-        return RootDeviceType.ebs;
-      case 'instance-store':
-        return RootDeviceType.instanceStore;
-    }
-    throw Exception('$this is not known in enum RootDeviceType');
-  }
+  const RootDeviceType(this.value);
+
+  static RootDeviceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RootDeviceType'));
 }
 
 /// Describes a user's SSH information.
@@ -8904,7 +8229,7 @@ class SelfUserProfile {
   }
 }
 
-/// Describes an AWS OpsWorks Stacks service error.
+/// Describes an OpsWorks Stacks service error.
 class ServiceError {
   /// When the error occurred.
   final String? createdAt;
@@ -8953,8 +8278,8 @@ class ShutdownEventConfiguration {
   /// Draining</a>
   final bool? delayUntilElbConnectionsDrained;
 
-  /// The time, in seconds, that AWS OpsWorks Stacks will wait after triggering a
-  /// Shutdown event before shutting down an instance.
+  /// The time, in seconds, that OpsWorks Stacks waits after triggering a Shutdown
+  /// event before shutting down an instance.
   final int? executionTimeout;
 
   ShutdownEventConfiguration({
@@ -9004,19 +8329,19 @@ class Source {
   /// For more information on how to safely handle IAM credentials, see <a
   /// href="https://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html">https://docs.aws.amazon.com/general/latest/gr/aws-access-keys-best-practices.html</a>.
   ///
-  /// In responses, AWS OpsWorks Stacks returns <code>*****FILTERED*****</code>
+  /// In responses, OpsWorks Stacks returns <code>*****FILTERED*****</code>
   /// instead of the actual value.
   final String? password;
 
-  /// The application's version. AWS OpsWorks Stacks enables you to easily deploy
-  /// new versions of an application. One of the simplest approaches is to have
+  /// The application's version. OpsWorks Stacks enables you to easily deploy new
+  /// versions of an application. One of the simplest approaches is to have
   /// branches or revisions in your repository that represent different versions
   /// that can potentially be deployed.
   final String? revision;
 
   /// In requests, the repository's SSH key.
   ///
-  /// In responses, AWS OpsWorks Stacks returns <code>*****FILTERED*****</code>
+  /// In responses, OpsWorks Stacks returns <code>*****FILTERED*****</code>
   /// instead of the actual value.
   final String? sshKey;
 
@@ -9055,7 +8380,7 @@ class Source {
       password: json['Password'] as String?,
       revision: json['Revision'] as String?,
       sshKey: json['SshKey'] as String?,
-      type: (json['Type'] as String?)?.toSourceType(),
+      type: (json['Type'] as String?)?.let(SourceType.fromString),
       url: json['Url'] as String?,
       username: json['Username'] as String?,
     );
@@ -9072,7 +8397,7 @@ class Source {
       if (password != null) 'Password': password,
       if (revision != null) 'Revision': revision,
       if (sshKey != null) 'SshKey': sshKey,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (url != null) 'Url': url,
       if (username != null) 'Username': username,
     };
@@ -9080,41 +8405,19 @@ class Source {
 }
 
 enum SourceType {
-  git,
-  svn,
-  archive,
-  s3,
-}
+  git('git'),
+  svn('svn'),
+  archive('archive'),
+  s3('s3'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.git:
-        return 'git';
-      case SourceType.svn:
-        return 'svn';
-      case SourceType.archive:
-        return 'archive';
-      case SourceType.s3:
-        return 's3';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'git':
-        return SourceType.git;
-      case 'svn':
-        return SourceType.svn;
-      case 'archive':
-        return SourceType.archive;
-      case 's3':
-        return SourceType.s3;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 /// Describes an app's SSL configuration.
@@ -9230,16 +8533,16 @@ class Stack {
   /// The stack host name theme, with spaces replaced by underscores.
   final String? hostnameTheme;
 
-  /// The stack name.
+  /// The stack name. Stack names can be a maximum of 64 characters.
   final String? name;
 
-  /// The stack AWS region, such as "ap-northeast-2". For more information about
-  /// AWS regions, see <a
+  /// The stack Amazon Web Services Region, such as <code>ap-northeast-2</code>.
+  /// For more information about Amazon Web Services Regions, see <a
   /// href="https://docs.aws.amazon.com/general/latest/gr/rande.html">Regions and
   /// Endpoints</a>.
   final String? region;
 
-  /// The stack AWS Identity and Access Management (IAM) role.
+  /// The stack Identity and Access Management (IAM) role.
   final String? serviceRoleArn;
 
   /// The stack ID.
@@ -9248,7 +8551,7 @@ class Stack {
   /// Whether the stack uses custom cookbooks.
   final bool? useCustomCookbooks;
 
-  /// Whether the stack automatically associates the AWS OpsWorks Stacks built-in
+  /// Whether the stack automatically associates the OpsWorks Stacks built-in
   /// security groups with the stack's layers.
   final bool? useOpsworksSecurityGroups;
 
@@ -9284,8 +8587,8 @@ class Stack {
     return Stack(
       agentVersion: json['AgentVersion'] as String?,
       arn: json['Arn'] as String?,
-      attributes: (json['Attributes'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toStackAttributesKeys(), e as String)),
+      attributes: (json['Attributes'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(StackAttributesKeys.fromString(k), e as String)),
       chefConfiguration: json['ChefConfiguration'] != null
           ? ChefConfiguration.fromJson(
               json['ChefConfiguration'] as Map<String, dynamic>)
@@ -9303,8 +8606,8 @@ class Stack {
       defaultAvailabilityZone: json['DefaultAvailabilityZone'] as String?,
       defaultInstanceProfileArn: json['DefaultInstanceProfileArn'] as String?,
       defaultOs: json['DefaultOs'] as String?,
-      defaultRootDeviceType:
-          (json['DefaultRootDeviceType'] as String?)?.toRootDeviceType(),
+      defaultRootDeviceType: (json['DefaultRootDeviceType'] as String?)
+          ?.let(RootDeviceType.fromString),
       defaultSshKeyName: json['DefaultSshKeyName'] as String?,
       defaultSubnetId: json['DefaultSubnetId'] as String?,
       hostnameTheme: json['HostnameTheme'] as String?,
@@ -9320,36 +8623,27 @@ class Stack {
 }
 
 enum StackAttributesKeys {
-  color,
-}
+  color('Color'),
+  ;
 
-extension StackAttributesKeysValueExtension on StackAttributesKeys {
-  String toValue() {
-    switch (this) {
-      case StackAttributesKeys.color:
-        return 'Color';
-    }
-  }
-}
+  final String value;
 
-extension StackAttributesKeysFromString on String {
-  StackAttributesKeys toStackAttributesKeys() {
-    switch (this) {
-      case 'Color':
-        return StackAttributesKeys.color;
-    }
-    throw Exception('$this is not known in enum StackAttributesKeys');
-  }
+  const StackAttributesKeys(this.value);
+
+  static StackAttributesKeys fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StackAttributesKeys'));
 }
 
 /// Describes the configuration manager.
 class StackConfigurationManager {
-  /// The name. This parameter must be set to "Chef".
+  /// The name. This parameter must be set to <code>Chef</code>.
   final String? name;
 
   /// The Chef version. This parameter must be set to 12, 11.10, or 11.4 for Linux
   /// stacks, and to 12.2 for Windows stacks. The default value for Linux stacks
-  /// is 11.4.
+  /// is 12.
   final String? version;
 
   StackConfigurationManager({
@@ -9422,7 +8716,7 @@ class StackSummary {
 /// Contains the data needed by RDP clients such as the Microsoft Remote Desktop
 /// Connection to log in to the instance.
 class TemporaryCredential {
-  /// The instance's AWS OpsWorks Stacks ID.
+  /// The instance's OpsWorks Stacks ID.
   final String? instanceId;
 
   /// The password.
@@ -9433,7 +8727,7 @@ class TemporaryCredential {
 
   /// The length of time (in minutes) that the grant is valid. When the grant
   /// expires, at the end of this period, the user will no longer be able to use
-  /// the credentials to log in. If they are logged in at the time, they will be
+  /// the credentials to log in. If they are logged in at the time, they are
   /// automatically logged out.
   final int? validForInMinutes;
 
@@ -9519,31 +8813,18 @@ class UserProfile {
 }
 
 enum VirtualizationType {
-  paravirtual,
-  hvm,
-}
+  paravirtual('paravirtual'),
+  hvm('hvm'),
+  ;
 
-extension VirtualizationTypeValueExtension on VirtualizationType {
-  String toValue() {
-    switch (this) {
-      case VirtualizationType.paravirtual:
-        return 'paravirtual';
-      case VirtualizationType.hvm:
-        return 'hvm';
-    }
-  }
-}
+  final String value;
 
-extension VirtualizationTypeFromString on String {
-  VirtualizationType toVirtualizationType() {
-    switch (this) {
-      case 'paravirtual':
-        return VirtualizationType.paravirtual;
-      case 'hvm':
-        return VirtualizationType.hvm;
-    }
-    throw Exception('$this is not known in enum VirtualizationType');
-  }
+  const VirtualizationType(this.value);
+
+  static VirtualizationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum VirtualizationType'));
 }
 
 /// Describes an instance's Amazon EBS volume.
@@ -9574,13 +8855,14 @@ class Volume {
   /// The volume mount point. For example, "/mnt/disk1".
   final String? mountPoint;
 
-  /// The volume name.
+  /// The volume name. Volume names are a maximum of 128 characters.
   final String? name;
 
   /// The RAID array ID.
   final String? raidArrayId;
 
-  /// The AWS region. For more information about AWS regions, see <a
+  /// The Amazon Web Services Region. For more information about Amazon Web
+  /// Services Regions, see <a
   /// href="https://docs.aws.amazon.com/general/latest/gr/rande.html">Regions and
   /// Endpoints</a>.
   final String? region;
@@ -9614,12 +8896,12 @@ class Volume {
   /// </li>
   /// <li>
   /// <code>st1</code> - Throughput Optimized hard disk drive (HDD). Throughput
-  /// optimized HDD volumes must have a minimum size of 500 GiB and a maximum size
+  /// optimized HDD volumes must have a minimum size of 125 GiB and a maximum size
   /// of 16384 GiB.
   /// </li>
   /// <li>
   /// <code>sc1</code> - Cold HDD. Cold HDD volumes must have a minimum size of
-  /// 500 GiB and a maximum size of 16384 GiB.
+  /// 125 GiB and a maximum size of 16384 GiB.
   /// </li>
   /// </ul>
   final String? volumeType;
@@ -9704,12 +8986,12 @@ class VolumeConfiguration {
   /// </li>
   /// <li>
   /// <code>st1</code> - Throughput Optimized hard disk drive (HDD). Throughput
-  /// optimized HDD volumes must have a minimum size of 500 GiB and a maximum size
+  /// optimized HDD volumes must have a minimum size of 125 GiB and a maximum size
   /// of 16384 GiB.
   /// </li>
   /// <li>
   /// <code>sc1</code> - Cold HDD. Cold HDD volumes must have a minimum size of
-  /// 500 GiB and a maximum size of 16384 GiB.
+  /// 125 GiB and a maximum size of 16384 GiB.
   /// </li>
   /// </ul>
   final String? volumeType;
@@ -9757,36 +9039,18 @@ class VolumeConfiguration {
 }
 
 enum VolumeType {
-  gp2,
-  io1,
-  standard,
-}
+  gp2('gp2'),
+  io1('io1'),
+  standard('standard'),
+  ;
 
-extension VolumeTypeValueExtension on VolumeType {
-  String toValue() {
-    switch (this) {
-      case VolumeType.gp2:
-        return 'gp2';
-      case VolumeType.io1:
-        return 'io1';
-      case VolumeType.standard:
-        return 'standard';
-    }
-  }
-}
+  final String value;
 
-extension VolumeTypeFromString on String {
-  VolumeType toVolumeType() {
-    switch (this) {
-      case 'gp2':
-        return VolumeType.gp2;
-      case 'io1':
-        return VolumeType.io1;
-      case 'standard':
-        return VolumeType.standard;
-    }
-    throw Exception('$this is not known in enum VolumeType');
-  }
+  const VolumeType(this.value);
+
+  static VolumeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum VolumeType'));
 }
 
 /// Describes a time-based instance's auto scaling schedule. The schedule

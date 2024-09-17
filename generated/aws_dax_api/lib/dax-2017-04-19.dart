@@ -231,8 +231,7 @@ class DAX {
         'ReplicationFactor': replicationFactor,
         if (availabilityZones != null) 'AvailabilityZones': availabilityZones,
         if (clusterEndpointEncryptionType != null)
-          'ClusterEndpointEncryptionType':
-              clusterEndpointEncryptionType.toValue(),
+          'ClusterEndpointEncryptionType': clusterEndpointEncryptionType.value,
         if (description != null) 'Description': description,
         if (notificationTopicArn != null)
           'NotificationTopicArn': notificationTopicArn,
@@ -654,7 +653,7 @@ class DAX {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (sourceName != null) 'SourceName': sourceName,
-        if (sourceType != null) 'SourceType': sourceType.toValue(),
+        if (sourceType != null) 'SourceType': sourceType.value,
         if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
       },
     );
@@ -1183,31 +1182,17 @@ class DAX {
 }
 
 enum ChangeType {
-  immediate,
-  requiresReboot,
-}
+  immediate('IMMEDIATE'),
+  requiresReboot('REQUIRES_REBOOT'),
+  ;
 
-extension ChangeTypeValueExtension on ChangeType {
-  String toValue() {
-    switch (this) {
-      case ChangeType.immediate:
-        return 'IMMEDIATE';
-      case ChangeType.requiresReboot:
-        return 'REQUIRES_REBOOT';
-    }
-  }
-}
+  final String value;
 
-extension ChangeTypeFromString on String {
-  ChangeType toChangeType() {
-    switch (this) {
-      case 'IMMEDIATE':
-        return ChangeType.immediate;
-      case 'REQUIRES_REBOOT':
-        return ChangeType.requiresReboot;
-    }
-    throw Exception('$this is not known in enum ChangeType');
-  }
+  const ChangeType(this.value);
+
+  static ChangeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ChangeType'));
 }
 
 /// Contains all of the attributes of a specific DAX cluster.
@@ -1318,17 +1303,17 @@ class Cluster {
           : null,
       clusterEndpointEncryptionType:
           (json['ClusterEndpointEncryptionType'] as String?)
-              ?.toClusterEndpointEncryptionType(),
+              ?.let(ClusterEndpointEncryptionType.fromString),
       clusterName: json['ClusterName'] as String?,
       description: json['Description'] as String?,
       iamRoleArn: json['IamRoleArn'] as String?,
       nodeIdsToRemove: (json['NodeIdsToRemove'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nodeType: json['NodeType'] as String?,
       nodes: (json['Nodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Node.fromJson(e as Map<String, dynamic>))
           .toList(),
       notificationConfiguration: json['NotificationConfiguration'] != null
@@ -1345,7 +1330,7 @@ class Cluster {
               json['SSEDescription'] as Map<String, dynamic>)
           : null,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SecurityGroupMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1357,32 +1342,18 @@ class Cluster {
 }
 
 enum ClusterEndpointEncryptionType {
-  none,
-  tls,
-}
+  none('NONE'),
+  tls('TLS'),
+  ;
 
-extension ClusterEndpointEncryptionTypeValueExtension
-    on ClusterEndpointEncryptionType {
-  String toValue() {
-    switch (this) {
-      case ClusterEndpointEncryptionType.none:
-        return 'NONE';
-      case ClusterEndpointEncryptionType.tls:
-        return 'TLS';
-    }
-  }
-}
+  final String value;
 
-extension ClusterEndpointEncryptionTypeFromString on String {
-  ClusterEndpointEncryptionType toClusterEndpointEncryptionType() {
-    switch (this) {
-      case 'NONE':
-        return ClusterEndpointEncryptionType.none;
-      case 'TLS':
-        return ClusterEndpointEncryptionType.tls;
-    }
-    throw Exception('$this is not known in enum ClusterEndpointEncryptionType');
-  }
+  const ClusterEndpointEncryptionType(this.value);
+
+  static ClusterEndpointEncryptionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ClusterEndpointEncryptionType'));
 }
 
 class CreateClusterResponse {
@@ -1521,7 +1492,7 @@ class DescribeClustersResponse {
   factory DescribeClustersResponse.fromJson(Map<String, dynamic> json) {
     return DescribeClustersResponse(
       clusters: (json['Clusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Cluster.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1546,7 +1517,7 @@ class DescribeDefaultParametersResponse {
     return DescribeDefaultParametersResponse(
       nextToken: json['NextToken'] as String?,
       parameters: (json['Parameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Parameter.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1568,7 +1539,7 @@ class DescribeEventsResponse {
   factory DescribeEventsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEventsResponse(
       events: (json['Events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Event.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1593,7 +1564,7 @@ class DescribeParameterGroupsResponse {
     return DescribeParameterGroupsResponse(
       nextToken: json['NextToken'] as String?,
       parameterGroups: (json['ParameterGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ParameterGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1617,7 +1588,7 @@ class DescribeParametersResponse {
     return DescribeParametersResponse(
       nextToken: json['NextToken'] as String?,
       parameters: (json['Parameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Parameter.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1641,7 +1612,7 @@ class DescribeSubnetGroupsResponse {
     return DescribeSubnetGroupsResponse(
       nextToken: json['NextToken'] as String?,
       subnetGroups: (json['SubnetGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SubnetGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1706,7 +1677,7 @@ class Event {
       date: timeStampFromJson(json['Date']),
       message: json['Message'] as String?,
       sourceName: json['SourceName'] as String?,
-      sourceType: (json['SourceType'] as String?)?.toSourceType(),
+      sourceType: (json['SourceType'] as String?)?.let(SourceType.fromString),
     );
   }
 }
@@ -1730,36 +1701,19 @@ class IncreaseReplicationFactorResponse {
 }
 
 enum IsModifiable {
-  $true,
-  $false,
-  conditional,
-}
+  $true('TRUE'),
+  $false('FALSE'),
+  conditional('CONDITIONAL'),
+  ;
 
-extension IsModifiableValueExtension on IsModifiable {
-  String toValue() {
-    switch (this) {
-      case IsModifiable.$true:
-        return 'TRUE';
-      case IsModifiable.$false:
-        return 'FALSE';
-      case IsModifiable.conditional:
-        return 'CONDITIONAL';
-    }
-  }
-}
+  final String value;
 
-extension IsModifiableFromString on String {
-  IsModifiable toIsModifiable() {
-    switch (this) {
-      case 'TRUE':
-        return IsModifiable.$true;
-      case 'FALSE':
-        return IsModifiable.$false;
-      case 'CONDITIONAL':
-        return IsModifiable.conditional;
-    }
-    throw Exception('$this is not known in enum IsModifiable');
-  }
+  const IsModifiable(this.value);
+
+  static IsModifiable fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IsModifiable'));
 }
 
 class ListTagsResponse {
@@ -1780,7 +1734,7 @@ class ListTagsResponse {
     return ListTagsResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1932,16 +1886,18 @@ class Parameter {
   factory Parameter.fromJson(Map<String, dynamic> json) {
     return Parameter(
       allowedValues: json['AllowedValues'] as String?,
-      changeType: (json['ChangeType'] as String?)?.toChangeType(),
+      changeType: (json['ChangeType'] as String?)?.let(ChangeType.fromString),
       dataType: json['DataType'] as String?,
       description: json['Description'] as String?,
-      isModifiable: (json['IsModifiable'] as String?)?.toIsModifiable(),
+      isModifiable:
+          (json['IsModifiable'] as String?)?.let(IsModifiable.fromString),
       nodeTypeSpecificValues: (json['NodeTypeSpecificValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NodeTypeSpecificValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       parameterName: json['ParameterName'] as String?,
-      parameterType: (json['ParameterType'] as String?)?.toParameterType(),
+      parameterType:
+          (json['ParameterType'] as String?)?.let(ParameterType.fromString),
       parameterValue: json['ParameterValue'] as String?,
       source: json['Source'] as String?,
     );
@@ -1990,7 +1946,7 @@ class ParameterGroupStatus {
   factory ParameterGroupStatus.fromJson(Map<String, dynamic> json) {
     return ParameterGroupStatus(
       nodeIdsToReboot: (json['NodeIdsToReboot'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       parameterApplyStatus: json['ParameterApplyStatus'] as String?,
@@ -2023,31 +1979,18 @@ class ParameterNameValue {
 }
 
 enum ParameterType {
-  $default,
-  nodeTypeSpecific,
-}
+  $default('DEFAULT'),
+  nodeTypeSpecific('NODE_TYPE_SPECIFIC'),
+  ;
 
-extension ParameterTypeValueExtension on ParameterType {
-  String toValue() {
-    switch (this) {
-      case ParameterType.$default:
-        return 'DEFAULT';
-      case ParameterType.nodeTypeSpecific:
-        return 'NODE_TYPE_SPECIFIC';
-    }
-  }
-}
+  final String value;
 
-extension ParameterTypeFromString on String {
-  ParameterType toParameterType() {
-    switch (this) {
-      case 'DEFAULT':
-        return ParameterType.$default;
-      case 'NODE_TYPE_SPECIFIC':
-        return ParameterType.nodeTypeSpecific;
-    }
-    throw Exception('$this is not known in enum ParameterType');
-  }
+  const ParameterType(this.value);
+
+  static ParameterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ParameterType'));
 }
 
 class RebootNodeResponse {
@@ -2094,7 +2037,7 @@ class SSEDescription {
 
   factory SSEDescription.fromJson(Map<String, dynamic> json) {
     return SSEDescription(
-      status: (json['Status'] as String?)?.toSSEStatus(),
+      status: (json['Status'] as String?)?.let(SSEStatus.fromString),
     );
   }
 }
@@ -2118,41 +2061,19 @@ class SSESpecification {
 }
 
 enum SSEStatus {
-  enabling,
-  enabled,
-  disabling,
-  disabled,
-}
+  enabling('ENABLING'),
+  enabled('ENABLED'),
+  disabling('DISABLING'),
+  disabled('DISABLED'),
+  ;
 
-extension SSEStatusValueExtension on SSEStatus {
-  String toValue() {
-    switch (this) {
-      case SSEStatus.enabling:
-        return 'ENABLING';
-      case SSEStatus.enabled:
-        return 'ENABLED';
-      case SSEStatus.disabling:
-        return 'DISABLING';
-      case SSEStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension SSEStatusFromString on String {
-  SSEStatus toSSEStatus() {
-    switch (this) {
-      case 'ENABLING':
-        return SSEStatus.enabling;
-      case 'ENABLED':
-        return SSEStatus.enabled;
-      case 'DISABLING':
-        return SSEStatus.disabling;
-      case 'DISABLED':
-        return SSEStatus.disabled;
-    }
-    throw Exception('$this is not known in enum SSEStatus');
-  }
+  const SSEStatus(this.value);
+
+  static SSEStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SSEStatus'));
 }
 
 /// An individual VPC security group and its status.
@@ -2177,36 +2098,18 @@ class SecurityGroupMembership {
 }
 
 enum SourceType {
-  cluster,
-  parameterGroup,
-  subnetGroup,
-}
+  cluster('CLUSTER'),
+  parameterGroup('PARAMETER_GROUP'),
+  subnetGroup('SUBNET_GROUP'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.cluster:
-        return 'CLUSTER';
-      case SourceType.parameterGroup:
-        return 'PARAMETER_GROUP';
-      case SourceType.subnetGroup:
-        return 'SUBNET_GROUP';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'CLUSTER':
-        return SourceType.cluster;
-      case 'PARAMETER_GROUP':
-        return SourceType.parameterGroup;
-      case 'SUBNET_GROUP':
-        return SourceType.subnetGroup;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 /// Represents the subnet associated with a DAX cluster. This parameter refers
@@ -2267,7 +2170,7 @@ class SubnetGroup {
       description: json['Description'] as String?,
       subnetGroupName: json['SubnetGroupName'] as String?,
       subnets: (json['Subnets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Subnet.fromJson(e as Map<String, dynamic>))
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -2326,7 +2229,7 @@ class TagResourceResponse {
   factory TagResourceResponse.fromJson(Map<String, dynamic> json) {
     return TagResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2344,7 +2247,7 @@ class UntagResourceResponse {
   factory UntagResourceResponse.fromJson(Map<String, dynamic> json) {
     return UntagResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );

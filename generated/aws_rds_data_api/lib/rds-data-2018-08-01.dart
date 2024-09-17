@@ -20,15 +20,8 @@ import 'package:shared_aws_api/shared.dart'
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// Amazon RDS provides an HTTP endpoint to run SQL statements on an Amazon
-/// Aurora Serverless v1 DB cluster. To run these statements, you work with the
-/// Data Service API.
-/// <note>
-/// The Data Service API isn't supported on Amazon Aurora Serverless v2 DB
-/// clusters.
-/// </note>
-/// For more information about the Data Service API, see <a
-/// href="https://docs.aws.amazon.com/AmazonRDS/latest/AuroraUserGuide/data-api.html">Using
-/// the Data API</a> in the <i>Amazon Aurora User Guide</i>.
+/// Aurora DB cluster. To run these statements, you use the RDS Data API (Data
+/// API).
 class RDSDataService {
   final _s.RestJsonProtocol _protocol;
   RDSDataService({
@@ -81,12 +74,19 @@ class RDSDataService {
   /// response data, the call is terminated.
   /// </note>
   ///
+  /// May throw [SecretsErrorException].
+  /// May throw [HttpEndpointNotEnabledException].
+  /// May throw [DatabaseErrorException].
+  /// May throw [DatabaseUnavailableException].
+  /// May throw [TransactionNotFoundException].
+  /// May throw [InvalidSecretException].
+  /// May throw [ServiceUnavailableError].
+  /// May throw [ForbiddenException].
+  /// May throw [DatabaseNotFoundException].
   /// May throw [AccessDeniedException].
   /// May throw [BadRequestException].
   /// May throw [StatementTimeoutException].
   /// May throw [InternalServerErrorException].
-  /// May throw [ForbiddenException].
-  /// May throw [ServiceUnavailableError].
   ///
   /// Parameter [resourceArn] :
   /// The Amazon Resource Name (ARN) of the Aurora Serverless DB cluster.
@@ -180,12 +180,19 @@ class RDSDataService {
   /// enabled.
   /// </note>
   ///
+  /// May throw [SecretsErrorException].
+  /// May throw [HttpEndpointNotEnabledException].
+  /// May throw [DatabaseErrorException].
+  /// May throw [DatabaseUnavailableException].
+  /// May throw [TransactionNotFoundException].
+  /// May throw [InvalidSecretException].
+  /// May throw [ServiceUnavailableError].
+  /// May throw [ForbiddenException].
+  /// May throw [DatabaseNotFoundException].
   /// May throw [AccessDeniedException].
   /// May throw [BadRequestException].
   /// May throw [StatementTimeoutException].
   /// May throw [InternalServerErrorException].
-  /// May throw [ForbiddenException].
-  /// May throw [ServiceUnavailableError].
   ///
   /// Parameter [resourceArn] :
   /// The Amazon Resource Name (ARN) of the Aurora Serverless DB cluster.
@@ -222,12 +229,19 @@ class RDSDataService {
   /// Ends a SQL transaction started with the <code>BeginTransaction</code>
   /// operation and commits the changes.
   ///
+  /// May throw [SecretsErrorException].
+  /// May throw [HttpEndpointNotEnabledException].
+  /// May throw [DatabaseErrorException].
+  /// May throw [DatabaseUnavailableException].
+  /// May throw [TransactionNotFoundException].
+  /// May throw [InvalidSecretException].
+  /// May throw [ServiceUnavailableError].
+  /// May throw [ForbiddenException].
+  /// May throw [DatabaseNotFoundException].
   /// May throw [AccessDeniedException].
   /// May throw [BadRequestException].
   /// May throw [StatementTimeoutException].
   /// May throw [InternalServerErrorException].
-  /// May throw [ForbiddenException].
-  /// May throw [ServiceUnavailableError].
   /// May throw [NotFoundException].
   ///
   /// Parameter [resourceArn] :
@@ -259,8 +273,10 @@ class RDSDataService {
 
   /// Runs one or more SQL statements.
   /// <note>
-  /// This operation is deprecated. Use the <code>BatchExecuteStatement</code>
-  /// or <code>ExecuteStatement</code> operation.
+  /// This operation isn't supported for Aurora PostgreSQL Serverless v2 and
+  /// provisioned DB clusters, and for Aurora Serverless v1 DB clusters, the
+  /// operation is deprecated. Use the <code>BatchExecuteStatement</code> or
+  /// <code>ExecuteStatement</code> operation.
   /// </note>
   ///
   /// May throw [AccessDeniedException].
@@ -328,12 +344,20 @@ class RDSDataService {
   /// is terminated.
   /// </note>
   ///
+  /// May throw [SecretsErrorException].
+  /// May throw [HttpEndpointNotEnabledException].
+  /// May throw [DatabaseErrorException].
+  /// May throw [DatabaseUnavailableException].
+  /// May throw [TransactionNotFoundException].
+  /// May throw [InvalidSecretException].
+  /// May throw [ServiceUnavailableError].
+  /// May throw [ForbiddenException].
+  /// May throw [DatabaseNotFoundException].
   /// May throw [AccessDeniedException].
   /// May throw [BadRequestException].
   /// May throw [StatementTimeoutException].
   /// May throw [InternalServerErrorException].
-  /// May throw [ForbiddenException].
-  /// May throw [ServiceUnavailableError].
+  /// May throw [UnsupportedResultException].
   ///
   /// Parameter [resourceArn] :
   /// The Amazon Resource Name (ARN) of the Aurora Serverless DB cluster.
@@ -419,7 +443,7 @@ class RDSDataService {
       if (continueAfterTimeout != null)
         'continueAfterTimeout': continueAfterTimeout,
       if (database != null) 'database': database,
-      if (formatRecordsAs != null) 'formatRecordsAs': formatRecordsAs.toValue(),
+      if (formatRecordsAs != null) 'formatRecordsAs': formatRecordsAs.value,
       if (includeResultMetadata != null)
         'includeResultMetadata': includeResultMetadata,
       if (parameters != null) 'parameters': parameters,
@@ -439,12 +463,19 @@ class RDSDataService {
   /// Performs a rollback of a transaction. Rolling back a transaction cancels
   /// its changes.
   ///
+  /// May throw [SecretsErrorException].
+  /// May throw [HttpEndpointNotEnabledException].
+  /// May throw [DatabaseErrorException].
+  /// May throw [DatabaseUnavailableException].
+  /// May throw [TransactionNotFoundException].
+  /// May throw [InvalidSecretException].
+  /// May throw [ServiceUnavailableError].
+  /// May throw [ForbiddenException].
+  /// May throw [DatabaseNotFoundException].
   /// May throw [AccessDeniedException].
   /// May throw [BadRequestException].
   /// May throw [StatementTimeoutException].
   /// May throw [InternalServerErrorException].
-  /// May throw [ForbiddenException].
-  /// May throw [ServiceUnavailableError].
   /// May throw [NotFoundException].
   ///
   /// Parameter [resourceArn] :
@@ -503,23 +534,21 @@ class ArrayValue {
   factory ArrayValue.fromJson(Map<String, dynamic> json) {
     return ArrayValue(
       arrayValues: (json['arrayValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ArrayValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       booleanValues: (json['booleanValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as bool)
           .toList(),
       doubleValues: (json['doubleValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as double)
           .toList(),
-      longValues: (json['longValues'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      longValues:
+          (json['longValues'] as List?)?.nonNulls.map((e) => e as int).toList(),
       stringValues: (json['stringValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -554,7 +583,7 @@ class BatchExecuteStatementResponse {
   factory BatchExecuteStatementResponse.fromJson(Map<String, dynamic> json) {
     return BatchExecuteStatementResponse(
       updateResults: (json['updateResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UpdateResult.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -676,31 +705,18 @@ class CommitTransactionResponse {
 }
 
 enum DecimalReturnType {
-  string,
-  doubleOrLong,
-}
+  string('STRING'),
+  doubleOrLong('DOUBLE_OR_LONG'),
+  ;
 
-extension DecimalReturnTypeValueExtension on DecimalReturnType {
-  String toValue() {
-    switch (this) {
-      case DecimalReturnType.string:
-        return 'STRING';
-      case DecimalReturnType.doubleOrLong:
-        return 'DOUBLE_OR_LONG';
-    }
-  }
-}
+  final String value;
 
-extension DecimalReturnTypeFromString on String {
-  DecimalReturnType toDecimalReturnType() {
-    switch (this) {
-      case 'STRING':
-        return DecimalReturnType.string;
-      case 'DOUBLE_OR_LONG':
-        return DecimalReturnType.doubleOrLong;
-    }
-    throw Exception('$this is not known in enum DecimalReturnType');
-  }
+  const DecimalReturnType(this.value);
+
+  static DecimalReturnType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DecimalReturnType'));
 }
 
 /// The response elements represent the output of a request to run one or more
@@ -716,7 +732,7 @@ class ExecuteSqlResponse {
   factory ExecuteSqlResponse.fromJson(Map<String, dynamic> json) {
     return ExecuteSqlResponse(
       sqlStatementResults: (json['sqlStatementResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SqlStatementResult.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -740,13 +756,13 @@ class ExecuteStatementResponse {
   final String? formattedRecords;
 
   /// Values for fields generated during a DML request.
-  /// <pre><code> &lt;note&gt; &lt;p&gt;The
-  /// &lt;code&gt;generatedFields&lt;/code&gt; data isn't supported by Aurora
-  /// PostgreSQL. To get the values of generated fields, use the
-  /// &lt;code&gt;RETURNING&lt;/code&gt; clause. For more information, see &lt;a
-  /// href=&quot;https://www.postgresql.org/docs/10/dml-returning.html&quot;&gt;Returning
-  /// Data From Modified Rows&lt;/a&gt; in the PostgreSQL documentation.&lt;/p&gt;
-  /// &lt;/note&gt; </code></pre>
+  /// <note>
+  /// The <code>generatedFields</code> data isn't supported by Aurora PostgreSQL.
+  /// To get the values of generated fields, use the <code>RETURNING</code>
+  /// clause. For more information, see <a
+  /// href="https://www.postgresql.org/docs/10/dml-returning.html">Returning Data
+  /// From Modified Rows</a> in the PostgreSQL documentation.
+  /// </note>
   final List<Field>? generatedFields;
 
   /// The number of records updated by the request.
@@ -767,19 +783,19 @@ class ExecuteStatementResponse {
   factory ExecuteStatementResponse.fromJson(Map<String, dynamic> json) {
     return ExecuteStatementResponse(
       columnMetadata: (json['columnMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       formattedRecords: json['formattedRecords'] as String?,
       generatedFields: (json['generatedFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Field.fromJson(e as Map<String, dynamic>))
           .toList(),
       numberOfRecordsUpdated: json['numberOfRecordsUpdated'] as int?,
       records: (json['records'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => Field.fromJson(e as Map<String, dynamic>))
               .toList())
           .toList(),
@@ -855,31 +871,18 @@ class Field {
 }
 
 enum LongReturnType {
-  string,
-  long,
-}
+  string('STRING'),
+  long('LONG'),
+  ;
 
-extension LongReturnTypeValueExtension on LongReturnType {
-  String toValue() {
-    switch (this) {
-      case LongReturnType.string:
-        return 'STRING';
-      case LongReturnType.long:
-        return 'LONG';
-    }
-  }
-}
+  final String value;
 
-extension LongReturnTypeFromString on String {
-  LongReturnType toLongReturnType() {
-    switch (this) {
-      case 'STRING':
-        return LongReturnType.string;
-      case 'LONG':
-        return LongReturnType.long;
-    }
-    throw Exception('$this is not known in enum LongReturnType');
-  }
+  const LongReturnType(this.value);
+
+  static LongReturnType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LongReturnType'));
 }
 
 /// A record returned by a call.
@@ -899,7 +902,7 @@ class Record {
   factory Record.fromJson(Map<String, dynamic> json) {
     return Record(
       values: (json['values'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Value.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -907,31 +910,18 @@ class Record {
 }
 
 enum RecordsFormatType {
-  none,
-  json,
-}
+  none('NONE'),
+  json('JSON'),
+  ;
 
-extension RecordsFormatTypeValueExtension on RecordsFormatType {
-  String toValue() {
-    switch (this) {
-      case RecordsFormatType.none:
-        return 'NONE';
-      case RecordsFormatType.json:
-        return 'JSON';
-    }
-  }
-}
+  final String value;
 
-extension RecordsFormatTypeFromString on String {
-  RecordsFormatType toRecordsFormatType() {
-    switch (this) {
-      case 'NONE':
-        return RecordsFormatType.none;
-      case 'JSON':
-        return RecordsFormatType.json;
-    }
-    throw Exception('$this is not known in enum RecordsFormatType');
-  }
+  const RecordsFormatType(this.value);
+
+  static RecordsFormatType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RecordsFormatType'));
 }
 
 /// The result set returned by a SQL statement.
@@ -955,7 +945,7 @@ class ResultFrame {
   factory ResultFrame.fromJson(Map<String, dynamic> json) {
     return ResultFrame(
       records: (json['records'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Record.fromJson(e as Map<String, dynamic>))
           .toList(),
       resultSetMetadata: json['resultSetMetadata'] != null
@@ -983,7 +973,7 @@ class ResultSetMetadata {
     return ResultSetMetadata(
       columnCount: json['columnCount'] as int?,
       columnMetadata: (json['columnMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1020,8 +1010,8 @@ class ResultSetOptions {
     final longReturnType = this.longReturnType;
     return {
       if (decimalReturnType != null)
-        'decimalReturnType': decimalReturnType.toValue(),
-      if (longReturnType != null) 'longReturnType': longReturnType.toValue(),
+        'decimalReturnType': decimalReturnType.value,
+      if (longReturnType != null) 'longReturnType': longReturnType.value,
     };
   }
 }
@@ -1097,18 +1087,18 @@ class SqlParameter {
     final value = this.value;
     return {
       if (name != null) 'name': name,
-      if (typeHint != null) 'typeHint': typeHint.toValue(),
+      if (typeHint != null) 'typeHint': typeHint.value,
       if (value != null) 'value': value,
     };
   }
 }
 
 /// The result of a SQL statement.
-/// <pre><code> &lt;note&gt; &lt;p&gt;This data structure is only used with the
-/// deprecated &lt;code&gt;ExecuteSql&lt;/code&gt; operation. Use the
-/// &lt;code&gt;BatchExecuteStatement&lt;/code&gt; or
-/// &lt;code&gt;ExecuteStatement&lt;/code&gt; operation instead.&lt;/p&gt;
-/// &lt;/note&gt; </code></pre>
+/// <note>
+/// This data structure is only used with the deprecated <code>ExecuteSql</code>
+/// operation. Use the <code>BatchExecuteStatement</code> or
+/// <code>ExecuteStatement</code> operation instead.
+/// </note>
 class SqlStatementResult {
   /// The number of records updated by a SQL statement.
   final int? numberOfRecordsUpdated;
@@ -1148,7 +1138,7 @@ class StructValue {
   factory StructValue.fromJson(Map<String, dynamic> json) {
     return StructValue(
       attributes: (json['attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Value.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1156,51 +1146,21 @@ class StructValue {
 }
 
 enum TypeHint {
-  json,
-  uuid,
-  timestamp,
-  date,
-  time,
-  decimal,
-}
+  json('JSON'),
+  uuid('UUID'),
+  timestamp('TIMESTAMP'),
+  date('DATE'),
+  time('TIME'),
+  decimal('DECIMAL'),
+  ;
 
-extension TypeHintValueExtension on TypeHint {
-  String toValue() {
-    switch (this) {
-      case TypeHint.json:
-        return 'JSON';
-      case TypeHint.uuid:
-        return 'UUID';
-      case TypeHint.timestamp:
-        return 'TIMESTAMP';
-      case TypeHint.date:
-        return 'DATE';
-      case TypeHint.time:
-        return 'TIME';
-      case TypeHint.decimal:
-        return 'DECIMAL';
-    }
-  }
-}
+  final String value;
 
-extension TypeHintFromString on String {
-  TypeHint toTypeHint() {
-    switch (this) {
-      case 'JSON':
-        return TypeHint.json;
-      case 'UUID':
-        return TypeHint.uuid;
-      case 'TIMESTAMP':
-        return TypeHint.timestamp;
-      case 'DATE':
-        return TypeHint.date;
-      case 'TIME':
-        return TypeHint.time;
-      case 'DECIMAL':
-        return TypeHint.decimal;
-    }
-    throw Exception('$this is not known in enum TypeHint');
-  }
+  const TypeHint(this.value);
+
+  static TypeHint fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TypeHint'));
 }
 
 /// The response elements represent the results of an update.
@@ -1215,7 +1175,7 @@ class UpdateResult {
   factory UpdateResult.fromJson(Map<String, dynamic> json) {
     return UpdateResult(
       generatedFields: (json['generatedFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Field.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1223,11 +1183,11 @@ class UpdateResult {
 }
 
 /// Contains the value of a column.
-/// <pre><code> &lt;note&gt; &lt;p&gt;This data structure is only used with the
-/// deprecated &lt;code&gt;ExecuteSql&lt;/code&gt; operation. Use the
-/// &lt;code&gt;BatchExecuteStatement&lt;/code&gt; or
-/// &lt;code&gt;ExecuteStatement&lt;/code&gt; operation instead.&lt;/p&gt;
-/// &lt;/note&gt; </code></pre>
+/// <note>
+/// This data structure is only used with the deprecated <code>ExecuteSql</code>
+/// operation. Use the <code>BatchExecuteStatement</code> or
+/// <code>ExecuteStatement</code> operation instead.
+/// </note>
 class Value {
   /// An array of column values.
   final List<Value>? arrayValues;
@@ -1275,7 +1235,7 @@ class Value {
   factory Value.fromJson(Map<String, dynamic> json) {
     return Value(
       arrayValues: (json['arrayValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Value.fromJson(e as Map<String, dynamic>))
           .toList(),
       bigIntValue: json['bigIntValue'] as int?,
@@ -1303,9 +1263,33 @@ class BadRequestException extends _s.GenericAwsException {
       : super(type: type, code: 'BadRequestException', message: message);
 }
 
+class DatabaseErrorException extends _s.GenericAwsException {
+  DatabaseErrorException({String? type, String? message})
+      : super(type: type, code: 'DatabaseErrorException', message: message);
+}
+
+class DatabaseNotFoundException extends _s.GenericAwsException {
+  DatabaseNotFoundException({String? type, String? message})
+      : super(type: type, code: 'DatabaseNotFoundException', message: message);
+}
+
+class DatabaseUnavailableException extends _s.GenericAwsException {
+  DatabaseUnavailableException({String? type, String? message})
+      : super(
+            type: type, code: 'DatabaseUnavailableException', message: message);
+}
+
 class ForbiddenException extends _s.GenericAwsException {
   ForbiddenException({String? type, String? message})
       : super(type: type, code: 'ForbiddenException', message: message);
+}
+
+class HttpEndpointNotEnabledException extends _s.GenericAwsException {
+  HttpEndpointNotEnabledException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'HttpEndpointNotEnabledException',
+            message: message);
 }
 
 class InternalServerErrorException extends _s.GenericAwsException {
@@ -1314,9 +1298,19 @@ class InternalServerErrorException extends _s.GenericAwsException {
             type: type, code: 'InternalServerErrorException', message: message);
 }
 
+class InvalidSecretException extends _s.GenericAwsException {
+  InvalidSecretException({String? type, String? message})
+      : super(type: type, code: 'InvalidSecretException', message: message);
+}
+
 class NotFoundException extends _s.GenericAwsException {
   NotFoundException({String? type, String? message})
       : super(type: type, code: 'NotFoundException', message: message);
+}
+
+class SecretsErrorException extends _s.GenericAwsException {
+  SecretsErrorException({String? type, String? message})
+      : super(type: type, code: 'SecretsErrorException', message: message);
 }
 
 class ServiceUnavailableError extends _s.GenericAwsException {
@@ -1329,19 +1323,46 @@ class StatementTimeoutException extends _s.GenericAwsException {
       : super(type: type, code: 'StatementTimeoutException', message: message);
 }
 
+class TransactionNotFoundException extends _s.GenericAwsException {
+  TransactionNotFoundException({String? type, String? message})
+      : super(
+            type: type, code: 'TransactionNotFoundException', message: message);
+}
+
+class UnsupportedResultException extends _s.GenericAwsException {
+  UnsupportedResultException({String? type, String? message})
+      : super(type: type, code: 'UnsupportedResultException', message: message);
+}
+
 final _exceptionFns = <String, _s.AwsExceptionFn>{
   'AccessDeniedException': (type, message) =>
       AccessDeniedException(type: type, message: message),
   'BadRequestException': (type, message) =>
       BadRequestException(type: type, message: message),
+  'DatabaseErrorException': (type, message) =>
+      DatabaseErrorException(type: type, message: message),
+  'DatabaseNotFoundException': (type, message) =>
+      DatabaseNotFoundException(type: type, message: message),
+  'DatabaseUnavailableException': (type, message) =>
+      DatabaseUnavailableException(type: type, message: message),
   'ForbiddenException': (type, message) =>
       ForbiddenException(type: type, message: message),
+  'HttpEndpointNotEnabledException': (type, message) =>
+      HttpEndpointNotEnabledException(type: type, message: message),
   'InternalServerErrorException': (type, message) =>
       InternalServerErrorException(type: type, message: message),
+  'InvalidSecretException': (type, message) =>
+      InvalidSecretException(type: type, message: message),
   'NotFoundException': (type, message) =>
       NotFoundException(type: type, message: message),
+  'SecretsErrorException': (type, message) =>
+      SecretsErrorException(type: type, message: message),
   'ServiceUnavailableError': (type, message) =>
       ServiceUnavailableError(type: type, message: message),
   'StatementTimeoutException': (type, message) =>
       StatementTimeoutException(type: type, message: message),
+  'TransactionNotFoundException': (type, message) =>
+      TransactionNotFoundException(type: type, message: message),
+  'UnsupportedResultException': (type, message) =>
+      UnsupportedResultException(type: type, message: message),
 };

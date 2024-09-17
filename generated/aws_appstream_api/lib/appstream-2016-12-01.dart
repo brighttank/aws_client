@@ -63,6 +63,43 @@ class AppStream {
     _protocol.close();
   }
 
+  /// Associates the specified app block builder with the specified app block.
+  ///
+  /// May throw [ConcurrentModificationException].
+  /// May throw [LimitExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidParameterCombinationException].
+  /// May throw [OperationNotPermittedException].
+  ///
+  /// Parameter [appBlockArn] :
+  /// The ARN of the app block.
+  ///
+  /// Parameter [appBlockBuilderName] :
+  /// The name of the app block builder.
+  Future<AssociateAppBlockBuilderAppBlockResult>
+      associateAppBlockBuilderAppBlock({
+    required String appBlockArn,
+    required String appBlockBuilderName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PhotonAdminProxyService.AssociateAppBlockBuilderAppBlock'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AppBlockArn': appBlockArn,
+        'AppBlockBuilderName': appBlockBuilderName,
+      },
+    );
+
+    return AssociateAppBlockBuilderAppBlockResult.fromJson(jsonResponse.body);
+  }
+
   /// Associates the specified application with the specified fleet. This is
   /// only supported for Elastic fleets.
   ///
@@ -303,9 +340,6 @@ class AppStream {
   /// Parameter [name] :
   /// The name of the app block.
   ///
-  /// Parameter [setupScriptDetails] :
-  /// The setup script details of the app block.
-  ///
   /// Parameter [sourceS3Location] :
   /// The source S3 location of the app block.
   ///
@@ -315,14 +349,27 @@ class AppStream {
   /// Parameter [displayName] :
   /// The display name of the app block. This is not displayed to the user.
   ///
+  /// Parameter [packagingType] :
+  /// The packaging type of the app block.
+  ///
+  /// Parameter [postSetupScriptDetails] :
+  /// The post setup script details of the app block. This can only be provided
+  /// for the <code>APPSTREAM2</code> PackagingType.
+  ///
+  /// Parameter [setupScriptDetails] :
+  /// The setup script details of the app block. This must be provided for the
+  /// <code>CUSTOM</code> PackagingType.
+  ///
   /// Parameter [tags] :
   /// The tags assigned to the app block.
   Future<CreateAppBlockResult> createAppBlock({
     required String name,
-    required ScriptDetails setupScriptDetails,
     required S3Location sourceS3Location,
     String? description,
     String? displayName,
+    PackagingType? packagingType,
+    ScriptDetails? postSetupScriptDetails,
+    ScriptDetails? setupScriptDetails,
     Map<String, String>? tags,
   }) async {
     final headers = <String, String>{
@@ -337,15 +384,188 @@ class AppStream {
       headers: headers,
       payload: {
         'Name': name,
-        'SetupScriptDetails': setupScriptDetails,
         'SourceS3Location': sourceS3Location,
         if (description != null) 'Description': description,
         if (displayName != null) 'DisplayName': displayName,
+        if (packagingType != null) 'PackagingType': packagingType.value,
+        if (postSetupScriptDetails != null)
+          'PostSetupScriptDetails': postSetupScriptDetails,
+        if (setupScriptDetails != null)
+          'SetupScriptDetails': setupScriptDetails,
         if (tags != null) 'Tags': tags,
       },
     );
 
     return CreateAppBlockResult.fromJson(jsonResponse.body);
+  }
+
+  /// Creates an app block builder.
+  ///
+  /// May throw [LimitExceededException].
+  /// May throw [RequestLimitExceededException].
+  /// May throw [InvalidAccountStatusException].
+  /// May throw [InvalidRoleException].
+  /// May throw [ConcurrentModificationException].
+  /// May throw [OperationNotPermittedException].
+  /// May throw [ResourceAlreadyExistsException].
+  /// May throw [ResourceNotAvailableException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidParameterCombinationException].
+  ///
+  /// Parameter [instanceType] :
+  /// The instance type to use when launching the app block builder. The
+  /// following instance types are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// stream.standard.small
+  /// </li>
+  /// <li>
+  /// stream.standard.medium
+  /// </li>
+  /// <li>
+  /// stream.standard.large
+  /// </li>
+  /// <li>
+  /// stream.standard.xlarge
+  /// </li>
+  /// <li>
+  /// stream.standard.2xlarge
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [name] :
+  /// The unique name for the app block builder.
+  ///
+  /// Parameter [platform] :
+  /// The platform of the app block builder.
+  ///
+  /// <code>WINDOWS_SERVER_2019</code> is the only valid value.
+  ///
+  /// Parameter [vpcConfig] :
+  /// The VPC configuration for the app block builder.
+  ///
+  /// App block builders require that you specify at least two subnets in
+  /// different availability zones.
+  ///
+  /// Parameter [accessEndpoints] :
+  /// The list of interface VPC endpoint (interface endpoint) objects.
+  /// Administrators can connect to the app block builder only through the
+  /// specified endpoints.
+  ///
+  /// Parameter [description] :
+  /// The description of the app block builder.
+  ///
+  /// Parameter [displayName] :
+  /// The display name of the app block builder.
+  ///
+  /// Parameter [enableDefaultInternetAccess] :
+  /// Enables or disables default internet access for the app block builder.
+  ///
+  /// Parameter [iamRoleArn] :
+  /// The Amazon Resource Name (ARN) of the IAM role to apply to the app block
+  /// builder. To assume a role, the app block builder calls the AWS Security
+  /// Token Service (STS) <code>AssumeRole</code> API operation and passes the
+  /// ARN of the role to use. The operation creates a new session with temporary
+  /// credentials. AppStream 2.0 retrieves the temporary credentials and creates
+  /// the <b>appstream_machine_role</b> credential profile on the instance.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/appstream2/latest/developerguide/using-iam-roles-to-grant-permissions-to-applications-scripts-streaming-instances.html">Using
+  /// an IAM Role to Grant Permissions to Applications and Scripts Running on
+  /// AppStream 2.0 Streaming Instances</a> in the <i>Amazon AppStream 2.0
+  /// Administration Guide</i>.
+  ///
+  /// Parameter [tags] :
+  /// The tags to associate with the app block builder. A tag is a key-value
+  /// pair, and the value is optional. For example, Environment=Test. If you do
+  /// not specify a value, Environment=.
+  ///
+  /// If you do not specify a value, the value is set to an empty string.
+  ///
+  /// Generally allowed characters are: letters, numbers, and spaces
+  /// representable in UTF-8, and the following special characters:
+  ///
+  /// _ . : / = + \ - @
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/appstream2/latest/developerguide/tagging-basic.html">Tagging
+  /// Your Resources</a> in the <i>Amazon AppStream 2.0 Administration
+  /// Guide</i>.
+  Future<CreateAppBlockBuilderResult> createAppBlockBuilder({
+    required String instanceType,
+    required String name,
+    required AppBlockBuilderPlatformType platform,
+    required VpcConfig vpcConfig,
+    List<AccessEndpoint>? accessEndpoints,
+    String? description,
+    String? displayName,
+    bool? enableDefaultInternetAccess,
+    String? iamRoleArn,
+    Map<String, String>? tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PhotonAdminProxyService.CreateAppBlockBuilder'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'InstanceType': instanceType,
+        'Name': name,
+        'Platform': platform.value,
+        'VpcConfig': vpcConfig,
+        if (accessEndpoints != null) 'AccessEndpoints': accessEndpoints,
+        if (description != null) 'Description': description,
+        if (displayName != null) 'DisplayName': displayName,
+        if (enableDefaultInternetAccess != null)
+          'EnableDefaultInternetAccess': enableDefaultInternetAccess,
+        if (iamRoleArn != null) 'IamRoleArn': iamRoleArn,
+        if (tags != null) 'Tags': tags,
+      },
+    );
+
+    return CreateAppBlockBuilderResult.fromJson(jsonResponse.body);
+  }
+
+  /// Creates a URL to start a create app block builder streaming session.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [OperationNotPermittedException].
+  ///
+  /// Parameter [appBlockBuilderName] :
+  /// The name of the app block builder.
+  ///
+  /// Parameter [validity] :
+  /// The time that the streaming URL will be valid, in seconds. Specify a value
+  /// between 1 and 604800 seconds. The default is 3600 seconds.
+  Future<CreateAppBlockBuilderStreamingURLResult>
+      createAppBlockBuilderStreamingURL({
+    required String appBlockBuilderName,
+    int? validity,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'PhotonAdminProxyService.CreateAppBlockBuilderStreamingURL'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AppBlockBuilderName': appBlockBuilderName,
+        if (validity != null) 'Validity': validity,
+      },
+    );
+
+    return CreateAppBlockBuilderStreamingURLResult.fromJson(jsonResponse.body);
   }
 
   /// Creates an application.
@@ -430,7 +650,7 @@ class AppStream {
         'InstanceFamilies': instanceFamilies,
         'LaunchPath': launchPath,
         'Name': name,
-        'Platforms': platforms.map((e) => e.toValue()).toList(),
+        'Platforms': platforms.map((e) => e.value).toList(),
         if (description != null) 'Description': description,
         if (displayName != null) 'DisplayName': displayName,
         if (launchParameters != null) 'LaunchParameters': launchParameters,
@@ -549,7 +769,7 @@ class AppStream {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AppVisibility': appVisibility.toValue(),
+        'AppVisibility': appVisibility.value,
         'Attributes': attributes,
         'Name': name,
         'StackName': stackName,
@@ -800,6 +1020,10 @@ class AppStream {
   /// The maximum concurrent sessions of the Elastic fleet. This is required for
   /// Elastic fleets, and not allowed for other fleet types.
   ///
+  /// Parameter [maxSessionsPerInstance] :
+  /// The maximum number of user sessions on an instance. This only applies to
+  /// multi-session fleets.
+  ///
   /// Parameter [maxUserDurationInSeconds] :
   /// The maximum amount of time that a streaming session can remain active, in
   /// seconds. If users are still connected to a streaming instance five minutes
@@ -807,7 +1031,7 @@ class AppStream {
   /// before being disconnected. After this time elapses, the instance is
   /// terminated and replaced by a new instance.
   ///
-  /// Specify a value between 600 and 360000.
+  /// Specify a value between 600 and 432000.
   ///
   /// Parameter [platform] :
   /// The fleet platform. WINDOWS_SERVER_2019 and AMAZON_LINUX2 are supported
@@ -867,6 +1091,7 @@ class AppStream {
     String? imageArn,
     String? imageName,
     int? maxConcurrentSessions,
+    int? maxSessionsPerInstance,
     int? maxUserDurationInSeconds,
     PlatformType? platform,
     S3Location? sessionScriptS3Location,
@@ -896,7 +1121,7 @@ class AppStream {
         if (domainJoinInfo != null) 'DomainJoinInfo': domainJoinInfo,
         if (enableDefaultInternetAccess != null)
           'EnableDefaultInternetAccess': enableDefaultInternetAccess,
-        if (fleetType != null) 'FleetType': fleetType.toValue(),
+        if (fleetType != null) 'FleetType': fleetType.value,
         if (iamRoleArn != null) 'IamRoleArn': iamRoleArn,
         if (idleDisconnectTimeoutInSeconds != null)
           'IdleDisconnectTimeoutInSeconds': idleDisconnectTimeoutInSeconds,
@@ -904,12 +1129,14 @@ class AppStream {
         if (imageName != null) 'ImageName': imageName,
         if (maxConcurrentSessions != null)
           'MaxConcurrentSessions': maxConcurrentSessions,
+        if (maxSessionsPerInstance != null)
+          'MaxSessionsPerInstance': maxSessionsPerInstance,
         if (maxUserDurationInSeconds != null)
           'MaxUserDurationInSeconds': maxUserDurationInSeconds,
-        if (platform != null) 'Platform': platform.toValue(),
+        if (platform != null) 'Platform': platform.value,
         if (sessionScriptS3Location != null)
           'SessionScriptS3Location': sessionScriptS3Location,
-        if (streamView != null) 'StreamView': streamView.toValue(),
+        if (streamView != null) 'StreamView': streamView.value,
         if (tags != null) 'Tags': tags,
         if (usbDeviceFilterStrings != null)
           'UsbDeviceFilterStrings': usbDeviceFilterStrings,
@@ -1200,6 +1427,7 @@ class AppStream {
   /// May throw [InvalidRoleException].
   /// May throw [ResourceNotFoundException].
   /// May throw [InvalidParameterCombinationException].
+  /// May throw [OperationNotPermittedException].
   ///
   /// Parameter [name] :
   /// The name of the stack.
@@ -1532,11 +1760,11 @@ class AppStream {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AuthenticationType': authenticationType.toValue(),
+        'AuthenticationType': authenticationType.value,
         'UserName': userName,
         if (firstName != null) 'FirstName': firstName,
         if (lastName != null) 'LastName': lastName,
-        if (messageAction != null) 'MessageAction': messageAction.toValue(),
+        if (messageAction != null) 'MessageAction': messageAction.value,
       },
     );
   }
@@ -1555,6 +1783,37 @@ class AppStream {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
       'X-Amz-Target': 'PhotonAdminProxyService.DeleteAppBlock'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Name': name,
+      },
+    );
+  }
+
+  /// Deletes an app block builder.
+  ///
+  /// An app block builder can only be deleted when it has no association with
+  /// an app block.
+  ///
+  /// May throw [OperationNotPermittedException].
+  /// May throw [ConcurrentModificationException].
+  /// May throw [ResourceInUseException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [name] :
+  /// The name of the app block builder.
+  Future<void> deleteAppBlockBuilder({
+    required String name,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PhotonAdminProxyService.DeleteAppBlockBuilder'
     };
     await _protocol.send(
       method: 'POST',
@@ -1856,10 +2115,98 @@ class AppStream {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AuthenticationType': authenticationType.toValue(),
+        'AuthenticationType': authenticationType.value,
         'UserName': userName,
       },
     );
+  }
+
+  /// Retrieves a list that describes one or more app block builder
+  /// associations.
+  ///
+  /// May throw [InvalidParameterCombinationException].
+  /// May throw [OperationNotPermittedException].
+  ///
+  /// Parameter [appBlockArn] :
+  /// The ARN of the app block.
+  ///
+  /// Parameter [appBlockBuilderName] :
+  /// The name of the app block builder.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of each page of results.
+  ///
+  /// Parameter [nextToken] :
+  /// The pagination token used to retrieve the next page of results for this
+  /// operation.
+  Future<DescribeAppBlockBuilderAppBlockAssociationsResult>
+      describeAppBlockBuilderAppBlockAssociations({
+    String? appBlockArn,
+    String? appBlockBuilderName,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'PhotonAdminProxyService.DescribeAppBlockBuilderAppBlockAssociations'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (appBlockArn != null) 'AppBlockArn': appBlockArn,
+        if (appBlockBuilderName != null)
+          'AppBlockBuilderName': appBlockBuilderName,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return DescribeAppBlockBuilderAppBlockAssociationsResult.fromJson(
+        jsonResponse.body);
+  }
+
+  /// Retrieves a list that describes one or more app block builders.
+  ///
+  /// May throw [OperationNotPermittedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of each page of results. The maximum value is 25.
+  ///
+  /// Parameter [names] :
+  /// The names of the app block builders.
+  ///
+  /// Parameter [nextToken] :
+  /// The pagination token used to retrieve the next page of results for this
+  /// operation.
+  Future<DescribeAppBlockBuildersResult> describeAppBlockBuilders({
+    int? maxResults,
+    List<String>? names,
+    String? nextToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PhotonAdminProxyService.DescribeAppBlockBuilders'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (names != null) 'Names': names,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return DescribeAppBlockBuildersResult.fromJson(jsonResponse.body);
   }
 
   /// Retrieves a list that describes one or more app blocks.
@@ -2255,7 +2602,7 @@ class AppStream {
         if (maxResults != null) 'MaxResults': maxResults,
         if (names != null) 'Names': names,
         if (nextToken != null) 'NextToken': nextToken,
-        if (type != null) 'Type': type.toValue(),
+        if (type != null) 'Type': type.value,
       },
     );
 
@@ -2282,6 +2629,9 @@ class AppStream {
   /// federated user. The default is to authenticate users using a streaming
   /// URL.
   ///
+  /// Parameter [instanceId] :
+  /// The identifier for the instance hosting the session.
+  ///
   /// Parameter [limit] :
   /// The size of each page of results. The default value is 20 and the maximum
   /// value is 50.
@@ -2297,6 +2647,7 @@ class AppStream {
     required String fleetName,
     required String stackName,
     AuthenticationType? authenticationType,
+    String? instanceId,
     int? limit,
     String? nextToken,
     String? userId,
@@ -2315,7 +2666,8 @@ class AppStream {
         'FleetName': fleetName,
         'StackName': stackName,
         if (authenticationType != null)
-          'AuthenticationType': authenticationType.toValue(),
+          'AuthenticationType': authenticationType.value,
+        if (instanceId != null) 'InstanceId': instanceId,
         if (limit != null) 'Limit': limit,
         if (nextToken != null) 'NextToken': nextToken,
         if (userId != null) 'UserId': userId,
@@ -2454,7 +2806,7 @@ class AppStream {
       headers: headers,
       payload: {
         if (authenticationType != null)
-          'AuthenticationType': authenticationType.toValue(),
+          'AuthenticationType': authenticationType.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (stackName != null) 'StackName': stackName,
@@ -2498,7 +2850,7 @@ class AppStream {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AuthenticationType': authenticationType.toValue(),
+        'AuthenticationType': authenticationType.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -2536,8 +2888,42 @@ class AppStream {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AuthenticationType': authenticationType.toValue(),
+        'AuthenticationType': authenticationType.value,
         'UserName': userName,
+      },
+    );
+  }
+
+  /// Disassociates a specified app block builder from a specified app block.
+  ///
+  /// May throw [ConcurrentModificationException].
+  /// May throw [InvalidParameterCombinationException].
+  /// May throw [OperationNotPermittedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [appBlockArn] :
+  /// The ARN of the app block.
+  ///
+  /// Parameter [appBlockBuilderName] :
+  /// The name of the app block builder.
+  Future<void> disassociateAppBlockBuilderAppBlock({
+    required String appBlockArn,
+    required String appBlockBuilderName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'PhotonAdminProxyService.DisassociateAppBlockBuilderAppBlock'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AppBlockArn': appBlockArn,
+        'AppBlockBuilderName': appBlockBuilderName,
       },
     );
   }
@@ -2679,7 +3065,7 @@ class AppStream {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AuthenticationType': authenticationType.toValue(),
+        'AuthenticationType': authenticationType.value,
         'UserName': userName,
       },
     );
@@ -2850,6 +3236,46 @@ class AppStream {
     return ListTagsForResourceResponse.fromJson(jsonResponse.body);
   }
 
+  /// Starts an app block builder.
+  ///
+  /// An app block builder can only be started when it's associated with an app
+  /// block.
+  ///
+  /// Starting an app block builder starts a new instance, which is equivalent
+  /// to an elastic fleet instance with application builder assistance
+  /// functionality.
+  ///
+  /// May throw [ConcurrentModificationException].
+  /// May throw [InvalidAccountStatusException].
+  /// May throw [LimitExceededException].
+  /// May throw [OperationNotPermittedException].
+  /// May throw [RequestLimitExceededException].
+  /// May throw [ResourceNotAvailableException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [name] :
+  /// The name of the app block builder.
+  Future<StartAppBlockBuilderResult> startAppBlockBuilder({
+    required String name,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PhotonAdminProxyService.StartAppBlockBuilder'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Name': name,
+      },
+    );
+
+    return StartAppBlockBuilderResult.fromJson(jsonResponse.body);
+  }
+
   /// Starts the specified fleet.
   ///
   /// May throw [ResourceNotFoundException].
@@ -2918,6 +3344,38 @@ class AppStream {
     );
 
     return StartImageBuilderResult.fromJson(jsonResponse.body);
+  }
+
+  /// Stops an app block builder.
+  ///
+  /// Stopping an app block builder terminates the instance, and the instance
+  /// state is not persisted.
+  ///
+  /// May throw [ConcurrentModificationException].
+  /// May throw [OperationNotPermittedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [name] :
+  /// The name of the app block builder.
+  Future<StopAppBlockBuilderResult> stopAppBlockBuilder({
+    required String name,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PhotonAdminProxyService.StopAppBlockBuilder'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Name': name,
+      },
+    );
+
+    return StopAppBlockBuilderResult.fromJson(jsonResponse.body);
   }
 
   /// Stops the specified fleet.
@@ -3069,6 +3527,132 @@ class AppStream {
     );
   }
 
+  /// Updates an app block builder.
+  ///
+  /// If the app block builder is in the <code>STARTING</code> or
+  /// <code>STOPPING</code> state, you can't update it. If the app block builder
+  /// is in the <code>RUNNING</code> state, you can only update the DisplayName
+  /// and Description. If the app block builder is in the <code>STOPPED</code>
+  /// state, you can update any attribute except the Name.
+  ///
+  /// May throw [ConcurrentModificationException].
+  /// May throw [InvalidAccountStatusException].
+  /// May throw [InvalidParameterCombinationException].
+  /// May throw [InvalidRoleException].
+  /// May throw [LimitExceededException].
+  /// May throw [OperationNotPermittedException].
+  /// May throw [RequestLimitExceededException].
+  /// May throw [ResourceInUseException].
+  /// May throw [ResourceNotAvailableException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [name] :
+  /// The unique name for the app block builder.
+  ///
+  /// Parameter [accessEndpoints] :
+  /// The list of interface VPC endpoint (interface endpoint) objects.
+  /// Administrators can connect to the app block builder only through the
+  /// specified endpoints.
+  ///
+  /// Parameter [attributesToDelete] :
+  /// The attributes to delete from the app block builder.
+  ///
+  /// Parameter [description] :
+  /// The description of the app block builder.
+  ///
+  /// Parameter [displayName] :
+  /// The display name of the app block builder.
+  ///
+  /// Parameter [enableDefaultInternetAccess] :
+  /// Enables or disables default internet access for the app block builder.
+  ///
+  /// Parameter [iamRoleArn] :
+  /// The Amazon Resource Name (ARN) of the IAM role to apply to the app block
+  /// builder. To assume a role, the app block builder calls the AWS Security
+  /// Token Service (STS) <code>AssumeRole</code> API operation and passes the
+  /// ARN of the role to use. The operation creates a new session with temporary
+  /// credentials. AppStream 2.0 retrieves the temporary credentials and creates
+  /// the <b>appstream_machine_role</b> credential profile on the instance.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/appstream2/latest/developerguide/using-iam-roles-to-grant-permissions-to-applications-scripts-streaming-instances.html">Using
+  /// an IAM Role to Grant Permissions to Applications and Scripts Running on
+  /// AppStream 2.0 Streaming Instances</a> in the <i>Amazon AppStream 2.0
+  /// Administration Guide</i>.
+  ///
+  /// Parameter [instanceType] :
+  /// The instance type to use when launching the app block builder. The
+  /// following instance types are available:
+  ///
+  /// <ul>
+  /// <li>
+  /// stream.standard.small
+  /// </li>
+  /// <li>
+  /// stream.standard.medium
+  /// </li>
+  /// <li>
+  /// stream.standard.large
+  /// </li>
+  /// <li>
+  /// stream.standard.xlarge
+  /// </li>
+  /// <li>
+  /// stream.standard.2xlarge
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [platform] :
+  /// The platform of the app block builder.
+  ///
+  /// <code>WINDOWS_SERVER_2019</code> is the only valid value.
+  ///
+  /// Parameter [vpcConfig] :
+  /// The VPC configuration for the app block builder.
+  ///
+  /// App block builders require that you specify at least two subnets in
+  /// different availability zones.
+  Future<UpdateAppBlockBuilderResult> updateAppBlockBuilder({
+    required String name,
+    List<AccessEndpoint>? accessEndpoints,
+    List<AppBlockBuilderAttribute>? attributesToDelete,
+    String? description,
+    String? displayName,
+    bool? enableDefaultInternetAccess,
+    String? iamRoleArn,
+    String? instanceType,
+    PlatformType? platform,
+    VpcConfig? vpcConfig,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'PhotonAdminProxyService.UpdateAppBlockBuilder'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Name': name,
+        if (accessEndpoints != null) 'AccessEndpoints': accessEndpoints,
+        if (attributesToDelete != null)
+          'AttributesToDelete': attributesToDelete.map((e) => e.value).toList(),
+        if (description != null) 'Description': description,
+        if (displayName != null) 'DisplayName': displayName,
+        if (enableDefaultInternetAccess != null)
+          'EnableDefaultInternetAccess': enableDefaultInternetAccess,
+        if (iamRoleArn != null) 'IamRoleArn': iamRoleArn,
+        if (instanceType != null) 'InstanceType': instanceType,
+        if (platform != null) 'Platform': platform.value,
+        if (vpcConfig != null) 'VpcConfig': vpcConfig,
+      },
+    );
+
+    return UpdateAppBlockBuilderResult.fromJson(jsonResponse.body);
+  }
+
   /// Updates the specified application.
   ///
   /// May throw [OperationNotPermittedException].
@@ -3128,8 +3712,7 @@ class AppStream {
         'Name': name,
         if (appBlockArn != null) 'AppBlockArn': appBlockArn,
         if (attributesToDelete != null)
-          'AttributesToDelete':
-              attributesToDelete.map((e) => e.toValue()).toList(),
+          'AttributesToDelete': attributesToDelete.map((e) => e.value).toList(),
         if (description != null) 'Description': description,
         if (displayName != null) 'DisplayName': displayName,
         if (iconS3Location != null) 'IconS3Location': iconS3Location,
@@ -3245,7 +3828,7 @@ class AppStream {
       payload: {
         'Name': name,
         'StackName': stackName,
-        if (appVisibility != null) 'AppVisibility': appVisibility.toValue(),
+        if (appVisibility != null) 'AppVisibility': appVisibility.value,
         if (attributes != null) 'Attributes': attributes,
         if (description != null) 'Description': description,
       },
@@ -3510,6 +4093,10 @@ class AppStream {
   /// Parameter [maxConcurrentSessions] :
   /// The maximum number of concurrent sessions for a fleet.
   ///
+  /// Parameter [maxSessionsPerInstance] :
+  /// The maximum number of user sessions on an instance. This only applies to
+  /// multi-session fleets.
+  ///
   /// Parameter [maxUserDurationInSeconds] :
   /// The maximum amount of time that a streaming session can remain active, in
   /// seconds. If users are still connected to a streaming instance five minutes
@@ -3517,7 +4104,7 @@ class AppStream {
   /// before being disconnected. After this time elapses, the instance is
   /// terminated and replaced by a new instance.
   ///
-  /// Specify a value between 600 and 360000.
+  /// Specify a value between 600 and 432000.
   ///
   /// Parameter [name] :
   /// A unique name for the fleet.
@@ -3563,6 +4150,7 @@ class AppStream {
     String? imageName,
     String? instanceType,
     int? maxConcurrentSessions,
+    int? maxSessionsPerInstance,
     int? maxUserDurationInSeconds,
     String? name,
     PlatformType? platform,
@@ -3583,8 +4171,7 @@ class AppStream {
       headers: headers,
       payload: {
         if (attributesToDelete != null)
-          'AttributesToDelete':
-              attributesToDelete.map((e) => e.toValue()).toList(),
+          'AttributesToDelete': attributesToDelete.map((e) => e.value).toList(),
         if (computeCapacity != null) 'ComputeCapacity': computeCapacity,
         if (deleteVpcConfig != null) 'DeleteVpcConfig': deleteVpcConfig,
         if (description != null) 'Description': description,
@@ -3602,13 +4189,15 @@ class AppStream {
         if (instanceType != null) 'InstanceType': instanceType,
         if (maxConcurrentSessions != null)
           'MaxConcurrentSessions': maxConcurrentSessions,
+        if (maxSessionsPerInstance != null)
+          'MaxSessionsPerInstance': maxSessionsPerInstance,
         if (maxUserDurationInSeconds != null)
           'MaxUserDurationInSeconds': maxUserDurationInSeconds,
         if (name != null) 'Name': name,
-        if (platform != null) 'Platform': platform.toValue(),
+        if (platform != null) 'Platform': platform.value,
         if (sessionScriptS3Location != null)
           'SessionScriptS3Location': sessionScriptS3Location,
-        if (streamView != null) 'StreamView': streamView.toValue(),
+        if (streamView != null) 'StreamView': streamView.value,
         if (usbDeviceFilterStrings != null)
           'UsbDeviceFilterStrings': usbDeviceFilterStrings,
         if (vpcConfig != null) 'VpcConfig': vpcConfig,
@@ -3747,8 +4336,7 @@ class AppStream {
         if (applicationSettings != null)
           'ApplicationSettings': applicationSettings,
         if (attributesToDelete != null)
-          'AttributesToDelete':
-              attributesToDelete.map((e) => e.toValue()).toList(),
+          'AttributesToDelete': attributesToDelete.map((e) => e.value).toList(),
         if (deleteStorageConnectors != null)
           'DeleteStorageConnectors': deleteStorageConnectors,
         if (description != null) 'Description': description,
@@ -3787,7 +4375,8 @@ class AccessEndpoint {
 
   factory AccessEndpoint.fromJson(Map<String, dynamic> json) {
     return AccessEndpoint(
-      endpointType: (json['EndpointType'] as String).toAccessEndpointType(),
+      endpointType:
+          AccessEndpointType.fromString((json['EndpointType'] as String)),
       vpceId: json['VpceId'] as String?,
     );
   }
@@ -3796,86 +4385,43 @@ class AccessEndpoint {
     final endpointType = this.endpointType;
     final vpceId = this.vpceId;
     return {
-      'EndpointType': endpointType.toValue(),
+      'EndpointType': endpointType.value,
       if (vpceId != null) 'VpceId': vpceId,
     };
   }
 }
 
 enum AccessEndpointType {
-  streaming,
-}
+  streaming('STREAMING'),
+  ;
 
-extension AccessEndpointTypeValueExtension on AccessEndpointType {
-  String toValue() {
-    switch (this) {
-      case AccessEndpointType.streaming:
-        return 'STREAMING';
-    }
-  }
-}
+  final String value;
 
-extension AccessEndpointTypeFromString on String {
-  AccessEndpointType toAccessEndpointType() {
-    switch (this) {
-      case 'STREAMING':
-        return AccessEndpointType.streaming;
-    }
-    throw Exception('$this is not known in enum AccessEndpointType');
-  }
+  const AccessEndpointType(this.value);
+
+  static AccessEndpointType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AccessEndpointType'));
 }
 
 enum Action {
-  clipboardCopyFromLocalDevice,
-  clipboardCopyToLocalDevice,
-  fileUpload,
-  fileDownload,
-  printingToLocalDevice,
-  domainPasswordSignin,
-  domainSmartCardSignin,
-}
+  clipboardCopyFromLocalDevice('CLIPBOARD_COPY_FROM_LOCAL_DEVICE'),
+  clipboardCopyToLocalDevice('CLIPBOARD_COPY_TO_LOCAL_DEVICE'),
+  fileUpload('FILE_UPLOAD'),
+  fileDownload('FILE_DOWNLOAD'),
+  printingToLocalDevice('PRINTING_TO_LOCAL_DEVICE'),
+  domainPasswordSignin('DOMAIN_PASSWORD_SIGNIN'),
+  domainSmartCardSignin('DOMAIN_SMART_CARD_SIGNIN'),
+  ;
 
-extension ActionValueExtension on Action {
-  String toValue() {
-    switch (this) {
-      case Action.clipboardCopyFromLocalDevice:
-        return 'CLIPBOARD_COPY_FROM_LOCAL_DEVICE';
-      case Action.clipboardCopyToLocalDevice:
-        return 'CLIPBOARD_COPY_TO_LOCAL_DEVICE';
-      case Action.fileUpload:
-        return 'FILE_UPLOAD';
-      case Action.fileDownload:
-        return 'FILE_DOWNLOAD';
-      case Action.printingToLocalDevice:
-        return 'PRINTING_TO_LOCAL_DEVICE';
-      case Action.domainPasswordSignin:
-        return 'DOMAIN_PASSWORD_SIGNIN';
-      case Action.domainSmartCardSignin:
-        return 'DOMAIN_SMART_CARD_SIGNIN';
-    }
-  }
-}
+  final String value;
 
-extension ActionFromString on String {
-  Action toAction() {
-    switch (this) {
-      case 'CLIPBOARD_COPY_FROM_LOCAL_DEVICE':
-        return Action.clipboardCopyFromLocalDevice;
-      case 'CLIPBOARD_COPY_TO_LOCAL_DEVICE':
-        return Action.clipboardCopyToLocalDevice;
-      case 'FILE_UPLOAD':
-        return Action.fileUpload;
-      case 'FILE_DOWNLOAD':
-        return Action.fileDownload;
-      case 'PRINTING_TO_LOCAL_DEVICE':
-        return Action.printingToLocalDevice;
-      case 'DOMAIN_PASSWORD_SIGNIN':
-        return Action.domainPasswordSignin;
-      case 'DOMAIN_SMART_CARD_SIGNIN':
-        return Action.domainSmartCardSignin;
-    }
-    throw Exception('$this is not known in enum Action');
-  }
+  const Action(this.value);
+
+  static Action fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Action'));
 }
 
 /// Describes an app block.
@@ -3894,8 +4440,8 @@ class AppBlock {
   /// The name of the app block.
   final String name;
 
-  /// The setup script details of the app block.
-  final ScriptDetails setupScriptDetails;
+  /// The errors of the app block.
+  final List<ErrorDetails>? appBlockErrors;
 
   /// The created time of the app block.
   final DateTime? createdTime;
@@ -3906,62 +4452,306 @@ class AppBlock {
   /// The display name of the app block.
   final String? displayName;
 
+  /// The packaging type of the app block.
+  final PackagingType? packagingType;
+
+  /// The post setup script details of the app block.
+  ///
+  /// This only applies to app blocks with PackagingType <code>APPSTREAM2</code>.
+  final ScriptDetails? postSetupScriptDetails;
+
+  /// The setup script details of the app block.
+  ///
+  /// This only applies to app blocks with PackagingType <code>CUSTOM</code>.
+  final ScriptDetails? setupScriptDetails;
+
   /// The source S3 location of the app block.
   final S3Location? sourceS3Location;
+
+  /// The state of the app block.
+  ///
+  /// An app block with AppStream 2.0 packaging will be in the
+  /// <code>INACTIVE</code> state if no application package (VHD) is assigned to
+  /// it. After an application package (VHD) is created by an app block builder
+  /// for an app block, it becomes <code>ACTIVE</code>.
+  ///
+  /// Custom app blocks are always in the <code>ACTIVE</code> state and no action
+  /// is required to use them.
+  final AppBlockState? state;
 
   AppBlock({
     required this.arn,
     required this.name,
-    required this.setupScriptDetails,
+    this.appBlockErrors,
     this.createdTime,
     this.description,
     this.displayName,
+    this.packagingType,
+    this.postSetupScriptDetails,
+    this.setupScriptDetails,
     this.sourceS3Location,
+    this.state,
   });
 
   factory AppBlock.fromJson(Map<String, dynamic> json) {
     return AppBlock(
       arn: json['Arn'] as String,
       name: json['Name'] as String,
-      setupScriptDetails: ScriptDetails.fromJson(
-          json['SetupScriptDetails'] as Map<String, dynamic>),
+      appBlockErrors: (json['AppBlockErrors'] as List?)
+          ?.nonNulls
+          .map((e) => ErrorDetails.fromJson(e as Map<String, dynamic>))
+          .toList(),
       createdTime: timeStampFromJson(json['CreatedTime']),
       description: json['Description'] as String?,
       displayName: json['DisplayName'] as String?,
+      packagingType:
+          (json['PackagingType'] as String?)?.let(PackagingType.fromString),
+      postSetupScriptDetails: json['PostSetupScriptDetails'] != null
+          ? ScriptDetails.fromJson(
+              json['PostSetupScriptDetails'] as Map<String, dynamic>)
+          : null,
+      setupScriptDetails: json['SetupScriptDetails'] != null
+          ? ScriptDetails.fromJson(
+              json['SetupScriptDetails'] as Map<String, dynamic>)
+          : null,
       sourceS3Location: json['SourceS3Location'] != null
           ? S3Location.fromJson(
               json['SourceS3Location'] as Map<String, dynamic>)
+          : null,
+      state: (json['State'] as String?)?.let(AppBlockState.fromString),
+    );
+  }
+}
+
+/// Describes an app block builder.
+class AppBlockBuilder {
+  /// The ARN of the app block builder.
+  final String arn;
+
+  /// The instance type of the app block builder.
+  final String instanceType;
+
+  /// The name of the app block builder.
+  final String name;
+
+  /// The platform of the app block builder.
+  ///
+  /// <code>WINDOWS_SERVER_2019</code> is the only valid value.
+  final AppBlockBuilderPlatformType platform;
+
+  /// The state of the app block builder.
+  final AppBlockBuilderState state;
+
+  /// The VPC configuration for the app block builder.
+  final VpcConfig vpcConfig;
+
+  /// The list of interface VPC endpoint (interface endpoint) objects.
+  /// Administrators can connect to the app block builder only through the
+  /// specified endpoints.
+  final List<AccessEndpoint>? accessEndpoints;
+
+  /// The app block builder errors.
+  final List<ResourceError>? appBlockBuilderErrors;
+
+  /// The creation time of the app block builder.
+  final DateTime? createdTime;
+
+  /// The description of the app block builder.
+  final String? description;
+
+  /// The display name of the app block builder.
+  final String? displayName;
+
+  /// Indicates whether default internet access is enabled for the app block
+  /// builder.
+  final bool? enableDefaultInternetAccess;
+
+  /// The ARN of the IAM role that is applied to the app block builder.
+  final String? iamRoleArn;
+
+  /// The state change reason.
+  final AppBlockBuilderStateChangeReason? stateChangeReason;
+
+  AppBlockBuilder({
+    required this.arn,
+    required this.instanceType,
+    required this.name,
+    required this.platform,
+    required this.state,
+    required this.vpcConfig,
+    this.accessEndpoints,
+    this.appBlockBuilderErrors,
+    this.createdTime,
+    this.description,
+    this.displayName,
+    this.enableDefaultInternetAccess,
+    this.iamRoleArn,
+    this.stateChangeReason,
+  });
+
+  factory AppBlockBuilder.fromJson(Map<String, dynamic> json) {
+    return AppBlockBuilder(
+      arn: json['Arn'] as String,
+      instanceType: json['InstanceType'] as String,
+      name: json['Name'] as String,
+      platform:
+          AppBlockBuilderPlatformType.fromString((json['Platform'] as String)),
+      state: AppBlockBuilderState.fromString((json['State'] as String)),
+      vpcConfig: VpcConfig.fromJson(json['VpcConfig'] as Map<String, dynamic>),
+      accessEndpoints: (json['AccessEndpoints'] as List?)
+          ?.nonNulls
+          .map((e) => AccessEndpoint.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      appBlockBuilderErrors: (json['AppBlockBuilderErrors'] as List?)
+          ?.nonNulls
+          .map((e) => ResourceError.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      createdTime: timeStampFromJson(json['CreatedTime']),
+      description: json['Description'] as String?,
+      displayName: json['DisplayName'] as String?,
+      enableDefaultInternetAccess: json['EnableDefaultInternetAccess'] as bool?,
+      iamRoleArn: json['IamRoleArn'] as String?,
+      stateChangeReason: json['StateChangeReason'] != null
+          ? AppBlockBuilderStateChangeReason.fromJson(
+              json['StateChangeReason'] as Map<String, dynamic>)
           : null,
     );
   }
 }
 
+/// Describes an association between an app block builder and app block.
+class AppBlockBuilderAppBlockAssociation {
+  /// The ARN of the app block.
+  final String appBlockArn;
+
+  /// The name of the app block builder.
+  final String appBlockBuilderName;
+
+  AppBlockBuilderAppBlockAssociation({
+    required this.appBlockArn,
+    required this.appBlockBuilderName,
+  });
+
+  factory AppBlockBuilderAppBlockAssociation.fromJson(
+      Map<String, dynamic> json) {
+    return AppBlockBuilderAppBlockAssociation(
+      appBlockArn: json['AppBlockArn'] as String,
+      appBlockBuilderName: json['AppBlockBuilderName'] as String,
+    );
+  }
+}
+
+enum AppBlockBuilderAttribute {
+  iamRoleArn('IAM_ROLE_ARN'),
+  accessEndpoints('ACCESS_ENDPOINTS'),
+  vpcConfigurationSecurityGroupIds('VPC_CONFIGURATION_SECURITY_GROUP_IDS'),
+  ;
+
+  final String value;
+
+  const AppBlockBuilderAttribute(this.value);
+
+  static AppBlockBuilderAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AppBlockBuilderAttribute'));
+}
+
+enum AppBlockBuilderPlatformType {
+  windowsServer_2019('WINDOWS_SERVER_2019'),
+  ;
+
+  final String value;
+
+  const AppBlockBuilderPlatformType(this.value);
+
+  static AppBlockBuilderPlatformType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AppBlockBuilderPlatformType'));
+}
+
+enum AppBlockBuilderState {
+  starting('STARTING'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  ;
+
+  final String value;
+
+  const AppBlockBuilderState(this.value);
+
+  static AppBlockBuilderState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AppBlockBuilderState'));
+}
+
+/// Describes the reason why the last app block builder state change occurred.
+class AppBlockBuilderStateChangeReason {
+  /// The state change reason code.
+  final AppBlockBuilderStateChangeReasonCode? code;
+
+  /// The state change reason message.
+  final String? message;
+
+  AppBlockBuilderStateChangeReason({
+    this.code,
+    this.message,
+  });
+
+  factory AppBlockBuilderStateChangeReason.fromJson(Map<String, dynamic> json) {
+    return AppBlockBuilderStateChangeReason(
+      code: (json['Code'] as String?)
+          ?.let(AppBlockBuilderStateChangeReasonCode.fromString),
+      message: json['Message'] as String?,
+    );
+  }
+}
+
+enum AppBlockBuilderStateChangeReasonCode {
+  internalError('INTERNAL_ERROR'),
+  ;
+
+  final String value;
+
+  const AppBlockBuilderStateChangeReasonCode(this.value);
+
+  static AppBlockBuilderStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AppBlockBuilderStateChangeReasonCode'));
+}
+
+enum AppBlockState {
+  inactive('INACTIVE'),
+  active('ACTIVE'),
+  ;
+
+  final String value;
+
+  const AppBlockState(this.value);
+
+  static AppBlockState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AppBlockState'));
+}
+
 enum AppVisibility {
-  all,
-  associated,
-}
+  all('ALL'),
+  associated('ASSOCIATED'),
+  ;
 
-extension AppVisibilityValueExtension on AppVisibility {
-  String toValue() {
-    switch (this) {
-      case AppVisibility.all:
-        return 'ALL';
-      case AppVisibility.associated:
-        return 'ASSOCIATED';
-    }
-  }
-}
+  final String value;
 
-extension AppVisibilityFromString on String {
-  AppVisibility toAppVisibility() {
-    switch (this) {
-      case 'ALL':
-        return AppVisibility.all;
-      case 'ASSOCIATED':
-        return AppVisibility.associated;
-    }
-    throw Exception('$this is not known in enum AppVisibility');
-  }
+  const AppVisibility(this.value);
+
+  static AppVisibility fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AppVisibility'));
 }
 
 /// Describes an application in the application catalog.
@@ -4042,7 +4832,7 @@ class Application {
           : null,
       iconURL: json['IconURL'] as String?,
       instanceFamilies: (json['InstanceFamilies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       launchParameters: json['LaunchParameters'] as String?,
@@ -4051,8 +4841,8 @@ class Application {
           ?.map((k, e) => MapEntry(k, e as String)),
       name: json['Name'] as String?,
       platforms: (json['Platforms'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toPlatformType())
+          ?.nonNulls
+          .map((e) => PlatformType.fromString((e as String)))
           .toList(),
       workingDirectory: json['WorkingDirectory'] as String?,
     );
@@ -4060,31 +4850,18 @@ class Application {
 }
 
 enum ApplicationAttribute {
-  launchParameters,
-  workingDirectory,
-}
+  launchParameters('LAUNCH_PARAMETERS'),
+  workingDirectory('WORKING_DIRECTORY'),
+  ;
 
-extension ApplicationAttributeValueExtension on ApplicationAttribute {
-  String toValue() {
-    switch (this) {
-      case ApplicationAttribute.launchParameters:
-        return 'LAUNCH_PARAMETERS';
-      case ApplicationAttribute.workingDirectory:
-        return 'WORKING_DIRECTORY';
-    }
-  }
-}
+  final String value;
 
-extension ApplicationAttributeFromString on String {
-  ApplicationAttribute toApplicationAttribute() {
-    switch (this) {
-      case 'LAUNCH_PARAMETERS':
-        return ApplicationAttribute.launchParameters;
-      case 'WORKING_DIRECTORY':
-        return ApplicationAttribute.workingDirectory;
-    }
-    throw Exception('$this is not known in enum ApplicationAttribute');
-  }
+  const ApplicationAttribute(this.value);
+
+  static ApplicationAttribute fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ApplicationAttribute'));
 }
 
 /// Describes the application fleet association.
@@ -4166,6 +4943,27 @@ class ApplicationSettingsResponse {
   }
 }
 
+class AssociateAppBlockBuilderAppBlockResult {
+  /// The list of app block builders associated with app blocks.
+  final AppBlockBuilderAppBlockAssociation? appBlockBuilderAppBlockAssociation;
+
+  AssociateAppBlockBuilderAppBlockResult({
+    this.appBlockBuilderAppBlockAssociation,
+  });
+
+  factory AssociateAppBlockBuilderAppBlockResult.fromJson(
+      Map<String, dynamic> json) {
+    return AssociateAppBlockBuilderAppBlockResult(
+      appBlockBuilderAppBlockAssociation:
+          json['AppBlockBuilderAppBlockAssociation'] != null
+              ? AppBlockBuilderAppBlockAssociation.fromJson(
+                  json['AppBlockBuilderAppBlockAssociation']
+                      as Map<String, dynamic>)
+              : null,
+    );
+  }
+}
+
 class AssociateApplicationFleetResult {
   /// If fleet name is specified, this returns the list of applications that are
   /// associated to it. If application ARN is specified, this returns the list of
@@ -4204,41 +5002,20 @@ class AssociateFleetResult {
 }
 
 enum AuthenticationType {
-  api,
-  saml,
-  userpool,
-  awsAd,
-}
+  api('API'),
+  saml('SAML'),
+  userpool('USERPOOL'),
+  awsAd('AWS_AD'),
+  ;
 
-extension AuthenticationTypeValueExtension on AuthenticationType {
-  String toValue() {
-    switch (this) {
-      case AuthenticationType.api:
-        return 'API';
-      case AuthenticationType.saml:
-        return 'SAML';
-      case AuthenticationType.userpool:
-        return 'USERPOOL';
-      case AuthenticationType.awsAd:
-        return 'AWS_AD';
-    }
-  }
-}
+  final String value;
 
-extension AuthenticationTypeFromString on String {
-  AuthenticationType toAuthenticationType() {
-    switch (this) {
-      case 'API':
-        return AuthenticationType.api;
-      case 'SAML':
-        return AuthenticationType.saml;
-      case 'USERPOOL':
-        return AuthenticationType.userpool;
-      case 'AWS_AD':
-        return AuthenticationType.awsAd;
-    }
-    throw Exception('$this is not known in enum AuthenticationType');
-  }
+  const AuthenticationType(this.value);
+
+  static AuthenticationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AuthenticationType'));
 }
 
 class BatchAssociateUserStackResult {
@@ -4252,7 +5029,7 @@ class BatchAssociateUserStackResult {
   factory BatchAssociateUserStackResult.fromJson(Map<String, dynamic> json) {
     return BatchAssociateUserStackResult(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               UserStackAssociationError.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4271,7 +5048,7 @@ class BatchDisassociateUserStackResult {
   factory BatchDisassociateUserStackResult.fromJson(Map<String, dynamic> json) {
     return BatchDisassociateUserStackResult(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               UserStackAssociationError.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4303,7 +5080,8 @@ class CertificateBasedAuthProperties {
   factory CertificateBasedAuthProperties.fromJson(Map<String, dynamic> json) {
     return CertificateBasedAuthProperties(
       certificateAuthorityArn: json['CertificateAuthorityArn'] as String?,
-      status: (json['Status'] as String?)?.toCertificateBasedAuthStatus(),
+      status: (json['Status'] as String?)
+          ?.let(CertificateBasedAuthStatus.fromString),
     );
   }
 
@@ -4313,58 +5091,51 @@ class CertificateBasedAuthProperties {
     return {
       if (certificateAuthorityArn != null)
         'CertificateAuthorityArn': certificateAuthorityArn,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum CertificateBasedAuthStatus {
-  disabled,
-  enabled,
-  enabledNoDirectoryLoginFallback,
-}
+  disabled('DISABLED'),
+  enabled('ENABLED'),
+  enabledNoDirectoryLoginFallback('ENABLED_NO_DIRECTORY_LOGIN_FALLBACK'),
+  ;
 
-extension CertificateBasedAuthStatusValueExtension
-    on CertificateBasedAuthStatus {
-  String toValue() {
-    switch (this) {
-      case CertificateBasedAuthStatus.disabled:
-        return 'DISABLED';
-      case CertificateBasedAuthStatus.enabled:
-        return 'ENABLED';
-      case CertificateBasedAuthStatus.enabledNoDirectoryLoginFallback:
-        return 'ENABLED_NO_DIRECTORY_LOGIN_FALLBACK';
-    }
-  }
-}
+  final String value;
 
-extension CertificateBasedAuthStatusFromString on String {
-  CertificateBasedAuthStatus toCertificateBasedAuthStatus() {
-    switch (this) {
-      case 'DISABLED':
-        return CertificateBasedAuthStatus.disabled;
-      case 'ENABLED':
-        return CertificateBasedAuthStatus.enabled;
-      case 'ENABLED_NO_DIRECTORY_LOGIN_FALLBACK':
-        return CertificateBasedAuthStatus.enabledNoDirectoryLoginFallback;
-    }
-    throw Exception('$this is not known in enum CertificateBasedAuthStatus');
-  }
+  const CertificateBasedAuthStatus(this.value);
+
+  static CertificateBasedAuthStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CertificateBasedAuthStatus'));
 }
 
 /// Describes the capacity for a fleet.
 class ComputeCapacity {
   /// The desired number of streaming instances.
-  final int desiredInstances;
+  final int? desiredInstances;
+
+  /// The desired number of user sessions for a multi-session fleet. This is not
+  /// allowed for single-session fleets.
+  ///
+  /// When you create a fleet, you must set either the DesiredSessions or
+  /// DesiredInstances attribute, based on the type of fleet you create. You can’t
+  /// define both attributes or leave both attributes blank.
+  final int? desiredSessions;
 
   ComputeCapacity({
-    required this.desiredInstances,
+    this.desiredInstances,
+    this.desiredSessions,
   });
 
   Map<String, dynamic> toJson() {
     final desiredInstances = this.desiredInstances;
+    final desiredSessions = this.desiredSessions;
     return {
-      'DesiredInstances': desiredInstances,
+      if (desiredInstances != null) 'DesiredInstances': desiredInstances,
+      if (desiredSessions != null) 'DesiredSessions': desiredSessions,
     };
   }
 }
@@ -4374,9 +5145,40 @@ class ComputeCapacityStatus {
   /// The desired number of streaming instances.
   final int desired;
 
+  /// The number of user sessions currently being used for streaming sessions.
+  /// This only applies to multi-session fleets.
+  final int? activeUserSessions;
+
+  /// The total number of session slots that are available for streaming or are
+  /// currently streaming.
+  ///
+  /// ActualUserSessionCapacity = AvailableUserSessionCapacity +
+  /// ActiveUserSessions
+  ///
+  /// This only applies to multi-session fleets.
+  final int? actualUserSessions;
+
   /// The number of currently available instances that can be used to stream
   /// sessions.
   final int? available;
+
+  /// The number of idle session slots currently available for user sessions.
+  ///
+  /// AvailableUserSessionCapacity = ActualUserSessionCapacity -
+  /// ActiveUserSessions
+  ///
+  /// This only applies to multi-session fleets.
+  final int? availableUserSessions;
+
+  /// The total number of sessions slots that are either running or pending. This
+  /// represents the total number of concurrent streaming sessions your fleet can
+  /// support in a steady state.
+  ///
+  /// DesiredUserSessionCapacity = ActualUserSessionCapacity +
+  /// PendingUserSessionCapacity
+  ///
+  /// This only applies to multi-session fleets.
+  final int? desiredUserSessions;
 
   /// The number of instances in use for streaming.
   final int? inUse;
@@ -4386,7 +5188,11 @@ class ComputeCapacityStatus {
 
   ComputeCapacityStatus({
     required this.desired,
+    this.activeUserSessions,
+    this.actualUserSessions,
     this.available,
+    this.availableUserSessions,
+    this.desiredUserSessions,
     this.inUse,
     this.running,
   });
@@ -4394,7 +5200,11 @@ class ComputeCapacityStatus {
   factory ComputeCapacityStatus.fromJson(Map<String, dynamic> json) {
     return ComputeCapacityStatus(
       desired: json['Desired'] as int,
+      activeUserSessions: json['ActiveUserSessions'] as int?,
+      actualUserSessions: json['ActualUserSessions'] as int?,
       available: json['Available'] as int?,
+      availableUserSessions: json['AvailableUserSessions'] as int?,
+      desiredUserSessions: json['DesiredUserSessions'] as int?,
       inUse: json['InUse'] as int?,
       running: json['Running'] as int?,
     );
@@ -4412,6 +5222,44 @@ class CopyImageResponse {
   factory CopyImageResponse.fromJson(Map<String, dynamic> json) {
     return CopyImageResponse(
       destinationImageName: json['DestinationImageName'] as String?,
+    );
+  }
+}
+
+class CreateAppBlockBuilderResult {
+  final AppBlockBuilder? appBlockBuilder;
+
+  CreateAppBlockBuilderResult({
+    this.appBlockBuilder,
+  });
+
+  factory CreateAppBlockBuilderResult.fromJson(Map<String, dynamic> json) {
+    return CreateAppBlockBuilderResult(
+      appBlockBuilder: json['AppBlockBuilder'] != null
+          ? AppBlockBuilder.fromJson(
+              json['AppBlockBuilder'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class CreateAppBlockBuilderStreamingURLResult {
+  /// The elapsed time, in seconds after the Unix epoch, when this URL expires.
+  final DateTime? expires;
+
+  /// The URL to start the streaming session.
+  final String? streamingURL;
+
+  CreateAppBlockBuilderStreamingURLResult({
+    this.expires,
+    this.streamingURL,
+  });
+
+  factory CreateAppBlockBuilderStreamingURLResult.fromJson(
+      Map<String, dynamic> json) {
+    return CreateAppBlockBuilderStreamingURLResult(
+      expires: timeStampFromJson(json['Expires']),
+      streamingURL: json['StreamingURL'] as String?,
     );
   }
 }
@@ -4620,7 +5468,8 @@ class CreateUsageReportSubscriptionResult {
       Map<String, dynamic> json) {
     return CreateUsageReportSubscriptionResult(
       s3BucketName: json['S3BucketName'] as String?,
-      schedule: (json['Schedule'] as String?)?.toUsageReportSchedule(),
+      schedule:
+          (json['Schedule'] as String?)?.let(UsageReportSchedule.fromString),
     );
   }
 }
@@ -4630,6 +5479,14 @@ class CreateUserResult {
 
   factory CreateUserResult.fromJson(Map<String, dynamic> _) {
     return CreateUserResult();
+  }
+}
+
+class DeleteAppBlockBuilderResult {
+  DeleteAppBlockBuilderResult();
+
+  factory DeleteAppBlockBuilderResult.fromJson(Map<String, dynamic> _) {
+    return DeleteAppBlockBuilderResult();
   }
 }
 
@@ -4739,6 +5596,58 @@ class DeleteUserResult {
   }
 }
 
+class DescribeAppBlockBuilderAppBlockAssociationsResult {
+  /// This list of app block builders associated with app blocks.
+  final List<AppBlockBuilderAppBlockAssociation>?
+      appBlockBuilderAppBlockAssociations;
+
+  /// The pagination token used to retrieve the next page of results for this
+  /// operation.
+  final String? nextToken;
+
+  DescribeAppBlockBuilderAppBlockAssociationsResult({
+    this.appBlockBuilderAppBlockAssociations,
+    this.nextToken,
+  });
+
+  factory DescribeAppBlockBuilderAppBlockAssociationsResult.fromJson(
+      Map<String, dynamic> json) {
+    return DescribeAppBlockBuilderAppBlockAssociationsResult(
+      appBlockBuilderAppBlockAssociations:
+          (json['AppBlockBuilderAppBlockAssociations'] as List?)
+              ?.nonNulls
+              .map((e) => AppBlockBuilderAppBlockAssociation.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class DescribeAppBlockBuildersResult {
+  /// The list that describes one or more app block builders.
+  final List<AppBlockBuilder>? appBlockBuilders;
+
+  /// The pagination token used to retrieve the next page of results for this
+  /// operation.
+  final String? nextToken;
+
+  DescribeAppBlockBuildersResult({
+    this.appBlockBuilders,
+    this.nextToken,
+  });
+
+  factory DescribeAppBlockBuildersResult.fromJson(Map<String, dynamic> json) {
+    return DescribeAppBlockBuildersResult(
+      appBlockBuilders: (json['AppBlockBuilders'] as List?)
+          ?.nonNulls
+          .map((e) => AppBlockBuilder.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
 class DescribeAppBlocksResult {
   /// The app blocks in the list.
   final List<AppBlock>? appBlocks;
@@ -4755,7 +5664,7 @@ class DescribeAppBlocksResult {
   factory DescribeAppBlocksResult.fromJson(Map<String, dynamic> json) {
     return DescribeAppBlocksResult(
       appBlocks: (json['AppBlocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AppBlock.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4781,7 +5690,7 @@ class DescribeApplicationFleetAssociationsResult {
     return DescribeApplicationFleetAssociationsResult(
       applicationFleetAssociations: (json['ApplicationFleetAssociations']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ApplicationFleetAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4806,7 +5715,7 @@ class DescribeApplicationsResult {
   factory DescribeApplicationsResult.fromJson(Map<String, dynamic> json) {
     return DescribeApplicationsResult(
       applications: (json['Applications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Application.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4832,7 +5741,7 @@ class DescribeDirectoryConfigsResult {
   factory DescribeDirectoryConfigsResult.fromJson(Map<String, dynamic> json) {
     return DescribeDirectoryConfigsResult(
       directoryConfigs: (json['DirectoryConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DirectoryConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4856,7 +5765,7 @@ class DescribeEntitlementsResult {
   factory DescribeEntitlementsResult.fromJson(Map<String, dynamic> json) {
     return DescribeEntitlementsResult(
       entitlements: (json['Entitlements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Entitlement.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4880,7 +5789,7 @@ class DescribeFleetsResult {
   factory DescribeFleetsResult.fromJson(Map<String, dynamic> json) {
     return DescribeFleetsResult(
       fleets: (json['Fleets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Fleet.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4904,7 +5813,7 @@ class DescribeImageBuildersResult {
   factory DescribeImageBuildersResult.fromJson(Map<String, dynamic> json) {
     return DescribeImageBuildersResult(
       imageBuilders: (json['ImageBuilders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImageBuilder.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4934,7 +5843,7 @@ class DescribeImagePermissionsResult {
       name: json['Name'] as String?,
       nextToken: json['NextToken'] as String?,
       sharedImagePermissionsList: (json['SharedImagePermissionsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => SharedImagePermissions.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4958,7 +5867,7 @@ class DescribeImagesResult {
   factory DescribeImagesResult.fromJson(Map<String, dynamic> json) {
     return DescribeImagesResult(
       images: (json['Images'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Image.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4983,7 +5892,7 @@ class DescribeSessionsResult {
     return DescribeSessionsResult(
       nextToken: json['NextToken'] as String?,
       sessions: (json['Sessions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Session.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5007,7 +5916,7 @@ class DescribeStacksResult {
     return DescribeStacksResult(
       nextToken: json['NextToken'] as String?,
       stacks: (json['Stacks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Stack.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5032,7 +5941,7 @@ class DescribeUsageReportSubscriptionsResult {
     return DescribeUsageReportSubscriptionsResult(
       nextToken: json['NextToken'] as String?,
       usageReportSubscriptions: (json['UsageReportSubscriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               UsageReportSubscription.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5058,7 +5967,7 @@ class DescribeUserStackAssociationsResult {
     return DescribeUserStackAssociationsResult(
       nextToken: json['NextToken'] as String?,
       userStackAssociations: (json['UserStackAssociations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UserStackAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5082,7 +5991,7 @@ class DescribeUsersResult {
     return DescribeUsersResult(
       nextToken: json['NextToken'] as String?,
       users: (json['Users'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => User.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5135,7 +6044,7 @@ class DirectoryConfig {
       createdTime: timeStampFromJson(json['CreatedTime']),
       organizationalUnitDistinguishedNames:
           (json['OrganizationalUnitDistinguishedNames'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       serviceAccountCredentials: json['ServiceAccountCredentials'] != null
@@ -5151,6 +6060,15 @@ class DisableUserResult {
 
   factory DisableUserResult.fromJson(Map<String, dynamic> _) {
     return DisableUserResult();
+  }
+}
+
+class DisassociateAppBlockBuilderAppBlockResult {
+  DisassociateAppBlockBuilderAppBlockResult();
+
+  factory DisassociateAppBlockBuilderAppBlockResult.fromJson(
+      Map<String, dynamic> _) {
+    return DisassociateAppBlockBuilderAppBlockResult();
   }
 }
 
@@ -5280,9 +6198,10 @@ class Entitlement {
 
   factory Entitlement.fromJson(Map<String, dynamic> json) {
     return Entitlement(
-      appVisibility: (json['AppVisibility'] as String).toAppVisibility(),
+      appVisibility:
+          AppVisibility.fromString((json['AppVisibility'] as String)),
       attributes: (json['Attributes'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => EntitlementAttribute.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String,
@@ -5353,6 +6272,27 @@ class EntitlementAttribute {
       'Name': name,
       'Value': value,
     };
+  }
+}
+
+/// The error details.
+class ErrorDetails {
+  /// The error code.
+  final String? errorCode;
+
+  /// The error message.
+  final String? errorMessage;
+
+  ErrorDetails({
+    this.errorCode,
+    this.errorMessage,
+  });
+
+  factory ErrorDetails.fromJson(Map<String, dynamic> json) {
+    return ErrorDetails(
+      errorCode: json['ErrorCode'] as String?,
+      errorMessage: json['ErrorMessage'] as String?,
+    );
   }
 }
 
@@ -5572,6 +6512,10 @@ class Fleet {
   /// The maximum number of concurrent sessions for the fleet.
   final int? maxConcurrentSessions;
 
+  /// The maximum number of user sessions on an instance. This only applies to
+  /// multi-session fleets.
+  final int? maxSessionsPerInstance;
+
   /// The maximum amount of time that a streaming session can remain active, in
   /// seconds. If users are still connected to a streaming instance five minutes
   /// before this limit is reached, they are prompted to save any open documents
@@ -5622,6 +6566,7 @@ class Fleet {
     this.imageArn,
     this.imageName,
     this.maxConcurrentSessions,
+    this.maxSessionsPerInstance,
     this.maxUserDurationInSeconds,
     this.platform,
     this.sessionScriptS3Location,
@@ -5637,7 +6582,7 @@ class Fleet {
           json['ComputeCapacityStatus'] as Map<String, dynamic>),
       instanceType: json['InstanceType'] as String,
       name: json['Name'] as String,
-      state: (json['State'] as String).toFleetState(),
+      state: FleetState.fromString((json['State'] as String)),
       createdTime: timeStampFromJson(json['CreatedTime']),
       description: json['Description'] as String?,
       disconnectTimeoutInSeconds: json['DisconnectTimeoutInSeconds'] as int?,
@@ -5648,25 +6593,26 @@ class Fleet {
           : null,
       enableDefaultInternetAccess: json['EnableDefaultInternetAccess'] as bool?,
       fleetErrors: (json['FleetErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FleetError.fromJson(e as Map<String, dynamic>))
           .toList(),
-      fleetType: (json['FleetType'] as String?)?.toFleetType(),
+      fleetType: (json['FleetType'] as String?)?.let(FleetType.fromString),
       iamRoleArn: json['IamRoleArn'] as String?,
       idleDisconnectTimeoutInSeconds:
           json['IdleDisconnectTimeoutInSeconds'] as int?,
       imageArn: json['ImageArn'] as String?,
       imageName: json['ImageName'] as String?,
       maxConcurrentSessions: json['MaxConcurrentSessions'] as int?,
+      maxSessionsPerInstance: json['MaxSessionsPerInstance'] as int?,
       maxUserDurationInSeconds: json['MaxUserDurationInSeconds'] as int?,
-      platform: (json['Platform'] as String?)?.toPlatformType(),
+      platform: (json['Platform'] as String?)?.let(PlatformType.fromString),
       sessionScriptS3Location: json['SessionScriptS3Location'] != null
           ? S3Location.fromJson(
               json['SessionScriptS3Location'] as Map<String, dynamic>)
           : null,
-      streamView: (json['StreamView'] as String?)?.toStreamView(),
+      streamView: (json['StreamView'] as String?)?.let(StreamView.fromString),
       usbDeviceFilterStrings: (json['UsbDeviceFilterStrings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vpcConfig: json['VpcConfig'] != null
@@ -5678,51 +6624,23 @@ class Fleet {
 
 /// The fleet attribute.
 enum FleetAttribute {
-  vpcConfiguration,
-  vpcConfigurationSecurityGroupIds,
-  domainJoinInfo,
-  iamRoleArn,
-  usbDeviceFilterStrings,
-  sessionScriptS3Location,
-}
+  vpcConfiguration('VPC_CONFIGURATION'),
+  vpcConfigurationSecurityGroupIds('VPC_CONFIGURATION_SECURITY_GROUP_IDS'),
+  domainJoinInfo('DOMAIN_JOIN_INFO'),
+  iamRoleArn('IAM_ROLE_ARN'),
+  usbDeviceFilterStrings('USB_DEVICE_FILTER_STRINGS'),
+  sessionScriptS3Location('SESSION_SCRIPT_S3_LOCATION'),
+  maxSessionsPerInstance('MAX_SESSIONS_PER_INSTANCE'),
+  ;
 
-extension FleetAttributeValueExtension on FleetAttribute {
-  String toValue() {
-    switch (this) {
-      case FleetAttribute.vpcConfiguration:
-        return 'VPC_CONFIGURATION';
-      case FleetAttribute.vpcConfigurationSecurityGroupIds:
-        return 'VPC_CONFIGURATION_SECURITY_GROUP_IDS';
-      case FleetAttribute.domainJoinInfo:
-        return 'DOMAIN_JOIN_INFO';
-      case FleetAttribute.iamRoleArn:
-        return 'IAM_ROLE_ARN';
-      case FleetAttribute.usbDeviceFilterStrings:
-        return 'USB_DEVICE_FILTER_STRINGS';
-      case FleetAttribute.sessionScriptS3Location:
-        return 'SESSION_SCRIPT_S3_LOCATION';
-    }
-  }
-}
+  final String value;
 
-extension FleetAttributeFromString on String {
-  FleetAttribute toFleetAttribute() {
-    switch (this) {
-      case 'VPC_CONFIGURATION':
-        return FleetAttribute.vpcConfiguration;
-      case 'VPC_CONFIGURATION_SECURITY_GROUP_IDS':
-        return FleetAttribute.vpcConfigurationSecurityGroupIds;
-      case 'DOMAIN_JOIN_INFO':
-        return FleetAttribute.domainJoinInfo;
-      case 'IAM_ROLE_ARN':
-        return FleetAttribute.iamRoleArn;
-      case 'USB_DEVICE_FILTER_STRINGS':
-        return FleetAttribute.usbDeviceFilterStrings;
-      case 'SESSION_SCRIPT_S3_LOCATION':
-        return FleetAttribute.sessionScriptS3Location;
-    }
-    throw Exception('$this is not known in enum FleetAttribute');
-  }
+  const FleetAttribute(this.value);
+
+  static FleetAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FleetAttribute'));
 }
 
 /// Describes a fleet error.
@@ -5740,249 +6658,91 @@ class FleetError {
 
   factory FleetError.fromJson(Map<String, dynamic> json) {
     return FleetError(
-      errorCode: (json['ErrorCode'] as String?)?.toFleetErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(FleetErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
     );
   }
 }
 
 enum FleetErrorCode {
-  iamServiceRoleMissingEniDescribeAction,
-  iamServiceRoleMissingEniCreateAction,
-  iamServiceRoleMissingEniDeleteAction,
-  networkInterfaceLimitExceeded,
-  internalServiceError,
-  iamServiceRoleIsMissing,
-  machineRoleIsMissing,
-  stsDisabledInRegion,
-  subnetHasInsufficientIpAddresses,
-  iamServiceRoleMissingDescribeSubnetAction,
-  subnetNotFound,
-  imageNotFound,
-  invalidSubnetConfiguration,
-  securityGroupsNotFound,
-  igwNotAttached,
-  iamServiceRoleMissingDescribeSecurityGroupsAction,
-  fleetStopped,
-  fleetInstanceProvisioningFailure,
-  domainJoinErrorFileNotFound,
-  domainJoinErrorAccessDenied,
-  domainJoinErrorLogonFailure,
-  domainJoinErrorInvalidParameter,
-  domainJoinErrorMoreData,
-  domainJoinErrorNoSuchDomain,
-  domainJoinErrorNotSupported,
-  domainJoinNerrInvalidWorkgroupName,
-  domainJoinNerrWorkstationNotStarted,
-  domainJoinErrorDsMachineAccountQuotaExceeded,
-  domainJoinNerrPasswordExpired,
-  domainJoinInternalServiceError,
-}
+  iamServiceRoleMissingEniDescribeAction(
+      'IAM_SERVICE_ROLE_MISSING_ENI_DESCRIBE_ACTION'),
+  iamServiceRoleMissingEniCreateAction(
+      'IAM_SERVICE_ROLE_MISSING_ENI_CREATE_ACTION'),
+  iamServiceRoleMissingEniDeleteAction(
+      'IAM_SERVICE_ROLE_MISSING_ENI_DELETE_ACTION'),
+  networkInterfaceLimitExceeded('NETWORK_INTERFACE_LIMIT_EXCEEDED'),
+  internalServiceError('INTERNAL_SERVICE_ERROR'),
+  iamServiceRoleIsMissing('IAM_SERVICE_ROLE_IS_MISSING'),
+  machineRoleIsMissing('MACHINE_ROLE_IS_MISSING'),
+  stsDisabledInRegion('STS_DISABLED_IN_REGION'),
+  subnetHasInsufficientIpAddresses('SUBNET_HAS_INSUFFICIENT_IP_ADDRESSES'),
+  iamServiceRoleMissingDescribeSubnetAction(
+      'IAM_SERVICE_ROLE_MISSING_DESCRIBE_SUBNET_ACTION'),
+  subnetNotFound('SUBNET_NOT_FOUND'),
+  imageNotFound('IMAGE_NOT_FOUND'),
+  invalidSubnetConfiguration('INVALID_SUBNET_CONFIGURATION'),
+  securityGroupsNotFound('SECURITY_GROUPS_NOT_FOUND'),
+  igwNotAttached('IGW_NOT_ATTACHED'),
+  iamServiceRoleMissingDescribeSecurityGroupsAction(
+      'IAM_SERVICE_ROLE_MISSING_DESCRIBE_SECURITY_GROUPS_ACTION'),
+  fleetStopped('FLEET_STOPPED'),
+  fleetInstanceProvisioningFailure('FLEET_INSTANCE_PROVISIONING_FAILURE'),
+  domainJoinErrorFileNotFound('DOMAIN_JOIN_ERROR_FILE_NOT_FOUND'),
+  domainJoinErrorAccessDenied('DOMAIN_JOIN_ERROR_ACCESS_DENIED'),
+  domainJoinErrorLogonFailure('DOMAIN_JOIN_ERROR_LOGON_FAILURE'),
+  domainJoinErrorInvalidParameter('DOMAIN_JOIN_ERROR_INVALID_PARAMETER'),
+  domainJoinErrorMoreData('DOMAIN_JOIN_ERROR_MORE_DATA'),
+  domainJoinErrorNoSuchDomain('DOMAIN_JOIN_ERROR_NO_SUCH_DOMAIN'),
+  domainJoinErrorNotSupported('DOMAIN_JOIN_ERROR_NOT_SUPPORTED'),
+  domainJoinNerrInvalidWorkgroupName('DOMAIN_JOIN_NERR_INVALID_WORKGROUP_NAME'),
+  domainJoinNerrWorkstationNotStarted(
+      'DOMAIN_JOIN_NERR_WORKSTATION_NOT_STARTED'),
+  domainJoinErrorDsMachineAccountQuotaExceeded(
+      'DOMAIN_JOIN_ERROR_DS_MACHINE_ACCOUNT_QUOTA_EXCEEDED'),
+  domainJoinNerrPasswordExpired('DOMAIN_JOIN_NERR_PASSWORD_EXPIRED'),
+  domainJoinInternalServiceError('DOMAIN_JOIN_INTERNAL_SERVICE_ERROR'),
+  ;
 
-extension FleetErrorCodeValueExtension on FleetErrorCode {
-  String toValue() {
-    switch (this) {
-      case FleetErrorCode.iamServiceRoleMissingEniDescribeAction:
-        return 'IAM_SERVICE_ROLE_MISSING_ENI_DESCRIBE_ACTION';
-      case FleetErrorCode.iamServiceRoleMissingEniCreateAction:
-        return 'IAM_SERVICE_ROLE_MISSING_ENI_CREATE_ACTION';
-      case FleetErrorCode.iamServiceRoleMissingEniDeleteAction:
-        return 'IAM_SERVICE_ROLE_MISSING_ENI_DELETE_ACTION';
-      case FleetErrorCode.networkInterfaceLimitExceeded:
-        return 'NETWORK_INTERFACE_LIMIT_EXCEEDED';
-      case FleetErrorCode.internalServiceError:
-        return 'INTERNAL_SERVICE_ERROR';
-      case FleetErrorCode.iamServiceRoleIsMissing:
-        return 'IAM_SERVICE_ROLE_IS_MISSING';
-      case FleetErrorCode.machineRoleIsMissing:
-        return 'MACHINE_ROLE_IS_MISSING';
-      case FleetErrorCode.stsDisabledInRegion:
-        return 'STS_DISABLED_IN_REGION';
-      case FleetErrorCode.subnetHasInsufficientIpAddresses:
-        return 'SUBNET_HAS_INSUFFICIENT_IP_ADDRESSES';
-      case FleetErrorCode.iamServiceRoleMissingDescribeSubnetAction:
-        return 'IAM_SERVICE_ROLE_MISSING_DESCRIBE_SUBNET_ACTION';
-      case FleetErrorCode.subnetNotFound:
-        return 'SUBNET_NOT_FOUND';
-      case FleetErrorCode.imageNotFound:
-        return 'IMAGE_NOT_FOUND';
-      case FleetErrorCode.invalidSubnetConfiguration:
-        return 'INVALID_SUBNET_CONFIGURATION';
-      case FleetErrorCode.securityGroupsNotFound:
-        return 'SECURITY_GROUPS_NOT_FOUND';
-      case FleetErrorCode.igwNotAttached:
-        return 'IGW_NOT_ATTACHED';
-      case FleetErrorCode.iamServiceRoleMissingDescribeSecurityGroupsAction:
-        return 'IAM_SERVICE_ROLE_MISSING_DESCRIBE_SECURITY_GROUPS_ACTION';
-      case FleetErrorCode.fleetStopped:
-        return 'FLEET_STOPPED';
-      case FleetErrorCode.fleetInstanceProvisioningFailure:
-        return 'FLEET_INSTANCE_PROVISIONING_FAILURE';
-      case FleetErrorCode.domainJoinErrorFileNotFound:
-        return 'DOMAIN_JOIN_ERROR_FILE_NOT_FOUND';
-      case FleetErrorCode.domainJoinErrorAccessDenied:
-        return 'DOMAIN_JOIN_ERROR_ACCESS_DENIED';
-      case FleetErrorCode.domainJoinErrorLogonFailure:
-        return 'DOMAIN_JOIN_ERROR_LOGON_FAILURE';
-      case FleetErrorCode.domainJoinErrorInvalidParameter:
-        return 'DOMAIN_JOIN_ERROR_INVALID_PARAMETER';
-      case FleetErrorCode.domainJoinErrorMoreData:
-        return 'DOMAIN_JOIN_ERROR_MORE_DATA';
-      case FleetErrorCode.domainJoinErrorNoSuchDomain:
-        return 'DOMAIN_JOIN_ERROR_NO_SUCH_DOMAIN';
-      case FleetErrorCode.domainJoinErrorNotSupported:
-        return 'DOMAIN_JOIN_ERROR_NOT_SUPPORTED';
-      case FleetErrorCode.domainJoinNerrInvalidWorkgroupName:
-        return 'DOMAIN_JOIN_NERR_INVALID_WORKGROUP_NAME';
-      case FleetErrorCode.domainJoinNerrWorkstationNotStarted:
-        return 'DOMAIN_JOIN_NERR_WORKSTATION_NOT_STARTED';
-      case FleetErrorCode.domainJoinErrorDsMachineAccountQuotaExceeded:
-        return 'DOMAIN_JOIN_ERROR_DS_MACHINE_ACCOUNT_QUOTA_EXCEEDED';
-      case FleetErrorCode.domainJoinNerrPasswordExpired:
-        return 'DOMAIN_JOIN_NERR_PASSWORD_EXPIRED';
-      case FleetErrorCode.domainJoinInternalServiceError:
-        return 'DOMAIN_JOIN_INTERNAL_SERVICE_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension FleetErrorCodeFromString on String {
-  FleetErrorCode toFleetErrorCode() {
-    switch (this) {
-      case 'IAM_SERVICE_ROLE_MISSING_ENI_DESCRIBE_ACTION':
-        return FleetErrorCode.iamServiceRoleMissingEniDescribeAction;
-      case 'IAM_SERVICE_ROLE_MISSING_ENI_CREATE_ACTION':
-        return FleetErrorCode.iamServiceRoleMissingEniCreateAction;
-      case 'IAM_SERVICE_ROLE_MISSING_ENI_DELETE_ACTION':
-        return FleetErrorCode.iamServiceRoleMissingEniDeleteAction;
-      case 'NETWORK_INTERFACE_LIMIT_EXCEEDED':
-        return FleetErrorCode.networkInterfaceLimitExceeded;
-      case 'INTERNAL_SERVICE_ERROR':
-        return FleetErrorCode.internalServiceError;
-      case 'IAM_SERVICE_ROLE_IS_MISSING':
-        return FleetErrorCode.iamServiceRoleIsMissing;
-      case 'MACHINE_ROLE_IS_MISSING':
-        return FleetErrorCode.machineRoleIsMissing;
-      case 'STS_DISABLED_IN_REGION':
-        return FleetErrorCode.stsDisabledInRegion;
-      case 'SUBNET_HAS_INSUFFICIENT_IP_ADDRESSES':
-        return FleetErrorCode.subnetHasInsufficientIpAddresses;
-      case 'IAM_SERVICE_ROLE_MISSING_DESCRIBE_SUBNET_ACTION':
-        return FleetErrorCode.iamServiceRoleMissingDescribeSubnetAction;
-      case 'SUBNET_NOT_FOUND':
-        return FleetErrorCode.subnetNotFound;
-      case 'IMAGE_NOT_FOUND':
-        return FleetErrorCode.imageNotFound;
-      case 'INVALID_SUBNET_CONFIGURATION':
-        return FleetErrorCode.invalidSubnetConfiguration;
-      case 'SECURITY_GROUPS_NOT_FOUND':
-        return FleetErrorCode.securityGroupsNotFound;
-      case 'IGW_NOT_ATTACHED':
-        return FleetErrorCode.igwNotAttached;
-      case 'IAM_SERVICE_ROLE_MISSING_DESCRIBE_SECURITY_GROUPS_ACTION':
-        return FleetErrorCode.iamServiceRoleMissingDescribeSecurityGroupsAction;
-      case 'FLEET_STOPPED':
-        return FleetErrorCode.fleetStopped;
-      case 'FLEET_INSTANCE_PROVISIONING_FAILURE':
-        return FleetErrorCode.fleetInstanceProvisioningFailure;
-      case 'DOMAIN_JOIN_ERROR_FILE_NOT_FOUND':
-        return FleetErrorCode.domainJoinErrorFileNotFound;
-      case 'DOMAIN_JOIN_ERROR_ACCESS_DENIED':
-        return FleetErrorCode.domainJoinErrorAccessDenied;
-      case 'DOMAIN_JOIN_ERROR_LOGON_FAILURE':
-        return FleetErrorCode.domainJoinErrorLogonFailure;
-      case 'DOMAIN_JOIN_ERROR_INVALID_PARAMETER':
-        return FleetErrorCode.domainJoinErrorInvalidParameter;
-      case 'DOMAIN_JOIN_ERROR_MORE_DATA':
-        return FleetErrorCode.domainJoinErrorMoreData;
-      case 'DOMAIN_JOIN_ERROR_NO_SUCH_DOMAIN':
-        return FleetErrorCode.domainJoinErrorNoSuchDomain;
-      case 'DOMAIN_JOIN_ERROR_NOT_SUPPORTED':
-        return FleetErrorCode.domainJoinErrorNotSupported;
-      case 'DOMAIN_JOIN_NERR_INVALID_WORKGROUP_NAME':
-        return FleetErrorCode.domainJoinNerrInvalidWorkgroupName;
-      case 'DOMAIN_JOIN_NERR_WORKSTATION_NOT_STARTED':
-        return FleetErrorCode.domainJoinNerrWorkstationNotStarted;
-      case 'DOMAIN_JOIN_ERROR_DS_MACHINE_ACCOUNT_QUOTA_EXCEEDED':
-        return FleetErrorCode.domainJoinErrorDsMachineAccountQuotaExceeded;
-      case 'DOMAIN_JOIN_NERR_PASSWORD_EXPIRED':
-        return FleetErrorCode.domainJoinNerrPasswordExpired;
-      case 'DOMAIN_JOIN_INTERNAL_SERVICE_ERROR':
-        return FleetErrorCode.domainJoinInternalServiceError;
-    }
-    throw Exception('$this is not known in enum FleetErrorCode');
-  }
+  const FleetErrorCode(this.value);
+
+  static FleetErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FleetErrorCode'));
 }
 
 enum FleetState {
-  starting,
-  running,
-  stopping,
-  stopped,
-}
+  starting('STARTING'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  ;
 
-extension FleetStateValueExtension on FleetState {
-  String toValue() {
-    switch (this) {
-      case FleetState.starting:
-        return 'STARTING';
-      case FleetState.running:
-        return 'RUNNING';
-      case FleetState.stopping:
-        return 'STOPPING';
-      case FleetState.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension FleetStateFromString on String {
-  FleetState toFleetState() {
-    switch (this) {
-      case 'STARTING':
-        return FleetState.starting;
-      case 'RUNNING':
-        return FleetState.running;
-      case 'STOPPING':
-        return FleetState.stopping;
-      case 'STOPPED':
-        return FleetState.stopped;
-    }
-    throw Exception('$this is not known in enum FleetState');
-  }
+  const FleetState(this.value);
+
+  static FleetState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FleetState'));
 }
 
 enum FleetType {
-  alwaysOn,
-  onDemand,
-  elastic,
-}
+  alwaysOn('ALWAYS_ON'),
+  onDemand('ON_DEMAND'),
+  elastic('ELASTIC'),
+  ;
 
-extension FleetTypeValueExtension on FleetType {
-  String toValue() {
-    switch (this) {
-      case FleetType.alwaysOn:
-        return 'ALWAYS_ON';
-      case FleetType.onDemand:
-        return 'ON_DEMAND';
-      case FleetType.elastic:
-        return 'ELASTIC';
-    }
-  }
-}
+  final String value;
 
-extension FleetTypeFromString on String {
-  FleetType toFleetType() {
-    switch (this) {
-      case 'ALWAYS_ON':
-        return FleetType.alwaysOn;
-      case 'ON_DEMAND':
-        return FleetType.onDemand;
-      case 'ELASTIC':
-        return FleetType.elastic;
-    }
-    throw Exception('$this is not known in enum FleetType');
-  }
+  const FleetType(this.value);
+
+  static FleetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FleetType'));
 }
 
 /// Describes an image.
@@ -6068,7 +6828,7 @@ class Image {
     return Image(
       name: json['Name'] as String,
       applications: (json['Applications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Application.fromJson(e as Map<String, dynamic>))
           .toList(),
       appstreamAgentVersion: json['AppstreamAgentVersion'] as String?,
@@ -6080,22 +6840,23 @@ class Image {
       imageBuilderName: json['ImageBuilderName'] as String?,
       imageBuilderSupported: json['ImageBuilderSupported'] as bool?,
       imageErrors: (json['ImageErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceError.fromJson(e as Map<String, dynamic>))
           .toList(),
       imagePermissions: json['ImagePermissions'] != null
           ? ImagePermissions.fromJson(
               json['ImagePermissions'] as Map<String, dynamic>)
           : null,
-      platform: (json['Platform'] as String?)?.toPlatformType(),
+      platform: (json['Platform'] as String?)?.let(PlatformType.fromString),
       publicBaseImageReleasedDate:
           timeStampFromJson(json['PublicBaseImageReleasedDate']),
-      state: (json['State'] as String?)?.toImageState(),
+      state: (json['State'] as String?)?.let(ImageState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? ImageStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
           : null,
-      visibility: (json['Visibility'] as String?)?.toVisibilityType(),
+      visibility:
+          (json['Visibility'] as String?)?.let(VisibilityType.fromString),
     );
   }
 }
@@ -6297,7 +7058,7 @@ class ImageBuilder {
     return ImageBuilder(
       name: json['Name'] as String,
       accessEndpoints: (json['AccessEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AccessEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       appstreamAgentVersion: json['AppstreamAgentVersion'] as String?,
@@ -6313,7 +7074,7 @@ class ImageBuilder {
       iamRoleArn: json['IamRoleArn'] as String?,
       imageArn: json['ImageArn'] as String?,
       imageBuilderErrors: (json['ImageBuilderErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceError.fromJson(e as Map<String, dynamic>))
           .toList(),
       instanceType: json['InstanceType'] as String?,
@@ -6321,8 +7082,8 @@ class ImageBuilder {
           ? NetworkAccessConfiguration.fromJson(
               json['NetworkAccessConfiguration'] as Map<String, dynamic>)
           : null,
-      platform: (json['Platform'] as String?)?.toPlatformType(),
-      state: (json['State'] as String?)?.toImageBuilderState(),
+      platform: (json['Platform'] as String?)?.let(PlatformType.fromString),
+      state: (json['State'] as String?)?.let(ImageBuilderState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? ImageBuilderStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
@@ -6335,76 +7096,27 @@ class ImageBuilder {
 }
 
 enum ImageBuilderState {
-  pending,
-  updatingAgent,
-  running,
-  stopping,
-  stopped,
-  rebooting,
-  snapshotting,
-  deleting,
-  failed,
-  updating,
-  pendingQualification,
-}
+  pending('PENDING'),
+  updatingAgent('UPDATING_AGENT'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  rebooting('REBOOTING'),
+  snapshotting('SNAPSHOTTING'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  updating('UPDATING'),
+  pendingQualification('PENDING_QUALIFICATION'),
+  ;
 
-extension ImageBuilderStateValueExtension on ImageBuilderState {
-  String toValue() {
-    switch (this) {
-      case ImageBuilderState.pending:
-        return 'PENDING';
-      case ImageBuilderState.updatingAgent:
-        return 'UPDATING_AGENT';
-      case ImageBuilderState.running:
-        return 'RUNNING';
-      case ImageBuilderState.stopping:
-        return 'STOPPING';
-      case ImageBuilderState.stopped:
-        return 'STOPPED';
-      case ImageBuilderState.rebooting:
-        return 'REBOOTING';
-      case ImageBuilderState.snapshotting:
-        return 'SNAPSHOTTING';
-      case ImageBuilderState.deleting:
-        return 'DELETING';
-      case ImageBuilderState.failed:
-        return 'FAILED';
-      case ImageBuilderState.updating:
-        return 'UPDATING';
-      case ImageBuilderState.pendingQualification:
-        return 'PENDING_QUALIFICATION';
-    }
-  }
-}
+  final String value;
 
-extension ImageBuilderStateFromString on String {
-  ImageBuilderState toImageBuilderState() {
-    switch (this) {
-      case 'PENDING':
-        return ImageBuilderState.pending;
-      case 'UPDATING_AGENT':
-        return ImageBuilderState.updatingAgent;
-      case 'RUNNING':
-        return ImageBuilderState.running;
-      case 'STOPPING':
-        return ImageBuilderState.stopping;
-      case 'STOPPED':
-        return ImageBuilderState.stopped;
-      case 'REBOOTING':
-        return ImageBuilderState.rebooting;
-      case 'SNAPSHOTTING':
-        return ImageBuilderState.snapshotting;
-      case 'DELETING':
-        return ImageBuilderState.deleting;
-      case 'FAILED':
-        return ImageBuilderState.failed;
-      case 'UPDATING':
-        return ImageBuilderState.updating;
-      case 'PENDING_QUALIFICATION':
-        return ImageBuilderState.pendingQualification;
-    }
-    throw Exception('$this is not known in enum ImageBuilderState');
-  }
+  const ImageBuilderState(this.value);
+
+  static ImageBuilderState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ImageBuilderState'));
 }
 
 /// Describes the reason why the last image builder state change occurred.
@@ -6422,40 +7134,26 @@ class ImageBuilderStateChangeReason {
 
   factory ImageBuilderStateChangeReason.fromJson(Map<String, dynamic> json) {
     return ImageBuilderStateChangeReason(
-      code: (json['Code'] as String?)?.toImageBuilderStateChangeReasonCode(),
+      code: (json['Code'] as String?)
+          ?.let(ImageBuilderStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum ImageBuilderStateChangeReasonCode {
-  internalError,
-  imageUnavailable,
-}
+  internalError('INTERNAL_ERROR'),
+  imageUnavailable('IMAGE_UNAVAILABLE'),
+  ;
 
-extension ImageBuilderStateChangeReasonCodeValueExtension
-    on ImageBuilderStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case ImageBuilderStateChangeReasonCode.internalError:
-        return 'INTERNAL_ERROR';
-      case ImageBuilderStateChangeReasonCode.imageUnavailable:
-        return 'IMAGE_UNAVAILABLE';
-    }
-  }
-}
+  final String value;
 
-extension ImageBuilderStateChangeReasonCodeFromString on String {
-  ImageBuilderStateChangeReasonCode toImageBuilderStateChangeReasonCode() {
-    switch (this) {
-      case 'INTERNAL_ERROR':
-        return ImageBuilderStateChangeReasonCode.internalError;
-      case 'IMAGE_UNAVAILABLE':
-        return ImageBuilderStateChangeReasonCode.imageUnavailable;
-    }
-    throw Exception(
-        '$this is not known in enum ImageBuilderStateChangeReasonCode');
-  }
+  const ImageBuilderStateChangeReasonCode(this.value);
+
+  static ImageBuilderStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ImageBuilderStateChangeReasonCode'));
 }
 
 /// Describes the permissions for an image.
@@ -6489,56 +7187,22 @@ class ImagePermissions {
 }
 
 enum ImageState {
-  pending,
-  available,
-  failed,
-  copying,
-  deleting,
-  creating,
-  importing,
-}
+  pending('PENDING'),
+  available('AVAILABLE'),
+  failed('FAILED'),
+  copying('COPYING'),
+  deleting('DELETING'),
+  creating('CREATING'),
+  importing('IMPORTING'),
+  ;
 
-extension ImageStateValueExtension on ImageState {
-  String toValue() {
-    switch (this) {
-      case ImageState.pending:
-        return 'PENDING';
-      case ImageState.available:
-        return 'AVAILABLE';
-      case ImageState.failed:
-        return 'FAILED';
-      case ImageState.copying:
-        return 'COPYING';
-      case ImageState.deleting:
-        return 'DELETING';
-      case ImageState.creating:
-        return 'CREATING';
-      case ImageState.importing:
-        return 'IMPORTING';
-    }
-  }
-}
+  final String value;
 
-extension ImageStateFromString on String {
-  ImageState toImageState() {
-    switch (this) {
-      case 'PENDING':
-        return ImageState.pending;
-      case 'AVAILABLE':
-        return ImageState.available;
-      case 'FAILED':
-        return ImageState.failed;
-      case 'COPYING':
-        return ImageState.copying;
-      case 'DELETING':
-        return ImageState.deleting;
-      case 'CREATING':
-        return ImageState.creating;
-      case 'IMPORTING':
-        return ImageState.importing;
-    }
-    throw Exception('$this is not known in enum ImageState');
-  }
+  const ImageState(this.value);
+
+  static ImageState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ImageState'));
 }
 
 /// Describes the reason why the last image state change occurred.
@@ -6556,44 +7220,27 @@ class ImageStateChangeReason {
 
   factory ImageStateChangeReason.fromJson(Map<String, dynamic> json) {
     return ImageStateChangeReason(
-      code: (json['Code'] as String?)?.toImageStateChangeReasonCode(),
+      code:
+          (json['Code'] as String?)?.let(ImageStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum ImageStateChangeReasonCode {
-  internalError,
-  imageBuilderNotAvailable,
-  imageCopyFailure,
-}
+  internalError('INTERNAL_ERROR'),
+  imageBuilderNotAvailable('IMAGE_BUILDER_NOT_AVAILABLE'),
+  imageCopyFailure('IMAGE_COPY_FAILURE'),
+  ;
 
-extension ImageStateChangeReasonCodeValueExtension
-    on ImageStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case ImageStateChangeReasonCode.internalError:
-        return 'INTERNAL_ERROR';
-      case ImageStateChangeReasonCode.imageBuilderNotAvailable:
-        return 'IMAGE_BUILDER_NOT_AVAILABLE';
-      case ImageStateChangeReasonCode.imageCopyFailure:
-        return 'IMAGE_COPY_FAILURE';
-    }
-  }
-}
+  final String value;
 
-extension ImageStateChangeReasonCodeFromString on String {
-  ImageStateChangeReasonCode toImageStateChangeReasonCode() {
-    switch (this) {
-      case 'INTERNAL_ERROR':
-        return ImageStateChangeReasonCode.internalError;
-      case 'IMAGE_BUILDER_NOT_AVAILABLE':
-        return ImageStateChangeReasonCode.imageBuilderNotAvailable;
-      case 'IMAGE_COPY_FAILURE':
-        return ImageStateChangeReasonCode.imageCopyFailure;
-    }
-    throw Exception('$this is not known in enum ImageStateChangeReasonCode');
-  }
+  const ImageStateChangeReasonCode(this.value);
+
+  static ImageStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ImageStateChangeReasonCode'));
 }
 
 /// Describes the error that is returned when a usage report can't be generated.
@@ -6614,8 +7261,8 @@ class LastReportGenerationExecutionError {
   factory LastReportGenerationExecutionError.fromJson(
       Map<String, dynamic> json) {
     return LastReportGenerationExecutionError(
-      errorCode:
-          (json['ErrorCode'] as String?)?.toUsageReportExecutionErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)
+          ?.let(UsageReportExecutionErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
     );
   }
@@ -6636,10 +7283,8 @@ class ListAssociatedFleetsResult {
 
   factory ListAssociatedFleetsResult.fromJson(Map<String, dynamic> json) {
     return ListAssociatedFleetsResult(
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['NextToken'] as String?,
     );
   }
@@ -6660,10 +7305,8 @@ class ListAssociatedStacksResult {
 
   factory ListAssociatedStacksResult.fromJson(Map<String, dynamic> json) {
     return ListAssociatedStacksResult(
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['NextToken'] as String?,
     );
   }
@@ -6685,7 +7328,7 @@ class ListEntitledApplicationsResult {
   factory ListEntitledApplicationsResult.fromJson(Map<String, dynamic> json) {
     return ListEntitledApplicationsResult(
       entitledApplications: (json['EntitledApplications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EntitledApplication.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6710,31 +7353,18 @@ class ListTagsForResourceResponse {
 }
 
 enum MessageAction {
-  suppress,
-  resend,
-}
+  suppress('SUPPRESS'),
+  resend('RESEND'),
+  ;
 
-extension MessageActionValueExtension on MessageAction {
-  String toValue() {
-    switch (this) {
-      case MessageAction.suppress:
-        return 'SUPPRESS';
-      case MessageAction.resend:
-        return 'RESEND';
-    }
-  }
-}
+  final String value;
 
-extension MessageActionFromString on String {
-  MessageAction toMessageAction() {
-    switch (this) {
-      case 'SUPPRESS':
-        return MessageAction.suppress;
-      case 'RESEND':
-        return MessageAction.resend;
-    }
-    throw Exception('$this is not known in enum MessageAction');
-  }
+  const MessageAction(this.value);
+
+  static MessageAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MessageAction'));
 }
 
 /// Describes the network details of the fleet or image builder instance.
@@ -6761,98 +7391,66 @@ class NetworkAccessConfiguration {
   }
 }
 
+enum PackagingType {
+  custom('CUSTOM'),
+  appstream2('APPSTREAM2'),
+  ;
+
+  final String value;
+
+  const PackagingType(this.value);
+
+  static PackagingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PackagingType'));
+}
+
 enum Permission {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension PermissionValueExtension on Permission {
-  String toValue() {
-    switch (this) {
-      case Permission.enabled:
-        return 'ENABLED';
-      case Permission.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension PermissionFromString on String {
-  Permission toPermission() {
-    switch (this) {
-      case 'ENABLED':
-        return Permission.enabled;
-      case 'DISABLED':
-        return Permission.disabled;
-    }
-    throw Exception('$this is not known in enum Permission');
-  }
+  const Permission(this.value);
+
+  static Permission fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Permission'));
 }
 
 enum PlatformType {
-  windows,
-  windowsServer_2016,
-  windowsServer_2019,
-  amazonLinux2,
-}
+  windows('WINDOWS'),
+  windowsServer_2016('WINDOWS_SERVER_2016'),
+  windowsServer_2019('WINDOWS_SERVER_2019'),
+  windowsServer_2022('WINDOWS_SERVER_2022'),
+  amazonLinux2('AMAZON_LINUX2'),
+  ;
 
-extension PlatformTypeValueExtension on PlatformType {
-  String toValue() {
-    switch (this) {
-      case PlatformType.windows:
-        return 'WINDOWS';
-      case PlatformType.windowsServer_2016:
-        return 'WINDOWS_SERVER_2016';
-      case PlatformType.windowsServer_2019:
-        return 'WINDOWS_SERVER_2019';
-      case PlatformType.amazonLinux2:
-        return 'AMAZON_LINUX2';
-    }
-  }
-}
+  final String value;
 
-extension PlatformTypeFromString on String {
-  PlatformType toPlatformType() {
-    switch (this) {
-      case 'WINDOWS':
-        return PlatformType.windows;
-      case 'WINDOWS_SERVER_2016':
-        return PlatformType.windowsServer_2016;
-      case 'WINDOWS_SERVER_2019':
-        return PlatformType.windowsServer_2019;
-      case 'AMAZON_LINUX2':
-        return PlatformType.amazonLinux2;
-    }
-    throw Exception('$this is not known in enum PlatformType');
-  }
+  const PlatformType(this.value);
+
+  static PlatformType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PlatformType'));
 }
 
 enum PreferredProtocol {
-  tcp,
-  udp,
-}
+  tcp('TCP'),
+  udp('UDP'),
+  ;
 
-extension PreferredProtocolValueExtension on PreferredProtocol {
-  String toValue() {
-    switch (this) {
-      case PreferredProtocol.tcp:
-        return 'TCP';
-      case PreferredProtocol.udp:
-        return 'UDP';
-    }
-  }
-}
+  final String value;
 
-extension PreferredProtocolFromString on String {
-  PreferredProtocol toPreferredProtocol() {
-    switch (this) {
-      case 'TCP':
-        return PreferredProtocol.tcp;
-      case 'UDP':
-        return PreferredProtocol.udp;
-    }
-    throw Exception('$this is not known in enum PreferredProtocol');
-  }
+  const PreferredProtocol(this.value);
+
+  static PreferredProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PreferredProtocol'));
 }
 
 /// Describes a resource error.
@@ -6874,7 +7472,7 @@ class ResourceError {
 
   factory ResourceError.fromJson(Map<String, dynamic> json) {
     return ResourceError(
-      errorCode: (json['ErrorCode'] as String?)?.toFleetErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(FleetErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       errorTimestamp: timeStampFromJson(json['ErrorTimestamp']),
     );
@@ -6887,17 +7485,42 @@ class S3Location {
   final String s3Bucket;
 
   /// The S3 key of the S3 object.
-  final String s3Key;
+  ///
+  /// This is required when used for the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// IconS3Location (Actions: CreateApplication and UpdateApplication)
+  /// </li>
+  /// <li>
+  /// SessionScriptS3Location (Actions: CreateFleet and UpdateFleet)
+  /// </li>
+  /// <li>
+  /// ScriptDetails (Actions: CreateAppBlock)
+  /// </li>
+  /// <li>
+  /// SourceS3Location when creating an app block with <code>CUSTOM</code>
+  /// PackagingType (Actions: CreateAppBlock)
+  /// </li>
+  /// <li>
+  /// SourceS3Location when creating an app block with <code>APPSTREAM2</code>
+  /// PackagingType, and using an existing application package (VHD file). In this
+  /// case, <code>S3Key</code> refers to the VHD file. If a new application
+  /// package is required, then <code>S3Key</code> is not required. (Actions:
+  /// CreateAppBlock)
+  /// </li>
+  /// </ul>
+  final String? s3Key;
 
   S3Location({
     required this.s3Bucket,
-    required this.s3Key,
+    this.s3Key,
   });
 
   factory S3Location.fromJson(Map<String, dynamic> json) {
     return S3Location(
       s3Bucket: json['S3Bucket'] as String,
-      s3Key: json['S3Key'] as String,
+      s3Key: json['S3Key'] as String?,
     );
   }
 
@@ -6906,7 +7529,7 @@ class S3Location {
     final s3Key = this.s3Key;
     return {
       'S3Bucket': s3Bucket,
-      'S3Key': s3Key,
+      if (s3Key != null) 'S3Key': s3Key,
     };
   }
 }
@@ -7015,6 +7638,9 @@ class Session {
   /// Specifies whether a user is connected to the streaming session.
   final SessionConnectionState? connectionState;
 
+  /// The identifier for the instance hosting the session.
+  final String? instanceId;
+
   /// The time when the streaming session is set to expire. This time is based on
   /// the <code>MaxUserDurationinSeconds</code> value, which determines the
   /// maximum length of time that a streaming session can run. A streaming session
@@ -7040,6 +7666,7 @@ class Session {
     required this.userId,
     this.authenticationType,
     this.connectionState,
+    this.instanceId,
     this.maxExpirationTime,
     this.networkAccessConfiguration,
     this.startTime,
@@ -7050,12 +7677,13 @@ class Session {
       fleetName: json['FleetName'] as String,
       id: json['Id'] as String,
       stackName: json['StackName'] as String,
-      state: (json['State'] as String).toSessionState(),
+      state: SessionState.fromString((json['State'] as String)),
       userId: json['UserId'] as String,
-      authenticationType:
-          (json['AuthenticationType'] as String?)?.toAuthenticationType(),
-      connectionState:
-          (json['ConnectionState'] as String?)?.toSessionConnectionState(),
+      authenticationType: (json['AuthenticationType'] as String?)
+          ?.let(AuthenticationType.fromString),
+      connectionState: (json['ConnectionState'] as String?)
+          ?.let(SessionConnectionState.fromString),
+      instanceId: json['InstanceId'] as String?,
       maxExpirationTime: timeStampFromJson(json['MaxExpirationTime']),
       networkAccessConfiguration: json['NetworkAccessConfiguration'] != null
           ? NetworkAccessConfiguration.fromJson(
@@ -7067,65 +7695,35 @@ class Session {
 }
 
 enum SessionConnectionState {
-  connected,
-  notConnected,
-}
+  connected('CONNECTED'),
+  notConnected('NOT_CONNECTED'),
+  ;
 
-extension SessionConnectionStateValueExtension on SessionConnectionState {
-  String toValue() {
-    switch (this) {
-      case SessionConnectionState.connected:
-        return 'CONNECTED';
-      case SessionConnectionState.notConnected:
-        return 'NOT_CONNECTED';
-    }
-  }
-}
+  final String value;
 
-extension SessionConnectionStateFromString on String {
-  SessionConnectionState toSessionConnectionState() {
-    switch (this) {
-      case 'CONNECTED':
-        return SessionConnectionState.connected;
-      case 'NOT_CONNECTED':
-        return SessionConnectionState.notConnected;
-    }
-    throw Exception('$this is not known in enum SessionConnectionState');
-  }
+  const SessionConnectionState(this.value);
+
+  static SessionConnectionState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SessionConnectionState'));
 }
 
 /// Possible values for the state of a streaming session.
 enum SessionState {
-  active,
-  pending,
-  expired,
-}
+  active('ACTIVE'),
+  pending('PENDING'),
+  expired('EXPIRED'),
+  ;
 
-extension SessionStateValueExtension on SessionState {
-  String toValue() {
-    switch (this) {
-      case SessionState.active:
-        return 'ACTIVE';
-      case SessionState.pending:
-        return 'PENDING';
-      case SessionState.expired:
-        return 'EXPIRED';
-    }
-  }
-}
+  final String value;
 
-extension SessionStateFromString on String {
-  SessionState toSessionState() {
-    switch (this) {
-      case 'ACTIVE':
-        return SessionState.active;
-      case 'PENDING':
-        return SessionState.pending;
-      case 'EXPIRED':
-        return SessionState.expired;
-    }
-    throw Exception('$this is not known in enum SessionState');
-  }
+  const SessionState(this.value);
+
+  static SessionState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SessionState'));
 }
 
 /// Describes the permissions that are available to the specified AWS account
@@ -7222,7 +7820,7 @@ class Stack {
     return Stack(
       name: json['Name'] as String,
       accessEndpoints: (json['AccessEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AccessEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       applicationSettings: json['ApplicationSettings'] != null
@@ -7234,17 +7832,17 @@ class Stack {
       description: json['Description'] as String?,
       displayName: json['DisplayName'] as String?,
       embedHostDomains: (json['EmbedHostDomains'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       feedbackURL: json['FeedbackURL'] as String?,
       redirectURL: json['RedirectURL'] as String?,
       stackErrors: (json['StackErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StackError.fromJson(e as Map<String, dynamic>))
           .toList(),
       storageConnectors: (json['StorageConnectors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StorageConnector.fromJson(e as Map<String, dynamic>))
           .toList(),
       streamingExperienceSettings: json['StreamingExperienceSettings'] != null
@@ -7252,7 +7850,7 @@ class Stack {
               json['StreamingExperienceSettings'] as Map<String, dynamic>)
           : null,
       userSettings: (json['UserSettings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UserSetting.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7260,81 +7858,28 @@ class Stack {
 }
 
 enum StackAttribute {
-  storageConnectors,
-  storageConnectorHomefolders,
-  storageConnectorGoogleDrive,
-  storageConnectorOneDrive,
-  redirectUrl,
-  feedbackUrl,
-  themeName,
-  userSettings,
-  embedHostDomains,
-  iamRoleArn,
-  accessEndpoints,
-  streamingExperienceSettings,
-}
+  storageConnectors('STORAGE_CONNECTORS'),
+  storageConnectorHomefolders('STORAGE_CONNECTOR_HOMEFOLDERS'),
+  storageConnectorGoogleDrive('STORAGE_CONNECTOR_GOOGLE_DRIVE'),
+  storageConnectorOneDrive('STORAGE_CONNECTOR_ONE_DRIVE'),
+  redirectUrl('REDIRECT_URL'),
+  feedbackUrl('FEEDBACK_URL'),
+  themeName('THEME_NAME'),
+  userSettings('USER_SETTINGS'),
+  embedHostDomains('EMBED_HOST_DOMAINS'),
+  iamRoleArn('IAM_ROLE_ARN'),
+  accessEndpoints('ACCESS_ENDPOINTS'),
+  streamingExperienceSettings('STREAMING_EXPERIENCE_SETTINGS'),
+  ;
 
-extension StackAttributeValueExtension on StackAttribute {
-  String toValue() {
-    switch (this) {
-      case StackAttribute.storageConnectors:
-        return 'STORAGE_CONNECTORS';
-      case StackAttribute.storageConnectorHomefolders:
-        return 'STORAGE_CONNECTOR_HOMEFOLDERS';
-      case StackAttribute.storageConnectorGoogleDrive:
-        return 'STORAGE_CONNECTOR_GOOGLE_DRIVE';
-      case StackAttribute.storageConnectorOneDrive:
-        return 'STORAGE_CONNECTOR_ONE_DRIVE';
-      case StackAttribute.redirectUrl:
-        return 'REDIRECT_URL';
-      case StackAttribute.feedbackUrl:
-        return 'FEEDBACK_URL';
-      case StackAttribute.themeName:
-        return 'THEME_NAME';
-      case StackAttribute.userSettings:
-        return 'USER_SETTINGS';
-      case StackAttribute.embedHostDomains:
-        return 'EMBED_HOST_DOMAINS';
-      case StackAttribute.iamRoleArn:
-        return 'IAM_ROLE_ARN';
-      case StackAttribute.accessEndpoints:
-        return 'ACCESS_ENDPOINTS';
-      case StackAttribute.streamingExperienceSettings:
-        return 'STREAMING_EXPERIENCE_SETTINGS';
-    }
-  }
-}
+  final String value;
 
-extension StackAttributeFromString on String {
-  StackAttribute toStackAttribute() {
-    switch (this) {
-      case 'STORAGE_CONNECTORS':
-        return StackAttribute.storageConnectors;
-      case 'STORAGE_CONNECTOR_HOMEFOLDERS':
-        return StackAttribute.storageConnectorHomefolders;
-      case 'STORAGE_CONNECTOR_GOOGLE_DRIVE':
-        return StackAttribute.storageConnectorGoogleDrive;
-      case 'STORAGE_CONNECTOR_ONE_DRIVE':
-        return StackAttribute.storageConnectorOneDrive;
-      case 'REDIRECT_URL':
-        return StackAttribute.redirectUrl;
-      case 'FEEDBACK_URL':
-        return StackAttribute.feedbackUrl;
-      case 'THEME_NAME':
-        return StackAttribute.themeName;
-      case 'USER_SETTINGS':
-        return StackAttribute.userSettings;
-      case 'EMBED_HOST_DOMAINS':
-        return StackAttribute.embedHostDomains;
-      case 'IAM_ROLE_ARN':
-        return StackAttribute.iamRoleArn;
-      case 'ACCESS_ENDPOINTS':
-        return StackAttribute.accessEndpoints;
-      case 'STREAMING_EXPERIENCE_SETTINGS':
-        return StackAttribute.streamingExperienceSettings;
-    }
-    throw Exception('$this is not known in enum StackAttribute');
-  }
+  const StackAttribute(this.value);
+
+  static StackAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StackAttribute'));
 }
 
 /// Describes a stack error.
@@ -7352,37 +7897,41 @@ class StackError {
 
   factory StackError.fromJson(Map<String, dynamic> json) {
     return StackError(
-      errorCode: (json['ErrorCode'] as String?)?.toStackErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(StackErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
     );
   }
 }
 
 enum StackErrorCode {
-  storageConnectorError,
-  internalServiceError,
+  storageConnectorError('STORAGE_CONNECTOR_ERROR'),
+  internalServiceError('INTERNAL_SERVICE_ERROR'),
+  ;
+
+  final String value;
+
+  const StackErrorCode(this.value);
+
+  static StackErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StackErrorCode'));
 }
 
-extension StackErrorCodeValueExtension on StackErrorCode {
-  String toValue() {
-    switch (this) {
-      case StackErrorCode.storageConnectorError:
-        return 'STORAGE_CONNECTOR_ERROR';
-      case StackErrorCode.internalServiceError:
-        return 'INTERNAL_SERVICE_ERROR';
-    }
-  }
-}
+class StartAppBlockBuilderResult {
+  final AppBlockBuilder? appBlockBuilder;
 
-extension StackErrorCodeFromString on String {
-  StackErrorCode toStackErrorCode() {
-    switch (this) {
-      case 'STORAGE_CONNECTOR_ERROR':
-        return StackErrorCode.storageConnectorError;
-      case 'INTERNAL_SERVICE_ERROR':
-        return StackErrorCode.internalServiceError;
-    }
-    throw Exception('$this is not known in enum StackErrorCode');
+  StartAppBlockBuilderResult({
+    this.appBlockBuilder,
+  });
+
+  factory StartAppBlockBuilderResult.fromJson(Map<String, dynamic> json) {
+    return StartAppBlockBuilderResult(
+      appBlockBuilder: json['AppBlockBuilder'] != null
+          ? AppBlockBuilder.fromJson(
+              json['AppBlockBuilder'] as Map<String, dynamic>)
+          : null,
+    );
   }
 }
 
@@ -7406,6 +7955,23 @@ class StartImageBuilderResult {
     return StartImageBuilderResult(
       imageBuilder: json['ImageBuilder'] != null
           ? ImageBuilder.fromJson(json['ImageBuilder'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class StopAppBlockBuilderResult {
+  final AppBlockBuilder? appBlockBuilder;
+
+  StopAppBlockBuilderResult({
+    this.appBlockBuilder,
+  });
+
+  factory StopAppBlockBuilderResult.fromJson(Map<String, dynamic> json) {
+    return StopAppBlockBuilderResult(
+      appBlockBuilder: json['AppBlockBuilder'] != null
+          ? AppBlockBuilder.fromJson(
+              json['AppBlockBuilder'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -7455,11 +8021,10 @@ class StorageConnector {
 
   factory StorageConnector.fromJson(Map<String, dynamic> json) {
     return StorageConnector(
-      connectorType: (json['ConnectorType'] as String).toStorageConnectorType(),
-      domains: (json['Domains'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      connectorType:
+          StorageConnectorType.fromString((json['ConnectorType'] as String)),
+      domains:
+          (json['Domains'] as List?)?.nonNulls.map((e) => e as String).toList(),
       resourceIdentifier: json['ResourceIdentifier'] as String?,
     );
   }
@@ -7469,7 +8034,7 @@ class StorageConnector {
     final domains = this.domains;
     final resourceIdentifier = this.resourceIdentifier;
     return {
-      'ConnectorType': connectorType.toValue(),
+      'ConnectorType': connectorType.value,
       if (domains != null) 'Domains': domains,
       if (resourceIdentifier != null) 'ResourceIdentifier': resourceIdentifier,
     };
@@ -7478,64 +8043,33 @@ class StorageConnector {
 
 /// The type of storage connector.
 enum StorageConnectorType {
-  homefolders,
-  googleDrive,
-  oneDrive,
-}
+  homefolders('HOMEFOLDERS'),
+  googleDrive('GOOGLE_DRIVE'),
+  oneDrive('ONE_DRIVE'),
+  ;
 
-extension StorageConnectorTypeValueExtension on StorageConnectorType {
-  String toValue() {
-    switch (this) {
-      case StorageConnectorType.homefolders:
-        return 'HOMEFOLDERS';
-      case StorageConnectorType.googleDrive:
-        return 'GOOGLE_DRIVE';
-      case StorageConnectorType.oneDrive:
-        return 'ONE_DRIVE';
-    }
-  }
-}
+  final String value;
 
-extension StorageConnectorTypeFromString on String {
-  StorageConnectorType toStorageConnectorType() {
-    switch (this) {
-      case 'HOMEFOLDERS':
-        return StorageConnectorType.homefolders;
-      case 'GOOGLE_DRIVE':
-        return StorageConnectorType.googleDrive;
-      case 'ONE_DRIVE':
-        return StorageConnectorType.oneDrive;
-    }
-    throw Exception('$this is not known in enum StorageConnectorType');
-  }
+  const StorageConnectorType(this.value);
+
+  static StorageConnectorType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StorageConnectorType'));
 }
 
 enum StreamView {
-  app,
-  desktop,
-}
+  app('APP'),
+  desktop('DESKTOP'),
+  ;
 
-extension StreamViewValueExtension on StreamView {
-  String toValue() {
-    switch (this) {
-      case StreamView.app:
-        return 'APP';
-      case StreamView.desktop:
-        return 'DESKTOP';
-    }
-  }
-}
+  final String value;
 
-extension StreamViewFromString on String {
-  StreamView toStreamView() {
-    switch (this) {
-      case 'APP':
-        return StreamView.app;
-      case 'DESKTOP':
-        return StreamView.desktop;
-    }
-    throw Exception('$this is not known in enum StreamView');
-  }
+  const StreamView(this.value);
+
+  static StreamView fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StreamView'));
 }
 
 /// The streaming protocol you want your stack to prefer. This can be UDP or
@@ -7551,8 +8085,8 @@ class StreamingExperienceSettings {
 
   factory StreamingExperienceSettings.fromJson(Map<String, dynamic> json) {
     return StreamingExperienceSettings(
-      preferredProtocol:
-          (json['PreferredProtocol'] as String?)?.toPreferredProtocol(),
+      preferredProtocol: (json['PreferredProtocol'] as String?)
+          ?.let(PreferredProtocol.fromString),
     );
   }
 
@@ -7560,7 +8094,7 @@ class StreamingExperienceSettings {
     final preferredProtocol = this.preferredProtocol;
     return {
       if (preferredProtocol != null)
-        'PreferredProtocol': preferredProtocol.toValue(),
+        'PreferredProtocol': preferredProtocol.value,
     };
   }
 }
@@ -7578,6 +8112,23 @@ class UntagResourceResponse {
 
   factory UntagResourceResponse.fromJson(Map<String, dynamic> _) {
     return UntagResourceResponse();
+  }
+}
+
+class UpdateAppBlockBuilderResult {
+  final AppBlockBuilder? appBlockBuilder;
+
+  UpdateAppBlockBuilderResult({
+    this.appBlockBuilder,
+  });
+
+  factory UpdateAppBlockBuilderResult.fromJson(Map<String, dynamic> json) {
+    return UpdateAppBlockBuilderResult(
+      appBlockBuilder: json['AppBlockBuilder'] != null
+          ? AppBlockBuilder.fromJson(
+              json['AppBlockBuilder'] as Map<String, dynamic>)
+          : null,
+    );
   }
 }
 
@@ -7675,60 +8226,33 @@ class UpdateStackResult {
 }
 
 enum UsageReportExecutionErrorCode {
-  resourceNotFound,
-  accessDenied,
-  internalServiceError,
-}
+  resourceNotFound('RESOURCE_NOT_FOUND'),
+  accessDenied('ACCESS_DENIED'),
+  internalServiceError('INTERNAL_SERVICE_ERROR'),
+  ;
 
-extension UsageReportExecutionErrorCodeValueExtension
-    on UsageReportExecutionErrorCode {
-  String toValue() {
-    switch (this) {
-      case UsageReportExecutionErrorCode.resourceNotFound:
-        return 'RESOURCE_NOT_FOUND';
-      case UsageReportExecutionErrorCode.accessDenied:
-        return 'ACCESS_DENIED';
-      case UsageReportExecutionErrorCode.internalServiceError:
-        return 'INTERNAL_SERVICE_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension UsageReportExecutionErrorCodeFromString on String {
-  UsageReportExecutionErrorCode toUsageReportExecutionErrorCode() {
-    switch (this) {
-      case 'RESOURCE_NOT_FOUND':
-        return UsageReportExecutionErrorCode.resourceNotFound;
-      case 'ACCESS_DENIED':
-        return UsageReportExecutionErrorCode.accessDenied;
-      case 'INTERNAL_SERVICE_ERROR':
-        return UsageReportExecutionErrorCode.internalServiceError;
-    }
-    throw Exception('$this is not known in enum UsageReportExecutionErrorCode');
-  }
+  const UsageReportExecutionErrorCode(this.value);
+
+  static UsageReportExecutionErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum UsageReportExecutionErrorCode'));
 }
 
 enum UsageReportSchedule {
-  daily,
-}
+  daily('DAILY'),
+  ;
 
-extension UsageReportScheduleValueExtension on UsageReportSchedule {
-  String toValue() {
-    switch (this) {
-      case UsageReportSchedule.daily:
-        return 'DAILY';
-    }
-  }
-}
+  final String value;
 
-extension UsageReportScheduleFromString on String {
-  UsageReportSchedule toUsageReportSchedule() {
-    switch (this) {
-      case 'DAILY':
-        return UsageReportSchedule.daily;
-    }
-    throw Exception('$this is not known in enum UsageReportSchedule');
-  }
+  const UsageReportSchedule(this.value);
+
+  static UsageReportSchedule fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum UsageReportSchedule'));
 }
 
 /// Describes information about the usage report subscription.
@@ -7765,9 +8289,10 @@ class UsageReportSubscription {
       lastGeneratedReportDate:
           timeStampFromJson(json['LastGeneratedReportDate']),
       s3BucketName: json['S3BucketName'] as String?,
-      schedule: (json['Schedule'] as String?)?.toUsageReportSchedule(),
+      schedule:
+          (json['Schedule'] as String?)?.let(UsageReportSchedule.fromString),
       subscriptionErrors: (json['SubscriptionErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LastReportGenerationExecutionError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7837,7 +8362,7 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       authenticationType:
-          (json['AuthenticationType'] as String).toAuthenticationType(),
+          AuthenticationType.fromString((json['AuthenticationType'] as String)),
       arn: json['Arn'] as String?,
       createdTime: timeStampFromJson(json['CreatedTime']),
       enabled: json['Enabled'] as bool?,
@@ -7858,24 +8383,46 @@ class UserSetting {
   /// Indicates whether the action is enabled or disabled.
   final Permission permission;
 
+  /// Specifies the number of characters that can be copied by end users from the
+  /// local device to the remote session, and to the local device from the remote
+  /// session.
+  ///
+  /// This can be specified only for the
+  /// <code>CLIPBOARD_COPY_FROM_LOCAL_DEVICE</code> and
+  /// <code>CLIPBOARD_COPY_TO_LOCAL_DEVICE</code> actions.
+  ///
+  /// This defaults to 20,971,520 (20 MB) when unspecified and the permission is
+  /// <code>ENABLED</code>. This can't be specified when the permission is
+  /// <code>DISABLED</code>.
+  ///
+  /// This can only be specified for AlwaysOn and OnDemand fleets. The attribute
+  /// is not supported on Elastic fleets.
+  ///
+  /// The value can be between 1 and 20,971,520 (20 MB).
+  final int? maximumLength;
+
   UserSetting({
     required this.action,
     required this.permission,
+    this.maximumLength,
   });
 
   factory UserSetting.fromJson(Map<String, dynamic> json) {
     return UserSetting(
-      action: (json['Action'] as String).toAction(),
-      permission: (json['Permission'] as String).toPermission(),
+      action: Action.fromString((json['Action'] as String)),
+      permission: Permission.fromString((json['Permission'] as String)),
+      maximumLength: json['MaximumLength'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final action = this.action;
     final permission = this.permission;
+    final maximumLength = this.maximumLength;
     return {
-      'Action': action.toValue(),
-      'Permission': permission.toValue(),
+      'Action': action.value,
+      'Permission': permission.value,
+      if (maximumLength != null) 'MaximumLength': maximumLength,
     };
   }
 }
@@ -7908,7 +8455,7 @@ class UserStackAssociation {
   factory UserStackAssociation.fromJson(Map<String, dynamic> json) {
     return UserStackAssociation(
       authenticationType:
-          (json['AuthenticationType'] as String).toAuthenticationType(),
+          AuthenticationType.fromString((json['AuthenticationType'] as String)),
       stackName: json['StackName'] as String,
       userName: json['UserName'] as String,
       sendEmailNotification: json['SendEmailNotification'] as bool?,
@@ -7921,7 +8468,7 @@ class UserStackAssociation {
     final userName = this.userName;
     final sendEmailNotification = this.sendEmailNotification;
     return {
-      'AuthenticationType': authenticationType.toValue(),
+      'AuthenticationType': authenticationType.value,
       'StackName': stackName,
       'UserName': userName,
       if (sendEmailNotification != null)
@@ -7952,8 +8499,8 @@ class UserStackAssociationError {
 
   factory UserStackAssociationError.fromJson(Map<String, dynamic> json) {
     return UserStackAssociationError(
-      errorCode:
-          (json['ErrorCode'] as String?)?.toUserStackAssociationErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)
+          ?.let(UserStackAssociationErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       userStackAssociation: json['UserStackAssociation'] != null
           ? UserStackAssociation.fromJson(
@@ -7964,75 +8511,36 @@ class UserStackAssociationError {
 }
 
 enum UserStackAssociationErrorCode {
-  stackNotFound,
-  userNameNotFound,
-  directoryNotFound,
-  internalError,
-}
+  stackNotFound('STACK_NOT_FOUND'),
+  userNameNotFound('USER_NAME_NOT_FOUND'),
+  directoryNotFound('DIRECTORY_NOT_FOUND'),
+  internalError('INTERNAL_ERROR'),
+  ;
 
-extension UserStackAssociationErrorCodeValueExtension
-    on UserStackAssociationErrorCode {
-  String toValue() {
-    switch (this) {
-      case UserStackAssociationErrorCode.stackNotFound:
-        return 'STACK_NOT_FOUND';
-      case UserStackAssociationErrorCode.userNameNotFound:
-        return 'USER_NAME_NOT_FOUND';
-      case UserStackAssociationErrorCode.directoryNotFound:
-        return 'DIRECTORY_NOT_FOUND';
-      case UserStackAssociationErrorCode.internalError:
-        return 'INTERNAL_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension UserStackAssociationErrorCodeFromString on String {
-  UserStackAssociationErrorCode toUserStackAssociationErrorCode() {
-    switch (this) {
-      case 'STACK_NOT_FOUND':
-        return UserStackAssociationErrorCode.stackNotFound;
-      case 'USER_NAME_NOT_FOUND':
-        return UserStackAssociationErrorCode.userNameNotFound;
-      case 'DIRECTORY_NOT_FOUND':
-        return UserStackAssociationErrorCode.directoryNotFound;
-      case 'INTERNAL_ERROR':
-        return UserStackAssociationErrorCode.internalError;
-    }
-    throw Exception('$this is not known in enum UserStackAssociationErrorCode');
-  }
+  const UserStackAssociationErrorCode(this.value);
+
+  static UserStackAssociationErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum UserStackAssociationErrorCode'));
 }
 
 enum VisibilityType {
-  public,
-  private,
-  shared,
-}
+  public('PUBLIC'),
+  private('PRIVATE'),
+  shared('SHARED'),
+  ;
 
-extension VisibilityTypeValueExtension on VisibilityType {
-  String toValue() {
-    switch (this) {
-      case VisibilityType.public:
-        return 'PUBLIC';
-      case VisibilityType.private:
-        return 'PRIVATE';
-      case VisibilityType.shared:
-        return 'SHARED';
-    }
-  }
-}
+  final String value;
 
-extension VisibilityTypeFromString on String {
-  VisibilityType toVisibilityType() {
-    switch (this) {
-      case 'PUBLIC':
-        return VisibilityType.public;
-      case 'PRIVATE':
-        return VisibilityType.private;
-      case 'SHARED':
-        return VisibilityType.shared;
-    }
-    throw Exception('$this is not known in enum VisibilityType');
-  }
+  const VisibilityType(this.value);
+
+  static VisibilityType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VisibilityType'));
 }
 
 /// Describes VPC configuration information for fleets and image builders.
@@ -8053,11 +8561,11 @@ class VpcConfig {
   factory VpcConfig.fromJson(Map<String, dynamic> json) {
     return VpcConfig(
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );

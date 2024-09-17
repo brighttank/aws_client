@@ -52,9 +52,9 @@ class Kinesis {
   /// Adds or updates tags for the specified Kinesis data stream. You can assign
   /// up to 50 tags to a data stream.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// If tags have already been assigned to the stream,
   /// <code>AddTagsToStream</code> overwrites any existing tags that correspond
@@ -210,9 +210,9 @@ class Kinesis {
   /// of time data records are accessible after they are added to the stream.
   /// The minimum value of a stream's retention period is 24 hours.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// This operation may result in lost data. For example, if the stream's
   /// retention period is 48 hours and is decreased to 24 hours, any data
@@ -256,14 +256,54 @@ class Kinesis {
     );
   }
 
+  /// Delete a policy for the specified data stream or consumer. Request
+  /// patterns can be one of the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// Data stream pattern: <code>arn:aws.*:kinesis:.*:\d{12}:.*stream/\S+</code>
+  /// </li>
+  /// <li>
+  /// Consumer pattern:
+  /// <code>^(arn):aws.*:kinesis:.*:\d{12}:.*stream\/[a-zA-Z0-9_.-]+\/consumer\/[a-zA-Z0-9_.-]+:[0-9]+</code>
+  /// </li>
+  /// </ul>
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [LimitExceededException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [ResourceInUseException].
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon Resource Name (ARN) of the data stream or consumer.
+  Future<void> deleteResourcePolicy({
+    required String resourceARN,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Kinesis_20131202.DeleteResourcePolicy'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+      },
+    );
+  }
+
   /// Deletes a Kinesis data stream and all its shards and data. You must shut
   /// down any applications that are operating on the stream before you delete
   /// the stream. If an application attempts to operate on a deleted stream, it
   /// receives the exception <code>ResourceNotFoundException</code>.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// If the stream is in the <code>ACTIVE</code> state, you can delete it.
   /// After a <code>DeleteStream</code> request, the specified stream is in the
@@ -409,9 +449,9 @@ class Kinesis {
   /// specified Kinesis data stream and the <a>ListShards</a> API to list the
   /// shards in a specified data stream and obtain information about each shard.
   /// </note> <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// The information returned includes the stream name, Amazon Resource Name
   /// (ARN), creation time, enhanced metric configuration, and shard map. The
@@ -503,6 +543,10 @@ class Kinesis {
   /// registered with a given data stream.
   ///
   /// This operation has a limit of 20 transactions per second per stream.
+  /// <note>
+  /// When making a cross-account call with <code>DescribeStreamConsumer</code>,
+  /// make sure to provide the ARN of the consumer.
+  /// </note>
   ///
   /// May throw [LimitExceededException].
   /// May throw [ResourceNotFoundException].
@@ -547,9 +591,9 @@ class Kinesis {
   /// Provides a summarized description of the specified Kinesis data stream
   /// without the shard list.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// The information returned includes the stream name, Amazon Resource Name
   /// (ARN), status, record retention period, approximate creation time,
@@ -593,9 +637,9 @@ class Kinesis {
 
   /// Disables enhanced monitoring.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   ///
   /// May throw [InvalidArgumentException].
@@ -663,7 +707,7 @@ class Kinesis {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ShardLevelMetrics': shardLevelMetrics.map((e) => e.toValue()).toList(),
+        'ShardLevelMetrics': shardLevelMetrics.map((e) => e.value).toList(),
         if (streamARN != null) 'StreamARN': streamARN,
         if (streamName != null) 'StreamName': streamName,
       },
@@ -674,9 +718,9 @@ class Kinesis {
 
   /// Enables enhanced Kinesis data stream monitoring for shard-level metrics.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   ///
   /// May throw [InvalidArgumentException].
@@ -743,7 +787,7 @@ class Kinesis {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ShardLevelMetrics': shardLevelMetrics.map((e) => e.toValue()).toList(),
+        'ShardLevelMetrics': shardLevelMetrics.map((e) => e.value).toList(),
         if (streamARN != null) 'StreamARN': streamARN,
         if (streamName != null) 'StreamName': streamName,
       },
@@ -754,9 +798,9 @@ class Kinesis {
 
   /// Gets data records from a Kinesis data stream's shard.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter in addition to the
-  /// <code>ShardIterator</code> parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// Specify a shard iterator using the <code>ShardIterator</code> parameter.
   /// The shard iterator specifies the position in the shard from which you want
@@ -879,12 +923,53 @@ class Kinesis {
     return GetRecordsOutput.fromJson(jsonResponse.body);
   }
 
+  /// Returns a policy attached to the specified data stream or consumer.
+  /// Request patterns can be one of the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// Data stream pattern: <code>arn:aws.*:kinesis:.*:\d{12}:.*stream/\S+</code>
+  /// </li>
+  /// <li>
+  /// Consumer pattern:
+  /// <code>^(arn):aws.*:kinesis:.*:\d{12}:.*stream\/[a-zA-Z0-9_.-]+\/consumer\/[a-zA-Z0-9_.-]+:[0-9]+</code>
+  /// </li>
+  /// </ul>
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [LimitExceededException].
+  /// May throw [InvalidArgumentException].
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon Resource Name (ARN) of the data stream or consumer.
+  Future<GetResourcePolicyOutput> getResourcePolicy({
+    required String resourceARN,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Kinesis_20131202.GetResourcePolicy'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+      },
+    );
+
+    return GetResourcePolicyOutput.fromJson(jsonResponse.body);
+  }
+
   /// Gets an Amazon Kinesis shard iterator. A shard iterator expires 5 minutes
   /// after it is returned to the requester.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// A shard iterator specifies the shard position from which to start reading
   /// data records sequentially. The position is specified using the sequence
@@ -1008,7 +1093,7 @@ class Kinesis {
       headers: headers,
       payload: {
         'ShardId': shardId,
-        'ShardIteratorType': shardIteratorType.toValue(),
+        'ShardIteratorType': shardIteratorType.value,
         if (startingSequenceNumber != null)
           'StartingSequenceNumber': startingSequenceNumber,
         if (streamARN != null) 'StreamARN': streamARN,
@@ -1024,9 +1109,9 @@ class Kinesis {
   /// of time data records are accessible after they are added to the stream.
   /// The maximum value of a stream's retention period is 8760 hours (365 days).
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// If you choose a longer stream retention period, this operation increases
   /// the time period during which records that have not yet expired are
@@ -1078,9 +1163,9 @@ class Kinesis {
   /// This operation has a limit of 1000 transactions per second per data
   /// stream.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// This action does not list expired shards. For information about expired
   /// shards, see <a
@@ -1402,9 +1487,9 @@ class Kinesis {
   /// Lists the tags for the specified Kinesis data stream. This operation has a
   /// limit of five transactions per second per account.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   ///
   /// May throw [ResourceNotFoundException].
@@ -1473,9 +1558,9 @@ class Kinesis {
   /// 276...454. After the merge, the single child shard receives data for all
   /// hash key values covered by the two parent shards.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// <code>MergeShards</code> is called when there is a need to reduce the
   /// overall capacity of a stream because of excess capacity that is not being
@@ -1563,9 +1648,9 @@ class Kinesis {
   /// support writes up to 1,000 records per second, up to a maximum data write
   /// total of 1 MiB per second.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// You must specify the name of the stream that captures, stores, and
   /// transports the data; a partition key; and the data blob itself.
@@ -1695,9 +1780,9 @@ class Kinesis {
   /// (also referred to as a <code>PutRecords</code> request). Use this
   /// operation to send data into the stream for data ingestion and processing.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// Each <code>PutRecords</code> request can support up to 500 records. Each
   /// record in the request can be as large as 1 MiB, up to a limit of 5 MiB for
@@ -1821,6 +1906,65 @@ class Kinesis {
     return PutRecordsOutput.fromJson(jsonResponse.body);
   }
 
+  /// Attaches a resource-based policy to a data stream or registered consumer.
+  /// If you are using an identity other than the root user of the Amazon Web
+  /// Services account that owns the resource, the calling identity must have
+  /// the <code>PutResourcePolicy</code> permissions on the specified Kinesis
+  /// Data Streams resource and belong to the owner's account in order to use
+  /// this operation. If you don't have <code>PutResourcePolicy</code>
+  /// permissions, Amazon Kinesis Data Streams returns a <code>403 Access Denied
+  /// error</code>. If you receive a <code>ResourceNotFoundException</code>,
+  /// check to see if you passed a valid stream or consumer resource.
+  ///
+  /// Request patterns can be one of the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// Data stream pattern: <code>arn:aws.*:kinesis:.*:\d{12}:.*stream/\S+</code>
+  /// </li>
+  /// <li>
+  /// Consumer pattern:
+  /// <code>^(arn):aws.*:kinesis:.*:\d{12}:.*stream\/[a-zA-Z0-9_.-]+\/consumer\/[a-zA-Z0-9_.-]+:[0-9]+</code>
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/streams/latest/dev/controlling-access.html">Controlling
+  /// Access to Amazon Kinesis Data Streams Resources Using IAM</a>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [LimitExceededException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [ResourceInUseException].
+  ///
+  /// Parameter [policy] :
+  /// Details of the resource policy. It must include the identity of the
+  /// principal and the actions allowed on this resource. This is formatted as a
+  /// JSON string.
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon Resource Name (ARN) of the data stream or consumer.
+  Future<void> putResourcePolicy({
+    required String policy,
+    required String resourceARN,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Kinesis_20131202.PutResourcePolicy'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Policy': policy,
+        'ResourceARN': resourceARN,
+      },
+    );
+  }
+
   /// Registers a consumer with a Kinesis data stream. When you use this
   /// operation, the consumer you register can then call <a>SubscribeToShard</a>
   /// to receive data from the stream using enhanced fan-out, at a rate of up to
@@ -1882,9 +2026,9 @@ class Kinesis {
   /// deleted and cannot be recovered after this operation successfully
   /// completes.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// If you specify a tag that does not exist, it is ignored.
   ///
@@ -1935,9 +2079,9 @@ class Kinesis {
   /// of data records being ingested. This API is only supported for the data
   /// streams with the provisioned capacity mode.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// You can also use <code>SplitShard</code> when a shard appears to be
   /// approaching its maximum utilization; for example, the producers sending
@@ -2041,7 +2185,11 @@ class Kinesis {
 
   /// Enables or updates server-side encryption using an Amazon Web Services KMS
   /// key for a specified stream.
-  ///
+  /// <note>
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
+  /// </note>
   /// Starting encryption is an asynchronous operation. Upon receiving the
   /// request, Kinesis Data Streams returns immediately and sets the status of
   /// the stream to <code>UPDATING</code>. After the update is complete, Kinesis
@@ -2060,11 +2208,6 @@ class Kinesis {
   /// encrypted. After you enable encryption, you can verify that encryption is
   /// applied by inspecting the API response from <code>PutRecord</code> or
   /// <code>PutRecords</code>.
-  /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
-  /// </note>
   ///
   /// May throw [InvalidArgumentException].
   /// May throw [LimitExceededException].
@@ -2131,7 +2274,7 @@ class Kinesis {
       // TODO queryParams
       headers: headers,
       payload: {
-        'EncryptionType': encryptionType.toValue(),
+        'EncryptionType': encryptionType.value,
         'KeyId': keyId,
         if (streamARN != null) 'StreamARN': streamARN,
         if (streamName != null) 'StreamName': streamName,
@@ -2141,9 +2284,9 @@ class Kinesis {
 
   /// Disables server-side encryption for a specified stream.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// Stopping encryption is an asynchronous operation. Upon receiving the
   /// request, Kinesis Data Streams returns immediately and sets the status of
@@ -2223,7 +2366,7 @@ class Kinesis {
       // TODO queryParams
       headers: headers,
       payload: {
-        'EncryptionType': encryptionType.toValue(),
+        'EncryptionType': encryptionType.value,
         'KeyId': keyId,
         if (streamARN != null) 'StreamARN': streamARN,
         if (streamName != null) 'StreamName': streamName,
@@ -2235,9 +2378,9 @@ class Kinesis {
   /// shards. This API is only supported for the data streams with the
   /// provisioned capacity mode.
   /// <note>
-  /// When invoking this API, it is recommended you use the
-  /// <code>StreamARN</code> input parameter rather than the
-  /// <code>StreamName</code> input parameter.
+  /// When invoking this API, you must use either the <code>StreamARN</code> or
+  /// the <code>StreamName</code> parameter, or both. It is recommended that you
+  /// use the <code>StreamARN</code> input parameter when you invoke this API.
   /// </note>
   /// Updating the shard count is an asynchronous operation. Upon receiving the
   /// request, Kinesis Data Streams returns immediately and sets the status of
@@ -2280,6 +2423,9 @@ class Kinesis {
   /// </li>
   /// <li>
   /// Scale up to more than the shard limit for your account
+  /// </li>
+  /// <li>
+  /// Make over 10 TPS. TPS over 10 will trigger the LimitExceededException
   /// </li>
   /// </ul>
   /// For the default limits for an Amazon Web Services account, see <a
@@ -2351,7 +2497,7 @@ class Kinesis {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ScalingType': scalingType.toValue(),
+        'ScalingType': scalingType.value,
         'TargetShardCount': targetShardCount,
         if (streamARN != null) 'StreamARN': streamARN,
         if (streamName != null) 'StreamName': streamName,
@@ -2423,7 +2569,7 @@ class ChildShard {
       hashKeyRange:
           HashKeyRange.fromJson(json['HashKeyRange'] as Map<String, dynamic>),
       parentShards: (json['ParentShards'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       shardId: json['ShardId'] as String,
@@ -2478,7 +2624,8 @@ class Consumer {
       consumerCreationTimestamp: nonNullableTimeStampFromJson(
           json['ConsumerCreationTimestamp'] as Object),
       consumerName: json['ConsumerName'] as String,
-      consumerStatus: (json['ConsumerStatus'] as String).toConsumerStatus(),
+      consumerStatus:
+          ConsumerStatus.fromString((json['ConsumerStatus'] as String)),
     );
   }
 
@@ -2492,7 +2639,7 @@ class Consumer {
       'ConsumerCreationTimestamp':
           unixTimestampToJson(consumerCreationTimestamp),
       'ConsumerName': consumerName,
-      'ConsumerStatus': consumerStatus.toValue(),
+      'ConsumerStatus': consumerStatus.value,
     };
   }
 }
@@ -2537,7 +2684,8 @@ class ConsumerDescription {
       consumerCreationTimestamp: nonNullableTimeStampFromJson(
           json['ConsumerCreationTimestamp'] as Object),
       consumerName: json['ConsumerName'] as String,
-      consumerStatus: (json['ConsumerStatus'] as String).toConsumerStatus(),
+      consumerStatus:
+          ConsumerStatus.fromString((json['ConsumerStatus'] as String)),
       streamARN: json['StreamARN'] as String,
     );
   }
@@ -2553,43 +2701,26 @@ class ConsumerDescription {
       'ConsumerCreationTimestamp':
           unixTimestampToJson(consumerCreationTimestamp),
       'ConsumerName': consumerName,
-      'ConsumerStatus': consumerStatus.toValue(),
+      'ConsumerStatus': consumerStatus.value,
       'StreamARN': streamARN,
     };
   }
 }
 
 enum ConsumerStatus {
-  creating,
-  deleting,
-  active,
-}
+  creating('CREATING'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  ;
 
-extension ConsumerStatusValueExtension on ConsumerStatus {
-  String toValue() {
-    switch (this) {
-      case ConsumerStatus.creating:
-        return 'CREATING';
-      case ConsumerStatus.deleting:
-        return 'DELETING';
-      case ConsumerStatus.active:
-        return 'ACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension ConsumerStatusFromString on String {
-  ConsumerStatus toConsumerStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ConsumerStatus.creating;
-      case 'DELETING':
-        return ConsumerStatus.deleting;
-      case 'ACTIVE':
-        return ConsumerStatus.active;
-    }
-    throw Exception('$this is not known in enum ConsumerStatus');
-  }
+  const ConsumerStatus(this.value);
+
+  static ConsumerStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConsumerStatus'));
 }
 
 class DescribeLimitsOutput {
@@ -2708,31 +2839,18 @@ class DescribeStreamSummaryOutput {
 }
 
 enum EncryptionType {
-  none,
-  kms,
-}
+  none('NONE'),
+  kms('KMS'),
+  ;
 
-extension EncryptionTypeValueExtension on EncryptionType {
-  String toValue() {
-    switch (this) {
-      case EncryptionType.none:
-        return 'NONE';
-      case EncryptionType.kms:
-        return 'KMS';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionTypeFromString on String {
-  EncryptionType toEncryptionType() {
-    switch (this) {
-      case 'NONE':
-        return EncryptionType.none;
-      case 'KMS':
-        return EncryptionType.kms;
-    }
-    throw Exception('$this is not known in enum EncryptionType');
-  }
+  const EncryptionType(this.value);
+
+  static EncryptionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionType'));
 }
 
 /// Represents enhanced metrics types.
@@ -2781,8 +2899,8 @@ class EnhancedMetrics {
   factory EnhancedMetrics.fromJson(Map<String, dynamic> json) {
     return EnhancedMetrics(
       shardLevelMetrics: (json['ShardLevelMetrics'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toMetricsName())
+          ?.nonNulls
+          .map((e) => MetricsName.fromString((e as String)))
           .toList(),
     );
   }
@@ -2791,7 +2909,7 @@ class EnhancedMetrics {
     final shardLevelMetrics = this.shardLevelMetrics;
     return {
       if (shardLevelMetrics != null)
-        'ShardLevelMetrics': shardLevelMetrics.map((e) => e.toValue()).toList(),
+        'ShardLevelMetrics': shardLevelMetrics.map((e) => e.value).toList(),
     };
   }
 }
@@ -2823,12 +2941,12 @@ class EnhancedMonitoringOutput {
   factory EnhancedMonitoringOutput.fromJson(Map<String, dynamic> json) {
     return EnhancedMonitoringOutput(
       currentShardLevelMetrics: (json['CurrentShardLevelMetrics'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toMetricsName())
+          ?.nonNulls
+          .map((e) => MetricsName.fromString((e as String)))
           .toList(),
       desiredShardLevelMetrics: (json['DesiredShardLevelMetrics'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toMetricsName())
+          ?.nonNulls
+          .map((e) => MetricsName.fromString((e as String)))
           .toList(),
       streamARN: json['StreamARN'] as String?,
       streamName: json['StreamName'] as String?,
@@ -2843,10 +2961,10 @@ class EnhancedMonitoringOutput {
     return {
       if (currentShardLevelMetrics != null)
         'CurrentShardLevelMetrics':
-            currentShardLevelMetrics.map((e) => e.toValue()).toList(),
+            currentShardLevelMetrics.map((e) => e.value).toList(),
       if (desiredShardLevelMetrics != null)
         'DesiredShardLevelMetrics':
-            desiredShardLevelMetrics.map((e) => e.toValue()).toList(),
+            desiredShardLevelMetrics.map((e) => e.value).toList(),
       if (streamARN != null) 'StreamARN': streamARN,
       if (streamName != null) 'StreamName': streamName,
     };
@@ -2884,11 +3002,11 @@ class GetRecordsOutput {
   factory GetRecordsOutput.fromJson(Map<String, dynamic> json) {
     return GetRecordsOutput(
       records: (json['Records'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Record.fromJson(e as Map<String, dynamic>))
           .toList(),
       childShards: (json['ChildShards'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChildShard.fromJson(e as Map<String, dynamic>))
           .toList(),
       millisBehindLatest: json['MillisBehindLatest'] as int?,
@@ -2906,6 +3024,28 @@ class GetRecordsOutput {
       if (childShards != null) 'ChildShards': childShards,
       if (millisBehindLatest != null) 'MillisBehindLatest': millisBehindLatest,
       if (nextShardIterator != null) 'NextShardIterator': nextShardIterator,
+    };
+  }
+}
+
+class GetResourcePolicyOutput {
+  /// Details of the resource policy. This is formatted as a JSON string.
+  final String policy;
+
+  GetResourcePolicyOutput({
+    required this.policy,
+  });
+
+  factory GetResourcePolicyOutput.fromJson(Map<String, dynamic> json) {
+    return GetResourcePolicyOutput(
+      policy: json['Policy'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final policy = this.policy;
+    return {
+      'Policy': policy,
     };
   }
 }
@@ -2999,7 +3139,7 @@ class ListShardsOutput {
     return ListShardsOutput(
       nextToken: json['NextToken'] as String?,
       shards: (json['Shards'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Shard.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3046,7 +3186,7 @@ class ListStreamConsumersOutput {
   factory ListStreamConsumersOutput.fromJson(Map<String, dynamic> json) {
     return ListStreamConsumersOutput(
       consumers: (json['Consumers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Consumer.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3089,12 +3229,12 @@ class ListStreamsOutput {
     return ListStreamsOutput(
       hasMoreStreams: json['HasMoreStreams'] as bool,
       streamNames: (json['StreamNames'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
       streamSummaries: (json['StreamSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StreamSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3135,7 +3275,7 @@ class ListTagsForStreamOutput {
     return ListTagsForStreamOutput(
       hasMoreTags: json['HasMoreTags'] as bool,
       tags: (json['Tags'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3152,61 +3292,23 @@ class ListTagsForStreamOutput {
 }
 
 enum MetricsName {
-  incomingBytes,
-  incomingRecords,
-  outgoingBytes,
-  outgoingRecords,
-  writeProvisionedThroughputExceeded,
-  readProvisionedThroughputExceeded,
-  iteratorAgeMilliseconds,
-  all,
-}
+  incomingBytes('IncomingBytes'),
+  incomingRecords('IncomingRecords'),
+  outgoingBytes('OutgoingBytes'),
+  outgoingRecords('OutgoingRecords'),
+  writeProvisionedThroughputExceeded('WriteProvisionedThroughputExceeded'),
+  readProvisionedThroughputExceeded('ReadProvisionedThroughputExceeded'),
+  iteratorAgeMilliseconds('IteratorAgeMilliseconds'),
+  all('ALL'),
+  ;
 
-extension MetricsNameValueExtension on MetricsName {
-  String toValue() {
-    switch (this) {
-      case MetricsName.incomingBytes:
-        return 'IncomingBytes';
-      case MetricsName.incomingRecords:
-        return 'IncomingRecords';
-      case MetricsName.outgoingBytes:
-        return 'OutgoingBytes';
-      case MetricsName.outgoingRecords:
-        return 'OutgoingRecords';
-      case MetricsName.writeProvisionedThroughputExceeded:
-        return 'WriteProvisionedThroughputExceeded';
-      case MetricsName.readProvisionedThroughputExceeded:
-        return 'ReadProvisionedThroughputExceeded';
-      case MetricsName.iteratorAgeMilliseconds:
-        return 'IteratorAgeMilliseconds';
-      case MetricsName.all:
-        return 'ALL';
-    }
-  }
-}
+  final String value;
 
-extension MetricsNameFromString on String {
-  MetricsName toMetricsName() {
-    switch (this) {
-      case 'IncomingBytes':
-        return MetricsName.incomingBytes;
-      case 'IncomingRecords':
-        return MetricsName.incomingRecords;
-      case 'OutgoingBytes':
-        return MetricsName.outgoingBytes;
-      case 'OutgoingRecords':
-        return MetricsName.outgoingRecords;
-      case 'WriteProvisionedThroughputExceeded':
-        return MetricsName.writeProvisionedThroughputExceeded;
-      case 'ReadProvisionedThroughputExceeded':
-        return MetricsName.readProvisionedThroughputExceeded;
-      case 'IteratorAgeMilliseconds':
-        return MetricsName.iteratorAgeMilliseconds;
-      case 'ALL':
-        return MetricsName.all;
-    }
-    throw Exception('$this is not known in enum MetricsName');
-  }
+  const MetricsName(this.value);
+
+  static MetricsName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MetricsName'));
 }
 
 /// Represents the output for <code>PutRecord</code>.
@@ -3244,7 +3346,8 @@ class PutRecordOutput {
     return PutRecordOutput(
       sequenceNumber: json['SequenceNumber'] as String,
       shardId: json['ShardId'] as String,
-      encryptionType: (json['EncryptionType'] as String?)?.toEncryptionType(),
+      encryptionType:
+          (json['EncryptionType'] as String?)?.let(EncryptionType.fromString),
     );
   }
 
@@ -3255,7 +3358,7 @@ class PutRecordOutput {
     return {
       'SequenceNumber': sequenceNumber,
       'ShardId': shardId,
-      if (encryptionType != null) 'EncryptionType': encryptionType.toValue(),
+      if (encryptionType != null) 'EncryptionType': encryptionType.value,
     };
   }
 }
@@ -3296,10 +3399,11 @@ class PutRecordsOutput {
   factory PutRecordsOutput.fromJson(Map<String, dynamic> json) {
     return PutRecordsOutput(
       records: (json['Records'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => PutRecordsResultEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
-      encryptionType: (json['EncryptionType'] as String?)?.toEncryptionType(),
+      encryptionType:
+          (json['EncryptionType'] as String?)?.let(EncryptionType.fromString),
       failedRecordCount: json['FailedRecordCount'] as int?,
     );
   }
@@ -3310,7 +3414,7 @@ class PutRecordsOutput {
     final failedRecordCount = this.failedRecordCount;
     return {
       'Records': records,
-      if (encryptionType != null) 'EncryptionType': encryptionType.toValue(),
+      if (encryptionType != null) 'EncryptionType': encryptionType.value,
       if (failedRecordCount != null) 'FailedRecordCount': failedRecordCount,
     };
   }
@@ -3458,7 +3562,8 @@ class Record {
       sequenceNumber: json['SequenceNumber'] as String,
       approximateArrivalTimestamp:
           timeStampFromJson(json['ApproximateArrivalTimestamp']),
-      encryptionType: (json['EncryptionType'] as String?)?.toEncryptionType(),
+      encryptionType:
+          (json['EncryptionType'] as String?)?.let(EncryptionType.fromString),
     );
   }
 
@@ -3475,7 +3580,7 @@ class Record {
       if (approximateArrivalTimestamp != null)
         'ApproximateArrivalTimestamp':
             unixTimestampToJson(approximateArrivalTimestamp),
-      if (encryptionType != null) 'EncryptionType': encryptionType.toValue(),
+      if (encryptionType != null) 'EncryptionType': encryptionType.value,
     };
   }
 }
@@ -3505,26 +3610,16 @@ class RegisterStreamConsumerOutput {
 }
 
 enum ScalingType {
-  uniformScaling,
-}
+  uniformScaling('UNIFORM_SCALING'),
+  ;
 
-extension ScalingTypeValueExtension on ScalingType {
-  String toValue() {
-    switch (this) {
-      case ScalingType.uniformScaling:
-        return 'UNIFORM_SCALING';
-    }
-  }
-}
+  final String value;
 
-extension ScalingTypeFromString on String {
-  ScalingType toScalingType() {
-    switch (this) {
-      case 'UNIFORM_SCALING':
-        return ScalingType.uniformScaling;
-    }
-    throw Exception('$this is not known in enum ScalingType');
-  }
+  const ScalingType(this.value);
+
+  static ScalingType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ScalingType'));
 }
 
 /// The range of possible sequence numbers for the shard.
@@ -3678,7 +3773,7 @@ class ShardFilter {
     final shardId = this.shardId;
     final timestamp = this.timestamp;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (shardId != null) 'ShardId': shardId,
       if (timestamp != null) 'Timestamp': unixTimestampToJson(timestamp),
     };
@@ -3686,94 +3781,40 @@ class ShardFilter {
 }
 
 enum ShardFilterType {
-  afterShardId,
-  atTrimHorizon,
-  fromTrimHorizon,
-  atLatest,
-  atTimestamp,
-  fromTimestamp,
-}
+  afterShardId('AFTER_SHARD_ID'),
+  atTrimHorizon('AT_TRIM_HORIZON'),
+  fromTrimHorizon('FROM_TRIM_HORIZON'),
+  atLatest('AT_LATEST'),
+  atTimestamp('AT_TIMESTAMP'),
+  fromTimestamp('FROM_TIMESTAMP'),
+  ;
 
-extension ShardFilterTypeValueExtension on ShardFilterType {
-  String toValue() {
-    switch (this) {
-      case ShardFilterType.afterShardId:
-        return 'AFTER_SHARD_ID';
-      case ShardFilterType.atTrimHorizon:
-        return 'AT_TRIM_HORIZON';
-      case ShardFilterType.fromTrimHorizon:
-        return 'FROM_TRIM_HORIZON';
-      case ShardFilterType.atLatest:
-        return 'AT_LATEST';
-      case ShardFilterType.atTimestamp:
-        return 'AT_TIMESTAMP';
-      case ShardFilterType.fromTimestamp:
-        return 'FROM_TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension ShardFilterTypeFromString on String {
-  ShardFilterType toShardFilterType() {
-    switch (this) {
-      case 'AFTER_SHARD_ID':
-        return ShardFilterType.afterShardId;
-      case 'AT_TRIM_HORIZON':
-        return ShardFilterType.atTrimHorizon;
-      case 'FROM_TRIM_HORIZON':
-        return ShardFilterType.fromTrimHorizon;
-      case 'AT_LATEST':
-        return ShardFilterType.atLatest;
-      case 'AT_TIMESTAMP':
-        return ShardFilterType.atTimestamp;
-      case 'FROM_TIMESTAMP':
-        return ShardFilterType.fromTimestamp;
-    }
-    throw Exception('$this is not known in enum ShardFilterType');
-  }
+  const ShardFilterType(this.value);
+
+  static ShardFilterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ShardFilterType'));
 }
 
 enum ShardIteratorType {
-  atSequenceNumber,
-  afterSequenceNumber,
-  trimHorizon,
-  latest,
-  atTimestamp,
-}
+  atSequenceNumber('AT_SEQUENCE_NUMBER'),
+  afterSequenceNumber('AFTER_SEQUENCE_NUMBER'),
+  trimHorizon('TRIM_HORIZON'),
+  latest('LATEST'),
+  atTimestamp('AT_TIMESTAMP'),
+  ;
 
-extension ShardIteratorTypeValueExtension on ShardIteratorType {
-  String toValue() {
-    switch (this) {
-      case ShardIteratorType.atSequenceNumber:
-        return 'AT_SEQUENCE_NUMBER';
-      case ShardIteratorType.afterSequenceNumber:
-        return 'AFTER_SEQUENCE_NUMBER';
-      case ShardIteratorType.trimHorizon:
-        return 'TRIM_HORIZON';
-      case ShardIteratorType.latest:
-        return 'LATEST';
-      case ShardIteratorType.atTimestamp:
-        return 'AT_TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension ShardIteratorTypeFromString on String {
-  ShardIteratorType toShardIteratorType() {
-    switch (this) {
-      case 'AT_SEQUENCE_NUMBER':
-        return ShardIteratorType.atSequenceNumber;
-      case 'AFTER_SEQUENCE_NUMBER':
-        return ShardIteratorType.afterSequenceNumber;
-      case 'TRIM_HORIZON':
-        return ShardIteratorType.trimHorizon;
-      case 'LATEST':
-        return ShardIteratorType.latest;
-      case 'AT_TIMESTAMP':
-        return ShardIteratorType.atTimestamp;
-    }
-    throw Exception('$this is not known in enum ShardIteratorType');
-  }
+  const ShardIteratorType(this.value);
+
+  static ShardIteratorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ShardIteratorType'));
 }
 
 /// Represents the output for <a>DescribeStream</a>.
@@ -3893,21 +3934,22 @@ class StreamDescription {
   factory StreamDescription.fromJson(Map<String, dynamic> json) {
     return StreamDescription(
       enhancedMonitoring: (json['EnhancedMonitoring'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => EnhancedMetrics.fromJson(e as Map<String, dynamic>))
           .toList(),
       hasMoreShards: json['HasMoreShards'] as bool,
       retentionPeriodHours: json['RetentionPeriodHours'] as int,
       shards: (json['Shards'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Shard.fromJson(e as Map<String, dynamic>))
           .toList(),
       streamARN: json['StreamARN'] as String,
       streamCreationTimestamp: nonNullableTimeStampFromJson(
           json['StreamCreationTimestamp'] as Object),
       streamName: json['StreamName'] as String,
-      streamStatus: (json['StreamStatus'] as String).toStreamStatus(),
-      encryptionType: (json['EncryptionType'] as String?)?.toEncryptionType(),
+      streamStatus: StreamStatus.fromString((json['StreamStatus'] as String)),
+      encryptionType:
+          (json['EncryptionType'] as String?)?.let(EncryptionType.fromString),
       keyId: json['KeyId'] as String?,
       streamModeDetails: json['StreamModeDetails'] != null
           ? StreamModeDetails.fromJson(
@@ -3936,8 +3978,8 @@ class StreamDescription {
       'StreamARN': streamARN,
       'StreamCreationTimestamp': unixTimestampToJson(streamCreationTimestamp),
       'StreamName': streamName,
-      'StreamStatus': streamStatus.toValue(),
-      if (encryptionType != null) 'EncryptionType': encryptionType.toValue(),
+      'StreamStatus': streamStatus.value,
+      if (encryptionType != null) 'EncryptionType': encryptionType.value,
       if (keyId != null) 'KeyId': keyId,
       if (streamModeDetails != null) 'StreamModeDetails': streamModeDetails,
     };
@@ -4057,7 +4099,7 @@ class StreamDescriptionSummary {
   factory StreamDescriptionSummary.fromJson(Map<String, dynamic> json) {
     return StreamDescriptionSummary(
       enhancedMonitoring: (json['EnhancedMonitoring'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => EnhancedMetrics.fromJson(e as Map<String, dynamic>))
           .toList(),
       openShardCount: json['OpenShardCount'] as int,
@@ -4066,9 +4108,10 @@ class StreamDescriptionSummary {
       streamCreationTimestamp: nonNullableTimeStampFromJson(
           json['StreamCreationTimestamp'] as Object),
       streamName: json['StreamName'] as String,
-      streamStatus: (json['StreamStatus'] as String).toStreamStatus(),
+      streamStatus: StreamStatus.fromString((json['StreamStatus'] as String)),
       consumerCount: json['ConsumerCount'] as int?,
-      encryptionType: (json['EncryptionType'] as String?)?.toEncryptionType(),
+      encryptionType:
+          (json['EncryptionType'] as String?)?.let(EncryptionType.fromString),
       keyId: json['KeyId'] as String?,
       streamModeDetails: json['StreamModeDetails'] != null
           ? StreamModeDetails.fromJson(
@@ -4096,9 +4139,9 @@ class StreamDescriptionSummary {
       'StreamARN': streamARN,
       'StreamCreationTimestamp': unixTimestampToJson(streamCreationTimestamp),
       'StreamName': streamName,
-      'StreamStatus': streamStatus.toValue(),
+      'StreamStatus': streamStatus.value,
       if (consumerCount != null) 'ConsumerCount': consumerCount,
-      if (encryptionType != null) 'EncryptionType': encryptionType.toValue(),
+      if (encryptionType != null) 'EncryptionType': encryptionType.value,
       if (keyId != null) 'KeyId': keyId,
       if (streamModeDetails != null) 'StreamModeDetails': streamModeDetails,
     };
@@ -4106,31 +4149,17 @@ class StreamDescriptionSummary {
 }
 
 enum StreamMode {
-  provisioned,
-  onDemand,
-}
+  provisioned('PROVISIONED'),
+  onDemand('ON_DEMAND'),
+  ;
 
-extension StreamModeValueExtension on StreamMode {
-  String toValue() {
-    switch (this) {
-      case StreamMode.provisioned:
-        return 'PROVISIONED';
-      case StreamMode.onDemand:
-        return 'ON_DEMAND';
-    }
-  }
-}
+  final String value;
 
-extension StreamModeFromString on String {
-  StreamMode toStreamMode() {
-    switch (this) {
-      case 'PROVISIONED':
-        return StreamMode.provisioned;
-      case 'ON_DEMAND':
-        return StreamMode.onDemand;
-    }
-    throw Exception('$this is not known in enum StreamMode');
-  }
+  const StreamMode(this.value);
+
+  static StreamMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StreamMode'));
 }
 
 /// Specifies the capacity mode to which you want to set your data stream.
@@ -4150,54 +4179,33 @@ class StreamModeDetails {
 
   factory StreamModeDetails.fromJson(Map<String, dynamic> json) {
     return StreamModeDetails(
-      streamMode: (json['StreamMode'] as String).toStreamMode(),
+      streamMode: StreamMode.fromString((json['StreamMode'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final streamMode = this.streamMode;
     return {
-      'StreamMode': streamMode.toValue(),
+      'StreamMode': streamMode.value,
     };
   }
 }
 
 enum StreamStatus {
-  creating,
-  deleting,
-  active,
-  updating,
-}
+  creating('CREATING'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  updating('UPDATING'),
+  ;
 
-extension StreamStatusValueExtension on StreamStatus {
-  String toValue() {
-    switch (this) {
-      case StreamStatus.creating:
-        return 'CREATING';
-      case StreamStatus.deleting:
-        return 'DELETING';
-      case StreamStatus.active:
-        return 'ACTIVE';
-      case StreamStatus.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension StreamStatusFromString on String {
-  StreamStatus toStreamStatus() {
-    switch (this) {
-      case 'CREATING':
-        return StreamStatus.creating;
-      case 'DELETING':
-        return StreamStatus.deleting;
-      case 'ACTIVE':
-        return StreamStatus.active;
-      case 'UPDATING':
-        return StreamStatus.updating;
-    }
-    throw Exception('$this is not known in enum StreamStatus');
-  }
+  const StreamStatus(this.value);
+
+  static StreamStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StreamStatus'));
 }
 
 /// The summary of a stream.
@@ -4227,7 +4235,7 @@ class StreamSummary {
     return StreamSummary(
       streamARN: json['StreamARN'] as String,
       streamName: json['StreamName'] as String,
-      streamStatus: (json['StreamStatus'] as String).toStreamStatus(),
+      streamStatus: StreamStatus.fromString((json['StreamStatus'] as String)),
       streamCreationTimestamp:
           timeStampFromJson(json['StreamCreationTimestamp']),
       streamModeDetails: json['StreamModeDetails'] != null
@@ -4246,7 +4254,7 @@ class StreamSummary {
     return {
       'StreamARN': streamARN,
       'StreamName': streamName,
-      'StreamStatus': streamStatus.toValue(),
+      'StreamStatus': streamStatus.value,
       if (streamCreationTimestamp != null)
         'StreamCreationTimestamp': unixTimestampToJson(streamCreationTimestamp),
       if (streamModeDetails != null) 'StreamModeDetails': streamModeDetails,

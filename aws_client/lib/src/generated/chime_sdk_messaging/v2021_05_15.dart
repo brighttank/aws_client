@@ -19,10 +19,10 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// The Amazon Chime SDK Messaging APIs in this section allow software
+/// The Amazon Chime SDK messaging APIs in this section allow software
 /// developers to send and receive messages in custom messaging applications.
 /// These APIs depend on the frameworks provided by the Amazon Chime SDK
-/// Identity APIs. For more information about the messaging APIs, see <a
+/// identity APIs. For more information about the messaging APIs, see <a
 /// href="https://docs.aws.amazon.com/chime/latest/APIReference/API_Operations_Amazon_Chime_SDK_Messaging.html">Amazon
 /// Chime SDK messaging</a>.
 class ChimeSdkMessaging {
@@ -151,7 +151,7 @@ class ChimeSdkMessaging {
     final $payload = <String, dynamic>{
       'MemberArns': memberArns,
       if (subChannelId != null) 'SubChannelId': subChannelId,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -164,8 +164,8 @@ class ChimeSdkMessaging {
     return BatchCreateChannelMembershipResponse.fromJson(response);
   }
 
-  /// Calls back Chime SDK Messaging with a processing response message. This
-  /// should be invoked from the processor Lambda. This is a developer API.
+  /// Calls back Amazon Chime SDK messaging with a processing response message.
+  /// This should be invoked from the processor Lambda. This is a developer API.
   ///
   /// You can return one of the following processing responses:
   ///
@@ -316,9 +316,9 @@ class ChimeSdkMessaging {
       if (expirationSettings != null) 'ExpirationSettings': expirationSettings,
       if (memberArns != null) 'MemberArns': memberArns,
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (moderatorArns != null) 'ModeratorArns': moderatorArns,
-      if (privacy != null) 'Privacy': privacy.toValue(),
+      if (privacy != null) 'Privacy': privacy.value,
       if (tags != null) 'Tags': tags,
     };
     final response = await _protocol.send(
@@ -402,7 +402,7 @@ class ChimeSdkMessaging {
   /// The Standard message type
   /// </li> </ol> <note>
   /// Channel flows don't process Control or System messages. For more
-  /// information about the message types provided by Chime SDK Messaging, refer
+  /// information about the message types provided by Chime SDK messaging, refer
   /// to <a
   /// href="https://docs.aws.amazon.com/chime/latest/dg/using-the-messaging-sdk.html#msg-types">Message
   /// types</a> in the <i>Amazon Chime developer guide</i>.
@@ -538,7 +538,7 @@ class ChimeSdkMessaging {
     };
     final $payload = <String, dynamic>{
       'MemberArn': memberArn,
-      'Type': type.toValue(),
+      'Type': type.value,
       if (subChannelId != null) 'SubChannelId': subChannelId,
     };
     final response = await _protocol.send(
@@ -1248,7 +1248,7 @@ class ChimeSdkMessaging {
 
   /// Gets the membership preferences of an <code>AppInstanceUser</code> or
   /// <code>AppInstanceBot</code> for the specified channel. A user or a bot
-  /// must be a member of the channel and own the membership to be able to
+  /// must be a member of the channel and own the membership in order to
   /// retrieve membership preferences. Users or bots in the
   /// <code>AppInstanceAdmin</code> and channel moderator roles can't retrieve
   /// preferences for other users or bots. Banned users or bots can't retrieve
@@ -1365,7 +1365,7 @@ class ChimeSdkMessaging {
   /// </dd> <dt>FAILED</dt> <dd>
   /// Processing failed
   /// </dd> <dt>DENIED</dt> <dd>
-  /// Messasge denied by the processor
+  /// Message denied by the processor
   /// </dd> </dl> <note>
   /// <ul>
   /// <li>
@@ -1643,7 +1643,7 @@ class ChimeSdkMessaging {
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
       if (subChannelId != null) 'sub-channel-id': [subChannelId],
-      if (type != null) 'type': [type.toValue()],
+      if (type != null) 'type': [type.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -1656,7 +1656,7 @@ class ChimeSdkMessaging {
     return ListChannelMembershipsResponse.fromJson(response);
   }
 
-  /// Lists all channels that anr <code>AppInstanceUser</code> or
+  /// Lists all channels that an <code>AppInstanceUser</code> or
   /// <code>AppInstanceBot</code> is a part of. Only an
   /// <code>AppInstanceAdmin</code> can call the API with a user ARN that is not
   /// their own.
@@ -1795,7 +1795,7 @@ class ChimeSdkMessaging {
         'not-after': [_s.iso8601ToJson(notAfter).toString()],
       if (notBefore != null)
         'not-before': [_s.iso8601ToJson(notBefore).toString()],
-      if (sortOrder != null) 'sort-order': [sortOrder.toValue()],
+      if (sortOrder != null) 'sort-order': [sortOrder.value],
       if (subChannelId != null) 'sub-channel-id': [subChannelId],
     };
     final response = await _protocol.send(
@@ -1930,7 +1930,7 @@ class ChimeSdkMessaging {
       'app-instance-arn': [appInstanceArn],
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
-      if (privacy != null) 'privacy': [privacy.toValue()],
+      if (privacy != null) 'privacy': [privacy.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -2188,12 +2188,12 @@ class ChimeSdkMessaging {
   }
 
   /// Sets the membership preferences of an <code>AppInstanceUser</code> or
-  /// <code>AppIntanceBot</code> for the specified channel. The user or bot must
-  /// be a member of the channel. Only the user or bot who owns the membership
-  /// can set preferences. Users or bots in the <code>AppInstanceAdmin</code>
-  /// and channel moderator roles can't set preferences for other users or
-  /// users. Banned users or bots can't set membership preferences for the
-  /// channel from which they are banned.
+  /// <code>AppInstanceBot</code> for the specified channel. The user or bot
+  /// must be a member of the channel. Only the user or bot who owns the
+  /// membership can set preferences. Users or bots in the
+  /// <code>AppInstanceAdmin</code> and channel moderator roles can't set
+  /// preferences for other users. Banned users or bots can't set membership
+  /// preferences for the channel from which they are banned.
   /// <note>
   /// The x-amz-chime-bearer request header is mandatory. Use the ARN of an
   /// <code>AppInstanceUser</code> or <code>AppInstanceBot</code> that makes the
@@ -2398,9 +2398,12 @@ class ChimeSdkMessaging {
   /// ARN of the <code>AppInstanceUser</code> or <code>AppInstanceBot</code>
   /// that makes the API call as the value in the header.
   ///
-  /// Also, <code>STANDARD</code> messages can contain 4KB of data and the 1KB
-  /// of metadata. <code>CONTROL</code> messages can contain 30 bytes of data
-  /// and no metadata.
+  /// Also, <code>STANDARD</code> messages can be up to 4KB in size and contain
+  /// metadata. Metadata is arbitrary, and you can use it in a variety of ways,
+  /// such as containing a link to an attachment.
+  ///
+  /// <code>CONTROL</code> messages are limited to 30 bytes and do not contain
+  /// metadata.
   /// </note>
   ///
   /// May throw [BadRequestException].
@@ -2419,7 +2422,7 @@ class ChimeSdkMessaging {
   /// that makes the API call.
   ///
   /// Parameter [content] :
-  /// The content of the message.
+  /// The content of the channel message.
   ///
   /// Parameter [persistence] :
   /// Boolean that controls whether the message is persisted on the back end.
@@ -2427,6 +2430,13 @@ class ChimeSdkMessaging {
   ///
   /// Parameter [type] :
   /// The type of message, <code>STANDARD</code> or <code>CONTROL</code>.
+  ///
+  /// <code>STANDARD</code> messages can be up to 4KB in size and contain
+  /// metadata. Metadata is arbitrary, and you can use it in a variety of ways,
+  /// such as containing a link to an attachment.
+  ///
+  /// <code>CONTROL</code> messages are limited to 30 bytes and do not contain
+  /// metadata.
   ///
   /// Parameter [clientRequestToken] :
   /// The <code>Idempotency</code> token for each client request.
@@ -2447,6 +2457,13 @@ class ChimeSdkMessaging {
   ///
   /// Parameter [subChannelId] :
   /// The ID of the SubChannel in the request.
+  ///
+  /// Parameter [target] :
+  /// The target of a message. Must be a member of the channel, such as another
+  /// user, a bot, or the sender. Only the target and the sender can view
+  /// targeted messages. Only users who can see targeted messages can take
+  /// actions on them. However, administrators can delete targeted messages that
+  /// they can’t see.
   Future<SendChannelMessageResponse> sendChannelMessage({
     required String channelArn,
     required String chimeBearer,
@@ -2459,20 +2476,22 @@ class ChimeSdkMessaging {
     String? metadata,
     PushNotificationConfiguration? pushNotification,
     String? subChannelId,
+    List<Target>? target,
   }) async {
     final headers = <String, String>{
       'x-amz-chime-bearer': chimeBearer.toString(),
     };
     final $payload = <String, dynamic>{
       'Content': content,
-      'Persistence': persistence.toValue(),
-      'Type': type.toValue(),
+      'Persistence': persistence.value,
+      'Type': type.value,
       'ClientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (contentType != null) 'ContentType': contentType,
       if (messageAttributes != null) 'MessageAttributes': messageAttributes,
       if (metadata != null) 'Metadata': metadata,
       if (pushNotification != null) 'PushNotification': pushNotification,
       if (subChannelId != null) 'SubChannelId': subChannelId,
+      if (target != null) 'Target': target,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2591,7 +2610,7 @@ class ChimeSdkMessaging {
     };
     final $payload = <String, dynamic>{
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (name != null) 'Name': name,
     };
     final response = await _protocol.send(
@@ -2663,7 +2682,7 @@ class ChimeSdkMessaging {
   /// that makes the API call.
   ///
   /// Parameter [content] :
-  /// The content of the message being updated.
+  /// The content of the channel message.
   ///
   /// Parameter [messageId] :
   /// The ID string of the message being updated.
@@ -2749,36 +2768,19 @@ class ChimeSdkMessaging {
 }
 
 enum AllowNotifications {
-  all,
-  none,
-  filtered,
-}
+  all('ALL'),
+  none('NONE'),
+  filtered('FILTERED'),
+  ;
 
-extension AllowNotificationsValueExtension on AllowNotifications {
-  String toValue() {
-    switch (this) {
-      case AllowNotifications.all:
-        return 'ALL';
-      case AllowNotifications.none:
-        return 'NONE';
-      case AllowNotifications.filtered:
-        return 'FILTERED';
-    }
-  }
-}
+  final String value;
 
-extension AllowNotificationsFromString on String {
-  AllowNotifications toAllowNotifications() {
-    switch (this) {
-      case 'ALL':
-        return AllowNotifications.all;
-      case 'NONE':
-        return AllowNotifications.none;
-      case 'FILTERED':
-        return AllowNotifications.filtered;
-    }
-    throw Exception('$this is not known in enum AllowNotifications');
-  }
+  const AllowNotifications(this.value);
+
+  static AllowNotifications fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AllowNotifications'));
 }
 
 /// Summary of the membership details of an <code>AppInstanceUser</code>.
@@ -2804,7 +2806,7 @@ class AppInstanceUserMembershipSummary {
     return AppInstanceUserMembershipSummary(
       readMarkerTimestamp: timeStampFromJson(json['ReadMarkerTimestamp']),
       subChannelId: json['SubChannelId'] as String?,
-      type: (json['Type'] as String?)?.toChannelMembershipType(),
+      type: (json['Type'] as String?)?.let(ChannelMembershipType.fromString),
     );
   }
 
@@ -2816,7 +2818,7 @@ class AppInstanceUserMembershipSummary {
       if (readMarkerTimestamp != null)
         'ReadMarkerTimestamp': unixTimestampToJson(readMarkerTimestamp),
       if (subChannelId != null) 'SubChannelId': subChannelId,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -2854,11 +2856,11 @@ class BatchChannelMemberships {
           ? Identity.fromJson(json['InvitedBy'] as Map<String, dynamic>)
           : null,
       members: (json['Members'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Identity.fromJson(e as Map<String, dynamic>))
           .toList(),
       subChannelId: json['SubChannelId'] as String?,
-      type: (json['Type'] as String?)?.toChannelMembershipType(),
+      type: (json['Type'] as String?)?.let(ChannelMembershipType.fromString),
     );
   }
 
@@ -2873,7 +2875,7 @@ class BatchChannelMemberships {
       if (invitedBy != null) 'InvitedBy': invitedBy,
       if (members != null) 'Members': members,
       if (subChannelId != null) 'SubChannelId': subChannelId,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -2899,7 +2901,7 @@ class BatchCreateChannelMembershipError {
   factory BatchCreateChannelMembershipError.fromJson(
       Map<String, dynamic> json) {
     return BatchCreateChannelMembershipError(
-      errorCode: (json['ErrorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       memberArn: json['MemberArn'] as String?,
     );
@@ -2910,7 +2912,7 @@ class BatchCreateChannelMembershipError {
     final errorMessage = this.errorMessage;
     final memberArn = this.memberArn;
     return {
-      if (errorCode != null) 'ErrorCode': errorCode.toValue(),
+      if (errorCode != null) 'ErrorCode': errorCode.value,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (memberArn != null) 'MemberArn': memberArn,
     };
@@ -2939,7 +2941,7 @@ class BatchCreateChannelMembershipResponse {
               json['BatchChannelMemberships'] as Map<String, dynamic>)
           : null,
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchCreateChannelMembershipError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3030,9 +3032,9 @@ class Channel {
       lastMessageTimestamp: timeStampFromJson(json['LastMessageTimestamp']),
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       metadata: json['Metadata'] as String?,
-      mode: (json['Mode'] as String?)?.toChannelMode(),
+      mode: (json['Mode'] as String?)?.let(ChannelMode.fromString),
       name: json['Name'] as String?,
-      privacy: (json['Privacy'] as String?)?.toChannelPrivacy(),
+      privacy: (json['Privacy'] as String?)?.let(ChannelPrivacy.fromString),
     );
   }
 
@@ -3063,9 +3065,9 @@ class Channel {
       if (lastUpdatedTimestamp != null)
         'LastUpdatedTimestamp': unixTimestampToJson(lastUpdatedTimestamp),
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (name != null) 'Name': name,
-      if (privacy != null) 'Privacy': privacy.toValue(),
+      if (privacy != null) 'Privacy': privacy.value,
     };
   }
 }
@@ -3099,9 +3101,9 @@ class ChannelAssociatedWithFlowSummary {
     return ChannelAssociatedWithFlowSummary(
       channelArn: json['ChannelArn'] as String?,
       metadata: json['Metadata'] as String?,
-      mode: (json['Mode'] as String?)?.toChannelMode(),
+      mode: (json['Mode'] as String?)?.let(ChannelMode.fromString),
       name: json['Name'] as String?,
-      privacy: (json['Privacy'] as String?)?.toChannelPrivacy(),
+      privacy: (json['Privacy'] as String?)?.let(ChannelPrivacy.fromString),
     );
   }
 
@@ -3114,9 +3116,9 @@ class ChannelAssociatedWithFlowSummary {
     return {
       if (channelArn != null) 'ChannelArn': channelArn,
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (name != null) 'Name': name,
-      if (privacy != null) 'Privacy': privacy.toValue(),
+      if (privacy != null) 'Privacy': privacy.value,
     };
   }
 }
@@ -3227,7 +3229,7 @@ class ChannelFlow {
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       name: json['Name'] as String?,
       processors: (json['Processors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Processor.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3302,7 +3304,7 @@ class ChannelFlowSummary {
       channelFlowArn: json['ChannelFlowArn'] as String?,
       name: json['Name'] as String?,
       processors: (json['Processors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Processor.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3365,7 +3367,7 @@ class ChannelMembership {
           ? Identity.fromJson(json['Member'] as Map<String, dynamic>)
           : null,
       subChannelId: json['SubChannelId'] as String?,
-      type: (json['Type'] as String?)?.toChannelMembershipType(),
+      type: (json['Type'] as String?)?.let(ChannelMembershipType.fromString),
     );
   }
 
@@ -3386,7 +3388,7 @@ class ChannelMembership {
         'LastUpdatedTimestamp': unixTimestampToJson(lastUpdatedTimestamp),
       if (member != null) 'Member': member,
       if (subChannelId != null) 'SubChannelId': subChannelId,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -3485,31 +3487,18 @@ class ChannelMembershipSummary {
 }
 
 enum ChannelMembershipType {
-  $default,
-  hidden,
-}
+  $default('DEFAULT'),
+  hidden('HIDDEN'),
+  ;
 
-extension ChannelMembershipTypeValueExtension on ChannelMembershipType {
-  String toValue() {
-    switch (this) {
-      case ChannelMembershipType.$default:
-        return 'DEFAULT';
-      case ChannelMembershipType.hidden:
-        return 'HIDDEN';
-    }
-  }
-}
+  final String value;
 
-extension ChannelMembershipTypeFromString on String {
-  ChannelMembershipType toChannelMembershipType() {
-    switch (this) {
-      case 'DEFAULT':
-        return ChannelMembershipType.$default;
-      case 'HIDDEN':
-        return ChannelMembershipType.hidden;
-    }
-    throw Exception('$this is not known in enum ChannelMembershipType');
-  }
+  const ChannelMembershipType(this.value);
+
+  static ChannelMembershipType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ChannelMembershipType'));
 }
 
 /// The details of a message in a channel.
@@ -3517,10 +3506,21 @@ class ChannelMessage {
   /// The ARN of the channel.
   final String? channelArn;
 
-  /// The message content.
+  /// The content of the channel message. For Amazon Lex V2 bot responses, this
+  /// field holds a list of messages originating from the bot. For more
+  /// information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final String? content;
 
-  /// The content type of the channel message.
+  /// The content type of the channel message. For Amazon Lex V2 bot responses,
+  /// the content type is <code>application/amz-chime-lex-msgs</code> for success
+  /// responses and <code>application/amz-chime-lex-error</code> for failure
+  /// responses. For more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final String? contentType;
 
   /// The time at which the message was created.
@@ -3532,9 +3532,12 @@ class ChannelMessage {
   /// The time at which a message was updated.
   final DateTime? lastUpdatedTimestamp;
 
-  /// The attributes for the message, used for message filtering along with a
-  /// <code>FilterRule</code> defined in the
-  /// <code>PushNotificationPreferences</code>.
+  /// The attributes for the channel message. For Amazon Lex V2 bot responses, the
+  /// attributes are mapped to specific fields from the bot. For more information,
+  /// refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final Map<String, MessageAttributeValue>? messageAttributes;
 
   /// The ID of a message.
@@ -3558,6 +3561,12 @@ class ChannelMessage {
   /// The ID of the SubChannel.
   final String? subChannelId;
 
+  /// The target of a message, a sender, a user, or a bot. Only the target and the
+  /// sender can view targeted messages. Only users who can see targeted messages
+  /// can take actions on them. However, administrators can delete targeted
+  /// messages that they can’t see.
+  final List<Target>? target;
+
   /// The message type.
   final ChannelMessageType? type;
 
@@ -3576,6 +3585,7 @@ class ChannelMessage {
     this.sender,
     this.status,
     this.subChannelId,
+    this.target,
     this.type,
   });
 
@@ -3592,8 +3602,8 @@ class ChannelMessage {
               k, MessageAttributeValue.fromJson(e as Map<String, dynamic>))),
       messageId: json['MessageId'] as String?,
       metadata: json['Metadata'] as String?,
-      persistence:
-          (json['Persistence'] as String?)?.toChannelMessagePersistenceType(),
+      persistence: (json['Persistence'] as String?)
+          ?.let(ChannelMessagePersistenceType.fromString),
       redacted: json['Redacted'] as bool?,
       sender: json['Sender'] != null
           ? Identity.fromJson(json['Sender'] as Map<String, dynamic>)
@@ -3603,7 +3613,11 @@ class ChannelMessage {
               json['Status'] as Map<String, dynamic>)
           : null,
       subChannelId: json['SubChannelId'] as String?,
-      type: (json['Type'] as String?)?.toChannelMessageType(),
+      target: (json['Target'] as List?)
+          ?.nonNulls
+          .map((e) => Target.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      type: (json['Type'] as String?)?.let(ChannelMessageType.fromString),
     );
   }
 
@@ -3622,6 +3636,7 @@ class ChannelMessage {
     final sender = this.sender;
     final status = this.status;
     final subChannelId = this.subChannelId;
+    final target = this.target;
     final type = this.type;
     return {
       if (channelArn != null) 'ChannelArn': channelArn,
@@ -3636,12 +3651,13 @@ class ChannelMessage {
       if (messageAttributes != null) 'MessageAttributes': messageAttributes,
       if (messageId != null) 'MessageId': messageId,
       if (metadata != null) 'Metadata': metadata,
-      if (persistence != null) 'Persistence': persistence.toValue(),
+      if (persistence != null) 'Persistence': persistence.value,
       if (redacted != null) 'Redacted': redacted,
       if (sender != null) 'Sender': sender,
       if (status != null) 'Status': status,
       if (subChannelId != null) 'SubChannelId': subChannelId,
-      if (type != null) 'Type': type.toValue(),
+      if (target != null) 'Target': target,
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -3651,15 +3667,28 @@ class ChannelMessageCallback {
   /// The message ID.
   final String messageId;
 
-  /// The message content.
+  /// The message content. For Amazon Lex V2 bot responses, this field holds a
+  /// list of messages originating from the bot. For more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final String? content;
 
-  /// The content type of the call-back message.
+  /// The content type of the call-back message. For Amazon Lex V2 bot responses,
+  /// the content type is <code>application/amz-chime-lex-msgs</code> for success
+  /// responses and <code>application/amz-chime-lex-error</code> for failure
+  /// responses. For more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final String? contentType;
 
-  /// The attributes for the message, used for message filtering along with a
-  /// <code>FilterRule</code> defined in the
-  /// <code>PushNotificationPreferences</code>.
+  /// The attributes for the channel message. For Amazon Lex V2 bot responses, the
+  /// attributes are mapped to specific fields from the bot. For more information,
+  /// refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final Map<String, MessageAttributeValue>? messageAttributes;
 
   /// The message metadata.
@@ -3702,75 +3731,40 @@ class ChannelMessageCallback {
 }
 
 enum ChannelMessagePersistenceType {
-  persistent,
-  nonPersistent,
-}
+  persistent('PERSISTENT'),
+  nonPersistent('NON_PERSISTENT'),
+  ;
 
-extension ChannelMessagePersistenceTypeValueExtension
-    on ChannelMessagePersistenceType {
-  String toValue() {
-    switch (this) {
-      case ChannelMessagePersistenceType.persistent:
-        return 'PERSISTENT';
-      case ChannelMessagePersistenceType.nonPersistent:
-        return 'NON_PERSISTENT';
-    }
-  }
-}
+  final String value;
 
-extension ChannelMessagePersistenceTypeFromString on String {
-  ChannelMessagePersistenceType toChannelMessagePersistenceType() {
-    switch (this) {
-      case 'PERSISTENT':
-        return ChannelMessagePersistenceType.persistent;
-      case 'NON_PERSISTENT':
-        return ChannelMessagePersistenceType.nonPersistent;
-    }
-    throw Exception('$this is not known in enum ChannelMessagePersistenceType');
-  }
+  const ChannelMessagePersistenceType(this.value);
+
+  static ChannelMessagePersistenceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ChannelMessagePersistenceType'));
 }
 
 enum ChannelMessageStatus {
-  sent,
-  pending,
-  failed,
-  denied,
-}
+  sent('SENT'),
+  pending('PENDING'),
+  failed('FAILED'),
+  denied('DENIED'),
+  ;
 
-extension ChannelMessageStatusValueExtension on ChannelMessageStatus {
-  String toValue() {
-    switch (this) {
-      case ChannelMessageStatus.sent:
-        return 'SENT';
-      case ChannelMessageStatus.pending:
-        return 'PENDING';
-      case ChannelMessageStatus.failed:
-        return 'FAILED';
-      case ChannelMessageStatus.denied:
-        return 'DENIED';
-    }
-  }
-}
+  final String value;
 
-extension ChannelMessageStatusFromString on String {
-  ChannelMessageStatus toChannelMessageStatus() {
-    switch (this) {
-      case 'SENT':
-        return ChannelMessageStatus.sent;
-      case 'PENDING':
-        return ChannelMessageStatus.pending;
-      case 'FAILED':
-        return ChannelMessageStatus.failed;
-      case 'DENIED':
-        return ChannelMessageStatus.denied;
-    }
-    throw Exception('$this is not known in enum ChannelMessageStatus');
-  }
+  const ChannelMessageStatus(this.value);
+
+  static ChannelMessageStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ChannelMessageStatus'));
 }
 
 /// Stores information about a message status.
 class ChannelMessageStatusStructure {
-  /// Contains more details about the messasge status.
+  /// Contains more details about the message status.
   final String? detail;
 
   /// The message status value.
@@ -3784,7 +3778,7 @@ class ChannelMessageStatusStructure {
   factory ChannelMessageStatusStructure.fromJson(Map<String, dynamic> json) {
     return ChannelMessageStatusStructure(
       detail: json['Detail'] as String?,
-      value: (json['Value'] as String?)?.toChannelMessageStatus(),
+      value: (json['Value'] as String?)?.let(ChannelMessageStatus.fromString),
     );
   }
 
@@ -3793,17 +3787,29 @@ class ChannelMessageStatusStructure {
     final value = this.value;
     return {
       if (detail != null) 'Detail': detail,
-      if (value != null) 'Value': value.toValue(),
+      if (value != null) 'Value': value.value,
     };
   }
 }
 
 /// Summary of the messages in a <code>Channel</code>.
 class ChannelMessageSummary {
-  /// The content of the message.
+  /// The content of the channel message. For Amazon Lex V2 bot responses, this
+  /// field holds a list of messages originating from the bot. For more
+  /// information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final String? content;
 
-  /// The content type of the channel messsage listed in the summary.
+  /// The content type of the channel message listed in the summary. For Amazon
+  /// Lex V2 bot responses, the content type is
+  /// <code>application/amz-chime-lex-msgs</code> for success responses and
+  /// <code>application/amz-chime-lex-error</code> for failure responses. For more
+  /// information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final String? contentType;
 
   /// The time at which the message summary was created.
@@ -3815,7 +3821,12 @@ class ChannelMessageSummary {
   /// The time at which a message was last updated.
   final DateTime? lastUpdatedTimestamp;
 
-  /// The message attribues listed in a the summary of a channel message.
+  /// The attributes for the channel message. For Amazon Lex V2 bot responses, the
+  /// attributes are mapped to specific fields from the bot. For more information,
+  /// refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/appinstance-bots#process-response.html">Processing
+  /// responses from an AppInstanceBot</a> in the <i>Amazon Chime SDK Messaging
+  /// Developer Guide</i>.
   final Map<String, MessageAttributeValue>? messageAttributes;
 
   /// The ID of the message.
@@ -3835,6 +3846,12 @@ class ChannelMessageSummary {
   /// flow, the value determines the processing stage.
   final ChannelMessageStatusStructure? status;
 
+  /// The target of a message, a sender, a user, or a bot. Only the target and the
+  /// sender can view targeted messages. Only users who can see targeted messages
+  /// can take actions on them. However, administrators can delete targeted
+  /// messages that they can’t see.
+  final List<Target>? target;
+
   /// The type of message.
   final ChannelMessageType? type;
 
@@ -3850,6 +3867,7 @@ class ChannelMessageSummary {
     this.redacted,
     this.sender,
     this.status,
+    this.target,
     this.type,
   });
 
@@ -3873,7 +3891,11 @@ class ChannelMessageSummary {
           ? ChannelMessageStatusStructure.fromJson(
               json['Status'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toChannelMessageType(),
+      target: (json['Target'] as List?)
+          ?.nonNulls
+          .map((e) => Target.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      type: (json['Type'] as String?)?.let(ChannelMessageType.fromString),
     );
   }
 
@@ -3889,6 +3911,7 @@ class ChannelMessageSummary {
     final redacted = this.redacted;
     final sender = this.sender;
     final status = this.status;
+    final target = this.target;
     final type = this.type;
     return {
       if (content != null) 'Content': content,
@@ -3905,65 +3928,39 @@ class ChannelMessageSummary {
       if (redacted != null) 'Redacted': redacted,
       if (sender != null) 'Sender': sender,
       if (status != null) 'Status': status,
-      if (type != null) 'Type': type.toValue(),
+      if (target != null) 'Target': target,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum ChannelMessageType {
-  standard,
-  control,
-}
+  standard('STANDARD'),
+  control('CONTROL'),
+  ;
 
-extension ChannelMessageTypeValueExtension on ChannelMessageType {
-  String toValue() {
-    switch (this) {
-      case ChannelMessageType.standard:
-        return 'STANDARD';
-      case ChannelMessageType.control:
-        return 'CONTROL';
-    }
-  }
-}
+  final String value;
 
-extension ChannelMessageTypeFromString on String {
-  ChannelMessageType toChannelMessageType() {
-    switch (this) {
-      case 'STANDARD':
-        return ChannelMessageType.standard;
-      case 'CONTROL':
-        return ChannelMessageType.control;
-    }
-    throw Exception('$this is not known in enum ChannelMessageType');
-  }
+  const ChannelMessageType(this.value);
+
+  static ChannelMessageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ChannelMessageType'));
 }
 
 enum ChannelMode {
-  unrestricted,
-  restricted,
-}
+  unrestricted('UNRESTRICTED'),
+  restricted('RESTRICTED'),
+  ;
 
-extension ChannelModeValueExtension on ChannelMode {
-  String toValue() {
-    switch (this) {
-      case ChannelMode.unrestricted:
-        return 'UNRESTRICTED';
-      case ChannelMode.restricted:
-        return 'RESTRICTED';
-    }
-  }
-}
+  final String value;
 
-extension ChannelModeFromString on String {
-  ChannelMode toChannelMode() {
-    switch (this) {
-      case 'UNRESTRICTED':
-        return ChannelMode.unrestricted;
-      case 'RESTRICTED':
-        return ChannelMode.restricted;
-    }
-    throw Exception('$this is not known in enum ChannelMode');
-  }
+  const ChannelMode(this.value);
+
+  static ChannelMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ChannelMode'));
 }
 
 /// Summary of the details of a moderated channel.
@@ -4068,31 +4065,18 @@ class ChannelModeratorSummary {
 }
 
 enum ChannelPrivacy {
-  public,
-  private,
-}
+  public('PUBLIC'),
+  private('PRIVATE'),
+  ;
 
-extension ChannelPrivacyValueExtension on ChannelPrivacy {
-  String toValue() {
-    switch (this) {
-      case ChannelPrivacy.public:
-        return 'PUBLIC';
-      case ChannelPrivacy.private:
-        return 'PRIVATE';
-    }
-  }
-}
+  final String value;
 
-extension ChannelPrivacyFromString on String {
-  ChannelPrivacy toChannelPrivacy() {
-    switch (this) {
-      case 'PUBLIC':
-        return ChannelPrivacy.public;
-      case 'PRIVATE':
-        return ChannelPrivacy.private;
-    }
-    throw Exception('$this is not known in enum ChannelPrivacy');
-  }
+  const ChannelPrivacy(this.value);
+
+  static ChannelPrivacy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ChannelPrivacy'));
 }
 
 /// Summary of the details of a <code>Channel</code>.
@@ -4100,7 +4084,8 @@ class ChannelSummary {
   /// The ARN of the channel.
   final String? channelArn;
 
-  /// The time at which the last persistent message in a channel was sent.
+  /// The time at which the last persistent message visible to the caller in a
+  /// channel was sent.
   final DateTime? lastMessageTimestamp;
 
   /// The metadata of the channel.
@@ -4129,9 +4114,9 @@ class ChannelSummary {
       channelArn: json['ChannelArn'] as String?,
       lastMessageTimestamp: timeStampFromJson(json['LastMessageTimestamp']),
       metadata: json['Metadata'] as String?,
-      mode: (json['Mode'] as String?)?.toChannelMode(),
+      mode: (json['Mode'] as String?)?.let(ChannelMode.fromString),
       name: json['Name'] as String?,
-      privacy: (json['Privacy'] as String?)?.toChannelPrivacy(),
+      privacy: (json['Privacy'] as String?)?.let(ChannelPrivacy.fromString),
     );
   }
 
@@ -4147,9 +4132,9 @@ class ChannelSummary {
       if (lastMessageTimestamp != null)
         'LastMessageTimestamp': unixTimestampToJson(lastMessageTimestamp),
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (name != null) 'Name': name,
-      if (privacy != null) 'Privacy': privacy.toValue(),
+      if (privacy != null) 'Privacy': privacy.value,
     };
   }
 }
@@ -4517,124 +4502,45 @@ class ElasticChannelConfiguration {
 }
 
 enum ErrorCode {
-  badRequest,
-  conflict,
-  forbidden,
-  notFound,
-  preconditionFailed,
-  resourceLimitExceeded,
-  serviceFailure,
-  accessDenied,
-  serviceUnavailable,
-  throttled,
-  throttling,
-  unauthorized,
-  unprocessable,
-  voiceConnectorGroupAssociationsExist,
-  phoneNumberAssociationsExist,
-}
+  badRequest('BadRequest'),
+  conflict('Conflict'),
+  forbidden('Forbidden'),
+  notFound('NotFound'),
+  preconditionFailed('PreconditionFailed'),
+  resourceLimitExceeded('ResourceLimitExceeded'),
+  serviceFailure('ServiceFailure'),
+  accessDenied('AccessDenied'),
+  serviceUnavailable('ServiceUnavailable'),
+  throttled('Throttled'),
+  throttling('Throttling'),
+  unauthorized('Unauthorized'),
+  unprocessable('Unprocessable'),
+  voiceConnectorGroupAssociationsExist('VoiceConnectorGroupAssociationsExist'),
+  phoneNumberAssociationsExist('PhoneNumberAssociationsExist'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.badRequest:
-        return 'BadRequest';
-      case ErrorCode.conflict:
-        return 'Conflict';
-      case ErrorCode.forbidden:
-        return 'Forbidden';
-      case ErrorCode.notFound:
-        return 'NotFound';
-      case ErrorCode.preconditionFailed:
-        return 'PreconditionFailed';
-      case ErrorCode.resourceLimitExceeded:
-        return 'ResourceLimitExceeded';
-      case ErrorCode.serviceFailure:
-        return 'ServiceFailure';
-      case ErrorCode.accessDenied:
-        return 'AccessDenied';
-      case ErrorCode.serviceUnavailable:
-        return 'ServiceUnavailable';
-      case ErrorCode.throttled:
-        return 'Throttled';
-      case ErrorCode.throttling:
-        return 'Throttling';
-      case ErrorCode.unauthorized:
-        return 'Unauthorized';
-      case ErrorCode.unprocessable:
-        return 'Unprocessable';
-      case ErrorCode.voiceConnectorGroupAssociationsExist:
-        return 'VoiceConnectorGroupAssociationsExist';
-      case ErrorCode.phoneNumberAssociationsExist:
-        return 'PhoneNumberAssociationsExist';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'BadRequest':
-        return ErrorCode.badRequest;
-      case 'Conflict':
-        return ErrorCode.conflict;
-      case 'Forbidden':
-        return ErrorCode.forbidden;
-      case 'NotFound':
-        return ErrorCode.notFound;
-      case 'PreconditionFailed':
-        return ErrorCode.preconditionFailed;
-      case 'ResourceLimitExceeded':
-        return ErrorCode.resourceLimitExceeded;
-      case 'ServiceFailure':
-        return ErrorCode.serviceFailure;
-      case 'AccessDenied':
-        return ErrorCode.accessDenied;
-      case 'ServiceUnavailable':
-        return ErrorCode.serviceUnavailable;
-      case 'Throttled':
-        return ErrorCode.throttled;
-      case 'Throttling':
-        return ErrorCode.throttling;
-      case 'Unauthorized':
-        return ErrorCode.unauthorized;
-      case 'Unprocessable':
-        return ErrorCode.unprocessable;
-      case 'VoiceConnectorGroupAssociationsExist':
-        return ErrorCode.voiceConnectorGroupAssociationsExist;
-      case 'PhoneNumberAssociationsExist':
-        return ErrorCode.phoneNumberAssociationsExist;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 enum ExpirationCriterion {
-  createdTimestamp,
-  lastMessageTimestamp,
-}
+  createdTimestamp('CREATED_TIMESTAMP'),
+  lastMessageTimestamp('LAST_MESSAGE_TIMESTAMP'),
+  ;
 
-extension ExpirationCriterionValueExtension on ExpirationCriterion {
-  String toValue() {
-    switch (this) {
-      case ExpirationCriterion.createdTimestamp:
-        return 'CREATED_TIMESTAMP';
-      case ExpirationCriterion.lastMessageTimestamp:
-        return 'LAST_MESSAGE_TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension ExpirationCriterionFromString on String {
-  ExpirationCriterion toExpirationCriterion() {
-    switch (this) {
-      case 'CREATED_TIMESTAMP':
-        return ExpirationCriterion.createdTimestamp;
-      case 'LAST_MESSAGE_TIMESTAMP':
-        return ExpirationCriterion.lastMessageTimestamp;
-    }
-    throw Exception('$this is not known in enum ExpirationCriterion');
-  }
+  const ExpirationCriterion(this.value);
+
+  static ExpirationCriterion fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ExpirationCriterion'));
 }
 
 /// Settings that control the interval after which a channel is deleted.
@@ -4652,8 +4558,8 @@ class ExpirationSettings {
 
   factory ExpirationSettings.fromJson(Map<String, dynamic> json) {
     return ExpirationSettings(
-      expirationCriterion:
-          (json['ExpirationCriterion'] as String).toExpirationCriterion(),
+      expirationCriterion: ExpirationCriterion.fromString(
+          (json['ExpirationCriterion'] as String)),
       expirationDays: json['ExpirationDays'] as int,
     );
   }
@@ -4662,38 +4568,25 @@ class ExpirationSettings {
     final expirationCriterion = this.expirationCriterion;
     final expirationDays = this.expirationDays;
     return {
-      'ExpirationCriterion': expirationCriterion.toValue(),
+      'ExpirationCriterion': expirationCriterion.value,
       'ExpirationDays': expirationDays,
     };
   }
 }
 
 enum FallbackAction {
-  $continue,
-  abort,
-}
+  $continue('CONTINUE'),
+  abort('ABORT'),
+  ;
 
-extension FallbackActionValueExtension on FallbackAction {
-  String toValue() {
-    switch (this) {
-      case FallbackAction.$continue:
-        return 'CONTINUE';
-      case FallbackAction.abort:
-        return 'ABORT';
-    }
-  }
-}
+  final String value;
 
-extension FallbackActionFromString on String {
-  FallbackAction toFallbackAction() {
-    switch (this) {
-      case 'CONTINUE':
-        return FallbackAction.$continue;
-      case 'ABORT':
-        return FallbackAction.abort;
-    }
-    throw Exception('$this is not known in enum FallbackAction');
-  }
+  const FallbackAction(this.value);
+
+  static FallbackAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FallbackAction'));
 }
 
 class GetChannelMembershipPreferencesResponse {
@@ -4826,7 +4719,7 @@ class GetMessagingStreamingConfigurationsResponse {
       Map<String, dynamic> json) {
     return GetMessagingStreamingConfigurationsResponse(
       streamingConfigurations: (json['StreamingConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => StreamingConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4873,26 +4766,17 @@ class Identity {
 }
 
 enum InvocationType {
-  async,
-}
+  async('ASYNC'),
+  ;
 
-extension InvocationTypeValueExtension on InvocationType {
-  String toValue() {
-    switch (this) {
-      case InvocationType.async:
-        return 'ASYNC';
-    }
-  }
-}
+  final String value;
 
-extension InvocationTypeFromString on String {
-  InvocationType toInvocationType() {
-    switch (this) {
-      case 'ASYNC':
-        return InvocationType.async;
-    }
-    throw Exception('$this is not known in enum InvocationType');
-  }
+  const InvocationType(this.value);
+
+  static InvocationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InvocationType'));
 }
 
 /// Stores metadata about a Lambda processor.
@@ -4910,7 +4794,8 @@ class LambdaConfiguration {
 
   factory LambdaConfiguration.fromJson(Map<String, dynamic> json) {
     return LambdaConfiguration(
-      invocationType: (json['InvocationType'] as String).toInvocationType(),
+      invocationType:
+          InvocationType.fromString((json['InvocationType'] as String)),
       resourceArn: json['ResourceArn'] as String,
     );
   }
@@ -4919,7 +4804,7 @@ class LambdaConfiguration {
     final invocationType = this.invocationType;
     final resourceArn = this.resourceArn;
     return {
-      'InvocationType': invocationType.toValue(),
+      'InvocationType': invocationType.value,
       'ResourceArn': resourceArn,
     };
   }
@@ -4946,7 +4831,7 @@ class ListChannelBansResponse {
     return ListChannelBansResponse(
       channelArn: json['ChannelArn'] as String?,
       channelBans: (json['ChannelBans'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelBanSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4981,7 +4866,7 @@ class ListChannelFlowsResponse {
   factory ListChannelFlowsResponse.fromJson(Map<String, dynamic> json) {
     return ListChannelFlowsResponse(
       channelFlows: (json['ChannelFlows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelFlowSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5015,7 +4900,7 @@ class ListChannelMembershipsForAppInstanceUserResponse {
       Map<String, dynamic> json) {
     return ListChannelMembershipsForAppInstanceUserResponse(
       channelMemberships: (json['ChannelMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelMembershipForAppInstanceUserSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -5054,7 +4939,7 @@ class ListChannelMembershipsResponse {
     return ListChannelMembershipsResponse(
       channelArn: json['ChannelArn'] as String?,
       channelMemberships: (json['ChannelMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ChannelMembershipSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5099,7 +4984,7 @@ class ListChannelMessagesResponse {
     return ListChannelMessagesResponse(
       channelArn: json['ChannelArn'] as String?,
       channelMessages: (json['ChannelMessages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelMessageSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5142,7 +5027,7 @@ class ListChannelModeratorsResponse {
     return ListChannelModeratorsResponse(
       channelArn: json['ChannelArn'] as String?,
       channelModerators: (json['ChannelModerators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ChannelModeratorSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5179,7 +5064,7 @@ class ListChannelsAssociatedWithChannelFlowResponse {
       Map<String, dynamic> json) {
     return ListChannelsAssociatedWithChannelFlowResponse(
       channels: (json['Channels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelAssociatedWithFlowSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -5214,7 +5099,7 @@ class ListChannelsModeratedByAppInstanceUserResponse {
       Map<String, dynamic> json) {
     return ListChannelsModeratedByAppInstanceUserResponse(
       channels: (json['Channels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelModeratedByAppInstanceUserSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -5248,7 +5133,7 @@ class ListChannelsResponse {
   factory ListChannelsResponse.fromJson(Map<String, dynamic> json) {
     return ListChannelsResponse(
       channels: (json['Channels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5287,7 +5172,7 @@ class ListSubChannelsResponse {
       channelArn: json['ChannelArn'] as String?,
       nextToken: json['NextToken'] as String?,
       subChannels: (json['SubChannels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SubChannelSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5316,7 +5201,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5342,7 +5227,7 @@ class MessageAttributeValue {
   factory MessageAttributeValue.fromJson(Map<String, dynamic> json) {
     return MessageAttributeValue(
       stringValues: (json['StringValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5357,31 +5242,18 @@ class MessageAttributeValue {
 }
 
 enum MessagingDataType {
-  channel,
-  channelMessage,
-}
+  channel('Channel'),
+  channelMessage('ChannelMessage'),
+  ;
 
-extension MessagingDataTypeValueExtension on MessagingDataType {
-  String toValue() {
-    switch (this) {
-      case MessagingDataType.channel:
-        return 'Channel';
-      case MessagingDataType.channelMessage:
-        return 'ChannelMessage';
-    }
-  }
-}
+  final String value;
 
-extension MessagingDataTypeFromString on String {
-  MessagingDataType toMessagingDataType() {
-    switch (this) {
-      case 'Channel':
-        return MessagingDataType.channel;
-      case 'ChannelMessage':
-        return MessagingDataType.channelMessage;
-    }
-    throw Exception('$this is not known in enum MessagingDataType');
-  }
+  const MessagingDataType(this.value);
+
+  static MessagingDataType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MessagingDataType'));
 }
 
 /// The websocket endpoint used to connect to Amazon Chime SDK messaging.
@@ -5443,7 +5315,8 @@ class Processor {
       configuration: ProcessorConfiguration.fromJson(
           json['Configuration'] as Map<String, dynamic>),
       executionOrder: json['ExecutionOrder'] as int,
-      fallbackAction: (json['FallbackAction'] as String).toFallbackAction(),
+      fallbackAction:
+          FallbackAction.fromString((json['FallbackAction'] as String)),
       name: json['Name'] as String,
     );
   }
@@ -5456,7 +5329,7 @@ class Processor {
     return {
       'Configuration': configuration,
       'ExecutionOrder': executionOrder,
-      'FallbackAction': fallbackAction.toValue(),
+      'FallbackAction': fallbackAction.value,
       'Name': name,
     };
   }
@@ -5512,7 +5385,7 @@ class PushNotificationConfiguration {
     return {
       if (body != null) 'Body': body,
       if (title != null) 'Title': title,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -5537,7 +5410,7 @@ class PushNotificationPreferences {
   factory PushNotificationPreferences.fromJson(Map<String, dynamic> json) {
     return PushNotificationPreferences(
       allowNotifications:
-          (json['AllowNotifications'] as String).toAllowNotifications(),
+          AllowNotifications.fromString((json['AllowNotifications'] as String)),
       filterRule: json['FilterRule'] as String?,
     );
   }
@@ -5546,38 +5419,25 @@ class PushNotificationPreferences {
     final allowNotifications = this.allowNotifications;
     final filterRule = this.filterRule;
     return {
-      'AllowNotifications': allowNotifications.toValue(),
+      'AllowNotifications': allowNotifications.value,
       if (filterRule != null) 'FilterRule': filterRule,
     };
   }
 }
 
 enum PushNotificationType {
-  $default,
-  voip,
-}
+  $default('DEFAULT'),
+  voip('VOIP'),
+  ;
 
-extension PushNotificationTypeValueExtension on PushNotificationType {
-  String toValue() {
-    switch (this) {
-      case PushNotificationType.$default:
-        return 'DEFAULT';
-      case PushNotificationType.voip:
-        return 'VOIP';
-    }
-  }
-}
+  final String value;
 
-extension PushNotificationTypeFromString on String {
-  PushNotificationType toPushNotificationType() {
-    switch (this) {
-      case 'DEFAULT':
-        return PushNotificationType.$default;
-      case 'VOIP':
-        return PushNotificationType.voip;
-    }
-    throw Exception('$this is not known in enum PushNotificationType');
-  }
+  const PushNotificationType(this.value);
+
+  static PushNotificationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PushNotificationType'));
 }
 
 class PutChannelExpirationSettingsResponse {
@@ -5667,7 +5527,7 @@ class PutMessagingStreamingConfigurationsResponse {
       Map<String, dynamic> json) {
     return PutMessagingStreamingConfigurationsResponse(
       streamingConfigurations: (json['StreamingConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => StreamingConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5739,7 +5599,7 @@ class SearchChannelsResponse {
   factory SearchChannelsResponse.fromJson(Map<String, dynamic> json) {
     return SearchChannelsResponse(
       channels: (json['Channels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5791,62 +5651,40 @@ class SearchField {
     final operator = this.operator;
     final values = this.values;
     return {
-      'Key': key.toValue(),
-      'Operator': operator.toValue(),
+      'Key': key.value,
+      'Operator': operator.value,
       'Values': values,
     };
   }
 }
 
 enum SearchFieldKey {
-  members,
-}
+  members('MEMBERS'),
+  ;
 
-extension SearchFieldKeyValueExtension on SearchFieldKey {
-  String toValue() {
-    switch (this) {
-      case SearchFieldKey.members:
-        return 'MEMBERS';
-    }
-  }
-}
+  final String value;
 
-extension SearchFieldKeyFromString on String {
-  SearchFieldKey toSearchFieldKey() {
-    switch (this) {
-      case 'MEMBERS':
-        return SearchFieldKey.members;
-    }
-    throw Exception('$this is not known in enum SearchFieldKey');
-  }
+  const SearchFieldKey(this.value);
+
+  static SearchFieldKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SearchFieldKey'));
 }
 
 enum SearchFieldOperator {
-  equals,
-  includes,
-}
+  equals('EQUALS'),
+  includes('INCLUDES'),
+  ;
 
-extension SearchFieldOperatorValueExtension on SearchFieldOperator {
-  String toValue() {
-    switch (this) {
-      case SearchFieldOperator.equals:
-        return 'EQUALS';
-      case SearchFieldOperator.includes:
-        return 'INCLUDES';
-    }
-  }
-}
+  final String value;
 
-extension SearchFieldOperatorFromString on String {
-  SearchFieldOperator toSearchFieldOperator() {
-    switch (this) {
-      case 'EQUALS':
-        return SearchFieldOperator.equals;
-      case 'INCLUDES':
-        return SearchFieldOperator.includes;
-    }
-    throw Exception('$this is not known in enum SearchFieldOperator');
-  }
+  const SearchFieldOperator(this.value);
+
+  static SearchFieldOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SearchFieldOperator'));
 }
 
 class SendChannelMessageResponse {
@@ -5896,31 +5734,17 @@ class SendChannelMessageResponse {
 }
 
 enum SortOrder {
-  ascending,
-  descending,
-}
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
 
-extension SortOrderValueExtension on SortOrder {
-  String toValue() {
-    switch (this) {
-      case SortOrder.ascending:
-        return 'ASCENDING';
-      case SortOrder.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortOrderFromString on String {
-  SortOrder toSortOrder() {
-    switch (this) {
-      case 'ASCENDING':
-        return SortOrder.ascending;
-      case 'DESCENDING':
-        return SortOrder.descending;
-    }
-    throw Exception('$this is not known in enum SortOrder');
-  }
+  const SortOrder(this.value);
+
+  static SortOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortOrder'));
 }
 
 /// The configuration for connecting a messaging stream to Amazon Kinesis.
@@ -5938,7 +5762,7 @@ class StreamingConfiguration {
 
   factory StreamingConfiguration.fromJson(Map<String, dynamic> json) {
     return StreamingConfiguration(
-      dataType: (json['DataType'] as String).toMessagingDataType(),
+      dataType: MessagingDataType.fromString((json['DataType'] as String)),
       resourceArn: json['ResourceArn'] as String,
     );
   }
@@ -5947,7 +5771,7 @@ class StreamingConfiguration {
     final dataType = this.dataType;
     final resourceArn = this.resourceArn;
     return {
-      'DataType': dataType.toValue(),
+      'DataType': dataType.value,
       'ResourceArn': resourceArn,
     };
   }
@@ -6009,6 +5833,32 @@ class Tag {
     return {
       'Key': key,
       'Value': value,
+    };
+  }
+}
+
+/// The target of a message, a sender, a user, or a bot. Only the target and the
+/// sender can view targeted messages. Only users who can see targeted messages
+/// can take actions on them. However, administrators can delete targeted
+/// messages that they can’t see.
+class Target {
+  /// The ARN of the target channel member.
+  final String? memberArn;
+
+  Target({
+    this.memberArn,
+  });
+
+  factory Target.fromJson(Map<String, dynamic> json) {
+    return Target(
+      memberArn: json['MemberArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final memberArn = this.memberArn;
+    return {
+      if (memberArn != null) 'MemberArn': memberArn,
     };
   }
 }

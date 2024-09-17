@@ -148,7 +148,7 @@ class TranscribeService {
       payload: {
         'CategoryName': categoryName,
         'Rules': rules,
-        if (inputType != null) 'InputType': inputType.toValue(),
+        if (inputType != null) 'InputType': inputType.value,
       },
     );
 
@@ -255,9 +255,9 @@ class TranscribeService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'BaseModelName': baseModelName.toValue(),
+        'BaseModelName': baseModelName.value,
         'InputDataConfig': inputDataConfig,
-        'LanguageCode': languageCode.toValue(),
+        'LanguageCode': languageCode.value,
         'ModelName': modelName,
         if (tags != null) 'Tags': tags,
       },
@@ -337,7 +337,7 @@ class TranscribeService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'LanguageCode': languageCode.toValue(),
+        'LanguageCode': languageCode.value,
         'VocabularyFileUri': vocabularyFileUri,
         'VocabularyName': vocabularyName,
         if (tags != null) 'Tags': tags,
@@ -464,7 +464,7 @@ class TranscribeService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'LanguageCode': languageCode.toValue(),
+        'LanguageCode': languageCode.value,
         'VocabularyName': vocabularyName,
         if (dataAccessRoleArn != null) 'DataAccessRoleArn': dataAccessRoleArn,
         if (phrases != null) 'Phrases': phrases,
@@ -594,7 +594,7 @@ class TranscribeService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'LanguageCode': languageCode.toValue(),
+        'LanguageCode': languageCode.value,
         'VocabularyFilterName': vocabularyFilterName,
         if (dataAccessRoleArn != null) 'DataAccessRoleArn': dataAccessRoleArn,
         if (tags != null) 'Tags': tags,
@@ -694,6 +694,36 @@ class TranscribeService {
       headers: headers,
       payload: {
         'ModelName': modelName,
+      },
+    );
+  }
+
+  /// Deletes a Medical Scribe job. To use this operation, specify the name of
+  /// the job you want to delete using <code>MedicalScribeJobName</code>. Job
+  /// names are case sensitive.
+  ///
+  /// May throw [LimitExceededException].
+  /// May throw [BadRequestException].
+  /// May throw [InternalFailureException].
+  ///
+  /// Parameter [medicalScribeJobName] :
+  /// The name of the Medical Scribe job you want to delete. Job names are case
+  /// sensitive.
+  Future<void> deleteMedicalScribeJob({
+    required String medicalScribeJobName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Transcribe.DeleteMedicalScribeJob'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'MedicalScribeJobName': medicalScribeJobName,
       },
     );
   }
@@ -973,6 +1003,46 @@ class TranscribeService {
     return GetCallAnalyticsJobResponse.fromJson(jsonResponse.body);
   }
 
+  /// Provides information about the specified Medical Scribe job.
+  ///
+  /// To view the status of the specified medical transcription job, check the
+  /// <code>MedicalScribeJobStatus</code> field. If the status is
+  /// <code>COMPLETED</code>, the job is finished. You can find the results at
+  /// the location specified in <code>MedicalScribeOutput</code>. If the status
+  /// is <code>FAILED</code>, <code>FailureReason</code> provides details on why
+  /// your Medical Scribe job failed.
+  ///
+  /// To get a list of your Medical Scribe jobs, use the operation.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [LimitExceededException].
+  /// May throw [InternalFailureException].
+  /// May throw [NotFoundException].
+  ///
+  /// Parameter [medicalScribeJobName] :
+  /// The name of the Medical Scribe job you want information about. Job names
+  /// are case sensitive.
+  Future<GetMedicalScribeJobResponse> getMedicalScribeJob({
+    required String medicalScribeJobName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Transcribe.GetMedicalScribeJob'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'MedicalScribeJobName': medicalScribeJobName,
+      },
+    );
+
+    return GetMedicalScribeJobResponse.fromJson(jsonResponse.body);
+  }
+
   /// Provides information about the specified medical transcription job.
   ///
   /// To view the status of the specified medical transcription job, check the
@@ -1180,7 +1250,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of Call Analytics categories to return in each page of
   /// results. If there are fewer results than the value that you specify, only
-  /// the actual results are returned. If you don't specify a value, a default
+  /// the actual results are returned. If you do not specify a value, a default
   /// of 5 is used.
   ///
   /// Parameter [nextToken] :
@@ -1235,7 +1305,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of Call Analytics jobs to return in each page of
   /// results. If there are fewer results than the value that you specify, only
-  /// the actual results are returned. If you don't specify a value, a default
+  /// the actual results are returned. If you do not specify a value, a default
   /// of 5 is used.
   ///
   /// Parameter [nextToken] :
@@ -1247,7 +1317,7 @@ class TranscribeService {
   ///
   /// Parameter [status] :
   /// Returns only Call Analytics jobs with the specified status. Jobs are
-  /// ordered by creation date, with the newest job first. If you don't include
+  /// ordered by creation date, with the newest job first. If you do not include
   /// <code>Status</code>, all Call Analytics jobs are returned.
   Future<ListCallAnalyticsJobsResponse> listCallAnalyticsJobs({
     String? jobNameContains,
@@ -1275,7 +1345,7 @@ class TranscribeService {
         if (jobNameContains != null) 'JobNameContains': jobNameContains,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
       },
     );
 
@@ -1296,7 +1366,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of custom language models to return in each page of
   /// results. If there are fewer results than the value that you specify, only
-  /// the actual results are returned. If you don't specify a value, a default
+  /// the actual results are returned. If you do not specify a value, a default
   /// of 5 is used.
   ///
   /// Parameter [nameContains] :
@@ -1313,7 +1383,7 @@ class TranscribeService {
   /// Parameter [statusEquals] :
   /// Returns only custom language models with the specified status. Language
   /// models are ordered by creation date, with the newest model first. If you
-  /// don't include <code>StatusEquals</code>, all custom language models are
+  /// do not include <code>StatusEquals</code>, all custom language models are
   /// returned.
   Future<ListLanguageModelsResponse> listLanguageModels({
     int? maxResults,
@@ -1341,11 +1411,75 @@ class TranscribeService {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nameContains != null) 'NameContains': nameContains,
         if (nextToken != null) 'NextToken': nextToken,
-        if (statusEquals != null) 'StatusEquals': statusEquals.toValue(),
+        if (statusEquals != null) 'StatusEquals': statusEquals.value,
       },
     );
 
     return ListLanguageModelsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Provides a list of Medical Scribe jobs that match the specified criteria.
+  /// If no criteria are specified, all Medical Scribe jobs are returned.
+  ///
+  /// To get detailed information about a specific Medical Scribe job, use the
+  /// operation.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [LimitExceededException].
+  /// May throw [InternalFailureException].
+  ///
+  /// Parameter [jobNameContains] :
+  /// Returns only the Medical Scribe jobs that contain the specified string.
+  /// The search is not case sensitive.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of Medical Scribe jobs to return in each page of
+  /// results. If there are fewer results than the value that you specify, only
+  /// the actual results are returned. If you do not specify a value, a default
+  /// of 5 is used.
+  ///
+  /// Parameter [nextToken] :
+  /// If your <code>ListMedicalScribeJobs</code> request returns more results
+  /// than can be displayed, <code>NextToken</code> is displayed in the response
+  /// with an associated string. To get the next page of results, copy this
+  /// string and repeat your request, including <code>NextToken</code> with the
+  /// value of the copied string. Repeat as needed to view all your results.
+  ///
+  /// Parameter [status] :
+  /// Returns only Medical Scribe jobs with the specified status. Jobs are
+  /// ordered by creation date, with the newest job first. If you do not include
+  /// <code>Status</code>, all Medical Scribe jobs are returned.
+  Future<ListMedicalScribeJobsResponse> listMedicalScribeJobs({
+    String? jobNameContains,
+    int? maxResults,
+    String? nextToken,
+    MedicalScribeJobStatus? status,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Transcribe.ListMedicalScribeJobs'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (jobNameContains != null) 'JobNameContains': jobNameContains,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+        if (status != null) 'Status': status.value,
+      },
+    );
+
+    return ListMedicalScribeJobsResponse.fromJson(jsonResponse.body);
   }
 
   /// Provides a list of medical transcription jobs that match the specified
@@ -1366,7 +1500,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of medical transcription jobs to return in each page of
   /// results. If there are fewer results than the value that you specify, only
-  /// the actual results are returned. If you don't specify a value, a default
+  /// the actual results are returned. If you do not specify a value, a default
   /// of 5 is used.
   ///
   /// Parameter [nextToken] :
@@ -1378,7 +1512,7 @@ class TranscribeService {
   ///
   /// Parameter [status] :
   /// Returns only medical transcription jobs with the specified status. Jobs
-  /// are ordered by creation date, with the newest job first. If you don't
+  /// are ordered by creation date, with the newest job first. If you do not
   /// include <code>Status</code>, all medical transcription jobs are returned.
   Future<ListMedicalTranscriptionJobsResponse> listMedicalTranscriptionJobs({
     String? jobNameContains,
@@ -1406,7 +1540,7 @@ class TranscribeService {
         if (jobNameContains != null) 'JobNameContains': jobNameContains,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
       },
     );
 
@@ -1427,7 +1561,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of custom medical vocabularies to return in each page
   /// of results. If there are fewer results than the value that you specify,
-  /// only the actual results are returned. If you don't specify a value, a
+  /// only the actual results are returned. If you do not specify a value, a
   /// default of 5 is used.
   ///
   /// Parameter [nameContains] :
@@ -1444,7 +1578,7 @@ class TranscribeService {
   /// Parameter [stateEquals] :
   /// Returns only custom medical vocabularies with the specified state. Custom
   /// vocabularies are ordered by creation date, with the newest vocabulary
-  /// first. If you don't include <code>StateEquals</code>, all custom medical
+  /// first. If you do not include <code>StateEquals</code>, all custom medical
   /// vocabularies are returned.
   Future<ListMedicalVocabulariesResponse> listMedicalVocabularies({
     int? maxResults,
@@ -1472,7 +1606,7 @@ class TranscribeService {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nameContains != null) 'NameContains': nameContains,
         if (nextToken != null) 'NextToken': nextToken,
-        if (stateEquals != null) 'StateEquals': stateEquals.toValue(),
+        if (stateEquals != null) 'StateEquals': stateEquals.value,
       },
     );
 
@@ -1541,7 +1675,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of transcription jobs to return in each page of
   /// results. If there are fewer results than the value that you specify, only
-  /// the actual results are returned. If you don't specify a value, a default
+  /// the actual results are returned. If you do not specify a value, a default
   /// of 5 is used.
   ///
   /// Parameter [nextToken] :
@@ -1553,7 +1687,7 @@ class TranscribeService {
   ///
   /// Parameter [status] :
   /// Returns only transcription jobs with the specified status. Jobs are
-  /// ordered by creation date, with the newest job first. If you don't include
+  /// ordered by creation date, with the newest job first. If you do not include
   /// <code>Status</code>, all transcription jobs are returned.
   Future<ListTranscriptionJobsResponse> listTranscriptionJobs({
     String? jobNameContains,
@@ -1581,7 +1715,7 @@ class TranscribeService {
         if (jobNameContains != null) 'JobNameContains': jobNameContains,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
       },
     );
 
@@ -1601,7 +1735,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of custom vocabularies to return in each page of
   /// results. If there are fewer results than the value that you specify, only
-  /// the actual results are returned. If you don't specify a value, a default
+  /// the actual results are returned. If you do not specify a value, a default
   /// of 5 is used.
   ///
   /// Parameter [nameContains] :
@@ -1617,9 +1751,9 @@ class TranscribeService {
   ///
   /// Parameter [stateEquals] :
   /// Returns only custom vocabularies with the specified state. Vocabularies
-  /// are ordered by creation date, with the newest vocabulary first. If you
-  /// don't include <code>StateEquals</code>, all custom medical vocabularies
-  /// are returned.
+  /// are ordered by creation date, with the newest vocabulary first. If you do
+  /// not include <code>StateEquals</code>, all custom medical vocabularies are
+  /// returned.
   Future<ListVocabulariesResponse> listVocabularies({
     int? maxResults,
     String? nameContains,
@@ -1646,7 +1780,7 @@ class TranscribeService {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nameContains != null) 'NameContains': nameContains,
         if (nextToken != null) 'NextToken': nextToken,
-        if (stateEquals != null) 'StateEquals': stateEquals.toValue(),
+        if (stateEquals != null) 'StateEquals': stateEquals.value,
       },
     );
 
@@ -1667,7 +1801,7 @@ class TranscribeService {
   /// Parameter [maxResults] :
   /// The maximum number of custom vocabulary filters to return in each page of
   /// results. If there are fewer results than the value that you specify, only
-  /// the actual results are returned. If you don't specify a value, a default
+  /// the actual results are returned. If you do not specify a value, a default
   /// of 5 is used.
   ///
   /// Parameter [nameContains] :
@@ -1843,7 +1977,7 @@ class TranscribeService {
   /// Use the ARN for the KMS key alias. For example,
   /// <code>arn:aws:kms:region:account-ID:alias/ExampleAlias</code>.
   /// </li> </ol>
-  /// If you don't specify an encryption key, your output is encrypted with the
+  /// If you do not specify an encryption key, your output is encrypted with the
   /// default Amazon S3 key (SSE-S3).
   ///
   /// If you specify a KMS key to encrypt your output, you must also specify an
@@ -1871,11 +2005,11 @@ class TranscribeService {
   /// transcription job using the <code>CallAnalyticsJobName</code> parameter.
   ///
   /// You can specify a KMS key to encrypt your output using the
-  /// <code>OutputEncryptionKMSKeyId</code> parameter. If you don't specify a
+  /// <code>OutputEncryptionKMSKeyId</code> parameter. If you do not specify a
   /// KMS key, Amazon Transcribe uses the default Amazon S3 key for server-side
   /// encryption.
   ///
-  /// If you don't specify <code>OutputLocation</code>, your transcript is
+  /// If you do not specify <code>OutputLocation</code>, your transcript is
   /// placed in a service-managed Amazon S3 bucket and you are provided with a
   /// URI to access your transcript.
   ///
@@ -1918,6 +2052,220 @@ class TranscribeService {
     return StartCallAnalyticsJobResponse.fromJson(jsonResponse.body);
   }
 
+  /// Transcribes patient-clinician conversations and generates clinical notes.
+  ///
+  /// Amazon Web Services HealthScribe automatically provides rich conversation
+  /// transcripts, identifies speaker roles, classifies dialogues, extracts
+  /// medical terms, and generates preliminary clinical notes. To learn more
+  /// about these features, refer to <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/health-scribe.html">Amazon
+  /// Web Services HealthScribe</a>.
+  ///
+  /// To make a <code>StartMedicalScribeJob</code> request, you must first
+  /// upload your media file into an Amazon S3 bucket; you can then specify the
+  /// Amazon S3 location of the file using the <code>Media</code> parameter.
+  ///
+  /// You must include the following parameters in your
+  /// <code>StartMedicalTranscriptionJob</code> request:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>DataAccessRoleArn</code>: The ARN of an IAM role with the these
+  /// minimum permissions: read permission on input file Amazon S3 bucket
+  /// specified in <code>Media</code>, write permission on the Amazon S3 bucket
+  /// specified in <code>OutputBucketName</code>, and full permissions on the
+  /// KMS key specified in <code>OutputEncryptionKMSKeyId</code> (if set). The
+  /// role should also allow <code>transcribe.amazonaws.com</code> to assume it.
+  /// </li>
+  /// <li>
+  /// <code>Media</code> (<code>MediaFileUri</code>): The Amazon S3 location of
+  /// your media file.
+  /// </li>
+  /// <li>
+  /// <code>MedicalScribeJobName</code>: A custom name you create for your
+  /// MedicalScribe job that is unique within your Amazon Web Services account.
+  /// </li>
+  /// <li>
+  /// <code>OutputBucketName</code>: The Amazon S3 bucket where you want your
+  /// output files stored.
+  /// </li>
+  /// <li>
+  /// <code>Settings</code>: A <code>MedicalScribeSettings</code> obect that
+  /// must set exactly one of <code>ShowSpeakerLabels</code> or
+  /// <code>ChannelIdentification</code> to true. If
+  /// <code>ShowSpeakerLabels</code> is true, <code>MaxSpeakerLabels</code> must
+  /// also be set.
+  /// </li>
+  /// <li>
+  /// <code>ChannelDefinitions</code>: A
+  /// <code>MedicalScribeChannelDefinitions</code> array should be set if and
+  /// only if the <code>ChannelIdentification</code> value of
+  /// <code>Settings</code> is set to true.
+  /// </li>
+  /// </ul>
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [LimitExceededException].
+  /// May throw [InternalFailureException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [dataAccessRoleArn] :
+  /// The Amazon Resource Name (ARN) of an IAM role that has permissions to
+  /// access the Amazon S3 bucket that contains your input files, write to the
+  /// output bucket, and use your KMS key if supplied. If the role that you
+  /// specify doesn’t have the appropriate permissions your request fails.
+  ///
+  /// IAM role ARNs have the format
+  /// <code>arn:partition:iam::account:role/role-name-with-path</code>. For
+  /// example: <code>arn:aws:iam::111122223333:role/Admin</code>.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-arns">IAM
+  /// ARNs</a>.
+  ///
+  /// Parameter [medicalScribeJobName] :
+  /// A unique name, chosen by you, for your Medical Scribe job.
+  ///
+  /// This name is case sensitive, cannot contain spaces, and must be unique
+  /// within an Amazon Web Services account. If you try to create a new job with
+  /// the same name as an existing job, you get a <code>ConflictException</code>
+  /// error.
+  ///
+  /// Parameter [outputBucketName] :
+  /// The name of the Amazon S3 bucket where you want your Medical Scribe output
+  /// stored. Do not include the <code>S3://</code> prefix of the specified
+  /// bucket.
+  ///
+  /// Note that the role specified in the <code>DataAccessRoleArn</code> request
+  /// parameter must have permission to use the specified location. You can
+  /// change Amazon S3 permissions using the <a
+  /// href="https://console.aws.amazon.com/s3">Amazon Web Services Management
+  /// Console</a>. See also <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/security_iam_id-based-policy-examples.html#auth-role-iam-user">Permissions
+  /// Required for IAM User Roles</a>.
+  ///
+  /// Parameter [settings] :
+  /// Makes it possible to control how your Medical Scribe job is processed
+  /// using a <code>MedicalScribeSettings</code> object. Specify
+  /// <code>ChannelIdentification</code> if <code>ChannelDefinitions</code> are
+  /// set. Enabled <code>ShowSpeakerLabels</code> if
+  /// <code>ChannelIdentification</code> and <code>ChannelDefinitions</code> are
+  /// not set. One and only one of <code>ChannelIdentification</code> and
+  /// <code>ShowSpeakerLabels</code> must be set. If
+  /// <code>ShowSpeakerLabels</code> is set, <code>MaxSpeakerLabels</code> must
+  /// also be set. Use <code>Settings</code> to specify a vocabulary or
+  /// vocabulary filter or both using <code>VocabularyName</code>,
+  /// <code>VocabularyFilterName</code>. <code>VocabularyFilterMethod</code>
+  /// must be specified if <code>VocabularyFilterName</code> is set.
+  ///
+  /// Parameter [channelDefinitions] :
+  /// Makes it possible to specify which speaker is on which channel. For
+  /// example, if the clinician is the first participant to speak, you would set
+  /// <code>ChannelId</code> of the first <code>ChannelDefinition</code> in the
+  /// list to <code>0</code> (to indicate the first channel) and
+  /// <code>ParticipantRole</code> to <code>CLINICIAN</code> (to indicate that
+  /// it's the clinician speaking). Then you would set the
+  /// <code>ChannelId</code> of the second <code>ChannelDefinition</code> in the
+  /// list to <code>1</code> (to indicate the second channel) and
+  /// <code>ParticipantRole</code> to <code>PATIENT</code> (to indicate that
+  /// it's the patient speaking).
+  ///
+  /// Parameter [kMSEncryptionContext] :
+  /// A map of plain text, non-secret key:value pairs, known as encryption
+  /// context pairs, that provide an added layer of security for your data. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/key-management.html#kms-context">KMS
+  /// encryption context</a> and <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/symmetric-asymmetric.html">Asymmetric
+  /// keys in KMS</a>.
+  ///
+  /// Parameter [outputEncryptionKMSKeyId] :
+  /// The KMS key you want to use to encrypt your Medical Scribe output.
+  ///
+  /// If using a key located in the <b>current</b> Amazon Web Services account,
+  /// you can specify your KMS key in one of four ways:
+  /// <ol>
+  /// <li>
+  /// Use the KMS key ID itself. For example,
+  /// <code>1234abcd-12ab-34cd-56ef-1234567890ab</code>.
+  /// </li>
+  /// <li>
+  /// Use an alias for the KMS key ID. For example,
+  /// <code>alias/ExampleAlias</code>.
+  /// </li>
+  /// <li>
+  /// Use the Amazon Resource Name (ARN) for the KMS key ID. For example,
+  /// <code>arn:aws:kms:region:account-ID:key/1234abcd-12ab-34cd-56ef-1234567890ab</code>.
+  /// </li>
+  /// <li>
+  /// Use the ARN for the KMS key alias. For example,
+  /// <code>arn:aws:kms:region:account-ID:alias/ExampleAlias</code>.
+  /// </li> </ol>
+  /// If using a key located in a <b>different</b> Amazon Web Services account
+  /// than the current Amazon Web Services account, you can specify your KMS key
+  /// in one of two ways:
+  /// <ol>
+  /// <li>
+  /// Use the ARN for the KMS key ID. For example,
+  /// <code>arn:aws:kms:region:account-ID:key/1234abcd-12ab-34cd-56ef-1234567890ab</code>.
+  /// </li>
+  /// <li>
+  /// Use the ARN for the KMS key alias. For example,
+  /// <code>arn:aws:kms:region:account-ID:alias/ExampleAlias</code>.
+  /// </li> </ol>
+  /// If you do not specify an encryption key, your output is encrypted with the
+  /// default Amazon S3 key (SSE-S3).
+  ///
+  /// Note that the role specified in the <code>DataAccessRoleArn</code> request
+  /// parameter must have permission to use the specified KMS key.
+  ///
+  /// Parameter [tags] :
+  /// Adds one or more custom tags, each in the form of a key:value pair, to the
+  /// Medica Scribe job.
+  ///
+  /// To learn more about using tags with Amazon Transcribe, refer to <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/tagging.html">Tagging
+  /// resources</a>.
+  Future<StartMedicalScribeJobResponse> startMedicalScribeJob({
+    required String dataAccessRoleArn,
+    required Media media,
+    required String medicalScribeJobName,
+    required String outputBucketName,
+    required MedicalScribeSettings settings,
+    List<MedicalScribeChannelDefinition>? channelDefinitions,
+    Map<String, String>? kMSEncryptionContext,
+    String? outputEncryptionKMSKeyId,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Transcribe.StartMedicalScribeJob'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'DataAccessRoleArn': dataAccessRoleArn,
+        'Media': media,
+        'MedicalScribeJobName': medicalScribeJobName,
+        'OutputBucketName': outputBucketName,
+        'Settings': settings,
+        if (channelDefinitions != null)
+          'ChannelDefinitions': channelDefinitions,
+        if (kMSEncryptionContext != null)
+          'KMSEncryptionContext': kMSEncryptionContext,
+        if (outputEncryptionKMSKeyId != null)
+          'OutputEncryptionKMSKeyId': outputEncryptionKMSKeyId,
+        if (tags != null) 'Tags': tags,
+      },
+    );
+
+    return StartMedicalScribeJobResponse.fromJson(jsonResponse.body);
+  }
+
   /// Transcribes the audio from a medical dictation or conversation and applies
   /// any additional Request Parameters you choose to include in your request.
   ///
@@ -1930,7 +2278,7 @@ class TranscribeService {
   ///
   /// To make a <code>StartMedicalTranscriptionJob</code> request, you must
   /// first upload your media file into an Amazon S3 bucket; you can then
-  /// specify the S3 location of the file using the <code>Media</code>
+  /// specify the Amazon S3 location of the file using the <code>Media</code>
   /// parameter.
   ///
   /// You must include the following parameters in your
@@ -2051,7 +2399,7 @@ class TranscribeService {
   /// Parameter [mediaSampleRateHertz] :
   /// The sample rate, in hertz, of the audio track in your input media file.
   ///
-  /// If you don't specify the media sample rate, Amazon Transcribe Medical
+  /// If you do not specify the media sample rate, Amazon Transcribe Medical
   /// determines it for you. If you specify the sample rate, it must match the
   /// rate detected by Amazon Transcribe Medical; if there's a mismatch between
   /// the value that you specify and the value detected, your job fails.
@@ -2093,7 +2441,7 @@ class TranscribeService {
   /// Use the ARN for the KMS key alias. For example,
   /// <code>arn:aws:kms:region:account-ID:alias/ExampleAlias</code>.
   /// </li> </ol>
-  /// If you don't specify an encryption key, your output is encrypted with the
+  /// If you do not specify an encryption key, your output is encrypted with the
   /// default Amazon S3 key (SSE-S3).
   ///
   /// If you specify a KMS key to encrypt your output, you must also specify an
@@ -2186,17 +2534,17 @@ class TranscribeService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'LanguageCode': languageCode.toValue(),
+        'LanguageCode': languageCode.value,
         'Media': media,
         'MedicalTranscriptionJobName': medicalTranscriptionJobName,
         'OutputBucketName': outputBucketName,
-        'Specialty': specialty.toValue(),
-        'Type': type.toValue(),
+        'Specialty': specialty.value,
+        'Type': type.value,
         if (contentIdentificationType != null)
-          'ContentIdentificationType': contentIdentificationType.toValue(),
+          'ContentIdentificationType': contentIdentificationType.value,
         if (kMSEncryptionContext != null)
           'KMSEncryptionContext': kMSEncryptionContext,
-        if (mediaFormat != null) 'MediaFormat': mediaFormat.toValue(),
+        if (mediaFormat != null) 'MediaFormat': mediaFormat.value,
         if (mediaSampleRateHertz != null)
           'MediaSampleRateHertz': mediaSampleRateHertz,
         if (outputEncryptionKMSKeyId != null)
@@ -2242,8 +2590,8 @@ class TranscribeService {
   /// media file, specify it using the <code>LanguageCode</code> parameter; you
   /// can find all valid language codes in the <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/supported-languages.html">Supported
-  /// languages</a> table. If you don't know the languages spoken in your media,
-  /// use either <code>IdentifyLanguage</code> or
+  /// languages</a> table. If you do not know the languages spoken in your
+  /// media, use either <code>IdentifyLanguage</code> or
   /// <code>IdentifyMultipleLanguages</code> and let Amazon Transcribe identify
   /// the languages for you.
   /// </li>
@@ -2273,8 +2621,10 @@ class TranscribeService {
   /// Makes it possible to redact or flag specified personally identifiable
   /// information (PII) in your transcript. If you use
   /// <code>ContentRedaction</code>, you must also include the sub-parameters:
-  /// <code>PiiEntityTypes</code>, <code>RedactionOutput</code>, and
-  /// <code>RedactionType</code>.
+  /// <code>RedactionOutput</code> and <code>RedactionType</code>. You can
+  /// optionally include <code>PiiEntityTypes</code> to choose which types of
+  /// PII you want to redact. If you do not include <code>PiiEntityTypes</code>
+  /// in your request, all PII is redacted.
   ///
   /// Parameter [identifyLanguage] :
   /// Enables automatic language identification in your transcription job
@@ -2424,7 +2774,7 @@ class TranscribeService {
   /// Parameter [mediaSampleRateHertz] :
   /// The sample rate, in hertz, of the audio track in your input media file.
   ///
-  /// If you don't specify the media sample rate, Amazon Transcribe determines
+  /// If you do not specify the media sample rate, Amazon Transcribe determines
   /// it for you. If you specify the sample rate, it must match the rate
   /// detected by Amazon Transcribe. If there's a mismatch between the value
   /// that you specify and the value detected, your job fails. In most cases,
@@ -2464,7 +2814,7 @@ class TranscribeService {
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/security_iam_id-based-policy-examples.html#auth-role-iam-user">Permissions
   /// Required for IAM User Roles</a>.
   ///
-  /// If you don't specify <code>OutputBucketName</code>, your transcript is
+  /// If you do not specify <code>OutputBucketName</code>, your transcript is
   /// placed in a service-managed Amazon S3 bucket and you are provided with a
   /// URI to access your transcript.
   ///
@@ -2502,7 +2852,7 @@ class TranscribeService {
   /// Use the ARN for the KMS key alias. For example,
   /// <code>arn:aws:kms:region:account-ID:alias/ExampleAlias</code>.
   /// </li> </ol>
-  /// If you don't specify an encryption key, your output is encrypted with the
+  /// If you do not specify an encryption key, your output is encrypted with the
   /// default Amazon S3 key (SSE-S3).
   ///
   /// If you specify a KMS key to encrypt your output, you must also specify an
@@ -2578,6 +2928,16 @@ class TranscribeService {
   /// To learn more about using tags with Amazon Transcribe, refer to <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/tagging.html">Tagging
   /// resources</a>.
+  ///
+  /// Parameter [toxicityDetection] :
+  /// Enables toxic speech detection in your transcript. If you include
+  /// <code>ToxicityDetection</code> in your request, you must also include
+  /// <code>ToxicityCategories</code>.
+  ///
+  /// For information on the types of toxic speech Amazon Transcribe can detect,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/toxic-language.html">Detecting
+  /// toxic speech</a>.
   Future<StartTranscriptionJobResponse> startTranscriptionJob({
     required Media media,
     required String transcriptionJobName,
@@ -2598,6 +2958,7 @@ class TranscribeService {
     Settings? settings,
     Subtitles? subtitles,
     List<Tag>? tags,
+    List<ToxicityDetectionSettings>? toxicityDetection,
   }) async {
     _s.validateNumRange(
       'mediaSampleRateHertz',
@@ -2626,13 +2987,13 @@ class TranscribeService {
           'JobExecutionSettings': jobExecutionSettings,
         if (kMSEncryptionContext != null)
           'KMSEncryptionContext': kMSEncryptionContext,
-        if (languageCode != null) 'LanguageCode': languageCode.toValue(),
+        if (languageCode != null) 'LanguageCode': languageCode.value,
         if (languageIdSettings != null)
           'LanguageIdSettings':
-              languageIdSettings.map((k, e) => MapEntry(k.toValue(), e)),
+              languageIdSettings.map((k, e) => MapEntry(k.value, e)),
         if (languageOptions != null)
-          'LanguageOptions': languageOptions.map((e) => e.toValue()).toList(),
-        if (mediaFormat != null) 'MediaFormat': mediaFormat.toValue(),
+          'LanguageOptions': languageOptions.map((e) => e.value).toList(),
+        if (mediaFormat != null) 'MediaFormat': mediaFormat.value,
         if (mediaSampleRateHertz != null)
           'MediaSampleRateHertz': mediaSampleRateHertz,
         if (modelSettings != null) 'ModelSettings': modelSettings,
@@ -2643,6 +3004,7 @@ class TranscribeService {
         if (settings != null) 'Settings': settings,
         if (subtitles != null) 'Subtitles': subtitles,
         if (tags != null) 'Tags': tags,
+        if (toxicityDetection != null) 'ToxicityDetection': toxicityDetection,
       },
     );
 
@@ -2797,7 +3159,7 @@ class TranscribeService {
       payload: {
         'CategoryName': categoryName,
         'Rules': rules,
-        if (inputType != null) 'InputType': inputType.toValue(),
+        if (inputType != null) 'InputType': inputType.value,
       },
     );
 
@@ -2846,7 +3208,7 @@ class TranscribeService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'LanguageCode': languageCode.toValue(),
+        'LanguageCode': languageCode.value,
         'VocabularyFileUri': vocabularyFileUri,
         'VocabularyName': vocabularyName,
       },
@@ -2946,7 +3308,7 @@ class TranscribeService {
       // TODO queryParams
       headers: headers,
       payload: {
-        'LanguageCode': languageCode.toValue(),
+        'LanguageCode': languageCode.value,
         'VocabularyName': vocabularyName,
         if (dataAccessRoleArn != null) 'DataAccessRoleArn': dataAccessRoleArn,
         if (phrases != null) 'Phrases': phrases,
@@ -3115,84 +3477,52 @@ class AbsoluteTimeRange {
 }
 
 enum BaseModelName {
-  narrowBand,
-  wideBand,
-}
+  narrowBand('NarrowBand'),
+  wideBand('WideBand'),
+  ;
 
-extension BaseModelNameValueExtension on BaseModelName {
-  String toValue() {
-    switch (this) {
-      case BaseModelName.narrowBand:
-        return 'NarrowBand';
-      case BaseModelName.wideBand:
-        return 'WideBand';
-    }
-  }
-}
+  final String value;
 
-extension BaseModelNameFromString on String {
-  BaseModelName toBaseModelName() {
-    switch (this) {
-      case 'NarrowBand':
-        return BaseModelName.narrowBand;
-      case 'WideBand':
-        return BaseModelName.wideBand;
-    }
-    throw Exception('$this is not known in enum BaseModelName');
-  }
+  const BaseModelName(this.value);
+
+  static BaseModelName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BaseModelName'));
 }
 
 enum CLMLanguageCode {
-  enUs,
-  hiIn,
-  esUs,
-  enGb,
-  enAu,
-  deDe,
-  jaJp,
+  enUs('en-US'),
+  hiIn('hi-IN'),
+  esUs('es-US'),
+  enGb('en-GB'),
+  enAu('en-AU'),
+  deDe('de-DE'),
+  jaJp('ja-JP'),
+  ;
+
+  final String value;
+
+  const CLMLanguageCode(this.value);
+
+  static CLMLanguageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CLMLanguageCode'));
 }
 
-extension CLMLanguageCodeValueExtension on CLMLanguageCode {
-  String toValue() {
-    switch (this) {
-      case CLMLanguageCode.enUs:
-        return 'en-US';
-      case CLMLanguageCode.hiIn:
-        return 'hi-IN';
-      case CLMLanguageCode.esUs:
-        return 'es-US';
-      case CLMLanguageCode.enGb:
-        return 'en-GB';
-      case CLMLanguageCode.enAu:
-        return 'en-AU';
-      case CLMLanguageCode.deDe:
-        return 'de-DE';
-      case CLMLanguageCode.jaJp:
-        return 'ja-JP';
-    }
-  }
-}
+enum CallAnalyticsFeature {
+  generativeSummarization('GENERATIVE_SUMMARIZATION'),
+  ;
 
-extension CLMLanguageCodeFromString on String {
-  CLMLanguageCode toCLMLanguageCode() {
-    switch (this) {
-      case 'en-US':
-        return CLMLanguageCode.enUs;
-      case 'hi-IN':
-        return CLMLanguageCode.hiIn;
-      case 'es-US':
-        return CLMLanguageCode.esUs;
-      case 'en-GB':
-        return CLMLanguageCode.enGb;
-      case 'en-AU':
-        return CLMLanguageCode.enAu;
-      case 'de-DE':
-        return CLMLanguageCode.deDe;
-      case 'ja-JP':
-        return CLMLanguageCode.jaJp;
-    }
-    throw Exception('$this is not known in enum CLMLanguageCode');
-  }
+  final String value;
+
+  const CallAnalyticsFeature(this.value);
+
+  static CallAnalyticsFeature fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CallAnalyticsFeature'));
 }
 
 /// Provides detailed information about a Call Analytics job.
@@ -3211,6 +3541,10 @@ extension CLMLanguageCodeFromString on String {
 /// redacted media file at the location specified in the
 /// <code>RedactedMediaFileUri</code> field of your response.
 class CallAnalyticsJob {
+  /// Provides detailed information about a call analytics job, including
+  /// information about skipped analytics features.
+  final CallAnalyticsJobDetails? callAnalyticsJobDetails;
+
   /// The name of the Call Analytics job. Job names are case sensitive and must be
   /// unique within an Amazon Web Services account.
   final String? callAnalyticsJobName;
@@ -3255,7 +3589,8 @@ class CallAnalyticsJob {
   /// <code>Unsupported media format</code>.
   ///
   /// The media format specified in <code>MediaFormat</code> isn't valid. Refer to
-  /// <b>MediaFormat</b> for a list of supported formats.
+  /// refer to the <code>MediaFormat</code> parameter for a list of supported
+  /// formats.
   /// </li>
   /// <li>
   /// <code>The media format provided does not match the detected media
@@ -3284,16 +3619,16 @@ class CallAnalyticsJob {
   ///
   /// The size of your media file is larger than what Amazon Transcribe can
   /// process. For more information, refer to <a
-  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/limits-guidelines.html#limits">Guidelines
-  /// and quotas</a>.
+  /// href="https://docs.aws.amazon.com/general/latest/gr/transcribe.html#limits-amazon-transcribe">Service
+  /// quotas</a>.
   /// </li>
   /// <li>
   /// <code>Invalid number of channels: number of channels too large</code>.
   ///
   /// Your audio contains more channels than Amazon Transcribe is able to process.
   /// For more information, refer to <a
-  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/limits-guidelines.html#limits">Guidelines
-  /// and quotas</a>.
+  /// href="https://docs.aws.amazon.com/general/latest/gr/transcribe.html#limits-amazon-transcribe">Service
+  /// quotas</a>.
   /// </li>
   /// </ul>
   final String? failureReason;
@@ -3311,7 +3646,7 @@ class CallAnalyticsJob {
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/supported-languages.html">Supported
   /// languages</a> table.
   ///
-  /// If you don't know the language spoken in your media file, you can omit this
+  /// If you do not know the language spoken in your media file, you can omit this
   /// field and let Amazon Transcribe automatically identify the language of your
   /// media. To improve the accuracy of language identification, you can include
   /// several language codes and Amazon Transcribe chooses the closest match for
@@ -3342,6 +3677,7 @@ class CallAnalyticsJob {
   final Transcript? transcript;
 
   CallAnalyticsJob({
+    this.callAnalyticsJobDetails,
     this.callAnalyticsJobName,
     this.callAnalyticsJobStatus,
     this.channelDefinitions,
@@ -3361,11 +3697,15 @@ class CallAnalyticsJob {
 
   factory CallAnalyticsJob.fromJson(Map<String, dynamic> json) {
     return CallAnalyticsJob(
+      callAnalyticsJobDetails: json['CallAnalyticsJobDetails'] != null
+          ? CallAnalyticsJobDetails.fromJson(
+              json['CallAnalyticsJobDetails'] as Map<String, dynamic>)
+          : null,
       callAnalyticsJobName: json['CallAnalyticsJobName'] as String?,
       callAnalyticsJobStatus: (json['CallAnalyticsJobStatus'] as String?)
-          ?.toCallAnalyticsJobStatus(),
+          ?.let(CallAnalyticsJobStatus.fromString),
       channelDefinitions: (json['ChannelDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
       completionTime: timeStampFromJson(json['CompletionTime']),
@@ -3373,11 +3713,13 @@ class CallAnalyticsJob {
       dataAccessRoleArn: json['DataAccessRoleArn'] as String?,
       failureReason: json['FailureReason'] as String?,
       identifiedLanguageScore: json['IdentifiedLanguageScore'] as double?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       media: json['Media'] != null
           ? Media.fromJson(json['Media'] as Map<String, dynamic>)
           : null,
-      mediaFormat: (json['MediaFormat'] as String?)?.toMediaFormat(),
+      mediaFormat:
+          (json['MediaFormat'] as String?)?.let(MediaFormat.fromString),
       mediaSampleRateHertz: json['MediaSampleRateHertz'] as int?,
       settings: json['Settings'] != null
           ? CallAnalyticsJobSettings.fromJson(
@@ -3387,6 +3729,31 @@ class CallAnalyticsJob {
       transcript: json['Transcript'] != null
           ? Transcript.fromJson(json['Transcript'] as Map<String, dynamic>)
           : null,
+    );
+  }
+}
+
+/// Contains details about a call analytics job, including information about
+/// skipped analytics features.
+class CallAnalyticsJobDetails {
+  /// Contains information about any skipped analytics features during the
+  /// analysis of a call analytics job.
+  ///
+  /// This array lists all the analytics features that were skipped, along with
+  /// their corresponding reason code and message.
+  final List<CallAnalyticsSkippedFeature>? skipped;
+
+  CallAnalyticsJobDetails({
+    this.skipped,
+  });
+
+  factory CallAnalyticsJobDetails.fromJson(Map<String, dynamic> json) {
+    return CallAnalyticsJobDetails(
+      skipped: (json['Skipped'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              CallAnalyticsSkippedFeature.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -3434,7 +3801,7 @@ class CallAnalyticsJobSettings {
   /// sensitive.
   ///
   /// The language of the specified custom language model must match the language
-  /// code that you specify in your transcription request. If the languages don't
+  /// code that you specify in your transcription request. If the languages do not
   /// match, the custom language model isn't applied. There are no errors or
   /// warnings associated with a language mismatch.
   final String? languageModelName;
@@ -3454,6 +3821,11 @@ class CallAnalyticsJobSettings {
   /// To transcribe speech in Modern Standard Arabic (<code>ar-SA</code>), your
   /// media file must be encoded at a sample rate of 16,000 Hz or higher.
   final List<LanguageCode>? languageOptions;
+
+  /// Contains <code>GenerateAbstractiveSummary</code>, which is a required
+  /// parameter if you want to enable Generative call summarization in your Call
+  /// Analytics request.
+  final Summarization? summarization;
 
   /// Specify how you want your custom vocabulary filter applied to your
   /// transcript.
@@ -3482,6 +3854,7 @@ class CallAnalyticsJobSettings {
     this.languageIdSettings,
     this.languageModelName,
     this.languageOptions,
+    this.summarization,
     this.vocabularyFilterMethod,
     this.vocabularyFilterName,
     this.vocabularyName,
@@ -3494,15 +3867,19 @@ class CallAnalyticsJobSettings {
               json['ContentRedaction'] as Map<String, dynamic>)
           : null,
       languageIdSettings: (json['LanguageIdSettings'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toLanguageCode(),
+          ?.map((k, e) => MapEntry(LanguageCode.fromString(k),
               LanguageIdSettings.fromJson(e as Map<String, dynamic>))),
       languageModelName: json['LanguageModelName'] as String?,
       languageOptions: (json['LanguageOptions'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toLanguageCode())
+          ?.nonNulls
+          .map((e) => LanguageCode.fromString((e as String)))
           .toList(),
+      summarization: json['Summarization'] != null
+          ? Summarization.fromJson(
+              json['Summarization'] as Map<String, dynamic>)
+          : null,
       vocabularyFilterMethod: (json['VocabularyFilterMethod'] as String?)
-          ?.toVocabularyFilterMethod(),
+          ?.let(VocabularyFilterMethod.fromString),
       vocabularyFilterName: json['VocabularyFilterName'] as String?,
       vocabularyName: json['VocabularyName'] as String?,
     );
@@ -3513,6 +3890,7 @@ class CallAnalyticsJobSettings {
     final languageIdSettings = this.languageIdSettings;
     final languageModelName = this.languageModelName;
     final languageOptions = this.languageOptions;
+    final summarization = this.summarization;
     final vocabularyFilterMethod = this.vocabularyFilterMethod;
     final vocabularyFilterName = this.vocabularyFilterName;
     final vocabularyName = this.vocabularyName;
@@ -3520,12 +3898,13 @@ class CallAnalyticsJobSettings {
       if (contentRedaction != null) 'ContentRedaction': contentRedaction,
       if (languageIdSettings != null)
         'LanguageIdSettings':
-            languageIdSettings.map((k, e) => MapEntry(k.toValue(), e)),
+            languageIdSettings.map((k, e) => MapEntry(k.value, e)),
       if (languageModelName != null) 'LanguageModelName': languageModelName,
       if (languageOptions != null)
-        'LanguageOptions': languageOptions.map((e) => e.toValue()).toList(),
+        'LanguageOptions': languageOptions.map((e) => e.value).toList(),
+      if (summarization != null) 'Summarization': summarization,
       if (vocabularyFilterMethod != null)
-        'VocabularyFilterMethod': vocabularyFilterMethod.toValue(),
+        'VocabularyFilterMethod': vocabularyFilterMethod.value,
       if (vocabularyFilterName != null)
         'VocabularyFilterName': vocabularyFilterName,
       if (vocabularyName != null) 'VocabularyName': vocabularyName,
@@ -3534,45 +3913,28 @@ class CallAnalyticsJobSettings {
 }
 
 enum CallAnalyticsJobStatus {
-  queued,
-  inProgress,
-  failed,
-  completed,
-}
+  queued('QUEUED'),
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  ;
 
-extension CallAnalyticsJobStatusValueExtension on CallAnalyticsJobStatus {
-  String toValue() {
-    switch (this) {
-      case CallAnalyticsJobStatus.queued:
-        return 'QUEUED';
-      case CallAnalyticsJobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case CallAnalyticsJobStatus.failed:
-        return 'FAILED';
-      case CallAnalyticsJobStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension CallAnalyticsJobStatusFromString on String {
-  CallAnalyticsJobStatus toCallAnalyticsJobStatus() {
-    switch (this) {
-      case 'QUEUED':
-        return CallAnalyticsJobStatus.queued;
-      case 'IN_PROGRESS':
-        return CallAnalyticsJobStatus.inProgress;
-      case 'FAILED':
-        return CallAnalyticsJobStatus.failed;
-      case 'COMPLETED':
-        return CallAnalyticsJobStatus.completed;
-    }
-    throw Exception('$this is not known in enum CallAnalyticsJobStatus');
-  }
+  const CallAnalyticsJobStatus(this.value);
+
+  static CallAnalyticsJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CallAnalyticsJobStatus'));
 }
 
 /// Provides detailed information about a specific Call Analytics job.
 class CallAnalyticsJobSummary {
+  /// Provides detailed information about a call analytics job, including
+  /// information about skipped analytics features.
+  final CallAnalyticsJobDetails? callAnalyticsJobDetails;
+
   /// The name of the Call Analytics job. Job names are case sensitive and must be
   /// unique within an Amazon Web Services account.
   final String? callAnalyticsJobName;
@@ -3618,6 +3980,7 @@ class CallAnalyticsJobSummary {
   final DateTime? startTime;
 
   CallAnalyticsJobSummary({
+    this.callAnalyticsJobDetails,
     this.callAnalyticsJobName,
     this.callAnalyticsJobStatus,
     this.completionTime,
@@ -3629,16 +3992,77 @@ class CallAnalyticsJobSummary {
 
   factory CallAnalyticsJobSummary.fromJson(Map<String, dynamic> json) {
     return CallAnalyticsJobSummary(
+      callAnalyticsJobDetails: json['CallAnalyticsJobDetails'] != null
+          ? CallAnalyticsJobDetails.fromJson(
+              json['CallAnalyticsJobDetails'] as Map<String, dynamic>)
+          : null,
       callAnalyticsJobName: json['CallAnalyticsJobName'] as String?,
       callAnalyticsJobStatus: (json['CallAnalyticsJobStatus'] as String?)
-          ?.toCallAnalyticsJobStatus(),
+          ?.let(CallAnalyticsJobStatus.fromString),
       completionTime: timeStampFromJson(json['CompletionTime']),
       creationTime: timeStampFromJson(json['CreationTime']),
       failureReason: json['FailureReason'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       startTime: timeStampFromJson(json['StartTime']),
     );
   }
+}
+
+/// Represents a skipped analytics feature during the analysis of a call
+/// analytics job.
+///
+/// The <code>Feature</code> field indicates the type of analytics feature that
+/// was skipped.
+///
+/// The <code>Message</code> field contains additional information or a message
+/// explaining why the analytics feature was skipped.
+///
+/// The <code>ReasonCode</code> field provides a code indicating the reason why
+/// the analytics feature was skipped.
+class CallAnalyticsSkippedFeature {
+  /// Indicates the type of analytics feature that was skipped during the analysis
+  /// of a call analytics job.
+  final CallAnalyticsFeature? feature;
+
+  /// Contains additional information or a message explaining why a specific
+  /// analytics feature was skipped during the analysis of a call analytics job.
+  final String? message;
+
+  /// Provides a code indicating the reason why a specific analytics feature was
+  /// skipped during the analysis of a call analytics job.
+  final CallAnalyticsSkippedReasonCode? reasonCode;
+
+  CallAnalyticsSkippedFeature({
+    this.feature,
+    this.message,
+    this.reasonCode,
+  });
+
+  factory CallAnalyticsSkippedFeature.fromJson(Map<String, dynamic> json) {
+    return CallAnalyticsSkippedFeature(
+      feature:
+          (json['Feature'] as String?)?.let(CallAnalyticsFeature.fromString),
+      message: json['Message'] as String?,
+      reasonCode: (json['ReasonCode'] as String?)
+          ?.let(CallAnalyticsSkippedReasonCode.fromString),
+    );
+  }
+}
+
+enum CallAnalyticsSkippedReasonCode {
+  insufficientConversationContent('INSUFFICIENT_CONVERSATION_CONTENT'),
+  failedSafetyGuidelines('FAILED_SAFETY_GUIDELINES'),
+  ;
+
+  final String value;
+
+  const CallAnalyticsSkippedReasonCode(this.value);
+
+  static CallAnalyticsSkippedReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CallAnalyticsSkippedReasonCode'));
 }
 
 /// Provides you with the properties of the Call Analytics category you
@@ -3685,10 +4109,10 @@ class CategoryProperties {
     return CategoryProperties(
       categoryName: json['CategoryName'] as String?,
       createTime: timeStampFromJson(json['CreateTime']),
-      inputType: (json['InputType'] as String?)?.toInputType(),
+      inputType: (json['InputType'] as String?)?.let(InputType.fromString),
       lastUpdateTime: timeStampFromJson(json['LastUpdateTime']),
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Rule.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3717,7 +4141,7 @@ class ChannelDefinition {
     return ChannelDefinition(
       channelId: json['ChannelId'] as int?,
       participantRole:
-          (json['ParticipantRole'] as String?)?.toParticipantRole(),
+          (json['ParticipantRole'] as String?)?.let(ParticipantRole.fromString),
     );
   }
 
@@ -3726,7 +4150,7 @@ class ChannelDefinition {
     final participantRole = this.participantRole;
     return {
       if (channelId != null) 'ChannelId': channelId,
-      if (participantRole != null) 'ParticipantRole': participantRole.toValue(),
+      if (participantRole != null) 'ParticipantRole': participantRole.value,
     };
   }
 }
@@ -3734,8 +4158,9 @@ class ChannelDefinition {
 /// Makes it possible to redact or flag specified personally identifiable
 /// information (PII) in your transcript. If you use
 /// <code>ContentRedaction</code>, you must also include the sub-parameters:
-/// <code>PiiEntityTypes</code>, <code>RedactionOutput</code>, and
-/// <code>RedactionType</code>.
+/// <code>RedactionOutput</code> and <code>RedactionType</code>. You can
+/// optionally include <code>PiiEntityTypes</code> to choose which types of PII
+/// you want to redact.
 class ContentRedaction {
   /// Specify if you want only a redacted transcript, or if you want a redacted
   /// and an unredacted transcript.
@@ -3750,11 +4175,14 @@ class ContentRedaction {
   /// Specify the category of information you want to redact; <code>PII</code>
   /// (personally identifiable information) is the only valid value. You can use
   /// <code>PiiEntityTypes</code> to choose which types of PII you want to redact.
+  /// If you do not include <code>PiiEntityTypes</code> in your request, all PII
+  /// is redacted.
   final RedactionType redactionType;
 
   /// Specify which types of personally identifiable information (PII) you want to
   /// redact in your transcript. You can include as many types as you'd like, or
-  /// you can select <code>ALL</code>.
+  /// you can select <code>ALL</code>. If you do not include
+  /// <code>PiiEntityTypes</code> in your request, all PII is redacted.
   final List<PiiEntityType>? piiEntityTypes;
 
   ContentRedaction({
@@ -3765,11 +4193,13 @@ class ContentRedaction {
 
   factory ContentRedaction.fromJson(Map<String, dynamic> json) {
     return ContentRedaction(
-      redactionOutput: (json['RedactionOutput'] as String).toRedactionOutput(),
-      redactionType: (json['RedactionType'] as String).toRedactionType(),
+      redactionOutput:
+          RedactionOutput.fromString((json['RedactionOutput'] as String)),
+      redactionType:
+          RedactionType.fromString((json['RedactionType'] as String)),
       piiEntityTypes: (json['PiiEntityTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toPiiEntityType())
+          ?.nonNulls
+          .map((e) => PiiEntityType.fromString((e as String)))
           .toList(),
     );
   }
@@ -3779,10 +4209,10 @@ class ContentRedaction {
     final redactionType = this.redactionType;
     final piiEntityTypes = this.piiEntityTypes;
     return {
-      'RedactionOutput': redactionOutput.toValue(),
-      'RedactionType': redactionType.toValue(),
+      'RedactionOutput': redactionOutput.value,
+      'RedactionType': redactionType.value,
       if (piiEntityTypes != null)
-        'PiiEntityTypes': piiEntityTypes.map((e) => e.toValue()).toList(),
+        'PiiEntityTypes': piiEntityTypes.map((e) => e.value).toList(),
     };
   }
 }
@@ -3837,14 +4267,17 @@ class CreateLanguageModelResponse {
 
   factory CreateLanguageModelResponse.fromJson(Map<String, dynamic> json) {
     return CreateLanguageModelResponse(
-      baseModelName: (json['BaseModelName'] as String?)?.toBaseModelName(),
+      baseModelName:
+          (json['BaseModelName'] as String?)?.let(BaseModelName.fromString),
       inputDataConfig: json['InputDataConfig'] != null
           ? InputDataConfig.fromJson(
               json['InputDataConfig'] as Map<String, dynamic>)
           : null,
-      languageCode: (json['LanguageCode'] as String?)?.toCLMLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(CLMLanguageCode.fromString),
       modelName: json['ModelName'] as String?,
-      modelStatus: (json['ModelStatus'] as String?)?.toModelStatus(),
+      modelStatus:
+          (json['ModelStatus'] as String?)?.let(ModelStatus.fromString),
     );
   }
 }
@@ -3888,11 +4321,12 @@ class CreateMedicalVocabularyResponse {
   factory CreateMedicalVocabularyResponse.fromJson(Map<String, dynamic> json) {
     return CreateMedicalVocabularyResponse(
       failureReason: json['FailureReason'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyName: json['VocabularyName'] as String?,
       vocabularyState:
-          (json['VocabularyState'] as String?)?.toVocabularyState(),
+          (json['VocabularyState'] as String?)?.let(VocabularyState.fromString),
     );
   }
 }
@@ -3919,7 +4353,8 @@ class CreateVocabularyFilterResponse {
 
   factory CreateVocabularyFilterResponse.fromJson(Map<String, dynamic> json) {
     return CreateVocabularyFilterResponse(
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyFilterName: json['VocabularyFilterName'] as String?,
     );
@@ -3963,11 +4398,12 @@ class CreateVocabularyResponse {
   factory CreateVocabularyResponse.fromJson(Map<String, dynamic> json) {
     return CreateVocabularyResponse(
       failureReason: json['FailureReason'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyName: json['VocabularyName'] as String?,
       vocabularyState:
-          (json['VocabularyState'] as String?)?.toVocabularyState(),
+          (json['VocabularyState'] as String?)?.let(VocabularyState.fromString),
     );
   }
 }
@@ -4053,6 +4489,25 @@ class GetCallAnalyticsJobResponse {
   }
 }
 
+class GetMedicalScribeJobResponse {
+  /// Provides detailed information about the specified Medical Scribe job,
+  /// including job status and, if applicable, failure reason
+  final MedicalScribeJob? medicalScribeJob;
+
+  GetMedicalScribeJobResponse({
+    this.medicalScribeJob,
+  });
+
+  factory GetMedicalScribeJobResponse.fromJson(Map<String, dynamic> json) {
+    return GetMedicalScribeJobResponse(
+      medicalScribeJob: json['MedicalScribeJob'] != null
+          ? MedicalScribeJob.fromJson(
+              json['MedicalScribeJob'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
 class GetMedicalTranscriptionJobResponse {
   /// Provides detailed information about the specified medical transcription job,
   /// including job status and, if applicable, failure reason.
@@ -4074,8 +4529,8 @@ class GetMedicalTranscriptionJobResponse {
 }
 
 class GetMedicalVocabularyResponse {
-  /// The S3 location where the specified custom medical vocabulary is stored; use
-  /// this URI to view or download the custom vocabulary.
+  /// The Amazon S3 location where the specified custom medical vocabulary is
+  /// stored; use this URI to view or download the custom vocabulary.
   final String? downloadUri;
 
   /// If <code>VocabularyState</code> is <code>FAILED</code>,
@@ -4118,11 +4573,12 @@ class GetMedicalVocabularyResponse {
     return GetMedicalVocabularyResponse(
       downloadUri: json['DownloadUri'] as String?,
       failureReason: json['FailureReason'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyName: json['VocabularyName'] as String?,
       vocabularyState:
-          (json['VocabularyState'] as String?)?.toVocabularyState(),
+          (json['VocabularyState'] as String?)?.let(VocabularyState.fromString),
     );
   }
 }
@@ -4174,7 +4630,8 @@ class GetVocabularyFilterResponse {
   factory GetVocabularyFilterResponse.fromJson(Map<String, dynamic> json) {
     return GetVocabularyFilterResponse(
       downloadUri: json['DownloadUri'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyFilterName: json['VocabularyFilterName'] as String?,
     );
@@ -4182,8 +4639,8 @@ class GetVocabularyFilterResponse {
 }
 
 class GetVocabularyResponse {
-  /// The S3 location where the custom vocabulary is stored; use this URI to view
-  /// or download the custom vocabulary.
+  /// The Amazon S3 location where the custom vocabulary is stored; use this URI
+  /// to view or download the custom vocabulary.
   final String? downloadUri;
 
   /// If <code>VocabularyState</code> is <code>FAILED</code>,
@@ -4224,11 +4681,12 @@ class GetVocabularyResponse {
     return GetVocabularyResponse(
       downloadUri: json['DownloadUri'] as String?,
       failureReason: json['FailureReason'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyName: json['VocabularyName'] as String?,
       vocabularyState:
-          (json['VocabularyState'] as String?)?.toVocabularyState(),
+          (json['VocabularyState'] as String?)?.let(VocabularyState.fromString),
     );
   }
 }
@@ -4295,31 +4753,17 @@ class InputDataConfig {
 }
 
 enum InputType {
-  realTime,
-  postCall,
-}
+  realTime('REAL_TIME'),
+  postCall('POST_CALL'),
+  ;
 
-extension InputTypeValueExtension on InputType {
-  String toValue() {
-    switch (this) {
-      case InputType.realTime:
-        return 'REAL_TIME';
-      case InputType.postCall:
-        return 'POST_CALL';
-    }
-  }
-}
+  final String value;
 
-extension InputTypeFromString on String {
-  InputType toInputType() {
-    switch (this) {
-      case 'REAL_TIME':
-        return InputType.realTime;
-      case 'POST_CALL':
-        return InputType.postCall;
-    }
-    throw Exception('$this is not known in enum InputType');
-  }
+  const InputType(this.value);
+
+  static InputType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum InputType'));
 }
 
 /// Flag the presence or absence of interruptions in your Call Analytics
@@ -4383,7 +4827,7 @@ class InterruptionFilter {
           : null,
       negate: json['Negate'] as bool?,
       participantRole:
-          (json['ParticipantRole'] as String?)?.toParticipantRole(),
+          (json['ParticipantRole'] as String?)?.let(ParticipantRole.fromString),
       relativeTimeRange: json['RelativeTimeRange'] != null
           ? RelativeTimeRange.fromJson(
               json['RelativeTimeRange'] as Map<String, dynamic>)
@@ -4401,7 +4845,7 @@ class InterruptionFilter {
     return {
       if (absoluteTimeRange != null) 'AbsoluteTimeRange': absoluteTimeRange,
       if (negate != null) 'Negate': negate,
-      if (participantRole != null) 'ParticipantRole': participantRole.toValue(),
+      if (participantRole != null) 'ParticipantRole': participantRole.value,
       if (relativeTimeRange != null) 'RelativeTimeRange': relativeTimeRange,
       if (threshold != null) 'Threshold': threshold,
     };
@@ -4469,216 +4913,119 @@ class JobExecutionSettings {
 }
 
 enum LanguageCode {
-  afZa,
-  arAe,
-  arSa,
-  daDk,
-  deCh,
-  deDe,
-  enAb,
-  enAu,
-  enGb,
-  enIe,
-  enIn,
-  enUs,
-  enWl,
-  esEs,
-  esUs,
-  faIr,
-  frCa,
-  frFr,
-  heIl,
-  hiIn,
-  idId,
-  itIt,
-  jaJp,
-  koKr,
-  msMy,
-  nlNl,
-  ptBr,
-  ptPt,
-  ruRu,
-  taIn,
-  teIn,
-  trTr,
-  zhCn,
-  zhTw,
-  thTh,
-  enZa,
-  enNz,
-  viVn,
-  svSe,
-}
+  afZa('af-ZA'),
+  arAe('ar-AE'),
+  arSa('ar-SA'),
+  daDk('da-DK'),
+  deCh('de-CH'),
+  deDe('de-DE'),
+  enAb('en-AB'),
+  enAu('en-AU'),
+  enGb('en-GB'),
+  enIe('en-IE'),
+  enIn('en-IN'),
+  enUs('en-US'),
+  enWl('en-WL'),
+  esEs('es-ES'),
+  esUs('es-US'),
+  faIr('fa-IR'),
+  frCa('fr-CA'),
+  frFr('fr-FR'),
+  heIl('he-IL'),
+  hiIn('hi-IN'),
+  idId('id-ID'),
+  itIt('it-IT'),
+  jaJp('ja-JP'),
+  koKr('ko-KR'),
+  msMy('ms-MY'),
+  nlNl('nl-NL'),
+  ptBr('pt-BR'),
+  ptPt('pt-PT'),
+  ruRu('ru-RU'),
+  taIn('ta-IN'),
+  teIn('te-IN'),
+  trTr('tr-TR'),
+  zhCn('zh-CN'),
+  zhTw('zh-TW'),
+  thTh('th-TH'),
+  enZa('en-ZA'),
+  enNz('en-NZ'),
+  viVn('vi-VN'),
+  svSe('sv-SE'),
+  abGe('ab-GE'),
+  astEs('ast-ES'),
+  azAz('az-AZ'),
+  baRu('ba-RU'),
+  beBy('be-BY'),
+  bgBg('bg-BG'),
+  bnIn('bn-IN'),
+  bsBa('bs-BA'),
+  caEs('ca-ES'),
+  ckbIq('ckb-IQ'),
+  ckbIr('ckb-IR'),
+  csCz('cs-CZ'),
+  cyWl('cy-WL'),
+  elGr('el-GR'),
+  etEt('et-ET'),
+  euEs('eu-ES'),
+  fiFi('fi-FI'),
+  glEs('gl-ES'),
+  guIn('gu-IN'),
+  haNg('ha-NG'),
+  hrHr('hr-HR'),
+  huHu('hu-HU'),
+  hyAm('hy-AM'),
+  isIs('is-IS'),
+  kaGe('ka-GE'),
+  kabDz('kab-DZ'),
+  kkKz('kk-KZ'),
+  knIn('kn-IN'),
+  kyKg('ky-KG'),
+  lgIn('lg-IN'),
+  ltLt('lt-LT'),
+  lvLv('lv-LV'),
+  mhrRu('mhr-RU'),
+  miNz('mi-NZ'),
+  mkMk('mk-MK'),
+  mlIn('ml-IN'),
+  mnMn('mn-MN'),
+  mrIn('mr-IN'),
+  mtMt('mt-MT'),
+  noNo('no-NO'),
+  orIn('or-IN'),
+  paIn('pa-IN'),
+  plPl('pl-PL'),
+  psAf('ps-AF'),
+  roRo('ro-RO'),
+  rwRw('rw-RW'),
+  siLk('si-LK'),
+  skSk('sk-SK'),
+  slSi('sl-SI'),
+  soSo('so-SO'),
+  srRs('sr-RS'),
+  suId('su-ID'),
+  swBi('sw-BI'),
+  swKe('sw-KE'),
+  swRw('sw-RW'),
+  swTz('sw-TZ'),
+  swUg('sw-UG'),
+  tlPh('tl-PH'),
+  ttRu('tt-RU'),
+  ugCn('ug-CN'),
+  ukUa('uk-UA'),
+  uzUz('uz-UZ'),
+  woSn('wo-SN'),
+  zuZa('zu-ZA'),
+  ;
 
-extension LanguageCodeValueExtension on LanguageCode {
-  String toValue() {
-    switch (this) {
-      case LanguageCode.afZa:
-        return 'af-ZA';
-      case LanguageCode.arAe:
-        return 'ar-AE';
-      case LanguageCode.arSa:
-        return 'ar-SA';
-      case LanguageCode.daDk:
-        return 'da-DK';
-      case LanguageCode.deCh:
-        return 'de-CH';
-      case LanguageCode.deDe:
-        return 'de-DE';
-      case LanguageCode.enAb:
-        return 'en-AB';
-      case LanguageCode.enAu:
-        return 'en-AU';
-      case LanguageCode.enGb:
-        return 'en-GB';
-      case LanguageCode.enIe:
-        return 'en-IE';
-      case LanguageCode.enIn:
-        return 'en-IN';
-      case LanguageCode.enUs:
-        return 'en-US';
-      case LanguageCode.enWl:
-        return 'en-WL';
-      case LanguageCode.esEs:
-        return 'es-ES';
-      case LanguageCode.esUs:
-        return 'es-US';
-      case LanguageCode.faIr:
-        return 'fa-IR';
-      case LanguageCode.frCa:
-        return 'fr-CA';
-      case LanguageCode.frFr:
-        return 'fr-FR';
-      case LanguageCode.heIl:
-        return 'he-IL';
-      case LanguageCode.hiIn:
-        return 'hi-IN';
-      case LanguageCode.idId:
-        return 'id-ID';
-      case LanguageCode.itIt:
-        return 'it-IT';
-      case LanguageCode.jaJp:
-        return 'ja-JP';
-      case LanguageCode.koKr:
-        return 'ko-KR';
-      case LanguageCode.msMy:
-        return 'ms-MY';
-      case LanguageCode.nlNl:
-        return 'nl-NL';
-      case LanguageCode.ptBr:
-        return 'pt-BR';
-      case LanguageCode.ptPt:
-        return 'pt-PT';
-      case LanguageCode.ruRu:
-        return 'ru-RU';
-      case LanguageCode.taIn:
-        return 'ta-IN';
-      case LanguageCode.teIn:
-        return 'te-IN';
-      case LanguageCode.trTr:
-        return 'tr-TR';
-      case LanguageCode.zhCn:
-        return 'zh-CN';
-      case LanguageCode.zhTw:
-        return 'zh-TW';
-      case LanguageCode.thTh:
-        return 'th-TH';
-      case LanguageCode.enZa:
-        return 'en-ZA';
-      case LanguageCode.enNz:
-        return 'en-NZ';
-      case LanguageCode.viVn:
-        return 'vi-VN';
-      case LanguageCode.svSe:
-        return 'sv-SE';
-    }
-  }
-}
+  final String value;
 
-extension LanguageCodeFromString on String {
-  LanguageCode toLanguageCode() {
-    switch (this) {
-      case 'af-ZA':
-        return LanguageCode.afZa;
-      case 'ar-AE':
-        return LanguageCode.arAe;
-      case 'ar-SA':
-        return LanguageCode.arSa;
-      case 'da-DK':
-        return LanguageCode.daDk;
-      case 'de-CH':
-        return LanguageCode.deCh;
-      case 'de-DE':
-        return LanguageCode.deDe;
-      case 'en-AB':
-        return LanguageCode.enAb;
-      case 'en-AU':
-        return LanguageCode.enAu;
-      case 'en-GB':
-        return LanguageCode.enGb;
-      case 'en-IE':
-        return LanguageCode.enIe;
-      case 'en-IN':
-        return LanguageCode.enIn;
-      case 'en-US':
-        return LanguageCode.enUs;
-      case 'en-WL':
-        return LanguageCode.enWl;
-      case 'es-ES':
-        return LanguageCode.esEs;
-      case 'es-US':
-        return LanguageCode.esUs;
-      case 'fa-IR':
-        return LanguageCode.faIr;
-      case 'fr-CA':
-        return LanguageCode.frCa;
-      case 'fr-FR':
-        return LanguageCode.frFr;
-      case 'he-IL':
-        return LanguageCode.heIl;
-      case 'hi-IN':
-        return LanguageCode.hiIn;
-      case 'id-ID':
-        return LanguageCode.idId;
-      case 'it-IT':
-        return LanguageCode.itIt;
-      case 'ja-JP':
-        return LanguageCode.jaJp;
-      case 'ko-KR':
-        return LanguageCode.koKr;
-      case 'ms-MY':
-        return LanguageCode.msMy;
-      case 'nl-NL':
-        return LanguageCode.nlNl;
-      case 'pt-BR':
-        return LanguageCode.ptBr;
-      case 'pt-PT':
-        return LanguageCode.ptPt;
-      case 'ru-RU':
-        return LanguageCode.ruRu;
-      case 'ta-IN':
-        return LanguageCode.taIn;
-      case 'te-IN':
-        return LanguageCode.teIn;
-      case 'tr-TR':
-        return LanguageCode.trTr;
-      case 'zh-CN':
-        return LanguageCode.zhCn;
-      case 'zh-TW':
-        return LanguageCode.zhTw;
-      case 'th-TH':
-        return LanguageCode.thTh;
-      case 'en-ZA':
-        return LanguageCode.enZa;
-      case 'en-NZ':
-        return LanguageCode.enNz;
-      case 'vi-VN':
-        return LanguageCode.viVn;
-      case 'sv-SE':
-        return LanguageCode.svSe;
-    }
-    throw Exception('$this is not known in enum LanguageCode');
-  }
+  const LanguageCode(this.value);
+
+  static LanguageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LanguageCode'));
 }
 
 /// Provides information on the speech contained in a discreet utterance when
@@ -4701,7 +5048,8 @@ class LanguageCodeItem {
   factory LanguageCodeItem.fromJson(Map<String, dynamic> json) {
     return LanguageCodeItem(
       durationInSeconds: json['DurationInSeconds'] as double?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
     );
   }
 }
@@ -4742,7 +5090,7 @@ class LanguageIdSettings {
   /// transcription job. Note that custom language model names are case sensitive.
   ///
   /// The language of the specified custom language model must match the language
-  /// code that you specify in your transcription request. If the languages don't
+  /// code that you specify in your transcription request. If the languages do not
   /// match, the custom language model isn't applied. There are no errors or
   /// warnings associated with a language mismatch.
   final String? languageModelName;
@@ -4752,8 +5100,8 @@ class LanguageIdSettings {
   ///
   /// The language of the specified custom vocabulary filter must match the
   /// language code that you specify in your transcription request. If the
-  /// languages don't match, the custom vocabulary filter isn't applied. There are
-  /// no errors or warnings associated with a language mismatch.
+  /// languages do not match, the custom vocabulary filter isn't applied. There
+  /// are no errors or warnings associated with a language mismatch.
   ///
   /// Note that if you include <code>VocabularyFilterName</code> in your request,
   /// you must also include <code>VocabularyFilterMethod</code>.
@@ -4763,7 +5111,7 @@ class LanguageIdSettings {
   /// transcription job. Custom vocabulary names are case sensitive.
   ///
   /// The language of the specified custom vocabulary must match the language code
-  /// that you specify in your transcription request. If the languages don't
+  /// that you specify in your transcription request. If the languages do not
   /// match, the custom vocabulary isn't applied. There are no errors or warnings
   /// associated with a language mismatch.
   final String? vocabularyName;
@@ -4855,7 +5203,7 @@ class LanguageModel {
   /// For a list of supported languages and their associated language codes, refer
   /// to the <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/supported-languages.html">Supported
-  /// languages</a> table. Note that U.S. English (<code>en-US</code>) is the only
+  /// languages</a> table. Note that US English (<code>en-US</code>) is the only
   /// language supported with Amazon Transcribe Medical.
   final CLMLanguageCode? languageCode;
 
@@ -4904,17 +5252,20 @@ class LanguageModel {
 
   factory LanguageModel.fromJson(Map<String, dynamic> json) {
     return LanguageModel(
-      baseModelName: (json['BaseModelName'] as String?)?.toBaseModelName(),
+      baseModelName:
+          (json['BaseModelName'] as String?)?.let(BaseModelName.fromString),
       createTime: timeStampFromJson(json['CreateTime']),
       failureReason: json['FailureReason'] as String?,
       inputDataConfig: json['InputDataConfig'] != null
           ? InputDataConfig.fromJson(
               json['InputDataConfig'] as Map<String, dynamic>)
           : null,
-      languageCode: (json['LanguageCode'] as String?)?.toCLMLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(CLMLanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       modelName: json['ModelName'] as String?,
-      modelStatus: (json['ModelStatus'] as String?)?.toModelStatus(),
+      modelStatus:
+          (json['ModelStatus'] as String?)?.let(ModelStatus.fromString),
       upgradeAvailability: json['UpgradeAvailability'] as bool?,
     );
   }
@@ -4941,7 +5292,7 @@ class ListCallAnalyticsCategoriesResponse {
       Map<String, dynamic> json) {
     return ListCallAnalyticsCategoriesResponse(
       categories: (json['Categories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CategoryProperties.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4973,12 +5324,13 @@ class ListCallAnalyticsJobsResponse {
   factory ListCallAnalyticsJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListCallAnalyticsJobsResponse(
       callAnalyticsJobSummaries: (json['CallAnalyticsJobSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CallAnalyticsJobSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
-      status: (json['Status'] as String?)?.toCallAnalyticsJobStatus(),
+      status:
+          (json['Status'] as String?)?.let(CallAnalyticsJobStatus.fromString),
     );
   }
 }
@@ -5003,10 +5355,45 @@ class ListLanguageModelsResponse {
   factory ListLanguageModelsResponse.fromJson(Map<String, dynamic> json) {
     return ListLanguageModelsResponse(
       models: (json['Models'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LanguageModel.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class ListMedicalScribeJobsResponse {
+  /// Provides a summary of information about each result.
+  final List<MedicalScribeJobSummary>? medicalScribeJobSummaries;
+
+  /// If <code>NextToken</code> is present in your response, it indicates that not
+  /// all results are displayed. To view the next set of results, copy the string
+  /// associated with the <code>NextToken</code> parameter in your results output,
+  /// then run your request again including <code>NextToken</code> with the value
+  /// of the copied string. Repeat as needed to view all your results.
+  final String? nextToken;
+
+  /// Lists all Medical Scribe jobs that have the status specified in your
+  /// request. Jobs are ordered by creation date, with the newest job first.
+  final MedicalScribeJobStatus? status;
+
+  ListMedicalScribeJobsResponse({
+    this.medicalScribeJobSummaries,
+    this.nextToken,
+    this.status,
+  });
+
+  factory ListMedicalScribeJobsResponse.fromJson(Map<String, dynamic> json) {
+    return ListMedicalScribeJobsResponse(
+      medicalScribeJobSummaries: (json['MedicalScribeJobSummaries'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              MedicalScribeJobSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+      status:
+          (json['Status'] as String?)?.let(MedicalScribeJobStatus.fromString),
     );
   }
 }
@@ -5037,12 +5424,13 @@ class ListMedicalTranscriptionJobsResponse {
     return ListMedicalTranscriptionJobsResponse(
       medicalTranscriptionJobSummaries:
           (json['MedicalTranscriptionJobSummaries'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => MedicalTranscriptionJobSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       nextToken: json['NextToken'] as String?,
-      status: (json['Status'] as String?)?.toTranscriptionJobStatus(),
+      status:
+          (json['Status'] as String?)?.let(TranscriptionJobStatus.fromString),
     );
   }
 }
@@ -5073,9 +5461,9 @@ class ListMedicalVocabulariesResponse {
   factory ListMedicalVocabulariesResponse.fromJson(Map<String, dynamic> json) {
     return ListMedicalVocabulariesResponse(
       nextToken: json['NextToken'] as String?,
-      status: (json['Status'] as String?)?.toVocabularyState(),
+      status: (json['Status'] as String?)?.let(VocabularyState.fromString),
       vocabularies: (json['Vocabularies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VocabularyInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5099,7 +5487,7 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       resourceArn: json['ResourceArn'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5130,9 +5518,10 @@ class ListTranscriptionJobsResponse {
   factory ListTranscriptionJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListTranscriptionJobsResponse(
       nextToken: json['NextToken'] as String?,
-      status: (json['Status'] as String?)?.toTranscriptionJobStatus(),
+      status:
+          (json['Status'] as String?)?.let(TranscriptionJobStatus.fromString),
       transcriptionJobSummaries: (json['TranscriptionJobSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               TranscriptionJobSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5166,9 +5555,9 @@ class ListVocabulariesResponse {
   factory ListVocabulariesResponse.fromJson(Map<String, dynamic> json) {
     return ListVocabulariesResponse(
       nextToken: json['NextToken'] as String?,
-      status: (json['Status'] as String?)?.toVocabularyState(),
+      status: (json['Status'] as String?)?.let(VocabularyState.fromString),
       vocabularies: (json['Vocabularies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VocabularyInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5196,7 +5585,7 @@ class ListVocabularyFiltersResponse {
     return ListVocabularyFiltersResponse(
       nextToken: json['NextToken'] as String?,
       vocabularyFilters: (json['VocabularyFilters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VocabularyFilterInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5206,9 +5595,8 @@ class ListVocabularyFiltersResponse {
 /// Describes the Amazon S3 location of the media file you want to use in your
 /// request.
 ///
-/// For information on supported media formats, refer to the <a
-/// href="https://docs.aws.amazon.com/APIReference/API_StartTranscriptionJob.html#transcribe-StartTranscriptionJob-request-MediaFormat">MediaFormat</a>
-/// parameter or the <a
+/// For information on supported media formats, refer to the
+/// <code>MediaFormat</code> parameter or the <a
 /// href="https://docs.aws.amazon.com/transcribe/latest/dg/how-input.html#how-input-audio">Media
 /// formats</a> section in the Amazon S3 Developer Guide.
 class Media {
@@ -5272,80 +5660,480 @@ class Media {
 }
 
 enum MediaFormat {
-  mp3,
-  mp4,
-  wav,
-  flac,
-  ogg,
-  amr,
-  webm,
-}
+  mp3('mp3'),
+  mp4('mp4'),
+  wav('wav'),
+  flac('flac'),
+  ogg('ogg'),
+  amr('amr'),
+  webm('webm'),
+  m4a('m4a'),
+  ;
 
-extension MediaFormatValueExtension on MediaFormat {
-  String toValue() {
-    switch (this) {
-      case MediaFormat.mp3:
-        return 'mp3';
-      case MediaFormat.mp4:
-        return 'mp4';
-      case MediaFormat.wav:
-        return 'wav';
-      case MediaFormat.flac:
-        return 'flac';
-      case MediaFormat.ogg:
-        return 'ogg';
-      case MediaFormat.amr:
-        return 'amr';
-      case MediaFormat.webm:
-        return 'webm';
-    }
-  }
-}
+  final String value;
 
-extension MediaFormatFromString on String {
-  MediaFormat toMediaFormat() {
-    switch (this) {
-      case 'mp3':
-        return MediaFormat.mp3;
-      case 'mp4':
-        return MediaFormat.mp4;
-      case 'wav':
-        return MediaFormat.wav;
-      case 'flac':
-        return MediaFormat.flac;
-      case 'ogg':
-        return MediaFormat.ogg;
-      case 'amr':
-        return MediaFormat.amr;
-      case 'webm':
-        return MediaFormat.webm;
-    }
-    throw Exception('$this is not known in enum MediaFormat');
-  }
+  const MediaFormat(this.value);
+
+  static MediaFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MediaFormat'));
 }
 
 enum MedicalContentIdentificationType {
-  phi,
+  phi('PHI'),
+  ;
+
+  final String value;
+
+  const MedicalContentIdentificationType(this.value);
+
+  static MedicalContentIdentificationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MedicalContentIdentificationType'));
 }
 
-extension MedicalContentIdentificationTypeValueExtension
-    on MedicalContentIdentificationType {
-  String toValue() {
-    switch (this) {
-      case MedicalContentIdentificationType.phi:
-        return 'PHI';
-    }
+/// Indicates which speaker is on which channel. The options are
+/// <code>CLINICIAN</code> and <code>PATIENT</code>
+class MedicalScribeChannelDefinition {
+  /// Specify the audio channel you want to define.
+  final int channelId;
+
+  /// Specify the participant that you want to flag. The options are
+  /// <code>CLINICIAN</code> and <code>PATIENT</code>
+  final MedicalScribeParticipantRole participantRole;
+
+  MedicalScribeChannelDefinition({
+    required this.channelId,
+    required this.participantRole,
+  });
+
+  factory MedicalScribeChannelDefinition.fromJson(Map<String, dynamic> json) {
+    return MedicalScribeChannelDefinition(
+      channelId: json['ChannelId'] as int,
+      participantRole: MedicalScribeParticipantRole.fromString(
+          (json['ParticipantRole'] as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final channelId = this.channelId;
+    final participantRole = this.participantRole;
+    return {
+      'ChannelId': channelId,
+      'ParticipantRole': participantRole.value,
+    };
   }
 }
 
-extension MedicalContentIdentificationTypeFromString on String {
-  MedicalContentIdentificationType toMedicalContentIdentificationType() {
-    switch (this) {
-      case 'PHI':
-        return MedicalContentIdentificationType.phi;
-    }
-    throw Exception(
-        '$this is not known in enum MedicalContentIdentificationType');
+/// Provides detailed information about a Medical Scribe job.
+///
+/// To view the status of the specified Medical Scribe job, check the
+/// <code>MedicalScribeJobStatus</code> field. If the status is
+/// <code>COMPLETED</code>, the job is finished and you can find the results at
+/// the locations specified in <code>MedicalScribeOutput</code>. If the status
+/// is <code>FAILED</code>, <code>FailureReason</code> provides details on why
+/// your Medical Scribe job failed.
+class MedicalScribeJob {
+  /// Makes it possible to specify which speaker is on which channel. For example,
+  /// if the clinician is the first participant to speak, you would set
+  /// <code>ChannelId</code> of the first <code>ChannelDefinition</code> in the
+  /// list to <code>0</code> (to indicate the first channel) and
+  /// <code>ParticipantRole</code> to <code>CLINICIAN</code> (to indicate that
+  /// it's the clinician speaking). Then you would set the <code>ChannelId</code>
+  /// of the second <code>ChannelDefinition</code> in the list to <code>1</code>
+  /// (to indicate the second channel) and <code>ParticipantRole</code> to
+  /// <code>PATIENT</code> (to indicate that it's the patient speaking).
+  final List<MedicalScribeChannelDefinition>? channelDefinitions;
+
+  /// The date and time the specified Medical Scribe job finished processing.
+  ///
+  /// Timestamps are in the format <code>YYYY-MM-DD'T'HH:MM:SS.SSSSSS-UTC</code>.
+  /// For example, <code>2022-05-04T12:32:58.761000-07:00</code> represents a
+  /// Medical Scribe job that finished processing at 12:32 PM UTC-7 on May 4,
+  /// 2022.
+  final DateTime? completionTime;
+
+  /// The date and time the specified Medical Scribe job request was made.
+  ///
+  /// Timestamps are in the format <code>YYYY-MM-DD'T'HH:MM:SS.SSSSSS-UTC</code>.
+  /// For example, <code>2022-05-04T12:32:58.761000-07:00</code> represents a
+  /// Medical Scribe job that started processing at 12:32 PM UTC-7 on May 4, 2022.
+  final DateTime? creationTime;
+
+  /// The Amazon Resource Name (ARN) of an IAM role that has permissions to access
+  /// the Amazon S3 bucket that contains your input files, write to the output
+  /// bucket, and use your KMS key if supplied. If the role that you specify
+  /// doesn’t have the appropriate permissions your request fails.
+  ///
+  /// IAM role ARNs have the format
+  /// <code>arn:partition:iam::account:role/role-name-with-path</code>. For
+  /// example: <code>arn:aws:iam::111122223333:role/Admin</code>.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_identifiers.html#identifiers-arns">IAM
+  /// ARNs</a>.
+  final String? dataAccessRoleArn;
+
+  /// If <code>MedicalScribeJobStatus</code> is <code>FAILED</code>,
+  /// <code>FailureReason</code> contains information about why the transcription
+  /// job failed. See also: <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/APIReference/CommonErrors.html">Common
+  /// Errors</a>.
+  final String? failureReason;
+
+  /// The language code used to create your Medical Scribe job. US English
+  /// (<code>en-US</code>) is the only supported language for Medical Scribe jobs.
+  final MedicalScribeLanguageCode? languageCode;
+  final Media? media;
+
+  /// The name of the Medical Scribe job. Job names are case sensitive and must be
+  /// unique within an Amazon Web Services account.
+  final String? medicalScribeJobName;
+
+  /// Provides the status of the specified Medical Scribe job.
+  ///
+  /// If the status is <code>COMPLETED</code>, the job is finished and you can
+  /// find the results at the location specified in
+  /// <code>MedicalScribeOutput</code> If the status is <code>FAILED</code>,
+  /// <code>FailureReason</code> provides details on why your Medical Scribe job
+  /// failed.
+  final MedicalScribeJobStatus? medicalScribeJobStatus;
+
+  /// The location of the output of your Medical Scribe job.
+  /// <code>ClinicalDocumentUri</code> holds the Amazon S3 URI for the Clinical
+  /// Document and <code>TranscriptFileUri</code> holds the Amazon S3 URI for the
+  /// Transcript.
+  final MedicalScribeOutput? medicalScribeOutput;
+
+  /// Makes it possible to control how your Medical Scribe job is processed using
+  /// a <code>MedicalScribeSettings</code> object. Specify
+  /// <code>ChannelIdentification</code> if <code>ChannelDefinitions</code> are
+  /// set. Enabled <code>ShowSpeakerLabels</code> if
+  /// <code>ChannelIdentification</code> and <code>ChannelDefinitions</code> are
+  /// not set. One and only one of <code>ChannelIdentification</code> and
+  /// <code>ShowSpeakerLabels</code> must be set. If
+  /// <code>ShowSpeakerLabels</code> is set, <code>MaxSpeakerLabels</code> must
+  /// also be set. Use <code>Settings</code> to specify a vocabulary or vocabulary
+  /// filter or both using <code>VocabularyName</code>,
+  /// <code>VocabularyFilterName</code>. <code>VocabularyFilterMethod</code> must
+  /// be specified if <code>VocabularyFilterName</code> is set.
+  final MedicalScribeSettings? settings;
+
+  /// The date and time your Medical Scribe job began processing.
+  ///
+  /// Timestamps are in the format <code>YYYY-MM-DD'T'HH:MM:SS.SSSSSS-UTC</code>.
+  /// For example, <code>2022-05-04T12:32:58.789000-07:00</code> represents a
+  /// Medical Scribe job that started processing at 12:32 PM UTC-7 on May 4, 2022.
+  final DateTime? startTime;
+
+  /// Adds one or more custom tags, each in the form of a key:value pair, to the
+  /// Medica Scribe job.
+  ///
+  /// To learn more about using tags with Amazon Transcribe, refer to <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/tagging.html">Tagging
+  /// resources</a>.
+  final List<Tag>? tags;
+
+  MedicalScribeJob({
+    this.channelDefinitions,
+    this.completionTime,
+    this.creationTime,
+    this.dataAccessRoleArn,
+    this.failureReason,
+    this.languageCode,
+    this.media,
+    this.medicalScribeJobName,
+    this.medicalScribeJobStatus,
+    this.medicalScribeOutput,
+    this.settings,
+    this.startTime,
+    this.tags,
+  });
+
+  factory MedicalScribeJob.fromJson(Map<String, dynamic> json) {
+    return MedicalScribeJob(
+      channelDefinitions: (json['ChannelDefinitions'] as List?)
+          ?.nonNulls
+          .map((e) => MedicalScribeChannelDefinition.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      completionTime: timeStampFromJson(json['CompletionTime']),
+      creationTime: timeStampFromJson(json['CreationTime']),
+      dataAccessRoleArn: json['DataAccessRoleArn'] as String?,
+      failureReason: json['FailureReason'] as String?,
+      languageCode: (json['LanguageCode'] as String?)
+          ?.let(MedicalScribeLanguageCode.fromString),
+      media: json['Media'] != null
+          ? Media.fromJson(json['Media'] as Map<String, dynamic>)
+          : null,
+      medicalScribeJobName: json['MedicalScribeJobName'] as String?,
+      medicalScribeJobStatus: (json['MedicalScribeJobStatus'] as String?)
+          ?.let(MedicalScribeJobStatus.fromString),
+      medicalScribeOutput: json['MedicalScribeOutput'] != null
+          ? MedicalScribeOutput.fromJson(
+              json['MedicalScribeOutput'] as Map<String, dynamic>)
+          : null,
+      settings: json['Settings'] != null
+          ? MedicalScribeSettings.fromJson(
+              json['Settings'] as Map<String, dynamic>)
+          : null,
+      startTime: timeStampFromJson(json['StartTime']),
+      tags: (json['Tags'] as List?)
+          ?.nonNulls
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+enum MedicalScribeJobStatus {
+  queued('QUEUED'),
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  ;
+
+  final String value;
+
+  const MedicalScribeJobStatus(this.value);
+
+  static MedicalScribeJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MedicalScribeJobStatus'));
+}
+
+/// Provides detailed information about a specific Medical Scribe job.
+class MedicalScribeJobSummary {
+  /// The date and time the specified Medical Scribe job finished processing.
+  ///
+  /// Timestamps are in the format <code>YYYY-MM-DD'T'HH:MM:SS.SSSSSS-UTC</code>.
+  /// For example, <code>2022-05-04T12:32:58.761000-07:00</code> represents a
+  /// Medical Scribe job that finished processing at 12:32 PM UTC-7 on May 4,
+  /// 2022.
+  final DateTime? completionTime;
+
+  /// The date and time the specified Medical Scribe job request was made.
+  ///
+  /// Timestamps are in the format <code>YYYY-MM-DD'T'HH:MM:SS.SSSSSS-UTC</code>.
+  /// For example, <code>2022-05-04T12:32:58.761000-07:00</code> represents a
+  /// Medical Scribe job that started processing at 12:32 PM UTC-7 on May 4, 2022.
+  final DateTime? creationTime;
+
+  /// If <code>MedicalScribeJobStatus</code> is <code>FAILED</code>,
+  /// <code>FailureReason</code> contains information about why the transcription
+  /// job failed. See also: <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/APIReference/CommonErrors.html">Common
+  /// Errors</a>.
+  final String? failureReason;
+
+  /// The language code used to create your Medical Scribe job. US English
+  /// (<code>en-US</code>) is the only supported language for Medical Scribe jobs.
+  final MedicalScribeLanguageCode? languageCode;
+
+  /// The name of the Medical Scribe job. Job names are case sensitive and must be
+  /// unique within an Amazon Web Services account.
+  final String? medicalScribeJobName;
+
+  /// Provides the status of the specified Medical Scribe job.
+  ///
+  /// If the status is <code>COMPLETED</code>, the job is finished and you can
+  /// find the results at the location specified in
+  /// <code>MedicalScribeOutput</code> If the status is <code>FAILED</code>,
+  /// <code>FailureReason</code> provides details on why your Medical Scribe job
+  /// failed.
+  final MedicalScribeJobStatus? medicalScribeJobStatus;
+
+  /// The date and time your Medical Scribe job began processing.
+  ///
+  /// Timestamps are in the format <code>YYYY-MM-DD'T'HH:MM:SS.SSSSSS-UTC</code>.
+  /// For example, <code>2022-05-04T12:32:58.789000-07:00</code> represents a
+  /// Medical Scribe job that started processing at 12:32 PM UTC-7 on May 4, 2022.
+  final DateTime? startTime;
+
+  MedicalScribeJobSummary({
+    this.completionTime,
+    this.creationTime,
+    this.failureReason,
+    this.languageCode,
+    this.medicalScribeJobName,
+    this.medicalScribeJobStatus,
+    this.startTime,
+  });
+
+  factory MedicalScribeJobSummary.fromJson(Map<String, dynamic> json) {
+    return MedicalScribeJobSummary(
+      completionTime: timeStampFromJson(json['CompletionTime']),
+      creationTime: timeStampFromJson(json['CreationTime']),
+      failureReason: json['FailureReason'] as String?,
+      languageCode: (json['LanguageCode'] as String?)
+          ?.let(MedicalScribeLanguageCode.fromString),
+      medicalScribeJobName: json['MedicalScribeJobName'] as String?,
+      medicalScribeJobStatus: (json['MedicalScribeJobStatus'] as String?)
+          ?.let(MedicalScribeJobStatus.fromString),
+      startTime: timeStampFromJson(json['StartTime']),
+    );
+  }
+}
+
+enum MedicalScribeLanguageCode {
+  enUs('en-US'),
+  ;
+
+  final String value;
+
+  const MedicalScribeLanguageCode(this.value);
+
+  static MedicalScribeLanguageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MedicalScribeLanguageCode'));
+}
+
+/// The location of the output of your Medical Scribe job.
+/// <code>ClinicalDocumentUri</code> holds the Amazon S3 URI for the Clinical
+/// Document and <code>TranscriptFileUri</code> holds the Amazon S3 URI for the
+/// Transcript.
+class MedicalScribeOutput {
+  /// Holds the Amazon S3 URI for the Clinical Document.
+  final String clinicalDocumentUri;
+
+  /// Holds the Amazon S3 URI for the Transcript.
+  final String transcriptFileUri;
+
+  MedicalScribeOutput({
+    required this.clinicalDocumentUri,
+    required this.transcriptFileUri,
+  });
+
+  factory MedicalScribeOutput.fromJson(Map<String, dynamic> json) {
+    return MedicalScribeOutput(
+      clinicalDocumentUri: json['ClinicalDocumentUri'] as String,
+      transcriptFileUri: json['TranscriptFileUri'] as String,
+    );
+  }
+}
+
+enum MedicalScribeParticipantRole {
+  patient('PATIENT'),
+  clinician('CLINICIAN'),
+  ;
+
+  final String value;
+
+  const MedicalScribeParticipantRole(this.value);
+
+  static MedicalScribeParticipantRole fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MedicalScribeParticipantRole'));
+}
+
+/// Makes it possible to control how your Medical Scribe job is processed using
+/// a <code>MedicalScribeSettings</code> object. Specify
+/// <code>ChannelIdentification</code> if <code>ChannelDefinitions</code> are
+/// set. Enabled <code>ShowSpeakerLabels</code> if
+/// <code>ChannelIdentification</code> and <code>ChannelDefinitions</code> are
+/// not set. One and only one of <code>ChannelIdentification</code> and
+/// <code>ShowSpeakerLabels</code> must be set. If
+/// <code>ShowSpeakerLabels</code> is set, <code>MaxSpeakerLabels</code> must
+/// also be set. Use <code>Settings</code> to specify a vocabulary or vocabulary
+/// filter or both using <code>VocabularyName</code>,
+/// <code>VocabularyFilterName</code>. <code>VocabularyFilterMethod</code> must
+/// be specified if <code>VocabularyFilterName</code> is set.
+class MedicalScribeSettings {
+  /// Enables channel identification in multi-channel audio.
+  ///
+  /// Channel identification transcribes the audio on each channel independently,
+  /// then appends the output for each channel into one transcript.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/channel-id.html">Transcribing
+  /// multi-channel audio</a>.
+  final bool? channelIdentification;
+
+  /// Specify the maximum number of speakers you want to partition in your media.
+  ///
+  /// Note that if your media contains more speakers than the specified number,
+  /// multiple speakers are treated as a single speaker.
+  ///
+  /// If you specify the <code>MaxSpeakerLabels</code> field, you must set the
+  /// <code>ShowSpeakerLabels</code> field to true.
+  final int? maxSpeakerLabels;
+
+  /// Enables speaker partitioning (diarization) in your Medical Scribe output.
+  /// Speaker partitioning labels the speech from individual speakers in your
+  /// media file.
+  ///
+  /// If you enable <code>ShowSpeakerLabels</code> in your request, you must also
+  /// include <code>MaxSpeakerLabels</code>.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/diarization.html">Partitioning
+  /// speakers (diarization)</a>.
+  final bool? showSpeakerLabels;
+
+  /// Specify how you want your custom vocabulary filter applied to your
+  /// transcript.
+  ///
+  /// To replace words with <code>***</code>, choose <code>mask</code>.
+  ///
+  /// To delete words, choose <code>remove</code>.
+  ///
+  /// To flag words without changing them, choose <code>tag</code>.
+  final VocabularyFilterMethod? vocabularyFilterMethod;
+
+  /// The name of the custom vocabulary filter you want to include in your Medical
+  /// Scribe request. Custom vocabulary filter names are case sensitive.
+  ///
+  /// Note that if you include <code>VocabularyFilterName</code> in your request,
+  /// you must also include <code>VocabularyFilterMethod</code>.
+  final String? vocabularyFilterName;
+
+  /// The name of the custom vocabulary you want to include in your Medical Scribe
+  /// request. Custom vocabulary names are case sensitive.
+  final String? vocabularyName;
+
+  MedicalScribeSettings({
+    this.channelIdentification,
+    this.maxSpeakerLabels,
+    this.showSpeakerLabels,
+    this.vocabularyFilterMethod,
+    this.vocabularyFilterName,
+    this.vocabularyName,
+  });
+
+  factory MedicalScribeSettings.fromJson(Map<String, dynamic> json) {
+    return MedicalScribeSettings(
+      channelIdentification: json['ChannelIdentification'] as bool?,
+      maxSpeakerLabels: json['MaxSpeakerLabels'] as int?,
+      showSpeakerLabels: json['ShowSpeakerLabels'] as bool?,
+      vocabularyFilterMethod: (json['VocabularyFilterMethod'] as String?)
+          ?.let(VocabularyFilterMethod.fromString),
+      vocabularyFilterName: json['VocabularyFilterName'] as String?,
+      vocabularyName: json['VocabularyName'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final channelIdentification = this.channelIdentification;
+    final maxSpeakerLabels = this.maxSpeakerLabels;
+    final showSpeakerLabels = this.showSpeakerLabels;
+    final vocabularyFilterMethod = this.vocabularyFilterMethod;
+    final vocabularyFilterName = this.vocabularyFilterName;
+    final vocabularyName = this.vocabularyName;
+    return {
+      if (channelIdentification != null)
+        'ChannelIdentification': channelIdentification,
+      if (maxSpeakerLabels != null) 'MaxSpeakerLabels': maxSpeakerLabels,
+      if (showSpeakerLabels != null) 'ShowSpeakerLabels': showSpeakerLabels,
+      if (vocabularyFilterMethod != null)
+        'VocabularyFilterMethod': vocabularyFilterMethod.value,
+      if (vocabularyFilterName != null)
+        'VocabularyFilterName': vocabularyFilterName,
+      if (vocabularyName != null) 'VocabularyName': vocabularyName,
+    };
   }
 }
 
@@ -5408,7 +6196,8 @@ class MedicalTranscriptionJob {
   /// <code>Unsupported media format</code>.
   ///
   /// The media format specified in <code>MediaFormat</code> isn't valid. Refer to
-  /// <b>MediaFormat</b> for a list of supported formats.
+  /// refer to the <code>MediaFormat</code> parameter for a list of supported
+  /// formats.
   /// </li>
   /// <li>
   /// <code>The media format provided does not match the detected media
@@ -5437,16 +6226,16 @@ class MedicalTranscriptionJob {
   ///
   /// The size of your media file is larger than what Amazon Transcribe can
   /// process. For more information, refer to <a
-  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/limits-guidelines.html#limits">Guidelines
-  /// and quotas</a>.
+  /// href="https://docs.aws.amazon.com/general/latest/gr/transcribe.html#limits-amazon-transcribe">Service
+  /// quotas</a>.
   /// </li>
   /// <li>
   /// <code>Invalid number of channels: number of channels too large</code>.
   ///
   /// Your audio contains more channels than Amazon Transcribe is able to process.
   /// For more information, refer to <a
-  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/limits-guidelines.html#limits">Guidelines
-  /// and quotas</a>.
+  /// href="https://docs.aws.amazon.com/general/latest/gr/transcribe.html#limits-amazon-transcribe">Service
+  /// quotas</a>.
   /// </li>
   /// </ul>
   final String? failureReason;
@@ -5526,14 +6315,16 @@ class MedicalTranscriptionJob {
     return MedicalTranscriptionJob(
       completionTime: timeStampFromJson(json['CompletionTime']),
       contentIdentificationType: (json['ContentIdentificationType'] as String?)
-          ?.toMedicalContentIdentificationType(),
+          ?.let(MedicalContentIdentificationType.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       failureReason: json['FailureReason'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       media: json['Media'] != null
           ? Media.fromJson(json['Media'] as Map<String, dynamic>)
           : null,
-      mediaFormat: (json['MediaFormat'] as String?)?.toMediaFormat(),
+      mediaFormat:
+          (json['MediaFormat'] as String?)?.let(MediaFormat.fromString),
       mediaSampleRateHertz: json['MediaSampleRateHertz'] as int?,
       medicalTranscriptionJobName:
           json['MedicalTranscriptionJobName'] as String?,
@@ -5541,10 +6332,10 @@ class MedicalTranscriptionJob {
           ? MedicalTranscriptionSetting.fromJson(
               json['Settings'] as Map<String, dynamic>)
           : null,
-      specialty: (json['Specialty'] as String?)?.toSpecialty(),
+      specialty: (json['Specialty'] as String?)?.let(Specialty.fromString),
       startTime: timeStampFromJson(json['StartTime']),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       transcript: json['Transcript'] != null
@@ -5552,8 +6343,8 @@ class MedicalTranscriptionJob {
               json['Transcript'] as Map<String, dynamic>)
           : null,
       transcriptionJobStatus: (json['TranscriptionJobStatus'] as String?)
-          ?.toTranscriptionJobStatus(),
-      type: (json['Type'] as String?)?.toType(),
+          ?.let(TranscriptionJobStatus.fromString),
+      type: (json['Type'] as String?)?.let(Type.fromString),
     );
   }
 }
@@ -5651,19 +6442,20 @@ class MedicalTranscriptionJobSummary {
     return MedicalTranscriptionJobSummary(
       completionTime: timeStampFromJson(json['CompletionTime']),
       contentIdentificationType: (json['ContentIdentificationType'] as String?)
-          ?.toMedicalContentIdentificationType(),
+          ?.let(MedicalContentIdentificationType.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       failureReason: json['FailureReason'] as String?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       medicalTranscriptionJobName:
           json['MedicalTranscriptionJobName'] as String?,
-      outputLocationType:
-          (json['OutputLocationType'] as String?)?.toOutputLocationType(),
-      specialty: (json['Specialty'] as String?)?.toSpecialty(),
+      outputLocationType: (json['OutputLocationType'] as String?)
+          ?.let(OutputLocationType.fromString),
+      specialty: (json['Specialty'] as String?)?.let(Specialty.fromString),
       startTime: timeStampFromJson(json['StartTime']),
       transcriptionJobStatus: (json['TranscriptionJobStatus'] as String?)
-          ?.toTranscriptionJobStatus(),
-      type: (json['Type'] as String?)?.toType(),
+          ?.let(TranscriptionJobStatus.fromString),
+      type: (json['Type'] as String?)?.let(Type.fromString),
     );
   }
 }
@@ -5680,10 +6472,6 @@ class MedicalTranscriptionSetting {
   /// If you have multi-channel audio and do not enable channel identification,
   /// your audio is transcribed in a continuous manner and your transcript does
   /// not separate the speech by channel.
-  ///
-  /// You can't include both <code>ShowSpeakerLabels</code> and
-  /// <code>ChannelIdentification</code> in the same request. Including both
-  /// parameters returns a <code>BadRequestException</code>.
   ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/channel-id.html">Transcribing
@@ -5733,10 +6521,6 @@ class MedicalTranscriptionSetting {
   /// If you enable <code>ShowSpeakerLabels</code> in your request, you must also
   /// include <code>MaxSpeakerLabels</code>.
   ///
-  /// You can't include <code>ShowSpeakerLabels</code> and
-  /// <code>ChannelIdentification</code> in the same request. Including both
-  /// parameters returns a <code>BadRequestException</code>.
-  ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/diarization.html">Partitioning
   /// speakers (diarization)</a>.
@@ -5746,7 +6530,7 @@ class MedicalTranscriptionSetting {
   /// medical transcription job. Custom vocabulary names are case sensitive.
   ///
   /// The language of the specified custom vocabulary must match the language code
-  /// that you specify in your transcription request. If the languages don't
+  /// that you specify in your transcription request. If the languages do not
   /// match, the custom vocabulary isn't applied. There are no errors or warnings
   /// associated with a language mismatch. US English (<code>en-US</code>) is the
   /// only valid language for Amazon Transcribe Medical.
@@ -5803,7 +6587,7 @@ class ModelSettings {
   /// transcription job. Note that custom language model names are case sensitive.
   ///
   /// The language of the specified custom language model must match the language
-  /// code that you specify in your transcription request. If the languages don't
+  /// code that you specify in your transcription request. If the languages do not
   /// match, the custom language model isn't applied. There are no errors or
   /// warnings associated with a language mismatch.
   final String? languageModelName;
@@ -5827,36 +6611,18 @@ class ModelSettings {
 }
 
 enum ModelStatus {
-  inProgress,
-  failed,
-  completed,
-}
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  ;
 
-extension ModelStatusValueExtension on ModelStatus {
-  String toValue() {
-    switch (this) {
-      case ModelStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ModelStatus.failed:
-        return 'FAILED';
-      case ModelStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension ModelStatusFromString on String {
-  ModelStatus toModelStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return ModelStatus.inProgress;
-      case 'FAILED':
-        return ModelStatus.failed;
-      case 'COMPLETED':
-        return ModelStatus.completed;
-    }
-    throw Exception('$this is not known in enum ModelStatus');
-  }
+  const ModelStatus(this.value);
+
+  static ModelStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ModelStatus'));
 }
 
 /// Flag the presence or absence of periods of silence in your Call Analytics
@@ -5932,188 +6698,87 @@ class NonTalkTimeFilter {
 }
 
 enum OutputLocationType {
-  customerBucket,
-  serviceBucket,
-}
+  customerBucket('CUSTOMER_BUCKET'),
+  serviceBucket('SERVICE_BUCKET'),
+  ;
 
-extension OutputLocationTypeValueExtension on OutputLocationType {
-  String toValue() {
-    switch (this) {
-      case OutputLocationType.customerBucket:
-        return 'CUSTOMER_BUCKET';
-      case OutputLocationType.serviceBucket:
-        return 'SERVICE_BUCKET';
-    }
-  }
-}
+  final String value;
 
-extension OutputLocationTypeFromString on String {
-  OutputLocationType toOutputLocationType() {
-    switch (this) {
-      case 'CUSTOMER_BUCKET':
-        return OutputLocationType.customerBucket;
-      case 'SERVICE_BUCKET':
-        return OutputLocationType.serviceBucket;
-    }
-    throw Exception('$this is not known in enum OutputLocationType');
-  }
+  const OutputLocationType(this.value);
+
+  static OutputLocationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum OutputLocationType'));
 }
 
 enum ParticipantRole {
-  agent,
-  customer,
-}
+  agent('AGENT'),
+  customer('CUSTOMER'),
+  ;
 
-extension ParticipantRoleValueExtension on ParticipantRole {
-  String toValue() {
-    switch (this) {
-      case ParticipantRole.agent:
-        return 'AGENT';
-      case ParticipantRole.customer:
-        return 'CUSTOMER';
-    }
-  }
-}
+  final String value;
 
-extension ParticipantRoleFromString on String {
-  ParticipantRole toParticipantRole() {
-    switch (this) {
-      case 'AGENT':
-        return ParticipantRole.agent;
-      case 'CUSTOMER':
-        return ParticipantRole.customer;
-    }
-    throw Exception('$this is not known in enum ParticipantRole');
-  }
+  const ParticipantRole(this.value);
+
+  static ParticipantRole fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ParticipantRole'));
 }
 
 enum PiiEntityType {
-  bankAccountNumber,
-  bankRouting,
-  creditDebitNumber,
-  creditDebitCvv,
-  creditDebitExpiry,
-  pin,
-  email,
-  address,
-  name,
-  phone,
-  ssn,
-  all,
-}
+  bankAccountNumber('BANK_ACCOUNT_NUMBER'),
+  bankRouting('BANK_ROUTING'),
+  creditDebitNumber('CREDIT_DEBIT_NUMBER'),
+  creditDebitCvv('CREDIT_DEBIT_CVV'),
+  creditDebitExpiry('CREDIT_DEBIT_EXPIRY'),
+  pin('PIN'),
+  email('EMAIL'),
+  address('ADDRESS'),
+  name('NAME'),
+  phone('PHONE'),
+  ssn('SSN'),
+  all('ALL'),
+  ;
 
-extension PiiEntityTypeValueExtension on PiiEntityType {
-  String toValue() {
-    switch (this) {
-      case PiiEntityType.bankAccountNumber:
-        return 'BANK_ACCOUNT_NUMBER';
-      case PiiEntityType.bankRouting:
-        return 'BANK_ROUTING';
-      case PiiEntityType.creditDebitNumber:
-        return 'CREDIT_DEBIT_NUMBER';
-      case PiiEntityType.creditDebitCvv:
-        return 'CREDIT_DEBIT_CVV';
-      case PiiEntityType.creditDebitExpiry:
-        return 'CREDIT_DEBIT_EXPIRY';
-      case PiiEntityType.pin:
-        return 'PIN';
-      case PiiEntityType.email:
-        return 'EMAIL';
-      case PiiEntityType.address:
-        return 'ADDRESS';
-      case PiiEntityType.name:
-        return 'NAME';
-      case PiiEntityType.phone:
-        return 'PHONE';
-      case PiiEntityType.ssn:
-        return 'SSN';
-      case PiiEntityType.all:
-        return 'ALL';
-    }
-  }
-}
+  final String value;
 
-extension PiiEntityTypeFromString on String {
-  PiiEntityType toPiiEntityType() {
-    switch (this) {
-      case 'BANK_ACCOUNT_NUMBER':
-        return PiiEntityType.bankAccountNumber;
-      case 'BANK_ROUTING':
-        return PiiEntityType.bankRouting;
-      case 'CREDIT_DEBIT_NUMBER':
-        return PiiEntityType.creditDebitNumber;
-      case 'CREDIT_DEBIT_CVV':
-        return PiiEntityType.creditDebitCvv;
-      case 'CREDIT_DEBIT_EXPIRY':
-        return PiiEntityType.creditDebitExpiry;
-      case 'PIN':
-        return PiiEntityType.pin;
-      case 'EMAIL':
-        return PiiEntityType.email;
-      case 'ADDRESS':
-        return PiiEntityType.address;
-      case 'NAME':
-        return PiiEntityType.name;
-      case 'PHONE':
-        return PiiEntityType.phone;
-      case 'SSN':
-        return PiiEntityType.ssn;
-      case 'ALL':
-        return PiiEntityType.all;
-    }
-    throw Exception('$this is not known in enum PiiEntityType');
-  }
+  const PiiEntityType(this.value);
+
+  static PiiEntityType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PiiEntityType'));
 }
 
 enum RedactionOutput {
-  redacted,
-  redactedAndUnredacted,
-}
+  redacted('redacted'),
+  redactedAndUnredacted('redacted_and_unredacted'),
+  ;
 
-extension RedactionOutputValueExtension on RedactionOutput {
-  String toValue() {
-    switch (this) {
-      case RedactionOutput.redacted:
-        return 'redacted';
-      case RedactionOutput.redactedAndUnredacted:
-        return 'redacted_and_unredacted';
-    }
-  }
-}
+  final String value;
 
-extension RedactionOutputFromString on String {
-  RedactionOutput toRedactionOutput() {
-    switch (this) {
-      case 'redacted':
-        return RedactionOutput.redacted;
-      case 'redacted_and_unredacted':
-        return RedactionOutput.redactedAndUnredacted;
-    }
-    throw Exception('$this is not known in enum RedactionOutput');
-  }
+  const RedactionOutput(this.value);
+
+  static RedactionOutput fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RedactionOutput'));
 }
 
 enum RedactionType {
-  pii,
-}
+  pii('PII'),
+  ;
 
-extension RedactionTypeValueExtension on RedactionType {
-  String toValue() {
-    switch (this) {
-      case RedactionType.pii:
-        return 'PII';
-    }
-  }
-}
+  final String value;
 
-extension RedactionTypeFromString on String {
-  RedactionType toRedactionType() {
-    switch (this) {
-      case 'PII':
-        return RedactionType.pii;
-    }
-    throw Exception('$this is not known in enum RedactionType');
-  }
+  const RedactionType(this.value);
+
+  static RedactionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RedactionType'));
 }
 
 /// A time range, in percentage, between two points in your media file.
@@ -6317,8 +6982,8 @@ class SentimentFilter {
   factory SentimentFilter.fromJson(Map<String, dynamic> json) {
     return SentimentFilter(
       sentiments: (json['Sentiments'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toSentimentValue())
+          .nonNulls
+          .map((e) => SentimentValue.fromString((e as String)))
           .toList(),
       absoluteTimeRange: json['AbsoluteTimeRange'] != null
           ? AbsoluteTimeRange.fromJson(
@@ -6326,7 +6991,7 @@ class SentimentFilter {
           : null,
       negate: json['Negate'] as bool?,
       participantRole:
-          (json['ParticipantRole'] as String?)?.toParticipantRole(),
+          (json['ParticipantRole'] as String?)?.let(ParticipantRole.fromString),
       relativeTimeRange: json['RelativeTimeRange'] != null
           ? RelativeTimeRange.fromJson(
               json['RelativeTimeRange'] as Map<String, dynamic>)
@@ -6341,51 +7006,30 @@ class SentimentFilter {
     final participantRole = this.participantRole;
     final relativeTimeRange = this.relativeTimeRange;
     return {
-      'Sentiments': sentiments.map((e) => e.toValue()).toList(),
+      'Sentiments': sentiments.map((e) => e.value).toList(),
       if (absoluteTimeRange != null) 'AbsoluteTimeRange': absoluteTimeRange,
       if (negate != null) 'Negate': negate,
-      if (participantRole != null) 'ParticipantRole': participantRole.toValue(),
+      if (participantRole != null) 'ParticipantRole': participantRole.value,
       if (relativeTimeRange != null) 'RelativeTimeRange': relativeTimeRange,
     };
   }
 }
 
 enum SentimentValue {
-  positive,
-  negative,
-  neutral,
-  mixed,
-}
+  positive('POSITIVE'),
+  negative('NEGATIVE'),
+  neutral('NEUTRAL'),
+  mixed('MIXED'),
+  ;
 
-extension SentimentValueValueExtension on SentimentValue {
-  String toValue() {
-    switch (this) {
-      case SentimentValue.positive:
-        return 'POSITIVE';
-      case SentimentValue.negative:
-        return 'NEGATIVE';
-      case SentimentValue.neutral:
-        return 'NEUTRAL';
-      case SentimentValue.mixed:
-        return 'MIXED';
-    }
-  }
-}
+  final String value;
 
-extension SentimentValueFromString on String {
-  SentimentValue toSentimentValue() {
-    switch (this) {
-      case 'POSITIVE':
-        return SentimentValue.positive;
-      case 'NEGATIVE':
-        return SentimentValue.negative;
-      case 'NEUTRAL':
-        return SentimentValue.neutral;
-      case 'MIXED':
-        return SentimentValue.mixed;
-    }
-    throw Exception('$this is not known in enum SentimentValue');
-  }
+  const SentimentValue(this.value);
+
+  static SentimentValue fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SentimentValue'));
 }
 
 /// Allows additional optional settings in your request, including channel
@@ -6396,10 +7040,6 @@ class Settings {
   ///
   /// Channel identification transcribes the audio on each channel independently,
   /// then appends the output for each channel into one transcript.
-  ///
-  /// You can't include both <code>ShowSpeakerLabels</code> and
-  /// <code>ChannelIdentification</code> in the same request. Including both
-  /// parameters returns a <code>BadRequestException</code>.
   ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/channel-id.html">Transcribing
@@ -6453,10 +7093,6 @@ class Settings {
   /// If you enable <code>ShowSpeakerLabels</code> in your request, you must also
   /// include <code>MaxSpeakerLabels</code>.
   ///
-  /// You can't include both <code>ShowSpeakerLabels</code> and
-  /// <code>ChannelIdentification</code> in the same request. Including both
-  /// parameters returns a <code>BadRequestException</code>.
-  ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/dg/diarization.html">Partitioning
   /// speakers (diarization)</a>.
@@ -6504,7 +7140,7 @@ class Settings {
       showAlternatives: json['ShowAlternatives'] as bool?,
       showSpeakerLabels: json['ShowSpeakerLabels'] as bool?,
       vocabularyFilterMethod: (json['VocabularyFilterMethod'] as String?)
-          ?.toVocabularyFilterMethod(),
+          ?.let(VocabularyFilterMethod.fromString),
       vocabularyFilterName: json['VocabularyFilterName'] as String?,
       vocabularyName: json['VocabularyName'] as String?,
     );
@@ -6527,7 +7163,7 @@ class Settings {
       if (showAlternatives != null) 'ShowAlternatives': showAlternatives,
       if (showSpeakerLabels != null) 'ShowSpeakerLabels': showSpeakerLabels,
       if (vocabularyFilterMethod != null)
-        'VocabularyFilterMethod': vocabularyFilterMethod.toValue(),
+        'VocabularyFilterMethod': vocabularyFilterMethod.value,
       if (vocabularyFilterName != null)
         'VocabularyFilterName': vocabularyFilterName,
       if (vocabularyName != null) 'VocabularyName': vocabularyName,
@@ -6536,26 +7172,16 @@ class Settings {
 }
 
 enum Specialty {
-  primarycare,
-}
+  primarycare('PRIMARYCARE'),
+  ;
 
-extension SpecialtyValueExtension on Specialty {
-  String toValue() {
-    switch (this) {
-      case Specialty.primarycare:
-        return 'PRIMARYCARE';
-    }
-  }
-}
+  final String value;
 
-extension SpecialtyFromString on String {
-  Specialty toSpecialty() {
-    switch (this) {
-      case 'PRIMARYCARE':
-        return Specialty.primarycare;
-    }
-    throw Exception('$this is not known in enum Specialty');
-  }
+  const Specialty(this.value);
+
+  static Specialty fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Specialty'));
 }
 
 class StartCallAnalyticsJobResponse {
@@ -6572,6 +7198,25 @@ class StartCallAnalyticsJobResponse {
       callAnalyticsJob: json['CallAnalyticsJob'] != null
           ? CallAnalyticsJob.fromJson(
               json['CallAnalyticsJob'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class StartMedicalScribeJobResponse {
+  /// Provides detailed information about the current Medical Scribe job,
+  /// including job status and, if applicable, failure reason.
+  final MedicalScribeJob? medicalScribeJob;
+
+  StartMedicalScribeJobResponse({
+    this.medicalScribeJob,
+  });
+
+  factory StartMedicalScribeJobResponse.fromJson(Map<String, dynamic> json) {
+    return StartMedicalScribeJobResponse(
+      medicalScribeJob: json['MedicalScribeJob'] != null
+          ? MedicalScribeJob.fromJson(
+              json['MedicalScribeJob'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -6617,31 +7262,18 @@ class StartTranscriptionJobResponse {
 }
 
 enum SubtitleFormat {
-  vtt,
-  srt,
-}
+  vtt('vtt'),
+  srt('srt'),
+  ;
 
-extension SubtitleFormatValueExtension on SubtitleFormat {
-  String toValue() {
-    switch (this) {
-      case SubtitleFormat.vtt:
-        return 'vtt';
-      case SubtitleFormat.srt:
-        return 'srt';
-    }
-  }
-}
+  final String value;
 
-extension SubtitleFormatFromString on String {
-  SubtitleFormat toSubtitleFormat() {
-    switch (this) {
-      case 'vtt':
-        return SubtitleFormat.vtt;
-      case 'srt':
-        return SubtitleFormat.srt;
-    }
-    throw Exception('$this is not known in enum SubtitleFormat');
-  }
+  const SubtitleFormat(this.value);
+
+  static SubtitleFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SubtitleFormat'));
 }
 
 /// Generate subtitles for your media file with your transcription request.
@@ -6674,7 +7306,7 @@ class Subtitles {
     final formats = this.formats;
     final outputStartIndex = this.outputStartIndex;
     return {
-      if (formats != null) 'Formats': formats.map((e) => e.toValue()).toList(),
+      if (formats != null) 'Formats': formats.map((e) => e.value).toList(),
       if (outputStartIndex != null) 'OutputStartIndex': outputStartIndex,
     };
   }
@@ -6724,15 +7356,47 @@ class SubtitlesOutput {
   factory SubtitlesOutput.fromJson(Map<String, dynamic> json) {
     return SubtitlesOutput(
       formats: (json['Formats'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toSubtitleFormat())
+          ?.nonNulls
+          .map((e) => SubtitleFormat.fromString((e as String)))
           .toList(),
       outputStartIndex: json['OutputStartIndex'] as int?,
       subtitleFileUris: (json['SubtitleFileUris'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
+  }
+}
+
+/// Contains <code>GenerateAbstractiveSummary</code>, which is a required
+/// parameter if you want to enable Generative call summarization in your Call
+/// Analytics request.
+class Summarization {
+  /// Enables Generative call summarization in your Call Analytics request
+  ///
+  /// Generative call summarization provides a summary of the transcript including
+  /// important components discussed in the conversation.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/tca-enable-summarization.html">Enabling
+  /// generative call summarization</a>.
+  final bool generateAbstractiveSummary;
+
+  Summarization({
+    required this.generateAbstractiveSummary,
+  });
+
+  factory Summarization.fromJson(Map<String, dynamic> json) {
+    return Summarization(
+      generateAbstractiveSummary: json['GenerateAbstractiveSummary'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final generateAbstractiveSummary = this.generateAbstractiveSummary;
+    return {
+      'GenerateAbstractiveSummary': generateAbstractiveSummary,
+    };
   }
 }
 
@@ -6787,6 +7451,50 @@ class TagResourceResponse {
 
   factory TagResourceResponse.fromJson(Map<String, dynamic> _) {
     return TagResourceResponse();
+  }
+}
+
+enum ToxicityCategory {
+  all('ALL'),
+  ;
+
+  final String value;
+
+  const ToxicityCategory(this.value);
+
+  static ToxicityCategory fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ToxicityCategory'));
+}
+
+/// Contains <code>ToxicityCategories</code>, which is a required parameter if
+/// you want to enable toxicity detection (<code>ToxicityDetection</code>) in
+/// your transcription request.
+class ToxicityDetectionSettings {
+  /// If you include <code>ToxicityDetection</code> in your transcription request,
+  /// you must also include <code>ToxicityCategories</code>. The only accepted
+  /// value for this parameter is <code>ALL</code>.
+  final List<ToxicityCategory> toxicityCategories;
+
+  ToxicityDetectionSettings({
+    required this.toxicityCategories,
+  });
+
+  factory ToxicityDetectionSettings.fromJson(Map<String, dynamic> json) {
+    return ToxicityDetectionSettings(
+      toxicityCategories: (json['ToxicityCategories'] as List)
+          .nonNulls
+          .map((e) => ToxicityCategory.fromString((e as String)))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final toxicityCategories = this.toxicityCategories;
+    return {
+      'ToxicityCategories': toxicityCategories.map((e) => e.value).toList(),
+    };
   }
 }
 
@@ -6910,19 +7618,17 @@ class TranscriptFilter {
 
   factory TranscriptFilter.fromJson(Map<String, dynamic> json) {
     return TranscriptFilter(
-      targets: (json['Targets'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      transcriptFilterType:
-          (json['TranscriptFilterType'] as String).toTranscriptFilterType(),
+      targets:
+          (json['Targets'] as List).nonNulls.map((e) => e as String).toList(),
+      transcriptFilterType: TranscriptFilterType.fromString(
+          (json['TranscriptFilterType'] as String)),
       absoluteTimeRange: json['AbsoluteTimeRange'] != null
           ? AbsoluteTimeRange.fromJson(
               json['AbsoluteTimeRange'] as Map<String, dynamic>)
           : null,
       negate: json['Negate'] as bool?,
       participantRole:
-          (json['ParticipantRole'] as String?)?.toParticipantRole(),
+          (json['ParticipantRole'] as String?)?.let(ParticipantRole.fromString),
       relativeTimeRange: json['RelativeTimeRange'] != null
           ? RelativeTimeRange.fromJson(
               json['RelativeTimeRange'] as Map<String, dynamic>)
@@ -6939,36 +7645,27 @@ class TranscriptFilter {
     final relativeTimeRange = this.relativeTimeRange;
     return {
       'Targets': targets,
-      'TranscriptFilterType': transcriptFilterType.toValue(),
+      'TranscriptFilterType': transcriptFilterType.value,
       if (absoluteTimeRange != null) 'AbsoluteTimeRange': absoluteTimeRange,
       if (negate != null) 'Negate': negate,
-      if (participantRole != null) 'ParticipantRole': participantRole.toValue(),
+      if (participantRole != null) 'ParticipantRole': participantRole.value,
       if (relativeTimeRange != null) 'RelativeTimeRange': relativeTimeRange,
     };
   }
 }
 
 enum TranscriptFilterType {
-  exact,
-}
+  exact('EXACT'),
+  ;
 
-extension TranscriptFilterTypeValueExtension on TranscriptFilterType {
-  String toValue() {
-    switch (this) {
-      case TranscriptFilterType.exact:
-        return 'EXACT';
-    }
-  }
-}
+  final String value;
 
-extension TranscriptFilterTypeFromString on String {
-  TranscriptFilterType toTranscriptFilterType() {
-    switch (this) {
-      case 'EXACT':
-        return TranscriptFilterType.exact;
-    }
-    throw Exception('$this is not known in enum TranscriptFilterType');
-  }
+  const TranscriptFilterType(this.value);
+
+  static TranscriptFilterType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TranscriptFilterType'));
 }
 
 /// Provides detailed information about a transcription job.
@@ -7011,7 +7708,8 @@ class TranscriptionJob {
   /// <code>Unsupported media format</code>.
   ///
   /// The media format specified in <code>MediaFormat</code> isn't valid. Refer to
-  /// <b>MediaFormat</b> for a list of supported formats.
+  /// refer to the <code>MediaFormat</code> parameter for a list of supported
+  /// formats.
   /// </li>
   /// <li>
   /// <code>The media format provided does not match the detected media
@@ -7040,16 +7738,16 @@ class TranscriptionJob {
   ///
   /// The size of your media file is larger than what Amazon Transcribe can
   /// process. For more information, refer to <a
-  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/limits-guidelines.html#limits">Guidelines
-  /// and quotas</a>.
+  /// href="https://docs.aws.amazon.com/general/latest/gr/transcribe.html#limits-amazon-transcribe">Service
+  /// quotas</a>.
   /// </li>
   /// <li>
   /// <code>Invalid number of channels: number of channels too large</code>.
   ///
   /// Your audio contains more channels than Amazon Transcribe is able to process.
   /// For more information, refer to <a
-  /// href="https://docs.aws.amazon.com/transcribe/latest/dg/limits-guidelines.html#limits">Guidelines
-  /// and quotas</a>.
+  /// href="https://docs.aws.amazon.com/general/latest/gr/transcribe.html#limits-amazon-transcribe">Service
+  /// quotas</a>.
   /// </li>
   /// </ul>
   final String? failureReason;
@@ -7128,6 +7826,10 @@ class TranscriptionJob {
   /// transcription job.
   final List<Tag>? tags;
 
+  /// Provides information about the toxicity detection settings applied to your
+  /// transcription.
+  final List<ToxicityDetectionSettings>? toxicityDetection;
+
   /// Provides you with the Amazon S3 URI you can use to access your transcript.
   final Transcript? transcript;
 
@@ -7165,6 +7867,7 @@ class TranscriptionJob {
     this.startTime,
     this.subtitles,
     this.tags,
+    this.toxicityDetection,
     this.transcript,
     this.transcriptionJobName,
     this.transcriptionJobStatus,
@@ -7186,22 +7889,24 @@ class TranscriptionJob {
           ? JobExecutionSettings.fromJson(
               json['JobExecutionSettings'] as Map<String, dynamic>)
           : null,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       languageCodes: (json['LanguageCodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LanguageCodeItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       languageIdSettings: (json['LanguageIdSettings'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toLanguageCode(),
+          ?.map((k, e) => MapEntry(LanguageCode.fromString(k),
               LanguageIdSettings.fromJson(e as Map<String, dynamic>))),
       languageOptions: (json['LanguageOptions'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toLanguageCode())
+          ?.nonNulls
+          .map((e) => LanguageCode.fromString((e as String)))
           .toList(),
       media: json['Media'] != null
           ? Media.fromJson(json['Media'] as Map<String, dynamic>)
           : null,
-      mediaFormat: (json['MediaFormat'] as String?)?.toMediaFormat(),
+      mediaFormat:
+          (json['MediaFormat'] as String?)?.let(MediaFormat.fromString),
       mediaSampleRateHertz: json['MediaSampleRateHertz'] as int?,
       modelSettings: json['ModelSettings'] != null
           ? ModelSettings.fromJson(
@@ -7215,55 +7920,39 @@ class TranscriptionJob {
           ? SubtitlesOutput.fromJson(json['Subtitles'] as Map<String, dynamic>)
           : null,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      toxicityDetection: (json['ToxicityDetection'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              ToxicityDetectionSettings.fromJson(e as Map<String, dynamic>))
           .toList(),
       transcript: json['Transcript'] != null
           ? Transcript.fromJson(json['Transcript'] as Map<String, dynamic>)
           : null,
       transcriptionJobName: json['TranscriptionJobName'] as String?,
       transcriptionJobStatus: (json['TranscriptionJobStatus'] as String?)
-          ?.toTranscriptionJobStatus(),
+          ?.let(TranscriptionJobStatus.fromString),
     );
   }
 }
 
 enum TranscriptionJobStatus {
-  queued,
-  inProgress,
-  failed,
-  completed,
-}
+  queued('QUEUED'),
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  ;
 
-extension TranscriptionJobStatusValueExtension on TranscriptionJobStatus {
-  String toValue() {
-    switch (this) {
-      case TranscriptionJobStatus.queued:
-        return 'QUEUED';
-      case TranscriptionJobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case TranscriptionJobStatus.failed:
-        return 'FAILED';
-      case TranscriptionJobStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension TranscriptionJobStatusFromString on String {
-  TranscriptionJobStatus toTranscriptionJobStatus() {
-    switch (this) {
-      case 'QUEUED':
-        return TranscriptionJobStatus.queued;
-      case 'IN_PROGRESS':
-        return TranscriptionJobStatus.inProgress;
-      case 'FAILED':
-        return TranscriptionJobStatus.failed;
-      case 'COMPLETED':
-        return TranscriptionJobStatus.completed;
-    }
-    throw Exception('$this is not known in enum TranscriptionJobStatus');
-  }
+  const TranscriptionJobStatus(this.value);
+
+  static TranscriptionJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscriptionJobStatus'));
 }
 
 /// Provides detailed information about a specific transcription job.
@@ -7339,6 +8028,10 @@ class TranscriptionJobSummary {
   /// transcription job that started processing at 12:32 PM UTC-7 on May 4, 2022.
   final DateTime? startTime;
 
+  /// Indicates whether toxicity detection was enabled for the specified
+  /// transcription job.
+  final List<ToxicityDetectionSettings>? toxicityDetection;
+
   /// The name of the transcription job. Job names are case sensitive and must be
   /// unique within an Amazon Web Services account.
   final String? transcriptionJobName;
@@ -7365,6 +8058,7 @@ class TranscriptionJobSummary {
     this.modelSettings,
     this.outputLocationType,
     this.startTime,
+    this.toxicityDetection,
     this.transcriptionJobName,
     this.transcriptionJobStatus,
   });
@@ -7381,51 +8075,43 @@ class TranscriptionJobSummary {
       identifiedLanguageScore: json['IdentifiedLanguageScore'] as double?,
       identifyLanguage: json['IdentifyLanguage'] as bool?,
       identifyMultipleLanguages: json['IdentifyMultipleLanguages'] as bool?,
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       languageCodes: (json['LanguageCodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LanguageCodeItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       modelSettings: json['ModelSettings'] != null
           ? ModelSettings.fromJson(
               json['ModelSettings'] as Map<String, dynamic>)
           : null,
-      outputLocationType:
-          (json['OutputLocationType'] as String?)?.toOutputLocationType(),
+      outputLocationType: (json['OutputLocationType'] as String?)
+          ?.let(OutputLocationType.fromString),
       startTime: timeStampFromJson(json['StartTime']),
+      toxicityDetection: (json['ToxicityDetection'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              ToxicityDetectionSettings.fromJson(e as Map<String, dynamic>))
+          .toList(),
       transcriptionJobName: json['TranscriptionJobName'] as String?,
       transcriptionJobStatus: (json['TranscriptionJobStatus'] as String?)
-          ?.toTranscriptionJobStatus(),
+          ?.let(TranscriptionJobStatus.fromString),
     );
   }
 }
 
 enum Type {
-  conversation,
-  dictation,
-}
+  conversation('CONVERSATION'),
+  dictation('DICTATION'),
+  ;
 
-extension TypeValueExtension on Type {
-  String toValue() {
-    switch (this) {
-      case Type.conversation:
-        return 'CONVERSATION';
-      case Type.dictation:
-        return 'DICTATION';
-    }
-  }
-}
+  final String value;
 
-extension TypeFromString on String {
-  Type toType() {
-    switch (this) {
-      case 'CONVERSATION':
-        return Type.conversation;
-      case 'DICTATION':
-        return Type.dictation;
-    }
-    throw Exception('$this is not known in enum Type');
-  }
+  const Type(this.value);
+
+  static Type fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Type'));
 }
 
 class UntagResourceResponse {
@@ -7486,11 +8172,12 @@ class UpdateMedicalVocabularyResponse {
 
   factory UpdateMedicalVocabularyResponse.fromJson(Map<String, dynamic> json) {
     return UpdateMedicalVocabularyResponse(
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyName: json['VocabularyName'] as String?,
       vocabularyState:
-          (json['VocabularyState'] as String?)?.toVocabularyState(),
+          (json['VocabularyState'] as String?)?.let(VocabularyState.fromString),
     );
   }
 }
@@ -7517,7 +8204,8 @@ class UpdateVocabularyFilterResponse {
 
   factory UpdateVocabularyFilterResponse.fromJson(Map<String, dynamic> json) {
     return UpdateVocabularyFilterResponse(
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyFilterName: json['VocabularyFilterName'] as String?,
     );
@@ -7552,11 +8240,12 @@ class UpdateVocabularyResponse {
 
   factory UpdateVocabularyResponse.fromJson(Map<String, dynamic> json) {
     return UpdateVocabularyResponse(
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyName: json['VocabularyName'] as String?,
       vocabularyState:
-          (json['VocabularyState'] as String?)?.toVocabularyState(),
+          (json['VocabularyState'] as String?)?.let(VocabularyState.fromString),
     );
   }
 }
@@ -7599,7 +8288,8 @@ class VocabularyFilterInfo {
 
   factory VocabularyFilterInfo.fromJson(Map<String, dynamic> json) {
     return VocabularyFilterInfo(
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyFilterName: json['VocabularyFilterName'] as String?,
     );
@@ -7607,36 +8297,19 @@ class VocabularyFilterInfo {
 }
 
 enum VocabularyFilterMethod {
-  remove,
-  mask,
-  tag,
-}
+  remove('remove'),
+  mask('mask'),
+  tag('tag'),
+  ;
 
-extension VocabularyFilterMethodValueExtension on VocabularyFilterMethod {
-  String toValue() {
-    switch (this) {
-      case VocabularyFilterMethod.remove:
-        return 'remove';
-      case VocabularyFilterMethod.mask:
-        return 'mask';
-      case VocabularyFilterMethod.tag:
-        return 'tag';
-    }
-  }
-}
+  final String value;
 
-extension VocabularyFilterMethodFromString on String {
-  VocabularyFilterMethod toVocabularyFilterMethod() {
-    switch (this) {
-      case 'remove':
-        return VocabularyFilterMethod.remove;
-      case 'mask':
-        return VocabularyFilterMethod.mask;
-      case 'tag':
-        return VocabularyFilterMethod.tag;
-    }
-    throw Exception('$this is not known in enum VocabularyFilterMethod');
-  }
+  const VocabularyFilterMethod(this.value);
+
+  static VocabularyFilterMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum VocabularyFilterMethod'));
 }
 
 /// Provides information about a custom vocabulary, including the language of
@@ -7678,46 +8351,30 @@ class VocabularyInfo {
 
   factory VocabularyInfo.fromJson(Map<String, dynamic> json) {
     return VocabularyInfo(
-      languageCode: (json['LanguageCode'] as String?)?.toLanguageCode(),
+      languageCode:
+          (json['LanguageCode'] as String?)?.let(LanguageCode.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       vocabularyName: json['VocabularyName'] as String?,
       vocabularyState:
-          (json['VocabularyState'] as String?)?.toVocabularyState(),
+          (json['VocabularyState'] as String?)?.let(VocabularyState.fromString),
     );
   }
 }
 
 enum VocabularyState {
-  pending,
-  ready,
-  failed,
-}
+  pending('PENDING'),
+  ready('READY'),
+  failed('FAILED'),
+  ;
 
-extension VocabularyStateValueExtension on VocabularyState {
-  String toValue() {
-    switch (this) {
-      case VocabularyState.pending:
-        return 'PENDING';
-      case VocabularyState.ready:
-        return 'READY';
-      case VocabularyState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension VocabularyStateFromString on String {
-  VocabularyState toVocabularyState() {
-    switch (this) {
-      case 'PENDING':
-        return VocabularyState.pending;
-      case 'READY':
-        return VocabularyState.ready;
-      case 'FAILED':
-        return VocabularyState.failed;
-    }
-    throw Exception('$this is not known in enum VocabularyState');
-  }
+  const VocabularyState(this.value);
+
+  static VocabularyState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VocabularyState'));
 }
 
 class BadRequestException extends _s.GenericAwsException {

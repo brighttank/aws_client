@@ -74,7 +74,7 @@ class MediaTailor {
   }) async {
     final $payload = <String, dynamic>{
       'ChannelName': channelName,
-      'LogTypes': logTypes.map((e) => e.toValue()).toList(),
+      'LogTypes': logTypes.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -139,6 +139,9 @@ class MediaTailor {
   /// endless loop. When the last program in the schedule stops playing,
   /// playback loops back to the first program in the schedule.
   ///
+  /// Parameter [audiences] :
+  /// The list of audiences defined in channel.
+  ///
   /// Parameter [fillerSlate] :
   /// The slate used to fill gaps between programs in the schedule. You must
   /// configure filler slate if your channel uses the <code>LINEAR</code>
@@ -154,20 +157,29 @@ class MediaTailor {
   ///
   /// Parameter [tier] :
   /// The tier of the channel.
+  ///
+  /// Parameter [timeShiftConfiguration] :
+  /// The time-shifted viewing configuration you want to associate to the
+  /// channel.
   Future<CreateChannelResponse> createChannel({
     required String channelName,
     required List<RequestOutputItem> outputs,
     required PlaybackMode playbackMode,
+    List<String>? audiences,
     SlateSource? fillerSlate,
     Map<String, String>? tags,
     Tier? tier,
+    TimeShiftConfiguration? timeShiftConfiguration,
   }) async {
     final $payload = <String, dynamic>{
       'Outputs': outputs,
-      'PlaybackMode': playbackMode.toValue(),
+      'PlaybackMode': playbackMode.value,
+      if (audiences != null) 'Audiences': audiences,
       if (fillerSlate != null) 'FillerSlate': fillerSlate,
       if (tags != null) 'tags': tags,
-      if (tier != null) 'Tier': tier.toValue(),
+      if (tier != null) 'Tier': tier.value,
+      if (timeShiftConfiguration != null)
+        'TimeShiftConfiguration': timeShiftConfiguration,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -288,6 +300,9 @@ class MediaTailor {
   /// Parameter [adBreaks] :
   /// The ad break configuration settings.
   ///
+  /// Parameter [audienceMedia] :
+  /// The list of AudienceMedia defined in program.
+  ///
   /// Parameter [liveSourceName] :
   /// The name of the LiveSource for this Program.
   ///
@@ -299,6 +314,7 @@ class MediaTailor {
     required ScheduleConfiguration scheduleConfiguration,
     required String sourceLocationName,
     List<AdBreak>? adBreaks,
+    List<AudienceMedia>? audienceMedia,
     String? liveSourceName,
     String? vodSourceName,
   }) async {
@@ -306,6 +322,7 @@ class MediaTailor {
       'ScheduleConfiguration': scheduleConfiguration,
       'SourceLocationName': sourceLocationName,
       if (adBreaks != null) 'AdBreaks': adBreaks,
+      if (audienceMedia != null) 'AudienceMedia': audienceMedia,
       if (liveSourceName != null) 'LiveSourceName': liveSourceName,
       if (vodSourceName != null) 'VodSourceName': vodSourceName,
     };
@@ -694,6 +711,9 @@ class MediaTailor {
   /// Parameter [channelName] :
   /// The name of the channel associated with this Channel Schedule.
   ///
+  /// Parameter [audience] :
+  /// The single audience for GetChannelScheduleRequest.
+  ///
   /// Parameter [durationMinutes] :
   /// The duration in minutes of the channel schedule.
   ///
@@ -719,6 +739,7 @@ class MediaTailor {
   /// there are no more channel schedules to get.
   Future<GetChannelScheduleResponse> getChannelSchedule({
     required String channelName,
+    String? audience,
     String? durationMinutes,
     int? maxResults,
     String? nextToken,
@@ -730,6 +751,7 @@ class MediaTailor {
       100,
     );
     final $query = <String, List<String>>{
+      if (audience != null) 'audience': [audience],
       if (durationMinutes != null) 'durationMinutes': [durationMinutes],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
@@ -1168,6 +1190,14 @@ class MediaTailor {
   /// Parameter [dashConfiguration] :
   /// The configuration for DASH content.
   ///
+  /// Parameter [insertionMode] :
+  /// The setting that controls whether players can use stitched or guided ad
+  /// insertion. The default, <code>STITCHED_ONLY</code>, forces all player
+  /// sessions to use stitched (server-side) ad insertion. Choosing
+  /// <code>PLAYER_SELECT</code> allows players to select either stitched or
+  /// guided ad insertion at session-initialization time. The default for
+  /// players that do not specify an insertion mode is stitched.
+  ///
   /// Parameter [livePreRollConfiguration] :
   /// The configuration for pre-roll ad insertion.
   ///
@@ -1219,6 +1249,7 @@ class MediaTailor {
     CdnConfiguration? cdnConfiguration,
     Map<String, Map<String, String>>? configurationAliases,
     DashConfigurationForPut? dashConfiguration,
+    InsertionMode? insertionMode,
     LivePreRollConfiguration? livePreRollConfiguration,
     ManifestProcessingRules? manifestProcessingRules,
     int? personalizationThresholdSeconds,
@@ -1243,6 +1274,7 @@ class MediaTailor {
       if (configurationAliases != null)
         'ConfigurationAliases': configurationAliases,
       if (dashConfiguration != null) 'DashConfiguration': dashConfiguration,
+      if (insertionMode != null) 'InsertionMode': insertionMode.value,
       if (livePreRollConfiguration != null)
         'LivePreRollConfiguration': livePreRollConfiguration,
       if (manifestProcessingRules != null)
@@ -1366,19 +1398,31 @@ class MediaTailor {
   /// Parameter [outputs] :
   /// The channel's output properties.
   ///
+  /// Parameter [audiences] :
+  /// The list of audiences defined in channel.
+  ///
   /// Parameter [fillerSlate] :
   /// The slate used to fill gaps between programs in the schedule. You must
   /// configure filler slate if your channel uses the <code>LINEAR</code>
   /// <code>PlaybackMode</code>. MediaTailor doesn't support filler slate for
   /// channels using the <code>LOOP</code> <code>PlaybackMode</code>.
+  ///
+  /// Parameter [timeShiftConfiguration] :
+  /// The time-shifted viewing configuration you want to associate to the
+  /// channel.
   Future<UpdateChannelResponse> updateChannel({
     required String channelName,
     required List<RequestOutputItem> outputs,
+    List<String>? audiences,
     SlateSource? fillerSlate,
+    TimeShiftConfiguration? timeShiftConfiguration,
   }) async {
     final $payload = <String, dynamic>{
       'Outputs': outputs,
+      if (audiences != null) 'Audiences': audiences,
       if (fillerSlate != null) 'FillerSlate': fillerSlate,
+      if (timeShiftConfiguration != null)
+        'TimeShiftConfiguration': timeShiftConfiguration,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1430,15 +1474,20 @@ class MediaTailor {
   ///
   /// Parameter [adBreaks] :
   /// The ad break configuration settings.
+  ///
+  /// Parameter [audienceMedia] :
+  /// The list of AudienceMedia defined in program.
   Future<UpdateProgramResponse> updateProgram({
     required String channelName,
     required String programName,
     required UpdateProgramScheduleConfiguration scheduleConfiguration,
     List<AdBreak>? adBreaks,
+    List<AudienceMedia>? audienceMedia,
   }) async {
     final $payload = <String, dynamic>{
       'ScheduleConfiguration': scheduleConfiguration,
       if (adBreaks != null) 'AdBreaks': adBreaks,
+      if (audienceMedia != null) 'AudienceMedia': audienceMedia,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1529,8 +1578,7 @@ class MediaTailor {
 /// Access configuration parameters.
 class AccessConfiguration {
   /// The type of authentication used to access content from
-  /// <code>HttpConfiguration::BaseUrl</code> on your source location. Accepted
-  /// value: <code>S3_SIGV4</code>.
+  /// <code>HttpConfiguration::BaseUrl</code> on your source location.
   ///
   /// <code>S3_SIGV4</code> - AWS Signature Version 4 authentication for Amazon S3
   /// hosted virtual-style access. If your source location base URL is an Amazon
@@ -1553,6 +1601,44 @@ class AccessConfiguration {
   /// • The caller of the API must have s3:GetObject IAM permissions to read all
   /// top level manifests referenced by your MediaTailor VodSource packaging
   /// configurations.
+  ///
+  /// <code>AUTODETECT_SIGV4</code> - AWS Signature Version 4 authentication for a
+  /// set of supported services: MediaPackage Version 2 and Amazon S3 hosted
+  /// virtual-style access. If your source location base URL is a MediaPackage
+  /// Version 2 endpoint or an Amazon S3 bucket, MediaTailor can use AWS Signature
+  /// Version 4 (SigV4) authentication to access the resource where your source
+  /// content is stored.
+  ///
+  /// Before you can use <code>AUTODETECT_SIGV4</code> with a MediaPackage Version
+  /// 2 endpoint, you must meet these requirements:
+  ///
+  /// • You must grant MediaTailor access to your MediaPackage endpoint by
+  /// granting <code>mediatailor.amazonaws.com</code> principal access in an
+  /// Origin Access policy on the endpoint.
+  ///
+  /// • Your MediaTailor source location base URL must be a MediaPackage V2
+  /// endpoint.
+  ///
+  /// • The caller of the API must have <code>mediapackagev2:GetObject</code> IAM
+  /// permissions to read all top level manifests referenced by the MediaTailor
+  /// source packaging configurations.
+  ///
+  /// Before you can use <code>AUTODETECT_SIGV4</code> with an Amazon S3 bucket,
+  /// you must meet these requirements:
+  ///
+  /// • You must grant MediaTailor access to your S3 bucket by granting
+  /// <code>mediatailor.amazonaws.com</code> principal access in IAM. For more
+  /// information about configuring access in IAM, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access.html">Access
+  /// management</a> in the <i>IAM User Guide.</i>.
+  ///
+  /// • The <code>mediatailor.amazonaws.com</code> service principal must have
+  /// permissions to read all top-level manifests referenced by the
+  /// <code>VodSource</code> packaging configurations.
+  ///
+  /// • The caller of the API must have <code>s3:GetObject</code> IAM permissions
+  /// to read all top level manifests referenced by your MediaTailor
+  /// <code>VodSource</code> packaging configurations.
   final AccessType? accessType;
 
   /// AWS Secrets Manager access token configuration parameters.
@@ -1566,7 +1652,7 @@ class AccessConfiguration {
 
   factory AccessConfiguration.fromJson(Map<String, dynamic> json) {
     return AccessConfiguration(
-      accessType: (json['AccessType'] as String?)?.toAccessType(),
+      accessType: (json['AccessType'] as String?)?.let(AccessType.fromString),
       secretsManagerAccessTokenConfiguration:
           json['SecretsManagerAccessTokenConfiguration'] != null
               ? SecretsManagerAccessTokenConfiguration.fromJson(
@@ -1581,7 +1667,7 @@ class AccessConfiguration {
     final secretsManagerAccessTokenConfiguration =
         this.secretsManagerAccessTokenConfiguration;
     return {
-      if (accessType != null) 'AccessType': accessType.toValue(),
+      if (accessType != null) 'AccessType': accessType.value,
       if (secretsManagerAccessTokenConfiguration != null)
         'SecretsManagerAccessTokenConfiguration':
             secretsManagerAccessTokenConfiguration,
@@ -1590,43 +1676,34 @@ class AccessConfiguration {
 }
 
 enum AccessType {
-  s3Sigv4,
-  secretsManagerAccessToken,
-}
+  s3Sigv4('S3_SIGV4'),
+  secretsManagerAccessToken('SECRETS_MANAGER_ACCESS_TOKEN'),
+  autodetectSigv4('AUTODETECT_SIGV4'),
+  ;
 
-extension AccessTypeValueExtension on AccessType {
-  String toValue() {
-    switch (this) {
-      case AccessType.s3Sigv4:
-        return 'S3_SIGV4';
-      case AccessType.secretsManagerAccessToken:
-        return 'SECRETS_MANAGER_ACCESS_TOKEN';
-    }
-  }
-}
+  final String value;
 
-extension AccessTypeFromString on String {
-  AccessType toAccessType() {
-    switch (this) {
-      case 'S3_SIGV4':
-        return AccessType.s3Sigv4;
-      case 'SECRETS_MANAGER_ACCESS_TOKEN':
-        return AccessType.secretsManagerAccessToken;
-    }
-    throw Exception('$this is not known in enum AccessType');
-  }
+  const AccessType(this.value);
+
+  static AccessType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AccessType'));
 }
 
 /// Ad break configuration parameters.
 class AdBreak {
-  /// The SCTE-35 ad insertion type. Accepted value: <code>SPLICE_INSERT</code>,
-  /// <code>TIME_SIGNAL</code>.
-  final MessageType? messageType;
-
   /// How long (in milliseconds) after the beginning of the program that an ad
   /// starts. This value must fall within 100ms of a segment boundary, otherwise
   /// the ad break will be skipped.
-  final int? offsetMillis;
+  final int offsetMillis;
+
+  /// Defines a list of key/value pairs that MediaTailor generates within the
+  /// <code>EXT-X-ASSET</code>tag for <code>SCTE35_ENHANCED</code> output.
+  final List<KeyValuePair>? adBreakMetadata;
+
+  /// The SCTE-35 ad insertion type. Accepted value: <code>SPLICE_INSERT</code>,
+  /// <code>TIME_SIGNAL</code>.
+  final MessageType? messageType;
 
   /// Ad break slate configuration.
   final SlateSource? slate;
@@ -1646,8 +1723,9 @@ class AdBreak {
   final TimeSignalMessage? timeSignalMessage;
 
   AdBreak({
+    required this.offsetMillis,
+    this.adBreakMetadata,
     this.messageType,
-    this.offsetMillis,
     this.slate,
     this.spliceInsertMessage,
     this.timeSignalMessage,
@@ -1655,8 +1733,13 @@ class AdBreak {
 
   factory AdBreak.fromJson(Map<String, dynamic> json) {
     return AdBreak(
-      messageType: (json['MessageType'] as String?)?.toMessageType(),
-      offsetMillis: json['OffsetMillis'] as int?,
+      offsetMillis: json['OffsetMillis'] as int,
+      adBreakMetadata: (json['AdBreakMetadata'] as List?)
+          ?.nonNulls
+          .map((e) => KeyValuePair.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      messageType:
+          (json['MessageType'] as String?)?.let(MessageType.fromString),
       slate: json['Slate'] != null
           ? SlateSource.fromJson(json['Slate'] as Map<String, dynamic>)
           : null,
@@ -1672,18 +1755,45 @@ class AdBreak {
   }
 
   Map<String, dynamic> toJson() {
-    final messageType = this.messageType;
     final offsetMillis = this.offsetMillis;
+    final adBreakMetadata = this.adBreakMetadata;
+    final messageType = this.messageType;
     final slate = this.slate;
     final spliceInsertMessage = this.spliceInsertMessage;
     final timeSignalMessage = this.timeSignalMessage;
     return {
-      if (messageType != null) 'MessageType': messageType.toValue(),
-      if (offsetMillis != null) 'OffsetMillis': offsetMillis,
+      'OffsetMillis': offsetMillis,
+      if (adBreakMetadata != null) 'AdBreakMetadata': adBreakMetadata,
+      if (messageType != null) 'MessageType': messageType.value,
       if (slate != null) 'Slate': slate,
       if (spliceInsertMessage != null)
         'SpliceInsertMessage': spliceInsertMessage,
       if (timeSignalMessage != null) 'TimeSignalMessage': timeSignalMessage,
+    };
+  }
+}
+
+/// A location at which a zero-duration ad marker was detected in a VOD source
+/// manifest.
+class AdBreakOpportunity {
+  /// The offset in milliseconds from the start of the VOD source at which an ad
+  /// marker was detected.
+  final int offsetMillis;
+
+  AdBreakOpportunity({
+    required this.offsetMillis,
+  });
+
+  factory AdBreakOpportunity.fromJson(Map<String, dynamic> json) {
+    return AdBreakOpportunity(
+      offsetMillis: json['OffsetMillis'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final offsetMillis = this.offsetMillis;
+    return {
+      'OffsetMillis': offsetMillis,
     };
   }
 }
@@ -1719,6 +1829,21 @@ class AdMarkerPassthrough {
   }
 }
 
+enum AdMarkupType {
+  daterange('DATERANGE'),
+  scte35Enhanced('SCTE35_ENHANCED'),
+  ;
+
+  final String value;
+
+  const AdMarkupType(this.value);
+
+  static AdMarkupType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AdMarkupType'));
+}
+
 /// Alert configuration parameters.
 class Alert {
   /// The code for the alert. For example, <code>NOT_PROCESSED</code>.
@@ -1737,12 +1862,16 @@ class Alert {
   /// The Amazon Resource Name (ARN) of the resource.
   final String resourceArn;
 
+  /// The category that MediaTailor assigns to the alert.
+  final AlertCategory? category;
+
   Alert({
     required this.alertCode,
     required this.alertMessage,
     required this.lastModifiedTime,
     required this.relatedResourceArns,
     required this.resourceArn,
+    this.category,
   });
 
   factory Alert.fromJson(Map<String, dynamic> json) {
@@ -1752,10 +1881,11 @@ class Alert {
       lastModifiedTime:
           nonNullableTimeStampFromJson(json['LastModifiedTime'] as Object),
       relatedResourceArns: (json['RelatedResourceArns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       resourceArn: json['ResourceArn'] as String,
+      category: (json['Category'] as String?)?.let(AlertCategory.fromString),
     );
   }
 
@@ -1765,12 +1895,134 @@ class Alert {
     final lastModifiedTime = this.lastModifiedTime;
     final relatedResourceArns = this.relatedResourceArns;
     final resourceArn = this.resourceArn;
+    final category = this.category;
     return {
       'AlertCode': alertCode,
       'AlertMessage': alertMessage,
       'LastModifiedTime': unixTimestampToJson(lastModifiedTime),
       'RelatedResourceArns': relatedResourceArns,
       'ResourceArn': resourceArn,
+      if (category != null) 'Category': category.value,
+    };
+  }
+}
+
+enum AlertCategory {
+  schedulingError('SCHEDULING_ERROR'),
+  playbackWarning('PLAYBACK_WARNING'),
+  info('INFO'),
+  ;
+
+  final String value;
+
+  const AlertCategory(this.value);
+
+  static AlertCategory fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AlertCategory'));
+}
+
+/// A playlist of media (VOD and/or live) to be played instead of the default
+/// media on a particular program.
+class AlternateMedia {
+  /// Ad break configuration parameters defined in AlternateMedia.
+  final List<AdBreak>? adBreaks;
+  final ClipRange? clipRange;
+
+  /// The duration of the alternateMedia in milliseconds.
+  final int? durationMillis;
+
+  /// The name of the live source for alternateMedia.
+  final String? liveSourceName;
+
+  /// The date and time that the alternateMedia is scheduled to start, in epoch
+  /// milliseconds.
+  final int? scheduledStartTimeMillis;
+
+  /// The name of the source location for alternateMedia.
+  final String? sourceLocationName;
+
+  /// The name of the VOD source for alternateMedia.
+  final String? vodSourceName;
+
+  AlternateMedia({
+    this.adBreaks,
+    this.clipRange,
+    this.durationMillis,
+    this.liveSourceName,
+    this.scheduledStartTimeMillis,
+    this.sourceLocationName,
+    this.vodSourceName,
+  });
+
+  factory AlternateMedia.fromJson(Map<String, dynamic> json) {
+    return AlternateMedia(
+      adBreaks: (json['AdBreaks'] as List?)
+          ?.nonNulls
+          .map((e) => AdBreak.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      clipRange: json['ClipRange'] != null
+          ? ClipRange.fromJson(json['ClipRange'] as Map<String, dynamic>)
+          : null,
+      durationMillis: json['DurationMillis'] as int?,
+      liveSourceName: json['LiveSourceName'] as String?,
+      scheduledStartTimeMillis: json['ScheduledStartTimeMillis'] as int?,
+      sourceLocationName: json['SourceLocationName'] as String?,
+      vodSourceName: json['VodSourceName'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final adBreaks = this.adBreaks;
+    final clipRange = this.clipRange;
+    final durationMillis = this.durationMillis;
+    final liveSourceName = this.liveSourceName;
+    final scheduledStartTimeMillis = this.scheduledStartTimeMillis;
+    final sourceLocationName = this.sourceLocationName;
+    final vodSourceName = this.vodSourceName;
+    return {
+      if (adBreaks != null) 'AdBreaks': adBreaks,
+      if (clipRange != null) 'ClipRange': clipRange,
+      if (durationMillis != null) 'DurationMillis': durationMillis,
+      if (liveSourceName != null) 'LiveSourceName': liveSourceName,
+      if (scheduledStartTimeMillis != null)
+        'ScheduledStartTimeMillis': scheduledStartTimeMillis,
+      if (sourceLocationName != null) 'SourceLocationName': sourceLocationName,
+      if (vodSourceName != null) 'VodSourceName': vodSourceName,
+    };
+  }
+}
+
+/// An AudienceMedia object contains an Audience and a list of AlternateMedia.
+class AudienceMedia {
+  /// The list of AlternateMedia defined in AudienceMedia.
+  final List<AlternateMedia>? alternateMedia;
+
+  /// The Audience defined in AudienceMedia.
+  final String? audience;
+
+  AudienceMedia({
+    this.alternateMedia,
+    this.audience,
+  });
+
+  factory AudienceMedia.fromJson(Map<String, dynamic> json) {
+    return AudienceMedia(
+      alternateMedia: (json['AlternateMedia'] as List?)
+          ?.nonNulls
+          .map((e) => AlternateMedia.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      audience: json['Audience'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final alternateMedia = this.alternateMedia;
+    final audience = this.audience;
+    return {
+      if (alternateMedia != null) 'AlternateMedia': alternateMedia,
+      if (audience != null) 'Audience': audience,
     };
   }
 }
@@ -1817,7 +2069,7 @@ class AvailMatchingCriteria {
   factory AvailMatchingCriteria.fromJson(Map<String, dynamic> json) {
     return AvailMatchingCriteria(
       dynamicVariable: json['DynamicVariable'] as String,
-      operator: (json['Operator'] as String).toOperator(),
+      operator: Operator.fromString((json['Operator'] as String)),
     );
   }
 
@@ -1826,7 +2078,7 @@ class AvailMatchingCriteria {
     final operator = this.operator;
     return {
       'DynamicVariable': dynamicVariable,
-      'Operator': operator.toValue(),
+      'Operator': operator.value,
     };
   }
 }
@@ -1869,8 +2121,8 @@ class AvailSuppression {
 
   factory AvailSuppression.fromJson(Map<String, dynamic> json) {
     return AvailSuppression(
-      fillPolicy: (json['FillPolicy'] as String?)?.toFillPolicy(),
-      mode: (json['Mode'] as String?)?.toMode(),
+      fillPolicy: (json['FillPolicy'] as String?)?.let(FillPolicy.fromString),
+      mode: (json['Mode'] as String?)?.let(Mode.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -1880,8 +2132,8 @@ class AvailSuppression {
     final mode = this.mode;
     final value = this.value;
     return {
-      if (fillPolicy != null) 'FillPolicy': fillPolicy.toValue(),
-      if (mode != null) 'Mode': mode.toValue(),
+      if (fillPolicy != null) 'FillPolicy': fillPolicy.value,
+      if (mode != null) 'Mode': mode.value,
       if (value != null) 'Value': value,
     };
   }
@@ -1995,6 +2247,9 @@ class Channel {
   /// The tier for this channel. STANDARD tier channels can contain live programs.
   final String tier;
 
+  /// The list of audiences defined in channel.
+  final List<String>? audiences;
+
   /// The timestamp of when the channel was created.
   final DateTime? creationTime;
 
@@ -2022,6 +2277,7 @@ class Channel {
     required this.outputs,
     required this.playbackMode,
     required this.tier,
+    this.audiences,
     this.creationTime,
     this.fillerSlate,
     this.lastModifiedTime,
@@ -2036,11 +2292,15 @@ class Channel {
       logConfiguration: LogConfigurationForChannel.fromJson(
           json['LogConfiguration'] as Map<String, dynamic>),
       outputs: (json['Outputs'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ResponseOutputItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       playbackMode: json['PlaybackMode'] as String,
       tier: json['Tier'] as String,
+      audiences: (json['Audiences'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       creationTime: timeStampFromJson(json['CreationTime']),
       fillerSlate: json['FillerSlate'] != null
           ? SlateSource.fromJson(json['FillerSlate'] as Map<String, dynamic>)
@@ -2059,6 +2319,7 @@ class Channel {
     final outputs = this.outputs;
     final playbackMode = this.playbackMode;
     final tier = this.tier;
+    final audiences = this.audiences;
     final creationTime = this.creationTime;
     final fillerSlate = this.fillerSlate;
     final lastModifiedTime = this.lastModifiedTime;
@@ -2071,6 +2332,7 @@ class Channel {
       'Outputs': outputs,
       'PlaybackMode': playbackMode,
       'Tier': tier,
+      if (audiences != null) 'Audiences': audiences,
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
       if (fillerSlate != null) 'FillerSlate': fillerSlate,
@@ -2082,53 +2344,48 @@ class Channel {
 }
 
 enum ChannelState {
-  running,
-  stopped,
-}
+  running('RUNNING'),
+  stopped('STOPPED'),
+  ;
 
-extension ChannelStateValueExtension on ChannelState {
-  String toValue() {
-    switch (this) {
-      case ChannelState.running:
-        return 'RUNNING';
-      case ChannelState.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension ChannelStateFromString on String {
-  ChannelState toChannelState() {
-    switch (this) {
-      case 'RUNNING':
-        return ChannelState.running;
-      case 'STOPPED':
-        return ChannelState.stopped;
-    }
-    throw Exception('$this is not known in enum ChannelState');
-  }
+  const ChannelState(this.value);
+
+  static ChannelState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ChannelState'));
 }
 
 /// Clip range configuration for the VOD source associated with the program.
 class ClipRange {
   /// The end offset of the clip range, in milliseconds, starting from the
   /// beginning of the VOD source associated with the program.
-  final int endOffsetMillis;
+  final int? endOffsetMillis;
+
+  /// The start offset of the clip range, in milliseconds. This offset truncates
+  /// the start at the number of milliseconds into the duration of the VOD source.
+  final int? startOffsetMillis;
 
   ClipRange({
-    required this.endOffsetMillis,
+    this.endOffsetMillis,
+    this.startOffsetMillis,
   });
 
   factory ClipRange.fromJson(Map<String, dynamic> json) {
     return ClipRange(
-      endOffsetMillis: json['EndOffsetMillis'] as int,
+      endOffsetMillis: json['EndOffsetMillis'] as int?,
+      startOffsetMillis: json['StartOffsetMillis'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final endOffsetMillis = this.endOffsetMillis;
+    final startOffsetMillis = this.startOffsetMillis;
     return {
-      'EndOffsetMillis': endOffsetMillis,
+      if (endOffsetMillis != null) 'EndOffsetMillis': endOffsetMillis,
+      if (startOffsetMillis != null) 'StartOffsetMillis': startOffsetMillis,
     };
   }
 }
@@ -2149,8 +2406,8 @@ class ConfigureLogsForChannelResponse {
     return ConfigureLogsForChannelResponse(
       channelName: json['ChannelName'] as String?,
       logTypes: (json['LogTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toLogType())
+          ?.nonNulls
+          .map((e) => LogType.fromString((e as String)))
           .toList(),
     );
   }
@@ -2160,8 +2417,7 @@ class ConfigureLogsForChannelResponse {
     final logTypes = this.logTypes;
     return {
       if (channelName != null) 'ChannelName': channelName,
-      if (logTypes != null)
-        'LogTypes': logTypes.map((e) => e.toValue()).toList(),
+      if (logTypes != null) 'LogTypes': logTypes.map((e) => e.value).toList(),
     };
   }
 }
@@ -2202,6 +2458,9 @@ class CreateChannelResponse {
   /// The Amazon Resource Name (ARN) to assign to the channel.
   final String? arn;
 
+  /// The list of audiences defined in channel.
+  final List<String>? audiences;
+
   /// The name to assign to the channel.
   final String? channelName;
 
@@ -2234,8 +2493,12 @@ class CreateChannelResponse {
   /// The tier of the channel.
   final String? tier;
 
+  /// The time-shifted viewing configuration assigned to the channel.
+  final TimeShiftConfiguration? timeShiftConfiguration;
+
   CreateChannelResponse({
     this.arn,
+    this.audiences,
     this.channelName,
     this.channelState,
     this.creationTime,
@@ -2245,31 +2508,42 @@ class CreateChannelResponse {
     this.playbackMode,
     this.tags,
     this.tier,
+    this.timeShiftConfiguration,
   });
 
   factory CreateChannelResponse.fromJson(Map<String, dynamic> json) {
     return CreateChannelResponse(
       arn: json['Arn'] as String?,
+      audiences: (json['Audiences'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       channelName: json['ChannelName'] as String?,
-      channelState: (json['ChannelState'] as String?)?.toChannelState(),
+      channelState:
+          (json['ChannelState'] as String?)?.let(ChannelState.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       fillerSlate: json['FillerSlate'] != null
           ? SlateSource.fromJson(json['FillerSlate'] as Map<String, dynamic>)
           : null,
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       outputs: (json['Outputs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResponseOutputItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       playbackMode: json['PlaybackMode'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       tier: json['Tier'] as String?,
+      timeShiftConfiguration: json['TimeShiftConfiguration'] != null
+          ? TimeShiftConfiguration.fromJson(
+              json['TimeShiftConfiguration'] as Map<String, dynamic>)
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     final arn = this.arn;
+    final audiences = this.audiences;
     final channelName = this.channelName;
     final channelState = this.channelState;
     final creationTime = this.creationTime;
@@ -2279,10 +2553,12 @@ class CreateChannelResponse {
     final playbackMode = this.playbackMode;
     final tags = this.tags;
     final tier = this.tier;
+    final timeShiftConfiguration = this.timeShiftConfiguration;
     return {
       if (arn != null) 'Arn': arn,
+      if (audiences != null) 'Audiences': audiences,
       if (channelName != null) 'ChannelName': channelName,
-      if (channelState != null) 'ChannelState': channelState.toValue(),
+      if (channelState != null) 'ChannelState': channelState.value,
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
       if (fillerSlate != null) 'FillerSlate': fillerSlate,
@@ -2292,6 +2568,8 @@ class CreateChannelResponse {
       if (playbackMode != null) 'PlaybackMode': playbackMode,
       if (tags != null) 'tags': tags,
       if (tier != null) 'Tier': tier,
+      if (timeShiftConfiguration != null)
+        'TimeShiftConfiguration': timeShiftConfiguration,
     };
   }
 }
@@ -2337,7 +2615,7 @@ class CreateLiveSourceResponse {
       arn: json['Arn'] as String?,
       creationTime: timeStampFromJson(json['CreationTime']),
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2454,6 +2732,9 @@ class CreateProgramResponse {
   /// The ARN to assign to the program.
   final String? arn;
 
+  /// The list of AudienceMedia defined in program.
+  final List<AudienceMedia>? audienceMedia;
+
   /// The name to assign to the channel for this program.
   final String? channelName;
 
@@ -2484,6 +2765,7 @@ class CreateProgramResponse {
   CreateProgramResponse({
     this.adBreaks,
     this.arn,
+    this.audienceMedia,
     this.channelName,
     this.clipRange,
     this.creationTime,
@@ -2498,10 +2780,14 @@ class CreateProgramResponse {
   factory CreateProgramResponse.fromJson(Map<String, dynamic> json) {
     return CreateProgramResponse(
       adBreaks: (json['AdBreaks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AdBreak.fromJson(e as Map<String, dynamic>))
           .toList(),
       arn: json['Arn'] as String?,
+      audienceMedia: (json['AudienceMedia'] as List?)
+          ?.nonNulls
+          .map((e) => AudienceMedia.fromJson(e as Map<String, dynamic>))
+          .toList(),
       channelName: json['ChannelName'] as String?,
       clipRange: json['ClipRange'] != null
           ? ClipRange.fromJson(json['ClipRange'] as Map<String, dynamic>)
@@ -2519,6 +2805,7 @@ class CreateProgramResponse {
   Map<String, dynamic> toJson() {
     final adBreaks = this.adBreaks;
     final arn = this.arn;
+    final audienceMedia = this.audienceMedia;
     final channelName = this.channelName;
     final clipRange = this.clipRange;
     final creationTime = this.creationTime;
@@ -2531,6 +2818,7 @@ class CreateProgramResponse {
     return {
       if (adBreaks != null) 'AdBreaks': adBreaks,
       if (arn != null) 'Arn': arn,
+      if (audienceMedia != null) 'AudienceMedia': audienceMedia,
       if (channelName != null) 'ChannelName': channelName,
       if (clipRange != null) 'ClipRange': clipRange,
       if (creationTime != null)
@@ -2616,7 +2904,7 @@ class CreateSourceLocationResponse {
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       segmentDeliveryConfigurations: (json['SegmentDeliveryConfigurations']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SegmentDeliveryConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2698,7 +2986,7 @@ class CreateVodSourceResponse {
       arn: json['Arn'] as String?,
       creationTime: timeStampFromJson(json['CreationTime']),
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2768,8 +3056,8 @@ class DashConfiguration {
     return DashConfiguration(
       manifestEndpointPrefix: json['ManifestEndpointPrefix'] as String?,
       mpdLocation: json['MpdLocation'] as String?,
-      originManifestType:
-          (json['OriginManifestType'] as String?)?.toOriginManifestType(),
+      originManifestType: (json['OriginManifestType'] as String?)
+          ?.let(OriginManifestType.fromString),
     );
   }
 
@@ -2782,7 +3070,7 @@ class DashConfiguration {
         'ManifestEndpointPrefix': manifestEndpointPrefix,
       if (mpdLocation != null) 'MpdLocation': mpdLocation,
       if (originManifestType != null)
-        'OriginManifestType': originManifestType.toValue(),
+        'OriginManifestType': originManifestType.value,
     };
   }
 }
@@ -2819,7 +3107,7 @@ class DashConfigurationForPut {
     return {
       if (mpdLocation != null) 'MpdLocation': mpdLocation,
       if (originManifestType != null)
-        'OriginManifestType': originManifestType.toValue(),
+        'OriginManifestType': originManifestType.value,
     };
   }
 }
@@ -3015,6 +3303,9 @@ class DescribeChannelResponse {
   /// The ARN of the channel.
   final String? arn;
 
+  /// The list of audiences defined in channel.
+  final List<String>? audiences;
+
   /// The name of the channel.
   final String? channelName;
 
@@ -3047,9 +3338,13 @@ class DescribeChannelResponse {
   /// The channel's tier.
   final String? tier;
 
+  /// The time-shifted viewing configuration for the channel.
+  final TimeShiftConfiguration? timeShiftConfiguration;
+
   DescribeChannelResponse({
     required this.logConfiguration,
     this.arn,
+    this.audiences,
     this.channelName,
     this.channelState,
     this.creationTime,
@@ -3059,6 +3354,7 @@ class DescribeChannelResponse {
     this.playbackMode,
     this.tags,
     this.tier,
+    this.timeShiftConfiguration,
   });
 
   factory DescribeChannelResponse.fromJson(Map<String, dynamic> json) {
@@ -3066,27 +3362,37 @@ class DescribeChannelResponse {
       logConfiguration: LogConfigurationForChannel.fromJson(
           json['LogConfiguration'] as Map<String, dynamic>),
       arn: json['Arn'] as String?,
+      audiences: (json['Audiences'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       channelName: json['ChannelName'] as String?,
-      channelState: (json['ChannelState'] as String?)?.toChannelState(),
+      channelState:
+          (json['ChannelState'] as String?)?.let(ChannelState.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       fillerSlate: json['FillerSlate'] != null
           ? SlateSource.fromJson(json['FillerSlate'] as Map<String, dynamic>)
           : null,
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       outputs: (json['Outputs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResponseOutputItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       playbackMode: json['PlaybackMode'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       tier: json['Tier'] as String?,
+      timeShiftConfiguration: json['TimeShiftConfiguration'] != null
+          ? TimeShiftConfiguration.fromJson(
+              json['TimeShiftConfiguration'] as Map<String, dynamic>)
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     final logConfiguration = this.logConfiguration;
     final arn = this.arn;
+    final audiences = this.audiences;
     final channelName = this.channelName;
     final channelState = this.channelState;
     final creationTime = this.creationTime;
@@ -3096,11 +3402,13 @@ class DescribeChannelResponse {
     final playbackMode = this.playbackMode;
     final tags = this.tags;
     final tier = this.tier;
+    final timeShiftConfiguration = this.timeShiftConfiguration;
     return {
       'LogConfiguration': logConfiguration,
       if (arn != null) 'Arn': arn,
+      if (audiences != null) 'Audiences': audiences,
       if (channelName != null) 'ChannelName': channelName,
-      if (channelState != null) 'ChannelState': channelState.toValue(),
+      if (channelState != null) 'ChannelState': channelState.value,
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
       if (fillerSlate != null) 'FillerSlate': fillerSlate,
@@ -3110,6 +3418,8 @@ class DescribeChannelResponse {
       if (playbackMode != null) 'PlaybackMode': playbackMode,
       if (tags != null) 'tags': tags,
       if (tier != null) 'Tier': tier,
+      if (timeShiftConfiguration != null)
+        'TimeShiftConfiguration': timeShiftConfiguration,
     };
   }
 }
@@ -3155,7 +3465,7 @@ class DescribeLiveSourceResponse {
       arn: json['Arn'] as String?,
       creationTime: timeStampFromJson(json['CreationTime']),
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3197,6 +3507,9 @@ class DescribeProgramResponse {
   /// The ARN of the program.
   final String? arn;
 
+  /// The list of AudienceMedia defined in program.
+  final List<AudienceMedia>? audienceMedia;
+
   /// The name of the channel that the program belongs to.
   final String? channelName;
 
@@ -3229,6 +3542,7 @@ class DescribeProgramResponse {
   DescribeProgramResponse({
     this.adBreaks,
     this.arn,
+    this.audienceMedia,
     this.channelName,
     this.clipRange,
     this.creationTime,
@@ -3243,10 +3557,14 @@ class DescribeProgramResponse {
   factory DescribeProgramResponse.fromJson(Map<String, dynamic> json) {
     return DescribeProgramResponse(
       adBreaks: (json['AdBreaks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AdBreak.fromJson(e as Map<String, dynamic>))
           .toList(),
       arn: json['Arn'] as String?,
+      audienceMedia: (json['AudienceMedia'] as List?)
+          ?.nonNulls
+          .map((e) => AudienceMedia.fromJson(e as Map<String, dynamic>))
+          .toList(),
       channelName: json['ChannelName'] as String?,
       clipRange: json['ClipRange'] != null
           ? ClipRange.fromJson(json['ClipRange'] as Map<String, dynamic>)
@@ -3264,6 +3582,7 @@ class DescribeProgramResponse {
   Map<String, dynamic> toJson() {
     final adBreaks = this.adBreaks;
     final arn = this.arn;
+    final audienceMedia = this.audienceMedia;
     final channelName = this.channelName;
     final clipRange = this.clipRange;
     final creationTime = this.creationTime;
@@ -3276,6 +3595,7 @@ class DescribeProgramResponse {
     return {
       if (adBreaks != null) 'AdBreaks': adBreaks,
       if (arn != null) 'Arn': arn,
+      if (audienceMedia != null) 'AudienceMedia': audienceMedia,
       if (channelName != null) 'ChannelName': channelName,
       if (clipRange != null) 'ClipRange': clipRange,
       if (creationTime != null)
@@ -3357,7 +3677,7 @@ class DescribeSourceLocationResponse {
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       segmentDeliveryConfigurations: (json['SegmentDeliveryConfigurations']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SegmentDeliveryConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3399,6 +3719,9 @@ class DescribeSourceLocationResponse {
 }
 
 class DescribeVodSourceResponse {
+  /// The ad break opportunities within the VOD source.
+  final List<AdBreakOpportunity>? adBreakOpportunities;
+
   /// The ARN of the VOD source.
   final String? arn;
 
@@ -3425,6 +3748,7 @@ class DescribeVodSourceResponse {
   final String? vodSourceName;
 
   DescribeVodSourceResponse({
+    this.adBreakOpportunities,
     this.arn,
     this.creationTime,
     this.httpPackageConfigurations,
@@ -3436,10 +3760,14 @@ class DescribeVodSourceResponse {
 
   factory DescribeVodSourceResponse.fromJson(Map<String, dynamic> json) {
     return DescribeVodSourceResponse(
+      adBreakOpportunities: (json['AdBreakOpportunities'] as List?)
+          ?.nonNulls
+          .map((e) => AdBreakOpportunity.fromJson(e as Map<String, dynamic>))
+          .toList(),
       arn: json['Arn'] as String?,
       creationTime: timeStampFromJson(json['CreationTime']),
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3452,6 +3780,7 @@ class DescribeVodSourceResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final adBreakOpportunities = this.adBreakOpportunities;
     final arn = this.arn;
     final creationTime = this.creationTime;
     final httpPackageConfigurations = this.httpPackageConfigurations;
@@ -3460,6 +3789,8 @@ class DescribeVodSourceResponse {
     final tags = this.tags;
     final vodSourceName = this.vodSourceName;
     return {
+      if (adBreakOpportunities != null)
+        'AdBreakOpportunities': adBreakOpportunities,
       if (arn != null) 'Arn': arn,
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
@@ -3475,31 +3806,17 @@ class DescribeVodSourceResponse {
 }
 
 enum FillPolicy {
-  fullAvailOnly,
-  partialAvail,
-}
+  fullAvailOnly('FULL_AVAIL_ONLY'),
+  partialAvail('PARTIAL_AVAIL'),
+  ;
 
-extension FillPolicyValueExtension on FillPolicy {
-  String toValue() {
-    switch (this) {
-      case FillPolicy.fullAvailOnly:
-        return 'FULL_AVAIL_ONLY';
-      case FillPolicy.partialAvail:
-        return 'PARTIAL_AVAIL';
-    }
-  }
-}
+  final String value;
 
-extension FillPolicyFromString on String {
-  FillPolicy toFillPolicy() {
-    switch (this) {
-      case 'FULL_AVAIL_ONLY':
-        return FillPolicy.fullAvailOnly;
-      case 'PARTIAL_AVAIL':
-        return FillPolicy.partialAvail;
-    }
-    throw Exception('$this is not known in enum FillPolicy');
-  }
+  const FillPolicy(this.value);
+
+  static FillPolicy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FillPolicy'));
 }
 
 class GetChannelPolicyResponse {
@@ -3541,7 +3858,7 @@ class GetChannelScheduleResponse {
   factory GetChannelScheduleResponse.fromJson(Map<String, dynamic> json) {
     return GetChannelScheduleResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ScheduleEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3593,6 +3910,14 @@ class GetPlaybackConfigurationResponse {
 
   /// The configuration for HLS content.
   final HlsConfiguration? hlsConfiguration;
+
+  /// The setting that controls whether players can use stitched or guided ad
+  /// insertion. The default, <code>STITCHED_ONLY</code>, forces all player
+  /// sessions to use stitched (server-side) ad insertion. Choosing
+  /// <code>PLAYER_SELECT</code> allows players to select either stitched or
+  /// guided ad insertion at session-initialization time. The default for players
+  /// that do not specify an insertion mode is stitched.
+  final InsertionMode? insertionMode;
 
   /// The configuration for pre-roll ad insertion.
   final LivePreRollConfiguration? livePreRollConfiguration;
@@ -3662,6 +3987,7 @@ class GetPlaybackConfigurationResponse {
     this.configurationAliases,
     this.dashConfiguration,
     this.hlsConfiguration,
+    this.insertionMode,
     this.livePreRollConfiguration,
     this.logConfiguration,
     this.manifestProcessingRules,
@@ -3704,6 +4030,8 @@ class GetPlaybackConfigurationResponse {
           ? HlsConfiguration.fromJson(
               json['HlsConfiguration'] as Map<String, dynamic>)
           : null,
+      insertionMode:
+          (json['InsertionMode'] as String?)?.let(InsertionMode.fromString),
       livePreRollConfiguration: json['LivePreRollConfiguration'] != null
           ? LivePreRollConfiguration.fromJson(
               json['LivePreRollConfiguration'] as Map<String, dynamic>)
@@ -3739,6 +4067,7 @@ class GetPlaybackConfigurationResponse {
     final configurationAliases = this.configurationAliases;
     final dashConfiguration = this.dashConfiguration;
     final hlsConfiguration = this.hlsConfiguration;
+    final insertionMode = this.insertionMode;
     final livePreRollConfiguration = this.livePreRollConfiguration;
     final logConfiguration = this.logConfiguration;
     final manifestProcessingRules = this.manifestProcessingRules;
@@ -3763,6 +4092,7 @@ class GetPlaybackConfigurationResponse {
         'ConfigurationAliases': configurationAliases,
       if (dashConfiguration != null) 'DashConfiguration': dashConfiguration,
       if (hlsConfiguration != null) 'HlsConfiguration': hlsConfiguration,
+      if (insertionMode != null) 'InsertionMode': insertionMode.value,
       if (livePreRollConfiguration != null)
         'LivePreRollConfiguration': livePreRollConfiguration,
       if (logConfiguration != null) 'LogConfiguration': logConfiguration,
@@ -3887,23 +4217,38 @@ class HlsConfiguration {
 
 /// HLS playlist configuration parameters.
 class HlsPlaylistSettings {
+  /// Determines the type of SCTE 35 tags to use in ad markup. Specify
+  /// <code>DATERANGE</code> to use <code>DATERANGE</code> tags (for live or VOD
+  /// content). Specify <code>SCTE35_ENHANCED</code> to use
+  /// <code>EXT-X-CUE-OUT</code> and <code>EXT-X-CUE-IN</code> tags (for VOD
+  /// content only).
+  final List<AdMarkupType>? adMarkupType;
+
   /// The total duration (in seconds) of each manifest. Minimum value:
   /// <code>30</code> seconds. Maximum value: <code>3600</code> seconds.
   final int? manifestWindowSeconds;
 
   HlsPlaylistSettings({
+    this.adMarkupType,
     this.manifestWindowSeconds,
   });
 
   factory HlsPlaylistSettings.fromJson(Map<String, dynamic> json) {
     return HlsPlaylistSettings(
+      adMarkupType: (json['AdMarkupType'] as List?)
+          ?.nonNulls
+          .map((e) => AdMarkupType.fromString((e as String)))
+          .toList(),
       manifestWindowSeconds: json['ManifestWindowSeconds'] as int?,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final adMarkupType = this.adMarkupType;
     final manifestWindowSeconds = this.manifestWindowSeconds;
     return {
+      if (adMarkupType != null)
+        'AdMarkupType': adMarkupType.map((e) => e.value).toList(),
       if (manifestWindowSeconds != null)
         'ManifestWindowSeconds': manifestWindowSeconds,
     };
@@ -3958,7 +4303,7 @@ class HttpPackageConfiguration {
     return HttpPackageConfiguration(
       path: json['Path'] as String,
       sourceGroup: json['SourceGroup'] as String,
-      type: (json['Type'] as String).toType(),
+      type: Type.fromString((json['Type'] as String)),
     );
   }
 
@@ -3969,7 +4314,62 @@ class HttpPackageConfiguration {
     return {
       'Path': path,
       'SourceGroup': sourceGroup,
-      'Type': type.toValue(),
+      'Type': type.value,
+    };
+  }
+}
+
+/// Insertion Mode controls whether players can use stitched or guided ad
+/// insertion.
+enum InsertionMode {
+  stitchedOnly('STITCHED_ONLY'),
+  playerSelect('PLAYER_SELECT'),
+  ;
+
+  final String value;
+
+  const InsertionMode(this.value);
+
+  static InsertionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InsertionMode'));
+}
+
+/// For <code>SCTE35_ENHANCED</code> output, defines a key and corresponding
+/// value. MediaTailor generates these pairs within the
+/// <code>EXT-X-ASSET</code>tag.
+class KeyValuePair {
+  /// For <code>SCTE35_ENHANCED</code> output, defines a key. MediaTailor takes
+  /// this key, and its associated value, and generates the key/value pair within
+  /// the <code>EXT-X-ASSET</code>tag. If you specify a key, you must also specify
+  /// a corresponding value.
+  final String key;
+
+  /// For <code>SCTE35_ENHANCED</code> output, defines a value. MediaTailor; takes
+  /// this value, and its associated key, and generates the key/value pair within
+  /// the <code>EXT-X-ASSET</code>tag. If you specify a value, you must also
+  /// specify a corresponding key.
+  final String value;
+
+  KeyValuePair({
+    required this.key,
+    required this.value,
+  });
+
+  factory KeyValuePair.fromJson(Map<String, dynamic> json) {
+    return KeyValuePair(
+      key: json['Key'] as String,
+      value: json['Value'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      'Value': value,
     };
   }
 }
@@ -3990,7 +4390,7 @@ class ListAlertsResponse {
   factory ListAlertsResponse.fromJson(Map<String, dynamic> json) {
     return ListAlertsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Alert.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4023,7 +4423,7 @@ class ListChannelsResponse {
   factory ListChannelsResponse.fromJson(Map<String, dynamic> json) {
     return ListChannelsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Channel.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4056,7 +4456,7 @@ class ListLiveSourcesResponse {
   factory ListLiveSourcesResponse.fromJson(Map<String, dynamic> json) {
     return ListLiveSourcesResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LiveSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4092,7 +4492,7 @@ class ListPlaybackConfigurationsResponse {
       Map<String, dynamic> json) {
     return ListPlaybackConfigurationsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PlaybackConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4126,7 +4526,7 @@ class ListPrefetchSchedulesResponse {
   factory ListPrefetchSchedulesResponse.fromJson(Map<String, dynamic> json) {
     return ListPrefetchSchedulesResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PrefetchSchedule.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4159,7 +4559,7 @@ class ListSourceLocationsResponse {
   factory ListSourceLocationsResponse.fromJson(Map<String, dynamic> json) {
     return ListSourceLocationsResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SourceLocation.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4219,7 +4619,7 @@ class ListVodSourcesResponse {
   factory ListVodSourcesResponse.fromJson(Map<String, dynamic> json) {
     return ListVodSourcesResponse(
       items: (json['Items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VodSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4314,7 +4714,7 @@ class LiveSource {
     return LiveSource(
       arn: json['Arn'] as String,
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4393,8 +4793,8 @@ class LogConfigurationForChannel {
   factory LogConfigurationForChannel.fromJson(Map<String, dynamic> json) {
     return LogConfigurationForChannel(
       logTypes: (json['LogTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toLogType())
+          ?.nonNulls
+          .map((e) => LogType.fromString((e as String)))
           .toList(),
     );
   }
@@ -4402,33 +4802,22 @@ class LogConfigurationForChannel {
   Map<String, dynamic> toJson() {
     final logTypes = this.logTypes;
     return {
-      if (logTypes != null)
-        'LogTypes': logTypes.map((e) => e.toValue()).toList(),
+      if (logTypes != null) 'LogTypes': logTypes.map((e) => e.value).toList(),
     };
   }
 }
 
 enum LogType {
-  asRun,
-}
+  asRun('AS_RUN'),
+  ;
 
-extension LogTypeValueExtension on LogType {
-  String toValue() {
-    switch (this) {
-      case LogType.asRun:
-        return 'AS_RUN';
-    }
-  }
-}
+  final String value;
 
-extension LogTypeFromString on String {
-  LogType toLogType() {
-    switch (this) {
-      case 'AS_RUN':
-        return LogType.asRun;
-    }
-    throw Exception('$this is not known in enum LogType');
-  }
+  const LogType(this.value);
+
+  static LogType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum LogType'));
 }
 
 /// The configuration for manifest processing rules. Manifest processing rules
@@ -4468,115 +4857,60 @@ class ManifestProcessingRules {
 }
 
 enum MessageType {
-  spliceInsert,
-  timeSignal,
-}
+  spliceInsert('SPLICE_INSERT'),
+  timeSignal('TIME_SIGNAL'),
+  ;
 
-extension MessageTypeValueExtension on MessageType {
-  String toValue() {
-    switch (this) {
-      case MessageType.spliceInsert:
-        return 'SPLICE_INSERT';
-      case MessageType.timeSignal:
-        return 'TIME_SIGNAL';
-    }
-  }
-}
+  final String value;
 
-extension MessageTypeFromString on String {
-  MessageType toMessageType() {
-    switch (this) {
-      case 'SPLICE_INSERT':
-        return MessageType.spliceInsert;
-      case 'TIME_SIGNAL':
-        return MessageType.timeSignal;
-    }
-    throw Exception('$this is not known in enum MessageType');
-  }
+  const MessageType(this.value);
+
+  static MessageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MessageType'));
 }
 
 enum Mode {
-  off,
-  behindLiveEdge,
-  afterLiveEdge,
-}
+  off('OFF'),
+  behindLiveEdge('BEHIND_LIVE_EDGE'),
+  afterLiveEdge('AFTER_LIVE_EDGE'),
+  ;
 
-extension ModeValueExtension on Mode {
-  String toValue() {
-    switch (this) {
-      case Mode.off:
-        return 'OFF';
-      case Mode.behindLiveEdge:
-        return 'BEHIND_LIVE_EDGE';
-      case Mode.afterLiveEdge:
-        return 'AFTER_LIVE_EDGE';
-    }
-  }
-}
+  final String value;
 
-extension ModeFromString on String {
-  Mode toMode() {
-    switch (this) {
-      case 'OFF':
-        return Mode.off;
-      case 'BEHIND_LIVE_EDGE':
-        return Mode.behindLiveEdge;
-      case 'AFTER_LIVE_EDGE':
-        return Mode.afterLiveEdge;
-    }
-    throw Exception('$this is not known in enum Mode');
-  }
+  const Mode(this.value);
+
+  static Mode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Mode'));
 }
 
 enum Operator {
-  equals,
-}
+  equals('EQUALS'),
+  ;
 
-extension OperatorValueExtension on Operator {
-  String toValue() {
-    switch (this) {
-      case Operator.equals:
-        return 'EQUALS';
-    }
-  }
-}
+  final String value;
 
-extension OperatorFromString on String {
-  Operator toOperator() {
-    switch (this) {
-      case 'EQUALS':
-        return Operator.equals;
-    }
-    throw Exception('$this is not known in enum Operator');
-  }
+  const Operator(this.value);
+
+  static Operator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Operator'));
 }
 
 enum OriginManifestType {
-  singlePeriod,
-  multiPeriod,
-}
+  singlePeriod('SINGLE_PERIOD'),
+  multiPeriod('MULTI_PERIOD'),
+  ;
 
-extension OriginManifestTypeValueExtension on OriginManifestType {
-  String toValue() {
-    switch (this) {
-      case OriginManifestType.singlePeriod:
-        return 'SINGLE_PERIOD';
-      case OriginManifestType.multiPeriod:
-        return 'MULTI_PERIOD';
-    }
-  }
-}
+  final String value;
 
-extension OriginManifestTypeFromString on String {
-  OriginManifestType toOriginManifestType() {
-    switch (this) {
-      case 'SINGLE_PERIOD':
-        return OriginManifestType.singlePeriod;
-      case 'MULTI_PERIOD':
-        return OriginManifestType.multiPeriod;
-    }
-    throw Exception('$this is not known in enum OriginManifestType');
-  }
+  const OriginManifestType(this.value);
+
+  static OriginManifestType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum OriginManifestType'));
 }
 
 /// A playback configuration. For information about MediaTailor configurations,
@@ -4618,6 +4952,14 @@ class PlaybackConfiguration {
 
   /// The configuration for HLS content.
   final HlsConfiguration? hlsConfiguration;
+
+  /// The setting that controls whether players can use stitched or guided ad
+  /// insertion. The default, <code>STITCHED_ONLY</code>, forces all player
+  /// sessions to use stitched (server-side) ad insertion. Choosing
+  /// <code>PLAYER_SELECT</code> allows players to select either stitched or
+  /// guided ad insertion at session-initialization time. The default for players
+  /// that do not specify an insertion mode is stitched.
+  final InsertionMode? insertionMode;
 
   /// The configuration for pre-roll ad insertion.
   final LivePreRollConfiguration? livePreRollConfiguration;
@@ -4687,6 +5029,7 @@ class PlaybackConfiguration {
     this.configurationAliases,
     this.dashConfiguration,
     this.hlsConfiguration,
+    this.insertionMode,
     this.livePreRollConfiguration,
     this.logConfiguration,
     this.manifestProcessingRules,
@@ -4729,6 +5072,8 @@ class PlaybackConfiguration {
           ? HlsConfiguration.fromJson(
               json['HlsConfiguration'] as Map<String, dynamic>)
           : null,
+      insertionMode:
+          (json['InsertionMode'] as String?)?.let(InsertionMode.fromString),
       livePreRollConfiguration: json['LivePreRollConfiguration'] != null
           ? LivePreRollConfiguration.fromJson(
               json['LivePreRollConfiguration'] as Map<String, dynamic>)
@@ -4764,6 +5109,7 @@ class PlaybackConfiguration {
     final configurationAliases = this.configurationAliases;
     final dashConfiguration = this.dashConfiguration;
     final hlsConfiguration = this.hlsConfiguration;
+    final insertionMode = this.insertionMode;
     final livePreRollConfiguration = this.livePreRollConfiguration;
     final logConfiguration = this.logConfiguration;
     final manifestProcessingRules = this.manifestProcessingRules;
@@ -4788,6 +5134,7 @@ class PlaybackConfiguration {
         'ConfigurationAliases': configurationAliases,
       if (dashConfiguration != null) 'DashConfiguration': dashConfiguration,
       if (hlsConfiguration != null) 'HlsConfiguration': hlsConfiguration,
+      if (insertionMode != null) 'InsertionMode': insertionMode.value,
       if (livePreRollConfiguration != null)
         'LivePreRollConfiguration': livePreRollConfiguration,
       if (logConfiguration != null) 'LogConfiguration': logConfiguration,
@@ -4814,31 +5161,18 @@ class PlaybackConfiguration {
 }
 
 enum PlaybackMode {
-  loop,
-  linear,
-}
+  loop('LOOP'),
+  linear('LINEAR'),
+  ;
 
-extension PlaybackModeValueExtension on PlaybackMode {
-  String toValue() {
-    switch (this) {
-      case PlaybackMode.loop:
-        return 'LOOP';
-      case PlaybackMode.linear:
-        return 'LINEAR';
-    }
-  }
-}
+  final String value;
 
-extension PlaybackModeFromString on String {
-  PlaybackMode toPlaybackMode() {
-    switch (this) {
-      case 'LOOP':
-        return PlaybackMode.loop;
-      case 'LINEAR':
-        return PlaybackMode.linear;
-    }
-    throw Exception('$this is not known in enum PlaybackMode');
-  }
+  const PlaybackMode(this.value);
+
+  static PlaybackMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PlaybackMode'));
 }
 
 /// A complex type that contains settings that determine how and when that
@@ -4870,7 +5204,7 @@ class PrefetchConsumption {
     return PrefetchConsumption(
       endTime: nonNullableTimeStampFromJson(json['EndTime'] as Object),
       availMatchingCriteria: (json['AvailMatchingCriteria'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AvailMatchingCriteria.fromJson(e as Map<String, dynamic>))
           .toList(),
       startTime: timeStampFromJson(json['StartTime']),
@@ -5061,6 +5395,14 @@ class PutPlaybackConfigurationResponse {
   /// The configuration for HLS content.
   final HlsConfiguration? hlsConfiguration;
 
+  /// The setting that controls whether players can use stitched or guided ad
+  /// insertion. The default, <code>STITCHED_ONLY</code>, forces all player
+  /// sessions to use stitched (server-side) ad insertion. Choosing
+  /// <code>PLAYER_SELECT</code> allows players to select either stitched or
+  /// guided ad insertion at session-initialization time. The default for players
+  /// that do not specify an insertion mode is stitched.
+  final InsertionMode? insertionMode;
+
   /// The configuration for pre-roll ad insertion.
   final LivePreRollConfiguration? livePreRollConfiguration;
 
@@ -5128,6 +5470,7 @@ class PutPlaybackConfigurationResponse {
     this.configurationAliases,
     this.dashConfiguration,
     this.hlsConfiguration,
+    this.insertionMode,
     this.livePreRollConfiguration,
     this.logConfiguration,
     this.manifestProcessingRules,
@@ -5170,6 +5513,8 @@ class PutPlaybackConfigurationResponse {
           ? HlsConfiguration.fromJson(
               json['HlsConfiguration'] as Map<String, dynamic>)
           : null,
+      insertionMode:
+          (json['InsertionMode'] as String?)?.let(InsertionMode.fromString),
       livePreRollConfiguration: json['LivePreRollConfiguration'] != null
           ? LivePreRollConfiguration.fromJson(
               json['LivePreRollConfiguration'] as Map<String, dynamic>)
@@ -5205,6 +5550,7 @@ class PutPlaybackConfigurationResponse {
     final configurationAliases = this.configurationAliases;
     final dashConfiguration = this.dashConfiguration;
     final hlsConfiguration = this.hlsConfiguration;
+    final insertionMode = this.insertionMode;
     final livePreRollConfiguration = this.livePreRollConfiguration;
     final logConfiguration = this.logConfiguration;
     final manifestProcessingRules = this.manifestProcessingRules;
@@ -5229,6 +5575,7 @@ class PutPlaybackConfigurationResponse {
         'ConfigurationAliases': configurationAliases,
       if (dashConfiguration != null) 'DashConfiguration': dashConfiguration,
       if (hlsConfiguration != null) 'HlsConfiguration': hlsConfiguration,
+      if (insertionMode != null) 'InsertionMode': insertionMode.value,
       if (livePreRollConfiguration != null)
         'LivePreRollConfiguration': livePreRollConfiguration,
       if (logConfiguration != null) 'LogConfiguration': logConfiguration,
@@ -5255,31 +5602,18 @@ class PutPlaybackConfigurationResponse {
 }
 
 enum RelativePosition {
-  beforeProgram,
-  afterProgram,
-}
+  beforeProgram('BEFORE_PROGRAM'),
+  afterProgram('AFTER_PROGRAM'),
+  ;
 
-extension RelativePositionValueExtension on RelativePosition {
-  String toValue() {
-    switch (this) {
-      case RelativePosition.beforeProgram:
-        return 'BEFORE_PROGRAM';
-      case RelativePosition.afterProgram:
-        return 'AFTER_PROGRAM';
-    }
-  }
-}
+  final String value;
 
-extension RelativePositionFromString on String {
-  RelativePosition toRelativePosition() {
-    switch (this) {
-      case 'BEFORE_PROGRAM':
-        return RelativePosition.beforeProgram;
-      case 'AFTER_PROGRAM':
-        return RelativePosition.afterProgram;
-    }
-    throw Exception('$this is not known in enum RelativePosition');
-  }
+  const RelativePosition(this.value);
+
+  static RelativePosition fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RelativePosition'));
 }
 
 /// The output configuration for this channel.
@@ -5473,6 +5807,9 @@ class ScheduleEntry {
   /// The approximate time that the program will start playing.
   final DateTime? approximateStartTime;
 
+  /// The list of audiences defined in ScheduleEntry.
+  final List<String>? audiences;
+
   /// The name of the live source used for the program.
   final String? liveSourceName;
 
@@ -5492,6 +5829,7 @@ class ScheduleEntry {
     required this.sourceLocationName,
     this.approximateDurationSeconds,
     this.approximateStartTime,
+    this.audiences,
     this.liveSourceName,
     this.scheduleAdBreaks,
     this.scheduleEntryType,
@@ -5506,13 +5844,17 @@ class ScheduleEntry {
       sourceLocationName: json['SourceLocationName'] as String,
       approximateDurationSeconds: json['ApproximateDurationSeconds'] as int?,
       approximateStartTime: timeStampFromJson(json['ApproximateStartTime']),
+      audiences: (json['Audiences'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       liveSourceName: json['LiveSourceName'] as String?,
       scheduleAdBreaks: (json['ScheduleAdBreaks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ScheduleAdBreak.fromJson(e as Map<String, dynamic>))
           .toList(),
-      scheduleEntryType:
-          (json['ScheduleEntryType'] as String?)?.toScheduleEntryType(),
+      scheduleEntryType: (json['ScheduleEntryType'] as String?)
+          ?.let(ScheduleEntryType.fromString),
       vodSourceName: json['VodSourceName'] as String?,
     );
   }
@@ -5524,6 +5866,7 @@ class ScheduleEntry {
     final sourceLocationName = this.sourceLocationName;
     final approximateDurationSeconds = this.approximateDurationSeconds;
     final approximateStartTime = this.approximateStartTime;
+    final audiences = this.audiences;
     final liveSourceName = this.liveSourceName;
     final scheduleAdBreaks = this.scheduleAdBreaks;
     final scheduleEntryType = this.scheduleEntryType;
@@ -5537,41 +5880,30 @@ class ScheduleEntry {
         'ApproximateDurationSeconds': approximateDurationSeconds,
       if (approximateStartTime != null)
         'ApproximateStartTime': unixTimestampToJson(approximateStartTime),
+      if (audiences != null) 'Audiences': audiences,
       if (liveSourceName != null) 'LiveSourceName': liveSourceName,
       if (scheduleAdBreaks != null) 'ScheduleAdBreaks': scheduleAdBreaks,
       if (scheduleEntryType != null)
-        'ScheduleEntryType': scheduleEntryType.toValue(),
+        'ScheduleEntryType': scheduleEntryType.value,
       if (vodSourceName != null) 'VodSourceName': vodSourceName,
     };
   }
 }
 
 enum ScheduleEntryType {
-  program,
-  fillerSlate,
-}
+  program('PROGRAM'),
+  fillerSlate('FILLER_SLATE'),
+  alternateMedia('ALTERNATE_MEDIA'),
+  ;
 
-extension ScheduleEntryTypeValueExtension on ScheduleEntryType {
-  String toValue() {
-    switch (this) {
-      case ScheduleEntryType.program:
-        return 'PROGRAM';
-      case ScheduleEntryType.fillerSlate:
-        return 'FILLER_SLATE';
-    }
-  }
-}
+  final String value;
 
-extension ScheduleEntryTypeFromString on String {
-  ScheduleEntryType toScheduleEntryType() {
-    switch (this) {
-      case 'PROGRAM':
-        return ScheduleEntryType.program;
-      case 'FILLER_SLATE':
-        return ScheduleEntryType.fillerSlate;
-    }
-    throw Exception('$this is not known in enum ScheduleEntryType');
-  }
+  const ScheduleEntryType(this.value);
+
+  static ScheduleEntryType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ScheduleEntryType'));
 }
 
 /// AWS Secrets Manager access token configuration parameters. For information
@@ -5865,7 +6197,7 @@ class SourceLocation {
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       segmentDeliveryConfigurations: (json['SegmentDeliveryConfigurations']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SegmentDeliveryConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5985,30 +6317,41 @@ class StopChannelResponse {
 }
 
 enum Tier {
-  basic,
-  standard,
+  basic('BASIC'),
+  standard('STANDARD'),
+  ;
+
+  final String value;
+
+  const Tier(this.value);
+
+  static Tier fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Tier'));
 }
 
-extension TierValueExtension on Tier {
-  String toValue() {
-    switch (this) {
-      case Tier.basic:
-        return 'BASIC';
-      case Tier.standard:
-        return 'STANDARD';
-    }
+/// The configuration for time-shifted viewing.
+class TimeShiftConfiguration {
+  /// The maximum time delay for time-shifted viewing. The minimum allowed maximum
+  /// time delay is 0 seconds, and the maximum allowed maximum time delay is 21600
+  /// seconds (6 hours).
+  final int maxTimeDelaySeconds;
+
+  TimeShiftConfiguration({
+    required this.maxTimeDelaySeconds,
+  });
+
+  factory TimeShiftConfiguration.fromJson(Map<String, dynamic> json) {
+    return TimeShiftConfiguration(
+      maxTimeDelaySeconds: json['MaxTimeDelaySeconds'] as int,
+    );
   }
-}
 
-extension TierFromString on String {
-  Tier toTier() {
-    switch (this) {
-      case 'BASIC':
-        return Tier.basic;
-      case 'STANDARD':
-        return Tier.standard;
-    }
-    throw Exception('$this is not known in enum Tier');
+  Map<String, dynamic> toJson() {
+    final maxTimeDelaySeconds = this.maxTimeDelaySeconds;
+    return {
+      'MaxTimeDelaySeconds': maxTimeDelaySeconds,
+    };
   }
 }
 
@@ -6037,7 +6380,7 @@ class TimeSignalMessage {
   factory TimeSignalMessage.fromJson(Map<String, dynamic> json) {
     return TimeSignalMessage(
       segmentationDescriptors: (json['SegmentationDescriptors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => SegmentationDescriptor.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6107,7 +6450,7 @@ class Transition {
     final relativeProgram = this.relativeProgram;
     final scheduledStartTimeMillis = this.scheduledStartTimeMillis;
     return {
-      'RelativePosition': relativePosition.toValue(),
+      'RelativePosition': relativePosition.value,
       'Type': type,
       if (durationMillis != null) 'DurationMillis': durationMillis,
       if (relativeProgram != null) 'RelativeProgram': relativeProgram,
@@ -6118,36 +6461,25 @@ class Transition {
 }
 
 enum Type {
-  dash,
-  hls,
-}
+  dash('DASH'),
+  hls('HLS'),
+  ;
 
-extension TypeValueExtension on Type {
-  String toValue() {
-    switch (this) {
-      case Type.dash:
-        return 'DASH';
-      case Type.hls:
-        return 'HLS';
-    }
-  }
-}
+  final String value;
 
-extension TypeFromString on String {
-  Type toType() {
-    switch (this) {
-      case 'DASH':
-        return Type.dash;
-      case 'HLS':
-        return Type.hls;
-    }
-    throw Exception('$this is not known in enum Type');
-  }
+  const Type(this.value);
+
+  static Type fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Type'));
 }
 
 class UpdateChannelResponse {
   /// The Amazon Resource Name (ARN) associated with the channel.
   final String? arn;
+
+  /// The list of audiences defined in channel.
+  final List<String>? audiences;
 
   /// The name of the channel.
   final String? channelName;
@@ -6189,8 +6521,12 @@ class UpdateChannelResponse {
   /// The tier associated with this Channel.
   final String? tier;
 
+  /// The time-shifted viewing configuration for the channel.
+  final TimeShiftConfiguration? timeShiftConfiguration;
+
   UpdateChannelResponse({
     this.arn,
+    this.audiences,
     this.channelName,
     this.channelState,
     this.creationTime,
@@ -6200,31 +6536,42 @@ class UpdateChannelResponse {
     this.playbackMode,
     this.tags,
     this.tier,
+    this.timeShiftConfiguration,
   });
 
   factory UpdateChannelResponse.fromJson(Map<String, dynamic> json) {
     return UpdateChannelResponse(
       arn: json['Arn'] as String?,
+      audiences: (json['Audiences'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       channelName: json['ChannelName'] as String?,
-      channelState: (json['ChannelState'] as String?)?.toChannelState(),
+      channelState:
+          (json['ChannelState'] as String?)?.let(ChannelState.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       fillerSlate: json['FillerSlate'] != null
           ? SlateSource.fromJson(json['FillerSlate'] as Map<String, dynamic>)
           : null,
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       outputs: (json['Outputs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResponseOutputItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       playbackMode: json['PlaybackMode'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       tier: json['Tier'] as String?,
+      timeShiftConfiguration: json['TimeShiftConfiguration'] != null
+          ? TimeShiftConfiguration.fromJson(
+              json['TimeShiftConfiguration'] as Map<String, dynamic>)
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     final arn = this.arn;
+    final audiences = this.audiences;
     final channelName = this.channelName;
     final channelState = this.channelState;
     final creationTime = this.creationTime;
@@ -6234,10 +6581,12 @@ class UpdateChannelResponse {
     final playbackMode = this.playbackMode;
     final tags = this.tags;
     final tier = this.tier;
+    final timeShiftConfiguration = this.timeShiftConfiguration;
     return {
       if (arn != null) 'Arn': arn,
+      if (audiences != null) 'Audiences': audiences,
       if (channelName != null) 'ChannelName': channelName,
-      if (channelState != null) 'ChannelState': channelState.toValue(),
+      if (channelState != null) 'ChannelState': channelState.value,
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
       if (fillerSlate != null) 'FillerSlate': fillerSlate,
@@ -6247,6 +6596,8 @@ class UpdateChannelResponse {
       if (playbackMode != null) 'PlaybackMode': playbackMode,
       if (tags != null) 'tags': tags,
       if (tier != null) 'Tier': tier,
+      if (timeShiftConfiguration != null)
+        'TimeShiftConfiguration': timeShiftConfiguration,
     };
   }
 }
@@ -6292,7 +6643,7 @@ class UpdateLiveSourceResponse {
       arn: json['Arn'] as String?,
       creationTime: timeStampFromJson(json['CreationTime']),
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6334,6 +6685,9 @@ class UpdateProgramResponse {
   /// The ARN to assign to the program.
   final String? arn;
 
+  /// The list of AudienceMedia defined in program.
+  final List<AudienceMedia>? audienceMedia;
+
   /// The name to assign to the channel for this program.
   final String? channelName;
 
@@ -6364,6 +6718,7 @@ class UpdateProgramResponse {
   UpdateProgramResponse({
     this.adBreaks,
     this.arn,
+    this.audienceMedia,
     this.channelName,
     this.clipRange,
     this.creationTime,
@@ -6378,10 +6733,14 @@ class UpdateProgramResponse {
   factory UpdateProgramResponse.fromJson(Map<String, dynamic> json) {
     return UpdateProgramResponse(
       adBreaks: (json['AdBreaks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AdBreak.fromJson(e as Map<String, dynamic>))
           .toList(),
       arn: json['Arn'] as String?,
+      audienceMedia: (json['AudienceMedia'] as List?)
+          ?.nonNulls
+          .map((e) => AudienceMedia.fromJson(e as Map<String, dynamic>))
+          .toList(),
       channelName: json['ChannelName'] as String?,
       clipRange: json['ClipRange'] != null
           ? ClipRange.fromJson(json['ClipRange'] as Map<String, dynamic>)
@@ -6399,6 +6758,7 @@ class UpdateProgramResponse {
   Map<String, dynamic> toJson() {
     final adBreaks = this.adBreaks;
     final arn = this.arn;
+    final audienceMedia = this.audienceMedia;
     final channelName = this.channelName;
     final clipRange = this.clipRange;
     final creationTime = this.creationTime;
@@ -6411,6 +6771,7 @@ class UpdateProgramResponse {
     return {
       if (adBreaks != null) 'AdBreaks': adBreaks,
       if (arn != null) 'Arn': arn,
+      if (audienceMedia != null) 'AudienceMedia': audienceMedia,
       if (channelName != null) 'ChannelName': channelName,
       if (clipRange != null) 'ClipRange': clipRange,
       if (creationTime != null)
@@ -6544,7 +6905,7 @@ class UpdateSourceLocationResponse {
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       segmentDeliveryConfigurations: (json['SegmentDeliveryConfigurations']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SegmentDeliveryConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6626,7 +6987,7 @@ class UpdateVodSourceResponse {
       arn: json['Arn'] as String?,
       creationTime: timeStampFromJson(json['CreationTime']),
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6702,7 +7063,7 @@ class VodSource {
     return VodSource(
       arn: json['Arn'] as String,
       httpPackageConfigurations: (json['HttpPackageConfigurations'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               HttpPackageConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),

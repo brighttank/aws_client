@@ -1483,7 +1483,7 @@ class BatchPutMessageResponse {
     return BatchPutMessageResponse(
       batchPutMessageErrorEntries:
           (json['batchPutMessageErrorEntries'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   BatchPutMessageErrorEntry.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -1569,7 +1569,7 @@ class Channel {
           ? RetentionPeriod.fromJson(
               json['retentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toChannelStatus(),
+      status: (json['status'] as String?)?.let(ChannelStatus.fromString),
       storage: json['storage'] != null
           ? ChannelStorage.fromJson(json['storage'] as Map<String, dynamic>)
           : null,
@@ -1595,7 +1595,7 @@ class Channel {
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (name != null) 'name': name,
       if (retentionPeriod != null) 'retentionPeriod': retentionPeriod,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (storage != null) 'storage': storage,
     };
   }
@@ -1687,36 +1687,19 @@ class ChannelStatistics {
 }
 
 enum ChannelStatus {
-  creating,
-  active,
-  deleting,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  ;
 
-extension ChannelStatusValueExtension on ChannelStatus {
-  String toValue() {
-    switch (this) {
-      case ChannelStatus.creating:
-        return 'CREATING';
-      case ChannelStatus.active:
-        return 'ACTIVE';
-      case ChannelStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension ChannelStatusFromString on String {
-  ChannelStatus toChannelStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ChannelStatus.creating;
-      case 'ACTIVE':
-        return ChannelStatus.active;
-      case 'DELETING':
-        return ChannelStatus.deleting;
-    }
-    throw Exception('$this is not known in enum ChannelStatus');
-  }
+  const ChannelStatus(this.value);
+
+  static ChannelStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ChannelStatus'));
 }
 
 /// Where channel data is stored. You may choose one of
@@ -1843,7 +1826,7 @@ class ChannelSummary {
       creationTime: timeStampFromJson(json['creationTime']),
       lastMessageArrivalTime: timeStampFromJson(json['lastMessageArrivalTime']),
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
-      status: (json['status'] as String?)?.toChannelStatus(),
+      status: (json['status'] as String?)?.let(ChannelStatus.fromString),
     );
   }
 
@@ -1863,7 +1846,7 @@ class ChannelSummary {
         'lastMessageArrivalTime': unixTimestampToJson(lastMessageArrivalTime),
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -1902,31 +1885,17 @@ class Column {
 }
 
 enum ComputeType {
-  acu_1,
-  acu_2,
-}
+  acu_1('ACU_1'),
+  acu_2('ACU_2'),
+  ;
 
-extension ComputeTypeValueExtension on ComputeType {
-  String toValue() {
-    switch (this) {
-      case ComputeType.acu_1:
-        return 'ACU_1';
-      case ComputeType.acu_2:
-        return 'ACU_2';
-    }
-  }
-}
+  final String value;
 
-extension ComputeTypeFromString on String {
-  ComputeType toComputeType() {
-    switch (this) {
-      case 'ACU_1':
-        return ComputeType.acu_1;
-      case 'ACU_2':
-        return ComputeType.acu_2;
-    }
-    throw Exception('$this is not known in enum ComputeType');
-  }
+  const ComputeType(this.value);
+
+  static ComputeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ComputeType'));
 }
 
 /// Information required to run the <code>containerAction</code> to produce
@@ -1968,7 +1937,7 @@ class ContainerDatasetAction {
       resourceConfiguration: ResourceConfiguration.fromJson(
           json['resourceConfiguration'] as Map<String, dynamic>),
       variables: (json['variables'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Variable.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2393,19 +2362,19 @@ class Dataset {
   factory Dataset.fromJson(Map<String, dynamic> json) {
     return Dataset(
       actions: (json['actions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetAction.fromJson(e as Map<String, dynamic>))
           .toList(),
       arn: json['arn'] as String?,
       contentDeliveryRules: (json['contentDeliveryRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DatasetContentDeliveryRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       creationTime: timeStampFromJson(json['creationTime']),
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
       lateDataRules: (json['lateDataRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LateDataRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['name'] as String?,
@@ -2413,9 +2382,9 @@ class Dataset {
           ? RetentionPeriod.fromJson(
               json['retentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toDatasetStatus(),
+      status: (json['status'] as String?)?.let(DatasetStatus.fromString),
       triggers: (json['triggers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetTrigger.fromJson(e as Map<String, dynamic>))
           .toList(),
       versioningConfiguration: json['versioningConfiguration'] != null
@@ -2449,7 +2418,7 @@ class Dataset {
       if (lateDataRules != null) 'lateDataRules': lateDataRules,
       if (name != null) 'name': name,
       if (retentionPeriod != null) 'retentionPeriod': retentionPeriod,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (triggers != null) 'triggers': triggers,
       if (versioningConfiguration != null)
         'versioningConfiguration': versioningConfiguration,
@@ -2523,7 +2492,8 @@ class DatasetActionSummary {
   factory DatasetActionSummary.fromJson(Map<String, dynamic> json) {
     return DatasetActionSummary(
       actionName: json['actionName'] as String?,
-      actionType: (json['actionType'] as String?)?.toDatasetActionType(),
+      actionType:
+          (json['actionType'] as String?)?.let(DatasetActionType.fromString),
     );
   }
 
@@ -2532,37 +2502,24 @@ class DatasetActionSummary {
     final actionType = this.actionType;
     return {
       if (actionName != null) 'actionName': actionName,
-      if (actionType != null) 'actionType': actionType.toValue(),
+      if (actionType != null) 'actionType': actionType.value,
     };
   }
 }
 
 enum DatasetActionType {
-  query,
-  container,
-}
+  query('QUERY'),
+  container('CONTAINER'),
+  ;
 
-extension DatasetActionTypeValueExtension on DatasetActionType {
-  String toValue() {
-    switch (this) {
-      case DatasetActionType.query:
-        return 'QUERY';
-      case DatasetActionType.container:
-        return 'CONTAINER';
-    }
-  }
-}
+  final String value;
 
-extension DatasetActionTypeFromString on String {
-  DatasetActionType toDatasetActionType() {
-    switch (this) {
-      case 'QUERY':
-        return DatasetActionType.query;
-      case 'CONTAINER':
-        return DatasetActionType.container;
-    }
-    throw Exception('$this is not known in enum DatasetActionType');
-  }
+  const DatasetActionType(this.value);
+
+  static DatasetActionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DatasetActionType'));
 }
 
 /// The destination to which dataset contents are delivered.
@@ -2640,36 +2597,19 @@ class DatasetContentDeliveryRule {
 }
 
 enum DatasetContentState {
-  creating,
-  succeeded,
-  failed,
-}
+  creating('CREATING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
 
-extension DatasetContentStateValueExtension on DatasetContentState {
-  String toValue() {
-    switch (this) {
-      case DatasetContentState.creating:
-        return 'CREATING';
-      case DatasetContentState.succeeded:
-        return 'SUCCEEDED';
-      case DatasetContentState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension DatasetContentStateFromString on String {
-  DatasetContentState toDatasetContentState() {
-    switch (this) {
-      case 'CREATING':
-        return DatasetContentState.creating;
-      case 'SUCCEEDED':
-        return DatasetContentState.succeeded;
-      case 'FAILED':
-        return DatasetContentState.failed;
-    }
-    throw Exception('$this is not known in enum DatasetContentState');
-  }
+  const DatasetContentState(this.value);
+
+  static DatasetContentState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DatasetContentState'));
 }
 
 /// The state of the dataset contents and the reason they are in this state.
@@ -2689,7 +2629,7 @@ class DatasetContentStatus {
   factory DatasetContentStatus.fromJson(Map<String, dynamic> json) {
     return DatasetContentStatus(
       reason: json['reason'] as String?,
-      state: (json['state'] as String?)?.toDatasetContentState(),
+      state: (json['state'] as String?)?.let(DatasetContentState.fromString),
     );
   }
 
@@ -2698,7 +2638,7 @@ class DatasetContentStatus {
     final state = this.state;
     return {
       if (reason != null) 'reason': reason,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
@@ -2816,36 +2756,19 @@ class DatasetEntry {
 }
 
 enum DatasetStatus {
-  creating,
-  active,
-  deleting,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  ;
 
-extension DatasetStatusValueExtension on DatasetStatus {
-  String toValue() {
-    switch (this) {
-      case DatasetStatus.creating:
-        return 'CREATING';
-      case DatasetStatus.active:
-        return 'ACTIVE';
-      case DatasetStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension DatasetStatusFromString on String {
-  DatasetStatus toDatasetStatus() {
-    switch (this) {
-      case 'CREATING':
-        return DatasetStatus.creating;
-      case 'ACTIVE':
-        return DatasetStatus.active;
-      case 'DELETING':
-        return DatasetStatus.deleting;
-    }
-    throw Exception('$this is not known in enum DatasetStatus');
-  }
+  const DatasetStatus(this.value);
+
+  static DatasetStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DatasetStatus'));
 }
 
 /// A summary of information about a dataset.
@@ -2883,15 +2806,15 @@ class DatasetSummary {
   factory DatasetSummary.fromJson(Map<String, dynamic> json) {
     return DatasetSummary(
       actions: (json['actions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetActionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       creationTime: timeStampFromJson(json['creationTime']),
       datasetName: json['datasetName'] as String?,
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
-      status: (json['status'] as String?)?.toDatasetStatus(),
+      status: (json['status'] as String?)?.let(DatasetStatus.fromString),
       triggers: (json['triggers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetTrigger.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2911,7 +2834,7 @@ class DatasetSummary {
       if (datasetName != null) 'datasetName': datasetName,
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (triggers != null) 'triggers': triggers,
     };
   }
@@ -3042,7 +2965,7 @@ class Datastore {
           ? RetentionPeriod.fromJson(
               json['retentionPeriod'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toDatastoreStatus(),
+      status: (json['status'] as String?)?.let(DatastoreStatus.fromString),
       storage: json['storage'] != null
           ? DatastoreStorage.fromJson(json['storage'] as Map<String, dynamic>)
           : null,
@@ -3074,7 +2997,7 @@ class Datastore {
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
       if (name != null) 'name': name,
       if (retentionPeriod != null) 'retentionPeriod': retentionPeriod,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (storage != null) 'storage': storage,
     };
   }
@@ -3219,7 +3142,7 @@ class DatastorePartitions {
   factory DatastorePartitions.fromJson(Map<String, dynamic> json) {
     return DatastorePartitions(
       partitions: (json['partitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatastorePartition.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3259,36 +3182,19 @@ class DatastoreStatistics {
 }
 
 enum DatastoreStatus {
-  creating,
-  active,
-  deleting,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  ;
 
-extension DatastoreStatusValueExtension on DatastoreStatus {
-  String toValue() {
-    switch (this) {
-      case DatastoreStatus.creating:
-        return 'CREATING';
-      case DatastoreStatus.active:
-        return 'ACTIVE';
-      case DatastoreStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension DatastoreStatusFromString on String {
-  DatastoreStatus toDatastoreStatus() {
-    switch (this) {
-      case 'CREATING':
-        return DatastoreStatus.creating;
-      case 'ACTIVE':
-        return DatastoreStatus.active;
-      case 'DELETING':
-        return DatastoreStatus.deleting;
-    }
-    throw Exception('$this is not known in enum DatastoreStatus');
-  }
+  const DatastoreStatus(this.value);
+
+  static DatastoreStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DatastoreStatus'));
 }
 
 /// Where data in a data store is stored.. You can choose
@@ -3453,10 +3359,11 @@ class DatastoreSummary {
           ? DatastoreStorageSummary.fromJson(
               json['datastoreStorage'] as Map<String, dynamic>)
           : null,
-      fileFormatType: (json['fileFormatType'] as String?)?.toFileFormatType(),
+      fileFormatType:
+          (json['fileFormatType'] as String?)?.let(FileFormatType.fromString),
       lastMessageArrivalTime: timeStampFromJson(json['lastMessageArrivalTime']),
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
-      status: (json['status'] as String?)?.toDatastoreStatus(),
+      status: (json['status'] as String?)?.let(DatastoreStatus.fromString),
     );
   }
 
@@ -3476,12 +3383,12 @@ class DatastoreSummary {
       if (datastorePartitions != null)
         'datastorePartitions': datastorePartitions,
       if (datastoreStorage != null) 'datastoreStorage': datastoreStorage,
-      if (fileFormatType != null) 'fileFormatType': fileFormatType.toValue(),
+      if (fileFormatType != null) 'fileFormatType': fileFormatType.value,
       if (lastMessageArrivalTime != null)
         'lastMessageArrivalTime': unixTimestampToJson(lastMessageArrivalTime),
       if (lastUpdateTime != null)
         'lastUpdateTime': unixTimestampToJson(lastUpdateTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3890,31 +3797,18 @@ class FileFormatConfiguration {
 }
 
 enum FileFormatType {
-  json,
-  parquet,
-}
+  json('JSON'),
+  parquet('PARQUET'),
+  ;
 
-extension FileFormatTypeValueExtension on FileFormatType {
-  String toValue() {
-    switch (this) {
-      case FileFormatType.json:
-        return 'JSON';
-      case FileFormatType.parquet:
-        return 'PARQUET';
-    }
-  }
-}
+  final String value;
 
-extension FileFormatTypeFromString on String {
-  FileFormatType toFileFormatType() {
-    switch (this) {
-      case 'JSON':
-        return FileFormatType.json;
-      case 'PARQUET':
-        return FileFormatType.parquet;
-    }
-    throw Exception('$this is not known in enum FileFormatType');
-  }
+  const FileFormatType(this.value);
+
+  static FileFormatType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FileFormatType'));
 }
 
 /// An activity that filters a message based on its attributes.
@@ -3974,7 +3868,7 @@ class GetDatasetContentResponse {
   factory GetDatasetContentResponse.fromJson(Map<String, dynamic> json) {
     return GetDatasetContentResponse(
       entries: (json['entries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       status: json['status'] != null
@@ -4274,7 +4168,7 @@ class ListChannelsResponse {
   factory ListChannelsResponse.fromJson(Map<String, dynamic> json) {
     return ListChannelsResponse(
       channelSummaries: (json['channelSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4307,7 +4201,7 @@ class ListDatasetContentsResponse {
   factory ListDatasetContentsResponse.fromJson(Map<String, dynamic> json) {
     return ListDatasetContentsResponse(
       datasetContentSummaries: (json['datasetContentSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetContentSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4341,7 +4235,7 @@ class ListDatasetsResponse {
   factory ListDatasetsResponse.fromJson(Map<String, dynamic> json) {
     return ListDatasetsResponse(
       datasetSummaries: (json['datasetSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatasetSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4374,7 +4268,7 @@ class ListDatastoresResponse {
   factory ListDatastoresResponse.fromJson(Map<String, dynamic> json) {
     return ListDatastoresResponse(
       datastoreSummaries: (json['datastoreSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DatastoreSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4408,7 +4302,7 @@ class ListPipelinesResponse {
     return ListPipelinesResponse(
       nextToken: json['nextToken'] as String?,
       pipelineSummaries: (json['pipelineSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PipelineSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4435,7 +4329,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4450,26 +4344,17 @@ class ListTagsForResourceResponse {
 }
 
 enum LoggingLevel {
-  error,
-}
+  error('ERROR'),
+  ;
 
-extension LoggingLevelValueExtension on LoggingLevel {
-  String toValue() {
-    switch (this) {
-      case LoggingLevel.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension LoggingLevelFromString on String {
-  LoggingLevel toLoggingLevel() {
-    switch (this) {
-      case 'ERROR':
-        return LoggingLevel.error;
-    }
-    throw Exception('$this is not known in enum LoggingLevel');
-  }
+  const LoggingLevel(this.value);
+
+  static LoggingLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LoggingLevel'));
 }
 
 /// Information about logging options.
@@ -4493,7 +4378,7 @@ class LoggingOptions {
   factory LoggingOptions.fromJson(Map<String, dynamic> json) {
     return LoggingOptions(
       enabled: json['enabled'] as bool,
-      level: (json['level'] as String).toLoggingLevel(),
+      level: LoggingLevel.fromString((json['level'] as String)),
       roleArn: json['roleArn'] as String,
     );
   }
@@ -4504,7 +4389,7 @@ class LoggingOptions {
     final roleArn = this.roleArn;
     return {
       'enabled': enabled,
-      'level': level.toValue(),
+      'level': level.value,
       'roleArn': roleArn,
     };
   }
@@ -4687,7 +4572,7 @@ class Pipeline {
   factory Pipeline.fromJson(Map<String, dynamic> json) {
     return Pipeline(
       activities: (json['activities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PipelineActivity.fromJson(e as Map<String, dynamic>))
           .toList(),
       arn: json['arn'] as String?,
@@ -4695,7 +4580,7 @@ class Pipeline {
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
       name: json['name'] as String?,
       reprocessingSummaries: (json['reprocessingSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReprocessingSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4864,7 +4749,7 @@ class PipelineSummary {
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
       pipelineName: json['pipelineName'] as String?,
       reprocessingSummaries: (json['reprocessingSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReprocessingSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4934,7 +4819,7 @@ class RemoveAttributesActivity {
   factory RemoveAttributesActivity.fromJson(Map<String, dynamic> json) {
     return RemoveAttributesActivity(
       attributes: (json['attributes'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       name: json['name'] as String,
@@ -4955,41 +4840,20 @@ class RemoveAttributesActivity {
 }
 
 enum ReprocessingStatus {
-  running,
-  succeeded,
-  cancelled,
-  failed,
-}
+  running('RUNNING'),
+  succeeded('SUCCEEDED'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  ;
 
-extension ReprocessingStatusValueExtension on ReprocessingStatus {
-  String toValue() {
-    switch (this) {
-      case ReprocessingStatus.running:
-        return 'RUNNING';
-      case ReprocessingStatus.succeeded:
-        return 'SUCCEEDED';
-      case ReprocessingStatus.cancelled:
-        return 'CANCELLED';
-      case ReprocessingStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReprocessingStatusFromString on String {
-  ReprocessingStatus toReprocessingStatus() {
-    switch (this) {
-      case 'RUNNING':
-        return ReprocessingStatus.running;
-      case 'SUCCEEDED':
-        return ReprocessingStatus.succeeded;
-      case 'CANCELLED':
-        return ReprocessingStatus.cancelled;
-      case 'FAILED':
-        return ReprocessingStatus.failed;
-    }
-    throw Exception('$this is not known in enum ReprocessingStatus');
-  }
+  const ReprocessingStatus(this.value);
+
+  static ReprocessingStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReprocessingStatus'));
 }
 
 /// Information about pipeline reprocessing.
@@ -5014,7 +4878,7 @@ class ReprocessingSummary {
     return ReprocessingSummary(
       creationTime: timeStampFromJson(json['creationTime']),
       id: json['id'] as String?,
-      status: (json['status'] as String?)?.toReprocessingStatus(),
+      status: (json['status'] as String?)?.let(ReprocessingStatus.fromString),
     );
   }
 
@@ -5026,7 +4890,7 @@ class ReprocessingSummary {
       if (creationTime != null)
         'creationTime': unixTimestampToJson(creationTime),
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5050,7 +4914,7 @@ class ResourceConfiguration {
 
   factory ResourceConfiguration.fromJson(Map<String, dynamic> json) {
     return ResourceConfiguration(
-      computeType: (json['computeType'] as String).toComputeType(),
+      computeType: ComputeType.fromString((json['computeType'] as String)),
       volumeSizeInGB: json['volumeSizeInGB'] as int,
     );
   }
@@ -5059,7 +4923,7 @@ class ResourceConfiguration {
     final computeType = this.computeType;
     final volumeSizeInGB = this.volumeSizeInGB;
     return {
-      'computeType': computeType.toValue(),
+      'computeType': computeType.value,
       'volumeSizeInGB': volumeSizeInGB,
     };
   }
@@ -5114,7 +4978,7 @@ class RunPipelineActivityResponse {
     return RunPipelineActivityResponse(
       logResult: json['logResult'] as String?,
       payloads: (json['payloads'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => _s.decodeUint8List(e as String))
           .toList(),
     );
@@ -5219,7 +5083,7 @@ class SampleChannelDataResponse {
   factory SampleChannelDataResponse.fromJson(Map<String, dynamic> json) {
     return SampleChannelDataResponse(
       payloads: (json['payloads'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => _s.decodeUint8List(e as String))
           .toList(),
     );
@@ -5274,7 +5138,7 @@ class SchemaDefinition {
   factory SchemaDefinition.fromJson(Map<String, dynamic> json) {
     return SchemaDefinition(
       columns: (json['columns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Column.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5309,7 +5173,7 @@ class SelectAttributesActivity {
   factory SelectAttributesActivity.fromJson(Map<String, dynamic> json) {
     return SelectAttributesActivity(
       attributes: (json['attributes'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       name: json['name'] as String,
@@ -5403,7 +5267,7 @@ class SqlQueryDatasetAction {
     return SqlQueryDatasetAction(
       sqlQuery: json['sqlQuery'] as String,
       filters: (json['filters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => QueryFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
     );

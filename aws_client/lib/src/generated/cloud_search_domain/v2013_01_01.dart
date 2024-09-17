@@ -482,7 +482,7 @@ class CloudSearchDomain {
       if (highlight != null) 'highlight': [highlight],
       if (partial != null) 'partial': [partial.toString()],
       if (queryOptions != null) 'q.options': [queryOptions],
-      if (queryParser != null) 'q.parser': [queryParser.toValue()],
+      if (queryParser != null) 'q.parser': [queryParser.value],
       if (returnValue != null) 'return': [returnValue],
       if (size != null) 'size': [size.toString()],
       if (sort != null) 'sort': [sort],
@@ -594,7 +594,7 @@ class CloudSearchDomain {
     required Uint8List documents,
   }) async {
     final headers = <String, String>{
-      'Content-Type': contentType.toValue(),
+      'Content-Type': contentType.value,
     };
     final response = await _protocol.send(
       payload: documents,
@@ -650,7 +650,7 @@ class BucketInfo {
   factory BucketInfo.fromJson(Map<String, dynamic> json) {
     return BucketInfo(
       buckets: (json['buckets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Bucket.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -665,31 +665,17 @@ class BucketInfo {
 }
 
 enum ContentType {
-  applicationJson,
-  applicationXml,
-}
+  applicationJson('application/json'),
+  applicationXml('application/xml'),
+  ;
 
-extension ContentTypeValueExtension on ContentType {
-  String toValue() {
-    switch (this) {
-      case ContentType.applicationJson:
-        return 'application/json';
-      case ContentType.applicationXml:
-        return 'application/xml';
-    }
-  }
-}
+  final String value;
 
-extension ContentTypeFromString on String {
-  ContentType toContentType() {
-    switch (this) {
-      case 'application/json':
-        return ContentType.applicationJson;
-      case 'application/xml':
-        return ContentType.applicationXml;
-    }
-    throw Exception('$this is not known in enum ContentType');
-  }
+  const ContentType(this.value);
+
+  static ContentType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ContentType'));
 }
 
 /// Information about any problems encountered while processing an upload
@@ -873,8 +859,8 @@ class Hit {
     return Hit(
       exprs: (json['exprs'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      fields: (json['fields'] as Map<String, dynamic>?)?.map((k, e) => MapEntry(
-          k, (e as List).whereNotNull().map((e) => e as String).toList())),
+      fields: (json['fields'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(k, (e as List).nonNulls.map((e) => e as String).toList())),
       highlights: (json['highlights'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       id: json['id'] as String?,
@@ -922,7 +908,7 @@ class Hits {
       cursor: json['cursor'] as String?,
       found: json['found'] as int?,
       hit: (json['hit'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Hit.fromJson(e as Map<String, dynamic>))
           .toList(),
       start: json['start'] as int?,
@@ -944,41 +930,19 @@ class Hits {
 }
 
 enum QueryParser {
-  simple,
-  structured,
-  lucene,
-  dismax,
-}
+  simple('simple'),
+  structured('structured'),
+  lucene('lucene'),
+  dismax('dismax'),
+  ;
 
-extension QueryParserValueExtension on QueryParser {
-  String toValue() {
-    switch (this) {
-      case QueryParser.simple:
-        return 'simple';
-      case QueryParser.structured:
-        return 'structured';
-      case QueryParser.lucene:
-        return 'lucene';
-      case QueryParser.dismax:
-        return 'dismax';
-    }
-  }
-}
+  final String value;
 
-extension QueryParserFromString on String {
-  QueryParser toQueryParser() {
-    switch (this) {
-      case 'simple':
-        return QueryParser.simple;
-      case 'structured':
-        return QueryParser.structured;
-      case 'lucene':
-        return QueryParser.lucene;
-      case 'dismax':
-        return QueryParser.dismax;
-    }
-    throw Exception('$this is not known in enum QueryParser');
-  }
+  const QueryParser(this.value);
+
+  static QueryParser fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum QueryParser'));
 }
 
 /// Information about any problems encountered while processing a search
@@ -1111,7 +1075,7 @@ class SuggestModel {
       found: json['found'] as int?,
       query: json['query'] as String?,
       suggestions: (json['suggestions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SuggestionMatch.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1263,7 +1227,7 @@ class UploadDocumentsResponse {
       deletes: json['deletes'] as int?,
       status: json['status'] as String?,
       warnings: (json['warnings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => DocumentServiceWarning.fromJson(e as Map<String, dynamic>))
           .toList(),

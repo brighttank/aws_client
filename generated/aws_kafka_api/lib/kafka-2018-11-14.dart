@@ -189,10 +189,10 @@ class Kafka {
       if (configurationInfo != null) 'configurationInfo': configurationInfo,
       if (encryptionInfo != null) 'encryptionInfo': encryptionInfo,
       if (enhancedMonitoring != null)
-        'enhancedMonitoring': enhancedMonitoring.toValue(),
+        'enhancedMonitoring': enhancedMonitoring.value,
       if (loggingInfo != null) 'loggingInfo': loggingInfo,
       if (openMonitoring != null) 'openMonitoring': openMonitoring,
-      if (storageMode != null) 'storageMode': storageMode.toValue(),
+      if (storageMode != null) 'storageMode': storageMode.value,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -310,6 +310,61 @@ class Kafka {
       exceptionFnMap: _exceptionFns,
     );
     return CreateConfigurationResponse.fromJson(response);
+  }
+
+  /// Creates the replicator.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  /// May throw [ForbiddenException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [kafkaClusters] :
+  /// Kafka Clusters to use in setting up sources / targets for replication.
+  ///
+  /// Parameter [replicationInfoList] :
+  /// A list of replication configurations, where each configuration targets a
+  /// given source cluster to target cluster replication flow.
+  ///
+  /// Parameter [replicatorName] :
+  /// The name of the replicator. Alpha-numeric characters with '-' are allowed.
+  ///
+  /// Parameter [serviceExecutionRoleArn] :
+  /// The ARN of the IAM role used by the replicator to access resources in the
+  /// customer's account (e.g source and target clusters)
+  ///
+  /// Parameter [description] :
+  /// A summary description of the replicator.
+  ///
+  /// Parameter [tags] :
+  /// List of tags to attach to created Replicator.
+  Future<CreateReplicatorResponse> createReplicator({
+    required List<KafkaCluster> kafkaClusters,
+    required List<ReplicationInfo> replicationInfoList,
+    required String replicatorName,
+    required String serviceExecutionRoleArn,
+    String? description,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'kafkaClusters': kafkaClusters,
+      'replicationInfoList': replicationInfoList,
+      'replicatorName': replicatorName,
+      'serviceExecutionRoleArn': serviceExecutionRoleArn,
+      if (description != null) 'description': description,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/replication/v1/replicators',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateReplicatorResponse.fromJson(response);
   }
 
   ///
@@ -464,6 +519,39 @@ class Kafka {
     return DeleteConfigurationResponse.fromJson(response);
   }
 
+  /// Deletes a replicator.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  /// May throw [ForbiddenException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [replicatorArn] :
+  /// The Amazon Resource Name (ARN) of the replicator to be deleted.
+  ///
+  /// Parameter [currentVersion] :
+  /// The current version of the replicator.
+  Future<DeleteReplicatorResponse> deleteReplicator({
+    required String replicatorArn,
+    String? currentVersion,
+  }) async {
+    final $query = <String, List<String>>{
+      if (currentVersion != null) 'currentVersion': [currentVersion],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/replication/v1/replicators/${Uri.encodeComponent(replicatorArn)}',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeleteReplicatorResponse.fromJson(response);
+  }
+
   ///
   /// Deletes a MSK VPC connection.
   ///
@@ -572,6 +660,33 @@ class Kafka {
   }
 
   ///
+  /// Returns a description of the cluster operation specified by the ARN.
+  ///
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  /// May throw [ForbiddenException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [clusterOperationArn] :
+  /// ARN of the cluster operation to describe.
+  Future<DescribeClusterOperationV2Response> describeClusterOperationV2({
+    required String clusterOperationArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/api/v2/operations/${Uri.encodeComponent(clusterOperationArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribeClusterOperationV2Response.fromJson(response);
+  }
+
+  ///
   /// Returns a description of this MSK configuration.
   ///
   ///
@@ -632,6 +747,31 @@ class Kafka {
       exceptionFnMap: _exceptionFns,
     );
     return DescribeConfigurationRevisionResponse.fromJson(response);
+  }
+
+  /// Describes a replicator.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  /// May throw [ForbiddenException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [replicatorArn] :
+  /// The Amazon Resource Name (ARN) of the replicator to be described.
+  Future<DescribeReplicatorResponse> describeReplicator({
+    required String replicatorArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/replication/v1/replicators/${Uri.encodeComponent(replicatorArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribeReplicatorResponse.fromJson(response);
   }
 
   ///
@@ -835,6 +975,53 @@ class Kafka {
       exceptionFnMap: _exceptionFns,
     );
     return ListClusterOperationsResponse.fromJson(response);
+  }
+
+  ///
+  /// Returns a list of all the operations that have been performed on the
+  /// specified MSK cluster.
+  ///
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  /// May throw [ForbiddenException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [clusterArn] :
+  /// The arn of the cluster whose operations are being requested.
+  ///
+  /// Parameter [maxResults] :
+  /// The maxResults of the query.
+  ///
+  /// Parameter [nextToken] :
+  /// The nextToken of the query.
+  Future<ListClusterOperationsV2Response> listClusterOperationsV2({
+    required String clusterArn,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/api/v2/clusters/${Uri.encodeComponent(clusterArn)}/operations',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListClusterOperationsV2Response.fromJson(response);
   }
 
   ///
@@ -1142,6 +1329,54 @@ class Kafka {
       exceptionFnMap: _exceptionFns,
     );
     return ListNodesResponse.fromJson(response);
+  }
+
+  /// Lists the replicators.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  /// May throw [ForbiddenException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return in the response. If there are more
+  /// results, the response includes a NextToken parameter.
+  ///
+  /// Parameter [nextToken] :
+  /// If the response of ListReplicators is truncated, it returns a NextToken in
+  /// the response. This NextToken should be sent in the subsequent request to
+  /// ListReplicators.
+  ///
+  /// Parameter [replicatorNameFilter] :
+  /// Returns replicators starting with given name.
+  Future<ListReplicatorsResponse> listReplicators({
+    int? maxResults,
+    String? nextToken,
+    String? replicatorNameFilter,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+      if (replicatorNameFilter != null)
+        'replicatorNameFilter': [replicatorNameFilter],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/replication/v1/replicators',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListReplicatorsResponse.fromJson(response);
   }
 
   ///
@@ -1913,7 +2148,7 @@ class Kafka {
     final $payload = <String, dynamic>{
       'currentVersion': currentVersion,
       if (enhancedMonitoring != null)
-        'enhancedMonitoring': enhancedMonitoring.toValue(),
+        'enhancedMonitoring': enhancedMonitoring.value,
       if (loggingInfo != null) 'loggingInfo': loggingInfo,
       if (openMonitoring != null) 'openMonitoring': openMonitoring,
     };
@@ -1924,6 +2159,59 @@ class Kafka {
       exceptionFnMap: _exceptionFns,
     );
     return UpdateMonitoringResponse.fromJson(response);
+  }
+
+  /// Updates replication info of a replicator.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  /// May throw [ForbiddenException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  ///
+  /// Parameter [currentVersion] :
+  /// Current replicator version.
+  ///
+  /// Parameter [replicatorArn] :
+  /// The Amazon Resource Name (ARN) of the replicator to be updated.
+  ///
+  /// Parameter [sourceKafkaClusterArn] :
+  /// The ARN of the source Kafka cluster.
+  ///
+  /// Parameter [targetKafkaClusterArn] :
+  /// The ARN of the target Kafka cluster.
+  ///
+  /// Parameter [consumerGroupReplication] :
+  /// Updated consumer group replication information.
+  ///
+  /// Parameter [topicReplication] :
+  /// Updated topic replication information.
+  Future<UpdateReplicationInfoResponse> updateReplicationInfo({
+    required String currentVersion,
+    required String replicatorArn,
+    required String sourceKafkaClusterArn,
+    required String targetKafkaClusterArn,
+    ConsumerGroupReplicationUpdate? consumerGroupReplication,
+    TopicReplicationUpdate? topicReplication,
+  }) async {
+    final $payload = <String, dynamic>{
+      'currentVersion': currentVersion,
+      'sourceKafkaClusterArn': sourceKafkaClusterArn,
+      'targetKafkaClusterArn': targetKafkaClusterArn,
+      if (consumerGroupReplication != null)
+        'consumerGroupReplication': consumerGroupReplication,
+      if (topicReplication != null) 'topicReplication': topicReplication,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PUT',
+      requestUri:
+          '/replication/v1/replicators/${Uri.encodeComponent(replicatorArn)}/replication-info',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateReplicationInfoResponse.fromJson(response);
   }
 
   ///
@@ -2028,7 +2316,7 @@ class Kafka {
       'currentVersion': currentVersion,
       if (provisionedThroughput != null)
         'provisionedThroughput': provisionedThroughput,
-      if (storageMode != null) 'storageMode': storageMode.toValue(),
+      if (storageMode != null) 'storageMode': storageMode.value,
       if (volumeSizeGB != null) 'volumeSizeGB': volumeSizeGB,
     };
     final response = await _protocol.send(
@@ -2038,6 +2326,29 @@ class Kafka {
       exceptionFnMap: _exceptionFns,
     );
     return UpdateStorageResponse.fromJson(response);
+  }
+}
+
+/// Details of an Amazon MSK Cluster.
+class AmazonMskCluster {
+  /// The Amazon Resource Name (ARN) of an Amazon MSK cluster.
+  final String mskClusterArn;
+
+  AmazonMskCluster({
+    required this.mskClusterArn,
+  });
+
+  factory AmazonMskCluster.fromJson(Map<String, dynamic> json) {
+    return AmazonMskCluster(
+      mskClusterArn: json['mskClusterArn'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final mskClusterArn = this.mskClusterArn;
+    return {
+      'mskClusterArn': mskClusterArn,
+    };
   }
 }
 
@@ -2062,7 +2373,7 @@ class BatchAssociateScramSecretResponse {
     return BatchAssociateScramSecretResponse(
       clusterArn: json['clusterArn'] as String?,
       unprocessedScramSecrets: (json['unprocessedScramSecrets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => UnprocessedScramSecret.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2081,25 +2392,49 @@ class BatchAssociateScramSecretResponse {
 /// that correspond to the subnets you provide when you create the cluster.
 ///
 enum BrokerAZDistribution {
-  $default,
+  $default('DEFAULT'),
+  ;
+
+  final String value;
+
+  const BrokerAZDistribution(this.value);
+
+  static BrokerAZDistribution fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum BrokerAZDistribution'));
 }
 
-extension BrokerAZDistributionValueExtension on BrokerAZDistribution {
-  String toValue() {
-    switch (this) {
-      case BrokerAZDistribution.$default:
-        return 'DEFAULT';
-    }
-  }
-}
+///
+/// Information regarding UpdateBrokerCount.
+///
+class BrokerCountUpdateInfo {
+  ///
+  /// Kafka Broker IDs of brokers being created.
+  ///
+  final List<double>? createdBrokerIds;
 
-extension BrokerAZDistributionFromString on String {
-  BrokerAZDistribution toBrokerAZDistribution() {
-    switch (this) {
-      case 'DEFAULT':
-        return BrokerAZDistribution.$default;
-    }
-    throw Exception('$this is not known in enum BrokerAZDistribution');
+  ///
+  /// Kafka Broker IDs of brokers being deleted.
+  ///
+  final List<double>? deletedBrokerIds;
+
+  BrokerCountUpdateInfo({
+    this.createdBrokerIds,
+    this.deletedBrokerIds,
+  });
+
+  factory BrokerCountUpdateInfo.fromJson(Map<String, dynamic> json) {
+    return BrokerCountUpdateInfo(
+      createdBrokerIds: (json['createdBrokerIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as double)
+          .toList(),
+      deletedBrokerIds: (json['deletedBrokerIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as double)
+          .toList(),
+    );
   }
 }
 
@@ -2260,27 +2595,25 @@ class BrokerNodeGroupInfo {
   factory BrokerNodeGroupInfo.fromJson(Map<String, dynamic> json) {
     return BrokerNodeGroupInfo(
       clientSubnets: (json['clientSubnets'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       instanceType: json['instanceType'] as String,
-      brokerAZDistribution:
-          (json['brokerAZDistribution'] as String?)?.toBrokerAZDistribution(),
+      brokerAZDistribution: (json['brokerAZDistribution'] as String?)
+          ?.let(BrokerAZDistribution.fromString),
       connectivityInfo: json['connectivityInfo'] != null
           ? ConnectivityInfo.fromJson(
               json['connectivityInfo'] as Map<String, dynamic>)
           : null,
       securityGroups: (json['securityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       storageInfo: json['storageInfo'] != null
           ? StorageInfo.fromJson(json['storageInfo'] as Map<String, dynamic>)
           : null,
-      zoneIds: (json['zoneIds'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      zoneIds:
+          (json['zoneIds'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -2296,7 +2629,7 @@ class BrokerNodeGroupInfo {
       'clientSubnets': clientSubnets,
       'instanceType': instanceType,
       if (brokerAZDistribution != null)
-        'brokerAZDistribution': brokerAZDistribution.toValue(),
+        'brokerAZDistribution': brokerAZDistribution.value,
       if (connectivityInfo != null) 'connectivityInfo': connectivityInfo,
       if (securityGroups != null) 'securityGroups': securityGroups,
       if (storageInfo != null) 'storageInfo': storageInfo,
@@ -2360,7 +2693,7 @@ class BrokerNodeInfo {
               json['currentBrokerSoftwareInfo'] as Map<String, dynamic>)
           : null,
       endpoints: (json['endpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2529,36 +2862,19 @@ class ServerlessClientAuthentication {
 /// Client-broker encryption in transit setting.
 ///
 enum ClientBroker {
-  tls,
-  tlsPlaintext,
-  plaintext,
-}
+  tls('TLS'),
+  tlsPlaintext('TLS_PLAINTEXT'),
+  plaintext('PLAINTEXT'),
+  ;
 
-extension ClientBrokerValueExtension on ClientBroker {
-  String toValue() {
-    switch (this) {
-      case ClientBroker.tls:
-        return 'TLS';
-      case ClientBroker.tlsPlaintext:
-        return 'TLS_PLAINTEXT';
-      case ClientBroker.plaintext:
-        return 'PLAINTEXT';
-    }
-  }
-}
+  final String value;
 
-extension ClientBrokerFromString on String {
-  ClientBroker toClientBroker() {
-    switch (this) {
-      case 'TLS':
-        return ClientBroker.tls;
-      case 'TLS_PLAINTEXT':
-        return ClientBroker.tlsPlaintext;
-      case 'PLAINTEXT':
-        return ClientBroker.plaintext;
-    }
-    throw Exception('$this is not known in enum ClientBroker');
-  }
+  const ClientBroker(this.value);
+
+  static ClientBroker fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ClientBroker'));
 }
 
 class CloudWatchLogs {
@@ -2633,6 +2949,11 @@ class ClusterInfo {
   final String? currentVersion;
 
   ///
+  /// Determines if there is an action required from the customer.
+  ///
+  final CustomerActionStatus? customerActionStatus;
+
+  ///
   /// Includes all encryption-related information.
   ///
   final EncryptionInfo? encryptionInfo;
@@ -2693,6 +3014,7 @@ class ClusterInfo {
     this.creationTime,
     this.currentBrokerSoftwareInfo,
     this.currentVersion,
+    this.customerActionStatus,
     this.encryptionInfo,
     this.enhancedMonitoring,
     this.loggingInfo,
@@ -2725,12 +3047,14 @@ class ClusterInfo {
               json['currentBrokerSoftwareInfo'] as Map<String, dynamic>)
           : null,
       currentVersion: json['currentVersion'] as String?,
+      customerActionStatus: (json['customerActionStatus'] as String?)
+          ?.let(CustomerActionStatus.fromString),
       encryptionInfo: json['encryptionInfo'] != null
           ? EncryptionInfo.fromJson(
               json['encryptionInfo'] as Map<String, dynamic>)
           : null,
-      enhancedMonitoring:
-          (json['enhancedMonitoring'] as String?)?.toEnhancedMonitoring(),
+      enhancedMonitoring: (json['enhancedMonitoring'] as String?)
+          ?.let(EnhancedMonitoring.fromString),
       loggingInfo: json['loggingInfo'] != null
           ? LoggingInfo.fromJson(json['loggingInfo'] as Map<String, dynamic>)
           : null,
@@ -2739,11 +3063,12 @@ class ClusterInfo {
           ? OpenMonitoring.fromJson(
               json['openMonitoring'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toClusterState(),
+      state: (json['state'] as String?)?.let(ClusterState.fromString),
       stateInfo: json['stateInfo'] != null
           ? StateInfo.fromJson(json['stateInfo'] as Map<String, dynamic>)
           : null,
-      storageMode: (json['storageMode'] as String?)?.toStorageMode(),
+      storageMode:
+          (json['storageMode'] as String?)?.let(StorageMode.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       zookeeperConnectString: json['zookeeperConnectString'] as String?,
@@ -2831,7 +3156,8 @@ class Cluster {
       activeOperationArn: json['activeOperationArn'] as String?,
       clusterArn: json['clusterArn'] as String?,
       clusterName: json['clusterName'] as String?,
-      clusterType: (json['clusterType'] as String?)?.toClusterType(),
+      clusterType:
+          (json['clusterType'] as String?)?.let(ClusterType.fromString),
       creationTime: timeStampFromJson(json['creationTime']),
       currentVersion: json['currentVersion'] as String?,
       provisioned: json['provisioned'] != null
@@ -2840,7 +3166,7 @@ class Cluster {
       serverless: json['serverless'] != null
           ? Serverless.fromJson(json['serverless'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toClusterState(),
+      state: (json['state'] as String?)?.let(ClusterState.fromString),
       stateInfo: json['stateInfo'] != null
           ? StateInfo.fromJson(json['stateInfo'] as Map<String, dynamic>)
           : null,
@@ -2942,7 +3268,7 @@ class ClusterOperationInfo {
       operationArn: json['operationArn'] as String?,
       operationState: json['operationState'] as String?,
       operationSteps: (json['operationSteps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ClusterOperationStep.fromJson(e as Map<String, dynamic>))
           .toList(),
       operationType: json['operationType'] as String?,
@@ -3016,92 +3342,41 @@ class ClusterOperationStepInfo {
 /// The state of the Apache Kafka cluster.
 ///
 enum ClusterState {
-  active,
-  creating,
-  deleting,
-  failed,
-  healing,
-  maintenance,
-  rebootingBroker,
-  updating,
-}
+  active('ACTIVE'),
+  creating('CREATING'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  healing('HEALING'),
+  maintenance('MAINTENANCE'),
+  rebootingBroker('REBOOTING_BROKER'),
+  updating('UPDATING'),
+  ;
 
-extension ClusterStateValueExtension on ClusterState {
-  String toValue() {
-    switch (this) {
-      case ClusterState.active:
-        return 'ACTIVE';
-      case ClusterState.creating:
-        return 'CREATING';
-      case ClusterState.deleting:
-        return 'DELETING';
-      case ClusterState.failed:
-        return 'FAILED';
-      case ClusterState.healing:
-        return 'HEALING';
-      case ClusterState.maintenance:
-        return 'MAINTENANCE';
-      case ClusterState.rebootingBroker:
-        return 'REBOOTING_BROKER';
-      case ClusterState.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension ClusterStateFromString on String {
-  ClusterState toClusterState() {
-    switch (this) {
-      case 'ACTIVE':
-        return ClusterState.active;
-      case 'CREATING':
-        return ClusterState.creating;
-      case 'DELETING':
-        return ClusterState.deleting;
-      case 'FAILED':
-        return ClusterState.failed;
-      case 'HEALING':
-        return ClusterState.healing;
-      case 'MAINTENANCE':
-        return ClusterState.maintenance;
-      case 'REBOOTING_BROKER':
-        return ClusterState.rebootingBroker;
-      case 'UPDATING':
-        return ClusterState.updating;
-    }
-    throw Exception('$this is not known in enum ClusterState');
-  }
+  const ClusterState(this.value);
+
+  static ClusterState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ClusterState'));
 }
 
 ///
 /// The type of cluster.
 ///
 enum ClusterType {
-  provisioned,
-  serverless,
-}
+  provisioned('PROVISIONED'),
+  serverless('SERVERLESS'),
+  ;
 
-extension ClusterTypeValueExtension on ClusterType {
-  String toValue() {
-    switch (this) {
-      case ClusterType.provisioned:
-        return 'PROVISIONED';
-      case ClusterType.serverless:
-        return 'SERVERLESS';
-    }
-  }
-}
+  final String value;
 
-extension ClusterTypeFromString on String {
-  ClusterType toClusterType() {
-    switch (this) {
-      case 'PROVISIONED':
-        return ClusterType.provisioned;
-      case 'SERVERLESS':
-        return ClusterType.serverless;
-    }
-    throw Exception('$this is not known in enum ClusterType');
-  }
+  const ClusterType(this.value);
+
+  static ClusterType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ClusterType'));
 }
 
 ///
@@ -3193,10 +3468,10 @@ class ProvisionedRequest {
       if (configurationInfo != null) 'configurationInfo': configurationInfo,
       if (encryptionInfo != null) 'encryptionInfo': encryptionInfo,
       if (enhancedMonitoring != null)
-        'enhancedMonitoring': enhancedMonitoring.toValue(),
+        'enhancedMonitoring': enhancedMonitoring.value,
       if (loggingInfo != null) 'loggingInfo': loggingInfo,
       if (openMonitoring != null) 'openMonitoring': openMonitoring,
-      if (storageMode != null) 'storageMode': storageMode.toValue(),
+      if (storageMode != null) 'storageMode': storageMode.value,
     };
   }
 }
@@ -3224,6 +3499,11 @@ class Provisioned {
   /// Information about the Apache Kafka version deployed on the brokers.
   ///
   final BrokerSoftwareInfo? currentBrokerSoftwareInfo;
+
+  ///
+  /// Determines if there is an action required from the customer.
+  ///
+  final CustomerActionStatus? customerActionStatus;
 
   ///
   /// Includes all encryption-related information.
@@ -3267,6 +3547,7 @@ class Provisioned {
     required this.numberOfBrokerNodes,
     this.clientAuthentication,
     this.currentBrokerSoftwareInfo,
+    this.customerActionStatus,
     this.encryptionInfo,
     this.enhancedMonitoring,
     this.loggingInfo,
@@ -3289,12 +3570,14 @@ class Provisioned {
           ? BrokerSoftwareInfo.fromJson(
               json['currentBrokerSoftwareInfo'] as Map<String, dynamic>)
           : null,
+      customerActionStatus: (json['customerActionStatus'] as String?)
+          ?.let(CustomerActionStatus.fromString),
       encryptionInfo: json['encryptionInfo'] != null
           ? EncryptionInfo.fromJson(
               json['encryptionInfo'] as Map<String, dynamic>)
           : null,
-      enhancedMonitoring:
-          (json['enhancedMonitoring'] as String?)?.toEnhancedMonitoring(),
+      enhancedMonitoring: (json['enhancedMonitoring'] as String?)
+          ?.let(EnhancedMonitoring.fromString),
       loggingInfo: json['loggingInfo'] != null
           ? LoggingInfo.fromJson(json['loggingInfo'] as Map<String, dynamic>)
           : null,
@@ -3302,7 +3585,8 @@ class Provisioned {
           ? OpenMonitoringInfo.fromJson(
               json['openMonitoring'] as Map<String, dynamic>)
           : null,
-      storageMode: (json['storageMode'] as String?)?.toStorageMode(),
+      storageMode:
+          (json['storageMode'] as String?)?.let(StorageMode.fromString),
       zookeeperConnectString: json['zookeeperConnectString'] as String?,
       zookeeperConnectStringTls: json['zookeeperConnectStringTls'] as String?,
     );
@@ -3330,12 +3614,10 @@ class VpcConfig {
 
   factory VpcConfig.fromJson(Map<String, dynamic> json) {
     return VpcConfig(
-      subnetIds: (json['subnetIds'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      subnetIds:
+          (json['subnetIds'] as List).nonNulls.map((e) => e as String).toList(),
       securityGroupIds: (json['securityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3403,7 +3685,7 @@ class Serverless {
   factory Serverless.fromJson(Map<String, dynamic> json) {
     return Serverless(
       vpcConfigs: (json['vpcConfigs'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => VpcConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       clientAuthentication: json['clientAuthentication'] != null
@@ -3457,7 +3739,7 @@ class ClientVpcConnection {
       authentication: json['authentication'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       owner: json['owner'] as String?,
-      state: (json['state'] as String?)?.toVpcConnectionState(),
+      state: (json['state'] as String?)?.let(VpcConnectionState.fromString),
     );
   }
 }
@@ -3511,7 +3793,7 @@ class VpcConnection {
       vpcConnectionArn: json['vpcConnectionArn'] as String,
       authentication: json['authentication'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
-      state: (json['state'] as String?)?.toVpcConnectionState(),
+      state: (json['state'] as String?)?.let(VpcConnectionState.fromString),
       vpcId: json['vpcId'] as String?,
     );
   }
@@ -3541,7 +3823,7 @@ class CompatibleKafkaVersion {
     return CompatibleKafkaVersion(
       sourceVersion: json['sourceVersion'] as String?,
       targetVersions: (json['targetVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3607,13 +3889,13 @@ class Configuration {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       description: json['description'] as String,
       kafkaVersions: (json['kafkaVersions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       latestRevision: ConfigurationRevision.fromJson(
           json['latestRevision'] as Map<String, dynamic>),
       name: json['name'] as String,
-      state: (json['state'] as String).toConfigurationState(),
+      state: ConfigurationState.fromString((json['state'] as String)),
     );
   }
 }
@@ -3693,36 +3975,19 @@ class ConfigurationRevision {
 /// The state of a configuration.
 ///
 enum ConfigurationState {
-  active,
-  deleting,
-  deleteFailed,
-}
+  active('ACTIVE'),
+  deleting('DELETING'),
+  deleteFailed('DELETE_FAILED'),
+  ;
 
-extension ConfigurationStateValueExtension on ConfigurationState {
-  String toValue() {
-    switch (this) {
-      case ConfigurationState.active:
-        return 'ACTIVE';
-      case ConfigurationState.deleting:
-        return 'DELETING';
-      case ConfigurationState.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationStateFromString on String {
-  ConfigurationState toConfigurationState() {
-    switch (this) {
-      case 'ACTIVE':
-        return ConfigurationState.active;
-      case 'DELETING':
-        return ConfigurationState.deleting;
-      case 'DELETE_FAILED':
-        return ConfigurationState.deleteFailed;
-    }
-    throw Exception('$this is not known in enum ConfigurationState');
-  }
+  const ConfigurationState(this.value);
+
+  static ConfigurationState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConfigurationState'));
 }
 
 ///
@@ -3766,6 +4031,102 @@ class ConnectivityInfo {
   }
 }
 
+/// Details about consumer group replication.
+class ConsumerGroupReplication {
+  /// List of regular expression patterns indicating the consumer groups to copy.
+  final List<String> consumerGroupsToReplicate;
+
+  /// List of regular expression patterns indicating the consumer groups that
+  /// should not be replicated.
+  final List<String>? consumerGroupsToExclude;
+
+  /// Enables synchronization of consumer groups to target cluster.
+  final bool? detectAndCopyNewConsumerGroups;
+
+  /// Enables synchronization of consumer group offsets to target cluster. The
+  /// translated offsets will be written to topic __consumer_offsets.
+  final bool? synchroniseConsumerGroupOffsets;
+
+  ConsumerGroupReplication({
+    required this.consumerGroupsToReplicate,
+    this.consumerGroupsToExclude,
+    this.detectAndCopyNewConsumerGroups,
+    this.synchroniseConsumerGroupOffsets,
+  });
+
+  factory ConsumerGroupReplication.fromJson(Map<String, dynamic> json) {
+    return ConsumerGroupReplication(
+      consumerGroupsToReplicate: (json['consumerGroupsToReplicate'] as List)
+          .nonNulls
+          .map((e) => e as String)
+          .toList(),
+      consumerGroupsToExclude: (json['consumerGroupsToExclude'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      detectAndCopyNewConsumerGroups:
+          json['detectAndCopyNewConsumerGroups'] as bool?,
+      synchroniseConsumerGroupOffsets:
+          json['synchroniseConsumerGroupOffsets'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final consumerGroupsToReplicate = this.consumerGroupsToReplicate;
+    final consumerGroupsToExclude = this.consumerGroupsToExclude;
+    final detectAndCopyNewConsumerGroups = this.detectAndCopyNewConsumerGroups;
+    final synchroniseConsumerGroupOffsets =
+        this.synchroniseConsumerGroupOffsets;
+    return {
+      'consumerGroupsToReplicate': consumerGroupsToReplicate,
+      if (consumerGroupsToExclude != null)
+        'consumerGroupsToExclude': consumerGroupsToExclude,
+      if (detectAndCopyNewConsumerGroups != null)
+        'detectAndCopyNewConsumerGroups': detectAndCopyNewConsumerGroups,
+      if (synchroniseConsumerGroupOffsets != null)
+        'synchroniseConsumerGroupOffsets': synchroniseConsumerGroupOffsets,
+    };
+  }
+}
+
+/// Details about consumer group replication.
+class ConsumerGroupReplicationUpdate {
+  /// List of regular expression patterns indicating the consumer groups that
+  /// should not be replicated.
+  final List<String> consumerGroupsToExclude;
+
+  /// List of regular expression patterns indicating the consumer groups to copy.
+  final List<String> consumerGroupsToReplicate;
+
+  /// Enables synchronization of consumer groups to target cluster.
+  final bool detectAndCopyNewConsumerGroups;
+
+  /// Enables synchronization of consumer group offsets to target cluster. The
+  /// translated offsets will be written to topic __consumer_offsets.
+  final bool synchroniseConsumerGroupOffsets;
+
+  ConsumerGroupReplicationUpdate({
+    required this.consumerGroupsToExclude,
+    required this.consumerGroupsToReplicate,
+    required this.detectAndCopyNewConsumerGroups,
+    required this.synchroniseConsumerGroupOffsets,
+  });
+
+  Map<String, dynamic> toJson() {
+    final consumerGroupsToExclude = this.consumerGroupsToExclude;
+    final consumerGroupsToReplicate = this.consumerGroupsToReplicate;
+    final detectAndCopyNewConsumerGroups = this.detectAndCopyNewConsumerGroups;
+    final synchroniseConsumerGroupOffsets =
+        this.synchroniseConsumerGroupOffsets;
+    return {
+      'consumerGroupsToExclude': consumerGroupsToExclude,
+      'consumerGroupsToReplicate': consumerGroupsToReplicate,
+      'detectAndCopyNewConsumerGroups': detectAndCopyNewConsumerGroups,
+      'synchroniseConsumerGroupOffsets': synchroniseConsumerGroupOffsets,
+    };
+  }
+}
+
 class CreateClusterResponse {
   ///
   /// The Amazon Resource Name (ARN) of the cluster.
@@ -3793,7 +4154,7 @@ class CreateClusterResponse {
     return CreateClusterResponse(
       clusterArn: json['clusterArn'] as String?,
       clusterName: json['clusterName'] as String?,
-      state: (json['state'] as String?)?.toClusterState(),
+      state: (json['state'] as String?)?.let(ClusterState.fromString),
     );
   }
 }
@@ -3831,8 +4192,9 @@ class CreateClusterV2Response {
     return CreateClusterV2Response(
       clusterArn: json['clusterArn'] as String?,
       clusterName: json['clusterName'] as String?,
-      clusterType: (json['clusterType'] as String?)?.toClusterType(),
-      state: (json['state'] as String?)?.toClusterState(),
+      clusterType:
+          (json['clusterType'] as String?)?.let(ClusterType.fromString),
+      state: (json['state'] as String?)?.let(ClusterState.fromString),
     );
   }
 }
@@ -3881,7 +4243,33 @@ class CreateConfigurationResponse {
               json['latestRevision'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      state: (json['state'] as String?)?.toConfigurationState(),
+      state: (json['state'] as String?)?.let(ConfigurationState.fromString),
+    );
+  }
+}
+
+class CreateReplicatorResponse {
+  /// The Amazon Resource Name (ARN) of the replicator.
+  final String? replicatorArn;
+
+  /// Name of the replicator provided by the customer.
+  final String? replicatorName;
+
+  /// State of the replicator.
+  final ReplicatorState? replicatorState;
+
+  CreateReplicatorResponse({
+    this.replicatorArn,
+    this.replicatorName,
+    this.replicatorState,
+  });
+
+  factory CreateReplicatorResponse.fromJson(Map<String, dynamic> json) {
+    return CreateReplicatorResponse(
+      replicatorArn: json['replicatorArn'] as String?,
+      replicatorName: json['replicatorName'] as String?,
+      replicatorState:
+          (json['replicatorState'] as String?)?.let(ReplicatorState.fromString),
     );
   }
 }
@@ -3942,21 +4330,269 @@ class CreateVpcConnectionResponse {
     return CreateVpcConnectionResponse(
       authentication: json['authentication'] as String?,
       clientSubnets: (json['clientSubnets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       creationTime: timeStampFromJson(json['creationTime']),
       securityGroups: (json['securityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      state: (json['state'] as String?)?.toVpcConnectionState(),
+      state: (json['state'] as String?)?.let(VpcConnectionState.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       vpcConnectionArn: json['vpcConnectionArn'] as String?,
       vpcId: json['vpcId'] as String?,
     );
   }
+}
+
+///
+/// Returns information about a cluster operation.
+class ClusterOperationV2 {
+  ///
+  /// ARN of the cluster.
+  final String? clusterArn;
+
+  ///
+  /// Type of the backend cluster.
+  final ClusterType? clusterType;
+
+  ///
+  /// The time at which the operation finished.
+  final DateTime? endTime;
+
+  ///
+  /// If cluster operation failed from an error, it describes the error.
+  final ErrorInfo? errorInfo;
+
+  ///
+  /// ARN of the cluster operation.
+  final String? operationArn;
+
+  ///
+  /// State of the cluster operation.
+  final String? operationState;
+
+  ///
+  /// Type of the cluster operation.
+  final String? operationType;
+
+  ///
+  /// Properties of a provisioned cluster.
+  final ClusterOperationV2Provisioned? provisioned;
+
+  ///
+  /// Properties of a serverless cluster.
+  final ClusterOperationV2Serverless? serverless;
+
+  ///
+  /// The time at which operation was started.
+  final DateTime? startTime;
+
+  ClusterOperationV2({
+    this.clusterArn,
+    this.clusterType,
+    this.endTime,
+    this.errorInfo,
+    this.operationArn,
+    this.operationState,
+    this.operationType,
+    this.provisioned,
+    this.serverless,
+    this.startTime,
+  });
+
+  factory ClusterOperationV2.fromJson(Map<String, dynamic> json) {
+    return ClusterOperationV2(
+      clusterArn: json['clusterArn'] as String?,
+      clusterType:
+          (json['clusterType'] as String?)?.let(ClusterType.fromString),
+      endTime: timeStampFromJson(json['endTime']),
+      errorInfo: json['errorInfo'] != null
+          ? ErrorInfo.fromJson(json['errorInfo'] as Map<String, dynamic>)
+          : null,
+      operationArn: json['operationArn'] as String?,
+      operationState: json['operationState'] as String?,
+      operationType: json['operationType'] as String?,
+      provisioned: json['provisioned'] != null
+          ? ClusterOperationV2Provisioned.fromJson(
+              json['provisioned'] as Map<String, dynamic>)
+          : null,
+      serverless: json['serverless'] != null
+          ? ClusterOperationV2Serverless.fromJson(
+              json['serverless'] as Map<String, dynamic>)
+          : null,
+      startTime: timeStampFromJson(json['startTime']),
+    );
+  }
+}
+
+///
+/// Returns information about a provisioned cluster operation.
+class ClusterOperationV2Provisioned {
+  ///
+  /// Steps completed during the operation.
+  final List<ClusterOperationStep>? operationSteps;
+
+  ///
+  /// Information about cluster attributes before a cluster is updated.
+  final MutableClusterInfo? sourceClusterInfo;
+
+  ///
+  /// Information about cluster attributes after a cluster is updated.
+  final MutableClusterInfo? targetClusterInfo;
+
+  ///
+  /// Description of the VPC connection for CreateVpcConnection and
+  /// DeleteVpcConnection operations.
+  final VpcConnectionInfo? vpcConnectionInfo;
+
+  ClusterOperationV2Provisioned({
+    this.operationSteps,
+    this.sourceClusterInfo,
+    this.targetClusterInfo,
+    this.vpcConnectionInfo,
+  });
+
+  factory ClusterOperationV2Provisioned.fromJson(Map<String, dynamic> json) {
+    return ClusterOperationV2Provisioned(
+      operationSteps: (json['operationSteps'] as List?)
+          ?.nonNulls
+          .map((e) => ClusterOperationStep.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      sourceClusterInfo: json['sourceClusterInfo'] != null
+          ? MutableClusterInfo.fromJson(
+              json['sourceClusterInfo'] as Map<String, dynamic>)
+          : null,
+      targetClusterInfo: json['targetClusterInfo'] != null
+          ? MutableClusterInfo.fromJson(
+              json['targetClusterInfo'] as Map<String, dynamic>)
+          : null,
+      vpcConnectionInfo: json['vpcConnectionInfo'] != null
+          ? VpcConnectionInfo.fromJson(
+              json['vpcConnectionInfo'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+///
+/// Returns information about a serverless cluster operation.
+class ClusterOperationV2Serverless {
+  ///
+  /// Description of the VPC connection for CreateVpcConnection and
+  /// DeleteVpcConnection operations.
+  final VpcConnectionInfoServerless? vpcConnectionInfo;
+
+  ClusterOperationV2Serverless({
+    this.vpcConnectionInfo,
+  });
+
+  factory ClusterOperationV2Serverless.fromJson(Map<String, dynamic> json) {
+    return ClusterOperationV2Serverless(
+      vpcConnectionInfo: json['vpcConnectionInfo'] != null
+          ? VpcConnectionInfoServerless.fromJson(
+              json['vpcConnectionInfo'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+///
+/// Returns information about a cluster operation.
+class ClusterOperationV2Summary {
+  ///
+  /// ARN of the cluster.
+  final String? clusterArn;
+
+  ///
+  /// Type of the backend cluster.
+  final ClusterType? clusterType;
+
+  ///
+  /// The time at which the operation finished.
+  final DateTime? endTime;
+
+  ///
+  /// ARN of the cluster operation.
+  final String? operationArn;
+
+  ///
+  /// State of the cluster operation.
+  final String? operationState;
+
+  ///
+  /// Type of the cluster operation.
+  final String? operationType;
+
+  ///
+  /// The time at which operation was started.
+  final DateTime? startTime;
+
+  ClusterOperationV2Summary({
+    this.clusterArn,
+    this.clusterType,
+    this.endTime,
+    this.operationArn,
+    this.operationState,
+    this.operationType,
+    this.startTime,
+  });
+
+  factory ClusterOperationV2Summary.fromJson(Map<String, dynamic> json) {
+    return ClusterOperationV2Summary(
+      clusterArn: json['clusterArn'] as String?,
+      clusterType:
+          (json['clusterType'] as String?)?.let(ClusterType.fromString),
+      endTime: timeStampFromJson(json['endTime']),
+      operationArn: json['operationArn'] as String?,
+      operationState: json['operationState'] as String?,
+      operationType: json['operationType'] as String?,
+      startTime: timeStampFromJson(json['startTime']),
+    );
+  }
+}
+
+///
+/// Controller node information.
+///
+class ControllerNodeInfo {
+  ///
+  /// Endpoints for accessing the Controller.
+  ///
+  final List<String>? endpoints;
+
+  ControllerNodeInfo({
+    this.endpoints,
+  });
+
+  factory ControllerNodeInfo.fromJson(Map<String, dynamic> json) {
+    return ControllerNodeInfo(
+      endpoints: (json['endpoints'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+}
+
+///
+/// A type of an action required from the customer.
+enum CustomerActionStatus {
+  criticalActionRequired('CRITICAL_ACTION_REQUIRED'),
+  actionRecommended('ACTION_RECOMMENDED'),
+  none('NONE'),
+  ;
+
+  final String value;
+
+  const CustomerActionStatus(this.value);
+
+  static CustomerActionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CustomerActionStatus'));
 }
 
 class DeleteClusterResponse {
@@ -3979,7 +4615,7 @@ class DeleteClusterResponse {
   factory DeleteClusterResponse.fromJson(Map<String, dynamic> json) {
     return DeleteClusterResponse(
       clusterArn: json['clusterArn'] as String?,
-      state: (json['state'] as String?)?.toClusterState(),
+      state: (json['state'] as String?)?.let(ClusterState.fromString),
     );
   }
 }
@@ -4013,7 +4649,28 @@ class DeleteConfigurationResponse {
   factory DeleteConfigurationResponse.fromJson(Map<String, dynamic> json) {
     return DeleteConfigurationResponse(
       arn: json['arn'] as String?,
-      state: (json['state'] as String?)?.toConfigurationState(),
+      state: (json['state'] as String?)?.let(ConfigurationState.fromString),
+    );
+  }
+}
+
+class DeleteReplicatorResponse {
+  /// The Amazon Resource Name (ARN) of the replicator.
+  final String? replicatorArn;
+
+  /// The state of the replicator.
+  final ReplicatorState? replicatorState;
+
+  DeleteReplicatorResponse({
+    this.replicatorArn,
+    this.replicatorState,
+  });
+
+  factory DeleteReplicatorResponse.fromJson(Map<String, dynamic> json) {
+    return DeleteReplicatorResponse(
+      replicatorArn: json['replicatorArn'] as String?,
+      replicatorState:
+          (json['replicatorState'] as String?)?.let(ReplicatorState.fromString),
     );
   }
 }
@@ -4037,7 +4694,7 @@ class DeleteVpcConnectionResponse {
 
   factory DeleteVpcConnectionResponse.fromJson(Map<String, dynamic> json) {
     return DeleteVpcConnectionResponse(
-      state: (json['state'] as String?)?.toVpcConnectionState(),
+      state: (json['state'] as String?)?.let(VpcConnectionState.fromString),
       vpcConnectionArn: json['vpcConnectionArn'] as String?,
     );
   }
@@ -4057,6 +4714,26 @@ class DescribeClusterOperationResponse {
     return DescribeClusterOperationResponse(
       clusterOperationInfo: json['clusterOperationInfo'] != null
           ? ClusterOperationInfo.fromJson(
+              json['clusterOperationInfo'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class DescribeClusterOperationV2Response {
+  ///
+  /// Cluster operation information
+  final ClusterOperationV2? clusterOperationInfo;
+
+  DescribeClusterOperationV2Response({
+    this.clusterOperationInfo,
+  });
+
+  factory DescribeClusterOperationV2Response.fromJson(
+      Map<String, dynamic> json) {
+    return DescribeClusterOperationV2Response(
+      clusterOperationInfo: json['clusterOperationInfo'] != null
+          ? ClusterOperationV2.fromJson(
               json['clusterOperationInfo'] as Map<String, dynamic>)
           : null,
     );
@@ -4154,7 +4831,7 @@ class DescribeConfigurationResponse {
       creationTime: timeStampFromJson(json['creationTime']),
       description: json['description'] as String?,
       kafkaVersions: (json['kafkaVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       latestRevision: json['latestRevision'] != null
@@ -4162,7 +4839,7 @@ class DescribeConfigurationResponse {
               json['latestRevision'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      state: (json['state'] as String?)?.toConfigurationState(),
+      state: (json['state'] as String?)?.let(ConfigurationState.fromString),
     );
   }
 }
@@ -4213,6 +4890,97 @@ class DescribeConfigurationRevisionResponse {
       revision: json['revision'] as int?,
       serverProperties:
           _s.decodeNullableUint8List(json['serverProperties'] as String?),
+    );
+  }
+}
+
+class DescribeReplicatorResponse {
+  /// The time when the replicator was created.
+  final DateTime? creationTime;
+
+  /// The current version number of the replicator.
+  final String? currentVersion;
+
+  /// Whether this resource is a replicator reference.
+  final bool? isReplicatorReference;
+
+  /// Kafka Clusters used in setting up sources / targets for replication.
+  final List<KafkaClusterDescription>? kafkaClusters;
+
+  /// A list of replication configurations, where each configuration targets a
+  /// given source cluster to target cluster replication flow.
+  final List<ReplicationInfoDescription>? replicationInfoList;
+
+  /// The Amazon Resource Name (ARN) of the replicator.
+  final String? replicatorArn;
+
+  /// The description of the replicator.
+  final String? replicatorDescription;
+
+  /// The name of the replicator.
+  final String? replicatorName;
+
+  /// The Amazon Resource Name (ARN) of the replicator resource in the region
+  /// where the replicator was created.
+  final String? replicatorResourceArn;
+
+  /// State of the replicator.
+  final ReplicatorState? replicatorState;
+
+  /// The Amazon Resource Name (ARN) of the IAM role used by the replicator to
+  /// access resources in the customer's account (e.g source and target clusters)
+  final String? serviceExecutionRoleArn;
+
+  /// Details about the state of the replicator.
+  final ReplicationStateInfo? stateInfo;
+
+  /// List of tags attached to the Replicator.
+  final Map<String, String>? tags;
+
+  DescribeReplicatorResponse({
+    this.creationTime,
+    this.currentVersion,
+    this.isReplicatorReference,
+    this.kafkaClusters,
+    this.replicationInfoList,
+    this.replicatorArn,
+    this.replicatorDescription,
+    this.replicatorName,
+    this.replicatorResourceArn,
+    this.replicatorState,
+    this.serviceExecutionRoleArn,
+    this.stateInfo,
+    this.tags,
+  });
+
+  factory DescribeReplicatorResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeReplicatorResponse(
+      creationTime: timeStampFromJson(json['creationTime']),
+      currentVersion: json['currentVersion'] as String?,
+      isReplicatorReference: json['isReplicatorReference'] as bool?,
+      kafkaClusters: (json['kafkaClusters'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              KafkaClusterDescription.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      replicationInfoList: (json['replicationInfoList'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              ReplicationInfoDescription.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      replicatorArn: json['replicatorArn'] as String?,
+      replicatorDescription: json['replicatorDescription'] as String?,
+      replicatorName: json['replicatorName'] as String?,
+      replicatorResourceArn: json['replicatorResourceArn'] as String?,
+      replicatorState:
+          (json['replicatorState'] as String?)?.let(ReplicatorState.fromString),
+      serviceExecutionRoleArn: json['serviceExecutionRoleArn'] as String?,
+      stateInfo: json['stateInfo'] != null
+          ? ReplicationStateInfo.fromJson(
+              json['stateInfo'] as Map<String, dynamic>)
+          : null,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
     );
   }
 }
@@ -4281,14 +5049,12 @@ class DescribeVpcConnectionResponse {
       authentication: json['authentication'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       securityGroups: (json['securityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      state: (json['state'] as String?)?.toVpcConnectionState(),
-      subnets: (json['subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      state: (json['state'] as String?)?.let(VpcConnectionState.fromString),
+      subnets:
+          (json['subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       targetClusterArn: json['targetClusterArn'] as String?,
@@ -4319,7 +5085,7 @@ class BatchDisassociateScramSecretResponse {
     return BatchDisassociateScramSecretResponse(
       clusterArn: json['clusterArn'] as String?,
       unprocessedScramSecrets: (json['unprocessedScramSecrets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => UnprocessedScramSecret.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4440,7 +5206,8 @@ class EncryptionInTransit {
 
   factory EncryptionInTransit.fromJson(Map<String, dynamic> json) {
     return EncryptionInTransit(
-      clientBroker: (json['clientBroker'] as String?)?.toClientBroker(),
+      clientBroker:
+          (json['clientBroker'] as String?)?.let(ClientBroker.fromString),
       inCluster: json['inCluster'] as bool?,
     );
   }
@@ -4449,7 +5216,7 @@ class EncryptionInTransit {
     final clientBroker = this.clientBroker;
     final inCluster = this.inCluster;
     return {
-      if (clientBroker != null) 'clientBroker': clientBroker.toValue(),
+      if (clientBroker != null) 'clientBroker': clientBroker.value,
       if (inCluster != null) 'inCluster': inCluster,
     };
   }
@@ -4508,41 +5275,20 @@ class EncryptionInfo {
 /// href="https://docs.aws.amazon.com/msk/latest/developerguide/monitoring.html">Monitoring</a>.
 ///
 enum EnhancedMonitoring {
-  $default,
-  perBroker,
-  perTopicPerBroker,
-  perTopicPerPartition,
-}
+  $default('DEFAULT'),
+  perBroker('PER_BROKER'),
+  perTopicPerBroker('PER_TOPIC_PER_BROKER'),
+  perTopicPerPartition('PER_TOPIC_PER_PARTITION'),
+  ;
 
-extension EnhancedMonitoringValueExtension on EnhancedMonitoring {
-  String toValue() {
-    switch (this) {
-      case EnhancedMonitoring.$default:
-        return 'DEFAULT';
-      case EnhancedMonitoring.perBroker:
-        return 'PER_BROKER';
-      case EnhancedMonitoring.perTopicPerBroker:
-        return 'PER_TOPIC_PER_BROKER';
-      case EnhancedMonitoring.perTopicPerPartition:
-        return 'PER_TOPIC_PER_PARTITION';
-    }
-  }
-}
+  final String value;
 
-extension EnhancedMonitoringFromString on String {
-  EnhancedMonitoring toEnhancedMonitoring() {
-    switch (this) {
-      case 'DEFAULT':
-        return EnhancedMonitoring.$default;
-      case 'PER_BROKER':
-        return EnhancedMonitoring.perBroker;
-      case 'PER_TOPIC_PER_BROKER':
-        return EnhancedMonitoring.perTopicPerBroker;
-      case 'PER_TOPIC_PER_PARTITION':
-        return EnhancedMonitoring.perTopicPerPartition;
-    }
-    throw Exception('$this is not known in enum EnhancedMonitoring');
-  }
+  const EnhancedMonitoring(this.value);
+
+  static EnhancedMonitoring fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EnhancedMonitoring'));
 }
 
 ///
@@ -4705,7 +5451,7 @@ class GetCompatibleKafkaVersionsResponse {
       Map<String, dynamic> json) {
     return GetCompatibleKafkaVersionsResponse(
       compatibleKafkaVersions: (json['compatibleKafkaVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => CompatibleKafkaVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4737,6 +5483,124 @@ class GetClusterPolicyResponse {
   }
 }
 
+/// Information about Kafka Cluster to be used as source / target for
+/// replication.
+class KafkaCluster {
+  /// Details of an Amazon MSK Cluster.
+  final AmazonMskCluster amazonMskCluster;
+
+  /// Details of an Amazon VPC which has network connectivity to the Apache Kafka
+  /// cluster.
+  final KafkaClusterClientVpcConfig vpcConfig;
+
+  KafkaCluster({
+    required this.amazonMskCluster,
+    required this.vpcConfig,
+  });
+
+  Map<String, dynamic> toJson() {
+    final amazonMskCluster = this.amazonMskCluster;
+    final vpcConfig = this.vpcConfig;
+    return {
+      'amazonMskCluster': amazonMskCluster,
+      'vpcConfig': vpcConfig,
+    };
+  }
+}
+
+/// Details of an Amazon VPC which has network connectivity to the Apache Kafka
+/// cluster.
+class KafkaClusterClientVpcConfig {
+  /// The list of subnets in the client VPC to connect to.
+  final List<String> subnetIds;
+
+  /// The security groups to attach to the ENIs for the broker nodes.
+  final List<String>? securityGroupIds;
+
+  KafkaClusterClientVpcConfig({
+    required this.subnetIds,
+    this.securityGroupIds,
+  });
+
+  factory KafkaClusterClientVpcConfig.fromJson(Map<String, dynamic> json) {
+    return KafkaClusterClientVpcConfig(
+      subnetIds:
+          (json['subnetIds'] as List).nonNulls.map((e) => e as String).toList(),
+      securityGroupIds: (json['securityGroupIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final subnetIds = this.subnetIds;
+    final securityGroupIds = this.securityGroupIds;
+    return {
+      'subnetIds': subnetIds,
+      if (securityGroupIds != null) 'securityGroupIds': securityGroupIds,
+    };
+  }
+}
+
+/// Information about Kafka Cluster used as source / target for replication.
+class KafkaClusterDescription {
+  /// Details of an Amazon MSK Cluster.
+  final AmazonMskCluster? amazonMskCluster;
+
+  /// The alias of the Kafka cluster. Used to prefix names of replicated topics.
+  final String? kafkaClusterAlias;
+
+  /// Details of an Amazon VPC which has network connectivity to the Apache Kafka
+  /// cluster.
+  final KafkaClusterClientVpcConfig? vpcConfig;
+
+  KafkaClusterDescription({
+    this.amazonMskCluster,
+    this.kafkaClusterAlias,
+    this.vpcConfig,
+  });
+
+  factory KafkaClusterDescription.fromJson(Map<String, dynamic> json) {
+    return KafkaClusterDescription(
+      amazonMskCluster: json['amazonMskCluster'] != null
+          ? AmazonMskCluster.fromJson(
+              json['amazonMskCluster'] as Map<String, dynamic>)
+          : null,
+      kafkaClusterAlias: json['kafkaClusterAlias'] as String?,
+      vpcConfig: json['vpcConfig'] != null
+          ? KafkaClusterClientVpcConfig.fromJson(
+              json['vpcConfig'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// Summarized information about Kafka Cluster used as source / target for
+/// replication.
+class KafkaClusterSummary {
+  /// Details of an Amazon MSK Cluster.
+  final AmazonMskCluster? amazonMskCluster;
+
+  /// The alias of the Kafka cluster. Used to prefix names of replicated topics.
+  final String? kafkaClusterAlias;
+
+  KafkaClusterSummary({
+    this.amazonMskCluster,
+    this.kafkaClusterAlias,
+  });
+
+  factory KafkaClusterSummary.fromJson(Map<String, dynamic> json) {
+    return KafkaClusterSummary(
+      amazonMskCluster: json['amazonMskCluster'] != null
+          ? AmazonMskCluster.fromJson(
+              json['amazonMskCluster'] as Map<String, dynamic>)
+          : null,
+      kafkaClusterAlias: json['kafkaClusterAlias'] as String?,
+    );
+  }
+}
+
 class KafkaVersion {
   final KafkaVersionStatus? status;
   final String? version;
@@ -4748,38 +5612,25 @@ class KafkaVersion {
 
   factory KafkaVersion.fromJson(Map<String, dynamic> json) {
     return KafkaVersion(
-      status: (json['status'] as String?)?.toKafkaVersionStatus(),
+      status: (json['status'] as String?)?.let(KafkaVersionStatus.fromString),
       version: json['version'] as String?,
     );
   }
 }
 
 enum KafkaVersionStatus {
-  active,
-  deprecated,
-}
+  active('ACTIVE'),
+  deprecated('DEPRECATED'),
+  ;
 
-extension KafkaVersionStatusValueExtension on KafkaVersionStatus {
-  String toValue() {
-    switch (this) {
-      case KafkaVersionStatus.active:
-        return 'ACTIVE';
-      case KafkaVersionStatus.deprecated:
-        return 'DEPRECATED';
-    }
-  }
-}
+  final String value;
 
-extension KafkaVersionStatusFromString on String {
-  KafkaVersionStatus toKafkaVersionStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return KafkaVersionStatus.active;
-      case 'DEPRECATED':
-        return KafkaVersionStatus.deprecated;
-    }
-    throw Exception('$this is not known in enum KafkaVersionStatus');
-  }
+  const KafkaVersionStatus(this.value);
+
+  static KafkaVersionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum KafkaVersionStatus'));
 }
 
 class ListClusterOperationsResponse {
@@ -4803,8 +5654,36 @@ class ListClusterOperationsResponse {
   factory ListClusterOperationsResponse.fromJson(Map<String, dynamic> json) {
     return ListClusterOperationsResponse(
       clusterOperationInfoList: (json['clusterOperationInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ClusterOperationInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+}
+
+class ListClusterOperationsV2Response {
+  ///
+  /// An array of cluster operation information objects.
+  final List<ClusterOperationV2Summary>? clusterOperationInfoList;
+
+  ///
+  /// If the response of ListClusterOperationsV2 is truncated, it returns a
+  /// NextToken in the response. This NextToken should be sent in the subsequent
+  /// request to ListClusterOperationsV2.
+  final String? nextToken;
+
+  ListClusterOperationsV2Response({
+    this.clusterOperationInfoList,
+    this.nextToken,
+  });
+
+  factory ListClusterOperationsV2Response.fromJson(Map<String, dynamic> json) {
+    return ListClusterOperationsV2Response(
+      clusterOperationInfoList: (json['clusterOperationInfoList'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              ClusterOperationV2Summary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
     );
@@ -4832,7 +5711,7 @@ class ListClustersResponse {
   factory ListClustersResponse.fromJson(Map<String, dynamic> json) {
     return ListClustersResponse(
       clusterInfoList: (json['clusterInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ClusterInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4861,7 +5740,7 @@ class ListClustersV2Response {
   factory ListClustersV2Response.fromJson(Map<String, dynamic> json) {
     return ListClustersV2Response(
       clusterInfoList: (json['clusterInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Cluster.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4890,7 +5769,7 @@ class ListConfigurationRevisionsResponse {
     return ListConfigurationRevisionsResponse(
       nextToken: json['nextToken'] as String?,
       revisions: (json['revisions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConfigurationRevision.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4919,7 +5798,7 @@ class ListConfigurationsResponse {
   factory ListConfigurationsResponse.fromJson(Map<String, dynamic> json) {
     return ListConfigurationsResponse(
       configurations: (json['configurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Configuration.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4939,7 +5818,7 @@ class ListKafkaVersionsResponse {
   factory ListKafkaVersionsResponse.fromJson(Map<String, dynamic> json) {
     return ListKafkaVersionsResponse(
       kafkaVersions: (json['kafkaVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => KafkaVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4969,8 +5848,33 @@ class ListNodesResponse {
     return ListNodesResponse(
       nextToken: json['nextToken'] as String?,
       nodeInfoList: (json['nodeInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NodeInfo.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class ListReplicatorsResponse {
+  /// If the response of ListReplicators is truncated, it returns a NextToken in
+  /// the response. This NextToken should be sent in the subsequent request to
+  /// ListReplicators.
+  final String? nextToken;
+
+  /// List containing information of each of the replicators in the account.
+  final List<ReplicatorSummary>? replicators;
+
+  ListReplicatorsResponse({
+    this.nextToken,
+    this.replicators,
+  });
+
+  factory ListReplicatorsResponse.fromJson(Map<String, dynamic> json) {
+    return ListReplicatorsResponse(
+      nextToken: json['nextToken'] as String?,
+      replicators: (json['replicators'] as List?)
+          ?.nonNulls
+          .map((e) => ReplicatorSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -4996,7 +5900,7 @@ class ListScramSecretsResponse {
     return ListScramSecretsResponse(
       nextToken: json['nextToken'] as String?,
       secretArnList: (json['secretArnList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5043,7 +5947,7 @@ class ListClientVpcConnectionsResponse {
   factory ListClientVpcConnectionsResponse.fromJson(Map<String, dynamic> json) {
     return ListClientVpcConnectionsResponse(
       clientVpcConnections: (json['clientVpcConnections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ClientVpcConnection.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5074,7 +5978,7 @@ class ListVpcConnectionsResponse {
     return ListVpcConnectionsResponse(
       nextToken: json['nextToken'] as String?,
       vpcConnections: (json['vpcConnections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VpcConnection.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5115,6 +6019,11 @@ class LoggingInfo {
 /// Information about cluster attributes that can be updated via update APIs.
 ///
 class MutableClusterInfo {
+  ///
+  /// Describes brokers being changed during a broker count update.
+  ///
+  final BrokerCountUpdateInfo? brokerCountUpdateInfo;
+
   ///
   /// Specifies the size of the EBS volume and the ID of the associated broker.
   ///
@@ -5179,6 +6088,7 @@ class MutableClusterInfo {
   final StorageMode? storageMode;
 
   MutableClusterInfo({
+    this.brokerCountUpdateInfo,
     this.brokerEBSVolumeInfo,
     this.clientAuthentication,
     this.configurationInfo,
@@ -5195,8 +6105,12 @@ class MutableClusterInfo {
 
   factory MutableClusterInfo.fromJson(Map<String, dynamic> json) {
     return MutableClusterInfo(
+      brokerCountUpdateInfo: json['brokerCountUpdateInfo'] != null
+          ? BrokerCountUpdateInfo.fromJson(
+              json['brokerCountUpdateInfo'] as Map<String, dynamic>)
+          : null,
       brokerEBSVolumeInfo: (json['brokerEBSVolumeInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BrokerEBSVolumeInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       clientAuthentication: json['clientAuthentication'] != null
@@ -5215,8 +6129,8 @@ class MutableClusterInfo {
           ? EncryptionInfo.fromJson(
               json['encryptionInfo'] as Map<String, dynamic>)
           : null,
-      enhancedMonitoring:
-          (json['enhancedMonitoring'] as String?)?.toEnhancedMonitoring(),
+      enhancedMonitoring: (json['enhancedMonitoring'] as String?)
+          ?.let(EnhancedMonitoring.fromString),
       instanceType: json['instanceType'] as String?,
       kafkaVersion: json['kafkaVersion'] as String?,
       loggingInfo: json['loggingInfo'] != null
@@ -5227,7 +6141,8 @@ class MutableClusterInfo {
           ? OpenMonitoring.fromJson(
               json['openMonitoring'] as Map<String, dynamic>)
           : null,
-      storageMode: (json['storageMode'] as String?)?.toStorageMode(),
+      storageMode:
+          (json['storageMode'] as String?)?.let(StorageMode.fromString),
     );
   }
 }
@@ -5816,6 +6731,11 @@ class NodeInfo {
   final BrokerNodeInfo? brokerNodeInfo;
 
   ///
+  /// The ControllerNodeInfo.
+  ///
+  final ControllerNodeInfo? controllerNodeInfo;
+
+  ///
   /// The instance type.
   ///
   final String? instanceType;
@@ -5838,6 +6758,7 @@ class NodeInfo {
   NodeInfo({
     this.addedToClusterTime,
     this.brokerNodeInfo,
+    this.controllerNodeInfo,
     this.instanceType,
     this.nodeARN,
     this.nodeType,
@@ -5851,9 +6772,13 @@ class NodeInfo {
           ? BrokerNodeInfo.fromJson(
               json['brokerNodeInfo'] as Map<String, dynamic>)
           : null,
+      controllerNodeInfo: json['controllerNodeInfo'] != null
+          ? ControllerNodeInfo.fromJson(
+              json['controllerNodeInfo'] as Map<String, dynamic>)
+          : null,
       instanceType: json['instanceType'] as String?,
       nodeARN: json['nodeARN'] as String?,
-      nodeType: (json['nodeType'] as String?)?.toNodeType(),
+      nodeType: (json['nodeType'] as String?)?.let(NodeType.fromString),
       zookeeperNodeInfo: json['zookeeperNodeInfo'] != null
           ? ZookeeperNodeInfo.fromJson(
               json['zookeeperNodeInfo'] as Map<String, dynamic>)
@@ -5866,25 +6791,268 @@ class NodeInfo {
 /// The broker or Zookeeper node.
 ///
 enum NodeType {
-  broker,
+  broker('BROKER'),
+  ;
+
+  final String value;
+
+  const NodeType(this.value);
+
+  static NodeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum NodeType'));
 }
 
-extension NodeTypeValueExtension on NodeType {
-  String toValue() {
-    switch (this) {
-      case NodeType.broker:
-        return 'BROKER';
-    }
+/// Specifies configuration for replication between a source and target Kafka
+/// cluster.
+class ReplicationInfo {
+  /// Configuration relating to consumer group replication.
+  final ConsumerGroupReplication consumerGroupReplication;
+
+  /// The ARN of the source Kafka cluster.
+  final String sourceKafkaClusterArn;
+
+  /// The compression type to use when producing records to target cluster.
+  final TargetCompressionType targetCompressionType;
+
+  /// The ARN of the target Kafka cluster.
+  final String targetKafkaClusterArn;
+
+  /// Configuration relating to topic replication.
+  final TopicReplication topicReplication;
+
+  ReplicationInfo({
+    required this.consumerGroupReplication,
+    required this.sourceKafkaClusterArn,
+    required this.targetCompressionType,
+    required this.targetKafkaClusterArn,
+    required this.topicReplication,
+  });
+
+  Map<String, dynamic> toJson() {
+    final consumerGroupReplication = this.consumerGroupReplication;
+    final sourceKafkaClusterArn = this.sourceKafkaClusterArn;
+    final targetCompressionType = this.targetCompressionType;
+    final targetKafkaClusterArn = this.targetKafkaClusterArn;
+    final topicReplication = this.topicReplication;
+    return {
+      'consumerGroupReplication': consumerGroupReplication,
+      'sourceKafkaClusterArn': sourceKafkaClusterArn,
+      'targetCompressionType': targetCompressionType.value,
+      'targetKafkaClusterArn': targetKafkaClusterArn,
+      'topicReplication': topicReplication,
+    };
   }
 }
 
-extension NodeTypeFromString on String {
-  NodeType toNodeType() {
-    switch (this) {
-      case 'BROKER':
-        return NodeType.broker;
-    }
-    throw Exception('$this is not known in enum NodeType');
+/// Specifies configuration for replication between a source and target Kafka
+/// cluster (sourceKafkaClusterAlias -> targetKafkaClusterAlias)
+class ReplicationInfoDescription {
+  /// Configuration relating to consumer group replication.
+  final ConsumerGroupReplication? consumerGroupReplication;
+
+  /// The alias of the source Kafka cluster.
+  final String? sourceKafkaClusterAlias;
+
+  /// The compression type to use when producing records to target cluster.
+  final TargetCompressionType? targetCompressionType;
+
+  /// The alias of the target Kafka cluster.
+  final String? targetKafkaClusterAlias;
+
+  /// Configuration relating to topic replication.
+  final TopicReplication? topicReplication;
+
+  ReplicationInfoDescription({
+    this.consumerGroupReplication,
+    this.sourceKafkaClusterAlias,
+    this.targetCompressionType,
+    this.targetKafkaClusterAlias,
+    this.topicReplication,
+  });
+
+  factory ReplicationInfoDescription.fromJson(Map<String, dynamic> json) {
+    return ReplicationInfoDescription(
+      consumerGroupReplication: json['consumerGroupReplication'] != null
+          ? ConsumerGroupReplication.fromJson(
+              json['consumerGroupReplication'] as Map<String, dynamic>)
+          : null,
+      sourceKafkaClusterAlias: json['sourceKafkaClusterAlias'] as String?,
+      targetCompressionType: (json['targetCompressionType'] as String?)
+          ?.let(TargetCompressionType.fromString),
+      targetKafkaClusterAlias: json['targetKafkaClusterAlias'] as String?,
+      topicReplication: json['topicReplication'] != null
+          ? TopicReplication.fromJson(
+              json['topicReplication'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+/// Summarized information of replication between clusters.
+class ReplicationInfoSummary {
+  /// The alias of the source Kafka cluster.
+  final String? sourceKafkaClusterAlias;
+
+  /// The alias of the target Kafka cluster.
+  final String? targetKafkaClusterAlias;
+
+  ReplicationInfoSummary({
+    this.sourceKafkaClusterAlias,
+    this.targetKafkaClusterAlias,
+  });
+
+  factory ReplicationInfoSummary.fromJson(Map<String, dynamic> json) {
+    return ReplicationInfoSummary(
+      sourceKafkaClusterAlias: json['sourceKafkaClusterAlias'] as String?,
+      targetKafkaClusterAlias: json['targetKafkaClusterAlias'] as String?,
+    );
+  }
+}
+
+/// Configuration for specifying the position in the topics to start replicating
+/// from.
+class ReplicationStartingPosition {
+  /// The type of replication starting position.
+  final ReplicationStartingPositionType? type;
+
+  ReplicationStartingPosition({
+    this.type,
+  });
+
+  factory ReplicationStartingPosition.fromJson(Map<String, dynamic> json) {
+    return ReplicationStartingPosition(
+      type: (json['type'] as String?)
+          ?.let(ReplicationStartingPositionType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final type = this.type;
+    return {
+      if (type != null) 'type': type.value,
+    };
+  }
+}
+
+/// The type of replication starting position.
+enum ReplicationStartingPositionType {
+  latest('LATEST'),
+  earliest('EARLIEST'),
+  ;
+
+  final String value;
+
+  const ReplicationStartingPositionType(this.value);
+
+  static ReplicationStartingPositionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationStartingPositionType'));
+}
+
+/// Details about the state of a replicator
+class ReplicationStateInfo {
+  /// Code that describes the current state of the replicator.
+  final String? code;
+
+  /// Message that describes the state of the replicator.
+  final String? message;
+
+  ReplicationStateInfo({
+    this.code,
+    this.message,
+  });
+
+  factory ReplicationStateInfo.fromJson(Map<String, dynamic> json) {
+    return ReplicationStateInfo(
+      code: json['code'] as String?,
+      message: json['message'] as String?,
+    );
+  }
+}
+
+/// The state of a replicator.
+enum ReplicatorState {
+  running('RUNNING'),
+  creating('CREATING'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const ReplicatorState(this.value);
+
+  static ReplicatorState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReplicatorState'));
+}
+
+/// Information about a replicator.
+class ReplicatorSummary {
+  /// The time the replicator was created.
+  final DateTime? creationTime;
+
+  /// The current version of the replicator.
+  final String? currentVersion;
+
+  /// Whether this resource is a replicator reference.
+  final bool? isReplicatorReference;
+
+  /// Kafka Clusters used in setting up sources / targets for replication.
+  final List<KafkaClusterSummary>? kafkaClustersSummary;
+
+  /// A list of summarized information of replications between clusters.
+  final List<ReplicationInfoSummary>? replicationInfoSummaryList;
+
+  /// The Amazon Resource Name (ARN) of the replicator.
+  final String? replicatorArn;
+
+  /// The name of the replicator.
+  final String? replicatorName;
+
+  /// The Amazon Resource Name (ARN) of the replicator resource in the region
+  /// where the replicator was created.
+  final String? replicatorResourceArn;
+
+  /// State of the replicator.
+  final ReplicatorState? replicatorState;
+
+  ReplicatorSummary({
+    this.creationTime,
+    this.currentVersion,
+    this.isReplicatorReference,
+    this.kafkaClustersSummary,
+    this.replicationInfoSummaryList,
+    this.replicatorArn,
+    this.replicatorName,
+    this.replicatorResourceArn,
+    this.replicatorState,
+  });
+
+  factory ReplicatorSummary.fromJson(Map<String, dynamic> json) {
+    return ReplicatorSummary(
+      creationTime: timeStampFromJson(json['creationTime']),
+      currentVersion: json['currentVersion'] as String?,
+      isReplicatorReference: json['isReplicatorReference'] as bool?,
+      kafkaClustersSummary: (json['kafkaClustersSummary'] as List?)
+          ?.nonNulls
+          .map((e) => KafkaClusterSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      replicationInfoSummaryList: (json['replicationInfoSummaryList'] as List?)
+          ?.nonNulls
+          .map(
+              (e) => ReplicationInfoSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      replicatorArn: json['replicatorArn'] as String?,
+      replicatorName: json['replicatorName'] as String?,
+      replicatorResourceArn: json['replicatorResourceArn'] as String?,
+      replicatorState:
+          (json['replicatorState'] as String?)?.let(ReplicatorState.fromString),
+    );
   }
 }
 
@@ -5937,31 +7105,36 @@ class StorageInfo {
 
 /// Controls storage mode for various supported storage tiers.
 enum StorageMode {
-  local,
-  tiered,
+  local('LOCAL'),
+  tiered('TIERED'),
+  ;
+
+  final String value;
+
+  const StorageMode(this.value);
+
+  static StorageMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StorageMode'));
 }
 
-extension StorageModeValueExtension on StorageMode {
-  String toValue() {
-    switch (this) {
-      case StorageMode.local:
-        return 'LOCAL';
-      case StorageMode.tiered:
-        return 'TIERED';
-    }
-  }
-}
+/// The type of compression to use producing records to the target cluster.
+enum TargetCompressionType {
+  none('NONE'),
+  gzip('GZIP'),
+  snappy('SNAPPY'),
+  lz4('LZ4'),
+  zstd('ZSTD'),
+  ;
 
-extension StorageModeFromString on String {
-  StorageMode toStorageMode() {
-    switch (this) {
-      case 'LOCAL':
-        return StorageMode.local;
-      case 'TIERED':
-        return StorageMode.tiered;
-    }
-    throw Exception('$this is not known in enum StorageMode');
-  }
+  final String value;
+
+  const TargetCompressionType(this.value);
+
+  static TargetCompressionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TargetCompressionType'));
 }
 
 ///
@@ -5987,7 +7160,7 @@ class Tls {
     return Tls(
       certificateAuthorityArnList:
           (json['certificateAuthorityArnList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       enabled: json['enabled'] as bool?,
@@ -6028,6 +7201,127 @@ class VpcConnectivityTls {
     final enabled = this.enabled;
     return {
       if (enabled != null) 'enabled': enabled,
+    };
+  }
+}
+
+/// Details about topic replication.
+class TopicReplication {
+  /// List of regular expression patterns indicating the topics to copy.
+  final List<String> topicsToReplicate;
+
+  /// Whether to periodically configure remote topic ACLs to match their
+  /// corresponding upstream topics.
+  final bool? copyAccessControlListsForTopics;
+
+  /// Whether to periodically configure remote topics to match their corresponding
+  /// upstream topics.
+  final bool? copyTopicConfigurations;
+
+  /// Whether to periodically check for new topics and partitions.
+  final bool? detectAndCopyNewTopics;
+
+  /// Configuration for specifying the position in the topics to start replicating
+  /// from.
+  final ReplicationStartingPosition? startingPosition;
+
+  /// List of regular expression patterns indicating the topics that should not be
+  /// replicated.
+  final List<String>? topicsToExclude;
+
+  TopicReplication({
+    required this.topicsToReplicate,
+    this.copyAccessControlListsForTopics,
+    this.copyTopicConfigurations,
+    this.detectAndCopyNewTopics,
+    this.startingPosition,
+    this.topicsToExclude,
+  });
+
+  factory TopicReplication.fromJson(Map<String, dynamic> json) {
+    return TopicReplication(
+      topicsToReplicate: (json['topicsToReplicate'] as List)
+          .nonNulls
+          .map((e) => e as String)
+          .toList(),
+      copyAccessControlListsForTopics:
+          json['copyAccessControlListsForTopics'] as bool?,
+      copyTopicConfigurations: json['copyTopicConfigurations'] as bool?,
+      detectAndCopyNewTopics: json['detectAndCopyNewTopics'] as bool?,
+      startingPosition: json['startingPosition'] != null
+          ? ReplicationStartingPosition.fromJson(
+              json['startingPosition'] as Map<String, dynamic>)
+          : null,
+      topicsToExclude: (json['topicsToExclude'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final topicsToReplicate = this.topicsToReplicate;
+    final copyAccessControlListsForTopics =
+        this.copyAccessControlListsForTopics;
+    final copyTopicConfigurations = this.copyTopicConfigurations;
+    final detectAndCopyNewTopics = this.detectAndCopyNewTopics;
+    final startingPosition = this.startingPosition;
+    final topicsToExclude = this.topicsToExclude;
+    return {
+      'topicsToReplicate': topicsToReplicate,
+      if (copyAccessControlListsForTopics != null)
+        'copyAccessControlListsForTopics': copyAccessControlListsForTopics,
+      if (copyTopicConfigurations != null)
+        'copyTopicConfigurations': copyTopicConfigurations,
+      if (detectAndCopyNewTopics != null)
+        'detectAndCopyNewTopics': detectAndCopyNewTopics,
+      if (startingPosition != null) 'startingPosition': startingPosition,
+      if (topicsToExclude != null) 'topicsToExclude': topicsToExclude,
+    };
+  }
+}
+
+/// Details for updating the topic replication of a replicator.
+class TopicReplicationUpdate {
+  /// Whether to periodically configure remote topic ACLs to match their
+  /// corresponding upstream topics.
+  final bool copyAccessControlListsForTopics;
+
+  /// Whether to periodically configure remote topics to match their corresponding
+  /// upstream topics.
+  final bool copyTopicConfigurations;
+
+  /// Whether to periodically check for new topics and partitions.
+  final bool detectAndCopyNewTopics;
+
+  /// List of regular expression patterns indicating the topics that should not be
+  /// replicated.
+  final List<String> topicsToExclude;
+
+  /// List of regular expression patterns indicating the topics to copy.
+  final List<String> topicsToReplicate;
+
+  TopicReplicationUpdate({
+    required this.copyAccessControlListsForTopics,
+    required this.copyTopicConfigurations,
+    required this.detectAndCopyNewTopics,
+    required this.topicsToExclude,
+    required this.topicsToReplicate,
+  });
+
+  Map<String, dynamic> toJson() {
+    final copyAccessControlListsForTopics =
+        this.copyAccessControlListsForTopics;
+    final copyTopicConfigurations = this.copyTopicConfigurations;
+    final detectAndCopyNewTopics = this.detectAndCopyNewTopics;
+    final topicsToExclude = this.topicsToExclude;
+    final topicsToReplicate = this.topicsToReplicate;
+    return {
+      'copyAccessControlListsForTopics': copyAccessControlListsForTopics,
+      'copyTopicConfigurations': copyTopicConfigurations,
+      'detectAndCopyNewTopics': detectAndCopyNewTopics,
+      'topicsToExclude': topicsToExclude,
+      'topicsToReplicate': topicsToReplicate,
     };
   }
 }
@@ -6237,6 +7531,27 @@ class UpdateMonitoringResponse {
   }
 }
 
+class UpdateReplicationInfoResponse {
+  /// The Amazon Resource Name (ARN) of the replicator.
+  final String? replicatorArn;
+
+  /// State of the replicator.
+  final ReplicatorState? replicatorState;
+
+  UpdateReplicationInfoResponse({
+    this.replicatorArn,
+    this.replicatorState,
+  });
+
+  factory UpdateReplicationInfoResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateReplicationInfoResponse(
+      replicatorArn: json['replicatorArn'] as String?,
+      replicatorState:
+          (json['replicatorState'] as String?)?.let(ReplicatorState.fromString),
+    );
+  }
+}
+
 class UpdateSecurityResponse {
   ///
   /// The Amazon Resource Name (ARN) of the cluster.
@@ -6358,7 +7673,7 @@ class UserIdentity {
   factory UserIdentity.fromJson(Map<String, dynamic> json) {
     return UserIdentity(
       principalId: json['principalId'] as String?,
-      type: (json['type'] as String?)?.toUserIdentityType(),
+      type: (json['type'] as String?)?.let(UserIdentityType.fromString),
     );
   }
 }
@@ -6367,31 +7682,18 @@ class UserIdentity {
 /// The identity type of the requester that calls the API operation.
 ///
 enum UserIdentityType {
-  awsaccount,
-  awsservice,
-}
+  awsaccount('AWSACCOUNT'),
+  awsservice('AWSSERVICE'),
+  ;
 
-extension UserIdentityTypeValueExtension on UserIdentityType {
-  String toValue() {
-    switch (this) {
-      case UserIdentityType.awsaccount:
-        return 'AWSACCOUNT';
-      case UserIdentityType.awsservice:
-        return 'AWSSERVICE';
-    }
-  }
-}
+  final String value;
 
-extension UserIdentityTypeFromString on String {
-  UserIdentityType toUserIdentityType() {
-    switch (this) {
-      case 'AWSACCOUNT':
-        return UserIdentityType.awsaccount;
-      case 'AWSSERVICE':
-        return UserIdentityType.awsservice;
-    }
-    throw Exception('$this is not known in enum UserIdentityType');
-  }
+  const UserIdentityType(this.value);
+
+  static UserIdentityType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UserIdentityType'));
 }
 
 ///
@@ -6437,65 +7739,65 @@ class VpcConnectionInfo {
   }
 }
 
+/// Description of the VPC connection.
+class VpcConnectionInfoServerless {
+  ///
+  /// The time when Amazon MSK creates the VPC Connnection.
+  final DateTime? creationTime;
+
+  ///
+  /// The owner of the VPC Connection.
+  final String? owner;
+
+  ///
+  /// Description of the requester that calls the API operation.
+  final UserIdentity? userIdentity;
+
+  ///
+  /// The Amazon Resource Name (ARN) of the VPC connection.
+  final String? vpcConnectionArn;
+
+  VpcConnectionInfoServerless({
+    this.creationTime,
+    this.owner,
+    this.userIdentity,
+    this.vpcConnectionArn,
+  });
+
+  factory VpcConnectionInfoServerless.fromJson(Map<String, dynamic> json) {
+    return VpcConnectionInfoServerless(
+      creationTime: timeStampFromJson(json['creationTime']),
+      owner: json['owner'] as String?,
+      userIdentity: json['userIdentity'] != null
+          ? UserIdentity.fromJson(json['userIdentity'] as Map<String, dynamic>)
+          : null,
+      vpcConnectionArn: json['vpcConnectionArn'] as String?,
+    );
+  }
+}
+
 ///
 /// The state of a VPC connection.
 ///
 enum VpcConnectionState {
-  creating,
-  available,
-  inactive,
-  deactivating,
-  deleting,
-  failed,
-  rejected,
-  rejecting,
-}
+  creating('CREATING'),
+  available('AVAILABLE'),
+  inactive('INACTIVE'),
+  deactivating('DEACTIVATING'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  rejected('REJECTED'),
+  rejecting('REJECTING'),
+  ;
 
-extension VpcConnectionStateValueExtension on VpcConnectionState {
-  String toValue() {
-    switch (this) {
-      case VpcConnectionState.creating:
-        return 'CREATING';
-      case VpcConnectionState.available:
-        return 'AVAILABLE';
-      case VpcConnectionState.inactive:
-        return 'INACTIVE';
-      case VpcConnectionState.deactivating:
-        return 'DEACTIVATING';
-      case VpcConnectionState.deleting:
-        return 'DELETING';
-      case VpcConnectionState.failed:
-        return 'FAILED';
-      case VpcConnectionState.rejected:
-        return 'REJECTED';
-      case VpcConnectionState.rejecting:
-        return 'REJECTING';
-    }
-  }
-}
+  final String value;
 
-extension VpcConnectionStateFromString on String {
-  VpcConnectionState toVpcConnectionState() {
-    switch (this) {
-      case 'CREATING':
-        return VpcConnectionState.creating;
-      case 'AVAILABLE':
-        return VpcConnectionState.available;
-      case 'INACTIVE':
-        return VpcConnectionState.inactive;
-      case 'DEACTIVATING':
-        return VpcConnectionState.deactivating;
-      case 'DELETING':
-        return VpcConnectionState.deleting;
-      case 'FAILED':
-        return VpcConnectionState.failed;
-      case 'REJECTED':
-        return VpcConnectionState.rejected;
-      case 'REJECTING':
-        return VpcConnectionState.rejecting;
-    }
-    throw Exception('$this is not known in enum VpcConnectionState');
-  }
+  const VpcConnectionState(this.value);
+
+  static VpcConnectionState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum VpcConnectionState'));
 }
 
 /// VPC connectivity access control for brokers.
@@ -6569,7 +7871,7 @@ class ZookeeperNodeInfo {
       attachedENIId: json['attachedENIId'] as String?,
       clientVpcIpAddress: json['clientVpcIpAddress'] as String?,
       endpoints: (json['endpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       zookeeperId: json['zookeeperId'] as double?,

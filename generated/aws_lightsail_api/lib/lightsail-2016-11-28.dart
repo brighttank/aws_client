@@ -188,10 +188,10 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [diskName] :
-  /// The unique Lightsail disk name (e.g., <code>my-disk</code>).
+  /// The unique Lightsail disk name (<code>my-disk</code>).
   ///
   /// Parameter [diskPath] :
-  /// The disk path to expose to the instance (e.g., <code>/dev/xvdf</code>).
+  /// The disk path to expose to the instance (<code>/dev/xvdf</code>).
   ///
   /// Parameter [instanceName] :
   /// The name of the Lightsail instance where you want to utilize the storage
@@ -545,7 +545,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'sourceRegion': sourceRegion.toValue(),
+        'sourceRegion': sourceRegion.value,
         'targetSnapshotName': targetSnapshotName,
         if (restoreDate != null) 'restoreDate': restoreDate,
         if (sourceResourceName != null)
@@ -713,18 +713,17 @@ class Lightsail {
   /// The name for the certificate.
   ///
   /// Parameter [domainName] :
-  /// The domain name (e.g., <code>example.com</code>) for the certificate.
+  /// The domain name (<code>example.com</code>) for the certificate.
   ///
   /// Parameter [subjectAlternativeNames] :
-  /// An array of strings that specify the alternate domains (e.g.,
-  /// <code>example2.com</code>) and subdomains (e.g.,
-  /// <code>blog.example.com</code>) for the certificate.
+  /// An array of strings that specify the alternate domains
+  /// (<code>example2.com</code>) and subdomains (<code>blog.example.com</code>)
+  /// for the certificate.
   ///
   /// You can specify a maximum of nine alternate domains (in addition to the
   /// primary domain name).
   ///
-  /// Wildcard domain entries (e.g., <code>*.example.com</code>) are not
-  /// supported.
+  /// Wildcard domain entries (<code>*.example.com</code>) are not supported.
   ///
   /// Parameter [tags] :
   /// The tag keys and optional values to add to the certificate during create.
@@ -887,7 +886,7 @@ class Lightsail {
       headers: headers,
       payload: {
         'contactEndpoint': contactEndpoint,
-        'protocol': protocol.toValue(),
+        'protocol': protocol.value,
       },
     );
 
@@ -1038,7 +1037,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'power': power.toValue(),
+        'power': power.value,
         'scale': scale,
         'serviceName': serviceName,
         if (deployment != null) 'deployment': deployment,
@@ -1159,7 +1158,7 @@ class Lightsail {
   }
 
   /// Creates a block storage disk that can be attached to an Amazon Lightsail
-  /// instance in the same Availability Zone (e.g., <code>us-east-2a</code>).
+  /// instance in the same Availability Zone (<code>us-east-2a</code>).
   ///
   /// The <code>create disk</code> operation supports tag-based access control
   /// via request tags. For more information, see the <a
@@ -1175,18 +1174,18 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [availabilityZone] :
-  /// The Availability Zone where you want to create the disk (e.g.,
-  /// <code>us-east-2a</code>). Use the same Availability Zone as the Lightsail
+  /// The Availability Zone where you want to create the disk
+  /// (<code>us-east-2a</code>). Use the same Availability Zone as the Lightsail
   /// instance to which you want to attach the disk.
   ///
   /// Use the <code>get regions</code> operation to list the Availability Zones
   /// where Lightsail is currently available.
   ///
   /// Parameter [diskName] :
-  /// The unique Lightsail disk name (e.g., <code>my-disk</code>).
+  /// The unique Lightsail disk name (<code>my-disk</code>).
   ///
   /// Parameter [sizeInGb] :
-  /// The size of the disk in GB (e.g., <code>32</code>).
+  /// The size of the disk in GB (<code>32</code>).
   ///
   /// Parameter [addOns] :
   /// An array of objects that represent the add-ons to enable for the new disk.
@@ -1227,7 +1226,7 @@ class Lightsail {
 
   /// Creates a block storage disk from a manual or automatic snapshot of a
   /// disk. The resulting disk can be attached to an Amazon Lightsail instance
-  /// in the same Availability Zone (e.g., <code>us-east-2a</code>).
+  /// in the same Availability Zone (<code>us-east-2a</code>).
   ///
   /// The <code>create disk from snapshot</code> operation supports tag-based
   /// access control via request tags and resource tags applied to the resource
@@ -1245,25 +1244,25 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [availabilityZone] :
-  /// The Availability Zone where you want to create the disk (e.g.,
-  /// <code>us-east-2a</code>). Choose the same Availability Zone as the
+  /// The Availability Zone where you want to create the disk
+  /// (<code>us-east-2a</code>). Choose the same Availability Zone as the
   /// Lightsail instance where you want to create the disk.
   ///
   /// Use the GetRegions operation to list the Availability Zones where
   /// Lightsail is currently available.
   ///
   /// Parameter [diskName] :
-  /// The unique Lightsail disk name (e.g., <code>my-disk</code>).
+  /// The unique Lightsail disk name (<code>my-disk</code>).
   ///
   /// Parameter [sizeInGb] :
-  /// The size of the disk in GB (e.g., <code>32</code>).
+  /// The size of the disk in GB (<code>32</code>).
   ///
   /// Parameter [addOns] :
   /// An array of objects that represent the add-ons to enable for the new disk.
   ///
   /// Parameter [diskSnapshotName] :
-  /// The name of the disk snapshot (e.g., <code>my-snapshot</code>) from which
-  /// to create the new storage disk.
+  /// The name of the disk snapshot (<code>my-snapshot</code>) from which to
+  /// create the new storage disk.
   ///
   /// Constraint:
   ///
@@ -1423,11 +1422,11 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [diskSnapshotName] :
-  /// The name of the destination disk snapshot (e.g.,
-  /// <code>my-disk-snapshot</code>) based on the source disk.
+  /// The name of the destination disk snapshot (<code>my-disk-snapshot</code>)
+  /// based on the source disk.
   ///
   /// Parameter [diskName] :
-  /// The unique name of the source disk (e.g., <code>Disk-Virginia-1</code>).
+  /// The unique name of the source disk (<code>Disk-Virginia-1</code>).
   /// <note>
   /// This parameter cannot be defined together with the <code>instance
   /// name</code> parameter. The <code>disk name</code> and <code>instance
@@ -1435,8 +1434,8 @@ class Lightsail {
   /// </note>
   ///
   /// Parameter [instanceName] :
-  /// The unique name of the source instance (e.g.,
-  /// <code>Amazon_Linux-512MB-Virginia-1</code>). When this is defined, a
+  /// The unique name of the source instance
+  /// (<code>Amazon_Linux-512MB-Virginia-1</code>). When this is defined, a
   /// snapshot of the instance's system volume is created.
   /// <note>
   /// This parameter cannot be defined together with the <code>disk name</code>
@@ -1519,6 +1518,14 @@ class Lightsail {
   /// An array of objects that describe the per-path cache behavior for the
   /// distribution.
   ///
+  /// Parameter [certificateName] :
+  /// The name of the SSL/TLS certificate that you want to attach to the
+  /// distribution.
+  ///
+  /// Use the <a
+  /// href="https://docs.aws.amazon.com/lightsail/2016-11-28/api-reference/API_GetCertificates.html">GetCertificates</a>
+  /// action to get a list of certificate names that you can specify.
+  ///
   /// Parameter [ipAddressType] :
   /// The IP address type for the distribution.
   ///
@@ -1532,6 +1539,9 @@ class Lightsail {
   ///
   /// Use the <code>TagResource</code> action to tag a resource after it's
   /// created.
+  ///
+  /// Parameter [viewerMinimumTlsProtocolVersion] :
+  /// The minimum TLS protocol version for the SSL/TLS certificate.
   Future<CreateDistributionResult> createDistribution({
     required String bundleId,
     required CacheBehavior defaultCacheBehavior,
@@ -1539,8 +1549,10 @@ class Lightsail {
     required InputOrigin origin,
     CacheSettings? cacheBehaviorSettings,
     List<CacheBehaviorPerPath>? cacheBehaviors,
+    String? certificateName,
     IpAddressType? ipAddressType,
     List<Tag>? tags,
+    ViewerMinimumTlsProtocolVersionEnum? viewerMinimumTlsProtocolVersion,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -1560,15 +1572,19 @@ class Lightsail {
         if (cacheBehaviorSettings != null)
           'cacheBehaviorSettings': cacheBehaviorSettings,
         if (cacheBehaviors != null) 'cacheBehaviors': cacheBehaviors,
-        if (ipAddressType != null) 'ipAddressType': ipAddressType.toValue(),
+        if (certificateName != null) 'certificateName': certificateName,
+        if (ipAddressType != null) 'ipAddressType': ipAddressType.value,
         if (tags != null) 'tags': tags,
+        if (viewerMinimumTlsProtocolVersion != null)
+          'viewerMinimumTlsProtocolVersion':
+              viewerMinimumTlsProtocolVersion.value,
       },
     );
 
     return CreateDistributionResult.fromJson(jsonResponse.body);
   }
 
-  /// Creates a domain resource for the specified domain (e.g., example.com).
+  /// Creates a domain resource for the specified domain (example.com).
   ///
   /// The <code>create domain</code> operation supports tag-based access control
   /// via request tags. For more information, see the <a
@@ -1584,7 +1600,7 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [domainName] :
-  /// The domain name to manage (e.g., <code>example.com</code>).
+  /// The domain name to manage (<code>example.com</code>).
   ///
   /// Parameter [tags] :
   /// The tag keys and optional values to add to the resource during create.
@@ -1638,8 +1654,8 @@ class Lightsail {
   /// request.
   ///
   /// Parameter [domainName] :
-  /// The domain name (e.g., <code>example.com</code>) for which you want to
-  /// create the domain entry.
+  /// The domain name (<code>example.com</code>) for which you want to create
+  /// the domain entry.
   Future<CreateDomainEntryResult> createDomainEntry({
     required DomainEntry domainEntry,
     required String domainName,
@@ -1777,10 +1793,9 @@ class Lightsail {
   /// Zones</code> parameter to your request.
   ///
   /// Parameter [blueprintId] :
-  /// The ID for a virtual private server image (e.g.,
-  /// <code>app_wordpress_4_4</code> or <code>app_lamp_7_0</code>). Use the
-  /// <code>get blueprints</code> operation to return a list of available images
-  /// (or <i>blueprints</i>).
+  /// The ID for a virtual private server image (<code>app_wordpress_x_x</code>
+  /// or <code>app_lamp_x_x</code>). Use the <code>get blueprints</code>
+  /// operation to return a list of available images (or <i>blueprints</i>).
   /// <note>
   /// Use active blueprints when creating new instances. Inactive blueprints are
   /// listed to support customers with existing instances and are not
@@ -1791,8 +1806,8 @@ class Lightsail {
   ///
   /// Parameter [bundleId] :
   /// The bundle of specification information for your virtual private server
-  /// (or <i>instance</i>), including the pricing plan (e.g.,
-  /// <code>micro_1_0</code>).
+  /// (or <i>instance</i>), including the pricing plan
+  /// (<code>medium_x_x</code>).
   ///
   /// Parameter [instanceNames] :
   /// The names to use for your new Lightsail instances. Separate multiple
@@ -1804,17 +1819,17 @@ class Lightsail {
   /// instance.
   ///
   /// Parameter [customImageName] :
-  /// (Deprecated) The name for your custom image.
+  /// (Discontinued) The name for your custom image.
   /// <note>
   /// In releases prior to June 12, 2017, this parameter was ignored by the API.
-  /// It is now deprecated.
+  /// It is now discontinued.
   /// </note>
   ///
   /// Parameter [ipAddressType] :
   /// The IP address type for the instance.
   ///
-  /// The possible values are <code>ipv4</code> for IPv4 only, and
-  /// <code>dualstack</code> for IPv4 and IPv6.
+  /// The possible values are <code>ipv4</code> for IPv4 only, <code>ipv6</code>
+  /// for IPv6 only, and <code>dualstack</code> for IPv4 and IPv6.
   ///
   /// The default value is <code>dualstack</code>.
   ///
@@ -1868,7 +1883,7 @@ class Lightsail {
         'instanceNames': instanceNames,
         if (addOns != null) 'addOns': addOns,
         if (customImageName != null) 'customImageName': customImageName,
-        if (ipAddressType != null) 'ipAddressType': ipAddressType.toValue(),
+        if (ipAddressType != null) 'ipAddressType': ipAddressType.value,
         if (keyPairName != null) 'keyPairName': keyPairName,
         if (tags != null) 'tags': tags,
         if (userData != null) 'userData': userData,
@@ -1906,8 +1921,7 @@ class Lightsail {
   ///
   /// Parameter [bundleId] :
   /// The bundle of specification information for your virtual private server
-  /// (or <i>instance</i>), including the pricing plan (e.g.,
-  /// <code>micro_1_0</code>).
+  /// (or <i>instance</i>), including the pricing plan (<code>micro_x_x</code>).
   ///
   /// Parameter [instanceNames] :
   /// The names for your new instances.
@@ -1937,8 +1951,8 @@ class Lightsail {
   /// Parameter [ipAddressType] :
   /// The IP address type for the instance.
   ///
-  /// The possible values are <code>ipv4</code> for IPv4 only, and
-  /// <code>dualstack</code> for IPv4 and IPv6.
+  /// The possible values are <code>ipv4</code> for IPv4 only, <code>ipv6</code>
+  /// for IPv6 only, and <code>dualstack</code> for IPv4 and IPv6.
   ///
   /// The default value is <code>dualstack</code>.
   ///
@@ -2062,7 +2076,7 @@ class Lightsail {
           'attachedDiskMapping': attachedDiskMapping,
         if (instanceSnapshotName != null)
           'instanceSnapshotName': instanceSnapshotName,
-        if (ipAddressType != null) 'ipAddressType': ipAddressType.toValue(),
+        if (ipAddressType != null) 'ipAddressType': ipAddressType.value,
         if (keyPairName != null) 'keyPairName': keyPairName,
         if (restoreDate != null) 'restoreDate': restoreDate,
         if (sourceInstanceName != null)
@@ -2160,12 +2174,12 @@ class Lightsail {
   ///
   /// Parameter [certificateAlternativeNames] :
   /// The optional alternative domains and subdomains to use with your SSL/TLS
-  /// certificate (e.g., <code>www.example.com</code>, <code>example.com</code>,
+  /// certificate (<code>www.example.com</code>, <code>example.com</code>,
   /// <code>m.example.com</code>, <code>blog.example.com</code>).
   ///
   /// Parameter [certificateDomainName] :
-  /// The domain name with which your certificate is associated (e.g.,
-  /// <code>example.com</code>).
+  /// The domain name with which your certificate is associated
+  /// (<code>example.com</code>).
   ///
   /// If you specify <code>certificateDomainName</code>, then
   /// <code>certificateName</code> is required (and vice-versa).
@@ -2179,7 +2193,7 @@ class Lightsail {
   /// Parameter [healthCheckPath] :
   /// The path you provided to perform the load balancer health check. If you
   /// didn't specify a health check path, Lightsail uses the root path of your
-  /// website (e.g., <code>"/"</code>).
+  /// website (<code>"/"</code>).
   ///
   /// You may want to specify a custom health check path other than the root of
   /// your application if your home page loads slowly or has a lot of media or
@@ -2188,8 +2202,8 @@ class Lightsail {
   /// Parameter [ipAddressType] :
   /// The IP address type for the load balancer.
   ///
-  /// The possible values are <code>ipv4</code> for IPv4 only, and
-  /// <code>dualstack</code> for IPv4 and IPv6.
+  /// The possible values are <code>ipv4</code> for IPv4 only, <code>ipv6</code>
+  /// for IPv6 only, and <code>dualstack</code> for IPv4 and IPv6.
   ///
   /// The default value is <code>dualstack</code>.
   ///
@@ -2247,7 +2261,7 @@ class Lightsail {
           'certificateDomainName': certificateDomainName,
         if (certificateName != null) 'certificateName': certificateName,
         if (healthCheckPath != null) 'healthCheckPath': healthCheckPath,
-        if (ipAddressType != null) 'ipAddressType': ipAddressType.toValue(),
+        if (ipAddressType != null) 'ipAddressType': ipAddressType.value,
         if (tags != null) 'tags': tags,
         if (tlsPolicyName != null) 'tlsPolicyName': tlsPolicyName,
       },
@@ -2276,8 +2290,7 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [certificateDomainName] :
-  /// The domain name (e.g., <code>example.com</code>) for your SSL/TLS
-  /// certificate.
+  /// The domain name (<code>example.com</code>) for your SSL/TLS certificate.
   ///
   /// Parameter [certificateName] :
   /// The SSL/TLS certificate name.
@@ -2295,7 +2308,7 @@ class Lightsail {
   /// An array of strings listing alternative domains and subdomains for your
   /// SSL/TLS certificate. Lightsail will de-dupe the names for you. You can
   /// have a maximum of 9 alternative names (in addition to the 1 primary
-  /// domain). We do not support wildcards (e.g., <code>*.example.com</code>).
+  /// domain). We do not support wildcards (<code>*.example.com</code>).
   ///
   /// Parameter [tags] :
   /// The tag keys and optional values to add to the resource during create.
@@ -3128,7 +3141,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'protocol': protocol.toValue(),
+        'protocol': protocol.value,
       },
     );
 
@@ -3232,8 +3245,7 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [diskName] :
-  /// The unique name of the disk you want to delete (e.g.,
-  /// <code>my-disk</code>).
+  /// The unique name of the disk you want to delete (<code>my-disk</code>).
   ///
   /// Parameter [forceDeleteAddOns] :
   /// A Boolean value to indicate whether to delete all add-ons for the disk.
@@ -3284,8 +3296,8 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [diskSnapshotName] :
-  /// The name of the disk snapshot you want to delete (e.g.,
-  /// <code>my-disk-snapshot</code>).
+  /// The name of the disk snapshot you want to delete
+  /// (<code>my-disk-snapshot</code>).
   Future<DeleteDiskSnapshotResult> deleteDiskSnapshot({
     required String diskSnapshotName,
   }) async {
@@ -3889,8 +3901,8 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [diskName] :
-  /// The unique name of the disk you want to detach from your instance (e.g.,
-  /// <code>my-disk</code>).
+  /// The unique name of the disk you want to detach from your instance
+  /// (<code>my-disk</code>).
   Future<DetachDiskResult> detachDisk({
     required String diskName,
   }) async {
@@ -4028,7 +4040,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'addOnType': addOnType.toValue(),
+        'addOnType': addOnType.value,
         'resourceName': resourceName,
       },
     );
@@ -4345,7 +4357,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (appCategory != null) 'appCategory': appCategory.toValue(),
+        if (appCategory != null) 'appCategory': appCategory.value,
         if (includeInactive != null) 'includeInactive': includeInactive,
         if (pageToken != null) 'pageToken': pageToken,
       },
@@ -4562,11 +4574,11 @@ class Lightsail {
       payload: {
         'bucketName': bucketName,
         'endTime': unixTimestampToJson(endTime),
-        'metricName': metricName.toValue(),
+        'metricName': metricName.value,
         'period': period,
         'startTime': unixTimestampToJson(startTime),
-        'statistics': statistics.map((e) => e.toValue()).toList(),
-        'unit': unit.toValue(),
+        'statistics': statistics.map((e) => e.value).toList(),
+        'unit': unit.value,
       },
     );
 
@@ -4682,7 +4694,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (appCategory != null) 'appCategory': appCategory.toValue(),
+        if (appCategory != null) 'appCategory': appCategory.value,
         if (includeInactive != null) 'includeInactive': includeInactive,
         if (pageToken != null) 'pageToken': pageToken,
       },
@@ -4694,7 +4706,7 @@ class Lightsail {
   /// Returns information about one or more Amazon Lightsail SSL/TLS
   /// certificates.
   /// <note>
-  /// To get a summary of a certificate, ommit
+  /// To get a summary of a certificate, omit
   /// <code>includeCertificateDetails</code> from your request. The response
   /// will include only the certificate Amazon Resource Name (ARN), certificate
   /// name, domain name, and tags.
@@ -4728,10 +4740,18 @@ class Lightsail {
   ///
   /// When omitted, the response includes only the certificate names, Amazon
   /// Resource Names (ARNs), domain names, and tags.
+  ///
+  /// Parameter [pageToken] :
+  /// The token to advance to the next page of results from your request.
+  ///
+  /// To get a page token, perform an initial <code>GetCertificates</code>
+  /// request. If your results are paginated, the response will return a next
+  /// page token that you can specify as the page token in a subsequent request.
   Future<GetCertificatesResult> getCertificates({
     String? certificateName,
     List<CertificateStatus>? certificateStatuses,
     bool? includeCertificateDetails,
+    String? pageToken,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -4747,9 +4767,10 @@ class Lightsail {
         if (certificateName != null) 'certificateName': certificateName,
         if (certificateStatuses != null)
           'certificateStatuses':
-              certificateStatuses.map((e) => e.toValue()).toList(),
+              certificateStatuses.map((e) => e.value).toList(),
         if (includeCertificateDetails != null)
           'includeCertificateDetails': includeCertificateDetails,
+        if (pageToken != null) 'pageToken': pageToken,
       },
     );
 
@@ -4839,7 +4860,7 @@ class Lightsail {
       headers: headers,
       payload: {
         if (protocols != null)
-          'protocols': protocols.map((e) => e.toValue()).toList(),
+          'protocols': protocols.map((e) => e.value).toList(),
       },
     );
 
@@ -5205,11 +5226,11 @@ class Lightsail {
       headers: headers,
       payload: {
         'endTime': unixTimestampToJson(endTime),
-        'metricName': metricName.toValue(),
+        'metricName': metricName.value,
         'period': period,
         'serviceName': serviceName,
         'startTime': unixTimestampToJson(startTime),
-        'statistics': statistics.map((e) => e.toValue()).toList(),
+        'statistics': statistics.map((e) => e.value).toList(),
       },
     );
 
@@ -5299,7 +5320,7 @@ class Lightsail {
   /// <li>
   /// Specified in the Unix time format.
   ///
-  /// For example, if you wish to use an end time of October 1, 2018, at 9 PM
+  /// For example, if you want to use an end time of October 1, 2018, at 9 PM
   /// UTC, specify <code>1538427600</code> as the end time.
   /// </li>
   /// </ul>
@@ -5322,7 +5343,7 @@ class Lightsail {
   /// <li>
   /// Specified in the Unix time format.
   ///
-  /// For example, if you wish to use a start time of October 1, 2018, at 8 PM
+  /// For example, if you want to use a start time of October 1, 2018, at 8 PM
   /// UTC, specify <code>1538424000</code> as the start time.
   /// </li>
   /// </ul>
@@ -5365,7 +5386,7 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [diskName] :
-  /// The name of the disk (e.g., <code>my-disk</code>).
+  /// The name of the disk (<code>my-disk</code>).
   Future<GetDiskResult> getDisk({
     required String diskName,
   }) async {
@@ -5398,7 +5419,7 @@ class Lightsail {
   /// May throw [UnauthenticatedException].
   ///
   /// Parameter [diskSnapshotName] :
-  /// The name of the disk snapshot (e.g., <code>my-disk-snapshot</code>).
+  /// The name of the disk snapshot (<code>my-disk-snapshot</code>).
   Future<GetDiskSnapshotResult> getDiskSnapshot({
     required String diskSnapshotName,
   }) async {
@@ -5765,11 +5786,11 @@ class Lightsail {
       payload: {
         'distributionName': distributionName,
         'endTime': unixTimestampToJson(endTime),
-        'metricName': metricName.toValue(),
+        'metricName': metricName.value,
         'period': period,
         'startTime': unixTimestampToJson(startTime),
-        'statistics': statistics.map((e) => e.toValue()).toList(),
-        'unit': unit.toValue(),
+        'statistics': statistics.map((e) => e.value).toList(),
+        'unit': unit.value,
       },
     );
 
@@ -6008,7 +6029,7 @@ class Lightsail {
       headers: headers,
       payload: {
         'instanceName': instanceName,
-        if (protocol != null) 'protocol': protocol.toValue(),
+        if (protocol != null) 'protocol': protocol.value,
       },
     );
 
@@ -6238,11 +6259,11 @@ class Lightsail {
       payload: {
         'endTime': unixTimestampToJson(endTime),
         'instanceName': instanceName,
-        'metricName': metricName.toValue(),
+        'metricName': metricName.value,
         'period': period,
         'startTime': unixTimestampToJson(startTime),
-        'statistics': statistics.map((e) => e.toValue()).toList(),
-        'unit': unit.toValue(),
+        'statistics': statistics.map((e) => e.value).toList(),
+        'unit': unit.value,
       },
     );
 
@@ -6767,11 +6788,11 @@ class Lightsail {
       payload: {
         'endTime': unixTimestampToJson(endTime),
         'loadBalancerName': loadBalancerName,
-        'metricName': metricName.toValue(),
+        'metricName': metricName.value,
         'period': period,
         'startTime': unixTimestampToJson(startTime),
-        'statistics': statistics.map((e) => e.toValue()).toList(),
-        'unit': unit.toValue(),
+        'statistics': statistics.map((e) => e.value).toList(),
+        'unit': unit.value,
       },
     );
 
@@ -6974,8 +6995,7 @@ class Lightsail {
     return GetOperationsResult.fromJson(jsonResponse.body);
   }
 
-  /// Gets operations for a specific resource (e.g., an instance or a static
-  /// IP).
+  /// Gets operations for a specific resource (an instance or a static IP).
   ///
   /// May throw [ServiceException].
   /// May throw [InvalidInputException].
@@ -7033,12 +7053,12 @@ class Lightsail {
   /// Parameter [includeAvailabilityZones] :
   /// A Boolean value indicating whether to also include Availability Zones in
   /// your get regions request. Availability Zones are indicated with a letter:
-  /// e.g., <code>us-east-2a</code>.
+  /// <code>us-east-2a</code>.
   ///
   /// Parameter [includeRelationalDatabaseAvailabilityZones] :
   /// A Boolean value indicating whether to also include Availability Zones for
   /// databases in your get regions request. Availability Zones are indicated
-  /// with a letter (e.g., <code>us-east-2a</code>).
+  /// with a letter (<code>us-east-2a</code>).
   Future<GetRegionsResult> getRegions({
     bool? includeAvailabilityZones,
     bool? includeRelationalDatabaseAvailabilityZones,
@@ -7427,8 +7447,7 @@ class Lightsail {
       headers: headers,
       payload: {
         'relationalDatabaseName': relationalDatabaseName,
-        if (passwordVersion != null)
-          'passwordVersion': passwordVersion.toValue(),
+        if (passwordVersion != null) 'passwordVersion': passwordVersion.value,
       },
     );
 
@@ -7626,12 +7645,12 @@ class Lightsail {
       headers: headers,
       payload: {
         'endTime': unixTimestampToJson(endTime),
-        'metricName': metricName.toValue(),
+        'metricName': metricName.value,
         'period': period,
         'relationalDatabaseName': relationalDatabaseName,
         'startTime': unixTimestampToJson(startTime),
-        'statistics': statistics.map((e) => e.toValue()).toList(),
-        'unit': unit.toValue(),
+        'statistics': statistics.map((e) => e.value).toList(),
+        'unit': unit.value,
       },
     );
 
@@ -7797,6 +7816,48 @@ class Lightsail {
     );
 
     return GetRelationalDatabasesResult.fromJson(jsonResponse.body);
+  }
+
+  /// Returns detailed information for five of the most recent
+  /// <code>SetupInstanceHttps</code> requests that were ran on the target
+  /// instance.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InvalidInputException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceException].
+  /// May throw [UnauthenticatedException].
+  ///
+  /// Parameter [resourceName] :
+  /// The name of the resource for which you are requesting information.
+  ///
+  /// Parameter [pageToken] :
+  /// The token to advance to the next page of results from your request.
+  ///
+  /// To get a page token, perform an initial <code>GetSetupHistory</code>
+  /// request. If your results are paginated, the response will return a next
+  /// page token that you can specify as the page token in a subsequent request.
+  Future<GetSetupHistoryResult> getSetupHistory({
+    required String resourceName,
+    String? pageToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Lightsail_20161128.GetSetupHistory'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'resourceName': resourceName,
+        if (pageToken != null) 'pageToken': pageToken,
+      },
+    );
+
+    return GetSetupHistoryResult.fromJson(jsonResponse.body);
   }
 
   /// Returns information about an Amazon Lightsail static IP.
@@ -8212,21 +8273,21 @@ class Lightsail {
       headers: headers,
       payload: {
         'alarmName': alarmName,
-        'comparisonOperator': comparisonOperator.toValue(),
+        'comparisonOperator': comparisonOperator.value,
         'evaluationPeriods': evaluationPeriods,
-        'metricName': metricName.toValue(),
+        'metricName': metricName.value,
         'monitoredResourceName': monitoredResourceName,
         'threshold': threshold,
         if (contactProtocols != null)
-          'contactProtocols': contactProtocols.map((e) => e.toValue()).toList(),
+          'contactProtocols': contactProtocols.map((e) => e.value).toList(),
         if (datapointsToAlarm != null) 'datapointsToAlarm': datapointsToAlarm,
         if (notificationEnabled != null)
           'notificationEnabled': notificationEnabled,
         if (notificationTriggers != null)
           'notificationTriggers':
-              notificationTriggers.map((e) => e.toValue()).toList(),
+              notificationTriggers.map((e) => e.value).toList(),
         if (treatMissingData != null)
-          'treatMissingData': treatMissingData.toValue(),
+          'treatMissingData': treatMissingData.value,
       },
     );
 
@@ -8553,7 +8614,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'protocol': protocol.toValue(),
+        'protocol': protocol.value,
       },
     );
 
@@ -8577,8 +8638,8 @@ class Lightsail {
   /// Parameter [ipAddressType] :
   /// The IP address type to set for the specified resource.
   ///
-  /// The possible values are <code>ipv4</code> for IPv4 only, and
-  /// <code>dualstack</code> for IPv4 and IPv6.
+  /// The possible values are <code>ipv4</code> for IPv4 only, <code>ipv6</code>
+  /// for IPv6 only, and <code>dualstack</code> for IPv4 and IPv6.
   ///
   /// Parameter [resourceName] :
   /// The name of the resource for which to set the IP address type.
@@ -8586,7 +8647,7 @@ class Lightsail {
   /// Parameter [resourceType] :
   /// The resource type.
   ///
-  /// The possible values are <code>Distribution</code>, <code>Instance</code>,
+  /// The resource values are <code>Distribution</code>, <code>Instance</code>,
   /// and <code>LoadBalancer</code>.
   /// <note>
   /// Distribution-related APIs are available only in the N. Virginia
@@ -8594,10 +8655,25 @@ class Lightsail {
   /// Services Region configuration to <code>us-east-1</code> to create, view,
   /// or edit distributions.
   /// </note>
+  ///
+  /// Parameter [acceptBundleUpdate] :
+  /// Required parameter to accept the instance bundle update when changing to,
+  /// and from, IPv6-only.
+  /// <note>
+  /// An instance bundle will change when switching from <code>dual-stack</code>
+  /// or <code>ipv4</code>, to <code>ipv6</code>. It also changes when switching
+  /// from <code>ipv6</code>, to <code>dual-stack</code> or <code>ipv4</code>.
+  ///
+  /// You must include this parameter in the command to update the bundle. For
+  /// example, if you switch from <code>dual-stack</code> to <code>ipv6</code>,
+  /// the bundle will be updated, and billing for the IPv6-only instance bundle
+  /// begins immediately.
+  /// </note>
   Future<SetIpAddressTypeResult> setIpAddressType({
     required IpAddressType ipAddressType,
     required String resourceName,
     required ResourceType resourceType,
+    bool? acceptBundleUpdate,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -8610,9 +8686,11 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ipAddressType': ipAddressType.toValue(),
+        'ipAddressType': ipAddressType.value,
         'resourceName': resourceName,
-        'resourceType': resourceType.toValue(),
+        'resourceType': resourceType.value,
+        if (acceptBundleUpdate != null)
+          'acceptBundleUpdate': acceptBundleUpdate,
       },
     );
 
@@ -8670,13 +8748,66 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'access': access.toValue(),
+        'access': access.value,
         'bucketName': bucketName,
         'resourceName': resourceName,
       },
     );
 
     return SetResourceAccessForBucketResult.fromJson(jsonResponse.body);
+  }
+
+  /// Creates an SSL/TLS certificate that secures traffic for your website.
+  /// After the certificate is created, it is installed on the specified
+  /// Lightsail instance.
+  ///
+  /// If you provide more than one domain name in the request, at least one name
+  /// must be less than or equal to 63 characters in length.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InvalidInputException].
+  /// May throw [NotFoundException].
+  /// May throw [ServiceException].
+  /// May throw [UnauthenticatedException].
+  ///
+  /// Parameter [certificateProvider] :
+  /// The certificate authority that issues the SSL/TLS certificate.
+  ///
+  /// Parameter [domainNames] :
+  /// The name of the domain and subdomains that were specified for the SSL/TLS
+  /// certificate.
+  ///
+  /// Parameter [emailAddress] :
+  /// The contact method for SSL/TLS certificate renewal alerts. You can enter
+  /// one email address.
+  ///
+  /// Parameter [instanceName] :
+  /// The name of the Lightsail instance.
+  Future<SetupInstanceHttpsResult> setupInstanceHttps({
+    required CertificateProvider certificateProvider,
+    required List<String> domainNames,
+    required String emailAddress,
+    required String instanceName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Lightsail_20161128.SetupInstanceHttps'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'certificateProvider': certificateProvider.value,
+        'domainNames': domainNames,
+        'emailAddress': emailAddress,
+        'instanceName': instanceName,
+      },
+    );
+
+    return SetupInstanceHttpsResult.fromJson(jsonResponse.body);
   }
 
   /// Initiates a graphical user interface (GUI) session that’s used to access a
@@ -9047,7 +9178,7 @@ class Lightsail {
       headers: headers,
       payload: {
         'alarmName': alarmName,
-        'state': state.toValue(),
+        'state': state.value,
       },
     );
 
@@ -9356,7 +9487,7 @@ class Lightsail {
       payload: {
         'serviceName': serviceName,
         if (isDisabled != null) 'isDisabled': isDisabled,
-        if (power != null) 'power': power.toValue(),
+        if (power != null) 'power': power.value,
         if (privateRegistryAccess != null)
           'privateRegistryAccess': privateRegistryAccess,
         if (publicDomainNames != null) 'publicDomainNames': publicDomainNames,
@@ -9397,6 +9528,17 @@ class Lightsail {
   /// An array of objects that describe the per-path cache behavior for the
   /// distribution.
   ///
+  /// Parameter [certificateName] :
+  /// The name of the SSL/TLS certificate that you want to attach to the
+  /// distribution.
+  ///
+  /// Only certificates with a status of <code>ISSUED</code> can be attached to
+  /// a distribution.
+  ///
+  /// Use the <a
+  /// href="https://docs.aws.amazon.com/lightsail/2016-11-28/api-reference/API_GetCertificates.html">GetCertificates</a>
+  /// action to get a list of certificate names that you can specify.
+  ///
   /// Parameter [defaultCacheBehavior] :
   /// An object that describes the default cache behavior for the distribution.
   ///
@@ -9408,13 +9550,29 @@ class Lightsail {
   /// a Lightsail instance, bucket, or load balancer.
   ///
   /// The distribution pulls, caches, and serves content from the origin.
+  ///
+  /// Parameter [useDefaultCertificate] :
+  /// Indicates whether the default SSL/TLS certificate is attached to the
+  /// distribution. The default value is <code>true</code>. When
+  /// <code>true</code>, the distribution uses the default domain name such as
+  /// <code>d111111abcdef8.cloudfront.net</code>.
+  ///
+  /// Set this value to <code>false</code> to attach a new certificate to the
+  /// distribution.
+  ///
+  /// Parameter [viewerMinimumTlsProtocolVersion] :
+  /// Use this parameter to update the minimum TLS protocol version for the
+  /// SSL/TLS certificate that's attached to the distribution.
   Future<UpdateDistributionResult> updateDistribution({
     required String distributionName,
     CacheSettings? cacheBehaviorSettings,
     List<CacheBehaviorPerPath>? cacheBehaviors,
+    String? certificateName,
     CacheBehavior? defaultCacheBehavior,
     bool? isEnabled,
     InputOrigin? origin,
+    bool? useDefaultCertificate,
+    ViewerMinimumTlsProtocolVersionEnum? viewerMinimumTlsProtocolVersion,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -9431,10 +9589,16 @@ class Lightsail {
         if (cacheBehaviorSettings != null)
           'cacheBehaviorSettings': cacheBehaviorSettings,
         if (cacheBehaviors != null) 'cacheBehaviors': cacheBehaviors,
+        if (certificateName != null) 'certificateName': certificateName,
         if (defaultCacheBehavior != null)
           'defaultCacheBehavior': defaultCacheBehavior,
         if (isEnabled != null) 'isEnabled': isEnabled,
         if (origin != null) 'origin': origin,
+        if (useDefaultCertificate != null)
+          'useDefaultCertificate': useDefaultCertificate,
+        if (viewerMinimumTlsProtocolVersion != null)
+          'viewerMinimumTlsProtocolVersion':
+              viewerMinimumTlsProtocolVersion.value,
       },
     );
 
@@ -9617,12 +9781,12 @@ class Lightsail {
       headers: headers,
       payload: {
         'instanceName': instanceName,
-        if (httpEndpoint != null) 'httpEndpoint': httpEndpoint.toValue(),
+        if (httpEndpoint != null) 'httpEndpoint': httpEndpoint.value,
         if (httpProtocolIpv6 != null)
-          'httpProtocolIpv6': httpProtocolIpv6.toValue(),
+          'httpProtocolIpv6': httpProtocolIpv6.value,
         if (httpPutResponseHopLimit != null)
           'httpPutResponseHopLimit': httpPutResponseHopLimit,
-        if (httpTokens != null) 'httpTokens': httpTokens.toValue(),
+        if (httpTokens != null) 'httpTokens': httpTokens.value,
       },
     );
 
@@ -9696,8 +9860,8 @@ class Lightsail {
   /// </ul>
   ///
   /// Parameter [loadBalancerName] :
-  /// The name of the load balancer that you want to modify (e.g.,
-  /// <code>my-load-balancer</code>.
+  /// The name of the load balancer that you want to modify
+  /// (<code>my-load-balancer</code>.
   Future<UpdateLoadBalancerAttributeResult> updateLoadBalancerAttribute({
     required LoadBalancerAttributeName attributeName,
     required String attributeValue,
@@ -9714,7 +9878,7 @@ class Lightsail {
       // TODO queryParams
       headers: headers,
       payload: {
-        'attributeName': attributeName.toValue(),
+        'attributeName': attributeName.value,
         'attributeValue': attributeValue,
         'loadBalancerName': loadBalancerName,
       },
@@ -9845,6 +10009,15 @@ class Lightsail {
   /// a database that is available only to your Lightsail resources in the same
   /// region as your database.
   ///
+  /// Parameter [relationalDatabaseBlueprintId] :
+  /// This parameter is used to update the major version of the database. Enter
+  /// the <code>blueprintId</code> for the major version that you want to update
+  /// to.
+  ///
+  /// Use the <a
+  /// href="https://docs.aws.amazon.com/lightsail/2016-11-28/api-reference/API_GetRelationalDatabaseBlueprints.html">GetRelationalDatabaseBlueprints</a>
+  /// action to get a list of available blueprint IDs.
+  ///
   /// Parameter [rotateMasterUserPassword] :
   /// When <code>true</code>, the master user password is changed to a new
   /// strong password generated by Lightsail.
@@ -9861,6 +10034,7 @@ class Lightsail {
     String? preferredBackupWindow,
     String? preferredMaintenanceWindow,
     bool? publiclyAccessible,
+    String? relationalDatabaseBlueprintId,
     bool? rotateMasterUserPassword,
   }) async {
     final headers = <String, String>{
@@ -9890,6 +10064,8 @@ class Lightsail {
           'preferredMaintenanceWindow': preferredMaintenanceWindow,
         if (publiclyAccessible != null)
           'publiclyAccessible': publiclyAccessible,
+        if (relationalDatabaseBlueprintId != null)
+          'relationalDatabaseBlueprintId': relationalDatabaseBlueprintId,
         if (rotateMasterUserPassword != null)
           'rotateMasterUserPassword': rotateMasterUserPassword,
       },
@@ -9954,31 +10130,18 @@ class Lightsail {
 }
 
 enum AccessDirection {
-  inbound,
-  outbound,
-}
+  inbound('inbound'),
+  outbound('outbound'),
+  ;
 
-extension AccessDirectionValueExtension on AccessDirection {
-  String toValue() {
-    switch (this) {
-      case AccessDirection.inbound:
-        return 'inbound';
-      case AccessDirection.outbound:
-        return 'outbound';
-    }
-  }
-}
+  final String value;
 
-extension AccessDirectionFromString on String {
-  AccessDirection toAccessDirection() {
-    switch (this) {
-      case 'inbound':
-        return AccessDirection.inbound;
-      case 'outbound':
-        return AccessDirection.outbound;
-    }
-    throw Exception('$this is not known in enum AccessDirection');
-  }
+  const AccessDirection(this.value);
+
+  static AccessDirection fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccessDirection'));
 }
 
 /// Describes an access key for an Amazon Lightsail bucket.
@@ -10043,7 +10206,7 @@ class AccessKey {
           ? AccessKeyLastUsed.fromJson(json['lastUsed'] as Map<String, dynamic>)
           : null,
       secretAccessKey: json['secretAccessKey'] as String?,
-      status: (json['status'] as String?)?.toStatusType(),
+      status: (json['status'] as String?)?.let(StatusType.fromString),
     );
   }
 }
@@ -10140,7 +10303,7 @@ class AccessRules {
   factory AccessRules.fromJson(Map<String, dynamic> json) {
     return AccessRules(
       allowPublicOverrides: json['allowPublicOverrides'] as bool?,
-      getObject: (json['getObject'] as String?)?.toAccessType(),
+      getObject: (json['getObject'] as String?)?.let(AccessType.fromString),
     );
   }
 
@@ -10150,37 +10313,23 @@ class AccessRules {
     return {
       if (allowPublicOverrides != null)
         'allowPublicOverrides': allowPublicOverrides,
-      if (getObject != null) 'getObject': getObject.toValue(),
+      if (getObject != null) 'getObject': getObject.value,
     };
   }
 }
 
 enum AccessType {
-  public,
-  private,
-}
+  public('public'),
+  private('private'),
+  ;
 
-extension AccessTypeValueExtension on AccessType {
-  String toValue() {
-    switch (this) {
-      case AccessType.public:
-        return 'public';
-      case AccessType.private:
-        return 'private';
-    }
-  }
-}
+  final String value;
 
-extension AccessTypeFromString on String {
-  AccessType toAccessType() {
-    switch (this) {
-      case 'public':
-        return AccessType.public;
-      case 'private':
-        return AccessType.private;
-    }
-    throw Exception('$this is not known in enum AccessType');
-  }
+  const AccessType(this.value);
+
+  static AccessType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AccessType'));
 }
 
 /// Describes the synchronization status of the Amazon Simple Storage Service
@@ -10293,48 +10442,28 @@ class AccountLevelBpaSync {
     return AccountLevelBpaSync(
       bpaImpactsLightsail: json['bpaImpactsLightsail'] as bool?,
       lastSyncedAt: timeStampFromJson(json['lastSyncedAt']),
-      message: (json['message'] as String?)?.toBPAStatusMessage(),
-      status: (json['status'] as String?)?.toAccountLevelBpaSyncStatus(),
+      message: (json['message'] as String?)?.let(BPAStatusMessage.fromString),
+      status: (json['status'] as String?)
+          ?.let(AccountLevelBpaSyncStatus.fromString),
     );
   }
 }
 
 enum AccountLevelBpaSyncStatus {
-  inSync,
-  failed,
-  neverSynced,
-  defaulted,
-}
+  inSync('InSync'),
+  failed('Failed'),
+  neverSynced('NeverSynced'),
+  defaulted('Defaulted'),
+  ;
 
-extension AccountLevelBpaSyncStatusValueExtension on AccountLevelBpaSyncStatus {
-  String toValue() {
-    switch (this) {
-      case AccountLevelBpaSyncStatus.inSync:
-        return 'InSync';
-      case AccountLevelBpaSyncStatus.failed:
-        return 'Failed';
-      case AccountLevelBpaSyncStatus.neverSynced:
-        return 'NeverSynced';
-      case AccountLevelBpaSyncStatus.defaulted:
-        return 'Defaulted';
-    }
-  }
-}
+  final String value;
 
-extension AccountLevelBpaSyncStatusFromString on String {
-  AccountLevelBpaSyncStatus toAccountLevelBpaSyncStatus() {
-    switch (this) {
-      case 'InSync':
-        return AccountLevelBpaSyncStatus.inSync;
-      case 'Failed':
-        return AccountLevelBpaSyncStatus.failed;
-      case 'NeverSynced':
-        return AccountLevelBpaSyncStatus.neverSynced;
-      case 'Defaulted':
-        return AccountLevelBpaSyncStatus.defaulted;
-    }
-    throw Exception('$this is not known in enum AccountLevelBpaSyncStatus');
-  }
+  const AccountLevelBpaSyncStatus(this.value);
+
+  static AccountLevelBpaSyncStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AccountLevelBpaSyncStatus'));
 }
 
 /// Describes an add-on that is enabled for an Amazon Lightsail resource.
@@ -10430,7 +10559,7 @@ class AddOnRequest {
     final autoSnapshotAddOnRequest = this.autoSnapshotAddOnRequest;
     final stopInstanceOnIdleRequest = this.stopInstanceOnIdleRequest;
     return {
-      'addOnType': addOnType.toValue(),
+      'addOnType': addOnType.value,
       if (autoSnapshotAddOnRequest != null)
         'autoSnapshotAddOnRequest': autoSnapshotAddOnRequest,
       if (stopInstanceOnIdleRequest != null)
@@ -10440,31 +10569,17 @@ class AddOnRequest {
 }
 
 enum AddOnType {
-  autoSnapshot,
-  stopInstanceOnIdle,
-}
+  autoSnapshot('AutoSnapshot'),
+  stopInstanceOnIdle('StopInstanceOnIdle'),
+  ;
 
-extension AddOnTypeValueExtension on AddOnType {
-  String toValue() {
-    switch (this) {
-      case AddOnType.autoSnapshot:
-        return 'AutoSnapshot';
-      case AddOnType.stopInstanceOnIdle:
-        return 'StopInstanceOnIdle';
-    }
-  }
-}
+  final String value;
 
-extension AddOnTypeFromString on String {
-  AddOnType toAddOnType() {
-    switch (this) {
-      case 'AutoSnapshot':
-        return AddOnType.autoSnapshot;
-      case 'StopInstanceOnIdle':
-        return AddOnType.stopInstanceOnIdle;
-    }
-    throw Exception('$this is not known in enum AddOnType');
-  }
+  const AddOnType(this.value);
+
+  static AddOnType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AddOnType'));
 }
 
 /// Describes an alarm.
@@ -10517,7 +10632,7 @@ class Alarm {
   /// The period, in seconds, over which the statistic is applied.
   final int? period;
 
-  /// The Lightsail resource type (e.g., <code>Alarm</code>).
+  /// The Lightsail resource type of the alarm.
   final ResourceType? resourceType;
 
   /// The current state of the alarm.
@@ -10635,11 +10750,11 @@ class Alarm {
   factory Alarm.fromJson(Map<String, dynamic> json) {
     return Alarm(
       arn: json['arn'] as String?,
-      comparisonOperator:
-          (json['comparisonOperator'] as String?)?.toComparisonOperator(),
+      comparisonOperator: (json['comparisonOperator'] as String?)
+          ?.let(ComparisonOperator.fromString),
       contactProtocols: (json['contactProtocols'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toContactProtocol())
+          ?.nonNulls
+          .map((e) => ContactProtocol.fromString((e as String)))
           .toList(),
       createdAt: timeStampFromJson(json['createdAt']),
       datapointsToAlarm: json['datapointsToAlarm'] as int?,
@@ -10647,7 +10762,7 @@ class Alarm {
       location: json['location'] != null
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
-      metricName: (json['metricName'] as String?)?.toMetricName(),
+      metricName: (json['metricName'] as String?)?.let(MetricName.fromString),
       monitoredResourceInfo: json['monitoredResourceInfo'] != null
           ? MonitoredResourceInfo.fromJson(
               json['monitoredResourceInfo'] as Map<String, dynamic>)
@@ -10655,53 +10770,37 @@ class Alarm {
       name: json['name'] as String?,
       notificationEnabled: json['notificationEnabled'] as bool?,
       notificationTriggers: (json['notificationTriggers'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toAlarmState())
+          ?.nonNulls
+          .map((e) => AlarmState.fromString((e as String)))
           .toList(),
       period: json['period'] as int?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
-      state: (json['state'] as String?)?.toAlarmState(),
-      statistic: (json['statistic'] as String?)?.toMetricStatistic(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+      state: (json['state'] as String?)?.let(AlarmState.fromString),
+      statistic:
+          (json['statistic'] as String?)?.let(MetricStatistic.fromString),
       supportCode: json['supportCode'] as String?,
       threshold: json['threshold'] as double?,
-      treatMissingData:
-          (json['treatMissingData'] as String?)?.toTreatMissingData(),
-      unit: (json['unit'] as String?)?.toMetricUnit(),
+      treatMissingData: (json['treatMissingData'] as String?)
+          ?.let(TreatMissingData.fromString),
+      unit: (json['unit'] as String?)?.let(MetricUnit.fromString),
     );
   }
 }
 
 enum AlarmState {
-  ok,
-  alarm,
-  insufficientData,
-}
+  ok('OK'),
+  alarm('ALARM'),
+  insufficientData('INSUFFICIENT_DATA'),
+  ;
 
-extension AlarmStateValueExtension on AlarmState {
-  String toValue() {
-    switch (this) {
-      case AlarmState.ok:
-        return 'OK';
-      case AlarmState.alarm:
-        return 'ALARM';
-      case AlarmState.insufficientData:
-        return 'INSUFFICIENT_DATA';
-    }
-  }
-}
+  final String value;
 
-extension AlarmStateFromString on String {
-  AlarmState toAlarmState() {
-    switch (this) {
-      case 'OK':
-        return AlarmState.ok;
-      case 'ALARM':
-        return AlarmState.alarm;
-      case 'INSUFFICIENT_DATA':
-        return AlarmState.insufficientData;
-    }
-    throw Exception('$this is not known in enum AlarmState');
-  }
+  const AlarmState(this.value);
+
+  static AlarmState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AlarmState'));
 }
 
 class AllocateStaticIpResult {
@@ -10717,7 +10816,7 @@ class AllocateStaticIpResult {
   factory AllocateStaticIpResult.fromJson(Map<String, dynamic> json) {
     return AllocateStaticIpResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10725,26 +10824,16 @@ class AllocateStaticIpResult {
 }
 
 enum AppCategory {
-  lfR,
-}
+  lfR('LfR'),
+  ;
 
-extension AppCategoryValueExtension on AppCategory {
-  String toValue() {
-    switch (this) {
-      case AppCategory.lfR:
-        return 'LfR';
-    }
-  }
-}
+  final String value;
 
-extension AppCategoryFromString on String {
-  AppCategory toAppCategory() {
-    switch (this) {
-      case 'LfR':
-        return AppCategory.lfR;
-    }
-    throw Exception('$this is not known in enum AppCategory');
-  }
+  const AppCategory(this.value);
+
+  static AppCategory fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AppCategory'));
 }
 
 class AttachCertificateToDistributionResult {
@@ -10780,7 +10869,7 @@ class AttachDiskResult {
   factory AttachDiskResult.fromJson(Map<String, dynamic> json) {
     return AttachDiskResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10801,7 +10890,7 @@ class AttachInstancesToLoadBalancerResult {
       Map<String, dynamic> json) {
     return AttachInstancesToLoadBalancerResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10825,7 +10914,7 @@ class AttachLoadBalancerTlsCertificateResult {
       Map<String, dynamic> json) {
     return AttachLoadBalancerTlsCertificateResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10845,7 +10934,7 @@ class AttachStaticIpResult {
   factory AttachStaticIpResult.fromJson(Map<String, dynamic> json) {
     return AttachStaticIpResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10855,7 +10944,7 @@ class AttachStaticIpResult {
 /// Describes a block storage disk that is attached to an instance, and is
 /// included in an automatic snapshot.
 class AttachedDisk {
-  /// The path of the disk (e.g., <code>/dev/xvdf</code>).
+  /// The path of the disk (<code>/dev/xvdf</code>).
   final String? path;
 
   /// The size of the disk in GB.
@@ -10875,41 +10964,20 @@ class AttachedDisk {
 }
 
 enum AutoMountStatus {
-  failed,
-  pending,
-  mounted,
-  notMounted,
-}
+  failed('Failed'),
+  pending('Pending'),
+  mounted('Mounted'),
+  notMounted('NotMounted'),
+  ;
 
-extension AutoMountStatusValueExtension on AutoMountStatus {
-  String toValue() {
-    switch (this) {
-      case AutoMountStatus.failed:
-        return 'Failed';
-      case AutoMountStatus.pending:
-        return 'Pending';
-      case AutoMountStatus.mounted:
-        return 'Mounted';
-      case AutoMountStatus.notMounted:
-        return 'NotMounted';
-    }
-  }
-}
+  final String value;
 
-extension AutoMountStatusFromString on String {
-  AutoMountStatus toAutoMountStatus() {
-    switch (this) {
-      case 'Failed':
-        return AutoMountStatus.failed;
-      case 'Pending':
-        return AutoMountStatus.pending;
-      case 'Mounted':
-        return AutoMountStatus.mounted;
-      case 'NotMounted':
-        return AutoMountStatus.notMounted;
-    }
-    throw Exception('$this is not known in enum AutoMountStatus');
-  }
+  const AutoMountStatus(this.value);
+
+  static AutoMountStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AutoMountStatus'));
 }
 
 /// Describes a request to enable or modify the automatic snapshot add-on for an
@@ -11008,50 +11076,29 @@ class AutoSnapshotDetails {
       createdAt: timeStampFromJson(json['createdAt']),
       date: json['date'] as String?,
       fromAttachedDisks: (json['fromAttachedDisks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttachedDisk.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toAutoSnapshotStatus(),
+      status: (json['status'] as String?)?.let(AutoSnapshotStatus.fromString),
     );
   }
 }
 
 enum AutoSnapshotStatus {
-  success,
-  failed,
-  inProgress,
-  notFound,
-}
+  success('Success'),
+  failed('Failed'),
+  inProgress('InProgress'),
+  notFound('NotFound'),
+  ;
 
-extension AutoSnapshotStatusValueExtension on AutoSnapshotStatus {
-  String toValue() {
-    switch (this) {
-      case AutoSnapshotStatus.success:
-        return 'Success';
-      case AutoSnapshotStatus.failed:
-        return 'Failed';
-      case AutoSnapshotStatus.inProgress:
-        return 'InProgress';
-      case AutoSnapshotStatus.notFound:
-        return 'NotFound';
-    }
-  }
-}
+  final String value;
 
-extension AutoSnapshotStatusFromString on String {
-  AutoSnapshotStatus toAutoSnapshotStatus() {
-    switch (this) {
-      case 'Success':
-        return AutoSnapshotStatus.success;
-      case 'Failed':
-        return AutoSnapshotStatus.failed;
-      case 'InProgress':
-        return AutoSnapshotStatus.inProgress;
-      case 'NotFound':
-        return AutoSnapshotStatus.notFound;
-    }
-    throw Exception('$this is not known in enum AutoSnapshotStatus');
-  }
+  const AutoSnapshotStatus(this.value);
+
+  static AutoSnapshotStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AutoSnapshotStatus'));
 }
 
 /// Describes an Availability Zone. This is returned only as part of a
@@ -11078,69 +11125,35 @@ class AvailabilityZone {
 }
 
 enum BPAStatusMessage {
-  defaultedForSlrMissing,
-  syncOnHold,
-  defaultedForSlrMissingOnHold,
-  unknown,
-}
+  defaultedForSlrMissing('DEFAULTED_FOR_SLR_MISSING'),
+  syncOnHold('SYNC_ON_HOLD'),
+  defaultedForSlrMissingOnHold('DEFAULTED_FOR_SLR_MISSING_ON_HOLD'),
+  unknown('Unknown'),
+  ;
 
-extension BPAStatusMessageValueExtension on BPAStatusMessage {
-  String toValue() {
-    switch (this) {
-      case BPAStatusMessage.defaultedForSlrMissing:
-        return 'DEFAULTED_FOR_SLR_MISSING';
-      case BPAStatusMessage.syncOnHold:
-        return 'SYNC_ON_HOLD';
-      case BPAStatusMessage.defaultedForSlrMissingOnHold:
-        return 'DEFAULTED_FOR_SLR_MISSING_ON_HOLD';
-      case BPAStatusMessage.unknown:
-        return 'Unknown';
-    }
-  }
-}
+  final String value;
 
-extension BPAStatusMessageFromString on String {
-  BPAStatusMessage toBPAStatusMessage() {
-    switch (this) {
-      case 'DEFAULTED_FOR_SLR_MISSING':
-        return BPAStatusMessage.defaultedForSlrMissing;
-      case 'SYNC_ON_HOLD':
-        return BPAStatusMessage.syncOnHold;
-      case 'DEFAULTED_FOR_SLR_MISSING_ON_HOLD':
-        return BPAStatusMessage.defaultedForSlrMissingOnHold;
-      case 'Unknown':
-        return BPAStatusMessage.unknown;
-    }
-    throw Exception('$this is not known in enum BPAStatusMessage');
-  }
+  const BPAStatusMessage(this.value);
+
+  static BPAStatusMessage fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BPAStatusMessage'));
 }
 
 enum BehaviorEnum {
-  dontCache,
-  cache,
-}
+  dontCache('dont-cache'),
+  cache('cache'),
+  ;
 
-extension BehaviorEnumValueExtension on BehaviorEnum {
-  String toValue() {
-    switch (this) {
-      case BehaviorEnum.dontCache:
-        return 'dont-cache';
-      case BehaviorEnum.cache:
-        return 'cache';
-    }
-  }
-}
+  final String value;
 
-extension BehaviorEnumFromString on String {
-  BehaviorEnum toBehaviorEnum() {
-    switch (this) {
-      case 'dont-cache':
-        return BehaviorEnum.dontCache;
-      case 'cache':
-        return BehaviorEnum.cache;
-    }
-    throw Exception('$this is not known in enum BehaviorEnum');
-  }
+  const BehaviorEnum(this.value);
+
+  static BehaviorEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BehaviorEnum'));
 }
 
 /// Describes a blueprint (a virtual private server image).
@@ -11151,14 +11164,14 @@ class Blueprint {
   /// </important>
   final AppCategory? appCategory;
 
-  /// The ID for the virtual private server image (e.g.,
-  /// <code>app_wordpress_4_4</code> or <code>app_lamp_7_0</code>).
+  /// The ID for the virtual private server image (<code>app_wordpress_x_x</code>
+  /// or <code>app_lamp_x_x</code>).
   final String? blueprintId;
 
   /// The description of the blueprint.
   final String? description;
 
-  /// The group name of the blueprint (e.g., <code>amazon-linux</code>).
+  /// The group name of the blueprint (<code>amazon-linux</code>).
   final String? group;
 
   /// A Boolean value indicating whether the blueprint is active. Inactive
@@ -11177,7 +11190,7 @@ class Blueprint {
   /// that the blueprint runs on all instance sizes.
   final int? minPower;
 
-  /// The friendly name of the blueprint (e.g., <code>Amazon Linux</code>).
+  /// The friendly name of the blueprint (<code>Amazon Linux</code>).
   final String? name;
 
   /// The operating system platform (either Linux/Unix-based or Windows
@@ -11187,10 +11200,10 @@ class Blueprint {
   /// The product URL to learn more about the image or blueprint.
   final String? productUrl;
 
-  /// The type of the blueprint (e.g., <code>os</code> or <code>app</code>).
+  /// The type of the blueprint (<code>os</code> or <code>app</code>).
   final BlueprintType? type;
 
-  /// The version number of the operating system, application, or stack (e.g.,
+  /// The version number of the operating system, application, or stack (
   /// <code>2016.03.0</code>).
   final String? version;
 
@@ -11215,7 +11228,8 @@ class Blueprint {
 
   factory Blueprint.fromJson(Map<String, dynamic> json) {
     return Blueprint(
-      appCategory: (json['appCategory'] as String?)?.toAppCategory(),
+      appCategory:
+          (json['appCategory'] as String?)?.let(AppCategory.fromString),
       blueprintId: json['blueprintId'] as String?,
       description: json['description'] as String?,
       group: json['group'] as String?,
@@ -11223,9 +11237,9 @@ class Blueprint {
       licenseUrl: json['licenseUrl'] as String?,
       minPower: json['minPower'] as int?,
       name: json['name'] as String?,
-      platform: (json['platform'] as String?)?.toInstancePlatform(),
+      platform: (json['platform'] as String?)?.let(InstancePlatform.fromString),
       productUrl: json['productUrl'] as String?,
-      type: (json['type'] as String?)?.toBlueprintType(),
+      type: (json['type'] as String?)?.let(BlueprintType.fromString),
       version: json['version'] as String?,
       versionCode: json['versionCode'] as String?,
     );
@@ -11233,31 +11247,18 @@ class Blueprint {
 }
 
 enum BlueprintType {
-  os,
-  app,
-}
+  os('os'),
+  app('app'),
+  ;
 
-extension BlueprintTypeValueExtension on BlueprintType {
-  String toValue() {
-    switch (this) {
-      case BlueprintType.os:
-        return 'os';
-      case BlueprintType.app:
-        return 'app';
-    }
-  }
-}
+  final String value;
 
-extension BlueprintTypeFromString on String {
-  BlueprintType toBlueprintType() {
-    switch (this) {
-      case 'os':
-        return BlueprintType.os;
-      case 'app':
-        return BlueprintType.app;
-    }
-    throw Exception('$this is not known in enum BlueprintType');
-  }
+  const BlueprintType(this.value);
+
+  static BlueprintType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BlueprintType'));
 }
 
 /// Describes an Amazon Lightsail bucket.
@@ -11324,8 +11325,7 @@ class Bucket {
   /// have read-only access to the bucket.
   final List<String>? readonlyAccessAccounts;
 
-  /// The Lightsail resource type of the bucket (for example,
-  /// <code>Bucket</code>).
+  /// The Lightsail resource type of the bucket.
   final String? resourceType;
 
   /// An array of objects that describe Lightsail instances that have access to
@@ -11391,12 +11391,12 @@ class Bucket {
       name: json['name'] as String?,
       objectVersioning: json['objectVersioning'] as String?,
       readonlyAccessAccounts: (json['readonlyAccessAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       resourceType: json['resourceType'] as String?,
       resourcesReceivingAccess: (json['resourcesReceivingAccess'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResourceReceivingAccess.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -11405,7 +11405,7 @@ class Bucket {
           : null,
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       url: json['url'] as String?,
@@ -11519,31 +11519,18 @@ class BucketBundle {
 }
 
 enum BucketMetricName {
-  bucketSizeBytes,
-  numberOfObjects,
-}
+  bucketSizeBytes('BucketSizeBytes'),
+  numberOfObjects('NumberOfObjects'),
+  ;
 
-extension BucketMetricNameValueExtension on BucketMetricName {
-  String toValue() {
-    switch (this) {
-      case BucketMetricName.bucketSizeBytes:
-        return 'BucketSizeBytes';
-      case BucketMetricName.numberOfObjects:
-        return 'NumberOfObjects';
-    }
-  }
-}
+  final String value;
 
-extension BucketMetricNameFromString on String {
-  BucketMetricName toBucketMetricName() {
-    switch (this) {
-      case 'BucketSizeBytes':
-        return BucketMetricName.bucketSizeBytes;
-      case 'NumberOfObjects':
-        return BucketMetricName.numberOfObjects;
-    }
-    throw Exception('$this is not known in enum BucketMetricName');
-  }
+  const BucketMetricName(this.value);
+
+  static BucketMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BucketMetricName'));
 }
 
 /// Describes the state of an Amazon Lightsail bucket.
@@ -11582,36 +11569,39 @@ class BucketState {
 /// Describes a bundle, which is a set of specs describing your virtual private
 /// server (or <i>instance</i>).
 class Bundle {
-  /// The bundle ID (e.g., <code>micro_1_0</code>).
+  /// The bundle ID (<code>micro_x_x</code>).
   final String? bundleId;
 
-  /// The number of vCPUs included in the bundle (e.g., <code>2</code>).
+  /// The number of vCPUs included in the bundle (<code>2</code>).
   final int? cpuCount;
 
-  /// The size of the SSD (e.g., <code>30</code>).
+  /// The size of the SSD (<code>30</code>).
   final int? diskSizeInGb;
 
-  /// The Amazon EC2 instance type (e.g., <code>t2.micro</code>).
+  /// The instance type (<code>micro</code>).
   final String? instanceType;
 
   /// A Boolean value indicating whether the bundle is active.
   final bool? isActive;
 
-  /// A friendly name for the bundle (e.g., <code>Micro</code>).
+  /// A friendly name for the bundle (<code>Micro</code>).
   final String? name;
 
-  /// A numeric value that represents the power of the bundle (e.g.,
-  /// <code>500</code>). You can use the bundle's power value in conjunction with
-  /// a blueprint's minimum power value to determine whether the blueprint will
-  /// run on the bundle. For example, you need a bundle with a power value of 500
-  /// or more to create an instance that uses a blueprint with a minimum power
-  /// value of 500.
+  /// A numeric value that represents the power of the bundle (<code>500</code>).
+  /// You can use the bundle's power value in conjunction with a blueprint's
+  /// minimum power value to determine whether the blueprint will run on the
+  /// bundle. For example, you need a bundle with a power value of 500 or more to
+  /// create an instance that uses a blueprint with a minimum power value of 500.
   final int? power;
 
-  /// The price in US dollars (e.g., <code>5.0</code>) of the bundle.
+  /// The price in US dollars (<code>5.0</code>) of the bundle.
   final double? price;
 
-  /// The amount of RAM in GB (e.g., <code>2.0</code>).
+  /// An integer that indicates the public ipv4 address count included in the
+  /// bundle, the value is either 0 or 1.
+  final int? publicIpv4AddressCount;
+
+  /// The amount of RAM in GB (<code>2.0</code>).
   final double? ramSizeInGb;
 
   /// Virtual computer blueprints that are supported by a Lightsail for Research
@@ -11627,7 +11617,7 @@ class Bundle {
   /// <code>LINUX_UNIX</code> blueprints require a <code>LINUX_UNIX</code> bundle.
   final List<InstancePlatform>? supportedPlatforms;
 
-  /// The data transfer rate per month in GB (e.g., <code>2000</code>).
+  /// The data transfer rate per month in GB (<code>2000</code>).
   final int? transferPerMonthInGb;
 
   Bundle({
@@ -11639,6 +11629,7 @@ class Bundle {
     this.name,
     this.power,
     this.price,
+    this.publicIpv4AddressCount,
     this.ramSizeInGb,
     this.supportedAppCategories,
     this.supportedPlatforms,
@@ -11655,14 +11646,15 @@ class Bundle {
       name: json['name'] as String?,
       power: json['power'] as int?,
       price: json['price'] as double?,
+      publicIpv4AddressCount: json['publicIpv4AddressCount'] as int?,
       ramSizeInGb: json['ramSizeInGb'] as double?,
       supportedAppCategories: (json['supportedAppCategories'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toAppCategory())
+          ?.nonNulls
+          .map((e) => AppCategory.fromString((e as String)))
           .toList(),
       supportedPlatforms: (json['supportedPlatforms'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toInstancePlatform())
+          ?.nonNulls
+          .map((e) => InstancePlatform.fromString((e as String)))
           .toList(),
       transferPerMonthInGb: json['transferPerMonthInGb'] as int?,
     );
@@ -11701,14 +11693,14 @@ class CacheBehavior {
 
   factory CacheBehavior.fromJson(Map<String, dynamic> json) {
     return CacheBehavior(
-      behavior: (json['behavior'] as String?)?.toBehaviorEnum(),
+      behavior: (json['behavior'] as String?)?.let(BehaviorEnum.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final behavior = this.behavior;
     return {
-      if (behavior != null) 'behavior': behavior.toValue(),
+      if (behavior != null) 'behavior': behavior.value,
     };
   }
 }
@@ -11791,7 +11783,7 @@ class CacheBehaviorPerPath {
 
   factory CacheBehaviorPerPath.fromJson(Map<String, dynamic> json) {
     return CacheBehaviorPerPath(
-      behavior: (json['behavior'] as String?)?.toBehaviorEnum(),
+      behavior: (json['behavior'] as String?)?.let(BehaviorEnum.fromString),
       path: json['path'] as String?,
     );
   }
@@ -11800,7 +11792,7 @@ class CacheBehaviorPerPath {
     final behavior = this.behavior;
     final path = this.path;
     return {
-      if (behavior != null) 'behavior': behavior.toValue(),
+      if (behavior != null) 'behavior': behavior.value,
       if (path != null) 'path': path,
     };
   }
@@ -11954,7 +11946,7 @@ class CacheSettings {
 /// Describes the full details of an Amazon Lightsail SSL/TLS certificate.
 /// <note>
 /// To get a summary of a certificate, use the <code>GetCertificates</code>
-/// action and ommit <code>includeCertificateDetails</code> from your request.
+/// action and omit <code>includeCertificateDetails</code> from your request.
 /// The response will include only the certificate Amazon Resource Name (ARN),
 /// certificate name, domain name, and tags.
 /// </note>
@@ -11988,7 +11980,7 @@ class Certificate {
   /// the certificate.
   final String? keyAlgorithm;
 
-  /// The name of the certificate (e.g., <code>my-certificate</code>).
+  /// The name of the certificate (<code>my-certificate</code>).
   final String? name;
 
   /// The timestamp when the certificate expires.
@@ -12074,9 +12066,9 @@ class Certificate {
   /// The validation status of the certificate.
   final CertificateStatus? status;
 
-  /// An array of strings that specify the alternate domains (e.g.,
-  /// <code>example2.com</code>) and subdomains (e.g.,
-  /// <code>blog.example.com</code>) of the certificate.
+  /// An array of strings that specify the alternate domains
+  /// (<code>example2.com</code>) and subdomains (<code>blog.example.com</code>)
+  /// of the certificate.
   final List<String>? subjectAlternativeNames;
 
   /// The support code. Include this code in your email to support when you have
@@ -12120,7 +12112,7 @@ class Certificate {
       createdAt: timeStampFromJson(json['createdAt']),
       domainName: json['domainName'] as String?,
       domainValidationRecords: (json['domainValidationRecords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => DomainValidationRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -12140,14 +12132,14 @@ class Certificate {
       revocationReason: json['revocationReason'] as String?,
       revokedAt: timeStampFromJson(json['revokedAt']),
       serialNumber: json['serialNumber'] as String?,
-      status: (json['status'] as String?)?.toCertificateStatus(),
+      status: (json['status'] as String?)?.let(CertificateStatus.fromString),
       subjectAlternativeNames: (json['subjectAlternativeNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12155,91 +12147,53 @@ class Certificate {
 }
 
 enum CertificateDomainValidationStatus {
-  pendingValidation,
-  failed,
-  success,
+  pendingValidation('PENDING_VALIDATION'),
+  failed('FAILED'),
+  success('SUCCESS'),
+  ;
+
+  final String value;
+
+  const CertificateDomainValidationStatus(this.value);
+
+  static CertificateDomainValidationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CertificateDomainValidationStatus'));
 }
 
-extension CertificateDomainValidationStatusValueExtension
-    on CertificateDomainValidationStatus {
-  String toValue() {
-    switch (this) {
-      case CertificateDomainValidationStatus.pendingValidation:
-        return 'PENDING_VALIDATION';
-      case CertificateDomainValidationStatus.failed:
-        return 'FAILED';
-      case CertificateDomainValidationStatus.success:
-        return 'SUCCESS';
-    }
-  }
-}
+enum CertificateProvider {
+  letsEncrypt('LetsEncrypt'),
+  ;
 
-extension CertificateDomainValidationStatusFromString on String {
-  CertificateDomainValidationStatus toCertificateDomainValidationStatus() {
-    switch (this) {
-      case 'PENDING_VALIDATION':
-        return CertificateDomainValidationStatus.pendingValidation;
-      case 'FAILED':
-        return CertificateDomainValidationStatus.failed;
-      case 'SUCCESS':
-        return CertificateDomainValidationStatus.success;
-    }
-    throw Exception(
-        '$this is not known in enum CertificateDomainValidationStatus');
-  }
+  final String value;
+
+  const CertificateProvider(this.value);
+
+  static CertificateProvider fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CertificateProvider'));
 }
 
 enum CertificateStatus {
-  pendingValidation,
-  issued,
-  inactive,
-  expired,
-  validationTimedOut,
-  revoked,
-  failed,
-}
+  pendingValidation('PENDING_VALIDATION'),
+  issued('ISSUED'),
+  inactive('INACTIVE'),
+  expired('EXPIRED'),
+  validationTimedOut('VALIDATION_TIMED_OUT'),
+  revoked('REVOKED'),
+  failed('FAILED'),
+  ;
 
-extension CertificateStatusValueExtension on CertificateStatus {
-  String toValue() {
-    switch (this) {
-      case CertificateStatus.pendingValidation:
-        return 'PENDING_VALIDATION';
-      case CertificateStatus.issued:
-        return 'ISSUED';
-      case CertificateStatus.inactive:
-        return 'INACTIVE';
-      case CertificateStatus.expired:
-        return 'EXPIRED';
-      case CertificateStatus.validationTimedOut:
-        return 'VALIDATION_TIMED_OUT';
-      case CertificateStatus.revoked:
-        return 'REVOKED';
-      case CertificateStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension CertificateStatusFromString on String {
-  CertificateStatus toCertificateStatus() {
-    switch (this) {
-      case 'PENDING_VALIDATION':
-        return CertificateStatus.pendingValidation;
-      case 'ISSUED':
-        return CertificateStatus.issued;
-      case 'INACTIVE':
-        return CertificateStatus.inactive;
-      case 'EXPIRED':
-        return CertificateStatus.expired;
-      case 'VALIDATION_TIMED_OUT':
-        return CertificateStatus.validationTimedOut;
-      case 'REVOKED':
-        return CertificateStatus.revoked;
-      case 'FAILED':
-        return CertificateStatus.failed;
-    }
-    throw Exception('$this is not known in enum CertificateStatus');
-  }
+  const CertificateStatus(this.value);
+
+  static CertificateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CertificateStatus'));
 }
 
 /// Describes an Amazon Lightsail SSL/TLS certificate.
@@ -12280,7 +12234,7 @@ class CertificateSummary {
       certificateName: json['certificateName'] as String?,
       domainName: json['domainName'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12332,7 +12286,7 @@ class CloudFormationStackRecord {
   /// <code>CloudFormationStackRecord</code> followed by a GUID.
   final String? name;
 
-  /// The Lightsail resource type (e.g., <code>CloudFormationStackRecord</code>).
+  /// The Lightsail resource type (<code>CloudFormationStackRecord</code>).
   final ResourceType? resourceType;
 
   /// A list of objects describing the source of the CloudFormation stack record.
@@ -12364,13 +12318,14 @@ class CloudFormationStackRecord {
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       sourceInfo: (json['sourceInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CloudFormationStackRecordSourceInfo.fromJson(
               e as Map<String, dynamic>))
           .toList(),
-      state: (json['state'] as String?)?.toRecordState(),
+      state: (json['state'] as String?)?.let(RecordState.fromString),
     );
   }
 }
@@ -12384,7 +12339,7 @@ class CloudFormationStackRecordSourceInfo {
   /// The name of the record.
   final String? name;
 
-  /// The Lightsail resource type (e.g., <code>ExportSnapshotRecord</code>).
+  /// The Lightsail resource type (<code>ExportSnapshotRecord</code>).
   final CloudFormationStackRecordSourceType? resourceType;
 
   CloudFormationStackRecordSourceInfo({
@@ -12399,72 +12354,40 @@ class CloudFormationStackRecordSourceInfo {
       arn: json['arn'] as String?,
       name: json['name'] as String?,
       resourceType: (json['resourceType'] as String?)
-          ?.toCloudFormationStackRecordSourceType(),
+          ?.let(CloudFormationStackRecordSourceType.fromString),
     );
   }
 }
 
 enum CloudFormationStackRecordSourceType {
-  exportSnapshotRecord,
-}
+  exportSnapshotRecord('ExportSnapshotRecord'),
+  ;
 
-extension CloudFormationStackRecordSourceTypeValueExtension
-    on CloudFormationStackRecordSourceType {
-  String toValue() {
-    switch (this) {
-      case CloudFormationStackRecordSourceType.exportSnapshotRecord:
-        return 'ExportSnapshotRecord';
-    }
-  }
-}
+  final String value;
 
-extension CloudFormationStackRecordSourceTypeFromString on String {
-  CloudFormationStackRecordSourceType toCloudFormationStackRecordSourceType() {
-    switch (this) {
-      case 'ExportSnapshotRecord':
-        return CloudFormationStackRecordSourceType.exportSnapshotRecord;
-    }
-    throw Exception(
-        '$this is not known in enum CloudFormationStackRecordSourceType');
-  }
+  const CloudFormationStackRecordSourceType(this.value);
+
+  static CloudFormationStackRecordSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CloudFormationStackRecordSourceType'));
 }
 
 enum ComparisonOperator {
-  greaterThanOrEqualToThreshold,
-  greaterThanThreshold,
-  lessThanThreshold,
-  lessThanOrEqualToThreshold,
-}
+  greaterThanOrEqualToThreshold('GreaterThanOrEqualToThreshold'),
+  greaterThanThreshold('GreaterThanThreshold'),
+  lessThanThreshold('LessThanThreshold'),
+  lessThanOrEqualToThreshold('LessThanOrEqualToThreshold'),
+  ;
 
-extension ComparisonOperatorValueExtension on ComparisonOperator {
-  String toValue() {
-    switch (this) {
-      case ComparisonOperator.greaterThanOrEqualToThreshold:
-        return 'GreaterThanOrEqualToThreshold';
-      case ComparisonOperator.greaterThanThreshold:
-        return 'GreaterThanThreshold';
-      case ComparisonOperator.lessThanThreshold:
-        return 'LessThanThreshold';
-      case ComparisonOperator.lessThanOrEqualToThreshold:
-        return 'LessThanOrEqualToThreshold';
-    }
-  }
-}
+  final String value;
 
-extension ComparisonOperatorFromString on String {
-  ComparisonOperator toComparisonOperator() {
-    switch (this) {
-      case 'GreaterThanOrEqualToThreshold':
-        return ComparisonOperator.greaterThanOrEqualToThreshold;
-      case 'GreaterThanThreshold':
-        return ComparisonOperator.greaterThanThreshold;
-      case 'LessThanThreshold':
-        return ComparisonOperator.lessThanThreshold;
-      case 'LessThanOrEqualToThreshold':
-        return ComparisonOperator.lessThanOrEqualToThreshold;
-    }
-    throw Exception('$this is not known in enum ComparisonOperator');
-  }
+  const ComparisonOperator(this.value);
+
+  static ComparisonOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComparisonOperator'));
 }
 
 /// Describes a contact method.
@@ -12494,7 +12417,7 @@ class ContactMethod {
   /// The protocol of the contact method, such as email or SMS (text messaging).
   final ContactProtocol? protocol;
 
-  /// The Lightsail resource type (e.g., <code>ContactMethod</code>).
+  /// The Lightsail resource type of the contact method.
   final ResourceType? resourceType;
 
   /// The current status of the contact method.
@@ -12542,98 +12465,58 @@ class ContactMethod {
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      protocol: (json['protocol'] as String?)?.toContactProtocol(),
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
-      status: (json['status'] as String?)?.toContactMethodStatus(),
+      protocol: (json['protocol'] as String?)?.let(ContactProtocol.fromString),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+      status: (json['status'] as String?)?.let(ContactMethodStatus.fromString),
       supportCode: json['supportCode'] as String?,
     );
   }
 }
 
 enum ContactMethodStatus {
-  pendingVerification,
-  valid,
-  invalid,
-}
+  pendingVerification('PendingVerification'),
+  valid('Valid'),
+  invalid('Invalid'),
+  ;
 
-extension ContactMethodStatusValueExtension on ContactMethodStatus {
-  String toValue() {
-    switch (this) {
-      case ContactMethodStatus.pendingVerification:
-        return 'PendingVerification';
-      case ContactMethodStatus.valid:
-        return 'Valid';
-      case ContactMethodStatus.invalid:
-        return 'Invalid';
-    }
-  }
-}
+  final String value;
 
-extension ContactMethodStatusFromString on String {
-  ContactMethodStatus toContactMethodStatus() {
-    switch (this) {
-      case 'PendingVerification':
-        return ContactMethodStatus.pendingVerification;
-      case 'Valid':
-        return ContactMethodStatus.valid;
-      case 'Invalid':
-        return ContactMethodStatus.invalid;
-    }
-    throw Exception('$this is not known in enum ContactMethodStatus');
-  }
+  const ContactMethodStatus(this.value);
+
+  static ContactMethodStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ContactMethodStatus'));
 }
 
 enum ContactMethodVerificationProtocol {
-  email,
-}
+  email('Email'),
+  ;
 
-extension ContactMethodVerificationProtocolValueExtension
-    on ContactMethodVerificationProtocol {
-  String toValue() {
-    switch (this) {
-      case ContactMethodVerificationProtocol.email:
-        return 'Email';
-    }
-  }
-}
+  final String value;
 
-extension ContactMethodVerificationProtocolFromString on String {
-  ContactMethodVerificationProtocol toContactMethodVerificationProtocol() {
-    switch (this) {
-      case 'Email':
-        return ContactMethodVerificationProtocol.email;
-    }
-    throw Exception(
-        '$this is not known in enum ContactMethodVerificationProtocol');
-  }
+  const ContactMethodVerificationProtocol(this.value);
+
+  static ContactMethodVerificationProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContactMethodVerificationProtocol'));
 }
 
 enum ContactProtocol {
-  email,
-  sms,
-}
+  email('Email'),
+  sms('SMS'),
+  ;
 
-extension ContactProtocolValueExtension on ContactProtocol {
-  String toValue() {
-    switch (this) {
-      case ContactProtocol.email:
-        return 'Email';
-      case ContactProtocol.sms:
-        return 'SMS';
-    }
-  }
-}
+  final String value;
 
-extension ContactProtocolFromString on String {
-  ContactProtocol toContactProtocol() {
-    switch (this) {
-      case 'Email':
-        return ContactProtocol.email;
-      case 'SMS':
-        return ContactProtocol.sms;
-    }
-    throw Exception('$this is not known in enum ContactProtocol');
-  }
+  const ContactProtocol(this.value);
+
+  static ContactProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContactProtocol'));
 }
 
 /// Describes the settings of a container that will be launched, or that is
@@ -12675,15 +12558,13 @@ class Container {
 
   factory Container.fromJson(Map<String, dynamic> json) {
     return Container(
-      command: (json['command'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      command:
+          (json['command'] as List?)?.nonNulls.map((e) => e as String).toList(),
       environment: (json['environment'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       image: json['image'] as String?,
-      ports: (json['ports'] as Map<String, dynamic>?)?.map(
-          (k, e) => MapEntry(k, (e as String).toContainerServiceProtocol())),
+      ports: (json['ports'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(k, ContainerServiceProtocol.fromString((e as String)))),
     );
   }
 
@@ -12696,7 +12577,7 @@ class Container {
       if (command != null) 'command': command,
       if (environment != null) 'environment': environment,
       if (image != null) 'image': image,
-      if (ports != null) 'ports': ports.map((k, e) => MapEntry(k, e.toValue())),
+      if (ports != null) 'ports': ports.map((k, e) => MapEntry(k, e.value)),
     };
   }
 }
@@ -12809,8 +12690,7 @@ class ContainerService {
   /// public domain names for your Lightsail container service.
   final Map<String, List<String>>? publicDomainNames;
 
-  /// The Lightsail resource type of the container service (i.e.,
-  /// <code>ContainerService</code>).
+  /// The Lightsail resource type of the container service.
   final ResourceType? resourceType;
 
   /// The scale specification of the container service.
@@ -12911,7 +12791,8 @@ class ContainerService {
           ? ContainerServiceDeployment.fromJson(
               json['nextDeployment'] as Map<String, dynamic>)
           : null,
-      power: (json['power'] as String?)?.toContainerServicePowerName(),
+      power:
+          (json['power'] as String?)?.let(ContainerServicePowerName.fromString),
       powerId: json['powerId'] as String?,
       principalArn: json['principalArn'] as String?,
       privateDomainName: json['privateDomainName'] as String?,
@@ -12921,16 +12802,17 @@ class ContainerService {
           : null,
       publicDomainNames: (json['publicDomainNames'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(
-              k, (e as List).whereNotNull().map((e) => e as String).toList())),
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+              k, (e as List).nonNulls.map((e) => e as String).toList())),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       scale: json['scale'] as int?,
-      state: (json['state'] as String?)?.toContainerServiceState(),
+      state: (json['state'] as String?)?.let(ContainerServiceState.fromString),
       stateDetail: json['stateDetail'] != null
           ? ContainerServiceStateDetail.fromJson(
               json['stateDetail'] as Map<String, dynamic>)
           : null,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       url: json['url'] as String?,
@@ -12960,19 +12842,19 @@ class ContainerServiceDeployment {
   ///
   /// <ul>
   /// <li>
-  /// <code>Activating</code> - The deployment is being created.
+  /// <code>ACTIVATING</code> - The deployment is being created.
   /// </li>
   /// <li>
-  /// <code>Active</code> - The deployment was successfully created, and it's
+  /// <code>ACTIVE</code> - The deployment was successfully created, and it's
   /// currently running on the container service. The container service can have
   /// only one deployment in an active state at a time.
   /// </li>
   /// <li>
-  /// <code>Inactive</code> - The deployment was previously successfully created,
+  /// <code>INACTIVE</code> - The deployment was previously successfully created,
   /// but it is not currently running on the container service.
   /// </li>
   /// <li>
-  /// <code>Failed</code> - The deployment failed. Use the
+  /// <code>FAILED</code> - The deployment failed. Use the
   /// <code>GetContainerLog</code> action to view the log events for the
   /// containers in the deployment to try to determine the reason for the failure.
   /// </li>
@@ -12999,7 +12881,8 @@ class ContainerServiceDeployment {
           ? ContainerServiceEndpoint.fromJson(
               json['publicEndpoint'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toContainerServiceDeploymentState(),
+      state: (json['state'] as String?)
+          ?.let(ContainerServiceDeploymentState.fromString),
       version: json['version'] as int?,
     );
   }
@@ -13034,43 +12917,20 @@ class ContainerServiceDeploymentRequest {
 }
 
 enum ContainerServiceDeploymentState {
-  activating,
-  active,
-  inactive,
-  failed,
-}
+  activating('ACTIVATING'),
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  failed('FAILED'),
+  ;
 
-extension ContainerServiceDeploymentStateValueExtension
-    on ContainerServiceDeploymentState {
-  String toValue() {
-    switch (this) {
-      case ContainerServiceDeploymentState.activating:
-        return 'ACTIVATING';
-      case ContainerServiceDeploymentState.active:
-        return 'ACTIVE';
-      case ContainerServiceDeploymentState.inactive:
-        return 'INACTIVE';
-      case ContainerServiceDeploymentState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ContainerServiceDeploymentStateFromString on String {
-  ContainerServiceDeploymentState toContainerServiceDeploymentState() {
-    switch (this) {
-      case 'ACTIVATING':
-        return ContainerServiceDeploymentState.activating;
-      case 'ACTIVE':
-        return ContainerServiceDeploymentState.active;
-      case 'INACTIVE':
-        return ContainerServiceDeploymentState.inactive;
-      case 'FAILED':
-        return ContainerServiceDeploymentState.failed;
-    }
-    throw Exception(
-        '$this is not known in enum ContainerServiceDeploymentState');
-  }
+  const ContainerServiceDeploymentState(this.value);
+
+  static ContainerServiceDeploymentState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContainerServiceDeploymentState'));
 }
 
 /// Describes the activation status of the role that you can use to grant an
@@ -13263,32 +13123,18 @@ class ContainerServiceLogEvent {
 }
 
 enum ContainerServiceMetricName {
-  cPUUtilization,
-  memoryUtilization,
-}
+  cPUUtilization('CPUUtilization'),
+  memoryUtilization('MemoryUtilization'),
+  ;
 
-extension ContainerServiceMetricNameValueExtension
-    on ContainerServiceMetricName {
-  String toValue() {
-    switch (this) {
-      case ContainerServiceMetricName.cPUUtilization:
-        return 'CPUUtilization';
-      case ContainerServiceMetricName.memoryUtilization:
-        return 'MemoryUtilization';
-    }
-  }
-}
+  final String value;
 
-extension ContainerServiceMetricNameFromString on String {
-  ContainerServiceMetricName toContainerServiceMetricName() {
-    switch (this) {
-      case 'CPUUtilization':
-        return ContainerServiceMetricName.cPUUtilization;
-      case 'MemoryUtilization':
-        return ContainerServiceMetricName.memoryUtilization;
-    }
-    throw Exception('$this is not known in enum ContainerServiceMetricName');
-  }
+  const ContainerServiceMetricName(this.value);
+
+  static ContainerServiceMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContainerServiceMetricName'));
 }
 
 /// Describes the powers that can be specified for an Amazon Lightsail container
@@ -13304,10 +13150,10 @@ class ContainerServicePower {
   /// for container services.
   final bool? isActive;
 
-  /// The friendly name of the power (e.g., <code>nano</code>).
+  /// The friendly name of the power (<code>nano</code>).
   final String? name;
 
-  /// The ID of the power (e.g., <code>nano-1</code>).
+  /// The ID of the power (<code>nano-1</code>).
   final String? powerId;
 
   /// The monthly price of the power in USD.
@@ -13338,89 +13184,39 @@ class ContainerServicePower {
 }
 
 enum ContainerServicePowerName {
-  nano,
-  micro,
-  small,
-  medium,
-  large,
-  xlarge,
-}
+  nano('nano'),
+  micro('micro'),
+  small('small'),
+  medium('medium'),
+  large('large'),
+  xlarge('xlarge'),
+  ;
 
-extension ContainerServicePowerNameValueExtension on ContainerServicePowerName {
-  String toValue() {
-    switch (this) {
-      case ContainerServicePowerName.nano:
-        return 'nano';
-      case ContainerServicePowerName.micro:
-        return 'micro';
-      case ContainerServicePowerName.small:
-        return 'small';
-      case ContainerServicePowerName.medium:
-        return 'medium';
-      case ContainerServicePowerName.large:
-        return 'large';
-      case ContainerServicePowerName.xlarge:
-        return 'xlarge';
-    }
-  }
-}
+  final String value;
 
-extension ContainerServicePowerNameFromString on String {
-  ContainerServicePowerName toContainerServicePowerName() {
-    switch (this) {
-      case 'nano':
-        return ContainerServicePowerName.nano;
-      case 'micro':
-        return ContainerServicePowerName.micro;
-      case 'small':
-        return ContainerServicePowerName.small;
-      case 'medium':
-        return ContainerServicePowerName.medium;
-      case 'large':
-        return ContainerServicePowerName.large;
-      case 'xlarge':
-        return ContainerServicePowerName.xlarge;
-    }
-    throw Exception('$this is not known in enum ContainerServicePowerName');
-  }
+  const ContainerServicePowerName(this.value);
+
+  static ContainerServicePowerName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContainerServicePowerName'));
 }
 
 enum ContainerServiceProtocol {
-  http,
-  https,
-  tcp,
-  udp,
-}
+  http('HTTP'),
+  https('HTTPS'),
+  tcp('TCP'),
+  udp('UDP'),
+  ;
 
-extension ContainerServiceProtocolValueExtension on ContainerServiceProtocol {
-  String toValue() {
-    switch (this) {
-      case ContainerServiceProtocol.http:
-        return 'HTTP';
-      case ContainerServiceProtocol.https:
-        return 'HTTPS';
-      case ContainerServiceProtocol.tcp:
-        return 'TCP';
-      case ContainerServiceProtocol.udp:
-        return 'UDP';
-    }
-  }
-}
+  final String value;
 
-extension ContainerServiceProtocolFromString on String {
-  ContainerServiceProtocol toContainerServiceProtocol() {
-    switch (this) {
-      case 'HTTP':
-        return ContainerServiceProtocol.http;
-      case 'HTTPS':
-        return ContainerServiceProtocol.https;
-      case 'TCP':
-        return ContainerServiceProtocol.tcp;
-      case 'UDP':
-        return ContainerServiceProtocol.udp;
-    }
-    throw Exception('$this is not known in enum ContainerServiceProtocol');
-  }
+  const ContainerServiceProtocol(this.value);
+
+  static ContainerServiceProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContainerServiceProtocol'));
 }
 
 /// Describes the sign-in credentials for the container image registry of an
@@ -13464,56 +13260,23 @@ class ContainerServiceRegistryLogin {
 }
 
 enum ContainerServiceState {
-  pending,
-  ready,
-  running,
-  updating,
-  deleting,
-  disabled,
-  deploying,
-}
+  pending('PENDING'),
+  ready('READY'),
+  running('RUNNING'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  disabled('DISABLED'),
+  deploying('DEPLOYING'),
+  ;
 
-extension ContainerServiceStateValueExtension on ContainerServiceState {
-  String toValue() {
-    switch (this) {
-      case ContainerServiceState.pending:
-        return 'PENDING';
-      case ContainerServiceState.ready:
-        return 'READY';
-      case ContainerServiceState.running:
-        return 'RUNNING';
-      case ContainerServiceState.updating:
-        return 'UPDATING';
-      case ContainerServiceState.deleting:
-        return 'DELETING';
-      case ContainerServiceState.disabled:
-        return 'DISABLED';
-      case ContainerServiceState.deploying:
-        return 'DEPLOYING';
-    }
-  }
-}
+  final String value;
 
-extension ContainerServiceStateFromString on String {
-  ContainerServiceState toContainerServiceState() {
-    switch (this) {
-      case 'PENDING':
-        return ContainerServiceState.pending;
-      case 'READY':
-        return ContainerServiceState.ready;
-      case 'RUNNING':
-        return ContainerServiceState.running;
-      case 'UPDATING':
-        return ContainerServiceState.updating;
-      case 'DELETING':
-        return ContainerServiceState.deleting;
-      case 'DISABLED':
-        return ContainerServiceState.disabled;
-      case 'DEPLOYING':
-        return ContainerServiceState.deploying;
-    }
-    throw Exception('$this is not known in enum ContainerServiceState');
-  }
+  const ContainerServiceState(this.value);
+
+  static ContainerServiceState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ContainerServiceState'));
 }
 
 /// Describes the current state of a container service.
@@ -13589,75 +13352,33 @@ class ContainerServiceStateDetail {
 
   factory ContainerServiceStateDetail.fromJson(Map<String, dynamic> json) {
     return ContainerServiceStateDetail(
-      code: (json['code'] as String?)?.toContainerServiceStateDetailCode(),
+      code: (json['code'] as String?)
+          ?.let(ContainerServiceStateDetailCode.fromString),
       message: json['message'] as String?,
     );
   }
 }
 
 enum ContainerServiceStateDetailCode {
-  creatingSystemResources,
-  creatingNetworkInfrastructure,
-  provisioningCertificate,
-  provisioningService,
-  creatingDeployment,
-  evaluatingHealthCheck,
-  activatingDeployment,
-  certificateLimitExceeded,
-  unknownError,
-}
+  creatingSystemResources('CREATING_SYSTEM_RESOURCES'),
+  creatingNetworkInfrastructure('CREATING_NETWORK_INFRASTRUCTURE'),
+  provisioningCertificate('PROVISIONING_CERTIFICATE'),
+  provisioningService('PROVISIONING_SERVICE'),
+  creatingDeployment('CREATING_DEPLOYMENT'),
+  evaluatingHealthCheck('EVALUATING_HEALTH_CHECK'),
+  activatingDeployment('ACTIVATING_DEPLOYMENT'),
+  certificateLimitExceeded('CERTIFICATE_LIMIT_EXCEEDED'),
+  unknownError('UNKNOWN_ERROR'),
+  ;
 
-extension ContainerServiceStateDetailCodeValueExtension
-    on ContainerServiceStateDetailCode {
-  String toValue() {
-    switch (this) {
-      case ContainerServiceStateDetailCode.creatingSystemResources:
-        return 'CREATING_SYSTEM_RESOURCES';
-      case ContainerServiceStateDetailCode.creatingNetworkInfrastructure:
-        return 'CREATING_NETWORK_INFRASTRUCTURE';
-      case ContainerServiceStateDetailCode.provisioningCertificate:
-        return 'PROVISIONING_CERTIFICATE';
-      case ContainerServiceStateDetailCode.provisioningService:
-        return 'PROVISIONING_SERVICE';
-      case ContainerServiceStateDetailCode.creatingDeployment:
-        return 'CREATING_DEPLOYMENT';
-      case ContainerServiceStateDetailCode.evaluatingHealthCheck:
-        return 'EVALUATING_HEALTH_CHECK';
-      case ContainerServiceStateDetailCode.activatingDeployment:
-        return 'ACTIVATING_DEPLOYMENT';
-      case ContainerServiceStateDetailCode.certificateLimitExceeded:
-        return 'CERTIFICATE_LIMIT_EXCEEDED';
-      case ContainerServiceStateDetailCode.unknownError:
-        return 'UNKNOWN_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ContainerServiceStateDetailCodeFromString on String {
-  ContainerServiceStateDetailCode toContainerServiceStateDetailCode() {
-    switch (this) {
-      case 'CREATING_SYSTEM_RESOURCES':
-        return ContainerServiceStateDetailCode.creatingSystemResources;
-      case 'CREATING_NETWORK_INFRASTRUCTURE':
-        return ContainerServiceStateDetailCode.creatingNetworkInfrastructure;
-      case 'PROVISIONING_CERTIFICATE':
-        return ContainerServiceStateDetailCode.provisioningCertificate;
-      case 'PROVISIONING_SERVICE':
-        return ContainerServiceStateDetailCode.provisioningService;
-      case 'CREATING_DEPLOYMENT':
-        return ContainerServiceStateDetailCode.creatingDeployment;
-      case 'EVALUATING_HEALTH_CHECK':
-        return ContainerServiceStateDetailCode.evaluatingHealthCheck;
-      case 'ACTIVATING_DEPLOYMENT':
-        return ContainerServiceStateDetailCode.activatingDeployment;
-      case 'CERTIFICATE_LIMIT_EXCEEDED':
-        return ContainerServiceStateDetailCode.certificateLimitExceeded;
-      case 'UNKNOWN_ERROR':
-        return ContainerServiceStateDetailCode.unknownError;
-    }
-    throw Exception(
-        '$this is not known in enum ContainerServiceStateDetailCode');
-  }
+  const ContainerServiceStateDetailCode(this.value);
+
+  static ContainerServiceStateDetailCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ContainerServiceStateDetailCode'));
 }
 
 class ContainerServicesListResult {
@@ -13671,7 +13392,7 @@ class ContainerServicesListResult {
   factory ContainerServicesListResult.fromJson(Map<String, dynamic> json) {
     return ContainerServicesListResult(
       containerServices: (json['containerServices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ContainerService.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13701,10 +13422,10 @@ class CookieObject {
   factory CookieObject.fromJson(Map<String, dynamic> json) {
     return CookieObject(
       cookiesAllowList: (json['cookiesAllowList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      option: (json['option'] as String?)?.toForwardValues(),
+      option: (json['option'] as String?)?.let(ForwardValues.fromString),
     );
   }
 
@@ -13713,7 +13434,7 @@ class CookieObject {
     final option = this.option;
     return {
       if (cookiesAllowList != null) 'cookiesAllowList': cookiesAllowList,
-      if (option != null) 'option': option.toValue(),
+      if (option != null) 'option': option.value,
     };
   }
 }
@@ -13731,7 +13452,7 @@ class CopySnapshotResult {
   factory CopySnapshotResult.fromJson(Map<String, dynamic> json) {
     return CopySnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13756,7 +13477,7 @@ class CostEstimate {
   factory CostEstimate.fromJson(Map<String, dynamic> json) {
     return CostEstimate(
       resultsByTime: (json['resultsByTime'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EstimateByTime.fromJson(e as Map<String, dynamic>))
           .toList(),
       usageType: json['usageType'] as String?,
@@ -13784,7 +13505,7 @@ class CreateBucketAccessKeyResult {
           ? AccessKey.fromJson(json['accessKey'] as Map<String, dynamic>)
           : null,
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13811,7 +13532,7 @@ class CreateBucketResult {
           ? Bucket.fromJson(json['bucket'] as Map<String, dynamic>)
           : null,
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13839,7 +13560,7 @@ class CreateCertificateResult {
               json['certificate'] as Map<String, dynamic>)
           : null,
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13859,7 +13580,7 @@ class CreateCloudFormationStackResult {
   factory CreateCloudFormationStackResult.fromJson(Map<String, dynamic> json) {
     return CreateCloudFormationStackResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13879,7 +13600,7 @@ class CreateContactMethodResult {
   factory CreateContactMethodResult.fromJson(Map<String, dynamic> json) {
     return CreateContactMethodResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13956,7 +13677,7 @@ class CreateDiskFromSnapshotResult {
   factory CreateDiskFromSnapshotResult.fromJson(Map<String, dynamic> json) {
     return CreateDiskFromSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13976,7 +13697,7 @@ class CreateDiskResult {
   factory CreateDiskResult.fromJson(Map<String, dynamic> json) {
     return CreateDiskResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13996,7 +13717,7 @@ class CreateDiskSnapshotResult {
   factory CreateDiskSnapshotResult.fromJson(Map<String, dynamic> json) {
     return CreateDiskSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14099,10 +13820,10 @@ class CreateGUISessionAccessDetailsResult {
       percentageComplete: json['percentageComplete'] as int?,
       resourceName: json['resourceName'] as String?,
       sessions: (json['sessions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Session.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toStatus(),
+      status: (json['status'] as String?)?.let(Status.fromString),
     );
   }
 }
@@ -14120,7 +13841,7 @@ class CreateInstanceSnapshotResult {
   factory CreateInstanceSnapshotResult.fromJson(Map<String, dynamic> json) {
     return CreateInstanceSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14141,7 +13862,7 @@ class CreateInstancesFromSnapshotResult {
       Map<String, dynamic> json) {
     return CreateInstancesFromSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14161,7 +13882,7 @@ class CreateInstancesResult {
   factory CreateInstancesResult.fromJson(Map<String, dynamic> json) {
     return CreateInstancesResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14218,7 +13939,7 @@ class CreateLoadBalancerResult {
   factory CreateLoadBalancerResult.fromJson(Map<String, dynamic> json) {
     return CreateLoadBalancerResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14239,7 +13960,7 @@ class CreateLoadBalancerTlsCertificateResult {
       Map<String, dynamic> json) {
     return CreateLoadBalancerTlsCertificateResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14260,7 +13981,7 @@ class CreateRelationalDatabaseFromSnapshotResult {
       Map<String, dynamic> json) {
     return CreateRelationalDatabaseFromSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14280,7 +14001,7 @@ class CreateRelationalDatabaseResult {
   factory CreateRelationalDatabaseResult.fromJson(Map<String, dynamic> json) {
     return CreateRelationalDatabaseResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14301,7 +14022,7 @@ class CreateRelationalDatabaseSnapshotResult {
       Map<String, dynamic> json) {
     return CreateRelationalDatabaseSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14309,26 +14030,16 @@ class CreateRelationalDatabaseSnapshotResult {
 }
 
 enum Currency {
-  usd,
-}
+  usd('USD'),
+  ;
 
-extension CurrencyValueExtension on Currency {
-  String toValue() {
-    switch (this) {
-      case Currency.usd:
-        return 'USD';
-    }
-  }
-}
+  final String value;
 
-extension CurrencyFromString on String {
-  Currency toCurrency() {
-    switch (this) {
-      case 'USD':
-        return Currency.usd;
-    }
-    throw Exception('$this is not known in enum Currency');
-  }
+  const Currency(this.value);
+
+  static Currency fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Currency'));
 }
 
 class DeleteAlarmResult {
@@ -14344,7 +14055,7 @@ class DeleteAlarmResult {
   factory DeleteAlarmResult.fromJson(Map<String, dynamic> json) {
     return DeleteAlarmResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14364,7 +14075,7 @@ class DeleteAutoSnapshotResult {
   factory DeleteAutoSnapshotResult.fromJson(Map<String, dynamic> json) {
     return DeleteAutoSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14384,7 +14095,7 @@ class DeleteBucketAccessKeyResult {
   factory DeleteBucketAccessKeyResult.fromJson(Map<String, dynamic> json) {
     return DeleteBucketAccessKeyResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14404,7 +14115,7 @@ class DeleteBucketResult {
   factory DeleteBucketResult.fromJson(Map<String, dynamic> json) {
     return DeleteBucketResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14424,7 +14135,7 @@ class DeleteCertificateResult {
   factory DeleteCertificateResult.fromJson(Map<String, dynamic> json) {
     return DeleteCertificateResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14444,7 +14155,7 @@ class DeleteContactMethodResult {
   factory DeleteContactMethodResult.fromJson(Map<String, dynamic> json) {
     return DeleteContactMethodResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14480,7 +14191,7 @@ class DeleteDiskResult {
   factory DeleteDiskResult.fromJson(Map<String, dynamic> json) {
     return DeleteDiskResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14500,7 +14211,7 @@ class DeleteDiskSnapshotResult {
   factory DeleteDiskSnapshotResult.fromJson(Map<String, dynamic> json) {
     return DeleteDiskSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14577,7 +14288,7 @@ class DeleteInstanceResult {
   factory DeleteInstanceResult.fromJson(Map<String, dynamic> json) {
     return DeleteInstanceResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14597,7 +14308,7 @@ class DeleteInstanceSnapshotResult {
   factory DeleteInstanceSnapshotResult.fromJson(Map<String, dynamic> json) {
     return DeleteInstanceSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14636,7 +14347,7 @@ class DeleteKnownHostKeysResult {
   factory DeleteKnownHostKeysResult.fromJson(Map<String, dynamic> json) {
     return DeleteKnownHostKeysResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14656,7 +14367,7 @@ class DeleteLoadBalancerResult {
   factory DeleteLoadBalancerResult.fromJson(Map<String, dynamic> json) {
     return DeleteLoadBalancerResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14677,7 +14388,7 @@ class DeleteLoadBalancerTlsCertificateResult {
       Map<String, dynamic> json) {
     return DeleteLoadBalancerTlsCertificateResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14697,7 +14408,7 @@ class DeleteRelationalDatabaseResult {
   factory DeleteRelationalDatabaseResult.fromJson(Map<String, dynamic> json) {
     return DeleteRelationalDatabaseResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14718,7 +14429,7 @@ class DeleteRelationalDatabaseSnapshotResult {
       Map<String, dynamic> json) {
     return DeleteRelationalDatabaseSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14779,7 +14490,7 @@ class DetachDiskResult {
   factory DetachDiskResult.fromJson(Map<String, dynamic> json) {
     return DetachDiskResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14800,7 +14511,7 @@ class DetachInstancesFromLoadBalancerResult {
       Map<String, dynamic> json) {
     return DetachInstancesFromLoadBalancerResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14820,7 +14531,7 @@ class DetachStaticIpResult {
   factory DetachStaticIpResult.fromJson(Map<String, dynamic> json) {
     return DetachStaticIpResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14840,7 +14551,7 @@ class DisableAddOnResult {
   factory DisableAddOnResult.fromJson(Map<String, dynamic> json) {
     return DisableAddOnResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14858,12 +14569,12 @@ class Disk {
   /// The resources to which the disk is attached.
   final String? attachedTo;
 
-  /// (Deprecated) The attachment state of the disk.
+  /// (Discontinued) The attachment state of the disk.
   /// <note>
   /// In releases prior to November 14, 2017, this parameter returned
   /// <code>attached</code> for system disks in the API response. It is now
-  /// deprecated, but still included in the response. Use <code>isAttached</code>
-  /// instead.
+  /// discontinued, but still included in the response. Use
+  /// <code>isAttached</code> instead.
   /// </note>
   final String? attachmentState;
 
@@ -14876,10 +14587,10 @@ class Disk {
   /// The date when the disk was created.
   final DateTime? createdAt;
 
-  /// (Deprecated) The number of GB in use by the disk.
+  /// (Discontinued) The number of GB in use by the disk.
   /// <note>
   /// In releases prior to November 14, 2017, this parameter was not included in
-  /// the API response. It is now deprecated.
+  /// the API response. It is now discontinued.
   /// </note>
   final int? gbInUse;
 
@@ -14902,7 +14613,7 @@ class Disk {
   /// The disk path.
   final String? path;
 
-  /// The Lightsail resource type (e.g., <code>Disk</code>).
+  /// The Lightsail resource type (<code>Disk</code>).
   final ResourceType? resourceType;
 
   /// The size of the disk in GB.
@@ -14946,14 +14657,14 @@ class Disk {
   factory Disk.fromJson(Map<String, dynamic> json) {
     return Disk(
       addOns: (json['addOns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AddOn.fromJson(e as Map<String, dynamic>))
           .toList(),
       arn: json['arn'] as String?,
       attachedTo: json['attachedTo'] as String?,
       attachmentState: json['attachmentState'] as String?,
       autoMountStatus:
-          (json['autoMountStatus'] as String?)?.toAutoMountStatus(),
+          (json['autoMountStatus'] as String?)?.let(AutoMountStatus.fromString),
       createdAt: timeStampFromJson(json['createdAt']),
       gbInUse: json['gbInUse'] as int?,
       iops: json['iops'] as int?,
@@ -14964,12 +14675,13 @@ class Disk {
           : null,
       name: json['name'] as String?,
       path: json['path'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       sizeInGb: json['sizeInGb'] as int?,
-      state: (json['state'] as String?)?.toDiskState(),
+      state: (json['state'] as String?)?.let(DiskState.fromString),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14988,7 +14700,7 @@ class DiskInfo {
   /// The disk path.
   final String? path;
 
-  /// The size of the disk in GB (e.g., <code>32</code>).
+  /// The size of the disk in GB (<code>32</code>).
   final int? sizeInGb;
 
   DiskInfo({
@@ -15010,7 +14722,7 @@ class DiskInfo {
 
 /// Describes a block storage disk mapping.
 class DiskMap {
-  /// The new disk name (e.g., <code>my-new-disk</code>).
+  /// The new disk name (<code>my-new-disk</code>).
   final String? newDiskName;
 
   /// The original disk path exposed to the instance (for example,
@@ -15062,13 +14774,13 @@ class DiskSnapshot {
   /// The AWS Region and Availability Zone where the disk snapshot was created.
   final ResourceLocation? location;
 
-  /// The name of the disk snapshot (e.g., <code>my-disk-snapshot</code>).
+  /// The name of the disk snapshot (<code>my-disk-snapshot</code>).
   final String? name;
 
   /// The progress of the snapshot.
   final String? progress;
 
-  /// The Lightsail resource type (e.g., <code>DiskSnapshot</code>).
+  /// The Lightsail resource type (<code>DiskSnapshot</code>).
   final ResourceType? resourceType;
 
   /// The size of the disk in GB.
@@ -15120,12 +14832,13 @@ class DiskSnapshot {
           : null,
       name: json['name'] as String?,
       progress: json['progress'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       sizeInGb: json['sizeInGb'] as int?,
-      state: (json['state'] as String?)?.toDiskSnapshotState(),
+      state: (json['state'] as String?)?.let(DiskSnapshotState.fromString),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -15134,7 +14847,7 @@ class DiskSnapshot {
 
 /// Describes a disk snapshot.
 class DiskSnapshotInfo {
-  /// The size of the disk in GB (e.g., <code>32</code>).
+  /// The size of the disk in GB (<code>32</code>).
   final int? sizeInGb;
 
   DiskSnapshotInfo({
@@ -15149,84 +14862,37 @@ class DiskSnapshotInfo {
 }
 
 enum DiskSnapshotState {
-  pending,
-  completed,
-  error,
-  unknown,
-}
+  pending('pending'),
+  completed('completed'),
+  error('error'),
+  unknown('unknown'),
+  ;
 
-extension DiskSnapshotStateValueExtension on DiskSnapshotState {
-  String toValue() {
-    switch (this) {
-      case DiskSnapshotState.pending:
-        return 'pending';
-      case DiskSnapshotState.completed:
-        return 'completed';
-      case DiskSnapshotState.error:
-        return 'error';
-      case DiskSnapshotState.unknown:
-        return 'unknown';
-    }
-  }
-}
+  final String value;
 
-extension DiskSnapshotStateFromString on String {
-  DiskSnapshotState toDiskSnapshotState() {
-    switch (this) {
-      case 'pending':
-        return DiskSnapshotState.pending;
-      case 'completed':
-        return DiskSnapshotState.completed;
-      case 'error':
-        return DiskSnapshotState.error;
-      case 'unknown':
-        return DiskSnapshotState.unknown;
-    }
-    throw Exception('$this is not known in enum DiskSnapshotState');
-  }
+  const DiskSnapshotState(this.value);
+
+  static DiskSnapshotState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DiskSnapshotState'));
 }
 
 enum DiskState {
-  pending,
-  error,
-  available,
-  inUse,
-  unknown,
-}
+  pending('pending'),
+  error('error'),
+  available('available'),
+  inUse('in-use'),
+  unknown('unknown'),
+  ;
 
-extension DiskStateValueExtension on DiskState {
-  String toValue() {
-    switch (this) {
-      case DiskState.pending:
-        return 'pending';
-      case DiskState.error:
-        return 'error';
-      case DiskState.available:
-        return 'available';
-      case DiskState.inUse:
-        return 'in-use';
-      case DiskState.unknown:
-        return 'unknown';
-    }
-  }
-}
+  final String value;
 
-extension DiskStateFromString on String {
-  DiskState toDiskState() {
-    switch (this) {
-      case 'pending':
-        return DiskState.pending;
-      case 'error':
-        return DiskState.error;
-      case 'available':
-        return DiskState.available;
-      case 'in-use':
-        return DiskState.inUse;
-      case 'unknown':
-        return DiskState.unknown;
-    }
-    throw Exception('$this is not known in enum DiskState');
-  }
+  const DiskState(this.value);
+
+  static DiskState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum DiskState'));
 }
 
 /// Describes the specifications of a distribution bundle.
@@ -15267,51 +14933,22 @@ class DistributionBundle {
 }
 
 enum DistributionMetricName {
-  requests,
-  bytesDownloaded,
-  bytesUploaded,
-  totalErrorRate,
-  http4xxErrorRate,
-  http5xxErrorRate,
-}
+  requests('Requests'),
+  bytesDownloaded('BytesDownloaded'),
+  bytesUploaded('BytesUploaded'),
+  totalErrorRate('TotalErrorRate'),
+  http4xxErrorRate('Http4xxErrorRate'),
+  http5xxErrorRate('Http5xxErrorRate'),
+  ;
 
-extension DistributionMetricNameValueExtension on DistributionMetricName {
-  String toValue() {
-    switch (this) {
-      case DistributionMetricName.requests:
-        return 'Requests';
-      case DistributionMetricName.bytesDownloaded:
-        return 'BytesDownloaded';
-      case DistributionMetricName.bytesUploaded:
-        return 'BytesUploaded';
-      case DistributionMetricName.totalErrorRate:
-        return 'TotalErrorRate';
-      case DistributionMetricName.http4xxErrorRate:
-        return 'Http4xxErrorRate';
-      case DistributionMetricName.http5xxErrorRate:
-        return 'Http5xxErrorRate';
-    }
-  }
-}
+  final String value;
 
-extension DistributionMetricNameFromString on String {
-  DistributionMetricName toDistributionMetricName() {
-    switch (this) {
-      case 'Requests':
-        return DistributionMetricName.requests;
-      case 'BytesDownloaded':
-        return DistributionMetricName.bytesDownloaded;
-      case 'BytesUploaded':
-        return DistributionMetricName.bytesUploaded;
-      case 'TotalErrorRate':
-        return DistributionMetricName.totalErrorRate;
-      case 'Http4xxErrorRate':
-        return DistributionMetricName.http4xxErrorRate;
-      case 'Http5xxErrorRate':
-        return DistributionMetricName.http5xxErrorRate;
-    }
-    throw Exception('$this is not known in enum DistributionMetricName');
-  }
+  const DistributionMetricName(this.value);
+
+  static DistributionMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DistributionMetricName'));
 }
 
 /// Describes the creation state of the canonical name (CNAME) records that are
@@ -15359,50 +14996,33 @@ class DnsRecordCreationState {
 
   factory DnsRecordCreationState.fromJson(Map<String, dynamic> json) {
     return DnsRecordCreationState(
-      code: (json['code'] as String?)?.toDnsRecordCreationStateCode(),
+      code:
+          (json['code'] as String?)?.let(DnsRecordCreationStateCode.fromString),
       message: json['message'] as String?,
     );
   }
 }
 
 enum DnsRecordCreationStateCode {
-  succeeded,
-  started,
-  failed,
-}
+  succeeded('SUCCEEDED'),
+  started('STARTED'),
+  failed('FAILED'),
+  ;
 
-extension DnsRecordCreationStateCodeValueExtension
-    on DnsRecordCreationStateCode {
-  String toValue() {
-    switch (this) {
-      case DnsRecordCreationStateCode.succeeded:
-        return 'SUCCEEDED';
-      case DnsRecordCreationStateCode.started:
-        return 'STARTED';
-      case DnsRecordCreationStateCode.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension DnsRecordCreationStateCodeFromString on String {
-  DnsRecordCreationStateCode toDnsRecordCreationStateCode() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return DnsRecordCreationStateCode.succeeded;
-      case 'STARTED':
-        return DnsRecordCreationStateCode.started;
-      case 'FAILED':
-        return DnsRecordCreationStateCode.failed;
-    }
-    throw Exception('$this is not known in enum DnsRecordCreationStateCode');
-  }
+  const DnsRecordCreationStateCode(this.value);
+
+  static DnsRecordCreationStateCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DnsRecordCreationStateCode'));
 }
 
 /// Describes a domain where you are storing recordsets.
 class Domain {
-  /// The Amazon Resource Name (ARN) of the domain recordset (e.g.,
-  /// <code>arn:aws:lightsail:global:123456789101:Domain/824cede0-abc7-4f84-8dbc-12345EXAMPLE</code>).
+  /// The Amazon Resource Name (ARN) of the domain recordset
+  /// (<code>arn:aws:lightsail:global:123456789101:Domain/824cede0-abc7-4f84-8dbc-12345EXAMPLE</code>).
   final String? arn;
 
   /// The date when the domain recordset was created.
@@ -15453,7 +15073,7 @@ class Domain {
       arn: json['arn'] as String?,
       createdAt: timeStampFromJson(json['createdAt']),
       domainEntries: (json['domainEntries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DomainEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       location: json['location'] != null
@@ -15465,10 +15085,11 @@ class Domain {
           ? RegisteredDomainDelegationInfo.fromJson(
               json['registeredDomainDelegationInfo'] as Map<String, dynamic>)
           : null,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -15492,15 +15113,15 @@ class DomainEntry {
   /// The name of the domain.
   final String? name;
 
-  /// (Deprecated) The options for the domain entry.
+  /// (Discontinued) The options for the domain entry.
   /// <note>
   /// In releases prior to November 29, 2017, this parameter was not included in
-  /// the API response. It is now deprecated.
+  /// the API response. It is now discontinued.
   /// </note>
   final Map<String, String>? options;
 
-  /// The target IP address (e.g., <code>192.0.2.0</code>), or AWS name server
-  /// (e.g., <code>ns-111.awsdns-22.com.</code>).
+  /// The target IP address (<code>192.0.2.0</code>), or AWS name server
+  /// (<code>ns-111.awsdns-22.com.</code>).
   ///
   /// For Lightsail load balancers, the value looks like
   /// <code>ab1234c56789c6b86aba6fb203d443bc-123456789.us-east-2.elb.amazonaws.com</code>.
@@ -15625,7 +15246,7 @@ class DomainValidationRecord {
               json['resourceRecord'] as Map<String, dynamic>)
           : null,
       validationStatus: (json['validationStatus'] as String?)
-          ?.toCertificateDomainValidationStatus(),
+          ?.let(CertificateDomainValidationStatus.fromString),
     );
   }
 }
@@ -15668,7 +15289,7 @@ class EnableAddOnResult {
   factory EnableAddOnResult.fromJson(Map<String, dynamic> json) {
     return EnableAddOnResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -15734,8 +15355,9 @@ class EstimateByTime {
 
   factory EstimateByTime.fromJson(Map<String, dynamic> json) {
     return EstimateByTime(
-      currency: (json['currency'] as String?)?.toCurrency(),
-      pricingUnit: (json['pricingUnit'] as String?)?.toPricingUnit(),
+      currency: (json['currency'] as String?)?.let(Currency.fromString),
+      pricingUnit:
+          (json['pricingUnit'] as String?)?.let(PricingUnit.fromString),
       timePeriod: json['timePeriod'] != null
           ? TimePeriod.fromJson(json['timePeriod'] as Map<String, dynamic>)
           : null,
@@ -15763,7 +15385,7 @@ class ExportSnapshotRecord {
   /// The export snapshot record name.
   final String? name;
 
-  /// The Lightsail resource type (e.g., <code>ExportSnapshotRecord</code>).
+  /// The Lightsail resource type (<code>ExportSnapshotRecord</code>).
   final ResourceType? resourceType;
 
   /// A list of objects describing the source of the export snapshot record.
@@ -15795,12 +15417,13 @@ class ExportSnapshotRecord {
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       sourceInfo: json['sourceInfo'] != null
           ? ExportSnapshotRecordSourceInfo.fromJson(
               json['sourceInfo'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toRecordState(),
+      state: (json['state'] as String?)?.let(RecordState.fromString),
     );
   }
 }
@@ -15828,7 +15451,7 @@ class ExportSnapshotRecordSourceInfo {
   /// The name of the source instance or disk snapshot.
   final String? name;
 
-  /// The Lightsail resource type (e.g., <code>InstanceSnapshot</code> or
+  /// The Lightsail resource type (<code>InstanceSnapshot</code> or
   /// <code>DiskSnapshot</code>).
   final ExportSnapshotRecordSourceType? resourceType;
 
@@ -15858,40 +15481,25 @@ class ExportSnapshotRecordSourceInfo {
               json['instanceSnapshotInfo'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      resourceType:
-          (json['resourceType'] as String?)?.toExportSnapshotRecordSourceType(),
+      resourceType: (json['resourceType'] as String?)
+          ?.let(ExportSnapshotRecordSourceType.fromString),
     );
   }
 }
 
 enum ExportSnapshotRecordSourceType {
-  instanceSnapshot,
-  diskSnapshot,
-}
+  instanceSnapshot('InstanceSnapshot'),
+  diskSnapshot('DiskSnapshot'),
+  ;
 
-extension ExportSnapshotRecordSourceTypeValueExtension
-    on ExportSnapshotRecordSourceType {
-  String toValue() {
-    switch (this) {
-      case ExportSnapshotRecordSourceType.instanceSnapshot:
-        return 'InstanceSnapshot';
-      case ExportSnapshotRecordSourceType.diskSnapshot:
-        return 'DiskSnapshot';
-    }
-  }
-}
+  final String value;
 
-extension ExportSnapshotRecordSourceTypeFromString on String {
-  ExportSnapshotRecordSourceType toExportSnapshotRecordSourceType() {
-    switch (this) {
-      case 'InstanceSnapshot':
-        return ExportSnapshotRecordSourceType.instanceSnapshot;
-      case 'DiskSnapshot':
-        return ExportSnapshotRecordSourceType.diskSnapshot;
-    }
-    throw Exception(
-        '$this is not known in enum ExportSnapshotRecordSourceType');
-  }
+  const ExportSnapshotRecordSourceType(this.value);
+
+  static ExportSnapshotRecordSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExportSnapshotRecordSourceType'));
 }
 
 class ExportSnapshotResult {
@@ -15907,7 +15515,7 @@ class ExportSnapshotResult {
   factory ExportSnapshotResult.fromJson(Map<String, dynamic> json) {
     return ExportSnapshotResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -15915,36 +15523,19 @@ class ExportSnapshotResult {
 }
 
 enum ForwardValues {
-  none,
-  allowList,
-  all,
-}
+  none('none'),
+  allowList('allow-list'),
+  all('all'),
+  ;
 
-extension ForwardValuesValueExtension on ForwardValues {
-  String toValue() {
-    switch (this) {
-      case ForwardValues.none:
-        return 'none';
-      case ForwardValues.allowList:
-        return 'allow-list';
-      case ForwardValues.all:
-        return 'all';
-    }
-  }
-}
+  final String value;
 
-extension ForwardValuesFromString on String {
-  ForwardValues toForwardValues() {
-    switch (this) {
-      case 'none':
-        return ForwardValues.none;
-      case 'allow-list':
-        return ForwardValues.allowList;
-      case 'all':
-        return ForwardValues.all;
-    }
-    throw Exception('$this is not known in enum ForwardValues');
-  }
+  const ForwardValues(this.value);
+
+  static ForwardValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ForwardValues'));
 }
 
 class GetActiveNamesResult {
@@ -15968,7 +15559,7 @@ class GetActiveNamesResult {
   factory GetActiveNamesResult.fromJson(Map<String, dynamic> json) {
     return GetActiveNamesResult(
       activeNames: (json['activeNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -15997,7 +15588,7 @@ class GetAlarmsResult {
   factory GetAlarmsResult.fromJson(Map<String, dynamic> json) {
     return GetAlarmsResult(
       alarms: (json['alarms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Alarm.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16013,7 +15604,8 @@ class GetAutoSnapshotsResult {
   /// The name of the source instance or disk for the automatic snapshots.
   final String? resourceName;
 
-  /// The resource type (e.g., <code>Instance</code> or <code>Disk</code>).
+  /// The resource type of the automatic snapshot. The possible values are
+  /// <code>Instance</code>, and <code>Disk</code>.
   final ResourceType? resourceType;
 
   GetAutoSnapshotsResult({
@@ -16025,11 +15617,12 @@ class GetAutoSnapshotsResult {
   factory GetAutoSnapshotsResult.fromJson(Map<String, dynamic> json) {
     return GetAutoSnapshotsResult(
       autoSnapshots: (json['autoSnapshots'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AutoSnapshotDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceName: json['resourceName'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
     );
   }
 }
@@ -16056,7 +15649,7 @@ class GetBlueprintsResult {
   factory GetBlueprintsResult.fromJson(Map<String, dynamic> json) {
     return GetBlueprintsResult(
       blueprints: (json['blueprints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Blueprint.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16075,7 +15668,7 @@ class GetBucketAccessKeysResult {
   factory GetBucketAccessKeysResult.fromJson(Map<String, dynamic> json) {
     return GetBucketAccessKeysResult(
       accessKeys: (json['accessKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AccessKey.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16093,7 +15686,7 @@ class GetBucketBundlesResult {
   factory GetBucketBundlesResult.fromJson(Map<String, dynamic> json) {
     return GetBucketBundlesResult(
       bundles: (json['bundles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BucketBundle.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16115,10 +15708,11 @@ class GetBucketMetricDataResult {
   factory GetBucketMetricDataResult.fromJson(Map<String, dynamic> json) {
     return GetBucketMetricDataResult(
       metricData: (json['metricData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDatapoint.fromJson(e as Map<String, dynamic>))
           .toList(),
-      metricName: (json['metricName'] as String?)?.toBucketMetricName(),
+      metricName:
+          (json['metricName'] as String?)?.let(BucketMetricName.fromString),
     );
   }
 }
@@ -16158,7 +15752,7 @@ class GetBucketsResult {
               json['accountLevelBpaSync'] as Map<String, dynamic>)
           : null,
       buckets: (json['buckets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Bucket.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16188,7 +15782,7 @@ class GetBundlesResult {
   factory GetBundlesResult.fromJson(Map<String, dynamic> json) {
     return GetBundlesResult(
       bundles: (json['bundles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Bundle.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16200,16 +15794,24 @@ class GetCertificatesResult {
   /// An object that describes certificates.
   final List<CertificateSummary>? certificates;
 
+  /// If <code>NextPageToken</code> is returned there are more results available.
+  /// The value of <code>NextPageToken</code> is a unique pagination token for
+  /// each page. Make the call again using the returned token to retrieve the next
+  /// page. Keep all other arguments unchanged.
+  final String? nextPageToken;
+
   GetCertificatesResult({
     this.certificates,
+    this.nextPageToken,
   });
 
   factory GetCertificatesResult.fromJson(Map<String, dynamic> json) {
     return GetCertificatesResult(
       certificates: (json['certificates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CertificateSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
+      nextPageToken: json['nextPageToken'] as String?,
     );
   }
 }
@@ -16236,7 +15838,7 @@ class GetCloudFormationStackRecordsResult {
       Map<String, dynamic> json) {
     return GetCloudFormationStackRecordsResult(
       cloudFormationStackRecords: (json['cloudFormationStackRecords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CloudFormationStackRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16256,7 +15858,7 @@ class GetContactMethodsResult {
   factory GetContactMethodsResult.fromJson(Map<String, dynamic> json) {
     return GetContactMethodsResult(
       contactMethods: (json['contactMethods'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ContactMethod.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16275,7 +15877,7 @@ class GetContainerAPIMetadataResult {
   factory GetContainerAPIMetadataResult.fromJson(Map<String, dynamic> json) {
     return GetContainerAPIMetadataResult(
       metadata: (json['metadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => (e as Map<String, dynamic>)
               .map((k, e) => MapEntry(k, e as String)))
           .toList(),
@@ -16295,7 +15897,7 @@ class GetContainerImagesResult {
   factory GetContainerImagesResult.fromJson(Map<String, dynamic> json) {
     return GetContainerImagesResult(
       containerImages: (json['containerImages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ContainerImage.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16323,7 +15925,7 @@ class GetContainerLogResult {
   factory GetContainerLogResult.fromJson(Map<String, dynamic> json) {
     return GetContainerLogResult(
       logEvents: (json['logEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ContainerServiceLogEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16344,7 +15946,7 @@ class GetContainerServiceDeploymentsResult {
       Map<String, dynamic> json) {
     return GetContainerServiceDeploymentsResult(
       deployments: (json['deployments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ContainerServiceDeployment.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16368,11 +15970,11 @@ class GetContainerServiceMetricDataResult {
       Map<String, dynamic> json) {
     return GetContainerServiceMetricDataResult(
       metricData: (json['metricData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDatapoint.fromJson(e as Map<String, dynamic>))
           .toList(),
-      metricName:
-          (json['metricName'] as String?)?.toContainerServiceMetricName(),
+      metricName: (json['metricName'] as String?)
+          ?.let(ContainerServiceMetricName.fromString),
     );
   }
 }
@@ -16389,7 +15991,7 @@ class GetContainerServicePowersResult {
   factory GetContainerServicePowersResult.fromJson(Map<String, dynamic> json) {
     return GetContainerServicePowersResult(
       powers: (json['powers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ContainerServicePower.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16407,7 +16009,7 @@ class GetCostEstimateResult {
   factory GetCostEstimateResult.fromJson(Map<String, dynamic> json) {
     return GetCostEstimateResult(
       resourcesBudgetEstimate: (json['resourcesBudgetEstimate'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ResourceBudgetEstimate.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16471,7 +16073,7 @@ class GetDiskSnapshotsResult {
   factory GetDiskSnapshotsResult.fromJson(Map<String, dynamic> json) {
     return GetDiskSnapshotsResult(
       diskSnapshots: (json['diskSnapshots'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DiskSnapshot.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16500,7 +16102,7 @@ class GetDisksResult {
   factory GetDisksResult.fromJson(Map<String, dynamic> json) {
     return GetDisksResult(
       disks: (json['disks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Disk.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16519,7 +16121,7 @@ class GetDistributionBundlesResult {
   factory GetDistributionBundlesResult.fromJson(Map<String, dynamic> json) {
     return GetDistributionBundlesResult(
       bundles: (json['bundles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DistributionBundle.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16527,8 +16129,8 @@ class GetDistributionBundlesResult {
 }
 
 class GetDistributionLatestCacheResetResult {
-  /// The timestamp of the last cache reset (e.g., <code>1479734909.17</code>) in
-  /// Unix time format.
+  /// The timestamp of the last cache reset (<code>1479734909.17</code>) in Unix
+  /// time format.
   final DateTime? createTime;
 
   /// The status of the last cache reset.
@@ -16563,10 +16165,11 @@ class GetDistributionMetricDataResult {
   factory GetDistributionMetricDataResult.fromJson(Map<String, dynamic> json) {
     return GetDistributionMetricDataResult(
       metricData: (json['metricData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDatapoint.fromJson(e as Map<String, dynamic>))
           .toList(),
-      metricName: (json['metricName'] as String?)?.toDistributionMetricName(),
+      metricName: (json['metricName'] as String?)
+          ?.let(DistributionMetricName.fromString),
     );
   }
 }
@@ -16592,7 +16195,7 @@ class GetDistributionsResult {
   factory GetDistributionsResult.fromJson(Map<String, dynamic> json) {
     return GetDistributionsResult(
       distributions: (json['distributions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LightsailDistribution.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16640,7 +16243,7 @@ class GetDomainsResult {
   factory GetDomainsResult.fromJson(Map<String, dynamic> json) {
     return GetDomainsResult(
       domains: (json['domains'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Domain.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16669,7 +16272,7 @@ class GetExportSnapshotRecordsResult {
   factory GetExportSnapshotRecordsResult.fromJson(Map<String, dynamic> json) {
     return GetExportSnapshotRecordsResult(
       exportSnapshotRecords: (json['exportSnapshotRecords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExportSnapshotRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16711,10 +16314,11 @@ class GetInstanceMetricDataResult {
   factory GetInstanceMetricDataResult.fromJson(Map<String, dynamic> json) {
     return GetInstanceMetricDataResult(
       metricData: (json['metricData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDatapoint.fromJson(e as Map<String, dynamic>))
           .toList(),
-      metricName: (json['metricName'] as String?)?.toInstanceMetricName(),
+      metricName:
+          (json['metricName'] as String?)?.let(InstanceMetricName.fromString),
     );
   }
 }
@@ -16731,7 +16335,7 @@ class GetInstancePortStatesResult {
   factory GetInstancePortStatesResult.fromJson(Map<String, dynamic> json) {
     return GetInstancePortStatesResult(
       portStates: (json['portStates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstancePortState.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16797,7 +16401,7 @@ class GetInstanceSnapshotsResult {
   factory GetInstanceSnapshotsResult.fromJson(Map<String, dynamic> json) {
     return GetInstanceSnapshotsResult(
       instanceSnapshots: (json['instanceSnapshots'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceSnapshot.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16843,7 +16447,7 @@ class GetInstancesResult {
   factory GetInstancesResult.fromJson(Map<String, dynamic> json) {
     return GetInstancesResult(
       instances: (json['instances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Instance.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16889,7 +16493,7 @@ class GetKeyPairsResult {
   factory GetKeyPairsResult.fromJson(Map<String, dynamic> json) {
     return GetKeyPairsResult(
       keyPairs: (json['keyPairs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => KeyPair.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -16912,10 +16516,11 @@ class GetLoadBalancerMetricDataResult {
   factory GetLoadBalancerMetricDataResult.fromJson(Map<String, dynamic> json) {
     return GetLoadBalancerMetricDataResult(
       metricData: (json['metricData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDatapoint.fromJson(e as Map<String, dynamic>))
           .toList(),
-      metricName: (json['metricName'] as String?)?.toLoadBalancerMetricName(),
+      metricName: (json['metricName'] as String?)
+          ?.let(LoadBalancerMetricName.fromString),
     );
   }
 }
@@ -16950,7 +16555,7 @@ class GetLoadBalancerTlsCertificatesResult {
       Map<String, dynamic> json) {
     return GetLoadBalancerTlsCertificatesResult(
       tlsCertificates: (json['tlsCertificates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               LoadBalancerTlsCertificate.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16981,7 +16586,7 @@ class GetLoadBalancerTlsPoliciesResult {
     return GetLoadBalancerTlsPoliciesResult(
       nextPageToken: json['nextPageToken'] as String?,
       tlsPolicies: (json['tlsPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LoadBalancerTlsPolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17009,7 +16614,7 @@ class GetLoadBalancersResult {
   factory GetLoadBalancersResult.fromJson(Map<String, dynamic> json) {
     return GetLoadBalancersResult(
       loadBalancers: (json['loadBalancers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LoadBalancer.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['nextPageToken'] as String?,
@@ -17037,11 +16642,11 @@ class GetOperationResult {
 }
 
 class GetOperationsForResourceResult {
-  /// (Deprecated) Returns the number of pages of results that remain.
+  /// (Discontinued) Returns the number of pages of results that remain.
   /// <note>
   /// In releases prior to June 12, 2017, this parameter returned
-  /// <code>null</code> by the API. It is now deprecated, and the API returns the
-  /// <code>next page token</code> parameter instead.
+  /// <code>null</code> by the API. It is now discontinued, and the API returns
+  /// the <code>next page token</code> parameter instead.
   /// </note>
   final String? nextPageCount;
 
@@ -17070,7 +16675,7 @@ class GetOperationsForResourceResult {
       nextPageCount: json['nextPageCount'] as String?,
       nextPageToken: json['nextPageToken'] as String?,
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17101,7 +16706,7 @@ class GetOperationsResult {
     return GetOperationsResult(
       nextPageToken: json['nextPageToken'] as String?,
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17120,7 +16725,7 @@ class GetRegionsResult {
   factory GetRegionsResult.fromJson(Map<String, dynamic> json) {
     return GetRegionsResult(
       regions: (json['regions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Region.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17150,7 +16755,7 @@ class GetRelationalDatabaseBlueprintsResult {
       Map<String, dynamic> json) {
     return GetRelationalDatabaseBlueprintsResult(
       blueprints: (json['blueprints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RelationalDatabaseBlueprint.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17182,7 +16787,7 @@ class GetRelationalDatabaseBundlesResult {
       Map<String, dynamic> json) {
     return GetRelationalDatabaseBundlesResult(
       bundles: (json['bundles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RelationalDatabaseBundle.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17215,7 +16820,7 @@ class GetRelationalDatabaseEventsResult {
     return GetRelationalDatabaseEventsResult(
       nextPageToken: json['nextPageToken'] as String?,
       relationalDatabaseEvents: (json['relationalDatabaseEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RelationalDatabaseEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17248,7 +16853,7 @@ class GetRelationalDatabaseLogEventsResult {
       nextBackwardToken: json['nextBackwardToken'] as String?,
       nextForwardToken: json['nextForwardToken'] as String?,
       resourceLogEvents: (json['resourceLogEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LogEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17268,7 +16873,7 @@ class GetRelationalDatabaseLogStreamsResult {
       Map<String, dynamic> json) {
     return GetRelationalDatabaseLogStreamsResult(
       logStreams: (json['logStreams'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -17313,11 +16918,11 @@ class GetRelationalDatabaseMetricDataResult {
       Map<String, dynamic> json) {
     return GetRelationalDatabaseMetricDataResult(
       metricData: (json['metricData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDatapoint.fromJson(e as Map<String, dynamic>))
           .toList(),
-      metricName:
-          (json['metricName'] as String?)?.toRelationalDatabaseMetricName(),
+      metricName: (json['metricName'] as String?)
+          ?.let(RelationalDatabaseMetricName.fromString),
     );
   }
 }
@@ -17346,7 +16951,7 @@ class GetRelationalDatabaseParametersResult {
     return GetRelationalDatabaseParametersResult(
       nextPageToken: json['nextPageToken'] as String?,
       parameters: (json['parameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RelationalDatabaseParameter.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17416,7 +17021,7 @@ class GetRelationalDatabaseSnapshotsResult {
       nextPageToken: json['nextPageToken'] as String?,
       relationalDatabaseSnapshots: (json['relationalDatabaseSnapshots']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RelationalDatabaseSnapshot.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17446,8 +17051,37 @@ class GetRelationalDatabasesResult {
     return GetRelationalDatabasesResult(
       nextPageToken: json['nextPageToken'] as String?,
       relationalDatabases: (json['relationalDatabases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RelationalDatabase.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class GetSetupHistoryResult {
+  /// The token to advance to the next page of results from your request.
+  ///
+  /// A next page token is not returned if there are no more results to display.
+  ///
+  /// To get the next page of results, perform another
+  /// <code>GetSetupHistory</code> request and specify the next page token using
+  /// the pageToken parameter.
+  final String? nextPageToken;
+
+  /// The historical information that's returned.
+  final List<SetupHistory>? setupHistory;
+
+  GetSetupHistoryResult({
+    this.nextPageToken,
+    this.setupHistory,
+  });
+
+  factory GetSetupHistoryResult.fromJson(Map<String, dynamic> json) {
+    return GetSetupHistoryResult(
+      nextPageToken: json['nextPageToken'] as String?,
+      setupHistory: (json['setupHistory'] as List?)
+          ?.nonNulls
+          .map((e) => SetupHistory.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -17494,7 +17128,7 @@ class GetStaticIpsResult {
     return GetStaticIpsResult(
       nextPageToken: json['nextPageToken'] as String?,
       staticIps: (json['staticIps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StaticIp.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -17502,96 +17136,30 @@ class GetStaticIpsResult {
 }
 
 enum HeaderEnum {
-  accept,
-  acceptCharset,
-  acceptDatetime,
-  acceptEncoding,
-  acceptLanguage,
-  authorization,
-  cloudFrontForwardedProto,
-  cloudFrontIsDesktopViewer,
-  cloudFrontIsMobileViewer,
-  cloudFrontIsSmartTVViewer,
-  cloudFrontIsTabletViewer,
-  cloudFrontViewerCountry,
-  host,
-  origin,
-  referer,
-}
+  accept('Accept'),
+  acceptCharset('Accept-Charset'),
+  acceptDatetime('Accept-Datetime'),
+  acceptEncoding('Accept-Encoding'),
+  acceptLanguage('Accept-Language'),
+  authorization('Authorization'),
+  cloudFrontForwardedProto('CloudFront-Forwarded-Proto'),
+  cloudFrontIsDesktopViewer('CloudFront-Is-Desktop-Viewer'),
+  cloudFrontIsMobileViewer('CloudFront-Is-Mobile-Viewer'),
+  cloudFrontIsSmartTVViewer('CloudFront-Is-SmartTV-Viewer'),
+  cloudFrontIsTabletViewer('CloudFront-Is-Tablet-Viewer'),
+  cloudFrontViewerCountry('CloudFront-Viewer-Country'),
+  host('Host'),
+  origin('Origin'),
+  referer('Referer'),
+  ;
 
-extension HeaderEnumValueExtension on HeaderEnum {
-  String toValue() {
-    switch (this) {
-      case HeaderEnum.accept:
-        return 'Accept';
-      case HeaderEnum.acceptCharset:
-        return 'Accept-Charset';
-      case HeaderEnum.acceptDatetime:
-        return 'Accept-Datetime';
-      case HeaderEnum.acceptEncoding:
-        return 'Accept-Encoding';
-      case HeaderEnum.acceptLanguage:
-        return 'Accept-Language';
-      case HeaderEnum.authorization:
-        return 'Authorization';
-      case HeaderEnum.cloudFrontForwardedProto:
-        return 'CloudFront-Forwarded-Proto';
-      case HeaderEnum.cloudFrontIsDesktopViewer:
-        return 'CloudFront-Is-Desktop-Viewer';
-      case HeaderEnum.cloudFrontIsMobileViewer:
-        return 'CloudFront-Is-Mobile-Viewer';
-      case HeaderEnum.cloudFrontIsSmartTVViewer:
-        return 'CloudFront-Is-SmartTV-Viewer';
-      case HeaderEnum.cloudFrontIsTabletViewer:
-        return 'CloudFront-Is-Tablet-Viewer';
-      case HeaderEnum.cloudFrontViewerCountry:
-        return 'CloudFront-Viewer-Country';
-      case HeaderEnum.host:
-        return 'Host';
-      case HeaderEnum.origin:
-        return 'Origin';
-      case HeaderEnum.referer:
-        return 'Referer';
-    }
-  }
-}
+  final String value;
 
-extension HeaderEnumFromString on String {
-  HeaderEnum toHeaderEnum() {
-    switch (this) {
-      case 'Accept':
-        return HeaderEnum.accept;
-      case 'Accept-Charset':
-        return HeaderEnum.acceptCharset;
-      case 'Accept-Datetime':
-        return HeaderEnum.acceptDatetime;
-      case 'Accept-Encoding':
-        return HeaderEnum.acceptEncoding;
-      case 'Accept-Language':
-        return HeaderEnum.acceptLanguage;
-      case 'Authorization':
-        return HeaderEnum.authorization;
-      case 'CloudFront-Forwarded-Proto':
-        return HeaderEnum.cloudFrontForwardedProto;
-      case 'CloudFront-Is-Desktop-Viewer':
-        return HeaderEnum.cloudFrontIsDesktopViewer;
-      case 'CloudFront-Is-Mobile-Viewer':
-        return HeaderEnum.cloudFrontIsMobileViewer;
-      case 'CloudFront-Is-SmartTV-Viewer':
-        return HeaderEnum.cloudFrontIsSmartTVViewer;
-      case 'CloudFront-Is-Tablet-Viewer':
-        return HeaderEnum.cloudFrontIsTabletViewer;
-      case 'CloudFront-Viewer-Country':
-        return HeaderEnum.cloudFrontViewerCountry;
-      case 'Host':
-        return HeaderEnum.host;
-      case 'Origin':
-        return HeaderEnum.origin;
-      case 'Referer':
-        return HeaderEnum.referer;
-    }
-    throw Exception('$this is not known in enum HeaderEnum');
-  }
+  const HeaderEnum(this.value);
+
+  static HeaderEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum HeaderEnum'));
 }
 
 /// Describes the request headers that a Lightsail distribution bases caching
@@ -17636,10 +17204,10 @@ class HeaderObject {
   factory HeaderObject.fromJson(Map<String, dynamic> json) {
     return HeaderObject(
       headersAllowList: (json['headersAllowList'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toHeaderEnum())
+          ?.nonNulls
+          .map((e) => HeaderEnum.fromString((e as String)))
           .toList(),
-      option: (json['option'] as String?)?.toForwardValues(),
+      option: (json['option'] as String?)?.let(ForwardValues.fromString),
     );
   }
 
@@ -17648,8 +17216,8 @@ class HeaderObject {
     final option = this.option;
     return {
       if (headersAllowList != null)
-        'headersAllowList': headersAllowList.map((e) => e.toValue()).toList(),
-      if (option != null) 'option': option.toValue(),
+        'headersAllowList': headersAllowList.map((e) => e.value).toList(),
+      if (option != null) 'option': option.value,
     };
   }
 }
@@ -17735,87 +17303,47 @@ class HostKeyAttributes {
 }
 
 enum HttpEndpoint {
-  disabled,
-  enabled,
-}
+  disabled('disabled'),
+  enabled('enabled'),
+  ;
 
-extension HttpEndpointValueExtension on HttpEndpoint {
-  String toValue() {
-    switch (this) {
-      case HttpEndpoint.disabled:
-        return 'disabled';
-      case HttpEndpoint.enabled:
-        return 'enabled';
-    }
-  }
-}
+  final String value;
 
-extension HttpEndpointFromString on String {
-  HttpEndpoint toHttpEndpoint() {
-    switch (this) {
-      case 'disabled':
-        return HttpEndpoint.disabled;
-      case 'enabled':
-        return HttpEndpoint.enabled;
-    }
-    throw Exception('$this is not known in enum HttpEndpoint');
-  }
+  const HttpEndpoint(this.value);
+
+  static HttpEndpoint fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum HttpEndpoint'));
 }
 
 enum HttpProtocolIpv6 {
-  disabled,
-  enabled,
-}
+  disabled('disabled'),
+  enabled('enabled'),
+  ;
 
-extension HttpProtocolIpv6ValueExtension on HttpProtocolIpv6 {
-  String toValue() {
-    switch (this) {
-      case HttpProtocolIpv6.disabled:
-        return 'disabled';
-      case HttpProtocolIpv6.enabled:
-        return 'enabled';
-    }
-  }
-}
+  final String value;
 
-extension HttpProtocolIpv6FromString on String {
-  HttpProtocolIpv6 toHttpProtocolIpv6() {
-    switch (this) {
-      case 'disabled':
-        return HttpProtocolIpv6.disabled;
-      case 'enabled':
-        return HttpProtocolIpv6.enabled;
-    }
-    throw Exception('$this is not known in enum HttpProtocolIpv6');
-  }
+  const HttpProtocolIpv6(this.value);
+
+  static HttpProtocolIpv6 fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum HttpProtocolIpv6'));
 }
 
 enum HttpTokens {
-  optional,
-  required,
-}
+  optional('optional'),
+  required('required'),
+  ;
 
-extension HttpTokensValueExtension on HttpTokens {
-  String toValue() {
-    switch (this) {
-      case HttpTokens.optional:
-        return 'optional';
-      case HttpTokens.required:
-        return 'required';
-    }
-  }
-}
+  final String value;
 
-extension HttpTokensFromString on String {
-  HttpTokens toHttpTokens() {
-    switch (this) {
-      case 'optional':
-        return HttpTokens.optional;
-      case 'required':
-        return HttpTokens.required;
-    }
-    throw Exception('$this is not known in enum HttpTokens');
-  }
+  const HttpTokens(this.value);
+
+  static HttpTokens fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum HttpTokens'));
 }
 
 class ImportKeyPairResult {
@@ -17840,9 +17368,9 @@ class ImportKeyPairResult {
 /// Describes the origin resource of an Amazon Lightsail content delivery
 /// network (CDN) distribution.
 ///
-/// An origin can be a Lightsail instance, bucket, or load balancer. A
-/// distribution pulls content from an origin, caches it, and serves it to
-/// viewers via a worldwide network of edge servers.
+/// An origin can be a Lightsail instance, bucket, container service, or load
+/// balancer. A distribution pulls content from an origin, caches it, and serves
+/// it to viewers via a worldwide network of edge servers.
 class InputOrigin {
   /// The name of the origin resource.
   final String? name;
@@ -17854,20 +17382,29 @@ class InputOrigin {
   /// The AWS Region name of the origin resource.
   final RegionName? regionName;
 
+  /// The amount of time, in seconds, that the distribution waits for a response
+  /// after forwarding a request to the origin. The minimum timeout is 1 second,
+  /// the maximum is 60 seconds, and the default (if you don't specify otherwise)
+  /// is 30 seconds.
+  final int? responseTimeout;
+
   InputOrigin({
     this.name,
     this.protocolPolicy,
     this.regionName,
+    this.responseTimeout,
   });
 
   Map<String, dynamic> toJson() {
     final name = this.name;
     final protocolPolicy = this.protocolPolicy;
     final regionName = this.regionName;
+    final responseTimeout = this.responseTimeout;
     return {
       if (name != null) 'name': name,
-      if (protocolPolicy != null) 'protocolPolicy': protocolPolicy.toValue(),
-      if (regionName != null) 'regionName': regionName.toValue(),
+      if (protocolPolicy != null) 'protocolPolicy': protocolPolicy.value,
+      if (regionName != null) 'regionName': regionName.value,
+      if (responseTimeout != null) 'responseTimeout': responseTimeout,
     };
   }
 }
@@ -17877,21 +17414,21 @@ class Instance {
   /// An array of objects representing the add-ons enabled on the instance.
   final List<AddOn>? addOns;
 
-  /// The Amazon Resource Name (ARN) of the instance (e.g.,
-  /// <code>arn:aws:lightsail:us-east-2:123456789101:Instance/244ad76f-8aad-4741-809f-12345EXAMPLE</code>).
+  /// The Amazon Resource Name (ARN) of the instance
+  /// (<code>arn:aws:lightsail:us-east-2:123456789101:Instance/244ad76f-8aad-4741-809f-12345EXAMPLE</code>).
   final String? arn;
 
-  /// The blueprint ID (e.g., <code>os_amlinux_2016_03</code>).
+  /// The blueprint ID (<code>amazon_linux_2023</code>).
   final String? blueprintId;
 
-  /// The friendly name of the blueprint (e.g., <code>Amazon Linux</code>).
+  /// The friendly name of the blueprint (<code>Amazon Linux 2023</code>).
   final String? blueprintName;
 
-  /// The bundle for the instance (e.g., <code>micro_1_0</code>).
+  /// The bundle for the instance (<code>micro_x_x</code>).
   final String? bundleId;
 
-  /// The timestamp when the instance was created (e.g.,
-  /// <code>1479734909.17</code>) in Unix time format.
+  /// The timestamp when the instance was created (<code>1479734909.17</code>) in
+  /// Unix time format.
   final DateTime? createdAt;
 
   /// The size of the vCPU and the amount of RAM for the instance.
@@ -17899,8 +17436,8 @@ class Instance {
 
   /// The IP address type of the instance.
   ///
-  /// The possible values are <code>ipv4</code> for IPv4 only, and
-  /// <code>dualstack</code> for IPv4 and IPv6.
+  /// The possible values are <code>ipv4</code> for IPv4 only, <code>ipv6</code>
+  /// for IPv6 only, and <code>dualstack</code> for IPv4 and IPv6.
   final IpAddressType? ipAddressType;
 
   /// The IPv6 addresses of the instance.
@@ -17916,8 +17453,7 @@ class Instance {
   /// The metadata options for the Amazon Lightsail instance.
   final InstanceMetadataOptions? metadataOptions;
 
-  /// The name the user gave the instance (e.g.,
-  /// <code>Amazon_Linux-1GB-Ohio-1</code>).
+  /// The name the user gave the instance (<code>Amazon_Linux_2023-1</code>).
   final String? name;
 
   /// Information about the public ports and monthly data transfer rates for the
@@ -17933,11 +17469,11 @@ class Instance {
   /// The type of resource (usually <code>Instance</code>).
   final ResourceType? resourceType;
 
-  /// The name of the SSH key being used to connect to the instance (e.g.,
-  /// <code>LightsailDefaultKeyPair</code>).
+  /// The name of the SSH key being used to connect to the instance
+  /// (<code>LightsailDefaultKeyPair</code>).
   final String? sshKeyName;
 
-  /// The status code and the state (e.g., <code>running</code>) for the instance.
+  /// The status code and the state (<code>running</code>) for the instance.
   final InstanceState? state;
 
   /// The support code. Include this code in your email to support when you have
@@ -17951,7 +17487,7 @@ class Instance {
   /// Lightsail Developer Guide</a>.
   final List<Tag>? tags;
 
-  /// The user name for connecting to the instance (e.g., <code>ec2-user</code>).
+  /// The user name for connecting to the instance (<code>ec2-user</code>).
   final String? username;
 
   Instance({
@@ -17982,7 +17518,7 @@ class Instance {
   factory Instance.fromJson(Map<String, dynamic> json) {
     return Instance(
       addOns: (json['addOns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AddOn.fromJson(e as Map<String, dynamic>))
           .toList(),
       arn: json['arn'] as String?,
@@ -17993,9 +17529,10 @@ class Instance {
       hardware: json['hardware'] != null
           ? InstanceHardware.fromJson(json['hardware'] as Map<String, dynamic>)
           : null,
-      ipAddressType: (json['ipAddressType'] as String?)?.toIpAddressType(),
+      ipAddressType:
+          (json['ipAddressType'] as String?)?.let(IpAddressType.fromString),
       ipv6Addresses: (json['ipv6Addresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       isStaticIp: json['isStaticIp'] as bool?,
@@ -18013,14 +17550,15 @@ class Instance {
           : null,
       privateIpAddress: json['privateIpAddress'] as String?,
       publicIpAddress: json['publicIpAddress'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       sshKeyName: json['sshKeyName'] as String?,
       state: json['state'] != null
           ? InstanceState.fromJson(json['state'] as Map<String, dynamic>)
           : null,
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       username: json['username'] as String?,
@@ -18032,7 +17570,7 @@ class Instance {
 /// instances.
 class InstanceAccessDetails {
   /// For SSH access, the public key to use when accessing your instance For
-  /// OpenSSH clients (e.g., command line SSH), you should save this value to
+  /// OpenSSH clients (command line SSH), you should save this value to
   /// <code>tempkey-cert.pub</code>.
   final String? certKey;
 
@@ -18047,6 +17585,9 @@ class InstanceAccessDetails {
 
   /// The public IP address of the Amazon Lightsail instance.
   final String? ipAddress;
+
+  /// The IPv6 address of the Amazon Lightsail instance.
+  final List<String>? ipv6Addresses;
 
   /// For RDP access, the password for your Amazon Lightsail instance. Password
   /// will be an empty string if the password for your new instance is not ready
@@ -18071,8 +17612,8 @@ class InstanceAccessDetails {
   /// instance to be ready.
   final PasswordData? passwordData;
 
-  /// For SSH access, the temporary private key. For OpenSSH clients (e.g.,
-  /// command line SSH), you should save this value to <code>tempkey</code>).
+  /// For SSH access, the temporary private key. For OpenSSH clients (command line
+  /// SSH), you should save this value to <code>tempkey</code>).
   final String? privateKey;
 
   /// The protocol for these Amazon Lightsail instance access details.
@@ -18087,6 +17628,7 @@ class InstanceAccessDetails {
     this.hostKeys,
     this.instanceName,
     this.ipAddress,
+    this.ipv6Addresses,
     this.password,
     this.passwordData,
     this.privateKey,
@@ -18099,48 +17641,40 @@ class InstanceAccessDetails {
       certKey: json['certKey'] as String?,
       expiresAt: timeStampFromJson(json['expiresAt']),
       hostKeys: (json['hostKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HostKeyAttributes.fromJson(e as Map<String, dynamic>))
           .toList(),
       instanceName: json['instanceName'] as String?,
       ipAddress: json['ipAddress'] as String?,
+      ipv6Addresses: (json['ipv6Addresses'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       password: json['password'] as String?,
       passwordData: json['passwordData'] != null
           ? PasswordData.fromJson(json['passwordData'] as Map<String, dynamic>)
           : null,
       privateKey: json['privateKey'] as String?,
-      protocol: (json['protocol'] as String?)?.toInstanceAccessProtocol(),
+      protocol:
+          (json['protocol'] as String?)?.let(InstanceAccessProtocol.fromString),
       username: json['username'] as String?,
     );
   }
 }
 
 enum InstanceAccessProtocol {
-  ssh,
-  rdp,
-}
+  ssh('ssh'),
+  rdp('rdp'),
+  ;
 
-extension InstanceAccessProtocolValueExtension on InstanceAccessProtocol {
-  String toValue() {
-    switch (this) {
-      case InstanceAccessProtocol.ssh:
-        return 'ssh';
-      case InstanceAccessProtocol.rdp:
-        return 'rdp';
-    }
-  }
-}
+  final String value;
 
-extension InstanceAccessProtocolFromString on String {
-  InstanceAccessProtocol toInstanceAccessProtocol() {
-    switch (this) {
-      case 'ssh':
-        return InstanceAccessProtocol.ssh;
-      case 'rdp':
-        return InstanceAccessProtocol.rdp;
-    }
-    throw Exception('$this is not known in enum InstanceAccessProtocol');
-  }
+  const InstanceAccessProtocol(this.value);
+
+  static InstanceAccessProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstanceAccessProtocol'));
 }
 
 /// Describes the Amazon Elastic Compute Cloud instance and related resources to
@@ -18149,8 +17683,8 @@ class InstanceEntry {
   /// The Availability Zone for the new Amazon EC2 instance.
   final String availabilityZone;
 
-  /// The instance type (e.g., <code>t2.micro</code>) to use for the new Amazon
-  /// EC2 instance.
+  /// The instance type (<code>t2.micro</code>) to use for the new Amazon EC2
+  /// instance.
   final String instanceType;
 
   /// The port configuration to use for the new Amazon EC2 instance.
@@ -18224,7 +17758,7 @@ class InstanceEntry {
     return {
       'availabilityZone': availabilityZone,
       'instanceType': instanceType,
-      'portInfoSource': portInfoSource.toValue(),
+      'portInfoSource': portInfoSource.value,
       'sourceName': sourceName,
       if (userData != null) 'userData': userData,
     };
@@ -18239,7 +17773,7 @@ class InstanceHardware {
   /// The disks attached to the instance.
   final List<Disk>? disks;
 
-  /// The amount of RAM in GB on the instance (e.g., <code>1.0</code>).
+  /// The amount of RAM in GB on the instance (<code>1.0</code>).
   final double? ramSizeInGb;
 
   InstanceHardware({
@@ -18252,7 +17786,7 @@ class InstanceHardware {
     return InstanceHardware(
       cpuCount: json['cpuCount'] as int?,
       disks: (json['disks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Disk.fromJson(e as Map<String, dynamic>))
           .toList(),
       ramSizeInGb: json['ramSizeInGb'] as double?,
@@ -18261,124 +17795,46 @@ class InstanceHardware {
 }
 
 enum InstanceHealthReason {
-  lbRegistrationInProgress,
-  lbInitialHealthChecking,
-  lbInternalError,
-  instanceResponseCodeMismatch,
-  instanceTimeout,
-  instanceFailedHealthChecks,
-  instanceNotRegistered,
-  instanceNotInUse,
-  instanceDeregistrationInProgress,
-  instanceInvalidState,
-  instanceIpUnusable,
-}
+  lbRegistrationInProgress('Lb.RegistrationInProgress'),
+  lbInitialHealthChecking('Lb.InitialHealthChecking'),
+  lbInternalError('Lb.InternalError'),
+  instanceResponseCodeMismatch('Instance.ResponseCodeMismatch'),
+  instanceTimeout('Instance.Timeout'),
+  instanceFailedHealthChecks('Instance.FailedHealthChecks'),
+  instanceNotRegistered('Instance.NotRegistered'),
+  instanceNotInUse('Instance.NotInUse'),
+  instanceDeregistrationInProgress('Instance.DeregistrationInProgress'),
+  instanceInvalidState('Instance.InvalidState'),
+  instanceIpUnusable('Instance.IpUnusable'),
+  ;
 
-extension InstanceHealthReasonValueExtension on InstanceHealthReason {
-  String toValue() {
-    switch (this) {
-      case InstanceHealthReason.lbRegistrationInProgress:
-        return 'Lb.RegistrationInProgress';
-      case InstanceHealthReason.lbInitialHealthChecking:
-        return 'Lb.InitialHealthChecking';
-      case InstanceHealthReason.lbInternalError:
-        return 'Lb.InternalError';
-      case InstanceHealthReason.instanceResponseCodeMismatch:
-        return 'Instance.ResponseCodeMismatch';
-      case InstanceHealthReason.instanceTimeout:
-        return 'Instance.Timeout';
-      case InstanceHealthReason.instanceFailedHealthChecks:
-        return 'Instance.FailedHealthChecks';
-      case InstanceHealthReason.instanceNotRegistered:
-        return 'Instance.NotRegistered';
-      case InstanceHealthReason.instanceNotInUse:
-        return 'Instance.NotInUse';
-      case InstanceHealthReason.instanceDeregistrationInProgress:
-        return 'Instance.DeregistrationInProgress';
-      case InstanceHealthReason.instanceInvalidState:
-        return 'Instance.InvalidState';
-      case InstanceHealthReason.instanceIpUnusable:
-        return 'Instance.IpUnusable';
-    }
-  }
-}
+  final String value;
 
-extension InstanceHealthReasonFromString on String {
-  InstanceHealthReason toInstanceHealthReason() {
-    switch (this) {
-      case 'Lb.RegistrationInProgress':
-        return InstanceHealthReason.lbRegistrationInProgress;
-      case 'Lb.InitialHealthChecking':
-        return InstanceHealthReason.lbInitialHealthChecking;
-      case 'Lb.InternalError':
-        return InstanceHealthReason.lbInternalError;
-      case 'Instance.ResponseCodeMismatch':
-        return InstanceHealthReason.instanceResponseCodeMismatch;
-      case 'Instance.Timeout':
-        return InstanceHealthReason.instanceTimeout;
-      case 'Instance.FailedHealthChecks':
-        return InstanceHealthReason.instanceFailedHealthChecks;
-      case 'Instance.NotRegistered':
-        return InstanceHealthReason.instanceNotRegistered;
-      case 'Instance.NotInUse':
-        return InstanceHealthReason.instanceNotInUse;
-      case 'Instance.DeregistrationInProgress':
-        return InstanceHealthReason.instanceDeregistrationInProgress;
-      case 'Instance.InvalidState':
-        return InstanceHealthReason.instanceInvalidState;
-      case 'Instance.IpUnusable':
-        return InstanceHealthReason.instanceIpUnusable;
-    }
-    throw Exception('$this is not known in enum InstanceHealthReason');
-  }
+  const InstanceHealthReason(this.value);
+
+  static InstanceHealthReason fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InstanceHealthReason'));
 }
 
 enum InstanceHealthState {
-  initial,
-  healthy,
-  unhealthy,
-  unused,
-  draining,
-  unavailable,
-}
+  initial('initial'),
+  healthy('healthy'),
+  unhealthy('unhealthy'),
+  unused('unused'),
+  draining('draining'),
+  unavailable('unavailable'),
+  ;
 
-extension InstanceHealthStateValueExtension on InstanceHealthState {
-  String toValue() {
-    switch (this) {
-      case InstanceHealthState.initial:
-        return 'initial';
-      case InstanceHealthState.healthy:
-        return 'healthy';
-      case InstanceHealthState.unhealthy:
-        return 'unhealthy';
-      case InstanceHealthState.unused:
-        return 'unused';
-      case InstanceHealthState.draining:
-        return 'draining';
-      case InstanceHealthState.unavailable:
-        return 'unavailable';
-    }
-  }
-}
+  final String value;
 
-extension InstanceHealthStateFromString on String {
-  InstanceHealthState toInstanceHealthState() {
-    switch (this) {
-      case 'initial':
-        return InstanceHealthState.initial;
-      case 'healthy':
-        return InstanceHealthState.healthy;
-      case 'unhealthy':
-        return InstanceHealthState.unhealthy;
-      case 'unused':
-        return InstanceHealthState.unused;
-      case 'draining':
-        return InstanceHealthState.draining;
-      case 'unavailable':
-        return InstanceHealthState.unavailable;
-    }
-    throw Exception('$this is not known in enum InstanceHealthState');
-  }
+  const InstanceHealthState(this.value);
+
+  static InstanceHealthState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InstanceHealthState'));
 }
 
 /// Describes information about the health of the instance.
@@ -18473,10 +17929,10 @@ class InstanceHealthSummary {
 
   factory InstanceHealthSummary.fromJson(Map<String, dynamic> json) {
     return InstanceHealthSummary(
-      instanceHealth:
-          (json['instanceHealth'] as String?)?.toInstanceHealthState(),
-      instanceHealthReason:
-          (json['instanceHealthReason'] as String?)?.toInstanceHealthReason(),
+      instanceHealth: (json['instanceHealth'] as String?)
+          ?.let(InstanceHealthState.fromString),
+      instanceHealthReason: (json['instanceHealthReason'] as String?)
+          ?.let(InstanceHealthReason.fromString),
       instanceName: json['instanceName'] as String?,
     );
   }
@@ -18548,105 +18004,52 @@ class InstanceMetadataOptions {
 
   factory InstanceMetadataOptions.fromJson(Map<String, dynamic> json) {
     return InstanceMetadataOptions(
-      httpEndpoint: (json['httpEndpoint'] as String?)?.toHttpEndpoint(),
-      httpProtocolIpv6:
-          (json['httpProtocolIpv6'] as String?)?.toHttpProtocolIpv6(),
+      httpEndpoint:
+          (json['httpEndpoint'] as String?)?.let(HttpEndpoint.fromString),
+      httpProtocolIpv6: (json['httpProtocolIpv6'] as String?)
+          ?.let(HttpProtocolIpv6.fromString),
       httpPutResponseHopLimit: json['httpPutResponseHopLimit'] as int?,
-      httpTokens: (json['httpTokens'] as String?)?.toHttpTokens(),
-      state: (json['state'] as String?)?.toInstanceMetadataState(),
+      httpTokens: (json['httpTokens'] as String?)?.let(HttpTokens.fromString),
+      state: (json['state'] as String?)?.let(InstanceMetadataState.fromString),
     );
   }
 }
 
 enum InstanceMetadataState {
-  pending,
-  applied,
-}
+  pending('pending'),
+  applied('applied'),
+  ;
 
-extension InstanceMetadataStateValueExtension on InstanceMetadataState {
-  String toValue() {
-    switch (this) {
-      case InstanceMetadataState.pending:
-        return 'pending';
-      case InstanceMetadataState.applied:
-        return 'applied';
-    }
-  }
-}
+  final String value;
 
-extension InstanceMetadataStateFromString on String {
-  InstanceMetadataState toInstanceMetadataState() {
-    switch (this) {
-      case 'pending':
-        return InstanceMetadataState.pending;
-      case 'applied':
-        return InstanceMetadataState.applied;
-    }
-    throw Exception('$this is not known in enum InstanceMetadataState');
-  }
+  const InstanceMetadataState(this.value);
+
+  static InstanceMetadataState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InstanceMetadataState'));
 }
 
 enum InstanceMetricName {
-  cPUUtilization,
-  networkIn,
-  networkOut,
-  statusCheckFailed,
-  statusCheckFailedInstance,
-  statusCheckFailedSystem,
-  burstCapacityTime,
-  burstCapacityPercentage,
-  metadataNoToken,
-}
+  cPUUtilization('CPUUtilization'),
+  networkIn('NetworkIn'),
+  networkOut('NetworkOut'),
+  statusCheckFailed('StatusCheckFailed'),
+  statusCheckFailedInstance('StatusCheckFailed_Instance'),
+  statusCheckFailedSystem('StatusCheckFailed_System'),
+  burstCapacityTime('BurstCapacityTime'),
+  burstCapacityPercentage('BurstCapacityPercentage'),
+  metadataNoToken('MetadataNoToken'),
+  ;
 
-extension InstanceMetricNameValueExtension on InstanceMetricName {
-  String toValue() {
-    switch (this) {
-      case InstanceMetricName.cPUUtilization:
-        return 'CPUUtilization';
-      case InstanceMetricName.networkIn:
-        return 'NetworkIn';
-      case InstanceMetricName.networkOut:
-        return 'NetworkOut';
-      case InstanceMetricName.statusCheckFailed:
-        return 'StatusCheckFailed';
-      case InstanceMetricName.statusCheckFailedInstance:
-        return 'StatusCheckFailed_Instance';
-      case InstanceMetricName.statusCheckFailedSystem:
-        return 'StatusCheckFailed_System';
-      case InstanceMetricName.burstCapacityTime:
-        return 'BurstCapacityTime';
-      case InstanceMetricName.burstCapacityPercentage:
-        return 'BurstCapacityPercentage';
-      case InstanceMetricName.metadataNoToken:
-        return 'MetadataNoToken';
-    }
-  }
-}
+  final String value;
 
-extension InstanceMetricNameFromString on String {
-  InstanceMetricName toInstanceMetricName() {
-    switch (this) {
-      case 'CPUUtilization':
-        return InstanceMetricName.cPUUtilization;
-      case 'NetworkIn':
-        return InstanceMetricName.networkIn;
-      case 'NetworkOut':
-        return InstanceMetricName.networkOut;
-      case 'StatusCheckFailed':
-        return InstanceMetricName.statusCheckFailed;
-      case 'StatusCheckFailed_Instance':
-        return InstanceMetricName.statusCheckFailedInstance;
-      case 'StatusCheckFailed_System':
-        return InstanceMetricName.statusCheckFailedSystem;
-      case 'BurstCapacityTime':
-        return InstanceMetricName.burstCapacityTime;
-      case 'BurstCapacityPercentage':
-        return InstanceMetricName.burstCapacityPercentage;
-      case 'MetadataNoToken':
-        return InstanceMetricName.metadataNoToken;
-    }
-    throw Exception('$this is not known in enum InstanceMetricName');
-  }
+  const InstanceMetricName(this.value);
+
+  static InstanceMetricName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InstanceMetricName'));
 }
 
 /// Describes monthly data transfer rates and port information for an instance.
@@ -18670,7 +18073,7 @@ class InstanceNetworking {
               json['monthlyTransfer'] as Map<String, dynamic>)
           : null,
       ports: (json['ports'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstancePortInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -18678,31 +18081,18 @@ class InstanceNetworking {
 }
 
 enum InstancePlatform {
-  linuxUnix,
-  windows,
-}
+  linuxUnix('LINUX_UNIX'),
+  windows('WINDOWS'),
+  ;
 
-extension InstancePlatformValueExtension on InstancePlatform {
-  String toValue() {
-    switch (this) {
-      case InstancePlatform.linuxUnix:
-        return 'LINUX_UNIX';
-      case InstancePlatform.windows:
-        return 'WINDOWS';
-    }
-  }
-}
+  final String value;
 
-extension InstancePlatformFromString on String {
-  InstancePlatform toInstancePlatform() {
-    switch (this) {
-      case 'LINUX_UNIX':
-        return InstancePlatform.linuxUnix;
-      case 'WINDOWS':
-        return InstancePlatform.windows;
-    }
-    throw Exception('$this is not known in enum InstancePlatform');
-  }
+  const InstancePlatform(this.value);
+
+  static InstancePlatform fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstancePlatform'));
 }
 
 /// Describes information about ports for an Amazon Lightsail instance.
@@ -18817,6 +18207,12 @@ class InstancePortInfo {
   /// <code>fromPort</code> parameter, and ICMP code using the <code>toPort</code>
   /// parameter.
   /// </li>
+  /// <li>
+  /// <code>icmp6</code> - Internet Control Message Protocol (ICMP) for IPv6. When
+  /// you specify <code>icmp6</code> as the <code>protocol</code>, you must
+  /// specify the ICMP type using the <code>fromPort</code> parameter, and ICMP
+  /// code using the <code>toPort</code> parameter.
+  /// </li>
   /// </ul>
   final NetworkProtocol? protocol;
 
@@ -18863,24 +18259,23 @@ class InstancePortInfo {
   factory InstancePortInfo.fromJson(Map<String, dynamic> json) {
     return InstancePortInfo(
       accessDirection:
-          (json['accessDirection'] as String?)?.toAccessDirection(),
+          (json['accessDirection'] as String?)?.let(AccessDirection.fromString),
       accessFrom: json['accessFrom'] as String?,
-      accessType: (json['accessType'] as String?)?.toPortAccessType(),
+      accessType:
+          (json['accessType'] as String?)?.let(PortAccessType.fromString),
       cidrListAliases: (json['cidrListAliases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      cidrs: (json['cidrs'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      cidrs:
+          (json['cidrs'] as List?)?.nonNulls.map((e) => e as String).toList(),
       commonName: json['commonName'] as String?,
       fromPort: json['fromPort'] as int?,
       ipv6Cidrs: (json['ipv6Cidrs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      protocol: (json['protocol'] as String?)?.toNetworkProtocol(),
+      protocol: (json['protocol'] as String?)?.let(NetworkProtocol.fromString),
       toPort: json['toPort'] as int?,
     );
   }
@@ -18982,6 +18377,12 @@ class InstancePortState {
   /// <code>fromPort</code> parameter, and ICMP code using the <code>toPort</code>
   /// parameter.
   /// </li>
+  /// <li>
+  /// <code>icmp6</code> - Internet Control Message Protocol (ICMP) for IPv6. When
+  /// you specify <code>icmp6</code> as the <code>protocol</code>, you must
+  /// specify the ICMP type using the <code>fromPort</code> parameter, and ICMP
+  /// code using the <code>toPort</code> parameter.
+  /// </li>
   /// </ul>
   final NetworkProtocol? protocol;
 
@@ -19032,20 +18433,18 @@ class InstancePortState {
   factory InstancePortState.fromJson(Map<String, dynamic> json) {
     return InstancePortState(
       cidrListAliases: (json['cidrListAliases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      cidrs: (json['cidrs'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      cidrs:
+          (json['cidrs'] as List?)?.nonNulls.map((e) => e as String).toList(),
       fromPort: json['fromPort'] as int?,
       ipv6Cidrs: (json['ipv6Cidrs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      protocol: (json['protocol'] as String?)?.toNetworkProtocol(),
-      state: (json['state'] as String?)?.toPortState(),
+      protocol: (json['protocol'] as String?)?.let(NetworkProtocol.fromString),
+      state: (json['state'] as String?)?.let(PortState.fromString),
       toPort: json['toPort'] as int?,
     );
   }
@@ -19053,30 +18452,28 @@ class InstancePortState {
 
 /// Describes an instance snapshot.
 class InstanceSnapshot {
-  /// The Amazon Resource Name (ARN) of the snapshot (e.g.,
-  /// <code>arn:aws:lightsail:us-east-2:123456789101:InstanceSnapshot/d23b5706-3322-4d83-81e5-12345EXAMPLE</code>).
+  /// The Amazon Resource Name (ARN) of the snapshot
+  /// (<code>arn:aws:lightsail:us-east-2:123456789101:InstanceSnapshot/d23b5706-3322-4d83-81e5-12345EXAMPLE</code>).
   final String? arn;
 
-  /// The timestamp when the snapshot was created (e.g.,
-  /// <code>1479907467.024</code>).
+  /// The timestamp when the snapshot was created (<code>1479907467.024</code>).
   final DateTime? createdAt;
 
   /// An array of disk objects containing information about all block storage
   /// disks.
   final List<Disk>? fromAttachedDisks;
 
-  /// The blueprint ID from which you created the snapshot (e.g.,
-  /// <code>os_debian_8_3</code>). A blueprint is a virtual private server (or
-  /// <i>instance</i>) image used to create instances quickly.
+  /// The blueprint ID from which you created the snapshot
+  /// (<code>amazon_linux_2023</code>). A blueprint is a virtual private server
+  /// (or <i>instance</i>) image used to create instances quickly.
   final String? fromBlueprintId;
 
-  /// The bundle ID from which you created the snapshot (e.g.,
-  /// <code>micro_1_0</code>).
+  /// The bundle ID from which you created the snapshot (<code>micro_x_x</code>).
   final String? fromBundleId;
 
   /// The Amazon Resource Name (ARN) of the instance from which the snapshot was
-  /// created (e.g.,
-  /// <code>arn:aws:lightsail:us-east-2:123456789101:Instance/64b8404c-ccb1-430b-8daf-12345EXAMPLE</code>).
+  /// created
+  /// (<code>arn:aws:lightsail:us-east-2:123456789101:Instance/64b8404c-ccb1-430b-8daf-12345EXAMPLE</code>).
   final String? fromInstanceArn;
 
   /// The instance from which the snapshot was created.
@@ -19143,7 +18540,7 @@ class InstanceSnapshot {
       arn: json['arn'] as String?,
       createdAt: timeStampFromJson(json['createdAt']),
       fromAttachedDisks: (json['fromAttachedDisks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Disk.fromJson(e as Map<String, dynamic>))
           .toList(),
       fromBlueprintId: json['fromBlueprintId'] as String?,
@@ -19156,12 +18553,13 @@ class InstanceSnapshot {
           : null,
       name: json['name'] as String?,
       progress: json['progress'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       sizeInGb: json['sizeInGb'] as int?,
-      state: (json['state'] as String?)?.toInstanceSnapshotState(),
+      state: (json['state'] as String?)?.let(InstanceSnapshotState.fromString),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -19170,12 +18568,12 @@ class InstanceSnapshot {
 
 /// Describes an instance snapshot.
 class InstanceSnapshotInfo {
-  /// The blueprint ID from which the source instance (e.g.,
-  /// <code>os_debian_8_3</code>).
+  /// The blueprint ID from which the source instance
+  /// (<code>amazon_linux_2023</code>).
   final String? fromBlueprintId;
 
-  /// The bundle ID from which the source instance was created (e.g.,
-  /// <code>micro_1_0</code>).
+  /// The bundle ID from which the source instance was created
+  /// (<code>micro_x_x</code>).
   final String? fromBundleId;
 
   /// A list of objects describing the disks that were attached to the source
@@ -19193,7 +18591,7 @@ class InstanceSnapshotInfo {
       fromBlueprintId: json['fromBlueprintId'] as String?,
       fromBundleId: json['fromBundleId'] as String?,
       fromDiskInfo: (json['fromDiskInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DiskInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -19201,36 +18599,19 @@ class InstanceSnapshotInfo {
 }
 
 enum InstanceSnapshotState {
-  pending,
-  error,
-  available,
-}
+  pending('pending'),
+  error('error'),
+  available('available'),
+  ;
 
-extension InstanceSnapshotStateValueExtension on InstanceSnapshotState {
-  String toValue() {
-    switch (this) {
-      case InstanceSnapshotState.pending:
-        return 'pending';
-      case InstanceSnapshotState.error:
-        return 'error';
-      case InstanceSnapshotState.available:
-        return 'available';
-    }
-  }
-}
+  final String value;
 
-extension InstanceSnapshotStateFromString on String {
-  InstanceSnapshotState toInstanceSnapshotState() {
-    switch (this) {
-      case 'pending':
-        return InstanceSnapshotState.pending;
-      case 'error':
-        return InstanceSnapshotState.error;
-      case 'available':
-        return InstanceSnapshotState.available;
-    }
-    throw Exception('$this is not known in enum InstanceSnapshotState');
-  }
+  const InstanceSnapshotState(this.value);
+
+  static InstanceSnapshotState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InstanceSnapshotState'));
 }
 
 /// Describes the virtual private server (or <i>instance</i>) status.
@@ -19238,8 +18619,7 @@ class InstanceState {
   /// The status code for the instance.
   final int? code;
 
-  /// The state of the instance (e.g., <code>running</code> or
-  /// <code>pending</code>).
+  /// The state of the instance (<code>running</code> or <code>pending</code>).
   final String? name;
 
   InstanceState({
@@ -19256,31 +18636,19 @@ class InstanceState {
 }
 
 enum IpAddressType {
-  dualstack,
-  ipv4,
-}
+  dualstack('dualstack'),
+  ipv4('ipv4'),
+  ipv6('ipv6'),
+  ;
 
-extension IpAddressTypeValueExtension on IpAddressType {
-  String toValue() {
-    switch (this) {
-      case IpAddressType.dualstack:
-        return 'dualstack';
-      case IpAddressType.ipv4:
-        return 'ipv4';
-    }
-  }
-}
+  final String value;
 
-extension IpAddressTypeFromString on String {
-  IpAddressType toIpAddressType() {
-    switch (this) {
-      case 'dualstack':
-        return IpAddressType.dualstack;
-      case 'ipv4':
-        return IpAddressType.ipv4;
-    }
-    throw Exception('$this is not known in enum IpAddressType');
-  }
+  const IpAddressType(this.value);
+
+  static IpAddressType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IpAddressType'));
 }
 
 class IsVpcPeeredResult {
@@ -19301,12 +18669,11 @@ class IsVpcPeeredResult {
 
 /// Describes an SSH key pair.
 class KeyPair {
-  /// The Amazon Resource Name (ARN) of the key pair (e.g.,
-  /// <code>arn:aws:lightsail:us-east-2:123456789101:KeyPair/05859e3d-331d-48ba-9034-12345EXAMPLE</code>).
+  /// The Amazon Resource Name (ARN) of the key pair
+  /// (<code>arn:aws:lightsail:us-east-2:123456789101:KeyPair/05859e3d-331d-48ba-9034-12345EXAMPLE</code>).
   final String? arn;
 
-  /// The timestamp when the key pair was created (e.g.,
-  /// <code>1479816991.349</code>).
+  /// The timestamp when the key pair was created (<code>1479816991.349</code>).
   final DateTime? createdAt;
 
   /// The RSA fingerprint of the key pair.
@@ -19352,10 +18719,11 @@ class KeyPair {
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -19430,7 +18798,7 @@ class LightsailDistribution {
   /// The public DNS of the origin.
   final String? originPublicDNS;
 
-  /// The Lightsail resource type (e.g., <code>Distribution</code>).
+  /// The Lightsail resource type (<code>Distribution</code>).
   final ResourceType? resourceType;
 
   /// The status of the distribution.
@@ -19446,6 +18814,10 @@ class LightsailDistribution {
   /// href="https://lightsail.aws.amazon.com/ls/docs/en_us/articles/amazon-lightsail-tags">Amazon
   /// Lightsail Developer Guide</a>.
   final List<Tag>? tags;
+
+  /// The minimum TLS protocol version that the distribution can use to
+  /// communicate with viewers.
+  final String? viewerMinimumTlsProtocolVersion;
 
   LightsailDistribution({
     this.ableToUpdateBundle,
@@ -19468,13 +18840,14 @@ class LightsailDistribution {
     this.status,
     this.supportCode,
     this.tags,
+    this.viewerMinimumTlsProtocolVersion,
   });
 
   factory LightsailDistribution.fromJson(Map<String, dynamic> json) {
     return LightsailDistribution(
       ableToUpdateBundle: json['ableToUpdateBundle'] as bool?,
       alternativeDomainNames: (json['alternativeDomainNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       arn: json['arn'] as String?,
@@ -19484,7 +18857,7 @@ class LightsailDistribution {
               json['cacheBehaviorSettings'] as Map<String, dynamic>)
           : null,
       cacheBehaviors: (json['cacheBehaviors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CacheBehaviorPerPath.fromJson(e as Map<String, dynamic>))
           .toList(),
       certificateName: json['certificateName'] as String?,
@@ -19494,7 +18867,8 @@ class LightsailDistribution {
               json['defaultCacheBehavior'] as Map<String, dynamic>)
           : null,
       domainName: json['domainName'] as String?,
-      ipAddressType: (json['ipAddressType'] as String?)?.toIpAddressType(),
+      ipAddressType:
+          (json['ipAddressType'] as String?)?.let(IpAddressType.fromString),
       isEnabled: json['isEnabled'] as bool?,
       location: json['location'] != null
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
@@ -19504,13 +18878,16 @@ class LightsailDistribution {
           ? Origin.fromJson(json['origin'] as Map<String, dynamic>)
           : null,
       originPublicDNS: json['originPublicDNS'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       status: json['status'] as String?,
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
+      viewerMinimumTlsProtocolVersion:
+          json['viewerMinimumTlsProtocolVersion'] as String?,
     );
   }
 }
@@ -19549,16 +18926,16 @@ class LoadBalancer {
 
   /// The IP address type of the load balancer.
   ///
-  /// The possible values are <code>ipv4</code> for IPv4 only, and
-  /// <code>dualstack</code> for IPv4 and IPv6.
+  /// The possible values are <code>ipv4</code> for IPv4 only, <code>ipv6</code>
+  /// for IPv6 only, and <code>dualstack</code> for IPv4 and IPv6.
   final IpAddressType? ipAddressType;
 
-  /// The AWS Region where your load balancer was created (e.g.,
-  /// <code>us-east-2a</code>). Lightsail automatically creates your load balancer
-  /// across Availability Zones.
+  /// The AWS Region where your load balancer was created
+  /// (<code>us-east-2a</code>). Lightsail automatically creates your load
+  /// balancer across Availability Zones.
   final ResourceLocation? location;
 
-  /// The name of the load balancer (e.g., <code>my-load-balancer</code>).
+  /// The name of the load balancer (<code>my-load-balancer</code>).
   final String? name;
 
   /// The protocol you have enabled for your load balancer. Valid values are
@@ -19572,7 +18949,7 @@ class LoadBalancer {
   /// 80. For HTTPS, use port 443.
   final List<int>? publicPorts;
 
-  /// The resource type (e.g., <code>LoadBalancer</code>.
+  /// The resource type (<code>LoadBalancer</code>.
   final ResourceType? resourceType;
 
   /// The status of your load balancer. Valid values are below.
@@ -19623,36 +19000,39 @@ class LoadBalancer {
     return LoadBalancer(
       arn: json['arn'] as String?,
       configurationOptions:
-          (json['configurationOptions'] as Map<String, dynamic>?)?.map(
-              (k, e) => MapEntry(k.toLoadBalancerAttributeName(), e as String)),
+          (json['configurationOptions'] as Map<String, dynamic>?)?.map((k, e) =>
+              MapEntry(LoadBalancerAttributeName.fromString(k), e as String)),
       createdAt: timeStampFromJson(json['createdAt']),
       dnsName: json['dnsName'] as String?,
       healthCheckPath: json['healthCheckPath'] as String?,
       httpsRedirectionEnabled: json['httpsRedirectionEnabled'] as bool?,
       instanceHealthSummary: (json['instanceHealthSummary'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceHealthSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       instancePort: json['instancePort'] as int?,
-      ipAddressType: (json['ipAddressType'] as String?)?.toIpAddressType(),
+      ipAddressType:
+          (json['ipAddressType'] as String?)?.let(IpAddressType.fromString),
       location: json['location'] != null
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      protocol: (json['protocol'] as String?)?.toLoadBalancerProtocol(),
+      protocol:
+          (json['protocol'] as String?)?.let(LoadBalancerProtocol.fromString),
       publicPorts: (json['publicPorts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as int)
           .toList(),
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
-      state: (json['state'] as String?)?.toLoadBalancerState(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+      state: (json['state'] as String?)?.let(LoadBalancerState.fromString),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       tlsCertificateSummaries: (json['tlsCertificateSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LoadBalancerTlsCertificateSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -19662,196 +19042,80 @@ class LoadBalancer {
 }
 
 enum LoadBalancerAttributeName {
-  healthCheckPath,
-  sessionStickinessEnabled,
-  sessionStickinessLbCookieDurationSeconds,
-  httpsRedirectionEnabled,
-  tlsPolicyName,
-}
+  healthCheckPath('HealthCheckPath'),
+  sessionStickinessEnabled('SessionStickinessEnabled'),
+  sessionStickinessLbCookieDurationSeconds(
+      'SessionStickiness_LB_CookieDurationSeconds'),
+  httpsRedirectionEnabled('HttpsRedirectionEnabled'),
+  tlsPolicyName('TlsPolicyName'),
+  ;
 
-extension LoadBalancerAttributeNameValueExtension on LoadBalancerAttributeName {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerAttributeName.healthCheckPath:
-        return 'HealthCheckPath';
-      case LoadBalancerAttributeName.sessionStickinessEnabled:
-        return 'SessionStickinessEnabled';
-      case LoadBalancerAttributeName.sessionStickinessLbCookieDurationSeconds:
-        return 'SessionStickiness_LB_CookieDurationSeconds';
-      case LoadBalancerAttributeName.httpsRedirectionEnabled:
-        return 'HttpsRedirectionEnabled';
-      case LoadBalancerAttributeName.tlsPolicyName:
-        return 'TlsPolicyName';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerAttributeNameFromString on String {
-  LoadBalancerAttributeName toLoadBalancerAttributeName() {
-    switch (this) {
-      case 'HealthCheckPath':
-        return LoadBalancerAttributeName.healthCheckPath;
-      case 'SessionStickinessEnabled':
-        return LoadBalancerAttributeName.sessionStickinessEnabled;
-      case 'SessionStickiness_LB_CookieDurationSeconds':
-        return LoadBalancerAttributeName
-            .sessionStickinessLbCookieDurationSeconds;
-      case 'HttpsRedirectionEnabled':
-        return LoadBalancerAttributeName.httpsRedirectionEnabled;
-      case 'TlsPolicyName':
-        return LoadBalancerAttributeName.tlsPolicyName;
-    }
-    throw Exception('$this is not known in enum LoadBalancerAttributeName');
-  }
+  const LoadBalancerAttributeName(this.value);
+
+  static LoadBalancerAttributeName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerAttributeName'));
 }
 
 enum LoadBalancerMetricName {
-  clientTLSNegotiationErrorCount,
-  healthyHostCount,
-  unhealthyHostCount,
-  hTTPCodeLb_4xxCount,
-  hTTPCodeLb_5xxCount,
-  hTTPCodeInstance_2xxCount,
-  hTTPCodeInstance_3xxCount,
-  hTTPCodeInstance_4xxCount,
-  hTTPCodeInstance_5xxCount,
-  instanceResponseTime,
-  rejectedConnectionCount,
-  requestCount,
-}
+  clientTLSNegotiationErrorCount('ClientTLSNegotiationErrorCount'),
+  healthyHostCount('HealthyHostCount'),
+  unhealthyHostCount('UnhealthyHostCount'),
+  hTTPCodeLb_4xxCount('HTTPCode_LB_4XX_Count'),
+  hTTPCodeLb_5xxCount('HTTPCode_LB_5XX_Count'),
+  hTTPCodeInstance_2xxCount('HTTPCode_Instance_2XX_Count'),
+  hTTPCodeInstance_3xxCount('HTTPCode_Instance_3XX_Count'),
+  hTTPCodeInstance_4xxCount('HTTPCode_Instance_4XX_Count'),
+  hTTPCodeInstance_5xxCount('HTTPCode_Instance_5XX_Count'),
+  instanceResponseTime('InstanceResponseTime'),
+  rejectedConnectionCount('RejectedConnectionCount'),
+  requestCount('RequestCount'),
+  ;
 
-extension LoadBalancerMetricNameValueExtension on LoadBalancerMetricName {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerMetricName.clientTLSNegotiationErrorCount:
-        return 'ClientTLSNegotiationErrorCount';
-      case LoadBalancerMetricName.healthyHostCount:
-        return 'HealthyHostCount';
-      case LoadBalancerMetricName.unhealthyHostCount:
-        return 'UnhealthyHostCount';
-      case LoadBalancerMetricName.hTTPCodeLb_4xxCount:
-        return 'HTTPCode_LB_4XX_Count';
-      case LoadBalancerMetricName.hTTPCodeLb_5xxCount:
-        return 'HTTPCode_LB_5XX_Count';
-      case LoadBalancerMetricName.hTTPCodeInstance_2xxCount:
-        return 'HTTPCode_Instance_2XX_Count';
-      case LoadBalancerMetricName.hTTPCodeInstance_3xxCount:
-        return 'HTTPCode_Instance_3XX_Count';
-      case LoadBalancerMetricName.hTTPCodeInstance_4xxCount:
-        return 'HTTPCode_Instance_4XX_Count';
-      case LoadBalancerMetricName.hTTPCodeInstance_5xxCount:
-        return 'HTTPCode_Instance_5XX_Count';
-      case LoadBalancerMetricName.instanceResponseTime:
-        return 'InstanceResponseTime';
-      case LoadBalancerMetricName.rejectedConnectionCount:
-        return 'RejectedConnectionCount';
-      case LoadBalancerMetricName.requestCount:
-        return 'RequestCount';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerMetricNameFromString on String {
-  LoadBalancerMetricName toLoadBalancerMetricName() {
-    switch (this) {
-      case 'ClientTLSNegotiationErrorCount':
-        return LoadBalancerMetricName.clientTLSNegotiationErrorCount;
-      case 'HealthyHostCount':
-        return LoadBalancerMetricName.healthyHostCount;
-      case 'UnhealthyHostCount':
-        return LoadBalancerMetricName.unhealthyHostCount;
-      case 'HTTPCode_LB_4XX_Count':
-        return LoadBalancerMetricName.hTTPCodeLb_4xxCount;
-      case 'HTTPCode_LB_5XX_Count':
-        return LoadBalancerMetricName.hTTPCodeLb_5xxCount;
-      case 'HTTPCode_Instance_2XX_Count':
-        return LoadBalancerMetricName.hTTPCodeInstance_2xxCount;
-      case 'HTTPCode_Instance_3XX_Count':
-        return LoadBalancerMetricName.hTTPCodeInstance_3xxCount;
-      case 'HTTPCode_Instance_4XX_Count':
-        return LoadBalancerMetricName.hTTPCodeInstance_4xxCount;
-      case 'HTTPCode_Instance_5XX_Count':
-        return LoadBalancerMetricName.hTTPCodeInstance_5xxCount;
-      case 'InstanceResponseTime':
-        return LoadBalancerMetricName.instanceResponseTime;
-      case 'RejectedConnectionCount':
-        return LoadBalancerMetricName.rejectedConnectionCount;
-      case 'RequestCount':
-        return LoadBalancerMetricName.requestCount;
-    }
-    throw Exception('$this is not known in enum LoadBalancerMetricName');
-  }
+  const LoadBalancerMetricName(this.value);
+
+  static LoadBalancerMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerMetricName'));
 }
 
 enum LoadBalancerProtocol {
-  httpHttps,
-  http,
-}
+  httpHttps('HTTP_HTTPS'),
+  http('HTTP'),
+  ;
 
-extension LoadBalancerProtocolValueExtension on LoadBalancerProtocol {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerProtocol.httpHttps:
-        return 'HTTP_HTTPS';
-      case LoadBalancerProtocol.http:
-        return 'HTTP';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerProtocolFromString on String {
-  LoadBalancerProtocol toLoadBalancerProtocol() {
-    switch (this) {
-      case 'HTTP_HTTPS':
-        return LoadBalancerProtocol.httpHttps;
-      case 'HTTP':
-        return LoadBalancerProtocol.http;
-    }
-    throw Exception('$this is not known in enum LoadBalancerProtocol');
-  }
+  const LoadBalancerProtocol(this.value);
+
+  static LoadBalancerProtocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LoadBalancerProtocol'));
 }
 
 enum LoadBalancerState {
-  active,
-  provisioning,
-  activeImpaired,
-  failed,
-  unknown,
-}
+  active('active'),
+  provisioning('provisioning'),
+  activeImpaired('active_impaired'),
+  failed('failed'),
+  unknown('unknown'),
+  ;
 
-extension LoadBalancerStateValueExtension on LoadBalancerState {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerState.active:
-        return 'active';
-      case LoadBalancerState.provisioning:
-        return 'provisioning';
-      case LoadBalancerState.activeImpaired:
-        return 'active_impaired';
-      case LoadBalancerState.failed:
-        return 'failed';
-      case LoadBalancerState.unknown:
-        return 'unknown';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerStateFromString on String {
-  LoadBalancerState toLoadBalancerState() {
-    switch (this) {
-      case 'active':
-        return LoadBalancerState.active;
-      case 'provisioning':
-        return LoadBalancerState.provisioning;
-      case 'active_impaired':
-        return LoadBalancerState.activeImpaired;
-      case 'failed':
-        return LoadBalancerState.failed;
-      case 'unknown':
-        return LoadBalancerState.unknown;
-    }
-    throw Exception('$this is not known in enum LoadBalancerState');
-  }
+  const LoadBalancerState(this.value);
+
+  static LoadBalancerState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LoadBalancerState'));
 }
 
 /// Describes a load balancer SSL/TLS certificate.
@@ -19951,7 +19215,7 @@ class LoadBalancerTlsCertificate {
   /// certificate.
   final ResourceLocation? location;
 
-  /// The name of the SSL/TLS certificate (e.g., <code>my-certificate</code>).
+  /// The name of the SSL/TLS certificate (<code>my-certificate</code>).
   final String? name;
 
   /// The timestamp when the SSL/TLS certificate expires.
@@ -19964,7 +19228,7 @@ class LoadBalancerTlsCertificate {
   /// Lightsail.
   final LoadBalancerTlsCertificateRenewalSummary? renewalSummary;
 
-  /// The resource type (e.g., <code>LoadBalancerTlsCertificate</code>).
+  /// The resource type (<code>LoadBalancerTlsCertificate</code>).
   ///
   /// <ul>
   /// <li>
@@ -20024,9 +19288,9 @@ class LoadBalancerTlsCertificate {
   /// the certificate.
   final String? subject;
 
-  /// An array of strings that specify the alternate domains (e.g.,
-  /// <code>example2.com</code>) and subdomains (e.g.,
-  /// <code>blog.example.com</code>) for the certificate.
+  /// An array of strings that specify the alternate domains
+  /// (<code>example2.com</code>) and subdomains (<code>blog.example.com</code>)
+  /// for the certificate.
   final List<String>? subjectAlternativeNames;
 
   /// The support code. Include this code in your email to support when you have
@@ -20075,12 +19339,12 @@ class LoadBalancerTlsCertificate {
       createdAt: timeStampFromJson(json['createdAt']),
       domainName: json['domainName'] as String?,
       domainValidationRecords: (json['domainValidationRecords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LoadBalancerTlsCertificateDomainValidationRecord.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       failureReason: (json['failureReason'] as String?)
-          ?.toLoadBalancerTlsCertificateFailureReason(),
+          ?.let(LoadBalancerTlsCertificateFailureReason.fromString),
       isAttached: json['isAttached'] as bool?,
       issuedAt: timeStampFromJson(json['issuedAt']),
       issuer: json['issuer'] as String?,
@@ -20096,21 +19360,23 @@ class LoadBalancerTlsCertificate {
           ? LoadBalancerTlsCertificateRenewalSummary.fromJson(
               json['renewalSummary'] as Map<String, dynamic>)
           : null,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       revocationReason: (json['revocationReason'] as String?)
-          ?.toLoadBalancerTlsCertificateRevocationReason(),
+          ?.let(LoadBalancerTlsCertificateRevocationReason.fromString),
       revokedAt: timeStampFromJson(json['revokedAt']),
       serial: json['serial'] as String?,
       signatureAlgorithm: json['signatureAlgorithm'] as String?,
-      status: (json['status'] as String?)?.toLoadBalancerTlsCertificateStatus(),
+      status: (json['status'] as String?)
+          ?.let(LoadBalancerTlsCertificateStatus.fromString),
       subject: json['subject'] as String?,
       subjectAlternativeNames: (json['subjectAlternativeNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -20149,84 +19415,44 @@ class LoadBalancerTlsCertificateDnsRecordCreationState {
   factory LoadBalancerTlsCertificateDnsRecordCreationState.fromJson(
       Map<String, dynamic> json) {
     return LoadBalancerTlsCertificateDnsRecordCreationState(
-      code: (json['code'] as String?)
-          ?.toLoadBalancerTlsCertificateDnsRecordCreationStateCode(),
+      code: (json['code'] as String?)?.let(
+          LoadBalancerTlsCertificateDnsRecordCreationStateCode.fromString),
       message: json['message'] as String?,
     );
   }
 }
 
 enum LoadBalancerTlsCertificateDnsRecordCreationStateCode {
-  succeeded,
-  started,
-  failed,
-}
+  succeeded('SUCCEEDED'),
+  started('STARTED'),
+  failed('FAILED'),
+  ;
 
-extension LoadBalancerTlsCertificateDnsRecordCreationStateCodeValueExtension
-    on LoadBalancerTlsCertificateDnsRecordCreationStateCode {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerTlsCertificateDnsRecordCreationStateCode.succeeded:
-        return 'SUCCEEDED';
-      case LoadBalancerTlsCertificateDnsRecordCreationStateCode.started:
-        return 'STARTED';
-      case LoadBalancerTlsCertificateDnsRecordCreationStateCode.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerTlsCertificateDnsRecordCreationStateCodeFromString
-    on String {
-  LoadBalancerTlsCertificateDnsRecordCreationStateCode
-      toLoadBalancerTlsCertificateDnsRecordCreationStateCode() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return LoadBalancerTlsCertificateDnsRecordCreationStateCode.succeeded;
-      case 'STARTED':
-        return LoadBalancerTlsCertificateDnsRecordCreationStateCode.started;
-      case 'FAILED':
-        return LoadBalancerTlsCertificateDnsRecordCreationStateCode.failed;
-    }
-    throw Exception(
-        '$this is not known in enum LoadBalancerTlsCertificateDnsRecordCreationStateCode');
-  }
+  const LoadBalancerTlsCertificateDnsRecordCreationStateCode(this.value);
+
+  static LoadBalancerTlsCertificateDnsRecordCreationStateCode fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerTlsCertificateDnsRecordCreationStateCode'));
 }
 
 enum LoadBalancerTlsCertificateDomainStatus {
-  pendingValidation,
-  failed,
-  success,
-}
+  pendingValidation('PENDING_VALIDATION'),
+  failed('FAILED'),
+  success('SUCCESS'),
+  ;
 
-extension LoadBalancerTlsCertificateDomainStatusValueExtension
-    on LoadBalancerTlsCertificateDomainStatus {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerTlsCertificateDomainStatus.pendingValidation:
-        return 'PENDING_VALIDATION';
-      case LoadBalancerTlsCertificateDomainStatus.failed:
-        return 'FAILED';
-      case LoadBalancerTlsCertificateDomainStatus.success:
-        return 'SUCCESS';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerTlsCertificateDomainStatusFromString on String {
-  LoadBalancerTlsCertificateDomainStatus
-      toLoadBalancerTlsCertificateDomainStatus() {
-    switch (this) {
-      case 'PENDING_VALIDATION':
-        return LoadBalancerTlsCertificateDomainStatus.pendingValidation;
-      case 'FAILED':
-        return LoadBalancerTlsCertificateDomainStatus.failed;
-      case 'SUCCESS':
-        return LoadBalancerTlsCertificateDomainStatus.success;
-    }
-    throw Exception(
-        '$this is not known in enum LoadBalancerTlsCertificateDomainStatus');
-  }
+  const LoadBalancerTlsCertificateDomainStatus(this.value);
+
+  static LoadBalancerTlsCertificateDomainStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerTlsCertificateDomainStatus'));
 }
 
 /// Contains information about the domain names on an SSL/TLS certificate that
@@ -20248,7 +19474,7 @@ class LoadBalancerTlsCertificateDomainValidationOption {
     return LoadBalancerTlsCertificateDomainValidationOption(
       domainName: json['domainName'] as String?,
       validationStatus: (json['validationStatus'] as String?)
-          ?.toLoadBalancerTlsCertificateDomainStatus(),
+          ?.let(LoadBalancerTlsCertificateDomainStatus.fromString),
     );
   }
 }
@@ -20299,99 +19525,45 @@ class LoadBalancerTlsCertificateDomainValidationRecord {
       name: json['name'] as String?,
       type: json['type'] as String?,
       validationStatus: (json['validationStatus'] as String?)
-          ?.toLoadBalancerTlsCertificateDomainStatus(),
+          ?.let(LoadBalancerTlsCertificateDomainStatus.fromString),
       value: json['value'] as String?,
     );
   }
 }
 
 enum LoadBalancerTlsCertificateFailureReason {
-  noAvailableContacts,
-  additionalVerificationRequired,
-  domainNotAllowed,
-  invalidPublicDomain,
-  other,
-}
+  noAvailableContacts('NO_AVAILABLE_CONTACTS'),
+  additionalVerificationRequired('ADDITIONAL_VERIFICATION_REQUIRED'),
+  domainNotAllowed('DOMAIN_NOT_ALLOWED'),
+  invalidPublicDomain('INVALID_PUBLIC_DOMAIN'),
+  other('OTHER'),
+  ;
 
-extension LoadBalancerTlsCertificateFailureReasonValueExtension
-    on LoadBalancerTlsCertificateFailureReason {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerTlsCertificateFailureReason.noAvailableContacts:
-        return 'NO_AVAILABLE_CONTACTS';
-      case LoadBalancerTlsCertificateFailureReason
-            .additionalVerificationRequired:
-        return 'ADDITIONAL_VERIFICATION_REQUIRED';
-      case LoadBalancerTlsCertificateFailureReason.domainNotAllowed:
-        return 'DOMAIN_NOT_ALLOWED';
-      case LoadBalancerTlsCertificateFailureReason.invalidPublicDomain:
-        return 'INVALID_PUBLIC_DOMAIN';
-      case LoadBalancerTlsCertificateFailureReason.other:
-        return 'OTHER';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerTlsCertificateFailureReasonFromString on String {
-  LoadBalancerTlsCertificateFailureReason
-      toLoadBalancerTlsCertificateFailureReason() {
-    switch (this) {
-      case 'NO_AVAILABLE_CONTACTS':
-        return LoadBalancerTlsCertificateFailureReason.noAvailableContacts;
-      case 'ADDITIONAL_VERIFICATION_REQUIRED':
-        return LoadBalancerTlsCertificateFailureReason
-            .additionalVerificationRequired;
-      case 'DOMAIN_NOT_ALLOWED':
-        return LoadBalancerTlsCertificateFailureReason.domainNotAllowed;
-      case 'INVALID_PUBLIC_DOMAIN':
-        return LoadBalancerTlsCertificateFailureReason.invalidPublicDomain;
-      case 'OTHER':
-        return LoadBalancerTlsCertificateFailureReason.other;
-    }
-    throw Exception(
-        '$this is not known in enum LoadBalancerTlsCertificateFailureReason');
-  }
+  const LoadBalancerTlsCertificateFailureReason(this.value);
+
+  static LoadBalancerTlsCertificateFailureReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerTlsCertificateFailureReason'));
 }
 
 enum LoadBalancerTlsCertificateRenewalStatus {
-  pendingAutoRenewal,
-  pendingValidation,
-  success,
-  failed,
-}
+  pendingAutoRenewal('PENDING_AUTO_RENEWAL'),
+  pendingValidation('PENDING_VALIDATION'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  ;
 
-extension LoadBalancerTlsCertificateRenewalStatusValueExtension
-    on LoadBalancerTlsCertificateRenewalStatus {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerTlsCertificateRenewalStatus.pendingAutoRenewal:
-        return 'PENDING_AUTO_RENEWAL';
-      case LoadBalancerTlsCertificateRenewalStatus.pendingValidation:
-        return 'PENDING_VALIDATION';
-      case LoadBalancerTlsCertificateRenewalStatus.success:
-        return 'SUCCESS';
-      case LoadBalancerTlsCertificateRenewalStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerTlsCertificateRenewalStatusFromString on String {
-  LoadBalancerTlsCertificateRenewalStatus
-      toLoadBalancerTlsCertificateRenewalStatus() {
-    switch (this) {
-      case 'PENDING_AUTO_RENEWAL':
-        return LoadBalancerTlsCertificateRenewalStatus.pendingAutoRenewal;
-      case 'PENDING_VALIDATION':
-        return LoadBalancerTlsCertificateRenewalStatus.pendingValidation;
-      case 'SUCCESS':
-        return LoadBalancerTlsCertificateRenewalStatus.success;
-      case 'FAILED':
-        return LoadBalancerTlsCertificateRenewalStatus.failed;
-    }
-    throw Exception(
-        '$this is not known in enum LoadBalancerTlsCertificateRenewalStatus');
-  }
+  const LoadBalancerTlsCertificateRenewalStatus(this.value);
+
+  static LoadBalancerTlsCertificateRenewalStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerTlsCertificateRenewalStatus'));
 }
 
 /// Contains information about the status of Lightsail's managed renewal for the
@@ -20475,145 +19647,58 @@ class LoadBalancerTlsCertificateRenewalSummary {
       Map<String, dynamic> json) {
     return LoadBalancerTlsCertificateRenewalSummary(
       domainValidationOptions: (json['domainValidationOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LoadBalancerTlsCertificateDomainValidationOption.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       renewalStatus: (json['renewalStatus'] as String?)
-          ?.toLoadBalancerTlsCertificateRenewalStatus(),
+          ?.let(LoadBalancerTlsCertificateRenewalStatus.fromString),
     );
   }
 }
 
 enum LoadBalancerTlsCertificateRevocationReason {
-  unspecified,
-  keyCompromise,
-  caCompromise,
-  affiliationChanged,
-  superceded,
-  cessationOfOperation,
-  certificateHold,
-  removeFromCrl,
-  privilegeWithdrawn,
-  aACompromise,
-}
+  unspecified('UNSPECIFIED'),
+  keyCompromise('KEY_COMPROMISE'),
+  caCompromise('CA_COMPROMISE'),
+  affiliationChanged('AFFILIATION_CHANGED'),
+  superceded('SUPERCEDED'),
+  cessationOfOperation('CESSATION_OF_OPERATION'),
+  certificateHold('CERTIFICATE_HOLD'),
+  removeFromCrl('REMOVE_FROM_CRL'),
+  privilegeWithdrawn('PRIVILEGE_WITHDRAWN'),
+  aACompromise('A_A_COMPROMISE'),
+  ;
 
-extension LoadBalancerTlsCertificateRevocationReasonValueExtension
-    on LoadBalancerTlsCertificateRevocationReason {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerTlsCertificateRevocationReason.unspecified:
-        return 'UNSPECIFIED';
-      case LoadBalancerTlsCertificateRevocationReason.keyCompromise:
-        return 'KEY_COMPROMISE';
-      case LoadBalancerTlsCertificateRevocationReason.caCompromise:
-        return 'CA_COMPROMISE';
-      case LoadBalancerTlsCertificateRevocationReason.affiliationChanged:
-        return 'AFFILIATION_CHANGED';
-      case LoadBalancerTlsCertificateRevocationReason.superceded:
-        return 'SUPERCEDED';
-      case LoadBalancerTlsCertificateRevocationReason.cessationOfOperation:
-        return 'CESSATION_OF_OPERATION';
-      case LoadBalancerTlsCertificateRevocationReason.certificateHold:
-        return 'CERTIFICATE_HOLD';
-      case LoadBalancerTlsCertificateRevocationReason.removeFromCrl:
-        return 'REMOVE_FROM_CRL';
-      case LoadBalancerTlsCertificateRevocationReason.privilegeWithdrawn:
-        return 'PRIVILEGE_WITHDRAWN';
-      case LoadBalancerTlsCertificateRevocationReason.aACompromise:
-        return 'A_A_COMPROMISE';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerTlsCertificateRevocationReasonFromString on String {
-  LoadBalancerTlsCertificateRevocationReason
-      toLoadBalancerTlsCertificateRevocationReason() {
-    switch (this) {
-      case 'UNSPECIFIED':
-        return LoadBalancerTlsCertificateRevocationReason.unspecified;
-      case 'KEY_COMPROMISE':
-        return LoadBalancerTlsCertificateRevocationReason.keyCompromise;
-      case 'CA_COMPROMISE':
-        return LoadBalancerTlsCertificateRevocationReason.caCompromise;
-      case 'AFFILIATION_CHANGED':
-        return LoadBalancerTlsCertificateRevocationReason.affiliationChanged;
-      case 'SUPERCEDED':
-        return LoadBalancerTlsCertificateRevocationReason.superceded;
-      case 'CESSATION_OF_OPERATION':
-        return LoadBalancerTlsCertificateRevocationReason.cessationOfOperation;
-      case 'CERTIFICATE_HOLD':
-        return LoadBalancerTlsCertificateRevocationReason.certificateHold;
-      case 'REMOVE_FROM_CRL':
-        return LoadBalancerTlsCertificateRevocationReason.removeFromCrl;
-      case 'PRIVILEGE_WITHDRAWN':
-        return LoadBalancerTlsCertificateRevocationReason.privilegeWithdrawn;
-      case 'A_A_COMPROMISE':
-        return LoadBalancerTlsCertificateRevocationReason.aACompromise;
-    }
-    throw Exception(
-        '$this is not known in enum LoadBalancerTlsCertificateRevocationReason');
-  }
+  const LoadBalancerTlsCertificateRevocationReason(this.value);
+
+  static LoadBalancerTlsCertificateRevocationReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerTlsCertificateRevocationReason'));
 }
 
 enum LoadBalancerTlsCertificateStatus {
-  pendingValidation,
-  issued,
-  inactive,
-  expired,
-  validationTimedOut,
-  revoked,
-  failed,
-  unknown,
-}
+  pendingValidation('PENDING_VALIDATION'),
+  issued('ISSUED'),
+  inactive('INACTIVE'),
+  expired('EXPIRED'),
+  validationTimedOut('VALIDATION_TIMED_OUT'),
+  revoked('REVOKED'),
+  failed('FAILED'),
+  unknown('UNKNOWN'),
+  ;
 
-extension LoadBalancerTlsCertificateStatusValueExtension
-    on LoadBalancerTlsCertificateStatus {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerTlsCertificateStatus.pendingValidation:
-        return 'PENDING_VALIDATION';
-      case LoadBalancerTlsCertificateStatus.issued:
-        return 'ISSUED';
-      case LoadBalancerTlsCertificateStatus.inactive:
-        return 'INACTIVE';
-      case LoadBalancerTlsCertificateStatus.expired:
-        return 'EXPIRED';
-      case LoadBalancerTlsCertificateStatus.validationTimedOut:
-        return 'VALIDATION_TIMED_OUT';
-      case LoadBalancerTlsCertificateStatus.revoked:
-        return 'REVOKED';
-      case LoadBalancerTlsCertificateStatus.failed:
-        return 'FAILED';
-      case LoadBalancerTlsCertificateStatus.unknown:
-        return 'UNKNOWN';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerTlsCertificateStatusFromString on String {
-  LoadBalancerTlsCertificateStatus toLoadBalancerTlsCertificateStatus() {
-    switch (this) {
-      case 'PENDING_VALIDATION':
-        return LoadBalancerTlsCertificateStatus.pendingValidation;
-      case 'ISSUED':
-        return LoadBalancerTlsCertificateStatus.issued;
-      case 'INACTIVE':
-        return LoadBalancerTlsCertificateStatus.inactive;
-      case 'EXPIRED':
-        return LoadBalancerTlsCertificateStatus.expired;
-      case 'VALIDATION_TIMED_OUT':
-        return LoadBalancerTlsCertificateStatus.validationTimedOut;
-      case 'REVOKED':
-        return LoadBalancerTlsCertificateStatus.revoked;
-      case 'FAILED':
-        return LoadBalancerTlsCertificateStatus.failed;
-      case 'UNKNOWN':
-        return LoadBalancerTlsCertificateStatus.unknown;
-    }
-    throw Exception(
-        '$this is not known in enum LoadBalancerTlsCertificateStatus');
-  }
+  const LoadBalancerTlsCertificateStatus(this.value);
+
+  static LoadBalancerTlsCertificateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerTlsCertificateStatus'));
 }
 
 /// Provides a summary of SSL/TLS certificate metadata.
@@ -20675,15 +19760,13 @@ class LoadBalancerTlsPolicy {
 
   factory LoadBalancerTlsPolicy.fromJson(Map<String, dynamic> json) {
     return LoadBalancerTlsPolicy(
-      ciphers: (json['ciphers'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ciphers:
+          (json['ciphers'] as List?)?.nonNulls.map((e) => e as String).toList(),
       description: json['description'] as String?,
       isDefault: json['isDefault'] as bool?,
       name: json['name'] as String?,
       protocols: (json['protocols'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -20728,7 +19811,7 @@ class MetricDatapoint {
   /// The sum.
   final double? sum;
 
-  /// The timestamp (e.g., <code>1479816991.349</code>).
+  /// The timestamp (<code>1479816991.349</code>).
   final DateTime? timestamp;
 
   /// The unit.
@@ -20752,348 +19835,103 @@ class MetricDatapoint {
       sampleCount: json['sampleCount'] as double?,
       sum: json['sum'] as double?,
       timestamp: timeStampFromJson(json['timestamp']),
-      unit: (json['unit'] as String?)?.toMetricUnit(),
+      unit: (json['unit'] as String?)?.let(MetricUnit.fromString),
     );
   }
 }
 
 enum MetricName {
-  cPUUtilization,
-  networkIn,
-  networkOut,
-  statusCheckFailed,
-  statusCheckFailedInstance,
-  statusCheckFailedSystem,
-  clientTLSNegotiationErrorCount,
-  healthyHostCount,
-  unhealthyHostCount,
-  hTTPCodeLb_4xxCount,
-  hTTPCodeLb_5xxCount,
-  hTTPCodeInstance_2xxCount,
-  hTTPCodeInstance_3xxCount,
-  hTTPCodeInstance_4xxCount,
-  hTTPCodeInstance_5xxCount,
-  instanceResponseTime,
-  rejectedConnectionCount,
-  requestCount,
-  databaseConnections,
-  diskQueueDepth,
-  freeStorageSpace,
-  networkReceiveThroughput,
-  networkTransmitThroughput,
-  burstCapacityTime,
-  burstCapacityPercentage,
-}
+  cPUUtilization('CPUUtilization'),
+  networkIn('NetworkIn'),
+  networkOut('NetworkOut'),
+  statusCheckFailed('StatusCheckFailed'),
+  statusCheckFailedInstance('StatusCheckFailed_Instance'),
+  statusCheckFailedSystem('StatusCheckFailed_System'),
+  clientTLSNegotiationErrorCount('ClientTLSNegotiationErrorCount'),
+  healthyHostCount('HealthyHostCount'),
+  unhealthyHostCount('UnhealthyHostCount'),
+  hTTPCodeLb_4xxCount('HTTPCode_LB_4XX_Count'),
+  hTTPCodeLb_5xxCount('HTTPCode_LB_5XX_Count'),
+  hTTPCodeInstance_2xxCount('HTTPCode_Instance_2XX_Count'),
+  hTTPCodeInstance_3xxCount('HTTPCode_Instance_3XX_Count'),
+  hTTPCodeInstance_4xxCount('HTTPCode_Instance_4XX_Count'),
+  hTTPCodeInstance_5xxCount('HTTPCode_Instance_5XX_Count'),
+  instanceResponseTime('InstanceResponseTime'),
+  rejectedConnectionCount('RejectedConnectionCount'),
+  requestCount('RequestCount'),
+  databaseConnections('DatabaseConnections'),
+  diskQueueDepth('DiskQueueDepth'),
+  freeStorageSpace('FreeStorageSpace'),
+  networkReceiveThroughput('NetworkReceiveThroughput'),
+  networkTransmitThroughput('NetworkTransmitThroughput'),
+  burstCapacityTime('BurstCapacityTime'),
+  burstCapacityPercentage('BurstCapacityPercentage'),
+  ;
 
-extension MetricNameValueExtension on MetricName {
-  String toValue() {
-    switch (this) {
-      case MetricName.cPUUtilization:
-        return 'CPUUtilization';
-      case MetricName.networkIn:
-        return 'NetworkIn';
-      case MetricName.networkOut:
-        return 'NetworkOut';
-      case MetricName.statusCheckFailed:
-        return 'StatusCheckFailed';
-      case MetricName.statusCheckFailedInstance:
-        return 'StatusCheckFailed_Instance';
-      case MetricName.statusCheckFailedSystem:
-        return 'StatusCheckFailed_System';
-      case MetricName.clientTLSNegotiationErrorCount:
-        return 'ClientTLSNegotiationErrorCount';
-      case MetricName.healthyHostCount:
-        return 'HealthyHostCount';
-      case MetricName.unhealthyHostCount:
-        return 'UnhealthyHostCount';
-      case MetricName.hTTPCodeLb_4xxCount:
-        return 'HTTPCode_LB_4XX_Count';
-      case MetricName.hTTPCodeLb_5xxCount:
-        return 'HTTPCode_LB_5XX_Count';
-      case MetricName.hTTPCodeInstance_2xxCount:
-        return 'HTTPCode_Instance_2XX_Count';
-      case MetricName.hTTPCodeInstance_3xxCount:
-        return 'HTTPCode_Instance_3XX_Count';
-      case MetricName.hTTPCodeInstance_4xxCount:
-        return 'HTTPCode_Instance_4XX_Count';
-      case MetricName.hTTPCodeInstance_5xxCount:
-        return 'HTTPCode_Instance_5XX_Count';
-      case MetricName.instanceResponseTime:
-        return 'InstanceResponseTime';
-      case MetricName.rejectedConnectionCount:
-        return 'RejectedConnectionCount';
-      case MetricName.requestCount:
-        return 'RequestCount';
-      case MetricName.databaseConnections:
-        return 'DatabaseConnections';
-      case MetricName.diskQueueDepth:
-        return 'DiskQueueDepth';
-      case MetricName.freeStorageSpace:
-        return 'FreeStorageSpace';
-      case MetricName.networkReceiveThroughput:
-        return 'NetworkReceiveThroughput';
-      case MetricName.networkTransmitThroughput:
-        return 'NetworkTransmitThroughput';
-      case MetricName.burstCapacityTime:
-        return 'BurstCapacityTime';
-      case MetricName.burstCapacityPercentage:
-        return 'BurstCapacityPercentage';
-    }
-  }
-}
+  final String value;
 
-extension MetricNameFromString on String {
-  MetricName toMetricName() {
-    switch (this) {
-      case 'CPUUtilization':
-        return MetricName.cPUUtilization;
-      case 'NetworkIn':
-        return MetricName.networkIn;
-      case 'NetworkOut':
-        return MetricName.networkOut;
-      case 'StatusCheckFailed':
-        return MetricName.statusCheckFailed;
-      case 'StatusCheckFailed_Instance':
-        return MetricName.statusCheckFailedInstance;
-      case 'StatusCheckFailed_System':
-        return MetricName.statusCheckFailedSystem;
-      case 'ClientTLSNegotiationErrorCount':
-        return MetricName.clientTLSNegotiationErrorCount;
-      case 'HealthyHostCount':
-        return MetricName.healthyHostCount;
-      case 'UnhealthyHostCount':
-        return MetricName.unhealthyHostCount;
-      case 'HTTPCode_LB_4XX_Count':
-        return MetricName.hTTPCodeLb_4xxCount;
-      case 'HTTPCode_LB_5XX_Count':
-        return MetricName.hTTPCodeLb_5xxCount;
-      case 'HTTPCode_Instance_2XX_Count':
-        return MetricName.hTTPCodeInstance_2xxCount;
-      case 'HTTPCode_Instance_3XX_Count':
-        return MetricName.hTTPCodeInstance_3xxCount;
-      case 'HTTPCode_Instance_4XX_Count':
-        return MetricName.hTTPCodeInstance_4xxCount;
-      case 'HTTPCode_Instance_5XX_Count':
-        return MetricName.hTTPCodeInstance_5xxCount;
-      case 'InstanceResponseTime':
-        return MetricName.instanceResponseTime;
-      case 'RejectedConnectionCount':
-        return MetricName.rejectedConnectionCount;
-      case 'RequestCount':
-        return MetricName.requestCount;
-      case 'DatabaseConnections':
-        return MetricName.databaseConnections;
-      case 'DiskQueueDepth':
-        return MetricName.diskQueueDepth;
-      case 'FreeStorageSpace':
-        return MetricName.freeStorageSpace;
-      case 'NetworkReceiveThroughput':
-        return MetricName.networkReceiveThroughput;
-      case 'NetworkTransmitThroughput':
-        return MetricName.networkTransmitThroughput;
-      case 'BurstCapacityTime':
-        return MetricName.burstCapacityTime;
-      case 'BurstCapacityPercentage':
-        return MetricName.burstCapacityPercentage;
-    }
-    throw Exception('$this is not known in enum MetricName');
-  }
+  const MetricName(this.value);
+
+  static MetricName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MetricName'));
 }
 
 enum MetricStatistic {
-  minimum,
-  maximum,
-  sum,
-  average,
-  sampleCount,
-}
+  minimum('Minimum'),
+  maximum('Maximum'),
+  sum('Sum'),
+  average('Average'),
+  sampleCount('SampleCount'),
+  ;
 
-extension MetricStatisticValueExtension on MetricStatistic {
-  String toValue() {
-    switch (this) {
-      case MetricStatistic.minimum:
-        return 'Minimum';
-      case MetricStatistic.maximum:
-        return 'Maximum';
-      case MetricStatistic.sum:
-        return 'Sum';
-      case MetricStatistic.average:
-        return 'Average';
-      case MetricStatistic.sampleCount:
-        return 'SampleCount';
-    }
-  }
-}
+  final String value;
 
-extension MetricStatisticFromString on String {
-  MetricStatistic toMetricStatistic() {
-    switch (this) {
-      case 'Minimum':
-        return MetricStatistic.minimum;
-      case 'Maximum':
-        return MetricStatistic.maximum;
-      case 'Sum':
-        return MetricStatistic.sum;
-      case 'Average':
-        return MetricStatistic.average;
-      case 'SampleCount':
-        return MetricStatistic.sampleCount;
-    }
-    throw Exception('$this is not known in enum MetricStatistic');
-  }
+  const MetricStatistic(this.value);
+
+  static MetricStatistic fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MetricStatistic'));
 }
 
 enum MetricUnit {
-  seconds,
-  microseconds,
-  milliseconds,
-  bytes,
-  kilobytes,
-  megabytes,
-  gigabytes,
-  terabytes,
-  bits,
-  kilobits,
-  megabits,
-  gigabits,
-  terabits,
-  percent,
-  count,
-  bytesSecond,
-  kilobytesSecond,
-  megabytesSecond,
-  gigabytesSecond,
-  terabytesSecond,
-  bitsSecond,
-  kilobitsSecond,
-  megabitsSecond,
-  gigabitsSecond,
-  terabitsSecond,
-  countSecond,
-  none,
-}
+  seconds('Seconds'),
+  microseconds('Microseconds'),
+  milliseconds('Milliseconds'),
+  bytes('Bytes'),
+  kilobytes('Kilobytes'),
+  megabytes('Megabytes'),
+  gigabytes('Gigabytes'),
+  terabytes('Terabytes'),
+  bits('Bits'),
+  kilobits('Kilobits'),
+  megabits('Megabits'),
+  gigabits('Gigabits'),
+  terabits('Terabits'),
+  percent('Percent'),
+  count('Count'),
+  bytesSecond('Bytes/Second'),
+  kilobytesSecond('Kilobytes/Second'),
+  megabytesSecond('Megabytes/Second'),
+  gigabytesSecond('Gigabytes/Second'),
+  terabytesSecond('Terabytes/Second'),
+  bitsSecond('Bits/Second'),
+  kilobitsSecond('Kilobits/Second'),
+  megabitsSecond('Megabits/Second'),
+  gigabitsSecond('Gigabits/Second'),
+  terabitsSecond('Terabits/Second'),
+  countSecond('Count/Second'),
+  none('None'),
+  ;
 
-extension MetricUnitValueExtension on MetricUnit {
-  String toValue() {
-    switch (this) {
-      case MetricUnit.seconds:
-        return 'Seconds';
-      case MetricUnit.microseconds:
-        return 'Microseconds';
-      case MetricUnit.milliseconds:
-        return 'Milliseconds';
-      case MetricUnit.bytes:
-        return 'Bytes';
-      case MetricUnit.kilobytes:
-        return 'Kilobytes';
-      case MetricUnit.megabytes:
-        return 'Megabytes';
-      case MetricUnit.gigabytes:
-        return 'Gigabytes';
-      case MetricUnit.terabytes:
-        return 'Terabytes';
-      case MetricUnit.bits:
-        return 'Bits';
-      case MetricUnit.kilobits:
-        return 'Kilobits';
-      case MetricUnit.megabits:
-        return 'Megabits';
-      case MetricUnit.gigabits:
-        return 'Gigabits';
-      case MetricUnit.terabits:
-        return 'Terabits';
-      case MetricUnit.percent:
-        return 'Percent';
-      case MetricUnit.count:
-        return 'Count';
-      case MetricUnit.bytesSecond:
-        return 'Bytes/Second';
-      case MetricUnit.kilobytesSecond:
-        return 'Kilobytes/Second';
-      case MetricUnit.megabytesSecond:
-        return 'Megabytes/Second';
-      case MetricUnit.gigabytesSecond:
-        return 'Gigabytes/Second';
-      case MetricUnit.terabytesSecond:
-        return 'Terabytes/Second';
-      case MetricUnit.bitsSecond:
-        return 'Bits/Second';
-      case MetricUnit.kilobitsSecond:
-        return 'Kilobits/Second';
-      case MetricUnit.megabitsSecond:
-        return 'Megabits/Second';
-      case MetricUnit.gigabitsSecond:
-        return 'Gigabits/Second';
-      case MetricUnit.terabitsSecond:
-        return 'Terabits/Second';
-      case MetricUnit.countSecond:
-        return 'Count/Second';
-      case MetricUnit.none:
-        return 'None';
-    }
-  }
-}
+  final String value;
 
-extension MetricUnitFromString on String {
-  MetricUnit toMetricUnit() {
-    switch (this) {
-      case 'Seconds':
-        return MetricUnit.seconds;
-      case 'Microseconds':
-        return MetricUnit.microseconds;
-      case 'Milliseconds':
-        return MetricUnit.milliseconds;
-      case 'Bytes':
-        return MetricUnit.bytes;
-      case 'Kilobytes':
-        return MetricUnit.kilobytes;
-      case 'Megabytes':
-        return MetricUnit.megabytes;
-      case 'Gigabytes':
-        return MetricUnit.gigabytes;
-      case 'Terabytes':
-        return MetricUnit.terabytes;
-      case 'Bits':
-        return MetricUnit.bits;
-      case 'Kilobits':
-        return MetricUnit.kilobits;
-      case 'Megabits':
-        return MetricUnit.megabits;
-      case 'Gigabits':
-        return MetricUnit.gigabits;
-      case 'Terabits':
-        return MetricUnit.terabits;
-      case 'Percent':
-        return MetricUnit.percent;
-      case 'Count':
-        return MetricUnit.count;
-      case 'Bytes/Second':
-        return MetricUnit.bytesSecond;
-      case 'Kilobytes/Second':
-        return MetricUnit.kilobytesSecond;
-      case 'Megabytes/Second':
-        return MetricUnit.megabytesSecond;
-      case 'Gigabytes/Second':
-        return MetricUnit.gigabytesSecond;
-      case 'Terabytes/Second':
-        return MetricUnit.terabytesSecond;
-      case 'Bits/Second':
-        return MetricUnit.bitsSecond;
-      case 'Kilobits/Second':
-        return MetricUnit.kilobitsSecond;
-      case 'Megabits/Second':
-        return MetricUnit.megabitsSecond;
-      case 'Gigabits/Second':
-        return MetricUnit.gigabitsSecond;
-      case 'Terabits/Second':
-        return MetricUnit.terabitsSecond;
-      case 'Count/Second':
-        return MetricUnit.countSecond;
-      case 'None':
-        return MetricUnit.none;
-    }
-    throw Exception('$this is not known in enum MetricUnit');
-  }
+  const MetricUnit(this.value);
+
+  static MetricUnit fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MetricUnit'));
 }
 
 /// Describes resource being monitored by an alarm.
@@ -21125,7 +19963,8 @@ class MonitoredResourceInfo {
     return MonitoredResourceInfo(
       arn: json['arn'] as String?,
       name: json['name'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
     );
   }
 }
@@ -21184,87 +20023,46 @@ class NameServersUpdateState {
 
   factory NameServersUpdateState.fromJson(Map<String, dynamic> json) {
     return NameServersUpdateState(
-      code: (json['code'] as String?)?.toNameServersUpdateStateCode(),
+      code:
+          (json['code'] as String?)?.let(NameServersUpdateStateCode.fromString),
       message: json['message'] as String?,
     );
   }
 }
 
 enum NameServersUpdateStateCode {
-  succeeded,
-  pending,
-  failed,
-  started,
-}
+  succeeded('SUCCEEDED'),
+  pending('PENDING'),
+  failed('FAILED'),
+  started('STARTED'),
+  ;
 
-extension NameServersUpdateStateCodeValueExtension
-    on NameServersUpdateStateCode {
-  String toValue() {
-    switch (this) {
-      case NameServersUpdateStateCode.succeeded:
-        return 'SUCCEEDED';
-      case NameServersUpdateStateCode.pending:
-        return 'PENDING';
-      case NameServersUpdateStateCode.failed:
-        return 'FAILED';
-      case NameServersUpdateStateCode.started:
-        return 'STARTED';
-    }
-  }
-}
+  final String value;
 
-extension NameServersUpdateStateCodeFromString on String {
-  NameServersUpdateStateCode toNameServersUpdateStateCode() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return NameServersUpdateStateCode.succeeded;
-      case 'PENDING':
-        return NameServersUpdateStateCode.pending;
-      case 'FAILED':
-        return NameServersUpdateStateCode.failed;
-      case 'STARTED':
-        return NameServersUpdateStateCode.started;
-    }
-    throw Exception('$this is not known in enum NameServersUpdateStateCode');
-  }
+  const NameServersUpdateStateCode(this.value);
+
+  static NameServersUpdateStateCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum NameServersUpdateStateCode'));
 }
 
 enum NetworkProtocol {
-  tcp,
-  all,
-  udp,
-  icmp,
-}
+  tcp('tcp'),
+  all('all'),
+  udp('udp'),
+  icmp('icmp'),
+  icmpv6('icmpv6'),
+  ;
 
-extension NetworkProtocolValueExtension on NetworkProtocol {
-  String toValue() {
-    switch (this) {
-      case NetworkProtocol.tcp:
-        return 'tcp';
-      case NetworkProtocol.all:
-        return 'all';
-      case NetworkProtocol.udp:
-        return 'udp';
-      case NetworkProtocol.icmp:
-        return 'icmp';
-    }
-  }
-}
+  final String value;
 
-extension NetworkProtocolFromString on String {
-  NetworkProtocol toNetworkProtocol() {
-    switch (this) {
-      case 'tcp':
-        return NetworkProtocol.tcp;
-      case 'all':
-        return NetworkProtocol.all;
-      case 'udp':
-        return NetworkProtocol.udp;
-      case 'icmp':
-        return NetworkProtocol.icmp;
-    }
-    throw Exception('$this is not known in enum NetworkProtocol');
-  }
+  const NetworkProtocol(this.value);
+
+  static NetworkProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum NetworkProtocol'));
 }
 
 class OpenInstancePublicPortsResult {
@@ -21288,8 +20086,8 @@ class OpenInstancePublicPortsResult {
 
 /// Describes the API operation.
 class Operation {
-  /// The timestamp when the operation was initialized (e.g.,
-  /// <code>1479816991.349</code>).
+  /// The timestamp when the operation was initialized
+  /// (<code>1479816991.349</code>).
   final DateTime? createdAt;
 
   /// The error code.
@@ -21307,7 +20105,7 @@ class Operation {
   /// The Amazon Web Services Region and Availability Zone.
   final ResourceLocation? location;
 
-  /// Details about the operation (e.g., <code>Debian-1GB-Ohio-1</code>).
+  /// Details about the operation (<code>Debian-1GB-Ohio-1</code>).
   final String? operationDetails;
 
   /// The type of operation.
@@ -21322,8 +20120,7 @@ class Operation {
   /// The status of the operation.
   final OperationStatus? status;
 
-  /// The timestamp when the status was changed (e.g.,
-  /// <code>1479816991.349</code>).
+  /// The timestamp when the status was changed (<code>1479816991.349</code>).
   final DateTime? statusChangedAt;
 
   Operation({
@@ -21352,484 +20149,129 @@ class Operation {
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       operationDetails: json['operationDetails'] as String?,
-      operationType: (json['operationType'] as String?)?.toOperationType(),
+      operationType:
+          (json['operationType'] as String?)?.let(OperationType.fromString),
       resourceName: json['resourceName'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
-      status: (json['status'] as String?)?.toOperationStatus(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+      status: (json['status'] as String?)?.let(OperationStatus.fromString),
       statusChangedAt: timeStampFromJson(json['statusChangedAt']),
     );
   }
 }
 
 enum OperationStatus {
-  notStarted,
-  started,
-  failed,
-  completed,
-  succeeded,
-}
+  notStarted('NotStarted'),
+  started('Started'),
+  failed('Failed'),
+  completed('Completed'),
+  succeeded('Succeeded'),
+  ;
 
-extension OperationStatusValueExtension on OperationStatus {
-  String toValue() {
-    switch (this) {
-      case OperationStatus.notStarted:
-        return 'NotStarted';
-      case OperationStatus.started:
-        return 'Started';
-      case OperationStatus.failed:
-        return 'Failed';
-      case OperationStatus.completed:
-        return 'Completed';
-      case OperationStatus.succeeded:
-        return 'Succeeded';
-    }
-  }
-}
+  final String value;
 
-extension OperationStatusFromString on String {
-  OperationStatus toOperationStatus() {
-    switch (this) {
-      case 'NotStarted':
-        return OperationStatus.notStarted;
-      case 'Started':
-        return OperationStatus.started;
-      case 'Failed':
-        return OperationStatus.failed;
-      case 'Completed':
-        return OperationStatus.completed;
-      case 'Succeeded':
-        return OperationStatus.succeeded;
-    }
-    throw Exception('$this is not known in enum OperationStatus');
-  }
+  const OperationStatus(this.value);
+
+  static OperationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OperationStatus'));
 }
 
 enum OperationType {
-  deleteKnownHostKeys,
-  deleteInstance,
-  createInstance,
-  stopInstance,
-  startInstance,
-  rebootInstance,
-  openInstancePublicPorts,
-  putInstancePublicPorts,
-  closeInstancePublicPorts,
-  allocateStaticIp,
-  releaseStaticIp,
-  attachStaticIp,
-  detachStaticIp,
-  updateDomainEntry,
-  deleteDomainEntry,
-  createDomain,
-  deleteDomain,
-  createInstanceSnapshot,
-  deleteInstanceSnapshot,
-  createInstancesFromSnapshot,
-  createLoadBalancer,
-  deleteLoadBalancer,
-  attachInstancesToLoadBalancer,
-  detachInstancesFromLoadBalancer,
-  updateLoadBalancerAttribute,
-  createLoadBalancerTlsCertificate,
-  deleteLoadBalancerTlsCertificate,
-  attachLoadBalancerTlsCertificate,
-  createDisk,
-  deleteDisk,
-  attachDisk,
-  detachDisk,
-  createDiskSnapshot,
-  deleteDiskSnapshot,
-  createDiskFromSnapshot,
-  createRelationalDatabase,
-  updateRelationalDatabase,
-  deleteRelationalDatabase,
-  createRelationalDatabaseFromSnapshot,
-  createRelationalDatabaseSnapshot,
-  deleteRelationalDatabaseSnapshot,
-  updateRelationalDatabaseParameters,
-  startRelationalDatabase,
-  rebootRelationalDatabase,
-  stopRelationalDatabase,
-  enableAddOn,
-  disableAddOn,
-  putAlarm,
-  getAlarms,
-  deleteAlarm,
-  testAlarm,
-  createContactMethod,
-  getContactMethods,
-  sendContactMethodVerification,
-  deleteContactMethod,
-  createDistribution,
-  updateDistribution,
-  deleteDistribution,
-  resetDistributionCache,
-  attachCertificateToDistribution,
-  detachCertificateFromDistribution,
-  updateDistributionBundle,
-  setIpAddressType,
-  createCertificate,
-  deleteCertificate,
-  createContainerService,
-  updateContainerService,
-  deleteContainerService,
-  createContainerServiceDeployment,
-  createContainerServiceRegistryLogin,
-  registerContainerImage,
-  deleteContainerImage,
-  createBucket,
-  deleteBucket,
-  createBucketAccessKey,
-  deleteBucketAccessKey,
-  updateBucketBundle,
-  updateBucket,
-  setResourceAccessForBucket,
-  updateInstanceMetadataOptions,
-  startGUISession,
-  stopGUISession,
-}
+  deleteKnownHostKeys('DeleteKnownHostKeys'),
+  deleteInstance('DeleteInstance'),
+  createInstance('CreateInstance'),
+  stopInstance('StopInstance'),
+  startInstance('StartInstance'),
+  rebootInstance('RebootInstance'),
+  openInstancePublicPorts('OpenInstancePublicPorts'),
+  putInstancePublicPorts('PutInstancePublicPorts'),
+  closeInstancePublicPorts('CloseInstancePublicPorts'),
+  allocateStaticIp('AllocateStaticIp'),
+  releaseStaticIp('ReleaseStaticIp'),
+  attachStaticIp('AttachStaticIp'),
+  detachStaticIp('DetachStaticIp'),
+  updateDomainEntry('UpdateDomainEntry'),
+  deleteDomainEntry('DeleteDomainEntry'),
+  createDomain('CreateDomain'),
+  deleteDomain('DeleteDomain'),
+  createInstanceSnapshot('CreateInstanceSnapshot'),
+  deleteInstanceSnapshot('DeleteInstanceSnapshot'),
+  createInstancesFromSnapshot('CreateInstancesFromSnapshot'),
+  createLoadBalancer('CreateLoadBalancer'),
+  deleteLoadBalancer('DeleteLoadBalancer'),
+  attachInstancesToLoadBalancer('AttachInstancesToLoadBalancer'),
+  detachInstancesFromLoadBalancer('DetachInstancesFromLoadBalancer'),
+  updateLoadBalancerAttribute('UpdateLoadBalancerAttribute'),
+  createLoadBalancerTlsCertificate('CreateLoadBalancerTlsCertificate'),
+  deleteLoadBalancerTlsCertificate('DeleteLoadBalancerTlsCertificate'),
+  attachLoadBalancerTlsCertificate('AttachLoadBalancerTlsCertificate'),
+  createDisk('CreateDisk'),
+  deleteDisk('DeleteDisk'),
+  attachDisk('AttachDisk'),
+  detachDisk('DetachDisk'),
+  createDiskSnapshot('CreateDiskSnapshot'),
+  deleteDiskSnapshot('DeleteDiskSnapshot'),
+  createDiskFromSnapshot('CreateDiskFromSnapshot'),
+  createRelationalDatabase('CreateRelationalDatabase'),
+  updateRelationalDatabase('UpdateRelationalDatabase'),
+  deleteRelationalDatabase('DeleteRelationalDatabase'),
+  createRelationalDatabaseFromSnapshot('CreateRelationalDatabaseFromSnapshot'),
+  createRelationalDatabaseSnapshot('CreateRelationalDatabaseSnapshot'),
+  deleteRelationalDatabaseSnapshot('DeleteRelationalDatabaseSnapshot'),
+  updateRelationalDatabaseParameters('UpdateRelationalDatabaseParameters'),
+  startRelationalDatabase('StartRelationalDatabase'),
+  rebootRelationalDatabase('RebootRelationalDatabase'),
+  stopRelationalDatabase('StopRelationalDatabase'),
+  enableAddOn('EnableAddOn'),
+  disableAddOn('DisableAddOn'),
+  putAlarm('PutAlarm'),
+  getAlarms('GetAlarms'),
+  deleteAlarm('DeleteAlarm'),
+  testAlarm('TestAlarm'),
+  createContactMethod('CreateContactMethod'),
+  getContactMethods('GetContactMethods'),
+  sendContactMethodVerification('SendContactMethodVerification'),
+  deleteContactMethod('DeleteContactMethod'),
+  createDistribution('CreateDistribution'),
+  updateDistribution('UpdateDistribution'),
+  deleteDistribution('DeleteDistribution'),
+  resetDistributionCache('ResetDistributionCache'),
+  attachCertificateToDistribution('AttachCertificateToDistribution'),
+  detachCertificateFromDistribution('DetachCertificateFromDistribution'),
+  updateDistributionBundle('UpdateDistributionBundle'),
+  setIpAddressType('SetIpAddressType'),
+  createCertificate('CreateCertificate'),
+  deleteCertificate('DeleteCertificate'),
+  createContainerService('CreateContainerService'),
+  updateContainerService('UpdateContainerService'),
+  deleteContainerService('DeleteContainerService'),
+  createContainerServiceDeployment('CreateContainerServiceDeployment'),
+  createContainerServiceRegistryLogin('CreateContainerServiceRegistryLogin'),
+  registerContainerImage('RegisterContainerImage'),
+  deleteContainerImage('DeleteContainerImage'),
+  createBucket('CreateBucket'),
+  deleteBucket('DeleteBucket'),
+  createBucketAccessKey('CreateBucketAccessKey'),
+  deleteBucketAccessKey('DeleteBucketAccessKey'),
+  updateBucketBundle('UpdateBucketBundle'),
+  updateBucket('UpdateBucket'),
+  setResourceAccessForBucket('SetResourceAccessForBucket'),
+  updateInstanceMetadataOptions('UpdateInstanceMetadataOptions'),
+  startGUISession('StartGUISession'),
+  stopGUISession('StopGUISession'),
+  setupInstanceHttps('SetupInstanceHttps'),
+  ;
 
-extension OperationTypeValueExtension on OperationType {
-  String toValue() {
-    switch (this) {
-      case OperationType.deleteKnownHostKeys:
-        return 'DeleteKnownHostKeys';
-      case OperationType.deleteInstance:
-        return 'DeleteInstance';
-      case OperationType.createInstance:
-        return 'CreateInstance';
-      case OperationType.stopInstance:
-        return 'StopInstance';
-      case OperationType.startInstance:
-        return 'StartInstance';
-      case OperationType.rebootInstance:
-        return 'RebootInstance';
-      case OperationType.openInstancePublicPorts:
-        return 'OpenInstancePublicPorts';
-      case OperationType.putInstancePublicPorts:
-        return 'PutInstancePublicPorts';
-      case OperationType.closeInstancePublicPorts:
-        return 'CloseInstancePublicPorts';
-      case OperationType.allocateStaticIp:
-        return 'AllocateStaticIp';
-      case OperationType.releaseStaticIp:
-        return 'ReleaseStaticIp';
-      case OperationType.attachStaticIp:
-        return 'AttachStaticIp';
-      case OperationType.detachStaticIp:
-        return 'DetachStaticIp';
-      case OperationType.updateDomainEntry:
-        return 'UpdateDomainEntry';
-      case OperationType.deleteDomainEntry:
-        return 'DeleteDomainEntry';
-      case OperationType.createDomain:
-        return 'CreateDomain';
-      case OperationType.deleteDomain:
-        return 'DeleteDomain';
-      case OperationType.createInstanceSnapshot:
-        return 'CreateInstanceSnapshot';
-      case OperationType.deleteInstanceSnapshot:
-        return 'DeleteInstanceSnapshot';
-      case OperationType.createInstancesFromSnapshot:
-        return 'CreateInstancesFromSnapshot';
-      case OperationType.createLoadBalancer:
-        return 'CreateLoadBalancer';
-      case OperationType.deleteLoadBalancer:
-        return 'DeleteLoadBalancer';
-      case OperationType.attachInstancesToLoadBalancer:
-        return 'AttachInstancesToLoadBalancer';
-      case OperationType.detachInstancesFromLoadBalancer:
-        return 'DetachInstancesFromLoadBalancer';
-      case OperationType.updateLoadBalancerAttribute:
-        return 'UpdateLoadBalancerAttribute';
-      case OperationType.createLoadBalancerTlsCertificate:
-        return 'CreateLoadBalancerTlsCertificate';
-      case OperationType.deleteLoadBalancerTlsCertificate:
-        return 'DeleteLoadBalancerTlsCertificate';
-      case OperationType.attachLoadBalancerTlsCertificate:
-        return 'AttachLoadBalancerTlsCertificate';
-      case OperationType.createDisk:
-        return 'CreateDisk';
-      case OperationType.deleteDisk:
-        return 'DeleteDisk';
-      case OperationType.attachDisk:
-        return 'AttachDisk';
-      case OperationType.detachDisk:
-        return 'DetachDisk';
-      case OperationType.createDiskSnapshot:
-        return 'CreateDiskSnapshot';
-      case OperationType.deleteDiskSnapshot:
-        return 'DeleteDiskSnapshot';
-      case OperationType.createDiskFromSnapshot:
-        return 'CreateDiskFromSnapshot';
-      case OperationType.createRelationalDatabase:
-        return 'CreateRelationalDatabase';
-      case OperationType.updateRelationalDatabase:
-        return 'UpdateRelationalDatabase';
-      case OperationType.deleteRelationalDatabase:
-        return 'DeleteRelationalDatabase';
-      case OperationType.createRelationalDatabaseFromSnapshot:
-        return 'CreateRelationalDatabaseFromSnapshot';
-      case OperationType.createRelationalDatabaseSnapshot:
-        return 'CreateRelationalDatabaseSnapshot';
-      case OperationType.deleteRelationalDatabaseSnapshot:
-        return 'DeleteRelationalDatabaseSnapshot';
-      case OperationType.updateRelationalDatabaseParameters:
-        return 'UpdateRelationalDatabaseParameters';
-      case OperationType.startRelationalDatabase:
-        return 'StartRelationalDatabase';
-      case OperationType.rebootRelationalDatabase:
-        return 'RebootRelationalDatabase';
-      case OperationType.stopRelationalDatabase:
-        return 'StopRelationalDatabase';
-      case OperationType.enableAddOn:
-        return 'EnableAddOn';
-      case OperationType.disableAddOn:
-        return 'DisableAddOn';
-      case OperationType.putAlarm:
-        return 'PutAlarm';
-      case OperationType.getAlarms:
-        return 'GetAlarms';
-      case OperationType.deleteAlarm:
-        return 'DeleteAlarm';
-      case OperationType.testAlarm:
-        return 'TestAlarm';
-      case OperationType.createContactMethod:
-        return 'CreateContactMethod';
-      case OperationType.getContactMethods:
-        return 'GetContactMethods';
-      case OperationType.sendContactMethodVerification:
-        return 'SendContactMethodVerification';
-      case OperationType.deleteContactMethod:
-        return 'DeleteContactMethod';
-      case OperationType.createDistribution:
-        return 'CreateDistribution';
-      case OperationType.updateDistribution:
-        return 'UpdateDistribution';
-      case OperationType.deleteDistribution:
-        return 'DeleteDistribution';
-      case OperationType.resetDistributionCache:
-        return 'ResetDistributionCache';
-      case OperationType.attachCertificateToDistribution:
-        return 'AttachCertificateToDistribution';
-      case OperationType.detachCertificateFromDistribution:
-        return 'DetachCertificateFromDistribution';
-      case OperationType.updateDistributionBundle:
-        return 'UpdateDistributionBundle';
-      case OperationType.setIpAddressType:
-        return 'SetIpAddressType';
-      case OperationType.createCertificate:
-        return 'CreateCertificate';
-      case OperationType.deleteCertificate:
-        return 'DeleteCertificate';
-      case OperationType.createContainerService:
-        return 'CreateContainerService';
-      case OperationType.updateContainerService:
-        return 'UpdateContainerService';
-      case OperationType.deleteContainerService:
-        return 'DeleteContainerService';
-      case OperationType.createContainerServiceDeployment:
-        return 'CreateContainerServiceDeployment';
-      case OperationType.createContainerServiceRegistryLogin:
-        return 'CreateContainerServiceRegistryLogin';
-      case OperationType.registerContainerImage:
-        return 'RegisterContainerImage';
-      case OperationType.deleteContainerImage:
-        return 'DeleteContainerImage';
-      case OperationType.createBucket:
-        return 'CreateBucket';
-      case OperationType.deleteBucket:
-        return 'DeleteBucket';
-      case OperationType.createBucketAccessKey:
-        return 'CreateBucketAccessKey';
-      case OperationType.deleteBucketAccessKey:
-        return 'DeleteBucketAccessKey';
-      case OperationType.updateBucketBundle:
-        return 'UpdateBucketBundle';
-      case OperationType.updateBucket:
-        return 'UpdateBucket';
-      case OperationType.setResourceAccessForBucket:
-        return 'SetResourceAccessForBucket';
-      case OperationType.updateInstanceMetadataOptions:
-        return 'UpdateInstanceMetadataOptions';
-      case OperationType.startGUISession:
-        return 'StartGUISession';
-      case OperationType.stopGUISession:
-        return 'StopGUISession';
-    }
-  }
-}
+  final String value;
 
-extension OperationTypeFromString on String {
-  OperationType toOperationType() {
-    switch (this) {
-      case 'DeleteKnownHostKeys':
-        return OperationType.deleteKnownHostKeys;
-      case 'DeleteInstance':
-        return OperationType.deleteInstance;
-      case 'CreateInstance':
-        return OperationType.createInstance;
-      case 'StopInstance':
-        return OperationType.stopInstance;
-      case 'StartInstance':
-        return OperationType.startInstance;
-      case 'RebootInstance':
-        return OperationType.rebootInstance;
-      case 'OpenInstancePublicPorts':
-        return OperationType.openInstancePublicPorts;
-      case 'PutInstancePublicPorts':
-        return OperationType.putInstancePublicPorts;
-      case 'CloseInstancePublicPorts':
-        return OperationType.closeInstancePublicPorts;
-      case 'AllocateStaticIp':
-        return OperationType.allocateStaticIp;
-      case 'ReleaseStaticIp':
-        return OperationType.releaseStaticIp;
-      case 'AttachStaticIp':
-        return OperationType.attachStaticIp;
-      case 'DetachStaticIp':
-        return OperationType.detachStaticIp;
-      case 'UpdateDomainEntry':
-        return OperationType.updateDomainEntry;
-      case 'DeleteDomainEntry':
-        return OperationType.deleteDomainEntry;
-      case 'CreateDomain':
-        return OperationType.createDomain;
-      case 'DeleteDomain':
-        return OperationType.deleteDomain;
-      case 'CreateInstanceSnapshot':
-        return OperationType.createInstanceSnapshot;
-      case 'DeleteInstanceSnapshot':
-        return OperationType.deleteInstanceSnapshot;
-      case 'CreateInstancesFromSnapshot':
-        return OperationType.createInstancesFromSnapshot;
-      case 'CreateLoadBalancer':
-        return OperationType.createLoadBalancer;
-      case 'DeleteLoadBalancer':
-        return OperationType.deleteLoadBalancer;
-      case 'AttachInstancesToLoadBalancer':
-        return OperationType.attachInstancesToLoadBalancer;
-      case 'DetachInstancesFromLoadBalancer':
-        return OperationType.detachInstancesFromLoadBalancer;
-      case 'UpdateLoadBalancerAttribute':
-        return OperationType.updateLoadBalancerAttribute;
-      case 'CreateLoadBalancerTlsCertificate':
-        return OperationType.createLoadBalancerTlsCertificate;
-      case 'DeleteLoadBalancerTlsCertificate':
-        return OperationType.deleteLoadBalancerTlsCertificate;
-      case 'AttachLoadBalancerTlsCertificate':
-        return OperationType.attachLoadBalancerTlsCertificate;
-      case 'CreateDisk':
-        return OperationType.createDisk;
-      case 'DeleteDisk':
-        return OperationType.deleteDisk;
-      case 'AttachDisk':
-        return OperationType.attachDisk;
-      case 'DetachDisk':
-        return OperationType.detachDisk;
-      case 'CreateDiskSnapshot':
-        return OperationType.createDiskSnapshot;
-      case 'DeleteDiskSnapshot':
-        return OperationType.deleteDiskSnapshot;
-      case 'CreateDiskFromSnapshot':
-        return OperationType.createDiskFromSnapshot;
-      case 'CreateRelationalDatabase':
-        return OperationType.createRelationalDatabase;
-      case 'UpdateRelationalDatabase':
-        return OperationType.updateRelationalDatabase;
-      case 'DeleteRelationalDatabase':
-        return OperationType.deleteRelationalDatabase;
-      case 'CreateRelationalDatabaseFromSnapshot':
-        return OperationType.createRelationalDatabaseFromSnapshot;
-      case 'CreateRelationalDatabaseSnapshot':
-        return OperationType.createRelationalDatabaseSnapshot;
-      case 'DeleteRelationalDatabaseSnapshot':
-        return OperationType.deleteRelationalDatabaseSnapshot;
-      case 'UpdateRelationalDatabaseParameters':
-        return OperationType.updateRelationalDatabaseParameters;
-      case 'StartRelationalDatabase':
-        return OperationType.startRelationalDatabase;
-      case 'RebootRelationalDatabase':
-        return OperationType.rebootRelationalDatabase;
-      case 'StopRelationalDatabase':
-        return OperationType.stopRelationalDatabase;
-      case 'EnableAddOn':
-        return OperationType.enableAddOn;
-      case 'DisableAddOn':
-        return OperationType.disableAddOn;
-      case 'PutAlarm':
-        return OperationType.putAlarm;
-      case 'GetAlarms':
-        return OperationType.getAlarms;
-      case 'DeleteAlarm':
-        return OperationType.deleteAlarm;
-      case 'TestAlarm':
-        return OperationType.testAlarm;
-      case 'CreateContactMethod':
-        return OperationType.createContactMethod;
-      case 'GetContactMethods':
-        return OperationType.getContactMethods;
-      case 'SendContactMethodVerification':
-        return OperationType.sendContactMethodVerification;
-      case 'DeleteContactMethod':
-        return OperationType.deleteContactMethod;
-      case 'CreateDistribution':
-        return OperationType.createDistribution;
-      case 'UpdateDistribution':
-        return OperationType.updateDistribution;
-      case 'DeleteDistribution':
-        return OperationType.deleteDistribution;
-      case 'ResetDistributionCache':
-        return OperationType.resetDistributionCache;
-      case 'AttachCertificateToDistribution':
-        return OperationType.attachCertificateToDistribution;
-      case 'DetachCertificateFromDistribution':
-        return OperationType.detachCertificateFromDistribution;
-      case 'UpdateDistributionBundle':
-        return OperationType.updateDistributionBundle;
-      case 'SetIpAddressType':
-        return OperationType.setIpAddressType;
-      case 'CreateCertificate':
-        return OperationType.createCertificate;
-      case 'DeleteCertificate':
-        return OperationType.deleteCertificate;
-      case 'CreateContainerService':
-        return OperationType.createContainerService;
-      case 'UpdateContainerService':
-        return OperationType.updateContainerService;
-      case 'DeleteContainerService':
-        return OperationType.deleteContainerService;
-      case 'CreateContainerServiceDeployment':
-        return OperationType.createContainerServiceDeployment;
-      case 'CreateContainerServiceRegistryLogin':
-        return OperationType.createContainerServiceRegistryLogin;
-      case 'RegisterContainerImage':
-        return OperationType.registerContainerImage;
-      case 'DeleteContainerImage':
-        return OperationType.deleteContainerImage;
-      case 'CreateBucket':
-        return OperationType.createBucket;
-      case 'DeleteBucket':
-        return OperationType.deleteBucket;
-      case 'CreateBucketAccessKey':
-        return OperationType.createBucketAccessKey;
-      case 'DeleteBucketAccessKey':
-        return OperationType.deleteBucketAccessKey;
-      case 'UpdateBucketBundle':
-        return OperationType.updateBucketBundle;
-      case 'UpdateBucket':
-        return OperationType.updateBucket;
-      case 'SetResourceAccessForBucket':
-        return OperationType.setResourceAccessForBucket;
-      case 'UpdateInstanceMetadataOptions':
-        return OperationType.updateInstanceMetadataOptions;
-      case 'StartGUISession':
-        return OperationType.startGUISession;
-      case 'StopGUISession':
-        return OperationType.stopGUISession;
-    }
-    throw Exception('$this is not known in enum OperationType');
-  }
+  const OperationType(this.value);
+
+  static OperationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OperationType'));
 }
 
 /// Describes the origin resource of an Amazon Lightsail content delivery
@@ -21849,53 +20291,49 @@ class Origin {
   /// The AWS Region name of the origin resource.
   final RegionName? regionName;
 
-  /// The resource type of the origin resource (e.g., <i>Instance</i>).
+  /// The resource type of the origin resource (<i>Instance</i>).
   final ResourceType? resourceType;
+
+  /// The amount of time, in seconds, that the distribution waits for a response
+  /// after forwarding a request to the origin. The minimum timeout is 1 second,
+  /// the maximum is 60 seconds, and the default (if you don't specify otherwise)
+  /// is 30 seconds.
+  final int? responseTimeout;
 
   Origin({
     this.name,
     this.protocolPolicy,
     this.regionName,
     this.resourceType,
+    this.responseTimeout,
   });
 
   factory Origin.fromJson(Map<String, dynamic> json) {
     return Origin(
       name: json['name'] as String?,
-      protocolPolicy:
-          (json['protocolPolicy'] as String?)?.toOriginProtocolPolicyEnum(),
-      regionName: (json['regionName'] as String?)?.toRegionName(),
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      protocolPolicy: (json['protocolPolicy'] as String?)
+          ?.let(OriginProtocolPolicyEnum.fromString),
+      regionName: (json['regionName'] as String?)?.let(RegionName.fromString),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+      responseTimeout: json['responseTimeout'] as int?,
     );
   }
 }
 
 enum OriginProtocolPolicyEnum {
-  httpOnly,
-  httpsOnly,
-}
+  httpOnly('http-only'),
+  httpsOnly('https-only'),
+  ;
 
-extension OriginProtocolPolicyEnumValueExtension on OriginProtocolPolicyEnum {
-  String toValue() {
-    switch (this) {
-      case OriginProtocolPolicyEnum.httpOnly:
-        return 'http-only';
-      case OriginProtocolPolicyEnum.httpsOnly:
-        return 'https-only';
-    }
-  }
-}
+  final String value;
 
-extension OriginProtocolPolicyEnumFromString on String {
-  OriginProtocolPolicyEnum toOriginProtocolPolicyEnum() {
-    switch (this) {
-      case 'http-only':
-        return OriginProtocolPolicyEnum.httpOnly;
-      case 'https-only':
-        return OriginProtocolPolicyEnum.httpsOnly;
-    }
-    throw Exception('$this is not known in enum OriginProtocolPolicyEnum');
-  }
+  const OriginProtocolPolicyEnum(this.value);
+
+  static OriginProtocolPolicyEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OriginProtocolPolicyEnum'));
 }
 
 /// The password data for the Windows Server-based instance, including the
@@ -22014,31 +20452,18 @@ class PendingModifiedRelationalDatabaseValues {
 }
 
 enum PortAccessType {
-  public,
-  private,
-}
+  public('Public'),
+  private('Private'),
+  ;
 
-extension PortAccessTypeValueExtension on PortAccessType {
-  String toValue() {
-    switch (this) {
-      case PortAccessType.public:
-        return 'Public';
-      case PortAccessType.private:
-        return 'Private';
-    }
-  }
-}
+  final String value;
 
-extension PortAccessTypeFromString on String {
-  PortAccessType toPortAccessType() {
-    switch (this) {
-      case 'Public':
-        return PortAccessType.public;
-      case 'Private':
-        return PortAccessType.private;
-    }
-    throw Exception('$this is not known in enum PortAccessType');
-  }
+  const PortAccessType(this.value);
+
+  static PortAccessType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PortAccessType'));
 }
 
 /// Describes ports to open on an instance, the IP addresses allowed to connect
@@ -22149,6 +20574,12 @@ class PortInfo {
   /// <code>fromPort</code> parameter, and ICMP code using the <code>toPort</code>
   /// parameter.
   /// </li>
+  /// <li>
+  /// <code>icmp6</code> - Internet Control Message Protocol (ICMP) for IPv6. When
+  /// you specify <code>icmp6</code> as the <code>protocol</code>, you must
+  /// specify the ICMP type using the <code>fromPort</code> parameter, and ICMP
+  /// code using the <code>toPort</code> parameter.
+  /// </li>
   /// </ul>
   final NetworkProtocol? protocol;
 
@@ -22200,119 +20631,58 @@ class PortInfo {
       if (cidrs != null) 'cidrs': cidrs,
       if (fromPort != null) 'fromPort': fromPort,
       if (ipv6Cidrs != null) 'ipv6Cidrs': ipv6Cidrs,
-      if (protocol != null) 'protocol': protocol.toValue(),
+      if (protocol != null) 'protocol': protocol.value,
       if (toPort != null) 'toPort': toPort,
     };
   }
 }
 
 enum PortInfoSourceType {
-  $default,
-  instance,
-  none,
-  closed,
-}
+  $default('DEFAULT'),
+  instance('INSTANCE'),
+  none('NONE'),
+  closed('CLOSED'),
+  ;
 
-extension PortInfoSourceTypeValueExtension on PortInfoSourceType {
-  String toValue() {
-    switch (this) {
-      case PortInfoSourceType.$default:
-        return 'DEFAULT';
-      case PortInfoSourceType.instance:
-        return 'INSTANCE';
-      case PortInfoSourceType.none:
-        return 'NONE';
-      case PortInfoSourceType.closed:
-        return 'CLOSED';
-    }
-  }
-}
+  final String value;
 
-extension PortInfoSourceTypeFromString on String {
-  PortInfoSourceType toPortInfoSourceType() {
-    switch (this) {
-      case 'DEFAULT':
-        return PortInfoSourceType.$default;
-      case 'INSTANCE':
-        return PortInfoSourceType.instance;
-      case 'NONE':
-        return PortInfoSourceType.none;
-      case 'CLOSED':
-        return PortInfoSourceType.closed;
-    }
-    throw Exception('$this is not known in enum PortInfoSourceType');
-  }
+  const PortInfoSourceType(this.value);
+
+  static PortInfoSourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PortInfoSourceType'));
 }
 
 enum PortState {
-  open,
-  closed,
-}
+  open('open'),
+  closed('closed'),
+  ;
 
-extension PortStateValueExtension on PortState {
-  String toValue() {
-    switch (this) {
-      case PortState.open:
-        return 'open';
-      case PortState.closed:
-        return 'closed';
-    }
-  }
-}
+  final String value;
 
-extension PortStateFromString on String {
-  PortState toPortState() {
-    switch (this) {
-      case 'open':
-        return PortState.open;
-      case 'closed':
-        return PortState.closed;
-    }
-    throw Exception('$this is not known in enum PortState');
-  }
+  const PortState(this.value);
+
+  static PortState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PortState'));
 }
 
 enum PricingUnit {
-  gb,
-  hrs,
-  gbMo,
-  bundles,
-  queries,
-}
+  gb('GB'),
+  hrs('Hrs'),
+  gbMo('GB-Mo'),
+  bundles('Bundles'),
+  queries('Queries'),
+  ;
 
-extension PricingUnitValueExtension on PricingUnit {
-  String toValue() {
-    switch (this) {
-      case PricingUnit.gb:
-        return 'GB';
-      case PricingUnit.hrs:
-        return 'Hrs';
-      case PricingUnit.gbMo:
-        return 'GB-Mo';
-      case PricingUnit.bundles:
-        return 'Bundles';
-      case PricingUnit.queries:
-        return 'Queries';
-    }
-  }
-}
+  final String value;
 
-extension PricingUnitFromString on String {
-  PricingUnit toPricingUnit() {
-    switch (this) {
-      case 'GB':
-        return PricingUnit.gb;
-      case 'Hrs':
-        return PricingUnit.hrs;
-      case 'GB-Mo':
-        return PricingUnit.gbMo;
-      case 'Bundles':
-        return PricingUnit.bundles;
-      case 'Queries':
-        return PricingUnit.queries;
-    }
-    throw Exception('$this is not known in enum PricingUnit');
-  }
+  const PricingUnit(this.value);
+
+  static PricingUnit fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PricingUnit'));
 }
 
 /// Describes the configuration for an Amazon Lightsail container service to
@@ -22383,7 +20753,7 @@ class PutAlarmResult {
   factory PutAlarmResult.fromJson(Map<String, dynamic> json) {
     return PutAlarmResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -22438,7 +20808,7 @@ class QueryStringObject {
     return QueryStringObject(
       option: json['option'] as bool?,
       queryStringsAllowList: (json['queryStringsAllowList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -22488,50 +20858,28 @@ class R53HostedZoneDeletionState {
 
   factory R53HostedZoneDeletionState.fromJson(Map<String, dynamic> json) {
     return R53HostedZoneDeletionState(
-      code: (json['code'] as String?)?.toR53HostedZoneDeletionStateCode(),
+      code: (json['code'] as String?)
+          ?.let(R53HostedZoneDeletionStateCode.fromString),
       message: json['message'] as String?,
     );
   }
 }
 
 enum R53HostedZoneDeletionStateCode {
-  succeeded,
-  pending,
-  failed,
-  started,
-}
+  succeeded('SUCCEEDED'),
+  pending('PENDING'),
+  failed('FAILED'),
+  started('STARTED'),
+  ;
 
-extension R53HostedZoneDeletionStateCodeValueExtension
-    on R53HostedZoneDeletionStateCode {
-  String toValue() {
-    switch (this) {
-      case R53HostedZoneDeletionStateCode.succeeded:
-        return 'SUCCEEDED';
-      case R53HostedZoneDeletionStateCode.pending:
-        return 'PENDING';
-      case R53HostedZoneDeletionStateCode.failed:
-        return 'FAILED';
-      case R53HostedZoneDeletionStateCode.started:
-        return 'STARTED';
-    }
-  }
-}
+  final String value;
 
-extension R53HostedZoneDeletionStateCodeFromString on String {
-  R53HostedZoneDeletionStateCode toR53HostedZoneDeletionStateCode() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return R53HostedZoneDeletionStateCode.succeeded;
-      case 'PENDING':
-        return R53HostedZoneDeletionStateCode.pending;
-      case 'FAILED':
-        return R53HostedZoneDeletionStateCode.failed;
-      case 'STARTED':
-        return R53HostedZoneDeletionStateCode.started;
-    }
-    throw Exception(
-        '$this is not known in enum R53HostedZoneDeletionStateCode');
-  }
+  const R53HostedZoneDeletionStateCode(this.value);
+
+  static R53HostedZoneDeletionStateCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum R53HostedZoneDeletionStateCode'));
 }
 
 class RebootInstanceResult {
@@ -22547,7 +20895,7 @@ class RebootInstanceResult {
   factory RebootInstanceResult.fromJson(Map<String, dynamic> json) {
     return RebootInstanceResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -22567,7 +20915,7 @@ class RebootRelationalDatabaseResult {
   factory RebootRelationalDatabaseResult.fromJson(Map<String, dynamic> json) {
     return RebootRelationalDatabaseResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -22575,36 +20923,18 @@ class RebootRelationalDatabaseResult {
 }
 
 enum RecordState {
-  started,
-  succeeded,
-  failed,
-}
+  started('Started'),
+  succeeded('Succeeded'),
+  failed('Failed'),
+  ;
 
-extension RecordStateValueExtension on RecordState {
-  String toValue() {
-    switch (this) {
-      case RecordState.started:
-        return 'Started';
-      case RecordState.succeeded:
-        return 'Succeeded';
-      case RecordState.failed:
-        return 'Failed';
-    }
-  }
-}
+  final String value;
 
-extension RecordStateFromString on String {
-  RecordState toRecordState() {
-    switch (this) {
-      case 'Started':
-        return RecordState.started;
-      case 'Succeeded':
-        return RecordState.succeeded;
-      case 'Failed':
-        return RecordState.failed;
-    }
-    throw Exception('$this is not known in enum RecordState');
-  }
+  const RecordState(this.value);
+
+  static RecordState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RecordState'));
 }
 
 /// Describes the Amazon Web Services Region.
@@ -22613,18 +20943,18 @@ class Region {
   /// (case-sensitive).
   final List<AvailabilityZone>? availabilityZones;
 
-  /// The continent code (e.g., <code>NA</code>, meaning North America).
+  /// The continent code (<code>NA</code>, meaning North America).
   final String? continentCode;
 
-  /// The description of the Amazon Web Services Region (e.g., <code>This region
-  /// is recommended to serve users in the eastern United States and eastern
+  /// The description of the Amazon Web Services Region (<code>This region is
+  /// recommended to serve users in the eastern United States and eastern
   /// Canada</code>).
   final String? description;
 
-  /// The display name (e.g., <code>Ohio</code>).
+  /// The display name (<code>Ohio</code>).
   final String? displayName;
 
-  /// The region name (e.g., <code>us-east-2</code>).
+  /// The region name (<code>us-east-2</code>).
   final RegionName? name;
 
   /// The Availability Zones for databases. Follows the format
@@ -22643,16 +20973,16 @@ class Region {
   factory Region.fromJson(Map<String, dynamic> json) {
     return Region(
       availabilityZones: (json['availabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AvailabilityZone.fromJson(e as Map<String, dynamic>))
           .toList(),
       continentCode: json['continentCode'] as String?,
       description: json['description'] as String?,
       displayName: json['displayName'] as String?,
-      name: (json['name'] as String?)?.toRegionName(),
+      name: (json['name'] as String?)?.let(RegionName.fromString),
       relationalDatabaseAvailabilityZones:
           (json['relationalDatabaseAvailabilityZones'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AvailabilityZone.fromJson(e as Map<String, dynamic>))
               .toList(),
     );
@@ -22660,96 +20990,30 @@ class Region {
 }
 
 enum RegionName {
-  usEast_1,
-  usEast_2,
-  usWest_1,
-  usWest_2,
-  euWest_1,
-  euWest_2,
-  euWest_3,
-  euCentral_1,
-  caCentral_1,
-  apSouth_1,
-  apSoutheast_1,
-  apSoutheast_2,
-  apNortheast_1,
-  apNortheast_2,
-  euNorth_1,
-}
+  usEast_1('us-east-1'),
+  usEast_2('us-east-2'),
+  usWest_1('us-west-1'),
+  usWest_2('us-west-2'),
+  euWest_1('eu-west-1'),
+  euWest_2('eu-west-2'),
+  euWest_3('eu-west-3'),
+  euCentral_1('eu-central-1'),
+  caCentral_1('ca-central-1'),
+  apSouth_1('ap-south-1'),
+  apSoutheast_1('ap-southeast-1'),
+  apSoutheast_2('ap-southeast-2'),
+  apNortheast_1('ap-northeast-1'),
+  apNortheast_2('ap-northeast-2'),
+  euNorth_1('eu-north-1'),
+  ;
 
-extension RegionNameValueExtension on RegionName {
-  String toValue() {
-    switch (this) {
-      case RegionName.usEast_1:
-        return 'us-east-1';
-      case RegionName.usEast_2:
-        return 'us-east-2';
-      case RegionName.usWest_1:
-        return 'us-west-1';
-      case RegionName.usWest_2:
-        return 'us-west-2';
-      case RegionName.euWest_1:
-        return 'eu-west-1';
-      case RegionName.euWest_2:
-        return 'eu-west-2';
-      case RegionName.euWest_3:
-        return 'eu-west-3';
-      case RegionName.euCentral_1:
-        return 'eu-central-1';
-      case RegionName.caCentral_1:
-        return 'ca-central-1';
-      case RegionName.apSouth_1:
-        return 'ap-south-1';
-      case RegionName.apSoutheast_1:
-        return 'ap-southeast-1';
-      case RegionName.apSoutheast_2:
-        return 'ap-southeast-2';
-      case RegionName.apNortheast_1:
-        return 'ap-northeast-1';
-      case RegionName.apNortheast_2:
-        return 'ap-northeast-2';
-      case RegionName.euNorth_1:
-        return 'eu-north-1';
-    }
-  }
-}
+  final String value;
 
-extension RegionNameFromString on String {
-  RegionName toRegionName() {
-    switch (this) {
-      case 'us-east-1':
-        return RegionName.usEast_1;
-      case 'us-east-2':
-        return RegionName.usEast_2;
-      case 'us-west-1':
-        return RegionName.usWest_1;
-      case 'us-west-2':
-        return RegionName.usWest_2;
-      case 'eu-west-1':
-        return RegionName.euWest_1;
-      case 'eu-west-2':
-        return RegionName.euWest_2;
-      case 'eu-west-3':
-        return RegionName.euWest_3;
-      case 'eu-central-1':
-        return RegionName.euCentral_1;
-      case 'ca-central-1':
-        return RegionName.caCentral_1;
-      case 'ap-south-1':
-        return RegionName.apSouth_1;
-      case 'ap-southeast-1':
-        return RegionName.apSoutheast_1;
-      case 'ap-southeast-2':
-        return RegionName.apSoutheast_2;
-      case 'ap-northeast-1':
-        return RegionName.apNortheast_1;
-      case 'ap-northeast-2':
-        return RegionName.apNortheast_2;
-      case 'eu-north-1':
-        return RegionName.euNorth_1;
-    }
-    throw Exception('$this is not known in enum RegionName');
-  }
+  const RegionName(this.value);
+
+  static RegionName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RegionName'));
 }
 
 class RegisterContainerImageResult {
@@ -22986,7 +21250,7 @@ class RelationalDatabase {
       name: json['name'] as String?,
       parameterApplyStatus: json['parameterApplyStatus'] as String?,
       pendingMaintenanceActions: (json['pendingMaintenanceActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               PendingMaintenanceAction.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -23000,12 +21264,13 @@ class RelationalDatabase {
       relationalDatabaseBlueprintId:
           json['relationalDatabaseBlueprintId'] as String?,
       relationalDatabaseBundleId: json['relationalDatabaseBundleId'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       secondaryAvailabilityZone: json['secondaryAvailabilityZone'] as String?,
       state: json['state'] as String?,
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -23048,7 +21313,8 @@ class RelationalDatabaseBlueprint {
   factory RelationalDatabaseBlueprint.fromJson(Map<String, dynamic> json) {
     return RelationalDatabaseBlueprint(
       blueprintId: json['blueprintId'] as String?,
-      engine: (json['engine'] as String?)?.toRelationalDatabaseEngine(),
+      engine:
+          (json['engine'] as String?)?.let(RelationalDatabaseEngine.fromString),
       engineDescription: json['engineDescription'] as String?,
       engineVersion: json['engineVersion'] as String?,
       engineVersionDescription: json['engineVersionDescription'] as String?,
@@ -23137,26 +21403,17 @@ class RelationalDatabaseEndpoint {
 }
 
 enum RelationalDatabaseEngine {
-  mysql,
-}
+  mysql('mysql'),
+  ;
 
-extension RelationalDatabaseEngineValueExtension on RelationalDatabaseEngine {
-  String toValue() {
-    switch (this) {
-      case RelationalDatabaseEngine.mysql:
-        return 'mysql';
-    }
-  }
-}
+  final String value;
 
-extension RelationalDatabaseEngineFromString on String {
-  RelationalDatabaseEngine toRelationalDatabaseEngine() {
-    switch (this) {
-      case 'mysql':
-        return RelationalDatabaseEngine.mysql;
-    }
-    throw Exception('$this is not known in enum RelationalDatabaseEngine');
-  }
+  const RelationalDatabaseEngine(this.value);
+
+  static RelationalDatabaseEngine fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RelationalDatabaseEngine'));
 }
 
 /// Describes an event for a database.
@@ -23184,7 +21441,7 @@ class RelationalDatabaseEvent {
     return RelationalDatabaseEvent(
       createdAt: timeStampFromJson(json['createdAt']),
       eventCategories: (json['eventCategories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       message: json['message'] as String?,
@@ -23220,52 +21477,22 @@ class RelationalDatabaseHardware {
 }
 
 enum RelationalDatabaseMetricName {
-  cPUUtilization,
-  databaseConnections,
-  diskQueueDepth,
-  freeStorageSpace,
-  networkReceiveThroughput,
-  networkTransmitThroughput,
-}
+  cPUUtilization('CPUUtilization'),
+  databaseConnections('DatabaseConnections'),
+  diskQueueDepth('DiskQueueDepth'),
+  freeStorageSpace('FreeStorageSpace'),
+  networkReceiveThroughput('NetworkReceiveThroughput'),
+  networkTransmitThroughput('NetworkTransmitThroughput'),
+  ;
 
-extension RelationalDatabaseMetricNameValueExtension
-    on RelationalDatabaseMetricName {
-  String toValue() {
-    switch (this) {
-      case RelationalDatabaseMetricName.cPUUtilization:
-        return 'CPUUtilization';
-      case RelationalDatabaseMetricName.databaseConnections:
-        return 'DatabaseConnections';
-      case RelationalDatabaseMetricName.diskQueueDepth:
-        return 'DiskQueueDepth';
-      case RelationalDatabaseMetricName.freeStorageSpace:
-        return 'FreeStorageSpace';
-      case RelationalDatabaseMetricName.networkReceiveThroughput:
-        return 'NetworkReceiveThroughput';
-      case RelationalDatabaseMetricName.networkTransmitThroughput:
-        return 'NetworkTransmitThroughput';
-    }
-  }
-}
+  final String value;
 
-extension RelationalDatabaseMetricNameFromString on String {
-  RelationalDatabaseMetricName toRelationalDatabaseMetricName() {
-    switch (this) {
-      case 'CPUUtilization':
-        return RelationalDatabaseMetricName.cPUUtilization;
-      case 'DatabaseConnections':
-        return RelationalDatabaseMetricName.databaseConnections;
-      case 'DiskQueueDepth':
-        return RelationalDatabaseMetricName.diskQueueDepth;
-      case 'FreeStorageSpace':
-        return RelationalDatabaseMetricName.freeStorageSpace;
-      case 'NetworkReceiveThroughput':
-        return RelationalDatabaseMetricName.networkReceiveThroughput;
-      case 'NetworkTransmitThroughput':
-        return RelationalDatabaseMetricName.networkTransmitThroughput;
-    }
-    throw Exception('$this is not known in enum RelationalDatabaseMetricName');
-  }
+  const RelationalDatabaseMetricName(this.value);
+
+  static RelationalDatabaseMetricName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RelationalDatabaseMetricName'));
 }
 
 /// Describes the parameters of a database.
@@ -23343,38 +21570,19 @@ class RelationalDatabaseParameter {
 }
 
 enum RelationalDatabasePasswordVersion {
-  current,
-  previous,
-  pending,
-}
+  current('CURRENT'),
+  previous('PREVIOUS'),
+  pending('PENDING'),
+  ;
 
-extension RelationalDatabasePasswordVersionValueExtension
-    on RelationalDatabasePasswordVersion {
-  String toValue() {
-    switch (this) {
-      case RelationalDatabasePasswordVersion.current:
-        return 'CURRENT';
-      case RelationalDatabasePasswordVersion.previous:
-        return 'PREVIOUS';
-      case RelationalDatabasePasswordVersion.pending:
-        return 'PENDING';
-    }
-  }
-}
+  final String value;
 
-extension RelationalDatabasePasswordVersionFromString on String {
-  RelationalDatabasePasswordVersion toRelationalDatabasePasswordVersion() {
-    switch (this) {
-      case 'CURRENT':
-        return RelationalDatabasePasswordVersion.current;
-      case 'PREVIOUS':
-        return RelationalDatabasePasswordVersion.previous;
-      case 'PENDING':
-        return RelationalDatabasePasswordVersion.pending;
-    }
-    throw Exception(
-        '$this is not known in enum RelationalDatabasePasswordVersion');
-  }
+  const RelationalDatabasePasswordVersion(this.value);
+
+  static RelationalDatabasePasswordVersion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RelationalDatabasePasswordVersion'));
 }
 
 /// Describes a database snapshot.
@@ -23470,12 +21678,13 @@ class RelationalDatabaseSnapshot {
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       sizeInGb: json['sizeInGb'] as int?,
       state: json['state'] as String?,
       supportCode: json['supportCode'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -23495,7 +21704,7 @@ class ReleaseStaticIpResult {
   factory ReleaseStaticIpResult.fromJson(Map<String, dynamic> json) {
     return ReleaseStaticIpResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -23503,41 +21712,20 @@ class ReleaseStaticIpResult {
 }
 
 enum RenewalStatus {
-  pendingAutoRenewal,
-  pendingValidation,
-  success,
-  failed,
-}
+  pendingAutoRenewal('PendingAutoRenewal'),
+  pendingValidation('PendingValidation'),
+  success('Success'),
+  failed('Failed'),
+  ;
 
-extension RenewalStatusValueExtension on RenewalStatus {
-  String toValue() {
-    switch (this) {
-      case RenewalStatus.pendingAutoRenewal:
-        return 'PendingAutoRenewal';
-      case RenewalStatus.pendingValidation:
-        return 'PendingValidation';
-      case RenewalStatus.success:
-        return 'Success';
-      case RenewalStatus.failed:
-        return 'Failed';
-    }
-  }
-}
+  final String value;
 
-extension RenewalStatusFromString on String {
-  RenewalStatus toRenewalStatus() {
-    switch (this) {
-      case 'PendingAutoRenewal':
-        return RenewalStatus.pendingAutoRenewal;
-      case 'PendingValidation':
-        return RenewalStatus.pendingValidation;
-      case 'Success':
-        return RenewalStatus.success;
-      case 'Failed':
-        return RenewalStatus.failed;
-    }
-    throw Exception('$this is not known in enum RenewalStatus');
-  }
+  const RenewalStatus(this.value);
+
+  static RenewalStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RenewalStatus'));
 }
 
 /// Describes the status of a SSL/TLS certificate renewal managed by Amazon
@@ -23594,11 +21782,12 @@ class RenewalSummary {
   factory RenewalSummary.fromJson(Map<String, dynamic> json) {
     return RenewalSummary(
       domainValidationRecords: (json['domainValidationRecords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => DomainValidationRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
-      renewalStatus: (json['renewalStatus'] as String?)?.toRenewalStatus(),
+      renewalStatus:
+          (json['renewalStatus'] as String?)?.let(RenewalStatus.fromString),
       renewalStatusReason: json['renewalStatusReason'] as String?,
       updatedAt: timeStampFromJson(json['updatedAt']),
     );
@@ -23606,8 +21795,8 @@ class RenewalSummary {
 }
 
 class ResetDistributionCacheResult {
-  /// The timestamp of the reset cache request (e.g., <code>1479734909.17</code>)
-  /// in Unix time format.
+  /// The timestamp of the reset cache request (<code>1479734909.17</code>) in
+  /// Unix time format.
   final DateTime? createTime;
 
   /// An array of objects that describe the result of the action, such as the
@@ -23636,31 +21825,18 @@ class ResetDistributionCacheResult {
 }
 
 enum ResourceBucketAccess {
-  allow,
-  deny,
-}
+  allow('allow'),
+  deny('deny'),
+  ;
 
-extension ResourceBucketAccessValueExtension on ResourceBucketAccess {
-  String toValue() {
-    switch (this) {
-      case ResourceBucketAccess.allow:
-        return 'allow';
-      case ResourceBucketAccess.deny:
-        return 'deny';
-    }
-  }
-}
+  final String value;
 
-extension ResourceBucketAccessFromString on String {
-  ResourceBucketAccess toResourceBucketAccess() {
-    switch (this) {
-      case 'allow':
-        return ResourceBucketAccess.allow;
-      case 'deny':
-        return ResourceBucketAccess.deny;
-    }
-    throw Exception('$this is not known in enum ResourceBucketAccess');
-  }
+  const ResourceBucketAccess(this.value);
+
+  static ResourceBucketAccess fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceBucketAccess'));
 }
 
 /// Describes the estimated cost or usage that a budget tracks.
@@ -23691,12 +21867,13 @@ class ResourceBudgetEstimate {
   factory ResourceBudgetEstimate.fromJson(Map<String, dynamic> json) {
     return ResourceBudgetEstimate(
       costEstimates: (json['costEstimates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CostEstimate.fromJson(e as Map<String, dynamic>))
           .toList(),
       endTime: timeStampFromJson(json['endTime']),
       resourceName: json['resourceName'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       startTime: timeStampFromJson(json['startTime']),
     );
   }
@@ -23719,7 +21896,7 @@ class ResourceLocation {
   factory ResourceLocation.fromJson(Map<String, dynamic> json) {
     return ResourceLocation(
       availabilityZone: json['availabilityZone'] as String?,
-      regionName: (json['regionName'] as String?)?.toRegionName(),
+      regionName: (json['regionName'] as String?)?.let(RegionName.fromString),
     );
   }
 }
@@ -23774,121 +21951,36 @@ class ResourceRecord {
 }
 
 enum ResourceType {
-  containerService,
-  instance,
-  staticIp,
-  keyPair,
-  instanceSnapshot,
-  domain,
-  peeredVpc,
-  loadBalancer,
-  loadBalancerTlsCertificate,
-  disk,
-  diskSnapshot,
-  relationalDatabase,
-  relationalDatabaseSnapshot,
-  exportSnapshotRecord,
-  cloudFormationStackRecord,
-  alarm,
-  contactMethod,
-  distribution,
-  certificate,
-  bucket,
-}
+  containerService('ContainerService'),
+  instance('Instance'),
+  staticIp('StaticIp'),
+  keyPair('KeyPair'),
+  instanceSnapshot('InstanceSnapshot'),
+  domain('Domain'),
+  peeredVpc('PeeredVpc'),
+  loadBalancer('LoadBalancer'),
+  loadBalancerTlsCertificate('LoadBalancerTlsCertificate'),
+  disk('Disk'),
+  diskSnapshot('DiskSnapshot'),
+  relationalDatabase('RelationalDatabase'),
+  relationalDatabaseSnapshot('RelationalDatabaseSnapshot'),
+  exportSnapshotRecord('ExportSnapshotRecord'),
+  cloudFormationStackRecord('CloudFormationStackRecord'),
+  alarm('Alarm'),
+  contactMethod('ContactMethod'),
+  distribution('Distribution'),
+  certificate('Certificate'),
+  bucket('Bucket'),
+  ;
 
-extension ResourceTypeValueExtension on ResourceType {
-  String toValue() {
-    switch (this) {
-      case ResourceType.containerService:
-        return 'ContainerService';
-      case ResourceType.instance:
-        return 'Instance';
-      case ResourceType.staticIp:
-        return 'StaticIp';
-      case ResourceType.keyPair:
-        return 'KeyPair';
-      case ResourceType.instanceSnapshot:
-        return 'InstanceSnapshot';
-      case ResourceType.domain:
-        return 'Domain';
-      case ResourceType.peeredVpc:
-        return 'PeeredVpc';
-      case ResourceType.loadBalancer:
-        return 'LoadBalancer';
-      case ResourceType.loadBalancerTlsCertificate:
-        return 'LoadBalancerTlsCertificate';
-      case ResourceType.disk:
-        return 'Disk';
-      case ResourceType.diskSnapshot:
-        return 'DiskSnapshot';
-      case ResourceType.relationalDatabase:
-        return 'RelationalDatabase';
-      case ResourceType.relationalDatabaseSnapshot:
-        return 'RelationalDatabaseSnapshot';
-      case ResourceType.exportSnapshotRecord:
-        return 'ExportSnapshotRecord';
-      case ResourceType.cloudFormationStackRecord:
-        return 'CloudFormationStackRecord';
-      case ResourceType.alarm:
-        return 'Alarm';
-      case ResourceType.contactMethod:
-        return 'ContactMethod';
-      case ResourceType.distribution:
-        return 'Distribution';
-      case ResourceType.certificate:
-        return 'Certificate';
-      case ResourceType.bucket:
-        return 'Bucket';
-    }
-  }
-}
+  final String value;
 
-extension ResourceTypeFromString on String {
-  ResourceType toResourceType() {
-    switch (this) {
-      case 'ContainerService':
-        return ResourceType.containerService;
-      case 'Instance':
-        return ResourceType.instance;
-      case 'StaticIp':
-        return ResourceType.staticIp;
-      case 'KeyPair':
-        return ResourceType.keyPair;
-      case 'InstanceSnapshot':
-        return ResourceType.instanceSnapshot;
-      case 'Domain':
-        return ResourceType.domain;
-      case 'PeeredVpc':
-        return ResourceType.peeredVpc;
-      case 'LoadBalancer':
-        return ResourceType.loadBalancer;
-      case 'LoadBalancerTlsCertificate':
-        return ResourceType.loadBalancerTlsCertificate;
-      case 'Disk':
-        return ResourceType.disk;
-      case 'DiskSnapshot':
-        return ResourceType.diskSnapshot;
-      case 'RelationalDatabase':
-        return ResourceType.relationalDatabase;
-      case 'RelationalDatabaseSnapshot':
-        return ResourceType.relationalDatabaseSnapshot;
-      case 'ExportSnapshotRecord':
-        return ResourceType.exportSnapshotRecord;
-      case 'CloudFormationStackRecord':
-        return ResourceType.cloudFormationStackRecord;
-      case 'Alarm':
-        return ResourceType.alarm;
-      case 'ContactMethod':
-        return ResourceType.contactMethod;
-      case 'Distribution':
-        return ResourceType.distribution;
-      case 'Certificate':
-        return ResourceType.certificate;
-      case 'Bucket':
-        return ResourceType.bucket;
-    }
-    throw Exception('$this is not known in enum ResourceType');
-  }
+  const ResourceType(this.value);
+
+  static ResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceType'));
 }
 
 class SendContactMethodVerificationResult {
@@ -23905,7 +21997,7 @@ class SendContactMethodVerificationResult {
       Map<String, dynamic> json) {
     return SendContactMethodVerificationResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -23954,7 +22046,7 @@ class SetIpAddressTypeResult {
   factory SetIpAddressTypeResult.fromJson(Map<String, dynamic> json) {
     return SetIpAddressTypeResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -23974,11 +22066,205 @@ class SetResourceAccessForBucketResult {
   factory SetResourceAccessForBucketResult.fromJson(Map<String, dynamic> json) {
     return SetResourceAccessForBucketResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
+}
+
+/// Returns details about the commands that were run.
+class SetupExecutionDetails {
+  /// The command that was executed.
+  final String? command;
+
+  /// The timestamp for when the request was run.
+  final DateTime? dateTime;
+
+  /// The name of the target resource.
+  final String? name;
+
+  /// The text written by the command to stderr.
+  final String? standardError;
+
+  /// The text written by the command to stdout.
+  final String? standardOutput;
+
+  /// The status of the <code>SetupInstanceHttps</code> request.
+  final SetupStatus? status;
+
+  /// The current version of the script..
+  final String? version;
+
+  SetupExecutionDetails({
+    this.command,
+    this.dateTime,
+    this.name,
+    this.standardError,
+    this.standardOutput,
+    this.status,
+    this.version,
+  });
+
+  factory SetupExecutionDetails.fromJson(Map<String, dynamic> json) {
+    return SetupExecutionDetails(
+      command: json['command'] as String?,
+      dateTime: timeStampFromJson(json['dateTime']),
+      name: json['name'] as String?,
+      standardError: json['standardError'] as String?,
+      standardOutput: json['standardOutput'] as String?,
+      status: (json['status'] as String?)?.let(SetupStatus.fromString),
+      version: json['version'] as String?,
+    );
+  }
+}
+
+/// Returns a list of the commands that were ran on the target resource.
+///
+/// The status of each command is also returned.
+class SetupHistory {
+  /// Describes the full details of the request.
+  final List<SetupExecutionDetails>? executionDetails;
+
+  /// A GUID that's used to identify the operation.
+  final String? operationId;
+
+  /// Information about the specified request.
+  final SetupRequest? request;
+
+  /// The target resource name for the request.
+  final SetupHistoryResource? resource;
+
+  /// The status of the request.
+  final SetupStatus? status;
+
+  SetupHistory({
+    this.executionDetails,
+    this.operationId,
+    this.request,
+    this.resource,
+    this.status,
+  });
+
+  factory SetupHistory.fromJson(Map<String, dynamic> json) {
+    return SetupHistory(
+      executionDetails: (json['executionDetails'] as List?)
+          ?.nonNulls
+          .map((e) => SetupExecutionDetails.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      operationId: json['operationId'] as String?,
+      request: json['request'] != null
+          ? SetupRequest.fromJson(json['request'] as Map<String, dynamic>)
+          : null,
+      resource: json['resource'] != null
+          ? SetupHistoryResource.fromJson(
+              json['resource'] as Map<String, dynamic>)
+          : null,
+      status: (json['status'] as String?)?.let(SetupStatus.fromString),
+    );
+  }
+}
+
+/// The Lightsail resource that <code>SetupHistory</code> was ran on.
+class SetupHistoryResource {
+  /// The Amazon Resource Name (ARN) of the Lightsail resource.
+  final String? arn;
+
+  /// The timestamp for when the resource was created.
+  final DateTime? createdAt;
+  final ResourceLocation? location;
+
+  /// The name of the Lightsail resource.
+  final String? name;
+
+  /// The Lightsail resource type. For example, <code>Instance</code>.
+  final ResourceType? resourceType;
+
+  SetupHistoryResource({
+    this.arn,
+    this.createdAt,
+    this.location,
+    this.name,
+    this.resourceType,
+  });
+
+  factory SetupHistoryResource.fromJson(Map<String, dynamic> json) {
+    return SetupHistoryResource(
+      arn: json['arn'] as String?,
+      createdAt: timeStampFromJson(json['createdAt']),
+      location: json['location'] != null
+          ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
+          : null,
+      name: json['name'] as String?,
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
+    );
+  }
+}
+
+class SetupInstanceHttpsResult {
+  /// The available API operations for <code>SetupInstanceHttps</code>.
+  final List<Operation>? operations;
+
+  SetupInstanceHttpsResult({
+    this.operations,
+  });
+
+  factory SetupInstanceHttpsResult.fromJson(Map<String, dynamic> json) {
+    return SetupInstanceHttpsResult(
+      operations: (json['operations'] as List?)
+          ?.nonNulls
+          .map((e) => Operation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+/// Returns information that was submitted during the
+/// <code>SetupInstanceHttps</code> request. Email information is redacted for
+/// privacy.
+class SetupRequest {
+  /// The Certificate Authority (CA) that issues the SSL/TLS certificate.
+  final CertificateProvider? certificateProvider;
+
+  /// The name of the domain and subdomains that the SSL/TLS certificate secures.
+  final List<String>? domainNames;
+
+  /// The name of the Lightsail instance.
+  final String? instanceName;
+
+  SetupRequest({
+    this.certificateProvider,
+    this.domainNames,
+    this.instanceName,
+  });
+
+  factory SetupRequest.fromJson(Map<String, dynamic> json) {
+    return SetupRequest(
+      certificateProvider: (json['certificateProvider'] as String?)
+          ?.let(CertificateProvider.fromString),
+      domainNames: (json['domainNames'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      instanceName: json['instanceName'] as String?,
+    );
+  }
+}
+
+enum SetupStatus {
+  succeeded('succeeded'),
+  failed('failed'),
+  inProgress('inProgress'),
+  ;
+
+  final String value;
+
+  const SetupStatus(this.value);
+
+  static SetupStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SetupStatus'));
 }
 
 class StartGUISessionResult {
@@ -23992,7 +22278,7 @@ class StartGUISessionResult {
   factory StartGUISessionResult.fromJson(Map<String, dynamic> json) {
     return StartGUISessionResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24012,7 +22298,7 @@ class StartInstanceResult {
   factory StartInstanceResult.fromJson(Map<String, dynamic> json) {
     return StartInstanceResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24032,7 +22318,7 @@ class StartRelationalDatabaseResult {
   factory StartRelationalDatabaseResult.fromJson(Map<String, dynamic> json) {
     return StartRelationalDatabaseResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24041,16 +22327,15 @@ class StartRelationalDatabaseResult {
 
 /// Describes a static IP.
 class StaticIp {
-  /// The Amazon Resource Name (ARN) of the static IP (e.g.,
-  /// <code>arn:aws:lightsail:us-east-2:123456789101:StaticIp/9cbb4a9e-f8e3-4dfe-b57e-12345EXAMPLE</code>).
+  /// The Amazon Resource Name (ARN) of the static IP
+  /// (<code>arn:aws:lightsail:us-east-2:123456789101:StaticIp/9cbb4a9e-f8e3-4dfe-b57e-12345EXAMPLE</code>).
   final String? arn;
 
-  /// The instance where the static IP is attached (e.g.,
-  /// <code>Amazon_Linux-1GB-Ohio-1</code>).
+  /// The instance where the static IP is attached
+  /// (<code>Amazon_Linux-1GB-Ohio-1</code>).
   final String? attachedTo;
 
-  /// The timestamp when the static IP was created (e.g.,
-  /// <code>1479735304.222</code>).
+  /// The timestamp when the static IP was created (<code>1479735304.222</code>).
   final DateTime? createdAt;
 
   /// The static IP address.
@@ -24062,7 +22347,7 @@ class StaticIp {
   /// The region and Availability Zone where the static IP was created.
   final ResourceLocation? location;
 
-  /// The name of the static IP (e.g., <code>StaticIP-Ohio-EXAMPLE</code>).
+  /// The name of the static IP (<code>StaticIP-Ohio-EXAMPLE</code>).
   final String? name;
 
   /// The resource type (usually <code>StaticIp</code>).
@@ -24096,106 +22381,47 @@ class StaticIp {
           ? ResourceLocation.fromJson(json['location'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
       supportCode: json['supportCode'] as String?,
     );
   }
 }
 
 enum Status {
-  startExpired,
-  notStarted,
-  started,
-  starting,
-  stopped,
-  stopping,
-  settingUpInstance,
-  failedInstanceCreation,
-  failedStartingGUISession,
-  failedStoppingGUISession,
-}
+  startExpired('startExpired'),
+  notStarted('notStarted'),
+  started('started'),
+  starting('starting'),
+  stopped('stopped'),
+  stopping('stopping'),
+  settingUpInstance('settingUpInstance'),
+  failedInstanceCreation('failedInstanceCreation'),
+  failedStartingGUISession('failedStartingGUISession'),
+  failedStoppingGUISession('failedStoppingGUISession'),
+  ;
 
-extension StatusValueExtension on Status {
-  String toValue() {
-    switch (this) {
-      case Status.startExpired:
-        return 'startExpired';
-      case Status.notStarted:
-        return 'notStarted';
-      case Status.started:
-        return 'started';
-      case Status.starting:
-        return 'starting';
-      case Status.stopped:
-        return 'stopped';
-      case Status.stopping:
-        return 'stopping';
-      case Status.settingUpInstance:
-        return 'settingUpInstance';
-      case Status.failedInstanceCreation:
-        return 'failedInstanceCreation';
-      case Status.failedStartingGUISession:
-        return 'failedStartingGUISession';
-      case Status.failedStoppingGUISession:
-        return 'failedStoppingGUISession';
-    }
-  }
-}
+  final String value;
 
-extension StatusFromString on String {
-  Status toStatus() {
-    switch (this) {
-      case 'startExpired':
-        return Status.startExpired;
-      case 'notStarted':
-        return Status.notStarted;
-      case 'started':
-        return Status.started;
-      case 'starting':
-        return Status.starting;
-      case 'stopped':
-        return Status.stopped;
-      case 'stopping':
-        return Status.stopping;
-      case 'settingUpInstance':
-        return Status.settingUpInstance;
-      case 'failedInstanceCreation':
-        return Status.failedInstanceCreation;
-      case 'failedStartingGUISession':
-        return Status.failedStartingGUISession;
-      case 'failedStoppingGUISession':
-        return Status.failedStoppingGUISession;
-    }
-    throw Exception('$this is not known in enum Status');
-  }
+  const Status(this.value);
+
+  static Status fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Status'));
 }
 
 enum StatusType {
-  active,
-  inactive,
-}
+  active('Active'),
+  inactive('Inactive'),
+  ;
 
-extension StatusTypeValueExtension on StatusType {
-  String toValue() {
-    switch (this) {
-      case StatusType.active:
-        return 'Active';
-      case StatusType.inactive:
-        return 'Inactive';
-    }
-  }
-}
+  final String value;
 
-extension StatusTypeFromString on String {
-  StatusType toStatusType() {
-    switch (this) {
-      case 'Active':
-        return StatusType.active;
-      case 'Inactive':
-        return StatusType.inactive;
-    }
-    throw Exception('$this is not known in enum StatusType');
-  }
+  const StatusType(this.value);
+
+  static StatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StatusType'));
 }
 
 class StopGUISessionResult {
@@ -24209,7 +22435,7 @@ class StopGUISessionResult {
   factory StopGUISessionResult.fromJson(Map<String, dynamic> json) {
     return StopGUISessionResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24257,7 +22483,7 @@ class StopInstanceResult {
   factory StopInstanceResult.fromJson(Map<String, dynamic> json) {
     return StopInstanceResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24277,7 +22503,7 @@ class StopRelationalDatabaseResult {
   factory StopRelationalDatabaseResult.fromJson(Map<String, dynamic> json) {
     return StopRelationalDatabaseResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24338,7 +22564,7 @@ class TagResourceResult {
   factory TagResourceResult.fromJson(Map<String, dynamic> json) {
     return TagResourceResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24358,7 +22584,7 @@ class TestAlarmResult {
   factory TestAlarmResult.fromJson(Map<String, dynamic> json) {
     return TestAlarmResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24399,41 +22625,20 @@ class TimePeriod {
 }
 
 enum TreatMissingData {
-  breaching,
-  notBreaching,
-  ignore,
-  missing,
-}
+  breaching('breaching'),
+  notBreaching('notBreaching'),
+  ignore('ignore'),
+  missing('missing'),
+  ;
 
-extension TreatMissingDataValueExtension on TreatMissingData {
-  String toValue() {
-    switch (this) {
-      case TreatMissingData.breaching:
-        return 'breaching';
-      case TreatMissingData.notBreaching:
-        return 'notBreaching';
-      case TreatMissingData.ignore:
-        return 'ignore';
-      case TreatMissingData.missing:
-        return 'missing';
-    }
-  }
-}
+  final String value;
 
-extension TreatMissingDataFromString on String {
-  TreatMissingData toTreatMissingData() {
-    switch (this) {
-      case 'breaching':
-        return TreatMissingData.breaching;
-      case 'notBreaching':
-        return TreatMissingData.notBreaching;
-      case 'ignore':
-        return TreatMissingData.ignore;
-      case 'missing':
-        return TreatMissingData.missing;
-    }
-    throw Exception('$this is not known in enum TreatMissingData');
-  }
+  const TreatMissingData(this.value);
+
+  static TreatMissingData fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TreatMissingData'));
 }
 
 class UnpeerVpcResult {
@@ -24468,7 +22673,7 @@ class UntagResourceResult {
   factory UntagResourceResult.fromJson(Map<String, dynamic> json) {
     return UntagResourceResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24488,7 +22693,7 @@ class UpdateBucketBundleResult {
   factory UpdateBucketBundleResult.fromJson(Map<String, dynamic> json) {
     return UpdateBucketBundleResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24515,7 +22720,7 @@ class UpdateBucketResult {
           ? Bucket.fromJson(json['bucket'] as Map<String, dynamic>)
           : null,
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24591,7 +22796,7 @@ class UpdateDomainEntryResult {
   factory UpdateDomainEntryResult.fromJson(Map<String, dynamic> json) {
     return UpdateDomainEntryResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24632,7 +22837,7 @@ class UpdateLoadBalancerAttributeResult {
       Map<String, dynamic> json) {
     return UpdateLoadBalancerAttributeResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24653,7 +22858,7 @@ class UpdateRelationalDatabaseParametersResult {
       Map<String, dynamic> json) {
     return UpdateRelationalDatabaseParametersResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -24673,11 +22878,28 @@ class UpdateRelationalDatabaseResult {
   factory UpdateRelationalDatabaseResult.fromJson(Map<String, dynamic> json) {
     return UpdateRelationalDatabaseResult(
       operations: (json['operations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Operation.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
+}
+
+enum ViewerMinimumTlsProtocolVersionEnum {
+  tLSv1_1_2016('TLSv1.1_2016'),
+  tLSv1_2_2018('TLSv1.2_2018'),
+  tLSv1_2_2019('TLSv1.2_2019'),
+  tLSv1_2_2021('TLSv1.2_2021'),
+  ;
+
+  final String value;
+
+  const ViewerMinimumTlsProtocolVersionEnum(this.value);
+
+  static ViewerMinimumTlsProtocolVersionEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ViewerMinimumTlsProtocolVersionEnum'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

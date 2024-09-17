@@ -139,6 +139,33 @@ class CodeBuild {
     return BatchGetBuildsOutput.fromJson(jsonResponse.body);
   }
 
+  /// Gets information about one or more compute fleets.
+  ///
+  /// May throw [InvalidInputException].
+  ///
+  /// Parameter [names] :
+  /// The names or ARNs of the compute fleets.
+  Future<BatchGetFleetsOutput> batchGetFleets({
+    required List<String> names,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'CodeBuild_20161006.BatchGetFleets'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'names': names,
+      },
+    );
+
+    return BatchGetFleetsOutput.fromJson(jsonResponse.body);
+  }
+
   /// Gets information about one or more build projects.
   ///
   /// May throw [InvalidInputException].
@@ -220,6 +247,206 @@ class CodeBuild {
     );
 
     return BatchGetReportsOutput.fromJson(jsonResponse.body);
+  }
+
+  /// Creates a compute fleet.
+  ///
+  /// May throw [InvalidInputException].
+  /// May throw [ResourceAlreadyExistsException].
+  /// May throw [AccountLimitExceededException].
+  ///
+  /// Parameter [baseCapacity] :
+  /// The initial number of machines allocated to the ﬂeet, which deﬁnes the
+  /// number of builds that can run in parallel.
+  ///
+  /// Parameter [computeType] :
+  /// Information about the compute resources the compute fleet uses. Available
+  /// values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>BUILD_GENERAL1_SMALL</code>: Use up to 3 GB memory and 2 vCPUs for
+  /// builds.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_MEDIUM</code>: Use up to 7 GB memory and 4 vCPUs for
+  /// builds.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_LARGE</code>: Use up to 16 GB memory and 8 vCPUs for
+  /// builds, depending on your environment type.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_XLARGE</code>: Use up to 70 GB memory and 36 vCPUs
+  /// for builds, depending on your environment type.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_2XLARGE</code>: Use up to 145 GB memory, 72 vCPUs,
+  /// and 824 GB of SSD storage for builds. This compute type supports Docker
+  /// images up to 100 GB uncompressed.
+  /// </li>
+  /// </ul>
+  /// If you use <code>BUILD_GENERAL1_SMALL</code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// For environment type <code>LINUX_CONTAINER</code>, you can use up to 3 GB
+  /// memory and 2 vCPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>LINUX_GPU_CONTAINER</code>, you can use up to
+  /// 16 GB memory, 4 vCPUs, and 1 NVIDIA A10G Tensor Core GPU for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>ARM_CONTAINER</code>, you can use up to 4 GB
+  /// memory and 2 vCPUs on ARM-based processors for builds.
+  /// </li>
+  /// </ul>
+  /// If you use <code>BUILD_GENERAL1_LARGE</code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// For environment type <code>LINUX_CONTAINER</code>, you can use up to 15 GB
+  /// memory and 8 vCPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>LINUX_GPU_CONTAINER</code>, you can use up to
+  /// 255 GB memory, 32 vCPUs, and 4 NVIDIA Tesla V100 GPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>ARM_CONTAINER</code>, you can use up to 16 GB
+  /// memory and 8 vCPUs on ARM-based processors for builds.
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
+  /// environment compute types</a> in the <i>CodeBuild User Guide.</i>
+  ///
+  /// Parameter [environmentType] :
+  /// The environment type of the compute fleet.
+  ///
+  /// <ul>
+  /// <li>
+  /// The environment type <code>ARM_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), Asia Pacific (Mumbai), Asia Pacific (Tokyo), Asia Pacific
+  /// (Singapore), Asia Pacific (Sydney), EU (Frankfurt), and South America (São
+  /// Paulo).
+  /// </li>
+  /// <li>
+  /// The environment type <code>LINUX_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), EU (Frankfurt), Asia Pacific (Tokyo), Asia Pacific (Singapore),
+  /// Asia Pacific (Sydney), South America (São Paulo), and Asia Pacific
+  /// (Mumbai).
+  /// </li>
+  /// <li>
+  /// The environment type <code>LINUX_GPU_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), EU (Frankfurt), Asia Pacific (Tokyo), and Asia Pacific
+  /// (Sydney).
+  /// </li>
+  /// <li>
+  /// The environment type <code>WINDOWS_SERVER_2019_CONTAINER</code> is
+  /// available only in regions US East (N. Virginia), US East (Ohio), US West
+  /// (Oregon), Asia Pacific (Sydney), Asia Pacific (Tokyo), Asia Pacific
+  /// (Mumbai) and EU (Ireland).
+  /// </li>
+  /// <li>
+  /// The environment type <code>WINDOWS_SERVER_2022_CONTAINER</code> is
+  /// available only in regions US East (N. Virginia), US East (Ohio), US West
+  /// (Oregon), EU (Ireland), EU (Frankfurt), Asia Pacific (Sydney), Asia
+  /// Pacific (Singapore), Asia Pacific (Tokyo), South America (São Paulo) and
+  /// Asia Pacific (Mumbai).
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
+  /// environment compute types</a> in the <i>CodeBuild user guide</i>.
+  ///
+  /// Parameter [name] :
+  /// The name of the compute fleet.
+  ///
+  /// Parameter [fleetServiceRole] :
+  /// The service role associated with the compute fleet. For more information,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html#customer-managed-policies-example-permission-policy-fleet-service-role.html">
+  /// Allow a user to add a permission policy for a fleet service role</a> in
+  /// the <i>CodeBuild User Guide</i>.
+  ///
+  /// Parameter [overflowBehavior] :
+  /// The compute fleet overflow behavior.
+  ///
+  /// <ul>
+  /// <li>
+  /// For overflow behavior <code>QUEUE</code>, your overflow builds need to
+  /// wait on the existing fleet instance to become available.
+  /// </li>
+  /// <li>
+  /// For overflow behavior <code>ON_DEMAND</code>, your overflow builds run on
+  /// CodeBuild on-demand.
+  /// <note>
+  /// If you choose to set your overflow behavior to on-demand while creating a
+  /// VPC-connected fleet, make sure that you add the required VPC permissions
+  /// to your project service role. For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html#customer-managed-policies-example-create-vpc-network-interface">Example
+  /// policy statement to allow CodeBuild access to Amazon Web Services services
+  /// required to create a VPC network interface</a>.
+  /// </note> </li>
+  /// </ul>
+  ///
+  /// Parameter [scalingConfiguration] :
+  /// The scaling configuration of the compute fleet.
+  ///
+  /// Parameter [tags] :
+  /// A list of tag key and value pairs associated with this compute fleet.
+  ///
+  /// These tags are available for use by Amazon Web Services services that
+  /// support CodeBuild build project tags.
+  Future<CreateFleetOutput> createFleet({
+    required int baseCapacity,
+    required ComputeType computeType,
+    required EnvironmentType environmentType,
+    required String name,
+    String? fleetServiceRole,
+    FleetOverflowBehavior? overflowBehavior,
+    ScalingConfigurationInput? scalingConfiguration,
+    List<Tag>? tags,
+    VpcConfig? vpcConfig,
+  }) async {
+    _s.validateNumRange(
+      'baseCapacity',
+      baseCapacity,
+      1,
+      1152921504606846976,
+      isRequired: true,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'CodeBuild_20161006.CreateFleet'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'baseCapacity': baseCapacity,
+        'computeType': computeType.value,
+        'environmentType': environmentType.value,
+        'name': name,
+        if (fleetServiceRole != null) 'fleetServiceRole': fleetServiceRole,
+        if (overflowBehavior != null)
+          'overflowBehavior': overflowBehavior.value,
+        if (scalingConfiguration != null)
+          'scalingConfiguration': scalingConfiguration,
+        if (tags != null) 'tags': tags,
+        if (vpcConfig != null) 'vpcConfig': vpcConfig,
+      },
+    );
+
+    return CreateFleetOutput.fromJson(jsonResponse.body);
   }
 
   /// Creates a build project.
@@ -320,6 +547,9 @@ class CodeBuild {
   /// specified, the default branch's HEAD commit ID is used.
   /// </li>
   /// <li>
+  /// For GitLab: the commit ID, branch, or Git tag to use.
+  /// </li>
+  /// <li>
   /// For Bitbucket: the commit ID, branch name, or tag name that corresponds to
   /// the version of the source code you want to build. If a branch name is
   /// specified, the branch's HEAD commit ID is used. If not specified, the
@@ -345,12 +575,16 @@ class CodeBuild {
   /// support CodeBuild build project tags.
   ///
   /// Parameter [timeoutInMinutes] :
-  /// How long, in minutes, from 5 to 480 (8 hours), for CodeBuild to wait
+  /// How long, in minutes, from 5 to 2160 (36 hours), for CodeBuild to wait
   /// before it times out any build that has not been marked as completed. The
   /// default is 60 minutes.
   ///
   /// Parameter [vpcConfig] :
   /// VpcConfig enables CodeBuild to access resources in an Amazon VPC.
+  /// <note>
+  /// If you're using compute fleets during project creation, do not provide
+  /// vpcConfig.
+  /// </note>
   Future<CreateProjectOutput> createProject({
     required ProjectArtifacts artifacts,
     required ProjectEnvironment environment,
@@ -384,7 +618,7 @@ class CodeBuild {
       'timeoutInMinutes',
       timeoutInMinutes,
       5,
-      480,
+      2160,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -469,7 +703,7 @@ class CodeBuild {
       payload: {
         'exportConfig': exportConfig,
         'name': name,
-        'type': type.toValue(),
+        'type': type.value,
         if (tags != null) 'tags': tags,
       },
     );
@@ -521,11 +755,22 @@ class CodeBuild {
   /// For a build to be triggered, at least one filter group in the
   /// <code>filterGroups</code> array must pass. For a filter group to pass,
   /// each of its filters must pass.
+  ///
+  /// Parameter [manualCreation] :
+  /// If manualCreation is true, CodeBuild doesn't create a webhook in GitHub
+  /// and instead returns <code>payloadUrl</code> and <code>secret</code> values
+  /// for the webhook. The <code>payloadUrl</code> and <code>secret</code>
+  /// values in the output can be used to manually create a webhook within
+  /// GitHub.
+  /// <note>
+  /// <code>manualCreation</code> is only available for GitHub webhooks.
+  /// </note>
   Future<CreateWebhookOutput> createWebhook({
     required String projectName,
     String? branchFilter,
     WebhookBuildType? buildType,
     List<List<WebhookFilter>>? filterGroups,
+    bool? manualCreation,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -540,8 +785,9 @@ class CodeBuild {
       payload: {
         'projectName': projectName,
         if (branchFilter != null) 'branchFilter': branchFilter,
-        if (buildType != null) 'buildType': buildType.toValue(),
+        if (buildType != null) 'buildType': buildType.value,
         if (filterGroups != null) 'filterGroups': filterGroups,
+        if (manualCreation != null) 'manualCreation': manualCreation,
       },
     );
 
@@ -573,6 +819,32 @@ class CodeBuild {
     );
 
     return DeleteBuildBatchOutput.fromJson(jsonResponse.body);
+  }
+
+  /// Deletes a compute fleet. When you delete a compute fleet, its builds are
+  /// not deleted.
+  ///
+  /// May throw [InvalidInputException].
+  ///
+  /// Parameter [arn] :
+  /// The ARN of the compute fleet.
+  Future<void> deleteFleet({
+    required String arn,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'CodeBuild_20161006.DeleteFleet'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'arn': arn,
+      },
+    );
   }
 
   /// Deletes a build project. When you delete a project, its builds are not
@@ -825,8 +1097,8 @@ class CodeBuild {
         if (minLineCoveragePercentage != null)
           'minLineCoveragePercentage': minLineCoveragePercentage,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortBy != null) 'sortBy': sortBy.toValue(),
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortBy != null) 'sortBy': sortBy.value,
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -952,7 +1224,7 @@ class CodeBuild {
       headers: headers,
       payload: {
         'reportGroupArn': reportGroupArn,
-        'trendField': trendField.toValue(),
+        'trendField': trendField.value,
         if (numOfReports != null) 'numOfReports': numOfReports,
       },
     );
@@ -998,15 +1270,19 @@ class CodeBuild {
   ///
   /// Parameter [authType] :
   /// The type of authentication used to connect to a GitHub, GitHub Enterprise,
-  /// or Bitbucket repository. An OAUTH connection is not supported by the API
-  /// and must be created using the CodeBuild console.
+  /// GitLab, GitLab Self Managed, or Bitbucket repository. An OAUTH connection
+  /// is not supported by the API and must be created using the CodeBuild
+  /// console. Note that CODECONNECTIONS is only valid for GitLab and GitLab
+  /// Self Managed.
   ///
   /// Parameter [serverType] :
   /// The source provider used for this project.
   ///
   /// Parameter [token] :
   /// For GitHub or GitHub Enterprise, this is the personal access token. For
-  /// Bitbucket, this is the app password.
+  /// Bitbucket, this is either the access token or the app password. For the
+  /// <code>authType</code> CODECONNECTIONS, this is the
+  /// <code>connectionArn</code>.
   ///
   /// Parameter [shouldOverwrite] :
   /// Set to <code>false</code> to prevent overwriting the repository source
@@ -1034,8 +1310,8 @@ class CodeBuild {
       // TODO queryParams
       headers: headers,
       payload: {
-        'authType': authType.toValue(),
-        'serverType': serverType.toValue(),
+        'authType': authType.value,
+        'serverType': serverType.value,
         'token': token,
         if (shouldOverwrite != null) 'shouldOverwrite': shouldOverwrite,
         if (username != null) 'username': username,
@@ -1126,7 +1402,7 @@ class CodeBuild {
         if (filter != null) 'filter': filter,
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1194,7 +1470,7 @@ class CodeBuild {
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
         if (projectName != null) 'projectName': projectName,
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1241,7 +1517,7 @@ class CodeBuild {
       headers: headers,
       payload: {
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1302,7 +1578,7 @@ class CodeBuild {
       payload: {
         'projectName': projectName,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1325,6 +1601,90 @@ class CodeBuild {
     );
 
     return ListCuratedEnvironmentImagesOutput.fromJson(jsonResponse.body);
+  }
+
+  /// Gets a list of compute fleet names with each compute fleet name
+  /// representing a single compute fleet.
+  ///
+  /// May throw [InvalidInputException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of paginated compute fleets returned per response. Use
+  /// <code>nextToken</code> to iterate pages in the list of returned compute
+  /// fleets.
+  ///
+  /// Parameter [nextToken] :
+  /// During a previous call, if there are more than 100 items in the list, only
+  /// the first 100 items are returned, along with a unique string called a
+  /// <i>nextToken</i>. To get the next batch of items in the list, call this
+  /// operation again, adding the next token to the call. To get all of the
+  /// items in the list, keep calling this operation with each subsequent next
+  /// token that is returned, until no more next tokens are returned.
+  ///
+  /// Parameter [sortBy] :
+  /// The criterion to be used to list compute fleet names. Valid values
+  /// include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>CREATED_TIME</code>: List based on when each compute fleet was
+  /// created.
+  /// </li>
+  /// <li>
+  /// <code>LAST_MODIFIED_TIME</code>: List based on when information about each
+  /// compute fleet was last changed.
+  /// </li>
+  /// <li>
+  /// <code>NAME</code>: List based on each compute fleet's name.
+  /// </li>
+  /// </ul>
+  /// Use <code>sortOrder</code> to specify in what order to list the compute
+  /// fleet names based on the preceding criteria.
+  ///
+  /// Parameter [sortOrder] :
+  /// The order in which to list compute fleets. Valid values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>ASCENDING</code>: List in ascending order.
+  /// </li>
+  /// <li>
+  /// <code>DESCENDING</code>: List in descending order.
+  /// </li>
+  /// </ul>
+  /// Use <code>sortBy</code> to specify the criterion to be used to list
+  /// compute fleet names.
+  Future<ListFleetsOutput> listFleets({
+    int? maxResults,
+    String? nextToken,
+    FleetSortByType? sortBy,
+    SortOrderType? sortOrder,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'CodeBuild_20161006.ListFleets'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxResults != null) 'maxResults': maxResults,
+        if (nextToken != null) 'nextToken': nextToken,
+        if (sortBy != null) 'sortBy': sortBy.value,
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
+      },
+    );
+
+    return ListFleetsOutput.fromJson(jsonResponse.body);
   }
 
   /// Gets a list of build project names, with each build project name
@@ -1390,8 +1750,8 @@ class CodeBuild {
       headers: headers,
       payload: {
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortBy != null) 'sortBy': sortBy.toValue(),
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortBy != null) 'sortBy': sortBy.value,
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1463,8 +1823,8 @@ class CodeBuild {
       payload: {
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortBy != null) 'sortBy': sortBy.toValue(),
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortBy != null) 'sortBy': sortBy.value,
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1533,7 +1893,7 @@ class CodeBuild {
         if (filter != null) 'filter': filter,
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1597,7 +1957,7 @@ class CodeBuild {
         if (filter != null) 'filter': filter,
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1673,8 +2033,8 @@ class CodeBuild {
       payload: {
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortBy != null) 'sortBy': sortBy.toValue(),
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortBy != null) 'sortBy': sortBy.value,
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1750,8 +2110,8 @@ class CodeBuild {
       payload: {
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
-        if (sortBy != null) 'sortBy': sortBy.toValue(),
-        if (sortOrder != null) 'sortOrder': sortOrder.toValue(),
+        if (sortBy != null) 'sortBy': sortBy.value,
+        if (sortOrder != null) 'sortOrder': sortOrder.value,
       },
     );
 
@@ -1890,14 +2250,21 @@ class CodeBuild {
       payload: {
         if (id != null) 'id': id,
         if (idempotencyToken != null) 'idempotencyToken': idempotencyToken,
-        if (retryType != null) 'retryType': retryType.toValue(),
+        if (retryType != null) 'retryType': retryType.value,
       },
     );
 
     return RetryBuildBatchOutput.fromJson(jsonResponse.body);
   }
 
-  /// Starts running a build.
+  /// Starts running a build with the settings defined in the project. These
+  /// setting include: how to run a build, where to get the source code, which
+  /// build environment to use, which build commands to run, and where to store
+  /// the build output.
+  ///
+  /// You can also start a build run by overriding some of the build settings in
+  /// the project. The overrides only apply for that specific start build
+  /// request. The settings in the project are unaltered.
   ///
   /// May throw [InvalidInputException].
   /// May throw [ResourceNotFoundException].
@@ -1917,8 +2284,9 @@ class CodeBuild {
   /// <code>BITBUCKET</code>.
   ///
   /// Parameter [buildspecOverride] :
-  /// A buildspec file declaration that overrides, for this build only, the
-  /// latest one already defined in the build project.
+  /// A buildspec file declaration that overrides the latest one defined in the
+  /// build project, for this build only. The buildspec defined on the project
+  /// is not changed.
   ///
   /// If this value is set, it can be either an inline buildspec definition, the
   /// path to an alternate buildspec file relative to the value of the built-in
@@ -1931,6 +2299,13 @@ class CodeBuild {
   /// <a
   /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec-ref-name-storage">Buildspec
   /// File Name and Storage Location</a>.
+  /// <note>
+  /// Since this property allows you to change the build commands that will run
+  /// in the container, you should note that an IAM principal with the ability
+  /// to call this API and set this parameter can override the default settings.
+  /// Moreover, we encourage that you use a trustworthy buildspec location like
+  /// a file in your source repository or a Amazon S3 bucket.
+  /// </note>
   ///
   /// Parameter [cacheOverride] :
   /// A ProjectCache object specified for this build that overrides the one
@@ -1969,6 +2344,10 @@ class CodeBuild {
   /// Parameter [environmentVariablesOverride] :
   /// A set of environment variables that overrides, for this build only, the
   /// latest ones already defined in the build project.
+  ///
+  /// Parameter [fleetOverride] :
+  /// A ProjectFleet object specified for this build that overrides the one
+  /// defined in the build project.
   ///
   /// Parameter [gitCloneDepthOverride] :
   /// The user-defined depth of history, with a minimum value of 0, that
@@ -2057,7 +2436,7 @@ class CodeBuild {
   /// Parameter [sourceAuthOverride] :
   /// An authorization type for this build that overrides the one defined in the
   /// build project. This override applies only if the build project's source is
-  /// BitBucket or GitHub.
+  /// BitBucket, GitHub, GitLab, or GitLab Self Managed.
   ///
   /// Parameter [sourceLocationOverride] :
   /// A location that overrides, for this build, the source location for the one
@@ -2080,6 +2459,8 @@ class CodeBuild {
   /// example <code>pr/25</code>). If a branch name is specified, the branch's
   /// HEAD commit ID is used. If not specified, the default branch's HEAD commit
   /// ID is used.
+  /// </dd> <dt>GitLab</dt> <dd>
+  /// The commit ID, branch, or Git tag to use.
   /// </dd> <dt>Bitbucket</dt> <dd>
   /// The commit ID, branch name, or tag name that corresponds to the version of
   /// the source code you want to build. If a branch name is specified, the
@@ -2097,7 +2478,7 @@ class CodeBuild {
   /// Version Sample with CodeBuild</a> in the <i>CodeBuild User Guide</i>.
   ///
   /// Parameter [timeoutInMinutesOverride] :
-  /// The number of build timeout minutes, from 5 to 480 (8 hours), that
+  /// The number of build timeout minutes, from 5 to 2160 (36 hours), that
   /// overrides, for this build only, the latest setting already defined in the
   /// build project.
   Future<StartBuildOutput> startBuild({
@@ -2112,6 +2493,7 @@ class CodeBuild {
     String? encryptionKeyOverride,
     EnvironmentType? environmentTypeOverride,
     List<EnvironmentVariable>? environmentVariablesOverride,
+    ProjectFleet? fleetOverride,
     int? gitCloneDepthOverride,
     GitSubmodulesConfig? gitSubmodulesConfigOverride,
     String? idempotencyToken,
@@ -2149,7 +2531,7 @@ class CodeBuild {
       'timeoutInMinutesOverride',
       timeoutInMinutesOverride,
       5,
-      480,
+      2160,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -2171,15 +2553,16 @@ class CodeBuild {
         if (certificateOverride != null)
           'certificateOverride': certificateOverride,
         if (computeTypeOverride != null)
-          'computeTypeOverride': computeTypeOverride.toValue(),
+          'computeTypeOverride': computeTypeOverride.value,
         if (debugSessionEnabled != null)
           'debugSessionEnabled': debugSessionEnabled,
         if (encryptionKeyOverride != null)
           'encryptionKeyOverride': encryptionKeyOverride,
         if (environmentTypeOverride != null)
-          'environmentTypeOverride': environmentTypeOverride.toValue(),
+          'environmentTypeOverride': environmentTypeOverride.value,
         if (environmentVariablesOverride != null)
           'environmentVariablesOverride': environmentVariablesOverride,
+        if (fleetOverride != null) 'fleetOverride': fleetOverride,
         if (gitCloneDepthOverride != null)
           'gitCloneDepthOverride': gitCloneDepthOverride,
         if (gitSubmodulesConfigOverride != null)
@@ -2188,7 +2571,7 @@ class CodeBuild {
         if (imageOverride != null) 'imageOverride': imageOverride,
         if (imagePullCredentialsTypeOverride != null)
           'imagePullCredentialsTypeOverride':
-              imagePullCredentialsTypeOverride.toValue(),
+              imagePullCredentialsTypeOverride.value,
         if (insecureSslOverride != null)
           'insecureSslOverride': insecureSslOverride,
         if (logsConfigOverride != null)
@@ -2214,7 +2597,7 @@ class CodeBuild {
         if (sourceLocationOverride != null)
           'sourceLocationOverride': sourceLocationOverride,
         if (sourceTypeOverride != null)
-          'sourceTypeOverride': sourceTypeOverride.toValue(),
+          'sourceTypeOverride': sourceTypeOverride.value,
         if (sourceVersion != null) 'sourceVersion': sourceVersion,
         if (timeoutInMinutesOverride != null)
           'timeoutInMinutesOverride': timeoutInMinutesOverride,
@@ -2456,7 +2839,7 @@ class CodeBuild {
       'buildTimeoutInMinutesOverride',
       buildTimeoutInMinutesOverride,
       5,
-      480,
+      2160,
     );
     _s.validateNumRange(
       'gitCloneDepthOverride',
@@ -2492,13 +2875,13 @@ class CodeBuild {
         if (certificateOverride != null)
           'certificateOverride': certificateOverride,
         if (computeTypeOverride != null)
-          'computeTypeOverride': computeTypeOverride.toValue(),
+          'computeTypeOverride': computeTypeOverride.value,
         if (debugSessionEnabled != null)
           'debugSessionEnabled': debugSessionEnabled,
         if (encryptionKeyOverride != null)
           'encryptionKeyOverride': encryptionKeyOverride,
         if (environmentTypeOverride != null)
-          'environmentTypeOverride': environmentTypeOverride.toValue(),
+          'environmentTypeOverride': environmentTypeOverride.value,
         if (environmentVariablesOverride != null)
           'environmentVariablesOverride': environmentVariablesOverride,
         if (gitCloneDepthOverride != null)
@@ -2509,7 +2892,7 @@ class CodeBuild {
         if (imageOverride != null) 'imageOverride': imageOverride,
         if (imagePullCredentialsTypeOverride != null)
           'imagePullCredentialsTypeOverride':
-              imagePullCredentialsTypeOverride.toValue(),
+              imagePullCredentialsTypeOverride.value,
         if (insecureSslOverride != null)
           'insecureSslOverride': insecureSslOverride,
         if (logsConfigOverride != null)
@@ -2535,7 +2918,7 @@ class CodeBuild {
         if (sourceLocationOverride != null)
           'sourceLocationOverride': sourceLocationOverride,
         if (sourceTypeOverride != null)
-          'sourceTypeOverride': sourceTypeOverride.toValue(),
+          'sourceTypeOverride': sourceTypeOverride.value,
         if (sourceVersion != null) 'sourceVersion': sourceVersion,
       },
     );
@@ -2597,6 +2980,205 @@ class CodeBuild {
     );
 
     return StopBuildBatchOutput.fromJson(jsonResponse.body);
+  }
+
+  /// Updates a compute fleet.
+  ///
+  /// May throw [InvalidInputException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccountLimitExceededException].
+  ///
+  /// Parameter [arn] :
+  /// The ARN of the compute fleet.
+  ///
+  /// Parameter [baseCapacity] :
+  /// The initial number of machines allocated to the compute ﬂeet, which deﬁnes
+  /// the number of builds that can run in parallel.
+  ///
+  /// Parameter [computeType] :
+  /// Information about the compute resources the compute fleet uses. Available
+  /// values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>BUILD_GENERAL1_SMALL</code>: Use up to 3 GB memory and 2 vCPUs for
+  /// builds.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_MEDIUM</code>: Use up to 7 GB memory and 4 vCPUs for
+  /// builds.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_LARGE</code>: Use up to 16 GB memory and 8 vCPUs for
+  /// builds, depending on your environment type.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_XLARGE</code>: Use up to 70 GB memory and 36 vCPUs
+  /// for builds, depending on your environment type.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_2XLARGE</code>: Use up to 145 GB memory, 72 vCPUs,
+  /// and 824 GB of SSD storage for builds. This compute type supports Docker
+  /// images up to 100 GB uncompressed.
+  /// </li>
+  /// </ul>
+  /// If you use <code>BUILD_GENERAL1_SMALL</code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// For environment type <code>LINUX_CONTAINER</code>, you can use up to 3 GB
+  /// memory and 2 vCPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>LINUX_GPU_CONTAINER</code>, you can use up to
+  /// 16 GB memory, 4 vCPUs, and 1 NVIDIA A10G Tensor Core GPU for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>ARM_CONTAINER</code>, you can use up to 4 GB
+  /// memory and 2 vCPUs on ARM-based processors for builds.
+  /// </li>
+  /// </ul>
+  /// If you use <code>BUILD_GENERAL1_LARGE</code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// For environment type <code>LINUX_CONTAINER</code>, you can use up to 15 GB
+  /// memory and 8 vCPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>LINUX_GPU_CONTAINER</code>, you can use up to
+  /// 255 GB memory, 32 vCPUs, and 4 NVIDIA Tesla V100 GPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>ARM_CONTAINER</code>, you can use up to 16 GB
+  /// memory and 8 vCPUs on ARM-based processors for builds.
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
+  /// environment compute types</a> in the <i>CodeBuild User Guide.</i>
+  ///
+  /// Parameter [environmentType] :
+  /// The environment type of the compute fleet.
+  ///
+  /// <ul>
+  /// <li>
+  /// The environment type <code>ARM_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), Asia Pacific (Mumbai), Asia Pacific (Tokyo), Asia Pacific
+  /// (Singapore), Asia Pacific (Sydney), EU (Frankfurt), and South America (São
+  /// Paulo).
+  /// </li>
+  /// <li>
+  /// The environment type <code>LINUX_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), EU (Frankfurt), Asia Pacific (Tokyo), Asia Pacific (Singapore),
+  /// Asia Pacific (Sydney), South America (São Paulo), and Asia Pacific
+  /// (Mumbai).
+  /// </li>
+  /// <li>
+  /// The environment type <code>LINUX_GPU_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), EU (Frankfurt), Asia Pacific (Tokyo), and Asia Pacific
+  /// (Sydney).
+  /// </li>
+  /// <li>
+  /// The environment type <code>WINDOWS_SERVER_2019_CONTAINER</code> is
+  /// available only in regions US East (N. Virginia), US East (Ohio), US West
+  /// (Oregon), Asia Pacific (Sydney), Asia Pacific (Tokyo), Asia Pacific
+  /// (Mumbai) and EU (Ireland).
+  /// </li>
+  /// <li>
+  /// The environment type <code>WINDOWS_SERVER_2022_CONTAINER</code> is
+  /// available only in regions US East (N. Virginia), US East (Ohio), US West
+  /// (Oregon), EU (Ireland), EU (Frankfurt), Asia Pacific (Sydney), Asia
+  /// Pacific (Singapore), Asia Pacific (Tokyo), South America (São Paulo) and
+  /// Asia Pacific (Mumbai).
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
+  /// environment compute types</a> in the <i>CodeBuild user guide</i>.
+  ///
+  /// Parameter [fleetServiceRole] :
+  /// The service role associated with the compute fleet. For more information,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html#customer-managed-policies-example-permission-policy-fleet-service-role.html">
+  /// Allow a user to add a permission policy for a fleet service role</a> in
+  /// the <i>CodeBuild User Guide</i>.
+  ///
+  /// Parameter [overflowBehavior] :
+  /// The compute fleet overflow behavior.
+  ///
+  /// <ul>
+  /// <li>
+  /// For overflow behavior <code>QUEUE</code>, your overflow builds need to
+  /// wait on the existing fleet instance to become available.
+  /// </li>
+  /// <li>
+  /// For overflow behavior <code>ON_DEMAND</code>, your overflow builds run on
+  /// CodeBuild on-demand.
+  /// <note>
+  /// If you choose to set your overflow behavior to on-demand while creating a
+  /// VPC-connected fleet, make sure that you add the required VPC permissions
+  /// to your project service role. For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html#customer-managed-policies-example-create-vpc-network-interface">Example
+  /// policy statement to allow CodeBuild access to Amazon Web Services services
+  /// required to create a VPC network interface</a>.
+  /// </note> </li>
+  /// </ul>
+  ///
+  /// Parameter [scalingConfiguration] :
+  /// The scaling configuration of the compute fleet.
+  ///
+  /// Parameter [tags] :
+  /// A list of tag key and value pairs associated with this compute fleet.
+  ///
+  /// These tags are available for use by Amazon Web Services services that
+  /// support CodeBuild build project tags.
+  Future<UpdateFleetOutput> updateFleet({
+    required String arn,
+    int? baseCapacity,
+    ComputeType? computeType,
+    EnvironmentType? environmentType,
+    String? fleetServiceRole,
+    FleetOverflowBehavior? overflowBehavior,
+    ScalingConfigurationInput? scalingConfiguration,
+    List<Tag>? tags,
+    VpcConfig? vpcConfig,
+  }) async {
+    _s.validateNumRange(
+      'baseCapacity',
+      baseCapacity,
+      1,
+      1152921504606846976,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'CodeBuild_20161006.UpdateFleet'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'arn': arn,
+        if (baseCapacity != null) 'baseCapacity': baseCapacity,
+        if (computeType != null) 'computeType': computeType.value,
+        if (environmentType != null) 'environmentType': environmentType.value,
+        if (fleetServiceRole != null) 'fleetServiceRole': fleetServiceRole,
+        if (overflowBehavior != null)
+          'overflowBehavior': overflowBehavior.value,
+        if (scalingConfiguration != null)
+          'scalingConfiguration': scalingConfiguration,
+        if (tags != null) 'tags': tags,
+        if (vpcConfig != null) 'vpcConfig': vpcConfig,
+      },
+    );
+
+    return UpdateFleetOutput.fromJson(jsonResponse.body);
   }
 
   /// Changes the settings of a build project.
@@ -2701,6 +3283,9 @@ class CodeBuild {
   /// specified, the default branch's HEAD commit ID is used.
   /// </li>
   /// <li>
+  /// For GitLab: the commit ID, branch, or Git tag to use.
+  /// </li>
+  /// <li>
   /// For Bitbucket: the commit ID, branch name, or tag name that corresponds to
   /// the version of the source code you want to build. If a branch name is
   /// specified, the branch's HEAD commit ID is used. If not specified, the
@@ -2727,7 +3312,7 @@ class CodeBuild {
   /// support CodeBuild build project tags.
   ///
   /// Parameter [timeoutInMinutes] :
-  /// The replacement value in minutes, from 5 to 480 (8 hours), for CodeBuild
+  /// The replacement value in minutes, from 5 to 2160 (36 hours), for CodeBuild
   /// to wait before timing out any related build that did not get marked as
   /// completed.
   ///
@@ -2766,7 +3351,7 @@ class CodeBuild {
       'timeoutInMinutes',
       timeoutInMinutes,
       5,
-      480,
+      2160,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -2833,8 +3418,7 @@ class CodeBuild {
   ///
   /// <ul>
   /// <li>
-  /// Do not store sensitive values, especially Amazon Web Services access key
-  /// IDs and secret access keys, in environment variables. We recommend that
+  /// Do not store sensitive values in environment variables. We recommend that
   /// you use an Amazon EC2 Systems Manager Parameter Store or Secrets Manager
   /// to store sensitive values.
   /// </li>
@@ -2882,7 +3466,7 @@ class CodeBuild {
       headers: headers,
       payload: {
         'projectArn': projectArn,
-        'projectVisibility': projectVisibility.toValue(),
+        'projectVisibility': projectVisibility.value,
         if (resourceAccessRole != null)
           'resourceAccessRole': resourceAccessRole,
       },
@@ -2997,7 +3581,7 @@ class CodeBuild {
       payload: {
         'projectName': projectName,
         if (branchFilter != null) 'branchFilter': branchFilter,
-        if (buildType != null) 'buildType': buildType.toValue(),
+        if (buildType != null) 'buildType': buildType.value,
         if (filterGroups != null) 'filterGroups': filterGroups,
         if (rotateSecret != null) 'rotateSecret': rotateSecret,
       },
@@ -3008,125 +3592,65 @@ class CodeBuild {
 }
 
 enum ArtifactNamespace {
-  none,
-  buildId,
-}
+  none('NONE'),
+  buildId('BUILD_ID'),
+  ;
 
-extension ArtifactNamespaceValueExtension on ArtifactNamespace {
-  String toValue() {
-    switch (this) {
-      case ArtifactNamespace.none:
-        return 'NONE';
-      case ArtifactNamespace.buildId:
-        return 'BUILD_ID';
-    }
-  }
-}
+  final String value;
 
-extension ArtifactNamespaceFromString on String {
-  ArtifactNamespace toArtifactNamespace() {
-    switch (this) {
-      case 'NONE':
-        return ArtifactNamespace.none;
-      case 'BUILD_ID':
-        return ArtifactNamespace.buildId;
-    }
-    throw Exception('$this is not known in enum ArtifactNamespace');
-  }
+  const ArtifactNamespace(this.value);
+
+  static ArtifactNamespace fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ArtifactNamespace'));
 }
 
 enum ArtifactPackaging {
-  none,
-  zip,
-}
+  none('NONE'),
+  zip('ZIP'),
+  ;
 
-extension ArtifactPackagingValueExtension on ArtifactPackaging {
-  String toValue() {
-    switch (this) {
-      case ArtifactPackaging.none:
-        return 'NONE';
-      case ArtifactPackaging.zip:
-        return 'ZIP';
-    }
-  }
-}
+  final String value;
 
-extension ArtifactPackagingFromString on String {
-  ArtifactPackaging toArtifactPackaging() {
-    switch (this) {
-      case 'NONE':
-        return ArtifactPackaging.none;
-      case 'ZIP':
-        return ArtifactPackaging.zip;
-    }
-    throw Exception('$this is not known in enum ArtifactPackaging');
-  }
+  const ArtifactPackaging(this.value);
+
+  static ArtifactPackaging fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ArtifactPackaging'));
 }
 
 enum ArtifactsType {
-  codepipeline,
-  s3,
-  noArtifacts,
-}
+  codepipeline('CODEPIPELINE'),
+  s3('S3'),
+  noArtifacts('NO_ARTIFACTS'),
+  ;
 
-extension ArtifactsTypeValueExtension on ArtifactsType {
-  String toValue() {
-    switch (this) {
-      case ArtifactsType.codepipeline:
-        return 'CODEPIPELINE';
-      case ArtifactsType.s3:
-        return 'S3';
-      case ArtifactsType.noArtifacts:
-        return 'NO_ARTIFACTS';
-    }
-  }
-}
+  final String value;
 
-extension ArtifactsTypeFromString on String {
-  ArtifactsType toArtifactsType() {
-    switch (this) {
-      case 'CODEPIPELINE':
-        return ArtifactsType.codepipeline;
-      case 'S3':
-        return ArtifactsType.s3;
-      case 'NO_ARTIFACTS':
-        return ArtifactsType.noArtifacts;
-    }
-    throw Exception('$this is not known in enum ArtifactsType');
-  }
+  const ArtifactsType(this.value);
+
+  static ArtifactsType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ArtifactsType'));
 }
 
 enum AuthType {
-  oauth,
-  basicAuth,
-  personalAccessToken,
-}
+  oauth('OAUTH'),
+  basicAuth('BASIC_AUTH'),
+  personalAccessToken('PERSONAL_ACCESS_TOKEN'),
+  codeconnections('CODECONNECTIONS'),
+  ;
 
-extension AuthTypeValueExtension on AuthType {
-  String toValue() {
-    switch (this) {
-      case AuthType.oauth:
-        return 'OAUTH';
-      case AuthType.basicAuth:
-        return 'BASIC_AUTH';
-      case AuthType.personalAccessToken:
-        return 'PERSONAL_ACCESS_TOKEN';
-    }
-  }
-}
+  final String value;
 
-extension AuthTypeFromString on String {
-  AuthType toAuthType() {
-    switch (this) {
-      case 'OAUTH':
-        return AuthType.oauth;
-      case 'BASIC_AUTH':
-        return AuthType.basicAuth;
-      case 'PERSONAL_ACCESS_TOKEN':
-        return AuthType.personalAccessToken;
-    }
-    throw Exception('$this is not known in enum AuthType');
-  }
+  const AuthType(this.value);
+
+  static AuthType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AuthType'));
 }
 
 class BatchDeleteBuildsOutput {
@@ -3144,11 +3668,11 @@ class BatchDeleteBuildsOutput {
   factory BatchDeleteBuildsOutput.fromJson(Map<String, dynamic> json) {
     return BatchDeleteBuildsOutput(
       buildsDeleted: (json['buildsDeleted'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       buildsNotDeleted: (json['buildsNotDeleted'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildNotDeleted.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3181,11 +3705,11 @@ class BatchGetBuildBatchesOutput {
   factory BatchGetBuildBatchesOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetBuildBatchesOutput(
       buildBatches: (json['buildBatches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildBatch.fromJson(e as Map<String, dynamic>))
           .toList(),
       buildBatchesNotFound: (json['buildBatchesNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3217,11 +3741,11 @@ class BatchGetBuildsOutput {
   factory BatchGetBuildsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetBuildsOutput(
       builds: (json['builds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Build.fromJson(e as Map<String, dynamic>))
           .toList(),
       buildsNotFound: (json['buildsNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3233,6 +3757,41 @@ class BatchGetBuildsOutput {
     return {
       if (builds != null) 'builds': builds,
       if (buildsNotFound != null) 'buildsNotFound': buildsNotFound,
+    };
+  }
+}
+
+class BatchGetFleetsOutput {
+  /// Information about the requested compute fleets.
+  final List<Fleet>? fleets;
+
+  /// The names of compute fleets for which information could not be found.
+  final List<String>? fleetsNotFound;
+
+  BatchGetFleetsOutput({
+    this.fleets,
+    this.fleetsNotFound,
+  });
+
+  factory BatchGetFleetsOutput.fromJson(Map<String, dynamic> json) {
+    return BatchGetFleetsOutput(
+      fleets: (json['fleets'] as List?)
+          ?.nonNulls
+          .map((e) => Fleet.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      fleetsNotFound: (json['fleetsNotFound'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fleets = this.fleets;
+    final fleetsNotFound = this.fleetsNotFound;
+    return {
+      if (fleets != null) 'fleets': fleets,
+      if (fleetsNotFound != null) 'fleetsNotFound': fleetsNotFound,
     };
   }
 }
@@ -3252,11 +3811,11 @@ class BatchGetProjectsOutput {
   factory BatchGetProjectsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetProjectsOutput(
       projects: (json['projects'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Project.fromJson(e as Map<String, dynamic>))
           .toList(),
       projectsNotFound: (json['projectsNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3288,11 +3847,11 @@ class BatchGetReportGroupsOutput {
   factory BatchGetReportGroupsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetReportGroupsOutput(
       reportGroups: (json['reportGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReportGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       reportGroupsNotFound: (json['reportGroupsNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3326,11 +3885,11 @@ class BatchGetReportsOutput {
   factory BatchGetReportsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetReportsOutput(
       reports: (json['reports'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Report.fromJson(e as Map<String, dynamic>))
           .toList(),
       reportsNotFound: (json['reportsNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3347,31 +3906,18 @@ class BatchGetReportsOutput {
 }
 
 enum BatchReportModeType {
-  reportIndividualBuilds,
-  reportAggregatedBatch,
-}
+  reportIndividualBuilds('REPORT_INDIVIDUAL_BUILDS'),
+  reportAggregatedBatch('REPORT_AGGREGATED_BATCH'),
+  ;
 
-extension BatchReportModeTypeValueExtension on BatchReportModeType {
-  String toValue() {
-    switch (this) {
-      case BatchReportModeType.reportIndividualBuilds:
-        return 'REPORT_INDIVIDUAL_BUILDS';
-      case BatchReportModeType.reportAggregatedBatch:
-        return 'REPORT_AGGREGATED_BATCH';
-    }
-  }
-}
+  final String value;
 
-extension BatchReportModeTypeFromString on String {
-  BatchReportModeType toBatchReportModeType() {
-    switch (this) {
-      case 'REPORT_INDIVIDUAL_BUILDS':
-        return BatchReportModeType.reportIndividualBuilds;
-      case 'REPORT_AGGREGATED_BATCH':
-        return BatchReportModeType.reportAggregatedBatch;
-    }
-    throw Exception('$this is not known in enum BatchReportModeType');
-  }
+  const BatchReportModeType(this.value);
+
+  static BatchReportModeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum BatchReportModeType'));
 }
 
 /// Specifies restrictions for the batch build.
@@ -3394,7 +3940,7 @@ class BatchRestrictions {
   factory BatchRestrictions.fromJson(Map<String, dynamic> json) {
     return BatchRestrictions(
       computeTypesAllowed: (json['computeTypesAllowed'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       maximumBuildsAllowed: json['maximumBuildsAllowed'] as int?,
@@ -3448,36 +3994,19 @@ class BatchRestrictions {
 /// Simple Storage Service User Guide</i>.
 /// </dd> </dl>
 enum BucketOwnerAccess {
-  none,
-  readOnly,
-  full,
-}
+  none('NONE'),
+  readOnly('READ_ONLY'),
+  full('FULL'),
+  ;
 
-extension BucketOwnerAccessValueExtension on BucketOwnerAccess {
-  String toValue() {
-    switch (this) {
-      case BucketOwnerAccess.none:
-        return 'NONE';
-      case BucketOwnerAccess.readOnly:
-        return 'READ_ONLY';
-      case BucketOwnerAccess.full:
-        return 'FULL';
-    }
-  }
-}
+  final String value;
 
-extension BucketOwnerAccessFromString on String {
-  BucketOwnerAccess toBucketOwnerAccess() {
-    switch (this) {
-      case 'NONE':
-        return BucketOwnerAccess.none;
-      case 'READ_ONLY':
-        return BucketOwnerAccess.readOnly;
-      case 'FULL':
-        return BucketOwnerAccess.full;
-    }
-    throw Exception('$this is not known in enum BucketOwnerAccess');
-  }
+  const BucketOwnerAccess(this.value);
+
+  static BucketOwnerAccess fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BucketOwnerAccess'));
 }
 
 /// Information about a build.
@@ -3577,7 +4106,7 @@ class Build {
   /// <code>codepipeline/my-demo-pipeline</code>).
   /// </li>
   /// <li>
-  /// If an IAM user started the build, the user's name (for example,
+  /// If a user started the build, the user's name (for example,
   /// <code>MyUserName</code>).
   /// </li>
   /// <li>
@@ -3673,8 +4202,8 @@ class Build {
   /// When the build process started, expressed in Unix time format.
   final DateTime? startTime;
 
-  /// How long, in minutes, for CodeBuild to wait before timing out this build if
-  /// it does not get marked as completed.
+  /// How long, in minutes, from 5 to 2160 (36 hours), for CodeBuild to wait
+  /// before timing out this build if it does not get marked as completed.
   final int? timeoutInMinutes;
 
   /// If your CodeBuild project accesses resources in an Amazon VPC, you provide
@@ -3727,7 +4256,7 @@ class Build {
       buildBatchArn: json['buildBatchArn'] as String?,
       buildComplete: json['buildComplete'] as bool?,
       buildNumber: json['buildNumber'] as int?,
-      buildStatus: (json['buildStatus'] as String?)?.toStatusType(),
+      buildStatus: (json['buildStatus'] as String?)?.let(StatusType.fromString),
       cache: json['cache'] != null
           ? ProjectCache.fromJson(json['cache'] as Map<String, dynamic>)
           : null,
@@ -3743,12 +4272,12 @@ class Build {
           : null,
       exportedEnvironmentVariables: (json['exportedEnvironmentVariables']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ExportedEnvironmentVariable.fromJson(e as Map<String, dynamic>))
           .toList(),
       fileSystemLocations: (json['fileSystemLocations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ProjectFileSystemLocation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3762,26 +4291,26 @@ class Build {
               json['networkInterface'] as Map<String, dynamic>)
           : null,
       phases: (json['phases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildPhase.fromJson(e as Map<String, dynamic>))
           .toList(),
       projectName: json['projectName'] as String?,
       queuedTimeoutInMinutes: json['queuedTimeoutInMinutes'] as int?,
       reportArns: (json['reportArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       resolvedSourceVersion: json['resolvedSourceVersion'] as String?,
       secondaryArtifacts: (json['secondaryArtifacts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildArtifacts.fromJson(e as Map<String, dynamic>))
           .toList(),
       secondarySourceVersions: (json['secondarySourceVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectSourceVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
       secondarySources: (json['secondarySources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       serviceRole: json['serviceRole'] as String?,
@@ -3836,7 +4365,7 @@ class Build {
       if (buildBatchArn != null) 'buildBatchArn': buildBatchArn,
       if (buildComplete != null) 'buildComplete': buildComplete,
       if (buildNumber != null) 'buildNumber': buildNumber,
-      if (buildStatus != null) 'buildStatus': buildStatus.toValue(),
+      if (buildStatus != null) 'buildStatus': buildStatus.value,
       if (cache != null) 'cache': cache,
       if (currentPhase != null) 'currentPhase': currentPhase,
       if (debugSession != null) 'debugSession': debugSession,
@@ -3923,8 +4452,8 @@ class BuildArtifacts {
   factory BuildArtifacts.fromJson(Map<String, dynamic> json) {
     return BuildArtifacts(
       artifactIdentifier: json['artifactIdentifier'] as String?,
-      bucketOwnerAccess:
-          (json['bucketOwnerAccess'] as String?)?.toBucketOwnerAccess(),
+      bucketOwnerAccess: (json['bucketOwnerAccess'] as String?)
+          ?.let(BucketOwnerAccess.fromString),
       encryptionDisabled: json['encryptionDisabled'] as bool?,
       location: json['location'] as String?,
       md5sum: json['md5sum'] as String?,
@@ -3944,7 +4473,7 @@ class BuildArtifacts {
     return {
       if (artifactIdentifier != null) 'artifactIdentifier': artifactIdentifier,
       if (bucketOwnerAccess != null)
-        'bucketOwnerAccess': bucketOwnerAccess.toValue(),
+        'bucketOwnerAccess': bucketOwnerAccess.value,
       if (encryptionDisabled != null) 'encryptionDisabled': encryptionDisabled,
       if (location != null) 'location': location,
       if (md5sum != null) 'md5sum': md5sum,
@@ -4030,7 +4559,7 @@ class BuildBatch {
   /// <code>codepipeline/my-demo-pipeline</code>).
   /// </li>
   /// <li>
-  /// If an IAM user started the build, the user's name.
+  /// If a user started the build, the user's name.
   /// </li>
   /// <li>
   /// If the Jenkins plugin for CodeBuild started the build, the string
@@ -4157,9 +4686,10 @@ class BuildBatch {
               json['buildBatchConfig'] as Map<String, dynamic>)
           : null,
       buildBatchNumber: json['buildBatchNumber'] as int?,
-      buildBatchStatus: (json['buildBatchStatus'] as String?)?.toStatusType(),
+      buildBatchStatus:
+          (json['buildBatchStatus'] as String?)?.let(StatusType.fromString),
       buildGroups: (json['buildGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       buildTimeoutInMinutes: json['buildTimeoutInMinutes'] as int?,
@@ -4176,7 +4706,7 @@ class BuildBatch {
               json['environment'] as Map<String, dynamic>)
           : null,
       fileSystemLocations: (json['fileSystemLocations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ProjectFileSystemLocation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4186,22 +4716,22 @@ class BuildBatch {
           ? LogsConfig.fromJson(json['logConfig'] as Map<String, dynamic>)
           : null,
       phases: (json['phases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildBatchPhase.fromJson(e as Map<String, dynamic>))
           .toList(),
       projectName: json['projectName'] as String?,
       queuedTimeoutInMinutes: json['queuedTimeoutInMinutes'] as int?,
       resolvedSourceVersion: json['resolvedSourceVersion'] as String?,
       secondaryArtifacts: (json['secondaryArtifacts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildArtifacts.fromJson(e as Map<String, dynamic>))
           .toList(),
       secondarySourceVersions: (json['secondarySourceVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectSourceVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
       secondarySources: (json['secondarySources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       serviceRole: json['serviceRole'] as String?,
@@ -4252,8 +4782,7 @@ class BuildBatch {
       if (artifacts != null) 'artifacts': artifacts,
       if (buildBatchConfig != null) 'buildBatchConfig': buildBatchConfig,
       if (buildBatchNumber != null) 'buildBatchNumber': buildBatchNumber,
-      if (buildBatchStatus != null)
-        'buildBatchStatus': buildBatchStatus.toValue(),
+      if (buildBatchStatus != null) 'buildBatchStatus': buildBatchStatus.value,
       if (buildGroups != null) 'buildGroups': buildGroups,
       if (buildTimeoutInMinutes != null)
         'buildTimeoutInMinutes': buildTimeoutInMinutes,
@@ -4302,7 +4831,7 @@ class BuildBatchFilter {
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -4370,13 +4899,14 @@ class BuildBatchPhase {
   factory BuildBatchPhase.fromJson(Map<String, dynamic> json) {
     return BuildBatchPhase(
       contexts: (json['contexts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhaseContext.fromJson(e as Map<String, dynamic>))
           .toList(),
       durationInSeconds: json['durationInSeconds'] as int?,
       endTime: timeStampFromJson(json['endTime']),
-      phaseStatus: (json['phaseStatus'] as String?)?.toStatusType(),
-      phaseType: (json['phaseType'] as String?)?.toBuildBatchPhaseType(),
+      phaseStatus: (json['phaseStatus'] as String?)?.let(StatusType.fromString),
+      phaseType:
+          (json['phaseType'] as String?)?.let(BuildBatchPhaseType.fromString),
       startTime: timeStampFromJson(json['startTime']),
     );
   }
@@ -4392,64 +4922,31 @@ class BuildBatchPhase {
       if (contexts != null) 'contexts': contexts,
       if (durationInSeconds != null) 'durationInSeconds': durationInSeconds,
       if (endTime != null) 'endTime': unixTimestampToJson(endTime),
-      if (phaseStatus != null) 'phaseStatus': phaseStatus.toValue(),
-      if (phaseType != null) 'phaseType': phaseType.toValue(),
+      if (phaseStatus != null) 'phaseStatus': phaseStatus.value,
+      if (phaseType != null) 'phaseType': phaseType.value,
       if (startTime != null) 'startTime': unixTimestampToJson(startTime),
     };
   }
 }
 
 enum BuildBatchPhaseType {
-  submitted,
-  downloadBatchspec,
-  inProgress,
-  combineArtifacts,
-  succeeded,
-  failed,
-  stopped,
-}
+  submitted('SUBMITTED'),
+  downloadBatchspec('DOWNLOAD_BATCHSPEC'),
+  inProgress('IN_PROGRESS'),
+  combineArtifacts('COMBINE_ARTIFACTS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  stopped('STOPPED'),
+  ;
 
-extension BuildBatchPhaseTypeValueExtension on BuildBatchPhaseType {
-  String toValue() {
-    switch (this) {
-      case BuildBatchPhaseType.submitted:
-        return 'SUBMITTED';
-      case BuildBatchPhaseType.downloadBatchspec:
-        return 'DOWNLOAD_BATCHSPEC';
-      case BuildBatchPhaseType.inProgress:
-        return 'IN_PROGRESS';
-      case BuildBatchPhaseType.combineArtifacts:
-        return 'COMBINE_ARTIFACTS';
-      case BuildBatchPhaseType.succeeded:
-        return 'SUCCEEDED';
-      case BuildBatchPhaseType.failed:
-        return 'FAILED';
-      case BuildBatchPhaseType.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension BuildBatchPhaseTypeFromString on String {
-  BuildBatchPhaseType toBuildBatchPhaseType() {
-    switch (this) {
-      case 'SUBMITTED':
-        return BuildBatchPhaseType.submitted;
-      case 'DOWNLOAD_BATCHSPEC':
-        return BuildBatchPhaseType.downloadBatchspec;
-      case 'IN_PROGRESS':
-        return BuildBatchPhaseType.inProgress;
-      case 'COMBINE_ARTIFACTS':
-        return BuildBatchPhaseType.combineArtifacts;
-      case 'SUCCEEDED':
-        return BuildBatchPhaseType.succeeded;
-      case 'FAILED':
-        return BuildBatchPhaseType.failed;
-      case 'STOPPED':
-        return BuildBatchPhaseType.stopped;
-    }
-    throw Exception('$this is not known in enum BuildBatchPhaseType');
-  }
+  const BuildBatchPhaseType(this.value);
+
+  static BuildBatchPhaseType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum BuildBatchPhaseType'));
 }
 
 /// Contains information about a batch build build group. Build groups are used
@@ -4489,13 +4986,13 @@ class BuildGroup {
               json['currentBuildSummary'] as Map<String, dynamic>)
           : null,
       dependsOn: (json['dependsOn'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       identifier: json['identifier'] as String?,
       ignoreFailure: json['ignoreFailure'] as bool?,
       priorBuildSummaryList: (json['priorBuildSummaryList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4620,13 +5117,13 @@ class BuildPhase {
   factory BuildPhase.fromJson(Map<String, dynamic> json) {
     return BuildPhase(
       contexts: (json['contexts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhaseContext.fromJson(e as Map<String, dynamic>))
           .toList(),
       durationInSeconds: json['durationInSeconds'] as int?,
       endTime: timeStampFromJson(json['endTime']),
-      phaseStatus: (json['phaseStatus'] as String?)?.toStatusType(),
-      phaseType: (json['phaseType'] as String?)?.toBuildPhaseType(),
+      phaseStatus: (json['phaseStatus'] as String?)?.let(StatusType.fromString),
+      phaseType: (json['phaseType'] as String?)?.let(BuildPhaseType.fromString),
       startTime: timeStampFromJson(json['startTime']),
     );
   }
@@ -4642,84 +5139,35 @@ class BuildPhase {
       if (contexts != null) 'contexts': contexts,
       if (durationInSeconds != null) 'durationInSeconds': durationInSeconds,
       if (endTime != null) 'endTime': unixTimestampToJson(endTime),
-      if (phaseStatus != null) 'phaseStatus': phaseStatus.toValue(),
-      if (phaseType != null) 'phaseType': phaseType.toValue(),
+      if (phaseStatus != null) 'phaseStatus': phaseStatus.value,
+      if (phaseType != null) 'phaseType': phaseType.value,
       if (startTime != null) 'startTime': unixTimestampToJson(startTime),
     };
   }
 }
 
 enum BuildPhaseType {
-  submitted,
-  queued,
-  provisioning,
-  downloadSource,
-  install,
-  preBuild,
-  build,
-  postBuild,
-  uploadArtifacts,
-  finalizing,
-  completed,
-}
+  submitted('SUBMITTED'),
+  queued('QUEUED'),
+  provisioning('PROVISIONING'),
+  downloadSource('DOWNLOAD_SOURCE'),
+  install('INSTALL'),
+  preBuild('PRE_BUILD'),
+  build('BUILD'),
+  postBuild('POST_BUILD'),
+  uploadArtifacts('UPLOAD_ARTIFACTS'),
+  finalizing('FINALIZING'),
+  completed('COMPLETED'),
+  ;
 
-extension BuildPhaseTypeValueExtension on BuildPhaseType {
-  String toValue() {
-    switch (this) {
-      case BuildPhaseType.submitted:
-        return 'SUBMITTED';
-      case BuildPhaseType.queued:
-        return 'QUEUED';
-      case BuildPhaseType.provisioning:
-        return 'PROVISIONING';
-      case BuildPhaseType.downloadSource:
-        return 'DOWNLOAD_SOURCE';
-      case BuildPhaseType.install:
-        return 'INSTALL';
-      case BuildPhaseType.preBuild:
-        return 'PRE_BUILD';
-      case BuildPhaseType.build:
-        return 'BUILD';
-      case BuildPhaseType.postBuild:
-        return 'POST_BUILD';
-      case BuildPhaseType.uploadArtifacts:
-        return 'UPLOAD_ARTIFACTS';
-      case BuildPhaseType.finalizing:
-        return 'FINALIZING';
-      case BuildPhaseType.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension BuildPhaseTypeFromString on String {
-  BuildPhaseType toBuildPhaseType() {
-    switch (this) {
-      case 'SUBMITTED':
-        return BuildPhaseType.submitted;
-      case 'QUEUED':
-        return BuildPhaseType.queued;
-      case 'PROVISIONING':
-        return BuildPhaseType.provisioning;
-      case 'DOWNLOAD_SOURCE':
-        return BuildPhaseType.downloadSource;
-      case 'INSTALL':
-        return BuildPhaseType.install;
-      case 'PRE_BUILD':
-        return BuildPhaseType.preBuild;
-      case 'BUILD':
-        return BuildPhaseType.build;
-      case 'POST_BUILD':
-        return BuildPhaseType.postBuild;
-      case 'UPLOAD_ARTIFACTS':
-        return BuildPhaseType.uploadArtifacts;
-      case 'FINALIZING':
-        return BuildPhaseType.finalizing;
-      case 'COMPLETED':
-        return BuildPhaseType.completed;
-    }
-    throw Exception('$this is not known in enum BuildPhaseType');
-  }
+  const BuildPhaseType(this.value);
+
+  static BuildPhaseType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BuildPhaseType'));
 }
 
 /// Contains information that defines how the CodeBuild build project reports
@@ -4820,14 +5268,14 @@ class BuildSummary {
   factory BuildSummary.fromJson(Map<String, dynamic> json) {
     return BuildSummary(
       arn: json['arn'] as String?,
-      buildStatus: (json['buildStatus'] as String?)?.toStatusType(),
+      buildStatus: (json['buildStatus'] as String?)?.let(StatusType.fromString),
       primaryArtifact: json['primaryArtifact'] != null
           ? ResolvedArtifact.fromJson(
               json['primaryArtifact'] as Map<String, dynamic>)
           : null,
       requestedOn: timeStampFromJson(json['requestedOn']),
       secondaryArtifacts: (json['secondaryArtifacts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResolvedArtifact.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4841,7 +5289,7 @@ class BuildSummary {
     final secondaryArtifacts = this.secondaryArtifacts;
     return {
       if (arn != null) 'arn': arn,
-      if (buildStatus != null) 'buildStatus': buildStatus.toValue(),
+      if (buildStatus != null) 'buildStatus': buildStatus.value,
       if (primaryArtifact != null) 'primaryArtifact': primaryArtifact,
       if (requestedOn != null) 'requestedOn': unixTimestampToJson(requestedOn),
       if (secondaryArtifacts != null) 'secondaryArtifacts': secondaryArtifacts,
@@ -4850,69 +5298,33 @@ class BuildSummary {
 }
 
 enum CacheMode {
-  localDockerLayerCache,
-  localSourceCache,
-  localCustomCache,
-}
+  localDockerLayerCache('LOCAL_DOCKER_LAYER_CACHE'),
+  localSourceCache('LOCAL_SOURCE_CACHE'),
+  localCustomCache('LOCAL_CUSTOM_CACHE'),
+  ;
 
-extension CacheModeValueExtension on CacheMode {
-  String toValue() {
-    switch (this) {
-      case CacheMode.localDockerLayerCache:
-        return 'LOCAL_DOCKER_LAYER_CACHE';
-      case CacheMode.localSourceCache:
-        return 'LOCAL_SOURCE_CACHE';
-      case CacheMode.localCustomCache:
-        return 'LOCAL_CUSTOM_CACHE';
-    }
-  }
-}
+  final String value;
 
-extension CacheModeFromString on String {
-  CacheMode toCacheMode() {
-    switch (this) {
-      case 'LOCAL_DOCKER_LAYER_CACHE':
-        return CacheMode.localDockerLayerCache;
-      case 'LOCAL_SOURCE_CACHE':
-        return CacheMode.localSourceCache;
-      case 'LOCAL_CUSTOM_CACHE':
-        return CacheMode.localCustomCache;
-    }
-    throw Exception('$this is not known in enum CacheMode');
-  }
+  const CacheMode(this.value);
+
+  static CacheMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum CacheMode'));
 }
 
 enum CacheType {
-  noCache,
-  s3,
-  local,
-}
+  noCache('NO_CACHE'),
+  s3('S3'),
+  local('LOCAL'),
+  ;
 
-extension CacheTypeValueExtension on CacheType {
-  String toValue() {
-    switch (this) {
-      case CacheType.noCache:
-        return 'NO_CACHE';
-      case CacheType.s3:
-        return 'S3';
-      case CacheType.local:
-        return 'LOCAL';
-    }
-  }
-}
+  final String value;
 
-extension CacheTypeFromString on String {
-  CacheType toCacheType() {
-    switch (this) {
-      case 'NO_CACHE':
-        return CacheType.noCache;
-      case 'S3':
-        return CacheType.s3;
-      case 'LOCAL':
-        return CacheType.local;
-    }
-    throw Exception('$this is not known in enum CacheType');
-  }
+  const CacheType(this.value);
+
+  static CacheType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum CacheType'));
 }
 
 /// Information about CloudWatch Logs for a build project.
@@ -4950,7 +5362,7 @@ class CloudWatchLogsConfig {
 
   factory CloudWatchLogsConfig.fromJson(Map<String, dynamic> json) {
     return CloudWatchLogsConfig(
-      status: (json['status'] as String).toLogsConfigStatusType(),
+      status: LogsConfigStatusType.fromString((json['status'] as String)),
       groupName: json['groupName'] as String?,
       streamName: json['streamName'] as String?,
     );
@@ -4961,7 +5373,7 @@ class CloudWatchLogsConfig {
     final groupName = this.groupName;
     final streamName = this.streamName;
     return {
-      'status': status.toValue(),
+      'status': status.value,
       if (groupName != null) 'groupName': groupName,
       if (streamName != null) 'streamName': streamName,
     };
@@ -5131,40 +5543,48 @@ class CodeCoverageReportSummary {
 }
 
 enum ComputeType {
-  buildGeneral1Small,
-  buildGeneral1Medium,
-  buildGeneral1Large,
-  buildGeneral1_2xlarge,
+  buildGeneral1Small('BUILD_GENERAL1_SMALL'),
+  buildGeneral1Medium('BUILD_GENERAL1_MEDIUM'),
+  buildGeneral1Large('BUILD_GENERAL1_LARGE'),
+  buildGeneral1Xlarge('BUILD_GENERAL1_XLARGE'),
+  buildGeneral1_2xlarge('BUILD_GENERAL1_2XLARGE'),
+  buildLambda_1gb('BUILD_LAMBDA_1GB'),
+  buildLambda_2gb('BUILD_LAMBDA_2GB'),
+  buildLambda_4gb('BUILD_LAMBDA_4GB'),
+  buildLambda_8gb('BUILD_LAMBDA_8GB'),
+  buildLambda_10gb('BUILD_LAMBDA_10GB'),
+  ;
+
+  final String value;
+
+  const ComputeType(this.value);
+
+  static ComputeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ComputeType'));
 }
 
-extension ComputeTypeValueExtension on ComputeType {
-  String toValue() {
-    switch (this) {
-      case ComputeType.buildGeneral1Small:
-        return 'BUILD_GENERAL1_SMALL';
-      case ComputeType.buildGeneral1Medium:
-        return 'BUILD_GENERAL1_MEDIUM';
-      case ComputeType.buildGeneral1Large:
-        return 'BUILD_GENERAL1_LARGE';
-      case ComputeType.buildGeneral1_2xlarge:
-        return 'BUILD_GENERAL1_2XLARGE';
-    }
+class CreateFleetOutput {
+  /// Information about the compute fleet
+  final Fleet? fleet;
+
+  CreateFleetOutput({
+    this.fleet,
+  });
+
+  factory CreateFleetOutput.fromJson(Map<String, dynamic> json) {
+    return CreateFleetOutput(
+      fleet: json['fleet'] != null
+          ? Fleet.fromJson(json['fleet'] as Map<String, dynamic>)
+          : null,
+    );
   }
-}
 
-extension ComputeTypeFromString on String {
-  ComputeType toComputeType() {
-    switch (this) {
-      case 'BUILD_GENERAL1_SMALL':
-        return ComputeType.buildGeneral1Small;
-      case 'BUILD_GENERAL1_MEDIUM':
-        return ComputeType.buildGeneral1Medium;
-      case 'BUILD_GENERAL1_LARGE':
-        return ComputeType.buildGeneral1Large;
-      case 'BUILD_GENERAL1_2XLARGE':
-        return ComputeType.buildGeneral1_2xlarge;
-    }
-    throw Exception('$this is not known in enum ComputeType');
+  Map<String, dynamic> toJson() {
+    final fleet = this.fleet;
+    return {
+      if (fleet != null) 'fleet': fleet,
+    };
   }
 }
 
@@ -5242,26 +5662,17 @@ class CreateWebhookOutput {
 }
 
 enum CredentialProviderType {
-  secretsManager,
-}
+  secretsManager('SECRETS_MANAGER'),
+  ;
 
-extension CredentialProviderTypeValueExtension on CredentialProviderType {
-  String toValue() {
-    switch (this) {
-      case CredentialProviderType.secretsManager:
-        return 'SECRETS_MANAGER';
-    }
-  }
-}
+  final String value;
 
-extension CredentialProviderTypeFromString on String {
-  CredentialProviderType toCredentialProviderType() {
-    switch (this) {
-      case 'SECRETS_MANAGER':
-        return CredentialProviderType.secretsManager;
-    }
-    throw Exception('$this is not known in enum CredentialProviderType');
-  }
+  const CredentialProviderType(this.value);
+
+  static CredentialProviderType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CredentialProviderType'));
 }
 
 /// Contains information about the debug session for a build. For more
@@ -5320,11 +5731,11 @@ class DeleteBuildBatchOutput {
   factory DeleteBuildBatchOutput.fromJson(Map<String, dynamic> json) {
     return DeleteBuildBatchOutput(
       buildsDeleted: (json['buildsDeleted'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       buildsNotDeleted: (json['buildsNotDeleted'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BuildNotDeleted.fromJson(e as Map<String, dynamic>))
           .toList(),
       statusCode: json['statusCode'] as String?,
@@ -5340,6 +5751,18 @@ class DeleteBuildBatchOutput {
       if (buildsNotDeleted != null) 'buildsNotDeleted': buildsNotDeleted,
       if (statusCode != null) 'statusCode': statusCode,
     };
+  }
+}
+
+class DeleteFleetOutput {
+  DeleteFleetOutput();
+
+  factory DeleteFleetOutput.fromJson(Map<String, dynamic> _) {
+    return DeleteFleetOutput();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -5442,7 +5865,7 @@ class DescribeCodeCoveragesOutput {
   factory DescribeCodeCoveragesOutput.fromJson(Map<String, dynamic> json) {
     return DescribeCodeCoveragesOutput(
       codeCoverages: (json['codeCoverages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CodeCoverage.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5481,7 +5904,7 @@ class DescribeTestCasesOutput {
     return DescribeTestCasesOutput(
       nextToken: json['nextToken'] as String?,
       testCases: (json['testCases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TestCase.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5519,7 +5942,7 @@ class EnvironmentImage {
       description: json['description'] as String?,
       name: json['name'] as String?,
       versions: (json['versions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5555,10 +5978,10 @@ class EnvironmentLanguage {
   factory EnvironmentLanguage.fromJson(Map<String, dynamic> json) {
     return EnvironmentLanguage(
       images: (json['images'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EnvironmentImage.fromJson(e as Map<String, dynamic>))
           .toList(),
-      language: (json['language'] as String?)?.toLanguageType(),
+      language: (json['language'] as String?)?.let(LanguageType.fromString),
     );
   }
 
@@ -5567,7 +5990,7 @@ class EnvironmentLanguage {
     final language = this.language;
     return {
       if (images != null) 'images': images,
-      if (language != null) 'language': language.toValue(),
+      if (language != null) 'language': language.value,
     };
   }
 }
@@ -5590,10 +6013,10 @@ class EnvironmentPlatform {
   factory EnvironmentPlatform.fromJson(Map<String, dynamic> json) {
     return EnvironmentPlatform(
       languages: (json['languages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EnvironmentLanguage.fromJson(e as Map<String, dynamic>))
           .toList(),
-      platform: (json['platform'] as String?)?.toPlatformType(),
+      platform: (json['platform'] as String?)?.let(PlatformType.fromString),
     );
   }
 
@@ -5602,52 +6025,29 @@ class EnvironmentPlatform {
     final platform = this.platform;
     return {
       if (languages != null) 'languages': languages,
-      if (platform != null) 'platform': platform.toValue(),
+      if (platform != null) 'platform': platform.value,
     };
   }
 }
 
 enum EnvironmentType {
-  windowsContainer,
-  linuxContainer,
-  linuxGpuContainer,
-  armContainer,
-  windowsServer_2019Container,
-}
+  windowsContainer('WINDOWS_CONTAINER'),
+  linuxContainer('LINUX_CONTAINER'),
+  linuxGpuContainer('LINUX_GPU_CONTAINER'),
+  armContainer('ARM_CONTAINER'),
+  windowsServer_2019Container('WINDOWS_SERVER_2019_CONTAINER'),
+  linuxLambdaContainer('LINUX_LAMBDA_CONTAINER'),
+  armLambdaContainer('ARM_LAMBDA_CONTAINER'),
+  ;
 
-extension EnvironmentTypeValueExtension on EnvironmentType {
-  String toValue() {
-    switch (this) {
-      case EnvironmentType.windowsContainer:
-        return 'WINDOWS_CONTAINER';
-      case EnvironmentType.linuxContainer:
-        return 'LINUX_CONTAINER';
-      case EnvironmentType.linuxGpuContainer:
-        return 'LINUX_GPU_CONTAINER';
-      case EnvironmentType.armContainer:
-        return 'ARM_CONTAINER';
-      case EnvironmentType.windowsServer_2019Container:
-        return 'WINDOWS_SERVER_2019_CONTAINER';
-    }
-  }
-}
+  final String value;
 
-extension EnvironmentTypeFromString on String {
-  EnvironmentType toEnvironmentType() {
-    switch (this) {
-      case 'WINDOWS_CONTAINER':
-        return EnvironmentType.windowsContainer;
-      case 'LINUX_CONTAINER':
-        return EnvironmentType.linuxContainer;
-      case 'LINUX_GPU_CONTAINER':
-        return EnvironmentType.linuxGpuContainer;
-      case 'ARM_CONTAINER':
-        return EnvironmentType.armContainer;
-      case 'WINDOWS_SERVER_2019_CONTAINER':
-        return EnvironmentType.windowsServer_2019Container;
-    }
-    throw Exception('$this is not known in enum EnvironmentType');
-  }
+  const EnvironmentType(this.value);
+
+  static EnvironmentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EnvironmentType'));
 }
 
 /// Information about an environment variable for a build project or a build.
@@ -5659,9 +6059,9 @@ class EnvironmentVariable {
   /// <important>
   /// We strongly discourage the use of <code>PLAINTEXT</code> environment
   /// variables to store sensitive values, especially Amazon Web Services secret
-  /// key IDs and secret access keys. <code>PLAINTEXT</code> environment variables
-  /// can be displayed in plain text using the CodeBuild console and the CLI. For
-  /// sensitive values, we recommend you use an environment variable of type
+  /// key IDs. <code>PLAINTEXT</code> environment variables can be displayed in
+  /// plain text using the CodeBuild console and the CLI. For sensitive values, we
+  /// recommend you use an environment variable of type
   /// <code>PARAMETER_STORE</code> or <code>SECRETS_MANAGER</code>.
   /// </important>
   final String value;
@@ -5671,8 +6071,11 @@ class EnvironmentVariable {
   /// <ul>
   /// <li>
   /// <code>PARAMETER_STORE</code>: An environment variable stored in Systems
-  /// Manager Parameter Store. To learn how to specify a parameter store
-  /// environment variable, see <a
+  /// Manager Parameter Store. For environment variables of this type, specify the
+  /// name of the parameter as the <code>value</code> of the EnvironmentVariable.
+  /// The parameter value will be substituted for the name at runtime. You can
+  /// also define Parameter Store environment variables in the buildspec. To learn
+  /// how to do so, see <a
   /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec.env.parameter-store">env/parameter-store</a>
   /// in the <i>CodeBuild User Guide</i>.
   /// </li>
@@ -5682,8 +6085,11 @@ class EnvironmentVariable {
   /// </li>
   /// <li>
   /// <code>SECRETS_MANAGER</code>: An environment variable stored in Secrets
-  /// Manager. To learn how to specify a secrets manager environment variable, see
-  /// <a
+  /// Manager. For environment variables of this type, specify the name of the
+  /// secret as the <code>value</code> of the EnvironmentVariable. The secret
+  /// value will be substituted for the name at runtime. You can also define
+  /// Secrets Manager environment variables in the buildspec. To learn how to do
+  /// so, see <a
   /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-spec-ref.html#build-spec.env.secrets-manager">env/secrets-manager</a>
   /// in the <i>CodeBuild User Guide</i>.
   /// </li>
@@ -5700,7 +6106,7 @@ class EnvironmentVariable {
     return EnvironmentVariable(
       name: json['name'] as String,
       value: json['value'] as String,
-      type: (json['type'] as String?)?.toEnvironmentVariableType(),
+      type: (json['type'] as String?)?.let(EnvironmentVariableType.fromString),
     );
   }
 
@@ -5711,42 +6117,25 @@ class EnvironmentVariable {
     return {
       'name': name,
       'value': value,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
 enum EnvironmentVariableType {
-  plaintext,
-  parameterStore,
-  secretsManager,
-}
+  plaintext('PLAINTEXT'),
+  parameterStore('PARAMETER_STORE'),
+  secretsManager('SECRETS_MANAGER'),
+  ;
 
-extension EnvironmentVariableTypeValueExtension on EnvironmentVariableType {
-  String toValue() {
-    switch (this) {
-      case EnvironmentVariableType.plaintext:
-        return 'PLAINTEXT';
-      case EnvironmentVariableType.parameterStore:
-        return 'PARAMETER_STORE';
-      case EnvironmentVariableType.secretsManager:
-        return 'SECRETS_MANAGER';
-    }
-  }
-}
+  final String value;
 
-extension EnvironmentVariableTypeFromString on String {
-  EnvironmentVariableType toEnvironmentVariableType() {
-    switch (this) {
-      case 'PLAINTEXT':
-        return EnvironmentVariableType.plaintext;
-      case 'PARAMETER_STORE':
-        return EnvironmentVariableType.parameterStore;
-      case 'SECRETS_MANAGER':
-        return EnvironmentVariableType.secretsManager;
-    }
-    throw Exception('$this is not known in enum EnvironmentVariableType');
-  }
+  const EnvironmentVariableType(this.value);
+
+  static EnvironmentVariableType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EnvironmentVariableType'));
 }
 
 /// Contains information about an exported environment variable.
@@ -5793,26 +6182,436 @@ class ExportedEnvironmentVariable {
 }
 
 enum FileSystemType {
-  efs,
+  efs('EFS'),
+  ;
+
+  final String value;
+
+  const FileSystemType(this.value);
+
+  static FileSystemType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FileSystemType'));
 }
 
-extension FileSystemTypeValueExtension on FileSystemType {
-  String toValue() {
-    switch (this) {
-      case FileSystemType.efs:
-        return 'EFS';
-    }
+/// A set of dedicated instances for your build environment.
+class Fleet {
+  /// The ARN of the compute fleet.
+  final String? arn;
+
+  /// The initial number of machines allocated to the compute ﬂeet, which deﬁnes
+  /// the number of builds that can run in parallel.
+  final int? baseCapacity;
+
+  /// Information about the compute resources the compute fleet uses. Available
+  /// values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>BUILD_GENERAL1_SMALL</code>: Use up to 3 GB memory and 2 vCPUs for
+  /// builds.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_MEDIUM</code>: Use up to 7 GB memory and 4 vCPUs for
+  /// builds.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_LARGE</code>: Use up to 16 GB memory and 8 vCPUs for
+  /// builds, depending on your environment type.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_XLARGE</code>: Use up to 70 GB memory and 36 vCPUs for
+  /// builds, depending on your environment type.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_GENERAL1_2XLARGE</code>: Use up to 145 GB memory, 72 vCPUs, and
+  /// 824 GB of SSD storage for builds. This compute type supports Docker images
+  /// up to 100 GB uncompressed.
+  /// </li>
+  /// </ul>
+  /// If you use <code>BUILD_GENERAL1_SMALL</code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// For environment type <code>LINUX_CONTAINER</code>, you can use up to 3 GB
+  /// memory and 2 vCPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>LINUX_GPU_CONTAINER</code>, you can use up to 16
+  /// GB memory, 4 vCPUs, and 1 NVIDIA A10G Tensor Core GPU for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>ARM_CONTAINER</code>, you can use up to 4 GB
+  /// memory and 2 vCPUs on ARM-based processors for builds.
+  /// </li>
+  /// </ul>
+  /// If you use <code>BUILD_GENERAL1_LARGE</code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// For environment type <code>LINUX_CONTAINER</code>, you can use up to 15 GB
+  /// memory and 8 vCPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>LINUX_GPU_CONTAINER</code>, you can use up to 255
+  /// GB memory, 32 vCPUs, and 4 NVIDIA Tesla V100 GPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>ARM_CONTAINER</code>, you can use up to 16 GB
+  /// memory and 8 vCPUs on ARM-based processors for builds.
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
+  /// environment compute types</a> in the <i>CodeBuild User Guide.</i>
+  final ComputeType? computeType;
+
+  /// The time at which the compute fleet was created.
+  final DateTime? created;
+
+  /// The environment type of the compute fleet.
+  ///
+  /// <ul>
+  /// <li>
+  /// The environment type <code>ARM_CONTAINER</code> is available only in regions
+  /// US East (N. Virginia), US East (Ohio), US West (Oregon), EU (Ireland), Asia
+  /// Pacific (Mumbai), Asia Pacific (Tokyo), Asia Pacific (Singapore), Asia
+  /// Pacific (Sydney), EU (Frankfurt), and South America (São Paulo).
+  /// </li>
+  /// <li>
+  /// The environment type <code>LINUX_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), EU (Frankfurt), Asia Pacific (Tokyo), Asia Pacific (Singapore),
+  /// Asia Pacific (Sydney), South America (São Paulo), and Asia Pacific (Mumbai).
+  /// </li>
+  /// <li>
+  /// The environment type <code>LINUX_GPU_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), EU (Frankfurt), Asia Pacific (Tokyo), and Asia Pacific (Sydney).
+  /// </li>
+  /// <li>
+  /// The environment type <code>WINDOWS_SERVER_2019_CONTAINER</code> is available
+  /// only in regions US East (N. Virginia), US East (Ohio), US West (Oregon),
+  /// Asia Pacific (Sydney), Asia Pacific (Tokyo), Asia Pacific (Mumbai) and EU
+  /// (Ireland).
+  /// </li>
+  /// <li>
+  /// The environment type <code>WINDOWS_SERVER_2022_CONTAINER</code> is available
+  /// only in regions US East (N. Virginia), US East (Ohio), US West (Oregon), EU
+  /// (Ireland), EU (Frankfurt), Asia Pacific (Sydney), Asia Pacific (Singapore),
+  /// Asia Pacific (Tokyo), South America (São Paulo) and Asia Pacific (Mumbai).
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
+  /// environment compute types</a> in the <i>CodeBuild user guide</i>.
+  final EnvironmentType? environmentType;
+
+  /// The service role associated with the compute fleet. For more information,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html#customer-managed-policies-example-permission-policy-fleet-service-role.html">
+  /// Allow a user to add a permission policy for a fleet service role</a> in the
+  /// <i>CodeBuild User Guide</i>.
+  final String? fleetServiceRole;
+
+  /// The ID of the compute fleet.
+  final String? id;
+
+  /// The time at which the compute fleet was last modified.
+  final DateTime? lastModified;
+
+  /// The name of the compute fleet.
+  final String? name;
+
+  /// The compute fleet overflow behavior.
+  ///
+  /// <ul>
+  /// <li>
+  /// For overflow behavior <code>QUEUE</code>, your overflow builds need to wait
+  /// on the existing fleet instance to become available.
+  /// </li>
+  /// <li>
+  /// For overflow behavior <code>ON_DEMAND</code>, your overflow builds run on
+  /// CodeBuild on-demand.
+  /// <note>
+  /// If you choose to set your overflow behavior to on-demand while creating a
+  /// VPC-connected fleet, make sure that you add the required VPC permissions to
+  /// your project service role. For more information, see <a
+  /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/auth-and-access-control-iam-identity-based-access-control.html#customer-managed-policies-example-create-vpc-network-interface">Example
+  /// policy statement to allow CodeBuild access to Amazon Web Services services
+  /// required to create a VPC network interface</a>.
+  /// </note> </li>
+  /// </ul>
+  final FleetOverflowBehavior? overflowBehavior;
+
+  /// The scaling configuration of the compute fleet.
+  final ScalingConfigurationOutput? scalingConfiguration;
+
+  /// The status of the compute fleet.
+  final FleetStatus? status;
+
+  /// A list of tag key and value pairs associated with this compute fleet.
+  ///
+  /// These tags are available for use by Amazon Web Services services that
+  /// support CodeBuild build project tags.
+  final List<Tag>? tags;
+  final VpcConfig? vpcConfig;
+
+  Fleet({
+    this.arn,
+    this.baseCapacity,
+    this.computeType,
+    this.created,
+    this.environmentType,
+    this.fleetServiceRole,
+    this.id,
+    this.lastModified,
+    this.name,
+    this.overflowBehavior,
+    this.scalingConfiguration,
+    this.status,
+    this.tags,
+    this.vpcConfig,
+  });
+
+  factory Fleet.fromJson(Map<String, dynamic> json) {
+    return Fleet(
+      arn: json['arn'] as String?,
+      baseCapacity: json['baseCapacity'] as int?,
+      computeType:
+          (json['computeType'] as String?)?.let(ComputeType.fromString),
+      created: timeStampFromJson(json['created']),
+      environmentType:
+          (json['environmentType'] as String?)?.let(EnvironmentType.fromString),
+      fleetServiceRole: json['fleetServiceRole'] as String?,
+      id: json['id'] as String?,
+      lastModified: timeStampFromJson(json['lastModified']),
+      name: json['name'] as String?,
+      overflowBehavior: (json['overflowBehavior'] as String?)
+          ?.let(FleetOverflowBehavior.fromString),
+      scalingConfiguration: json['scalingConfiguration'] != null
+          ? ScalingConfigurationOutput.fromJson(
+              json['scalingConfiguration'] as Map<String, dynamic>)
+          : null,
+      status: json['status'] != null
+          ? FleetStatus.fromJson(json['status'] as Map<String, dynamic>)
+          : null,
+      tags: (json['tags'] as List?)
+          ?.nonNulls
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      vpcConfig: json['vpcConfig'] != null
+          ? VpcConfig.fromJson(json['vpcConfig'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final baseCapacity = this.baseCapacity;
+    final computeType = this.computeType;
+    final created = this.created;
+    final environmentType = this.environmentType;
+    final fleetServiceRole = this.fleetServiceRole;
+    final id = this.id;
+    final lastModified = this.lastModified;
+    final name = this.name;
+    final overflowBehavior = this.overflowBehavior;
+    final scalingConfiguration = this.scalingConfiguration;
+    final status = this.status;
+    final tags = this.tags;
+    final vpcConfig = this.vpcConfig;
+    return {
+      if (arn != null) 'arn': arn,
+      if (baseCapacity != null) 'baseCapacity': baseCapacity,
+      if (computeType != null) 'computeType': computeType.value,
+      if (created != null) 'created': unixTimestampToJson(created),
+      if (environmentType != null) 'environmentType': environmentType.value,
+      if (fleetServiceRole != null) 'fleetServiceRole': fleetServiceRole,
+      if (id != null) 'id': id,
+      if (lastModified != null)
+        'lastModified': unixTimestampToJson(lastModified),
+      if (name != null) 'name': name,
+      if (overflowBehavior != null) 'overflowBehavior': overflowBehavior.value,
+      if (scalingConfiguration != null)
+        'scalingConfiguration': scalingConfiguration,
+      if (status != null) 'status': status,
+      if (tags != null) 'tags': tags,
+      if (vpcConfig != null) 'vpcConfig': vpcConfig,
+    };
   }
 }
 
-extension FileSystemTypeFromString on String {
-  FileSystemType toFileSystemType() {
-    switch (this) {
-      case 'EFS':
-        return FileSystemType.efs;
-    }
-    throw Exception('$this is not known in enum FileSystemType');
+enum FleetContextCode {
+  createFailed('CREATE_FAILED'),
+  updateFailed('UPDATE_FAILED'),
+  actionRequired('ACTION_REQUIRED'),
+  ;
+
+  final String value;
+
+  const FleetContextCode(this.value);
+
+  static FleetContextCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FleetContextCode'));
+}
+
+enum FleetOverflowBehavior {
+  queue('QUEUE'),
+  onDemand('ON_DEMAND'),
+  ;
+
+  final String value;
+
+  const FleetOverflowBehavior(this.value);
+
+  static FleetOverflowBehavior fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FleetOverflowBehavior'));
+}
+
+enum FleetScalingMetricType {
+  fleetUtilizationRate('FLEET_UTILIZATION_RATE'),
+  ;
+
+  final String value;
+
+  const FleetScalingMetricType(this.value);
+
+  static FleetScalingMetricType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FleetScalingMetricType'));
+}
+
+enum FleetScalingType {
+  targetTrackingScaling('TARGET_TRACKING_SCALING'),
+  ;
+
+  final String value;
+
+  const FleetScalingType(this.value);
+
+  static FleetScalingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FleetScalingType'));
+}
+
+enum FleetSortByType {
+  name('NAME'),
+  createdTime('CREATED_TIME'),
+  lastModifiedTime('LAST_MODIFIED_TIME'),
+  ;
+
+  final String value;
+
+  const FleetSortByType(this.value);
+
+  static FleetSortByType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FleetSortByType'));
+}
+
+/// The status of the compute fleet.
+class FleetStatus {
+  /// Additional information about a compute fleet. Valid values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>CREATE_FAILED</code>: The compute fleet has failed to create.
+  /// </li>
+  /// <li>
+  /// <code>UPDATE_FAILED</code>: The compute fleet has failed to update.
+  /// </li>
+  /// </ul>
+  final FleetContextCode? context;
+
+  /// A message associated with the status of a compute fleet.
+  final String? message;
+
+  /// The status code of the compute fleet. Valid values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>CREATING</code>: The compute fleet is being created.
+  /// </li>
+  /// <li>
+  /// <code>UPDATING</code>: The compute fleet is being updated.
+  /// </li>
+  /// <li>
+  /// <code>ROTATING</code>: The compute fleet is being rotated.
+  /// </li>
+  /// <li>
+  /// <code>PENDING_DELETION</code>: The compute fleet is pending deletion.
+  /// </li>
+  /// <li>
+  /// <code>DELETING</code>: The compute fleet is being deleted.
+  /// </li>
+  /// <li>
+  /// <code>CREATE_FAILED</code>: The compute fleet has failed to create.
+  /// </li>
+  /// <li>
+  /// <code>UPDATE_ROLLBACK_FAILED</code>: The compute fleet has failed to update
+  /// and could not rollback to previous state.
+  /// </li>
+  /// <li>
+  /// <code>ACTIVE</code>: The compute fleet has succeeded and is active.
+  /// </li>
+  /// </ul>
+  final FleetStatusCode? statusCode;
+
+  FleetStatus({
+    this.context,
+    this.message,
+    this.statusCode,
+  });
+
+  factory FleetStatus.fromJson(Map<String, dynamic> json) {
+    return FleetStatus(
+      context: (json['context'] as String?)?.let(FleetContextCode.fromString),
+      message: json['message'] as String?,
+      statusCode:
+          (json['statusCode'] as String?)?.let(FleetStatusCode.fromString),
+    );
   }
+
+  Map<String, dynamic> toJson() {
+    final context = this.context;
+    final message = this.message;
+    final statusCode = this.statusCode;
+    return {
+      if (context != null) 'context': context.value,
+      if (message != null) 'message': message,
+      if (statusCode != null) 'statusCode': statusCode.value,
+    };
+  }
+}
+
+enum FleetStatusCode {
+  creating('CREATING'),
+  updating('UPDATING'),
+  rotating('ROTATING'),
+  pendingDeletion('PENDING_DELETION'),
+  deleting('DELETING'),
+  createFailed('CREATE_FAILED'),
+  updateRollbackFailed('UPDATE_ROLLBACK_FAILED'),
+  active('ACTIVE'),
+  ;
+
+  final String value;
+
+  const FleetStatusCode(this.value);
+
+  static FleetStatusCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FleetStatusCode'));
 }
 
 class GetReportGroupTrendOutput {
@@ -5830,7 +6629,7 @@ class GetReportGroupTrendOutput {
   factory GetReportGroupTrendOutput.fromJson(Map<String, dynamic> json) {
     return GetReportGroupTrendOutput(
       rawData: (json['rawData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReportWithRawData.fromJson(e as Map<String, dynamic>))
           .toList(),
       stats: json['stats'] != null
@@ -5897,31 +6696,18 @@ class GitSubmodulesConfig {
 }
 
 enum ImagePullCredentialsType {
-  codebuild,
-  serviceRole,
-}
+  codebuild('CODEBUILD'),
+  serviceRole('SERVICE_ROLE'),
+  ;
 
-extension ImagePullCredentialsTypeValueExtension on ImagePullCredentialsType {
-  String toValue() {
-    switch (this) {
-      case ImagePullCredentialsType.codebuild:
-        return 'CODEBUILD';
-      case ImagePullCredentialsType.serviceRole:
-        return 'SERVICE_ROLE';
-    }
-  }
-}
+  final String value;
 
-extension ImagePullCredentialsTypeFromString on String {
-  ImagePullCredentialsType toImagePullCredentialsType() {
-    switch (this) {
-      case 'CODEBUILD':
-        return ImagePullCredentialsType.codebuild;
-      case 'SERVICE_ROLE':
-        return ImagePullCredentialsType.serviceRole;
-    }
-    throw Exception('$this is not known in enum ImagePullCredentialsType');
-  }
+  const ImagePullCredentialsType(this.value);
+
+  static ImagePullCredentialsType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ImagePullCredentialsType'));
 }
 
 class ImportSourceCredentialsOutput {
@@ -5959,71 +6745,26 @@ class InvalidateProjectCacheOutput {
 }
 
 enum LanguageType {
-  java,
-  python,
-  nodeJs,
-  ruby,
-  golang,
-  docker,
-  android,
-  dotnet,
-  base,
-  php,
-}
+  java('JAVA'),
+  python('PYTHON'),
+  nodeJs('NODE_JS'),
+  ruby('RUBY'),
+  golang('GOLANG'),
+  docker('DOCKER'),
+  android('ANDROID'),
+  dotnet('DOTNET'),
+  base('BASE'),
+  php('PHP'),
+  ;
 
-extension LanguageTypeValueExtension on LanguageType {
-  String toValue() {
-    switch (this) {
-      case LanguageType.java:
-        return 'JAVA';
-      case LanguageType.python:
-        return 'PYTHON';
-      case LanguageType.nodeJs:
-        return 'NODE_JS';
-      case LanguageType.ruby:
-        return 'RUBY';
-      case LanguageType.golang:
-        return 'GOLANG';
-      case LanguageType.docker:
-        return 'DOCKER';
-      case LanguageType.android:
-        return 'ANDROID';
-      case LanguageType.dotnet:
-        return 'DOTNET';
-      case LanguageType.base:
-        return 'BASE';
-      case LanguageType.php:
-        return 'PHP';
-    }
-  }
-}
+  final String value;
 
-extension LanguageTypeFromString on String {
-  LanguageType toLanguageType() {
-    switch (this) {
-      case 'JAVA':
-        return LanguageType.java;
-      case 'PYTHON':
-        return LanguageType.python;
-      case 'NODE_JS':
-        return LanguageType.nodeJs;
-      case 'RUBY':
-        return LanguageType.ruby;
-      case 'GOLANG':
-        return LanguageType.golang;
-      case 'DOCKER':
-        return LanguageType.docker;
-      case 'ANDROID':
-        return LanguageType.android;
-      case 'DOTNET':
-        return LanguageType.dotnet;
-      case 'BASE':
-        return LanguageType.base;
-      case 'PHP':
-        return LanguageType.php;
-    }
-    throw Exception('$this is not known in enum LanguageType');
-  }
+  const LanguageType(this.value);
+
+  static LanguageType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LanguageType'));
 }
 
 class ListBuildBatchesForProjectOutput {
@@ -6042,10 +6783,7 @@ class ListBuildBatchesForProjectOutput {
 
   factory ListBuildBatchesForProjectOutput.fromJson(Map<String, dynamic> json) {
     return ListBuildBatchesForProjectOutput(
-      ids: (json['ids'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ids: (json['ids'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['nextToken'] as String?,
     );
   }
@@ -6076,10 +6814,7 @@ class ListBuildBatchesOutput {
 
   factory ListBuildBatchesOutput.fromJson(Map<String, dynamic> json) {
     return ListBuildBatchesOutput(
-      ids: (json['ids'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ids: (json['ids'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['nextToken'] as String?,
     );
   }
@@ -6112,10 +6847,7 @@ class ListBuildsForProjectOutput {
 
   factory ListBuildsForProjectOutput.fromJson(Map<String, dynamic> json) {
     return ListBuildsForProjectOutput(
-      ids: (json['ids'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ids: (json['ids'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['nextToken'] as String?,
     );
   }
@@ -6147,10 +6879,7 @@ class ListBuildsOutput {
 
   factory ListBuildsOutput.fromJson(Map<String, dynamic> json) {
     return ListBuildsOutput(
-      ids: (json['ids'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ids: (json['ids'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['nextToken'] as String?,
     );
   }
@@ -6178,7 +6907,7 @@ class ListCuratedEnvironmentImagesOutput {
       Map<String, dynamic> json) {
     return ListCuratedEnvironmentImagesOutput(
       platforms: (json['platforms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EnvironmentPlatform.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6188,6 +6917,39 @@ class ListCuratedEnvironmentImagesOutput {
     final platforms = this.platforms;
     return {
       if (platforms != null) 'platforms': platforms,
+    };
+  }
+}
+
+class ListFleetsOutput {
+  /// The list of compute fleet names.
+  final List<String>? fleets;
+
+  /// If there are more than 100 items in the list, only the first 100 items are
+  /// returned, along with a unique string called a <i>nextToken</i>. To get the
+  /// next batch of items in the list, call this operation again, adding the next
+  /// token to the call.
+  final String? nextToken;
+
+  ListFleetsOutput({
+    this.fleets,
+    this.nextToken,
+  });
+
+  factory ListFleetsOutput.fromJson(Map<String, dynamic> json) {
+    return ListFleetsOutput(
+      fleets:
+          (json['fleets'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fleets = this.fleets;
+    final nextToken = this.nextToken;
+    return {
+      if (fleets != null) 'fleets': fleets,
+      if (nextToken != null) 'nextToken': nextToken,
     };
   }
 }
@@ -6212,7 +6974,7 @@ class ListProjectsOutput {
     return ListProjectsOutput(
       nextToken: json['nextToken'] as String?,
       projects: (json['projects'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6251,7 +7013,7 @@ class ListReportGroupsOutput {
     return ListReportGroupsOutput(
       nextToken: json['nextToken'] as String?,
       reportGroups: (json['reportGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6288,10 +7050,8 @@ class ListReportsForReportGroupOutput {
   factory ListReportsForReportGroupOutput.fromJson(Map<String, dynamic> json) {
     return ListReportsForReportGroupOutput(
       nextToken: json['nextToken'] as String?,
-      reports: (json['reports'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      reports:
+          (json['reports'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -6327,10 +7087,8 @@ class ListReportsOutput {
   factory ListReportsOutput.fromJson(Map<String, dynamic> json) {
     return ListReportsOutput(
       nextToken: json['nextToken'] as String?,
-      reports: (json['reports'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      reports:
+          (json['reports'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -6367,7 +7125,7 @@ class ListSharedProjectsOutput {
     return ListSharedProjectsOutput(
       nextToken: json['nextToken'] as String?,
       projects: (json['projects'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6406,7 +7164,7 @@ class ListSharedReportGroupsOutput {
     return ListSharedReportGroupsOutput(
       nextToken: json['nextToken'] as String?,
       reportGroups: (json['reportGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6435,7 +7193,7 @@ class ListSourceCredentialsOutput {
   factory ListSourceCredentialsOutput.fromJson(Map<String, dynamic> json) {
     return ListSourceCredentialsOutput(
       sourceCredentialsInfos: (json['sourceCredentialsInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SourceCredentialsInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6489,31 +7247,18 @@ class LogsConfig {
 }
 
 enum LogsConfigStatusType {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension LogsConfigStatusTypeValueExtension on LogsConfigStatusType {
-  String toValue() {
-    switch (this) {
-      case LogsConfigStatusType.enabled:
-        return 'ENABLED';
-      case LogsConfigStatusType.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension LogsConfigStatusTypeFromString on String {
-  LogsConfigStatusType toLogsConfigStatusType() {
-    switch (this) {
-      case 'ENABLED':
-        return LogsConfigStatusType.enabled;
-      case 'DISABLED':
-        return LogsConfigStatusType.disabled;
-    }
-    throw Exception('$this is not known in enum LogsConfigStatusType');
-  }
+  const LogsConfigStatusType(this.value);
+
+  static LogsConfigStatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LogsConfigStatusType'));
 }
 
 /// Information about build logs in CloudWatch Logs.
@@ -6521,14 +7266,18 @@ class LogsLocation {
   /// Information about CloudWatch Logs for a build project.
   final CloudWatchLogsConfig? cloudWatchLogs;
 
-  /// The ARN of CloudWatch Logs for a build project. Its format is
+  /// The ARN of the CloudWatch Logs stream for a build execution. Its format is
   /// <code>arn:${Partition}:logs:${Region}:${Account}:log-group:${LogGroupName}:log-stream:${LogStreamName}</code>.
-  /// For more information, see <a
+  /// The CloudWatch Logs stream is created during the PROVISIONING phase of a
+  /// build and the ARN will not be valid until it is created. For more
+  /// information, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/list_amazoncloudwatchlogs.html#amazoncloudwatchlogs-resources-for-iam-policies">Resources
   /// Defined by CloudWatch Logs</a>.
   final String? cloudWatchLogsArn;
 
-  /// The URL to an individual build log in CloudWatch Logs.
+  /// The URL to an individual build log in CloudWatch Logs. The log stream is
+  /// created during the PROVISIONING phase of a build and the
+  /// <code>deeplink</code> will not be valid until it is created.
   final String? deepLink;
 
   /// The name of the CloudWatch Logs group for the build logs.
@@ -6664,41 +7413,20 @@ class PhaseContext {
 }
 
 enum PlatformType {
-  debian,
-  amazonLinux,
-  ubuntu,
-  windowsServer,
-}
+  debian('DEBIAN'),
+  amazonLinux('AMAZON_LINUX'),
+  ubuntu('UBUNTU'),
+  windowsServer('WINDOWS_SERVER'),
+  ;
 
-extension PlatformTypeValueExtension on PlatformType {
-  String toValue() {
-    switch (this) {
-      case PlatformType.debian:
-        return 'DEBIAN';
-      case PlatformType.amazonLinux:
-        return 'AMAZON_LINUX';
-      case PlatformType.ubuntu:
-        return 'UBUNTU';
-      case PlatformType.windowsServer:
-        return 'WINDOWS_SERVER';
-    }
-  }
-}
+  final String value;
 
-extension PlatformTypeFromString on String {
-  PlatformType toPlatformType() {
-    switch (this) {
-      case 'DEBIAN':
-        return PlatformType.debian;
-      case 'AMAZON_LINUX':
-        return PlatformType.amazonLinux;
-      case 'UBUNTU':
-        return PlatformType.ubuntu;
-      case 'WINDOWS_SERVER':
-        return PlatformType.windowsServer;
-    }
-    throw Exception('$this is not known in enum PlatformType');
-  }
+  const PlatformType(this.value);
+
+  static PlatformType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PlatformType'));
 }
 
 /// Information about a build project.
@@ -6812,6 +7540,9 @@ class Project {
   /// specified, the default branch's HEAD commit ID is used.
   /// </li>
   /// <li>
+  /// For GitLab: the commit ID, branch, or Git tag to use.
+  /// </li>
+  /// <li>
   /// For Bitbucket: the commit ID, branch name, or tag name that corresponds to
   /// the version of the source code you want to build. If a branch name is
   /// specified, the branch's HEAD commit ID is used. If not specified, the
@@ -6837,9 +7568,9 @@ class Project {
   /// support CodeBuild build project tags.
   final List<Tag>? tags;
 
-  /// How long, in minutes, from 5 to 480 (8 hours), for CodeBuild to wait before
-  /// timing out any related build that did not get marked as completed. The
-  /// default is 60 minutes.
+  /// How long, in minutes, from 5 to 2160 (36 hours), for CodeBuild to wait
+  /// before timing out any related build that did not get marked as completed.
+  /// The default is 60 minutes.
   final int? timeoutInMinutes;
 
   /// Information about the VPC configuration that CodeBuild accesses.
@@ -6905,7 +7636,7 @@ class Project {
               json['environment'] as Map<String, dynamic>)
           : null,
       fileSystemLocations: (json['fileSystemLocations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ProjectFileSystemLocation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6914,21 +7645,21 @@ class Project {
           ? LogsConfig.fromJson(json['logsConfig'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      projectVisibility:
-          (json['projectVisibility'] as String?)?.toProjectVisibilityType(),
+      projectVisibility: (json['projectVisibility'] as String?)
+          ?.let(ProjectVisibilityType.fromString),
       publicProjectAlias: json['publicProjectAlias'] as String?,
       queuedTimeoutInMinutes: json['queuedTimeoutInMinutes'] as int?,
       resourceAccessRole: json['resourceAccessRole'] as String?,
       secondaryArtifacts: (json['secondaryArtifacts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectArtifacts.fromJson(e as Map<String, dynamic>))
           .toList(),
       secondarySourceVersions: (json['secondarySourceVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectSourceVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
       secondarySources: (json['secondarySources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProjectSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       serviceRole: json['serviceRole'] as String?,
@@ -6937,7 +7668,7 @@ class Project {
           : null,
       sourceVersion: json['sourceVersion'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       timeoutInMinutes: json['timeoutInMinutes'] as int?,
@@ -6998,7 +7729,7 @@ class Project {
       if (logsConfig != null) 'logsConfig': logsConfig,
       if (name != null) 'name': name,
       if (projectVisibility != null)
-        'projectVisibility': projectVisibility.toValue(),
+        'projectVisibility': projectVisibility.value,
       if (publicProjectAlias != null) 'publicProjectAlias': publicProjectAlias,
       if (queuedTimeoutInMinutes != null)
         'queuedTimeoutInMinutes': queuedTimeoutInMinutes,
@@ -7220,16 +7951,18 @@ class ProjectArtifacts {
 
   factory ProjectArtifacts.fromJson(Map<String, dynamic> json) {
     return ProjectArtifacts(
-      type: (json['type'] as String).toArtifactsType(),
+      type: ArtifactsType.fromString((json['type'] as String)),
       artifactIdentifier: json['artifactIdentifier'] as String?,
-      bucketOwnerAccess:
-          (json['bucketOwnerAccess'] as String?)?.toBucketOwnerAccess(),
+      bucketOwnerAccess: (json['bucketOwnerAccess'] as String?)
+          ?.let(BucketOwnerAccess.fromString),
       encryptionDisabled: json['encryptionDisabled'] as bool?,
       location: json['location'] as String?,
       name: json['name'] as String?,
-      namespaceType: (json['namespaceType'] as String?)?.toArtifactNamespace(),
+      namespaceType:
+          (json['namespaceType'] as String?)?.let(ArtifactNamespace.fromString),
       overrideArtifactName: json['overrideArtifactName'] as bool?,
-      packaging: (json['packaging'] as String?)?.toArtifactPackaging(),
+      packaging:
+          (json['packaging'] as String?)?.let(ArtifactPackaging.fromString),
       path: json['path'] as String?,
     );
   }
@@ -7246,17 +7979,17 @@ class ProjectArtifacts {
     final packaging = this.packaging;
     final path = this.path;
     return {
-      'type': type.toValue(),
+      'type': type.value,
       if (artifactIdentifier != null) 'artifactIdentifier': artifactIdentifier,
       if (bucketOwnerAccess != null)
-        'bucketOwnerAccess': bucketOwnerAccess.toValue(),
+        'bucketOwnerAccess': bucketOwnerAccess.value,
       if (encryptionDisabled != null) 'encryptionDisabled': encryptionDisabled,
       if (location != null) 'location': location,
       if (name != null) 'name': name,
-      if (namespaceType != null) 'namespaceType': namespaceType.toValue(),
+      if (namespaceType != null) 'namespaceType': namespaceType.value,
       if (overrideArtifactName != null)
         'overrideArtifactName': overrideArtifactName,
-      if (packaging != null) 'packaging': packaging.toValue(),
+      if (packaging != null) 'packaging': packaging.value,
       if (path != null) 'path': path,
     };
   }
@@ -7332,8 +8065,8 @@ class ProjectBuildBatchConfig {
 
   factory ProjectBuildBatchConfig.fromJson(Map<String, dynamic> json) {
     return ProjectBuildBatchConfig(
-      batchReportMode:
-          (json['batchReportMode'] as String?)?.toBatchReportModeType(),
+      batchReportMode: (json['batchReportMode'] as String?)
+          ?.let(BatchReportModeType.fromString),
       combineArtifacts: json['combineArtifacts'] as bool?,
       restrictions: json['restrictions'] != null
           ? BatchRestrictions.fromJson(
@@ -7351,7 +8084,7 @@ class ProjectBuildBatchConfig {
     final serviceRole = this.serviceRole;
     final timeoutInMins = this.timeoutInMins;
     return {
-      if (batchReportMode != null) 'batchReportMode': batchReportMode.toValue(),
+      if (batchReportMode != null) 'batchReportMode': batchReportMode.value,
       if (combineArtifacts != null) 'combineArtifacts': combineArtifacts,
       if (restrictions != null) 'restrictions': restrictions,
       if (serviceRole != null) 'serviceRole': serviceRole,
@@ -7448,11 +8181,11 @@ class ProjectCache {
 
   factory ProjectCache.fromJson(Map<String, dynamic> json) {
     return ProjectCache(
-      type: (json['type'] as String).toCacheType(),
+      type: CacheType.fromString((json['type'] as String)),
       location: json['location'] as String?,
       modes: (json['modes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toCacheMode())
+          ?.nonNulls
+          .map((e) => CacheMode.fromString((e as String)))
           .toList(),
     );
   }
@@ -7462,9 +8195,9 @@ class ProjectCache {
     final location = this.location;
     final modes = this.modes;
     return {
-      'type': type.toValue(),
+      'type': type.value,
       if (location != null) 'location': location,
-      if (modes != null) 'modes': modes.map((e) => e.toValue()).toList(),
+      if (modes != null) 'modes': modes.map((e) => e.value).toList(),
     };
   }
 }
@@ -7488,9 +8221,54 @@ class ProjectEnvironment {
   /// builds, depending on your environment type.
   /// </li>
   /// <li>
+  /// <code>BUILD_GENERAL1_XLARGE</code>: Use up to 70 GB memory and 36 vCPUs for
+  /// builds, depending on your environment type.
+  /// </li>
+  /// <li>
   /// <code>BUILD_GENERAL1_2XLARGE</code>: Use up to 145 GB memory, 72 vCPUs, and
   /// 824 GB of SSD storage for builds. This compute type supports Docker images
   /// up to 100 GB uncompressed.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_LAMBDA_1GB</code>: Use up to 1 GB memory for builds. Only
+  /// available for environment type <code>LINUX_LAMBDA_CONTAINER</code> and
+  /// <code>ARM_LAMBDA_CONTAINER</code>.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_LAMBDA_2GB</code>: Use up to 2 GB memory for builds. Only
+  /// available for environment type <code>LINUX_LAMBDA_CONTAINER</code> and
+  /// <code>ARM_LAMBDA_CONTAINER</code>.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_LAMBDA_4GB</code>: Use up to 4 GB memory for builds. Only
+  /// available for environment type <code>LINUX_LAMBDA_CONTAINER</code> and
+  /// <code>ARM_LAMBDA_CONTAINER</code>.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_LAMBDA_8GB</code>: Use up to 8 GB memory for builds. Only
+  /// available for environment type <code>LINUX_LAMBDA_CONTAINER</code> and
+  /// <code>ARM_LAMBDA_CONTAINER</code>.
+  /// </li>
+  /// <li>
+  /// <code>BUILD_LAMBDA_10GB</code>: Use up to 10 GB memory for builds. Only
+  /// available for environment type <code>LINUX_LAMBDA_CONTAINER</code> and
+  /// <code>ARM_LAMBDA_CONTAINER</code>.
+  /// </li>
+  /// </ul>
+  /// If you use <code>BUILD_GENERAL1_SMALL</code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// For environment type <code>LINUX_CONTAINER</code>, you can use up to 3 GB
+  /// memory and 2 vCPUs for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>LINUX_GPU_CONTAINER</code>, you can use up to 16
+  /// GB memory, 4 vCPUs, and 1 NVIDIA A10G Tensor Core GPU for builds.
+  /// </li>
+  /// <li>
+  /// For environment type <code>ARM_CONTAINER</code>, you can use up to 4 GB
+  /// memory and 2 vCPUs on ARM-based processors for builds.
   /// </li>
   /// </ul>
   /// If you use <code>BUILD_GENERAL1_LARGE</code>:
@@ -7508,7 +8286,10 @@ class ProjectEnvironment {
   /// For environment type <code>ARM_CONTAINER</code>, you can use up to 16 GB
   /// memory and 8 vCPUs on ARM-based processors for builds.
   /// </li>
-  /// </ul>
+  /// </ul> <note>
+  /// If you're using compute fleets during project creation,
+  /// <code>computeType</code> will be ignored.
+  /// </note>
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
   /// Environment Compute Types</a> in the <i>CodeBuild User Guide.</i>
@@ -7548,12 +8329,11 @@ class ProjectEnvironment {
   /// (Frankfurt).
   /// </li>
   /// <li>
-  /// The environment type <code>LINUX_CONTAINER</code> with compute type
-  /// <code>build.general1.2xlarge</code> is available only in regions US East (N.
-  /// Virginia), US East (Ohio), US West (Oregon), Canada (Central), EU (Ireland),
-  /// EU (London), EU (Frankfurt), Asia Pacific (Tokyo), Asia Pacific (Seoul),
-  /// Asia Pacific (Singapore), Asia Pacific (Sydney), China (Beijing), and China
-  /// (Ningxia).
+  /// The environment type <code>LINUX_CONTAINER</code> is available only in
+  /// regions US East (N. Virginia), US East (Ohio), US West (Oregon), Canada
+  /// (Central), EU (Ireland), EU (London), EU (Frankfurt), Asia Pacific (Tokyo),
+  /// Asia Pacific (Seoul), Asia Pacific (Singapore), Asia Pacific (Sydney), China
+  /// (Beijing), and China (Ningxia).
   /// </li>
   /// <li>
   /// The environment type <code>LINUX_GPU_CONTAINER</code> is available only in
@@ -7565,11 +8345,23 @@ class ProjectEnvironment {
   /// </ul>
   /// <ul>
   /// <li>
+  /// The environment types <code>ARM_LAMBDA_CONTAINER</code> and
+  /// <code>LINUX_LAMBDA_CONTAINER</code> are available only in regions US East
+  /// (N. Virginia), US East (Ohio), US West (Oregon), Asia Pacific (Mumbai), Asia
+  /// Pacific (Singapore), Asia Pacific (Sydney), Asia Pacific (Tokyo), EU
+  /// (Frankfurt), EU (Ireland), and South America (São Paulo).
+  /// </li>
+  /// </ul>
+  /// <ul>
+  /// <li>
   /// The environment types <code>WINDOWS_CONTAINER</code> and
   /// <code>WINDOWS_SERVER_2019_CONTAINER</code> are available only in regions US
   /// East (N. Virginia), US East (Ohio), US West (Oregon), and EU (Ireland).
   /// </li>
-  /// </ul>
+  /// </ul> <note>
+  /// If you're using compute fleets during project creation, <code>type</code>
+  /// will be ignored.
+  /// </note>
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/codebuild/latest/userguide/build-env-ref-compute-types.html">Build
   /// environment compute types</a> in the <i>CodeBuild user guide</i>.
@@ -7585,6 +8377,9 @@ class ProjectEnvironment {
   /// A set of environment variables to make available to builds for this build
   /// project.
   final List<EnvironmentVariable>? environmentVariables;
+
+  /// A ProjectFleet object to use for this build project.
+  final ProjectFleet? fleet;
 
   /// The type of credentials CodeBuild uses to pull images in your build. There
   /// are two valid values:
@@ -7642,6 +8437,7 @@ class ProjectEnvironment {
     required this.type,
     this.certificate,
     this.environmentVariables,
+    this.fleet,
     this.imagePullCredentialsType,
     this.privilegedMode,
     this.registryCredential,
@@ -7649,16 +8445,19 @@ class ProjectEnvironment {
 
   factory ProjectEnvironment.fromJson(Map<String, dynamic> json) {
     return ProjectEnvironment(
-      computeType: (json['computeType'] as String).toComputeType(),
+      computeType: ComputeType.fromString((json['computeType'] as String)),
       image: json['image'] as String,
-      type: (json['type'] as String).toEnvironmentType(),
+      type: EnvironmentType.fromString((json['type'] as String)),
       certificate: json['certificate'] as String?,
       environmentVariables: (json['environmentVariables'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EnvironmentVariable.fromJson(e as Map<String, dynamic>))
           .toList(),
+      fleet: json['fleet'] != null
+          ? ProjectFleet.fromJson(json['fleet'] as Map<String, dynamic>)
+          : null,
       imagePullCredentialsType: (json['imagePullCredentialsType'] as String?)
-          ?.toImagePullCredentialsType(),
+          ?.let(ImagePullCredentialsType.fromString),
       privilegedMode: json['privilegedMode'] as bool?,
       registryCredential: json['registryCredential'] != null
           ? RegistryCredential.fromJson(
@@ -7673,18 +8472,20 @@ class ProjectEnvironment {
     final type = this.type;
     final certificate = this.certificate;
     final environmentVariables = this.environmentVariables;
+    final fleet = this.fleet;
     final imagePullCredentialsType = this.imagePullCredentialsType;
     final privilegedMode = this.privilegedMode;
     final registryCredential = this.registryCredential;
     return {
-      'computeType': computeType.toValue(),
+      'computeType': computeType.value,
       'image': image,
-      'type': type.toValue(),
+      'type': type.value,
       if (certificate != null) 'certificate': certificate,
       if (environmentVariables != null)
         'environmentVariables': environmentVariables,
+      if (fleet != null) 'fleet': fleet,
       if (imagePullCredentialsType != null)
-        'imagePullCredentialsType': imagePullCredentialsType.toValue(),
+        'imagePullCredentialsType': imagePullCredentialsType.value,
       if (privilegedMode != null) 'privilegedMode': privilegedMode,
       if (registryCredential != null) 'registryCredential': registryCredential,
     };
@@ -7748,7 +8549,7 @@ class ProjectFileSystemLocation {
       location: json['location'] as String?,
       mountOptions: json['mountOptions'] as String?,
       mountPoint: json['mountPoint'] as String?,
-      type: (json['type'] as String?)?.toFileSystemType(),
+      type: (json['type'] as String?)?.let(FileSystemType.fromString),
     );
   }
 
@@ -7763,42 +8564,51 @@ class ProjectFileSystemLocation {
       if (location != null) 'location': location,
       if (mountOptions != null) 'mountOptions': mountOptions,
       if (mountPoint != null) 'mountPoint': mountPoint,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
+    };
+  }
+}
+
+/// Information about the compute fleet of the build project. For more
+/// information, see <a
+/// href="https://docs.aws.amazon.com/codebuild/latest/userguide/fleets.html">Working
+/// with reserved capacity in CodeBuild</a>.
+class ProjectFleet {
+  /// Specifies the compute fleet ARN for the build project.
+  final String? fleetArn;
+
+  ProjectFleet({
+    this.fleetArn,
+  });
+
+  factory ProjectFleet.fromJson(Map<String, dynamic> json) {
+    return ProjectFleet(
+      fleetArn: json['fleetArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fleetArn = this.fleetArn;
+    return {
+      if (fleetArn != null) 'fleetArn': fleetArn,
     };
   }
 }
 
 enum ProjectSortByType {
-  name,
-  createdTime,
-  lastModifiedTime,
-}
+  name('NAME'),
+  createdTime('CREATED_TIME'),
+  lastModifiedTime('LAST_MODIFIED_TIME'),
+  ;
 
-extension ProjectSortByTypeValueExtension on ProjectSortByType {
-  String toValue() {
-    switch (this) {
-      case ProjectSortByType.name:
-        return 'NAME';
-      case ProjectSortByType.createdTime:
-        return 'CREATED_TIME';
-      case ProjectSortByType.lastModifiedTime:
-        return 'LAST_MODIFIED_TIME';
-    }
-  }
-}
+  final String value;
 
-extension ProjectSortByTypeFromString on String {
-  ProjectSortByType toProjectSortByType() {
-    switch (this) {
-      case 'NAME':
-        return ProjectSortByType.name;
-      case 'CREATED_TIME':
-        return ProjectSortByType.createdTime;
-      case 'LAST_MODIFIED_TIME':
-        return ProjectSortByType.lastModifiedTime;
-    }
-    throw Exception('$this is not known in enum ProjectSortByType');
-  }
+  const ProjectSortByType(this.value);
+
+  static ProjectSortByType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ProjectSortByType'));
 }
 
 /// Information about the build input source code for the build project.
@@ -7818,12 +8628,18 @@ class ProjectSource {
   /// source action of a pipeline in CodePipeline.
   /// </li>
   /// <li>
-  /// <code>GITHUB</code>: The source code is in a GitHub or GitHub Enterprise
-  /// Cloud repository.
+  /// <code>GITHUB</code>: The source code is in a GitHub repository.
   /// </li>
   /// <li>
   /// <code>GITHUB_ENTERPRISE</code>: The source code is in a GitHub Enterprise
   /// Server repository.
+  /// </li>
+  /// <li>
+  /// <code>GITLAB</code>: The source code is in a GitLab repository.
+  /// </li>
+  /// <li>
+  /// <code>GITLAB_SELF_MANAGED</code>: The source code is in a self-managed
+  /// GitLab repository.
   /// </li>
   /// <li>
   /// <code>NO_SOURCE</code>: The project does not have input source code.
@@ -7915,6 +8731,21 @@ class ProjectSource {
   /// <code>auth</code> object's <code>type</code> value to <code>OAUTH</code>.
   /// </li>
   /// <li>
+  /// For source code in an GitLab or self-managed GitLab repository, the HTTPS
+  /// clone URL to the repository that contains the source and the buildspec file.
+  /// You must connect your Amazon Web Services account to your GitLab account.
+  /// Use the CodeBuild console to start creating a build project. When you use
+  /// the console to connect (or reconnect) with GitLab, on the Connections
+  /// <b>Authorize application</b> page, choose <b>Authorize</b>. Then on the
+  /// CodeConnections <b>Create GitLab connection</b> page, choose <b>Connect to
+  /// GitLab</b>. (After you have connected to your GitLab account, you do not
+  /// need to finish creating the build project. You can leave the CodeBuild
+  /// console.) To instruct CodeBuild to override the default connection and use
+  /// this connection instead, set the <code>auth</code> object's
+  /// <code>type</code> value to <code>CODECONNECTIONS</code> in the
+  /// <code>source</code> object.
+  /// </li>
+  /// <li>
   /// For source code in a Bitbucket repository, the HTTPS clone URL to the
   /// repository that contains the source and the buildspec file. You must connect
   /// your Amazon Web Services account to your Bitbucket account. Use the
@@ -7935,8 +8766,9 @@ class ProjectSource {
 
   /// Set to true to report the status of a build's start and finish to your
   /// source provider. This option is valid only when your source provider is
-  /// GitHub, GitHub Enterprise, or Bitbucket. If this is set and you use a
-  /// different source provider, an <code>invalidInputException</code> is thrown.
+  /// GitHub, GitHub Enterprise, GitLab, GitLab Self Managed, or Bitbucket. If
+  /// this is set and you use a different source provider, an
+  /// <code>invalidInputException</code> is thrown.
   ///
   /// To be able to report the build status to the source provider, the user
   /// associated with the source provider must have write access to the repo. If
@@ -7972,7 +8804,7 @@ class ProjectSource {
 
   factory ProjectSource.fromJson(Map<String, dynamic> json) {
     return ProjectSource(
-      type: (json['type'] as String).toSourceType(),
+      type: SourceType.fromString((json['type'] as String)),
       auth: json['auth'] != null
           ? SourceAuth.fromJson(json['auth'] as Map<String, dynamic>)
           : null,
@@ -8005,7 +8837,7 @@ class ProjectSource {
     final reportBuildStatus = this.reportBuildStatus;
     final sourceIdentifier = this.sourceIdentifier;
     return {
-      'type': type.toValue(),
+      'type': type.value,
       if (auth != null) 'auth': auth,
       if (buildStatusConfig != null) 'buildStatusConfig': buildStatusConfig,
       if (buildspec != null) 'buildspec': buildspec,
@@ -8041,6 +8873,9 @@ class ProjectSourceVersion {
   /// <code>pr/pull-request-ID</code> (for example, <code>pr/25</code>). If a
   /// branch name is specified, the branch's HEAD commit ID is used. If not
   /// specified, the default branch's HEAD commit ID is used.
+  /// </li>
+  /// <li>
+  /// For GitLab: the commit ID, branch, or Git tag to use.
   /// </li>
   /// <li>
   /// For Bitbucket: the commit ID, branch name, or tag name that corresponds to
@@ -8087,31 +8922,18 @@ class ProjectSourceVersion {
 /// The project builds are not visible to the public.
 /// </dd> </dl>
 enum ProjectVisibilityType {
-  publicRead,
-  private,
-}
+  publicRead('PUBLIC_READ'),
+  private('PRIVATE'),
+  ;
 
-extension ProjectVisibilityTypeValueExtension on ProjectVisibilityType {
-  String toValue() {
-    switch (this) {
-      case ProjectVisibilityType.publicRead:
-        return 'PUBLIC_READ';
-      case ProjectVisibilityType.private:
-        return 'PRIVATE';
-    }
-  }
-}
+  final String value;
 
-extension ProjectVisibilityTypeFromString on String {
-  ProjectVisibilityType toProjectVisibilityType() {
-    switch (this) {
-      case 'PUBLIC_READ':
-        return ProjectVisibilityType.publicRead;
-      case 'PRIVATE':
-        return ProjectVisibilityType.private;
-    }
-    throw Exception('$this is not known in enum ProjectVisibilityType');
-  }
+  const ProjectVisibilityType(this.value);
+
+  static ProjectVisibilityType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ProjectVisibilityType'));
 }
 
 class PutResourcePolicyOutput {
@@ -8173,8 +8995,8 @@ class RegistryCredential {
   factory RegistryCredential.fromJson(Map<String, dynamic> json) {
     return RegistryCredential(
       credential: json['credential'] as String,
-      credentialProvider:
-          (json['credentialProvider'] as String).toCredentialProviderType(),
+      credentialProvider: CredentialProviderType.fromString(
+          (json['credentialProvider'] as String)),
     );
   }
 
@@ -8183,7 +9005,7 @@ class RegistryCredential {
     final credentialProvider = this.credentialProvider;
     return {
       'credential': credential,
-      'credentialProvider': credentialProvider.toValue(),
+      'credentialProvider': credentialProvider.value,
     };
   }
 }
@@ -8271,13 +9093,13 @@ class Report {
           : null,
       name: json['name'] as String?,
       reportGroupArn: json['reportGroupArn'] as String?,
-      status: (json['status'] as String?)?.toReportStatusType(),
+      status: (json['status'] as String?)?.let(ReportStatusType.fromString),
       testSummary: json['testSummary'] != null
           ? TestReportSummary.fromJson(
               json['testSummary'] as Map<String, dynamic>)
           : null,
       truncated: json['truncated'] as bool?,
-      type: (json['type'] as String?)?.toReportType(),
+      type: (json['type'] as String?)?.let(ReportType.fromString),
     );
   }
 
@@ -8304,41 +9126,27 @@ class Report {
       if (exportConfig != null) 'exportConfig': exportConfig,
       if (name != null) 'name': name,
       if (reportGroupArn != null) 'reportGroupArn': reportGroupArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (testSummary != null) 'testSummary': testSummary,
       if (truncated != null) 'truncated': truncated,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
 enum ReportCodeCoverageSortByType {
-  lineCoveragePercentage,
-  filePath,
-}
+  lineCoveragePercentage('LINE_COVERAGE_PERCENTAGE'),
+  filePath('FILE_PATH'),
+  ;
 
-extension ReportCodeCoverageSortByTypeValueExtension
-    on ReportCodeCoverageSortByType {
-  String toValue() {
-    switch (this) {
-      case ReportCodeCoverageSortByType.lineCoveragePercentage:
-        return 'LINE_COVERAGE_PERCENTAGE';
-      case ReportCodeCoverageSortByType.filePath:
-        return 'FILE_PATH';
-    }
-  }
-}
+  final String value;
 
-extension ReportCodeCoverageSortByTypeFromString on String {
-  ReportCodeCoverageSortByType toReportCodeCoverageSortByType() {
-    switch (this) {
-      case 'LINE_COVERAGE_PERCENTAGE':
-        return ReportCodeCoverageSortByType.lineCoveragePercentage;
-      case 'FILE_PATH':
-        return ReportCodeCoverageSortByType.filePath;
-    }
-    throw Exception('$this is not known in enum ReportCodeCoverageSortByType');
-  }
+  const ReportCodeCoverageSortByType(this.value);
+
+  static ReportCodeCoverageSortByType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReportCodeCoverageSortByType'));
 }
 
 /// Information about the location where the run of a report is exported.
@@ -8366,8 +9174,8 @@ class ReportExportConfig {
 
   factory ReportExportConfig.fromJson(Map<String, dynamic> json) {
     return ReportExportConfig(
-      exportConfigType:
-          (json['exportConfigType'] as String?)?.toReportExportConfigType(),
+      exportConfigType: (json['exportConfigType'] as String?)
+          ?.let(ReportExportConfigType.fromString),
       s3Destination: json['s3Destination'] != null
           ? S3ReportExportConfig.fromJson(
               json['s3Destination'] as Map<String, dynamic>)
@@ -8379,39 +9187,25 @@ class ReportExportConfig {
     final exportConfigType = this.exportConfigType;
     final s3Destination = this.s3Destination;
     return {
-      if (exportConfigType != null)
-        'exportConfigType': exportConfigType.toValue(),
+      if (exportConfigType != null) 'exportConfigType': exportConfigType.value,
       if (s3Destination != null) 's3Destination': s3Destination,
     };
   }
 }
 
 enum ReportExportConfigType {
-  s3,
-  noExport,
-}
+  s3('S3'),
+  noExport('NO_EXPORT'),
+  ;
 
-extension ReportExportConfigTypeValueExtension on ReportExportConfigType {
-  String toValue() {
-    switch (this) {
-      case ReportExportConfigType.s3:
-        return 'S3';
-      case ReportExportConfigType.noExport:
-        return 'NO_EXPORT';
-    }
-  }
-}
+  final String value;
 
-extension ReportExportConfigTypeFromString on String {
-  ReportExportConfigType toReportExportConfigType() {
-    switch (this) {
-      case 'S3':
-        return ReportExportConfigType.s3;
-      case 'NO_EXPORT':
-        return ReportExportConfigType.noExport;
-    }
-    throw Exception('$this is not known in enum ReportExportConfigType');
-  }
+  const ReportExportConfigType(this.value);
+
+  static ReportExportConfigType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReportExportConfigType'));
 }
 
 /// A filter used to return reports with the status specified by the input
@@ -8427,7 +9221,7 @@ class ReportFilter {
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -8499,12 +9293,13 @@ class ReportGroup {
           : null,
       lastModified: timeStampFromJson(json['lastModified']),
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toReportGroupStatusType(),
+      status:
+          (json['status'] as String?)?.let(ReportGroupStatusType.fromString),
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['type'] as String?)?.toReportType(),
+      type: (json['type'] as String?)?.let(ReportType.fromString),
     );
   }
 
@@ -8524,135 +9319,64 @@ class ReportGroup {
       if (lastModified != null)
         'lastModified': unixTimestampToJson(lastModified),
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
 enum ReportGroupSortByType {
-  name,
-  createdTime,
-  lastModifiedTime,
-}
+  name('NAME'),
+  createdTime('CREATED_TIME'),
+  lastModifiedTime('LAST_MODIFIED_TIME'),
+  ;
 
-extension ReportGroupSortByTypeValueExtension on ReportGroupSortByType {
-  String toValue() {
-    switch (this) {
-      case ReportGroupSortByType.name:
-        return 'NAME';
-      case ReportGroupSortByType.createdTime:
-        return 'CREATED_TIME';
-      case ReportGroupSortByType.lastModifiedTime:
-        return 'LAST_MODIFIED_TIME';
-    }
-  }
-}
+  final String value;
 
-extension ReportGroupSortByTypeFromString on String {
-  ReportGroupSortByType toReportGroupSortByType() {
-    switch (this) {
-      case 'NAME':
-        return ReportGroupSortByType.name;
-      case 'CREATED_TIME':
-        return ReportGroupSortByType.createdTime;
-      case 'LAST_MODIFIED_TIME':
-        return ReportGroupSortByType.lastModifiedTime;
-    }
-    throw Exception('$this is not known in enum ReportGroupSortByType');
-  }
+  const ReportGroupSortByType(this.value);
+
+  static ReportGroupSortByType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReportGroupSortByType'));
 }
 
 enum ReportGroupStatusType {
-  active,
-  deleting,
-}
+  active('ACTIVE'),
+  deleting('DELETING'),
+  ;
 
-extension ReportGroupStatusTypeValueExtension on ReportGroupStatusType {
-  String toValue() {
-    switch (this) {
-      case ReportGroupStatusType.active:
-        return 'ACTIVE';
-      case ReportGroupStatusType.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension ReportGroupStatusTypeFromString on String {
-  ReportGroupStatusType toReportGroupStatusType() {
-    switch (this) {
-      case 'ACTIVE':
-        return ReportGroupStatusType.active;
-      case 'DELETING':
-        return ReportGroupStatusType.deleting;
-    }
-    throw Exception('$this is not known in enum ReportGroupStatusType');
-  }
+  const ReportGroupStatusType(this.value);
+
+  static ReportGroupStatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReportGroupStatusType'));
 }
 
 enum ReportGroupTrendFieldType {
-  passRate,
-  duration,
-  total,
-  lineCoverage,
-  linesCovered,
-  linesMissed,
-  branchCoverage,
-  branchesCovered,
-  branchesMissed,
-}
+  passRate('PASS_RATE'),
+  duration('DURATION'),
+  total('TOTAL'),
+  lineCoverage('LINE_COVERAGE'),
+  linesCovered('LINES_COVERED'),
+  linesMissed('LINES_MISSED'),
+  branchCoverage('BRANCH_COVERAGE'),
+  branchesCovered('BRANCHES_COVERED'),
+  branchesMissed('BRANCHES_MISSED'),
+  ;
 
-extension ReportGroupTrendFieldTypeValueExtension on ReportGroupTrendFieldType {
-  String toValue() {
-    switch (this) {
-      case ReportGroupTrendFieldType.passRate:
-        return 'PASS_RATE';
-      case ReportGroupTrendFieldType.duration:
-        return 'DURATION';
-      case ReportGroupTrendFieldType.total:
-        return 'TOTAL';
-      case ReportGroupTrendFieldType.lineCoverage:
-        return 'LINE_COVERAGE';
-      case ReportGroupTrendFieldType.linesCovered:
-        return 'LINES_COVERED';
-      case ReportGroupTrendFieldType.linesMissed:
-        return 'LINES_MISSED';
-      case ReportGroupTrendFieldType.branchCoverage:
-        return 'BRANCH_COVERAGE';
-      case ReportGroupTrendFieldType.branchesCovered:
-        return 'BRANCHES_COVERED';
-      case ReportGroupTrendFieldType.branchesMissed:
-        return 'BRANCHES_MISSED';
-    }
-  }
-}
+  final String value;
 
-extension ReportGroupTrendFieldTypeFromString on String {
-  ReportGroupTrendFieldType toReportGroupTrendFieldType() {
-    switch (this) {
-      case 'PASS_RATE':
-        return ReportGroupTrendFieldType.passRate;
-      case 'DURATION':
-        return ReportGroupTrendFieldType.duration;
-      case 'TOTAL':
-        return ReportGroupTrendFieldType.total;
-      case 'LINE_COVERAGE':
-        return ReportGroupTrendFieldType.lineCoverage;
-      case 'LINES_COVERED':
-        return ReportGroupTrendFieldType.linesCovered;
-      case 'LINES_MISSED':
-        return ReportGroupTrendFieldType.linesMissed;
-      case 'BRANCH_COVERAGE':
-        return ReportGroupTrendFieldType.branchCoverage;
-      case 'BRANCHES_COVERED':
-        return ReportGroupTrendFieldType.branchesCovered;
-      case 'BRANCHES_MISSED':
-        return ReportGroupTrendFieldType.branchesMissed;
-    }
-    throw Exception('$this is not known in enum ReportGroupTrendFieldType');
-  }
+  const ReportGroupTrendFieldType(this.value);
+
+  static ReportGroupTrendFieldType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReportGroupTrendFieldType'));
 }
 
 /// Contains trend statistics for a set of reports. The actual values depend on
@@ -8694,102 +9418,50 @@ class ReportGroupTrendStats {
 }
 
 enum ReportPackagingType {
-  zip,
-  none,
-}
+  zip('ZIP'),
+  none('NONE'),
+  ;
 
-extension ReportPackagingTypeValueExtension on ReportPackagingType {
-  String toValue() {
-    switch (this) {
-      case ReportPackagingType.zip:
-        return 'ZIP';
-      case ReportPackagingType.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension ReportPackagingTypeFromString on String {
-  ReportPackagingType toReportPackagingType() {
-    switch (this) {
-      case 'ZIP':
-        return ReportPackagingType.zip;
-      case 'NONE':
-        return ReportPackagingType.none;
-    }
-    throw Exception('$this is not known in enum ReportPackagingType');
-  }
+  const ReportPackagingType(this.value);
+
+  static ReportPackagingType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReportPackagingType'));
 }
 
 enum ReportStatusType {
-  generating,
-  succeeded,
-  failed,
-  incomplete,
-  deleting,
-}
+  generating('GENERATING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  incomplete('INCOMPLETE'),
+  deleting('DELETING'),
+  ;
 
-extension ReportStatusTypeValueExtension on ReportStatusType {
-  String toValue() {
-    switch (this) {
-      case ReportStatusType.generating:
-        return 'GENERATING';
-      case ReportStatusType.succeeded:
-        return 'SUCCEEDED';
-      case ReportStatusType.failed:
-        return 'FAILED';
-      case ReportStatusType.incomplete:
-        return 'INCOMPLETE';
-      case ReportStatusType.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension ReportStatusTypeFromString on String {
-  ReportStatusType toReportStatusType() {
-    switch (this) {
-      case 'GENERATING':
-        return ReportStatusType.generating;
-      case 'SUCCEEDED':
-        return ReportStatusType.succeeded;
-      case 'FAILED':
-        return ReportStatusType.failed;
-      case 'INCOMPLETE':
-        return ReportStatusType.incomplete;
-      case 'DELETING':
-        return ReportStatusType.deleting;
-    }
-    throw Exception('$this is not known in enum ReportStatusType');
-  }
+  const ReportStatusType(this.value);
+
+  static ReportStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReportStatusType'));
 }
 
 enum ReportType {
-  test,
-  codeCoverage,
-}
+  test('TEST'),
+  codeCoverage('CODE_COVERAGE'),
+  ;
 
-extension ReportTypeValueExtension on ReportType {
-  String toValue() {
-    switch (this) {
-      case ReportType.test:
-        return 'TEST';
-      case ReportType.codeCoverage:
-        return 'CODE_COVERAGE';
-    }
-  }
-}
+  final String value;
 
-extension ReportTypeFromString on String {
-  ReportType toReportType() {
-    switch (this) {
-      case 'TEST':
-        return ReportType.test;
-      case 'CODE_COVERAGE':
-        return ReportType.codeCoverage;
-    }
-    throw Exception('$this is not known in enum ReportType');
-  }
+  const ReportType(this.value);
+
+  static ReportType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ReportType'));
 }
 
 /// Contains the unmodified data for the report. For more information, see .
@@ -8844,7 +9516,7 @@ class ResolvedArtifact {
     return ResolvedArtifact(
       identifier: json['identifier'] as String?,
       location: json['location'] as String?,
-      type: (json['type'] as String?)?.toArtifactsType(),
+      type: (json['type'] as String?)?.let(ArtifactsType.fromString),
     );
   }
 
@@ -8855,7 +9527,7 @@ class ResolvedArtifact {
     return {
       if (identifier != null) 'identifier': identifier,
       if (location != null) 'location': location,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -8884,31 +9556,18 @@ class RetryBuildBatchOutput {
 }
 
 enum RetryBuildBatchType {
-  retryAllBuilds,
-  retryFailedBuilds,
-}
+  retryAllBuilds('RETRY_ALL_BUILDS'),
+  retryFailedBuilds('RETRY_FAILED_BUILDS'),
+  ;
 
-extension RetryBuildBatchTypeValueExtension on RetryBuildBatchType {
-  String toValue() {
-    switch (this) {
-      case RetryBuildBatchType.retryAllBuilds:
-        return 'RETRY_ALL_BUILDS';
-      case RetryBuildBatchType.retryFailedBuilds:
-        return 'RETRY_FAILED_BUILDS';
-    }
-  }
-}
+  final String value;
 
-extension RetryBuildBatchTypeFromString on String {
-  RetryBuildBatchType toRetryBuildBatchType() {
-    switch (this) {
-      case 'RETRY_ALL_BUILDS':
-        return RetryBuildBatchType.retryAllBuilds;
-      case 'RETRY_FAILED_BUILDS':
-        return RetryBuildBatchType.retryFailedBuilds;
-    }
-    throw Exception('$this is not known in enum RetryBuildBatchType');
-  }
+  const RetryBuildBatchType(this.value);
+
+  static RetryBuildBatchType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RetryBuildBatchType'));
 }
 
 class RetryBuildOutput {
@@ -8969,9 +9628,9 @@ class S3LogsConfig {
 
   factory S3LogsConfig.fromJson(Map<String, dynamic> json) {
     return S3LogsConfig(
-      status: (json['status'] as String).toLogsConfigStatusType(),
-      bucketOwnerAccess:
-          (json['bucketOwnerAccess'] as String?)?.toBucketOwnerAccess(),
+      status: LogsConfigStatusType.fromString((json['status'] as String)),
+      bucketOwnerAccess: (json['bucketOwnerAccess'] as String?)
+          ?.let(BucketOwnerAccess.fromString),
       encryptionDisabled: json['encryptionDisabled'] as bool?,
       location: json['location'] as String?,
     );
@@ -8983,9 +9642,9 @@ class S3LogsConfig {
     final encryptionDisabled = this.encryptionDisabled;
     final location = this.location;
     return {
-      'status': status.toValue(),
+      'status': status.value,
       if (bucketOwnerAccess != null)
-        'bucketOwnerAccess': bucketOwnerAccess.toValue(),
+        'bucketOwnerAccess': bucketOwnerAccess.value,
       if (encryptionDisabled != null) 'encryptionDisabled': encryptionDisabled,
       if (location != null) 'location': location,
     };
@@ -9040,7 +9699,8 @@ class S3ReportExportConfig {
       bucketOwner: json['bucketOwner'] as String?,
       encryptionDisabled: json['encryptionDisabled'] as bool?,
       encryptionKey: json['encryptionKey'] as String?,
-      packaging: (json['packaging'] as String?)?.toReportPackagingType(),
+      packaging:
+          (json['packaging'] as String?)?.let(ReportPackagingType.fromString),
       path: json['path'] as String?,
     );
   }
@@ -9057,99 +9717,138 @@ class S3ReportExportConfig {
       if (bucketOwner != null) 'bucketOwner': bucketOwner,
       if (encryptionDisabled != null) 'encryptionDisabled': encryptionDisabled,
       if (encryptionKey != null) 'encryptionKey': encryptionKey,
-      if (packaging != null) 'packaging': packaging.toValue(),
+      if (packaging != null) 'packaging': packaging.value,
       if (path != null) 'path': path,
     };
   }
 }
 
+/// The scaling configuration input of a compute fleet.
+class ScalingConfigurationInput {
+  /// The maximum number of instances in the ﬂeet when auto-scaling.
+  final int? maxCapacity;
+
+  /// The scaling type for a compute fleet.
+  final FleetScalingType? scalingType;
+
+  /// A list of <code>TargetTrackingScalingConfiguration</code> objects.
+  final List<TargetTrackingScalingConfiguration>? targetTrackingScalingConfigs;
+
+  ScalingConfigurationInput({
+    this.maxCapacity,
+    this.scalingType,
+    this.targetTrackingScalingConfigs,
+  });
+
+  Map<String, dynamic> toJson() {
+    final maxCapacity = this.maxCapacity;
+    final scalingType = this.scalingType;
+    final targetTrackingScalingConfigs = this.targetTrackingScalingConfigs;
+    return {
+      if (maxCapacity != null) 'maxCapacity': maxCapacity,
+      if (scalingType != null) 'scalingType': scalingType.value,
+      if (targetTrackingScalingConfigs != null)
+        'targetTrackingScalingConfigs': targetTrackingScalingConfigs,
+    };
+  }
+}
+
+/// The scaling configuration output of a compute fleet.
+class ScalingConfigurationOutput {
+  /// The desired number of instances in the ﬂeet when auto-scaling.
+  final int? desiredCapacity;
+
+  /// The maximum number of instances in the ﬂeet when auto-scaling.
+  final int? maxCapacity;
+
+  /// The scaling type for a compute fleet.
+  final FleetScalingType? scalingType;
+
+  /// A list of <code>TargetTrackingScalingConfiguration</code> objects.
+  final List<TargetTrackingScalingConfiguration>? targetTrackingScalingConfigs;
+
+  ScalingConfigurationOutput({
+    this.desiredCapacity,
+    this.maxCapacity,
+    this.scalingType,
+    this.targetTrackingScalingConfigs,
+  });
+
+  factory ScalingConfigurationOutput.fromJson(Map<String, dynamic> json) {
+    return ScalingConfigurationOutput(
+      desiredCapacity: json['desiredCapacity'] as int?,
+      maxCapacity: json['maxCapacity'] as int?,
+      scalingType:
+          (json['scalingType'] as String?)?.let(FleetScalingType.fromString),
+      targetTrackingScalingConfigs:
+          (json['targetTrackingScalingConfigs'] as List?)
+              ?.nonNulls
+              .map((e) => TargetTrackingScalingConfiguration.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final desiredCapacity = this.desiredCapacity;
+    final maxCapacity = this.maxCapacity;
+    final scalingType = this.scalingType;
+    final targetTrackingScalingConfigs = this.targetTrackingScalingConfigs;
+    return {
+      if (desiredCapacity != null) 'desiredCapacity': desiredCapacity,
+      if (maxCapacity != null) 'maxCapacity': maxCapacity,
+      if (scalingType != null) 'scalingType': scalingType.value,
+      if (targetTrackingScalingConfigs != null)
+        'targetTrackingScalingConfigs': targetTrackingScalingConfigs,
+    };
+  }
+}
+
 enum ServerType {
-  github,
-  bitbucket,
-  githubEnterprise,
-}
+  github('GITHUB'),
+  bitbucket('BITBUCKET'),
+  githubEnterprise('GITHUB_ENTERPRISE'),
+  gitlab('GITLAB'),
+  gitlabSelfManaged('GITLAB_SELF_MANAGED'),
+  ;
 
-extension ServerTypeValueExtension on ServerType {
-  String toValue() {
-    switch (this) {
-      case ServerType.github:
-        return 'GITHUB';
-      case ServerType.bitbucket:
-        return 'BITBUCKET';
-      case ServerType.githubEnterprise:
-        return 'GITHUB_ENTERPRISE';
-    }
-  }
-}
+  final String value;
 
-extension ServerTypeFromString on String {
-  ServerType toServerType() {
-    switch (this) {
-      case 'GITHUB':
-        return ServerType.github;
-      case 'BITBUCKET':
-        return ServerType.bitbucket;
-      case 'GITHUB_ENTERPRISE':
-        return ServerType.githubEnterprise;
-    }
-    throw Exception('$this is not known in enum ServerType');
-  }
+  const ServerType(this.value);
+
+  static ServerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ServerType'));
 }
 
 enum SharedResourceSortByType {
-  arn,
-  modifiedTime,
-}
+  arn('ARN'),
+  modifiedTime('MODIFIED_TIME'),
+  ;
 
-extension SharedResourceSortByTypeValueExtension on SharedResourceSortByType {
-  String toValue() {
-    switch (this) {
-      case SharedResourceSortByType.arn:
-        return 'ARN';
-      case SharedResourceSortByType.modifiedTime:
-        return 'MODIFIED_TIME';
-    }
-  }
-}
+  final String value;
 
-extension SharedResourceSortByTypeFromString on String {
-  SharedResourceSortByType toSharedResourceSortByType() {
-    switch (this) {
-      case 'ARN':
-        return SharedResourceSortByType.arn;
-      case 'MODIFIED_TIME':
-        return SharedResourceSortByType.modifiedTime;
-    }
-    throw Exception('$this is not known in enum SharedResourceSortByType');
-  }
+  const SharedResourceSortByType(this.value);
+
+  static SharedResourceSortByType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SharedResourceSortByType'));
 }
 
 enum SortOrderType {
-  ascending,
-  descending,
-}
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
 
-extension SortOrderTypeValueExtension on SortOrderType {
-  String toValue() {
-    switch (this) {
-      case SortOrderType.ascending:
-        return 'ASCENDING';
-      case SortOrderType.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortOrderTypeFromString on String {
-  SortOrderType toSortOrderType() {
-    switch (this) {
-      case 'ASCENDING':
-        return SortOrderType.ascending;
-      case 'DESCENDING':
-        return SortOrderType.descending;
-    }
-    throw Exception('$this is not known in enum SortOrderType');
-  }
+  const SortOrderType(this.value);
+
+  static SortOrderType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SortOrderType'));
 }
 
 /// Information about the authorization settings for CodeBuild to access the
@@ -9158,11 +9857,7 @@ extension SortOrderTypeFromString on String {
 /// This information is for the CodeBuild console's use only. Your code should
 /// not get or set this information directly.
 class SourceAuth {
-  /// <note>
-  /// This data type is deprecated and is no longer accurate or used.
-  /// </note>
-  /// The authorization type to use. The only valid value is <code>OAUTH</code>,
-  /// which represents the OAuth authorization type.
+  /// The authorization type to use. Valid options are OAUTH or CODECONNECTIONS.
   final SourceAuthType type;
 
   /// The resource value that applies to the specified authorization type.
@@ -9175,7 +9870,7 @@ class SourceAuth {
 
   factory SourceAuth.fromJson(Map<String, dynamic> json) {
     return SourceAuth(
-      type: (json['type'] as String).toSourceAuthType(),
+      type: SourceAuthType.fromString((json['type'] as String)),
       resource: json['resource'] as String?,
     );
   }
@@ -9184,126 +9879,94 @@ class SourceAuth {
     final type = this.type;
     final resource = this.resource;
     return {
-      'type': type.toValue(),
+      'type': type.value,
       if (resource != null) 'resource': resource,
     };
   }
 }
 
 enum SourceAuthType {
-  oauth,
+  oauth('OAUTH'),
+  codeconnections('CODECONNECTIONS'),
+  ;
+
+  final String value;
+
+  const SourceAuthType(this.value);
+
+  static SourceAuthType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SourceAuthType'));
 }
 
-extension SourceAuthTypeValueExtension on SourceAuthType {
-  String toValue() {
-    switch (this) {
-      case SourceAuthType.oauth:
-        return 'OAUTH';
-    }
-  }
-}
-
-extension SourceAuthTypeFromString on String {
-  SourceAuthType toSourceAuthType() {
-    switch (this) {
-      case 'OAUTH':
-        return SourceAuthType.oauth;
-    }
-    throw Exception('$this is not known in enum SourceAuthType');
-  }
-}
-
-/// Information about the credentials for a GitHub, GitHub Enterprise, or
-/// Bitbucket repository.
+/// Information about the credentials for a GitHub, GitHub Enterprise, GitLab,
+/// GitLab Self Managed, or Bitbucket repository.
 class SourceCredentialsInfo {
   /// The Amazon Resource Name (ARN) of the token.
   final String? arn;
 
   /// The type of authentication used by the credentials. Valid options are OAUTH,
-  /// BASIC_AUTH, or PERSONAL_ACCESS_TOKEN.
+  /// BASIC_AUTH, PERSONAL_ACCESS_TOKEN, or CODECONNECTIONS.
   final AuthType? authType;
 
+  /// The connection ARN if your serverType type is GITLAB or GITLAB_SELF_MANAGED
+  /// and your authType is CODECONNECTIONS.
+  final String? resource;
+
   /// The type of source provider. The valid options are GITHUB,
-  /// GITHUB_ENTERPRISE, or BITBUCKET.
+  /// GITHUB_ENTERPRISE, GITLAB, GITLAB_SELF_MANAGED, or BITBUCKET.
   final ServerType? serverType;
 
   SourceCredentialsInfo({
     this.arn,
     this.authType,
+    this.resource,
     this.serverType,
   });
 
   factory SourceCredentialsInfo.fromJson(Map<String, dynamic> json) {
     return SourceCredentialsInfo(
       arn: json['arn'] as String?,
-      authType: (json['authType'] as String?)?.toAuthType(),
-      serverType: (json['serverType'] as String?)?.toServerType(),
+      authType: (json['authType'] as String?)?.let(AuthType.fromString),
+      resource: json['resource'] as String?,
+      serverType: (json['serverType'] as String?)?.let(ServerType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final arn = this.arn;
     final authType = this.authType;
+    final resource = this.resource;
     final serverType = this.serverType;
     return {
       if (arn != null) 'arn': arn,
-      if (authType != null) 'authType': authType.toValue(),
-      if (serverType != null) 'serverType': serverType.toValue(),
+      if (authType != null) 'authType': authType.value,
+      if (resource != null) 'resource': resource,
+      if (serverType != null) 'serverType': serverType.value,
     };
   }
 }
 
 enum SourceType {
-  codecommit,
-  codepipeline,
-  github,
-  s3,
-  bitbucket,
-  githubEnterprise,
-  noSource,
-}
+  codecommit('CODECOMMIT'),
+  codepipeline('CODEPIPELINE'),
+  github('GITHUB'),
+  gitlab('GITLAB'),
+  gitlabSelfManaged('GITLAB_SELF_MANAGED'),
+  s3('S3'),
+  bitbucket('BITBUCKET'),
+  githubEnterprise('GITHUB_ENTERPRISE'),
+  noSource('NO_SOURCE'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.codecommit:
-        return 'CODECOMMIT';
-      case SourceType.codepipeline:
-        return 'CODEPIPELINE';
-      case SourceType.github:
-        return 'GITHUB';
-      case SourceType.s3:
-        return 'S3';
-      case SourceType.bitbucket:
-        return 'BITBUCKET';
-      case SourceType.githubEnterprise:
-        return 'GITHUB_ENTERPRISE';
-      case SourceType.noSource:
-        return 'NO_SOURCE';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'CODECOMMIT':
-        return SourceType.codecommit;
-      case 'CODEPIPELINE':
-        return SourceType.codepipeline;
-      case 'GITHUB':
-        return SourceType.github;
-      case 'S3':
-        return SourceType.s3;
-      case 'BITBUCKET':
-        return SourceType.bitbucket;
-      case 'GITHUB_ENTERPRISE':
-        return SourceType.githubEnterprise;
-      case 'NO_SOURCE':
-        return SourceType.noSource;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 class StartBuildBatchOutput {
@@ -9356,51 +10019,21 @@ class StartBuildOutput {
 }
 
 enum StatusType {
-  succeeded,
-  failed,
-  fault,
-  timedOut,
-  inProgress,
-  stopped,
-}
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  fault('FAULT'),
+  timedOut('TIMED_OUT'),
+  inProgress('IN_PROGRESS'),
+  stopped('STOPPED'),
+  ;
 
-extension StatusTypeValueExtension on StatusType {
-  String toValue() {
-    switch (this) {
-      case StatusType.succeeded:
-        return 'SUCCEEDED';
-      case StatusType.failed:
-        return 'FAILED';
-      case StatusType.fault:
-        return 'FAULT';
-      case StatusType.timedOut:
-        return 'TIMED_OUT';
-      case StatusType.inProgress:
-        return 'IN_PROGRESS';
-      case StatusType.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension StatusTypeFromString on String {
-  StatusType toStatusType() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return StatusType.succeeded;
-      case 'FAILED':
-        return StatusType.failed;
-      case 'FAULT':
-        return StatusType.fault;
-      case 'TIMED_OUT':
-        return StatusType.timedOut;
-      case 'IN_PROGRESS':
-        return StatusType.inProgress;
-      case 'STOPPED':
-        return StatusType.stopped;
-    }
-    throw Exception('$this is not known in enum StatusType');
-  }
+  const StatusType(this.value);
+
+  static StatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StatusType'));
 }
 
 class StopBuildBatchOutput {
@@ -9479,6 +10112,38 @@ class Tag {
     return {
       if (key != null) 'key': key,
       if (value != null) 'value': value,
+    };
+  }
+}
+
+/// Defines when a new instance is auto-scaled into the compute fleet.
+class TargetTrackingScalingConfiguration {
+  /// The metric type to determine auto-scaling.
+  final FleetScalingMetricType? metricType;
+
+  /// The value of <code>metricType</code> when to start scaling.
+  final double? targetValue;
+
+  TargetTrackingScalingConfiguration({
+    this.metricType,
+    this.targetValue,
+  });
+
+  factory TargetTrackingScalingConfiguration.fromJson(
+      Map<String, dynamic> json) {
+    return TargetTrackingScalingConfiguration(
+      metricType: (json['metricType'] as String?)
+          ?.let(FleetScalingMetricType.fromString),
+      targetValue: json['targetValue'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final metricType = this.metricType;
+    final targetValue = this.targetValue;
+    return {
+      if (metricType != null) 'metricType': metricType.value,
+      if (targetValue != null) 'targetValue': targetValue,
     };
   }
 }
@@ -9650,6 +10315,30 @@ class TestReportSummary {
   }
 }
 
+class UpdateFleetOutput {
+  /// A <code>Fleet</code> object.
+  final Fleet? fleet;
+
+  UpdateFleetOutput({
+    this.fleet,
+  });
+
+  factory UpdateFleetOutput.fromJson(Map<String, dynamic> json) {
+    return UpdateFleetOutput(
+      fleet: json['fleet'] != null
+          ? Fleet.fromJson(json['fleet'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fleet = this.fleet;
+    return {
+      if (fleet != null) 'fleet': fleet,
+    };
+  }
+}
+
 class UpdateProjectOutput {
   /// Information about the build project that was changed.
   final Project? project;
@@ -9691,8 +10380,8 @@ class UpdateProjectVisibilityOutput {
   factory UpdateProjectVisibilityOutput.fromJson(Map<String, dynamic> json) {
     return UpdateProjectVisibilityOutput(
       projectArn: json['projectArn'] as String?,
-      projectVisibility:
-          (json['projectVisibility'] as String?)?.toProjectVisibilityType(),
+      projectVisibility: (json['projectVisibility'] as String?)
+          ?.let(ProjectVisibilityType.fromString),
       publicProjectAlias: json['publicProjectAlias'] as String?,
     );
   }
@@ -9704,7 +10393,7 @@ class UpdateProjectVisibilityOutput {
     return {
       if (projectArn != null) 'projectArn': projectArn,
       if (projectVisibility != null)
-        'projectVisibility': projectVisibility.toValue(),
+        'projectVisibility': projectVisibility.value,
       if (publicProjectAlias != null) 'publicProjectAlias': publicProjectAlias,
     };
   }
@@ -9779,13 +10468,11 @@ class VpcConfig {
   factory VpcConfig.fromJson(Map<String, dynamic> json) {
     return VpcConfig(
       securityGroupIds: (json['securityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      subnets: (json['subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      subnets:
+          (json['subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
       vpcId: json['vpcId'] as String?,
     );
   }
@@ -9831,6 +10518,15 @@ class Webhook {
   /// modified.
   final DateTime? lastModifiedSecret;
 
+  /// If manualCreation is true, CodeBuild doesn't create a webhook in GitHub and
+  /// instead returns <code>payloadUrl</code> and <code>secret</code> values for
+  /// the webhook. The <code>payloadUrl</code> and <code>secret</code> values in
+  /// the output can be used to manually create a webhook within GitHub.
+  /// <note>
+  /// manualCreation is only available for GitHub webhooks.
+  /// </note>
+  final bool? manualCreation;
+
   /// The CodeBuild endpoint where webhook events are sent.
   final String? payloadUrl;
 
@@ -9848,6 +10544,7 @@ class Webhook {
     this.buildType,
     this.filterGroups,
     this.lastModifiedSecret,
+    this.manualCreation,
     this.payloadUrl,
     this.secret,
     this.url,
@@ -9856,15 +10553,17 @@ class Webhook {
   factory Webhook.fromJson(Map<String, dynamic> json) {
     return Webhook(
       branchFilter: json['branchFilter'] as String?,
-      buildType: (json['buildType'] as String?)?.toWebhookBuildType(),
+      buildType:
+          (json['buildType'] as String?)?.let(WebhookBuildType.fromString),
       filterGroups: (json['filterGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => WebhookFilter.fromJson(e as Map<String, dynamic>))
               .toList())
           .toList(),
       lastModifiedSecret: timeStampFromJson(json['lastModifiedSecret']),
+      manualCreation: json['manualCreation'] as bool?,
       payloadUrl: json['payloadUrl'] as String?,
       secret: json['secret'] as String?,
       url: json['url'] as String?,
@@ -9876,15 +10575,17 @@ class Webhook {
     final buildType = this.buildType;
     final filterGroups = this.filterGroups;
     final lastModifiedSecret = this.lastModifiedSecret;
+    final manualCreation = this.manualCreation;
     final payloadUrl = this.payloadUrl;
     final secret = this.secret;
     final url = this.url;
     return {
       if (branchFilter != null) 'branchFilter': branchFilter,
-      if (buildType != null) 'buildType': buildType.toValue(),
+      if (buildType != null) 'buildType': buildType.value,
       if (filterGroups != null) 'filterGroups': filterGroups,
       if (lastModifiedSecret != null)
         'lastModifiedSecret': unixTimestampToJson(lastModifiedSecret),
+      if (manualCreation != null) 'manualCreation': manualCreation,
       if (payloadUrl != null) 'payloadUrl': payloadUrl,
       if (secret != null) 'secret': secret,
       if (url != null) 'url': url,
@@ -9893,31 +10594,18 @@ class Webhook {
 }
 
 enum WebhookBuildType {
-  build,
-  buildBatch,
-}
+  build('BUILD'),
+  buildBatch('BUILD_BATCH'),
+  ;
 
-extension WebhookBuildTypeValueExtension on WebhookBuildType {
-  String toValue() {
-    switch (this) {
-      case WebhookBuildType.build:
-        return 'BUILD';
-      case WebhookBuildType.buildBatch:
-        return 'BUILD_BATCH';
-    }
-  }
-}
+  final String value;
 
-extension WebhookBuildTypeFromString on String {
-  WebhookBuildType toWebhookBuildType() {
-    switch (this) {
-      case 'BUILD':
-        return WebhookBuildType.build;
-      case 'BUILD_BATCH':
-        return WebhookBuildType.buildBatch;
-    }
-    throw Exception('$this is not known in enum WebhookBuildType');
-  }
+  const WebhookBuildType(this.value);
+
+  static WebhookBuildType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WebhookBuildType'));
 }
 
 /// A filter used to determine which webhooks trigger a build.
@@ -9935,52 +10623,128 @@ class WebhookFilter {
   /// branch with a reference name <code>refs/heads/branch-name</code>.
   final String pattern;
 
-  /// The type of webhook filter. There are six webhook filter types:
+  /// The type of webhook filter. There are nine webhook filter types:
   /// <code>EVENT</code>, <code>ACTOR_ACCOUNT_ID</code>, <code>HEAD_REF</code>,
-  /// <code>BASE_REF</code>, <code>FILE_PATH</code>, and
-  /// <code>COMMIT_MESSAGE</code>.
-  /// <dl> <dt> EVENT </dt> <dd>
+  /// <code>BASE_REF</code>, <code>FILE_PATH</code>, <code>COMMIT_MESSAGE</code>,
+  /// <code>TAG_NAME</code>, <code>RELEASE_NAME</code>, and
+  /// <code>WORKFLOW_NAME</code>.
+  ///
+  /// <ul>
+  /// <li>
+  /// EVENT
+  ///
+  /// <ul>
+  /// <li>
   /// A webhook event triggers a build when the provided <code>pattern</code>
-  /// matches one of five event types: <code>PUSH</code>,
+  /// matches one of nine event types: <code>PUSH</code>,
   /// <code>PULL_REQUEST_CREATED</code>, <code>PULL_REQUEST_UPDATED</code>,
-  /// <code>PULL_REQUEST_REOPENED</code>, and <code>PULL_REQUEST_MERGED</code>.
-  /// The <code>EVENT</code> patterns are specified as a comma-separated string.
-  /// For example, <code>PUSH, PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED</code>
+  /// <code>PULL_REQUEST_CLOSED</code>, <code>PULL_REQUEST_REOPENED</code>,
+  /// <code>PULL_REQUEST_MERGED</code>, <code>RELEASED</code>,
+  /// <code>PRERELEASED</code>, and <code>WORKFLOW_JOB_QUEUED</code>. The
+  /// <code>EVENT</code> patterns are specified as a comma-separated string. For
+  /// example, <code>PUSH, PULL_REQUEST_CREATED, PULL_REQUEST_UPDATED</code>
   /// filters all push, pull request created, and pull request updated events.
   /// <note>
-  /// The <code>PULL_REQUEST_REOPENED</code> works with GitHub and GitHub
-  /// Enterprise only.
-  /// </note> </dd> <dt> ACTOR_ACCOUNT_ID </dt> <dd>
+  /// Types <code>PULL_REQUEST_REOPENED</code> and
+  /// <code>WORKFLOW_JOB_QUEUED</code> work with GitHub and GitHub Enterprise
+  /// only. Types <code>RELEASED</code> and <code>PRERELEASED</code> work with
+  /// GitHub only.
+  /// </note> </li>
+  /// </ul> </li>
+  /// <li>
+  /// ACTOR_ACCOUNT_ID
+  ///
+  /// <ul>
+  /// <li>
   /// A webhook event triggers a build when a GitHub, GitHub Enterprise, or
   /// Bitbucket account ID matches the regular expression <code>pattern</code>.
-  /// </dd> <dt> HEAD_REF </dt> <dd>
+  /// </li>
+  /// </ul> </li>
+  /// <li>
+  /// HEAD_REF
+  ///
+  /// <ul>
+  /// <li>
   /// A webhook event triggers a build when the head reference matches the regular
   /// expression <code>pattern</code>. For example,
   /// <code>refs/heads/branch-name</code> and <code>refs/tags/tag-name</code>.
-  ///
+  /// <note>
   /// Works with GitHub and GitHub Enterprise push, GitHub and GitHub Enterprise
   /// pull request, Bitbucket push, and Bitbucket pull request events.
-  /// </dd> <dt> BASE_REF </dt> <dd>
+  /// </note> </li>
+  /// </ul> </li>
+  /// <li>
+  /// BASE_REF
+  ///
+  /// <ul>
+  /// <li>
   /// A webhook event triggers a build when the base reference matches the regular
   /// expression <code>pattern</code>. For example,
   /// <code>refs/heads/branch-name</code>.
   /// <note>
   /// Works with pull request events only.
-  /// </note> </dd> <dt> FILE_PATH </dt> <dd>
+  /// </note> </li>
+  /// </ul> </li>
+  /// <li>
+  /// FILE_PATH
+  ///
+  /// <ul>
+  /// <li>
   /// A webhook triggers a build when the path of a changed file matches the
   /// regular expression <code>pattern</code>.
   /// <note>
   /// Works with GitHub and Bitbucket events push and pull requests events. Also
   /// works with GitHub Enterprise push events, but does not work with GitHub
   /// Enterprise pull request events.
-  /// </note> </dd> <dt>COMMIT_MESSAGE</dt> <dd>
+  /// </note> </li>
+  /// </ul> </li>
+  /// <li>
+  /// COMMIT_MESSAGE
+  ///
+  /// <ul>
+  /// <li>
   /// A webhook triggers a build when the head commit message matches the regular
   /// expression <code>pattern</code>.
   /// <note>
   /// Works with GitHub and Bitbucket events push and pull requests events. Also
   /// works with GitHub Enterprise push events, but does not work with GitHub
   /// Enterprise pull request events.
-  /// </note> </dd> </dl>
+  /// </note> </li>
+  /// </ul> </li>
+  /// <li>
+  /// TAG_NAME
+  ///
+  /// <ul>
+  /// <li>
+  /// A webhook triggers a build when the tag name of the release matches the
+  /// regular expression <code>pattern</code>.
+  /// <note>
+  /// Works with <code>RELEASED</code> and <code>PRERELEASED</code> events only.
+  /// </note> </li>
+  /// </ul> </li>
+  /// <li>
+  /// RELEASE_NAME
+  ///
+  /// <ul>
+  /// <li>
+  /// A webhook triggers a build when the release name matches the regular
+  /// expression <code>pattern</code>.
+  /// <note>
+  /// Works with <code>RELEASED</code> and <code>PRERELEASED</code> events only.
+  /// </note> </li>
+  /// </ul> </li>
+  /// <li>
+  /// WORKFLOW_NAME
+  ///
+  /// <ul>
+  /// <li>
+  /// A webhook triggers a build when the workflow name matches the regular
+  /// expression <code>pattern</code>.
+  /// <note>
+  /// Works with <code>WORKFLOW_JOB_QUEUED</code> events only.
+  /// </note> </li>
+  /// </ul> </li>
+  /// </ul>
   final WebhookFilterType type;
 
   /// Used to indicate that the <code>pattern</code> determines which webhook
@@ -9998,7 +10762,7 @@ class WebhookFilter {
   factory WebhookFilter.fromJson(Map<String, dynamic> json) {
     return WebhookFilter(
       pattern: json['pattern'] as String,
-      type: (json['type'] as String).toWebhookFilterType(),
+      type: WebhookFilterType.fromString((json['type'] as String)),
       excludeMatchedPattern: json['excludeMatchedPattern'] as bool?,
     );
   }
@@ -10009,7 +10773,7 @@ class WebhookFilter {
     final excludeMatchedPattern = this.excludeMatchedPattern;
     return {
       'pattern': pattern,
-      'type': type.toValue(),
+      'type': type.value,
       if (excludeMatchedPattern != null)
         'excludeMatchedPattern': excludeMatchedPattern,
     };
@@ -10017,51 +10781,25 @@ class WebhookFilter {
 }
 
 enum WebhookFilterType {
-  event,
-  baseRef,
-  headRef,
-  actorAccountId,
-  filePath,
-  commitMessage,
-}
+  event('EVENT'),
+  baseRef('BASE_REF'),
+  headRef('HEAD_REF'),
+  actorAccountId('ACTOR_ACCOUNT_ID'),
+  filePath('FILE_PATH'),
+  commitMessage('COMMIT_MESSAGE'),
+  workflowName('WORKFLOW_NAME'),
+  tagName('TAG_NAME'),
+  releaseName('RELEASE_NAME'),
+  ;
 
-extension WebhookFilterTypeValueExtension on WebhookFilterType {
-  String toValue() {
-    switch (this) {
-      case WebhookFilterType.event:
-        return 'EVENT';
-      case WebhookFilterType.baseRef:
-        return 'BASE_REF';
-      case WebhookFilterType.headRef:
-        return 'HEAD_REF';
-      case WebhookFilterType.actorAccountId:
-        return 'ACTOR_ACCOUNT_ID';
-      case WebhookFilterType.filePath:
-        return 'FILE_PATH';
-      case WebhookFilterType.commitMessage:
-        return 'COMMIT_MESSAGE';
-    }
-  }
-}
+  final String value;
 
-extension WebhookFilterTypeFromString on String {
-  WebhookFilterType toWebhookFilterType() {
-    switch (this) {
-      case 'EVENT':
-        return WebhookFilterType.event;
-      case 'BASE_REF':
-        return WebhookFilterType.baseRef;
-      case 'HEAD_REF':
-        return WebhookFilterType.headRef;
-      case 'ACTOR_ACCOUNT_ID':
-        return WebhookFilterType.actorAccountId;
-      case 'FILE_PATH':
-        return WebhookFilterType.filePath;
-      case 'COMMIT_MESSAGE':
-        return WebhookFilterType.commitMessage;
-    }
-    throw Exception('$this is not known in enum WebhookFilterType');
-  }
+  const WebhookFilterType(this.value);
+
+  static WebhookFilterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WebhookFilterType'));
 }
 
 class AccountLimitExceededException extends _s.GenericAwsException {

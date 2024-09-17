@@ -280,7 +280,7 @@ class CostExplorer {
       headers: headers,
       payload: {
         'Name': name,
-        'RuleVersion': ruleVersion.toValue(),
+        'RuleVersion': ruleVersion.value,
         'Rules': rules,
         if (defaultValue != null) 'DefaultValue': defaultValue,
         if (effectiveStart != null) 'EffectiveStart': effectiveStart,
@@ -466,7 +466,7 @@ class CostExplorer {
       headers: headers,
       payload: {
         'DateInterval': dateInterval,
-        if (feedback != null) 'Feedback': feedback.toValue(),
+        if (feedback != null) 'Feedback': feedback.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (monitorArn != null) 'MonitorArn': monitorArn,
         if (nextPageToken != null) 'NextPageToken': nextPageToken,
@@ -565,6 +565,49 @@ class CostExplorer {
     );
 
     return GetAnomalySubscriptionsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Retrieves estimated usage records for hourly granularity or resource-level
+  /// data at daily granularity.
+  ///
+  /// May throw [LimitExceededException].
+  /// May throw [DataUnavailableException].
+  ///
+  /// Parameter [approximationDimension] :
+  /// The service to evaluate for the usage records. You can choose
+  /// resource-level data at daily granularity, or hourly granularity with or
+  /// without resource-level data.
+  ///
+  /// Parameter [granularity] :
+  /// How granular you want the data to be. You can enable data at hourly or
+  /// daily granularity.
+  ///
+  /// Parameter [services] :
+  /// The service metadata for the service or services you want to query. If not
+  /// specified, all elements are returned.
+  Future<GetApproximateUsageRecordsResponse> getApproximateUsageRecords({
+    required ApproximationDimension approximationDimension,
+    required Granularity granularity,
+    List<String>? services,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSInsightsIndexService.GetApproximateUsageRecords'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ApproximationDimension': approximationDimension.value,
+        'Granularity': granularity.value,
+        if (services != null) 'Services': services,
+      },
+    );
+
+    return GetApproximateUsageRecordsResponse.fromJson(jsonResponse.body);
   }
 
   /// Retrieves cost and usage metrics for your account. You can specify which
@@ -677,7 +720,7 @@ class CostExplorer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Granularity': granularity.toValue(),
+        'Granularity': granularity.value,
         'Metrics': metrics,
         'TimePeriod': timePeriod,
         if (filter != null) 'Filter': filter,
@@ -697,8 +740,11 @@ class CostExplorer {
   /// time range. For a complete list of valid dimensions, see the <a
   /// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_GetDimensionValues.html">GetDimensionValues</a>
   /// operation. Management account in an organization in Organizations have
-  /// access to all member accounts. This API is currently available for the
-  /// Amazon Elastic Compute Cloud – Compute service only.
+  /// access to all member accounts.
+  ///
+  /// Hourly granularity is only available for EC2-Instances (Elastic Compute
+  /// Cloud) resource-level data. All other resource-level data is available at
+  /// daily granularity.
   /// <note>
   /// This is an opt-in only feature. You can enable this feature from the Cost
   /// Explorer Settings page. For information about how to access the Settings
@@ -802,7 +848,7 @@ class CostExplorer {
       headers: headers,
       payload: {
         'Filter': filter,
-        'Granularity': granularity.toValue(),
+        'Granularity': granularity.value,
         'TimePeriod': timePeriod,
         if (groupBy != null) 'GroupBy': groupBy,
         if (metrics != null) 'Metrics': metrics,
@@ -1077,8 +1123,8 @@ class CostExplorer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Granularity': granularity.toValue(),
-        'Metric': metric.toValue(),
+        'Granularity': granularity.value,
+        'Metric': metric.value,
         'TimePeriod': timePeriod,
         if (filter != null) 'Filter': filter,
         if (predictionIntervalLevel != null)
@@ -1384,9 +1430,9 @@ class CostExplorer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Dimension': dimension.toValue(),
+        'Dimension': dimension.value,
         'TimePeriod': timePeriod,
-        if (context != null) 'Context': context.toValue(),
+        if (context != null) 'Context': context.value,
         if (filter != null) 'Filter': filter,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextPageToken != null) 'NextPageToken': nextPageToken,
@@ -1650,7 +1696,7 @@ class CostExplorer {
       payload: {
         'TimePeriod': timePeriod,
         if (filter != null) 'Filter': filter,
-        if (granularity != null) 'Granularity': granularity.toValue(),
+        if (granularity != null) 'Granularity': granularity.value,
         if (groupBy != null) 'GroupBy': groupBy,
         if (maxResults != null) 'MaxResults': maxResults,
         if (metrics != null) 'Metrics': metrics,
@@ -1756,16 +1802,16 @@ class CostExplorer {
       payload: {
         'Service': service,
         if (accountId != null) 'AccountId': accountId,
-        if (accountScope != null) 'AccountScope': accountScope.toValue(),
+        if (accountScope != null) 'AccountScope': accountScope.value,
         if (filter != null) 'Filter': filter,
         if (lookbackPeriodInDays != null)
-          'LookbackPeriodInDays': lookbackPeriodInDays.toValue(),
+          'LookbackPeriodInDays': lookbackPeriodInDays.value,
         if (nextPageToken != null) 'NextPageToken': nextPageToken,
         if (pageSize != null) 'PageSize': pageSize,
-        if (paymentOption != null) 'PaymentOption': paymentOption.toValue(),
+        if (paymentOption != null) 'PaymentOption': paymentOption.value,
         if (serviceSpecification != null)
           'ServiceSpecification': serviceSpecification,
-        if (termInYears != null) 'TermInYears': termInYears.toValue(),
+        if (termInYears != null) 'TermInYears': termInYears.value,
       },
     );
 
@@ -1949,7 +1995,7 @@ class CostExplorer {
       payload: {
         'TimePeriod': timePeriod,
         if (filter != null) 'Filter': filter,
-        if (granularity != null) 'Granularity': granularity.toValue(),
+        if (granularity != null) 'Granularity': granularity.value,
         if (groupBy != null) 'GroupBy': groupBy,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextPageToken != null) 'NextPageToken': nextPageToken,
@@ -2026,6 +2072,39 @@ class CostExplorer {
     );
 
     return GetRightsizingRecommendationResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Retrieves the details for a Savings Plan recommendation. These details
+  /// include the hourly data-points that construct the cost, coverage, and
+  /// utilization charts.
+  ///
+  /// May throw [LimitExceededException].
+  /// May throw [DataUnavailableException].
+  ///
+  /// Parameter [recommendationDetailId] :
+  /// The ID that is associated with the Savings Plan recommendation.
+  Future<GetSavingsPlanPurchaseRecommendationDetailsResponse>
+      getSavingsPlanPurchaseRecommendationDetails({
+    required String recommendationDetailId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'AWSInsightsIndexService.GetSavingsPlanPurchaseRecommendationDetails'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'RecommendationDetailId': recommendationDetailId,
+      },
+    );
+
+    return GetSavingsPlanPurchaseRecommendationDetailsResponse.fromJson(
+        jsonResponse.body);
   }
 
   /// Retrieves the Savings Plans covered for your account. This enables you to
@@ -2172,7 +2251,7 @@ class CostExplorer {
       payload: {
         'TimePeriod': timePeriod,
         if (filter != null) 'Filter': filter,
-        if (granularity != null) 'Granularity': granularity.toValue(),
+        if (granularity != null) 'Granularity': granularity.value,
         if (groupBy != null) 'GroupBy': groupBy,
         if (maxResults != null) 'MaxResults': maxResults,
         if (metrics != null) 'Metrics': metrics,
@@ -2264,11 +2343,11 @@ class CostExplorer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'LookbackPeriodInDays': lookbackPeriodInDays.toValue(),
-        'PaymentOption': paymentOption.toValue(),
-        'SavingsPlansType': savingsPlansType.toValue(),
-        'TermInYears': termInYears.toValue(),
-        if (accountScope != null) 'AccountScope': accountScope.toValue(),
+        'LookbackPeriodInDays': lookbackPeriodInDays.value,
+        'PaymentOption': paymentOption.value,
+        'SavingsPlansType': savingsPlansType.value,
+        'TermInYears': termInYears.value,
+        if (accountScope != null) 'AccountScope': accountScope.value,
         if (filter != null) 'Filter': filter,
         if (nextPageToken != null) 'NextPageToken': nextPageToken,
         if (pageSize != null) 'PageSize': pageSize,
@@ -2377,7 +2456,7 @@ class CostExplorer {
       payload: {
         'TimePeriod': timePeriod,
         if (filter != null) 'Filter': filter,
-        if (granularity != null) 'Granularity': granularity.toValue(),
+        if (granularity != null) 'Granularity': granularity.value,
         if (sortBy != null) 'SortBy': sortBy,
       },
     );
@@ -2504,8 +2583,7 @@ class CostExplorer {
       headers: headers,
       payload: {
         'TimePeriod': timePeriod,
-        if (dataType != null)
-          'DataType': dataType.map((e) => e.toValue()).toList(),
+        if (dataType != null) 'DataType': dataType.map((e) => e.value).toList(),
         if (filter != null) 'Filter': filter,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
@@ -2774,8 +2852,8 @@ class CostExplorer {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Granularity': granularity.toValue(),
-        'Metric': metric.toValue(),
+        'Granularity': granularity.value,
+        'Metric': metric.value,
         'TimePeriod': timePeriod,
         if (filter != null) 'Filter': filter,
         if (predictionIntervalLevel != null)
@@ -2784,6 +2862,50 @@ class CostExplorer {
     );
 
     return GetUsageForecastResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Retrieves a list of your historical cost allocation tag backfill requests.
+  ///
+  /// May throw [LimitExceededException].
+  /// May throw [InvalidNextTokenException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of objects that are returned for this request.
+  ///
+  /// Parameter [nextToken] :
+  /// The token to retrieve the next set of results. Amazon Web Services
+  /// provides the token when the response from a previous call has more results
+  /// than the maximum page size.
+  Future<ListCostAllocationTagBackfillHistoryResponse>
+      listCostAllocationTagBackfillHistory({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'AWSInsightsIndexService.ListCostAllocationTagBackfillHistory'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListCostAllocationTagBackfillHistoryResponse.fromJson(
+        jsonResponse.body);
   }
 
   /// Get a list of cost allocation tags. All inputs in the API are optional and
@@ -2839,9 +2961,9 @@ class CostExplorer {
       payload: {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
         if (tagKeys != null) 'TagKeys': tagKeys,
-        if (type != null) 'Type': type.toValue(),
+        if (type != null) 'Type': type.value,
       },
     );
 
@@ -2906,6 +3028,7 @@ class CostExplorer {
   ///
   /// May throw [LimitExceededException].
   /// May throw [InvalidNextTokenException].
+  /// May throw [DataUnavailableException].
   ///
   /// Parameter [generationStatus] :
   /// The status of the recommendation generation.
@@ -2945,7 +3068,7 @@ class CostExplorer {
       headers: headers,
       payload: {
         if (generationStatus != null)
-          'GenerationStatus': generationStatus.toValue(),
+          'GenerationStatus': generationStatus.value,
         if (nextPageToken != null) 'NextPageToken': nextPageToken,
         if (pageSize != null) 'PageSize': pageSize,
         if (recommendationIds != null) 'RecommendationIds': recommendationIds,
@@ -3013,11 +3136,47 @@ class CostExplorer {
       headers: headers,
       payload: {
         'AnomalyId': anomalyId,
-        'Feedback': feedback.toValue(),
+        'Feedback': feedback.value,
       },
     );
 
     return ProvideAnomalyFeedbackResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Request a cost allocation tag backfill. This will backfill the activation
+  /// status (either <code>active</code> or <code>inactive</code>) for all tag
+  /// keys from <code>para:BackfillFrom</code> up to the when this request is
+  /// made.
+  ///
+  /// You can request a backfill once every 24 hours.
+  ///
+  /// May throw [LimitExceededException].
+  /// May throw [BackfillLimitExceededException].
+  ///
+  /// Parameter [backfillFrom] :
+  /// The date you want the backfill to start from. The date can only be a first
+  /// day of the month (a billing start date). Dates can't precede the previous
+  /// twelve months, or in the future.
+  Future<StartCostAllocationTagBackfillResponse>
+      startCostAllocationTagBackfill({
+    required String backfillFrom,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSInsightsIndexService.StartCostAllocationTagBackfill'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'BackfillFrom': backfillFrom,
+      },
+    );
+
+    return StartCostAllocationTagBackfillResponse.fromJson(jsonResponse.body);
   }
 
   /// Requests a Savings Plans recommendation generation. This enables you to
@@ -3034,6 +3193,7 @@ class CostExplorer {
   /// May throw [LimitExceededException].
   /// May throw [ServiceQuotaExceededException].
   /// May throw [GenerationExistsException].
+  /// May throw [DataUnavailableException].
   Future<StartSavingsPlansPurchaseRecommendationGenerationResponse>
       startSavingsPlansPurchaseRecommendationGeneration() async {
     final headers = <String, String>{
@@ -3199,7 +3359,14 @@ class CostExplorer {
     return UpdateAnomalyMonitorResponse.fromJson(jsonResponse.body);
   }
 
-  /// Updates an existing cost anomaly monitor subscription.
+  /// Updates an existing cost anomaly subscription. Specify the fields that you
+  /// want to update. Omitted fields are unchanged.
+  /// <note>
+  /// The JSON below describes the generic construct for each type. See <a
+  /// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_UpdateAnomalySubscription.html#API_UpdateAnomalySubscription_RequestParameters">Request
+  /// Parameters</a> for possible values as they apply to
+  /// <code>AnomalySubscription</code>.
+  /// </note>
   ///
   /// May throw [LimitExceededException].
   /// May throw [UnknownMonitorException].
@@ -3229,16 +3396,23 @@ class CostExplorer {
   /// ThresholdExpression. Continued use of Threshold will be treated as
   /// shorthand syntax for a ThresholdExpression.
   ///
+  /// You can specify either Threshold or ThresholdExpression, but not both.
+  ///
   /// Parameter [thresholdExpression] :
   /// The update to the <a
   /// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_Expression.html">Expression</a>
   /// object used to specify the anomalies that you want to generate alerts for.
   /// This supports dimensions and nested expressions. The supported dimensions
   /// are <code>ANOMALY_TOTAL_IMPACT_ABSOLUTE</code> and
-  /// <code>ANOMALY_TOTAL_IMPACT_PERCENTAGE</code>. The supported nested
-  /// expression types are <code>AND</code> and <code>OR</code>. The match
-  /// option <code>GREATER_THAN_OR_EQUAL</code> is required. Values must be
-  /// numbers between 0 and 10,000,000,000.
+  /// <code>ANOMALY_TOTAL_IMPACT_PERCENTAGE</code>, corresponding to an
+  /// anomaly’s TotalImpact and TotalImpactPercentage, respectively (see <a
+  /// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_Impact.html">Impact</a>
+  /// for more details). The supported nested expression types are
+  /// <code>AND</code> and <code>OR</code>. The match option
+  /// <code>GREATER_THAN_OR_EQUAL</code> is required. Values must be numbers
+  /// between 0 and 10,000,000,000 in string format.
+  ///
+  /// You can specify either Threshold or ThresholdExpression, but not both.
   ///
   /// The following are examples of valid ThresholdExpressions:
   ///
@@ -3295,7 +3469,7 @@ class CostExplorer {
       headers: headers,
       payload: {
         'SubscriptionArn': subscriptionArn,
-        if (frequency != null) 'Frequency': frequency.toValue(),
+        if (frequency != null) 'Frequency': frequency.value,
         if (monitorArnList != null) 'MonitorArnList': monitorArnList,
         if (subscribers != null) 'Subscribers': subscribers,
         if (subscriptionName != null) 'SubscriptionName': subscriptionName,
@@ -3386,7 +3560,7 @@ class CostExplorer {
       headers: headers,
       payload: {
         'CostCategoryArn': costCategoryArn,
-        'RuleVersion': ruleVersion.toValue(),
+        'RuleVersion': ruleVersion.value,
         'Rules': rules,
         if (defaultValue != null) 'DefaultValue': defaultValue,
         if (effectiveStart != null) 'EffectiveStart': effectiveStart,
@@ -3399,31 +3573,18 @@ class CostExplorer {
 }
 
 enum AccountScope {
-  payer,
-  linked,
-}
+  payer('PAYER'),
+  linked('LINKED'),
+  ;
 
-extension AccountScopeValueExtension on AccountScope {
-  String toValue() {
-    switch (this) {
-      case AccountScope.payer:
-        return 'PAYER';
-      case AccountScope.linked:
-        return 'LINKED';
-    }
-  }
-}
+  final String value;
 
-extension AccountScopeFromString on String {
-  AccountScope toAccountScope() {
-    switch (this) {
-      case 'PAYER':
-        return AccountScope.payer;
-      case 'LINKED':
-        return AccountScope.linked;
-    }
-    throw Exception('$this is not known in enum AccountScope');
-  }
+  const AccountScope(this.value);
+
+  static AccountScope fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccountScope'));
 }
 
 /// An unusual cost pattern. This consists of the detailed metadata and the
@@ -3480,9 +3641,10 @@ class Anomaly {
       anomalyEndDate: json['AnomalyEndDate'] as String?,
       anomalyStartDate: json['AnomalyStartDate'] as String?,
       dimensionValue: json['DimensionValue'] as String?,
-      feedback: (json['Feedback'] as String?)?.toAnomalyFeedbackType(),
+      feedback:
+          (json['Feedback'] as String?)?.let(AnomalyFeedbackType.fromString),
       rootCauses: (json['RootCauses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RootCause.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3513,36 +3675,19 @@ class AnomalyDateInterval {
 }
 
 enum AnomalyFeedbackType {
-  yes,
-  no,
-  plannedActivity,
-}
+  yes('YES'),
+  no('NO'),
+  plannedActivity('PLANNED_ACTIVITY'),
+  ;
 
-extension AnomalyFeedbackTypeValueExtension on AnomalyFeedbackType {
-  String toValue() {
-    switch (this) {
-      case AnomalyFeedbackType.yes:
-        return 'YES';
-      case AnomalyFeedbackType.no:
-        return 'NO';
-      case AnomalyFeedbackType.plannedActivity:
-        return 'PLANNED_ACTIVITY';
-    }
-  }
-}
+  final String value;
 
-extension AnomalyFeedbackTypeFromString on String {
-  AnomalyFeedbackType toAnomalyFeedbackType() {
-    switch (this) {
-      case 'YES':
-        return AnomalyFeedbackType.yes;
-      case 'NO':
-        return AnomalyFeedbackType.no;
-      case 'PLANNED_ACTIVITY':
-        return AnomalyFeedbackType.plannedActivity;
-    }
-    throw Exception('$this is not known in enum AnomalyFeedbackType');
-  }
+  const AnomalyFeedbackType(this.value);
+
+  static AnomalyFeedbackType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AnomalyFeedbackType'));
 }
 
 /// This object continuously inspects your account's cost data for anomalies.
@@ -3590,14 +3735,14 @@ class AnomalyMonitor {
   factory AnomalyMonitor.fromJson(Map<String, dynamic> json) {
     return AnomalyMonitor(
       monitorName: json['MonitorName'] as String,
-      monitorType: (json['MonitorType'] as String).toMonitorType(),
+      monitorType: MonitorType.fromString((json['MonitorType'] as String)),
       creationDate: json['CreationDate'] as String?,
       dimensionalValueCount: json['DimensionalValueCount'] as int?,
       lastEvaluatedDate: json['LastEvaluatedDate'] as String?,
       lastUpdatedDate: json['LastUpdatedDate'] as String?,
       monitorArn: json['MonitorArn'] as String?,
-      monitorDimension:
-          (json['MonitorDimension'] as String?)?.toMonitorDimension(),
+      monitorDimension: (json['MonitorDimension'] as String?)
+          ?.let(MonitorDimension.fromString),
       monitorSpecification: json['MonitorSpecification'] != null
           ? Expression.fromJson(
               json['MonitorSpecification'] as Map<String, dynamic>)
@@ -3617,15 +3762,14 @@ class AnomalyMonitor {
     final monitorSpecification = this.monitorSpecification;
     return {
       'MonitorName': monitorName,
-      'MonitorType': monitorType.toValue(),
+      'MonitorType': monitorType.value,
       if (creationDate != null) 'CreationDate': creationDate,
       if (dimensionalValueCount != null)
         'DimensionalValueCount': dimensionalValueCount,
       if (lastEvaluatedDate != null) 'LastEvaluatedDate': lastEvaluatedDate,
       if (lastUpdatedDate != null) 'LastUpdatedDate': lastUpdatedDate,
       if (monitorArn != null) 'MonitorArn': monitorArn,
-      if (monitorDimension != null)
-        'MonitorDimension': monitorDimension.toValue(),
+      if (monitorDimension != null) 'MonitorDimension': monitorDimension.value,
       if (monitorSpecification != null)
         'MonitorSpecification': monitorSpecification,
     };
@@ -3654,12 +3798,30 @@ class AnomalyScore {
   }
 }
 
-/// The association between a monitor, threshold, and list of subscribers used
-/// to deliver notifications about anomalies detected by a monitor that exceeds
-/// a threshold. The content consists of the detailed metadata and the current
-/// status of the <code>AnomalySubscription</code> object.
+/// An <code>AnomalySubscription</code> resource (also referred to as an alert
+/// subscription) sends notifications about specific anomalies that meet an
+/// alerting criteria defined by you.
+///
+/// You can specify the frequency of the alerts and the subscribers to notify.
+///
+/// Anomaly subscriptions can be associated with one or more <a
+/// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_AnomalyMonitor.html">
+/// <code>AnomalyMonitor</code> </a> resources, and they only send notifications
+/// about anomalies detected by those associated monitors. You can also
+/// configure a threshold to further control which anomalies are included in the
+/// notifications.
+///
+/// Anomalies that don’t exceed the chosen threshold and therefore don’t trigger
+/// notifications from an anomaly subscription will still be available on the
+/// console and from the <a
+/// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_GetAnomalies.html">
+/// <code>GetAnomalies</code> </a> API.
 class AnomalySubscription {
-  /// The frequency that anomaly reports are sent over email.
+  /// The frequency that anomaly notifications are sent. Notifications are sent
+  /// either over email (for DAILY and WEEKLY frequencies) or SNS (for IMMEDIATE
+  /// frequency). For more information, see <a
+  /// href="https://docs.aws.amazon.com/cost-management/latest/userguide/ad-SNS.html">Creating
+  /// an Amazon SNS topic for anomaly notifications</a>.
   final AnomalySubscriptionFrequency frequency;
 
   /// A list of cost anomaly monitors.
@@ -3679,13 +3841,17 @@ class AnomalySubscription {
 
   /// (deprecated)
   ///
-  /// The dollar value that triggers a notification if the threshold is exceeded.
+  /// An absolute dollar value that must be exceeded by the anomaly's total impact
+  /// (see <a
+  /// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_Impact.html">Impact</a>
+  /// for more details) for an anomaly notification to be generated.
   ///
   /// This field has been deprecated. To specify a threshold, use
   /// ThresholdExpression. Continued use of Threshold will be treated as shorthand
   /// syntax for a ThresholdExpression.
   ///
-  /// One of Threshold or ThresholdExpression is required for this resource.
+  /// One of Threshold or ThresholdExpression is required for this resource. You
+  /// cannot specify both.
   final double? threshold;
 
   /// An <a
@@ -3693,12 +3859,16 @@ class AnomalySubscription {
   /// object used to specify the anomalies that you want to generate alerts for.
   /// This supports dimensions and nested expressions. The supported dimensions
   /// are <code>ANOMALY_TOTAL_IMPACT_ABSOLUTE</code> and
-  /// <code>ANOMALY_TOTAL_IMPACT_PERCENTAGE</code>. The supported nested
-  /// expression types are <code>AND</code> and <code>OR</code>. The match option
+  /// <code>ANOMALY_TOTAL_IMPACT_PERCENTAGE</code>, corresponding to an anomaly’s
+  /// TotalImpact and TotalImpactPercentage, respectively (see <a
+  /// href="https://docs.aws.amazon.com/aws-cost-management/latest/APIReference/API_Impact.html">Impact</a>
+  /// for more details). The supported nested expression types are
+  /// <code>AND</code> and <code>OR</code>. The match option
   /// <code>GREATER_THAN_OR_EQUAL</code> is required. Values must be numbers
-  /// between 0 and 10,000,000,000.
+  /// between 0 and 10,000,000,000 in string format.
   ///
-  /// One of Threshold or ThresholdExpression is required for this resource.
+  /// One of Threshold or ThresholdExpression is required for this resource. You
+  /// cannot specify both.
   ///
   /// The following are examples of valid ThresholdExpressions:
   ///
@@ -3743,13 +3913,14 @@ class AnomalySubscription {
 
   factory AnomalySubscription.fromJson(Map<String, dynamic> json) {
     return AnomalySubscription(
-      frequency: (json['Frequency'] as String).toAnomalySubscriptionFrequency(),
+      frequency: AnomalySubscriptionFrequency.fromString(
+          (json['Frequency'] as String)),
       monitorArnList: (json['MonitorArnList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       subscribers: (json['Subscribers'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Subscriber.fromJson(e as Map<String, dynamic>))
           .toList(),
       subscriptionName: json['SubscriptionName'] as String,
@@ -3773,7 +3944,7 @@ class AnomalySubscription {
     final threshold = this.threshold;
     final thresholdExpression = this.thresholdExpression;
     return {
-      'Frequency': frequency.toValue(),
+      'Frequency': frequency.value,
       'MonitorArnList': monitorArnList,
       'Subscribers': subscribers,
       'SubscriptionName': subscriptionName,
@@ -3787,70 +3958,49 @@ class AnomalySubscription {
 }
 
 enum AnomalySubscriptionFrequency {
-  daily,
-  immediate,
-  weekly,
+  daily('DAILY'),
+  immediate('IMMEDIATE'),
+  weekly('WEEKLY'),
+  ;
+
+  final String value;
+
+  const AnomalySubscriptionFrequency(this.value);
+
+  static AnomalySubscriptionFrequency fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AnomalySubscriptionFrequency'));
 }
 
-extension AnomalySubscriptionFrequencyValueExtension
-    on AnomalySubscriptionFrequency {
-  String toValue() {
-    switch (this) {
-      case AnomalySubscriptionFrequency.daily:
-        return 'DAILY';
-      case AnomalySubscriptionFrequency.immediate:
-        return 'IMMEDIATE';
-      case AnomalySubscriptionFrequency.weekly:
-        return 'WEEKLY';
-    }
-  }
-}
+enum ApproximationDimension {
+  service('SERVICE'),
+  resource('RESOURCE'),
+  ;
 
-extension AnomalySubscriptionFrequencyFromString on String {
-  AnomalySubscriptionFrequency toAnomalySubscriptionFrequency() {
-    switch (this) {
-      case 'DAILY':
-        return AnomalySubscriptionFrequency.daily;
-      case 'IMMEDIATE':
-        return AnomalySubscriptionFrequency.immediate;
-      case 'WEEKLY':
-        return AnomalySubscriptionFrequency.weekly;
-    }
-    throw Exception('$this is not known in enum AnomalySubscriptionFrequency');
-  }
+  final String value;
+
+  const ApproximationDimension(this.value);
+
+  static ApproximationDimension fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ApproximationDimension'));
 }
 
 enum Context {
-  costAndUsage,
-  reservations,
-  savingsPlans,
-}
+  costAndUsage('COST_AND_USAGE'),
+  reservations('RESERVATIONS'),
+  savingsPlans('SAVINGS_PLANS'),
+  ;
 
-extension ContextValueExtension on Context {
-  String toValue() {
-    switch (this) {
-      case Context.costAndUsage:
-        return 'COST_AND_USAGE';
-      case Context.reservations:
-        return 'RESERVATIONS';
-      case Context.savingsPlans:
-        return 'SAVINGS_PLANS';
-    }
-  }
-}
+  final String value;
 
-extension ContextFromString on String {
-  Context toContext() {
-    switch (this) {
-      case 'COST_AND_USAGE':
-        return Context.costAndUsage;
-      case 'RESERVATIONS':
-        return Context.reservations;
-      case 'SAVINGS_PLANS':
-        return Context.savingsPlans;
-    }
-    throw Exception('$this is not known in enum Context');
-  }
+  const Context(this.value);
+
+  static Context fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Context'));
 }
 
 /// The cost allocation tag structure. This includes detailed metadata for the
@@ -3869,47 +4019,98 @@ class CostAllocationTag {
   /// type tags are tags that you define, create, and apply to resources.
   final CostAllocationTagType type;
 
+  /// The last date that the tag was either activated or deactivated.
+  final String? lastUpdatedDate;
+
+  /// The last month that the tag was used on an Amazon Web Services resource.
+  final String? lastUsedDate;
+
   CostAllocationTag({
     required this.status,
     required this.tagKey,
     required this.type,
+    this.lastUpdatedDate,
+    this.lastUsedDate,
   });
 
   factory CostAllocationTag.fromJson(Map<String, dynamic> json) {
     return CostAllocationTag(
-      status: (json['Status'] as String).toCostAllocationTagStatus(),
+      status: CostAllocationTagStatus.fromString((json['Status'] as String)),
       tagKey: json['TagKey'] as String,
-      type: (json['Type'] as String).toCostAllocationTagType(),
+      type: CostAllocationTagType.fromString((json['Type'] as String)),
+      lastUpdatedDate: json['LastUpdatedDate'] as String?,
+      lastUsedDate: json['LastUsedDate'] as String?,
     );
   }
 }
 
+/// The cost allocation tag backfill request structure that contains metadata
+/// and details of a certain backfill.
+class CostAllocationTagBackfillRequest {
+  /// The date the backfill starts from.
+  final String? backfillFrom;
+
+  /// The status of the cost allocation tag backfill request.
+  final CostAllocationTagBackfillStatus? backfillStatus;
+
+  /// The backfill completion time.
+  final String? completedAt;
+
+  /// The time when the backfill status was last updated.
+  final String? lastUpdatedAt;
+
+  /// The time when the backfill was requested.
+  final String? requestedAt;
+
+  CostAllocationTagBackfillRequest({
+    this.backfillFrom,
+    this.backfillStatus,
+    this.completedAt,
+    this.lastUpdatedAt,
+    this.requestedAt,
+  });
+
+  factory CostAllocationTagBackfillRequest.fromJson(Map<String, dynamic> json) {
+    return CostAllocationTagBackfillRequest(
+      backfillFrom: json['BackfillFrom'] as String?,
+      backfillStatus: (json['BackfillStatus'] as String?)
+          ?.let(CostAllocationTagBackfillStatus.fromString),
+      completedAt: json['CompletedAt'] as String?,
+      lastUpdatedAt: json['LastUpdatedAt'] as String?,
+      requestedAt: json['RequestedAt'] as String?,
+    );
+  }
+}
+
+enum CostAllocationTagBackfillStatus {
+  succeeded('SUCCEEDED'),
+  processing('PROCESSING'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const CostAllocationTagBackfillStatus(this.value);
+
+  static CostAllocationTagBackfillStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CostAllocationTagBackfillStatus'));
+}
+
 enum CostAllocationTagStatus {
-  active,
-  inactive,
-}
+  active('Active'),
+  inactive('Inactive'),
+  ;
 
-extension CostAllocationTagStatusValueExtension on CostAllocationTagStatus {
-  String toValue() {
-    switch (this) {
-      case CostAllocationTagStatus.active:
-        return 'Active';
-      case CostAllocationTagStatus.inactive:
-        return 'Inactive';
-    }
-  }
-}
+  final String value;
 
-extension CostAllocationTagStatusFromString on String {
-  CostAllocationTagStatus toCostAllocationTagStatus() {
-    switch (this) {
-      case 'Active':
-        return CostAllocationTagStatus.active;
-      case 'Inactive':
-        return CostAllocationTagStatus.inactive;
-    }
-    throw Exception('$this is not known in enum CostAllocationTagStatus');
-  }
+  const CostAllocationTagStatus(this.value);
+
+  static CostAllocationTagStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CostAllocationTagStatus'));
 }
 
 /// The cost allocation tag status. The status of a key can either be active or
@@ -3930,38 +4131,25 @@ class CostAllocationTagStatusEntry {
     final status = this.status;
     final tagKey = this.tagKey;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
       'TagKey': tagKey,
     };
   }
 }
 
 enum CostAllocationTagType {
-  awsGenerated,
-  userDefined,
-}
+  awsGenerated('AWSGenerated'),
+  userDefined('UserDefined'),
+  ;
 
-extension CostAllocationTagTypeValueExtension on CostAllocationTagType {
-  String toValue() {
-    switch (this) {
-      case CostAllocationTagType.awsGenerated:
-        return 'AWSGenerated';
-      case CostAllocationTagType.userDefined:
-        return 'UserDefined';
-    }
-  }
-}
+  final String value;
 
-extension CostAllocationTagTypeFromString on String {
-  CostAllocationTagType toCostAllocationTagType() {
-    switch (this) {
-      case 'AWSGenerated':
-        return CostAllocationTagType.awsGenerated;
-      case 'UserDefined':
-        return CostAllocationTagType.userDefined;
-    }
-    throw Exception('$this is not known in enum CostAllocationTagType');
-  }
+  const CostAllocationTagType(this.value);
+
+  static CostAllocationTagType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CostAllocationTagType'));
 }
 
 /// The structure of Cost Categories. This includes detailed metadata and the
@@ -4009,20 +4197,21 @@ class CostCategory {
       costCategoryArn: json['CostCategoryArn'] as String,
       effectiveStart: json['EffectiveStart'] as String,
       name: json['Name'] as String,
-      ruleVersion: (json['RuleVersion'] as String).toCostCategoryRuleVersion(),
+      ruleVersion:
+          CostCategoryRuleVersion.fromString((json['RuleVersion'] as String)),
       rules: (json['Rules'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CostCategoryRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       defaultValue: json['DefaultValue'] as String?,
       effectiveEnd: json['EffectiveEnd'] as String?,
       processingStatus: (json['ProcessingStatus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CostCategoryProcessingStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
       splitChargeRules: (json['SplitChargeRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CostCategorySplitChargeRule.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4059,7 +4248,7 @@ class CostCategoryInheritedValueDimension {
     return CostCategoryInheritedValueDimension(
       dimensionKey: json['DimensionKey'] as String?,
       dimensionName: (json['DimensionName'] as String?)
-          ?.toCostCategoryInheritedValueDimensionName(),
+          ?.let(CostCategoryInheritedValueDimensionName.fromString),
     );
   }
 
@@ -4068,40 +4257,24 @@ class CostCategoryInheritedValueDimension {
     final dimensionName = this.dimensionName;
     return {
       if (dimensionKey != null) 'DimensionKey': dimensionKey,
-      if (dimensionName != null) 'DimensionName': dimensionName.toValue(),
+      if (dimensionName != null) 'DimensionName': dimensionName.value,
     };
   }
 }
 
 enum CostCategoryInheritedValueDimensionName {
-  linkedAccountName,
-  tag,
-}
+  linkedAccountName('LINKED_ACCOUNT_NAME'),
+  tag('TAG'),
+  ;
 
-extension CostCategoryInheritedValueDimensionNameValueExtension
-    on CostCategoryInheritedValueDimensionName {
-  String toValue() {
-    switch (this) {
-      case CostCategoryInheritedValueDimensionName.linkedAccountName:
-        return 'LINKED_ACCOUNT_NAME';
-      case CostCategoryInheritedValueDimensionName.tag:
-        return 'TAG';
-    }
-  }
-}
+  final String value;
 
-extension CostCategoryInheritedValueDimensionNameFromString on String {
-  CostCategoryInheritedValueDimensionName
-      toCostCategoryInheritedValueDimensionName() {
-    switch (this) {
-      case 'LINKED_ACCOUNT_NAME':
-        return CostCategoryInheritedValueDimensionName.linkedAccountName;
-      case 'TAG':
-        return CostCategoryInheritedValueDimensionName.tag;
-    }
-    throw Exception(
-        '$this is not known in enum CostCategoryInheritedValueDimensionName');
-  }
+  const CostCategoryInheritedValueDimensionName(this.value);
+
+  static CostCategoryInheritedValueDimensionName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CostCategoryInheritedValueDimensionName'));
 }
 
 /// The list of processing statuses for Cost Management products for a specific
@@ -4120,9 +4293,9 @@ class CostCategoryProcessingStatus {
 
   factory CostCategoryProcessingStatus.fromJson(Map<String, dynamic> json) {
     return CostCategoryProcessingStatus(
-      component:
-          (json['Component'] as String?)?.toCostCategoryStatusComponent(),
-      status: (json['Status'] as String?)?.toCostCategoryStatus(),
+      component: (json['Component'] as String?)
+          ?.let(CostCategoryStatusComponent.fromString),
+      status: (json['Status'] as String?)?.let(CostCategoryStatus.fromString),
     );
   }
 }
@@ -4174,14 +4347,12 @@ class CostCategoryReference {
       name: json['Name'] as String?,
       numberOfRules: json['NumberOfRules'] as int?,
       processingStatus: (json['ProcessingStatus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CostCategoryProcessingStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -4199,10 +4370,8 @@ class CostCategoryRule {
   /// object used to categorize costs. This supports dimensions, tags, and nested
   /// expressions. Currently the only dimensions supported are
   /// <code>LINKED_ACCOUNT</code>, <code>SERVICE_CODE</code>,
-  /// <code>RECORD_TYPE</code>, and <code>LINKED_ACCOUNT_NAME</code>.
-  ///
-  /// Root level <code>OR</code> isn't supported. We recommend that you create a
-  /// separate rule instead.
+  /// <code>RECORD_TYPE</code>, <code>LINKED_ACCOUNT_NAME</code>,
+  /// <code>REGION</code>, and <code>USAGE_TYPE</code>.
   ///
   /// <code>RECORD_TYPE</code> is a dimension used for Cost Explorer APIs, and is
   /// also supported for Cost Category expressions. This dimension uses different
@@ -4240,7 +4409,7 @@ class CostCategoryRule {
       rule: json['Rule'] != null
           ? Expression.fromJson(json['Rule'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toCostCategoryRuleType(),
+      type: (json['Type'] as String?)?.let(CostCategoryRuleType.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -4253,96 +4422,56 @@ class CostCategoryRule {
     return {
       if (inheritedValue != null) 'InheritedValue': inheritedValue,
       if (rule != null) 'Rule': rule,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum CostCategoryRuleType {
-  regular,
-  inheritedValue,
-}
+  regular('REGULAR'),
+  inheritedValue('INHERITED_VALUE'),
+  ;
 
-extension CostCategoryRuleTypeValueExtension on CostCategoryRuleType {
-  String toValue() {
-    switch (this) {
-      case CostCategoryRuleType.regular:
-        return 'REGULAR';
-      case CostCategoryRuleType.inheritedValue:
-        return 'INHERITED_VALUE';
-    }
-  }
-}
+  final String value;
 
-extension CostCategoryRuleTypeFromString on String {
-  CostCategoryRuleType toCostCategoryRuleType() {
-    switch (this) {
-      case 'REGULAR':
-        return CostCategoryRuleType.regular;
-      case 'INHERITED_VALUE':
-        return CostCategoryRuleType.inheritedValue;
-    }
-    throw Exception('$this is not known in enum CostCategoryRuleType');
-  }
+  const CostCategoryRuleType(this.value);
+
+  static CostCategoryRuleType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CostCategoryRuleType'));
 }
 
 /// The rule schema version in this particular Cost Category.
 enum CostCategoryRuleVersion {
-  costCategoryExpressionV1,
-}
+  costCategoryExpressionV1('CostCategoryExpression.v1'),
+  ;
 
-extension CostCategoryRuleVersionValueExtension on CostCategoryRuleVersion {
-  String toValue() {
-    switch (this) {
-      case CostCategoryRuleVersion.costCategoryExpressionV1:
-        return 'CostCategoryExpression.v1';
-    }
-  }
-}
+  final String value;
 
-extension CostCategoryRuleVersionFromString on String {
-  CostCategoryRuleVersion toCostCategoryRuleVersion() {
-    switch (this) {
-      case 'CostCategoryExpression.v1':
-        return CostCategoryRuleVersion.costCategoryExpressionV1;
-    }
-    throw Exception('$this is not known in enum CostCategoryRuleVersion');
-  }
+  const CostCategoryRuleVersion(this.value);
+
+  static CostCategoryRuleVersion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CostCategoryRuleVersion'));
 }
 
 enum CostCategorySplitChargeMethod {
-  fixed,
-  proportional,
-  even,
-}
+  fixed('FIXED'),
+  proportional('PROPORTIONAL'),
+  even('EVEN'),
+  ;
 
-extension CostCategorySplitChargeMethodValueExtension
-    on CostCategorySplitChargeMethod {
-  String toValue() {
-    switch (this) {
-      case CostCategorySplitChargeMethod.fixed:
-        return 'FIXED';
-      case CostCategorySplitChargeMethod.proportional:
-        return 'PROPORTIONAL';
-      case CostCategorySplitChargeMethod.even:
-        return 'EVEN';
-    }
-  }
-}
+  final String value;
 
-extension CostCategorySplitChargeMethodFromString on String {
-  CostCategorySplitChargeMethod toCostCategorySplitChargeMethod() {
-    switch (this) {
-      case 'FIXED':
-        return CostCategorySplitChargeMethod.fixed;
-      case 'PROPORTIONAL':
-        return CostCategorySplitChargeMethod.proportional;
-      case 'EVEN':
-        return CostCategorySplitChargeMethod.even;
-    }
-    throw Exception('$this is not known in enum CostCategorySplitChargeMethod');
-  }
+  const CostCategorySplitChargeMethod(this.value);
+
+  static CostCategorySplitChargeMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CostCategorySplitChargeMethod'));
 }
 
 /// Use the split charge rule to split the cost of one Cost Category value
@@ -4382,14 +4511,13 @@ class CostCategorySplitChargeRule {
 
   factory CostCategorySplitChargeRule.fromJson(Map<String, dynamic> json) {
     return CostCategorySplitChargeRule(
-      method: (json['Method'] as String).toCostCategorySplitChargeMethod(),
+      method:
+          CostCategorySplitChargeMethod.fromString((json['Method'] as String)),
       source: json['Source'] as String,
-      targets: (json['Targets'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      targets:
+          (json['Targets'] as List).nonNulls.map((e) => e as String).toList(),
       parameters: (json['Parameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CostCategorySplitChargeRuleParameter.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4402,7 +4530,7 @@ class CostCategorySplitChargeRule {
     final targets = this.targets;
     final parameters = this.parameters;
     return {
-      'Method': method.toValue(),
+      'Method': method.value,
       'Source': source,
       'Targets': targets,
       if (parameters != null) 'Parameters': parameters,
@@ -4426,12 +4554,10 @@ class CostCategorySplitChargeRuleParameter {
   factory CostCategorySplitChargeRuleParameter.fromJson(
       Map<String, dynamic> json) {
     return CostCategorySplitChargeRuleParameter(
-      type:
-          (json['Type'] as String).toCostCategorySplitChargeRuleParameterType(),
-      values: (json['Values'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      type: CostCategorySplitChargeRuleParameterType.fromString(
+          (json['Type'] as String)),
+      values:
+          (json['Values'] as List).nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -4439,88 +4565,53 @@ class CostCategorySplitChargeRuleParameter {
     final type = this.type;
     final values = this.values;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       'Values': values,
     };
   }
 }
 
 enum CostCategorySplitChargeRuleParameterType {
-  allocationPercentages,
-}
+  allocationPercentages('ALLOCATION_PERCENTAGES'),
+  ;
 
-extension CostCategorySplitChargeRuleParameterTypeValueExtension
-    on CostCategorySplitChargeRuleParameterType {
-  String toValue() {
-    switch (this) {
-      case CostCategorySplitChargeRuleParameterType.allocationPercentages:
-        return 'ALLOCATION_PERCENTAGES';
-    }
-  }
-}
+  final String value;
 
-extension CostCategorySplitChargeRuleParameterTypeFromString on String {
-  CostCategorySplitChargeRuleParameterType
-      toCostCategorySplitChargeRuleParameterType() {
-    switch (this) {
-      case 'ALLOCATION_PERCENTAGES':
-        return CostCategorySplitChargeRuleParameterType.allocationPercentages;
-    }
-    throw Exception(
-        '$this is not known in enum CostCategorySplitChargeRuleParameterType');
-  }
+  const CostCategorySplitChargeRuleParameterType(this.value);
+
+  static CostCategorySplitChargeRuleParameterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CostCategorySplitChargeRuleParameterType'));
 }
 
 enum CostCategoryStatus {
-  processing,
-  applied,
-}
+  processing('PROCESSING'),
+  applied('APPLIED'),
+  ;
 
-extension CostCategoryStatusValueExtension on CostCategoryStatus {
-  String toValue() {
-    switch (this) {
-      case CostCategoryStatus.processing:
-        return 'PROCESSING';
-      case CostCategoryStatus.applied:
-        return 'APPLIED';
-    }
-  }
-}
+  final String value;
 
-extension CostCategoryStatusFromString on String {
-  CostCategoryStatus toCostCategoryStatus() {
-    switch (this) {
-      case 'PROCESSING':
-        return CostCategoryStatus.processing;
-      case 'APPLIED':
-        return CostCategoryStatus.applied;
-    }
-    throw Exception('$this is not known in enum CostCategoryStatus');
-  }
+  const CostCategoryStatus(this.value);
+
+  static CostCategoryStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CostCategoryStatus'));
 }
 
 enum CostCategoryStatusComponent {
-  costExplorer,
-}
+  costExplorer('COST_EXPLORER'),
+  ;
 
-extension CostCategoryStatusComponentValueExtension
-    on CostCategoryStatusComponent {
-  String toValue() {
-    switch (this) {
-      case CostCategoryStatusComponent.costExplorer:
-        return 'COST_EXPLORER';
-    }
-  }
-}
+  final String value;
 
-extension CostCategoryStatusComponentFromString on String {
-  CostCategoryStatusComponent toCostCategoryStatusComponent() {
-    switch (this) {
-      case 'COST_EXPLORER':
-        return CostCategoryStatusComponent.costExplorer;
-    }
-    throw Exception('$this is not known in enum CostCategoryStatusComponent');
-  }
+  const CostCategoryStatusComponent(this.value);
+
+  static CostCategoryStatusComponent fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CostCategoryStatusComponent'));
 }
 
 /// The Cost Categories values used for filtering the costs.
@@ -4556,13 +4647,11 @@ class CostCategoryValues {
     return CostCategoryValues(
       key: json['Key'] as String?,
       matchOptions: (json['MatchOptions'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toMatchOption())
+          ?.nonNulls
+          .map((e) => MatchOption.fromString((e as String)))
           .toList(),
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -4573,7 +4662,7 @@ class CostCategoryValues {
     return {
       if (key != null) 'Key': key,
       if (matchOptions != null)
-        'MatchOptions': matchOptions.map((e) => e.toValue()).toList(),
+        'MatchOptions': matchOptions.map((e) => e.value).toList(),
       if (values != null) 'Values': values,
     };
   }
@@ -4634,7 +4723,7 @@ class CoverageByTime {
   factory CoverageByTime.fromJson(Map<String, dynamic> json) {
     return CoverageByTime(
       groups: (json['Groups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ReservationCoverageGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4870,7 +4959,7 @@ class CurrentInstance {
       savingsPlansCoveredHoursInLookbackPeriod:
           json['SavingsPlansCoveredHoursInLookbackPeriod'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TagValues.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalRunningHoursInLookbackPeriod:
@@ -4972,191 +5061,49 @@ class DescribeCostCategoryDefinitionResponse {
 }
 
 enum Dimension {
-  az,
-  instanceType,
-  linkedAccount,
-  linkedAccountName,
-  operation,
-  purchaseType,
-  region,
-  service,
-  serviceCode,
-  usageType,
-  usageTypeGroup,
-  recordType,
-  operatingSystem,
-  tenancy,
-  scope,
-  platform,
-  subscriptionId,
-  legalEntityName,
-  deploymentOption,
-  databaseEngine,
-  cacheEngine,
-  instanceTypeFamily,
-  billingEntity,
-  reservationId,
-  resourceId,
-  rightsizingType,
-  savingsPlansType,
-  savingsPlanArn,
-  paymentOption,
-  agreementEndDateTimeAfter,
-  agreementEndDateTimeBefore,
-  invoicingEntity,
-  anomalyTotalImpactAbsolute,
-  anomalyTotalImpactPercentage,
-}
+  az('AZ'),
+  instanceType('INSTANCE_TYPE'),
+  linkedAccount('LINKED_ACCOUNT'),
+  linkedAccountName('LINKED_ACCOUNT_NAME'),
+  operation('OPERATION'),
+  purchaseType('PURCHASE_TYPE'),
+  region('REGION'),
+  service('SERVICE'),
+  serviceCode('SERVICE_CODE'),
+  usageType('USAGE_TYPE'),
+  usageTypeGroup('USAGE_TYPE_GROUP'),
+  recordType('RECORD_TYPE'),
+  operatingSystem('OPERATING_SYSTEM'),
+  tenancy('TENANCY'),
+  scope('SCOPE'),
+  platform('PLATFORM'),
+  subscriptionId('SUBSCRIPTION_ID'),
+  legalEntityName('LEGAL_ENTITY_NAME'),
+  deploymentOption('DEPLOYMENT_OPTION'),
+  databaseEngine('DATABASE_ENGINE'),
+  cacheEngine('CACHE_ENGINE'),
+  instanceTypeFamily('INSTANCE_TYPE_FAMILY'),
+  billingEntity('BILLING_ENTITY'),
+  reservationId('RESERVATION_ID'),
+  resourceId('RESOURCE_ID'),
+  rightsizingType('RIGHTSIZING_TYPE'),
+  savingsPlansType('SAVINGS_PLANS_TYPE'),
+  savingsPlanArn('SAVINGS_PLAN_ARN'),
+  paymentOption('PAYMENT_OPTION'),
+  agreementEndDateTimeAfter('AGREEMENT_END_DATE_TIME_AFTER'),
+  agreementEndDateTimeBefore('AGREEMENT_END_DATE_TIME_BEFORE'),
+  invoicingEntity('INVOICING_ENTITY'),
+  anomalyTotalImpactAbsolute('ANOMALY_TOTAL_IMPACT_ABSOLUTE'),
+  anomalyTotalImpactPercentage('ANOMALY_TOTAL_IMPACT_PERCENTAGE'),
+  ;
 
-extension DimensionValueExtension on Dimension {
-  String toValue() {
-    switch (this) {
-      case Dimension.az:
-        return 'AZ';
-      case Dimension.instanceType:
-        return 'INSTANCE_TYPE';
-      case Dimension.linkedAccount:
-        return 'LINKED_ACCOUNT';
-      case Dimension.linkedAccountName:
-        return 'LINKED_ACCOUNT_NAME';
-      case Dimension.operation:
-        return 'OPERATION';
-      case Dimension.purchaseType:
-        return 'PURCHASE_TYPE';
-      case Dimension.region:
-        return 'REGION';
-      case Dimension.service:
-        return 'SERVICE';
-      case Dimension.serviceCode:
-        return 'SERVICE_CODE';
-      case Dimension.usageType:
-        return 'USAGE_TYPE';
-      case Dimension.usageTypeGroup:
-        return 'USAGE_TYPE_GROUP';
-      case Dimension.recordType:
-        return 'RECORD_TYPE';
-      case Dimension.operatingSystem:
-        return 'OPERATING_SYSTEM';
-      case Dimension.tenancy:
-        return 'TENANCY';
-      case Dimension.scope:
-        return 'SCOPE';
-      case Dimension.platform:
-        return 'PLATFORM';
-      case Dimension.subscriptionId:
-        return 'SUBSCRIPTION_ID';
-      case Dimension.legalEntityName:
-        return 'LEGAL_ENTITY_NAME';
-      case Dimension.deploymentOption:
-        return 'DEPLOYMENT_OPTION';
-      case Dimension.databaseEngine:
-        return 'DATABASE_ENGINE';
-      case Dimension.cacheEngine:
-        return 'CACHE_ENGINE';
-      case Dimension.instanceTypeFamily:
-        return 'INSTANCE_TYPE_FAMILY';
-      case Dimension.billingEntity:
-        return 'BILLING_ENTITY';
-      case Dimension.reservationId:
-        return 'RESERVATION_ID';
-      case Dimension.resourceId:
-        return 'RESOURCE_ID';
-      case Dimension.rightsizingType:
-        return 'RIGHTSIZING_TYPE';
-      case Dimension.savingsPlansType:
-        return 'SAVINGS_PLANS_TYPE';
-      case Dimension.savingsPlanArn:
-        return 'SAVINGS_PLAN_ARN';
-      case Dimension.paymentOption:
-        return 'PAYMENT_OPTION';
-      case Dimension.agreementEndDateTimeAfter:
-        return 'AGREEMENT_END_DATE_TIME_AFTER';
-      case Dimension.agreementEndDateTimeBefore:
-        return 'AGREEMENT_END_DATE_TIME_BEFORE';
-      case Dimension.invoicingEntity:
-        return 'INVOICING_ENTITY';
-      case Dimension.anomalyTotalImpactAbsolute:
-        return 'ANOMALY_TOTAL_IMPACT_ABSOLUTE';
-      case Dimension.anomalyTotalImpactPercentage:
-        return 'ANOMALY_TOTAL_IMPACT_PERCENTAGE';
-    }
-  }
-}
+  final String value;
 
-extension DimensionFromString on String {
-  Dimension toDimension() {
-    switch (this) {
-      case 'AZ':
-        return Dimension.az;
-      case 'INSTANCE_TYPE':
-        return Dimension.instanceType;
-      case 'LINKED_ACCOUNT':
-        return Dimension.linkedAccount;
-      case 'LINKED_ACCOUNT_NAME':
-        return Dimension.linkedAccountName;
-      case 'OPERATION':
-        return Dimension.operation;
-      case 'PURCHASE_TYPE':
-        return Dimension.purchaseType;
-      case 'REGION':
-        return Dimension.region;
-      case 'SERVICE':
-        return Dimension.service;
-      case 'SERVICE_CODE':
-        return Dimension.serviceCode;
-      case 'USAGE_TYPE':
-        return Dimension.usageType;
-      case 'USAGE_TYPE_GROUP':
-        return Dimension.usageTypeGroup;
-      case 'RECORD_TYPE':
-        return Dimension.recordType;
-      case 'OPERATING_SYSTEM':
-        return Dimension.operatingSystem;
-      case 'TENANCY':
-        return Dimension.tenancy;
-      case 'SCOPE':
-        return Dimension.scope;
-      case 'PLATFORM':
-        return Dimension.platform;
-      case 'SUBSCRIPTION_ID':
-        return Dimension.subscriptionId;
-      case 'LEGAL_ENTITY_NAME':
-        return Dimension.legalEntityName;
-      case 'DEPLOYMENT_OPTION':
-        return Dimension.deploymentOption;
-      case 'DATABASE_ENGINE':
-        return Dimension.databaseEngine;
-      case 'CACHE_ENGINE':
-        return Dimension.cacheEngine;
-      case 'INSTANCE_TYPE_FAMILY':
-        return Dimension.instanceTypeFamily;
-      case 'BILLING_ENTITY':
-        return Dimension.billingEntity;
-      case 'RESERVATION_ID':
-        return Dimension.reservationId;
-      case 'RESOURCE_ID':
-        return Dimension.resourceId;
-      case 'RIGHTSIZING_TYPE':
-        return Dimension.rightsizingType;
-      case 'SAVINGS_PLANS_TYPE':
-        return Dimension.savingsPlansType;
-      case 'SAVINGS_PLAN_ARN':
-        return Dimension.savingsPlanArn;
-      case 'PAYMENT_OPTION':
-        return Dimension.paymentOption;
-      case 'AGREEMENT_END_DATE_TIME_AFTER':
-        return Dimension.agreementEndDateTimeAfter;
-      case 'AGREEMENT_END_DATE_TIME_BEFORE':
-        return Dimension.agreementEndDateTimeBefore;
-      case 'INVOICING_ENTITY':
-        return Dimension.invoicingEntity;
-      case 'ANOMALY_TOTAL_IMPACT_ABSOLUTE':
-        return Dimension.anomalyTotalImpactAbsolute;
-      case 'ANOMALY_TOTAL_IMPACT_PERCENTAGE':
-        return Dimension.anomalyTotalImpactPercentage;
-    }
-    throw Exception('$this is not known in enum Dimension');
-  }
+  const Dimension(this.value);
+
+  static Dimension fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Dimension'));
 }
 
 /// The metadata that you can use to filter and group your results. You can use
@@ -5199,15 +5146,13 @@ class DimensionValues {
 
   factory DimensionValues.fromJson(Map<String, dynamic> json) {
     return DimensionValues(
-      key: (json['Key'] as String?)?.toDimension(),
+      key: (json['Key'] as String?)?.let(Dimension.fromString),
       matchOptions: (json['MatchOptions'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toMatchOption())
+          ?.nonNulls
+          .map((e) => MatchOption.fromString((e as String)))
           .toList(),
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -5216,9 +5161,9 @@ class DimensionValues {
     final matchOptions = this.matchOptions;
     final values = this.values;
     return {
-      if (key != null) 'Key': key.toValue(),
+      if (key != null) 'Key': key.value,
       if (matchOptions != null)
-        'MatchOptions': matchOptions.map((e) => e.toValue()).toList(),
+        'MatchOptions': matchOptions.map((e) => e.value).toList(),
       if (values != null) 'Values': values,
     };
   }
@@ -5312,8 +5257,8 @@ class EBSResourceUtilization {
   }
 }
 
-/// Details about the Amazon EC2 instances that Amazon Web Services recommends
-/// that you purchase.
+/// Details about the Amazon EC2 reservations that Amazon Web Services
+/// recommends that you purchase.
 class EC2InstanceDetails {
   /// The Availability Zone of the recommended reservation.
   final String? availabilityZone;
@@ -5494,19 +5439,20 @@ class EC2Specification {
 
   factory EC2Specification.fromJson(Map<String, dynamic> json) {
     return EC2Specification(
-      offeringClass: (json['OfferingClass'] as String?)?.toOfferingClass(),
+      offeringClass:
+          (json['OfferingClass'] as String?)?.let(OfferingClass.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final offeringClass = this.offeringClass;
     return {
-      if (offeringClass != null) 'OfferingClass': offeringClass.toValue(),
+      if (offeringClass != null) 'OfferingClass': offeringClass.value,
     };
   }
 }
 
-/// Details about the Amazon OpenSearch Service instances that Amazon Web
+/// Details about the Amazon OpenSearch Service reservations that Amazon Web
 /// Services recommends that you purchase.
 class ESInstanceDetails {
   /// Determines whether the recommendation is for a current-generation instance.
@@ -5543,7 +5489,7 @@ class ESInstanceDetails {
   }
 }
 
-/// Details about the Amazon ElastiCache instances that Amazon Web Services
+/// Details about the Amazon ElastiCache reservations that Amazon Web Services
 /// recommends that you purchase.
 class ElastiCacheInstanceDetails {
   /// Determines whether the recommendation is for a current generation instance.
@@ -5631,7 +5577,7 @@ class ElastiCacheInstanceDetails {
 /// <li>
 /// The corresponding <code>Expression</code> for this example is as follows:
 /// <code>{ "Dimensions": { "Key": "REGION", "Values": [ "us-east-1",
-/// “us-west-1” ] } }</code>
+/// "us-west-1" ] } }</code>
 /// </li>
 /// <li>
 /// As shown in the previous example, lists of dimension values are combined
@@ -5645,7 +5591,7 @@ class ElastiCacheInstanceDetails {
 ///
 /// <ul>
 /// <li>
-/// For example, you can filter for linked account names that start with “a”.
+/// For example, you can filter for linked account names that start with "a".
 /// </li>
 /// <li>
 /// The corresponding <code>Expression</code> for this example is as follows:
@@ -5728,7 +5674,7 @@ class Expression {
   factory Expression.fromJson(Map<String, dynamic> json) {
     return Expression(
       and: (json['And'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Expression.fromJson(e as Map<String, dynamic>))
           .toList(),
       costCategories: json['CostCategories'] != null
@@ -5742,7 +5688,7 @@ class Expression {
           ? Expression.fromJson(json['Not'] as Map<String, dynamic>)
           : null,
       or: (json['Or'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Expression.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: json['Tags'] != null
@@ -5770,101 +5716,32 @@ class Expression {
 }
 
 enum FindingReasonCode {
-  cpuOverProvisioned,
-  cpuUnderProvisioned,
-  memoryOverProvisioned,
-  memoryUnderProvisioned,
-  ebsThroughputOverProvisioned,
-  ebsThroughputUnderProvisioned,
-  ebsIopsOverProvisioned,
-  ebsIopsUnderProvisioned,
-  networkBandwidthOverProvisioned,
-  networkBandwidthUnderProvisioned,
-  networkPpsOverProvisioned,
-  networkPpsUnderProvisioned,
-  diskIopsOverProvisioned,
-  diskIopsUnderProvisioned,
-  diskThroughputOverProvisioned,
-  diskThroughputUnderProvisioned,
-}
+  cpuOverProvisioned('CPU_OVER_PROVISIONED'),
+  cpuUnderProvisioned('CPU_UNDER_PROVISIONED'),
+  memoryOverProvisioned('MEMORY_OVER_PROVISIONED'),
+  memoryUnderProvisioned('MEMORY_UNDER_PROVISIONED'),
+  ebsThroughputOverProvisioned('EBS_THROUGHPUT_OVER_PROVISIONED'),
+  ebsThroughputUnderProvisioned('EBS_THROUGHPUT_UNDER_PROVISIONED'),
+  ebsIopsOverProvisioned('EBS_IOPS_OVER_PROVISIONED'),
+  ebsIopsUnderProvisioned('EBS_IOPS_UNDER_PROVISIONED'),
+  networkBandwidthOverProvisioned('NETWORK_BANDWIDTH_OVER_PROVISIONED'),
+  networkBandwidthUnderProvisioned('NETWORK_BANDWIDTH_UNDER_PROVISIONED'),
+  networkPpsOverProvisioned('NETWORK_PPS_OVER_PROVISIONED'),
+  networkPpsUnderProvisioned('NETWORK_PPS_UNDER_PROVISIONED'),
+  diskIopsOverProvisioned('DISK_IOPS_OVER_PROVISIONED'),
+  diskIopsUnderProvisioned('DISK_IOPS_UNDER_PROVISIONED'),
+  diskThroughputOverProvisioned('DISK_THROUGHPUT_OVER_PROVISIONED'),
+  diskThroughputUnderProvisioned('DISK_THROUGHPUT_UNDER_PROVISIONED'),
+  ;
 
-extension FindingReasonCodeValueExtension on FindingReasonCode {
-  String toValue() {
-    switch (this) {
-      case FindingReasonCode.cpuOverProvisioned:
-        return 'CPU_OVER_PROVISIONED';
-      case FindingReasonCode.cpuUnderProvisioned:
-        return 'CPU_UNDER_PROVISIONED';
-      case FindingReasonCode.memoryOverProvisioned:
-        return 'MEMORY_OVER_PROVISIONED';
-      case FindingReasonCode.memoryUnderProvisioned:
-        return 'MEMORY_UNDER_PROVISIONED';
-      case FindingReasonCode.ebsThroughputOverProvisioned:
-        return 'EBS_THROUGHPUT_OVER_PROVISIONED';
-      case FindingReasonCode.ebsThroughputUnderProvisioned:
-        return 'EBS_THROUGHPUT_UNDER_PROVISIONED';
-      case FindingReasonCode.ebsIopsOverProvisioned:
-        return 'EBS_IOPS_OVER_PROVISIONED';
-      case FindingReasonCode.ebsIopsUnderProvisioned:
-        return 'EBS_IOPS_UNDER_PROVISIONED';
-      case FindingReasonCode.networkBandwidthOverProvisioned:
-        return 'NETWORK_BANDWIDTH_OVER_PROVISIONED';
-      case FindingReasonCode.networkBandwidthUnderProvisioned:
-        return 'NETWORK_BANDWIDTH_UNDER_PROVISIONED';
-      case FindingReasonCode.networkPpsOverProvisioned:
-        return 'NETWORK_PPS_OVER_PROVISIONED';
-      case FindingReasonCode.networkPpsUnderProvisioned:
-        return 'NETWORK_PPS_UNDER_PROVISIONED';
-      case FindingReasonCode.diskIopsOverProvisioned:
-        return 'DISK_IOPS_OVER_PROVISIONED';
-      case FindingReasonCode.diskIopsUnderProvisioned:
-        return 'DISK_IOPS_UNDER_PROVISIONED';
-      case FindingReasonCode.diskThroughputOverProvisioned:
-        return 'DISK_THROUGHPUT_OVER_PROVISIONED';
-      case FindingReasonCode.diskThroughputUnderProvisioned:
-        return 'DISK_THROUGHPUT_UNDER_PROVISIONED';
-    }
-  }
-}
+  final String value;
 
-extension FindingReasonCodeFromString on String {
-  FindingReasonCode toFindingReasonCode() {
-    switch (this) {
-      case 'CPU_OVER_PROVISIONED':
-        return FindingReasonCode.cpuOverProvisioned;
-      case 'CPU_UNDER_PROVISIONED':
-        return FindingReasonCode.cpuUnderProvisioned;
-      case 'MEMORY_OVER_PROVISIONED':
-        return FindingReasonCode.memoryOverProvisioned;
-      case 'MEMORY_UNDER_PROVISIONED':
-        return FindingReasonCode.memoryUnderProvisioned;
-      case 'EBS_THROUGHPUT_OVER_PROVISIONED':
-        return FindingReasonCode.ebsThroughputOverProvisioned;
-      case 'EBS_THROUGHPUT_UNDER_PROVISIONED':
-        return FindingReasonCode.ebsThroughputUnderProvisioned;
-      case 'EBS_IOPS_OVER_PROVISIONED':
-        return FindingReasonCode.ebsIopsOverProvisioned;
-      case 'EBS_IOPS_UNDER_PROVISIONED':
-        return FindingReasonCode.ebsIopsUnderProvisioned;
-      case 'NETWORK_BANDWIDTH_OVER_PROVISIONED':
-        return FindingReasonCode.networkBandwidthOverProvisioned;
-      case 'NETWORK_BANDWIDTH_UNDER_PROVISIONED':
-        return FindingReasonCode.networkBandwidthUnderProvisioned;
-      case 'NETWORK_PPS_OVER_PROVISIONED':
-        return FindingReasonCode.networkPpsOverProvisioned;
-      case 'NETWORK_PPS_UNDER_PROVISIONED':
-        return FindingReasonCode.networkPpsUnderProvisioned;
-      case 'DISK_IOPS_OVER_PROVISIONED':
-        return FindingReasonCode.diskIopsOverProvisioned;
-      case 'DISK_IOPS_UNDER_PROVISIONED':
-        return FindingReasonCode.diskIopsUnderProvisioned;
-      case 'DISK_THROUGHPUT_OVER_PROVISIONED':
-        return FindingReasonCode.diskThroughputOverProvisioned;
-      case 'DISK_THROUGHPUT_UNDER_PROVISIONED':
-        return FindingReasonCode.diskThroughputUnderProvisioned;
-    }
-    throw Exception('$this is not known in enum FindingReasonCode');
-  }
+  const FindingReasonCode(this.value);
+
+  static FindingReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FindingReasonCode'));
 }
 
 /// The forecast that's created for your query.
@@ -5903,36 +5780,19 @@ class ForecastResult {
 }
 
 enum GenerationStatus {
-  succeeded,
-  processing,
-  failed,
-}
+  succeeded('SUCCEEDED'),
+  processing('PROCESSING'),
+  failed('FAILED'),
+  ;
 
-extension GenerationStatusValueExtension on GenerationStatus {
-  String toValue() {
-    switch (this) {
-      case GenerationStatus.succeeded:
-        return 'SUCCEEDED';
-      case GenerationStatus.processing:
-        return 'PROCESSING';
-      case GenerationStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension GenerationStatusFromString on String {
-  GenerationStatus toGenerationStatus() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return GenerationStatus.succeeded;
-      case 'PROCESSING':
-        return GenerationStatus.processing;
-      case 'FAILED':
-        return GenerationStatus.failed;
-    }
-    throw Exception('$this is not known in enum GenerationStatus');
-  }
+  const GenerationStatus(this.value);
+
+  static GenerationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum GenerationStatus'));
 }
 
 /// The summary of the Savings Plans recommendation generation.
@@ -5967,8 +5827,8 @@ class GenerationSummary {
       estimatedCompletionTime: json['EstimatedCompletionTime'] as String?,
       generationCompletionTime: json['GenerationCompletionTime'] as String?,
       generationStartedTime: json['GenerationStartedTime'] as String?,
-      generationStatus:
-          (json['GenerationStatus'] as String?)?.toGenerationStatus(),
+      generationStatus: (json['GenerationStatus'] as String?)
+          ?.let(GenerationStatus.fromString),
       recommendationId: json['RecommendationId'] as String?,
     );
   }
@@ -5991,7 +5851,7 @@ class GetAnomaliesResponse {
   factory GetAnomaliesResponse.fromJson(Map<String, dynamic> json) {
     return GetAnomaliesResponse(
       anomalies: (json['Anomalies'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Anomaly.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
@@ -6017,7 +5877,7 @@ class GetAnomalyMonitorsResponse {
   factory GetAnomalyMonitorsResponse.fromJson(Map<String, dynamic> json) {
     return GetAnomalyMonitorsResponse(
       anomalyMonitors: (json['AnomalyMonitors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AnomalyMonitor.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
@@ -6043,10 +5903,40 @@ class GetAnomalySubscriptionsResponse {
   factory GetAnomalySubscriptionsResponse.fromJson(Map<String, dynamic> json) {
     return GetAnomalySubscriptionsResponse(
       anomalySubscriptions: (json['AnomalySubscriptions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AnomalySubscription.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
+    );
+  }
+}
+
+class GetApproximateUsageRecordsResponse {
+  /// The lookback period that's used for the estimation.
+  final DateInterval? lookbackPeriod;
+
+  /// The service metadata for the service or services in the response.
+  final Map<String, int>? services;
+
+  /// The total number of usage records for all services in the services list.
+  final int? totalRecords;
+
+  GetApproximateUsageRecordsResponse({
+    this.lookbackPeriod,
+    this.services,
+    this.totalRecords,
+  });
+
+  factory GetApproximateUsageRecordsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetApproximateUsageRecordsResponse(
+      lookbackPeriod: json['LookbackPeriod'] != null
+          ? DateInterval.fromJson(
+              json['LookbackPeriod'] as Map<String, dynamic>)
+          : null,
+      services: (json['Services'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as int)),
+      totalRecords: json['TotalRecords'] as int?,
     );
   }
 }
@@ -6078,17 +5968,17 @@ class GetCostAndUsageResponse {
   factory GetCostAndUsageResponse.fromJson(Map<String, dynamic> json) {
     return GetCostAndUsageResponse(
       dimensionValueAttributes: (json['DimensionValueAttributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DimensionValuesWithAttributes.fromJson(e as Map<String, dynamic>))
           .toList(),
       groupDefinitions: (json['GroupDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GroupDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
       resultsByTime: (json['ResultsByTime'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResultByTime.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6123,17 +6013,17 @@ class GetCostAndUsageWithResourcesResponse {
       Map<String, dynamic> json) {
     return GetCostAndUsageWithResourcesResponse(
       dimensionValueAttributes: (json['DimensionValueAttributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DimensionValuesWithAttributes.fromJson(e as Map<String, dynamic>))
           .toList(),
       groupDefinitions: (json['GroupDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GroupDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
       resultsByTime: (json['ResultsByTime'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResultByTime.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6175,11 +6065,11 @@ class GetCostCategoriesResponse {
       returnSize: json['ReturnSize'] as int,
       totalSize: json['TotalSize'] as int,
       costCategoryNames: (json['CostCategoryNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       costCategoryValues: (json['CostCategoryValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
@@ -6205,7 +6095,7 @@ class GetCostForecastResponse {
   factory GetCostForecastResponse.fromJson(Map<String, dynamic> json) {
     return GetCostForecastResponse(
       forecastResultsByTime: (json['ForecastResultsByTime'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ForecastResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       total: json['Total'] != null
@@ -6375,7 +6265,7 @@ class GetDimensionValuesResponse {
   factory GetDimensionValuesResponse.fromJson(Map<String, dynamic> json) {
     return GetDimensionValuesResponse(
       dimensionValues: (json['DimensionValues'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               DimensionValuesWithAttributes.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6407,7 +6297,7 @@ class GetReservationCoverageResponse {
   factory GetReservationCoverageResponse.fromJson(Map<String, dynamic> json) {
     return GetReservationCoverageResponse(
       coveragesByTime: (json['CoveragesByTime'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CoverageByTime.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
@@ -6444,7 +6334,7 @@ class GetReservationPurchaseRecommendationResponse {
           : null,
       nextPageToken: json['NextPageToken'] as String?,
       recommendations: (json['Recommendations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReservationPurchaseRecommendation.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -6474,7 +6364,7 @@ class GetReservationUtilizationResponse {
       Map<String, dynamic> json) {
     return GetReservationUtilizationResponse(
       utilizationsByTime: (json['UtilizationsByTime'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => UtilizationByTime.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
@@ -6528,7 +6418,7 @@ class GetRightsizingRecommendationResponse {
           : null,
       nextPageToken: json['NextPageToken'] as String?,
       rightsizingRecommendations: (json['RightsizingRecommendations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RightsizingRecommendation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6536,6 +6426,30 @@ class GetRightsizingRecommendationResponse {
           ? RightsizingRecommendationSummary.fromJson(
               json['Summary'] as Map<String, dynamic>)
           : null,
+    );
+  }
+}
+
+class GetSavingsPlanPurchaseRecommendationDetailsResponse {
+  /// Contains detailed information about a specific Savings Plan recommendation.
+  final RecommendationDetailData? recommendationDetailData;
+
+  /// The ID that is associated with the Savings Plan recommendation.
+  final String? recommendationDetailId;
+
+  GetSavingsPlanPurchaseRecommendationDetailsResponse({
+    this.recommendationDetailData,
+    this.recommendationDetailId,
+  });
+
+  factory GetSavingsPlanPurchaseRecommendationDetailsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetSavingsPlanPurchaseRecommendationDetailsResponse(
+      recommendationDetailData: json['RecommendationDetailData'] != null
+          ? RecommendationDetailData.fromJson(
+              json['RecommendationDetailData'] as Map<String, dynamic>)
+          : null,
+      recommendationDetailId: json['RecommendationDetailId'] as String?,
     );
   }
 }
@@ -6557,7 +6471,7 @@ class GetSavingsPlansCoverageResponse {
   factory GetSavingsPlansCoverageResponse.fromJson(Map<String, dynamic> json) {
     return GetSavingsPlansCoverageResponse(
       savingsPlansCoverages: (json['SavingsPlansCoverages'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SavingsPlansCoverage.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6628,7 +6542,7 @@ class GetSavingsPlansUtilizationDetailsResponse {
     return GetSavingsPlansUtilizationDetailsResponse(
       savingsPlansUtilizationDetails: (json['SavingsPlansUtilizationDetails']
               as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               SavingsPlansUtilizationDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6664,7 +6578,7 @@ class GetSavingsPlansUtilizationResponse {
           json['Total'] as Map<String, dynamic>),
       savingsPlansUtilizationsByTime: (json['SavingsPlansUtilizationsByTime']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SavingsPlansUtilizationByTime.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6697,10 +6611,7 @@ class GetTagsResponse {
   factory GetTagsResponse.fromJson(Map<String, dynamic> json) {
     return GetTagsResponse(
       returnSize: json['ReturnSize'] as int,
-      tags: (json['Tags'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      tags: (json['Tags'] as List).nonNulls.map((e) => e as String).toList(),
       totalSize: json['TotalSize'] as int,
       nextPageToken: json['NextPageToken'] as String?,
     );
@@ -6724,7 +6635,7 @@ class GetUsageForecastResponse {
   factory GetUsageForecastResponse.fromJson(Map<String, dynamic> json) {
     return GetUsageForecastResponse(
       forecastResultsByTime: (json['ForecastResultsByTime'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ForecastResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       total: json['Total'] != null
@@ -6735,36 +6646,18 @@ class GetUsageForecastResponse {
 }
 
 enum Granularity {
-  daily,
-  monthly,
-  hourly,
-}
+  daily('DAILY'),
+  monthly('MONTHLY'),
+  hourly('HOURLY'),
+  ;
 
-extension GranularityValueExtension on Granularity {
-  String toValue() {
-    switch (this) {
-      case Granularity.daily:
-        return 'DAILY';
-      case Granularity.monthly:
-        return 'MONTHLY';
-      case Granularity.hourly:
-        return 'HOURLY';
-    }
-  }
-}
+  final String value;
 
-extension GranularityFromString on String {
-  Granularity toGranularity() {
-    switch (this) {
-      case 'DAILY':
-        return Granularity.daily;
-      case 'MONTHLY':
-        return Granularity.monthly;
-      case 'HOURLY':
-        return Granularity.hourly;
-    }
-    throw Exception('$this is not known in enum Granularity');
-  }
+  const Granularity(this.value);
+
+  static Granularity fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Granularity'));
 }
 
 /// One level of grouped data in the results.
@@ -6782,10 +6675,7 @@ class Group {
 
   factory Group.fromJson(Map<String, dynamic> json) {
     return Group(
-      keys: (json['Keys'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      keys: (json['Keys'] as List?)?.nonNulls.map((e) => e as String).toList(),
       metrics: (json['Metrics'] as Map<String, dynamic>?)?.map((k, e) =>
           MapEntry(k, MetricValue.fromJson(e as Map<String, dynamic>))),
     );
@@ -6809,7 +6699,7 @@ class GroupDefinition {
   factory GroupDefinition.fromJson(Map<String, dynamic> json) {
     return GroupDefinition(
       key: json['Key'] as String?,
-      type: (json['Type'] as String?)?.toGroupDefinitionType(),
+      type: (json['Type'] as String?)?.let(GroupDefinitionType.fromString),
     );
   }
 
@@ -6818,42 +6708,25 @@ class GroupDefinition {
     final type = this.type;
     return {
       if (key != null) 'Key': key,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum GroupDefinitionType {
-  dimension,
-  tag,
-  costCategory,
-}
+  dimension('DIMENSION'),
+  tag('TAG'),
+  costCategory('COST_CATEGORY'),
+  ;
 
-extension GroupDefinitionTypeValueExtension on GroupDefinitionType {
-  String toValue() {
-    switch (this) {
-      case GroupDefinitionType.dimension:
-        return 'DIMENSION';
-      case GroupDefinitionType.tag:
-        return 'TAG';
-      case GroupDefinitionType.costCategory:
-        return 'COST_CATEGORY';
-    }
-  }
-}
+  final String value;
 
-extension GroupDefinitionTypeFromString on String {
-  GroupDefinitionType toGroupDefinitionType() {
-    switch (this) {
-      case 'DIMENSION':
-        return GroupDefinitionType.dimension;
-      case 'TAG':
-        return GroupDefinitionType.tag;
-      case 'COST_CATEGORY':
-        return GroupDefinitionType.costCategory;
-    }
-    throw Exception('$this is not known in enum GroupDefinitionType');
-  }
+  const GroupDefinitionType(this.value);
+
+  static GroupDefinitionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum GroupDefinitionType'));
 }
 
 /// The dollar value of the anomaly.
@@ -6901,33 +6774,38 @@ class Impact {
   }
 }
 
-/// Details about the instances that Amazon Web Services recommends that you
+/// Details about the reservations that Amazon Web Services recommends that you
 /// purchase.
 class InstanceDetails {
-  /// The Amazon EC2 instances that Amazon Web Services recommends that you
+  /// The Amazon EC2 reservations that Amazon Web Services recommends that you
   /// purchase.
   final EC2InstanceDetails? eC2InstanceDetails;
 
-  /// The Amazon OpenSearch Service instances that Amazon Web Services recommends
-  /// that you purchase.
+  /// The Amazon OpenSearch Service reservations that Amazon Web Services
+  /// recommends that you purchase.
   final ESInstanceDetails? eSInstanceDetails;
 
-  /// The ElastiCache instances that Amazon Web Services recommends that you
+  /// The ElastiCache reservations that Amazon Web Services recommends that you
   /// purchase.
   final ElastiCacheInstanceDetails? elastiCacheInstanceDetails;
 
-  /// The Amazon RDS instances that Amazon Web Services recommends that you
+  /// The MemoryDB reservations that Amazon Web Services recommends that you
+  /// purchase.
+  final MemoryDBInstanceDetails? memoryDBInstanceDetails;
+
+  /// The Amazon RDS reservations that Amazon Web Services recommends that you
   /// purchase.
   final RDSInstanceDetails? rDSInstanceDetails;
 
-  /// The Amazon Redshift instances that Amazon Web Services recommends that you
-  /// purchase.
+  /// The Amazon Redshift reservations that Amazon Web Services recommends that
+  /// you purchase.
   final RedshiftInstanceDetails? redshiftInstanceDetails;
 
   InstanceDetails({
     this.eC2InstanceDetails,
     this.eSInstanceDetails,
     this.elastiCacheInstanceDetails,
+    this.memoryDBInstanceDetails,
     this.rDSInstanceDetails,
     this.redshiftInstanceDetails,
   });
@@ -6946,6 +6824,10 @@ class InstanceDetails {
           ? ElastiCacheInstanceDetails.fromJson(
               json['ElastiCacheInstanceDetails'] as Map<String, dynamic>)
           : null,
+      memoryDBInstanceDetails: json['MemoryDBInstanceDetails'] != null
+          ? MemoryDBInstanceDetails.fromJson(
+              json['MemoryDBInstanceDetails'] as Map<String, dynamic>)
+          : null,
       rDSInstanceDetails: json['RDSInstanceDetails'] != null
           ? RDSInstanceDetails.fromJson(
               json['RDSInstanceDetails'] as Map<String, dynamic>)
@@ -6954,6 +6836,33 @@ class InstanceDetails {
           ? RedshiftInstanceDetails.fromJson(
               json['RedshiftInstanceDetails'] as Map<String, dynamic>)
           : null,
+    );
+  }
+}
+
+class ListCostAllocationTagBackfillHistoryResponse {
+  /// The list of historical cost allocation tag backfill requests.
+  final List<CostAllocationTagBackfillRequest>? backfillRequests;
+
+  /// The token to retrieve the next set of results. Amazon Web Services provides
+  /// the token when the response from a previous call has more results than the
+  /// maximum page size.
+  final String? nextToken;
+
+  ListCostAllocationTagBackfillHistoryResponse({
+    this.backfillRequests,
+    this.nextToken,
+  });
+
+  factory ListCostAllocationTagBackfillHistoryResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListCostAllocationTagBackfillHistoryResponse(
+      backfillRequests: (json['BackfillRequests'] as List?)
+          ?.nonNulls
+          .map((e) => CostAllocationTagBackfillRequest.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
     );
   }
 }
@@ -6976,7 +6885,7 @@ class ListCostAllocationTagsResponse {
   factory ListCostAllocationTagsResponse.fromJson(Map<String, dynamic> json) {
     return ListCostAllocationTagsResponse(
       costAllocationTags: (json['CostAllocationTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CostAllocationTag.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7003,7 +6912,7 @@ class ListCostCategoryDefinitionsResponse {
       Map<String, dynamic> json) {
     return ListCostCategoryDefinitionsResponse(
       costCategoryReferences: (json['CostCategoryReferences'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CostCategoryReference.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -7027,7 +6936,7 @@ class ListSavingsPlansPurchaseRecommendationGenerationResponse {
       Map<String, dynamic> json) {
     return ListSavingsPlansPurchaseRecommendationGenerationResponse(
       generationSummaryList: (json['GenerationSummaryList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GenerationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextPageToken: json['NextPageToken'] as String?,
@@ -7046,7 +6955,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       resourceTags: (json['ResourceTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceTag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7054,147 +6963,95 @@ class ListTagsForResourceResponse {
 }
 
 enum LookbackPeriodInDays {
-  sevenDays,
-  thirtyDays,
-  sixtyDays,
-}
+  sevenDays('SEVEN_DAYS'),
+  thirtyDays('THIRTY_DAYS'),
+  sixtyDays('SIXTY_DAYS'),
+  ;
 
-extension LookbackPeriodInDaysValueExtension on LookbackPeriodInDays {
-  String toValue() {
-    switch (this) {
-      case LookbackPeriodInDays.sevenDays:
-        return 'SEVEN_DAYS';
-      case LookbackPeriodInDays.thirtyDays:
-        return 'THIRTY_DAYS';
-      case LookbackPeriodInDays.sixtyDays:
-        return 'SIXTY_DAYS';
-    }
-  }
-}
+  final String value;
 
-extension LookbackPeriodInDaysFromString on String {
-  LookbackPeriodInDays toLookbackPeriodInDays() {
-    switch (this) {
-      case 'SEVEN_DAYS':
-        return LookbackPeriodInDays.sevenDays;
-      case 'THIRTY_DAYS':
-        return LookbackPeriodInDays.thirtyDays;
-      case 'SIXTY_DAYS':
-        return LookbackPeriodInDays.sixtyDays;
-    }
-    throw Exception('$this is not known in enum LookbackPeriodInDays');
-  }
+  const LookbackPeriodInDays(this.value);
+
+  static LookbackPeriodInDays fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LookbackPeriodInDays'));
 }
 
 enum MatchOption {
-  equals,
-  absent,
-  startsWith,
-  endsWith,
-  contains,
-  caseSensitive,
-  caseInsensitive,
-  greaterThanOrEqual,
+  equals('EQUALS'),
+  absent('ABSENT'),
+  startsWith('STARTS_WITH'),
+  endsWith('ENDS_WITH'),
+  contains('CONTAINS'),
+  caseSensitive('CASE_SENSITIVE'),
+  caseInsensitive('CASE_INSENSITIVE'),
+  greaterThanOrEqual('GREATER_THAN_OR_EQUAL'),
+  ;
+
+  final String value;
+
+  const MatchOption(this.value);
+
+  static MatchOption fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MatchOption'));
 }
 
-extension MatchOptionValueExtension on MatchOption {
-  String toValue() {
-    switch (this) {
-      case MatchOption.equals:
-        return 'EQUALS';
-      case MatchOption.absent:
-        return 'ABSENT';
-      case MatchOption.startsWith:
-        return 'STARTS_WITH';
-      case MatchOption.endsWith:
-        return 'ENDS_WITH';
-      case MatchOption.contains:
-        return 'CONTAINS';
-      case MatchOption.caseSensitive:
-        return 'CASE_SENSITIVE';
-      case MatchOption.caseInsensitive:
-        return 'CASE_INSENSITIVE';
-      case MatchOption.greaterThanOrEqual:
-        return 'GREATER_THAN_OR_EQUAL';
-    }
-  }
-}
+/// Details about the MemoryDB reservations that Amazon Web Services recommends
+/// that you purchase.
+class MemoryDBInstanceDetails {
+  /// Determines whether the recommendation is for a current generation instance.
+  final bool? currentGeneration;
 
-extension MatchOptionFromString on String {
-  MatchOption toMatchOption() {
-    switch (this) {
-      case 'EQUALS':
-        return MatchOption.equals;
-      case 'ABSENT':
-        return MatchOption.absent;
-      case 'STARTS_WITH':
-        return MatchOption.startsWith;
-      case 'ENDS_WITH':
-        return MatchOption.endsWith;
-      case 'CONTAINS':
-        return MatchOption.contains;
-      case 'CASE_SENSITIVE':
-        return MatchOption.caseSensitive;
-      case 'CASE_INSENSITIVE':
-        return MatchOption.caseInsensitive;
-      case 'GREATER_THAN_OR_EQUAL':
-        return MatchOption.greaterThanOrEqual;
-    }
-    throw Exception('$this is not known in enum MatchOption');
+  /// The instance family of the recommended reservation.
+  final String? family;
+
+  /// The node type of the recommended reservation.
+  final String? nodeType;
+
+  /// The Amazon Web Services Region of the recommended reservation.
+  final String? region;
+
+  /// Determines whether the recommended reservation is size flexible.
+  final bool? sizeFlexEligible;
+
+  MemoryDBInstanceDetails({
+    this.currentGeneration,
+    this.family,
+    this.nodeType,
+    this.region,
+    this.sizeFlexEligible,
+  });
+
+  factory MemoryDBInstanceDetails.fromJson(Map<String, dynamic> json) {
+    return MemoryDBInstanceDetails(
+      currentGeneration: json['CurrentGeneration'] as bool?,
+      family: json['Family'] as String?,
+      nodeType: json['NodeType'] as String?,
+      region: json['Region'] as String?,
+      sizeFlexEligible: json['SizeFlexEligible'] as bool?,
+    );
   }
 }
 
 enum Metric {
-  blendedCost,
-  unblendedCost,
-  amortizedCost,
-  netUnblendedCost,
-  netAmortizedCost,
-  usageQuantity,
-  normalizedUsageAmount,
-}
+  blendedCost('BLENDED_COST'),
+  unblendedCost('UNBLENDED_COST'),
+  amortizedCost('AMORTIZED_COST'),
+  netUnblendedCost('NET_UNBLENDED_COST'),
+  netAmortizedCost('NET_AMORTIZED_COST'),
+  usageQuantity('USAGE_QUANTITY'),
+  normalizedUsageAmount('NORMALIZED_USAGE_AMOUNT'),
+  ;
 
-extension MetricValueExtension on Metric {
-  String toValue() {
-    switch (this) {
-      case Metric.blendedCost:
-        return 'BLENDED_COST';
-      case Metric.unblendedCost:
-        return 'UNBLENDED_COST';
-      case Metric.amortizedCost:
-        return 'AMORTIZED_COST';
-      case Metric.netUnblendedCost:
-        return 'NET_UNBLENDED_COST';
-      case Metric.netAmortizedCost:
-        return 'NET_AMORTIZED_COST';
-      case Metric.usageQuantity:
-        return 'USAGE_QUANTITY';
-      case Metric.normalizedUsageAmount:
-        return 'NORMALIZED_USAGE_AMOUNT';
-    }
-  }
-}
+  final String value;
 
-extension MetricFromString on String {
-  Metric toMetric() {
-    switch (this) {
-      case 'BLENDED_COST':
-        return Metric.blendedCost;
-      case 'UNBLENDED_COST':
-        return Metric.unblendedCost;
-      case 'AMORTIZED_COST':
-        return Metric.amortizedCost;
-      case 'NET_UNBLENDED_COST':
-        return Metric.netUnblendedCost;
-      case 'NET_AMORTIZED_COST':
-        return Metric.netAmortizedCost;
-      case 'USAGE_QUANTITY':
-        return Metric.usageQuantity;
-      case 'NORMALIZED_USAGE_AMOUNT':
-        return Metric.normalizedUsageAmount;
-    }
-    throw Exception('$this is not known in enum Metric');
-  }
+  const Metric(this.value);
+
+  static Metric fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Metric'));
 }
 
 /// The aggregated value for a metric.
@@ -7231,7 +7088,7 @@ class ModifyRecommendationDetail {
   factory ModifyRecommendationDetail.fromJson(Map<String, dynamic> json) {
     return ModifyRecommendationDetail(
       targetInstances: (json['TargetInstances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TargetInstance.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7239,54 +7096,31 @@ class ModifyRecommendationDetail {
 }
 
 enum MonitorDimension {
-  service,
-}
+  service('SERVICE'),
+  ;
 
-extension MonitorDimensionValueExtension on MonitorDimension {
-  String toValue() {
-    switch (this) {
-      case MonitorDimension.service:
-        return 'SERVICE';
-    }
-  }
-}
+  final String value;
 
-extension MonitorDimensionFromString on String {
-  MonitorDimension toMonitorDimension() {
-    switch (this) {
-      case 'SERVICE':
-        return MonitorDimension.service;
-    }
-    throw Exception('$this is not known in enum MonitorDimension');
-  }
+  const MonitorDimension(this.value);
+
+  static MonitorDimension fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MonitorDimension'));
 }
 
 enum MonitorType {
-  dimensional,
-  custom,
-}
+  dimensional('DIMENSIONAL'),
+  custom('CUSTOM'),
+  ;
 
-extension MonitorTypeValueExtension on MonitorType {
-  String toValue() {
-    switch (this) {
-      case MonitorType.dimensional:
-        return 'DIMENSIONAL';
-      case MonitorType.custom:
-        return 'CUSTOM';
-    }
-  }
-}
+  final String value;
 
-extension MonitorTypeFromString on String {
-  MonitorType toMonitorType() {
-    switch (this) {
-      case 'DIMENSIONAL':
-        return MonitorType.dimensional;
-      case 'CUSTOM':
-        return MonitorType.custom;
-    }
-    throw Exception('$this is not known in enum MonitorType');
-  }
+  const MonitorType(this.value);
+
+  static MonitorType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MonitorType'));
 }
 
 /// The network field that contains a list of network metrics that are
@@ -7324,170 +7158,74 @@ class NetworkResourceUtilization {
 }
 
 enum NumericOperator {
-  equal,
-  greaterThanOrEqual,
-  lessThanOrEqual,
-  greaterThan,
-  lessThan,
-  between,
-}
+  equal('EQUAL'),
+  greaterThanOrEqual('GREATER_THAN_OR_EQUAL'),
+  lessThanOrEqual('LESS_THAN_OR_EQUAL'),
+  greaterThan('GREATER_THAN'),
+  lessThan('LESS_THAN'),
+  between('BETWEEN'),
+  ;
 
-extension NumericOperatorValueExtension on NumericOperator {
-  String toValue() {
-    switch (this) {
-      case NumericOperator.equal:
-        return 'EQUAL';
-      case NumericOperator.greaterThanOrEqual:
-        return 'GREATER_THAN_OR_EQUAL';
-      case NumericOperator.lessThanOrEqual:
-        return 'LESS_THAN_OR_EQUAL';
-      case NumericOperator.greaterThan:
-        return 'GREATER_THAN';
-      case NumericOperator.lessThan:
-        return 'LESS_THAN';
-      case NumericOperator.between:
-        return 'BETWEEN';
-    }
-  }
-}
+  final String value;
 
-extension NumericOperatorFromString on String {
-  NumericOperator toNumericOperator() {
-    switch (this) {
-      case 'EQUAL':
-        return NumericOperator.equal;
-      case 'GREATER_THAN_OR_EQUAL':
-        return NumericOperator.greaterThanOrEqual;
-      case 'LESS_THAN_OR_EQUAL':
-        return NumericOperator.lessThanOrEqual;
-      case 'GREATER_THAN':
-        return NumericOperator.greaterThan;
-      case 'LESS_THAN':
-        return NumericOperator.lessThan;
-      case 'BETWEEN':
-        return NumericOperator.between;
-    }
-    throw Exception('$this is not known in enum NumericOperator');
-  }
+  const NumericOperator(this.value);
+
+  static NumericOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum NumericOperator'));
 }
 
 enum OfferingClass {
-  standard,
-  convertible,
-}
+  standard('STANDARD'),
+  convertible('CONVERTIBLE'),
+  ;
 
-extension OfferingClassValueExtension on OfferingClass {
-  String toValue() {
-    switch (this) {
-      case OfferingClass.standard:
-        return 'STANDARD';
-      case OfferingClass.convertible:
-        return 'CONVERTIBLE';
-    }
-  }
-}
+  final String value;
 
-extension OfferingClassFromString on String {
-  OfferingClass toOfferingClass() {
-    switch (this) {
-      case 'STANDARD':
-        return OfferingClass.standard;
-      case 'CONVERTIBLE':
-        return OfferingClass.convertible;
-    }
-    throw Exception('$this is not known in enum OfferingClass');
-  }
+  const OfferingClass(this.value);
+
+  static OfferingClass fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OfferingClass'));
 }
 
 enum PaymentOption {
-  noUpfront,
-  partialUpfront,
-  allUpfront,
-  lightUtilization,
-  mediumUtilization,
-  heavyUtilization,
-}
+  noUpfront('NO_UPFRONT'),
+  partialUpfront('PARTIAL_UPFRONT'),
+  allUpfront('ALL_UPFRONT'),
+  lightUtilization('LIGHT_UTILIZATION'),
+  mediumUtilization('MEDIUM_UTILIZATION'),
+  heavyUtilization('HEAVY_UTILIZATION'),
+  ;
 
-extension PaymentOptionValueExtension on PaymentOption {
-  String toValue() {
-    switch (this) {
-      case PaymentOption.noUpfront:
-        return 'NO_UPFRONT';
-      case PaymentOption.partialUpfront:
-        return 'PARTIAL_UPFRONT';
-      case PaymentOption.allUpfront:
-        return 'ALL_UPFRONT';
-      case PaymentOption.lightUtilization:
-        return 'LIGHT_UTILIZATION';
-      case PaymentOption.mediumUtilization:
-        return 'MEDIUM_UTILIZATION';
-      case PaymentOption.heavyUtilization:
-        return 'HEAVY_UTILIZATION';
-    }
-  }
-}
+  final String value;
 
-extension PaymentOptionFromString on String {
-  PaymentOption toPaymentOption() {
-    switch (this) {
-      case 'NO_UPFRONT':
-        return PaymentOption.noUpfront;
-      case 'PARTIAL_UPFRONT':
-        return PaymentOption.partialUpfront;
-      case 'ALL_UPFRONT':
-        return PaymentOption.allUpfront;
-      case 'LIGHT_UTILIZATION':
-        return PaymentOption.lightUtilization;
-      case 'MEDIUM_UTILIZATION':
-        return PaymentOption.mediumUtilization;
-      case 'HEAVY_UTILIZATION':
-        return PaymentOption.heavyUtilization;
-    }
-    throw Exception('$this is not known in enum PaymentOption');
-  }
+  const PaymentOption(this.value);
+
+  static PaymentOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PaymentOption'));
 }
 
 enum PlatformDifference {
-  hypervisor,
-  networkInterface,
-  storageInterface,
-  instanceStoreAvailability,
-  virtualizationType,
-}
+  hypervisor('HYPERVISOR'),
+  networkInterface('NETWORK_INTERFACE'),
+  storageInterface('STORAGE_INTERFACE'),
+  instanceStoreAvailability('INSTANCE_STORE_AVAILABILITY'),
+  virtualizationType('VIRTUALIZATION_TYPE'),
+  ;
 
-extension PlatformDifferenceValueExtension on PlatformDifference {
-  String toValue() {
-    switch (this) {
-      case PlatformDifference.hypervisor:
-        return 'HYPERVISOR';
-      case PlatformDifference.networkInterface:
-        return 'NETWORK_INTERFACE';
-      case PlatformDifference.storageInterface:
-        return 'STORAGE_INTERFACE';
-      case PlatformDifference.instanceStoreAvailability:
-        return 'INSTANCE_STORE_AVAILABILITY';
-      case PlatformDifference.virtualizationType:
-        return 'VIRTUALIZATION_TYPE';
-    }
-  }
-}
+  final String value;
 
-extension PlatformDifferenceFromString on String {
-  PlatformDifference toPlatformDifference() {
-    switch (this) {
-      case 'HYPERVISOR':
-        return PlatformDifference.hypervisor;
-      case 'NETWORK_INTERFACE':
-        return PlatformDifference.networkInterface;
-      case 'STORAGE_INTERFACE':
-        return PlatformDifference.storageInterface;
-      case 'INSTANCE_STORE_AVAILABILITY':
-        return PlatformDifference.instanceStoreAvailability;
-      case 'VIRTUALIZATION_TYPE':
-        return PlatformDifference.virtualizationType;
-    }
-    throw Exception('$this is not known in enum PlatformDifference');
-  }
+  const PlatformDifference(this.value);
+
+  static PlatformDifference fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PlatformDifference'));
 }
 
 class ProvideAnomalyFeedbackResponse {
@@ -7505,8 +7243,8 @@ class ProvideAnomalyFeedbackResponse {
   }
 }
 
-/// Details about the Amazon RDS instances that Amazon Web Services recommends
-/// that you purchase.
+/// Details about the Amazon RDS reservations that Amazon Web Services
+/// recommends that you purchase.
 class RDSInstanceDetails {
   /// Determines whether the recommendation is for a current-generation instance.
   final bool? currentGeneration;
@@ -7564,35 +7302,248 @@ class RDSInstanceDetails {
   }
 }
 
+/// The details and metrics for the given recommendation.
+class RecommendationDetailData {
+  /// The AccountID that the recommendation is generated for.
+  final String? accountId;
+
+  /// The account scope that you want your recommendations for. Amazon Web
+  /// Services calculates recommendations including the management account and
+  /// member accounts if the value is set to PAYER. If the value is LINKED,
+  /// recommendations are calculated for individual member accounts only.
+  final AccountScope? accountScope;
+
+  /// The currency code that Amazon Web Services used to generate the
+  /// recommendation and present potential savings.
+  final String? currencyCode;
+
+  /// The average value of hourly coverage over the lookback period.
+  final String? currentAverageCoverage;
+
+  /// The average value of hourly On-Demand spend over the lookback period of the
+  /// applicable usage type.
+  final String? currentAverageHourlyOnDemandSpend;
+
+  /// The highest value of hourly On-Demand spend over the lookback period of the
+  /// applicable usage type.
+  final String? currentMaximumHourlyOnDemandSpend;
+
+  /// The lowest value of hourly On-Demand spend over the lookback period of the
+  /// applicable usage type.
+  final String? currentMinimumHourlyOnDemandSpend;
+
+  /// The estimated coverage of the recommended Savings Plan.
+  final String? estimatedAverageCoverage;
+
+  /// The estimated utilization of the recommended Savings Plan.
+  final String? estimatedAverageUtilization;
+
+  /// The estimated monthly savings amount based on the recommended Savings Plan.
+  final String? estimatedMonthlySavingsAmount;
+
+  /// The remaining On-Demand cost estimated to not be covered by the recommended
+  /// Savings Plan, over the length of the lookback period.
+  final String? estimatedOnDemandCost;
+
+  /// The estimated On-Demand costs you expect with no additional commitment,
+  /// based on your usage of the selected time period and the Savings Plan you
+  /// own.
+  final String? estimatedOnDemandCostWithCurrentCommitment;
+
+  /// The estimated return on investment that's based on the recommended Savings
+  /// Plan that you purchased. This is calculated as
+  /// estimatedSavingsAmount/estimatedSPCost*100.
+  final String? estimatedROI;
+
+  /// The cost of the recommended Savings Plan over the length of the lookback
+  /// period.
+  final String? estimatedSPCost;
+
+  /// The estimated savings amount that's based on the recommended Savings Plan
+  /// over the length of the lookback period.
+  final String? estimatedSavingsAmount;
+
+  /// The estimated savings percentage relative to the total cost of applicable
+  /// On-Demand usage over the lookback period.
+  final String? estimatedSavingsPercentage;
+
+  /// The existing hourly commitment for the Savings Plan type.
+  final String? existingHourlyCommitment;
+  final String? generationTimestamp;
+
+  /// The recommended hourly commitment level for the Savings Plan type and the
+  /// configuration that's based on the usage during the lookback period.
+  final String? hourlyCommitmentToPurchase;
+
+  /// The instance family of the recommended Savings Plan.
+  final String? instanceFamily;
+  final String? latestUsageTimestamp;
+
+  /// How many days of previous usage that Amazon Web Services considers when
+  /// making this recommendation.
+  final LookbackPeriodInDays? lookbackPeriodInDays;
+
+  /// The related hourly cost, coverage, and utilization metrics over the lookback
+  /// period.
+  final List<RecommendationDetailHourlyMetrics>? metricsOverLookbackPeriod;
+
+  /// The unique ID that's used to distinguish Savings Plans from one another.
+  final String? offeringId;
+
+  /// The payment option for the commitment (for example, All Upfront or No
+  /// Upfront).
+  final PaymentOption? paymentOption;
+
+  /// The region the recommendation is generated for.
+  final String? region;
+
+  /// The requested Savings Plan recommendation type.
+  final SupportedSavingsPlansType? savingsPlansType;
+
+  /// The term of the commitment in years.
+  final TermInYears? termInYears;
+
+  /// The upfront cost of the recommended Savings Plan, based on the selected
+  /// payment option.
+  final String? upfrontCost;
+
+  RecommendationDetailData({
+    this.accountId,
+    this.accountScope,
+    this.currencyCode,
+    this.currentAverageCoverage,
+    this.currentAverageHourlyOnDemandSpend,
+    this.currentMaximumHourlyOnDemandSpend,
+    this.currentMinimumHourlyOnDemandSpend,
+    this.estimatedAverageCoverage,
+    this.estimatedAverageUtilization,
+    this.estimatedMonthlySavingsAmount,
+    this.estimatedOnDemandCost,
+    this.estimatedOnDemandCostWithCurrentCommitment,
+    this.estimatedROI,
+    this.estimatedSPCost,
+    this.estimatedSavingsAmount,
+    this.estimatedSavingsPercentage,
+    this.existingHourlyCommitment,
+    this.generationTimestamp,
+    this.hourlyCommitmentToPurchase,
+    this.instanceFamily,
+    this.latestUsageTimestamp,
+    this.lookbackPeriodInDays,
+    this.metricsOverLookbackPeriod,
+    this.offeringId,
+    this.paymentOption,
+    this.region,
+    this.savingsPlansType,
+    this.termInYears,
+    this.upfrontCost,
+  });
+
+  factory RecommendationDetailData.fromJson(Map<String, dynamic> json) {
+    return RecommendationDetailData(
+      accountId: json['AccountId'] as String?,
+      accountScope:
+          (json['AccountScope'] as String?)?.let(AccountScope.fromString),
+      currencyCode: json['CurrencyCode'] as String?,
+      currentAverageCoverage: json['CurrentAverageCoverage'] as String?,
+      currentAverageHourlyOnDemandSpend:
+          json['CurrentAverageHourlyOnDemandSpend'] as String?,
+      currentMaximumHourlyOnDemandSpend:
+          json['CurrentMaximumHourlyOnDemandSpend'] as String?,
+      currentMinimumHourlyOnDemandSpend:
+          json['CurrentMinimumHourlyOnDemandSpend'] as String?,
+      estimatedAverageCoverage: json['EstimatedAverageCoverage'] as String?,
+      estimatedAverageUtilization:
+          json['EstimatedAverageUtilization'] as String?,
+      estimatedMonthlySavingsAmount:
+          json['EstimatedMonthlySavingsAmount'] as String?,
+      estimatedOnDemandCost: json['EstimatedOnDemandCost'] as String?,
+      estimatedOnDemandCostWithCurrentCommitment:
+          json['EstimatedOnDemandCostWithCurrentCommitment'] as String?,
+      estimatedROI: json['EstimatedROI'] as String?,
+      estimatedSPCost: json['EstimatedSPCost'] as String?,
+      estimatedSavingsAmount: json['EstimatedSavingsAmount'] as String?,
+      estimatedSavingsPercentage: json['EstimatedSavingsPercentage'] as String?,
+      existingHourlyCommitment: json['ExistingHourlyCommitment'] as String?,
+      generationTimestamp: json['GenerationTimestamp'] as String?,
+      hourlyCommitmentToPurchase: json['HourlyCommitmentToPurchase'] as String?,
+      instanceFamily: json['InstanceFamily'] as String?,
+      latestUsageTimestamp: json['LatestUsageTimestamp'] as String?,
+      lookbackPeriodInDays: (json['LookbackPeriodInDays'] as String?)
+          ?.let(LookbackPeriodInDays.fromString),
+      metricsOverLookbackPeriod: (json['MetricsOverLookbackPeriod'] as List?)
+          ?.nonNulls
+          .map((e) => RecommendationDetailHourlyMetrics.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      offeringId: json['OfferingId'] as String?,
+      paymentOption:
+          (json['PaymentOption'] as String?)?.let(PaymentOption.fromString),
+      region: json['Region'] as String?,
+      savingsPlansType: (json['SavingsPlansType'] as String?)
+          ?.let(SupportedSavingsPlansType.fromString),
+      termInYears:
+          (json['TermInYears'] as String?)?.let(TermInYears.fromString),
+      upfrontCost: json['UpfrontCost'] as String?,
+    );
+  }
+}
+
+/// Contains the hourly metrics for the given recommendation over the lookback
+/// period.
+class RecommendationDetailHourlyMetrics {
+  /// The current amount of Savings Plans eligible usage that the Savings Plan
+  /// covered.
+  final String? currentCoverage;
+
+  /// The estimated coverage amount based on the recommended Savings Plan.
+  final String? estimatedCoverage;
+
+  /// The estimated utilization for the recommended Savings Plan.
+  final String? estimatedNewCommitmentUtilization;
+
+  /// The remaining On-Demand cost estimated to not be covered by the recommended
+  /// Savings Plan, over the length of the lookback period.
+  final String? estimatedOnDemandCost;
+  final String? startTime;
+
+  RecommendationDetailHourlyMetrics({
+    this.currentCoverage,
+    this.estimatedCoverage,
+    this.estimatedNewCommitmentUtilization,
+    this.estimatedOnDemandCost,
+    this.startTime,
+  });
+
+  factory RecommendationDetailHourlyMetrics.fromJson(
+      Map<String, dynamic> json) {
+    return RecommendationDetailHourlyMetrics(
+      currentCoverage: json['CurrentCoverage'] as String?,
+      estimatedCoverage: json['EstimatedCoverage'] as String?,
+      estimatedNewCommitmentUtilization:
+          json['EstimatedNewCommitmentUtilization'] as String?,
+      estimatedOnDemandCost: json['EstimatedOnDemandCost'] as String?,
+      startTime: json['StartTime'] as String?,
+    );
+  }
+}
+
 enum RecommendationTarget {
-  sameInstanceFamily,
-  crossInstanceFamily,
+  sameInstanceFamily('SAME_INSTANCE_FAMILY'),
+  crossInstanceFamily('CROSS_INSTANCE_FAMILY'),
+  ;
+
+  final String value;
+
+  const RecommendationTarget(this.value);
+
+  static RecommendationTarget fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecommendationTarget'));
 }
 
-extension RecommendationTargetValueExtension on RecommendationTarget {
-  String toValue() {
-    switch (this) {
-      case RecommendationTarget.sameInstanceFamily:
-        return 'SAME_INSTANCE_FAMILY';
-      case RecommendationTarget.crossInstanceFamily:
-        return 'CROSS_INSTANCE_FAMILY';
-    }
-  }
-}
-
-extension RecommendationTargetFromString on String {
-  RecommendationTarget toRecommendationTarget() {
-    switch (this) {
-      case 'SAME_INSTANCE_FAMILY':
-        return RecommendationTarget.sameInstanceFamily;
-      case 'CROSS_INSTANCE_FAMILY':
-        return RecommendationTarget.crossInstanceFamily;
-    }
-    throw Exception('$this is not known in enum RecommendationTarget');
-  }
-}
-
-/// Details about the Amazon Redshift instances that Amazon Web Services
+/// Details about the Amazon Redshift reservations that Amazon Web Services
 /// recommends that you purchase.
 class RedshiftInstanceDetails {
   /// Determines whether the recommendation is for a current-generation instance.
@@ -7803,12 +7754,14 @@ class ReservationPurchaseRecommendation {
   factory ReservationPurchaseRecommendation.fromJson(
       Map<String, dynamic> json) {
     return ReservationPurchaseRecommendation(
-      accountScope: (json['AccountScope'] as String?)?.toAccountScope(),
-      lookbackPeriodInDays:
-          (json['LookbackPeriodInDays'] as String?)?.toLookbackPeriodInDays(),
-      paymentOption: (json['PaymentOption'] as String?)?.toPaymentOption(),
+      accountScope:
+          (json['AccountScope'] as String?)?.let(AccountScope.fromString),
+      lookbackPeriodInDays: (json['LookbackPeriodInDays'] as String?)
+          ?.let(LookbackPeriodInDays.fromString),
+      paymentOption:
+          (json['PaymentOption'] as String?)?.let(PaymentOption.fromString),
       recommendationDetails: (json['RecommendationDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReservationPurchaseRecommendationDetail.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7820,7 +7773,8 @@ class ReservationPurchaseRecommendation {
           ? ServiceSpecification.fromJson(
               json['ServiceSpecification'] as Map<String, dynamic>)
           : null,
-      termInYears: (json['TermInYears'] as String?)?.toTermInYears(),
+      termInYears:
+          (json['TermInYears'] as String?)?.let(TermInYears.fromString),
     );
   }
 }
@@ -7868,7 +7822,7 @@ class ReservationPurchaseRecommendationDetail {
   /// during the specified historical period if you had a reservation.
   final String? estimatedReservationCostForLookbackPeriod;
 
-  /// Details about the instances that Amazon Web Services recommends that you
+  /// Details about the reservations that Amazon Web Services recommends that you
   /// purchase.
   final InstanceDetails? instanceDetails;
 
@@ -7970,16 +7924,20 @@ class ReservationPurchaseRecommendationDetail {
   }
 }
 
-/// Information about this specific recommendation, such as the timestamp for
-/// when Amazon Web Services made a specific recommendation.
+/// Information about a recommendation, such as the timestamp for when Amazon
+/// Web Services made a specific recommendation.
 class ReservationPurchaseRecommendationMetadata {
-  /// The timestamp for when Amazon Web Services made this recommendation.
+  /// Additional metadata that might be applicable to the recommendation.
+  final String? additionalMetadata;
+
+  /// The timestamp for when Amazon Web Services made the recommendation.
   final String? generationTimestamp;
 
-  /// The ID for this specific recommendation.
+  /// The ID for the recommendation.
   final String? recommendationId;
 
   ReservationPurchaseRecommendationMetadata({
+    this.additionalMetadata,
     this.generationTimestamp,
     this.recommendationId,
   });
@@ -7987,6 +7945,7 @@ class ReservationPurchaseRecommendationMetadata {
   factory ReservationPurchaseRecommendationMetadata.fromJson(
       Map<String, dynamic> json) {
     return ReservationPurchaseRecommendationMetadata(
+      additionalMetadata: json['AdditionalMetadata'] as String?,
       generationTimestamp: json['GenerationTimestamp'] as String?,
       recommendationId: json['RecommendationId'] as String?,
     );
@@ -8163,7 +8122,7 @@ class ResultByTime {
     return ResultByTime(
       estimated: json['Estimated'] as bool?,
       groups: (json['Groups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Group.fromJson(e as Map<String, dynamic>))
           .toList(),
       timePeriod: json['TimePeriod'] != null
@@ -8214,15 +8173,15 @@ class RightsizingRecommendation {
               json['CurrentInstance'] as Map<String, dynamic>)
           : null,
       findingReasonCodes: (json['FindingReasonCodes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toFindingReasonCode())
+          ?.nonNulls
+          .map((e) => FindingReasonCode.fromString((e as String)))
           .toList(),
       modifyRecommendationDetail: json['ModifyRecommendationDetail'] != null
           ? ModifyRecommendationDetail.fromJson(
               json['ModifyRecommendationDetail'] as Map<String, dynamic>)
           : null,
       rightsizingType:
-          (json['RightsizingType'] as String?)?.toRightsizingType(),
+          (json['RightsizingType'] as String?)?.let(RightsizingType.fromString),
       terminateRecommendationDetail:
           json['TerminateRecommendationDetail'] != null
               ? TerminateRecommendationDetail.fromJson(
@@ -8257,8 +8216,8 @@ class RightsizingRecommendationConfiguration {
       Map<String, dynamic> json) {
     return RightsizingRecommendationConfiguration(
       benefitsConsidered: json['BenefitsConsidered'] as bool,
-      recommendationTarget:
-          (json['RecommendationTarget'] as String).toRecommendationTarget(),
+      recommendationTarget: RecommendationTarget.fromString(
+          (json['RecommendationTarget'] as String)),
     );
   }
 
@@ -8267,24 +8226,24 @@ class RightsizingRecommendationConfiguration {
     final recommendationTarget = this.recommendationTarget;
     return {
       'BenefitsConsidered': benefitsConsidered,
-      'RecommendationTarget': recommendationTarget.toValue(),
+      'RecommendationTarget': recommendationTarget.value,
     };
   }
 }
 
-/// Metadata for this recommendation set.
+/// Metadata for a recommendation set.
 class RightsizingRecommendationMetadata {
   /// Additional metadata that might be applicable to the recommendation.
   final String? additionalMetadata;
 
-  /// The timestamp for when Amazon Web Services made this recommendation.
+  /// The timestamp for when Amazon Web Services made the recommendation.
   final String? generationTimestamp;
 
   /// The number of days of previous usage that Amazon Web Services considers when
-  /// making this recommendation.
+  /// making the recommendation.
   final LookbackPeriodInDays? lookbackPeriodInDays;
 
-  /// The ID for this specific recommendation.
+  /// The ID for the recommendation.
   final String? recommendationId;
 
   RightsizingRecommendationMetadata({
@@ -8299,8 +8258,8 @@ class RightsizingRecommendationMetadata {
     return RightsizingRecommendationMetadata(
       additionalMetadata: json['AdditionalMetadata'] as String?,
       generationTimestamp: json['GenerationTimestamp'] as String?,
-      lookbackPeriodInDays:
-          (json['LookbackPeriodInDays'] as String?)?.toLookbackPeriodInDays(),
+      lookbackPeriodInDays: (json['LookbackPeriodInDays'] as String?)
+          ?.let(LookbackPeriodInDays.fromString),
       recommendationId: json['RecommendationId'] as String?,
     );
   }
@@ -8341,31 +8300,18 @@ class RightsizingRecommendationSummary {
 }
 
 enum RightsizingType {
-  terminate,
-  modify,
-}
+  terminate('TERMINATE'),
+  modify('MODIFY'),
+  ;
 
-extension RightsizingTypeValueExtension on RightsizingType {
-  String toValue() {
-    switch (this) {
-      case RightsizingType.terminate:
-        return 'TERMINATE';
-      case RightsizingType.modify:
-        return 'MODIFY';
-    }
-  }
-}
+  final String value;
 
-extension RightsizingTypeFromString on String {
-  RightsizingType toRightsizingType() {
-    switch (this) {
-      case 'TERMINATE':
-        return RightsizingType.terminate;
-      case 'MODIFY':
-        return RightsizingType.modify;
-    }
-    throw Exception('$this is not known in enum RightsizingType');
-  }
+  const RightsizingType(this.value);
+
+  static RightsizingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RightsizingType'));
 }
 
 /// The combination of Amazon Web Service, linked account, linked account name,
@@ -8505,41 +8451,20 @@ class SavingsPlansCoverageData {
 }
 
 enum SavingsPlansDataType {
-  attributes,
-  utilization,
-  amortizedCommitment,
-  savings,
-}
+  attributes('ATTRIBUTES'),
+  utilization('UTILIZATION'),
+  amortizedCommitment('AMORTIZED_COMMITMENT'),
+  savings('SAVINGS'),
+  ;
 
-extension SavingsPlansDataTypeValueExtension on SavingsPlansDataType {
-  String toValue() {
-    switch (this) {
-      case SavingsPlansDataType.attributes:
-        return 'ATTRIBUTES';
-      case SavingsPlansDataType.utilization:
-        return 'UTILIZATION';
-      case SavingsPlansDataType.amortizedCommitment:
-        return 'AMORTIZED_COMMITMENT';
-      case SavingsPlansDataType.savings:
-        return 'SAVINGS';
-    }
-  }
-}
+  final String value;
 
-extension SavingsPlansDataTypeFromString on String {
-  SavingsPlansDataType toSavingsPlansDataType() {
-    switch (this) {
-      case 'ATTRIBUTES':
-        return SavingsPlansDataType.attributes;
-      case 'UTILIZATION':
-        return SavingsPlansDataType.utilization;
-      case 'AMORTIZED_COMMITMENT':
-        return SavingsPlansDataType.amortizedCommitment;
-      case 'SAVINGS':
-        return SavingsPlansDataType.savings;
-    }
-    throw Exception('$this is not known in enum SavingsPlansDataType');
-  }
+  const SavingsPlansDataType(this.value);
+
+  static SavingsPlansDataType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SavingsPlansDataType'));
 }
 
 /// The attribute details on a specific Savings Plan.
@@ -8614,13 +8539,15 @@ class SavingsPlansPurchaseRecommendation {
   factory SavingsPlansPurchaseRecommendation.fromJson(
       Map<String, dynamic> json) {
     return SavingsPlansPurchaseRecommendation(
-      accountScope: (json['AccountScope'] as String?)?.toAccountScope(),
-      lookbackPeriodInDays:
-          (json['LookbackPeriodInDays'] as String?)?.toLookbackPeriodInDays(),
-      paymentOption: (json['PaymentOption'] as String?)?.toPaymentOption(),
+      accountScope:
+          (json['AccountScope'] as String?)?.let(AccountScope.fromString),
+      lookbackPeriodInDays: (json['LookbackPeriodInDays'] as String?)
+          ?.let(LookbackPeriodInDays.fromString),
+      paymentOption:
+          (json['PaymentOption'] as String?)?.let(PaymentOption.fromString),
       savingsPlansPurchaseRecommendationDetails:
           (json['SavingsPlansPurchaseRecommendationDetails'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => SavingsPlansPurchaseRecommendationDetail.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -8630,9 +8557,10 @@ class SavingsPlansPurchaseRecommendation {
                   json['SavingsPlansPurchaseRecommendationSummary']
                       as Map<String, dynamic>)
               : null,
-      savingsPlansType:
-          (json['SavingsPlansType'] as String?)?.toSupportedSavingsPlansType(),
-      termInYears: (json['TermInYears'] as String?)?.toTermInYears(),
+      savingsPlansType: (json['SavingsPlansType'] as String?)
+          ?.let(SupportedSavingsPlansType.fromString),
+      termInYears:
+          (json['TermInYears'] as String?)?.let(TermInYears.fromString),
     );
   }
 }
@@ -8694,6 +8622,9 @@ class SavingsPlansPurchaseRecommendationDetail {
   /// configuration that's based on the usage during the lookback period.
   final String? hourlyCommitmentToPurchase;
 
+  /// Contains detailed information about a specific Savings Plan recommendation.
+  final String? recommendationDetailId;
+
   /// Details for your recommended Savings Plans.
   final SavingsPlansDetails? savingsPlansDetails;
 
@@ -8716,6 +8647,7 @@ class SavingsPlansPurchaseRecommendationDetail {
     this.estimatedSavingsAmount,
     this.estimatedSavingsPercentage,
     this.hourlyCommitmentToPurchase,
+    this.recommendationDetailId,
     this.savingsPlansDetails,
     this.upfrontCost,
   });
@@ -8743,6 +8675,7 @@ class SavingsPlansPurchaseRecommendationDetail {
       estimatedSavingsAmount: json['EstimatedSavingsAmount'] as String?,
       estimatedSavingsPercentage: json['EstimatedSavingsPercentage'] as String?,
       hourlyCommitmentToPurchase: json['HourlyCommitmentToPurchase'] as String?,
+      recommendationDetailId: json['RecommendationDetailId'] as String?,
       savingsPlansDetails: json['SavingsPlansDetails'] != null
           ? SavingsPlansDetails.fromJson(
               json['SavingsPlansDetails'] as Map<String, dynamic>)
@@ -9101,36 +9034,41 @@ class SortDefinition {
     final sortOrder = this.sortOrder;
     return {
       'Key': key,
-      if (sortOrder != null) 'SortOrder': sortOrder.toValue(),
+      if (sortOrder != null) 'SortOrder': sortOrder.value,
     };
   }
 }
 
 enum SortOrder {
-  ascending,
-  descending,
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
+
+  final String value;
+
+  const SortOrder(this.value);
+
+  static SortOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortOrder'));
 }
 
-extension SortOrderValueExtension on SortOrder {
-  String toValue() {
-    switch (this) {
-      case SortOrder.ascending:
-        return 'ASCENDING';
-      case SortOrder.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+class StartCostAllocationTagBackfillResponse {
+  /// An object containing detailed metadata of your new backfill request.
+  final CostAllocationTagBackfillRequest? backfillRequest;
 
-extension SortOrderFromString on String {
-  SortOrder toSortOrder() {
-    switch (this) {
-      case 'ASCENDING':
-        return SortOrder.ascending;
-      case 'DESCENDING':
-        return SortOrder.descending;
-    }
-    throw Exception('$this is not known in enum SortOrder');
+  StartCostAllocationTagBackfillResponse({
+    this.backfillRequest,
+  });
+
+  factory StartCostAllocationTagBackfillResponse.fromJson(
+      Map<String, dynamic> json) {
+    return StartCostAllocationTagBackfillResponse(
+      backfillRequest: json['BackfillRequest'] != null
+          ? CostAllocationTagBackfillRequest.fromJson(
+              json['BackfillRequest'] as Map<String, dynamic>)
+          : null,
+    );
   }
 }
 
@@ -9181,8 +9119,8 @@ class Subscriber {
   factory Subscriber.fromJson(Map<String, dynamic> json) {
     return Subscriber(
       address: json['Address'] as String?,
-      status: (json['Status'] as String?)?.toSubscriberStatus(),
-      type: (json['Type'] as String?)?.toSubscriberType(),
+      status: (json['Status'] as String?)?.let(SubscriberStatus.fromString),
+      type: (json['Type'] as String?)?.let(SubscriberType.fromString),
     );
   }
 
@@ -9192,99 +9130,56 @@ class Subscriber {
     final type = this.type;
     return {
       if (address != null) 'Address': address,
-      if (status != null) 'Status': status.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (status != null) 'Status': status.value,
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum SubscriberStatus {
-  confirmed,
-  declined,
-}
+  confirmed('CONFIRMED'),
+  declined('DECLINED'),
+  ;
 
-extension SubscriberStatusValueExtension on SubscriberStatus {
-  String toValue() {
-    switch (this) {
-      case SubscriberStatus.confirmed:
-        return 'CONFIRMED';
-      case SubscriberStatus.declined:
-        return 'DECLINED';
-    }
-  }
-}
+  final String value;
 
-extension SubscriberStatusFromString on String {
-  SubscriberStatus toSubscriberStatus() {
-    switch (this) {
-      case 'CONFIRMED':
-        return SubscriberStatus.confirmed;
-      case 'DECLINED':
-        return SubscriberStatus.declined;
-    }
-    throw Exception('$this is not known in enum SubscriberStatus');
-  }
+  const SubscriberStatus(this.value);
+
+  static SubscriberStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SubscriberStatus'));
 }
 
 enum SubscriberType {
-  email,
-  sns,
-}
+  email('EMAIL'),
+  sns('SNS'),
+  ;
 
-extension SubscriberTypeValueExtension on SubscriberType {
-  String toValue() {
-    switch (this) {
-      case SubscriberType.email:
-        return 'EMAIL';
-      case SubscriberType.sns:
-        return 'SNS';
-    }
-  }
-}
+  final String value;
 
-extension SubscriberTypeFromString on String {
-  SubscriberType toSubscriberType() {
-    switch (this) {
-      case 'EMAIL':
-        return SubscriberType.email;
-      case 'SNS':
-        return SubscriberType.sns;
-    }
-    throw Exception('$this is not known in enum SubscriberType');
-  }
+  const SubscriberType(this.value);
+
+  static SubscriberType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SubscriberType'));
 }
 
 enum SupportedSavingsPlansType {
-  computeSp,
-  ec2InstanceSp,
-  sagemakerSp,
-}
+  computeSp('COMPUTE_SP'),
+  ec2InstanceSp('EC2_INSTANCE_SP'),
+  sagemakerSp('SAGEMAKER_SP'),
+  ;
 
-extension SupportedSavingsPlansTypeValueExtension on SupportedSavingsPlansType {
-  String toValue() {
-    switch (this) {
-      case SupportedSavingsPlansType.computeSp:
-        return 'COMPUTE_SP';
-      case SupportedSavingsPlansType.ec2InstanceSp:
-        return 'EC2_INSTANCE_SP';
-      case SupportedSavingsPlansType.sagemakerSp:
-        return 'SAGEMAKER_SP';
-    }
-  }
-}
+  final String value;
 
-extension SupportedSavingsPlansTypeFromString on String {
-  SupportedSavingsPlansType toSupportedSavingsPlansType() {
-    switch (this) {
-      case 'COMPUTE_SP':
-        return SupportedSavingsPlansType.computeSp;
-      case 'EC2_INSTANCE_SP':
-        return SupportedSavingsPlansType.ec2InstanceSp;
-      case 'SAGEMAKER_SP':
-        return SupportedSavingsPlansType.sagemakerSp;
-    }
-    throw Exception('$this is not known in enum SupportedSavingsPlansType');
-  }
+  const SupportedSavingsPlansType(this.value);
+
+  static SupportedSavingsPlansType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SupportedSavingsPlansType'));
 }
 
 class TagResourceResponse {
@@ -9328,13 +9223,11 @@ class TagValues {
     return TagValues(
       key: json['Key'] as String?,
       matchOptions: (json['MatchOptions'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toMatchOption())
+          ?.nonNulls
+          .map((e) => MatchOption.fromString((e as String)))
           .toList(),
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -9345,7 +9238,7 @@ class TagValues {
     return {
       if (key != null) 'Key': key,
       if (matchOptions != null)
-        'MatchOptions': matchOptions.map((e) => e.toValue()).toList(),
+        'MatchOptions': matchOptions.map((e) => e.value).toList(),
       if (values != null) 'Values': values,
     };
   }
@@ -9399,8 +9292,8 @@ class TargetInstance {
               json['ExpectedResourceUtilization'] as Map<String, dynamic>)
           : null,
       platformDifferences: (json['PlatformDifferences'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toPlatformDifference())
+          ?.nonNulls
+          .map((e) => PlatformDifference.fromString((e as String)))
           .toList(),
       resourceDetails: json['ResourceDetails'] != null
           ? ResourceDetails.fromJson(
@@ -9411,31 +9304,17 @@ class TargetInstance {
 }
 
 enum TermInYears {
-  oneYear,
-  threeYears,
-}
+  oneYear('ONE_YEAR'),
+  threeYears('THREE_YEARS'),
+  ;
 
-extension TermInYearsValueExtension on TermInYears {
-  String toValue() {
-    switch (this) {
-      case TermInYears.oneYear:
-        return 'ONE_YEAR';
-      case TermInYears.threeYears:
-        return 'THREE_YEARS';
-    }
-  }
-}
+  final String value;
 
-extension TermInYearsFromString on String {
-  TermInYears toTermInYears() {
-    switch (this) {
-      case 'ONE_YEAR':
-        return TermInYears.oneYear;
-      case 'THREE_YEARS':
-        return TermInYears.threeYears;
-    }
-    throw Exception('$this is not known in enum TermInYears');
-  }
+  const TermInYears(this.value);
+
+  static TermInYears fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TermInYears'));
 }
 
 /// Details on termination recommendation.
@@ -9482,7 +9361,7 @@ class TotalImpactFilter {
     final startValue = this.startValue;
     final endValue = this.endValue;
     return {
-      'NumericOperator': numericOperator.toValue(),
+      'NumericOperator': numericOperator.value,
       'StartValue': startValue,
       if (endValue != null) 'EndValue': endValue,
     };
@@ -9570,7 +9449,7 @@ class UpdateCostAllocationTagsStatusResponse {
       Map<String, dynamic> json) {
     return UpdateCostAllocationTagsStatusResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UpdateCostAllocationTagsStatusError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -9620,7 +9499,7 @@ class UtilizationByTime {
   factory UtilizationByTime.fromJson(Map<String, dynamic> json) {
     return UtilizationByTime(
       groups: (json['Groups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ReservationUtilizationGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -9633,6 +9512,14 @@ class UtilizationByTime {
           : null,
     );
   }
+}
+
+class BackfillLimitExceededException extends _s.GenericAwsException {
+  BackfillLimitExceededException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'BackfillLimitExceededException',
+            message: message);
 }
 
 class BillExpirationException extends _s.GenericAwsException {
@@ -9703,6 +9590,8 @@ class UnresolvableUsageUnitException extends _s.GenericAwsException {
 }
 
 final _exceptionFns = <String, _s.AwsExceptionFn>{
+  'BackfillLimitExceededException': (type, message) =>
+      BackfillLimitExceededException(type: type, message: message),
   'BillExpirationException': (type, message) =>
       BillExpirationException(type: type, message: message),
   'DataUnavailableException': (type, message) =>

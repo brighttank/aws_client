@@ -86,6 +86,43 @@ class AppRegistry {
   /// Associates a resource with an application. The resource can be specified
   /// by its ARN or name. The application can be specified by ARN, ID, or name.
   ///
+  /// <b>Minimum permissions</b>
+  ///
+  /// You must have the following permissions to associate a resource using the
+  /// <code>OPTIONS</code> parameter set to <code>APPLY_APPLICATION_TAG</code>.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>tag:GetResources</code>
+  /// </li>
+  /// <li>
+  /// <code>tag:TagResources</code>
+  /// </li>
+  /// </ul>
+  /// You must also have these additional permissions if you don't use the
+  /// <code>AWSServiceCatalogAppRegistryFullAccess</code> policy. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/servicecatalog/latest/arguide/full.html">AWSServiceCatalogAppRegistryFullAccess</a>
+  /// in the AppRegistry Administrator Guide.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>resource-groups:AssociateResource</code>
+  /// </li>
+  /// <li>
+  /// <code>cloudformation:UpdateStack</code>
+  /// </li>
+  /// <li>
+  /// <code>cloudformation:DescribeStacks</code>
+  /// </li>
+  /// </ul> <note>
+  /// In addition, you must have the tagging permission defined by the Amazon
+  /// Web Services service that creates the resource. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/resourcegroupstagging/latest/APIReference/API_TagResources.html">TagResources</a>
+  /// in the <i>Resource Groups Tagging API Reference</i>.
+  /// </note>
+  ///
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalServerException].
   /// May throw [ServiceQuotaExceededException].
@@ -102,16 +139,23 @@ class AppRegistry {
   ///
   /// Parameter [resourceType] :
   /// The type of resource of which the application will be associated.
+  ///
+  /// Parameter [options] :
+  /// Determines whether an application tag is applied or skipped.
   Future<AssociateResourceResponse> associateResource({
     required String application,
     required String resource,
     required ResourceType resourceType,
+    List<AssociationOption>? options,
   }) async {
+    final $payload = <String, dynamic>{
+      if (options != null) 'options': options.map((e) => e.value).toList(),
+    };
     final response = await _protocol.send(
-      payload: null,
+      payload: $payload,
       method: 'PUT',
       requestUri:
-          '/applications/${Uri.encodeComponent(application)}/resources/${Uri.encodeComponent(resourceType.toValue())}/${Uri.encodeComponent(resource)}',
+          '/applications/${Uri.encodeComponent(application)}/resources/${Uri.encodeComponent(resourceType.value)}/${Uri.encodeComponent(resource)}',
       exceptionFnMap: _exceptionFns,
     );
     return AssociateResourceResponse.fromJson(response);
@@ -290,6 +334,45 @@ class AppRegistry {
   /// Disassociates a resource from application. Both the resource and the
   /// application can be specified either by ID or name.
   ///
+  /// <b>Minimum permissions</b>
+  ///
+  /// You must have the following permissions to remove a resource that's been
+  /// associated with an application using the
+  /// <code>APPLY_APPLICATION_TAG</code> option for <a
+  /// href="https://docs.aws.amazon.com/servicecatalog/latest/dg/API_app-registry_AssociateResource.html">AssociateResource</a>.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>tag:GetResources</code>
+  /// </li>
+  /// <li>
+  /// <code>tag:UntagResources</code>
+  /// </li>
+  /// </ul>
+  /// You must also have the following permissions if you don't use the
+  /// <code>AWSServiceCatalogAppRegistryFullAccess</code> policy. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/servicecatalog/latest/arguide/full.html">AWSServiceCatalogAppRegistryFullAccess</a>
+  /// in the AppRegistry Administrator Guide.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>resource-groups:DisassociateResource</code>
+  /// </li>
+  /// <li>
+  /// <code>cloudformation:UpdateStack</code>
+  /// </li>
+  /// <li>
+  /// <code>cloudformation:DescribeStacks</code>
+  /// </li>
+  /// </ul> <note>
+  /// In addition, you must have the tagging permission defined by the Amazon
+  /// Web Services service that creates the resource. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/resourcegroupstagging/latest/APIReference/API_UntTagResources.html">UntagResources</a>
+  /// in the <i>Resource Groups Tagging API Reference</i>.
+  /// </note>
+  ///
   /// May throw [ResourceNotFoundException].
   /// May throw [InternalServerException].
   /// May throw [ValidationException].
@@ -312,7 +395,7 @@ class AppRegistry {
       payload: null,
       method: 'DELETE',
       requestUri:
-          '/applications/${Uri.encodeComponent(application)}/resources/${Uri.encodeComponent(resourceType.toValue())}/${Uri.encodeComponent(resource)}',
+          '/applications/${Uri.encodeComponent(application)}/resources/${Uri.encodeComponent(resourceType.value)}/${Uri.encodeComponent(resource)}',
       exceptionFnMap: _exceptionFns,
     );
     return DisassociateResourceResponse.fromJson(response);
@@ -358,16 +441,44 @@ class AppRegistry {
   ///
   /// Parameter [resourceType] :
   /// The type of resource associated with the application.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return. If the parameter is omitted, it
+  /// defaults to 25. The value is optional.
+  ///
+  /// Parameter [nextToken] :
+  /// A unique pagination token for each page of results. Make the call again
+  /// with the returned token to retrieve the next page of results.
+  ///
+  /// Parameter [resourceTagStatus] :
+  /// States whether an application tag is applied, not applied, in the process
+  /// of being applied, or skipped.
   Future<GetAssociatedResourceResponse> getAssociatedResource({
     required String application,
     required String resource,
     required ResourceType resourceType,
+    int? maxResults,
+    String? nextToken,
+    List<ResourceItemStatus>? resourceTagStatus,
   }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+      if (resourceTagStatus != null)
+        'resourceTagStatus': resourceTagStatus.map((e) => e.value).toList(),
+    };
     final response = await _protocol.send(
       payload: null,
       method: 'GET',
       requestUri:
-          '/applications/${Uri.encodeComponent(application)}/resources/${Uri.encodeComponent(resourceType.toValue())}/${Uri.encodeComponent(resource)}',
+          '/applications/${Uri.encodeComponent(application)}/resources/${Uri.encodeComponent(resourceType.value)}/${Uri.encodeComponent(resource)}',
+      queryParams: $query,
       exceptionFnMap: _exceptionFns,
     );
     return GetAssociatedResourceResponse.fromJson(response);
@@ -687,7 +798,7 @@ class AppRegistry {
       payload: null,
       method: 'POST',
       requestUri:
-          '/sync/${Uri.encodeComponent(resourceType.toValue())}/${Uri.encodeComponent(resource)}',
+          '/sync/${Uri.encodeComponent(resourceType.value)}/${Uri.encodeComponent(resource)}',
       exceptionFnMap: _exceptionFns,
     );
     return SyncResourceResponse.fromJson(response);
@@ -864,6 +975,9 @@ class AppRegistryConfiguration {
 /// that is the top-level node in a hierarchy of related cloud resource
 /// abstractions.
 class Application {
+  /// A key-value pair that identifies an associated resource.
+  final Map<String, String>? applicationTag;
+
   /// The Amazon resource name (ARN) that specifies the application across
   /// services.
   final String? arn;
@@ -890,6 +1004,7 @@ class Application {
   final Map<String, String>? tags;
 
   Application({
+    this.applicationTag,
     this.arn,
     this.creationTime,
     this.description,
@@ -901,6 +1016,8 @@ class Application {
 
   factory Application.fromJson(Map<String, dynamic> json) {
     return Application(
+      applicationTag: (json['applicationTag'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
       arn: json['arn'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       description: json['description'] as String?,
@@ -913,6 +1030,7 @@ class Application {
   }
 
   Map<String, dynamic> toJson() {
+    final applicationTag = this.applicationTag;
     final arn = this.arn;
     final creationTime = this.creationTime;
     final description = this.description;
@@ -921,6 +1039,7 @@ class Application {
     final name = this.name;
     final tags = this.tags;
     return {
+      if (applicationTag != null) 'applicationTag': applicationTag,
       if (arn != null) 'arn': arn,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (description != null) 'description': description,
@@ -996,6 +1115,73 @@ class ApplicationSummary {
   }
 }
 
+/// The result of the application tag that's applied to a resource.
+class ApplicationTagResult {
+  /// The application tag is in the process of being applied to a resource, was
+  /// successfully applied to a resource, or failed to apply to a resource.
+  final ApplicationTagStatus? applicationTagStatus;
+
+  /// The message returned if the call fails.
+  final String? errorMessage;
+
+  /// A unique pagination token for each page of results. Make the call again with
+  /// the returned token to retrieve the next page of results.
+  final String? nextToken;
+
+  /// The resources associated with an application
+  final List<ResourcesListItem>? resources;
+
+  ApplicationTagResult({
+    this.applicationTagStatus,
+    this.errorMessage,
+    this.nextToken,
+    this.resources,
+  });
+
+  factory ApplicationTagResult.fromJson(Map<String, dynamic> json) {
+    return ApplicationTagResult(
+      applicationTagStatus: (json['applicationTagStatus'] as String?)
+          ?.let(ApplicationTagStatus.fromString),
+      errorMessage: json['errorMessage'] as String?,
+      nextToken: json['nextToken'] as String?,
+      resources: (json['resources'] as List?)
+          ?.nonNulls
+          .map((e) => ResourcesListItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final applicationTagStatus = this.applicationTagStatus;
+    final errorMessage = this.errorMessage;
+    final nextToken = this.nextToken;
+    final resources = this.resources;
+    return {
+      if (applicationTagStatus != null)
+        'applicationTagStatus': applicationTagStatus.value,
+      if (errorMessage != null) 'errorMessage': errorMessage,
+      if (nextToken != null) 'nextToken': nextToken,
+      if (resources != null) 'resources': resources,
+    };
+  }
+}
+
+enum ApplicationTagStatus {
+  inProgress('IN_PROGRESS'),
+  success('SUCCESS'),
+  failure('FAILURE'),
+  ;
+
+  final String value;
+
+  const ApplicationTagStatus(this.value);
+
+  static ApplicationTagStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ApplicationTagStatus'));
+}
+
 class AssociateAttributeGroupResponse {
   /// The Amazon resource name (ARN) of the application that was augmented with
   /// attributes.
@@ -1032,29 +1218,54 @@ class AssociateResourceResponse {
   /// attributes.
   final String? applicationArn;
 
+  /// Determines whether an application tag is applied or skipped.
+  final List<AssociationOption>? options;
+
   /// The Amazon resource name (ARN) that specifies the resource.
   final String? resourceArn;
 
   AssociateResourceResponse({
     this.applicationArn,
+    this.options,
     this.resourceArn,
   });
 
   factory AssociateResourceResponse.fromJson(Map<String, dynamic> json) {
     return AssociateResourceResponse(
       applicationArn: json['applicationArn'] as String?,
+      options: (json['options'] as List?)
+          ?.nonNulls
+          .map((e) => AssociationOption.fromString((e as String)))
+          .toList(),
       resourceArn: json['resourceArn'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final applicationArn = this.applicationArn;
+    final options = this.options;
     final resourceArn = this.resourceArn;
     return {
       if (applicationArn != null) 'applicationArn': applicationArn,
+      if (options != null) 'options': options.map((e) => e.value).toList(),
       if (resourceArn != null) 'resourceArn': resourceArn,
     };
   }
+}
+
+enum AssociationOption {
+  applyApplicationTag('APPLY_APPLICATION_TAG'),
+  skipApplicationTag('SKIP_APPLICATION_TAG'),
+  ;
+
+  final String value;
+
+  const AssociationOption(this.value);
+
+  static AssociationOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssociationOption'));
 }
 
 /// Represents a Amazon Web Services Service Catalog AppRegistry attribute group
@@ -1407,6 +1618,9 @@ class DisassociateResourceResponse {
 }
 
 class GetApplicationResponse {
+  /// A key-value pair that identifies an associated resource.
+  final Map<String, String>? applicationTag;
+
   /// The Amazon resource name (ARN) that specifies the application across
   /// services.
   final String? arn;
@@ -1441,6 +1655,7 @@ class GetApplicationResponse {
   final Map<String, String>? tags;
 
   GetApplicationResponse({
+    this.applicationTag,
     this.arn,
     this.associatedResourceCount,
     this.creationTime,
@@ -1454,6 +1669,8 @@ class GetApplicationResponse {
 
   factory GetApplicationResponse.fromJson(Map<String, dynamic> json) {
     return GetApplicationResponse(
+      applicationTag: (json['applicationTag'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
       arn: json['arn'] as String?,
       associatedResourceCount: json['associatedResourceCount'] as int?,
       creationTime: timeStampFromJson(json['creationTime']),
@@ -1470,6 +1687,7 @@ class GetApplicationResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final applicationTag = this.applicationTag;
     final arn = this.arn;
     final associatedResourceCount = this.associatedResourceCount;
     final creationTime = this.creationTime;
@@ -1480,6 +1698,7 @@ class GetApplicationResponse {
     final name = this.name;
     final tags = this.tags;
     return {
+      if (applicationTag != null) 'applicationTag': applicationTag,
       if (arn != null) 'arn': arn,
       if (associatedResourceCount != null)
         'associatedResourceCount': associatedResourceCount,
@@ -1496,15 +1715,31 @@ class GetApplicationResponse {
 }
 
 class GetAssociatedResourceResponse {
+  /// The result of the application that's tag applied to a resource.
+  final ApplicationTagResult? applicationTagResult;
+
+  /// Determines whether an application tag is applied or skipped.
+  final List<AssociationOption>? options;
+
   /// The resource associated with the application.
   final Resource? resource;
 
   GetAssociatedResourceResponse({
+    this.applicationTagResult,
+    this.options,
     this.resource,
   });
 
   factory GetAssociatedResourceResponse.fromJson(Map<String, dynamic> json) {
     return GetAssociatedResourceResponse(
+      applicationTagResult: json['applicationTagResult'] != null
+          ? ApplicationTagResult.fromJson(
+              json['applicationTagResult'] as Map<String, dynamic>)
+          : null,
+      options: (json['options'] as List?)
+          ?.nonNulls
+          .map((e) => AssociationOption.fromString((e as String)))
+          .toList(),
       resource: json['resource'] != null
           ? Resource.fromJson(json['resource'] as Map<String, dynamic>)
           : null,
@@ -1512,8 +1747,13 @@ class GetAssociatedResourceResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final applicationTagResult = this.applicationTagResult;
+    final options = this.options;
     final resource = this.resource;
     return {
+      if (applicationTagResult != null)
+        'applicationTagResult': applicationTagResult,
+      if (options != null) 'options': options.map((e) => e.value).toList(),
       if (resource != null) 'resource': resource,
     };
   }
@@ -1631,15 +1871,22 @@ class GetConfigurationResponse {
 
 /// The information about the service integration.
 class Integrations {
+  final ResourceGroup? applicationTagResourceGroup;
+
   /// The information about the resource group integration.
   final ResourceGroup? resourceGroup;
 
   Integrations({
+    this.applicationTagResourceGroup,
     this.resourceGroup,
   });
 
   factory Integrations.fromJson(Map<String, dynamic> json) {
     return Integrations(
+      applicationTagResourceGroup: json['applicationTagResourceGroup'] != null
+          ? ResourceGroup.fromJson(
+              json['applicationTagResourceGroup'] as Map<String, dynamic>)
+          : null,
       resourceGroup: json['resourceGroup'] != null
           ? ResourceGroup.fromJson(
               json['resourceGroup'] as Map<String, dynamic>)
@@ -1648,8 +1895,11 @@ class Integrations {
   }
 
   Map<String, dynamic> toJson() {
+    final applicationTagResourceGroup = this.applicationTagResourceGroup;
     final resourceGroup = this.resourceGroup;
     return {
+      if (applicationTagResourceGroup != null)
+        'applicationTagResourceGroup': applicationTagResourceGroup,
       if (resourceGroup != null) 'resourceGroup': resourceGroup,
     };
   }
@@ -1670,7 +1920,7 @@ class ListApplicationsResponse {
   factory ListApplicationsResponse.fromJson(Map<String, dynamic> json) {
     return ListApplicationsResponse(
       applications: (json['applications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApplicationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1703,7 +1953,7 @@ class ListAssociatedAttributeGroupsResponse {
       Map<String, dynamic> json) {
     return ListAssociatedAttributeGroupsResponse(
       attributeGroups: (json['attributeGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1736,7 +1986,7 @@ class ListAssociatedResourcesResponse {
     return ListAssociatedResourcesResponse(
       nextToken: json['nextToken'] as String?,
       resources: (json['resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1768,7 +2018,7 @@ class ListAttributeGroupsForApplicationResponse {
       Map<String, dynamic> json) {
     return ListAttributeGroupsForApplicationResponse(
       attributeGroupsDetails: (json['attributeGroupsDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeGroupDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1801,7 +2051,7 @@ class ListAttributeGroupsResponse {
   factory ListAttributeGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListAttributeGroupsResponse(
       attributeGroups: (json['attributeGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeGroupSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1950,7 +2200,7 @@ class ResourceGroup {
     return ResourceGroup(
       arn: json['arn'] as String?,
       errorMessage: json['errorMessage'] as String?,
-      state: (json['state'] as String?)?.toResourceGroupState(),
+      state: (json['state'] as String?)?.let(ResourceGroupState.fromString),
     );
   }
 
@@ -1961,57 +2211,28 @@ class ResourceGroup {
     return {
       if (arn != null) 'arn': arn,
       if (errorMessage != null) 'errorMessage': errorMessage,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
 
 enum ResourceGroupState {
-  creating,
-  createComplete,
-  createFailed,
-  updating,
-  updateComplete,
-  updateFailed,
-}
+  creating('CREATING'),
+  createComplete('CREATE_COMPLETE'),
+  createFailed('CREATE_FAILED'),
+  updating('UPDATING'),
+  updateComplete('UPDATE_COMPLETE'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension ResourceGroupStateValueExtension on ResourceGroupState {
-  String toValue() {
-    switch (this) {
-      case ResourceGroupState.creating:
-        return 'CREATING';
-      case ResourceGroupState.createComplete:
-        return 'CREATE_COMPLETE';
-      case ResourceGroupState.createFailed:
-        return 'CREATE_FAILED';
-      case ResourceGroupState.updating:
-        return 'UPDATING';
-      case ResourceGroupState.updateComplete:
-        return 'UPDATE_COMPLETE';
-      case ResourceGroupState.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ResourceGroupStateFromString on String {
-  ResourceGroupState toResourceGroupState() {
-    switch (this) {
-      case 'CREATING':
-        return ResourceGroupState.creating;
-      case 'CREATE_COMPLETE':
-        return ResourceGroupState.createComplete;
-      case 'CREATE_FAILED':
-        return ResourceGroupState.createFailed;
-      case 'UPDATING':
-        return ResourceGroupState.updating;
-      case 'UPDATE_COMPLETE':
-        return ResourceGroupState.updateComplete;
-      case 'UPDATE_FAILED':
-        return ResourceGroupState.updateFailed;
-    }
-    throw Exception('$this is not known in enum ResourceGroupState');
-  }
+  const ResourceGroupState(this.value);
+
+  static ResourceGroupState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceGroupState'));
 }
 
 /// The information about the resource.
@@ -2022,6 +2243,9 @@ class ResourceInfo {
   /// The name of the resource.
   final String? name;
 
+  /// Determines whether an application tag is applied or skipped.
+  final List<AssociationOption>? options;
+
   /// The details related to the resource.
   final ResourceDetails? resourceDetails;
 
@@ -2031,6 +2255,7 @@ class ResourceInfo {
   ResourceInfo({
     this.arn,
     this.name,
+    this.options,
     this.resourceDetails,
     this.resourceType,
   });
@@ -2039,24 +2264,31 @@ class ResourceInfo {
     return ResourceInfo(
       arn: json['arn'] as String?,
       name: json['name'] as String?,
+      options: (json['options'] as List?)
+          ?.nonNulls
+          .map((e) => AssociationOption.fromString((e as String)))
+          .toList(),
       resourceDetails: json['resourceDetails'] != null
           ? ResourceDetails.fromJson(
               json['resourceDetails'] as Map<String, dynamic>)
           : null,
-      resourceType: (json['resourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(ResourceType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final arn = this.arn;
     final name = this.name;
+    final options = this.options;
     final resourceDetails = this.resourceDetails;
     final resourceType = this.resourceType;
     return {
       if (arn != null) 'arn': arn,
       if (name != null) 'name': name,
+      if (options != null) 'options': options.map((e) => e.value).toList(),
       if (resourceDetails != null) 'resourceDetails': resourceDetails,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
     };
   }
 }
@@ -2087,60 +2319,94 @@ class ResourceIntegrations {
   }
 }
 
+enum ResourceItemStatus {
+  success('SUCCESS'),
+  failed('FAILED'),
+  inProgress('IN_PROGRESS'),
+  skipped('SKIPPED'),
+  ;
+
+  final String value;
+
+  const ResourceItemStatus(this.value);
+
+  static ResourceItemStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceItemStatus'));
+}
+
 enum ResourceType {
-  cfnStack,
-  resourceTagValue,
+  cfnStack('CFN_STACK'),
+  resourceTagValue('RESOURCE_TAG_VALUE'),
+  ;
+
+  final String value;
+
+  const ResourceType(this.value);
+
+  static ResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceType'));
 }
 
-extension ResourceTypeValueExtension on ResourceType {
-  String toValue() {
-    switch (this) {
-      case ResourceType.cfnStack:
-        return 'CFN_STACK';
-      case ResourceType.resourceTagValue:
-        return 'RESOURCE_TAG_VALUE';
-    }
+/// The resource in a list of resources.
+class ResourcesListItem {
+  /// The message returned if the call fails.
+  final String? errorMessage;
+
+  /// The Amazon resource name (ARN) of the resource.
+  final String? resourceArn;
+
+  /// Provides information about the AppRegistry resource type.
+  final String? resourceType;
+
+  /// The status of the list item.
+  final String? status;
+
+  ResourcesListItem({
+    this.errorMessage,
+    this.resourceArn,
+    this.resourceType,
+    this.status,
+  });
+
+  factory ResourcesListItem.fromJson(Map<String, dynamic> json) {
+    return ResourcesListItem(
+      errorMessage: json['errorMessage'] as String?,
+      resourceArn: json['resourceArn'] as String?,
+      resourceType: json['resourceType'] as String?,
+      status: json['status'] as String?,
+    );
   }
-}
 
-extension ResourceTypeFromString on String {
-  ResourceType toResourceType() {
-    switch (this) {
-      case 'CFN_STACK':
-        return ResourceType.cfnStack;
-      case 'RESOURCE_TAG_VALUE':
-        return ResourceType.resourceTagValue;
-    }
-    throw Exception('$this is not known in enum ResourceType');
+  Map<String, dynamic> toJson() {
+    final errorMessage = this.errorMessage;
+    final resourceArn = this.resourceArn;
+    final resourceType = this.resourceType;
+    final status = this.status;
+    return {
+      if (errorMessage != null) 'errorMessage': errorMessage,
+      if (resourceArn != null) 'resourceArn': resourceArn,
+      if (resourceType != null) 'resourceType': resourceType,
+      if (status != null) 'status': status,
+    };
   }
 }
 
 enum SyncAction {
-  startSync,
-  noAction,
-}
+  startSync('START_SYNC'),
+  noAction('NO_ACTION'),
+  ;
 
-extension SyncActionValueExtension on SyncAction {
-  String toValue() {
-    switch (this) {
-      case SyncAction.startSync:
-        return 'START_SYNC';
-      case SyncAction.noAction:
-        return 'NO_ACTION';
-    }
-  }
-}
+  final String value;
 
-extension SyncActionFromString on String {
-  SyncAction toSyncAction() {
-    switch (this) {
-      case 'START_SYNC':
-        return SyncAction.startSync;
-      case 'NO_ACTION':
-        return SyncAction.noAction;
-    }
-    throw Exception('$this is not known in enum SyncAction');
-  }
+  const SyncAction(this.value);
+
+  static SyncAction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SyncAction'));
 }
 
 class SyncResourceResponse {
@@ -2162,7 +2428,7 @@ class SyncResourceResponse {
 
   factory SyncResourceResponse.fromJson(Map<String, dynamic> json) {
     return SyncResourceResponse(
-      actionTaken: (json['actionTaken'] as String?)?.toSyncAction(),
+      actionTaken: (json['actionTaken'] as String?)?.let(SyncAction.fromString),
       applicationArn: json['applicationArn'] as String?,
       resourceArn: json['resourceArn'] as String?,
     );
@@ -2173,7 +2439,7 @@ class SyncResourceResponse {
     final applicationArn = this.applicationArn;
     final resourceArn = this.resourceArn;
     return {
-      if (actionTaken != null) 'actionTaken': actionTaken.toValue(),
+      if (actionTaken != null) 'actionTaken': actionTaken.value,
       if (applicationArn != null) 'applicationArn': applicationArn,
       if (resourceArn != null) 'resourceArn': resourceArn,
     };

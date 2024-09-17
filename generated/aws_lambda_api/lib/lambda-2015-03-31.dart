@@ -169,7 +169,7 @@ class Lambda {
   /// <code>lambda:InvokeFunction</code> or <code>lambda:GetFunction</code>.
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -259,7 +259,7 @@ class Lambda {
       'StatementId': statementId,
       if (eventSourceToken != null) 'EventSourceToken': eventSourceToken,
       if (functionUrlAuthType != null)
-        'FunctionUrlAuthType': functionUrlAuthType.toValue(),
+        'FunctionUrlAuthType': functionUrlAuthType.value,
       if (principalOrgID != null) 'PrincipalOrgID': principalOrgID,
       if (revisionId != null) 'RevisionId': revisionId,
       if (sourceAccount != null) 'SourceAccount': sourceAccount,
@@ -292,7 +292,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -500,7 +500,7 @@ class Lambda {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -563,8 +563,9 @@ class Lambda {
   /// split the batch in two and retry.
   ///
   /// Parameter [destinationConfig] :
-  /// (Kinesis and DynamoDB Streams only) A standard Amazon SQS queue or
-  /// standard Amazon SNS topic destination for discarded records.
+  /// (Kinesis, DynamoDB Streams, Amazon MSK, and self-managed Kafka only) A
+  /// configuration object that specifies the destination of an event after
+  /// Lambda processes it.
   ///
   /// Parameter [documentDBEventSourceConfig] :
   /// Specific configuration settings for a DocumentDB event source.
@@ -589,7 +590,10 @@ class Lambda {
   /// <b>Amazon Simple Queue Service</b> – The ARN of the queue.
   /// </li>
   /// <li>
-  /// <b>Amazon Managed Streaming for Apache Kafka</b> – The ARN of the cluster.
+  /// <b>Amazon Managed Streaming for Apache Kafka</b> – The ARN of the cluster
+  /// or the ARN of the VPC connection (for <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#msk-multi-vpc">cross-account
+  /// event source mappings</a>).
   /// </li>
   /// <li>
   /// <b>Amazon MQ</b> – The ARN of the broker.
@@ -662,13 +666,14 @@ class Lambda {
   ///
   /// Parameter [startingPosition] :
   /// The position in a stream from which to start reading. Required for Amazon
-  /// Kinesis, Amazon DynamoDB, and Amazon MSK Streams sources.
-  /// <code>AT_TIMESTAMP</code> is supported only for Amazon Kinesis streams and
-  /// Amazon DocumentDB.
+  /// Kinesis and Amazon DynamoDB Stream event sources.
+  /// <code>AT_TIMESTAMP</code> is supported only for Amazon Kinesis streams,
+  /// Amazon DocumentDB, Amazon MSK, and self-managed Apache Kafka.
   ///
   /// Parameter [startingPositionTimestamp] :
   /// With <code>StartingPosition</code> set to <code>AT_TIMESTAMP</code>, the
-  /// time from which to start reading.
+  /// time from which to start reading. <code>StartingPositionTimestamp</code>
+  /// cannot be in the future.
   ///
   /// Parameter [topics] :
   /// The name of the Kafka topic.
@@ -754,7 +759,7 @@ class Lambda {
       if (filterCriteria != null) 'FilterCriteria': filterCriteria,
       if (functionResponseTypes != null)
         'FunctionResponseTypes':
-            functionResponseTypes.map((e) => e.toValue()).toList(),
+            functionResponseTypes.map((e) => e.value).toList(),
       if (maximumBatchingWindowInSeconds != null)
         'MaximumBatchingWindowInSeconds': maximumBatchingWindowInSeconds,
       if (maximumRecordAgeInSeconds != null)
@@ -771,8 +776,7 @@ class Lambda {
         'SelfManagedKafkaEventSourceConfig': selfManagedKafkaEventSourceConfig,
       if (sourceAccessConfigurations != null)
         'SourceAccessConfigurations': sourceAccessConfigurations,
-      if (startingPosition != null)
-        'StartingPosition': startingPosition.toValue(),
+      if (startingPosition != null) 'StartingPosition': startingPosition.value,
       if (startingPositionTimestamp != null)
         'StartingPositionTimestamp':
             unixTimestampToJson(startingPositionTimestamp),
@@ -874,7 +878,7 @@ class Lambda {
   /// The code for the function.
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -921,7 +925,10 @@ class Lambda {
   ///
   /// Parameter [ephemeralStorage] :
   /// The size of the function's <code>/tmp</code> directory in MB. The default
-  /// value is 512, but can be any whole number between 512 and 10,240 MB.
+  /// value is 512, but can be any whole number between 512 and 10,240 MB. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-ephemeral-storage">Configuring
+  /// ephemeral storage (console)</a>.
   ///
   /// Parameter [fileSystemConfigs] :
   /// Connection settings for an Amazon EFS file system.
@@ -937,7 +944,7 @@ class Lambda {
   ///
   /// Parameter [imageConfig] :
   /// Container image <a
-  /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-images.html#configuration-images-settings">configuration
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms">configuration
   /// values</a> that override the values in the container image Dockerfile.
   ///
   /// Parameter [kMSKeyArn] :
@@ -946,15 +953,21 @@ class Lambda {
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-encryption">environment
   /// variables</a>. When <a
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/snapstart-security.html">Lambda
-  /// SnapStart</a> is activated, this key is also used to encrypt your
-  /// function's snapshot. If you don't provide a customer managed key, Lambda
-  /// uses a default service key.
+  /// SnapStart</a> is activated, Lambda also uses this key is to encrypt your
+  /// function's snapshot. If you deploy your function using a container image,
+  /// Lambda also uses this key to encrypt your function when it's deployed.
+  /// Note that this is not the same key that's used to protect your container
+  /// image in the Amazon Elastic Container Registry (Amazon ECR). If you don't
+  /// provide a customer managed key, Lambda uses a default service key.
   ///
   /// Parameter [layers] :
   /// A list of <a
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">function
   /// layers</a> to add to the function's execution environment. Specify each
   /// layer by its ARN, including the version.
+  ///
+  /// Parameter [loggingConfig] :
+  /// The function's Amazon CloudWatch Logs configuration settings.
   ///
   /// Parameter [memorySize] :
   /// The amount of <a
@@ -1024,6 +1037,7 @@ class Lambda {
     ImageConfig? imageConfig,
     String? kMSKeyArn,
     List<String>? layers,
+    LoggingConfig? loggingConfig,
     int? memorySize,
     PackageType? packageType,
     bool? publish,
@@ -1051,7 +1065,7 @@ class Lambda {
       'FunctionName': functionName,
       'Role': role,
       if (architectures != null)
-        'Architectures': architectures.map((e) => e.toValue()).toList(),
+        'Architectures': architectures.map((e) => e.value).toList(),
       if (codeSigningConfigArn != null)
         'CodeSigningConfigArn': codeSigningConfigArn,
       if (deadLetterConfig != null) 'DeadLetterConfig': deadLetterConfig,
@@ -1063,10 +1077,11 @@ class Lambda {
       if (imageConfig != null) 'ImageConfig': imageConfig,
       if (kMSKeyArn != null) 'KMSKeyArn': kMSKeyArn,
       if (layers != null) 'Layers': layers,
+      if (loggingConfig != null) 'LoggingConfig': loggingConfig,
       if (memorySize != null) 'MemorySize': memorySize,
-      if (packageType != null) 'PackageType': packageType.toValue(),
+      if (packageType != null) 'PackageType': packageType.value,
       if (publish != null) 'Publish': publish,
-      if (runtime != null) 'Runtime': runtime.toValue(),
+      if (runtime != null) 'Runtime': runtime.value,
       if (snapStart != null) 'SnapStart': snapStart,
       if (tags != null) 'Tags': tags,
       if (timeout != null) 'Timeout': timeout,
@@ -1101,7 +1116,7 @@ class Lambda {
   /// and auth model for Lambda function URLs</a>.
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1157,9 +1172,9 @@ class Lambda {
       if (qualifier != null) 'Qualifier': [qualifier],
     };
     final $payload = <String, dynamic>{
-      'AuthType': authType.toValue(),
+      'AuthType': authType.value,
       if (cors != null) 'Cors': cors,
-      if (invokeMode != null) 'InvokeMode': invokeMode.toValue(),
+      if (invokeMode != null) 'InvokeMode': invokeMode.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1181,7 +1196,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1248,6 +1263,7 @@ class Lambda {
   /// May throw [ResourceNotFoundException].
   /// May throw [InvalidParameterValueException].
   /// May throw [TooManyRequestsException].
+  /// May throw [ResourceConflictException].
   /// May throw [ResourceInUseException].
   ///
   /// Parameter [uuid] :
@@ -1267,7 +1283,8 @@ class Lambda {
 
   /// Deletes a Lambda function. To delete a specific function version, use the
   /// <code>Qualifier</code> parameter. Otherwise, all versions and aliases are
-  /// deleted.
+  /// deleted. This doesn't require the user to have explicit permissions for
+  /// <a>DeleteAlias</a>.
   ///
   /// To delete Lambda event source mappings that invoke a function, use
   /// <a>DeleteEventSourceMapping</a>. For Amazon Web Services and resources
@@ -1281,7 +1298,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function or version.
+  /// The name or ARN of the Lambda function or version.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1330,7 +1347,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1368,7 +1385,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1410,7 +1427,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1459,7 +1476,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1532,7 +1549,7 @@ class Lambda {
   /// May throw [ServiceException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1594,7 +1611,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1683,7 +1700,7 @@ class Lambda {
   /// May throw [InvalidParameterValueException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1731,7 +1748,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1771,7 +1788,7 @@ class Lambda {
   /// May throw [ServiceException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1814,7 +1831,7 @@ class Lambda {
   /// May throw [InvalidParameterValueException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1867,7 +1884,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -1915,7 +1932,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2048,7 +2065,7 @@ class Lambda {
   /// May throw [InvalidParameterValueException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2098,7 +2115,7 @@ class Lambda {
   /// May throw [ProvisionedConcurrencyConfigNotFoundException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2152,7 +2169,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2193,8 +2210,12 @@ class Lambda {
   }
 
   /// Invokes a Lambda function. You can invoke a function synchronously (and
-  /// wait for the response), or asynchronously. To invoke a function
-  /// asynchronously, set <code>InvocationType</code> to <code>Event</code>.
+  /// wait for the response), or asynchronously. By default, Lambda invokes your
+  /// function synchronously (i.e. the<code>InvocationType</code> is
+  /// <code>RequestResponse</code>). To invoke a function asynchronously, set
+  /// <code>InvocationType</code> to <code>Event</code>. Lambda passes the
+  /// <code>ClientContext</code> object to your function for synchronous
+  /// invocations only.
   ///
   /// For <a
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-sync.html">synchronous
@@ -2274,9 +2295,10 @@ class Lambda {
   /// May throw [InvalidRuntimeException].
   /// May throw [ResourceConflictException].
   /// May throw [ResourceNotReadyException].
+  /// May throw [RecursiveInvocationException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2298,7 +2320,9 @@ class Lambda {
   ///
   /// Parameter [clientContext] :
   /// Up to 3,583 bytes of base64-encoded data about the invoking client to pass
-  /// to the function in the context object.
+  /// to the function in the context object. Lambda passes the
+  /// <code>ClientContext</code> object to your function for synchronous
+  /// invocations only.
   ///
   /// Parameter [invocationType] :
   /// Choose from the following options.
@@ -2345,9 +2369,8 @@ class Lambda {
     final headers = <String, String>{
       if (clientContext != null)
         'X-Amz-Client-Context': clientContext.toString(),
-      if (invocationType != null)
-        'X-Amz-Invocation-Type': invocationType.toValue(),
-      if (logType != null) 'X-Amz-Log-Type': logType.toValue(),
+      if (invocationType != null) 'X-Amz-Invocation-Type': invocationType.value,
+      if (logType != null) 'X-Amz-Log-Type': logType.value,
     };
     final $query = <String, List<String>>{
       if (qualifier != null) 'Qualifier': [qualifier],
@@ -2377,6 +2400,11 @@ class Lambda {
   /// For asynchronous function invocation, use <a>Invoke</a>.
   /// </important>
   /// Invokes a function asynchronously.
+  /// <note>
+  /// If you do use the InvokeAsync action, note that it doesn't support the use
+  /// of X-Ray active tracing. Trace ID is not propagated to the function, even
+  /// if X-Ray active tracing is turned on.
+  /// </note>
   ///
   /// May throw [ServiceException].
   /// May throw [ResourceNotFoundException].
@@ -2385,7 +2413,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2461,9 +2489,10 @@ class Lambda {
   /// May throw [InvalidRuntimeException].
   /// May throw [ResourceConflictException].
   /// May throw [ResourceNotReadyException].
+  /// May throw [RecursiveInvocationException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2525,9 +2554,8 @@ class Lambda {
     final headers = <String, String>{
       if (clientContext != null)
         'X-Amz-Client-Context': clientContext.toString(),
-      if (invocationType != null)
-        'X-Amz-Invocation-Type': invocationType.toValue(),
-      if (logType != null) 'X-Amz-Log-Type': logType.toValue(),
+      if (invocationType != null) 'X-Amz-Invocation-Type': invocationType.value,
+      if (logType != null) 'X-Amz-Log-Type': logType.value,
     };
     final $query = <String, List<String>>{
       if (qualifier != null) 'Qualifier': [qualifier],
@@ -2562,7 +2590,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2678,7 +2706,10 @@ class Lambda {
   /// <b>Amazon Simple Queue Service</b> – The ARN of the queue.
   /// </li>
   /// <li>
-  /// <b>Amazon Managed Streaming for Apache Kafka</b> – The ARN of the cluster.
+  /// <b>Amazon Managed Streaming for Apache Kafka</b> – The ARN of the cluster
+  /// or the ARN of the VPC connection (for <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#msk-multi-vpc">cross-account
+  /// event source mappings</a>).
   /// </li>
   /// <li>
   /// <b>Amazon MQ</b> – The ARN of the broker.
@@ -2689,7 +2720,7 @@ class Lambda {
   /// </ul>
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2758,7 +2789,7 @@ class Lambda {
   /// May throw [ServiceException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2817,7 +2848,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -2919,8 +2950,7 @@ class Lambda {
       10000,
     );
     final $query = <String, List<String>>{
-      if (functionVersion != null)
-        'FunctionVersion': [functionVersion.toValue()],
+      if (functionVersion != null) 'FunctionVersion': [functionVersion.value],
       if (marker != null) 'Marker': [marker],
       if (masterRegion != null) 'MasterRegion': [masterRegion],
       if (maxItems != null) 'MaxItems': [maxItems.toString()],
@@ -3001,7 +3031,12 @@ class Lambda {
   /// set architecture</a>.
   ///
   /// Parameter [compatibleRuntime] :
-  /// A runtime identifier. For example, <code>go1.x</code>.
+  /// A runtime identifier. For example, <code>java21</code>.
+  ///
+  /// The following list includes deprecated runtimes. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtime-support-policy">Runtime
+  /// deprecation policy</a>.
   ///
   /// Parameter [marker] :
   /// A pagination token returned by a previous call.
@@ -3023,9 +3058,9 @@ class Lambda {
     );
     final $query = <String, List<String>>{
       if (compatibleArchitecture != null)
-        'CompatibleArchitecture': [compatibleArchitecture.toValue()],
+        'CompatibleArchitecture': [compatibleArchitecture.value],
       if (compatibleRuntime != null)
-        'CompatibleRuntime': [compatibleRuntime.toValue()],
+        'CompatibleRuntime': [compatibleRuntime.value],
       if (marker != null) 'Marker': [marker],
       if (maxItems != null) 'MaxItems': [maxItems.toString()],
     };
@@ -3061,7 +3096,12 @@ class Lambda {
   /// set architecture</a>.
   ///
   /// Parameter [compatibleRuntime] :
-  /// A runtime identifier. For example, <code>go1.x</code>.
+  /// A runtime identifier. For example, <code>java21</code>.
+  ///
+  /// The following list includes deprecated runtimes. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtime-support-policy">Runtime
+  /// deprecation policy</a>.
   ///
   /// Parameter [marker] :
   /// A pagination token returned by a previous call.
@@ -3082,9 +3122,9 @@ class Lambda {
     );
     final $query = <String, List<String>>{
       if (compatibleArchitecture != null)
-        'CompatibleArchitecture': [compatibleArchitecture.toValue()],
+        'CompatibleArchitecture': [compatibleArchitecture.value],
       if (compatibleRuntime != null)
-        'CompatibleRuntime': [compatibleRuntime.toValue()],
+        'CompatibleRuntime': [compatibleRuntime.value],
       if (marker != null) 'Marker': [marker],
       if (maxItems != null) 'MaxItems': [maxItems.toString()],
     };
@@ -3106,7 +3146,7 @@ class Lambda {
   /// May throw [ServiceException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3192,7 +3232,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3276,6 +3316,11 @@ class Lambda {
   /// runtimes</a>. Used for filtering with <a>ListLayers</a> and
   /// <a>ListLayerVersions</a>.
   ///
+  /// The following list includes deprecated runtimes. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtime-support-policy">Runtime
+  /// deprecation policy</a>.
+  ///
   /// Parameter [description] :
   /// The description of the version.
   ///
@@ -3307,10 +3352,9 @@ class Lambda {
       'Content': content,
       if (compatibleArchitectures != null)
         'CompatibleArchitectures':
-            compatibleArchitectures.map((e) => e.toValue()).toList(),
+            compatibleArchitectures.map((e) => e.value).toList(),
       if (compatibleRuntimes != null)
-        'CompatibleRuntimes':
-            compatibleRuntimes.map((e) => e.toValue()).toList(),
+        'CompatibleRuntimes': compatibleRuntimes.map((e) => e.value).toList(),
       if (description != null) 'Description': description,
       if (licenseInfo != null) 'LicenseInfo': licenseInfo,
     };
@@ -3347,7 +3391,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3415,7 +3459,7 @@ class Lambda {
   /// The The Amazon Resource Name (ARN) of the code signing configuration.
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3472,7 +3516,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3546,7 +3590,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3645,7 +3689,7 @@ class Lambda {
   /// May throw [ServiceException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3711,7 +3755,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3781,7 +3825,7 @@ class Lambda {
       if (qualifier != null) 'Qualifier': [qualifier],
     };
     final $payload = <String, dynamic>{
-      'UpdateRuntimeOn': updateRuntimeOn.toValue(),
+      'UpdateRuntimeOn': updateRuntimeOn.value,
       if (runtimeVersionArn != null) 'RuntimeVersionArn': runtimeVersionArn,
     };
     final response = await _protocol.send(
@@ -3848,7 +3892,7 @@ class Lambda {
   /// May throw [PreconditionFailedException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -3971,7 +4015,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -4228,8 +4272,9 @@ class Lambda {
   /// split the batch in two and retry.
   ///
   /// Parameter [destinationConfig] :
-  /// (Kinesis and DynamoDB Streams only) A standard Amazon SQS queue or
-  /// standard Amazon SNS topic destination for discarded records.
+  /// (Kinesis, DynamoDB Streams, Amazon MSK, and self-managed Kafka only) A
+  /// configuration object that specifies the destination of an event after
+  /// Lambda processes it.
   ///
   /// Parameter [documentDBEventSourceConfig] :
   /// Specific configuration settings for a DocumentDB event source.
@@ -4247,7 +4292,7 @@ class Lambda {
   /// event filtering</a>.
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -4384,7 +4429,7 @@ class Lambda {
       if (functionName != null) 'FunctionName': functionName,
       if (functionResponseTypes != null)
         'FunctionResponseTypes':
-            functionResponseTypes.map((e) => e.toValue()).toList(),
+            functionResponseTypes.map((e) => e.value).toList(),
       if (maximumBatchingWindowInSeconds != null)
         'MaximumBatchingWindowInSeconds': maximumBatchingWindowInSeconds,
       if (maximumRecordAgeInSeconds != null)
@@ -4451,7 +4496,7 @@ class Lambda {
   /// May throw [CodeSigningConfigNotFoundException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -4524,7 +4569,7 @@ class Lambda {
   }) async {
     final $payload = <String, dynamic>{
       if (architectures != null)
-        'Architectures': architectures.map((e) => e.toValue()).toList(),
+        'Architectures': architectures.map((e) => e.value).toList(),
       if (dryRun != null) 'DryRun': dryRun,
       if (imageUri != null) 'ImageUri': imageUri,
       if (publish != null) 'Publish': publish,
@@ -4577,7 +4622,7 @@ class Lambda {
   /// May throw [CodeSigningConfigNotFoundException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -4611,7 +4656,10 @@ class Lambda {
   ///
   /// Parameter [ephemeralStorage] :
   /// The size of the function's <code>/tmp</code> directory in MB. The default
-  /// value is 512, but can be any whole number between 512 and 10,240 MB.
+  /// value is 512, but can be any whole number between 512 and 10,240 MB. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-ephemeral-storage">Configuring
+  /// ephemeral storage (console)</a>.
   ///
   /// Parameter [fileSystemConfigs] :
   /// Connection settings for an Amazon EFS file system.
@@ -4627,7 +4675,7 @@ class Lambda {
   ///
   /// Parameter [imageConfig] :
   /// <a
-  /// href="https://docs.aws.amazon.com/lambda/latest/dg/images-parms.html">Container
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/images-create.html#images-parms">Container
   /// image configuration values</a> that override the values in the container
   /// image Docker file.
   ///
@@ -4637,15 +4685,21 @@ class Lambda {
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-envvars.html#configuration-envvars-encryption">environment
   /// variables</a>. When <a
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/snapstart-security.html">Lambda
-  /// SnapStart</a> is activated, this key is also used to encrypt your
-  /// function's snapshot. If you don't provide a customer managed key, Lambda
-  /// uses a default service key.
+  /// SnapStart</a> is activated, Lambda also uses this key is to encrypt your
+  /// function's snapshot. If you deploy your function using a container image,
+  /// Lambda also uses this key to encrypt your function when it's deployed.
+  /// Note that this is not the same key that's used to protect your container
+  /// image in the Amazon Elastic Container Registry (Amazon ECR). If you don't
+  /// provide a customer managed key, Lambda uses a default service key.
   ///
   /// Parameter [layers] :
   /// A list of <a
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">function
   /// layers</a> to add to the function's execution environment. Specify each
   /// layer by its ARN, including the version.
+  ///
+  /// Parameter [loggingConfig] :
+  /// The function's Amazon CloudWatch Logs configuration settings.
   ///
   /// Parameter [memorySize] :
   /// The amount of <a
@@ -4707,6 +4761,7 @@ class Lambda {
     ImageConfig? imageConfig,
     String? kMSKeyArn,
     List<String>? layers,
+    LoggingConfig? loggingConfig,
     int? memorySize,
     String? revisionId,
     String? role,
@@ -4738,10 +4793,11 @@ class Lambda {
       if (imageConfig != null) 'ImageConfig': imageConfig,
       if (kMSKeyArn != null) 'KMSKeyArn': kMSKeyArn,
       if (layers != null) 'Layers': layers,
+      if (loggingConfig != null) 'LoggingConfig': loggingConfig,
       if (memorySize != null) 'MemorySize': memorySize,
       if (revisionId != null) 'RevisionId': revisionId,
       if (role != null) 'Role': role,
-      if (runtime != null) 'Runtime': runtime.toValue(),
+      if (runtime != null) 'Runtime': runtime.value,
       if (snapStart != null) 'SnapStart': snapStart,
       if (timeout != null) 'Timeout': timeout,
       if (tracingConfig != null) 'TracingConfig': tracingConfig,
@@ -4770,7 +4826,7 @@ class Lambda {
   /// May throw [ResourceConflictException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function, version, or alias.
+  /// The name or ARN of the Lambda function, version, or alias.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -4868,7 +4924,7 @@ class Lambda {
   /// May throw [TooManyRequestsException].
   ///
   /// Parameter [functionName] :
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -4932,9 +4988,9 @@ class Lambda {
       if (qualifier != null) 'Qualifier': [qualifier],
     };
     final $payload = <String, dynamic>{
-      if (authType != null) 'AuthType': authType.toValue(),
+      if (authType != null) 'AuthType': authType.value,
       if (cors != null) 'Cors': cors,
-      if (invokeMode != null) 'InvokeMode': invokeMode.toValue(),
+      if (invokeMode != null) 'InvokeMode': invokeMode.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -5136,7 +5192,7 @@ class AllowedPublishers {
   factory AllowedPublishers.fromJson(Map<String, dynamic> json) {
     return AllowedPublishers(
       signingProfileVersionArns: (json['SigningProfileVersionArns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5180,32 +5236,38 @@ class AmazonManagedKafkaEventSourceConfig {
   }
 }
 
+enum ApplicationLogLevel {
+  trace('TRACE'),
+  debug('DEBUG'),
+  info('INFO'),
+  warn('WARN'),
+  error('ERROR'),
+  fatal('FATAL'),
+  ;
+
+  final String value;
+
+  const ApplicationLogLevel(this.value);
+
+  static ApplicationLogLevel fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ApplicationLogLevel'));
+}
+
 enum Architecture {
-  x86_64,
-  arm64,
-}
+  x86_64('x86_64'),
+  arm64('arm64'),
+  ;
 
-extension ArchitectureValueExtension on Architecture {
-  String toValue() {
-    switch (this) {
-      case Architecture.x86_64:
-        return 'x86_64';
-      case Architecture.arm64:
-        return 'arm64';
-    }
-  }
-}
+  final String value;
 
-extension ArchitectureFromString on String {
-  Architecture toArchitecture() {
-    switch (this) {
-      case 'x86_64':
-        return Architecture.x86_64;
-      case 'arm64':
-        return Architecture.arm64;
-    }
-    throw Exception('$this is not known in enum Architecture');
-  }
+  const Architecture(this.value);
+
+  static Architecture fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum Architecture'));
 }
 
 /// Details about a <a
@@ -5276,7 +5338,7 @@ class CodeSigningPolicies {
     return CodeSigningPolicies(
       untrustedArtifactOnDeployment:
           (json['UntrustedArtifactOnDeployment'] as String?)
-              ?.toCodeSigningPolicy(),
+              ?.let(CodeSigningPolicy.fromString),
     );
   }
 
@@ -5284,38 +5346,24 @@ class CodeSigningPolicies {
     final untrustedArtifactOnDeployment = this.untrustedArtifactOnDeployment;
     return {
       if (untrustedArtifactOnDeployment != null)
-        'UntrustedArtifactOnDeployment':
-            untrustedArtifactOnDeployment.toValue(),
+        'UntrustedArtifactOnDeployment': untrustedArtifactOnDeployment.value,
     };
   }
 }
 
 enum CodeSigningPolicy {
-  warn,
-  enforce,
-}
+  warn('Warn'),
+  enforce('Enforce'),
+  ;
 
-extension CodeSigningPolicyValueExtension on CodeSigningPolicy {
-  String toValue() {
-    switch (this) {
-      case CodeSigningPolicy.warn:
-        return 'Warn';
-      case CodeSigningPolicy.enforce:
-        return 'Enforce';
-    }
-  }
-}
+  final String value;
 
-extension CodeSigningPolicyFromString on String {
-  CodeSigningPolicy toCodeSigningPolicy() {
-    switch (this) {
-      case 'Warn':
-        return CodeSigningPolicy.warn;
-      case 'Enforce':
-        return CodeSigningPolicy.enforce;
-    }
-    throw Exception('$this is not known in enum CodeSigningPolicy');
-  }
+  const CodeSigningPolicy(this.value);
+
+  static CodeSigningPolicy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CodeSigningPolicy'));
 }
 
 class Concurrency {
@@ -5389,19 +5437,19 @@ class Cors {
     return Cors(
       allowCredentials: json['AllowCredentials'] as bool?,
       allowHeaders: (json['AllowHeaders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       allowMethods: (json['AllowMethods'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       allowOrigins: (json['AllowOrigins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       exposeHeaders: (json['ExposeHeaders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       maxAge: json['MaxAge'] as int?,
@@ -5497,14 +5545,14 @@ class CreateFunctionUrlConfigResponse {
 
   factory CreateFunctionUrlConfigResponse.fromJson(Map<String, dynamic> json) {
     return CreateFunctionUrlConfigResponse(
-      authType: (json['AuthType'] as String).toFunctionUrlAuthType(),
+      authType: FunctionUrlAuthType.fromString((json['AuthType'] as String)),
       creationTime: json['CreationTime'] as String,
       functionArn: json['FunctionArn'] as String,
       functionUrl: json['FunctionUrl'] as String,
       cors: json['Cors'] != null
           ? Cors.fromJson(json['Cors'] as Map<String, dynamic>)
           : null,
-      invokeMode: (json['InvokeMode'] as String?)?.toInvokeMode(),
+      invokeMode: (json['InvokeMode'] as String?)?.let(InvokeMode.fromString),
     );
   }
 }
@@ -5602,7 +5650,8 @@ class DocumentDBEventSourceConfig {
     return DocumentDBEventSourceConfig(
       collectionName: json['CollectionName'] as String?,
       databaseName: json['DatabaseName'] as String?,
-      fullDocument: (json['FullDocument'] as String?)?.toFullDocument(),
+      fullDocument:
+          (json['FullDocument'] as String?)?.let(FullDocument.fromString),
     );
   }
 
@@ -5613,32 +5662,23 @@ class DocumentDBEventSourceConfig {
     return {
       if (collectionName != null) 'CollectionName': collectionName,
       if (databaseName != null) 'DatabaseName': databaseName,
-      if (fullDocument != null) 'FullDocument': fullDocument.toValue(),
+      if (fullDocument != null) 'FullDocument': fullDocument.value,
     };
   }
 }
 
 enum EndPointType {
-  kafkaBootstrapServers,
-}
+  kafkaBootstrapServers('KAFKA_BOOTSTRAP_SERVERS'),
+  ;
 
-extension EndPointTypeValueExtension on EndPointType {
-  String toValue() {
-    switch (this) {
-      case EndPointType.kafkaBootstrapServers:
-        return 'KAFKA_BOOTSTRAP_SERVERS';
-    }
-  }
-}
+  final String value;
 
-extension EndPointTypeFromString on String {
-  EndPointType toEndPointType() {
-    switch (this) {
-      case 'KAFKA_BOOTSTRAP_SERVERS':
-        return EndPointType.kafkaBootstrapServers;
-    }
-    throw Exception('$this is not known in enum EndPointType');
-  }
+  const EndPointType(this.value);
+
+  static EndPointType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EndPointType'));
 }
 
 /// A function's environment variable settings. You can use environment
@@ -5711,7 +5751,10 @@ class EnvironmentResponse {
 }
 
 /// The size of the function's <code>/tmp</code> directory in MB. The default
-/// value is 512, but it can be any whole number between 512 and 10,240 MB.
+/// value is 512, but can be any whole number between 512 and 10,240 MB. For
+/// more information, see <a
+/// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-ephemeral-storage">Configuring
+/// ephemeral storage (console)</a>.
 class EphemeralStorage {
   /// The size of the function's <code>/tmp</code> directory.
   final int size;
@@ -5758,8 +5801,9 @@ class EventSourceMappingConfiguration {
   /// the batch in two and retry. The default value is false.
   final bool? bisectBatchOnFunctionError;
 
-  /// (Kinesis and DynamoDB Streams only) An Amazon SQS queue or Amazon SNS topic
-  /// destination for discarded records.
+  /// (Kinesis, DynamoDB Streams, Amazon MSK, and self-managed Apache Kafka event
+  /// sources only) A configuration object that specifies the destination of an
+  /// event after Lambda processes it.
   final DestinationConfig? destinationConfig;
 
   /// Specific configuration settings for a DocumentDB event source.
@@ -5810,7 +5854,9 @@ class EventSourceMappingConfiguration {
   /// age. The default value is -1, which sets the maximum age to infinite. When
   /// the value is set to infinite, Lambda never discards old records.
   /// <note>
-  /// The minimum value that can be set is 60 seconds.
+  /// The minimum valid value for maximum record age is 60s. Although values less
+  /// than 60 and greater than -1 fall within the parameter's absolute range, they
+  /// are not allowed
   /// </note>
   final int? maximumRecordAgeInSeconds;
 
@@ -5845,13 +5891,14 @@ class EventSourceMappingConfiguration {
   final List<SourceAccessConfiguration>? sourceAccessConfigurations;
 
   /// The position in a stream from which to start reading. Required for Amazon
-  /// Kinesis, Amazon DynamoDB, and Amazon MSK stream sources.
-  /// <code>AT_TIMESTAMP</code> is supported only for Amazon Kinesis streams and
-  /// Amazon DocumentDB.
+  /// Kinesis and Amazon DynamoDB Stream event sources. <code>AT_TIMESTAMP</code>
+  /// is supported only for Amazon Kinesis streams, Amazon DocumentDB, Amazon MSK,
+  /// and self-managed Apache Kafka.
   final EventSourcePosition? startingPosition;
 
   /// With <code>StartingPosition</code> set to <code>AT_TIMESTAMP</code>, the
-  /// time from which to start reading.
+  /// time from which to start reading. <code>StartingPositionTimestamp</code>
+  /// cannot be in the future.
   final DateTime? startingPositionTimestamp;
 
   /// The state of the event source mapping. It can be one of the following:
@@ -5930,8 +5977,8 @@ class EventSourceMappingConfiguration {
           : null,
       functionArn: json['FunctionArn'] as String?,
       functionResponseTypes: (json['FunctionResponseTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toFunctionResponseType())
+          ?.nonNulls
+          .map((e) => FunctionResponseType.fromString((e as String)))
           .toList(),
       lastModified: timeStampFromJson(json['LastModified']),
       lastProcessingResult: json['LastProcessingResult'] as String?,
@@ -5940,10 +5987,8 @@ class EventSourceMappingConfiguration {
       maximumRecordAgeInSeconds: json['MaximumRecordAgeInSeconds'] as int?,
       maximumRetryAttempts: json['MaximumRetryAttempts'] as int?,
       parallelizationFactor: json['ParallelizationFactor'] as int?,
-      queues: (json['Queues'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      queues:
+          (json['Queues'] as List?)?.nonNulls.map((e) => e as String).toList(),
       scalingConfig: json['ScalingConfig'] != null
           ? ScalingConfig.fromJson(
               json['ScalingConfig'] as Map<String, dynamic>)
@@ -5959,20 +6004,18 @@ class EventSourceMappingConfiguration {
                       as Map<String, dynamic>)
               : null,
       sourceAccessConfigurations: (json['SourceAccessConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SourceAccessConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
-      startingPosition:
-          (json['StartingPosition'] as String?)?.toEventSourcePosition(),
+      startingPosition: (json['StartingPosition'] as String?)
+          ?.let(EventSourcePosition.fromString),
       startingPositionTimestamp:
           timeStampFromJson(json['StartingPositionTimestamp']),
       state: json['State'] as String?,
       stateTransitionReason: json['StateTransitionReason'] as String?,
-      topics: (json['Topics'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      topics:
+          (json['Topics'] as List?)?.nonNulls.map((e) => e as String).toList(),
       tumblingWindowInSeconds: json['TumblingWindowInSeconds'] as int?,
       uuid: json['UUID'] as String?,
     );
@@ -5980,36 +6023,19 @@ class EventSourceMappingConfiguration {
 }
 
 enum EventSourcePosition {
-  trimHorizon,
-  latest,
-  atTimestamp,
-}
+  trimHorizon('TRIM_HORIZON'),
+  latest('LATEST'),
+  atTimestamp('AT_TIMESTAMP'),
+  ;
 
-extension EventSourcePositionValueExtension on EventSourcePosition {
-  String toValue() {
-    switch (this) {
-      case EventSourcePosition.trimHorizon:
-        return 'TRIM_HORIZON';
-      case EventSourcePosition.latest:
-        return 'LATEST';
-      case EventSourcePosition.atTimestamp:
-        return 'AT_TIMESTAMP';
-    }
-  }
-}
+  final String value;
 
-extension EventSourcePositionFromString on String {
-  EventSourcePosition toEventSourcePosition() {
-    switch (this) {
-      case 'TRIM_HORIZON':
-        return EventSourcePosition.trimHorizon;
-      case 'LATEST':
-        return EventSourcePosition.latest;
-      case 'AT_TIMESTAMP':
-        return EventSourcePosition.atTimestamp;
-    }
-    throw Exception('$this is not known in enum EventSourcePosition');
-  }
+  const EventSourcePosition(this.value);
+
+  static EventSourcePosition fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EventSourcePosition'));
 }
 
 /// Details about the connection between a Lambda function and an <a
@@ -6085,7 +6111,7 @@ class FilterCriteria {
   factory FilterCriteria.fromJson(Map<String, dynamic> json) {
     return FilterCriteria(
       filters: (json['Filters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Filter.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6100,31 +6126,18 @@ class FilterCriteria {
 }
 
 enum FullDocument {
-  updateLookup,
-  $default,
-}
+  updateLookup('UpdateLookup'),
+  $default('Default'),
+  ;
 
-extension FullDocumentValueExtension on FullDocument {
-  String toValue() {
-    switch (this) {
-      case FullDocument.updateLookup:
-        return 'UpdateLookup';
-      case FullDocument.$default:
-        return 'Default';
-    }
-  }
-}
+  final String value;
 
-extension FullDocumentFromString on String {
-  FullDocument toFullDocument() {
-    switch (this) {
-      case 'UpdateLookup':
-        return FullDocument.updateLookup;
-      case 'Default':
-        return FullDocument.$default;
-    }
-    throw Exception('$this is not known in enum FullDocument');
-  }
+  const FullDocument(this.value);
+
+  static FullDocument fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FullDocument'));
 }
 
 /// The code for the Lambda function. You can either specify an object in Amazon
@@ -6229,8 +6242,11 @@ class FunctionConfiguration {
   /// variables</a>. Omitted from CloudTrail logs.
   final EnvironmentResponse? environment;
 
-  /// The size of the function’s <code>/tmp</code> directory in MB. The default
-  /// value is 512, but it can be any whole number between 512 and 10,240 MB.
+  /// The size of the function's <code>/tmp</code> directory in MB. The default
+  /// value is 512, but can be any whole number between 512 and 10,240 MB. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-function-common.html#configuration-ephemeral-storage">Configuring
+  /// ephemeral storage (console)</a>.
   final EphemeralStorage? ephemeralStorage;
 
   /// Connection settings for an <a
@@ -6277,6 +6293,9 @@ class FunctionConfiguration {
   /// The function's <a
   /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-layers.html">layers</a>.
   final List<Layer>? layers;
+
+  /// The function's Amazon CloudWatch Logs configuration settings.
+  final LoggingConfig? loggingConfig;
 
   /// For Lambda@Edge functions, the ARN of the main function.
   final String? masterArn;
@@ -6363,6 +6382,7 @@ class FunctionConfiguration {
     this.lastUpdateStatusReason,
     this.lastUpdateStatusReasonCode,
     this.layers,
+    this.loggingConfig,
     this.masterArn,
     this.memorySize,
     this.packageType,
@@ -6385,8 +6405,8 @@ class FunctionConfiguration {
   factory FunctionConfiguration.fromJson(Map<String, dynamic> json) {
     return FunctionConfiguration(
       architectures: (json['Architectures'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toArchitecture())
+          ?.nonNulls
+          .map((e) => Architecture.fromString((e as String)))
           .toList(),
       codeSha256: json['CodeSha256'] as String?,
       codeSize: json['CodeSize'] as int?,
@@ -6404,7 +6424,7 @@ class FunctionConfiguration {
               json['EphemeralStorage'] as Map<String, dynamic>)
           : null,
       fileSystemConfigs: (json['FileSystemConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FileSystemConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       functionArn: json['FunctionArn'] as String?,
@@ -6416,22 +6436,27 @@ class FunctionConfiguration {
           : null,
       kMSKeyArn: json['KMSKeyArn'] as String?,
       lastModified: json['LastModified'] as String?,
-      lastUpdateStatus:
-          (json['LastUpdateStatus'] as String?)?.toLastUpdateStatus(),
+      lastUpdateStatus: (json['LastUpdateStatus'] as String?)
+          ?.let(LastUpdateStatus.fromString),
       lastUpdateStatusReason: json['LastUpdateStatusReason'] as String?,
       lastUpdateStatusReasonCode:
           (json['LastUpdateStatusReasonCode'] as String?)
-              ?.toLastUpdateStatusReasonCode(),
+              ?.let(LastUpdateStatusReasonCode.fromString),
       layers: (json['Layers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Layer.fromJson(e as Map<String, dynamic>))
           .toList(),
+      loggingConfig: json['LoggingConfig'] != null
+          ? LoggingConfig.fromJson(
+              json['LoggingConfig'] as Map<String, dynamic>)
+          : null,
       masterArn: json['MasterArn'] as String?,
       memorySize: json['MemorySize'] as int?,
-      packageType: (json['PackageType'] as String?)?.toPackageType(),
+      packageType:
+          (json['PackageType'] as String?)?.let(PackageType.fromString),
       revisionId: json['RevisionId'] as String?,
       role: json['Role'] as String?,
-      runtime: (json['Runtime'] as String?)?.toRuntime(),
+      runtime: (json['Runtime'] as String?)?.let(Runtime.fromString),
       runtimeVersionConfig: json['RuntimeVersionConfig'] != null
           ? RuntimeVersionConfig.fromJson(
               json['RuntimeVersionConfig'] as Map<String, dynamic>)
@@ -6442,10 +6467,10 @@ class FunctionConfiguration {
           ? SnapStartResponse.fromJson(
               json['SnapStart'] as Map<String, dynamic>)
           : null,
-      state: (json['State'] as String?)?.toState(),
+      state: (json['State'] as String?)?.let(State.fromString),
       stateReason: json['StateReason'] as String?,
       stateReasonCode:
-          (json['StateReasonCode'] as String?)?.toStateReasonCode(),
+          (json['StateReasonCode'] as String?)?.let(StateReasonCode.fromString),
       timeout: json['Timeout'] as int?,
       tracingConfig: json['TracingConfig'] != null
           ? TracingConfigResponse.fromJson(
@@ -6516,54 +6541,32 @@ class FunctionEventInvokeConfig {
 }
 
 enum FunctionResponseType {
-  reportBatchItemFailures,
-}
+  reportBatchItemFailures('ReportBatchItemFailures'),
+  ;
 
-extension FunctionResponseTypeValueExtension on FunctionResponseType {
-  String toValue() {
-    switch (this) {
-      case FunctionResponseType.reportBatchItemFailures:
-        return 'ReportBatchItemFailures';
-    }
-  }
-}
+  final String value;
 
-extension FunctionResponseTypeFromString on String {
-  FunctionResponseType toFunctionResponseType() {
-    switch (this) {
-      case 'ReportBatchItemFailures':
-        return FunctionResponseType.reportBatchItemFailures;
-    }
-    throw Exception('$this is not known in enum FunctionResponseType');
-  }
+  const FunctionResponseType(this.value);
+
+  static FunctionResponseType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FunctionResponseType'));
 }
 
 enum FunctionUrlAuthType {
-  none,
-  awsIam,
-}
+  none('NONE'),
+  awsIam('AWS_IAM'),
+  ;
 
-extension FunctionUrlAuthTypeValueExtension on FunctionUrlAuthType {
-  String toValue() {
-    switch (this) {
-      case FunctionUrlAuthType.none:
-        return 'NONE';
-      case FunctionUrlAuthType.awsIam:
-        return 'AWS_IAM';
-    }
-  }
-}
+  final String value;
 
-extension FunctionUrlAuthTypeFromString on String {
-  FunctionUrlAuthType toFunctionUrlAuthType() {
-    switch (this) {
-      case 'NONE':
-        return FunctionUrlAuthType.none;
-      case 'AWS_IAM':
-        return FunctionUrlAuthType.awsIam;
-    }
-    throw Exception('$this is not known in enum FunctionUrlAuthType');
-  }
+  const FunctionUrlAuthType(this.value);
+
+  static FunctionUrlAuthType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FunctionUrlAuthType'));
 }
 
 /// Details about a Lambda function URL.
@@ -6628,7 +6631,7 @@ class FunctionUrlConfig {
 
   factory FunctionUrlConfig.fromJson(Map<String, dynamic> json) {
     return FunctionUrlConfig(
-      authType: (json['AuthType'] as String).toFunctionUrlAuthType(),
+      authType: FunctionUrlAuthType.fromString((json['AuthType'] as String)),
       creationTime: json['CreationTime'] as String,
       functionArn: json['FunctionArn'] as String,
       functionUrl: json['FunctionUrl'] as String,
@@ -6636,32 +6639,23 @@ class FunctionUrlConfig {
       cors: json['Cors'] != null
           ? Cors.fromJson(json['Cors'] as Map<String, dynamic>)
           : null,
-      invokeMode: (json['InvokeMode'] as String?)?.toInvokeMode(),
+      invokeMode: (json['InvokeMode'] as String?)?.let(InvokeMode.fromString),
     );
   }
 }
 
 enum FunctionVersion {
-  all,
-}
+  all('ALL'),
+  ;
 
-extension FunctionVersionValueExtension on FunctionVersion {
-  String toValue() {
-    switch (this) {
-      case FunctionVersion.all:
-        return 'ALL';
-    }
-  }
-}
+  final String value;
 
-extension FunctionVersionFromString on String {
-  FunctionVersion toFunctionVersion() {
-    switch (this) {
-      case 'ALL':
-        return FunctionVersion.all;
-    }
-    throw Exception('$this is not known in enum FunctionVersion');
-  }
+  const FunctionVersion(this.value);
+
+  static FunctionVersion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FunctionVersion'));
 }
 
 class GetAccountSettingsResponse {
@@ -6708,7 +6702,7 @@ class GetFunctionCodeSigningConfigResponse {
   /// The The Amazon Resource Name (ARN) of the code signing configuration.
   final String codeSigningConfigArn;
 
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -6859,7 +6853,7 @@ class GetFunctionUrlConfigResponse {
 
   factory GetFunctionUrlConfigResponse.fromJson(Map<String, dynamic> json) {
     return GetFunctionUrlConfigResponse(
-      authType: (json['AuthType'] as String).toFunctionUrlAuthType(),
+      authType: FunctionUrlAuthType.fromString((json['AuthType'] as String)),
       creationTime: json['CreationTime'] as String,
       functionArn: json['FunctionArn'] as String,
       functionUrl: json['FunctionUrl'] as String,
@@ -6867,7 +6861,7 @@ class GetFunctionUrlConfigResponse {
       cors: json['Cors'] != null
           ? Cors.fromJson(json['Cors'] as Map<String, dynamic>)
           : null,
-      invokeMode: (json['InvokeMode'] as String?)?.toInvokeMode(),
+      invokeMode: (json['InvokeMode'] as String?)?.let(InvokeMode.fromString),
     );
   }
 }
@@ -6899,6 +6893,11 @@ class GetLayerVersionResponse {
   final List<Architecture>? compatibleArchitectures;
 
   /// The layer's compatible runtimes.
+  ///
+  /// The following list includes deprecated runtimes. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtime-support-policy">Runtime
+  /// deprecation policy</a>.
   final List<Runtime>? compatibleRuntimes;
 
   /// Details about the layer version.
@@ -6939,12 +6938,12 @@ class GetLayerVersionResponse {
   factory GetLayerVersionResponse.fromJson(Map<String, dynamic> json) {
     return GetLayerVersionResponse(
       compatibleArchitectures: (json['CompatibleArchitectures'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toArchitecture())
+          ?.nonNulls
+          .map((e) => Architecture.fromString((e as String)))
           .toList(),
       compatibleRuntimes: (json['CompatibleRuntimes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toRuntime())
+          ?.nonNulls
+          .map((e) => Runtime.fromString((e as String)))
           .toList(),
       content: json['Content'] != null
           ? LayerVersionContentOutput.fromJson(
@@ -7023,7 +7022,8 @@ class GetProvisionedConcurrencyConfigResponse {
       lastModified: json['LastModified'] as String?,
       requestedProvisionedConcurrentExecutions:
           json['RequestedProvisionedConcurrentExecutions'] as int?,
-      status: (json['Status'] as String?)?.toProvisionedConcurrencyStatusEnum(),
+      status: (json['Status'] as String?)
+          ?.let(ProvisionedConcurrencyStatusEnum.fromString),
       statusReason: json['StatusReason'] as String?,
     );
   }
@@ -7053,7 +7053,7 @@ class GetRuntimeManagementConfigResponse {
       functionArn: json['FunctionArn'] as String?,
       runtimeVersionArn: json['RuntimeVersionArn'] as String?,
       updateRuntimeOn:
-          (json['UpdateRuntimeOn'] as String?)?.toUpdateRuntimeOn(),
+          (json['UpdateRuntimeOn'] as String?)?.let(UpdateRuntimeOn.fromString),
     );
   }
 }
@@ -7081,12 +7081,10 @@ class ImageConfig {
 
   factory ImageConfig.fromJson(Map<String, dynamic> json) {
     return ImageConfig(
-      command: (json['Command'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      command:
+          (json['Command'] as List?)?.nonNulls.map((e) => e as String).toList(),
       entryPoint: (json['EntryPoint'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       workingDirectory: json['WorkingDirectory'] as String?,
@@ -7182,36 +7180,19 @@ class InvocationResponse {
 }
 
 enum InvocationType {
-  event,
-  requestResponse,
-  dryRun,
-}
+  event('Event'),
+  requestResponse('RequestResponse'),
+  dryRun('DryRun'),
+  ;
 
-extension InvocationTypeValueExtension on InvocationType {
-  String toValue() {
-    switch (this) {
-      case InvocationType.event:
-        return 'Event';
-      case InvocationType.requestResponse:
-        return 'RequestResponse';
-      case InvocationType.dryRun:
-        return 'DryRun';
-    }
-  }
-}
+  final String value;
 
-extension InvocationTypeFromString on String {
-  InvocationType toInvocationType() {
-    switch (this) {
-      case 'Event':
-        return InvocationType.event;
-      case 'RequestResponse':
-        return InvocationType.requestResponse;
-      case 'DryRun':
-        return InvocationType.dryRun;
-    }
-    throw Exception('$this is not known in enum InvocationType');
-  }
+  const InvocationType(this.value);
+
+  static InvocationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InvocationType'));
 }
 
 /// A success response (<code>202 Accepted</code>) indicates that the request is
@@ -7233,31 +7214,17 @@ class InvokeAsyncResponse {
 }
 
 enum InvokeMode {
-  buffered,
-  responseStream,
-}
+  buffered('BUFFERED'),
+  responseStream('RESPONSE_STREAM'),
+  ;
 
-extension InvokeModeValueExtension on InvokeMode {
-  String toValue() {
-    switch (this) {
-      case InvokeMode.buffered:
-        return 'BUFFERED';
-      case InvokeMode.responseStream:
-        return 'RESPONSE_STREAM';
-    }
-  }
-}
+  final String value;
 
-extension InvokeModeFromString on String {
-  InvokeMode toInvokeMode() {
-    switch (this) {
-      case 'BUFFERED':
-        return InvokeMode.buffered;
-      case 'RESPONSE_STREAM':
-        return InvokeMode.responseStream;
-    }
-    throw Exception('$this is not known in enum InvokeMode');
-  }
+  const InvokeMode(this.value);
+
+  static InvokeMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum InvokeMode'));
 }
 
 /// A chunk of the streamed response payload.
@@ -7358,160 +7325,53 @@ class InvokeWithResponseStreamResponseEvent {
 }
 
 enum LastUpdateStatus {
-  successful,
-  failed,
-  inProgress,
-}
+  successful('Successful'),
+  failed('Failed'),
+  inProgress('InProgress'),
+  ;
 
-extension LastUpdateStatusValueExtension on LastUpdateStatus {
-  String toValue() {
-    switch (this) {
-      case LastUpdateStatus.successful:
-        return 'Successful';
-      case LastUpdateStatus.failed:
-        return 'Failed';
-      case LastUpdateStatus.inProgress:
-        return 'InProgress';
-    }
-  }
-}
+  final String value;
 
-extension LastUpdateStatusFromString on String {
-  LastUpdateStatus toLastUpdateStatus() {
-    switch (this) {
-      case 'Successful':
-        return LastUpdateStatus.successful;
-      case 'Failed':
-        return LastUpdateStatus.failed;
-      case 'InProgress':
-        return LastUpdateStatus.inProgress;
-    }
-    throw Exception('$this is not known in enum LastUpdateStatus');
-  }
+  const LastUpdateStatus(this.value);
+
+  static LastUpdateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LastUpdateStatus'));
 }
 
 enum LastUpdateStatusReasonCode {
-  eniLimitExceeded,
-  insufficientRolePermissions,
-  invalidConfiguration,
-  internalError,
-  subnetOutOfIPAddresses,
-  invalidSubnet,
-  invalidSecurityGroup,
-  imageDeleted,
-  imageAccessDenied,
-  invalidImage,
-  kMSKeyAccessDenied,
-  kMSKeyNotFound,
-  invalidStateKMSKey,
-  disabledKMSKey,
-  eFSIOError,
-  eFSMountConnectivityError,
-  eFSMountFailure,
-  eFSMountTimeout,
-  invalidRuntime,
-  invalidZipFileException,
-  functionError,
-}
+  eniLimitExceeded('EniLimitExceeded'),
+  insufficientRolePermissions('InsufficientRolePermissions'),
+  invalidConfiguration('InvalidConfiguration'),
+  internalError('InternalError'),
+  subnetOutOfIPAddresses('SubnetOutOfIPAddresses'),
+  invalidSubnet('InvalidSubnet'),
+  invalidSecurityGroup('InvalidSecurityGroup'),
+  imageDeleted('ImageDeleted'),
+  imageAccessDenied('ImageAccessDenied'),
+  invalidImage('InvalidImage'),
+  kMSKeyAccessDenied('KMSKeyAccessDenied'),
+  kMSKeyNotFound('KMSKeyNotFound'),
+  invalidStateKMSKey('InvalidStateKMSKey'),
+  disabledKMSKey('DisabledKMSKey'),
+  eFSIOError('EFSIOError'),
+  eFSMountConnectivityError('EFSMountConnectivityError'),
+  eFSMountFailure('EFSMountFailure'),
+  eFSMountTimeout('EFSMountTimeout'),
+  invalidRuntime('InvalidRuntime'),
+  invalidZipFileException('InvalidZipFileException'),
+  functionError('FunctionError'),
+  ;
 
-extension LastUpdateStatusReasonCodeValueExtension
-    on LastUpdateStatusReasonCode {
-  String toValue() {
-    switch (this) {
-      case LastUpdateStatusReasonCode.eniLimitExceeded:
-        return 'EniLimitExceeded';
-      case LastUpdateStatusReasonCode.insufficientRolePermissions:
-        return 'InsufficientRolePermissions';
-      case LastUpdateStatusReasonCode.invalidConfiguration:
-        return 'InvalidConfiguration';
-      case LastUpdateStatusReasonCode.internalError:
-        return 'InternalError';
-      case LastUpdateStatusReasonCode.subnetOutOfIPAddresses:
-        return 'SubnetOutOfIPAddresses';
-      case LastUpdateStatusReasonCode.invalidSubnet:
-        return 'InvalidSubnet';
-      case LastUpdateStatusReasonCode.invalidSecurityGroup:
-        return 'InvalidSecurityGroup';
-      case LastUpdateStatusReasonCode.imageDeleted:
-        return 'ImageDeleted';
-      case LastUpdateStatusReasonCode.imageAccessDenied:
-        return 'ImageAccessDenied';
-      case LastUpdateStatusReasonCode.invalidImage:
-        return 'InvalidImage';
-      case LastUpdateStatusReasonCode.kMSKeyAccessDenied:
-        return 'KMSKeyAccessDenied';
-      case LastUpdateStatusReasonCode.kMSKeyNotFound:
-        return 'KMSKeyNotFound';
-      case LastUpdateStatusReasonCode.invalidStateKMSKey:
-        return 'InvalidStateKMSKey';
-      case LastUpdateStatusReasonCode.disabledKMSKey:
-        return 'DisabledKMSKey';
-      case LastUpdateStatusReasonCode.eFSIOError:
-        return 'EFSIOError';
-      case LastUpdateStatusReasonCode.eFSMountConnectivityError:
-        return 'EFSMountConnectivityError';
-      case LastUpdateStatusReasonCode.eFSMountFailure:
-        return 'EFSMountFailure';
-      case LastUpdateStatusReasonCode.eFSMountTimeout:
-        return 'EFSMountTimeout';
-      case LastUpdateStatusReasonCode.invalidRuntime:
-        return 'InvalidRuntime';
-      case LastUpdateStatusReasonCode.invalidZipFileException:
-        return 'InvalidZipFileException';
-      case LastUpdateStatusReasonCode.functionError:
-        return 'FunctionError';
-    }
-  }
-}
+  final String value;
 
-extension LastUpdateStatusReasonCodeFromString on String {
-  LastUpdateStatusReasonCode toLastUpdateStatusReasonCode() {
-    switch (this) {
-      case 'EniLimitExceeded':
-        return LastUpdateStatusReasonCode.eniLimitExceeded;
-      case 'InsufficientRolePermissions':
-        return LastUpdateStatusReasonCode.insufficientRolePermissions;
-      case 'InvalidConfiguration':
-        return LastUpdateStatusReasonCode.invalidConfiguration;
-      case 'InternalError':
-        return LastUpdateStatusReasonCode.internalError;
-      case 'SubnetOutOfIPAddresses':
-        return LastUpdateStatusReasonCode.subnetOutOfIPAddresses;
-      case 'InvalidSubnet':
-        return LastUpdateStatusReasonCode.invalidSubnet;
-      case 'InvalidSecurityGroup':
-        return LastUpdateStatusReasonCode.invalidSecurityGroup;
-      case 'ImageDeleted':
-        return LastUpdateStatusReasonCode.imageDeleted;
-      case 'ImageAccessDenied':
-        return LastUpdateStatusReasonCode.imageAccessDenied;
-      case 'InvalidImage':
-        return LastUpdateStatusReasonCode.invalidImage;
-      case 'KMSKeyAccessDenied':
-        return LastUpdateStatusReasonCode.kMSKeyAccessDenied;
-      case 'KMSKeyNotFound':
-        return LastUpdateStatusReasonCode.kMSKeyNotFound;
-      case 'InvalidStateKMSKey':
-        return LastUpdateStatusReasonCode.invalidStateKMSKey;
-      case 'DisabledKMSKey':
-        return LastUpdateStatusReasonCode.disabledKMSKey;
-      case 'EFSIOError':
-        return LastUpdateStatusReasonCode.eFSIOError;
-      case 'EFSMountConnectivityError':
-        return LastUpdateStatusReasonCode.eFSMountConnectivityError;
-      case 'EFSMountFailure':
-        return LastUpdateStatusReasonCode.eFSMountFailure;
-      case 'EFSMountTimeout':
-        return LastUpdateStatusReasonCode.eFSMountTimeout;
-      case 'InvalidRuntime':
-        return LastUpdateStatusReasonCode.invalidRuntime;
-      case 'InvalidZipFileException':
-        return LastUpdateStatusReasonCode.invalidZipFileException;
-      case 'FunctionError':
-        return LastUpdateStatusReasonCode.functionError;
-    }
-    throw Exception('$this is not known in enum LastUpdateStatusReasonCode');
-  }
+  const LastUpdateStatusReasonCode(this.value);
+
+  static LastUpdateStatusReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LastUpdateStatusReasonCode'));
 }
 
 /// An <a
@@ -7634,6 +7494,11 @@ class LayerVersionsListItem {
   final List<Architecture>? compatibleArchitectures;
 
   /// The layer's compatible runtimes.
+  ///
+  /// The following list includes deprecated runtimes. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtime-support-policy">Runtime
+  /// deprecation policy</a>.
   final List<Runtime>? compatibleRuntimes;
 
   /// The date that the version was created, in ISO 8601 format. For example,
@@ -7665,12 +7530,12 @@ class LayerVersionsListItem {
   factory LayerVersionsListItem.fromJson(Map<String, dynamic> json) {
     return LayerVersionsListItem(
       compatibleArchitectures: (json['CompatibleArchitectures'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toArchitecture())
+          ?.nonNulls
+          .map((e) => Architecture.fromString((e as String)))
           .toList(),
       compatibleRuntimes: (json['CompatibleRuntimes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toRuntime())
+          ?.nonNulls
+          .map((e) => Runtime.fromString((e as String)))
           .toList(),
       createdDate: json['CreatedDate'] as String?,
       description: json['Description'] as String?,
@@ -7727,7 +7592,7 @@ class ListAliasesResponse {
   factory ListAliasesResponse.fromJson(Map<String, dynamic> json) {
     return ListAliasesResponse(
       aliases: (json['Aliases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AliasConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextMarker: json['NextMarker'] as String?,
@@ -7750,7 +7615,7 @@ class ListCodeSigningConfigsResponse {
   factory ListCodeSigningConfigsResponse.fromJson(Map<String, dynamic> json) {
     return ListCodeSigningConfigsResponse(
       codeSigningConfigs: (json['CodeSigningConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CodeSigningConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextMarker: json['NextMarker'] as String?,
@@ -7774,7 +7639,7 @@ class ListEventSourceMappingsResponse {
   factory ListEventSourceMappingsResponse.fromJson(Map<String, dynamic> json) {
     return ListEventSourceMappingsResponse(
       eventSourceMappings: (json['EventSourceMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EventSourceMappingConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -7799,7 +7664,7 @@ class ListFunctionEventInvokeConfigsResponse {
       Map<String, dynamic> json) {
     return ListFunctionEventInvokeConfigsResponse(
       functionEventInvokeConfigs: (json['FunctionEventInvokeConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               FunctionEventInvokeConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7823,7 +7688,7 @@ class ListFunctionUrlConfigsResponse {
   factory ListFunctionUrlConfigsResponse.fromJson(Map<String, dynamic> json) {
     return ListFunctionUrlConfigsResponse(
       functionUrlConfigs: (json['FunctionUrlConfigs'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FunctionUrlConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextMarker: json['NextMarker'] as String?,
@@ -7847,7 +7712,7 @@ class ListFunctionsByCodeSigningConfigResponse {
       Map<String, dynamic> json) {
     return ListFunctionsByCodeSigningConfigResponse(
       functionArns: (json['FunctionArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextMarker: json['NextMarker'] as String?,
@@ -7871,7 +7736,7 @@ class ListFunctionsResponse {
   factory ListFunctionsResponse.fromJson(Map<String, dynamic> json) {
     return ListFunctionsResponse(
       functions: (json['Functions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FunctionConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextMarker: json['NextMarker'] as String?,
@@ -7894,7 +7759,7 @@ class ListLayerVersionsResponse {
   factory ListLayerVersionsResponse.fromJson(Map<String, dynamic> json) {
     return ListLayerVersionsResponse(
       layerVersions: (json['LayerVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LayerVersionsListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextMarker: json['NextMarker'] as String?,
@@ -7917,7 +7782,7 @@ class ListLayersResponse {
   factory ListLayersResponse.fromJson(Map<String, dynamic> json) {
     return ListLayersResponse(
       layers: (json['Layers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LayersListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextMarker: json['NextMarker'] as String?,
@@ -7944,7 +7809,7 @@ class ListProvisionedConcurrencyConfigsResponse {
       nextMarker: json['NextMarker'] as String?,
       provisionedConcurrencyConfigs:
           (json['ProvisionedConcurrencyConfigs'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ProvisionedConcurrencyConfigListItem.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -7984,44 +7849,118 @@ class ListVersionsByFunctionResponse {
     return ListVersionsByFunctionResponse(
       nextMarker: json['NextMarker'] as String?,
       versions: (json['Versions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FunctionConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 }
 
+enum LogFormat {
+  json('JSON'),
+  text('Text'),
+  ;
+
+  final String value;
+
+  const LogFormat(this.value);
+
+  static LogFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum LogFormat'));
+}
+
 enum LogType {
-  none,
-  tail,
+  none('None'),
+  tail('Tail'),
+  ;
+
+  final String value;
+
+  const LogType(this.value);
+
+  static LogType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum LogType'));
 }
 
-extension LogTypeValueExtension on LogType {
-  String toValue() {
-    switch (this) {
-      case LogType.none:
-        return 'None';
-      case LogType.tail:
-        return 'Tail';
-    }
+/// The function's Amazon CloudWatch Logs configuration settings.
+class LoggingConfig {
+  /// Set this property to filter the application logs for your function that
+  /// Lambda sends to CloudWatch. Lambda only sends application logs at the
+  /// selected level of detail and lower, where <code>TRACE</code> is the highest
+  /// level and <code>FATAL</code> is the lowest.
+  final ApplicationLogLevel? applicationLogLevel;
+
+  /// The format in which Lambda sends your function's application and system logs
+  /// to CloudWatch. Select between plain text and structured JSON.
+  final LogFormat? logFormat;
+
+  /// The name of the Amazon CloudWatch log group the function sends logs to. By
+  /// default, Lambda functions send logs to a default log group named
+  /// <code>/aws/lambda/&lt;function name&gt;</code>. To use a different log
+  /// group, enter an existing log group or enter a new log group name.
+  final String? logGroup;
+
+  /// Set this property to filter the system logs for your function that Lambda
+  /// sends to CloudWatch. Lambda only sends system logs at the selected level of
+  /// detail and lower, where <code>DEBUG</code> is the highest level and
+  /// <code>WARN</code> is the lowest.
+  final SystemLogLevel? systemLogLevel;
+
+  LoggingConfig({
+    this.applicationLogLevel,
+    this.logFormat,
+    this.logGroup,
+    this.systemLogLevel,
+  });
+
+  factory LoggingConfig.fromJson(Map<String, dynamic> json) {
+    return LoggingConfig(
+      applicationLogLevel: (json['ApplicationLogLevel'] as String?)
+          ?.let(ApplicationLogLevel.fromString),
+      logFormat: (json['LogFormat'] as String?)?.let(LogFormat.fromString),
+      logGroup: json['LogGroup'] as String?,
+      systemLogLevel:
+          (json['SystemLogLevel'] as String?)?.let(SystemLogLevel.fromString),
+    );
   }
-}
 
-extension LogTypeFromString on String {
-  LogType toLogType() {
-    switch (this) {
-      case 'None':
-        return LogType.none;
-      case 'Tail':
-        return LogType.tail;
-    }
-    throw Exception('$this is not known in enum LogType');
+  Map<String, dynamic> toJson() {
+    final applicationLogLevel = this.applicationLogLevel;
+    final logFormat = this.logFormat;
+    final logGroup = this.logGroup;
+    final systemLogLevel = this.systemLogLevel;
+    return {
+      if (applicationLogLevel != null)
+        'ApplicationLogLevel': applicationLogLevel.value,
+      if (logFormat != null) 'LogFormat': logFormat.value,
+      if (logGroup != null) 'LogGroup': logGroup,
+      if (systemLogLevel != null) 'SystemLogLevel': systemLogLevel.value,
+    };
   }
 }
 
 /// A destination for events that failed processing.
 class OnFailure {
   /// The Amazon Resource Name (ARN) of the destination resource.
+  ///
+  /// To retain records of <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-async.html#invocation-async-destinations">asynchronous
+  /// invocations</a>, you can configure an Amazon SNS topic, Amazon SQS queue,
+  /// Lambda function, or Amazon EventBridge event bus as the destination.
+  ///
+  /// To retain records of failed invocations from <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/invocation-eventsourcemapping.html#event-source-mapping-destinations">Kinesis
+  /// and DynamoDB event sources</a>, you can configure an Amazon SNS topic or
+  /// Amazon SQS queue as the destination.
+  ///
+  /// To retain records of failed invocations from <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/with-kafka.html#services-smaa-onfailure-destination">self-managed
+  /// Kafka</a> or <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/with-msk.html#services-msk-onfailure-destination">Amazon
+  /// MSK</a>, you can configure an Amazon SNS topic, Amazon SQS queue, or Amazon
+  /// S3 bucket as the destination.
   final String? destination;
 
   OnFailure({
@@ -8066,31 +8005,17 @@ class OnSuccess {
 }
 
 enum PackageType {
-  zip,
-  image,
-}
+  zip('Zip'),
+  image('Image'),
+  ;
 
-extension PackageTypeValueExtension on PackageType {
-  String toValue() {
-    switch (this) {
-      case PackageType.zip:
-        return 'Zip';
-      case PackageType.image:
-        return 'Image';
-    }
-  }
-}
+  final String value;
 
-extension PackageTypeFromString on String {
-  PackageType toPackageType() {
-    switch (this) {
-      case 'Zip':
-        return PackageType.zip;
-      case 'Image':
-        return PackageType.image;
-    }
-    throw Exception('$this is not known in enum PackageType');
-  }
+  const PackageType(this.value);
+
+  static PackageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PackageType'));
 }
 
 /// Details about the provisioned concurrency configuration for a function alias
@@ -8143,45 +8068,27 @@ class ProvisionedConcurrencyConfigListItem {
       lastModified: json['LastModified'] as String?,
       requestedProvisionedConcurrentExecutions:
           json['RequestedProvisionedConcurrentExecutions'] as int?,
-      status: (json['Status'] as String?)?.toProvisionedConcurrencyStatusEnum(),
+      status: (json['Status'] as String?)
+          ?.let(ProvisionedConcurrencyStatusEnum.fromString),
       statusReason: json['StatusReason'] as String?,
     );
   }
 }
 
 enum ProvisionedConcurrencyStatusEnum {
-  inProgress,
-  ready,
-  failed,
-}
+  inProgress('IN_PROGRESS'),
+  ready('READY'),
+  failed('FAILED'),
+  ;
 
-extension ProvisionedConcurrencyStatusEnumValueExtension
-    on ProvisionedConcurrencyStatusEnum {
-  String toValue() {
-    switch (this) {
-      case ProvisionedConcurrencyStatusEnum.inProgress:
-        return 'IN_PROGRESS';
-      case ProvisionedConcurrencyStatusEnum.ready:
-        return 'READY';
-      case ProvisionedConcurrencyStatusEnum.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ProvisionedConcurrencyStatusEnumFromString on String {
-  ProvisionedConcurrencyStatusEnum toProvisionedConcurrencyStatusEnum() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return ProvisionedConcurrencyStatusEnum.inProgress;
-      case 'READY':
-        return ProvisionedConcurrencyStatusEnum.ready;
-      case 'FAILED':
-        return ProvisionedConcurrencyStatusEnum.failed;
-    }
-    throw Exception(
-        '$this is not known in enum ProvisionedConcurrencyStatusEnum');
-  }
+  const ProvisionedConcurrencyStatusEnum(this.value);
+
+  static ProvisionedConcurrencyStatusEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ProvisionedConcurrencyStatusEnum'));
 }
 
 class PublishLayerVersionResponse {
@@ -8191,6 +8098,11 @@ class PublishLayerVersionResponse {
   final List<Architecture>? compatibleArchitectures;
 
   /// The layer's compatible runtimes.
+  ///
+  /// The following list includes deprecated runtimes. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/lambda/latest/dg/lambda-runtimes.html#runtime-support-policy">Runtime
+  /// deprecation policy</a>.
   final List<Runtime>? compatibleRuntimes;
 
   /// Details about the layer version.
@@ -8231,12 +8143,12 @@ class PublishLayerVersionResponse {
   factory PublishLayerVersionResponse.fromJson(Map<String, dynamic> json) {
     return PublishLayerVersionResponse(
       compatibleArchitectures: (json['CompatibleArchitectures'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toArchitecture())
+          ?.nonNulls
+          .map((e) => Architecture.fromString((e as String)))
           .toList(),
       compatibleRuntimes: (json['CompatibleRuntimes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toRuntime())
+          ?.nonNulls
+          .map((e) => Runtime.fromString((e as String)))
           .toList(),
       content: json['Content'] != null
           ? LayerVersionContentOutput.fromJson(
@@ -8256,7 +8168,7 @@ class PutFunctionCodeSigningConfigResponse {
   /// The The Amazon Resource Name (ARN) of the code signing configuration.
   final String codeSigningConfigArn;
 
-  /// The name of the Lambda function.
+  /// The name or ARN of the Lambda function.
   /// <p class="title"> <b>Name formats</b>
   ///
   /// <ul>
@@ -8332,7 +8244,8 @@ class PutProvisionedConcurrencyConfigResponse {
       lastModified: json['LastModified'] as String?,
       requestedProvisionedConcurrentExecutions:
           json['RequestedProvisionedConcurrentExecutions'] as int?,
-      status: (json['Status'] as String?)?.toProvisionedConcurrencyStatusEnum(),
+      status: (json['Status'] as String?)
+          ?.let(ProvisionedConcurrencyStatusEnum.fromString),
       statusReason: json['StatusReason'] as String?,
     );
   }
@@ -8360,208 +8273,76 @@ class PutRuntimeManagementConfigResponse {
       Map<String, dynamic> json) {
     return PutRuntimeManagementConfigResponse(
       functionArn: json['FunctionArn'] as String,
-      updateRuntimeOn: (json['UpdateRuntimeOn'] as String).toUpdateRuntimeOn(),
+      updateRuntimeOn:
+          UpdateRuntimeOn.fromString((json['UpdateRuntimeOn'] as String)),
       runtimeVersionArn: json['RuntimeVersionArn'] as String?,
     );
   }
 }
 
 enum ResponseStreamingInvocationType {
-  requestResponse,
-  dryRun,
-}
+  requestResponse('RequestResponse'),
+  dryRun('DryRun'),
+  ;
 
-extension ResponseStreamingInvocationTypeValueExtension
-    on ResponseStreamingInvocationType {
-  String toValue() {
-    switch (this) {
-      case ResponseStreamingInvocationType.requestResponse:
-        return 'RequestResponse';
-      case ResponseStreamingInvocationType.dryRun:
-        return 'DryRun';
-    }
-  }
-}
+  final String value;
 
-extension ResponseStreamingInvocationTypeFromString on String {
-  ResponseStreamingInvocationType toResponseStreamingInvocationType() {
-    switch (this) {
-      case 'RequestResponse':
-        return ResponseStreamingInvocationType.requestResponse;
-      case 'DryRun':
-        return ResponseStreamingInvocationType.dryRun;
-    }
-    throw Exception(
-        '$this is not known in enum ResponseStreamingInvocationType');
-  }
+  const ResponseStreamingInvocationType(this.value);
+
+  static ResponseStreamingInvocationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResponseStreamingInvocationType'));
 }
 
 enum Runtime {
-  nodejs,
-  nodejs4_3,
-  nodejs6_10,
-  nodejs8_10,
-  nodejs10X,
-  nodejs12X,
-  nodejs14X,
-  nodejs16X,
-  java8,
-  java8Al2,
-  java11,
-  python2_7,
-  python3_6,
-  python3_7,
-  python3_8,
-  python3_9,
-  dotnetcore1_0,
-  dotnetcore2_0,
-  dotnetcore2_1,
-  dotnetcore3_1,
-  dotnet6,
-  nodejs4_3Edge,
-  go1X,
-  ruby2_5,
-  ruby2_7,
-  provided,
-  providedAl2,
-  nodejs18X,
-  python3_10,
-  java17,
-}
+  nodejs('nodejs'),
+  nodejs4_3('nodejs4.3'),
+  nodejs6_10('nodejs6.10'),
+  nodejs8_10('nodejs8.10'),
+  nodejs10X('nodejs10.x'),
+  nodejs12X('nodejs12.x'),
+  nodejs14X('nodejs14.x'),
+  nodejs16X('nodejs16.x'),
+  java8('java8'),
+  java8Al2('java8.al2'),
+  java11('java11'),
+  python2_7('python2.7'),
+  python3_6('python3.6'),
+  python3_7('python3.7'),
+  python3_8('python3.8'),
+  python3_9('python3.9'),
+  dotnetcore1_0('dotnetcore1.0'),
+  dotnetcore2_0('dotnetcore2.0'),
+  dotnetcore2_1('dotnetcore2.1'),
+  dotnetcore3_1('dotnetcore3.1'),
+  dotnet6('dotnet6'),
+  dotnet8('dotnet8'),
+  nodejs4_3Edge('nodejs4.3-edge'),
+  go1X('go1.x'),
+  ruby2_5('ruby2.5'),
+  ruby2_7('ruby2.7'),
+  provided('provided'),
+  providedAl2('provided.al2'),
+  nodejs18X('nodejs18.x'),
+  python3_10('python3.10'),
+  java17('java17'),
+  ruby3_2('ruby3.2'),
+  ruby3_3('ruby3.3'),
+  python3_11('python3.11'),
+  nodejs20X('nodejs20.x'),
+  providedAl2023('provided.al2023'),
+  python3_12('python3.12'),
+  java21('java21'),
+  ;
 
-extension RuntimeValueExtension on Runtime {
-  String toValue() {
-    switch (this) {
-      case Runtime.nodejs:
-        return 'nodejs';
-      case Runtime.nodejs4_3:
-        return 'nodejs4.3';
-      case Runtime.nodejs6_10:
-        return 'nodejs6.10';
-      case Runtime.nodejs8_10:
-        return 'nodejs8.10';
-      case Runtime.nodejs10X:
-        return 'nodejs10.x';
-      case Runtime.nodejs12X:
-        return 'nodejs12.x';
-      case Runtime.nodejs14X:
-        return 'nodejs14.x';
-      case Runtime.nodejs16X:
-        return 'nodejs16.x';
-      case Runtime.java8:
-        return 'java8';
-      case Runtime.java8Al2:
-        return 'java8.al2';
-      case Runtime.java11:
-        return 'java11';
-      case Runtime.python2_7:
-        return 'python2.7';
-      case Runtime.python3_6:
-        return 'python3.6';
-      case Runtime.python3_7:
-        return 'python3.7';
-      case Runtime.python3_8:
-        return 'python3.8';
-      case Runtime.python3_9:
-        return 'python3.9';
-      case Runtime.dotnetcore1_0:
-        return 'dotnetcore1.0';
-      case Runtime.dotnetcore2_0:
-        return 'dotnetcore2.0';
-      case Runtime.dotnetcore2_1:
-        return 'dotnetcore2.1';
-      case Runtime.dotnetcore3_1:
-        return 'dotnetcore3.1';
-      case Runtime.dotnet6:
-        return 'dotnet6';
-      case Runtime.nodejs4_3Edge:
-        return 'nodejs4.3-edge';
-      case Runtime.go1X:
-        return 'go1.x';
-      case Runtime.ruby2_5:
-        return 'ruby2.5';
-      case Runtime.ruby2_7:
-        return 'ruby2.7';
-      case Runtime.provided:
-        return 'provided';
-      case Runtime.providedAl2:
-        return 'provided.al2';
-      case Runtime.nodejs18X:
-        return 'nodejs18.x';
-      case Runtime.python3_10:
-        return 'python3.10';
-      case Runtime.java17:
-        return 'java17';
-    }
-  }
-}
+  final String value;
 
-extension RuntimeFromString on String {
-  Runtime toRuntime() {
-    switch (this) {
-      case 'nodejs':
-        return Runtime.nodejs;
-      case 'nodejs4.3':
-        return Runtime.nodejs4_3;
-      case 'nodejs6.10':
-        return Runtime.nodejs6_10;
-      case 'nodejs8.10':
-        return Runtime.nodejs8_10;
-      case 'nodejs10.x':
-        return Runtime.nodejs10X;
-      case 'nodejs12.x':
-        return Runtime.nodejs12X;
-      case 'nodejs14.x':
-        return Runtime.nodejs14X;
-      case 'nodejs16.x':
-        return Runtime.nodejs16X;
-      case 'java8':
-        return Runtime.java8;
-      case 'java8.al2':
-        return Runtime.java8Al2;
-      case 'java11':
-        return Runtime.java11;
-      case 'python2.7':
-        return Runtime.python2_7;
-      case 'python3.6':
-        return Runtime.python3_6;
-      case 'python3.7':
-        return Runtime.python3_7;
-      case 'python3.8':
-        return Runtime.python3_8;
-      case 'python3.9':
-        return Runtime.python3_9;
-      case 'dotnetcore1.0':
-        return Runtime.dotnetcore1_0;
-      case 'dotnetcore2.0':
-        return Runtime.dotnetcore2_0;
-      case 'dotnetcore2.1':
-        return Runtime.dotnetcore2_1;
-      case 'dotnetcore3.1':
-        return Runtime.dotnetcore3_1;
-      case 'dotnet6':
-        return Runtime.dotnet6;
-      case 'nodejs4.3-edge':
-        return Runtime.nodejs4_3Edge;
-      case 'go1.x':
-        return Runtime.go1X;
-      case 'ruby2.5':
-        return Runtime.ruby2_5;
-      case 'ruby2.7':
-        return Runtime.ruby2_7;
-      case 'provided':
-        return Runtime.provided;
-      case 'provided.al2':
-        return Runtime.providedAl2;
-      case 'nodejs18.x':
-        return Runtime.nodejs18X;
-      case 'python3.10':
-        return Runtime.python3_10;
-      case 'java17':
-        return Runtime.java17;
-    }
-    throw Exception('$this is not known in enum Runtime');
-  }
+  const Runtime(this.value);
+
+  static Runtime fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Runtime'));
 }
 
 /// The ARN of the runtime and any errors that occured.
@@ -8649,8 +8430,8 @@ class SelfManagedEventSource {
   factory SelfManagedEventSource.fromJson(Map<String, dynamic> json) {
     return SelfManagedEventSource(
       endpoints: (json['Endpoints'] as Map<String, dynamic>?)?.map((k, e) =>
-          MapEntry(k.toEndPointType(),
-              (e as List).whereNotNull().map((e) => e as String).toList())),
+          MapEntry(EndPointType.fromString(k),
+              (e as List).nonNulls.map((e) => e as String).toList())),
     );
   }
 
@@ -8658,7 +8439,7 @@ class SelfManagedEventSource {
     final endpoints = this.endpoints;
     return {
       if (endpoints != null)
-        'Endpoints': endpoints.map((k, e) => MapEntry(k.toValue(), e)),
+        'Endpoints': endpoints.map((k, e) => MapEntry(k.value, e)),
     };
   }
 }
@@ -8693,14 +8474,11 @@ class SelfManagedKafkaEventSourceConfig {
   }
 }
 
-/// The function's Lambda SnapStart setting. Set <code>ApplyOn</code> to
+/// The function's <a
+/// href="https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html">Lambda
+/// SnapStart</a> setting. Set <code>ApplyOn</code> to
 /// <code>PublishedVersions</code> to create a snapshot of the initialized
 /// execution environment when you publish a function version.
-///
-/// SnapStart is supported with the <code>java11</code> runtime. For more
-/// information, see <a
-/// href="https://docs.aws.amazon.com/lambda/latest/dg/snapstart.html">Improving
-/// startup performance with Lambda SnapStart</a>.
 class SnapStart {
   /// Set to <code>PublishedVersions</code> to create a snapshot of the
   /// initialized execution environment when you publish a function version.
@@ -8713,66 +8491,39 @@ class SnapStart {
   Map<String, dynamic> toJson() {
     final applyOn = this.applyOn;
     return {
-      if (applyOn != null) 'ApplyOn': applyOn.toValue(),
+      if (applyOn != null) 'ApplyOn': applyOn.value,
     };
   }
 }
 
 enum SnapStartApplyOn {
-  publishedVersions,
-  none,
-}
+  publishedVersions('PublishedVersions'),
+  none('None'),
+  ;
 
-extension SnapStartApplyOnValueExtension on SnapStartApplyOn {
-  String toValue() {
-    switch (this) {
-      case SnapStartApplyOn.publishedVersions:
-        return 'PublishedVersions';
-      case SnapStartApplyOn.none:
-        return 'None';
-    }
-  }
-}
+  final String value;
 
-extension SnapStartApplyOnFromString on String {
-  SnapStartApplyOn toSnapStartApplyOn() {
-    switch (this) {
-      case 'PublishedVersions':
-        return SnapStartApplyOn.publishedVersions;
-      case 'None':
-        return SnapStartApplyOn.none;
-    }
-    throw Exception('$this is not known in enum SnapStartApplyOn');
-  }
+  const SnapStartApplyOn(this.value);
+
+  static SnapStartApplyOn fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SnapStartApplyOn'));
 }
 
 enum SnapStartOptimizationStatus {
-  on,
-  off,
-}
+  on('On'),
+  off('Off'),
+  ;
 
-extension SnapStartOptimizationStatusValueExtension
-    on SnapStartOptimizationStatus {
-  String toValue() {
-    switch (this) {
-      case SnapStartOptimizationStatus.on:
-        return 'On';
-      case SnapStartOptimizationStatus.off:
-        return 'Off';
-    }
-  }
-}
+  final String value;
 
-extension SnapStartOptimizationStatusFromString on String {
-  SnapStartOptimizationStatus toSnapStartOptimizationStatus() {
-    switch (this) {
-      case 'On':
-        return SnapStartOptimizationStatus.on;
-      case 'Off':
-        return SnapStartOptimizationStatus.off;
-    }
-    throw Exception('$this is not known in enum SnapStartOptimizationStatus');
-  }
+  const SnapStartOptimizationStatus(this.value);
+
+  static SnapStartOptimizationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SnapStartOptimizationStatus'));
 }
 
 /// The function's <a
@@ -8796,9 +8547,9 @@ class SnapStartResponse {
 
   factory SnapStartResponse.fromJson(Map<String, dynamic> json) {
     return SnapStartResponse(
-      applyOn: (json['ApplyOn'] as String?)?.toSnapStartApplyOn(),
+      applyOn: (json['ApplyOn'] as String?)?.let(SnapStartApplyOn.fromString),
       optimizationStatus: (json['OptimizationStatus'] as String?)
-          ?.toSnapStartOptimizationStatus(),
+          ?.let(SnapStartOptimizationStatus.fromString),
     );
   }
 }
@@ -8871,7 +8622,7 @@ class SourceAccessConfiguration {
 
   factory SourceAccessConfiguration.fromJson(Map<String, dynamic> json) {
     return SourceAccessConfiguration(
-      type: (json['Type'] as String?)?.toSourceAccessType(),
+      type: (json['Type'] as String?)?.let(SourceAccessType.fromString),
       uri: json['URI'] as String?,
     );
   }
@@ -8880,244 +8631,100 @@ class SourceAccessConfiguration {
     final type = this.type;
     final uri = this.uri;
     return {
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (uri != null) 'URI': uri,
     };
   }
 }
 
 enum SourceAccessType {
-  basicAuth,
-  vpcSubnet,
-  vpcSecurityGroup,
-  saslScram_512Auth,
-  saslScram_256Auth,
-  virtualHost,
-  clientCertificateTlsAuth,
-  serverRootCaCertificate,
-}
+  basicAuth('BASIC_AUTH'),
+  vpcSubnet('VPC_SUBNET'),
+  vpcSecurityGroup('VPC_SECURITY_GROUP'),
+  saslScram_512Auth('SASL_SCRAM_512_AUTH'),
+  saslScram_256Auth('SASL_SCRAM_256_AUTH'),
+  virtualHost('VIRTUAL_HOST'),
+  clientCertificateTlsAuth('CLIENT_CERTIFICATE_TLS_AUTH'),
+  serverRootCaCertificate('SERVER_ROOT_CA_CERTIFICATE'),
+  ;
 
-extension SourceAccessTypeValueExtension on SourceAccessType {
-  String toValue() {
-    switch (this) {
-      case SourceAccessType.basicAuth:
-        return 'BASIC_AUTH';
-      case SourceAccessType.vpcSubnet:
-        return 'VPC_SUBNET';
-      case SourceAccessType.vpcSecurityGroup:
-        return 'VPC_SECURITY_GROUP';
-      case SourceAccessType.saslScram_512Auth:
-        return 'SASL_SCRAM_512_AUTH';
-      case SourceAccessType.saslScram_256Auth:
-        return 'SASL_SCRAM_256_AUTH';
-      case SourceAccessType.virtualHost:
-        return 'VIRTUAL_HOST';
-      case SourceAccessType.clientCertificateTlsAuth:
-        return 'CLIENT_CERTIFICATE_TLS_AUTH';
-      case SourceAccessType.serverRootCaCertificate:
-        return 'SERVER_ROOT_CA_CERTIFICATE';
-    }
-  }
-}
+  final String value;
 
-extension SourceAccessTypeFromString on String {
-  SourceAccessType toSourceAccessType() {
-    switch (this) {
-      case 'BASIC_AUTH':
-        return SourceAccessType.basicAuth;
-      case 'VPC_SUBNET':
-        return SourceAccessType.vpcSubnet;
-      case 'VPC_SECURITY_GROUP':
-        return SourceAccessType.vpcSecurityGroup;
-      case 'SASL_SCRAM_512_AUTH':
-        return SourceAccessType.saslScram_512Auth;
-      case 'SASL_SCRAM_256_AUTH':
-        return SourceAccessType.saslScram_256Auth;
-      case 'VIRTUAL_HOST':
-        return SourceAccessType.virtualHost;
-      case 'CLIENT_CERTIFICATE_TLS_AUTH':
-        return SourceAccessType.clientCertificateTlsAuth;
-      case 'SERVER_ROOT_CA_CERTIFICATE':
-        return SourceAccessType.serverRootCaCertificate;
-    }
-    throw Exception('$this is not known in enum SourceAccessType');
-  }
+  const SourceAccessType(this.value);
+
+  static SourceAccessType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SourceAccessType'));
 }
 
 enum State {
-  pending,
-  active,
-  inactive,
-  failed,
-}
+  pending('Pending'),
+  active('Active'),
+  inactive('Inactive'),
+  failed('Failed'),
+  ;
 
-extension StateValueExtension on State {
-  String toValue() {
-    switch (this) {
-      case State.pending:
-        return 'Pending';
-      case State.active:
-        return 'Active';
-      case State.inactive:
-        return 'Inactive';
-      case State.failed:
-        return 'Failed';
-    }
-  }
-}
+  final String value;
 
-extension StateFromString on String {
-  State toState() {
-    switch (this) {
-      case 'Pending':
-        return State.pending;
-      case 'Active':
-        return State.active;
-      case 'Inactive':
-        return State.inactive;
-      case 'Failed':
-        return State.failed;
-    }
-    throw Exception('$this is not known in enum State');
-  }
+  const State(this.value);
+
+  static State fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum State'));
 }
 
 enum StateReasonCode {
-  idle,
-  creating,
-  restoring,
-  eniLimitExceeded,
-  insufficientRolePermissions,
-  invalidConfiguration,
-  internalError,
-  subnetOutOfIPAddresses,
-  invalidSubnet,
-  invalidSecurityGroup,
-  imageDeleted,
-  imageAccessDenied,
-  invalidImage,
-  kMSKeyAccessDenied,
-  kMSKeyNotFound,
-  invalidStateKMSKey,
-  disabledKMSKey,
-  eFSIOError,
-  eFSMountConnectivityError,
-  eFSMountFailure,
-  eFSMountTimeout,
-  invalidRuntime,
-  invalidZipFileException,
-  functionError,
+  idle('Idle'),
+  creating('Creating'),
+  restoring('Restoring'),
+  eniLimitExceeded('EniLimitExceeded'),
+  insufficientRolePermissions('InsufficientRolePermissions'),
+  invalidConfiguration('InvalidConfiguration'),
+  internalError('InternalError'),
+  subnetOutOfIPAddresses('SubnetOutOfIPAddresses'),
+  invalidSubnet('InvalidSubnet'),
+  invalidSecurityGroup('InvalidSecurityGroup'),
+  imageDeleted('ImageDeleted'),
+  imageAccessDenied('ImageAccessDenied'),
+  invalidImage('InvalidImage'),
+  kMSKeyAccessDenied('KMSKeyAccessDenied'),
+  kMSKeyNotFound('KMSKeyNotFound'),
+  invalidStateKMSKey('InvalidStateKMSKey'),
+  disabledKMSKey('DisabledKMSKey'),
+  eFSIOError('EFSIOError'),
+  eFSMountConnectivityError('EFSMountConnectivityError'),
+  eFSMountFailure('EFSMountFailure'),
+  eFSMountTimeout('EFSMountTimeout'),
+  invalidRuntime('InvalidRuntime'),
+  invalidZipFileException('InvalidZipFileException'),
+  functionError('FunctionError'),
+  ;
+
+  final String value;
+
+  const StateReasonCode(this.value);
+
+  static StateReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StateReasonCode'));
 }
 
-extension StateReasonCodeValueExtension on StateReasonCode {
-  String toValue() {
-    switch (this) {
-      case StateReasonCode.idle:
-        return 'Idle';
-      case StateReasonCode.creating:
-        return 'Creating';
-      case StateReasonCode.restoring:
-        return 'Restoring';
-      case StateReasonCode.eniLimitExceeded:
-        return 'EniLimitExceeded';
-      case StateReasonCode.insufficientRolePermissions:
-        return 'InsufficientRolePermissions';
-      case StateReasonCode.invalidConfiguration:
-        return 'InvalidConfiguration';
-      case StateReasonCode.internalError:
-        return 'InternalError';
-      case StateReasonCode.subnetOutOfIPAddresses:
-        return 'SubnetOutOfIPAddresses';
-      case StateReasonCode.invalidSubnet:
-        return 'InvalidSubnet';
-      case StateReasonCode.invalidSecurityGroup:
-        return 'InvalidSecurityGroup';
-      case StateReasonCode.imageDeleted:
-        return 'ImageDeleted';
-      case StateReasonCode.imageAccessDenied:
-        return 'ImageAccessDenied';
-      case StateReasonCode.invalidImage:
-        return 'InvalidImage';
-      case StateReasonCode.kMSKeyAccessDenied:
-        return 'KMSKeyAccessDenied';
-      case StateReasonCode.kMSKeyNotFound:
-        return 'KMSKeyNotFound';
-      case StateReasonCode.invalidStateKMSKey:
-        return 'InvalidStateKMSKey';
-      case StateReasonCode.disabledKMSKey:
-        return 'DisabledKMSKey';
-      case StateReasonCode.eFSIOError:
-        return 'EFSIOError';
-      case StateReasonCode.eFSMountConnectivityError:
-        return 'EFSMountConnectivityError';
-      case StateReasonCode.eFSMountFailure:
-        return 'EFSMountFailure';
-      case StateReasonCode.eFSMountTimeout:
-        return 'EFSMountTimeout';
-      case StateReasonCode.invalidRuntime:
-        return 'InvalidRuntime';
-      case StateReasonCode.invalidZipFileException:
-        return 'InvalidZipFileException';
-      case StateReasonCode.functionError:
-        return 'FunctionError';
-    }
-  }
-}
+enum SystemLogLevel {
+  debug('DEBUG'),
+  info('INFO'),
+  warn('WARN'),
+  ;
 
-extension StateReasonCodeFromString on String {
-  StateReasonCode toStateReasonCode() {
-    switch (this) {
-      case 'Idle':
-        return StateReasonCode.idle;
-      case 'Creating':
-        return StateReasonCode.creating;
-      case 'Restoring':
-        return StateReasonCode.restoring;
-      case 'EniLimitExceeded':
-        return StateReasonCode.eniLimitExceeded;
-      case 'InsufficientRolePermissions':
-        return StateReasonCode.insufficientRolePermissions;
-      case 'InvalidConfiguration':
-        return StateReasonCode.invalidConfiguration;
-      case 'InternalError':
-        return StateReasonCode.internalError;
-      case 'SubnetOutOfIPAddresses':
-        return StateReasonCode.subnetOutOfIPAddresses;
-      case 'InvalidSubnet':
-        return StateReasonCode.invalidSubnet;
-      case 'InvalidSecurityGroup':
-        return StateReasonCode.invalidSecurityGroup;
-      case 'ImageDeleted':
-        return StateReasonCode.imageDeleted;
-      case 'ImageAccessDenied':
-        return StateReasonCode.imageAccessDenied;
-      case 'InvalidImage':
-        return StateReasonCode.invalidImage;
-      case 'KMSKeyAccessDenied':
-        return StateReasonCode.kMSKeyAccessDenied;
-      case 'KMSKeyNotFound':
-        return StateReasonCode.kMSKeyNotFound;
-      case 'InvalidStateKMSKey':
-        return StateReasonCode.invalidStateKMSKey;
-      case 'DisabledKMSKey':
-        return StateReasonCode.disabledKMSKey;
-      case 'EFSIOError':
-        return StateReasonCode.eFSIOError;
-      case 'EFSMountConnectivityError':
-        return StateReasonCode.eFSMountConnectivityError;
-      case 'EFSMountFailure':
-        return StateReasonCode.eFSMountFailure;
-      case 'EFSMountTimeout':
-        return StateReasonCode.eFSMountTimeout;
-      case 'InvalidRuntime':
-        return StateReasonCode.invalidRuntime;
-      case 'InvalidZipFileException':
-        return StateReasonCode.invalidZipFileException;
-      case 'FunctionError':
-        return StateReasonCode.functionError;
-    }
-    throw Exception('$this is not known in enum StateReasonCode');
-  }
+  final String value;
+
+  const SystemLogLevel(this.value);
+
+  static SystemLogLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SystemLogLevel'));
 }
 
 /// The function's <a
@@ -9135,7 +8742,7 @@ class TracingConfig {
   Map<String, dynamic> toJson() {
     final mode = this.mode;
     return {
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
     };
   }
 }
@@ -9151,37 +8758,23 @@ class TracingConfigResponse {
 
   factory TracingConfigResponse.fromJson(Map<String, dynamic> json) {
     return TracingConfigResponse(
-      mode: (json['Mode'] as String?)?.toTracingMode(),
+      mode: (json['Mode'] as String?)?.let(TracingMode.fromString),
     );
   }
 }
 
 enum TracingMode {
-  active,
-  passThrough,
-}
+  active('Active'),
+  passThrough('PassThrough'),
+  ;
 
-extension TracingModeValueExtension on TracingMode {
-  String toValue() {
-    switch (this) {
-      case TracingMode.active:
-        return 'Active';
-      case TracingMode.passThrough:
-        return 'PassThrough';
-    }
-  }
-}
+  final String value;
 
-extension TracingModeFromString on String {
-  TracingMode toTracingMode() {
-    switch (this) {
-      case 'Active':
-        return TracingMode.active;
-      case 'PassThrough':
-        return TracingMode.passThrough;
-    }
-    throw Exception('$this is not known in enum TracingMode');
-  }
+  const TracingMode(this.value);
+
+  static TracingMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TracingMode'));
 }
 
 class UpdateCodeSigningConfigResponse {
@@ -9261,7 +8854,7 @@ class UpdateFunctionUrlConfigResponse {
 
   factory UpdateFunctionUrlConfigResponse.fromJson(Map<String, dynamic> json) {
     return UpdateFunctionUrlConfigResponse(
-      authType: (json['AuthType'] as String).toFunctionUrlAuthType(),
+      authType: FunctionUrlAuthType.fromString((json['AuthType'] as String)),
       creationTime: json['CreationTime'] as String,
       functionArn: json['FunctionArn'] as String,
       functionUrl: json['FunctionUrl'] as String,
@@ -9269,42 +8862,25 @@ class UpdateFunctionUrlConfigResponse {
       cors: json['Cors'] != null
           ? Cors.fromJson(json['Cors'] as Map<String, dynamic>)
           : null,
-      invokeMode: (json['InvokeMode'] as String?)?.toInvokeMode(),
+      invokeMode: (json['InvokeMode'] as String?)?.let(InvokeMode.fromString),
     );
   }
 }
 
 enum UpdateRuntimeOn {
-  auto,
-  manual,
-  functionUpdate,
-}
+  auto('Auto'),
+  manual('Manual'),
+  functionUpdate('FunctionUpdate'),
+  ;
 
-extension UpdateRuntimeOnValueExtension on UpdateRuntimeOn {
-  String toValue() {
-    switch (this) {
-      case UpdateRuntimeOn.auto:
-        return 'Auto';
-      case UpdateRuntimeOn.manual:
-        return 'Manual';
-      case UpdateRuntimeOn.functionUpdate:
-        return 'FunctionUpdate';
-    }
-  }
-}
+  final String value;
 
-extension UpdateRuntimeOnFromString on String {
-  UpdateRuntimeOn toUpdateRuntimeOn() {
-    switch (this) {
-      case 'Auto':
-        return UpdateRuntimeOn.auto;
-      case 'Manual':
-        return UpdateRuntimeOn.manual;
-      case 'FunctionUpdate':
-        return UpdateRuntimeOn.functionUpdate;
-    }
-    throw Exception('$this is not known in enum UpdateRuntimeOn');
-  }
+  const UpdateRuntimeOn(this.value);
+
+  static UpdateRuntimeOn fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateRuntimeOn'));
 }
 
 /// The VPC security groups and subnets that are attached to a Lambda function.
@@ -9312,6 +8888,10 @@ extension UpdateRuntimeOnFromString on String {
 /// href="https://docs.aws.amazon.com/lambda/latest/dg/configuration-vpc.html">Configuring
 /// a Lambda function to access resources in a VPC</a>.
 class VpcConfig {
+  /// Allows outbound IPv6 traffic on VPC functions that are connected to
+  /// dual-stack subnets.
+  final bool? ipv6AllowedForDualStack;
+
   /// A list of VPC security group IDs.
   final List<String>? securityGroupIds;
 
@@ -9319,14 +8899,18 @@ class VpcConfig {
   final List<String>? subnetIds;
 
   VpcConfig({
+    this.ipv6AllowedForDualStack,
     this.securityGroupIds,
     this.subnetIds,
   });
 
   Map<String, dynamic> toJson() {
+    final ipv6AllowedForDualStack = this.ipv6AllowedForDualStack;
     final securityGroupIds = this.securityGroupIds;
     final subnetIds = this.subnetIds;
     return {
+      if (ipv6AllowedForDualStack != null)
+        'Ipv6AllowedForDualStack': ipv6AllowedForDualStack,
       if (securityGroupIds != null) 'SecurityGroupIds': securityGroupIds,
       if (subnetIds != null) 'SubnetIds': subnetIds,
     };
@@ -9335,6 +8919,10 @@ class VpcConfig {
 
 /// The VPC security groups and subnets that are attached to a Lambda function.
 class VpcConfigResponse {
+  /// Allows outbound IPv6 traffic on VPC functions that are connected to
+  /// dual-stack subnets.
+  final bool? ipv6AllowedForDualStack;
+
   /// A list of VPC security group IDs.
   final List<String>? securityGroupIds;
 
@@ -9345,6 +8933,7 @@ class VpcConfigResponse {
   final String? vpcId;
 
   VpcConfigResponse({
+    this.ipv6AllowedForDualStack,
     this.securityGroupIds,
     this.subnetIds,
     this.vpcId,
@@ -9352,12 +8941,13 @@ class VpcConfigResponse {
 
   factory VpcConfigResponse.fromJson(Map<String, dynamic> json) {
     return VpcConfigResponse(
+      ipv6AllowedForDualStack: json['Ipv6AllowedForDualStack'] as bool?,
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -9520,6 +9110,12 @@ class ProvisionedConcurrencyConfigNotFoundException
             message: message);
 }
 
+class RecursiveInvocationException extends _s.GenericAwsException {
+  RecursiveInvocationException({String? type, String? message})
+      : super(
+            type: type, code: 'RecursiveInvocationException', message: message);
+}
+
 class RequestTooLargeException extends _s.GenericAwsException {
   RequestTooLargeException({String? type, String? message})
       : super(type: type, code: 'RequestTooLargeException', message: message);
@@ -9638,6 +9234,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
   'ProvisionedConcurrencyConfigNotFoundException': (type, message) =>
       ProvisionedConcurrencyConfigNotFoundException(
           type: type, message: message),
+  'RecursiveInvocationException': (type, message) =>
+      RecursiveInvocationException(type: type, message: message),
   'RequestTooLargeException': (type, message) =>
       RequestTooLargeException(type: type, message: message),
   'ResourceConflictException': (type, message) =>

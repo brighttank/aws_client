@@ -17,7 +17,6 @@ import 'package:shared_aws_api/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'elasticbeanstalk-2010-12-01.meta.dart';
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// AWS Elastic Beanstalk makes it easy for you to create, deploy, and manage
@@ -25,7 +24,6 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// cloud.
 class ElasticBeanstalk {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   ElasticBeanstalk({
     required String region,
@@ -33,7 +31,7 @@ class ElasticBeanstalk {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'elasticbeanstalk',
@@ -42,9 +40,7 @@ class ElasticBeanstalk {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -71,9 +67,10 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     await _protocol.send(
       $request,
       action: 'AbortEnvironmentUpdate',
@@ -81,8 +78,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AbortEnvironmentUpdateMessage'],
-      shapes: shapes,
     );
   }
 
@@ -107,10 +102,11 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ActionId'] = actionId;
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      'ActionId': actionId,
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ApplyEnvironmentManagedAction',
@@ -118,8 +114,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ApplyEnvironmentManagedActionRequest'],
-      shapes: shapes,
       resultWrapper: 'ApplyEnvironmentManagedActionResult',
     );
     return ApplyEnvironmentManagedActionResult.fromXml($result);
@@ -144,9 +138,10 @@ class ElasticBeanstalk {
     required String environmentName,
     required String operationsRole,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EnvironmentName'] = environmentName;
-    $request['OperationsRole'] = operationsRole;
+    final $request = <String, String>{
+      'EnvironmentName': environmentName,
+      'OperationsRole': operationsRole,
+    };
     await _protocol.send(
       $request,
       action: 'AssociateEnvironmentOperationsRole',
@@ -154,8 +149,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AssociateEnvironmentOperationsRoleMessage'],
-      shapes: shapes,
     );
   }
 
@@ -166,8 +159,9 @@ class ElasticBeanstalk {
   Future<CheckDNSAvailabilityResultMessage> checkDNSAvailability({
     required String cNAMEPrefix,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['CNAMEPrefix'] = cNAMEPrefix;
+    final $request = <String, String>{
+      'CNAMEPrefix': cNAMEPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CheckDNSAvailability',
@@ -175,8 +169,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CheckDNSAvailabilityMessage'],
-      shapes: shapes,
       resultWrapper: 'CheckDNSAvailabilityResult',
     );
     return CheckDNSAvailabilityResultMessage.fromXml($result);
@@ -215,10 +207,16 @@ class ElasticBeanstalk {
     String? groupName,
     List<String>? versionLabels,
   }) async {
-    final $request = <String, dynamic>{};
-    applicationName?.also((arg) => $request['ApplicationName'] = arg);
-    groupName?.also((arg) => $request['GroupName'] = arg);
-    versionLabels?.also((arg) => $request['VersionLabels'] = arg);
+    final $request = <String, String>{
+      if (applicationName != null) 'ApplicationName': applicationName,
+      if (groupName != null) 'GroupName': groupName,
+      if (versionLabels != null)
+        if (versionLabels.isEmpty)
+          'VersionLabels': ''
+        else
+          for (var i1 = 0; i1 < versionLabels.length; i1++)
+            'VersionLabels.member.${i1 + 1}': versionLabels[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ComposeEnvironments',
@@ -226,8 +224,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ComposeEnvironmentsMessage'],
-      shapes: shapes,
       resultWrapper: 'ComposeEnvironmentsResult',
     );
     return EnvironmentDescriptionsMessage.fromXml($result);
@@ -259,12 +255,20 @@ class ElasticBeanstalk {
     ApplicationResourceLifecycleConfig? resourceLifecycleConfig,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    description?.also((arg) => $request['Description'] = arg);
-    resourceLifecycleConfig
-        ?.also((arg) => $request['ResourceLifecycleConfig'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      if (description != null) 'Description': description,
+      if (resourceLifecycleConfig != null)
+        for (var e1 in resourceLifecycleConfig.toQueryMap().entries)
+          'ResourceLifecycleConfig.${e1.key}': e1.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateApplication',
@@ -272,8 +276,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateApplicationMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateApplicationResult',
     );
     return ApplicationDescriptionMessage.fromXml($result);
@@ -375,18 +377,30 @@ class ElasticBeanstalk {
     S3Location? sourceBundle,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['VersionLabel'] = versionLabel;
-    autoCreateApplication
-        ?.also((arg) => $request['AutoCreateApplication'] = arg);
-    buildConfiguration?.also((arg) => $request['BuildConfiguration'] = arg);
-    description?.also((arg) => $request['Description'] = arg);
-    process?.also((arg) => $request['Process'] = arg);
-    sourceBuildInformation
-        ?.also((arg) => $request['SourceBuildInformation'] = arg);
-    sourceBundle?.also((arg) => $request['SourceBundle'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      'VersionLabel': versionLabel,
+      if (autoCreateApplication != null)
+        'AutoCreateApplication': autoCreateApplication.toString(),
+      if (buildConfiguration != null)
+        for (var e1 in buildConfiguration.toQueryMap().entries)
+          'BuildConfiguration.${e1.key}': e1.value,
+      if (description != null) 'Description': description,
+      if (process != null) 'Process': process.toString(),
+      if (sourceBuildInformation != null)
+        for (var e1 in sourceBuildInformation.toQueryMap().entries)
+          'SourceBuildInformation.${e1.key}': e1.value,
+      if (sourceBundle != null)
+        for (var e1 in sourceBundle.toQueryMap().entries)
+          'SourceBundle.${e1.key}': e1.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateApplicationVersion',
@@ -394,8 +408,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateApplicationVersionMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateApplicationVersionResult',
     );
     return ApplicationVersionDescriptionMessage.fromXml($result);
@@ -512,16 +524,31 @@ class ElasticBeanstalk {
     SourceConfiguration? sourceConfiguration,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['TemplateName'] = templateName;
-    description?.also((arg) => $request['Description'] = arg);
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    optionSettings?.also((arg) => $request['OptionSettings'] = arg);
-    platformArn?.also((arg) => $request['PlatformArn'] = arg);
-    solutionStackName?.also((arg) => $request['SolutionStackName'] = arg);
-    sourceConfiguration?.also((arg) => $request['SourceConfiguration'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      'TemplateName': templateName,
+      if (description != null) 'Description': description,
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (optionSettings != null)
+        if (optionSettings.isEmpty)
+          'OptionSettings': ''
+        else
+          for (var i1 = 0; i1 < optionSettings.length; i1++)
+            for (var e3 in optionSettings[i1].toQueryMap().entries)
+              'OptionSettings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (platformArn != null) 'PlatformArn': platformArn,
+      if (solutionStackName != null) 'SolutionStackName': solutionStackName,
+      if (sourceConfiguration != null)
+        for (var e1 in sourceConfiguration.toQueryMap().entries)
+          'SourceConfiguration.${e1.key}': e1.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateConfigurationTemplate',
@@ -529,8 +556,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateConfigurationTemplateMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateConfigurationTemplateResult',
     );
     return ConfigurationSettingsDescription.fromXml($result);
@@ -655,21 +680,41 @@ class ElasticBeanstalk {
     EnvironmentTier? tier,
     String? versionLabel,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    cNAMEPrefix?.also((arg) => $request['CNAMEPrefix'] = arg);
-    description?.also((arg) => $request['Description'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    groupName?.also((arg) => $request['GroupName'] = arg);
-    operationsRole?.also((arg) => $request['OperationsRole'] = arg);
-    optionSettings?.also((arg) => $request['OptionSettings'] = arg);
-    optionsToRemove?.also((arg) => $request['OptionsToRemove'] = arg);
-    platformArn?.also((arg) => $request['PlatformArn'] = arg);
-    solutionStackName?.also((arg) => $request['SolutionStackName'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    templateName?.also((arg) => $request['TemplateName'] = arg);
-    tier?.also((arg) => $request['Tier'] = arg);
-    versionLabel?.also((arg) => $request['VersionLabel'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      if (cNAMEPrefix != null) 'CNAMEPrefix': cNAMEPrefix,
+      if (description != null) 'Description': description,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (groupName != null) 'GroupName': groupName,
+      if (operationsRole != null) 'OperationsRole': operationsRole,
+      if (optionSettings != null)
+        if (optionSettings.isEmpty)
+          'OptionSettings': ''
+        else
+          for (var i1 = 0; i1 < optionSettings.length; i1++)
+            for (var e3 in optionSettings[i1].toQueryMap().entries)
+              'OptionSettings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (optionsToRemove != null)
+        if (optionsToRemove.isEmpty)
+          'OptionsToRemove': ''
+        else
+          for (var i1 = 0; i1 < optionsToRemove.length; i1++)
+            for (var e3 in optionsToRemove[i1].toQueryMap().entries)
+              'OptionsToRemove.member.${i1 + 1}.${e3.key}': e3.value,
+      if (platformArn != null) 'PlatformArn': platformArn,
+      if (solutionStackName != null) 'SolutionStackName': solutionStackName,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+      if (templateName != null) 'TemplateName': templateName,
+      if (tier != null)
+        for (var e1 in tier.toQueryMap().entries) 'Tier.${e1.key}': e1.value,
+      if (versionLabel != null) 'VersionLabel': versionLabel,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateEnvironment',
@@ -677,8 +722,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateEnvironmentMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateEnvironmentResult',
     );
     return EnvironmentDescription.fromXml($result);
@@ -719,13 +762,27 @@ class ElasticBeanstalk {
     List<ConfigurationOptionSetting>? optionSettings,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PlatformDefinitionBundle'] = platformDefinitionBundle;
-    $request['PlatformName'] = platformName;
-    $request['PlatformVersion'] = platformVersion;
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    optionSettings?.also((arg) => $request['OptionSettings'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      for (var e1 in platformDefinitionBundle.toQueryMap().entries)
+        'PlatformDefinitionBundle.${e1.key}': e1.value,
+      'PlatformName': platformName,
+      'PlatformVersion': platformVersion,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (optionSettings != null)
+        if (optionSettings.isEmpty)
+          'OptionSettings': ''
+        else
+          for (var i1 = 0; i1 < optionSettings.length; i1++)
+            for (var e3 in optionSettings[i1].toQueryMap().entries)
+              'OptionSettings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreatePlatformVersion',
@@ -733,8 +790,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreatePlatformVersionRequest'],
-      shapes: shapes,
       resultWrapper: 'CreatePlatformVersionResult',
     );
     return CreatePlatformVersionResult.fromXml($result);
@@ -751,7 +806,7 @@ class ElasticBeanstalk {
   /// May throw [S3SubscriptionRequiredException].
   /// May throw [InsufficientPrivilegesException].
   Future<CreateStorageLocationResultMessage> createStorageLocation() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'CreateStorageLocation',
@@ -759,7 +814,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'CreateStorageLocationResult',
     );
     return CreateStorageLocationResultMessage.fromXml($result);
@@ -784,9 +838,11 @@ class ElasticBeanstalk {
     required String applicationName,
     bool? terminateEnvByForce,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    terminateEnvByForce?.also((arg) => $request['TerminateEnvByForce'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      if (terminateEnvByForce != null)
+        'TerminateEnvByForce': terminateEnvByForce.toString(),
+    };
     await _protocol.send(
       $request,
       action: 'DeleteApplication',
@@ -794,8 +850,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteApplicationMessage'],
-      shapes: shapes,
     );
   }
 
@@ -825,10 +879,12 @@ class ElasticBeanstalk {
     required String versionLabel,
     bool? deleteSourceBundle,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['VersionLabel'] = versionLabel;
-    deleteSourceBundle?.also((arg) => $request['DeleteSourceBundle'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      'VersionLabel': versionLabel,
+      if (deleteSourceBundle != null)
+        'DeleteSourceBundle': deleteSourceBundle.toString(),
+    };
     await _protocol.send(
       $request,
       action: 'DeleteApplicationVersion',
@@ -836,8 +892,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteApplicationVersionMessage'],
-      shapes: shapes,
     );
   }
 
@@ -860,9 +914,10 @@ class ElasticBeanstalk {
     required String applicationName,
     required String templateName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['TemplateName'] = templateName;
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      'TemplateName': templateName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteConfigurationTemplate',
@@ -870,8 +925,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteConfigurationTemplateMessage'],
-      shapes: shapes,
     );
   }
 
@@ -894,9 +947,10 @@ class ElasticBeanstalk {
     required String applicationName,
     required String environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['EnvironmentName'] = environmentName;
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      'EnvironmentName': environmentName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteEnvironmentConfiguration',
@@ -904,8 +958,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteEnvironmentConfigurationMessage'],
-      shapes: shapes,
     );
   }
 
@@ -921,8 +973,9 @@ class ElasticBeanstalk {
   Future<DeletePlatformVersionResult> deletePlatformVersion({
     String? platformArn,
   }) async {
-    final $request = <String, dynamic>{};
-    platformArn?.also((arg) => $request['PlatformArn'] = arg);
+    final $request = <String, String>{
+      if (platformArn != null) 'PlatformArn': platformArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeletePlatformVersion',
@@ -930,8 +983,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeletePlatformVersionRequest'],
-      shapes: shapes,
       resultWrapper: 'DeletePlatformVersionResult',
     );
     return DeletePlatformVersionResult.fromXml($result);
@@ -944,7 +995,7 @@ class ElasticBeanstalk {
   ///
   /// May throw [InsufficientPrivilegesException].
   Future<DescribeAccountAttributesResult> describeAccountAttributes() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAccountAttributes',
@@ -952,7 +1003,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'DescribeAccountAttributesResult',
     );
     return DescribeAccountAttributesResult.fromXml($result);
@@ -992,11 +1042,17 @@ class ElasticBeanstalk {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    applicationName?.also((arg) => $request['ApplicationName'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
-    versionLabels?.also((arg) => $request['VersionLabels'] = arg);
+    final $request = <String, String>{
+      if (applicationName != null) 'ApplicationName': applicationName,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+      if (versionLabels != null)
+        if (versionLabels.isEmpty)
+          'VersionLabels': ''
+        else
+          for (var i1 = 0; i1 < versionLabels.length; i1++)
+            'VersionLabels.member.${i1 + 1}': versionLabels[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeApplicationVersions',
@@ -1004,8 +1060,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeApplicationVersionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeApplicationVersionsResult',
     );
     return ApplicationVersionDescriptionsMessage.fromXml($result);
@@ -1019,8 +1073,14 @@ class ElasticBeanstalk {
   Future<ApplicationDescriptionsMessage> describeApplications({
     List<String>? applicationNames,
   }) async {
-    final $request = <String, dynamic>{};
-    applicationNames?.also((arg) => $request['ApplicationNames'] = arg);
+    final $request = <String, String>{
+      if (applicationNames != null)
+        if (applicationNames.isEmpty)
+          'ApplicationNames': ''
+        else
+          for (var i1 = 0; i1 < applicationNames.length; i1++)
+            'ApplicationNames.member.${i1 + 1}': applicationNames[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeApplications',
@@ -1028,8 +1088,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeApplicationsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeApplicationsResult',
     );
     return ApplicationDescriptionsMessage.fromXml($result);
@@ -1073,13 +1131,20 @@ class ElasticBeanstalk {
     String? solutionStackName,
     String? templateName,
   }) async {
-    final $request = <String, dynamic>{};
-    applicationName?.also((arg) => $request['ApplicationName'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    options?.also((arg) => $request['Options'] = arg);
-    platformArn?.also((arg) => $request['PlatformArn'] = arg);
-    solutionStackName?.also((arg) => $request['SolutionStackName'] = arg);
-    templateName?.also((arg) => $request['TemplateName'] = arg);
+    final $request = <String, String>{
+      if (applicationName != null) 'ApplicationName': applicationName,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (options != null)
+        if (options.isEmpty)
+          'Options': ''
+        else
+          for (var i1 = 0; i1 < options.length; i1++)
+            for (var e3 in options[i1].toQueryMap().entries)
+              'Options.member.${i1 + 1}.${e3.key}': e3.value,
+      if (platformArn != null) 'PlatformArn': platformArn,
+      if (solutionStackName != null) 'SolutionStackName': solutionStackName,
+      if (templateName != null) 'TemplateName': templateName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeConfigurationOptions',
@@ -1087,8 +1152,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeConfigurationOptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeConfigurationOptionsResult',
     );
     return ConfigurationOptionsDescription.fromXml($result);
@@ -1139,10 +1202,11 @@ class ElasticBeanstalk {
     String? environmentName,
     String? templateName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    templateName?.also((arg) => $request['TemplateName'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (templateName != null) 'TemplateName': templateName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeConfigurationSettings',
@@ -1150,8 +1214,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeConfigurationSettingsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeConfigurationSettingsResult',
     );
     return ConfigurationSettingsDescriptions.fromXml($result);
@@ -1183,11 +1245,16 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    attributeNames?.also((arg) =>
-        $request['AttributeNames'] = arg.map((e) => e.toValue()).toList());
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      if (attributeNames != null)
+        if (attributeNames.isEmpty)
+          'AttributeNames': ''
+        else
+          for (var i1 = 0; i1 < attributeNames.length; i1++)
+            'AttributeNames.member.${i1 + 1}': attributeNames[i1].value,
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEnvironmentHealth',
@@ -1195,8 +1262,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEnvironmentHealthRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeEnvironmentHealthResult',
     );
     return DescribeEnvironmentHealthResult.fromXml($result);
@@ -1230,11 +1295,12 @@ class ElasticBeanstalk {
       1,
       100,
     );
-    final $request = <String, dynamic>{};
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEnvironmentManagedActionHistory',
@@ -1242,8 +1308,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEnvironmentManagedActionHistoryRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeEnvironmentManagedActionHistoryResult',
     );
     return DescribeEnvironmentManagedActionHistoryResult.fromXml($result);
@@ -1267,10 +1331,11 @@ class ElasticBeanstalk {
     String? environmentName,
     ActionStatus? status,
   }) async {
-    final $request = <String, dynamic>{};
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    status?.also((arg) => $request['Status'] = arg.toValue());
+    final $request = <String, String>{
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (status != null) 'Status': status.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEnvironmentManagedActions',
@@ -1278,8 +1343,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEnvironmentManagedActionsRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeEnvironmentManagedActionsResult',
     );
     return DescribeEnvironmentManagedActionsResult.fromXml($result);
@@ -1306,9 +1369,10 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEnvironmentResources',
@@ -1316,8 +1380,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEnvironmentResourcesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEnvironmentResourcesResult',
     );
     return EnvironmentResourceDescriptionsMessage.fromXml($result);
@@ -1382,16 +1444,27 @@ class ElasticBeanstalk {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    applicationName?.also((arg) => $request['ApplicationName'] = arg);
-    environmentIds?.also((arg) => $request['EnvironmentIds'] = arg);
-    environmentNames?.also((arg) => $request['EnvironmentNames'] = arg);
-    includeDeleted?.also((arg) => $request['IncludeDeleted'] = arg);
-    includedDeletedBackTo?.also(
-        (arg) => $request['IncludedDeletedBackTo'] = _s.iso8601ToJson(arg));
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
-    versionLabel?.also((arg) => $request['VersionLabel'] = arg);
+    final $request = <String, String>{
+      if (applicationName != null) 'ApplicationName': applicationName,
+      if (environmentIds != null)
+        if (environmentIds.isEmpty)
+          'EnvironmentIds': ''
+        else
+          for (var i1 = 0; i1 < environmentIds.length; i1++)
+            'EnvironmentIds.member.${i1 + 1}': environmentIds[i1],
+      if (environmentNames != null)
+        if (environmentNames.isEmpty)
+          'EnvironmentNames': ''
+        else
+          for (var i1 = 0; i1 < environmentNames.length; i1++)
+            'EnvironmentNames.member.${i1 + 1}': environmentNames[i1],
+      if (includeDeleted != null) 'IncludeDeleted': includeDeleted.toString(),
+      if (includedDeletedBackTo != null)
+        'IncludedDeletedBackTo': _s.iso8601ToJson(includedDeletedBackTo),
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+      if (versionLabel != null) 'VersionLabel': versionLabel,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEnvironments',
@@ -1399,8 +1472,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEnvironmentsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEnvironmentsResult',
     );
     return EnvironmentDescriptionsMessage.fromXml($result);
@@ -1481,19 +1552,20 @@ class ElasticBeanstalk {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    applicationName?.also((arg) => $request['ApplicationName'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
-    platformArn?.also((arg) => $request['PlatformArn'] = arg);
-    requestId?.also((arg) => $request['RequestId'] = arg);
-    severity?.also((arg) => $request['Severity'] = arg.toValue());
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
-    templateName?.also((arg) => $request['TemplateName'] = arg);
-    versionLabel?.also((arg) => $request['VersionLabel'] = arg);
+    final $request = <String, String>{
+      if (applicationName != null) 'ApplicationName': applicationName,
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+      if (platformArn != null) 'PlatformArn': platformArn,
+      if (requestId != null) 'RequestId': requestId,
+      if (severity != null) 'Severity': severity.value,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+      if (templateName != null) 'TemplateName': templateName,
+      if (versionLabel != null) 'VersionLabel': versionLabel,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEvents',
@@ -1501,8 +1573,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventsResult',
     );
     return EventDescriptionsMessage.fromXml($result);
@@ -1535,12 +1605,17 @@ class ElasticBeanstalk {
     String? environmentName,
     String? nextToken,
   }) async {
-    final $request = <String, dynamic>{};
-    attributeNames?.also((arg) =>
-        $request['AttributeNames'] = arg.map((e) => e.toValue()).toList());
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (attributeNames != null)
+        if (attributeNames.isEmpty)
+          'AttributeNames': ''
+        else
+          for (var i1 = 0; i1 < attributeNames.length; i1++)
+            'AttributeNames.member.${i1 + 1}': attributeNames[i1].value,
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeInstancesHealth',
@@ -1548,8 +1623,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeInstancesHealthRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribeInstancesHealthResult',
     );
     return DescribeInstancesHealthResult.fromXml($result);
@@ -1572,8 +1645,9 @@ class ElasticBeanstalk {
   Future<DescribePlatformVersionResult> describePlatformVersion({
     String? platformArn,
   }) async {
-    final $request = <String, dynamic>{};
-    platformArn?.also((arg) => $request['PlatformArn'] = arg);
+    final $request = <String, String>{
+      if (platformArn != null) 'PlatformArn': platformArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribePlatformVersion',
@@ -1581,8 +1655,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribePlatformVersionRequest'],
-      shapes: shapes,
       resultWrapper: 'DescribePlatformVersionResult',
     );
     return DescribePlatformVersionResult.fromXml($result);
@@ -1603,8 +1675,9 @@ class ElasticBeanstalk {
   Future<void> disassociateEnvironmentOperationsRole({
     required String environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EnvironmentName'] = environmentName;
+    final $request = <String, String>{
+      'EnvironmentName': environmentName,
+    };
     await _protocol.send(
       $request,
       action: 'DisassociateEnvironmentOperationsRole',
@@ -1612,8 +1685,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DisassociateEnvironmentOperationsRoleMessage'],
-      shapes: shapes,
     );
   }
 
@@ -1621,7 +1692,7 @@ class ElasticBeanstalk {
   /// version first and then in reverse chronological order.
   Future<ListAvailableSolutionStacksResultMessage>
       listAvailableSolutionStacks() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'ListAvailableSolutionStacks',
@@ -1629,7 +1700,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'ListAvailableSolutionStacksResult',
     );
     return ListAvailableSolutionStacksResultMessage.fromXml($result);
@@ -1725,10 +1795,17 @@ class ElasticBeanstalk {
       1,
       1152921504606846976,
     );
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.member.${i1 + 1}.${e3.key}': e3.value,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListPlatformBranches',
@@ -1736,8 +1813,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListPlatformBranchesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListPlatformBranchesResult',
     );
     return ListPlatformBranchesResult.fromXml($result);
@@ -1781,10 +1856,17 @@ class ElasticBeanstalk {
       1,
       1152921504606846976,
     );
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    nextToken?.also((arg) => $request['NextToken'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.member.${i1 + 1}.${e3.key}': e3.value,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (nextToken != null) 'NextToken': nextToken,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListPlatformVersions',
@@ -1792,8 +1874,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListPlatformVersionsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListPlatformVersionsResult',
     );
     return ListPlatformVersionsResult.fromXml($result);
@@ -1819,8 +1899,9 @@ class ElasticBeanstalk {
   Future<ResourceTagsDescriptionMessage> listTagsForResource({
     required String resourceArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceArn'] = resourceArn;
+    final $request = <String, String>{
+      'ResourceArn': resourceArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListTagsForResource',
@@ -1828,8 +1909,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListTagsForResourceMessage'],
-      shapes: shapes,
       resultWrapper: 'ListTagsForResourceResult',
     );
     return ResourceTagsDescriptionMessage.fromXml($result);
@@ -1858,9 +1937,10 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     await _protocol.send(
       $request,
       action: 'RebuildEnvironment',
@@ -1868,8 +1948,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RebuildEnvironmentMessage'],
-      shapes: shapes,
     );
   }
 
@@ -1922,10 +2000,11 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InfoType'] = infoType.toValue();
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      'InfoType': infoType.value,
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     await _protocol.send(
       $request,
       action: 'RequestEnvironmentInfo',
@@ -1933,8 +2012,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RequestEnvironmentInfoMessage'],
-      shapes: shapes,
     );
   }
 
@@ -1958,9 +2035,10 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     await _protocol.send(
       $request,
       action: 'RestartAppServer',
@@ -1968,8 +2046,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RestartAppServerMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2011,10 +2087,11 @@ class ElasticBeanstalk {
     String? environmentId,
     String? environmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InfoType'] = infoType.toValue();
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
+    final $request = <String, String>{
+      'InfoType': infoType.value,
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RetrieveEnvironmentInfo',
@@ -2022,8 +2099,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RetrieveEnvironmentInfoMessage'],
-      shapes: shapes,
       resultWrapper: 'RetrieveEnvironmentInfoResult',
     );
     return RetrieveEnvironmentInfoResultMessage.fromXml($result);
@@ -2070,14 +2145,16 @@ class ElasticBeanstalk {
     String? sourceEnvironmentId,
     String? sourceEnvironmentName,
   }) async {
-    final $request = <String, dynamic>{};
-    destinationEnvironmentId
-        ?.also((arg) => $request['DestinationEnvironmentId'] = arg);
-    destinationEnvironmentName
-        ?.also((arg) => $request['DestinationEnvironmentName'] = arg);
-    sourceEnvironmentId?.also((arg) => $request['SourceEnvironmentId'] = arg);
-    sourceEnvironmentName
-        ?.also((arg) => $request['SourceEnvironmentName'] = arg);
+    final $request = <String, String>{
+      if (destinationEnvironmentId != null)
+        'DestinationEnvironmentId': destinationEnvironmentId,
+      if (destinationEnvironmentName != null)
+        'DestinationEnvironmentName': destinationEnvironmentName,
+      if (sourceEnvironmentId != null)
+        'SourceEnvironmentId': sourceEnvironmentId,
+      if (sourceEnvironmentName != null)
+        'SourceEnvironmentName': sourceEnvironmentName,
+    };
     await _protocol.send(
       $request,
       action: 'SwapEnvironmentCNAMEs',
@@ -2085,8 +2162,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SwapEnvironmentCNAMEsMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2139,11 +2214,13 @@ class ElasticBeanstalk {
     bool? forceTerminate,
     bool? terminateResources,
   }) async {
-    final $request = <String, dynamic>{};
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    forceTerminate?.also((arg) => $request['ForceTerminate'] = arg);
-    terminateResources?.also((arg) => $request['TerminateResources'] = arg);
+    final $request = <String, String>{
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (forceTerminate != null) 'ForceTerminate': forceTerminate.toString(),
+      if (terminateResources != null)
+        'TerminateResources': terminateResources.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'TerminateEnvironment',
@@ -2151,8 +2228,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TerminateEnvironmentMessage'],
-      shapes: shapes,
       resultWrapper: 'TerminateEnvironmentResult',
     );
     return EnvironmentDescription.fromXml($result);
@@ -2179,9 +2254,10 @@ class ElasticBeanstalk {
     required String applicationName,
     String? description,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    description?.also((arg) => $request['Description'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      if (description != null) 'Description': description,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateApplication',
@@ -2189,8 +2265,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateApplicationMessage'],
-      shapes: shapes,
       resultWrapper: 'UpdateApplicationResult',
     );
     return ApplicationDescriptionMessage.fromXml($result);
@@ -2210,9 +2284,11 @@ class ElasticBeanstalk {
     required String applicationName,
     required ApplicationResourceLifecycleConfig resourceLifecycleConfig,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['ResourceLifecycleConfig'] = resourceLifecycleConfig;
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      for (var e1 in resourceLifecycleConfig.toQueryMap().entries)
+        'ResourceLifecycleConfig.${e1.key}': e1.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateApplicationResourceLifecycle',
@@ -2220,8 +2296,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateApplicationResourceLifecycleMessage'],
-      shapes: shapes,
       resultWrapper: 'UpdateApplicationResourceLifecycleResult',
     );
     return ApplicationResourceLifecycleDescriptionMessage.fromXml($result);
@@ -2254,10 +2328,11 @@ class ElasticBeanstalk {
     required String versionLabel,
     String? description,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['VersionLabel'] = versionLabel;
-    description?.also((arg) => $request['Description'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      'VersionLabel': versionLabel,
+      if (description != null) 'Description': description,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateApplicationVersion',
@@ -2265,8 +2340,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateApplicationVersionMessage'],
-      shapes: shapes,
       resultWrapper: 'UpdateApplicationVersionResult',
     );
     return ApplicationVersionDescriptionMessage.fromXml($result);
@@ -2324,12 +2397,25 @@ class ElasticBeanstalk {
     List<ConfigurationOptionSetting>? optionSettings,
     List<OptionSpecification>? optionsToRemove,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['TemplateName'] = templateName;
-    description?.also((arg) => $request['Description'] = arg);
-    optionSettings?.also((arg) => $request['OptionSettings'] = arg);
-    optionsToRemove?.also((arg) => $request['OptionsToRemove'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      'TemplateName': templateName,
+      if (description != null) 'Description': description,
+      if (optionSettings != null)
+        if (optionSettings.isEmpty)
+          'OptionSettings': ''
+        else
+          for (var i1 = 0; i1 < optionSettings.length; i1++)
+            for (var e3 in optionSettings[i1].toQueryMap().entries)
+              'OptionSettings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (optionsToRemove != null)
+        if (optionsToRemove.isEmpty)
+          'OptionsToRemove': ''
+        else
+          for (var i1 = 0; i1 < optionsToRemove.length; i1++)
+            for (var e3 in optionsToRemove[i1].toQueryMap().entries)
+              'OptionsToRemove.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateConfigurationTemplate',
@@ -2337,8 +2423,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateConfigurationTemplateMessage'],
-      shapes: shapes,
       resultWrapper: 'UpdateConfigurationTemplateResult',
     );
     return ConfigurationSettingsDescription.fromXml($result);
@@ -2441,19 +2525,33 @@ class ElasticBeanstalk {
     EnvironmentTier? tier,
     String? versionLabel,
   }) async {
-    final $request = <String, dynamic>{};
-    applicationName?.also((arg) => $request['ApplicationName'] = arg);
-    description?.also((arg) => $request['Description'] = arg);
-    environmentId?.also((arg) => $request['EnvironmentId'] = arg);
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    groupName?.also((arg) => $request['GroupName'] = arg);
-    optionSettings?.also((arg) => $request['OptionSettings'] = arg);
-    optionsToRemove?.also((arg) => $request['OptionsToRemove'] = arg);
-    platformArn?.also((arg) => $request['PlatformArn'] = arg);
-    solutionStackName?.also((arg) => $request['SolutionStackName'] = arg);
-    templateName?.also((arg) => $request['TemplateName'] = arg);
-    tier?.also((arg) => $request['Tier'] = arg);
-    versionLabel?.also((arg) => $request['VersionLabel'] = arg);
+    final $request = <String, String>{
+      if (applicationName != null) 'ApplicationName': applicationName,
+      if (description != null) 'Description': description,
+      if (environmentId != null) 'EnvironmentId': environmentId,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (groupName != null) 'GroupName': groupName,
+      if (optionSettings != null)
+        if (optionSettings.isEmpty)
+          'OptionSettings': ''
+        else
+          for (var i1 = 0; i1 < optionSettings.length; i1++)
+            for (var e3 in optionSettings[i1].toQueryMap().entries)
+              'OptionSettings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (optionsToRemove != null)
+        if (optionsToRemove.isEmpty)
+          'OptionsToRemove': ''
+        else
+          for (var i1 = 0; i1 < optionsToRemove.length; i1++)
+            for (var e3 in optionsToRemove[i1].toQueryMap().entries)
+              'OptionsToRemove.member.${i1 + 1}.${e3.key}': e3.value,
+      if (platformArn != null) 'PlatformArn': platformArn,
+      if (solutionStackName != null) 'SolutionStackName': solutionStackName,
+      if (templateName != null) 'TemplateName': templateName,
+      if (tier != null)
+        for (var e1 in tier.toQueryMap().entries) 'Tier.${e1.key}': e1.value,
+      if (versionLabel != null) 'VersionLabel': versionLabel,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateEnvironment',
@@ -2461,8 +2559,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateEnvironmentMessage'],
-      shapes: shapes,
       resultWrapper: 'UpdateEnvironmentResult',
     );
     return EnvironmentDescription.fromXml($result);
@@ -2520,10 +2616,22 @@ class ElasticBeanstalk {
     List<Tag>? tagsToAdd,
     List<String>? tagsToRemove,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceArn'] = resourceArn;
-    tagsToAdd?.also((arg) => $request['TagsToAdd'] = arg);
-    tagsToRemove?.also((arg) => $request['TagsToRemove'] = arg);
+    final $request = <String, String>{
+      'ResourceArn': resourceArn,
+      if (tagsToAdd != null)
+        if (tagsToAdd.isEmpty)
+          'TagsToAdd': ''
+        else
+          for (var i1 = 0; i1 < tagsToAdd.length; i1++)
+            for (var e3 in tagsToAdd[i1].toQueryMap().entries)
+              'TagsToAdd.member.${i1 + 1}.${e3.key}': e3.value,
+      if (tagsToRemove != null)
+        if (tagsToRemove.isEmpty)
+          'TagsToRemove': ''
+        else
+          for (var i1 = 0; i1 < tagsToRemove.length; i1++)
+            'TagsToRemove.member.${i1 + 1}': tagsToRemove[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UpdateTagsForResource',
@@ -2531,8 +2639,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateTagsForResourceMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2568,11 +2674,17 @@ class ElasticBeanstalk {
     String? environmentName,
     String? templateName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplicationName'] = applicationName;
-    $request['OptionSettings'] = optionSettings;
-    environmentName?.also((arg) => $request['EnvironmentName'] = arg);
-    templateName?.also((arg) => $request['TemplateName'] = arg);
+    final $request = <String, String>{
+      'ApplicationName': applicationName,
+      if (optionSettings.isEmpty)
+        'OptionSettings': ''
+      else
+        for (var i1 = 0; i1 < optionSettings.length; i1++)
+          for (var e3 in optionSettings[i1].toQueryMap().entries)
+            'OptionSettings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (environmentName != null) 'EnvironmentName': environmentName,
+      if (templateName != null) 'TemplateName': templateName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ValidateConfigurationSettings',
@@ -2580,8 +2692,6 @@ class ElasticBeanstalk {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ValidateConfigurationSettingsMessage'],
-      shapes: shapes,
       resultWrapper: 'ValidateConfigurationSettingsResult',
     );
     return ConfigurationSettingsValidationMessages.fromXml($result);
@@ -2589,107 +2699,51 @@ class ElasticBeanstalk {
 }
 
 enum ActionHistoryStatus {
-  completed,
-  failed,
-  unknown,
-}
+  completed('Completed'),
+  failed('Failed'),
+  unknown('Unknown'),
+  ;
 
-extension ActionHistoryStatusValueExtension on ActionHistoryStatus {
-  String toValue() {
-    switch (this) {
-      case ActionHistoryStatus.completed:
-        return 'Completed';
-      case ActionHistoryStatus.failed:
-        return 'Failed';
-      case ActionHistoryStatus.unknown:
-        return 'Unknown';
-    }
-  }
-}
+  final String value;
 
-extension ActionHistoryStatusFromString on String {
-  ActionHistoryStatus toActionHistoryStatus() {
-    switch (this) {
-      case 'Completed':
-        return ActionHistoryStatus.completed;
-      case 'Failed':
-        return ActionHistoryStatus.failed;
-      case 'Unknown':
-        return ActionHistoryStatus.unknown;
-    }
-    throw Exception('$this is not known in enum ActionHistoryStatus');
-  }
+  const ActionHistoryStatus(this.value);
+
+  static ActionHistoryStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ActionHistoryStatus'));
 }
 
 enum ActionStatus {
-  scheduled,
-  pending,
-  running,
-  unknown,
-}
+  scheduled('Scheduled'),
+  pending('Pending'),
+  running('Running'),
+  unknown('Unknown'),
+  ;
 
-extension ActionStatusValueExtension on ActionStatus {
-  String toValue() {
-    switch (this) {
-      case ActionStatus.scheduled:
-        return 'Scheduled';
-      case ActionStatus.pending:
-        return 'Pending';
-      case ActionStatus.running:
-        return 'Running';
-      case ActionStatus.unknown:
-        return 'Unknown';
-    }
-  }
-}
+  final String value;
 
-extension ActionStatusFromString on String {
-  ActionStatus toActionStatus() {
-    switch (this) {
-      case 'Scheduled':
-        return ActionStatus.scheduled;
-      case 'Pending':
-        return ActionStatus.pending;
-      case 'Running':
-        return ActionStatus.running;
-      case 'Unknown':
-        return ActionStatus.unknown;
-    }
-    throw Exception('$this is not known in enum ActionStatus');
-  }
+  const ActionStatus(this.value);
+
+  static ActionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ActionStatus'));
 }
 
 enum ActionType {
-  instanceRefresh,
-  platformUpdate,
-  unknown,
-}
+  instanceRefresh('InstanceRefresh'),
+  platformUpdate('PlatformUpdate'),
+  unknown('Unknown'),
+  ;
 
-extension ActionTypeValueExtension on ActionType {
-  String toValue() {
-    switch (this) {
-      case ActionType.instanceRefresh:
-        return 'InstanceRefresh';
-      case ActionType.platformUpdate:
-        return 'PlatformUpdate';
-      case ActionType.unknown:
-        return 'Unknown';
-    }
-  }
-}
+  final String value;
 
-extension ActionTypeFromString on String {
-  ActionType toActionType() {
-    switch (this) {
-      case 'InstanceRefresh':
-        return ActionType.instanceRefresh;
-      case 'PlatformUpdate':
-        return ActionType.platformUpdate;
-      case 'Unknown':
-        return ActionType.unknown;
-    }
-    throw Exception('$this is not known in enum ActionType');
-  }
+  const ActionType(this.value);
+
+  static ActionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ActionType'));
 }
 
 /// Describes the properties of an application.
@@ -2864,6 +2918,17 @@ class ApplicationResourceLifecycleConfig {
         'VersionLifecycleConfig': versionLifecycleConfig,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final serviceRole = this.serviceRole;
+    final versionLifecycleConfig = this.versionLifecycleConfig;
+    return {
+      if (serviceRole != null) 'ServiceRole': serviceRole,
+      if (versionLifecycleConfig != null)
+        for (var e1 in versionLifecycleConfig.toQueryMap().entries)
+          'VersionLifecycleConfig.${e1.key}': e1.value,
+    };
+  }
 }
 
 class ApplicationResourceLifecycleDescriptionMessage {
@@ -2978,7 +3043,7 @@ class ApplicationVersionDescription {
           _s.extractXmlChild(elem, 'SourceBundle')?.let(S3Location.fromXml),
       status: _s
           .extractXmlStringValue(elem, 'Status')
-          ?.toApplicationVersionStatus(),
+          ?.let(ApplicationVersionStatus.fromString),
       versionLabel: _s.extractXmlStringValue(elem, 'VersionLabel'),
     );
   }
@@ -3064,49 +3129,37 @@ class ApplicationVersionLifecycleConfig {
       if (maxCountRule != null) 'MaxCountRule': maxCountRule,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final maxAgeRule = this.maxAgeRule;
+    final maxCountRule = this.maxCountRule;
+    return {
+      if (maxAgeRule != null)
+        for (var e1 in maxAgeRule.toQueryMap().entries)
+          'MaxAgeRule.${e1.key}': e1.value,
+      if (maxCountRule != null)
+        for (var e1 in maxCountRule.toQueryMap().entries)
+          'MaxCountRule.${e1.key}': e1.value,
+    };
+  }
 }
 
 enum ApplicationVersionStatus {
-  processed,
-  unprocessed,
-  failed,
-  processing,
-  building,
-}
+  processed('Processed'),
+  unprocessed('Unprocessed'),
+  failed('Failed'),
+  processing('Processing'),
+  building('Building'),
+  ;
 
-extension ApplicationVersionStatusValueExtension on ApplicationVersionStatus {
-  String toValue() {
-    switch (this) {
-      case ApplicationVersionStatus.processed:
-        return 'Processed';
-      case ApplicationVersionStatus.unprocessed:
-        return 'Unprocessed';
-      case ApplicationVersionStatus.failed:
-        return 'Failed';
-      case ApplicationVersionStatus.processing:
-        return 'Processing';
-      case ApplicationVersionStatus.building:
-        return 'Building';
-    }
-  }
-}
+  final String value;
 
-extension ApplicationVersionStatusFromString on String {
-  ApplicationVersionStatus toApplicationVersionStatus() {
-    switch (this) {
-      case 'Processed':
-        return ApplicationVersionStatus.processed;
-      case 'Unprocessed':
-        return ApplicationVersionStatus.unprocessed;
-      case 'Failed':
-        return ApplicationVersionStatus.failed;
-      case 'Processing':
-        return ApplicationVersionStatus.processing;
-      case 'Building':
-        return ApplicationVersionStatus.building;
-    }
-    throw Exception('$this is not known in enum ApplicationVersionStatus');
-  }
+  const ApplicationVersionStatus(this.value);
+
+  static ApplicationVersionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ApplicationVersionStatus'));
 }
 
 /// The result message containing information about the managed action.
@@ -3133,7 +3186,9 @@ class ApplyEnvironmentManagedActionResult {
     return ApplyEnvironmentManagedActionResult(
       actionDescription: _s.extractXmlStringValue(elem, 'ActionDescription'),
       actionId: _s.extractXmlStringValue(elem, 'ActionId'),
-      actionType: _s.extractXmlStringValue(elem, 'ActionType')?.toActionType(),
+      actionType: _s
+          .extractXmlStringValue(elem, 'ActionType')
+          ?.let(ActionType.fromString),
       status: _s.extractXmlStringValue(elem, 'Status'),
     );
   }
@@ -3213,8 +3268,24 @@ class BuildConfiguration {
       'CodeBuildServiceRole': codeBuildServiceRole,
       'Image': image,
       if (artifactName != null) 'ArtifactName': artifactName,
-      if (computeType != null) 'ComputeType': computeType.toValue(),
+      if (computeType != null) 'ComputeType': computeType.value,
       if (timeoutInMinutes != null) 'TimeoutInMinutes': timeoutInMinutes,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final codeBuildServiceRole = this.codeBuildServiceRole;
+    final image = this.image;
+    final artifactName = this.artifactName;
+    final computeType = this.computeType;
+    final timeoutInMinutes = this.timeoutInMinutes;
+    return {
+      'CodeBuildServiceRole': codeBuildServiceRole,
+      'Image': image,
+      if (artifactName != null) 'ArtifactName': artifactName,
+      if (computeType != null) 'ComputeType': computeType.value,
+      if (timeoutInMinutes != null)
+        'TimeoutInMinutes': timeoutInMinutes.toString(),
     };
   }
 }
@@ -3336,70 +3407,34 @@ class CheckDNSAvailabilityResultMessage {
 }
 
 enum ComputeType {
-  buildGeneral1Small,
-  buildGeneral1Medium,
-  buildGeneral1Large,
-}
+  buildGeneral1Small('BUILD_GENERAL1_SMALL'),
+  buildGeneral1Medium('BUILD_GENERAL1_MEDIUM'),
+  buildGeneral1Large('BUILD_GENERAL1_LARGE'),
+  ;
 
-extension ComputeTypeValueExtension on ComputeType {
-  String toValue() {
-    switch (this) {
-      case ComputeType.buildGeneral1Small:
-        return 'BUILD_GENERAL1_SMALL';
-      case ComputeType.buildGeneral1Medium:
-        return 'BUILD_GENERAL1_MEDIUM';
-      case ComputeType.buildGeneral1Large:
-        return 'BUILD_GENERAL1_LARGE';
-    }
-  }
-}
+  final String value;
 
-extension ComputeTypeFromString on String {
-  ComputeType toComputeType() {
-    switch (this) {
-      case 'BUILD_GENERAL1_SMALL':
-        return ComputeType.buildGeneral1Small;
-      case 'BUILD_GENERAL1_MEDIUM':
-        return ComputeType.buildGeneral1Medium;
-      case 'BUILD_GENERAL1_LARGE':
-        return ComputeType.buildGeneral1Large;
-    }
-    throw Exception('$this is not known in enum ComputeType');
-  }
+  const ComputeType(this.value);
+
+  static ComputeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ComputeType'));
 }
 
 enum ConfigurationDeploymentStatus {
-  deployed,
-  pending,
-  failed,
-}
+  deployed('deployed'),
+  pending('pending'),
+  failed('failed'),
+  ;
 
-extension ConfigurationDeploymentStatusValueExtension
-    on ConfigurationDeploymentStatus {
-  String toValue() {
-    switch (this) {
-      case ConfigurationDeploymentStatus.deployed:
-        return 'deployed';
-      case ConfigurationDeploymentStatus.pending:
-        return 'pending';
-      case ConfigurationDeploymentStatus.failed:
-        return 'failed';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationDeploymentStatusFromString on String {
-  ConfigurationDeploymentStatus toConfigurationDeploymentStatus() {
-    switch (this) {
-      case 'deployed':
-        return ConfigurationDeploymentStatus.deployed;
-      case 'pending':
-        return ConfigurationDeploymentStatus.pending;
-      case 'failed':
-        return ConfigurationDeploymentStatus.failed;
-    }
-    throw Exception('$this is not known in enum ConfigurationDeploymentStatus');
-  }
+  const ConfigurationDeploymentStatus(this.value);
+
+  static ConfigurationDeploymentStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigurationDeploymentStatus'));
 }
 
 /// Describes the possible values for a configuration option.
@@ -3527,7 +3562,7 @@ class ConfigurationOptionDescription {
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
       valueType: _s
           .extractXmlStringValue(elem, 'ValueType')
-          ?.toConfigurationOptionValueType(),
+          ?.let(ConfigurationOptionValueType.fromString),
     );
   }
 }
@@ -3578,35 +3613,34 @@ class ConfigurationOptionSetting {
       if (value != null) 'Value': value,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final namespace = this.namespace;
+    final optionName = this.optionName;
+    final resourceName = this.resourceName;
+    final value = this.value;
+    return {
+      if (namespace != null) 'Namespace': namespace,
+      if (optionName != null) 'OptionName': optionName,
+      if (resourceName != null) 'ResourceName': resourceName,
+      if (value != null) 'Value': value,
+    };
+  }
 }
 
 enum ConfigurationOptionValueType {
-  scalar,
-  list,
-}
+  scalar('Scalar'),
+  list('List'),
+  ;
 
-extension ConfigurationOptionValueTypeValueExtension
-    on ConfigurationOptionValueType {
-  String toValue() {
-    switch (this) {
-      case ConfigurationOptionValueType.scalar:
-        return 'Scalar';
-      case ConfigurationOptionValueType.list:
-        return 'List';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationOptionValueTypeFromString on String {
-  ConfigurationOptionValueType toConfigurationOptionValueType() {
-    switch (this) {
-      case 'Scalar':
-        return ConfigurationOptionValueType.scalar;
-      case 'List':
-        return ConfigurationOptionValueType.list;
-    }
-    throw Exception('$this is not known in enum ConfigurationOptionValueType');
-  }
+  const ConfigurationOptionValueType(this.value);
+
+  static ConfigurationOptionValueType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigurationOptionValueType'));
 }
 
 /// Describes the settings for a specified configuration set.
@@ -3712,7 +3746,7 @@ class ConfigurationSettingsDescription {
       dateUpdated: _s.extractXmlDateTimeValue(elem, 'DateUpdated'),
       deploymentStatus: _s
           .extractXmlStringValue(elem, 'DeploymentStatus')
-          ?.toConfigurationDeploymentStatus(),
+          ?.let(ConfigurationDeploymentStatus.fromString),
       description: _s.extractXmlStringValue(elem, 'Description'),
       environmentName: _s.extractXmlStringValue(elem, 'EnvironmentName'),
       optionSettings: _s.extractXmlChild(elem, 'OptionSettings')?.let((elem) =>
@@ -3956,7 +3990,9 @@ class DescribeEnvironmentHealthResult {
           .extractXmlChild(elem, 'InstancesHealth')
           ?.let(InstanceHealthSummary.fromXml),
       refreshedAt: _s.extractXmlDateTimeValue(elem, 'RefreshedAt'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toEnvironmentHealth(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(EnvironmentHealth.fromString),
     );
   }
 }
@@ -4218,17 +4254,21 @@ class EnvironmentDescription {
               .map(EnvironmentLink.fromXml)
               .toList()),
       environmentName: _s.extractXmlStringValue(elem, 'EnvironmentName'),
-      health: _s.extractXmlStringValue(elem, 'Health')?.toEnvironmentHealth(),
+      health: _s
+          .extractXmlStringValue(elem, 'Health')
+          ?.let(EnvironmentHealth.fromString),
       healthStatus: _s
           .extractXmlStringValue(elem, 'HealthStatus')
-          ?.toEnvironmentHealthStatus(),
+          ?.let(EnvironmentHealthStatus.fromString),
       operationsRole: _s.extractXmlStringValue(elem, 'OperationsRole'),
       platformArn: _s.extractXmlStringValue(elem, 'PlatformArn'),
       resources: _s
           .extractXmlChild(elem, 'Resources')
           ?.let(EnvironmentResourcesDescription.fromXml),
       solutionStackName: _s.extractXmlStringValue(elem, 'SolutionStackName'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toEnvironmentStatus(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(EnvironmentStatus.fromString),
       templateName: _s.extractXmlStringValue(elem, 'TemplateName'),
       tier: _s.extractXmlChild(elem, 'Tier')?.let(EnvironmentTier.fromXml),
       versionLabel: _s.extractXmlStringValue(elem, 'VersionLabel'),
@@ -4261,163 +4301,63 @@ class EnvironmentDescriptionsMessage {
 }
 
 enum EnvironmentHealth {
-  green,
-  yellow,
-  red,
-  grey,
-}
+  green('Green'),
+  yellow('Yellow'),
+  red('Red'),
+  grey('Grey'),
+  ;
 
-extension EnvironmentHealthValueExtension on EnvironmentHealth {
-  String toValue() {
-    switch (this) {
-      case EnvironmentHealth.green:
-        return 'Green';
-      case EnvironmentHealth.yellow:
-        return 'Yellow';
-      case EnvironmentHealth.red:
-        return 'Red';
-      case EnvironmentHealth.grey:
-        return 'Grey';
-    }
-  }
-}
+  final String value;
 
-extension EnvironmentHealthFromString on String {
-  EnvironmentHealth toEnvironmentHealth() {
-    switch (this) {
-      case 'Green':
-        return EnvironmentHealth.green;
-      case 'Yellow':
-        return EnvironmentHealth.yellow;
-      case 'Red':
-        return EnvironmentHealth.red;
-      case 'Grey':
-        return EnvironmentHealth.grey;
-    }
-    throw Exception('$this is not known in enum EnvironmentHealth');
-  }
+  const EnvironmentHealth(this.value);
+
+  static EnvironmentHealth fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EnvironmentHealth'));
 }
 
 enum EnvironmentHealthAttribute {
-  status,
-  color,
-  causes,
-  applicationMetrics,
-  instancesHealth,
-  all,
-  healthStatus,
-  refreshedAt,
-}
+  status('Status'),
+  color('Color'),
+  causes('Causes'),
+  applicationMetrics('ApplicationMetrics'),
+  instancesHealth('InstancesHealth'),
+  all('All'),
+  healthStatus('HealthStatus'),
+  refreshedAt('RefreshedAt'),
+  ;
 
-extension EnvironmentHealthAttributeValueExtension
-    on EnvironmentHealthAttribute {
-  String toValue() {
-    switch (this) {
-      case EnvironmentHealthAttribute.status:
-        return 'Status';
-      case EnvironmentHealthAttribute.color:
-        return 'Color';
-      case EnvironmentHealthAttribute.causes:
-        return 'Causes';
-      case EnvironmentHealthAttribute.applicationMetrics:
-        return 'ApplicationMetrics';
-      case EnvironmentHealthAttribute.instancesHealth:
-        return 'InstancesHealth';
-      case EnvironmentHealthAttribute.all:
-        return 'All';
-      case EnvironmentHealthAttribute.healthStatus:
-        return 'HealthStatus';
-      case EnvironmentHealthAttribute.refreshedAt:
-        return 'RefreshedAt';
-    }
-  }
-}
+  final String value;
 
-extension EnvironmentHealthAttributeFromString on String {
-  EnvironmentHealthAttribute toEnvironmentHealthAttribute() {
-    switch (this) {
-      case 'Status':
-        return EnvironmentHealthAttribute.status;
-      case 'Color':
-        return EnvironmentHealthAttribute.color;
-      case 'Causes':
-        return EnvironmentHealthAttribute.causes;
-      case 'ApplicationMetrics':
-        return EnvironmentHealthAttribute.applicationMetrics;
-      case 'InstancesHealth':
-        return EnvironmentHealthAttribute.instancesHealth;
-      case 'All':
-        return EnvironmentHealthAttribute.all;
-      case 'HealthStatus':
-        return EnvironmentHealthAttribute.healthStatus;
-      case 'RefreshedAt':
-        return EnvironmentHealthAttribute.refreshedAt;
-    }
-    throw Exception('$this is not known in enum EnvironmentHealthAttribute');
-  }
+  const EnvironmentHealthAttribute(this.value);
+
+  static EnvironmentHealthAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EnvironmentHealthAttribute'));
 }
 
 enum EnvironmentHealthStatus {
-  noData,
-  unknown,
-  pending,
-  ok,
-  info,
-  warning,
-  degraded,
-  severe,
-  suspended,
-}
+  noData('NoData'),
+  unknown('Unknown'),
+  pending('Pending'),
+  ok('Ok'),
+  info('Info'),
+  warning('Warning'),
+  degraded('Degraded'),
+  severe('Severe'),
+  suspended('Suspended'),
+  ;
 
-extension EnvironmentHealthStatusValueExtension on EnvironmentHealthStatus {
-  String toValue() {
-    switch (this) {
-      case EnvironmentHealthStatus.noData:
-        return 'NoData';
-      case EnvironmentHealthStatus.unknown:
-        return 'Unknown';
-      case EnvironmentHealthStatus.pending:
-        return 'Pending';
-      case EnvironmentHealthStatus.ok:
-        return 'Ok';
-      case EnvironmentHealthStatus.info:
-        return 'Info';
-      case EnvironmentHealthStatus.warning:
-        return 'Warning';
-      case EnvironmentHealthStatus.degraded:
-        return 'Degraded';
-      case EnvironmentHealthStatus.severe:
-        return 'Severe';
-      case EnvironmentHealthStatus.suspended:
-        return 'Suspended';
-    }
-  }
-}
+  final String value;
 
-extension EnvironmentHealthStatusFromString on String {
-  EnvironmentHealthStatus toEnvironmentHealthStatus() {
-    switch (this) {
-      case 'NoData':
-        return EnvironmentHealthStatus.noData;
-      case 'Unknown':
-        return EnvironmentHealthStatus.unknown;
-      case 'Pending':
-        return EnvironmentHealthStatus.pending;
-      case 'Ok':
-        return EnvironmentHealthStatus.ok;
-      case 'Info':
-        return EnvironmentHealthStatus.info;
-      case 'Warning':
-        return EnvironmentHealthStatus.warning;
-      case 'Degraded':
-        return EnvironmentHealthStatus.degraded;
-      case 'Severe':
-        return EnvironmentHealthStatus.severe;
-      case 'Suspended':
-        return EnvironmentHealthStatus.suspended;
-    }
-    throw Exception('$this is not known in enum EnvironmentHealthStatus');
-  }
+  const EnvironmentHealthStatus(this.value);
+
+  static EnvironmentHealthStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EnvironmentHealthStatus'));
 }
 
 /// The information retrieved from the Amazon EC2 instances.
@@ -4447,8 +4387,9 @@ class EnvironmentInfoDescription {
   factory EnvironmentInfoDescription.fromXml(_s.XmlElement elem) {
     return EnvironmentInfoDescription(
       ec2InstanceId: _s.extractXmlStringValue(elem, 'Ec2InstanceId'),
-      infoType:
-          _s.extractXmlStringValue(elem, 'InfoType')?.toEnvironmentInfoType(),
+      infoType: _s
+          .extractXmlStringValue(elem, 'InfoType')
+          ?.let(EnvironmentInfoType.fromString),
       message: _s.extractXmlStringValue(elem, 'Message'),
       sampleTimestamp: _s.extractXmlDateTimeValue(elem, 'SampleTimestamp'),
     );
@@ -4456,31 +4397,18 @@ class EnvironmentInfoDescription {
 }
 
 enum EnvironmentInfoType {
-  tail,
-  bundle,
-}
+  tail('tail'),
+  bundle('bundle'),
+  ;
 
-extension EnvironmentInfoTypeValueExtension on EnvironmentInfoType {
-  String toValue() {
-    switch (this) {
-      case EnvironmentInfoType.tail:
-        return 'tail';
-      case EnvironmentInfoType.bundle:
-        return 'bundle';
-    }
-  }
-}
+  final String value;
 
-extension EnvironmentInfoTypeFromString on String {
-  EnvironmentInfoType toEnvironmentInfoType() {
-    switch (this) {
-      case 'tail':
-        return EnvironmentInfoType.tail;
-      case 'bundle':
-        return EnvironmentInfoType.bundle;
-    }
-    throw Exception('$this is not known in enum EnvironmentInfoType');
-  }
+  const EnvironmentInfoType(this.value);
+
+  static EnvironmentInfoType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EnvironmentInfoType'));
 }
 
 /// A link to another environment, defined in the environment's manifest. Links
@@ -4608,61 +4536,24 @@ class EnvironmentResourcesDescription {
 }
 
 enum EnvironmentStatus {
-  aborting,
-  launching,
-  updating,
-  linkingFrom,
-  linkingTo,
-  ready,
-  terminating,
-  terminated,
-}
+  aborting('Aborting'),
+  launching('Launching'),
+  updating('Updating'),
+  linkingFrom('LinkingFrom'),
+  linkingTo('LinkingTo'),
+  ready('Ready'),
+  terminating('Terminating'),
+  terminated('Terminated'),
+  ;
 
-extension EnvironmentStatusValueExtension on EnvironmentStatus {
-  String toValue() {
-    switch (this) {
-      case EnvironmentStatus.aborting:
-        return 'Aborting';
-      case EnvironmentStatus.launching:
-        return 'Launching';
-      case EnvironmentStatus.updating:
-        return 'Updating';
-      case EnvironmentStatus.linkingFrom:
-        return 'LinkingFrom';
-      case EnvironmentStatus.linkingTo:
-        return 'LinkingTo';
-      case EnvironmentStatus.ready:
-        return 'Ready';
-      case EnvironmentStatus.terminating:
-        return 'Terminating';
-      case EnvironmentStatus.terminated:
-        return 'Terminated';
-    }
-  }
-}
+  final String value;
 
-extension EnvironmentStatusFromString on String {
-  EnvironmentStatus toEnvironmentStatus() {
-    switch (this) {
-      case 'Aborting':
-        return EnvironmentStatus.aborting;
-      case 'Launching':
-        return EnvironmentStatus.launching;
-      case 'Updating':
-        return EnvironmentStatus.updating;
-      case 'LinkingFrom':
-        return EnvironmentStatus.linkingFrom;
-      case 'LinkingTo':
-        return EnvironmentStatus.linkingTo;
-      case 'Ready':
-        return EnvironmentStatus.ready;
-      case 'Terminating':
-        return EnvironmentStatus.terminating;
-      case 'Terminated':
-        return EnvironmentStatus.terminated;
-    }
-    throw Exception('$this is not known in enum EnvironmentStatus');
-  }
+  const EnvironmentStatus(this.value);
+
+  static EnvironmentStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EnvironmentStatus'));
 }
 
 /// Describes the properties of an environment tier
@@ -4726,6 +4617,17 @@ class EnvironmentTier {
       if (version != null) 'Version': version,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final name = this.name;
+    final type = this.type;
+    final version = this.version;
+    return {
+      if (name != null) 'Name': name,
+      if (type != null) 'Type': type,
+      if (version != null) 'Version': version,
+    };
+  }
 }
 
 /// Describes an event.
@@ -4776,7 +4678,9 @@ class EventDescription {
       message: _s.extractXmlStringValue(elem, 'Message'),
       platformArn: _s.extractXmlStringValue(elem, 'PlatformArn'),
       requestId: _s.extractXmlStringValue(elem, 'RequestId'),
-      severity: _s.extractXmlStringValue(elem, 'Severity')?.toEventSeverity(),
+      severity: _s
+          .extractXmlStringValue(elem, 'Severity')
+          ?.let(EventSeverity.fromString),
       templateName: _s.extractXmlStringValue(elem, 'TemplateName'),
       versionLabel: _s.extractXmlStringValue(elem, 'VersionLabel'),
     );
@@ -4807,104 +4711,41 @@ class EventDescriptionsMessage {
 }
 
 enum EventSeverity {
-  trace,
-  debug,
-  info,
-  warn,
-  error,
-  fatal,
-}
+  trace('TRACE'),
+  debug('DEBUG'),
+  info('INFO'),
+  warn('WARN'),
+  error('ERROR'),
+  fatal('FATAL'),
+  ;
 
-extension EventSeverityValueExtension on EventSeverity {
-  String toValue() {
-    switch (this) {
-      case EventSeverity.trace:
-        return 'TRACE';
-      case EventSeverity.debug:
-        return 'DEBUG';
-      case EventSeverity.info:
-        return 'INFO';
-      case EventSeverity.warn:
-        return 'WARN';
-      case EventSeverity.error:
-        return 'ERROR';
-      case EventSeverity.fatal:
-        return 'FATAL';
-    }
-  }
-}
+  final String value;
 
-extension EventSeverityFromString on String {
-  EventSeverity toEventSeverity() {
-    switch (this) {
-      case 'TRACE':
-        return EventSeverity.trace;
-      case 'DEBUG':
-        return EventSeverity.debug;
-      case 'INFO':
-        return EventSeverity.info;
-      case 'WARN':
-        return EventSeverity.warn;
-      case 'ERROR':
-        return EventSeverity.error;
-      case 'FATAL':
-        return EventSeverity.fatal;
-    }
-    throw Exception('$this is not known in enum EventSeverity');
-  }
+  const EventSeverity(this.value);
+
+  static EventSeverity fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EventSeverity'));
 }
 
 enum FailureType {
-  updateCancelled,
-  cancellationFailed,
-  rollbackFailed,
-  rollbackSuccessful,
-  internalFailure,
-  invalidEnvironmentState,
-  permissionsError,
-}
+  updateCancelled('UpdateCancelled'),
+  cancellationFailed('CancellationFailed'),
+  rollbackFailed('RollbackFailed'),
+  rollbackSuccessful('RollbackSuccessful'),
+  internalFailure('InternalFailure'),
+  invalidEnvironmentState('InvalidEnvironmentState'),
+  permissionsError('PermissionsError'),
+  ;
 
-extension FailureTypeValueExtension on FailureType {
-  String toValue() {
-    switch (this) {
-      case FailureType.updateCancelled:
-        return 'UpdateCancelled';
-      case FailureType.cancellationFailed:
-        return 'CancellationFailed';
-      case FailureType.rollbackFailed:
-        return 'RollbackFailed';
-      case FailureType.rollbackSuccessful:
-        return 'RollbackSuccessful';
-      case FailureType.internalFailure:
-        return 'InternalFailure';
-      case FailureType.invalidEnvironmentState:
-        return 'InvalidEnvironmentState';
-      case FailureType.permissionsError:
-        return 'PermissionsError';
-    }
-  }
-}
+  final String value;
 
-extension FailureTypeFromString on String {
-  FailureType toFailureType() {
-    switch (this) {
-      case 'UpdateCancelled':
-        return FailureType.updateCancelled;
-      case 'CancellationFailed':
-        return FailureType.cancellationFailed;
-      case 'RollbackFailed':
-        return FailureType.rollbackFailed;
-      case 'RollbackSuccessful':
-        return FailureType.rollbackSuccessful;
-      case 'InternalFailure':
-        return FailureType.internalFailure;
-      case 'InvalidEnvironmentState':
-        return FailureType.invalidEnvironmentState;
-      case 'PermissionsError':
-        return FailureType.permissionsError;
-    }
-    throw Exception('$this is not known in enum FailureType');
-  }
+  const FailureType(this.value);
+
+  static FailureType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FailureType'));
 }
 
 /// The description of an Amazon EC2 instance.
@@ -4983,76 +4824,27 @@ class InstanceHealthSummary {
 }
 
 enum InstancesHealthAttribute {
-  healthStatus,
-  color,
-  causes,
-  applicationMetrics,
-  refreshedAt,
-  launchedAt,
-  system,
-  deployment,
-  availabilityZone,
-  instanceType,
-  all,
-}
+  healthStatus('HealthStatus'),
+  color('Color'),
+  causes('Causes'),
+  applicationMetrics('ApplicationMetrics'),
+  refreshedAt('RefreshedAt'),
+  launchedAt('LaunchedAt'),
+  system('System'),
+  deployment('Deployment'),
+  availabilityZone('AvailabilityZone'),
+  instanceType('InstanceType'),
+  all('All'),
+  ;
 
-extension InstancesHealthAttributeValueExtension on InstancesHealthAttribute {
-  String toValue() {
-    switch (this) {
-      case InstancesHealthAttribute.healthStatus:
-        return 'HealthStatus';
-      case InstancesHealthAttribute.color:
-        return 'Color';
-      case InstancesHealthAttribute.causes:
-        return 'Causes';
-      case InstancesHealthAttribute.applicationMetrics:
-        return 'ApplicationMetrics';
-      case InstancesHealthAttribute.refreshedAt:
-        return 'RefreshedAt';
-      case InstancesHealthAttribute.launchedAt:
-        return 'LaunchedAt';
-      case InstancesHealthAttribute.system:
-        return 'System';
-      case InstancesHealthAttribute.deployment:
-        return 'Deployment';
-      case InstancesHealthAttribute.availabilityZone:
-        return 'AvailabilityZone';
-      case InstancesHealthAttribute.instanceType:
-        return 'InstanceType';
-      case InstancesHealthAttribute.all:
-        return 'All';
-    }
-  }
-}
+  final String value;
 
-extension InstancesHealthAttributeFromString on String {
-  InstancesHealthAttribute toInstancesHealthAttribute() {
-    switch (this) {
-      case 'HealthStatus':
-        return InstancesHealthAttribute.healthStatus;
-      case 'Color':
-        return InstancesHealthAttribute.color;
-      case 'Causes':
-        return InstancesHealthAttribute.causes;
-      case 'ApplicationMetrics':
-        return InstancesHealthAttribute.applicationMetrics;
-      case 'RefreshedAt':
-        return InstancesHealthAttribute.refreshedAt;
-      case 'LaunchedAt':
-        return InstancesHealthAttribute.launchedAt;
-      case 'System':
-        return InstancesHealthAttribute.system;
-      case 'Deployment':
-        return InstancesHealthAttribute.deployment;
-      case 'AvailabilityZone':
-        return InstancesHealthAttribute.availabilityZone;
-      case 'InstanceType':
-        return InstancesHealthAttribute.instanceType;
-      case 'All':
-        return InstancesHealthAttribute.all;
-    }
-    throw Exception('$this is not known in enum InstancesHealthAttribute');
-  }
+  const InstancesHealthAttribute(this.value);
+
+  static InstancesHealthAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstancesHealthAttribute'));
 }
 
 /// Represents the average latency for the slowest X percent of requests over
@@ -5314,8 +5106,12 @@ class ManagedAction {
     return ManagedAction(
       actionDescription: _s.extractXmlStringValue(elem, 'ActionDescription'),
       actionId: _s.extractXmlStringValue(elem, 'ActionId'),
-      actionType: _s.extractXmlStringValue(elem, 'ActionType')?.toActionType(),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toActionStatus(),
+      actionType: _s
+          .extractXmlStringValue(elem, 'ActionType')
+          ?.let(ActionType.fromString),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(ActionStatus.fromString),
       windowStartTime: _s.extractXmlDateTimeValue(elem, 'WindowStartTime'),
     );
   }
@@ -5361,13 +5157,18 @@ class ManagedActionHistoryItem {
     return ManagedActionHistoryItem(
       actionDescription: _s.extractXmlStringValue(elem, 'ActionDescription'),
       actionId: _s.extractXmlStringValue(elem, 'ActionId'),
-      actionType: _s.extractXmlStringValue(elem, 'ActionType')?.toActionType(),
+      actionType: _s
+          .extractXmlStringValue(elem, 'ActionType')
+          ?.let(ActionType.fromString),
       executedTime: _s.extractXmlDateTimeValue(elem, 'ExecutedTime'),
       failureDescription: _s.extractXmlStringValue(elem, 'FailureDescription'),
-      failureType:
-          _s.extractXmlStringValue(elem, 'FailureType')?.toFailureType(),
+      failureType: _s
+          .extractXmlStringValue(elem, 'FailureType')
+          ?.let(FailureType.fromString),
       finishedTime: _s.extractXmlDateTimeValue(elem, 'FinishedTime'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toActionHistoryStatus(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(ActionHistoryStatus.fromString),
     );
   }
 }
@@ -5409,6 +5210,18 @@ class MaxAgeRule {
       if (maxAgeInDays != null) 'MaxAgeInDays': maxAgeInDays,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final enabled = this.enabled;
+    final deleteSourceFromS3 = this.deleteSourceFromS3;
+    final maxAgeInDays = this.maxAgeInDays;
+    return {
+      'Enabled': enabled.toString(),
+      if (deleteSourceFromS3 != null)
+        'DeleteSourceFromS3': deleteSourceFromS3.toString(),
+      if (maxAgeInDays != null) 'MaxAgeInDays': maxAgeInDays.toString(),
+    };
+  }
 }
 
 /// A lifecycle rule that deletes the oldest application version when the
@@ -5446,6 +5259,18 @@ class MaxCountRule {
       'Enabled': enabled,
       if (deleteSourceFromS3 != null) 'DeleteSourceFromS3': deleteSourceFromS3,
       if (maxCount != null) 'MaxCount': maxCount,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final enabled = this.enabled;
+    final deleteSourceFromS3 = this.deleteSourceFromS3;
+    final maxCount = this.maxCount;
+    return {
+      'Enabled': enabled.toString(),
+      if (deleteSourceFromS3 != null)
+        'DeleteSourceFromS3': deleteSourceFromS3.toString(),
+      if (maxCount != null) 'MaxCount': maxCount.toString(),
     };
   }
 }
@@ -5490,6 +5315,17 @@ class OptionSpecification {
   });
 
   Map<String, dynamic> toJson() {
+    final namespace = this.namespace;
+    final optionName = this.optionName;
+    final resourceName = this.resourceName;
+    return {
+      if (namespace != null) 'Namespace': namespace,
+      if (optionName != null) 'OptionName': optionName,
+      if (resourceName != null) 'ResourceName': resourceName,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final namespace = this.namespace;
     final optionName = this.optionName;
     final resourceName = this.resourceName;
@@ -5670,8 +5506,9 @@ class PlatformDescription {
           _s.extractXmlStringValue(elem, 'PlatformLifecycleState'),
       platformName: _s.extractXmlStringValue(elem, 'PlatformName'),
       platformOwner: _s.extractXmlStringValue(elem, 'PlatformOwner'),
-      platformStatus:
-          _s.extractXmlStringValue(elem, 'PlatformStatus')?.toPlatformStatus(),
+      platformStatus: _s
+          .extractXmlStringValue(elem, 'PlatformStatus')
+          ?.let(PlatformStatus.fromString),
       platformVersion: _s.extractXmlStringValue(elem, 'PlatformVersion'),
       programmingLanguages: _s
           .extractXmlChild(elem, 'ProgrammingLanguages')
@@ -5751,6 +5588,22 @@ class PlatformFilter {
       if (values != null) 'Values': values,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final operator = this.operator;
+    final type = this.type;
+    final values = this.values;
+    return {
+      if (operator != null) 'Operator': operator,
+      if (type != null) 'Type': type,
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
+    };
+  }
 }
 
 /// A framework supported by the platform.
@@ -5794,46 +5647,21 @@ class PlatformProgrammingLanguage {
 }
 
 enum PlatformStatus {
-  creating,
-  failed,
-  ready,
-  deleting,
-  deleted,
-}
+  creating('Creating'),
+  failed('Failed'),
+  ready('Ready'),
+  deleting('Deleting'),
+  deleted('Deleted'),
+  ;
 
-extension PlatformStatusValueExtension on PlatformStatus {
-  String toValue() {
-    switch (this) {
-      case PlatformStatus.creating:
-        return 'Creating';
-      case PlatformStatus.failed:
-        return 'Failed';
-      case PlatformStatus.ready:
-        return 'Ready';
-      case PlatformStatus.deleting:
-        return 'Deleting';
-      case PlatformStatus.deleted:
-        return 'Deleted';
-    }
-  }
-}
+  final String value;
 
-extension PlatformStatusFromString on String {
-  PlatformStatus toPlatformStatus() {
-    switch (this) {
-      case 'Creating':
-        return PlatformStatus.creating;
-      case 'Failed':
-        return PlatformStatus.failed;
-      case 'Ready':
-        return PlatformStatus.ready;
-      case 'Deleting':
-        return PlatformStatus.deleting;
-      case 'Deleted':
-        return PlatformStatus.deleted;
-    }
-    throw Exception('$this is not known in enum PlatformStatus');
-  }
+  const PlatformStatus(this.value);
+
+  static PlatformStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PlatformStatus'));
 }
 
 /// Summary information about a platform version.
@@ -5911,8 +5739,9 @@ class PlatformSummary {
       platformLifecycleState:
           _s.extractXmlStringValue(elem, 'PlatformLifecycleState'),
       platformOwner: _s.extractXmlStringValue(elem, 'PlatformOwner'),
-      platformStatus:
-          _s.extractXmlStringValue(elem, 'PlatformStatus')?.toPlatformStatus(),
+      platformStatus: _s
+          .extractXmlStringValue(elem, 'PlatformStatus')
+          ?.let(PlatformStatus.fromString),
       platformVersion: _s.extractXmlStringValue(elem, 'PlatformVersion'),
       supportedAddonList: _s
           .extractXmlChild(elem, 'SupportedAddonList')
@@ -6074,6 +5903,15 @@ class S3Location {
       if (s3Key != null) 'S3Key': s3Key,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final s3Bucket = this.s3Bucket;
+    final s3Key = this.s3Key;
+    return {
+      if (s3Bucket != null) 'S3Bucket': s3Bucket,
+      if (s3Key != null) 'S3Key': s3Key,
+    };
+  }
 }
 
 /// Describes criteria to restrict a list of results.
@@ -6117,6 +5955,22 @@ class SearchFilter {
       if (attribute != null) 'Attribute': attribute,
       if (operator != null) 'Operator': operator,
       if (values != null) 'Values': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final attribute = this.attribute;
+    final operator = this.operator;
+    final values = this.values;
+    return {
+      if (attribute != null) 'Attribute': attribute,
+      if (operator != null) 'Operator': operator,
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
     };
   }
 }
@@ -6269,8 +6123,10 @@ class SourceBuildInformation {
       sourceLocation: _s.extractXmlStringValue(elem, 'SourceLocation')!,
       sourceRepository: _s
           .extractXmlStringValue(elem, 'SourceRepository')!
-          .toSourceRepository(),
-      sourceType: _s.extractXmlStringValue(elem, 'SourceType')!.toSourceType(),
+          .let(SourceRepository.fromString),
+      sourceType: _s
+          .extractXmlStringValue(elem, 'SourceType')!
+          .let(SourceType.fromString),
     );
   }
 
@@ -6280,8 +6136,19 @@ class SourceBuildInformation {
     final sourceType = this.sourceType;
     return {
       'SourceLocation': sourceLocation,
-      'SourceRepository': sourceRepository.toValue(),
-      'SourceType': sourceType.toValue(),
+      'SourceRepository': sourceRepository.value,
+      'SourceType': sourceType.value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final sourceLocation = this.sourceLocation;
+    final sourceRepository = this.sourceRepository;
+    final sourceType = this.sourceType;
+    return {
+      'SourceLocation': sourceLocation,
+      'SourceRepository': sourceRepository.value,
+      'SourceType': sourceType.value,
     };
   }
 }
@@ -6307,62 +6174,44 @@ class SourceConfiguration {
       if (templateName != null) 'TemplateName': templateName,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final applicationName = this.applicationName;
+    final templateName = this.templateName;
+    return {
+      if (applicationName != null) 'ApplicationName': applicationName,
+      if (templateName != null) 'TemplateName': templateName,
+    };
+  }
 }
 
 enum SourceRepository {
-  codeCommit,
-  s3,
-}
+  codeCommit('CodeCommit'),
+  s3('S3'),
+  ;
 
-extension SourceRepositoryValueExtension on SourceRepository {
-  String toValue() {
-    switch (this) {
-      case SourceRepository.codeCommit:
-        return 'CodeCommit';
-      case SourceRepository.s3:
-        return 'S3';
-    }
-  }
-}
+  final String value;
 
-extension SourceRepositoryFromString on String {
-  SourceRepository toSourceRepository() {
-    switch (this) {
-      case 'CodeCommit':
-        return SourceRepository.codeCommit;
-      case 'S3':
-        return SourceRepository.s3;
-    }
-    throw Exception('$this is not known in enum SourceRepository');
-  }
+  const SourceRepository(this.value);
+
+  static SourceRepository fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SourceRepository'));
 }
 
 enum SourceType {
-  git,
-  zip,
-}
+  git('Git'),
+  zip('Zip'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.git:
-        return 'Git';
-      case SourceType.zip:
-        return 'Zip';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'Git':
-        return SourceType.git;
-      case 'Zip':
-        return SourceType.zip;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 /// Represents the percentage of requests over the last 10 seconds that resulted
@@ -6456,6 +6305,15 @@ class Tag {
       if (value != null) 'Value': value,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      if (key != null) 'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
 }
 
 /// Describes a trigger.
@@ -6509,38 +6367,26 @@ class ValidationMessage {
       message: _s.extractXmlStringValue(elem, 'Message'),
       namespace: _s.extractXmlStringValue(elem, 'Namespace'),
       optionName: _s.extractXmlStringValue(elem, 'OptionName'),
-      severity:
-          _s.extractXmlStringValue(elem, 'Severity')?.toValidationSeverity(),
+      severity: _s
+          .extractXmlStringValue(elem, 'Severity')
+          ?.let(ValidationSeverity.fromString),
     );
   }
 }
 
 enum ValidationSeverity {
-  error,
-  warning,
-}
+  error('error'),
+  warning('warning'),
+  ;
 
-extension ValidationSeverityValueExtension on ValidationSeverity {
-  String toValue() {
-    switch (this) {
-      case ValidationSeverity.error:
-        return 'error';
-      case ValidationSeverity.warning:
-        return 'warning';
-    }
-  }
-}
+  final String value;
 
-extension ValidationSeverityFromString on String {
-  ValidationSeverity toValidationSeverity() {
-    switch (this) {
-      case 'error':
-        return ValidationSeverity.error;
-      case 'warning':
-        return ValidationSeverity.warning;
-    }
-    throw Exception('$this is not known in enum ValidationSeverity');
-  }
+  const ValidationSeverity(this.value);
+
+  static ValidationSeverity fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ValidationSeverity'));
 }
 
 class CodeBuildNotInServiceRegionException extends _s.GenericAwsException {

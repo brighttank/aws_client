@@ -85,7 +85,14 @@ class KafkaConnect {
   /// Kafka cluster's version and the plugins.
   ///
   /// Parameter [plugins] :
-  /// Specifies which plugins to use for the connector.
+  /// <important>
+  /// Amazon MSK Connect does not currently support specifying multiple plugins
+  /// as a list. To use more than one plugin for your connector, you can create
+  /// a single custom plugin using a ZIP file that bundles multiple plugins
+  /// together.
+  /// </important>
+  /// Specifies which plugin to use for the connector. You must specify a
+  /// single-element list containing one <code>customPlugin</code> object.
   ///
   /// Parameter [serviceExecutionRoleArn] :
   /// The Amazon Resource Name (ARN) of the IAM role used by the connector to
@@ -99,6 +106,9 @@ class KafkaConnect {
   ///
   /// Parameter [logDelivery] :
   /// Details about log delivery.
+  ///
+  /// Parameter [tags] :
+  /// The tags you want to attach to the connector.
   ///
   /// Parameter [workerConfiguration] :
   /// Specifies which worker configuration to use with the connector.
@@ -114,6 +124,7 @@ class KafkaConnect {
     required String serviceExecutionRoleArn,
     String? connectorDescription,
     LogDelivery? logDelivery,
+    Map<String, String>? tags,
     WorkerConfiguration? workerConfiguration,
   }) async {
     final $payload = <String, dynamic>{
@@ -129,6 +140,7 @@ class KafkaConnect {
       if (connectorDescription != null)
         'connectorDescription': connectorDescription,
       if (logDelivery != null) 'logDelivery': logDelivery,
+      if (tags != null) 'tags': tags,
       if (workerConfiguration != null)
         'workerConfiguration': workerConfiguration,
     };
@@ -163,17 +175,22 @@ class KafkaConnect {
   ///
   /// Parameter [description] :
   /// A summary description of the custom plugin.
+  ///
+  /// Parameter [tags] :
+  /// The tags you want to attach to the custom plugin.
   Future<CreateCustomPluginResponse> createCustomPlugin({
     required CustomPluginContentType contentType,
     required CustomPluginLocation location,
     required String name,
     String? description,
+    Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
-      'contentType': contentType.toValue(),
+      'contentType': contentType.value,
       'location': location,
       'name': name,
       if (description != null) 'description': description,
+      if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -203,15 +220,20 @@ class KafkaConnect {
   ///
   /// Parameter [description] :
   /// A summary description of the worker configuration.
+  ///
+  /// Parameter [tags] :
+  /// The tags you want to attach to the worker configuration.
   Future<CreateWorkerConfigurationResponse> createWorkerConfiguration({
     required String name,
     required String propertiesFileContent,
     String? description,
+    Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
       'propertiesFileContent': propertiesFileContent,
       if (description != null) 'description': description,
+      if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -277,6 +299,32 @@ class KafkaConnect {
       exceptionFnMap: _exceptionFns,
     );
     return DeleteCustomPluginResponse.fromJson(response);
+  }
+
+  /// Deletes the specified worker configuration.
+  ///
+  /// May throw [NotFoundException].
+  /// May throw [BadRequestException].
+  /// May throw [ForbiddenException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  ///
+  /// Parameter [workerConfigurationArn] :
+  /// The Amazon Resource Name (ARN) of the worker configuration that you want
+  /// to delete.
+  Future<DeleteWorkerConfigurationResponse> deleteWorkerConfiguration({
+    required String workerConfigurationArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/v1/worker-configurations/${Uri.encodeComponent(workerConfigurationArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeleteWorkerConfigurationResponse.fromJson(response);
   }
 
   /// Returns summary information about the connector.
@@ -415,12 +463,16 @@ class KafkaConnect {
   /// Parameter [maxResults] :
   /// The maximum number of custom plugins to list in one response.
   ///
+  /// Parameter [namePrefix] :
+  /// Lists custom plugin names that start with the specified text string.
+  ///
   /// Parameter [nextToken] :
   /// If the response of a ListCustomPlugins operation is truncated, it will
   /// include a NextToken. Send this NextToken in a subsequent request to
   /// continue listing from where the previous operation left off.
   Future<ListCustomPluginsResponse> listCustomPlugins({
     int? maxResults,
+    String? namePrefix,
     String? nextToken,
   }) async {
     _s.validateNumRange(
@@ -431,6 +483,7 @@ class KafkaConnect {
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (namePrefix != null) 'namePrefix': [namePrefix],
       if (nextToken != null) 'nextToken': [nextToken],
     };
     final response = await _protocol.send(
@@ -441,6 +494,31 @@ class KafkaConnect {
       exceptionFnMap: _exceptionFns,
     );
     return ListCustomPluginsResponse.fromJson(response);
+  }
+
+  /// Lists all the tags attached to the specified resource.
+  ///
+  /// May throw [NotFoundException].
+  /// May throw [BadRequestException].
+  /// May throw [ForbiddenException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the resource for which you want to list
+  /// all attached tags.
+  Future<ListTagsForResourceResponse> listTagsForResource({
+    required String resourceArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v1/tags/${Uri.encodeComponent(resourceArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListTagsForResourceResponse.fromJson(response);
   }
 
   /// Returns a list of all of the worker configurations in this account and
@@ -457,12 +535,17 @@ class KafkaConnect {
   /// Parameter [maxResults] :
   /// The maximum number of worker configurations to list in one response.
   ///
+  /// Parameter [namePrefix] :
+  /// Lists worker configuration names that start with the specified text
+  /// string.
+  ///
   /// Parameter [nextToken] :
   /// If the response of a ListWorkerConfigurations operation is truncated, it
   /// will include a NextToken. Send this NextToken in a subsequent request to
   /// continue listing from where the previous operation left off.
   Future<ListWorkerConfigurationsResponse> listWorkerConfigurations({
     int? maxResults,
+    String? namePrefix,
     String? nextToken,
   }) async {
     _s.validateNumRange(
@@ -473,6 +556,7 @@ class KafkaConnect {
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (namePrefix != null) 'namePrefix': [namePrefix],
       if (nextToken != null) 'nextToken': [nextToken],
     };
     final response = await _protocol.send(
@@ -483,6 +567,70 @@ class KafkaConnect {
       exceptionFnMap: _exceptionFns,
     );
     return ListWorkerConfigurationsResponse.fromJson(response);
+  }
+
+  /// Attaches tags to the specified resource.
+  ///
+  /// May throw [NotFoundException].
+  /// May throw [ConflictException].
+  /// May throw [BadRequestException].
+  /// May throw [ForbiddenException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the resource to which you want to attach
+  /// tags.
+  ///
+  /// Parameter [tags] :
+  /// The tags that you want to attach to the resource.
+  Future<void> tagResource({
+    required String resourceArn,
+    required Map<String, String> tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/v1/tags/${Uri.encodeComponent(resourceArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Removes tags from the specified resource.
+  ///
+  /// May throw [NotFoundException].
+  /// May throw [BadRequestException].
+  /// May throw [ForbiddenException].
+  /// May throw [ServiceUnavailableException].
+  /// May throw [TooManyRequestsException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalServerErrorException].
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the resource from which you want to
+  /// remove tags.
+  ///
+  /// Parameter [tagKeys] :
+  /// The keys of the tags that you want to remove from the resource.
+  Future<void> untagResource({
+    required String resourceArn,
+    required List<String> tagKeys,
+  }) async {
+    final $query = <String, List<String>>{
+      'tagKeys': tagKeys,
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri: '/v1/tags/${Uri.encodeComponent(resourceArn)}',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Updates the specified connector.
@@ -869,46 +1017,21 @@ class CloudWatchLogsLogDeliveryDescription {
 }
 
 enum ConnectorState {
-  running,
-  creating,
-  updating,
-  deleting,
-  failed,
-}
+  running('RUNNING'),
+  creating('CREATING'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  ;
 
-extension ConnectorStateValueExtension on ConnectorState {
-  String toValue() {
-    switch (this) {
-      case ConnectorState.running:
-        return 'RUNNING';
-      case ConnectorState.creating:
-        return 'CREATING';
-      case ConnectorState.updating:
-        return 'UPDATING';
-      case ConnectorState.deleting:
-        return 'DELETING';
-      case ConnectorState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ConnectorStateFromString on String {
-  ConnectorState toConnectorState() {
-    switch (this) {
-      case 'RUNNING':
-        return ConnectorState.running;
-      case 'CREATING':
-        return ConnectorState.creating;
-      case 'UPDATING':
-        return ConnectorState.updating;
-      case 'DELETING':
-        return ConnectorState.deleting;
-      case 'FAILED':
-        return ConnectorState.failed;
-    }
-    throw Exception('$this is not known in enum ConnectorState');
-  }
+  const ConnectorState(this.value);
+
+  static ConnectorState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConnectorState'));
 }
 
 /// Summary of a connector.
@@ -990,7 +1113,8 @@ class ConnectorSummary {
       connectorArn: json['connectorArn'] as String?,
       connectorDescription: json['connectorDescription'] as String?,
       connectorName: json['connectorName'] as String?,
-      connectorState: (json['connectorState'] as String?)?.toConnectorState(),
+      connectorState:
+          (json['connectorState'] as String?)?.let(ConnectorState.fromString),
       creationTime: timeStampFromJson(json['creationTime']),
       currentVersion: json['currentVersion'] as String?,
       kafkaCluster: json['kafkaCluster'] != null
@@ -1015,7 +1139,7 @@ class ConnectorSummary {
               json['logDelivery'] as Map<String, dynamic>)
           : null,
       plugins: (json['plugins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PluginDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       serviceExecutionRoleArn: json['serviceExecutionRoleArn'] as String?,
@@ -1050,7 +1174,7 @@ class ConnectorSummary {
       if (connectorDescription != null)
         'connectorDescription': connectorDescription,
       if (connectorName != null) 'connectorName': connectorName,
-      if (connectorState != null) 'connectorState': connectorState.toValue(),
+      if (connectorState != null) 'connectorState': connectorState.value,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (currentVersion != null) 'currentVersion': currentVersion,
       if (kafkaCluster != null) 'kafkaCluster': kafkaCluster,
@@ -1090,7 +1214,8 @@ class CreateConnectorResponse {
     return CreateConnectorResponse(
       connectorArn: json['connectorArn'] as String?,
       connectorName: json['connectorName'] as String?,
-      connectorState: (json['connectorState'] as String?)?.toConnectorState(),
+      connectorState:
+          (json['connectorState'] as String?)?.let(ConnectorState.fromString),
     );
   }
 
@@ -1101,7 +1226,7 @@ class CreateConnectorResponse {
     return {
       if (connectorArn != null) 'connectorArn': connectorArn,
       if (connectorName != null) 'connectorName': connectorName,
-      if (connectorState != null) 'connectorState': connectorState.toValue(),
+      if (connectorState != null) 'connectorState': connectorState.value,
     };
   }
 }
@@ -1129,8 +1254,8 @@ class CreateCustomPluginResponse {
   factory CreateCustomPluginResponse.fromJson(Map<String, dynamic> json) {
     return CreateCustomPluginResponse(
       customPluginArn: json['customPluginArn'] as String?,
-      customPluginState:
-          (json['customPluginState'] as String?)?.toCustomPluginState(),
+      customPluginState: (json['customPluginState'] as String?)
+          ?.let(CustomPluginState.fromString),
       name: json['name'] as String?,
       revision: json['revision'] as int?,
     );
@@ -1144,7 +1269,7 @@ class CreateCustomPluginResponse {
     return {
       if (customPluginArn != null) 'customPluginArn': customPluginArn,
       if (customPluginState != null)
-        'customPluginState': customPluginState.toValue(),
+        'customPluginState': customPluginState.value,
       if (name != null) 'name': name,
       if (revision != null) 'revision': revision,
     };
@@ -1165,11 +1290,15 @@ class CreateWorkerConfigurationResponse {
   /// configuration.
   final String? workerConfigurationArn;
 
+  /// The state of the worker configuration.
+  final WorkerConfigurationState? workerConfigurationState;
+
   CreateWorkerConfigurationResponse({
     this.creationTime,
     this.latestRevision,
     this.name,
     this.workerConfigurationArn,
+    this.workerConfigurationState,
   });
 
   factory CreateWorkerConfigurationResponse.fromJson(
@@ -1182,6 +1311,8 @@ class CreateWorkerConfigurationResponse {
           : null,
       name: json['name'] as String?,
       workerConfigurationArn: json['workerConfigurationArn'] as String?,
+      workerConfigurationState: (json['workerConfigurationState'] as String?)
+          ?.let(WorkerConfigurationState.fromString),
     );
   }
 
@@ -1190,18 +1321,21 @@ class CreateWorkerConfigurationResponse {
     final latestRevision = this.latestRevision;
     final name = this.name;
     final workerConfigurationArn = this.workerConfigurationArn;
+    final workerConfigurationState = this.workerConfigurationState;
     return {
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (latestRevision != null) 'latestRevision': latestRevision,
       if (name != null) 'name': name,
       if (workerConfigurationArn != null)
         'workerConfigurationArn': workerConfigurationArn,
+      if (workerConfigurationState != null)
+        'workerConfigurationState': workerConfigurationState.value,
     };
   }
 }
 
-/// A plugin is an AWS resource that contains the code that defines a
-/// connector's logic.
+/// A plugin is an Amazon Web Services resource that contains the code that
+/// defines a connector's logic.
 class CustomPlugin {
   /// The Amazon Resource Name (ARN) of the custom plugin.
   final String customPluginArn;
@@ -1225,31 +1359,18 @@ class CustomPlugin {
 }
 
 enum CustomPluginContentType {
-  jar,
-  zip,
-}
+  jar('JAR'),
+  zip('ZIP'),
+  ;
 
-extension CustomPluginContentTypeValueExtension on CustomPluginContentType {
-  String toValue() {
-    switch (this) {
-      case CustomPluginContentType.jar:
-        return 'JAR';
-      case CustomPluginContentType.zip:
-        return 'ZIP';
-    }
-  }
-}
+  final String value;
 
-extension CustomPluginContentTypeFromString on String {
-  CustomPluginContentType toCustomPluginContentType() {
-    switch (this) {
-      case 'JAR':
-        return CustomPluginContentType.jar;
-      case 'ZIP':
-        return CustomPluginContentType.zip;
-    }
-    throw Exception('$this is not known in enum CustomPluginContentType');
-  }
+  const CustomPluginContentType(this.value);
+
+  static CustomPluginContentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomPluginContentType'));
 }
 
 /// Details about a custom plugin.
@@ -1390,8 +1511,8 @@ class CustomPluginRevisionSummary {
 
   factory CustomPluginRevisionSummary.fromJson(Map<String, dynamic> json) {
     return CustomPluginRevisionSummary(
-      contentType:
-          (json['contentType'] as String?)?.toCustomPluginContentType(),
+      contentType: (json['contentType'] as String?)
+          ?.let(CustomPluginContentType.fromString),
       creationTime: timeStampFromJson(json['creationTime']),
       description: json['description'] as String?,
       fileDescription: json['fileDescription'] != null
@@ -1414,7 +1535,7 @@ class CustomPluginRevisionSummary {
     final location = this.location;
     final revision = this.revision;
     return {
-      if (contentType != null) 'contentType': contentType.toValue(),
+      if (contentType != null) 'contentType': contentType.value,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (description != null) 'description': description,
       if (fileDescription != null) 'fileDescription': fileDescription,
@@ -1425,51 +1546,22 @@ class CustomPluginRevisionSummary {
 }
 
 enum CustomPluginState {
-  creating,
-  createFailed,
-  active,
-  updating,
-  updateFailed,
-  deleting,
-}
+  creating('CREATING'),
+  createFailed('CREATE_FAILED'),
+  active('ACTIVE'),
+  updating('UPDATING'),
+  updateFailed('UPDATE_FAILED'),
+  deleting('DELETING'),
+  ;
 
-extension CustomPluginStateValueExtension on CustomPluginState {
-  String toValue() {
-    switch (this) {
-      case CustomPluginState.creating:
-        return 'CREATING';
-      case CustomPluginState.createFailed:
-        return 'CREATE_FAILED';
-      case CustomPluginState.active:
-        return 'ACTIVE';
-      case CustomPluginState.updating:
-        return 'UPDATING';
-      case CustomPluginState.updateFailed:
-        return 'UPDATE_FAILED';
-      case CustomPluginState.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension CustomPluginStateFromString on String {
-  CustomPluginState toCustomPluginState() {
-    switch (this) {
-      case 'CREATING':
-        return CustomPluginState.creating;
-      case 'CREATE_FAILED':
-        return CustomPluginState.createFailed;
-      case 'ACTIVE':
-        return CustomPluginState.active;
-      case 'UPDATING':
-        return CustomPluginState.updating;
-      case 'UPDATE_FAILED':
-        return CustomPluginState.updateFailed;
-      case 'DELETING':
-        return CustomPluginState.deleting;
-    }
-    throw Exception('$this is not known in enum CustomPluginState');
-  }
+  const CustomPluginState(this.value);
+
+  static CustomPluginState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CustomPluginState'));
 }
 
 /// A summary of the custom plugin.
@@ -1505,8 +1597,8 @@ class CustomPluginSummary {
     return CustomPluginSummary(
       creationTime: timeStampFromJson(json['creationTime']),
       customPluginArn: json['customPluginArn'] as String?,
-      customPluginState:
-          (json['customPluginState'] as String?)?.toCustomPluginState(),
+      customPluginState: (json['customPluginState'] as String?)
+          ?.let(CustomPluginState.fromString),
       description: json['description'] as String?,
       latestRevision: json['latestRevision'] != null
           ? CustomPluginRevisionSummary.fromJson(
@@ -1527,7 +1619,7 @@ class CustomPluginSummary {
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (customPluginArn != null) 'customPluginArn': customPluginArn,
       if (customPluginState != null)
-        'customPluginState': customPluginState.toValue(),
+        'customPluginState': customPluginState.value,
       if (description != null) 'description': description,
       if (latestRevision != null) 'latestRevision': latestRevision,
       if (name != null) 'name': name,
@@ -1551,7 +1643,8 @@ class DeleteConnectorResponse {
   factory DeleteConnectorResponse.fromJson(Map<String, dynamic> json) {
     return DeleteConnectorResponse(
       connectorArn: json['connectorArn'] as String?,
-      connectorState: (json['connectorState'] as String?)?.toConnectorState(),
+      connectorState:
+          (json['connectorState'] as String?)?.let(ConnectorState.fromString),
     );
   }
 
@@ -1560,7 +1653,7 @@ class DeleteConnectorResponse {
     final connectorState = this.connectorState;
     return {
       if (connectorArn != null) 'connectorArn': connectorArn,
-      if (connectorState != null) 'connectorState': connectorState.toValue(),
+      if (connectorState != null) 'connectorState': connectorState.value,
     };
   }
 }
@@ -1581,8 +1674,8 @@ class DeleteCustomPluginResponse {
   factory DeleteCustomPluginResponse.fromJson(Map<String, dynamic> json) {
     return DeleteCustomPluginResponse(
       customPluginArn: json['customPluginArn'] as String?,
-      customPluginState:
-          (json['customPluginState'] as String?)?.toCustomPluginState(),
+      customPluginState: (json['customPluginState'] as String?)
+          ?.let(CustomPluginState.fromString),
     );
   }
 
@@ -1592,7 +1685,41 @@ class DeleteCustomPluginResponse {
     return {
       if (customPluginArn != null) 'customPluginArn': customPluginArn,
       if (customPluginState != null)
-        'customPluginState': customPluginState.toValue(),
+        'customPluginState': customPluginState.value,
+    };
+  }
+}
+
+class DeleteWorkerConfigurationResponse {
+  /// The Amazon Resource Name (ARN) of the worker configuration that you
+  /// requested to delete.
+  final String? workerConfigurationArn;
+
+  /// The state of the worker configuration.
+  final WorkerConfigurationState? workerConfigurationState;
+
+  DeleteWorkerConfigurationResponse({
+    this.workerConfigurationArn,
+    this.workerConfigurationState,
+  });
+
+  factory DeleteWorkerConfigurationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DeleteWorkerConfigurationResponse(
+      workerConfigurationArn: json['workerConfigurationArn'] as String?,
+      workerConfigurationState: (json['workerConfigurationState'] as String?)
+          ?.let(WorkerConfigurationState.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final workerConfigurationArn = this.workerConfigurationArn;
+    final workerConfigurationState = this.workerConfigurationState;
+    return {
+      if (workerConfigurationArn != null)
+        'workerConfigurationArn': workerConfigurationArn,
+      if (workerConfigurationState != null)
+        'workerConfigurationState': workerConfigurationState.value,
     };
   }
 }
@@ -1687,7 +1814,8 @@ class DescribeConnectorResponse {
               ?.map((k, e) => MapEntry(k, e as String)),
       connectorDescription: json['connectorDescription'] as String?,
       connectorName: json['connectorName'] as String?,
-      connectorState: (json['connectorState'] as String?)?.toConnectorState(),
+      connectorState:
+          (json['connectorState'] as String?)?.let(ConnectorState.fromString),
       creationTime: timeStampFromJson(json['creationTime']),
       currentVersion: json['currentVersion'] as String?,
       kafkaCluster: json['kafkaCluster'] != null
@@ -1712,7 +1840,7 @@ class DescribeConnectorResponse {
               json['logDelivery'] as Map<String, dynamic>)
           : null,
       plugins: (json['plugins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PluginDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       serviceExecutionRoleArn: json['serviceExecutionRoleArn'] as String?,
@@ -1755,7 +1883,7 @@ class DescribeConnectorResponse {
       if (connectorDescription != null)
         'connectorDescription': connectorDescription,
       if (connectorName != null) 'connectorName': connectorName,
-      if (connectorState != null) 'connectorState': connectorState.toValue(),
+      if (connectorState != null) 'connectorState': connectorState.value,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (currentVersion != null) 'currentVersion': currentVersion,
       if (kafkaCluster != null) 'kafkaCluster': kafkaCluster,
@@ -1813,8 +1941,8 @@ class DescribeCustomPluginResponse {
     return DescribeCustomPluginResponse(
       creationTime: timeStampFromJson(json['creationTime']),
       customPluginArn: json['customPluginArn'] as String?,
-      customPluginState:
-          (json['customPluginState'] as String?)?.toCustomPluginState(),
+      customPluginState: (json['customPluginState'] as String?)
+          ?.let(CustomPluginState.fromString),
       description: json['description'] as String?,
       latestRevision: json['latestRevision'] != null
           ? CustomPluginRevisionSummary.fromJson(
@@ -1840,7 +1968,7 @@ class DescribeCustomPluginResponse {
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (customPluginArn != null) 'customPluginArn': customPluginArn,
       if (customPluginState != null)
-        'customPluginState': customPluginState.toValue(),
+        'customPluginState': customPluginState.value,
       if (description != null) 'description': description,
       if (latestRevision != null) 'latestRevision': latestRevision,
       if (name != null) 'name': name,
@@ -1865,12 +1993,16 @@ class DescribeWorkerConfigurationResponse {
   /// The Amazon Resource Name (ARN) of the custom configuration.
   final String? workerConfigurationArn;
 
+  /// The state of the worker configuration.
+  final WorkerConfigurationState? workerConfigurationState;
+
   DescribeWorkerConfigurationResponse({
     this.creationTime,
     this.description,
     this.latestRevision,
     this.name,
     this.workerConfigurationArn,
+    this.workerConfigurationState,
   });
 
   factory DescribeWorkerConfigurationResponse.fromJson(
@@ -1884,6 +2016,8 @@ class DescribeWorkerConfigurationResponse {
           : null,
       name: json['name'] as String?,
       workerConfigurationArn: json['workerConfigurationArn'] as String?,
+      workerConfigurationState: (json['workerConfigurationState'] as String?)
+          ?.let(WorkerConfigurationState.fromString),
     );
   }
 
@@ -1893,6 +2027,7 @@ class DescribeWorkerConfigurationResponse {
     final latestRevision = this.latestRevision;
     final name = this.name;
     final workerConfigurationArn = this.workerConfigurationArn;
+    final workerConfigurationState = this.workerConfigurationState;
     return {
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (description != null) 'description': description,
@@ -1900,6 +2035,8 @@ class DescribeWorkerConfigurationResponse {
       if (name != null) 'name': name,
       if (workerConfigurationArn != null)
         'workerConfigurationArn': workerConfigurationArn,
+      if (workerConfigurationState != null)
+        'workerConfigurationState': workerConfigurationState.value,
     };
   }
 }
@@ -1993,7 +2130,7 @@ class KafkaClusterClientAuthentication {
   Map<String, dynamic> toJson() {
     final authenticationType = this.authenticationType;
     return {
-      'authenticationType': authenticationType.toValue(),
+      'authenticationType': authenticationType.value,
     };
   }
 }
@@ -2013,7 +2150,7 @@ class KafkaClusterClientAuthenticationDescription {
       Map<String, dynamic> json) {
     return KafkaClusterClientAuthenticationDescription(
       authenticationType: (json['authenticationType'] as String?)
-          ?.toKafkaClusterClientAuthenticationType(),
+          ?.let(KafkaClusterClientAuthenticationType.fromString),
     );
   }
 
@@ -2021,40 +2158,24 @@ class KafkaClusterClientAuthenticationDescription {
     final authenticationType = this.authenticationType;
     return {
       if (authenticationType != null)
-        'authenticationType': authenticationType.toValue(),
+        'authenticationType': authenticationType.value,
     };
   }
 }
 
 enum KafkaClusterClientAuthenticationType {
-  none,
-  iam,
-}
+  none('NONE'),
+  iam('IAM'),
+  ;
 
-extension KafkaClusterClientAuthenticationTypeValueExtension
-    on KafkaClusterClientAuthenticationType {
-  String toValue() {
-    switch (this) {
-      case KafkaClusterClientAuthenticationType.none:
-        return 'NONE';
-      case KafkaClusterClientAuthenticationType.iam:
-        return 'IAM';
-    }
-  }
-}
+  final String value;
 
-extension KafkaClusterClientAuthenticationTypeFromString on String {
-  KafkaClusterClientAuthenticationType
-      toKafkaClusterClientAuthenticationType() {
-    switch (this) {
-      case 'NONE':
-        return KafkaClusterClientAuthenticationType.none;
-      case 'IAM':
-        return KafkaClusterClientAuthenticationType.iam;
-    }
-    throw Exception(
-        '$this is not known in enum KafkaClusterClientAuthenticationType');
-  }
+  const KafkaClusterClientAuthenticationType(this.value);
+
+  static KafkaClusterClientAuthenticationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum KafkaClusterClientAuthenticationType'));
 }
 
 /// Details of how to connect to the Apache Kafka cluster.
@@ -2095,7 +2216,7 @@ class KafkaClusterEncryptionInTransit {
   Map<String, dynamic> toJson() {
     final encryptionType = this.encryptionType;
     return {
-      'encryptionType': encryptionType.toValue(),
+      'encryptionType': encryptionType.value,
     };
   }
 }
@@ -2113,46 +2234,31 @@ class KafkaClusterEncryptionInTransitDescription {
       Map<String, dynamic> json) {
     return KafkaClusterEncryptionInTransitDescription(
       encryptionType: (json['encryptionType'] as String?)
-          ?.toKafkaClusterEncryptionInTransitType(),
+          ?.let(KafkaClusterEncryptionInTransitType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final encryptionType = this.encryptionType;
     return {
-      if (encryptionType != null) 'encryptionType': encryptionType.toValue(),
+      if (encryptionType != null) 'encryptionType': encryptionType.value,
     };
   }
 }
 
 enum KafkaClusterEncryptionInTransitType {
-  plaintext,
-  tls,
-}
+  plaintext('PLAINTEXT'),
+  tls('TLS'),
+  ;
 
-extension KafkaClusterEncryptionInTransitTypeValueExtension
-    on KafkaClusterEncryptionInTransitType {
-  String toValue() {
-    switch (this) {
-      case KafkaClusterEncryptionInTransitType.plaintext:
-        return 'PLAINTEXT';
-      case KafkaClusterEncryptionInTransitType.tls:
-        return 'TLS';
-    }
-  }
-}
+  final String value;
 
-extension KafkaClusterEncryptionInTransitTypeFromString on String {
-  KafkaClusterEncryptionInTransitType toKafkaClusterEncryptionInTransitType() {
-    switch (this) {
-      case 'PLAINTEXT':
-        return KafkaClusterEncryptionInTransitType.plaintext;
-      case 'TLS':
-        return KafkaClusterEncryptionInTransitType.tls;
-    }
-    throw Exception(
-        '$this is not known in enum KafkaClusterEncryptionInTransitType');
-  }
+  const KafkaClusterEncryptionInTransitType(this.value);
+
+  static KafkaClusterEncryptionInTransitType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum KafkaClusterEncryptionInTransitType'));
 }
 
 class ListConnectorsResponse {
@@ -2172,7 +2278,7 @@ class ListConnectorsResponse {
   factory ListConnectorsResponse.fromJson(Map<String, dynamic> json) {
     return ListConnectorsResponse(
       connectors: (json['connectors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ConnectorSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2206,7 +2312,7 @@ class ListCustomPluginsResponse {
   factory ListCustomPluginsResponse.fromJson(Map<String, dynamic> json) {
     return ListCustomPluginsResponse(
       customPlugins: (json['customPlugins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomPluginSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2219,6 +2325,30 @@ class ListCustomPluginsResponse {
     return {
       if (customPlugins != null) 'customPlugins': customPlugins,
       if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListTagsForResourceResponse {
+  /// Lists the tags attached to the specified resource in the corresponding
+  /// request.
+  final Map<String, String>? tags;
+
+  ListTagsForResourceResponse({
+    this.tags,
+  });
+
+  factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
+    return ListTagsForResourceResponse(
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final tags = this.tags;
+    return {
+      if (tags != null) 'tags': tags,
     };
   }
 }
@@ -2241,7 +2371,7 @@ class ListWorkerConfigurationsResponse {
     return ListWorkerConfigurationsResponse(
       nextToken: json['nextToken'] as String?,
       workerConfigurations: (json['workerConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               WorkerConfigurationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2304,8 +2434,8 @@ class LogDeliveryDescription {
   }
 }
 
-/// A plugin is an AWS resource that contains the code that defines your
-/// connector logic.
+/// A plugin is an Amazon Web Services resource that contains the code that
+/// defines your connector logic.
 class Plugin {
   /// Details about a custom plugin.
   final CustomPlugin customPlugin;
@@ -2713,6 +2843,30 @@ class StateDescription {
   }
 }
 
+class TagResourceResponse {
+  TagResourceResponse();
+
+  factory TagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return TagResourceResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+class UntagResourceResponse {
+  UntagResourceResponse();
+
+  factory UntagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return UntagResourceResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 class UpdateConnectorResponse {
   /// The Amazon Resource Name (ARN) of the connector.
   final String? connectorArn;
@@ -2728,7 +2882,8 @@ class UpdateConnectorResponse {
   factory UpdateConnectorResponse.fromJson(Map<String, dynamic> json) {
     return UpdateConnectorResponse(
       connectorArn: json['connectorArn'] as String?,
-      connectorState: (json['connectorState'] as String?)?.toConnectorState(),
+      connectorState:
+          (json['connectorState'] as String?)?.let(ConnectorState.fromString),
     );
   }
 
@@ -2737,7 +2892,7 @@ class UpdateConnectorResponse {
     final connectorState = this.connectorState;
     return {
       if (connectorArn != null) 'connectorArn': connectorArn,
-      if (connectorState != null) 'connectorState': connectorState.toValue(),
+      if (connectorState != null) 'connectorState': connectorState.value,
     };
   }
 }
@@ -2781,13 +2936,11 @@ class VpcDescription {
   factory VpcDescription.fromJson(Map<String, dynamic> json) {
     return VpcDescription(
       securityGroups: (json['securityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      subnets: (json['subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      subnets:
+          (json['subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -2940,6 +3093,21 @@ class WorkerConfigurationRevisionSummary {
   }
 }
 
+enum WorkerConfigurationState {
+  active('ACTIVE'),
+  deleting('DELETING'),
+  ;
+
+  final String value;
+
+  const WorkerConfigurationState(this.value);
+
+  static WorkerConfigurationState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum WorkerConfigurationState'));
+}
+
 /// The summary of a worker configuration.
 class WorkerConfigurationSummary {
   /// The time that a worker configuration was created.
@@ -2957,12 +3125,16 @@ class WorkerConfigurationSummary {
   /// The Amazon Resource Name (ARN) of the worker configuration.
   final String? workerConfigurationArn;
 
+  /// The state of the worker configuration.
+  final WorkerConfigurationState? workerConfigurationState;
+
   WorkerConfigurationSummary({
     this.creationTime,
     this.description,
     this.latestRevision,
     this.name,
     this.workerConfigurationArn,
+    this.workerConfigurationState,
   });
 
   factory WorkerConfigurationSummary.fromJson(Map<String, dynamic> json) {
@@ -2975,6 +3147,8 @@ class WorkerConfigurationSummary {
           : null,
       name: json['name'] as String?,
       workerConfigurationArn: json['workerConfigurationArn'] as String?,
+      workerConfigurationState: (json['workerConfigurationState'] as String?)
+          ?.let(WorkerConfigurationState.fromString),
     );
   }
 
@@ -2984,6 +3158,7 @@ class WorkerConfigurationSummary {
     final latestRevision = this.latestRevision;
     final name = this.name;
     final workerConfigurationArn = this.workerConfigurationArn;
+    final workerConfigurationState = this.workerConfigurationState;
     return {
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (description != null) 'description': description,
@@ -2991,6 +3166,8 @@ class WorkerConfigurationSummary {
       if (name != null) 'name': name,
       if (workerConfigurationArn != null)
         'workerConfigurationArn': workerConfigurationArn,
+      if (workerConfigurationState != null)
+        'workerConfigurationState': workerConfigurationState.value,
     };
   }
 }

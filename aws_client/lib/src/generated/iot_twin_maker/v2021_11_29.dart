@@ -84,6 +84,30 @@ class IoTTwinMaker {
     return BatchPutPropertyValuesResponse.fromJson(response);
   }
 
+  /// Cancels the metadata transfer job.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [metadataTransferJobId] :
+  /// The metadata transfer job Id.
+  Future<CancelMetadataTransferJobResponse> cancelMetadataTransferJob({
+    required String metadataTransferJobId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'PUT',
+      requestUri:
+          '/metadata-transfer-jobs/${Uri.encodeComponent(metadataTransferJobId)}/cancel',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CancelMetadataTransferJobResponse.fromJson(response);
+  }
+
   /// Creates a component type.
   ///
   /// May throw [InternalServerException].
@@ -101,6 +125,12 @@ class IoTTwinMaker {
   ///
   /// Parameter [componentTypeName] :
   /// A friendly name for the component type.
+  ///
+  /// Parameter [compositeComponentTypes] :
+  /// This is an object that maps strings to
+  /// <code>compositeComponentTypes</code> of the <code>componentType</code>.
+  /// <code>CompositeComponentType</code> is referenced by
+  /// <code>componentTypeId</code>.
   ///
   /// Parameter [description] :
   /// The description of the component type.
@@ -129,6 +159,7 @@ class IoTTwinMaker {
     required String componentTypeId,
     required String workspaceId,
     String? componentTypeName,
+    Map<String, CompositeComponentTypeRequest>? compositeComponentTypes,
     String? description,
     List<String>? extendsFrom,
     Map<String, FunctionRequest>? functions,
@@ -139,6 +170,8 @@ class IoTTwinMaker {
   }) async {
     final $payload = <String, dynamic>{
       if (componentTypeName != null) 'componentTypeName': componentTypeName,
+      if (compositeComponentTypes != null)
+        'compositeComponentTypes': compositeComponentTypes,
       if (description != null) 'description': description,
       if (extendsFrom != null) 'extendsFrom': extendsFrom,
       if (functions != null) 'functions': functions,
@@ -177,6 +210,11 @@ class IoTTwinMaker {
   /// An object that maps strings to the components in the entity. Each string
   /// in the mapping must be unique to this object.
   ///
+  /// Parameter [compositeComponents] :
+  /// This is an object that maps strings to <code>compositeComponent</code>
+  /// updates in the request. Each key of the map represents the
+  /// <code>componentPath</code> of the <code>compositeComponent</code>.
+  ///
   /// Parameter [description] :
   /// The description of the entity.
   ///
@@ -192,6 +230,7 @@ class IoTTwinMaker {
     required String entityName,
     required String workspaceId,
     Map<String, ComponentRequest>? components,
+    Map<String, CompositeComponentRequest>? compositeComponents,
     String? description,
     String? entityId,
     String? parentEntityId,
@@ -200,6 +239,8 @@ class IoTTwinMaker {
     final $payload = <String, dynamic>{
       'entityName': entityName,
       if (components != null) 'components': components,
+      if (compositeComponents != null)
+        'compositeComponents': compositeComponents,
       if (description != null) 'description': description,
       if (entityId != null) 'entityId': entityId,
       if (parentEntityId != null) 'parentEntityId': parentEntityId,
@@ -212,6 +253,49 @@ class IoTTwinMaker {
       exceptionFnMap: _exceptionFns,
     );
     return CreateEntityResponse.fromJson(response);
+  }
+
+  /// Creates a new metadata transfer job.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  ///
+  /// Parameter [destination] :
+  /// The metadata transfer job destination.
+  ///
+  /// Parameter [sources] :
+  /// The metadata transfer job sources.
+  ///
+  /// Parameter [description] :
+  /// The metadata transfer job description.
+  ///
+  /// Parameter [metadataTransferJobId] :
+  /// The metadata transfer job Id.
+  Future<CreateMetadataTransferJobResponse> createMetadataTransferJob({
+    required DestinationConfiguration destination,
+    required List<SourceConfiguration> sources,
+    String? description,
+    String? metadataTransferJobId,
+  }) async {
+    final $payload = <String, dynamic>{
+      'destination': destination,
+      'sources': sources,
+      if (description != null) 'description': description,
+      if (metadataTransferJobId != null)
+        'metadataTransferJobId': metadataTransferJobId,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/metadata-transfer-jobs',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateMetadataTransferJobResponse.fromJson(response);
   }
 
   /// Creates a scene.
@@ -323,6 +407,12 @@ class IoTTwinMaker {
   /// May throw [ConflictException].
   /// May throw [ServiceQuotaExceededException].
   ///
+  /// Parameter [workspaceId] :
+  /// The ID of the workspace.
+  ///
+  /// Parameter [description] :
+  /// The description of the workspace.
+  ///
   /// Parameter [role] :
   /// The ARN of the execution role associated with the workspace.
   ///
@@ -330,25 +420,19 @@ class IoTTwinMaker {
   /// The ARN of the S3 bucket where resources associated with the workspace are
   /// stored.
   ///
-  /// Parameter [workspaceId] :
-  /// The ID of the workspace.
-  ///
-  /// Parameter [description] :
-  /// The description of the workspace.
-  ///
   /// Parameter [tags] :
   /// Metadata that you can use to manage the workspace
   Future<CreateWorkspaceResponse> createWorkspace({
-    required String role,
-    required String s3Location,
     required String workspaceId,
     String? description,
+    String? role,
+    String? s3Location,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
-      'role': role,
-      's3Location': s3Location,
       if (description != null) 'description': description,
+      if (role != null) 'role': role,
+      if (s3Location != null) 's3Location': s3Location,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -490,7 +574,7 @@ class IoTTwinMaker {
   ///
   /// Parameter [workspaceId] :
   /// The ID of the workspace to delete.
-  Future<void> deleteWorkspace({
+  Future<DeleteWorkspaceResponse> deleteWorkspace({
     required String workspaceId,
   }) async {
     final response = await _protocol.send(
@@ -499,10 +583,17 @@ class IoTTwinMaker {
       requestUri: '/workspaces/${Uri.encodeComponent(workspaceId)}',
       exceptionFnMap: _exceptionFns,
     );
+    return DeleteWorkspaceResponse.fromJson(response);
   }
 
   /// Run queries to access information from your knowledge graph of entities
   /// within individual workspaces.
+  /// <note>
+  /// The ExecuteQuery action only works with <a
+  /// href="https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/home.html">Amazon
+  /// Web Services Java SDK2</a>. ExecuteQuery will not work with any Amazon Web
+  /// Services Java SDK version &lt; 2.x.
+  /// </note>
   ///
   /// May throw [InternalServerException].
   /// May throw [AccessDeniedException].
@@ -518,9 +609,7 @@ class IoTTwinMaker {
   /// The ID of the workspace.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return at one time. The default is 25.
-  ///
-  /// Valid Range: Minimum value of 1. Maximum value of 250.
+  /// The maximum number of results to return at one time. The default is 50.
   ///
   /// Parameter [nextToken] :
   /// The string that specifies the next page of results.
@@ -605,6 +694,29 @@ class IoTTwinMaker {
     return GetEntityResponse.fromJson(response);
   }
 
+  /// Gets a nmetadata transfer job.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [metadataTransferJobId] :
+  /// The metadata transfer job Id.
+  Future<GetMetadataTransferJobResponse> getMetadataTransferJob({
+    required String metadataTransferJobId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/metadata-transfer-jobs/${Uri.encodeComponent(metadataTransferJobId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetMetadataTransferJobResponse.fromJson(response);
+  }
+
   /// Gets the pricing plan.
   ///
   /// May throw [InternalServerException].
@@ -645,6 +757,10 @@ class IoTTwinMaker {
   /// Parameter [componentName] :
   /// The name of the component whose property values the operation returns.
   ///
+  /// Parameter [componentPath] :
+  /// This string specifies the path to the composite component, starting from
+  /// the top-level component.
+  ///
   /// Parameter [componentTypeId] :
   /// The ID of the component type whose property values the operation returns.
   ///
@@ -668,6 +784,7 @@ class IoTTwinMaker {
     required List<String> selectedProperties,
     required String workspaceId,
     String? componentName,
+    String? componentPath,
     String? componentTypeId,
     String? entityId,
     int? maxResults,
@@ -684,6 +801,7 @@ class IoTTwinMaker {
     final $payload = <String, dynamic>{
       'selectedProperties': selectedProperties,
       if (componentName != null) 'componentName': componentName,
+      if (componentPath != null) 'componentPath': componentPath,
       if (componentTypeId != null) 'componentTypeId': componentTypeId,
       if (entityId != null) 'entityId': entityId,
       if (maxResults != null) 'maxResults': maxResults,
@@ -725,6 +843,10 @@ class IoTTwinMaker {
   ///
   /// Parameter [componentName] :
   /// The name of the component.
+  ///
+  /// Parameter [componentPath] :
+  /// This string specifies the path to the composite component, starting from
+  /// the top-level component.
   ///
   /// Parameter [componentTypeId] :
   /// The ID of the component type.
@@ -773,6 +895,7 @@ class IoTTwinMaker {
     required List<String> selectedProperties,
     required String workspaceId,
     String? componentName,
+    String? componentPath,
     String? componentTypeId,
     DateTime? endDateTime,
     String? endTime,
@@ -794,6 +917,7 @@ class IoTTwinMaker {
     final $payload = <String, dynamic>{
       'selectedProperties': selectedProperties,
       if (componentName != null) 'componentName': componentName,
+      if (componentPath != null) 'componentPath': componentPath,
       if (componentTypeId != null) 'componentTypeId': componentTypeId,
       if (endDateTime != null) 'endDateTime': unixTimestampToJson(endDateTime),
       if (endTime != null) 'endTime': endTime,
@@ -801,7 +925,7 @@ class IoTTwinMaker {
       if (interpolation != null) 'interpolation': interpolation,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
-      if (orderByTime != null) 'orderByTime': orderByTime.toValue(),
+      if (orderByTime != null) 'orderByTime': orderByTime.value,
       if (propertyFilters != null) 'propertyFilters': propertyFilters,
       if (startDateTime != null)
         'startDateTime': unixTimestampToJson(startDateTime),
@@ -947,6 +1071,58 @@ class IoTTwinMaker {
     return ListComponentTypesResponse.fromJson(response);
   }
 
+  /// This API lists the components of an entity.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [entityId] :
+  /// The ID for the entity whose metadata (component/properties) is returned by
+  /// the operation.
+  ///
+  /// Parameter [workspaceId] :
+  /// The workspace ID.
+  ///
+  /// Parameter [componentPath] :
+  /// This string specifies the path to the composite component, starting from
+  /// the top-level component.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results returned at one time. The default is 25.
+  ///
+  /// Parameter [nextToken] :
+  /// The string that specifies the next page of results.
+  Future<ListComponentsResponse> listComponents({
+    required String entityId,
+    required String workspaceId,
+    String? componentPath,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      200,
+    );
+    final $payload = <String, dynamic>{
+      if (componentPath != null) 'componentPath': componentPath,
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/workspaces/${Uri.encodeComponent(workspaceId)}/entities/${Uri.encodeComponent(entityId)}/components-list',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListComponentsResponse.fromJson(response);
+  }
+
   /// Lists all entities in a workspace.
   ///
   /// May throw [InternalServerException].
@@ -995,6 +1171,114 @@ class IoTTwinMaker {
       exceptionFnMap: _exceptionFns,
     );
     return ListEntitiesResponse.fromJson(response);
+  }
+
+  /// Lists the metadata transfer jobs.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [destinationType] :
+  /// The metadata transfer job's destination type.
+  ///
+  /// Parameter [sourceType] :
+  /// The metadata transfer job's source type.
+  ///
+  /// Parameter [filters] :
+  /// An object that filters metadata transfer jobs.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return at one time.
+  ///
+  /// Parameter [nextToken] :
+  /// The string that specifies the next page of results.
+  Future<ListMetadataTransferJobsResponse> listMetadataTransferJobs({
+    required DestinationType destinationType,
+    required SourceType sourceType,
+    List<ListMetadataTransferJobsFilter>? filters,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      200,
+    );
+    final $payload = <String, dynamic>{
+      'destinationType': destinationType.value,
+      'sourceType': sourceType.value,
+      if (filters != null) 'filters': filters,
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/metadata-transfer-jobs-list',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListMetadataTransferJobsResponse.fromJson(response);
+  }
+
+  /// This API lists the properties of a component.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [entityId] :
+  /// The ID for the entity whose metadata (component/properties) is returned by
+  /// the operation.
+  ///
+  /// Parameter [workspaceId] :
+  /// The workspace ID.
+  ///
+  /// Parameter [componentName] :
+  /// The name of the component whose properties are returned by the operation.
+  ///
+  /// Parameter [componentPath] :
+  /// This string specifies the path to the composite component, starting from
+  /// the top-level component.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results returned at one time. The default is 25.
+  ///
+  /// Parameter [nextToken] :
+  /// The string that specifies the next page of results.
+  Future<ListPropertiesResponse> listProperties({
+    required String entityId,
+    required String workspaceId,
+    String? componentName,
+    String? componentPath,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      200,
+    );
+    final $payload = <String, dynamic>{
+      'entityId': entityId,
+      if (componentName != null) 'componentName': componentName,
+      if (componentPath != null) 'componentPath': componentPath,
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/workspaces/${Uri.encodeComponent(workspaceId)}/properties-list',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListPropertiesResponse.fromJson(response);
   }
 
   /// Lists all scenes in a workspace.
@@ -1298,6 +1582,12 @@ class IoTTwinMaker {
   /// Parameter [componentTypeName] :
   /// The component type name.
   ///
+  /// Parameter [compositeComponentTypes] :
+  /// This is an object that maps strings to
+  /// <code>compositeComponentTypes</code> of the <code>componentType</code>.
+  /// <code>CompositeComponentType</code> is referenced by
+  /// <code>componentTypeId</code>.
+  ///
   /// Parameter [description] :
   /// The description of the component type.
   ///
@@ -1322,6 +1612,7 @@ class IoTTwinMaker {
     required String componentTypeId,
     required String workspaceId,
     String? componentTypeName,
+    Map<String, CompositeComponentTypeRequest>? compositeComponentTypes,
     String? description,
     List<String>? extendsFrom,
     Map<String, FunctionRequest>? functions,
@@ -1331,6 +1622,8 @@ class IoTTwinMaker {
   }) async {
     final $payload = <String, dynamic>{
       if (componentTypeName != null) 'componentTypeName': componentTypeName,
+      if (compositeComponentTypes != null)
+        'compositeComponentTypes': compositeComponentTypes,
       if (description != null) 'description': description,
       if (extendsFrom != null) 'extendsFrom': extendsFrom,
       if (functions != null) 'functions': functions,
@@ -1369,6 +1662,11 @@ class IoTTwinMaker {
   /// An object that maps strings to the component updates in the request. Each
   /// string in the mapping must be unique to this object.
   ///
+  /// Parameter [compositeComponentUpdates] :
+  /// This is an object that maps strings to <code>compositeComponent</code>
+  /// updates in the request. Each key of the map represents the
+  /// <code>componentPath</code> of the <code>compositeComponent</code>.
+  ///
   /// Parameter [description] :
   /// The description of the entity.
   ///
@@ -1381,12 +1679,15 @@ class IoTTwinMaker {
     required String entityId,
     required String workspaceId,
     Map<String, ComponentUpdateRequest>? componentUpdates,
+    Map<String, CompositeComponentUpdateRequest>? compositeComponentUpdates,
     String? description,
     String? entityName,
     ParentEntityUpdateRequest? parentEntityUpdate,
   }) async {
     final $payload = <String, dynamic>{
       if (componentUpdates != null) 'componentUpdates': componentUpdates,
+      if (compositeComponentUpdates != null)
+        'compositeComponentUpdates': compositeComponentUpdates,
       if (description != null) 'description': description,
       if (entityName != null) 'entityName': entityName,
       if (parentEntityUpdate != null) 'parentEntityUpdate': parentEntityUpdate,
@@ -1418,7 +1719,7 @@ class IoTTwinMaker {
     List<String>? bundleNames,
   }) async {
     final $payload = <String, dynamic>{
-      'pricingMode': pricingMode.toValue(),
+      'pricingMode': pricingMode.value,
       if (bundleNames != null) 'bundleNames': bundleNames,
     };
     final response = await _protocol.send(
@@ -1497,14 +1798,20 @@ class IoTTwinMaker {
   ///
   /// Parameter [role] :
   /// The ARN of the execution role associated with the workspace.
+  ///
+  /// Parameter [s3Location] :
+  /// The ARN of the S3 bucket where resources associated with the workspace are
+  /// stored.
   Future<UpdateWorkspaceResponse> updateWorkspace({
     required String workspaceId,
     String? description,
     String? role,
+    String? s3Location,
   }) async {
     final $payload = <String, dynamic>{
       if (description != null) 'description': description,
       if (role != null) 'role': role,
+      if (s3Location != null) 's3Location': s3Location,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1568,7 +1875,7 @@ class BatchPutPropertyErrorEntry {
   factory BatchPutPropertyErrorEntry.fromJson(Map<String, dynamic> json) {
     return BatchPutPropertyErrorEntry(
       errors: (json['errors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BatchPutPropertyError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1593,7 +1900,7 @@ class BatchPutPropertyValuesResponse {
   factory BatchPutPropertyValuesResponse.fromJson(Map<String, dynamic> json) {
     return BatchPutPropertyValuesResponse(
       errorEntries: (json['errorEntries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               BatchPutPropertyErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1624,10 +1931,11 @@ class BundleInformation {
   factory BundleInformation.fromJson(Map<String, dynamic> json) {
     return BundleInformation(
       bundleNames: (json['bundleNames'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
-      pricingTier: (json['pricingTier'] as String?)?.toPricingTier(),
+      pricingTier:
+          (json['pricingTier'] as String?)?.let(PricingTier.fromString),
     );
   }
 
@@ -1636,7 +1944,63 @@ class BundleInformation {
     final pricingTier = this.pricingTier;
     return {
       'bundleNames': bundleNames,
-      if (pricingTier != null) 'pricingTier': pricingTier.toValue(),
+      if (pricingTier != null) 'pricingTier': pricingTier.value,
+    };
+  }
+}
+
+class CancelMetadataTransferJobResponse {
+  /// The metadata transfer job ARN.
+  final String arn;
+
+  /// The metadata transfer job Id.
+  final String metadataTransferJobId;
+
+  /// The metadata transfer job's status.
+  final MetadataTransferJobStatus status;
+
+  /// Used to update the DateTime property.
+  final DateTime updateDateTime;
+
+  /// The metadata transfer job's progress.
+  final MetadataTransferJobProgress? progress;
+
+  CancelMetadataTransferJobResponse({
+    required this.arn,
+    required this.metadataTransferJobId,
+    required this.status,
+    required this.updateDateTime,
+    this.progress,
+  });
+
+  factory CancelMetadataTransferJobResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CancelMetadataTransferJobResponse(
+      arn: json['arn'] as String,
+      metadataTransferJobId: json['metadataTransferJobId'] as String,
+      status: MetadataTransferJobStatus.fromJson(
+          json['status'] as Map<String, dynamic>),
+      updateDateTime:
+          nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
+      progress: json['progress'] != null
+          ? MetadataTransferJobProgress.fromJson(
+              json['progress'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final metadataTransferJobId = this.metadataTransferJobId;
+    final status = this.status;
+    final updateDateTime = this.updateDateTime;
+    final progress = this.progress;
+    return {
+      'arn': arn,
+      'metadataTransferJobId': metadataTransferJobId,
+      'status': status,
+      'updateDateTime': unixTimestampToJson(updateDateTime),
+      if (progress != null) 'progress': progress,
     };
   }
 }
@@ -1657,7 +2021,7 @@ class ColumnDescription {
   factory ColumnDescription.fromJson(Map<String, dynamic> json) {
     return ColumnDescription(
       name: json['name'] as String?,
-      type: (json['type'] as String?)?.toColumnType(),
+      type: (json['type'] as String?)?.let(ColumnType.fromString),
     );
   }
 
@@ -1666,42 +2030,24 @@ class ColumnDescription {
     final type = this.type;
     return {
       if (name != null) 'name': name,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
 enum ColumnType {
-  node,
-  edge,
-  value,
-}
+  node('NODE'),
+  edge('EDGE'),
+  $value('VALUE'),
+  ;
 
-extension ColumnTypeValueExtension on ColumnType {
-  String toValue() {
-    switch (this) {
-      case ColumnType.node:
-        return 'NODE';
-      case ColumnType.edge:
-        return 'EDGE';
-      case ColumnType.value:
-        return 'VALUE';
-    }
-  }
-}
+  final String value;
 
-extension ColumnTypeFromString on String {
-  ColumnType toColumnType() {
-    switch (this) {
-      case 'NODE':
-        return ColumnType.node;
-      case 'EDGE':
-        return ColumnType.edge;
-      case 'VALUE':
-        return ColumnType.value;
-    }
-    throw Exception('$this is not known in enum ColumnType');
-  }
+  const ColumnType(this.value);
+
+  static ColumnType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ColumnType'));
 }
 
 /// The component property group request.
@@ -1726,9 +2072,9 @@ class ComponentPropertyGroupRequest {
     final propertyNames = this.propertyNames;
     final updateType = this.updateType;
     return {
-      if (groupType != null) 'groupType': groupType.toValue(),
+      if (groupType != null) 'groupType': groupType.value,
       if (propertyNames != null) 'propertyNames': propertyNames,
-      if (updateType != null) 'updateType': updateType.toValue(),
+      if (updateType != null) 'updateType': updateType.value,
     };
   }
 }
@@ -1753,10 +2099,10 @@ class ComponentPropertyGroupResponse {
 
   factory ComponentPropertyGroupResponse.fromJson(Map<String, dynamic> json) {
     return ComponentPropertyGroupResponse(
-      groupType: (json['groupType'] as String).toGroupType(),
+      groupType: GroupType.fromString((json['groupType'] as String)),
       isInherited: json['isInherited'] as bool,
       propertyNames: (json['propertyNames'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -1767,7 +2113,7 @@ class ComponentPropertyGroupResponse {
     final isInherited = this.isInherited;
     final propertyNames = this.propertyNames;
     return {
-      'groupType': groupType.toValue(),
+      'groupType': groupType.value,
       'isInherited': isInherited,
       'propertyNames': propertyNames,
     };
@@ -1814,11 +2160,23 @@ class ComponentRequest {
 /// An object that returns information about a component type create or update
 /// request.
 class ComponentResponse {
+  /// This flag notes whether all <code>compositeComponents</code> are returned in
+  /// the API response.
+  final bool? areAllCompositeComponentsReturned;
+
+  /// This flag notes whether all properties of the component are returned in the
+  /// API response. The maximum number of properties returned is 800.
+  final bool? areAllPropertiesReturned;
+
   /// The name of the component.
   final String? componentName;
 
   /// The ID of the component type.
   final String? componentTypeId;
+
+  /// This lists objects that contain information about the
+  /// <code>compositeComponents</code>.
+  final Map<String, ComponentSummary>? compositeComponents;
 
   /// The name of the property definition set in the request.
   final String? definedIn;
@@ -1840,8 +2198,11 @@ class ComponentResponse {
   final String? syncSource;
 
   ComponentResponse({
+    this.areAllCompositeComponentsReturned,
+    this.areAllPropertiesReturned,
     this.componentName,
     this.componentTypeId,
+    this.compositeComponents,
     this.definedIn,
     this.description,
     this.properties,
@@ -1852,8 +2213,15 @@ class ComponentResponse {
 
   factory ComponentResponse.fromJson(Map<String, dynamic> json) {
     return ComponentResponse(
+      areAllCompositeComponentsReturned:
+          json['areAllCompositeComponentsReturned'] as bool?,
+      areAllPropertiesReturned: json['areAllPropertiesReturned'] as bool?,
       componentName: json['componentName'] as String?,
       componentTypeId: json['componentTypeId'] as String?,
+      compositeComponents:
+          (json['compositeComponents'] as Map<String, dynamic>?)?.map((k, e) =>
+              MapEntry(
+                  k, ComponentSummary.fromJson(e as Map<String, dynamic>))),
       definedIn: json['definedIn'] as String?,
       description: json['description'] as String?,
       properties: (json['properties'] as Map<String, dynamic>?)?.map((k, e) =>
@@ -1871,8 +2239,12 @@ class ComponentResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final areAllCompositeComponentsReturned =
+        this.areAllCompositeComponentsReturned;
+    final areAllPropertiesReturned = this.areAllPropertiesReturned;
     final componentName = this.componentName;
     final componentTypeId = this.componentTypeId;
+    final compositeComponents = this.compositeComponents;
     final definedIn = this.definedIn;
     final description = this.description;
     final properties = this.properties;
@@ -1880,13 +2252,97 @@ class ComponentResponse {
     final status = this.status;
     final syncSource = this.syncSource;
     return {
+      if (areAllCompositeComponentsReturned != null)
+        'areAllCompositeComponentsReturned': areAllCompositeComponentsReturned,
+      if (areAllPropertiesReturned != null)
+        'areAllPropertiesReturned': areAllPropertiesReturned,
       if (componentName != null) 'componentName': componentName,
       if (componentTypeId != null) 'componentTypeId': componentTypeId,
+      if (compositeComponents != null)
+        'compositeComponents': compositeComponents,
       if (definedIn != null) 'definedIn': definedIn,
       if (description != null) 'description': description,
       if (properties != null) 'properties': properties,
       if (propertyGroups != null) 'propertyGroups': propertyGroups,
       if (status != null) 'status': status,
+      if (syncSource != null) 'syncSource': syncSource,
+    };
+  }
+}
+
+/// An object that returns information about a component summary.
+class ComponentSummary {
+  /// The name of the component.
+  final String componentName;
+
+  /// The ID of the component type.
+  final String componentTypeId;
+
+  /// The status of the component type.
+  final Status status;
+
+  /// This string specifies the path to the composite component, starting from the
+  /// top-level component.
+  final String? componentPath;
+
+  /// The name of the property definition set in the request.
+  final String? definedIn;
+
+  /// The description of the component request.
+  final String? description;
+
+  /// The property groups.
+  final Map<String, ComponentPropertyGroupResponse>? propertyGroups;
+
+  /// The <code>syncSource</code> of the sync job, if this entity was created by a
+  /// sync job.
+  final String? syncSource;
+
+  ComponentSummary({
+    required this.componentName,
+    required this.componentTypeId,
+    required this.status,
+    this.componentPath,
+    this.definedIn,
+    this.description,
+    this.propertyGroups,
+    this.syncSource,
+  });
+
+  factory ComponentSummary.fromJson(Map<String, dynamic> json) {
+    return ComponentSummary(
+      componentName: json['componentName'] as String,
+      componentTypeId: json['componentTypeId'] as String,
+      status: Status.fromJson(json['status'] as Map<String, dynamic>),
+      componentPath: json['componentPath'] as String?,
+      definedIn: json['definedIn'] as String?,
+      description: json['description'] as String?,
+      propertyGroups: (json['propertyGroups'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(
+              k,
+              ComponentPropertyGroupResponse.fromJson(
+                  e as Map<String, dynamic>))),
+      syncSource: json['syncSource'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final componentName = this.componentName;
+    final componentTypeId = this.componentTypeId;
+    final status = this.status;
+    final componentPath = this.componentPath;
+    final definedIn = this.definedIn;
+    final description = this.description;
+    final propertyGroups = this.propertyGroups;
+    final syncSource = this.syncSource;
+    return {
+      'componentName': componentName,
+      'componentTypeId': componentTypeId,
+      'status': status,
+      if (componentPath != null) 'componentPath': componentPath,
+      if (definedIn != null) 'definedIn': definedIn,
+      if (description != null) 'description': description,
+      if (propertyGroups != null) 'propertyGroups': propertyGroups,
       if (syncSource != null) 'syncSource': syncSource,
     };
   }
@@ -1999,41 +2455,145 @@ class ComponentUpdateRequest {
       if (propertyGroupUpdates != null)
         'propertyGroupUpdates': propertyGroupUpdates,
       if (propertyUpdates != null) 'propertyUpdates': propertyUpdates,
-      if (updateType != null) 'updateType': updateType.toValue(),
+      if (updateType != null) 'updateType': updateType.value,
     };
   }
 }
 
 enum ComponentUpdateType {
-  create,
-  update,
-  delete,
+  create('CREATE'),
+  update('UPDATE'),
+  delete('DELETE'),
+  ;
+
+  final String value;
+
+  const ComponentUpdateType(this.value);
+
+  static ComponentUpdateType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComponentUpdateType'));
 }
 
-extension ComponentUpdateTypeValueExtension on ComponentUpdateType {
-  String toValue() {
-    switch (this) {
-      case ComponentUpdateType.create:
-        return 'CREATE';
-      case ComponentUpdateType.update:
-        return 'UPDATE';
-      case ComponentUpdateType.delete:
-        return 'DELETE';
-    }
+/// An object that sets information about the composite component update
+/// request.
+class CompositeComponentRequest {
+  /// The description of the component type.
+  final String? description;
+
+  /// This is an object that maps strings to the properties to set in the
+  /// component type. Each string in the mapping must be unique to this object.
+  final Map<String, PropertyRequest>? properties;
+
+  /// The property groups.
+  final Map<String, ComponentPropertyGroupRequest>? propertyGroups;
+
+  CompositeComponentRequest({
+    this.description,
+    this.properties,
+    this.propertyGroups,
+  });
+
+  Map<String, dynamic> toJson() {
+    final description = this.description;
+    final properties = this.properties;
+    final propertyGroups = this.propertyGroups;
+    return {
+      if (description != null) 'description': description,
+      if (properties != null) 'properties': properties,
+      if (propertyGroups != null) 'propertyGroups': propertyGroups,
+    };
   }
 }
 
-extension ComponentUpdateTypeFromString on String {
-  ComponentUpdateType toComponentUpdateType() {
-    switch (this) {
-      case 'CREATE':
-        return ComponentUpdateType.create;
-      case 'UPDATE':
-        return ComponentUpdateType.update;
-      case 'DELETE':
-        return ComponentUpdateType.delete;
-    }
-    throw Exception('$this is not known in enum ComponentUpdateType');
+/// An object that sets information about the composite component types of a
+/// component type.
+class CompositeComponentTypeRequest {
+  /// This is the <code>componentTypeId</code> that the
+  /// <code>compositeComponentType</code> refers to.
+  final String? componentTypeId;
+
+  CompositeComponentTypeRequest({
+    this.componentTypeId,
+  });
+
+  Map<String, dynamic> toJson() {
+    final componentTypeId = this.componentTypeId;
+    return {
+      if (componentTypeId != null) 'componentTypeId': componentTypeId,
+    };
+  }
+}
+
+/// An object that returns information about the composite component types of a
+/// component type.
+class CompositeComponentTypeResponse {
+  /// This is the <code>componentTypeId</code> that this
+  /// <code>compositeComponentType</code> refers to.
+  final String? componentTypeId;
+
+  /// This boolean indicates whether this <code>compositeComponentType</code> is
+  /// inherited from its parent.
+  final bool? isInherited;
+
+  CompositeComponentTypeResponse({
+    this.componentTypeId,
+    this.isInherited,
+  });
+
+  factory CompositeComponentTypeResponse.fromJson(Map<String, dynamic> json) {
+    return CompositeComponentTypeResponse(
+      componentTypeId: json['componentTypeId'] as String?,
+      isInherited: json['isInherited'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final componentTypeId = this.componentTypeId;
+    final isInherited = this.isInherited;
+    return {
+      if (componentTypeId != null) 'componentTypeId': componentTypeId,
+      if (isInherited != null) 'isInherited': isInherited,
+    };
+  }
+}
+
+/// An object that sets information about the composite component update
+/// request.
+class CompositeComponentUpdateRequest {
+  /// The description of the component type.
+  final String? description;
+
+  /// The property group updates.
+  final Map<String, ComponentPropertyGroupRequest>? propertyGroupUpdates;
+
+  /// An object that maps strings to the properties to set in the component type
+  /// update. Each string in the mapping must be unique to this object.
+  final Map<String, PropertyRequest>? propertyUpdates;
+
+  /// The update type of the component update request.
+  final ComponentUpdateType? updateType;
+
+  CompositeComponentUpdateRequest({
+    this.description,
+    this.propertyGroupUpdates,
+    this.propertyUpdates,
+    this.updateType,
+  });
+
+  Map<String, dynamic> toJson() {
+    final description = this.description;
+    final propertyGroupUpdates = this.propertyGroupUpdates;
+    final propertyUpdates = this.propertyUpdates;
+    final updateType = this.updateType;
+    return {
+      if (description != null) 'description': description,
+      if (propertyGroupUpdates != null)
+        'propertyGroupUpdates': propertyGroupUpdates,
+      if (propertyUpdates != null) 'propertyUpdates': propertyUpdates,
+      if (updateType != null) 'updateType': updateType.value,
+    };
   }
 }
 
@@ -2058,7 +2618,7 @@ class CreateComponentTypeResponse {
       arn: json['arn'] as String,
       creationDateTime:
           nonNullableTimeStampFromJson(json['creationDateTime'] as Object),
-      state: (json['state'] as String).toState(),
+      state: State.fromString((json['state'] as String)),
     );
   }
 
@@ -2069,7 +2629,7 @@ class CreateComponentTypeResponse {
     return {
       'arn': arn,
       'creationDateTime': unixTimestampToJson(creationDateTime),
-      'state': state.toValue(),
+      'state': state.value,
     };
   }
 }
@@ -2100,7 +2660,7 @@ class CreateEntityResponse {
       creationDateTime:
           nonNullableTimeStampFromJson(json['creationDateTime'] as Object),
       entityId: json['entityId'] as String,
-      state: (json['state'] as String).toState(),
+      state: State.fromString((json['state'] as String)),
     );
   }
 
@@ -2113,7 +2673,53 @@ class CreateEntityResponse {
       'arn': arn,
       'creationDateTime': unixTimestampToJson(creationDateTime),
       'entityId': entityId,
-      'state': state.toValue(),
+      'state': state.value,
+    };
+  }
+}
+
+class CreateMetadataTransferJobResponse {
+  /// The metadata transfer job ARN.
+  final String arn;
+
+  /// The The metadata transfer job creation DateTime property.
+  final DateTime creationDateTime;
+
+  /// The metadata transfer job Id.
+  final String metadataTransferJobId;
+
+  /// The metadata transfer job response status.
+  final MetadataTransferJobStatus status;
+
+  CreateMetadataTransferJobResponse({
+    required this.arn,
+    required this.creationDateTime,
+    required this.metadataTransferJobId,
+    required this.status,
+  });
+
+  factory CreateMetadataTransferJobResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreateMetadataTransferJobResponse(
+      arn: json['arn'] as String,
+      creationDateTime:
+          nonNullableTimeStampFromJson(json['creationDateTime'] as Object),
+      metadataTransferJobId: json['metadataTransferJobId'] as String,
+      status: MetadataTransferJobStatus.fromJson(
+          json['status'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final creationDateTime = this.creationDateTime;
+    final metadataTransferJobId = this.metadataTransferJobId;
+    final status = this.status;
+    return {
+      'arn': arn,
+      'creationDateTime': unixTimestampToJson(creationDateTime),
+      'metadataTransferJobId': metadataTransferJobId,
+      'status': status,
     };
   }
 }
@@ -2169,7 +2775,7 @@ class CreateSyncJobResponse {
       arn: json['arn'] as String,
       creationDateTime:
           nonNullableTimeStampFromJson(json['creationDateTime'] as Object),
-      state: (json['state'] as String).toSyncJobState(),
+      state: SyncJobState.fromString((json['state'] as String)),
     );
   }
 
@@ -2180,7 +2786,7 @@ class CreateSyncJobResponse {
     return {
       'arn': arn,
       'creationDateTime': unixTimestampToJson(creationDateTime),
-      'state': state.toValue(),
+      'state': state.value,
     };
   }
 }
@@ -2275,9 +2881,9 @@ class DataType {
 
   factory DataType.fromJson(Map<String, dynamic> json) {
     return DataType(
-      type: (json['type'] as String).toType(),
+      type: Type.fromString((json['type'] as String)),
       allowedValues: (json['allowedValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       nestedType: json['nestedType'] != null
@@ -2297,7 +2903,7 @@ class DataType {
     final relationship = this.relationship;
     final unitOfMeasure = this.unitOfMeasure;
     return {
-      'type': type.toValue(),
+      'type': type.value,
       if (allowedValues != null) 'allowedValues': allowedValues,
       if (nestedType != null) 'nestedType': nestedType,
       if (relationship != null) 'relationship': relationship,
@@ -2354,7 +2960,7 @@ class DataValue {
       expression: json['expression'] as String?,
       integerValue: json['integerValue'] as int?,
       listValue: (json['listValue'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       longValue: json['longValue'] as int?,
@@ -2402,14 +3008,14 @@ class DeleteComponentTypeResponse {
 
   factory DeleteComponentTypeResponse.fromJson(Map<String, dynamic> json) {
     return DeleteComponentTypeResponse(
-      state: (json['state'] as String).toState(),
+      state: State.fromString((json['state'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final state = this.state;
     return {
-      'state': state.toValue(),
+      'state': state.value,
     };
   }
 }
@@ -2424,14 +3030,14 @@ class DeleteEntityResponse {
 
   factory DeleteEntityResponse.fromJson(Map<String, dynamic> json) {
     return DeleteEntityResponse(
-      state: (json['state'] as String).toState(),
+      state: State.fromString((json['state'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final state = this.state;
     return {
-      'state': state.toValue(),
+      'state': state.value,
     };
   }
 }
@@ -2458,28 +3064,98 @@ class DeleteSyncJobResponse {
 
   factory DeleteSyncJobResponse.fromJson(Map<String, dynamic> json) {
     return DeleteSyncJobResponse(
-      state: (json['state'] as String).toSyncJobState(),
+      state: SyncJobState.fromString((json['state'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final state = this.state;
     return {
-      'state': state.toValue(),
+      'state': state.value,
     };
   }
 }
 
 class DeleteWorkspaceResponse {
-  DeleteWorkspaceResponse();
+  /// The string that specifies the delete result for the workspace.
+  final String? message;
 
-  factory DeleteWorkspaceResponse.fromJson(Map<String, dynamic> _) {
-    return DeleteWorkspaceResponse();
+  DeleteWorkspaceResponse({
+    this.message,
+  });
+
+  factory DeleteWorkspaceResponse.fromJson(Map<String, dynamic> json) {
+    return DeleteWorkspaceResponse(
+      message: json['message'] as String?,
+    );
   }
 
   Map<String, dynamic> toJson() {
-    return {};
+    final message = this.message;
+    return {
+      if (message != null) 'message': message,
+    };
   }
+}
+
+/// The [link to action] metadata transfer job destination configuration.
+class DestinationConfiguration {
+  /// The destination type.
+  final DestinationType type;
+
+  /// The metadata transfer job Amazon Web Services IoT TwinMaker configuration.
+  final IotTwinMakerDestinationConfiguration? iotTwinMakerConfiguration;
+
+  /// The metadata transfer job S3 configuration. [need to add S3 entity]
+  final S3DestinationConfiguration? s3Configuration;
+
+  DestinationConfiguration({
+    required this.type,
+    this.iotTwinMakerConfiguration,
+    this.s3Configuration,
+  });
+
+  factory DestinationConfiguration.fromJson(Map<String, dynamic> json) {
+    return DestinationConfiguration(
+      type: DestinationType.fromString((json['type'] as String)),
+      iotTwinMakerConfiguration: json['iotTwinMakerConfiguration'] != null
+          ? IotTwinMakerDestinationConfiguration.fromJson(
+              json['iotTwinMakerConfiguration'] as Map<String, dynamic>)
+          : null,
+      s3Configuration: json['s3Configuration'] != null
+          ? S3DestinationConfiguration.fromJson(
+              json['s3Configuration'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final type = this.type;
+    final iotTwinMakerConfiguration = this.iotTwinMakerConfiguration;
+    final s3Configuration = this.s3Configuration;
+    return {
+      'type': type.value,
+      if (iotTwinMakerConfiguration != null)
+        'iotTwinMakerConfiguration': iotTwinMakerConfiguration,
+      if (s3Configuration != null) 's3Configuration': s3Configuration,
+    };
+  }
+}
+
+enum DestinationType {
+  s3('s3'),
+  iotsitewise('iotsitewise'),
+  iottwinmaker('iottwinmaker'),
+  ;
+
+  final String value;
+
+  const DestinationType(this.value);
+
+  static DestinationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DestinationType'));
 }
 
 /// An object that uniquely identifies an entity property.
@@ -2489,6 +3165,10 @@ class EntityPropertyReference {
 
   /// The name of the component.
   final String? componentName;
+
+  /// This string specifies the path to the composite component, starting from the
+  /// top-level component.
+  final String? componentPath;
 
   /// The ID of the entity.
   final String? entityId;
@@ -2500,6 +3180,7 @@ class EntityPropertyReference {
   EntityPropertyReference({
     required this.propertyName,
     this.componentName,
+    this.componentPath,
     this.entityId,
     this.externalIdProperty,
   });
@@ -2508,6 +3189,7 @@ class EntityPropertyReference {
     return EntityPropertyReference(
       propertyName: json['propertyName'] as String,
       componentName: json['componentName'] as String?,
+      componentPath: json['componentPath'] as String?,
       entityId: json['entityId'] as String?,
       externalIdProperty: (json['externalIdProperty'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
@@ -2517,11 +3199,13 @@ class EntityPropertyReference {
   Map<String, dynamic> toJson() {
     final propertyName = this.propertyName;
     final componentName = this.componentName;
+    final componentPath = this.componentPath;
     final entityId = this.entityId;
     final externalIdProperty = this.externalIdProperty;
     return {
       'propertyName': propertyName,
       if (componentName != null) 'componentName': componentName,
+      if (componentPath != null) 'componentPath': componentPath,
       if (entityId != null) 'entityId': entityId,
       if (externalIdProperty != null) 'externalIdProperty': externalIdProperty,
     };
@@ -2551,7 +3235,8 @@ class EntitySummary {
   /// The description of the entity.
   final String? description;
 
-  /// A Boolean value that specifies whether the entity has child entities or not.
+  /// An <b>eventual</b> Boolean value that specifies whether the entity has child
+  /// entities or not.
   final bool? hasChildEntities;
 
   /// The ID of the parent entity.
@@ -2610,46 +3295,23 @@ class EntitySummary {
 }
 
 enum ErrorCode {
-  validationError,
-  internalFailure,
-  syncInitializingError,
-  syncCreatingError,
-  syncProcessingError,
-}
+  validationError('VALIDATION_ERROR'),
+  internalFailure('INTERNAL_FAILURE'),
+  syncInitializingError('SYNC_INITIALIZING_ERROR'),
+  syncCreatingError('SYNC_CREATING_ERROR'),
+  syncProcessingError('SYNC_PROCESSING_ERROR'),
+  syncDeletingError('SYNC_DELETING_ERROR'),
+  processingError('PROCESSING_ERROR'),
+  compositeComponentFailure('COMPOSITE_COMPONENT_FAILURE'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.validationError:
-        return 'VALIDATION_ERROR';
-      case ErrorCode.internalFailure:
-        return 'INTERNAL_FAILURE';
-      case ErrorCode.syncInitializingError:
-        return 'SYNC_INITIALIZING_ERROR';
-      case ErrorCode.syncCreatingError:
-        return 'SYNC_CREATING_ERROR';
-      case ErrorCode.syncProcessingError:
-        return 'SYNC_PROCESSING_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'VALIDATION_ERROR':
-        return ErrorCode.validationError;
-      case 'INTERNAL_FAILURE':
-        return ErrorCode.internalFailure;
-      case 'SYNC_INITIALIZING_ERROR':
-        return ErrorCode.syncInitializingError;
-      case 'SYNC_CREATING_ERROR':
-        return ErrorCode.syncCreatingError;
-      case 'SYNC_PROCESSING_ERROR':
-        return ErrorCode.syncProcessingError;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 /// The error details.
@@ -2667,7 +3329,7 @@ class ErrorDetails {
 
   factory ErrorDetails.fromJson(Map<String, dynamic> json) {
     return ErrorDetails(
-      code: (json['code'] as String?)?.toErrorCode(),
+      code: (json['code'] as String?)?.let(ErrorCode.fromString),
       message: json['message'] as String?,
     );
   }
@@ -2676,7 +3338,7 @@ class ErrorDetails {
     final code = this.code;
     final message = this.message;
     return {
-      if (code != null) 'code': code.toValue(),
+      if (code != null) 'code': code.value,
       if (message != null) 'message': message,
     };
   }
@@ -2701,12 +3363,12 @@ class ExecuteQueryResponse {
   factory ExecuteQueryResponse.fromJson(Map<String, dynamic> json) {
     return ExecuteQueryResponse(
       columnDescriptions: (json['columnDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
       rows: (json['rows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Row.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2720,6 +3382,141 @@ class ExecuteQueryResponse {
       if (columnDescriptions != null) 'columnDescriptions': columnDescriptions,
       if (nextToken != null) 'nextToken': nextToken,
       if (rows != null) 'rows': rows,
+    };
+  }
+}
+
+/// Filter by asset. [TwinMaker asset]
+class FilterByAsset {
+  /// The external-Id property of an asset.
+  final String? assetExternalId;
+
+  /// Filter by asset Id.
+  final String? assetId;
+
+  /// Boolean to include the asset model.
+  final bool? includeAssetModel;
+
+  /// Includes sub-assets.[need description hekp for this]
+  final bool? includeOffspring;
+
+  FilterByAsset({
+    this.assetExternalId,
+    this.assetId,
+    this.includeAssetModel,
+    this.includeOffspring,
+  });
+
+  factory FilterByAsset.fromJson(Map<String, dynamic> json) {
+    return FilterByAsset(
+      assetExternalId: json['assetExternalId'] as String?,
+      assetId: json['assetId'] as String?,
+      includeAssetModel: json['includeAssetModel'] as bool?,
+      includeOffspring: json['includeOffspring'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final assetExternalId = this.assetExternalId;
+    final assetId = this.assetId;
+    final includeAssetModel = this.includeAssetModel;
+    final includeOffspring = this.includeOffspring;
+    return {
+      if (assetExternalId != null) 'assetExternalId': assetExternalId,
+      if (assetId != null) 'assetId': assetId,
+      if (includeAssetModel != null) 'includeAssetModel': includeAssetModel,
+      if (includeOffspring != null) 'includeOffspring': includeOffspring,
+    };
+  }
+}
+
+/// Filter by asset model.
+class FilterByAssetModel {
+  /// The external-Id property of an asset model.
+  final String? assetModelExternalId;
+
+  /// The asset model Id.
+  final String? assetModelId;
+
+  /// Bolean to include assets.
+  final bool? includeAssets;
+
+  /// Include asset offspring. [need desc.]
+  final bool? includeOffspring;
+
+  FilterByAssetModel({
+    this.assetModelExternalId,
+    this.assetModelId,
+    this.includeAssets,
+    this.includeOffspring,
+  });
+
+  factory FilterByAssetModel.fromJson(Map<String, dynamic> json) {
+    return FilterByAssetModel(
+      assetModelExternalId: json['assetModelExternalId'] as String?,
+      assetModelId: json['assetModelId'] as String?,
+      includeAssets: json['includeAssets'] as bool?,
+      includeOffspring: json['includeOffspring'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final assetModelExternalId = this.assetModelExternalId;
+    final assetModelId = this.assetModelId;
+    final includeAssets = this.includeAssets;
+    final includeOffspring = this.includeOffspring;
+    return {
+      if (assetModelExternalId != null)
+        'assetModelExternalId': assetModelExternalId,
+      if (assetModelId != null) 'assetModelId': assetModelId,
+      if (includeAssets != null) 'includeAssets': includeAssets,
+      if (includeOffspring != null) 'includeOffspring': includeOffspring,
+    };
+  }
+}
+
+/// Filter by component type.
+class FilterByComponentType {
+  /// The component type Id.
+  final String componentTypeId;
+
+  FilterByComponentType({
+    required this.componentTypeId,
+  });
+
+  factory FilterByComponentType.fromJson(Map<String, dynamic> json) {
+    return FilterByComponentType(
+      componentTypeId: json['componentTypeId'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final componentTypeId = this.componentTypeId;
+    return {
+      'componentTypeId': componentTypeId,
+    };
+  }
+}
+
+/// Vilter by entity.
+class FilterByEntity {
+  /// The entity Id.
+  final String entityId;
+
+  FilterByEntity({
+    required this.entityId,
+  });
+
+  factory FilterByEntity.fromJson(Map<String, dynamic> json) {
+    return FilterByEntity(
+      entityId: json['entityId'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final entityId = this.entityId;
+    return {
+      'entityId': entityId,
     };
   }
 }
@@ -2748,7 +3545,7 @@ class FunctionRequest {
     return {
       if (implementedBy != null) 'implementedBy': implementedBy,
       if (requiredProperties != null) 'requiredProperties': requiredProperties,
-      if (scope != null) 'scope': scope.toValue(),
+      if (scope != null) 'scope': scope.value,
     };
   }
 }
@@ -2782,10 +3579,10 @@ class FunctionResponse {
           : null,
       isInherited: json['isInherited'] as bool?,
       requiredProperties: (json['requiredProperties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      scope: (json['scope'] as String?)?.toScope(),
+      scope: (json['scope'] as String?)?.let(Scope.fromString),
     );
   }
 
@@ -2798,7 +3595,7 @@ class FunctionResponse {
       if (implementedBy != null) 'implementedBy': implementedBy,
       if (isInherited != null) 'isInherited': isInherited,
       if (requiredProperties != null) 'requiredProperties': requiredProperties,
-      if (scope != null) 'scope': scope.toValue(),
+      if (scope != null) 'scope': scope.value,
     };
   }
 }
@@ -2821,6 +3618,11 @@ class GetComponentTypeResponse {
 
   /// The component type name.
   final String? componentTypeName;
+
+  /// This is an object that maps strings to <code>compositeComponentTypes</code>
+  /// of the <code>componentType</code>. <code>CompositeComponentType</code> is
+  /// referenced by <code>componentTypeId</code>.
+  final Map<String, CompositeComponentTypeResponse>? compositeComponentTypes;
 
   /// The description of the component type.
   final String? description;
@@ -2865,6 +3667,7 @@ class GetComponentTypeResponse {
     required this.updateDateTime,
     required this.workspaceId,
     this.componentTypeName,
+    this.compositeComponentTypes,
     this.description,
     this.extendsFrom,
     this.functions,
@@ -2887,9 +3690,15 @@ class GetComponentTypeResponse {
           nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
       workspaceId: json['workspaceId'] as String,
       componentTypeName: json['componentTypeName'] as String?,
+      compositeComponentTypes:
+          (json['compositeComponentTypes'] as Map<String, dynamic>?)?.map(
+              (k, e) => MapEntry(
+                  k,
+                  CompositeComponentTypeResponse.fromJson(
+                      e as Map<String, dynamic>))),
       description: json['description'] as String?,
       extendsFrom: (json['extendsFrom'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       functions: (json['functions'] as Map<String, dynamic>?)?.map((k, e) =>
@@ -2918,6 +3727,7 @@ class GetComponentTypeResponse {
     final updateDateTime = this.updateDateTime;
     final workspaceId = this.workspaceId;
     final componentTypeName = this.componentTypeName;
+    final compositeComponentTypes = this.compositeComponentTypes;
     final description = this.description;
     final extendsFrom = this.extendsFrom;
     final functions = this.functions;
@@ -2935,6 +3745,8 @@ class GetComponentTypeResponse {
       'updateDateTime': unixTimestampToJson(updateDateTime),
       'workspaceId': workspaceId,
       if (componentTypeName != null) 'componentTypeName': componentTypeName,
+      if (compositeComponentTypes != null)
+        'compositeComponentTypes': compositeComponentTypes,
       if (description != null) 'description': description,
       if (extendsFrom != null) 'extendsFrom': extendsFrom,
       if (functions != null) 'functions': functions,
@@ -2980,6 +3792,10 @@ class GetEntityResponse {
   /// The ID of the workspace.
   final String workspaceId;
 
+  /// This flag notes whether all components are returned in the API response. The
+  /// maximum number of components returned is 30.
+  final bool? areAllComponentsReturned;
+
   /// An object that maps strings to the components in the entity. Each string in
   /// the mapping must be unique to this object.
   final Map<String, ComponentResponse>? components;
@@ -3000,6 +3816,7 @@ class GetEntityResponse {
     required this.status,
     required this.updateDateTime,
     required this.workspaceId,
+    this.areAllComponentsReturned,
     this.components,
     this.description,
     this.syncSource,
@@ -3018,6 +3835,7 @@ class GetEntityResponse {
       updateDateTime:
           nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
       workspaceId: json['workspaceId'] as String,
+      areAllComponentsReturned: json['areAllComponentsReturned'] as bool?,
       components: (json['components'] as Map<String, dynamic>?)?.map((k, e) =>
           MapEntry(k, ComponentResponse.fromJson(e as Map<String, dynamic>))),
       description: json['description'] as String?,
@@ -3035,6 +3853,7 @@ class GetEntityResponse {
     final status = this.status;
     final updateDateTime = this.updateDateTime;
     final workspaceId = this.workspaceId;
+    final areAllComponentsReturned = this.areAllComponentsReturned;
     final components = this.components;
     final description = this.description;
     final syncSource = this.syncSource;
@@ -3048,9 +3867,113 @@ class GetEntityResponse {
       'status': status,
       'updateDateTime': unixTimestampToJson(updateDateTime),
       'workspaceId': workspaceId,
+      if (areAllComponentsReturned != null)
+        'areAllComponentsReturned': areAllComponentsReturned,
       if (components != null) 'components': components,
       if (description != null) 'description': description,
       if (syncSource != null) 'syncSource': syncSource,
+    };
+  }
+}
+
+class GetMetadataTransferJobResponse {
+  /// The metadata transfer job ARN.
+  final String arn;
+
+  /// The metadata transfer job's creation DateTime property.
+  final DateTime creationDateTime;
+
+  /// The metadata transfer job's destination.
+  final DestinationConfiguration destination;
+
+  /// The metadata transfer job Id.
+  final String metadataTransferJobId;
+
+  /// The metadata transfer job's role.
+  final String metadataTransferJobRole;
+
+  /// The metadata transfer job's sources.
+  final List<SourceConfiguration> sources;
+
+  /// The metadata transfer job's status.
+  final MetadataTransferJobStatus status;
+
+  /// The metadata transfer job's update DateTime property.
+  final DateTime updateDateTime;
+
+  /// The metadata transfer job description.
+  final String? description;
+
+  /// The metadata transfer job's progress.
+  final MetadataTransferJobProgress? progress;
+
+  /// The metadata transfer job's report URL.
+  final String? reportUrl;
+
+  GetMetadataTransferJobResponse({
+    required this.arn,
+    required this.creationDateTime,
+    required this.destination,
+    required this.metadataTransferJobId,
+    required this.metadataTransferJobRole,
+    required this.sources,
+    required this.status,
+    required this.updateDateTime,
+    this.description,
+    this.progress,
+    this.reportUrl,
+  });
+
+  factory GetMetadataTransferJobResponse.fromJson(Map<String, dynamic> json) {
+    return GetMetadataTransferJobResponse(
+      arn: json['arn'] as String,
+      creationDateTime:
+          nonNullableTimeStampFromJson(json['creationDateTime'] as Object),
+      destination: DestinationConfiguration.fromJson(
+          json['destination'] as Map<String, dynamic>),
+      metadataTransferJobId: json['metadataTransferJobId'] as String,
+      metadataTransferJobRole: json['metadataTransferJobRole'] as String,
+      sources: (json['sources'] as List)
+          .nonNulls
+          .map((e) => SourceConfiguration.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      status: MetadataTransferJobStatus.fromJson(
+          json['status'] as Map<String, dynamic>),
+      updateDateTime:
+          nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
+      description: json['description'] as String?,
+      progress: json['progress'] != null
+          ? MetadataTransferJobProgress.fromJson(
+              json['progress'] as Map<String, dynamic>)
+          : null,
+      reportUrl: json['reportUrl'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final creationDateTime = this.creationDateTime;
+    final destination = this.destination;
+    final metadataTransferJobId = this.metadataTransferJobId;
+    final metadataTransferJobRole = this.metadataTransferJobRole;
+    final sources = this.sources;
+    final status = this.status;
+    final updateDateTime = this.updateDateTime;
+    final description = this.description;
+    final progress = this.progress;
+    final reportUrl = this.reportUrl;
+    return {
+      'arn': arn,
+      'creationDateTime': unixTimestampToJson(creationDateTime),
+      'destination': destination,
+      'metadataTransferJobId': metadataTransferJobId,
+      'metadataTransferJobRole': metadataTransferJobRole,
+      'sources': sources,
+      'status': status,
+      'updateDateTime': unixTimestampToJson(updateDateTime),
+      if (description != null) 'description': description,
+      if (progress != null) 'progress': progress,
+      if (reportUrl != null) 'reportUrl': reportUrl,
     };
   }
 }
@@ -3104,7 +4027,7 @@ class GetPropertyValueHistoryResponse {
   factory GetPropertyValueHistoryResponse.fromJson(Map<String, dynamic> json) {
     return GetPropertyValueHistoryResponse(
       propertyValues: (json['propertyValues'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => PropertyValueHistory.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3145,9 +4068,9 @@ class GetPropertyValueResponse {
               e) =>
           MapEntry(k, PropertyLatestValue.fromJson(e as Map<String, dynamic>))),
       tabularPropertyValues: (json['tabularPropertyValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => (e as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => (e as Map<String, dynamic>).map((k, e) =>
                   MapEntry(k, DataValue.fromJson(e as Map<String, dynamic>))))
               .toList())
@@ -3228,7 +4151,7 @@ class GetSceneResponse {
           nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
       workspaceId: json['workspaceId'] as String,
       capabilities: (json['capabilities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       description: json['description'] as String?,
@@ -3348,13 +4271,6 @@ class GetWorkspaceResponse {
   /// The date and time when the workspace was created.
   final DateTime creationDateTime;
 
-  /// The ARN of the execution role associated with the workspace.
-  final String role;
-
-  /// The ARN of the S3 bucket where resources associated with the workspace are
-  /// stored.
-  final String s3Location;
-
   /// The date and time when the workspace was last updated.
   final DateTime updateDateTime;
 
@@ -3364,14 +4280,25 @@ class GetWorkspaceResponse {
   /// The description of the workspace.
   final String? description;
 
+  /// A list of services that are linked to the workspace.
+  final List<String>? linkedServices;
+
+  /// The ARN of the execution role associated with the workspace.
+  final String? role;
+
+  /// The ARN of the S3 bucket where resources associated with the workspace are
+  /// stored.
+  final String? s3Location;
+
   GetWorkspaceResponse({
     required this.arn,
     required this.creationDateTime,
-    required this.role,
-    required this.s3Location,
     required this.updateDateTime,
     required this.workspaceId,
     this.description,
+    this.linkedServices,
+    this.role,
+    this.s3Location,
   });
 
   factory GetWorkspaceResponse.fromJson(Map<String, dynamic> json) {
@@ -3379,56 +4306,52 @@ class GetWorkspaceResponse {
       arn: json['arn'] as String,
       creationDateTime:
           nonNullableTimeStampFromJson(json['creationDateTime'] as Object),
-      role: json['role'] as String,
-      s3Location: json['s3Location'] as String,
       updateDateTime:
           nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
       workspaceId: json['workspaceId'] as String,
       description: json['description'] as String?,
+      linkedServices: (json['linkedServices'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      role: json['role'] as String?,
+      s3Location: json['s3Location'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final arn = this.arn;
     final creationDateTime = this.creationDateTime;
-    final role = this.role;
-    final s3Location = this.s3Location;
     final updateDateTime = this.updateDateTime;
     final workspaceId = this.workspaceId;
     final description = this.description;
+    final linkedServices = this.linkedServices;
+    final role = this.role;
+    final s3Location = this.s3Location;
     return {
       'arn': arn,
       'creationDateTime': unixTimestampToJson(creationDateTime),
-      'role': role,
-      's3Location': s3Location,
       'updateDateTime': unixTimestampToJson(updateDateTime),
       'workspaceId': workspaceId,
       if (description != null) 'description': description,
+      if (linkedServices != null) 'linkedServices': linkedServices,
+      if (role != null) 'role': role,
+      if (s3Location != null) 's3Location': s3Location,
     };
   }
 }
 
 enum GroupType {
-  tabular,
-}
+  tabular('TABULAR'),
+  ;
 
-extension GroupTypeValueExtension on GroupType {
-  String toValue() {
-    switch (this) {
-      case GroupType.tabular:
-        return 'TABULAR';
-    }
-  }
-}
+  final String value;
 
-extension GroupTypeFromString on String {
-  GroupType toGroupType() {
-    switch (this) {
-      case 'TABULAR':
-        return GroupType.tabular;
-    }
-    throw Exception('$this is not known in enum GroupType');
-  }
+  const GroupType(this.value);
+
+  static GroupType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum GroupType'));
 }
 
 /// An object that specifies how to interpolate data in a list.
@@ -3449,32 +4372,183 @@ class InterpolationParameters {
     final intervalInSeconds = this.intervalInSeconds;
     return {
       if (interpolationType != null)
-        'interpolationType': interpolationType.toValue(),
+        'interpolationType': interpolationType.value,
       if (intervalInSeconds != null) 'intervalInSeconds': intervalInSeconds,
     };
   }
 }
 
 enum InterpolationType {
-  linear,
+  linear('LINEAR'),
+  ;
+
+  final String value;
+
+  const InterpolationType(this.value);
+
+  static InterpolationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InterpolationType'));
 }
 
-extension InterpolationTypeValueExtension on InterpolationType {
-  String toValue() {
-    switch (this) {
-      case InterpolationType.linear:
-        return 'LINEAR';
-    }
+/// The metadata transfer job AWS IoT SiteWise source configuration.
+class IotSiteWiseSourceConfiguration {
+  /// The AWS IoT SiteWise soucre configuration filters.
+  final List<IotSiteWiseSourceConfigurationFilter>? filters;
+
+  IotSiteWiseSourceConfiguration({
+    this.filters,
+  });
+
+  factory IotSiteWiseSourceConfiguration.fromJson(Map<String, dynamic> json) {
+    return IotSiteWiseSourceConfiguration(
+      filters: (json['filters'] as List?)
+          ?.nonNulls
+          .map((e) => IotSiteWiseSourceConfigurationFilter.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final filters = this.filters;
+    return {
+      if (filters != null) 'filters': filters,
+    };
   }
 }
 
-extension InterpolationTypeFromString on String {
-  InterpolationType toInterpolationType() {
-    switch (this) {
-      case 'LINEAR':
-        return InterpolationType.linear;
-    }
-    throw Exception('$this is not known in enum InterpolationType');
+/// The AWS IoT SiteWise soucre configuration filter.[need held with desc here]
+class IotSiteWiseSourceConfigurationFilter {
+  /// Filter by asset.
+  final FilterByAsset? filterByAsset;
+
+  /// Filter by asset model.
+  final FilterByAssetModel? filterByAssetModel;
+
+  IotSiteWiseSourceConfigurationFilter({
+    this.filterByAsset,
+    this.filterByAssetModel,
+  });
+
+  factory IotSiteWiseSourceConfigurationFilter.fromJson(
+      Map<String, dynamic> json) {
+    return IotSiteWiseSourceConfigurationFilter(
+      filterByAsset: json['filterByAsset'] != null
+          ? FilterByAsset.fromJson(
+              json['filterByAsset'] as Map<String, dynamic>)
+          : null,
+      filterByAssetModel: json['filterByAssetModel'] != null
+          ? FilterByAssetModel.fromJson(
+              json['filterByAssetModel'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final filterByAsset = this.filterByAsset;
+    final filterByAssetModel = this.filterByAssetModel;
+    return {
+      if (filterByAsset != null) 'filterByAsset': filterByAsset,
+      if (filterByAssetModel != null) 'filterByAssetModel': filterByAssetModel,
+    };
+  }
+}
+
+/// The metadata transfer job AWS IoT TwinMaker destination configuration.
+class IotTwinMakerDestinationConfiguration {
+  /// The IoT TwinMaker workspace.
+  final String workspace;
+
+  IotTwinMakerDestinationConfiguration({
+    required this.workspace,
+  });
+
+  factory IotTwinMakerDestinationConfiguration.fromJson(
+      Map<String, dynamic> json) {
+    return IotTwinMakerDestinationConfiguration(
+      workspace: json['workspace'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final workspace = this.workspace;
+    return {
+      'workspace': workspace,
+    };
+  }
+}
+
+/// The metadata transfer job AWS IoT TwinMaker source configuration.
+class IotTwinMakerSourceConfiguration {
+  /// The IoT TwinMaker workspace.
+  final String workspace;
+
+  /// The metadata transfer job AWS IoT TwinMaker source configuration filters.
+  final List<IotTwinMakerSourceConfigurationFilter>? filters;
+
+  IotTwinMakerSourceConfiguration({
+    required this.workspace,
+    this.filters,
+  });
+
+  factory IotTwinMakerSourceConfiguration.fromJson(Map<String, dynamic> json) {
+    return IotTwinMakerSourceConfiguration(
+      workspace: json['workspace'] as String,
+      filters: (json['filters'] as List?)
+          ?.nonNulls
+          .map((e) => IotTwinMakerSourceConfigurationFilter.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final workspace = this.workspace;
+    final filters = this.filters;
+    return {
+      'workspace': workspace,
+      if (filters != null) 'filters': filters,
+    };
+  }
+}
+
+/// The metadata transfer job AWS IoT TwinMaker source configuration filter.
+class IotTwinMakerSourceConfigurationFilter {
+  /// Filter by component type.
+  final FilterByComponentType? filterByComponentType;
+
+  /// Filter by entity.
+  final FilterByEntity? filterByEntity;
+
+  IotTwinMakerSourceConfigurationFilter({
+    this.filterByComponentType,
+    this.filterByEntity,
+  });
+
+  factory IotTwinMakerSourceConfigurationFilter.fromJson(
+      Map<String, dynamic> json) {
+    return IotTwinMakerSourceConfigurationFilter(
+      filterByComponentType: json['filterByComponentType'] != null
+          ? FilterByComponentType.fromJson(
+              json['filterByComponentType'] as Map<String, dynamic>)
+          : null,
+      filterByEntity: json['filterByEntity'] != null
+          ? FilterByEntity.fromJson(
+              json['filterByEntity'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final filterByComponentType = this.filterByComponentType;
+    final filterByEntity = this.filterByEntity;
+    return {
+      if (filterByComponentType != null)
+        'filterByComponentType': filterByComponentType,
+      if (filterByEntity != null) 'filterByEntity': filterByEntity,
+    };
   }
 }
 
@@ -3557,7 +4631,7 @@ class ListComponentTypesResponse {
   factory ListComponentTypesResponse.fromJson(Map<String, dynamic> json) {
     return ListComponentTypesResponse(
       componentTypeSummaries: (json['componentTypeSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ComponentTypeSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       workspaceId: json['workspaceId'] as String,
@@ -3575,6 +4649,38 @@ class ListComponentTypesResponse {
       'componentTypeSummaries': componentTypeSummaries,
       'workspaceId': workspaceId,
       if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListComponentsResponse {
+  /// A list of objects that contain information about the components.
+  final List<ComponentSummary> componentSummaries;
+
+  /// The string that specifies the next page of component results.
+  final String? nextToken;
+
+  ListComponentsResponse({
+    required this.componentSummaries,
+    this.nextToken,
+  });
+
+  factory ListComponentsResponse.fromJson(Map<String, dynamic> json) {
+    return ListComponentsResponse(
+      componentSummaries: (json['componentSummaries'] as List)
+          .nonNulls
+          .map((e) => ComponentSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final componentSummaries = this.componentSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'componentSummaries': componentSummaries,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -3625,7 +4731,7 @@ class ListEntitiesResponse {
   factory ListEntitiesResponse.fromJson(Map<String, dynamic> json) {
     return ListEntitiesResponse(
       entitySummaries: (json['entitySummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EntitySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3637,6 +4743,95 @@ class ListEntitiesResponse {
     final nextToken = this.nextToken;
     return {
       if (entitySummaries != null) 'entitySummaries': entitySummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+/// The ListMetadataTransferJobs filter.
+class ListMetadataTransferJobsFilter {
+  /// The filter state.
+  final MetadataTransferJobState? state;
+
+  /// The workspace Id.
+  final String? workspaceId;
+
+  ListMetadataTransferJobsFilter({
+    this.state,
+    this.workspaceId,
+  });
+
+  Map<String, dynamic> toJson() {
+    final state = this.state;
+    final workspaceId = this.workspaceId;
+    return {
+      if (state != null) 'state': state.value,
+      if (workspaceId != null) 'workspaceId': workspaceId,
+    };
+  }
+}
+
+class ListMetadataTransferJobsResponse {
+  /// The metadata transfer job summaries.
+  final List<MetadataTransferJobSummary> metadataTransferJobSummaries;
+
+  /// The string that specifies the next page of results.
+  final String? nextToken;
+
+  ListMetadataTransferJobsResponse({
+    required this.metadataTransferJobSummaries,
+    this.nextToken,
+  });
+
+  factory ListMetadataTransferJobsResponse.fromJson(Map<String, dynamic> json) {
+    return ListMetadataTransferJobsResponse(
+      metadataTransferJobSummaries: (json['metadataTransferJobSummaries']
+              as List)
+          .nonNulls
+          .map((e) =>
+              MetadataTransferJobSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final metadataTransferJobSummaries = this.metadataTransferJobSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'metadataTransferJobSummaries': metadataTransferJobSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListPropertiesResponse {
+  /// A list of objects that contain information about the properties.
+  final List<PropertySummary> propertySummaries;
+
+  /// The string that specifies the next page of property results.
+  final String? nextToken;
+
+  ListPropertiesResponse({
+    required this.propertySummaries,
+    this.nextToken,
+  });
+
+  factory ListPropertiesResponse.fromJson(Map<String, dynamic> json) {
+    return ListPropertiesResponse(
+      propertySummaries: (json['propertySummaries'] as List)
+          .nonNulls
+          .map((e) => PropertySummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final propertySummaries = this.propertySummaries;
+    final nextToken = this.nextToken;
+    return {
+      'propertySummaries': propertySummaries,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -3658,7 +4853,7 @@ class ListScenesResponse {
     return ListScenesResponse(
       nextToken: json['nextToken'] as String?,
       sceneSummaries: (json['sceneSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SceneSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3690,7 +4885,7 @@ class ListSyncJobsResponse {
     return ListSyncJobsResponse(
       nextToken: json['nextToken'] as String?,
       syncJobSummaries: (json['syncJobSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SyncJobSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3722,7 +4917,7 @@ class ListSyncResourcesResponse {
     return ListSyncResourcesResponse(
       nextToken: json['nextToken'] as String?,
       syncResources: (json['syncResources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SyncResourceSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3784,7 +4979,7 @@ class ListWorkspacesResponse {
     return ListWorkspacesResponse(
       nextToken: json['nextToken'] as String?,
       workspaceSummaries: (json['workspaceSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkspaceSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3800,32 +4995,186 @@ class ListWorkspacesResponse {
   }
 }
 
+/// The metadata transfer job's progress.
+class MetadataTransferJobProgress {
+  /// The failed count.
+  final int? failedCount;
+
+  /// The skipped count.
+  final int? skippedCount;
+
+  /// The succeeded count.
+  final int? succeededCount;
+
+  /// The total count. [of what]
+  final int? totalCount;
+
+  MetadataTransferJobProgress({
+    this.failedCount,
+    this.skippedCount,
+    this.succeededCount,
+    this.totalCount,
+  });
+
+  factory MetadataTransferJobProgress.fromJson(Map<String, dynamic> json) {
+    return MetadataTransferJobProgress(
+      failedCount: json['failedCount'] as int?,
+      skippedCount: json['skippedCount'] as int?,
+      succeededCount: json['succeededCount'] as int?,
+      totalCount: json['totalCount'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final failedCount = this.failedCount;
+    final skippedCount = this.skippedCount;
+    final succeededCount = this.succeededCount;
+    final totalCount = this.totalCount;
+    return {
+      if (failedCount != null) 'failedCount': failedCount,
+      if (skippedCount != null) 'skippedCount': skippedCount,
+      if (succeededCount != null) 'succeededCount': succeededCount,
+      if (totalCount != null) 'totalCount': totalCount,
+    };
+  }
+}
+
+enum MetadataTransferJobState {
+  validating('VALIDATING'),
+  pending('PENDING'),
+  running('RUNNING'),
+  cancelling('CANCELLING'),
+  error('ERROR'),
+  completed('COMPLETED'),
+  cancelled('CANCELLED'),
+  ;
+
+  final String value;
+
+  const MetadataTransferJobState(this.value);
+
+  static MetadataTransferJobState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MetadataTransferJobState'));
+}
+
+/// The metadata transfer job status.
+class MetadataTransferJobStatus {
+  /// The metadata transfer job error.
+  final ErrorDetails? error;
+
+  /// The queued position.
+  final int? queuedPosition;
+
+  /// The metadata transfer job state.
+  final MetadataTransferJobState? state;
+
+  MetadataTransferJobStatus({
+    this.error,
+    this.queuedPosition,
+    this.state,
+  });
+
+  factory MetadataTransferJobStatus.fromJson(Map<String, dynamic> json) {
+    return MetadataTransferJobStatus(
+      error: json['error'] != null
+          ? ErrorDetails.fromJson(json['error'] as Map<String, dynamic>)
+          : null,
+      queuedPosition: json['queuedPosition'] as int?,
+      state:
+          (json['state'] as String?)?.let(MetadataTransferJobState.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final error = this.error;
+    final queuedPosition = this.queuedPosition;
+    final state = this.state;
+    return {
+      if (error != null) 'error': error,
+      if (queuedPosition != null) 'queuedPosition': queuedPosition,
+      if (state != null) 'state': state.value,
+    };
+  }
+}
+
+/// The metadata transfer job summary.
+class MetadataTransferJobSummary {
+  /// The metadata transfer job summary ARN.
+  final String arn;
+
+  /// The metadata transfer job summary creation DateTime object.
+  final DateTime creationDateTime;
+
+  /// The metadata transfer job summary Id.
+  final String metadataTransferJobId;
+
+  /// The metadata transfer job summary status.
+  final MetadataTransferJobStatus status;
+
+  /// The metadata transfer job summary update DateTime object
+  final DateTime updateDateTime;
+
+  /// The metadata transfer job summary progess.
+  final MetadataTransferJobProgress? progress;
+
+  MetadataTransferJobSummary({
+    required this.arn,
+    required this.creationDateTime,
+    required this.metadataTransferJobId,
+    required this.status,
+    required this.updateDateTime,
+    this.progress,
+  });
+
+  factory MetadataTransferJobSummary.fromJson(Map<String, dynamic> json) {
+    return MetadataTransferJobSummary(
+      arn: json['arn'] as String,
+      creationDateTime:
+          nonNullableTimeStampFromJson(json['creationDateTime'] as Object),
+      metadataTransferJobId: json['metadataTransferJobId'] as String,
+      status: MetadataTransferJobStatus.fromJson(
+          json['status'] as Map<String, dynamic>),
+      updateDateTime:
+          nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
+      progress: json['progress'] != null
+          ? MetadataTransferJobProgress.fromJson(
+              json['progress'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final creationDateTime = this.creationDateTime;
+    final metadataTransferJobId = this.metadataTransferJobId;
+    final status = this.status;
+    final updateDateTime = this.updateDateTime;
+    final progress = this.progress;
+    return {
+      'arn': arn,
+      'creationDateTime': unixTimestampToJson(creationDateTime),
+      'metadataTransferJobId': metadataTransferJobId,
+      'status': status,
+      'updateDateTime': unixTimestampToJson(updateDateTime),
+      if (progress != null) 'progress': progress,
+    };
+  }
+}
+
 enum Order {
-  ascending,
-  descending,
-}
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
 
-extension OrderValueExtension on Order {
-  String toValue() {
-    switch (this) {
-      case Order.ascending:
-        return 'ASCENDING';
-      case Order.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension OrderFromString on String {
-  Order toOrder() {
-    switch (this) {
-      case 'ASCENDING':
-        return Order.ascending;
-      case 'DESCENDING':
-        return Order.descending;
-    }
-    throw Exception('$this is not known in enum Order');
-  }
+  const Order(this.value);
+
+  static Order fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Order'));
 }
 
 /// Filter criteria that orders the return output. It can be sorted in ascending
@@ -3847,37 +5196,23 @@ class OrderBy {
     final order = this.order;
     return {
       'propertyName': propertyName,
-      if (order != null) 'order': order.toValue(),
+      if (order != null) 'order': order.value,
     };
   }
 }
 
 enum OrderByTime {
-  ascending,
-  descending,
-}
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
 
-extension OrderByTimeValueExtension on OrderByTime {
-  String toValue() {
-    switch (this) {
-      case OrderByTime.ascending:
-        return 'ASCENDING';
-      case OrderByTime.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension OrderByTimeFromString on String {
-  OrderByTime toOrderByTime() {
-    switch (this) {
-      case 'ASCENDING':
-        return OrderByTime.ascending;
-      case 'DESCENDING':
-        return OrderByTime.descending;
-    }
-    throw Exception('$this is not known in enum OrderByTime');
-  }
+  const OrderByTime(this.value);
+
+  static OrderByTime fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum OrderByTime'));
 }
 
 /// The parent entity update request.
@@ -3897,71 +5232,40 @@ class ParentEntityUpdateRequest {
     final updateType = this.updateType;
     final parentEntityId = this.parentEntityId;
     return {
-      'updateType': updateType.toValue(),
+      'updateType': updateType.value,
       if (parentEntityId != null) 'parentEntityId': parentEntityId,
     };
   }
 }
 
 enum ParentEntityUpdateType {
-  update,
-  delete,
-}
+  update('UPDATE'),
+  delete('DELETE'),
+  ;
 
-extension ParentEntityUpdateTypeValueExtension on ParentEntityUpdateType {
-  String toValue() {
-    switch (this) {
-      case ParentEntityUpdateType.update:
-        return 'UPDATE';
-      case ParentEntityUpdateType.delete:
-        return 'DELETE';
-    }
-  }
-}
+  final String value;
 
-extension ParentEntityUpdateTypeFromString on String {
-  ParentEntityUpdateType toParentEntityUpdateType() {
-    switch (this) {
-      case 'UPDATE':
-        return ParentEntityUpdateType.update;
-      case 'DELETE':
-        return ParentEntityUpdateType.delete;
-    }
-    throw Exception('$this is not known in enum ParentEntityUpdateType');
-  }
+  const ParentEntityUpdateType(this.value);
+
+  static ParentEntityUpdateType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ParentEntityUpdateType'));
 }
 
 enum PricingMode {
-  basic,
-  standard,
-  tieredBundle,
-}
+  basic('BASIC'),
+  standard('STANDARD'),
+  tieredBundle('TIERED_BUNDLE'),
+  ;
 
-extension PricingModeValueExtension on PricingMode {
-  String toValue() {
-    switch (this) {
-      case PricingMode.basic:
-        return 'BASIC';
-      case PricingMode.standard:
-        return 'STANDARD';
-      case PricingMode.tieredBundle:
-        return 'TIERED_BUNDLE';
-    }
-  }
-}
+  final String value;
 
-extension PricingModeFromString on String {
-  PricingMode toPricingMode() {
-    switch (this) {
-      case 'BASIC':
-        return PricingMode.basic;
-      case 'STANDARD':
-        return PricingMode.standard;
-      case 'TIERED_BUNDLE':
-        return PricingMode.tieredBundle;
-    }
-    throw Exception('$this is not known in enum PricingMode');
-  }
+  const PricingMode(this.value);
+
+  static PricingMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PricingMode'));
 }
 
 /// The pricing plan.
@@ -3997,10 +5301,10 @@ class PricingPlan {
     return PricingPlan(
       effectiveDateTime:
           nonNullableTimeStampFromJson(json['effectiveDateTime'] as Object),
-      pricingMode: (json['pricingMode'] as String).toPricingMode(),
+      pricingMode: PricingMode.fromString((json['pricingMode'] as String)),
       updateDateTime:
           nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
-      updateReason: (json['updateReason'] as String).toUpdateReason(),
+      updateReason: UpdateReason.fromString((json['updateReason'] as String)),
       billableEntityCount: json['billableEntityCount'] as int?,
       bundleInformation: json['bundleInformation'] != null
           ? BundleInformation.fromJson(
@@ -4018,9 +5322,9 @@ class PricingPlan {
     final bundleInformation = this.bundleInformation;
     return {
       'effectiveDateTime': unixTimestampToJson(effectiveDateTime),
-      'pricingMode': pricingMode.toValue(),
+      'pricingMode': pricingMode.value,
       'updateDateTime': unixTimestampToJson(updateDateTime),
-      'updateReason': updateReason.toValue(),
+      'updateReason': updateReason.value,
       if (billableEntityCount != null)
         'billableEntityCount': billableEntityCount,
       if (bundleInformation != null) 'bundleInformation': bundleInformation,
@@ -4029,41 +5333,19 @@ class PricingPlan {
 }
 
 enum PricingTier {
-  tier_1,
-  tier_2,
-  tier_3,
-  tier_4,
-}
+  tier_1('TIER_1'),
+  tier_2('TIER_2'),
+  tier_3('TIER_3'),
+  tier_4('TIER_4'),
+  ;
 
-extension PricingTierValueExtension on PricingTier {
-  String toValue() {
-    switch (this) {
-      case PricingTier.tier_1:
-        return 'TIER_1';
-      case PricingTier.tier_2:
-        return 'TIER_2';
-      case PricingTier.tier_3:
-        return 'TIER_3';
-      case PricingTier.tier_4:
-        return 'TIER_4';
-    }
-  }
-}
+  final String value;
 
-extension PricingTierFromString on String {
-  PricingTier toPricingTier() {
-    switch (this) {
-      case 'TIER_1':
-        return PricingTier.tier_1;
-      case 'TIER_2':
-        return PricingTier.tier_2;
-      case 'TIER_3':
-        return PricingTier.tier_3;
-      case 'TIER_4':
-        return PricingTier.tier_4;
-    }
-    throw Exception('$this is not known in enum PricingTier');
-  }
+  const PricingTier(this.value);
+
+  static PricingTier fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PricingTier'));
 }
 
 /// An object that sets information about a property.
@@ -4277,7 +5559,7 @@ class PropertyGroupRequest {
     final groupType = this.groupType;
     final propertyNames = this.propertyNames;
     return {
-      if (groupType != null) 'groupType': groupType.toValue(),
+      if (groupType != null) 'groupType': groupType.value,
       if (propertyNames != null) 'propertyNames': propertyNames,
     };
   }
@@ -4303,10 +5585,10 @@ class PropertyGroupResponse {
 
   factory PropertyGroupResponse.fromJson(Map<String, dynamic> json) {
     return PropertyGroupResponse(
-      groupType: (json['groupType'] as String).toGroupType(),
+      groupType: GroupType.fromString((json['groupType'] as String)),
       isInherited: json['isInherited'] as bool,
       propertyNames: (json['propertyNames'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4317,7 +5599,7 @@ class PropertyGroupResponse {
     final isInherited = this.isInherited;
     final propertyNames = this.propertyNames;
     return {
-      'groupType': groupType.toValue(),
+      'groupType': groupType.value,
       'isInherited': isInherited,
       'propertyNames': propertyNames,
     };
@@ -4325,36 +5607,19 @@ class PropertyGroupResponse {
 }
 
 enum PropertyGroupUpdateType {
-  update,
-  delete,
-  create,
-}
+  update('UPDATE'),
+  delete('DELETE'),
+  create('CREATE'),
+  ;
 
-extension PropertyGroupUpdateTypeValueExtension on PropertyGroupUpdateType {
-  String toValue() {
-    switch (this) {
-      case PropertyGroupUpdateType.update:
-        return 'UPDATE';
-      case PropertyGroupUpdateType.delete:
-        return 'DELETE';
-      case PropertyGroupUpdateType.create:
-        return 'CREATE';
-    }
-  }
-}
+  final String value;
 
-extension PropertyGroupUpdateTypeFromString on String {
-  PropertyGroupUpdateType toPropertyGroupUpdateType() {
-    switch (this) {
-      case 'UPDATE':
-        return PropertyGroupUpdateType.update;
-      case 'DELETE':
-        return PropertyGroupUpdateType.delete;
-      case 'CREATE':
-        return PropertyGroupUpdateType.create;
-    }
-    throw Exception('$this is not known in enum PropertyGroupUpdateType');
-  }
+  const PropertyGroupUpdateType(this.value);
+
+  static PropertyGroupUpdateType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PropertyGroupUpdateType'));
 }
 
 /// The latest value of the property.
@@ -4413,7 +5678,7 @@ class PropertyRequest {
     final value = this.value;
     return {
       if (definition != null) 'definition': definition,
-      if (updateType != null) 'updateType': updateType.toValue(),
+      if (updateType != null) 'updateType': updateType.value,
       if (value != null) 'value': value,
     };
   }
@@ -4421,6 +5686,11 @@ class PropertyRequest {
 
 /// An object that contains information about a property response.
 class PropertyResponse {
+  /// This flag notes whether all values of a list or map type property are
+  /// returned in the API response. The maximum number of values per property
+  /// returned is 50.
+  final bool? areAllPropertyValuesReturned;
+
   /// An object that specifies information about a property.
   final PropertyDefinitionResponse? definition;
 
@@ -4428,12 +5698,15 @@ class PropertyResponse {
   final DataValue? value;
 
   PropertyResponse({
+    this.areAllPropertyValuesReturned,
     this.definition,
     this.value,
   });
 
   factory PropertyResponse.fromJson(Map<String, dynamic> json) {
     return PropertyResponse(
+      areAllPropertyValuesReturned:
+          json['areAllPropertyValuesReturned'] as bool?,
       definition: json['definition'] != null
           ? PropertyDefinitionResponse.fromJson(
               json['definition'] as Map<String, dynamic>)
@@ -4445,9 +5718,65 @@ class PropertyResponse {
   }
 
   Map<String, dynamic> toJson() {
+    final areAllPropertyValuesReturned = this.areAllPropertyValuesReturned;
     final definition = this.definition;
     final value = this.value;
     return {
+      if (areAllPropertyValuesReturned != null)
+        'areAllPropertyValuesReturned': areAllPropertyValuesReturned,
+      if (definition != null) 'definition': definition,
+      if (value != null) 'value': value,
+    };
+  }
+}
+
+/// This is an object that contains the information of a property.
+class PropertySummary {
+  /// This is the name of the property.
+  final String propertyName;
+
+  /// This flag notes whether all values of a list or map type property are
+  /// returned in the API response. The maximum number of values per property
+  /// returned is 50.
+  final bool? areAllPropertyValuesReturned;
+
+  /// This is the schema for the property.
+  final PropertyDefinitionResponse? definition;
+
+  /// This is the value for the property.
+  final DataValue? value;
+
+  PropertySummary({
+    required this.propertyName,
+    this.areAllPropertyValuesReturned,
+    this.definition,
+    this.value,
+  });
+
+  factory PropertySummary.fromJson(Map<String, dynamic> json) {
+    return PropertySummary(
+      propertyName: json['propertyName'] as String,
+      areAllPropertyValuesReturned:
+          json['areAllPropertyValuesReturned'] as bool?,
+      definition: json['definition'] != null
+          ? PropertyDefinitionResponse.fromJson(
+              json['definition'] as Map<String, dynamic>)
+          : null,
+      value: json['value'] != null
+          ? DataValue.fromJson(json['value'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final propertyName = this.propertyName;
+    final areAllPropertyValuesReturned = this.areAllPropertyValuesReturned;
+    final definition = this.definition;
+    final value = this.value;
+    return {
+      'propertyName': propertyName,
+      if (areAllPropertyValuesReturned != null)
+        'areAllPropertyValuesReturned': areAllPropertyValuesReturned,
       if (definition != null) 'definition': definition,
       if (value != null) 'value': value,
     };
@@ -4455,36 +5784,20 @@ class PropertyResponse {
 }
 
 enum PropertyUpdateType {
-  update,
-  delete,
-  create,
-}
+  update('UPDATE'),
+  delete('DELETE'),
+  create('CREATE'),
+  resetValue('RESET_VALUE'),
+  ;
 
-extension PropertyUpdateTypeValueExtension on PropertyUpdateType {
-  String toValue() {
-    switch (this) {
-      case PropertyUpdateType.update:
-        return 'UPDATE';
-      case PropertyUpdateType.delete:
-        return 'DELETE';
-      case PropertyUpdateType.create:
-        return 'CREATE';
-    }
-  }
-}
+  final String value;
 
-extension PropertyUpdateTypeFromString on String {
-  PropertyUpdateType toPropertyUpdateType() {
-    switch (this) {
-      case 'UPDATE':
-        return PropertyUpdateType.update;
-      case 'DELETE':
-        return PropertyUpdateType.delete;
-      case 'CREATE':
-        return PropertyUpdateType.create;
-    }
-    throw Exception('$this is not known in enum PropertyUpdateType');
-  }
+  const PropertyUpdateType(this.value);
+
+  static PropertyUpdateType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PropertyUpdateType'));
 }
 
 /// An object that contains information about a value for a time series
@@ -4581,7 +5894,7 @@ class PropertyValueEntry {
       entityPropertyReference: EntityPropertyReference.fromJson(
           json['entityPropertyReference'] as Map<String, dynamic>),
       propertyValues: (json['propertyValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PropertyValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4616,7 +5929,7 @@ class PropertyValueHistory {
       entityPropertyReference: EntityPropertyReference.fromJson(
           json['entityPropertyReference'] as Map<String, dynamic>),
       values: (json['values'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PropertyValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4718,7 +6031,7 @@ class Row {
   factory Row.fromJson(Map<String, dynamic> json) {
     return Row(
       rowData: (json['rowData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => QueryResultValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4728,6 +6041,52 @@ class Row {
     final rowData = this.rowData;
     return {
       if (rowData != null) 'rowData': rowData,
+    };
+  }
+}
+
+/// The S3 destination configuration.
+class S3DestinationConfiguration {
+  /// The S3 destination configuration location.
+  final String location;
+
+  S3DestinationConfiguration({
+    required this.location,
+  });
+
+  factory S3DestinationConfiguration.fromJson(Map<String, dynamic> json) {
+    return S3DestinationConfiguration(
+      location: json['location'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final location = this.location;
+    return {
+      'location': location,
+    };
+  }
+}
+
+/// The S3 destination source configuration.
+class S3SourceConfiguration {
+  /// The S3 destination source configuration location.
+  final String location;
+
+  S3SourceConfiguration({
+    required this.location,
+  });
+
+  factory S3SourceConfiguration.fromJson(Map<String, dynamic> json) {
+    return S3SourceConfiguration(
+      location: json['location'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final location = this.location;
+    return {
+      'location': location,
     };
   }
 }
@@ -4747,7 +6106,7 @@ class SceneError {
 
   factory SceneError.fromJson(Map<String, dynamic> json) {
     return SceneError(
-      code: (json['code'] as String?)?.toSceneErrorCode(),
+      code: (json['code'] as String?)?.let(SceneErrorCode.fromString),
       message: json['message'] as String?,
     );
   }
@@ -4756,33 +6115,24 @@ class SceneError {
     final code = this.code;
     final message = this.message;
     return {
-      if (code != null) 'code': code.toValue(),
+      if (code != null) 'code': code.value,
       if (message != null) 'message': message,
     };
   }
 }
 
 enum SceneErrorCode {
-  matterportError,
-}
+  matterportError('MATTERPORT_ERROR'),
+  ;
 
-extension SceneErrorCodeValueExtension on SceneErrorCode {
-  String toValue() {
-    switch (this) {
-      case SceneErrorCode.matterportError:
-        return 'MATTERPORT_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension SceneErrorCodeFromString on String {
-  SceneErrorCode toSceneErrorCode() {
-    switch (this) {
-      case 'MATTERPORT_ERROR':
-        return SceneErrorCode.matterportError;
-    }
-    throw Exception('$this is not known in enum SceneErrorCode');
-  }
+  const SceneErrorCode(this.value);
+
+  static SceneErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SceneErrorCode'));
 }
 
 /// An object that contains information about a scene.
@@ -4847,74 +6197,104 @@ class SceneSummary {
 }
 
 enum Scope {
-  entity,
-  workspace,
+  entity('ENTITY'),
+  workspace('WORKSPACE'),
+  ;
+
+  final String value;
+
+  const Scope(this.value);
+
+  static Scope fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Scope'));
 }
 
-extension ScopeValueExtension on Scope {
-  String toValue() {
-    switch (this) {
-      case Scope.entity:
-        return 'ENTITY';
-      case Scope.workspace:
-        return 'WORKSPACE';
-    }
+/// The source configuration.
+class SourceConfiguration {
+  /// The source configuration type.
+  final SourceType type;
+
+  /// The source configuration IoT SiteWise configuration.
+  final IotSiteWiseSourceConfiguration? iotSiteWiseConfiguration;
+
+  /// The source configuration IoT TwinMaker configuration.
+  final IotTwinMakerSourceConfiguration? iotTwinMakerConfiguration;
+
+  /// The source configuration S3 configuration.
+  final S3SourceConfiguration? s3Configuration;
+
+  SourceConfiguration({
+    required this.type,
+    this.iotSiteWiseConfiguration,
+    this.iotTwinMakerConfiguration,
+    this.s3Configuration,
+  });
+
+  factory SourceConfiguration.fromJson(Map<String, dynamic> json) {
+    return SourceConfiguration(
+      type: SourceType.fromString((json['type'] as String)),
+      iotSiteWiseConfiguration: json['iotSiteWiseConfiguration'] != null
+          ? IotSiteWiseSourceConfiguration.fromJson(
+              json['iotSiteWiseConfiguration'] as Map<String, dynamic>)
+          : null,
+      iotTwinMakerConfiguration: json['iotTwinMakerConfiguration'] != null
+          ? IotTwinMakerSourceConfiguration.fromJson(
+              json['iotTwinMakerConfiguration'] as Map<String, dynamic>)
+          : null,
+      s3Configuration: json['s3Configuration'] != null
+          ? S3SourceConfiguration.fromJson(
+              json['s3Configuration'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final type = this.type;
+    final iotSiteWiseConfiguration = this.iotSiteWiseConfiguration;
+    final iotTwinMakerConfiguration = this.iotTwinMakerConfiguration;
+    final s3Configuration = this.s3Configuration;
+    return {
+      'type': type.value,
+      if (iotSiteWiseConfiguration != null)
+        'iotSiteWiseConfiguration': iotSiteWiseConfiguration,
+      if (iotTwinMakerConfiguration != null)
+        'iotTwinMakerConfiguration': iotTwinMakerConfiguration,
+      if (s3Configuration != null) 's3Configuration': s3Configuration,
+    };
   }
 }
 
-extension ScopeFromString on String {
-  Scope toScope() {
-    switch (this) {
-      case 'ENTITY':
-        return Scope.entity;
-      case 'WORKSPACE':
-        return Scope.workspace;
-    }
-    throw Exception('$this is not known in enum Scope');
-  }
+enum SourceType {
+  s3('s3'),
+  iotsitewise('iotsitewise'),
+  iottwinmaker('iottwinmaker'),
+  ;
+
+  final String value;
+
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 enum State {
-  creating,
-  updating,
-  deleting,
-  active,
-  error,
-}
+  creating('CREATING'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  error('ERROR'),
+  ;
 
-extension StateValueExtension on State {
-  String toValue() {
-    switch (this) {
-      case State.creating:
-        return 'CREATING';
-      case State.updating:
-        return 'UPDATING';
-      case State.deleting:
-        return 'DELETING';
-      case State.active:
-        return 'ACTIVE';
-      case State.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension StateFromString on String {
-  State toState() {
-    switch (this) {
-      case 'CREATING':
-        return State.creating;
-      case 'UPDATING':
-        return State.updating;
-      case 'DELETING':
-        return State.deleting;
-      case 'ACTIVE':
-        return State.active;
-      case 'ERROR':
-        return State.error;
-    }
-    throw Exception('$this is not known in enum State');
-  }
+  const State(this.value);
+
+  static State fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum State'));
 }
 
 /// An object that represents the status of an entity, component, component
@@ -4936,7 +6316,7 @@ class Status {
       error: json['error'] != null
           ? ErrorDetails.fromJson(json['error'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toState(),
+      state: (json['state'] as String?)?.let(State.fromString),
     );
   }
 
@@ -4945,52 +6325,27 @@ class Status {
     final state = this.state;
     return {
       if (error != null) 'error': error,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
 
 enum SyncJobState {
-  creating,
-  initializing,
-  active,
-  deleting,
-  error,
-}
+  creating('CREATING'),
+  initializing('INITIALIZING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  error('ERROR'),
+  ;
 
-extension SyncJobStateValueExtension on SyncJobState {
-  String toValue() {
-    switch (this) {
-      case SyncJobState.creating:
-        return 'CREATING';
-      case SyncJobState.initializing:
-        return 'INITIALIZING';
-      case SyncJobState.active:
-        return 'ACTIVE';
-      case SyncJobState.deleting:
-        return 'DELETING';
-      case SyncJobState.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension SyncJobStateFromString on String {
-  SyncJobState toSyncJobState() {
-    switch (this) {
-      case 'CREATING':
-        return SyncJobState.creating;
-      case 'INITIALIZING':
-        return SyncJobState.initializing;
-      case 'ACTIVE':
-        return SyncJobState.active;
-      case 'DELETING':
-        return SyncJobState.deleting;
-      case 'ERROR':
-        return SyncJobState.error;
-    }
-    throw Exception('$this is not known in enum SyncJobState');
-  }
+  const SyncJobState(this.value);
+
+  static SyncJobState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SyncJobState'));
 }
 
 /// The SyncJob status.
@@ -5011,7 +6366,7 @@ class SyncJobStatus {
       error: json['error'] != null
           ? ErrorDetails.fromJson(json['error'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toSyncJobState(),
+      state: (json['state'] as String?)?.let(SyncJobState.fromString),
     );
   }
 
@@ -5020,7 +6375,7 @@ class SyncJobStatus {
     final state = this.state;
     return {
       if (error != null) 'error': error,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
@@ -5116,53 +6471,28 @@ class SyncResourceFilter {
     return {
       if (externalId != null) 'externalId': externalId,
       if (resourceId != null) 'resourceId': resourceId,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
-      if (state != null) 'state': state.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
+      if (state != null) 'state': state.value,
     };
   }
 }
 
 enum SyncResourceState {
-  initializing,
-  processing,
-  deleted,
-  inSync,
-  error,
-}
+  initializing('INITIALIZING'),
+  processing('PROCESSING'),
+  deleted('DELETED'),
+  inSync('IN_SYNC'),
+  error('ERROR'),
+  ;
 
-extension SyncResourceStateValueExtension on SyncResourceState {
-  String toValue() {
-    switch (this) {
-      case SyncResourceState.initializing:
-        return 'INITIALIZING';
-      case SyncResourceState.processing:
-        return 'PROCESSING';
-      case SyncResourceState.deleted:
-        return 'DELETED';
-      case SyncResourceState.inSync:
-        return 'IN_SYNC';
-      case SyncResourceState.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension SyncResourceStateFromString on String {
-  SyncResourceState toSyncResourceState() {
-    switch (this) {
-      case 'INITIALIZING':
-        return SyncResourceState.initializing;
-      case 'PROCESSING':
-        return SyncResourceState.processing;
-      case 'DELETED':
-        return SyncResourceState.deleted;
-      case 'IN_SYNC':
-        return SyncResourceState.inSync;
-      case 'ERROR':
-        return SyncResourceState.error;
-    }
-    throw Exception('$this is not known in enum SyncResourceState');
-  }
+  const SyncResourceState(this.value);
+
+  static SyncResourceState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SyncResourceState'));
 }
 
 /// The sync resource status.
@@ -5183,7 +6513,7 @@ class SyncResourceStatus {
       error: json['error'] != null
           ? ErrorDetails.fromJson(json['error'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toSyncResourceState(),
+      state: (json['state'] as String?)?.let(SyncResourceState.fromString),
     );
   }
 
@@ -5192,7 +6522,7 @@ class SyncResourceStatus {
     final state = this.state;
     return {
       if (error != null) 'error': error,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
@@ -5226,7 +6556,8 @@ class SyncResourceSummary {
     return SyncResourceSummary(
       externalId: json['externalId'] as String?,
       resourceId: json['resourceId'] as String?,
-      resourceType: (json['resourceType'] as String?)?.toSyncResourceType(),
+      resourceType:
+          (json['resourceType'] as String?)?.let(SyncResourceType.fromString),
       status: json['status'] != null
           ? SyncResourceStatus.fromJson(json['status'] as Map<String, dynamic>)
           : null,
@@ -5243,7 +6574,7 @@ class SyncResourceSummary {
     return {
       if (externalId != null) 'externalId': externalId,
       if (resourceId != null) 'resourceId': resourceId,
-      if (resourceType != null) 'resourceType': resourceType.toValue(),
+      if (resourceType != null) 'resourceType': resourceType.value,
       if (status != null) 'status': status,
       if (updateDateTime != null)
         'updateDateTime': unixTimestampToJson(updateDateTime),
@@ -5252,31 +6583,18 @@ class SyncResourceSummary {
 }
 
 enum SyncResourceType {
-  entity,
-  componentType,
-}
+  entity('ENTITY'),
+  componentType('COMPONENT_TYPE'),
+  ;
 
-extension SyncResourceTypeValueExtension on SyncResourceType {
-  String toValue() {
-    switch (this) {
-      case SyncResourceType.entity:
-        return 'ENTITY';
-      case SyncResourceType.componentType:
-        return 'COMPONENT_TYPE';
-    }
-  }
-}
+  final String value;
 
-extension SyncResourceTypeFromString on String {
-  SyncResourceType toSyncResourceType() {
-    switch (this) {
-      case 'ENTITY':
-        return SyncResourceType.entity;
-      case 'COMPONENT_TYPE':
-        return SyncResourceType.componentType;
-    }
-    throw Exception('$this is not known in enum SyncResourceType');
-  }
+  const SyncResourceType(this.value);
+
+  static SyncResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SyncResourceType'));
 }
 
 /// The tabular conditions.
@@ -5319,61 +6637,23 @@ class TagResourceResponse {
 }
 
 enum Type {
-  relationship,
-  string,
-  long,
-  boolean,
-  integer,
-  double,
-  list,
-  map,
-}
+  relationship('RELATIONSHIP'),
+  string('STRING'),
+  long('LONG'),
+  boolean('BOOLEAN'),
+  integer('INTEGER'),
+  double('DOUBLE'),
+  list('LIST'),
+  map('MAP'),
+  ;
 
-extension TypeValueExtension on Type {
-  String toValue() {
-    switch (this) {
-      case Type.relationship:
-        return 'RELATIONSHIP';
-      case Type.string:
-        return 'STRING';
-      case Type.long:
-        return 'LONG';
-      case Type.boolean:
-        return 'BOOLEAN';
-      case Type.integer:
-        return 'INTEGER';
-      case Type.double:
-        return 'DOUBLE';
-      case Type.list:
-        return 'LIST';
-      case Type.map:
-        return 'MAP';
-    }
-  }
-}
+  final String value;
 
-extension TypeFromString on String {
-  Type toType() {
-    switch (this) {
-      case 'RELATIONSHIP':
-        return Type.relationship;
-      case 'STRING':
-        return Type.string;
-      case 'LONG':
-        return Type.long;
-      case 'BOOLEAN':
-        return Type.boolean;
-      case 'INTEGER':
-        return Type.integer;
-      case 'DOUBLE':
-        return Type.double;
-      case 'LIST':
-        return Type.list;
-      case 'MAP':
-        return Type.map;
-    }
-    throw Exception('$this is not known in enum Type');
-  }
+  const Type(this.value);
+
+  static Type fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Type'));
 }
 
 class UntagResourceResponse {
@@ -5412,7 +6692,7 @@ class UpdateComponentTypeResponse {
     return UpdateComponentTypeResponse(
       arn: json['arn'] as String,
       componentTypeId: json['componentTypeId'] as String,
-      state: (json['state'] as String).toState(),
+      state: State.fromString((json['state'] as String)),
       workspaceId: json['workspaceId'] as String,
     );
   }
@@ -5425,7 +6705,7 @@ class UpdateComponentTypeResponse {
     return {
       'arn': arn,
       'componentTypeId': componentTypeId,
-      'state': state.toValue(),
+      'state': state.value,
       'workspaceId': workspaceId,
     };
   }
@@ -5445,7 +6725,7 @@ class UpdateEntityResponse {
 
   factory UpdateEntityResponse.fromJson(Map<String, dynamic> json) {
     return UpdateEntityResponse(
-      state: (json['state'] as String).toState(),
+      state: State.fromString((json['state'] as String)),
       updateDateTime:
           nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
     );
@@ -5455,7 +6735,7 @@ class UpdateEntityResponse {
     final state = this.state;
     final updateDateTime = this.updateDateTime;
     return {
-      'state': state.toValue(),
+      'state': state.value,
       'updateDateTime': unixTimestampToJson(updateDateTime),
     };
   }
@@ -5495,46 +6775,21 @@ class UpdatePricingPlanResponse {
 }
 
 enum UpdateReason {
-  $default,
-  pricingTierUpdate,
-  entityCountUpdate,
-  pricingModeUpdate,
-  overwritten,
-}
+  $default('DEFAULT'),
+  pricingTierUpdate('PRICING_TIER_UPDATE'),
+  entityCountUpdate('ENTITY_COUNT_UPDATE'),
+  pricingModeUpdate('PRICING_MODE_UPDATE'),
+  overwritten('OVERWRITTEN'),
+  ;
 
-extension UpdateReasonValueExtension on UpdateReason {
-  String toValue() {
-    switch (this) {
-      case UpdateReason.$default:
-        return 'DEFAULT';
-      case UpdateReason.pricingTierUpdate:
-        return 'PRICING_TIER_UPDATE';
-      case UpdateReason.entityCountUpdate:
-        return 'ENTITY_COUNT_UPDATE';
-      case UpdateReason.pricingModeUpdate:
-        return 'PRICING_MODE_UPDATE';
-      case UpdateReason.overwritten:
-        return 'OVERWRITTEN';
-    }
-  }
-}
+  final String value;
 
-extension UpdateReasonFromString on String {
-  UpdateReason toUpdateReason() {
-    switch (this) {
-      case 'DEFAULT':
-        return UpdateReason.$default;
-      case 'PRICING_TIER_UPDATE':
-        return UpdateReason.pricingTierUpdate;
-      case 'ENTITY_COUNT_UPDATE':
-        return UpdateReason.entityCountUpdate;
-      case 'PRICING_MODE_UPDATE':
-        return UpdateReason.pricingModeUpdate;
-      case 'OVERWRITTEN':
-        return UpdateReason.overwritten;
-    }
-    throw Exception('$this is not known in enum UpdateReason');
-  }
+  const UpdateReason(this.value);
+
+  static UpdateReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateReason'));
 }
 
 class UpdateSceneResponse {
@@ -5600,12 +6855,16 @@ class WorkspaceSummary {
   /// The description of the workspace.
   final String? description;
 
+  /// A list of services that are linked to the workspace.
+  final List<String>? linkedServices;
+
   WorkspaceSummary({
     required this.arn,
     required this.creationDateTime,
     required this.updateDateTime,
     required this.workspaceId,
     this.description,
+    this.linkedServices,
   });
 
   factory WorkspaceSummary.fromJson(Map<String, dynamic> json) {
@@ -5617,6 +6876,10 @@ class WorkspaceSummary {
           nonNullableTimeStampFromJson(json['updateDateTime'] as Object),
       workspaceId: json['workspaceId'] as String,
       description: json['description'] as String?,
+      linkedServices: (json['linkedServices'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
     );
   }
 
@@ -5626,12 +6889,14 @@ class WorkspaceSummary {
     final updateDateTime = this.updateDateTime;
     final workspaceId = this.workspaceId;
     final description = this.description;
+    final linkedServices = this.linkedServices;
     return {
       'arn': arn,
       'creationDateTime': unixTimestampToJson(creationDateTime),
       'updateDateTime': unixTimestampToJson(updateDateTime),
       'workspaceId': workspaceId,
       if (description != null) 'description': description,
+      if (linkedServices != null) 'linkedServices': linkedServices,
     };
   }
 }

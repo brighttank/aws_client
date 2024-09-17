@@ -120,17 +120,21 @@ class ConnectCases {
     return BatchPutFieldOptionsResponse.fromJson(response);
   }
 
-  /// Creates a case in the specified Cases domain. Case system and custom
-  /// fields are taken as an array id/value pairs with a declared data types.
   /// <note>
-  /// The following fields are required when creating a case:
-  /// <pre><code> &lt;ul&gt; &lt;li&gt; &lt;p&gt;
+  /// If you provide a value for <code>PerformedBy.UserArn</code> you must also
+  /// have <a
+  /// href="https://docs.aws.amazon.com/connect/latest/APIReference/API_DescribeUser.html">connect:DescribeUser</a>
+  /// permission on the User ARN resource that you provide
+  /// </note> <pre><code> &lt;p&gt;Creates a case in the specified Cases domain.
+  /// Case system and custom fields are taken as an array id/value pairs with a
+  /// declared data types.&lt;/p&gt; &lt;p&gt;The following fields are required
+  /// when creating a case:&lt;/p&gt; &lt;ul&gt; &lt;li&gt; &lt;p&gt;
   /// &lt;code&gt;customer_id&lt;/code&gt; - You must provide the full customer
-  /// profile ARN in this format: &lt;code&gt;arn:aws:profile:your AWS
-  /// Region:your AWS account ID:domains/profiles domain name/profiles/profile
-  /// ID&lt;/code&gt; &lt;/p&gt; &lt;/li&gt; &lt;li&gt; &lt;p&gt;
-  /// &lt;code&gt;title&lt;/code&gt; &lt;/p&gt; &lt;/li&gt; &lt;/ul&gt;
-  /// &lt;/note&gt; </code></pre>
+  /// profile ARN in this format:
+  /// &lt;code&gt;arn:aws:profile:your_AWS_Region:your_AWS_account
+  /// ID:domains/your_profiles_domain_name/profiles/profile_ID&lt;/code&gt;
+  /// &lt;/p&gt; &lt;/li&gt; &lt;li&gt; &lt;p&gt; &lt;code&gt;title&lt;/code&gt;
+  /// &lt;/p&gt; &lt;/li&gt; &lt;/ul&gt; </code></pre>
   ///
   /// May throw [InternalServerException].
   /// May throw [ResourceNotFoundException].
@@ -160,11 +164,13 @@ class ConnectCases {
     required List<FieldValue> fields,
     required String templateId,
     String? clientToken,
+    UserUnion? performedBy,
   }) async {
     final $payload = <String, dynamic>{
       'fields': fields,
       'templateId': templateId,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
+      if (performedBy != null) 'performedBy': performedBy,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -186,7 +192,7 @@ class ConnectCases {
   /// domain. For more information, see <a
   /// href="https://docs.aws.amazon.com/connect/latest/adminguide/required-permissions-iam-cases.html#onboard-cases-iam">Onboard
   /// to Cases</a>.
-  /// </important>
+  /// <pre><code> &lt;/important&gt; </code></pre>
   ///
   /// May throw [InternalServerException].
   /// May throw [ValidationException].
@@ -245,7 +251,7 @@ class ConnectCases {
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      'type': type.toValue(),
+      'type': type.value,
       if (description != null) 'description': description,
     };
     final response = await _protocol.send(
@@ -311,12 +317,21 @@ class ConnectCases {
   /// Creates a related item (comments, tasks, and contacts) and associates it
   /// with a case.
   /// <note>
+  /// <ul>
+  /// <li>
   /// A Related Item is a resource that is associated with a case. It may or may
   /// not have an external identifier linking it to an external resource (for
   /// example, a <code>contactArn</code>). All Related Items have their own
   /// internal identifier, the <code>relatedItemArn</code>. Examples of related
   /// items include <code>comments</code> and <code>contacts</code>.
-  /// </note>
+  /// </li>
+  /// <li>
+  /// If you provide a value for <code>performedBy.userArn</code> you must also
+  /// have <a
+  /// href="https://docs.aws.amazon.com/connect/latest/APIReference/API_DescribeUser.html">DescribeUser</a>
+  /// permission on the ARN of the user that you provide.
+  /// </li>
+  /// </ul> <pre><code> &lt;/note&gt; </code></pre>
   ///
   /// May throw [InternalServerException].
   /// May throw [ResourceNotFoundException].
@@ -336,15 +351,20 @@ class ConnectCases {
   ///
   /// Parameter [type] :
   /// The type of a related item.
+  ///
+  /// Parameter [performedBy] :
+  /// Represents the creator of the related item.
   Future<CreateRelatedItemResponse> createRelatedItem({
     required String caseId,
     required RelatedItemInputContent content,
     required String domainId,
     required RelatedItemType type,
+    UserUnion? performedBy,
   }) async {
     final $payload = <String, dynamic>{
       'content': content,
-      'type': type.toValue(),
+      'type': type.value,
+      if (performedBy != null) 'performedBy': performedBy,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -404,7 +424,7 @@ class ConnectCases {
       if (layoutConfiguration != null)
         'layoutConfiguration': layoutConfiguration,
       if (requiredFields != null) 'requiredFields': requiredFields,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -415,7 +435,13 @@ class ConnectCases {
     return CreateTemplateResponse.fromJson(response);
   }
 
-  /// Deletes a domain.
+  /// Deletes a Cases domain.
+  /// <pre><code> &lt;note&gt; &lt;p&gt;After deleting your domain you must
+  /// disassociate the deleted domain from your Amazon Connect instance with
+  /// another API call before being able to use Cases again with this Amazon
+  /// Connect instance. See &lt;a
+  /// href=&quot;https://docs.aws.amazon.com/connect/latest/APIReference/API_DeleteIntegrationAssociation.html&quot;&gt;DeleteIntegrationAssociation&lt;/a&gt;.&lt;/p&gt;
+  /// &lt;/note&gt; </code></pre>
   ///
   /// May throw [InternalServerException].
   /// May throw [ResourceNotFoundException].
@@ -433,6 +459,162 @@ class ConnectCases {
       payload: null,
       method: 'DELETE',
       requestUri: '/domains/${Uri.encodeComponent(domainId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes a field from a cases template. You can delete up to 100 fields per
+  /// domain.
+  ///
+  /// After a field is deleted:
+  ///
+  /// <ul>
+  /// <li>
+  /// You can still retrieve the field by calling <code>BatchGetField</code>.
+  /// </li>
+  /// <li>
+  /// You cannot update a deleted field by calling <code>UpdateField</code>; it
+  /// throws a <code>ValidationException</code>.
+  /// </li>
+  /// <li>
+  /// Deleted fields are not included in the <code>ListFields</code> response.
+  /// </li>
+  /// <li>
+  /// Calling <code>CreateCase</code> with a deleted field throws a
+  /// <code>ValidationException</code> denoting which field IDs in the request
+  /// have been deleted.
+  /// </li>
+  /// <li>
+  /// Calling <code>GetCase</code> with a deleted field ID returns the deleted
+  /// field's value if one exists.
+  /// </li>
+  /// <li>
+  /// Calling <code>UpdateCase</code> with a deleted field ID throws a
+  /// <code>ValidationException</code> if the case does not already contain a
+  /// value for the deleted field. Otherwise it succeeds, allowing you to update
+  /// or remove (using <code>emptyValue: {}</code>) the field's value from the
+  /// case.
+  /// </li>
+  /// <li>
+  /// <code>GetTemplate</code> does not return field IDs for deleted fields.
+  /// </li>
+  /// <li>
+  /// <code>GetLayout</code> does not return field IDs for deleted fields.
+  /// </li>
+  /// <li>
+  /// Calling <code>SearchCases</code> with the deleted field ID as a filter
+  /// returns any cases that have a value for the deleted field that matches the
+  /// filter criteria.
+  /// </li>
+  /// <li>
+  /// Calling <code>SearchCases</code> with a <code>searchTerm</code> value that
+  /// matches a deleted field's value on a case returns the case in the
+  /// response.
+  /// </li>
+  /// <li>
+  /// Calling <code>BatchPutFieldOptions</code> with a deleted field ID throw a
+  /// <code>ValidationException</code>.
+  /// </li>
+  /// <li>
+  /// Calling <code>GetCaseEventConfiguration</code> does not return field IDs
+  /// for deleted fields.
+  /// </li>
+  /// </ul>
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  ///
+  /// Parameter [domainId] :
+  /// The unique identifier of the Cases domain.
+  ///
+  /// Parameter [fieldId] :
+  /// Unique identifier of the field.
+  Future<void> deleteField({
+    required String domainId,
+    required String fieldId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainId)}/fields/${Uri.encodeComponent(fieldId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes a layout from a cases template. You can delete up to 100 layouts
+  /// per domain.
+  /// <pre><code> &lt;p&gt;After a layout is deleted:&lt;/p&gt; &lt;ul&gt;
+  /// &lt;li&gt; &lt;p&gt;You can still retrieve the layout by calling
+  /// &lt;code&gt;GetLayout&lt;/code&gt;.&lt;/p&gt; &lt;/li&gt; &lt;li&gt;
+  /// &lt;p&gt;You cannot update a deleted layout by calling
+  /// &lt;code&gt;UpdateLayout&lt;/code&gt;; it throws a
+  /// &lt;code&gt;ValidationException&lt;/code&gt;.&lt;/p&gt; &lt;/li&gt;
+  /// &lt;li&gt; &lt;p&gt;Deleted layouts are not included in the
+  /// &lt;code&gt;ListLayouts&lt;/code&gt; response.&lt;/p&gt; &lt;/li&gt;
+  /// &lt;/ul&gt; </code></pre>
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [domainId] :
+  /// The unique identifier of the Cases domain.
+  ///
+  /// Parameter [layoutId] :
+  /// The unique identifier of the layout.
+  Future<void> deleteLayout({
+    required String domainId,
+    required String layoutId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainId)}/layouts/${Uri.encodeComponent(layoutId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes a cases template. You can delete up to 100 templates per domain.
+  /// <pre><code> &lt;p&gt;After a cases template is deleted:&lt;/p&gt;
+  /// &lt;ul&gt; &lt;li&gt; &lt;p&gt;You can still retrieve the template by
+  /// calling &lt;code&gt;GetTemplate&lt;/code&gt;.&lt;/p&gt; &lt;/li&gt;
+  /// &lt;li&gt; &lt;p&gt;You cannot update the template. &lt;/p&gt; &lt;/li&gt;
+  /// &lt;li&gt; &lt;p&gt;You cannot create a case by using the deleted
+  /// template.&lt;/p&gt; &lt;/li&gt; &lt;li&gt; &lt;p&gt;Deleted templates are
+  /// not included in the &lt;code&gt;ListTemplates&lt;/code&gt;
+  /// response.&lt;/p&gt; &lt;/li&gt; &lt;/ul&gt; </code></pre>
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [domainId] :
+  /// The unique identifier of the Cases domain.
+  ///
+  /// Parameter [templateId] :
+  /// A unique identifier of a template.
+  Future<void> deleteTemplate({
+    required String domainId,
+    required String templateId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainId)}/templates/${Uri.encodeComponent(templateId)}',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -475,6 +657,54 @@ class ConnectCases {
       exceptionFnMap: _exceptionFns,
     );
     return GetCaseResponse.fromJson(response);
+  }
+
+  /// Returns the audit history about a specific case if it exists.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [caseId] :
+  /// A unique identifier of the case.
+  ///
+  /// Parameter [domainId] :
+  /// The unique identifier of the Cases domain.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of audit events to return. The current maximum
+  /// supported value is 25. This is also the default when no other value is
+  /// provided.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  Future<GetCaseAuditEventsResponse> getCaseAuditEvents({
+    required String caseId,
+    required String domainId,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      25,
+    );
+    final $payload = <String, dynamic>{
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/domains/${Uri.encodeComponent(domainId)}/cases/${Uri.encodeComponent(caseId)}/audit-history',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetCaseAuditEventsResponse.fromJson(response);
   }
 
   /// Returns the case event publishing configuration.
@@ -857,7 +1087,7 @@ class ConnectCases {
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (status != null) 'status': status.map((e) => e.toValue()).toList(),
+      if (status != null) 'status': status.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: null,
@@ -869,7 +1099,10 @@ class ConnectCases {
     return ListTemplatesResponse.fromJson(response);
   }
 
-  /// API for adding case event publishing configuration
+  /// Adds case event publishing configuration. For a complete list of fields
+  /// you can add to the event message, see <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/case-fields.html">Create
+  /// case fields</a> in the <i>Amazon Connect Administrator Guide</i>
   ///
   /// May throw [InternalServerException].
   /// May throw [ResourceNotFoundException].
@@ -1082,12 +1315,16 @@ class ConnectCases {
     );
   }
 
-  /// Updates the values of fields on a case. Fields to be updated are received
-  /// as an array of id/value pairs identical to the <code>CreateCase</code>
-  /// input .
-  ///
-  /// If the action is successful, the service sends back an HTTP 200 response
-  /// with an empty HTTP body.
+  /// <note>
+  /// If you provide a value for <code>PerformedBy.UserArn</code> you must also
+  /// have <a
+  /// href="https://docs.aws.amazon.com/connect/latest/APIReference/API_DescribeUser.html">connect:DescribeUser</a>
+  /// permission on the User ARN resource that you provide
+  /// </note> <pre><code> &lt;p&gt;Updates the values of fields on a case.
+  /// Fields to be updated are received as an array of id/value pairs identical
+  /// to the &lt;code&gt;CreateCase&lt;/code&gt; input .&lt;/p&gt; &lt;p&gt;If
+  /// the action is successful, the service sends back an HTTP 200 response with
+  /// an empty HTTP body.&lt;/p&gt; </code></pre>
   ///
   /// May throw [InternalServerException].
   /// May throw [ResourceNotFoundException].
@@ -1109,9 +1346,11 @@ class ConnectCases {
     required String caseId,
     required String domainId,
     required List<FieldValue> fields,
+    UserUnion? performedBy,
   }) async {
     final $payload = <String, dynamic>{
       'fields': fields,
+      if (performedBy != null) 'performedBy': performedBy,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1189,7 +1428,7 @@ class ConnectCases {
   ///
   /// Parameter [content] :
   /// Information about which fields will be present in the layout, the order of
-  /// the fields, and a read-only attribute of the field.
+  /// the fields.
   ///
   /// Parameter [name] :
   /// The name of the layout. It must be unique per domain.
@@ -1262,7 +1501,7 @@ class ConnectCases {
         'layoutConfiguration': layoutConfiguration,
       if (name != null) 'name': name,
       if (requiredFields != null) 'requiredFields': requiredFields,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1272,6 +1511,214 @@ class ConnectCases {
       exceptionFnMap: _exceptionFns,
     );
   }
+}
+
+/// Represents the content of a particular audit event.
+class AuditEvent {
+  /// Unique identifier of a case audit history event.
+  final String eventId;
+
+  /// A list of Case Audit History event fields.
+  final List<AuditEventField> fields;
+
+  /// Time at which an Audit History event took place.
+  final DateTime performedTime;
+
+  /// The Type of an audit history event.
+  final AuditEventType type;
+
+  /// Information of the user which performed the audit.
+  final AuditEventPerformedBy? performedBy;
+
+  /// The Type of the related item.
+  final RelatedItemType? relatedItemType;
+
+  AuditEvent({
+    required this.eventId,
+    required this.fields,
+    required this.performedTime,
+    required this.type,
+    this.performedBy,
+    this.relatedItemType,
+  });
+
+  factory AuditEvent.fromJson(Map<String, dynamic> json) {
+    return AuditEvent(
+      eventId: json['eventId'] as String,
+      fields: (json['fields'] as List)
+          .nonNulls
+          .map((e) => AuditEventField.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      performedTime:
+          nonNullableTimeStampFromJson(json['performedTime'] as Object),
+      type: AuditEventType.fromString((json['type'] as String)),
+      performedBy: json['performedBy'] != null
+          ? AuditEventPerformedBy.fromJson(
+              json['performedBy'] as Map<String, dynamic>)
+          : null,
+      relatedItemType:
+          (json['relatedItemType'] as String?)?.let(RelatedItemType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final eventId = this.eventId;
+    final fields = this.fields;
+    final performedTime = this.performedTime;
+    final type = this.type;
+    final performedBy = this.performedBy;
+    final relatedItemType = this.relatedItemType;
+    return {
+      'eventId': eventId,
+      'fields': fields,
+      'performedTime': iso8601ToJson(performedTime),
+      'type': type.value,
+      if (performedBy != null) 'performedBy': performedBy,
+      if (relatedItemType != null) 'relatedItemType': relatedItemType.value,
+    };
+  }
+}
+
+/// Fields for audit event.
+class AuditEventField {
+  /// Unique identifier of field in an Audit History entry.
+  final String eventFieldId;
+
+  /// Union of potential field value types.
+  final AuditEventFieldValueUnion newValue;
+
+  /// Union of potential field value types.
+  final AuditEventFieldValueUnion? oldValue;
+
+  AuditEventField({
+    required this.eventFieldId,
+    required this.newValue,
+    this.oldValue,
+  });
+
+  factory AuditEventField.fromJson(Map<String, dynamic> json) {
+    return AuditEventField(
+      eventFieldId: json['eventFieldId'] as String,
+      newValue: AuditEventFieldValueUnion.fromJson(
+          json['newValue'] as Map<String, dynamic>),
+      oldValue: json['oldValue'] != null
+          ? AuditEventFieldValueUnion.fromJson(
+              json['oldValue'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final eventFieldId = this.eventFieldId;
+    final newValue = this.newValue;
+    final oldValue = this.oldValue;
+    return {
+      'eventFieldId': eventFieldId,
+      'newValue': newValue,
+      if (oldValue != null) 'oldValue': oldValue,
+    };
+  }
+}
+
+/// Object to store union of Field values.
+class AuditEventFieldValueUnion {
+  /// Can be either null, or have a Boolean value type. Only one value can be
+  /// provided.
+  final bool? booleanValue;
+
+  /// Can be either null, or have a Double value type. Only one value can be
+  /// provided.
+  final double? doubleValue;
+  final EmptyFieldValue? emptyValue;
+
+  /// Can be either null, or have a String value type. Only one value can be
+  /// provided.
+  final String? stringValue;
+
+  /// Can be either null, or have a String value type formatted as an ARN. Only
+  /// one value can be provided.
+  final String? userArnValue;
+
+  AuditEventFieldValueUnion({
+    this.booleanValue,
+    this.doubleValue,
+    this.emptyValue,
+    this.stringValue,
+    this.userArnValue,
+  });
+
+  factory AuditEventFieldValueUnion.fromJson(Map<String, dynamic> json) {
+    return AuditEventFieldValueUnion(
+      booleanValue: json['booleanValue'] as bool?,
+      doubleValue: json['doubleValue'] as double?,
+      emptyValue: json['emptyValue'] != null
+          ? EmptyFieldValue.fromJson(json['emptyValue'] as Map<String, dynamic>)
+          : null,
+      stringValue: json['stringValue'] as String?,
+      userArnValue: json['userArnValue'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final booleanValue = this.booleanValue;
+    final doubleValue = this.doubleValue;
+    final emptyValue = this.emptyValue;
+    final stringValue = this.stringValue;
+    final userArnValue = this.userArnValue;
+    return {
+      if (booleanValue != null) 'booleanValue': booleanValue,
+      if (doubleValue != null) 'doubleValue': doubleValue,
+      if (emptyValue != null) 'emptyValue': emptyValue,
+      if (stringValue != null) 'stringValue': stringValue,
+      if (userArnValue != null) 'userArnValue': userArnValue,
+    };
+  }
+}
+
+/// Information of the user which performed the audit.
+class AuditEventPerformedBy {
+  /// Unique identifier of an IAM role.
+  final String iamPrincipalArn;
+  final UserUnion? user;
+
+  AuditEventPerformedBy({
+    required this.iamPrincipalArn,
+    this.user,
+  });
+
+  factory AuditEventPerformedBy.fromJson(Map<String, dynamic> json) {
+    return AuditEventPerformedBy(
+      iamPrincipalArn: json['iamPrincipalArn'] as String,
+      user: json['user'] != null
+          ? UserUnion.fromJson(json['user'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final iamPrincipalArn = this.iamPrincipalArn;
+    final user = this.user;
+    return {
+      'iamPrincipalArn': iamPrincipalArn,
+      if (user != null) 'user': user,
+    };
+  }
+}
+
+enum AuditEventType {
+  caseCreated('Case.Created'),
+  caseUpdated('Case.Updated'),
+  relatedItemCreated('RelatedItem.Created'),
+  ;
+
+  final String value;
+
+  const AuditEventType(this.value);
+
+  static AuditEventType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AuditEventType'));
 }
 
 /// Content specific to <code>BasicLayout</code> type. It configures fields in
@@ -1324,11 +1771,11 @@ class BatchGetFieldResponse {
   factory BatchGetFieldResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetFieldResponse(
       errors: (json['errors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FieldError.fromJson(e as Map<String, dynamic>))
           .toList(),
       fields: (json['fields'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => GetFieldResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1355,7 +1802,7 @@ class BatchPutFieldOptionsResponse {
   factory BatchPutFieldOptionsResponse.fromJson(Map<String, dynamic> json) {
     return BatchPutFieldOptionsResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FieldOptionError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1381,7 +1828,7 @@ class CaseEventIncludedData {
   factory CaseEventIncludedData.fromJson(Map<String, dynamic> json) {
     return CaseEventIncludedData(
       fields: (json['fields'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FieldIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1404,20 +1851,26 @@ class CaseFilter {
   final FieldFilter? field;
   final CaseFilter? not;
 
+  /// Provides "or all" filtering.
+  final List<CaseFilter>? orAll;
+
   CaseFilter({
     this.andAll,
     this.field,
     this.not,
+    this.orAll,
   });
 
   Map<String, dynamic> toJson() {
     final andAll = this.andAll;
     final field = this.field;
     final not = this.not;
+    final orAll = this.orAll;
     return {
       if (andAll != null) 'andAll': andAll,
       if (field != null) 'field': field,
       if (not != null) 'not': not,
+      if (orAll != null) 'orAll': orAll,
     };
   }
 }
@@ -1453,26 +1906,17 @@ class CaseSummary {
 }
 
 enum CommentBodyTextType {
-  textPlain,
-}
+  textPlain('Text/Plain'),
+  ;
 
-extension CommentBodyTextTypeValueExtension on CommentBodyTextType {
-  String toValue() {
-    switch (this) {
-      case CommentBodyTextType.textPlain:
-        return 'Text/Plain';
-    }
-  }
-}
+  final String value;
 
-extension CommentBodyTextTypeFromString on String {
-  CommentBodyTextType toCommentBodyTextType() {
-    switch (this) {
-      case 'Text/Plain':
-        return CommentBodyTextType.textPlain;
-    }
-    throw Exception('$this is not known in enum CommentBodyTextType');
-  }
+  const CommentBodyTextType(this.value);
+
+  static CommentBodyTextType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CommentBodyTextType'));
 }
 
 /// Represents the content of a <code>Comment</code> to be returned to agents.
@@ -1491,7 +1935,8 @@ class CommentContent {
   factory CommentContent.fromJson(Map<String, dynamic> json) {
     return CommentContent(
       body: json['body'] as String,
-      contentType: (json['contentType'] as String).toCommentBodyTextType(),
+      contentType:
+          CommentBodyTextType.fromString((json['contentType'] as String)),
     );
   }
 
@@ -1500,7 +1945,7 @@ class CommentContent {
     final contentType = this.contentType;
     return {
       'body': body,
-      'contentType': contentType.toValue(),
+      'contentType': contentType.value,
     };
   }
 }
@@ -1644,7 +2089,7 @@ class CreateDomainResponse {
     return CreateDomainResponse(
       domainArn: json['domainArn'] as String,
       domainId: json['domainId'] as String,
-      domainStatus: (json['domainStatus'] as String).toDomainStatus(),
+      domainStatus: DomainStatus.fromString((json['domainStatus'] as String)),
     );
   }
 
@@ -1655,7 +2100,7 @@ class CreateDomainResponse {
     return {
       'domainArn': domainArn,
       'domainId': domainId,
-      'domainStatus': domainStatus.toValue(),
+      'domainStatus': domainStatus.value,
     };
   }
 }
@@ -1788,37 +2233,56 @@ class DeleteDomainResponse {
   }
 }
 
+class DeleteFieldResponse {
+  DeleteFieldResponse();
+
+  factory DeleteFieldResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteFieldResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+class DeleteLayoutResponse {
+  DeleteLayoutResponse();
+
+  factory DeleteLayoutResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteLayoutResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+class DeleteTemplateResponse {
+  DeleteTemplateResponse();
+
+  factory DeleteTemplateResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteTemplateResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 enum DomainStatus {
-  active,
-  creationInProgress,
-  creationFailed,
-}
+  active('Active'),
+  creationInProgress('CreationInProgress'),
+  creationFailed('CreationFailed'),
+  ;
 
-extension DomainStatusValueExtension on DomainStatus {
-  String toValue() {
-    switch (this) {
-      case DomainStatus.active:
-        return 'Active';
-      case DomainStatus.creationInProgress:
-        return 'CreationInProgress';
-      case DomainStatus.creationFailed:
-        return 'CreationFailed';
-    }
-  }
-}
+  final String value;
 
-extension DomainStatusFromString on String {
-  DomainStatus toDomainStatus() {
-    switch (this) {
-      case 'Active':
-        return DomainStatus.active;
-      case 'CreationInProgress':
-        return DomainStatus.creationInProgress;
-      case 'CreationFailed':
-        return DomainStatus.creationFailed;
-    }
-    throw Exception('$this is not known in enum DomainStatus');
-  }
+  const DomainStatus(this.value);
+
+  static DomainStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DomainStatus'));
 }
 
 /// Object for the summarized details of the domain.
@@ -1855,6 +2319,23 @@ class DomainSummary {
       'domainId': domainId,
       'name': name,
     };
+  }
+}
+
+/// An empty value. You cannot set <code>EmptyFieldValue</code> on a field that
+/// is required on a case template.
+///
+/// This structure will never have any data members. It signifies an empty value
+/// on a case field.
+class EmptyFieldValue {
+  EmptyFieldValue();
+
+  factory EmptyFieldValue.fromJson(Map<String, dynamic> _) {
+    return EmptyFieldValue();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -2032,7 +2513,7 @@ class FieldGroup {
   factory FieldGroup.fromJson(Map<String, dynamic> json) {
     return FieldGroup(
       fields: (json['fields'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FieldItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['name'] as String?,
@@ -2096,31 +2577,18 @@ class FieldItem {
 }
 
 enum FieldNamespace {
-  system,
-  custom,
-}
+  system('System'),
+  custom('Custom'),
+  ;
 
-extension FieldNamespaceValueExtension on FieldNamespace {
-  String toValue() {
-    switch (this) {
-      case FieldNamespace.system:
-        return 'System';
-      case FieldNamespace.custom:
-        return 'Custom';
-    }
-  }
-}
+  final String value;
 
-extension FieldNamespaceFromString on String {
-  FieldNamespace toFieldNamespace() {
-    switch (this) {
-      case 'System':
-        return FieldNamespace.system;
-      case 'Custom':
-        return FieldNamespace.custom;
-    }
-    throw Exception('$this is not known in enum FieldNamespace');
-  }
+  const FieldNamespace(this.value);
+
+  static FieldNamespace fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FieldNamespace'));
 }
 
 /// Object for field Options information.
@@ -2230,8 +2698,8 @@ class FieldSummary {
       fieldArn: json['fieldArn'] as String,
       fieldId: json['fieldId'] as String,
       name: json['name'] as String,
-      namespace: (json['namespace'] as String).toFieldNamespace(),
-      type: (json['type'] as String).toFieldType(),
+      namespace: FieldNamespace.fromString((json['namespace'] as String)),
+      type: FieldType.fromString((json['type'] as String)),
     );
   }
 
@@ -2245,58 +2713,29 @@ class FieldSummary {
       'fieldArn': fieldArn,
       'fieldId': fieldId,
       'name': name,
-      'namespace': namespace.toValue(),
-      'type': type.toValue(),
+      'namespace': namespace.value,
+      'type': type.value,
     };
   }
 }
 
 enum FieldType {
-  text,
-  number,
-  boolean,
-  dateTime,
-  singleSelect,
-  url,
-}
+  text('Text'),
+  number('Number'),
+  boolean('Boolean'),
+  dateTime('DateTime'),
+  singleSelect('SingleSelect'),
+  url('Url'),
+  user('User'),
+  ;
 
-extension FieldTypeValueExtension on FieldType {
-  String toValue() {
-    switch (this) {
-      case FieldType.text:
-        return 'Text';
-      case FieldType.number:
-        return 'Number';
-      case FieldType.boolean:
-        return 'Boolean';
-      case FieldType.dateTime:
-        return 'DateTime';
-      case FieldType.singleSelect:
-        return 'SingleSelect';
-      case FieldType.url:
-        return 'Url';
-    }
-  }
-}
+  final String value;
 
-extension FieldTypeFromString on String {
-  FieldType toFieldType() {
-    switch (this) {
-      case 'Text':
-        return FieldType.text;
-      case 'Number':
-        return FieldType.number;
-      case 'Boolean':
-        return FieldType.boolean;
-      case 'DateTime':
-        return FieldType.dateTime;
-      case 'SingleSelect':
-        return FieldType.singleSelect;
-      case 'Url':
-        return FieldType.url;
-    }
-    throw Exception('$this is not known in enum FieldType');
-  }
+  const FieldType(this.value);
+
+  static FieldType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FieldType'));
 }
 
 /// Object for case field values.
@@ -2330,6 +2769,10 @@ class FieldValue {
 }
 
 /// Object to store union of Field values.
+/// <note>
+/// The <code>Summary</code> system field accepts 1500 characters while all
+/// other fields accept 500 characters.
+/// </note>
 class FieldValueUnion {
   /// Can be either null, or have a Boolean value type. Only one value can be
   /// provided.
@@ -2339,31 +2782,120 @@ class FieldValueUnion {
   /// be provided.
   final double? doubleValue;
 
+  /// An empty value.
+  final EmptyFieldValue? emptyValue;
+
   /// String value type.
   final String? stringValue;
+
+  /// Represents the user that performed the audit.
+  final String? userArnValue;
 
   FieldValueUnion({
     this.booleanValue,
     this.doubleValue,
+    this.emptyValue,
     this.stringValue,
+    this.userArnValue,
   });
 
   factory FieldValueUnion.fromJson(Map<String, dynamic> json) {
     return FieldValueUnion(
       booleanValue: json['booleanValue'] as bool?,
       doubleValue: json['doubleValue'] as double?,
+      emptyValue: json['emptyValue'] != null
+          ? EmptyFieldValue.fromJson(json['emptyValue'] as Map<String, dynamic>)
+          : null,
       stringValue: json['stringValue'] as String?,
+      userArnValue: json['userArnValue'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final booleanValue = this.booleanValue;
     final doubleValue = this.doubleValue;
+    final emptyValue = this.emptyValue;
     final stringValue = this.stringValue;
+    final userArnValue = this.userArnValue;
     return {
       if (booleanValue != null) 'booleanValue': booleanValue,
       if (doubleValue != null) 'doubleValue': doubleValue,
+      if (emptyValue != null) 'emptyValue': emptyValue,
       if (stringValue != null) 'stringValue': stringValue,
+      if (userArnValue != null) 'userArnValue': userArnValue,
+    };
+  }
+}
+
+/// An object that represents a content of an Amazon Connect file object.
+class FileContent {
+  /// The Amazon Resource Name (ARN) of a File in Amazon Connect.
+  final String fileArn;
+
+  FileContent({
+    required this.fileArn,
+  });
+
+  factory FileContent.fromJson(Map<String, dynamic> json) {
+    return FileContent(
+      fileArn: json['fileArn'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fileArn = this.fileArn;
+    return {
+      'fileArn': fileArn,
+    };
+  }
+}
+
+/// A filter for related items of type <code>File</code>.
+class FileFilter {
+  /// The Amazon Resource Name (ARN) of the file.
+  final String? fileArn;
+
+  FileFilter({
+    this.fileArn,
+  });
+
+  Map<String, dynamic> toJson() {
+    final fileArn = this.fileArn;
+    return {
+      if (fileArn != null) 'fileArn': fileArn,
+    };
+  }
+}
+
+class GetCaseAuditEventsResponse {
+  /// A list of case audits where each represents a particular edit of the case.
+  final List<AuditEvent> auditEvents;
+
+  /// The token for the next set of results. This is null if there are no more
+  /// results to return.
+  final String? nextToken;
+
+  GetCaseAuditEventsResponse({
+    required this.auditEvents,
+    this.nextToken,
+  });
+
+  factory GetCaseAuditEventsResponse.fromJson(Map<String, dynamic> json) {
+    return GetCaseAuditEventsResponse(
+      auditEvents: (json['auditEvents'] as List)
+          .nonNulls
+          .map((e) => AuditEvent.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final auditEvents = this.auditEvents;
+    final nextToken = this.nextToken;
+    return {
+      'auditEvents': auditEvents,
+      if (nextToken != null) 'nextToken': nextToken,
     };
   }
 }
@@ -2418,7 +2950,7 @@ class GetCaseResponse {
   factory GetCaseResponse.fromJson(Map<String, dynamic> json) {
     return GetCaseResponse(
       fields: (json['fields'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FieldValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       templateId: json['templateId'] as String,
@@ -2476,7 +3008,7 @@ class GetDomainResponse {
       createdTime: nonNullableTimeStampFromJson(json['createdTime'] as Object),
       domainArn: json['domainArn'] as String,
       domainId: json['domainId'] as String,
-      domainStatus: (json['domainStatus'] as String).toDomainStatus(),
+      domainStatus: DomainStatus.fromString((json['domainStatus'] as String)),
       name: json['name'] as String,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
@@ -2494,7 +3026,7 @@ class GetDomainResponse {
       'createdTime': iso8601ToJson(createdTime),
       'domainArn': domainArn,
       'domainId': domainId,
-      'domainStatus': domainStatus.toValue(),
+      'domainStatus': domainStatus.value,
       'name': name,
       if (tags != null) 'tags': tags,
     };
@@ -2518,8 +3050,17 @@ class GetFieldResponse {
   /// Type of the field.
   final FieldType type;
 
+  /// Timestamp at which the resource was created.
+  final DateTime? createdTime;
+
+  /// Denotes whether or not the resource has been deleted.
+  final bool? deleted;
+
   /// Description of the field.
   final String? description;
+
+  /// Timestamp at which the resource was created or last modified.
+  final DateTime? lastModifiedTime;
 
   /// A map of of key-value pairs that represent tags on a resource. Tags are used
   /// to organize, track, or control access for this resource.
@@ -2531,7 +3072,10 @@ class GetFieldResponse {
     required this.name,
     required this.namespace,
     required this.type,
+    this.createdTime,
+    this.deleted,
     this.description,
+    this.lastModifiedTime,
     this.tags,
   });
 
@@ -2540,9 +3084,12 @@ class GetFieldResponse {
       fieldArn: json['fieldArn'] as String,
       fieldId: json['fieldId'] as String,
       name: json['name'] as String,
-      namespace: (json['namespace'] as String).toFieldNamespace(),
-      type: (json['type'] as String).toFieldType(),
+      namespace: FieldNamespace.fromString((json['namespace'] as String)),
+      type: FieldType.fromString((json['type'] as String)),
+      createdTime: timeStampFromJson(json['createdTime']),
+      deleted: json['deleted'] as bool?,
       description: json['description'] as String?,
+      lastModifiedTime: timeStampFromJson(json['lastModifiedTime']),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -2554,15 +3101,22 @@ class GetFieldResponse {
     final name = this.name;
     final namespace = this.namespace;
     final type = this.type;
+    final createdTime = this.createdTime;
+    final deleted = this.deleted;
     final description = this.description;
+    final lastModifiedTime = this.lastModifiedTime;
     final tags = this.tags;
     return {
       'fieldArn': fieldArn,
       'fieldId': fieldId,
       'name': name,
-      'namespace': namespace.toValue(),
-      'type': type.toValue(),
+      'namespace': namespace.value,
+      'type': type.value,
+      if (createdTime != null) 'createdTime': iso8601ToJson(createdTime),
+      if (deleted != null) 'deleted': deleted,
       if (description != null) 'description': description,
+      if (lastModifiedTime != null)
+        'lastModifiedTime': iso8601ToJson(lastModifiedTime),
       if (tags != null) 'tags': tags,
     };
   }
@@ -2582,6 +3136,15 @@ class GetLayoutResponse {
   /// The name of the layout. It must be unique.
   final String name;
 
+  /// Timestamp at which the resource was created.
+  final DateTime? createdTime;
+
+  /// Denotes whether or not the resource has been deleted.
+  final bool? deleted;
+
+  /// Timestamp at which the resource was created or last modified.
+  final DateTime? lastModifiedTime;
+
   /// A map of of key-value pairs that represent tags on a resource. Tags are used
   /// to organize, track, or control access for this resource.
   final Map<String, String>? tags;
@@ -2591,6 +3154,9 @@ class GetLayoutResponse {
     required this.layoutArn,
     required this.layoutId,
     required this.name,
+    this.createdTime,
+    this.deleted,
+    this.lastModifiedTime,
     this.tags,
   });
 
@@ -2600,6 +3166,9 @@ class GetLayoutResponse {
       layoutArn: json['layoutArn'] as String,
       layoutId: json['layoutId'] as String,
       name: json['name'] as String,
+      createdTime: timeStampFromJson(json['createdTime']),
+      deleted: json['deleted'] as bool?,
+      lastModifiedTime: timeStampFromJson(json['lastModifiedTime']),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -2610,12 +3179,19 @@ class GetLayoutResponse {
     final layoutArn = this.layoutArn;
     final layoutId = this.layoutId;
     final name = this.name;
+    final createdTime = this.createdTime;
+    final deleted = this.deleted;
+    final lastModifiedTime = this.lastModifiedTime;
     final tags = this.tags;
     return {
       'content': content,
       'layoutArn': layoutArn,
       'layoutId': layoutId,
       'name': name,
+      if (createdTime != null) 'createdTime': iso8601ToJson(createdTime),
+      if (deleted != null) 'deleted': deleted,
+      if (lastModifiedTime != null)
+        'lastModifiedTime': iso8601ToJson(lastModifiedTime),
       if (tags != null) 'tags': tags,
     };
   }
@@ -2634,8 +3210,17 @@ class GetTemplateResponse {
   /// A unique identifier of a template.
   final String templateId;
 
+  /// Timestamp at which the resource was created.
+  final DateTime? createdTime;
+
+  /// Denotes whether or not the resource has been deleted.
+  final bool? deleted;
+
   /// A brief description of the template.
   final String? description;
+
+  /// Timestamp at which the resource was created or last modified.
+  final DateTime? lastModifiedTime;
 
   /// Configuration of layouts associated to the template.
   final LayoutConfiguration? layoutConfiguration;
@@ -2653,7 +3238,10 @@ class GetTemplateResponse {
     required this.status,
     required this.templateArn,
     required this.templateId,
+    this.createdTime,
+    this.deleted,
     this.description,
+    this.lastModifiedTime,
     this.layoutConfiguration,
     this.requiredFields,
     this.tags,
@@ -2662,16 +3250,19 @@ class GetTemplateResponse {
   factory GetTemplateResponse.fromJson(Map<String, dynamic> json) {
     return GetTemplateResponse(
       name: json['name'] as String,
-      status: (json['status'] as String).toTemplateStatus(),
+      status: TemplateStatus.fromString((json['status'] as String)),
       templateArn: json['templateArn'] as String,
       templateId: json['templateId'] as String,
+      createdTime: timeStampFromJson(json['createdTime']),
+      deleted: json['deleted'] as bool?,
       description: json['description'] as String?,
+      lastModifiedTime: timeStampFromJson(json['lastModifiedTime']),
       layoutConfiguration: json['layoutConfiguration'] != null
           ? LayoutConfiguration.fromJson(
               json['layoutConfiguration'] as Map<String, dynamic>)
           : null,
       requiredFields: (json['requiredFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RequiredField.fromJson(e as Map<String, dynamic>))
           .toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
@@ -2684,16 +3275,23 @@ class GetTemplateResponse {
     final status = this.status;
     final templateArn = this.templateArn;
     final templateId = this.templateId;
+    final createdTime = this.createdTime;
+    final deleted = this.deleted;
     final description = this.description;
+    final lastModifiedTime = this.lastModifiedTime;
     final layoutConfiguration = this.layoutConfiguration;
     final requiredFields = this.requiredFields;
     final tags = this.tags;
     return {
       'name': name,
-      'status': status.toValue(),
+      'status': status.value,
       'templateArn': templateArn,
       'templateId': templateId,
+      if (createdTime != null) 'createdTime': iso8601ToJson(createdTime),
+      if (deleted != null) 'deleted': deleted,
       if (description != null) 'description': description,
+      if (lastModifiedTime != null)
+        'lastModifiedTime': iso8601ToJson(lastModifiedTime),
       if (layoutConfiguration != null)
         'layoutConfiguration': layoutConfiguration,
       if (requiredFields != null) 'requiredFields': requiredFields,
@@ -2763,7 +3361,7 @@ class LayoutSections {
   factory LayoutSections.fromJson(Map<String, dynamic> json) {
     return LayoutSections(
       sections: (json['sections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Section.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2830,7 +3428,7 @@ class ListCasesForContactResponse {
   factory ListCasesForContactResponse.fromJson(Map<String, dynamic> json) {
     return ListCasesForContactResponse(
       cases: (json['cases'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CaseSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2863,7 +3461,7 @@ class ListDomainsResponse {
   factory ListDomainsResponse.fromJson(Map<String, dynamic> json) {
     return ListDomainsResponse(
       domains: (json['domains'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => DomainSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2896,7 +3494,7 @@ class ListFieldOptionsResponse {
   factory ListFieldOptionsResponse.fromJson(Map<String, dynamic> json) {
     return ListFieldOptionsResponse(
       options: (json['options'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FieldOption.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2929,7 +3527,7 @@ class ListFieldsResponse {
   factory ListFieldsResponse.fromJson(Map<String, dynamic> json) {
     return ListFieldsResponse(
       fields: (json['fields'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FieldSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2962,7 +3560,7 @@ class ListLayoutsResponse {
   factory ListLayoutsResponse.fromJson(Map<String, dynamic> json) {
     return ListLayoutsResponse(
       layouts: (json['layouts'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => LayoutSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3019,7 +3617,7 @@ class ListTemplatesResponse {
   factory ListTemplatesResponse.fromJson(Map<String, dynamic> json) {
     return ListTemplatesResponse(
       templates: (json['templates'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => TemplateSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3037,31 +3635,17 @@ class ListTemplatesResponse {
 }
 
 enum Order {
-  asc,
-  desc,
-}
+  asc('Asc'),
+  desc('Desc'),
+  ;
 
-extension OrderValueExtension on Order {
-  String toValue() {
-    switch (this) {
-      case Order.asc:
-        return 'Asc';
-      case Order.desc:
-        return 'Desc';
-    }
-  }
-}
+  final String value;
 
-extension OrderFromString on String {
-  Order toOrder() {
-    switch (this) {
-      case 'Asc':
-        return Order.asc;
-      case 'Desc':
-        return Order.desc;
-    }
-    throw Exception('$this is not known in enum Order');
-  }
+  const Order(this.value);
+
+  static Order fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Order'));
 }
 
 class PutCaseEventConfigurationResponse {
@@ -3084,9 +3668,13 @@ class RelatedItemContent {
   /// Represents the content of a contact to be returned to agents.
   final ContactContent? contact;
 
+  /// Represents the content of a File to be returned to agents.
+  final FileContent? file;
+
   RelatedItemContent({
     this.comment,
     this.contact,
+    this.file,
   });
 
   factory RelatedItemContent.fromJson(Map<String, dynamic> json) {
@@ -3097,15 +3685,20 @@ class RelatedItemContent {
       contact: json['contact'] != null
           ? ContactContent.fromJson(json['contact'] as Map<String, dynamic>)
           : null,
+      file: json['file'] != null
+          ? FileContent.fromJson(json['file'] as Map<String, dynamic>)
+          : null,
     );
   }
 
   Map<String, dynamic> toJson() {
     final comment = this.comment;
     final contact = this.contact;
+    final file = this.file;
     return {
       if (comment != null) 'comment': comment,
       if (contact != null) 'contact': contact,
+      if (file != null) 'file': file,
     };
   }
 }
@@ -3143,47 +3736,41 @@ class RelatedItemInputContent {
   /// Object representing a contact in Amazon Connect as an API request field.
   final Contact? contact;
 
+  /// A file of related items.
+  final FileContent? file;
+
   RelatedItemInputContent({
     this.comment,
     this.contact,
+    this.file,
   });
 
   Map<String, dynamic> toJson() {
     final comment = this.comment;
     final contact = this.contact;
+    final file = this.file;
     return {
       if (comment != null) 'comment': comment,
       if (contact != null) 'contact': contact,
+      if (file != null) 'file': file,
     };
   }
 }
 
 enum RelatedItemType {
-  contact,
-  comment,
-}
+  contact('Contact'),
+  comment('Comment'),
+  file('File'),
+  ;
 
-extension RelatedItemTypeValueExtension on RelatedItemType {
-  String toValue() {
-    switch (this) {
-      case RelatedItemType.contact:
-        return 'Contact';
-      case RelatedItemType.comment:
-        return 'Comment';
-    }
-  }
-}
+  final String value;
 
-extension RelatedItemTypeFromString on String {
-  RelatedItemType toRelatedItemType() {
-    switch (this) {
-      case 'Contact':
-        return RelatedItemType.contact;
-      case 'Comment':
-        return RelatedItemType.comment;
-    }
-    throw Exception('$this is not known in enum RelatedItemType');
-  }
+  const RelatedItemType(this.value);
+
+  static RelatedItemType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RelatedItemType'));
 }
 
 /// The list of types of related items and their parameters to use for
@@ -3195,17 +3782,23 @@ class RelatedItemTypeFilter {
   /// A filter for related items of type <code>Contact</code>.
   final ContactFilter? contact;
 
+  /// A filter for related items of this type of <code>File</code>.
+  final FileFilter? file;
+
   RelatedItemTypeFilter({
     this.comment,
     this.contact,
+    this.file,
   });
 
   Map<String, dynamic> toJson() {
     final comment = this.comment;
     final contact = this.contact;
+    final file = this.file;
     return {
       if (comment != null) 'comment': comment,
       if (contact != null) 'contact': contact,
+      if (file != null) 'file': file,
     };
   }
 }
@@ -3251,7 +3844,7 @@ class SearchCasesResponse {
   factory SearchCasesResponse.fromJson(Map<String, dynamic> json) {
     return SearchCasesResponse(
       cases: (json['cases'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               SearchCasesResponseItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3295,7 +3888,7 @@ class SearchCasesResponseItem {
     return SearchCasesResponseItem(
       caseId: json['caseId'] as String,
       fields: (json['fields'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FieldValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       templateId: json['templateId'] as String,
@@ -3334,7 +3927,7 @@ class SearchRelatedItemsResponse {
   factory SearchRelatedItemsResponse.fromJson(Map<String, dynamic> json) {
     return SearchRelatedItemsResponse(
       relatedItems: (json['relatedItems'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SearchRelatedItemsResponseItem.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3366,6 +3959,9 @@ class SearchRelatedItemsResponseItem {
   /// Type of a related item.
   final RelatedItemType type;
 
+  /// Represents the creator of the related item.
+  final UserUnion? performedBy;
+
   /// A map of of key-value pairs that represent tags on a resource. Tags are used
   /// to organize, track, or control access for this resource.
   final Map<String, String>? tags;
@@ -3375,6 +3971,7 @@ class SearchRelatedItemsResponseItem {
     required this.content,
     required this.relatedItemId,
     required this.type,
+    this.performedBy,
     this.tags,
   });
 
@@ -3385,7 +3982,10 @@ class SearchRelatedItemsResponseItem {
       content:
           RelatedItemContent.fromJson(json['content'] as Map<String, dynamic>),
       relatedItemId: json['relatedItemId'] as String,
-      type: (json['type'] as String).toRelatedItemType(),
+      type: RelatedItemType.fromString((json['type'] as String)),
+      performedBy: json['performedBy'] != null
+          ? UserUnion.fromJson(json['performedBy'] as Map<String, dynamic>)
+          : null,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -3396,12 +3996,14 @@ class SearchRelatedItemsResponseItem {
     final content = this.content;
     final relatedItemId = this.relatedItemId;
     final type = this.type;
+    final performedBy = this.performedBy;
     final tags = this.tags;
     return {
       'associationTime': iso8601ToJson(associationTime),
       'content': content,
       'relatedItemId': relatedItemId,
-      'type': type.toValue(),
+      'type': type.value,
+      if (performedBy != null) 'performedBy': performedBy,
       if (tags != null) 'tags': tags,
     };
   }
@@ -3450,37 +4052,24 @@ class Sort {
     final sortOrder = this.sortOrder;
     return {
       'fieldId': fieldId,
-      'sortOrder': sortOrder.toValue(),
+      'sortOrder': sortOrder.value,
     };
   }
 }
 
 enum TemplateStatus {
-  active,
-  inactive,
-}
+  active('Active'),
+  inactive('Inactive'),
+  ;
 
-extension TemplateStatusValueExtension on TemplateStatus {
-  String toValue() {
-    switch (this) {
-      case TemplateStatus.active:
-        return 'Active';
-      case TemplateStatus.inactive:
-        return 'Inactive';
-    }
-  }
-}
+  final String value;
 
-extension TemplateStatusFromString on String {
-  TemplateStatus toTemplateStatus() {
-    switch (this) {
-      case 'Active':
-        return TemplateStatus.active;
-      case 'Inactive':
-        return TemplateStatus.inactive;
-    }
-    throw Exception('$this is not known in enum TemplateStatus');
-  }
+  const TemplateStatus(this.value);
+
+  static TemplateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TemplateStatus'));
 }
 
 /// Template summary information.
@@ -3507,7 +4096,7 @@ class TemplateSummary {
   factory TemplateSummary.fromJson(Map<String, dynamic> json) {
     return TemplateSummary(
       name: json['name'] as String,
-      status: (json['status'] as String).toTemplateStatus(),
+      status: TemplateStatus.fromString((json['status'] as String)),
       templateArn: json['templateArn'] as String,
       templateId: json['templateId'] as String,
     );
@@ -3520,7 +4109,7 @@ class TemplateSummary {
     final templateId = this.templateId;
     return {
       'name': name,
-      'status': status.toValue(),
+      'status': status.value,
       'templateArn': templateArn,
       'templateId': templateId,
     };
@@ -3572,6 +4161,29 @@ class UpdateTemplateResponse {
 
   Map<String, dynamic> toJson() {
     return {};
+  }
+}
+
+/// Represents the identity of the person who performed the action.
+class UserUnion {
+  /// Represents the Amazon Connect ARN of the user.
+  final String? userArn;
+
+  UserUnion({
+    this.userArn,
+  });
+
+  factory UserUnion.fromJson(Map<String, dynamic> json) {
+    return UserUnion(
+      userArn: json['userArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final userArn = this.userArn;
+    return {
+      if (userArn != null) 'userArn': userArn,
+    };
   }
 }
 

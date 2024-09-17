@@ -19,9 +19,9 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// This is the <i>Amazon Omics API Reference</i>. For an introduction to the
+/// This is the <i>AWS HealthOmics API Reference</i>. For an introduction to the
 /// service, see <a href="https://docs.aws.amazon.com/omics/latest/dev/">What is
-/// Amazon Omics?</a> in the <i>Amazon Omics User Guide</i>.
+/// AWS HealthOmics?</a> in the <i>AWS HealthOmics User Guide</i>.
 class Omics {
   final _s.RestJsonProtocol _protocol;
   Omics({
@@ -78,6 +78,30 @@ class Omics {
           '/sequencestore/${Uri.encodeComponent(sequenceStoreId)}/upload/${Uri.encodeComponent(uploadId)}/abort',
       exceptionFnMap: _exceptionFns,
     );
+  }
+
+  /// Accept a resource share request.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [shareId] :
+  /// The ID of the resource share.
+  Future<AcceptShareResponse> acceptShare({
+    required String shareId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'POST',
+      requestUri: '/share/${Uri.encodeComponent(shareId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return AcceptShareResponse.fromJson(response);
   }
 
   /// Deletes one or more read sets.
@@ -245,6 +269,10 @@ class Omics {
   ///
   /// Parameter [tags] :
   /// Tags for the store.
+  ///
+  /// Parameter [versionName] :
+  /// The name given to an annotation store version to distinguish it from other
+  /// versions.
   Future<CreateAnnotationStoreResponse> createAnnotationStore({
     required StoreFormat storeFormat,
     String? description,
@@ -253,15 +281,17 @@ class Omics {
     SseConfig? sseConfig,
     StoreOptions? storeOptions,
     Map<String, String>? tags,
+    String? versionName,
   }) async {
     final $payload = <String, dynamic>{
-      'storeFormat': storeFormat.toValue(),
+      'storeFormat': storeFormat.value,
       if (description != null) 'description': description,
       if (name != null) 'name': name,
       if (reference != null) 'reference': reference,
       if (sseConfig != null) 'sseConfig': sseConfig,
       if (storeOptions != null) 'storeOptions': storeOptions,
       if (tags != null) 'tags': tags,
+      if (versionName != null) 'versionName': versionName,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -270,6 +300,54 @@ class Omics {
       exceptionFnMap: _exceptionFns,
     );
     return CreateAnnotationStoreResponse.fromJson(response);
+  }
+
+  /// Creates a new version of an annotation store.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [name] :
+  /// The name of an annotation store version from which versions are being
+  /// created.
+  ///
+  /// Parameter [versionName] :
+  /// The name given to an annotation store version to distinguish it from other
+  /// versions.
+  ///
+  /// Parameter [description] :
+  /// The description of an annotation store version.
+  ///
+  /// Parameter [tags] :
+  /// Any tags added to annotation store version.
+  ///
+  /// Parameter [versionOptions] :
+  /// The options for an annotation store version.
+  Future<CreateAnnotationStoreVersionResponse> createAnnotationStoreVersion({
+    required String name,
+    required String versionName,
+    String? description,
+    Map<String, String>? tags,
+    VersionOptions? versionOptions,
+  }) async {
+    final $payload = <String, dynamic>{
+      'versionName': versionName,
+      if (description != null) 'description': description,
+      if (tags != null) 'tags': tags,
+      if (versionOptions != null) 'versionOptions': versionOptions,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/annotationStore/${Uri.encodeComponent(name)}/version',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateAnnotationStoreVersionResponse.fromJson(response);
   }
 
   /// Begins a multipart read set upload.
@@ -285,9 +363,6 @@ class Omics {
   ///
   /// Parameter [name] :
   /// The name of the read set.
-  ///
-  /// Parameter [referenceArn] :
-  /// The ARN of the reference.
   ///
   /// Parameter [sampleId] :
   /// The source's sample ID.
@@ -312,11 +387,13 @@ class Omics {
   /// Parameter [generatedFrom] :
   /// Where the source originated.
   ///
+  /// Parameter [referenceArn] :
+  /// The ARN of the reference.
+  ///
   /// Parameter [tags] :
   /// Any tags to add to the read set.
   Future<CreateMultipartReadSetUploadResponse> createMultipartReadSetUpload({
     required String name,
-    required String referenceArn,
     required String sampleId,
     required String sequenceStoreId,
     required FileType sourceFileType,
@@ -324,17 +401,18 @@ class Omics {
     String? clientToken,
     String? description,
     String? generatedFrom,
+    String? referenceArn,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      'referenceArn': referenceArn,
       'sampleId': sampleId,
-      'sourceFileType': sourceFileType.toValue(),
+      'sourceFileType': sourceFileType.value,
       'subjectId': subjectId,
       if (clientToken != null) 'clientToken': clientToken,
       if (description != null) 'description': description,
       if (generatedFrom != null) 'generatedFrom': generatedFrom,
+      if (referenceArn != null) 'referenceArn': referenceArn,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -496,6 +574,9 @@ class Omics {
   /// Parameter [description] :
   /// A description for the store.
   ///
+  /// Parameter [eTagAlgorithmFamily] :
+  /// The ETag algorithm family to use for ingested read sets.
+  ///
   /// Parameter [fallbackLocation] :
   /// An S3 location that is used to store files that have failed a direct
   /// upload.
@@ -509,6 +590,7 @@ class Omics {
     required String name,
     String? clientToken,
     String? description,
+    ETagAlgorithmFamily? eTagAlgorithmFamily,
     String? fallbackLocation,
     SseConfig? sseConfig,
     Map<String, String>? tags,
@@ -517,6 +599,8 @@ class Omics {
       'name': name,
       if (clientToken != null) 'clientToken': clientToken,
       if (description != null) 'description': description,
+      if (eTagAlgorithmFamily != null)
+        'eTagAlgorithmFamily': eTagAlgorithmFamily.value,
       if (fallbackLocation != null) 'fallbackLocation': fallbackLocation,
       if (sseConfig != null) 'sseConfig': sseConfig,
       if (tags != null) 'tags': tags,
@@ -528,6 +612,60 @@ class Omics {
       exceptionFnMap: _exceptionFns,
     );
     return CreateSequenceStoreResponse.fromJson(response);
+  }
+
+  /// Creates a cross-account shared resource. The resource owner makes an offer
+  /// to share the resource with the principal subscriber (an AWS user with a
+  /// different account than the resource owner).
+  ///
+  /// The following resources support cross-account sharing:
+  ///
+  /// <ul>
+  /// <li>
+  /// Healthomics variant stores
+  /// </li>
+  /// <li>
+  /// Healthomics annotation stores
+  /// </li>
+  /// <li>
+  /// Private workflows
+  /// </li>
+  /// </ul>
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [principalSubscriber] :
+  /// The principal subscriber is the account being offered shared access to the
+  /// resource.
+  ///
+  /// Parameter [resourceArn] :
+  /// The ARN of the resource to be shared.
+  ///
+  /// Parameter [shareName] :
+  /// A name that the owner defines for the share.
+  Future<CreateShareResponse> createShare({
+    required String principalSubscriber,
+    required String resourceArn,
+    String? shareName,
+  }) async {
+    final $payload = <String, dynamic>{
+      'principalSubscriber': principalSubscriber,
+      'resourceArn': resourceArn,
+      if (shareName != null) 'shareName': shareName,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/share',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateShareResponse.fromJson(response);
   }
 
   /// Creates a variant store.
@@ -617,7 +755,7 @@ class Omics {
   /// each request.
   ///
   /// Parameter [storageCapacity] :
-  /// A storage capacity for the workflow in gigabytes.
+  /// The storage capacity for the workflow in gibibytes.
   ///
   /// Parameter [tags] :
   /// Tags for the workflow.
@@ -641,11 +779,11 @@ class Omics {
       100000,
     );
     final $payload = <String, dynamic>{
-      if (accelerators != null) 'accelerators': accelerators.toValue(),
+      if (accelerators != null) 'accelerators': accelerators.value,
       if (definitionUri != null) 'definitionUri': definitionUri,
       if (definitionZip != null) 'definitionZip': base64Encode(definitionZip),
       if (description != null) 'description': description,
-      if (engine != null) 'engine': engine.toValue(),
+      if (engine != null) 'engine': engine.value,
       if (main != null) 'main': main,
       if (name != null) 'name': name,
       if (parameterTemplate != null) 'parameterTemplate': parameterTemplate,
@@ -691,6 +829,46 @@ class Omics {
       exceptionFnMap: _exceptionFns,
     );
     return DeleteAnnotationStoreResponse.fromJson(response);
+  }
+
+  /// Deletes one or multiple versions of an annotation store.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [name] :
+  /// The name of the annotation store from which versions are being deleted.
+  ///
+  /// Parameter [versions] :
+  /// The versions of an annotation store to be deleted.
+  ///
+  /// Parameter [force] :
+  /// Forces the deletion of an annotation store version when imports are
+  /// in-progress..
+  Future<DeleteAnnotationStoreVersionsResponse> deleteAnnotationStoreVersions({
+    required String name,
+    required List<String> versions,
+    bool? force,
+  }) async {
+    final $query = <String, List<String>>{
+      if (force != null) 'force': [force.toString()],
+    };
+    final $payload = <String, dynamic>{
+      'versions': versions,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/annotationStore/${Uri.encodeComponent(name)}/versions/delete',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeleteAnnotationStoreVersionsResponse.fromJson(response);
   }
 
   /// Deletes a genome reference.
@@ -815,6 +993,32 @@ class Omics {
     );
   }
 
+  /// Deletes a resource share. If you are the resource owner, the subscriber
+  /// will no longer have access to the shared resource. If you are the
+  /// subscriber, this operation deletes your access to the share.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [shareId] :
+  /// The ID for the resource share to be deleted.
+  Future<DeleteShareResponse> deleteShare({
+    required String shareId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri: '/share/${Uri.encodeComponent(shareId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeleteShareResponse.fromJson(response);
+  }
+
   /// Deletes a variant store.
   ///
   /// May throw [InternalServerException].
@@ -914,6 +1118,35 @@ class Omics {
     return GetAnnotationStoreResponse.fromJson(response);
   }
 
+  /// Retrieves the metadata for an annotation store version.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [name] :
+  /// The name given to an annotation store version to distinguish it from
+  /// others.
+  ///
+  /// Parameter [versionName] :
+  /// The name given to an annotation store version to distinguish it from
+  /// others.
+  Future<GetAnnotationStoreVersionResponse> getAnnotationStoreVersion({
+    required String name,
+    required String versionName,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/annotationStore/${Uri.encodeComponent(name)}/version/${Uri.encodeComponent(versionName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAnnotationStoreVersionResponse.fromJson(response);
+  }
+
   /// Gets a file from a read set.
   ///
   /// May throw [InternalServerException].
@@ -951,7 +1184,7 @@ class Omics {
     );
     final $query = <String, List<String>>{
       'partNumber': [partNumber.toString()],
-      if (file != null) 'file': [file.toValue()],
+      if (file != null) 'file': [file.value],
     };
     final response = await _protocol.sendRaw(
       payload: null,
@@ -1121,7 +1354,7 @@ class Omics {
     };
     final $query = <String, List<String>>{
       'partNumber': [partNumber.toString()],
-      if (file != null) 'file': [file.toValue()],
+      if (file != null) 'file': [file.value],
     };
     final response = await _protocol.sendRaw(
       payload: null,
@@ -1218,6 +1451,9 @@ class Omics {
 
   /// Gets information about a workflow run.
   ///
+  /// If a workflow is shared with you, you cannot export information about the
+  /// run.
+  ///
   /// May throw [InternalServerException].
   /// May throw [ServiceQuotaExceededException].
   /// May throw [ThrottlingException].
@@ -1237,7 +1473,7 @@ class Omics {
     List<RunExport>? export,
   }) async {
     final $query = <String, List<String>>{
-      if (export != null) 'export': export.map((e) => e.toValue()).toList(),
+      if (export != null) 'export': export.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: null,
@@ -1286,7 +1522,7 @@ class Omics {
   /// May throw [RequestTimeoutException].
   ///
   /// Parameter [id] :
-  /// The task's ID.
+  /// The workflow run ID.
   ///
   /// Parameter [taskId] :
   /// The task's ID.
@@ -1325,6 +1561,30 @@ class Omics {
       exceptionFnMap: _exceptionFns,
     );
     return GetSequenceStoreResponse.fromJson(response);
+  }
+
+  /// Retrieves the metadata for the specified resource share.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [shareId] :
+  /// The ID of the share.
+  Future<GetShareResponse> getShare({
+    required String shareId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/share/${Uri.encodeComponent(shareId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetShareResponse.fromJson(response);
   }
 
   /// Gets information about a variant import job.
@@ -1373,6 +1633,8 @@ class Omics {
 
   /// Gets information about a workflow.
   ///
+  /// If a workflow is shared with you, you cannot export the workflow.
+  ///
   /// May throw [InternalServerException].
   /// May throw [ServiceQuotaExceededException].
   /// May throw [ThrottlingException].
@@ -1390,14 +1652,19 @@ class Omics {
   ///
   /// Parameter [type] :
   /// The workflow's type.
+  ///
+  /// Parameter [workflowOwnerId] :
+  /// The ID of the workflow owner.
   Future<GetWorkflowResponse> getWorkflow({
     required String id,
     List<WorkflowExport>? export,
     WorkflowType? type,
+    String? workflowOwnerId,
   }) async {
     final $query = <String, List<String>>{
-      if (export != null) 'export': export.map((e) => e.toValue()).toList(),
-      if (type != null) 'type': [type.toValue()],
+      if (export != null) 'export': export.map((e) => e.value).toList(),
+      if (type != null) 'type': [type.value],
+      if (workflowOwnerId != null) 'workflowOwnerId': [workflowOwnerId],
     };
     final response = await _protocol.send(
       payload: null,
@@ -1427,8 +1694,8 @@ class Omics {
   /// The maximum number of jobs to return in one page of results.
   ///
   /// Parameter [nextToken] :
-  /// Specify the pagination token from a previous request to retrieve the next
-  /// page of results.
+  /// Specifies the pagination token from a previous request to retrieve the
+  /// next page of results.
   Future<ListAnnotationImportJobsResponse> listAnnotationImportJobs({
     ListAnnotationImportJobsFilter? filter,
     List<String>? ids,
@@ -1457,6 +1724,56 @@ class Omics {
       exceptionFnMap: _exceptionFns,
     );
     return ListAnnotationImportJobsResponse.fromJson(response);
+  }
+
+  /// Lists the versions of an annotation store.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [name] :
+  /// The name of an annotation store.
+  ///
+  /// Parameter [filter] :
+  /// A filter to apply to the list of annotation store versions.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of annotation store versions to return in one page of
+  /// results.
+  ///
+  /// Parameter [nextToken] :
+  /// Specifies the pagination token from a previous request to retrieve the
+  /// next page of results.
+  Future<ListAnnotationStoreVersionsResponse> listAnnotationStoreVersions({
+    required String name,
+    ListAnnotationStoreVersionsFilter? filter,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final $payload = <String, dynamic>{
+      if (filter != null) 'filter': filter,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/annotationStore/${Uri.encodeComponent(name)}/versions',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAnnotationStoreVersionsResponse.fromJson(response);
   }
 
   /// Retrieves a list of annotation stores.
@@ -1509,7 +1826,9 @@ class Omics {
     return ListAnnotationStoresResponse.fromJson(response);
   }
 
-  /// Lists all multipart read set uploads and their statuses.
+  /// Lists multipart read set uploads and for in progress uploads. Once the
+  /// upload is completed, a read set is created and the upload will no longer
+  /// be returned in the response.
   ///
   /// May throw [InternalServerException].
   /// May throw [NotSupportedOperationException].
@@ -1758,7 +2077,7 @@ class Omics {
       if (nextToken != null) 'nextToken': [nextToken],
     };
     final $payload = <String, dynamic>{
-      'partSource': partSource.toValue(),
+      'partSource': partSource.value,
       if (filter != null) 'filter': filter,
     };
     final response = await _protocol.send(
@@ -2054,7 +2373,7 @@ class Omics {
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (startingToken != null) 'startingToken': [startingToken],
-      if (status != null) 'status': [status.toValue()],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -2110,7 +2429,7 @@ class Omics {
       if (name != null) 'name': [name],
       if (runGroupId != null) 'runGroupId': [runGroupId],
       if (startingToken != null) 'startingToken': [startingToken],
-      if (status != null) 'status': [status.toValue()],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -2165,6 +2484,54 @@ class Omics {
       exceptionFnMap: _exceptionFns,
     );
     return ListSequenceStoresResponse.fromJson(response);
+  }
+
+  /// Retrieves the resource shares associated with an account. Use the filter
+  /// parameter to retrieve a specific subset of the shares.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [resourceOwner] :
+  /// The account that owns the resource shares.
+  ///
+  /// Parameter [filter] :
+  /// Attributes that you use to filter for a specific subset of resource
+  /// shares.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of shares to return in one page of results.
+  ///
+  /// Parameter [nextToken] :
+  /// Next token returned in the response of a previous
+  /// ListReadSetUploadPartsRequest call. Used to get the next page of results.
+  Future<ListSharesResponse> listShares({
+    required ResourceOwner resourceOwner,
+    Filter? filter,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final $payload = <String, dynamic>{
+      'resourceOwner': resourceOwner.value,
+      if (filter != null) 'filter': filter,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/shares',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListSharesResponse.fromJson(response);
   }
 
   /// Retrieves a list of tags for a resource.
@@ -2307,14 +2674,14 @@ class Omics {
   /// The maximum number of workflows to return in one page of results.
   ///
   /// Parameter [name] :
-  /// The workflows' name.
+  /// Filter the list by workflow name.
   ///
   /// Parameter [startingToken] :
   /// Specify the pagination token from a previous request to retrieve the next
   /// page of results.
   ///
   /// Parameter [type] :
-  /// The workflows' type.
+  /// Filter the list by workflow type.
   Future<ListWorkflowsResponse> listWorkflows({
     int? maxResults,
     String? name,
@@ -2331,7 +2698,7 @@ class Omics {
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (name != null) 'name': [name],
       if (startingToken != null) 'startingToken': [startingToken],
-      if (type != null) 'type': [type.toValue()],
+      if (type != null) 'type': [type.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -2369,6 +2736,9 @@ class Omics {
   ///
   /// Parameter [runLeftNormalization] :
   /// The job's left normalization setting.
+  ///
+  /// Parameter [versionName] :
+  /// The name of the annotation store version.
   Future<StartAnnotationImportResponse> startAnnotationImportJob({
     required String destinationName,
     required List<AnnotationImportItemSource> items,
@@ -2376,6 +2746,7 @@ class Omics {
     Map<String, String>? annotationFields,
     FormatOptions? formatOptions,
     bool? runLeftNormalization,
+    String? versionName,
   }) async {
     final $payload = <String, dynamic>{
       'destinationName': destinationName,
@@ -2385,6 +2756,7 @@ class Omics {
       if (formatOptions != null) 'formatOptions': formatOptions,
       if (runLeftNormalization != null)
         'runLeftNormalization': runLeftNormalization,
+      if (versionName != null) 'versionName': versionName,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2568,7 +2940,23 @@ class Omics {
     return StartReferenceImportJobResponse.fromJson(response);
   }
 
-  /// Starts a run.
+  /// Starts a workflow run. To duplicate a run, specify the run's ID and a role
+  /// ARN. The remaining parameters are copied from the previous run.
+  ///
+  /// StartRun will not support re-run for a workflow that is shared with you.
+  ///
+  /// The total number of runs in your account is subject to a quota per Region.
+  /// To avoid needing to delete runs manually, you can set the retention mode
+  /// to <code>REMOVE</code>. Runs with this setting are deleted automatically
+  /// when the run quoata is exceeded.
+  ///
+  /// By default, the run uses STATIC storage. For STATIC storage, set the
+  /// <code>storageCapacity</code> field. You can set the storage type to
+  /// DYNAMIC. You do not set <code>storageCapacity</code>, because HealthOmics
+  /// dynamically scales the storage up or down as required. For more
+  /// information about static and dynamic storage, see <a
+  /// href="https://docs.aws.amazon.com/omics/latest/dev/Using-workflows.html">Running
+  /// workflows</a> in the <i>AWS HealthOmics User Guide</i>.
   ///
   /// May throw [InternalServerException].
   /// May throw [ServiceQuotaExceededException].
@@ -2601,14 +2989,24 @@ class Omics {
   /// To ensure that requests don't run multiple times, specify a unique ID for
   /// each request.
   ///
+  /// Parameter [retentionMode] :
+  /// The retention mode for the run.
+  ///
   /// Parameter [runGroupId] :
   /// The run's group ID.
   ///
   /// Parameter [runId] :
-  /// The run's ID.
+  /// The ID of a run to duplicate.
   ///
   /// Parameter [storageCapacity] :
-  /// A storage capacity for the run in gigabytes.
+  /// A storage capacity for the run in gibibytes. This field is not required if
+  /// the storage type is dynamic (the system ignores any value that you enter).
+  ///
+  /// Parameter [storageType] :
+  /// The run's storage type. By default, the run uses STATIC storage type,
+  /// which allocates a fixed amount of storage. If you set the storage type to
+  /// DYNAMIC, HealthOmics dynamically scales the storage up or down, based on
+  /// file system utilization.
   ///
   /// Parameter [tags] :
   /// Tags for the run.
@@ -2616,8 +3014,11 @@ class Omics {
   /// Parameter [workflowId] :
   /// The run's workflow ID.
   ///
+  /// Parameter [workflowOwnerId] :
+  /// The ID of the workflow owner.
+  ///
   /// Parameter [workflowType] :
-  /// The run's workflows type.
+  /// The run's workflow type.
   Future<StartRunResponse> startRun({
     required String roleArn,
     RunLogLevel? logLevel,
@@ -2626,11 +3027,14 @@ class Omics {
     RunParameters? parameters,
     int? priority,
     String? requestId,
+    RunRetentionMode? retentionMode,
     String? runGroupId,
     String? runId,
     int? storageCapacity,
+    StorageType? storageType,
     Map<String, String>? tags,
     String? workflowId,
+    String? workflowOwnerId,
     WorkflowType? workflowType,
   }) async {
     _s.validateNumRange(
@@ -2647,18 +3051,21 @@ class Omics {
     );
     final $payload = <String, dynamic>{
       'roleArn': roleArn,
-      if (logLevel != null) 'logLevel': logLevel.toValue(),
+      if (logLevel != null) 'logLevel': logLevel.value,
       if (name != null) 'name': name,
       if (outputUri != null) 'outputUri': outputUri,
       if (parameters != null) 'parameters': parameters,
       if (priority != null) 'priority': priority,
       'requestId': requestId ?? _s.generateIdempotencyToken(),
+      if (retentionMode != null) 'retentionMode': retentionMode.value,
       if (runGroupId != null) 'runGroupId': runGroupId,
       if (runId != null) 'runId': runId,
       if (storageCapacity != null) 'storageCapacity': storageCapacity,
+      if (storageType != null) 'storageType': storageType.value,
       if (tags != null) 'tags': tags,
       if (workflowId != null) 'workflowId': workflowId,
-      if (workflowType != null) 'workflowType': workflowType.toValue(),
+      if (workflowOwnerId != null) 'workflowOwnerId': workflowOwnerId,
+      if (workflowType != null) 'workflowType': workflowType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2806,6 +3213,40 @@ class Omics {
       exceptionFnMap: _exceptionFns,
     );
     return UpdateAnnotationStoreResponse.fromJson(response);
+  }
+
+  /// Updates the description of an annotation store version.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [name] :
+  /// The name of an annotation store.
+  ///
+  /// Parameter [versionName] :
+  /// The name of an annotation store version.
+  ///
+  /// Parameter [description] :
+  /// The description of an annotation store.
+  Future<UpdateAnnotationStoreVersionResponse> updateAnnotationStoreVersion({
+    required String name,
+    required String versionName,
+    String? description,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (description != null) 'description': description,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/annotationStore/${Uri.encodeComponent(name)}/version/${Uri.encodeComponent(versionName)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateAnnotationStoreVersionResponse.fromJson(response);
   }
 
   /// Updates a run group.
@@ -2991,7 +3432,7 @@ class Omics {
     );
     final $query = <String, List<String>>{
       'partNumber': [partNumber.toString()],
-      'partSource': [partSource.toValue()],
+      'partSource': [partSource.value],
     };
     final response = await _protocol.send(
       payload: payload,
@@ -3018,25 +3459,38 @@ class AbortMultipartReadSetUploadResponse {
 }
 
 enum Accelerators {
-  gpu,
+  gpu('GPU'),
+  ;
+
+  final String value;
+
+  const Accelerators(this.value);
+
+  static Accelerators fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum Accelerators'));
 }
 
-extension AcceleratorsValueExtension on Accelerators {
-  String toValue() {
-    switch (this) {
-      case Accelerators.gpu:
-        return 'GPU';
-    }
+class AcceptShareResponse {
+  /// The status of the resource share.
+  final ShareStatus? status;
+
+  AcceptShareResponse({
+    this.status,
+  });
+
+  factory AcceptShareResponse.fromJson(Map<String, dynamic> json) {
+    return AcceptShareResponse(
+      status: (json['status'] as String?)?.let(ShareStatus.fromString),
+    );
   }
-}
 
-extension AcceleratorsFromString on String {
-  Accelerators toAccelerators() {
-    switch (this) {
-      case 'GPU':
-        return Accelerators.gpu;
-    }
-    throw Exception('$this is not known in enum Accelerators');
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'status': status.value,
+    };
   }
 }
 
@@ -3064,7 +3518,7 @@ class ActivateReadSetFilter {
     return {
       if (createdAfter != null) 'createdAfter': iso8601ToJson(createdAfter),
       if (createdBefore != null) 'createdBefore': iso8601ToJson(createdBefore),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3100,7 +3554,7 @@ class ActivateReadSetJobItem {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetActivationJobStatus(),
+      status: ReadSetActivationJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
     );
   }
@@ -3115,7 +3569,7 @@ class ActivateReadSetJobItem {
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
     };
@@ -3142,7 +3596,8 @@ class ActivateReadSetSourceItem {
   factory ActivateReadSetSourceItem.fromJson(Map<String, dynamic> json) {
     return ActivateReadSetSourceItem(
       readSetId: json['readSetId'] as String,
-      status: (json['status'] as String).toReadSetActivationJobItemStatus(),
+      status:
+          ReadSetActivationJobItemStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String?,
     );
   }
@@ -3153,7 +3608,7 @@ class ActivateReadSetSourceItem {
     final statusMessage = this.statusMessage;
     return {
       'readSetId': readSetId,
-      'status': status.toValue(),
+      'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
     };
   }
@@ -3174,7 +3629,7 @@ class AnnotationImportItemDetail {
 
   factory AnnotationImportItemDetail.fromJson(Map<String, dynamic> json) {
     return AnnotationImportItemDetail(
-      jobStatus: (json['jobStatus'] as String).toJobStatus(),
+      jobStatus: JobStatus.fromString((json['jobStatus'] as String)),
       source: json['source'] as String,
     );
   }
@@ -3183,7 +3638,7 @@ class AnnotationImportItemDetail {
     final jobStatus = this.jobStatus;
     final source = this.source;
     return {
-      'jobStatus': jobStatus.toValue(),
+      'jobStatus': jobStatus.value,
       'source': source,
     };
   }
@@ -3226,6 +3681,9 @@ class AnnotationImportJobItem {
   /// When the job was updated.
   final DateTime updateTime;
 
+  /// The name of the annotation store version.
+  final String versionName;
+
   /// The annotation schema generated by the parsed annotation data.
   final Map<String, String>? annotationFields;
 
@@ -3242,6 +3700,7 @@ class AnnotationImportJobItem {
     required this.roleArn,
     required this.status,
     required this.updateTime,
+    required this.versionName,
     this.annotationFields,
     this.completionTime,
     this.runLeftNormalization,
@@ -3254,8 +3713,9 @@ class AnnotationImportJobItem {
       destinationName: json['destinationName'] as String,
       id: json['id'] as String,
       roleArn: json['roleArn'] as String,
-      status: (json['status'] as String).toJobStatus(),
+      status: JobStatus.fromString((json['status'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      versionName: json['versionName'] as String,
       annotationFields: (json['annotationFields'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       completionTime: timeStampFromJson(json['completionTime']),
@@ -3270,6 +3730,7 @@ class AnnotationImportJobItem {
     final roleArn = this.roleArn;
     final status = this.status;
     final updateTime = this.updateTime;
+    final versionName = this.versionName;
     final annotationFields = this.annotationFields;
     final completionTime = this.completionTime;
     final runLeftNormalization = this.runLeftNormalization;
@@ -3278,8 +3739,9 @@ class AnnotationImportJobItem {
       'destinationName': destinationName,
       'id': id,
       'roleArn': roleArn,
-      'status': status.toValue(),
+      'status': status.value,
       'updateTime': iso8601ToJson(updateTime),
+      'versionName': versionName,
       if (annotationFields != null) 'annotationFields': annotationFields,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
@@ -3352,10 +3814,10 @@ class AnnotationStoreItem {
       reference:
           ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>),
       sseConfig: SseConfig.fromJson(json['sseConfig'] as Map<String, dynamic>),
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String,
       storeArn: json['storeArn'] as String,
-      storeFormat: (json['storeFormat'] as String).toStoreFormat(),
+      storeFormat: StoreFormat.fromString((json['storeFormat'] as String)),
       storeSizeBytes: json['storeSizeBytes'] as int,
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
     );
@@ -3381,67 +3843,128 @@ class AnnotationStoreItem {
       'name': name,
       'reference': reference,
       'sseConfig': sseConfig,
-      'status': status.toValue(),
+      'status': status.value,
       'statusMessage': statusMessage,
       'storeArn': storeArn,
-      'storeFormat': storeFormat.toValue(),
+      'storeFormat': storeFormat.value,
       'storeSizeBytes': storeSizeBytes,
       'updateTime': iso8601ToJson(updateTime),
     };
   }
 }
 
+/// Annotation store versions.
+class AnnotationStoreVersionItem {
+  /// The time stamp for when an annotation store version was created.
+  final DateTime creationTime;
+
+  /// The description of an annotation store version.
+  final String description;
+
+  /// The annotation store version ID.
+  final String id;
+
+  /// A name given to an annotation store version to distinguish it from others.
+  final String name;
+
+  /// The status of an annotation store version.
+  final VersionStatus status;
+
+  /// The status of an annotation store version.
+  final String statusMessage;
+
+  /// The store ID for an annotation store version.
+  final String storeId;
+
+  /// The time stamp for when an annotation store version was updated.
+  final DateTime updateTime;
+
+  /// The Arn for an annotation store version.
+  final String versionArn;
+
+  /// The name of an annotation store version.
+  final String versionName;
+
+  /// The size of an annotation store version in Bytes.
+  final int versionSizeBytes;
+
+  AnnotationStoreVersionItem({
+    required this.creationTime,
+    required this.description,
+    required this.id,
+    required this.name,
+    required this.status,
+    required this.statusMessage,
+    required this.storeId,
+    required this.updateTime,
+    required this.versionArn,
+    required this.versionName,
+    required this.versionSizeBytes,
+  });
+
+  factory AnnotationStoreVersionItem.fromJson(Map<String, dynamic> json) {
+    return AnnotationStoreVersionItem(
+      creationTime:
+          nonNullableTimeStampFromJson(json['creationTime'] as Object),
+      description: json['description'] as String,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      status: VersionStatus.fromString((json['status'] as String)),
+      statusMessage: json['statusMessage'] as String,
+      storeId: json['storeId'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      versionArn: json['versionArn'] as String,
+      versionName: json['versionName'] as String,
+      versionSizeBytes: json['versionSizeBytes'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final creationTime = this.creationTime;
+    final description = this.description;
+    final id = this.id;
+    final name = this.name;
+    final status = this.status;
+    final statusMessage = this.statusMessage;
+    final storeId = this.storeId;
+    final updateTime = this.updateTime;
+    final versionArn = this.versionArn;
+    final versionName = this.versionName;
+    final versionSizeBytes = this.versionSizeBytes;
+    return {
+      'creationTime': iso8601ToJson(creationTime),
+      'description': description,
+      'id': id,
+      'name': name,
+      'status': status.value,
+      'statusMessage': statusMessage,
+      'storeId': storeId,
+      'updateTime': iso8601ToJson(updateTime),
+      'versionArn': versionArn,
+      'versionName': versionName,
+      'versionSizeBytes': versionSizeBytes,
+    };
+  }
+}
+
 enum AnnotationType {
-  generic,
-  chrPos,
-  chrPosRefAlt,
-  chrStartEndOneBase,
-  chrStartEndRefAltOneBase,
-  chrStartEndZeroBase,
-  chrStartEndRefAltZeroBase,
-}
+  generic('GENERIC'),
+  chrPos('CHR_POS'),
+  chrPosRefAlt('CHR_POS_REF_ALT'),
+  chrStartEndOneBase('CHR_START_END_ONE_BASE'),
+  chrStartEndRefAltOneBase('CHR_START_END_REF_ALT_ONE_BASE'),
+  chrStartEndZeroBase('CHR_START_END_ZERO_BASE'),
+  chrStartEndRefAltZeroBase('CHR_START_END_REF_ALT_ZERO_BASE'),
+  ;
 
-extension AnnotationTypeValueExtension on AnnotationType {
-  String toValue() {
-    switch (this) {
-      case AnnotationType.generic:
-        return 'GENERIC';
-      case AnnotationType.chrPos:
-        return 'CHR_POS';
-      case AnnotationType.chrPosRefAlt:
-        return 'CHR_POS_REF_ALT';
-      case AnnotationType.chrStartEndOneBase:
-        return 'CHR_START_END_ONE_BASE';
-      case AnnotationType.chrStartEndRefAltOneBase:
-        return 'CHR_START_END_REF_ALT_ONE_BASE';
-      case AnnotationType.chrStartEndZeroBase:
-        return 'CHR_START_END_ZERO_BASE';
-      case AnnotationType.chrStartEndRefAltZeroBase:
-        return 'CHR_START_END_REF_ALT_ZERO_BASE';
-    }
-  }
-}
+  final String value;
 
-extension AnnotationTypeFromString on String {
-  AnnotationType toAnnotationType() {
-    switch (this) {
-      case 'GENERIC':
-        return AnnotationType.generic;
-      case 'CHR_POS':
-        return AnnotationType.chrPos;
-      case 'CHR_POS_REF_ALT':
-        return AnnotationType.chrPosRefAlt;
-      case 'CHR_START_END_ONE_BASE':
-        return AnnotationType.chrStartEndOneBase;
-      case 'CHR_START_END_REF_ALT_ONE_BASE':
-        return AnnotationType.chrStartEndRefAltOneBase;
-      case 'CHR_START_END_ZERO_BASE':
-        return AnnotationType.chrStartEndZeroBase;
-      case 'CHR_START_END_REF_ALT_ZERO_BASE':
-        return AnnotationType.chrStartEndRefAltZeroBase;
-    }
-    throw Exception('$this is not known in enum AnnotationType');
-  }
+  const AnnotationType(this.value);
+
+  static AnnotationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AnnotationType'));
 }
 
 class BatchDeleteReadSetResponse {
@@ -3455,7 +3978,7 @@ class BatchDeleteReadSetResponse {
   factory BatchDeleteReadSetResponse.fromJson(Map<String, dynamic> json) {
     return BatchDeleteReadSetResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReadSetBatchError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3541,7 +4064,7 @@ class CompleteReadSetUploadPartListItem {
     return {
       'checksum': checksum,
       'partNumber': partNumber,
-      'partSource': partSource.toValue(),
+      'partSource': partSource.value,
     };
   }
 }
@@ -3559,6 +4082,10 @@ class CreateAnnotationStoreResponse {
   /// The store's status.
   final StoreStatus status;
 
+  /// The name given to an annotation store version to distinguish it from other
+  /// versions.
+  final String versionName;
+
   /// The store's genome reference. Required for all stores except TSV format with
   /// generic annotations.
   final ReferenceItem? reference;
@@ -3574,6 +4101,7 @@ class CreateAnnotationStoreResponse {
     required this.id,
     required this.name,
     required this.status,
+    required this.versionName,
     this.reference,
     this.storeFormat,
     this.storeOptions,
@@ -3585,11 +4113,13 @@ class CreateAnnotationStoreResponse {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       name: json['name'] as String,
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
+      versionName: json['versionName'] as String,
       reference: json['reference'] != null
           ? ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>)
           : null,
-      storeFormat: (json['storeFormat'] as String?)?.toStoreFormat(),
+      storeFormat:
+          (json['storeFormat'] as String?)?.let(StoreFormat.fromString),
       storeOptions: json['storeOptions'] != null
           ? StoreOptions.fromJson(json['storeOptions'] as Map<String, dynamic>)
           : null,
@@ -3601,6 +4131,7 @@ class CreateAnnotationStoreResponse {
     final id = this.id;
     final name = this.name;
     final status = this.status;
+    final versionName = this.versionName;
     final reference = this.reference;
     final storeFormat = this.storeFormat;
     final storeOptions = this.storeOptions;
@@ -3608,10 +4139,82 @@ class CreateAnnotationStoreResponse {
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       'name': name,
-      'status': status.toValue(),
+      'status': status.value,
+      'versionName': versionName,
       if (reference != null) 'reference': reference,
-      if (storeFormat != null) 'storeFormat': storeFormat.toValue(),
+      if (storeFormat != null) 'storeFormat': storeFormat.value,
       if (storeOptions != null) 'storeOptions': storeOptions,
+    };
+  }
+}
+
+class CreateAnnotationStoreVersionResponse {
+  /// The time stamp for the creation of an annotation store version.
+  final DateTime creationTime;
+
+  /// A generated ID for the annotation store
+  final String id;
+
+  /// The name given to an annotation store version to distinguish it from other
+  /// versions.
+  final String name;
+
+  /// The status of a annotation store version.
+  final VersionStatus status;
+
+  /// The ID for the annotation store from which new versions are being created.
+  final String storeId;
+
+  /// The name given to an annotation store version to distinguish it from other
+  /// versions.
+  final String versionName;
+
+  /// The options for an annotation store version.
+  final VersionOptions? versionOptions;
+
+  CreateAnnotationStoreVersionResponse({
+    required this.creationTime,
+    required this.id,
+    required this.name,
+    required this.status,
+    required this.storeId,
+    required this.versionName,
+    this.versionOptions,
+  });
+
+  factory CreateAnnotationStoreVersionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreateAnnotationStoreVersionResponse(
+      creationTime:
+          nonNullableTimeStampFromJson(json['creationTime'] as Object),
+      id: json['id'] as String,
+      name: json['name'] as String,
+      status: VersionStatus.fromString((json['status'] as String)),
+      storeId: json['storeId'] as String,
+      versionName: json['versionName'] as String,
+      versionOptions: json['versionOptions'] != null
+          ? VersionOptions.fromJson(
+              json['versionOptions'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final creationTime = this.creationTime;
+    final id = this.id;
+    final name = this.name;
+    final status = this.status;
+    final storeId = this.storeId;
+    final versionName = this.versionName;
+    final versionOptions = this.versionOptions;
+    return {
+      'creationTime': iso8601ToJson(creationTime),
+      'id': id,
+      'name': name,
+      'status': status.value,
+      'storeId': storeId,
+      'versionName': versionName,
+      if (versionOptions != null) 'versionOptions': versionOptions,
     };
   }
 }
@@ -3635,7 +4238,7 @@ class CreateMultipartReadSetUploadResponse {
   /// The source's subject ID.
   final String subjectId;
 
-  /// he ID for the initiated multipart upload.
+  /// The ID for the initiated multipart upload.
   final String uploadId;
 
   /// The description of the read set.
@@ -3672,7 +4275,7 @@ class CreateMultipartReadSetUploadResponse {
       referenceArn: json['referenceArn'] as String,
       sampleId: json['sampleId'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      sourceFileType: (json['sourceFileType'] as String).toFileType(),
+      sourceFileType: FileType.fromString((json['sourceFileType'] as String)),
       subjectId: json['subjectId'] as String,
       uploadId: json['uploadId'] as String,
       description: json['description'] as String?,
@@ -3700,7 +4303,7 @@ class CreateMultipartReadSetUploadResponse {
       'referenceArn': referenceArn,
       'sampleId': sampleId,
       'sequenceStoreId': sequenceStoreId,
-      'sourceFileType': sourceFileType.toValue(),
+      'sourceFileType': sourceFileType.value,
       'subjectId': subjectId,
       'uploadId': uploadId,
       if (description != null) 'description': description,
@@ -3821,6 +4424,9 @@ class CreateSequenceStoreResponse {
   /// The store's description.
   final String? description;
 
+  /// The algorithm family of the ETag.
+  final ETagAlgorithmFamily? eTagAlgorithmFamily;
+
   /// An S3 location that is used to store files that have failed a direct upload.
   final String? fallbackLocation;
 
@@ -3835,6 +4441,7 @@ class CreateSequenceStoreResponse {
     required this.creationTime,
     required this.id,
     this.description,
+    this.eTagAlgorithmFamily,
     this.fallbackLocation,
     this.name,
     this.sseConfig,
@@ -3847,6 +4454,8 @@ class CreateSequenceStoreResponse {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       description: json['description'] as String?,
+      eTagAlgorithmFamily: (json['eTagAlgorithmFamily'] as String?)
+          ?.let(ETagAlgorithmFamily.fromString),
       fallbackLocation: json['fallbackLocation'] as String?,
       name: json['name'] as String?,
       sseConfig: json['sseConfig'] != null
@@ -3860,6 +4469,7 @@ class CreateSequenceStoreResponse {
     final creationTime = this.creationTime;
     final id = this.id;
     final description = this.description;
+    final eTagAlgorithmFamily = this.eTagAlgorithmFamily;
     final fallbackLocation = this.fallbackLocation;
     final name = this.name;
     final sseConfig = this.sseConfig;
@@ -3868,9 +4478,47 @@ class CreateSequenceStoreResponse {
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       if (description != null) 'description': description,
+      if (eTagAlgorithmFamily != null)
+        'eTagAlgorithmFamily': eTagAlgorithmFamily.value,
       if (fallbackLocation != null) 'fallbackLocation': fallbackLocation,
       if (name != null) 'name': name,
       if (sseConfig != null) 'sseConfig': sseConfig,
+    };
+  }
+}
+
+class CreateShareResponse {
+  /// The ID that HealthOmics generates for the share.
+  final String? shareId;
+
+  /// The name of the share.
+  final String? shareName;
+
+  /// The status of the share.
+  final ShareStatus? status;
+
+  CreateShareResponse({
+    this.shareId,
+    this.shareName,
+    this.status,
+  });
+
+  factory CreateShareResponse.fromJson(Map<String, dynamic> json) {
+    return CreateShareResponse(
+      shareId: json['shareId'] as String?,
+      shareName: json['shareName'] as String?,
+      status: (json['status'] as String?)?.let(ShareStatus.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final shareId = this.shareId;
+    final shareName = this.shareName;
+    final status = this.status;
+    return {
+      if (shareId != null) 'shareId': shareId,
+      if (shareName != null) 'shareName': shareName,
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3905,7 +4553,7 @@ class CreateVariantStoreResponse {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       name: json['name'] as String,
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
       reference: json['reference'] != null
           ? ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>)
           : null,
@@ -3922,7 +4570,7 @@ class CreateVariantStoreResponse {
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       'name': name,
-      'status': status.toValue(),
+      'status': status.value,
       if (reference != null) 'reference': reference,
     };
   }
@@ -3952,7 +4600,7 @@ class CreateWorkflowResponse {
     return CreateWorkflowResponse(
       arn: json['arn'] as String?,
       id: json['id'] as String?,
-      status: (json['status'] as String?)?.toWorkflowStatus(),
+      status: (json['status'] as String?)?.let(WorkflowStatus.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -3966,10 +4614,25 @@ class CreateWorkflowResponse {
     return {
       if (arn != null) 'arn': arn,
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
     };
   }
+}
+
+enum CreationType {
+  import('IMPORT'),
+  upload('UPLOAD'),
+  ;
+
+  final String value;
+
+  const CreationType(this.value);
+
+  static CreationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CreationType'));
 }
 
 class DeleteAnnotationStoreResponse {
@@ -3982,14 +4645,40 @@ class DeleteAnnotationStoreResponse {
 
   factory DeleteAnnotationStoreResponse.fromJson(Map<String, dynamic> json) {
     return DeleteAnnotationStoreResponse(
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      'status': status.toValue(),
+      'status': status.value,
+    };
+  }
+}
+
+class DeleteAnnotationStoreVersionsResponse {
+  /// Any errors that occur when attempting to delete an annotation store version.
+  final List<VersionDeleteError>? errors;
+
+  DeleteAnnotationStoreVersionsResponse({
+    this.errors,
+  });
+
+  factory DeleteAnnotationStoreVersionsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DeleteAnnotationStoreVersionsResponse(
+      errors: (json['errors'] as List?)
+          ?.nonNulls
+          .map((e) => VersionDeleteError.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final errors = this.errors;
+    return {
+      if (errors != null) 'errors': errors,
     };
   }
 }
@@ -4030,6 +4719,28 @@ class DeleteSequenceStoreResponse {
   }
 }
 
+class DeleteShareResponse {
+  /// The status of the share being deleted.
+  final ShareStatus? status;
+
+  DeleteShareResponse({
+    this.status,
+  });
+
+  factory DeleteShareResponse.fromJson(Map<String, dynamic> json) {
+    return DeleteShareResponse(
+      status: (json['status'] as String?)?.let(ShareStatus.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'status': status.value,
+    };
+  }
+}
+
 class DeleteVariantStoreResponse {
   /// The store's status.
   final StoreStatus status;
@@ -4040,39 +4751,106 @@ class DeleteVariantStoreResponse {
 
   factory DeleteVariantStoreResponse.fromJson(Map<String, dynamic> json) {
     return DeleteVariantStoreResponse(
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      'status': status.toValue(),
+      'status': status.value,
     };
   }
 }
 
+/// The entity tag (ETag) is a hash of the object representing its semantic
+/// content.
+class ETag {
+  /// The algorithm used to calculate the read set’s ETag(s).
+  final ETagAlgorithm? algorithm;
+
+  /// The ETag hash calculated on Source1 of the read set.
+  final String? source1;
+
+  /// The ETag hash calculated on Source2 of the read set.
+  final String? source2;
+
+  ETag({
+    this.algorithm,
+    this.source1,
+    this.source2,
+  });
+
+  factory ETag.fromJson(Map<String, dynamic> json) {
+    return ETag(
+      algorithm: (json['algorithm'] as String?)?.let(ETagAlgorithm.fromString),
+      source1: json['source1'] as String?,
+      source2: json['source2'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final algorithm = this.algorithm;
+    final source1 = this.source1;
+    final source2 = this.source2;
+    return {
+      if (algorithm != null) 'algorithm': algorithm.value,
+      if (source1 != null) 'source1': source1,
+      if (source2 != null) 'source2': source2,
+    };
+  }
+}
+
+enum ETagAlgorithm {
+  fastqMD5up('FASTQ_MD5up'),
+  bamMD5up('BAM_MD5up'),
+  cramMD5up('CRAM_MD5up'),
+  fastqSHA256up('FASTQ_SHA256up'),
+  bamSHA256up('BAM_SHA256up'),
+  cramSHA256up('CRAM_SHA256up'),
+  fastqSHA512up('FASTQ_SHA512up'),
+  bamSHA512up('BAM_SHA512up'),
+  cramSHA512up('CRAM_SHA512up'),
+  ;
+
+  final String value;
+
+  const ETagAlgorithm(this.value);
+
+  static ETagAlgorithm fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ETagAlgorithm'));
+}
+
+enum ETagAlgorithmFamily {
+  mD5up('MD5up'),
+  sHA256up('SHA256up'),
+  sHA512up('SHA512up'),
+  ;
+
+  final String value;
+
+  const ETagAlgorithmFamily(this.value);
+
+  static ETagAlgorithmFamily fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ETagAlgorithmFamily'));
+}
+
 enum EncryptionType {
-  kms,
-}
+  kms('KMS'),
+  ;
 
-extension EncryptionTypeValueExtension on EncryptionType {
-  String toValue() {
-    switch (this) {
-      case EncryptionType.kms:
-        return 'KMS';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionTypeFromString on String {
-  EncryptionType toEncryptionType() {
-    switch (this) {
-      case 'KMS':
-        return EncryptionType.kms;
-    }
-    throw Exception('$this is not known in enum EncryptionType');
-  }
+  const EncryptionType(this.value);
+
+  static EncryptionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionType'));
 }
 
 /// A read set.
@@ -4112,7 +4890,7 @@ class ExportReadSetDetail {
   factory ExportReadSetDetail.fromJson(Map<String, dynamic> json) {
     return ExportReadSetDetail(
       id: json['id'] as String,
-      status: (json['status'] as String).toReadSetExportJobItemStatus(),
+      status: ReadSetExportJobItemStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String?,
     );
   }
@@ -4123,7 +4901,7 @@ class ExportReadSetDetail {
     final statusMessage = this.statusMessage;
     return {
       'id': id,
-      'status': status.toValue(),
+      'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
     };
   }
@@ -4153,7 +4931,7 @@ class ExportReadSetFilter {
     return {
       if (createdAfter != null) 'createdAfter': iso8601ToJson(createdAfter),
       if (createdBefore != null) 'createdBefore': iso8601ToJson(createdBefore),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -4194,7 +4972,7 @@ class ExportReadSetJobDetail {
       destination: json['destination'] as String,
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetExportJobStatus(),
+      status: ReadSetExportJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
     );
   }
@@ -4211,7 +4989,7 @@ class ExportReadSetJobDetail {
       'destination': destination,
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
     };
@@ -4226,12 +5004,16 @@ class FileInformation {
   /// The file's part size.
   final int? partSize;
 
+  /// The S3 URI metadata of a sequence store.
+  final ReadSetS3Access? s3Access;
+
   /// The file's total parts.
   final int? totalParts;
 
   FileInformation({
     this.contentLength,
     this.partSize,
+    this.s3Access,
     this.totalParts,
   });
 
@@ -4239,6 +5021,9 @@ class FileInformation {
     return FileInformation(
       contentLength: json['contentLength'] as int?,
       partSize: json['partSize'] as int?,
+      s3Access: json['s3Access'] != null
+          ? ReadSetS3Access.fromJson(json['s3Access'] as Map<String, dynamic>)
+          : null,
       totalParts: json['totalParts'] as int?,
     );
   }
@@ -4246,45 +5031,62 @@ class FileInformation {
   Map<String, dynamic> toJson() {
     final contentLength = this.contentLength;
     final partSize = this.partSize;
+    final s3Access = this.s3Access;
     final totalParts = this.totalParts;
     return {
       if (contentLength != null) 'contentLength': contentLength,
       if (partSize != null) 'partSize': partSize,
+      if (s3Access != null) 's3Access': s3Access,
       if (totalParts != null) 'totalParts': totalParts,
     };
   }
 }
 
 enum FileType {
-  fastq,
-  bam,
-  cram,
+  fastq('FASTQ'),
+  bam('BAM'),
+  cram('CRAM'),
+  ubam('UBAM'),
+  ;
+
+  final String value;
+
+  const FileType(this.value);
+
+  static FileType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FileType'));
 }
 
-extension FileTypeValueExtension on FileType {
-  String toValue() {
-    switch (this) {
-      case FileType.fastq:
-        return 'FASTQ';
-      case FileType.bam:
-        return 'BAM';
-      case FileType.cram:
-        return 'CRAM';
-    }
-  }
-}
+/// Use filters to return a subset of resources. You can define filters for
+/// specific parameters, such as the resource status.
+class Filter {
+  /// Filter based on the Amazon Resource Number (ARN) of the resource. You can
+  /// specify up to 10 values.
+  final List<String>? resourceArns;
 
-extension FileTypeFromString on String {
-  FileType toFileType() {
-    switch (this) {
-      case 'FASTQ':
-        return FileType.fastq;
-      case 'BAM':
-        return FileType.bam;
-      case 'CRAM':
-        return FileType.cram;
-    }
-    throw Exception('$this is not known in enum FileType');
+  /// Filter based on the resource status. You can specify up to 10 values.
+  final List<ShareStatus>? status;
+
+  /// The type of resources to be filtered. You can specify one or more of the
+  /// resource types.
+  final List<ShareResourceType>? type;
+
+  Filter({
+    this.resourceArns,
+    this.status,
+    this.type,
+  });
+
+  Map<String, dynamic> toJson() {
+    final resourceArns = this.resourceArns;
+    final status = this.status;
+    final type = this.type;
+    return {
+      if (resourceArns != null) 'resourceArns': resourceArns,
+      if (status != null) 'status': status.map((e) => e.value).toList(),
+      if (type != null) 'type': type.map((e) => e.value).toList(),
+    };
   }
 }
 
@@ -4323,51 +5125,22 @@ class FormatOptions {
 }
 
 enum FormatToHeaderKey {
-  chr,
-  start,
-  end,
-  ref,
-  alt,
-  pos,
-}
+  chr('CHR'),
+  start('START'),
+  end('END'),
+  ref('REF'),
+  alt('ALT'),
+  pos('POS'),
+  ;
 
-extension FormatToHeaderKeyValueExtension on FormatToHeaderKey {
-  String toValue() {
-    switch (this) {
-      case FormatToHeaderKey.chr:
-        return 'CHR';
-      case FormatToHeaderKey.start:
-        return 'START';
-      case FormatToHeaderKey.end:
-        return 'END';
-      case FormatToHeaderKey.ref:
-        return 'REF';
-      case FormatToHeaderKey.alt:
-        return 'ALT';
-      case FormatToHeaderKey.pos:
-        return 'POS';
-    }
-  }
-}
+  final String value;
 
-extension FormatToHeaderKeyFromString on String {
-  FormatToHeaderKey toFormatToHeaderKey() {
-    switch (this) {
-      case 'CHR':
-        return FormatToHeaderKey.chr;
-      case 'START':
-        return FormatToHeaderKey.start;
-      case 'END':
-        return FormatToHeaderKey.end;
-      case 'REF':
-        return FormatToHeaderKey.ref;
-      case 'ALT':
-        return FormatToHeaderKey.alt;
-      case 'POS':
-        return FormatToHeaderKey.pos;
-    }
-    throw Exception('$this is not known in enum FormatToHeaderKey');
-  }
+  const FormatToHeaderKey(this.value);
+
+  static FormatToHeaderKey fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FormatToHeaderKey'));
 }
 
 class GetAnnotationImportResponse {
@@ -4402,6 +5175,9 @@ class GetAnnotationImportResponse {
   /// When the job was updated.
   final DateTime updateTime;
 
+  /// The name of the annotation store version.
+  final String versionName;
+
   /// The annotation schema generated by the parsed annotation data.
   final Map<String, String>? annotationFields;
 
@@ -4417,6 +5193,7 @@ class GetAnnotationImportResponse {
     required this.status,
     required this.statusMessage,
     required this.updateTime,
+    required this.versionName,
     this.annotationFields,
   });
 
@@ -4431,15 +5208,16 @@ class GetAnnotationImportResponse {
           FormatOptions.fromJson(json['formatOptions'] as Map<String, dynamic>),
       id: json['id'] as String,
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               AnnotationImportItemDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       roleArn: json['roleArn'] as String,
       runLeftNormalization: json['runLeftNormalization'] as bool,
-      status: (json['status'] as String).toJobStatus(),
+      status: JobStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String,
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      versionName: json['versionName'] as String,
       annotationFields: (json['annotationFields'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -4457,6 +5235,7 @@ class GetAnnotationImportResponse {
     final status = this.status;
     final statusMessage = this.statusMessage;
     final updateTime = this.updateTime;
+    final versionName = this.versionName;
     final annotationFields = this.annotationFields;
     return {
       'completionTime': iso8601ToJson(completionTime),
@@ -4467,9 +5246,10 @@ class GetAnnotationImportResponse {
       'items': items,
       'roleArn': roleArn,
       'runLeftNormalization': runLeftNormalization,
-      'status': status.toValue(),
+      'status': status.value,
       'statusMessage': statusMessage,
       'updateTime': iso8601ToJson(updateTime),
+      'versionName': versionName,
       if (annotationFields != null) 'annotationFields': annotationFields,
     };
   }
@@ -4487,6 +5267,9 @@ class GetAnnotationStoreResponse {
 
   /// The store's name.
   final String name;
+
+  /// An integer indicating how many versions of an annotation store exist.
+  final int numVersions;
 
   /// The store's genome reference.
   final ReferenceItem reference;
@@ -4523,6 +5306,7 @@ class GetAnnotationStoreResponse {
     required this.description,
     required this.id,
     required this.name,
+    required this.numVersions,
     required this.reference,
     required this.sseConfig,
     required this.status,
@@ -4542,17 +5326,19 @@ class GetAnnotationStoreResponse {
       description: json['description'] as String,
       id: json['id'] as String,
       name: json['name'] as String,
+      numVersions: json['numVersions'] as int,
       reference:
           ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>),
       sseConfig: SseConfig.fromJson(json['sseConfig'] as Map<String, dynamic>),
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String,
       storeArn: json['storeArn'] as String,
       storeSizeBytes: json['storeSizeBytes'] as int,
       tags: (json['tags'] as Map<String, dynamic>)
           .map((k, e) => MapEntry(k, e as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
-      storeFormat: (json['storeFormat'] as String?)?.toStoreFormat(),
+      storeFormat:
+          (json['storeFormat'] as String?)?.let(StoreFormat.fromString),
       storeOptions: json['storeOptions'] != null
           ? StoreOptions.fromJson(json['storeOptions'] as Map<String, dynamic>)
           : null,
@@ -4564,6 +5350,7 @@ class GetAnnotationStoreResponse {
     final description = this.description;
     final id = this.id;
     final name = this.name;
+    final numVersions = this.numVersions;
     final reference = this.reference;
     final sseConfig = this.sseConfig;
     final status = this.status;
@@ -4579,16 +5366,129 @@ class GetAnnotationStoreResponse {
       'description': description,
       'id': id,
       'name': name,
+      'numVersions': numVersions,
       'reference': reference,
       'sseConfig': sseConfig,
-      'status': status.toValue(),
+      'status': status.value,
       'statusMessage': statusMessage,
       'storeArn': storeArn,
       'storeSizeBytes': storeSizeBytes,
       'tags': tags,
       'updateTime': iso8601ToJson(updateTime),
-      if (storeFormat != null) 'storeFormat': storeFormat.toValue(),
+      if (storeFormat != null) 'storeFormat': storeFormat.value,
       if (storeOptions != null) 'storeOptions': storeOptions,
+    };
+  }
+}
+
+class GetAnnotationStoreVersionResponse {
+  /// The time stamp for when an annotation store version was created.
+  final DateTime creationTime;
+
+  /// The description for an annotation store version.
+  final String description;
+
+  /// The annotation store version ID.
+  final String id;
+
+  /// The name of the annotation store.
+  final String name;
+
+  /// The status of an annotation store version.
+  final VersionStatus status;
+
+  /// The status of an annotation store version.
+  final String statusMessage;
+
+  /// The store ID for annotation store version.
+  final String storeId;
+
+  /// Any tags associated with an annotation store version.
+  final Map<String, String> tags;
+
+  /// The time stamp for when an annotation store version was updated.
+  final DateTime updateTime;
+
+  /// The Arn for the annotation store.
+  final String versionArn;
+
+  /// The name given to an annotation store version to distinguish it from others.
+  final String versionName;
+
+  /// The size of the annotation store version in Bytes.
+  final int versionSizeBytes;
+
+  /// The options for an annotation store version.
+  final VersionOptions? versionOptions;
+
+  GetAnnotationStoreVersionResponse({
+    required this.creationTime,
+    required this.description,
+    required this.id,
+    required this.name,
+    required this.status,
+    required this.statusMessage,
+    required this.storeId,
+    required this.tags,
+    required this.updateTime,
+    required this.versionArn,
+    required this.versionName,
+    required this.versionSizeBytes,
+    this.versionOptions,
+  });
+
+  factory GetAnnotationStoreVersionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetAnnotationStoreVersionResponse(
+      creationTime:
+          nonNullableTimeStampFromJson(json['creationTime'] as Object),
+      description: json['description'] as String,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      status: VersionStatus.fromString((json['status'] as String)),
+      statusMessage: json['statusMessage'] as String,
+      storeId: json['storeId'] as String,
+      tags: (json['tags'] as Map<String, dynamic>)
+          .map((k, e) => MapEntry(k, e as String)),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      versionArn: json['versionArn'] as String,
+      versionName: json['versionName'] as String,
+      versionSizeBytes: json['versionSizeBytes'] as int,
+      versionOptions: json['versionOptions'] != null
+          ? VersionOptions.fromJson(
+              json['versionOptions'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final creationTime = this.creationTime;
+    final description = this.description;
+    final id = this.id;
+    final name = this.name;
+    final status = this.status;
+    final statusMessage = this.statusMessage;
+    final storeId = this.storeId;
+    final tags = this.tags;
+    final updateTime = this.updateTime;
+    final versionArn = this.versionArn;
+    final versionName = this.versionName;
+    final versionSizeBytes = this.versionSizeBytes;
+    final versionOptions = this.versionOptions;
+    return {
+      'creationTime': iso8601ToJson(creationTime),
+      'description': description,
+      'id': id,
+      'name': name,
+      'status': status.value,
+      'statusMessage': statusMessage,
+      'storeId': storeId,
+      'tags': tags,
+      'updateTime': iso8601ToJson(updateTime),
+      'versionArn': versionArn,
+      'versionName': versionName,
+      'versionSizeBytes': versionSizeBytes,
+      if (versionOptions != null) 'versionOptions': versionOptions,
     };
   }
 }
@@ -4631,10 +5531,10 @@ class GetReadSetActivationJobResponse {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetActivationJobStatus(),
+      status: ReadSetActivationJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
       sources: (json['sources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ActivateReadSetSourceItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4654,7 +5554,7 @@ class GetReadSetActivationJobResponse {
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
       if (sources != null) 'sources': sources,
@@ -4706,10 +5606,10 @@ class GetReadSetExportJobResponse {
       destination: json['destination'] as String,
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetExportJobStatus(),
+      status: ReadSetExportJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
       readSets: (json['readSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExportReadSetDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       statusMessage: json['statusMessage'] as String?,
@@ -4730,7 +5630,7 @@ class GetReadSetExportJobResponse {
       'destination': destination,
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
       if (readSets != null) 'readSets': readSets,
@@ -4783,11 +5683,11 @@ class GetReadSetImportJobResponse {
       roleArn: json['roleArn'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
       sources: (json['sources'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               ImportReadSetSourceItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String).toReadSetImportJobStatus(),
+      status: ReadSetImportJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
       statusMessage: json['statusMessage'] as String?,
     );
@@ -4808,7 +5708,7 @@ class GetReadSetImportJobResponse {
       'roleArn': roleArn,
       'sequenceStoreId': sequenceStoreId,
       'sources': sources,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
       if (statusMessage != null) 'statusMessage': statusMessage,
@@ -4835,8 +5735,15 @@ class GetReadSetMetadataResponse {
   /// The read set's status.
   final ReadSetStatus status;
 
+  /// The creation type of the read set.
+  final CreationType? creationType;
+
   /// The read set's description.
   final String? description;
+
+  /// The entity tag (ETag) is a hash of the object meant to represent its
+  /// semantic content.
+  final ETag? etag;
 
   /// The read set's files.
   final ReadSetFiles? files;
@@ -4867,7 +5774,9 @@ class GetReadSetMetadataResponse {
     required this.id,
     required this.sequenceStoreId,
     required this.status,
+    this.creationType,
     this.description,
+    this.etag,
     this.files,
     this.name,
     this.referenceArn,
@@ -4882,11 +5791,16 @@ class GetReadSetMetadataResponse {
       arn: json['arn'] as String,
       creationTime:
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
-      fileType: (json['fileType'] as String).toFileType(),
+      fileType: FileType.fromString((json['fileType'] as String)),
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetStatus(),
+      status: ReadSetStatus.fromString((json['status'] as String)),
+      creationType:
+          (json['creationType'] as String?)?.let(CreationType.fromString),
       description: json['description'] as String?,
+      etag: json['etag'] != null
+          ? ETag.fromJson(json['etag'] as Map<String, dynamic>)
+          : null,
       files: json['files'] != null
           ? ReadSetFiles.fromJson(json['files'] as Map<String, dynamic>)
           : null,
@@ -4909,7 +5823,9 @@ class GetReadSetMetadataResponse {
     final id = this.id;
     final sequenceStoreId = this.sequenceStoreId;
     final status = this.status;
+    final creationType = this.creationType;
     final description = this.description;
+    final etag = this.etag;
     final files = this.files;
     final name = this.name;
     final referenceArn = this.referenceArn;
@@ -4920,11 +5836,13 @@ class GetReadSetMetadataResponse {
     return {
       'arn': arn,
       'creationTime': iso8601ToJson(creationTime),
-      'fileType': fileType.toValue(),
+      'fileType': fileType.value,
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
+      if (creationType != null) 'creationType': creationType.value,
       if (description != null) 'description': description,
+      if (etag != null) 'etag': etag,
       if (files != null) 'files': files,
       if (name != null) 'name': name,
       if (referenceArn != null) 'referenceArn': referenceArn,
@@ -4997,11 +5915,11 @@ class GetReferenceImportJobResponse {
       referenceStoreId: json['referenceStoreId'] as String,
       roleArn: json['roleArn'] as String,
       sources: (json['sources'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               ImportReferenceSourceItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String).toReferenceImportJobStatus(),
+      status: ReferenceImportJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
       statusMessage: json['statusMessage'] as String?,
     );
@@ -5022,7 +5940,7 @@ class GetReferenceImportJobResponse {
       'referenceStoreId': referenceStoreId,
       'roleArn': roleArn,
       'sources': sources,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
       if (statusMessage != null) 'statusMessage': statusMessage,
@@ -5088,7 +6006,7 @@ class GetReferenceMetadataResponse {
           ? ReferenceFiles.fromJson(json['files'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toReferenceStatus(),
+      status: (json['status'] as String?)?.let(ReferenceStatus.fromString),
     );
   }
 
@@ -5113,7 +6031,7 @@ class GetReferenceMetadataResponse {
       if (description != null) 'description': description,
       if (files != null) 'files': files,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5289,11 +6207,17 @@ class GetRunResponse {
   /// The run's digest.
   final String? digest;
 
+  /// The reason a run has failed.
+  final String? failureReason;
+
   /// The run's ID.
   final String? id;
 
   /// The run's log level.
   final RunLogLevel? logLevel;
+
+  /// The location of the run log.
+  final RunLogLocation? logLocation;
 
   /// The run's name.
   final String? name;
@@ -5310,6 +6234,9 @@ class GetRunResponse {
   /// The run's resource digests.
   final Map<String, String>? resourceDigests;
 
+  /// The run's retention mode.
+  final RunRetentionMode? retentionMode;
+
   /// The run's service role ARN.
   final String? roleArn;
 
@@ -5318,6 +6245,9 @@ class GetRunResponse {
 
   /// The run's ID.
   final String? runId;
+
+  /// The destination for workflow outputs.
+  final String? runOutputUri;
 
   /// When the run started.
   final DateTime? startTime;
@@ -5334,14 +6264,25 @@ class GetRunResponse {
   /// The run's stop time.
   final DateTime? stopTime;
 
-  /// The run's storage capacity in gigabytes.
+  /// The run's storage capacity in gibibytes. For dynamic storage, after the run
+  /// has completed, this value is the maximum amount of storage used during the
+  /// run.
   final int? storageCapacity;
+
+  /// The run's storage type.
+  final StorageType? storageType;
 
   /// The run's tags.
   final Map<String, String>? tags;
 
+  /// The universally unique identifier for a run.
+  final String? uuid;
+
   /// The run's workflow ID.
   final String? workflowId;
+
+  /// The ID of the workflow owner.
+  final String? workflowOwnerId;
 
   /// The run's workflow type.
   final WorkflowType? workflowType;
@@ -5352,36 +6293,48 @@ class GetRunResponse {
     this.creationTime,
     this.definition,
     this.digest,
+    this.failureReason,
     this.id,
     this.logLevel,
+    this.logLocation,
     this.name,
     this.outputUri,
     this.parameters,
     this.priority,
     this.resourceDigests,
+    this.retentionMode,
     this.roleArn,
     this.runGroupId,
     this.runId,
+    this.runOutputUri,
     this.startTime,
     this.startedBy,
     this.status,
     this.statusMessage,
     this.stopTime,
     this.storageCapacity,
+    this.storageType,
     this.tags,
+    this.uuid,
     this.workflowId,
+    this.workflowOwnerId,
     this.workflowType,
   });
 
   factory GetRunResponse.fromJson(Map<String, dynamic> json) {
     return GetRunResponse(
-      accelerators: (json['accelerators'] as String?)?.toAccelerators(),
+      accelerators:
+          (json['accelerators'] as String?)?.let(Accelerators.fromString),
       arn: json['arn'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       definition: json['definition'] as String?,
       digest: json['digest'] as String?,
+      failureReason: json['failureReason'] as String?,
       id: json['id'] as String?,
-      logLevel: (json['logLevel'] as String?)?.toRunLogLevel(),
+      logLevel: (json['logLevel'] as String?)?.let(RunLogLevel.fromString),
+      logLocation: json['logLocation'] != null
+          ? RunLogLocation.fromJson(json['logLocation'] as Map<String, dynamic>)
+          : null,
       name: json['name'] as String?,
       outputUri: json['outputUri'] as String?,
       parameters: json['parameters'] != null
@@ -5390,19 +6343,27 @@ class GetRunResponse {
       priority: json['priority'] as int?,
       resourceDigests: (json['resourceDigests'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
+      retentionMode:
+          (json['retentionMode'] as String?)?.let(RunRetentionMode.fromString),
       roleArn: json['roleArn'] as String?,
       runGroupId: json['runGroupId'] as String?,
       runId: json['runId'] as String?,
+      runOutputUri: json['runOutputUri'] as String?,
       startTime: timeStampFromJson(json['startTime']),
       startedBy: json['startedBy'] as String?,
-      status: (json['status'] as String?)?.toRunStatus(),
+      status: (json['status'] as String?)?.let(RunStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
       stopTime: timeStampFromJson(json['stopTime']),
       storageCapacity: json['storageCapacity'] as int?,
+      storageType:
+          (json['storageType'] as String?)?.let(StorageType.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
+      uuid: json['uuid'] as String?,
       workflowId: json['workflowId'] as String?,
-      workflowType: (json['workflowType'] as String?)?.toWorkflowType(),
+      workflowOwnerId: json['workflowOwnerId'] as String?,
+      workflowType:
+          (json['workflowType'] as String?)?.let(WorkflowType.fromString),
     );
   }
 
@@ -5412,50 +6373,64 @@ class GetRunResponse {
     final creationTime = this.creationTime;
     final definition = this.definition;
     final digest = this.digest;
+    final failureReason = this.failureReason;
     final id = this.id;
     final logLevel = this.logLevel;
+    final logLocation = this.logLocation;
     final name = this.name;
     final outputUri = this.outputUri;
     final parameters = this.parameters;
     final priority = this.priority;
     final resourceDigests = this.resourceDigests;
+    final retentionMode = this.retentionMode;
     final roleArn = this.roleArn;
     final runGroupId = this.runGroupId;
     final runId = this.runId;
+    final runOutputUri = this.runOutputUri;
     final startTime = this.startTime;
     final startedBy = this.startedBy;
     final status = this.status;
     final statusMessage = this.statusMessage;
     final stopTime = this.stopTime;
     final storageCapacity = this.storageCapacity;
+    final storageType = this.storageType;
     final tags = this.tags;
+    final uuid = this.uuid;
     final workflowId = this.workflowId;
+    final workflowOwnerId = this.workflowOwnerId;
     final workflowType = this.workflowType;
     return {
-      if (accelerators != null) 'accelerators': accelerators.toValue(),
+      if (accelerators != null) 'accelerators': accelerators.value,
       if (arn != null) 'arn': arn,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (definition != null) 'definition': definition,
       if (digest != null) 'digest': digest,
+      if (failureReason != null) 'failureReason': failureReason,
       if (id != null) 'id': id,
-      if (logLevel != null) 'logLevel': logLevel.toValue(),
+      if (logLevel != null) 'logLevel': logLevel.value,
+      if (logLocation != null) 'logLocation': logLocation,
       if (name != null) 'name': name,
       if (outputUri != null) 'outputUri': outputUri,
       if (parameters != null) 'parameters': parameters,
       if (priority != null) 'priority': priority,
       if (resourceDigests != null) 'resourceDigests': resourceDigests,
+      if (retentionMode != null) 'retentionMode': retentionMode.value,
       if (roleArn != null) 'roleArn': roleArn,
       if (runGroupId != null) 'runGroupId': runGroupId,
       if (runId != null) 'runId': runId,
+      if (runOutputUri != null) 'runOutputUri': runOutputUri,
       if (startTime != null) 'startTime': iso8601ToJson(startTime),
       if (startedBy != null) 'startedBy': startedBy,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
       if (stopTime != null) 'stopTime': iso8601ToJson(stopTime),
       if (storageCapacity != null) 'storageCapacity': storageCapacity,
+      if (storageType != null) 'storageType': storageType.value,
       if (tags != null) 'tags': tags,
+      if (uuid != null) 'uuid': uuid,
       if (workflowId != null) 'workflowId': workflowId,
-      if (workflowType != null) 'workflowType': workflowType.toValue(),
+      if (workflowOwnerId != null) 'workflowOwnerId': workflowOwnerId,
+      if (workflowType != null) 'workflowType': workflowType.value,
     };
   }
 }
@@ -5467,8 +6442,14 @@ class GetRunTaskResponse {
   /// When the task was created.
   final DateTime? creationTime;
 
+  /// The reason a task has failed.
+  final String? failureReason;
+
   /// The number of Graphics Processing Units (GPU) specified in the task.
   final int? gpus;
+
+  /// The instance type for a task.
+  final String? instanceType;
 
   /// The task's log stream.
   final String? logStream;
@@ -5497,7 +6478,9 @@ class GetRunTaskResponse {
   GetRunTaskResponse({
     this.cpus,
     this.creationTime,
+    this.failureReason,
     this.gpus,
+    this.instanceType,
     this.logStream,
     this.memory,
     this.name,
@@ -5512,12 +6495,14 @@ class GetRunTaskResponse {
     return GetRunTaskResponse(
       cpus: json['cpus'] as int?,
       creationTime: timeStampFromJson(json['creationTime']),
+      failureReason: json['failureReason'] as String?,
       gpus: json['gpus'] as int?,
+      instanceType: json['instanceType'] as String?,
       logStream: json['logStream'] as String?,
       memory: json['memory'] as int?,
       name: json['name'] as String?,
       startTime: timeStampFromJson(json['startTime']),
-      status: (json['status'] as String?)?.toTaskStatus(),
+      status: (json['status'] as String?)?.let(TaskStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
       stopTime: timeStampFromJson(json['stopTime']),
       taskId: json['taskId'] as String?,
@@ -5527,7 +6512,9 @@ class GetRunTaskResponse {
   Map<String, dynamic> toJson() {
     final cpus = this.cpus;
     final creationTime = this.creationTime;
+    final failureReason = this.failureReason;
     final gpus = this.gpus;
+    final instanceType = this.instanceType;
     final logStream = this.logStream;
     final memory = this.memory;
     final name = this.name;
@@ -5539,12 +6526,14 @@ class GetRunTaskResponse {
     return {
       if (cpus != null) 'cpus': cpus,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
+      if (failureReason != null) 'failureReason': failureReason,
       if (gpus != null) 'gpus': gpus,
+      if (instanceType != null) 'instanceType': instanceType,
       if (logStream != null) 'logStream': logStream,
       if (memory != null) 'memory': memory,
       if (name != null) 'name': name,
       if (startTime != null) 'startTime': iso8601ToJson(startTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
       if (stopTime != null) 'stopTime': iso8601ToJson(stopTime),
       if (taskId != null) 'taskId': taskId,
@@ -5565,11 +6554,18 @@ class GetSequenceStoreResponse {
   /// The store's description.
   final String? description;
 
+  /// The algorithm family of the ETag.
+  final ETagAlgorithmFamily? eTagAlgorithmFamily;
+
   /// An S3 location that is used to store files that have failed a direct upload.
   final String? fallbackLocation;
 
   /// The store's name.
   final String? name;
+
+  /// The S3 metadata of a sequence store, including the ARN and S3 URI of the S3
+  /// bucket.
+  final SequenceStoreS3Access? s3Access;
 
   /// The store's server-side encryption (SSE) settings.
   final SseConfig? sseConfig;
@@ -5579,8 +6575,10 @@ class GetSequenceStoreResponse {
     required this.creationTime,
     required this.id,
     this.description,
+    this.eTagAlgorithmFamily,
     this.fallbackLocation,
     this.name,
+    this.s3Access,
     this.sseConfig,
   });
 
@@ -5591,8 +6589,14 @@ class GetSequenceStoreResponse {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       description: json['description'] as String?,
+      eTagAlgorithmFamily: (json['eTagAlgorithmFamily'] as String?)
+          ?.let(ETagAlgorithmFamily.fromString),
       fallbackLocation: json['fallbackLocation'] as String?,
       name: json['name'] as String?,
+      s3Access: json['s3Access'] != null
+          ? SequenceStoreS3Access.fromJson(
+              json['s3Access'] as Map<String, dynamic>)
+          : null,
       sseConfig: json['sseConfig'] != null
           ? SseConfig.fromJson(json['sseConfig'] as Map<String, dynamic>)
           : null,
@@ -5604,17 +6608,47 @@ class GetSequenceStoreResponse {
     final creationTime = this.creationTime;
     final id = this.id;
     final description = this.description;
+    final eTagAlgorithmFamily = this.eTagAlgorithmFamily;
     final fallbackLocation = this.fallbackLocation;
     final name = this.name;
+    final s3Access = this.s3Access;
     final sseConfig = this.sseConfig;
     return {
       'arn': arn,
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       if (description != null) 'description': description,
+      if (eTagAlgorithmFamily != null)
+        'eTagAlgorithmFamily': eTagAlgorithmFamily.value,
       if (fallbackLocation != null) 'fallbackLocation': fallbackLocation,
       if (name != null) 'name': name,
+      if (s3Access != null) 's3Access': s3Access,
       if (sseConfig != null) 'sseConfig': sseConfig,
+    };
+  }
+}
+
+class GetShareResponse {
+  /// A resource share details object. The object includes the status, the
+  /// resourceArn, and ownerId.
+  final ShareDetails? share;
+
+  GetShareResponse({
+    this.share,
+  });
+
+  factory GetShareResponse.fromJson(Map<String, dynamic> json) {
+    return GetShareResponse(
+      share: json['share'] != null
+          ? ShareDetails.fromJson(json['share'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final share = this.share;
+    return {
+      if (share != null) 'share': share,
     };
   }
 }
@@ -5674,13 +6708,13 @@ class GetVariantImportResponse {
       destinationName: json['destinationName'] as String,
       id: json['id'] as String,
       items: (json['items'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               VariantImportItemDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       roleArn: json['roleArn'] as String,
       runLeftNormalization: json['runLeftNormalization'] as bool,
-      status: (json['status'] as String).toJobStatus(),
+      status: JobStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String,
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       annotationFields: (json['annotationFields'] as Map<String, dynamic>?)
@@ -5708,7 +6742,7 @@ class GetVariantImportResponse {
       'items': items,
       'roleArn': roleArn,
       'runLeftNormalization': runLeftNormalization,
-      'status': status.toValue(),
+      'status': status.value,
       'statusMessage': statusMessage,
       'updateTime': iso8601ToJson(updateTime),
       if (annotationFields != null) 'annotationFields': annotationFields,
@@ -5780,7 +6814,7 @@ class GetVariantStoreResponse {
       reference:
           ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>),
       sseConfig: SseConfig.fromJson(json['sseConfig'] as Map<String, dynamic>),
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String,
       storeArn: json['storeArn'] as String,
       storeSizeBytes: json['storeSizeBytes'] as int,
@@ -5810,7 +6844,7 @@ class GetVariantStoreResponse {
       'name': name,
       'reference': reference,
       'sseConfig': sseConfig,
-      'status': status.toValue(),
+      'status': status.value,
       'statusMessage': statusMessage,
       'storeArn': storeArn,
       'storeSizeBytes': storeSizeBytes,
@@ -5863,7 +6897,7 @@ class GetWorkflowResponse {
   /// The workflow's status message.
   final String? statusMessage;
 
-  /// The workflow's storage capacity in gigabytes.
+  /// The workflow's storage capacity in gibibytes.
   final int? storageCapacity;
 
   /// The workflow's tags.
@@ -5894,13 +6928,14 @@ class GetWorkflowResponse {
 
   factory GetWorkflowResponse.fromJson(Map<String, dynamic> json) {
     return GetWorkflowResponse(
-      accelerators: (json['accelerators'] as String?)?.toAccelerators(),
+      accelerators:
+          (json['accelerators'] as String?)?.let(Accelerators.fromString),
       arn: json['arn'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       definition: json['definition'] as String?,
       description: json['description'] as String?,
       digest: json['digest'] as String?,
-      engine: (json['engine'] as String?)?.toWorkflowEngine(),
+      engine: (json['engine'] as String?)?.let(WorkflowEngine.fromString),
       id: json['id'] as String?,
       main: json['main'] as String?,
       metadata: (json['metadata'] as Map<String, dynamic>?)
@@ -5909,12 +6944,12 @@ class GetWorkflowResponse {
       parameterTemplate: (json['parameterTemplate'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(
               k, WorkflowParameter.fromJson(e as Map<String, dynamic>))),
-      status: (json['status'] as String?)?.toWorkflowStatus(),
+      status: (json['status'] as String?)?.let(WorkflowStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
       storageCapacity: json['storageCapacity'] as int?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      type: (json['type'] as String?)?.toWorkflowType(),
+      type: (json['type'] as String?)?.let(WorkflowType.fromString),
     );
   }
 
@@ -5937,23 +6972,23 @@ class GetWorkflowResponse {
     final tags = this.tags;
     final type = this.type;
     return {
-      if (accelerators != null) 'accelerators': accelerators.toValue(),
+      if (accelerators != null) 'accelerators': accelerators.value,
       if (arn != null) 'arn': arn,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (definition != null) 'definition': definition,
       if (description != null) 'description': description,
       if (digest != null) 'digest': digest,
-      if (engine != null) 'engine': engine.toValue(),
+      if (engine != null) 'engine': engine.value,
       if (id != null) 'id': id,
       if (main != null) 'main': main,
       if (metadata != null) 'metadata': metadata,
       if (name != null) 'name': name,
       if (parameterTemplate != null) 'parameterTemplate': parameterTemplate,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
       if (storageCapacity != null) 'storageCapacity': storageCapacity,
       if (tags != null) 'tags': tags,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -5982,7 +7017,7 @@ class ImportReadSetFilter {
     return {
       if (createdAfter != null) 'createdAfter': iso8601ToJson(createdAfter),
       if (createdBefore != null) 'createdBefore': iso8601ToJson(createdBefore),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6023,7 +7058,7 @@ class ImportReadSetJobItem {
       id: json['id'] as String,
       roleArn: json['roleArn'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetImportJobStatus(),
+      status: ReadSetImportJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
     );
   }
@@ -6040,7 +7075,7 @@ class ImportReadSetJobItem {
       'id': id,
       'roleArn': roleArn,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
     };
@@ -6099,10 +7134,10 @@ class ImportReadSetSourceItem {
   factory ImportReadSetSourceItem.fromJson(Map<String, dynamic> json) {
     return ImportReadSetSourceItem(
       sampleId: json['sampleId'] as String,
-      sourceFileType: (json['sourceFileType'] as String).toFileType(),
+      sourceFileType: FileType.fromString((json['sourceFileType'] as String)),
       sourceFiles:
           SourceFiles.fromJson(json['sourceFiles'] as Map<String, dynamic>),
-      status: (json['status'] as String).toReadSetImportJobItemStatus(),
+      status: ReadSetImportJobItemStatus.fromString((json['status'] as String)),
       subjectId: json['subjectId'] as String,
       description: json['description'] as String?,
       generatedFrom: json['generatedFrom'] as String?,
@@ -6128,9 +7163,9 @@ class ImportReadSetSourceItem {
     final tags = this.tags;
     return {
       'sampleId': sampleId,
-      'sourceFileType': sourceFileType.toValue(),
+      'sourceFileType': sourceFileType.value,
       'sourceFiles': sourceFiles,
-      'status': status.toValue(),
+      'status': status.value,
       'subjectId': subjectId,
       if (description != null) 'description': description,
       if (generatedFrom != null) 'generatedFrom': generatedFrom,
@@ -6166,7 +7201,7 @@ class ImportReferenceFilter {
     return {
       if (createdAfter != null) 'createdAfter': iso8601ToJson(createdAfter),
       if (createdBefore != null) 'createdBefore': iso8601ToJson(createdBefore),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6207,7 +7242,7 @@ class ImportReferenceJobItem {
       id: json['id'] as String,
       referenceStoreId: json['referenceStoreId'] as String,
       roleArn: json['roleArn'] as String,
-      status: (json['status'] as String).toReferenceImportJobStatus(),
+      status: ReferenceImportJobStatus.fromString((json['status'] as String)),
       completionTime: timeStampFromJson(json['completionTime']),
     );
   }
@@ -6224,7 +7259,7 @@ class ImportReferenceJobItem {
       'id': id,
       'referenceStoreId': referenceStoreId,
       'roleArn': roleArn,
-      'status': status.toValue(),
+      'status': status.value,
       if (completionTime != null)
         'completionTime': iso8601ToJson(completionTime),
     };
@@ -6262,7 +7297,8 @@ class ImportReferenceSourceItem {
 
   factory ImportReferenceSourceItem.fromJson(Map<String, dynamic> json) {
     return ImportReferenceSourceItem(
-      status: (json['status'] as String).toReferenceImportJobItemStatus(),
+      status:
+          ReferenceImportJobItemStatus.fromString((json['status'] as String)),
       description: json['description'] as String?,
       name: json['name'] as String?,
       sourceFile: json['sourceFile'] as String?,
@@ -6280,7 +7316,7 @@ class ImportReferenceSourceItem {
     final statusMessage = this.statusMessage;
     final tags = this.tags;
     return {
-      'status': status.toValue(),
+      'status': status.value,
       if (description != null) 'description': description,
       if (name != null) 'name': name,
       if (sourceFile != null) 'sourceFile': sourceFile,
@@ -6291,51 +7327,21 @@ class ImportReferenceSourceItem {
 }
 
 enum JobStatus {
-  submitted,
-  inProgress,
-  cancelled,
-  completed,
-  failed,
-  completedWithFailures,
-}
+  submitted('SUBMITTED'),
+  inProgress('IN_PROGRESS'),
+  cancelled('CANCELLED'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  completedWithFailures('COMPLETED_WITH_FAILURES'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.submitted:
-        return 'SUBMITTED';
-      case JobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case JobStatus.cancelled:
-        return 'CANCELLED';
-      case JobStatus.completed:
-        return 'COMPLETED';
-      case JobStatus.failed:
-        return 'FAILED';
-      case JobStatus.completedWithFailures:
-        return 'COMPLETED_WITH_FAILURES';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return JobStatus.submitted;
-      case 'IN_PROGRESS':
-        return JobStatus.inProgress;
-      case 'CANCELLED':
-        return JobStatus.cancelled;
-      case 'COMPLETED':
-        return JobStatus.completed;
-      case 'FAILED':
-        return JobStatus.failed;
-      case 'COMPLETED_WITH_FAILURES':
-        return JobStatus.completedWithFailures;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 /// A filter for annotation import jobs.
@@ -6355,7 +7361,7 @@ class ListAnnotationImportJobsFilter {
     final status = this.status;
     final storeName = this.storeName;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (storeName != null) 'storeName': storeName,
     };
   }
@@ -6365,7 +7371,8 @@ class ListAnnotationImportJobsResponse {
   /// A list of jobs.
   final List<AnnotationImportJobItem>? annotationImportJobs;
 
-  /// A pagination token that's included if more results are available.
+  /// Specifies the pagination token from a previous request to retrieve the next
+  /// page of results.
   final String? nextToken;
 
   ListAnnotationImportJobsResponse({
@@ -6376,7 +7383,7 @@ class ListAnnotationImportJobsResponse {
   factory ListAnnotationImportJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListAnnotationImportJobsResponse(
       annotationImportJobs: (json['annotationImportJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AnnotationImportJobItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6395,6 +7402,60 @@ class ListAnnotationImportJobsResponse {
   }
 }
 
+/// Use filters to focus the returned annotation store versions on a specific
+/// parameter, such as the status of the annotation store.
+class ListAnnotationStoreVersionsFilter {
+  /// The status of an annotation store version.
+  final VersionStatus? status;
+
+  ListAnnotationStoreVersionsFilter({
+    this.status,
+  });
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    return {
+      if (status != null) 'status': status.value,
+    };
+  }
+}
+
+class ListAnnotationStoreVersionsResponse {
+  /// Lists all versions of an annotation store.
+  final List<AnnotationStoreVersionItem>? annotationStoreVersions;
+
+  /// Specifies the pagination token from a previous request to retrieve the next
+  /// page of results.
+  final String? nextToken;
+
+  ListAnnotationStoreVersionsResponse({
+    this.annotationStoreVersions,
+    this.nextToken,
+  });
+
+  factory ListAnnotationStoreVersionsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListAnnotationStoreVersionsResponse(
+      annotationStoreVersions: (json['annotationStoreVersions'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              AnnotationStoreVersionItem.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final annotationStoreVersions = this.annotationStoreVersions;
+    final nextToken = this.nextToken;
+    return {
+      if (annotationStoreVersions != null)
+        'annotationStoreVersions': annotationStoreVersions,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
 /// A filter for annotation stores.
 class ListAnnotationStoresFilter {
   /// A status to filter on.
@@ -6407,7 +7468,7 @@ class ListAnnotationStoresFilter {
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6427,7 +7488,7 @@ class ListAnnotationStoresResponse {
   factory ListAnnotationStoresResponse.fromJson(Map<String, dynamic> json) {
     return ListAnnotationStoresResponse(
       annotationStores: (json['annotationStores'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AnnotationStoreItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6462,7 +7523,7 @@ class ListMultipartReadSetUploadsResponse {
     return ListMultipartReadSetUploadsResponse(
       nextToken: json['nextToken'] as String?,
       uploads: (json['uploads'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MultipartReadSetUploadListItem.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -6495,7 +7556,7 @@ class ListReadSetActivationJobsResponse {
       Map<String, dynamic> json) {
     return ListReadSetActivationJobsResponse(
       activationJobs: (json['activationJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ActivateReadSetJobItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6528,7 +7589,7 @@ class ListReadSetExportJobsResponse {
   factory ListReadSetExportJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListReadSetExportJobsResponse(
       exportJobs: (json['exportJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ExportReadSetJobDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6561,7 +7622,7 @@ class ListReadSetImportJobsResponse {
   factory ListReadSetImportJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListReadSetImportJobsResponse(
       importJobs: (json['importJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImportReadSetJobItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6595,7 +7656,7 @@ class ListReadSetUploadPartsResponse {
     return ListReadSetUploadPartsResponse(
       nextToken: json['nextToken'] as String?,
       parts: (json['parts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ReadSetUploadPartListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6627,7 +7688,7 @@ class ListReadSetsResponse {
   factory ListReadSetsResponse.fromJson(Map<String, dynamic> json) {
     return ListReadSetsResponse(
       readSets: (json['readSets'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ReadSetListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6659,7 +7720,7 @@ class ListReferenceImportJobsResponse {
   factory ListReferenceImportJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListReferenceImportJobsResponse(
       importJobs: (json['importJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ImportReferenceJobItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6692,7 +7753,7 @@ class ListReferenceStoresResponse {
   factory ListReferenceStoresResponse.fromJson(Map<String, dynamic> json) {
     return ListReferenceStoresResponse(
       referenceStores: (json['referenceStores'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ReferenceStoreDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6724,7 +7785,7 @@ class ListReferencesResponse {
   factory ListReferencesResponse.fromJson(Map<String, dynamic> json) {
     return ListReferencesResponse(
       references: (json['references'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ReferenceListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6756,7 +7817,7 @@ class ListRunGroupsResponse {
   factory ListRunGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListRunGroupsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RunGroupListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6788,7 +7849,7 @@ class ListRunTasksResponse {
   factory ListRunTasksResponse.fromJson(Map<String, dynamic> json) {
     return ListRunTasksResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TaskListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6820,7 +7881,7 @@ class ListRunsResponse {
   factory ListRunsResponse.fromJson(Map<String, dynamic> json) {
     return ListRunsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RunListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6852,7 +7913,7 @@ class ListSequenceStoresResponse {
   factory ListSequenceStoresResponse.fromJson(Map<String, dynamic> json) {
     return ListSequenceStoresResponse(
       sequenceStores: (json['sequenceStores'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SequenceStoreDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6864,6 +7925,39 @@ class ListSequenceStoresResponse {
     final nextToken = this.nextToken;
     return {
       'sequenceStores': sequenceStores,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListSharesResponse {
+  /// The shares available and their metadata details.
+  final List<ShareDetails> shares;
+
+  /// Next token returned in the response of a previous ListSharesResponse call.
+  /// Used to get the next page of results.
+  final String? nextToken;
+
+  ListSharesResponse({
+    required this.shares,
+    this.nextToken,
+  });
+
+  factory ListSharesResponse.fromJson(Map<String, dynamic> json) {
+    return ListSharesResponse(
+      shares: (json['shares'] as List)
+          .nonNulls
+          .map((e) => ShareDetails.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final shares = this.shares;
+    final nextToken = this.nextToken;
+    return {
+      'shares': shares,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -6909,7 +8003,7 @@ class ListVariantImportJobsFilter {
     final status = this.status;
     final storeName = this.storeName;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (storeName != null) 'storeName': storeName,
     };
   }
@@ -6931,7 +8025,7 @@ class ListVariantImportJobsResponse {
     return ListVariantImportJobsResponse(
       nextToken: json['nextToken'] as String?,
       variantImportJobs: (json['variantImportJobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VariantImportJobItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6959,7 +8053,7 @@ class ListVariantStoresFilter {
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6980,7 +8074,7 @@ class ListVariantStoresResponse {
     return ListVariantStoresResponse(
       nextToken: json['nextToken'] as String?,
       variantStores: (json['variantStores'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VariantStoreItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6997,7 +8091,7 @@ class ListVariantStoresResponse {
 }
 
 class ListWorkflowsResponse {
-  /// The workflows' items.
+  /// A list of workflow items.
   final List<WorkflowListItem>? items;
 
   /// A pagination token that's included if more results are available.
@@ -7011,7 +8105,7 @@ class ListWorkflowsResponse {
   factory ListWorkflowsResponse.fromJson(Map<String, dynamic> json) {
     return ListWorkflowsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -7086,7 +8180,7 @@ class MultipartReadSetUploadListItem {
       referenceArn: json['referenceArn'] as String,
       sampleId: json['sampleId'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      sourceFileType: (json['sourceFileType'] as String).toFileType(),
+      sourceFileType: FileType.fromString((json['sourceFileType'] as String)),
       subjectId: json['subjectId'] as String,
       uploadId: json['uploadId'] as String,
       description: json['description'] as String?,
@@ -7114,7 +8208,7 @@ class MultipartReadSetUploadListItem {
       'referenceArn': referenceArn,
       'sampleId': sampleId,
       'sequenceStoreId': sequenceStoreId,
-      'sourceFileType': sourceFileType.toValue(),
+      'sourceFileType': sourceFileType.value,
       'subjectId': subjectId,
       'uploadId': uploadId,
       if (description != null) 'description': description,
@@ -7204,97 +8298,40 @@ class ReadOptions {
 }
 
 enum ReadSetActivationJobItemStatus {
-  notStarted,
-  inProgress,
-  finished,
-  failed,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  finished('FINISHED'),
+  failed('FAILED'),
+  ;
 
-extension ReadSetActivationJobItemStatusValueExtension
-    on ReadSetActivationJobItemStatus {
-  String toValue() {
-    switch (this) {
-      case ReadSetActivationJobItemStatus.notStarted:
-        return 'NOT_STARTED';
-      case ReadSetActivationJobItemStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReadSetActivationJobItemStatus.finished:
-        return 'FINISHED';
-      case ReadSetActivationJobItemStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetActivationJobItemStatusFromString on String {
-  ReadSetActivationJobItemStatus toReadSetActivationJobItemStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return ReadSetActivationJobItemStatus.notStarted;
-      case 'IN_PROGRESS':
-        return ReadSetActivationJobItemStatus.inProgress;
-      case 'FINISHED':
-        return ReadSetActivationJobItemStatus.finished;
-      case 'FAILED':
-        return ReadSetActivationJobItemStatus.failed;
-    }
-    throw Exception(
-        '$this is not known in enum ReadSetActivationJobItemStatus');
-  }
+  const ReadSetActivationJobItemStatus(this.value);
+
+  static ReadSetActivationJobItemStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReadSetActivationJobItemStatus'));
 }
 
 enum ReadSetActivationJobStatus {
-  submitted,
-  inProgress,
-  cancelling,
-  cancelled,
-  failed,
-  completed,
-  completedWithFailures,
-}
+  submitted('SUBMITTED'),
+  inProgress('IN_PROGRESS'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  completedWithFailures('COMPLETED_WITH_FAILURES'),
+  ;
 
-extension ReadSetActivationJobStatusValueExtension
-    on ReadSetActivationJobStatus {
-  String toValue() {
-    switch (this) {
-      case ReadSetActivationJobStatus.submitted:
-        return 'SUBMITTED';
-      case ReadSetActivationJobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReadSetActivationJobStatus.cancelling:
-        return 'CANCELLING';
-      case ReadSetActivationJobStatus.cancelled:
-        return 'CANCELLED';
-      case ReadSetActivationJobStatus.failed:
-        return 'FAILED';
-      case ReadSetActivationJobStatus.completed:
-        return 'COMPLETED';
-      case ReadSetActivationJobStatus.completedWithFailures:
-        return 'COMPLETED_WITH_FAILURES';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetActivationJobStatusFromString on String {
-  ReadSetActivationJobStatus toReadSetActivationJobStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return ReadSetActivationJobStatus.submitted;
-      case 'IN_PROGRESS':
-        return ReadSetActivationJobStatus.inProgress;
-      case 'CANCELLING':
-        return ReadSetActivationJobStatus.cancelling;
-      case 'CANCELLED':
-        return ReadSetActivationJobStatus.cancelled;
-      case 'FAILED':
-        return ReadSetActivationJobStatus.failed;
-      case 'COMPLETED':
-        return ReadSetActivationJobStatus.completed;
-      case 'COMPLETED_WITH_FAILURES':
-        return ReadSetActivationJobStatus.completedWithFailures;
-    }
-    throw Exception('$this is not known in enum ReadSetActivationJobStatus');
-  }
+  const ReadSetActivationJobStatus(this.value);
+
+  static ReadSetActivationJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReadSetActivationJobStatus'));
 }
 
 /// An error from a batch read set operation.
@@ -7335,128 +8372,55 @@ class ReadSetBatchError {
 }
 
 enum ReadSetExportJobItemStatus {
-  notStarted,
-  inProgress,
-  finished,
-  failed,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  finished('FINISHED'),
+  failed('FAILED'),
+  ;
 
-extension ReadSetExportJobItemStatusValueExtension
-    on ReadSetExportJobItemStatus {
-  String toValue() {
-    switch (this) {
-      case ReadSetExportJobItemStatus.notStarted:
-        return 'NOT_STARTED';
-      case ReadSetExportJobItemStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReadSetExportJobItemStatus.finished:
-        return 'FINISHED';
-      case ReadSetExportJobItemStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetExportJobItemStatusFromString on String {
-  ReadSetExportJobItemStatus toReadSetExportJobItemStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return ReadSetExportJobItemStatus.notStarted;
-      case 'IN_PROGRESS':
-        return ReadSetExportJobItemStatus.inProgress;
-      case 'FINISHED':
-        return ReadSetExportJobItemStatus.finished;
-      case 'FAILED':
-        return ReadSetExportJobItemStatus.failed;
-    }
-    throw Exception('$this is not known in enum ReadSetExportJobItemStatus');
-  }
+  const ReadSetExportJobItemStatus(this.value);
+
+  static ReadSetExportJobItemStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReadSetExportJobItemStatus'));
 }
 
 enum ReadSetExportJobStatus {
-  submitted,
-  inProgress,
-  cancelling,
-  cancelled,
-  failed,
-  completed,
-  completedWithFailures,
-}
+  submitted('SUBMITTED'),
+  inProgress('IN_PROGRESS'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  completedWithFailures('COMPLETED_WITH_FAILURES'),
+  ;
 
-extension ReadSetExportJobStatusValueExtension on ReadSetExportJobStatus {
-  String toValue() {
-    switch (this) {
-      case ReadSetExportJobStatus.submitted:
-        return 'SUBMITTED';
-      case ReadSetExportJobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReadSetExportJobStatus.cancelling:
-        return 'CANCELLING';
-      case ReadSetExportJobStatus.cancelled:
-        return 'CANCELLED';
-      case ReadSetExportJobStatus.failed:
-        return 'FAILED';
-      case ReadSetExportJobStatus.completed:
-        return 'COMPLETED';
-      case ReadSetExportJobStatus.completedWithFailures:
-        return 'COMPLETED_WITH_FAILURES';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetExportJobStatusFromString on String {
-  ReadSetExportJobStatus toReadSetExportJobStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return ReadSetExportJobStatus.submitted;
-      case 'IN_PROGRESS':
-        return ReadSetExportJobStatus.inProgress;
-      case 'CANCELLING':
-        return ReadSetExportJobStatus.cancelling;
-      case 'CANCELLED':
-        return ReadSetExportJobStatus.cancelled;
-      case 'FAILED':
-        return ReadSetExportJobStatus.failed;
-      case 'COMPLETED':
-        return ReadSetExportJobStatus.completed;
-      case 'COMPLETED_WITH_FAILURES':
-        return ReadSetExportJobStatus.completedWithFailures;
-    }
-    throw Exception('$this is not known in enum ReadSetExportJobStatus');
-  }
+  const ReadSetExportJobStatus(this.value);
+
+  static ReadSetExportJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReadSetExportJobStatus'));
 }
 
 enum ReadSetFile {
-  source1,
-  source2,
-  $index,
-}
+  source1('SOURCE1'),
+  source2('SOURCE2'),
+  $index('INDEX'),
+  ;
 
-extension ReadSetFileValueExtension on ReadSetFile {
-  String toValue() {
-    switch (this) {
-      case ReadSetFile.source1:
-        return 'SOURCE1';
-      case ReadSetFile.source2:
-        return 'SOURCE2';
-      case ReadSetFile.$index:
-        return 'INDEX';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetFileFromString on String {
-  ReadSetFile toReadSetFile() {
-    switch (this) {
-      case 'SOURCE1':
-        return ReadSetFile.source1;
-      case 'SOURCE2':
-        return ReadSetFile.source2;
-      case 'INDEX':
-        return ReadSetFile.$index;
-    }
-    throw Exception('$this is not known in enum ReadSetFile');
-  }
+  const ReadSetFile(this.value);
+
+  static ReadSetFile fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ReadSetFile'));
 }
 
 /// Files in a read set.
@@ -7510,6 +8474,9 @@ class ReadSetFilter {
   /// The filter's end date.
   final DateTime? createdBefore;
 
+  /// The creation type of the read set.
+  final CreationType? creationType;
+
   /// Where the source originated.
   final String? generatedFrom;
 
@@ -7531,6 +8498,7 @@ class ReadSetFilter {
   ReadSetFilter({
     this.createdAfter,
     this.createdBefore,
+    this.creationType,
     this.generatedFrom,
     this.name,
     this.referenceArn,
@@ -7542,6 +8510,7 @@ class ReadSetFilter {
   Map<String, dynamic> toJson() {
     final createdAfter = this.createdAfter;
     final createdBefore = this.createdBefore;
+    final creationType = this.creationType;
     final generatedFrom = this.generatedFrom;
     final name = this.name;
     final referenceArn = this.referenceArn;
@@ -7551,106 +8520,52 @@ class ReadSetFilter {
     return {
       if (createdAfter != null) 'createdAfter': iso8601ToJson(createdAfter),
       if (createdBefore != null) 'createdBefore': iso8601ToJson(createdBefore),
+      if (creationType != null) 'creationType': creationType.value,
       if (generatedFrom != null) 'generatedFrom': generatedFrom,
       if (name != null) 'name': name,
       if (referenceArn != null) 'referenceArn': referenceArn,
       if (sampleId != null) 'sampleId': sampleId,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (subjectId != null) 'subjectId': subjectId,
     };
   }
 }
 
 enum ReadSetImportJobItemStatus {
-  notStarted,
-  inProgress,
-  finished,
-  failed,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  finished('FINISHED'),
+  failed('FAILED'),
+  ;
 
-extension ReadSetImportJobItemStatusValueExtension
-    on ReadSetImportJobItemStatus {
-  String toValue() {
-    switch (this) {
-      case ReadSetImportJobItemStatus.notStarted:
-        return 'NOT_STARTED';
-      case ReadSetImportJobItemStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReadSetImportJobItemStatus.finished:
-        return 'FINISHED';
-      case ReadSetImportJobItemStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetImportJobItemStatusFromString on String {
-  ReadSetImportJobItemStatus toReadSetImportJobItemStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return ReadSetImportJobItemStatus.notStarted;
-      case 'IN_PROGRESS':
-        return ReadSetImportJobItemStatus.inProgress;
-      case 'FINISHED':
-        return ReadSetImportJobItemStatus.finished;
-      case 'FAILED':
-        return ReadSetImportJobItemStatus.failed;
-    }
-    throw Exception('$this is not known in enum ReadSetImportJobItemStatus');
-  }
+  const ReadSetImportJobItemStatus(this.value);
+
+  static ReadSetImportJobItemStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReadSetImportJobItemStatus'));
 }
 
 enum ReadSetImportJobStatus {
-  submitted,
-  inProgress,
-  cancelling,
-  cancelled,
-  failed,
-  completed,
-  completedWithFailures,
-}
+  submitted('SUBMITTED'),
+  inProgress('IN_PROGRESS'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  completedWithFailures('COMPLETED_WITH_FAILURES'),
+  ;
 
-extension ReadSetImportJobStatusValueExtension on ReadSetImportJobStatus {
-  String toValue() {
-    switch (this) {
-      case ReadSetImportJobStatus.submitted:
-        return 'SUBMITTED';
-      case ReadSetImportJobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReadSetImportJobStatus.cancelling:
-        return 'CANCELLING';
-      case ReadSetImportJobStatus.cancelled:
-        return 'CANCELLED';
-      case ReadSetImportJobStatus.failed:
-        return 'FAILED';
-      case ReadSetImportJobStatus.completed:
-        return 'COMPLETED';
-      case ReadSetImportJobStatus.completedWithFailures:
-        return 'COMPLETED_WITH_FAILURES';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetImportJobStatusFromString on String {
-  ReadSetImportJobStatus toReadSetImportJobStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return ReadSetImportJobStatus.submitted;
-      case 'IN_PROGRESS':
-        return ReadSetImportJobStatus.inProgress;
-      case 'CANCELLING':
-        return ReadSetImportJobStatus.cancelling;
-      case 'CANCELLED':
-        return ReadSetImportJobStatus.cancelled;
-      case 'FAILED':
-        return ReadSetImportJobStatus.failed;
-      case 'COMPLETED':
-        return ReadSetImportJobStatus.completed;
-      case 'COMPLETED_WITH_FAILURES':
-        return ReadSetImportJobStatus.completedWithFailures;
-    }
-    throw Exception('$this is not known in enum ReadSetImportJobStatus');
-  }
+  const ReadSetImportJobStatus(this.value);
+
+  static ReadSetImportJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReadSetImportJobStatus'));
 }
 
 /// A read set.
@@ -7673,8 +8588,15 @@ class ReadSetListItem {
   /// The read set's status.
   final ReadSetStatus status;
 
+  /// The creation type of the read set.
+  final CreationType? creationType;
+
   /// The read set's description.
   final String? description;
+
+  /// The entity tag (ETag) is a hash of the object representing its semantic
+  /// content.
+  final ETag? etag;
 
   /// The read set's name.
   final String? name;
@@ -7700,7 +8622,9 @@ class ReadSetListItem {
     required this.id,
     required this.sequenceStoreId,
     required this.status,
+    this.creationType,
     this.description,
+    this.etag,
     this.name,
     this.referenceArn,
     this.sampleId,
@@ -7714,11 +8638,16 @@ class ReadSetListItem {
       arn: json['arn'] as String,
       creationTime:
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
-      fileType: (json['fileType'] as String).toFileType(),
+      fileType: FileType.fromString((json['fileType'] as String)),
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetStatus(),
+      status: ReadSetStatus.fromString((json['status'] as String)),
+      creationType:
+          (json['creationType'] as String?)?.let(CreationType.fromString),
       description: json['description'] as String?,
+      etag: json['etag'] != null
+          ? ETag.fromJson(json['etag'] as Map<String, dynamic>)
+          : null,
       name: json['name'] as String?,
       referenceArn: json['referenceArn'] as String?,
       sampleId: json['sampleId'] as String?,
@@ -7738,7 +8667,9 @@ class ReadSetListItem {
     final id = this.id;
     final sequenceStoreId = this.sequenceStoreId;
     final status = this.status;
+    final creationType = this.creationType;
     final description = this.description;
+    final etag = this.etag;
     final name = this.name;
     final referenceArn = this.referenceArn;
     final sampleId = this.sampleId;
@@ -7748,11 +8679,13 @@ class ReadSetListItem {
     return {
       'arn': arn,
       'creationTime': iso8601ToJson(creationTime),
-      'fileType': fileType.toValue(),
+      'fileType': fileType.value,
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
+      if (creationType != null) 'creationType': creationType.value,
       if (description != null) 'description': description,
+      if (etag != null) 'etag': etag,
       if (name != null) 'name': name,
       if (referenceArn != null) 'referenceArn': referenceArn,
       if (sampleId != null) 'sampleId': sampleId,
@@ -7765,84 +8698,61 @@ class ReadSetListItem {
 }
 
 enum ReadSetPartSource {
-  source1,
-  source2,
+  source1('SOURCE1'),
+  source2('SOURCE2'),
+  ;
+
+  final String value;
+
+  const ReadSetPartSource(this.value);
+
+  static ReadSetPartSource fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReadSetPartSource'));
 }
 
-extension ReadSetPartSourceValueExtension on ReadSetPartSource {
-  String toValue() {
-    switch (this) {
-      case ReadSetPartSource.source1:
-        return 'SOURCE1';
-      case ReadSetPartSource.source2:
-        return 'SOURCE2';
-    }
+/// The S3 URI for each read set file.
+class ReadSetS3Access {
+  /// The S3 URI for each read set file.
+  final String? s3Uri;
+
+  ReadSetS3Access({
+    this.s3Uri,
+  });
+
+  factory ReadSetS3Access.fromJson(Map<String, dynamic> json) {
+    return ReadSetS3Access(
+      s3Uri: json['s3Uri'] as String?,
+    );
   }
-}
 
-extension ReadSetPartSourceFromString on String {
-  ReadSetPartSource toReadSetPartSource() {
-    switch (this) {
-      case 'SOURCE1':
-        return ReadSetPartSource.source1;
-      case 'SOURCE2':
-        return ReadSetPartSource.source2;
-    }
-    throw Exception('$this is not known in enum ReadSetPartSource');
+  Map<String, dynamic> toJson() {
+    final s3Uri = this.s3Uri;
+    return {
+      if (s3Uri != null) 's3Uri': s3Uri,
+    };
   }
 }
 
 enum ReadSetStatus {
-  archived,
-  activating,
-  active,
-  deleting,
-  deleted,
-  processingUpload,
-  uploadFailed,
-}
+  archived('ARCHIVED'),
+  activating('ACTIVATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  deleted('DELETED'),
+  processingUpload('PROCESSING_UPLOAD'),
+  uploadFailed('UPLOAD_FAILED'),
+  ;
 
-extension ReadSetStatusValueExtension on ReadSetStatus {
-  String toValue() {
-    switch (this) {
-      case ReadSetStatus.archived:
-        return 'ARCHIVED';
-      case ReadSetStatus.activating:
-        return 'ACTIVATING';
-      case ReadSetStatus.active:
-        return 'ACTIVE';
-      case ReadSetStatus.deleting:
-        return 'DELETING';
-      case ReadSetStatus.deleted:
-        return 'DELETED';
-      case ReadSetStatus.processingUpload:
-        return 'PROCESSING_UPLOAD';
-      case ReadSetStatus.uploadFailed:
-        return 'UPLOAD_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReadSetStatusFromString on String {
-  ReadSetStatus toReadSetStatus() {
-    switch (this) {
-      case 'ARCHIVED':
-        return ReadSetStatus.archived;
-      case 'ACTIVATING':
-        return ReadSetStatus.activating;
-      case 'ACTIVE':
-        return ReadSetStatus.active;
-      case 'DELETING':
-        return ReadSetStatus.deleting;
-      case 'DELETED':
-        return ReadSetStatus.deleted;
-      case 'PROCESSING_UPLOAD':
-        return ReadSetStatus.processingUpload;
-      case 'UPLOAD_FAILED':
-        return ReadSetStatus.uploadFailed;
-    }
-    throw Exception('$this is not known in enum ReadSetStatus');
-  }
+  const ReadSetStatus(this.value);
+
+  static ReadSetStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReadSetStatus'));
 }
 
 /// Filter settings that select for read set upload parts of interest.
@@ -7905,7 +8815,7 @@ class ReadSetUploadPartListItem {
       checksum: json['checksum'] as String,
       partNumber: json['partNumber'] as int,
       partSize: json['partSize'] as int,
-      partSource: (json['partSource'] as String).toReadSetPartSource(),
+      partSource: ReadSetPartSource.fromString((json['partSource'] as String)),
       creationTime: timeStampFromJson(json['creationTime']),
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
     );
@@ -7922,7 +8832,7 @@ class ReadSetUploadPartListItem {
       'checksum': checksum,
       'partNumber': partNumber,
       'partSize': partSize,
-      'partSource': partSource.toValue(),
+      'partSource': partSource.value,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (lastUpdatedTime != null)
         'lastUpdatedTime': iso8601ToJson(lastUpdatedTime),
@@ -7931,31 +8841,18 @@ class ReadSetUploadPartListItem {
 }
 
 enum ReferenceFile {
-  source,
-  $index,
-}
+  source('SOURCE'),
+  $index('INDEX'),
+  ;
 
-extension ReferenceFileValueExtension on ReferenceFile {
-  String toValue() {
-    switch (this) {
-      case ReferenceFile.source:
-        return 'SOURCE';
-      case ReferenceFile.$index:
-        return 'INDEX';
-    }
-  }
-}
+  final String value;
 
-extension ReferenceFileFromString on String {
-  ReferenceFile toReferenceFile() {
-    switch (this) {
-      case 'SOURCE':
-        return ReferenceFile.source;
-      case 'INDEX':
-        return ReferenceFile.$index;
-    }
-    throw Exception('$this is not known in enum ReferenceFile');
-  }
+  const ReferenceFile(this.value);
+
+  static ReferenceFile fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReferenceFile'));
 }
 
 /// A set of genome reference files.
@@ -8028,95 +8925,40 @@ class ReferenceFilter {
 }
 
 enum ReferenceImportJobItemStatus {
-  notStarted,
-  inProgress,
-  finished,
-  failed,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  finished('FINISHED'),
+  failed('FAILED'),
+  ;
 
-extension ReferenceImportJobItemStatusValueExtension
-    on ReferenceImportJobItemStatus {
-  String toValue() {
-    switch (this) {
-      case ReferenceImportJobItemStatus.notStarted:
-        return 'NOT_STARTED';
-      case ReferenceImportJobItemStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReferenceImportJobItemStatus.finished:
-        return 'FINISHED';
-      case ReferenceImportJobItemStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReferenceImportJobItemStatusFromString on String {
-  ReferenceImportJobItemStatus toReferenceImportJobItemStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return ReferenceImportJobItemStatus.notStarted;
-      case 'IN_PROGRESS':
-        return ReferenceImportJobItemStatus.inProgress;
-      case 'FINISHED':
-        return ReferenceImportJobItemStatus.finished;
-      case 'FAILED':
-        return ReferenceImportJobItemStatus.failed;
-    }
-    throw Exception('$this is not known in enum ReferenceImportJobItemStatus');
-  }
+  const ReferenceImportJobItemStatus(this.value);
+
+  static ReferenceImportJobItemStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReferenceImportJobItemStatus'));
 }
 
 enum ReferenceImportJobStatus {
-  submitted,
-  inProgress,
-  cancelling,
-  cancelled,
-  failed,
-  completed,
-  completedWithFailures,
-}
+  submitted('SUBMITTED'),
+  inProgress('IN_PROGRESS'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  completed('COMPLETED'),
+  completedWithFailures('COMPLETED_WITH_FAILURES'),
+  ;
 
-extension ReferenceImportJobStatusValueExtension on ReferenceImportJobStatus {
-  String toValue() {
-    switch (this) {
-      case ReferenceImportJobStatus.submitted:
-        return 'SUBMITTED';
-      case ReferenceImportJobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReferenceImportJobStatus.cancelling:
-        return 'CANCELLING';
-      case ReferenceImportJobStatus.cancelled:
-        return 'CANCELLED';
-      case ReferenceImportJobStatus.failed:
-        return 'FAILED';
-      case ReferenceImportJobStatus.completed:
-        return 'COMPLETED';
-      case ReferenceImportJobStatus.completedWithFailures:
-        return 'COMPLETED_WITH_FAILURES';
-    }
-  }
-}
+  final String value;
 
-extension ReferenceImportJobStatusFromString on String {
-  ReferenceImportJobStatus toReferenceImportJobStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return ReferenceImportJobStatus.submitted;
-      case 'IN_PROGRESS':
-        return ReferenceImportJobStatus.inProgress;
-      case 'CANCELLING':
-        return ReferenceImportJobStatus.cancelling;
-      case 'CANCELLED':
-        return ReferenceImportJobStatus.cancelled;
-      case 'FAILED':
-        return ReferenceImportJobStatus.failed;
-      case 'COMPLETED':
-        return ReferenceImportJobStatus.completed;
-      case 'COMPLETED_WITH_FAILURES':
-        return ReferenceImportJobStatus.completedWithFailures;
-    }
-    throw Exception('$this is not known in enum ReferenceImportJobStatus');
-  }
+  const ReferenceImportJobStatus(this.value);
+
+  static ReferenceImportJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReferenceImportJobStatus'));
 }
 
 /// A genome reference.
@@ -8194,7 +9036,7 @@ class ReferenceListItem {
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       description: json['description'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toReferenceStatus(),
+      status: (json['status'] as String?)?.let(ReferenceStatus.fromString),
     );
   }
 
@@ -8217,42 +9059,25 @@ class ReferenceListItem {
       'updateTime': iso8601ToJson(updateTime),
       if (description != null) 'description': description,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum ReferenceStatus {
-  active,
-  deleting,
-  deleted,
-}
+  active('ACTIVE'),
+  deleting('DELETING'),
+  deleted('DELETED'),
+  ;
 
-extension ReferenceStatusValueExtension on ReferenceStatus {
-  String toValue() {
-    switch (this) {
-      case ReferenceStatus.active:
-        return 'ACTIVE';
-      case ReferenceStatus.deleting:
-        return 'DELETING';
-      case ReferenceStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension ReferenceStatusFromString on String {
-  ReferenceStatus toReferenceStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return ReferenceStatus.active;
-      case 'DELETING':
-        return ReferenceStatus.deleting;
-      case 'DELETED':
-        return ReferenceStatus.deleted;
-    }
-    throw Exception('$this is not known in enum ReferenceStatus');
-  }
+  const ReferenceStatus(this.value);
+
+  static ReferenceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReferenceStatus'));
 }
 
 /// Details about a reference store.
@@ -8345,27 +9170,32 @@ class ReferenceStoreFilter {
   }
 }
 
+enum ResourceOwner {
+  self('SELF'),
+  other('OTHER'),
+  ;
+
+  final String value;
+
+  const ResourceOwner(this.value);
+
+  static ResourceOwner fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceOwner'));
+}
+
 enum RunExport {
-  definition,
-}
+  definition('DEFINITION'),
+  ;
 
-extension RunExportValueExtension on RunExport {
-  String toValue() {
-    switch (this) {
-      case RunExport.definition:
-        return 'DEFINITION';
-    }
-  }
-}
+  final String value;
 
-extension RunExportFromString on String {
-  RunExport toRunExport() {
-    switch (this) {
-      case 'DEFINITION':
-        return RunExport.definition;
-    }
-    throw Exception('$this is not known in enum RunExport');
-  }
+  const RunExport(this.value);
+
+  static RunExport fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RunExport'));
 }
 
 /// A run group.
@@ -8466,8 +9296,13 @@ class RunListItem {
   /// When the run stopped.
   final DateTime? stopTime;
 
-  /// The run's storage capacity.
+  /// The run's storage capacity in gibibytes. For dynamic storage, after the run
+  /// has completed, this value is the maximum amount of storage used during the
+  /// run.
   final int? storageCapacity;
+
+  /// The run's storage type.
+  final StorageType? storageType;
 
   /// The run's workflow ID.
   final String? workflowId;
@@ -8482,6 +9317,7 @@ class RunListItem {
     this.status,
     this.stopTime,
     this.storageCapacity,
+    this.storageType,
     this.workflowId,
   });
 
@@ -8493,9 +9329,11 @@ class RunListItem {
       name: json['name'] as String?,
       priority: json['priority'] as int?,
       startTime: timeStampFromJson(json['startTime']),
-      status: (json['status'] as String?)?.toRunStatus(),
+      status: (json['status'] as String?)?.let(RunStatus.fromString),
       stopTime: timeStampFromJson(json['stopTime']),
       storageCapacity: json['storageCapacity'] as int?,
+      storageType:
+          (json['storageType'] as String?)?.let(StorageType.fromString),
       workflowId: json['workflowId'] as String?,
     );
   }
@@ -8510,6 +9348,7 @@ class RunListItem {
     final status = this.status;
     final stopTime = this.stopTime;
     final storageCapacity = this.storageCapacity;
+    final storageType = this.storageType;
     final workflowId = this.workflowId;
     return {
       if (arn != null) 'arn': arn,
@@ -8518,49 +9357,58 @@ class RunListItem {
       if (name != null) 'name': name,
       if (priority != null) 'priority': priority,
       if (startTime != null) 'startTime': iso8601ToJson(startTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (stopTime != null) 'stopTime': iso8601ToJson(stopTime),
       if (storageCapacity != null) 'storageCapacity': storageCapacity,
+      if (storageType != null) 'storageType': storageType.value,
       if (workflowId != null) 'workflowId': workflowId,
     };
   }
 }
 
 enum RunLogLevel {
-  off,
-  fatal,
-  error,
-  all,
+  off('OFF'),
+  fatal('FATAL'),
+  error('ERROR'),
+  all('ALL'),
+  ;
+
+  final String value;
+
+  const RunLogLevel(this.value);
+
+  static RunLogLevel fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RunLogLevel'));
 }
 
-extension RunLogLevelValueExtension on RunLogLevel {
-  String toValue() {
-    switch (this) {
-      case RunLogLevel.off:
-        return 'OFF';
-      case RunLogLevel.fatal:
-        return 'FATAL';
-      case RunLogLevel.error:
-        return 'ERROR';
-      case RunLogLevel.all:
-        return 'ALL';
-    }
+/// The URI for the run log.
+class RunLogLocation {
+  /// The log stream ARN for the engine log.
+  final String? engineLogStream;
+
+  /// The log stream ARN for the run log.
+  final String? runLogStream;
+
+  RunLogLocation({
+    this.engineLogStream,
+    this.runLogStream,
+  });
+
+  factory RunLogLocation.fromJson(Map<String, dynamic> json) {
+    return RunLogLocation(
+      engineLogStream: json['engineLogStream'] as String?,
+      runLogStream: json['runLogStream'] as String?,
+    );
   }
-}
 
-extension RunLogLevelFromString on String {
-  RunLogLevel toRunLogLevel() {
-    switch (this) {
-      case 'OFF':
-        return RunLogLevel.off;
-      case 'FATAL':
-        return RunLogLevel.fatal;
-      case 'ERROR':
-        return RunLogLevel.error;
-      case 'ALL':
-        return RunLogLevel.all;
-    }
-    throw Exception('$this is not known in enum RunLogLevel');
+  Map<String, dynamic> toJson() {
+    final engineLogStream = this.engineLogStream;
+    final runLogStream = this.runLogStream;
+    return {
+      if (engineLogStream != null) 'engineLogStream': engineLogStream,
+      if (runLogStream != null) 'runLogStream': runLogStream,
+    };
   }
 }
 
@@ -8576,110 +9424,58 @@ class RunParameters {
   }
 }
 
+enum RunRetentionMode {
+  retain('RETAIN'),
+  remove('REMOVE'),
+  ;
+
+  final String value;
+
+  const RunRetentionMode(this.value);
+
+  static RunRetentionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RunRetentionMode'));
+}
+
 enum RunStatus {
-  pending,
-  starting,
-  running,
-  stopping,
-  completed,
-  deleted,
-  cancelled,
-  failed,
-}
+  pending('PENDING'),
+  starting('STARTING'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  completed('COMPLETED'),
+  deleted('DELETED'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  ;
 
-extension RunStatusValueExtension on RunStatus {
-  String toValue() {
-    switch (this) {
-      case RunStatus.pending:
-        return 'PENDING';
-      case RunStatus.starting:
-        return 'STARTING';
-      case RunStatus.running:
-        return 'RUNNING';
-      case RunStatus.stopping:
-        return 'STOPPING';
-      case RunStatus.completed:
-        return 'COMPLETED';
-      case RunStatus.deleted:
-        return 'DELETED';
-      case RunStatus.cancelled:
-        return 'CANCELLED';
-      case RunStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension RunStatusFromString on String {
-  RunStatus toRunStatus() {
-    switch (this) {
-      case 'PENDING':
-        return RunStatus.pending;
-      case 'STARTING':
-        return RunStatus.starting;
-      case 'RUNNING':
-        return RunStatus.running;
-      case 'STOPPING':
-        return RunStatus.stopping;
-      case 'COMPLETED':
-        return RunStatus.completed;
-      case 'DELETED':
-        return RunStatus.deleted;
-      case 'CANCELLED':
-        return RunStatus.cancelled;
-      case 'FAILED':
-        return RunStatus.failed;
-    }
-    throw Exception('$this is not known in enum RunStatus');
-  }
+  const RunStatus(this.value);
+
+  static RunStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RunStatus'));
 }
 
 enum SchemaValueType {
-  long,
-  int,
-  string,
-  float,
-  double,
-  boolean,
-}
+  long('LONG'),
+  int('INT'),
+  string('STRING'),
+  float('FLOAT'),
+  double('DOUBLE'),
+  boolean('BOOLEAN'),
+  ;
 
-extension SchemaValueTypeValueExtension on SchemaValueType {
-  String toValue() {
-    switch (this) {
-      case SchemaValueType.long:
-        return 'LONG';
-      case SchemaValueType.int:
-        return 'INT';
-      case SchemaValueType.string:
-        return 'STRING';
-      case SchemaValueType.float:
-        return 'FLOAT';
-      case SchemaValueType.double:
-        return 'DOUBLE';
-      case SchemaValueType.boolean:
-        return 'BOOLEAN';
-    }
-  }
-}
+  final String value;
 
-extension SchemaValueTypeFromString on String {
-  SchemaValueType toSchemaValueType() {
-    switch (this) {
-      case 'LONG':
-        return SchemaValueType.long;
-      case 'INT':
-        return SchemaValueType.int;
-      case 'STRING':
-        return SchemaValueType.string;
-      case 'FLOAT':
-        return SchemaValueType.float;
-      case 'DOUBLE':
-        return SchemaValueType.double;
-      case 'BOOLEAN':
-        return SchemaValueType.boolean;
-    }
-    throw Exception('$this is not known in enum SchemaValueType');
-  }
+  const SchemaValueType(this.value);
+
+  static SchemaValueType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SchemaValueType'));
 }
 
 /// Details about a sequence.
@@ -8740,6 +9536,9 @@ class SequenceStoreDetail {
   /// The store's description.
   final String? description;
 
+  /// The algorithm family of the ETag.
+  final ETagAlgorithmFamily? eTagAlgorithmFamily;
+
   /// An S3 location that is used to store files that have failed a direct upload.
   final String? fallbackLocation;
 
@@ -8754,6 +9553,7 @@ class SequenceStoreDetail {
     required this.creationTime,
     required this.id,
     this.description,
+    this.eTagAlgorithmFamily,
     this.fallbackLocation,
     this.name,
     this.sseConfig,
@@ -8766,6 +9566,8 @@ class SequenceStoreDetail {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       description: json['description'] as String?,
+      eTagAlgorithmFamily: (json['eTagAlgorithmFamily'] as String?)
+          ?.let(ETagAlgorithmFamily.fromString),
       fallbackLocation: json['fallbackLocation'] as String?,
       name: json['name'] as String?,
       sseConfig: json['sseConfig'] != null
@@ -8779,6 +9581,7 @@ class SequenceStoreDetail {
     final creationTime = this.creationTime;
     final id = this.id;
     final description = this.description;
+    final eTagAlgorithmFamily = this.eTagAlgorithmFamily;
     final fallbackLocation = this.fallbackLocation;
     final name = this.name;
     final sseConfig = this.sseConfig;
@@ -8787,6 +9590,8 @@ class SequenceStoreDetail {
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       if (description != null) 'description': description,
+      if (eTagAlgorithmFamily != null)
+        'eTagAlgorithmFamily': eTagAlgorithmFamily.value,
       if (fallbackLocation != null) 'fallbackLocation': fallbackLocation,
       if (name != null) 'name': name,
       if (sseConfig != null) 'sseConfig': sseConfig,
@@ -8821,6 +9626,159 @@ class SequenceStoreFilter {
       if (name != null) 'name': name,
     };
   }
+}
+
+/// The S3 access metadata of the sequence store.
+class SequenceStoreS3Access {
+  /// This is ARN of the access point associated with the S3 bucket storing read
+  /// sets.
+  final String? s3AccessPointArn;
+
+  /// The S3 URI of the sequence store.
+  final String? s3Uri;
+
+  SequenceStoreS3Access({
+    this.s3AccessPointArn,
+    this.s3Uri,
+  });
+
+  factory SequenceStoreS3Access.fromJson(Map<String, dynamic> json) {
+    return SequenceStoreS3Access(
+      s3AccessPointArn: json['s3AccessPointArn'] as String?,
+      s3Uri: json['s3Uri'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final s3AccessPointArn = this.s3AccessPointArn;
+    final s3Uri = this.s3Uri;
+    return {
+      if (s3AccessPointArn != null) 's3AccessPointArn': s3AccessPointArn,
+      if (s3Uri != null) 's3Uri': s3Uri,
+    };
+  }
+}
+
+/// The details of a resource share.
+class ShareDetails {
+  /// The timestamp of when the resource share was created.
+  final DateTime? creationTime;
+
+  /// The account ID for the data owner. The owner creates the resource share.
+  final String? ownerId;
+
+  /// The principal subscriber is the account that is sharing the resource.
+  final String? principalSubscriber;
+
+  /// The Arn of the shared resource.
+  final String? resourceArn;
+
+  /// The ID of the shared resource.
+  final String? resourceId;
+
+  /// The ID of the resource share.
+  final String? shareId;
+
+  /// The name of the resource share.
+  final String? shareName;
+
+  /// The status of the share.
+  final ShareStatus? status;
+
+  /// The status message for a resource share. It provides additional details
+  /// about the share status.
+  final String? statusMessage;
+
+  /// The timestamp of the resource share update.
+  final DateTime? updateTime;
+
+  ShareDetails({
+    this.creationTime,
+    this.ownerId,
+    this.principalSubscriber,
+    this.resourceArn,
+    this.resourceId,
+    this.shareId,
+    this.shareName,
+    this.status,
+    this.statusMessage,
+    this.updateTime,
+  });
+
+  factory ShareDetails.fromJson(Map<String, dynamic> json) {
+    return ShareDetails(
+      creationTime: timeStampFromJson(json['creationTime']),
+      ownerId: json['ownerId'] as String?,
+      principalSubscriber: json['principalSubscriber'] as String?,
+      resourceArn: json['resourceArn'] as String?,
+      resourceId: json['resourceId'] as String?,
+      shareId: json['shareId'] as String?,
+      shareName: json['shareName'] as String?,
+      status: (json['status'] as String?)?.let(ShareStatus.fromString),
+      statusMessage: json['statusMessage'] as String?,
+      updateTime: timeStampFromJson(json['updateTime']),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final creationTime = this.creationTime;
+    final ownerId = this.ownerId;
+    final principalSubscriber = this.principalSubscriber;
+    final resourceArn = this.resourceArn;
+    final resourceId = this.resourceId;
+    final shareId = this.shareId;
+    final shareName = this.shareName;
+    final status = this.status;
+    final statusMessage = this.statusMessage;
+    final updateTime = this.updateTime;
+    return {
+      if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
+      if (ownerId != null) 'ownerId': ownerId,
+      if (principalSubscriber != null)
+        'principalSubscriber': principalSubscriber,
+      if (resourceArn != null) 'resourceArn': resourceArn,
+      if (resourceId != null) 'resourceId': resourceId,
+      if (shareId != null) 'shareId': shareId,
+      if (shareName != null) 'shareName': shareName,
+      if (status != null) 'status': status.value,
+      if (statusMessage != null) 'statusMessage': statusMessage,
+      if (updateTime != null) 'updateTime': iso8601ToJson(updateTime),
+    };
+  }
+}
+
+enum ShareResourceType {
+  variantStore('VARIANT_STORE'),
+  annotationStore('ANNOTATION_STORE'),
+  workflow('WORKFLOW'),
+  ;
+
+  final String value;
+
+  const ShareResourceType(this.value);
+
+  static ShareResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ShareResourceType'));
+}
+
+enum ShareStatus {
+  pending('PENDING'),
+  activating('ACTIVATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  deleted('DELETED'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const ShareStatus(this.value);
+
+  static ShareStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ShareStatus'));
 }
 
 /// Source files for a sequence.
@@ -8868,7 +9826,7 @@ class SseConfig {
 
   factory SseConfig.fromJson(Map<String, dynamic> json) {
     return SseConfig(
-      type: (json['type'] as String).toEncryptionType(),
+      type: EncryptionType.fromString((json['type'] as String)),
       keyArn: json['keyArn'] as String?,
     );
   }
@@ -8877,7 +9835,7 @@ class SseConfig {
     final type = this.type;
     final keyArn = this.keyArn;
     return {
-      'type': type.toValue(),
+      'type': type.value,
       if (keyArn != null) 'keyArn': keyArn,
     };
   }
@@ -8932,7 +9890,7 @@ class StartReadSetActivationJobResponse {
           nonNullableTimeStampFromJson(json['creationTime'] as Object),
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetActivationJobStatus(),
+      status: ReadSetActivationJobStatus.fromString((json['status'] as String)),
     );
   }
 
@@ -8945,7 +9903,7 @@ class StartReadSetActivationJobResponse {
       'creationTime': iso8601ToJson(creationTime),
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
     };
   }
 }
@@ -8998,7 +9956,7 @@ class StartReadSetExportJobResponse {
       destination: json['destination'] as String,
       id: json['id'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetExportJobStatus(),
+      status: ReadSetExportJobStatus.fromString((json['status'] as String)),
     );
   }
 
@@ -9013,7 +9971,7 @@ class StartReadSetExportJobResponse {
       'destination': destination,
       'id': id,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
     };
   }
 }
@@ -9049,7 +10007,7 @@ class StartReadSetImportJobResponse {
       id: json['id'] as String,
       roleArn: json['roleArn'] as String,
       sequenceStoreId: json['sequenceStoreId'] as String,
-      status: (json['status'] as String).toReadSetImportJobStatus(),
+      status: ReadSetImportJobStatus.fromString((json['status'] as String)),
     );
   }
 
@@ -9064,16 +10022,13 @@ class StartReadSetImportJobResponse {
       'id': id,
       'roleArn': roleArn,
       'sequenceStoreId': sequenceStoreId,
-      'status': status.toValue(),
+      'status': status.value,
     };
   }
 }
 
 /// A source for a read set import job.
 class StartReadSetImportJobSourceItem {
-  /// The source's reference ARN.
-  final String referenceArn;
-
   /// The source's sample ID.
   final String sampleId;
 
@@ -9095,11 +10050,13 @@ class StartReadSetImportJobSourceItem {
   /// The source's name.
   final String? name;
 
+  /// The source's reference ARN.
+  final String? referenceArn;
+
   /// The source's tags.
   final Map<String, String>? tags;
 
   StartReadSetImportJobSourceItem({
-    required this.referenceArn,
     required this.sampleId,
     required this.sourceFileType,
     required this.sourceFiles,
@@ -9107,11 +10064,11 @@ class StartReadSetImportJobSourceItem {
     this.description,
     this.generatedFrom,
     this.name,
+    this.referenceArn,
     this.tags,
   });
 
   Map<String, dynamic> toJson() {
-    final referenceArn = this.referenceArn;
     final sampleId = this.sampleId;
     final sourceFileType = this.sourceFileType;
     final sourceFiles = this.sourceFiles;
@@ -9119,16 +10076,17 @@ class StartReadSetImportJobSourceItem {
     final description = this.description;
     final generatedFrom = this.generatedFrom;
     final name = this.name;
+    final referenceArn = this.referenceArn;
     final tags = this.tags;
     return {
-      'referenceArn': referenceArn,
       'sampleId': sampleId,
-      'sourceFileType': sourceFileType.toValue(),
+      'sourceFileType': sourceFileType.value,
       'sourceFiles': sourceFiles,
       'subjectId': subjectId,
       if (description != null) 'description': description,
       if (generatedFrom != null) 'generatedFrom': generatedFrom,
       if (name != null) 'name': name,
+      if (referenceArn != null) 'referenceArn': referenceArn,
       if (tags != null) 'tags': tags,
     };
   }
@@ -9165,7 +10123,7 @@ class StartReferenceImportJobResponse {
       id: json['id'] as String,
       referenceStoreId: json['referenceStoreId'] as String,
       roleArn: json['roleArn'] as String,
-      status: (json['status'] as String).toReferenceImportJobStatus(),
+      status: ReferenceImportJobStatus.fromString((json['status'] as String)),
     );
   }
 
@@ -9180,7 +10138,7 @@ class StartReferenceImportJobResponse {
       'id': id,
       'referenceStoreId': referenceStoreId,
       'roleArn': roleArn,
-      'status': status.toValue(),
+      'status': status.value,
     };
   }
 }
@@ -9227,39 +10185,53 @@ class StartRunResponse {
   /// The run's ID.
   final String? id;
 
+  /// The destination for workflow outputs.
+  final String? runOutputUri;
+
   /// The run's status.
   final RunStatus? status;
 
   /// The run's tags.
   final Map<String, String>? tags;
 
+  /// The universally unique identifier for a run.
+  final String? uuid;
+
   StartRunResponse({
     this.arn,
     this.id,
+    this.runOutputUri,
     this.status,
     this.tags,
+    this.uuid,
   });
 
   factory StartRunResponse.fromJson(Map<String, dynamic> json) {
     return StartRunResponse(
       arn: json['arn'] as String?,
       id: json['id'] as String?,
-      status: (json['status'] as String?)?.toRunStatus(),
+      runOutputUri: json['runOutputUri'] as String?,
+      status: (json['status'] as String?)?.let(RunStatus.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
+      uuid: json['uuid'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final arn = this.arn;
     final id = this.id;
+    final runOutputUri = this.runOutputUri;
     final status = this.status;
     final tags = this.tags;
+    final uuid = this.uuid;
     return {
       if (arn != null) 'arn': arn,
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (runOutputUri != null) 'runOutputUri': runOutputUri,
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
+      if (uuid != null) 'uuid': uuid,
     };
   }
 }
@@ -9286,37 +10258,33 @@ class StartVariantImportResponse {
   }
 }
 
+enum StorageType {
+  static('STATIC'),
+  $dynamic('DYNAMIC'),
+  ;
+
+  final String value;
+
+  const StorageType(this.value);
+
+  static StorageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StorageType'));
+}
+
 enum StoreFormat {
-  gff,
-  tsv,
-  vcf,
-}
+  gff('GFF'),
+  tsv('TSV'),
+  vcf('VCF'),
+  ;
 
-extension StoreFormatValueExtension on StoreFormat {
-  String toValue() {
-    switch (this) {
-      case StoreFormat.gff:
-        return 'GFF';
-      case StoreFormat.tsv:
-        return 'TSV';
-      case StoreFormat.vcf:
-        return 'VCF';
-    }
-  }
-}
+  final String value;
 
-extension StoreFormatFromString on String {
-  StoreFormat toStoreFormat() {
-    switch (this) {
-      case 'GFF':
-        return StoreFormat.gff;
-      case 'TSV':
-        return StoreFormat.tsv;
-      case 'VCF':
-        return StoreFormat.vcf;
-    }
-    throw Exception('$this is not known in enum StoreFormat');
-  }
+  const StoreFormat(this.value);
+
+  static StoreFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StoreFormat'));
 }
 
 /// Settings for a store.
@@ -9346,46 +10314,20 @@ class StoreOptions {
 }
 
 enum StoreStatus {
-  creating,
-  updating,
-  deleting,
-  active,
-  failed,
-}
+  creating('CREATING'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  failed('FAILED'),
+  ;
 
-extension StoreStatusValueExtension on StoreStatus {
-  String toValue() {
-    switch (this) {
-      case StoreStatus.creating:
-        return 'CREATING';
-      case StoreStatus.updating:
-        return 'UPDATING';
-      case StoreStatus.deleting:
-        return 'DELETING';
-      case StoreStatus.active:
-        return 'ACTIVE';
-      case StoreStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension StoreStatusFromString on String {
-  StoreStatus toStoreStatus() {
-    switch (this) {
-      case 'CREATING':
-        return StoreStatus.creating;
-      case 'UPDATING':
-        return StoreStatus.updating;
-      case 'DELETING':
-        return StoreStatus.deleting;
-      case 'ACTIVE':
-        return StoreStatus.active;
-      case 'FAILED':
-        return StoreStatus.failed;
-    }
-    throw Exception('$this is not known in enum StoreStatus');
-  }
+  const StoreStatus(this.value);
+
+  static StoreStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StoreStatus'));
 }
 
 class TagResourceResponse {
@@ -9411,6 +10353,9 @@ class TaskListItem {
   /// The number of Graphics Processing Units (GPU) specified for the task.
   final int? gpus;
 
+  /// The instance type for a task.
+  final String? instanceType;
+
   /// The task's memory use in gigabyes.
   final int? memory;
 
@@ -9433,6 +10378,7 @@ class TaskListItem {
     this.cpus,
     this.creationTime,
     this.gpus,
+    this.instanceType,
     this.memory,
     this.name,
     this.startTime,
@@ -9446,10 +10392,11 @@ class TaskListItem {
       cpus: json['cpus'] as int?,
       creationTime: timeStampFromJson(json['creationTime']),
       gpus: json['gpus'] as int?,
+      instanceType: json['instanceType'] as String?,
       memory: json['memory'] as int?,
       name: json['name'] as String?,
       startTime: timeStampFromJson(json['startTime']),
-      status: (json['status'] as String?)?.toTaskStatus(),
+      status: (json['status'] as String?)?.let(TaskStatus.fromString),
       stopTime: timeStampFromJson(json['stopTime']),
       taskId: json['taskId'] as String?,
     );
@@ -9459,6 +10406,7 @@ class TaskListItem {
     final cpus = this.cpus;
     final creationTime = this.creationTime;
     final gpus = this.gpus;
+    final instanceType = this.instanceType;
     final memory = this.memory;
     final name = this.name;
     final startTime = this.startTime;
@@ -9469,10 +10417,11 @@ class TaskListItem {
       if (cpus != null) 'cpus': cpus,
       if (creationTime != null) 'creationTime': iso8601ToJson(creationTime),
       if (gpus != null) 'gpus': gpus,
+      if (instanceType != null) 'instanceType': instanceType,
       if (memory != null) 'memory': memory,
       if (name != null) 'name': name,
       if (startTime != null) 'startTime': iso8601ToJson(startTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (stopTime != null) 'stopTime': iso8601ToJson(stopTime),
       if (taskId != null) 'taskId': taskId,
     };
@@ -9480,56 +10429,22 @@ class TaskListItem {
 }
 
 enum TaskStatus {
-  pending,
-  starting,
-  running,
-  stopping,
-  completed,
-  cancelled,
-  failed,
-}
+  pending('PENDING'),
+  starting('STARTING'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  completed('COMPLETED'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  ;
 
-extension TaskStatusValueExtension on TaskStatus {
-  String toValue() {
-    switch (this) {
-      case TaskStatus.pending:
-        return 'PENDING';
-      case TaskStatus.starting:
-        return 'STARTING';
-      case TaskStatus.running:
-        return 'RUNNING';
-      case TaskStatus.stopping:
-        return 'STOPPING';
-      case TaskStatus.completed:
-        return 'COMPLETED';
-      case TaskStatus.cancelled:
-        return 'CANCELLED';
-      case TaskStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension TaskStatusFromString on String {
-  TaskStatus toTaskStatus() {
-    switch (this) {
-      case 'PENDING':
-        return TaskStatus.pending;
-      case 'STARTING':
-        return TaskStatus.starting;
-      case 'RUNNING':
-        return TaskStatus.running;
-      case 'STOPPING':
-        return TaskStatus.stopping;
-      case 'COMPLETED':
-        return TaskStatus.completed;
-      case 'CANCELLED':
-        return TaskStatus.cancelled;
-      case 'FAILED':
-        return TaskStatus.failed;
-    }
-    throw Exception('$this is not known in enum TaskStatus');
-  }
+  const TaskStatus(this.value);
+
+  static TaskStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TaskStatus'));
 }
 
 /// Formatting options for a TSV file.
@@ -9576,13 +10491,14 @@ class TsvStoreOptions {
 
   factory TsvStoreOptions.fromJson(Map<String, dynamic> json) {
     return TsvStoreOptions(
-      annotationType: (json['annotationType'] as String?)?.toAnnotationType(),
-      formatToHeader: (json['formatToHeader'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toFormatToHeaderKey(), e as String)),
+      annotationType:
+          (json['annotationType'] as String?)?.let(AnnotationType.fromString),
+      formatToHeader: (json['formatToHeader'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(FormatToHeaderKey.fromString(k), e as String)),
       schema: (json['schema'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as Map<String, dynamic>)
-              .map((k, e) => MapEntry(k, (e as String).toSchemaValueType())))
+          ?.nonNulls
+          .map((e) => (e as Map<String, dynamic>).map(
+              (k, e) => MapEntry(k, SchemaValueType.fromString((e as String)))))
           .toList(),
     );
   }
@@ -9592,14 +10508,58 @@ class TsvStoreOptions {
     final formatToHeader = this.formatToHeader;
     final schema = this.schema;
     return {
-      if (annotationType != null) 'annotationType': annotationType.toValue(),
+      if (annotationType != null) 'annotationType': annotationType.value,
       if (formatToHeader != null)
-        'formatToHeader':
-            formatToHeader.map((k, e) => MapEntry(k.toValue(), e)),
+        'formatToHeader': formatToHeader.map((k, e) => MapEntry(k.value, e)),
       if (schema != null)
-        'schema': schema
-            .map((e) => e.map((k, e) => MapEntry(k, e.toValue())))
-            .toList(),
+        'schema':
+            schema.map((e) => e.map((k, e) => MapEntry(k, e.value))).toList(),
+    };
+  }
+}
+
+/// The options for a TSV file.
+class TsvVersionOptions {
+  /// The store version's annotation type.
+  final AnnotationType? annotationType;
+
+  /// The annotation store version's header key to column name mapping.
+  final Map<FormatToHeaderKey, String>? formatToHeader;
+
+  /// The TSV schema for an annotation store version.
+  final List<Map<String, SchemaValueType>>? schema;
+
+  TsvVersionOptions({
+    this.annotationType,
+    this.formatToHeader,
+    this.schema,
+  });
+
+  factory TsvVersionOptions.fromJson(Map<String, dynamic> json) {
+    return TsvVersionOptions(
+      annotationType:
+          (json['annotationType'] as String?)?.let(AnnotationType.fromString),
+      formatToHeader: (json['formatToHeader'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(FormatToHeaderKey.fromString(k), e as String)),
+      schema: (json['schema'] as List?)
+          ?.nonNulls
+          .map((e) => (e as Map<String, dynamic>).map(
+              (k, e) => MapEntry(k, SchemaValueType.fromString((e as String)))))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final annotationType = this.annotationType;
+    final formatToHeader = this.formatToHeader;
+    final schema = this.schema;
+    return {
+      if (annotationType != null) 'annotationType': annotationType.value,
+      if (formatToHeader != null)
+        'formatToHeader': formatToHeader.map((k, e) => MapEntry(k.value, e)),
+      if (schema != null)
+        'schema':
+            schema.map((e) => e.map((k, e) => MapEntry(k, e.value))).toList(),
     };
   }
 }
@@ -9665,9 +10625,10 @@ class UpdateAnnotationStoreResponse {
       name: json['name'] as String,
       reference:
           ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>),
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
-      storeFormat: (json['storeFormat'] as String?)?.toStoreFormat(),
+      storeFormat:
+          (json['storeFormat'] as String?)?.let(StoreFormat.fromString),
       storeOptions: json['storeOptions'] != null
           ? StoreOptions.fromJson(json['storeOptions'] as Map<String, dynamic>)
           : null,
@@ -9690,10 +10651,83 @@ class UpdateAnnotationStoreResponse {
       'id': id,
       'name': name,
       'reference': reference,
-      'status': status.toValue(),
+      'status': status.value,
       'updateTime': iso8601ToJson(updateTime),
-      if (storeFormat != null) 'storeFormat': storeFormat.toValue(),
+      if (storeFormat != null) 'storeFormat': storeFormat.value,
       if (storeOptions != null) 'storeOptions': storeOptions,
+    };
+  }
+}
+
+class UpdateAnnotationStoreVersionResponse {
+  /// The time stamp for when an annotation store version was created.
+  final DateTime creationTime;
+
+  /// The description of an annotation store version.
+  final String description;
+
+  /// The annotation store version ID.
+  final String id;
+
+  /// The name of an annotation store.
+  final String name;
+
+  /// The status of an annotation store version.
+  final VersionStatus status;
+
+  /// The annotation store ID.
+  final String storeId;
+
+  /// The time stamp for when an annotation store version was updated.
+  final DateTime updateTime;
+
+  /// The name of an annotation store version.
+  final String versionName;
+
+  UpdateAnnotationStoreVersionResponse({
+    required this.creationTime,
+    required this.description,
+    required this.id,
+    required this.name,
+    required this.status,
+    required this.storeId,
+    required this.updateTime,
+    required this.versionName,
+  });
+
+  factory UpdateAnnotationStoreVersionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateAnnotationStoreVersionResponse(
+      creationTime:
+          nonNullableTimeStampFromJson(json['creationTime'] as Object),
+      description: json['description'] as String,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      status: VersionStatus.fromString((json['status'] as String)),
+      storeId: json['storeId'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      versionName: json['versionName'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final creationTime = this.creationTime;
+    final description = this.description;
+    final id = this.id;
+    final name = this.name;
+    final status = this.status;
+    final storeId = this.storeId;
+    final updateTime = this.updateTime;
+    final versionName = this.versionName;
+    return {
+      'creationTime': iso8601ToJson(creationTime),
+      'description': description,
+      'id': id,
+      'name': name,
+      'status': status.value,
+      'storeId': storeId,
+      'updateTime': iso8601ToJson(updateTime),
+      'versionName': versionName,
     };
   }
 }
@@ -9739,7 +10773,7 @@ class UpdateVariantStoreResponse {
       name: json['name'] as String,
       reference:
           ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>),
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
     );
   }
@@ -9758,7 +10792,7 @@ class UpdateVariantStoreResponse {
       'id': id,
       'name': name,
       'reference': reference,
-      'status': status.toValue(),
+      'status': status.value,
       'updateTime': iso8601ToJson(updateTime),
     };
   }
@@ -9806,7 +10840,7 @@ class VariantImportItemDetail {
 
   factory VariantImportItemDetail.fromJson(Map<String, dynamic> json) {
     return VariantImportItemDetail(
-      jobStatus: (json['jobStatus'] as String).toJobStatus(),
+      jobStatus: JobStatus.fromString((json['jobStatus'] as String)),
       source: json['source'] as String,
       statusMessage: json['statusMessage'] as String?,
     );
@@ -9817,7 +10851,7 @@ class VariantImportItemDetail {
     final source = this.source;
     final statusMessage = this.statusMessage;
     return {
-      'jobStatus': jobStatus.toValue(),
+      'jobStatus': jobStatus.value,
       'source': source,
       if (statusMessage != null) 'statusMessage': statusMessage,
     };
@@ -9889,7 +10923,7 @@ class VariantImportJobItem {
       destinationName: json['destinationName'] as String,
       id: json['id'] as String,
       roleArn: json['roleArn'] as String,
-      status: (json['status'] as String).toJobStatus(),
+      status: JobStatus.fromString((json['status'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       annotationFields: (json['annotationFields'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
@@ -9913,7 +10947,7 @@ class VariantImportJobItem {
       'destinationName': destinationName,
       'id': id,
       'roleArn': roleArn,
-      'status': status.toValue(),
+      'status': status.value,
       'updateTime': iso8601ToJson(updateTime),
       if (annotationFields != null) 'annotationFields': annotationFields,
       if (completionTime != null)
@@ -9983,7 +11017,7 @@ class VariantStoreItem {
       reference:
           ReferenceItem.fromJson(json['reference'] as Map<String, dynamic>),
       sseConfig: SseConfig.fromJson(json['sseConfig'] as Map<String, dynamic>),
-      status: (json['status'] as String).toStoreStatus(),
+      status: StoreStatus.fromString((json['status'] as String)),
       statusMessage: json['statusMessage'] as String,
       storeArn: json['storeArn'] as String,
       storeSizeBytes: json['storeSizeBytes'] as int,
@@ -10010,7 +11044,7 @@ class VariantStoreItem {
       'name': name,
       'reference': reference,
       'sseConfig': sseConfig,
-      'status': status.toValue(),
+      'status': status.value,
       'statusMessage': statusMessage,
       'storeArn': storeArn,
       'storeSizeBytes': storeSizeBytes,
@@ -10049,55 +11083,108 @@ class VcfOptions {
   }
 }
 
+/// The error preventing deletion of the annotation store version.
+class VersionDeleteError {
+  /// The message explaining the error in annotation store deletion.
+  final String message;
+
+  /// The name given to an annotation store version.
+  final String versionName;
+
+  VersionDeleteError({
+    required this.message,
+    required this.versionName,
+  });
+
+  factory VersionDeleteError.fromJson(Map<String, dynamic> json) {
+    return VersionDeleteError(
+      message: json['message'] as String,
+      versionName: json['versionName'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final message = this.message;
+    final versionName = this.versionName;
+    return {
+      'message': message,
+      'versionName': versionName,
+    };
+  }
+}
+
+/// The options for an annotation store version.
+class VersionOptions {
+  /// File settings for a version of a TSV store.
+  final TsvVersionOptions? tsvVersionOptions;
+
+  VersionOptions({
+    this.tsvVersionOptions,
+  });
+
+  factory VersionOptions.fromJson(Map<String, dynamic> json) {
+    return VersionOptions(
+      tsvVersionOptions: json['tsvVersionOptions'] != null
+          ? TsvVersionOptions.fromJson(
+              json['tsvVersionOptions'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final tsvVersionOptions = this.tsvVersionOptions;
+    return {
+      if (tsvVersionOptions != null) 'tsvVersionOptions': tsvVersionOptions,
+    };
+  }
+}
+
+enum VersionStatus {
+  creating('CREATING'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const VersionStatus(this.value);
+
+  static VersionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VersionStatus'));
+}
+
 enum WorkflowEngine {
-  wdl,
-  nextflow,
-}
+  wdl('WDL'),
+  nextflow('NEXTFLOW'),
+  cwl('CWL'),
+  ;
 
-extension WorkflowEngineValueExtension on WorkflowEngine {
-  String toValue() {
-    switch (this) {
-      case WorkflowEngine.wdl:
-        return 'WDL';
-      case WorkflowEngine.nextflow:
-        return 'NEXTFLOW';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowEngineFromString on String {
-  WorkflowEngine toWorkflowEngine() {
-    switch (this) {
-      case 'WDL':
-        return WorkflowEngine.wdl;
-      case 'NEXTFLOW':
-        return WorkflowEngine.nextflow;
-    }
-    throw Exception('$this is not known in enum WorkflowEngine');
-  }
+  const WorkflowEngine(this.value);
+
+  static WorkflowEngine fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowEngine'));
 }
 
 enum WorkflowExport {
-  definition,
-}
+  definition('DEFINITION'),
+  ;
 
-extension WorkflowExportValueExtension on WorkflowExport {
-  String toValue() {
-    switch (this) {
-      case WorkflowExport.definition:
-        return 'DEFINITION';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowExportFromString on String {
-  WorkflowExport toWorkflowExport() {
-    switch (this) {
-      case 'DEFINITION':
-        return WorkflowExport.definition;
-    }
-    throw Exception('$this is not known in enum WorkflowExport');
-  }
+  const WorkflowExport(this.value);
+
+  static WorkflowExport fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowExport'));
 }
 
 /// A workflow.
@@ -10147,8 +11234,8 @@ class WorkflowListItem {
       metadata: (json['metadata'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toWorkflowStatus(),
-      type: (json['type'] as String?)?.toWorkflowType(),
+      status: (json['status'] as String?)?.let(WorkflowStatus.fromString),
+      type: (json['type'] as String?)?.let(WorkflowType.fromString),
     );
   }
 
@@ -10168,8 +11255,8 @@ class WorkflowListItem {
       if (id != null) 'id': id,
       if (metadata != null) 'metadata': metadata,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
-      if (type != null) 'type': type.toValue(),
+      if (status != null) 'status': status.value,
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -10205,79 +11292,37 @@ class WorkflowParameter {
 }
 
 enum WorkflowStatus {
-  creating,
-  active,
-  updating,
-  deleted,
-  failed,
-  inactive,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  updating('UPDATING'),
+  deleted('DELETED'),
+  failed('FAILED'),
+  inactive('INACTIVE'),
+  ;
 
-extension WorkflowStatusValueExtension on WorkflowStatus {
-  String toValue() {
-    switch (this) {
-      case WorkflowStatus.creating:
-        return 'CREATING';
-      case WorkflowStatus.active:
-        return 'ACTIVE';
-      case WorkflowStatus.updating:
-        return 'UPDATING';
-      case WorkflowStatus.deleted:
-        return 'DELETED';
-      case WorkflowStatus.failed:
-        return 'FAILED';
-      case WorkflowStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowStatusFromString on String {
-  WorkflowStatus toWorkflowStatus() {
-    switch (this) {
-      case 'CREATING':
-        return WorkflowStatus.creating;
-      case 'ACTIVE':
-        return WorkflowStatus.active;
-      case 'UPDATING':
-        return WorkflowStatus.updating;
-      case 'DELETED':
-        return WorkflowStatus.deleted;
-      case 'FAILED':
-        return WorkflowStatus.failed;
-      case 'INACTIVE':
-        return WorkflowStatus.inactive;
-    }
-    throw Exception('$this is not known in enum WorkflowStatus');
-  }
+  const WorkflowStatus(this.value);
+
+  static WorkflowStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowStatus'));
 }
 
 enum WorkflowType {
-  private,
-  ready2run,
-}
+  private('PRIVATE'),
+  ready2run('READY2RUN'),
+  ;
 
-extension WorkflowTypeValueExtension on WorkflowType {
-  String toValue() {
-    switch (this) {
-      case WorkflowType.private:
-        return 'PRIVATE';
-      case WorkflowType.ready2run:
-        return 'READY2RUN';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowTypeFromString on String {
-  WorkflowType toWorkflowType() {
-    switch (this) {
-      case 'PRIVATE':
-        return WorkflowType.private;
-      case 'READY2RUN':
-        return WorkflowType.ready2run;
-    }
-    throw Exception('$this is not known in enum WorkflowType');
-  }
+  const WorkflowType(this.value);
+
+  static WorkflowType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowType'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

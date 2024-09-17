@@ -58,11 +58,16 @@ class Mgn {
   ///
   /// Parameter [applicationID] :
   /// Application ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<Application> archiveApplication({
     required String applicationID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'applicationID': applicationID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -82,11 +87,16 @@ class Mgn {
   ///
   /// Parameter [waveID] :
   /// Wave ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<Wave> archiveWave({
     required String waveID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'waveID': waveID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -109,13 +119,18 @@ class Mgn {
   ///
   /// Parameter [waveID] :
   /// Wave ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<void> associateApplications({
     required List<String> applicationIDs,
     required String waveID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'applicationIDs': applicationIDs,
       'waveID': waveID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -137,13 +152,18 @@ class Mgn {
   ///
   /// Parameter [sourceServerIDs] :
   /// Source server IDs list.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<void> associateSourceServers({
     required String applicationID,
     required List<String> sourceServerIDs,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'applicationID': applicationID,
       'sourceServerIDs': sourceServerIDs,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -169,13 +189,18 @@ class Mgn {
   /// Parameter [sourceServerID] :
   /// The request to change the source server migration lifecycle state by
   /// source server ID.
+  ///
+  /// Parameter [accountID] :
+  /// The request to change the source server migration account ID.
   Future<SourceServer> changeServerLifeCycleState({
     required ChangeServerLifeCycleStateSourceServerLifecycle lifeCycle,
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'lifeCycle': lifeCycle,
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -195,6 +220,9 @@ class Mgn {
   /// Parameter [name] :
   /// Application name.
   ///
+  /// Parameter [accountID] :
+  /// Account ID.
+  ///
   /// Parameter [description] :
   /// Application description.
   ///
@@ -202,11 +230,13 @@ class Mgn {
   /// Application tags.
   Future<Application> createApplication({
     required String name,
+    String? accountID,
     String? description,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
+      if (accountID != null) 'accountID': accountID,
       if (description != null) 'description': description,
       if (tags != null) 'tags': tags,
     };
@@ -217,6 +247,43 @@ class Mgn {
       exceptionFnMap: _exceptionFns,
     );
     return Application.fromJson(response);
+  }
+
+  /// Create Connector.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [name] :
+  /// Create Connector request name.
+  ///
+  /// Parameter [ssmInstanceID] :
+  /// Create Connector request SSM instance ID.
+  ///
+  /// Parameter [ssmCommandConfig] :
+  /// Create Connector request SSM command config.
+  ///
+  /// Parameter [tags] :
+  /// Create Connector request tags.
+  Future<Connector> createConnector({
+    required String name,
+    required String ssmInstanceID,
+    ConnectorSsmCommandConfig? ssmCommandConfig,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'name': name,
+      'ssmInstanceID': ssmInstanceID,
+      if (ssmCommandConfig != null) 'ssmCommandConfig': ssmCommandConfig,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/CreateConnector',
+      exceptionFnMap: _exceptionFns,
+    );
+    return Connector.fromJson(response);
   }
 
   /// Creates a new Launch Configuration Template.
@@ -289,14 +356,14 @@ class Mgn {
     final $payload = <String, dynamic>{
       if (associatePublicIpAddress != null)
         'associatePublicIpAddress': associatePublicIpAddress,
-      if (bootMode != null) 'bootMode': bootMode.toValue(),
+      if (bootMode != null) 'bootMode': bootMode.value,
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
       if (enableMapAutoTagging != null)
         'enableMapAutoTagging': enableMapAutoTagging,
       if (largeVolumeConf != null) 'largeVolumeConf': largeVolumeConf,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
       if (licensing != null) 'licensing': licensing,
       if (mapAutoTaggingMpeID != null)
         'mapAutoTaggingMpeID': mapAutoTaggingMpeID,
@@ -306,7 +373,7 @@ class Mgn {
       if (tags != null) 'tags': tags,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -372,6 +439,10 @@ class Mgn {
   ///
   /// Parameter [tags] :
   /// Request to configure tags during Replication Settings template creation.
+  ///
+  /// Parameter [useFipsEndpoint] :
+  /// Request to use Fips Endpoint during Replication Settings template
+  /// creation.
   Future<ReplicationConfigurationTemplate>
       createReplicationConfigurationTemplate({
     required bool associateDefaultSecurityGroup,
@@ -388,21 +459,22 @@ class Mgn {
     required bool useDedicatedReplicationServer,
     String? ebsEncryptionKeyArn,
     Map<String, String>? tags,
+    bool? useFipsEndpoint,
   }) async {
     _s.validateNumRange(
       'bandwidthThrottling',
       bandwidthThrottling,
       0,
-      1152921504606846976,
+      10000,
       isRequired: true,
     );
     final $payload = <String, dynamic>{
       'associateDefaultSecurityGroup': associateDefaultSecurityGroup,
       'bandwidthThrottling': bandwidthThrottling,
       'createPublicIP': createPublicIP,
-      'dataPlaneRouting': dataPlaneRouting.toValue(),
-      'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      'ebsEncryption': ebsEncryption.toValue(),
+      'dataPlaneRouting': dataPlaneRouting.value,
+      'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      'ebsEncryption': ebsEncryption.value,
       'replicationServerInstanceType': replicationServerInstanceType,
       'replicationServersSecurityGroupsIDs':
           replicationServersSecurityGroupsIDs,
@@ -412,6 +484,7 @@ class Mgn {
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (tags != null) 'tags': tags,
+      if (useFipsEndpoint != null) 'useFipsEndpoint': useFipsEndpoint,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -431,6 +504,9 @@ class Mgn {
   /// Parameter [name] :
   /// Wave name.
   ///
+  /// Parameter [accountID] :
+  /// Account ID.
+  ///
   /// Parameter [description] :
   /// Wave description.
   ///
@@ -438,11 +514,13 @@ class Mgn {
   /// Wave tags.
   Future<Wave> createWave({
     required String name,
+    String? accountID,
     String? description,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
+      if (accountID != null) 'accountID': accountID,
       if (description != null) 'description': description,
       if (tags != null) 'tags': tags,
     };
@@ -463,16 +541,43 @@ class Mgn {
   ///
   /// Parameter [applicationID] :
   /// Application ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<void> deleteApplication({
     required String applicationID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'applicationID': applicationID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
       method: 'POST',
       requestUri: '/DeleteApplication',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Delete Connector.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [connectorID] :
+  /// Delete Connector request connector ID.
+  Future<void> deleteConnector({
+    required String connectorID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'connectorID': connectorID,
+    };
+    await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/DeleteConnector',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -485,11 +590,16 @@ class Mgn {
   ///
   /// Parameter [jobID] :
   /// Request to delete Job from service by Job ID.
+  ///
+  /// Parameter [accountID] :
+  /// Request to delete Job from service by Account ID.
   Future<void> deleteJob({
     required String jobID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'jobID': jobID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -552,11 +662,16 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Request to delete Source Server from service by Server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Request to delete Source Server from service by Account ID.
   Future<void> deleteSourceServer({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -596,11 +711,16 @@ class Mgn {
   ///
   /// Parameter [waveID] :
   /// Wave ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<void> deleteWave({
     required String waveID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'waveID': waveID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -618,6 +738,9 @@ class Mgn {
   /// Parameter [jobID] :
   /// Request to describe Job log job ID.
   ///
+  /// Parameter [accountID] :
+  /// Request to describe Job log Account ID.
+  ///
   /// Parameter [maxResults] :
   /// Request to describe Job log item maximum results.
   ///
@@ -625,6 +748,7 @@ class Mgn {
   /// Request to describe Job log next token.
   Future<DescribeJobLogItemsResponse> describeJobLogItems({
     required String jobID,
+    String? accountID,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -636,6 +760,7 @@ class Mgn {
     );
     final $payload = <String, dynamic>{
       'jobID': jobID,
+      if (accountID != null) 'accountID': accountID,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
     };
@@ -659,6 +784,9 @@ class Mgn {
   /// May throw [UninitializedAccountException].
   /// May throw [ValidationException].
   ///
+  /// Parameter [accountID] :
+  /// Request to describe job log items by Account ID.
+  ///
   /// Parameter [filters] :
   /// Request to describe Job log filters.
   ///
@@ -668,6 +796,7 @@ class Mgn {
   /// Parameter [nextToken] :
   /// Request to describe job log items by next token.
   Future<DescribeJobsResponse> describeJobs({
+    String? accountID,
     DescribeJobsRequestFilters? filters,
     int? maxResults,
     String? nextToken,
@@ -679,6 +808,7 @@ class Mgn {
       1000,
     );
     final $payload = <String, dynamic>{
+      if (accountID != null) 'accountID': accountID,
       if (filters != null) 'filters': filters,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
@@ -783,6 +913,9 @@ class Mgn {
   /// May throw [UninitializedAccountException].
   /// May throw [ValidationException].
   ///
+  /// Parameter [accountID] :
+  /// Request to filter Source Servers list by Accoun ID.
+  ///
   /// Parameter [filters] :
   /// Request to filter Source Servers list.
   ///
@@ -792,6 +925,7 @@ class Mgn {
   /// Parameter [nextToken] :
   /// Request to filter Source Servers list by next token.
   Future<DescribeSourceServersResponse> describeSourceServers({
+    String? accountID,
     DescribeSourceServersRequestFilters? filters,
     int? maxResults,
     String? nextToken,
@@ -803,6 +937,7 @@ class Mgn {
       1000,
     );
     final $payload = <String, dynamic>{
+      if (accountID != null) 'accountID': accountID,
       if (filters != null) 'filters': filters,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
@@ -862,13 +997,18 @@ class Mgn {
   ///
   /// Parameter [waveID] :
   /// Wave ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<void> disassociateApplications({
     required List<String> applicationIDs,
     required String waveID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'applicationIDs': applicationIDs,
       'waveID': waveID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -889,13 +1029,18 @@ class Mgn {
   ///
   /// Parameter [sourceServerIDs] :
   /// Source server IDs list.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<void> disassociateSourceServers({
     required String applicationID,
     required List<String> sourceServerIDs,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'applicationID': applicationID,
       'sourceServerIDs': sourceServerIDs,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -925,11 +1070,16 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Request to disconnect Source Server from service by Server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Request to disconnect Source Server from service by Account ID.
   Future<SourceServer> disconnectFromService({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -960,11 +1110,16 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Request to finalize Cutover by Source Server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Request to finalize Cutover by Source Account ID.
   Future<SourceServer> finalizeCutover({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -982,11 +1137,16 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Request to get Launch Configuration information by Source Server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Request to get Launch Configuration information by Account ID.
   Future<LaunchConfiguration> getLaunchConfiguration({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1004,11 +1164,16 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Request to get Replication Configuration by Source Server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Request to get Replication Configuration by Account ID.
   Future<ReplicationConfiguration> getReplicationConfiguration({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1036,6 +1201,9 @@ class Mgn {
   ///
   /// May throw [UninitializedAccountException].
   ///
+  /// Parameter [accountID] :
+  /// Applications list Account ID.
+  ///
   /// Parameter [filters] :
   /// Applications list filters.
   ///
@@ -1045,7 +1213,47 @@ class Mgn {
   /// Parameter [nextToken] :
   /// Request next token.
   Future<ListApplicationsResponse> listApplications({
+    String? accountID,
     ListApplicationsRequestFilters? filters,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final $payload = <String, dynamic>{
+      if (accountID != null) 'accountID': accountID,
+      if (filters != null) 'filters': filters,
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/ListApplications',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListApplicationsResponse.fromJson(response);
+  }
+
+  /// List Connectors.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [filters] :
+  /// List Connectors Request filters.
+  ///
+  /// Parameter [maxResults] :
+  /// List Connectors Request max results.
+  ///
+  /// Parameter [nextToken] :
+  /// List Connectors Request next token.
+  Future<ListConnectorsResponse> listConnectors({
+    ListConnectorsRequestFilters? filters,
     int? maxResults,
     String? nextToken,
   }) async {
@@ -1063,10 +1271,10 @@ class Mgn {
     final response = await _protocol.send(
       payload: $payload,
       method: 'POST',
-      requestUri: '/ListApplications',
+      requestUri: '/ListConnectors',
       exceptionFnMap: _exceptionFns,
     );
-    return ListApplicationsResponse.fromJson(response);
+    return ListConnectorsResponse.fromJson(response);
   }
 
   /// List export errors.
@@ -1217,6 +1425,39 @@ class Mgn {
     return ListImportsResponse.fromJson(response);
   }
 
+  /// List Managed Accounts.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [maxResults] :
+  /// List managed accounts request max results.
+  ///
+  /// Parameter [nextToken] :
+  /// List managed accounts request next token.
+  Future<ListManagedAccountsResponse> listManagedAccounts({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final $payload = <String, dynamic>{
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/ListManagedAccounts',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListManagedAccountsResponse.fromJson(response);
+  }
+
   /// List source server post migration custom actions.
   ///
   /// May throw [UninitializedAccountException].
@@ -1224,6 +1465,10 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Source server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID to return when listing source server post migration custom
+  /// actions.
   ///
   /// Parameter [filters] :
   /// Filters to apply when listing source server post migration custom actions.
@@ -1237,6 +1482,7 @@ class Mgn {
   /// actions.
   Future<ListSourceServerActionsResponse> listSourceServerActions({
     required String sourceServerID,
+    String? accountID,
     SourceServerActionsRequestFilters? filters,
     int? maxResults,
     String? nextToken,
@@ -1249,6 +1495,7 @@ class Mgn {
     );
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
       if (filters != null) 'filters': filters,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
@@ -1332,6 +1579,9 @@ class Mgn {
   ///
   /// May throw [UninitializedAccountException].
   ///
+  /// Parameter [accountID] :
+  /// Request account ID.
+  ///
   /// Parameter [filters] :
   /// Waves list filters.
   ///
@@ -1341,6 +1591,7 @@ class Mgn {
   /// Parameter [nextToken] :
   /// Request next token.
   Future<ListWavesResponse> listWaves({
+    String? accountID,
     ListWavesRequestFilters? filters,
     int? maxResults,
     String? nextToken,
@@ -1352,6 +1603,7 @@ class Mgn {
       1000,
     );
     final $payload = <String, dynamic>{
+      if (accountID != null) 'accountID': accountID,
       if (filters != null) 'filters': filters,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
@@ -1376,16 +1628,51 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Mark as archived by Source Server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Mark as archived by Account ID.
   Future<SourceServer> markAsArchived({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
       method: 'POST',
       requestUri: '/MarkAsArchived',
+      exceptionFnMap: _exceptionFns,
+    );
+    return SourceServer.fromJson(response);
+  }
+
+  /// Pause Replication.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [sourceServerID] :
+  /// Pause Replication Request source server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Pause Replication Request account ID.
+  Future<SourceServer> pauseReplication({
+    required String sourceServerID,
+    String? accountID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/PauseReplication',
       exceptionFnMap: _exceptionFns,
     );
     return SourceServer.fromJson(response);
@@ -1412,6 +1699,9 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Source server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Source server post migration custom account ID.
   ///
   /// Parameter [active] :
   /// Source server post migration custom action active status.
@@ -1442,6 +1732,7 @@ class Mgn {
     required String documentIdentifier,
     required int order,
     required String sourceServerID,
+    String? accountID,
     bool? active,
     ActionCategory? category,
     String? description,
@@ -1470,8 +1761,9 @@ class Mgn {
       'documentIdentifier': documentIdentifier,
       'order': order,
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
       if (active != null) 'active': active,
-      if (category != null) 'category': category.toValue(),
+      if (category != null) 'category': category.value,
       if (description != null) 'description': description,
       if (documentVersion != null) 'documentVersion': documentVersion,
       if (externalParameters != null) 'externalParameters': externalParameters,
@@ -1573,7 +1865,7 @@ class Mgn {
       'launchConfigurationTemplateID': launchConfigurationTemplateID,
       'order': order,
       if (active != null) 'active': active,
-      if (category != null) 'category': category.toValue(),
+      if (category != null) 'category': category.value,
       if (description != null) 'description': description,
       if (documentVersion != null) 'documentVersion': documentVersion,
       if (externalParameters != null) 'externalParameters': externalParameters,
@@ -1603,13 +1895,18 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Source server ID of the post migration custom action to remove.
+  ///
+  /// Parameter [accountID] :
+  /// Source server post migration account ID.
   Future<void> removeSourceServerAction({
     required String actionID,
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'actionID': actionID,
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1647,6 +1944,36 @@ class Mgn {
     );
   }
 
+  /// Resume Replication.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [sourceServerID] :
+  /// Resume Replication Request source server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Resume Replication Request account ID.
+  Future<SourceServer> resumeReplication({
+    required String sourceServerID,
+    String? accountID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/ResumeReplication',
+      exceptionFnMap: _exceptionFns,
+    );
+    return SourceServer.fromJson(response);
+  }
+
   /// Causes the data replication initiation sequence to begin immediately upon
   /// next Handshake for specified SourceServer IDs, regardless of when the
   /// previous initiation started. This command will not work if the
@@ -1658,11 +1985,16 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Retry data replication for Source Server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Retry data replication for Account ID.
   Future<SourceServer> retryDataReplication({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1684,14 +2016,19 @@ class Mgn {
   /// Parameter [sourceServerIDs] :
   /// Start Cutover by Source Server IDs.
   ///
+  /// Parameter [accountID] :
+  /// Start Cutover by Account IDs
+  ///
   /// Parameter [tags] :
   /// Start Cutover by Tags.
   Future<StartCutoverResponse> startCutover({
     required List<String> sourceServerIDs,
+    String? accountID,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerIDs': sourceServerIDs,
+      if (accountID != null) 'accountID': accountID,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -1776,11 +2113,16 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// ID of source server on which to start replication.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID on which to start replication.
   Future<SourceServer> startReplication({
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1802,14 +2144,19 @@ class Mgn {
   /// Parameter [sourceServerIDs] :
   /// Start Test for Source Server IDs.
   ///
+  /// Parameter [accountID] :
+  /// Start Test for Account ID.
+  ///
   /// Parameter [tags] :
   /// Start Test by Tags.
   Future<StartTestResponse> startTest({
     required List<String> sourceServerIDs,
+    String? accountID,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerIDs': sourceServerIDs,
+      if (accountID != null) 'accountID': accountID,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -1819,6 +2166,36 @@ class Mgn {
       exceptionFnMap: _exceptionFns,
     );
     return StartTestResponse.fromJson(response);
+  }
+
+  /// Stop Replication.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [sourceServerID] :
+  /// Stop Replication Request source server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Stop Replication Request account ID.
+  Future<SourceServer> stopReplication({
+    required String sourceServerID,
+    String? accountID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/StopReplication',
+      exceptionFnMap: _exceptionFns,
+    );
+    return SourceServer.fromJson(response);
   }
 
   /// Adds or overwrites only the specified tags for the specified Application
@@ -1863,14 +2240,19 @@ class Mgn {
   /// Parameter [sourceServerIDs] :
   /// Terminate Target instance by Source Server IDs.
   ///
+  /// Parameter [accountID] :
+  /// Terminate Target instance by Account ID
+  ///
   /// Parameter [tags] :
   /// Terminate Target instance by Tags.
   Future<TerminateTargetInstancesResponse> terminateTargetInstances({
     required List<String> sourceServerIDs,
+    String? accountID,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerIDs': sourceServerIDs,
+      if (accountID != null) 'accountID': accountID,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -1890,11 +2272,16 @@ class Mgn {
   ///
   /// Parameter [applicationID] :
   /// Application ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<Application> unarchiveApplication({
     required String applicationID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'applicationID': applicationID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1913,11 +2300,16 @@ class Mgn {
   ///
   /// Parameter [waveID] :
   /// Wave ID.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID.
   Future<Wave> unarchiveWave({
     required String waveID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
       'waveID': waveID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1967,6 +2359,9 @@ class Mgn {
   /// Parameter [applicationID] :
   /// Application ID.
   ///
+  /// Parameter [accountID] :
+  /// Account ID.
+  ///
   /// Parameter [description] :
   /// Application description.
   ///
@@ -1974,11 +2369,13 @@ class Mgn {
   /// Application name.
   Future<Application> updateApplication({
     required String applicationID,
+    String? accountID,
     String? description,
     String? name,
   }) async {
     final $payload = <String, dynamic>{
       'applicationID': applicationID,
+      if (accountID != null) 'accountID': accountID,
       if (description != null) 'description': description,
       if (name != null) 'name': name,
     };
@@ -1991,7 +2388,43 @@ class Mgn {
     return Application.fromJson(response);
   }
 
+  /// Update Connector.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [connectorID] :
+  /// Update Connector request connector ID.
+  ///
+  /// Parameter [name] :
+  /// Update Connector request name.
+  ///
+  /// Parameter [ssmCommandConfig] :
+  /// Update Connector request SSM command config.
+  Future<Connector> updateConnector({
+    required String connectorID,
+    String? name,
+    ConnectorSsmCommandConfig? ssmCommandConfig,
+  }) async {
+    final $payload = <String, dynamic>{
+      'connectorID': connectorID,
+      if (name != null) 'name': name,
+      if (ssmCommandConfig != null) 'ssmCommandConfig': ssmCommandConfig,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/UpdateConnector',
+      exceptionFnMap: _exceptionFns,
+    );
+    return Connector.fromJson(response);
+  }
+
   /// Updates multiple LaunchConfigurations by Source Server ID.
+  /// <note>
+  /// bootMode valid values are <code>LEGACY_BIOS | UEFI</code>
+  /// </note>
   ///
   /// May throw [UninitializedAccountException].
   /// May throw [ResourceNotFoundException].
@@ -2000,6 +2433,9 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Update Launch configuration by Source Server ID request.
+  ///
+  /// Parameter [accountID] :
+  /// Update Launch configuration Account ID.
   ///
   /// Parameter [bootMode] :
   /// Update Launch configuration boot mode request.
@@ -2029,6 +2465,7 @@ class Mgn {
   /// Update Launch configuration Target instance right sizing request.
   Future<LaunchConfiguration> updateLaunchConfiguration({
     required String sourceServerID,
+    String? accountID,
     BootMode? bootMode,
     bool? copyPrivateIp,
     bool? copyTags,
@@ -2042,13 +2479,14 @@ class Mgn {
   }) async {
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
-      if (bootMode != null) 'bootMode': bootMode.toValue(),
+      if (accountID != null) 'accountID': accountID,
+      if (bootMode != null) 'bootMode': bootMode.value,
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
       if (enableMapAutoTagging != null)
         'enableMapAutoTagging': enableMapAutoTagging,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
       if (licensing != null) 'licensing': licensing,
       if (mapAutoTaggingMpeID != null)
         'mapAutoTaggingMpeID': mapAutoTaggingMpeID,
@@ -2056,7 +2494,7 @@ class Mgn {
       if (postLaunchActions != null) 'postLaunchActions': postLaunchActions,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2138,14 +2576,14 @@ class Mgn {
       'launchConfigurationTemplateID': launchConfigurationTemplateID,
       if (associatePublicIpAddress != null)
         'associatePublicIpAddress': associatePublicIpAddress,
-      if (bootMode != null) 'bootMode': bootMode.toValue(),
+      if (bootMode != null) 'bootMode': bootMode.value,
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
       if (enableMapAutoTagging != null)
         'enableMapAutoTagging': enableMapAutoTagging,
       if (largeVolumeConf != null) 'largeVolumeConf': largeVolumeConf,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
       if (licensing != null) 'licensing': licensing,
       if (mapAutoTaggingMpeID != null)
         'mapAutoTaggingMpeID': mapAutoTaggingMpeID,
@@ -2154,7 +2592,7 @@ class Mgn {
       if (smallVolumeMaxSize != null) 'smallVolumeMaxSize': smallVolumeMaxSize,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2176,6 +2614,9 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// Update replication configuration Source Server ID request.
+  ///
+  /// Parameter [accountID] :
+  /// Update replication configuration Account ID request.
   ///
   /// Parameter [associateDefaultSecurityGroup] :
   /// Update replication configuration associate default Application Migration
@@ -2221,8 +2662,12 @@ class Mgn {
   ///
   /// Parameter [useDedicatedReplicationServer] :
   /// Update replication configuration use dedicated Replication Server request.
+  ///
+  /// Parameter [useFipsEndpoint] :
+  /// Update replication configuration use Fips Endpoint.
   Future<ReplicationConfiguration> updateReplicationConfiguration({
     required String sourceServerID,
+    String? accountID,
     bool? associateDefaultSecurityGroup,
     int? bandwidthThrottling,
     bool? createPublicIP,
@@ -2238,25 +2683,26 @@ class Mgn {
     String? stagingAreaSubnetId,
     Map<String, String>? stagingAreaTags,
     bool? useDedicatedReplicationServer,
+    bool? useFipsEndpoint,
   }) async {
     _s.validateNumRange(
       'bandwidthThrottling',
       bandwidthThrottling,
       0,
-      1152921504606846976,
+      10000,
     );
     final $payload = <String, dynamic>{
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
       if (associateDefaultSecurityGroup != null)
         'associateDefaultSecurityGroup': associateDefaultSecurityGroup,
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (name != null) 'name': name,
@@ -2271,6 +2717,7 @@ class Mgn {
       if (stagingAreaTags != null) 'stagingAreaTags': stagingAreaTags,
       if (useDedicatedReplicationServer != null)
         'useDedicatedReplicationServer': useDedicatedReplicationServer,
+      if (useFipsEndpoint != null) 'useFipsEndpoint': useFipsEndpoint,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2334,6 +2781,9 @@ class Mgn {
   /// Parameter [useDedicatedReplicationServer] :
   /// Update replication configuration template use dedicated Replication Server
   /// request.
+  ///
+  /// Parameter [useFipsEndpoint] :
+  /// Update replication configuration template use Fips Endpoint request.
   Future<ReplicationConfigurationTemplate>
       updateReplicationConfigurationTemplate({
     required String replicationConfigurationTemplateID,
@@ -2351,12 +2801,13 @@ class Mgn {
     String? stagingAreaSubnetId,
     Map<String, String>? stagingAreaTags,
     bool? useDedicatedReplicationServer,
+    bool? useFipsEndpoint,
   }) async {
     _s.validateNumRange(
       'bandwidthThrottling',
       bandwidthThrottling,
       0,
-      1152921504606846976,
+      10000,
     );
     final $payload = <String, dynamic>{
       'replicationConfigurationTemplateID': replicationConfigurationTemplateID,
@@ -2366,11 +2817,10 @@ class Mgn {
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (replicationServerInstanceType != null)
@@ -2383,6 +2833,7 @@ class Mgn {
       if (stagingAreaTags != null) 'stagingAreaTags': stagingAreaTags,
       if (useDedicatedReplicationServer != null)
         'useDedicatedReplicationServer': useDedicatedReplicationServer,
+      if (useFipsEndpoint != null) 'useFipsEndpoint': useFipsEndpoint,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2391,6 +2842,39 @@ class Mgn {
       exceptionFnMap: _exceptionFns,
     );
     return ReplicationConfigurationTemplate.fromJson(response);
+  }
+
+  /// Update Source Server.
+  ///
+  /// May throw [UninitializedAccountException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [sourceServerID] :
+  /// Update Source Server request source server ID.
+  ///
+  /// Parameter [accountID] :
+  /// Update Source Server request account ID.
+  ///
+  /// Parameter [connectorAction] :
+  /// Update Source Server request connector action.
+  Future<SourceServer> updateSourceServer({
+    required String sourceServerID,
+    String? accountID,
+    SourceServerConnectorAction? connectorAction,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
+      if (connectorAction != null) 'connectorAction': connectorAction,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/UpdateSourceServer',
+      exceptionFnMap: _exceptionFns,
+    );
+    return SourceServer.fromJson(response);
   }
 
   /// Allows you to change between the AGENT_BASED replication type and the
@@ -2406,13 +2890,18 @@ class Mgn {
   ///
   /// Parameter [sourceServerID] :
   /// ID of source server on which to update replication type.
+  ///
+  /// Parameter [accountID] :
+  /// Account ID on which to update replication type.
   Future<SourceServer> updateSourceServerReplicationType({
     required ReplicationType replicationType,
     required String sourceServerID,
+    String? accountID,
   }) async {
     final $payload = <String, dynamic>{
-      'replicationType': replicationType.toValue(),
+      'replicationType': replicationType.value,
       'sourceServerID': sourceServerID,
+      if (accountID != null) 'accountID': accountID,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2432,6 +2921,9 @@ class Mgn {
   /// Parameter [waveID] :
   /// Wave ID.
   ///
+  /// Parameter [accountID] :
+  /// Account ID.
+  ///
   /// Parameter [description] :
   /// Wave description.
   ///
@@ -2439,11 +2931,13 @@ class Mgn {
   /// Wave name.
   Future<Wave> updateWave({
     required String waveID,
+    String? accountID,
     String? description,
     String? name,
   }) async {
     final $payload = <String, dynamic>{
       'waveID': waveID,
+      if (accountID != null) 'accountID': accountID,
       if (description != null) 'description': description,
       if (name != null) 'name': name,
     };
@@ -2458,71 +2952,27 @@ class Mgn {
 }
 
 enum ActionCategory {
-  disasterRecovery,
-  operatingSystem,
-  licenseAndSubscription,
-  validation,
-  observability,
-  security,
-  networking,
-  configuration,
-  backup,
-  other,
-}
+  disasterRecovery('DISASTER_RECOVERY'),
+  operatingSystem('OPERATING_SYSTEM'),
+  licenseAndSubscription('LICENSE_AND_SUBSCRIPTION'),
+  validation('VALIDATION'),
+  observability('OBSERVABILITY'),
+  refactoring('REFACTORING'),
+  security('SECURITY'),
+  networking('NETWORKING'),
+  configuration('CONFIGURATION'),
+  backup('BACKUP'),
+  other('OTHER'),
+  ;
 
-extension ActionCategoryValueExtension on ActionCategory {
-  String toValue() {
-    switch (this) {
-      case ActionCategory.disasterRecovery:
-        return 'DISASTER_RECOVERY';
-      case ActionCategory.operatingSystem:
-        return 'OPERATING_SYSTEM';
-      case ActionCategory.licenseAndSubscription:
-        return 'LICENSE_AND_SUBSCRIPTION';
-      case ActionCategory.validation:
-        return 'VALIDATION';
-      case ActionCategory.observability:
-        return 'OBSERVABILITY';
-      case ActionCategory.security:
-        return 'SECURITY';
-      case ActionCategory.networking:
-        return 'NETWORKING';
-      case ActionCategory.configuration:
-        return 'CONFIGURATION';
-      case ActionCategory.backup:
-        return 'BACKUP';
-      case ActionCategory.other:
-        return 'OTHER';
-    }
-  }
-}
+  final String value;
 
-extension ActionCategoryFromString on String {
-  ActionCategory toActionCategory() {
-    switch (this) {
-      case 'DISASTER_RECOVERY':
-        return ActionCategory.disasterRecovery;
-      case 'OPERATING_SYSTEM':
-        return ActionCategory.operatingSystem;
-      case 'LICENSE_AND_SUBSCRIPTION':
-        return ActionCategory.licenseAndSubscription;
-      case 'VALIDATION':
-        return ActionCategory.validation;
-      case 'OBSERVABILITY':
-        return ActionCategory.observability;
-      case 'SECURITY':
-        return ActionCategory.security;
-      case 'NETWORKING':
-        return ActionCategory.networking;
-      case 'CONFIGURATION':
-        return ActionCategory.configuration;
-      case 'BACKUP':
-        return ActionCategory.backup;
-      case 'OTHER':
-        return ActionCategory.other;
-    }
-    throw Exception('$this is not known in enum ActionCategory');
-  }
+  const ActionCategory(this.value);
+
+  static ActionCategory fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ActionCategory'));
 }
 
 class Application {
@@ -2639,11 +3089,11 @@ class ApplicationAggregatedStatus {
 
   factory ApplicationAggregatedStatus.fromJson(Map<String, dynamic> json) {
     return ApplicationAggregatedStatus(
-      healthStatus:
-          (json['healthStatus'] as String?)?.toApplicationHealthStatus(),
+      healthStatus: (json['healthStatus'] as String?)
+          ?.let(ApplicationHealthStatus.fromString),
       lastUpdateDateTime: json['lastUpdateDateTime'] as String?,
-      progressStatus:
-          (json['progressStatus'] as String?)?.toApplicationProgressStatus(),
+      progressStatus: (json['progressStatus'] as String?)
+          ?.let(ApplicationProgressStatus.fromString),
       totalSourceServers: json['totalSourceServers'] as int?,
     );
   }
@@ -2654,78 +3104,44 @@ class ApplicationAggregatedStatus {
     final progressStatus = this.progressStatus;
     final totalSourceServers = this.totalSourceServers;
     return {
-      if (healthStatus != null) 'healthStatus': healthStatus.toValue(),
+      if (healthStatus != null) 'healthStatus': healthStatus.value,
       if (lastUpdateDateTime != null) 'lastUpdateDateTime': lastUpdateDateTime,
-      if (progressStatus != null) 'progressStatus': progressStatus.toValue(),
+      if (progressStatus != null) 'progressStatus': progressStatus.value,
       if (totalSourceServers != null) 'totalSourceServers': totalSourceServers,
     };
   }
 }
 
 enum ApplicationHealthStatus {
-  healthy,
-  lagging,
-  error,
-}
+  healthy('HEALTHY'),
+  lagging('LAGGING'),
+  error('ERROR'),
+  ;
 
-extension ApplicationHealthStatusValueExtension on ApplicationHealthStatus {
-  String toValue() {
-    switch (this) {
-      case ApplicationHealthStatus.healthy:
-        return 'HEALTHY';
-      case ApplicationHealthStatus.lagging:
-        return 'LAGGING';
-      case ApplicationHealthStatus.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ApplicationHealthStatusFromString on String {
-  ApplicationHealthStatus toApplicationHealthStatus() {
-    switch (this) {
-      case 'HEALTHY':
-        return ApplicationHealthStatus.healthy;
-      case 'LAGGING':
-        return ApplicationHealthStatus.lagging;
-      case 'ERROR':
-        return ApplicationHealthStatus.error;
-    }
-    throw Exception('$this is not known in enum ApplicationHealthStatus');
-  }
+  const ApplicationHealthStatus(this.value);
+
+  static ApplicationHealthStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ApplicationHealthStatus'));
 }
 
 enum ApplicationProgressStatus {
-  notStarted,
-  inProgress,
-  completed,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  ;
 
-extension ApplicationProgressStatusValueExtension on ApplicationProgressStatus {
-  String toValue() {
-    switch (this) {
-      case ApplicationProgressStatus.notStarted:
-        return 'NOT_STARTED';
-      case ApplicationProgressStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ApplicationProgressStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension ApplicationProgressStatusFromString on String {
-  ApplicationProgressStatus toApplicationProgressStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return ApplicationProgressStatus.notStarted;
-      case 'IN_PROGRESS':
-        return ApplicationProgressStatus.inProgress;
-      case 'COMPLETED':
-        return ApplicationProgressStatus.completed;
-    }
-    throw Exception('$this is not known in enum ApplicationProgressStatus');
-  }
+  const ApplicationProgressStatus(this.value);
+
+  static ApplicationProgressStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ApplicationProgressStatus'));
 }
 
 class AssociateApplicationsResponse {
@@ -2753,31 +3169,18 @@ class AssociateSourceServersResponse {
 }
 
 enum BootMode {
-  legacyBios,
-  uefi,
-}
+  legacyBios('LEGACY_BIOS'),
+  uefi('UEFI'),
+  useSource('USE_SOURCE'),
+  ;
 
-extension BootModeValueExtension on BootMode {
-  String toValue() {
-    switch (this) {
-      case BootMode.legacyBios:
-        return 'LEGACY_BIOS';
-      case BootMode.uefi:
-        return 'UEFI';
-    }
-  }
-}
+  final String value;
 
-extension BootModeFromString on String {
-  BootMode toBootMode() {
-    switch (this) {
-      case 'LEGACY_BIOS':
-        return BootMode.legacyBios;
-      case 'UEFI':
-        return BootMode.uefi;
-    }
-    throw Exception('$this is not known in enum BootMode');
-  }
+  const BootMode(this.value);
+
+  static BootMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum BootMode'));
 }
 
 /// Source server CPU information.
@@ -2822,47 +3225,131 @@ class ChangeServerLifeCycleStateSourceServerLifecycle {
   Map<String, dynamic> toJson() {
     final state = this.state;
     return {
-      'state': state.toValue(),
+      'state': state.value,
     };
   }
 }
 
 enum ChangeServerLifeCycleStateSourceServerLifecycleState {
-  readyForTest,
-  readyForCutover,
-  cutover,
+  readyForTest('READY_FOR_TEST'),
+  readyForCutover('READY_FOR_CUTOVER'),
+  cutover('CUTOVER'),
+  ;
+
+  final String value;
+
+  const ChangeServerLifeCycleStateSourceServerLifecycleState(this.value);
+
+  static ChangeServerLifeCycleStateSourceServerLifecycleState fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ChangeServerLifeCycleStateSourceServerLifecycleState'));
 }
 
-extension ChangeServerLifeCycleStateSourceServerLifecycleStateValueExtension
-    on ChangeServerLifeCycleStateSourceServerLifecycleState {
-  String toValue() {
-    switch (this) {
-      case ChangeServerLifeCycleStateSourceServerLifecycleState.readyForTest:
-        return 'READY_FOR_TEST';
-      case ChangeServerLifeCycleStateSourceServerLifecycleState.readyForCutover:
-        return 'READY_FOR_CUTOVER';
-      case ChangeServerLifeCycleStateSourceServerLifecycleState.cutover:
-        return 'CUTOVER';
-    }
+class Connector {
+  /// Connector arn.
+  final String? arn;
+
+  /// Connector ID.
+  final String? connectorID;
+
+  /// Connector name.
+  final String? name;
+
+  /// Connector SSM command config.
+  final ConnectorSsmCommandConfig? ssmCommandConfig;
+
+  /// Connector SSM instance ID.
+  final String? ssmInstanceID;
+
+  /// Connector tags.
+  final Map<String, String>? tags;
+
+  Connector({
+    this.arn,
+    this.connectorID,
+    this.name,
+    this.ssmCommandConfig,
+    this.ssmInstanceID,
+    this.tags,
+  });
+
+  factory Connector.fromJson(Map<String, dynamic> json) {
+    return Connector(
+      arn: json['arn'] as String?,
+      connectorID: json['connectorID'] as String?,
+      name: json['name'] as String?,
+      ssmCommandConfig: json['ssmCommandConfig'] != null
+          ? ConnectorSsmCommandConfig.fromJson(
+              json['ssmCommandConfig'] as Map<String, dynamic>)
+          : null,
+      ssmInstanceID: json['ssmInstanceID'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final connectorID = this.connectorID;
+    final name = this.name;
+    final ssmCommandConfig = this.ssmCommandConfig;
+    final ssmInstanceID = this.ssmInstanceID;
+    final tags = this.tags;
+    return {
+      if (arn != null) 'arn': arn,
+      if (connectorID != null) 'connectorID': connectorID,
+      if (name != null) 'name': name,
+      if (ssmCommandConfig != null) 'ssmCommandConfig': ssmCommandConfig,
+      if (ssmInstanceID != null) 'ssmInstanceID': ssmInstanceID,
+      if (tags != null) 'tags': tags,
+    };
   }
 }
 
-extension ChangeServerLifeCycleStateSourceServerLifecycleStateFromString
-    on String {
-  ChangeServerLifeCycleStateSourceServerLifecycleState
-      toChangeServerLifeCycleStateSourceServerLifecycleState() {
-    switch (this) {
-      case 'READY_FOR_TEST':
-        return ChangeServerLifeCycleStateSourceServerLifecycleState
-            .readyForTest;
-      case 'READY_FOR_CUTOVER':
-        return ChangeServerLifeCycleStateSourceServerLifecycleState
-            .readyForCutover;
-      case 'CUTOVER':
-        return ChangeServerLifeCycleStateSourceServerLifecycleState.cutover;
-    }
-    throw Exception(
-        '$this is not known in enum ChangeServerLifeCycleStateSourceServerLifecycleState');
+/// Connector SSM command config.
+class ConnectorSsmCommandConfig {
+  /// Connector SSM command config CloudWatch output enabled.
+  final bool cloudWatchOutputEnabled;
+
+  /// Connector SSM command config S3 output enabled.
+  final bool s3OutputEnabled;
+
+  /// Connector SSM command config CloudWatch log group name.
+  final String? cloudWatchLogGroupName;
+
+  /// Connector SSM command config output S3 bucket name.
+  final String? outputS3BucketName;
+
+  ConnectorSsmCommandConfig({
+    required this.cloudWatchOutputEnabled,
+    required this.s3OutputEnabled,
+    this.cloudWatchLogGroupName,
+    this.outputS3BucketName,
+  });
+
+  factory ConnectorSsmCommandConfig.fromJson(Map<String, dynamic> json) {
+    return ConnectorSsmCommandConfig(
+      cloudWatchOutputEnabled: json['cloudWatchOutputEnabled'] as bool,
+      s3OutputEnabled: json['s3OutputEnabled'] as bool,
+      cloudWatchLogGroupName: json['cloudWatchLogGroupName'] as String?,
+      outputS3BucketName: json['outputS3BucketName'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cloudWatchOutputEnabled = this.cloudWatchOutputEnabled;
+    final s3OutputEnabled = this.s3OutputEnabled;
+    final cloudWatchLogGroupName = this.cloudWatchLogGroupName;
+    final outputS3BucketName = this.outputS3BucketName;
+    return {
+      'cloudWatchOutputEnabled': cloudWatchOutputEnabled,
+      's3OutputEnabled': s3OutputEnabled,
+      if (cloudWatchLogGroupName != null)
+        'cloudWatchLogGroupName': cloudWatchLogGroupName,
+      if (outputS3BucketName != null) 'outputS3BucketName': outputS3BucketName,
+    };
   }
 }
 
@@ -2881,7 +3368,8 @@ class DataReplicationError {
 
   factory DataReplicationError.fromJson(Map<String, dynamic> json) {
     return DataReplicationError(
-      error: (json['error'] as String?)?.toDataReplicationErrorString(),
+      error: (json['error'] as String?)
+          ?.let(DataReplicationErrorString.fromString),
       rawError: json['rawError'] as String?,
     );
   }
@@ -2890,111 +3378,42 @@ class DataReplicationError {
     final error = this.error;
     final rawError = this.rawError;
     return {
-      if (error != null) 'error': error.toValue(),
+      if (error != null) 'error': error.value,
       if (rawError != null) 'rawError': rawError,
     };
   }
 }
 
 enum DataReplicationErrorString {
-  agentNotSeen,
-  snapshotsFailure,
-  notConverging,
-  unstableNetwork,
-  failedToCreateSecurityGroup,
-  failedToLaunchReplicationServer,
-  failedToBootReplicationServer,
-  failedToAuthenticateWithService,
-  failedToDownloadReplicationSoftware,
-  failedToCreateStagingDisks,
-  failedToAttachStagingDisks,
-  failedToPairReplicationServerWithAgent,
-  failedToConnectAgentToReplicationServer,
-  failedToStartDataTransfer,
-  unsupportedVmConfiguration,
-  lastSnapshotJobFailed,
-}
+  agentNotSeen('AGENT_NOT_SEEN'),
+  snapshotsFailure('SNAPSHOTS_FAILURE'),
+  notConverging('NOT_CONVERGING'),
+  unstableNetwork('UNSTABLE_NETWORK'),
+  failedToCreateSecurityGroup('FAILED_TO_CREATE_SECURITY_GROUP'),
+  failedToLaunchReplicationServer('FAILED_TO_LAUNCH_REPLICATION_SERVER'),
+  failedToBootReplicationServer('FAILED_TO_BOOT_REPLICATION_SERVER'),
+  failedToAuthenticateWithService('FAILED_TO_AUTHENTICATE_WITH_SERVICE'),
+  failedToDownloadReplicationSoftware(
+      'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE'),
+  failedToCreateStagingDisks('FAILED_TO_CREATE_STAGING_DISKS'),
+  failedToAttachStagingDisks('FAILED_TO_ATTACH_STAGING_DISKS'),
+  failedToPairReplicationServerWithAgent(
+      'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT'),
+  failedToConnectAgentToReplicationServer(
+      'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER'),
+  failedToStartDataTransfer('FAILED_TO_START_DATA_TRANSFER'),
+  unsupportedVmConfiguration('UNSUPPORTED_VM_CONFIGURATION'),
+  lastSnapshotJobFailed('LAST_SNAPSHOT_JOB_FAILED'),
+  ;
 
-extension DataReplicationErrorStringValueExtension
-    on DataReplicationErrorString {
-  String toValue() {
-    switch (this) {
-      case DataReplicationErrorString.agentNotSeen:
-        return 'AGENT_NOT_SEEN';
-      case DataReplicationErrorString.snapshotsFailure:
-        return 'SNAPSHOTS_FAILURE';
-      case DataReplicationErrorString.notConverging:
-        return 'NOT_CONVERGING';
-      case DataReplicationErrorString.unstableNetwork:
-        return 'UNSTABLE_NETWORK';
-      case DataReplicationErrorString.failedToCreateSecurityGroup:
-        return 'FAILED_TO_CREATE_SECURITY_GROUP';
-      case DataReplicationErrorString.failedToLaunchReplicationServer:
-        return 'FAILED_TO_LAUNCH_REPLICATION_SERVER';
-      case DataReplicationErrorString.failedToBootReplicationServer:
-        return 'FAILED_TO_BOOT_REPLICATION_SERVER';
-      case DataReplicationErrorString.failedToAuthenticateWithService:
-        return 'FAILED_TO_AUTHENTICATE_WITH_SERVICE';
-      case DataReplicationErrorString.failedToDownloadReplicationSoftware:
-        return 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE';
-      case DataReplicationErrorString.failedToCreateStagingDisks:
-        return 'FAILED_TO_CREATE_STAGING_DISKS';
-      case DataReplicationErrorString.failedToAttachStagingDisks:
-        return 'FAILED_TO_ATTACH_STAGING_DISKS';
-      case DataReplicationErrorString.failedToPairReplicationServerWithAgent:
-        return 'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT';
-      case DataReplicationErrorString.failedToConnectAgentToReplicationServer:
-        return 'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER';
-      case DataReplicationErrorString.failedToStartDataTransfer:
-        return 'FAILED_TO_START_DATA_TRANSFER';
-      case DataReplicationErrorString.unsupportedVmConfiguration:
-        return 'UNSUPPORTED_VM_CONFIGURATION';
-      case DataReplicationErrorString.lastSnapshotJobFailed:
-        return 'LAST_SNAPSHOT_JOB_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationErrorStringFromString on String {
-  DataReplicationErrorString toDataReplicationErrorString() {
-    switch (this) {
-      case 'AGENT_NOT_SEEN':
-        return DataReplicationErrorString.agentNotSeen;
-      case 'SNAPSHOTS_FAILURE':
-        return DataReplicationErrorString.snapshotsFailure;
-      case 'NOT_CONVERGING':
-        return DataReplicationErrorString.notConverging;
-      case 'UNSTABLE_NETWORK':
-        return DataReplicationErrorString.unstableNetwork;
-      case 'FAILED_TO_CREATE_SECURITY_GROUP':
-        return DataReplicationErrorString.failedToCreateSecurityGroup;
-      case 'FAILED_TO_LAUNCH_REPLICATION_SERVER':
-        return DataReplicationErrorString.failedToLaunchReplicationServer;
-      case 'FAILED_TO_BOOT_REPLICATION_SERVER':
-        return DataReplicationErrorString.failedToBootReplicationServer;
-      case 'FAILED_TO_AUTHENTICATE_WITH_SERVICE':
-        return DataReplicationErrorString.failedToAuthenticateWithService;
-      case 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE':
-        return DataReplicationErrorString.failedToDownloadReplicationSoftware;
-      case 'FAILED_TO_CREATE_STAGING_DISKS':
-        return DataReplicationErrorString.failedToCreateStagingDisks;
-      case 'FAILED_TO_ATTACH_STAGING_DISKS':
-        return DataReplicationErrorString.failedToAttachStagingDisks;
-      case 'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT':
-        return DataReplicationErrorString
-            .failedToPairReplicationServerWithAgent;
-      case 'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER':
-        return DataReplicationErrorString
-            .failedToConnectAgentToReplicationServer;
-      case 'FAILED_TO_START_DATA_TRANSFER':
-        return DataReplicationErrorString.failedToStartDataTransfer;
-      case 'UNSUPPORTED_VM_CONFIGURATION':
-        return DataReplicationErrorString.unsupportedVmConfiguration;
-      case 'LAST_SNAPSHOT_JOB_FAILED':
-        return DataReplicationErrorString.lastSnapshotJobFailed;
-    }
-    throw Exception('$this is not known in enum DataReplicationErrorString');
-  }
+  const DataReplicationErrorString(this.value);
+
+  static DataReplicationErrorString fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataReplicationErrorString'));
 }
 
 /// Request data replication info.
@@ -3040,13 +3459,13 @@ class DataReplicationInfo {
           ? DataReplicationInitiation.fromJson(
               json['dataReplicationInitiation'] as Map<String, dynamic>)
           : null,
-      dataReplicationState:
-          (json['dataReplicationState'] as String?)?.toDataReplicationState(),
+      dataReplicationState: (json['dataReplicationState'] as String?)
+          ?.let(DataReplicationState.fromString),
       etaDateTime: json['etaDateTime'] as String?,
       lagDuration: json['lagDuration'] as String?,
       lastSnapshotDateTime: json['lastSnapshotDateTime'] as String?,
       replicatedDisks: (json['replicatedDisks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataReplicationInfoReplicatedDisk.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3067,7 +3486,7 @@ class DataReplicationInfo {
       if (dataReplicationInitiation != null)
         'dataReplicationInitiation': dataReplicationInitiation,
       if (dataReplicationState != null)
-        'dataReplicationState': dataReplicationState.toValue(),
+        'dataReplicationState': dataReplicationState.value,
       if (etaDateTime != null) 'etaDateTime': etaDateTime,
       if (lagDuration != null) 'lagDuration': lagDuration,
       if (lastSnapshotDateTime != null)
@@ -3154,7 +3573,7 @@ class DataReplicationInitiation {
       nextAttemptDateTime: json['nextAttemptDateTime'] as String?,
       startDateTime: json['startDateTime'] as String?,
       steps: (json['steps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DataReplicationInitiationStep.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3189,9 +3608,10 @@ class DataReplicationInitiationStep {
 
   factory DataReplicationInitiationStep.fromJson(Map<String, dynamic> json) {
     return DataReplicationInitiationStep(
-      name: (json['name'] as String?)?.toDataReplicationInitiationStepName(),
-      status:
-          (json['status'] as String?)?.toDataReplicationInitiationStepStatus(),
+      name: (json['name'] as String?)
+          ?.let(DataReplicationInitiationStepName.fromString),
+      status: (json['status'] as String?)
+          ?.let(DataReplicationInitiationStepStatus.fromString),
     );
   }
 
@@ -3199,209 +3619,77 @@ class DataReplicationInitiationStep {
     final name = this.name;
     final status = this.status;
     return {
-      if (name != null) 'name': name.toValue(),
-      if (status != null) 'status': status.toValue(),
+      if (name != null) 'name': name.value,
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum DataReplicationInitiationStepName {
-  wait,
-  createSecurityGroup,
-  launchReplicationServer,
-  bootReplicationServer,
-  authenticateWithService,
-  downloadReplicationSoftware,
-  createStagingDisks,
-  attachStagingDisks,
-  pairReplicationServerWithAgent,
-  connectAgentToReplicationServer,
-  startDataTransfer,
-}
+  wait('WAIT'),
+  createSecurityGroup('CREATE_SECURITY_GROUP'),
+  launchReplicationServer('LAUNCH_REPLICATION_SERVER'),
+  bootReplicationServer('BOOT_REPLICATION_SERVER'),
+  authenticateWithService('AUTHENTICATE_WITH_SERVICE'),
+  downloadReplicationSoftware('DOWNLOAD_REPLICATION_SOFTWARE'),
+  createStagingDisks('CREATE_STAGING_DISKS'),
+  attachStagingDisks('ATTACH_STAGING_DISKS'),
+  pairReplicationServerWithAgent('PAIR_REPLICATION_SERVER_WITH_AGENT'),
+  connectAgentToReplicationServer('CONNECT_AGENT_TO_REPLICATION_SERVER'),
+  startDataTransfer('START_DATA_TRANSFER'),
+  ;
 
-extension DataReplicationInitiationStepNameValueExtension
-    on DataReplicationInitiationStepName {
-  String toValue() {
-    switch (this) {
-      case DataReplicationInitiationStepName.wait:
-        return 'WAIT';
-      case DataReplicationInitiationStepName.createSecurityGroup:
-        return 'CREATE_SECURITY_GROUP';
-      case DataReplicationInitiationStepName.launchReplicationServer:
-        return 'LAUNCH_REPLICATION_SERVER';
-      case DataReplicationInitiationStepName.bootReplicationServer:
-        return 'BOOT_REPLICATION_SERVER';
-      case DataReplicationInitiationStepName.authenticateWithService:
-        return 'AUTHENTICATE_WITH_SERVICE';
-      case DataReplicationInitiationStepName.downloadReplicationSoftware:
-        return 'DOWNLOAD_REPLICATION_SOFTWARE';
-      case DataReplicationInitiationStepName.createStagingDisks:
-        return 'CREATE_STAGING_DISKS';
-      case DataReplicationInitiationStepName.attachStagingDisks:
-        return 'ATTACH_STAGING_DISKS';
-      case DataReplicationInitiationStepName.pairReplicationServerWithAgent:
-        return 'PAIR_REPLICATION_SERVER_WITH_AGENT';
-      case DataReplicationInitiationStepName.connectAgentToReplicationServer:
-        return 'CONNECT_AGENT_TO_REPLICATION_SERVER';
-      case DataReplicationInitiationStepName.startDataTransfer:
-        return 'START_DATA_TRANSFER';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationInitiationStepNameFromString on String {
-  DataReplicationInitiationStepName toDataReplicationInitiationStepName() {
-    switch (this) {
-      case 'WAIT':
-        return DataReplicationInitiationStepName.wait;
-      case 'CREATE_SECURITY_GROUP':
-        return DataReplicationInitiationStepName.createSecurityGroup;
-      case 'LAUNCH_REPLICATION_SERVER':
-        return DataReplicationInitiationStepName.launchReplicationServer;
-      case 'BOOT_REPLICATION_SERVER':
-        return DataReplicationInitiationStepName.bootReplicationServer;
-      case 'AUTHENTICATE_WITH_SERVICE':
-        return DataReplicationInitiationStepName.authenticateWithService;
-      case 'DOWNLOAD_REPLICATION_SOFTWARE':
-        return DataReplicationInitiationStepName.downloadReplicationSoftware;
-      case 'CREATE_STAGING_DISKS':
-        return DataReplicationInitiationStepName.createStagingDisks;
-      case 'ATTACH_STAGING_DISKS':
-        return DataReplicationInitiationStepName.attachStagingDisks;
-      case 'PAIR_REPLICATION_SERVER_WITH_AGENT':
-        return DataReplicationInitiationStepName.pairReplicationServerWithAgent;
-      case 'CONNECT_AGENT_TO_REPLICATION_SERVER':
-        return DataReplicationInitiationStepName
-            .connectAgentToReplicationServer;
-      case 'START_DATA_TRANSFER':
-        return DataReplicationInitiationStepName.startDataTransfer;
-    }
-    throw Exception(
-        '$this is not known in enum DataReplicationInitiationStepName');
-  }
+  const DataReplicationInitiationStepName(this.value);
+
+  static DataReplicationInitiationStepName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataReplicationInitiationStepName'));
 }
 
 enum DataReplicationInitiationStepStatus {
-  notStarted,
-  inProgress,
-  succeeded,
-  failed,
-  skipped,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  skipped('SKIPPED'),
+  ;
 
-extension DataReplicationInitiationStepStatusValueExtension
-    on DataReplicationInitiationStepStatus {
-  String toValue() {
-    switch (this) {
-      case DataReplicationInitiationStepStatus.notStarted:
-        return 'NOT_STARTED';
-      case DataReplicationInitiationStepStatus.inProgress:
-        return 'IN_PROGRESS';
-      case DataReplicationInitiationStepStatus.succeeded:
-        return 'SUCCEEDED';
-      case DataReplicationInitiationStepStatus.failed:
-        return 'FAILED';
-      case DataReplicationInitiationStepStatus.skipped:
-        return 'SKIPPED';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationInitiationStepStatusFromString on String {
-  DataReplicationInitiationStepStatus toDataReplicationInitiationStepStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return DataReplicationInitiationStepStatus.notStarted;
-      case 'IN_PROGRESS':
-        return DataReplicationInitiationStepStatus.inProgress;
-      case 'SUCCEEDED':
-        return DataReplicationInitiationStepStatus.succeeded;
-      case 'FAILED':
-        return DataReplicationInitiationStepStatus.failed;
-      case 'SKIPPED':
-        return DataReplicationInitiationStepStatus.skipped;
-    }
-    throw Exception(
-        '$this is not known in enum DataReplicationInitiationStepStatus');
-  }
+  const DataReplicationInitiationStepStatus(this.value);
+
+  static DataReplicationInitiationStepStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataReplicationInitiationStepStatus'));
 }
 
 enum DataReplicationState {
-  stopped,
-  initiating,
-  initialSync,
-  backlog,
-  creatingSnapshot,
-  continuous,
-  paused,
-  rescan,
-  stalled,
-  disconnected,
-  pendingSnapshotShipping,
-  shippingSnapshot,
-}
+  stopped('STOPPED'),
+  initiating('INITIATING'),
+  initialSync('INITIAL_SYNC'),
+  backlog('BACKLOG'),
+  creatingSnapshot('CREATING_SNAPSHOT'),
+  continuous('CONTINUOUS'),
+  paused('PAUSED'),
+  rescan('RESCAN'),
+  stalled('STALLED'),
+  disconnected('DISCONNECTED'),
+  pendingSnapshotShipping('PENDING_SNAPSHOT_SHIPPING'),
+  shippingSnapshot('SHIPPING_SNAPSHOT'),
+  ;
 
-extension DataReplicationStateValueExtension on DataReplicationState {
-  String toValue() {
-    switch (this) {
-      case DataReplicationState.stopped:
-        return 'STOPPED';
-      case DataReplicationState.initiating:
-        return 'INITIATING';
-      case DataReplicationState.initialSync:
-        return 'INITIAL_SYNC';
-      case DataReplicationState.backlog:
-        return 'BACKLOG';
-      case DataReplicationState.creatingSnapshot:
-        return 'CREATING_SNAPSHOT';
-      case DataReplicationState.continuous:
-        return 'CONTINUOUS';
-      case DataReplicationState.paused:
-        return 'PAUSED';
-      case DataReplicationState.rescan:
-        return 'RESCAN';
-      case DataReplicationState.stalled:
-        return 'STALLED';
-      case DataReplicationState.disconnected:
-        return 'DISCONNECTED';
-      case DataReplicationState.pendingSnapshotShipping:
-        return 'PENDING_SNAPSHOT_SHIPPING';
-      case DataReplicationState.shippingSnapshot:
-        return 'SHIPPING_SNAPSHOT';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationStateFromString on String {
-  DataReplicationState toDataReplicationState() {
-    switch (this) {
-      case 'STOPPED':
-        return DataReplicationState.stopped;
-      case 'INITIATING':
-        return DataReplicationState.initiating;
-      case 'INITIAL_SYNC':
-        return DataReplicationState.initialSync;
-      case 'BACKLOG':
-        return DataReplicationState.backlog;
-      case 'CREATING_SNAPSHOT':
-        return DataReplicationState.creatingSnapshot;
-      case 'CONTINUOUS':
-        return DataReplicationState.continuous;
-      case 'PAUSED':
-        return DataReplicationState.paused;
-      case 'RESCAN':
-        return DataReplicationState.rescan;
-      case 'STALLED':
-        return DataReplicationState.stalled;
-      case 'DISCONNECTED':
-        return DataReplicationState.disconnected;
-      case 'PENDING_SNAPSHOT_SHIPPING':
-        return DataReplicationState.pendingSnapshotShipping;
-      case 'SHIPPING_SNAPSHOT':
-        return DataReplicationState.shippingSnapshot;
-    }
-    throw Exception('$this is not known in enum DataReplicationState');
-  }
+  const DataReplicationState(this.value);
+
+  static DataReplicationState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DataReplicationState'));
 }
 
 class DeleteApplicationResponse {
@@ -3493,7 +3781,7 @@ class DescribeJobLogItemsResponse {
   factory DescribeJobLogItemsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeJobLogItemsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => JobLog.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3554,7 +3842,7 @@ class DescribeJobsResponse {
   factory DescribeJobsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeJobsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Job.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3587,7 +3875,7 @@ class DescribeLaunchConfigurationTemplatesResponse {
       Map<String, dynamic> json) {
     return DescribeLaunchConfigurationTemplatesResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               LaunchConfigurationTemplate.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3621,7 +3909,7 @@ class DescribeReplicationConfigurationTemplatesResponse {
       Map<String, dynamic> json) {
     return DescribeReplicationConfigurationTemplatesResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReplicationConfigurationTemplate.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3674,9 +3962,9 @@ class DescribeSourceServersRequestFilters {
       if (applicationIDs != null) 'applicationIDs': applicationIDs,
       if (isArchived != null) 'isArchived': isArchived,
       if (lifeCycleStates != null)
-        'lifeCycleStates': lifeCycleStates.map((e) => e.toValue()).toList(),
+        'lifeCycleStates': lifeCycleStates.map((e) => e.value).toList(),
       if (replicationTypes != null)
-        'replicationTypes': replicationTypes.map((e) => e.toValue()).toList(),
+        'replicationTypes': replicationTypes.map((e) => e.value).toList(),
       if (sourceServerIDs != null) 'sourceServerIDs': sourceServerIDs,
     };
   }
@@ -3697,7 +3985,7 @@ class DescribeSourceServersResponse {
   factory DescribeSourceServersResponse.fromJson(Map<String, dynamic> json) {
     return DescribeSourceServersResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SourceServer.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3729,7 +4017,7 @@ class DescribeVcenterClientsResponse {
   factory DescribeVcenterClientsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeVcenterClientsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VcenterClient.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3824,41 +4112,20 @@ class ExportErrorData {
 }
 
 enum ExportStatus {
-  pending,
-  started,
-  failed,
-  succeeded,
-}
+  pending('PENDING'),
+  started('STARTED'),
+  failed('FAILED'),
+  succeeded('SUCCEEDED'),
+  ;
 
-extension ExportStatusValueExtension on ExportStatus {
-  String toValue() {
-    switch (this) {
-      case ExportStatus.pending:
-        return 'PENDING';
-      case ExportStatus.started:
-        return 'STARTED';
-      case ExportStatus.failed:
-        return 'FAILED';
-      case ExportStatus.succeeded:
-        return 'SUCCEEDED';
-    }
-  }
-}
+  final String value;
 
-extension ExportStatusFromString on String {
-  ExportStatus toExportStatus() {
-    switch (this) {
-      case 'PENDING':
-        return ExportStatus.pending;
-      case 'STARTED':
-        return ExportStatus.started;
-      case 'FAILED':
-        return ExportStatus.failed;
-      case 'SUCCEEDED':
-        return ExportStatus.succeeded;
-    }
-    throw Exception('$this is not known in enum ExportStatus');
-  }
+  const ExportStatus(this.value);
+
+  static ExportStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExportStatus'));
 }
 
 /// Export task.
@@ -3911,7 +4178,7 @@ class ExportTask {
       s3Bucket: json['s3Bucket'] as String?,
       s3BucketOwner: json['s3BucketOwner'] as String?,
       s3Key: json['s3Key'] as String?,
-      status: (json['status'] as String?)?.toExportStatus(),
+      status: (json['status'] as String?)?.let(ExportStatus.fromString),
       summary: json['summary'] != null
           ? ExportTaskSummary.fromJson(json['summary'] as Map<String, dynamic>)
           : null,
@@ -3936,7 +4203,7 @@ class ExportTask {
       if (s3Bucket != null) 's3Bucket': s3Bucket,
       if (s3BucketOwner != null) 's3BucketOwner': s3BucketOwner,
       if (s3Key != null) 's3Key': s3Key,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (summary != null) 'summary': summary,
     };
   }
@@ -4012,41 +4279,19 @@ class ExportTaskSummary {
 }
 
 enum FirstBoot {
-  waiting,
-  succeeded,
-  unknown,
-  stopped,
-}
+  waiting('WAITING'),
+  succeeded('SUCCEEDED'),
+  unknown('UNKNOWN'),
+  stopped('STOPPED'),
+  ;
 
-extension FirstBootValueExtension on FirstBoot {
-  String toValue() {
-    switch (this) {
-      case FirstBoot.waiting:
-        return 'WAITING';
-      case FirstBoot.succeeded:
-        return 'SUCCEEDED';
-      case FirstBoot.unknown:
-        return 'UNKNOWN';
-      case FirstBoot.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension FirstBootFromString on String {
-  FirstBoot toFirstBoot() {
-    switch (this) {
-      case 'WAITING':
-        return FirstBoot.waiting;
-      case 'SUCCEEDED':
-        return FirstBoot.succeeded;
-      case 'UNKNOWN':
-        return FirstBoot.unknown;
-      case 'STOPPED':
-        return FirstBoot.stopped;
-    }
-    throw Exception('$this is not known in enum FirstBoot');
-  }
+  const FirstBoot(this.value);
+
+  static FirstBoot fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FirstBoot'));
 }
 
 /// Identification hints.
@@ -4102,6 +4347,9 @@ class IdentificationHints {
 
 /// Import error data.
 class ImportErrorData {
+  /// Import error data source account ID.
+  final String? accountID;
+
   /// Import error data application ID.
   final String? applicationID;
 
@@ -4121,6 +4369,7 @@ class ImportErrorData {
   final String? waveID;
 
   ImportErrorData({
+    this.accountID,
     this.applicationID,
     this.ec2LaunchTemplateID,
     this.rawError,
@@ -4131,6 +4380,7 @@ class ImportErrorData {
 
   factory ImportErrorData.fromJson(Map<String, dynamic> json) {
     return ImportErrorData(
+      accountID: json['accountID'] as String?,
       applicationID: json['applicationID'] as String?,
       ec2LaunchTemplateID: json['ec2LaunchTemplateID'] as String?,
       rawError: json['rawError'] as String?,
@@ -4141,6 +4391,7 @@ class ImportErrorData {
   }
 
   Map<String, dynamic> toJson() {
+    final accountID = this.accountID;
     final applicationID = this.applicationID;
     final ec2LaunchTemplateID = this.ec2LaunchTemplateID;
     final rawError = this.rawError;
@@ -4148,6 +4399,7 @@ class ImportErrorData {
     final sourceServerID = this.sourceServerID;
     final waveID = this.waveID;
     return {
+      if (accountID != null) 'accountID': accountID,
       if (applicationID != null) 'applicationID': applicationID,
       if (ec2LaunchTemplateID != null)
         'ec2LaunchTemplateID': ec2LaunchTemplateID,
@@ -4160,69 +4412,35 @@ class ImportErrorData {
 }
 
 enum ImportErrorType {
-  validationError,
-  processingError,
-}
+  validationError('VALIDATION_ERROR'),
+  processingError('PROCESSING_ERROR'),
+  ;
 
-extension ImportErrorTypeValueExtension on ImportErrorType {
-  String toValue() {
-    switch (this) {
-      case ImportErrorType.validationError:
-        return 'VALIDATION_ERROR';
-      case ImportErrorType.processingError:
-        return 'PROCESSING_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ImportErrorTypeFromString on String {
-  ImportErrorType toImportErrorType() {
-    switch (this) {
-      case 'VALIDATION_ERROR':
-        return ImportErrorType.validationError;
-      case 'PROCESSING_ERROR':
-        return ImportErrorType.processingError;
-    }
-    throw Exception('$this is not known in enum ImportErrorType');
-  }
+  const ImportErrorType(this.value);
+
+  static ImportErrorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ImportErrorType'));
 }
 
 enum ImportStatus {
-  pending,
-  started,
-  failed,
-  succeeded,
-}
+  pending('PENDING'),
+  started('STARTED'),
+  failed('FAILED'),
+  succeeded('SUCCEEDED'),
+  ;
 
-extension ImportStatusValueExtension on ImportStatus {
-  String toValue() {
-    switch (this) {
-      case ImportStatus.pending:
-        return 'PENDING';
-      case ImportStatus.started:
-        return 'STARTED';
-      case ImportStatus.failed:
-        return 'FAILED';
-      case ImportStatus.succeeded:
-        return 'SUCCEEDED';
-    }
-  }
-}
+  final String value;
 
-extension ImportStatusFromString on String {
-  ImportStatus toImportStatus() {
-    switch (this) {
-      case 'PENDING':
-        return ImportStatus.pending;
-      case 'STARTED':
-        return ImportStatus.started;
-      case 'FAILED':
-        return ImportStatus.failed;
-      case 'SUCCEEDED':
-        return ImportStatus.succeeded;
-    }
-    throw Exception('$this is not known in enum ImportStatus');
-  }
+  const ImportStatus(this.value);
+
+  static ImportStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ImportStatus'));
 }
 
 /// Import task.
@@ -4268,7 +4486,7 @@ class ImportTask {
           ? S3BucketSource.fromJson(
               json['s3BucketSource'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toImportStatus(),
+      status: (json['status'] as String?)?.let(ImportStatus.fromString),
       summary: json['summary'] != null
           ? ImportTaskSummary.fromJson(json['summary'] as Map<String, dynamic>)
           : null,
@@ -4289,7 +4507,7 @@ class ImportTask {
       if (importID != null) 'importID': importID,
       if (progressPercentage != null) 'progressPercentage': progressPercentage,
       if (s3BucketSource != null) 's3BucketSource': s3BucketSource,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (summary != null) 'summary': summary,
     };
   }
@@ -4318,7 +4536,8 @@ class ImportTaskError {
           ? ImportErrorData.fromJson(json['errorData'] as Map<String, dynamic>)
           : null,
       errorDateTime: json['errorDateTime'] as String?,
-      errorType: (json['errorType'] as String?)?.toImportErrorType(),
+      errorType:
+          (json['errorType'] as String?)?.let(ImportErrorType.fromString),
     );
   }
 
@@ -4329,7 +4548,7 @@ class ImportTaskError {
     return {
       if (errorData != null) 'errorData': errorData,
       if (errorDateTime != null) 'errorDateTime': errorDateTime,
-      if (errorType != null) 'errorType': errorType.toValue(),
+      if (errorType != null) 'errorType': errorType.value,
     };
   }
 }
@@ -4483,41 +4702,19 @@ class InitializeServiceResponse {
 }
 
 enum InitiatedBy {
-  startTest,
-  startCutover,
-  diagnostic,
-  terminate,
-}
+  startTest('START_TEST'),
+  startCutover('START_CUTOVER'),
+  diagnostic('DIAGNOSTIC'),
+  terminate('TERMINATE'),
+  ;
 
-extension InitiatedByValueExtension on InitiatedBy {
-  String toValue() {
-    switch (this) {
-      case InitiatedBy.startTest:
-        return 'START_TEST';
-      case InitiatedBy.startCutover:
-        return 'START_CUTOVER';
-      case InitiatedBy.diagnostic:
-        return 'DIAGNOSTIC';
-      case InitiatedBy.terminate:
-        return 'TERMINATE';
-    }
-  }
-}
+  final String value;
 
-extension InitiatedByFromString on String {
-  InitiatedBy toInitiatedBy() {
-    switch (this) {
-      case 'START_TEST':
-        return InitiatedBy.startTest;
-      case 'START_CUTOVER':
-        return InitiatedBy.startCutover;
-      case 'DIAGNOSTIC':
-        return InitiatedBy.diagnostic;
-      case 'TERMINATE':
-        return InitiatedBy.terminate;
-    }
-    throw Exception('$this is not known in enum InitiatedBy');
-  }
+  const InitiatedBy(this.value);
+
+  static InitiatedBy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum InitiatedBy'));
 }
 
 /// Job.
@@ -4567,15 +4764,16 @@ class Job {
       arn: json['arn'] as String?,
       creationDateTime: json['creationDateTime'] as String?,
       endDateTime: json['endDateTime'] as String?,
-      initiatedBy: (json['initiatedBy'] as String?)?.toInitiatedBy(),
+      initiatedBy:
+          (json['initiatedBy'] as String?)?.let(InitiatedBy.fromString),
       participatingServers: (json['participatingServers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ParticipatingServer.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toJobStatus(),
+      status: (json['status'] as String?)?.let(JobStatus.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      type: (json['type'] as String?)?.toJobType(),
+      type: (json['type'] as String?)?.let(JobType.fromString),
     );
   }
 
@@ -4594,12 +4792,12 @@ class Job {
       if (arn != null) 'arn': arn,
       if (creationDateTime != null) 'creationDateTime': creationDateTime,
       if (endDateTime != null) 'endDateTime': endDateTime,
-      if (initiatedBy != null) 'initiatedBy': initiatedBy.toValue(),
+      if (initiatedBy != null) 'initiatedBy': initiatedBy.value,
       if (participatingServers != null)
         'participatingServers': participatingServers,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -4623,7 +4821,7 @@ class JobLog {
 
   factory JobLog.fromJson(Map<String, dynamic> json) {
     return JobLog(
-      event: (json['event'] as String?)?.toJobLogEvent(),
+      event: (json['event'] as String?)?.let(JobLogEvent.fromString),
       eventData: json['eventData'] != null
           ? JobLogEventData.fromJson(json['eventData'] as Map<String, dynamic>)
           : null,
@@ -4636,7 +4834,7 @@ class JobLog {
     final eventData = this.eventData;
     final logDateTime = this.logDateTime;
     return {
-      if (event != null) 'event': event.toValue(),
+      if (event != null) 'event': event.value,
       if (eventData != null) 'eventData': eventData,
       if (logDateTime != null) 'logDateTime': logDateTime,
     };
@@ -4644,101 +4842,31 @@ class JobLog {
 }
 
 enum JobLogEvent {
-  jobStart,
-  serverSkipped,
-  cleanupStart,
-  cleanupEnd,
-  cleanupFail,
-  snapshotStart,
-  snapshotEnd,
-  snapshotFail,
-  usingPreviousSnapshot,
-  conversionStart,
-  conversionEnd,
-  conversionFail,
-  launchStart,
-  launchFailed,
-  jobCancel,
-  jobEnd,
-}
+  jobStart('JOB_START'),
+  serverSkipped('SERVER_SKIPPED'),
+  cleanupStart('CLEANUP_START'),
+  cleanupEnd('CLEANUP_END'),
+  cleanupFail('CLEANUP_FAIL'),
+  snapshotStart('SNAPSHOT_START'),
+  snapshotEnd('SNAPSHOT_END'),
+  snapshotFail('SNAPSHOT_FAIL'),
+  usingPreviousSnapshot('USING_PREVIOUS_SNAPSHOT'),
+  conversionStart('CONVERSION_START'),
+  conversionEnd('CONVERSION_END'),
+  conversionFail('CONVERSION_FAIL'),
+  launchStart('LAUNCH_START'),
+  launchFailed('LAUNCH_FAILED'),
+  jobCancel('JOB_CANCEL'),
+  jobEnd('JOB_END'),
+  ;
 
-extension JobLogEventValueExtension on JobLogEvent {
-  String toValue() {
-    switch (this) {
-      case JobLogEvent.jobStart:
-        return 'JOB_START';
-      case JobLogEvent.serverSkipped:
-        return 'SERVER_SKIPPED';
-      case JobLogEvent.cleanupStart:
-        return 'CLEANUP_START';
-      case JobLogEvent.cleanupEnd:
-        return 'CLEANUP_END';
-      case JobLogEvent.cleanupFail:
-        return 'CLEANUP_FAIL';
-      case JobLogEvent.snapshotStart:
-        return 'SNAPSHOT_START';
-      case JobLogEvent.snapshotEnd:
-        return 'SNAPSHOT_END';
-      case JobLogEvent.snapshotFail:
-        return 'SNAPSHOT_FAIL';
-      case JobLogEvent.usingPreviousSnapshot:
-        return 'USING_PREVIOUS_SNAPSHOT';
-      case JobLogEvent.conversionStart:
-        return 'CONVERSION_START';
-      case JobLogEvent.conversionEnd:
-        return 'CONVERSION_END';
-      case JobLogEvent.conversionFail:
-        return 'CONVERSION_FAIL';
-      case JobLogEvent.launchStart:
-        return 'LAUNCH_START';
-      case JobLogEvent.launchFailed:
-        return 'LAUNCH_FAILED';
-      case JobLogEvent.jobCancel:
-        return 'JOB_CANCEL';
-      case JobLogEvent.jobEnd:
-        return 'JOB_END';
-    }
-  }
-}
+  final String value;
 
-extension JobLogEventFromString on String {
-  JobLogEvent toJobLogEvent() {
-    switch (this) {
-      case 'JOB_START':
-        return JobLogEvent.jobStart;
-      case 'SERVER_SKIPPED':
-        return JobLogEvent.serverSkipped;
-      case 'CLEANUP_START':
-        return JobLogEvent.cleanupStart;
-      case 'CLEANUP_END':
-        return JobLogEvent.cleanupEnd;
-      case 'CLEANUP_FAIL':
-        return JobLogEvent.cleanupFail;
-      case 'SNAPSHOT_START':
-        return JobLogEvent.snapshotStart;
-      case 'SNAPSHOT_END':
-        return JobLogEvent.snapshotEnd;
-      case 'SNAPSHOT_FAIL':
-        return JobLogEvent.snapshotFail;
-      case 'USING_PREVIOUS_SNAPSHOT':
-        return JobLogEvent.usingPreviousSnapshot;
-      case 'CONVERSION_START':
-        return JobLogEvent.conversionStart;
-      case 'CONVERSION_END':
-        return JobLogEvent.conversionEnd;
-      case 'CONVERSION_FAIL':
-        return JobLogEvent.conversionFail;
-      case 'LAUNCH_START':
-        return JobLogEvent.launchStart;
-      case 'LAUNCH_FAILED':
-        return JobLogEvent.launchFailed;
-      case 'JOB_CANCEL':
-        return JobLogEvent.jobCancel;
-      case 'JOB_END':
-        return JobLogEvent.jobEnd;
-    }
-    throw Exception('$this is not known in enum JobLogEvent');
-  }
+  const JobLogEvent(this.value);
+
+  static JobLogEvent fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobLogEvent'));
 }
 
 /// Job log data
@@ -4815,13 +4943,13 @@ class JobPostLaunchActionsLaunchStatus {
     return JobPostLaunchActionsLaunchStatus(
       executionID: json['executionID'] as String?,
       executionStatus: (json['executionStatus'] as String?)
-          ?.toPostLaunchActionExecutionStatus(),
+          ?.let(PostLaunchActionExecutionStatus.fromString),
       failureReason: json['failureReason'] as String?,
       ssmDocument: json['ssmDocument'] != null
           ? SsmDocument.fromJson(json['ssmDocument'] as Map<String, dynamic>)
           : null,
       ssmDocumentType:
-          (json['ssmDocumentType'] as String?)?.toSsmDocumentType(),
+          (json['ssmDocumentType'] as String?)?.let(SsmDocumentType.fromString),
     );
   }
 
@@ -4833,73 +4961,41 @@ class JobPostLaunchActionsLaunchStatus {
     final ssmDocumentType = this.ssmDocumentType;
     return {
       if (executionID != null) 'executionID': executionID,
-      if (executionStatus != null) 'executionStatus': executionStatus.toValue(),
+      if (executionStatus != null) 'executionStatus': executionStatus.value,
       if (failureReason != null) 'failureReason': failureReason,
       if (ssmDocument != null) 'ssmDocument': ssmDocument,
-      if (ssmDocumentType != null) 'ssmDocumentType': ssmDocumentType.toValue(),
+      if (ssmDocumentType != null) 'ssmDocumentType': ssmDocumentType.value,
     };
   }
 }
 
 enum JobStatus {
-  pending,
-  started,
-  completed,
-}
+  pending('PENDING'),
+  started('STARTED'),
+  completed('COMPLETED'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.pending:
-        return 'PENDING';
-      case JobStatus.started:
-        return 'STARTED';
-      case JobStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'PENDING':
-        return JobStatus.pending;
-      case 'STARTED':
-        return JobStatus.started;
-      case 'COMPLETED':
-        return JobStatus.completed;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 enum JobType {
-  launch,
-  terminate,
-}
+  launch('LAUNCH'),
+  terminate('TERMINATE'),
+  ;
 
-extension JobTypeValueExtension on JobType {
-  String toValue() {
-    switch (this) {
-      case JobType.launch:
-        return 'LAUNCH';
-      case JobType.terminate:
-        return 'TERMINATE';
-    }
-  }
-}
+  final String value;
 
-extension JobTypeFromString on String {
-  JobType toJobType() {
-    switch (this) {
-      case 'LAUNCH':
-        return JobType.launch;
-      case 'TERMINATE':
-        return JobType.terminate;
-    }
-    throw Exception('$this is not known in enum JobType');
-  }
+  const JobType(this.value);
+
+  static JobType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum JobType'));
 }
 
 class LaunchConfiguration {
@@ -4955,13 +5051,13 @@ class LaunchConfiguration {
 
   factory LaunchConfiguration.fromJson(Map<String, dynamic> json) {
     return LaunchConfiguration(
-      bootMode: (json['bootMode'] as String?)?.toBootMode(),
+      bootMode: (json['bootMode'] as String?)?.let(BootMode.fromString),
       copyPrivateIp: json['copyPrivateIp'] as bool?,
       copyTags: json['copyTags'] as bool?,
       ec2LaunchTemplateID: json['ec2LaunchTemplateID'] as String?,
       enableMapAutoTagging: json['enableMapAutoTagging'] as bool?,
-      launchDisposition:
-          (json['launchDisposition'] as String?)?.toLaunchDisposition(),
+      launchDisposition: (json['launchDisposition'] as String?)
+          ?.let(LaunchDisposition.fromString),
       licensing: json['licensing'] != null
           ? Licensing.fromJson(json['licensing'] as Map<String, dynamic>)
           : null,
@@ -4974,7 +5070,7 @@ class LaunchConfiguration {
       sourceServerID: json['sourceServerID'] as String?,
       targetInstanceTypeRightSizingMethod:
           (json['targetInstanceTypeRightSizingMethod'] as String?)
-              ?.toTargetInstanceTypeRightSizingMethod(),
+              ?.let(TargetInstanceTypeRightSizingMethod.fromString),
     );
   }
 
@@ -4993,7 +5089,7 @@ class LaunchConfiguration {
     final targetInstanceTypeRightSizingMethod =
         this.targetInstanceTypeRightSizingMethod;
     return {
-      if (bootMode != null) 'bootMode': bootMode.toValue(),
+      if (bootMode != null) 'bootMode': bootMode.value,
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
       if (ec2LaunchTemplateID != null)
@@ -5001,7 +5097,7 @@ class LaunchConfiguration {
       if (enableMapAutoTagging != null)
         'enableMapAutoTagging': enableMapAutoTagging,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
       if (licensing != null) 'licensing': licensing,
       if (mapAutoTaggingMpeID != null)
         'mapAutoTaggingMpeID': mapAutoTaggingMpeID,
@@ -5010,7 +5106,7 @@ class LaunchConfiguration {
       if (sourceServerID != null) 'sourceServerID': sourceServerID,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
   }
 }
@@ -5092,7 +5188,7 @@ class LaunchConfigurationTemplate {
           json['launchConfigurationTemplateID'] as String,
       arn: json['arn'] as String?,
       associatePublicIpAddress: json['associatePublicIpAddress'] as bool?,
-      bootMode: (json['bootMode'] as String?)?.toBootMode(),
+      bootMode: (json['bootMode'] as String?)?.let(BootMode.fromString),
       copyPrivateIp: json['copyPrivateIp'] as bool?,
       copyTags: json['copyTags'] as bool?,
       ec2LaunchTemplateID: json['ec2LaunchTemplateID'] as String?,
@@ -5101,8 +5197,8 @@ class LaunchConfigurationTemplate {
           ? LaunchTemplateDiskConf.fromJson(
               json['largeVolumeConf'] as Map<String, dynamic>)
           : null,
-      launchDisposition:
-          (json['launchDisposition'] as String?)?.toLaunchDisposition(),
+      launchDisposition: (json['launchDisposition'] as String?)
+          ?.let(LaunchDisposition.fromString),
       licensing: json['licensing'] != null
           ? Licensing.fromJson(json['licensing'] as Map<String, dynamic>)
           : null,
@@ -5120,7 +5216,7 @@ class LaunchConfigurationTemplate {
           ?.map((k, e) => MapEntry(k, e as String)),
       targetInstanceTypeRightSizingMethod:
           (json['targetInstanceTypeRightSizingMethod'] as String?)
-              ?.toTargetInstanceTypeRightSizingMethod(),
+              ?.let(TargetInstanceTypeRightSizingMethod.fromString),
     );
   }
 
@@ -5148,7 +5244,7 @@ class LaunchConfigurationTemplate {
       if (arn != null) 'arn': arn,
       if (associatePublicIpAddress != null)
         'associatePublicIpAddress': associatePublicIpAddress,
-      if (bootMode != null) 'bootMode': bootMode.toValue(),
+      if (bootMode != null) 'bootMode': bootMode.value,
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
       if (ec2LaunchTemplateID != null)
@@ -5157,7 +5253,7 @@ class LaunchConfigurationTemplate {
         'enableMapAutoTagging': enableMapAutoTagging,
       if (largeVolumeConf != null) 'largeVolumeConf': largeVolumeConf,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
       if (licensing != null) 'licensing': licensing,
       if (mapAutoTaggingMpeID != null)
         'mapAutoTaggingMpeID': mapAutoTaggingMpeID,
@@ -5167,80 +5263,42 @@ class LaunchConfigurationTemplate {
       if (tags != null) 'tags': tags,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
   }
 }
 
 enum LaunchDisposition {
-  stopped,
-  started,
-}
+  stopped('STOPPED'),
+  started('STARTED'),
+  ;
 
-extension LaunchDispositionValueExtension on LaunchDisposition {
-  String toValue() {
-    switch (this) {
-      case LaunchDisposition.stopped:
-        return 'STOPPED';
-      case LaunchDisposition.started:
-        return 'STARTED';
-    }
-  }
-}
+  final String value;
 
-extension LaunchDispositionFromString on String {
-  LaunchDisposition toLaunchDisposition() {
-    switch (this) {
-      case 'STOPPED':
-        return LaunchDisposition.stopped;
-      case 'STARTED':
-        return LaunchDisposition.started;
-    }
-    throw Exception('$this is not known in enum LaunchDisposition');
-  }
+  const LaunchDisposition(this.value);
+
+  static LaunchDisposition fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LaunchDisposition'));
 }
 
 enum LaunchStatus {
-  pending,
-  inProgress,
-  launched,
-  failed,
-  terminated,
-}
+  pending('PENDING'),
+  inProgress('IN_PROGRESS'),
+  launched('LAUNCHED'),
+  failed('FAILED'),
+  terminated('TERMINATED'),
+  ;
 
-extension LaunchStatusValueExtension on LaunchStatus {
-  String toValue() {
-    switch (this) {
-      case LaunchStatus.pending:
-        return 'PENDING';
-      case LaunchStatus.inProgress:
-        return 'IN_PROGRESS';
-      case LaunchStatus.launched:
-        return 'LAUNCHED';
-      case LaunchStatus.failed:
-        return 'FAILED';
-      case LaunchStatus.terminated:
-        return 'TERMINATED';
-    }
-  }
-}
+  final String value;
 
-extension LaunchStatusFromString on String {
-  LaunchStatus toLaunchStatus() {
-    switch (this) {
-      case 'PENDING':
-        return LaunchStatus.pending;
-      case 'IN_PROGRESS':
-        return LaunchStatus.inProgress;
-      case 'LAUNCHED':
-        return LaunchStatus.launched;
-      case 'FAILED':
-        return LaunchStatus.failed;
-      case 'TERMINATED':
-        return LaunchStatus.terminated;
-    }
-    throw Exception('$this is not known in enum LaunchStatus');
-  }
+  const LaunchStatus(this.value);
+
+  static LaunchStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LaunchStatus'));
 }
 
 /// Launch template disk configuration.
@@ -5264,7 +5322,7 @@ class LaunchTemplateDiskConf {
     return LaunchTemplateDiskConf(
       iops: json['iops'] as int?,
       throughput: json['throughput'] as int?,
-      volumeType: (json['volumeType'] as String?)?.toVolumeType(),
+      volumeType: (json['volumeType'] as String?)?.let(VolumeType.fromString),
     );
   }
 
@@ -5275,7 +5333,7 @@ class LaunchTemplateDiskConf {
     return {
       if (iops != null) 'iops': iops,
       if (throughput != null) 'throughput': throughput,
-      if (volumeType != null) 'volumeType': volumeType.toValue(),
+      if (volumeType != null) 'volumeType': volumeType.value,
     };
   }
 }
@@ -5300,7 +5358,7 @@ class LaunchedInstance {
   factory LaunchedInstance.fromJson(Map<String, dynamic> json) {
     return LaunchedInstance(
       ec2InstanceID: json['ec2InstanceID'] as String?,
-      firstBoot: (json['firstBoot'] as String?)?.toFirstBoot(),
+      firstBoot: (json['firstBoot'] as String?)?.let(FirstBoot.fromString),
       jobID: json['jobID'] as String?,
     );
   }
@@ -5311,7 +5369,7 @@ class LaunchedInstance {
     final jobID = this.jobID;
     return {
       if (ec2InstanceID != null) 'ec2InstanceID': ec2InstanceID,
-      if (firstBoot != null) 'firstBoot': firstBoot.toValue(),
+      if (firstBoot != null) 'firstBoot': firstBoot.value,
       if (jobID != null) 'jobID': jobID,
     };
   }
@@ -5386,7 +5444,7 @@ class LifeCycle {
       lastTest: json['lastTest'] != null
           ? LifeCycleLastTest.fromJson(json['lastTest'] as Map<String, dynamic>)
           : null,
-      state: (json['state'] as String?)?.toLifeCycleState(),
+      state: (json['state'] as String?)?.let(LifeCycleState.fromString),
     );
   }
 
@@ -5408,7 +5466,7 @@ class LifeCycle {
       if (lastSeenByServiceDateTime != null)
         'lastSeenByServiceDateTime': lastSeenByServiceDateTime,
       if (lastTest != null) 'lastTest': lastTest,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
@@ -5658,71 +5716,26 @@ class LifeCycleLastTestReverted {
 }
 
 enum LifeCycleState {
-  stopped,
-  notReady,
-  readyForTest,
-  testing,
-  readyForCutover,
-  cuttingOver,
-  cutover,
-  disconnected,
-  discovered,
-  pendingInstallation,
-}
+  stopped('STOPPED'),
+  notReady('NOT_READY'),
+  readyForTest('READY_FOR_TEST'),
+  testing('TESTING'),
+  readyForCutover('READY_FOR_CUTOVER'),
+  cuttingOver('CUTTING_OVER'),
+  cutover('CUTOVER'),
+  disconnected('DISCONNECTED'),
+  discovered('DISCOVERED'),
+  pendingInstallation('PENDING_INSTALLATION'),
+  ;
 
-extension LifeCycleStateValueExtension on LifeCycleState {
-  String toValue() {
-    switch (this) {
-      case LifeCycleState.stopped:
-        return 'STOPPED';
-      case LifeCycleState.notReady:
-        return 'NOT_READY';
-      case LifeCycleState.readyForTest:
-        return 'READY_FOR_TEST';
-      case LifeCycleState.testing:
-        return 'TESTING';
-      case LifeCycleState.readyForCutover:
-        return 'READY_FOR_CUTOVER';
-      case LifeCycleState.cuttingOver:
-        return 'CUTTING_OVER';
-      case LifeCycleState.cutover:
-        return 'CUTOVER';
-      case LifeCycleState.disconnected:
-        return 'DISCONNECTED';
-      case LifeCycleState.discovered:
-        return 'DISCOVERED';
-      case LifeCycleState.pendingInstallation:
-        return 'PENDING_INSTALLATION';
-    }
-  }
-}
+  final String value;
 
-extension LifeCycleStateFromString on String {
-  LifeCycleState toLifeCycleState() {
-    switch (this) {
-      case 'STOPPED':
-        return LifeCycleState.stopped;
-      case 'NOT_READY':
-        return LifeCycleState.notReady;
-      case 'READY_FOR_TEST':
-        return LifeCycleState.readyForTest;
-      case 'TESTING':
-        return LifeCycleState.testing;
-      case 'READY_FOR_CUTOVER':
-        return LifeCycleState.readyForCutover;
-      case 'CUTTING_OVER':
-        return LifeCycleState.cuttingOver;
-      case 'CUTOVER':
-        return LifeCycleState.cutover;
-      case 'DISCONNECTED':
-        return LifeCycleState.disconnected;
-      case 'DISCOVERED':
-        return LifeCycleState.discovered;
-      case 'PENDING_INSTALLATION':
-        return LifeCycleState.pendingInstallation;
-    }
-    throw Exception('$this is not known in enum LifeCycleState');
-  }
+  const LifeCycleState(this.value);
+
+  static LifeCycleState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LifeCycleState'));
 }
 
 /// Applications list filters.
@@ -5769,8 +5782,57 @@ class ListApplicationsResponse {
   factory ListApplicationsResponse.fromJson(Map<String, dynamic> json) {
     return ListApplicationsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Application.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final items = this.items;
+    final nextToken = this.nextToken;
+    return {
+      if (items != null) 'items': items,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+/// List Connectors Request Filters.
+class ListConnectorsRequestFilters {
+  /// List Connectors Request Filters connector IDs.
+  final List<String>? connectorIDs;
+
+  ListConnectorsRequestFilters({
+    this.connectorIDs,
+  });
+
+  Map<String, dynamic> toJson() {
+    final connectorIDs = this.connectorIDs;
+    return {
+      if (connectorIDs != null) 'connectorIDs': connectorIDs,
+    };
+  }
+}
+
+class ListConnectorsResponse {
+  /// List connectors response items.
+  final List<Connector>? items;
+
+  /// List connectors response next token.
+  final String? nextToken;
+
+  ListConnectorsResponse({
+    this.items,
+    this.nextToken,
+  });
+
+  factory ListConnectorsResponse.fromJson(Map<String, dynamic> json) {
+    return ListConnectorsResponse(
+      items: (json['items'] as List?)
+          ?.nonNulls
+          .map((e) => Connector.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
     );
@@ -5802,7 +5864,7 @@ class ListExportErrorsResponse {
   factory ListExportErrorsResponse.fromJson(Map<String, dynamic> json) {
     return ListExportErrorsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExportTaskError.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5852,7 +5914,7 @@ class ListExportsResponse {
   factory ListExportsResponse.fromJson(Map<String, dynamic> json) {
     return ListExportsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExportTask.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5885,7 +5947,7 @@ class ListImportErrorsResponse {
   factory ListImportErrorsResponse.fromJson(Map<String, dynamic> json) {
     return ListImportErrorsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImportTaskError.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5935,7 +5997,7 @@ class ListImportsResponse {
   factory ListImportsResponse.fromJson(Map<String, dynamic> json) {
     return ListImportsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ImportTask.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5947,6 +6009,39 @@ class ListImportsResponse {
     final nextToken = this.nextToken;
     return {
       if (items != null) 'items': items,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+/// List managed accounts response.
+class ListManagedAccountsResponse {
+  /// List managed accounts response items.
+  final List<ManagedAccount> items;
+
+  /// List managed accounts response next token.
+  final String? nextToken;
+
+  ListManagedAccountsResponse({
+    required this.items,
+    this.nextToken,
+  });
+
+  factory ListManagedAccountsResponse.fromJson(Map<String, dynamic> json) {
+    return ListManagedAccountsResponse(
+      items: (json['items'] as List)
+          .nonNulls
+          .map((e) => ManagedAccount.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final items = this.items;
+    final nextToken = this.nextToken;
+    return {
+      'items': items,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -5968,7 +6063,7 @@ class ListSourceServerActionsResponse {
   factory ListSourceServerActionsResponse.fromJson(Map<String, dynamic> json) {
     return ListSourceServerActionsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SourceServerActionDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6024,7 +6119,7 @@ class ListTemplateActionsResponse {
   factory ListTemplateActionsResponse.fromJson(Map<String, dynamic> json) {
     return ListTemplateActionsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => TemplateActionDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6080,7 +6175,7 @@ class ListWavesResponse {
   factory ListWavesResponse.fromJson(Map<String, dynamic> json) {
     return ListWavesResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Wave.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6093,6 +6188,29 @@ class ListWavesResponse {
     return {
       if (items != null) 'items': items,
       if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+/// Managed account.
+class ManagedAccount {
+  /// Managed account, account ID.
+  final String? accountId;
+
+  ManagedAccount({
+    this.accountId,
+  });
+
+  factory ManagedAccount.fromJson(Map<String, dynamic> json) {
+    return ManagedAccount(
+      accountId: json['accountId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    return {
+      if (accountId != null) 'accountId': accountId,
     };
   }
 }
@@ -6116,10 +6234,7 @@ class NetworkInterface {
 
   factory NetworkInterface.fromJson(Map<String, dynamic> json) {
     return NetworkInterface(
-      ips: (json['ips'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ips: (json['ips'] as List?)?.nonNulls.map((e) => e as String).toList(),
       isPrimary: json['isPrimary'] as bool?,
       macAddress: json['macAddress'] as String?,
     );
@@ -6184,7 +6299,8 @@ class ParticipatingServer {
   factory ParticipatingServer.fromJson(Map<String, dynamic> json) {
     return ParticipatingServer(
       sourceServerID: json['sourceServerID'] as String,
-      launchStatus: (json['launchStatus'] as String?)?.toLaunchStatus(),
+      launchStatus:
+          (json['launchStatus'] as String?)?.let(LaunchStatus.fromString),
       launchedEc2InstanceID: json['launchedEc2InstanceID'] as String?,
       postLaunchActionsStatus: json['postLaunchActionsStatus'] != null
           ? PostLaunchActionsStatus.fromJson(
@@ -6200,7 +6316,7 @@ class ParticipatingServer {
     final postLaunchActionsStatus = this.postLaunchActionsStatus;
     return {
       'sourceServerID': sourceServerID,
-      if (launchStatus != null) 'launchStatus': launchStatus.toValue(),
+      if (launchStatus != null) 'launchStatus': launchStatus.value,
       if (launchedEc2InstanceID != null)
         'launchedEc2InstanceID': launchedEc2InstanceID,
       if (postLaunchActionsStatus != null)
@@ -6210,38 +6326,19 @@ class ParticipatingServer {
 }
 
 enum PostLaunchActionExecutionStatus {
-  inProgress,
-  success,
-  failed,
-}
+  inProgress('IN_PROGRESS'),
+  success('SUCCESS'),
+  failed('FAILED'),
+  ;
 
-extension PostLaunchActionExecutionStatusValueExtension
-    on PostLaunchActionExecutionStatus {
-  String toValue() {
-    switch (this) {
-      case PostLaunchActionExecutionStatus.inProgress:
-        return 'IN_PROGRESS';
-      case PostLaunchActionExecutionStatus.success:
-        return 'SUCCESS';
-      case PostLaunchActionExecutionStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension PostLaunchActionExecutionStatusFromString on String {
-  PostLaunchActionExecutionStatus toPostLaunchActionExecutionStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return PostLaunchActionExecutionStatus.inProgress;
-      case 'SUCCESS':
-        return PostLaunchActionExecutionStatus.success;
-      case 'FAILED':
-        return PostLaunchActionExecutionStatus.failed;
-    }
-    throw Exception(
-        '$this is not known in enum PostLaunchActionExecutionStatus');
-  }
+  const PostLaunchActionExecutionStatus(this.value);
+
+  static PostLaunchActionExecutionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PostLaunchActionExecutionStatus'));
 }
 
 /// Post Launch Actions to executed on the Test or Cutover instance.
@@ -6272,12 +6369,12 @@ class PostLaunchActions {
   factory PostLaunchActions.fromJson(Map<String, dynamic> json) {
     return PostLaunchActions(
       cloudWatchLogGroupName: json['cloudWatchLogGroupName'] as String?,
-      deployment:
-          (json['deployment'] as String?)?.toPostLaunchActionsDeploymentType(),
+      deployment: (json['deployment'] as String?)
+          ?.let(PostLaunchActionsDeploymentType.fromString),
       s3LogBucket: json['s3LogBucket'] as String?,
       s3OutputKeyPrefix: json['s3OutputKeyPrefix'] as String?,
       ssmDocuments: (json['ssmDocuments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SsmDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6292,7 +6389,7 @@ class PostLaunchActions {
     return {
       if (cloudWatchLogGroupName != null)
         'cloudWatchLogGroupName': cloudWatchLogGroupName,
-      if (deployment != null) 'deployment': deployment.toValue(),
+      if (deployment != null) 'deployment': deployment.value,
       if (s3LogBucket != null) 's3LogBucket': s3LogBucket,
       if (s3OutputKeyPrefix != null) 's3OutputKeyPrefix': s3OutputKeyPrefix,
       if (ssmDocuments != null) 'ssmDocuments': ssmDocuments,
@@ -6301,38 +6398,19 @@ class PostLaunchActions {
 }
 
 enum PostLaunchActionsDeploymentType {
-  testAndCutover,
-  cutoverOnly,
-  testOnly,
-}
+  testAndCutover('TEST_AND_CUTOVER'),
+  cutoverOnly('CUTOVER_ONLY'),
+  testOnly('TEST_ONLY'),
+  ;
 
-extension PostLaunchActionsDeploymentTypeValueExtension
-    on PostLaunchActionsDeploymentType {
-  String toValue() {
-    switch (this) {
-      case PostLaunchActionsDeploymentType.testAndCutover:
-        return 'TEST_AND_CUTOVER';
-      case PostLaunchActionsDeploymentType.cutoverOnly:
-        return 'CUTOVER_ONLY';
-      case PostLaunchActionsDeploymentType.testOnly:
-        return 'TEST_ONLY';
-    }
-  }
-}
+  final String value;
 
-extension PostLaunchActionsDeploymentTypeFromString on String {
-  PostLaunchActionsDeploymentType toPostLaunchActionsDeploymentType() {
-    switch (this) {
-      case 'TEST_AND_CUTOVER':
-        return PostLaunchActionsDeploymentType.testAndCutover;
-      case 'CUTOVER_ONLY':
-        return PostLaunchActionsDeploymentType.cutoverOnly;
-      case 'TEST_ONLY':
-        return PostLaunchActionsDeploymentType.testOnly;
-    }
-    throw Exception(
-        '$this is not known in enum PostLaunchActionsDeploymentType');
-  }
+  const PostLaunchActionsDeploymentType(this.value);
+
+  static PostLaunchActionsDeploymentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PostLaunchActionsDeploymentType'));
 }
 
 /// Status of the Post Launch Actions running on the Test or Cutover instance.
@@ -6354,7 +6432,7 @@ class PostLaunchActionsStatus {
     return PostLaunchActionsStatus(
       postLaunchActionsLaunchStatusList:
           (json['postLaunchActionsLaunchStatusList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => JobPostLaunchActionsLaunchStatus.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -6447,6 +6525,9 @@ class ReplicationConfiguration {
   /// Replication Configuration use Dedicated Replication Server.
   final bool? useDedicatedReplicationServer;
 
+  /// Replication Configuration use Fips Endpoint.
+  final bool? useFipsEndpoint;
+
   ReplicationConfiguration({
     this.associateDefaultSecurityGroup,
     this.bandwidthThrottling,
@@ -6463,6 +6544,7 @@ class ReplicationConfiguration {
     this.stagingAreaSubnetId,
     this.stagingAreaTags,
     this.useDedicatedReplicationServer,
+    this.useFipsEndpoint,
   });
 
   factory ReplicationConfiguration.fromJson(Map<String, dynamic> json) {
@@ -6472,16 +6554,16 @@ class ReplicationConfiguration {
       bandwidthThrottling: json['bandwidthThrottling'] as int?,
       createPublicIP: json['createPublicIP'] as bool?,
       dataPlaneRouting: (json['dataPlaneRouting'] as String?)
-          ?.toReplicationConfigurationDataPlaneRouting(),
-      defaultLargeStagingDiskType:
-          (json['defaultLargeStagingDiskType'] as String?)
-              ?.toReplicationConfigurationDefaultLargeStagingDiskType(),
+          ?.let(ReplicationConfigurationDataPlaneRouting.fromString),
+      defaultLargeStagingDiskType: (json['defaultLargeStagingDiskType']
+              as String?)
+          ?.let(ReplicationConfigurationDefaultLargeStagingDiskType.fromString),
       ebsEncryption: (json['ebsEncryption'] as String?)
-          ?.toReplicationConfigurationEbsEncryption(),
+          ?.let(ReplicationConfigurationEbsEncryption.fromString),
       ebsEncryptionKeyArn: json['ebsEncryptionKeyArn'] as String?,
       name: json['name'] as String?,
       replicatedDisks: (json['replicatedDisks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReplicationConfigurationReplicatedDisk.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -6489,7 +6571,7 @@ class ReplicationConfiguration {
           json['replicationServerInstanceType'] as String?,
       replicationServersSecurityGroupsIDs:
           (json['replicationServersSecurityGroupsIDs'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       sourceServerID: json['sourceServerID'] as String?,
@@ -6498,6 +6580,7 @@ class ReplicationConfiguration {
           ?.map((k, e) => MapEntry(k, e as String)),
       useDedicatedReplicationServer:
           json['useDedicatedReplicationServer'] as bool?,
+      useFipsEndpoint: json['useFipsEndpoint'] as bool?,
     );
   }
 
@@ -6518,17 +6601,17 @@ class ReplicationConfiguration {
     final stagingAreaSubnetId = this.stagingAreaSubnetId;
     final stagingAreaTags = this.stagingAreaTags;
     final useDedicatedReplicationServer = this.useDedicatedReplicationServer;
+    final useFipsEndpoint = this.useFipsEndpoint;
     return {
       if (associateDefaultSecurityGroup != null)
         'associateDefaultSecurityGroup': associateDefaultSecurityGroup,
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (name != null) 'name': name,
@@ -6544,107 +6627,56 @@ class ReplicationConfiguration {
       if (stagingAreaTags != null) 'stagingAreaTags': stagingAreaTags,
       if (useDedicatedReplicationServer != null)
         'useDedicatedReplicationServer': useDedicatedReplicationServer,
+      if (useFipsEndpoint != null) 'useFipsEndpoint': useFipsEndpoint,
     };
   }
 }
 
 enum ReplicationConfigurationDataPlaneRouting {
-  privateIp,
-  publicIp,
-}
+  privateIp('PRIVATE_IP'),
+  publicIp('PUBLIC_IP'),
+  ;
 
-extension ReplicationConfigurationDataPlaneRoutingValueExtension
-    on ReplicationConfigurationDataPlaneRouting {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationDataPlaneRouting.privateIp:
-        return 'PRIVATE_IP';
-      case ReplicationConfigurationDataPlaneRouting.publicIp:
-        return 'PUBLIC_IP';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationDataPlaneRoutingFromString on String {
-  ReplicationConfigurationDataPlaneRouting
-      toReplicationConfigurationDataPlaneRouting() {
-    switch (this) {
-      case 'PRIVATE_IP':
-        return ReplicationConfigurationDataPlaneRouting.privateIp;
-      case 'PUBLIC_IP':
-        return ReplicationConfigurationDataPlaneRouting.publicIp;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationDataPlaneRouting');
-  }
+  const ReplicationConfigurationDataPlaneRouting(this.value);
+
+  static ReplicationConfigurationDataPlaneRouting fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationDataPlaneRouting'));
 }
 
 enum ReplicationConfigurationDefaultLargeStagingDiskType {
-  gp2,
-  st1,
-  gp3,
-}
+  gp2('GP2'),
+  st1('ST1'),
+  gp3('GP3'),
+  ;
 
-extension ReplicationConfigurationDefaultLargeStagingDiskTypeValueExtension
-    on ReplicationConfigurationDefaultLargeStagingDiskType {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationDefaultLargeStagingDiskType.gp2:
-        return 'GP2';
-      case ReplicationConfigurationDefaultLargeStagingDiskType.st1:
-        return 'ST1';
-      case ReplicationConfigurationDefaultLargeStagingDiskType.gp3:
-        return 'GP3';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationDefaultLargeStagingDiskTypeFromString
-    on String {
-  ReplicationConfigurationDefaultLargeStagingDiskType
-      toReplicationConfigurationDefaultLargeStagingDiskType() {
-    switch (this) {
-      case 'GP2':
-        return ReplicationConfigurationDefaultLargeStagingDiskType.gp2;
-      case 'ST1':
-        return ReplicationConfigurationDefaultLargeStagingDiskType.st1;
-      case 'GP3':
-        return ReplicationConfigurationDefaultLargeStagingDiskType.gp3;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationDefaultLargeStagingDiskType');
-  }
+  const ReplicationConfigurationDefaultLargeStagingDiskType(this.value);
+
+  static ReplicationConfigurationDefaultLargeStagingDiskType fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationDefaultLargeStagingDiskType'));
 }
 
 enum ReplicationConfigurationEbsEncryption {
-  $default,
-  custom,
-}
+  $default('DEFAULT'),
+  custom('CUSTOM'),
+  ;
 
-extension ReplicationConfigurationEbsEncryptionValueExtension
-    on ReplicationConfigurationEbsEncryption {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationEbsEncryption.$default:
-        return 'DEFAULT';
-      case ReplicationConfigurationEbsEncryption.custom:
-        return 'CUSTOM';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationEbsEncryptionFromString on String {
-  ReplicationConfigurationEbsEncryption
-      toReplicationConfigurationEbsEncryption() {
-    switch (this) {
-      case 'DEFAULT':
-        return ReplicationConfigurationEbsEncryption.$default;
-      case 'CUSTOM':
-        return ReplicationConfigurationEbsEncryption.custom;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationEbsEncryption');
-  }
+  const ReplicationConfigurationEbsEncryption(this.value);
+
+  static ReplicationConfigurationEbsEncryption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationEbsEncryption'));
 }
 
 /// Replication Configuration replicated disk.
@@ -6678,8 +6710,8 @@ class ReplicationConfigurationReplicatedDisk {
       deviceName: json['deviceName'] as String?,
       iops: json['iops'] as int?,
       isBootDisk: json['isBootDisk'] as bool?,
-      stagingDiskType: (json['stagingDiskType'] as String?)
-          ?.toReplicationConfigurationReplicatedDiskStagingDiskType(),
+      stagingDiskType: (json['stagingDiskType'] as String?)?.let(
+          ReplicationConfigurationReplicatedDiskStagingDiskType.fromString),
       throughput: json['throughput'] as int?,
     );
   }
@@ -6694,72 +6726,32 @@ class ReplicationConfigurationReplicatedDisk {
       if (deviceName != null) 'deviceName': deviceName,
       if (iops != null) 'iops': iops,
       if (isBootDisk != null) 'isBootDisk': isBootDisk,
-      if (stagingDiskType != null) 'stagingDiskType': stagingDiskType.toValue(),
+      if (stagingDiskType != null) 'stagingDiskType': stagingDiskType.value,
       if (throughput != null) 'throughput': throughput,
     };
   }
 }
 
 enum ReplicationConfigurationReplicatedDiskStagingDiskType {
-  auto,
-  gp2,
-  io1,
-  sc1,
-  st1,
-  standard,
-  gp3,
-  io2,
-}
+  auto('AUTO'),
+  gp2('GP2'),
+  io1('IO1'),
+  sc1('SC1'),
+  st1('ST1'),
+  standard('STANDARD'),
+  gp3('GP3'),
+  io2('IO2'),
+  ;
 
-extension ReplicationConfigurationReplicatedDiskStagingDiskTypeValueExtension
-    on ReplicationConfigurationReplicatedDiskStagingDiskType {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.auto:
-        return 'AUTO';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.gp2:
-        return 'GP2';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.io1:
-        return 'IO1';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.sc1:
-        return 'SC1';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.st1:
-        return 'ST1';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.standard:
-        return 'STANDARD';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.gp3:
-        return 'GP3';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.io2:
-        return 'IO2';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationReplicatedDiskStagingDiskTypeFromString
-    on String {
-  ReplicationConfigurationReplicatedDiskStagingDiskType
-      toReplicationConfigurationReplicatedDiskStagingDiskType() {
-    switch (this) {
-      case 'AUTO':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.auto;
-      case 'GP2':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.gp2;
-      case 'IO1':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.io1;
-      case 'SC1':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.sc1;
-      case 'ST1':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.st1;
-      case 'STANDARD':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.standard;
-      case 'GP3':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.gp3;
-      case 'IO2':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.io2;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationReplicatedDiskStagingDiskType');
-  }
+  const ReplicationConfigurationReplicatedDiskStagingDiskType(this.value);
+
+  static ReplicationConfigurationReplicatedDiskStagingDiskType fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationReplicatedDiskStagingDiskType'));
 }
 
 class ReplicationConfigurationTemplate {
@@ -6810,6 +6802,9 @@ class ReplicationConfigurationTemplate {
   /// Replication Configuration template use Dedicated Replication Server.
   final bool? useDedicatedReplicationServer;
 
+  /// Replication Configuration template use Fips Endpoint.
+  final bool? useFipsEndpoint;
+
   ReplicationConfigurationTemplate({
     required this.replicationConfigurationTemplateID,
     this.arn,
@@ -6826,6 +6821,7 @@ class ReplicationConfigurationTemplate {
     this.stagingAreaTags,
     this.tags,
     this.useDedicatedReplicationServer,
+    this.useFipsEndpoint,
   });
 
   factory ReplicationConfigurationTemplate.fromJson(Map<String, dynamic> json) {
@@ -6838,18 +6834,18 @@ class ReplicationConfigurationTemplate {
       bandwidthThrottling: json['bandwidthThrottling'] as int?,
       createPublicIP: json['createPublicIP'] as bool?,
       dataPlaneRouting: (json['dataPlaneRouting'] as String?)
-          ?.toReplicationConfigurationDataPlaneRouting(),
-      defaultLargeStagingDiskType:
-          (json['defaultLargeStagingDiskType'] as String?)
-              ?.toReplicationConfigurationDefaultLargeStagingDiskType(),
+          ?.let(ReplicationConfigurationDataPlaneRouting.fromString),
+      defaultLargeStagingDiskType: (json['defaultLargeStagingDiskType']
+              as String?)
+          ?.let(ReplicationConfigurationDefaultLargeStagingDiskType.fromString),
       ebsEncryption: (json['ebsEncryption'] as String?)
-          ?.toReplicationConfigurationEbsEncryption(),
+          ?.let(ReplicationConfigurationEbsEncryption.fromString),
       ebsEncryptionKeyArn: json['ebsEncryptionKeyArn'] as String?,
       replicationServerInstanceType:
           json['replicationServerInstanceType'] as String?,
       replicationServersSecurityGroupsIDs:
           (json['replicationServersSecurityGroupsIDs'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       stagingAreaSubnetId: json['stagingAreaSubnetId'] as String?,
@@ -6859,6 +6855,7 @@ class ReplicationConfigurationTemplate {
           ?.map((k, e) => MapEntry(k, e as String)),
       useDedicatedReplicationServer:
           json['useDedicatedReplicationServer'] as bool?,
+      useFipsEndpoint: json['useFipsEndpoint'] as bool?,
     );
   }
 
@@ -6880,6 +6877,7 @@ class ReplicationConfigurationTemplate {
     final stagingAreaTags = this.stagingAreaTags;
     final tags = this.tags;
     final useDedicatedReplicationServer = this.useDedicatedReplicationServer;
+    final useFipsEndpoint = this.useFipsEndpoint;
     return {
       'replicationConfigurationTemplateID': replicationConfigurationTemplateID,
       if (arn != null) 'arn': arn,
@@ -6888,11 +6886,10 @@ class ReplicationConfigurationTemplate {
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (replicationServerInstanceType != null)
@@ -6906,36 +6903,24 @@ class ReplicationConfigurationTemplate {
       if (tags != null) 'tags': tags,
       if (useDedicatedReplicationServer != null)
         'useDedicatedReplicationServer': useDedicatedReplicationServer,
+      if (useFipsEndpoint != null) 'useFipsEndpoint': useFipsEndpoint,
     };
   }
 }
 
 enum ReplicationType {
-  agentBased,
-  snapshotShipping,
-}
+  agentBased('AGENT_BASED'),
+  snapshotShipping('SNAPSHOT_SHIPPING'),
+  ;
 
-extension ReplicationTypeValueExtension on ReplicationType {
-  String toValue() {
-    switch (this) {
-      case ReplicationType.agentBased:
-        return 'AGENT_BASED';
-      case ReplicationType.snapshotShipping:
-        return 'SNAPSHOT_SHIPPING';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationTypeFromString on String {
-  ReplicationType toReplicationType() {
-    switch (this) {
-      case 'AGENT_BASED':
-        return ReplicationType.agentBased;
-      case 'SNAPSHOT_SHIPPING':
-        return ReplicationType.snapshotShipping;
-    }
-    throw Exception('$this is not known in enum ReplicationType');
-  }
+  const ReplicationType(this.value);
+
+  static ReplicationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReplicationType'));
 }
 
 /// S3 bucket source.
@@ -7015,11 +7000,11 @@ class SourceProperties {
   factory SourceProperties.fromJson(Map<String, dynamic> json) {
     return SourceProperties(
       cpus: (json['cpus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CPU.fromJson(e as Map<String, dynamic>))
           .toList(),
       disks: (json['disks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Disk.fromJson(e as Map<String, dynamic>))
           .toList(),
       identificationHints: json['identificationHints'] != null
@@ -7028,7 +7013,7 @@ class SourceProperties {
           : null,
       lastUpdatedDateTime: json['lastUpdatedDateTime'] as String?,
       networkInterfaces: (json['networkInterfaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NetworkInterface.fromJson(e as Map<String, dynamic>))
           .toList(),
       os: json['os'] != null
@@ -7071,6 +7056,9 @@ class SourceServer {
   /// Source server ARN.
   final String? arn;
 
+  /// Source Server connector action.
+  final SourceServerConnectorAction? connectorAction;
+
   /// Source server data replication info.
   final DataReplicationInfo? dataReplicationInfo;
 
@@ -7107,6 +7095,7 @@ class SourceServer {
   SourceServer({
     this.applicationID,
     this.arn,
+    this.connectorAction,
     this.dataReplicationInfo,
     this.fqdnForActionFramework,
     this.isArchived,
@@ -7124,6 +7113,10 @@ class SourceServer {
     return SourceServer(
       applicationID: json['applicationID'] as String?,
       arn: json['arn'] as String?,
+      connectorAction: json['connectorAction'] != null
+          ? SourceServerConnectorAction.fromJson(
+              json['connectorAction'] as Map<String, dynamic>)
+          : null,
       dataReplicationInfo: json['dataReplicationInfo'] != null
           ? DataReplicationInfo.fromJson(
               json['dataReplicationInfo'] as Map<String, dynamic>)
@@ -7138,7 +7131,7 @@ class SourceServer {
           ? LifeCycle.fromJson(json['lifeCycle'] as Map<String, dynamic>)
           : null,
       replicationType:
-          (json['replicationType'] as String?)?.toReplicationType(),
+          (json['replicationType'] as String?)?.let(ReplicationType.fromString),
       sourceProperties: json['sourceProperties'] != null
           ? SourceProperties.fromJson(
               json['sourceProperties'] as Map<String, dynamic>)
@@ -7154,6 +7147,7 @@ class SourceServer {
   Map<String, dynamic> toJson() {
     final applicationID = this.applicationID;
     final arn = this.arn;
+    final connectorAction = this.connectorAction;
     final dataReplicationInfo = this.dataReplicationInfo;
     final fqdnForActionFramework = this.fqdnForActionFramework;
     final isArchived = this.isArchived;
@@ -7168,6 +7162,7 @@ class SourceServer {
     return {
       if (applicationID != null) 'applicationID': applicationID,
       if (arn != null) 'arn': arn,
+      if (connectorAction != null) 'connectorAction': connectorAction,
       if (dataReplicationInfo != null)
         'dataReplicationInfo': dataReplicationInfo,
       if (fqdnForActionFramework != null)
@@ -7175,7 +7170,7 @@ class SourceServer {
       if (isArchived != null) 'isArchived': isArchived,
       if (launchedInstance != null) 'launchedInstance': launchedInstance,
       if (lifeCycle != null) 'lifeCycle': lifeCycle,
-      if (replicationType != null) 'replicationType': replicationType.toValue(),
+      if (replicationType != null) 'replicationType': replicationType.value,
       if (sourceProperties != null) 'sourceProperties': sourceProperties,
       if (sourceServerID != null) 'sourceServerID': sourceServerID,
       if (tags != null) 'tags': tags,
@@ -7242,7 +7237,7 @@ class SourceServerActionDocument {
       actionID: json['actionID'] as String?,
       actionName: json['actionName'] as String?,
       active: json['active'] as bool?,
-      category: (json['category'] as String?)?.toActionCategory(),
+      category: (json['category'] as String?)?.let(ActionCategory.fromString),
       description: json['description'] as String?,
       documentIdentifier: json['documentIdentifier'] as String?,
       documentVersion: json['documentVersion'] as String?,
@@ -7255,7 +7250,7 @@ class SourceServerActionDocument {
           MapEntry(
               k,
               (e as List)
-                  .whereNotNull()
+                  .nonNulls
                   .map((e) => SsmParameterStoreParameter.fromJson(
                       e as Map<String, dynamic>))
                   .toList())),
@@ -7280,7 +7275,7 @@ class SourceServerActionDocument {
       if (actionID != null) 'actionID': actionID,
       if (actionName != null) 'actionName': actionName,
       if (active != null) 'active': active,
-      if (category != null) 'category': category.toValue(),
+      if (category != null) 'category': category.value,
       if (description != null) 'description': description,
       if (documentIdentifier != null) 'documentIdentifier': documentIdentifier,
       if (documentVersion != null) 'documentVersion': documentVersion,
@@ -7307,6 +7302,37 @@ class SourceServerActionsRequestFilters {
     final actionIDs = this.actionIDs;
     return {
       if (actionIDs != null) 'actionIDs': actionIDs,
+    };
+  }
+}
+
+/// Source Server connector action.
+class SourceServerConnectorAction {
+  /// Source Server connector action connector arn.
+  final String? connectorArn;
+
+  /// Source Server connector action credentials secret arn.
+  final String? credentialsSecretArn;
+
+  SourceServerConnectorAction({
+    this.connectorArn,
+    this.credentialsSecretArn,
+  });
+
+  factory SourceServerConnectorAction.fromJson(Map<String, dynamic> json) {
+    return SourceServerConnectorAction(
+      connectorArn: json['connectorArn'] as String?,
+      credentialsSecretArn: json['credentialsSecretArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final connectorArn = this.connectorArn;
+    final credentialsSecretArn = this.credentialsSecretArn;
+    return {
+      if (connectorArn != null) 'connectorArn': connectorArn,
+      if (credentialsSecretArn != null)
+        'credentialsSecretArn': credentialsSecretArn,
     };
   }
 }
@@ -7352,7 +7378,7 @@ class SsmDocument {
           MapEntry(
               k,
               (e as List)
-                  .whereNotNull()
+                  .nonNulls
                   .map((e) => SsmParameterStoreParameter.fromJson(
                       e as Map<String, dynamic>))
                   .toList())),
@@ -7380,31 +7406,18 @@ class SsmDocument {
 }
 
 enum SsmDocumentType {
-  automation,
-  command,
-}
+  automation('AUTOMATION'),
+  command('COMMAND'),
+  ;
 
-extension SsmDocumentTypeValueExtension on SsmDocumentType {
-  String toValue() {
-    switch (this) {
-      case SsmDocumentType.automation:
-        return 'AUTOMATION';
-      case SsmDocumentType.command:
-        return 'COMMAND';
-    }
-  }
-}
+  final String value;
 
-extension SsmDocumentTypeFromString on String {
-  SsmDocumentType toSsmDocumentType() {
-    switch (this) {
-      case 'AUTOMATION':
-        return SsmDocumentType.automation;
-      case 'COMMAND':
-        return SsmDocumentType.command;
-    }
-    throw Exception('$this is not known in enum SsmDocumentType');
-  }
+  const SsmDocumentType(this.value);
+
+  static SsmDocumentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SsmDocumentType'));
 }
 
 /// AWS Systems Manager Document external parameter.
@@ -7446,8 +7459,8 @@ class SsmParameterStoreParameter {
   factory SsmParameterStoreParameter.fromJson(Map<String, dynamic> json) {
     return SsmParameterStoreParameter(
       parameterName: json['parameterName'] as String,
-      parameterType:
-          (json['parameterType'] as String).toSsmParameterStoreParameterType(),
+      parameterType: SsmParameterStoreParameterType.fromString(
+          (json['parameterType'] as String)),
     );
   }
 
@@ -7456,34 +7469,23 @@ class SsmParameterStoreParameter {
     final parameterType = this.parameterType;
     return {
       'parameterName': parameterName,
-      'parameterType': parameterType.toValue(),
+      'parameterType': parameterType.value,
     };
   }
 }
 
 enum SsmParameterStoreParameterType {
-  string,
-}
+  string('STRING'),
+  ;
 
-extension SsmParameterStoreParameterTypeValueExtension
-    on SsmParameterStoreParameterType {
-  String toValue() {
-    switch (this) {
-      case SsmParameterStoreParameterType.string:
-        return 'STRING';
-    }
-  }
-}
+  final String value;
 
-extension SsmParameterStoreParameterTypeFromString on String {
-  SsmParameterStoreParameterType toSsmParameterStoreParameterType() {
-    switch (this) {
-      case 'STRING':
-        return SsmParameterStoreParameterType.string;
-    }
-    throw Exception(
-        '$this is not known in enum SsmParameterStoreParameterType');
-  }
+  const SsmParameterStoreParameterType(this.value);
+
+  static SsmParameterStoreParameterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SsmParameterStoreParameterType'));
 }
 
 class StartCutoverResponse {
@@ -7585,33 +7587,18 @@ class StartTestResponse {
 }
 
 enum TargetInstanceTypeRightSizingMethod {
-  none,
-  basic,
-}
+  none('NONE'),
+  basic('BASIC'),
+  ;
 
-extension TargetInstanceTypeRightSizingMethodValueExtension
-    on TargetInstanceTypeRightSizingMethod {
-  String toValue() {
-    switch (this) {
-      case TargetInstanceTypeRightSizingMethod.none:
-        return 'NONE';
-      case TargetInstanceTypeRightSizingMethod.basic:
-        return 'BASIC';
-    }
-  }
-}
+  final String value;
 
-extension TargetInstanceTypeRightSizingMethodFromString on String {
-  TargetInstanceTypeRightSizingMethod toTargetInstanceTypeRightSizingMethod() {
-    switch (this) {
-      case 'NONE':
-        return TargetInstanceTypeRightSizingMethod.none;
-      case 'BASIC':
-        return TargetInstanceTypeRightSizingMethod.basic;
-    }
-    throw Exception(
-        '$this is not known in enum TargetInstanceTypeRightSizingMethod');
-  }
+  const TargetInstanceTypeRightSizingMethod(this.value);
+
+  static TargetInstanceTypeRightSizingMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TargetInstanceTypeRightSizingMethod'));
 }
 
 class TemplateActionDocument {
@@ -7675,7 +7662,7 @@ class TemplateActionDocument {
       actionID: json['actionID'] as String?,
       actionName: json['actionName'] as String?,
       active: json['active'] as bool?,
-      category: (json['category'] as String?)?.toActionCategory(),
+      category: (json['category'] as String?)?.let(ActionCategory.fromString),
       description: json['description'] as String?,
       documentIdentifier: json['documentIdentifier'] as String?,
       documentVersion: json['documentVersion'] as String?,
@@ -7689,7 +7676,7 @@ class TemplateActionDocument {
           MapEntry(
               k,
               (e as List)
-                  .whereNotNull()
+                  .nonNulls
                   .map((e) => SsmParameterStoreParameter.fromJson(
                       e as Map<String, dynamic>))
                   .toList())),
@@ -7715,7 +7702,7 @@ class TemplateActionDocument {
       if (actionID != null) 'actionID': actionID,
       if (actionName != null) 'actionName': actionName,
       if (active != null) 'active': active,
-      if (category != null) 'category': category.toValue(),
+      if (category != null) 'category': category.value,
       if (description != null) 'description': description,
       if (documentIdentifier != null) 'documentIdentifier': documentIdentifier,
       if (documentVersion != null) 'documentVersion': documentVersion,
@@ -7846,56 +7833,22 @@ class VcenterClient {
 }
 
 enum VolumeType {
-  io1,
-  io2,
-  gp3,
-  gp2,
-  st1,
-  sc1,
-  standard,
-}
+  io1('io1'),
+  io2('io2'),
+  gp3('gp3'),
+  gp2('gp2'),
+  st1('st1'),
+  sc1('sc1'),
+  standard('standard'),
+  ;
 
-extension VolumeTypeValueExtension on VolumeType {
-  String toValue() {
-    switch (this) {
-      case VolumeType.io1:
-        return 'io1';
-      case VolumeType.io2:
-        return 'io2';
-      case VolumeType.gp3:
-        return 'gp3';
-      case VolumeType.gp2:
-        return 'gp2';
-      case VolumeType.st1:
-        return 'st1';
-      case VolumeType.sc1:
-        return 'sc1';
-      case VolumeType.standard:
-        return 'standard';
-    }
-  }
-}
+  final String value;
 
-extension VolumeTypeFromString on String {
-  VolumeType toVolumeType() {
-    switch (this) {
-      case 'io1':
-        return VolumeType.io1;
-      case 'io2':
-        return VolumeType.io2;
-      case 'gp3':
-        return VolumeType.gp3;
-      case 'gp2':
-        return VolumeType.gp2;
-      case 'st1':
-        return VolumeType.st1;
-      case 'sc1':
-        return VolumeType.sc1;
-      case 'standard':
-        return VolumeType.standard;
-    }
-    throw Exception('$this is not known in enum VolumeType');
-  }
+  const VolumeType(this.value);
+
+  static VolumeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum VolumeType'));
 }
 
 class Wave {
@@ -8010,10 +7963,11 @@ class WaveAggregatedStatus {
 
   factory WaveAggregatedStatus.fromJson(Map<String, dynamic> json) {
     return WaveAggregatedStatus(
-      healthStatus: (json['healthStatus'] as String?)?.toWaveHealthStatus(),
+      healthStatus:
+          (json['healthStatus'] as String?)?.let(WaveHealthStatus.fromString),
       lastUpdateDateTime: json['lastUpdateDateTime'] as String?,
-      progressStatus:
-          (json['progressStatus'] as String?)?.toWaveProgressStatus(),
+      progressStatus: (json['progressStatus'] as String?)
+          ?.let(WaveProgressStatus.fromString),
       replicationStartedDateTime: json['replicationStartedDateTime'] as String?,
       totalApplications: json['totalApplications'] as int?,
     );
@@ -8026,9 +7980,9 @@ class WaveAggregatedStatus {
     final replicationStartedDateTime = this.replicationStartedDateTime;
     final totalApplications = this.totalApplications;
     return {
-      if (healthStatus != null) 'healthStatus': healthStatus.toValue(),
+      if (healthStatus != null) 'healthStatus': healthStatus.value,
       if (lastUpdateDateTime != null) 'lastUpdateDateTime': lastUpdateDateTime,
-      if (progressStatus != null) 'progressStatus': progressStatus.toValue(),
+      if (progressStatus != null) 'progressStatus': progressStatus.value,
       if (replicationStartedDateTime != null)
         'replicationStartedDateTime': replicationStartedDateTime,
       if (totalApplications != null) 'totalApplications': totalApplications,
@@ -8037,69 +7991,35 @@ class WaveAggregatedStatus {
 }
 
 enum WaveHealthStatus {
-  healthy,
-  lagging,
-  error,
-}
+  healthy('HEALTHY'),
+  lagging('LAGGING'),
+  error('ERROR'),
+  ;
 
-extension WaveHealthStatusValueExtension on WaveHealthStatus {
-  String toValue() {
-    switch (this) {
-      case WaveHealthStatus.healthy:
-        return 'HEALTHY';
-      case WaveHealthStatus.lagging:
-        return 'LAGGING';
-      case WaveHealthStatus.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension WaveHealthStatusFromString on String {
-  WaveHealthStatus toWaveHealthStatus() {
-    switch (this) {
-      case 'HEALTHY':
-        return WaveHealthStatus.healthy;
-      case 'LAGGING':
-        return WaveHealthStatus.lagging;
-      case 'ERROR':
-        return WaveHealthStatus.error;
-    }
-    throw Exception('$this is not known in enum WaveHealthStatus');
-  }
+  const WaveHealthStatus(this.value);
+
+  static WaveHealthStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WaveHealthStatus'));
 }
 
 enum WaveProgressStatus {
-  notStarted,
-  inProgress,
-  completed,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  ;
 
-extension WaveProgressStatusValueExtension on WaveProgressStatus {
-  String toValue() {
-    switch (this) {
-      case WaveProgressStatus.notStarted:
-        return 'NOT_STARTED';
-      case WaveProgressStatus.inProgress:
-        return 'IN_PROGRESS';
-      case WaveProgressStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension WaveProgressStatusFromString on String {
-  WaveProgressStatus toWaveProgressStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return WaveProgressStatus.notStarted;
-      case 'IN_PROGRESS':
-        return WaveProgressStatus.inProgress;
-      case 'COMPLETED':
-        return WaveProgressStatus.completed;
-    }
-    throw Exception('$this is not known in enum WaveProgressStatus');
-  }
+  const WaveProgressStatus(this.value);
+
+  static WaveProgressStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum WaveProgressStatus'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

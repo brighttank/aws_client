@@ -19,6 +19,18 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
+/// <important>
+/// <b>Most of these APIs are no longer supported and will not be updated.</b>
+/// We recommend using the latest versions in the <a
+/// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/welcome.html">Amazon
+/// Chime SDK API reference</a>, in the Amazon Chime SDK.
+///
+/// Using the latest versions requires migrating to dedicated namespaces. For
+/// more information, refer to <a
+/// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+/// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+/// Guide</i>.
+/// </important>
 /// The Amazon Chime application programming interface (API) is designed so
 /// administrators can perform key tasks, such as creating and managing Amazon
 /// Chime accounts, users, and Voice Connectors. This guide provides detailed
@@ -124,6 +136,18 @@ class Chime {
   }
 
   /// Associates phone numbers with the specified Amazon Chime Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_AssociatePhoneNumbersWithVoiceConnector.html">AssociatePhoneNumbersWithVoiceConnector</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -145,6 +169,8 @@ class Chime {
   /// Chime Voice Connector and removes any previously existing associations. If
   /// false, does not associate any phone numbers that have previously existing
   /// associations.
+  @Deprecated(
+      'Replaced by AssociatePhoneNumbersWithVoiceConnector in the Amazon Chime SDK Voice Namespace')
   Future<AssociatePhoneNumbersWithVoiceConnectorResponse>
       associatePhoneNumbersWithVoiceConnector({
     required List<String> e164PhoneNumbers,
@@ -167,6 +193,18 @@ class Chime {
 
   /// Associates phone numbers with the specified Amazon Chime Voice Connector
   /// group.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_AssociatePhoneNumbersWithVoiceConnectorGroup.html">AssociatePhoneNumbersWithVoiceConnectorGroup</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -188,6 +226,8 @@ class Chime {
   /// Chime Voice Connector Group and removes any previously existing
   /// associations. If false, does not associate any phone numbers that have
   /// previously existing associations.
+  @Deprecated(
+      'Replaced by AssociatePhoneNumbersWithVoiceConnectorGroup in the Amazon Chime SDK Voice Namespace')
   Future<AssociatePhoneNumbersWithVoiceConnectorGroupResponse>
       associatePhoneNumbersWithVoiceConnectorGroup({
     required List<String> e164PhoneNumbers,
@@ -242,6 +282,18 @@ class Chime {
   }
 
   /// Creates up to 100 new attendees for an active Amazon Chime SDK meeting.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_BatchCreateAttendee.html">BatchCreateAttendee</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   /// For more information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
@@ -260,6 +312,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The Amazon Chime SDK meeting ID.
+  @Deprecated(
+      'Replaced by BatchCreateAttendee in the Amazon Chime SDK Meetings Namespace')
   Future<BatchCreateAttendeeResponse> batchCreateAttendee({
     required List<CreateAttendeeRequestItem> attendees,
     required String meetingId,
@@ -278,6 +332,18 @@ class Chime {
   }
 
   /// Adds a specified number of users to a channel.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_BatchCreateChannelMembership.html">BatchCreateChannelMembership</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [ServiceFailureException].
   /// May throw [ServiceUnavailableException].
@@ -302,6 +368,8 @@ class Chime {
   /// the type filter in <code>ListChannelMemberships</code> equals
   /// <code>HIDDEN</code>. Otherwise hidden members are not returned. This is
   /// only supported by moderators.
+  @Deprecated(
+      'Replaced by BatchCreateChannelMembership in the Amazon Chime SDK Messaging Namespace')
   Future<BatchCreateChannelMembershipResponse> batchCreateChannelMembership({
     required String channelArn,
     required List<String> memberArns,
@@ -313,7 +381,7 @@ class Chime {
     };
     final $payload = <String, dynamic>{
       'MemberArns': memberArns,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -596,6 +664,18 @@ class Chime {
   /// AWS account. Only SDK messaging customers use this API.
   /// <code>CreateAppInstance</code> supports idempotency behavior as described
   /// in the AWS API Standard.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_CreateAppInstance.html">CreateAppInstance</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ConflictException].
@@ -618,6 +698,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// Tags assigned to the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by CreateAppInstance in the Amazon Chime SDK Identity Namespace')
   Future<CreateAppInstanceResponse> createAppInstance({
     required String name,
     String? clientRequestToken,
@@ -642,7 +724,18 @@ class Chime {
   /// Promotes an <code>AppInstanceUser</code> to an
   /// <code>AppInstanceAdmin</code>. The promoted user can perform the following
   /// actions.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_CreateAppInstanceAdmin.html">CreateAppInstanceAdmin</a>,
+  /// in the Amazon Chime SDK.
   ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   /// <ul>
   /// <li>
   /// <code>ChannelModerator</code> actions across all channels in the
@@ -669,6 +762,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by CreateAppInstanceAdmin in the Amazon Chime SDK Identity Namespace')
   Future<CreateAppInstanceAdminResponse> createAppInstanceAdmin({
     required String appInstanceAdminArn,
     required String appInstanceArn,
@@ -689,6 +784,18 @@ class Chime {
   /// Creates a user under an Amazon Chime <code>AppInstance</code>. The request
   /// consists of a unique <code>appInstanceUserId</code> and <code>Name</code>
   /// for that user.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_CreateAppInstanceUser.html">CreateAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ConflictException].
@@ -716,6 +823,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// Tags assigned to the <code>AppInstanceUser</code>.
+  @Deprecated(
+      'Replaced by CreateAppInstanceUser in the Amazon Chime SDK Identity Namespace')
   Future<CreateAppInstanceUserResponse> createAppInstanceUser({
     required String appInstanceArn,
     required String appInstanceUserId,
@@ -745,6 +854,18 @@ class Chime {
   /// information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_CreateAttendee.html">CreateAttendee</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -764,6 +885,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// The tag key-value pairs.
+  @Deprecated(
+      'Replaced by CreateAttendee in the Amazon Chime SDK Meetings Namespace')
   Future<CreateAttendeeResponse> createAttendee({
     required String externalUserId,
     required String meetingId,
@@ -826,7 +949,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_CreateChannel.html">CreateChannel</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -865,6 +999,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// The tags for the creation request.
+  @Deprecated(
+      'Replaced by CreateChannel in the Amazon Chime SDK Messaging Namespace')
   Future<CreateChannelResponse> createChannel({
     required String appInstanceArn,
     required String name,
@@ -883,8 +1019,8 @@ class Chime {
       'Name': name,
       'ClientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
-      if (privacy != null) 'Privacy': privacy.toValue(),
+      if (mode != null) 'Mode': mode.value,
+      if (privacy != null) 'Privacy': privacy.value,
       if (tags != null) 'Tags': tags,
     };
     final response = await _protocol.send(
@@ -909,7 +1045,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_CreateChannelBan.html">CreateChannelBan</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -928,6 +1075,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by CreateChannelBan in the Amazon Chime SDK Messaging Namespace')
   Future<CreateChannelBanResponse> createChannelBan({
     required String channelArn,
     required String memberArn,
@@ -983,7 +1132,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_CreateChannelMembership.html">CreateChannelMembership</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1010,6 +1170,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by CreateChannelMembership in the Amazon Chime SDK Messaging Namespace')
   Future<CreateChannelMembershipResponse> createChannelMembership({
     required String channelArn,
     required String memberArn,
@@ -1021,7 +1183,7 @@ class Chime {
     };
     final $payload = <String, dynamic>{
       'MemberArn': memberArn,
-      'Type': type.toValue(),
+      'Type': type.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1055,7 +1217,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_CreateChannelModerator.html">CreateChannelModerator</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1074,6 +1247,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by CreateChannelModerator in the Amazon Chime SDK Messaging Namespace')
   Future<CreateChannelModeratorResponse> createChannelModerator({
     required String channelArn,
     required String channelModeratorArn,
@@ -1096,6 +1271,18 @@ class Chime {
   }
 
   /// Creates a media capture pipeline.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_media-pipelines-chime_CreateMediaCapturePipeline">CreateMediaCapturePipeline</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [ResourceLimitExceededException].
   /// May throw [ForbiddenException].
@@ -1127,6 +1314,8 @@ class Chime {
   /// The unique identifier for the client request. The token makes the API
   /// request idempotent. Use a different token for different media pipeline
   /// requests.
+  @Deprecated(
+      'Replaced by CreateMediaCapturePipeline in the Amazon Chime SDK Media Pipelines Namespace')
   Future<CreateMediaCapturePipelineResponse> createMediaCapturePipeline({
     required String sinkArn,
     required MediaPipelineSinkType sinkType,
@@ -1137,9 +1326,9 @@ class Chime {
   }) async {
     final $payload = <String, dynamic>{
       'SinkArn': sinkArn,
-      'SinkType': sinkType.toValue(),
+      'SinkType': sinkType.value,
       'SourceArn': sourceArn,
-      'SourceType': sourceType.toValue(),
+      'SourceType': sourceType.value,
       if (chimeSdkMeetingConfiguration != null)
         'ChimeSdkMeetingConfiguration': chimeSdkMeetingConfiguration,
       'ClientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
@@ -1160,7 +1349,19 @@ class Chime {
   /// Chime SDK Media Regions</a> in the <i>Amazon Chime SDK Developer Guide</i>
   /// . For more information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
-  /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i> .
+  /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_CreateMeeting.html">CreateMeeting</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1199,6 +1400,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// The tag key-value pairs.
+  @Deprecated(
+      'Replaced by CreateMeeting in the Amazon Chime SDK Meetings Namespace')
   Future<CreateMeetingResponse> createMeeting({
     String? clientRequestToken,
     String? externalMeetingId,
@@ -1233,6 +1436,9 @@ class Chime {
   /// To play welcome audio or implement an interactive voice response (IVR),
   /// use the <code>CreateSipMediaApplicationCall</code> action with the
   /// corresponding SIP media application ID.
+  /// <important>
+  /// <b>This API is is not available in a dedicated namespace.</b>
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1283,6 +1489,18 @@ class Chime {
   /// . For more information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i> .
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_CreateMeetingWithAttendees.html">CreateMeetingWithAttendees</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1325,6 +1543,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// The tag key-value pairs.
+  @Deprecated(
+      'Replaced by CreateMeetingWithAttendees in the Amazon Chime SDK Meetings Namespace')
   Future<CreateMeetingWithAttendeesResponse> createMeetingWithAttendees({
     List<CreateAttendeeRequestItem>? attendees,
     String? clientRequestToken,
@@ -1378,7 +1598,7 @@ class Chime {
   }) async {
     final $payload = <String, dynamic>{
       'E164PhoneNumbers': e164PhoneNumbers,
-      'ProductType': productType.toValue(),
+      'ProductType': productType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1391,6 +1611,18 @@ class Chime {
 
   /// Creates a proxy session on the specified Amazon Chime Voice Connector for
   /// the specified participant phone numbers.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_CreateProxySession.html">CreateProxySession</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -1425,6 +1657,8 @@ class Chime {
   /// Parameter [numberSelectionBehavior] :
   /// The preference for proxy phone number reuse, or stickiness, between the
   /// same participants across sessions.
+  @Deprecated(
+      'Replaced by CreateProxySession in the Amazon Chime SDK Voice Namespace')
   Future<CreateProxySessionResponse> createProxySession({
     required List<Capability> capabilities,
     required List<String> participantPhoneNumbers,
@@ -1442,14 +1676,14 @@ class Chime {
       1152921504606846976,
     );
     final $payload = <String, dynamic>{
-      'Capabilities': capabilities.map((e) => e.toValue()).toList(),
+      'Capabilities': capabilities.map((e) => e.value).toList(),
       'ParticipantPhoneNumbers': participantPhoneNumbers,
       if (expiryMinutes != null) 'ExpiryMinutes': expiryMinutes,
-      if (geoMatchLevel != null) 'GeoMatchLevel': geoMatchLevel.toValue(),
+      if (geoMatchLevel != null) 'GeoMatchLevel': geoMatchLevel.value,
       if (geoMatchParams != null) 'GeoMatchParams': geoMatchParams,
       if (name != null) 'Name': name,
       if (numberSelectionBehavior != null)
-        'NumberSelectionBehavior': numberSelectionBehavior.toValue(),
+        'NumberSelectionBehavior': numberSelectionBehavior.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1531,7 +1765,7 @@ class Chime {
   }) async {
     final $payload = <String, dynamic>{
       'MemberId': memberId,
-      if (role != null) 'Role': role.toValue(),
+      if (role != null) 'Role': role.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1544,6 +1778,18 @@ class Chime {
   }
 
   /// Creates a SIP media application.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_CreateSipMediaApplication.html">CreateSipMediaApplication</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1564,6 +1810,8 @@ class Chime {
   ///
   /// Parameter [name] :
   /// The SIP media application name.
+  @Deprecated(
+      'Replaced by CreateSipMediaApplication in the Amazon Chime SDK Voice Namespace')
   Future<CreateSipMediaApplicationResponse> createSipMediaApplication({
     required String awsRegion,
     required List<SipMediaApplicationEndpoint> endpoints,
@@ -1586,6 +1834,18 @@ class Chime {
   /// Creates an outbound call to a phone number from the phone number specified
   /// in the request, and it invokes the endpoint of the specified
   /// <code>sipMediaApplicationId</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_CreateSipMediaApplicationCall.html">CreateSipMediaApplicationCall</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1608,6 +1868,8 @@ class Chime {
   ///
   /// Parameter [sipHeaders] :
   /// The SIP headers added to an outbound call leg.
+  @Deprecated(
+      'Replaced by CreateSipMediaApplicationCall in the Amazon Chime SDK Voice Namespace')
   Future<CreateSipMediaApplicationCallResponse> createSipMediaApplicationCall({
     required String fromPhoneNumber,
     required String sipMediaApplicationId,
@@ -1631,6 +1893,18 @@ class Chime {
 
   /// Creates a SIP rule which can be used to run a SIP media application as a
   /// target for a specific trigger type.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_CreateSipRule.html">CreateSipRule</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1666,6 +1940,8 @@ class Chime {
   /// Parameter [disabled] :
   /// Enables or disables a rule. You must disable rules before you can delete
   /// them.
+  @Deprecated(
+      'Replaced by CreateSipRule in the Amazon Chime SDK Voice Namespace')
   Future<CreateSipRuleResponse> createSipRule({
     required String name,
     required List<SipRuleTargetApplication> targetApplications,
@@ -1676,7 +1952,7 @@ class Chime {
     final $payload = <String, dynamic>{
       'Name': name,
       'TargetApplications': targetApplications,
-      'TriggerType': triggerType.toValue(),
+      'TriggerType': triggerType.value,
       'TriggerValue': triggerValue,
       if (disabled != null) 'Disabled': disabled,
     };
@@ -1719,7 +1995,7 @@ class Chime {
   }) async {
     final $payload = <String, dynamic>{
       if (email != null) 'Email': email,
-      if (userType != null) 'UserType': userType.toValue(),
+      if (userType != null) 'UserType': userType.value,
       if (username != null) 'Username': username,
     };
     final response = await _protocol.send(
@@ -1740,6 +2016,18 @@ class Chime {
   /// your Amazon Chime Voice Connector to use TLS transport for SIP signaling
   /// and Secure RTP (SRTP) for media. Inbound calls use TLS transport, and
   /// unencrypted outbound calls are blocked.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_CreateVoiceConnector.html">CreateVoiceConnector</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1759,6 +2047,8 @@ class Chime {
   /// Parameter [awsRegion] :
   /// The AWS Region in which the Amazon Chime Voice Connector is created.
   /// Default value: <code>us-east-1</code> .
+  @Deprecated(
+      'Replaced by CreateVoiceConnector in the Amazon Chime SDK Voice Namespace')
   Future<CreateVoiceConnectorResponse> createVoiceConnector({
     required String name,
     required bool requireEncryption,
@@ -1767,7 +2057,7 @@ class Chime {
     final $payload = <String, dynamic>{
       'Name': name,
       'RequireEncryption': requireEncryption,
-      if (awsRegion != null) 'AwsRegion': awsRegion.toValue(),
+      if (awsRegion != null) 'AwsRegion': awsRegion.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1786,6 +2076,18 @@ class Chime {
   /// You can include Amazon Chime Voice Connectors from different AWS Regions
   /// in your group. This creates a fault tolerant mechanism for fallback in
   /// case of availability events.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_CreateVoiceConnectorGroup.html">CreateVoiceConnectorGroup</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1801,6 +2103,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorItems] :
   /// The Amazon Chime Voice Connectors to route inbound calls to.
+  @Deprecated(
+      'Replaced by CreateVoiceConnectorGroup in the Amazon Chime SDK Voice Namespace')
   Future<CreateVoiceConnectorGroupResponse> createVoiceConnectorGroup({
     required String name,
     List<VoiceConnectorItem>? voiceConnectorItems,
@@ -1859,6 +2163,18 @@ class Chime {
 
   /// Deletes an <code>AppInstance</code> and all associated data
   /// asynchronously.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_DeleteAppInstance.html">DeleteAppInstance</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1869,6 +2185,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by DeleteAppInstance in the Amazon Chime SDK Identity Namespace')
   Future<void> deleteAppInstance({
     required String appInstanceArn,
   }) async {
@@ -1882,6 +2200,18 @@ class Chime {
 
   /// Demotes an <code>AppInstanceAdmin</code> to an
   /// <code>AppInstanceUser</code>. This action does not delete the user.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_DeleteAppInstanceAdmin.html">DeleteAppInstanceAdmin</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ConflictException].
@@ -1896,6 +2226,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by DeleteAppInstanceAdmin in the Amazon Chime SDK Identity Namespace')
   Future<void> deleteAppInstanceAdmin({
     required String appInstanceAdminArn,
     required String appInstanceArn,
@@ -1910,6 +2242,18 @@ class Chime {
   }
 
   /// Deletes the streaming configurations of an <code>AppInstance</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_DeleteAppInstanceStreamingConfigurations.html">DeleteAppInstanceStreamingConfigurations</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1921,6 +2265,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the streaming configurations being deleted.
+  @Deprecated(
+      'Replaced by DeleteAppInstanceStreamingConfigurations in the Amazon Chime SDK Messaging Namespace')
   Future<void> deleteAppInstanceStreamingConfigurations({
     required String appInstanceArn,
   }) async {
@@ -1934,6 +2280,18 @@ class Chime {
   }
 
   /// Deletes an <code>AppInstanceUser</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_DeleteAppInstanceUser.html">DeleteAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1944,6 +2302,8 @@ class Chime {
   ///
   /// Parameter [appInstanceUserArn] :
   /// The ARN of the user request being deleted.
+  @Deprecated(
+      'Replaced by DeleteAppInstanceUser in the Amazon Chime SDK Identity Namespace')
   Future<void> deleteAppInstanceUser({
     required String appInstanceUserArn,
   }) async {
@@ -1962,6 +2322,18 @@ class Chime {
   /// Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_DeleteAttendee.html">DeleteAttendee</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -1976,6 +2348,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The Amazon Chime SDK meeting ID.
+  @Deprecated(
+      'Replaced by DeleteAttendee in the Amazon Chime SDK Meetings Namespace')
   Future<void> deleteAttendee({
     required String attendeeId,
     required String meetingId,
@@ -1995,7 +2369,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DeleteChannel.html">DeleteChannel</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2009,6 +2394,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DeleteChannel in the Amazon Chime SDK Messaging Namespace')
   Future<void> deleteChannel({
     required String channelArn,
     String? chimeBearer,
@@ -2030,7 +2417,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DeleteChannelBan.html">DeleteChannelBan</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2048,6 +2446,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DeleteChannelBan in the Amazon Chime SDK Messaging Namespace')
   Future<void> deleteChannelBan({
     required String channelArn,
     required String memberArn,
@@ -2071,7 +2471,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DeleteChannelMembership.html">DeleteChannelMembership</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2089,6 +2500,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DeleteChannelMembership in the Amazon Chime SDK Messaging Namespace')
   Future<void> deleteChannelMembership({
     required String channelArn,
     required String memberArn,
@@ -2114,7 +2527,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DeleteChannelMessage.html">DeleteChannelMessage</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2131,6 +2555,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DeleteChannelMessage in the Amazon Chime SDK Messaging Namespace')
   Future<void> deleteChannelMessage({
     required String channelArn,
     required String messageId,
@@ -2154,7 +2580,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DeleteChannelModerator.html">DeleteChannelModerator</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2171,6 +2608,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DeleteChannelModerator in the Amazon Chime SDK Messaging Namespace')
   Future<void> deleteChannelModerator({
     required String channelArn,
     required String channelModeratorArn,
@@ -2218,6 +2657,18 @@ class Chime {
   }
 
   /// Deletes the media capture pipeline.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_media-pipelines-chime_DeleteMediaCapturePipeline.html">DeleteMediaCapturePipeline</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [ForbiddenException].
   /// May throw [NotFoundException].
@@ -2229,6 +2680,8 @@ class Chime {
   ///
   /// Parameter [mediaPipelineId] :
   /// The ID of the media capture pipeline being deleted.
+  @Deprecated(
+      'Replaced by DeleteMediaCapturePipeline in the Amazon Chime SDK Media Pipelines Namespace')
   Future<void> deleteMediaCapturePipeline({
     required String mediaPipelineId,
   }) async {
@@ -2246,6 +2699,18 @@ class Chime {
   /// the meeting. For more information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_DeleteMeeting.html">DeleteMeeting</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2257,6 +2722,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The Amazon Chime SDK meeting ID.
+  @Deprecated(
+      'Replaced by DeleteMeeting in the Amazon Chime SDK Meetings Namespace')
   Future<void> deleteMeeting({
     required String meetingId,
   }) async {
@@ -2298,6 +2765,18 @@ class Chime {
 
   /// Deletes the specified proxy session from the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteProxySession.html">DeleteProxySession</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2312,6 +2791,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime voice connector ID.
+  @Deprecated(
+      'Replaced by DeleteProxySession in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteProxySession({
     required String proxySessionId,
     required String voiceConnectorId,
@@ -2386,6 +2867,18 @@ class Chime {
   }
 
   /// Deletes a SIP media application.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteSipMediaApplication.html">DeleteSipMediaApplication</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2398,6 +2891,8 @@ class Chime {
   ///
   /// Parameter [sipMediaApplicationId] :
   /// The SIP media application ID.
+  @Deprecated(
+      'Replaced by DeleteSipMediaApplication in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteSipMediaApplication({
     required String sipMediaApplicationId,
   }) async {
@@ -2411,6 +2906,18 @@ class Chime {
   }
 
   /// Deletes a SIP rule. You must disable a SIP rule before you can delete it.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteSipRule.html">DeleteSipRule</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2423,6 +2930,8 @@ class Chime {
   ///
   /// Parameter [sipRuleId] :
   /// The SIP rule ID.
+  @Deprecated(
+      'Replaced by DeleteSipRule in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteSipRule({
     required String sipRuleId,
   }) async {
@@ -2437,6 +2946,18 @@ class Chime {
   /// Deletes the specified Amazon Chime Voice Connector. Any phone numbers
   /// associated with the Amazon Chime Voice Connector must be disassociated
   /// from it before it can be deleted.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnector.html">DeleteVoiceConnector</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2449,6 +2970,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnector in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnector({
     required String voiceConnectorId,
   }) async {
@@ -2462,6 +2985,18 @@ class Chime {
 
   /// Deletes the emergency calling configuration details from the specified
   /// Amazon Chime Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnectorEmergencyCallingConfiguration.html">DeleteVoiceConnectorEmergencyCallingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2473,6 +3008,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnectorEmergencyCallingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnectorEmergencyCallingConfiguration({
     required String voiceConnectorId,
   }) async {
@@ -2488,6 +3025,18 @@ class Chime {
   /// Deletes the specified Amazon Chime Voice Connector group. Any
   /// <code>VoiceConnectorItems</code> and phone numbers associated with the
   /// group must be removed before it can be deleted.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnectorGroup.html">DeleteVoiceConnectorGroup</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2500,6 +3049,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorGroupId] :
   /// The Amazon Chime Voice Connector group ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnectorGroup in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnectorGroup({
     required String voiceConnectorGroupId,
   }) async {
@@ -2517,7 +3068,18 @@ class Chime {
   /// <note>
   /// If emergency calling is configured for the Amazon Chime Voice Connector,
   /// it must be deleted prior to deleting the origination settings.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnectorOrigination.html">DeleteVoiceConnectorOrigination</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2529,6 +3091,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnectorOrigination in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnectorOrigination({
     required String voiceConnectorId,
   }) async {
@@ -2543,6 +3107,18 @@ class Chime {
 
   /// Deletes the proxy configuration from the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnectorProxy.html">DeleteVoiceProxy</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2554,6 +3130,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnectorProxy in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnectorProxy({
     required String voiceConnectorId,
   }) async {
@@ -2568,6 +3146,18 @@ class Chime {
 
   /// Deletes the streaming configuration for the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnectorStreamingConfiguration.html">DeleteVoiceConnectorStreamingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2579,6 +3169,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnectorStreamingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnectorStreamingConfiguration({
     required String voiceConnectorId,
   }) async {
@@ -2596,7 +3188,18 @@ class Chime {
   /// <note>
   /// If emergency calling is configured for the Amazon Chime Voice Connector,
   /// it must be deleted prior to deleting the termination settings.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnectorTermination.html">DeleteVoiceConnectorTermination</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2608,6 +3211,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnectorTermination in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnectorTermination({
     required String voiceConnectorId,
   }) async {
@@ -2622,6 +3227,18 @@ class Chime {
 
   /// Deletes the specified SIP credentials used by your equipment to
   /// authenticate during call termination.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DeleteVoiceConnectorTerminationCredentials.html">DeleteVoiceConnectorTerminationCredentials</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -2637,6 +3254,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DeleteVoiceConnectorTerminationCredentials in the Amazon Chime SDK Voice Namespace')
   Future<void> deleteVoiceConnectorTerminationCredentials({
     required List<String> usernames,
     required String voiceConnectorId,
@@ -2654,6 +3273,18 @@ class Chime {
   }
 
   /// Returns the full details of an <code>AppInstance</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_DescribeAppInstance.html">DescribeAppInstance</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2664,6 +3295,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by DescribeAppInstance in the Amazon Chime SDK Identity Namespace')
   Future<DescribeAppInstanceResponse> describeAppInstance({
     required String appInstanceArn,
   }) async {
@@ -2677,6 +3310,18 @@ class Chime {
   }
 
   /// Returns the full details of an <code>AppInstanceAdmin</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_DescribeAppInstanceAdmin.html">DescribeAppInstanceAdmin</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2690,6 +3335,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by DescribeAppInstanceAdmin in the Amazon Chime SDK Identity Namespace')
   Future<DescribeAppInstanceAdminResponse> describeAppInstanceAdmin({
     required String appInstanceAdminArn,
     required String appInstanceArn,
@@ -2705,6 +3352,18 @@ class Chime {
   }
 
   /// Returns the full details of an <code>AppInstanceUser</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_DescribeAppInstanceUser.html">DescribeAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2715,6 +3374,8 @@ class Chime {
   ///
   /// Parameter [appInstanceUserArn] :
   /// The ARN of the <code>AppInstanceUser</code>.
+  @Deprecated(
+      'Replaced by DescribeAppInstanceUser in the Amazon Chime SDK Identity Namespace')
   Future<DescribeAppInstanceUserResponse> describeAppInstanceUser({
     required String appInstanceUserArn,
   }) async {
@@ -2734,7 +3395,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DescribeChannel.html">DescribeChannel</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2748,6 +3420,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DescribeChannel in the Amazon Chime SDK Messaging Namespace')
   Future<DescribeChannelResponse> describeChannel({
     required String channelArn,
     String? chimeBearer,
@@ -2770,7 +3444,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DescribeChannelBan.html">DescribeChannelBan</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2788,6 +3473,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DescribeChannelBan in the Amazon Chime SDK Messaging Namespace')
   Future<DescribeChannelBanResponse> describeChannelBan({
     required String channelArn,
     required String memberArn,
@@ -2812,7 +3499,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DescribeChannelMembership.html">DescribeChannelMembership</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2830,6 +3528,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DescribeChannelMembership in the Amazon Chime SDK Messaging Namespace')
   Future<DescribeChannelMembershipResponse> describeChannelMembership({
     required String channelArn,
     required String memberArn,
@@ -2855,7 +3555,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DescribeChannelMembershipForAppInstanceUser.html">DescribeChannelMembershipForAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2872,6 +3583,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DescribeChannelMembershipForAppInstanceUser in the Amazon Chime SDK Messaging Namespace')
   Future<DescribeChannelMembershipForAppInstanceUserResponse>
       describeChannelMembershipForAppInstanceUser({
     required String appInstanceUserArn,
@@ -2903,7 +3616,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DescribeChannelModeratedByAppInstanceUser.html">DescribeChannelModeratedByAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2920,6 +3644,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DescribeChannelModeratedByAppInstanceUser in the Amazon Chime SDK Messaging Namespace')
   Future<DescribeChannelModeratedByAppInstanceUserResponse>
       describeChannelModeratedByAppInstanceUser({
     required String appInstanceUserArn,
@@ -2949,7 +3675,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_DescribeChannelModerator.html">DescribeChannelModerator</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -2967,6 +3704,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by DescribeChannelModerator in the Amazon Chime SDK Messaging Namespace')
   Future<DescribeChannelModeratorResponse> describeChannelModerator({
     required String channelArn,
     required String channelModeratorArn,
@@ -3017,6 +3756,18 @@ class Chime {
 
   /// Disassociates the specified phone numbers from the specified Amazon Chime
   /// Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DisassociatePhoneNumbersFromVoiceConnector.html">DisassociatePhoneNumbersFromVoiceConnector</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3031,6 +3782,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by DisassociatePhoneNumbersFromVoiceConnector in the Amazon Chime SDK Voice Namespace')
   Future<DisassociatePhoneNumbersFromVoiceConnectorResponse>
       disassociatePhoneNumbersFromVoiceConnector({
     required List<String> e164PhoneNumbers,
@@ -3052,6 +3805,18 @@ class Chime {
 
   /// Disassociates the specified phone numbers from the specified Amazon Chime
   /// Voice Connector group.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_DisassociatePhoneNumbersFromVoiceConnectorGroup.html">DisassociatePhoneNumbersFromVoiceConnectorGroup</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3066,6 +3831,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorGroupId] :
   /// The Amazon Chime Voice Connector group ID.
+  @Deprecated(
+      'Replaced by DisassociatePhoneNumbersFromVoiceConnectorGroup in the Amazon Chime SDK Voice Namespace')
   Future<DisassociatePhoneNumbersFromVoiceConnectorGroupResponse>
       disassociatePhoneNumbersFromVoiceConnectorGroup({
     required List<String> e164PhoneNumbers,
@@ -3171,6 +3938,18 @@ class Chime {
   }
 
   /// Gets the retention settings for an <code>AppInstance</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_GetAppInstanceRetentionSettings.html">GetMessagingRetentionSettings</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3182,6 +3961,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by GetAppInstanceRetentionSettings in the Amazon Chime SDK Identity Namespace')
   Future<GetAppInstanceRetentionSettingsResponse>
       getAppInstanceRetentionSettings({
     required String appInstanceArn,
@@ -3197,6 +3978,18 @@ class Chime {
   }
 
   /// Gets the streaming settings for an <code>AppInstance</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_GetMessagingStreamingConfigurations.html">GetMessagingStreamingConfigurations</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -3208,6 +4001,8 @@ class Chime {
   ///
   /// Parameter [appInstanceArn] :
   /// The ARN of the <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by GetAppInstanceStreamingConfigurations in the Amazon Chime SDK Messaging Namespace')
   Future<GetAppInstanceStreamingConfigurationsResponse>
       getAppInstanceStreamingConfigurations({
     required String appInstanceArn,
@@ -3225,7 +4020,19 @@ class Chime {
   /// Gets the Amazon Chime SDK attendee details for a specified meeting ID and
   /// attendee ID. For more information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
-  /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i> .
+  /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_GetAttendee.html">GetAttendee</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -3240,6 +4047,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The Amazon Chime SDK meeting ID.
+  @Deprecated(
+      'Replaced by GetAttendee in the Amazon Chime SDK Meetings Namespace')
   Future<GetAttendeeResponse> getAttendee({
     required String attendeeId,
     required String meetingId,
@@ -3289,7 +4098,18 @@ class Chime {
   /// The x-amz-chime-bearer request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_GetChannelMessage.html">GetChannelMessage</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -3307,6 +4127,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by GetChannelMessage in the Amazon Chime SDK Messaging Namespace')
   Future<GetChannelMessageResponse> getChannelMessage({
     required String channelArn,
     required String messageId,
@@ -3376,6 +4198,18 @@ class Chime {
   }
 
   /// Gets an existing media capture pipeline.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_media-pipelines-chime_GetMediaCapturePipeline.html">GetMediaCapturePipeline</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [NotFoundException].
   /// May throw [ForbiddenException].
@@ -3387,6 +4221,8 @@ class Chime {
   ///
   /// Parameter [mediaPipelineId] :
   /// The ID of the pipeline that you want to get.
+  @Deprecated(
+      'Replaced by GetMediaCapturePipeline in the Amazon Chime SDK Media Pipelines Namespace')
   Future<GetMediaCapturePipelineResponse> getMediaCapturePipeline({
     required String mediaPipelineId,
   }) async {
@@ -3400,6 +4236,18 @@ class Chime {
     return GetMediaCapturePipelineResponse.fromJson(response);
   }
 
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_GetMeeting.html">GetMeeting</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   /// Gets the Amazon Chime SDK meeting details for the specified meeting ID.
   /// For more information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
@@ -3415,6 +4263,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The Amazon Chime SDK meeting ID.
+  @Deprecated(
+      'Replaced by GetMeeting in the Amazon Chime SDK Meetings Namespace')
   Future<GetMeetingResponse> getMeeting({
     required String meetingId,
   }) async {
@@ -3428,12 +4278,26 @@ class Chime {
   }
 
   /// The details of the endpoint for the messaging session.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_GetMessagingSessionEndpoint.html">GetMessagingSessionEndpoint</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [ForbiddenException].
   /// May throw [ThrottledClientException].
   /// May throw [ServiceUnavailableException].
   /// May throw [ServiceFailureException].
+  @Deprecated(
+      'Replaced by GetMessagingSessionEndpoint in the Amazon Chime SDK Messaging Namespace')
   Future<GetMessagingSessionEndpointResponse>
       getMessagingSessionEndpoint() async {
     final response = await _protocol.send(
@@ -3518,6 +4382,18 @@ class Chime {
 
   /// Gets the specified proxy session details for the specified Amazon Chime
   /// Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetProxySession.html">GetProxySession</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3532,6 +4408,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime voice connector ID.
+  @Deprecated(
+      'Replaced by GetProxySession in the Amazon Chime SDK Voice Namespace')
   Future<GetProxySessionResponse> getProxySession({
     required String proxySessionId,
     required String voiceConnectorId,
@@ -3607,6 +4485,18 @@ class Chime {
 
   /// Retrieves the information for a SIP media application, including name, AWS
   /// Region, and endpoints.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetSipMediaApplication.html">GetSipMediaApplication</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3618,6 +4508,8 @@ class Chime {
   ///
   /// Parameter [sipMediaApplicationId] :
   /// The SIP media application ID.
+  @Deprecated(
+      'Replaced by GetSipMediaApplication in the Amazon Chime SDK Voice Namespace')
   Future<GetSipMediaApplicationResponse> getSipMediaApplication({
     required String sipMediaApplicationId,
   }) async {
@@ -3632,6 +4524,18 @@ class Chime {
   }
 
   /// Returns the logging configuration for the specified SIP media application.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetSipMediaApplicationLoggingConfiguration.html">GetSipMediaApplicationLoggingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3643,6 +4547,8 @@ class Chime {
   ///
   /// Parameter [sipMediaApplicationId] :
   /// The SIP media application ID.
+  @Deprecated(
+      'Replaced by GetSipMediaApplicationLoggingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<GetSipMediaApplicationLoggingConfigurationResponse>
       getSipMediaApplicationLoggingConfiguration({
     required String sipMediaApplicationId,
@@ -3660,6 +4566,18 @@ class Chime {
 
   /// Retrieves the details of a SIP rule, such as the rule ID, name, triggers,
   /// and target endpoints.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetSipRule.html">GetSipRule</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3671,6 +4589,7 @@ class Chime {
   ///
   /// Parameter [sipRuleId] :
   /// The SIP rule ID.
+  @Deprecated('Replaced by GetSipRule in the Amazon Chime SDK Voice Namespace')
   Future<GetSipRuleResponse> getSipRule({
     required String sipRuleId,
   }) async {
@@ -3748,6 +4667,18 @@ class Chime {
 
   /// Retrieves details for the specified Amazon Chime Voice Connector, such as
   /// timestamps,name, outbound host, and encryption requirements.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnector.html">GetVoiceConnector</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3759,6 +4690,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnector in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorResponse> getVoiceConnector({
     required String voiceConnectorId,
   }) async {
@@ -3773,6 +4706,18 @@ class Chime {
 
   /// Gets the emergency calling configuration details for the specified Amazon
   /// Chime Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorEmergencyCallingConfiguration.html">GetVoiceConnectorEmergencyCallingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3784,6 +4729,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorEmergencyCallingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorEmergencyCallingConfigurationResponse>
       getVoiceConnectorEmergencyCallingConfiguration({
     required String voiceConnectorId,
@@ -3801,6 +4748,18 @@ class Chime {
 
   /// Retrieves details for the specified Amazon Chime Voice Connector group,
   /// such as timestamps,name, and associated <code>VoiceConnectorItems</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorGroup.html">GetVoiceConnectorGroup</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3812,6 +4771,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorGroupId] :
   /// The Amazon Chime Voice Connector group ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorGroup in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorGroupResponse> getVoiceConnectorGroup({
     required String voiceConnectorGroupId,
   }) async {
@@ -3828,6 +4789,18 @@ class Chime {
   /// Retrieves the logging configuration details for the specified Amazon Chime
   /// Voice Connector. Shows whether SIP message logs are enabled for sending to
   /// Amazon CloudWatch Logs.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorLoggingConfiguration.html">GetVoiceConnectorLoggingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3839,6 +4812,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorLoggingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorLoggingConfigurationResponse>
       getVoiceConnectorLoggingConfiguration({
     required String voiceConnectorId,
@@ -3855,6 +4830,18 @@ class Chime {
 
   /// Retrieves origination setting details for the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorOrigination.html">GetVoiceConnectorOrigination</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3866,6 +4853,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorOrigination in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorOriginationResponse> getVoiceConnectorOrigination({
     required String voiceConnectorId,
   }) async {
@@ -3881,6 +4870,18 @@ class Chime {
 
   /// Gets the proxy configuration details for the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorProxy.html">GetVoiceConnectorProxy</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3892,6 +4893,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime voice connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorProxy in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorProxyResponse> getVoiceConnectorProxy({
     required String voiceConnectorId,
   }) async {
@@ -3909,6 +4912,18 @@ class Chime {
   /// Chime Voice Connector. Shows whether media streaming is enabled for
   /// sending to Amazon Kinesis. It also shows the retention period, in hours,
   /// for the Amazon Kinesis data.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorStreamingConfiguration.html">GetVoiceConnectorStreamingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3920,6 +4935,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorStreamingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorStreamingConfigurationResponse>
       getVoiceConnectorStreamingConfiguration({
     required String voiceConnectorId,
@@ -3936,6 +4953,18 @@ class Chime {
 
   /// Retrieves termination setting details for the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorTermination.html">GetVoiceConnectorTermination</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -3947,6 +4976,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorTermination in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorTerminationResponse> getVoiceConnectorTermination({
     required String voiceConnectorId,
   }) async {
@@ -3960,6 +4991,18 @@ class Chime {
     return GetVoiceConnectorTerminationResponse.fromJson(response);
   }
 
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_GetVoiceConnectorTerminationHealth.html">GetVoiceConnectorTerminationHealth</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   /// Retrieves information about the last time a SIP <code>OPTIONS</code> ping
   /// was received from your SIP infrastructure for the specified Amazon Chime
   /// Voice Connector.
@@ -3974,6 +5017,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by GetVoiceConnectorTerminationHealth in the Amazon Chime SDK Voice Namespace')
   Future<GetVoiceConnectorTerminationHealthResponse>
       getVoiceConnectorTerminationHealth({
     required String voiceConnectorId,
@@ -4015,7 +5060,7 @@ class Chime {
   }) async {
     final $payload = <String, dynamic>{
       'UserEmailList': userEmailList,
-      if (userType != null) 'UserType': userType.toValue(),
+      if (userType != null) 'UserType': userType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -4080,6 +5125,18 @@ class Chime {
   }
 
   /// Returns a list of the administrators in the <code>AppInstance</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_ListAppInstanceAdmins.html">ListAppInstanceAdmins</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4097,6 +5154,8 @@ class Chime {
   /// Parameter [nextToken] :
   /// The token returned from previous API requests until the number of
   /// administrators is reached.
+  @Deprecated(
+      'Replaced by ListAppInstanceAdmins in the Amazon Chime SDK Identity Namespace')
   Future<ListAppInstanceAdminsResponse> listAppInstanceAdmins({
     required String appInstanceArn,
     int? maxResults,
@@ -4125,6 +5184,18 @@ class Chime {
 
   /// List all <code>AppInstanceUsers</code> created under a single
   /// <code>AppInstance</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_ListAppInstanceUsers.html">ListAppInstanceUsers</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4142,6 +5213,8 @@ class Chime {
   /// Parameter [nextToken] :
   /// The token passed by previous API calls until all requested users are
   /// returned.
+  @Deprecated(
+      'Replaced by ListAppInstanceUsers in the Amazon Chime SDK Identity Namespace')
   Future<ListAppInstanceUsersResponse> listAppInstanceUsers({
     required String appInstanceArn,
     int? maxResults,
@@ -4170,6 +5243,18 @@ class Chime {
 
   /// Lists all Amazon Chime <code>AppInstance</code>s created under a single
   /// AWS account.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_ListAppInstances.html">ListAppInstances</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4184,6 +5269,8 @@ class Chime {
   /// Parameter [nextToken] :
   /// The token passed by previous API requests until you reach the maximum
   /// number of <code>AppInstance</code>s.
+  @Deprecated(
+      'Replaced by ListAppInstances in the Amazon Chime SDK Identity Namespace')
   Future<ListAppInstancesResponse> listAppInstances({
     int? maxResults,
     String? nextToken,
@@ -4209,6 +5296,10 @@ class Chime {
   }
 
   /// Lists the tags applied to an Amazon Chime SDK attendee resource.
+  /// <important>
+  /// ListAttendeeTags is not supported in the Amazon Chime SDK Meetings
+  /// Namespace. Update your application to remove calls to this API.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4223,6 +5314,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The Amazon Chime SDK meeting ID.
+  @Deprecated(
+      'Attendee Tags are not supported in the Amazon Chime SDK Meetings Namespace. Update your application to remove calls to this API.')
   Future<ListAttendeeTagsResponse> listAttendeeTags({
     required String attendeeId,
     required String meetingId,
@@ -4241,6 +5334,18 @@ class Chime {
   /// information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_ListAttendees.html">ListAttendees</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4258,6 +5363,8 @@ class Chime {
   ///
   /// Parameter [nextToken] :
   /// The token to use to retrieve the next page of results.
+  @Deprecated(
+      'Replaced by ListAttendees in the Amazon Chime SDK Meetings Namespace')
   Future<ListAttendeesResponse> listAttendees({
     required String meetingId,
     int? maxResults,
@@ -4333,7 +5440,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListChannelBans.html">ListChannelBans</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4354,6 +5472,8 @@ class Chime {
   /// Parameter [nextToken] :
   /// The token passed by previous API calls until all requested bans are
   /// returned.
+  @Deprecated(
+      'Replaced by ListChannelBans in the Amazon Chime SDK Messaging Namespace')
   Future<ListChannelBansResponse> listChannelBans({
     required String channelArn,
     String? chimeBearer,
@@ -4389,7 +5509,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListChannelMemberships.html">ListChannelMemberships</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4417,6 +5548,8 @@ class Chime {
   /// <code>ListChannelMemberships</code>. Hidden members are only returned if
   /// the type filter in <code>ListChannelMemberships</code> equals
   /// <code>HIDDEN</code>. Otherwise hidden members are not returned.
+  @Deprecated(
+      'Replaced by ListChannelMemberships in the Amazon Chime SDK Messaging Namespace')
   Future<ListChannelMembershipsResponse> listChannelMemberships({
     required String channelArn,
     String? chimeBearer,
@@ -4436,7 +5569,7 @@ class Chime {
     final $query = <String, List<String>>{
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
-      if (type != null) 'type': [type.toValue()],
+      if (type != null) 'type': [type.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -4456,7 +5589,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListChannelMembershipsForAppInstanceUser.html">ListChannelMembershipsForAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4477,6 +5621,8 @@ class Chime {
   /// Parameter [nextToken] :
   /// The token returned from previous API requests until the number of channel
   /// memberships is reached.
+  @Deprecated(
+      'Replaced by ListChannelMembershipsForAppInstanceUser in the Amazon Chime SDK Messaging Namespace')
   Future<ListChannelMembershipsForAppInstanceUserResponse>
       listChannelMembershipsForAppInstanceUser({
     String? appInstanceUserArn,
@@ -4521,7 +5667,18 @@ class Chime {
   /// Also, the x-amz-chime-bearer request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListChannelMessages.html">ListChannelMessages</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4552,6 +5709,8 @@ class Chime {
   /// Parameter [sortOrder] :
   /// The order in which you want messages sorted. Default is Descending, based
   /// on time created.
+  @Deprecated(
+      'Replaced by ListChannelMessages in the Amazon Chime SDK Messaging Namespace')
   Future<ListChannelMessagesResponse> listChannelMessages({
     required String channelArn,
     String? chimeBearer,
@@ -4577,7 +5736,7 @@ class Chime {
         'not-after': [_s.iso8601ToJson(notAfter).toString()],
       if (notBefore != null)
         'not-before': [_s.iso8601ToJson(notBefore).toString()],
-      if (sortOrder != null) 'sort-order': [sortOrder.toValue()],
+      if (sortOrder != null) 'sort-order': [sortOrder.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -4595,7 +5754,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListChannelModerators.html">ListChannelModerators</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4616,6 +5786,8 @@ class Chime {
   /// Parameter [nextToken] :
   /// The token passed by previous API calls until all requested moderators are
   /// returned.
+  @Deprecated(
+      'Replaced by ListChannelModerators in the Amazon Chime SDK Messaging Namespace')
   Future<ListChannelModeratorsResponse> listChannelModerators({
     required String channelArn,
     String? chimeBearer,
@@ -4663,7 +5835,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListChannels.html">ListChannels</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4689,6 +5872,8 @@ class Chime {
   /// The privacy setting. <code>PUBLIC</code> retrieves all the public
   /// channels. <code>PRIVATE</code> retrieves private channels. Only an
   /// <code>AppInstanceAdmin</code> can retrieve private channels.
+  @Deprecated(
+      'Replaced by ListChannels in the Amazon Chime SDK Messaging Namespace')
   Future<ListChannelsResponse> listChannels({
     required String appInstanceArn,
     String? chimeBearer,
@@ -4709,7 +5894,7 @@ class Chime {
       'app-instance-arn': [appInstanceArn],
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
-      if (privacy != null) 'privacy': [privacy.toValue()],
+      if (privacy != null) 'privacy': [privacy.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -4727,7 +5912,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListChannelsModeratedByAppInstanceUser.html">ListChannelsModeratedByAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4748,6 +5944,8 @@ class Chime {
   /// Parameter [nextToken] :
   /// The token returned from previous API requests until the number of channels
   /// moderated by the user is reached.
+  @Deprecated(
+      'Replaced by ListChannelsModeratedByAppInstanceUser in the Amazon Chime SDK Messaging Namespace')
   Future<ListChannelsModeratedByAppInstanceUserResponse>
       listChannelsModeratedByAppInstanceUser({
     String? appInstanceUserArn,
@@ -4782,6 +5980,18 @@ class Chime {
   }
 
   /// Returns a list of media capture pipelines.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_media-pipelines-chime_ListMediaCapturePipelines.html">ListMediaCapturePipelines</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4796,6 +6006,8 @@ class Chime {
   ///
   /// Parameter [nextToken] :
   /// The token used to retrieve the next page of results.
+  @Deprecated(
+      'Replaced by ListMediaCapturePipelines in the Amazon Chime SDK Media Pipelines Namespace')
   Future<ListMediaCapturePipelinesResponse> listMediaCapturePipelines({
     int? maxResults,
     String? nextToken,
@@ -4821,6 +6033,18 @@ class Chime {
   }
 
   /// Lists the tags applied to an Amazon Chime SDK meeting resource.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_ListTagsForResource.html">ListTagsForResource</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -4832,6 +6056,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The Amazon Chime SDK meeting ID.
+  @Deprecated(
+      'Use ListTagsForResource in the Amazon Chime SDK Meetings Namespace.')
   Future<ListMeetingTagsResponse> listMeetingTags({
     required String meetingId,
   }) async {
@@ -4844,8 +6070,12 @@ class Chime {
     return ListMeetingTagsResponse.fromJson(response);
   }
 
-  /// Lists up to 100 active Amazon Chime SDK meetings. For more information
-  /// about the Amazon Chime SDK, see <a
+  /// Lists up to 100 active Amazon Chime SDK meetings.
+  /// <important>
+  /// ListMeetings is not supported in the Amazon Chime SDK Meetings Namespace.
+  /// Update your application to remove calls to this API.
+  /// </important>
+  /// For more information about the Amazon Chime SDK, see <a
   /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/meetings-sdk.html">Using
   /// the Amazon Chime SDK</a> in the <i>Amazon Chime SDK Developer Guide</i>.
   ///
@@ -4861,6 +6091,8 @@ class Chime {
   ///
   /// Parameter [nextToken] :
   /// The token to use to retrieve the next page of results.
+  @Deprecated(
+      'ListMeetings is not supported in the Amazon Chime SDK Meetings Namespace. Update your application to remove calls to this API.')
   Future<ListMeetingsResponse> listMeetings({
     int? maxResults,
     String? nextToken,
@@ -4968,12 +6200,12 @@ class Chime {
       99,
     );
     final $query = <String, List<String>>{
-      if (filterName != null) 'filter-name': [filterName.toValue()],
+      if (filterName != null) 'filter-name': [filterName.value],
       if (filterValue != null) 'filter-value': [filterValue],
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
-      if (productType != null) 'product-type': [productType.toValue()],
-      if (status != null) 'status': [status.toValue()],
+      if (productType != null) 'product-type': [productType.value],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -4986,6 +6218,18 @@ class Chime {
   }
 
   /// Lists the proxy sessions for the specified Amazon Chime Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_ListProxySessions.html">ListProxySessions</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5006,6 +6250,8 @@ class Chime {
   ///
   /// Parameter [status] :
   /// The proxy session status.
+  @Deprecated(
+      'Replaced by ListProxySessions in the Amazon Chime SDK Voice Namespace')
   Future<ListProxySessionsResponse> listProxySessions({
     required String voiceConnectorId,
     int? maxResults,
@@ -5021,7 +6267,7 @@ class Chime {
     final $query = <String, List<String>>{
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
-      if (status != null) 'status': [status.toValue()],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -5134,6 +6380,18 @@ class Chime {
   }
 
   /// Lists the SIP media applications under the administrator's AWS account.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_ListSipMediaApplications.html">ListSipMediaApplications</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [ForbiddenException].
@@ -5147,6 +6405,8 @@ class Chime {
   ///
   /// Parameter [nextToken] :
   /// The token to use to retrieve the next page of results.
+  @Deprecated(
+      'Replaced by ListSipMediaApplications in the Amazon Chime SDK Voice Namespace')
   Future<ListSipMediaApplicationsResponse> listSipMediaApplications({
     int? maxResults,
     String? nextToken,
@@ -5172,6 +6432,18 @@ class Chime {
   }
 
   /// Lists the SIP rules under the administrator's AWS account.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_ListSipRules.html">ListSipRules</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [ForbiddenException].
@@ -5188,6 +6460,8 @@ class Chime {
   ///
   /// Parameter [sipMediaApplicationId] :
   /// The SIP media application ID.
+  @Deprecated(
+      'Replaced by ListSipRules in the Amazon Chime SDK Voice Namespace')
   Future<ListSipRulesResponse> listSipRules({
     int? maxResults,
     String? nextToken,
@@ -5232,7 +6506,7 @@ class Chime {
     required PhoneNumberProductType productType,
   }) async {
     final $query = <String, List<String>>{
-      'product-type': [productType.toValue()],
+      'product-type': [productType.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -5244,7 +6518,28 @@ class Chime {
     return ListSupportedPhoneNumberCountriesResponse.fromJson(response);
   }
 
-  /// Lists the tags applied to an Amazon Chime SDK meeting resource.
+  /// Lists the tags applied to an Amazon Chime SDK meeting and messaging
+  /// resources.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the applicable latest version in the Amazon Chime SDK.
+  ///
+  /// <ul>
+  /// <li>
+  /// For meetings: <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_ListTagsForResource.html">ListTagsForResource</a>.
+  /// </li>
+  /// <li>
+  /// For messaging: <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_ListTagsForResource.html">ListTagsForResource</a>.
+  /// </li>
+  /// </ul>
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -5255,6 +6550,8 @@ class Chime {
   ///
   /// Parameter [resourceARN] :
   /// The resource ARN.
+  @Deprecated(
+      'Replaced by ListTagsForResource in the Amazon Chime SDK Voice, Amazon Chime SDK Meetings, Amazon Chime SDK Identity, Amazon Chime SDK Messaging, and Amazon Chime SDK Media Pipelines Namespaces')
   Future<ListTagsForResourceResponse> listTagsForResource({
     required String resourceARN,
   }) async {
@@ -5314,7 +6611,7 @@ class Chime {
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
       if (userEmail != null) 'user-email': [userEmail],
-      if (userType != null) 'user-type': [userType.toValue()],
+      if (userType != null) 'user-type': [userType.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -5328,6 +6625,18 @@ class Chime {
 
   /// Lists the Amazon Chime Voice Connector groups for the administrator's AWS
   /// account.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_ListVoiceConnectorGroups.html">ListVoiceConnectorGroups</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [ForbiddenException].
@@ -5341,6 +6650,8 @@ class Chime {
   ///
   /// Parameter [nextToken] :
   /// The token to use to retrieve the next page of results.
+  @Deprecated(
+      'Replaced by ListVoiceConnectorGroups in the Amazon Chime SDK Voice Namespace')
   Future<ListVoiceConnectorGroupsResponse> listVoiceConnectorGroups({
     int? maxResults,
     String? nextToken,
@@ -5366,6 +6677,18 @@ class Chime {
   }
 
   /// Lists the SIP credentials for the specified Amazon Chime Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_ListVoiceConnectorTerminationCredentials.html">ListVoiceConnectorTerminationCredentials</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5377,6 +6700,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by ListVoiceConnectorTerminationCredentials in the Amazon Chime SDK Voice Namespace')
   Future<ListVoiceConnectorTerminationCredentialsResponse>
       listVoiceConnectorTerminationCredentials({
     required String voiceConnectorId,
@@ -5393,6 +6718,18 @@ class Chime {
 
   /// Lists the Amazon Chime Voice Connectors for the administrator's AWS
   /// account.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_ListVoiceConnectors.html">ListVoiceConnectors</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [ForbiddenException].
@@ -5406,6 +6743,8 @@ class Chime {
   ///
   /// Parameter [nextToken] :
   /// The token to use to retrieve the next page of results.
+  @Deprecated(
+      'Replaced by ListVoiceConnectors in the Amazon Chime SDK Voice Namespace')
   Future<ListVoiceConnectorsResponse> listVoiceConnectors({
     int? maxResults,
     String? nextToken,
@@ -5461,6 +6800,18 @@ class Chime {
 
   /// Sets the amount of time in days that a given <code>AppInstance</code>
   /// retains data.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_PutAppInstanceRetentionSettings.html">PutAppInstanceRetentionSettings</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5476,6 +6827,8 @@ class Chime {
   ///
   /// Parameter [appInstanceRetentionSettings] :
   /// The time in days to retain data. Data type: number.
+  @Deprecated(
+      'Replaced by PutAppInstanceRetentionSettings in the Amazon Chime SDK Identity Namespace')
   Future<PutAppInstanceRetentionSettingsResponse>
       putAppInstanceRetentionSettings({
     required String appInstanceArn,
@@ -5495,6 +6848,18 @@ class Chime {
   }
 
   /// The data streaming configurations of an <code>AppInstance</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_PutMessagingStreamingConfigurations.html">PutMessagingStreamingConfigurations</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [NotFoundException].
   /// May throw [BadRequestException].
@@ -5509,6 +6874,8 @@ class Chime {
   ///
   /// Parameter [appInstanceStreamingConfigurations] :
   /// The streaming configurations set for an <code>AppInstance</code>.
+  @Deprecated(
+      'Replaced by PutAppInstanceStreamingConfigurations in the Amazon Chime SDK Messaging Namespace')
   Future<PutAppInstanceStreamingConfigurationsResponse>
       putAppInstanceStreamingConfigurations({
     required String appInstanceArn,
@@ -5619,6 +6986,18 @@ class Chime {
   }
 
   /// Updates the logging configuration for the specified SIP media application.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutSipMediaApplicationLoggingConfiguration.html">PutSipMediaApplicationLoggingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5633,6 +7012,8 @@ class Chime {
   ///
   /// Parameter [sipMediaApplicationLoggingConfiguration] :
   /// The actual logging configuration.
+  @Deprecated(
+      'Replaced by PutSipMediaApplicationLoggingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<PutSipMediaApplicationLoggingConfigurationResponse>
       putSipMediaApplicationLoggingConfiguration({
     required String sipMediaApplicationId,
@@ -5659,6 +7040,18 @@ class Chime {
   /// Voice Connector, such as emergency phone numbers and calling countries.
   /// Origination and termination settings must be enabled for the Amazon Chime
   /// Voice Connector before emergency calling can be configured.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutVoiceConnectorEmergencyCallingConfiguration.html">PutVoiceConnectorEmergencyCallingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5673,6 +7066,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by PutVoiceConnectorEmergencyCallingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<PutVoiceConnectorEmergencyCallingConfigurationResponse>
       putVoiceConnectorEmergencyCallingConfiguration({
     required EmergencyCallingConfiguration emergencyCallingConfiguration,
@@ -5695,6 +7090,18 @@ class Chime {
   /// Adds a logging configuration for the specified Amazon Chime Voice
   /// Connector. The logging configuration specifies whether SIP message logs
   /// are enabled for sending to Amazon CloudWatch Logs.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutVoiceConnectorLoggingConfiguration.html">PutVoiceConnectorLoggingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5709,6 +7116,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by PutVoiceConnectorLoggingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<PutVoiceConnectorLoggingConfigurationResponse>
       putVoiceConnectorLoggingConfiguration({
     required LoggingConfiguration loggingConfiguration,
@@ -5731,7 +7140,18 @@ class Chime {
   /// <note>
   /// If emergency calling is configured for the Amazon Chime Voice Connector,
   /// it must be deleted prior to turning off origination settings.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutVoiceConnectorOrigination.html">PutVoiceConnectorOrigination</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5746,6 +7166,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by PutVoiceConnectorOrigination in the Amazon Chime SDK Voice Namespace')
   Future<PutVoiceConnectorOriginationResponse> putVoiceConnectorOrigination({
     required Origination origination,
     required String voiceConnectorId,
@@ -5765,6 +7187,18 @@ class Chime {
 
   /// Puts the specified proxy configuration to the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutVoiceConnectorProxy.html">PutVoiceConnectorProxy</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [AccessDeniedException].
@@ -5790,6 +7224,8 @@ class Chime {
   ///
   /// Parameter [fallBackPhoneNumber] :
   /// The phone number to route calls to after a proxy session expires.
+  @Deprecated(
+      'Replaced by PutVoiceConnectorProxy in the Amazon Chime SDK Voice Namespace')
   Future<PutVoiceConnectorProxyResponse> putVoiceConnectorProxy({
     required int defaultSessionExpiryMinutes,
     required List<String> phoneNumberPoolCountries,
@@ -5818,6 +7254,18 @@ class Chime {
   /// Connector. The streaming configuration specifies whether media streaming
   /// is enabled for sending to Kinesis. It also sets the retention period, in
   /// hours, for the Amazon Kinesis data.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutVoiceConnectorStreamingConfiguration.html">PutVoiceConnectorStreamingConfiguration</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5832,6 +7280,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by PutVoiceConnectorStreamingConfiguration in the Amazon Chime SDK Voice Namespace')
   Future<PutVoiceConnectorStreamingConfigurationResponse>
       putVoiceConnectorStreamingConfiguration({
     required StreamingConfiguration streamingConfiguration,
@@ -5854,7 +7304,18 @@ class Chime {
   /// <note>
   /// If emergency calling is configured for the Amazon Chime Voice Connector,
   /// it must be deleted prior to turning off termination settings.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutVoiceConnectorTermination.html">PutVoiceConnectorTermination</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5870,6 +7331,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by PutVoiceConnectorTermination in the Amazon Chime SDK Voice Namespace')
   Future<PutVoiceConnectorTerminationResponse> putVoiceConnectorTermination({
     required Termination termination,
     required String voiceConnectorId,
@@ -5889,6 +7352,18 @@ class Chime {
 
   /// Adds termination SIP credentials for the specified Amazon Chime Voice
   /// Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_PutVoiceConnectorTerminationCredentials.html">PutVoiceConnectorTerminationCredentials</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -5903,6 +7378,8 @@ class Chime {
   ///
   /// Parameter [credentials] :
   /// The termination SIP credentials.
+  @Deprecated(
+      'Replaced by PutVoiceConnectorTerminationCredentials in the Amazon Chime SDK Voice Namespace')
   Future<void> putVoiceConnectorTerminationCredentials({
     required String voiceConnectorId,
     List<Credential>? credentials,
@@ -5925,7 +7402,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_RedactChannelMessage.html">RedactChannelMessage</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -5942,6 +7430,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by RedactChannelMessage in the Amazon Chime SDK Messaging Namespace')
   Future<RedactChannelMessageResponse> redactChannelMessage({
     required String channelArn,
     required String messageId,
@@ -6176,8 +7666,7 @@ class Chime {
       if (country != null) 'country': [country],
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (nextToken != null) 'next-token': [nextToken],
-      if (phoneNumberType != null)
-        'phone-number-type': [phoneNumberType.toValue()],
+      if (phoneNumberType != null) 'phone-number-type': [phoneNumberType.value],
       if (state != null) 'state': [state],
       if (tollFreePrefix != null) 'toll-free-prefix': [tollFreePrefix],
     };
@@ -6200,7 +7689,18 @@ class Chime {
   /// Also, <code>STANDARD</code> messages can contain 4KB of data and the 1KB
   /// of metadata. <code>CONTROL</code> messages can contain 30 bytes of data
   /// and no metadata.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_SendChannelMessage.html">SendChannelMessage</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ConflictException].
@@ -6231,6 +7731,8 @@ class Chime {
   ///
   /// Parameter [metadata] :
   /// The optional metadata for each message.
+  @Deprecated(
+      'Replaced by SendChannelMessage in the Amazon Chime SDK Messaging Namespace')
   Future<SendChannelMessageResponse> sendChannelMessage({
     required String channelArn,
     required String content,
@@ -6245,8 +7747,8 @@ class Chime {
     };
     final $payload = <String, dynamic>{
       'Content': content,
-      'Persistence': persistence.toValue(),
-      'Type': type.toValue(),
+      'Persistence': persistence.value,
+      'Type': type.value,
       'ClientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (metadata != null) 'Metadata': metadata,
     };
@@ -6273,12 +7775,23 @@ class Chime {
   /// the <a
   /// href="https://docs.aws.amazon.com/transcribe/latest/APIReference/API_streaming_StartStreamTranscription.html">StartStreamTranscription</a>
   /// API in the <i>Amazon Transcribe Developer Guide</i>.
-  /// <important>
+  /// <note>
   /// Amazon Chime SDK live transcription is powered by Amazon Transcribe. Use
   /// of Amazon Transcribe is subject to the <a
   /// href="https://aws.amazon.com/service-terms/">AWS Service Terms</a>,
   /// including the terms specific to the AWS Machine Learning and Artificial
   /// Intelligence Services.
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_StartMeetingTranscription.html">StartMeetingTranscription</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
   /// </important>
   ///
   /// May throw [NotFoundException].
@@ -6298,6 +7811,8 @@ class Chime {
   /// The configuration for the current transcription operation. Must contain
   /// <code>EngineTranscribeSettings</code> or
   /// <code>EngineTranscribeMedicalSettings</code>.
+  @Deprecated(
+      'Replaced by StartMeetingTranscription in the Amazon Chime SDK Meetings Namespace')
   Future<void> startMeetingTranscription({
     required String meetingId,
     required TranscriptionConfiguration transcriptionConfiguration,
@@ -6315,6 +7830,18 @@ class Chime {
   }
 
   /// Stops transcription for the specified <code>meetingId</code>.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_StopMeetingTranscription.html">StopMeetingTranscription</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [ForbiddenException].
   /// May throw [NotFoundException].
@@ -6327,6 +7854,8 @@ class Chime {
   ///
   /// Parameter [meetingId] :
   /// The unique ID of the meeting for which you stop transcription.
+  @Deprecated(
+      'Replaced by StopMeetingTranscription in the Amazon Chime SDK Meetings Namespace')
   Future<void> stopMeetingTranscription({
     required String meetingId,
   }) async {
@@ -6339,7 +7868,11 @@ class Chime {
     );
   }
 
-  /// Applies the specified tags to the specified Amazon Chime SDK attendee.
+  /// Applies the specified tags to the specified Amazon Chime attendee.
+  /// <important>
+  /// TagAttendee is not supported in the Amazon Chime SDK Meetings Namespace.
+  /// Update your application to remove calls to this API.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -6358,6 +7891,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// The tag key-value pairs.
+  @Deprecated(
+      'Attendee Tags are not supported in the Amazon Chime SDK Meetings Namespace. Update your application to remove calls to this API.')
   Future<void> tagAttendee({
     required String attendeeId,
     required String meetingId,
@@ -6376,6 +7911,18 @@ class Chime {
   }
 
   /// Applies the specified tags to the specified Amazon Chime SDK meeting.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_TagResource.html">TagResource</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -6391,6 +7938,7 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// The tag key-value pairs.
+  @Deprecated('Use TagResource in the Amazon Chime SDK Meetings Namespace.')
   Future<void> tagMeeting({
     required String meetingId,
     required List<Tag> tags,
@@ -6409,6 +7957,18 @@ class Chime {
 
   /// Applies the specified tags to the specified Amazon Chime SDK meeting
   /// resource.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_TagResource.html">TagResource</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -6422,6 +7982,8 @@ class Chime {
   ///
   /// Parameter [tags] :
   /// The tag key-value pairs.
+  @Deprecated(
+      'Replaced by TagResource in the Amazon Chime SDK Voice, Amazon Chime SDK Meetings, Amazon Chime SDK Identity, Amazon Chime SDK Messaging, and Amazon Chime SDK Media Pipelines Namespaces')
   Future<void> tagResource({
     required String resourceARN,
     required List<Tag> tags,
@@ -6439,6 +8001,10 @@ class Chime {
   }
 
   /// Untags the specified tags from the specified Amazon Chime SDK attendee.
+  /// <important>
+  /// UntagAttendee is not supported in the Amazon Chime SDK Meetings Namespace.
+  /// Update your application to remove calls to this API.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -6456,6 +8022,8 @@ class Chime {
   ///
   /// Parameter [tagKeys] :
   /// The tag keys.
+  @Deprecated(
+      'Attendee Tags are not supported in the Amazon Chime SDK Meetings Namespace. Update your application to remove calls to this API.')
   Future<void> untagAttendee({
     required String attendeeId,
     required String meetingId,
@@ -6474,6 +8042,18 @@ class Chime {
   }
 
   /// Untags the specified tags from the specified Amazon Chime SDK meeting.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_UntagResource.html">UntagResource</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -6488,6 +8068,7 @@ class Chime {
   ///
   /// Parameter [tagKeys] :
   /// The tag keys.
+  @Deprecated('Use UntagResource in the Amazon Chime SDK Meetings Namespace.')
   Future<void> untagMeeting({
     required String meetingId,
     required List<String> tagKeys,
@@ -6507,6 +8088,21 @@ class Chime {
   /// Untags the specified tags from the specified Amazon Chime SDK meeting
   /// resource.
   ///
+  /// Applies the specified tags to the specified Amazon Chime SDK meeting
+  /// resource.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_meeting-chime_UntagResource.html">UntagResource</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
+  ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
   /// May throw [NotFoundException].
@@ -6519,6 +8115,8 @@ class Chime {
   ///
   /// Parameter [tagKeys] :
   /// The tag keys.
+  @Deprecated(
+      'Replaced by UntagResource in the Amazon Chime SDK Voice, Amazon Chime SDK Meetings, Amazon Chime SDK Identity, Amazon Chime SDK Messaging, and Amazon Chime SDK Media Pipelines Namespaces')
   Future<void> untagResource({
     required String resourceARN,
     required List<String> tagKeys,
@@ -6561,7 +8159,7 @@ class Chime {
     String? name,
   }) async {
     final $payload = <String, dynamic>{
-      if (defaultLicense != null) 'DefaultLicense': defaultLicense.toValue(),
+      if (defaultLicense != null) 'DefaultLicense': defaultLicense.value,
       if (name != null) 'Name': name,
     };
     final response = await _protocol.send(
@@ -6609,6 +8207,18 @@ class Chime {
   }
 
   /// Updates <code>AppInstance</code> metadata.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_UpdateAppInstance.html">UpdateAppInstance</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ConflictException].
@@ -6626,6 +8236,8 @@ class Chime {
   ///
   /// Parameter [metadata] :
   /// The metadata that you want to change.
+  @Deprecated(
+      'Replaced by UpdateAppInstance in the Amazon Chime SDK Identity Namespace')
   Future<UpdateAppInstanceResponse> updateAppInstance({
     required String appInstanceArn,
     required String name,
@@ -6646,6 +8258,18 @@ class Chime {
 
   /// Updates the details of an <code>AppInstanceUser</code>. You can update
   /// names and metadata.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_identity-chime_UpdateAppInstanceUser.html">UpdateAppInstanceUser</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ConflictException].
@@ -6663,6 +8287,8 @@ class Chime {
   ///
   /// Parameter [metadata] :
   /// The metadata of the <code>AppInstanceUser</code>.
+  @Deprecated(
+      'Replaced by UpdateAppInstanceUser in the Amazon Chime SDK Identity Namespace')
   Future<UpdateAppInstanceUserResponse> updateAppInstanceUser({
     required String appInstanceUserArn,
     required String name,
@@ -6726,7 +8352,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_UpdateChannel.html">UpdateChannel</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -6750,6 +8387,8 @@ class Chime {
   ///
   /// Parameter [metadata] :
   /// The metadata for the update request.
+  @Deprecated(
+      'Replaced by UpdateChannel in the Amazon Chime SDK Messaging Namespace')
   Future<UpdateChannelResponse> updateChannel({
     required String channelArn,
     required ChannelMode mode,
@@ -6761,7 +8400,7 @@ class Chime {
       if (chimeBearer != null) 'x-amz-chime-bearer': chimeBearer.toString(),
     };
     final $payload = <String, dynamic>{
-      'Mode': mode.toValue(),
+      'Mode': mode.value,
       'Name': name,
       if (metadata != null) 'Metadata': metadata,
     };
@@ -6780,7 +8419,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_UpdateChannelMessage.html">UpdateChannelMessage</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ConflictException].
@@ -6804,6 +8454,8 @@ class Chime {
   ///
   /// Parameter [metadata] :
   /// The metadata of the message being updated.
+  @Deprecated(
+      'Replaced by UpdateChannelMessage in the Amazon Chime SDK Messaging Namespace')
   Future<UpdateChannelMessageResponse> updateChannelMessage({
     required String channelArn,
     required String messageId,
@@ -6834,7 +8486,18 @@ class Chime {
   /// The <code>x-amz-chime-bearer</code> request header is mandatory. Use the
   /// <code>AppInstanceUserArn</code> of the user that makes the API call as the
   /// value in the header.
-  /// </note>
+  /// </note> <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_messaging-chime_UpdateChannelReadMarker.html">UpdateChannelReadMarker</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [ForbiddenException].
@@ -6849,6 +8512,8 @@ class Chime {
   ///
   /// Parameter [chimeBearer] :
   /// The <code>AppInstanceUserArn</code> of the user that makes the API call.
+  @Deprecated(
+      'Replaced by UpdateChannelReadMarker in the Amazon Chime SDK Messaging Namespace')
   Future<UpdateChannelReadMarkerResponse> updateChannelReadMarker({
     required String channelArn,
     String? chimeBearer,
@@ -6934,7 +8599,7 @@ class Chime {
   }) async {
     final $payload = <String, dynamic>{
       if (callingName != null) 'CallingName': callingName,
-      if (productType != null) 'ProductType': productType.toValue(),
+      if (productType != null) 'ProductType': productType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -6975,6 +8640,18 @@ class Chime {
 
   /// Updates the specified proxy session details, such as voice or SMS
   /// capabilities.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_UpdateProxySession.html">UpdateProxySession</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -6995,6 +8672,8 @@ class Chime {
   ///
   /// Parameter [expiryMinutes] :
   /// The number of minutes allowed for the proxy session.
+  @Deprecated(
+      'Replaced by UpdateProxySession in the Amazon Chime SDK Voice Namespace')
   Future<UpdateProxySessionResponse> updateProxySession({
     required List<Capability> capabilities,
     required String proxySessionId,
@@ -7008,7 +8687,7 @@ class Chime {
       1152921504606846976,
     );
     final $payload = <String, dynamic>{
-      'Capabilities': capabilities.map((e) => e.toValue()).toList(),
+      'Capabilities': capabilities.map((e) => e.value).toList(),
       if (expiryMinutes != null) 'ExpiryMinutes': expiryMinutes,
     };
     final response = await _protocol.send(
@@ -7089,7 +8768,7 @@ class Chime {
     RoomMembershipRole? role,
   }) async {
     final $payload = <String, dynamic>{
-      if (role != null) 'Role': role.toValue(),
+      if (role != null) 'Role': role.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -7102,6 +8781,18 @@ class Chime {
   }
 
   /// Updates the details of the specified SIP media application.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_UpdateSipMediaApplication.html">UpdateSipMediaApplication</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -7120,6 +8811,8 @@ class Chime {
   ///
   /// Parameter [name] :
   /// The new name for the specified SIP media application.
+  @Deprecated(
+      'Replaced by UpdateSipMediaApplication in the Amazon Chime SDK Voice Namespace')
   Future<UpdateSipMediaApplicationResponse> updateSipMediaApplication({
     required String sipMediaApplicationId,
     List<SipMediaApplicationEndpoint>? endpoints,
@@ -7142,6 +8835,18 @@ class Chime {
   /// Invokes the AWS Lambda function associated with the SIP media application
   /// and transaction ID in an update request. The Lambda function can then
   /// return a new set of actions.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_UpdateSipMediaApplicationCall.html">UpdateSipMediaApplicationCall</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [BadRequestException].
   /// May throw [NotFoundException].
@@ -7162,6 +8867,8 @@ class Chime {
   ///
   /// Parameter [transactionId] :
   /// The ID of the call transaction.
+  @Deprecated(
+      'Replaced by UpdateSipMediaApplicationCall in the Amazon Chime SDK Voice Namespace')
   Future<UpdateSipMediaApplicationCallResponse> updateSipMediaApplicationCall({
     required Map<String, String> arguments,
     required String sipMediaApplicationId,
@@ -7181,6 +8888,18 @@ class Chime {
   }
 
   /// Updates the details of the specified SIP rule.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_UpdateSipRule.html">UpdateSipRule</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -7203,6 +8922,8 @@ class Chime {
   ///
   /// Parameter [targetApplications] :
   /// The new value of the list of target applications.
+  @Deprecated(
+      'Replaced by UpdateSipRule in the Amazon Chime SDK Voice Namespace')
   Future<UpdateSipRuleResponse> updateSipRule({
     required String name,
     required String sipRuleId,
@@ -7259,8 +8980,8 @@ class Chime {
     final $payload = <String, dynamic>{
       if (alexaForBusinessMetadata != null)
         'AlexaForBusinessMetadata': alexaForBusinessMetadata,
-      if (licenseType != null) 'LicenseType': licenseType.toValue(),
-      if (userType != null) 'UserType': userType.toValue(),
+      if (licenseType != null) 'LicenseType': licenseType.value,
+      if (userType != null) 'UserType': userType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -7309,6 +9030,18 @@ class Chime {
   }
 
   /// Updates details for the specified Amazon Chime Voice Connector.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_UpdateVoiceConnector.html">UpdateVoiceConnector</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -7326,6 +9059,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorId] :
   /// The Amazon Chime Voice Connector ID.
+  @Deprecated(
+      'Replaced by UpdateVoiceConnector in the Amazon Chime SDK Voice Namespace')
   Future<UpdateVoiceConnectorResponse> updateVoiceConnector({
     required String name,
     required bool requireEncryption,
@@ -7346,6 +9081,18 @@ class Chime {
 
   /// Updates details of the specified Amazon Chime Voice Connector group, such
   /// as the name and Amazon Chime Voice Connector priority ranking.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_UpdateVoiceConnectorGroup.html">UpdateVoiceConnectorGroup</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -7364,6 +9111,8 @@ class Chime {
   ///
   /// Parameter [voiceConnectorItems] :
   /// The <code>VoiceConnectorItems</code> to associate with the group.
+  @Deprecated(
+      'Replaced by UpdateVoiceConnectorGroup in the Amazon Chime SDK Voice Namespace')
   Future<UpdateVoiceConnectorGroupResponse> updateVoiceConnectorGroup({
     required String name,
     required String voiceConnectorGroupId,
@@ -7388,6 +9137,18 @@ class Chime {
   /// Format Location Object file that you include in SIP requests. That helps
   /// ensure that addresses are routed to the appropriate Public Safety
   /// Answering Point.
+  /// <important>
+  /// <b>This API is is no longer supported and will not be updated.</b> We
+  /// recommend using the latest version, <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/APIReference/API_voice-chime_ValidateE911Address.html">ValidateE911Address</a>,
+  /// in the Amazon Chime SDK.
+  ///
+  /// Using the latest version requires migrating to a dedicated namespace. For
+  /// more information, refer to <a
+  /// href="https://docs.aws.amazon.com/chime-sdk/latest/dg/migrate-from-chm-namespace.html">Migrating
+  /// from the Amazon Chime namespace</a> in the <i>Amazon Chime SDK Developer
+  /// Guide</i>.
+  /// </important>
   ///
   /// May throw [UnauthorizedClientException].
   /// May throw [NotFoundException].
@@ -7417,6 +9178,8 @@ class Chime {
   ///
   /// Parameter [streetNumber] :
   /// The address street number, such as <code>200</code> or <code>2121</code>.
+  @Deprecated(
+      'Replaced by ValidateE911Address in the Amazon Chime SDK Voice Namespace')
   Future<ValidateE911AddressResponse> validateE911Address({
     required String awsAccountId,
     required String city,
@@ -7496,17 +9259,20 @@ class Account {
       accountId: json['AccountId'] as String,
       awsAccountId: json['AwsAccountId'] as String,
       name: json['Name'] as String,
-      accountStatus: (json['AccountStatus'] as String?)?.toAccountStatus(),
-      accountType: (json['AccountType'] as String?)?.toAccountType(),
+      accountStatus:
+          (json['AccountStatus'] as String?)?.let(AccountStatus.fromString),
+      accountType:
+          (json['AccountType'] as String?)?.let(AccountType.fromString),
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
-      defaultLicense: (json['DefaultLicense'] as String?)?.toLicense(),
+      defaultLicense:
+          (json['DefaultLicense'] as String?)?.let(License.fromString),
       signinDelegateGroups: (json['SigninDelegateGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SigninDelegateGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       supportedLicenses: (json['SupportedLicenses'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toLicense())
+          ?.nonNulls
+          .map((e) => License.fromString((e as String)))
           .toList(),
     );
   }
@@ -7525,15 +9291,15 @@ class Account {
       'AccountId': accountId,
       'AwsAccountId': awsAccountId,
       'Name': name,
-      if (accountStatus != null) 'AccountStatus': accountStatus.toValue(),
-      if (accountType != null) 'AccountType': accountType.toValue(),
+      if (accountStatus != null) 'AccountStatus': accountStatus.value,
+      if (accountType != null) 'AccountType': accountType.value,
       if (createdTimestamp != null)
         'CreatedTimestamp': iso8601ToJson(createdTimestamp),
-      if (defaultLicense != null) 'DefaultLicense': defaultLicense.toValue(),
+      if (defaultLicense != null) 'DefaultLicense': defaultLicense.value,
       if (signinDelegateGroups != null)
         'SigninDelegateGroups': signinDelegateGroups,
       if (supportedLicenses != null)
-        'SupportedLicenses': supportedLicenses.map((e) => e.toValue()).toList(),
+        'SupportedLicenses': supportedLicenses.map((e) => e.value).toList(),
     };
   }
 }
@@ -7579,69 +9345,34 @@ class AccountSettings {
 }
 
 enum AccountStatus {
-  suspended,
-  active,
-}
+  suspended('Suspended'),
+  active('Active'),
+  ;
 
-extension AccountStatusValueExtension on AccountStatus {
-  String toValue() {
-    switch (this) {
-      case AccountStatus.suspended:
-        return 'Suspended';
-      case AccountStatus.active:
-        return 'Active';
-    }
-  }
-}
+  final String value;
 
-extension AccountStatusFromString on String {
-  AccountStatus toAccountStatus() {
-    switch (this) {
-      case 'Suspended':
-        return AccountStatus.suspended;
-      case 'Active':
-        return AccountStatus.active;
-    }
-    throw Exception('$this is not known in enum AccountStatus');
-  }
+  const AccountStatus(this.value);
+
+  static AccountStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccountStatus'));
 }
 
 enum AccountType {
-  team,
-  enterpriseDirectory,
-  enterpriseLWA,
-  enterpriseOIDC,
-}
+  team('Team'),
+  enterpriseDirectory('EnterpriseDirectory'),
+  enterpriseLWA('EnterpriseLWA'),
+  enterpriseOIDC('EnterpriseOIDC'),
+  ;
 
-extension AccountTypeValueExtension on AccountType {
-  String toValue() {
-    switch (this) {
-      case AccountType.team:
-        return 'Team';
-      case AccountType.enterpriseDirectory:
-        return 'EnterpriseDirectory';
-      case AccountType.enterpriseLWA:
-        return 'EnterpriseLWA';
-      case AccountType.enterpriseOIDC:
-        return 'EnterpriseOIDC';
-    }
-  }
-}
+  final String value;
 
-extension AccountTypeFromString on String {
-  AccountType toAccountType() {
-    switch (this) {
-      case 'Team':
-        return AccountType.team;
-      case 'EnterpriseDirectory':
-        return AccountType.enterpriseDirectory;
-      case 'EnterpriseLWA':
-        return AccountType.enterpriseLWA;
-      case 'EnterpriseOIDC':
-        return AccountType.enterpriseOIDC;
-    }
-    throw Exception('$this is not known in enum AccountType');
-  }
+  const AccountType(this.value);
+
+  static AccountType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AccountType'));
 }
 
 /// A validated address.
@@ -7888,31 +9619,18 @@ class AppInstanceAdminSummary {
 }
 
 enum AppInstanceDataType {
-  channel,
-  channelMessage,
-}
+  channel('Channel'),
+  channelMessage('ChannelMessage'),
+  ;
 
-extension AppInstanceDataTypeValueExtension on AppInstanceDataType {
-  String toValue() {
-    switch (this) {
-      case AppInstanceDataType.channel:
-        return 'Channel';
-      case AppInstanceDataType.channelMessage:
-        return 'ChannelMessage';
-    }
-  }
-}
+  final String value;
 
-extension AppInstanceDataTypeFromString on String {
-  AppInstanceDataType toAppInstanceDataType() {
-    switch (this) {
-      case 'Channel':
-        return AppInstanceDataType.channel;
-      case 'ChannelMessage':
-        return AppInstanceDataType.channelMessage;
-    }
-    throw Exception('$this is not known in enum AppInstanceDataType');
-  }
+  const AppInstanceDataType(this.value);
+
+  static AppInstanceDataType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AppInstanceDataType'));
 }
 
 /// The details of the data-retention settings for an <code>AppInstance</code>.
@@ -7958,8 +9676,8 @@ class AppInstanceStreamingConfiguration {
   factory AppInstanceStreamingConfiguration.fromJson(
       Map<String, dynamic> json) {
     return AppInstanceStreamingConfiguration(
-      appInstanceDataType:
-          (json['AppInstanceDataType'] as String).toAppInstanceDataType(),
+      appInstanceDataType: AppInstanceDataType.fromString(
+          (json['AppInstanceDataType'] as String)),
       resourceArn: json['ResourceArn'] as String,
     );
   }
@@ -7968,7 +9686,7 @@ class AppInstanceStreamingConfiguration {
     final appInstanceDataType = this.appInstanceDataType;
     final resourceArn = this.resourceArn;
     return {
-      'AppInstanceDataType': appInstanceDataType.toValue(),
+      'AppInstanceDataType': appInstanceDataType.value,
       'ResourceArn': resourceArn,
     };
   }
@@ -8080,7 +9798,7 @@ class AppInstanceUserMembershipSummary {
   factory AppInstanceUserMembershipSummary.fromJson(Map<String, dynamic> json) {
     return AppInstanceUserMembershipSummary(
       readMarkerTimestamp: timeStampFromJson(json['ReadMarkerTimestamp']),
-      type: (json['Type'] as String?)?.toChannelMembershipType(),
+      type: (json['Type'] as String?)?.let(ChannelMembershipType.fromString),
     );
   }
 
@@ -8090,7 +9808,7 @@ class AppInstanceUserMembershipSummary {
     return {
       if (readMarkerTimestamp != null)
         'ReadMarkerTimestamp': unixTimestampToJson(readMarkerTimestamp),
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -8173,31 +9891,18 @@ class ArtifactsConfiguration {
 }
 
 enum ArtifactsState {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension ArtifactsStateValueExtension on ArtifactsState {
-  String toValue() {
-    switch (this) {
-      case ArtifactsState.enabled:
-        return 'Enabled';
-      case ArtifactsState.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension ArtifactsStateFromString on String {
-  ArtifactsState toArtifactsState() {
-    switch (this) {
-      case 'Enabled':
-        return ArtifactsState.enabled;
-      case 'Disabled':
-        return ArtifactsState.disabled;
-    }
-    throw Exception('$this is not known in enum ArtifactsState');
-  }
+  const ArtifactsState(this.value);
+
+  static ArtifactsState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ArtifactsState'));
 }
 
 class AssociatePhoneNumberWithUserResponse {
@@ -8227,7 +9932,7 @@ class AssociatePhoneNumbersWithVoiceConnectorGroupResponse {
       Map<String, dynamic> json) {
     return AssociatePhoneNumbersWithVoiceConnectorGroupResponse(
       phoneNumberErrors: (json['PhoneNumberErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8255,7 +9960,7 @@ class AssociatePhoneNumbersWithVoiceConnectorResponse {
       Map<String, dynamic> json) {
     return AssociatePhoneNumbersWithVoiceConnectorResponse(
       phoneNumberErrors: (json['PhoneNumberErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8340,44 +10045,31 @@ class AudioArtifactsConfiguration {
 
   factory AudioArtifactsConfiguration.fromJson(Map<String, dynamic> json) {
     return AudioArtifactsConfiguration(
-      muxType: (json['MuxType'] as String).toAudioMuxType(),
+      muxType: AudioMuxType.fromString((json['MuxType'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final muxType = this.muxType;
     return {
-      'MuxType': muxType.toValue(),
+      'MuxType': muxType.value,
     };
   }
 }
 
 enum AudioMuxType {
-  audioOnly,
-  audioWithActiveSpeakerVideo,
-}
+  audioOnly('AudioOnly'),
+  audioWithActiveSpeakerVideo('AudioWithActiveSpeakerVideo'),
+  ;
 
-extension AudioMuxTypeValueExtension on AudioMuxType {
-  String toValue() {
-    switch (this) {
-      case AudioMuxType.audioOnly:
-        return 'AudioOnly';
-      case AudioMuxType.audioWithActiveSpeakerVideo:
-        return 'AudioWithActiveSpeakerVideo';
-    }
-  }
-}
+  final String value;
 
-extension AudioMuxTypeFromString on String {
-  AudioMuxType toAudioMuxType() {
-    switch (this) {
-      case 'AudioOnly':
-        return AudioMuxType.audioOnly;
-      case 'AudioWithActiveSpeakerVideo':
-        return AudioMuxType.audioWithActiveSpeakerVideo;
-    }
-    throw Exception('$this is not known in enum AudioMuxType');
-  }
+  const AudioMuxType(this.value);
+
+  static AudioMuxType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AudioMuxType'));
 }
 
 /// The membership information, including member ARNs, the channel ARN, and
@@ -8409,10 +10101,10 @@ class BatchChannelMemberships {
           ? Identity.fromJson(json['InvitedBy'] as Map<String, dynamic>)
           : null,
       members: (json['Members'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Identity.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['Type'] as String?)?.toChannelMembershipType(),
+      type: (json['Type'] as String?)?.let(ChannelMembershipType.fromString),
     );
   }
 
@@ -8425,7 +10117,7 @@ class BatchChannelMemberships {
       if (channelArn != null) 'ChannelArn': channelArn,
       if (invitedBy != null) 'InvitedBy': invitedBy,
       if (members != null) 'Members': members,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -8446,11 +10138,11 @@ class BatchCreateAttendeeResponse {
   factory BatchCreateAttendeeResponse.fromJson(Map<String, dynamic> json) {
     return BatchCreateAttendeeResponse(
       attendees: (json['Attendees'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Attendee.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CreateAttendeeError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8486,7 +10178,7 @@ class BatchCreateChannelMembershipError {
   factory BatchCreateChannelMembershipError.fromJson(
       Map<String, dynamic> json) {
     return BatchCreateChannelMembershipError(
-      errorCode: (json['ErrorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       memberArn: json['MemberArn'] as String?,
     );
@@ -8497,7 +10189,7 @@ class BatchCreateChannelMembershipError {
     final errorMessage = this.errorMessage;
     final memberArn = this.memberArn;
     return {
-      if (errorCode != null) 'ErrorCode': errorCode.toValue(),
+      if (errorCode != null) 'ErrorCode': errorCode.value,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (memberArn != null) 'MemberArn': memberArn,
     };
@@ -8526,7 +10218,7 @@ class BatchCreateChannelMembershipResponse {
               json['BatchChannelMemberships'] as Map<String, dynamic>)
           : null,
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchCreateChannelMembershipError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -8557,7 +10249,7 @@ class BatchCreateRoomMembershipResponse {
       Map<String, dynamic> json) {
     return BatchCreateRoomMembershipResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MemberError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8584,7 +10276,7 @@ class BatchDeletePhoneNumberResponse {
   factory BatchDeletePhoneNumberResponse.fromJson(Map<String, dynamic> json) {
     return BatchDeletePhoneNumberResponse(
       phoneNumberErrors: (json['PhoneNumberErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8611,7 +10303,7 @@ class BatchSuspendUserResponse {
   factory BatchSuspendUserResponse.fromJson(Map<String, dynamic> json) {
     return BatchSuspendUserResponse(
       userErrors: (json['UserErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UserError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8638,7 +10330,7 @@ class BatchUnsuspendUserResponse {
   factory BatchUnsuspendUserResponse.fromJson(Map<String, dynamic> json) {
     return BatchUnsuspendUserResponse(
       userErrors: (json['UserErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UserError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8665,7 +10357,7 @@ class BatchUpdatePhoneNumberResponse {
   factory BatchUpdatePhoneNumberResponse.fromJson(Map<String, dynamic> json) {
     return BatchUpdatePhoneNumberResponse(
       phoneNumberErrors: (json['PhoneNumberErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8692,7 +10384,7 @@ class BatchUpdateUserResponse {
   factory BatchUpdateUserResponse.fromJson(Map<String, dynamic> json) {
     return BatchUpdateUserResponse(
       userErrors: (json['UserErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UserError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8753,7 +10445,7 @@ class Bot {
     return Bot(
       botEmail: json['BotEmail'] as String?,
       botId: json['BotId'] as String?,
-      botType: (json['BotType'] as String?)?.toBotType(),
+      botType: (json['BotType'] as String?)?.let(BotType.fromString),
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
       disabled: json['Disabled'] as bool?,
       displayName: json['DisplayName'] as String?,
@@ -8776,7 +10468,7 @@ class Bot {
     return {
       if (botEmail != null) 'BotEmail': botEmail,
       if (botId != null) 'BotId': botId,
-      if (botType != null) 'BotType': botType.toValue(),
+      if (botType != null) 'BotType': botType.value,
       if (createdTimestamp != null)
         'CreatedTimestamp': iso8601ToJson(createdTimestamp),
       if (disabled != null) 'Disabled': disabled,
@@ -8790,26 +10482,16 @@ class Bot {
 }
 
 enum BotType {
-  chatBot,
-}
+  chatBot('ChatBot'),
+  ;
 
-extension BotTypeValueExtension on BotType {
-  String toValue() {
-    switch (this) {
-      case BotType.chatBot:
-        return 'ChatBot';
-    }
-  }
-}
+  final String value;
 
-extension BotTypeFromString on String {
-  BotType toBotType() {
-    switch (this) {
-      case 'ChatBot':
-        return BotType.chatBot;
-    }
-    throw Exception('$this is not known in enum BotType');
-  }
+  const BotType(this.value);
+
+  static BotType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum BotType'));
 }
 
 /// The Amazon Chime Business Calling settings for the administrator's AWS
@@ -8838,41 +10520,20 @@ class BusinessCallingSettings {
 }
 
 enum CallingNameStatus {
-  unassigned,
-  updateInProgress,
-  updateSucceeded,
-  updateFailed,
-}
+  unassigned('Unassigned'),
+  updateInProgress('UpdateInProgress'),
+  updateSucceeded('UpdateSucceeded'),
+  updateFailed('UpdateFailed'),
+  ;
 
-extension CallingNameStatusValueExtension on CallingNameStatus {
-  String toValue() {
-    switch (this) {
-      case CallingNameStatus.unassigned:
-        return 'Unassigned';
-      case CallingNameStatus.updateInProgress:
-        return 'UpdateInProgress';
-      case CallingNameStatus.updateSucceeded:
-        return 'UpdateSucceeded';
-      case CallingNameStatus.updateFailed:
-        return 'UpdateFailed';
-    }
-  }
-}
+  final String value;
 
-extension CallingNameStatusFromString on String {
-  CallingNameStatus toCallingNameStatus() {
-    switch (this) {
-      case 'Unassigned':
-        return CallingNameStatus.unassigned;
-      case 'UpdateInProgress':
-        return CallingNameStatus.updateInProgress;
-      case 'UpdateSucceeded':
-        return CallingNameStatus.updateSucceeded;
-      case 'UpdateFailed':
-        return CallingNameStatus.updateFailed;
-    }
-    throw Exception('$this is not known in enum CallingNameStatus');
-  }
+  const CallingNameStatus(this.value);
+
+  static CallingNameStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CallingNameStatus'));
 }
 
 /// A suggested address.
@@ -8941,31 +10602,17 @@ class CandidateAddress {
 }
 
 enum Capability {
-  voice,
-  sms,
-}
+  voice('Voice'),
+  sms('SMS'),
+  ;
 
-extension CapabilityValueExtension on Capability {
-  String toValue() {
-    switch (this) {
-      case Capability.voice:
-        return 'Voice';
-      case Capability.sms:
-        return 'SMS';
-    }
-  }
-}
+  final String value;
 
-extension CapabilityFromString on String {
-  Capability toCapability() {
-    switch (this) {
-      case 'Voice':
-        return Capability.voice;
-      case 'SMS':
-        return Capability.sms;
-    }
-    throw Exception('$this is not known in enum Capability');
-  }
+  const Capability(this.value);
+
+  static Capability fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Capability'));
 }
 
 /// The details of a channel.
@@ -9019,9 +10666,9 @@ class Channel {
       lastMessageTimestamp: timeStampFromJson(json['LastMessageTimestamp']),
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       metadata: json['Metadata'] as String?,
-      mode: (json['Mode'] as String?)?.toChannelMode(),
+      mode: (json['Mode'] as String?)?.let(ChannelMode.fromString),
       name: json['Name'] as String?,
-      privacy: (json['Privacy'] as String?)?.toChannelPrivacy(),
+      privacy: (json['Privacy'] as String?)?.let(ChannelPrivacy.fromString),
     );
   }
 
@@ -9045,9 +10692,9 @@ class Channel {
       if (lastUpdatedTimestamp != null)
         'LastUpdatedTimestamp': unixTimestampToJson(lastUpdatedTimestamp),
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (name != null) 'Name': name,
-      if (privacy != null) 'Privacy': privacy.toValue(),
+      if (privacy != null) 'Privacy': privacy.value,
     };
   }
 }
@@ -9166,7 +10813,7 @@ class ChannelMembership {
       member: json['Member'] != null
           ? Identity.fromJson(json['Member'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toChannelMembershipType(),
+      type: (json['Type'] as String?)?.let(ChannelMembershipType.fromString),
     );
   }
 
@@ -9185,7 +10832,7 @@ class ChannelMembership {
       if (lastUpdatedTimestamp != null)
         'LastUpdatedTimestamp': unixTimestampToJson(lastUpdatedTimestamp),
       if (member != null) 'Member': member,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -9258,31 +10905,18 @@ class ChannelMembershipSummary {
 }
 
 enum ChannelMembershipType {
-  $default,
-  hidden,
-}
+  $default('DEFAULT'),
+  hidden('HIDDEN'),
+  ;
 
-extension ChannelMembershipTypeValueExtension on ChannelMembershipType {
-  String toValue() {
-    switch (this) {
-      case ChannelMembershipType.$default:
-        return 'DEFAULT';
-      case ChannelMembershipType.hidden:
-        return 'HIDDEN';
-    }
-  }
-}
+  final String value;
 
-extension ChannelMembershipTypeFromString on String {
-  ChannelMembershipType toChannelMembershipType() {
-    switch (this) {
-      case 'DEFAULT':
-        return ChannelMembershipType.$default;
-      case 'HIDDEN':
-        return ChannelMembershipType.hidden;
-    }
-    throw Exception('$this is not known in enum ChannelMembershipType');
-  }
+  const ChannelMembershipType(this.value);
+
+  static ChannelMembershipType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ChannelMembershipType'));
 }
 
 /// The details of a message in a channel.
@@ -9343,13 +10977,13 @@ class ChannelMessage {
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       messageId: json['MessageId'] as String?,
       metadata: json['Metadata'] as String?,
-      persistence:
-          (json['Persistence'] as String?)?.toChannelMessagePersistenceType(),
+      persistence: (json['Persistence'] as String?)
+          ?.let(ChannelMessagePersistenceType.fromString),
       redacted: json['Redacted'] as bool?,
       sender: json['Sender'] != null
           ? Identity.fromJson(json['Sender'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toChannelMessageType(),
+      type: (json['Type'] as String?)?.let(ChannelMessageType.fromString),
     );
   }
 
@@ -9376,41 +11010,27 @@ class ChannelMessage {
         'LastUpdatedTimestamp': unixTimestampToJson(lastUpdatedTimestamp),
       if (messageId != null) 'MessageId': messageId,
       if (metadata != null) 'Metadata': metadata,
-      if (persistence != null) 'Persistence': persistence.toValue(),
+      if (persistence != null) 'Persistence': persistence.value,
       if (redacted != null) 'Redacted': redacted,
       if (sender != null) 'Sender': sender,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum ChannelMessagePersistenceType {
-  persistent,
-  nonPersistent,
-}
+  persistent('PERSISTENT'),
+  nonPersistent('NON_PERSISTENT'),
+  ;
 
-extension ChannelMessagePersistenceTypeValueExtension
-    on ChannelMessagePersistenceType {
-  String toValue() {
-    switch (this) {
-      case ChannelMessagePersistenceType.persistent:
-        return 'PERSISTENT';
-      case ChannelMessagePersistenceType.nonPersistent:
-        return 'NON_PERSISTENT';
-    }
-  }
-}
+  final String value;
 
-extension ChannelMessagePersistenceTypeFromString on String {
-  ChannelMessagePersistenceType toChannelMessagePersistenceType() {
-    switch (this) {
-      case 'PERSISTENT':
-        return ChannelMessagePersistenceType.persistent;
-      case 'NON_PERSISTENT':
-        return ChannelMessagePersistenceType.nonPersistent;
-    }
-    throw Exception('$this is not known in enum ChannelMessagePersistenceType');
-  }
+  const ChannelMessagePersistenceType(this.value);
+
+  static ChannelMessagePersistenceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ChannelMessagePersistenceType'));
 }
 
 /// Summary of the messages in a <code>Channel</code>.
@@ -9466,7 +11086,7 @@ class ChannelMessageSummary {
       sender: json['Sender'] != null
           ? Identity.fromJson(json['Sender'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toChannelMessageType(),
+      type: (json['Type'] as String?)?.let(ChannelMessageType.fromString),
     );
   }
 
@@ -9492,65 +11112,38 @@ class ChannelMessageSummary {
       if (metadata != null) 'Metadata': metadata,
       if (redacted != null) 'Redacted': redacted,
       if (sender != null) 'Sender': sender,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum ChannelMessageType {
-  standard,
-  control,
-}
+  standard('STANDARD'),
+  control('CONTROL'),
+  ;
 
-extension ChannelMessageTypeValueExtension on ChannelMessageType {
-  String toValue() {
-    switch (this) {
-      case ChannelMessageType.standard:
-        return 'STANDARD';
-      case ChannelMessageType.control:
-        return 'CONTROL';
-    }
-  }
-}
+  final String value;
 
-extension ChannelMessageTypeFromString on String {
-  ChannelMessageType toChannelMessageType() {
-    switch (this) {
-      case 'STANDARD':
-        return ChannelMessageType.standard;
-      case 'CONTROL':
-        return ChannelMessageType.control;
-    }
-    throw Exception('$this is not known in enum ChannelMessageType');
-  }
+  const ChannelMessageType(this.value);
+
+  static ChannelMessageType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ChannelMessageType'));
 }
 
 enum ChannelMode {
-  unrestricted,
-  restricted,
-}
+  unrestricted('UNRESTRICTED'),
+  restricted('RESTRICTED'),
+  ;
 
-extension ChannelModeValueExtension on ChannelMode {
-  String toValue() {
-    switch (this) {
-      case ChannelMode.unrestricted:
-        return 'UNRESTRICTED';
-      case ChannelMode.restricted:
-        return 'RESTRICTED';
-    }
-  }
-}
+  final String value;
 
-extension ChannelModeFromString on String {
-  ChannelMode toChannelMode() {
-    switch (this) {
-      case 'UNRESTRICTED':
-        return ChannelMode.unrestricted;
-      case 'RESTRICTED':
-        return ChannelMode.restricted;
-    }
-    throw Exception('$this is not known in enum ChannelMode');
-  }
+  const ChannelMode(this.value);
+
+  static ChannelMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ChannelMode'));
 }
 
 /// Summary of the details of a moderated channel.
@@ -9655,31 +11248,18 @@ class ChannelModeratorSummary {
 }
 
 enum ChannelPrivacy {
-  public,
-  private,
-}
+  public('PUBLIC'),
+  private('PRIVATE'),
+  ;
 
-extension ChannelPrivacyValueExtension on ChannelPrivacy {
-  String toValue() {
-    switch (this) {
-      case ChannelPrivacy.public:
-        return 'PUBLIC';
-      case ChannelPrivacy.private:
-        return 'PRIVATE';
-    }
-  }
-}
+  final String value;
 
-extension ChannelPrivacyFromString on String {
-  ChannelPrivacy toChannelPrivacy() {
-    switch (this) {
-      case 'PUBLIC':
-        return ChannelPrivacy.public;
-      case 'PRIVATE':
-        return ChannelPrivacy.private;
-    }
-    throw Exception('$this is not known in enum ChannelPrivacy');
-  }
+  const ChannelPrivacy(this.value);
+
+  static ChannelPrivacy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ChannelPrivacy'));
 }
 
 /// The details of the retention settings for a channel.
@@ -9739,9 +11319,9 @@ class ChannelSummary {
       channelArn: json['ChannelArn'] as String?,
       lastMessageTimestamp: timeStampFromJson(json['LastMessageTimestamp']),
       metadata: json['Metadata'] as String?,
-      mode: (json['Mode'] as String?)?.toChannelMode(),
+      mode: (json['Mode'] as String?)?.let(ChannelMode.fromString),
       name: json['Name'] as String?,
-      privacy: (json['Privacy'] as String?)?.toChannelPrivacy(),
+      privacy: (json['Privacy'] as String?)?.let(ChannelPrivacy.fromString),
     );
   }
 
@@ -9757,9 +11337,9 @@ class ChannelSummary {
       if (lastMessageTimestamp != null)
         'LastMessageTimestamp': unixTimestampToJson(lastMessageTimestamp),
       if (metadata != null) 'Metadata': metadata,
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (name != null) 'Name': name,
-      if (privacy != null) 'Privacy': privacy.toValue(),
+      if (privacy != null) 'Privacy': privacy.value,
     };
   }
 }
@@ -9819,8 +11399,8 @@ class ContentArtifactsConfiguration {
 
   factory ContentArtifactsConfiguration.fromJson(Map<String, dynamic> json) {
     return ContentArtifactsConfiguration(
-      state: (json['State'] as String).toArtifactsState(),
-      muxType: (json['MuxType'] as String?)?.toContentMuxType(),
+      state: ArtifactsState.fromString((json['State'] as String)),
+      muxType: (json['MuxType'] as String?)?.let(ContentMuxType.fromString),
     );
   }
 
@@ -9828,33 +11408,24 @@ class ContentArtifactsConfiguration {
     final state = this.state;
     final muxType = this.muxType;
     return {
-      'State': state.toValue(),
-      if (muxType != null) 'MuxType': muxType.toValue(),
+      'State': state.value,
+      if (muxType != null) 'MuxType': muxType.value,
     };
   }
 }
 
 enum ContentMuxType {
-  contentOnly,
-}
+  contentOnly('ContentOnly'),
+  ;
 
-extension ContentMuxTypeValueExtension on ContentMuxType {
-  String toValue() {
-    switch (this) {
-      case ContentMuxType.contentOnly:
-        return 'ContentOnly';
-    }
-  }
-}
+  final String value;
 
-extension ContentMuxTypeFromString on String {
-  ContentMuxType toContentMuxType() {
-    switch (this) {
-      case 'ContentOnly':
-        return ContentMuxType.contentOnly;
-    }
-    throw Exception('$this is not known in enum ContentMuxType');
-  }
+  const ContentMuxType(this.value);
+
+  static ContentMuxType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContentMuxType'));
 }
 
 /// The retention settings that determine how long to retain conversation
@@ -10305,11 +11876,11 @@ class CreateMeetingWithAttendeesResponse {
       Map<String, dynamic> json) {
     return CreateMeetingWithAttendeesResponse(
       attendees: (json['Attendees'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Attendee.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CreateAttendeeError.fromJson(e as Map<String, dynamic>))
           .toList(),
       meeting: json['Meeting'] != null
@@ -10917,7 +12488,7 @@ class DisassociatePhoneNumbersFromVoiceConnectorGroupResponse {
       Map<String, dynamic> json) {
     return DisassociatePhoneNumbersFromVoiceConnectorGroupResponse(
       phoneNumberErrors: (json['PhoneNumberErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10945,7 +12516,7 @@ class DisassociatePhoneNumbersFromVoiceConnectorResponse {
       Map<String, dynamic> json) {
     return DisassociatePhoneNumbersFromVoiceConnectorResponse(
       phoneNumberErrors: (json['PhoneNumberErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -10973,36 +12544,18 @@ class DisassociateSigninDelegateGroupsFromAccountResponse {
 }
 
 enum EmailStatus {
-  notSent,
-  sent,
-  failed,
-}
+  notSent('NotSent'),
+  sent('Sent'),
+  failed('Failed'),
+  ;
 
-extension EmailStatusValueExtension on EmailStatus {
-  String toValue() {
-    switch (this) {
-      case EmailStatus.notSent:
-        return 'NotSent';
-      case EmailStatus.sent:
-        return 'Sent';
-      case EmailStatus.failed:
-        return 'Failed';
-    }
-  }
-}
+  final String value;
 
-extension EmailStatusFromString on String {
-  EmailStatus toEmailStatus() {
-    switch (this) {
-      case 'NotSent':
-        return EmailStatus.notSent;
-      case 'Sent':
-        return EmailStatus.sent;
-      case 'Failed':
-        return EmailStatus.failed;
-    }
-    throw Exception('$this is not known in enum EmailStatus');
-  }
+  const EmailStatus(this.value);
+
+  static EmailStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EmailStatus'));
 }
 
 /// The emergency calling configuration details associated with an Amazon Chime
@@ -11019,7 +12572,7 @@ class EmergencyCallingConfiguration {
   factory EmergencyCallingConfiguration.fromJson(Map<String, dynamic> json) {
     return EmergencyCallingConfiguration(
       dnis: (json['DNIS'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DNISEmergencyCallingConfiguration.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -11077,12 +12630,12 @@ class EngineTranscribeMedicalSettings {
     final region = this.region;
     final vocabularyName = this.vocabularyName;
     return {
-      'LanguageCode': languageCode.toValue(),
-      'Specialty': specialty.toValue(),
-      'Type': type.toValue(),
+      'LanguageCode': languageCode.value,
+      'Specialty': specialty.value,
+      'Type': type.value,
       if (contentIdentificationType != null)
-        'ContentIdentificationType': contentIdentificationType.toValue(),
-      if (region != null) 'Region': region.toValue(),
+        'ContentIdentificationType': contentIdentificationType.value,
+      if (region != null) 'Region': region.value,
       if (vocabularyName != null) 'VocabularyName': vocabularyName,
     };
   }
@@ -11309,23 +12862,23 @@ class EngineTranscribeSettings {
     final vocabularyNames = this.vocabularyNames;
     return {
       if (contentIdentificationType != null)
-        'ContentIdentificationType': contentIdentificationType.toValue(),
+        'ContentIdentificationType': contentIdentificationType.value,
       if (contentRedactionType != null)
-        'ContentRedactionType': contentRedactionType.toValue(),
+        'ContentRedactionType': contentRedactionType.value,
       if (enablePartialResultsStabilization != null)
         'EnablePartialResultsStabilization': enablePartialResultsStabilization,
       if (identifyLanguage != null) 'IdentifyLanguage': identifyLanguage,
-      if (languageCode != null) 'LanguageCode': languageCode.toValue(),
+      if (languageCode != null) 'LanguageCode': languageCode.value,
       if (languageModelName != null) 'LanguageModelName': languageModelName,
       if (languageOptions != null) 'LanguageOptions': languageOptions,
       if (partialResultsStability != null)
-        'PartialResultsStability': partialResultsStability.toValue(),
+        'PartialResultsStability': partialResultsStability.value,
       if (piiEntityTypes != null) 'PiiEntityTypes': piiEntityTypes,
       if (preferredLanguage != null)
-        'PreferredLanguage': preferredLanguage.toValue(),
-      if (region != null) 'Region': region.toValue(),
+        'PreferredLanguage': preferredLanguage.value,
+      if (region != null) 'Region': region.value,
       if (vocabularyFilterMethod != null)
-        'VocabularyFilterMethod': vocabularyFilterMethod.toValue(),
+        'VocabularyFilterMethod': vocabularyFilterMethod.value,
       if (vocabularyFilterName != null)
         'VocabularyFilterName': vocabularyFilterName,
       if (vocabularyFilterNames != null)
@@ -11337,96 +12890,30 @@ class EngineTranscribeSettings {
 }
 
 enum ErrorCode {
-  badRequest,
-  conflict,
-  forbidden,
-  notFound,
-  preconditionFailed,
-  resourceLimitExceeded,
-  serviceFailure,
-  accessDenied,
-  serviceUnavailable,
-  throttled,
-  throttling,
-  unauthorized,
-  unprocessable,
-  voiceConnectorGroupAssociationsExist,
-  phoneNumberAssociationsExist,
-}
+  badRequest('BadRequest'),
+  conflict('Conflict'),
+  forbidden('Forbidden'),
+  notFound('NotFound'),
+  preconditionFailed('PreconditionFailed'),
+  resourceLimitExceeded('ResourceLimitExceeded'),
+  serviceFailure('ServiceFailure'),
+  accessDenied('AccessDenied'),
+  serviceUnavailable('ServiceUnavailable'),
+  throttled('Throttled'),
+  throttling('Throttling'),
+  unauthorized('Unauthorized'),
+  unprocessable('Unprocessable'),
+  voiceConnectorGroupAssociationsExist('VoiceConnectorGroupAssociationsExist'),
+  phoneNumberAssociationsExist('PhoneNumberAssociationsExist'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.badRequest:
-        return 'BadRequest';
-      case ErrorCode.conflict:
-        return 'Conflict';
-      case ErrorCode.forbidden:
-        return 'Forbidden';
-      case ErrorCode.notFound:
-        return 'NotFound';
-      case ErrorCode.preconditionFailed:
-        return 'PreconditionFailed';
-      case ErrorCode.resourceLimitExceeded:
-        return 'ResourceLimitExceeded';
-      case ErrorCode.serviceFailure:
-        return 'ServiceFailure';
-      case ErrorCode.accessDenied:
-        return 'AccessDenied';
-      case ErrorCode.serviceUnavailable:
-        return 'ServiceUnavailable';
-      case ErrorCode.throttled:
-        return 'Throttled';
-      case ErrorCode.throttling:
-        return 'Throttling';
-      case ErrorCode.unauthorized:
-        return 'Unauthorized';
-      case ErrorCode.unprocessable:
-        return 'Unprocessable';
-      case ErrorCode.voiceConnectorGroupAssociationsExist:
-        return 'VoiceConnectorGroupAssociationsExist';
-      case ErrorCode.phoneNumberAssociationsExist:
-        return 'PhoneNumberAssociationsExist';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'BadRequest':
-        return ErrorCode.badRequest;
-      case 'Conflict':
-        return ErrorCode.conflict;
-      case 'Forbidden':
-        return ErrorCode.forbidden;
-      case 'NotFound':
-        return ErrorCode.notFound;
-      case 'PreconditionFailed':
-        return ErrorCode.preconditionFailed;
-      case 'ResourceLimitExceeded':
-        return ErrorCode.resourceLimitExceeded;
-      case 'ServiceFailure':
-        return ErrorCode.serviceFailure;
-      case 'AccessDenied':
-        return ErrorCode.accessDenied;
-      case 'ServiceUnavailable':
-        return ErrorCode.serviceUnavailable;
-      case 'Throttled':
-        return ErrorCode.throttled;
-      case 'Throttling':
-        return ErrorCode.throttling;
-      case 'Unauthorized':
-        return ErrorCode.unauthorized;
-      case 'Unprocessable':
-        return ErrorCode.unprocessable;
-      case 'VoiceConnectorGroupAssociationsExist':
-        return ErrorCode.voiceConnectorGroupAssociationsExist;
-      case 'PhoneNumberAssociationsExist':
-        return ErrorCode.phoneNumberAssociationsExist;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 /// The configuration that allows a bot to receive outgoing events. Can be
@@ -11470,31 +12957,18 @@ class EventsConfiguration {
 }
 
 enum GeoMatchLevel {
-  country,
-  areaCode,
-}
+  country('Country'),
+  areaCode('AreaCode'),
+  ;
 
-extension GeoMatchLevelValueExtension on GeoMatchLevel {
-  String toValue() {
-    switch (this) {
-      case GeoMatchLevel.country:
-        return 'Country';
-      case GeoMatchLevel.areaCode:
-        return 'AreaCode';
-    }
-  }
-}
+  final String value;
 
-extension GeoMatchLevelFromString on String {
-  GeoMatchLevel toGeoMatchLevel() {
-    switch (this) {
-      case 'Country':
-        return GeoMatchLevel.country;
-      case 'AreaCode':
-        return GeoMatchLevel.areaCode;
-    }
-    throw Exception('$this is not known in enum GeoMatchLevel');
-  }
+  const GeoMatchLevel(this.value);
+
+  static GeoMatchLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum GeoMatchLevel'));
 }
 
 /// The country and area code for a proxy phone number in a proxy phone session.
@@ -11628,7 +13102,7 @@ class GetAppInstanceStreamingConfigurationsResponse {
     return GetAppInstanceStreamingConfigurationsResponse(
       appInstanceStreamingConfigurations:
           (json['AppInstanceStreamingConfigurations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AppInstanceStreamingConfiguration.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -12438,9 +13912,10 @@ class Invite {
   factory Invite.fromJson(Map<String, dynamic> json) {
     return Invite(
       emailAddress: json['EmailAddress'] as String?,
-      emailStatus: (json['EmailStatus'] as String?)?.toEmailStatus(),
+      emailStatus:
+          (json['EmailStatus'] as String?)?.let(EmailStatus.fromString),
       inviteId: json['InviteId'] as String?,
-      status: (json['Status'] as String?)?.toInviteStatus(),
+      status: (json['Status'] as String?)?.let(InviteStatus.fromString),
     );
   }
 
@@ -12451,44 +13926,27 @@ class Invite {
     final status = this.status;
     return {
       if (emailAddress != null) 'EmailAddress': emailAddress,
-      if (emailStatus != null) 'EmailStatus': emailStatus.toValue(),
+      if (emailStatus != null) 'EmailStatus': emailStatus.value,
       if (inviteId != null) 'InviteId': inviteId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum InviteStatus {
-  pending,
-  accepted,
-  failed,
-}
+  pending('Pending'),
+  accepted('Accepted'),
+  failed('Failed'),
+  ;
 
-extension InviteStatusValueExtension on InviteStatus {
-  String toValue() {
-    switch (this) {
-      case InviteStatus.pending:
-        return 'Pending';
-      case InviteStatus.accepted:
-        return 'Accepted';
-      case InviteStatus.failed:
-        return 'Failed';
-    }
-  }
-}
+  final String value;
 
-extension InviteStatusFromString on String {
-  InviteStatus toInviteStatus() {
-    switch (this) {
-      case 'Pending':
-        return InviteStatus.pending;
-      case 'Accepted':
-        return InviteStatus.accepted;
-      case 'Failed':
-        return InviteStatus.failed;
-    }
-    throw Exception('$this is not known in enum InviteStatus');
-  }
+  const InviteStatus(this.value);
+
+  static InviteStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InviteStatus'));
 }
 
 class InviteUsersResponse {
@@ -12502,7 +13960,7 @@ class InviteUsersResponse {
   factory InviteUsersResponse.fromJson(Map<String, dynamic> json) {
     return InviteUsersResponse(
       invites: (json['Invites'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Invite.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12517,41 +13975,19 @@ class InviteUsersResponse {
 }
 
 enum License {
-  basic,
-  plus,
-  pro,
-  proTrial,
-}
+  basic('Basic'),
+  plus('Plus'),
+  pro('Pro'),
+  proTrial('ProTrial'),
+  ;
 
-extension LicenseValueExtension on License {
-  String toValue() {
-    switch (this) {
-      case License.basic:
-        return 'Basic';
-      case License.plus:
-        return 'Plus';
-      case License.pro:
-        return 'Pro';
-      case License.proTrial:
-        return 'ProTrial';
-    }
-  }
-}
+  final String value;
 
-extension LicenseFromString on String {
-  License toLicense() {
-    switch (this) {
-      case 'Basic':
-        return License.basic;
-      case 'Plus':
-        return License.plus;
-      case 'Pro':
-        return License.pro;
-      case 'ProTrial':
-        return License.proTrial;
-    }
-    throw Exception('$this is not known in enum License');
-  }
+  const License(this.value);
+
+  static License fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum License'));
 }
 
 class ListAccountsResponse {
@@ -12569,7 +14005,7 @@ class ListAccountsResponse {
   factory ListAccountsResponse.fromJson(Map<String, dynamic> json) {
     return ListAccountsResponse(
       accounts: (json['Accounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Account.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -12606,7 +14042,7 @@ class ListAppInstanceAdminsResponse {
   factory ListAppInstanceAdminsResponse.fromJson(Map<String, dynamic> json) {
     return ListAppInstanceAdminsResponse(
       appInstanceAdmins: (json['AppInstanceAdmins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AppInstanceAdminSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -12648,7 +14084,7 @@ class ListAppInstanceUsersResponse {
     return ListAppInstanceUsersResponse(
       appInstanceArn: json['AppInstanceArn'] as String?,
       appInstanceUsers: (json['AppInstanceUsers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AppInstanceUserSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -12684,7 +14120,7 @@ class ListAppInstancesResponse {
   factory ListAppInstancesResponse.fromJson(Map<String, dynamic> json) {
     return ListAppInstancesResponse(
       appInstances: (json['AppInstances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AppInstanceSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -12712,7 +14148,7 @@ class ListAttendeeTagsResponse {
   factory ListAttendeeTagsResponse.fromJson(Map<String, dynamic> json) {
     return ListAttendeeTagsResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12741,7 +14177,7 @@ class ListAttendeesResponse {
   factory ListAttendeesResponse.fromJson(Map<String, dynamic> json) {
     return ListAttendeesResponse(
       attendees: (json['Attendees'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Attendee.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -12773,7 +14209,7 @@ class ListBotsResponse {
   factory ListBotsResponse.fromJson(Map<String, dynamic> json) {
     return ListBotsResponse(
       bots: (json['Bots'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Bot.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -12811,7 +14247,7 @@ class ListChannelBansResponse {
     return ListChannelBansResponse(
       channelArn: json['ChannelArn'] as String?,
       channelBans: (json['ChannelBans'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelBanSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -12847,7 +14283,7 @@ class ListChannelMembershipsForAppInstanceUserResponse {
       Map<String, dynamic> json) {
     return ListChannelMembershipsForAppInstanceUserResponse(
       channelMemberships: (json['ChannelMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelMembershipForAppInstanceUserSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -12886,7 +14322,7 @@ class ListChannelMembershipsResponse {
     return ListChannelMembershipsResponse(
       channelArn: json['ChannelArn'] as String?,
       channelMemberships: (json['ChannelMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ChannelMembershipSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -12927,7 +14363,7 @@ class ListChannelMessagesResponse {
     return ListChannelMessagesResponse(
       channelArn: json['ChannelArn'] as String?,
       channelMessages: (json['ChannelMessages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelMessageSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -12967,7 +14403,7 @@ class ListChannelModeratorsResponse {
     return ListChannelModeratorsResponse(
       channelArn: json['ChannelArn'] as String?,
       channelModerators: (json['ChannelModerators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ChannelModeratorSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -13004,7 +14440,7 @@ class ListChannelsModeratedByAppInstanceUserResponse {
       Map<String, dynamic> json) {
     return ListChannelsModeratedByAppInstanceUserResponse(
       channels: (json['Channels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelModeratedByAppInstanceUserSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -13038,7 +14474,7 @@ class ListChannelsResponse {
   factory ListChannelsResponse.fromJson(Map<String, dynamic> json) {
     return ListChannelsResponse(
       channels: (json['Channels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChannelSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -13071,7 +14507,7 @@ class ListMediaCapturePipelinesResponse {
       Map<String, dynamic> json) {
     return ListMediaCapturePipelinesResponse(
       mediaCapturePipelines: (json['MediaCapturePipelines'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MediaCapturePipeline.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -13100,7 +14536,7 @@ class ListMeetingTagsResponse {
   factory ListMeetingTagsResponse.fromJson(Map<String, dynamic> json) {
     return ListMeetingTagsResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13129,7 +14565,7 @@ class ListMeetingsResponse {
   factory ListMeetingsResponse.fromJson(Map<String, dynamic> json) {
     return ListMeetingsResponse(
       meetings: (json['Meetings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Meeting.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -13162,7 +14598,7 @@ class ListPhoneNumberOrdersResponse {
     return ListPhoneNumberOrdersResponse(
       nextToken: json['NextToken'] as String?,
       phoneNumberOrders: (json['PhoneNumberOrders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberOrder.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13194,7 +14630,7 @@ class ListPhoneNumbersResponse {
     return ListPhoneNumbersResponse(
       nextToken: json['NextToken'] as String?,
       phoneNumbers: (json['PhoneNumbers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumber.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13226,7 +14662,7 @@ class ListProxySessionsResponse {
     return ListProxySessionsResponse(
       nextToken: json['NextToken'] as String?,
       proxySessions: (json['ProxySessions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ProxySession.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13258,7 +14694,7 @@ class ListRoomMembershipsResponse {
     return ListRoomMembershipsResponse(
       nextToken: json['NextToken'] as String?,
       roomMemberships: (json['RoomMemberships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RoomMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13290,7 +14726,7 @@ class ListRoomsResponse {
     return ListRoomsResponse(
       nextToken: json['NextToken'] as String?,
       rooms: (json['Rooms'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Room.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13322,7 +14758,7 @@ class ListSipMediaApplicationsResponse {
     return ListSipMediaApplicationsResponse(
       nextToken: json['NextToken'] as String?,
       sipMediaApplications: (json['SipMediaApplications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SipMediaApplication.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13355,7 +14791,7 @@ class ListSipRulesResponse {
     return ListSipRulesResponse(
       nextToken: json['NextToken'] as String?,
       sipRules: (json['SipRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SipRule.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13383,7 +14819,7 @@ class ListSupportedPhoneNumberCountriesResponse {
       Map<String, dynamic> json) {
     return ListSupportedPhoneNumberCountriesResponse(
       phoneNumberCountries: (json['PhoneNumberCountries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumberCountry.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13409,7 +14845,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13439,7 +14875,7 @@ class ListUsersResponse {
     return ListUsersResponse(
       nextToken: json['NextToken'] as String?,
       users: (json['Users'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => User.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13471,7 +14907,7 @@ class ListVoiceConnectorGroupsResponse {
     return ListVoiceConnectorGroupsResponse(
       nextToken: json['NextToken'] as String?,
       voiceConnectorGroups: (json['VoiceConnectorGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VoiceConnectorGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13500,7 +14936,7 @@ class ListVoiceConnectorTerminationCredentialsResponse {
       Map<String, dynamic> json) {
     return ListVoiceConnectorTerminationCredentialsResponse(
       usernames: (json['Usernames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -13530,7 +14966,7 @@ class ListVoiceConnectorsResponse {
     return ListVoiceConnectorsResponse(
       nextToken: json['NextToken'] as String?,
       voiceConnectors: (json['VoiceConnectors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VoiceConnector.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -13646,10 +15082,12 @@ class MediaCapturePipeline {
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
       mediaPipelineId: json['MediaPipelineId'] as String?,
       sinkArn: json['SinkArn'] as String?,
-      sinkType: (json['SinkType'] as String?)?.toMediaPipelineSinkType(),
+      sinkType:
+          (json['SinkType'] as String?)?.let(MediaPipelineSinkType.fromString),
       sourceArn: json['SourceArn'] as String?,
-      sourceType: (json['SourceType'] as String?)?.toMediaPipelineSourceType(),
-      status: (json['Status'] as String?)?.toMediaPipelineStatus(),
+      sourceType: (json['SourceType'] as String?)
+          ?.let(MediaPipelineSourceType.fromString),
+      status: (json['Status'] as String?)?.let(MediaPipelineStatus.fromString),
       updatedTimestamp: timeStampFromJson(json['UpdatedTimestamp']),
     );
   }
@@ -13671,10 +15109,10 @@ class MediaCapturePipeline {
         'CreatedTimestamp': iso8601ToJson(createdTimestamp),
       if (mediaPipelineId != null) 'MediaPipelineId': mediaPipelineId,
       if (sinkArn != null) 'SinkArn': sinkArn,
-      if (sinkType != null) 'SinkType': sinkType.toValue(),
+      if (sinkType != null) 'SinkType': sinkType.value,
       if (sourceArn != null) 'SourceArn': sourceArn,
-      if (sourceType != null) 'SourceType': sourceType.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (sourceType != null) 'SourceType': sourceType.value,
+      if (status != null) 'Status': status.value,
       if (updatedTimestamp != null)
         'UpdatedTimestamp': iso8601ToJson(updatedTimestamp),
     };
@@ -13682,92 +15120,49 @@ class MediaCapturePipeline {
 }
 
 enum MediaPipelineSinkType {
-  s3Bucket,
-}
+  s3Bucket('S3Bucket'),
+  ;
 
-extension MediaPipelineSinkTypeValueExtension on MediaPipelineSinkType {
-  String toValue() {
-    switch (this) {
-      case MediaPipelineSinkType.s3Bucket:
-        return 'S3Bucket';
-    }
-  }
-}
+  final String value;
 
-extension MediaPipelineSinkTypeFromString on String {
-  MediaPipelineSinkType toMediaPipelineSinkType() {
-    switch (this) {
-      case 'S3Bucket':
-        return MediaPipelineSinkType.s3Bucket;
-    }
-    throw Exception('$this is not known in enum MediaPipelineSinkType');
-  }
+  const MediaPipelineSinkType(this.value);
+
+  static MediaPipelineSinkType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MediaPipelineSinkType'));
 }
 
 enum MediaPipelineSourceType {
-  chimeSdkMeeting,
-}
+  chimeSdkMeeting('ChimeSdkMeeting'),
+  ;
 
-extension MediaPipelineSourceTypeValueExtension on MediaPipelineSourceType {
-  String toValue() {
-    switch (this) {
-      case MediaPipelineSourceType.chimeSdkMeeting:
-        return 'ChimeSdkMeeting';
-    }
-  }
-}
+  final String value;
 
-extension MediaPipelineSourceTypeFromString on String {
-  MediaPipelineSourceType toMediaPipelineSourceType() {
-    switch (this) {
-      case 'ChimeSdkMeeting':
-        return MediaPipelineSourceType.chimeSdkMeeting;
-    }
-    throw Exception('$this is not known in enum MediaPipelineSourceType');
-  }
+  const MediaPipelineSourceType(this.value);
+
+  static MediaPipelineSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MediaPipelineSourceType'));
 }
 
 enum MediaPipelineStatus {
-  initializing,
-  inProgress,
-  failed,
-  stopping,
-  stopped,
-}
+  initializing('Initializing'),
+  inProgress('InProgress'),
+  failed('Failed'),
+  stopping('Stopping'),
+  stopped('Stopped'),
+  ;
 
-extension MediaPipelineStatusValueExtension on MediaPipelineStatus {
-  String toValue() {
-    switch (this) {
-      case MediaPipelineStatus.initializing:
-        return 'Initializing';
-      case MediaPipelineStatus.inProgress:
-        return 'InProgress';
-      case MediaPipelineStatus.failed:
-        return 'Failed';
-      case MediaPipelineStatus.stopping:
-        return 'Stopping';
-      case MediaPipelineStatus.stopped:
-        return 'Stopped';
-    }
-  }
-}
+  final String value;
 
-extension MediaPipelineStatusFromString on String {
-  MediaPipelineStatus toMediaPipelineStatus() {
-    switch (this) {
-      case 'Initializing':
-        return MediaPipelineStatus.initializing;
-      case 'InProgress':
-        return MediaPipelineStatus.inProgress;
-      case 'Failed':
-        return MediaPipelineStatus.failed;
-      case 'Stopping':
-        return MediaPipelineStatus.stopping;
-      case 'Stopped':
-        return MediaPipelineStatus.stopped;
-    }
-    throw Exception('$this is not known in enum MediaPipelineStatus');
-  }
+  const MediaPipelineStatus(this.value);
+
+  static MediaPipelineStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MediaPipelineStatus'));
 }
 
 /// A set of endpoints used by clients to connect to the media service group for
@@ -13783,18 +15178,34 @@ class MediaPlacement {
   final String? eventIngestionUrl;
 
   /// The screen data URL.
+  /// <important>
+  /// <b>This parameter is is no longer supported and no longer used by the Amazon
+  /// Chime SDK.</b>
+  /// </important>
   final String? screenDataUrl;
 
   /// The screen sharing URL.
+  /// <important>
+  /// <b>This parameter is is no longer supported and no longer used by the Amazon
+  /// Chime SDK.</b>.
+  /// </important>
   final String? screenSharingUrl;
 
   /// The screen viewing URL.
+  /// <important>
+  /// <b>This parameter is is no longer supported and no longer used by the Amazon
+  /// Chime SDK.</b>
+  /// </important>
   final String? screenViewingUrl;
 
   /// The signaling URL.
   final String? signalingUrl;
 
   /// The turn control URL.
+  /// <important>
+  /// <b>This parameter is is no longer supported and no longer used by the Amazon
+  /// Chime SDK.</b>
+  /// </important>
   final String? turnControlUrl;
 
   MediaPlacement({
@@ -13955,7 +15366,7 @@ class Member {
       email: json['Email'] as String?,
       fullName: json['FullName'] as String?,
       memberId: json['MemberId'] as String?,
-      memberType: (json['MemberType'] as String?)?.toMemberType(),
+      memberType: (json['MemberType'] as String?)?.let(MemberType.fromString),
     );
   }
 
@@ -13970,7 +15381,7 @@ class Member {
       if (email != null) 'Email': email,
       if (fullName != null) 'FullName': fullName,
       if (memberId != null) 'MemberId': memberId,
-      if (memberType != null) 'MemberType': memberType.toValue(),
+      if (memberType != null) 'MemberType': memberType.value,
     };
   }
 }
@@ -13994,7 +15405,7 @@ class MemberError {
 
   factory MemberError.fromJson(Map<String, dynamic> json) {
     return MemberError(
-      errorCode: (json['ErrorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       memberId: json['MemberId'] as String?,
     );
@@ -14005,7 +15416,7 @@ class MemberError {
     final errorMessage = this.errorMessage;
     final memberId = this.memberId;
     return {
-      if (errorCode != null) 'ErrorCode': errorCode.toValue(),
+      if (errorCode != null) 'ErrorCode': errorCode.value,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (memberId != null) 'MemberId': memberId,
     };
@@ -14013,36 +15424,18 @@ class MemberError {
 }
 
 enum MemberType {
-  user,
-  bot,
-  webhook,
-}
+  user('User'),
+  bot('Bot'),
+  webhook('Webhook'),
+  ;
 
-extension MemberTypeValueExtension on MemberType {
-  String toValue() {
-    switch (this) {
-      case MemberType.user:
-        return 'User';
-      case MemberType.bot:
-        return 'Bot';
-      case MemberType.webhook:
-        return 'Webhook';
-    }
-  }
-}
+  final String value;
 
-extension MemberTypeFromString on String {
-  MemberType toMemberType() {
-    switch (this) {
-      case 'User':
-        return MemberType.user;
-      case 'Bot':
-        return MemberType.bot;
-      case 'Webhook':
-        return MemberType.webhook;
-    }
-    throw Exception('$this is not known in enum MemberType');
-  }
+  const MemberType(this.value);
+
+  static MemberType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MemberType'));
 }
 
 /// Membership details, such as member ID and member role.
@@ -14063,7 +15456,7 @@ class MembershipItem {
     final role = this.role;
     return {
       if (memberId != null) 'MemberId': memberId,
-      if (role != null) 'Role': role.toValue(),
+      if (role != null) 'Role': role.value,
     };
   }
 }
@@ -14092,64 +15485,34 @@ class MessagingSessionEndpoint {
 }
 
 enum NotificationTarget {
-  eventBridge,
-  sns,
-  sqs,
-}
+  eventBridge('EventBridge'),
+  sns('SNS'),
+  sqs('SQS'),
+  ;
 
-extension NotificationTargetValueExtension on NotificationTarget {
-  String toValue() {
-    switch (this) {
-      case NotificationTarget.eventBridge:
-        return 'EventBridge';
-      case NotificationTarget.sns:
-        return 'SNS';
-      case NotificationTarget.sqs:
-        return 'SQS';
-    }
-  }
-}
+  final String value;
 
-extension NotificationTargetFromString on String {
-  NotificationTarget toNotificationTarget() {
-    switch (this) {
-      case 'EventBridge':
-        return NotificationTarget.eventBridge;
-      case 'SNS':
-        return NotificationTarget.sns;
-      case 'SQS':
-        return NotificationTarget.sqs;
-    }
-    throw Exception('$this is not known in enum NotificationTarget');
-  }
+  const NotificationTarget(this.value);
+
+  static NotificationTarget fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum NotificationTarget'));
 }
 
 enum NumberSelectionBehavior {
-  preferSticky,
-  avoidSticky,
-}
+  preferSticky('PreferSticky'),
+  avoidSticky('AvoidSticky'),
+  ;
 
-extension NumberSelectionBehaviorValueExtension on NumberSelectionBehavior {
-  String toValue() {
-    switch (this) {
-      case NumberSelectionBehavior.preferSticky:
-        return 'PreferSticky';
-      case NumberSelectionBehavior.avoidSticky:
-        return 'AvoidSticky';
-    }
-  }
-}
+  final String value;
 
-extension NumberSelectionBehaviorFromString on String {
-  NumberSelectionBehavior toNumberSelectionBehavior() {
-    switch (this) {
-      case 'PreferSticky':
-        return NumberSelectionBehavior.preferSticky;
-      case 'AvoidSticky':
-        return NumberSelectionBehavior.avoidSticky;
-    }
-    throw Exception('$this is not known in enum NumberSelectionBehavior');
-  }
+  const NumberSelectionBehavior(this.value);
+
+  static NumberSelectionBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum NumberSelectionBehavior'));
 }
 
 /// A phone number for which an order has been placed.
@@ -14168,7 +15531,8 @@ class OrderedPhoneNumber {
   factory OrderedPhoneNumber.fromJson(Map<String, dynamic> json) {
     return OrderedPhoneNumber(
       e164PhoneNumber: json['E164PhoneNumber'] as String?,
-      status: (json['Status'] as String?)?.toOrderedPhoneNumberStatus(),
+      status:
+          (json['Status'] as String?)?.let(OrderedPhoneNumberStatus.fromString),
     );
   }
 
@@ -14177,42 +15541,25 @@ class OrderedPhoneNumber {
     final status = this.status;
     return {
       if (e164PhoneNumber != null) 'E164PhoneNumber': e164PhoneNumber,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum OrderedPhoneNumberStatus {
-  processing,
-  acquired,
-  failed,
-}
+  processing('Processing'),
+  acquired('Acquired'),
+  failed('Failed'),
+  ;
 
-extension OrderedPhoneNumberStatusValueExtension on OrderedPhoneNumberStatus {
-  String toValue() {
-    switch (this) {
-      case OrderedPhoneNumberStatus.processing:
-        return 'Processing';
-      case OrderedPhoneNumberStatus.acquired:
-        return 'Acquired';
-      case OrderedPhoneNumberStatus.failed:
-        return 'Failed';
-    }
-  }
-}
+  final String value;
 
-extension OrderedPhoneNumberStatusFromString on String {
-  OrderedPhoneNumberStatus toOrderedPhoneNumberStatus() {
-    switch (this) {
-      case 'Processing':
-        return OrderedPhoneNumberStatus.processing;
-      case 'Acquired':
-        return OrderedPhoneNumberStatus.acquired;
-      case 'Failed':
-        return OrderedPhoneNumberStatus.failed;
-    }
-    throw Exception('$this is not known in enum OrderedPhoneNumberStatus');
-  }
+  const OrderedPhoneNumberStatus(this.value);
+
+  static OrderedPhoneNumberStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrderedPhoneNumberStatus'));
 }
 
 /// Origination settings enable your SIP hosts to receive inbound calls using
@@ -14240,7 +15587,7 @@ class Origination {
     return Origination(
       disabled: json['Disabled'] as bool?,
       routes: (json['Routes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OriginationRoute.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -14294,7 +15641,8 @@ class OriginationRoute {
       host: json['Host'] as String?,
       port: json['Port'] as int?,
       priority: json['Priority'] as int?,
-      protocol: (json['Protocol'] as String?)?.toOriginationRouteProtocol(),
+      protocol: (json['Protocol'] as String?)
+          ?.let(OriginationRouteProtocol.fromString),
       weight: json['Weight'] as int?,
     );
   }
@@ -14309,38 +15657,25 @@ class OriginationRoute {
       if (host != null) 'Host': host,
       if (port != null) 'Port': port,
       if (priority != null) 'Priority': priority,
-      if (protocol != null) 'Protocol': protocol.toValue(),
+      if (protocol != null) 'Protocol': protocol.value,
       if (weight != null) 'Weight': weight,
     };
   }
 }
 
 enum OriginationRouteProtocol {
-  tcp,
-  udp,
-}
+  tcp('TCP'),
+  udp('UDP'),
+  ;
 
-extension OriginationRouteProtocolValueExtension on OriginationRouteProtocol {
-  String toValue() {
-    switch (this) {
-      case OriginationRouteProtocol.tcp:
-        return 'TCP';
-      case OriginationRouteProtocol.udp:
-        return 'UDP';
-    }
-  }
-}
+  final String value;
 
-extension OriginationRouteProtocolFromString on String {
-  OriginationRouteProtocol toOriginationRouteProtocol() {
-    switch (this) {
-      case 'TCP':
-        return OriginationRouteProtocol.tcp;
-      case 'UDP':
-        return OriginationRouteProtocol.udp;
-    }
-    throw Exception('$this is not known in enum OriginationRouteProtocol');
-  }
+  const OriginationRouteProtocol(this.value);
+
+  static OriginationRouteProtocol fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OriginationRouteProtocol'));
 }
 
 /// The phone number and proxy phone number for a participant in an Amazon Chime
@@ -14435,13 +15770,13 @@ class PhoneNumber {
   factory PhoneNumber.fromJson(Map<String, dynamic> json) {
     return PhoneNumber(
       associations: (json['Associations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => PhoneNumberAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
       callingName: json['CallingName'] as String?,
-      callingNameStatus:
-          (json['CallingNameStatus'] as String?)?.toCallingNameStatus(),
+      callingNameStatus: (json['CallingNameStatus'] as String?)
+          ?.let(CallingNameStatus.fromString),
       capabilities: json['Capabilities'] != null
           ? PhoneNumberCapabilities.fromJson(
               json['Capabilities'] as Map<String, dynamic>)
@@ -14451,9 +15786,10 @@ class PhoneNumber {
       deletionTimestamp: timeStampFromJson(json['DeletionTimestamp']),
       e164PhoneNumber: json['E164PhoneNumber'] as String?,
       phoneNumberId: json['PhoneNumberId'] as String?,
-      productType: (json['ProductType'] as String?)?.toPhoneNumberProductType(),
-      status: (json['Status'] as String?)?.toPhoneNumberStatus(),
-      type: (json['Type'] as String?)?.toPhoneNumberType(),
+      productType: (json['ProductType'] as String?)
+          ?.let(PhoneNumberProductType.fromString),
+      status: (json['Status'] as String?)?.let(PhoneNumberStatus.fromString),
+      type: (json['Type'] as String?)?.let(PhoneNumberType.fromString),
       updatedTimestamp: timeStampFromJson(json['UpdatedTimestamp']),
     );
   }
@@ -14476,7 +15812,7 @@ class PhoneNumber {
       if (associations != null) 'Associations': associations,
       if (callingName != null) 'CallingName': callingName,
       if (callingNameStatus != null)
-        'CallingNameStatus': callingNameStatus.toValue(),
+        'CallingNameStatus': callingNameStatus.value,
       if (capabilities != null) 'Capabilities': capabilities,
       if (country != null) 'Country': country,
       if (createdTimestamp != null)
@@ -14485,9 +15821,9 @@ class PhoneNumber {
         'DeletionTimestamp': iso8601ToJson(deletionTimestamp),
       if (e164PhoneNumber != null) 'E164PhoneNumber': e164PhoneNumber,
       if (phoneNumberId != null) 'PhoneNumberId': phoneNumberId,
-      if (productType != null) 'ProductType': productType.toValue(),
-      if (status != null) 'Status': status.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (productType != null) 'ProductType': productType.value,
+      if (status != null) 'Status': status.value,
+      if (type != null) 'Type': type.value,
       if (updatedTimestamp != null)
         'UpdatedTimestamp': iso8601ToJson(updatedTimestamp),
     };
@@ -14517,7 +15853,8 @@ class PhoneNumberAssociation {
   factory PhoneNumberAssociation.fromJson(Map<String, dynamic> json) {
     return PhoneNumberAssociation(
       associatedTimestamp: timeStampFromJson(json['AssociatedTimestamp']),
-      name: (json['Name'] as String?)?.toPhoneNumberAssociationName(),
+      name:
+          (json['Name'] as String?)?.let(PhoneNumberAssociationName.fromString),
       value: json['Value'] as String?,
     );
   }
@@ -14529,54 +15866,28 @@ class PhoneNumberAssociation {
     return {
       if (associatedTimestamp != null)
         'AssociatedTimestamp': iso8601ToJson(associatedTimestamp),
-      if (name != null) 'Name': name.toValue(),
+      if (name != null) 'Name': name.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum PhoneNumberAssociationName {
-  accountId,
-  userId,
-  voiceConnectorId,
-  voiceConnectorGroupId,
-  sipRuleId,
-}
+  accountId('AccountId'),
+  userId('UserId'),
+  voiceConnectorId('VoiceConnectorId'),
+  voiceConnectorGroupId('VoiceConnectorGroupId'),
+  sipRuleId('SipRuleId'),
+  ;
 
-extension PhoneNumberAssociationNameValueExtension
-    on PhoneNumberAssociationName {
-  String toValue() {
-    switch (this) {
-      case PhoneNumberAssociationName.accountId:
-        return 'AccountId';
-      case PhoneNumberAssociationName.userId:
-        return 'UserId';
-      case PhoneNumberAssociationName.voiceConnectorId:
-        return 'VoiceConnectorId';
-      case PhoneNumberAssociationName.voiceConnectorGroupId:
-        return 'VoiceConnectorGroupId';
-      case PhoneNumberAssociationName.sipRuleId:
-        return 'SipRuleId';
-    }
-  }
-}
+  final String value;
 
-extension PhoneNumberAssociationNameFromString on String {
-  PhoneNumberAssociationName toPhoneNumberAssociationName() {
-    switch (this) {
-      case 'AccountId':
-        return PhoneNumberAssociationName.accountId;
-      case 'UserId':
-        return PhoneNumberAssociationName.userId;
-      case 'VoiceConnectorId':
-        return PhoneNumberAssociationName.voiceConnectorId;
-      case 'VoiceConnectorGroupId':
-        return PhoneNumberAssociationName.voiceConnectorGroupId;
-      case 'SipRuleId':
-        return PhoneNumberAssociationName.sipRuleId;
-    }
-    throw Exception('$this is not known in enum PhoneNumberAssociationName');
-  }
+  const PhoneNumberAssociationName(this.value);
+
+  static PhoneNumberAssociationName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PhoneNumberAssociationName'));
 }
 
 /// The phone number capabilities for Amazon Chime Business Calling phone
@@ -14655,8 +15966,8 @@ class PhoneNumberCountry {
     return PhoneNumberCountry(
       countryCode: json['CountryCode'] as String?,
       supportedPhoneNumberTypes: (json['SupportedPhoneNumberTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toPhoneNumberType())
+          ?.nonNulls
+          .map((e) => PhoneNumberType.fromString((e as String)))
           .toList(),
     );
   }
@@ -14668,7 +15979,7 @@ class PhoneNumberCountry {
       if (countryCode != null) 'CountryCode': countryCode,
       if (supportedPhoneNumberTypes != null)
         'SupportedPhoneNumberTypes':
-            supportedPhoneNumberTypes.map((e) => e.toValue()).toList(),
+            supportedPhoneNumberTypes.map((e) => e.value).toList(),
     };
   }
 }
@@ -14694,7 +16005,7 @@ class PhoneNumberError {
 
   factory PhoneNumberError.fromJson(Map<String, dynamic> json) {
     return PhoneNumberError(
-      errorCode: (json['ErrorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       phoneNumberId: json['PhoneNumberId'] as String?,
     );
@@ -14705,7 +16016,7 @@ class PhoneNumberError {
     final errorMessage = this.errorMessage;
     final phoneNumberId = this.phoneNumberId;
     return {
-      if (errorCode != null) 'ErrorCode': errorCode.toValue(),
+      if (errorCode != null) 'ErrorCode': errorCode.value,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (phoneNumberId != null) 'PhoneNumberId': phoneNumberId,
     };
@@ -14746,12 +16057,14 @@ class PhoneNumberOrder {
     return PhoneNumberOrder(
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
       orderedPhoneNumbers: (json['OrderedPhoneNumbers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OrderedPhoneNumber.fromJson(e as Map<String, dynamic>))
           .toList(),
       phoneNumberOrderId: json['PhoneNumberOrderId'] as String?,
-      productType: (json['ProductType'] as String?)?.toPhoneNumberProductType(),
-      status: (json['Status'] as String?)?.toPhoneNumberOrderStatus(),
+      productType: (json['ProductType'] as String?)
+          ?.let(PhoneNumberProductType.fromString),
+      status:
+          (json['Status'] as String?)?.let(PhoneNumberOrderStatus.fromString),
       updatedTimestamp: timeStampFromJson(json['UpdatedTimestamp']),
     );
   }
@@ -14769,8 +16082,8 @@ class PhoneNumberOrder {
       if (orderedPhoneNumbers != null)
         'OrderedPhoneNumbers': orderedPhoneNumbers,
       if (phoneNumberOrderId != null) 'PhoneNumberOrderId': phoneNumberOrderId,
-      if (productType != null) 'ProductType': productType.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (productType != null) 'ProductType': productType.value,
+      if (status != null) 'Status': status.value,
       if (updatedTimestamp != null)
         'UpdatedTimestamp': iso8601ToJson(updatedTimestamp),
     };
@@ -14778,160 +16091,72 @@ class PhoneNumberOrder {
 }
 
 enum PhoneNumberOrderStatus {
-  processing,
-  successful,
-  failed,
-  partial,
-}
+  processing('Processing'),
+  successful('Successful'),
+  failed('Failed'),
+  partial('Partial'),
+  ;
 
-extension PhoneNumberOrderStatusValueExtension on PhoneNumberOrderStatus {
-  String toValue() {
-    switch (this) {
-      case PhoneNumberOrderStatus.processing:
-        return 'Processing';
-      case PhoneNumberOrderStatus.successful:
-        return 'Successful';
-      case PhoneNumberOrderStatus.failed:
-        return 'Failed';
-      case PhoneNumberOrderStatus.partial:
-        return 'Partial';
-    }
-  }
-}
+  final String value;
 
-extension PhoneNumberOrderStatusFromString on String {
-  PhoneNumberOrderStatus toPhoneNumberOrderStatus() {
-    switch (this) {
-      case 'Processing':
-        return PhoneNumberOrderStatus.processing;
-      case 'Successful':
-        return PhoneNumberOrderStatus.successful;
-      case 'Failed':
-        return PhoneNumberOrderStatus.failed;
-      case 'Partial':
-        return PhoneNumberOrderStatus.partial;
-    }
-    throw Exception('$this is not known in enum PhoneNumberOrderStatus');
-  }
+  const PhoneNumberOrderStatus(this.value);
+
+  static PhoneNumberOrderStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PhoneNumberOrderStatus'));
 }
 
 enum PhoneNumberProductType {
-  businessCalling,
-  voiceConnector,
-  sipMediaApplicationDialIn,
-}
+  businessCalling('BusinessCalling'),
+  voiceConnector('VoiceConnector'),
+  sipMediaApplicationDialIn('SipMediaApplicationDialIn'),
+  ;
 
-extension PhoneNumberProductTypeValueExtension on PhoneNumberProductType {
-  String toValue() {
-    switch (this) {
-      case PhoneNumberProductType.businessCalling:
-        return 'BusinessCalling';
-      case PhoneNumberProductType.voiceConnector:
-        return 'VoiceConnector';
-      case PhoneNumberProductType.sipMediaApplicationDialIn:
-        return 'SipMediaApplicationDialIn';
-    }
-  }
-}
+  final String value;
 
-extension PhoneNumberProductTypeFromString on String {
-  PhoneNumberProductType toPhoneNumberProductType() {
-    switch (this) {
-      case 'BusinessCalling':
-        return PhoneNumberProductType.businessCalling;
-      case 'VoiceConnector':
-        return PhoneNumberProductType.voiceConnector;
-      case 'SipMediaApplicationDialIn':
-        return PhoneNumberProductType.sipMediaApplicationDialIn;
-    }
-    throw Exception('$this is not known in enum PhoneNumberProductType');
-  }
+  const PhoneNumberProductType(this.value);
+
+  static PhoneNumberProductType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PhoneNumberProductType'));
 }
 
 enum PhoneNumberStatus {
-  acquireInProgress,
-  acquireFailed,
-  unassigned,
-  assigned,
-  releaseInProgress,
-  deleteInProgress,
-  releaseFailed,
-  deleteFailed,
-}
+  acquireInProgress('AcquireInProgress'),
+  acquireFailed('AcquireFailed'),
+  unassigned('Unassigned'),
+  assigned('Assigned'),
+  releaseInProgress('ReleaseInProgress'),
+  deleteInProgress('DeleteInProgress'),
+  releaseFailed('ReleaseFailed'),
+  deleteFailed('DeleteFailed'),
+  ;
 
-extension PhoneNumberStatusValueExtension on PhoneNumberStatus {
-  String toValue() {
-    switch (this) {
-      case PhoneNumberStatus.acquireInProgress:
-        return 'AcquireInProgress';
-      case PhoneNumberStatus.acquireFailed:
-        return 'AcquireFailed';
-      case PhoneNumberStatus.unassigned:
-        return 'Unassigned';
-      case PhoneNumberStatus.assigned:
-        return 'Assigned';
-      case PhoneNumberStatus.releaseInProgress:
-        return 'ReleaseInProgress';
-      case PhoneNumberStatus.deleteInProgress:
-        return 'DeleteInProgress';
-      case PhoneNumberStatus.releaseFailed:
-        return 'ReleaseFailed';
-      case PhoneNumberStatus.deleteFailed:
-        return 'DeleteFailed';
-    }
-  }
-}
+  final String value;
 
-extension PhoneNumberStatusFromString on String {
-  PhoneNumberStatus toPhoneNumberStatus() {
-    switch (this) {
-      case 'AcquireInProgress':
-        return PhoneNumberStatus.acquireInProgress;
-      case 'AcquireFailed':
-        return PhoneNumberStatus.acquireFailed;
-      case 'Unassigned':
-        return PhoneNumberStatus.unassigned;
-      case 'Assigned':
-        return PhoneNumberStatus.assigned;
-      case 'ReleaseInProgress':
-        return PhoneNumberStatus.releaseInProgress;
-      case 'DeleteInProgress':
-        return PhoneNumberStatus.deleteInProgress;
-      case 'ReleaseFailed':
-        return PhoneNumberStatus.releaseFailed;
-      case 'DeleteFailed':
-        return PhoneNumberStatus.deleteFailed;
-    }
-    throw Exception('$this is not known in enum PhoneNumberStatus');
-  }
+  const PhoneNumberStatus(this.value);
+
+  static PhoneNumberStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PhoneNumberStatus'));
 }
 
 enum PhoneNumberType {
-  local,
-  tollFree,
-}
+  local('Local'),
+  tollFree('TollFree'),
+  ;
 
-extension PhoneNumberTypeValueExtension on PhoneNumberType {
-  String toValue() {
-    switch (this) {
-      case PhoneNumberType.local:
-        return 'Local';
-      case PhoneNumberType.tollFree:
-        return 'TollFree';
-    }
-  }
-}
+  final String value;
 
-extension PhoneNumberTypeFromString on String {
-  PhoneNumberType toPhoneNumberType() {
-    switch (this) {
-      case 'Local':
-        return PhoneNumberType.local;
-      case 'TollFree':
-        return PhoneNumberType.tollFree;
-    }
-    throw Exception('$this is not known in enum PhoneNumberType');
-  }
+  const PhoneNumberType(this.value);
+
+  static PhoneNumberType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PhoneNumberType'));
 }
 
 /// The proxy configuration for an Amazon Chime Voice Connector.
@@ -14962,7 +16187,7 @@ class Proxy {
       disabled: json['Disabled'] as bool?,
       fallBackPhoneNumber: json['FallBackPhoneNumber'] as String?,
       phoneNumberCountries: (json['PhoneNumberCountries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -15047,26 +16272,27 @@ class ProxySession {
   factory ProxySession.fromJson(Map<String, dynamic> json) {
     return ProxySession(
       capabilities: (json['Capabilities'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toCapability())
+          ?.nonNulls
+          .map((e) => Capability.fromString((e as String)))
           .toList(),
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
       endedTimestamp: timeStampFromJson(json['EndedTimestamp']),
       expiryMinutes: json['ExpiryMinutes'] as int?,
-      geoMatchLevel: (json['GeoMatchLevel'] as String?)?.toGeoMatchLevel(),
+      geoMatchLevel:
+          (json['GeoMatchLevel'] as String?)?.let(GeoMatchLevel.fromString),
       geoMatchParams: json['GeoMatchParams'] != null
           ? GeoMatchParams.fromJson(
               json['GeoMatchParams'] as Map<String, dynamic>)
           : null,
       name: json['Name'] as String?,
       numberSelectionBehavior: (json['NumberSelectionBehavior'] as String?)
-          ?.toNumberSelectionBehavior(),
+          ?.let(NumberSelectionBehavior.fromString),
       participants: (json['Participants'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Participant.fromJson(e as Map<String, dynamic>))
           .toList(),
       proxySessionId: json['ProxySessionId'] as String?,
-      status: (json['Status'] as String?)?.toProxySessionStatus(),
+      status: (json['Status'] as String?)?.let(ProxySessionStatus.fromString),
       updatedTimestamp: timeStampFromJson(json['UpdatedTimestamp']),
       voiceConnectorId: json['VoiceConnectorId'] as String?,
     );
@@ -15088,20 +16314,20 @@ class ProxySession {
     final voiceConnectorId = this.voiceConnectorId;
     return {
       if (capabilities != null)
-        'Capabilities': capabilities.map((e) => e.toValue()).toList(),
+        'Capabilities': capabilities.map((e) => e.value).toList(),
       if (createdTimestamp != null)
         'CreatedTimestamp': iso8601ToJson(createdTimestamp),
       if (endedTimestamp != null)
         'EndedTimestamp': iso8601ToJson(endedTimestamp),
       if (expiryMinutes != null) 'ExpiryMinutes': expiryMinutes,
-      if (geoMatchLevel != null) 'GeoMatchLevel': geoMatchLevel.toValue(),
+      if (geoMatchLevel != null) 'GeoMatchLevel': geoMatchLevel.value,
       if (geoMatchParams != null) 'GeoMatchParams': geoMatchParams,
       if (name != null) 'Name': name,
       if (numberSelectionBehavior != null)
-        'NumberSelectionBehavior': numberSelectionBehavior.toValue(),
+        'NumberSelectionBehavior': numberSelectionBehavior.value,
       if (participants != null) 'Participants': participants,
       if (proxySessionId != null) 'ProxySessionId': proxySessionId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (updatedTimestamp != null)
         'UpdatedTimestamp': iso8601ToJson(updatedTimestamp),
       if (voiceConnectorId != null) 'VoiceConnectorId': voiceConnectorId,
@@ -15110,36 +16336,19 @@ class ProxySession {
 }
 
 enum ProxySessionStatus {
-  open,
-  inProgress,
-  closed,
-}
+  open('Open'),
+  inProgress('InProgress'),
+  closed('Closed'),
+  ;
 
-extension ProxySessionStatusValueExtension on ProxySessionStatus {
-  String toValue() {
-    switch (this) {
-      case ProxySessionStatus.open:
-        return 'Open';
-      case ProxySessionStatus.inProgress:
-        return 'InProgress';
-      case ProxySessionStatus.closed:
-        return 'Closed';
-    }
-  }
-}
+  final String value;
 
-extension ProxySessionStatusFromString on String {
-  ProxySessionStatus toProxySessionStatus() {
-    switch (this) {
-      case 'Open':
-        return ProxySessionStatus.open;
-      case 'InProgress':
-        return ProxySessionStatus.inProgress;
-      case 'Closed':
-        return ProxySessionStatus.closed;
-    }
-    throw Exception('$this is not known in enum ProxySessionStatus');
-  }
+  const ProxySessionStatus(this.value);
+
+  static ProxySessionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ProxySessionStatus'));
 }
 
 class PutAppInstanceRetentionSettingsResponse {
@@ -15193,7 +16402,7 @@ class PutAppInstanceStreamingConfigurationsResponse {
     return PutAppInstanceStreamingConfigurationsResponse(
       appInstanceStreamingConfigurations:
           (json['AppInstanceStreamingConfigurations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AppInstanceStreamingConfiguration.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -15540,36 +16749,19 @@ class RegenerateSecurityTokenResponse {
 }
 
 enum RegistrationStatus {
-  unregistered,
-  registered,
-  suspended,
-}
+  unregistered('Unregistered'),
+  registered('Registered'),
+  suspended('Suspended'),
+  ;
 
-extension RegistrationStatusValueExtension on RegistrationStatus {
-  String toValue() {
-    switch (this) {
-      case RegistrationStatus.unregistered:
-        return 'Unregistered';
-      case RegistrationStatus.registered:
-        return 'Registered';
-      case RegistrationStatus.suspended:
-        return 'Suspended';
-    }
-  }
-}
+  final String value;
 
-extension RegistrationStatusFromString on String {
-  RegistrationStatus toRegistrationStatus() {
-    switch (this) {
-      case 'Unregistered':
-        return RegistrationStatus.unregistered;
-      case 'Registered':
-        return RegistrationStatus.registered;
-      case 'Suspended':
-        return RegistrationStatus.suspended;
-    }
-    throw Exception('$this is not known in enum RegistrationStatus');
-  }
+  const RegistrationStatus(this.value);
+
+  static RegistrationStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RegistrationStatus'));
 }
 
 class ResetPersonalPINResponse {
@@ -15752,7 +16944,7 @@ class RoomMembership {
       member: json['Member'] != null
           ? Member.fromJson(json['Member'] as Map<String, dynamic>)
           : null,
-      role: (json['Role'] as String?)?.toRoomMembershipRole(),
+      role: (json['Role'] as String?)?.let(RoomMembershipRole.fromString),
       roomId: json['RoomId'] as String?,
       updatedTimestamp: timeStampFromJson(json['UpdatedTimestamp']),
     );
@@ -15767,7 +16959,7 @@ class RoomMembership {
     return {
       if (invitedBy != null) 'InvitedBy': invitedBy,
       if (member != null) 'Member': member,
-      if (role != null) 'Role': role.toValue(),
+      if (role != null) 'Role': role.value,
       if (roomId != null) 'RoomId': roomId,
       if (updatedTimestamp != null)
         'UpdatedTimestamp': iso8601ToJson(updatedTimestamp),
@@ -15776,31 +16968,18 @@ class RoomMembership {
 }
 
 enum RoomMembershipRole {
-  administrator,
-  member,
-}
+  administrator('Administrator'),
+  member('Member'),
+  ;
 
-extension RoomMembershipRoleValueExtension on RoomMembershipRole {
-  String toValue() {
-    switch (this) {
-      case RoomMembershipRole.administrator:
-        return 'Administrator';
-      case RoomMembershipRole.member:
-        return 'Member';
-    }
-  }
-}
+  final String value;
 
-extension RoomMembershipRoleFromString on String {
-  RoomMembershipRole toRoomMembershipRole() {
-    switch (this) {
-      case 'Administrator':
-        return RoomMembershipRole.administrator;
-      case 'Member':
-        return RoomMembershipRole.member;
-    }
-    throw Exception('$this is not known in enum RoomMembershipRole');
-  }
+  const RoomMembershipRole(this.value);
+
+  static RoomMembershipRole fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RoomMembershipRole'));
 }
 
 /// The retention settings that determine how long to retain chat-room messages
@@ -15843,7 +17022,7 @@ class SearchAvailablePhoneNumbersResponse {
       Map<String, dynamic> json) {
     return SearchAvailablePhoneNumbersResponse(
       e164PhoneNumbers: (json['E164PhoneNumbers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -15877,11 +17056,11 @@ class SelectedVideoStreams {
   factory SelectedVideoStreams.fromJson(Map<String, dynamic> json) {
     return SelectedVideoStreams(
       attendeeIds: (json['AttendeeIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       externalUserIds: (json['ExternalUserIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -15986,7 +17165,7 @@ class SipMediaApplication {
       awsRegion: json['AwsRegion'] as String?,
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
       endpoints: (json['Endpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SipMediaApplicationEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16147,11 +17326,12 @@ class SipRule {
       name: json['Name'] as String?,
       sipRuleId: json['SipRuleId'] as String?,
       targetApplications: (json['TargetApplications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SipRuleTargetApplication.fromJson(e as Map<String, dynamic>))
           .toList(),
-      triggerType: (json['TriggerType'] as String?)?.toSipRuleTriggerType(),
+      triggerType:
+          (json['TriggerType'] as String?)?.let(SipRuleTriggerType.fromString),
       triggerValue: json['TriggerValue'] as String?,
       updatedTimestamp: timeStampFromJson(json['UpdatedTimestamp']),
     );
@@ -16173,7 +17353,7 @@ class SipRule {
       if (name != null) 'Name': name,
       if (sipRuleId != null) 'SipRuleId': sipRuleId,
       if (targetApplications != null) 'TargetApplications': targetApplications,
-      if (triggerType != null) 'TriggerType': triggerType.toValue(),
+      if (triggerType != null) 'TriggerType': triggerType.value,
       if (triggerValue != null) 'TriggerValue': triggerValue,
       if (updatedTimestamp != null)
         'UpdatedTimestamp': iso8601ToJson(updatedTimestamp),
@@ -16222,59 +17402,32 @@ class SipRuleTargetApplication {
 }
 
 enum SipRuleTriggerType {
-  toPhoneNumber,
-  requestUriHostname,
-}
+  toPhoneNumber('ToPhoneNumber'),
+  requestUriHostname('RequestUriHostname'),
+  ;
 
-extension SipRuleTriggerTypeValueExtension on SipRuleTriggerType {
-  String toValue() {
-    switch (this) {
-      case SipRuleTriggerType.toPhoneNumber:
-        return 'ToPhoneNumber';
-      case SipRuleTriggerType.requestUriHostname:
-        return 'RequestUriHostname';
-    }
-  }
-}
+  final String value;
 
-extension SipRuleTriggerTypeFromString on String {
-  SipRuleTriggerType toSipRuleTriggerType() {
-    switch (this) {
-      case 'ToPhoneNumber':
-        return SipRuleTriggerType.toPhoneNumber;
-      case 'RequestUriHostname':
-        return SipRuleTriggerType.requestUriHostname;
-    }
-    throw Exception('$this is not known in enum SipRuleTriggerType');
-  }
+  const SipRuleTriggerType(this.value);
+
+  static SipRuleTriggerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SipRuleTriggerType'));
 }
 
 enum SortOrder {
-  ascending,
-  descending,
-}
+  ascending('ASCENDING'),
+  descending('DESCENDING'),
+  ;
 
-extension SortOrderValueExtension on SortOrder {
-  String toValue() {
-    switch (this) {
-      case SortOrder.ascending:
-        return 'ASCENDING';
-      case SortOrder.descending:
-        return 'DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortOrderFromString on String {
-  SortOrder toSortOrder() {
-    switch (this) {
-      case 'ASCENDING':
-        return SortOrder.ascending;
-      case 'DESCENDING':
-        return SortOrder.descending;
-    }
-    throw Exception('$this is not known in enum SortOrder');
-  }
+  const SortOrder(this.value);
+
+  static SortOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortOrder'));
 }
 
 /// Source configuration for a specified media capture pipeline.
@@ -16354,7 +17507,7 @@ class StreamingConfiguration {
       disabled: json['Disabled'] as bool?,
       streamingNotificationTargets: (json['StreamingNotificationTargets']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               StreamingNotificationTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -16386,14 +17539,14 @@ class StreamingNotificationTarget {
   factory StreamingNotificationTarget.fromJson(Map<String, dynamic> json) {
     return StreamingNotificationTarget(
       notificationTarget:
-          (json['NotificationTarget'] as String).toNotificationTarget(),
+          NotificationTarget.fromString((json['NotificationTarget'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final notificationTarget = this.notificationTarget;
     return {
-      'NotificationTarget': notificationTarget.toValue(),
+      'NotificationTarget': notificationTarget.value,
     };
   }
 }
@@ -16497,11 +17650,11 @@ class Termination {
   factory Termination.fromJson(Map<String, dynamic> json) {
     return Termination(
       callingRegions: (json['CallingRegions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       cidrAllowedList: (json['CidrAllowedList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       cpsLimit: json['CpsLimit'] as int?,
@@ -16559,469 +17712,197 @@ class TerminationHealth {
 }
 
 enum TranscribeContentIdentificationType {
-  pii,
-}
+  pii('PII'),
+  ;
 
-extension TranscribeContentIdentificationTypeValueExtension
-    on TranscribeContentIdentificationType {
-  String toValue() {
-    switch (this) {
-      case TranscribeContentIdentificationType.pii:
-        return 'PII';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeContentIdentificationTypeFromString on String {
-  TranscribeContentIdentificationType toTranscribeContentIdentificationType() {
-    switch (this) {
-      case 'PII':
-        return TranscribeContentIdentificationType.pii;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeContentIdentificationType');
-  }
+  const TranscribeContentIdentificationType(this.value);
+
+  static TranscribeContentIdentificationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeContentIdentificationType'));
 }
 
 enum TranscribeContentRedactionType {
-  pii,
-}
+  pii('PII'),
+  ;
 
-extension TranscribeContentRedactionTypeValueExtension
-    on TranscribeContentRedactionType {
-  String toValue() {
-    switch (this) {
-      case TranscribeContentRedactionType.pii:
-        return 'PII';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeContentRedactionTypeFromString on String {
-  TranscribeContentRedactionType toTranscribeContentRedactionType() {
-    switch (this) {
-      case 'PII':
-        return TranscribeContentRedactionType.pii;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeContentRedactionType');
-  }
+  const TranscribeContentRedactionType(this.value);
+
+  static TranscribeContentRedactionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeContentRedactionType'));
 }
 
 enum TranscribeLanguageCode {
-  enUs,
-  enGb,
-  esUs,
-  frCa,
-  frFr,
-  enAu,
-  itIt,
-  deDe,
-  ptBr,
-  jaJp,
-  koKr,
-  zhCn,
-  thTh,
-  hiIn,
-}
+  enUs('en-US'),
+  enGb('en-GB'),
+  esUs('es-US'),
+  frCa('fr-CA'),
+  frFr('fr-FR'),
+  enAu('en-AU'),
+  itIt('it-IT'),
+  deDe('de-DE'),
+  ptBr('pt-BR'),
+  jaJp('ja-JP'),
+  koKr('ko-KR'),
+  zhCn('zh-CN'),
+  thTh('th-TH'),
+  hiIn('hi-IN'),
+  ;
 
-extension TranscribeLanguageCodeValueExtension on TranscribeLanguageCode {
-  String toValue() {
-    switch (this) {
-      case TranscribeLanguageCode.enUs:
-        return 'en-US';
-      case TranscribeLanguageCode.enGb:
-        return 'en-GB';
-      case TranscribeLanguageCode.esUs:
-        return 'es-US';
-      case TranscribeLanguageCode.frCa:
-        return 'fr-CA';
-      case TranscribeLanguageCode.frFr:
-        return 'fr-FR';
-      case TranscribeLanguageCode.enAu:
-        return 'en-AU';
-      case TranscribeLanguageCode.itIt:
-        return 'it-IT';
-      case TranscribeLanguageCode.deDe:
-        return 'de-DE';
-      case TranscribeLanguageCode.ptBr:
-        return 'pt-BR';
-      case TranscribeLanguageCode.jaJp:
-        return 'ja-JP';
-      case TranscribeLanguageCode.koKr:
-        return 'ko-KR';
-      case TranscribeLanguageCode.zhCn:
-        return 'zh-CN';
-      case TranscribeLanguageCode.thTh:
-        return 'th-TH';
-      case TranscribeLanguageCode.hiIn:
-        return 'hi-IN';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeLanguageCodeFromString on String {
-  TranscribeLanguageCode toTranscribeLanguageCode() {
-    switch (this) {
-      case 'en-US':
-        return TranscribeLanguageCode.enUs;
-      case 'en-GB':
-        return TranscribeLanguageCode.enGb;
-      case 'es-US':
-        return TranscribeLanguageCode.esUs;
-      case 'fr-CA':
-        return TranscribeLanguageCode.frCa;
-      case 'fr-FR':
-        return TranscribeLanguageCode.frFr;
-      case 'en-AU':
-        return TranscribeLanguageCode.enAu;
-      case 'it-IT':
-        return TranscribeLanguageCode.itIt;
-      case 'de-DE':
-        return TranscribeLanguageCode.deDe;
-      case 'pt-BR':
-        return TranscribeLanguageCode.ptBr;
-      case 'ja-JP':
-        return TranscribeLanguageCode.jaJp;
-      case 'ko-KR':
-        return TranscribeLanguageCode.koKr;
-      case 'zh-CN':
-        return TranscribeLanguageCode.zhCn;
-      case 'th-TH':
-        return TranscribeLanguageCode.thTh;
-      case 'hi-IN':
-        return TranscribeLanguageCode.hiIn;
-    }
-    throw Exception('$this is not known in enum TranscribeLanguageCode');
-  }
+  const TranscribeLanguageCode(this.value);
+
+  static TranscribeLanguageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeLanguageCode'));
 }
 
 enum TranscribeMedicalContentIdentificationType {
-  phi,
-}
+  phi('PHI'),
+  ;
 
-extension TranscribeMedicalContentIdentificationTypeValueExtension
-    on TranscribeMedicalContentIdentificationType {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalContentIdentificationType.phi:
-        return 'PHI';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalContentIdentificationTypeFromString on String {
-  TranscribeMedicalContentIdentificationType
-      toTranscribeMedicalContentIdentificationType() {
-    switch (this) {
-      case 'PHI':
-        return TranscribeMedicalContentIdentificationType.phi;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeMedicalContentIdentificationType');
-  }
+  const TranscribeMedicalContentIdentificationType(this.value);
+
+  static TranscribeMedicalContentIdentificationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalContentIdentificationType'));
 }
 
 enum TranscribeMedicalLanguageCode {
-  enUs,
-}
+  enUs('en-US'),
+  ;
 
-extension TranscribeMedicalLanguageCodeValueExtension
-    on TranscribeMedicalLanguageCode {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalLanguageCode.enUs:
-        return 'en-US';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalLanguageCodeFromString on String {
-  TranscribeMedicalLanguageCode toTranscribeMedicalLanguageCode() {
-    switch (this) {
-      case 'en-US':
-        return TranscribeMedicalLanguageCode.enUs;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalLanguageCode');
-  }
+  const TranscribeMedicalLanguageCode(this.value);
+
+  static TranscribeMedicalLanguageCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalLanguageCode'));
 }
 
 enum TranscribeMedicalRegion {
-  usEast_1,
-  usEast_2,
-  usWest_2,
-  apSoutheast_2,
-  caCentral_1,
-  euWest_1,
-  auto,
-}
+  usEast_1('us-east-1'),
+  usEast_2('us-east-2'),
+  usWest_2('us-west-2'),
+  apSoutheast_2('ap-southeast-2'),
+  caCentral_1('ca-central-1'),
+  euWest_1('eu-west-1'),
+  auto('auto'),
+  ;
 
-extension TranscribeMedicalRegionValueExtension on TranscribeMedicalRegion {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalRegion.usEast_1:
-        return 'us-east-1';
-      case TranscribeMedicalRegion.usEast_2:
-        return 'us-east-2';
-      case TranscribeMedicalRegion.usWest_2:
-        return 'us-west-2';
-      case TranscribeMedicalRegion.apSoutheast_2:
-        return 'ap-southeast-2';
-      case TranscribeMedicalRegion.caCentral_1:
-        return 'ca-central-1';
-      case TranscribeMedicalRegion.euWest_1:
-        return 'eu-west-1';
-      case TranscribeMedicalRegion.auto:
-        return 'auto';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalRegionFromString on String {
-  TranscribeMedicalRegion toTranscribeMedicalRegion() {
-    switch (this) {
-      case 'us-east-1':
-        return TranscribeMedicalRegion.usEast_1;
-      case 'us-east-2':
-        return TranscribeMedicalRegion.usEast_2;
-      case 'us-west-2':
-        return TranscribeMedicalRegion.usWest_2;
-      case 'ap-southeast-2':
-        return TranscribeMedicalRegion.apSoutheast_2;
-      case 'ca-central-1':
-        return TranscribeMedicalRegion.caCentral_1;
-      case 'eu-west-1':
-        return TranscribeMedicalRegion.euWest_1;
-      case 'auto':
-        return TranscribeMedicalRegion.auto;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalRegion');
-  }
+  const TranscribeMedicalRegion(this.value);
+
+  static TranscribeMedicalRegion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalRegion'));
 }
 
 enum TranscribeMedicalSpecialty {
-  primarycare,
-  cardiology,
-  neurology,
-  oncology,
-  radiology,
-  urology,
-}
+  primarycare('PRIMARYCARE'),
+  cardiology('CARDIOLOGY'),
+  neurology('NEUROLOGY'),
+  oncology('ONCOLOGY'),
+  radiology('RADIOLOGY'),
+  urology('UROLOGY'),
+  ;
 
-extension TranscribeMedicalSpecialtyValueExtension
-    on TranscribeMedicalSpecialty {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalSpecialty.primarycare:
-        return 'PRIMARYCARE';
-      case TranscribeMedicalSpecialty.cardiology:
-        return 'CARDIOLOGY';
-      case TranscribeMedicalSpecialty.neurology:
-        return 'NEUROLOGY';
-      case TranscribeMedicalSpecialty.oncology:
-        return 'ONCOLOGY';
-      case TranscribeMedicalSpecialty.radiology:
-        return 'RADIOLOGY';
-      case TranscribeMedicalSpecialty.urology:
-        return 'UROLOGY';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalSpecialtyFromString on String {
-  TranscribeMedicalSpecialty toTranscribeMedicalSpecialty() {
-    switch (this) {
-      case 'PRIMARYCARE':
-        return TranscribeMedicalSpecialty.primarycare;
-      case 'CARDIOLOGY':
-        return TranscribeMedicalSpecialty.cardiology;
-      case 'NEUROLOGY':
-        return TranscribeMedicalSpecialty.neurology;
-      case 'ONCOLOGY':
-        return TranscribeMedicalSpecialty.oncology;
-      case 'RADIOLOGY':
-        return TranscribeMedicalSpecialty.radiology;
-      case 'UROLOGY':
-        return TranscribeMedicalSpecialty.urology;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalSpecialty');
-  }
+  const TranscribeMedicalSpecialty(this.value);
+
+  static TranscribeMedicalSpecialty fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeMedicalSpecialty'));
 }
 
 enum TranscribeMedicalType {
-  conversation,
-  dictation,
-}
+  conversation('CONVERSATION'),
+  dictation('DICTATION'),
+  ;
 
-extension TranscribeMedicalTypeValueExtension on TranscribeMedicalType {
-  String toValue() {
-    switch (this) {
-      case TranscribeMedicalType.conversation:
-        return 'CONVERSATION';
-      case TranscribeMedicalType.dictation:
-        return 'DICTATION';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeMedicalTypeFromString on String {
-  TranscribeMedicalType toTranscribeMedicalType() {
-    switch (this) {
-      case 'CONVERSATION':
-        return TranscribeMedicalType.conversation;
-      case 'DICTATION':
-        return TranscribeMedicalType.dictation;
-    }
-    throw Exception('$this is not known in enum TranscribeMedicalType');
-  }
+  const TranscribeMedicalType(this.value);
+
+  static TranscribeMedicalType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TranscribeMedicalType'));
 }
 
 enum TranscribePartialResultsStability {
-  low,
-  medium,
-  high,
-}
+  low('low'),
+  medium('medium'),
+  high('high'),
+  ;
 
-extension TranscribePartialResultsStabilityValueExtension
-    on TranscribePartialResultsStability {
-  String toValue() {
-    switch (this) {
-      case TranscribePartialResultsStability.low:
-        return 'low';
-      case TranscribePartialResultsStability.medium:
-        return 'medium';
-      case TranscribePartialResultsStability.high:
-        return 'high';
-    }
-  }
-}
+  final String value;
 
-extension TranscribePartialResultsStabilityFromString on String {
-  TranscribePartialResultsStability toTranscribePartialResultsStability() {
-    switch (this) {
-      case 'low':
-        return TranscribePartialResultsStability.low;
-      case 'medium':
-        return TranscribePartialResultsStability.medium;
-      case 'high':
-        return TranscribePartialResultsStability.high;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribePartialResultsStability');
-  }
+  const TranscribePartialResultsStability(this.value);
+
+  static TranscribePartialResultsStability fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribePartialResultsStability'));
 }
 
 enum TranscribeRegion {
-  usEast_2,
-  usEast_1,
-  usWest_2,
-  apNortheast_2,
-  apSoutheast_2,
-  apNortheast_1,
-  caCentral_1,
-  euCentral_1,
-  euWest_1,
-  euWest_2,
-  saEast_1,
-  auto,
-}
+  usEast_2('us-east-2'),
+  usEast_1('us-east-1'),
+  usWest_2('us-west-2'),
+  apNortheast_2('ap-northeast-2'),
+  apSoutheast_2('ap-southeast-2'),
+  apNortheast_1('ap-northeast-1'),
+  caCentral_1('ca-central-1'),
+  euCentral_1('eu-central-1'),
+  euWest_1('eu-west-1'),
+  euWest_2('eu-west-2'),
+  saEast_1('sa-east-1'),
+  auto('auto'),
+  ;
 
-extension TranscribeRegionValueExtension on TranscribeRegion {
-  String toValue() {
-    switch (this) {
-      case TranscribeRegion.usEast_2:
-        return 'us-east-2';
-      case TranscribeRegion.usEast_1:
-        return 'us-east-1';
-      case TranscribeRegion.usWest_2:
-        return 'us-west-2';
-      case TranscribeRegion.apNortheast_2:
-        return 'ap-northeast-2';
-      case TranscribeRegion.apSoutheast_2:
-        return 'ap-southeast-2';
-      case TranscribeRegion.apNortheast_1:
-        return 'ap-northeast-1';
-      case TranscribeRegion.caCentral_1:
-        return 'ca-central-1';
-      case TranscribeRegion.euCentral_1:
-        return 'eu-central-1';
-      case TranscribeRegion.euWest_1:
-        return 'eu-west-1';
-      case TranscribeRegion.euWest_2:
-        return 'eu-west-2';
-      case TranscribeRegion.saEast_1:
-        return 'sa-east-1';
-      case TranscribeRegion.auto:
-        return 'auto';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeRegionFromString on String {
-  TranscribeRegion toTranscribeRegion() {
-    switch (this) {
-      case 'us-east-2':
-        return TranscribeRegion.usEast_2;
-      case 'us-east-1':
-        return TranscribeRegion.usEast_1;
-      case 'us-west-2':
-        return TranscribeRegion.usWest_2;
-      case 'ap-northeast-2':
-        return TranscribeRegion.apNortheast_2;
-      case 'ap-southeast-2':
-        return TranscribeRegion.apSoutheast_2;
-      case 'ap-northeast-1':
-        return TranscribeRegion.apNortheast_1;
-      case 'ca-central-1':
-        return TranscribeRegion.caCentral_1;
-      case 'eu-central-1':
-        return TranscribeRegion.euCentral_1;
-      case 'eu-west-1':
-        return TranscribeRegion.euWest_1;
-      case 'eu-west-2':
-        return TranscribeRegion.euWest_2;
-      case 'sa-east-1':
-        return TranscribeRegion.saEast_1;
-      case 'auto':
-        return TranscribeRegion.auto;
-    }
-    throw Exception('$this is not known in enum TranscribeRegion');
-  }
+  const TranscribeRegion(this.value);
+
+  static TranscribeRegion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TranscribeRegion'));
 }
 
 enum TranscribeVocabularyFilterMethod {
-  remove,
-  mask,
-  tag,
-}
+  remove('remove'),
+  mask('mask'),
+  tag('tag'),
+  ;
 
-extension TranscribeVocabularyFilterMethodValueExtension
-    on TranscribeVocabularyFilterMethod {
-  String toValue() {
-    switch (this) {
-      case TranscribeVocabularyFilterMethod.remove:
-        return 'remove';
-      case TranscribeVocabularyFilterMethod.mask:
-        return 'mask';
-      case TranscribeVocabularyFilterMethod.tag:
-        return 'tag';
-    }
-  }
-}
+  final String value;
 
-extension TranscribeVocabularyFilterMethodFromString on String {
-  TranscribeVocabularyFilterMethod toTranscribeVocabularyFilterMethod() {
-    switch (this) {
-      case 'remove':
-        return TranscribeVocabularyFilterMethod.remove;
-      case 'mask':
-        return TranscribeVocabularyFilterMethod.mask;
-      case 'tag':
-        return TranscribeVocabularyFilterMethod.tag;
-    }
-    throw Exception(
-        '$this is not known in enum TranscribeVocabularyFilterMethod');
-  }
+  const TranscribeVocabularyFilterMethod(this.value);
+
+  static TranscribeVocabularyFilterMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TranscribeVocabularyFilterMethod'));
 }
 
 /// The configuration for the current transcription operation. Must contain
@@ -17255,7 +18136,7 @@ class UpdatePhoneNumberRequestItem {
     return {
       'PhoneNumberId': phoneNumberId,
       if (callingName != null) 'CallingName': callingName,
-      if (productType != null) 'ProductType': productType.toValue(),
+      if (productType != null) 'ProductType': productType.value,
     };
   }
 }
@@ -17466,8 +18347,8 @@ class UpdateUserRequestItem {
       'UserId': userId,
       if (alexaForBusinessMetadata != null)
         'AlexaForBusinessMetadata': alexaForBusinessMetadata,
-      if (licenseType != null) 'LicenseType': licenseType.toValue(),
-      if (userType != null) 'UserType': userType.toValue(),
+      if (licenseType != null) 'LicenseType': licenseType.value,
+      if (userType != null) 'UserType': userType.value,
     };
   }
 }
@@ -17616,16 +18497,16 @@ class User {
           : null,
       displayName: json['DisplayName'] as String?,
       invitedOn: timeStampFromJson(json['InvitedOn']),
-      licenseType: (json['LicenseType'] as String?)?.toLicense(),
+      licenseType: (json['LicenseType'] as String?)?.let(License.fromString),
       personalPIN: json['PersonalPIN'] as String?,
       primaryEmail: json['PrimaryEmail'] as String?,
       primaryProvisionedNumber: json['PrimaryProvisionedNumber'] as String?,
       registeredOn: timeStampFromJson(json['RegisteredOn']),
-      userInvitationStatus:
-          (json['UserInvitationStatus'] as String?)?.toInviteStatus(),
-      userRegistrationStatus:
-          (json['UserRegistrationStatus'] as String?)?.toRegistrationStatus(),
-      userType: (json['UserType'] as String?)?.toUserType(),
+      userInvitationStatus: (json['UserInvitationStatus'] as String?)
+          ?.let(InviteStatus.fromString),
+      userRegistrationStatus: (json['UserRegistrationStatus'] as String?)
+          ?.let(RegistrationStatus.fromString),
+      userType: (json['UserType'] as String?)?.let(UserType.fromString),
     );
   }
 
@@ -17650,17 +18531,17 @@ class User {
         'AlexaForBusinessMetadata': alexaForBusinessMetadata,
       if (displayName != null) 'DisplayName': displayName,
       if (invitedOn != null) 'InvitedOn': iso8601ToJson(invitedOn),
-      if (licenseType != null) 'LicenseType': licenseType.toValue(),
+      if (licenseType != null) 'LicenseType': licenseType.value,
       if (personalPIN != null) 'PersonalPIN': personalPIN,
       if (primaryEmail != null) 'PrimaryEmail': primaryEmail,
       if (primaryProvisionedNumber != null)
         'PrimaryProvisionedNumber': primaryProvisionedNumber,
       if (registeredOn != null) 'RegisteredOn': iso8601ToJson(registeredOn),
       if (userInvitationStatus != null)
-        'UserInvitationStatus': userInvitationStatus.toValue(),
+        'UserInvitationStatus': userInvitationStatus.value,
       if (userRegistrationStatus != null)
-        'UserRegistrationStatus': userRegistrationStatus.toValue(),
-      if (userType != null) 'UserType': userType.toValue(),
+        'UserRegistrationStatus': userRegistrationStatus.value,
+      if (userType != null) 'UserType': userType.value,
     };
   }
 }
@@ -17687,7 +18568,7 @@ class UserError {
 
   factory UserError.fromJson(Map<String, dynamic> json) {
     return UserError(
-      errorCode: (json['ErrorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['ErrorMessage'] as String?,
       userId: json['UserId'] as String?,
     );
@@ -17698,7 +18579,7 @@ class UserError {
     final errorMessage = this.errorMessage;
     final userId = this.userId;
     return {
-      if (errorCode != null) 'ErrorCode': errorCode.toValue(),
+      if (errorCode != null) 'ErrorCode': errorCode.value,
       if (errorMessage != null) 'ErrorMessage': errorMessage,
       if (userId != null) 'UserId': userId,
     };
@@ -17731,31 +18612,17 @@ class UserSettings {
 }
 
 enum UserType {
-  privateUser,
-  sharedDevice,
-}
+  privateUser('PrivateUser'),
+  sharedDevice('SharedDevice'),
+  ;
 
-extension UserTypeValueExtension on UserType {
-  String toValue() {
-    switch (this) {
-      case UserType.privateUser:
-        return 'PrivateUser';
-      case UserType.sharedDevice:
-        return 'SharedDevice';
-    }
-  }
-}
+  final String value;
 
-extension UserTypeFromString on String {
-  UserType toUserType() {
-    switch (this) {
-      case 'PrivateUser':
-        return UserType.privateUser;
-      case 'SharedDevice':
-        return UserType.sharedDevice;
-    }
-    throw Exception('$this is not known in enum UserType');
-  }
+  const UserType(this.value);
+
+  static UserType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum UserType'));
 }
 
 class ValidateE911AddressResponse {
@@ -17788,7 +18655,7 @@ class ValidateE911AddressResponse {
           : null,
       addressExternalId: json['AddressExternalId'] as String?,
       candidateAddressList: (json['CandidateAddressList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CandidateAddress.fromJson(e as Map<String, dynamic>))
           .toList(),
       validationResult: json['ValidationResult'] as int?,
@@ -17825,8 +18692,8 @@ class VideoArtifactsConfiguration {
 
   factory VideoArtifactsConfiguration.fromJson(Map<String, dynamic> json) {
     return VideoArtifactsConfiguration(
-      state: (json['State'] as String).toArtifactsState(),
-      muxType: (json['MuxType'] as String?)?.toVideoMuxType(),
+      state: ArtifactsState.fromString((json['State'] as String)),
+      muxType: (json['MuxType'] as String?)?.let(VideoMuxType.fromString),
     );
   }
 
@@ -17834,33 +18701,24 @@ class VideoArtifactsConfiguration {
     final state = this.state;
     final muxType = this.muxType;
     return {
-      'State': state.toValue(),
-      if (muxType != null) 'MuxType': muxType.toValue(),
+      'State': state.value,
+      if (muxType != null) 'MuxType': muxType.value,
     };
   }
 }
 
 enum VideoMuxType {
-  videoOnly,
-}
+  videoOnly('VideoOnly'),
+  ;
 
-extension VideoMuxTypeValueExtension on VideoMuxType {
-  String toValue() {
-    switch (this) {
-      case VideoMuxType.videoOnly:
-        return 'VideoOnly';
-    }
-  }
-}
+  final String value;
 
-extension VideoMuxTypeFromString on String {
-  VideoMuxType toVideoMuxType() {
-    switch (this) {
-      case 'VideoOnly':
-        return VideoMuxType.videoOnly;
-    }
-    throw Exception('$this is not known in enum VideoMuxType');
-  }
+  const VideoMuxType(this.value);
+
+  static VideoMuxType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VideoMuxType'));
 }
 
 /// The Amazon Chime Voice Connector configuration, including outbound host name
@@ -17905,7 +18763,8 @@ class VoiceConnector {
 
   factory VoiceConnector.fromJson(Map<String, dynamic> json) {
     return VoiceConnector(
-      awsRegion: (json['AwsRegion'] as String?)?.toVoiceConnectorAwsRegion(),
+      awsRegion: (json['AwsRegion'] as String?)
+          ?.let(VoiceConnectorAwsRegion.fromString),
       createdTimestamp: timeStampFromJson(json['CreatedTimestamp']),
       name: json['Name'] as String?,
       outboundHostName: json['OutboundHostName'] as String?,
@@ -17926,7 +18785,7 @@ class VoiceConnector {
     final voiceConnectorArn = this.voiceConnectorArn;
     final voiceConnectorId = this.voiceConnectorId;
     return {
-      if (awsRegion != null) 'AwsRegion': awsRegion.toValue(),
+      if (awsRegion != null) 'AwsRegion': awsRegion.value,
       if (createdTimestamp != null)
         'CreatedTimestamp': iso8601ToJson(createdTimestamp),
       if (name != null) 'Name': name,
@@ -17941,31 +18800,18 @@ class VoiceConnector {
 }
 
 enum VoiceConnectorAwsRegion {
-  usEast_1,
-  usWest_2,
-}
+  usEast_1('us-east-1'),
+  usWest_2('us-west-2'),
+  ;
 
-extension VoiceConnectorAwsRegionValueExtension on VoiceConnectorAwsRegion {
-  String toValue() {
-    switch (this) {
-      case VoiceConnectorAwsRegion.usEast_1:
-        return 'us-east-1';
-      case VoiceConnectorAwsRegion.usWest_2:
-        return 'us-west-2';
-    }
-  }
-}
+  final String value;
 
-extension VoiceConnectorAwsRegionFromString on String {
-  VoiceConnectorAwsRegion toVoiceConnectorAwsRegion() {
-    switch (this) {
-      case 'us-east-1':
-        return VoiceConnectorAwsRegion.usEast_1;
-      case 'us-west-2':
-        return VoiceConnectorAwsRegion.usWest_2;
-    }
-    throw Exception('$this is not known in enum VoiceConnectorAwsRegion');
-  }
+  const VoiceConnectorAwsRegion(this.value);
+
+  static VoiceConnectorAwsRegion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum VoiceConnectorAwsRegion'));
 }
 
 /// The Amazon Chime Voice Connector group configuration, including associated
@@ -18010,7 +18856,7 @@ class VoiceConnectorGroup {
       voiceConnectorGroupArn: json['VoiceConnectorGroupArn'] as String?,
       voiceConnectorGroupId: json['VoiceConnectorGroupId'] as String?,
       voiceConnectorItems: (json['VoiceConnectorItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VoiceConnectorItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );

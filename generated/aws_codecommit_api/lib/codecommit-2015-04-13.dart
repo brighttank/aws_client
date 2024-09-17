@@ -19,9 +19,9 @@ import 'package:shared_aws_api/shared.dart'
 
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
-/// This is the <i>AWS CodeCommit API Reference</i>. This reference provides
-/// descriptions of the operations and data types for AWS CodeCommit API along
-/// with usage examples.
+/// This is the <i>CodeCommit API Reference</i>. This reference provides
+/// descriptions of the operations and data types for CodeCommit API along with
+/// usage examples.
 class CodeCommit {
   final _s.JsonProtocol _protocol;
   CodeCommit({
@@ -240,13 +240,13 @@ class CodeCommit {
       headers: headers,
       payload: {
         'destinationCommitSpecifier': destinationCommitSpecifier,
-        'mergeOption': mergeOption.toValue(),
+        'mergeOption': mergeOption.value,
         'repositoryName': repositoryName,
         'sourceCommitSpecifier': sourceCommitSpecifier,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (filePaths != null) 'filePaths': filePaths,
         if (maxConflictFiles != null) 'maxConflictFiles': maxConflictFiles,
         if (maxMergeHunks != null) 'maxMergeHunks': maxMergeHunks,
@@ -401,10 +401,10 @@ class CodeCommit {
   }
 
   /// Creates a template for approval rules that can then be associated with one
-  /// or more repositories in your AWS account. When you associate a template
-  /// with a repository, AWS CodeCommit creates an approval rule that matches
-  /// the conditions of the template for all pull requests that meet the
-  /// conditions of the template. For more information, see
+  /// or more repositories in your Amazon Web Services account. When you
+  /// associate a template with a repository, CodeCommit creates an approval
+  /// rule that matches the conditions of the template for all pull requests
+  /// that meet the conditions of the template. For more information, see
   /// <a>AssociateApprovalRuleTemplateWithRepository</a>.
   ///
   /// May throw [ApprovalRuleTemplateNameRequiredException].
@@ -427,12 +427,13 @@ class CodeCommit {
   ///
   /// <ul>
   /// <li>
-  /// <b>CodeCommitApprovers</b>: This option only requires an AWS account and a
-  /// resource. It can be used for both IAM users and federated access users
-  /// whose name matches the provided resource name. This is a very powerful
-  /// option that offers a great deal of flexibility. For example, if you
-  /// specify the AWS account <i>123456789012</i> and <i>Mary_Major</i>, all of
-  /// the following are counted as approvals coming from that user:
+  /// <b>CodeCommitApprovers</b>: This option only requires an Amazon Web
+  /// Services account and a resource. It can be used for both IAM users and
+  /// federated access users whose name matches the provided resource name. This
+  /// is a very powerful option that offers a great deal of flexibility. For
+  /// example, if you specify the Amazon Web Services account
+  /// <i>123456789012</i> and <i>Mary_Major</i>, all of the following are
+  /// counted as approvals coming from that user:
   ///
   /// <ul>
   /// <li>
@@ -706,8 +707,8 @@ class CodeCommit {
   /// the request returns information about the initial request that used that
   /// token.
   /// <note>
-  /// The AWS SDKs prepopulate client request tokens. If you are using an AWS
-  /// SDK, an idempotency token is created for you.
+  /// The Amazon Web ServicesSDKs prepopulate client request tokens. If you are
+  /// using an Amazon Web ServicesSDK, an idempotency token is created for you.
   /// </note>
   ///
   /// Parameter [description] :
@@ -761,19 +762,20 @@ class CodeCommit {
   /// Parameter [approvalRuleContent] :
   /// The content of the approval rule, including the number of approvals needed
   /// and the structure of an approval pool defined for approvals, if any. For
-  /// more information about approval pools, see the AWS CodeCommit User Guide.
+  /// more information about approval pools, see the CodeCommit User Guide.
   /// <note>
   /// When you create the content of the approval rule, you can specify
   /// approvers in an approval pool in one of two ways:
   ///
   /// <ul>
   /// <li>
-  /// <b>CodeCommitApprovers</b>: This option only requires an AWS account and a
-  /// resource. It can be used for both IAM users and federated access users
-  /// whose name matches the provided resource name. This is a very powerful
-  /// option that offers a great deal of flexibility. For example, if you
-  /// specify the AWS account <i>123456789012</i> and <i>Mary_Major</i>, all of
-  /// the following would be counted as approvals coming from that user:
+  /// <b>CodeCommitApprovers</b>: This option only requires an Amazon Web
+  /// Services account and a resource. It can be used for both IAM users and
+  /// federated access users whose name matches the provided resource name. This
+  /// is a very powerful option that offers a great deal of flexibility. For
+  /// example, if you specify the Amazon Web Services account
+  /// <i>123456789012</i> and <i>Mary_Major</i>, all of the following would be
+  /// counted as approvals coming from that user:
   ///
   /// <ul>
   /// <li>
@@ -843,6 +845,8 @@ class CodeCommit {
   /// May throw [EncryptionKeyDisabledException].
   /// May throw [EncryptionKeyNotFoundException].
   /// May throw [EncryptionKeyUnavailableException].
+  /// May throw [EncryptionKeyInvalidIdException].
+  /// May throw [EncryptionKeyInvalidUsageException].
   /// May throw [InvalidTagsMapException].
   /// May throw [TooManyTagsException].
   /// May throw [InvalidSystemTagUsageException].
@@ -851,13 +855,24 @@ class CodeCommit {
   /// Parameter [repositoryName] :
   /// The name of the new repository to be created.
   /// <note>
-  /// The repository name must be unique across the calling AWS account.
-  /// Repository names are limited to 100 alphanumeric, dash, and underscore
-  /// characters, and cannot include certain characters. For more information
-  /// about the limits on repository names, see <a
-  /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/limits.html">Limits</a>
-  /// in the <i>AWS CodeCommit User Guide</i>. The suffix .git is prohibited.
+  /// The repository name must be unique across the calling Amazon Web Services
+  /// account. Repository names are limited to 100 alphanumeric, dash, and
+  /// underscore characters, and cannot include certain characters. For more
+  /// information about the limits on repository names, see <a
+  /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/limits.html">Quotas</a>
+  /// in the <i>CodeCommit User Guide</i>. The suffix .git is prohibited.
   /// </note>
+  ///
+  /// Parameter [kmsKeyId] :
+  /// The ID of the encryption key. You can view the ID of an encryption key in
+  /// the KMS console, or use the KMS APIs to programmatically retrieve a key
+  /// ID. For more information about acceptable values for kmsKeyID, see <a
+  /// href="https://docs.aws.amazon.com/APIReference/API_Decrypt.html#KMS-Decrypt-request-KeyId">KeyId</a>
+  /// in the Decrypt API description in the <i>Key Management Service API
+  /// Reference</i>.
+  ///
+  /// If no key is specified, the default <code>aws/codecommit</code> Amazon Web
+  /// Services managed key is used.
   ///
   /// Parameter [repositoryDescription] :
   /// A comment or description about the new repository.
@@ -874,6 +889,7 @@ class CodeCommit {
   /// One or more tag key-value pairs to use when tagging this repository.
   Future<CreateRepositoryOutput> createRepository({
     required String repositoryName,
+    String? kmsKeyId,
     String? repositoryDescription,
     Map<String, String>? tags,
   }) async {
@@ -889,6 +905,7 @@ class CodeCommit {
       headers: headers,
       payload: {
         'repositoryName': repositoryName,
+        if (kmsKeyId != null) 'kmsKeyId': kmsKeyId,
         if (repositoryDescription != null)
           'repositoryDescription': repositoryDescription,
         if (tags != null) 'tags': tags,
@@ -1017,17 +1034,17 @@ class CodeCommit {
       headers: headers,
       payload: {
         'destinationCommitSpecifier': destinationCommitSpecifier,
-        'mergeOption': mergeOption.toValue(),
+        'mergeOption': mergeOption.value,
         'repositoryName': repositoryName,
         'sourceCommitSpecifier': sourceCommitSpecifier,
         if (authorName != null) 'authorName': authorName,
         if (commitMessage != null) 'commitMessage': commitMessage,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolution != null)
           'conflictResolution': conflictResolution,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (email != null) 'email': email,
         if (keepEmptyFolders != null) 'keepEmptyFolders': keepEmptyFolders,
       },
@@ -1418,13 +1435,13 @@ class CodeCommit {
       payload: {
         'destinationCommitSpecifier': destinationCommitSpecifier,
         'filePath': filePath,
-        'mergeOption': mergeOption.toValue(),
+        'mergeOption': mergeOption.value,
         'repositoryName': repositoryName,
         'sourceCommitSpecifier': sourceCommitSpecifier,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (maxMergeHunks != null) 'maxMergeHunks': maxMergeHunks,
         if (nextToken != null) 'nextToken': nextToken,
       },
@@ -1493,7 +1510,7 @@ class CodeCommit {
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
         if (pullRequestEventType != null)
-          'pullRequestEventType': pullRequestEventType.toValue(),
+          'pullRequestEventType': pullRequestEventType.value,
       },
     );
 
@@ -1902,11 +1919,15 @@ class CodeCommit {
   ///
   /// Parameter [afterCommitId] :
   /// The full commit ID of the commit in the source branch that was the tip of
-  /// the branch at the time the comment was made.
+  /// the branch at the time the comment was made. Requirement is conditional:
+  /// <code>afterCommitId</code> must be specified when
+  /// <code>repositoryName</code> is included.
   ///
   /// Parameter [beforeCommitId] :
   /// The full commit ID of the commit in the destination branch that was the
-  /// tip of the branch at the time the pull request was created.
+  /// tip of the branch at the time the pull request was created. Requirement is
+  /// conditional: <code>beforeCommitId</code> must be specified when
+  /// <code>repositoryName</code> is included.
   ///
   /// Parameter [maxResults] :
   /// A non-zero, non-negative integer used to limit the number of returned
@@ -1918,7 +1939,9 @@ class CodeCommit {
   /// batch of the results.
   ///
   /// Parameter [repositoryName] :
-  /// The name of the repository that contains the pull request.
+  /// The name of the repository that contains the pull request. Requirement is
+  /// conditional: <code>repositoryName</code> must be specified when
+  /// <code>beforeCommitId</code> and <code>afterCommitId</code> are included.
   Future<GetCommentsForPullRequestOutput> getCommentsForPullRequest({
     required String pullRequestId,
     String? afterCommitId,
@@ -2109,7 +2132,7 @@ class CodeCommit {
   /// Parameter [commitSpecifier] :
   /// The fully quaified reference that identifies the commit that contains the
   /// file. For example, you can specify a full commit ID, a tag, a branch name,
-  /// or a reference such as refs/heads/master. If none is provided, the head
+  /// or a reference such as refs/heads/main. If none is provided, the head
   /// commit is used.
   Future<GetFileOutput> getFile({
     required String filePath,
@@ -2254,9 +2277,9 @@ class CodeCommit {
         'repositoryName': repositoryName,
         'sourceCommitSpecifier': sourceCommitSpecifier,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
       },
     );
 
@@ -2344,13 +2367,13 @@ class CodeCommit {
       headers: headers,
       payload: {
         'destinationCommitSpecifier': destinationCommitSpecifier,
-        'mergeOption': mergeOption.toValue(),
+        'mergeOption': mergeOption.value,
         'repositoryName': repositoryName,
         'sourceCommitSpecifier': sourceCommitSpecifier,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (maxConflictFiles != null) 'maxConflictFiles': maxConflictFiles,
         if (nextToken != null) 'nextToken': nextToken,
       },
@@ -2426,9 +2449,9 @@ class CodeCommit {
         'repositoryName': repositoryName,
         'sourceCommitSpecifier': sourceCommitSpecifier,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
       },
     );
 
@@ -2635,8 +2658,9 @@ class CodeCommit {
     return GetRepositoryTriggersOutput.fromJson(jsonResponse.body);
   }
 
-  /// Lists all approval rule templates in the specified AWS Region in your AWS
-  /// account. If an AWS Region is not specified, the AWS Region where you are
+  /// Lists all approval rule templates in the specified Amazon Web Services
+  /// Region in your Amazon Web Services account. If an Amazon Web Services
+  /// Region is not specified, the Amazon Web Services Region where you are
   /// signed in is used.
   ///
   /// May throw [InvalidMaxResultsException].
@@ -2765,6 +2789,71 @@ class CodeCommit {
     return ListBranchesOutput.fromJson(jsonResponse.body);
   }
 
+  /// Retrieves a list of commits and changes to a specified file.
+  ///
+  /// May throw [RepositoryNameRequiredException].
+  /// May throw [InvalidRepositoryNameException].
+  /// May throw [RepositoryDoesNotExistException].
+  /// May throw [InvalidContinuationTokenException].
+  /// May throw [InvalidMaxResultsException].
+  /// May throw [TipsDivergenceExceededException].
+  /// May throw [CommitRequiredException].
+  /// May throw [InvalidCommitException].
+  /// May throw [CommitDoesNotExistException].
+  /// May throw [EncryptionIntegrityChecksFailedException].
+  /// May throw [EncryptionKeyAccessDeniedException].
+  /// May throw [EncryptionKeyDisabledException].
+  /// May throw [EncryptionKeyNotFoundException].
+  /// May throw [EncryptionKeyUnavailableException].
+  ///
+  /// Parameter [filePath] :
+  /// The full path of the file whose history you want to retrieve, including
+  /// the name of the file.
+  ///
+  /// Parameter [repositoryName] :
+  /// The name of the repository that contains the file.
+  ///
+  /// Parameter [commitSpecifier] :
+  /// The fully quaified reference that identifies the commit that contains the
+  /// file. For example, you can specify a full commit ID, a tag, a branch name,
+  /// or a reference such as <code>refs/heads/main</code>. If none is provided,
+  /// the head commit is used.
+  ///
+  /// Parameter [maxResults] :
+  /// A non-zero, non-negative integer used to limit the number of returned
+  /// results.
+  ///
+  /// Parameter [nextToken] :
+  /// An enumeration token that allows the operation to batch the results.
+  Future<ListFileCommitHistoryResponse> listFileCommitHistory({
+    required String filePath,
+    required String repositoryName,
+    String? commitSpecifier,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'CodeCommit_20150413.ListFileCommitHistory'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'filePath': filePath,
+        'repositoryName': repositoryName,
+        if (commitSpecifier != null) 'commitSpecifier': commitSpecifier,
+        if (maxResults != null) 'maxResults': maxResults,
+        if (nextToken != null) 'nextToken': nextToken,
+      },
+    );
+
+    return ListFileCommitHistoryResponse.fromJson(jsonResponse.body);
+  }
+
   /// Returns a list of pull requests for a specified repository. The return
   /// list can be refined by pull request status or pull request author ARN.
   ///
@@ -2824,7 +2913,7 @@ class CodeCommit {
         if (maxResults != null) 'maxResults': maxResults,
         if (nextToken != null) 'nextToken': nextToken,
         if (pullRequestStatus != null)
-          'pullRequestStatus': pullRequestStatus.toValue(),
+          'pullRequestStatus': pullRequestStatus.value,
       },
     );
 
@@ -2840,8 +2929,8 @@ class CodeCommit {
   /// Parameter [nextToken] :
   /// An enumeration token that allows the operation to batch the results of the
   /// operation. Batch sizes are 1,000 for list repository operations. When the
-  /// client sends the token back to AWS CodeCommit, another page of 1,000
-  /// records is retrieved.
+  /// client sends the token back to CodeCommit, another page of 1,000 records
+  /// is retrieved.
   ///
   /// Parameter [order] :
   /// The order in which to sort the results of a list repositories operation.
@@ -2865,8 +2954,8 @@ class CodeCommit {
       headers: headers,
       payload: {
         if (nextToken != null) 'nextToken': nextToken,
-        if (order != null) 'order': order.toValue(),
-        if (sortBy != null) 'sortBy': sortBy.toValue(),
+        if (order != null) 'order': order.value,
+        if (sortBy != null) 'sortBy': sortBy.value,
       },
     );
 
@@ -2926,10 +3015,11 @@ class CodeCommit {
         jsonResponse.body);
   }
 
-  /// Gets information about AWS tags for a specified Amazon Resource Name (ARN)
-  /// in AWS CodeCommit. For a list of valid resources in AWS CodeCommit, see <a
+  /// Gets information about Amazon Web Servicestags for a specified Amazon
+  /// Resource Name (ARN) in CodeCommit. For a list of valid resources in
+  /// CodeCommit, see <a
   /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/auth-and-access-control-iam-access-control-identity-based.html#arn-formats">CodeCommit
-  /// Resources and Operations</a> in the<i> AWS CodeCommit User Guide</i>.
+  /// Resources and Operations</a> in the<i> CodeCommit User Guide</i>.
   ///
   /// May throw [RepositoryDoesNotExistException].
   /// May throw [InvalidRepositoryNameException].
@@ -3146,11 +3236,11 @@ class CodeCommit {
         if (authorName != null) 'authorName': authorName,
         if (commitMessage != null) 'commitMessage': commitMessage,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolution != null)
           'conflictResolution': conflictResolution,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (email != null) 'email': email,
         if (keepEmptyFolders != null) 'keepEmptyFolders': keepEmptyFolders,
         if (targetBranch != null) 'targetBranch': targetBranch,
@@ -3278,11 +3368,11 @@ class CodeCommit {
         if (authorName != null) 'authorName': authorName,
         if (commitMessage != null) 'commitMessage': commitMessage,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolution != null)
           'conflictResolution': conflictResolution,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (email != null) 'email': email,
         if (keepEmptyFolders != null) 'keepEmptyFolders': keepEmptyFolders,
         if (targetBranch != null) 'targetBranch': targetBranch,
@@ -3471,11 +3561,11 @@ class CodeCommit {
         if (authorName != null) 'authorName': authorName,
         if (commitMessage != null) 'commitMessage': commitMessage,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolution != null)
           'conflictResolution': conflictResolution,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (email != null) 'email': email,
         if (keepEmptyFolders != null) 'keepEmptyFolders': keepEmptyFolders,
         if (sourceCommitId != null) 'sourceCommitId': sourceCommitId,
@@ -3602,11 +3692,11 @@ class CodeCommit {
         if (authorName != null) 'authorName': authorName,
         if (commitMessage != null) 'commitMessage': commitMessage,
         if (conflictDetailLevel != null)
-          'conflictDetailLevel': conflictDetailLevel.toValue(),
+          'conflictDetailLevel': conflictDetailLevel.value,
         if (conflictResolution != null)
           'conflictResolution': conflictResolution,
         if (conflictResolutionStrategy != null)
-          'conflictResolutionStrategy': conflictResolutionStrategy.toValue(),
+          'conflictResolutionStrategy': conflictResolutionStrategy.value,
         if (email != null) 'email': email,
         if (keepEmptyFolders != null) 'keepEmptyFolders': keepEmptyFolders,
         if (sourceCommitId != null) 'sourceCommitId': sourceCommitId,
@@ -3665,7 +3755,7 @@ class CodeCommit {
       // TODO queryParams
       headers: headers,
       payload: {
-        'overrideStatus': overrideStatus.toValue(),
+        'overrideStatus': overrideStatus.value,
         'pullRequestId': pullRequestId,
         'revisionId': revisionId,
       },
@@ -3923,10 +4013,10 @@ class CodeCommit {
   /// Parameter [reactionValue] :
   /// The emoji reaction you want to add or update. To remove a reaction,
   /// provide a value of blank or null. You can also provide the value of none.
-  /// For information about emoji reaction values supported in AWS CodeCommit,
-  /// see the <a
-  /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-commit-comment.html#emoji-reaction-table">AWS
-  /// CodeCommit User Guide</a>.
+  /// For information about emoji reaction values supported in CodeCommit, see
+  /// the <a
+  /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-commit-comment.html#emoji-reaction-table">CodeCommit
+  /// User Guide</a>.
   Future<void> putCommentReaction({
     required String commentId,
     required String reactionValue,
@@ -3948,7 +4038,7 @@ class CodeCommit {
     );
   }
 
-  /// Adds or updates a file in a branch in an AWS CodeCommit repository, and
+  /// Adds or updates a file in a branch in an CodeCommit repository, and
   /// generates a commit for the addition in the specified branch.
   ///
   /// May throw [RepositoryNameRequiredException].
@@ -4052,7 +4142,7 @@ class CodeCommit {
         'repositoryName': repositoryName,
         if (commitMessage != null) 'commitMessage': commitMessage,
         if (email != null) 'email': email,
-        if (fileMode != null) 'fileMode': fileMode.toValue(),
+        if (fileMode != null) 'fileMode': fileMode.value,
         if (name != null) 'name': name,
         if (parentCommitId != null) 'parentCommitId': parentCommitId,
       },
@@ -4113,10 +4203,10 @@ class CodeCommit {
     return PutRepositoryTriggersOutput.fromJson(jsonResponse.body);
   }
 
-  /// Adds or updates tags for a resource in AWS CodeCommit. For a list of valid
-  /// resources in AWS CodeCommit, see <a
+  /// Adds or updates tags for a resource in CodeCommit. For a list of valid
+  /// resources in CodeCommit, see <a
   /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/auth-and-access-control-iam-access-control-identity-based.html#arn-formats">CodeCommit
-  /// Resources and Operations</a> in the <i>AWS CodeCommit User Guide</i>.
+  /// Resources and Operations</a> in the <i>CodeCommit User Guide</i>.
   ///
   /// May throw [RepositoryDoesNotExistException].
   /// May throw [InvalidRepositoryNameException].
@@ -4210,10 +4300,10 @@ class CodeCommit {
     return TestRepositoryTriggersOutput.fromJson(jsonResponse.body);
   }
 
-  /// Removes tags for a resource in AWS CodeCommit. For a list of valid
-  /// resources in AWS CodeCommit, see <a
+  /// Removes tags for a resource in CodeCommit. For a list of valid resources
+  /// in CodeCommit, see <a
   /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/auth-and-access-control-iam-access-control-identity-based.html#arn-formats">CodeCommit
-  /// Resources and Operations</a> in the <i>AWS CodeCommit User Guide</i>.
+  /// Resources and Operations</a> in the <i>CodeCommit User Guide</i>.
   ///
   /// May throw [RepositoryDoesNotExistException].
   /// May throw [InvalidRepositoryNameException].
@@ -4434,10 +4524,11 @@ class CodeCommit {
   /// May throw [EncryptionKeyUnavailableException].
   ///
   /// Parameter [defaultBranchName] :
-  /// The name of the branch to set as the default.
+  /// The name of the branch to set as the default branch.
   ///
   /// Parameter [repositoryName] :
-  /// The name of the repository to set or change the default branch for.
+  /// The name of the repository for which you want to set or change the default
+  /// branch.
   Future<void> updateDefaultBranch({
     required String defaultBranchName,
     required String repositoryName,
@@ -4491,12 +4582,13 @@ class CodeCommit {
   ///
   /// <ul>
   /// <li>
-  /// <b>CodeCommitApprovers</b>: This option only requires an AWS account and a
-  /// resource. It can be used for both IAM users and federated access users
-  /// whose name matches the provided resource name. This is a very powerful
-  /// option that offers a great deal of flexibility. For example, if you
-  /// specify the AWS account <i>123456789012</i> and <i>Mary_Major</i>, all of
-  /// the following are counted as approvals coming from that user:
+  /// <b>CodeCommitApprovers</b>: This option only requires an Amazon Web
+  /// Services account and a resource. It can be used for both IAM users and
+  /// federated access users whose name matches the provided resource name. This
+  /// is a very powerful option that offers a great deal of flexibility. For
+  /// example, if you specify the Amazon Web Services account
+  /// <i>123456789012</i> and <i>Mary_Major</i>, all of the following are
+  /// counted as approvals coming from that user:
   ///
   /// <ul>
   /// <li>
@@ -4603,7 +4695,7 @@ class CodeCommit {
       // TODO queryParams
       headers: headers,
       payload: {
-        'approvalState': approvalState.toValue(),
+        'approvalState': approvalState.value,
         'pullRequestId': pullRequestId,
         'revisionId': revisionId,
       },
@@ -4686,7 +4778,7 @@ class CodeCommit {
       headers: headers,
       payload: {
         'pullRequestId': pullRequestId,
-        'pullRequestStatus': pullRequestStatus.toValue(),
+        'pullRequestStatus': pullRequestStatus.value,
       },
     );
 
@@ -4780,13 +4872,62 @@ class CodeCommit {
     );
   }
 
+  /// Updates the Key Management Service encryption key used to encrypt and
+  /// decrypt a CodeCommit repository.
+  ///
+  /// May throw [RepositoryNameRequiredException].
+  /// May throw [RepositoryDoesNotExistException].
+  /// May throw [InvalidRepositoryNameException].
+  /// May throw [EncryptionKeyRequiredException].
+  /// May throw [EncryptionIntegrityChecksFailedException].
+  /// May throw [EncryptionKeyAccessDeniedException].
+  /// May throw [EncryptionKeyInvalidIdException].
+  /// May throw [EncryptionKeyInvalidUsageException].
+  /// May throw [EncryptionKeyDisabledException].
+  /// May throw [EncryptionKeyNotFoundException].
+  /// May throw [EncryptionKeyUnavailableException].
+  ///
+  /// Parameter [kmsKeyId] :
+  /// The ID of the encryption key. You can view the ID of an encryption key in
+  /// the KMS console, or use the KMS APIs to programmatically retrieve a key
+  /// ID. For more information about acceptable values for keyID, see <a
+  /// href="https://docs.aws.amazon.com/APIReference/API_Decrypt.html#KMS-Decrypt-request-KeyId">KeyId</a>
+  /// in the Decrypt API description in the <i>Key Management Service API
+  /// Reference</i>.
+  ///
+  /// Parameter [repositoryName] :
+  /// The name of the repository for which you want to update the KMS encryption
+  /// key used to encrypt and decrypt the repository.
+  Future<UpdateRepositoryEncryptionKeyOutput> updateRepositoryEncryptionKey({
+    required String kmsKeyId,
+    required String repositoryName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'CodeCommit_20150413.UpdateRepositoryEncryptionKey'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'kmsKeyId': kmsKeyId,
+        'repositoryName': repositoryName,
+      },
+    );
+
+    return UpdateRepositoryEncryptionKeyOutput.fromJson(jsonResponse.body);
+  }
+
   /// Renames a repository. The repository name must be unique across the
-  /// calling AWS account. Repository names are limited to 100 alphanumeric,
-  /// dash, and underscore characters, and cannot include certain characters.
-  /// The suffix .git is prohibited. For more information about the limits on
-  /// repository names, see <a
-  /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/limits.html">Limits</a>
-  /// in the AWS CodeCommit User Guide.
+  /// calling Amazon Web Services account. Repository names are limited to 100
+  /// alphanumeric, dash, and underscore characters, and cannot include certain
+  /// characters. The suffix .git is prohibited. For more information about the
+  /// limits on repository names, see <a
+  /// href="https://docs.aws.amazon.com/codecommit/latest/userguide/limits.html">Quotas</a>
+  /// in the CodeCommit User Guide.
   ///
   /// May throw [RepositoryDoesNotExistException].
   /// May throw [RepositoryNameExistsException].
@@ -4835,7 +4976,8 @@ class Approval {
 
   factory Approval.fromJson(Map<String, dynamic> json) {
     return Approval(
-      approvalState: (json['approvalState'] as String?)?.toApprovalState(),
+      approvalState:
+          (json['approvalState'] as String?)?.let(ApprovalState.fromString),
       userArn: json['userArn'] as String?,
     );
   }
@@ -4939,7 +5081,8 @@ class ApprovalRuleOverriddenEventMetadata {
   factory ApprovalRuleOverriddenEventMetadata.fromJson(
       Map<String, dynamic> json) {
     return ApprovalRuleOverriddenEventMetadata(
-      overrideStatus: (json['overrideStatus'] as String?)?.toOverrideStatus(),
+      overrideStatus:
+          (json['overrideStatus'] as String?)?.let(OverrideStatus.fromString),
       revisionId: json['revisionId'] as String?,
     );
   }
@@ -5001,31 +5144,18 @@ class ApprovalRuleTemplate {
 }
 
 enum ApprovalState {
-  approve,
-  revoke,
-}
+  approve('APPROVE'),
+  revoke('REVOKE'),
+  ;
 
-extension ApprovalStateValueExtension on ApprovalState {
-  String toValue() {
-    switch (this) {
-      case ApprovalState.approve:
-        return 'APPROVE';
-      case ApprovalState.revoke:
-        return 'REVOKE';
-    }
-  }
-}
+  final String value;
 
-extension ApprovalStateFromString on String {
-  ApprovalState toApprovalState() {
-    switch (this) {
-      case 'APPROVE':
-        return ApprovalState.approve;
-      case 'REVOKE':
-        return ApprovalState.revoke;
-    }
-    throw Exception('$this is not known in enum ApprovalState');
-  }
+  const ApprovalState(this.value);
+
+  static ApprovalState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ApprovalState'));
 }
 
 /// Returns information about a change in the approval state for a pull request.
@@ -5044,7 +5174,8 @@ class ApprovalStateChangedEventMetadata {
   factory ApprovalStateChangedEventMetadata.fromJson(
       Map<String, dynamic> json) {
     return ApprovalStateChangedEventMetadata(
-      approvalStatus: (json['approvalStatus'] as String?)?.toApprovalState(),
+      approvalStatus:
+          (json['approvalStatus'] as String?)?.let(ApprovalState.fromString),
       revisionId: json['revisionId'] as String?,
     );
   }
@@ -5098,11 +5229,11 @@ class BatchAssociateApprovalRuleTemplateWithRepositoriesOutput {
       Map<String, dynamic> json) {
     return BatchAssociateApprovalRuleTemplateWithRepositoriesOutput(
       associatedRepositoryNames: (json['associatedRepositoryNames'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       errors: (json['errors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               BatchAssociateApprovalRuleTemplateWithRepositoriesError.fromJson(
                   e as Map<String, dynamic>))
@@ -5174,14 +5305,14 @@ class BatchDescribeMergeConflictsOutput {
       Map<String, dynamic> json) {
     return BatchDescribeMergeConflictsOutput(
       conflicts: (json['conflicts'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Conflict.fromJson(e as Map<String, dynamic>))
           .toList(),
       destinationCommitId: json['destinationCommitId'] as String,
       sourceCommitId: json['sourceCommitId'] as String,
       baseCommitId: json['baseCommitId'] as String?,
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchDescribeMergeConflictsError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -5240,11 +5371,11 @@ class BatchDisassociateApprovalRuleTemplateFromRepositoriesOutput {
     return BatchDisassociateApprovalRuleTemplateFromRepositoriesOutput(
       disassociatedRepositoryNames:
           (json['disassociatedRepositoryNames'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => e as String)
               .toList(),
       errors: (json['errors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BatchDisassociateApprovalRuleTemplateFromRepositoriesError
               .fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5299,19 +5430,78 @@ class BatchGetCommitsOutput {
   factory BatchGetCommitsOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetCommitsOutput(
       commits: (json['commits'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Commit.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchGetCommitsError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 }
 
+/// Returns information about errors in a BatchGetRepositories operation.
+class BatchGetRepositoriesError {
+  /// An error code that specifies the type of failure.
+  final BatchGetRepositoriesErrorCodeEnum? errorCode;
+
+  /// An error message that provides detail about why the repository either was
+  /// not found or was not in a valid state.
+  final String? errorMessage;
+
+  /// The ID of a repository that either could not be found or was not in a valid
+  /// state.
+  final String? repositoryId;
+
+  /// The name of a repository that either could not be found or was not in a
+  /// valid state.
+  final String? repositoryName;
+
+  BatchGetRepositoriesError({
+    this.errorCode,
+    this.errorMessage,
+    this.repositoryId,
+    this.repositoryName,
+  });
+
+  factory BatchGetRepositoriesError.fromJson(Map<String, dynamic> json) {
+    return BatchGetRepositoriesError(
+      errorCode: (json['errorCode'] as String?)
+          ?.let(BatchGetRepositoriesErrorCodeEnum.fromString),
+      errorMessage: json['errorMessage'] as String?,
+      repositoryId: json['repositoryId'] as String?,
+      repositoryName: json['repositoryName'] as String?,
+    );
+  }
+}
+
+enum BatchGetRepositoriesErrorCodeEnum {
+  encryptionIntegrityChecksFailedException(
+      'EncryptionIntegrityChecksFailedException'),
+  encryptionKeyAccessDeniedException('EncryptionKeyAccessDeniedException'),
+  encryptionKeyDisabledException('EncryptionKeyDisabledException'),
+  encryptionKeyNotFoundException('EncryptionKeyNotFoundException'),
+  encryptionKeyUnavailableException('EncryptionKeyUnavailableException'),
+  repositoryDoesNotExistException('RepositoryDoesNotExistException'),
+  ;
+
+  final String value;
+
+  const BatchGetRepositoriesErrorCodeEnum(this.value);
+
+  static BatchGetRepositoriesErrorCodeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum BatchGetRepositoriesErrorCodeEnum'));
+}
+
 /// Represents the output of a batch get repositories operation.
 class BatchGetRepositoriesOutput {
+  /// Returns information about any errors returned when attempting to retrieve
+  /// information about the repositories.
+  final List<BatchGetRepositoriesError>? errors;
+
   /// A list of repositories returned by the batch get repositories operation.
   final List<RepositoryMetadata>? repositories;
 
@@ -5319,18 +5509,24 @@ class BatchGetRepositoriesOutput {
   final List<String>? repositoriesNotFound;
 
   BatchGetRepositoriesOutput({
+    this.errors,
     this.repositories,
     this.repositoriesNotFound,
   });
 
   factory BatchGetRepositoriesOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetRepositoriesOutput(
+      errors: (json['errors'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              BatchGetRepositoriesError.fromJson(e as Map<String, dynamic>))
+          .toList(),
       repositories: (json['repositories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RepositoryMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       repositoriesNotFound: (json['repositoriesNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5400,36 +5596,19 @@ class BranchInfo {
 }
 
 enum ChangeTypeEnum {
-  a,
-  m,
-  d,
-}
+  a('A'),
+  m('M'),
+  d('D'),
+  ;
 
-extension ChangeTypeEnumValueExtension on ChangeTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ChangeTypeEnum.a:
-        return 'A';
-      case ChangeTypeEnum.m:
-        return 'M';
-      case ChangeTypeEnum.d:
-        return 'D';
-    }
-  }
-}
+  final String value;
 
-extension ChangeTypeEnumFromString on String {
-  ChangeTypeEnum toChangeTypeEnum() {
-    switch (this) {
-      case 'A':
-        return ChangeTypeEnum.a;
-      case 'M':
-        return ChangeTypeEnum.m;
-      case 'D':
-        return ChangeTypeEnum.d;
-    }
-    throw Exception('$this is not known in enum ChangeTypeEnum');
-  }
+  const ChangeTypeEnum(this.value);
+
+  static ChangeTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ChangeTypeEnum'));
 }
 
 /// Returns information about a specific comment.
@@ -5487,7 +5666,7 @@ class Comment {
     return Comment(
       authorArn: json['authorArn'] as String?,
       callerReactions: (json['callerReactions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       clientRequestToken: json['clientRequestToken'] as String?,
@@ -5550,7 +5729,7 @@ class CommentsForComparedCommit {
       beforeBlobId: json['beforeBlobId'] as String?,
       beforeCommitId: json['beforeCommitId'] as String?,
       comments: (json['comments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Comment.fromJson(e as Map<String, dynamic>))
           .toList(),
       location: json['location'] != null
@@ -5614,7 +5793,7 @@ class CommentsForPullRequest {
       beforeBlobId: json['beforeBlobId'] as String?,
       beforeCommitId: json['beforeCommitId'] as String?,
       comments: (json['comments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Comment.fromJson(e as Map<String, dynamic>))
           .toList(),
       location: json['location'] != null
@@ -5680,10 +5859,8 @@ class Commit {
           ? UserInfo.fromJson(json['committer'] as Map<String, dynamic>)
           : null,
       message: json['message'] as String?,
-      parents: (json['parents'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      parents:
+          (json['parents'] as List?)?.nonNulls.map((e) => e as String).toList(),
       treeId: json['treeId'] as String?,
     );
   }
@@ -5710,7 +5887,7 @@ class Conflict {
               json['conflictMetadata'] as Map<String, dynamic>)
           : null,
       mergeHunks: (json['mergeHunks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MergeHunk.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5718,32 +5895,18 @@ class Conflict {
 }
 
 enum ConflictDetailLevelTypeEnum {
-  fileLevel,
-  lineLevel,
-}
+  fileLevel('FILE_LEVEL'),
+  lineLevel('LINE_LEVEL'),
+  ;
 
-extension ConflictDetailLevelTypeEnumValueExtension
-    on ConflictDetailLevelTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ConflictDetailLevelTypeEnum.fileLevel:
-        return 'FILE_LEVEL';
-      case ConflictDetailLevelTypeEnum.lineLevel:
-        return 'LINE_LEVEL';
-    }
-  }
-}
+  final String value;
 
-extension ConflictDetailLevelTypeEnumFromString on String {
-  ConflictDetailLevelTypeEnum toConflictDetailLevelTypeEnum() {
-    switch (this) {
-      case 'FILE_LEVEL':
-        return ConflictDetailLevelTypeEnum.fileLevel;
-      case 'LINE_LEVEL':
-        return ConflictDetailLevelTypeEnum.lineLevel;
-    }
-    throw Exception('$this is not known in enum ConflictDetailLevelTypeEnum');
-  }
+  const ConflictDetailLevelTypeEnum(this.value);
+
+  static ConflictDetailLevelTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConflictDetailLevelTypeEnum'));
 }
 
 /// Information about the metadata for a conflict in a merge operation.
@@ -5857,43 +6020,20 @@ class ConflictResolution {
 }
 
 enum ConflictResolutionStrategyTypeEnum {
-  none,
-  acceptSource,
-  acceptDestination,
-  automerge,
-}
+  none('NONE'),
+  acceptSource('ACCEPT_SOURCE'),
+  acceptDestination('ACCEPT_DESTINATION'),
+  automerge('AUTOMERGE'),
+  ;
 
-extension ConflictResolutionStrategyTypeEnumValueExtension
-    on ConflictResolutionStrategyTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ConflictResolutionStrategyTypeEnum.none:
-        return 'NONE';
-      case ConflictResolutionStrategyTypeEnum.acceptSource:
-        return 'ACCEPT_SOURCE';
-      case ConflictResolutionStrategyTypeEnum.acceptDestination:
-        return 'ACCEPT_DESTINATION';
-      case ConflictResolutionStrategyTypeEnum.automerge:
-        return 'AUTOMERGE';
-    }
-  }
-}
+  final String value;
 
-extension ConflictResolutionStrategyTypeEnumFromString on String {
-  ConflictResolutionStrategyTypeEnum toConflictResolutionStrategyTypeEnum() {
-    switch (this) {
-      case 'NONE':
-        return ConflictResolutionStrategyTypeEnum.none;
-      case 'ACCEPT_SOURCE':
-        return ConflictResolutionStrategyTypeEnum.acceptSource;
-      case 'ACCEPT_DESTINATION':
-        return ConflictResolutionStrategyTypeEnum.acceptDestination;
-      case 'AUTOMERGE':
-        return ConflictResolutionStrategyTypeEnum.automerge;
-    }
-    throw Exception(
-        '$this is not known in enum ConflictResolutionStrategyTypeEnum');
-  }
+  const ConflictResolutionStrategyTypeEnum(this.value);
+
+  static ConflictResolutionStrategyTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConflictResolutionStrategyTypeEnum'));
 }
 
 class CreateApprovalRuleTemplateOutput {
@@ -5941,15 +6081,15 @@ class CreateCommitOutput {
     return CreateCommitOutput(
       commitId: json['commitId'] as String?,
       filesAdded: (json['filesAdded'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FileMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       filesDeleted: (json['filesDeleted'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FileMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       filesUpdated: (json['filesUpdated'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FileMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       treeId: json['treeId'] as String?,
@@ -6206,7 +6346,7 @@ class DescribeMergeConflictsOutput {
           json['conflictMetadata'] as Map<String, dynamic>),
       destinationCommitId: json['destinationCommitId'] as String,
       mergeHunks: (json['mergeHunks'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => MergeHunk.fromJson(e as Map<String, dynamic>))
           .toList(),
       sourceCommitId: json['sourceCommitId'] as String,
@@ -6232,7 +6372,7 @@ class DescribePullRequestEventsOutput {
   factory DescribePullRequestEventsOutput.fromJson(Map<String, dynamic> json) {
     return DescribePullRequestEventsOutput(
       pullRequestEvents: (json['pullRequestEvents'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => PullRequestEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6268,7 +6408,8 @@ class Difference {
       beforeBlob: json['beforeBlob'] != null
           ? BlobMetadata.fromJson(json['beforeBlob'] as Map<String, dynamic>)
           : null,
-      changeType: (json['changeType'] as String?)?.toChangeTypeEnum(),
+      changeType:
+          (json['changeType'] as String?)?.let(ChangeTypeEnum.fromString),
     );
   }
 }
@@ -6320,11 +6461,11 @@ class Evaluation {
   factory Evaluation.fromJson(Map<String, dynamic> json) {
     return Evaluation(
       approvalRulesNotSatisfied: (json['approvalRulesNotSatisfied'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       approvalRulesSatisfied: (json['approvalRulesSatisfied'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       approved: json['approved'] as bool?,
@@ -6359,7 +6500,7 @@ class File {
     return File(
       absolutePath: json['absolutePath'] as String?,
       blobId: json['blobId'] as String?,
-      fileMode: (json['fileMode'] as String?)?.toFileModeTypeEnum(),
+      fileMode: (json['fileMode'] as String?)?.let(FileModeTypeEnum.fromString),
       relativePath: json['relativePath'] as String?,
     );
   }
@@ -6388,42 +6529,25 @@ class FileMetadata {
     return FileMetadata(
       absolutePath: json['absolutePath'] as String?,
       blobId: json['blobId'] as String?,
-      fileMode: (json['fileMode'] as String?)?.toFileModeTypeEnum(),
+      fileMode: (json['fileMode'] as String?)?.let(FileModeTypeEnum.fromString),
     );
   }
 }
 
 enum FileModeTypeEnum {
-  executable,
-  normal,
-  symlink,
-}
+  executable('EXECUTABLE'),
+  normal('NORMAL'),
+  symlink('SYMLINK'),
+  ;
 
-extension FileModeTypeEnumValueExtension on FileModeTypeEnum {
-  String toValue() {
-    switch (this) {
-      case FileModeTypeEnum.executable:
-        return 'EXECUTABLE';
-      case FileModeTypeEnum.normal:
-        return 'NORMAL';
-      case FileModeTypeEnum.symlink:
-        return 'SYMLINK';
-    }
-  }
-}
+  final String value;
 
-extension FileModeTypeEnumFromString on String {
-  FileModeTypeEnum toFileModeTypeEnum() {
-    switch (this) {
-      case 'EXECUTABLE':
-        return FileModeTypeEnum.executable;
-      case 'NORMAL':
-        return FileModeTypeEnum.normal;
-      case 'SYMLINK':
-        return FileModeTypeEnum.symlink;
-    }
-    throw Exception('$this is not known in enum FileModeTypeEnum');
-  }
+  const FileModeTypeEnum(this.value);
+
+  static FileModeTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FileModeTypeEnum'));
 }
 
 /// Information about file modes in a merge or pull request.
@@ -6445,9 +6569,10 @@ class FileModes {
 
   factory FileModes.fromJson(Map<String, dynamic> json) {
     return FileModes(
-      base: (json['base'] as String?)?.toFileModeTypeEnum(),
-      destination: (json['destination'] as String?)?.toFileModeTypeEnum(),
-      source: (json['source'] as String?)?.toFileModeTypeEnum(),
+      base: (json['base'] as String?)?.let(FileModeTypeEnum.fromString),
+      destination:
+          (json['destination'] as String?)?.let(FileModeTypeEnum.fromString),
+      source: (json['source'] as String?)?.let(FileModeTypeEnum.fromString),
     );
   }
 }
@@ -6474,6 +6599,44 @@ class FileSizes {
       base: json['base'] as int?,
       destination: json['destination'] as int?,
       source: json['source'] as int?,
+    );
+  }
+}
+
+/// Information about a version of a file.
+class FileVersion {
+  /// The blob ID of the object that represents the content of the file in this
+  /// version.
+  final String? blobId;
+  final Commit? commit;
+
+  /// The name and path of the file at which this blob is indexed which contains
+  /// the data for this version of the file. This value will vary between file
+  /// versions if a file is renamed or if its path changes.
+  final String? path;
+
+  /// An array of commit IDs that contain more recent versions of this file. If
+  /// there are no additional versions of the file, this array will be empty.
+  final List<String>? revisionChildren;
+
+  FileVersion({
+    this.blobId,
+    this.commit,
+    this.path,
+    this.revisionChildren,
+  });
+
+  factory FileVersion.fromJson(Map<String, dynamic> json) {
+    return FileVersion(
+      blobId: json['blobId'] as String?,
+      commit: json['commit'] != null
+          ? Commit.fromJson(json['commit'] as Map<String, dynamic>)
+          : null,
+      path: json['path'] as String?,
+      revisionChildren: (json['revisionChildren'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
     );
   }
 }
@@ -6589,7 +6752,7 @@ class GetCommentReactionsOutput {
   factory GetCommentReactionsOutput.fromJson(Map<String, dynamic> json) {
     return GetCommentReactionsOutput(
       reactionsForComment: (json['reactionsForComment'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ReactionForComment.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6615,7 +6778,7 @@ class GetCommentsForComparedCommitOutput {
     return GetCommentsForComparedCommitOutput(
       commentsForComparedCommitData:
           (json['commentsForComparedCommitData'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   CommentsForComparedCommit.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -6640,7 +6803,7 @@ class GetCommentsForPullRequestOutput {
   factory GetCommentsForPullRequestOutput.fromJson(Map<String, dynamic> json) {
     return GetCommentsForPullRequestOutput(
       commentsForPullRequestData: (json['commentsForPullRequestData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => CommentsForPullRequest.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6684,7 +6847,7 @@ class GetDifferencesOutput {
     return GetDifferencesOutput(
       nextToken: json['NextToken'] as String?,
       differences: (json['differences'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Difference.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6733,7 +6896,7 @@ class GetFileOutput {
       blobId: json['blobId'] as String,
       commitId: json['commitId'] as String,
       fileContent: _s.decodeUint8List(json['fileContent']! as String),
-      fileMode: (json['fileMode'] as String).toFileModeTypeEnum(),
+      fileMode: FileModeTypeEnum.fromString((json['fileMode'] as String)),
       filePath: json['filePath'] as String,
       fileSize: json['fileSize'] as int,
     );
@@ -6780,19 +6943,19 @@ class GetFolderOutput {
       commitId: json['commitId'] as String,
       folderPath: json['folderPath'] as String,
       files: (json['files'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => File.fromJson(e as Map<String, dynamic>))
           .toList(),
       subFolders: (json['subFolders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Folder.fromJson(e as Map<String, dynamic>))
           .toList(),
       subModules: (json['subModules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SubModule.fromJson(e as Map<String, dynamic>))
           .toList(),
       symbolicLinks: (json['symbolicLinks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SymbolicLink.fromJson(e as Map<String, dynamic>))
           .toList(),
       treeId: json['treeId'] as String?,
@@ -6870,7 +7033,7 @@ class GetMergeConflictsOutput {
   factory GetMergeConflictsOutput.fromJson(Map<String, dynamic> json) {
     return GetMergeConflictsOutput(
       conflictMetadataList: (json['conflictMetadataList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ConflictMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       destinationCommitId: json['destinationCommitId'] as String,
@@ -6909,8 +7072,8 @@ class GetMergeOptionsOutput {
       baseCommitId: json['baseCommitId'] as String,
       destinationCommitId: json['destinationCommitId'] as String,
       mergeOptions: (json['mergeOptions'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toMergeOptionTypeEnum())
+          .nonNulls
+          .map((e) => MergeOptionTypeEnum.fromString((e as String)))
           .toList(),
       sourceCommitId: json['sourceCommitId'] as String,
     );
@@ -6929,7 +7092,7 @@ class GetPullRequestApprovalStatesOutput {
       Map<String, dynamic> json) {
     return GetPullRequestApprovalStatesOutput(
       approvals: (json['approvals'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Approval.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7011,7 +7174,7 @@ class GetRepositoryTriggersOutput {
     return GetRepositoryTriggersOutput(
       configurationId: json['configurationId'] as String?,
       triggers: (json['triggers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RepositoryTrigger.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7049,8 +7212,8 @@ class IsBinaryFile {
 }
 
 class ListApprovalRuleTemplatesOutput {
-  /// The names of all the approval rule templates found in the AWS Region for
-  /// your AWS account.
+  /// The names of all the approval rule templates found in the Amazon Web
+  /// Services Region for your Amazon Web Services account.
   final List<String>? approvalRuleTemplateNames;
 
   /// An enumeration token that allows the operation to batch the next results of
@@ -7065,7 +7228,7 @@ class ListApprovalRuleTemplatesOutput {
   factory ListApprovalRuleTemplatesOutput.fromJson(Map<String, dynamic> json) {
     return ListApprovalRuleTemplatesOutput(
       approvalRuleTemplateNames: (json['approvalRuleTemplateNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -7090,7 +7253,7 @@ class ListAssociatedApprovalRuleTemplatesForRepositoryOutput {
       Map<String, dynamic> json) {
     return ListAssociatedApprovalRuleTemplatesForRepositoryOutput(
       approvalRuleTemplateNames: (json['approvalRuleTemplateNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -7114,8 +7277,32 @@ class ListBranchesOutput {
   factory ListBranchesOutput.fromJson(Map<String, dynamic> json) {
     return ListBranchesOutput(
       branches: (json['branches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+}
+
+class ListFileCommitHistoryResponse {
+  /// An array of FileVersion objects that form a directed acyclic graph (DAG) of
+  /// the changes to the file made by the commits that changed the file.
+  final List<FileVersion> revisionDag;
+
+  /// An enumeration token that can be used to return the next batch of results.
+  final String? nextToken;
+
+  ListFileCommitHistoryResponse({
+    required this.revisionDag,
+    this.nextToken,
+  });
+
+  factory ListFileCommitHistoryResponse.fromJson(Map<String, dynamic> json) {
+    return ListFileCommitHistoryResponse(
+      revisionDag: (json['revisionDag'] as List)
+          .nonNulls
+          .map((e) => FileVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
     );
@@ -7138,7 +7325,7 @@ class ListPullRequestsOutput {
   factory ListPullRequestsOutput.fromJson(Map<String, dynamic> json) {
     return ListPullRequestsOutput(
       pullRequestIds: (json['pullRequestIds'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -7165,7 +7352,7 @@ class ListRepositoriesForApprovalRuleTemplateOutput {
     return ListRepositoriesForApprovalRuleTemplateOutput(
       nextToken: json['nextToken'] as String?,
       repositoryNames: (json['repositoryNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -7176,8 +7363,8 @@ class ListRepositoriesForApprovalRuleTemplateOutput {
 class ListRepositoriesOutput {
   /// An enumeration token that allows the operation to batch the results of the
   /// operation. Batch sizes are 1,000 for list repository operations. When the
-  /// client sends the token back to AWS CodeCommit, another page of 1,000 records
-  /// is retrieved.
+  /// client sends the token back to CodeCommit, another page of 1,000 records is
+  /// retrieved.
   final String? nextToken;
 
   /// Lists the repositories called by the list repositories operation.
@@ -7192,7 +7379,7 @@ class ListRepositoriesOutput {
     return ListRepositoriesOutput(
       nextToken: json['nextToken'] as String?,
       repositories: (json['repositories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RepositoryNameIdPair.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7245,8 +7432,8 @@ class Location {
     return Location(
       filePath: json['filePath'] as String?,
       filePosition: json['filePosition'] as int?,
-      relativeFileVersion:
-          (json['relativeFileVersion'] as String?)?.toRelativeFileVersionEnum(),
+      relativeFileVersion: (json['relativeFileVersion'] as String?)
+          ?.let(RelativeFileVersionEnum.fromString),
     );
   }
 
@@ -7258,7 +7445,7 @@ class Location {
       if (filePath != null) 'filePath': filePath,
       if (filePosition != null) 'filePosition': filePosition,
       if (relativeFileVersion != null)
-        'relativeFileVersion': relativeFileVersion.toValue(),
+        'relativeFileVersion': relativeFileVersion.value,
     };
   }
 }
@@ -7421,7 +7608,8 @@ class MergeMetadata {
     return MergeMetadata(
       isMerged: json['isMerged'] as bool?,
       mergeCommitId: json['mergeCommitId'] as String?,
-      mergeOption: (json['mergeOption'] as String?)?.toMergeOptionTypeEnum(),
+      mergeOption:
+          (json['mergeOption'] as String?)?.let(MergeOptionTypeEnum.fromString),
       mergedBy: json['mergedBy'] as String?,
     );
   }
@@ -7443,43 +7631,27 @@ class MergeOperations {
 
   factory MergeOperations.fromJson(Map<String, dynamic> json) {
     return MergeOperations(
-      destination: (json['destination'] as String?)?.toChangeTypeEnum(),
-      source: (json['source'] as String?)?.toChangeTypeEnum(),
+      destination:
+          (json['destination'] as String?)?.let(ChangeTypeEnum.fromString),
+      source: (json['source'] as String?)?.let(ChangeTypeEnum.fromString),
     );
   }
 }
 
 enum MergeOptionTypeEnum {
-  fastForwardMerge,
-  squashMerge,
-  threeWayMerge,
-}
+  fastForwardMerge('FAST_FORWARD_MERGE'),
+  squashMerge('SQUASH_MERGE'),
+  threeWayMerge('THREE_WAY_MERGE'),
+  ;
 
-extension MergeOptionTypeEnumValueExtension on MergeOptionTypeEnum {
-  String toValue() {
-    switch (this) {
-      case MergeOptionTypeEnum.fastForwardMerge:
-        return 'FAST_FORWARD_MERGE';
-      case MergeOptionTypeEnum.squashMerge:
-        return 'SQUASH_MERGE';
-      case MergeOptionTypeEnum.threeWayMerge:
-        return 'THREE_WAY_MERGE';
-    }
-  }
-}
+  final String value;
 
-extension MergeOptionTypeEnumFromString on String {
-  MergeOptionTypeEnum toMergeOptionTypeEnum() {
-    switch (this) {
-      case 'FAST_FORWARD_MERGE':
-        return MergeOptionTypeEnum.fastForwardMerge;
-      case 'SQUASH_MERGE':
-        return MergeOptionTypeEnum.squashMerge;
-      case 'THREE_WAY_MERGE':
-        return MergeOptionTypeEnum.threeWayMerge;
-    }
-    throw Exception('$this is not known in enum MergeOptionTypeEnum');
-  }
+  const MergeOptionTypeEnum(this.value);
+
+  static MergeOptionTypeEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MergeOptionTypeEnum'));
 }
 
 class MergePullRequestByFastForwardOutput {
@@ -7533,41 +7705,20 @@ class MergePullRequestByThreeWayOutput {
 }
 
 enum ObjectTypeEnum {
-  file,
-  directory,
-  gitLink,
-  symbolicLink,
-}
+  file('FILE'),
+  directory('DIRECTORY'),
+  gitLink('GIT_LINK'),
+  symbolicLink('SYMBOLIC_LINK'),
+  ;
 
-extension ObjectTypeEnumValueExtension on ObjectTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ObjectTypeEnum.file:
-        return 'FILE';
-      case ObjectTypeEnum.directory:
-        return 'DIRECTORY';
-      case ObjectTypeEnum.gitLink:
-        return 'GIT_LINK';
-      case ObjectTypeEnum.symbolicLink:
-        return 'SYMBOLIC_LINK';
-    }
-  }
-}
+  final String value;
 
-extension ObjectTypeEnumFromString on String {
-  ObjectTypeEnum toObjectTypeEnum() {
-    switch (this) {
-      case 'FILE':
-        return ObjectTypeEnum.file;
-      case 'DIRECTORY':
-        return ObjectTypeEnum.directory;
-      case 'GIT_LINK':
-        return ObjectTypeEnum.gitLink;
-      case 'SYMBOLIC_LINK':
-        return ObjectTypeEnum.symbolicLink;
-    }
-    throw Exception('$this is not known in enum ObjectTypeEnum');
-  }
+  const ObjectTypeEnum(this.value);
+
+  static ObjectTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ObjectTypeEnum'));
 }
 
 /// Information about the type of an object in a merge operation.
@@ -7589,39 +7740,26 @@ class ObjectTypes {
 
   factory ObjectTypes.fromJson(Map<String, dynamic> json) {
     return ObjectTypes(
-      base: (json['base'] as String?)?.toObjectTypeEnum(),
-      destination: (json['destination'] as String?)?.toObjectTypeEnum(),
-      source: (json['source'] as String?)?.toObjectTypeEnum(),
+      base: (json['base'] as String?)?.let(ObjectTypeEnum.fromString),
+      destination:
+          (json['destination'] as String?)?.let(ObjectTypeEnum.fromString),
+      source: (json['source'] as String?)?.let(ObjectTypeEnum.fromString),
     );
   }
 }
 
 enum OrderEnum {
-  ascending,
-  descending,
-}
+  ascending('ascending'),
+  descending('descending'),
+  ;
 
-extension OrderEnumValueExtension on OrderEnum {
-  String toValue() {
-    switch (this) {
-      case OrderEnum.ascending:
-        return 'ascending';
-      case OrderEnum.descending:
-        return 'descending';
-    }
-  }
-}
+  final String value;
 
-extension OrderEnumFromString on String {
-  OrderEnum toOrderEnum() {
-    switch (this) {
-      case 'ascending':
-        return OrderEnum.ascending;
-      case 'descending':
-        return OrderEnum.descending;
-    }
-    throw Exception('$this is not known in enum OrderEnum');
-  }
+  const OrderEnum(this.value);
+
+  static OrderEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum OrderEnum'));
 }
 
 /// Returns information about the template that created the approval rule for a
@@ -7647,31 +7785,18 @@ class OriginApprovalRuleTemplate {
 }
 
 enum OverrideStatus {
-  override,
-  revoke,
-}
+  override('OVERRIDE'),
+  revoke('REVOKE'),
+  ;
 
-extension OverrideStatusValueExtension on OverrideStatus {
-  String toValue() {
-    switch (this) {
-      case OverrideStatus.override:
-        return 'OVERRIDE';
-      case OverrideStatus.revoke:
-        return 'REVOKE';
-    }
-  }
-}
+  final String value;
 
-extension OverrideStatusFromString on String {
-  OverrideStatus toOverrideStatus() {
-    switch (this) {
-      case 'OVERRIDE':
-        return OverrideStatus.override;
-      case 'REVOKE':
-        return OverrideStatus.revoke;
-    }
-    throw Exception('$this is not known in enum OverrideStatus');
-  }
+  const OverrideStatus(this.value);
+
+  static OverrideStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OverrideStatus'));
 }
 
 class PostCommentForComparedCommitOutput {
@@ -7862,7 +7987,7 @@ class PullRequest {
   factory PullRequest.fromJson(Map<String, dynamic> json) {
     return PullRequest(
       approvalRules: (json['approvalRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApprovalRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       authorArn: json['authorArn'] as String?,
@@ -7871,10 +7996,10 @@ class PullRequest {
       description: json['description'] as String?,
       lastActivityDate: timeStampFromJson(json['lastActivityDate']),
       pullRequestId: json['pullRequestId'] as String?,
-      pullRequestStatus:
-          (json['pullRequestStatus'] as String?)?.toPullRequestStatusEnum(),
+      pullRequestStatus: (json['pullRequestStatus'] as String?)
+          ?.let(PullRequestStatusEnum.fromString),
       pullRequestTargets: (json['pullRequestTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PullRequestTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       revisionId: json['revisionId'] as String?,
@@ -8001,8 +8126,8 @@ class PullRequestEvent {
                   json['pullRequestCreatedEventMetadata']
                       as Map<String, dynamic>)
               : null,
-      pullRequestEventType:
-          (json['pullRequestEventType'] as String?)?.toPullRequestEventType(),
+      pullRequestEventType: (json['pullRequestEventType'] as String?)
+          ?.let(PullRequestEventType.fromString),
       pullRequestId: json['pullRequestId'] as String?,
       pullRequestMergedStateChangedEventMetadata:
           json['pullRequestMergedStateChangedEventMetadata'] != null
@@ -8027,66 +8152,25 @@ class PullRequestEvent {
 }
 
 enum PullRequestEventType {
-  pullRequestCreated,
-  pullRequestStatusChanged,
-  pullRequestSourceReferenceUpdated,
-  pullRequestMergeStateChanged,
-  pullRequestApprovalRuleCreated,
-  pullRequestApprovalRuleUpdated,
-  pullRequestApprovalRuleDeleted,
-  pullRequestApprovalRuleOverridden,
-  pullRequestApprovalStateChanged,
-}
+  pullRequestCreated('PULL_REQUEST_CREATED'),
+  pullRequestStatusChanged('PULL_REQUEST_STATUS_CHANGED'),
+  pullRequestSourceReferenceUpdated('PULL_REQUEST_SOURCE_REFERENCE_UPDATED'),
+  pullRequestMergeStateChanged('PULL_REQUEST_MERGE_STATE_CHANGED'),
+  pullRequestApprovalRuleCreated('PULL_REQUEST_APPROVAL_RULE_CREATED'),
+  pullRequestApprovalRuleUpdated('PULL_REQUEST_APPROVAL_RULE_UPDATED'),
+  pullRequestApprovalRuleDeleted('PULL_REQUEST_APPROVAL_RULE_DELETED'),
+  pullRequestApprovalRuleOverridden('PULL_REQUEST_APPROVAL_RULE_OVERRIDDEN'),
+  pullRequestApprovalStateChanged('PULL_REQUEST_APPROVAL_STATE_CHANGED'),
+  ;
 
-extension PullRequestEventTypeValueExtension on PullRequestEventType {
-  String toValue() {
-    switch (this) {
-      case PullRequestEventType.pullRequestCreated:
-        return 'PULL_REQUEST_CREATED';
-      case PullRequestEventType.pullRequestStatusChanged:
-        return 'PULL_REQUEST_STATUS_CHANGED';
-      case PullRequestEventType.pullRequestSourceReferenceUpdated:
-        return 'PULL_REQUEST_SOURCE_REFERENCE_UPDATED';
-      case PullRequestEventType.pullRequestMergeStateChanged:
-        return 'PULL_REQUEST_MERGE_STATE_CHANGED';
-      case PullRequestEventType.pullRequestApprovalRuleCreated:
-        return 'PULL_REQUEST_APPROVAL_RULE_CREATED';
-      case PullRequestEventType.pullRequestApprovalRuleUpdated:
-        return 'PULL_REQUEST_APPROVAL_RULE_UPDATED';
-      case PullRequestEventType.pullRequestApprovalRuleDeleted:
-        return 'PULL_REQUEST_APPROVAL_RULE_DELETED';
-      case PullRequestEventType.pullRequestApprovalRuleOverridden:
-        return 'PULL_REQUEST_APPROVAL_RULE_OVERRIDDEN';
-      case PullRequestEventType.pullRequestApprovalStateChanged:
-        return 'PULL_REQUEST_APPROVAL_STATE_CHANGED';
-    }
-  }
-}
+  final String value;
 
-extension PullRequestEventTypeFromString on String {
-  PullRequestEventType toPullRequestEventType() {
-    switch (this) {
-      case 'PULL_REQUEST_CREATED':
-        return PullRequestEventType.pullRequestCreated;
-      case 'PULL_REQUEST_STATUS_CHANGED':
-        return PullRequestEventType.pullRequestStatusChanged;
-      case 'PULL_REQUEST_SOURCE_REFERENCE_UPDATED':
-        return PullRequestEventType.pullRequestSourceReferenceUpdated;
-      case 'PULL_REQUEST_MERGE_STATE_CHANGED':
-        return PullRequestEventType.pullRequestMergeStateChanged;
-      case 'PULL_REQUEST_APPROVAL_RULE_CREATED':
-        return PullRequestEventType.pullRequestApprovalRuleCreated;
-      case 'PULL_REQUEST_APPROVAL_RULE_UPDATED':
-        return PullRequestEventType.pullRequestApprovalRuleUpdated;
-      case 'PULL_REQUEST_APPROVAL_RULE_DELETED':
-        return PullRequestEventType.pullRequestApprovalRuleDeleted;
-      case 'PULL_REQUEST_APPROVAL_RULE_OVERRIDDEN':
-        return PullRequestEventType.pullRequestApprovalRuleOverridden;
-      case 'PULL_REQUEST_APPROVAL_STATE_CHANGED':
-        return PullRequestEventType.pullRequestApprovalStateChanged;
-    }
-    throw Exception('$this is not known in enum PullRequestEventType');
-  }
+  const PullRequestEventType(this.value);
+
+  static PullRequestEventType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PullRequestEventType'));
 }
 
 /// Returns information about the change in the merge state for a pull request
@@ -8167,38 +8251,25 @@ class PullRequestStatusChangedEventMetadata {
   factory PullRequestStatusChangedEventMetadata.fromJson(
       Map<String, dynamic> json) {
     return PullRequestStatusChangedEventMetadata(
-      pullRequestStatus:
-          (json['pullRequestStatus'] as String?)?.toPullRequestStatusEnum(),
+      pullRequestStatus: (json['pullRequestStatus'] as String?)
+          ?.let(PullRequestStatusEnum.fromString),
     );
   }
 }
 
 enum PullRequestStatusEnum {
-  open,
-  closed,
-}
+  open('OPEN'),
+  closed('CLOSED'),
+  ;
 
-extension PullRequestStatusEnumValueExtension on PullRequestStatusEnum {
-  String toValue() {
-    switch (this) {
-      case PullRequestStatusEnum.open:
-        return 'OPEN';
-      case PullRequestStatusEnum.closed:
-        return 'CLOSED';
-    }
-  }
-}
+  final String value;
 
-extension PullRequestStatusEnumFromString on String {
-  PullRequestStatusEnum toPullRequestStatusEnum() {
-    switch (this) {
-      case 'OPEN':
-        return PullRequestStatusEnum.open;
-      case 'CLOSED':
-        return PullRequestStatusEnum.closed;
-    }
-    throw Exception('$this is not known in enum PullRequestStatusEnum');
-  }
+  const PullRequestStatusEnum(this.value);
+
+  static PullRequestStatusEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PullRequestStatusEnum'));
 }
 
 /// Returns information about a pull request target.
@@ -8290,7 +8361,7 @@ class PutFileEntry {
     return {
       'filePath': filePath,
       if (fileContent != null) 'fileContent': base64Encode(fileContent),
-      if (fileMode != null) 'fileMode': fileMode.toValue(),
+      if (fileMode != null) 'fileMode': fileMode.value,
       if (sourceFile != null) 'sourceFile': sourceFile,
     };
   }
@@ -8366,7 +8437,7 @@ class ReactionForComment {
               json['reaction'] as Map<String, dynamic>)
           : null,
       reactionUsers: (json['reactionUsers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       reactionsFromDeletedUsersCount:
@@ -8375,8 +8446,8 @@ class ReactionForComment {
   }
 }
 
-/// Information about the values for reactions to a comment. AWS CodeCommit
-/// supports a limited set of reactions.
+/// Information about the values for reactions to a comment. CodeCommit supports
+/// a limited set of reactions.
 class ReactionValueFormats {
   /// The Emoji Version 1.0 graphic of the reaction. These graphics are
   /// interpreted slightly differently on different operating systems.
@@ -8405,31 +8476,18 @@ class ReactionValueFormats {
 }
 
 enum RelativeFileVersionEnum {
-  before,
-  after,
-}
+  before('BEFORE'),
+  after('AFTER'),
+  ;
 
-extension RelativeFileVersionEnumValueExtension on RelativeFileVersionEnum {
-  String toValue() {
-    switch (this) {
-      case RelativeFileVersionEnum.before:
-        return 'BEFORE';
-      case RelativeFileVersionEnum.after:
-        return 'AFTER';
-    }
-  }
-}
+  final String value;
 
-extension RelativeFileVersionEnumFromString on String {
-  RelativeFileVersionEnum toRelativeFileVersionEnum() {
-    switch (this) {
-      case 'BEFORE':
-        return RelativeFileVersionEnum.before;
-      case 'AFTER':
-        return RelativeFileVersionEnum.after;
-    }
-    throw Exception('$this is not known in enum RelativeFileVersionEnum');
-  }
+  const RelativeFileVersionEnum(this.value);
+
+  static RelativeFileVersionEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RelativeFileVersionEnum'));
 }
 
 /// Information about a replacement content entry in the conflict of a merge or
@@ -8462,49 +8520,28 @@ class ReplaceContentEntry {
     final fileMode = this.fileMode;
     return {
       'filePath': filePath,
-      'replacementType': replacementType.toValue(),
+      'replacementType': replacementType.value,
       if (content != null) 'content': base64Encode(content),
-      if (fileMode != null) 'fileMode': fileMode.toValue(),
+      if (fileMode != null) 'fileMode': fileMode.value,
     };
   }
 }
 
 enum ReplacementTypeEnum {
-  keepBase,
-  keepSource,
-  keepDestination,
-  useNewContent,
-}
+  keepBase('KEEP_BASE'),
+  keepSource('KEEP_SOURCE'),
+  keepDestination('KEEP_DESTINATION'),
+  useNewContent('USE_NEW_CONTENT'),
+  ;
 
-extension ReplacementTypeEnumValueExtension on ReplacementTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ReplacementTypeEnum.keepBase:
-        return 'KEEP_BASE';
-      case ReplacementTypeEnum.keepSource:
-        return 'KEEP_SOURCE';
-      case ReplacementTypeEnum.keepDestination:
-        return 'KEEP_DESTINATION';
-      case ReplacementTypeEnum.useNewContent:
-        return 'USE_NEW_CONTENT';
-    }
-  }
-}
+  final String value;
 
-extension ReplacementTypeEnumFromString on String {
-  ReplacementTypeEnum toReplacementTypeEnum() {
-    switch (this) {
-      case 'KEEP_BASE':
-        return ReplacementTypeEnum.keepBase;
-      case 'KEEP_SOURCE':
-        return ReplacementTypeEnum.keepSource;
-      case 'KEEP_DESTINATION':
-        return ReplacementTypeEnum.keepDestination;
-      case 'USE_NEW_CONTENT':
-        return ReplacementTypeEnum.useNewContent;
-    }
-    throw Exception('$this is not known in enum ReplacementTypeEnum');
-  }
+  const ReplacementTypeEnum(this.value);
+
+  static ReplacementTypeEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReplacementTypeEnum'));
 }
 
 /// Information about a repository.
@@ -8512,7 +8549,7 @@ class RepositoryMetadata {
   /// The Amazon Resource Name (ARN) of the repository.
   final String? arn;
 
-  /// The ID of the AWS account associated with the repository.
+  /// The ID of the Amazon Web Services account associated with the repository.
   final String? accountId;
 
   /// The URL to use for cloning the repository over HTTPS.
@@ -8526,6 +8563,10 @@ class RepositoryMetadata {
 
   /// The repository's default branch name.
   final String? defaultBranch;
+
+  /// The ID of the Key Management Service encryption key used to encrypt and
+  /// decrypt the repository.
+  final String? kmsKeyId;
 
   /// The date and time the repository was last modified, in timestamp format.
   final DateTime? lastModifiedDate;
@@ -8546,6 +8587,7 @@ class RepositoryMetadata {
     this.cloneUrlSsh,
     this.creationDate,
     this.defaultBranch,
+    this.kmsKeyId,
     this.lastModifiedDate,
     this.repositoryDescription,
     this.repositoryId,
@@ -8560,6 +8602,7 @@ class RepositoryMetadata {
       cloneUrlSsh: json['cloneUrlSsh'] as String?,
       creationDate: timeStampFromJson(json['creationDate']),
       defaultBranch: json['defaultBranch'] as String?,
+      kmsKeyId: json['kmsKeyId'] as String?,
       lastModifiedDate: timeStampFromJson(json['lastModifiedDate']),
       repositoryDescription: json['repositoryDescription'] as String?,
       repositoryId: json['repositoryId'] as String?,
@@ -8590,6 +8633,12 @@ class RepositoryNameIdPair {
 }
 
 /// Information about a trigger for a repository.
+/// <note>
+/// If you want to receive notifications about repository events, consider using
+/// notifications instead of triggers. For more information, see <a
+/// href="https://docs.aws.amazon.com/codecommit/latest/userguide/how-to-repository-email.html">Configuring
+/// notifications for repository events</a>.
+/// </note>
 class RepositoryTrigger {
   /// The ARN of the resource that is the target for a trigger (for example, the
   /// ARN of a topic in Amazon SNS).
@@ -8629,12 +8678,12 @@ class RepositoryTrigger {
     return RepositoryTrigger(
       destinationArn: json['destinationArn'] as String,
       events: (json['events'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toRepositoryTriggerEventEnum())
+          .nonNulls
+          .map((e) => RepositoryTriggerEventEnum.fromString((e as String)))
           .toList(),
       name: json['name'] as String,
       branches: (json['branches'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       customData: json['customData'] as String?,
@@ -8649,7 +8698,7 @@ class RepositoryTrigger {
     final customData = this.customData;
     return {
       'destinationArn': destinationArn,
-      'events': events.map((e) => e.toValue()).toList(),
+      'events': events.map((e) => e.value).toList(),
       'name': name,
       if (branches != null) 'branches': branches,
       if (customData != null) 'customData': customData,
@@ -8658,42 +8707,20 @@ class RepositoryTrigger {
 }
 
 enum RepositoryTriggerEventEnum {
-  all,
-  updateReference,
-  createReference,
-  deleteReference,
-}
+  all('all'),
+  updateReference('updateReference'),
+  createReference('createReference'),
+  deleteReference('deleteReference'),
+  ;
 
-extension RepositoryTriggerEventEnumValueExtension
-    on RepositoryTriggerEventEnum {
-  String toValue() {
-    switch (this) {
-      case RepositoryTriggerEventEnum.all:
-        return 'all';
-      case RepositoryTriggerEventEnum.updateReference:
-        return 'updateReference';
-      case RepositoryTriggerEventEnum.createReference:
-        return 'createReference';
-      case RepositoryTriggerEventEnum.deleteReference:
-        return 'deleteReference';
-    }
-  }
-}
+  final String value;
 
-extension RepositoryTriggerEventEnumFromString on String {
-  RepositoryTriggerEventEnum toRepositoryTriggerEventEnum() {
-    switch (this) {
-      case 'all':
-        return RepositoryTriggerEventEnum.all;
-      case 'updateReference':
-        return RepositoryTriggerEventEnum.updateReference;
-      case 'createReference':
-        return RepositoryTriggerEventEnum.createReference;
-      case 'deleteReference':
-        return RepositoryTriggerEventEnum.deleteReference;
-    }
-    throw Exception('$this is not known in enum RepositoryTriggerEventEnum');
-  }
+  const RepositoryTriggerEventEnum(this.value);
+
+  static RepositoryTriggerEventEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RepositoryTriggerEventEnum'));
 }
 
 /// A trigger failed to run.
@@ -8735,38 +8762,24 @@ class SetFileModeEntry {
     final fileMode = this.fileMode;
     final filePath = this.filePath;
     return {
-      'fileMode': fileMode.toValue(),
+      'fileMode': fileMode.value,
       'filePath': filePath,
     };
   }
 }
 
 enum SortByEnum {
-  repositoryName,
-  lastModifiedDate,
-}
+  repositoryName('repositoryName'),
+  lastModifiedDate('lastModifiedDate'),
+  ;
 
-extension SortByEnumValueExtension on SortByEnum {
-  String toValue() {
-    switch (this) {
-      case SortByEnum.repositoryName:
-        return 'repositoryName';
-      case SortByEnum.lastModifiedDate:
-        return 'lastModifiedDate';
-    }
-  }
-}
+  final String value;
 
-extension SortByEnumFromString on String {
-  SortByEnum toSortByEnum() {
-    switch (this) {
-      case 'repositoryName':
-        return SortByEnum.repositoryName;
-      case 'lastModifiedDate':
-        return SortByEnum.lastModifiedDate;
-    }
-    throw Exception('$this is not known in enum SortByEnum');
-  }
+  const SortByEnum(this.value);
+
+  static SortByEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortByEnum'));
 }
 
 /// Information about a source file that is part of changes made in a commit.
@@ -8847,7 +8860,7 @@ class SymbolicLink {
     return SymbolicLink(
       absolutePath: json['absolutePath'] as String?,
       blobId: json['blobId'] as String?,
-      fileMode: (json['fileMode'] as String?)?.toFileModeTypeEnum(),
+      fileMode: (json['fileMode'] as String?)?.let(FileModeTypeEnum.fromString),
       relativePath: json['relativePath'] as String?,
     );
   }
@@ -8903,12 +8916,12 @@ class TestRepositoryTriggersOutput {
   factory TestRepositoryTriggersOutput.fromJson(Map<String, dynamic> json) {
     return TestRepositoryTriggersOutput(
       failedExecutions: (json['failedExecutions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RepositoryTriggerExecutionFailure.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       successfulExecutions: (json['successfulExecutions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -9044,6 +9057,33 @@ class UpdatePullRequestTitleOutput {
     return UpdatePullRequestTitleOutput(
       pullRequest:
           PullRequest.fromJson(json['pullRequest'] as Map<String, dynamic>),
+    );
+  }
+}
+
+class UpdateRepositoryEncryptionKeyOutput {
+  /// The ID of the encryption key.
+  final String? kmsKeyId;
+
+  /// The ID of the encryption key formerly used to encrypt and decrypt the
+  /// repository.
+  final String? originalKmsKeyId;
+
+  /// The ID of the repository.
+  final String? repositoryId;
+
+  UpdateRepositoryEncryptionKeyOutput({
+    this.kmsKeyId,
+    this.originalKmsKeyId,
+    this.repositoryId,
+  });
+
+  factory UpdateRepositoryEncryptionKeyOutput.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateRepositoryEncryptionKeyOutput(
+      kmsKeyId: json['kmsKeyId'] as String?,
+      originalKmsKeyId: json['originalKmsKeyId'] as String?,
+      repositoryId: json['repositoryId'] as String?,
     );
   }
 }
@@ -9376,11 +9416,35 @@ class EncryptionKeyDisabledException extends _s.GenericAwsException {
             message: message);
 }
 
+class EncryptionKeyInvalidIdException extends _s.GenericAwsException {
+  EncryptionKeyInvalidIdException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'EncryptionKeyInvalidIdException',
+            message: message);
+}
+
+class EncryptionKeyInvalidUsageException extends _s.GenericAwsException {
+  EncryptionKeyInvalidUsageException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'EncryptionKeyInvalidUsageException',
+            message: message);
+}
+
 class EncryptionKeyNotFoundException extends _s.GenericAwsException {
   EncryptionKeyNotFoundException({String? type, String? message})
       : super(
             type: type,
             code: 'EncryptionKeyNotFoundException',
+            message: message);
+}
+
+class EncryptionKeyRequiredException extends _s.GenericAwsException {
+  EncryptionKeyRequiredException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'EncryptionKeyRequiredException',
             message: message);
 }
 
@@ -10511,8 +10575,14 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       EncryptionKeyAccessDeniedException(type: type, message: message),
   'EncryptionKeyDisabledException': (type, message) =>
       EncryptionKeyDisabledException(type: type, message: message),
+  'EncryptionKeyInvalidIdException': (type, message) =>
+      EncryptionKeyInvalidIdException(type: type, message: message),
+  'EncryptionKeyInvalidUsageException': (type, message) =>
+      EncryptionKeyInvalidUsageException(type: type, message: message),
   'EncryptionKeyNotFoundException': (type, message) =>
       EncryptionKeyNotFoundException(type: type, message: message),
+  'EncryptionKeyRequiredException': (type, message) =>
+      EncryptionKeyRequiredException(type: type, message: message),
   'EncryptionKeyUnavailableException': (type, message) =>
       EncryptionKeyUnavailableException(type: type, message: message),
   'FileContentAndSourceFileSpecifiedException': (type, message) =>

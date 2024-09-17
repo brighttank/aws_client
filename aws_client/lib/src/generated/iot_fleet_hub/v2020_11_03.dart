@@ -19,12 +19,8 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// With Fleet Hub for AWS IoT Device Management you can build stand-alone web
+/// With Fleet Hub for IoT Device Management you can build stand-alone web
 /// applications for monitoring the health of your device fleets.
-/// <note>
-/// Fleet Hub for AWS IoT Device Management is in public preview and is subject
-/// to change.
-/// </note>
 class IoTFleetHub {
   final _s.RestJsonProtocol _protocol;
   IoTFleetHub({
@@ -54,11 +50,17 @@ class IoTFleetHub {
     _protocol.close();
   }
 
-  /// Creates a Fleet Hub for AWS IoT Device Management web application.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
+  /// Creates a Fleet Hub for IoT Device Management web application.
+  ///
+  /// When creating a Fleet Hub application, you must create an organization
+  /// instance of IAM Identity Center if you don't already have one. The Fleet
+  /// Hub application you create must also be in the same Amazon Web Services
+  /// Region of the organization instance of IAM Identity Center. For more
+  /// information see <a
+  /// href="https://docs.aws.amazon.com/singlesignon/latest/userguide/get-set-up-for-idc.html">Enabling
+  /// IAM Identity Center</a> and <a
+  /// href="https://docs.aws.amazon.com/singlesignon/latest/userguide/organization-instances-identity-center.html">Organization
+  /// instances of IAM Identity Center</a>.
   ///
   /// May throw [InvalidRequestException].
   /// May throw [InternalFailureException].
@@ -70,7 +72,7 @@ class IoTFleetHub {
   ///
   /// Parameter [roleArn] :
   /// The ARN of the role that the web application assumes when it interacts
-  /// with AWS IoT Core.
+  /// with Amazon Web Services IoT Core.
   /// <note>
   /// The name of the role must be in the form
   /// <code>AWSIotFleetHub_<i>random_string</i> </code>.
@@ -111,11 +113,7 @@ class IoTFleetHub {
     return CreateApplicationResponse.fromJson(response);
   }
 
-  /// Deletes a Fleet Hub for AWS IoT Device Management web application.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
+  /// Deletes a Fleet Hub for IoT Device Management web application.
   ///
   /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
@@ -145,12 +143,8 @@ class IoTFleetHub {
     );
   }
 
-  /// Gets information about a Fleet Hub for AWS IoT Device Management web
+  /// Gets information about a Fleet Hub for IoT Device Management web
   /// application.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
   ///
   /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
@@ -171,12 +165,8 @@ class IoTFleetHub {
     return DescribeApplicationResponse.fromJson(response);
   }
 
-  /// Gets a list of Fleet Hub for AWS IoT Device Management web applications
-  /// for the current account.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
+  /// Gets a list of Fleet Hub for IoT Device Management web applications for
+  /// the current account.
   ///
   /// May throw [InvalidRequestException].
   /// May throw [InternalFailureException].
@@ -201,10 +191,6 @@ class IoTFleetHub {
   }
 
   /// Lists the tags for the specified resource.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
   ///
   /// May throw [InternalFailureException].
   /// May throw [InvalidRequestException].
@@ -226,10 +212,6 @@ class IoTFleetHub {
 
   /// Adds to or modifies the tags of the specified resource. Tags are metadata
   /// which can be used to manage a resource.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
   ///
   /// May throw [InternalFailureException].
   /// May throw [InvalidRequestException].
@@ -256,10 +238,6 @@ class IoTFleetHub {
   }
 
   /// Removes the specified tags (metadata) from the resource.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
   ///
   /// May throw [InternalFailureException].
   /// May throw [InvalidRequestException].
@@ -286,12 +264,8 @@ class IoTFleetHub {
     );
   }
 
-  /// Updates information about a Fleet Hub for a AWS IoT Device Management web
+  /// Updates information about a Fleet Hub for IoT Device Management web
   /// application.
-  /// <note>
-  /// Fleet Hub for AWS IoT Device Management is in public preview and is
-  /// subject to change.
-  /// </note>
   ///
   /// May throw [InvalidRequestException].
   /// May throw [ResourceNotFoundException].
@@ -334,53 +308,25 @@ class IoTFleetHub {
 }
 
 enum ApplicationState {
-  creating,
-  deleting,
-  active,
-  createFailed,
-  deleteFailed,
+  creating('CREATING'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  createFailed('CREATE_FAILED'),
+  deleteFailed('DELETE_FAILED'),
+  ;
+
+  final String value;
+
+  const ApplicationState(this.value);
+
+  static ApplicationState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ApplicationState'));
 }
 
-extension ApplicationStateValueExtension on ApplicationState {
-  String toValue() {
-    switch (this) {
-      case ApplicationState.creating:
-        return 'CREATING';
-      case ApplicationState.deleting:
-        return 'DELETING';
-      case ApplicationState.active:
-        return 'ACTIVE';
-      case ApplicationState.createFailed:
-        return 'CREATE_FAILED';
-      case ApplicationState.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
-
-extension ApplicationStateFromString on String {
-  ApplicationState toApplicationState() {
-    switch (this) {
-      case 'CREATING':
-        return ApplicationState.creating;
-      case 'DELETING':
-        return ApplicationState.deleting;
-      case 'ACTIVE':
-        return ApplicationState.active;
-      case 'CREATE_FAILED':
-        return ApplicationState.createFailed;
-      case 'DELETE_FAILED':
-        return ApplicationState.deleteFailed;
-    }
-    throw Exception('$this is not known in enum ApplicationState');
-  }
-}
-
-/// A summary of information about a AWS IoT Device Management web application.
-/// <note>
-/// Fleet Hub for AWS IoT Device Management is in public preview and is subject
-/// to change.
-/// </note>
+/// A summary of information about a Fleet Hub for IoT Device Management web
+/// application.
 class ApplicationSummary {
   /// The unique Id of the web application.
   final String applicationId;
@@ -421,8 +367,8 @@ class ApplicationSummary {
       applicationCreationDate: json['applicationCreationDate'] as int?,
       applicationDescription: json['applicationDescription'] as String?,
       applicationLastUpdateDate: json['applicationLastUpdateDate'] as int?,
-      applicationState:
-          (json['applicationState'] as String?)?.toApplicationState(),
+      applicationState: (json['applicationState'] as String?)
+          ?.let(ApplicationState.fromString),
     );
   }
 
@@ -444,8 +390,7 @@ class ApplicationSummary {
         'applicationDescription': applicationDescription,
       if (applicationLastUpdateDate != null)
         'applicationLastUpdateDate': applicationLastUpdateDate,
-      if (applicationState != null)
-        'applicationState': applicationState.toValue(),
+      if (applicationState != null) 'applicationState': applicationState.value,
     };
   }
 }
@@ -514,13 +459,16 @@ class DescribeApplicationResponse {
   final String applicationUrl;
 
   /// The ARN of the role that the web application assumes when it interacts with
-  /// AWS IoT Core.
+  /// Amazon Web Services IoT Core.
   final String roleArn;
 
   /// An optional description of the web application.
   final String? applicationDescription;
 
-  /// A message indicating why the <code>DescribeApplication</code> API failed.
+  /// A message that explains any failures included in the
+  /// <code>applicationState</code> response field. This message explains failures
+  /// in the <code>CreateApplication</code> and <code>DeleteApplication</code>
+  /// actions.
   final String? errorMessage;
 
   /// The Id of the single sign-on client that you use to authenticate and
@@ -554,7 +502,7 @@ class DescribeApplicationResponse {
       applicationLastUpdateDate: json['applicationLastUpdateDate'] as int,
       applicationName: json['applicationName'] as String,
       applicationState:
-          (json['applicationState'] as String).toApplicationState(),
+          ApplicationState.fromString((json['applicationState'] as String)),
       applicationUrl: json['applicationUrl'] as String,
       roleArn: json['roleArn'] as String,
       applicationDescription: json['applicationDescription'] as String?,
@@ -584,7 +532,7 @@ class DescribeApplicationResponse {
       'applicationId': applicationId,
       'applicationLastUpdateDate': applicationLastUpdateDate,
       'applicationName': applicationName,
-      'applicationState': applicationState.toValue(),
+      'applicationState': applicationState.value,
       'applicationUrl': applicationUrl,
       'roleArn': roleArn,
       if (applicationDescription != null)
@@ -612,7 +560,7 @@ class ListApplicationsResponse {
   factory ListApplicationsResponse.fromJson(Map<String, dynamic> json) {
     return ListApplicationsResponse(
       applicationSummaries: (json['applicationSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApplicationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,

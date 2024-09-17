@@ -122,10 +122,10 @@ class ResourceGroups {
   /// The name of the group, which is the identifier of the group in other
   /// operations. You can't change the name of a resource group after you create
   /// it. A resource group name can consist of letters, numbers, hyphens,
-  /// periods, and underscores. The name cannot start with <code>AWS</code> or
-  /// <code>aws</code>; these are reserved. A resource group name must be unique
-  /// within each Amazon Web Services Region in your Amazon Web Services
-  /// account.
+  /// periods, and underscores. The name cannot start with <code>AWS</code>,
+  /// <code>aws</code>, or any other possible capitalization; these are
+  /// reserved. A resource group name must be unique within each Amazon Web
+  /// Services Region in your Amazon Web Services account.
   ///
   /// Parameter [configuration] :
   /// A configuration associates the resource group with an Amazon Web Services
@@ -597,10 +597,12 @@ class ResourceGroups {
   ///
   /// <ul>
   /// <li>
-  /// <code>resource-type</code> - Filter the results to include only those of
-  /// the specified resource types. Specify up to five resource types in the
-  /// format <code>AWS::<i>ServiceCode</i>::<i>ResourceType</i> </code>. For
-  /// example, <code>AWS::EC2::Instance</code>, or <code>AWS::S3::Bucket</code>.
+  /// <code>resource-type</code> - Filter the results to include only those
+  /// resource groups that have the specified resource type in their
+  /// <code>ResourceTypeFilter</code>. For example,
+  /// <code>AWS::EC2::Instance</code> would return any resource group with a
+  /// <code>ResourceTypeFilter</code> that includes
+  /// <code>AWS::EC2::Instance</code>.
   /// </li>
   /// <li>
   /// <code>configuration-type</code> - Filter the results to include only those
@@ -609,10 +611,22 @@ class ResourceGroups {
   ///
   /// <ul>
   /// <li>
+  /// <code>AWS::AppRegistry::Application</code>
+  /// </li>
+  /// <li>
+  /// <code>AWS::AppRegistry::ApplicationResourceGroups</code>
+  /// </li>
+  /// <li>
+  /// <code>AWS::CloudFormation::Stack</code>
+  /// </li>
+  /// <li>
   /// <code>AWS::EC2::CapacityReservationPool</code>
   /// </li>
   /// <li>
   /// <code>AWS::EC2::HostManagement</code>
+  /// </li>
+  /// <li>
+  /// <code>AWS::NetworkFirewall::RuleGroup</code>
   /// </li>
   /// </ul> </li>
   /// </ul>
@@ -955,7 +969,7 @@ class ResourceGroups {
     final $payload = <String, dynamic>{
       if (groupLifecycleEventsDesiredStatus != null)
         'GroupLifecycleEventsDesiredStatus':
-            groupLifecycleEventsDesiredStatus.toValue(),
+            groupLifecycleEventsDesiredStatus.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1092,10 +1106,10 @@ class AccountSettings {
     return AccountSettings(
       groupLifecycleEventsDesiredStatus:
           (json['GroupLifecycleEventsDesiredStatus'] as String?)
-              ?.toGroupLifecycleEventsDesiredStatus(),
+              ?.let(GroupLifecycleEventsDesiredStatus.fromString),
       groupLifecycleEventsStatus:
           (json['GroupLifecycleEventsStatus'] as String?)
-              ?.toGroupLifecycleEventsStatus(),
+              ?.let(GroupLifecycleEventsStatus.fromString),
       groupLifecycleEventsStatusMessage:
           json['GroupLifecycleEventsStatusMessage'] as String?,
     );
@@ -1365,17 +1379,18 @@ class GroupConfiguration {
   factory GroupConfiguration.fromJson(Map<String, dynamic> json) {
     return GroupConfiguration(
       configuration: (json['Configuration'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => GroupConfigurationItem.fromJson(e as Map<String, dynamic>))
           .toList(),
       failureReason: json['FailureReason'] as String?,
       proposedConfiguration: (json['ProposedConfiguration'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => GroupConfigurationItem.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['Status'] as String?)?.toGroupConfigurationStatus(),
+      status:
+          (json['Status'] as String?)?.let(GroupConfigurationStatus.fromString),
     );
   }
 }
@@ -1407,7 +1422,7 @@ class GroupConfigurationItem {
     return GroupConfigurationItem(
       type: json['Type'] as String,
       parameters: (json['Parameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               GroupConfigurationParameter.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1449,10 +1464,8 @@ class GroupConfigurationParameter {
   factory GroupConfigurationParameter.fromJson(Map<String, dynamic> json) {
     return GroupConfigurationParameter(
       name: json['Name'] as String,
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -1467,36 +1480,19 @@ class GroupConfigurationParameter {
 }
 
 enum GroupConfigurationStatus {
-  updating,
-  updateComplete,
-  updateFailed,
-}
+  updating('UPDATING'),
+  updateComplete('UPDATE_COMPLETE'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension GroupConfigurationStatusValueExtension on GroupConfigurationStatus {
-  String toValue() {
-    switch (this) {
-      case GroupConfigurationStatus.updating:
-        return 'UPDATING';
-      case GroupConfigurationStatus.updateComplete:
-        return 'UPDATE_COMPLETE';
-      case GroupConfigurationStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension GroupConfigurationStatusFromString on String {
-  GroupConfigurationStatus toGroupConfigurationStatus() {
-    switch (this) {
-      case 'UPDATING':
-        return GroupConfigurationStatus.updating;
-      case 'UPDATE_COMPLETE':
-        return GroupConfigurationStatus.updateComplete;
-      case 'UPDATE_FAILED':
-        return GroupConfigurationStatus.updateFailed;
-    }
-    throw Exception('$this is not known in enum GroupConfigurationStatus');
-  }
+  const GroupConfigurationStatus(this.value);
+
+  static GroupConfigurationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GroupConfigurationStatus'));
 }
 
 /// A filter collection that you can use to restrict the results from a
@@ -1518,38 +1514,25 @@ class GroupFilter {
     final name = this.name;
     final values = this.values;
     return {
-      'Name': name.toValue(),
+      'Name': name.value,
       'Values': values,
     };
   }
 }
 
 enum GroupFilterName {
-  resourceType,
-  configurationType,
-}
+  resourceType('resource-type'),
+  configurationType('configuration-type'),
+  ;
 
-extension GroupFilterNameValueExtension on GroupFilterName {
-  String toValue() {
-    switch (this) {
-      case GroupFilterName.resourceType:
-        return 'resource-type';
-      case GroupFilterName.configurationType:
-        return 'configuration-type';
-    }
-  }
-}
+  final String value;
 
-extension GroupFilterNameFromString on String {
-  GroupFilterName toGroupFilterName() {
-    switch (this) {
-      case 'resource-type':
-        return GroupFilterName.resourceType;
-      case 'configuration-type':
-        return GroupFilterName.configurationType;
-    }
-    throw Exception('$this is not known in enum GroupFilterName');
-  }
+  const GroupFilterName(this.value);
+
+  static GroupFilterName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum GroupFilterName'));
 }
 
 /// The unique identifiers for a resource group.
@@ -1574,72 +1557,35 @@ class GroupIdentifier {
 }
 
 enum GroupLifecycleEventsDesiredStatus {
-  active,
-  inactive,
-}
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  ;
 
-extension GroupLifecycleEventsDesiredStatusValueExtension
-    on GroupLifecycleEventsDesiredStatus {
-  String toValue() {
-    switch (this) {
-      case GroupLifecycleEventsDesiredStatus.active:
-        return 'ACTIVE';
-      case GroupLifecycleEventsDesiredStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension GroupLifecycleEventsDesiredStatusFromString on String {
-  GroupLifecycleEventsDesiredStatus toGroupLifecycleEventsDesiredStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return GroupLifecycleEventsDesiredStatus.active;
-      case 'INACTIVE':
-        return GroupLifecycleEventsDesiredStatus.inactive;
-    }
-    throw Exception(
-        '$this is not known in enum GroupLifecycleEventsDesiredStatus');
-  }
+  const GroupLifecycleEventsDesiredStatus(this.value);
+
+  static GroupLifecycleEventsDesiredStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GroupLifecycleEventsDesiredStatus'));
 }
 
 enum GroupLifecycleEventsStatus {
-  active,
-  inactive,
-  inProgress,
-  error,
-}
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  inProgress('IN_PROGRESS'),
+  error('ERROR'),
+  ;
 
-extension GroupLifecycleEventsStatusValueExtension
-    on GroupLifecycleEventsStatus {
-  String toValue() {
-    switch (this) {
-      case GroupLifecycleEventsStatus.active:
-        return 'ACTIVE';
-      case GroupLifecycleEventsStatus.inactive:
-        return 'INACTIVE';
-      case GroupLifecycleEventsStatus.inProgress:
-        return 'IN_PROGRESS';
-      case GroupLifecycleEventsStatus.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension GroupLifecycleEventsStatusFromString on String {
-  GroupLifecycleEventsStatus toGroupLifecycleEventsStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return GroupLifecycleEventsStatus.active;
-      case 'INACTIVE':
-        return GroupLifecycleEventsStatus.inactive;
-      case 'IN_PROGRESS':
-        return GroupLifecycleEventsStatus.inProgress;
-      case 'ERROR':
-        return GroupLifecycleEventsStatus.error;
-    }
-    throw Exception('$this is not known in enum GroupLifecycleEventsStatus');
-  }
+  const GroupLifecycleEventsStatus(this.value);
+
+  static GroupLifecycleEventsStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GroupLifecycleEventsStatus'));
 }
 
 /// A mapping of a query attached to a resource group that determines the Amazon
@@ -1693,15 +1639,15 @@ class GroupResourcesOutput {
   factory GroupResourcesOutput.fromJson(Map<String, dynamic> json) {
     return GroupResourcesOutput(
       failed: (json['Failed'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FailedResource.fromJson(e as Map<String, dynamic>))
           .toList(),
       pending: (json['Pending'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PendingResource.fromJson(e as Map<String, dynamic>))
           .toList(),
       succeeded: (json['Succeeded'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -1748,11 +1694,12 @@ class ListGroupResourcesOutput {
   /// element comes back as <code>null</code>.
   final String? nextToken;
 
-  /// A list of <code>QueryError</code> objects. Each error is an object that
-  /// contains <code>ErrorCode</code> and <code>Message</code> structures.
-  /// Possible values for <code>ErrorCode</code> are
-  /// <code>CLOUDFORMATION_STACK_INACTIVE</code> and
-  /// <code>CLOUDFORMATION_STACK_NOT_EXISTING</code>.
+  /// A list of <code>QueryError</code> objects. Each error contains an
+  /// <code>ErrorCode</code> and <code>Message</code>. Possible values for
+  /// ErrorCode are <code>CLOUDFORMATION_STACK_INACTIVE</code>,
+  /// <code>CLOUDFORMATION_STACK_NOT_EXISTING</code>,
+  /// <code>CLOUDFORMATION_STACK_UNASSUMABLE_ROLE</code> and
+  /// <code>RESOURCE_TYPE_NOT_SUPPORTED</code>.
   final List<QueryError>? queryErrors;
 
   /// <important>
@@ -1776,15 +1723,15 @@ class ListGroupResourcesOutput {
     return ListGroupResourcesOutput(
       nextToken: json['NextToken'] as String?,
       queryErrors: (json['QueryErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => QueryError.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceIdentifiers: (json['ResourceIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
       resources: (json['Resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ListGroupResourcesItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1819,11 +1766,11 @@ class ListGroupsOutput {
   factory ListGroupsOutput.fromJson(Map<String, dynamic> json) {
     return ListGroupsOutput(
       groupIdentifiers: (json['GroupIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GroupIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
       groups: (json['Groups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Group.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1858,21 +1805,12 @@ class PutGroupConfigurationOutput {
 }
 
 /// A two-part error structure that can occur in <code>ListGroupResources</code>
-/// or <code>SearchResources</code> operations on CloudFront stack-based
-/// queries. The error occurs if the CloudFront stack on which the query is
-/// based either does not exist, or has a status that renders the stack
-/// inactive. A <code>QueryError</code> occurrence does not necessarily mean
-/// that Resource Groups could not complete the operation, but the resulting
-/// group might have no member resources.
+/// or <code>SearchResources</code>.
 class QueryError {
   /// Specifies the error code that was raised.
   final QueryErrorCode? errorCode;
 
-  /// A message that explains the <code>ErrorCode</code> value. Messages might
-  /// state that the specified CloudFront stack does not exist (or no longer
-  /// exists). For <code>CLOUDFORMATION_STACK_INACTIVE</code>, the message
-  /// typically states that the CloudFront stack has a status that is not (or no
-  /// longer) active, such as <code>CREATE_FAILED</code>.
+  /// A message that explains the <code>ErrorCode</code>.
   final String? message;
 
   QueryError({
@@ -1882,71 +1820,41 @@ class QueryError {
 
   factory QueryError.fromJson(Map<String, dynamic> json) {
     return QueryError(
-      errorCode: (json['ErrorCode'] as String?)?.toQueryErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(QueryErrorCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum QueryErrorCode {
-  cloudformationStackInactive,
-  cloudformationStackNotExisting,
-  cloudformationStackUnassumableRole,
-}
+  cloudformationStackInactive('CLOUDFORMATION_STACK_INACTIVE'),
+  cloudformationStackNotExisting('CLOUDFORMATION_STACK_NOT_EXISTING'),
+  cloudformationStackUnassumableRole('CLOUDFORMATION_STACK_UNASSUMABLE_ROLE'),
+  resourceTypeNotSupported('RESOURCE_TYPE_NOT_SUPPORTED'),
+  ;
 
-extension QueryErrorCodeValueExtension on QueryErrorCode {
-  String toValue() {
-    switch (this) {
-      case QueryErrorCode.cloudformationStackInactive:
-        return 'CLOUDFORMATION_STACK_INACTIVE';
-      case QueryErrorCode.cloudformationStackNotExisting:
-        return 'CLOUDFORMATION_STACK_NOT_EXISTING';
-      case QueryErrorCode.cloudformationStackUnassumableRole:
-        return 'CLOUDFORMATION_STACK_UNASSUMABLE_ROLE';
-    }
-  }
-}
+  final String value;
 
-extension QueryErrorCodeFromString on String {
-  QueryErrorCode toQueryErrorCode() {
-    switch (this) {
-      case 'CLOUDFORMATION_STACK_INACTIVE':
-        return QueryErrorCode.cloudformationStackInactive;
-      case 'CLOUDFORMATION_STACK_NOT_EXISTING':
-        return QueryErrorCode.cloudformationStackNotExisting;
-      case 'CLOUDFORMATION_STACK_UNASSUMABLE_ROLE':
-        return QueryErrorCode.cloudformationStackUnassumableRole;
-    }
-    throw Exception('$this is not known in enum QueryErrorCode');
-  }
+  const QueryErrorCode(this.value);
+
+  static QueryErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum QueryErrorCode'));
 }
 
 enum QueryType {
-  tagFilters_1_0,
-  cloudformationStack_1_0,
-}
+  tagFilters_1_0('TAG_FILTERS_1_0'),
+  cloudformationStack_1_0('CLOUDFORMATION_STACK_1_0'),
+  ;
 
-extension QueryTypeValueExtension on QueryType {
-  String toValue() {
-    switch (this) {
-      case QueryType.tagFilters_1_0:
-        return 'TAG_FILTERS_1_0';
-      case QueryType.cloudformationStack_1_0:
-        return 'CLOUDFORMATION_STACK_1_0';
-    }
-  }
-}
+  final String value;
 
-extension QueryTypeFromString on String {
-  QueryType toQueryType() {
-    switch (this) {
-      case 'TAG_FILTERS_1_0':
-        return QueryType.tagFilters_1_0;
-      case 'CLOUDFORMATION_STACK_1_0':
-        return QueryType.cloudformationStack_1_0;
-    }
-    throw Exception('$this is not known in enum QueryType');
-  }
+  const QueryType(this.value);
+
+  static QueryType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum QueryType'));
 }
 
 /// A filter name and value pair that is used to obtain more specific results
@@ -1968,33 +1876,24 @@ class ResourceFilter {
     final name = this.name;
     final values = this.values;
     return {
-      'Name': name.toValue(),
+      'Name': name.value,
       'Values': values,
     };
   }
 }
 
 enum ResourceFilterName {
-  resourceType,
-}
+  resourceType('resource-type'),
+  ;
 
-extension ResourceFilterNameValueExtension on ResourceFilterName {
-  String toValue() {
-    switch (this) {
-      case ResourceFilterName.resourceType:
-        return 'resource-type';
-    }
-  }
-}
+  final String value;
 
-extension ResourceFilterNameFromString on String {
-  ResourceFilterName toResourceFilterName() {
-    switch (this) {
-      case 'resource-type':
-        return ResourceFilterName.resourceType;
-    }
-    throw Exception('$this is not known in enum ResourceFilterName');
-  }
+  const ResourceFilterName(this.value);
+
+  static ResourceFilterName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceFilterName'));
 }
 
 /// A structure that contains the ARN of a resource and its resource type.
@@ -2167,7 +2066,7 @@ class ResourceQuery {
   factory ResourceQuery.fromJson(Map<String, dynamic> json) {
     return ResourceQuery(
       query: json['Query'] as String,
-      type: (json['Type'] as String).toQueryType(),
+      type: QueryType.fromString((json['Type'] as String)),
     );
   }
 
@@ -2176,7 +2075,7 @@ class ResourceQuery {
     final type = this.type;
     return {
       'Query': query,
-      'Type': type.toValue(),
+      'Type': type.value,
     };
   }
 }
@@ -2195,32 +2094,23 @@ class ResourceStatus {
 
   factory ResourceStatus.fromJson(Map<String, dynamic> json) {
     return ResourceStatus(
-      name: (json['Name'] as String?)?.toResourceStatusValue(),
+      name: (json['Name'] as String?)?.let(ResourceStatusValue.fromString),
     );
   }
 }
 
 enum ResourceStatusValue {
-  pending,
-}
+  pending('PENDING'),
+  ;
 
-extension ResourceStatusValueValueExtension on ResourceStatusValue {
-  String toValue() {
-    switch (this) {
-      case ResourceStatusValue.pending:
-        return 'PENDING';
-    }
-  }
-}
+  final String value;
 
-extension ResourceStatusValueFromString on String {
-  ResourceStatusValue toResourceStatusValue() {
-    switch (this) {
-      case 'PENDING':
-        return ResourceStatusValue.pending;
-    }
-    throw Exception('$this is not known in enum ResourceStatusValue');
-  }
+  const ResourceStatusValue(this.value);
+
+  static ResourceStatusValue fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceStatusValue'));
 }
 
 class SearchResourcesOutput {
@@ -2231,8 +2121,8 @@ class SearchResourcesOutput {
   /// element comes back as <code>null</code>.
   final String? nextToken;
 
-  /// A list of <code>QueryError</code> objects. Each error is an object that
-  /// contains <code>ErrorCode</code> and <code>Message</code> structures.
+  /// A list of <code>QueryError</code> objects. Each error contains an
+  /// <code>ErrorCode</code> and <code>Message</code>.
   ///
   /// Possible values for <code>ErrorCode</code>:
   ///
@@ -2242,6 +2132,9 @@ class SearchResourcesOutput {
   /// </li>
   /// <li>
   /// <code>CLOUDFORMATION_STACK_NOT_EXISTING</code>
+  /// </li>
+  /// <li>
+  /// <code>CLOUDFORMATION_STACK_UNASSUMABLE_ROLE </code>
   /// </li>
   /// </ul>
   final List<QueryError>? queryErrors;
@@ -2260,11 +2153,11 @@ class SearchResourcesOutput {
     return SearchResourcesOutput(
       nextToken: json['NextToken'] as String?,
       queryErrors: (json['QueryErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => QueryError.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceIdentifiers: (json['ResourceIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceIdentifier.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2317,15 +2210,15 @@ class UngroupResourcesOutput {
   factory UngroupResourcesOutput.fromJson(Map<String, dynamic> json) {
     return UngroupResourcesOutput(
       failed: (json['Failed'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FailedResource.fromJson(e as Map<String, dynamic>))
           .toList(),
       pending: (json['Pending'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PendingResource.fromJson(e as Map<String, dynamic>))
           .toList(),
       succeeded: (json['Succeeded'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2347,10 +2240,7 @@ class UntagOutput {
   factory UntagOutput.fromJson(Map<String, dynamic> json) {
     return UntagOutput(
       arn: json['Arn'] as String?,
-      keys: (json['Keys'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      keys: (json['Keys'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }

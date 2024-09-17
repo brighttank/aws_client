@@ -596,7 +596,7 @@ class AlarmState {
           ? RuleEvaluation.fromJson(
               json['ruleEvaluation'] as Map<String, dynamic>)
           : null,
-      stateName: (json['stateName'] as String?)?.toAlarmStateName(),
+      stateName: (json['stateName'] as String?)?.let(AlarmStateName.fromString),
       systemEvent: json['systemEvent'] != null
           ? SystemEvent.fromJson(json['systemEvent'] as Map<String, dynamic>)
           : null,
@@ -605,51 +605,22 @@ class AlarmState {
 }
 
 enum AlarmStateName {
-  disabled,
-  normal,
-  active,
-  acknowledged,
-  snoozeDisabled,
-  latched,
-}
+  disabled('DISABLED'),
+  normal('NORMAL'),
+  active('ACTIVE'),
+  acknowledged('ACKNOWLEDGED'),
+  snoozeDisabled('SNOOZE_DISABLED'),
+  latched('LATCHED'),
+  ;
 
-extension AlarmStateNameValueExtension on AlarmStateName {
-  String toValue() {
-    switch (this) {
-      case AlarmStateName.disabled:
-        return 'DISABLED';
-      case AlarmStateName.normal:
-        return 'NORMAL';
-      case AlarmStateName.active:
-        return 'ACTIVE';
-      case AlarmStateName.acknowledged:
-        return 'ACKNOWLEDGED';
-      case AlarmStateName.snoozeDisabled:
-        return 'SNOOZE_DISABLED';
-      case AlarmStateName.latched:
-        return 'LATCHED';
-    }
-  }
-}
+  final String value;
 
-extension AlarmStateNameFromString on String {
-  AlarmStateName toAlarmStateName() {
-    switch (this) {
-      case 'DISABLED':
-        return AlarmStateName.disabled;
-      case 'NORMAL':
-        return AlarmStateName.normal;
-      case 'ACTIVE':
-        return AlarmStateName.active;
-      case 'ACKNOWLEDGED':
-        return AlarmStateName.acknowledged;
-      case 'SNOOZE_DISABLED':
-        return AlarmStateName.snoozeDisabled;
-      case 'LATCHED':
-        return AlarmStateName.latched;
-    }
-    throw Exception('$this is not known in enum AlarmStateName');
-  }
+  const AlarmStateName(this.value);
+
+  static AlarmStateName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AlarmStateName'));
 }
 
 /// Contains a summary of an alarm.
@@ -724,7 +695,7 @@ class AlarmSummary {
       creationTime: timeStampFromJson(json['creationTime']),
       keyValue: json['keyValue'] as String?,
       lastUpdateTime: timeStampFromJson(json['lastUpdateTime']),
-      stateName: (json['stateName'] as String?)?.toAlarmStateName(),
+      stateName: (json['stateName'] as String?)?.let(AlarmStateName.fromString),
     );
   }
 }
@@ -742,7 +713,7 @@ class BatchAcknowledgeAlarmResponse {
   factory BatchAcknowledgeAlarmResponse.fromJson(Map<String, dynamic> json) {
     return BatchAcknowledgeAlarmResponse(
       errorEntries: (json['errorEntries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchAlarmActionErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -792,7 +763,7 @@ class BatchAlarmActionErrorEntry {
 
   factory BatchAlarmActionErrorEntry.fromJson(Map<String, dynamic> json) {
     return BatchAlarmActionErrorEntry(
-      errorCode: (json['errorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['errorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['errorMessage'] as String?,
       requestId: json['requestId'] as String?,
     );
@@ -821,7 +792,7 @@ class BatchDeleteDetectorErrorEntry {
 
   factory BatchDeleteDetectorErrorEntry.fromJson(Map<String, dynamic> json) {
     return BatchDeleteDetectorErrorEntry(
-      errorCode: (json['errorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['errorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['errorMessage'] as String?,
       messageId: json['messageId'] as String?,
     );
@@ -842,7 +813,7 @@ class BatchDeleteDetectorResponse {
     return BatchDeleteDetectorResponse(
       batchDeleteDetectorErrorEntries: (json['batchDeleteDetectorErrorEntries']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchDeleteDetectorErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -863,7 +834,7 @@ class BatchDisableAlarmResponse {
   factory BatchDisableAlarmResponse.fromJson(Map<String, dynamic> json) {
     return BatchDisableAlarmResponse(
       errorEntries: (json['errorEntries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchAlarmActionErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -884,7 +855,7 @@ class BatchEnableAlarmResponse {
   factory BatchEnableAlarmResponse.fromJson(Map<String, dynamic> json) {
     return BatchEnableAlarmResponse(
       errorEntries: (json['errorEntries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchAlarmActionErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -912,7 +883,7 @@ class BatchPutMessageErrorEntry {
 
   factory BatchPutMessageErrorEntry.fromJson(Map<String, dynamic> json) {
     return BatchPutMessageErrorEntry(
-      errorCode: (json['errorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['errorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['errorMessage'] as String?,
       messageId: json['messageId'] as String?,
     );
@@ -931,7 +902,7 @@ class BatchPutMessageResponse {
     return BatchPutMessageResponse(
       batchPutMessageErrorEntries:
           (json['BatchPutMessageErrorEntries'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   BatchPutMessageErrorEntry.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -952,7 +923,7 @@ class BatchResetAlarmResponse {
   factory BatchResetAlarmResponse.fromJson(Map<String, dynamic> json) {
     return BatchResetAlarmResponse(
       errorEntries: (json['errorEntries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchAlarmActionErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -973,7 +944,7 @@ class BatchSnoozeAlarmResponse {
   factory BatchSnoozeAlarmResponse.fromJson(Map<String, dynamic> json) {
     return BatchSnoozeAlarmResponse(
       errorEntries: (json['errorEntries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchAlarmActionErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1003,7 +974,7 @@ class BatchUpdateDetectorErrorEntry {
 
   factory BatchUpdateDetectorErrorEntry.fromJson(Map<String, dynamic> json) {
     return BatchUpdateDetectorErrorEntry(
-      errorCode: (json['errorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['errorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['errorMessage'] as String?,
       messageId: json['messageId'] as String?,
     );
@@ -1023,7 +994,7 @@ class BatchUpdateDetectorResponse {
     return BatchUpdateDetectorResponse(
       batchUpdateDetectorErrorEntries: (json['batchUpdateDetectorErrorEntries']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchUpdateDetectorErrorEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1032,51 +1003,22 @@ class BatchUpdateDetectorResponse {
 }
 
 enum ComparisonOperator {
-  greater,
-  greaterOrEqual,
-  less,
-  lessOrEqual,
-  equal,
-  notEqual,
-}
+  greater('GREATER'),
+  greaterOrEqual('GREATER_OR_EQUAL'),
+  less('LESS'),
+  lessOrEqual('LESS_OR_EQUAL'),
+  equal('EQUAL'),
+  notEqual('NOT_EQUAL'),
+  ;
 
-extension ComparisonOperatorValueExtension on ComparisonOperator {
-  String toValue() {
-    switch (this) {
-      case ComparisonOperator.greater:
-        return 'GREATER';
-      case ComparisonOperator.greaterOrEqual:
-        return 'GREATER_OR_EQUAL';
-      case ComparisonOperator.less:
-        return 'LESS';
-      case ComparisonOperator.lessOrEqual:
-        return 'LESS_OR_EQUAL';
-      case ComparisonOperator.equal:
-        return 'EQUAL';
-      case ComparisonOperator.notEqual:
-        return 'NOT_EQUAL';
-    }
-  }
-}
+  final String value;
 
-extension ComparisonOperatorFromString on String {
-  ComparisonOperator toComparisonOperator() {
-    switch (this) {
-      case 'GREATER':
-        return ComparisonOperator.greater;
-      case 'GREATER_OR_EQUAL':
-        return ComparisonOperator.greaterOrEqual;
-      case 'LESS':
-        return ComparisonOperator.less;
-      case 'LESS_OR_EQUAL':
-        return ComparisonOperator.lessOrEqual;
-      case 'EQUAL':
-        return ComparisonOperator.equal;
-      case 'NOT_EQUAL':
-        return ComparisonOperator.notEqual;
-    }
-    throw Exception('$this is not known in enum ComparisonOperator');
-  }
+  const ComparisonOperator(this.value);
+
+  static ComparisonOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComparisonOperator'));
 }
 
 /// Contains information about the action that you can take to respond to the
@@ -1142,7 +1084,8 @@ class CustomerAction {
           ? AcknowledgeActionConfiguration.fromJson(
               json['acknowledgeActionConfiguration'] as Map<String, dynamic>)
           : null,
-      actionName: (json['actionName'] as String?)?.toCustomerActionName(),
+      actionName:
+          (json['actionName'] as String?)?.let(CustomerActionName.fromString),
       disableActionConfiguration: json['disableActionConfiguration'] != null
           ? DisableActionConfiguration.fromJson(
               json['disableActionConfiguration'] as Map<String, dynamic>)
@@ -1164,46 +1107,21 @@ class CustomerAction {
 }
 
 enum CustomerActionName {
-  snooze,
-  enable,
-  disable,
-  acknowledge,
-  reset,
-}
+  snooze('SNOOZE'),
+  enable('ENABLE'),
+  disable('DISABLE'),
+  acknowledge('ACKNOWLEDGE'),
+  reset('RESET'),
+  ;
 
-extension CustomerActionNameValueExtension on CustomerActionName {
-  String toValue() {
-    switch (this) {
-      case CustomerActionName.snooze:
-        return 'SNOOZE';
-      case CustomerActionName.enable:
-        return 'ENABLE';
-      case CustomerActionName.disable:
-        return 'DISABLE';
-      case CustomerActionName.acknowledge:
-        return 'ACKNOWLEDGE';
-      case CustomerActionName.reset:
-        return 'RESET';
-    }
-  }
-}
+  final String value;
 
-extension CustomerActionNameFromString on String {
-  CustomerActionName toCustomerActionName() {
-    switch (this) {
-      case 'SNOOZE':
-        return CustomerActionName.snooze;
-      case 'ENABLE':
-        return CustomerActionName.enable;
-      case 'DISABLE':
-        return CustomerActionName.disable;
-      case 'ACKNOWLEDGE':
-        return CustomerActionName.acknowledge;
-      case 'RESET':
-        return CustomerActionName.reset;
-    }
-    throw Exception('$this is not known in enum CustomerActionName');
-  }
+  const CustomerActionName(this.value);
+
+  static CustomerActionName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CustomerActionName'));
 }
 
 /// Information used to delete the detector model.
@@ -1338,11 +1256,11 @@ class DetectorState {
     return DetectorState(
       stateName: json['stateName'] as String,
       timers: (json['timers'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Timer.fromJson(e as Map<String, dynamic>))
           .toList(),
       variables: (json['variables'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Variable.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1548,69 +1466,33 @@ class EnableAlarmActionRequest {
 }
 
 enum ErrorCode {
-  resourceNotFoundException,
-  invalidRequestException,
-  internalFailureException,
-  serviceUnavailableException,
-  throttlingException,
-}
+  resourceNotFoundException('ResourceNotFoundException'),
+  invalidRequestException('InvalidRequestException'),
+  internalFailureException('InternalFailureException'),
+  serviceUnavailableException('ServiceUnavailableException'),
+  throttlingException('ThrottlingException'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.resourceNotFoundException:
-        return 'ResourceNotFoundException';
-      case ErrorCode.invalidRequestException:
-        return 'InvalidRequestException';
-      case ErrorCode.internalFailureException:
-        return 'InternalFailureException';
-      case ErrorCode.serviceUnavailableException:
-        return 'ServiceUnavailableException';
-      case ErrorCode.throttlingException:
-        return 'ThrottlingException';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'ResourceNotFoundException':
-        return ErrorCode.resourceNotFoundException;
-      case 'InvalidRequestException':
-        return ErrorCode.invalidRequestException;
-      case 'InternalFailureException':
-        return ErrorCode.internalFailureException;
-      case 'ServiceUnavailableException':
-        return ErrorCode.serviceUnavailableException;
-      case 'ThrottlingException':
-        return ErrorCode.throttlingException;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 enum EventType {
-  stateChange,
-}
+  stateChange('STATE_CHANGE'),
+  ;
 
-extension EventTypeValueExtension on EventType {
-  String toValue() {
-    switch (this) {
-      case EventType.stateChange:
-        return 'STATE_CHANGE';
-    }
-  }
-}
+  final String value;
 
-extension EventTypeFromString on String {
-  EventType toEventType() {
-    switch (this) {
-      case 'STATE_CHANGE':
-        return EventType.stateChange;
-    }
-    throw Exception('$this is not known in enum EventType');
-  }
+  const EventType(this.value);
+
+  static EventType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EventType'));
 }
 
 class ListAlarmsResponse {
@@ -1629,7 +1511,7 @@ class ListAlarmsResponse {
   factory ListAlarmsResponse.fromJson(Map<String, dynamic> json) {
     return ListAlarmsResponse(
       alarmSummaries: (json['alarmSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AlarmSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1653,7 +1535,7 @@ class ListDetectorsResponse {
   factory ListDetectorsResponse.fromJson(Map<String, dynamic> json) {
     return ListDetectorsResponse(
       detectorSummaries: (json['detectorSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DetectorSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1791,7 +1673,8 @@ class SimpleRuleEvaluation {
   factory SimpleRuleEvaluation.fromJson(Map<String, dynamic> json) {
     return SimpleRuleEvaluation(
       inputPropertyValue: json['inputPropertyValue'] as String?,
-      operator: (json['operator'] as String?)?.toComparisonOperator(),
+      operator:
+          (json['operator'] as String?)?.let(ComparisonOperator.fromString),
       thresholdValue: json['thresholdValue'] as String?,
     );
   }
@@ -1876,7 +1759,8 @@ class StateChangeConfiguration {
 
   factory StateChangeConfiguration.fromJson(Map<String, dynamic> json) {
     return StateChangeConfiguration(
-      triggerType: (json['triggerType'] as String?)?.toTriggerType(),
+      triggerType:
+          (json['triggerType'] as String?)?.let(TriggerType.fromString),
     );
   }
 }
@@ -1897,7 +1781,7 @@ class SystemEvent {
 
   factory SystemEvent.fromJson(Map<String, dynamic> json) {
     return SystemEvent(
-      eventType: (json['eventType'] as String?)?.toEventType(),
+      eventType: (json['eventType'] as String?)?.let(EventType.fromString),
       stateChangeConfiguration: json['stateChangeConfiguration'] != null
           ? StateChangeConfiguration.fromJson(
               json['stateChangeConfiguration'] as Map<String, dynamic>)
@@ -1969,26 +1853,16 @@ class TimestampValue {
 }
 
 enum TriggerType {
-  snoozeTimeout,
-}
+  snoozeTimeout('SNOOZE_TIMEOUT'),
+  ;
 
-extension TriggerTypeValueExtension on TriggerType {
-  String toValue() {
-    switch (this) {
-      case TriggerType.snoozeTimeout:
-        return 'SNOOZE_TIMEOUT';
-    }
-  }
-}
+  final String value;
 
-extension TriggerTypeFromString on String {
-  TriggerType toTriggerType() {
-    switch (this) {
-      case 'SNOOZE_TIMEOUT':
-        return TriggerType.snoozeTimeout;
-    }
-    throw Exception('$this is not known in enum TriggerType');
-  }
+  const TriggerType(this.value);
+
+  static TriggerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TriggerType'));
 }
 
 /// Information used to update the detector (instance).

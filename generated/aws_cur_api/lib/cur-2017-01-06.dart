@@ -19,18 +19,22 @@ import 'package:shared_aws_api/shared.dart'
 
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
-/// The AWS Cost and Usage Report API enables you to programmatically create,
-/// query, and delete AWS Cost and Usage report definitions.
+/// You can use the Amazon Web Services Cost and Usage Report API to
+/// programmatically create, query, and delete Amazon Web Services Cost and
+/// Usage Report definitions.
 ///
-/// AWS Cost and Usage reports track the monthly AWS costs and usage associated
-/// with your AWS account. The report contains line items for each unique
-/// combination of AWS product, usage type, and operation that your AWS account
-/// uses. You can configure the AWS Cost and Usage report to show only the data
-/// that you want, using the AWS Cost and Usage API.
+/// Amazon Web Services Cost and Usage Report track the monthly Amazon Web
+/// Services costs and usage associated with your Amazon Web Services account.
+/// The report contains line items for each unique combination of Amazon Web
+/// Services product, usage type, and operation that your Amazon Web Services
+/// account uses. You can configure the Amazon Web Services Cost and Usage
+/// Report to show only the data that you want, using the Amazon Web Services
+/// Cost and Usage Report API.
 ///
 /// Service Endpoint
 ///
-/// The AWS Cost and Usage Report API provides the following endpoint:
+/// The Amazon Web Services Cost and Usage Report API provides the following
+/// endpoint:
 ///
 /// <ul>
 /// <li>
@@ -66,7 +70,8 @@ class CostandUsageReportService {
     _protocol.close();
   }
 
-  /// Deletes the specified report.
+  /// Deletes the specified report. Any tags associated with the report are also
+  /// deleted.
   ///
   /// May throw [InternalErrorException].
   /// May throw [ValidationException].
@@ -75,7 +80,7 @@ class CostandUsageReportService {
   /// The name of the report that you want to delete. The name must be unique,
   /// is case sensitive, and can't include spaces.
   Future<DeleteReportDefinitionResponse> deleteReportDefinition({
-    String? reportName,
+    required String reportName,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -88,14 +93,15 @@ class CostandUsageReportService {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (reportName != null) 'ReportName': reportName,
+        'ReportName': reportName,
       },
     );
 
     return DeleteReportDefinitionResponse.fromJson(jsonResponse.body);
   }
 
-  /// Lists the AWS Cost and Usage reports available to this account.
+  /// Lists the Amazon Web Services Cost and Usage Report available to this
+  /// account.
   ///
   /// May throw [InternalErrorException].
   Future<DescribeReportDefinitionsResponse> describeReportDefinitions({
@@ -128,7 +134,36 @@ class CostandUsageReportService {
     return DescribeReportDefinitionsResponse.fromJson(jsonResponse.body);
   }
 
-  /// Allows you to programatically update your report preferences.
+  /// Lists the tags associated with the specified report definition.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalErrorException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [reportName] :
+  /// The report name of the report definition that tags are to be returned for.
+  Future<ListTagsForResourceResponse> listTagsForResource({
+    required String reportName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSOrigamiServiceGatewayService.ListTagsForResource'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ReportName': reportName,
+      },
+    );
+
+    return ListTagsForResourceResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Allows you to programmatically update your report preferences.
   ///
   /// May throw [InternalErrorException].
   /// May throw [ValidationException].
@@ -159,12 +194,17 @@ class CostandUsageReportService {
   /// May throw [ReportLimitReachedException].
   /// May throw [InternalErrorException].
   /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [reportDefinition] :
   /// Represents the output of the PutReportDefinition operation. The content
   /// consists of the detailed metadata and data file information.
+  ///
+  /// Parameter [tags] :
+  /// The tags to be assigned to the report definition resource.
   Future<void> putReportDefinition({
     required ReportDefinition reportDefinition,
+    List<Tag>? tags,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -178,236 +218,153 @@ class CostandUsageReportService {
       headers: headers,
       payload: {
         'ReportDefinition': reportDefinition,
+        if (tags != null) 'Tags': tags,
+      },
+    );
+  }
+
+  /// Associates a set of tags with a report definition.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalErrorException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [reportName] :
+  /// The report name of the report definition that tags are to be associated
+  /// with.
+  ///
+  /// Parameter [tags] :
+  /// The tags to be assigned to the report definition resource.
+  Future<void> tagResource({
+    required String reportName,
+    required List<Tag> tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSOrigamiServiceGatewayService.TagResource'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ReportName': reportName,
+        'Tags': tags,
+      },
+    );
+  }
+
+  /// Disassociates a set of tags from a report definition.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalErrorException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [reportName] :
+  /// The report name of the report definition that tags are to be disassociated
+  /// from.
+  ///
+  /// Parameter [tagKeys] :
+  /// The tags to be disassociated from the report definition resource.
+  Future<void> untagResource({
+    required String reportName,
+    required List<String> tagKeys,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSOrigamiServiceGatewayService.UntagResource'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ReportName': reportName,
+        'TagKeys': tagKeys,
       },
     );
   }
 }
 
-/// The region of the S3 bucket that AWS delivers the report into.
+/// The region of the S3 bucket that Amazon Web Services delivers the report
+/// into.
 enum AWSRegion {
-  afSouth_1,
-  apEast_1,
-  apSouth_1,
-  apSouth_2,
-  apSoutheast_1,
-  apSoutheast_2,
-  apSoutheast_3,
-  apNortheast_1,
-  apNortheast_2,
-  apNortheast_3,
-  caCentral_1,
-  euCentral_1,
-  euCentral_2,
-  euWest_1,
-  euWest_2,
-  euWest_3,
-  euNorth_1,
-  euSouth_1,
-  euSouth_2,
-  meCentral_1,
-  meSouth_1,
-  saEast_1,
-  usEast_1,
-  usEast_2,
-  usWest_1,
-  usWest_2,
-  cnNorth_1,
-  cnNorthwest_1,
+  afSouth_1('af-south-1'),
+  apEast_1('ap-east-1'),
+  apSouth_1('ap-south-1'),
+  apSouth_2('ap-south-2'),
+  apSoutheast_1('ap-southeast-1'),
+  apSoutheast_2('ap-southeast-2'),
+  apSoutheast_3('ap-southeast-3'),
+  apNortheast_1('ap-northeast-1'),
+  apNortheast_2('ap-northeast-2'),
+  apNortheast_3('ap-northeast-3'),
+  caCentral_1('ca-central-1'),
+  euCentral_1('eu-central-1'),
+  euCentral_2('eu-central-2'),
+  euWest_1('eu-west-1'),
+  euWest_2('eu-west-2'),
+  euWest_3('eu-west-3'),
+  euNorth_1('eu-north-1'),
+  euSouth_1('eu-south-1'),
+  euSouth_2('eu-south-2'),
+  meCentral_1('me-central-1'),
+  meSouth_1('me-south-1'),
+  saEast_1('sa-east-1'),
+  usEast_1('us-east-1'),
+  usEast_2('us-east-2'),
+  usWest_1('us-west-1'),
+  usWest_2('us-west-2'),
+  cnNorth_1('cn-north-1'),
+  cnNorthwest_1('cn-northwest-1'),
+  ;
+
+  final String value;
+
+  const AWSRegion(this.value);
+
+  static AWSRegion fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AWSRegion'));
 }
 
-extension AWSRegionValueExtension on AWSRegion {
-  String toValue() {
-    switch (this) {
-      case AWSRegion.afSouth_1:
-        return 'af-south-1';
-      case AWSRegion.apEast_1:
-        return 'ap-east-1';
-      case AWSRegion.apSouth_1:
-        return 'ap-south-1';
-      case AWSRegion.apSouth_2:
-        return 'ap-south-2';
-      case AWSRegion.apSoutheast_1:
-        return 'ap-southeast-1';
-      case AWSRegion.apSoutheast_2:
-        return 'ap-southeast-2';
-      case AWSRegion.apSoutheast_3:
-        return 'ap-southeast-3';
-      case AWSRegion.apNortheast_1:
-        return 'ap-northeast-1';
-      case AWSRegion.apNortheast_2:
-        return 'ap-northeast-2';
-      case AWSRegion.apNortheast_3:
-        return 'ap-northeast-3';
-      case AWSRegion.caCentral_1:
-        return 'ca-central-1';
-      case AWSRegion.euCentral_1:
-        return 'eu-central-1';
-      case AWSRegion.euCentral_2:
-        return 'eu-central-2';
-      case AWSRegion.euWest_1:
-        return 'eu-west-1';
-      case AWSRegion.euWest_2:
-        return 'eu-west-2';
-      case AWSRegion.euWest_3:
-        return 'eu-west-3';
-      case AWSRegion.euNorth_1:
-        return 'eu-north-1';
-      case AWSRegion.euSouth_1:
-        return 'eu-south-1';
-      case AWSRegion.euSouth_2:
-        return 'eu-south-2';
-      case AWSRegion.meCentral_1:
-        return 'me-central-1';
-      case AWSRegion.meSouth_1:
-        return 'me-south-1';
-      case AWSRegion.saEast_1:
-        return 'sa-east-1';
-      case AWSRegion.usEast_1:
-        return 'us-east-1';
-      case AWSRegion.usEast_2:
-        return 'us-east-2';
-      case AWSRegion.usWest_1:
-        return 'us-west-1';
-      case AWSRegion.usWest_2:
-        return 'us-west-2';
-      case AWSRegion.cnNorth_1:
-        return 'cn-north-1';
-      case AWSRegion.cnNorthwest_1:
-        return 'cn-northwest-1';
-    }
-  }
-}
-
-extension AWSRegionFromString on String {
-  AWSRegion toAWSRegion() {
-    switch (this) {
-      case 'af-south-1':
-        return AWSRegion.afSouth_1;
-      case 'ap-east-1':
-        return AWSRegion.apEast_1;
-      case 'ap-south-1':
-        return AWSRegion.apSouth_1;
-      case 'ap-south-2':
-        return AWSRegion.apSouth_2;
-      case 'ap-southeast-1':
-        return AWSRegion.apSoutheast_1;
-      case 'ap-southeast-2':
-        return AWSRegion.apSoutheast_2;
-      case 'ap-southeast-3':
-        return AWSRegion.apSoutheast_3;
-      case 'ap-northeast-1':
-        return AWSRegion.apNortheast_1;
-      case 'ap-northeast-2':
-        return AWSRegion.apNortheast_2;
-      case 'ap-northeast-3':
-        return AWSRegion.apNortheast_3;
-      case 'ca-central-1':
-        return AWSRegion.caCentral_1;
-      case 'eu-central-1':
-        return AWSRegion.euCentral_1;
-      case 'eu-central-2':
-        return AWSRegion.euCentral_2;
-      case 'eu-west-1':
-        return AWSRegion.euWest_1;
-      case 'eu-west-2':
-        return AWSRegion.euWest_2;
-      case 'eu-west-3':
-        return AWSRegion.euWest_3;
-      case 'eu-north-1':
-        return AWSRegion.euNorth_1;
-      case 'eu-south-1':
-        return AWSRegion.euSouth_1;
-      case 'eu-south-2':
-        return AWSRegion.euSouth_2;
-      case 'me-central-1':
-        return AWSRegion.meCentral_1;
-      case 'me-south-1':
-        return AWSRegion.meSouth_1;
-      case 'sa-east-1':
-        return AWSRegion.saEast_1;
-      case 'us-east-1':
-        return AWSRegion.usEast_1;
-      case 'us-east-2':
-        return AWSRegion.usEast_2;
-      case 'us-west-1':
-        return AWSRegion.usWest_1;
-      case 'us-west-2':
-        return AWSRegion.usWest_2;
-      case 'cn-north-1':
-        return AWSRegion.cnNorth_1;
-      case 'cn-northwest-1':
-        return AWSRegion.cnNorthwest_1;
-    }
-    throw Exception('$this is not known in enum AWSRegion');
-  }
-}
-
-/// The types of manifest that you want AWS to create for this report.
+/// The types of manifest that you want Amazon Web Services to create for this
+/// report.
 enum AdditionalArtifact {
-  redshift,
-  quicksight,
-  athena,
+  redshift('REDSHIFT'),
+  quicksight('QUICKSIGHT'),
+  athena('ATHENA'),
+  ;
+
+  final String value;
+
+  const AdditionalArtifact(this.value);
+
+  static AdditionalArtifact fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AdditionalArtifact'));
 }
 
-extension AdditionalArtifactValueExtension on AdditionalArtifact {
-  String toValue() {
-    switch (this) {
-      case AdditionalArtifact.redshift:
-        return 'REDSHIFT';
-      case AdditionalArtifact.quicksight:
-        return 'QUICKSIGHT';
-      case AdditionalArtifact.athena:
-        return 'ATHENA';
-    }
-  }
-}
-
-extension AdditionalArtifactFromString on String {
-  AdditionalArtifact toAdditionalArtifact() {
-    switch (this) {
-      case 'REDSHIFT':
-        return AdditionalArtifact.redshift;
-      case 'QUICKSIGHT':
-        return AdditionalArtifact.quicksight;
-      case 'ATHENA':
-        return AdditionalArtifact.athena;
-    }
-    throw Exception('$this is not known in enum AdditionalArtifact');
-  }
-}
-
-/// The compression format that AWS uses for the report.
+/// The compression format that Amazon Web Services uses for the report.
 enum CompressionFormat {
-  zip,
-  gzip,
-  parquet,
-}
+  zip('ZIP'),
+  gzip('GZIP'),
+  parquet('Parquet'),
+  ;
 
-extension CompressionFormatValueExtension on CompressionFormat {
-  String toValue() {
-    switch (this) {
-      case CompressionFormat.zip:
-        return 'ZIP';
-      case CompressionFormat.gzip:
-        return 'GZIP';
-      case CompressionFormat.parquet:
-        return 'Parquet';
-    }
-  }
-}
+  final String value;
 
-extension CompressionFormatFromString on String {
-  CompressionFormat toCompressionFormat() {
-    switch (this) {
-      case 'ZIP':
-        return CompressionFormat.zip;
-      case 'GZIP':
-        return CompressionFormat.gzip;
-      case 'Parquet':
-        return CompressionFormat.parquet;
-    }
-    throw Exception('$this is not known in enum CompressionFormat');
-  }
+  const CompressionFormat(this.value);
+
+  static CompressionFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CompressionFormat'));
 }
 
 /// If the action is successful, the service sends back an HTTP 200 response.
@@ -429,7 +386,7 @@ class DeleteReportDefinitionResponse {
 class DescribeReportDefinitionsResponse {
   final String? nextToken;
 
-  /// A list of AWS Cost and Usage reports owned by the account.
+  /// An Amazon Web Services Cost and Usage Report list owned by the account.
   final List<ReportDefinition>? reportDefinitions;
 
   DescribeReportDefinitionsResponse({
@@ -442,8 +399,41 @@ class DescribeReportDefinitionsResponse {
     return DescribeReportDefinitionsResponse(
       nextToken: json['NextToken'] as String?,
       reportDefinitions: (json['ReportDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReportDefinition.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+enum LastStatus {
+  success('SUCCESS'),
+  errorPermissions('ERROR_PERMISSIONS'),
+  errorNoBucket('ERROR_NO_BUCKET'),
+  ;
+
+  final String value;
+
+  const LastStatus(this.value);
+
+  static LastStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum LastStatus'));
+}
+
+class ListTagsForResourceResponse {
+  /// The tags assigned to the report definition resource.
+  final List<Tag>? tags;
+
+  ListTagsForResourceResponse({
+    this.tags,
+  });
+
+  factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
+    return ListTagsForResourceResponse(
+      tags: (json['Tags'] as List?)
+          ?.nonNulls
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -467,9 +457,9 @@ class PutReportDefinitionResponse {
   }
 }
 
-/// The definition of AWS Cost and Usage Report. You can specify the report
-/// name, time unit, report format, compression format, S3 bucket, additional
-/// artifacts, and schema elements in the definition.
+/// The definition of Amazon Web Services Cost and Usage Report. You can specify
+/// the report name, time unit, report format, compression format, S3 bucket,
+/// additional artifacts, and schema elements in the definition.
 class ReportDefinition {
   /// A list of strings that indicate additional content that Amazon Web Services
   /// includes in the report, such as individual resource IDs.
@@ -486,14 +476,21 @@ class ReportDefinition {
   /// report.
   final List<AdditionalArtifact>? additionalArtifacts;
 
-  /// The Amazon resource name of the billing view. You can get this value by
-  /// using the billing view service public APIs.
+  /// The Amazon resource name of the billing view. The
+  /// <code>BillingViewArn</code> is needed to create Amazon Web Services Cost and
+  /// Usage Report for each billing group maintained in the Amazon Web Services
+  /// Billing Conductor service. The <code>BillingViewArn</code> for a billing
+  /// group can be constructed as:
+  /// <code>arn:aws:billing::payer-account-id:billingview/billing-group-primary-account-id</code>
   final String? billingViewArn;
 
   /// Whether you want Amazon Web Services to update your reports after they have
   /// been finalized if Amazon Web Services detects charges related to previous
   /// months. These charges can include refunds, credits, or support fees.
   final bool? refreshClosedReports;
+
+  /// The status of the report.
+  final ReportStatus? reportStatus;
 
   /// Whether you want Amazon Web Services to overwrite the previous version of
   /// each report or to deliver the report in addition to the previous versions.
@@ -511,30 +508,35 @@ class ReportDefinition {
     this.additionalArtifacts,
     this.billingViewArn,
     this.refreshClosedReports,
+    this.reportStatus,
     this.reportVersioning,
   });
 
   factory ReportDefinition.fromJson(Map<String, dynamic> json) {
     return ReportDefinition(
       additionalSchemaElements: (json['AdditionalSchemaElements'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toSchemaElement())
+          .nonNulls
+          .map((e) => SchemaElement.fromString((e as String)))
           .toList(),
-      compression: (json['Compression'] as String).toCompressionFormat(),
-      format: (json['Format'] as String).toReportFormat(),
+      compression:
+          CompressionFormat.fromString((json['Compression'] as String)),
+      format: ReportFormat.fromString((json['Format'] as String)),
       reportName: json['ReportName'] as String,
       s3Bucket: json['S3Bucket'] as String,
       s3Prefix: json['S3Prefix'] as String,
-      s3Region: (json['S3Region'] as String).toAWSRegion(),
-      timeUnit: (json['TimeUnit'] as String).toTimeUnit(),
+      s3Region: AWSRegion.fromString((json['S3Region'] as String)),
+      timeUnit: TimeUnit.fromString((json['TimeUnit'] as String)),
       additionalArtifacts: (json['AdditionalArtifacts'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toAdditionalArtifact())
+          ?.nonNulls
+          .map((e) => AdditionalArtifact.fromString((e as String)))
           .toList(),
       billingViewArn: json['BillingViewArn'] as String?,
       refreshClosedReports: json['RefreshClosedReports'] as bool?,
-      reportVersioning:
-          (json['ReportVersioning'] as String?)?.toReportVersioning(),
+      reportStatus: json['ReportStatus'] != null
+          ? ReportStatus.fromJson(json['ReportStatus'] as Map<String, dynamic>)
+          : null,
+      reportVersioning: (json['ReportVersioning'] as String?)
+          ?.let(ReportVersioning.fromString),
     );
   }
 
@@ -550,146 +552,172 @@ class ReportDefinition {
     final additionalArtifacts = this.additionalArtifacts;
     final billingViewArn = this.billingViewArn;
     final refreshClosedReports = this.refreshClosedReports;
+    final reportStatus = this.reportStatus;
     final reportVersioning = this.reportVersioning;
     return {
       'AdditionalSchemaElements':
-          additionalSchemaElements.map((e) => e.toValue()).toList(),
-      'Compression': compression.toValue(),
-      'Format': format.toValue(),
+          additionalSchemaElements.map((e) => e.value).toList(),
+      'Compression': compression.value,
+      'Format': format.value,
       'ReportName': reportName,
       'S3Bucket': s3Bucket,
       'S3Prefix': s3Prefix,
-      'S3Region': s3Region.toValue(),
-      'TimeUnit': timeUnit.toValue(),
+      'S3Region': s3Region.value,
+      'TimeUnit': timeUnit.value,
       if (additionalArtifacts != null)
-        'AdditionalArtifacts':
-            additionalArtifacts.map((e) => e.toValue()).toList(),
+        'AdditionalArtifacts': additionalArtifacts.map((e) => e.value).toList(),
       if (billingViewArn != null) 'BillingViewArn': billingViewArn,
       if (refreshClosedReports != null)
         'RefreshClosedReports': refreshClosedReports,
-      if (reportVersioning != null)
-        'ReportVersioning': reportVersioning.toValue(),
+      if (reportStatus != null) 'ReportStatus': reportStatus,
+      if (reportVersioning != null) 'ReportVersioning': reportVersioning.value,
     };
   }
 }
 
-/// The format that AWS saves the report in.
+/// The format that Amazon Web Services saves the report in.
 enum ReportFormat {
-  textORcsv,
-  parquet,
+  textORcsv('textORcsv'),
+  parquet('Parquet'),
+  ;
+
+  final String value;
+
+  const ReportFormat(this.value);
+
+  static ReportFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReportFormat'));
 }
 
-extension ReportFormatValueExtension on ReportFormat {
-  String toValue() {
-    switch (this) {
-      case ReportFormat.textORcsv:
-        return 'textORcsv';
-      case ReportFormat.parquet:
-        return 'Parquet';
-    }
+/// A two element dictionary with a <code>lastDelivery</code> and
+/// <code>lastStatus</code> key whose values describe the date and status of the
+/// last delivered report for a particular report definition.
+class ReportStatus {
+  /// A timestamp that gives the date of a report delivery.
+  final String? lastDelivery;
+
+  /// An enum that gives the status of a report delivery.
+  final LastStatus? lastStatus;
+
+  ReportStatus({
+    this.lastDelivery,
+    this.lastStatus,
+  });
+
+  factory ReportStatus.fromJson(Map<String, dynamic> json) {
+    return ReportStatus(
+      lastDelivery: json['lastDelivery'] as String?,
+      lastStatus: (json['lastStatus'] as String?)?.let(LastStatus.fromString),
+    );
   }
-}
 
-extension ReportFormatFromString on String {
-  ReportFormat toReportFormat() {
-    switch (this) {
-      case 'textORcsv':
-        return ReportFormat.textORcsv;
-      case 'Parquet':
-        return ReportFormat.parquet;
-    }
-    throw Exception('$this is not known in enum ReportFormat');
+  Map<String, dynamic> toJson() {
+    final lastDelivery = this.lastDelivery;
+    final lastStatus = this.lastStatus;
+    return {
+      if (lastDelivery != null) 'lastDelivery': lastDelivery,
+      if (lastStatus != null) 'lastStatus': lastStatus.value,
+    };
   }
 }
 
 enum ReportVersioning {
-  createNewReport,
-  overwriteReport,
+  createNewReport('CREATE_NEW_REPORT'),
+  overwriteReport('OVERWRITE_REPORT'),
+  ;
+
+  final String value;
+
+  const ReportVersioning(this.value);
+
+  static ReportVersioning fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReportVersioning'));
 }
 
-extension ReportVersioningValueExtension on ReportVersioning {
-  String toValue() {
-    switch (this) {
-      case ReportVersioning.createNewReport:
-        return 'CREATE_NEW_REPORT';
-      case ReportVersioning.overwriteReport:
-        return 'OVERWRITE_REPORT';
-    }
-  }
-}
-
-extension ReportVersioningFromString on String {
-  ReportVersioning toReportVersioning() {
-    switch (this) {
-      case 'CREATE_NEW_REPORT':
-        return ReportVersioning.createNewReport;
-      case 'OVERWRITE_REPORT':
-        return ReportVersioning.overwriteReport;
-    }
-    throw Exception('$this is not known in enum ReportVersioning');
-  }
-}
-
-/// Whether or not AWS includes resource IDs in the report.
+/// Whether or not Amazon Web Services includes resource IDs in the report.
 enum SchemaElement {
-  resources,
-  splitCostAllocationData,
+  resources('RESOURCES'),
+  splitCostAllocationData('SPLIT_COST_ALLOCATION_DATA'),
+  manualDiscountCompatibility('MANUAL_DISCOUNT_COMPATIBILITY'),
+  ;
+
+  final String value;
+
+  const SchemaElement(this.value);
+
+  static SchemaElement fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SchemaElement'));
 }
 
-extension SchemaElementValueExtension on SchemaElement {
-  String toValue() {
-    switch (this) {
-      case SchemaElement.resources:
-        return 'RESOURCES';
-      case SchemaElement.splitCostAllocationData:
-        return 'SPLIT_COST_ALLOCATION_DATA';
-    }
+/// Describes a tag. A tag is a key-value pair. You can add up to 50 tags to a
+/// report definition.
+class Tag {
+  /// The key of the tag. Tag keys are case sensitive. Each report definition can
+  /// only have up to one tag with the same key. If you try to add an existing tag
+  /// with the same key, the existing tag value will be updated to the new value.
+  final String key;
+
+  /// The value of the tag. Tag values are case-sensitive. This can be an empty
+  /// string.
+  final String value;
+
+  Tag({
+    required this.key,
+    required this.value,
+  });
+
+  factory Tag.fromJson(Map<String, dynamic> json) {
+    return Tag(
+      key: json['Key'] as String,
+      value: json['Value'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      'Value': value,
+    };
   }
 }
 
-extension SchemaElementFromString on String {
-  SchemaElement toSchemaElement() {
-    switch (this) {
-      case 'RESOURCES':
-        return SchemaElement.resources;
-      case 'SPLIT_COST_ALLOCATION_DATA':
-        return SchemaElement.splitCostAllocationData;
-    }
-    throw Exception('$this is not known in enum SchemaElement');
+class TagResourceResponse {
+  TagResourceResponse();
+
+  factory TagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return TagResourceResponse();
   }
 }
 
 /// The length of time covered by the report.
 enum TimeUnit {
-  hourly,
-  daily,
-  monthly,
+  hourly('HOURLY'),
+  daily('DAILY'),
+  monthly('MONTHLY'),
+  ;
+
+  final String value;
+
+  const TimeUnit(this.value);
+
+  static TimeUnit fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TimeUnit'));
 }
 
-extension TimeUnitValueExtension on TimeUnit {
-  String toValue() {
-    switch (this) {
-      case TimeUnit.hourly:
-        return 'HOURLY';
-      case TimeUnit.daily:
-        return 'DAILY';
-      case TimeUnit.monthly:
-        return 'MONTHLY';
-    }
-  }
-}
+class UntagResourceResponse {
+  UntagResourceResponse();
 
-extension TimeUnitFromString on String {
-  TimeUnit toTimeUnit() {
-    switch (this) {
-      case 'HOURLY':
-        return TimeUnit.hourly;
-      case 'DAILY':
-        return TimeUnit.daily;
-      case 'MONTHLY':
-        return TimeUnit.monthly;
-    }
-    throw Exception('$this is not known in enum TimeUnit');
+  factory UntagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return UntagResourceResponse();
   }
 }
 
@@ -710,6 +738,11 @@ class ReportLimitReachedException extends _s.GenericAwsException {
             type: type, code: 'ReportLimitReachedException', message: message);
 }
 
+class ResourceNotFoundException extends _s.GenericAwsException {
+  ResourceNotFoundException({String? type, String? message})
+      : super(type: type, code: 'ResourceNotFoundException', message: message);
+}
+
 class ValidationException extends _s.GenericAwsException {
   ValidationException({String? type, String? message})
       : super(type: type, code: 'ValidationException', message: message);
@@ -722,6 +755,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       InternalErrorException(type: type, message: message),
   'ReportLimitReachedException': (type, message) =>
       ReportLimitReachedException(type: type, message: message),
+  'ResourceNotFoundException': (type, message) =>
+      ResourceNotFoundException(type: type, message: message),
   'ValidationException': (type, message) =>
       ValidationException(type: type, message: message),
 };

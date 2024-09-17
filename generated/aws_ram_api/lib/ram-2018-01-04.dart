@@ -206,17 +206,23 @@ class RAM {
   /// href="https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
   /// Resource Names (ARNs)</a> of the resources that you want to share. This
   /// can be <code>null</code> if you want to add only principals.
+  ///
+  /// Parameter [sources] :
+  /// Specifies from which source accounts the service principal has access to
+  /// the resources in this resource share.
   Future<AssociateResourceShareResponse> associateResourceShare({
     required String resourceShareArn,
     String? clientToken,
     List<String>? principals,
     List<String>? resourceArns,
+    List<String>? sources,
   }) async {
     final $payload = <String, dynamic>{
       'resourceShareArn': resourceShareArn,
       if (clientToken != null) 'clientToken': clientToken,
       if (principals != null) 'principals': principals,
       if (resourceArns != null) 'resourceArns': resourceArns,
+      if (sources != null) 'sources': sources,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -543,6 +549,7 @@ class RAM {
   /// May throw [OperationNotPermittedException].
   /// May throw [ResourceShareLimitExceededException].
   /// May throw [TagPolicyViolationException].
+  /// May throw [TagLimitExceededException].
   /// May throw [ServerInternalException].
   /// May throw [ServiceUnavailableException].
   ///
@@ -622,6 +629,10 @@ class RAM {
   /// Specifies a list of one or more ARNs of the resources to associate with
   /// the resource share.
   ///
+  /// Parameter [sources] :
+  /// Specifies from which source accounts the service principal has access to
+  /// the resources in this resource share.
+  ///
   /// Parameter [tags] :
   /// Specifies one or more tags to attach to the resource share itself. It
   /// doesn't attach the tags to the resources associated with the resource
@@ -633,6 +644,7 @@ class RAM {
     List<String>? permissionArns,
     List<String>? principals,
     List<String>? resourceArns,
+    List<String>? sources,
     List<Tag>? tags,
   }) async {
     final $payload = <String, dynamic>{
@@ -643,6 +655,7 @@ class RAM {
       if (permissionArns != null) 'permissionArns': permissionArns,
       if (principals != null) 'principals': principals,
       if (resourceArns != null) 'resourceArns': resourceArns,
+      if (sources != null) 'sources': sources,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -913,17 +926,23 @@ class RAM {
   /// Resource Names (ARNs)</a> for one or more resources that you want to
   /// remove from the resource share. After the operation runs, these resources
   /// are no longer shared with principals associated with the resource share.
+  ///
+  /// Parameter [sources] :
+  /// Specifies from which source accounts the service principal no longer has
+  /// access to the resources in this resource share.
   Future<DisassociateResourceShareResponse> disassociateResourceShare({
     required String resourceShareArn,
     String? clientToken,
     List<String>? principals,
     List<String>? resourceArns,
+    List<String>? sources,
   }) async {
     final $payload = <String, dynamic>{
       'resourceShareArn': resourceShareArn,
       if (clientToken != null) 'clientToken': clientToken,
       if (principals != null) 'principals': principals,
       if (resourceArns != null) 'resourceArns': resourceArns,
+      if (sources != null) 'sources': sources,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1184,7 +1203,7 @@ class RAM {
   /// retrieve. This can be an Amazon Web Services account ID, an organization
   /// ID, an organizational unit ID, or the <a
   /// href="https://docs.aws.amazon.com/general/latest/gr/aws-arns-and-namespaces.html">Amazon
-  /// Resource Name (ARN)</a> of an individual IAM user or role.
+  /// Resource Name (ARN)</a> of an individual IAM role or user.
   ///
   /// You cannot specify this parameter if the association type is
   /// <code>RESOURCE</code>.
@@ -1219,9 +1238,9 @@ class RAM {
       500,
     );
     final $payload = <String, dynamic>{
-      'associationType': associationType.toValue(),
+      'associationType': associationType.value,
       if (associationStatus != null)
-        'associationStatus': associationStatus.toValue(),
+        'associationStatus': associationStatus.value,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
       if (principal != null) 'principal': principal,
@@ -1396,7 +1415,7 @@ class RAM {
       500,
     );
     final $payload = <String, dynamic>{
-      'resourceOwner': resourceOwner.toValue(),
+      'resourceOwner': resourceOwner.value,
       if (maxResults != null) 'maxResults': maxResults,
       if (name != null) 'name': name,
       if (nextToken != null) 'nextToken': nextToken,
@@ -1404,7 +1423,7 @@ class RAM {
       if (permissionVersion != null) 'permissionVersion': permissionVersion,
       if (resourceShareArns != null) 'resourceShareArns': resourceShareArns,
       if (resourceShareStatus != null)
-        'resourceShareStatus': resourceShareStatus.toValue(),
+        'resourceShareStatus': resourceShareStatus.value,
       if (tagFilters != null) 'tagFilters': tagFilters,
     };
     final response = await _protocol.send(
@@ -1493,7 +1512,7 @@ class RAM {
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
       if (resourceRegionScope != null)
-        'resourceRegionScope': resourceRegionScope.toValue(),
+        'resourceRegionScope': resourceRegionScope.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1582,9 +1601,9 @@ class RAM {
     );
     final $payload = <String, dynamic>{
       if (associationStatus != null)
-        'associationStatus': associationStatus.toValue(),
+        'associationStatus': associationStatus.value,
       if (defaultVersion != null) 'defaultVersion': defaultVersion,
-      if (featureSet != null) 'featureSet': featureSet.toValue(),
+      if (featureSet != null) 'featureSet': featureSet.value,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
       if (permissionArn != null) 'permissionArn': permissionArn,
@@ -1728,7 +1747,7 @@ class RAM {
     final $payload = <String, dynamic>{
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
-      if (permissionType != null) 'permissionType': permissionType.toValue(),
+      if (permissionType != null) 'permissionType': permissionType.value,
       if (resourceType != null) 'resourceType': resourceType,
     };
     final response = await _protocol.send(
@@ -1853,7 +1872,7 @@ class RAM {
       500,
     );
     final $payload = <String, dynamic>{
-      'resourceOwner': resourceOwner.toValue(),
+      'resourceOwner': resourceOwner.value,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
       if (principals != null) 'principals': principals,
@@ -1921,7 +1940,7 @@ class RAM {
     final $payload = <String, dynamic>{
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (workIds != null) 'workIds': workIds,
     };
     final response = await _protocol.send(
@@ -2052,7 +2071,7 @@ class RAM {
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
       if (resourceRegionScope != null)
-        'resourceRegionScope': resourceRegionScope.toValue(),
+        'resourceRegionScope': resourceRegionScope.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2166,13 +2185,13 @@ class RAM {
       500,
     );
     final $payload = <String, dynamic>{
-      'resourceOwner': resourceOwner.toValue(),
+      'resourceOwner': resourceOwner.value,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
       if (principal != null) 'principal': principal,
       if (resourceArns != null) 'resourceArns': resourceArns,
       if (resourceRegionScope != null)
-        'resourceRegionScope': resourceRegionScope.toValue(),
+        'resourceRegionScope': resourceRegionScope.value,
       if (resourceShareArns != null) 'resourceShareArns': resourceShareArns,
       if (resourceType != null) 'resourceType': resourceType,
     };
@@ -2757,7 +2776,7 @@ class AssociateResourceShareResponse {
     return AssociateResourceShareResponse(
       clientToken: json['clientToken'] as String?,
       resourceShareAssociations: (json['resourceShareAssociations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResourceShareAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2859,7 +2878,8 @@ class AssociatedPermission {
     return AssociatedPermission(
       arn: json['arn'] as String?,
       defaultVersion: json['defaultVersion'] as bool?,
-      featureSet: (json['featureSet'] as String?)?.toPermissionFeatureSet(),
+      featureSet:
+          (json['featureSet'] as String?)?.let(PermissionFeatureSet.fromString),
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       permissionVersion: json['permissionVersion'] as String?,
       resourceShareArn: json['resourceShareArn'] as String?,
@@ -2972,8 +2992,8 @@ class DeletePermissionResponse {
   factory DeletePermissionResponse.fromJson(Map<String, dynamic> json) {
     return DeletePermissionResponse(
       clientToken: json['clientToken'] as String?,
-      permissionStatus:
-          (json['permissionStatus'] as String?)?.toPermissionStatus(),
+      permissionStatus: (json['permissionStatus'] as String?)
+          ?.let(PermissionStatus.fromString),
       returnValue: json['returnValue'] as bool?,
     );
   }
@@ -3003,8 +3023,8 @@ class DeletePermissionVersionResponse {
   factory DeletePermissionVersionResponse.fromJson(Map<String, dynamic> json) {
     return DeletePermissionVersionResponse(
       clientToken: json['clientToken'] as String?,
-      permissionStatus:
-          (json['permissionStatus'] as String?)?.toPermissionStatus(),
+      permissionStatus: (json['permissionStatus'] as String?)
+          ?.let(PermissionStatus.fromString),
       returnValue: json['returnValue'] as bool?,
     );
   }
@@ -3083,7 +3103,7 @@ class DisassociateResourceShareResponse {
     return DisassociateResourceShareResponse(
       clientToken: json['clientToken'] as String?,
       resourceShareAssociations: (json['resourceShareAssociations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResourceShareAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3147,7 +3167,7 @@ class GetResourcePoliciesResponse {
     return GetResourcePoliciesResponse(
       nextToken: json['nextToken'] as String?,
       policies: (json['policies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3176,7 +3196,7 @@ class GetResourceShareAssociationsResponse {
     return GetResourceShareAssociationsResponse(
       nextToken: json['nextToken'] as String?,
       resourceShareAssociations: (json['resourceShareAssociations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResourceShareAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3206,7 +3226,7 @@ class GetResourceShareInvitationsResponse {
     return GetResourceShareInvitationsResponse(
       nextToken: json['nextToken'] as String?,
       resourceShareInvitations: (json['resourceShareInvitations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResourceShareInvitation.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3235,7 +3255,7 @@ class GetResourceSharesResponse {
     return GetResourceSharesResponse(
       nextToken: json['nextToken'] as String?,
       resourceShares: (json['resourceShares'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceShare.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3265,7 +3285,7 @@ class ListPendingInvitationResourcesResponse {
     return ListPendingInvitationResourcesResponse(
       nextToken: json['nextToken'] as String?,
       resources: (json['resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Resource.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3294,7 +3314,7 @@ class ListPermissionAssociationsResponse {
     return ListPermissionAssociationsResponse(
       nextToken: json['nextToken'] as String?,
       permissions: (json['permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AssociatedPermission.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3322,7 +3342,7 @@ class ListPermissionVersionsResponse {
     return ListPermissionVersionsResponse(
       nextToken: json['nextToken'] as String?,
       permissions: (json['permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceSharePermissionSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3351,7 +3371,7 @@ class ListPermissionsResponse {
     return ListPermissionsResponse(
       nextToken: json['nextToken'] as String?,
       permissions: (json['permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceSharePermissionSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3380,7 +3400,7 @@ class ListPrincipalsResponse {
     return ListPrincipalsResponse(
       nextToken: json['nextToken'] as String?,
       principals: (json['principals'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Principal.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3411,7 +3431,7 @@ class ListReplacePermissionAssociationsWorkResponse {
       nextToken: json['nextToken'] as String?,
       replacePermissionAssociationsWorks:
           (json['replacePermissionAssociationsWorks'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ReplacePermissionAssociationsWork.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -3442,7 +3462,7 @@ class ListResourceSharePermissionsResponse {
     return ListResourceSharePermissionsResponse(
       nextToken: json['nextToken'] as String?,
       permissions: (json['permissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceSharePermissionSummary.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3472,7 +3492,7 @@ class ListResourceTypesResponse {
     return ListResourceTypesResponse(
       nextToken: json['nextToken'] as String?,
       resourceTypes: (json['resourceTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ServiceNameAndResourceType.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3501,7 +3521,7 @@ class ListResourcesResponse {
     return ListResourcesResponse(
       nextToken: json['nextToken'] as String?,
       resources: (json['resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Resource.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3509,135 +3529,67 @@ class ListResourcesResponse {
 }
 
 enum PermissionFeatureSet {
-  createdFromPolicy,
-  promotingToStandard,
-  standard,
-}
+  createdFromPolicy('CREATED_FROM_POLICY'),
+  promotingToStandard('PROMOTING_TO_STANDARD'),
+  standard('STANDARD'),
+  ;
 
-extension PermissionFeatureSetValueExtension on PermissionFeatureSet {
-  String toValue() {
-    switch (this) {
-      case PermissionFeatureSet.createdFromPolicy:
-        return 'CREATED_FROM_POLICY';
-      case PermissionFeatureSet.promotingToStandard:
-        return 'PROMOTING_TO_STANDARD';
-      case PermissionFeatureSet.standard:
-        return 'STANDARD';
-    }
-  }
-}
+  final String value;
 
-extension PermissionFeatureSetFromString on String {
-  PermissionFeatureSet toPermissionFeatureSet() {
-    switch (this) {
-      case 'CREATED_FROM_POLICY':
-        return PermissionFeatureSet.createdFromPolicy;
-      case 'PROMOTING_TO_STANDARD':
-        return PermissionFeatureSet.promotingToStandard;
-      case 'STANDARD':
-        return PermissionFeatureSet.standard;
-    }
-    throw Exception('$this is not known in enum PermissionFeatureSet');
-  }
+  const PermissionFeatureSet(this.value);
+
+  static PermissionFeatureSet fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PermissionFeatureSet'));
 }
 
 enum PermissionStatus {
-  attachable,
-  unattachable,
-  deleting,
-  deleted,
-}
+  attachable('ATTACHABLE'),
+  unattachable('UNATTACHABLE'),
+  deleting('DELETING'),
+  deleted('DELETED'),
+  ;
 
-extension PermissionStatusValueExtension on PermissionStatus {
-  String toValue() {
-    switch (this) {
-      case PermissionStatus.attachable:
-        return 'ATTACHABLE';
-      case PermissionStatus.unattachable:
-        return 'UNATTACHABLE';
-      case PermissionStatus.deleting:
-        return 'DELETING';
-      case PermissionStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension PermissionStatusFromString on String {
-  PermissionStatus toPermissionStatus() {
-    switch (this) {
-      case 'ATTACHABLE':
-        return PermissionStatus.attachable;
-      case 'UNATTACHABLE':
-        return PermissionStatus.unattachable;
-      case 'DELETING':
-        return PermissionStatus.deleting;
-      case 'DELETED':
-        return PermissionStatus.deleted;
-    }
-    throw Exception('$this is not known in enum PermissionStatus');
-  }
+  const PermissionStatus(this.value);
+
+  static PermissionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PermissionStatus'));
 }
 
 enum PermissionType {
-  customerManaged,
-  awsManaged,
-}
+  customerManaged('CUSTOMER_MANAGED'),
+  awsManaged('AWS_MANAGED'),
+  ;
 
-extension PermissionTypeValueExtension on PermissionType {
-  String toValue() {
-    switch (this) {
-      case PermissionType.customerManaged:
-        return 'CUSTOMER_MANAGED';
-      case PermissionType.awsManaged:
-        return 'AWS_MANAGED';
-    }
-  }
-}
+  final String value;
 
-extension PermissionTypeFromString on String {
-  PermissionType toPermissionType() {
-    switch (this) {
-      case 'CUSTOMER_MANAGED':
-        return PermissionType.customerManaged;
-      case 'AWS_MANAGED':
-        return PermissionType.awsManaged;
-    }
-    throw Exception('$this is not known in enum PermissionType');
-  }
+  const PermissionType(this.value);
+
+  static PermissionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PermissionType'));
 }
 
 enum PermissionTypeFilter {
-  all,
-  awsManaged,
-  customerManaged,
-}
+  all('ALL'),
+  awsManaged('AWS_MANAGED'),
+  customerManaged('CUSTOMER_MANAGED'),
+  ;
 
-extension PermissionTypeFilterValueExtension on PermissionTypeFilter {
-  String toValue() {
-    switch (this) {
-      case PermissionTypeFilter.all:
-        return 'ALL';
-      case PermissionTypeFilter.awsManaged:
-        return 'AWS_MANAGED';
-      case PermissionTypeFilter.customerManaged:
-        return 'CUSTOMER_MANAGED';
-    }
-  }
-}
+  final String value;
 
-extension PermissionTypeFilterFromString on String {
-  PermissionTypeFilter toPermissionTypeFilter() {
-    switch (this) {
-      case 'ALL':
-        return PermissionTypeFilter.all;
-      case 'AWS_MANAGED':
-        return PermissionTypeFilter.awsManaged;
-      case 'CUSTOMER_MANAGED':
-        return PermissionTypeFilter.customerManaged;
-    }
-    throw Exception('$this is not known in enum PermissionTypeFilter');
-  }
+  const PermissionTypeFilter(this.value);
+
+  static PermissionTypeFilter fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PermissionTypeFilter'));
 }
 
 /// Describes a principal for use with Resource Access Manager.
@@ -3870,7 +3822,7 @@ class ReplacePermissionAssociationsWork {
       id: json['id'] as String?,
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       status: (json['status'] as String?)
-          ?.toReplacePermissionAssociationsWorkStatus(),
+          ?.let(ReplacePermissionAssociationsWorkStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
       toPermissionArn: json['toPermissionArn'] as String?,
       toPermissionVersion: json['toPermissionVersion'] as String?,
@@ -3879,39 +3831,19 @@ class ReplacePermissionAssociationsWork {
 }
 
 enum ReplacePermissionAssociationsWorkStatus {
-  inProgress,
-  completed,
-  failed,
-}
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  ;
 
-extension ReplacePermissionAssociationsWorkStatusValueExtension
-    on ReplacePermissionAssociationsWorkStatus {
-  String toValue() {
-    switch (this) {
-      case ReplacePermissionAssociationsWorkStatus.inProgress:
-        return 'IN_PROGRESS';
-      case ReplacePermissionAssociationsWorkStatus.completed:
-        return 'COMPLETED';
-      case ReplacePermissionAssociationsWorkStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ReplacePermissionAssociationsWorkStatusFromString on String {
-  ReplacePermissionAssociationsWorkStatus
-      toReplacePermissionAssociationsWorkStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return ReplacePermissionAssociationsWorkStatus.inProgress;
-      case 'COMPLETED':
-        return ReplacePermissionAssociationsWorkStatus.completed;
-      case 'FAILED':
-        return ReplacePermissionAssociationsWorkStatus.failed;
-    }
-    throw Exception(
-        '$this is not known in enum ReplacePermissionAssociationsWorkStatus');
-  }
+  const ReplacePermissionAssociationsWorkStatus(this.value);
+
+  static ReplacePermissionAssociationsWorkStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplacePermissionAssociationsWorkStatus'));
 }
 
 /// Describes a resource associated with a resource share in RAM.
@@ -3984,10 +3916,10 @@ class Resource {
       creationTime: timeStampFromJson(json['creationTime']),
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       resourceGroupArn: json['resourceGroupArn'] as String?,
-      resourceRegionScope:
-          (json['resourceRegionScope'] as String?)?.toResourceRegionScope(),
+      resourceRegionScope: (json['resourceRegionScope'] as String?)
+          ?.let(ResourceRegionScope.fromString),
       resourceShareArn: json['resourceShareArn'] as String?,
-      status: (json['status'] as String?)?.toResourceStatus(),
+      status: (json['status'] as String?)?.let(ResourceStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
       type: json['type'] as String?,
     );
@@ -3995,92 +3927,49 @@ class Resource {
 }
 
 enum ResourceOwner {
-  self,
-  otherAccounts,
-}
+  self('SELF'),
+  otherAccounts('OTHER-ACCOUNTS'),
+  ;
 
-extension ResourceOwnerValueExtension on ResourceOwner {
-  String toValue() {
-    switch (this) {
-      case ResourceOwner.self:
-        return 'SELF';
-      case ResourceOwner.otherAccounts:
-        return 'OTHER-ACCOUNTS';
-    }
-  }
-}
+  final String value;
 
-extension ResourceOwnerFromString on String {
-  ResourceOwner toResourceOwner() {
-    switch (this) {
-      case 'SELF':
-        return ResourceOwner.self;
-      case 'OTHER-ACCOUNTS':
-        return ResourceOwner.otherAccounts;
-    }
-    throw Exception('$this is not known in enum ResourceOwner');
-  }
+  const ResourceOwner(this.value);
+
+  static ResourceOwner fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceOwner'));
 }
 
 enum ResourceRegionScope {
-  regional,
-  global,
-}
+  regional('REGIONAL'),
+  global('GLOBAL'),
+  ;
 
-extension ResourceRegionScopeValueExtension on ResourceRegionScope {
-  String toValue() {
-    switch (this) {
-      case ResourceRegionScope.regional:
-        return 'REGIONAL';
-      case ResourceRegionScope.global:
-        return 'GLOBAL';
-    }
-  }
-}
+  final String value;
 
-extension ResourceRegionScopeFromString on String {
-  ResourceRegionScope toResourceRegionScope() {
-    switch (this) {
-      case 'REGIONAL':
-        return ResourceRegionScope.regional;
-      case 'GLOBAL':
-        return ResourceRegionScope.global;
-    }
-    throw Exception('$this is not known in enum ResourceRegionScope');
-  }
+  const ResourceRegionScope(this.value);
+
+  static ResourceRegionScope fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceRegionScope'));
 }
 
 enum ResourceRegionScopeFilter {
-  all,
-  regional,
-  global,
-}
+  all('ALL'),
+  regional('REGIONAL'),
+  global('GLOBAL'),
+  ;
 
-extension ResourceRegionScopeFilterValueExtension on ResourceRegionScopeFilter {
-  String toValue() {
-    switch (this) {
-      case ResourceRegionScopeFilter.all:
-        return 'ALL';
-      case ResourceRegionScopeFilter.regional:
-        return 'REGIONAL';
-      case ResourceRegionScopeFilter.global:
-        return 'GLOBAL';
-    }
-  }
-}
+  final String value;
 
-extension ResourceRegionScopeFilterFromString on String {
-  ResourceRegionScopeFilter toResourceRegionScopeFilter() {
-    switch (this) {
-      case 'ALL':
-        return ResourceRegionScopeFilter.all;
-      case 'REGIONAL':
-        return ResourceRegionScopeFilter.regional;
-      case 'GLOBAL':
-        return ResourceRegionScopeFilter.global;
-    }
-    throw Exception('$this is not known in enum ResourceRegionScopeFilter');
-  }
+  const ResourceRegionScopeFilter(this.value);
+
+  static ResourceRegionScopeFilter fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceRegionScopeFilter'));
 }
 
 /// Describes a resource share in RAM.
@@ -4173,15 +4062,16 @@ class ResourceShare {
     return ResourceShare(
       allowExternalPrincipals: json['allowExternalPrincipals'] as bool?,
       creationTime: timeStampFromJson(json['creationTime']),
-      featureSet: (json['featureSet'] as String?)?.toResourceShareFeatureSet(),
+      featureSet: (json['featureSet'] as String?)
+          ?.let(ResourceShareFeatureSet.fromString),
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       name: json['name'] as String?,
       owningAccountId: json['owningAccountId'] as String?,
       resourceShareArn: json['resourceShareArn'] as String?,
-      status: (json['status'] as String?)?.toResourceShareStatus(),
+      status: (json['status'] as String?)?.let(ResourceShareStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4268,123 +4158,66 @@ class ResourceShareAssociation {
     return ResourceShareAssociation(
       associatedEntity: json['associatedEntity'] as String?,
       associationType: (json['associationType'] as String?)
-          ?.toResourceShareAssociationType(),
+          ?.let(ResourceShareAssociationType.fromString),
       creationTime: timeStampFromJson(json['creationTime']),
       external: json['external'] as bool?,
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       resourceShareArn: json['resourceShareArn'] as String?,
       resourceShareName: json['resourceShareName'] as String?,
-      status: (json['status'] as String?)?.toResourceShareAssociationStatus(),
+      status: (json['status'] as String?)
+          ?.let(ResourceShareAssociationStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
     );
   }
 }
 
 enum ResourceShareAssociationStatus {
-  associating,
-  associated,
-  failed,
-  disassociating,
-  disassociated,
-}
+  associating('ASSOCIATING'),
+  associated('ASSOCIATED'),
+  failed('FAILED'),
+  disassociating('DISASSOCIATING'),
+  disassociated('DISASSOCIATED'),
+  ;
 
-extension ResourceShareAssociationStatusValueExtension
-    on ResourceShareAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceShareAssociationStatus.associating:
-        return 'ASSOCIATING';
-      case ResourceShareAssociationStatus.associated:
-        return 'ASSOCIATED';
-      case ResourceShareAssociationStatus.failed:
-        return 'FAILED';
-      case ResourceShareAssociationStatus.disassociating:
-        return 'DISASSOCIATING';
-      case ResourceShareAssociationStatus.disassociated:
-        return 'DISASSOCIATED';
-    }
-  }
-}
+  final String value;
 
-extension ResourceShareAssociationStatusFromString on String {
-  ResourceShareAssociationStatus toResourceShareAssociationStatus() {
-    switch (this) {
-      case 'ASSOCIATING':
-        return ResourceShareAssociationStatus.associating;
-      case 'ASSOCIATED':
-        return ResourceShareAssociationStatus.associated;
-      case 'FAILED':
-        return ResourceShareAssociationStatus.failed;
-      case 'DISASSOCIATING':
-        return ResourceShareAssociationStatus.disassociating;
-      case 'DISASSOCIATED':
-        return ResourceShareAssociationStatus.disassociated;
-    }
-    throw Exception(
-        '$this is not known in enum ResourceShareAssociationStatus');
-  }
+  const ResourceShareAssociationStatus(this.value);
+
+  static ResourceShareAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceShareAssociationStatus'));
 }
 
 enum ResourceShareAssociationType {
-  principal,
-  resource,
-}
+  principal('PRINCIPAL'),
+  resource('RESOURCE'),
+  ;
 
-extension ResourceShareAssociationTypeValueExtension
-    on ResourceShareAssociationType {
-  String toValue() {
-    switch (this) {
-      case ResourceShareAssociationType.principal:
-        return 'PRINCIPAL';
-      case ResourceShareAssociationType.resource:
-        return 'RESOURCE';
-    }
-  }
-}
+  final String value;
 
-extension ResourceShareAssociationTypeFromString on String {
-  ResourceShareAssociationType toResourceShareAssociationType() {
-    switch (this) {
-      case 'PRINCIPAL':
-        return ResourceShareAssociationType.principal;
-      case 'RESOURCE':
-        return ResourceShareAssociationType.resource;
-    }
-    throw Exception('$this is not known in enum ResourceShareAssociationType');
-  }
+  const ResourceShareAssociationType(this.value);
+
+  static ResourceShareAssociationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceShareAssociationType'));
 }
 
 enum ResourceShareFeatureSet {
-  createdFromPolicy,
-  promotingToStandard,
-  standard,
-}
+  createdFromPolicy('CREATED_FROM_POLICY'),
+  promotingToStandard('PROMOTING_TO_STANDARD'),
+  standard('STANDARD'),
+  ;
 
-extension ResourceShareFeatureSetValueExtension on ResourceShareFeatureSet {
-  String toValue() {
-    switch (this) {
-      case ResourceShareFeatureSet.createdFromPolicy:
-        return 'CREATED_FROM_POLICY';
-      case ResourceShareFeatureSet.promotingToStandard:
-        return 'PROMOTING_TO_STANDARD';
-      case ResourceShareFeatureSet.standard:
-        return 'STANDARD';
-    }
-  }
-}
+  final String value;
 
-extension ResourceShareFeatureSetFromString on String {
-  ResourceShareFeatureSet toResourceShareFeatureSet() {
-    switch (this) {
-      case 'CREATED_FROM_POLICY':
-        return ResourceShareFeatureSet.createdFromPolicy;
-      case 'PROMOTING_TO_STANDARD':
-        return ResourceShareFeatureSet.promotingToStandard;
-      case 'STANDARD':
-        return ResourceShareFeatureSet.standard;
-    }
-    throw Exception('$this is not known in enum ResourceShareFeatureSet');
-  }
+  const ResourceShareFeatureSet(this.value);
+
+  static ResourceShareFeatureSet fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceShareFeatureSet'));
 }
 
 /// Describes an invitation for an Amazon Web Services account to join a
@@ -4444,55 +4277,34 @@ class ResourceShareInvitation {
       receiverArn: json['receiverArn'] as String?,
       resourceShareArn: json['resourceShareArn'] as String?,
       resourceShareAssociations: (json['resourceShareAssociations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResourceShareAssociation.fromJson(e as Map<String, dynamic>))
           .toList(),
       resourceShareInvitationArn: json['resourceShareInvitationArn'] as String?,
       resourceShareName: json['resourceShareName'] as String?,
       senderAccountId: json['senderAccountId'] as String?,
-      status: (json['status'] as String?)?.toResourceShareInvitationStatus(),
+      status: (json['status'] as String?)
+          ?.let(ResourceShareInvitationStatus.fromString),
     );
   }
 }
 
 enum ResourceShareInvitationStatus {
-  pending,
-  accepted,
-  rejected,
-  expired,
-}
+  pending('PENDING'),
+  accepted('ACCEPTED'),
+  rejected('REJECTED'),
+  expired('EXPIRED'),
+  ;
 
-extension ResourceShareInvitationStatusValueExtension
-    on ResourceShareInvitationStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceShareInvitationStatus.pending:
-        return 'PENDING';
-      case ResourceShareInvitationStatus.accepted:
-        return 'ACCEPTED';
-      case ResourceShareInvitationStatus.rejected:
-        return 'REJECTED';
-      case ResourceShareInvitationStatus.expired:
-        return 'EXPIRED';
-    }
-  }
-}
+  final String value;
 
-extension ResourceShareInvitationStatusFromString on String {
-  ResourceShareInvitationStatus toResourceShareInvitationStatus() {
-    switch (this) {
-      case 'PENDING':
-        return ResourceShareInvitationStatus.pending;
-      case 'ACCEPTED':
-        return ResourceShareInvitationStatus.accepted;
-      case 'REJECTED':
-        return ResourceShareInvitationStatus.rejected;
-      case 'EXPIRED':
-        return ResourceShareInvitationStatus.expired;
-    }
-    throw Exception('$this is not known in enum ResourceShareInvitationStatus');
-  }
+  const ResourceShareInvitationStatus(this.value);
+
+  static ResourceShareInvitationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceShareInvitationStatus'));
 }
 
 /// Information about a RAM managed permission.
@@ -4623,16 +4435,18 @@ class ResourceSharePermissionDetail {
       arn: json['arn'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       defaultVersion: json['defaultVersion'] as bool?,
-      featureSet: (json['featureSet'] as String?)?.toPermissionFeatureSet(),
+      featureSet:
+          (json['featureSet'] as String?)?.let(PermissionFeatureSet.fromString),
       isResourceTypeDefault: json['isResourceTypeDefault'] as bool?,
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       name: json['name'] as String?,
       permission: json['permission'] as String?,
-      permissionType: (json['permissionType'] as String?)?.toPermissionType(),
+      permissionType:
+          (json['permissionType'] as String?)?.let(PermissionType.fromString),
       resourceType: json['resourceType'] as String?,
-      status: (json['status'] as String?)?.toPermissionStatus(),
+      status: (json['status'] as String?)?.let(PermissionStatus.fromString),
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       version: json['version'] as String?,
@@ -4745,15 +4559,17 @@ class ResourceSharePermissionSummary {
       arn: json['arn'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       defaultVersion: json['defaultVersion'] as bool?,
-      featureSet: (json['featureSet'] as String?)?.toPermissionFeatureSet(),
+      featureSet:
+          (json['featureSet'] as String?)?.let(PermissionFeatureSet.fromString),
       isResourceTypeDefault: json['isResourceTypeDefault'] as bool?,
       lastUpdatedTime: timeStampFromJson(json['lastUpdatedTime']),
       name: json['name'] as String?,
-      permissionType: (json['permissionType'] as String?)?.toPermissionType(),
+      permissionType:
+          (json['permissionType'] as String?)?.let(PermissionType.fromString),
       resourceType: json['resourceType'] as String?,
       status: json['status'] as String?,
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       version: json['version'] as String?,
@@ -4762,89 +4578,39 @@ class ResourceSharePermissionSummary {
 }
 
 enum ResourceShareStatus {
-  pending,
-  active,
-  failed,
-  deleting,
-  deleted,
-}
+  pending('PENDING'),
+  active('ACTIVE'),
+  failed('FAILED'),
+  deleting('DELETING'),
+  deleted('DELETED'),
+  ;
 
-extension ResourceShareStatusValueExtension on ResourceShareStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceShareStatus.pending:
-        return 'PENDING';
-      case ResourceShareStatus.active:
-        return 'ACTIVE';
-      case ResourceShareStatus.failed:
-        return 'FAILED';
-      case ResourceShareStatus.deleting:
-        return 'DELETING';
-      case ResourceShareStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension ResourceShareStatusFromString on String {
-  ResourceShareStatus toResourceShareStatus() {
-    switch (this) {
-      case 'PENDING':
-        return ResourceShareStatus.pending;
-      case 'ACTIVE':
-        return ResourceShareStatus.active;
-      case 'FAILED':
-        return ResourceShareStatus.failed;
-      case 'DELETING':
-        return ResourceShareStatus.deleting;
-      case 'DELETED':
-        return ResourceShareStatus.deleted;
-    }
-    throw Exception('$this is not known in enum ResourceShareStatus');
-  }
+  const ResourceShareStatus(this.value);
+
+  static ResourceShareStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceShareStatus'));
 }
 
 enum ResourceStatus {
-  available,
-  zonalResourceInaccessible,
-  limitExceeded,
-  unavailable,
-  pending,
-}
+  available('AVAILABLE'),
+  zonalResourceInaccessible('ZONAL_RESOURCE_INACCESSIBLE'),
+  limitExceeded('LIMIT_EXCEEDED'),
+  unavailable('UNAVAILABLE'),
+  pending('PENDING'),
+  ;
 
-extension ResourceStatusValueExtension on ResourceStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceStatus.available:
-        return 'AVAILABLE';
-      case ResourceStatus.zonalResourceInaccessible:
-        return 'ZONAL_RESOURCE_INACCESSIBLE';
-      case ResourceStatus.limitExceeded:
-        return 'LIMIT_EXCEEDED';
-      case ResourceStatus.unavailable:
-        return 'UNAVAILABLE';
-      case ResourceStatus.pending:
-        return 'PENDING';
-    }
-  }
-}
+  final String value;
 
-extension ResourceStatusFromString on String {
-  ResourceStatus toResourceStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return ResourceStatus.available;
-      case 'ZONAL_RESOURCE_INACCESSIBLE':
-        return ResourceStatus.zonalResourceInaccessible;
-      case 'LIMIT_EXCEEDED':
-        return ResourceStatus.limitExceeded;
-      case 'UNAVAILABLE':
-        return ResourceStatus.unavailable;
-      case 'PENDING':
-        return ResourceStatus.pending;
-    }
-    throw Exception('$this is not known in enum ResourceStatus');
-  }
+  const ResourceStatus(this.value);
+
+  static ResourceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceStatus'));
 }
 
 /// Information about a shareable resource type and the Amazon Web Services
@@ -4882,8 +4648,8 @@ class ServiceNameAndResourceType {
 
   factory ServiceNameAndResourceType.fromJson(Map<String, dynamic> json) {
     return ServiceNameAndResourceType(
-      resourceRegionScope:
-          (json['resourceRegionScope'] as String?)?.toResourceRegionScope(),
+      resourceRegionScope: (json['resourceRegionScope'] as String?)
+          ?.let(ResourceRegionScope.fromString),
       resourceType: json['resourceType'] as String?,
       serviceName: json['serviceName'] as String?,
     );

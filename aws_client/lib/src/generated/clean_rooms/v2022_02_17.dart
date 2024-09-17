@@ -19,18 +19,23 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// Welcome to the <i>AWS Clean Rooms API Reference</i>.
+/// Welcome to the <i>Clean Rooms API Reference</i>.
 ///
-/// AWS Clean Rooms is an AWS service that helps multiple parties to join their
-/// data together in a secure collaboration workspace. In the collaboration,
-/// members who can query and receive results can get insights into the
-/// collective datasets without either party getting access to the other party's
-/// raw data.
+/// Clean Rooms is an Amazon Web Services service that helps multiple parties to
+/// join their data together in a secure collaboration workspace. In the
+/// collaboration, members who can query and receive results can get insights
+/// into the collective datasets without either party getting access to the
+/// other party's raw data.
 ///
-/// To learn more about AWS Clean Rooms concepts, procedures, and best
-/// practices, see the <a
-/// href="https://docs.aws.amazon.com/clean-rooms/latest/userguide/what-is.html">AWS
-/// Clean Rooms User Guide</a>.
+/// To learn more about Clean Rooms concepts, procedures, and best practices,
+/// see the <a
+/// href="https://docs.aws.amazon.com/clean-rooms/latest/userguide/what-is.html">Clean
+/// Rooms User Guide</a>.
+///
+/// To learn more about SQL commands, functions, and conditions supported in
+/// Clean Rooms, see the <a
+/// href="https://docs.aws.amazon.com/clean-rooms/latest/sql-reference/sql-reference.html">Clean
+/// Rooms SQL Reference</a>.
 class CleanRooms {
   final _s.RestJsonProtocol _protocol;
   CleanRooms({
@@ -60,6 +65,40 @@ class CleanRooms {
     _protocol.close();
   }
 
+  /// Retrieves multiple analysis templates within a collaboration by their
+  /// Amazon Resource Names (ARNs).
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [analysisTemplateArns] :
+  /// The Amazon Resource Name (ARN) associated with the analysis template
+  /// within a collaboration.
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for the collaboration that the analysis templates
+  /// belong to. Currently accepts collaboration ID.
+  Future<BatchGetCollaborationAnalysisTemplateOutput>
+      batchGetCollaborationAnalysisTemplate({
+    required List<String> analysisTemplateArns,
+    required String collaborationIdentifier,
+  }) async {
+    final $payload = <String, dynamic>{
+      'analysisTemplateArns': analysisTemplateArns,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/batch-analysistemplates',
+      exceptionFnMap: _exceptionFns,
+    );
+    return BatchGetCollaborationAnalysisTemplateOutput.fromJson(response);
+  }
+
   /// Retrieves multiple schemas by their identifiers.
   ///
   /// May throw [ResourceNotFoundException].
@@ -73,7 +112,7 @@ class CleanRooms {
   /// Currently accepts collaboration ID.
   ///
   /// Parameter [names] :
-  /// The names for the schema objects to retrieve.&gt;
+  /// The names for the schema objects to retrieve.
   Future<BatchGetSchemaOutput> batchGetSchema({
     required String collaborationIdentifier,
     required List<String> names,
@@ -89,6 +128,98 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return BatchGetSchemaOutput.fromJson(response);
+  }
+
+  /// Retrieves multiple analysis rule schemas.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// The unique identifier of the collaboration that contains the schema
+  /// analysis rule.
+  ///
+  /// Parameter [schemaAnalysisRuleRequests] :
+  /// The information that's necessary to retrieve a schema analysis rule.
+  Future<BatchGetSchemaAnalysisRuleOutput> batchGetSchemaAnalysisRule({
+    required String collaborationIdentifier,
+    required List<SchemaAnalysisRuleRequest> schemaAnalysisRuleRequests,
+  }) async {
+    final $payload = <String, dynamic>{
+      'schemaAnalysisRuleRequests': schemaAnalysisRuleRequests,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/batch-schema-analysis-rule',
+      exceptionFnMap: _exceptionFns,
+    );
+    return BatchGetSchemaAnalysisRuleOutput.fromJson(response);
+  }
+
+  /// Creates a new analysis template.
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [format] :
+  /// The format of the analysis template.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// The identifier for a membership resource.
+  ///
+  /// Parameter [name] :
+  /// The name of the analysis template.
+  ///
+  /// Parameter [source] :
+  /// The information in the analysis template. Currently supports
+  /// <code>text</code>, the query text for the analysis template.
+  ///
+  /// Parameter [analysisParameters] :
+  /// The parameters of the analysis template.
+  ///
+  /// Parameter [description] :
+  /// The description of the analysis template.
+  ///
+  /// Parameter [tags] :
+  /// An optional label that you can assign to a resource when you create it.
+  /// Each tag consists of a key and an optional value, both of which you
+  /// define. When you use tagging, you can also use tag-based access control in
+  /// IAM policies to control access to this resource.
+  Future<CreateAnalysisTemplateOutput> createAnalysisTemplate({
+    required AnalysisFormat format,
+    required String membershipIdentifier,
+    required String name,
+    required AnalysisSource source,
+    List<AnalysisParameter>? analysisParameters,
+    String? description,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'format': format.value,
+      'name': name,
+      'source': source,
+      if (analysisParameters != null) 'analysisParameters': analysisParameters,
+      if (description != null) 'description': description,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/analysistemplates',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateAnalysisTemplateOutput.fromJson(response);
   }
 
   /// Creates a new collaboration.
@@ -119,6 +250,14 @@ class CleanRooms {
   /// An indicator as to whether query logging has been enabled or disabled for
   /// the collaboration.
   ///
+  /// Parameter [creatorPaymentConfiguration] :
+  /// The collaboration creator's payment responsibilities set by the
+  /// collaboration creator.
+  ///
+  /// If the collaboration creator hasn't specified anyone as the member paying
+  /// for query compute costs, then the member who can query is the default
+  /// payer.
+  ///
   /// Parameter [dataEncryptionMetadata] :
   /// The settings for client-side encryption with Cryptographic Computing for
   /// Clean Rooms.
@@ -135,17 +274,20 @@ class CleanRooms {
     required List<MemberSpecification> members,
     required String name,
     required CollaborationQueryLogStatus queryLogStatus,
+    PaymentConfiguration? creatorPaymentConfiguration,
     DataEncryptionMetadata? dataEncryptionMetadata,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'creatorDisplayName': creatorDisplayName,
       'creatorMemberAbilities':
-          creatorMemberAbilities.map((e) => e.toValue()).toList(),
+          creatorMemberAbilities.map((e) => e.value).toList(),
       'description': description,
       'members': members,
       'name': name,
-      'queryLogStatus': queryLogStatus.toValue(),
+      'queryLogStatus': queryLogStatus.value,
+      if (creatorPaymentConfiguration != null)
+        'creatorPaymentConfiguration': creatorPaymentConfiguration,
       if (dataEncryptionMetadata != null)
         'dataEncryptionMetadata': dataEncryptionMetadata,
       if (tags != null) 'tags': tags,
@@ -157,6 +299,79 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return CreateCollaborationOutput.fromJson(response);
+  }
+
+  /// Provides the details necessary to create a configured audience model
+  /// association.
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [configuredAudienceModelArn] :
+  /// A unique identifier for the configured audience model that you want to
+  /// associate.
+  ///
+  /// Parameter [configuredAudienceModelAssociationName] :
+  /// The name of the configured audience model association.
+  ///
+  /// Parameter [manageResourcePolicies] :
+  /// When <code>TRUE</code>, indicates that the resource policy for the
+  /// configured audience model resource being associated is configured for
+  /// Clean Rooms to manage permissions related to the given collaboration. When
+  /// <code>FALSE</code>, indicates that the configured audience model resource
+  /// owner will manage permissions related to the given collaboration.
+  ///
+  /// Setting this to <code>TRUE</code> requires you to have permissions to
+  /// create, update, and delete the resource policy for the
+  /// <code>cleanrooms-ml</code> resource when you call the
+  /// <a>DeleteConfiguredAudienceModelAssociation</a> resource. In addition, if
+  /// you are the collaboration creator and specify <code>TRUE</code>, you must
+  /// have the same permissions when you call the <a>DeleteMember</a> and
+  /// <a>DeleteCollaboration</a> APIs.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration. The
+  /// configured audience model is associated to the collaboration that this
+  /// membership belongs to. Accepts a membership ID.
+  ///
+  /// Parameter [description] :
+  /// A description of the configured audience model association.
+  ///
+  /// Parameter [tags] :
+  /// An optional label that you can assign to a resource when you create it.
+  /// Each tag consists of a key and an optional value, both of which you
+  /// define. When you use tagging, you can also use tag-based access control in
+  /// IAM policies to control access to this resource.
+  Future<CreateConfiguredAudienceModelAssociationOutput>
+      createConfiguredAudienceModelAssociation({
+    required String configuredAudienceModelArn,
+    required String configuredAudienceModelAssociationName,
+    required bool manageResourcePolicies,
+    required String membershipIdentifier,
+    String? description,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'configuredAudienceModelArn': configuredAudienceModelArn,
+      'configuredAudienceModelAssociationName':
+          configuredAudienceModelAssociationName,
+      'manageResourcePolicies': manageResourcePolicies,
+      if (description != null) 'description': description,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/configuredaudiencemodelassociations',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateConfiguredAudienceModelAssociationOutput.fromJson(response);
   }
 
   /// Creates a new configured table resource.
@@ -181,7 +396,7 @@ class CleanRooms {
   /// The name of the configured table.
   ///
   /// Parameter [tableReference] :
-  /// A reference to the AWS Glue table being configured.
+  /// A reference to the Glue table being configured.
   ///
   /// Parameter [description] :
   /// A description for the configured table.
@@ -201,7 +416,7 @@ class CleanRooms {
   }) async {
     final $payload = <String, dynamic>{
       'allowedColumns': allowedColumns,
-      'analysisMethod': analysisMethod.toValue(),
+      'analysisMethod': analysisMethod.value,
       'name': name,
       'tableReference': tableReference,
       if (description != null) 'description': description,
@@ -230,7 +445,7 @@ class CleanRooms {
   /// The entire created configured table analysis rule object.
   ///
   /// Parameter [analysisRuleType] :
-  /// The type of analysis rule. Valid values are AGGREGATION and LIST.
+  /// The type of analysis rule.
   ///
   /// Parameter [configuredTableIdentifier] :
   /// The identifier for the configured table to create the analysis rule for.
@@ -243,7 +458,7 @@ class CleanRooms {
   }) async {
     final $payload = <String, dynamic>{
       'analysisRulePolicy': analysisRulePolicy,
-      'analysisRuleType': analysisRuleType.toValue(),
+      'analysisRuleType': analysisRuleType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -333,7 +548,20 @@ class CleanRooms {
   ///
   /// Parameter [queryLogStatus] :
   /// An indicator as to whether query logging has been enabled or disabled for
-  /// the collaboration.
+  /// the membership.
+  ///
+  /// Parameter [defaultResultConfiguration] :
+  /// The default protected query result configuration as specified by the
+  /// member who can receive results.
+  ///
+  /// Parameter [paymentConfiguration] :
+  /// The payment responsibilities accepted by the collaboration member.
+  ///
+  /// Not required if the collaboration member has the member ability to run
+  /// queries.
+  ///
+  /// Required if the collaboration member doesn't have the member ability to
+  /// run queries but is configured as a payer by the collaboration creator.
   ///
   /// Parameter [tags] :
   /// An optional label that you can assign to a resource when you create it.
@@ -343,11 +571,17 @@ class CleanRooms {
   Future<CreateMembershipOutput> createMembership({
     required String collaborationIdentifier,
     required MembershipQueryLogStatus queryLogStatus,
+    MembershipProtectedQueryResultConfiguration? defaultResultConfiguration,
+    MembershipPaymentConfiguration? paymentConfiguration,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
       'collaborationIdentifier': collaborationIdentifier,
-      'queryLogStatus': queryLogStatus.toValue(),
+      'queryLogStatus': queryLogStatus.value,
+      if (defaultResultConfiguration != null)
+        'defaultResultConfiguration': defaultResultConfiguration,
+      if (paymentConfiguration != null)
+        'paymentConfiguration': paymentConfiguration,
       if (tags != null) 'tags': tags,
     };
     final response = await _protocol.send(
@@ -357,6 +591,94 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return CreateMembershipOutput.fromJson(response);
+  }
+
+  /// Creates a privacy budget template for a specified membership. Each
+  /// membership can have only one privacy budget template, but it can be
+  /// deleted and recreated. If you need to change the privacy budget template
+  /// for a membership, use the <a>UpdatePrivacyBudgetTemplate</a> operation.
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [autoRefresh] :
+  /// How often the privacy budget refreshes.
+  /// <important>
+  /// If you plan to regularly bring new data into the collaboration, you can
+  /// use <code>CALENDAR_MONTH</code> to automatically get a new privacy budget
+  /// for the collaboration every calendar month. Choosing this option allows
+  /// arbitrary amounts of information to be revealed about rows of the data
+  /// when repeatedly queries across refreshes. Avoid choosing this if the same
+  /// rows will be repeatedly queried between privacy budget refreshes.
+  /// </important>
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration. The
+  /// privacy budget template is created in the collaboration that this
+  /// membership belongs to. Accepts a membership ID.
+  ///
+  /// Parameter [parameters] :
+  /// Specifies your parameters for the privacy budget template.
+  ///
+  /// Parameter [privacyBudgetType] :
+  /// Specifies the type of the privacy budget template.
+  ///
+  /// Parameter [tags] :
+  /// An optional label that you can assign to a resource when you create it.
+  /// Each tag consists of a key and an optional value, both of which you
+  /// define. When you use tagging, you can also use tag-based access control in
+  /// IAM policies to control access to this resource.
+  Future<CreatePrivacyBudgetTemplateOutput> createPrivacyBudgetTemplate({
+    required PrivacyBudgetTemplateAutoRefresh autoRefresh,
+    required String membershipIdentifier,
+    required PrivacyBudgetTemplateParametersInput parameters,
+    required PrivacyBudgetType privacyBudgetType,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'autoRefresh': autoRefresh.value,
+      'parameters': parameters,
+      'privacyBudgetType': privacyBudgetType.value,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/privacybudgettemplates',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreatePrivacyBudgetTemplateOutput.fromJson(response);
+  }
+
+  /// Deletes an analysis template.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [analysisTemplateIdentifier] :
+  /// The identifier for the analysis template resource.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// The identifier for a membership resource.
+  Future<void> deleteAnalysisTemplate({
+    required String analysisTemplateIdentifier,
+    required String membershipIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/analysistemplates/${Uri.encodeComponent(analysisTemplateIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Deletes a collaboration. It can only be called by the collaboration owner.
@@ -376,6 +698,35 @@ class CleanRooms {
       method: 'DELETE',
       requestUri:
           '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Provides the information necessary to delete a configured audience model
+  /// association.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [configuredAudienceModelAssociationIdentifier] :
+  /// A unique identifier of the configured audience model association that you
+  /// want to delete.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier of the membership that contains the audience model
+  /// association that you want to delete.
+  Future<void> deleteConfiguredAudienceModelAssociation({
+    required String configuredAudienceModelAssociationIdentifier,
+    required String membershipIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/configuredaudiencemodelassociations/${Uri.encodeComponent(configuredAudienceModelAssociationIdentifier)}',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -428,7 +779,7 @@ class CleanRooms {
       payload: null,
       method: 'DELETE',
       requestUri:
-          '/configuredTables/${Uri.encodeComponent(configuredTableIdentifier)}/analysisRule/${Uri.encodeComponent(analysisRuleType.toValue())}',
+          '/configuredTables/${Uri.encodeComponent(configuredTableIdentifier)}/analysisRule/${Uri.encodeComponent(analysisRuleType.value)}',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -515,6 +866,61 @@ class CleanRooms {
     );
   }
 
+  /// Deletes a privacy budget template for a specified membership.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration. The
+  /// privacy budget template is deleted from the collaboration that this
+  /// membership belongs to. Accepts a membership ID.
+  ///
+  /// Parameter [privacyBudgetTemplateIdentifier] :
+  /// A unique identifier for your privacy budget template.
+  Future<void> deletePrivacyBudgetTemplate({
+    required String membershipIdentifier,
+    required String privacyBudgetTemplateIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/privacybudgettemplates/${Uri.encodeComponent(privacyBudgetTemplateIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Retrieves an analysis template.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [analysisTemplateIdentifier] :
+  /// The identifier for the analysis template resource.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// The identifier for a membership resource.
+  Future<GetAnalysisTemplateOutput> getAnalysisTemplate({
+    required String analysisTemplateIdentifier,
+    required String membershipIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/analysistemplates/${Uri.encodeComponent(analysisTemplateIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAnalysisTemplateOutput.fromJson(response);
+  }
+
   /// Returns metadata about a collaboration.
   ///
   /// May throw [InternalServerException].
@@ -535,6 +941,125 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return GetCollaborationOutput.fromJson(response);
+  }
+
+  /// Retrieves an analysis template within a collaboration.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [analysisTemplateArn] :
+  /// The Amazon Resource Name (ARN) associated with the analysis template
+  /// within a collaboration.
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for the collaboration that the analysis templates
+  /// belong to. Currently accepts collaboration ID.
+  Future<GetCollaborationAnalysisTemplateOutput>
+      getCollaborationAnalysisTemplate({
+    required String analysisTemplateArn,
+    required String collaborationIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/analysistemplates/${Uri.encodeComponent(analysisTemplateArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetCollaborationAnalysisTemplateOutput.fromJson(response);
+  }
+
+  /// Retrieves a configured audience model association within a collaboration.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for the collaboration that the configured audience
+  /// model association belongs to. Accepts a collaboration ID.
+  ///
+  /// Parameter [configuredAudienceModelAssociationIdentifier] :
+  /// A unique identifier for the configured audience model association that you
+  /// want to retrieve.
+  Future<GetCollaborationConfiguredAudienceModelAssociationOutput>
+      getCollaborationConfiguredAudienceModelAssociation({
+    required String collaborationIdentifier,
+    required String configuredAudienceModelAssociationIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/configuredaudiencemodelassociations/${Uri.encodeComponent(configuredAudienceModelAssociationIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetCollaborationConfiguredAudienceModelAssociationOutput.fromJson(
+        response);
+  }
+
+  /// Returns details about a specified privacy budget template.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for one of your collaborations.
+  ///
+  /// Parameter [privacyBudgetTemplateIdentifier] :
+  /// A unique identifier for one of your privacy budget templates.
+  Future<GetCollaborationPrivacyBudgetTemplateOutput>
+      getCollaborationPrivacyBudgetTemplate({
+    required String collaborationIdentifier,
+    required String privacyBudgetTemplateIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/privacybudgettemplates/${Uri.encodeComponent(privacyBudgetTemplateIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetCollaborationPrivacyBudgetTemplateOutput.fromJson(response);
+  }
+
+  /// Returns information about a configured audience model association.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [configuredAudienceModelAssociationIdentifier] :
+  /// A unique identifier for the configured audience model association that you
+  /// want to retrieve.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for the membership that contains the configured
+  /// audience model association that you want to retrieve.
+  Future<GetConfiguredAudienceModelAssociationOutput>
+      getConfiguredAudienceModelAssociation({
+    required String configuredAudienceModelAssociationIdentifier,
+    required String membershipIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/configuredaudiencemodelassociations/${Uri.encodeComponent(configuredAudienceModelAssociationIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetConfiguredAudienceModelAssociationOutput.fromJson(response);
   }
 
   /// Retrieves a configured table.
@@ -584,7 +1109,7 @@ class CleanRooms {
       payload: null,
       method: 'GET',
       requestUri:
-          '/configuredTables/${Uri.encodeComponent(configuredTableIdentifier)}/analysisRule/${Uri.encodeComponent(analysisRuleType.toValue())}',
+          '/configuredTables/${Uri.encodeComponent(configuredTableIdentifier)}/analysisRule/${Uri.encodeComponent(analysisRuleType.value)}',
       exceptionFnMap: _exceptionFns,
     );
     return GetConfiguredTableAnalysisRuleOutput.fromJson(response);
@@ -639,6 +1164,35 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return GetMembershipOutput.fromJson(response);
+  }
+
+  /// Returns details for a specified privacy budget template.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration. The
+  /// privacy budget template is retrieved from the collaboration that this
+  /// membership belongs to. Accepts a membership ID.
+  ///
+  /// Parameter [privacyBudgetTemplateIdentifier] :
+  /// A unique identifier for your privacy budget template.
+  Future<GetPrivacyBudgetTemplateOutput> getPrivacyBudgetTemplate({
+    required String membershipIdentifier,
+    required String privacyBudgetTemplateIdentifier,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/privacybudgettemplates/${Uri.encodeComponent(privacyBudgetTemplateIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetPrivacyBudgetTemplateOutput.fromJson(response);
   }
 
   /// Returns query processing metadata.
@@ -724,10 +1278,244 @@ class CleanRooms {
       payload: null,
       method: 'GET',
       requestUri:
-          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/schemas/${Uri.encodeComponent(name)}/analysisRule/${Uri.encodeComponent(type.toValue())}',
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/schemas/${Uri.encodeComponent(name)}/analysisRule/${Uri.encodeComponent(type.value)}',
       exceptionFnMap: _exceptionFns,
     );
     return GetSchemaAnalysisRuleOutput.fromJson(response);
+  }
+
+  /// Lists analysis templates that the caller owns.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// The identifier for a membership resource.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListAnalysisTemplatesOutput> listAnalysisTemplates({
+    required String membershipIdentifier,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/analysistemplates',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAnalysisTemplatesOutput.fromJson(response);
+  }
+
+  /// Lists analysis templates within a collaboration.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for the collaboration that the analysis templates
+  /// belong to. Currently accepts collaboration ID.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListCollaborationAnalysisTemplatesOutput>
+      listCollaborationAnalysisTemplates({
+    required String collaborationIdentifier,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/analysistemplates',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListCollaborationAnalysisTemplatesOutput.fromJson(response);
+  }
+
+  /// Lists configured audience model associations within a collaboration.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for the collaboration that the configured audience
+  /// model association belongs to. Accepts a collaboration ID.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListCollaborationConfiguredAudienceModelAssociationsOutput>
+      listCollaborationConfiguredAudienceModelAssociations({
+    required String collaborationIdentifier,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/configuredaudiencemodelassociations',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListCollaborationConfiguredAudienceModelAssociationsOutput.fromJson(
+        response);
+  }
+
+  /// Returns an array that summarizes each privacy budget template in a
+  /// specified collaboration.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for one of your collaborations.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call. Service chooses
+  /// a default if it has not been set. Service may return a nextToken even if
+  /// the maximum results has not been met.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListCollaborationPrivacyBudgetTemplatesOutput>
+      listCollaborationPrivacyBudgetTemplates({
+    required String collaborationIdentifier,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/privacybudgettemplates',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListCollaborationPrivacyBudgetTemplatesOutput.fromJson(response);
+  }
+
+  /// Returns an array that summarizes each privacy budget in a specified
+  /// collaboration. The summary includes the collaboration ARN, creation time,
+  /// creating account, and privacy budget details.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [collaborationIdentifier] :
+  /// A unique identifier for one of your collaborations.
+  ///
+  /// Parameter [privacyBudgetType] :
+  /// Specifies the type of the privacy budget.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call. Service chooses
+  /// a default if it has not been set. Service may return a nextToken even if
+  /// the maximum results has not been met.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListCollaborationPrivacyBudgetsOutput>
+      listCollaborationPrivacyBudgets({
+    required String collaborationIdentifier,
+    required PrivacyBudgetType privacyBudgetType,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      'privacyBudgetType': [privacyBudgetType.value],
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/collaborations/${Uri.encodeComponent(collaborationIdentifier)}/privacybudgets',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListCollaborationPrivacyBudgetsOutput.fromJson(response);
   }
 
   /// Lists collaborations the caller owns, is active in, or has been invited
@@ -762,7 +1550,7 @@ class CleanRooms {
     );
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
-      if (memberStatus != null) 'memberStatus': [memberStatus.toValue()],
+      if (memberStatus != null) 'memberStatus': [memberStatus.value],
       if (nextToken != null) 'nextToken': [nextToken],
     };
     final response = await _protocol.send(
@@ -773,6 +1561,53 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return ListCollaborationsOutput.fromJson(response);
+  }
+
+  /// Lists information about requested configured audience model associations.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for a membership that contains the configured audience
+  /// model associations that you want to retrieve.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call. Service chooses
+  /// a default if it has not been set. Service may return a nextToken even if
+  /// the maximum results has not been met.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListConfiguredAudienceModelAssociationsOutput>
+      listConfiguredAudienceModelAssociations({
+    required String membershipIdentifier,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/configuredaudiencemodelassociations',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListConfiguredAudienceModelAssociationsOutput.fromJson(response);
   }
 
   /// Lists configured table associations for a membership.
@@ -930,7 +1765,7 @@ class CleanRooms {
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (status != null) 'status': [status.toValue()],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -940,6 +1775,107 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return ListMembershipsOutput.fromJson(response);
+  }
+
+  /// Returns detailed information about the privacy budget templates in a
+  /// specified membership.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration. The
+  /// privacy budget templates are retrieved from the collaboration that this
+  /// membership belongs to. Accepts a membership ID.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call. Service chooses
+  /// a default if it has not been set. Service may return a nextToken even if
+  /// the maximum results has not been met.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListPrivacyBudgetTemplatesOutput> listPrivacyBudgetTemplates({
+    required String membershipIdentifier,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/privacybudgettemplates',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListPrivacyBudgetTemplatesOutput.fromJson(response);
+  }
+
+  /// Returns detailed information about the privacy budgets in a specified
+  /// membership.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration. The
+  /// privacy budget is retrieved from the collaboration that this membership
+  /// belongs to. Accepts a membership ID.
+  ///
+  /// Parameter [privacyBudgetType] :
+  /// The privacy budget type.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the results that is returned per call. Service chooses
+  /// a default if it has not been set. Service may return a nextToken even if
+  /// the maximum results has not been met.
+  ///
+  /// Parameter [nextToken] :
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  Future<ListPrivacyBudgetsOutput> listPrivacyBudgets({
+    required String membershipIdentifier,
+    required PrivacyBudgetType privacyBudgetType,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      'privacyBudgetType': [privacyBudgetType.value],
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/privacybudgets',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListPrivacyBudgetsOutput.fromJson(response);
   }
 
   /// Lists protected queries, sorted by the most recent query.
@@ -979,7 +1915,7 @@ class CleanRooms {
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (status != null) 'status': [status.toValue()],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -1029,7 +1965,7 @@ class CleanRooms {
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (schemaType != null) 'schemaType': [schemaType.toValue()],
+      if (schemaType != null) 'schemaType': [schemaType.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -1062,7 +1998,39 @@ class CleanRooms {
     return ListTagsForResourceOutput.fromJson(response);
   }
 
-  /// Creates a protected query that is started by AWS Clean Rooms.
+  /// An estimate of the number of aggregation functions that the member who can
+  /// query can run given epsilon and noise parameters.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration.
+  /// Accepts a membership ID.
+  ///
+  /// Parameter [parameters] :
+  /// Specifies the desired epsilon and noise parameters to preview.
+  Future<PreviewPrivacyImpactOutput> previewPrivacyImpact({
+    required String membershipIdentifier,
+    required PreviewPrivacyImpactParametersInput parameters,
+  }) async {
+    final $payload = <String, dynamic>{
+      'parameters': parameters,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/previewprivacyimpact',
+      exceptionFnMap: _exceptionFns,
+    );
+    return PreviewPrivacyImpactOutput.fromJson(response);
+  }
+
+  /// Creates a protected query that is started by Clean Rooms.
   ///
   /// May throw [ServiceQuotaExceededException].
   /// May throw [ResourceNotFoundException].
@@ -1075,24 +2043,25 @@ class CleanRooms {
   /// A unique identifier for the membership to run this query against.
   /// Currently accepts a membership ID.
   ///
-  /// Parameter [resultConfiguration] :
-  /// The details needed to write the query results.
-  ///
   /// Parameter [sqlParameters] :
   /// The protected SQL query parameters.
   ///
   /// Parameter [type] :
   /// The type of the protected query to be started.
+  ///
+  /// Parameter [resultConfiguration] :
+  /// The details needed to write the query results.
   Future<StartProtectedQueryOutput> startProtectedQuery({
     required String membershipIdentifier,
-    required ProtectedQueryResultConfiguration resultConfiguration,
     required ProtectedQuerySQLParameters sqlParameters,
     required ProtectedQueryType type,
+    ProtectedQueryResultConfiguration? resultConfiguration,
   }) async {
     final $payload = <String, dynamic>{
-      'resultConfiguration': resultConfiguration,
       'sqlParameters': sqlParameters,
-      'type': type.toValue(),
+      'type': type.value,
+      if (resultConfiguration != null)
+        'resultConfiguration': resultConfiguration,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1157,6 +2126,40 @@ class CleanRooms {
     );
   }
 
+  /// Updates the analysis template metadata.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [analysisTemplateIdentifier] :
+  /// The identifier for the analysis template resource.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// The identifier for a membership resource.
+  ///
+  /// Parameter [description] :
+  /// A new description for the analysis template.
+  Future<UpdateAnalysisTemplateOutput> updateAnalysisTemplate({
+    required String analysisTemplateIdentifier,
+    required String membershipIdentifier,
+    String? description,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (description != null) 'description': description,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PATCH',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/analysistemplates/${Uri.encodeComponent(analysisTemplateIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateAnalysisTemplateOutput.fromJson(response);
+  }
+
   /// Updates collaboration metadata and can only be called by the collaboration
   /// owner.
   ///
@@ -1191,6 +2194,49 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return UpdateCollaborationOutput.fromJson(response);
+  }
+
+  /// Provides the details necessary to update a configured audience model
+  /// association.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [configuredAudienceModelAssociationIdentifier] :
+  /// A unique identifier for the configured audience model association that you
+  /// want to update.
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier of the membership that contains the configured
+  /// audience model association that you want to update.
+  ///
+  /// Parameter [description] :
+  /// A new description for the configured audience model association.
+  ///
+  /// Parameter [name] :
+  /// A new name for the configured audience model association.
+  Future<UpdateConfiguredAudienceModelAssociationOutput>
+      updateConfiguredAudienceModelAssociation({
+    required String configuredAudienceModelAssociationIdentifier,
+    required String membershipIdentifier,
+    String? description,
+    String? name,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (description != null) 'description': description,
+      if (name != null) 'name': name,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PATCH',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/configuredaudiencemodelassociations/${Uri.encodeComponent(configuredAudienceModelAssociationIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateConfiguredAudienceModelAssociationOutput.fromJson(response);
   }
 
   /// Updates a configured table.
@@ -1263,7 +2309,7 @@ class CleanRooms {
       payload: $payload,
       method: 'PATCH',
       requestUri:
-          '/configuredTables/${Uri.encodeComponent(configuredTableIdentifier)}/analysisRule/${Uri.encodeComponent(analysisRuleType.toValue())}',
+          '/configuredTables/${Uri.encodeComponent(configuredTableIdentifier)}/analysisRule/${Uri.encodeComponent(analysisRuleType.value)}',
       exceptionFnMap: _exceptionFns,
     );
     return UpdateConfiguredTableAnalysisRuleOutput.fromJson(response);
@@ -1325,15 +2371,22 @@ class CleanRooms {
   /// Parameter [membershipIdentifier] :
   /// The unique identifier of the membership.
   ///
+  /// Parameter [defaultResultConfiguration] :
+  /// The default protected query result configuration as specified by the
+  /// member who can receive results.
+  ///
   /// Parameter [queryLogStatus] :
   /// An indicator as to whether query logging has been enabled or disabled for
-  /// the collaboration.
+  /// the membership.
   Future<UpdateMembershipOutput> updateMembership({
     required String membershipIdentifier,
+    MembershipProtectedQueryResultConfiguration? defaultResultConfiguration,
     MembershipQueryLogStatus? queryLogStatus,
   }) async {
     final $payload = <String, dynamic>{
-      if (queryLogStatus != null) 'queryLogStatus': queryLogStatus.toValue(),
+      if (defaultResultConfiguration != null)
+        'defaultResultConfiguration': defaultResultConfiguration,
+      if (queryLogStatus != null) 'queryLogStatus': queryLogStatus.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1342,6 +2395,50 @@ class CleanRooms {
       exceptionFnMap: _exceptionFns,
     );
     return UpdateMembershipOutput.fromJson(response);
+  }
+
+  /// Updates the privacy budget template for the specified membership.
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [membershipIdentifier] :
+  /// A unique identifier for one of your memberships for a collaboration. The
+  /// privacy budget template is updated in the collaboration that this
+  /// membership belongs to. Accepts a membership ID.
+  ///
+  /// Parameter [privacyBudgetTemplateIdentifier] :
+  /// A unique identifier for your privacy budget template that you want to
+  /// update.
+  ///
+  /// Parameter [privacyBudgetType] :
+  /// Specifies the type of the privacy budget template.
+  ///
+  /// Parameter [parameters] :
+  /// Specifies the epsilon and noise parameters for the privacy budget
+  /// template.
+  Future<UpdatePrivacyBudgetTemplateOutput> updatePrivacyBudgetTemplate({
+    required String membershipIdentifier,
+    required String privacyBudgetTemplateIdentifier,
+    required PrivacyBudgetType privacyBudgetType,
+    PrivacyBudgetTemplateUpdateParameters? parameters,
+  }) async {
+    final $payload = <String, dynamic>{
+      'privacyBudgetType': privacyBudgetType.value,
+      if (parameters != null) 'parameters': parameters,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PATCH',
+      requestUri:
+          '/memberships/${Uri.encodeComponent(membershipIdentifier)}/privacybudgettemplates/${Uri.encodeComponent(privacyBudgetTemplateIdentifier)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdatePrivacyBudgetTemplateOutput.fromJson(response);
   }
 
   /// Updates the processing of a currently running query.
@@ -1368,7 +2465,7 @@ class CleanRooms {
     required TargetProtectedQueryStatus targetStatus,
   }) async {
     final $payload = <String, dynamic>{
-      'targetStatus': targetStatus.toValue(),
+      'targetStatus': targetStatus.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1397,10 +2494,10 @@ class AggregateColumn {
   factory AggregateColumn.fromJson(Map<String, dynamic> json) {
     return AggregateColumn(
       columnNames: (json['columnNames'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
-      function: (json['function'] as String).toAggregateFunctionName(),
+      function: AggregateFunctionName.fromString((json['function'] as String)),
     );
   }
 
@@ -1409,52 +2506,27 @@ class AggregateColumn {
     final function = this.function;
     return {
       'columnNames': columnNames,
-      'function': function.toValue(),
+      'function': function.value,
     };
   }
 }
 
 enum AggregateFunctionName {
-  sum,
-  sumDistinct,
-  count,
-  countDistinct,
-  avg,
-}
+  sum('SUM'),
+  sumDistinct('SUM_DISTINCT'),
+  count('COUNT'),
+  countDistinct('COUNT_DISTINCT'),
+  avg('AVG'),
+  ;
 
-extension AggregateFunctionNameValueExtension on AggregateFunctionName {
-  String toValue() {
-    switch (this) {
-      case AggregateFunctionName.sum:
-        return 'SUM';
-      case AggregateFunctionName.sumDistinct:
-        return 'SUM_DISTINCT';
-      case AggregateFunctionName.count:
-        return 'COUNT';
-      case AggregateFunctionName.countDistinct:
-        return 'COUNT_DISTINCT';
-      case AggregateFunctionName.avg:
-        return 'AVG';
-    }
-  }
-}
+  final String value;
 
-extension AggregateFunctionNameFromString on String {
-  AggregateFunctionName toAggregateFunctionName() {
-    switch (this) {
-      case 'SUM':
-        return AggregateFunctionName.sum;
-      case 'SUM_DISTINCT':
-        return AggregateFunctionName.sumDistinct;
-      case 'COUNT':
-        return AggregateFunctionName.count;
-      case 'COUNT_DISTINCT':
-        return AggregateFunctionName.countDistinct;
-      case 'AVG':
-        return AggregateFunctionName.avg;
-    }
-    throw Exception('$this is not known in enum AggregateFunctionName');
-  }
+  const AggregateFunctionName(this.value);
+
+  static AggregateFunctionName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AggregateFunctionName'));
 }
 
 /// Constraint on query output removing output rows that do not meet a minimum
@@ -1483,7 +2555,7 @@ class AggregationConstraint {
     return AggregationConstraint(
       columnName: json['columnName'] as String,
       minimum: json['minimum'] as int,
-      type: (json['type'] as String).toAggregationType(),
+      type: AggregationType.fromString((json['type'] as String)),
     );
   }
 
@@ -1494,54 +2566,90 @@ class AggregationConstraint {
     return {
       'columnName': columnName,
       'minimum': minimum,
-      'type': type.toValue(),
+      'type': type.value,
     };
   }
 }
 
 enum AggregationType {
-  countDistinct,
+  countDistinct('COUNT_DISTINCT'),
+  ;
+
+  final String value;
+
+  const AggregationType(this.value);
+
+  static AggregationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AggregationType'));
 }
 
-extension AggregationTypeValueExtension on AggregationType {
-  String toValue() {
-    switch (this) {
-      case AggregationType.countDistinct:
-        return 'COUNT_DISTINCT';
-    }
-  }
-}
+enum AnalysisFormat {
+  sql('SQL'),
+  ;
 
-extension AggregationTypeFromString on String {
-  AggregationType toAggregationType() {
-    switch (this) {
-      case 'COUNT_DISTINCT':
-        return AggregationType.countDistinct;
-    }
-    throw Exception('$this is not known in enum AggregationType');
-  }
+  final String value;
+
+  const AnalysisFormat(this.value);
+
+  static AnalysisFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AnalysisFormat'));
 }
 
 enum AnalysisMethod {
-  directQuery,
+  directQuery('DIRECT_QUERY'),
+  ;
+
+  final String value;
+
+  const AnalysisMethod(this.value);
+
+  static AnalysisMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AnalysisMethod'));
 }
 
-extension AnalysisMethodValueExtension on AnalysisMethod {
-  String toValue() {
-    switch (this) {
-      case AnalysisMethod.directQuery:
-        return 'DIRECT_QUERY';
-    }
+/// Optional. The member who can query can provide this placeholder for a
+/// literal data value in an analysis template.
+class AnalysisParameter {
+  /// The name of the parameter. The name must use only alphanumeric, underscore
+  /// (_), or hyphen (-) characters but cannot start or end with a hyphen.
+  final String name;
+
+  /// The type of parameter.
+  final ParameterType type;
+
+  /// Optional. The default value that is applied in the analysis template. The
+  /// member who can query can override this value in the query editor.
+  final String? defaultValue;
+
+  AnalysisParameter({
+    required this.name,
+    required this.type,
+    this.defaultValue,
+  });
+
+  factory AnalysisParameter.fromJson(Map<String, dynamic> json) {
+    return AnalysisParameter(
+      name: json['name'] as String,
+      type: ParameterType.fromString((json['type'] as String)),
+      defaultValue: json['defaultValue'] as String?,
+    );
   }
-}
 
-extension AnalysisMethodFromString on String {
-  AnalysisMethod toAnalysisMethod() {
-    switch (this) {
-      case 'DIRECT_QUERY':
-        return AnalysisMethod.directQuery;
-    }
-    throw Exception('$this is not known in enum AnalysisMethod');
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final type = this.type;
+    final defaultValue = this.defaultValue;
+    return {
+      'name': name,
+      'type': type.value,
+      if (defaultValue != null) 'defaultValue': defaultValue,
+    };
   }
 }
 
@@ -1560,7 +2668,7 @@ class AnalysisRule {
   /// A policy that describes the associated data usage limitations.
   final AnalysisRulePolicy policy;
 
-  /// The type of analysis rule. Valid values are `AGGREGATION` and `LIST`.
+  /// The type of analysis rule.
   final AnalysisRuleType type;
 
   /// The time the analysis rule was last updated.
@@ -1582,7 +2690,7 @@ class AnalysisRule {
       name: json['name'] as String,
       policy:
           AnalysisRulePolicy.fromJson(json['policy'] as Map<String, dynamic>),
-      type: (json['type'] as String).toAnalysisRuleType(),
+      type: AnalysisRuleType.fromString((json['type'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
     );
   }
@@ -1599,14 +2707,14 @@ class AnalysisRule {
       'createTime': unixTimestampToJson(createTime),
       'name': name,
       'policy': policy,
-      'type': type.toValue(),
+      'type': type.value,
       'updateTime': unixTimestampToJson(updateTime),
     };
   }
 }
 
-/// Enables query structure and specified queries that product aggregate
-/// statistics.
+/// A type of analysis rule that enables query structure and specified queries
+/// that produce aggregate statistics.
 class AnalysisRuleAggregation {
   /// The columns that query runners are allowed to use in aggregation queries.
   final List<AggregateColumn> aggregateColumns;
@@ -1627,8 +2735,12 @@ class AnalysisRuleAggregation {
   /// the output of aggregation of metrics.
   final List<ScalarFunctions> scalarFunctions;
 
+  /// Which logical operators (if any) are to be used in an INNER JOIN match
+  /// condition. Default is <code>AND</code>.
+  final List<JoinOperator>? allowedJoinOperators;
+
   /// Control that requires member who runs query to do a join with their
-  /// configured table and/or other configured table in query
+  /// configured table and/or other configured table in query.
   final JoinRequiredOption? joinRequired;
 
   AnalysisRuleAggregation({
@@ -1637,32 +2749,38 @@ class AnalysisRuleAggregation {
     required this.joinColumns,
     required this.outputConstraints,
     required this.scalarFunctions,
+    this.allowedJoinOperators,
     this.joinRequired,
   });
 
   factory AnalysisRuleAggregation.fromJson(Map<String, dynamic> json) {
     return AnalysisRuleAggregation(
       aggregateColumns: (json['aggregateColumns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AggregateColumn.fromJson(e as Map<String, dynamic>))
           .toList(),
       dimensionColumns: (json['dimensionColumns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       joinColumns: (json['joinColumns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       outputConstraints: (json['outputConstraints'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AggregationConstraint.fromJson(e as Map<String, dynamic>))
           .toList(),
       scalarFunctions: (json['scalarFunctions'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toScalarFunctions())
+          .nonNulls
+          .map((e) => ScalarFunctions.fromString((e as String)))
           .toList(),
-      joinRequired: (json['joinRequired'] as String?)?.toJoinRequiredOption(),
+      allowedJoinOperators: (json['allowedJoinOperators'] as List?)
+          ?.nonNulls
+          .map((e) => JoinOperator.fromString((e as String)))
+          .toList(),
+      joinRequired:
+          (json['joinRequired'] as String?)?.let(JoinRequiredOption.fromString),
     );
   }
 
@@ -1672,14 +2790,70 @@ class AnalysisRuleAggregation {
     final joinColumns = this.joinColumns;
     final outputConstraints = this.outputConstraints;
     final scalarFunctions = this.scalarFunctions;
+    final allowedJoinOperators = this.allowedJoinOperators;
     final joinRequired = this.joinRequired;
     return {
       'aggregateColumns': aggregateColumns,
       'dimensionColumns': dimensionColumns,
       'joinColumns': joinColumns,
       'outputConstraints': outputConstraints,
-      'scalarFunctions': scalarFunctions.map((e) => e.toValue()).toList(),
-      if (joinRequired != null) 'joinRequired': joinRequired.toValue(),
+      'scalarFunctions': scalarFunctions.map((e) => e.value).toList(),
+      if (allowedJoinOperators != null)
+        'allowedJoinOperators':
+            allowedJoinOperators.map((e) => e.value).toList(),
+      if (joinRequired != null) 'joinRequired': joinRequired.value,
+    };
+  }
+}
+
+/// A type of analysis rule that enables the table owner to approve custom SQL
+/// queries on their configured tables. It supports differential privacy.
+class AnalysisRuleCustom {
+  /// The ARN of the analysis templates that are allowed by the custom analysis
+  /// rule.
+  final List<String> allowedAnalyses;
+
+  /// The IDs of the Amazon Web Services accounts that are allowed to query by the
+  /// custom analysis rule. Required when <code>allowedAnalyses</code> is
+  /// <code>ANY_QUERY</code>.
+  final List<String>? allowedAnalysisProviders;
+
+  /// The differential privacy configuration.
+  final DifferentialPrivacyConfiguration? differentialPrivacy;
+
+  AnalysisRuleCustom({
+    required this.allowedAnalyses,
+    this.allowedAnalysisProviders,
+    this.differentialPrivacy,
+  });
+
+  factory AnalysisRuleCustom.fromJson(Map<String, dynamic> json) {
+    return AnalysisRuleCustom(
+      allowedAnalyses: (json['allowedAnalyses'] as List)
+          .nonNulls
+          .map((e) => e as String)
+          .toList(),
+      allowedAnalysisProviders: (json['allowedAnalysisProviders'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      differentialPrivacy: json['differentialPrivacy'] != null
+          ? DifferentialPrivacyConfiguration.fromJson(
+              json['differentialPrivacy'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final allowedAnalyses = this.allowedAnalyses;
+    final allowedAnalysisProviders = this.allowedAnalysisProviders;
+    final differentialPrivacy = this.differentialPrivacy;
+    return {
+      'allowedAnalyses': allowedAnalyses,
+      if (allowedAnalysisProviders != null)
+        'allowedAnalysisProviders': allowedAnalysisProviders,
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
     };
   }
 }
@@ -1687,26 +2861,35 @@ class AnalysisRuleAggregation {
 /// A type of analysis rule that enables row-level analysis.
 class AnalysisRuleList {
   /// Columns that can be used to join a configured table with the table of the
-  /// member who can query and another members' configured tables.
+  /// member who can query and other members' configured tables.
   final List<String> joinColumns;
 
   /// Columns that can be listed in the output.
   final List<String> listColumns;
 
+  /// The logical operators (if any) that are to be used in an INNER JOIN match
+  /// condition. Default is <code>AND</code>.
+  final List<JoinOperator>? allowedJoinOperators;
+
   AnalysisRuleList({
     required this.joinColumns,
     required this.listColumns,
+    this.allowedJoinOperators,
   });
 
   factory AnalysisRuleList.fromJson(Map<String, dynamic> json) {
     return AnalysisRuleList(
       joinColumns: (json['joinColumns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       listColumns: (json['listColumns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
+          .toList(),
+      allowedJoinOperators: (json['allowedJoinOperators'] as List?)
+          ?.nonNulls
+          .map((e) => JoinOperator.fromString((e as String)))
           .toList(),
     );
   }
@@ -1714,16 +2897,20 @@ class AnalysisRuleList {
   Map<String, dynamic> toJson() {
     final joinColumns = this.joinColumns;
     final listColumns = this.listColumns;
+    final allowedJoinOperators = this.allowedJoinOperators;
     return {
       'joinColumns': joinColumns,
       'listColumns': listColumns,
+      if (allowedJoinOperators != null)
+        'allowedJoinOperators':
+            allowedJoinOperators.map((e) => e.value).toList(),
     };
   }
 }
 
-/// Controls on the query specifications that can be run on configured table..
+/// Controls on the query specifications that can be run on configured table.
 class AnalysisRulePolicy {
-  /// Controls on the query specifications that can be run on configured table..
+  /// Controls on the query specifications that can be run on configured table.
   final AnalysisRulePolicyV1? v1;
 
   AnalysisRulePolicy({
@@ -1746,17 +2933,21 @@ class AnalysisRulePolicy {
   }
 }
 
-/// Controls on the query specifications that can be run on configured table..
+/// Controls on the query specifications that can be run on configured table.
 class AnalysisRulePolicyV1 {
   /// Analysis rule type that enables only aggregation queries on a configured
   /// table.
   final AnalysisRuleAggregation? aggregation;
+
+  /// Analysis rule type that enables custom SQL queries on a configured table.
+  final AnalysisRuleCustom? custom;
 
   /// Analysis rule type that enables only list queries on a configured table.
   final AnalysisRuleList? list;
 
   AnalysisRulePolicyV1({
     this.aggregation,
+    this.custom,
     this.list,
   });
 
@@ -1766,6 +2957,9 @@ class AnalysisRulePolicyV1 {
           ? AnalysisRuleAggregation.fromJson(
               json['aggregation'] as Map<String, dynamic>)
           : null,
+      custom: json['custom'] != null
+          ? AnalysisRuleCustom.fromJson(json['custom'] as Map<String, dynamic>)
+          : null,
       list: json['list'] != null
           ? AnalysisRuleList.fromJson(json['list'] as Map<String, dynamic>)
           : null,
@@ -1774,39 +2968,563 @@ class AnalysisRulePolicyV1 {
 
   Map<String, dynamic> toJson() {
     final aggregation = this.aggregation;
+    final custom = this.custom;
     final list = this.list;
     return {
       if (aggregation != null) 'aggregation': aggregation,
+      if (custom != null) 'custom': custom,
       if (list != null) 'list': list,
     };
   }
 }
 
 enum AnalysisRuleType {
-  aggregation,
-  list,
+  aggregation('AGGREGATION'),
+  list('LIST'),
+  custom('CUSTOM'),
+  ;
+
+  final String value;
+
+  const AnalysisRuleType(this.value);
+
+  static AnalysisRuleType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AnalysisRuleType'));
 }
 
-extension AnalysisRuleTypeValueExtension on AnalysisRuleType {
-  String toValue() {
-    switch (this) {
-      case AnalysisRuleType.aggregation:
-        return 'AGGREGATION';
-      case AnalysisRuleType.list:
-        return 'LIST';
-    }
+/// A relation within an analysis.
+class AnalysisSchema {
+  /// The tables referenced in the analysis schema.
+  final List<String>? referencedTables;
+
+  AnalysisSchema({
+    this.referencedTables,
+  });
+
+  factory AnalysisSchema.fromJson(Map<String, dynamic> json) {
+    return AnalysisSchema(
+      referencedTables: (json['referencedTables'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final referencedTables = this.referencedTables;
+    return {
+      if (referencedTables != null) 'referencedTables': referencedTables,
+    };
   }
 }
 
-extension AnalysisRuleTypeFromString on String {
-  AnalysisRuleType toAnalysisRuleType() {
-    switch (this) {
-      case 'AGGREGATION':
-        return AnalysisRuleType.aggregation;
-      case 'LIST':
-        return AnalysisRuleType.list;
-    }
-    throw Exception('$this is not known in enum AnalysisRuleType');
+/// The structure that defines the body of the analysis template.
+class AnalysisSource {
+  /// The query text.
+  final String? text;
+
+  AnalysisSource({
+    this.text,
+  });
+
+  factory AnalysisSource.fromJson(Map<String, dynamic> json) {
+    return AnalysisSource(
+      text: json['text'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final text = this.text;
+    return {
+      if (text != null) 'text': text,
+    };
+  }
+}
+
+/// The analysis template.
+class AnalysisTemplate {
+  /// The Amazon Resource Name (ARN) of the analysis template.
+  final String arn;
+
+  /// The unique ARN for the analysis template’s associated collaboration.
+  final String collaborationArn;
+
+  /// The unique ID for the associated collaboration of the analysis template.
+  final String collaborationId;
+
+  /// The time that the analysis template was created.
+  final DateTime createTime;
+
+  /// The format of the analysis template.
+  final AnalysisFormat format;
+
+  /// The identifier for the analysis template.
+  final String id;
+
+  /// The Amazon Resource Name (ARN) of the member who created the analysis
+  /// template.
+  final String membershipArn;
+
+  /// The identifier of a member who created the analysis template.
+  final String membershipId;
+
+  /// The name of the analysis template.
+  final String name;
+
+  /// The entire schema object.
+  final AnalysisSchema schema;
+
+  /// The source of the analysis template.
+  final AnalysisSource source;
+
+  /// The time that the analysis template was last updated.
+  final DateTime updateTime;
+
+  /// The parameters of the analysis template.
+  final List<AnalysisParameter>? analysisParameters;
+
+  /// The description of the analysis template.
+  final String? description;
+
+  /// Information about the validations performed on the analysis template.
+  final List<AnalysisTemplateValidationStatusDetail>? validations;
+
+  AnalysisTemplate({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.format,
+    required this.id,
+    required this.membershipArn,
+    required this.membershipId,
+    required this.name,
+    required this.schema,
+    required this.source,
+    required this.updateTime,
+    this.analysisParameters,
+    this.description,
+    this.validations,
+  });
+
+  factory AnalysisTemplate.fromJson(Map<String, dynamic> json) {
+    return AnalysisTemplate(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      format: AnalysisFormat.fromString((json['format'] as String)),
+      id: json['id'] as String,
+      membershipArn: json['membershipArn'] as String,
+      membershipId: json['membershipId'] as String,
+      name: json['name'] as String,
+      schema: AnalysisSchema.fromJson(json['schema'] as Map<String, dynamic>),
+      source: AnalysisSource.fromJson(json['source'] as Map<String, dynamic>),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      analysisParameters: (json['analysisParameters'] as List?)
+          ?.nonNulls
+          .map((e) => AnalysisParameter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      description: json['description'] as String?,
+      validations: (json['validations'] as List?)
+          ?.nonNulls
+          .map((e) => AnalysisTemplateValidationStatusDetail.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final format = this.format;
+    final id = this.id;
+    final membershipArn = this.membershipArn;
+    final membershipId = this.membershipId;
+    final name = this.name;
+    final schema = this.schema;
+    final source = this.source;
+    final updateTime = this.updateTime;
+    final analysisParameters = this.analysisParameters;
+    final description = this.description;
+    final validations = this.validations;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'format': format.value,
+      'id': id,
+      'membershipArn': membershipArn,
+      'membershipId': membershipId,
+      'name': name,
+      'schema': schema,
+      'source': source,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (analysisParameters != null) 'analysisParameters': analysisParameters,
+      if (description != null) 'description': description,
+      if (validations != null) 'validations': validations,
+    };
+  }
+}
+
+/// The metadata of the analysis template.
+class AnalysisTemplateSummary {
+  /// The Amazon Resource Name (ARN) of the analysis template.
+  final String arn;
+
+  /// The unique ARN for the analysis template summary’s associated collaboration.
+  final String collaborationArn;
+
+  /// A unique identifier for the collaboration that the analysis template summary
+  /// belongs to. Currently accepts collaboration ID.
+  final String collaborationId;
+
+  /// The time that the analysis template summary was created.
+  final DateTime createTime;
+
+  /// The identifier of the analysis template.
+  final String id;
+
+  /// The Amazon Resource Name (ARN) of the member who created the analysis
+  /// template.
+  final String membershipArn;
+
+  /// The identifier for a membership resource.
+  final String membershipId;
+
+  /// The name of the analysis template.
+  final String name;
+
+  /// The time that the analysis template summary was last updated.
+  final DateTime updateTime;
+
+  /// The description of the analysis template.
+  final String? description;
+
+  AnalysisTemplateSummary({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.id,
+    required this.membershipArn,
+    required this.membershipId,
+    required this.name,
+    required this.updateTime,
+    this.description,
+  });
+
+  factory AnalysisTemplateSummary.fromJson(Map<String, dynamic> json) {
+    return AnalysisTemplateSummary(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      id: json['id'] as String,
+      membershipArn: json['membershipArn'] as String,
+      membershipId: json['membershipId'] as String,
+      name: json['name'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final id = this.id;
+    final membershipArn = this.membershipArn;
+    final membershipId = this.membershipId;
+    final name = this.name;
+    final updateTime = this.updateTime;
+    final description = this.description;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'id': id,
+      'membershipArn': membershipArn,
+      'membershipId': membershipId,
+      'name': name,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (description != null) 'description': description,
+    };
+  }
+}
+
+enum AnalysisTemplateValidationStatus {
+  valid('VALID'),
+  invalid('INVALID'),
+  unableToValidate('UNABLE_TO_VALIDATE'),
+  ;
+
+  final String value;
+
+  const AnalysisTemplateValidationStatus(this.value);
+
+  static AnalysisTemplateValidationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AnalysisTemplateValidationStatus'));
+}
+
+/// The status details of the analysis template validation. Clean Rooms
+/// Differential Privacy uses a general-purpose query structure to support
+/// complex SQL queries and validates whether an analysis template fits that
+/// general-purpose query structure. Validation is performed when analysis
+/// templates are created and fetched. Because analysis templates are immutable
+/// by design, we recommend that you create analysis templates after you
+/// associate the configured tables with their analysis rule to your
+/// collaboration.
+///
+/// For more information, see <a
+/// href="https://docs.aws.amazon.com/clean-rooms/latest/userguide/analysis-rules-custom.html#custom-diff-privacy">https://docs.aws.amazon.com/clean-rooms/latest/userguide/analysis-rules-custom.html#custom-diff-privacy</a>.
+class AnalysisTemplateValidationStatusDetail {
+  /// The status of the validation.
+  final AnalysisTemplateValidationStatus status;
+
+  /// The type of validation that was performed.
+  final AnalysisTemplateValidationType type;
+
+  /// The reasons for the validation results.
+  final List<AnalysisTemplateValidationStatusReason>? reasons;
+
+  AnalysisTemplateValidationStatusDetail({
+    required this.status,
+    required this.type,
+    this.reasons,
+  });
+
+  factory AnalysisTemplateValidationStatusDetail.fromJson(
+      Map<String, dynamic> json) {
+    return AnalysisTemplateValidationStatusDetail(
+      status: AnalysisTemplateValidationStatus.fromString(
+          (json['status'] as String)),
+      type: AnalysisTemplateValidationType.fromString((json['type'] as String)),
+      reasons: (json['reasons'] as List?)
+          ?.nonNulls
+          .map((e) => AnalysisTemplateValidationStatusReason.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    final type = this.type;
+    final reasons = this.reasons;
+    return {
+      'status': status.value,
+      'type': type.value,
+      if (reasons != null) 'reasons': reasons,
+    };
+  }
+}
+
+/// The reasons for the validation results.
+class AnalysisTemplateValidationStatusReason {
+  /// The validation message.
+  final String message;
+
+  AnalysisTemplateValidationStatusReason({
+    required this.message,
+  });
+
+  factory AnalysisTemplateValidationStatusReason.fromJson(
+      Map<String, dynamic> json) {
+    return AnalysisTemplateValidationStatusReason(
+      message: json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final message = this.message;
+    return {
+      'message': message,
+    };
+  }
+}
+
+enum AnalysisTemplateValidationType {
+  differentialPrivacy('DIFFERENTIAL_PRIVACY'),
+  ;
+
+  final String value;
+
+  const AnalysisTemplateValidationType(this.value);
+
+  static AnalysisTemplateValidationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AnalysisTemplateValidationType'));
+}
+
+/// Details of errors thrown by the call to retrieve multiple analysis templates
+/// within a collaboration by their identifiers.
+class BatchGetCollaborationAnalysisTemplateError {
+  /// The Amazon Resource Name (ARN) of the analysis template.
+  final String arn;
+
+  /// An error code for the error.
+  final String code;
+
+  /// A description of why the call failed.
+  final String message;
+
+  BatchGetCollaborationAnalysisTemplateError({
+    required this.arn,
+    required this.code,
+    required this.message,
+  });
+
+  factory BatchGetCollaborationAnalysisTemplateError.fromJson(
+      Map<String, dynamic> json) {
+    return BatchGetCollaborationAnalysisTemplateError(
+      arn: json['arn'] as String,
+      code: json['code'] as String,
+      message: json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final code = this.code;
+    final message = this.message;
+    return {
+      'arn': arn,
+      'code': code,
+      'message': message,
+    };
+  }
+}
+
+class BatchGetCollaborationAnalysisTemplateOutput {
+  /// The retrieved list of analysis templates within a collaboration.
+  final List<CollaborationAnalysisTemplate> collaborationAnalysisTemplates;
+
+  /// Error reasons for collaboration analysis templates that could not be
+  /// retrieved. One error is returned for every collaboration analysis template
+  /// that could not be retrieved.
+  final List<BatchGetCollaborationAnalysisTemplateError> errors;
+
+  BatchGetCollaborationAnalysisTemplateOutput({
+    required this.collaborationAnalysisTemplates,
+    required this.errors,
+  });
+
+  factory BatchGetCollaborationAnalysisTemplateOutput.fromJson(
+      Map<String, dynamic> json) {
+    return BatchGetCollaborationAnalysisTemplateOutput(
+      collaborationAnalysisTemplates: (json['collaborationAnalysisTemplates']
+              as List)
+          .nonNulls
+          .map((e) =>
+              CollaborationAnalysisTemplate.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      errors: (json['errors'] as List)
+          .nonNulls
+          .map((e) => BatchGetCollaborationAnalysisTemplateError.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationAnalysisTemplates = this.collaborationAnalysisTemplates;
+    final errors = this.errors;
+    return {
+      'collaborationAnalysisTemplates': collaborationAnalysisTemplates,
+      'errors': errors,
+    };
+  }
+}
+
+/// An error that describes why a schema could not be fetched.
+class BatchGetSchemaAnalysisRuleError {
+  /// An error code for the error.
+  final String code;
+
+  /// A description of why the call failed.
+  final String message;
+
+  /// An error name for the error.
+  final String name;
+
+  /// The analysis rule type.
+  final AnalysisRuleType type;
+
+  BatchGetSchemaAnalysisRuleError({
+    required this.code,
+    required this.message,
+    required this.name,
+    required this.type,
+  });
+
+  factory BatchGetSchemaAnalysisRuleError.fromJson(Map<String, dynamic> json) {
+    return BatchGetSchemaAnalysisRuleError(
+      code: json['code'] as String,
+      message: json['message'] as String,
+      name: json['name'] as String,
+      type: AnalysisRuleType.fromString((json['type'] as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final code = this.code;
+    final message = this.message;
+    final name = this.name;
+    final type = this.type;
+    return {
+      'code': code,
+      'message': message,
+      'name': name,
+      'type': type.value,
+    };
+  }
+}
+
+class BatchGetSchemaAnalysisRuleOutput {
+  /// The retrieved list of analysis rules.
+  final List<AnalysisRule> analysisRules;
+
+  /// Error reasons for schemas that could not be retrieved. One error is returned
+  /// for every schema that could not be retrieved.
+  final List<BatchGetSchemaAnalysisRuleError> errors;
+
+  BatchGetSchemaAnalysisRuleOutput({
+    required this.analysisRules,
+    required this.errors,
+  });
+
+  factory BatchGetSchemaAnalysisRuleOutput.fromJson(Map<String, dynamic> json) {
+    return BatchGetSchemaAnalysisRuleOutput(
+      analysisRules: (json['analysisRules'] as List)
+          .nonNulls
+          .map((e) => AnalysisRule.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      errors: (json['errors'] as List)
+          .nonNulls
+          .map((e) => BatchGetSchemaAnalysisRuleError.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisRules = this.analysisRules;
+    final errors = this.errors;
+    return {
+      'analysisRules': analysisRules,
+      'errors': errors,
+    };
   }
 }
 
@@ -1863,11 +3581,11 @@ class BatchGetSchemaOutput {
   factory BatchGetSchemaOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetSchemaOutput(
       errors: (json['errors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BatchGetSchemaError.fromJson(e as Map<String, dynamic>))
           .toList(),
       schemas: (json['schemas'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Schema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1893,7 +3611,7 @@ class Collaboration {
   final DateTime createTime;
 
   /// The identifier used to reference members of the collaboration. Currently
-  /// only supports AWS account ID.
+  /// only supports Amazon Web Services account ID.
   final String creatorAccountId;
 
   /// A display name of the collaboration creator.
@@ -1951,10 +3669,10 @@ class Collaboration {
       creatorAccountId: json['creatorAccountId'] as String,
       creatorDisplayName: json['creatorDisplayName'] as String,
       id: json['id'] as String,
-      memberStatus: (json['memberStatus'] as String).toMemberStatus(),
+      memberStatus: MemberStatus.fromString((json['memberStatus'] as String)),
       name: json['name'] as String,
-      queryLogStatus:
-          (json['queryLogStatus'] as String).toCollaborationQueryLogStatus(),
+      queryLogStatus: CollaborationQueryLogStatus.fromString(
+          (json['queryLogStatus'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       dataEncryptionMetadata: json['dataEncryptionMetadata'] != null
           ? DataEncryptionMetadata.fromJson(
@@ -1986,9 +3704,9 @@ class Collaboration {
       'creatorAccountId': creatorAccountId,
       'creatorDisplayName': creatorDisplayName,
       'id': id,
-      'memberStatus': memberStatus.toValue(),
+      'memberStatus': memberStatus.value,
       'name': name,
-      'queryLogStatus': queryLogStatus.toValue(),
+      'queryLogStatus': queryLogStatus.value,
       'updateTime': unixTimestampToJson(updateTime),
       if (dataEncryptionMetadata != null)
         'dataEncryptionMetadata': dataEncryptionMetadata,
@@ -1999,33 +3717,672 @@ class Collaboration {
   }
 }
 
+/// The analysis template within a collaboration.
+class CollaborationAnalysisTemplate {
+  /// The Amazon Resource Name (ARN) of the analysis template.
+  final String arn;
+
+  /// The unique ARN for the analysis template’s associated collaboration.
+  final String collaborationArn;
+
+  /// A unique identifier for the collaboration that the analysis templates belong
+  /// to. Currently accepts collaboration ID.
+  final String collaborationId;
+
+  /// The time that the analysis template within a collaboration was created.
+  final DateTime createTime;
+
+  /// The identifier used to reference members of the collaboration. Currently
+  /// only supports Amazon Web Services account ID.
+  final String creatorAccountId;
+
+  /// The format of the analysis template in the collaboration.
+  final AnalysisFormat format;
+
+  /// The identifier of the analysis template.
+  final String id;
+
+  /// The name of the analysis template.
+  final String name;
+
+  /// The entire schema object.
+  final AnalysisSchema schema;
+
+  /// The source of the analysis template within a collaboration.
+  final AnalysisSource source;
+
+  /// The time that the analysis template in the collaboration was last updated.
+  final DateTime updateTime;
+
+  /// The analysis parameters that have been specified in the analysis template.
+  final List<AnalysisParameter>? analysisParameters;
+
+  /// The description of the analysis template.
+  final String? description;
+
+  /// The validations that were performed.
+  final List<AnalysisTemplateValidationStatusDetail>? validations;
+
+  CollaborationAnalysisTemplate({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.creatorAccountId,
+    required this.format,
+    required this.id,
+    required this.name,
+    required this.schema,
+    required this.source,
+    required this.updateTime,
+    this.analysisParameters,
+    this.description,
+    this.validations,
+  });
+
+  factory CollaborationAnalysisTemplate.fromJson(Map<String, dynamic> json) {
+    return CollaborationAnalysisTemplate(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      creatorAccountId: json['creatorAccountId'] as String,
+      format: AnalysisFormat.fromString((json['format'] as String)),
+      id: json['id'] as String,
+      name: json['name'] as String,
+      schema: AnalysisSchema.fromJson(json['schema'] as Map<String, dynamic>),
+      source: AnalysisSource.fromJson(json['source'] as Map<String, dynamic>),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      analysisParameters: (json['analysisParameters'] as List?)
+          ?.nonNulls
+          .map((e) => AnalysisParameter.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      description: json['description'] as String?,
+      validations: (json['validations'] as List?)
+          ?.nonNulls
+          .map((e) => AnalysisTemplateValidationStatusDetail.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final creatorAccountId = this.creatorAccountId;
+    final format = this.format;
+    final id = this.id;
+    final name = this.name;
+    final schema = this.schema;
+    final source = this.source;
+    final updateTime = this.updateTime;
+    final analysisParameters = this.analysisParameters;
+    final description = this.description;
+    final validations = this.validations;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'creatorAccountId': creatorAccountId,
+      'format': format.value,
+      'id': id,
+      'name': name,
+      'schema': schema,
+      'source': source,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (analysisParameters != null) 'analysisParameters': analysisParameters,
+      if (description != null) 'description': description,
+      if (validations != null) 'validations': validations,
+    };
+  }
+}
+
+/// The metadata of the analysis template within a collaboration.
+class CollaborationAnalysisTemplateSummary {
+  /// The Amazon Resource Name (ARN) of the analysis template.
+  final String arn;
+
+  /// The unique ARN for the analysis template’s associated collaboration.
+  final String collaborationArn;
+
+  /// A unique identifier for the collaboration that the analysis templates belong
+  /// to. Currently accepts collaboration ID.
+  final String collaborationId;
+
+  /// The time that the summary of the analysis template in a collaboration was
+  /// created.
+  final DateTime createTime;
+
+  /// The identifier used to reference members of the collaboration. Currently
+  /// only supports Amazon Web Services account ID.
+  final String creatorAccountId;
+
+  /// The identifier of the analysis template.
+  final String id;
+
+  /// The name of the analysis template.
+  final String name;
+
+  /// The time that the summary of the analysis template in the collaboration was
+  /// last updated.
+  final DateTime updateTime;
+
+  /// The description of the analysis template.
+  final String? description;
+
+  CollaborationAnalysisTemplateSummary({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.creatorAccountId,
+    required this.id,
+    required this.name,
+    required this.updateTime,
+    this.description,
+  });
+
+  factory CollaborationAnalysisTemplateSummary.fromJson(
+      Map<String, dynamic> json) {
+    return CollaborationAnalysisTemplateSummary(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      creatorAccountId: json['creatorAccountId'] as String,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final creatorAccountId = this.creatorAccountId;
+    final id = this.id;
+    final name = this.name;
+    final updateTime = this.updateTime;
+    final description = this.description;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'creatorAccountId': creatorAccountId,
+      'id': id,
+      'name': name,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (description != null) 'description': description,
+    };
+  }
+}
+
+/// The configured audience model association within a collaboration.
+class CollaborationConfiguredAudienceModelAssociation {
+  /// The Amazon Resource Name (ARN) of the configured audience model association.
+  final String arn;
+
+  /// The unique ARN for the configured audience model's associated collaboration.
+  final String collaborationArn;
+
+  /// A unique identifier for the collaboration that the configured audience model
+  /// associations belong to. Accepts collaboration ID.
+  final String collaborationId;
+
+  /// The Amazon Resource Name (ARN) of the configure audience model.
+  final String configuredAudienceModelArn;
+
+  /// The time at which the configured audience model association was created.
+  final DateTime createTime;
+
+  /// The identifier used to reference members of the collaboration. Only supports
+  /// AWS account ID.
+  final String creatorAccountId;
+
+  /// The identifier of the configured audience model association.
+  final String id;
+
+  /// The name of the configured audience model association.
+  final String name;
+
+  /// The most recent time at which the configured audience model association was
+  /// updated.
+  final DateTime updateTime;
+
+  /// The description of the configured audience model association.
+  final String? description;
+
+  CollaborationConfiguredAudienceModelAssociation({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.configuredAudienceModelArn,
+    required this.createTime,
+    required this.creatorAccountId,
+    required this.id,
+    required this.name,
+    required this.updateTime,
+    this.description,
+  });
+
+  factory CollaborationConfiguredAudienceModelAssociation.fromJson(
+      Map<String, dynamic> json) {
+    return CollaborationConfiguredAudienceModelAssociation(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      configuredAudienceModelArn: json['configuredAudienceModelArn'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      creatorAccountId: json['creatorAccountId'] as String,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final configuredAudienceModelArn = this.configuredAudienceModelArn;
+    final createTime = this.createTime;
+    final creatorAccountId = this.creatorAccountId;
+    final id = this.id;
+    final name = this.name;
+    final updateTime = this.updateTime;
+    final description = this.description;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'configuredAudienceModelArn': configuredAudienceModelArn,
+      'createTime': unixTimestampToJson(createTime),
+      'creatorAccountId': creatorAccountId,
+      'id': id,
+      'name': name,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (description != null) 'description': description,
+    };
+  }
+}
+
+/// A summary of the configured audience model association in the collaboration.
+class CollaborationConfiguredAudienceModelAssociationSummary {
+  /// The Amazon Resource Name (ARN) of the configured audience model association.
+  final String arn;
+
+  /// The unique ARN for the configured audience model's associated collaboration.
+  final String collaborationArn;
+
+  /// A unique identifier for the collaboration that the configured audience model
+  /// associations belong to. Accepts collaboration ID.
+  final String collaborationId;
+
+  /// The time at which the configured audience model association was created.
+  final DateTime createTime;
+
+  /// The identifier used to reference members of the collaboration. Only supports
+  /// AWS account ID.
+  final String creatorAccountId;
+
+  /// The identifier of the configured audience model association.
+  final String id;
+
+  /// The name of the configured audience model association.
+  final String name;
+
+  /// The most recent time at which the configured audience model association was
+  /// updated.
+  final DateTime updateTime;
+
+  /// The description of the configured audience model association.
+  final String? description;
+
+  CollaborationConfiguredAudienceModelAssociationSummary({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.creatorAccountId,
+    required this.id,
+    required this.name,
+    required this.updateTime,
+    this.description,
+  });
+
+  factory CollaborationConfiguredAudienceModelAssociationSummary.fromJson(
+      Map<String, dynamic> json) {
+    return CollaborationConfiguredAudienceModelAssociationSummary(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      creatorAccountId: json['creatorAccountId'] as String,
+      id: json['id'] as String,
+      name: json['name'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final creatorAccountId = this.creatorAccountId;
+    final id = this.id;
+    final name = this.name;
+    final updateTime = this.updateTime;
+    final description = this.description;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'creatorAccountId': creatorAccountId,
+      'id': id,
+      'name': name,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (description != null) 'description': description,
+    };
+  }
+}
+
+/// A summary of the collaboration privacy budgets. This summary includes the
+/// collaboration information, creation information, epsilon provided, and
+/// utility in terms of aggregations.
+class CollaborationPrivacyBudgetSummary {
+  /// The includes epsilon provided and utility in terms of aggregations.
+  final PrivacyBudget budget;
+
+  /// The ARN of the collaboration that includes this privacy budget.
+  final String collaborationArn;
+
+  /// The unique identifier of the collaboration that includes this privacy
+  /// budget.
+  final String collaborationId;
+
+  /// The time at which the privacy budget was created.
+  final DateTime createTime;
+
+  /// The unique identifier of the account that created this privacy budget.
+  final String creatorAccountId;
+
+  /// The unique identifier of the collaboration privacy budget.
+  final String id;
+
+  /// The ARN of the collaboration privacy budget template.
+  final String privacyBudgetTemplateArn;
+
+  /// The unique identifier of the collaboration privacy budget template.
+  final String privacyBudgetTemplateId;
+
+  /// The type of privacy budget template.
+  final PrivacyBudgetType type;
+
+  /// The most recent time at which the privacy budget was updated.
+  final DateTime updateTime;
+
+  CollaborationPrivacyBudgetSummary({
+    required this.budget,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.creatorAccountId,
+    required this.id,
+    required this.privacyBudgetTemplateArn,
+    required this.privacyBudgetTemplateId,
+    required this.type,
+    required this.updateTime,
+  });
+
+  factory CollaborationPrivacyBudgetSummary.fromJson(
+      Map<String, dynamic> json) {
+    return CollaborationPrivacyBudgetSummary(
+      budget: PrivacyBudget.fromJson(json['budget'] as Map<String, dynamic>),
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      creatorAccountId: json['creatorAccountId'] as String,
+      id: json['id'] as String,
+      privacyBudgetTemplateArn: json['privacyBudgetTemplateArn'] as String,
+      privacyBudgetTemplateId: json['privacyBudgetTemplateId'] as String,
+      type: PrivacyBudgetType.fromString((json['type'] as String)),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final budget = this.budget;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final creatorAccountId = this.creatorAccountId;
+    final id = this.id;
+    final privacyBudgetTemplateArn = this.privacyBudgetTemplateArn;
+    final privacyBudgetTemplateId = this.privacyBudgetTemplateId;
+    final type = this.type;
+    final updateTime = this.updateTime;
+    return {
+      'budget': budget,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'creatorAccountId': creatorAccountId,
+      'id': id,
+      'privacyBudgetTemplateArn': privacyBudgetTemplateArn,
+      'privacyBudgetTemplateId': privacyBudgetTemplateId,
+      'type': type.value,
+      'updateTime': unixTimestampToJson(updateTime),
+    };
+  }
+}
+
+/// An array that specifies the information for a collaboration's privacy budget
+/// template.
+class CollaborationPrivacyBudgetTemplate {
+  /// The ARN of the collaboration privacy budget template.
+  final String arn;
+
+  /// How often the privacy budget refreshes.
+  /// <important>
+  /// If you plan to regularly bring new data into the collaboration, use
+  /// <code>CALENDAR_MONTH</code> to automatically get a new privacy budget for
+  /// the collaboration every calendar month. Choosing this option allows
+  /// arbitrary amounts of information to be revealed about rows of the data when
+  /// repeatedly queried across refreshes. Avoid choosing this if the same rows
+  /// will be repeatedly queried between privacy budget refreshes.
+  /// </important>
+  final PrivacyBudgetTemplateAutoRefresh autoRefresh;
+
+  /// The ARN of the collaboration that includes this collaboration privacy budget
+  /// template.
+  final String collaborationArn;
+
+  /// The unique identifier of the collaboration that includes this collaboration
+  /// privacy budget template.
+  final String collaborationId;
+
+  /// The time at which the collaboration privacy budget template was created.
+  final DateTime createTime;
+
+  /// The unique identifier of the account that created this collaboration privacy
+  /// budget template.
+  final String creatorAccountId;
+
+  /// The unique identifier of the collaboration privacy budget template.
+  final String id;
+
+  /// Specifies the epsilon and noise parameters for the privacy budget template.
+  final PrivacyBudgetTemplateParametersOutput parameters;
+
+  /// The type of privacy budget template.
+  final PrivacyBudgetType privacyBudgetType;
+
+  /// The most recent time at which the collaboration privacy budget template was
+  /// updated.
+  final DateTime updateTime;
+
+  CollaborationPrivacyBudgetTemplate({
+    required this.arn,
+    required this.autoRefresh,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.creatorAccountId,
+    required this.id,
+    required this.parameters,
+    required this.privacyBudgetType,
+    required this.updateTime,
+  });
+
+  factory CollaborationPrivacyBudgetTemplate.fromJson(
+      Map<String, dynamic> json) {
+    return CollaborationPrivacyBudgetTemplate(
+      arn: json['arn'] as String,
+      autoRefresh: PrivacyBudgetTemplateAutoRefresh.fromString(
+          (json['autoRefresh'] as String)),
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      creatorAccountId: json['creatorAccountId'] as String,
+      id: json['id'] as String,
+      parameters: PrivacyBudgetTemplateParametersOutput.fromJson(
+          json['parameters'] as Map<String, dynamic>),
+      privacyBudgetType:
+          PrivacyBudgetType.fromString((json['privacyBudgetType'] as String)),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final autoRefresh = this.autoRefresh;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final creatorAccountId = this.creatorAccountId;
+    final id = this.id;
+    final parameters = this.parameters;
+    final privacyBudgetType = this.privacyBudgetType;
+    final updateTime = this.updateTime;
+    return {
+      'arn': arn,
+      'autoRefresh': autoRefresh.value,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'creatorAccountId': creatorAccountId,
+      'id': id,
+      'parameters': parameters,
+      'privacyBudgetType': privacyBudgetType.value,
+      'updateTime': unixTimestampToJson(updateTime),
+    };
+  }
+}
+
+/// A summary of the collaboration's privacy budget template. This summary
+/// includes information about who created the privacy budget template and what
+/// collaborations it belongs to.
+class CollaborationPrivacyBudgetTemplateSummary {
+  /// The ARN of the collaboration privacy budget template.
+  final String arn;
+
+  /// The ARN of the collaboration that contains this collaboration privacy budget
+  /// template.
+  final String collaborationArn;
+
+  /// The unique identifier of the collaboration that contains this collaboration
+  /// privacy budget template.
+  final String collaborationId;
+
+  /// The time at which the collaboration privacy budget template was created.
+  final DateTime createTime;
+
+  /// The unique identifier of the account that created this collaboration privacy
+  /// budget template.
+  final String creatorAccountId;
+
+  /// The unique identifier of the collaboration privacy budget template.
+  final String id;
+
+  /// The type of the privacy budget template.
+  final PrivacyBudgetType privacyBudgetType;
+
+  /// The most recent time at which the collaboration privacy budget template was
+  /// updated.
+  final DateTime updateTime;
+
+  CollaborationPrivacyBudgetTemplateSummary({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.creatorAccountId,
+    required this.id,
+    required this.privacyBudgetType,
+    required this.updateTime,
+  });
+
+  factory CollaborationPrivacyBudgetTemplateSummary.fromJson(
+      Map<String, dynamic> json) {
+    return CollaborationPrivacyBudgetTemplateSummary(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      creatorAccountId: json['creatorAccountId'] as String,
+      id: json['id'] as String,
+      privacyBudgetType:
+          PrivacyBudgetType.fromString((json['privacyBudgetType'] as String)),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final creatorAccountId = this.creatorAccountId;
+    final id = this.id;
+    final privacyBudgetType = this.privacyBudgetType;
+    final updateTime = this.updateTime;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'creatorAccountId': creatorAccountId,
+      'id': id,
+      'privacyBudgetType': privacyBudgetType.value,
+      'updateTime': unixTimestampToJson(updateTime),
+    };
+  }
+}
+
 enum CollaborationQueryLogStatus {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension CollaborationQueryLogStatusValueExtension
-    on CollaborationQueryLogStatus {
-  String toValue() {
-    switch (this) {
-      case CollaborationQueryLogStatus.enabled:
-        return 'ENABLED';
-      case CollaborationQueryLogStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension CollaborationQueryLogStatusFromString on String {
-  CollaborationQueryLogStatus toCollaborationQueryLogStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return CollaborationQueryLogStatus.enabled;
-      case 'DISABLED':
-        return CollaborationQueryLogStatus.disabled;
-    }
-    throw Exception('$this is not known in enum CollaborationQueryLogStatus');
-  }
+  const CollaborationQueryLogStatus(this.value);
+
+  static CollaborationQueryLogStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CollaborationQueryLogStatus'));
 }
 
 /// The metadata of the collaboration.
@@ -2037,7 +4394,7 @@ class CollaborationSummary {
   final DateTime createTime;
 
   /// The identifier used to reference members of the collaboration. Currently
-  /// only supports AWS Account ID.
+  /// only supports Amazon Web Services account ID.
   final String creatorAccountId;
 
   /// The display name of the collaboration creator.
@@ -2082,7 +4439,7 @@ class CollaborationSummary {
       creatorAccountId: json['creatorAccountId'] as String,
       creatorDisplayName: json['creatorDisplayName'] as String,
       id: json['id'] as String,
-      memberStatus: (json['memberStatus'] as String).toMemberStatus(),
+      memberStatus: MemberStatus.fromString((json['memberStatus'] as String)),
       name: json['name'] as String,
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       membershipArn: json['membershipArn'] as String?,
@@ -2107,7 +4464,7 @@ class CollaborationSummary {
       'creatorAccountId': creatorAccountId,
       'creatorDisplayName': creatorDisplayName,
       'id': id,
-      'memberStatus': memberStatus.toValue(),
+      'memberStatus': memberStatus.value,
       'name': name,
       'updateTime': unixTimestampToJson(updateTime),
       if (membershipArn != null) 'membershipArn': membershipArn,
@@ -2116,8 +4473,7 @@ class CollaborationSummary {
   }
 }
 
-/// A column within a schema relation, derived from the underlying AWS Glue
-/// table.
+/// A column within a schema relation, derived from the underlying Glue table.
 class Column {
   /// The name of the column.
   final String name;
@@ -2147,9 +4503,220 @@ class Column {
   }
 }
 
+/// Details about the configured audience model association.
+class ConfiguredAudienceModelAssociation {
+  /// The Amazon Resource Name (ARN) of the configured audience model association.
+  final String arn;
+
+  /// The Amazon Resource Name (ARN) of the collaboration that contains this
+  /// configured audience model association.
+  final String collaborationArn;
+
+  /// A unique identifier of the collaboration that contains this configured
+  /// audience model association.
+  final String collaborationId;
+
+  /// The Amazon Resource Name (ARN) of the configured audience model that was
+  /// used for this configured audience model association.
+  final String configuredAudienceModelArn;
+
+  /// The time at which the configured audience model association was created.
+  final DateTime createTime;
+
+  /// A unique identifier of the configured audience model association.
+  final String id;
+
+  /// When <code>TRUE</code>, indicates that the resource policy for the
+  /// configured audience model resource being associated is configured for Clean
+  /// Rooms to manage permissions related to the given collaboration. When
+  /// <code>FALSE</code>, indicates that the configured audience model resource
+  /// owner will manage permissions related to the given collaboration.
+  final bool manageResourcePolicies;
+
+  /// The Amazon Resource Name (ARN) of the membership that contains this
+  /// configured audience model association.
+  final String membershipArn;
+
+  /// A unique identifier for the membership that contains this configured
+  /// audience model association.
+  final String membershipId;
+
+  /// The name of the configured audience model association.
+  final String name;
+
+  /// The most recent time at which the configured audience model association was
+  /// updated.
+  final DateTime updateTime;
+
+  /// The description of the configured audience model association.
+  final String? description;
+
+  ConfiguredAudienceModelAssociation({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.configuredAudienceModelArn,
+    required this.createTime,
+    required this.id,
+    required this.manageResourcePolicies,
+    required this.membershipArn,
+    required this.membershipId,
+    required this.name,
+    required this.updateTime,
+    this.description,
+  });
+
+  factory ConfiguredAudienceModelAssociation.fromJson(
+      Map<String, dynamic> json) {
+    return ConfiguredAudienceModelAssociation(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      configuredAudienceModelArn: json['configuredAudienceModelArn'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      id: json['id'] as String,
+      manageResourcePolicies: json['manageResourcePolicies'] as bool,
+      membershipArn: json['membershipArn'] as String,
+      membershipId: json['membershipId'] as String,
+      name: json['name'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final configuredAudienceModelArn = this.configuredAudienceModelArn;
+    final createTime = this.createTime;
+    final id = this.id;
+    final manageResourcePolicies = this.manageResourcePolicies;
+    final membershipArn = this.membershipArn;
+    final membershipId = this.membershipId;
+    final name = this.name;
+    final updateTime = this.updateTime;
+    final description = this.description;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'configuredAudienceModelArn': configuredAudienceModelArn,
+      'createTime': unixTimestampToJson(createTime),
+      'id': id,
+      'manageResourcePolicies': manageResourcePolicies,
+      'membershipArn': membershipArn,
+      'membershipId': membershipId,
+      'name': name,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (description != null) 'description': description,
+    };
+  }
+}
+
+/// A summary of the configured audience model association.
+class ConfiguredAudienceModelAssociationSummary {
+  /// The Amazon Resource Name (ARN) of the configured audience model association.
+  final String arn;
+
+  /// The Amazon Resource Name (ARN) of the collaboration that contains the
+  /// configured audience model association.
+  final String collaborationArn;
+
+  /// A unique identifier of the collaboration that configured audience model is
+  /// associated with.
+  final String collaborationId;
+
+  /// The Amazon Resource Name (ARN) of the configured audience model that was
+  /// used for this configured audience model association.
+  final String configuredAudienceModelArn;
+
+  /// The time at which the configured audience model association was created.
+  final DateTime createTime;
+
+  /// A unique identifier of the configured audience model association.
+  final String id;
+
+  /// The Amazon Resource Name (ARN) of the membership that contains the
+  /// configured audience model association.
+  final String membershipArn;
+
+  /// A unique identifier of the membership that contains the configured audience
+  /// model association.
+  final String membershipId;
+
+  /// The name of the configured audience model association.
+  final String name;
+
+  /// The most recent time at which the configured audience model association was
+  /// updated.
+  final DateTime updateTime;
+
+  /// The description of the configured audience model association.
+  final String? description;
+
+  ConfiguredAudienceModelAssociationSummary({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.configuredAudienceModelArn,
+    required this.createTime,
+    required this.id,
+    required this.membershipArn,
+    required this.membershipId,
+    required this.name,
+    required this.updateTime,
+    this.description,
+  });
+
+  factory ConfiguredAudienceModelAssociationSummary.fromJson(
+      Map<String, dynamic> json) {
+    return ConfiguredAudienceModelAssociationSummary(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      configuredAudienceModelArn: json['configuredAudienceModelArn'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      id: json['id'] as String,
+      membershipArn: json['membershipArn'] as String,
+      membershipId: json['membershipId'] as String,
+      name: json['name'] as String,
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      description: json['description'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final configuredAudienceModelArn = this.configuredAudienceModelArn;
+    final createTime = this.createTime;
+    final id = this.id;
+    final membershipArn = this.membershipArn;
+    final membershipId = this.membershipId;
+    final name = this.name;
+    final updateTime = this.updateTime;
+    final description = this.description;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'configuredAudienceModelArn': configuredAudienceModelArn,
+      'createTime': unixTimestampToJson(createTime),
+      'id': id,
+      'membershipArn': membershipArn,
+      'membershipId': membershipId,
+      'name': name,
+      'updateTime': unixTimestampToJson(updateTime),
+      if (description != null) 'description': description,
+    };
+  }
+}
+
 /// A table that has been configured for use in a collaboration.
 class ConfiguredTable {
-  /// The columns within the underlying AWS Glue table that can be utilized within
+  /// The columns within the underlying Glue table that can be utilized within
   /// collaborations.
   final List<String> allowedColumns;
 
@@ -2157,9 +4724,8 @@ class ConfiguredTable {
   /// currently `DIRECT_QUERY`.
   final AnalysisMethod analysisMethod;
 
-  /// The types of analysis rules associated with this configured table. Valid
-  /// values are `AGGREGATION` and `LIST`. Currently, only one analysis rule may
-  /// be associated with a configured table.
+  /// The types of analysis rules associated with this configured table.
+  /// Currently, only one analysis rule may be associated with a configured table.
   final List<ConfiguredTableAnalysisRuleType> analysisRuleTypes;
 
   /// The unique ARN for the configured table.
@@ -2174,7 +4740,7 @@ class ConfiguredTable {
   /// A name for the configured table.
   final String name;
 
-  /// The AWS Glue table that this configured table represents.
+  /// The Glue table that this configured table represents.
   final TableReference tableReference;
 
   /// The time the configured table was last updated
@@ -2199,13 +4765,14 @@ class ConfiguredTable {
   factory ConfiguredTable.fromJson(Map<String, dynamic> json) {
     return ConfiguredTable(
       allowedColumns: (json['allowedColumns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
-      analysisMethod: (json['analysisMethod'] as String).toAnalysisMethod(),
+      analysisMethod:
+          AnalysisMethod.fromString((json['analysisMethod'] as String)),
       analysisRuleTypes: (json['analysisRuleTypes'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toConfiguredTableAnalysisRuleType())
+          .nonNulls
+          .map((e) => ConfiguredTableAnalysisRuleType.fromString((e as String)))
           .toList(),
       arn: json['arn'] as String,
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
@@ -2231,8 +4798,8 @@ class ConfiguredTable {
     final description = this.description;
     return {
       'allowedColumns': allowedColumns,
-      'analysisMethod': analysisMethod.toValue(),
-      'analysisRuleTypes': analysisRuleTypes.map((e) => e.toValue()).toList(),
+      'analysisMethod': analysisMethod.value,
+      'analysisRuleTypes': analysisRuleTypes.map((e) => e.value).toList(),
       'arn': arn,
       'createTime': unixTimestampToJson(createTime),
       'id': id,
@@ -2259,8 +4826,7 @@ class ConfiguredTableAnalysisRule {
   /// The policy that controls SQL query rules.
   final ConfiguredTableAnalysisRulePolicy policy;
 
-  /// The type of configured table analysis rule. Valid values are `AGGREGATION`
-  /// and `LIST`.
+  /// The type of configured table analysis rule.
   final ConfiguredTableAnalysisRuleType type;
 
   /// The time the configured table analysis rule was last updated.
@@ -2282,7 +4848,8 @@ class ConfiguredTableAnalysisRule {
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
       policy: ConfiguredTableAnalysisRulePolicy.fromJson(
           json['policy'] as Map<String, dynamic>),
-      type: (json['type'] as String).toConfiguredTableAnalysisRuleType(),
+      type:
+          ConfiguredTableAnalysisRuleType.fromString((json['type'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
     );
   }
@@ -2299,7 +4866,7 @@ class ConfiguredTableAnalysisRule {
       'configuredTableId': configuredTableId,
       'createTime': unixTimestampToJson(createTime),
       'policy': policy,
-      'type': type.toValue(),
+      'type': type.value,
       'updateTime': unixTimestampToJson(updateTime),
     };
   }
@@ -2337,12 +4904,14 @@ class ConfiguredTableAnalysisRulePolicyV1 {
   /// Analysis rule type that enables only aggregation queries on a configured
   /// table.
   final AnalysisRuleAggregation? aggregation;
+  final AnalysisRuleCustom? custom;
 
   /// Analysis rule type that enables only list queries on a configured table.
   final AnalysisRuleList? list;
 
   ConfiguredTableAnalysisRulePolicyV1({
     this.aggregation,
+    this.custom,
     this.list,
   });
 
@@ -2353,6 +4922,9 @@ class ConfiguredTableAnalysisRulePolicyV1 {
           ? AnalysisRuleAggregation.fromJson(
               json['aggregation'] as Map<String, dynamic>)
           : null,
+      custom: json['custom'] != null
+          ? AnalysisRuleCustom.fromJson(json['custom'] as Map<String, dynamic>)
+          : null,
       list: json['list'] != null
           ? AnalysisRuleList.fromJson(json['list'] as Map<String, dynamic>)
           : null,
@@ -2361,42 +4933,30 @@ class ConfiguredTableAnalysisRulePolicyV1 {
 
   Map<String, dynamic> toJson() {
     final aggregation = this.aggregation;
+    final custom = this.custom;
     final list = this.list;
     return {
       if (aggregation != null) 'aggregation': aggregation,
+      if (custom != null) 'custom': custom,
       if (list != null) 'list': list,
     };
   }
 }
 
 enum ConfiguredTableAnalysisRuleType {
-  aggregation,
-  list,
-}
+  aggregation('AGGREGATION'),
+  list('LIST'),
+  custom('CUSTOM'),
+  ;
 
-extension ConfiguredTableAnalysisRuleTypeValueExtension
-    on ConfiguredTableAnalysisRuleType {
-  String toValue() {
-    switch (this) {
-      case ConfiguredTableAnalysisRuleType.aggregation:
-        return 'AGGREGATION';
-      case ConfiguredTableAnalysisRuleType.list:
-        return 'LIST';
-    }
-  }
-}
+  final String value;
 
-extension ConfiguredTableAnalysisRuleTypeFromString on String {
-  ConfiguredTableAnalysisRuleType toConfiguredTableAnalysisRuleType() {
-    switch (this) {
-      case 'AGGREGATION':
-        return ConfiguredTableAnalysisRuleType.aggregation;
-      case 'LIST':
-        return ConfiguredTableAnalysisRuleType.list;
-    }
-    throw Exception(
-        '$this is not known in enum ConfiguredTableAnalysisRuleType');
-  }
+  const ConfiguredTableAnalysisRuleType(this.value);
+
+  static ConfiguredTableAnalysisRuleType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfiguredTableAnalysisRuleType'));
 }
 
 /// A configured table association links a configured table to a collaboration.
@@ -2611,10 +5171,11 @@ class ConfiguredTableSummary {
 
   factory ConfiguredTableSummary.fromJson(Map<String, dynamic> json) {
     return ConfiguredTableSummary(
-      analysisMethod: (json['analysisMethod'] as String).toAnalysisMethod(),
+      analysisMethod:
+          AnalysisMethod.fromString((json['analysisMethod'] as String)),
       analysisRuleTypes: (json['analysisRuleTypes'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toConfiguredTableAnalysisRuleType())
+          .nonNulls
+          .map((e) => ConfiguredTableAnalysisRuleType.fromString((e as String)))
           .toList(),
       arn: json['arn'] as String,
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
@@ -2633,13 +5194,36 @@ class ConfiguredTableSummary {
     final name = this.name;
     final updateTime = this.updateTime;
     return {
-      'analysisMethod': analysisMethod.toValue(),
-      'analysisRuleTypes': analysisRuleTypes.map((e) => e.toValue()).toList(),
+      'analysisMethod': analysisMethod.value,
+      'analysisRuleTypes': analysisRuleTypes.map((e) => e.value).toList(),
       'arn': arn,
       'createTime': unixTimestampToJson(createTime),
       'id': id,
       'name': name,
       'updateTime': unixTimestampToJson(updateTime),
+    };
+  }
+}
+
+class CreateAnalysisTemplateOutput {
+  /// The analysis template.
+  final AnalysisTemplate analysisTemplate;
+
+  CreateAnalysisTemplateOutput({
+    required this.analysisTemplate,
+  });
+
+  factory CreateAnalysisTemplateOutput.fromJson(Map<String, dynamic> json) {
+    return CreateAnalysisTemplateOutput(
+      analysisTemplate: AnalysisTemplate.fromJson(
+          json['analysisTemplate'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisTemplate = this.analysisTemplate;
+    return {
+      'analysisTemplate': analysisTemplate,
     };
   }
 }
@@ -2663,6 +5247,33 @@ class CreateCollaborationOutput {
     final collaboration = this.collaboration;
     return {
       'collaboration': collaboration,
+    };
+  }
+}
+
+class CreateConfiguredAudienceModelAssociationOutput {
+  /// Information about the configured audience model association.
+  final ConfiguredAudienceModelAssociation configuredAudienceModelAssociation;
+
+  CreateConfiguredAudienceModelAssociationOutput({
+    required this.configuredAudienceModelAssociation,
+  });
+
+  factory CreateConfiguredAudienceModelAssociationOutput.fromJson(
+      Map<String, dynamic> json) {
+    return CreateConfiguredAudienceModelAssociationOutput(
+      configuredAudienceModelAssociation:
+          ConfiguredAudienceModelAssociation.fromJson(
+              json['configuredAudienceModelAssociation']
+                  as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configuredAudienceModelAssociation =
+        this.configuredAudienceModelAssociation;
+    return {
+      'configuredAudienceModelAssociation': configuredAudienceModelAssociation,
     };
   }
 }
@@ -2761,23 +5372,49 @@ class CreateMembershipOutput {
   }
 }
 
+class CreatePrivacyBudgetTemplateOutput {
+  /// A summary of the elements in the privacy budget template.
+  final PrivacyBudgetTemplate privacyBudgetTemplate;
+
+  CreatePrivacyBudgetTemplateOutput({
+    required this.privacyBudgetTemplate,
+  });
+
+  factory CreatePrivacyBudgetTemplateOutput.fromJson(
+      Map<String, dynamic> json) {
+    return CreatePrivacyBudgetTemplateOutput(
+      privacyBudgetTemplate: PrivacyBudgetTemplate.fromJson(
+          json['privacyBudgetTemplate'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final privacyBudgetTemplate = this.privacyBudgetTemplate;
+    return {
+      'privacyBudgetTemplate': privacyBudgetTemplate,
+    };
+  }
+}
+
 /// The settings for client-side encryption for cryptographic computing.
 class DataEncryptionMetadata {
-  /// Indicates whether encrypted tables can contain cleartext data (true) or are
-  /// to cryptographically process every column (false).
+  /// Indicates whether encrypted tables can contain cleartext data
+  /// (<code>TRUE</code>) or are to cryptographically process every column
+  /// (<code>FALSE</code>).
   final bool allowCleartext;
 
-  /// Indicates whether Fingerprint columns can contain duplicate entries (true)
-  /// or are to contain only non-repeated values (false).
+  /// Indicates whether Fingerprint columns can contain duplicate entries
+  /// (<code>TRUE</code>) or are to contain only non-repeated values
+  /// (<code>FALSE</code>).
   final bool allowDuplicates;
 
   /// Indicates whether Fingerprint columns can be joined on any other Fingerprint
-  /// column with a different name (true) or can only be joined on Fingerprint
-  /// columns of the same name (false).
+  /// column with a different name (<code>TRUE</code>) or can only be joined on
+  /// Fingerprint columns of the same name (<code>FALSE</code>).
   final bool allowJoinsOnColumnsWithDifferentNames;
 
   /// Indicates whether NULL values are to be copied as NULL to encrypted tables
-  /// (true) or cryptographically processed (false).
+  /// (<code>TRUE</code>) or cryptographically processed (<code>FALSE</code>).
   final bool preserveNulls;
 
   DataEncryptionMetadata({
@@ -2813,11 +5450,36 @@ class DataEncryptionMetadata {
   }
 }
 
+class DeleteAnalysisTemplateOutput {
+  DeleteAnalysisTemplateOutput();
+
+  factory DeleteAnalysisTemplateOutput.fromJson(Map<String, dynamic> _) {
+    return DeleteAnalysisTemplateOutput();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 class DeleteCollaborationOutput {
   DeleteCollaborationOutput();
 
   factory DeleteCollaborationOutput.fromJson(Map<String, dynamic> _) {
     return DeleteCollaborationOutput();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+class DeleteConfiguredAudienceModelAssociationOutput {
+  DeleteConfiguredAudienceModelAssociationOutput();
+
+  factory DeleteConfiguredAudienceModelAssociationOutput.fromJson(
+      Map<String, dynamic> _) {
+    return DeleteConfiguredAudienceModelAssociationOutput();
   }
 
   Map<String, dynamic> toJson() {
@@ -2889,31 +5551,515 @@ class DeleteMembershipOutput {
   }
 }
 
-enum FilterableMemberStatus {
-  invited,
-  active,
-}
+class DeletePrivacyBudgetTemplateOutput {
+  DeletePrivacyBudgetTemplateOutput();
 
-extension FilterableMemberStatusValueExtension on FilterableMemberStatus {
-  String toValue() {
-    switch (this) {
-      case FilterableMemberStatus.invited:
-        return 'INVITED';
-      case FilterableMemberStatus.active:
-        return 'ACTIVE';
-    }
+  factory DeletePrivacyBudgetTemplateOutput.fromJson(Map<String, dynamic> _) {
+    return DeletePrivacyBudgetTemplateOutput();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
-extension FilterableMemberStatusFromString on String {
-  FilterableMemberStatus toFilterableMemberStatus() {
-    switch (this) {
-      case 'INVITED':
-        return FilterableMemberStatus.invited;
-      case 'ACTIVE':
-        return FilterableMemberStatus.active;
-    }
-    throw Exception('$this is not known in enum FilterableMemberStatus');
+enum DifferentialPrivacyAggregationType {
+  avg('AVG'),
+  count('COUNT'),
+  countDistinct('COUNT_DISTINCT'),
+  sum('SUM'),
+  stddev('STDDEV'),
+  ;
+
+  final String value;
+
+  const DifferentialPrivacyAggregationType(this.value);
+
+  static DifferentialPrivacyAggregationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DifferentialPrivacyAggregationType'));
+}
+
+/// Specifies the name of the column that contains the unique identifier of your
+/// users, whose privacy you want to protect.
+class DifferentialPrivacyColumn {
+  /// The name of the column, such as user_id, that contains the unique identifier
+  /// of your users, whose privacy you want to protect. If you want to turn on
+  /// differential privacy for two or more tables in a collaboration, you must
+  /// configure the same column as the user identifier column in both analysis
+  /// rules.
+  final String name;
+
+  DifferentialPrivacyColumn({
+    required this.name,
+  });
+
+  factory DifferentialPrivacyColumn.fromJson(Map<String, dynamic> json) {
+    return DifferentialPrivacyColumn(
+      name: json['name'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    return {
+      'name': name,
+    };
+  }
+}
+
+/// Specifies the unique identifier for your users.
+class DifferentialPrivacyConfiguration {
+  /// The name of the column (such as user_id) that contains the unique identifier
+  /// of your users whose privacy you want to protect. If you want to turn on
+  /// diﬀerential privacy for two or more tables in a collaboration, you must
+  /// conﬁgure the same column as the user identiﬁer column in both analysis
+  /// rules.
+  final List<DifferentialPrivacyColumn> columns;
+
+  DifferentialPrivacyConfiguration({
+    required this.columns,
+  });
+
+  factory DifferentialPrivacyConfiguration.fromJson(Map<String, dynamic> json) {
+    return DifferentialPrivacyConfiguration(
+      columns: (json['columns'] as List)
+          .nonNulls
+          .map((e) =>
+              DifferentialPrivacyColumn.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final columns = this.columns;
+    return {
+      'columns': columns,
+    };
+  }
+}
+
+/// An array that contains the sensitivity parameters.
+class DifferentialPrivacyParameters {
+  /// Provides the sensitivity parameters that you can use to better understand
+  /// the total amount of noise in query results.
+  final List<DifferentialPrivacySensitivityParameters> sensitivityParameters;
+
+  DifferentialPrivacyParameters({
+    required this.sensitivityParameters,
+  });
+
+  factory DifferentialPrivacyParameters.fromJson(Map<String, dynamic> json) {
+    return DifferentialPrivacyParameters(
+      sensitivityParameters: (json['sensitivityParameters'] as List)
+          .nonNulls
+          .map((e) => DifferentialPrivacySensitivityParameters.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sensitivityParameters = this.sensitivityParameters;
+    return {
+      'sensitivityParameters': sensitivityParameters,
+    };
+  }
+}
+
+/// Provides an estimate of the number of aggregation functions that the member
+/// who can query can run given the epsilon and noise parameters.
+class DifferentialPrivacyPreviewAggregation {
+  /// The maximum number of aggregations that the member who can query can run
+  /// given the epsilon and noise parameters.
+  final int maxCount;
+
+  /// The type of aggregation function.
+  final DifferentialPrivacyAggregationType type;
+
+  DifferentialPrivacyPreviewAggregation({
+    required this.maxCount,
+    required this.type,
+  });
+
+  factory DifferentialPrivacyPreviewAggregation.fromJson(
+      Map<String, dynamic> json) {
+    return DifferentialPrivacyPreviewAggregation(
+      maxCount: json['maxCount'] as int,
+      type: DifferentialPrivacyAggregationType.fromString(
+          (json['type'] as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final maxCount = this.maxCount;
+    final type = this.type;
+    return {
+      'maxCount': maxCount,
+      'type': type.value,
+    };
+  }
+}
+
+/// The epsilon and noise parameters that you want to preview.
+class DifferentialPrivacyPreviewParametersInput {
+  /// The epsilon value that you want to preview.
+  final int epsilon;
+
+  /// Noise added per query is measured in terms of the number of users whose
+  /// contributions you want to obscure. This value governs the rate at which the
+  /// privacy budget is depleted.
+  final int usersNoisePerQuery;
+
+  DifferentialPrivacyPreviewParametersInput({
+    required this.epsilon,
+    required this.usersNoisePerQuery,
+  });
+
+  Map<String, dynamic> toJson() {
+    final epsilon = this.epsilon;
+    final usersNoisePerQuery = this.usersNoisePerQuery;
+    return {
+      'epsilon': epsilon,
+      'usersNoisePerQuery': usersNoisePerQuery,
+    };
+  }
+}
+
+/// Specifies the configured epsilon value and the utility in terms of total
+/// aggregations, as well as the remaining aggregations available.
+class DifferentialPrivacyPrivacyBudget {
+  /// This information includes the configured epsilon value and the utility in
+  /// terms of total aggregations, as well as the remaining aggregations.
+  final List<DifferentialPrivacyPrivacyBudgetAggregation> aggregations;
+
+  /// The epsilon value that you configured.
+  final int epsilon;
+
+  DifferentialPrivacyPrivacyBudget({
+    required this.aggregations,
+    required this.epsilon,
+  });
+
+  factory DifferentialPrivacyPrivacyBudget.fromJson(Map<String, dynamic> json) {
+    return DifferentialPrivacyPrivacyBudget(
+      aggregations: (json['aggregations'] as List)
+          .nonNulls
+          .map((e) => DifferentialPrivacyPrivacyBudgetAggregation.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      epsilon: json['epsilon'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final aggregations = this.aggregations;
+    final epsilon = this.epsilon;
+    return {
+      'aggregations': aggregations,
+      'epsilon': epsilon,
+    };
+  }
+}
+
+/// Information about the total number of aggregations, as well as the remaining
+/// aggregations.
+class DifferentialPrivacyPrivacyBudgetAggregation {
+  /// The maximum number of aggregation functions that you can perform with the
+  /// given privacy budget.
+  final int maxCount;
+
+  /// The remaining number of aggregation functions that can be run with the
+  /// available privacy budget.
+  final int remainingCount;
+
+  /// The different types of aggregation functions that you can perform.
+  final DifferentialPrivacyAggregationType type;
+
+  DifferentialPrivacyPrivacyBudgetAggregation({
+    required this.maxCount,
+    required this.remainingCount,
+    required this.type,
+  });
+
+  factory DifferentialPrivacyPrivacyBudgetAggregation.fromJson(
+      Map<String, dynamic> json) {
+    return DifferentialPrivacyPrivacyBudgetAggregation(
+      maxCount: json['maxCount'] as int,
+      remainingCount: json['remainingCount'] as int,
+      type: DifferentialPrivacyAggregationType.fromString(
+          (json['type'] as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final maxCount = this.maxCount;
+    final remainingCount = this.remainingCount;
+    final type = this.type;
+    return {
+      'maxCount': maxCount,
+      'remainingCount': remainingCount,
+      'type': type.value,
+    };
+  }
+}
+
+/// Information about the number of aggregation functions that the member who
+/// can query can run given the epsilon and noise parameters.
+class DifferentialPrivacyPrivacyImpact {
+  /// The number of aggregation functions that you can perform.
+  final List<DifferentialPrivacyPreviewAggregation> aggregations;
+
+  DifferentialPrivacyPrivacyImpact({
+    required this.aggregations,
+  });
+
+  factory DifferentialPrivacyPrivacyImpact.fromJson(Map<String, dynamic> json) {
+    return DifferentialPrivacyPrivacyImpact(
+      aggregations: (json['aggregations'] as List)
+          .nonNulls
+          .map((e) => DifferentialPrivacyPreviewAggregation.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final aggregations = this.aggregations;
+    return {
+      'aggregations': aggregations,
+    };
+  }
+}
+
+/// Provides the sensitivity parameters.
+class DifferentialPrivacySensitivityParameters {
+  /// The aggregation expression that was run.
+  final String aggregationExpression;
+
+  /// The type of aggregation function that was run.
+  final DifferentialPrivacyAggregationType aggregationType;
+
+  /// The maximum number of rows contributed by a user in a SQL query.
+  final int userContributionLimit;
+
+  /// The upper bound of the aggregation expression.
+  final double? maxColumnValue;
+
+  /// The lower bound of the aggregation expression.
+  final double? minColumnValue;
+
+  DifferentialPrivacySensitivityParameters({
+    required this.aggregationExpression,
+    required this.aggregationType,
+    required this.userContributionLimit,
+    this.maxColumnValue,
+    this.minColumnValue,
+  });
+
+  factory DifferentialPrivacySensitivityParameters.fromJson(
+      Map<String, dynamic> json) {
+    return DifferentialPrivacySensitivityParameters(
+      aggregationExpression: json['aggregationExpression'] as String,
+      aggregationType: DifferentialPrivacyAggregationType.fromString(
+          (json['aggregationType'] as String)),
+      userContributionLimit: json['userContributionLimit'] as int,
+      maxColumnValue: json['maxColumnValue'] as double?,
+      minColumnValue: json['minColumnValue'] as double?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final aggregationExpression = this.aggregationExpression;
+    final aggregationType = this.aggregationType;
+    final userContributionLimit = this.userContributionLimit;
+    final maxColumnValue = this.maxColumnValue;
+    final minColumnValue = this.minColumnValue;
+    return {
+      'aggregationExpression': aggregationExpression,
+      'aggregationType': aggregationType.value,
+      'userContributionLimit': userContributionLimit,
+      if (maxColumnValue != null) 'maxColumnValue': maxColumnValue,
+      if (minColumnValue != null) 'minColumnValue': minColumnValue,
+    };
+  }
+}
+
+/// The epsilon and noise parameter values that you want to use for the
+/// differential privacy template.
+class DifferentialPrivacyTemplateParametersInput {
+  /// The epsilon value that you want to use.
+  final int epsilon;
+
+  /// Noise added per query is measured in terms of the number of users whose
+  /// contributions you want to obscure. This value governs the rate at which the
+  /// privacy budget is depleted.
+  final int usersNoisePerQuery;
+
+  DifferentialPrivacyTemplateParametersInput({
+    required this.epsilon,
+    required this.usersNoisePerQuery,
+  });
+
+  Map<String, dynamic> toJson() {
+    final epsilon = this.epsilon;
+    final usersNoisePerQuery = this.usersNoisePerQuery;
+    return {
+      'epsilon': epsilon,
+      'usersNoisePerQuery': usersNoisePerQuery,
+    };
+  }
+}
+
+/// The epsilon and noise parameter values that were used for the differential
+/// privacy template.
+class DifferentialPrivacyTemplateParametersOutput {
+  /// The epsilon value that you specified.
+  final int epsilon;
+
+  /// Noise added per query is measured in terms of the number of users whose
+  /// contributions you want to obscure. This value governs the rate at which the
+  /// privacy budget is depleted.
+  final int usersNoisePerQuery;
+
+  DifferentialPrivacyTemplateParametersOutput({
+    required this.epsilon,
+    required this.usersNoisePerQuery,
+  });
+
+  factory DifferentialPrivacyTemplateParametersOutput.fromJson(
+      Map<String, dynamic> json) {
+    return DifferentialPrivacyTemplateParametersOutput(
+      epsilon: json['epsilon'] as int,
+      usersNoisePerQuery: json['usersNoisePerQuery'] as int,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final epsilon = this.epsilon;
+    final usersNoisePerQuery = this.usersNoisePerQuery;
+    return {
+      'epsilon': epsilon,
+      'usersNoisePerQuery': usersNoisePerQuery,
+    };
+  }
+}
+
+/// The epsilon and noise parameter values that you want to update in the
+/// differential privacy template.
+class DifferentialPrivacyTemplateUpdateParameters {
+  /// The updated epsilon value that you want to use.
+  final int? epsilon;
+
+  /// The updated value of noise added per query. It is measured in terms of the
+  /// number of users whose contributions you want to obscure. This value governs
+  /// the rate at which the privacy budget is depleted.
+  final int? usersNoisePerQuery;
+
+  DifferentialPrivacyTemplateUpdateParameters({
+    this.epsilon,
+    this.usersNoisePerQuery,
+  });
+
+  Map<String, dynamic> toJson() {
+    final epsilon = this.epsilon;
+    final usersNoisePerQuery = this.usersNoisePerQuery;
+    return {
+      if (epsilon != null) 'epsilon': epsilon,
+      if (usersNoisePerQuery != null) 'usersNoisePerQuery': usersNoisePerQuery,
+    };
+  }
+}
+
+enum FilterableMemberStatus {
+  invited('INVITED'),
+  active('ACTIVE'),
+  ;
+
+  final String value;
+
+  const FilterableMemberStatus(this.value);
+
+  static FilterableMemberStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FilterableMemberStatus'));
+}
+
+class GetAnalysisTemplateOutput {
+  /// The analysis template.
+  final AnalysisTemplate analysisTemplate;
+
+  GetAnalysisTemplateOutput({
+    required this.analysisTemplate,
+  });
+
+  factory GetAnalysisTemplateOutput.fromJson(Map<String, dynamic> json) {
+    return GetAnalysisTemplateOutput(
+      analysisTemplate: AnalysisTemplate.fromJson(
+          json['analysisTemplate'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisTemplate = this.analysisTemplate;
+    return {
+      'analysisTemplate': analysisTemplate,
+    };
+  }
+}
+
+class GetCollaborationAnalysisTemplateOutput {
+  /// The analysis template within a collaboration.
+  final CollaborationAnalysisTemplate collaborationAnalysisTemplate;
+
+  GetCollaborationAnalysisTemplateOutput({
+    required this.collaborationAnalysisTemplate,
+  });
+
+  factory GetCollaborationAnalysisTemplateOutput.fromJson(
+      Map<String, dynamic> json) {
+    return GetCollaborationAnalysisTemplateOutput(
+      collaborationAnalysisTemplate: CollaborationAnalysisTemplate.fromJson(
+          json['collaborationAnalysisTemplate'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationAnalysisTemplate = this.collaborationAnalysisTemplate;
+    return {
+      'collaborationAnalysisTemplate': collaborationAnalysisTemplate,
+    };
+  }
+}
+
+class GetCollaborationConfiguredAudienceModelAssociationOutput {
+  /// The metadata of the configured audience model association.
+  final CollaborationConfiguredAudienceModelAssociation
+      collaborationConfiguredAudienceModelAssociation;
+
+  GetCollaborationConfiguredAudienceModelAssociationOutput({
+    required this.collaborationConfiguredAudienceModelAssociation,
+  });
+
+  factory GetCollaborationConfiguredAudienceModelAssociationOutput.fromJson(
+      Map<String, dynamic> json) {
+    return GetCollaborationConfiguredAudienceModelAssociationOutput(
+      collaborationConfiguredAudienceModelAssociation:
+          CollaborationConfiguredAudienceModelAssociation.fromJson(
+              json['collaborationConfiguredAudienceModelAssociation']
+                  as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationConfiguredAudienceModelAssociation =
+        this.collaborationConfiguredAudienceModelAssociation;
+    return {
+      'collaborationConfiguredAudienceModelAssociation':
+          collaborationConfiguredAudienceModelAssociation,
+    };
   }
 }
 
@@ -2936,6 +6082,61 @@ class GetCollaborationOutput {
     final collaboration = this.collaboration;
     return {
       'collaboration': collaboration,
+    };
+  }
+}
+
+class GetCollaborationPrivacyBudgetTemplateOutput {
+  /// Returns the details of the privacy budget template that you requested.
+  final CollaborationPrivacyBudgetTemplate collaborationPrivacyBudgetTemplate;
+
+  GetCollaborationPrivacyBudgetTemplateOutput({
+    required this.collaborationPrivacyBudgetTemplate,
+  });
+
+  factory GetCollaborationPrivacyBudgetTemplateOutput.fromJson(
+      Map<String, dynamic> json) {
+    return GetCollaborationPrivacyBudgetTemplateOutput(
+      collaborationPrivacyBudgetTemplate:
+          CollaborationPrivacyBudgetTemplate.fromJson(
+              json['collaborationPrivacyBudgetTemplate']
+                  as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationPrivacyBudgetTemplate =
+        this.collaborationPrivacyBudgetTemplate;
+    return {
+      'collaborationPrivacyBudgetTemplate': collaborationPrivacyBudgetTemplate,
+    };
+  }
+}
+
+class GetConfiguredAudienceModelAssociationOutput {
+  /// Information about the configured audience model association that you
+  /// requested.
+  final ConfiguredAudienceModelAssociation configuredAudienceModelAssociation;
+
+  GetConfiguredAudienceModelAssociationOutput({
+    required this.configuredAudienceModelAssociation,
+  });
+
+  factory GetConfiguredAudienceModelAssociationOutput.fromJson(
+      Map<String, dynamic> json) {
+    return GetConfiguredAudienceModelAssociationOutput(
+      configuredAudienceModelAssociation:
+          ConfiguredAudienceModelAssociation.fromJson(
+              json['configuredAudienceModelAssociation']
+                  as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configuredAudienceModelAssociation =
+        this.configuredAudienceModelAssociation;
+    return {
+      'configuredAudienceModelAssociation': configuredAudienceModelAssociation,
     };
   }
 }
@@ -3034,6 +6235,29 @@ class GetMembershipOutput {
   }
 }
 
+class GetPrivacyBudgetTemplateOutput {
+  /// Returns the details of the privacy budget template that you requested.
+  final PrivacyBudgetTemplate privacyBudgetTemplate;
+
+  GetPrivacyBudgetTemplateOutput({
+    required this.privacyBudgetTemplate,
+  });
+
+  factory GetPrivacyBudgetTemplateOutput.fromJson(Map<String, dynamic> json) {
+    return GetPrivacyBudgetTemplateOutput(
+      privacyBudgetTemplate: PrivacyBudgetTemplate.fromJson(
+          json['privacyBudgetTemplate'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final privacyBudgetTemplate = this.privacyBudgetTemplate;
+    return {
+      'privacyBudgetTemplate': privacyBudgetTemplate,
+    };
+  }
+}
+
 class GetProtectedQueryOutput {
   /// The query processing metadata.
   final ProtectedQuery protectedQuery;
@@ -3102,12 +6326,12 @@ class GetSchemaOutput {
   }
 }
 
-/// A reference to a table within an AWS Glue data catalog.
+/// A reference to a table within an Glue data catalog.
 class GlueTableReference {
-  /// The name of the database the AWS Glue table belongs to.
+  /// The name of the database the Glue table belongs to.
   final String databaseName;
 
-  /// The name of the AWS Glue table.
+  /// The name of the Glue table.
   final String tableName;
 
   GlueTableReference({
@@ -3132,26 +6356,226 @@ class GlueTableReference {
   }
 }
 
-enum JoinRequiredOption {
-  queryRunner,
+enum JoinOperator {
+  or('OR'),
+  and('AND'),
+  ;
+
+  final String value;
+
+  const JoinOperator(this.value);
+
+  static JoinOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JoinOperator'));
 }
 
-extension JoinRequiredOptionValueExtension on JoinRequiredOption {
-  String toValue() {
-    switch (this) {
-      case JoinRequiredOption.queryRunner:
-        return 'QUERY_RUNNER';
-    }
+enum JoinRequiredOption {
+  queryRunner('QUERY_RUNNER'),
+  ;
+
+  final String value;
+
+  const JoinRequiredOption(this.value);
+
+  static JoinRequiredOption fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum JoinRequiredOption'));
+}
+
+class ListAnalysisTemplatesOutput {
+  /// Lists analysis template metadata.
+  final List<AnalysisTemplateSummary> analysisTemplateSummaries;
+
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  final String? nextToken;
+
+  ListAnalysisTemplatesOutput({
+    required this.analysisTemplateSummaries,
+    this.nextToken,
+  });
+
+  factory ListAnalysisTemplatesOutput.fromJson(Map<String, dynamic> json) {
+    return ListAnalysisTemplatesOutput(
+      analysisTemplateSummaries: (json['analysisTemplateSummaries'] as List)
+          .nonNulls
+          .map((e) =>
+              AnalysisTemplateSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisTemplateSummaries = this.analysisTemplateSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'analysisTemplateSummaries': analysisTemplateSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
   }
 }
 
-extension JoinRequiredOptionFromString on String {
-  JoinRequiredOption toJoinRequiredOption() {
-    switch (this) {
-      case 'QUERY_RUNNER':
-        return JoinRequiredOption.queryRunner;
-    }
-    throw Exception('$this is not known in enum JoinRequiredOption');
+class ListCollaborationAnalysisTemplatesOutput {
+  /// The metadata of the analysis template within a collaboration.
+  final List<CollaborationAnalysisTemplateSummary>
+      collaborationAnalysisTemplateSummaries;
+
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  final String? nextToken;
+
+  ListCollaborationAnalysisTemplatesOutput({
+    required this.collaborationAnalysisTemplateSummaries,
+    this.nextToken,
+  });
+
+  factory ListCollaborationAnalysisTemplatesOutput.fromJson(
+      Map<String, dynamic> json) {
+    return ListCollaborationAnalysisTemplatesOutput(
+      collaborationAnalysisTemplateSummaries:
+          (json['collaborationAnalysisTemplateSummaries'] as List)
+              .nonNulls
+              .map((e) => CollaborationAnalysisTemplateSummary.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationAnalysisTemplateSummaries =
+        this.collaborationAnalysisTemplateSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'collaborationAnalysisTemplateSummaries':
+          collaborationAnalysisTemplateSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListCollaborationConfiguredAudienceModelAssociationsOutput {
+  /// The metadata of the configured audience model association within a
+  /// collaboration.
+  final List<CollaborationConfiguredAudienceModelAssociationSummary>
+      collaborationConfiguredAudienceModelAssociationSummaries;
+
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  final String? nextToken;
+
+  ListCollaborationConfiguredAudienceModelAssociationsOutput({
+    required this.collaborationConfiguredAudienceModelAssociationSummaries,
+    this.nextToken,
+  });
+
+  factory ListCollaborationConfiguredAudienceModelAssociationsOutput.fromJson(
+      Map<String, dynamic> json) {
+    return ListCollaborationConfiguredAudienceModelAssociationsOutput(
+      collaborationConfiguredAudienceModelAssociationSummaries:
+          (json['collaborationConfiguredAudienceModelAssociationSummaries']
+                  as List)
+              .nonNulls
+              .map((e) => CollaborationConfiguredAudienceModelAssociationSummary
+                  .fromJson(e as Map<String, dynamic>))
+              .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationConfiguredAudienceModelAssociationSummaries =
+        this.collaborationConfiguredAudienceModelAssociationSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'collaborationConfiguredAudienceModelAssociationSummaries':
+          collaborationConfiguredAudienceModelAssociationSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListCollaborationPrivacyBudgetTemplatesOutput {
+  /// An array that summarizes the collaboration privacy budget templates. The
+  /// summary includes collaboration information, creation information, the
+  /// privacy budget type.
+  final List<CollaborationPrivacyBudgetTemplateSummary>
+      collaborationPrivacyBudgetTemplateSummaries;
+
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  final String? nextToken;
+
+  ListCollaborationPrivacyBudgetTemplatesOutput({
+    required this.collaborationPrivacyBudgetTemplateSummaries,
+    this.nextToken,
+  });
+
+  factory ListCollaborationPrivacyBudgetTemplatesOutput.fromJson(
+      Map<String, dynamic> json) {
+    return ListCollaborationPrivacyBudgetTemplatesOutput(
+      collaborationPrivacyBudgetTemplateSummaries:
+          (json['collaborationPrivacyBudgetTemplateSummaries'] as List)
+              .nonNulls
+              .map((e) => CollaborationPrivacyBudgetTemplateSummary.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationPrivacyBudgetTemplateSummaries =
+        this.collaborationPrivacyBudgetTemplateSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'collaborationPrivacyBudgetTemplateSummaries':
+          collaborationPrivacyBudgetTemplateSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListCollaborationPrivacyBudgetsOutput {
+  /// Summaries of the collaboration privacy budgets.
+  final List<CollaborationPrivacyBudgetSummary>
+      collaborationPrivacyBudgetSummaries;
+
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  final String? nextToken;
+
+  ListCollaborationPrivacyBudgetsOutput({
+    required this.collaborationPrivacyBudgetSummaries,
+    this.nextToken,
+  });
+
+  factory ListCollaborationPrivacyBudgetsOutput.fromJson(
+      Map<String, dynamic> json) {
+    return ListCollaborationPrivacyBudgetsOutput(
+      collaborationPrivacyBudgetSummaries:
+          (json['collaborationPrivacyBudgetSummaries'] as List)
+              .nonNulls
+              .map((e) => CollaborationPrivacyBudgetSummary.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final collaborationPrivacyBudgetSummaries =
+        this.collaborationPrivacyBudgetSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'collaborationPrivacyBudgetSummaries':
+          collaborationPrivacyBudgetSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
   }
 }
 
@@ -3171,7 +6595,7 @@ class ListCollaborationsOutput {
   factory ListCollaborationsOutput.fromJson(Map<String, dynamic> json) {
     return ListCollaborationsOutput(
       collaborationList: (json['collaborationList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CollaborationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3183,6 +6607,44 @@ class ListCollaborationsOutput {
     final nextToken = this.nextToken;
     return {
       'collaborationList': collaborationList,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListConfiguredAudienceModelAssociationsOutput {
+  /// Summaries of the configured audience model associations that you requested.
+  final List<ConfiguredAudienceModelAssociationSummary>
+      configuredAudienceModelAssociationSummaries;
+
+  /// The token value provided to access the next page of results.
+  final String? nextToken;
+
+  ListConfiguredAudienceModelAssociationsOutput({
+    required this.configuredAudienceModelAssociationSummaries,
+    this.nextToken,
+  });
+
+  factory ListConfiguredAudienceModelAssociationsOutput.fromJson(
+      Map<String, dynamic> json) {
+    return ListConfiguredAudienceModelAssociationsOutput(
+      configuredAudienceModelAssociationSummaries:
+          (json['configuredAudienceModelAssociationSummaries'] as List)
+              .nonNulls
+              .map((e) => ConfiguredAudienceModelAssociationSummary.fromJson(
+                  e as Map<String, dynamic>))
+              .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configuredAudienceModelAssociationSummaries =
+        this.configuredAudienceModelAssociationSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'configuredAudienceModelAssociationSummaries':
+          configuredAudienceModelAssociationSummaries,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -3207,7 +6669,7 @@ class ListConfiguredTableAssociationsOutput {
     return ListConfiguredTableAssociationsOutput(
       configuredTableAssociationSummaries:
           (json['configuredTableAssociationSummaries'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => ConfiguredTableAssociationSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -3243,7 +6705,7 @@ class ListConfiguredTablesOutput {
   factory ListConfiguredTablesOutput.fromJson(Map<String, dynamic> json) {
     return ListConfiguredTablesOutput(
       configuredTableSummaries: (json['configuredTableSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map(
               (e) => ConfiguredTableSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3277,7 +6739,7 @@ class ListMembersOutput {
   factory ListMembersOutput.fromJson(Map<String, dynamic> json) {
     return ListMembersOutput(
       memberSummaries: (json['memberSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => MemberSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3310,7 +6772,7 @@ class ListMembershipsOutput {
   factory ListMembershipsOutput.fromJson(Map<String, dynamic> json) {
     return ListMembershipsOutput(
       membershipSummaries: (json['membershipSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => MembershipSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3322,6 +6784,77 @@ class ListMembershipsOutput {
     final nextToken = this.nextToken;
     return {
       'membershipSummaries': membershipSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListPrivacyBudgetTemplatesOutput {
+  /// An array that summarizes the privacy budget templates. The summary includes
+  /// collaboration information, creation information, and privacy budget type.
+  final List<PrivacyBudgetTemplateSummary> privacyBudgetTemplateSummaries;
+
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  final String? nextToken;
+
+  ListPrivacyBudgetTemplatesOutput({
+    required this.privacyBudgetTemplateSummaries,
+    this.nextToken,
+  });
+
+  factory ListPrivacyBudgetTemplatesOutput.fromJson(Map<String, dynamic> json) {
+    return ListPrivacyBudgetTemplatesOutput(
+      privacyBudgetTemplateSummaries: (json['privacyBudgetTemplateSummaries']
+              as List)
+          .nonNulls
+          .map((e) =>
+              PrivacyBudgetTemplateSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final privacyBudgetTemplateSummaries = this.privacyBudgetTemplateSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'privacyBudgetTemplateSummaries': privacyBudgetTemplateSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListPrivacyBudgetsOutput {
+  /// An array that summarizes the privacy budgets. The summary includes
+  /// collaboration information, membership information, privacy budget template
+  /// information, and privacy budget details.
+  final List<PrivacyBudgetSummary> privacyBudgetSummaries;
+
+  /// The token value retrieved from a previous call to access the next page of
+  /// results.
+  final String? nextToken;
+
+  ListPrivacyBudgetsOutput({
+    required this.privacyBudgetSummaries,
+    this.nextToken,
+  });
+
+  factory ListPrivacyBudgetsOutput.fromJson(Map<String, dynamic> json) {
+    return ListPrivacyBudgetsOutput(
+      privacyBudgetSummaries: (json['privacyBudgetSummaries'] as List)
+          .nonNulls
+          .map((e) => PrivacyBudgetSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final privacyBudgetSummaries = this.privacyBudgetSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'privacyBudgetSummaries': privacyBudgetSummaries,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -3343,7 +6876,7 @@ class ListProtectedQueriesOutput {
   factory ListProtectedQueriesOutput.fromJson(Map<String, dynamic> json) {
     return ListProtectedQueriesOutput(
       protectedQueries: (json['protectedQueries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ProtectedQuerySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3376,7 +6909,7 @@ class ListSchemasOutput {
   factory ListSchemasOutput.fromJson(Map<String, dynamic> json) {
     return ListSchemasOutput(
       schemaSummaries: (json['schemaSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SchemaSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3417,37 +6950,24 @@ class ListTagsForResourceOutput {
 }
 
 enum MemberAbility {
-  canQuery,
-  canReceiveResults,
-}
+  canQuery('CAN_QUERY'),
+  canReceiveResults('CAN_RECEIVE_RESULTS'),
+  ;
 
-extension MemberAbilityValueExtension on MemberAbility {
-  String toValue() {
-    switch (this) {
-      case MemberAbility.canQuery:
-        return 'CAN_QUERY';
-      case MemberAbility.canReceiveResults:
-        return 'CAN_RECEIVE_RESULTS';
-    }
-  }
-}
+  final String value;
 
-extension MemberAbilityFromString on String {
-  MemberAbility toMemberAbility() {
-    switch (this) {
-      case 'CAN_QUERY':
-        return MemberAbility.canQuery;
-      case 'CAN_RECEIVE_RESULTS':
-        return MemberAbility.canReceiveResults;
-    }
-    throw Exception('$this is not known in enum MemberAbility');
-  }
+  const MemberAbility(this.value);
+
+  static MemberAbility fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MemberAbility'));
 }
 
 /// Basic metadata used to construct a new member.
 class MemberSpecification {
   /// The identifier used to reference members of the collaboration. Currently
-  /// only supports AWS Account ID.
+  /// only supports Amazon Web Services account ID.
   final String accountId;
 
   /// The member's display name.
@@ -3456,60 +6976,50 @@ class MemberSpecification {
   /// The abilities granted to the collaboration member.
   final List<MemberAbility> memberAbilities;
 
+  /// The collaboration member's payment responsibilities set by the collaboration
+  /// creator.
+  ///
+  /// If the collaboration creator hasn't speciﬁed anyone as the member paying for
+  /// query compute costs, then the member who can query is the default payer.
+  final PaymentConfiguration? paymentConfiguration;
+
   MemberSpecification({
     required this.accountId,
     required this.displayName,
     required this.memberAbilities,
+    this.paymentConfiguration,
   });
 
   Map<String, dynamic> toJson() {
     final accountId = this.accountId;
     final displayName = this.displayName;
     final memberAbilities = this.memberAbilities;
+    final paymentConfiguration = this.paymentConfiguration;
     return {
       'accountId': accountId,
       'displayName': displayName,
-      'memberAbilities': memberAbilities.map((e) => e.toValue()).toList(),
+      'memberAbilities': memberAbilities.map((e) => e.value).toList(),
+      if (paymentConfiguration != null)
+        'paymentConfiguration': paymentConfiguration,
     };
   }
 }
 
 enum MemberStatus {
-  invited,
-  active,
-  left,
-  removed,
-}
+  invited('INVITED'),
+  active('ACTIVE'),
+  left('LEFT'),
+  removed('REMOVED'),
+  ;
 
-extension MemberStatusValueExtension on MemberStatus {
-  String toValue() {
-    switch (this) {
-      case MemberStatus.invited:
-        return 'INVITED';
-      case MemberStatus.active:
-        return 'ACTIVE';
-      case MemberStatus.left:
-        return 'LEFT';
-      case MemberStatus.removed:
-        return 'REMOVED';
-    }
-  }
-}
+  final String value;
 
-extension MemberStatusFromString on String {
-  MemberStatus toMemberStatus() {
-    switch (this) {
-      case 'INVITED':
-        return MemberStatus.invited;
-      case 'ACTIVE':
-        return MemberStatus.active;
-      case 'LEFT':
-        return MemberStatus.left;
-      case 'REMOVED':
-        return MemberStatus.removed;
-    }
-    throw Exception('$this is not known in enum MemberStatus');
-  }
+  const MemberStatus(this.value);
+
+  static MemberStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MemberStatus'));
 }
 
 /// The member object listed by the request.
@@ -3518,7 +7028,7 @@ class MemberSummary {
   final List<MemberAbility> abilities;
 
   /// The identifier used to reference members of the collaboration. Currently
-  /// only supports AWS Account ID.
+  /// only supports Amazon Web Services account ID.
   final String accountId;
 
   /// The time when the member was created.
@@ -3527,8 +7037,11 @@ class MemberSummary {
   /// The member's display name.
   final String displayName;
 
-  /// The status of the member. Valid values are `INVITED`, `ACTIVE`, `LEFT`, and
-  /// `REMOVED`.
+  /// The collaboration member's payment responsibilities set by the collaboration
+  /// creator.
+  final PaymentConfiguration paymentConfiguration;
+
+  /// The status of the member.
   final MemberStatus status;
 
   /// The time the member metadata was last updated.
@@ -3545,6 +7058,7 @@ class MemberSummary {
     required this.accountId,
     required this.createTime,
     required this.displayName,
+    required this.paymentConfiguration,
     required this.status,
     required this.updateTime,
     this.membershipArn,
@@ -3554,13 +7068,15 @@ class MemberSummary {
   factory MemberSummary.fromJson(Map<String, dynamic> json) {
     return MemberSummary(
       abilities: (json['abilities'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toMemberAbility())
+          .nonNulls
+          .map((e) => MemberAbility.fromString((e as String)))
           .toList(),
       accountId: json['accountId'] as String,
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
       displayName: json['displayName'] as String,
-      status: (json['status'] as String).toMemberStatus(),
+      paymentConfiguration: PaymentConfiguration.fromJson(
+          json['paymentConfiguration'] as Map<String, dynamic>),
+      status: MemberStatus.fromString((json['status'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
       membershipArn: json['membershipArn'] as String?,
       membershipId: json['membershipId'] as String?,
@@ -3572,16 +7088,18 @@ class MemberSummary {
     final accountId = this.accountId;
     final createTime = this.createTime;
     final displayName = this.displayName;
+    final paymentConfiguration = this.paymentConfiguration;
     final status = this.status;
     final updateTime = this.updateTime;
     final membershipArn = this.membershipArn;
     final membershipId = this.membershipId;
     return {
-      'abilities': abilities.map((e) => e.toValue()).toList(),
+      'abilities': abilities.map((e) => e.value).toList(),
       'accountId': accountId,
       'createTime': unixTimestampToJson(createTime),
       'displayName': displayName,
-      'status': status.toValue(),
+      'paymentConfiguration': paymentConfiguration,
+      'status': status.value,
       'updateTime': unixTimestampToJson(updateTime),
       if (membershipArn != null) 'membershipArn': membershipArn,
       if (membershipId != null) 'membershipId': membershipId,
@@ -3598,7 +7116,7 @@ class Membership {
   final String collaborationArn;
 
   /// The identifier used to reference members of the collaboration. Currently
-  /// only supports AWS account ID.
+  /// only supports Amazon Web Services account ID.
   final String collaborationCreatorAccountId;
 
   /// The display name of the collaboration creator.
@@ -3619,16 +7137,22 @@ class Membership {
   /// The abilities granted to the collaboration member.
   final List<MemberAbility> memberAbilities;
 
+  /// The payment responsibilities accepted by the collaboration member.
+  final MembershipPaymentConfiguration paymentConfiguration;
+
   /// An indicator as to whether query logging has been enabled or disabled for
-  /// the collaboration.
+  /// the membership.
   final MembershipQueryLogStatus queryLogStatus;
 
-  /// The status of the membership. Valid values are `ACTIVE`, `REMOVED`, and
-  /// `COLLABORATION_DELETED`.
+  /// The status of the membership.
   final MembershipStatus status;
 
   /// The time the membership metadata was last updated.
   final DateTime updateTime;
+
+  /// The default protected query result configuration as specified by the member
+  /// who can receive results.
+  final MembershipProtectedQueryResultConfiguration? defaultResultConfiguration;
 
   Membership({
     required this.arn,
@@ -3640,9 +7164,11 @@ class Membership {
     required this.createTime,
     required this.id,
     required this.memberAbilities,
+    required this.paymentConfiguration,
     required this.queryLogStatus,
     required this.status,
     required this.updateTime,
+    this.defaultResultConfiguration,
   });
 
   factory Membership.fromJson(Map<String, dynamic> json) {
@@ -3658,13 +7184,19 @@ class Membership {
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
       id: json['id'] as String,
       memberAbilities: (json['memberAbilities'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toMemberAbility())
+          .nonNulls
+          .map((e) => MemberAbility.fromString((e as String)))
           .toList(),
-      queryLogStatus:
-          (json['queryLogStatus'] as String).toMembershipQueryLogStatus(),
-      status: (json['status'] as String).toMembershipStatus(),
+      paymentConfiguration: MembershipPaymentConfiguration.fromJson(
+          json['paymentConfiguration'] as Map<String, dynamic>),
+      queryLogStatus: MembershipQueryLogStatus.fromString(
+          (json['queryLogStatus'] as String)),
+      status: MembershipStatus.fromString((json['status'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+      defaultResultConfiguration: json['defaultResultConfiguration'] != null
+          ? MembershipProtectedQueryResultConfiguration.fromJson(
+              json['defaultResultConfiguration'] as Map<String, dynamic>)
+          : null,
     );
   }
 
@@ -3679,9 +7211,11 @@ class Membership {
     final createTime = this.createTime;
     final id = this.id;
     final memberAbilities = this.memberAbilities;
+    final paymentConfiguration = this.paymentConfiguration;
     final queryLogStatus = this.queryLogStatus;
     final status = this.status;
     final updateTime = this.updateTime;
+    final defaultResultConfiguration = this.defaultResultConfiguration;
     return {
       'arn': arn,
       'collaborationArn': collaborationArn,
@@ -3691,73 +7225,175 @@ class Membership {
       'collaborationName': collaborationName,
       'createTime': unixTimestampToJson(createTime),
       'id': id,
-      'memberAbilities': memberAbilities.map((e) => e.toValue()).toList(),
-      'queryLogStatus': queryLogStatus.toValue(),
-      'status': status.toValue(),
+      'memberAbilities': memberAbilities.map((e) => e.value).toList(),
+      'paymentConfiguration': paymentConfiguration,
+      'queryLogStatus': queryLogStatus.value,
+      'status': status.value,
       'updateTime': unixTimestampToJson(updateTime),
+      if (defaultResultConfiguration != null)
+        'defaultResultConfiguration': defaultResultConfiguration,
+    };
+  }
+}
+
+/// An object representing the payment responsibilities accepted by the
+/// collaboration member.
+class MembershipPaymentConfiguration {
+  /// The payment responsibilities accepted by the collaboration member for query
+  /// compute costs.
+  final MembershipQueryComputePaymentConfig queryCompute;
+
+  MembershipPaymentConfiguration({
+    required this.queryCompute,
+  });
+
+  factory MembershipPaymentConfiguration.fromJson(Map<String, dynamic> json) {
+    return MembershipPaymentConfiguration(
+      queryCompute: MembershipQueryComputePaymentConfig.fromJson(
+          json['queryCompute'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final queryCompute = this.queryCompute;
+    return {
+      'queryCompute': queryCompute,
+    };
+  }
+}
+
+/// Contains configurations for protected query results.
+class MembershipProtectedQueryOutputConfiguration {
+  final ProtectedQueryS3OutputConfiguration? s3;
+
+  MembershipProtectedQueryOutputConfiguration({
+    this.s3,
+  });
+
+  factory MembershipProtectedQueryOutputConfiguration.fromJson(
+      Map<String, dynamic> json) {
+    return MembershipProtectedQueryOutputConfiguration(
+      s3: json['s3'] != null
+          ? ProtectedQueryS3OutputConfiguration.fromJson(
+              json['s3'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final s3 = this.s3;
+    return {
+      if (s3 != null) 's3': s3,
+    };
+  }
+}
+
+/// Contains configurations for protected query results.
+class MembershipProtectedQueryResultConfiguration {
+  /// Configuration for protected query results.
+  final MembershipProtectedQueryOutputConfiguration outputConfiguration;
+
+  /// The unique ARN for an IAM role that is used by Clean Rooms to write
+  /// protected query results to the result location, given by the member who can
+  /// receive results.
+  final String? roleArn;
+
+  MembershipProtectedQueryResultConfiguration({
+    required this.outputConfiguration,
+    this.roleArn,
+  });
+
+  factory MembershipProtectedQueryResultConfiguration.fromJson(
+      Map<String, dynamic> json) {
+    return MembershipProtectedQueryResultConfiguration(
+      outputConfiguration: MembershipProtectedQueryOutputConfiguration.fromJson(
+          json['outputConfiguration'] as Map<String, dynamic>),
+      roleArn: json['roleArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final outputConfiguration = this.outputConfiguration;
+    final roleArn = this.roleArn;
+    return {
+      'outputConfiguration': outputConfiguration,
+      if (roleArn != null) 'roleArn': roleArn,
+    };
+  }
+}
+
+/// An object representing the payment responsibilities accepted by the
+/// collaboration member for query compute costs.
+class MembershipQueryComputePaymentConfig {
+  /// Indicates whether the collaboration member has accepted to pay for query
+  /// compute costs (<code>TRUE</code>) or has not accepted to pay for query
+  /// compute costs (<code>FALSE</code>).
+  ///
+  /// If the collaboration creator has not specified anyone to pay for query
+  /// compute costs, then the member who can query is the default payer.
+  ///
+  /// An error message is returned for the following reasons:
+  ///
+  /// <ul>
+  /// <li>
+  /// If you set the value to <code>FALSE</code> but you are responsible to pay
+  /// for query compute costs.
+  /// </li>
+  /// <li>
+  /// If you set the value to <code>TRUE</code> but you are not responsible to pay
+  /// for query compute costs.
+  /// </li>
+  /// </ul>
+  final bool isResponsible;
+
+  MembershipQueryComputePaymentConfig({
+    required this.isResponsible,
+  });
+
+  factory MembershipQueryComputePaymentConfig.fromJson(
+      Map<String, dynamic> json) {
+    return MembershipQueryComputePaymentConfig(
+      isResponsible: json['isResponsible'] as bool,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final isResponsible = this.isResponsible;
+    return {
+      'isResponsible': isResponsible,
     };
   }
 }
 
 enum MembershipQueryLogStatus {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension MembershipQueryLogStatusValueExtension on MembershipQueryLogStatus {
-  String toValue() {
-    switch (this) {
-      case MembershipQueryLogStatus.enabled:
-        return 'ENABLED';
-      case MembershipQueryLogStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension MembershipQueryLogStatusFromString on String {
-  MembershipQueryLogStatus toMembershipQueryLogStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return MembershipQueryLogStatus.enabled;
-      case 'DISABLED':
-        return MembershipQueryLogStatus.disabled;
-    }
-    throw Exception('$this is not known in enum MembershipQueryLogStatus');
-  }
+  const MembershipQueryLogStatus(this.value);
+
+  static MembershipQueryLogStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MembershipQueryLogStatus'));
 }
 
 enum MembershipStatus {
-  active,
-  removed,
-  collaborationDeleted,
-}
+  active('ACTIVE'),
+  removed('REMOVED'),
+  collaborationDeleted('COLLABORATION_DELETED'),
+  ;
 
-extension MembershipStatusValueExtension on MembershipStatus {
-  String toValue() {
-    switch (this) {
-      case MembershipStatus.active:
-        return 'ACTIVE';
-      case MembershipStatus.removed:
-        return 'REMOVED';
-      case MembershipStatus.collaborationDeleted:
-        return 'COLLABORATION_DELETED';
-    }
-  }
-}
+  final String value;
 
-extension MembershipStatusFromString on String {
-  MembershipStatus toMembershipStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return MembershipStatus.active;
-      case 'REMOVED':
-        return MembershipStatus.removed;
-      case 'COLLABORATION_DELETED':
-        return MembershipStatus.collaborationDeleted;
-    }
-    throw Exception('$this is not known in enum MembershipStatus');
-  }
+  const MembershipStatus(this.value);
+
+  static MembershipStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MembershipStatus'));
 }
 
 /// The membership object listed by the request.
@@ -3768,8 +7404,8 @@ class MembershipSummary {
   /// The unique ARN for the membership's associated collaboration.
   final String collaborationArn;
 
-  /// The identifier of the AWS principal that created the collaboration.
-  /// Currently only supports AWS account ID.
+  /// The identifier of the Amazon Web Services principal that created the
+  /// collaboration. Currently only supports Amazon Web Services account ID.
   final String collaborationCreatorAccountId;
 
   /// The display name of the collaboration creator.
@@ -3790,8 +7426,10 @@ class MembershipSummary {
   /// The abilities granted to the collaboration member.
   final List<MemberAbility> memberAbilities;
 
-  /// The status of the membership. Valid values are `ACTIVE`, `REMOVED`, and
-  /// `COLLABORATION_DELETED`.
+  /// The payment responsibilities accepted by the collaboration member.
+  final MembershipPaymentConfiguration paymentConfiguration;
+
+  /// The status of the membership.
   final MembershipStatus status;
 
   /// The time the membership metadata was last updated.
@@ -3807,6 +7445,7 @@ class MembershipSummary {
     required this.createTime,
     required this.id,
     required this.memberAbilities,
+    required this.paymentConfiguration,
     required this.status,
     required this.updateTime,
   });
@@ -3824,10 +7463,12 @@ class MembershipSummary {
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
       id: json['id'] as String,
       memberAbilities: (json['memberAbilities'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toMemberAbility())
+          .nonNulls
+          .map((e) => MemberAbility.fromString((e as String)))
           .toList(),
-      status: (json['status'] as String).toMembershipStatus(),
+      paymentConfiguration: MembershipPaymentConfiguration.fromJson(
+          json['paymentConfiguration'] as Map<String, dynamic>),
+      status: MembershipStatus.fromString((json['status'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
     );
   }
@@ -3843,6 +7484,7 @@ class MembershipSummary {
     final createTime = this.createTime;
     final id = this.id;
     final memberAbilities = this.memberAbilities;
+    final paymentConfiguration = this.paymentConfiguration;
     final status = this.status;
     final updateTime = this.updateTime;
     return {
@@ -3854,14 +7496,555 @@ class MembershipSummary {
       'collaborationName': collaborationName,
       'createTime': unixTimestampToJson(createTime),
       'id': id,
-      'memberAbilities': memberAbilities.map((e) => e.toValue()).toList(),
-      'status': status.toValue(),
+      'memberAbilities': memberAbilities.map((e) => e.value).toList(),
+      'paymentConfiguration': paymentConfiguration,
+      'status': status.value,
       'updateTime': unixTimestampToJson(updateTime),
     };
   }
 }
 
-/// The parameters for an AWS Clean Rooms protected query.
+enum ParameterType {
+  smallint('SMALLINT'),
+  integer('INTEGER'),
+  bigint('BIGINT'),
+  decimal('DECIMAL'),
+  real('REAL'),
+  doublePrecision('DOUBLE_PRECISION'),
+  boolean('BOOLEAN'),
+  char('CHAR'),
+  varchar('VARCHAR'),
+  date('DATE'),
+  timestamp('TIMESTAMP'),
+  timestamptz('TIMESTAMPTZ'),
+  time('TIME'),
+  timetz('TIMETZ'),
+  varbyte('VARBYTE'),
+  ;
+
+  final String value;
+
+  const ParameterType(this.value);
+
+  static ParameterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ParameterType'));
+}
+
+/// An object representing the collaboration member's payment responsibilities
+/// set by the collaboration creator.
+class PaymentConfiguration {
+  /// The collaboration member's payment responsibilities set by the collaboration
+  /// creator for query compute costs.
+  final QueryComputePaymentConfig queryCompute;
+
+  PaymentConfiguration({
+    required this.queryCompute,
+  });
+
+  factory PaymentConfiguration.fromJson(Map<String, dynamic> json) {
+    return PaymentConfiguration(
+      queryCompute: QueryComputePaymentConfig.fromJson(
+          json['queryCompute'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final queryCompute = this.queryCompute;
+    return {
+      'queryCompute': queryCompute,
+    };
+  }
+}
+
+class PreviewPrivacyImpactOutput {
+  /// An estimate of the number of aggregation functions that the member who can
+  /// query can run given the epsilon and noise parameters. This does not change
+  /// the privacy budget.
+  final PrivacyImpact privacyImpact;
+
+  PreviewPrivacyImpactOutput({
+    required this.privacyImpact,
+  });
+
+  factory PreviewPrivacyImpactOutput.fromJson(Map<String, dynamic> json) {
+    return PreviewPrivacyImpactOutput(
+      privacyImpact:
+          PrivacyImpact.fromJson(json['privacyImpact'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final privacyImpact = this.privacyImpact;
+    return {
+      'privacyImpact': privacyImpact,
+    };
+  }
+}
+
+/// Specifies the updated epsilon and noise parameters to preview. The preview
+/// allows you to see how the maximum number of each type of aggregation
+/// function would change with the new parameters.
+class PreviewPrivacyImpactParametersInput {
+  /// An array that specifies the epsilon and noise parameters.
+  final DifferentialPrivacyPreviewParametersInput? differentialPrivacy;
+
+  PreviewPrivacyImpactParametersInput({
+    this.differentialPrivacy,
+  });
+
+  Map<String, dynamic> toJson() {
+    final differentialPrivacy = this.differentialPrivacy;
+    return {
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
+    };
+  }
+}
+
+/// The epsilon parameter value and number of each aggregation function that you
+/// can perform.
+class PrivacyBudget {
+  /// An object that specifies the epsilon parameter and the utility in terms of
+  /// total aggregations, as well as the remaining aggregations available.
+  final DifferentialPrivacyPrivacyBudget? differentialPrivacy;
+
+  PrivacyBudget({
+    this.differentialPrivacy,
+  });
+
+  factory PrivacyBudget.fromJson(Map<String, dynamic> json) {
+    return PrivacyBudget(
+      differentialPrivacy: json['differentialPrivacy'] != null
+          ? DifferentialPrivacyPrivacyBudget.fromJson(
+              json['differentialPrivacy'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final differentialPrivacy = this.differentialPrivacy;
+    return {
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
+    };
+  }
+}
+
+/// An array that summaries the specified privacy budget. This summary includes
+/// collaboration information, creation information, membership information, and
+/// privacy budget information.
+class PrivacyBudgetSummary {
+  /// The provided privacy budget.
+  final PrivacyBudget budget;
+
+  /// The ARN of the collaboration that contains this privacy budget.
+  final String collaborationArn;
+
+  /// The unique identifier of the collaboration that contains this privacy
+  /// budget.
+  final String collaborationId;
+
+  /// The time at which the privacy budget was created.
+  final DateTime createTime;
+
+  /// The unique identifier of the privacy budget.
+  final String id;
+
+  /// The Amazon Resource Name (ARN) of the member who created the privacy budget
+  /// summary.
+  final String membershipArn;
+
+  /// The identifier for a membership resource.
+  final String membershipId;
+
+  /// The ARN of the privacy budget template.
+  final String privacyBudgetTemplateArn;
+
+  /// The unique identifier of the privacy budget template.
+  final String privacyBudgetTemplateId;
+
+  /// Specifies the type of the privacy budget.
+  final PrivacyBudgetType type;
+
+  /// The most recent time at which the privacy budget was updated.
+  final DateTime updateTime;
+
+  PrivacyBudgetSummary({
+    required this.budget,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.id,
+    required this.membershipArn,
+    required this.membershipId,
+    required this.privacyBudgetTemplateArn,
+    required this.privacyBudgetTemplateId,
+    required this.type,
+    required this.updateTime,
+  });
+
+  factory PrivacyBudgetSummary.fromJson(Map<String, dynamic> json) {
+    return PrivacyBudgetSummary(
+      budget: PrivacyBudget.fromJson(json['budget'] as Map<String, dynamic>),
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      id: json['id'] as String,
+      membershipArn: json['membershipArn'] as String,
+      membershipId: json['membershipId'] as String,
+      privacyBudgetTemplateArn: json['privacyBudgetTemplateArn'] as String,
+      privacyBudgetTemplateId: json['privacyBudgetTemplateId'] as String,
+      type: PrivacyBudgetType.fromString((json['type'] as String)),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final budget = this.budget;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final id = this.id;
+    final membershipArn = this.membershipArn;
+    final membershipId = this.membershipId;
+    final privacyBudgetTemplateArn = this.privacyBudgetTemplateArn;
+    final privacyBudgetTemplateId = this.privacyBudgetTemplateId;
+    final type = this.type;
+    final updateTime = this.updateTime;
+    return {
+      'budget': budget,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'id': id,
+      'membershipArn': membershipArn,
+      'membershipId': membershipId,
+      'privacyBudgetTemplateArn': privacyBudgetTemplateArn,
+      'privacyBudgetTemplateId': privacyBudgetTemplateId,
+      'type': type.value,
+      'updateTime': unixTimestampToJson(updateTime),
+    };
+  }
+}
+
+/// An object that defines the privacy budget template.
+class PrivacyBudgetTemplate {
+  /// The ARN of the privacy budget template.
+  final String arn;
+
+  /// How often the privacy budget refreshes.
+  /// <important>
+  /// If you plan to regularly bring new data into the collaboration, use
+  /// <code>CALENDAR_MONTH</code> to automatically get a new privacy budget for
+  /// the collaboration every calendar month. Choosing this option allows
+  /// arbitrary amounts of information to be revealed about rows of the data when
+  /// repeatedly queried across refreshes. Avoid choosing this if the same rows
+  /// will be repeatedly queried between privacy budget refreshes.
+  /// </important>
+  final PrivacyBudgetTemplateAutoRefresh autoRefresh;
+
+  /// The ARN of the collaboration that contains this privacy budget template.
+  final String collaborationArn;
+
+  /// The unique ID of the collaboration that contains this privacy budget
+  /// template.
+  final String collaborationId;
+
+  /// The time at which the privacy budget template was created.
+  final DateTime createTime;
+
+  /// The unique identifier of the privacy budget template.
+  final String id;
+
+  /// The Amazon Resource Name (ARN) of the member who created the privacy budget
+  /// template.
+  final String membershipArn;
+
+  /// The identifier for a membership resource.
+  final String membershipId;
+
+  /// Specifies the epislon and noise parameters for the privacy budget template.
+  final PrivacyBudgetTemplateParametersOutput parameters;
+
+  /// Specifies the type of the privacy budget template.
+  final PrivacyBudgetType privacyBudgetType;
+
+  /// The most recent time at which the privacy budget template was updated.
+  final DateTime updateTime;
+
+  PrivacyBudgetTemplate({
+    required this.arn,
+    required this.autoRefresh,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.id,
+    required this.membershipArn,
+    required this.membershipId,
+    required this.parameters,
+    required this.privacyBudgetType,
+    required this.updateTime,
+  });
+
+  factory PrivacyBudgetTemplate.fromJson(Map<String, dynamic> json) {
+    return PrivacyBudgetTemplate(
+      arn: json['arn'] as String,
+      autoRefresh: PrivacyBudgetTemplateAutoRefresh.fromString(
+          (json['autoRefresh'] as String)),
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      id: json['id'] as String,
+      membershipArn: json['membershipArn'] as String,
+      membershipId: json['membershipId'] as String,
+      parameters: PrivacyBudgetTemplateParametersOutput.fromJson(
+          json['parameters'] as Map<String, dynamic>),
+      privacyBudgetType:
+          PrivacyBudgetType.fromString((json['privacyBudgetType'] as String)),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final autoRefresh = this.autoRefresh;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final id = this.id;
+    final membershipArn = this.membershipArn;
+    final membershipId = this.membershipId;
+    final parameters = this.parameters;
+    final privacyBudgetType = this.privacyBudgetType;
+    final updateTime = this.updateTime;
+    return {
+      'arn': arn,
+      'autoRefresh': autoRefresh.value,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'id': id,
+      'membershipArn': membershipArn,
+      'membershipId': membershipId,
+      'parameters': parameters,
+      'privacyBudgetType': privacyBudgetType.value,
+      'updateTime': unixTimestampToJson(updateTime),
+    };
+  }
+}
+
+enum PrivacyBudgetTemplateAutoRefresh {
+  calendarMonth('CALENDAR_MONTH'),
+  none('NONE'),
+  ;
+
+  final String value;
+
+  const PrivacyBudgetTemplateAutoRefresh(this.value);
+
+  static PrivacyBudgetTemplateAutoRefresh fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PrivacyBudgetTemplateAutoRefresh'));
+}
+
+/// The epsilon and noise parameters that you want to use for the privacy budget
+/// template.
+class PrivacyBudgetTemplateParametersInput {
+  /// An object that specifies the epsilon and noise parameters.
+  final DifferentialPrivacyTemplateParametersInput? differentialPrivacy;
+
+  PrivacyBudgetTemplateParametersInput({
+    this.differentialPrivacy,
+  });
+
+  Map<String, dynamic> toJson() {
+    final differentialPrivacy = this.differentialPrivacy;
+    return {
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
+    };
+  }
+}
+
+/// The epsilon and noise parameters that were used in the privacy budget
+/// template.
+class PrivacyBudgetTemplateParametersOutput {
+  /// The epsilon and noise parameters.
+  final DifferentialPrivacyTemplateParametersOutput? differentialPrivacy;
+
+  PrivacyBudgetTemplateParametersOutput({
+    this.differentialPrivacy,
+  });
+
+  factory PrivacyBudgetTemplateParametersOutput.fromJson(
+      Map<String, dynamic> json) {
+    return PrivacyBudgetTemplateParametersOutput(
+      differentialPrivacy: json['differentialPrivacy'] != null
+          ? DifferentialPrivacyTemplateParametersOutput.fromJson(
+              json['differentialPrivacy'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final differentialPrivacy = this.differentialPrivacy;
+    return {
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
+    };
+  }
+}
+
+/// A summary of the privacy budget template. The summary includes membership
+/// information, collaboration information, and creation information.
+class PrivacyBudgetTemplateSummary {
+  /// The ARN of the privacy budget template.
+  final String arn;
+
+  /// The ARN of the collaboration that contains this privacy budget template.
+  final String collaborationArn;
+
+  /// The unique ID of the collaboration that contains this privacy budget
+  /// template.
+  final String collaborationId;
+
+  /// The time at which the privacy budget template was created.
+  final DateTime createTime;
+
+  /// The unique identifier of the privacy budget template.
+  final String id;
+
+  /// The Amazon Resource Name (ARN) of the member who created the privacy budget
+  /// template.
+  final String membershipArn;
+
+  /// The identifier for a membership resource.
+  final String membershipId;
+
+  /// The type of the privacy budget template.
+  final PrivacyBudgetType privacyBudgetType;
+
+  /// The most recent time at which the privacy budget template was updated.
+  final DateTime updateTime;
+
+  PrivacyBudgetTemplateSummary({
+    required this.arn,
+    required this.collaborationArn,
+    required this.collaborationId,
+    required this.createTime,
+    required this.id,
+    required this.membershipArn,
+    required this.membershipId,
+    required this.privacyBudgetType,
+    required this.updateTime,
+  });
+
+  factory PrivacyBudgetTemplateSummary.fromJson(Map<String, dynamic> json) {
+    return PrivacyBudgetTemplateSummary(
+      arn: json['arn'] as String,
+      collaborationArn: json['collaborationArn'] as String,
+      collaborationId: json['collaborationId'] as String,
+      createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
+      id: json['id'] as String,
+      membershipArn: json['membershipArn'] as String,
+      membershipId: json['membershipId'] as String,
+      privacyBudgetType:
+          PrivacyBudgetType.fromString((json['privacyBudgetType'] as String)),
+      updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final collaborationArn = this.collaborationArn;
+    final collaborationId = this.collaborationId;
+    final createTime = this.createTime;
+    final id = this.id;
+    final membershipArn = this.membershipArn;
+    final membershipId = this.membershipId;
+    final privacyBudgetType = this.privacyBudgetType;
+    final updateTime = this.updateTime;
+    return {
+      'arn': arn,
+      'collaborationArn': collaborationArn,
+      'collaborationId': collaborationId,
+      'createTime': unixTimestampToJson(createTime),
+      'id': id,
+      'membershipArn': membershipArn,
+      'membershipId': membershipId,
+      'privacyBudgetType': privacyBudgetType.value,
+      'updateTime': unixTimestampToJson(updateTime),
+    };
+  }
+}
+
+/// The epsilon and noise parameters that you want to update in the privacy
+/// budget template.
+class PrivacyBudgetTemplateUpdateParameters {
+  /// An object that specifies the new values for the epsilon and noise
+  /// parameters.
+  final DifferentialPrivacyTemplateUpdateParameters? differentialPrivacy;
+
+  PrivacyBudgetTemplateUpdateParameters({
+    this.differentialPrivacy,
+  });
+
+  Map<String, dynamic> toJson() {
+    final differentialPrivacy = this.differentialPrivacy;
+    return {
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
+    };
+  }
+}
+
+enum PrivacyBudgetType {
+  differentialPrivacy('DIFFERENTIAL_PRIVACY'),
+  ;
+
+  final String value;
+
+  const PrivacyBudgetType(this.value);
+
+  static PrivacyBudgetType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PrivacyBudgetType'));
+}
+
+/// Provides an estimate of the number of aggregation functions that the member
+/// who can query can run given the epsilon and noise parameters.
+class PrivacyImpact {
+  /// An object that lists the number and type of aggregation functions you can
+  /// perform.
+  final DifferentialPrivacyPrivacyImpact? differentialPrivacy;
+
+  PrivacyImpact({
+    this.differentialPrivacy,
+  });
+
+  factory PrivacyImpact.fromJson(Map<String, dynamic> json) {
+    return PrivacyImpact(
+      differentialPrivacy: json['differentialPrivacy'] != null
+          ? DifferentialPrivacyPrivacyImpact.fromJson(
+              json['differentialPrivacy'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final differentialPrivacy = this.differentialPrivacy;
+    return {
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
+    };
+  }
+}
+
+/// The parameters for an Clean Rooms protected query.
 class ProtectedQuery {
   /// The time at which the protected query was created.
   final DateTime createTime;
@@ -3875,20 +8058,24 @@ class ProtectedQuery {
   /// The identifier for the membership.
   final String membershipId;
 
-  /// Contains any details needed to write the query results.
-  final ProtectedQueryResultConfiguration resultConfiguration;
-
-  /// The protected query SQL parameters.
-  final ProtectedQuerySQLParameters sqlParameters;
-
   /// The status of the query.
   final ProtectedQueryStatus status;
+
+  /// The sensitivity parameters of the differential privacy results of the
+  /// protected query.
+  final DifferentialPrivacyParameters? differentialPrivacy;
 
   /// An error thrown by the protected query.
   final ProtectedQueryError? error;
 
   /// The result of the protected query.
   final ProtectedQueryResult? result;
+
+  /// Contains any details needed to write the query results.
+  final ProtectedQueryResultConfiguration? resultConfiguration;
+
+  /// The protected query SQL parameters.
+  final ProtectedQuerySQLParameters? sqlParameters;
 
   /// Statistics about protected query execution.
   final ProtectedQueryStatistics? statistics;
@@ -3898,11 +8085,12 @@ class ProtectedQuery {
     required this.id,
     required this.membershipArn,
     required this.membershipId,
-    required this.resultConfiguration,
-    required this.sqlParameters,
     required this.status,
+    this.differentialPrivacy,
     this.error,
     this.result,
+    this.resultConfiguration,
+    this.sqlParameters,
     this.statistics,
   });
 
@@ -3912,17 +8100,25 @@ class ProtectedQuery {
       id: json['id'] as String,
       membershipArn: json['membershipArn'] as String,
       membershipId: json['membershipId'] as String,
-      resultConfiguration: ProtectedQueryResultConfiguration.fromJson(
-          json['resultConfiguration'] as Map<String, dynamic>),
-      sqlParameters: ProtectedQuerySQLParameters.fromJson(
-          json['sqlParameters'] as Map<String, dynamic>),
-      status: (json['status'] as String).toProtectedQueryStatus(),
+      status: ProtectedQueryStatus.fromString((json['status'] as String)),
+      differentialPrivacy: json['differentialPrivacy'] != null
+          ? DifferentialPrivacyParameters.fromJson(
+              json['differentialPrivacy'] as Map<String, dynamic>)
+          : null,
       error: json['error'] != null
           ? ProtectedQueryError.fromJson(json['error'] as Map<String, dynamic>)
           : null,
       result: json['result'] != null
           ? ProtectedQueryResult.fromJson(
               json['result'] as Map<String, dynamic>)
+          : null,
+      resultConfiguration: json['resultConfiguration'] != null
+          ? ProtectedQueryResultConfiguration.fromJson(
+              json['resultConfiguration'] as Map<String, dynamic>)
+          : null,
+      sqlParameters: json['sqlParameters'] != null
+          ? ProtectedQuerySQLParameters.fromJson(
+              json['sqlParameters'] as Map<String, dynamic>)
           : null,
       statistics: json['statistics'] != null
           ? ProtectedQueryStatistics.fromJson(
@@ -3936,22 +8132,26 @@ class ProtectedQuery {
     final id = this.id;
     final membershipArn = this.membershipArn;
     final membershipId = this.membershipId;
-    final resultConfiguration = this.resultConfiguration;
-    final sqlParameters = this.sqlParameters;
     final status = this.status;
+    final differentialPrivacy = this.differentialPrivacy;
     final error = this.error;
     final result = this.result;
+    final resultConfiguration = this.resultConfiguration;
+    final sqlParameters = this.sqlParameters;
     final statistics = this.statistics;
     return {
       'createTime': unixTimestampToJson(createTime),
       'id': id,
       'membershipArn': membershipArn,
       'membershipId': membershipId,
-      'resultConfiguration': resultConfiguration,
-      'sqlParameters': sqlParameters,
-      'status': status.toValue(),
+      'status': status.value,
+      if (differentialPrivacy != null)
+        'differentialPrivacy': differentialPrivacy,
       if (error != null) 'error': error,
       if (result != null) 'result': result,
+      if (resultConfiguration != null)
+        'resultConfiguration': resultConfiguration,
+      if (sqlParameters != null) 'sqlParameters': sqlParameters,
       if (statistics != null) 'statistics': statistics,
     };
   }
@@ -3989,15 +8189,25 @@ class ProtectedQueryError {
 
 /// Contains details about the protected query output.
 class ProtectedQueryOutput {
+  /// The list of member Amazon Web Services account(s) that received the results
+  /// of the query.
+  final List<ProtectedQuerySingleMemberOutput>? memberList;
+
   /// If present, the output for a protected query with an `S3` output type.
   final ProtectedQueryS3Output? s3;
 
   ProtectedQueryOutput({
+    this.memberList,
     this.s3,
   });
 
   factory ProtectedQueryOutput.fromJson(Map<String, dynamic> json) {
     return ProtectedQueryOutput(
+      memberList: (json['memberList'] as List?)
+          ?.nonNulls
+          .map((e) => ProtectedQuerySingleMemberOutput.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
       s3: json['s3'] != null
           ? ProtectedQueryS3Output.fromJson(json['s3'] as Map<String, dynamic>)
           : null,
@@ -4005,8 +8215,10 @@ class ProtectedQueryOutput {
   }
 
   Map<String, dynamic> toJson() {
+    final memberList = this.memberList;
     final s3 = this.s3;
     return {
+      if (memberList != null) 'memberList': memberList,
       if (s3 != null) 's3': s3,
     };
   }
@@ -4132,7 +8344,7 @@ class ProtectedQueryS3OutputConfiguration {
       Map<String, dynamic> json) {
     return ProtectedQueryS3OutputConfiguration(
       bucket: json['bucket'] as String,
-      resultFormat: (json['resultFormat'] as String).toResultFormat(),
+      resultFormat: ResultFormat.fromString((json['resultFormat'] as String)),
       keyPrefix: json['keyPrefix'] as String?,
     );
   }
@@ -4143,7 +8355,7 @@ class ProtectedQueryS3OutputConfiguration {
     final keyPrefix = this.keyPrefix;
     return {
       'bucket': bucket,
-      'resultFormat': resultFormat.toValue(),
+      'resultFormat': resultFormat.value,
       if (keyPrefix != null) 'keyPrefix': keyPrefix,
     };
   }
@@ -4151,23 +8363,64 @@ class ProtectedQueryS3OutputConfiguration {
 
 /// The parameters for the SQL type Protected Query.
 class ProtectedQuerySQLParameters {
+  /// The Amazon Resource Name (ARN) associated with the analysis template within
+  /// a collaboration.
+  final String? analysisTemplateArn;
+
+  /// The protected query SQL parameters.
+  final Map<String, String>? parameters;
+
   /// The query string to be submitted.
-  final String queryString;
+  final String? queryString;
 
   ProtectedQuerySQLParameters({
-    required this.queryString,
+    this.analysisTemplateArn,
+    this.parameters,
+    this.queryString,
   });
 
   factory ProtectedQuerySQLParameters.fromJson(Map<String, dynamic> json) {
     return ProtectedQuerySQLParameters(
-      queryString: json['queryString'] as String,
+      analysisTemplateArn: json['analysisTemplateArn'] as String?,
+      parameters: (json['parameters'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      queryString: json['queryString'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final analysisTemplateArn = this.analysisTemplateArn;
+    final parameters = this.parameters;
     final queryString = this.queryString;
     return {
-      'queryString': queryString,
+      if (analysisTemplateArn != null)
+        'analysisTemplateArn': analysisTemplateArn,
+      if (parameters != null) 'parameters': parameters,
+      if (queryString != null) 'queryString': queryString,
+    };
+  }
+}
+
+/// Details about the member who received the query result.
+class ProtectedQuerySingleMemberOutput {
+  /// The Amazon Web Services account ID of the member in the collaboration who
+  /// can receive results for the query.
+  final String accountId;
+
+  ProtectedQuerySingleMemberOutput({
+    required this.accountId,
+  });
+
+  factory ProtectedQuerySingleMemberOutput.fromJson(Map<String, dynamic> json) {
+    return ProtectedQuerySingleMemberOutput(
+      accountId: json['accountId'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    return {
+      'accountId': accountId,
     };
   }
 }
@@ -4197,56 +8450,23 @@ class ProtectedQueryStatistics {
 }
 
 enum ProtectedQueryStatus {
-  submitted,
-  started,
-  cancelled,
-  cancelling,
-  failed,
-  success,
-  timedOut,
-}
+  submitted('SUBMITTED'),
+  started('STARTED'),
+  cancelled('CANCELLED'),
+  cancelling('CANCELLING'),
+  failed('FAILED'),
+  success('SUCCESS'),
+  timedOut('TIMED_OUT'),
+  ;
 
-extension ProtectedQueryStatusValueExtension on ProtectedQueryStatus {
-  String toValue() {
-    switch (this) {
-      case ProtectedQueryStatus.submitted:
-        return 'SUBMITTED';
-      case ProtectedQueryStatus.started:
-        return 'STARTED';
-      case ProtectedQueryStatus.cancelled:
-        return 'CANCELLED';
-      case ProtectedQueryStatus.cancelling:
-        return 'CANCELLING';
-      case ProtectedQueryStatus.failed:
-        return 'FAILED';
-      case ProtectedQueryStatus.success:
-        return 'SUCCESS';
-      case ProtectedQueryStatus.timedOut:
-        return 'TIMED_OUT';
-    }
-  }
-}
+  final String value;
 
-extension ProtectedQueryStatusFromString on String {
-  ProtectedQueryStatus toProtectedQueryStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return ProtectedQueryStatus.submitted;
-      case 'STARTED':
-        return ProtectedQueryStatus.started;
-      case 'CANCELLED':
-        return ProtectedQueryStatus.cancelled;
-      case 'CANCELLING':
-        return ProtectedQueryStatus.cancelling;
-      case 'FAILED':
-        return ProtectedQueryStatus.failed;
-      case 'SUCCESS':
-        return ProtectedQueryStatus.success;
-      case 'TIMED_OUT':
-        return ProtectedQueryStatus.timedOut;
-    }
-    throw Exception('$this is not known in enum ProtectedQueryStatus');
-  }
+  const ProtectedQueryStatus(this.value);
+
+  static ProtectedQueryStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ProtectedQueryStatus'));
 }
 
 /// The protected query summary for the objects listed by the request.
@@ -4281,7 +8501,7 @@ class ProtectedQuerySummary {
       id: json['id'] as String,
       membershipArn: json['membershipArn'] as String,
       membershipId: json['membershipId'] as String,
-      status: (json['status'] as String).toProtectedQueryStatus(),
+      status: ProtectedQueryStatus.fromString((json['status'] as String)),
     );
   }
 
@@ -4296,149 +8516,117 @@ class ProtectedQuerySummary {
       'id': id,
       'membershipArn': membershipArn,
       'membershipId': membershipId,
-      'status': status.toValue(),
+      'status': status.value,
     };
   }
 }
 
 enum ProtectedQueryType {
-  sql,
+  sql('SQL'),
+  ;
+
+  final String value;
+
+  const ProtectedQueryType(this.value);
+
+  static ProtectedQueryType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ProtectedQueryType'));
 }
 
-extension ProtectedQueryTypeValueExtension on ProtectedQueryType {
-  String toValue() {
-    switch (this) {
-      case ProtectedQueryType.sql:
-        return 'SQL';
-    }
+/// An object representing the collaboration member's payment responsibilities
+/// set by the collaboration creator for query compute costs.
+class QueryComputePaymentConfig {
+  /// Indicates whether the collaboration creator has configured the collaboration
+  /// member to pay for query compute costs (<code>TRUE</code>) or has not
+  /// configured the collaboration member to pay for query compute costs
+  /// (<code>FALSE</code>).
+  ///
+  /// Exactly one member can be configured to pay for query compute costs. An
+  /// error is returned if the collaboration creator sets a <code>TRUE</code>
+  /// value for more than one member in the collaboration.
+  ///
+  /// If the collaboration creator hasn't specified anyone as the member paying
+  /// for query compute costs, then the member who can query is the default payer.
+  /// An error is returned if the collaboration creator sets a <code>FALSE</code>
+  /// value for the member who can query.
+  final bool isResponsible;
+
+  QueryComputePaymentConfig({
+    required this.isResponsible,
+  });
+
+  factory QueryComputePaymentConfig.fromJson(Map<String, dynamic> json) {
+    return QueryComputePaymentConfig(
+      isResponsible: json['isResponsible'] as bool,
+    );
   }
-}
 
-extension ProtectedQueryTypeFromString on String {
-  ProtectedQueryType toProtectedQueryType() {
-    switch (this) {
-      case 'SQL':
-        return ProtectedQueryType.sql;
-    }
-    throw Exception('$this is not known in enum ProtectedQueryType');
+  Map<String, dynamic> toJson() {
+    final isResponsible = this.isResponsible;
+    return {
+      'isResponsible': isResponsible,
+    };
   }
 }
 
 enum ResultFormat {
-  csv,
-  parquet,
-}
+  csv('CSV'),
+  parquet('PARQUET'),
+  ;
 
-extension ResultFormatValueExtension on ResultFormat {
-  String toValue() {
-    switch (this) {
-      case ResultFormat.csv:
-        return 'CSV';
-      case ResultFormat.parquet:
-        return 'PARQUET';
-    }
-  }
-}
+  final String value;
 
-extension ResultFormatFromString on String {
-  ResultFormat toResultFormat() {
-    switch (this) {
-      case 'CSV':
-        return ResultFormat.csv;
-      case 'PARQUET':
-        return ResultFormat.parquet;
-    }
-    throw Exception('$this is not known in enum ResultFormat');
-  }
+  const ResultFormat(this.value);
+
+  static ResultFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResultFormat'));
 }
 
 enum ScalarFunctions {
-  trunc,
-  abs,
-  ceiling,
-  floor,
-  ln,
-  log,
-  round,
-  sqrt,
-  cast,
-  lower,
-  rtrim,
-  upper,
-  coalesce,
-}
+  abs('ABS'),
+  cast('CAST'),
+  ceiling('CEILING'),
+  coalesce('COALESCE'),
+  convert('CONVERT'),
+  currentDate('CURRENT_DATE'),
+  dateadd('DATEADD'),
+  extract('EXTRACT'),
+  floor('FLOOR'),
+  getdate('GETDATE'),
+  ln('LN'),
+  log('LOG'),
+  lower('LOWER'),
+  round('ROUND'),
+  rtrim('RTRIM'),
+  sqrt('SQRT'),
+  substring('SUBSTRING'),
+  toChar('TO_CHAR'),
+  toDate('TO_DATE'),
+  toNumber('TO_NUMBER'),
+  toTimestamp('TO_TIMESTAMP'),
+  trim('TRIM'),
+  trunc('TRUNC'),
+  upper('UPPER'),
+  ;
 
-extension ScalarFunctionsValueExtension on ScalarFunctions {
-  String toValue() {
-    switch (this) {
-      case ScalarFunctions.trunc:
-        return 'TRUNC';
-      case ScalarFunctions.abs:
-        return 'ABS';
-      case ScalarFunctions.ceiling:
-        return 'CEILING';
-      case ScalarFunctions.floor:
-        return 'FLOOR';
-      case ScalarFunctions.ln:
-        return 'LN';
-      case ScalarFunctions.log:
-        return 'LOG';
-      case ScalarFunctions.round:
-        return 'ROUND';
-      case ScalarFunctions.sqrt:
-        return 'SQRT';
-      case ScalarFunctions.cast:
-        return 'CAST';
-      case ScalarFunctions.lower:
-        return 'LOWER';
-      case ScalarFunctions.rtrim:
-        return 'RTRIM';
-      case ScalarFunctions.upper:
-        return 'UPPER';
-      case ScalarFunctions.coalesce:
-        return 'COALESCE';
-    }
-  }
-}
+  final String value;
 
-extension ScalarFunctionsFromString on String {
-  ScalarFunctions toScalarFunctions() {
-    switch (this) {
-      case 'TRUNC':
-        return ScalarFunctions.trunc;
-      case 'ABS':
-        return ScalarFunctions.abs;
-      case 'CEILING':
-        return ScalarFunctions.ceiling;
-      case 'FLOOR':
-        return ScalarFunctions.floor;
-      case 'LN':
-        return ScalarFunctions.ln;
-      case 'LOG':
-        return ScalarFunctions.log;
-      case 'ROUND':
-        return ScalarFunctions.round;
-      case 'SQRT':
-        return ScalarFunctions.sqrt;
-      case 'CAST':
-        return ScalarFunctions.cast;
-      case 'LOWER':
-        return ScalarFunctions.lower;
-      case 'RTRIM':
-        return ScalarFunctions.rtrim;
-      case 'UPPER':
-        return ScalarFunctions.upper;
-      case 'COALESCE':
-        return ScalarFunctions.coalesce;
-    }
-    throw Exception('$this is not known in enum ScalarFunctions');
-  }
+  const ScalarFunctions(this.value);
+
+  static ScalarFunctions fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ScalarFunctions'));
 }
 
 /// A schema is a relation within a collaboration.
 class Schema {
-  /// The analysis rule types associated with the schema. Valued values are LIST
-  /// and AGGREGATION. Currently, only one entry is present.
+  /// The analysis rule types associated with the schema. Currently, only one
+  /// entry is present.
   final List<AnalysisRuleType> analysisRuleTypes;
 
   /// The unique ARN for the collaboration that the schema belongs to.
@@ -4453,7 +8641,8 @@ class Schema {
   /// The time the schema was created.
   final DateTime createTime;
 
-  /// The unique account ID for the AWS account that owns the schema.
+  /// The unique account ID for the Amazon Web Services account that owns the
+  /// schema.
   final String creatorAccountId;
 
   /// A description for the schema.
@@ -4465,6 +8654,10 @@ class Schema {
 
   /// The partition keys for the dataset underlying this schema.
   final List<Column> partitionKeys;
+
+  /// Details about the status of the schema. Currently, only one entry is
+  /// present.
+  final List<SchemaStatusDetail> schemaStatusDetails;
 
   /// The type of schema. The only valid value is currently `TABLE`.
   final SchemaType type;
@@ -4486,6 +8679,7 @@ class Schema {
     required this.description,
     required this.name,
     required this.partitionKeys,
+    required this.schemaStatusDetails,
     required this.type,
     required this.updateTime,
     this.analysisMethod,
@@ -4494,13 +8688,13 @@ class Schema {
   factory Schema.fromJson(Map<String, dynamic> json) {
     return Schema(
       analysisRuleTypes: (json['analysisRuleTypes'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toAnalysisRuleType())
+          .nonNulls
+          .map((e) => AnalysisRuleType.fromString((e as String)))
           .toList(),
       collaborationArn: json['collaborationArn'] as String,
       collaborationId: json['collaborationId'] as String,
       columns: (json['columns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Column.fromJson(e as Map<String, dynamic>))
           .toList(),
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
@@ -4508,12 +8702,17 @@ class Schema {
       description: json['description'] as String,
       name: json['name'] as String,
       partitionKeys: (json['partitionKeys'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Column.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['type'] as String).toSchemaType(),
+      schemaStatusDetails: (json['schemaStatusDetails'] as List)
+          .nonNulls
+          .map((e) => SchemaStatusDetail.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      type: SchemaType.fromString((json['type'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
-      analysisMethod: (json['analysisMethod'] as String?)?.toAnalysisMethod(),
+      analysisMethod:
+          (json['analysisMethod'] as String?)?.let(AnalysisMethod.fromString),
     );
   }
 
@@ -4527,11 +8726,12 @@ class Schema {
     final description = this.description;
     final name = this.name;
     final partitionKeys = this.partitionKeys;
+    final schemaStatusDetails = this.schemaStatusDetails;
     final type = this.type;
     final updateTime = this.updateTime;
     final analysisMethod = this.analysisMethod;
     return {
-      'analysisRuleTypes': analysisRuleTypes.map((e) => e.toValue()).toList(),
+      'analysisRuleTypes': analysisRuleTypes.map((e) => e.value).toList(),
       'collaborationArn': collaborationArn,
       'collaborationId': collaborationId,
       'columns': columns,
@@ -4540,11 +8740,170 @@ class Schema {
       'description': description,
       'name': name,
       'partitionKeys': partitionKeys,
-      'type': type.toValue(),
+      'schemaStatusDetails': schemaStatusDetails,
+      'type': type.value,
       'updateTime': unixTimestampToJson(updateTime),
-      if (analysisMethod != null) 'analysisMethod': analysisMethod.toValue(),
+      if (analysisMethod != null) 'analysisMethod': analysisMethod.value,
     };
   }
+}
+
+/// Defines the information that's necessary to retrieve an analysis rule
+/// schema. Schema analysis rules are uniquely identiﬁed by a combination of the
+/// schema name and the analysis rule type for a given collaboration.
+class SchemaAnalysisRuleRequest {
+  /// The name of the analysis rule schema that you are requesting.
+  final String name;
+
+  /// The type of analysis rule schema that you are requesting.
+  final AnalysisRuleType type;
+
+  SchemaAnalysisRuleRequest({
+    required this.name,
+    required this.type,
+  });
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final type = this.type;
+    return {
+      'name': name,
+      'type': type.value,
+    };
+  }
+}
+
+enum SchemaConfiguration {
+  differentialPrivacy('DIFFERENTIAL_PRIVACY'),
+  ;
+
+  final String value;
+
+  const SchemaConfiguration(this.value);
+
+  static SchemaConfiguration fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SchemaConfiguration'));
+}
+
+enum SchemaStatus {
+  ready('READY'),
+  notReady('NOT_READY'),
+  ;
+
+  final String value;
+
+  const SchemaStatus(this.value);
+
+  static SchemaStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SchemaStatus'));
+}
+
+/// Information about the schema status.
+///
+/// A status of <code>READY</code> means that based on the schema analysis rule,
+/// queries of the given analysis rule type are properly configured to run
+/// queries on this schema.
+class SchemaStatusDetail {
+  /// The status of the schema.
+  final SchemaStatus status;
+
+  /// The analysis rule type for which the schema status has been evaluated.
+  final AnalysisRuleType? analysisRuleType;
+
+  /// The configuration details of the schema analysis rule for the given type.
+  final List<SchemaConfiguration>? configurations;
+
+  /// The reasons why the schema status is set to its current state.
+  final List<SchemaStatusReason>? reasons;
+
+  SchemaStatusDetail({
+    required this.status,
+    this.analysisRuleType,
+    this.configurations,
+    this.reasons,
+  });
+
+  factory SchemaStatusDetail.fromJson(Map<String, dynamic> json) {
+    return SchemaStatusDetail(
+      status: SchemaStatus.fromString((json['status'] as String)),
+      analysisRuleType: (json['analysisRuleType'] as String?)
+          ?.let(AnalysisRuleType.fromString),
+      configurations: (json['configurations'] as List?)
+          ?.nonNulls
+          .map((e) => SchemaConfiguration.fromString((e as String)))
+          .toList(),
+      reasons: (json['reasons'] as List?)
+          ?.nonNulls
+          .map((e) => SchemaStatusReason.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final status = this.status;
+    final analysisRuleType = this.analysisRuleType;
+    final configurations = this.configurations;
+    final reasons = this.reasons;
+    return {
+      'status': status.value,
+      if (analysisRuleType != null) 'analysisRuleType': analysisRuleType.value,
+      if (configurations != null)
+        'configurations': configurations.map((e) => e.value).toList(),
+      if (reasons != null) 'reasons': reasons,
+    };
+  }
+}
+
+/// A reason why the schema status is set to its current value.
+class SchemaStatusReason {
+  /// The schema status reason code.
+  final SchemaStatusReasonCode code;
+
+  /// An explanation of the schema status reason code.
+  final String message;
+
+  SchemaStatusReason({
+    required this.code,
+    required this.message,
+  });
+
+  factory SchemaStatusReason.fromJson(Map<String, dynamic> json) {
+    return SchemaStatusReason(
+      code: SchemaStatusReasonCode.fromString((json['code'] as String)),
+      message: json['message'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final code = this.code;
+    final message = this.message;
+    return {
+      'code': code.value,
+      'message': message,
+    };
+  }
+}
+
+enum SchemaStatusReasonCode {
+  analysisRuleMissing('ANALYSIS_RULE_MISSING'),
+  analysisTemplatesNotConfigured('ANALYSIS_TEMPLATES_NOT_CONFIGURED'),
+  analysisProvidersNotConfigured('ANALYSIS_PROVIDERS_NOT_CONFIGURED'),
+  differentialPrivacyPolicyNotConfigured(
+      'DIFFERENTIAL_PRIVACY_POLICY_NOT_CONFIGURED'),
+  ;
+
+  final String value;
+
+  const SchemaStatusReasonCode(this.value);
+
+  static SchemaStatusReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SchemaStatusReasonCode'));
 }
 
 /// The schema summary for the objects listed by the request.
@@ -4561,7 +8920,8 @@ class SchemaSummary {
   /// The time the schema object was created.
   final DateTime createTime;
 
-  /// The unique account ID for the AWS account that owns the schema.
+  /// The unique account ID for the Amazon Web Services account that owns the
+  /// schema.
   final String creatorAccountId;
 
   /// The name for the schema object.
@@ -4592,17 +8952,18 @@ class SchemaSummary {
   factory SchemaSummary.fromJson(Map<String, dynamic> json) {
     return SchemaSummary(
       analysisRuleTypes: (json['analysisRuleTypes'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toAnalysisRuleType())
+          .nonNulls
+          .map((e) => AnalysisRuleType.fromString((e as String)))
           .toList(),
       collaborationArn: json['collaborationArn'] as String,
       collaborationId: json['collaborationId'] as String,
       createTime: nonNullableTimeStampFromJson(json['createTime'] as Object),
       creatorAccountId: json['creatorAccountId'] as String,
       name: json['name'] as String,
-      type: (json['type'] as String).toSchemaType(),
+      type: SchemaType.fromString((json['type'] as String)),
       updateTime: nonNullableTimeStampFromJson(json['updateTime'] as Object),
-      analysisMethod: (json['analysisMethod'] as String?)?.toAnalysisMethod(),
+      analysisMethod:
+          (json['analysisMethod'] as String?)?.let(AnalysisMethod.fromString),
     );
   }
 
@@ -4617,40 +8978,30 @@ class SchemaSummary {
     final updateTime = this.updateTime;
     final analysisMethod = this.analysisMethod;
     return {
-      'analysisRuleTypes': analysisRuleTypes.map((e) => e.toValue()).toList(),
+      'analysisRuleTypes': analysisRuleTypes.map((e) => e.value).toList(),
       'collaborationArn': collaborationArn,
       'collaborationId': collaborationId,
       'createTime': unixTimestampToJson(createTime),
       'creatorAccountId': creatorAccountId,
       'name': name,
-      'type': type.toValue(),
+      'type': type.value,
       'updateTime': unixTimestampToJson(updateTime),
-      if (analysisMethod != null) 'analysisMethod': analysisMethod.toValue(),
+      if (analysisMethod != null) 'analysisMethod': analysisMethod.value,
     };
   }
 }
 
 enum SchemaType {
-  table,
-}
+  table('TABLE'),
+  ;
 
-extension SchemaTypeValueExtension on SchemaType {
-  String toValue() {
-    switch (this) {
-      case SchemaType.table:
-        return 'TABLE';
-    }
-  }
-}
+  final String value;
 
-extension SchemaTypeFromString on String {
-  SchemaType toSchemaType() {
-    switch (this) {
-      case 'TABLE':
-        return SchemaType.table;
-    }
-    throw Exception('$this is not known in enum SchemaType');
-  }
+  const SchemaType(this.value);
+
+  static SchemaType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SchemaType'));
 }
 
 class StartProtectedQueryOutput {
@@ -4677,9 +9028,9 @@ class StartProtectedQueryOutput {
 }
 
 /// A pointer to the dataset that underlies this table. Currently, this can only
-/// be an AWS Glue table.
+/// be an Glue table.
 class TableReference {
-  /// If present, a reference to the AWS Glue table referred to by this table
+  /// If present, a reference to the Glue table referred to by this table
   /// reference.
   final GlueTableReference? glue;
 
@@ -4716,27 +9067,17 @@ class TagResourceOutput {
 }
 
 enum TargetProtectedQueryStatus {
-  cancelled,
-}
+  cancelled('CANCELLED'),
+  ;
 
-extension TargetProtectedQueryStatusValueExtension
-    on TargetProtectedQueryStatus {
-  String toValue() {
-    switch (this) {
-      case TargetProtectedQueryStatus.cancelled:
-        return 'CANCELLED';
-    }
-  }
-}
+  final String value;
 
-extension TargetProtectedQueryStatusFromString on String {
-  TargetProtectedQueryStatus toTargetProtectedQueryStatus() {
-    switch (this) {
-      case 'CANCELLED':
-        return TargetProtectedQueryStatus.cancelled;
-    }
-    throw Exception('$this is not known in enum TargetProtectedQueryStatus');
-  }
+  const TargetProtectedQueryStatus(this.value);
+
+  static TargetProtectedQueryStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TargetProtectedQueryStatus'));
 }
 
 class UntagResourceOutput {
@@ -4748,6 +9089,29 @@ class UntagResourceOutput {
 
   Map<String, dynamic> toJson() {
     return {};
+  }
+}
+
+class UpdateAnalysisTemplateOutput {
+  /// The analysis template.
+  final AnalysisTemplate analysisTemplate;
+
+  UpdateAnalysisTemplateOutput({
+    required this.analysisTemplate,
+  });
+
+  factory UpdateAnalysisTemplateOutput.fromJson(Map<String, dynamic> json) {
+    return UpdateAnalysisTemplateOutput(
+      analysisTemplate: AnalysisTemplate.fromJson(
+          json['analysisTemplate'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisTemplate = this.analysisTemplate;
+    return {
+      'analysisTemplate': analysisTemplate,
+    };
   }
 }
 
@@ -4770,6 +9134,33 @@ class UpdateCollaborationOutput {
     final collaboration = this.collaboration;
     return {
       'collaboration': collaboration,
+    };
+  }
+}
+
+class UpdateConfiguredAudienceModelAssociationOutput {
+  /// Details about the configured audience model association that you updated.
+  final ConfiguredAudienceModelAssociation configuredAudienceModelAssociation;
+
+  UpdateConfiguredAudienceModelAssociationOutput({
+    required this.configuredAudienceModelAssociation,
+  });
+
+  factory UpdateConfiguredAudienceModelAssociationOutput.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateConfiguredAudienceModelAssociationOutput(
+      configuredAudienceModelAssociation:
+          ConfiguredAudienceModelAssociation.fromJson(
+              json['configuredAudienceModelAssociation']
+                  as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configuredAudienceModelAssociation =
+        this.configuredAudienceModelAssociation;
+    return {
+      'configuredAudienceModelAssociation': configuredAudienceModelAssociation,
     };
   }
 }
@@ -4863,6 +9254,30 @@ class UpdateMembershipOutput {
     final membership = this.membership;
     return {
       'membership': membership,
+    };
+  }
+}
+
+class UpdatePrivacyBudgetTemplateOutput {
+  /// Summary of the privacy budget template.
+  final PrivacyBudgetTemplate privacyBudgetTemplate;
+
+  UpdatePrivacyBudgetTemplateOutput({
+    required this.privacyBudgetTemplate,
+  });
+
+  factory UpdatePrivacyBudgetTemplateOutput.fromJson(
+      Map<String, dynamic> json) {
+    return UpdatePrivacyBudgetTemplateOutput(
+      privacyBudgetTemplate: PrivacyBudgetTemplate.fromJson(
+          json['privacyBudgetTemplate'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final privacyBudgetTemplate = this.privacyBudgetTemplate;
+    return {
+      'privacyBudgetTemplate': privacyBudgetTemplate,
     };
   }
 }

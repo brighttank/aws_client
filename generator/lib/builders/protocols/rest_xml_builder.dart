@@ -61,12 +61,12 @@ class RestXmlServiceBuilder extends ServiceBuilder {
         payloadArg = payloadMember.fieldName;
       } else if (payloadMember.shapeClass!.enumeration != null) {
         payloadMember.shapeClass!.isTopLevelInputEnum = true;
-        payloadArg = '${payloadMember.fieldName}?.toValue()';
+        payloadArg = '${payloadMember.fieldName}?.value';
       } else if (payloadMember.shapeClass!.type.isBasicType()) {
         payloadArg = payloadMember.fieldName;
       } else {
         payloadArg =
-            '${payloadMember.fieldName}${payloadMember.isRequired ? '' : '?'}.toXml(\'${shapeClass.payload}\')';
+            '${payloadMember.fieldName}${payloadMember.isRequired ? '' : '?'}.toXml(\'${payloadMember.locationName ?? shapeClass.payload}\')';
       }
     } else if (shapeClass != null) {
       final bodyMembers = shapeClass.members.where((m) => m.isBody);

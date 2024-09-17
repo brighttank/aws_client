@@ -252,20 +252,21 @@ class AuditManager {
     return BatchDisassociateAssessmentReportEvidenceResponse.fromJson(response);
   }
 
-  /// Uploads one or more pieces of evidence to a control in an Audit Manager
-  /// assessment. You can upload manual evidence from any Amazon Simple Storage
-  /// Service (Amazon S3) bucket by specifying the S3 URI of the evidence.
+  /// Adds one or more pieces of evidence to a control in an Audit Manager
+  /// assessment.
   ///
-  /// You must upload manual evidence to your S3 bucket before you can upload it
-  /// to your assessment. For instructions, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_CreateBucket.html">CreateBucket</a>
-  /// and <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_PutObject.html">PutObject</a>
-  /// in the <i>Amazon Simple Storage Service API Reference.</i>
+  /// You can import manual evidence from any S3 bucket by specifying the S3 URI
+  /// of the object. You can also upload a file from your browser, or enter
+  /// plain text in response to a risk assessment question.
   ///
   /// The following restrictions apply to this action:
   ///
   /// <ul>
+  /// <li>
+  /// <code>manualEvidence</code> can be only one of the following:
+  /// <code>evidenceFileName</code>, <code>s3ResourcePath</code>, or
+  /// <code>textResponse</code>
+  /// </li>
   /// <li>
   /// Maximum size of an individual evidence file: 100 MB
   /// </li>
@@ -286,6 +287,7 @@ class AuditManager {
   /// May throw [AccessDeniedException].
   /// May throw [ValidationException].
   /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
   ///
   /// Parameter [assessmentId] :
   /// The identifier for the assessment.
@@ -588,7 +590,7 @@ class AuditManager {
     required ShareRequestType requestType,
   }) async {
     final $query = <String, List<String>>{
-      'requestType': [requestType.toValue()],
+      'requestType': [requestType.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -656,6 +658,13 @@ class AuditManager {
   }
 
   /// Deletes a custom control in Audit Manager.
+  /// <important>
+  /// When you invoke this operation, the custom control is deleted from any
+  /// frameworks or assessments that it’s currently part of. As a result, Audit
+  /// Manager will stop collecting evidence for that custom control in all of
+  /// your assessments. This includes assessments that you previously created
+  /// before you deleted the custom control.
+  /// </important>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -834,7 +843,7 @@ class AuditManager {
     );
   }
 
-  /// Returns the registration status of an account in Audit Manager.
+  /// Gets the registration status of an account in Audit Manager.
   ///
   /// May throw [InternalServerException].
   Future<GetAccountStatusResponse> getAccountStatus() async {
@@ -847,7 +856,7 @@ class AuditManager {
     return GetAccountStatusResponse.fromJson(response);
   }
 
-  /// Returns an assessment from Audit Manager.
+  /// Gets information about a specified assessment.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -868,7 +877,7 @@ class AuditManager {
     return GetAssessmentResponse.fromJson(response);
   }
 
-  /// Returns a framework from Audit Manager.
+  /// Gets information about a specified framework.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -889,7 +898,7 @@ class AuditManager {
     return GetAssessmentFrameworkResponse.fromJson(response);
   }
 
-  /// Returns the URL of an assessment report in Audit Manager.
+  /// Gets the URL of an assessment report in Audit Manager.
   ///
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
@@ -915,7 +924,7 @@ class AuditManager {
     return GetAssessmentReportUrlResponse.fromJson(response);
   }
 
-  /// Returns a list of changelogs from Audit Manager.
+  /// Gets a list of changelogs from Audit Manager.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [ResourceNotFoundException].
@@ -967,7 +976,7 @@ class AuditManager {
     return GetChangeLogsResponse.fromJson(response);
   }
 
-  /// Returns a control from Audit Manager.
+  /// Gets information about a specified control.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -988,7 +997,7 @@ class AuditManager {
     return GetControlResponse.fromJson(response);
   }
 
-  /// Returns a list of delegations from an audit owner to a delegate.
+  /// Gets a list of delegations from an audit owner to a delegate.
   ///
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
@@ -1024,7 +1033,7 @@ class AuditManager {
     return GetDelegationsResponse.fromJson(response);
   }
 
-  /// Returns evidence from Audit Manager.
+  /// Gets information about a specified evidence item.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -1058,7 +1067,7 @@ class AuditManager {
     return GetEvidenceResponse.fromJson(response);
   }
 
-  /// Returns all evidence from a specified evidence folder in Audit Manager.
+  /// Gets all evidence from a specified evidence folder in Audit Manager.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -1108,7 +1117,57 @@ class AuditManager {
     return GetEvidenceByEvidenceFolderResponse.fromJson(response);
   }
 
-  /// Returns an evidence folder from the specified assessment in Audit Manager.
+  /// Creates a presigned Amazon S3 URL that can be used to upload a file as
+  /// manual evidence. For instructions on how to use this operation, see <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/upload-evidence.html#how-to-upload-manual-evidence-files">Upload
+  /// a file from your browser </a> in the <i>Audit Manager User Guide</i>.
+  ///
+  /// The following restrictions apply to this operation:
+  ///
+  /// <ul>
+  /// <li>
+  /// Maximum size of an individual evidence file: 100 MB
+  /// </li>
+  /// <li>
+  /// Number of daily manual evidence uploads per control: 100
+  /// </li>
+  /// <li>
+  /// Supported file formats: See <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/upload-evidence.html#supported-manual-evidence-files">Supported
+  /// file types for manual evidence</a> in the <i>Audit Manager User Guide</i>
+  /// </li>
+  /// </ul>
+  /// For more information about Audit Manager service restrictions, see <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/service-quotas.html">Quotas
+  /// and restrictions for Audit Manager</a>.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  ///
+  /// Parameter [fileName] :
+  /// The file that you want to upload. For a list of supported file formats,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/upload-evidence.html#supported-manual-evidence-files">Supported
+  /// file types for manual evidence</a> in the <i>Audit Manager User Guide</i>.
+  Future<GetEvidenceFileUploadUrlResponse> getEvidenceFileUploadUrl({
+    required String fileName,
+  }) async {
+    final $query = <String, List<String>>{
+      'fileName': [fileName],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/evidenceFileUploadUrl',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetEvidenceFileUploadUrlResponse.fromJson(response);
+  }
+
+  /// Gets an evidence folder from a specified assessment in Audit Manager.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ValidationException].
@@ -1138,7 +1197,7 @@ class AuditManager {
     return GetEvidenceFolderResponse.fromJson(response);
   }
 
-  /// Returns the evidence folders from a specified assessment in Audit Manager.
+  /// Gets the evidence folders from a specified assessment in Audit Manager.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [AccessDeniedException].
@@ -1181,7 +1240,7 @@ class AuditManager {
     return GetEvidenceFoldersByAssessmentResponse.fromJson(response);
   }
 
-  /// Returns a list of evidence folders that are associated with a specified
+  /// Gets a list of evidence folders that are associated with a specified
   /// control in an Audit Manager assessment.
   ///
   /// May throw [ResourceNotFoundException].
@@ -1268,8 +1327,8 @@ class AuditManager {
     return GetInsightsByAssessmentResponse.fromJson(response);
   }
 
-  /// Returns the name of the delegated Amazon Web Services administrator
-  /// account for the organization.
+  /// Gets the name of the delegated Amazon Web Services administrator account
+  /// for a specified organization.
   ///
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
@@ -1286,7 +1345,7 @@ class AuditManager {
     return GetOrganizationAdminAccountResponse.fromJson(response);
   }
 
-  /// Returns a list of all of the Amazon Web Services that you can choose to
+  /// Gets a list of all of the Amazon Web Services that you can choose to
   /// include in your assessment. When you <a
   /// href="https://docs.aws.amazon.com/audit-manager/latest/APIReference/API_CreateAssessment.html">create
   /// an assessment</a>, specify which of these services you want to include to
@@ -1306,7 +1365,7 @@ class AuditManager {
     return GetServicesInScopeResponse.fromJson(response);
   }
 
-  /// Returns the settings for the specified Amazon Web Services account.
+  /// Gets the settings for a specified Amazon Web Services account.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [InternalServerException].
@@ -1319,7 +1378,7 @@ class AuditManager {
     final response = await _protocol.send(
       payload: null,
       method: 'GET',
-      requestUri: '/settings/${Uri.encodeComponent(attribute.toValue())}',
+      requestUri: '/settings/${Uri.encodeComponent(attribute.value)}',
       exceptionFnMap: _exceptionFns,
     );
     return GetSettingsResponse.fromJson(response);
@@ -1412,7 +1471,7 @@ class AuditManager {
       1000,
     );
     final $query = <String, List<String>>{
-      'requestType': [requestType.toValue()],
+      'requestType': [requestType.value],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
     };
@@ -1454,7 +1513,7 @@ class AuditManager {
       1000,
     );
     final $query = <String, List<String>>{
-      'frameworkType': [frameworkType.toValue()],
+      'frameworkType': [frameworkType.value],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
     };
@@ -1533,7 +1592,7 @@ class AuditManager {
     final $query = <String, List<String>>{
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (status != null) 'status': [status.toValue()],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -1716,7 +1775,7 @@ class AuditManager {
       1000,
     );
     final $query = <String, List<String>>{
-      'controlType': [controlType.toValue()],
+      'controlType': [controlType.value],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
     };
@@ -1758,7 +1817,7 @@ class AuditManager {
       1000,
     );
     final $query = <String, List<String>>{
-      'source': [source.toValue()],
+      'source': [source.value],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
     };
@@ -2105,7 +2164,7 @@ class AuditManager {
   }) async {
     final $payload = <String, dynamic>{
       if (commentBody != null) 'commentBody': commentBody,
-      if (controlStatus != null) 'controlStatus': controlStatus.toValue(),
+      if (controlStatus != null) 'controlStatus': controlStatus.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2144,7 +2203,7 @@ class AuditManager {
   }) async {
     final $payload = <String, dynamic>{
       'comment': comment,
-      'status': status.toValue(),
+      'status': status.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2224,8 +2283,8 @@ class AuditManager {
     required ShareRequestType requestType,
   }) async {
     final $payload = <String, dynamic>{
-      'action': action.toValue(),
-      'requestType': requestType.toValue(),
+      'action': action.value,
+      'requestType': requestType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2255,7 +2314,7 @@ class AuditManager {
     required AssessmentStatus status,
   }) async {
     final $payload = <String, dynamic>{
-      'status': status.toValue(),
+      'status': status.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2327,7 +2386,10 @@ class AuditManager {
   /// May throw [InternalServerException].
   ///
   /// Parameter [defaultAssessmentReportsDestination] :
-  /// The default storage destination for assessment reports.
+  /// The default S3 destination bucket for storing assessment reports.
+  ///
+  /// Parameter [defaultExportDestination] :
+  /// The default S3 destination bucket for storing evidence finder exports.
   ///
   /// Parameter [defaultProcessOwners] :
   /// A list of the default audit owners.
@@ -2359,6 +2421,7 @@ class AuditManager {
   /// Manager sends notifications to.
   Future<UpdateSettingsResponse> updateSettings({
     AssessmentReportsDestination? defaultAssessmentReportsDestination,
+    DefaultExportDestination? defaultExportDestination,
     List<Role>? defaultProcessOwners,
     DeregistrationPolicy? deregistrationPolicy,
     bool? evidenceFinderEnabled,
@@ -2369,6 +2432,8 @@ class AuditManager {
       if (defaultAssessmentReportsDestination != null)
         'defaultAssessmentReportsDestination':
             defaultAssessmentReportsDestination,
+      if (defaultExportDestination != null)
+        'defaultExportDestination': defaultExportDestination,
       if (defaultProcessOwners != null)
         'defaultProcessOwners': defaultProcessOwners,
       if (deregistrationPolicy != null)
@@ -2492,94 +2557,39 @@ class AWSService {
 }
 
 enum AccountStatus {
-  active,
-  inactive,
-  pendingActivation,
-}
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  pendingActivation('PENDING_ACTIVATION'),
+  ;
 
-extension AccountStatusValueExtension on AccountStatus {
-  String toValue() {
-    switch (this) {
-      case AccountStatus.active:
-        return 'ACTIVE';
-      case AccountStatus.inactive:
-        return 'INACTIVE';
-      case AccountStatus.pendingActivation:
-        return 'PENDING_ACTIVATION';
-    }
-  }
-}
+  final String value;
 
-extension AccountStatusFromString on String {
-  AccountStatus toAccountStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return AccountStatus.active;
-      case 'INACTIVE':
-        return AccountStatus.inactive;
-      case 'PENDING_ACTIVATION':
-        return AccountStatus.pendingActivation;
-    }
-    throw Exception('$this is not known in enum AccountStatus');
-  }
+  const AccountStatus(this.value);
+
+  static AccountStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccountStatus'));
 }
 
 enum ActionEnum {
-  create,
-  updateMetadata,
-  active,
-  inactive,
-  delete,
-  underReview,
-  reviewed,
-  importEvidence,
-}
+  create('CREATE'),
+  updateMetadata('UPDATE_METADATA'),
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  delete('DELETE'),
+  underReview('UNDER_REVIEW'),
+  reviewed('REVIEWED'),
+  importEvidence('IMPORT_EVIDENCE'),
+  ;
 
-extension ActionEnumValueExtension on ActionEnum {
-  String toValue() {
-    switch (this) {
-      case ActionEnum.create:
-        return 'CREATE';
-      case ActionEnum.updateMetadata:
-        return 'UPDATE_METADATA';
-      case ActionEnum.active:
-        return 'ACTIVE';
-      case ActionEnum.inactive:
-        return 'INACTIVE';
-      case ActionEnum.delete:
-        return 'DELETE';
-      case ActionEnum.underReview:
-        return 'UNDER_REVIEW';
-      case ActionEnum.reviewed:
-        return 'REVIEWED';
-      case ActionEnum.importEvidence:
-        return 'IMPORT_EVIDENCE';
-    }
-  }
-}
+  final String value;
 
-extension ActionEnumFromString on String {
-  ActionEnum toActionEnum() {
-    switch (this) {
-      case 'CREATE':
-        return ActionEnum.create;
-      case 'UPDATE_METADATA':
-        return ActionEnum.updateMetadata;
-      case 'ACTIVE':
-        return ActionEnum.active;
-      case 'INACTIVE':
-        return ActionEnum.inactive;
-      case 'DELETE':
-        return ActionEnum.delete;
-      case 'UNDER_REVIEW':
-        return ActionEnum.underReview;
-      case 'REVIEWED':
-        return ActionEnum.reviewed;
-      case 'IMPORT_EVIDENCE':
-        return ActionEnum.importEvidence;
-    }
-    throw Exception('$this is not known in enum ActionEnum');
-  }
+  const ActionEnum(this.value);
+
+  static ActionEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ActionEnum'));
 }
 
 /// An entity that defines the scope of audit evidence collected by Audit
@@ -2691,19 +2701,19 @@ class AssessmentControl {
       assessmentReportEvidenceCount:
           json['assessmentReportEvidenceCount'] as int?,
       comments: (json['comments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ControlComment.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: json['description'] as String?,
       evidenceCount: json['evidenceCount'] as int?,
       evidenceSources: (json['evidenceSources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       id: json['id'] as String?,
       name: json['name'] as String?,
-      response: (json['response'] as String?)?.toControlResponse(),
-      status: (json['status'] as String?)?.toControlStatus(),
+      response: (json['response'] as String?)?.let(ControlResponse.fromString),
+      status: (json['status'] as String?)?.let(ControlStatus.fromString),
     );
   }
 
@@ -2726,8 +2736,8 @@ class AssessmentControl {
       if (evidenceSources != null) 'evidenceSources': evidenceSources,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (response != null) 'response': response.toValue(),
-      if (status != null) 'status': status.toValue(),
+      if (response != null) 'response': response.value,
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -2775,21 +2785,21 @@ class AssessmentControlSet {
   factory AssessmentControlSet.fromJson(Map<String, dynamic> json) {
     return AssessmentControlSet(
       controls: (json['controls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AssessmentControl.fromJson(e as Map<String, dynamic>))
           .toList(),
       delegations: (json['delegations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Delegation.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: json['description'] as String?,
       id: json['id'] as String?,
       manualEvidenceCount: json['manualEvidenceCount'] as int?,
       roles: (json['roles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Role.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toControlSetStatus(),
+      status: (json['status'] as String?)?.let(ControlSetStatus.fromString),
       systemEvidenceCount: json['systemEvidenceCount'] as int?,
     );
   }
@@ -2811,7 +2821,7 @@ class AssessmentControlSet {
       if (manualEvidenceCount != null)
         'manualEvidenceCount': manualEvidenceCount,
       if (roles != null) 'roles': roles,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (systemEvidenceCount != null)
         'systemEvidenceCount': systemEvidenceCount,
     };
@@ -3013,7 +3023,7 @@ class AssessmentFramework {
     return AssessmentFramework(
       arn: json['arn'] as String?,
       controlSets: (json['controlSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AssessmentControlSet.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['id'] as String?,
@@ -3100,7 +3110,7 @@ class AssessmentFrameworkMetadata {
       lastUpdatedAt: timeStampFromJson(json['lastUpdatedAt']),
       logo: json['logo'] as String?,
       name: json['name'] as String?,
-      type: (json['type'] as String?)?.toFrameworkType(),
+      type: (json['type'] as String?)?.let(FrameworkType.fromString),
     );
   }
 
@@ -3128,7 +3138,7 @@ class AssessmentFrameworkMetadata {
         'lastUpdatedAt': unixTimestampToJson(lastUpdatedAt),
       if (logo != null) 'logo': logo,
       if (name != null) 'name': name,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -3216,7 +3226,7 @@ class AssessmentFrameworkShareRequest {
       lastUpdated: timeStampFromJson(json['lastUpdated']),
       sourceAccount: json['sourceAccount'] as String?,
       standardControlsCount: json['standardControlsCount'] as int?,
-      status: (json['status'] as String?)?.toShareRequestStatus(),
+      status: (json['status'] as String?)?.let(ShareRequestStatus.fromString),
     );
   }
 
@@ -3256,7 +3266,7 @@ class AssessmentFrameworkShareRequest {
       if (sourceAccount != null) 'sourceAccount': sourceAccount,
       if (standardControlsCount != null)
         'standardControlsCount': standardControlsCount,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3321,7 +3331,7 @@ class AssessmentMetadata {
       complianceType: json['complianceType'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       delegations: (json['delegations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Delegation.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: json['description'] as String?,
@@ -3329,13 +3339,13 @@ class AssessmentMetadata {
       lastUpdated: timeStampFromJson(json['lastUpdated']),
       name: json['name'] as String?,
       roles: (json['roles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Role.fromJson(e as Map<String, dynamic>))
           .toList(),
       scope: json['scope'] != null
           ? Scope.fromJson(json['scope'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toAssessmentStatus(),
+      status: (json['status'] as String?)?.let(AssessmentStatus.fromString),
     );
   }
 
@@ -3364,7 +3374,7 @@ class AssessmentMetadata {
       if (name != null) 'name': name,
       if (roles != null) 'roles': roles,
       if (scope != null) 'scope': scope,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3412,17 +3422,17 @@ class AssessmentMetadataItem {
       complianceType: json['complianceType'] as String?,
       creationTime: timeStampFromJson(json['creationTime']),
       delegations: (json['delegations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Delegation.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['id'] as String?,
       lastUpdated: timeStampFromJson(json['lastUpdated']),
       name: json['name'] as String?,
       roles: (json['roles'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Role.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toAssessmentStatus(),
+      status: (json['status'] as String?)?.let(AssessmentStatus.fromString),
     );
   }
 
@@ -3444,7 +3454,7 @@ class AssessmentMetadataItem {
       if (lastUpdated != null) 'lastUpdated': unixTimestampToJson(lastUpdated),
       if (name != null) 'name': name,
       if (roles != null) 'roles': roles,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3504,7 +3514,8 @@ class AssessmentReport {
       description: json['description'] as String?,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toAssessmentReportStatus(),
+      status:
+          (json['status'] as String?)?.let(AssessmentReportStatus.fromString),
     );
   }
 
@@ -3528,34 +3539,23 @@ class AssessmentReport {
       if (description != null) 'description': description,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum AssessmentReportDestinationType {
-  s3,
-}
+  s3('S3'),
+  ;
 
-extension AssessmentReportDestinationTypeValueExtension
-    on AssessmentReportDestinationType {
-  String toValue() {
-    switch (this) {
-      case AssessmentReportDestinationType.s3:
-        return 'S3';
-    }
-  }
-}
+  final String value;
 
-extension AssessmentReportDestinationTypeFromString on String {
-  AssessmentReportDestinationType toAssessmentReportDestinationType() {
-    switch (this) {
-      case 'S3':
-        return AssessmentReportDestinationType.s3;
-    }
-    throw Exception(
-        '$this is not known in enum AssessmentReportDestinationType');
-  }
+  const AssessmentReportDestinationType(this.value);
+
+  static AssessmentReportDestinationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AssessmentReportDestinationType'));
 }
 
 /// An error entity for assessment report evidence errors. This is used to
@@ -3643,7 +3643,8 @@ class AssessmentReportMetadata {
       description: json['description'] as String?,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toAssessmentReportStatus(),
+      status:
+          (json['status'] as String?)?.let(AssessmentReportStatus.fromString),
     );
   }
 
@@ -3665,48 +3666,31 @@ class AssessmentReportMetadata {
       if (description != null) 'description': description,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum AssessmentReportStatus {
-  complete,
-  inProgress,
-  failed,
-}
+  complete('COMPLETE'),
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  ;
 
-extension AssessmentReportStatusValueExtension on AssessmentReportStatus {
-  String toValue() {
-    switch (this) {
-      case AssessmentReportStatus.complete:
-        return 'COMPLETE';
-      case AssessmentReportStatus.inProgress:
-        return 'IN_PROGRESS';
-      case AssessmentReportStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension AssessmentReportStatusFromString on String {
-  AssessmentReportStatus toAssessmentReportStatus() {
-    switch (this) {
-      case 'COMPLETE':
-        return AssessmentReportStatus.complete;
-      case 'IN_PROGRESS':
-        return AssessmentReportStatus.inProgress;
-      case 'FAILED':
-        return AssessmentReportStatus.failed;
-    }
-    throw Exception('$this is not known in enum AssessmentReportStatus');
-  }
+  const AssessmentReportStatus(this.value);
+
+  static AssessmentReportStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AssessmentReportStatus'));
 }
 
 /// The location where Audit Manager saves assessment reports for the given
 /// assessment.
 class AssessmentReportsDestination {
-  /// The destination of the assessment report.
+  /// The destination bucket where Audit Manager stores assessment reports.
   final String? destination;
 
   /// The destination type, such as Amazon S3.
@@ -3721,7 +3705,7 @@ class AssessmentReportsDestination {
     return AssessmentReportsDestination(
       destination: json['destination'] as String?,
       destinationType: (json['destinationType'] as String?)
-          ?.toAssessmentReportDestinationType(),
+          ?.let(AssessmentReportDestinationType.fromString),
     );
   }
 
@@ -3730,37 +3714,24 @@ class AssessmentReportsDestination {
     final destinationType = this.destinationType;
     return {
       if (destination != null) 'destination': destination,
-      if (destinationType != null) 'destinationType': destinationType.toValue(),
+      if (destinationType != null) 'destinationType': destinationType.value,
     };
   }
 }
 
 enum AssessmentStatus {
-  active,
-  inactive,
-}
+  active('ACTIVE'),
+  inactive('INACTIVE'),
+  ;
 
-extension AssessmentStatusValueExtension on AssessmentStatus {
-  String toValue() {
-    switch (this) {
-      case AssessmentStatus.active:
-        return 'ACTIVE';
-      case AssessmentStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension AssessmentStatusFromString on String {
-  AssessmentStatus toAssessmentStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return AssessmentStatus.active;
-      case 'INACTIVE':
-        return AssessmentStatus.inactive;
-    }
-    throw Exception('$this is not known in enum AssessmentStatus');
-  }
+  const AssessmentStatus(this.value);
+
+  static AssessmentStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssessmentStatus'));
 }
 
 class AssociateAssessmentReportEvidenceFolderResponse {
@@ -3793,12 +3764,12 @@ class BatchAssociateAssessmentReportEvidenceResponse {
       Map<String, dynamic> json) {
     return BatchAssociateAssessmentReportEvidenceResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AssessmentReportEvidenceError.fromJson(e as Map<String, dynamic>))
           .toList(),
       evidenceIds: (json['evidenceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3876,11 +3847,11 @@ class BatchCreateDelegationByAssessmentResponse {
       Map<String, dynamic> json) {
     return BatchCreateDelegationByAssessmentResponse(
       delegations: (json['delegations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Delegation.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchCreateDelegationByAssessmentError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3951,7 +3922,7 @@ class BatchDeleteDelegationByAssessmentResponse {
       Map<String, dynamic> json) {
     return BatchDeleteDelegationByAssessmentResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchDeleteDelegationByAssessmentError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3983,12 +3954,12 @@ class BatchDisassociateAssessmentReportEvidenceResponse {
       Map<String, dynamic> json) {
     return BatchDisassociateAssessmentReportEvidenceResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AssessmentReportEvidenceError.fromJson(e as Map<String, dynamic>))
           .toList(),
       evidenceIds: (json['evidenceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4062,7 +4033,7 @@ class BatchImportEvidenceToAssessmentControlResponse {
       Map<String, dynamic> json) {
     return BatchImportEvidenceToAssessmentControlResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchImportEvidenceToAssessmentControlError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4106,11 +4077,12 @@ class ChangeLog {
 
   factory ChangeLog.fromJson(Map<String, dynamic> json) {
     return ChangeLog(
-      action: (json['action'] as String?)?.toActionEnum(),
+      action: (json['action'] as String?)?.let(ActionEnum.fromString),
       createdAt: timeStampFromJson(json['createdAt']),
       createdBy: json['createdBy'] as String?,
       objectName: json['objectName'] as String?,
-      objectType: (json['objectType'] as String?)?.toObjectTypeEnum(),
+      objectType:
+          (json['objectType'] as String?)?.let(ObjectTypeEnum.fromString),
     );
   }
 
@@ -4121,11 +4093,11 @@ class ChangeLog {
     final objectName = this.objectName;
     final objectType = this.objectType;
     return {
-      if (action != null) 'action': action.toValue(),
+      if (action != null) 'action': action.value,
       if (createdAt != null) 'createdAt': unixTimestampToJson(createdAt),
       if (createdBy != null) 'createdBy': createdBy,
       if (objectName != null) 'objectName': objectName,
-      if (objectType != null) 'objectType': objectType.toValue(),
+      if (objectType != null) 'objectType': objectType.value,
     };
   }
 }
@@ -4176,7 +4148,7 @@ class Control {
   /// satisfied.
   final String? testingInformation;
 
-  /// The type of control, such as a custom control or a standard control.
+  /// Specifies whether the control is a standard control or a custom control.
   final ControlType? type;
 
   Control({
@@ -4203,7 +4175,7 @@ class Control {
       actionPlanTitle: json['actionPlanTitle'] as String?,
       arn: json['arn'] as String?,
       controlMappingSources: (json['controlMappingSources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ControlMappingSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       controlSources: json['controlSources'] as String?,
@@ -4217,7 +4189,7 @@ class Control {
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       testingInformation: json['testingInformation'] as String?,
-      type: (json['type'] as String?)?.toControlType(),
+      type: (json['type'] as String?)?.let(ControlType.fromString),
     );
   }
 
@@ -4255,7 +4227,7 @@ class Control {
       if (name != null) 'name': name,
       if (tags != null) 'tags': tags,
       if (testingInformation != null) 'testingInformation': testingInformation,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -4486,7 +4458,7 @@ class ControlMappingSource {
   /// The description of the source.
   final String? sourceDescription;
 
-  /// The frequency of evidence collection for the control mapping source.
+  /// Specifies how often evidence is collected from the control mapping source.
   final SourceFrequency? sourceFrequency;
 
   /// The unique identifier for the source.
@@ -4521,16 +4493,16 @@ class ControlMappingSource {
     return ControlMappingSource(
       sourceDescription: json['sourceDescription'] as String?,
       sourceFrequency:
-          (json['sourceFrequency'] as String?)?.toSourceFrequency(),
+          (json['sourceFrequency'] as String?)?.let(SourceFrequency.fromString),
       sourceId: json['sourceId'] as String?,
       sourceKeyword: json['sourceKeyword'] != null
           ? SourceKeyword.fromJson(
               json['sourceKeyword'] as Map<String, dynamic>)
           : null,
       sourceName: json['sourceName'] as String?,
-      sourceSetUpOption:
-          (json['sourceSetUpOption'] as String?)?.toSourceSetUpOption(),
-      sourceType: (json['sourceType'] as String?)?.toSourceType(),
+      sourceSetUpOption: (json['sourceSetUpOption'] as String?)
+          ?.let(SourceSetUpOption.fromString),
+      sourceType: (json['sourceType'] as String?)?.let(SourceType.fromString),
       troubleshootingText: json['troubleshootingText'] as String?,
     );
   }
@@ -4546,13 +4518,13 @@ class ControlMappingSource {
     final troubleshootingText = this.troubleshootingText;
     return {
       if (sourceDescription != null) 'sourceDescription': sourceDescription,
-      if (sourceFrequency != null) 'sourceFrequency': sourceFrequency.toValue(),
+      if (sourceFrequency != null) 'sourceFrequency': sourceFrequency.value,
       if (sourceId != null) 'sourceId': sourceId,
       if (sourceKeyword != null) 'sourceKeyword': sourceKeyword,
       if (sourceName != null) 'sourceName': sourceName,
       if (sourceSetUpOption != null)
-        'sourceSetUpOption': sourceSetUpOption.toValue(),
-      if (sourceType != null) 'sourceType': sourceType.toValue(),
+        'sourceSetUpOption': sourceSetUpOption.value,
+      if (sourceType != null) 'sourceType': sourceType.value,
       if (troubleshootingText != null)
         'troubleshootingText': troubleshootingText,
     };
@@ -4620,41 +4592,20 @@ class ControlMetadata {
 }
 
 enum ControlResponse {
-  manual,
-  automate,
-  defer,
-  ignore,
-}
+  manual('MANUAL'),
+  automate('AUTOMATE'),
+  defer('DEFER'),
+  ignore('IGNORE'),
+  ;
 
-extension ControlResponseValueExtension on ControlResponse {
-  String toValue() {
-    switch (this) {
-      case ControlResponse.manual:
-        return 'MANUAL';
-      case ControlResponse.automate:
-        return 'AUTOMATE';
-      case ControlResponse.defer:
-        return 'DEFER';
-      case ControlResponse.ignore:
-        return 'IGNORE';
-    }
-  }
-}
+  final String value;
 
-extension ControlResponseFromString on String {
-  ControlResponse toControlResponse() {
-    switch (this) {
-      case 'MANUAL':
-        return ControlResponse.manual;
-      case 'AUTOMATE':
-        return ControlResponse.automate;
-      case 'DEFER':
-        return ControlResponse.defer;
-      case 'IGNORE':
-        return ControlResponse.ignore;
-    }
-    throw Exception('$this is not known in enum ControlResponse');
-  }
+  const ControlResponse(this.value);
+
+  static ControlResponse fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ControlResponse'));
 }
 
 /// A set of controls in Audit Manager.
@@ -4678,7 +4629,7 @@ class ControlSet {
   factory ControlSet.fromJson(Map<String, dynamic> json) {
     return ControlSet(
       controls: (json['controls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Control.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['id'] as String?,
@@ -4699,97 +4650,49 @@ class ControlSet {
 }
 
 enum ControlSetStatus {
-  active,
-  underReview,
-  reviewed,
-}
+  active('ACTIVE'),
+  underReview('UNDER_REVIEW'),
+  reviewed('REVIEWED'),
+  ;
 
-extension ControlSetStatusValueExtension on ControlSetStatus {
-  String toValue() {
-    switch (this) {
-      case ControlSetStatus.active:
-        return 'ACTIVE';
-      case ControlSetStatus.underReview:
-        return 'UNDER_REVIEW';
-      case ControlSetStatus.reviewed:
-        return 'REVIEWED';
-    }
-  }
-}
+  final String value;
 
-extension ControlSetStatusFromString on String {
-  ControlSetStatus toControlSetStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return ControlSetStatus.active;
-      case 'UNDER_REVIEW':
-        return ControlSetStatus.underReview;
-      case 'REVIEWED':
-        return ControlSetStatus.reviewed;
-    }
-    throw Exception('$this is not known in enum ControlSetStatus');
-  }
+  const ControlSetStatus(this.value);
+
+  static ControlSetStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ControlSetStatus'));
 }
 
 enum ControlStatus {
-  underReview,
-  reviewed,
-  inactive,
-}
+  underReview('UNDER_REVIEW'),
+  reviewed('REVIEWED'),
+  inactive('INACTIVE'),
+  ;
 
-extension ControlStatusValueExtension on ControlStatus {
-  String toValue() {
-    switch (this) {
-      case ControlStatus.underReview:
-        return 'UNDER_REVIEW';
-      case ControlStatus.reviewed:
-        return 'REVIEWED';
-      case ControlStatus.inactive:
-        return 'INACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension ControlStatusFromString on String {
-  ControlStatus toControlStatus() {
-    switch (this) {
-      case 'UNDER_REVIEW':
-        return ControlStatus.underReview;
-      case 'REVIEWED':
-        return ControlStatus.reviewed;
-      case 'INACTIVE':
-        return ControlStatus.inactive;
-    }
-    throw Exception('$this is not known in enum ControlStatus');
-  }
+  const ControlStatus(this.value);
+
+  static ControlStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ControlStatus'));
 }
 
 enum ControlType {
-  standard,
-  custom,
-}
+  standard('Standard'),
+  custom('Custom'),
+  ;
 
-extension ControlTypeValueExtension on ControlType {
-  String toValue() {
-    switch (this) {
-      case ControlType.standard:
-        return 'Standard';
-      case ControlType.custom:
-        return 'Custom';
-    }
-  }
-}
+  final String value;
 
-extension ControlTypeFromString on String {
-  ControlType toControlType() {
-    switch (this) {
-      case 'Standard':
-        return ControlType.standard;
-      case 'Custom':
-        return ControlType.custom;
-    }
-    throw Exception('$this is not known in enum ControlType');
-  }
+  const ControlType(this.value);
+
+  static ControlType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ControlType'));
 }
 
 /// The control entity attributes that uniquely identify an existing control to
@@ -4918,7 +4821,7 @@ class CreateControlMappingSource {
   /// collects evidence from for the control.
   final String? sourceDescription;
 
-  /// The frequency of evidence collection for the control mapping source.
+  /// Specifies how often evidence is collected from the control mapping source.
   final SourceFrequency? sourceFrequency;
   final SourceKeyword? sourceKeyword;
 
@@ -4955,12 +4858,12 @@ class CreateControlMappingSource {
     final troubleshootingText = this.troubleshootingText;
     return {
       if (sourceDescription != null) 'sourceDescription': sourceDescription,
-      if (sourceFrequency != null) 'sourceFrequency': sourceFrequency.toValue(),
+      if (sourceFrequency != null) 'sourceFrequency': sourceFrequency.value,
       if (sourceKeyword != null) 'sourceKeyword': sourceKeyword,
       if (sourceName != null) 'sourceName': sourceName,
       if (sourceSetUpOption != null)
-        'sourceSetUpOption': sourceSetUpOption.toValue(),
-      if (sourceType != null) 'sourceType': sourceType.toValue(),
+        'sourceSetUpOption': sourceSetUpOption.value,
+      if (sourceType != null) 'sourceType': sourceType.value,
       if (troubleshootingText != null)
         'troubleshootingText': troubleshootingText,
     };
@@ -5028,7 +4931,7 @@ class CreateDelegationRequest {
       comment: json['comment'] as String?,
       controlSetId: json['controlSetId'] as String?,
       roleArn: json['roleArn'] as String?,
-      roleType: (json['roleType'] as String?)?.toRoleType(),
+      roleType: (json['roleType'] as String?)?.let(RoleType.fromString),
     );
   }
 
@@ -5041,7 +4944,39 @@ class CreateDelegationRequest {
       if (comment != null) 'comment': comment,
       if (controlSetId != null) 'controlSetId': controlSetId,
       if (roleArn != null) 'roleArn': roleArn,
-      if (roleType != null) 'roleType': roleType.toValue(),
+      if (roleType != null) 'roleType': roleType.value,
+    };
+  }
+}
+
+/// The default s3 bucket where Audit Manager saves the files that you export
+/// from evidence finder.
+class DefaultExportDestination {
+  /// The destination bucket where Audit Manager stores exported files.
+  final String? destination;
+
+  /// The destination type, such as Amazon S3.
+  final ExportDestinationType? destinationType;
+
+  DefaultExportDestination({
+    this.destination,
+    this.destinationType,
+  });
+
+  factory DefaultExportDestination.fromJson(Map<String, dynamic> json) {
+    return DefaultExportDestination(
+      destination: json['destination'] as String?,
+      destinationType: (json['destinationType'] as String?)
+          ?.let(ExportDestinationType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final destination = this.destination;
+    final destinationType = this.destinationType;
+    return {
+      if (destination != null) 'destination': destination,
+      if (destinationType != null) 'destinationType': destinationType.value,
     };
   }
 }
@@ -5116,8 +5051,8 @@ class Delegation {
       id: json['id'] as String?,
       lastUpdated: timeStampFromJson(json['lastUpdated']),
       roleArn: json['roleArn'] as String?,
-      roleType: (json['roleType'] as String?)?.toRoleType(),
-      status: (json['status'] as String?)?.toDelegationStatus(),
+      roleType: (json['roleType'] as String?)?.let(RoleType.fromString),
+      status: (json['status'] as String?)?.let(DelegationStatus.fromString),
     );
   }
 
@@ -5144,8 +5079,8 @@ class Delegation {
       if (id != null) 'id': id,
       if (lastUpdated != null) 'lastUpdated': unixTimestampToJson(lastUpdated),
       if (roleArn != null) 'roleArn': roleArn,
-      if (roleType != null) 'roleType': roleType.toValue(),
-      if (status != null) 'status': status.toValue(),
+      if (roleType != null) 'roleType': roleType.value,
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5191,7 +5126,7 @@ class DelegationMetadata {
       creationTime: timeStampFromJson(json['creationTime']),
       id: json['id'] as String?,
       roleArn: json['roleArn'] as String?,
-      status: (json['status'] as String?)?.toDelegationStatus(),
+      status: (json['status'] as String?)?.let(DelegationStatus.fromString),
     );
   }
 
@@ -5211,42 +5146,25 @@ class DelegationMetadata {
         'creationTime': unixTimestampToJson(creationTime),
       if (id != null) 'id': id,
       if (roleArn != null) 'roleArn': roleArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum DelegationStatus {
-  inProgress,
-  underReview,
-  complete,
-}
+  inProgress('IN_PROGRESS'),
+  underReview('UNDER_REVIEW'),
+  complete('COMPLETE'),
+  ;
 
-extension DelegationStatusValueExtension on DelegationStatus {
-  String toValue() {
-    switch (this) {
-      case DelegationStatus.inProgress:
-        return 'IN_PROGRESS';
-      case DelegationStatus.underReview:
-        return 'UNDER_REVIEW';
-      case DelegationStatus.complete:
-        return 'COMPLETE';
-    }
-  }
-}
+  final String value;
 
-extension DelegationStatusFromString on String {
-  DelegationStatus toDelegationStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return DelegationStatus.inProgress;
-      case 'UNDER_REVIEW':
-        return DelegationStatus.underReview;
-      case 'COMPLETE':
-        return DelegationStatus.complete;
-    }
-    throw Exception('$this is not known in enum DelegationStatus');
-  }
+  const DelegationStatus(this.value);
+
+  static DelegationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DelegationStatus'));
 }
 
 class DeleteAssessmentFrameworkResponse {
@@ -5311,31 +5229,18 @@ class DeleteControlResponse {
 }
 
 enum DeleteResources {
-  all,
-  $default,
-}
+  all('ALL'),
+  $default('DEFAULT'),
+  ;
 
-extension DeleteResourcesValueExtension on DeleteResources {
-  String toValue() {
-    switch (this) {
-      case DeleteResources.all:
-        return 'ALL';
-      case DeleteResources.$default:
-        return 'DEFAULT';
-    }
-  }
-}
+  final String value;
 
-extension DeleteResourcesFromString on String {
-  DeleteResources toDeleteResources() {
-    switch (this) {
-      case 'ALL':
-        return DeleteResources.all;
-      case 'DEFAULT':
-        return DeleteResources.$default;
-    }
-    throw Exception('$this is not known in enum DeleteResources');
-  }
+  const DeleteResources(this.value);
+
+  static DeleteResources fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeleteResources'));
 }
 
 class DeregisterAccountResponse {
@@ -5348,14 +5253,14 @@ class DeregisterAccountResponse {
 
   factory DeregisterAccountResponse.fromJson(Map<String, dynamic> json) {
     return DeregisterAccountResponse(
-      status: (json['status'] as String?)?.toAccountStatus(),
+      status: (json['status'] as String?)?.let(AccountStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5420,14 +5325,14 @@ class DeregistrationPolicy {
   factory DeregistrationPolicy.fromJson(Map<String, dynamic> json) {
     return DeregistrationPolicy(
       deleteResources:
-          (json['deleteResources'] as String?)?.toDeleteResources(),
+          (json['deleteResources'] as String?)?.let(DeleteResources.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final deleteResources = this.deleteResources;
     return {
-      if (deleteResources != null) 'deleteResources': deleteResources.toValue(),
+      if (deleteResources != null) 'deleteResources': deleteResources.value,
     };
   }
 }
@@ -5553,7 +5458,7 @@ class Evidence {
       iamId: json['iamId'] as String?,
       id: json['id'] as String?,
       resourcesIncluded: (json['resourcesIncluded'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Resource.fromJson(e as Map<String, dynamic>))
           .toList(),
       time: timeStampFromJson(json['time']),
@@ -5599,37 +5504,19 @@ class Evidence {
 }
 
 enum EvidenceFinderBackfillStatus {
-  notStarted,
-  inProgress,
-  completed,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  ;
 
-extension EvidenceFinderBackfillStatusValueExtension
-    on EvidenceFinderBackfillStatus {
-  String toValue() {
-    switch (this) {
-      case EvidenceFinderBackfillStatus.notStarted:
-        return 'NOT_STARTED';
-      case EvidenceFinderBackfillStatus.inProgress:
-        return 'IN_PROGRESS';
-      case EvidenceFinderBackfillStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension EvidenceFinderBackfillStatusFromString on String {
-  EvidenceFinderBackfillStatus toEvidenceFinderBackfillStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return EvidenceFinderBackfillStatus.notStarted;
-      case 'IN_PROGRESS':
-        return EvidenceFinderBackfillStatus.inProgress;
-      case 'COMPLETED':
-        return EvidenceFinderBackfillStatus.completed;
-    }
-    throw Exception('$this is not known in enum EvidenceFinderBackfillStatus');
-  }
+  const EvidenceFinderBackfillStatus(this.value);
+
+  static EvidenceFinderBackfillStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EvidenceFinderBackfillStatus'));
 }
 
 /// The settings object that specifies whether evidence finder is enabled. This
@@ -5704,10 +5591,10 @@ class EvidenceFinderEnablement {
 
   factory EvidenceFinderEnablement.fromJson(Map<String, dynamic> json) {
     return EvidenceFinderEnablement(
-      backfillStatus:
-          (json['backfillStatus'] as String?)?.toEvidenceFinderBackfillStatus(),
+      backfillStatus: (json['backfillStatus'] as String?)
+          ?.let(EvidenceFinderBackfillStatus.fromString),
       enablementStatus: (json['enablementStatus'] as String?)
-          ?.toEvidenceFinderEnablementStatus(),
+          ?.let(EvidenceFinderEnablementStatus.fromString),
       error: json['error'] as String?,
       eventDataStoreArn: json['eventDataStoreArn'] as String?,
     );
@@ -5719,9 +5606,8 @@ class EvidenceFinderEnablement {
     final error = this.error;
     final eventDataStoreArn = this.eventDataStoreArn;
     return {
-      if (backfillStatus != null) 'backfillStatus': backfillStatus.toValue(),
-      if (enablementStatus != null)
-        'enablementStatus': enablementStatus.toValue(),
+      if (backfillStatus != null) 'backfillStatus': backfillStatus.value,
+      if (enablementStatus != null) 'enablementStatus': enablementStatus.value,
       if (error != null) 'error': error,
       if (eventDataStoreArn != null) 'eventDataStoreArn': eventDataStoreArn,
     };
@@ -5729,43 +5615,20 @@ class EvidenceFinderEnablement {
 }
 
 enum EvidenceFinderEnablementStatus {
-  enabled,
-  disabled,
-  enableInProgress,
-  disableInProgress,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  enableInProgress('ENABLE_IN_PROGRESS'),
+  disableInProgress('DISABLE_IN_PROGRESS'),
+  ;
 
-extension EvidenceFinderEnablementStatusValueExtension
-    on EvidenceFinderEnablementStatus {
-  String toValue() {
-    switch (this) {
-      case EvidenceFinderEnablementStatus.enabled:
-        return 'ENABLED';
-      case EvidenceFinderEnablementStatus.disabled:
-        return 'DISABLED';
-      case EvidenceFinderEnablementStatus.enableInProgress:
-        return 'ENABLE_IN_PROGRESS';
-      case EvidenceFinderEnablementStatus.disableInProgress:
-        return 'DISABLE_IN_PROGRESS';
-    }
-  }
-}
+  final String value;
 
-extension EvidenceFinderEnablementStatusFromString on String {
-  EvidenceFinderEnablementStatus toEvidenceFinderEnablementStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return EvidenceFinderEnablementStatus.enabled;
-      case 'DISABLED':
-        return EvidenceFinderEnablementStatus.disabled;
-      case 'ENABLE_IN_PROGRESS':
-        return EvidenceFinderEnablementStatus.enableInProgress;
-      case 'DISABLE_IN_PROGRESS':
-        return EvidenceFinderEnablementStatus.disableInProgress;
-    }
-    throw Exception(
-        '$this is not known in enum EvidenceFinderEnablementStatus');
-  }
+  const EvidenceFinderEnablementStatus(this.value);
+
+  static EvidenceFinderEnablementStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EvidenceFinderEnablementStatus'));
 }
 
 /// A breakdown of the latest compliance check status for the evidence in your
@@ -5824,20 +5687,33 @@ class EvidenceInsights {
   }
 }
 
+enum ExportDestinationType {
+  s3('S3'),
+  ;
+
+  final String value;
+
+  const ExportDestinationType(this.value);
+
+  static ExportDestinationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ExportDestinationType'));
+}
+
 /// The file that's used to structure and automate Audit Manager assessments for
 /// a given compliance standard.
 class Framework {
   /// The Amazon Resource Name (ARN) of the framework.
   final String? arn;
 
-  /// The compliance type that the new custom framework supports, such as CIS or
-  /// HIPAA.
+  /// The compliance type that the framework supports, such as CIS or HIPAA.
   final String? complianceType;
 
   /// The control sets that are associated with the framework.
   final List<ControlSet>? controlSets;
 
-  /// The sources that Audit Manager collects evidence from for the control.
+  /// The control data sources where Audit Manager collects evidence from.
   final String? controlSources;
 
   /// The time when the framework was created.
@@ -5867,7 +5743,8 @@ class Framework {
   /// The tags that are associated with the framework.
   final Map<String, String>? tags;
 
-  /// The framework type, such as a custom framework or a standard framework.
+  /// Specifies whether the framework is a standard framework or a custom
+  /// framework.
   final FrameworkType? type;
 
   Framework({
@@ -5892,7 +5769,7 @@ class Framework {
       arn: json['arn'] as String?,
       complianceType: json['complianceType'] as String?,
       controlSets: (json['controlSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ControlSet.fromJson(e as Map<String, dynamic>))
           .toList(),
       controlSources: json['controlSources'] as String?,
@@ -5906,7 +5783,7 @@ class Framework {
       name: json['name'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      type: (json['type'] as String?)?.toFrameworkType(),
+      type: (json['type'] as String?)?.let(FrameworkType.fromString),
     );
   }
 
@@ -5940,7 +5817,7 @@ class Framework {
       if (logo != null) 'logo': logo,
       if (name != null) 'name': name,
       if (tags != null) 'tags': tags,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -5991,31 +5868,18 @@ class FrameworkMetadata {
 }
 
 enum FrameworkType {
-  standard,
-  custom,
-}
+  standard('Standard'),
+  custom('Custom'),
+  ;
 
-extension FrameworkTypeValueExtension on FrameworkType {
-  String toValue() {
-    switch (this) {
-      case FrameworkType.standard:
-        return 'Standard';
-      case FrameworkType.custom:
-        return 'Custom';
-    }
-  }
-}
+  final String value;
 
-extension FrameworkTypeFromString on String {
-  FrameworkType toFrameworkType() {
-    switch (this) {
-      case 'Standard':
-        return FrameworkType.standard;
-      case 'Custom':
-        return FrameworkType.custom;
-    }
-    throw Exception('$this is not known in enum FrameworkType');
-  }
+  const FrameworkType(this.value);
+
+  static FrameworkType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FrameworkType'));
 }
 
 class GetAccountStatusResponse {
@@ -6028,14 +5892,14 @@ class GetAccountStatusResponse {
 
   factory GetAccountStatusResponse.fromJson(Map<String, dynamic> json) {
     return GetAccountStatusResponse(
-      status: (json['status'] as String?)?.toAccountStatus(),
+      status: (json['status'] as String?)?.let(AccountStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6132,7 +5996,7 @@ class GetChangeLogsResponse {
   factory GetChangeLogsResponse.fromJson(Map<String, dynamic> json) {
     return GetChangeLogsResponse(
       changeLogs: (json['changeLogs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChangeLog.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6150,7 +6014,7 @@ class GetChangeLogsResponse {
 }
 
 class GetControlResponse {
-  /// The name of the control that the <code>GetControl</code> API returned.
+  /// The details of the control that the <code>GetControl</code> API returned.
   final Control? control;
 
   GetControlResponse({
@@ -6188,7 +6052,7 @@ class GetDelegationsResponse {
   factory GetDelegationsResponse.fromJson(Map<String, dynamic> json) {
     return GetDelegationsResponse(
       delegations: (json['delegations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DelegationMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6222,7 +6086,7 @@ class GetEvidenceByEvidenceFolderResponse {
       Map<String, dynamic> json) {
     return GetEvidenceByEvidenceFolderResponse(
       evidence: (json['evidence'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Evidence.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6235,6 +6099,36 @@ class GetEvidenceByEvidenceFolderResponse {
     return {
       if (evidence != null) 'evidence': evidence,
       if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class GetEvidenceFileUploadUrlResponse {
+  /// The name of the uploaded manual evidence file that the presigned URL was
+  /// generated for.
+  final String? evidenceFileName;
+
+  /// The presigned URL that was generated.
+  final String? uploadUrl;
+
+  GetEvidenceFileUploadUrlResponse({
+    this.evidenceFileName,
+    this.uploadUrl,
+  });
+
+  factory GetEvidenceFileUploadUrlResponse.fromJson(Map<String, dynamic> json) {
+    return GetEvidenceFileUploadUrlResponse(
+      evidenceFileName: json['evidenceFileName'] as String?,
+      uploadUrl: json['uploadUrl'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final evidenceFileName = this.evidenceFileName;
+    final uploadUrl = this.uploadUrl;
+    return {
+      if (evidenceFileName != null) 'evidenceFileName': evidenceFileName,
+      if (uploadUrl != null) 'uploadUrl': uploadUrl,
     };
   }
 }
@@ -6281,7 +6175,7 @@ class GetEvidenceFoldersByAssessmentControlResponse {
       Map<String, dynamic> json) {
     return GetEvidenceFoldersByAssessmentControlResponse(
       evidenceFolders: (json['evidenceFolders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AssessmentEvidenceFolder.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6316,7 +6210,7 @@ class GetEvidenceFoldersByAssessmentResponse {
       Map<String, dynamic> json) {
     return GetEvidenceFoldersByAssessmentResponse(
       evidenceFolders: (json['evidenceFolders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AssessmentEvidenceFolder.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6449,7 +6343,7 @@ class GetServicesInScopeResponse {
   factory GetServicesInScopeResponse.fromJson(Map<String, dynamic> json) {
     return GetServicesInScopeResponse(
       serviceMetadata: (json['serviceMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6716,26 +6610,19 @@ class InsightsByAssessment {
 }
 
 enum KeywordInputType {
-  selectFromList,
-}
+  selectFromList('SELECT_FROM_LIST'),
+  uploadFile('UPLOAD_FILE'),
+  inputText('INPUT_TEXT'),
+  ;
 
-extension KeywordInputTypeValueExtension on KeywordInputType {
-  String toValue() {
-    switch (this) {
-      case KeywordInputType.selectFromList:
-        return 'SELECT_FROM_LIST';
-    }
-  }
-}
+  final String value;
 
-extension KeywordInputTypeFromString on String {
-  KeywordInputType toKeywordInputType() {
-    switch (this) {
-      case 'SELECT_FROM_LIST':
-        return KeywordInputType.selectFromList;
-    }
-    throw Exception('$this is not known in enum KeywordInputType');
-  }
+  const KeywordInputType(this.value);
+
+  static KeywordInputType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum KeywordInputType'));
 }
 
 class ListAssessmentControlInsightsByControlDomainResponse {
@@ -6757,7 +6644,7 @@ class ListAssessmentControlInsightsByControlDomainResponse {
     return ListAssessmentControlInsightsByControlDomainResponse(
       controlInsightsByAssessment:
           (json['controlInsightsByAssessment'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ControlInsightsMetadataByAssessmentItem.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -6794,7 +6681,7 @@ class ListAssessmentFrameworkShareRequestsResponse {
     return ListAssessmentFrameworkShareRequestsResponse(
       assessmentFrameworkShareRequests:
           (json['assessmentFrameworkShareRequests'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AssessmentFrameworkShareRequest.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -6815,7 +6702,8 @@ class ListAssessmentFrameworkShareRequestsResponse {
 }
 
 class ListAssessmentFrameworksResponse {
-  /// The list of metadata objects for the framework.
+  /// A list of metadata that the <code>ListAssessmentFrameworks</code> API
+  /// returns for each framework.
   final List<AssessmentFrameworkMetadata>? frameworkMetadataList;
 
   /// The pagination token that's used to fetch the next set of results.
@@ -6829,7 +6717,7 @@ class ListAssessmentFrameworksResponse {
   factory ListAssessmentFrameworksResponse.fromJson(Map<String, dynamic> json) {
     return ListAssessmentFrameworksResponse(
       frameworkMetadataList: (json['frameworkMetadataList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AssessmentFrameworkMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6864,7 +6752,7 @@ class ListAssessmentReportsResponse {
   factory ListAssessmentReportsResponse.fromJson(Map<String, dynamic> json) {
     return ListAssessmentReportsResponse(
       assessmentReports: (json['assessmentReports'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AssessmentReportMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6883,7 +6771,8 @@ class ListAssessmentReportsResponse {
 }
 
 class ListAssessmentsResponse {
-  /// The metadata that's associated with the assessment.
+  /// The metadata that the <code>ListAssessments</code> API returns for each
+  /// assessment.
   final List<AssessmentMetadataItem>? assessmentMetadata;
 
   /// The pagination token that's used to fetch the next set of results.
@@ -6897,7 +6786,7 @@ class ListAssessmentsResponse {
   factory ListAssessmentsResponse.fromJson(Map<String, dynamic> json) {
     return ListAssessmentsResponse(
       assessmentMetadata: (json['assessmentMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AssessmentMetadataItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6932,7 +6821,7 @@ class ListControlDomainInsightsByAssessmentResponse {
       Map<String, dynamic> json) {
     return ListControlDomainInsightsByAssessmentResponse(
       controlDomainInsights: (json['controlDomainInsights'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ControlDomainInsights.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -6967,7 +6856,7 @@ class ListControlDomainInsightsResponse {
       Map<String, dynamic> json) {
     return ListControlDomainInsightsResponse(
       controlDomainInsights: (json['controlDomainInsights'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ControlDomainInsights.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -7002,7 +6891,7 @@ class ListControlInsightsByControlDomainResponse {
       Map<String, dynamic> json) {
     return ListControlInsightsByControlDomainResponse(
       controlInsightsMetadata: (json['controlInsightsMetadata'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ControlInsightsMetadataItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7022,8 +6911,8 @@ class ListControlInsightsByControlDomainResponse {
 }
 
 class ListControlsResponse {
-  /// The list of control metadata objects that the <code>ListControls</code> API
-  /// returned.
+  /// A list of metadata that the <code>ListControls</code> API returns for each
+  /// control.
   final List<ControlMetadata>? controlMetadataList;
 
   /// The pagination token that's used to fetch the next set of results.
@@ -7037,7 +6926,7 @@ class ListControlsResponse {
   factory ListControlsResponse.fromJson(Map<String, dynamic> json) {
     return ListControlsResponse(
       controlMetadataList: (json['controlMetadataList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ControlMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -7071,7 +6960,7 @@ class ListKeywordsForDataSourceResponse {
       Map<String, dynamic> json) {
     return ListKeywordsForDataSourceResponse(
       keywords: (json['keywords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -7104,7 +6993,7 @@ class ListNotificationsResponse {
     return ListNotificationsResponse(
       nextToken: json['nextToken'] as String?,
       notifications: (json['notifications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Notification.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7143,25 +7032,45 @@ class ListTagsForResourceResponse {
   }
 }
 
-/// Evidence that's uploaded to Audit Manager manually.
+/// Evidence that's manually added to a control in Audit Manager.
+/// <code>manualEvidence</code> can be one of the following:
+/// <code>evidenceFileName</code>, <code>s3ResourcePath</code>, or
+/// <code>textResponse</code>.
 class ManualEvidence {
-  /// The Amazon S3 URL that points to a manual evidence object.
+  /// The name of the file that's uploaded as manual evidence. This name is
+  /// populated using the <code>evidenceFileName</code> value from the <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/APIReference/API_GetEvidenceFileUploadUrl.html">
+  /// <code>GetEvidenceFileUploadUrl</code> </a> API response.
+  final String? evidenceFileName;
+
+  /// The S3 URL of the object that's imported as manual evidence.
   final String? s3ResourcePath;
 
+  /// The plain text response that's entered and saved as manual evidence.
+  final String? textResponse;
+
   ManualEvidence({
+    this.evidenceFileName,
     this.s3ResourcePath,
+    this.textResponse,
   });
 
   factory ManualEvidence.fromJson(Map<String, dynamic> json) {
     return ManualEvidence(
+      evidenceFileName: json['evidenceFileName'] as String?,
       s3ResourcePath: json['s3ResourcePath'] as String?,
+      textResponse: json['textResponse'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final evidenceFileName = this.evidenceFileName;
     final s3ResourcePath = this.s3ResourcePath;
+    final textResponse = this.textResponse;
     return {
+      if (evidenceFileName != null) 'evidenceFileName': evidenceFileName,
       if (s3ResourcePath != null) 's3ResourcePath': s3ResourcePath,
+      if (textResponse != null) 'textResponse': textResponse,
     };
   }
 }
@@ -7241,46 +7150,21 @@ class Notification {
 }
 
 enum ObjectTypeEnum {
-  assessment,
-  controlSet,
-  control,
-  delegation,
-  assessmentReport,
-}
+  assessment('ASSESSMENT'),
+  controlSet('CONTROL_SET'),
+  control('CONTROL'),
+  delegation('DELEGATION'),
+  assessmentReport('ASSESSMENT_REPORT'),
+  ;
 
-extension ObjectTypeEnumValueExtension on ObjectTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ObjectTypeEnum.assessment:
-        return 'ASSESSMENT';
-      case ObjectTypeEnum.controlSet:
-        return 'CONTROL_SET';
-      case ObjectTypeEnum.control:
-        return 'CONTROL';
-      case ObjectTypeEnum.delegation:
-        return 'DELEGATION';
-      case ObjectTypeEnum.assessmentReport:
-        return 'ASSESSMENT_REPORT';
-    }
-  }
-}
+  final String value;
 
-extension ObjectTypeEnumFromString on String {
-  ObjectTypeEnum toObjectTypeEnum() {
-    switch (this) {
-      case 'ASSESSMENT':
-        return ObjectTypeEnum.assessment;
-      case 'CONTROL_SET':
-        return ObjectTypeEnum.controlSet;
-      case 'CONTROL':
-        return ObjectTypeEnum.control;
-      case 'DELEGATION':
-        return ObjectTypeEnum.delegation;
-      case 'ASSESSMENT_REPORT':
-        return ObjectTypeEnum.assessmentReport;
-    }
-    throw Exception('$this is not known in enum ObjectTypeEnum');
-  }
+  const ObjectTypeEnum(this.value);
+
+  static ObjectTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ObjectTypeEnum'));
 }
 
 class RegisterAccountResponse {
@@ -7293,14 +7177,14 @@ class RegisterAccountResponse {
 
   factory RegisterAccountResponse.fromJson(Map<String, dynamic> json) {
     return RegisterAccountResponse(
-      status: (json['status'] as String?)?.toAccountStatus(),
+      status: (json['status'] as String?)?.let(AccountStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -7420,7 +7304,7 @@ class Role {
   factory Role.fromJson(Map<String, dynamic> json) {
     return Role(
       roleArn: json['roleArn'] as String,
-      roleType: (json['roleType'] as String).toRoleType(),
+      roleType: RoleType.fromString((json['roleType'] as String)),
     );
   }
 
@@ -7429,37 +7313,23 @@ class Role {
     final roleType = this.roleType;
     return {
       'roleArn': roleArn,
-      'roleType': roleType.toValue(),
+      'roleType': roleType.value,
     };
   }
 }
 
 enum RoleType {
-  processOwner,
-  resourceOwner,
-}
+  processOwner('PROCESS_OWNER'),
+  resourceOwner('RESOURCE_OWNER'),
+  ;
 
-extension RoleTypeValueExtension on RoleType {
-  String toValue() {
-    switch (this) {
-      case RoleType.processOwner:
-        return 'PROCESS_OWNER';
-      case RoleType.resourceOwner:
-        return 'RESOURCE_OWNER';
-    }
-  }
-}
+  final String value;
 
-extension RoleTypeFromString on String {
-  RoleType toRoleType() {
-    switch (this) {
-      case 'PROCESS_OWNER':
-        return RoleType.processOwner;
-      case 'RESOURCE_OWNER':
-        return RoleType.resourceOwner;
-    }
-    throw Exception('$this is not known in enum RoleType');
-  }
+  const RoleType(this.value);
+
+  static RoleType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RoleType'));
 }
 
 /// The wrapper that contains the Amazon Web Services accounts and services that
@@ -7481,11 +7351,11 @@ class Scope {
   factory Scope.fromJson(Map<String, dynamic> json) {
     return Scope(
       awsAccounts: (json['awsAccounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AWSAccount.fromJson(e as Map<String, dynamic>))
           .toList(),
       awsServices: (json['awsServices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AWSService.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7547,62 +7417,33 @@ class ServiceMetadata {
 }
 
 enum SettingAttribute {
-  all,
-  isAwsOrgEnabled,
-  snsTopic,
-  defaultAssessmentReportsDestination,
-  defaultProcessOwners,
-  evidenceFinderEnablement,
-  deregistrationPolicy,
-}
+  all('ALL'),
+  isAwsOrgEnabled('IS_AWS_ORG_ENABLED'),
+  snsTopic('SNS_TOPIC'),
+  defaultAssessmentReportsDestination('DEFAULT_ASSESSMENT_REPORTS_DESTINATION'),
+  defaultProcessOwners('DEFAULT_PROCESS_OWNERS'),
+  evidenceFinderEnablement('EVIDENCE_FINDER_ENABLEMENT'),
+  deregistrationPolicy('DEREGISTRATION_POLICY'),
+  defaultExportDestination('DEFAULT_EXPORT_DESTINATION'),
+  ;
 
-extension SettingAttributeValueExtension on SettingAttribute {
-  String toValue() {
-    switch (this) {
-      case SettingAttribute.all:
-        return 'ALL';
-      case SettingAttribute.isAwsOrgEnabled:
-        return 'IS_AWS_ORG_ENABLED';
-      case SettingAttribute.snsTopic:
-        return 'SNS_TOPIC';
-      case SettingAttribute.defaultAssessmentReportsDestination:
-        return 'DEFAULT_ASSESSMENT_REPORTS_DESTINATION';
-      case SettingAttribute.defaultProcessOwners:
-        return 'DEFAULT_PROCESS_OWNERS';
-      case SettingAttribute.evidenceFinderEnablement:
-        return 'EVIDENCE_FINDER_ENABLEMENT';
-      case SettingAttribute.deregistrationPolicy:
-        return 'DEREGISTRATION_POLICY';
-    }
-  }
-}
+  final String value;
 
-extension SettingAttributeFromString on String {
-  SettingAttribute toSettingAttribute() {
-    switch (this) {
-      case 'ALL':
-        return SettingAttribute.all;
-      case 'IS_AWS_ORG_ENABLED':
-        return SettingAttribute.isAwsOrgEnabled;
-      case 'SNS_TOPIC':
-        return SettingAttribute.snsTopic;
-      case 'DEFAULT_ASSESSMENT_REPORTS_DESTINATION':
-        return SettingAttribute.defaultAssessmentReportsDestination;
-      case 'DEFAULT_PROCESS_OWNERS':
-        return SettingAttribute.defaultProcessOwners;
-      case 'EVIDENCE_FINDER_ENABLEMENT':
-        return SettingAttribute.evidenceFinderEnablement;
-      case 'DEREGISTRATION_POLICY':
-        return SettingAttribute.deregistrationPolicy;
-    }
-    throw Exception('$this is not known in enum SettingAttribute');
-  }
+  const SettingAttribute(this.value);
+
+  static SettingAttribute fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SettingAttribute'));
 }
 
 /// The settings object that holds all supported Audit Manager settings.
 class Settings {
-  /// The default storage destination for assessment reports.
+  /// The default S3 destination bucket for storing assessment reports.
   final AssessmentReportsDestination? defaultAssessmentReportsDestination;
+
+  /// The default S3 destination bucket for storing evidence finder exports.
+  final DefaultExportDestination? defaultExportDestination;
 
   /// The designated default audit owners.
   final List<Role>? defaultProcessOwners;
@@ -7626,6 +7467,7 @@ class Settings {
 
   Settings({
     this.defaultAssessmentReportsDestination,
+    this.defaultExportDestination,
     this.defaultProcessOwners,
     this.deregistrationPolicy,
     this.evidenceFinderEnablement,
@@ -7642,8 +7484,12 @@ class Settings {
                   json['defaultAssessmentReportsDestination']
                       as Map<String, dynamic>)
               : null,
+      defaultExportDestination: json['defaultExportDestination'] != null
+          ? DefaultExportDestination.fromJson(
+              json['defaultExportDestination'] as Map<String, dynamic>)
+          : null,
       defaultProcessOwners: (json['defaultProcessOwners'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Role.fromJson(e as Map<String, dynamic>))
           .toList(),
       deregistrationPolicy: json['deregistrationPolicy'] != null
@@ -7663,6 +7509,7 @@ class Settings {
   Map<String, dynamic> toJson() {
     final defaultAssessmentReportsDestination =
         this.defaultAssessmentReportsDestination;
+    final defaultExportDestination = this.defaultExportDestination;
     final defaultProcessOwners = this.defaultProcessOwners;
     final deregistrationPolicy = this.deregistrationPolicy;
     final evidenceFinderEnablement = this.evidenceFinderEnablement;
@@ -7673,6 +7520,8 @@ class Settings {
       if (defaultAssessmentReportsDestination != null)
         'defaultAssessmentReportsDestination':
             defaultAssessmentReportsDestination,
+      if (defaultExportDestination != null)
+        'defaultExportDestination': defaultExportDestination,
       if (defaultProcessOwners != null)
         'defaultProcessOwners': defaultProcessOwners,
       if (deregistrationPolicy != null)
@@ -7687,159 +7536,80 @@ class Settings {
 }
 
 enum ShareRequestAction {
-  accept,
-  decline,
-  revoke,
-}
+  accept('ACCEPT'),
+  decline('DECLINE'),
+  revoke('REVOKE'),
+  ;
 
-extension ShareRequestActionValueExtension on ShareRequestAction {
-  String toValue() {
-    switch (this) {
-      case ShareRequestAction.accept:
-        return 'ACCEPT';
-      case ShareRequestAction.decline:
-        return 'DECLINE';
-      case ShareRequestAction.revoke:
-        return 'REVOKE';
-    }
-  }
-}
+  final String value;
 
-extension ShareRequestActionFromString on String {
-  ShareRequestAction toShareRequestAction() {
-    switch (this) {
-      case 'ACCEPT':
-        return ShareRequestAction.accept;
-      case 'DECLINE':
-        return ShareRequestAction.decline;
-      case 'REVOKE':
-        return ShareRequestAction.revoke;
-    }
-    throw Exception('$this is not known in enum ShareRequestAction');
-  }
+  const ShareRequestAction(this.value);
+
+  static ShareRequestAction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ShareRequestAction'));
 }
 
 enum ShareRequestStatus {
-  active,
-  replicating,
-  shared,
-  expiring,
-  failed,
-  expired,
-  declined,
-  revoked,
-}
+  active('ACTIVE'),
+  replicating('REPLICATING'),
+  shared('SHARED'),
+  expiring('EXPIRING'),
+  failed('FAILED'),
+  expired('EXPIRED'),
+  declined('DECLINED'),
+  revoked('REVOKED'),
+  ;
 
-extension ShareRequestStatusValueExtension on ShareRequestStatus {
-  String toValue() {
-    switch (this) {
-      case ShareRequestStatus.active:
-        return 'ACTIVE';
-      case ShareRequestStatus.replicating:
-        return 'REPLICATING';
-      case ShareRequestStatus.shared:
-        return 'SHARED';
-      case ShareRequestStatus.expiring:
-        return 'EXPIRING';
-      case ShareRequestStatus.failed:
-        return 'FAILED';
-      case ShareRequestStatus.expired:
-        return 'EXPIRED';
-      case ShareRequestStatus.declined:
-        return 'DECLINED';
-      case ShareRequestStatus.revoked:
-        return 'REVOKED';
-    }
-  }
-}
+  final String value;
 
-extension ShareRequestStatusFromString on String {
-  ShareRequestStatus toShareRequestStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return ShareRequestStatus.active;
-      case 'REPLICATING':
-        return ShareRequestStatus.replicating;
-      case 'SHARED':
-        return ShareRequestStatus.shared;
-      case 'EXPIRING':
-        return ShareRequestStatus.expiring;
-      case 'FAILED':
-        return ShareRequestStatus.failed;
-      case 'EXPIRED':
-        return ShareRequestStatus.expired;
-      case 'DECLINED':
-        return ShareRequestStatus.declined;
-      case 'REVOKED':
-        return ShareRequestStatus.revoked;
-    }
-    throw Exception('$this is not known in enum ShareRequestStatus');
-  }
+  const ShareRequestStatus(this.value);
+
+  static ShareRequestStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ShareRequestStatus'));
 }
 
 enum ShareRequestType {
-  sent,
-  received,
-}
+  sent('SENT'),
+  received('RECEIVED'),
+  ;
 
-extension ShareRequestTypeValueExtension on ShareRequestType {
-  String toValue() {
-    switch (this) {
-      case ShareRequestType.sent:
-        return 'SENT';
-      case ShareRequestType.received:
-        return 'RECEIVED';
-    }
-  }
-}
+  final String value;
 
-extension ShareRequestTypeFromString on String {
-  ShareRequestType toShareRequestType() {
-    switch (this) {
-      case 'SENT':
-        return ShareRequestType.sent;
-      case 'RECEIVED':
-        return ShareRequestType.received;
-    }
-    throw Exception('$this is not known in enum ShareRequestType');
-  }
+  const ShareRequestType(this.value);
+
+  static ShareRequestType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ShareRequestType'));
 }
 
 enum SourceFrequency {
-  daily,
-  weekly,
-  monthly,
+  daily('DAILY'),
+  weekly('WEEKLY'),
+  monthly('MONTHLY'),
+  ;
+
+  final String value;
+
+  const SourceFrequency(this.value);
+
+  static SourceFrequency fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SourceFrequency'));
 }
 
-extension SourceFrequencyValueExtension on SourceFrequency {
-  String toValue() {
-    switch (this) {
-      case SourceFrequency.daily:
-        return 'DAILY';
-      case SourceFrequency.weekly:
-        return 'WEEKLY';
-      case SourceFrequency.monthly:
-        return 'MONTHLY';
-    }
-  }
-}
-
-extension SourceFrequencyFromString on String {
-  SourceFrequency toSourceFrequency() {
-    switch (this) {
-      case 'DAILY':
-        return SourceFrequency.daily;
-      case 'WEEKLY':
-        return SourceFrequency.weekly;
-      case 'MONTHLY':
-        return SourceFrequency.monthly;
-    }
-    throw Exception('$this is not known in enum SourceFrequency');
-  }
-}
-
-/// The keyword to search for in CloudTrail logs, Config rules, Security Hub
-/// checks, and Amazon Web Services API names.
+/// A keyword that relates to the control data source.
+///
+/// For manual evidence, this keyword indicates if the manual evidence is a file
+/// or text.
+///
+/// For automated evidence, this keyword identifies a specific CloudTrail event,
+/// Config rule, Security Hub control, or Amazon Web Services API name.
 ///
 /// To learn more about the supported keywords that you can use when mapping a
 /// control data source, see the following pages in the <i>Audit Manager User
@@ -7848,12 +7618,12 @@ extension SourceFrequencyFromString on String {
 /// <ul>
 /// <li>
 /// <a
-/// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/control-data-sources-ash.html">Config
+/// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/control-data-sources-config.html">Config
 /// rules supported by Audit Manager</a>
 /// </li>
 /// <li>
 /// <a
-/// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/control-data-sources-config.html">Security
+/// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/control-data-sources-ash.html">Security
 /// Hub controls supported by Audit Manager</a>
 /// </li>
 /// <li>
@@ -7869,6 +7639,35 @@ extension SourceFrequencyFromString on String {
 /// </ul>
 class SourceKeyword {
   /// The input method for the keyword.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SELECT_FROM_LIST</code> is used when mapping a data source for
+  /// automated evidence.
+  ///
+  /// <ul>
+  /// <li>
+  /// When <code>keywordInputType</code> is <code>SELECT_FROM_LIST</code>, a
+  /// keyword must be selected to collect automated evidence. For example, this
+  /// keyword can be a CloudTrail event name, a rule name for Config, a Security
+  /// Hub control, or the name of an Amazon Web Services API call.
+  /// </li>
+  /// </ul> </li>
+  /// <li>
+  /// <code>UPLOAD_FILE</code> and <code>INPUT_TEXT</code> are only used when
+  /// mapping a data source for manual evidence.
+  ///
+  /// <ul>
+  /// <li>
+  /// When <code>keywordInputType</code> is <code>UPLOAD_FILE</code>, a file must
+  /// be uploaded as manual evidence.
+  /// </li>
+  /// <li>
+  /// When <code>keywordInputType</code> is <code>INPUT_TEXT</code>, text must be
+  /// entered as manual evidence.
+  /// </li>
+  /// </ul> </li>
+  /// </ul>
   final KeywordInputType? keywordInputType;
 
   /// The value of the keyword that's used when mapping a control data source. For
@@ -7885,7 +7684,13 @@ class SourceKeyword {
   /// rules</a>, you can use the rule identifier as the <code>keywordValue</code>.
   /// You can find the rule identifier from the <a
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/managed-rules-by-aws-config.html">list
-  /// of Config managed rules</a>.
+  /// of Config managed rules</a>. For some rules, the rule identifier is
+  /// different from the rule name. For example, the rule name
+  /// <code>restricted-ssh</code> has the following rule identifier:
+  /// <code>INCOMING_SSH_DISABLED</code>. Make sure to use the rule identifier,
+  /// not the rule name.
+  ///
+  /// Keyword example for managed rules:
   ///
   /// <ul>
   /// <li>
@@ -7900,7 +7705,9 @@ class SourceKeyword {
   /// href="https://docs.aws.amazon.com/config/latest/developerguide/evaluate-config_develop-rules.html">custom
   /// rules</a>, you form the <code>keywordValue</code> by adding the
   /// <code>Custom_</code> prefix to the rule name. This prefix distinguishes the
-  /// rule from a managed rule.
+  /// custom rule from a managed rule.
+  ///
+  /// Keyword example for custom rules:
   ///
   /// <ul>
   /// <li>
@@ -7915,6 +7722,8 @@ class SourceKeyword {
   /// rules</a>, you form the <code>keywordValue</code> by adding the
   /// <code>Custom_</code> prefix to the rule name. In addition, you remove the
   /// suffix ID that appears at the end of the rule name.
+  ///
+  /// Keyword examples for service-linked rules:
   ///
   /// <ul>
   /// <li>
@@ -7931,7 +7740,58 @@ class SourceKeyword {
   /// <code>Custom_OrgConfigRule-s3-bucket-versioning-enabled</code>
   /// </li>
   /// </ul> </li>
-  /// </ul>
+  /// </ul> <important>
+  /// The <code>keywordValue</code> is case sensitive. If you enter a value
+  /// incorrectly, Audit Manager might not recognize the data source mapping. As a
+  /// result, you might not successfully collect evidence from that data source as
+  /// intended.
+  ///
+  /// Keep in mind the following requirements, depending on the data source type
+  /// that you're using.
+  /// <ol>
+  /// <li>
+  /// For Config:
+  ///
+  /// <ul>
+  /// <li>
+  /// For managed rules, make sure that the <code>keywordValue</code> is the rule
+  /// identifier in <code>ALL_CAPS_WITH_UNDERSCORES</code>. For example,
+  /// <code>CLOUDWATCH_LOG_GROUP_ENCRYPTED</code>. For accuracy, we recommend that
+  /// you reference the list of <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/control-data-sources-config.html">supported
+  /// Config managed rules</a>.
+  /// </li>
+  /// <li>
+  /// For custom rules, make sure that the <code>keywordValue</code> has the
+  /// <code>Custom_</code> prefix followed by the custom rule name. The format of
+  /// the custom rule name itself may vary. For accuracy, we recommend that you
+  /// visit the <a href="https://console.aws.amazon.com/config/">Config
+  /// console</a> to verify your custom rule name.
+  /// </li>
+  /// </ul> </li>
+  /// <li>
+  /// For Security Hub: The format varies for Security Hub control names. For
+  /// accuracy, we recommend that you reference the list of <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/control-data-sources-ash.html">supported
+  /// Security Hub controls</a>.
+  /// </li>
+  /// <li>
+  /// For Amazon Web Services API calls: Make sure that the
+  /// <code>keywordValue</code> is written as
+  /// <code>serviceprefix_ActionName</code>. For example,
+  /// <code>iam_ListGroups</code>. For accuracy, we recommend that you reference
+  /// the list of <a
+  /// href="https://docs.aws.amazon.com/audit-manager/latest/userguide/control-data-sources-api.html">supported
+  /// API calls</a>.
+  /// </li>
+  /// <li>
+  /// For CloudTrail: Make sure that the <code>keywordValue</code> is written as
+  /// <code>serviceprefix_ActionName</code>. For example,
+  /// <code>cloudtrail_StartLogging</code>. For accuracy, we recommend that you
+  /// review the Amazon Web Service prefix and action names in the <a
+  /// href="https://docs.aws.amazon.com/service-authorization/latest/reference/reference_policies_actions-resources-contextkeys.html">Service
+  /// Authorization Reference</a>.
+  /// </li> </ol> </important>
   final String? keywordValue;
 
   SourceKeyword({
@@ -7941,8 +7801,8 @@ class SourceKeyword {
 
   factory SourceKeyword.fromJson(Map<String, dynamic> json) {
     return SourceKeyword(
-      keywordInputType:
-          (json['keywordInputType'] as String?)?.toKeywordInputType(),
+      keywordInputType: (json['keywordInputType'] as String?)
+          ?.let(KeywordInputType.fromString),
       keywordValue: json['keywordValue'] as String?,
     );
   }
@@ -7951,82 +7811,42 @@ class SourceKeyword {
     final keywordInputType = this.keywordInputType;
     final keywordValue = this.keywordValue;
     return {
-      if (keywordInputType != null)
-        'keywordInputType': keywordInputType.toValue(),
+      if (keywordInputType != null) 'keywordInputType': keywordInputType.value,
       if (keywordValue != null) 'keywordValue': keywordValue,
     };
   }
 }
 
 enum SourceSetUpOption {
-  systemControlsMapping,
-  proceduralControlsMapping,
-}
+  systemControlsMapping('System_Controls_Mapping'),
+  proceduralControlsMapping('Procedural_Controls_Mapping'),
+  ;
 
-extension SourceSetUpOptionValueExtension on SourceSetUpOption {
-  String toValue() {
-    switch (this) {
-      case SourceSetUpOption.systemControlsMapping:
-        return 'System_Controls_Mapping';
-      case SourceSetUpOption.proceduralControlsMapping:
-        return 'Procedural_Controls_Mapping';
-    }
-  }
-}
+  final String value;
 
-extension SourceSetUpOptionFromString on String {
-  SourceSetUpOption toSourceSetUpOption() {
-    switch (this) {
-      case 'System_Controls_Mapping':
-        return SourceSetUpOption.systemControlsMapping;
-      case 'Procedural_Controls_Mapping':
-        return SourceSetUpOption.proceduralControlsMapping;
-    }
-    throw Exception('$this is not known in enum SourceSetUpOption');
-  }
+  const SourceSetUpOption(this.value);
+
+  static SourceSetUpOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SourceSetUpOption'));
 }
 
 enum SourceType {
-  awsCloudtrail,
-  awsConfig,
-  awsSecurityHub,
-  awsApiCall,
-  manual,
-}
+  awsCloudtrail('AWS_Cloudtrail'),
+  awsConfig('AWS_Config'),
+  awsSecurityHub('AWS_Security_Hub'),
+  awsApiCall('AWS_API_Call'),
+  manual('MANUAL'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.awsCloudtrail:
-        return 'AWS_Cloudtrail';
-      case SourceType.awsConfig:
-        return 'AWS_Config';
-      case SourceType.awsSecurityHub:
-        return 'AWS_Security_Hub';
-      case SourceType.awsApiCall:
-        return 'AWS_API_Call';
-      case SourceType.manual:
-        return 'MANUAL';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'AWS_Cloudtrail':
-        return SourceType.awsCloudtrail;
-      case 'AWS_Config':
-        return SourceType.awsConfig;
-      case 'AWS_Security_Hub':
-        return SourceType.awsSecurityHub;
-      case 'AWS_API_Call':
-        return SourceType.awsApiCall;
-      case 'MANUAL':
-        return SourceType.manual;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 class StartAssessmentFrameworkShareResponse {
@@ -8385,7 +8205,7 @@ class ValidateAssessmentReportIntegrityResponse {
       signatureKeyId: json['signatureKeyId'] as String?,
       signatureValid: json['signatureValid'] as bool?,
       validationErrors: (json['validationErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );

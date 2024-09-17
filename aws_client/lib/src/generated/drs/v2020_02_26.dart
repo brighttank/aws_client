@@ -49,6 +49,40 @@ class Drs {
     _protocol.close();
   }
 
+  /// Associate a Source Network to an existing CloudFormation Stack and modify
+  /// launch templates to use this network. Can be used for reverting to
+  /// previously deployed CloudFormation stacks.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [cfnStackName] :
+  /// CloudFormation template to associate with a Source Network.
+  ///
+  /// Parameter [sourceNetworkID] :
+  /// The Source Network ID to associate with CloudFormation template.
+  Future<AssociateSourceNetworkStackResponse> associateSourceNetworkStack({
+    required String cfnStackName,
+    required String sourceNetworkID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'cfnStackName': cfnStackName,
+      'sourceNetworkID': sourceNetworkID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/AssociateSourceNetworkStack',
+      exceptionFnMap: _exceptionFns,
+    );
+    return AssociateSourceNetworkStackResponse.fromJson(response);
+  }
+
   /// Create an extended source server in the target Account based on the source
   /// server in staging account.
   ///
@@ -98,11 +132,22 @@ class Drs {
   /// Parameter [copyTags] :
   /// Copy tags.
   ///
+  /// Parameter [exportBucketArn] :
+  /// S3 bucket ARN to export Source Network templates.
+  ///
   /// Parameter [launchDisposition] :
   /// Launch disposition.
   ///
+  /// Parameter [launchIntoSourceInstance] :
+  /// DRS will set the 'launch into instance ID' of any source server when
+  /// performing a drill, recovery or failback to the previous region or
+  /// availability zone, using the instance ID of the source instance.
+  ///
   /// Parameter [licensing] :
   /// Licensing.
+  ///
+  /// Parameter [postLaunchEnabled] :
+  /// Whether we want to activate post-launch actions.
   ///
   /// Parameter [tags] :
   /// Request to associate tags during creation of a Launch Configuration
@@ -114,21 +159,28 @@ class Drs {
       createLaunchConfigurationTemplate({
     bool? copyPrivateIp,
     bool? copyTags,
+    String? exportBucketArn,
     LaunchDisposition? launchDisposition,
+    bool? launchIntoSourceInstance,
     Licensing? licensing,
+    bool? postLaunchEnabled,
     Map<String, String>? tags,
     TargetInstanceTypeRightSizingMethod? targetInstanceTypeRightSizingMethod,
   }) async {
     final $payload = <String, dynamic>{
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
+      if (exportBucketArn != null) 'exportBucketArn': exportBucketArn,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
+      if (launchIntoSourceInstance != null)
+        'launchIntoSourceInstance': launchIntoSourceInstance,
       if (licensing != null) 'licensing': licensing,
+      if (postLaunchEnabled != null) 'postLaunchEnabled': postLaunchEnabled,
       if (tags != null) 'tags': tags,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -230,9 +282,9 @@ class Drs {
       'associateDefaultSecurityGroup': associateDefaultSecurityGroup,
       'bandwidthThrottling': bandwidthThrottling,
       'createPublicIP': createPublicIP,
-      'dataPlaneRouting': dataPlaneRouting.toValue(),
-      'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      'ebsEncryption': ebsEncryption.toValue(),
+      'dataPlaneRouting': dataPlaneRouting.value,
+      'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      'ebsEncryption': ebsEncryption.value,
       'pitPolicy': pitPolicy,
       'replicationServerInstanceType': replicationServerInstanceType,
       'replicationServersSecurityGroupsIDs':
@@ -255,6 +307,48 @@ class Drs {
     return ReplicationConfigurationTemplate.fromJson(response);
   }
 
+  /// Create a new Source Network resource for a provided VPC ID.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [originAccountID] :
+  /// Account containing the VPC to protect.
+  ///
+  /// Parameter [originRegion] :
+  /// Region containing the VPC to protect.
+  ///
+  /// Parameter [vpcID] :
+  /// Which VPC ID to protect.
+  ///
+  /// Parameter [tags] :
+  /// A set of tags to be associated with the Source Network resource.
+  Future<CreateSourceNetworkResponse> createSourceNetwork({
+    required String originAccountID,
+    required String originRegion,
+    required String vpcID,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'originAccountID': originAccountID,
+      'originRegion': originRegion,
+      'vpcID': vpcID,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/CreateSourceNetwork',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateSourceNetworkResponse.fromJson(response);
+  }
+
   /// Deletes a single Job by ID.
   ///
   /// May throw [ResourceNotFoundException].
@@ -275,6 +369,29 @@ class Drs {
       payload: $payload,
       method: 'POST',
       requestUri: '/DeleteJob',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes a resource launch action.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  Future<void> deleteLaunchAction({
+    required String actionId,
+    required String resourceId,
+  }) async {
+    final $payload = <String, dynamic>{
+      'actionId': actionId,
+      'resourceId': resourceId,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/DeleteLaunchAction',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -349,6 +466,30 @@ class Drs {
       payload: $payload,
       method: 'POST',
       requestUri: '/DeleteReplicationConfigurationTemplate',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Delete Source Network resource.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ThrottlingException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [sourceNetworkID] :
+  /// ID of the Source Network to delete.
+  Future<void> deleteSourceNetwork({
+    required String sourceNetworkID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceNetworkID': sourceNetworkID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/DeleteSourceNetwork',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -589,7 +730,7 @@ class Drs {
       if (filters != null) 'filters': filters,
       if (maxResults != null) 'maxResults': maxResults,
       if (nextToken != null) 'nextToken': nextToken,
-      if (order != null) 'order': order.toValue(),
+      if (order != null) 'order': order.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -644,6 +785,46 @@ class Drs {
       exceptionFnMap: _exceptionFns,
     );
     return DescribeReplicationConfigurationTemplatesResponse.fromJson(response);
+  }
+
+  /// Lists all Source Networks or multiple Source Networks filtered by ID.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [filters] :
+  /// A set of filters by which to return Source Networks.
+  ///
+  /// Parameter [maxResults] :
+  /// Maximum number of Source Networks to retrieve.
+  ///
+  /// Parameter [nextToken] :
+  /// The token of the next Source Networks to retrieve.
+  Future<DescribeSourceNetworksResponse> describeSourceNetworks({
+    DescribeSourceNetworksRequestFilters? filters,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1152921504606846976,
+    );
+    final $payload = <String, dynamic>{
+      if (filters != null) 'filters': filters,
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/DescribeSourceNetworks',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribeSourceNetworksResponse.fromJson(response);
   }
 
   /// Lists all Source Servers or multiple Source Servers filtered by ID.
@@ -757,6 +938,34 @@ class Drs {
       exceptionFnMap: _exceptionFns,
     );
     return SourceServer.fromJson(response);
+  }
+
+  /// Export the Source Network CloudFormation template to an S3 bucket.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [sourceNetworkID] :
+  /// The Source Network ID to export its CloudFormation template to an S3
+  /// bucket.
+  Future<ExportSourceNetworkCfnTemplateResponse>
+      exportSourceNetworkCfnTemplate({
+    required String sourceNetworkID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceNetworkID': sourceNetworkID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/ExportSourceNetworkCfnTemplate',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ExportSourceNetworkCfnTemplateResponse.fromJson(response);
   }
 
   /// Lists all Failback ReplicationConfigurations, filtered by Recovery
@@ -895,6 +1104,49 @@ class Drs {
     return ListExtensibleSourceServersResponse.fromJson(response);
   }
 
+  /// Lists resource launch actions.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [filters] :
+  /// Filters to apply when listing resource launch actions.
+  ///
+  /// Parameter [maxResults] :
+  /// Maximum amount of items to return when listing resource launch actions.
+  ///
+  /// Parameter [nextToken] :
+  /// Next token to use when listing resource launch actions.
+  Future<ListLaunchActionsResponse> listLaunchActions({
+    required String resourceId,
+    LaunchActionsRequestFilters? filters,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final $payload = <String, dynamic>{
+      'resourceId': resourceId,
+      if (filters != null) 'filters': filters,
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/ListLaunchActions',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListLaunchActionsResponse.fromJson(response);
+  }
+
   /// Returns an array of staging accounts for existing extended source servers.
   ///
   /// May throw [InternalServerException].
@@ -952,6 +1204,65 @@ class Drs {
       exceptionFnMap: _exceptionFns,
     );
     return ListTagsForResourceResponse.fromJson(response);
+  }
+
+  /// Puts a resource launch action.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [actionCode] :
+  /// Launch action code.
+  ///
+  /// Parameter [active] :
+  /// Whether the launch action is active.
+  ///
+  /// Parameter [optional] :
+  /// Whether the launch will not be marked as failed if this action fails.
+  Future<PutLaunchActionResponse> putLaunchAction({
+    required String actionCode,
+    required String actionId,
+    required String actionVersion,
+    required bool active,
+    required LaunchActionCategory category,
+    required String description,
+    required String name,
+    required bool optional,
+    required int order,
+    required String resourceId,
+    Map<String, LaunchActionParameter>? parameters,
+  }) async {
+    _s.validateNumRange(
+      'order',
+      order,
+      2,
+      10000,
+      isRequired: true,
+    );
+    final $payload = <String, dynamic>{
+      'actionCode': actionCode,
+      'actionId': actionId,
+      'actionVersion': actionVersion,
+      'active': active,
+      'category': category.value,
+      'description': description,
+      'name': name,
+      'optional': optional,
+      'order': order,
+      'resourceId': resourceId,
+      if (parameters != null) 'parameters': parameters,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/PutLaunchAction',
+      exceptionFnMap: _exceptionFns,
+    );
+    return PutLaunchActionResponse.fromJson(response);
   }
 
   /// WARNING: RetryDataReplication is deprecated. Causes the data replication
@@ -1112,6 +1423,71 @@ class Drs {
     return StartReplicationResponse.fromJson(response);
   }
 
+  /// Deploy VPC for the specified Source Network and modify launch templates to
+  /// use this network. The VPC will be deployed using a dedicated
+  /// CloudFormation stack.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [sourceNetworks] :
+  /// The Source Networks that we want to start a Recovery Job for.
+  ///
+  /// Parameter [deployAsNew] :
+  /// Don't update existing CloudFormation Stack, recover the network using a
+  /// new stack.
+  ///
+  /// Parameter [tags] :
+  /// The tags to be associated with the Source Network recovery Job.
+  Future<StartSourceNetworkRecoveryResponse> startSourceNetworkRecovery({
+    required List<StartSourceNetworkRecoveryRequestNetworkEntry> sourceNetworks,
+    bool? deployAsNew,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceNetworks': sourceNetworks,
+      if (deployAsNew != null) 'deployAsNew': deployAsNew,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/StartSourceNetworkRecovery',
+      exceptionFnMap: _exceptionFns,
+    );
+    return StartSourceNetworkRecoveryResponse.fromJson(response);
+  }
+
+  /// Starts replication for a Source Network. This action would make the Source
+  /// Network protected.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ThrottlingException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [sourceNetworkID] :
+  /// ID of the Source Network to replicate.
+  Future<StartSourceNetworkReplicationResponse> startSourceNetworkReplication({
+    required String sourceNetworkID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceNetworkID': sourceNetworkID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/StartSourceNetworkReplication',
+      exceptionFnMap: _exceptionFns,
+    );
+    return StartSourceNetworkReplicationResponse.fromJson(response);
+  }
+
   /// Stops the failback process for a specified Recovery Instance. This changes
   /// the Failback State of the Recovery Instance back to FAILBACK_NOT_STARTED.
   ///
@@ -1160,6 +1536,33 @@ class Drs {
       exceptionFnMap: _exceptionFns,
     );
     return StopReplicationResponse.fromJson(response);
+  }
+
+  /// Stops replication for a Source Network. This action would make the Source
+  /// Network unprotected.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InternalServerException].
+  /// May throw [ConflictException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [UninitializedAccountException].
+  ///
+  /// Parameter [sourceNetworkID] :
+  /// ID of the Source Network to stop replication.
+  Future<StopSourceNetworkReplicationResponse> stopSourceNetworkReplication({
+    required String sourceNetworkID,
+  }) async {
+    final $payload = <String, dynamic>{
+      'sourceNetworkID': sourceNetworkID,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/StopSourceNetworkReplication',
+      exceptionFnMap: _exceptionFns,
+    );
+    return StopSourceNetworkReplicationResponse.fromJson(response);
   }
 
   /// Adds or overwrites only the specified tags for the specified Elastic
@@ -1323,11 +1726,17 @@ class Drs {
   /// Parameter [launchDisposition] :
   /// The state of the Recovery Instance in EC2 after the recovery operation.
   ///
+  /// Parameter [launchIntoInstanceProperties] :
+  /// Launch into existing instance properties.
+  ///
   /// Parameter [licensing] :
   /// The licensing configuration to be used for this launch configuration.
   ///
   /// Parameter [name] :
   /// The name of the launch configuration.
+  ///
+  /// Parameter [postLaunchEnabled] :
+  /// Whether we want to enable post-launch actions for the Source Server.
   ///
   /// Parameter [targetInstanceTypeRightSizingMethod] :
   /// Whether Elastic Disaster Recovery should try to automatically choose the
@@ -1338,8 +1747,10 @@ class Drs {
     bool? copyPrivateIp,
     bool? copyTags,
     LaunchDisposition? launchDisposition,
+    LaunchIntoInstanceProperties? launchIntoInstanceProperties,
     Licensing? licensing,
     String? name,
+    bool? postLaunchEnabled,
     TargetInstanceTypeRightSizingMethod? targetInstanceTypeRightSizingMethod,
   }) async {
     final $payload = <String, dynamic>{
@@ -1347,12 +1758,15 @@ class Drs {
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
+      if (launchIntoInstanceProperties != null)
+        'launchIntoInstanceProperties': launchIntoInstanceProperties,
       if (licensing != null) 'licensing': licensing,
       if (name != null) 'name': name,
+      if (postLaunchEnabled != null) 'postLaunchEnabled': postLaunchEnabled,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1381,11 +1795,22 @@ class Drs {
   /// Parameter [copyTags] :
   /// Copy tags.
   ///
+  /// Parameter [exportBucketArn] :
+  /// S3 bucket ARN to export Source Network templates.
+  ///
   /// Parameter [launchDisposition] :
   /// Launch disposition.
   ///
+  /// Parameter [launchIntoSourceInstance] :
+  /// DRS will set the 'launch into instance ID' of any source server when
+  /// performing a drill, recovery or failback to the previous region or
+  /// availability zone, using the instance ID of the source instance.
+  ///
   /// Parameter [licensing] :
   /// Licensing.
+  ///
+  /// Parameter [postLaunchEnabled] :
+  /// Whether we want to activate post-launch actions.
   ///
   /// Parameter [targetInstanceTypeRightSizingMethod] :
   /// Target instance type right-sizing method.
@@ -1394,20 +1819,27 @@ class Drs {
     required String launchConfigurationTemplateID,
     bool? copyPrivateIp,
     bool? copyTags,
+    String? exportBucketArn,
     LaunchDisposition? launchDisposition,
+    bool? launchIntoSourceInstance,
     Licensing? licensing,
+    bool? postLaunchEnabled,
     TargetInstanceTypeRightSizingMethod? targetInstanceTypeRightSizingMethod,
   }) async {
     final $payload = <String, dynamic>{
       'launchConfigurationTemplateID': launchConfigurationTemplateID,
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
+      if (exportBucketArn != null) 'exportBucketArn': exportBucketArn,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
+      if (launchIntoSourceInstance != null)
+        'launchIntoSourceInstance': launchIntoSourceInstance,
       if (licensing != null) 'licensing': licensing,
+      if (postLaunchEnabled != null) 'postLaunchEnabled': postLaunchEnabled,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1520,11 +1952,10 @@ class Drs {
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (name != null) 'name': name,
@@ -1649,11 +2080,10 @@ class Drs {
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (pitPolicy != null) 'pitPolicy': pitPolicy,
@@ -1697,6 +2127,31 @@ class Account {
     final accountID = this.accountID;
     return {
       if (accountID != null) 'accountID': accountID,
+    };
+  }
+}
+
+class AssociateSourceNetworkStackResponse {
+  /// The Source Network association Job.
+  final Job? job;
+
+  AssociateSourceNetworkStackResponse({
+    this.job,
+  });
+
+  factory AssociateSourceNetworkStackResponse.fromJson(
+      Map<String, dynamic> json) {
+    return AssociateSourceNetworkStackResponse(
+      job: json['job'] != null
+          ? Job.fromJson(json['job'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final job = this.job;
+    return {
+      if (job != null) 'job': job,
     };
   }
 }
@@ -1745,6 +2200,10 @@ class ConversionProperties {
   /// A mapping between the volumes being converted and the converted snapshot ids
   final Map<String, Map<String, String>>? volumeToConversionMap;
 
+  /// A mapping between the volumes being converted and the product codes
+  /// associated with them
+  final Map<String, List<ProductCode>>? volumeToProductCodes;
+
   /// A mapping between the volumes and their sizes
   final Map<String, int>? volumeToVolumeSize;
 
@@ -1753,6 +2212,7 @@ class ConversionProperties {
     this.forceUefi,
     this.rootVolumeName,
     this.volumeToConversionMap,
+    this.volumeToProductCodes,
     this.volumeToVolumeSize,
   });
 
@@ -1767,6 +2227,14 @@ class ConversionProperties {
                   k,
                   (e as Map<String, dynamic>)
                       .map((k, e) => MapEntry(k, e as String)))),
+      volumeToProductCodes: (json['volumeToProductCodes']
+              as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(
+              k,
+              (e as List)
+                  .nonNulls
+                  .map((e) => ProductCode.fromJson(e as Map<String, dynamic>))
+                  .toList())),
       volumeToVolumeSize: (json['volumeToVolumeSize'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as int)),
     );
@@ -1777,6 +2245,7 @@ class ConversionProperties {
     final forceUefi = this.forceUefi;
     final rootVolumeName = this.rootVolumeName;
     final volumeToConversionMap = this.volumeToConversionMap;
+    final volumeToProductCodes = this.volumeToProductCodes;
     final volumeToVolumeSize = this.volumeToVolumeSize;
     return {
       if (dataTimestamp != null) 'dataTimestamp': dataTimestamp,
@@ -1784,6 +2253,8 @@ class ConversionProperties {
       if (rootVolumeName != null) 'rootVolumeName': rootVolumeName,
       if (volumeToConversionMap != null)
         'volumeToConversionMap': volumeToConversionMap,
+      if (volumeToProductCodes != null)
+        'volumeToProductCodes': volumeToProductCodes,
       if (volumeToVolumeSize != null) 'volumeToVolumeSize': volumeToVolumeSize,
     };
   }
@@ -1841,6 +2312,28 @@ class CreateLaunchConfigurationTemplateResponse {
   }
 }
 
+class CreateSourceNetworkResponse {
+  /// ID of the created Source Network.
+  final String? sourceNetworkID;
+
+  CreateSourceNetworkResponse({
+    this.sourceNetworkID,
+  });
+
+  factory CreateSourceNetworkResponse.fromJson(Map<String, dynamic> json) {
+    return CreateSourceNetworkResponse(
+      sourceNetworkID: json['sourceNetworkID'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sourceNetworkID = this.sourceNetworkID;
+    return {
+      if (sourceNetworkID != null) 'sourceNetworkID': sourceNetworkID,
+    };
+  }
+}
+
 /// Error in data replication.
 class DataReplicationError {
   /// Error in data replication.
@@ -1856,7 +2349,8 @@ class DataReplicationError {
 
   factory DataReplicationError.fromJson(Map<String, dynamic> json) {
     return DataReplicationError(
-      error: (json['error'] as String?)?.toDataReplicationErrorString(),
+      error: (json['error'] as String?)
+          ?.let(DataReplicationErrorString.fromString),
       rawError: json['rawError'] as String?,
     );
   }
@@ -1865,101 +2359,40 @@ class DataReplicationError {
     final error = this.error;
     final rawError = this.rawError;
     return {
-      if (error != null) 'error': error.toValue(),
+      if (error != null) 'error': error.value,
       if (rawError != null) 'rawError': rawError,
     };
   }
 }
 
 enum DataReplicationErrorString {
-  agentNotSeen,
-  snapshotsFailure,
-  notConverging,
-  unstableNetwork,
-  failedToCreateSecurityGroup,
-  failedToLaunchReplicationServer,
-  failedToBootReplicationServer,
-  failedToAuthenticateWithService,
-  failedToDownloadReplicationSoftware,
-  failedToCreateStagingDisks,
-  failedToAttachStagingDisks,
-  failedToPairReplicationServerWithAgent,
-  failedToConnectAgentToReplicationServer,
-  failedToStartDataTransfer,
-}
+  agentNotSeen('AGENT_NOT_SEEN'),
+  snapshotsFailure('SNAPSHOTS_FAILURE'),
+  notConverging('NOT_CONVERGING'),
+  unstableNetwork('UNSTABLE_NETWORK'),
+  failedToCreateSecurityGroup('FAILED_TO_CREATE_SECURITY_GROUP'),
+  failedToLaunchReplicationServer('FAILED_TO_LAUNCH_REPLICATION_SERVER'),
+  failedToBootReplicationServer('FAILED_TO_BOOT_REPLICATION_SERVER'),
+  failedToAuthenticateWithService('FAILED_TO_AUTHENTICATE_WITH_SERVICE'),
+  failedToDownloadReplicationSoftware(
+      'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE'),
+  failedToCreateStagingDisks('FAILED_TO_CREATE_STAGING_DISKS'),
+  failedToAttachStagingDisks('FAILED_TO_ATTACH_STAGING_DISKS'),
+  failedToPairReplicationServerWithAgent(
+      'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT'),
+  failedToConnectAgentToReplicationServer(
+      'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER'),
+  failedToStartDataTransfer('FAILED_TO_START_DATA_TRANSFER'),
+  ;
 
-extension DataReplicationErrorStringValueExtension
-    on DataReplicationErrorString {
-  String toValue() {
-    switch (this) {
-      case DataReplicationErrorString.agentNotSeen:
-        return 'AGENT_NOT_SEEN';
-      case DataReplicationErrorString.snapshotsFailure:
-        return 'SNAPSHOTS_FAILURE';
-      case DataReplicationErrorString.notConverging:
-        return 'NOT_CONVERGING';
-      case DataReplicationErrorString.unstableNetwork:
-        return 'UNSTABLE_NETWORK';
-      case DataReplicationErrorString.failedToCreateSecurityGroup:
-        return 'FAILED_TO_CREATE_SECURITY_GROUP';
-      case DataReplicationErrorString.failedToLaunchReplicationServer:
-        return 'FAILED_TO_LAUNCH_REPLICATION_SERVER';
-      case DataReplicationErrorString.failedToBootReplicationServer:
-        return 'FAILED_TO_BOOT_REPLICATION_SERVER';
-      case DataReplicationErrorString.failedToAuthenticateWithService:
-        return 'FAILED_TO_AUTHENTICATE_WITH_SERVICE';
-      case DataReplicationErrorString.failedToDownloadReplicationSoftware:
-        return 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE';
-      case DataReplicationErrorString.failedToCreateStagingDisks:
-        return 'FAILED_TO_CREATE_STAGING_DISKS';
-      case DataReplicationErrorString.failedToAttachStagingDisks:
-        return 'FAILED_TO_ATTACH_STAGING_DISKS';
-      case DataReplicationErrorString.failedToPairReplicationServerWithAgent:
-        return 'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT';
-      case DataReplicationErrorString.failedToConnectAgentToReplicationServer:
-        return 'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER';
-      case DataReplicationErrorString.failedToStartDataTransfer:
-        return 'FAILED_TO_START_DATA_TRANSFER';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationErrorStringFromString on String {
-  DataReplicationErrorString toDataReplicationErrorString() {
-    switch (this) {
-      case 'AGENT_NOT_SEEN':
-        return DataReplicationErrorString.agentNotSeen;
-      case 'SNAPSHOTS_FAILURE':
-        return DataReplicationErrorString.snapshotsFailure;
-      case 'NOT_CONVERGING':
-        return DataReplicationErrorString.notConverging;
-      case 'UNSTABLE_NETWORK':
-        return DataReplicationErrorString.unstableNetwork;
-      case 'FAILED_TO_CREATE_SECURITY_GROUP':
-        return DataReplicationErrorString.failedToCreateSecurityGroup;
-      case 'FAILED_TO_LAUNCH_REPLICATION_SERVER':
-        return DataReplicationErrorString.failedToLaunchReplicationServer;
-      case 'FAILED_TO_BOOT_REPLICATION_SERVER':
-        return DataReplicationErrorString.failedToBootReplicationServer;
-      case 'FAILED_TO_AUTHENTICATE_WITH_SERVICE':
-        return DataReplicationErrorString.failedToAuthenticateWithService;
-      case 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE':
-        return DataReplicationErrorString.failedToDownloadReplicationSoftware;
-      case 'FAILED_TO_CREATE_STAGING_DISKS':
-        return DataReplicationErrorString.failedToCreateStagingDisks;
-      case 'FAILED_TO_ATTACH_STAGING_DISKS':
-        return DataReplicationErrorString.failedToAttachStagingDisks;
-      case 'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT':
-        return DataReplicationErrorString
-            .failedToPairReplicationServerWithAgent;
-      case 'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER':
-        return DataReplicationErrorString
-            .failedToConnectAgentToReplicationServer;
-      case 'FAILED_TO_START_DATA_TRANSFER':
-        return DataReplicationErrorString.failedToStartDataTransfer;
-    }
-    throw Exception('$this is not known in enum DataReplicationErrorString');
-  }
+  const DataReplicationErrorString(this.value);
+
+  static DataReplicationErrorString fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataReplicationErrorString'));
 }
 
 /// Information about Data Replication
@@ -1985,6 +2418,9 @@ class DataReplicationInfo {
   /// AWS Availability zone into which data is being replicated.
   final String? stagingAvailabilityZone;
 
+  /// The ARN of the staging Outpost
+  final String? stagingOutpostArn;
+
   DataReplicationInfo({
     this.dataReplicationError,
     this.dataReplicationInitiation,
@@ -1993,6 +2429,7 @@ class DataReplicationInfo {
     this.lagDuration,
     this.replicatedDisks,
     this.stagingAvailabilityZone,
+    this.stagingOutpostArn,
   });
 
   factory DataReplicationInfo.fromJson(Map<String, dynamic> json) {
@@ -2005,16 +2442,17 @@ class DataReplicationInfo {
           ? DataReplicationInitiation.fromJson(
               json['dataReplicationInitiation'] as Map<String, dynamic>)
           : null,
-      dataReplicationState:
-          (json['dataReplicationState'] as String?)?.toDataReplicationState(),
+      dataReplicationState: (json['dataReplicationState'] as String?)
+          ?.let(DataReplicationState.fromString),
       etaDateTime: json['etaDateTime'] as String?,
       lagDuration: json['lagDuration'] as String?,
       replicatedDisks: (json['replicatedDisks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataReplicationInfoReplicatedDisk.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       stagingAvailabilityZone: json['stagingAvailabilityZone'] as String?,
+      stagingOutpostArn: json['stagingOutpostArn'] as String?,
     );
   }
 
@@ -2026,18 +2464,20 @@ class DataReplicationInfo {
     final lagDuration = this.lagDuration;
     final replicatedDisks = this.replicatedDisks;
     final stagingAvailabilityZone = this.stagingAvailabilityZone;
+    final stagingOutpostArn = this.stagingOutpostArn;
     return {
       if (dataReplicationError != null)
         'dataReplicationError': dataReplicationError,
       if (dataReplicationInitiation != null)
         'dataReplicationInitiation': dataReplicationInitiation,
       if (dataReplicationState != null)
-        'dataReplicationState': dataReplicationState.toValue(),
+        'dataReplicationState': dataReplicationState.value,
       if (etaDateTime != null) 'etaDateTime': etaDateTime,
       if (lagDuration != null) 'lagDuration': lagDuration,
       if (replicatedDisks != null) 'replicatedDisks': replicatedDisks,
       if (stagingAvailabilityZone != null)
         'stagingAvailabilityZone': stagingAvailabilityZone,
+      if (stagingOutpostArn != null) 'stagingOutpostArn': stagingOutpostArn,
     };
   }
 }
@@ -2059,12 +2499,16 @@ class DataReplicationInfoReplicatedDisk {
   /// The total amount of data to be replicated in bytes.
   final int? totalStorageBytes;
 
+  /// The status of the volume.
+  final VolumeStatus? volumeStatus;
+
   DataReplicationInfoReplicatedDisk({
     this.backloggedStorageBytes,
     this.deviceName,
     this.replicatedStorageBytes,
     this.rescannedStorageBytes,
     this.totalStorageBytes,
+    this.volumeStatus,
   });
 
   factory DataReplicationInfoReplicatedDisk.fromJson(
@@ -2075,6 +2519,8 @@ class DataReplicationInfoReplicatedDisk {
       replicatedStorageBytes: json['replicatedStorageBytes'] as int?,
       rescannedStorageBytes: json['rescannedStorageBytes'] as int?,
       totalStorageBytes: json['totalStorageBytes'] as int?,
+      volumeStatus:
+          (json['volumeStatus'] as String?)?.let(VolumeStatus.fromString),
     );
   }
 
@@ -2084,6 +2530,7 @@ class DataReplicationInfoReplicatedDisk {
     final replicatedStorageBytes = this.replicatedStorageBytes;
     final rescannedStorageBytes = this.rescannedStorageBytes;
     final totalStorageBytes = this.totalStorageBytes;
+    final volumeStatus = this.volumeStatus;
     return {
       if (backloggedStorageBytes != null)
         'backloggedStorageBytes': backloggedStorageBytes,
@@ -2093,6 +2540,7 @@ class DataReplicationInfoReplicatedDisk {
       if (rescannedStorageBytes != null)
         'rescannedStorageBytes': rescannedStorageBytes,
       if (totalStorageBytes != null) 'totalStorageBytes': totalStorageBytes,
+      if (volumeStatus != null) 'volumeStatus': volumeStatus.value,
     };
   }
 }
@@ -2119,7 +2567,7 @@ class DataReplicationInitiation {
       nextAttemptDateTime: json['nextAttemptDateTime'] as String?,
       startDateTime: json['startDateTime'] as String?,
       steps: (json['steps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DataReplicationInitiationStep.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2154,9 +2602,10 @@ class DataReplicationInitiationStep {
 
   factory DataReplicationInitiationStep.fromJson(Map<String, dynamic> json) {
     return DataReplicationInitiationStep(
-      name: (json['name'] as String?)?.toDataReplicationInitiationStepName(),
-      status:
-          (json['status'] as String?)?.toDataReplicationInitiationStepStatus(),
+      name: (json['name'] as String?)
+          ?.let(DataReplicationInitiationStepName.fromString),
+      status: (json['status'] as String?)
+          ?.let(DataReplicationInitiationStepStatus.fromString),
     );
   }
 
@@ -2164,199 +2613,75 @@ class DataReplicationInitiationStep {
     final name = this.name;
     final status = this.status;
     return {
-      if (name != null) 'name': name.toValue(),
-      if (status != null) 'status': status.toValue(),
+      if (name != null) 'name': name.value,
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum DataReplicationInitiationStepName {
-  wait,
-  createSecurityGroup,
-  launchReplicationServer,
-  bootReplicationServer,
-  authenticateWithService,
-  downloadReplicationSoftware,
-  createStagingDisks,
-  attachStagingDisks,
-  pairReplicationServerWithAgent,
-  connectAgentToReplicationServer,
-  startDataTransfer,
-}
+  wait('WAIT'),
+  createSecurityGroup('CREATE_SECURITY_GROUP'),
+  launchReplicationServer('LAUNCH_REPLICATION_SERVER'),
+  bootReplicationServer('BOOT_REPLICATION_SERVER'),
+  authenticateWithService('AUTHENTICATE_WITH_SERVICE'),
+  downloadReplicationSoftware('DOWNLOAD_REPLICATION_SOFTWARE'),
+  createStagingDisks('CREATE_STAGING_DISKS'),
+  attachStagingDisks('ATTACH_STAGING_DISKS'),
+  pairReplicationServerWithAgent('PAIR_REPLICATION_SERVER_WITH_AGENT'),
+  connectAgentToReplicationServer('CONNECT_AGENT_TO_REPLICATION_SERVER'),
+  startDataTransfer('START_DATA_TRANSFER'),
+  ;
 
-extension DataReplicationInitiationStepNameValueExtension
-    on DataReplicationInitiationStepName {
-  String toValue() {
-    switch (this) {
-      case DataReplicationInitiationStepName.wait:
-        return 'WAIT';
-      case DataReplicationInitiationStepName.createSecurityGroup:
-        return 'CREATE_SECURITY_GROUP';
-      case DataReplicationInitiationStepName.launchReplicationServer:
-        return 'LAUNCH_REPLICATION_SERVER';
-      case DataReplicationInitiationStepName.bootReplicationServer:
-        return 'BOOT_REPLICATION_SERVER';
-      case DataReplicationInitiationStepName.authenticateWithService:
-        return 'AUTHENTICATE_WITH_SERVICE';
-      case DataReplicationInitiationStepName.downloadReplicationSoftware:
-        return 'DOWNLOAD_REPLICATION_SOFTWARE';
-      case DataReplicationInitiationStepName.createStagingDisks:
-        return 'CREATE_STAGING_DISKS';
-      case DataReplicationInitiationStepName.attachStagingDisks:
-        return 'ATTACH_STAGING_DISKS';
-      case DataReplicationInitiationStepName.pairReplicationServerWithAgent:
-        return 'PAIR_REPLICATION_SERVER_WITH_AGENT';
-      case DataReplicationInitiationStepName.connectAgentToReplicationServer:
-        return 'CONNECT_AGENT_TO_REPLICATION_SERVER';
-      case DataReplicationInitiationStepName.startDataTransfer:
-        return 'START_DATA_TRANSFER';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationInitiationStepNameFromString on String {
-  DataReplicationInitiationStepName toDataReplicationInitiationStepName() {
-    switch (this) {
-      case 'WAIT':
-        return DataReplicationInitiationStepName.wait;
-      case 'CREATE_SECURITY_GROUP':
-        return DataReplicationInitiationStepName.createSecurityGroup;
-      case 'LAUNCH_REPLICATION_SERVER':
-        return DataReplicationInitiationStepName.launchReplicationServer;
-      case 'BOOT_REPLICATION_SERVER':
-        return DataReplicationInitiationStepName.bootReplicationServer;
-      case 'AUTHENTICATE_WITH_SERVICE':
-        return DataReplicationInitiationStepName.authenticateWithService;
-      case 'DOWNLOAD_REPLICATION_SOFTWARE':
-        return DataReplicationInitiationStepName.downloadReplicationSoftware;
-      case 'CREATE_STAGING_DISKS':
-        return DataReplicationInitiationStepName.createStagingDisks;
-      case 'ATTACH_STAGING_DISKS':
-        return DataReplicationInitiationStepName.attachStagingDisks;
-      case 'PAIR_REPLICATION_SERVER_WITH_AGENT':
-        return DataReplicationInitiationStepName.pairReplicationServerWithAgent;
-      case 'CONNECT_AGENT_TO_REPLICATION_SERVER':
-        return DataReplicationInitiationStepName
-            .connectAgentToReplicationServer;
-      case 'START_DATA_TRANSFER':
-        return DataReplicationInitiationStepName.startDataTransfer;
-    }
-    throw Exception(
-        '$this is not known in enum DataReplicationInitiationStepName');
-  }
+  const DataReplicationInitiationStepName(this.value);
+
+  static DataReplicationInitiationStepName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataReplicationInitiationStepName'));
 }
 
 enum DataReplicationInitiationStepStatus {
-  notStarted,
-  inProgress,
-  succeeded,
-  failed,
-  skipped,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  skipped('SKIPPED'),
+  ;
 
-extension DataReplicationInitiationStepStatusValueExtension
-    on DataReplicationInitiationStepStatus {
-  String toValue() {
-    switch (this) {
-      case DataReplicationInitiationStepStatus.notStarted:
-        return 'NOT_STARTED';
-      case DataReplicationInitiationStepStatus.inProgress:
-        return 'IN_PROGRESS';
-      case DataReplicationInitiationStepStatus.succeeded:
-        return 'SUCCEEDED';
-      case DataReplicationInitiationStepStatus.failed:
-        return 'FAILED';
-      case DataReplicationInitiationStepStatus.skipped:
-        return 'SKIPPED';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationInitiationStepStatusFromString on String {
-  DataReplicationInitiationStepStatus toDataReplicationInitiationStepStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return DataReplicationInitiationStepStatus.notStarted;
-      case 'IN_PROGRESS':
-        return DataReplicationInitiationStepStatus.inProgress;
-      case 'SUCCEEDED':
-        return DataReplicationInitiationStepStatus.succeeded;
-      case 'FAILED':
-        return DataReplicationInitiationStepStatus.failed;
-      case 'SKIPPED':
-        return DataReplicationInitiationStepStatus.skipped;
-    }
-    throw Exception(
-        '$this is not known in enum DataReplicationInitiationStepStatus');
-  }
+  const DataReplicationInitiationStepStatus(this.value);
+
+  static DataReplicationInitiationStepStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataReplicationInitiationStepStatus'));
 }
 
 enum DataReplicationState {
-  stopped,
-  initiating,
-  initialSync,
-  backlog,
-  creatingSnapshot,
-  continuous,
-  paused,
-  rescan,
-  stalled,
-  disconnected,
-}
+  stopped('STOPPED'),
+  initiating('INITIATING'),
+  initialSync('INITIAL_SYNC'),
+  backlog('BACKLOG'),
+  creatingSnapshot('CREATING_SNAPSHOT'),
+  continuous('CONTINUOUS'),
+  paused('PAUSED'),
+  rescan('RESCAN'),
+  stalled('STALLED'),
+  disconnected('DISCONNECTED'),
+  ;
 
-extension DataReplicationStateValueExtension on DataReplicationState {
-  String toValue() {
-    switch (this) {
-      case DataReplicationState.stopped:
-        return 'STOPPED';
-      case DataReplicationState.initiating:
-        return 'INITIATING';
-      case DataReplicationState.initialSync:
-        return 'INITIAL_SYNC';
-      case DataReplicationState.backlog:
-        return 'BACKLOG';
-      case DataReplicationState.creatingSnapshot:
-        return 'CREATING_SNAPSHOT';
-      case DataReplicationState.continuous:
-        return 'CONTINUOUS';
-      case DataReplicationState.paused:
-        return 'PAUSED';
-      case DataReplicationState.rescan:
-        return 'RESCAN';
-      case DataReplicationState.stalled:
-        return 'STALLED';
-      case DataReplicationState.disconnected:
-        return 'DISCONNECTED';
-    }
-  }
-}
+  final String value;
 
-extension DataReplicationStateFromString on String {
-  DataReplicationState toDataReplicationState() {
-    switch (this) {
-      case 'STOPPED':
-        return DataReplicationState.stopped;
-      case 'INITIATING':
-        return DataReplicationState.initiating;
-      case 'INITIAL_SYNC':
-        return DataReplicationState.initialSync;
-      case 'BACKLOG':
-        return DataReplicationState.backlog;
-      case 'CREATING_SNAPSHOT':
-        return DataReplicationState.creatingSnapshot;
-      case 'CONTINUOUS':
-        return DataReplicationState.continuous;
-      case 'PAUSED':
-        return DataReplicationState.paused;
-      case 'RESCAN':
-        return DataReplicationState.rescan;
-      case 'STALLED':
-        return DataReplicationState.stalled;
-      case 'DISCONNECTED':
-        return DataReplicationState.disconnected;
-    }
-    throw Exception('$this is not known in enum DataReplicationState');
-  }
+  const DataReplicationState(this.value);
+
+  static DataReplicationState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum DataReplicationState'));
 }
 
 class DeleteJobResponse {
@@ -2364,6 +2689,18 @@ class DeleteJobResponse {
 
   factory DeleteJobResponse.fromJson(Map<String, dynamic> _) {
     return DeleteJobResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+class DeleteLaunchActionResponse {
+  DeleteLaunchActionResponse();
+
+  factory DeleteLaunchActionResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteLaunchActionResponse();
   }
 
   Map<String, dynamic> toJson() {
@@ -2390,6 +2727,18 @@ class DeleteReplicationConfigurationTemplateResponse {
   factory DeleteReplicationConfigurationTemplateResponse.fromJson(
       Map<String, dynamic> _) {
     return DeleteReplicationConfigurationTemplateResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+class DeleteSourceNetworkResponse {
+  DeleteSourceNetworkResponse();
+
+  factory DeleteSourceNetworkResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteSourceNetworkResponse();
   }
 
   Map<String, dynamic> toJson() {
@@ -2424,7 +2773,7 @@ class DescribeJobLogItemsResponse {
   factory DescribeJobLogItemsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeJobLogItemsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => JobLog.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2485,7 +2834,7 @@ class DescribeJobsResponse {
   factory DescribeJobsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeJobsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Job.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2518,7 +2867,7 @@ class DescribeLaunchConfigurationTemplatesResponse {
       Map<String, dynamic> json) {
     return DescribeLaunchConfigurationTemplatesResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               LaunchConfigurationTemplate.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2578,7 +2927,7 @@ class DescribeRecoveryInstancesResponse {
       Map<String, dynamic> json) {
     return DescribeRecoveryInstancesResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecoveryInstance.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2634,7 +2983,7 @@ class DescribeRecoverySnapshotsResponse {
       Map<String, dynamic> json) {
     return DescribeRecoverySnapshotsResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecoverySnapshot.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2667,9 +3016,71 @@ class DescribeReplicationConfigurationTemplatesResponse {
       Map<String, dynamic> json) {
     return DescribeReplicationConfigurationTemplatesResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReplicationConfigurationTemplate.fromJson(
               e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final items = this.items;
+    final nextToken = this.nextToken;
+    return {
+      if (items != null) 'items': items,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+/// A set of filters by which to return Source Networks.
+class DescribeSourceNetworksRequestFilters {
+  /// Filter Source Networks by account ID containing the protected VPCs.
+  final String? originAccountID;
+
+  /// Filter Source Networks by the region containing the protected VPCs.
+  final String? originRegion;
+
+  /// An array of Source Network IDs that should be returned. An empty array means
+  /// all Source Networks.
+  final List<String>? sourceNetworkIDs;
+
+  DescribeSourceNetworksRequestFilters({
+    this.originAccountID,
+    this.originRegion,
+    this.sourceNetworkIDs,
+  });
+
+  Map<String, dynamic> toJson() {
+    final originAccountID = this.originAccountID;
+    final originRegion = this.originRegion;
+    final sourceNetworkIDs = this.sourceNetworkIDs;
+    return {
+      if (originAccountID != null) 'originAccountID': originAccountID,
+      if (originRegion != null) 'originRegion': originRegion,
+      if (sourceNetworkIDs != null) 'sourceNetworkIDs': sourceNetworkIDs,
+    };
+  }
+}
+
+class DescribeSourceNetworksResponse {
+  /// An array of Source Networks.
+  final List<SourceNetwork>? items;
+
+  /// The token of the next Source Networks to retrieve.
+  final String? nextToken;
+
+  DescribeSourceNetworksResponse({
+    this.items,
+    this.nextToken,
+  });
+
+  factory DescribeSourceNetworksResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeSourceNetworksResponse(
+      items: (json['items'] as List?)
+          ?.nonNulls
+          .map((e) => SourceNetwork.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
     );
@@ -2732,7 +3143,7 @@ class DescribeSourceServersResponse {
   factory DescribeSourceServersResponse.fromJson(Map<String, dynamic> json) {
     return DescribeSourceServersResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SourceServer.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2780,300 +3191,166 @@ class Disk {
 }
 
 enum EC2InstanceState {
-  pending,
-  running,
-  stopping,
-  stopped,
-  shuttingDown,
-  terminated,
-  notFound,
+  pending('PENDING'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  shuttingDown('SHUTTING-DOWN'),
+  terminated('TERMINATED'),
+  notFound('NOT_FOUND'),
+  ;
+
+  final String value;
+
+  const EC2InstanceState(this.value);
+
+  static EC2InstanceState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EC2InstanceState'));
 }
 
-extension EC2InstanceStateValueExtension on EC2InstanceState {
-  String toValue() {
-    switch (this) {
-      case EC2InstanceState.pending:
-        return 'PENDING';
-      case EC2InstanceState.running:
-        return 'RUNNING';
-      case EC2InstanceState.stopping:
-        return 'STOPPING';
-      case EC2InstanceState.stopped:
-        return 'STOPPED';
-      case EC2InstanceState.shuttingDown:
-        return 'SHUTTING-DOWN';
-      case EC2InstanceState.terminated:
-        return 'TERMINATED';
-      case EC2InstanceState.notFound:
-        return 'NOT_FOUND';
-    }
+/// Properties of resource related to a job event.
+class EventResourceData {
+  /// Source Network properties.
+  final SourceNetworkData? sourceNetworkData;
+
+  EventResourceData({
+    this.sourceNetworkData,
+  });
+
+  factory EventResourceData.fromJson(Map<String, dynamic> json) {
+    return EventResourceData(
+      sourceNetworkData: json['sourceNetworkData'] != null
+          ? SourceNetworkData.fromJson(
+              json['sourceNetworkData'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sourceNetworkData = this.sourceNetworkData;
+    return {
+      if (sourceNetworkData != null) 'sourceNetworkData': sourceNetworkData,
+    };
   }
 }
 
-extension EC2InstanceStateFromString on String {
-  EC2InstanceState toEC2InstanceState() {
-    switch (this) {
-      case 'PENDING':
-        return EC2InstanceState.pending;
-      case 'RUNNING':
-        return EC2InstanceState.running;
-      case 'STOPPING':
-        return EC2InstanceState.stopping;
-      case 'STOPPED':
-        return EC2InstanceState.stopped;
-      case 'SHUTTING-DOWN':
-        return EC2InstanceState.shuttingDown;
-      case 'TERMINATED':
-        return EC2InstanceState.terminated;
-      case 'NOT_FOUND':
-        return EC2InstanceState.notFound;
-    }
-    throw Exception('$this is not known in enum EC2InstanceState');
+class ExportSourceNetworkCfnTemplateResponse {
+  /// S3 bucket URL where the Source Network CloudFormation template was exported
+  /// to.
+  final String? s3DestinationUrl;
+
+  ExportSourceNetworkCfnTemplateResponse({
+    this.s3DestinationUrl,
+  });
+
+  factory ExportSourceNetworkCfnTemplateResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ExportSourceNetworkCfnTemplateResponse(
+      s3DestinationUrl: json['s3DestinationUrl'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final s3DestinationUrl = this.s3DestinationUrl;
+    return {
+      if (s3DestinationUrl != null) 's3DestinationUrl': s3DestinationUrl,
+    };
   }
 }
 
 enum ExtensionStatus {
-  extended,
-  extensionError,
-  notExtended,
-}
+  extended('EXTENDED'),
+  extensionError('EXTENSION_ERROR'),
+  notExtended('NOT_EXTENDED'),
+  ;
 
-extension ExtensionStatusValueExtension on ExtensionStatus {
-  String toValue() {
-    switch (this) {
-      case ExtensionStatus.extended:
-        return 'EXTENDED';
-      case ExtensionStatus.extensionError:
-        return 'EXTENSION_ERROR';
-      case ExtensionStatus.notExtended:
-        return 'NOT_EXTENDED';
-    }
-  }
-}
+  final String value;
 
-extension ExtensionStatusFromString on String {
-  ExtensionStatus toExtensionStatus() {
-    switch (this) {
-      case 'EXTENDED':
-        return ExtensionStatus.extended;
-      case 'EXTENSION_ERROR':
-        return ExtensionStatus.extensionError;
-      case 'NOT_EXTENDED':
-        return ExtensionStatus.notExtended;
-    }
-    throw Exception('$this is not known in enum ExtensionStatus');
-  }
+  const ExtensionStatus(this.value);
+
+  static ExtensionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExtensionStatus'));
 }
 
 enum FailbackLaunchType {
-  recovery,
-  drill,
-}
+  recovery('RECOVERY'),
+  drill('DRILL'),
+  ;
 
-extension FailbackLaunchTypeValueExtension on FailbackLaunchType {
-  String toValue() {
-    switch (this) {
-      case FailbackLaunchType.recovery:
-        return 'RECOVERY';
-      case FailbackLaunchType.drill:
-        return 'DRILL';
-    }
-  }
-}
+  final String value;
 
-extension FailbackLaunchTypeFromString on String {
-  FailbackLaunchType toFailbackLaunchType() {
-    switch (this) {
-      case 'RECOVERY':
-        return FailbackLaunchType.recovery;
-      case 'DRILL':
-        return FailbackLaunchType.drill;
-    }
-    throw Exception('$this is not known in enum FailbackLaunchType');
-  }
+  const FailbackLaunchType(this.value);
+
+  static FailbackLaunchType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FailbackLaunchType'));
 }
 
 enum FailbackReplicationError {
-  agentNotSeen,
-  failbackClientNotSeen,
-  notConverging,
-  unstableNetwork,
-  failedToEstablishRecoveryInstanceCommunication,
-  failedToDownloadReplicationSoftwareToFailbackClient,
-  failedToConfigureReplicationSoftware,
-  failedToPairAgentWithReplicationSoftware,
-  failedToEstablishAgentReplicatorSoftwareCommunication,
-  failedGettingReplicationState,
-  snapshotsFailure,
-  failedToCreateSecurityGroup,
-  failedToLaunchReplicationServer,
-  failedToBootReplicationServer,
-  failedToAuthenticateWithService,
-  failedToDownloadReplicationSoftware,
-  failedToCreateStagingDisks,
-  failedToAttachStagingDisks,
-  failedToPairReplicationServerWithAgent,
-  failedToConnectAgentToReplicationServer,
-  failedToStartDataTransfer,
-}
+  agentNotSeen('AGENT_NOT_SEEN'),
+  failbackClientNotSeen('FAILBACK_CLIENT_NOT_SEEN'),
+  notConverging('NOT_CONVERGING'),
+  unstableNetwork('UNSTABLE_NETWORK'),
+  failedToEstablishRecoveryInstanceCommunication(
+      'FAILED_TO_ESTABLISH_RECOVERY_INSTANCE_COMMUNICATION'),
+  failedToDownloadReplicationSoftwareToFailbackClient(
+      'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE_TO_FAILBACK_CLIENT'),
+  failedToConfigureReplicationSoftware(
+      'FAILED_TO_CONFIGURE_REPLICATION_SOFTWARE'),
+  failedToPairAgentWithReplicationSoftware(
+      'FAILED_TO_PAIR_AGENT_WITH_REPLICATION_SOFTWARE'),
+  failedToEstablishAgentReplicatorSoftwareCommunication(
+      'FAILED_TO_ESTABLISH_AGENT_REPLICATOR_SOFTWARE_COMMUNICATION'),
+  failedGettingReplicationState('FAILED_GETTING_REPLICATION_STATE'),
+  snapshotsFailure('SNAPSHOTS_FAILURE'),
+  failedToCreateSecurityGroup('FAILED_TO_CREATE_SECURITY_GROUP'),
+  failedToLaunchReplicationServer('FAILED_TO_LAUNCH_REPLICATION_SERVER'),
+  failedToBootReplicationServer('FAILED_TO_BOOT_REPLICATION_SERVER'),
+  failedToAuthenticateWithService('FAILED_TO_AUTHENTICATE_WITH_SERVICE'),
+  failedToDownloadReplicationSoftware(
+      'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE'),
+  failedToCreateStagingDisks('FAILED_TO_CREATE_STAGING_DISKS'),
+  failedToAttachStagingDisks('FAILED_TO_ATTACH_STAGING_DISKS'),
+  failedToPairReplicationServerWithAgent(
+      'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT'),
+  failedToConnectAgentToReplicationServer(
+      'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER'),
+  failedToStartDataTransfer('FAILED_TO_START_DATA_TRANSFER'),
+  ;
 
-extension FailbackReplicationErrorValueExtension on FailbackReplicationError {
-  String toValue() {
-    switch (this) {
-      case FailbackReplicationError.agentNotSeen:
-        return 'AGENT_NOT_SEEN';
-      case FailbackReplicationError.failbackClientNotSeen:
-        return 'FAILBACK_CLIENT_NOT_SEEN';
-      case FailbackReplicationError.notConverging:
-        return 'NOT_CONVERGING';
-      case FailbackReplicationError.unstableNetwork:
-        return 'UNSTABLE_NETWORK';
-      case FailbackReplicationError
-            .failedToEstablishRecoveryInstanceCommunication:
-        return 'FAILED_TO_ESTABLISH_RECOVERY_INSTANCE_COMMUNICATION';
-      case FailbackReplicationError
-            .failedToDownloadReplicationSoftwareToFailbackClient:
-        return 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE_TO_FAILBACK_CLIENT';
-      case FailbackReplicationError.failedToConfigureReplicationSoftware:
-        return 'FAILED_TO_CONFIGURE_REPLICATION_SOFTWARE';
-      case FailbackReplicationError.failedToPairAgentWithReplicationSoftware:
-        return 'FAILED_TO_PAIR_AGENT_WITH_REPLICATION_SOFTWARE';
-      case FailbackReplicationError
-            .failedToEstablishAgentReplicatorSoftwareCommunication:
-        return 'FAILED_TO_ESTABLISH_AGENT_REPLICATOR_SOFTWARE_COMMUNICATION';
-      case FailbackReplicationError.failedGettingReplicationState:
-        return 'FAILED_GETTING_REPLICATION_STATE';
-      case FailbackReplicationError.snapshotsFailure:
-        return 'SNAPSHOTS_FAILURE';
-      case FailbackReplicationError.failedToCreateSecurityGroup:
-        return 'FAILED_TO_CREATE_SECURITY_GROUP';
-      case FailbackReplicationError.failedToLaunchReplicationServer:
-        return 'FAILED_TO_LAUNCH_REPLICATION_SERVER';
-      case FailbackReplicationError.failedToBootReplicationServer:
-        return 'FAILED_TO_BOOT_REPLICATION_SERVER';
-      case FailbackReplicationError.failedToAuthenticateWithService:
-        return 'FAILED_TO_AUTHENTICATE_WITH_SERVICE';
-      case FailbackReplicationError.failedToDownloadReplicationSoftware:
-        return 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE';
-      case FailbackReplicationError.failedToCreateStagingDisks:
-        return 'FAILED_TO_CREATE_STAGING_DISKS';
-      case FailbackReplicationError.failedToAttachStagingDisks:
-        return 'FAILED_TO_ATTACH_STAGING_DISKS';
-      case FailbackReplicationError.failedToPairReplicationServerWithAgent:
-        return 'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT';
-      case FailbackReplicationError.failedToConnectAgentToReplicationServer:
-        return 'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER';
-      case FailbackReplicationError.failedToStartDataTransfer:
-        return 'FAILED_TO_START_DATA_TRANSFER';
-    }
-  }
-}
+  final String value;
 
-extension FailbackReplicationErrorFromString on String {
-  FailbackReplicationError toFailbackReplicationError() {
-    switch (this) {
-      case 'AGENT_NOT_SEEN':
-        return FailbackReplicationError.agentNotSeen;
-      case 'FAILBACK_CLIENT_NOT_SEEN':
-        return FailbackReplicationError.failbackClientNotSeen;
-      case 'NOT_CONVERGING':
-        return FailbackReplicationError.notConverging;
-      case 'UNSTABLE_NETWORK':
-        return FailbackReplicationError.unstableNetwork;
-      case 'FAILED_TO_ESTABLISH_RECOVERY_INSTANCE_COMMUNICATION':
-        return FailbackReplicationError
-            .failedToEstablishRecoveryInstanceCommunication;
-      case 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE_TO_FAILBACK_CLIENT':
-        return FailbackReplicationError
-            .failedToDownloadReplicationSoftwareToFailbackClient;
-      case 'FAILED_TO_CONFIGURE_REPLICATION_SOFTWARE':
-        return FailbackReplicationError.failedToConfigureReplicationSoftware;
-      case 'FAILED_TO_PAIR_AGENT_WITH_REPLICATION_SOFTWARE':
-        return FailbackReplicationError
-            .failedToPairAgentWithReplicationSoftware;
-      case 'FAILED_TO_ESTABLISH_AGENT_REPLICATOR_SOFTWARE_COMMUNICATION':
-        return FailbackReplicationError
-            .failedToEstablishAgentReplicatorSoftwareCommunication;
-      case 'FAILED_GETTING_REPLICATION_STATE':
-        return FailbackReplicationError.failedGettingReplicationState;
-      case 'SNAPSHOTS_FAILURE':
-        return FailbackReplicationError.snapshotsFailure;
-      case 'FAILED_TO_CREATE_SECURITY_GROUP':
-        return FailbackReplicationError.failedToCreateSecurityGroup;
-      case 'FAILED_TO_LAUNCH_REPLICATION_SERVER':
-        return FailbackReplicationError.failedToLaunchReplicationServer;
-      case 'FAILED_TO_BOOT_REPLICATION_SERVER':
-        return FailbackReplicationError.failedToBootReplicationServer;
-      case 'FAILED_TO_AUTHENTICATE_WITH_SERVICE':
-        return FailbackReplicationError.failedToAuthenticateWithService;
-      case 'FAILED_TO_DOWNLOAD_REPLICATION_SOFTWARE':
-        return FailbackReplicationError.failedToDownloadReplicationSoftware;
-      case 'FAILED_TO_CREATE_STAGING_DISKS':
-        return FailbackReplicationError.failedToCreateStagingDisks;
-      case 'FAILED_TO_ATTACH_STAGING_DISKS':
-        return FailbackReplicationError.failedToAttachStagingDisks;
-      case 'FAILED_TO_PAIR_REPLICATION_SERVER_WITH_AGENT':
-        return FailbackReplicationError.failedToPairReplicationServerWithAgent;
-      case 'FAILED_TO_CONNECT_AGENT_TO_REPLICATION_SERVER':
-        return FailbackReplicationError.failedToConnectAgentToReplicationServer;
-      case 'FAILED_TO_START_DATA_TRANSFER':
-        return FailbackReplicationError.failedToStartDataTransfer;
-    }
-    throw Exception('$this is not known in enum FailbackReplicationError');
-  }
+  const FailbackReplicationError(this.value);
+
+  static FailbackReplicationError fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum FailbackReplicationError'));
 }
 
 enum FailbackState {
-  failbackNotStarted,
-  failbackInProgress,
-  failbackReadyForLaunch,
-  failbackCompleted,
-  failbackError,
-  failbackNotReadyForLaunch,
-  failbackLaunchStateNotAvailable,
-}
+  failbackNotStarted('FAILBACK_NOT_STARTED'),
+  failbackInProgress('FAILBACK_IN_PROGRESS'),
+  failbackReadyForLaunch('FAILBACK_READY_FOR_LAUNCH'),
+  failbackCompleted('FAILBACK_COMPLETED'),
+  failbackError('FAILBACK_ERROR'),
+  failbackNotReadyForLaunch('FAILBACK_NOT_READY_FOR_LAUNCH'),
+  failbackLaunchStateNotAvailable('FAILBACK_LAUNCH_STATE_NOT_AVAILABLE'),
+  ;
 
-extension FailbackStateValueExtension on FailbackState {
-  String toValue() {
-    switch (this) {
-      case FailbackState.failbackNotStarted:
-        return 'FAILBACK_NOT_STARTED';
-      case FailbackState.failbackInProgress:
-        return 'FAILBACK_IN_PROGRESS';
-      case FailbackState.failbackReadyForLaunch:
-        return 'FAILBACK_READY_FOR_LAUNCH';
-      case FailbackState.failbackCompleted:
-        return 'FAILBACK_COMPLETED';
-      case FailbackState.failbackError:
-        return 'FAILBACK_ERROR';
-      case FailbackState.failbackNotReadyForLaunch:
-        return 'FAILBACK_NOT_READY_FOR_LAUNCH';
-      case FailbackState.failbackLaunchStateNotAvailable:
-        return 'FAILBACK_LAUNCH_STATE_NOT_AVAILABLE';
-    }
-  }
-}
+  final String value;
 
-extension FailbackStateFromString on String {
-  FailbackState toFailbackState() {
-    switch (this) {
-      case 'FAILBACK_NOT_STARTED':
-        return FailbackState.failbackNotStarted;
-      case 'FAILBACK_IN_PROGRESS':
-        return FailbackState.failbackInProgress;
-      case 'FAILBACK_READY_FOR_LAUNCH':
-        return FailbackState.failbackReadyForLaunch;
-      case 'FAILBACK_COMPLETED':
-        return FailbackState.failbackCompleted;
-      case 'FAILBACK_ERROR':
-        return FailbackState.failbackError;
-      case 'FAILBACK_NOT_READY_FOR_LAUNCH':
-        return FailbackState.failbackNotReadyForLaunch;
-      case 'FAILBACK_LAUNCH_STATE_NOT_AVAILABLE':
-        return FailbackState.failbackLaunchStateNotAvailable;
-    }
-    throw Exception('$this is not known in enum FailbackState');
-  }
+  const FailbackState(this.value);
+
+  static FailbackState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FailbackState'));
 }
 
 class GetFailbackReplicationConfigurationResponse {
@@ -3180,51 +3457,24 @@ class InitializeServiceResponse {
 }
 
 enum InitiatedBy {
-  startRecovery,
-  startDrill,
-  failback,
-  diagnostic,
-  terminateRecoveryInstances,
-  targetAccount,
-}
+  startRecovery('START_RECOVERY'),
+  startDrill('START_DRILL'),
+  failback('FAILBACK'),
+  diagnostic('DIAGNOSTIC'),
+  terminateRecoveryInstances('TERMINATE_RECOVERY_INSTANCES'),
+  targetAccount('TARGET_ACCOUNT'),
+  createNetworkRecovery('CREATE_NETWORK_RECOVERY'),
+  updateNetworkRecovery('UPDATE_NETWORK_RECOVERY'),
+  associateNetworkRecovery('ASSOCIATE_NETWORK_RECOVERY'),
+  ;
 
-extension InitiatedByValueExtension on InitiatedBy {
-  String toValue() {
-    switch (this) {
-      case InitiatedBy.startRecovery:
-        return 'START_RECOVERY';
-      case InitiatedBy.startDrill:
-        return 'START_DRILL';
-      case InitiatedBy.failback:
-        return 'FAILBACK';
-      case InitiatedBy.diagnostic:
-        return 'DIAGNOSTIC';
-      case InitiatedBy.terminateRecoveryInstances:
-        return 'TERMINATE_RECOVERY_INSTANCES';
-      case InitiatedBy.targetAccount:
-        return 'TARGET_ACCOUNT';
-    }
-  }
-}
+  final String value;
 
-extension InitiatedByFromString on String {
-  InitiatedBy toInitiatedBy() {
-    switch (this) {
-      case 'START_RECOVERY':
-        return InitiatedBy.startRecovery;
-      case 'START_DRILL':
-        return InitiatedBy.startDrill;
-      case 'FAILBACK':
-        return InitiatedBy.failback;
-      case 'DIAGNOSTIC':
-        return InitiatedBy.diagnostic;
-      case 'TERMINATE_RECOVERY_INSTANCES':
-        return InitiatedBy.terminateRecoveryInstances;
-      case 'TARGET_ACCOUNT':
-        return InitiatedBy.targetAccount;
-    }
-    throw Exception('$this is not known in enum InitiatedBy');
-  }
+  const InitiatedBy(this.value);
+
+  static InitiatedBy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum InitiatedBy'));
 }
 
 /// A job is an asynchronous workflow.
@@ -3244,6 +3494,9 @@ class Job {
   /// A string representing who initiated the Job.
   final InitiatedBy? initiatedBy;
 
+  /// A list of resources that the Job is acting upon.
+  final List<ParticipatingResource>? participatingResources;
+
   /// A list of servers that the Job is acting upon.
   final List<ParticipatingServer>? participatingServers;
 
@@ -3262,6 +3515,7 @@ class Job {
     this.creationDateTime,
     this.endDateTime,
     this.initiatedBy,
+    this.participatingResources,
     this.participatingServers,
     this.status,
     this.tags,
@@ -3274,15 +3528,20 @@ class Job {
       arn: json['arn'] as String?,
       creationDateTime: json['creationDateTime'] as String?,
       endDateTime: json['endDateTime'] as String?,
-      initiatedBy: (json['initiatedBy'] as String?)?.toInitiatedBy(),
+      initiatedBy:
+          (json['initiatedBy'] as String?)?.let(InitiatedBy.fromString),
+      participatingResources: (json['participatingResources'] as List?)
+          ?.nonNulls
+          .map((e) => ParticipatingResource.fromJson(e as Map<String, dynamic>))
+          .toList(),
       participatingServers: (json['participatingServers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ParticipatingServer.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toJobStatus(),
+      status: (json['status'] as String?)?.let(JobStatus.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      type: (json['type'] as String?)?.toJobType(),
+      type: (json['type'] as String?)?.let(JobType.fromString),
     );
   }
 
@@ -3292,6 +3551,7 @@ class Job {
     final creationDateTime = this.creationDateTime;
     final endDateTime = this.endDateTime;
     final initiatedBy = this.initiatedBy;
+    final participatingResources = this.participatingResources;
     final participatingServers = this.participatingServers;
     final status = this.status;
     final tags = this.tags;
@@ -3301,12 +3561,14 @@ class Job {
       if (arn != null) 'arn': arn,
       if (creationDateTime != null) 'creationDateTime': creationDateTime,
       if (endDateTime != null) 'endDateTime': endDateTime,
-      if (initiatedBy != null) 'initiatedBy': initiatedBy.toValue(),
+      if (initiatedBy != null) 'initiatedBy': initiatedBy.value,
+      if (participatingResources != null)
+        'participatingResources': participatingResources,
       if (participatingServers != null)
         'participatingServers': participatingServers,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -3330,7 +3592,7 @@ class JobLog {
 
   factory JobLog.fromJson(Map<String, dynamic> json) {
     return JobLog(
-      event: (json['event'] as String?)?.toJobLogEvent(),
+      event: (json['event'] as String?)?.let(JobLogEvent.fromString),
       eventData: json['eventData'] != null
           ? JobLogEventData.fromJson(json['eventData'] as Map<String, dynamic>)
           : null,
@@ -3343,7 +3605,7 @@ class JobLog {
     final eventData = this.eventData;
     final logDateTime = this.logDateTime;
     return {
-      if (event != null) 'event': event.toValue(),
+      if (event != null) 'event': event.value,
       if (eventData != null) 'eventData': eventData,
       if (logDateTime != null) 'logDateTime': logDateTime,
     };
@@ -3351,106 +3613,42 @@ class JobLog {
 }
 
 enum JobLogEvent {
-  jobStart,
-  serverSkipped,
-  cleanupStart,
-  cleanupEnd,
-  cleanupFail,
-  snapshotStart,
-  snapshotEnd,
-  snapshotFail,
-  usingPreviousSnapshot,
-  usingPreviousSnapshotFailed,
-  conversionStart,
-  conversionEnd,
-  conversionFail,
-  launchStart,
-  launchFailed,
-  jobCancel,
-  jobEnd,
-}
+  jobStart('JOB_START'),
+  serverSkipped('SERVER_SKIPPED'),
+  cleanupStart('CLEANUP_START'),
+  cleanupEnd('CLEANUP_END'),
+  cleanupFail('CLEANUP_FAIL'),
+  snapshotStart('SNAPSHOT_START'),
+  snapshotEnd('SNAPSHOT_END'),
+  snapshotFail('SNAPSHOT_FAIL'),
+  usingPreviousSnapshot('USING_PREVIOUS_SNAPSHOT'),
+  usingPreviousSnapshotFailed('USING_PREVIOUS_SNAPSHOT_FAILED'),
+  conversionStart('CONVERSION_START'),
+  conversionEnd('CONVERSION_END'),
+  conversionFail('CONVERSION_FAIL'),
+  launchStart('LAUNCH_START'),
+  launchFailed('LAUNCH_FAILED'),
+  jobCancel('JOB_CANCEL'),
+  jobEnd('JOB_END'),
+  deployNetworkConfigurationStart('DEPLOY_NETWORK_CONFIGURATION_START'),
+  deployNetworkConfigurationEnd('DEPLOY_NETWORK_CONFIGURATION_END'),
+  deployNetworkConfigurationFailed('DEPLOY_NETWORK_CONFIGURATION_FAILED'),
+  updateNetworkConfigurationStart('UPDATE_NETWORK_CONFIGURATION_START'),
+  updateNetworkConfigurationEnd('UPDATE_NETWORK_CONFIGURATION_END'),
+  updateNetworkConfigurationFailed('UPDATE_NETWORK_CONFIGURATION_FAILED'),
+  updateLaunchTemplateStart('UPDATE_LAUNCH_TEMPLATE_START'),
+  updateLaunchTemplateEnd('UPDATE_LAUNCH_TEMPLATE_END'),
+  updateLaunchTemplateFailed('UPDATE_LAUNCH_TEMPLATE_FAILED'),
+  networkRecoveryFail('NETWORK_RECOVERY_FAIL'),
+  ;
 
-extension JobLogEventValueExtension on JobLogEvent {
-  String toValue() {
-    switch (this) {
-      case JobLogEvent.jobStart:
-        return 'JOB_START';
-      case JobLogEvent.serverSkipped:
-        return 'SERVER_SKIPPED';
-      case JobLogEvent.cleanupStart:
-        return 'CLEANUP_START';
-      case JobLogEvent.cleanupEnd:
-        return 'CLEANUP_END';
-      case JobLogEvent.cleanupFail:
-        return 'CLEANUP_FAIL';
-      case JobLogEvent.snapshotStart:
-        return 'SNAPSHOT_START';
-      case JobLogEvent.snapshotEnd:
-        return 'SNAPSHOT_END';
-      case JobLogEvent.snapshotFail:
-        return 'SNAPSHOT_FAIL';
-      case JobLogEvent.usingPreviousSnapshot:
-        return 'USING_PREVIOUS_SNAPSHOT';
-      case JobLogEvent.usingPreviousSnapshotFailed:
-        return 'USING_PREVIOUS_SNAPSHOT_FAILED';
-      case JobLogEvent.conversionStart:
-        return 'CONVERSION_START';
-      case JobLogEvent.conversionEnd:
-        return 'CONVERSION_END';
-      case JobLogEvent.conversionFail:
-        return 'CONVERSION_FAIL';
-      case JobLogEvent.launchStart:
-        return 'LAUNCH_START';
-      case JobLogEvent.launchFailed:
-        return 'LAUNCH_FAILED';
-      case JobLogEvent.jobCancel:
-        return 'JOB_CANCEL';
-      case JobLogEvent.jobEnd:
-        return 'JOB_END';
-    }
-  }
-}
+  final String value;
 
-extension JobLogEventFromString on String {
-  JobLogEvent toJobLogEvent() {
-    switch (this) {
-      case 'JOB_START':
-        return JobLogEvent.jobStart;
-      case 'SERVER_SKIPPED':
-        return JobLogEvent.serverSkipped;
-      case 'CLEANUP_START':
-        return JobLogEvent.cleanupStart;
-      case 'CLEANUP_END':
-        return JobLogEvent.cleanupEnd;
-      case 'CLEANUP_FAIL':
-        return JobLogEvent.cleanupFail;
-      case 'SNAPSHOT_START':
-        return JobLogEvent.snapshotStart;
-      case 'SNAPSHOT_END':
-        return JobLogEvent.snapshotEnd;
-      case 'SNAPSHOT_FAIL':
-        return JobLogEvent.snapshotFail;
-      case 'USING_PREVIOUS_SNAPSHOT':
-        return JobLogEvent.usingPreviousSnapshot;
-      case 'USING_PREVIOUS_SNAPSHOT_FAILED':
-        return JobLogEvent.usingPreviousSnapshotFailed;
-      case 'CONVERSION_START':
-        return JobLogEvent.conversionStart;
-      case 'CONVERSION_END':
-        return JobLogEvent.conversionEnd;
-      case 'CONVERSION_FAIL':
-        return JobLogEvent.conversionFail;
-      case 'LAUNCH_START':
-        return JobLogEvent.launchStart;
-      case 'LAUNCH_FAILED':
-        return JobLogEvent.launchFailed;
-      case 'JOB_CANCEL':
-        return JobLogEvent.jobCancel;
-      case 'JOB_END':
-        return JobLogEvent.jobEnd;
-    }
-    throw Exception('$this is not known in enum JobLogEvent');
-  }
+  const JobLogEvent(this.value);
+
+  static JobLogEvent fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobLogEvent'));
 }
 
 /// Metadata associated with a Job log.
@@ -3460,6 +3658,9 @@ class JobLogEventData {
 
   /// The ID of a conversion server.
   final String? conversionServerID;
+
+  /// Properties of resource related to a job event.
+  final EventResourceData? eventResourceData;
 
   /// A string representing a job error.
   final String? rawError;
@@ -3473,6 +3674,7 @@ class JobLogEventData {
   JobLogEventData({
     this.conversionProperties,
     this.conversionServerID,
+    this.eventResourceData,
     this.rawError,
     this.sourceServerID,
     this.targetInstanceID,
@@ -3485,6 +3687,10 @@ class JobLogEventData {
               json['conversionProperties'] as Map<String, dynamic>)
           : null,
       conversionServerID: json['conversionServerID'] as String?,
+      eventResourceData: json['eventResourceData'] != null
+          ? EventResourceData.fromJson(
+              json['eventResourceData'] as Map<String, dynamic>)
+          : null,
       rawError: json['rawError'] as String?,
       sourceServerID: json['sourceServerID'] as String?,
       targetInstanceID: json['targetInstanceID'] as String?,
@@ -3494,6 +3700,7 @@ class JobLogEventData {
   Map<String, dynamic> toJson() {
     final conversionProperties = this.conversionProperties;
     final conversionServerID = this.conversionServerID;
+    final eventResourceData = this.eventResourceData;
     final rawError = this.rawError;
     final sourceServerID = this.sourceServerID;
     final targetInstanceID = this.targetInstanceID;
@@ -3501,6 +3708,7 @@ class JobLogEventData {
       if (conversionProperties != null)
         'conversionProperties': conversionProperties,
       if (conversionServerID != null) 'conversionServerID': conversionServerID,
+      if (eventResourceData != null) 'eventResourceData': eventResourceData,
       if (rawError != null) 'rawError': rawError,
       if (sourceServerID != null) 'sourceServerID': sourceServerID,
       if (targetInstanceID != null) 'targetInstanceID': targetInstanceID,
@@ -3509,134 +3717,341 @@ class JobLogEventData {
 }
 
 enum JobStatus {
-  pending,
-  started,
-  completed,
-}
+  pending('PENDING'),
+  started('STARTED'),
+  completed('COMPLETED'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.pending:
-        return 'PENDING';
-      case JobStatus.started:
-        return 'STARTED';
-      case JobStatus.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'PENDING':
-        return JobStatus.pending;
-      case 'STARTED':
-        return JobStatus.started;
-      case 'COMPLETED':
-        return JobStatus.completed;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 enum JobType {
-  launch,
-  terminate,
-  createConvertedSnapshot,
-}
+  launch('LAUNCH'),
+  terminate('TERMINATE'),
+  createConvertedSnapshot('CREATE_CONVERTED_SNAPSHOT'),
+  ;
 
-extension JobTypeValueExtension on JobType {
-  String toValue() {
-    switch (this) {
-      case JobType.launch:
-        return 'LAUNCH';
-      case JobType.terminate:
-        return 'TERMINATE';
-      case JobType.createConvertedSnapshot:
-        return 'CREATE_CONVERTED_SNAPSHOT';
-    }
-  }
-}
+  final String value;
 
-extension JobTypeFromString on String {
-  JobType toJobType() {
-    switch (this) {
-      case 'LAUNCH':
-        return JobType.launch;
-      case 'TERMINATE':
-        return JobType.terminate;
-      case 'CREATE_CONVERTED_SNAPSHOT':
-        return JobType.createConvertedSnapshot;
-    }
-    throw Exception('$this is not known in enum JobType');
-  }
+  const JobType(this.value);
+
+  static JobType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum JobType'));
 }
 
 enum LastLaunchResult {
-  notStarted,
-  pending,
-  succeeded,
-  failed,
-}
+  notStarted('NOT_STARTED'),
+  pending('PENDING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
 
-extension LastLaunchResultValueExtension on LastLaunchResult {
-  String toValue() {
-    switch (this) {
-      case LastLaunchResult.notStarted:
-        return 'NOT_STARTED';
-      case LastLaunchResult.pending:
-        return 'PENDING';
-      case LastLaunchResult.succeeded:
-        return 'SUCCEEDED';
-      case LastLaunchResult.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension LastLaunchResultFromString on String {
-  LastLaunchResult toLastLaunchResult() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return LastLaunchResult.notStarted;
-      case 'PENDING':
-        return LastLaunchResult.pending;
-      case 'SUCCEEDED':
-        return LastLaunchResult.succeeded;
-      case 'FAILED':
-        return LastLaunchResult.failed;
-    }
-    throw Exception('$this is not known in enum LastLaunchResult');
-  }
+  const LastLaunchResult(this.value);
+
+  static LastLaunchResult fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LastLaunchResult'));
 }
 
 enum LastLaunchType {
-  recovery,
-  drill,
+  recovery('RECOVERY'),
+  drill('DRILL'),
+  ;
+
+  final String value;
+
+  const LastLaunchType(this.value);
+
+  static LastLaunchType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LastLaunchType'));
 }
 
-extension LastLaunchTypeValueExtension on LastLaunchType {
-  String toValue() {
-    switch (this) {
-      case LastLaunchType.recovery:
-        return 'RECOVERY';
-      case LastLaunchType.drill:
-        return 'DRILL';
-    }
+/// Launch action.
+class LaunchAction {
+  /// Launch action code.
+  final String? actionCode;
+  final String? actionId;
+  final String? actionVersion;
+
+  /// Whether the launch action is active.
+  final bool? active;
+  final LaunchActionCategory? category;
+  final String? description;
+  final String? name;
+
+  /// Whether the launch will not be marked as failed if this action fails.
+  final bool? optional;
+  final int? order;
+  final Map<String, LaunchActionParameter>? parameters;
+
+  /// Launch action type.
+  final LaunchActionType? type;
+
+  LaunchAction({
+    this.actionCode,
+    this.actionId,
+    this.actionVersion,
+    this.active,
+    this.category,
+    this.description,
+    this.name,
+    this.optional,
+    this.order,
+    this.parameters,
+    this.type,
+  });
+
+  factory LaunchAction.fromJson(Map<String, dynamic> json) {
+    return LaunchAction(
+      actionCode: json['actionCode'] as String?,
+      actionId: json['actionId'] as String?,
+      actionVersion: json['actionVersion'] as String?,
+      active: json['active'] as bool?,
+      category:
+          (json['category'] as String?)?.let(LaunchActionCategory.fromString),
+      description: json['description'] as String?,
+      name: json['name'] as String?,
+      optional: json['optional'] as bool?,
+      order: json['order'] as int?,
+      parameters: (json['parameters'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(
+              k, LaunchActionParameter.fromJson(e as Map<String, dynamic>))),
+      type: (json['type'] as String?)?.let(LaunchActionType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final actionCode = this.actionCode;
+    final actionId = this.actionId;
+    final actionVersion = this.actionVersion;
+    final active = this.active;
+    final category = this.category;
+    final description = this.description;
+    final name = this.name;
+    final optional = this.optional;
+    final order = this.order;
+    final parameters = this.parameters;
+    final type = this.type;
+    return {
+      if (actionCode != null) 'actionCode': actionCode,
+      if (actionId != null) 'actionId': actionId,
+      if (actionVersion != null) 'actionVersion': actionVersion,
+      if (active != null) 'active': active,
+      if (category != null) 'category': category.value,
+      if (description != null) 'description': description,
+      if (name != null) 'name': name,
+      if (optional != null) 'optional': optional,
+      if (order != null) 'order': order,
+      if (parameters != null) 'parameters': parameters,
+      if (type != null) 'type': type.value,
+    };
   }
 }
 
-extension LastLaunchTypeFromString on String {
-  LastLaunchType toLastLaunchType() {
-    switch (this) {
-      case 'RECOVERY':
-        return LastLaunchType.recovery;
-      case 'DRILL':
-        return LastLaunchType.drill;
-    }
-    throw Exception('$this is not known in enum LastLaunchType');
+/// Launch action category.
+enum LaunchActionCategory {
+  monitoring('MONITORING'),
+  validation('VALIDATION'),
+  configuration('CONFIGURATION'),
+  security('SECURITY'),
+  other('OTHER'),
+  ;
+
+  final String value;
+
+  const LaunchActionCategory(this.value);
+
+  static LaunchActionCategory fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LaunchActionCategory'));
+}
+
+/// Launch action parameter.
+class LaunchActionParameter {
+  /// Type.
+  final LaunchActionParameterType? type;
+
+  /// Value.
+  final String? value;
+
+  LaunchActionParameter({
+    this.type,
+    this.value,
+  });
+
+  factory LaunchActionParameter.fromJson(Map<String, dynamic> json) {
+    return LaunchActionParameter(
+      type:
+          (json['type'] as String?)?.let(LaunchActionParameterType.fromString),
+      value: json['value'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final type = this.type;
+    final value = this.value;
+    return {
+      if (type != null) 'type': type.value,
+      if (value != null) 'value': value,
+    };
+  }
+}
+
+enum LaunchActionParameterType {
+  ssmStore('SSM_STORE'),
+  $dynamic('DYNAMIC'),
+  ;
+
+  final String value;
+
+  const LaunchActionParameterType(this.value);
+
+  static LaunchActionParameterType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LaunchActionParameterType'));
+}
+
+/// Launch action run.
+class LaunchActionRun {
+  /// Action.
+  final LaunchAction? action;
+
+  /// Failure reason.
+  final String? failureReason;
+
+  /// Run Id.
+  final String? runId;
+
+  /// Run status.
+  final LaunchActionRunStatus? status;
+
+  LaunchActionRun({
+    this.action,
+    this.failureReason,
+    this.runId,
+    this.status,
+  });
+
+  factory LaunchActionRun.fromJson(Map<String, dynamic> json) {
+    return LaunchActionRun(
+      action: json['action'] != null
+          ? LaunchAction.fromJson(json['action'] as Map<String, dynamic>)
+          : null,
+      failureReason: json['failureReason'] as String?,
+      runId: json['runId'] as String?,
+      status:
+          (json['status'] as String?)?.let(LaunchActionRunStatus.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final action = this.action;
+    final failureReason = this.failureReason;
+    final runId = this.runId;
+    final status = this.status;
+    return {
+      if (action != null) 'action': action,
+      if (failureReason != null) 'failureReason': failureReason,
+      if (runId != null) 'runId': runId,
+      if (status != null) 'status': status.value,
+    };
+  }
+}
+
+enum LaunchActionRunStatus {
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
+
+  final String value;
+
+  const LaunchActionRunStatus(this.value);
+
+  static LaunchActionRunStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LaunchActionRunStatus'));
+}
+
+enum LaunchActionType {
+  ssmAutomation('SSM_AUTOMATION'),
+  ssmCommand('SSM_COMMAND'),
+  ;
+
+  final String value;
+
+  const LaunchActionType(this.value);
+
+  static LaunchActionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LaunchActionType'));
+}
+
+/// Resource launch actions filter.
+class LaunchActionsRequestFilters {
+  /// Launch actions Ids.
+  final List<String>? actionIds;
+
+  LaunchActionsRequestFilters({
+    this.actionIds,
+  });
+
+  Map<String, dynamic> toJson() {
+    final actionIds = this.actionIds;
+    return {
+      if (actionIds != null) 'actionIds': actionIds,
+    };
+  }
+}
+
+/// Launch actions status.
+class LaunchActionsStatus {
+  /// List of post launch action status.
+  final List<LaunchActionRun>? runs;
+
+  /// Time where the AWS Systems Manager was detected as running on the launched
+  /// instance.
+  final String? ssmAgentDiscoveryDatetime;
+
+  LaunchActionsStatus({
+    this.runs,
+    this.ssmAgentDiscoveryDatetime,
+  });
+
+  factory LaunchActionsStatus.fromJson(Map<String, dynamic> json) {
+    return LaunchActionsStatus(
+      runs: (json['runs'] as List?)
+          ?.nonNulls
+          .map((e) => LaunchActionRun.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      ssmAgentDiscoveryDatetime: json['ssmAgentDiscoveryDatetime'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final runs = this.runs;
+    final ssmAgentDiscoveryDatetime = this.ssmAgentDiscoveryDatetime;
+    return {
+      if (runs != null) 'runs': runs,
+      if (ssmAgentDiscoveryDatetime != null)
+        'ssmAgentDiscoveryDatetime': ssmAgentDiscoveryDatetime,
+    };
   }
 }
 
@@ -3655,11 +4070,17 @@ class LaunchConfiguration {
   /// The state of the Recovery Instance in EC2 after the recovery operation.
   final LaunchDisposition? launchDisposition;
 
+  /// Launch into existing instance properties.
+  final LaunchIntoInstanceProperties? launchIntoInstanceProperties;
+
   /// The licensing configuration to be used for this launch configuration.
   final Licensing? licensing;
 
   /// The name of the launch configuration.
   final String? name;
+
+  /// Whether we want to activate post-launch actions for the Source Server.
+  final bool? postLaunchEnabled;
 
   /// The ID of the Source Server for this launch configuration.
   final String? sourceServerID;
@@ -3674,8 +4095,10 @@ class LaunchConfiguration {
     this.copyTags,
     this.ec2LaunchTemplateID,
     this.launchDisposition,
+    this.launchIntoInstanceProperties,
     this.licensing,
     this.name,
+    this.postLaunchEnabled,
     this.sourceServerID,
     this.targetInstanceTypeRightSizingMethod,
   });
@@ -3685,16 +4108,21 @@ class LaunchConfiguration {
       copyPrivateIp: json['copyPrivateIp'] as bool?,
       copyTags: json['copyTags'] as bool?,
       ec2LaunchTemplateID: json['ec2LaunchTemplateID'] as String?,
-      launchDisposition:
-          (json['launchDisposition'] as String?)?.toLaunchDisposition(),
+      launchDisposition: (json['launchDisposition'] as String?)
+          ?.let(LaunchDisposition.fromString),
+      launchIntoInstanceProperties: json['launchIntoInstanceProperties'] != null
+          ? LaunchIntoInstanceProperties.fromJson(
+              json['launchIntoInstanceProperties'] as Map<String, dynamic>)
+          : null,
       licensing: json['licensing'] != null
           ? Licensing.fromJson(json['licensing'] as Map<String, dynamic>)
           : null,
       name: json['name'] as String?,
+      postLaunchEnabled: json['postLaunchEnabled'] as bool?,
       sourceServerID: json['sourceServerID'] as String?,
       targetInstanceTypeRightSizingMethod:
           (json['targetInstanceTypeRightSizingMethod'] as String?)
-              ?.toTargetInstanceTypeRightSizingMethod(),
+              ?.let(TargetInstanceTypeRightSizingMethod.fromString),
     );
   }
 
@@ -3703,8 +4131,10 @@ class LaunchConfiguration {
     final copyTags = this.copyTags;
     final ec2LaunchTemplateID = this.ec2LaunchTemplateID;
     final launchDisposition = this.launchDisposition;
+    final launchIntoInstanceProperties = this.launchIntoInstanceProperties;
     final licensing = this.licensing;
     final name = this.name;
+    final postLaunchEnabled = this.postLaunchEnabled;
     final sourceServerID = this.sourceServerID;
     final targetInstanceTypeRightSizingMethod =
         this.targetInstanceTypeRightSizingMethod;
@@ -3714,13 +4144,16 @@ class LaunchConfiguration {
       if (ec2LaunchTemplateID != null)
         'ec2LaunchTemplateID': ec2LaunchTemplateID,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
+      if (launchIntoInstanceProperties != null)
+        'launchIntoInstanceProperties': launchIntoInstanceProperties,
       if (licensing != null) 'licensing': licensing,
       if (name != null) 'name': name,
+      if (postLaunchEnabled != null) 'postLaunchEnabled': postLaunchEnabled,
       if (sourceServerID != null) 'sourceServerID': sourceServerID,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
   }
 }
@@ -3736,14 +4169,25 @@ class LaunchConfigurationTemplate {
   /// Copy tags.
   final bool? copyTags;
 
+  /// S3 bucket ARN to export Source Network templates.
+  final String? exportBucketArn;
+
   /// ID of the Launch Configuration Template.
   final String? launchConfigurationTemplateID;
 
   /// Launch disposition.
   final LaunchDisposition? launchDisposition;
 
+  /// DRS will set the 'launch into instance ID' of any source server when
+  /// performing a drill, recovery or failback to the previous region or
+  /// availability zone, using the instance ID of the source instance.
+  final bool? launchIntoSourceInstance;
+
   /// Licensing.
   final Licensing? licensing;
+
+  /// Post-launch actions activated.
+  final bool? postLaunchEnabled;
 
   /// Tags of the Launch Configuration Template.
   final Map<String, String>? tags;
@@ -3756,9 +4200,12 @@ class LaunchConfigurationTemplate {
     this.arn,
     this.copyPrivateIp,
     this.copyTags,
+    this.exportBucketArn,
     this.launchConfigurationTemplateID,
     this.launchDisposition,
+    this.launchIntoSourceInstance,
     this.licensing,
+    this.postLaunchEnabled,
     this.tags,
     this.targetInstanceTypeRightSizingMethod,
   });
@@ -3768,18 +4215,21 @@ class LaunchConfigurationTemplate {
       arn: json['arn'] as String?,
       copyPrivateIp: json['copyPrivateIp'] as bool?,
       copyTags: json['copyTags'] as bool?,
+      exportBucketArn: json['exportBucketArn'] as String?,
       launchConfigurationTemplateID:
           json['launchConfigurationTemplateID'] as String?,
-      launchDisposition:
-          (json['launchDisposition'] as String?)?.toLaunchDisposition(),
+      launchDisposition: (json['launchDisposition'] as String?)
+          ?.let(LaunchDisposition.fromString),
+      launchIntoSourceInstance: json['launchIntoSourceInstance'] as bool?,
       licensing: json['licensing'] != null
           ? Licensing.fromJson(json['licensing'] as Map<String, dynamic>)
           : null,
+      postLaunchEnabled: json['postLaunchEnabled'] as bool?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       targetInstanceTypeRightSizingMethod:
           (json['targetInstanceTypeRightSizingMethod'] as String?)
-              ?.toTargetInstanceTypeRightSizingMethod(),
+              ?.let(TargetInstanceTypeRightSizingMethod.fromString),
     );
   }
 
@@ -3787,9 +4237,12 @@ class LaunchConfigurationTemplate {
     final arn = this.arn;
     final copyPrivateIp = this.copyPrivateIp;
     final copyTags = this.copyTags;
+    final exportBucketArn = this.exportBucketArn;
     final launchConfigurationTemplateID = this.launchConfigurationTemplateID;
     final launchDisposition = this.launchDisposition;
+    final launchIntoSourceInstance = this.launchIntoSourceInstance;
     final licensing = this.licensing;
+    final postLaunchEnabled = this.postLaunchEnabled;
     final tags = this.tags;
     final targetInstanceTypeRightSizingMethod =
         this.targetInstanceTypeRightSizingMethod;
@@ -3797,88 +4250,79 @@ class LaunchConfigurationTemplate {
       if (arn != null) 'arn': arn,
       if (copyPrivateIp != null) 'copyPrivateIp': copyPrivateIp,
       if (copyTags != null) 'copyTags': copyTags,
+      if (exportBucketArn != null) 'exportBucketArn': exportBucketArn,
       if (launchConfigurationTemplateID != null)
         'launchConfigurationTemplateID': launchConfigurationTemplateID,
       if (launchDisposition != null)
-        'launchDisposition': launchDisposition.toValue(),
+        'launchDisposition': launchDisposition.value,
+      if (launchIntoSourceInstance != null)
+        'launchIntoSourceInstance': launchIntoSourceInstance,
       if (licensing != null) 'licensing': licensing,
+      if (postLaunchEnabled != null) 'postLaunchEnabled': postLaunchEnabled,
       if (tags != null) 'tags': tags,
       if (targetInstanceTypeRightSizingMethod != null)
         'targetInstanceTypeRightSizingMethod':
-            targetInstanceTypeRightSizingMethod.toValue(),
+            targetInstanceTypeRightSizingMethod.value,
     };
   }
 }
 
 enum LaunchDisposition {
-  stopped,
-  started,
+  stopped('STOPPED'),
+  started('STARTED'),
+  ;
+
+  final String value;
+
+  const LaunchDisposition(this.value);
+
+  static LaunchDisposition fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LaunchDisposition'));
 }
 
-extension LaunchDispositionValueExtension on LaunchDisposition {
-  String toValue() {
-    switch (this) {
-      case LaunchDisposition.stopped:
-        return 'STOPPED';
-      case LaunchDisposition.started:
-        return 'STARTED';
-    }
+/// Launch into existing instance.
+class LaunchIntoInstanceProperties {
+  /// Optionally holds EC2 instance ID of an instance to launch into, instead of
+  /// launching a new instance during drill, recovery or failback.
+  final String? launchIntoEC2InstanceID;
+
+  LaunchIntoInstanceProperties({
+    this.launchIntoEC2InstanceID,
+  });
+
+  factory LaunchIntoInstanceProperties.fromJson(Map<String, dynamic> json) {
+    return LaunchIntoInstanceProperties(
+      launchIntoEC2InstanceID: json['launchIntoEC2InstanceID'] as String?,
+    );
   }
-}
 
-extension LaunchDispositionFromString on String {
-  LaunchDisposition toLaunchDisposition() {
-    switch (this) {
-      case 'STOPPED':
-        return LaunchDisposition.stopped;
-      case 'STARTED':
-        return LaunchDisposition.started;
-    }
-    throw Exception('$this is not known in enum LaunchDisposition');
+  Map<String, dynamic> toJson() {
+    final launchIntoEC2InstanceID = this.launchIntoEC2InstanceID;
+    return {
+      if (launchIntoEC2InstanceID != null)
+        'launchIntoEC2InstanceID': launchIntoEC2InstanceID,
+    };
   }
 }
 
 enum LaunchStatus {
-  pending,
-  inProgress,
-  launched,
-  failed,
-  terminated,
-}
+  pending('PENDING'),
+  inProgress('IN_PROGRESS'),
+  launched('LAUNCHED'),
+  failed('FAILED'),
+  terminated('TERMINATED'),
+  ;
 
-extension LaunchStatusValueExtension on LaunchStatus {
-  String toValue() {
-    switch (this) {
-      case LaunchStatus.pending:
-        return 'PENDING';
-      case LaunchStatus.inProgress:
-        return 'IN_PROGRESS';
-      case LaunchStatus.launched:
-        return 'LAUNCHED';
-      case LaunchStatus.failed:
-        return 'FAILED';
-      case LaunchStatus.terminated:
-        return 'TERMINATED';
-    }
-  }
-}
+  final String value;
 
-extension LaunchStatusFromString on String {
-  LaunchStatus toLaunchStatus() {
-    switch (this) {
-      case 'PENDING':
-        return LaunchStatus.pending;
-      case 'IN_PROGRESS':
-        return LaunchStatus.inProgress;
-      case 'LAUNCHED':
-        return LaunchStatus.launched;
-      case 'FAILED':
-        return LaunchStatus.failed;
-      case 'TERMINATED':
-        return LaunchStatus.terminated;
-    }
-    throw Exception('$this is not known in enum LaunchStatus');
-  }
+  const LaunchStatus(this.value);
+
+  static LaunchStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LaunchStatus'));
 }
 
 /// Configuration of a machine's license.
@@ -3984,7 +4428,7 @@ class LifeCycleLastLaunch {
           ? LifeCycleLastLaunchInitiated.fromJson(
               json['initiated'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toLaunchStatus(),
+      status: (json['status'] as String?)?.let(LaunchStatus.fromString),
     );
   }
 
@@ -3993,7 +4437,7 @@ class LifeCycleLastLaunch {
     final status = this.status;
     return {
       if (initiated != null) 'initiated': initiated,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -4020,7 +4464,7 @@ class LifeCycleLastLaunchInitiated {
     return LifeCycleLastLaunchInitiated(
       apiCallDateTime: json['apiCallDateTime'] as String?,
       jobID: json['jobID'] as String?,
-      type: (json['type'] as String?)?.toLastLaunchType(),
+      type: (json['type'] as String?)?.let(LastLaunchType.fromString),
     );
   }
 
@@ -4031,7 +4475,7 @@ class LifeCycleLastLaunchInitiated {
     return {
       if (apiCallDateTime != null) 'apiCallDateTime': apiCallDateTime,
       if (jobID != null) 'jobID': jobID,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
@@ -4052,8 +4496,40 @@ class ListExtensibleSourceServersResponse {
       Map<String, dynamic> json) {
     return ListExtensibleSourceServersResponse(
       items: (json['items'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StagingSourceServer.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final items = this.items;
+    final nextToken = this.nextToken;
+    return {
+      if (items != null) 'items': items,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListLaunchActionsResponse {
+  /// List of resource launch actions.
+  final List<LaunchAction>? items;
+
+  /// Next token returned when listing resource launch actions.
+  final String? nextToken;
+
+  ListLaunchActionsResponse({
+    this.items,
+    this.nextToken,
+  });
+
+  factory ListLaunchActionsResponse.fromJson(Map<String, dynamic> json) {
+    return ListLaunchActionsResponse(
+      items: (json['items'] as List?)
+          ?.nonNulls
+          .map((e) => LaunchAction.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
     );
@@ -4084,7 +4560,7 @@ class ListStagingAccountsResponse {
   factory ListStagingAccountsResponse.fromJson(Map<String, dynamic> json) {
     return ListStagingAccountsResponse(
       accounts: (json['accounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Account.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4143,10 +4619,7 @@ class NetworkInterface {
 
   factory NetworkInterface.fromJson(Map<String, dynamic> json) {
     return NetworkInterface(
-      ips: (json['ips'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ips: (json['ips'] as List?)?.nonNulls.map((e) => e as String).toList(),
       isPrimary: json['isPrimary'] as bool?,
       macAddress: json['macAddress'] as String?,
     );
@@ -4188,31 +4661,18 @@ class OS {
 }
 
 enum OriginEnvironment {
-  onPremises,
-  aws,
-}
+  onPremises('ON_PREMISES'),
+  aws('AWS'),
+  ;
 
-extension OriginEnvironmentValueExtension on OriginEnvironment {
-  String toValue() {
-    switch (this) {
-      case OriginEnvironment.onPremises:
-        return 'ON_PREMISES';
-      case OriginEnvironment.aws:
-        return 'AWS';
-    }
-  }
-}
+  final String value;
 
-extension OriginEnvironmentFromString on String {
-  OriginEnvironment toOriginEnvironment() {
-    switch (this) {
-      case 'ON_PREMISES':
-        return OriginEnvironment.onPremises;
-      case 'AWS':
-        return OriginEnvironment.aws;
-    }
-    throw Exception('$this is not known in enum OriginEnvironment');
-  }
+  const OriginEnvironment(this.value);
+
+  static OriginEnvironment fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OriginEnvironment'));
 }
 
 /// A rule in the Point in Time (PIT) policy representing when to take snapshots
@@ -4245,7 +4705,7 @@ class PITPolicyRule {
     return PITPolicyRule(
       interval: json['interval'] as int,
       retentionDuration: json['retentionDuration'] as int,
-      units: (json['units'] as String).toPITPolicyRuleUnits(),
+      units: PITPolicyRuleUnits.fromString((json['units'] as String)),
       enabled: json['enabled'] as bool?,
       ruleID: json['ruleID'] as int?,
     );
@@ -4260,7 +4720,7 @@ class PITPolicyRule {
     return {
       'interval': interval,
       'retentionDuration': retentionDuration,
-      'units': units.toValue(),
+      'units': units.value,
       if (enabled != null) 'enabled': enabled,
       if (ruleID != null) 'ruleID': ruleID,
     };
@@ -4268,40 +4728,84 @@ class PITPolicyRule {
 }
 
 enum PITPolicyRuleUnits {
-  minute,
-  hour,
-  day,
+  minute('MINUTE'),
+  hour('HOUR'),
+  day('DAY'),
+  ;
+
+  final String value;
+
+  const PITPolicyRuleUnits(this.value);
+
+  static PITPolicyRuleUnits fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PITPolicyRuleUnits'));
 }
 
-extension PITPolicyRuleUnitsValueExtension on PITPolicyRuleUnits {
-  String toValue() {
-    switch (this) {
-      case PITPolicyRuleUnits.minute:
-        return 'MINUTE';
-      case PITPolicyRuleUnits.hour:
-        return 'HOUR';
-      case PITPolicyRuleUnits.day:
-        return 'DAY';
-    }
+/// Represents a resource participating in an asynchronous Job.
+class ParticipatingResource {
+  /// The launch status of a participating resource.
+  final LaunchStatus? launchStatus;
+
+  /// The ID of a participating resource.
+  final ParticipatingResourceID? participatingResourceID;
+
+  ParticipatingResource({
+    this.launchStatus,
+    this.participatingResourceID,
+  });
+
+  factory ParticipatingResource.fromJson(Map<String, dynamic> json) {
+    return ParticipatingResource(
+      launchStatus:
+          (json['launchStatus'] as String?)?.let(LaunchStatus.fromString),
+      participatingResourceID: json['participatingResourceID'] != null
+          ? ParticipatingResourceID.fromJson(
+              json['participatingResourceID'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final launchStatus = this.launchStatus;
+    final participatingResourceID = this.participatingResourceID;
+    return {
+      if (launchStatus != null) 'launchStatus': launchStatus.value,
+      if (participatingResourceID != null)
+        'participatingResourceID': participatingResourceID,
+    };
   }
 }
 
-extension PITPolicyRuleUnitsFromString on String {
-  PITPolicyRuleUnits toPITPolicyRuleUnits() {
-    switch (this) {
-      case 'MINUTE':
-        return PITPolicyRuleUnits.minute;
-      case 'HOUR':
-        return PITPolicyRuleUnits.hour;
-      case 'DAY':
-        return PITPolicyRuleUnits.day;
-    }
-    throw Exception('$this is not known in enum PITPolicyRuleUnits');
+/// ID of a resource participating in an asynchronous Job.
+class ParticipatingResourceID {
+  /// Source Network ID.
+  final String? sourceNetworkID;
+
+  ParticipatingResourceID({
+    this.sourceNetworkID,
+  });
+
+  factory ParticipatingResourceID.fromJson(Map<String, dynamic> json) {
+    return ParticipatingResourceID(
+      sourceNetworkID: json['sourceNetworkID'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sourceNetworkID = this.sourceNetworkID;
+    return {
+      if (sourceNetworkID != null) 'sourceNetworkID': sourceNetworkID,
+    };
   }
 }
 
 /// Represents a server participating in an asynchronous Job.
 class ParticipatingServer {
+  /// The post-launch action runs of a participating server.
+  final LaunchActionsStatus? launchActionsStatus;
+
   /// The launch status of a participating server.
   final LaunchStatus? launchStatus;
 
@@ -4312,6 +4816,7 @@ class ParticipatingServer {
   final String? sourceServerID;
 
   ParticipatingServer({
+    this.launchActionsStatus,
     this.launchStatus,
     this.recoveryInstanceID,
     this.sourceServerID,
@@ -4319,26 +4824,169 @@ class ParticipatingServer {
 
   factory ParticipatingServer.fromJson(Map<String, dynamic> json) {
     return ParticipatingServer(
-      launchStatus: (json['launchStatus'] as String?)?.toLaunchStatus(),
+      launchActionsStatus: json['launchActionsStatus'] != null
+          ? LaunchActionsStatus.fromJson(
+              json['launchActionsStatus'] as Map<String, dynamic>)
+          : null,
+      launchStatus:
+          (json['launchStatus'] as String?)?.let(LaunchStatus.fromString),
       recoveryInstanceID: json['recoveryInstanceID'] as String?,
       sourceServerID: json['sourceServerID'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final launchActionsStatus = this.launchActionsStatus;
     final launchStatus = this.launchStatus;
     final recoveryInstanceID = this.recoveryInstanceID;
     final sourceServerID = this.sourceServerID;
     return {
-      if (launchStatus != null) 'launchStatus': launchStatus.toValue(),
+      if (launchActionsStatus != null)
+        'launchActionsStatus': launchActionsStatus,
+      if (launchStatus != null) 'launchStatus': launchStatus.value,
       if (recoveryInstanceID != null) 'recoveryInstanceID': recoveryInstanceID,
       if (sourceServerID != null) 'sourceServerID': sourceServerID,
     };
   }
 }
 
+/// Properties of a product code associated with a volume.
+class ProductCode {
+  /// Id of a product code associated with a volume.
+  final String? productCodeId;
+
+  /// Mode of a product code associated with a volume.
+  final ProductCodeMode? productCodeMode;
+
+  ProductCode({
+    this.productCodeId,
+    this.productCodeMode,
+  });
+
+  factory ProductCode.fromJson(Map<String, dynamic> json) {
+    return ProductCode(
+      productCodeId: json['productCodeId'] as String?,
+      productCodeMode:
+          (json['productCodeMode'] as String?)?.let(ProductCodeMode.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final productCodeId = this.productCodeId;
+    final productCodeMode = this.productCodeMode;
+    return {
+      if (productCodeId != null) 'productCodeId': productCodeId,
+      if (productCodeMode != null) 'productCodeMode': productCodeMode.value,
+    };
+  }
+}
+
+enum ProductCodeMode {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const ProductCodeMode(this.value);
+
+  static ProductCodeMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ProductCodeMode'));
+}
+
+class PutLaunchActionResponse {
+  /// Launch action code.
+  final String? actionCode;
+  final String? actionId;
+  final String? actionVersion;
+
+  /// Whether the launch action is active.
+  final bool? active;
+  final LaunchActionCategory? category;
+  final String? description;
+  final String? name;
+
+  /// Whether the launch will not be marked as failed if this action fails.
+  final bool? optional;
+  final int? order;
+  final Map<String, LaunchActionParameter>? parameters;
+  final String? resourceId;
+
+  /// Launch action type.
+  final LaunchActionType? type;
+
+  PutLaunchActionResponse({
+    this.actionCode,
+    this.actionId,
+    this.actionVersion,
+    this.active,
+    this.category,
+    this.description,
+    this.name,
+    this.optional,
+    this.order,
+    this.parameters,
+    this.resourceId,
+    this.type,
+  });
+
+  factory PutLaunchActionResponse.fromJson(Map<String, dynamic> json) {
+    return PutLaunchActionResponse(
+      actionCode: json['actionCode'] as String?,
+      actionId: json['actionId'] as String?,
+      actionVersion: json['actionVersion'] as String?,
+      active: json['active'] as bool?,
+      category:
+          (json['category'] as String?)?.let(LaunchActionCategory.fromString),
+      description: json['description'] as String?,
+      name: json['name'] as String?,
+      optional: json['optional'] as bool?,
+      order: json['order'] as int?,
+      parameters: (json['parameters'] as Map<String, dynamic>?)?.map((k, e) =>
+          MapEntry(
+              k, LaunchActionParameter.fromJson(e as Map<String, dynamic>))),
+      resourceId: json['resourceId'] as String?,
+      type: (json['type'] as String?)?.let(LaunchActionType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final actionCode = this.actionCode;
+    final actionId = this.actionId;
+    final actionVersion = this.actionVersion;
+    final active = this.active;
+    final category = this.category;
+    final description = this.description;
+    final name = this.name;
+    final optional = this.optional;
+    final order = this.order;
+    final parameters = this.parameters;
+    final resourceId = this.resourceId;
+    final type = this.type;
+    return {
+      if (actionCode != null) 'actionCode': actionCode,
+      if (actionId != null) 'actionId': actionId,
+      if (actionVersion != null) 'actionVersion': actionVersion,
+      if (active != null) 'active': active,
+      if (category != null) 'category': category.value,
+      if (description != null) 'description': description,
+      if (name != null) 'name': name,
+      if (optional != null) 'optional': optional,
+      if (order != null) 'order': order,
+      if (parameters != null) 'parameters': parameters,
+      if (resourceId != null) 'resourceId': resourceId,
+      if (type != null) 'type': type.value,
+    };
+  }
+}
+
 /// A Recovery Instance is a replica of a Source Server running on EC2.
 class RecoveryInstance {
+  /// The version of the DRS agent installed on the recovery instance
+  final String? agentVersion;
+
   /// The ARN of the Recovery Instance.
   final String? arn;
 
@@ -4379,6 +5027,9 @@ class RecoveryInstance {
   /// Properties of the Recovery Instance machine.
   final RecoveryInstanceProperties? recoveryInstanceProperties;
 
+  /// The ARN of the source Outpost
+  final String? sourceOutpostArn;
+
   /// The Source Server ID that this Recovery Instance is associated with.
   final String? sourceServerID;
 
@@ -4386,6 +5037,7 @@ class RecoveryInstance {
   final Map<String, String>? tags;
 
   RecoveryInstance({
+    this.agentVersion,
     this.arn,
     this.dataReplicationInfo,
     this.ec2InstanceID,
@@ -4398,20 +5050,22 @@ class RecoveryInstance {
     this.pointInTimeSnapshotDateTime,
     this.recoveryInstanceID,
     this.recoveryInstanceProperties,
+    this.sourceOutpostArn,
     this.sourceServerID,
     this.tags,
   });
 
   factory RecoveryInstance.fromJson(Map<String, dynamic> json) {
     return RecoveryInstance(
+      agentVersion: json['agentVersion'] as String?,
       arn: json['arn'] as String?,
       dataReplicationInfo: json['dataReplicationInfo'] != null
           ? RecoveryInstanceDataReplicationInfo.fromJson(
               json['dataReplicationInfo'] as Map<String, dynamic>)
           : null,
       ec2InstanceID: json['ec2InstanceID'] as String?,
-      ec2InstanceState:
-          (json['ec2InstanceState'] as String?)?.toEC2InstanceState(),
+      ec2InstanceState: (json['ec2InstanceState'] as String?)
+          ?.let(EC2InstanceState.fromString),
       failback: json['failback'] != null
           ? RecoveryInstanceFailback.fromJson(
               json['failback'] as Map<String, dynamic>)
@@ -4419,8 +5073,8 @@ class RecoveryInstance {
       isDrill: json['isDrill'] as bool?,
       jobID: json['jobID'] as String?,
       originAvailabilityZone: json['originAvailabilityZone'] as String?,
-      originEnvironment:
-          (json['originEnvironment'] as String?)?.toOriginEnvironment(),
+      originEnvironment: (json['originEnvironment'] as String?)
+          ?.let(OriginEnvironment.fromString),
       pointInTimeSnapshotDateTime:
           json['pointInTimeSnapshotDateTime'] as String?,
       recoveryInstanceID: json['recoveryInstanceID'] as String?,
@@ -4428,6 +5082,7 @@ class RecoveryInstance {
           ? RecoveryInstanceProperties.fromJson(
               json['recoveryInstanceProperties'] as Map<String, dynamic>)
           : null,
+      sourceOutpostArn: json['sourceOutpostArn'] as String?,
       sourceServerID: json['sourceServerID'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
@@ -4435,6 +5090,7 @@ class RecoveryInstance {
   }
 
   Map<String, dynamic> toJson() {
+    final agentVersion = this.agentVersion;
     final arn = this.arn;
     final dataReplicationInfo = this.dataReplicationInfo;
     final ec2InstanceID = this.ec2InstanceID;
@@ -4447,27 +5103,29 @@ class RecoveryInstance {
     final pointInTimeSnapshotDateTime = this.pointInTimeSnapshotDateTime;
     final recoveryInstanceID = this.recoveryInstanceID;
     final recoveryInstanceProperties = this.recoveryInstanceProperties;
+    final sourceOutpostArn = this.sourceOutpostArn;
     final sourceServerID = this.sourceServerID;
     final tags = this.tags;
     return {
+      if (agentVersion != null) 'agentVersion': agentVersion,
       if (arn != null) 'arn': arn,
       if (dataReplicationInfo != null)
         'dataReplicationInfo': dataReplicationInfo,
       if (ec2InstanceID != null) 'ec2InstanceID': ec2InstanceID,
-      if (ec2InstanceState != null)
-        'ec2InstanceState': ec2InstanceState.toValue(),
+      if (ec2InstanceState != null) 'ec2InstanceState': ec2InstanceState.value,
       if (failback != null) 'failback': failback,
       if (isDrill != null) 'isDrill': isDrill,
       if (jobID != null) 'jobID': jobID,
       if (originAvailabilityZone != null)
         'originAvailabilityZone': originAvailabilityZone,
       if (originEnvironment != null)
-        'originEnvironment': originEnvironment.toValue(),
+        'originEnvironment': originEnvironment.value,
       if (pointInTimeSnapshotDateTime != null)
         'pointInTimeSnapshotDateTime': pointInTimeSnapshotDateTime,
       if (recoveryInstanceID != null) 'recoveryInstanceID': recoveryInstanceID,
       if (recoveryInstanceProperties != null)
         'recoveryInstanceProperties': recoveryInstanceProperties,
+      if (sourceOutpostArn != null) 'sourceOutpostArn': sourceOutpostArn,
       if (sourceServerID != null) 'sourceServerID': sourceServerID,
       if (tags != null) 'tags': tags,
     };
@@ -4490,7 +5148,8 @@ class RecoveryInstanceDataReplicationError {
   factory RecoveryInstanceDataReplicationError.fromJson(
       Map<String, dynamic> json) {
     return RecoveryInstanceDataReplicationError(
-      error: (json['error'] as String?)?.toFailbackReplicationError(),
+      error:
+          (json['error'] as String?)?.let(FailbackReplicationError.fromString),
       rawError: json['rawError'] as String?,
     );
   }
@@ -4499,7 +5158,7 @@ class RecoveryInstanceDataReplicationError {
     final error = this.error;
     final rawError = this.rawError;
     return {
-      if (error != null) 'error': error.toValue(),
+      if (error != null) 'error': error.value,
       if (rawError != null) 'rawError': rawError,
     };
   }
@@ -4529,6 +5188,9 @@ class RecoveryInstanceDataReplicationInfo {
   /// AWS Availability zone into which data is being replicated.
   final String? stagingAvailabilityZone;
 
+  /// The ARN of the staging Outpost
+  final String? stagingOutpostArn;
+
   RecoveryInstanceDataReplicationInfo({
     this.dataReplicationError,
     this.dataReplicationInitiation,
@@ -4537,6 +5199,7 @@ class RecoveryInstanceDataReplicationInfo {
     this.lagDuration,
     this.replicatedDisks,
     this.stagingAvailabilityZone,
+    this.stagingOutpostArn,
   });
 
   factory RecoveryInstanceDataReplicationInfo.fromJson(
@@ -4551,16 +5214,17 @@ class RecoveryInstanceDataReplicationInfo {
               json['dataReplicationInitiation'] as Map<String, dynamic>)
           : null,
       dataReplicationState: (json['dataReplicationState'] as String?)
-          ?.toRecoveryInstanceDataReplicationState(),
+          ?.let(RecoveryInstanceDataReplicationState.fromString),
       etaDateTime: json['etaDateTime'] as String?,
       lagDuration: json['lagDuration'] as String?,
       replicatedDisks: (json['replicatedDisks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               RecoveryInstanceDataReplicationInfoReplicatedDisk.fromJson(
                   e as Map<String, dynamic>))
           .toList(),
       stagingAvailabilityZone: json['stagingAvailabilityZone'] as String?,
+      stagingOutpostArn: json['stagingOutpostArn'] as String?,
     );
   }
 
@@ -4572,18 +5236,20 @@ class RecoveryInstanceDataReplicationInfo {
     final lagDuration = this.lagDuration;
     final replicatedDisks = this.replicatedDisks;
     final stagingAvailabilityZone = this.stagingAvailabilityZone;
+    final stagingOutpostArn = this.stagingOutpostArn;
     return {
       if (dataReplicationError != null)
         'dataReplicationError': dataReplicationError,
       if (dataReplicationInitiation != null)
         'dataReplicationInitiation': dataReplicationInitiation,
       if (dataReplicationState != null)
-        'dataReplicationState': dataReplicationState.toValue(),
+        'dataReplicationState': dataReplicationState.value,
       if (etaDateTime != null) 'etaDateTime': etaDateTime,
       if (lagDuration != null) 'lagDuration': lagDuration,
       if (replicatedDisks != null) 'replicatedDisks': replicatedDisks,
       if (stagingAvailabilityZone != null)
         'stagingAvailabilityZone': stagingAvailabilityZone,
+      if (stagingOutpostArn != null) 'stagingOutpostArn': stagingOutpostArn,
     };
   }
 }
@@ -4661,7 +5327,7 @@ class RecoveryInstanceDataReplicationInitiation {
     return RecoveryInstanceDataReplicationInitiation(
       startDateTime: json['startDateTime'] as String?,
       steps: (json['steps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecoveryInstanceDataReplicationInitiationStep.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4695,9 +5361,9 @@ class RecoveryInstanceDataReplicationInitiationStep {
       Map<String, dynamic> json) {
     return RecoveryInstanceDataReplicationInitiationStep(
       name: (json['name'] as String?)
-          ?.toRecoveryInstanceDataReplicationInitiationStepName(),
+          ?.let(RecoveryInstanceDataReplicationInitiationStepName.fromString),
       status: (json['status'] as String?)
-          ?.toRecoveryInstanceDataReplicationInitiationStepStatus(),
+          ?.let(RecoveryInstanceDataReplicationInitiationStepStatus.fromString),
     );
   }
 
@@ -4705,282 +5371,90 @@ class RecoveryInstanceDataReplicationInitiationStep {
     final name = this.name;
     final status = this.status;
     return {
-      if (name != null) 'name': name.toValue(),
-      if (status != null) 'status': status.toValue(),
+      if (name != null) 'name': name.value,
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum RecoveryInstanceDataReplicationInitiationStepName {
-  linkFailbackClientWithRecoveryInstance,
-  completeVolumeMapping,
-  establishRecoveryInstanceCommunication,
-  downloadReplicationSoftwareToFailbackClient,
-  configureReplicationSoftware,
-  pairAgentWithReplicationSoftware,
-  establishAgentReplicatorSoftwareCommunication,
-  wait,
-  createSecurityGroup,
-  launchReplicationServer,
-  bootReplicationServer,
-  authenticateWithService,
-  downloadReplicationSoftware,
-  createStagingDisks,
-  attachStagingDisks,
-  pairReplicationServerWithAgent,
-  connectAgentToReplicationServer,
-  startDataTransfer,
-}
+  linkFailbackClientWithRecoveryInstance(
+      'LINK_FAILBACK_CLIENT_WITH_RECOVERY_INSTANCE'),
+  completeVolumeMapping('COMPLETE_VOLUME_MAPPING'),
+  establishRecoveryInstanceCommunication(
+      'ESTABLISH_RECOVERY_INSTANCE_COMMUNICATION'),
+  downloadReplicationSoftwareToFailbackClient(
+      'DOWNLOAD_REPLICATION_SOFTWARE_TO_FAILBACK_CLIENT'),
+  configureReplicationSoftware('CONFIGURE_REPLICATION_SOFTWARE'),
+  pairAgentWithReplicationSoftware('PAIR_AGENT_WITH_REPLICATION_SOFTWARE'),
+  establishAgentReplicatorSoftwareCommunication(
+      'ESTABLISH_AGENT_REPLICATOR_SOFTWARE_COMMUNICATION'),
+  wait('WAIT'),
+  createSecurityGroup('CREATE_SECURITY_GROUP'),
+  launchReplicationServer('LAUNCH_REPLICATION_SERVER'),
+  bootReplicationServer('BOOT_REPLICATION_SERVER'),
+  authenticateWithService('AUTHENTICATE_WITH_SERVICE'),
+  downloadReplicationSoftware('DOWNLOAD_REPLICATION_SOFTWARE'),
+  createStagingDisks('CREATE_STAGING_DISKS'),
+  attachStagingDisks('ATTACH_STAGING_DISKS'),
+  pairReplicationServerWithAgent('PAIR_REPLICATION_SERVER_WITH_AGENT'),
+  connectAgentToReplicationServer('CONNECT_AGENT_TO_REPLICATION_SERVER'),
+  startDataTransfer('START_DATA_TRANSFER'),
+  ;
 
-extension RecoveryInstanceDataReplicationInitiationStepNameValueExtension
-    on RecoveryInstanceDataReplicationInitiationStepName {
-  String toValue() {
-    switch (this) {
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .linkFailbackClientWithRecoveryInstance:
-        return 'LINK_FAILBACK_CLIENT_WITH_RECOVERY_INSTANCE';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .completeVolumeMapping:
-        return 'COMPLETE_VOLUME_MAPPING';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .establishRecoveryInstanceCommunication:
-        return 'ESTABLISH_RECOVERY_INSTANCE_COMMUNICATION';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .downloadReplicationSoftwareToFailbackClient:
-        return 'DOWNLOAD_REPLICATION_SOFTWARE_TO_FAILBACK_CLIENT';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .configureReplicationSoftware:
-        return 'CONFIGURE_REPLICATION_SOFTWARE';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .pairAgentWithReplicationSoftware:
-        return 'PAIR_AGENT_WITH_REPLICATION_SOFTWARE';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .establishAgentReplicatorSoftwareCommunication:
-        return 'ESTABLISH_AGENT_REPLICATOR_SOFTWARE_COMMUNICATION';
-      case RecoveryInstanceDataReplicationInitiationStepName.wait:
-        return 'WAIT';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .createSecurityGroup:
-        return 'CREATE_SECURITY_GROUP';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .launchReplicationServer:
-        return 'LAUNCH_REPLICATION_SERVER';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .bootReplicationServer:
-        return 'BOOT_REPLICATION_SERVER';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .authenticateWithService:
-        return 'AUTHENTICATE_WITH_SERVICE';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .downloadReplicationSoftware:
-        return 'DOWNLOAD_REPLICATION_SOFTWARE';
-      case RecoveryInstanceDataReplicationInitiationStepName.createStagingDisks:
-        return 'CREATE_STAGING_DISKS';
-      case RecoveryInstanceDataReplicationInitiationStepName.attachStagingDisks:
-        return 'ATTACH_STAGING_DISKS';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .pairReplicationServerWithAgent:
-        return 'PAIR_REPLICATION_SERVER_WITH_AGENT';
-      case RecoveryInstanceDataReplicationInitiationStepName
-            .connectAgentToReplicationServer:
-        return 'CONNECT_AGENT_TO_REPLICATION_SERVER';
-      case RecoveryInstanceDataReplicationInitiationStepName.startDataTransfer:
-        return 'START_DATA_TRANSFER';
-    }
-  }
-}
+  final String value;
 
-extension RecoveryInstanceDataReplicationInitiationStepNameFromString
-    on String {
-  RecoveryInstanceDataReplicationInitiationStepName
-      toRecoveryInstanceDataReplicationInitiationStepName() {
-    switch (this) {
-      case 'LINK_FAILBACK_CLIENT_WITH_RECOVERY_INSTANCE':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .linkFailbackClientWithRecoveryInstance;
-      case 'COMPLETE_VOLUME_MAPPING':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .completeVolumeMapping;
-      case 'ESTABLISH_RECOVERY_INSTANCE_COMMUNICATION':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .establishRecoveryInstanceCommunication;
-      case 'DOWNLOAD_REPLICATION_SOFTWARE_TO_FAILBACK_CLIENT':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .downloadReplicationSoftwareToFailbackClient;
-      case 'CONFIGURE_REPLICATION_SOFTWARE':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .configureReplicationSoftware;
-      case 'PAIR_AGENT_WITH_REPLICATION_SOFTWARE':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .pairAgentWithReplicationSoftware;
-      case 'ESTABLISH_AGENT_REPLICATOR_SOFTWARE_COMMUNICATION':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .establishAgentReplicatorSoftwareCommunication;
-      case 'WAIT':
-        return RecoveryInstanceDataReplicationInitiationStepName.wait;
-      case 'CREATE_SECURITY_GROUP':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .createSecurityGroup;
-      case 'LAUNCH_REPLICATION_SERVER':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .launchReplicationServer;
-      case 'BOOT_REPLICATION_SERVER':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .bootReplicationServer;
-      case 'AUTHENTICATE_WITH_SERVICE':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .authenticateWithService;
-      case 'DOWNLOAD_REPLICATION_SOFTWARE':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .downloadReplicationSoftware;
-      case 'CREATE_STAGING_DISKS':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .createStagingDisks;
-      case 'ATTACH_STAGING_DISKS':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .attachStagingDisks;
-      case 'PAIR_REPLICATION_SERVER_WITH_AGENT':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .pairReplicationServerWithAgent;
-      case 'CONNECT_AGENT_TO_REPLICATION_SERVER':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .connectAgentToReplicationServer;
-      case 'START_DATA_TRANSFER':
-        return RecoveryInstanceDataReplicationInitiationStepName
-            .startDataTransfer;
-    }
-    throw Exception(
-        '$this is not known in enum RecoveryInstanceDataReplicationInitiationStepName');
-  }
+  const RecoveryInstanceDataReplicationInitiationStepName(this.value);
+
+  static RecoveryInstanceDataReplicationInitiationStepName fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecoveryInstanceDataReplicationInitiationStepName'));
 }
 
 enum RecoveryInstanceDataReplicationInitiationStepStatus {
-  notStarted,
-  inProgress,
-  succeeded,
-  failed,
-  skipped,
-}
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  skipped('SKIPPED'),
+  ;
 
-extension RecoveryInstanceDataReplicationInitiationStepStatusValueExtension
-    on RecoveryInstanceDataReplicationInitiationStepStatus {
-  String toValue() {
-    switch (this) {
-      case RecoveryInstanceDataReplicationInitiationStepStatus.notStarted:
-        return 'NOT_STARTED';
-      case RecoveryInstanceDataReplicationInitiationStepStatus.inProgress:
-        return 'IN_PROGRESS';
-      case RecoveryInstanceDataReplicationInitiationStepStatus.succeeded:
-        return 'SUCCEEDED';
-      case RecoveryInstanceDataReplicationInitiationStepStatus.failed:
-        return 'FAILED';
-      case RecoveryInstanceDataReplicationInitiationStepStatus.skipped:
-        return 'SKIPPED';
-    }
-  }
-}
+  final String value;
 
-extension RecoveryInstanceDataReplicationInitiationStepStatusFromString
-    on String {
-  RecoveryInstanceDataReplicationInitiationStepStatus
-      toRecoveryInstanceDataReplicationInitiationStepStatus() {
-    switch (this) {
-      case 'NOT_STARTED':
-        return RecoveryInstanceDataReplicationInitiationStepStatus.notStarted;
-      case 'IN_PROGRESS':
-        return RecoveryInstanceDataReplicationInitiationStepStatus.inProgress;
-      case 'SUCCEEDED':
-        return RecoveryInstanceDataReplicationInitiationStepStatus.succeeded;
-      case 'FAILED':
-        return RecoveryInstanceDataReplicationInitiationStepStatus.failed;
-      case 'SKIPPED':
-        return RecoveryInstanceDataReplicationInitiationStepStatus.skipped;
-    }
-    throw Exception(
-        '$this is not known in enum RecoveryInstanceDataReplicationInitiationStepStatus');
-  }
+  const RecoveryInstanceDataReplicationInitiationStepStatus(this.value);
+
+  static RecoveryInstanceDataReplicationInitiationStepStatus fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecoveryInstanceDataReplicationInitiationStepStatus'));
 }
 
 enum RecoveryInstanceDataReplicationState {
-  stopped,
-  initiating,
-  initialSync,
-  backlog,
-  creatingSnapshot,
-  continuous,
-  paused,
-  rescan,
-  stalled,
-  disconnected,
-  replicationStateNotAvailable,
-  notStarted,
-}
+  stopped('STOPPED'),
+  initiating('INITIATING'),
+  initialSync('INITIAL_SYNC'),
+  backlog('BACKLOG'),
+  creatingSnapshot('CREATING_SNAPSHOT'),
+  continuous('CONTINUOUS'),
+  paused('PAUSED'),
+  rescan('RESCAN'),
+  stalled('STALLED'),
+  disconnected('DISCONNECTED'),
+  replicationStateNotAvailable('REPLICATION_STATE_NOT_AVAILABLE'),
+  notStarted('NOT_STARTED'),
+  ;
 
-extension RecoveryInstanceDataReplicationStateValueExtension
-    on RecoveryInstanceDataReplicationState {
-  String toValue() {
-    switch (this) {
-      case RecoveryInstanceDataReplicationState.stopped:
-        return 'STOPPED';
-      case RecoveryInstanceDataReplicationState.initiating:
-        return 'INITIATING';
-      case RecoveryInstanceDataReplicationState.initialSync:
-        return 'INITIAL_SYNC';
-      case RecoveryInstanceDataReplicationState.backlog:
-        return 'BACKLOG';
-      case RecoveryInstanceDataReplicationState.creatingSnapshot:
-        return 'CREATING_SNAPSHOT';
-      case RecoveryInstanceDataReplicationState.continuous:
-        return 'CONTINUOUS';
-      case RecoveryInstanceDataReplicationState.paused:
-        return 'PAUSED';
-      case RecoveryInstanceDataReplicationState.rescan:
-        return 'RESCAN';
-      case RecoveryInstanceDataReplicationState.stalled:
-        return 'STALLED';
-      case RecoveryInstanceDataReplicationState.disconnected:
-        return 'DISCONNECTED';
-      case RecoveryInstanceDataReplicationState.replicationStateNotAvailable:
-        return 'REPLICATION_STATE_NOT_AVAILABLE';
-      case RecoveryInstanceDataReplicationState.notStarted:
-        return 'NOT_STARTED';
-    }
-  }
-}
+  final String value;
 
-extension RecoveryInstanceDataReplicationStateFromString on String {
-  RecoveryInstanceDataReplicationState
-      toRecoveryInstanceDataReplicationState() {
-    switch (this) {
-      case 'STOPPED':
-        return RecoveryInstanceDataReplicationState.stopped;
-      case 'INITIATING':
-        return RecoveryInstanceDataReplicationState.initiating;
-      case 'INITIAL_SYNC':
-        return RecoveryInstanceDataReplicationState.initialSync;
-      case 'BACKLOG':
-        return RecoveryInstanceDataReplicationState.backlog;
-      case 'CREATING_SNAPSHOT':
-        return RecoveryInstanceDataReplicationState.creatingSnapshot;
-      case 'CONTINUOUS':
-        return RecoveryInstanceDataReplicationState.continuous;
-      case 'PAUSED':
-        return RecoveryInstanceDataReplicationState.paused;
-      case 'RESCAN':
-        return RecoveryInstanceDataReplicationState.rescan;
-      case 'STALLED':
-        return RecoveryInstanceDataReplicationState.stalled;
-      case 'DISCONNECTED':
-        return RecoveryInstanceDataReplicationState.disconnected;
-      case 'REPLICATION_STATE_NOT_AVAILABLE':
-        return RecoveryInstanceDataReplicationState
-            .replicationStateNotAvailable;
-      case 'NOT_STARTED':
-        return RecoveryInstanceDataReplicationState.notStarted;
-    }
-    throw Exception(
-        '$this is not known in enum RecoveryInstanceDataReplicationState');
-  }
+  const RecoveryInstanceDataReplicationState(this.value);
+
+  static RecoveryInstanceDataReplicationState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecoveryInstanceDataReplicationState'));
 }
 
 /// An object representing a block storage device on the Recovery Instance.
@@ -5082,11 +5556,11 @@ class RecoveryInstanceFailback {
           json['failbackClientLastSeenByServiceDateTime'] as String?,
       failbackInitiationTime: json['failbackInitiationTime'] as String?,
       failbackJobID: json['failbackJobID'] as String?,
-      failbackLaunchType:
-          (json['failbackLaunchType'] as String?)?.toFailbackLaunchType(),
+      failbackLaunchType: (json['failbackLaunchType'] as String?)
+          ?.let(FailbackLaunchType.fromString),
       failbackToOriginalServer: json['failbackToOriginalServer'] as bool?,
       firstByteDateTime: json['firstByteDateTime'] as String?,
-      state: (json['state'] as String?)?.toFailbackState(),
+      state: (json['state'] as String?)?.let(FailbackState.fromString),
     );
   }
 
@@ -5115,11 +5589,11 @@ class RecoveryInstanceFailback {
         'failbackInitiationTime': failbackInitiationTime,
       if (failbackJobID != null) 'failbackJobID': failbackJobID,
       if (failbackLaunchType != null)
-        'failbackLaunchType': failbackLaunchType.toValue(),
+        'failbackLaunchType': failbackLaunchType.value,
       if (failbackToOriginalServer != null)
         'failbackToOriginalServer': failbackToOriginalServer,
       if (firstByteDateTime != null) 'firstByteDateTime': firstByteDateTime,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
   }
 }
@@ -5160,11 +5634,11 @@ class RecoveryInstanceProperties {
   factory RecoveryInstanceProperties.fromJson(Map<String, dynamic> json) {
     return RecoveryInstanceProperties(
       cpus: (json['cpus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CPU.fromJson(e as Map<String, dynamic>))
           .toList(),
       disks: (json['disks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecoveryInstanceDisk.fromJson(e as Map<String, dynamic>))
           .toList(),
       identificationHints: json['identificationHints'] != null
@@ -5173,7 +5647,7 @@ class RecoveryInstanceProperties {
           : null,
       lastUpdatedDateTime: json['lastUpdatedDateTime'] as String?,
       networkInterfaces: (json['networkInterfaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NetworkInterface.fromJson(e as Map<String, dynamic>))
           .toList(),
       os: json['os'] != null
@@ -5203,6 +5677,66 @@ class RecoveryInstanceProperties {
       if (ramBytes != null) 'ramBytes': ramBytes,
     };
   }
+}
+
+/// An object representing the Source Network recovery Lifecycle.
+class RecoveryLifeCycle {
+  /// The date and time the last Source Network recovery was initiated.
+  final DateTime? apiCallDateTime;
+
+  /// The ID of the Job that was used to last recover the Source Network.
+  final String? jobID;
+
+  /// The status of the last recovery status of this Source Network.
+  final RecoveryResult? lastRecoveryResult;
+
+  RecoveryLifeCycle({
+    this.apiCallDateTime,
+    this.jobID,
+    this.lastRecoveryResult,
+  });
+
+  factory RecoveryLifeCycle.fromJson(Map<String, dynamic> json) {
+    return RecoveryLifeCycle(
+      apiCallDateTime: timeStampFromJson(json['apiCallDateTime']),
+      jobID: json['jobID'] as String?,
+      lastRecoveryResult: (json['lastRecoveryResult'] as String?)
+          ?.let(RecoveryResult.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final apiCallDateTime = this.apiCallDateTime;
+    final jobID = this.jobID;
+    final lastRecoveryResult = this.lastRecoveryResult;
+    return {
+      if (apiCallDateTime != null)
+        'apiCallDateTime': iso8601ToJson(apiCallDateTime),
+      if (jobID != null) 'jobID': jobID,
+      if (lastRecoveryResult != null)
+        'lastRecoveryResult': lastRecoveryResult.value,
+    };
+  }
+}
+
+enum RecoveryResult {
+  notStarted('NOT_STARTED'),
+  inProgress('IN_PROGRESS'),
+  success('SUCCESS'),
+  fail('FAIL'),
+  partialSuccess('PARTIAL_SUCCESS'),
+  associateSuccess('ASSOCIATE_SUCCESS'),
+  associateFail('ASSOCIATE_FAIL'),
+  ;
+
+  final String value;
+
+  const RecoveryResult(this.value);
+
+  static RecoveryResult fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RecoveryResult'));
 }
 
 /// A snapshot of a Source Server used during recovery.
@@ -5236,7 +5770,7 @@ class RecoverySnapshot {
       snapshotID: json['snapshotID'] as String,
       sourceServerID: json['sourceServerID'] as String,
       ebsSnapshots: (json['ebsSnapshots'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       timestamp: json['timestamp'] as String?,
@@ -5260,31 +5794,18 @@ class RecoverySnapshot {
 }
 
 enum RecoverySnapshotsOrder {
-  asc,
-  desc,
-}
+  asc('ASC'),
+  desc('DESC'),
+  ;
 
-extension RecoverySnapshotsOrderValueExtension on RecoverySnapshotsOrder {
-  String toValue() {
-    switch (this) {
-      case RecoverySnapshotsOrder.asc:
-        return 'ASC';
-      case RecoverySnapshotsOrder.desc:
-        return 'DESC';
-    }
-  }
-}
+  final String value;
 
-extension RecoverySnapshotsOrderFromString on String {
-  RecoverySnapshotsOrder toRecoverySnapshotsOrder() {
-    switch (this) {
-      case 'ASC':
-        return RecoverySnapshotsOrder.asc;
-      case 'DESC':
-        return RecoverySnapshotsOrder.desc;
-    }
-    throw Exception('$this is not known in enum RecoverySnapshotsOrder');
-  }
+  const RecoverySnapshotsOrder(this.value);
+
+  static RecoverySnapshotsOrder fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecoverySnapshotsOrder'));
 }
 
 class ReplicationConfiguration {
@@ -5373,20 +5894,20 @@ class ReplicationConfiguration {
       bandwidthThrottling: json['bandwidthThrottling'] as int?,
       createPublicIP: json['createPublicIP'] as bool?,
       dataPlaneRouting: (json['dataPlaneRouting'] as String?)
-          ?.toReplicationConfigurationDataPlaneRouting(),
-      defaultLargeStagingDiskType:
-          (json['defaultLargeStagingDiskType'] as String?)
-              ?.toReplicationConfigurationDefaultLargeStagingDiskType(),
+          ?.let(ReplicationConfigurationDataPlaneRouting.fromString),
+      defaultLargeStagingDiskType: (json['defaultLargeStagingDiskType']
+              as String?)
+          ?.let(ReplicationConfigurationDefaultLargeStagingDiskType.fromString),
       ebsEncryption: (json['ebsEncryption'] as String?)
-          ?.toReplicationConfigurationEbsEncryption(),
+          ?.let(ReplicationConfigurationEbsEncryption.fromString),
       ebsEncryptionKeyArn: json['ebsEncryptionKeyArn'] as String?,
       name: json['name'] as String?,
       pitPolicy: (json['pitPolicy'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PITPolicyRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       replicatedDisks: (json['replicatedDisks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReplicationConfigurationReplicatedDisk.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -5394,7 +5915,7 @@ class ReplicationConfiguration {
           json['replicationServerInstanceType'] as String?,
       replicationServersSecurityGroupsIDs:
           (json['replicationServersSecurityGroupsIDs'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       sourceServerID: json['sourceServerID'] as String?,
@@ -5433,11 +5954,10 @@ class ReplicationConfiguration {
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (name != null) 'name': name,
@@ -5459,107 +5979,52 @@ class ReplicationConfiguration {
 }
 
 enum ReplicationConfigurationDataPlaneRouting {
-  privateIp,
-  publicIp,
-}
+  privateIp('PRIVATE_IP'),
+  publicIp('PUBLIC_IP'),
+  ;
 
-extension ReplicationConfigurationDataPlaneRoutingValueExtension
-    on ReplicationConfigurationDataPlaneRouting {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationDataPlaneRouting.privateIp:
-        return 'PRIVATE_IP';
-      case ReplicationConfigurationDataPlaneRouting.publicIp:
-        return 'PUBLIC_IP';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationDataPlaneRoutingFromString on String {
-  ReplicationConfigurationDataPlaneRouting
-      toReplicationConfigurationDataPlaneRouting() {
-    switch (this) {
-      case 'PRIVATE_IP':
-        return ReplicationConfigurationDataPlaneRouting.privateIp;
-      case 'PUBLIC_IP':
-        return ReplicationConfigurationDataPlaneRouting.publicIp;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationDataPlaneRouting');
-  }
+  const ReplicationConfigurationDataPlaneRouting(this.value);
+
+  static ReplicationConfigurationDataPlaneRouting fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationDataPlaneRouting'));
 }
 
 enum ReplicationConfigurationDefaultLargeStagingDiskType {
-  gp2,
-  gp3,
-  st1,
-  auto,
-}
+  gp2('GP2'),
+  gp3('GP3'),
+  st1('ST1'),
+  auto('AUTO'),
+  ;
 
-extension ReplicationConfigurationDefaultLargeStagingDiskTypeValueExtension
-    on ReplicationConfigurationDefaultLargeStagingDiskType {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationDefaultLargeStagingDiskType.gp2:
-        return 'GP2';
-      case ReplicationConfigurationDefaultLargeStagingDiskType.gp3:
-        return 'GP3';
-      case ReplicationConfigurationDefaultLargeStagingDiskType.st1:
-        return 'ST1';
-      case ReplicationConfigurationDefaultLargeStagingDiskType.auto:
-        return 'AUTO';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationDefaultLargeStagingDiskTypeFromString
-    on String {
-  ReplicationConfigurationDefaultLargeStagingDiskType
-      toReplicationConfigurationDefaultLargeStagingDiskType() {
-    switch (this) {
-      case 'GP2':
-        return ReplicationConfigurationDefaultLargeStagingDiskType.gp2;
-      case 'GP3':
-        return ReplicationConfigurationDefaultLargeStagingDiskType.gp3;
-      case 'ST1':
-        return ReplicationConfigurationDefaultLargeStagingDiskType.st1;
-      case 'AUTO':
-        return ReplicationConfigurationDefaultLargeStagingDiskType.auto;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationDefaultLargeStagingDiskType');
-  }
+  const ReplicationConfigurationDefaultLargeStagingDiskType(this.value);
+
+  static ReplicationConfigurationDefaultLargeStagingDiskType fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationDefaultLargeStagingDiskType'));
 }
 
 enum ReplicationConfigurationEbsEncryption {
-  $default,
-  custom,
-}
+  $default('DEFAULT'),
+  custom('CUSTOM'),
+  none('NONE'),
+  ;
 
-extension ReplicationConfigurationEbsEncryptionValueExtension
-    on ReplicationConfigurationEbsEncryption {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationEbsEncryption.$default:
-        return 'DEFAULT';
-      case ReplicationConfigurationEbsEncryption.custom:
-        return 'CUSTOM';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationEbsEncryptionFromString on String {
-  ReplicationConfigurationEbsEncryption
-      toReplicationConfigurationEbsEncryption() {
-    switch (this) {
-      case 'DEFAULT':
-        return ReplicationConfigurationEbsEncryption.$default;
-      case 'CUSTOM':
-        return ReplicationConfigurationEbsEncryption.custom;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationEbsEncryption');
-  }
+  const ReplicationConfigurationEbsEncryption(this.value);
+
+  static ReplicationConfigurationEbsEncryption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationEbsEncryption'));
 }
 
 /// The configuration of a disk of the Source Server to be replicated.
@@ -5601,9 +6066,10 @@ class ReplicationConfigurationReplicatedDisk {
       iops: json['iops'] as int?,
       isBootDisk: json['isBootDisk'] as bool?,
       optimizedStagingDiskType: (json['optimizedStagingDiskType'] as String?)
-          ?.toReplicationConfigurationReplicatedDiskStagingDiskType(),
-      stagingDiskType: (json['stagingDiskType'] as String?)
-          ?.toReplicationConfigurationReplicatedDiskStagingDiskType(),
+          ?.let(
+              ReplicationConfigurationReplicatedDiskStagingDiskType.fromString),
+      stagingDiskType: (json['stagingDiskType'] as String?)?.let(
+          ReplicationConfigurationReplicatedDiskStagingDiskType.fromString),
       throughput: json['throughput'] as int?,
     );
   }
@@ -5620,68 +6086,32 @@ class ReplicationConfigurationReplicatedDisk {
       if (iops != null) 'iops': iops,
       if (isBootDisk != null) 'isBootDisk': isBootDisk,
       if (optimizedStagingDiskType != null)
-        'optimizedStagingDiskType': optimizedStagingDiskType.toValue(),
-      if (stagingDiskType != null) 'stagingDiskType': stagingDiskType.toValue(),
+        'optimizedStagingDiskType': optimizedStagingDiskType.value,
+      if (stagingDiskType != null) 'stagingDiskType': stagingDiskType.value,
       if (throughput != null) 'throughput': throughput,
     };
   }
 }
 
 enum ReplicationConfigurationReplicatedDiskStagingDiskType {
-  auto,
-  gp2,
-  gp3,
-  io1,
-  sc1,
-  st1,
-  standard,
-}
+  auto('AUTO'),
+  gp2('GP2'),
+  gp3('GP3'),
+  io1('IO1'),
+  sc1('SC1'),
+  st1('ST1'),
+  standard('STANDARD'),
+  ;
 
-extension ReplicationConfigurationReplicatedDiskStagingDiskTypeValueExtension
-    on ReplicationConfigurationReplicatedDiskStagingDiskType {
-  String toValue() {
-    switch (this) {
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.auto:
-        return 'AUTO';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.gp2:
-        return 'GP2';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.gp3:
-        return 'GP3';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.io1:
-        return 'IO1';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.sc1:
-        return 'SC1';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.st1:
-        return 'ST1';
-      case ReplicationConfigurationReplicatedDiskStagingDiskType.standard:
-        return 'STANDARD';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationConfigurationReplicatedDiskStagingDiskTypeFromString
-    on String {
-  ReplicationConfigurationReplicatedDiskStagingDiskType
-      toReplicationConfigurationReplicatedDiskStagingDiskType() {
-    switch (this) {
-      case 'AUTO':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.auto;
-      case 'GP2':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.gp2;
-      case 'GP3':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.gp3;
-      case 'IO1':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.io1;
-      case 'SC1':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.sc1;
-      case 'ST1':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.st1;
-      case 'STANDARD':
-        return ReplicationConfigurationReplicatedDiskStagingDiskType.standard;
-    }
-    throw Exception(
-        '$this is not known in enum ReplicationConfigurationReplicatedDiskStagingDiskType');
-  }
+  const ReplicationConfigurationReplicatedDiskStagingDiskType(this.value);
+
+  static ReplicationConfigurationReplicatedDiskStagingDiskType fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationConfigurationReplicatedDiskStagingDiskType'));
 }
 
 class ReplicationConfigurationTemplate {
@@ -5774,22 +6204,22 @@ class ReplicationConfigurationTemplate {
       bandwidthThrottling: json['bandwidthThrottling'] as int?,
       createPublicIP: json['createPublicIP'] as bool?,
       dataPlaneRouting: (json['dataPlaneRouting'] as String?)
-          ?.toReplicationConfigurationDataPlaneRouting(),
-      defaultLargeStagingDiskType:
-          (json['defaultLargeStagingDiskType'] as String?)
-              ?.toReplicationConfigurationDefaultLargeStagingDiskType(),
+          ?.let(ReplicationConfigurationDataPlaneRouting.fromString),
+      defaultLargeStagingDiskType: (json['defaultLargeStagingDiskType']
+              as String?)
+          ?.let(ReplicationConfigurationDefaultLargeStagingDiskType.fromString),
       ebsEncryption: (json['ebsEncryption'] as String?)
-          ?.toReplicationConfigurationEbsEncryption(),
+          ?.let(ReplicationConfigurationEbsEncryption.fromString),
       ebsEncryptionKeyArn: json['ebsEncryptionKeyArn'] as String?,
       pitPolicy: (json['pitPolicy'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PITPolicyRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       replicationServerInstanceType:
           json['replicationServerInstanceType'] as String?,
       replicationServersSecurityGroupsIDs:
           (json['replicationServersSecurityGroupsIDs'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       stagingAreaSubnetId: json['stagingAreaSubnetId'] as String?,
@@ -5832,11 +6262,10 @@ class ReplicationConfigurationTemplate {
       if (bandwidthThrottling != null)
         'bandwidthThrottling': bandwidthThrottling,
       if (createPublicIP != null) 'createPublicIP': createPublicIP,
-      if (dataPlaneRouting != null)
-        'dataPlaneRouting': dataPlaneRouting.toValue(),
+      if (dataPlaneRouting != null) 'dataPlaneRouting': dataPlaneRouting.value,
       if (defaultLargeStagingDiskType != null)
-        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.toValue(),
-      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.toValue(),
+        'defaultLargeStagingDiskType': defaultLargeStagingDiskType.value,
+      if (ebsEncryption != null) 'ebsEncryption': ebsEncryption.value,
       if (ebsEncryptionKeyArn != null)
         'ebsEncryptionKeyArn': ebsEncryptionKeyArn,
       if (pitPolicy != null) 'pitPolicy': pitPolicy,
@@ -5862,31 +6291,35 @@ class ReplicationConfigurationTemplate {
 /// failback replication was initiated from that recovery instance back to the
 /// origin location, then the replication direction will be failback.
 enum ReplicationDirection {
-  failover,
-  failback,
+  failover('FAILOVER'),
+  failback('FAILBACK'),
+  ;
+
+  final String value;
+
+  const ReplicationDirection(this.value);
+
+  static ReplicationDirection fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReplicationDirection'));
 }
 
-extension ReplicationDirectionValueExtension on ReplicationDirection {
-  String toValue() {
-    switch (this) {
-      case ReplicationDirection.failover:
-        return 'FAILOVER';
-      case ReplicationDirection.failback:
-        return 'FAILBACK';
-    }
-  }
-}
+enum ReplicationStatus {
+  stopped('STOPPED'),
+  inProgress('IN_PROGRESS'),
+  protected('PROTECTED'),
+  error('ERROR'),
+  ;
 
-extension ReplicationDirectionFromString on String {
-  ReplicationDirection toReplicationDirection() {
-    switch (this) {
-      case 'FAILOVER':
-        return ReplicationDirection.failover;
-      case 'FAILBACK':
-        return ReplicationDirection.failback;
-    }
-    throw Exception('$this is not known in enum ReplicationDirection');
-  }
+  final String value;
+
+  const ReplicationStatus(this.value);
+
+  static ReplicationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReplicationStatus'));
 }
 
 class ReverseReplicationResponse {
@@ -5926,10 +6359,14 @@ class SourceCloudProperties {
   /// AWS Region for an EC2-originated Source Server.
   final String? originRegion;
 
+  /// The ARN of the source Outpost
+  final String? sourceOutpostArn;
+
   SourceCloudProperties({
     this.originAccountID,
     this.originAvailabilityZone,
     this.originRegion,
+    this.sourceOutpostArn,
   });
 
   factory SourceCloudProperties.fromJson(Map<String, dynamic> json) {
@@ -5937,6 +6374,7 @@ class SourceCloudProperties {
       originAccountID: json['originAccountID'] as String?,
       originAvailabilityZone: json['originAvailabilityZone'] as String?,
       originRegion: json['originRegion'] as String?,
+      sourceOutpostArn: json['sourceOutpostArn'] as String?,
     );
   }
 
@@ -5944,11 +6382,164 @@ class SourceCloudProperties {
     final originAccountID = this.originAccountID;
     final originAvailabilityZone = this.originAvailabilityZone;
     final originRegion = this.originRegion;
+    final sourceOutpostArn = this.sourceOutpostArn;
     return {
       if (originAccountID != null) 'originAccountID': originAccountID,
       if (originAvailabilityZone != null)
         'originAvailabilityZone': originAvailabilityZone,
       if (originRegion != null) 'originRegion': originRegion,
+      if (sourceOutpostArn != null) 'sourceOutpostArn': sourceOutpostArn,
+    };
+  }
+}
+
+/// The ARN of the Source Network.
+class SourceNetwork {
+  /// The ARN of the Source Network.
+  final String? arn;
+
+  /// CloudFormation stack name that was deployed for recovering the Source
+  /// Network.
+  final String? cfnStackName;
+
+  /// An object containing information regarding the last recovery of the Source
+  /// Network.
+  final RecoveryLifeCycle? lastRecovery;
+
+  /// ID of the recovered VPC following Source Network recovery.
+  final String? launchedVpcID;
+
+  /// Status of Source Network Replication. Possible values: (a) STOPPED - Source
+  /// Network is not replicating. (b) IN_PROGRESS - Source Network is being
+  /// replicated. (c) PROTECTED - Source Network was replicated successfully and
+  /// is being synchronized for changes. (d) ERROR - Source Network replication
+  /// has failed
+  final ReplicationStatus? replicationStatus;
+
+  /// Error details in case Source Network replication status is ERROR.
+  final String? replicationStatusDetails;
+
+  /// Account ID containing the VPC protected by the Source Network.
+  final String? sourceAccountID;
+
+  /// Source Network ID.
+  final String? sourceNetworkID;
+
+  /// Region containing the VPC protected by the Source Network.
+  final String? sourceRegion;
+
+  /// VPC ID protected by the Source Network.
+  final String? sourceVpcID;
+
+  /// A list of tags associated with the Source Network.
+  final Map<String, String>? tags;
+
+  SourceNetwork({
+    this.arn,
+    this.cfnStackName,
+    this.lastRecovery,
+    this.launchedVpcID,
+    this.replicationStatus,
+    this.replicationStatusDetails,
+    this.sourceAccountID,
+    this.sourceNetworkID,
+    this.sourceRegion,
+    this.sourceVpcID,
+    this.tags,
+  });
+
+  factory SourceNetwork.fromJson(Map<String, dynamic> json) {
+    return SourceNetwork(
+      arn: json['arn'] as String?,
+      cfnStackName: json['cfnStackName'] as String?,
+      lastRecovery: json['lastRecovery'] != null
+          ? RecoveryLifeCycle.fromJson(
+              json['lastRecovery'] as Map<String, dynamic>)
+          : null,
+      launchedVpcID: json['launchedVpcID'] as String?,
+      replicationStatus: (json['replicationStatus'] as String?)
+          ?.let(ReplicationStatus.fromString),
+      replicationStatusDetails: json['replicationStatusDetails'] as String?,
+      sourceAccountID: json['sourceAccountID'] as String?,
+      sourceNetworkID: json['sourceNetworkID'] as String?,
+      sourceRegion: json['sourceRegion'] as String?,
+      sourceVpcID: json['sourceVpcID'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final cfnStackName = this.cfnStackName;
+    final lastRecovery = this.lastRecovery;
+    final launchedVpcID = this.launchedVpcID;
+    final replicationStatus = this.replicationStatus;
+    final replicationStatusDetails = this.replicationStatusDetails;
+    final sourceAccountID = this.sourceAccountID;
+    final sourceNetworkID = this.sourceNetworkID;
+    final sourceRegion = this.sourceRegion;
+    final sourceVpcID = this.sourceVpcID;
+    final tags = this.tags;
+    return {
+      if (arn != null) 'arn': arn,
+      if (cfnStackName != null) 'cfnStackName': cfnStackName,
+      if (lastRecovery != null) 'lastRecovery': lastRecovery,
+      if (launchedVpcID != null) 'launchedVpcID': launchedVpcID,
+      if (replicationStatus != null)
+        'replicationStatus': replicationStatus.value,
+      if (replicationStatusDetails != null)
+        'replicationStatusDetails': replicationStatusDetails,
+      if (sourceAccountID != null) 'sourceAccountID': sourceAccountID,
+      if (sourceNetworkID != null) 'sourceNetworkID': sourceNetworkID,
+      if (sourceRegion != null) 'sourceRegion': sourceRegion,
+      if (sourceVpcID != null) 'sourceVpcID': sourceVpcID,
+      if (tags != null) 'tags': tags,
+    };
+  }
+}
+
+/// Properties of Source Network related to a job event.
+class SourceNetworkData {
+  /// Source Network ID.
+  final String? sourceNetworkID;
+
+  /// VPC ID protected by the Source Network.
+  final String? sourceVpc;
+
+  /// CloudFormation stack name that was deployed for recovering the Source
+  /// Network.
+  final String? stackName;
+
+  /// ID of the recovered VPC following Source Network recovery.
+  final String? targetVpc;
+
+  SourceNetworkData({
+    this.sourceNetworkID,
+    this.sourceVpc,
+    this.stackName,
+    this.targetVpc,
+  });
+
+  factory SourceNetworkData.fromJson(Map<String, dynamic> json) {
+    return SourceNetworkData(
+      sourceNetworkID: json['sourceNetworkID'] as String?,
+      sourceVpc: json['sourceVpc'] as String?,
+      stackName: json['stackName'] as String?,
+      targetVpc: json['targetVpc'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sourceNetworkID = this.sourceNetworkID;
+    final sourceVpc = this.sourceVpc;
+    final stackName = this.stackName;
+    final targetVpc = this.targetVpc;
+    return {
+      if (sourceNetworkID != null) 'sourceNetworkID': sourceNetworkID,
+      if (sourceVpc != null) 'sourceVpc': sourceVpc,
+      if (stackName != null) 'stackName': stackName,
+      if (targetVpc != null) 'targetVpc': targetVpc,
     };
   }
 }
@@ -5998,11 +6589,11 @@ class SourceProperties {
   factory SourceProperties.fromJson(Map<String, dynamic> json) {
     return SourceProperties(
       cpus: (json['cpus'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CPU.fromJson(e as Map<String, dynamic>))
           .toList(),
       disks: (json['disks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Disk.fromJson(e as Map<String, dynamic>))
           .toList(),
       identificationHints: json['identificationHints'] != null
@@ -6011,7 +6602,7 @@ class SourceProperties {
           : null,
       lastUpdatedDateTime: json['lastUpdatedDateTime'] as String?,
       networkInterfaces: (json['networkInterfaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NetworkInterface.fromJson(e as Map<String, dynamic>))
           .toList(),
       os: json['os'] != null
@@ -6052,6 +6643,9 @@ class SourceProperties {
 }
 
 class SourceServer {
+  /// The version of the DRS agent installed on the source server
+  final String? agentVersion;
+
   /// The ARN of the Source Server.
   final String? arn;
 
@@ -6078,6 +6672,9 @@ class SourceServer {
   /// Source cloud properties of the Source Server.
   final SourceCloudProperties? sourceCloudProperties;
 
+  /// ID of the Source Network which is protecting this Source Server's network.
+  final String? sourceNetworkID;
+
   /// The source properties of the Source Server.
   final SourceProperties? sourceProperties;
 
@@ -6091,6 +6688,7 @@ class SourceServer {
   final Map<String, String>? tags;
 
   SourceServer({
+    this.agentVersion,
     this.arn,
     this.dataReplicationInfo,
     this.lastLaunchResult,
@@ -6099,6 +6697,7 @@ class SourceServer {
     this.replicationDirection,
     this.reversedDirectionSourceServerArn,
     this.sourceCloudProperties,
+    this.sourceNetworkID,
     this.sourceProperties,
     this.sourceServerID,
     this.stagingArea,
@@ -6107,25 +6706,27 @@ class SourceServer {
 
   factory SourceServer.fromJson(Map<String, dynamic> json) {
     return SourceServer(
+      agentVersion: json['agentVersion'] as String?,
       arn: json['arn'] as String?,
       dataReplicationInfo: json['dataReplicationInfo'] != null
           ? DataReplicationInfo.fromJson(
               json['dataReplicationInfo'] as Map<String, dynamic>)
           : null,
-      lastLaunchResult:
-          (json['lastLaunchResult'] as String?)?.toLastLaunchResult(),
+      lastLaunchResult: (json['lastLaunchResult'] as String?)
+          ?.let(LastLaunchResult.fromString),
       lifeCycle: json['lifeCycle'] != null
           ? LifeCycle.fromJson(json['lifeCycle'] as Map<String, dynamic>)
           : null,
       recoveryInstanceId: json['recoveryInstanceId'] as String?,
-      replicationDirection:
-          (json['replicationDirection'] as String?)?.toReplicationDirection(),
+      replicationDirection: (json['replicationDirection'] as String?)
+          ?.let(ReplicationDirection.fromString),
       reversedDirectionSourceServerArn:
           json['reversedDirectionSourceServerArn'] as String?,
       sourceCloudProperties: json['sourceCloudProperties'] != null
           ? SourceCloudProperties.fromJson(
               json['sourceCloudProperties'] as Map<String, dynamic>)
           : null,
+      sourceNetworkID: json['sourceNetworkID'] as String?,
       sourceProperties: json['sourceProperties'] != null
           ? SourceProperties.fromJson(
               json['sourceProperties'] as Map<String, dynamic>)
@@ -6140,6 +6741,7 @@ class SourceServer {
   }
 
   Map<String, dynamic> toJson() {
+    final agentVersion = this.agentVersion;
     final arn = this.arn;
     final dataReplicationInfo = this.dataReplicationInfo;
     final lastLaunchResult = this.lastLaunchResult;
@@ -6149,24 +6751,26 @@ class SourceServer {
     final reversedDirectionSourceServerArn =
         this.reversedDirectionSourceServerArn;
     final sourceCloudProperties = this.sourceCloudProperties;
+    final sourceNetworkID = this.sourceNetworkID;
     final sourceProperties = this.sourceProperties;
     final sourceServerID = this.sourceServerID;
     final stagingArea = this.stagingArea;
     final tags = this.tags;
     return {
+      if (agentVersion != null) 'agentVersion': agentVersion,
       if (arn != null) 'arn': arn,
       if (dataReplicationInfo != null)
         'dataReplicationInfo': dataReplicationInfo,
-      if (lastLaunchResult != null)
-        'lastLaunchResult': lastLaunchResult.toValue(),
+      if (lastLaunchResult != null) 'lastLaunchResult': lastLaunchResult.value,
       if (lifeCycle != null) 'lifeCycle': lifeCycle,
       if (recoveryInstanceId != null) 'recoveryInstanceId': recoveryInstanceId,
       if (replicationDirection != null)
-        'replicationDirection': replicationDirection.toValue(),
+        'replicationDirection': replicationDirection.value,
       if (reversedDirectionSourceServerArn != null)
         'reversedDirectionSourceServerArn': reversedDirectionSourceServerArn,
       if (sourceCloudProperties != null)
         'sourceCloudProperties': sourceCloudProperties,
+      if (sourceNetworkID != null) 'sourceNetworkID': sourceNetworkID,
       if (sourceProperties != null) 'sourceProperties': sourceProperties,
       if (sourceServerID != null) 'sourceServerID': sourceServerID,
       if (stagingArea != null) 'stagingArea': stagingArea,
@@ -6210,7 +6814,7 @@ class StagingArea {
       errorMessage: json['errorMessage'] as String?,
       stagingAccountID: json['stagingAccountID'] as String?,
       stagingSourceServerArn: json['stagingSourceServerArn'] as String?,
-      status: (json['status'] as String?)?.toExtensionStatus(),
+      status: (json['status'] as String?)?.let(ExtensionStatus.fromString),
     );
   }
 
@@ -6224,7 +6828,7 @@ class StagingArea {
       if (stagingAccountID != null) 'stagingAccountID': stagingAccountID,
       if (stagingSourceServerArn != null)
         'stagingSourceServerArn': stagingSourceServerArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6363,6 +6967,80 @@ class StartReplicationResponse {
   }
 }
 
+/// An object representing the Source Network to recover.
+class StartSourceNetworkRecoveryRequestNetworkEntry {
+  /// The ID of the Source Network you want to recover.
+  final String sourceNetworkID;
+
+  /// CloudFormation stack name to be used for recovering the network.
+  final String? cfnStackName;
+
+  StartSourceNetworkRecoveryRequestNetworkEntry({
+    required this.sourceNetworkID,
+    this.cfnStackName,
+  });
+
+  Map<String, dynamic> toJson() {
+    final sourceNetworkID = this.sourceNetworkID;
+    final cfnStackName = this.cfnStackName;
+    return {
+      'sourceNetworkID': sourceNetworkID,
+      if (cfnStackName != null) 'cfnStackName': cfnStackName,
+    };
+  }
+}
+
+class StartSourceNetworkRecoveryResponse {
+  /// The Source Network recovery Job.
+  final Job? job;
+
+  StartSourceNetworkRecoveryResponse({
+    this.job,
+  });
+
+  factory StartSourceNetworkRecoveryResponse.fromJson(
+      Map<String, dynamic> json) {
+    return StartSourceNetworkRecoveryResponse(
+      job: json['job'] != null
+          ? Job.fromJson(json['job'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final job = this.job;
+    return {
+      if (job != null) 'job': job,
+    };
+  }
+}
+
+class StartSourceNetworkReplicationResponse {
+  /// Source Network which was requested for replication.
+  final SourceNetwork? sourceNetwork;
+
+  StartSourceNetworkReplicationResponse({
+    this.sourceNetwork,
+  });
+
+  factory StartSourceNetworkReplicationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return StartSourceNetworkReplicationResponse(
+      sourceNetwork: json['sourceNetwork'] != null
+          ? SourceNetwork.fromJson(
+              json['sourceNetwork'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sourceNetwork = this.sourceNetwork;
+    return {
+      if (sourceNetwork != null) 'sourceNetwork': sourceNetwork,
+    };
+  }
+}
+
 class StopReplicationResponse {
   /// The Source Server that this action was targeted on.
   final SourceServer? sourceServer;
@@ -6387,34 +7065,46 @@ class StopReplicationResponse {
   }
 }
 
+class StopSourceNetworkReplicationResponse {
+  /// Source Network which was requested to stop replication.
+  final SourceNetwork? sourceNetwork;
+
+  StopSourceNetworkReplicationResponse({
+    this.sourceNetwork,
+  });
+
+  factory StopSourceNetworkReplicationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return StopSourceNetworkReplicationResponse(
+      sourceNetwork: json['sourceNetwork'] != null
+          ? SourceNetwork.fromJson(
+              json['sourceNetwork'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final sourceNetwork = this.sourceNetwork;
+    return {
+      if (sourceNetwork != null) 'sourceNetwork': sourceNetwork,
+    };
+  }
+}
+
 enum TargetInstanceTypeRightSizingMethod {
-  none,
-  basic,
-}
+  none('NONE'),
+  basic('BASIC'),
+  inAws('IN_AWS'),
+  ;
 
-extension TargetInstanceTypeRightSizingMethodValueExtension
-    on TargetInstanceTypeRightSizingMethod {
-  String toValue() {
-    switch (this) {
-      case TargetInstanceTypeRightSizingMethod.none:
-        return 'NONE';
-      case TargetInstanceTypeRightSizingMethod.basic:
-        return 'BASIC';
-    }
-  }
-}
+  final String value;
 
-extension TargetInstanceTypeRightSizingMethodFromString on String {
-  TargetInstanceTypeRightSizingMethod toTargetInstanceTypeRightSizingMethod() {
-    switch (this) {
-      case 'NONE':
-        return TargetInstanceTypeRightSizingMethod.none;
-      case 'BASIC':
-        return TargetInstanceTypeRightSizingMethod.basic;
-    }
-    throw Exception(
-        '$this is not known in enum TargetInstanceTypeRightSizingMethod');
-  }
+  const TargetInstanceTypeRightSizingMethod(this.value);
+
+  static TargetInstanceTypeRightSizingMethod fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TargetInstanceTypeRightSizingMethod'));
 }
 
 class TerminateRecoveryInstancesResponse {
@@ -6467,6 +7157,25 @@ class UpdateLaunchConfigurationTemplateResponse {
         'launchConfigurationTemplate': launchConfigurationTemplate,
     };
   }
+}
+
+enum VolumeStatus {
+  regular('REGULAR'),
+  containsMarketplaceProductCodes('CONTAINS_MARKETPLACE_PRODUCT_CODES'),
+  missingVolumeAttributes('MISSING_VOLUME_ATTRIBUTES'),
+  missingVolumeAttributesAndPrecheckUnavailable(
+      'MISSING_VOLUME_ATTRIBUTES_AND_PRECHECK_UNAVAILABLE'),
+  pending('PENDING'),
+  ;
+
+  final String value;
+
+  const VolumeStatus(this.value);
+
+  static VolumeStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum VolumeStatus'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

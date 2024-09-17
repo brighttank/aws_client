@@ -101,10 +101,11 @@ class StorageGateway {
   ///
   /// Parameter [gatewayTimezone] :
   /// A value that indicates the time zone you want to set for the gateway. The
-  /// time zone is of the format "GMT-hr:mm" or "GMT+hr:mm". For example,
-  /// GMT-4:00 indicates the time is 4 hours behind GMT. GMT+2:00 indicates the
-  /// time is 2 hours ahead of GMT. The time zone is used, for example, for
-  /// scheduling snapshots and your gateway's maintenance schedule.
+  /// time zone is of the format "GMT", "GMT-hr:mm", or "GMT+hr:mm". For
+  /// example, GMT indicates Greenwich Mean Time without any offset. GMT-4:00
+  /// indicates the time is 4 hours behind GMT. GMT+2:00 indicates the time is 2
+  /// hours ahead of GMT. The time zone is used, for example, for scheduling
+  /// snapshots and your gateway's maintenance schedule.
   ///
   /// Parameter [gatewayType] :
   /// A value that defines the type of gateway to activate. The type specified
@@ -112,7 +113,7 @@ class StorageGateway {
   /// after activation. The default value is <code>CACHED</code>.
   ///
   /// Valid Values: <code>STORED</code> | <code>CACHED</code> | <code>VTL</code>
-  /// | <code>VTL_SNOW</code> | <code>FILE_S3</code> | <code>FILE_FSX_SMB</code>
+  /// | <code>FILE_S3</code> | <code>FILE_FSX_SMB</code>
   ///
   /// Parameter [mediumChangerType] :
   /// The value that indicates the type of medium changer to use for tape
@@ -1000,7 +1001,7 @@ class StorageGateway {
           'NFSFileShareDefaults': nFSFileShareDefaults,
         if (notificationPolicy != null)
           'NotificationPolicy': notificationPolicy,
-        if (objectACL != null) 'ObjectACL': objectACL.toValue(),
+        if (objectACL != null) 'ObjectACL': objectACL.value,
         if (readOnly != null) 'ReadOnly': readOnly,
         if (requesterPays != null) 'RequesterPays': requesterPays,
         if (squash != null) 'Squash': squash,
@@ -1302,8 +1303,7 @@ class StorageGateway {
         if (authentication != null) 'Authentication': authentication,
         if (bucketRegion != null) 'BucketRegion': bucketRegion,
         if (cacheAttributes != null) 'CacheAttributes': cacheAttributes,
-        if (caseSensitivity != null)
-          'CaseSensitivity': caseSensitivity.toValue(),
+        if (caseSensitivity != null) 'CaseSensitivity': caseSensitivity.value,
         if (defaultStorageClass != null)
           'DefaultStorageClass': defaultStorageClass,
         if (fileShareName != null) 'FileShareName': fileShareName,
@@ -1314,7 +1314,7 @@ class StorageGateway {
         if (kMSKey != null) 'KMSKey': kMSKey,
         if (notificationPolicy != null)
           'NotificationPolicy': notificationPolicy,
-        if (objectACL != null) 'ObjectACL': objectACL.toValue(),
+        if (objectACL != null) 'ObjectACL': objectACL.value,
         if (oplocksEnabled != null) 'OplocksEnabled': oplocksEnabled,
         if (readOnly != null) 'ReadOnly': readOnly,
         if (requesterPays != null) 'RequesterPays': requesterPays,
@@ -1660,11 +1660,11 @@ class StorageGateway {
       headers: headers,
       payload: {
         'PoolName': poolName,
-        'StorageClass': storageClass.toValue(),
+        'StorageClass': storageClass.value,
         if (retentionLockTimeInDays != null)
           'RetentionLockTimeInDays': retentionLockTimeInDays,
         if (retentionLockType != null)
-          'RetentionLockType': retentionLockType.toValue(),
+          'RetentionLockType': retentionLockType.value,
         if (tags != null) 'Tags': tags,
       },
     );
@@ -2522,9 +2522,9 @@ class StorageGateway {
   }
 
   /// Returns metadata about a gateway such as its name, network interfaces,
-  /// configured time zone, and the state (whether the gateway is running or
-  /// not). To specify which gateway to describe, use the Amazon Resource Name
-  /// (ARN) of the gateway in your request.
+  /// time zone, status, and software version. To specify which gateway to
+  /// describe, use the Amazon Resource Name (ARN) of the gateway in your
+  /// request.
   ///
   /// May throw [InvalidGatewayRequestException].
   /// May throw [InternalServerError].
@@ -2830,10 +2830,18 @@ class StorageGateway {
     return DescribeTapeRecoveryPointsOutput.fromJson(jsonResponse.body);
   }
 
-  /// Returns a description of the specified Amazon Resource Name (ARN) of
-  /// virtual tapes. If a <code>TapeARN</code> is not specified, returns a
-  /// description of all virtual tapes associated with the specified gateway.
-  /// This operation is only supported in the tape gateway type.
+  /// Returns a description of virtual tapes that correspond to the specified
+  /// Amazon Resource Names (ARNs). If <code>TapeARN</code> is not specified,
+  /// returns a description of the virtual tapes associated with the specified
+  /// gateway. This operation is only supported for the tape gateway type.
+  ///
+  /// The operation supports pagination. By default, the operation returns a
+  /// maximum of up to 100 tapes. You can optionally specify the
+  /// <code>Limit</code> field in the body to limit the number of tapes in the
+  /// response. If the number of tapes returned in the response is truncated,
+  /// the response includes a <code>Marker</code> field. You can use this
+  /// <code>Marker</code> value in your subsequent request to retrieve the next
+  /// set of tapes.
   ///
   /// May throw [InvalidGatewayRequestException].
   /// May throw [InternalServerError].
@@ -3130,6 +3138,17 @@ class StorageGateway {
 
   /// Adds a file gateway to an Active Directory domain. This operation is only
   /// supported for file gateways that support the SMB file protocol.
+  /// <note>
+  /// Joining a domain creates an Active Directory computer account in the
+  /// default organizational unit, using the gateway's <b>Gateway ID</b> as the
+  /// account name (for example, SGW-1234ADE). If your Active Directory
+  /// environment requires that you pre-stage accounts to facilitate the join
+  /// domain process, you will need to create this account ahead of time.
+  ///
+  /// To create the gateway's computer account in an organizational unit other
+  /// than the default, you must specify the organizational unit when joining
+  /// the domain.
+  /// </note>
   ///
   /// May throw [InvalidGatewayRequestException].
   /// May throw [InternalServerError].
@@ -3238,8 +3257,8 @@ class StorageGateway {
   }
 
   /// Gets a list of the file shares for a specific S3 File Gateway, or the list
-  /// of file shares that belong to the calling user account. This operation is
-  /// only supported for S3 File Gateways.
+  /// of file shares that belong to the calling Amazon Web Services account.
+  /// This operation is only supported for S3 File Gateways.
   ///
   /// May throw [InvalidGatewayRequestException].
   /// May throw [InternalServerError].
@@ -3702,7 +3721,7 @@ class StorageGateway {
   }
 
   /// Sends you notification through CloudWatch Events when all files written to
-  /// your file share have been uploaded to S3. Amazon S3.
+  /// your file share have been uploaded to Amazon S3.
   ///
   /// Storage Gateway can send a notification through Amazon CloudWatch Events
   /// when all files written to your file share up to that point in time have
@@ -3714,8 +3733,9 @@ class StorageGateway {
   /// This operation is only supported for S3 File Gateways.
   ///
   /// For more information, see <a
-  /// href="https://docs.aws.amazon.com/storagegateway/latest/userguide/monitoring-file-gateway.html#get-upload-notification">Getting
-  /// file upload notification</a> in the <i>Storage Gateway User Guide</i>.
+  /// href="https://docs.aws.amazon.com/filegateway/latest/files3/monitoring-file-gateway.html#get-notification">Getting
+  /// file upload notification</a> in the <i>Amazon S3 File Gateway User
+  /// Guide</i>.
   ///
   /// May throw [InvalidGatewayRequestException].
   /// May throw [InternalServerError].
@@ -3751,8 +3771,8 @@ class StorageGateway {
   /// You can subscribe to be notified through an Amazon CloudWatch event when
   /// your <code>RefreshCache</code> operation completes. For more information,
   /// see <a
-  /// href="https://docs.aws.amazon.com/storagegateway/latest/userguide/monitoring-file-gateway.html#get-notification">Getting
-  /// notified about file operations</a> in the <i>Storage Gateway User
+  /// href="https://docs.aws.amazon.com/filegateway/latest/files3/monitoring-file-gateway.html#get-notification">Getting
+  /// notified about file operations</a> in the <i>Amazon S3 File Gateway User
   /// Guide</i>. This operation is Only supported for S3 File Gateways.
   ///
   /// When this API is called, it only initiates the refresh operation. When the
@@ -3767,17 +3787,13 @@ class StorageGateway {
   /// more than two refreshes at any time. We recommend using the
   /// refresh-complete CloudWatch event notification before issuing additional
   /// requests. For more information, see <a
-  /// href="https://docs.aws.amazon.com/storagegateway/latest/userguide/monitoring-file-gateway.html#get-notification">Getting
-  /// notified about file operations</a> in the <i>Storage Gateway User
+  /// href="https://docs.aws.amazon.com/filegateway/latest/files3/monitoring-file-gateway.html#get-notification">Getting
+  /// notified about file operations</a> in the <i>Amazon S3 File Gateway User
   /// Guide</i>.
   /// <important>
   /// <ul>
   /// <li>
   /// Wait at least 60 seconds between consecutive RefreshCache API requests.
-  /// </li>
-  /// <li>
-  /// RefreshCache does not evict cache entries if invoked consecutively within
-  /// 60 seconds of a previous RefreshCache request.
   /// </li>
   /// <li>
   /// If you invoke the RefreshCache API when two requests are already being
@@ -3790,8 +3806,8 @@ class StorageGateway {
   /// folders in the FolderList parameter.
   /// </note>
   /// For more information, see <a
-  /// href="https://docs.aws.amazon.com/storagegateway/latest/userguide/monitoring-file-gateway.html#get-notification">Getting
-  /// notified about file operations</a> in the <i>Storage Gateway User
+  /// href="https://docs.aws.amazon.com/filegateway/latest/files3/monitoring-file-gateway.html#get-notification">Getting
+  /// notified about file operations</a> in the <i>Amazon S3 File Gateway User
   /// Guide</i>.
   ///
   /// May throw [InvalidGatewayRequestException].
@@ -3806,6 +3822,10 @@ class StorageGateway {
   /// folders at the root of the Amazon S3 bucket. If <code>Recursive</code> is
   /// set to <code>true</code>, the entire S3 bucket that the file share has
   /// access to is refreshed.
+  ///
+  /// Do not include <code>/</code> when specifying folder names. For example,
+  /// you would specify <code>samplefolder</code> rather than
+  /// <code>samplefolder/</code>.
   ///
   /// Parameter [recursive] :
   /// A value that specifies whether to recursively refresh folders in the
@@ -4077,9 +4097,13 @@ class StorageGateway {
     return SetSMBGuestPasswordOutput.fromJson(jsonResponse.body);
   }
 
-  /// Shuts down a gateway. To specify which gateway to shut down, use the
-  /// Amazon Resource Name (ARN) of the gateway in the body of your request.
-  ///
+  /// Shuts down a Tape Gateway or Volume Gateway. To specify which gateway to
+  /// shut down, use the Amazon Resource Name (ARN) of the gateway in the body
+  /// of your request.
+  /// <note>
+  /// This API action cannot be used to shut down S3 File Gateway or FSx File
+  /// Gateway.
+  /// </note>
   /// The operation shuts down the gateway service component running in the
   /// gateway's virtual machine (VM) and not the host VM.
   /// <note>
@@ -4301,9 +4325,10 @@ class StorageGateway {
   /// Updates the bandwidth rate limit schedule for a specified gateway. By
   /// default, gateways do not have bandwidth rate limit schedules, which means
   /// no bandwidth rate limiting is in effect. Use this to initiate or update a
-  /// gateway's bandwidth rate limit schedule. This operation is supported only
-  /// for volume, tape and S3 file gateways. FSx file gateways do not support
-  /// bandwidth rate limits.
+  /// gateway's bandwidth rate limit schedule. This operation is supported for
+  /// volume, tape, and S3 file gateways. S3 file gateways support bandwidth
+  /// rate limits for upload only. FSx file gateways do not support bandwidth
+  /// rate limits.
   ///
   /// May throw [InvalidGatewayRequestException].
   /// May throw [InternalServerError].
@@ -4495,8 +4520,7 @@ class StorageGateway {
         'GatewayARN': gatewayARN,
         if (cloudWatchLogGroupARN != null)
           'CloudWatchLogGroupARN': cloudWatchLogGroupARN,
-        if (gatewayCapacity != null)
-          'GatewayCapacity': gatewayCapacity.toValue(),
+        if (gatewayCapacity != null) 'GatewayCapacity': gatewayCapacity.value,
         if (gatewayName != null) 'GatewayName': gatewayName,
         if (gatewayTimezone != null) 'GatewayTimezone': gatewayTimezone,
       },
@@ -4815,7 +4839,7 @@ class StorageGateway {
           'NFSFileShareDefaults': nFSFileShareDefaults,
         if (notificationPolicy != null)
           'NotificationPolicy': notificationPolicy,
-        if (objectACL != null) 'ObjectACL': objectACL.toValue(),
+        if (objectACL != null) 'ObjectACL': objectACL.value,
         if (readOnly != null) 'ReadOnly': readOnly,
         if (requesterPays != null) 'RequesterPays': requesterPays,
         if (squash != null) 'Squash': squash,
@@ -5031,8 +5055,7 @@ class StorageGateway {
         if (auditDestinationARN != null)
           'AuditDestinationARN': auditDestinationARN,
         if (cacheAttributes != null) 'CacheAttributes': cacheAttributes,
-        if (caseSensitivity != null)
-          'CaseSensitivity': caseSensitivity.toValue(),
+        if (caseSensitivity != null) 'CaseSensitivity': caseSensitivity.value,
         if (defaultStorageClass != null)
           'DefaultStorageClass': defaultStorageClass,
         if (fileShareName != null) 'FileShareName': fileShareName,
@@ -5043,7 +5066,7 @@ class StorageGateway {
         if (kMSKey != null) 'KMSKey': kMSKey,
         if (notificationPolicy != null)
           'NotificationPolicy': notificationPolicy,
-        if (objectACL != null) 'ObjectACL': objectACL.toValue(),
+        if (objectACL != null) 'ObjectACL': objectACL.value,
         if (oplocksEnabled != null) 'OplocksEnabled': oplocksEnabled,
         if (readOnly != null) 'ReadOnly': readOnly,
         if (requesterPays != null) 'RequesterPays': requesterPays,
@@ -5163,7 +5186,7 @@ class StorageGateway {
       headers: headers,
       payload: {
         'GatewayARN': gatewayARN,
-        'SMBSecurityStrategy': sMBSecurityStrategy.toValue(),
+        'SMBSecurityStrategy': sMBSecurityStrategy.value,
       },
     );
 
@@ -5326,56 +5349,23 @@ class ActivateGatewayOutput {
 }
 
 enum ActiveDirectoryStatus {
-  accessDenied,
-  detached,
-  joined,
-  joining,
-  networkError,
-  timeout,
-  unknownError,
-}
+  accessDenied('ACCESS_DENIED'),
+  detached('DETACHED'),
+  joined('JOINED'),
+  joining('JOINING'),
+  networkError('NETWORK_ERROR'),
+  timeout('TIMEOUT'),
+  unknownError('UNKNOWN_ERROR'),
+  ;
 
-extension ActiveDirectoryStatusValueExtension on ActiveDirectoryStatus {
-  String toValue() {
-    switch (this) {
-      case ActiveDirectoryStatus.accessDenied:
-        return 'ACCESS_DENIED';
-      case ActiveDirectoryStatus.detached:
-        return 'DETACHED';
-      case ActiveDirectoryStatus.joined:
-        return 'JOINED';
-      case ActiveDirectoryStatus.joining:
-        return 'JOINING';
-      case ActiveDirectoryStatus.networkError:
-        return 'NETWORK_ERROR';
-      case ActiveDirectoryStatus.timeout:
-        return 'TIMEOUT';
-      case ActiveDirectoryStatus.unknownError:
-        return 'UNKNOWN_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension ActiveDirectoryStatusFromString on String {
-  ActiveDirectoryStatus toActiveDirectoryStatus() {
-    switch (this) {
-      case 'ACCESS_DENIED':
-        return ActiveDirectoryStatus.accessDenied;
-      case 'DETACHED':
-        return ActiveDirectoryStatus.detached;
-      case 'JOINED':
-        return ActiveDirectoryStatus.joined;
-      case 'JOINING':
-        return ActiveDirectoryStatus.joining;
-      case 'NETWORK_ERROR':
-        return ActiveDirectoryStatus.networkError;
-      case 'TIMEOUT':
-        return ActiveDirectoryStatus.timeout;
-      case 'UNKNOWN_ERROR':
-        return ActiveDirectoryStatus.unknownError;
-    }
-    throw Exception('$this is not known in enum ActiveDirectoryStatus');
-  }
+  const ActiveDirectoryStatus(this.value);
+
+  static ActiveDirectoryStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ActiveDirectoryStatus'));
 }
 
 class AddCacheOutput {
@@ -5562,7 +5552,7 @@ class AutomaticTapeCreationPolicyInfo {
   factory AutomaticTapeCreationPolicyInfo.fromJson(Map<String, dynamic> json) {
     return AutomaticTapeCreationPolicyInfo(
       automaticTapeCreationRules: (json['AutomaticTapeCreationRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AutomaticTapeCreationRule.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5654,37 +5644,19 @@ class AutomaticTapeCreationRule {
 }
 
 enum AvailabilityMonitorTestStatus {
-  complete,
-  failed,
-  pending,
-}
+  complete('COMPLETE'),
+  failed('FAILED'),
+  pending('PENDING'),
+  ;
 
-extension AvailabilityMonitorTestStatusValueExtension
-    on AvailabilityMonitorTestStatus {
-  String toValue() {
-    switch (this) {
-      case AvailabilityMonitorTestStatus.complete:
-        return 'COMPLETE';
-      case AvailabilityMonitorTestStatus.failed:
-        return 'FAILED';
-      case AvailabilityMonitorTestStatus.pending:
-        return 'PENDING';
-    }
-  }
-}
+  final String value;
 
-extension AvailabilityMonitorTestStatusFromString on String {
-  AvailabilityMonitorTestStatus toAvailabilityMonitorTestStatus() {
-    switch (this) {
-      case 'COMPLETE':
-        return AvailabilityMonitorTestStatus.complete;
-      case 'FAILED':
-        return AvailabilityMonitorTestStatus.failed;
-      case 'PENDING':
-        return AvailabilityMonitorTestStatus.pending;
-    }
-    throw Exception('$this is not known in enum AvailabilityMonitorTestStatus');
-  }
+  const AvailabilityMonitorTestStatus(this.value);
+
+  static AvailabilityMonitorTestStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AvailabilityMonitorTestStatus'));
 }
 
 /// Describes a bandwidth rate limit interval for a gateway. A bandwidth rate
@@ -5724,6 +5696,13 @@ class BandwidthRateLimitInterval {
   /// The average upload rate limit component of the bandwidth rate limit
   /// interval, in bits per second. This field does not appear in the response if
   /// the upload rate limit is not set.
+  /// <note>
+  /// For Tape Gateway and Volume Gateway, the minimum value is
+  /// <code>51200</code>.
+  ///
+  /// For S3 File Gateway and FSx File Gateway, the minimum value is
+  /// <code>104857600</code>.
+  /// </note>
   final int? averageUploadRateLimitInBitsPerSec;
 
   BandwidthRateLimitInterval({
@@ -5738,10 +5717,8 @@ class BandwidthRateLimitInterval {
 
   factory BandwidthRateLimitInterval.fromJson(Map<String, dynamic> json) {
     return BandwidthRateLimitInterval(
-      daysOfWeek: (json['DaysOfWeek'] as List)
-          .whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      daysOfWeek:
+          (json['DaysOfWeek'] as List).nonNulls.map((e) => e as int).toList(),
       endHourOfDay: json['EndHourOfDay'] as int,
       endMinuteOfHour: json['EndMinuteOfHour'] as int,
       startHourOfDay: json['StartHourOfDay'] as int,
@@ -6002,31 +5979,18 @@ class CancelRetrievalOutput {
 }
 
 enum CaseSensitivity {
-  clientSpecified,
-  caseSensitive,
-}
+  clientSpecified('ClientSpecified'),
+  caseSensitive('CaseSensitive'),
+  ;
 
-extension CaseSensitivityValueExtension on CaseSensitivity {
-  String toValue() {
-    switch (this) {
-      case CaseSensitivity.clientSpecified:
-        return 'ClientSpecified';
-      case CaseSensitivity.caseSensitive:
-        return 'CaseSensitive';
-    }
-  }
-}
+  final String value;
 
-extension CaseSensitivityFromString on String {
-  CaseSensitivity toCaseSensitivity() {
-    switch (this) {
-      case 'ClientSpecified':
-        return CaseSensitivity.clientSpecified;
-      case 'CaseSensitive':
-        return CaseSensitivity.caseSensitive;
-    }
-    throw Exception('$this is not known in enum CaseSensitivity');
-  }
+  const CaseSensitivity(this.value);
+
+  static CaseSensitivity fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CaseSensitivity'));
 }
 
 /// Describes Challenge-Handshake Authentication Protocol (CHAP) information
@@ -6331,7 +6295,7 @@ class CreateTapesOutput {
   factory CreateTapesOutput.fromJson(Map<String, dynamic> json) {
     return CreateTapesOutput(
       tapeARNs: (json['TapeARNs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6603,7 +6567,8 @@ class DescribeAvailabilityMonitorTestOutput {
     return DescribeAvailabilityMonitorTestOutput(
       gatewayARN: json['GatewayARN'] as String?,
       startTime: timeStampFromJson(json['StartTime']),
-      status: (json['Status'] as String?)?.toAvailabilityMonitorTestStatus(),
+      status: (json['Status'] as String?)
+          ?.let(AvailabilityMonitorTestStatus.fromString),
     );
   }
 
@@ -6614,7 +6579,7 @@ class DescribeAvailabilityMonitorTestOutput {
     return {
       if (gatewayARN != null) 'GatewayARN': gatewayARN,
       if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -6680,7 +6645,7 @@ class DescribeBandwidthRateLimitScheduleOutput {
     return DescribeBandwidthRateLimitScheduleOutput(
       bandwidthRateLimitIntervals: (json['BandwidthRateLimitIntervals']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BandwidthRateLimitInterval.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6744,10 +6709,8 @@ class DescribeCacheOutput {
       cacheHitPercentage: json['CacheHitPercentage'] as double?,
       cacheMissPercentage: json['CacheMissPercentage'] as double?,
       cacheUsedPercentage: json['CacheUsedPercentage'] as double?,
-      diskIds: (json['DiskIds'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      diskIds:
+          (json['DiskIds'] as List?)?.nonNulls.map((e) => e as String).toList(),
       gatewayARN: json['GatewayARN'] as String?,
     );
   }
@@ -6789,7 +6752,7 @@ class DescribeCachediSCSIVolumesOutput {
   factory DescribeCachediSCSIVolumesOutput.fromJson(Map<String, dynamic> json) {
     return DescribeCachediSCSIVolumesOutput(
       cachediSCSIVolumes: (json['CachediSCSIVolumes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CachediSCSIVolume.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6838,7 +6801,7 @@ class DescribeChapCredentialsOutput {
   factory DescribeChapCredentialsOutput.fromJson(Map<String, dynamic> json) {
     return DescribeChapCredentialsOutput(
       chapCredentials: (json['ChapCredentials'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ChapInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6866,7 +6829,7 @@ class DescribeFileSystemAssociationsOutput {
     return DescribeFileSystemAssociationsOutput(
       fileSystemAssociationInfoList:
           (json['FileSystemAssociationInfoList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   FileSystemAssociationInfo.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -6931,6 +6894,9 @@ class DescribeGatewayInformationOutput {
   final String? gatewayType;
 
   /// The type of hardware or software platform on which the gateway is running.
+  /// <note>
+  /// Tape Gateway is no longer available on Snow Family devices.
+  /// </note>
   final HostEnvironment? hostEnvironment;
 
   /// A unique identifier for the specific instance of the host platform running
@@ -6952,6 +6918,9 @@ class DescribeGatewayInformationOutput {
   /// Date after which this gateway will not receive software updates for new
   /// features.
   final String? softwareUpdatesEndDate;
+
+  /// The version number of the software running on the gateway appliance.
+  final String? softwareVersion;
 
   /// A list of the metadata cache sizes that the gateway can support based on its
   /// current hardware specifications.
@@ -6986,6 +6955,7 @@ class DescribeGatewayInformationOutput {
     this.lastSoftwareUpdate,
     this.nextUpdateAvailabilityDate,
     this.softwareUpdatesEndDate,
+    this.softwareVersion,
     this.supportedGatewayCapacities,
     this.tags,
     this.vPCEndpoint,
@@ -7000,28 +6970,29 @@ class DescribeGatewayInformationOutput {
       endpointType: json['EndpointType'] as String?,
       gatewayARN: json['GatewayARN'] as String?,
       gatewayCapacity:
-          (json['GatewayCapacity'] as String?)?.toGatewayCapacity(),
+          (json['GatewayCapacity'] as String?)?.let(GatewayCapacity.fromString),
       gatewayId: json['GatewayId'] as String?,
       gatewayName: json['GatewayName'] as String?,
       gatewayNetworkInterfaces: (json['GatewayNetworkInterfaces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NetworkInterface.fromJson(e as Map<String, dynamic>))
           .toList(),
       gatewayState: json['GatewayState'] as String?,
       gatewayTimezone: json['GatewayTimezone'] as String?,
       gatewayType: json['GatewayType'] as String?,
       hostEnvironment:
-          (json['HostEnvironment'] as String?)?.toHostEnvironment(),
+          (json['HostEnvironment'] as String?)?.let(HostEnvironment.fromString),
       hostEnvironmentId: json['HostEnvironmentId'] as String?,
       lastSoftwareUpdate: json['LastSoftwareUpdate'] as String?,
       nextUpdateAvailabilityDate: json['NextUpdateAvailabilityDate'] as String?,
       softwareUpdatesEndDate: json['SoftwareUpdatesEndDate'] as String?,
+      softwareVersion: json['SoftwareVersion'] as String?,
       supportedGatewayCapacities: (json['SupportedGatewayCapacities'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toGatewayCapacity())
+          ?.nonNulls
+          .map((e) => GatewayCapacity.fromString((e as String)))
           .toList(),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       vPCEndpoint: json['VPCEndpoint'] as String?,
@@ -7047,6 +7018,7 @@ class DescribeGatewayInformationOutput {
     final lastSoftwareUpdate = this.lastSoftwareUpdate;
     final nextUpdateAvailabilityDate = this.nextUpdateAvailabilityDate;
     final softwareUpdatesEndDate = this.softwareUpdatesEndDate;
+    final softwareVersion = this.softwareVersion;
     final supportedGatewayCapacities = this.supportedGatewayCapacities;
     final tags = this.tags;
     final vPCEndpoint = this.vPCEndpoint;
@@ -7058,7 +7030,7 @@ class DescribeGatewayInformationOutput {
       if (ec2InstanceRegion != null) 'Ec2InstanceRegion': ec2InstanceRegion,
       if (endpointType != null) 'EndpointType': endpointType,
       if (gatewayARN != null) 'GatewayARN': gatewayARN,
-      if (gatewayCapacity != null) 'GatewayCapacity': gatewayCapacity.toValue(),
+      if (gatewayCapacity != null) 'GatewayCapacity': gatewayCapacity.value,
       if (gatewayId != null) 'GatewayId': gatewayId,
       if (gatewayName != null) 'GatewayName': gatewayName,
       if (gatewayNetworkInterfaces != null)
@@ -7066,16 +7038,17 @@ class DescribeGatewayInformationOutput {
       if (gatewayState != null) 'GatewayState': gatewayState,
       if (gatewayTimezone != null) 'GatewayTimezone': gatewayTimezone,
       if (gatewayType != null) 'GatewayType': gatewayType,
-      if (hostEnvironment != null) 'HostEnvironment': hostEnvironment.toValue(),
+      if (hostEnvironment != null) 'HostEnvironment': hostEnvironment.value,
       if (hostEnvironmentId != null) 'HostEnvironmentId': hostEnvironmentId,
       if (lastSoftwareUpdate != null) 'LastSoftwareUpdate': lastSoftwareUpdate,
       if (nextUpdateAvailabilityDate != null)
         'NextUpdateAvailabilityDate': nextUpdateAvailabilityDate,
       if (softwareUpdatesEndDate != null)
         'SoftwareUpdatesEndDate': softwareUpdatesEndDate,
+      if (softwareVersion != null) 'SoftwareVersion': softwareVersion,
       if (supportedGatewayCapacities != null)
         'SupportedGatewayCapacities':
-            supportedGatewayCapacities.map((e) => e.toValue()).toList(),
+            supportedGatewayCapacities.map((e) => e.value).toList(),
       if (tags != null) 'Tags': tags,
       if (vPCEndpoint != null) 'VPCEndpoint': vPCEndpoint,
     };
@@ -7178,7 +7151,7 @@ class DescribeNFSFileSharesOutput {
   factory DescribeNFSFileSharesOutput.fromJson(Map<String, dynamic> json) {
     return DescribeNFSFileSharesOutput(
       nFSFileShareInfoList: (json['NFSFileShareInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NFSFileShareInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7205,7 +7178,7 @@ class DescribeSMBFileSharesOutput {
   factory DescribeSMBFileSharesOutput.fromJson(Map<String, dynamic> json) {
     return DescribeSMBFileSharesOutput(
       sMBFileShareInfoList: (json['SMBFileShareInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SMBFileShareInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7278,23 +7251,30 @@ class DescribeSMBSettingsOutput {
   ///
   /// <ul>
   /// <li>
-  /// <code>ClientSpecified</code>: If you use this option, requests are
+  /// <code>ClientSpecified</code>: If you choose this option, requests are
   /// established based on what is negotiated by the client. This option is
   /// recommended when you want to maximize compatibility across different clients
-  /// in your environment. Only supported for S3 File Gateways.
+  /// in your environment. Supported only for S3 File Gateway.
   /// </li>
   /// <li>
-  /// <code>MandatorySigning</code>: If you use this option, file gateway only
-  /// allows connections from SMBv2 or SMBv3 clients that have signing enabled.
+  /// <code>MandatorySigning</code>: If you use this option, File Gateway only
+  /// allows connections from SMBv2 or SMBv3 clients that have signing turned on.
   /// This option works with SMB clients on Microsoft Windows Vista, Windows
-  /// Server 2008 or newer.
+  /// Server 2008, or later.
   /// </li>
   /// <li>
-  /// <code>MandatoryEncryption</code>: If you use this option, file gateway only
-  /// allows connections from SMBv3 clients that have encryption enabled. This
-  /// option is highly recommended for environments that handle sensitive data.
-  /// This option works with SMB clients on Microsoft Windows 8, Windows Server
-  /// 2012 or newer.
+  /// <code>MandatoryEncryption</code>: If you use this option, File Gateway only
+  /// allows connections from SMBv3 clients that have encryption turned on. Both
+  /// 256-bit and 128-bit algorithms are allowed. This option is recommended for
+  /// environments that handle sensitive data. It works with SMB clients on
+  /// Microsoft Windows 8, Windows Server 2012, or later.
+  /// </li>
+  /// <li>
+  /// <code>EnforceEncryption</code>: If you use this option, File Gateway only
+  /// allows connections from SMBv3 clients that use 256-bit AES encryption
+  /// algorithms. 128-bit algorithms are not allowed. This option is recommended
+  /// for environments that handle sensitive data. It works with SMB clients on
+  /// Microsoft Windows 8, Windows Server 2012, or later.
   /// </li>
   /// </ul>
   final SMBSecurityStrategy? sMBSecurityStrategy;
@@ -7311,8 +7291,8 @@ class DescribeSMBSettingsOutput {
 
   factory DescribeSMBSettingsOutput.fromJson(Map<String, dynamic> json) {
     return DescribeSMBSettingsOutput(
-      activeDirectoryStatus:
-          (json['ActiveDirectoryStatus'] as String?)?.toActiveDirectoryStatus(),
+      activeDirectoryStatus: (json['ActiveDirectoryStatus'] as String?)
+          ?.let(ActiveDirectoryStatus.fromString),
       domainName: json['DomainName'] as String?,
       fileSharesVisible: json['FileSharesVisible'] as bool?,
       gatewayARN: json['GatewayARN'] as String?,
@@ -7321,8 +7301,8 @@ class DescribeSMBSettingsOutput {
           ? SMBLocalGroups.fromJson(
               json['SMBLocalGroups'] as Map<String, dynamic>)
           : null,
-      sMBSecurityStrategy:
-          (json['SMBSecurityStrategy'] as String?)?.toSMBSecurityStrategy(),
+      sMBSecurityStrategy: (json['SMBSecurityStrategy'] as String?)
+          ?.let(SMBSecurityStrategy.fromString),
     );
   }
 
@@ -7336,7 +7316,7 @@ class DescribeSMBSettingsOutput {
     final sMBSecurityStrategy = this.sMBSecurityStrategy;
     return {
       if (activeDirectoryStatus != null)
-        'ActiveDirectoryStatus': activeDirectoryStatus.toValue(),
+        'ActiveDirectoryStatus': activeDirectoryStatus.value,
       if (domainName != null) 'DomainName': domainName,
       if (fileSharesVisible != null) 'FileSharesVisible': fileSharesVisible,
       if (gatewayARN != null) 'GatewayARN': gatewayARN,
@@ -7344,7 +7324,7 @@ class DescribeSMBSettingsOutput {
         'SMBGuestPasswordSet': sMBGuestPasswordSet,
       if (sMBLocalGroups != null) 'SMBLocalGroups': sMBLocalGroups,
       if (sMBSecurityStrategy != null)
-        'SMBSecurityStrategy': sMBSecurityStrategy.toValue(),
+        'SMBSecurityStrategy': sMBSecurityStrategy.value,
     };
   }
 }
@@ -7389,7 +7369,7 @@ class DescribeSnapshotScheduleOutput {
       recurrenceInHours: json['RecurrenceInHours'] as int?,
       startAt: json['StartAt'] as int?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       timezone: json['Timezone'] as String?,
@@ -7493,7 +7473,7 @@ class DescribeStorediSCSIVolumesOutput {
   factory DescribeStorediSCSIVolumesOutput.fromJson(Map<String, dynamic> json) {
     return DescribeStorediSCSIVolumesOutput(
       storediSCSIVolumes: (json['StorediSCSIVolumes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StorediSCSIVolume.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7532,7 +7512,7 @@ class DescribeTapeArchivesOutput {
     return DescribeTapeArchivesOutput(
       marker: json['Marker'] as String?,
       tapeArchives: (json['TapeArchives'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TapeArchive.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7575,7 +7555,7 @@ class DescribeTapeRecoveryPointsOutput {
       gatewayARN: json['GatewayARN'] as String?,
       marker: json['Marker'] as String?,
       tapeRecoveryPointInfos: (json['TapeRecoveryPointInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TapeRecoveryPointInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7615,7 +7595,7 @@ class DescribeTapesOutput {
     return DescribeTapesOutput(
       marker: json['Marker'] as String?,
       tapes: (json['Tapes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tape.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7654,10 +7634,8 @@ class DescribeUploadBufferOutput {
 
   factory DescribeUploadBufferOutput.fromJson(Map<String, dynamic> json) {
     return DescribeUploadBufferOutput(
-      diskIds: (json['DiskIds'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      diskIds:
+          (json['DiskIds'] as List?)?.nonNulls.map((e) => e as String).toList(),
       gatewayARN: json['GatewayARN'] as String?,
       uploadBufferAllocatedInBytes:
           json['UploadBufferAllocatedInBytes'] as int?,
@@ -7706,7 +7684,7 @@ class DescribeVTLDevicesOutput {
       gatewayARN: json['GatewayARN'] as String?,
       marker: json['Marker'] as String?,
       vTLDevices: (json['VTLDevices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VTLDevice.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7750,10 +7728,8 @@ class DescribeWorkingStorageOutput {
 
   factory DescribeWorkingStorageOutput.fromJson(Map<String, dynamic> json) {
     return DescribeWorkingStorageOutput(
-      diskIds: (json['DiskIds'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      diskIds:
+          (json['DiskIds'] as List?)?.nonNulls.map((e) => e as String).toList(),
       gatewayARN: json['GatewayARN'] as String?,
       workingStorageAllocatedInBytes:
           json['WorkingStorageAllocatedInBytes'] as int?,
@@ -7935,7 +7911,7 @@ class Disk {
       diskAllocationResource: json['DiskAllocationResource'] as String?,
       diskAllocationType: json['DiskAllocationType'] as String?,
       diskAttributeList: (json['DiskAttributeList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       diskId: json['DiskId'] as String?,
@@ -7987,7 +7963,7 @@ class EndpointNetworkConfiguration {
   factory EndpointNetworkConfiguration.fromJson(Map<String, dynamic> json) {
     return EndpointNetworkConfiguration(
       ipAddresses: (json['IpAddresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -8022,7 +7998,8 @@ class FileShareInfo {
       fileShareARN: json['FileShareARN'] as String?,
       fileShareId: json['FileShareId'] as String?,
       fileShareStatus: json['FileShareStatus'] as String?,
-      fileShareType: (json['FileShareType'] as String?)?.toFileShareType(),
+      fileShareType:
+          (json['FileShareType'] as String?)?.let(FileShareType.fromString),
       gatewayARN: json['GatewayARN'] as String?,
     );
   }
@@ -8037,7 +8014,7 @@ class FileShareInfo {
       if (fileShareARN != null) 'FileShareARN': fileShareARN,
       if (fileShareId != null) 'FileShareId': fileShareId,
       if (fileShareStatus != null) 'FileShareStatus': fileShareStatus,
-      if (fileShareType != null) 'FileShareType': fileShareType.toValue(),
+      if (fileShareType != null) 'FileShareType': fileShareType.value,
       if (gatewayARN != null) 'GatewayARN': gatewayARN,
     };
   }
@@ -8045,31 +8022,18 @@ class FileShareInfo {
 
 /// The type of the file share.
 enum FileShareType {
-  nfs,
-  smb,
-}
+  nfs('NFS'),
+  smb('SMB'),
+  ;
 
-extension FileShareTypeValueExtension on FileShareType {
-  String toValue() {
-    switch (this) {
-      case FileShareType.nfs:
-        return 'NFS';
-      case FileShareType.smb:
-        return 'SMB';
-    }
-  }
-}
+  final String value;
 
-extension FileShareTypeFromString on String {
-  FileShareType toFileShareType() {
-    switch (this) {
-      case 'NFS':
-        return FileShareType.nfs;
-      case 'SMB':
-        return FileShareType.smb;
-    }
-    throw Exception('$this is not known in enum FileShareType');
-  }
+  const FileShareType(this.value);
+
+  static FileShareType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FileShareType'));
 }
 
 /// Describes the object returned by <code>DescribeFileSystemAssociations</code>
@@ -8139,14 +8103,14 @@ class FileSystemAssociationInfo {
           json['FileSystemAssociationStatus'] as String?,
       fileSystemAssociationStatusDetails:
           (json['FileSystemAssociationStatusDetails'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => FileSystemAssociationStatusDetail.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       gatewayARN: json['GatewayARN'] as String?,
       locationARN: json['LocationARN'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8257,40 +8221,27 @@ class FileSystemAssociationSummary {
 }
 
 enum GatewayCapacity {
-  small,
-  medium,
-  large,
-}
+  small('Small'),
+  medium('Medium'),
+  large('Large'),
+  ;
 
-extension GatewayCapacityValueExtension on GatewayCapacity {
-  String toValue() {
-    switch (this) {
-      case GatewayCapacity.small:
-        return 'Small';
-      case GatewayCapacity.medium:
-        return 'Medium';
-      case GatewayCapacity.large:
-        return 'Large';
-    }
-  }
-}
+  final String value;
 
-extension GatewayCapacityFromString on String {
-  GatewayCapacity toGatewayCapacity() {
-    switch (this) {
-      case 'Small':
-        return GatewayCapacity.small;
-      case 'Medium':
-        return GatewayCapacity.medium;
-      case 'Large':
-        return GatewayCapacity.large;
-    }
-    throw Exception('$this is not known in enum GatewayCapacity');
-  }
+  const GatewayCapacity(this.value);
+
+  static GatewayCapacity fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum GatewayCapacity'));
 }
 
 /// Describes a gateway object.
 class GatewayInfo {
+  /// Date after which this gateway will not receive software updates for new
+  /// features and bug fixes.
+  final String? deprecationDate;
+
   /// The ID of the Amazon EC2 instance that was used to launch the gateway.
   final String? ec2InstanceId;
 
@@ -8319,6 +8270,9 @@ class GatewayInfo {
   final String? gatewayType;
 
   /// The type of hardware or software platform on which the gateway is running.
+  /// <note>
+  /// Tape Gateway is no longer available on Snow Family devices.
+  /// </note>
   final HostEnvironment? hostEnvironment;
 
   /// A unique identifier for the specific instance of the host platform running
@@ -8326,7 +8280,11 @@ class GatewayInfo {
   /// its format depends on the host environment type.
   final String? hostEnvironmentId;
 
+  /// The version number of the software running on the gateway appliance.
+  final String? softwareVersion;
+
   GatewayInfo({
+    this.deprecationDate,
     this.ec2InstanceId,
     this.ec2InstanceRegion,
     this.gatewayARN,
@@ -8336,10 +8294,12 @@ class GatewayInfo {
     this.gatewayType,
     this.hostEnvironment,
     this.hostEnvironmentId,
+    this.softwareVersion,
   });
 
   factory GatewayInfo.fromJson(Map<String, dynamic> json) {
     return GatewayInfo(
+      deprecationDate: json['DeprecationDate'] as String?,
       ec2InstanceId: json['Ec2InstanceId'] as String?,
       ec2InstanceRegion: json['Ec2InstanceRegion'] as String?,
       gatewayARN: json['GatewayARN'] as String?,
@@ -8348,12 +8308,14 @@ class GatewayInfo {
       gatewayOperationalState: json['GatewayOperationalState'] as String?,
       gatewayType: json['GatewayType'] as String?,
       hostEnvironment:
-          (json['HostEnvironment'] as String?)?.toHostEnvironment(),
+          (json['HostEnvironment'] as String?)?.let(HostEnvironment.fromString),
       hostEnvironmentId: json['HostEnvironmentId'] as String?,
+      softwareVersion: json['SoftwareVersion'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
+    final deprecationDate = this.deprecationDate;
     final ec2InstanceId = this.ec2InstanceId;
     final ec2InstanceRegion = this.ec2InstanceRegion;
     final gatewayARN = this.gatewayARN;
@@ -8363,7 +8325,9 @@ class GatewayInfo {
     final gatewayType = this.gatewayType;
     final hostEnvironment = this.hostEnvironment;
     final hostEnvironmentId = this.hostEnvironmentId;
+    final softwareVersion = this.softwareVersion;
     return {
+      if (deprecationDate != null) 'DeprecationDate': deprecationDate,
       if (ec2InstanceId != null) 'Ec2InstanceId': ec2InstanceId,
       if (ec2InstanceRegion != null) 'Ec2InstanceRegion': ec2InstanceRegion,
       if (gatewayARN != null) 'GatewayARN': gatewayARN,
@@ -8372,58 +8336,30 @@ class GatewayInfo {
       if (gatewayOperationalState != null)
         'GatewayOperationalState': gatewayOperationalState,
       if (gatewayType != null) 'GatewayType': gatewayType,
-      if (hostEnvironment != null) 'HostEnvironment': hostEnvironment.toValue(),
+      if (hostEnvironment != null) 'HostEnvironment': hostEnvironment.value,
       if (hostEnvironmentId != null) 'HostEnvironmentId': hostEnvironmentId,
+      if (softwareVersion != null) 'SoftwareVersion': softwareVersion,
     };
   }
 }
 
 enum HostEnvironment {
-  vmware,
-  hyperV,
-  ec2,
-  kvm,
-  other,
-  snowball,
-}
+  vmware('VMWARE'),
+  hyperV('HYPER-V'),
+  ec2('EC2'),
+  kvm('KVM'),
+  other('OTHER'),
+  snowball('SNOWBALL'),
+  ;
 
-extension HostEnvironmentValueExtension on HostEnvironment {
-  String toValue() {
-    switch (this) {
-      case HostEnvironment.vmware:
-        return 'VMWARE';
-      case HostEnvironment.hyperV:
-        return 'HYPER-V';
-      case HostEnvironment.ec2:
-        return 'EC2';
-      case HostEnvironment.kvm:
-        return 'KVM';
-      case HostEnvironment.other:
-        return 'OTHER';
-      case HostEnvironment.snowball:
-        return 'SNOWBALL';
-    }
-  }
-}
+  final String value;
 
-extension HostEnvironmentFromString on String {
-  HostEnvironment toHostEnvironment() {
-    switch (this) {
-      case 'VMWARE':
-        return HostEnvironment.vmware;
-      case 'HYPER-V':
-        return HostEnvironment.hyperV;
-      case 'EC2':
-        return HostEnvironment.ec2;
-      case 'KVM':
-        return HostEnvironment.kvm;
-      case 'OTHER':
-        return HostEnvironment.other;
-      case 'SNOWBALL':
-        return HostEnvironment.snowball;
-    }
-    throw Exception('$this is not known in enum HostEnvironment');
-  }
+  const HostEnvironment(this.value);
+
+  static HostEnvironment fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum HostEnvironment'));
 }
 
 /// JoinDomainOutput
@@ -8472,8 +8408,8 @@ class JoinDomainOutput {
 
   factory JoinDomainOutput.fromJson(Map<String, dynamic> json) {
     return JoinDomainOutput(
-      activeDirectoryStatus:
-          (json['ActiveDirectoryStatus'] as String?)?.toActiveDirectoryStatus(),
+      activeDirectoryStatus: (json['ActiveDirectoryStatus'] as String?)
+          ?.let(ActiveDirectoryStatus.fromString),
       gatewayARN: json['GatewayARN'] as String?,
     );
   }
@@ -8483,7 +8419,7 @@ class JoinDomainOutput {
     final gatewayARN = this.gatewayARN;
     return {
       if (activeDirectoryStatus != null)
-        'ActiveDirectoryStatus': activeDirectoryStatus.toValue(),
+        'ActiveDirectoryStatus': activeDirectoryStatus.value,
       if (gatewayARN != null) 'GatewayARN': gatewayARN,
     };
   }
@@ -8504,7 +8440,7 @@ class ListAutomaticTapeCreationPoliciesOutput {
     return ListAutomaticTapeCreationPoliciesOutput(
       automaticTapeCreationPolicyInfos:
           (json['AutomaticTapeCreationPolicyInfos'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AutomaticTapeCreationPolicyInfo.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -8544,7 +8480,7 @@ class ListFileSharesOutput {
   factory ListFileSharesOutput.fromJson(Map<String, dynamic> json) {
     return ListFileSharesOutput(
       fileShareInfoList: (json['FileShareInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FileShareInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       marker: json['Marker'] as String?,
@@ -8588,7 +8524,7 @@ class ListFileSystemAssociationsOutput {
     return ListFileSystemAssociationsOutput(
       fileSystemAssociationSummaryList:
           (json['FileSystemAssociationSummaryList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => FileSystemAssociationSummary.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -8628,7 +8564,7 @@ class ListGatewaysOutput {
   factory ListGatewaysOutput.fromJson(Map<String, dynamic> json) {
     return ListGatewaysOutput(
       gateways: (json['Gateways'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GatewayInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       marker: json['Marker'] as String?,
@@ -8664,7 +8600,7 @@ class ListLocalDisksOutput {
   factory ListLocalDisksOutput.fromJson(Map<String, dynamic> json) {
     return ListLocalDisksOutput(
       disks: (json['Disks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Disk.fromJson(e as Map<String, dynamic>))
           .toList(),
       gatewayARN: json['GatewayARN'] as String?,
@@ -8705,7 +8641,7 @@ class ListTagsForResourceOutput {
       marker: json['Marker'] as String?,
       resourceARN: json['ResourceARN'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8744,7 +8680,7 @@ class ListTapePoolsOutput {
     return ListTapePoolsOutput(
       marker: json['Marker'] as String?,
       poolInfos: (json['PoolInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PoolInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8787,7 +8723,7 @@ class ListTapesOutput {
     return ListTapesOutput(
       marker: json['Marker'] as String?,
       tapeInfos: (json['TapeInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TapeInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -8816,7 +8752,7 @@ class ListVolumeInitiatorsOutput {
   factory ListVolumeInitiatorsOutput.fromJson(Map<String, dynamic> json) {
     return ListVolumeInitiatorsOutput(
       initiators: (json['Initiators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -8845,7 +8781,7 @@ class ListVolumeRecoveryPointsOutput {
     return ListVolumeRecoveryPointsOutput(
       gatewayARN: json['GatewayARN'] as String?,
       volumeRecoveryPointInfos: (json['VolumeRecoveryPointInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               VolumeRecoveryPointInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -8897,7 +8833,7 @@ class ListVolumesOutput {
       gatewayARN: json['GatewayARN'] as String?,
       marker: json['Marker'] as String?,
       volumeInfos: (json['VolumeInfos'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VolumeInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -9122,7 +9058,7 @@ class NFSFileShareInfo {
               json['CacheAttributes'] as Map<String, dynamic>)
           : null,
       clientList: (json['ClientList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       defaultStorageClass: json['DefaultStorageClass'] as String?,
@@ -9140,14 +9076,14 @@ class NFSFileShareInfo {
               json['NFSFileShareDefaults'] as Map<String, dynamic>)
           : null,
       notificationPolicy: json['NotificationPolicy'] as String?,
-      objectACL: (json['ObjectACL'] as String?)?.toObjectACL(),
+      objectACL: (json['ObjectACL'] as String?)?.let(ObjectACL.fromString),
       path: json['Path'] as String?,
       readOnly: json['ReadOnly'] as bool?,
       requesterPays: json['RequesterPays'] as bool?,
       role: json['Role'] as String?,
       squash: json['Squash'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       vPCEndpointDNSName: json['VPCEndpointDNSName'] as String?,
@@ -9200,7 +9136,7 @@ class NFSFileShareInfo {
       if (nFSFileShareDefaults != null)
         'NFSFileShareDefaults': nFSFileShareDefaults,
       if (notificationPolicy != null) 'NotificationPolicy': notificationPolicy,
-      if (objectACL != null) 'ObjectACL': objectACL.toValue(),
+      if (objectACL != null) 'ObjectACL': objectACL.value,
       if (path != null) 'Path': path,
       if (readOnly != null) 'ReadOnly': readOnly,
       if (requesterPays != null) 'RequesterPays': requesterPays,
@@ -9283,56 +9219,22 @@ class NotifyWhenUploadedOutput {
 /// the S3 bucket that an S3 File Gateway puts objects into. The default value
 /// is <code>private</code>.
 enum ObjectACL {
-  private,
-  publicRead,
-  publicReadWrite,
-  authenticatedRead,
-  bucketOwnerRead,
-  bucketOwnerFullControl,
-  awsExecRead,
-}
+  private('private'),
+  publicRead('public-read'),
+  publicReadWrite('public-read-write'),
+  authenticatedRead('authenticated-read'),
+  bucketOwnerRead('bucket-owner-read'),
+  bucketOwnerFullControl('bucket-owner-full-control'),
+  awsExecRead('aws-exec-read'),
+  ;
 
-extension ObjectACLValueExtension on ObjectACL {
-  String toValue() {
-    switch (this) {
-      case ObjectACL.private:
-        return 'private';
-      case ObjectACL.publicRead:
-        return 'public-read';
-      case ObjectACL.publicReadWrite:
-        return 'public-read-write';
-      case ObjectACL.authenticatedRead:
-        return 'authenticated-read';
-      case ObjectACL.bucketOwnerRead:
-        return 'bucket-owner-read';
-      case ObjectACL.bucketOwnerFullControl:
-        return 'bucket-owner-full-control';
-      case ObjectACL.awsExecRead:
-        return 'aws-exec-read';
-    }
-  }
-}
+  final String value;
 
-extension ObjectACLFromString on String {
-  ObjectACL toObjectACL() {
-    switch (this) {
-      case 'private':
-        return ObjectACL.private;
-      case 'public-read':
-        return ObjectACL.publicRead;
-      case 'public-read-write':
-        return ObjectACL.publicReadWrite;
-      case 'authenticated-read':
-        return ObjectACL.authenticatedRead;
-      case 'bucket-owner-read':
-        return ObjectACL.bucketOwnerRead;
-      case 'bucket-owner-full-control':
-        return ObjectACL.bucketOwnerFullControl;
-      case 'aws-exec-read':
-        return ObjectACL.awsExecRead;
-    }
-    throw Exception('$this is not known in enum ObjectACL');
-  }
+  const ObjectACL(this.value);
+
+  static ObjectACL fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ObjectACL'));
 }
 
 /// Describes a custom tape pool.
@@ -9381,11 +9283,12 @@ class PoolInfo {
     return PoolInfo(
       poolARN: json['PoolARN'] as String?,
       poolName: json['PoolName'] as String?,
-      poolStatus: (json['PoolStatus'] as String?)?.toPoolStatus(),
+      poolStatus: (json['PoolStatus'] as String?)?.let(PoolStatus.fromString),
       retentionLockTimeInDays: json['RetentionLockTimeInDays'] as int?,
-      retentionLockType:
-          (json['RetentionLockType'] as String?)?.toRetentionLockType(),
-      storageClass: (json['StorageClass'] as String?)?.toTapeStorageClass(),
+      retentionLockType: (json['RetentionLockType'] as String?)
+          ?.let(RetentionLockType.fromString),
+      storageClass:
+          (json['StorageClass'] as String?)?.let(TapeStorageClass.fromString),
     );
   }
 
@@ -9399,42 +9302,28 @@ class PoolInfo {
     return {
       if (poolARN != null) 'PoolARN': poolARN,
       if (poolName != null) 'PoolName': poolName,
-      if (poolStatus != null) 'PoolStatus': poolStatus.toValue(),
+      if (poolStatus != null) 'PoolStatus': poolStatus.value,
       if (retentionLockTimeInDays != null)
         'RetentionLockTimeInDays': retentionLockTimeInDays,
       if (retentionLockType != null)
-        'RetentionLockType': retentionLockType.toValue(),
-      if (storageClass != null) 'StorageClass': storageClass.toValue(),
+        'RetentionLockType': retentionLockType.value,
+      if (storageClass != null) 'StorageClass': storageClass.value,
     };
   }
 }
 
 enum PoolStatus {
-  active,
-  deleted,
-}
+  active('ACTIVE'),
+  deleted('DELETED'),
+  ;
 
-extension PoolStatusValueExtension on PoolStatus {
-  String toValue() {
-    switch (this) {
-      case PoolStatus.active:
-        return 'ACTIVE';
-      case PoolStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension PoolStatusFromString on String {
-  PoolStatus toPoolStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return PoolStatus.active;
-      case 'DELETED':
-        return PoolStatus.deleted;
-    }
-    throw Exception('$this is not known in enum PoolStatus');
-  }
+  const PoolStatus(this.value);
+
+  static PoolStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PoolStatus'));
 }
 
 /// RefreshCacheOutput
@@ -9510,36 +9399,19 @@ class ResetCacheOutput {
 }
 
 enum RetentionLockType {
-  compliance,
-  governance,
-  none,
-}
+  compliance('COMPLIANCE'),
+  governance('GOVERNANCE'),
+  none('NONE'),
+  ;
 
-extension RetentionLockTypeValueExtension on RetentionLockType {
-  String toValue() {
-    switch (this) {
-      case RetentionLockType.compliance:
-        return 'COMPLIANCE';
-      case RetentionLockType.governance:
-        return 'GOVERNANCE';
-      case RetentionLockType.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension RetentionLockTypeFromString on String {
-  RetentionLockType toRetentionLockType() {
-    switch (this) {
-      case 'COMPLIANCE':
-        return RetentionLockType.compliance;
-      case 'GOVERNANCE':
-        return RetentionLockType.governance;
-      case 'NONE':
-        return RetentionLockType.none;
-    }
-    throw Exception('$this is not known in enum RetentionLockType');
-  }
+  const RetentionLockType(this.value);
+
+  static RetentionLockType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RetentionLockType'));
 }
 
 /// RetrieveTapeArchiveOutput
@@ -9791,7 +9663,7 @@ class SMBFileShareInfo {
     return SMBFileShareInfo(
       accessBasedEnumeration: json['AccessBasedEnumeration'] as bool?,
       adminUserList: (json['AdminUserList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       auditDestinationARN: json['AuditDestinationARN'] as String?,
@@ -9802,7 +9674,7 @@ class SMBFileShareInfo {
               json['CacheAttributes'] as Map<String, dynamic>)
           : null,
       caseSensitivity:
-          (json['CaseSensitivity'] as String?)?.toCaseSensitivity(),
+          (json['CaseSensitivity'] as String?)?.let(CaseSensitivity.fromString),
       defaultStorageClass: json['DefaultStorageClass'] as String?,
       fileShareARN: json['FileShareARN'] as String?,
       fileShareId: json['FileShareId'] as String?,
@@ -9811,14 +9683,14 @@ class SMBFileShareInfo {
       gatewayARN: json['GatewayARN'] as String?,
       guessMIMETypeEnabled: json['GuessMIMETypeEnabled'] as bool?,
       invalidUserList: (json['InvalidUserList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       kMSEncrypted: json['KMSEncrypted'] as bool?,
       kMSKey: json['KMSKey'] as String?,
       locationARN: json['LocationARN'] as String?,
       notificationPolicy: json['NotificationPolicy'] as String?,
-      objectACL: (json['ObjectACL'] as String?)?.toObjectACL(),
+      objectACL: (json['ObjectACL'] as String?)?.let(ObjectACL.fromString),
       oplocksEnabled: json['OplocksEnabled'] as bool?,
       path: json['Path'] as String?,
       readOnly: json['ReadOnly'] as bool?,
@@ -9826,12 +9698,12 @@ class SMBFileShareInfo {
       role: json['Role'] as String?,
       sMBACLEnabled: json['SMBACLEnabled'] as bool?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       vPCEndpointDNSName: json['VPCEndpointDNSName'] as String?,
       validUserList: (json['ValidUserList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -9876,7 +9748,7 @@ class SMBFileShareInfo {
       if (authentication != null) 'Authentication': authentication,
       if (bucketRegion != null) 'BucketRegion': bucketRegion,
       if (cacheAttributes != null) 'CacheAttributes': cacheAttributes,
-      if (caseSensitivity != null) 'CaseSensitivity': caseSensitivity.toValue(),
+      if (caseSensitivity != null) 'CaseSensitivity': caseSensitivity.value,
       if (defaultStorageClass != null)
         'DefaultStorageClass': defaultStorageClass,
       if (fileShareARN != null) 'FileShareARN': fileShareARN,
@@ -9891,7 +9763,7 @@ class SMBFileShareInfo {
       if (kMSKey != null) 'KMSKey': kMSKey,
       if (locationARN != null) 'LocationARN': locationARN,
       if (notificationPolicy != null) 'NotificationPolicy': notificationPolicy,
-      if (objectACL != null) 'ObjectACL': objectACL.toValue(),
+      if (objectACL != null) 'ObjectACL': objectACL.value,
       if (oplocksEnabled != null) 'OplocksEnabled': oplocksEnabled,
       if (path != null) 'Path': path,
       if (readOnly != null) 'ReadOnly': readOnly,
@@ -9923,7 +9795,7 @@ class SMBLocalGroups {
   factory SMBLocalGroups.fromJson(Map<String, dynamic> json) {
     return SMBLocalGroups(
       gatewayAdmins: (json['GatewayAdmins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -9938,36 +9810,20 @@ class SMBLocalGroups {
 }
 
 enum SMBSecurityStrategy {
-  clientSpecified,
-  mandatorySigning,
-  mandatoryEncryption,
-}
+  clientSpecified('ClientSpecified'),
+  mandatorySigning('MandatorySigning'),
+  mandatoryEncryption('MandatoryEncryption'),
+  mandatoryEncryptionNoAes128('MandatoryEncryptionNoAes128'),
+  ;
 
-extension SMBSecurityStrategyValueExtension on SMBSecurityStrategy {
-  String toValue() {
-    switch (this) {
-      case SMBSecurityStrategy.clientSpecified:
-        return 'ClientSpecified';
-      case SMBSecurityStrategy.mandatorySigning:
-        return 'MandatorySigning';
-      case SMBSecurityStrategy.mandatoryEncryption:
-        return 'MandatoryEncryption';
-    }
-  }
-}
+  final String value;
 
-extension SMBSecurityStrategyFromString on String {
-  SMBSecurityStrategy toSMBSecurityStrategy() {
-    switch (this) {
-      case 'ClientSpecified':
-        return SMBSecurityStrategy.clientSpecified;
-      case 'MandatorySigning':
-        return SMBSecurityStrategy.mandatorySigning;
-      case 'MandatoryEncryption':
-        return SMBSecurityStrategy.mandatoryEncryption;
-    }
-    throw Exception('$this is not known in enum SMBSecurityStrategy');
-  }
+  const SMBSecurityStrategy(this.value);
+
+  static SMBSecurityStrategy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SMBSecurityStrategy'));
 }
 
 class SetLocalConsolePasswordOutput {
@@ -10644,31 +10500,18 @@ class TapeRecoveryPointInfo {
 }
 
 enum TapeStorageClass {
-  deepArchive,
-  glacier,
-}
+  deepArchive('DEEP_ARCHIVE'),
+  glacier('GLACIER'),
+  ;
 
-extension TapeStorageClassValueExtension on TapeStorageClass {
-  String toValue() {
-    switch (this) {
-      case TapeStorageClass.deepArchive:
-        return 'DEEP_ARCHIVE';
-      case TapeStorageClass.glacier:
-        return 'GLACIER';
-    }
-  }
-}
+  final String value;
 
-extension TapeStorageClassFromString on String {
-  TapeStorageClass toTapeStorageClass() {
-    switch (this) {
-      case 'DEEP_ARCHIVE':
-        return TapeStorageClass.deepArchive;
-      case 'GLACIER':
-        return TapeStorageClass.glacier;
-    }
-    throw Exception('$this is not known in enum TapeStorageClass');
-  }
+  const TapeStorageClass(this.value);
+
+  static TapeStorageClass fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TapeStorageClass'));
 }
 
 class UpdateAutomaticTapeCreationPolicyOutput {

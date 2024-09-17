@@ -7,17 +7,11 @@ version: 2.0.0
 homepage: https://github.com/agilord/aws_client
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: "^3.0.0"
 
 dependencies:
-  aws_dynamodb_api:
-    git:
-      url: https://github.com/brighttank/aws_client.git
-      path: generated/aws_dynamodb_api
-  shared_aws_api:
-    git:
-      url: https://github.com/brighttank/aws_client.git
-      path: shared_aws_api
+  aws_dynamodb_api: ^2.0.0
+  shared_aws_api: ^2.0.0
 
 dev_dependencies:
   lints:

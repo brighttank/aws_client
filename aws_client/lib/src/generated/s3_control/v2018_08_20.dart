@@ -50,6 +50,323 @@ class S3Control {
     _protocol.close();
   }
 
+  /// Associate your S3 Access Grants instance with an Amazon Web Services IAM
+  /// Identity Center instance. Use this action if you want to create access
+  /// grants for users or groups from your corporate identity directory. First,
+  /// you must add your corporate identity directory to Amazon Web Services IAM
+  /// Identity Center. Then, you can associate this IAM Identity Center instance
+  /// with your S3 Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:AssociateAccessGrantsIdentityCenter</code>
+  /// permission to use this operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// You must also have the following permissions:
+  /// <code>sso:CreateApplication</code>, <code>sso:PutApplicationGrant</code>,
+  /// and <code>sso:PutApplicationAuthenticationMethod</code>.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [identityCenterArn] :
+  /// The Amazon Resource Name (ARN) of the Amazon Web Services IAM Identity
+  /// Center instance that you are associating with your S3 Access Grants
+  /// instance. An IAM Identity Center instance is your corporate identity
+  /// directory that you added to the IAM Identity Center. You can use the <a
+  /// href="https://docs.aws.amazon.com/singlesignon/latest/APIReference/API_ListInstances.html">ListInstances</a>
+  /// API operation to retrieve a list of your Identity Center instances and
+  /// their ARNs.
+  Future<void> associateAccessGrantsIdentityCenter({
+    required String accountId,
+    required String identityCenterArn,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/v20180820/accessgrantsinstance/identitycenter',
+      headers: headers,
+      payload: AssociateAccessGrantsIdentityCenterRequest(
+              accountId: accountId, identityCenterArn: identityCenterArn)
+          .toXml(
+        'AssociateAccessGrantsIdentityCenterRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Creates an access grant that gives a grantee access to your S3 data. The
+  /// grantee can be an IAM user or role or a directory user, or group. Before
+  /// you can create a grant, you must have an S3 Access Grants instance in the
+  /// same Region as the S3 data. You can create an S3 Access Grants instance
+  /// using the <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_CreateAccessGrantsInstance.html">CreateAccessGrantsInstance</a>.
+  /// You must also have registered at least one S3 data location in your S3
+  /// Access Grants instance using <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_CreateAccessGrantsLocation.html">CreateAccessGrantsLocation</a>.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:CreateAccessGrant</code> permission to use this
+  /// operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// For any directory identity - <code>sso:DescribeInstance</code> and
+  /// <code>sso:DescribeApplication</code>
+  ///
+  /// For directory users - <code>identitystore:DescribeUser</code>
+  ///
+  /// For directory groups - <code>identitystore:DescribeGroup</code>
+  /// </dd> </dl>
+  ///
+  /// Parameter [accessGrantsLocationId] :
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations
+  /// that you register.
+  ///
+  /// If you are passing the <code>default</code> location, you cannot create an
+  /// access grant for the entire default location. You must also specify a
+  /// bucket or a bucket and prefix in the <code>Subprefix</code> field.
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [grantee] :
+  /// The user, group, or role to which you are granting access. You can grant
+  /// access to an IAM user or role. If you have added your corporate directory
+  /// to Amazon Web Services IAM Identity Center and associated your Identity
+  /// Center instance with your S3 Access Grants instance, the grantee can also
+  /// be a corporate directory user or group.
+  ///
+  /// Parameter [permission] :
+  /// The type of access that you are granting to your S3 data, which can be set
+  /// to one of the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>READ</code> – Grant read-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>WRITE</code> – Grant write-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>READWRITE</code> – Grant both read and write access to the S3 data.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [accessGrantsLocationConfiguration] :
+  /// The configuration options of the grant location. The grant location is the
+  /// S3 path to the data to which you are granting access. It contains the
+  /// <code>S3SubPrefix</code> field. The grant scope is the result of appending
+  /// the subprefix to the location scope of the registered location.
+  ///
+  /// Parameter [applicationArn] :
+  /// The Amazon Resource Name (ARN) of an Amazon Web Services IAM Identity
+  /// Center application associated with your Identity Center instance. If an
+  /// application ARN is included in the request to create an access grant, the
+  /// grantee can only access the S3 data through this application.
+  ///
+  /// Parameter [s3PrefixType] :
+  /// The type of <code>S3SubPrefix</code>. The only possible value is
+  /// <code>Object</code>. Pass this value if the access grant scope is an
+  /// object. Do not pass this value if the access grant scope is a bucket or a
+  /// bucket and a prefix.
+  ///
+  /// Parameter [tags] :
+  /// The Amazon Web Services resource tags that you are adding to the access
+  /// grant. Each tag is a label consisting of a user-defined key and value.
+  /// Tags can help you manage, identify, organize, search for, and filter
+  /// resources.
+  Future<CreateAccessGrantResult> createAccessGrant({
+    required String accessGrantsLocationId,
+    required String accountId,
+    required Grantee grantee,
+    required Permission permission,
+    AccessGrantsLocationConfiguration? accessGrantsLocationConfiguration,
+    String? applicationArn,
+    S3PrefixType? s3PrefixType,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'POST',
+      requestUri: '/v20180820/accessgrantsinstance/grant',
+      headers: headers,
+      payload: CreateAccessGrantRequest(
+              accessGrantsLocationId: accessGrantsLocationId,
+              accountId: accountId,
+              grantee: grantee,
+              permission: permission,
+              accessGrantsLocationConfiguration:
+                  accessGrantsLocationConfiguration,
+              applicationArn: applicationArn,
+              s3PrefixType: s3PrefixType,
+              tags: tags)
+          .toXml(
+        'CreateAccessGrantRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateAccessGrantResult.fromXml($result.body);
+  }
+
+  /// Creates an S3 Access Grants instance, which serves as a logical grouping
+  /// for access grants. You can create one S3 Access Grants instance per Region
+  /// per account.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:CreateAccessGrantsInstance</code> permission to
+  /// use this operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// To associate an IAM Identity Center instance with your S3 Access Grants
+  /// instance, you must also have the <code>sso:DescribeInstance</code>,
+  /// <code>sso:CreateApplication</code>, <code>sso:PutApplicationGrant</code>,
+  /// and <code>sso:PutApplicationAuthenticationMethod</code> permissions.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [identityCenterArn] :
+  /// If you would like to associate your S3 Access Grants instance with an
+  /// Amazon Web Services IAM Identity Center instance, use this field to pass
+  /// the Amazon Resource Name (ARN) of the Amazon Web Services IAM Identity
+  /// Center instance that you are associating with your S3 Access Grants
+  /// instance. An IAM Identity Center instance is your corporate identity
+  /// directory that you added to the IAM Identity Center. You can use the <a
+  /// href="https://docs.aws.amazon.com/singlesignon/latest/APIReference/API_ListInstances.html">ListInstances</a>
+  /// API operation to retrieve a list of your Identity Center instances and
+  /// their ARNs.
+  ///
+  /// Parameter [tags] :
+  /// The Amazon Web Services resource tags that you are adding to the S3 Access
+  /// Grants instance. Each tag is a label consisting of a user-defined key and
+  /// value. Tags can help you manage, identify, organize, search for, and
+  /// filter resources.
+  Future<CreateAccessGrantsInstanceResult> createAccessGrantsInstance({
+    required String accountId,
+    String? identityCenterArn,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'POST',
+      requestUri: '/v20180820/accessgrantsinstance',
+      headers: headers,
+      payload: CreateAccessGrantsInstanceRequest(
+              accountId: accountId,
+              identityCenterArn: identityCenterArn,
+              tags: tags)
+          .toXml(
+        'CreateAccessGrantsInstanceRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateAccessGrantsInstanceResult.fromXml($result.body);
+  }
+
+  /// The S3 data location that you would like to register in your S3 Access
+  /// Grants instance. Your S3 data must be in the same Region as your S3 Access
+  /// Grants instance. The location can be one of the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// The default S3 location <code>s3://</code>
+  /// </li>
+  /// <li>
+  /// A bucket - <code>S3://&lt;bucket-name&gt;</code>
+  /// </li>
+  /// <li>
+  /// A bucket and prefix - <code>S3://&lt;bucket-name&gt;/&lt;prefix&gt;</code>
+  /// </li>
+  /// </ul>
+  /// When you register a location, you must include the IAM role that has
+  /// permission to manage the S3 location that you are registering. Give S3
+  /// Access Grants permission to assume this role <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-grants-location.html">using
+  /// a policy</a>. S3 Access Grants assumes this role to manage access to the
+  /// location and to vend temporary credentials to grantees or client
+  /// applications.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:CreateAccessGrantsLocation</code> permission to
+  /// use this operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// You must also have the following permission for the specified IAM role:
+  /// <code>iam:PassRole</code>
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [iAMRoleArn] :
+  /// The Amazon Resource Name (ARN) of the IAM role for the registered
+  /// location. S3 Access Grants assumes this role to manage access to the
+  /// registered location.
+  ///
+  /// Parameter [locationScope] :
+  /// The S3 path to the location that you are registering. The location scope
+  /// can be the default S3 location <code>s3://</code>, the S3 path to a bucket
+  /// <code>s3://&lt;bucket&gt;</code>, or the S3 path to a bucket and prefix
+  /// <code>s3://&lt;bucket&gt;/&lt;prefix&gt;</code>. A prefix in S3 is a
+  /// string of characters at the beginning of an object key name used to
+  /// organize the objects that you store in your S3 buckets. For example,
+  /// object key names that start with the <code>engineering/</code> prefix or
+  /// object key names that start with the <code>marketing/campaigns/</code>
+  /// prefix.
+  ///
+  /// Parameter [tags] :
+  /// The Amazon Web Services resource tags that you are adding to the S3 Access
+  /// Grants location. Each tag is a label consisting of a user-defined key and
+  /// value. Tags can help you manage, identify, organize, search for, and
+  /// filter resources.
+  Future<CreateAccessGrantsLocationResult> createAccessGrantsLocation({
+    required String accountId,
+    required String iAMRoleArn,
+    required String locationScope,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'POST',
+      requestUri: '/v20180820/accessgrantsinstance/location',
+      headers: headers,
+      payload: CreateAccessGrantsLocationRequest(
+              accountId: accountId,
+              iAMRoleArn: iAMRoleArn,
+              locationScope: locationScope,
+              tags: tags)
+          .toXml(
+        'CreateAccessGrantsLocationRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateAccessGrantsLocationResult.fromXml($result.body);
+  }
+
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Creates an access point and associates it with the specified bucket. For
   /// more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-points.html">Managing
@@ -116,6 +433,11 @@ class S3Control {
   /// The Amazon Web Services account ID associated with the S3 bucket
   /// associated with this access point.
   ///
+  /// For same account access point when your bucket and access point belong to
+  /// the same account owner, the <code>BucketAccountId</code> is not required.
+  /// For cross-account access point when your bucket and access point are not
+  /// in the same account, the <code>BucketAccountId</code> is required.
+  ///
   /// Parameter [publicAccessBlockConfiguration] :
   /// The <code>PublicAccessBlock</code> configuration that you want to apply to
   /// the access point.
@@ -161,6 +483,9 @@ class S3Control {
     return CreateAccessPointResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Creates an Object Lambda Access Point. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/transforming-objects.html">Transforming
   /// objects with Object Lambda Access Points</a> in the <i>Amazon S3 User
@@ -359,7 +684,7 @@ class S3Control {
     String? outpostId,
   }) async {
     final headers = <String, String>{
-      if (acl != null) 'x-amz-acl': acl.toValue(),
+      if (acl != null) 'x-amz-acl': acl.value,
       if (grantFullControl != null)
         'x-amz-grant-full-control': grantFullControl.toString(),
       if (grantRead != null) 'x-amz-grant-read': grantRead.toString(),
@@ -386,14 +711,20 @@ class S3Control {
     );
   }
 
+  /// This operation creates an S3 Batch Operations job.
+  ///
   /// You can use S3 Batch Operations to perform large-scale batch actions on
   /// Amazon S3 objects. Batch Operations can run a single action on lists of
   /// Amazon S3 objects that you specify. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops.html">S3
   /// Batch Operations</a> in the <i>Amazon S3 User Guide</i>.
-  ///
-  /// This action creates a S3 Batch Operations job.
-  /// <p/>
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// For information about permissions required to use the Batch Operations,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops-iam-role-policies.html">Granting
+  /// permissions for S3 Batch Operations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
+  /// </dd> </dl> <p/>
   /// Related actions include:
   ///
   /// <ul>
@@ -521,6 +852,9 @@ class S3Control {
     return CreateJobResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Creates a Multi-Region Access Point and associates it with the specified
   /// buckets. For more information about creating Multi-Region Access Points,
   /// see <a
@@ -528,10 +862,11 @@ class S3Control {
   /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
   ///
   /// This action will always be routed to the US West (Oregon) Region. For more
-  /// information about the restrictions around managing Multi-Region Access
+  /// information about the restrictions around working with Multi-Region Access
   /// Points, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiRegionAccessPointRestrictions.html">Multi-Region
+  /// Access Point restrictions and limitations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
   ///
   /// This request is asynchronous, meaning that you might receive a response
   /// before the command has completed. When this request provides a response,
@@ -599,6 +934,194 @@ class S3Control {
     return CreateMultiRegionAccessPointResult.fromXml($result.body);
   }
 
+  /// Creates a new S3 Storage Lens group and associates it with the specified
+  /// Amazon Web Services account ID. An S3 Storage Lens group is a custom
+  /// grouping of objects based on prefix, suffix, object tags, object size,
+  /// object age, or a combination of these filters. For each Storage Lens group
+  /// that you’ve created, you can also optionally add Amazon Web Services
+  /// resource tags. For more information about S3 Storage Lens groups, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-lens-groups-overview.html">Working
+  /// with S3 Storage Lens groups</a>.
+  ///
+  /// To use this operation, you must have the permission to perform the
+  /// <code>s3:CreateStorageLensGroup</code> action. If you’re trying to create
+  /// a Storage Lens group with Amazon Web Services resource tags, you must also
+  /// have permission to perform the <code>s3:TagResource</code> action. For
+  /// more information about the required Storage Lens Groups permissions, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about Storage Lens groups errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3LensErrorCodeList">List
+  /// of Amazon S3 Storage Lens error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID that the Storage Lens group is created
+  /// from and associated with.
+  ///
+  /// Parameter [storageLensGroup] :
+  /// The Storage Lens group configuration.
+  ///
+  /// Parameter [tags] :
+  /// The Amazon Web Services resource tags that you're adding to your Storage
+  /// Lens group. This parameter is optional.
+  Future<void> createStorageLensGroup({
+    required String accountId,
+    required StorageLensGroup storageLensGroup,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/v20180820/storagelensgroup',
+      headers: headers,
+      payload: CreateStorageLensGroupRequest(
+              accountId: accountId,
+              storageLensGroup: storageLensGroup,
+              tags: tags)
+          .toXml(
+        'CreateStorageLensGroupRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes the access grant from the S3 Access Grants instance. You cannot
+  /// undo an access grant deletion and the grantee will no longer have access
+  /// to the S3 data.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:DeleteAccessGrant</code> permission to use this
+  /// operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accessGrantId] :
+  /// The ID of the access grant. S3 Access Grants auto-generates this ID when
+  /// you create the access grant.
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<void> deleteAccessGrant({
+    required String accessGrantId,
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'DELETE',
+      requestUri:
+          '/v20180820/accessgrantsinstance/grant/${Uri.encodeComponent(accessGrantId)}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes your S3 Access Grants instance. You must first delete the access
+  /// grants and locations before S3 Access Grants can delete the instance. See
+  /// <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_DeleteAccessGrant.html">DeleteAccessGrant</a>
+  /// and <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_DeleteAccessGrantsLocation.html">DeleteAccessGrantsLocation</a>.
+  /// If you have associated an IAM Identity Center instance with your S3 Access
+  /// Grants instance, you must first dissassociate the Identity Center instance
+  /// from the S3 Access Grants instance before you can delete the S3 Access
+  /// Grants instance. See <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_AssociateAccessGrantsIdentityCenter.html">AssociateAccessGrantsIdentityCenter</a>
+  /// and <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_DissociateAccessGrantsIdentityCenter.html">DissociateAccessGrantsIdentityCenter</a>.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:DeleteAccessGrantsInstance</code> permission to
+  /// use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<void> deleteAccessGrantsInstance({
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'DELETE',
+      requestUri: '/v20180820/accessgrantsinstance',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes the resource policy of the S3 Access Grants instance. The resource
+  /// policy is used to manage cross-account access to your S3 Access Grants
+  /// instance. By deleting the resource policy, you delete any cross-account
+  /// permissions to your S3 Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:DeleteAccessGrantsInstanceResourcePolicy</code>
+  /// permission to use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<void> deleteAccessGrantsInstanceResourcePolicy({
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'DELETE',
+      requestUri: '/v20180820/accessgrantsinstance/resourcepolicy',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deregisters a location from your S3 Access Grants instance. You can only
+  /// delete a location registration from an S3 Access Grants instance if there
+  /// are no grants associated with this location. See <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_DeleteAccessGrant.html">Delete
+  /// a grant</a> for information on how to delete grants. You need to have at
+  /// least one registered location in your S3 Access Grants instance in order
+  /// to create access grants.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:DeleteAccessGrantsLocation</code> permission to
+  /// use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accessGrantsLocationId] :
+  /// The ID of the registered location that you are deregistering from your S3
+  /// Access Grants instance. S3 Access Grants assigned this ID when you
+  /// registered the location. S3 Access Grants assigns the ID
+  /// <code>default</code> to the default location <code>s3://</code> and
+  /// assigns an auto-generated ID to other locations that you register.
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<void> deleteAccessGrantsLocation({
+    required String accessGrantsLocationId,
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'DELETE',
+      requestUri:
+          '/v20180820/accessgrantsinstance/location/${Uri.encodeComponent(accessGrantsLocationId)}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Deletes the specified access point.
   ///
   /// All Amazon S3 on Outposts REST API requests for this action require an
@@ -662,6 +1185,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Deletes the specified Object Lambda Access Point.
   ///
   /// The following actions are related to
@@ -704,6 +1230,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Deletes the access point policy for the specified access point.
   /// <p/>
   /// All Amazon S3 on Outposts REST API requests for this action require an
@@ -762,6 +1291,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Removes the resource policy for an Object Lambda Access Point.
   ///
   /// The following actions are related to
@@ -886,10 +1418,10 @@ class S3Control {
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html">Using
   /// Amazon S3 on Outposts</a> in <i>Amazon S3 User Guide</i>.
   ///
-  /// To use this action, you must have permission to perform the
-  /// <code>s3-outposts:DeleteLifecycleConfiguration</code> action. By default,
-  /// the bucket owner has this permission and the Outposts bucket owner can
-  /// grant this permission to others.
+  /// To use this operation, you must have permission to perform the
+  /// <code>s3-outposts:PutLifecycleConfiguration</code> action. By default, the
+  /// bucket owner has this permission and the Outposts bucket owner can grant
+  /// this permission to others.
   ///
   /// All Amazon S3 on Outposts REST API requests for this action require an
   /// additional parameter of <code>x-amz-outpost-id</code> to be passed with
@@ -1195,14 +1727,15 @@ class S3Control {
     );
   }
 
-  /// Removes the entire tag set from the specified S3 Batch Operations job. To
-  /// use the <code>DeleteJobTagging</code> operation, you must have permission
-  /// to perform the <code>s3:DeleteJobTagging</code> action. For more
-  /// information, see <a
+  /// Removes the entire tag set from the specified S3 Batch Operations job.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// To use the <code>DeleteJobTagging</code> operation, you must have
+  /// permission to perform the <code>s3:DeleteJobTagging</code> action. For
+  /// more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/batch-ops-managing-jobs.html#batch-ops-job-tags">Controlling
   /// access and labeling jobs using tags</a> in the <i>Amazon S3 User
   /// Guide</i>.
-  /// <p/>
+  /// </dd> </dl>
   /// Related actions include:
   ///
   /// <ul>
@@ -1245,15 +1778,19 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Deletes a Multi-Region Access Point. This action does not delete the
   /// buckets associated with the Multi-Region Access Point, only the
   /// Multi-Region Access Point itself.
   ///
   /// This action will always be routed to the US West (Oregon) Region. For more
-  /// information about the restrictions around managing Multi-Region Access
+  /// information about the restrictions around working with Multi-Region Access
   /// Points, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiRegionAccessPointRestrictions.html">Multi-Region
+  /// Access Point restrictions and limitations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
   ///
   /// This request is asynchronous, meaning that you might receive a response
   /// before the command has completed. When this request provides a response,
@@ -1320,6 +1857,9 @@ class S3Control {
     return DeleteMultiRegionAccessPointResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Removes the <code>PublicAccessBlock</code> configuration for an Amazon Web
   /// Services account. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html">
@@ -1355,6 +1895,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Deletes the Amazon S3 Storage Lens configuration. For more information
   /// about S3 Storage Lens, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/storage_lens.html">Assessing
@@ -1389,6 +1932,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Deletes the Amazon S3 Storage Lens configuration tags. For more
   /// information about S3 Storage Lens, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/storage_lens.html">Assessing
@@ -1424,11 +1970,47 @@ class S3Control {
     );
   }
 
+  /// Deletes an existing S3 Storage Lens group.
+  ///
+  /// To use this operation, you must have the permission to perform the
+  /// <code>s3:DeleteStorageLensGroup</code> action. For more information about
+  /// the required Storage Lens Groups permissions, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about Storage Lens groups errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3LensErrorCodeList">List
+  /// of Amazon S3 Storage Lens error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID used to create the Storage Lens group
+  /// that you're trying to delete.
+  ///
+  /// Parameter [name] :
+  /// The name of the Storage Lens group that you're trying to delete.
+  Future<void> deleteStorageLensGroup({
+    required String accountId,
+    required String name,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'DELETE',
+      requestUri: '/v20180820/storagelensgroup/${Uri.encodeComponent(name)}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
   /// Retrieves the configuration parameters and status for a Batch Operations
   /// job. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops.html">S3
   /// Batch Operations</a> in the <i>Amazon S3 User Guide</i>.
-  /// <p/>
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// To use the <code>DescribeJob</code> operation, you must have permission to
+  /// perform the <code>s3:DescribeJob</code> action.
+  /// </dd> </dl>
   /// Related actions include:
   ///
   /// <ul>
@@ -1477,10 +2059,13 @@ class S3Control {
     return DescribeJobResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Retrieves the status of an asynchronous request to manage a Multi-Region
   /// Access Point. For more information about managing Multi-Region Access
   /// Points and how asynchronous requests work, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MrapOperations.html">Using
   /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
   ///
   /// The following actions are related to
@@ -1532,6 +2117,180 @@ class S3Control {
     return DescribeMultiRegionAccessPointOperationResult.fromXml($result.body);
   }
 
+  /// Dissociates the Amazon Web Services IAM Identity Center instance from the
+  /// S3 Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:DissociateAccessGrantsIdentityCenter</code>
+  /// permission to use this operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// You must have the <code>sso:DeleteApplication</code> permission to use
+  /// this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<void> dissociateAccessGrantsIdentityCenter({
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'DELETE',
+      requestUri: '/v20180820/accessgrantsinstance/identitycenter',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Get the details of an access grant from your S3 Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:GetAccessGrant</code> permission to use this
+  /// operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accessGrantId] :
+  /// The ID of the access grant. S3 Access Grants auto-generates this ID when
+  /// you create the access grant.
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<GetAccessGrantResult> getAccessGrant({
+    required String accessGrantId,
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri:
+          '/v20180820/accessgrantsinstance/grant/${Uri.encodeComponent(accessGrantId)}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAccessGrantResult.fromXml($result.body);
+  }
+
+  /// Retrieves the S3 Access Grants instance for a Region in your account.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:GetAccessGrantsInstance</code> permission to
+  /// use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<GetAccessGrantsInstanceResult> getAccessGrantsInstance({
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/accessgrantsinstance',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAccessGrantsInstanceResult.fromXml($result.body);
+  }
+
+  /// Retrieve the S3 Access Grants instance that contains a particular prefix.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:GetAccessGrantsInstanceForPrefix</code>
+  /// permission for the caller account to use this operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// The prefix owner account must grant you the following permissions to their
+  /// S3 Access Grants instance:
+  /// <code>s3:GetAccessGrantsInstanceForPrefix</code>.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [s3Prefix] :
+  /// The S3 prefix of the access grants that you would like to retrieve.
+  Future<GetAccessGrantsInstanceForPrefixResult>
+      getAccessGrantsInstanceForPrefix({
+    required String accountId,
+    required String s3Prefix,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $query = <String, List<String>>{
+      's3prefix': [s3Prefix],
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/accessgrantsinstance/prefix',
+      queryParams: $query,
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAccessGrantsInstanceForPrefixResult.fromXml($result.body);
+  }
+
+  /// Returns the resource policy of the S3 Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:GetAccessGrantsInstanceResourcePolicy</code>
+  /// permission to use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<GetAccessGrantsInstanceResourcePolicyResult>
+      getAccessGrantsInstanceResourcePolicy({
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/accessgrantsinstance/resourcepolicy',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAccessGrantsInstanceResourcePolicyResult.fromXml($result.body);
+  }
+
+  /// Retrieves the details of a particular location registered in your S3
+  /// Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:GetAccessGrantsLocation</code> permission to
+  /// use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accessGrantsLocationId] :
+  /// The ID of the registered location that you are retrieving. S3 Access
+  /// Grants assigns this ID when you register the location. S3 Access Grants
+  /// assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations
+  /// that you register.
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  Future<GetAccessGrantsLocationResult> getAccessGrantsLocation({
+    required String accessGrantsLocationId,
+    required String accountId,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri:
+          '/v20180820/accessgrantsinstance/location/${Uri.encodeComponent(accessGrantsLocationId)}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAccessGrantsLocationResult.fromXml($result.body);
+  }
+
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns configuration information about the specified access point.
   /// <p/>
   /// All Amazon S3 on Outposts REST API requests for this action require an
@@ -1597,6 +2356,9 @@ class S3Control {
     return GetAccessPointResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns configuration for an Object Lambda Access Point.
   ///
   /// The following actions are related to
@@ -1635,6 +2397,9 @@ class S3Control {
         $result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns configuration information about the specified Object Lambda Access
   /// Point
   ///
@@ -1679,6 +2444,9 @@ class S3Control {
     return GetAccessPointForObjectLambdaResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns the access point policy associated with the specified access
   /// point.
   ///
@@ -1729,6 +2497,9 @@ class S3Control {
     return GetAccessPointPolicyResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns the resource policy for an Object Lambda Access Point.
   ///
   /// The following actions are related to
@@ -1769,6 +2540,9 @@ class S3Control {
     return GetAccessPointPolicyForObjectLambdaResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Indicates whether the specified access point currently has a policy that
   /// allows public access. For more information about public access through
   /// access points, see <a
@@ -1798,6 +2572,9 @@ class S3Control {
     return GetAccessPointPolicyStatusResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns the status of the resource policy associated with an Object Lambda
   /// Access Point.
   ///
@@ -2340,13 +3117,118 @@ class S3Control {
     return GetBucketVersioningResult.fromXml($result.body);
   }
 
-  /// Returns the tags on an S3 Batch Operations job. To use the
-  /// <code>GetJobTagging</code> operation, you must have permission to perform
-  /// the <code>s3:GetJobTagging</code> action. For more information, see <a
+  /// Returns a temporary access credential from S3 Access Grants to the grantee
+  /// or client application. The <a
+  /// href="https://docs.aws.amazon.com/STS/latest/APIReference/API_Credentials.html">temporary
+  /// credential</a> is an Amazon Web Services STS token that grants them access
+  /// to the S3 data.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:GetDataAccess</code> permission to use this
+  /// operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// The IAM role that S3 Access Grants assumes must have the following
+  /// permissions specified in the trust policy when registering the location:
+  /// <code>sts:AssumeRole</code>, for directory users or groups
+  /// <code>sts:SetContext</code>, and for IAM users or roles
+  /// <code>sts:SetSourceIdentity</code>.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [permission] :
+  /// The type of permission granted to your S3 data, which can be set to one of
+  /// the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>READ</code> – Grant read-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>WRITE</code> – Grant write-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>READWRITE</code> – Grant both read and write access to the S3 data.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [target] :
+  /// The S3 URI path of the data to which you are requesting temporary access
+  /// credentials. If the requesting account has an access grant for this data,
+  /// S3 Access Grants vends temporary access credentials in the response.
+  ///
+  /// Parameter [durationSeconds] :
+  /// The session duration, in seconds, of the temporary access credential that
+  /// S3 Access Grants vends to the grantee or client application. The default
+  /// value is 1 hour, but the grantee can specify a range from 900 seconds (15
+  /// minutes) up to 43200 seconds (12 hours). If the grantee requests a value
+  /// higher than this maximum, the operation fails.
+  ///
+  /// Parameter [privilege] :
+  /// The scope of the temporary access credential that S3 Access Grants vends
+  /// to the grantee or client application.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>Default</code> – The scope of the returned temporary access token is
+  /// the scope of the grant that is closest to the target scope.
+  /// </li>
+  /// <li>
+  /// <code>Minimal</code> – The scope of the returned temporary access token is
+  /// the same as the requested target scope as long as the requested scope is
+  /// the same as or a subset of the grant scope.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [targetType] :
+  /// The type of <code>Target</code>. The only possible value is
+  /// <code>Object</code>. Pass this value if the target data that you would
+  /// like to access is a path to an object. Do not pass this value if the
+  /// target data is a bucket or a bucket and a prefix.
+  Future<GetDataAccessResult> getDataAccess({
+    required String accountId,
+    required Permission permission,
+    required String target,
+    int? durationSeconds,
+    Privilege? privilege,
+    S3PrefixType? targetType,
+  }) async {
+    _s.validateNumRange(
+      'durationSeconds',
+      durationSeconds,
+      900,
+      43200,
+    );
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $query = <String, List<String>>{
+      'permission': [permission.value],
+      'target': [target],
+      if (durationSeconds != null)
+        'durationSeconds': [durationSeconds.toString()],
+      if (privilege != null) 'privilege': [privilege.value],
+      if (targetType != null) 'targetType': [targetType.value],
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/accessgrantsinstance/dataaccess',
+      queryParams: $query,
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetDataAccessResult.fromXml($result.body);
+  }
+
+  /// Returns the tags on an S3 Batch Operations job.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// To use the <code>GetJobTagging</code> operation, you must have permission
+  /// to perform the <code>s3:GetJobTagging</code> action. For more information,
+  /// see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/batch-ops-managing-jobs.html#batch-ops-job-tags">Controlling
   /// access and labeling jobs using tags</a> in the <i>Amazon S3 User
   /// Guide</i>.
-  /// <p/>
+  /// </dd> </dl>
   /// Related actions include:
   ///
   /// <ul>
@@ -2390,14 +3272,18 @@ class S3Control {
     return GetJobTaggingResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns configuration information about the specified Multi-Region Access
   /// Point.
   ///
   /// This action will always be routed to the US West (Oregon) Region. For more
-  /// information about the restrictions around managing Multi-Region Access
+  /// information about the restrictions around working with Multi-Region Access
   /// Points, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiRegionAccessPointRestrictions.html">Multi-Region
+  /// Access Point restrictions and limitations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
   ///
   /// The following actions are related to
   /// <code>GetMultiRegionAccessPoint</code>:
@@ -2430,8 +3316,9 @@ class S3Control {
   /// you want to receive. The name of the Multi-Region Access Point is
   /// different from the alias. For more information about the distinction
   /// between the name and the alias of an Multi-Region Access Point, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Rules
+  /// for naming Amazon S3 Multi-Region Access Points</a> in the <i>Amazon S3
+  /// User Guide</i>.
   Future<GetMultiRegionAccessPointResult> getMultiRegionAccessPoint({
     required String accountId,
     required String name,
@@ -2449,14 +3336,18 @@ class S3Control {
     return GetMultiRegionAccessPointResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns the access control policy of the specified Multi-Region Access
   /// Point.
   ///
   /// This action will always be routed to the US West (Oregon) Region. For more
-  /// information about the restrictions around managing Multi-Region Access
+  /// information about the restrictions around working with Multi-Region Access
   /// Points, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiRegionAccessPointRestrictions.html">Multi-Region
+  /// Access Point restrictions and limitations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
   ///
   /// The following actions are related to
   /// <code>GetMultiRegionAccessPointPolicy</code>:
@@ -2481,8 +3372,9 @@ class S3Control {
   /// Access Point is different from the alias. For more information about the
   /// distinction between the name and the alias of an Multi-Region Access
   /// Point, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Rules
+  /// for naming Amazon S3 Multi-Region Access Points</a> in the <i>Amazon S3
+  /// User Guide</i>.
   Future<GetMultiRegionAccessPointPolicyResult>
       getMultiRegionAccessPointPolicy({
     required String accountId,
@@ -2501,14 +3393,18 @@ class S3Control {
     return GetMultiRegionAccessPointPolicyResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Indicates whether the specified Multi-Region Access Point has an access
   /// control policy that allows public access.
   ///
   /// This action will always be routed to the US West (Oregon) Region. For more
-  /// information about the restrictions around managing Multi-Region Access
+  /// information about the restrictions around working with Multi-Region Access
   /// Points, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiRegionAccessPointRestrictions.html">Multi-Region
+  /// Access Point restrictions and limitations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
   ///
   /// The following actions are related to
   /// <code>GetMultiRegionAccessPointPolicyStatus</code>:
@@ -2533,8 +3429,9 @@ class S3Control {
   /// Access Point is different from the alias. For more information about the
   /// distinction between the name and the alias of an Multi-Region Access
   /// Point, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Rules
+  /// for naming Amazon S3 Multi-Region Access Points</a> in the <i>Amazon S3
+  /// User Guide</i>.
   Future<GetMultiRegionAccessPointPolicyStatusResult>
       getMultiRegionAccessPointPolicyStatus({
     required String accountId,
@@ -2553,6 +3450,9 @@ class S3Control {
     return GetMultiRegionAccessPointPolicyStatusResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns the routing configuration for a Multi-Region Access Point,
   /// indicating which Regions are active or passive.
   ///
@@ -2576,9 +3476,7 @@ class S3Control {
   /// <li>
   /// <code>eu-west-1</code>
   /// </li>
-  /// </ul> <note>
-  /// Your Amazon S3 bucket does not need to be in these five Regions.
-  /// </note>
+  /// </ul>
   ///
   /// Parameter [accountId] :
   /// The Amazon Web Services account ID for the owner of the Multi-Region
@@ -2604,6 +3502,9 @@ class S3Control {
     return GetMultiRegionAccessPointRoutesResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Retrieves the <code>PublicAccessBlock</code> configuration for an Amazon
   /// Web Services account. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/access-control-block-public-access.html">
@@ -2646,6 +3547,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Gets the Amazon S3 Storage Lens configuration. For more information, see
   /// <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/storage_lens.html">Assessing
@@ -2687,6 +3591,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Gets the tags of Amazon S3 Storage Lens configuration. For more
   /// information about S3 Storage Lens, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/storage_lens.html">Assessing
@@ -2724,6 +3631,270 @@ class S3Control {
     return GetStorageLensConfigurationTaggingResult.fromXml($result.body);
   }
 
+  /// Retrieves the Storage Lens group configuration details.
+  ///
+  /// To use this operation, you must have the permission to perform the
+  /// <code>s3:GetStorageLensGroup</code> action. For more information about the
+  /// required Storage Lens Groups permissions, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about Storage Lens groups errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3LensErrorCodeList">List
+  /// of Amazon S3 Storage Lens error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID associated with the Storage Lens group
+  /// that you're trying to retrieve the details for.
+  ///
+  /// Parameter [name] :
+  /// The name of the Storage Lens group that you're trying to retrieve the
+  /// configuration details for.
+  Future<GetStorageLensGroupResult> getStorageLensGroup({
+    required String accountId,
+    required String name,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.sendRaw(
+      method: 'GET',
+      requestUri: '/v20180820/storagelensgroup/${Uri.encodeComponent(name)}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    final $elem = await _s.xmlFromResponse($result);
+    return GetStorageLensGroupResult(
+      storageLensGroup: StorageLensGroup.fromXml($elem),
+    );
+  }
+
+  /// Returns the list of access grants in your S3 Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:ListAccessGrants</code> permission to use this
+  /// operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [applicationArn] :
+  /// The Amazon Resource Name (ARN) of an Amazon Web Services IAM Identity
+  /// Center application associated with your Identity Center instance. If the
+  /// grant includes an application ARN, the grantee can only access the S3 data
+  /// through this application.
+  ///
+  /// Parameter [grantScope] :
+  /// The S3 path of the data to which you are granting access. It is the result
+  /// of appending the <code>Subprefix</code> to the location scope.
+  ///
+  /// Parameter [granteeIdentifier] :
+  /// The unique identifer of the <code>Grantee</code>. If the grantee type is
+  /// <code>IAM</code>, the identifier is the IAM Amazon Resource Name (ARN) of
+  /// the user or role. If the grantee type is a directory user or group, the
+  /// identifier is 128-bit universally unique identifier (UUID) in the format
+  /// <code>a1b2c3d4-5678-90ab-cdef-EXAMPLE11111</code>. You can obtain this
+  /// UUID from your Amazon Web Services IAM Identity Center instance.
+  ///
+  /// Parameter [granteeType] :
+  /// The type of the grantee to which access has been granted. It can be one of
+  /// the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>IAM</code> - An IAM user or role.
+  /// </li>
+  /// <li>
+  /// <code>DIRECTORY_USER</code> - Your corporate directory user. You can use
+  /// this option if you have added your corporate identity directory to IAM
+  /// Identity Center and associated the IAM Identity Center instance with your
+  /// S3 Access Grants instance.
+  /// </li>
+  /// <li>
+  /// <code>DIRECTORY_GROUP</code> - Your corporate directory group. You can use
+  /// this option if you have added your corporate identity directory to IAM
+  /// Identity Center and associated the IAM Identity Center instance with your
+  /// S3 Access Grants instance.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of access grants that you would like returned in the
+  /// <code>List Access Grants</code> response. If the results include the
+  /// pagination token <code>NextToken</code>, make another call using the
+  /// <code>NextToken</code> to determine if there are more results.
+  ///
+  /// Parameter [nextToken] :
+  /// A pagination token to request the next page of results. Pass this value
+  /// into a subsequent <code>List Access Grants</code> request in order to
+  /// retrieve the next page of results.
+  ///
+  /// Parameter [permission] :
+  /// The type of permission granted to your S3 data, which can be set to one of
+  /// the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>READ</code> – Grant read-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>WRITE</code> – Grant write-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>READWRITE</code> – Grant both read and write access to the S3 data.
+  /// </li>
+  /// </ul>
+  Future<ListAccessGrantsResult> listAccessGrants({
+    required String accountId,
+    String? applicationArn,
+    String? grantScope,
+    String? granteeIdentifier,
+    GranteeType? granteeType,
+    int? maxResults,
+    String? nextToken,
+    Permission? permission,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      1000,
+    );
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $query = <String, List<String>>{
+      if (applicationArn != null) 'application_arn': [applicationArn],
+      if (grantScope != null) 'grantscope': [grantScope],
+      if (granteeIdentifier != null) 'granteeidentifier': [granteeIdentifier],
+      if (granteeType != null) 'granteetype': [granteeType.value],
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+      if (permission != null) 'permission': [permission.value],
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/accessgrantsinstance/grants',
+      queryParams: $query,
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAccessGrantsResult.fromXml($result.body);
+  }
+
+  /// Returns a list of S3 Access Grants instances. An S3 Access Grants instance
+  /// serves as a logical grouping for your individual access grants. You can
+  /// only have one S3 Access Grants instance per Region per account.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:ListAccessGrantsInstances</code> permission to
+  /// use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of access grants that you would like returned in the
+  /// <code>List Access Grants</code> response. If the results include the
+  /// pagination token <code>NextToken</code>, make another call using the
+  /// <code>NextToken</code> to determine if there are more results.
+  ///
+  /// Parameter [nextToken] :
+  /// A pagination token to request the next page of results. Pass this value
+  /// into a subsequent <code>List Access Grants Instances</code> request in
+  /// order to retrieve the next page of results.
+  Future<ListAccessGrantsInstancesResult> listAccessGrantsInstances({
+    required String accountId,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      1000,
+    );
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/accessgrantsinstances',
+      queryParams: $query,
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAccessGrantsInstancesResult.fromXml($result.body);
+  }
+
+  /// Returns a list of the locations registered in your S3 Access Grants
+  /// instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:ListAccessGrantsLocations</code> permission to
+  /// use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [locationScope] :
+  /// The S3 path to the location that you are registering. The location scope
+  /// can be the default S3 location <code>s3://</code>, the S3 path to a bucket
+  /// <code>s3://&lt;bucket&gt;</code>, or the S3 path to a bucket and prefix
+  /// <code>s3://&lt;bucket&gt;/&lt;prefix&gt;</code>. A prefix in S3 is a
+  /// string of characters at the beginning of an object key name used to
+  /// organize the objects that you store in your S3 buckets. For example,
+  /// object key names that start with the <code>engineering/</code> prefix or
+  /// object key names that start with the <code>marketing/campaigns/</code>
+  /// prefix.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of access grants that you would like returned in the
+  /// <code>List Access Grants</code> response. If the results include the
+  /// pagination token <code>NextToken</code>, make another call using the
+  /// <code>NextToken</code> to determine if there are more results.
+  ///
+  /// Parameter [nextToken] :
+  /// A pagination token to request the next page of results. Pass this value
+  /// into a subsequent <code>List Access Grants Locations</code> request in
+  /// order to retrieve the next page of results.
+  Future<ListAccessGrantsLocationsResult> listAccessGrantsLocations({
+    required String accountId,
+    String? locationScope,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      1000,
+    );
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $query = <String, List<String>>{
+      if (locationScope != null) 'locationscope': [locationScope],
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/accessgrantsinstance/locations',
+      queryParams: $query,
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAccessGrantsLocationsResult.fromXml($result.body);
+  }
+
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns a list of the access points that are owned by the current account
   /// that's associated with the specified bucket. You can retrieve up to 1000
   /// access points per call. If the specified bucket has more than 1,000 access
@@ -2819,6 +3990,9 @@ class S3Control {
     return ListAccessPointsResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns some or all (up to 1,000) access points associated with the Object
   /// Lambda Access Point per call. If there are more access points than what
   /// can be returned in one call, the response will include a continuation
@@ -2886,12 +4060,15 @@ class S3Control {
     return ListAccessPointsForObjectLambdaResult.fromXml($result.body);
   }
 
-  /// Lists current S3 Batch Operations jobs and jobs that have ended within the
-  /// last 30 days for the Amazon Web Services account making the request. For
-  /// more information, see <a
+  /// Lists current S3 Batch Operations jobs as well as the jobs that have ended
+  /// within the last 90 days for the Amazon Web Services account making the
+  /// request. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops.html">S3
   /// Batch Operations</a> in the <i>Amazon S3 User Guide</i>.
-  ///
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// To use the <code>ListJobs</code> operation, you must have permission to
+  /// perform the <code>s3:ListJobs</code> action.
+  /// </dd> </dl>
   /// Related actions include:
   /// <p/>
   /// <ul>
@@ -2953,7 +4130,7 @@ class S3Control {
     };
     final $query = <String, List<String>>{
       if (jobStatuses != null)
-        'jobStatuses': jobStatuses.map((e) => e.toValue()).toList(),
+        'jobStatuses': jobStatuses.map((e) => e.value).toList(),
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
     };
@@ -2967,16 +4144,20 @@ class S3Control {
     return ListJobsResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns a list of the Multi-Region Access Points currently associated with
   /// the specified Amazon Web Services account. Each call can return up to 100
   /// Multi-Region Access Points, the maximum number of Multi-Region Access
   /// Points that can be associated with a single account.
   ///
   /// This action will always be routed to the US West (Oregon) Region. For more
-  /// information about the restrictions around managing Multi-Region Access
+  /// information about the restrictions around working with Multi-Region Access
   /// Points, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiRegionAccessPointRestrictions.html">Multi-Region
+  /// Access Point restrictions and limitations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
   ///
   /// The following actions are related to
   /// <code>ListMultiRegionAccessPoint</code>:
@@ -3037,6 +4218,9 @@ class S3Control {
     return ListMultiRegionAccessPointsResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Returns a list of all Outposts buckets in an Outpost that are owned by the
   /// authenticated sender of the request. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/S3onOutposts.html">Using
@@ -3092,6 +4276,9 @@ class S3Control {
     return ListRegionalBucketsResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Gets a list of Amazon S3 Storage Lens configurations. For more information
   /// about S3 Storage Lens, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/storage_lens.html">Assessing
@@ -3131,6 +4318,137 @@ class S3Control {
     return ListStorageLensConfigurationsResult.fromXml($result.body);
   }
 
+  /// Lists all the Storage Lens groups in the specified home Region.
+  ///
+  /// To use this operation, you must have the permission to perform the
+  /// <code>s3:ListStorageLensGroups</code> action. For more information about
+  /// the required Storage Lens Groups permissions, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about Storage Lens groups errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3LensErrorCodeList">List
+  /// of Amazon S3 Storage Lens error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID that owns the Storage Lens groups.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results, or <code>null</code> if there are
+  /// no more results.
+  Future<ListStorageLensGroupsResult> listStorageLensGroups({
+    required String accountId,
+    String? nextToken,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $query = <String, List<String>>{
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri: '/v20180820/storagelensgroup',
+      queryParams: $query,
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListStorageLensGroupsResult.fromXml($result.body);
+  }
+
+  /// This operation allows you to list all the Amazon Web Services resource
+  /// tags for a specified resource. Each tag is a label consisting of a
+  /// user-defined key and value. Tags can help you manage, identify, organize,
+  /// search for, and filter resources.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:ListTagsForResource</code> permission to use
+  /// this operation.
+  /// </dd> </dl> <note>
+  /// This operation is only supported for <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-lens-groups.html">S3
+  /// Storage Lens groups</a> and for <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-grants-tagging.html">S3
+  /// Access Grants</a>. The tagged resource can be an S3 Storage Lens group or
+  /// S3 Access Grants instance, registered location, or grant.
+  /// </note>
+  /// For more information about the required Storage Lens Groups permissions,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about S3 Tagging errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3TaggingErrorCodeList">List
+  /// of Amazon S3 Tagging error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID of the resource owner.
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the S3 resource that you want to list
+  /// the tags for. The tagged resource can be an S3 Storage Lens group or S3
+  /// Access Grants instance, registered location, or grant.
+  Future<ListTagsForResourceResult> listTagsForResource({
+    required String accountId,
+    required String resourceArn,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'GET',
+      requestUri:
+          '/v20180820/tags/${resourceArn.split('/').map(Uri.encodeComponent).join('/')}',
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListTagsForResourceResult.fromXml($result.body);
+  }
+
+  /// Updates the resource policy of the S3 Access Grants instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:PutAccessGrantsInstanceResourcePolicy</code>
+  /// permission to use this operation.
+  /// </dd> </dl>
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [policy] :
+  /// The resource policy of the S3 Access Grants instance that you are
+  /// updating.
+  ///
+  /// Parameter [organization] :
+  /// The Organization of the resource policy of the S3 Access Grants instance.
+  Future<PutAccessGrantsInstanceResourcePolicyResult>
+      putAccessGrantsInstanceResourcePolicy({
+    required String accountId,
+    required String policy,
+    String? organization,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'PUT',
+      requestUri: '/v20180820/accessgrantsinstance/resourcepolicy',
+      headers: headers,
+      payload: PutAccessGrantsInstanceResourcePolicyRequest(
+              accountId: accountId, policy: policy, organization: organization)
+          .toXml(
+        'PutAccessGrantsInstanceResourcePolicyRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+    return PutAccessGrantsInstanceResourcePolicyResult.fromXml($result.body);
+  }
+
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Replaces configuration for an Object Lambda Access Point.
   ///
   /// The following actions are related to
@@ -3178,6 +4496,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Associates an access policy with the specified access point. Each access
   /// point can have only one policy, so a request made to this API replaces any
   /// existing policy associated with the specified access point.
@@ -3257,6 +4578,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Creates or replaces resource policy for an Object Lambda Access Point. For
   /// an example policy, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/olap-create.html#olap-create-cli">Creating
@@ -3879,12 +5203,12 @@ class S3Control {
   /// replace the existing tag set entirely, or make changes within the existing
   /// tag set by retrieving the existing tag set using <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/API_control_GetJobTagging.html">GetJobTagging</a>,
-  /// modify that tag set, and use this action to replace the tag set with the
-  /// one you modified. For more information, see <a
+  /// modify that tag set, and use this operation to replace the tag set with
+  /// the one you modified. For more information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/batch-ops-managing-jobs.html#batch-ops-job-tags">Controlling
   /// access and labeling jobs using tags</a> in the <i>Amazon S3 User
   /// Guide</i>.
-  /// <p/> <note>
+  /// <note>
   /// <ul>
   /// <li>
   /// If you send this request with an empty tag set, Amazon S3 deletes the
@@ -3923,10 +5247,10 @@ class S3Control {
   /// Tag Restrictions</a> in the <i>Billing and Cost Management User Guide</i>.
   /// </li>
   /// </ul> </li>
-  /// </ul> </note> <p/>
+  /// </ul> </note> <dl> <dt>Permissions</dt> <dd>
   /// To use the <code>PutJobTagging</code> operation, you must have permission
   /// to perform the <code>s3:PutJobTagging</code> action.
-  ///
+  /// </dd> </dl>
   /// Related actions include:
   ///
   /// <ul>
@@ -3983,16 +5307,20 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Associates an access control policy with the specified Multi-Region Access
   /// Point. Each Multi-Region Access Point can have only one policy, so a
   /// request made to this action replaces any existing policy that is
   /// associated with the specified Multi-Region Access Point.
   ///
   /// This action will always be routed to the US West (Oregon) Region. For more
-  /// information about the restrictions around managing Multi-Region Access
+  /// information about the restrictions around working with Multi-Region Access
   /// Points, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/ManagingMultiRegionAccessPoints.html">Managing
-  /// Multi-Region Access Points</a> in the <i>Amazon S3 User Guide</i>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/MultiRegionAccessPointRestrictions.html">Multi-Region
+  /// Access Point restrictions and limitations</a> in the <i>Amazon S3 User
+  /// Guide</i>.
   ///
   /// The following actions are related to
   /// <code>PutMultiRegionAccessPointPolicy</code>:
@@ -4047,6 +5375,9 @@ class S3Control {
     return PutMultiRegionAccessPointPolicyResult.fromXml($result.body);
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Creates or modifies the <code>PublicAccessBlock</code> configuration for
   /// an Amazon Web Services account. For this operation, users must have the
   /// <code>s3:PutAccountPublicAccessBlock</code> permission. For more
@@ -4091,6 +5422,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Puts an Amazon S3 Storage Lens configuration. For more information about
   /// S3 Storage Lens, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/storage_lens.html">Working
@@ -4150,6 +5484,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Put or replace tags on an existing Amazon S3 Storage Lens configuration.
   /// For more information about S3 Storage Lens, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/storage_lens.html">Assessing
@@ -4201,6 +5538,9 @@ class S3Control {
     );
   }
 
+  /// <note>
+  /// This operation is not supported by directory buckets.
+  /// </note>
   /// Submits an updated route configuration for a Multi-Region Access Point.
   /// This API operation updates the routing status for the specified Regions
   /// from active to passive, or from passive to active. A value of
@@ -4238,9 +5578,7 @@ class S3Control {
   /// <li>
   /// <code>eu-west-1</code>
   /// </li>
-  /// </ul> <note>
-  /// Your Amazon S3 bucket does not need to be in these five Regions.
-  /// </note>
+  /// </ul>
   ///
   /// Parameter [accountId] :
   /// The Amazon Web Services account ID for the owner of the Multi-Region
@@ -4279,11 +5617,194 @@ class S3Control {
     );
   }
 
+  /// Creates a new Amazon Web Services resource tag or updates an existing
+  /// resource tag. Each tag is a label consisting of a user-defined key and
+  /// value. Tags can help you manage, identify, organize, search for, and
+  /// filter resources. You can add up to 50 Amazon Web Services resource tags
+  /// for each S3 resource.
+  /// <note>
+  /// This operation is only supported for <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-lens-groups.html">S3
+  /// Storage Lens groups</a> and for <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-grants-tagging.html">S3
+  /// Access Grants</a>. The tagged resource can be an S3 Storage Lens group or
+  /// S3 Access Grants instance, registered location, or grant.
+  /// </note> <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:TagResource</code> permission to use this
+  /// operation.
+  /// </dd> </dl>
+  /// For more information about the required Storage Lens Groups permissions,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about S3 Tagging errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3TaggingErrorCodeList">List
+  /// of Amazon S3 Tagging error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID that created the S3 resource that
+  /// you're trying to add tags to or the requester's account ID.
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the S3 resource that you're trying to
+  /// add tags to. The tagged resource can be an S3 Storage Lens group or S3
+  /// Access Grants instance, registered location, or grant.
+  ///
+  /// Parameter [tags] :
+  /// The Amazon Web Services resource tags that you want to add to the
+  /// specified S3 resource.
+  Future<void> tagResource({
+    required String accountId,
+    required String resourceArn,
+    required List<Tag> tags,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri:
+          '/v20180820/tags/${resourceArn.split('/').map(Uri.encodeComponent).join('/')}',
+      headers: headers,
+      payload: TagResourceRequest(
+              accountId: accountId, resourceArn: resourceArn, tags: tags)
+          .toXml(
+        'TagResourceRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// This operation removes the specified Amazon Web Services resource tags
+  /// from an S3 resource. Each tag is a label consisting of a user-defined key
+  /// and value. Tags can help you manage, identify, organize, search for, and
+  /// filter resources.
+  /// <note>
+  /// This operation is only supported for <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-lens-groups.html">S3
+  /// Storage Lens groups</a> and for <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-grants-tagging.html">S3
+  /// Access Grants</a>. The tagged resource can be an S3 Storage Lens group or
+  /// S3 Access Grants instance, registered location, or grant.
+  /// </note> <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:UntagResource</code> permission to use this
+  /// operation.
+  /// </dd> </dl>
+  /// For more information about the required Storage Lens Groups permissions,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about S3 Tagging errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3TaggingErrorCodeList">List
+  /// of Amazon S3 Tagging error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID that owns the resource that you're
+  /// trying to remove the tags from.
+  ///
+  /// Parameter [resourceArn] :
+  /// The Amazon Resource Name (ARN) of the S3 resource that you're trying to
+  /// remove the tags from.
+  ///
+  /// Parameter [tagKeys] :
+  /// The array of tag key-value pairs that you're trying to remove from of the
+  /// S3 resource.
+  Future<void> untagResource({
+    required String accountId,
+    required String resourceArn,
+    required List<String> tagKeys,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $query = <String, List<String>>{
+      'tagKeys': tagKeys,
+    };
+    await _protocol.send(
+      method: 'DELETE',
+      requestUri:
+          '/v20180820/tags/${resourceArn.split('/').map(Uri.encodeComponent).join('/')}',
+      queryParams: $query,
+      headers: headers,
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Updates the IAM role of a registered location in your S3 Access Grants
+  /// instance.
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// You must have the <code>s3:UpdateAccessGrantsLocation</code> permission to
+  /// use this operation.
+  /// </dd> <dt>Additional Permissions</dt> <dd>
+  /// You must also have the following permission: <code>iam:PassRole</code>
+  /// </dd> </dl>
+  ///
+  /// Parameter [accessGrantsLocationId] :
+  /// The ID of the registered location that you are updating. S3 Access Grants
+  /// assigns this ID when you register the location. S3 Access Grants assigns
+  /// the ID <code>default</code> to the default location <code>s3://</code> and
+  /// assigns an auto-generated ID to other locations that you register.
+  ///
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigned this ID when you registered the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations
+  /// that you register.
+  ///
+  /// If you are passing the <code>default</code> location, you cannot create an
+  /// access grant for the entire default location. You must also specify a
+  /// bucket or a bucket and prefix in the <code>Subprefix</code> field.
+  ///
+  /// Parameter [accountId] :
+  /// The ID of the Amazon Web Services account that is making this request.
+  ///
+  /// Parameter [iAMRoleArn] :
+  /// The Amazon Resource Name (ARN) of the IAM role for the registered
+  /// location. S3 Access Grants assumes this role to manage access to the
+  /// registered location.
+  Future<UpdateAccessGrantsLocationResult> updateAccessGrantsLocation({
+    required String accessGrantsLocationId,
+    required String accountId,
+    required String iAMRoleArn,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    final $result = await _protocol.send(
+      method: 'PUT',
+      requestUri:
+          '/v20180820/accessgrantsinstance/location/${Uri.encodeComponent(accessGrantsLocationId)}',
+      headers: headers,
+      payload: UpdateAccessGrantsLocationRequest(
+              accessGrantsLocationId: accessGrantsLocationId,
+              accountId: accountId,
+              iAMRoleArn: iAMRoleArn)
+          .toXml(
+        'UpdateAccessGrantsLocationRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateAccessGrantsLocationResult.fromXml($result.body);
+  }
+
   /// Updates an existing S3 Batch Operations job's priority. For more
   /// information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops.html">S3
   /// Batch Operations</a> in the <i>Amazon S3 User Guide</i>.
-  /// <p/>
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// To use the <code>UpdateJobPriority</code> operation, you must have
+  /// permission to perform the <code>s3:UpdateJobPriority</code> action.
+  /// </dd> </dl>
   /// Related actions include:
   ///
   /// <ul>
@@ -4347,12 +5868,15 @@ class S3Control {
     return UpdateJobPriorityResult.fromXml($result.body);
   }
 
-  /// Updates the status for the specified job. Use this action to confirm that
-  /// you want to run a job or to cancel an existing job. For more information,
-  /// see <a
+  /// Updates the status for the specified job. Use this operation to confirm
+  /// that you want to run a job or to cancel an existing job. For more
+  /// information, see <a
   /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/batch-ops.html">S3
   /// Batch Operations</a> in the <i>Amazon S3 User Guide</i>.
-  /// <p/>
+  /// <dl> <dt>Permissions</dt> <dd>
+  /// To use the <code>UpdateJobStatus</code> operation, you must have
+  /// permission to perform the <code>s3:UpdateJobStatus</code> action.
+  /// </dd> </dl>
   /// Related actions include:
   ///
   /// <ul>
@@ -4403,7 +5927,7 @@ class S3Control {
       'x-amz-account-id': accountId.toString(),
     };
     final $query = <String, List<String>>{
-      'requestedJobStatus': [requestedJobStatus.toValue()],
+      'requestedJobStatus': [requestedJobStatus.value],
       if (statusUpdateReason != null)
         'statusUpdateReason': [statusUpdateReason],
     };
@@ -4415,6 +5939,53 @@ class S3Control {
       exceptionFnMap: _exceptionFns,
     );
     return UpdateJobStatusResult.fromXml($result.body);
+  }
+
+  /// Updates the existing Storage Lens group.
+  ///
+  /// To use this operation, you must have the permission to perform the
+  /// <code>s3:UpdateStorageLensGroup</code> action. For more information about
+  /// the required Storage Lens Groups permissions, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_iam_permissions.html#storage_lens_groups_permissions">Setting
+  /// account permissions to use S3 Storage Lens groups</a>.
+  ///
+  /// For information about Storage Lens groups errors, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/ErrorResponses.html#S3LensErrorCodeList">List
+  /// of Amazon S3 Storage Lens error codes</a>.
+  ///
+  /// Parameter [accountId] :
+  /// The Amazon Web Services account ID of the Storage Lens group owner.
+  ///
+  /// Parameter [name] :
+  /// The name of the Storage Lens group that you want to update.
+  ///
+  /// Parameter [storageLensGroup] :
+  /// The JSON file that contains the Storage Lens group configuration.
+  Future<void> updateStorageLensGroup({
+    required String accountId,
+    required String name,
+    required StorageLensGroup storageLensGroup,
+  }) async {
+    final headers = <String, String>{
+      'x-amz-account-id': accountId.toString(),
+    };
+    await _protocol.send(
+      method: 'PUT',
+      requestUri: '/v20180820/storagelensgroup/${Uri.encodeComponent(name)}',
+      headers: headers,
+      payload: UpdateStorageLensGroupRequest(
+              accountId: accountId,
+              name: name,
+              storageLensGroup: storageLensGroup)
+          .toXml(
+        'UpdateStorageLensGroupRequest',
+        attributes: [
+          _s.XmlAttribute(_s.XmlName('xmlns'),
+              'http://awss3control.amazonaws.com/doc/2018-08-20/'),
+        ],
+      ),
+      exceptionFnMap: _exceptionFns,
+    );
   }
 }
 
@@ -4471,21 +6042,79 @@ class AccessControlTranslation {
   });
   factory AccessControlTranslation.fromXml(_s.XmlElement elem) {
     return AccessControlTranslation(
-      owner: _s.extractXmlStringValue(elem, 'Owner')!.toOwnerOverride(),
+      owner: _s
+          .extractXmlStringValue(elem, 'Owner')!
+          .let(OwnerOverride.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final owner = this.owner;
     return {
-      'Owner': owner.toValue(),
+      'Owner': owner.value,
     };
   }
 
   _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
     final owner = this.owner;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Owner', owner.toValue()),
+      _s.encodeXmlStringValue('Owner', owner.value),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+/// The configuration options of the S3 Access Grants location. It contains the
+/// <code>S3SubPrefix</code> field. The grant scope, the data to which you are
+/// granting access, is the result of appending the <code>Subprefix</code> field
+/// to the scope of the registered location.
+class AccessGrantsLocationConfiguration {
+  /// The <code>S3SubPrefix</code> is appended to the location scope creating the
+  /// grant scope. Use this field to narrow the scope of the grant to a subset of
+  /// the location scope. This field is required if the location scope is the
+  /// default location <code>s3://</code> because you cannot create a grant for
+  /// all of your S3 data in the Region and must narrow the scope. For example, if
+  /// the location scope is the default location <code>s3://</code>, the
+  /// <code>S3SubPrefx</code> can be a &lt;bucket-name&gt;/*, so the full grant
+  /// scope path would be <code>s3://&lt;bucket-name&gt;/*</code>. Or the
+  /// <code>S3SubPrefx</code> can be
+  /// <code>&lt;bucket-name&gt;/&lt;prefix-name&gt;*</code>, so the full grant
+  /// scope path would be or
+  /// <code>s3://&lt;bucket-name&gt;/&lt;prefix-name&gt;*</code>.
+  ///
+  /// If the <code>S3SubPrefix</code> includes a prefix, append the wildcard
+  /// character <code>*</code> after the prefix to indicate that you want to
+  /// include all object key names in the bucket that start with that prefix.
+  final String? s3SubPrefix;
+
+  AccessGrantsLocationConfiguration({
+    this.s3SubPrefix,
+  });
+  factory AccessGrantsLocationConfiguration.fromXml(_s.XmlElement elem) {
+    return AccessGrantsLocationConfiguration(
+      s3SubPrefix: _s.extractXmlStringValue(elem, 'S3SubPrefix'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final s3SubPrefix = this.s3SubPrefix;
+    return {
+      if (s3SubPrefix != null) 'S3SubPrefix': s3SubPrefix,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final s3SubPrefix = this.s3SubPrefix;
+    final $children = <_s.XmlNode>[
+      if (s3SubPrefix != null)
+        _s.encodeXmlStringValue('S3SubPrefix', s3SubPrefix),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -4545,8 +6174,9 @@ class AccessPoint {
     return AccessPoint(
       bucket: _s.extractXmlStringValue(elem, 'Bucket')!,
       name: _s.extractXmlStringValue(elem, 'Name')!,
-      networkOrigin:
-          _s.extractXmlStringValue(elem, 'NetworkOrigin')!.toNetworkOrigin(),
+      networkOrigin: _s
+          .extractXmlStringValue(elem, 'NetworkOrigin')!
+          .let(NetworkOrigin.fromString),
       accessPointArn: _s.extractXmlStringValue(elem, 'AccessPointArn'),
       alias: _s.extractXmlStringValue(elem, 'Alias'),
       bucketAccountId: _s.extractXmlStringValue(elem, 'BucketAccountId'),
@@ -4567,7 +6197,7 @@ class AccessPoint {
     return {
       'Bucket': bucket,
       'Name': name,
-      'NetworkOrigin': networkOrigin.toValue(),
+      'NetworkOrigin': networkOrigin.value,
       if (accessPointArn != null) 'AccessPointArn': accessPointArn,
       if (alias != null) 'Alias': alias,
       if (bucketAccountId != null) 'BucketAccountId': bucketAccountId,
@@ -4576,7 +6206,8 @@ class AccessPoint {
   }
 }
 
-/// A container for the account-level Amazon S3 Storage Lens configuration.
+/// A container element for the account-level Amazon S3 Storage Lens
+/// configuration.
 ///
 /// For more information about S3 Storage Lens, see <a
 /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens.html">Assessing
@@ -4585,20 +6216,23 @@ class AccessPoint {
 /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage_lens_metrics_glossary.html">S3
 /// Storage Lens metrics glossary</a> in the <i>Amazon S3 User Guide</i>.
 class AccountLevel {
-  /// A container for the S3 Storage Lens bucket-level configuration.
+  /// A container element for the S3 Storage Lens bucket-level configuration.
   final BucketLevel bucketLevel;
 
-  /// A container for S3 Storage Lens activity metrics.
+  /// A container element for S3 Storage Lens activity metrics.
   final ActivityMetrics? activityMetrics;
 
-  /// A container for S3 Storage Lens advanced cost-optimization metrics.
+  /// A container element for S3 Storage Lens advanced cost-optimization metrics.
   final AdvancedCostOptimizationMetrics? advancedCostOptimizationMetrics;
 
-  /// A container for S3 Storage Lens advanced data-protection metrics.
+  /// A container element for S3 Storage Lens advanced data-protection metrics.
   final AdvancedDataProtectionMetrics? advancedDataProtectionMetrics;
 
-  /// A container for detailed status code metrics.
+  /// A container element for detailed status code metrics.
   final DetailedStatusCodesMetrics? detailedStatusCodesMetrics;
+
+  /// A container element for S3 Storage Lens groups metrics.
+  final StorageLensGroupLevel? storageLensGroupLevel;
 
   AccountLevel({
     required this.bucketLevel,
@@ -4606,6 +6240,7 @@ class AccountLevel {
     this.advancedCostOptimizationMetrics,
     this.advancedDataProtectionMetrics,
     this.detailedStatusCodesMetrics,
+    this.storageLensGroupLevel,
   });
   factory AccountLevel.fromXml(_s.XmlElement elem) {
     return AccountLevel(
@@ -4623,6 +6258,9 @@ class AccountLevel {
       detailedStatusCodesMetrics: _s
           .extractXmlChild(elem, 'DetailedStatusCodesMetrics')
           ?.let(DetailedStatusCodesMetrics.fromXml),
+      storageLensGroupLevel: _s
+          .extractXmlChild(elem, 'StorageLensGroupLevel')
+          ?.let(StorageLensGroupLevel.fromXml),
     );
   }
 
@@ -4633,6 +6271,7 @@ class AccountLevel {
         this.advancedCostOptimizationMetrics;
     final advancedDataProtectionMetrics = this.advancedDataProtectionMetrics;
     final detailedStatusCodesMetrics = this.detailedStatusCodesMetrics;
+    final storageLensGroupLevel = this.storageLensGroupLevel;
     return {
       'BucketLevel': bucketLevel,
       if (activityMetrics != null) 'ActivityMetrics': activityMetrics,
@@ -4642,6 +6281,8 @@ class AccountLevel {
         'AdvancedDataProtectionMetrics': advancedDataProtectionMetrics,
       if (detailedStatusCodesMetrics != null)
         'DetailedStatusCodesMetrics': detailedStatusCodesMetrics,
+      if (storageLensGroupLevel != null)
+        'StorageLensGroupLevel': storageLensGroupLevel,
     };
   }
 
@@ -4652,6 +6293,7 @@ class AccountLevel {
         this.advancedCostOptimizationMetrics;
     final advancedDataProtectionMetrics = this.advancedDataProtectionMetrics;
     final detailedStatusCodesMetrics = this.detailedStatusCodesMetrics;
+    final storageLensGroupLevel = this.storageLensGroupLevel;
     final $children = <_s.XmlNode>[
       if (activityMetrics != null) activityMetrics.toXml('ActivityMetrics'),
       bucketLevel.toXml('BucketLevel'),
@@ -4662,6 +6304,8 @@ class AccountLevel {
         advancedDataProtectionMetrics.toXml('AdvancedDataProtectionMetrics'),
       if (detailedStatusCodesMetrics != null)
         detailedStatusCodesMetrics.toXml('DetailedStatusCodesMetrics'),
+      if (storageLensGroupLevel != null)
+        storageLensGroupLevel.toXml('StorageLensGroupLevel'),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -4817,6 +6461,49 @@ class AdvancedDataProtectionMetrics {
   }
 }
 
+class AssociateAccessGrantsIdentityCenterRequest {
+  /// The ID of the Amazon Web Services account that is making this request.
+  final String accountId;
+
+  /// The Amazon Resource Name (ARN) of the Amazon Web Services IAM Identity
+  /// Center instance that you are associating with your S3 Access Grants
+  /// instance. An IAM Identity Center instance is your corporate identity
+  /// directory that you added to the IAM Identity Center. You can use the <a
+  /// href="https://docs.aws.amazon.com/singlesignon/latest/APIReference/API_ListInstances.html">ListInstances</a>
+  /// API operation to retrieve a list of your Identity Center instances and their
+  /// ARNs.
+  final String identityCenterArn;
+
+  AssociateAccessGrantsIdentityCenterRequest({
+    required this.accountId,
+    required this.identityCenterArn,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final identityCenterArn = this.identityCenterArn;
+    return {
+      'IdentityCenterArn': identityCenterArn,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accountId = this.accountId;
+    final identityCenterArn = this.identityCenterArn;
+    final $children = <_s.XmlNode>[
+      _s.encodeXmlStringValue('IdentityCenterArn', identityCenterArn),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
 /// Error details for the failed asynchronous operation.
 class AsyncErrorDetails {
   /// A string that uniquely identifies the error condition.
@@ -4891,8 +6578,9 @@ class AsyncOperation {
   factory AsyncOperation.fromXml(_s.XmlElement elem) {
     return AsyncOperation(
       creationTime: _s.extractXmlDateTimeValue(elem, 'CreationTime'),
-      operation:
-          _s.extractXmlStringValue(elem, 'Operation')?.toAsyncOperationName(),
+      operation: _s
+          .extractXmlStringValue(elem, 'Operation')
+          ?.let(AsyncOperationName.fromString),
       requestParameters: _s
           .extractXmlChild(elem, 'RequestParameters')
           ?.let(AsyncRequestParameters.fromXml),
@@ -4913,7 +6601,7 @@ class AsyncOperation {
     final responseDetails = this.responseDetails;
     return {
       if (creationTime != null) 'CreationTime': iso8601ToJson(creationTime),
-      if (operation != null) 'Operation': operation.toValue(),
+      if (operation != null) 'Operation': operation.value,
       if (requestParameters != null) 'RequestParameters': requestParameters,
       if (requestStatus != null) 'RequestStatus': requestStatus,
       if (requestTokenARN != null) 'RequestTokenARN': requestTokenARN,
@@ -4923,36 +6611,19 @@ class AsyncOperation {
 }
 
 enum AsyncOperationName {
-  createMultiRegionAccessPoint,
-  deleteMultiRegionAccessPoint,
-  putMultiRegionAccessPointPolicy,
-}
+  createMultiRegionAccessPoint('CreateMultiRegionAccessPoint'),
+  deleteMultiRegionAccessPoint('DeleteMultiRegionAccessPoint'),
+  putMultiRegionAccessPointPolicy('PutMultiRegionAccessPointPolicy'),
+  ;
 
-extension AsyncOperationNameValueExtension on AsyncOperationName {
-  String toValue() {
-    switch (this) {
-      case AsyncOperationName.createMultiRegionAccessPoint:
-        return 'CreateMultiRegionAccessPoint';
-      case AsyncOperationName.deleteMultiRegionAccessPoint:
-        return 'DeleteMultiRegionAccessPoint';
-      case AsyncOperationName.putMultiRegionAccessPointPolicy:
-        return 'PutMultiRegionAccessPointPolicy';
-    }
-  }
-}
+  final String value;
 
-extension AsyncOperationNameFromString on String {
-  AsyncOperationName toAsyncOperationName() {
-    switch (this) {
-      case 'CreateMultiRegionAccessPoint':
-        return AsyncOperationName.createMultiRegionAccessPoint;
-      case 'DeleteMultiRegionAccessPoint':
-        return AsyncOperationName.deleteMultiRegionAccessPoint;
-      case 'PutMultiRegionAccessPointPolicy':
-        return AsyncOperationName.putMultiRegionAccessPointPolicy;
-    }
-    throw Exception('$this is not known in enum AsyncOperationName');
-  }
+  const AsyncOperationName(this.value);
+
+  static AsyncOperationName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AsyncOperationName'));
 }
 
 /// A container for the request parameters associated with an asynchronous
@@ -5099,41 +6770,20 @@ class AwsLambdaTransformation {
 }
 
 enum BucketCannedACL {
-  private,
-  publicRead,
-  publicReadWrite,
-  authenticatedRead,
-}
+  private('private'),
+  publicRead('public-read'),
+  publicReadWrite('public-read-write'),
+  authenticatedRead('authenticated-read'),
+  ;
 
-extension BucketCannedACLValueExtension on BucketCannedACL {
-  String toValue() {
-    switch (this) {
-      case BucketCannedACL.private:
-        return 'private';
-      case BucketCannedACL.publicRead:
-        return 'public-read';
-      case BucketCannedACL.publicReadWrite:
-        return 'public-read-write';
-      case BucketCannedACL.authenticatedRead:
-        return 'authenticated-read';
-    }
-  }
-}
+  final String value;
 
-extension BucketCannedACLFromString on String {
-  BucketCannedACL toBucketCannedACL() {
-    switch (this) {
-      case 'private':
-        return BucketCannedACL.private;
-      case 'public-read':
-        return BucketCannedACL.publicRead;
-      case 'public-read-write':
-        return BucketCannedACL.publicReadWrite;
-      case 'authenticated-read':
-        return BucketCannedACL.authenticatedRead;
-    }
-    throw Exception('$this is not known in enum BucketCannedACL');
-  }
+  const BucketCannedACL(this.value);
+
+  static BucketCannedACL fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BucketCannedACL'));
 }
 
 /// A container for the bucket-level configuration for Amazon S3 Storage Lens.
@@ -5236,104 +6886,42 @@ class BucketLevel {
 }
 
 enum BucketLocationConstraint {
-  eu,
-  euWest_1,
-  usWest_1,
-  usWest_2,
-  apSouth_1,
-  apSoutheast_1,
-  apSoutheast_2,
-  apNortheast_1,
-  saEast_1,
-  cnNorth_1,
-  euCentral_1,
-}
+  eu('EU'),
+  euWest_1('eu-west-1'),
+  usWest_1('us-west-1'),
+  usWest_2('us-west-2'),
+  apSouth_1('ap-south-1'),
+  apSoutheast_1('ap-southeast-1'),
+  apSoutheast_2('ap-southeast-2'),
+  apNortheast_1('ap-northeast-1'),
+  saEast_1('sa-east-1'),
+  cnNorth_1('cn-north-1'),
+  euCentral_1('eu-central-1'),
+  ;
 
-extension BucketLocationConstraintValueExtension on BucketLocationConstraint {
-  String toValue() {
-    switch (this) {
-      case BucketLocationConstraint.eu:
-        return 'EU';
-      case BucketLocationConstraint.euWest_1:
-        return 'eu-west-1';
-      case BucketLocationConstraint.usWest_1:
-        return 'us-west-1';
-      case BucketLocationConstraint.usWest_2:
-        return 'us-west-2';
-      case BucketLocationConstraint.apSouth_1:
-        return 'ap-south-1';
-      case BucketLocationConstraint.apSoutheast_1:
-        return 'ap-southeast-1';
-      case BucketLocationConstraint.apSoutheast_2:
-        return 'ap-southeast-2';
-      case BucketLocationConstraint.apNortheast_1:
-        return 'ap-northeast-1';
-      case BucketLocationConstraint.saEast_1:
-        return 'sa-east-1';
-      case BucketLocationConstraint.cnNorth_1:
-        return 'cn-north-1';
-      case BucketLocationConstraint.euCentral_1:
-        return 'eu-central-1';
-    }
-  }
-}
+  final String value;
 
-extension BucketLocationConstraintFromString on String {
-  BucketLocationConstraint toBucketLocationConstraint() {
-    switch (this) {
-      case 'EU':
-        return BucketLocationConstraint.eu;
-      case 'eu-west-1':
-        return BucketLocationConstraint.euWest_1;
-      case 'us-west-1':
-        return BucketLocationConstraint.usWest_1;
-      case 'us-west-2':
-        return BucketLocationConstraint.usWest_2;
-      case 'ap-south-1':
-        return BucketLocationConstraint.apSouth_1;
-      case 'ap-southeast-1':
-        return BucketLocationConstraint.apSoutheast_1;
-      case 'ap-southeast-2':
-        return BucketLocationConstraint.apSoutheast_2;
-      case 'ap-northeast-1':
-        return BucketLocationConstraint.apNortheast_1;
-      case 'sa-east-1':
-        return BucketLocationConstraint.saEast_1;
-      case 'cn-north-1':
-        return BucketLocationConstraint.cnNorth_1;
-      case 'eu-central-1':
-        return BucketLocationConstraint.euCentral_1;
-    }
-    throw Exception('$this is not known in enum BucketLocationConstraint');
-  }
+  const BucketLocationConstraint(this.value);
+
+  static BucketLocationConstraint fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum BucketLocationConstraint'));
 }
 
 enum BucketVersioningStatus {
-  enabled,
-  suspended,
-}
+  enabled('Enabled'),
+  suspended('Suspended'),
+  ;
 
-extension BucketVersioningStatusValueExtension on BucketVersioningStatus {
-  String toValue() {
-    switch (this) {
-      case BucketVersioningStatus.enabled:
-        return 'Enabled';
-      case BucketVersioningStatus.suspended:
-        return 'Suspended';
-    }
-  }
-}
+  final String value;
 
-extension BucketVersioningStatusFromString on String {
-  BucketVersioningStatus toBucketVersioningStatus() {
-    switch (this) {
-      case 'Enabled':
-        return BucketVersioningStatus.enabled;
-      case 'Suspended':
-        return BucketVersioningStatus.suspended;
-    }
-    throw Exception('$this is not known in enum BucketVersioningStatus');
-  }
+  const BucketVersioningStatus(this.value);
+
+  static BucketVersioningStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum BucketVersioningStatus'));
 }
 
 /// A container for enabling Amazon CloudWatch publishing for S3 Storage Lens
@@ -5379,6 +6967,488 @@ class CloudWatchMetrics {
       $attributes,
       $children,
     );
+  }
+}
+
+class CreateAccessGrantRequest {
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  ///
+  /// If you are passing the <code>default</code> location, you cannot create an
+  /// access grant for the entire default location. You must also specify a bucket
+  /// or a bucket and prefix in the <code>Subprefix</code> field.
+  final String accessGrantsLocationId;
+
+  /// The ID of the Amazon Web Services account that is making this request.
+  final String accountId;
+
+  /// The user, group, or role to which you are granting access. You can grant
+  /// access to an IAM user or role. If you have added your corporate directory to
+  /// Amazon Web Services IAM Identity Center and associated your Identity Center
+  /// instance with your S3 Access Grants instance, the grantee can also be a
+  /// corporate directory user or group.
+  final Grantee grantee;
+
+  /// The type of access that you are granting to your S3 data, which can be set
+  /// to one of the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>READ</code> – Grant read-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>WRITE</code> – Grant write-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>READWRITE</code> – Grant both read and write access to the S3 data.
+  /// </li>
+  /// </ul>
+  final Permission permission;
+
+  /// The configuration options of the grant location. The grant location is the
+  /// S3 path to the data to which you are granting access. It contains the
+  /// <code>S3SubPrefix</code> field. The grant scope is the result of appending
+  /// the subprefix to the location scope of the registered location.
+  final AccessGrantsLocationConfiguration? accessGrantsLocationConfiguration;
+
+  /// The Amazon Resource Name (ARN) of an Amazon Web Services IAM Identity Center
+  /// application associated with your Identity Center instance. If an application
+  /// ARN is included in the request to create an access grant, the grantee can
+  /// only access the S3 data through this application.
+  final String? applicationArn;
+
+  /// The type of <code>S3SubPrefix</code>. The only possible value is
+  /// <code>Object</code>. Pass this value if the access grant scope is an object.
+  /// Do not pass this value if the access grant scope is a bucket or a bucket and
+  /// a prefix.
+  final S3PrefixType? s3PrefixType;
+
+  /// The Amazon Web Services resource tags that you are adding to the access
+  /// grant. Each tag is a label consisting of a user-defined key and value. Tags
+  /// can help you manage, identify, organize, search for, and filter resources.
+  final List<Tag>? tags;
+
+  CreateAccessGrantRequest({
+    required this.accessGrantsLocationId,
+    required this.accountId,
+    required this.grantee,
+    required this.permission,
+    this.accessGrantsLocationConfiguration,
+    this.applicationArn,
+    this.s3PrefixType,
+    this.tags,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final accountId = this.accountId;
+    final grantee = this.grantee;
+    final permission = this.permission;
+    final accessGrantsLocationConfiguration =
+        this.accessGrantsLocationConfiguration;
+    final applicationArn = this.applicationArn;
+    final s3PrefixType = this.s3PrefixType;
+    final tags = this.tags;
+    return {
+      'AccessGrantsLocationId': accessGrantsLocationId,
+      'Grantee': grantee,
+      'Permission': permission.value,
+      if (accessGrantsLocationConfiguration != null)
+        'AccessGrantsLocationConfiguration': accessGrantsLocationConfiguration,
+      if (applicationArn != null) 'ApplicationArn': applicationArn,
+      if (s3PrefixType != null) 'S3PrefixType': s3PrefixType.value,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final accountId = this.accountId;
+    final grantee = this.grantee;
+    final permission = this.permission;
+    final accessGrantsLocationConfiguration =
+        this.accessGrantsLocationConfiguration;
+    final applicationArn = this.applicationArn;
+    final s3PrefixType = this.s3PrefixType;
+    final tags = this.tags;
+    final $children = <_s.XmlNode>[
+      _s.encodeXmlStringValue('AccessGrantsLocationId', accessGrantsLocationId),
+      if (accessGrantsLocationConfiguration != null)
+        accessGrantsLocationConfiguration
+            .toXml('AccessGrantsLocationConfiguration'),
+      grantee.toXml('Grantee'),
+      _s.encodeXmlStringValue('Permission', permission.value),
+      if (applicationArn != null)
+        _s.encodeXmlStringValue('ApplicationArn', applicationArn),
+      if (s3PrefixType != null)
+        _s.encodeXmlStringValue('S3PrefixType', s3PrefixType.value),
+      if (tags != null)
+        _s.XmlElement(_s.XmlName('Tags'), [], tags.map((e) => e.toXml('Tag'))),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+class CreateAccessGrantResult {
+  /// The Amazon Resource Name (ARN) of the access grant.
+  final String? accessGrantArn;
+
+  /// The ID of the access grant. S3 Access Grants auto-generates this ID when you
+  /// create the access grant.
+  final String? accessGrantId;
+
+  /// The configuration options of the grant location. The grant location is the
+  /// S3 path to the data to which you are granting access.
+  final AccessGrantsLocationConfiguration? accessGrantsLocationConfiguration;
+
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  final String? accessGrantsLocationId;
+
+  /// The Amazon Resource Name (ARN) of an Amazon Web Services IAM Identity Center
+  /// application associated with your Identity Center instance. If the grant
+  /// includes an application ARN, the grantee can only access the S3 data through
+  /// this application.
+  final String? applicationArn;
+
+  /// The date and time when you created the access grant.
+  final DateTime? createdAt;
+
+  /// The S3 path of the data to which you are granting access. It is the result
+  /// of appending the <code>Subprefix</code> to the location scope.
+  final String? grantScope;
+
+  /// The user, group, or role to which you are granting access. You can grant
+  /// access to an IAM user or role. If you have added your corporate directory to
+  /// Amazon Web Services IAM Identity Center and associated your Identity Center
+  /// instance with your S3 Access Grants instance, the grantee can also be a
+  /// corporate directory user or group.
+  final Grantee? grantee;
+
+  /// The type of access that you are granting to your S3 data, which can be set
+  /// to one of the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>READ</code> – Grant read-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>WRITE</code> – Grant write-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>READWRITE</code> – Grant both read and write access to the S3 data.
+  /// </li>
+  /// </ul>
+  final Permission? permission;
+
+  CreateAccessGrantResult({
+    this.accessGrantArn,
+    this.accessGrantId,
+    this.accessGrantsLocationConfiguration,
+    this.accessGrantsLocationId,
+    this.applicationArn,
+    this.createdAt,
+    this.grantScope,
+    this.grantee,
+    this.permission,
+  });
+  factory CreateAccessGrantResult.fromXml(_s.XmlElement elem) {
+    return CreateAccessGrantResult(
+      accessGrantArn: _s.extractXmlStringValue(elem, 'AccessGrantArn'),
+      accessGrantId: _s.extractXmlStringValue(elem, 'AccessGrantId'),
+      accessGrantsLocationConfiguration: _s
+          .extractXmlChild(elem, 'AccessGrantsLocationConfiguration')
+          ?.let(AccessGrantsLocationConfiguration.fromXml),
+      accessGrantsLocationId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationId'),
+      applicationArn: _s.extractXmlStringValue(elem, 'ApplicationArn'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      grantScope: _s.extractXmlStringValue(elem, 'GrantScope'),
+      grantee: _s.extractXmlChild(elem, 'Grantee')?.let(Grantee.fromXml),
+      permission: _s
+          .extractXmlStringValue(elem, 'Permission')
+          ?.let(Permission.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantArn = this.accessGrantArn;
+    final accessGrantId = this.accessGrantId;
+    final accessGrantsLocationConfiguration =
+        this.accessGrantsLocationConfiguration;
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final applicationArn = this.applicationArn;
+    final createdAt = this.createdAt;
+    final grantScope = this.grantScope;
+    final grantee = this.grantee;
+    final permission = this.permission;
+    return {
+      if (accessGrantArn != null) 'AccessGrantArn': accessGrantArn,
+      if (accessGrantId != null) 'AccessGrantId': accessGrantId,
+      if (accessGrantsLocationConfiguration != null)
+        'AccessGrantsLocationConfiguration': accessGrantsLocationConfiguration,
+      if (accessGrantsLocationId != null)
+        'AccessGrantsLocationId': accessGrantsLocationId,
+      if (applicationArn != null) 'ApplicationArn': applicationArn,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (grantScope != null) 'GrantScope': grantScope,
+      if (grantee != null) 'Grantee': grantee,
+      if (permission != null) 'Permission': permission.value,
+    };
+  }
+}
+
+class CreateAccessGrantsInstanceRequest {
+  /// The ID of the Amazon Web Services account that is making this request.
+  final String accountId;
+
+  /// If you would like to associate your S3 Access Grants instance with an Amazon
+  /// Web Services IAM Identity Center instance, use this field to pass the Amazon
+  /// Resource Name (ARN) of the Amazon Web Services IAM Identity Center instance
+  /// that you are associating with your S3 Access Grants instance. An IAM
+  /// Identity Center instance is your corporate identity directory that you added
+  /// to the IAM Identity Center. You can use the <a
+  /// href="https://docs.aws.amazon.com/singlesignon/latest/APIReference/API_ListInstances.html">ListInstances</a>
+  /// API operation to retrieve a list of your Identity Center instances and their
+  /// ARNs.
+  final String? identityCenterArn;
+
+  /// The Amazon Web Services resource tags that you are adding to the S3 Access
+  /// Grants instance. Each tag is a label consisting of a user-defined key and
+  /// value. Tags can help you manage, identify, organize, search for, and filter
+  /// resources.
+  final List<Tag>? tags;
+
+  CreateAccessGrantsInstanceRequest({
+    required this.accountId,
+    this.identityCenterArn,
+    this.tags,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final identityCenterArn = this.identityCenterArn;
+    final tags = this.tags;
+    return {
+      if (identityCenterArn != null) 'IdentityCenterArn': identityCenterArn,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accountId = this.accountId;
+    final identityCenterArn = this.identityCenterArn;
+    final tags = this.tags;
+    final $children = <_s.XmlNode>[
+      if (identityCenterArn != null)
+        _s.encodeXmlStringValue('IdentityCenterArn', identityCenterArn),
+      if (tags != null)
+        _s.XmlElement(_s.XmlName('Tags'), [], tags.map((e) => e.toXml('Tag'))),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+class CreateAccessGrantsInstanceResult {
+  /// The Amazon Resource Name (ARN) of the S3 Access Grants instance.
+  final String? accessGrantsInstanceArn;
+
+  /// The ID of the S3 Access Grants instance. The ID is <code>default</code>. You
+  /// can have one S3 Access Grants instance per Region per account.
+  final String? accessGrantsInstanceId;
+
+  /// The date and time when you created the S3 Access Grants instance.
+  final DateTime? createdAt;
+
+  /// If you associated your S3 Access Grants instance with an Amazon Web Services
+  /// IAM Identity Center instance, this field returns the Amazon Resource Name
+  /// (ARN) of the IAM Identity Center instance application; a subresource of the
+  /// original Identity Center instance passed in the request. S3 Access Grants
+  /// creates this Identity Center application for this specific S3 Access Grants
+  /// instance.
+  final String? identityCenterArn;
+
+  CreateAccessGrantsInstanceResult({
+    this.accessGrantsInstanceArn,
+    this.accessGrantsInstanceId,
+    this.createdAt,
+    this.identityCenterArn,
+  });
+  factory CreateAccessGrantsInstanceResult.fromXml(_s.XmlElement elem) {
+    return CreateAccessGrantsInstanceResult(
+      accessGrantsInstanceArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceArn'),
+      accessGrantsInstanceId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceId'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      identityCenterArn: _s.extractXmlStringValue(elem, 'IdentityCenterArn'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsInstanceArn = this.accessGrantsInstanceArn;
+    final accessGrantsInstanceId = this.accessGrantsInstanceId;
+    final createdAt = this.createdAt;
+    final identityCenterArn = this.identityCenterArn;
+    return {
+      if (accessGrantsInstanceArn != null)
+        'AccessGrantsInstanceArn': accessGrantsInstanceArn,
+      if (accessGrantsInstanceId != null)
+        'AccessGrantsInstanceId': accessGrantsInstanceId,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (identityCenterArn != null) 'IdentityCenterArn': identityCenterArn,
+    };
+  }
+}
+
+class CreateAccessGrantsLocationRequest {
+  /// The ID of the Amazon Web Services account that is making this request.
+  final String accountId;
+
+  /// The Amazon Resource Name (ARN) of the IAM role for the registered location.
+  /// S3 Access Grants assumes this role to manage access to the registered
+  /// location.
+  final String iAMRoleArn;
+
+  /// The S3 path to the location that you are registering. The location scope can
+  /// be the default S3 location <code>s3://</code>, the S3 path to a bucket
+  /// <code>s3://&lt;bucket&gt;</code>, or the S3 path to a bucket and prefix
+  /// <code>s3://&lt;bucket&gt;/&lt;prefix&gt;</code>. A prefix in S3 is a string
+  /// of characters at the beginning of an object key name used to organize the
+  /// objects that you store in your S3 buckets. For example, object key names
+  /// that start with the <code>engineering/</code> prefix or object key names
+  /// that start with the <code>marketing/campaigns/</code> prefix.
+  final String locationScope;
+
+  /// The Amazon Web Services resource tags that you are adding to the S3 Access
+  /// Grants location. Each tag is a label consisting of a user-defined key and
+  /// value. Tags can help you manage, identify, organize, search for, and filter
+  /// resources.
+  final List<Tag>? tags;
+
+  CreateAccessGrantsLocationRequest({
+    required this.accountId,
+    required this.iAMRoleArn,
+    required this.locationScope,
+    this.tags,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final iAMRoleArn = this.iAMRoleArn;
+    final locationScope = this.locationScope;
+    final tags = this.tags;
+    return {
+      'IAMRoleArn': iAMRoleArn,
+      'LocationScope': locationScope,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accountId = this.accountId;
+    final iAMRoleArn = this.iAMRoleArn;
+    final locationScope = this.locationScope;
+    final tags = this.tags;
+    final $children = <_s.XmlNode>[
+      _s.encodeXmlStringValue('LocationScope', locationScope),
+      _s.encodeXmlStringValue('IAMRoleArn', iAMRoleArn),
+      if (tags != null)
+        _s.XmlElement(_s.XmlName('Tags'), [], tags.map((e) => e.toXml('Tag'))),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+class CreateAccessGrantsLocationResult {
+  /// The Amazon Resource Name (ARN) of the location you are registering.
+  final String? accessGrantsLocationArn;
+
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  final String? accessGrantsLocationId;
+
+  /// The date and time when you registered the location.
+  final DateTime? createdAt;
+
+  /// The Amazon Resource Name (ARN) of the IAM role for the registered location.
+  /// S3 Access Grants assumes this role to manage access to the registered
+  /// location.
+  final String? iAMRoleArn;
+
+  /// The S3 URI path to the location that you are registering. The location scope
+  /// can be the default S3 location <code>s3://</code>, the S3 path to a bucket,
+  /// or the S3 path to a bucket and prefix. A prefix in S3 is a string of
+  /// characters at the beginning of an object key name used to organize the
+  /// objects that you store in your S3 buckets. For example, object key names
+  /// that start with the <code>engineering/</code> prefix or object key names
+  /// that start with the <code>marketing/campaigns/</code> prefix.
+  final String? locationScope;
+
+  CreateAccessGrantsLocationResult({
+    this.accessGrantsLocationArn,
+    this.accessGrantsLocationId,
+    this.createdAt,
+    this.iAMRoleArn,
+    this.locationScope,
+  });
+  factory CreateAccessGrantsLocationResult.fromXml(_s.XmlElement elem) {
+    return CreateAccessGrantsLocationResult(
+      accessGrantsLocationArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationArn'),
+      accessGrantsLocationId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationId'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      iAMRoleArn: _s.extractXmlStringValue(elem, 'IAMRoleArn'),
+      locationScope: _s.extractXmlStringValue(elem, 'LocationScope'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsLocationArn = this.accessGrantsLocationArn;
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final createdAt = this.createdAt;
+    final iAMRoleArn = this.iAMRoleArn;
+    final locationScope = this.locationScope;
+    return {
+      if (accessGrantsLocationArn != null)
+        'AccessGrantsLocationArn': accessGrantsLocationArn,
+      if (accessGrantsLocationId != null)
+        'AccessGrantsLocationId': accessGrantsLocationId,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (iAMRoleArn != null) 'IAMRoleArn': iAMRoleArn,
+      if (locationScope != null) 'LocationScope': locationScope,
+    };
   }
 }
 
@@ -5483,6 +7553,11 @@ class CreateAccessPointRequest {
 
   /// The Amazon Web Services account ID associated with the S3 bucket associated
   /// with this access point.
+  ///
+  /// For same account access point when your bucket and access point belong to
+  /// the same account owner, the <code>BucketAccountId</code> is not required.
+  /// For cross-account access point when your bucket and access point are not in
+  /// the same account, the <code>BucketAccountId</code> is required.
   final String? bucketAccountId;
 
   /// The <code>PublicAccessBlock</code> configuration that you want to apply to
@@ -5600,7 +7675,7 @@ class CreateBucketConfiguration {
     final locationConstraint = this.locationConstraint;
     return {
       if (locationConstraint != null)
-        'LocationConstraint': locationConstraint.toValue(),
+        'LocationConstraint': locationConstraint.value,
     };
   }
 
@@ -5608,8 +7683,7 @@ class CreateBucketConfiguration {
     final locationConstraint = this.locationConstraint;
     final $children = <_s.XmlNode>[
       if (locationConstraint != null)
-        _s.encodeXmlStringValue(
-            'LocationConstraint', locationConstraint.toValue()),
+        _s.encodeXmlStringValue('LocationConstraint', locationConstraint.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -5943,6 +8017,102 @@ class CreateMultiRegionAccessPointResult {
   }
 }
 
+class CreateStorageLensGroupRequest {
+  /// The Amazon Web Services account ID that the Storage Lens group is created
+  /// from and associated with.
+  final String accountId;
+
+  /// The Storage Lens group configuration.
+  final StorageLensGroup storageLensGroup;
+
+  /// The Amazon Web Services resource tags that you're adding to your Storage
+  /// Lens group. This parameter is optional.
+  final List<Tag>? tags;
+
+  CreateStorageLensGroupRequest({
+    required this.accountId,
+    required this.storageLensGroup,
+    this.tags,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final storageLensGroup = this.storageLensGroup;
+    final tags = this.tags;
+    return {
+      'StorageLensGroup': storageLensGroup,
+      if (tags != null) 'Tags': tags,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accountId = this.accountId;
+    final storageLensGroup = this.storageLensGroup;
+    final tags = this.tags;
+    final $children = <_s.XmlNode>[
+      storageLensGroup.toXml('StorageLensGroup'),
+      if (tags != null)
+        _s.XmlElement(_s.XmlName('Tags'), [], tags.map((e) => e.toXml('Tag'))),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+/// The Amazon Web Services Security Token Service temporary credential that S3
+/// Access Grants vends to grantees and client applications.
+class Credentials {
+  /// The unique access key ID of the Amazon Web Services STS temporary credential
+  /// that S3 Access Grants vends to grantees and client applications.
+  final String? accessKeyId;
+
+  /// The expiration date and time of the temporary credential that S3 Access
+  /// Grants vends to grantees and client applications.
+  final DateTime? expiration;
+
+  /// The secret access key of the Amazon Web Services STS temporary credential
+  /// that S3 Access Grants vends to grantees and client applications.
+  final String? secretAccessKey;
+
+  /// The Amazon Web Services STS temporary credential that S3 Access Grants vends
+  /// to grantees and client applications.
+  final String? sessionToken;
+
+  Credentials({
+    this.accessKeyId,
+    this.expiration,
+    this.secretAccessKey,
+    this.sessionToken,
+  });
+  factory Credentials.fromXml(_s.XmlElement elem) {
+    return Credentials(
+      accessKeyId: _s.extractXmlStringValue(elem, 'AccessKeyId'),
+      expiration: _s.extractXmlDateTimeValue(elem, 'Expiration'),
+      secretAccessKey: _s.extractXmlStringValue(elem, 'SecretAccessKey'),
+      sessionToken: _s.extractXmlStringValue(elem, 'SessionToken'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessKeyId = this.accessKeyId;
+    final expiration = this.expiration;
+    final secretAccessKey = this.secretAccessKey;
+    final sessionToken = this.sessionToken;
+    return {
+      if (accessKeyId != null) 'AccessKeyId': accessKeyId,
+      if (expiration != null) 'Expiration': iso8601ToJson(expiration),
+      if (secretAccessKey != null) 'SecretAccessKey': secretAccessKey,
+      if (sessionToken != null) 'SessionToken': sessionToken,
+    };
+  }
+}
+
 class DeleteJobTaggingResult {
   DeleteJobTaggingResult();
   factory DeleteJobTaggingResult.fromXml(
@@ -5978,21 +8148,21 @@ class DeleteMarkerReplication {
     return DeleteMarkerReplication(
       status: _s
           .extractXmlStringValue(elem, 'Status')!
-          .toDeleteMarkerReplicationStatus(),
+          .let(DeleteMarkerReplicationStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
     };
   }
 
   _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
     final status = this.status;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -6006,32 +8176,18 @@ class DeleteMarkerReplication {
 }
 
 enum DeleteMarkerReplicationStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension DeleteMarkerReplicationStatusValueExtension
-    on DeleteMarkerReplicationStatus {
-  String toValue() {
-    switch (this) {
-      case DeleteMarkerReplicationStatus.enabled:
-        return 'Enabled';
-      case DeleteMarkerReplicationStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension DeleteMarkerReplicationStatusFromString on String {
-  DeleteMarkerReplicationStatus toDeleteMarkerReplicationStatus() {
-    switch (this) {
-      case 'Enabled':
-        return DeleteMarkerReplicationStatus.enabled;
-      case 'Disabled':
-        return DeleteMarkerReplicationStatus.disabled;
-    }
-    throw Exception('$this is not known in enum DeleteMarkerReplicationStatus');
-  }
+  const DeleteMarkerReplicationStatus(this.value);
+
+  static DeleteMarkerReplicationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DeleteMarkerReplicationStatus'));
 }
 
 /// A container for the information associated with a <a
@@ -6250,7 +8406,7 @@ class Destination {
   /// Outposts uses the <code>OUTPOSTS</code> storage class to create the object
   /// replicas.
   /// <note>
-  /// Values other than <code>OUTPOSTS</code> are not supported by Amazon S3 on
+  /// Values other than <code>OUTPOSTS</code> aren't supported by Amazon S3 on
   /// Outposts.
   /// </note>
   final ReplicationStorageClass? storageClass;
@@ -6280,7 +8436,7 @@ class Destination {
           ?.let(ReplicationTime.fromXml),
       storageClass: _s
           .extractXmlStringValue(elem, 'StorageClass')
-          ?.toReplicationStorageClass(),
+          ?.let(ReplicationStorageClass.fromString),
     );
   }
 
@@ -6301,7 +8457,7 @@ class Destination {
         'EncryptionConfiguration': encryptionConfiguration,
       if (metrics != null) 'Metrics': metrics,
       if (replicationTime != null) 'ReplicationTime': replicationTime,
-      if (storageClass != null) 'StorageClass': storageClass.toValue(),
+      if (storageClass != null) 'StorageClass': storageClass.value,
     };
   }
 
@@ -6323,7 +8479,7 @@ class Destination {
         encryptionConfiguration.toXml('EncryptionConfiguration'),
       if (metrics != null) metrics.toXml('Metrics'),
       if (storageClass != null)
-        _s.encodeXmlStringValue('StorageClass', storageClass.toValue()),
+        _s.encodeXmlStringValue('StorageClass', storageClass.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -6528,21 +8684,21 @@ class ExistingObjectReplication {
     return ExistingObjectReplication(
       status: _s
           .extractXmlStringValue(elem, 'Status')!
-          .toExistingObjectReplicationStatus(),
+          .let(ExistingObjectReplicationStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
     };
   }
 
   _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
     final status = this.status;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -6556,89 +8712,47 @@ class ExistingObjectReplication {
 }
 
 enum ExistingObjectReplicationStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension ExistingObjectReplicationStatusValueExtension
-    on ExistingObjectReplicationStatus {
-  String toValue() {
-    switch (this) {
-      case ExistingObjectReplicationStatus.enabled:
-        return 'Enabled';
-      case ExistingObjectReplicationStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension ExistingObjectReplicationStatusFromString on String {
-  ExistingObjectReplicationStatus toExistingObjectReplicationStatus() {
-    switch (this) {
-      case 'Enabled':
-        return ExistingObjectReplicationStatus.enabled;
-      case 'Disabled':
-        return ExistingObjectReplicationStatus.disabled;
-    }
-    throw Exception(
-        '$this is not known in enum ExistingObjectReplicationStatus');
-  }
+  const ExistingObjectReplicationStatus(this.value);
+
+  static ExistingObjectReplicationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExistingObjectReplicationStatus'));
 }
 
 enum ExpirationStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension ExpirationStatusValueExtension on ExpirationStatus {
-  String toValue() {
-    switch (this) {
-      case ExpirationStatus.enabled:
-        return 'Enabled';
-      case ExpirationStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension ExpirationStatusFromString on String {
-  ExpirationStatus toExpirationStatus() {
-    switch (this) {
-      case 'Enabled':
-        return ExpirationStatus.enabled;
-      case 'Disabled':
-        return ExpirationStatus.disabled;
-    }
-    throw Exception('$this is not known in enum ExpirationStatus');
-  }
+  const ExpirationStatus(this.value);
+
+  static ExpirationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExpirationStatus'));
 }
 
 enum Format {
-  csv,
-  parquet,
-}
+  csv('CSV'),
+  parquet('Parquet'),
+  ;
 
-extension FormatValueExtension on Format {
-  String toValue() {
-    switch (this) {
-      case Format.csv:
-        return 'CSV';
-      case Format.parquet:
-        return 'Parquet';
-    }
-  }
-}
+  final String value;
 
-extension FormatFromString on String {
-  Format toFormat() {
-    switch (this) {
-      case 'CSV':
-        return Format.csv;
-      case 'Parquet':
-        return Format.parquet;
-    }
-    throw Exception('$this is not known in enum Format');
-  }
+  const Format(this.value);
+
+  static Format fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Format'));
 }
 
 /// The encryption configuration to use when storing the generated manifest.
@@ -6690,25 +8804,315 @@ class GeneratedManifestEncryption {
 }
 
 enum GeneratedManifestFormat {
-  s3InventoryReportCsv_20211130,
+  s3InventoryReportCsv_20211130('S3InventoryReport_CSV_20211130'),
+  ;
+
+  final String value;
+
+  const GeneratedManifestFormat(this.value);
+
+  static GeneratedManifestFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GeneratedManifestFormat'));
 }
 
-extension GeneratedManifestFormatValueExtension on GeneratedManifestFormat {
-  String toValue() {
-    switch (this) {
-      case GeneratedManifestFormat.s3InventoryReportCsv_20211130:
-        return 'S3InventoryReport_CSV_20211130';
-    }
+class GetAccessGrantResult {
+  /// The Amazon Resource Name (ARN) of the access grant.
+  final String? accessGrantArn;
+
+  /// The ID of the access grant. S3 Access Grants auto-generates this ID when you
+  /// create the access grant.
+  final String? accessGrantId;
+
+  /// The configuration options of the grant location. The grant location is the
+  /// S3 path to the data to which you are granting access.
+  final AccessGrantsLocationConfiguration? accessGrantsLocationConfiguration;
+
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  final String? accessGrantsLocationId;
+
+  /// The Amazon Resource Name (ARN) of an Amazon Web Services IAM Identity Center
+  /// application associated with your Identity Center instance. If the grant
+  /// includes an application ARN, the grantee can only access the S3 data through
+  /// this application.
+  final String? applicationArn;
+
+  /// The date and time when you created the access grant.
+  final DateTime? createdAt;
+
+  /// The S3 path of the data to which you are granting access. It is the result
+  /// of appending the <code>Subprefix</code> to the location scope.
+  final String? grantScope;
+
+  /// The user, group, or role to which you are granting access. You can grant
+  /// access to an IAM user or role. If you have added a corporate directory to
+  /// Amazon Web Services IAM Identity Center and associated this Identity Center
+  /// instance with the S3 Access Grants instance, the grantee can also be a
+  /// corporate directory user or group.
+  final Grantee? grantee;
+
+  /// The type of permission that was granted in the access grant. Can be one of
+  /// the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>READ</code> – Grant read-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>WRITE</code> – Grant write-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>READWRITE</code> – Grant both read and write access to the S3 data.
+  /// </li>
+  /// </ul>
+  final Permission? permission;
+
+  GetAccessGrantResult({
+    this.accessGrantArn,
+    this.accessGrantId,
+    this.accessGrantsLocationConfiguration,
+    this.accessGrantsLocationId,
+    this.applicationArn,
+    this.createdAt,
+    this.grantScope,
+    this.grantee,
+    this.permission,
+  });
+  factory GetAccessGrantResult.fromXml(_s.XmlElement elem) {
+    return GetAccessGrantResult(
+      accessGrantArn: _s.extractXmlStringValue(elem, 'AccessGrantArn'),
+      accessGrantId: _s.extractXmlStringValue(elem, 'AccessGrantId'),
+      accessGrantsLocationConfiguration: _s
+          .extractXmlChild(elem, 'AccessGrantsLocationConfiguration')
+          ?.let(AccessGrantsLocationConfiguration.fromXml),
+      accessGrantsLocationId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationId'),
+      applicationArn: _s.extractXmlStringValue(elem, 'ApplicationArn'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      grantScope: _s.extractXmlStringValue(elem, 'GrantScope'),
+      grantee: _s.extractXmlChild(elem, 'Grantee')?.let(Grantee.fromXml),
+      permission: _s
+          .extractXmlStringValue(elem, 'Permission')
+          ?.let(Permission.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantArn = this.accessGrantArn;
+    final accessGrantId = this.accessGrantId;
+    final accessGrantsLocationConfiguration =
+        this.accessGrantsLocationConfiguration;
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final applicationArn = this.applicationArn;
+    final createdAt = this.createdAt;
+    final grantScope = this.grantScope;
+    final grantee = this.grantee;
+    final permission = this.permission;
+    return {
+      if (accessGrantArn != null) 'AccessGrantArn': accessGrantArn,
+      if (accessGrantId != null) 'AccessGrantId': accessGrantId,
+      if (accessGrantsLocationConfiguration != null)
+        'AccessGrantsLocationConfiguration': accessGrantsLocationConfiguration,
+      if (accessGrantsLocationId != null)
+        'AccessGrantsLocationId': accessGrantsLocationId,
+      if (applicationArn != null) 'ApplicationArn': applicationArn,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (grantScope != null) 'GrantScope': grantScope,
+      if (grantee != null) 'Grantee': grantee,
+      if (permission != null) 'Permission': permission.value,
+    };
   }
 }
 
-extension GeneratedManifestFormatFromString on String {
-  GeneratedManifestFormat toGeneratedManifestFormat() {
-    switch (this) {
-      case 'S3InventoryReport_CSV_20211130':
-        return GeneratedManifestFormat.s3InventoryReportCsv_20211130;
-    }
-    throw Exception('$this is not known in enum GeneratedManifestFormat');
+class GetAccessGrantsInstanceForPrefixResult {
+  /// The Amazon Resource Name (ARN) of the S3 Access Grants instance.
+  final String? accessGrantsInstanceArn;
+
+  /// The ID of the S3 Access Grants instance. The ID is <code>default</code>. You
+  /// can have one S3 Access Grants instance per Region per account.
+  final String? accessGrantsInstanceId;
+
+  GetAccessGrantsInstanceForPrefixResult({
+    this.accessGrantsInstanceArn,
+    this.accessGrantsInstanceId,
+  });
+  factory GetAccessGrantsInstanceForPrefixResult.fromXml(_s.XmlElement elem) {
+    return GetAccessGrantsInstanceForPrefixResult(
+      accessGrantsInstanceArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceArn'),
+      accessGrantsInstanceId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceId'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsInstanceArn = this.accessGrantsInstanceArn;
+    final accessGrantsInstanceId = this.accessGrantsInstanceId;
+    return {
+      if (accessGrantsInstanceArn != null)
+        'AccessGrantsInstanceArn': accessGrantsInstanceArn,
+      if (accessGrantsInstanceId != null)
+        'AccessGrantsInstanceId': accessGrantsInstanceId,
+    };
+  }
+}
+
+class GetAccessGrantsInstanceResourcePolicyResult {
+  /// The date and time when you created the S3 Access Grants instance resource
+  /// policy.
+  final DateTime? createdAt;
+
+  /// The Organization of the resource policy of the S3 Access Grants instance.
+  final String? organization;
+
+  /// The resource policy of the S3 Access Grants instance.
+  final String? policy;
+
+  GetAccessGrantsInstanceResourcePolicyResult({
+    this.createdAt,
+    this.organization,
+    this.policy,
+  });
+  factory GetAccessGrantsInstanceResourcePolicyResult.fromXml(
+      _s.XmlElement elem) {
+    return GetAccessGrantsInstanceResourcePolicyResult(
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      organization: _s.extractXmlStringValue(elem, 'Organization'),
+      policy: _s.extractXmlStringValue(elem, 'Policy'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final createdAt = this.createdAt;
+    final organization = this.organization;
+    final policy = this.policy;
+    return {
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (organization != null) 'Organization': organization,
+      if (policy != null) 'Policy': policy,
+    };
+  }
+}
+
+class GetAccessGrantsInstanceResult {
+  /// The Amazon Resource Name (ARN) of the S3 Access Grants instance.
+  final String? accessGrantsInstanceArn;
+
+  /// The ID of the S3 Access Grants instance. The ID is <code>default</code>. You
+  /// can have one S3 Access Grants instance per Region per account.
+  final String? accessGrantsInstanceId;
+
+  /// The date and time when you created the S3 Access Grants instance.
+  final DateTime? createdAt;
+
+  /// If you associated your S3 Access Grants instance with an Amazon Web Services
+  /// IAM Identity Center instance, this field returns the Amazon Resource Name
+  /// (ARN) of the Amazon Web Services IAM Identity Center instance application; a
+  /// subresource of the original Identity Center instance. S3 Access Grants
+  /// creates this Identity Center application for the specific S3 Access Grants
+  /// instance.
+  final String? identityCenterArn;
+
+  GetAccessGrantsInstanceResult({
+    this.accessGrantsInstanceArn,
+    this.accessGrantsInstanceId,
+    this.createdAt,
+    this.identityCenterArn,
+  });
+  factory GetAccessGrantsInstanceResult.fromXml(_s.XmlElement elem) {
+    return GetAccessGrantsInstanceResult(
+      accessGrantsInstanceArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceArn'),
+      accessGrantsInstanceId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceId'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      identityCenterArn: _s.extractXmlStringValue(elem, 'IdentityCenterArn'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsInstanceArn = this.accessGrantsInstanceArn;
+    final accessGrantsInstanceId = this.accessGrantsInstanceId;
+    final createdAt = this.createdAt;
+    final identityCenterArn = this.identityCenterArn;
+    return {
+      if (accessGrantsInstanceArn != null)
+        'AccessGrantsInstanceArn': accessGrantsInstanceArn,
+      if (accessGrantsInstanceId != null)
+        'AccessGrantsInstanceId': accessGrantsInstanceId,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (identityCenterArn != null) 'IdentityCenterArn': identityCenterArn,
+    };
+  }
+}
+
+class GetAccessGrantsLocationResult {
+  /// The Amazon Resource Name (ARN) of the registered location.
+  final String? accessGrantsLocationArn;
+
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  final String? accessGrantsLocationId;
+
+  /// The date and time when you registered the location.
+  final DateTime? createdAt;
+
+  /// The Amazon Resource Name (ARN) of the IAM role for the registered location.
+  /// S3 Access Grants assumes this role to manage access to the registered
+  /// location.
+  final String? iAMRoleArn;
+
+  /// The S3 URI path to the registered location. The location scope can be the
+  /// default S3 location <code>s3://</code>, the S3 path to a bucket, or the S3
+  /// path to a bucket and prefix. A prefix in S3 is a string of characters at the
+  /// beginning of an object key name used to organize the objects that you store
+  /// in your S3 buckets. For example, object key names that start with the
+  /// <code>engineering/</code> prefix or object key names that start with the
+  /// <code>marketing/campaigns/</code> prefix.
+  final String? locationScope;
+
+  GetAccessGrantsLocationResult({
+    this.accessGrantsLocationArn,
+    this.accessGrantsLocationId,
+    this.createdAt,
+    this.iAMRoleArn,
+    this.locationScope,
+  });
+  factory GetAccessGrantsLocationResult.fromXml(_s.XmlElement elem) {
+    return GetAccessGrantsLocationResult(
+      accessGrantsLocationArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationArn'),
+      accessGrantsLocationId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationId'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      iAMRoleArn: _s.extractXmlStringValue(elem, 'IAMRoleArn'),
+      locationScope: _s.extractXmlStringValue(elem, 'LocationScope'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsLocationArn = this.accessGrantsLocationArn;
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final createdAt = this.createdAt;
+    final iAMRoleArn = this.iAMRoleArn;
+    final locationScope = this.locationScope;
+    return {
+      if (accessGrantsLocationArn != null)
+        'AccessGrantsLocationArn': accessGrantsLocationArn,
+      if (accessGrantsLocationId != null)
+        'AccessGrantsLocationId': accessGrantsLocationId,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (iAMRoleArn != null) 'IAMRoleArn': iAMRoleArn,
+      if (locationScope != null) 'LocationScope': locationScope,
+    };
   }
 }
 
@@ -6942,8 +9346,9 @@ class GetAccessPointResult {
             {},
       ),
       name: _s.extractXmlStringValue(elem, 'Name'),
-      networkOrigin:
-          _s.extractXmlStringValue(elem, 'NetworkOrigin')?.toNetworkOrigin(),
+      networkOrigin: _s
+          .extractXmlStringValue(elem, 'NetworkOrigin')
+          ?.let(NetworkOrigin.fromString),
       publicAccessBlockConfiguration: _s
           .extractXmlChild(elem, 'PublicAccessBlockConfiguration')
           ?.let(PublicAccessBlockConfiguration.fromXml),
@@ -6972,7 +9377,7 @@ class GetAccessPointResult {
       if (creationDate != null) 'CreationDate': iso8601ToJson(creationDate),
       if (endpoints != null) 'Endpoints': endpoints,
       if (name != null) 'Name': name,
-      if (networkOrigin != null) 'NetworkOrigin': networkOrigin.toValue(),
+      if (networkOrigin != null) 'NetworkOrigin': networkOrigin.value,
       if (publicAccessBlockConfiguration != null)
         'PublicAccessBlockConfiguration': publicAccessBlockConfiguration,
       if (vpcConfiguration != null) 'VpcConfiguration': vpcConfiguration,
@@ -7127,10 +9532,12 @@ class GetBucketVersioningResult {
   });
   factory GetBucketVersioningResult.fromXml(_s.XmlElement elem) {
     return GetBucketVersioningResult(
-      mFADelete:
-          _s.extractXmlStringValue(elem, 'MfaDelete')?.toMFADeleteStatus(),
-      status:
-          _s.extractXmlStringValue(elem, 'Status')?.toBucketVersioningStatus(),
+      mFADelete: _s
+          .extractXmlStringValue(elem, 'MfaDelete')
+          ?.let(MFADeleteStatus.fromString),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(BucketVersioningStatus.fromString),
     );
   }
 
@@ -7138,8 +9545,38 @@ class GetBucketVersioningResult {
     final mFADelete = this.mFADelete;
     final status = this.status;
     return {
-      if (mFADelete != null) 'MfaDelete': mFADelete.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (mFADelete != null) 'MfaDelete': mFADelete.value,
+      if (status != null) 'Status': status.value,
+    };
+  }
+}
+
+class GetDataAccessResult {
+  /// The temporary credential token that S3 Access Grants vends.
+  final Credentials? credentials;
+
+  /// The S3 URI path of the data to which you are being granted temporary access
+  /// credentials.
+  final String? matchedGrantTarget;
+
+  GetDataAccessResult({
+    this.credentials,
+    this.matchedGrantTarget,
+  });
+  factory GetDataAccessResult.fromXml(_s.XmlElement elem) {
+    return GetDataAccessResult(
+      credentials:
+          _s.extractXmlChild(elem, 'Credentials')?.let(Credentials.fromXml),
+      matchedGrantTarget: _s.extractXmlStringValue(elem, 'MatchedGrantTarget'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final credentials = this.credentials;
+    final matchedGrantTarget = this.matchedGrantTarget;
+    return {
+      if (credentials != null) 'Credentials': credentials,
+      if (matchedGrantTarget != null) 'MatchedGrantTarget': matchedGrantTarget,
     };
   }
 }
@@ -7325,6 +9762,116 @@ class GetStorageLensConfigurationTaggingResult {
   }
 }
 
+class GetStorageLensGroupResult {
+  /// The name of the Storage Lens group that you're trying to retrieve the
+  /// configuration details for.
+  final StorageLensGroup? storageLensGroup;
+
+  GetStorageLensGroupResult({
+    this.storageLensGroup,
+  });
+
+  Map<String, dynamic> toJson() {
+    final storageLensGroup = this.storageLensGroup;
+    return {
+      if (storageLensGroup != null) 'StorageLensGroup': storageLensGroup,
+    };
+  }
+}
+
+/// The user, group, or role to which you are granting access. You can grant
+/// access to an IAM user or role. If you have added your corporate directory to
+/// Amazon Web Services IAM Identity Center and associated your Identity Center
+/// instance with your S3 Access Grants instance, the grantee can also be a
+/// corporate directory user or group.
+class Grantee {
+  /// The unique identifier of the <code>Grantee</code>. If the grantee type is
+  /// <code>IAM</code>, the identifier is the IAM Amazon Resource Name (ARN) of
+  /// the user or role. If the grantee type is a directory user or group, the
+  /// identifier is 128-bit universally unique identifier (UUID) in the format
+  /// <code>a1b2c3d4-5678-90ab-cdef-EXAMPLE11111</code>. You can obtain this UUID
+  /// from your Amazon Web Services IAM Identity Center instance.
+  final String? granteeIdentifier;
+
+  /// The type of the grantee to which access has been granted. It can be one of
+  /// the following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>IAM</code> - An IAM user or role.
+  /// </li>
+  /// <li>
+  /// <code>DIRECTORY_USER</code> - Your corporate directory user. You can use
+  /// this option if you have added your corporate identity directory to IAM
+  /// Identity Center and associated the IAM Identity Center instance with your S3
+  /// Access Grants instance.
+  /// </li>
+  /// <li>
+  /// <code>DIRECTORY_GROUP</code> - Your corporate directory group. You can use
+  /// this option if you have added your corporate identity directory to IAM
+  /// Identity Center and associated the IAM Identity Center instance with your S3
+  /// Access Grants instance.
+  /// </li>
+  /// </ul>
+  final GranteeType? granteeType;
+
+  Grantee({
+    this.granteeIdentifier,
+    this.granteeType,
+  });
+  factory Grantee.fromXml(_s.XmlElement elem) {
+    return Grantee(
+      granteeIdentifier: _s.extractXmlStringValue(elem, 'GranteeIdentifier'),
+      granteeType: _s
+          .extractXmlStringValue(elem, 'GranteeType')
+          ?.let(GranteeType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final granteeIdentifier = this.granteeIdentifier;
+    final granteeType = this.granteeType;
+    return {
+      if (granteeIdentifier != null) 'GranteeIdentifier': granteeIdentifier,
+      if (granteeType != null) 'GranteeType': granteeType.value,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final granteeIdentifier = this.granteeIdentifier;
+    final granteeType = this.granteeType;
+    final $children = <_s.XmlNode>[
+      if (granteeType != null)
+        _s.encodeXmlStringValue('GranteeType', granteeType.value),
+      if (granteeIdentifier != null)
+        _s.encodeXmlStringValue('GranteeIdentifier', granteeIdentifier),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+enum GranteeType {
+  directoryUser('DIRECTORY_USER'),
+  directoryGroup('DIRECTORY_GROUP'),
+  iam('IAM'),
+  ;
+
+  final String value;
+
+  const GranteeType(this.value);
+
+  static GranteeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum GranteeType'));
+}
+
 /// A container for what Amazon S3 Storage Lens configuration includes.
 class Include {
   /// A container for the S3 Storage Lens bucket includes.
@@ -7500,7 +10047,8 @@ class JobDescriptor {
           ?.let(JobProgressSummary.fromXml),
       report: _s.extractXmlChild(elem, 'Report')?.let(JobReport.fromXml),
       roleArn: _s.extractXmlStringValue(elem, 'RoleArn'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toJobStatus(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')?.let(JobStatus.fromString),
       statusUpdateReason: _s.extractXmlStringValue(elem, 'StatusUpdateReason'),
       suspendedCause: _s.extractXmlStringValue(elem, 'SuspendedCause'),
       suspendedDate: _s.extractXmlDateTimeValue(elem, 'SuspendedDate'),
@@ -7545,7 +10093,7 @@ class JobDescriptor {
       if (progressSummary != null) 'ProgressSummary': progressSummary,
       if (report != null) 'Report': report,
       if (roleArn != null) 'RoleArn': roleArn,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusUpdateReason != null) 'StatusUpdateReason': statusUpdateReason,
       if (suspendedCause != null) 'SuspendedCause': suspendedCause,
       if (suspendedDate != null) 'SuspendedDate': iso8601ToJson(suspendedDate),
@@ -7631,12 +10179,15 @@ class JobListDescriptor {
       creationTime: _s.extractXmlDateTimeValue(elem, 'CreationTime'),
       description: _s.extractXmlStringValue(elem, 'Description'),
       jobId: _s.extractXmlStringValue(elem, 'JobId'),
-      operation: _s.extractXmlStringValue(elem, 'Operation')?.toOperationName(),
+      operation: _s
+          .extractXmlStringValue(elem, 'Operation')
+          ?.let(OperationName.fromString),
       priority: _s.extractXmlIntValue(elem, 'Priority'),
       progressSummary: _s
           .extractXmlChild(elem, 'ProgressSummary')
           ?.let(JobProgressSummary.fromXml),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toJobStatus(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')?.let(JobStatus.fromString),
       terminationDate: _s.extractXmlDateTimeValue(elem, 'TerminationDate'),
     );
   }
@@ -7654,10 +10205,10 @@ class JobListDescriptor {
       if (creationTime != null) 'CreationTime': iso8601ToJson(creationTime),
       if (description != null) 'Description': description,
       if (jobId != null) 'JobId': jobId,
-      if (operation != null) 'Operation': operation.toValue(),
+      if (operation != null) 'Operation': operation.value,
       if (priority != null) 'Priority': priority,
       if (progressSummary != null) 'ProgressSummary': progressSummary,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (terminationDate != null)
         'TerminationDate': iso8601ToJson(terminationDate),
     };
@@ -7667,6 +10218,10 @@ class JobListDescriptor {
 /// Contains the configuration information for a job's manifest.
 class JobManifest {
   /// Contains the information required to locate the specified job's manifest.
+  /// Manifests can't be imported from directory buckets. For more information,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/directory-buckets-overview.html">Directory
+  /// buckets</a>.
   final JobManifestLocation location;
 
   /// Describes the format of the specified job's manifest. If the manifest is in
@@ -7713,69 +10268,35 @@ class JobManifest {
 }
 
 enum JobManifestFieldName {
-  ignore,
-  bucket,
-  key,
-  versionId,
-}
+  ignore('Ignore'),
+  bucket('Bucket'),
+  key('Key'),
+  versionId('VersionId'),
+  ;
 
-extension JobManifestFieldNameValueExtension on JobManifestFieldName {
-  String toValue() {
-    switch (this) {
-      case JobManifestFieldName.ignore:
-        return 'Ignore';
-      case JobManifestFieldName.bucket:
-        return 'Bucket';
-      case JobManifestFieldName.key:
-        return 'Key';
-      case JobManifestFieldName.versionId:
-        return 'VersionId';
-    }
-  }
-}
+  final String value;
 
-extension JobManifestFieldNameFromString on String {
-  JobManifestFieldName toJobManifestFieldName() {
-    switch (this) {
-      case 'Ignore':
-        return JobManifestFieldName.ignore;
-      case 'Bucket':
-        return JobManifestFieldName.bucket;
-      case 'Key':
-        return JobManifestFieldName.key;
-      case 'VersionId':
-        return JobManifestFieldName.versionId;
-    }
-    throw Exception('$this is not known in enum JobManifestFieldName');
-  }
+  const JobManifestFieldName(this.value);
+
+  static JobManifestFieldName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum JobManifestFieldName'));
 }
 
 enum JobManifestFormat {
-  s3BatchOperationsCsv_20180820,
-  s3InventoryReportCsv_20161130,
-}
+  s3BatchOperationsCsv_20180820('S3BatchOperations_CSV_20180820'),
+  s3InventoryReportCsv_20161130('S3InventoryReport_CSV_20161130'),
+  ;
 
-extension JobManifestFormatValueExtension on JobManifestFormat {
-  String toValue() {
-    switch (this) {
-      case JobManifestFormat.s3BatchOperationsCsv_20180820:
-        return 'S3BatchOperations_CSV_20180820';
-      case JobManifestFormat.s3InventoryReportCsv_20161130:
-        return 'S3InventoryReport_CSV_20161130';
-    }
-  }
-}
+  final String value;
 
-extension JobManifestFormatFromString on String {
-  JobManifestFormat toJobManifestFormat() {
-    switch (this) {
-      case 'S3BatchOperations_CSV_20180820':
-        return JobManifestFormat.s3BatchOperationsCsv_20180820;
-      case 'S3InventoryReport_CSV_20161130':
-        return JobManifestFormat.s3InventoryReportCsv_20161130;
-    }
-    throw Exception('$this is not known in enum JobManifestFormat');
-  }
+  const JobManifestFormat(this.value);
+
+  static JobManifestFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JobManifestFormat'));
 }
 
 /// Configures the type of the job's ManifestGenerator.
@@ -7821,27 +10342,49 @@ class JobManifestGenerator {
 
 /// The filter used to describe a set of objects for the job's manifest.
 class JobManifestGeneratorFilter {
-  /// If provided, the generated manifest should include only source bucket
-  /// objects that were created after this time.
+  /// If provided, the generated manifest includes only source bucket objects that
+  /// were created after this time.
   final DateTime? createdAfter;
 
-  /// If provided, the generated manifest should include only source bucket
-  /// objects that were created before this time.
+  /// If provided, the generated manifest includes only source bucket objects that
+  /// were created before this time.
   final DateTime? createdBefore;
 
   /// Include objects in the generated manifest only if they are eligible for
   /// replication according to the Replication configuration on the source bucket.
   final bool? eligibleForReplication;
 
-  /// If provided, the generated manifest should include only source bucket
-  /// objects that have one of the specified Replication statuses.
+  /// If provided, the generated manifest includes only source bucket objects
+  /// whose object keys match the string constraints specified for
+  /// <code>MatchAnyPrefix</code>, <code>MatchAnySuffix</code>, and
+  /// <code>MatchAnySubstring</code>.
+  final KeyNameConstraint? keyNameConstraint;
+
+  /// If provided, the generated manifest includes only source bucket objects that
+  /// are stored with the specified storage class.
+  final List<S3StorageClass>? matchAnyStorageClass;
+
+  /// If provided, the generated manifest includes only source bucket objects that
+  /// have one of the specified Replication statuses.
   final List<ReplicationStatus>? objectReplicationStatuses;
+
+  /// If provided, the generated manifest includes only source bucket objects
+  /// whose file size is greater than the specified number of bytes.
+  final int? objectSizeGreaterThanBytes;
+
+  /// If provided, the generated manifest includes only source bucket objects
+  /// whose file size is less than the specified number of bytes.
+  final int? objectSizeLessThanBytes;
 
   JobManifestGeneratorFilter({
     this.createdAfter,
     this.createdBefore,
     this.eligibleForReplication,
+    this.keyNameConstraint,
+    this.matchAnyStorageClass,
     this.objectReplicationStatuses,
+    this.objectSizeGreaterThanBytes,
+    this.objectSizeLessThanBytes,
   });
   factory JobManifestGeneratorFilter.fromXml(_s.XmlElement elem) {
     return JobManifestGeneratorFilter(
@@ -7849,12 +10392,25 @@ class JobManifestGeneratorFilter {
       createdBefore: _s.extractXmlDateTimeValue(elem, 'CreatedBefore'),
       eligibleForReplication:
           _s.extractXmlBoolValue(elem, 'EligibleForReplication'),
+      keyNameConstraint: _s
+          .extractXmlChild(elem, 'KeyNameConstraint')
+          ?.let(KeyNameConstraint.fromXml),
+      matchAnyStorageClass: _s
+          .extractXmlChild(elem, 'MatchAnyStorageClass')
+          ?.let((elem) => _s
+              .extractXmlStringListValues(elem, 'member')
+              .map(S3StorageClass.fromString)
+              .toList()),
       objectReplicationStatuses: _s
           .extractXmlChild(elem, 'ObjectReplicationStatuses')
           ?.let((elem) => _s
               .extractXmlStringListValues(elem, 'member')
-              .map((s) => s.toReplicationStatus())
+              .map(ReplicationStatus.fromString)
               .toList()),
+      objectSizeGreaterThanBytes:
+          _s.extractXmlIntValue(elem, 'ObjectSizeGreaterThanBytes'),
+      objectSizeLessThanBytes:
+          _s.extractXmlIntValue(elem, 'ObjectSizeLessThanBytes'),
     );
   }
 
@@ -7862,15 +10418,27 @@ class JobManifestGeneratorFilter {
     final createdAfter = this.createdAfter;
     final createdBefore = this.createdBefore;
     final eligibleForReplication = this.eligibleForReplication;
+    final keyNameConstraint = this.keyNameConstraint;
+    final matchAnyStorageClass = this.matchAnyStorageClass;
     final objectReplicationStatuses = this.objectReplicationStatuses;
+    final objectSizeGreaterThanBytes = this.objectSizeGreaterThanBytes;
+    final objectSizeLessThanBytes = this.objectSizeLessThanBytes;
     return {
       if (createdAfter != null) 'CreatedAfter': iso8601ToJson(createdAfter),
       if (createdBefore != null) 'CreatedBefore': iso8601ToJson(createdBefore),
       if (eligibleForReplication != null)
         'EligibleForReplication': eligibleForReplication,
+      if (keyNameConstraint != null) 'KeyNameConstraint': keyNameConstraint,
+      if (matchAnyStorageClass != null)
+        'MatchAnyStorageClass':
+            matchAnyStorageClass.map((e) => e.value).toList(),
       if (objectReplicationStatuses != null)
         'ObjectReplicationStatuses':
-            objectReplicationStatuses.map((e) => e.toValue()).toList(),
+            objectReplicationStatuses.map((e) => e.value).toList(),
+      if (objectSizeGreaterThanBytes != null)
+        'ObjectSizeGreaterThanBytes': objectSizeGreaterThanBytes,
+      if (objectSizeLessThanBytes != null)
+        'ObjectSizeLessThanBytes': objectSizeLessThanBytes,
     };
   }
 
@@ -7878,7 +10446,11 @@ class JobManifestGeneratorFilter {
     final createdAfter = this.createdAfter;
     final createdBefore = this.createdBefore;
     final eligibleForReplication = this.eligibleForReplication;
+    final keyNameConstraint = this.keyNameConstraint;
+    final matchAnyStorageClass = this.matchAnyStorageClass;
     final objectReplicationStatuses = this.objectReplicationStatuses;
+    final objectSizeGreaterThanBytes = this.objectSizeGreaterThanBytes;
+    final objectSizeLessThanBytes = this.objectSizeLessThanBytes;
     final $children = <_s.XmlNode>[
       if (eligibleForReplication != null)
         _s.encodeXmlBoolValue('EligibleForReplication', eligibleForReplication),
@@ -7891,7 +10463,21 @@ class JobManifestGeneratorFilter {
             _s.XmlName('ObjectReplicationStatuses'),
             [],
             objectReplicationStatuses
-                .map((e) => _s.encodeXmlStringValue('member', e.toValue()))),
+                .map((e) => _s.encodeXmlStringValue('member', e.value))),
+      if (keyNameConstraint != null)
+        keyNameConstraint.toXml('KeyNameConstraint'),
+      if (objectSizeGreaterThanBytes != null)
+        _s.encodeXmlIntValue(
+            'ObjectSizeGreaterThanBytes', objectSizeGreaterThanBytes),
+      if (objectSizeLessThanBytes != null)
+        _s.encodeXmlIntValue(
+            'ObjectSizeLessThanBytes', objectSizeLessThanBytes),
+      if (matchAnyStorageClass != null)
+        _s.XmlElement(
+            _s.XmlName('MatchAnyStorageClass'),
+            [],
+            matchAnyStorageClass
+                .map((e) => _s.encodeXmlStringValue('member', e.value))),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -7904,7 +10490,10 @@ class JobManifestGeneratorFilter {
   }
 }
 
-/// Contains the information required to locate a manifest object.
+/// Contains the information required to locate a manifest object. Manifests
+/// can't be imported from directory buckets. For more information, see <a
+/// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/directory-buckets-overview.html">Directory
+/// buckets</a>.
 class JobManifestLocation {
   /// The ETag for the specified manifest object.
   final String eTag;
@@ -7985,10 +10574,12 @@ class JobManifestSpec {
   });
   factory JobManifestSpec.fromXml(_s.XmlElement elem) {
     return JobManifestSpec(
-      format: _s.extractXmlStringValue(elem, 'Format')!.toJobManifestFormat(),
+      format: _s
+          .extractXmlStringValue(elem, 'Format')!
+          .let(JobManifestFormat.fromString),
       fields: _s.extractXmlChild(elem, 'Fields')?.let((elem) => _s
           .extractXmlStringListValues(elem, 'member')
-          .map((s) => s.toJobManifestFieldName())
+          .map(JobManifestFieldName.fromString)
           .toList()),
     );
   }
@@ -7997,8 +10588,8 @@ class JobManifestSpec {
     final format = this.format;
     final fields = this.fields;
     return {
-      'Format': format.toValue(),
-      if (fields != null) 'Fields': fields.map((e) => e.toValue()).toList(),
+      'Format': format.value,
+      if (fields != null) 'Fields': fields.map((e) => e.value).toList(),
     };
   }
 
@@ -8006,10 +10597,10 @@ class JobManifestSpec {
     final format = this.format;
     final fields = this.fields;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Format', format.toValue()),
+      _s.encodeXmlStringValue('Format', format.value),
       if (fields != null)
         _s.XmlElement(_s.XmlName('Fields'), [],
-            fields.map((e) => _s.encodeXmlStringValue('member', e.toValue()))),
+            fields.map((e) => _s.encodeXmlStringValue('member', e.value))),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -8033,14 +10624,23 @@ class JobOperation {
 
   /// Directs the specified job to execute a DELETE Object tagging call on every
   /// object in the manifest.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3DeleteObjectTaggingOperation? s3DeleteObjectTagging;
 
   /// Directs the specified job to initiate restore requests for every archived
   /// object in the manifest.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3InitiateRestoreObjectOperation? s3InitiateRestoreObject;
 
   /// Directs the specified job to run a <code>PutObjectAcl</code> call on every
   /// object in the manifest.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3SetObjectAclOperation? s3PutObjectAcl;
 
   /// Directs the specified job to run a PUT Copy object call on every object in
@@ -8051,10 +10651,16 @@ class JobOperation {
 
   /// Directs the specified job to run a PUT Object tagging call on every object
   /// in the manifest.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3SetObjectTaggingOperation? s3PutObjectTagging;
 
   /// Directs the specified job to invoke <code>ReplicateObject</code> on every
   /// object in the job's manifest.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3ReplicateObjectOperation? s3ReplicateObject;
 
   JobOperation({
@@ -8219,6 +10825,10 @@ class JobReport {
 
   /// The Amazon Resource Name (ARN) for the bucket where specified job-completion
   /// report will be stored.
+  /// <note>
+  /// <b>Directory buckets</b> - Directory buckets aren't supported as a location
+  /// for Batch Operations to store job completion reports.
+  /// </note>
   final String? bucket;
 
   /// The format of the specified job-completion report.
@@ -8244,10 +10854,13 @@ class JobReport {
     return JobReport(
       enabled: _s.extractXmlBoolValue(elem, 'Enabled')!,
       bucket: _s.extractXmlStringValue(elem, 'Bucket'),
-      format: _s.extractXmlStringValue(elem, 'Format')?.toJobReportFormat(),
+      format: _s
+          .extractXmlStringValue(elem, 'Format')
+          ?.let(JobReportFormat.fromString),
       prefix: _s.extractXmlStringValue(elem, 'Prefix'),
-      reportScope:
-          _s.extractXmlStringValue(elem, 'ReportScope')?.toJobReportScope(),
+      reportScope: _s
+          .extractXmlStringValue(elem, 'ReportScope')
+          ?.let(JobReportScope.fromString),
     );
   }
 
@@ -8260,9 +10873,9 @@ class JobReport {
     return {
       'Enabled': enabled,
       if (bucket != null) 'Bucket': bucket,
-      if (format != null) 'Format': format.toValue(),
+      if (format != null) 'Format': format.value,
       if (prefix != null) 'Prefix': prefix,
-      if (reportScope != null) 'ReportScope': reportScope.toValue(),
+      if (reportScope != null) 'ReportScope': reportScope.value,
     };
   }
 
@@ -8274,11 +10887,11 @@ class JobReport {
     final reportScope = this.reportScope;
     final $children = <_s.XmlNode>[
       if (bucket != null) _s.encodeXmlStringValue('Bucket', bucket),
-      if (format != null) _s.encodeXmlStringValue('Format', format.toValue()),
+      if (format != null) _s.encodeXmlStringValue('Format', format.value),
       _s.encodeXmlBoolValue('Enabled', enabled),
       if (prefix != null) _s.encodeXmlStringValue('Prefix', prefix),
       if (reportScope != null)
-        _s.encodeXmlStringValue('ReportScope', reportScope.toValue()),
+        _s.encodeXmlStringValue('ReportScope', reportScope.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -8292,137 +10905,57 @@ class JobReport {
 }
 
 enum JobReportFormat {
-  reportCsv_20180820,
-}
+  reportCsv_20180820('Report_CSV_20180820'),
+  ;
 
-extension JobReportFormatValueExtension on JobReportFormat {
-  String toValue() {
-    switch (this) {
-      case JobReportFormat.reportCsv_20180820:
-        return 'Report_CSV_20180820';
-    }
-  }
-}
+  final String value;
 
-extension JobReportFormatFromString on String {
-  JobReportFormat toJobReportFormat() {
-    switch (this) {
-      case 'Report_CSV_20180820':
-        return JobReportFormat.reportCsv_20180820;
-    }
-    throw Exception('$this is not known in enum JobReportFormat');
-  }
+  const JobReportFormat(this.value);
+
+  static JobReportFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JobReportFormat'));
 }
 
 enum JobReportScope {
-  allTasks,
-  failedTasksOnly,
-}
+  allTasks('AllTasks'),
+  failedTasksOnly('FailedTasksOnly'),
+  ;
 
-extension JobReportScopeValueExtension on JobReportScope {
-  String toValue() {
-    switch (this) {
-      case JobReportScope.allTasks:
-        return 'AllTasks';
-      case JobReportScope.failedTasksOnly:
-        return 'FailedTasksOnly';
-    }
-  }
-}
+  final String value;
 
-extension JobReportScopeFromString on String {
-  JobReportScope toJobReportScope() {
-    switch (this) {
-      case 'AllTasks':
-        return JobReportScope.allTasks;
-      case 'FailedTasksOnly':
-        return JobReportScope.failedTasksOnly;
-    }
-    throw Exception('$this is not known in enum JobReportScope');
-  }
+  const JobReportScope(this.value);
+
+  static JobReportScope fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JobReportScope'));
 }
 
 enum JobStatus {
-  active,
-  cancelled,
-  cancelling,
-  complete,
-  completing,
-  failed,
-  failing,
-  $new,
-  paused,
-  pausing,
-  preparing,
-  ready,
-  suspended,
-}
+  active('Active'),
+  cancelled('Cancelled'),
+  cancelling('Cancelling'),
+  complete('Complete'),
+  completing('Completing'),
+  failed('Failed'),
+  failing('Failing'),
+  $new('New'),
+  paused('Paused'),
+  pausing('Pausing'),
+  preparing('Preparing'),
+  ready('Ready'),
+  suspended('Suspended'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.active:
-        return 'Active';
-      case JobStatus.cancelled:
-        return 'Cancelled';
-      case JobStatus.cancelling:
-        return 'Cancelling';
-      case JobStatus.complete:
-        return 'Complete';
-      case JobStatus.completing:
-        return 'Completing';
-      case JobStatus.failed:
-        return 'Failed';
-      case JobStatus.failing:
-        return 'Failing';
-      case JobStatus.$new:
-        return 'New';
-      case JobStatus.paused:
-        return 'Paused';
-      case JobStatus.pausing:
-        return 'Pausing';
-      case JobStatus.preparing:
-        return 'Preparing';
-      case JobStatus.ready:
-        return 'Ready';
-      case JobStatus.suspended:
-        return 'Suspended';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'Active':
-        return JobStatus.active;
-      case 'Cancelled':
-        return JobStatus.cancelled;
-      case 'Cancelling':
-        return JobStatus.cancelling;
-      case 'Complete':
-        return JobStatus.complete;
-      case 'Completing':
-        return JobStatus.completing;
-      case 'Failed':
-        return JobStatus.failed;
-      case 'Failing':
-        return JobStatus.failing;
-      case 'New':
-        return JobStatus.$new;
-      case 'Paused':
-        return JobStatus.paused;
-      case 'Pausing':
-        return JobStatus.pausing;
-      case 'Preparing':
-        return JobStatus.preparing;
-      case 'Ready':
-        return JobStatus.ready;
-      case 'Suspended':
-        return JobStatus.suspended;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 /// Provides timing details for the job.
@@ -8450,6 +10983,79 @@ class JobTimers {
   }
 }
 
+/// If provided, the generated manifest includes only source bucket objects
+/// whose object keys match the string constraints specified for
+/// <code>MatchAnyPrefix</code>, <code>MatchAnySuffix</code>, and
+/// <code>MatchAnySubstring</code>.
+class KeyNameConstraint {
+  /// If provided, the generated manifest includes objects where the specified
+  /// string appears at the start of the object key string.
+  final List<String>? matchAnyPrefix;
+
+  /// If provided, the generated manifest includes objects where the specified
+  /// string appears anywhere within the object key string.
+  final List<String>? matchAnySubstring;
+
+  /// If provided, the generated manifest includes objects where the specified
+  /// string appears at the end of the object key string.
+  final List<String>? matchAnySuffix;
+
+  KeyNameConstraint({
+    this.matchAnyPrefix,
+    this.matchAnySubstring,
+    this.matchAnySuffix,
+  });
+  factory KeyNameConstraint.fromXml(_s.XmlElement elem) {
+    return KeyNameConstraint(
+      matchAnyPrefix: _s
+          .extractXmlChild(elem, 'MatchAnyPrefix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
+      matchAnySubstring: _s
+          .extractXmlChild(elem, 'MatchAnySubstring')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
+      matchAnySuffix: _s
+          .extractXmlChild(elem, 'MatchAnySuffix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySubstring = this.matchAnySubstring;
+    final matchAnySuffix = this.matchAnySuffix;
+    return {
+      if (matchAnyPrefix != null) 'MatchAnyPrefix': matchAnyPrefix,
+      if (matchAnySubstring != null) 'MatchAnySubstring': matchAnySubstring,
+      if (matchAnySuffix != null) 'MatchAnySuffix': matchAnySuffix,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySubstring = this.matchAnySubstring;
+    final matchAnySuffix = this.matchAnySuffix;
+    final $children = <_s.XmlNode>[
+      if (matchAnyPrefix != null)
+        _s.XmlElement(_s.XmlName('MatchAnyPrefix'), [],
+            matchAnyPrefix.map((e) => _s.encodeXmlStringValue('member', e))),
+      if (matchAnySuffix != null)
+        _s.XmlElement(_s.XmlName('MatchAnySuffix'), [],
+            matchAnySuffix.map((e) => _s.encodeXmlStringValue('member', e))),
+      if (matchAnySubstring != null)
+        _s.XmlElement(_s.XmlName('MatchAnySubstring'), [],
+            matchAnySubstring.map((e) => _s.encodeXmlStringValue('member', e))),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
 /// Contains the configuration parameters for a <code>Lambda Invoke</code>
 /// operation.
 class LambdaInvokeOperation {
@@ -8457,27 +11063,89 @@ class LambdaInvokeOperation {
   /// job will invoke on every object in the manifest.
   final String? functionArn;
 
+  /// Specifies the schema version for the payload that Batch Operations sends
+  /// when invoking an Lambda function. Version <code>1.0</code> is the default.
+  /// Version <code>2.0</code> is required when you use Batch Operations to invoke
+  /// Lambda functions that act on directory buckets, or if you need to specify
+  /// <code>UserArguments</code>. For more information, see <a
+  /// href="https://aws.amazon.com/blogs/storage/automate-object-processing-in-amazon-s3-directory-buckets-with-s3-batch-operations-and-aws-lambda/">Automate
+  /// object processing in Amazon S3 directory buckets with S3 Batch Operations
+  /// and Lambda</a> in the <i>Amazon Web Services Storage Blog</i>.
+  /// <important>
+  /// Ensure that your Lambda function code expects
+  /// <code>InvocationSchemaVersion</code> <b>2.0</b> and uses bucket name rather
+  /// than bucket ARN. If the <code>InvocationSchemaVersion</code> does not match
+  /// what your Lambda function expects, your function might not work as expected.
+  /// </important> <note>
+  /// <b>Directory buckets</b> - To initiate Amazon Web Services Lambda function
+  /// to perform custom actions on objects in directory buckets, you must specify
+  /// <code>2.0</code>.
+  /// </note>
+  final String? invocationSchemaVersion;
+
+  /// Key-value pairs that are passed in the payload that Batch Operations sends
+  /// when invoking an Lambda function. You must specify
+  /// <code>InvocationSchemaVersion</code> <b>2.0</b> for
+  /// <code>LambdaInvoke</code> operations that include
+  /// <code>UserArguments</code>. For more information, see <a
+  /// href="https://aws.amazon.com/blogs/storage/automate-object-processing-in-amazon-s3-directory-buckets-with-s3-batch-operations-and-aws-lambda/">Automate
+  /// object processing in Amazon S3 directory buckets with S3 Batch Operations
+  /// and Lambda</a> in the <i>Amazon Web Services Storage Blog</i>.
+  final Map<String, String>? userArguments;
+
   LambdaInvokeOperation({
     this.functionArn,
+    this.invocationSchemaVersion,
+    this.userArguments,
   });
   factory LambdaInvokeOperation.fromXml(_s.XmlElement elem) {
     return LambdaInvokeOperation(
       functionArn: _s.extractXmlStringValue(elem, 'FunctionArn'),
+      invocationSchemaVersion:
+          _s.extractXmlStringValue(elem, 'InvocationSchemaVersion'),
+      userArguments: Map.fromEntries(
+        elem.getElement('UserArguments')?.findElements('entry').map(
+                  (c) => MapEntry(
+                    _s.extractXmlStringValue(c, 'key')!,
+                    _s.extractXmlStringValue(c, 'value')!,
+                  ),
+                ) ??
+            {},
+      ),
     );
   }
 
   Map<String, dynamic> toJson() {
     final functionArn = this.functionArn;
+    final invocationSchemaVersion = this.invocationSchemaVersion;
+    final userArguments = this.userArguments;
     return {
       if (functionArn != null) 'FunctionArn': functionArn,
+      if (invocationSchemaVersion != null)
+        'InvocationSchemaVersion': invocationSchemaVersion,
+      if (userArguments != null) 'UserArguments': userArguments,
     };
   }
 
   _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
     final functionArn = this.functionArn;
+    final invocationSchemaVersion = this.invocationSchemaVersion;
+    final userArguments = this.userArguments;
     final $children = <_s.XmlNode>[
       if (functionArn != null)
         _s.encodeXmlStringValue('FunctionArn', functionArn),
+      if (invocationSchemaVersion != null)
+        _s.encodeXmlStringValue(
+            'InvocationSchemaVersion', invocationSchemaVersion),
+      if (userArguments != null)
+        _s.XmlElement(
+            _s.XmlName('UserArguments'),
+            [],
+            userArguments.entries.map((e) => _s.XmlElement(
+                    _s.XmlName('entry'), [], <_s.XmlNode>[
+                  _s.encodeXmlStringValue('key', e.key),
+                  _s.encodeXmlStringValue('value', e.value)
+                ]))),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -8644,7 +11312,9 @@ class LifecycleRule {
   });
   factory LifecycleRule.fromXml(_s.XmlElement elem) {
     return LifecycleRule(
-      status: _s.extractXmlStringValue(elem, 'Status')!.toExpirationStatus(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')!
+          .let(ExpirationStatus.fromString),
       abortIncompleteMultipartUpload: _s
           .extractXmlChild(elem, 'AbortIncompleteMultipartUpload')
           ?.let(AbortIncompleteMultipartUpload.fromXml),
@@ -8678,7 +11348,7 @@ class LifecycleRule {
     final noncurrentVersionTransitions = this.noncurrentVersionTransitions;
     final transitions = this.transitions;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
       if (abortIncompleteMultipartUpload != null)
         'AbortIncompleteMultipartUpload': abortIncompleteMultipartUpload,
       if (expiration != null) 'Expiration': expiration,
@@ -8705,7 +11375,7 @@ class LifecycleRule {
       if (expiration != null) expiration.toXml('Expiration'),
       if (id != null) _s.encodeXmlStringValue('ID', id),
       if (filter != null) filter.toXml('Filter'),
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
       if (transitions != null)
         _s.XmlElement(_s.XmlName('Transitions'), [],
             transitions.map((e) => e.toXml('Transition'))),
@@ -8733,10 +11403,14 @@ class LifecycleRule {
 
 /// The container for the Outposts bucket lifecycle rule and operator.
 class LifecycleRuleAndOperator {
-  /// Minimum object size to which the rule applies.
+  /// The non-inclusive minimum object size for the lifecycle rule. Setting this
+  /// property to 7 means the rule applies to objects with a size that is greater
+  /// than 7.
   final int? objectSizeGreaterThan;
 
-  /// Maximum object size to which the rule applies.
+  /// The non-inclusive maximum object size for the lifecycle rule. Setting this
+  /// property to 77 means the rule applies to objects with a size that is less
+  /// than 77.
   final int? objectSizeLessThan;
 
   /// Prefix identifying one or more objects to which the rule applies.
@@ -8884,6 +11558,345 @@ class LifecycleRuleFilter {
       $attributes,
       $children,
     );
+  }
+}
+
+/// Information about the access grant.
+class ListAccessGrantEntry {
+  /// The Amazon Resource Name (ARN) of the access grant.
+  final String? accessGrantArn;
+
+  /// The ID of the access grant. S3 Access Grants auto-generates this ID when you
+  /// create the access grant.
+  final String? accessGrantId;
+
+  /// The configuration options of the grant location. The grant location is the
+  /// S3 path to the data to which you are granting access.
+  final AccessGrantsLocationConfiguration? accessGrantsLocationConfiguration;
+
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  final String? accessGrantsLocationId;
+
+  /// The Amazon Resource Name (ARN) of an Amazon Web Services IAM Identity Center
+  /// application associated with your Identity Center instance. If the grant
+  /// includes an application ARN, the grantee can only access the S3 data through
+  /// this application.
+  final String? applicationArn;
+
+  /// The date and time when you created the S3 Access Grants instance.
+  final DateTime? createdAt;
+
+  /// The S3 path of the data to which you are granting access. It is the result
+  /// of appending the <code>Subprefix</code> to the location scope.
+  final String? grantScope;
+
+  /// The user, group, or role to which you are granting access. You can grant
+  /// access to an IAM user or role. If you have added your corporate directory to
+  /// Amazon Web Services IAM Identity Center and associated your Identity Center
+  /// instance with your S3 Access Grants instance, the grantee can also be a
+  /// corporate directory user or group.
+  final Grantee? grantee;
+
+  /// The type of access granted to your S3 data, which can be set to one of the
+  /// following values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>READ</code> – Grant read-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>WRITE</code> – Grant write-only access to the S3 data.
+  /// </li>
+  /// <li>
+  /// <code>READWRITE</code> – Grant both read and write access to the S3 data.
+  /// </li>
+  /// </ul>
+  final Permission? permission;
+
+  ListAccessGrantEntry({
+    this.accessGrantArn,
+    this.accessGrantId,
+    this.accessGrantsLocationConfiguration,
+    this.accessGrantsLocationId,
+    this.applicationArn,
+    this.createdAt,
+    this.grantScope,
+    this.grantee,
+    this.permission,
+  });
+  factory ListAccessGrantEntry.fromXml(_s.XmlElement elem) {
+    return ListAccessGrantEntry(
+      accessGrantArn: _s.extractXmlStringValue(elem, 'AccessGrantArn'),
+      accessGrantId: _s.extractXmlStringValue(elem, 'AccessGrantId'),
+      accessGrantsLocationConfiguration: _s
+          .extractXmlChild(elem, 'AccessGrantsLocationConfiguration')
+          ?.let(AccessGrantsLocationConfiguration.fromXml),
+      accessGrantsLocationId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationId'),
+      applicationArn: _s.extractXmlStringValue(elem, 'ApplicationArn'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      grantScope: _s.extractXmlStringValue(elem, 'GrantScope'),
+      grantee: _s.extractXmlChild(elem, 'Grantee')?.let(Grantee.fromXml),
+      permission: _s
+          .extractXmlStringValue(elem, 'Permission')
+          ?.let(Permission.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantArn = this.accessGrantArn;
+    final accessGrantId = this.accessGrantId;
+    final accessGrantsLocationConfiguration =
+        this.accessGrantsLocationConfiguration;
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final applicationArn = this.applicationArn;
+    final createdAt = this.createdAt;
+    final grantScope = this.grantScope;
+    final grantee = this.grantee;
+    final permission = this.permission;
+    return {
+      if (accessGrantArn != null) 'AccessGrantArn': accessGrantArn,
+      if (accessGrantId != null) 'AccessGrantId': accessGrantId,
+      if (accessGrantsLocationConfiguration != null)
+        'AccessGrantsLocationConfiguration': accessGrantsLocationConfiguration,
+      if (accessGrantsLocationId != null)
+        'AccessGrantsLocationId': accessGrantsLocationId,
+      if (applicationArn != null) 'ApplicationArn': applicationArn,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (grantScope != null) 'GrantScope': grantScope,
+      if (grantee != null) 'Grantee': grantee,
+      if (permission != null) 'Permission': permission.value,
+    };
+  }
+}
+
+/// Information about the S3 Access Grants instance.
+class ListAccessGrantsInstanceEntry {
+  /// The Amazon Resource Name (ARN) of the S3 Access Grants instance.
+  final String? accessGrantsInstanceArn;
+
+  /// The ID of the S3 Access Grants instance. The ID is <code>default</code>. You
+  /// can have one S3 Access Grants instance per Region per account.
+  final String? accessGrantsInstanceId;
+
+  /// The date and time when you created the S3 Access Grants instance.
+  final DateTime? createdAt;
+
+  /// If you associated your S3 Access Grants instance with an Amazon Web Services
+  /// IAM Identity Center instance, this field returns the Amazon Resource Name
+  /// (ARN) of the IAM Identity Center instance application; a subresource of the
+  /// original Identity Center instance. S3 Access Grants creates this Identity
+  /// Center application for the specific S3 Access Grants instance.
+  final String? identityCenterArn;
+
+  ListAccessGrantsInstanceEntry({
+    this.accessGrantsInstanceArn,
+    this.accessGrantsInstanceId,
+    this.createdAt,
+    this.identityCenterArn,
+  });
+  factory ListAccessGrantsInstanceEntry.fromXml(_s.XmlElement elem) {
+    return ListAccessGrantsInstanceEntry(
+      accessGrantsInstanceArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceArn'),
+      accessGrantsInstanceId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsInstanceId'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      identityCenterArn: _s.extractXmlStringValue(elem, 'IdentityCenterArn'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsInstanceArn = this.accessGrantsInstanceArn;
+    final accessGrantsInstanceId = this.accessGrantsInstanceId;
+    final createdAt = this.createdAt;
+    final identityCenterArn = this.identityCenterArn;
+    return {
+      if (accessGrantsInstanceArn != null)
+        'AccessGrantsInstanceArn': accessGrantsInstanceArn,
+      if (accessGrantsInstanceId != null)
+        'AccessGrantsInstanceId': accessGrantsInstanceId,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (identityCenterArn != null) 'IdentityCenterArn': identityCenterArn,
+    };
+  }
+}
+
+class ListAccessGrantsInstancesResult {
+  /// A container for a list of S3 Access Grants instances.
+  final List<ListAccessGrantsInstanceEntry>? accessGrantsInstancesList;
+
+  /// A pagination token to request the next page of results. Pass this value into
+  /// a subsequent <code>List Access Grants Instances</code> request in order to
+  /// retrieve the next page of results.
+  final String? nextToken;
+
+  ListAccessGrantsInstancesResult({
+    this.accessGrantsInstancesList,
+    this.nextToken,
+  });
+  factory ListAccessGrantsInstancesResult.fromXml(_s.XmlElement elem) {
+    return ListAccessGrantsInstancesResult(
+      accessGrantsInstancesList: _s
+          .extractXmlChild(elem, 'AccessGrantsInstancesList')
+          ?.let((elem) => elem
+              .findElements('AccessGrantsInstance')
+              .map(ListAccessGrantsInstanceEntry.fromXml)
+              .toList()),
+      nextToken: _s.extractXmlStringValue(elem, 'NextToken'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsInstancesList = this.accessGrantsInstancesList;
+    final nextToken = this.nextToken;
+    return {
+      if (accessGrantsInstancesList != null)
+        'AccessGrantsInstancesList': accessGrantsInstancesList,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+/// A container for information about the registered location.
+class ListAccessGrantsLocationsEntry {
+  /// The Amazon Resource Name (ARN) of the registered location.
+  final String? accessGrantsLocationArn;
+
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigns this ID when you register the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  final String? accessGrantsLocationId;
+
+  /// The date and time when you registered the location.
+  final DateTime? createdAt;
+
+  /// The Amazon Resource Name (ARN) of the IAM role for the registered location.
+  /// S3 Access Grants assumes this role to manage access to the registered
+  /// location.
+  final String? iAMRoleArn;
+
+  /// The S3 path to the location that you are registering. The location scope can
+  /// be the default S3 location <code>s3://</code>, the S3 path to a bucket
+  /// <code>s3://&lt;bucket&gt;</code>, or the S3 path to a bucket and prefix
+  /// <code>s3://&lt;bucket&gt;/&lt;prefix&gt;</code>. A prefix in S3 is a string
+  /// of characters at the beginning of an object key name used to organize the
+  /// objects that you store in your S3 buckets. For example, object key names
+  /// that start with the <code>engineering/</code> prefix or object key names
+  /// that start with the <code>marketing/campaigns/</code> prefix.
+  final String? locationScope;
+
+  ListAccessGrantsLocationsEntry({
+    this.accessGrantsLocationArn,
+    this.accessGrantsLocationId,
+    this.createdAt,
+    this.iAMRoleArn,
+    this.locationScope,
+  });
+  factory ListAccessGrantsLocationsEntry.fromXml(_s.XmlElement elem) {
+    return ListAccessGrantsLocationsEntry(
+      accessGrantsLocationArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationArn'),
+      accessGrantsLocationId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationId'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      iAMRoleArn: _s.extractXmlStringValue(elem, 'IAMRoleArn'),
+      locationScope: _s.extractXmlStringValue(elem, 'LocationScope'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsLocationArn = this.accessGrantsLocationArn;
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final createdAt = this.createdAt;
+    final iAMRoleArn = this.iAMRoleArn;
+    final locationScope = this.locationScope;
+    return {
+      if (accessGrantsLocationArn != null)
+        'AccessGrantsLocationArn': accessGrantsLocationArn,
+      if (accessGrantsLocationId != null)
+        'AccessGrantsLocationId': accessGrantsLocationId,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (iAMRoleArn != null) 'IAMRoleArn': iAMRoleArn,
+      if (locationScope != null) 'LocationScope': locationScope,
+    };
+  }
+}
+
+class ListAccessGrantsLocationsResult {
+  /// A container for a list of registered locations in an S3 Access Grants
+  /// instance.
+  final List<ListAccessGrantsLocationsEntry>? accessGrantsLocationsList;
+
+  /// A pagination token to request the next page of results. Pass this value into
+  /// a subsequent <code>List Access Grants Locations</code> request in order to
+  /// retrieve the next page of results.
+  final String? nextToken;
+
+  ListAccessGrantsLocationsResult({
+    this.accessGrantsLocationsList,
+    this.nextToken,
+  });
+  factory ListAccessGrantsLocationsResult.fromXml(_s.XmlElement elem) {
+    return ListAccessGrantsLocationsResult(
+      accessGrantsLocationsList: _s
+          .extractXmlChild(elem, 'AccessGrantsLocationsList')
+          ?.let((elem) => elem
+              .findElements('AccessGrantsLocation')
+              .map(ListAccessGrantsLocationsEntry.fromXml)
+              .toList()),
+      nextToken: _s.extractXmlStringValue(elem, 'NextToken'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsLocationsList = this.accessGrantsLocationsList;
+    final nextToken = this.nextToken;
+    return {
+      if (accessGrantsLocationsList != null)
+        'AccessGrantsLocationsList': accessGrantsLocationsList,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
+  }
+}
+
+class ListAccessGrantsResult {
+  /// A container for a list of grants in an S3 Access Grants instance.
+  final List<ListAccessGrantEntry>? accessGrantsList;
+
+  /// A pagination token to request the next page of results. Pass this value into
+  /// a subsequent <code>List Access Grants</code> request in order to retrieve
+  /// the next page of results.
+  final String? nextToken;
+
+  ListAccessGrantsResult({
+    this.accessGrantsList,
+    this.nextToken,
+  });
+  factory ListAccessGrantsResult.fromXml(_s.XmlElement elem) {
+    return ListAccessGrantsResult(
+      accessGrantsList: _s.extractXmlChild(elem, 'AccessGrantsList')?.let(
+          (elem) => elem
+              .findElements('AccessGrant')
+              .map(ListAccessGrantEntry.fromXml)
+              .toList()),
+      nextToken: _s.extractXmlStringValue(elem, 'NextToken'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsList = this.accessGrantsList;
+    final nextToken = this.nextToken;
+    return {
+      if (accessGrantsList != null) 'AccessGrantsList': accessGrantsList,
+      if (nextToken != null) 'NextToken': nextToken,
+    };
   }
 }
 
@@ -9140,59 +12153,234 @@ class ListStorageLensConfigurationsResult {
   }
 }
 
+/// Each entry contains a Storage Lens group that exists in the specified home
+/// Region.
+class ListStorageLensGroupEntry {
+  /// Contains the Amazon Web Services Region where the Storage Lens group was
+  /// created.
+  final String homeRegion;
+
+  /// Contains the name of the Storage Lens group that exists in the specified
+  /// home Region.
+  final String name;
+
+  /// Contains the Amazon Resource Name (ARN) of the Storage Lens group. This
+  /// property is read-only.
+  final String storageLensGroupArn;
+
+  ListStorageLensGroupEntry({
+    required this.homeRegion,
+    required this.name,
+    required this.storageLensGroupArn,
+  });
+  factory ListStorageLensGroupEntry.fromXml(_s.XmlElement elem) {
+    return ListStorageLensGroupEntry(
+      homeRegion: _s.extractXmlStringValue(elem, 'HomeRegion')!,
+      name: _s.extractXmlStringValue(elem, 'Name')!,
+      storageLensGroupArn:
+          _s.extractXmlStringValue(elem, 'StorageLensGroupArn')!,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final homeRegion = this.homeRegion;
+    final name = this.name;
+    final storageLensGroupArn = this.storageLensGroupArn;
+    return {
+      'HomeRegion': homeRegion,
+      'Name': name,
+      'StorageLensGroupArn': storageLensGroupArn,
+    };
+  }
+}
+
+class ListStorageLensGroupsResult {
+  /// If <code>NextToken</code> is returned, there are more Storage Lens groups
+  /// results available. The value of <code>NextToken</code> is a unique
+  /// pagination token for each page. Make the call again using the returned token
+  /// to retrieve the next page. Keep all other arguments unchanged. Each
+  /// pagination token expires after 24 hours.
+  final String? nextToken;
+
+  /// The list of Storage Lens groups that exist in the specified home Region.
+  final List<ListStorageLensGroupEntry>? storageLensGroupList;
+
+  ListStorageLensGroupsResult({
+    this.nextToken,
+    this.storageLensGroupList,
+  });
+  factory ListStorageLensGroupsResult.fromXml(_s.XmlElement elem) {
+    return ListStorageLensGroupsResult(
+      nextToken: _s.extractXmlStringValue(elem, 'NextToken'),
+      storageLensGroupList: elem
+          .findElements('StorageLensGroup')
+          .map(ListStorageLensGroupEntry.fromXml)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nextToken = this.nextToken;
+    final storageLensGroupList = this.storageLensGroupList;
+    return {
+      if (nextToken != null) 'NextToken': nextToken,
+      if (storageLensGroupList != null)
+        'StorageLensGroupList': storageLensGroupList,
+    };
+  }
+}
+
+class ListTagsForResourceResult {
+  /// The Amazon Web Services resource tags that are associated with the resource.
+  final List<Tag>? tags;
+
+  ListTagsForResourceResult({
+    this.tags,
+  });
+  factory ListTagsForResourceResult.fromXml(_s.XmlElement elem) {
+    return ListTagsForResourceResult(
+      tags: _s
+          .extractXmlChild(elem, 'Tags')
+          ?.let((elem) => elem.findElements('Tag').map(Tag.fromXml).toList()),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final tags = this.tags;
+    return {
+      if (tags != null) 'Tags': tags,
+    };
+  }
+}
+
 enum MFADelete {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension MFADeleteValueExtension on MFADelete {
-  String toValue() {
-    switch (this) {
-      case MFADelete.enabled:
-        return 'Enabled';
-      case MFADelete.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension MFADeleteFromString on String {
-  MFADelete toMFADelete() {
-    switch (this) {
-      case 'Enabled':
-        return MFADelete.enabled;
-      case 'Disabled':
-        return MFADelete.disabled;
-    }
-    throw Exception('$this is not known in enum MFADelete');
-  }
+  const MFADelete(this.value);
+
+  static MFADelete fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MFADelete'));
 }
 
 enum MFADeleteStatus {
-  enabled,
-  disabled,
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
+
+  final String value;
+
+  const MFADeleteStatus(this.value);
+
+  static MFADeleteStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MFADeleteStatus'));
 }
 
-extension MFADeleteStatusValueExtension on MFADeleteStatus {
-  String toValue() {
-    switch (this) {
-      case MFADeleteStatus.enabled:
-        return 'Enabled';
-      case MFADeleteStatus.disabled:
-        return 'Disabled';
-    }
+/// A filter condition that specifies the object age range of included objects
+/// in days. Only integers are supported.
+class MatchObjectAge {
+  /// Specifies the maximum object age in days. Must be a positive whole number,
+  /// greater than the minimum object age and less than or equal to 2,147,483,647.
+  final int? daysGreaterThan;
+
+  /// Specifies the minimum object age in days. The value must be a positive whole
+  /// number, greater than 0 and less than or equal to 2,147,483,647.
+  final int? daysLessThan;
+
+  MatchObjectAge({
+    this.daysGreaterThan,
+    this.daysLessThan,
+  });
+  factory MatchObjectAge.fromXml(_s.XmlElement elem) {
+    return MatchObjectAge(
+      daysGreaterThan: _s.extractXmlIntValue(elem, 'DaysGreaterThan'),
+      daysLessThan: _s.extractXmlIntValue(elem, 'DaysLessThan'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final daysGreaterThan = this.daysGreaterThan;
+    final daysLessThan = this.daysLessThan;
+    return {
+      if (daysGreaterThan != null) 'DaysGreaterThan': daysGreaterThan,
+      if (daysLessThan != null) 'DaysLessThan': daysLessThan,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final daysGreaterThan = this.daysGreaterThan;
+    final daysLessThan = this.daysLessThan;
+    final $children = <_s.XmlNode>[
+      if (daysGreaterThan != null)
+        _s.encodeXmlIntValue('DaysGreaterThan', daysGreaterThan),
+      if (daysLessThan != null)
+        _s.encodeXmlIntValue('DaysLessThan', daysLessThan),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
   }
 }
 
-extension MFADeleteStatusFromString on String {
-  MFADeleteStatus toMFADeleteStatus() {
-    switch (this) {
-      case 'Enabled':
-        return MFADeleteStatus.enabled;
-      case 'Disabled':
-        return MFADeleteStatus.disabled;
-    }
-    throw Exception('$this is not known in enum MFADeleteStatus');
+/// A filter condition that specifies the object size range of included objects
+/// in bytes. Only integers are supported.
+class MatchObjectSize {
+  /// Specifies the minimum object size in Bytes. The value must be a positive
+  /// number, greater than 0 and less than 5 TB.
+  final int? bytesGreaterThan;
+
+  /// Specifies the maximum object size in Bytes. The value must be a positive
+  /// number, greater than the minimum object size and less than 5 TB.
+  final int? bytesLessThan;
+
+  MatchObjectSize({
+    this.bytesGreaterThan,
+    this.bytesLessThan,
+  });
+  factory MatchObjectSize.fromXml(_s.XmlElement elem) {
+    return MatchObjectSize(
+      bytesGreaterThan: _s.extractXmlIntValue(elem, 'BytesGreaterThan'),
+      bytesLessThan: _s.extractXmlIntValue(elem, 'BytesLessThan'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final bytesGreaterThan = this.bytesGreaterThan;
+    final bytesLessThan = this.bytesLessThan;
+    return {
+      if (bytesGreaterThan != null) 'BytesGreaterThan': bytesGreaterThan,
+      if (bytesLessThan != null) 'BytesLessThan': bytesLessThan,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final bytesGreaterThan = this.bytesGreaterThan;
+    final bytesLessThan = this.bytesLessThan;
+    final $children = <_s.XmlNode>[
+      if (bytesGreaterThan != null)
+        _s.encodeXmlIntValue('BytesGreaterThan', bytesGreaterThan),
+      if (bytesLessThan != null)
+        _s.encodeXmlIntValue('BytesLessThan', bytesLessThan),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
   }
 }
 
@@ -9214,7 +12402,9 @@ class Metrics {
   });
   factory Metrics.fromXml(_s.XmlElement elem) {
     return Metrics(
-      status: _s.extractXmlStringValue(elem, 'Status')!.toMetricsStatus(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')!
+          .let(MetricsStatus.fromString),
       eventThreshold: _s
           .extractXmlChild(elem, 'EventThreshold')
           ?.let(ReplicationTimeValue.fromXml),
@@ -9225,7 +12415,7 @@ class Metrics {
     final status = this.status;
     final eventThreshold = this.eventThreshold;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
       if (eventThreshold != null) 'EventThreshold': eventThreshold,
     };
   }
@@ -9234,7 +12424,7 @@ class Metrics {
     final status = this.status;
     final eventThreshold = this.eventThreshold;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
       if (eventThreshold != null) eventThreshold.toXml('EventThreshold'),
     ];
     final $attributes = <_s.XmlAttribute>[
@@ -9249,31 +12439,18 @@ class Metrics {
 }
 
 enum MetricsStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension MetricsStatusValueExtension on MetricsStatus {
-  String toValue() {
-    switch (this) {
-      case MetricsStatus.enabled:
-        return 'Enabled';
-      case MetricsStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension MetricsStatusFromString on String {
-  MetricsStatus toMetricsStatus() {
-    switch (this) {
-      case 'Enabled':
-        return MetricsStatus.enabled;
-      case 'Disabled':
-        return MetricsStatus.disabled;
-    }
-    throw Exception('$this is not known in enum MetricsStatus');
-  }
+  const MetricsStatus(this.value);
+
+  static MetricsStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MetricsStatus'));
 }
 
 /// The Multi-Region Access Point access control policy.
@@ -9349,8 +12526,8 @@ class MultiRegionAccessPointReport {
   /// The alias for the Multi-Region Access Point. For more information about the
   /// distinction between the name and the alias of an Multi-Region Access Point,
   /// see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Managing
-  /// Multi-Region Access Points</a>.
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CreatingMultiRegionAccessPoints.html#multi-region-access-point-naming">Rules
+  /// for naming Amazon S3 Multi-Region Access Points</a>.
   final String? alias;
 
   /// When the Multi-Region Access Point create request was received.
@@ -9395,7 +12572,7 @@ class MultiRegionAccessPointReport {
           elem.findElements('Region').map(RegionReport.fromXml).toList()),
       status: _s
           .extractXmlStringValue(elem, 'Status')
-          ?.toMultiRegionAccessPointStatus(),
+          ?.let(MultiRegionAccessPointStatus.fromString),
     );
   }
 
@@ -9412,7 +12589,7 @@ class MultiRegionAccessPointReport {
       if (name != null) 'Name': name,
       if (publicAccessBlock != null) 'PublicAccessBlock': publicAccessBlock,
       if (regions != null) 'Regions': regions,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -9503,52 +12680,22 @@ class MultiRegionAccessPointRoute {
 }
 
 enum MultiRegionAccessPointStatus {
-  ready,
-  inconsistentAcrossRegions,
-  creating,
-  partiallyCreated,
-  partiallyDeleted,
-  deleting,
-}
+  ready('READY'),
+  inconsistentAcrossRegions('INCONSISTENT_ACROSS_REGIONS'),
+  creating('CREATING'),
+  partiallyCreated('PARTIALLY_CREATED'),
+  partiallyDeleted('PARTIALLY_DELETED'),
+  deleting('DELETING'),
+  ;
 
-extension MultiRegionAccessPointStatusValueExtension
-    on MultiRegionAccessPointStatus {
-  String toValue() {
-    switch (this) {
-      case MultiRegionAccessPointStatus.ready:
-        return 'READY';
-      case MultiRegionAccessPointStatus.inconsistentAcrossRegions:
-        return 'INCONSISTENT_ACROSS_REGIONS';
-      case MultiRegionAccessPointStatus.creating:
-        return 'CREATING';
-      case MultiRegionAccessPointStatus.partiallyCreated:
-        return 'PARTIALLY_CREATED';
-      case MultiRegionAccessPointStatus.partiallyDeleted:
-        return 'PARTIALLY_DELETED';
-      case MultiRegionAccessPointStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension MultiRegionAccessPointStatusFromString on String {
-  MultiRegionAccessPointStatus toMultiRegionAccessPointStatus() {
-    switch (this) {
-      case 'READY':
-        return MultiRegionAccessPointStatus.ready;
-      case 'INCONSISTENT_ACROSS_REGIONS':
-        return MultiRegionAccessPointStatus.inconsistentAcrossRegions;
-      case 'CREATING':
-        return MultiRegionAccessPointStatus.creating;
-      case 'PARTIALLY_CREATED':
-        return MultiRegionAccessPointStatus.partiallyCreated;
-      case 'PARTIALLY_DELETED':
-        return MultiRegionAccessPointStatus.partiallyDeleted;
-      case 'DELETING':
-        return MultiRegionAccessPointStatus.deleting;
-    }
-    throw Exception('$this is not known in enum MultiRegionAccessPointStatus');
-  }
+  const MultiRegionAccessPointStatus(this.value);
+
+  static MultiRegionAccessPointStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MultiRegionAccessPointStatus'));
 }
 
 /// The Multi-Region Access Point details that are returned when querying about
@@ -9579,31 +12726,18 @@ class MultiRegionAccessPointsAsyncResponse {
 }
 
 enum NetworkOrigin {
-  internet,
-  vpc,
-}
+  internet('Internet'),
+  vpc('VPC'),
+  ;
 
-extension NetworkOriginValueExtension on NetworkOrigin {
-  String toValue() {
-    switch (this) {
-      case NetworkOrigin.internet:
-        return 'Internet';
-      case NetworkOrigin.vpc:
-        return 'VPC';
-    }
-  }
-}
+  final String value;
 
-extension NetworkOriginFromString on String {
-  NetworkOrigin toNetworkOrigin() {
-    switch (this) {
-      case 'Internet':
-        return NetworkOrigin.internet;
-      case 'VPC':
-        return NetworkOrigin.vpc;
-    }
-    throw Exception('$this is not known in enum NetworkOrigin');
-  }
+  const NetworkOrigin(this.value);
+
+  static NetworkOrigin fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum NetworkOrigin'));
 }
 
 /// The container of the noncurrent version expiration.
@@ -9688,7 +12822,7 @@ class NoncurrentVersionTransition {
       noncurrentDays: _s.extractXmlIntValue(elem, 'NoncurrentDays'),
       storageClass: _s
           .extractXmlStringValue(elem, 'StorageClass')
-          ?.toTransitionStorageClass(),
+          ?.let(TransitionStorageClass.fromString),
     );
   }
 
@@ -9697,7 +12831,7 @@ class NoncurrentVersionTransition {
     final storageClass = this.storageClass;
     return {
       if (noncurrentDays != null) 'NoncurrentDays': noncurrentDays,
-      if (storageClass != null) 'StorageClass': storageClass.toValue(),
+      if (storageClass != null) 'StorageClass': storageClass.value,
     };
   }
 
@@ -9708,7 +12842,7 @@ class NoncurrentVersionTransition {
       if (noncurrentDays != null)
         _s.encodeXmlIntValue('NoncurrentDays', noncurrentDays),
       if (storageClass != null)
-        _s.encodeXmlStringValue('StorageClass', storageClass.toValue()),
+        _s.encodeXmlStringValue('StorageClass', storageClass.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -9785,7 +12919,7 @@ class ObjectLambdaAccessPointAlias {
     return ObjectLambdaAccessPointAlias(
       status: _s
           .extractXmlStringValue(elem, 'Status')
-          ?.toObjectLambdaAccessPointAliasStatus(),
+          ?.let(ObjectLambdaAccessPointAliasStatus.fromString),
       value: _s.extractXmlStringValue(elem, 'Value'),
     );
   }
@@ -9794,79 +12928,42 @@ class ObjectLambdaAccessPointAlias {
     final status = this.status;
     final value = this.value;
     return {
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum ObjectLambdaAccessPointAliasStatus {
-  provisioning,
-  ready,
-}
+  provisioning('PROVISIONING'),
+  ready('READY'),
+  ;
 
-extension ObjectLambdaAccessPointAliasStatusValueExtension
-    on ObjectLambdaAccessPointAliasStatus {
-  String toValue() {
-    switch (this) {
-      case ObjectLambdaAccessPointAliasStatus.provisioning:
-        return 'PROVISIONING';
-      case ObjectLambdaAccessPointAliasStatus.ready:
-        return 'READY';
-    }
-  }
-}
+  final String value;
 
-extension ObjectLambdaAccessPointAliasStatusFromString on String {
-  ObjectLambdaAccessPointAliasStatus toObjectLambdaAccessPointAliasStatus() {
-    switch (this) {
-      case 'PROVISIONING':
-        return ObjectLambdaAccessPointAliasStatus.provisioning;
-      case 'READY':
-        return ObjectLambdaAccessPointAliasStatus.ready;
-    }
-    throw Exception(
-        '$this is not known in enum ObjectLambdaAccessPointAliasStatus');
-  }
+  const ObjectLambdaAccessPointAliasStatus(this.value);
+
+  static ObjectLambdaAccessPointAliasStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ObjectLambdaAccessPointAliasStatus'));
 }
 
 enum ObjectLambdaAllowedFeature {
-  getObjectRange,
-  getObjectPartNumber,
-  headObjectRange,
-  headObjectPartNumber,
-}
+  getObjectRange('GetObject-Range'),
+  getObjectPartNumber('GetObject-PartNumber'),
+  headObjectRange('HeadObject-Range'),
+  headObjectPartNumber('HeadObject-PartNumber'),
+  ;
 
-extension ObjectLambdaAllowedFeatureValueExtension
-    on ObjectLambdaAllowedFeature {
-  String toValue() {
-    switch (this) {
-      case ObjectLambdaAllowedFeature.getObjectRange:
-        return 'GetObject-Range';
-      case ObjectLambdaAllowedFeature.getObjectPartNumber:
-        return 'GetObject-PartNumber';
-      case ObjectLambdaAllowedFeature.headObjectRange:
-        return 'HeadObject-Range';
-      case ObjectLambdaAllowedFeature.headObjectPartNumber:
-        return 'HeadObject-PartNumber';
-    }
-  }
-}
+  final String value;
 
-extension ObjectLambdaAllowedFeatureFromString on String {
-  ObjectLambdaAllowedFeature toObjectLambdaAllowedFeature() {
-    switch (this) {
-      case 'GetObject-Range':
-        return ObjectLambdaAllowedFeature.getObjectRange;
-      case 'GetObject-PartNumber':
-        return ObjectLambdaAllowedFeature.getObjectPartNumber;
-      case 'HeadObject-Range':
-        return ObjectLambdaAllowedFeature.headObjectRange;
-      case 'HeadObject-PartNumber':
-        return ObjectLambdaAllowedFeature.headObjectPartNumber;
-    }
-    throw Exception('$this is not known in enum ObjectLambdaAllowedFeature');
-  }
+  const ObjectLambdaAllowedFeature(this.value);
+
+  static ObjectLambdaAllowedFeature fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ObjectLambdaAllowedFeature'));
 }
 
 /// A configuration used when creating an Object Lambda Access Point.
@@ -9905,7 +13002,7 @@ class ObjectLambdaConfiguration {
       allowedFeatures: _s.extractXmlChild(elem, 'AllowedFeatures')?.let(
           (elem) => _s
               .extractXmlStringListValues(elem, 'AllowedFeature')
-              .map((s) => s.toObjectLambdaAllowedFeature())
+              .map(ObjectLambdaAllowedFeature.fromString)
               .toList()),
       cloudWatchMetricsEnabled:
           _s.extractXmlBoolValue(elem, 'CloudWatchMetricsEnabled'),
@@ -9921,7 +13018,7 @@ class ObjectLambdaConfiguration {
       'SupportingAccessPoint': supportingAccessPoint,
       'TransformationConfigurations': transformationConfigurations,
       if (allowedFeatures != null)
-        'AllowedFeatures': allowedFeatures.map((e) => e.toValue()).toList(),
+        'AllowedFeatures': allowedFeatures.map((e) => e.value).toList(),
       if (cloudWatchMetricsEnabled != null)
         'CloudWatchMetricsEnabled': cloudWatchMetricsEnabled,
     };
@@ -9942,7 +13039,7 @@ class ObjectLambdaConfiguration {
             _s.XmlName('AllowedFeatures'),
             [],
             allowedFeatures.map(
-                (e) => _s.encodeXmlStringValue('AllowedFeature', e.toValue()))),
+                (e) => _s.encodeXmlStringValue('AllowedFeature', e.value))),
       _s.XmlElement(
           _s.XmlName('TransformationConfigurations'),
           [],
@@ -10020,7 +13117,7 @@ class ObjectLambdaTransformationConfiguration {
       actions: _s
           .extractXmlStringListValues(
               _s.extractXmlChild(elem, 'Actions')!, 'Action')
-          .map((s) => s.toObjectLambdaTransformationConfigurationAction())
+          .map(ObjectLambdaTransformationConfigurationAction.fromString)
           .toList(),
       contentTransformation: ObjectLambdaContentTransformation.fromXml(
           _s.extractXmlChild(elem, 'ContentTransformation')!),
@@ -10031,7 +13128,7 @@ class ObjectLambdaTransformationConfiguration {
     final actions = this.actions;
     final contentTransformation = this.contentTransformation;
     return {
-      'Actions': actions.map((e) => e.toValue()).toList(),
+      'Actions': actions.map((e) => e.value).toList(),
       'ContentTransformation': contentTransformation,
     };
   }
@@ -10041,7 +13138,7 @@ class ObjectLambdaTransformationConfiguration {
     final contentTransformation = this.contentTransformation;
     final $children = <_s.XmlNode>[
       _s.XmlElement(_s.XmlName('Actions'), [],
-          actions.map((e) => _s.encodeXmlStringValue('Action', e.toValue()))),
+          actions.map((e) => _s.encodeXmlStringValue('Action', e.value))),
       contentTransformation.toXml('ContentTransformation'),
     ];
     final $attributes = <_s.XmlAttribute>[
@@ -10056,153 +13153,86 @@ class ObjectLambdaTransformationConfiguration {
 }
 
 enum ObjectLambdaTransformationConfigurationAction {
-  getObject,
-  headObject,
-  listObjects,
-  listObjectsV2,
-}
+  getObject('GetObject'),
+  headObject('HeadObject'),
+  listObjects('ListObjects'),
+  listObjectsV2('ListObjectsV2'),
+  ;
 
-extension ObjectLambdaTransformationConfigurationActionValueExtension
-    on ObjectLambdaTransformationConfigurationAction {
-  String toValue() {
-    switch (this) {
-      case ObjectLambdaTransformationConfigurationAction.getObject:
-        return 'GetObject';
-      case ObjectLambdaTransformationConfigurationAction.headObject:
-        return 'HeadObject';
-      case ObjectLambdaTransformationConfigurationAction.listObjects:
-        return 'ListObjects';
-      case ObjectLambdaTransformationConfigurationAction.listObjectsV2:
-        return 'ListObjectsV2';
-    }
-  }
-}
+  final String value;
 
-extension ObjectLambdaTransformationConfigurationActionFromString on String {
-  ObjectLambdaTransformationConfigurationAction
-      toObjectLambdaTransformationConfigurationAction() {
-    switch (this) {
-      case 'GetObject':
-        return ObjectLambdaTransformationConfigurationAction.getObject;
-      case 'HeadObject':
-        return ObjectLambdaTransformationConfigurationAction.headObject;
-      case 'ListObjects':
-        return ObjectLambdaTransformationConfigurationAction.listObjects;
-      case 'ListObjectsV2':
-        return ObjectLambdaTransformationConfigurationAction.listObjectsV2;
-    }
-    throw Exception(
-        '$this is not known in enum ObjectLambdaTransformationConfigurationAction');
-  }
+  const ObjectLambdaTransformationConfigurationAction(this.value);
+
+  static ObjectLambdaTransformationConfigurationAction fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ObjectLambdaTransformationConfigurationAction'));
 }
 
 enum OperationName {
-  lambdaInvoke,
-  s3PutObjectCopy,
-  s3PutObjectAcl,
-  s3PutObjectTagging,
-  s3DeleteObjectTagging,
-  s3InitiateRestoreObject,
-  s3PutObjectLegalHold,
-  s3PutObjectRetention,
-  s3ReplicateObject,
-}
+  lambdaInvoke('LambdaInvoke'),
+  s3PutObjectCopy('S3PutObjectCopy'),
+  s3PutObjectAcl('S3PutObjectAcl'),
+  s3PutObjectTagging('S3PutObjectTagging'),
+  s3DeleteObjectTagging('S3DeleteObjectTagging'),
+  s3InitiateRestoreObject('S3InitiateRestoreObject'),
+  s3PutObjectLegalHold('S3PutObjectLegalHold'),
+  s3PutObjectRetention('S3PutObjectRetention'),
+  s3ReplicateObject('S3ReplicateObject'),
+  ;
 
-extension OperationNameValueExtension on OperationName {
-  String toValue() {
-    switch (this) {
-      case OperationName.lambdaInvoke:
-        return 'LambdaInvoke';
-      case OperationName.s3PutObjectCopy:
-        return 'S3PutObjectCopy';
-      case OperationName.s3PutObjectAcl:
-        return 'S3PutObjectAcl';
-      case OperationName.s3PutObjectTagging:
-        return 'S3PutObjectTagging';
-      case OperationName.s3DeleteObjectTagging:
-        return 'S3DeleteObjectTagging';
-      case OperationName.s3InitiateRestoreObject:
-        return 'S3InitiateRestoreObject';
-      case OperationName.s3PutObjectLegalHold:
-        return 'S3PutObjectLegalHold';
-      case OperationName.s3PutObjectRetention:
-        return 'S3PutObjectRetention';
-      case OperationName.s3ReplicateObject:
-        return 'S3ReplicateObject';
-    }
-  }
-}
+  final String value;
 
-extension OperationNameFromString on String {
-  OperationName toOperationName() {
-    switch (this) {
-      case 'LambdaInvoke':
-        return OperationName.lambdaInvoke;
-      case 'S3PutObjectCopy':
-        return OperationName.s3PutObjectCopy;
-      case 'S3PutObjectAcl':
-        return OperationName.s3PutObjectAcl;
-      case 'S3PutObjectTagging':
-        return OperationName.s3PutObjectTagging;
-      case 'S3DeleteObjectTagging':
-        return OperationName.s3DeleteObjectTagging;
-      case 'S3InitiateRestoreObject':
-        return OperationName.s3InitiateRestoreObject;
-      case 'S3PutObjectLegalHold':
-        return OperationName.s3PutObjectLegalHold;
-      case 'S3PutObjectRetention':
-        return OperationName.s3PutObjectRetention;
-      case 'S3ReplicateObject':
-        return OperationName.s3ReplicateObject;
-    }
-    throw Exception('$this is not known in enum OperationName');
-  }
+  const OperationName(this.value);
+
+  static OperationName fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OperationName'));
 }
 
 enum OutputSchemaVersion {
-  v_1,
-}
+  v_1('V_1'),
+  ;
 
-extension OutputSchemaVersionValueExtension on OutputSchemaVersion {
-  String toValue() {
-    switch (this) {
-      case OutputSchemaVersion.v_1:
-        return 'V_1';
-    }
-  }
-}
+  final String value;
 
-extension OutputSchemaVersionFromString on String {
-  OutputSchemaVersion toOutputSchemaVersion() {
-    switch (this) {
-      case 'V_1':
-        return OutputSchemaVersion.v_1;
-    }
-    throw Exception('$this is not known in enum OutputSchemaVersion');
-  }
+  const OutputSchemaVersion(this.value);
+
+  static OutputSchemaVersion fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum OutputSchemaVersion'));
 }
 
 enum OwnerOverride {
-  destination,
+  destination('Destination'),
+  ;
+
+  final String value;
+
+  const OwnerOverride(this.value);
+
+  static OwnerOverride fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OwnerOverride'));
 }
 
-extension OwnerOverrideValueExtension on OwnerOverride {
-  String toValue() {
-    switch (this) {
-      case OwnerOverride.destination:
-        return 'Destination';
-    }
-  }
-}
+enum Permission {
+  read('READ'),
+  write('WRITE'),
+  readwrite('READWRITE'),
+  ;
 
-extension OwnerOverrideFromString on String {
-  OwnerOverride toOwnerOverride() {
-    switch (this) {
-      case 'Destination':
-        return OwnerOverride.destination;
-    }
-    throw Exception('$this is not known in enum OwnerOverride');
-  }
+  final String value;
+
+  const Permission(this.value);
+
+  static Permission fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Permission'));
 }
 
 /// Indicates whether this access point policy is public. For more information
@@ -10314,6 +13344,20 @@ class PrefixLevelStorageMetrics {
       $children,
     );
   }
+}
+
+enum Privilege {
+  minimal('Minimal'),
+  $default('Default'),
+  ;
+
+  final String value;
+
+  const Privilege(this.value);
+
+  static Privilege fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Privilege'));
 }
 
 /// The proposed access control policy for the Multi-Region Access Point.
@@ -10459,6 +13503,89 @@ class PublicAccessBlockConfiguration {
       $attributes,
       $children,
     );
+  }
+}
+
+class PutAccessGrantsInstanceResourcePolicyRequest {
+  /// The ID of the Amazon Web Services account that is making this request.
+  final String accountId;
+
+  /// The resource policy of the S3 Access Grants instance that you are updating.
+  final String policy;
+
+  /// The Organization of the resource policy of the S3 Access Grants instance.
+  final String? organization;
+
+  PutAccessGrantsInstanceResourcePolicyRequest({
+    required this.accountId,
+    required this.policy,
+    this.organization,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final policy = this.policy;
+    final organization = this.organization;
+    return {
+      'Policy': policy,
+      if (organization != null) 'Organization': organization,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accountId = this.accountId;
+    final policy = this.policy;
+    final organization = this.organization;
+    final $children = <_s.XmlNode>[
+      _s.encodeXmlStringValue('Policy', policy),
+      if (organization != null)
+        _s.encodeXmlStringValue('Organization', organization),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+class PutAccessGrantsInstanceResourcePolicyResult {
+  /// The date and time when you created the S3 Access Grants instance resource
+  /// policy.
+  final DateTime? createdAt;
+
+  /// The Organization of the resource policy of the S3 Access Grants instance.
+  final String? organization;
+
+  /// The updated resource policy of the S3 Access Grants instance.
+  final String? policy;
+
+  PutAccessGrantsInstanceResourcePolicyResult({
+    this.createdAt,
+    this.organization,
+    this.policy,
+  });
+  factory PutAccessGrantsInstanceResourcePolicyResult.fromXml(
+      _s.XmlElement elem) {
+    return PutAccessGrantsInstanceResourcePolicyResult(
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      organization: _s.extractXmlStringValue(elem, 'Organization'),
+      policy: _s.extractXmlStringValue(elem, 'Policy'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final createdAt = this.createdAt;
+    final organization = this.organization;
+    final policy = this.policy;
+    return {
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (organization != null) 'Organization': organization,
+      if (policy != null) 'Policy': policy,
+    };
   }
 }
 
@@ -11135,21 +14262,21 @@ class ReplicaModifications {
     return ReplicaModifications(
       status: _s
           .extractXmlStringValue(elem, 'Status')!
-          .toReplicaModificationsStatus(),
+          .let(ReplicaModificationsStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
     };
   }
 
   _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
     final status = this.status;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -11163,32 +14290,18 @@ class ReplicaModifications {
 }
 
 enum ReplicaModificationsStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension ReplicaModificationsStatusValueExtension
-    on ReplicaModificationsStatus {
-  String toValue() {
-    switch (this) {
-      case ReplicaModificationsStatus.enabled:
-        return 'Enabled';
-      case ReplicaModificationsStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension ReplicaModificationsStatusFromString on String {
-  ReplicaModificationsStatus toReplicaModificationsStatus() {
-    switch (this) {
-      case 'Enabled':
-        return ReplicaModificationsStatus.enabled;
-      case 'Disabled':
-        return ReplicaModificationsStatus.disabled;
-    }
-    throw Exception('$this is not known in enum ReplicaModificationsStatus');
-  }
+  const ReplicaModificationsStatus(this.value);
+
+  static ReplicaModificationsStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicaModificationsStatus'));
 }
 
 /// A container for one or more replication rules. A replication configuration
@@ -11336,8 +14449,9 @@ class ReplicationRule {
       bucket: _s.extractXmlStringValue(elem, 'Bucket')!,
       destination:
           Destination.fromXml(_s.extractXmlChild(elem, 'Destination')!),
-      status:
-          _s.extractXmlStringValue(elem, 'Status')!.toReplicationRuleStatus(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')!
+          .let(ReplicationRuleStatus.fromString),
       deleteMarkerReplication: _s
           .extractXmlChild(elem, 'DeleteMarkerReplication')
           ?.let(DeleteMarkerReplication.fromXml),
@@ -11370,7 +14484,7 @@ class ReplicationRule {
     return {
       'Bucket': bucket,
       'Destination': destination,
-      'Status': status.toValue(),
+      'Status': status.value,
       if (deleteMarkerReplication != null)
         'DeleteMarkerReplication': deleteMarkerReplication,
       if (existingObjectReplication != null)
@@ -11400,7 +14514,7 @@ class ReplicationRule {
       if (priority != null) _s.encodeXmlIntValue('Priority', priority),
       if (prefix != null) _s.encodeXmlStringValue('Prefix', prefix),
       if (filter != null) filter.toXml('Filter'),
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
       if (sourceSelectionCriteria != null)
         sourceSelectionCriteria.toXml('SourceSelectionCriteria'),
       if (existingObjectReplication != null)
@@ -11565,132 +14679,57 @@ class ReplicationRuleFilter {
 }
 
 enum ReplicationRuleStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension ReplicationRuleStatusValueExtension on ReplicationRuleStatus {
-  String toValue() {
-    switch (this) {
-      case ReplicationRuleStatus.enabled:
-        return 'Enabled';
-      case ReplicationRuleStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationRuleStatusFromString on String {
-  ReplicationRuleStatus toReplicationRuleStatus() {
-    switch (this) {
-      case 'Enabled':
-        return ReplicationRuleStatus.enabled;
-      case 'Disabled':
-        return ReplicationRuleStatus.disabled;
-    }
-    throw Exception('$this is not known in enum ReplicationRuleStatus');
-  }
+  const ReplicationRuleStatus(this.value);
+
+  static ReplicationRuleStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReplicationRuleStatus'));
 }
 
 enum ReplicationStatus {
-  completed,
-  failed,
-  replica,
-  none,
-}
+  completed('COMPLETED'),
+  failed('FAILED'),
+  replica('REPLICA'),
+  none('NONE'),
+  ;
 
-extension ReplicationStatusValueExtension on ReplicationStatus {
-  String toValue() {
-    switch (this) {
-      case ReplicationStatus.completed:
-        return 'COMPLETED';
-      case ReplicationStatus.failed:
-        return 'FAILED';
-      case ReplicationStatus.replica:
-        return 'REPLICA';
-      case ReplicationStatus.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationStatusFromString on String {
-  ReplicationStatus toReplicationStatus() {
-    switch (this) {
-      case 'COMPLETED':
-        return ReplicationStatus.completed;
-      case 'FAILED':
-        return ReplicationStatus.failed;
-      case 'REPLICA':
-        return ReplicationStatus.replica;
-      case 'NONE':
-        return ReplicationStatus.none;
-    }
-    throw Exception('$this is not known in enum ReplicationStatus');
-  }
+  const ReplicationStatus(this.value);
+
+  static ReplicationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReplicationStatus'));
 }
 
 enum ReplicationStorageClass {
-  standard,
-  reducedRedundancy,
-  standardIa,
-  onezoneIa,
-  intelligentTiering,
-  glacier,
-  deepArchive,
-  outposts,
-  glacierIr,
-}
+  standard('STANDARD'),
+  reducedRedundancy('REDUCED_REDUNDANCY'),
+  standardIa('STANDARD_IA'),
+  onezoneIa('ONEZONE_IA'),
+  intelligentTiering('INTELLIGENT_TIERING'),
+  glacier('GLACIER'),
+  deepArchive('DEEP_ARCHIVE'),
+  outposts('OUTPOSTS'),
+  glacierIr('GLACIER_IR'),
+  ;
 
-extension ReplicationStorageClassValueExtension on ReplicationStorageClass {
-  String toValue() {
-    switch (this) {
-      case ReplicationStorageClass.standard:
-        return 'STANDARD';
-      case ReplicationStorageClass.reducedRedundancy:
-        return 'REDUCED_REDUNDANCY';
-      case ReplicationStorageClass.standardIa:
-        return 'STANDARD_IA';
-      case ReplicationStorageClass.onezoneIa:
-        return 'ONEZONE_IA';
-      case ReplicationStorageClass.intelligentTiering:
-        return 'INTELLIGENT_TIERING';
-      case ReplicationStorageClass.glacier:
-        return 'GLACIER';
-      case ReplicationStorageClass.deepArchive:
-        return 'DEEP_ARCHIVE';
-      case ReplicationStorageClass.outposts:
-        return 'OUTPOSTS';
-      case ReplicationStorageClass.glacierIr:
-        return 'GLACIER_IR';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationStorageClassFromString on String {
-  ReplicationStorageClass toReplicationStorageClass() {
-    switch (this) {
-      case 'STANDARD':
-        return ReplicationStorageClass.standard;
-      case 'REDUCED_REDUNDANCY':
-        return ReplicationStorageClass.reducedRedundancy;
-      case 'STANDARD_IA':
-        return ReplicationStorageClass.standardIa;
-      case 'ONEZONE_IA':
-        return ReplicationStorageClass.onezoneIa;
-      case 'INTELLIGENT_TIERING':
-        return ReplicationStorageClass.intelligentTiering;
-      case 'GLACIER':
-        return ReplicationStorageClass.glacier;
-      case 'DEEP_ARCHIVE':
-        return ReplicationStorageClass.deepArchive;
-      case 'OUTPOSTS':
-        return ReplicationStorageClass.outposts;
-      case 'GLACIER_IR':
-        return ReplicationStorageClass.glacierIr;
-    }
-    throw Exception('$this is not known in enum ReplicationStorageClass');
-  }
+  const ReplicationStorageClass(this.value);
+
+  static ReplicationStorageClass fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ReplicationStorageClass'));
 }
 
 /// A container that specifies S3 Replication Time Control (S3 RTC) related
@@ -11713,8 +14752,9 @@ class ReplicationTime {
   });
   factory ReplicationTime.fromXml(_s.XmlElement elem) {
     return ReplicationTime(
-      status:
-          _s.extractXmlStringValue(elem, 'Status')!.toReplicationTimeStatus(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')!
+          .let(ReplicationTimeStatus.fromString),
       time: ReplicationTimeValue.fromXml(_s.extractXmlChild(elem, 'Time')!),
     );
   }
@@ -11723,7 +14763,7 @@ class ReplicationTime {
     final status = this.status;
     final time = this.time;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
       'Time': time,
     };
   }
@@ -11732,7 +14772,7 @@ class ReplicationTime {
     final status = this.status;
     final time = this.time;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
       time.toXml('Time'),
     ];
     final $attributes = <_s.XmlAttribute>[
@@ -11747,31 +14787,18 @@ class ReplicationTime {
 }
 
 enum ReplicationTimeStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension ReplicationTimeStatusValueExtension on ReplicationTimeStatus {
-  String toValue() {
-    switch (this) {
-      case ReplicationTimeStatus.enabled:
-        return 'Enabled';
-      case ReplicationTimeStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension ReplicationTimeStatusFromString on String {
-  ReplicationTimeStatus toReplicationTimeStatus() {
-    switch (this) {
-      case 'Enabled':
-        return ReplicationTimeStatus.enabled;
-      case 'Disabled':
-        return ReplicationTimeStatus.disabled;
-    }
-    throw Exception('$this is not known in enum ReplicationTimeStatus');
-  }
+  const ReplicationTimeStatus(this.value);
+
+  static ReplicationTimeStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReplicationTimeStatus'));
 }
 
 /// A container that specifies the time value for S3 Replication Time Control
@@ -11819,31 +14846,18 @@ class ReplicationTimeValue {
 }
 
 enum RequestedJobStatus {
-  cancelled,
-  ready,
-}
+  cancelled('Cancelled'),
+  ready('Ready'),
+  ;
 
-extension RequestedJobStatusValueExtension on RequestedJobStatus {
-  String toValue() {
-    switch (this) {
-      case RequestedJobStatus.cancelled:
-        return 'Cancelled';
-      case RequestedJobStatus.ready:
-        return 'Ready';
-    }
-  }
-}
+  final String value;
 
-extension RequestedJobStatusFromString on String {
-  RequestedJobStatus toRequestedJobStatus() {
-    switch (this) {
-      case 'Cancelled':
-        return RequestedJobStatus.cancelled;
-      case 'Ready':
-        return RequestedJobStatus.ready;
-    }
-    throw Exception('$this is not known in enum RequestedJobStatus');
-  }
+  const RequestedJobStatus(this.value);
+
+  static RequestedJobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RequestedJobStatus'));
 }
 
 /// <p/>
@@ -11914,7 +14928,7 @@ class S3AccessControlPolicy {
           ?.let(S3AccessControlList.fromXml),
       cannedAccessControlList: _s
           .extractXmlStringValue(elem, 'CannedAccessControlList')
-          ?.toS3CannedAccessControlList(),
+          ?.let(S3CannedAccessControlList.fromString),
     );
   }
 
@@ -11924,7 +14938,7 @@ class S3AccessControlPolicy {
     return {
       if (accessControlList != null) 'AccessControlList': accessControlList,
       if (cannedAccessControlList != null)
-        'CannedAccessControlList': cannedAccessControlList.toValue(),
+        'CannedAccessControlList': cannedAccessControlList.value,
     };
   }
 
@@ -11936,7 +14950,7 @@ class S3AccessControlPolicy {
         accessControlList.toXml('AccessControlList'),
       if (cannedAccessControlList != null)
         _s.encodeXmlStringValue(
-            'CannedAccessControlList', cannedAccessControlList.toValue()),
+            'CannedAccessControlList', cannedAccessControlList.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -11986,10 +15000,10 @@ class S3BucketDestination {
     return S3BucketDestination(
       accountId: _s.extractXmlStringValue(elem, 'AccountId')!,
       arn: _s.extractXmlStringValue(elem, 'Arn')!,
-      format: _s.extractXmlStringValue(elem, 'Format')!.toFormat(),
+      format: _s.extractXmlStringValue(elem, 'Format')!.let(Format.fromString),
       outputSchemaVersion: _s
           .extractXmlStringValue(elem, 'OutputSchemaVersion')!
-          .toOutputSchemaVersion(),
+          .let(OutputSchemaVersion.fromString),
       encryption: _s
           .extractXmlChild(elem, 'Encryption')
           ?.let(StorageLensDataExportEncryption.fromXml),
@@ -12007,8 +15021,8 @@ class S3BucketDestination {
     return {
       'AccountId': accountId,
       'Arn': arn,
-      'Format': format.toValue(),
-      'OutputSchemaVersion': outputSchemaVersion.toValue(),
+      'Format': format.value,
+      'OutputSchemaVersion': outputSchemaVersion.value,
       if (encryption != null) 'Encryption': encryption,
       if (prefix != null) 'Prefix': prefix,
     };
@@ -12022,9 +15036,8 @@ class S3BucketDestination {
     final encryption = this.encryption;
     final prefix = this.prefix;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Format', format.toValue()),
-      _s.encodeXmlStringValue(
-          'OutputSchemaVersion', outputSchemaVersion.toValue()),
+      _s.encodeXmlStringValue('Format', format.value),
+      _s.encodeXmlStringValue('OutputSchemaVersion', outputSchemaVersion.value),
       _s.encodeXmlStringValue('AccountId', accountId),
       _s.encodeXmlStringValue('Arn', arn),
       if (prefix != null) _s.encodeXmlStringValue('Prefix', prefix),
@@ -12042,94 +15055,40 @@ class S3BucketDestination {
 }
 
 enum S3CannedAccessControlList {
-  private,
-  publicRead,
-  publicReadWrite,
-  awsExecRead,
-  authenticatedRead,
-  bucketOwnerRead,
-  bucketOwnerFullControl,
-}
+  private('private'),
+  publicRead('public-read'),
+  publicReadWrite('public-read-write'),
+  awsExecRead('aws-exec-read'),
+  authenticatedRead('authenticated-read'),
+  bucketOwnerRead('bucket-owner-read'),
+  bucketOwnerFullControl('bucket-owner-full-control'),
+  ;
 
-extension S3CannedAccessControlListValueExtension on S3CannedAccessControlList {
-  String toValue() {
-    switch (this) {
-      case S3CannedAccessControlList.private:
-        return 'private';
-      case S3CannedAccessControlList.publicRead:
-        return 'public-read';
-      case S3CannedAccessControlList.publicReadWrite:
-        return 'public-read-write';
-      case S3CannedAccessControlList.awsExecRead:
-        return 'aws-exec-read';
-      case S3CannedAccessControlList.authenticatedRead:
-        return 'authenticated-read';
-      case S3CannedAccessControlList.bucketOwnerRead:
-        return 'bucket-owner-read';
-      case S3CannedAccessControlList.bucketOwnerFullControl:
-        return 'bucket-owner-full-control';
-    }
-  }
-}
+  final String value;
 
-extension S3CannedAccessControlListFromString on String {
-  S3CannedAccessControlList toS3CannedAccessControlList() {
-    switch (this) {
-      case 'private':
-        return S3CannedAccessControlList.private;
-      case 'public-read':
-        return S3CannedAccessControlList.publicRead;
-      case 'public-read-write':
-        return S3CannedAccessControlList.publicReadWrite;
-      case 'aws-exec-read':
-        return S3CannedAccessControlList.awsExecRead;
-      case 'authenticated-read':
-        return S3CannedAccessControlList.authenticatedRead;
-      case 'bucket-owner-read':
-        return S3CannedAccessControlList.bucketOwnerRead;
-      case 'bucket-owner-full-control':
-        return S3CannedAccessControlList.bucketOwnerFullControl;
-    }
-    throw Exception('$this is not known in enum S3CannedAccessControlList');
-  }
+  const S3CannedAccessControlList(this.value);
+
+  static S3CannedAccessControlList fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum S3CannedAccessControlList'));
 }
 
 enum S3ChecksumAlgorithm {
-  crc32,
-  crc32c,
-  sha1,
-  sha256,
-}
+  crc32('CRC32'),
+  crc32c('CRC32C'),
+  sha1('SHA1'),
+  sha256('SHA256'),
+  ;
 
-extension S3ChecksumAlgorithmValueExtension on S3ChecksumAlgorithm {
-  String toValue() {
-    switch (this) {
-      case S3ChecksumAlgorithm.crc32:
-        return 'CRC32';
-      case S3ChecksumAlgorithm.crc32c:
-        return 'CRC32C';
-      case S3ChecksumAlgorithm.sha1:
-        return 'SHA1';
-      case S3ChecksumAlgorithm.sha256:
-        return 'SHA256';
-    }
-  }
-}
+  final String value;
 
-extension S3ChecksumAlgorithmFromString on String {
-  S3ChecksumAlgorithm toS3ChecksumAlgorithm() {
-    switch (this) {
-      case 'CRC32':
-        return S3ChecksumAlgorithm.crc32;
-      case 'CRC32C':
-        return S3ChecksumAlgorithm.crc32c;
-      case 'SHA1':
-        return S3ChecksumAlgorithm.sha1;
-      case 'SHA256':
-        return S3ChecksumAlgorithm.sha256;
-    }
-    throw Exception('$this is not known in enum S3ChecksumAlgorithm');
-  }
+  const S3ChecksumAlgorithm(this.value);
+
+  static S3ChecksumAlgorithm fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum S3ChecksumAlgorithm'));
 }
 
 /// Contains the configuration parameters for a PUT Copy object operation. S3
@@ -12138,7 +15097,9 @@ extension S3ChecksumAlgorithmFromString on String {
 /// parameters for this operation, see <a
 /// href="https://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectCOPY.html">CopyObject</a>.
 class S3CopyObjectOperation {
-  /// <p/>
+  /// <p/> <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final List<S3Grant>? accessControlGrants;
 
   /// Specifies whether Amazon S3 should use an S3 Bucket Key for object
@@ -12148,14 +15109,19 @@ class S3CopyObjectOperation {
   ///
   /// Specifying this header with an <i>object</i> action doesn’t affect
   /// <i>bucket-level</i> settings for S3 Bucket Key.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final bool? bucketKeyEnabled;
 
-  /// <p/>
+  /// <p/> <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3CannedAccessControlList? cannedAccessControlList;
 
   /// Indicates the algorithm that you want Amazon S3 to use to create the
   /// checksum. For more information, see <a
-  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/CheckingObjectIntegrity.xml">
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/checking-object-integrity.html">
   /// Checking object integrity</a> in the <i>Amazon S3 User Guide</i>.
   final S3ChecksumAlgorithm? checksumAlgorithm;
 
@@ -12170,32 +15136,62 @@ class S3CopyObjectOperation {
   /// no tags. Otherwise, Amazon S3 assigns the supplied tags to the new objects.
   final S3ObjectMetadata? newObjectMetadata;
 
-  /// <p/>
+  /// Specifies a list of tags to add to the destination objects after they are
+  /// copied. If <code>NewObjectTagging</code> is not specified, the tags of the
+  /// source objects are copied to destination objects by default.
+  /// <note>
+  /// <b>Directory buckets</b> - Tags aren't supported by directory buckets. If
+  /// your source objects have tags and your destination bucket is a directory
+  /// bucket, specify an empty tag set in the <code>NewObjectTagging</code> field
+  /// to prevent copying the source object tags to the directory bucket.
+  /// </note>
   final List<S3Tag>? newObjectTagging;
 
   /// The legal hold status to be applied to all objects in the Batch Operations
   /// job.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3ObjectLockLegalHoldStatus? objectLockLegalHoldStatus;
 
   /// The retention mode to be applied to all objects in the Batch Operations job.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final S3ObjectLockMode? objectLockMode;
 
   /// The date when the applied object retention configuration expires on all
   /// objects in the Batch Operations job.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final DateTime? objectLockRetainUntilDate;
 
-  /// Specifies an optional metadata property for website redirects,
+  /// If the destination bucket is configured as a website, specifies an optional
+  /// metadata property for website redirects,
   /// <code>x-amz-website-redirect-location</code>. Allows webpage redirects if
-  /// the object is accessed through a website endpoint.
+  /// the object copy is accessed through a website endpoint.
+  /// <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final String? redirectLocation;
 
-  /// <p/>
+  /// <p/> <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final bool? requesterPays;
 
-  /// <p/>
+  /// <p/> <note>
+  /// This functionality is not supported by directory buckets.
+  /// </note>
   final String? sSEAwsKmsKeyId;
 
-  /// <p/>
+  /// Specify the storage class for the destination objects in a <code>Copy</code>
+  /// operation.
+  /// <note>
+  /// <b>Directory buckets </b> - This functionality is not supported by directory
+  /// buckets.
+  /// </note>
   final S3StorageClass? storageClass;
 
   /// Specifies the folder prefix that you want the objects to be copied into. For
@@ -12205,9 +15201,23 @@ class S3CopyObjectOperation {
   final String? targetKeyPrefix;
 
   /// Specifies the destination bucket Amazon Resource Name (ARN) for the batch
-  /// copy operation. For example, to copy objects to a bucket named
-  /// <code>destinationBucket</code>, set the <code>TargetResource</code> property
-  /// to <code>arn:aws:s3:::destinationBucket</code>.
+  /// copy operation.
+  ///
+  /// <ul>
+  /// <li>
+  /// <b>General purpose buckets</b> - For example, to copy objects to a general
+  /// purpose bucket named <code>destinationBucket</code>, set the
+  /// <code>TargetResource</code> property to
+  /// <code>arn:aws:s3:::destinationBucket</code>.
+  /// </li>
+  /// <li>
+  /// <b>Directory buckets</b> - For example, to copy objects to a directory
+  /// bucket named <code>destinationBucket</code> in the Availability Zone;
+  /// identified by the AZ ID <code>usw2-az1</code>, set the
+  /// <code>TargetResource</code> property to
+  /// <code>arn:aws:s3express:<i>region</i>:<i>account_id</i>:/bucket/<i>destination_bucket_base_name</i>--<i>usw2-az1</i>--x-s3</code>.
+  /// </li>
+  /// </ul>
   final String? targetResource;
 
   /// <p/>
@@ -12240,13 +15250,13 @@ class S3CopyObjectOperation {
       bucketKeyEnabled: _s.extractXmlBoolValue(elem, 'BucketKeyEnabled'),
       cannedAccessControlList: _s
           .extractXmlStringValue(elem, 'CannedAccessControlList')
-          ?.toS3CannedAccessControlList(),
+          ?.let(S3CannedAccessControlList.fromString),
       checksumAlgorithm: _s
           .extractXmlStringValue(elem, 'ChecksumAlgorithm')
-          ?.toS3ChecksumAlgorithm(),
+          ?.let(S3ChecksumAlgorithm.fromString),
       metadataDirective: _s
           .extractXmlStringValue(elem, 'MetadataDirective')
-          ?.toS3MetadataDirective(),
+          ?.let(S3MetadataDirective.fromString),
       modifiedSinceConstraint:
           _s.extractXmlDateTimeValue(elem, 'ModifiedSinceConstraint'),
       newObjectMetadata: _s
@@ -12256,17 +15266,18 @@ class S3CopyObjectOperation {
           (elem) => elem.findElements('member').map(S3Tag.fromXml).toList()),
       objectLockLegalHoldStatus: _s
           .extractXmlStringValue(elem, 'ObjectLockLegalHoldStatus')
-          ?.toS3ObjectLockLegalHoldStatus(),
+          ?.let(S3ObjectLockLegalHoldStatus.fromString),
       objectLockMode: _s
           .extractXmlStringValue(elem, 'ObjectLockMode')
-          ?.toS3ObjectLockMode(),
+          ?.let(S3ObjectLockMode.fromString),
       objectLockRetainUntilDate:
           _s.extractXmlDateTimeValue(elem, 'ObjectLockRetainUntilDate'),
       redirectLocation: _s.extractXmlStringValue(elem, 'RedirectLocation'),
       requesterPays: _s.extractXmlBoolValue(elem, 'RequesterPays'),
       sSEAwsKmsKeyId: _s.extractXmlStringValue(elem, 'SSEAwsKmsKeyId'),
-      storageClass:
-          _s.extractXmlStringValue(elem, 'StorageClass')?.toS3StorageClass(),
+      storageClass: _s
+          .extractXmlStringValue(elem, 'StorageClass')
+          ?.let(S3StorageClass.fromString),
       targetKeyPrefix: _s.extractXmlStringValue(elem, 'TargetKeyPrefix'),
       targetResource: _s.extractXmlStringValue(elem, 'TargetResource'),
       unModifiedSinceConstraint:
@@ -12298,24 +15309,24 @@ class S3CopyObjectOperation {
         'AccessControlGrants': accessControlGrants,
       if (bucketKeyEnabled != null) 'BucketKeyEnabled': bucketKeyEnabled,
       if (cannedAccessControlList != null)
-        'CannedAccessControlList': cannedAccessControlList.toValue(),
+        'CannedAccessControlList': cannedAccessControlList.value,
       if (checksumAlgorithm != null)
-        'ChecksumAlgorithm': checksumAlgorithm.toValue(),
+        'ChecksumAlgorithm': checksumAlgorithm.value,
       if (metadataDirective != null)
-        'MetadataDirective': metadataDirective.toValue(),
+        'MetadataDirective': metadataDirective.value,
       if (modifiedSinceConstraint != null)
         'ModifiedSinceConstraint': iso8601ToJson(modifiedSinceConstraint),
       if (newObjectMetadata != null) 'NewObjectMetadata': newObjectMetadata,
       if (newObjectTagging != null) 'NewObjectTagging': newObjectTagging,
       if (objectLockLegalHoldStatus != null)
-        'ObjectLockLegalHoldStatus': objectLockLegalHoldStatus.toValue(),
-      if (objectLockMode != null) 'ObjectLockMode': objectLockMode.toValue(),
+        'ObjectLockLegalHoldStatus': objectLockLegalHoldStatus.value,
+      if (objectLockMode != null) 'ObjectLockMode': objectLockMode.value,
       if (objectLockRetainUntilDate != null)
         'ObjectLockRetainUntilDate': iso8601ToJson(objectLockRetainUntilDate),
       if (redirectLocation != null) 'RedirectLocation': redirectLocation,
       if (requesterPays != null) 'RequesterPays': requesterPays,
       if (sSEAwsKmsKeyId != null) 'SSEAwsKmsKeyId': sSEAwsKmsKeyId,
-      if (storageClass != null) 'StorageClass': storageClass.toValue(),
+      if (storageClass != null) 'StorageClass': storageClass.value,
       if (targetKeyPrefix != null) 'TargetKeyPrefix': targetKeyPrefix,
       if (targetResource != null) 'TargetResource': targetResource,
       if (unModifiedSinceConstraint != null)
@@ -12347,13 +15358,12 @@ class S3CopyObjectOperation {
         _s.encodeXmlStringValue('TargetResource', targetResource),
       if (cannedAccessControlList != null)
         _s.encodeXmlStringValue(
-            'CannedAccessControlList', cannedAccessControlList.toValue()),
+            'CannedAccessControlList', cannedAccessControlList.value),
       if (accessControlGrants != null)
         _s.XmlElement(_s.XmlName('AccessControlGrants'), [],
             accessControlGrants.map((e) => e.toXml('member'))),
       if (metadataDirective != null)
-        _s.encodeXmlStringValue(
-            'MetadataDirective', metadataDirective.toValue()),
+        _s.encodeXmlStringValue('MetadataDirective', metadataDirective.value),
       if (modifiedSinceConstraint != null)
         _s.encodeXmlDateTimeValue(
             'ModifiedSinceConstraint', modifiedSinceConstraint),
@@ -12367,7 +15377,7 @@ class S3CopyObjectOperation {
       if (requesterPays != null)
         _s.encodeXmlBoolValue('RequesterPays', requesterPays),
       if (storageClass != null)
-        _s.encodeXmlStringValue('StorageClass', storageClass.toValue()),
+        _s.encodeXmlStringValue('StorageClass', storageClass.value),
       if (unModifiedSinceConstraint != null)
         _s.encodeXmlDateTimeValue(
             'UnModifiedSinceConstraint', unModifiedSinceConstraint),
@@ -12377,17 +15387,16 @@ class S3CopyObjectOperation {
         _s.encodeXmlStringValue('TargetKeyPrefix', targetKeyPrefix),
       if (objectLockLegalHoldStatus != null)
         _s.encodeXmlStringValue(
-            'ObjectLockLegalHoldStatus', objectLockLegalHoldStatus.toValue()),
+            'ObjectLockLegalHoldStatus', objectLockLegalHoldStatus.value),
       if (objectLockMode != null)
-        _s.encodeXmlStringValue('ObjectLockMode', objectLockMode.toValue()),
+        _s.encodeXmlStringValue('ObjectLockMode', objectLockMode.value),
       if (objectLockRetainUntilDate != null)
         _s.encodeXmlDateTimeValue(
             'ObjectLockRetainUntilDate', objectLockRetainUntilDate),
       if (bucketKeyEnabled != null)
         _s.encodeXmlBoolValue('BucketKeyEnabled', bucketKeyEnabled),
       if (checksumAlgorithm != null)
-        _s.encodeXmlStringValue(
-            'ChecksumAlgorithm', checksumAlgorithm.toValue()),
+        _s.encodeXmlStringValue('ChecksumAlgorithm', checksumAlgorithm.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -12442,8 +15451,9 @@ class S3GeneratedManifestDescriptor {
   });
   factory S3GeneratedManifestDescriptor.fromXml(_s.XmlElement elem) {
     return S3GeneratedManifestDescriptor(
-      format:
-          _s.extractXmlStringValue(elem, 'Format')?.toGeneratedManifestFormat(),
+      format: _s
+          .extractXmlStringValue(elem, 'Format')
+          ?.let(GeneratedManifestFormat.fromString),
       location: _s
           .extractXmlChild(elem, 'Location')
           ?.let(JobManifestLocation.fromXml),
@@ -12454,38 +15464,25 @@ class S3GeneratedManifestDescriptor {
     final format = this.format;
     final location = this.location;
     return {
-      if (format != null) 'Format': format.toValue(),
+      if (format != null) 'Format': format.value,
       if (location != null) 'Location': location,
     };
   }
 }
 
 enum S3GlacierJobTier {
-  bulk,
-  standard,
-}
+  bulk('BULK'),
+  standard('STANDARD'),
+  ;
 
-extension S3GlacierJobTierValueExtension on S3GlacierJobTier {
-  String toValue() {
-    switch (this) {
-      case S3GlacierJobTier.bulk:
-        return 'BULK';
-      case S3GlacierJobTier.standard:
-        return 'STANDARD';
-    }
-  }
-}
+  final String value;
 
-extension S3GlacierJobTierFromString on String {
-  S3GlacierJobTier toS3GlacierJobTier() {
-    switch (this) {
-      case 'BULK':
-        return S3GlacierJobTier.bulk;
-      case 'STANDARD':
-        return S3GlacierJobTier.standard;
-    }
-    throw Exception('$this is not known in enum S3GlacierJobTier');
-  }
+  const S3GlacierJobTier(this.value);
+
+  static S3GlacierJobTier fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum S3GlacierJobTier'));
 }
 
 /// <p/>
@@ -12503,8 +15500,9 @@ class S3Grant {
   factory S3Grant.fromXml(_s.XmlElement elem) {
     return S3Grant(
       grantee: _s.extractXmlChild(elem, 'Grantee')?.let(S3Grantee.fromXml),
-      permission:
-          _s.extractXmlStringValue(elem, 'Permission')?.toS3Permission(),
+      permission: _s
+          .extractXmlStringValue(elem, 'Permission')
+          ?.let(S3Permission.fromString),
     );
   }
 
@@ -12513,7 +15511,7 @@ class S3Grant {
     final permission = this.permission;
     return {
       if (grantee != null) 'Grantee': grantee,
-      if (permission != null) 'Permission': permission.toValue(),
+      if (permission != null) 'Permission': permission.value,
     };
   }
 
@@ -12523,7 +15521,7 @@ class S3Grant {
     final $children = <_s.XmlNode>[
       if (grantee != null) grantee.toXml('Grantee'),
       if (permission != null)
-        _s.encodeXmlStringValue('Permission', permission.toValue()),
+        _s.encodeXmlStringValue('Permission', permission.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -12558,7 +15556,7 @@ class S3Grantee {
       identifier: _s.extractXmlStringValue(elem, 'Identifier'),
       typeIdentifier: _s
           .extractXmlStringValue(elem, 'TypeIdentifier')
-          ?.toS3GranteeTypeIdentifier(),
+          ?.let(S3GranteeTypeIdentifier.fromString),
     );
   }
 
@@ -12569,7 +15567,7 @@ class S3Grantee {
     return {
       if (displayName != null) 'DisplayName': displayName,
       if (identifier != null) 'Identifier': identifier,
-      if (typeIdentifier != null) 'TypeIdentifier': typeIdentifier.toValue(),
+      if (typeIdentifier != null) 'TypeIdentifier': typeIdentifier.value,
     };
   }
 
@@ -12579,7 +15577,7 @@ class S3Grantee {
     final typeIdentifier = this.typeIdentifier;
     final $children = <_s.XmlNode>[
       if (typeIdentifier != null)
-        _s.encodeXmlStringValue('TypeIdentifier', typeIdentifier.toValue()),
+        _s.encodeXmlStringValue('TypeIdentifier', typeIdentifier.value),
       if (identifier != null) _s.encodeXmlStringValue('Identifier', identifier),
       if (displayName != null)
         _s.encodeXmlStringValue('DisplayName', displayName),
@@ -12596,36 +15594,19 @@ class S3Grantee {
 }
 
 enum S3GranteeTypeIdentifier {
-  id,
-  emailAddress,
-  uri,
-}
+  id('id'),
+  emailAddress('emailAddress'),
+  uri('uri'),
+  ;
 
-extension S3GranteeTypeIdentifierValueExtension on S3GranteeTypeIdentifier {
-  String toValue() {
-    switch (this) {
-      case S3GranteeTypeIdentifier.id:
-        return 'id';
-      case S3GranteeTypeIdentifier.emailAddress:
-        return 'emailAddress';
-      case S3GranteeTypeIdentifier.uri:
-        return 'uri';
-    }
-  }
-}
+  final String value;
 
-extension S3GranteeTypeIdentifierFromString on String {
-  S3GranteeTypeIdentifier toS3GranteeTypeIdentifier() {
-    switch (this) {
-      case 'id':
-        return S3GranteeTypeIdentifier.id;
-      case 'emailAddress':
-        return S3GranteeTypeIdentifier.emailAddress;
-      case 'uri':
-        return S3GranteeTypeIdentifier.uri;
-    }
-    throw Exception('$this is not known in enum S3GranteeTypeIdentifier');
-  }
+  const S3GranteeTypeIdentifier(this.value);
+
+  static S3GranteeTypeIdentifier fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum S3GranteeTypeIdentifier'));
 }
 
 /// Contains the configuration parameters for a POST Object restore job. S3
@@ -12666,7 +15647,7 @@ class S3InitiateRestoreObjectOperation {
       expirationInDays: _s.extractXmlIntValue(elem, 'ExpirationInDays'),
       glacierJobTier: _s
           .extractXmlStringValue(elem, 'GlacierJobTier')
-          ?.toS3GlacierJobTier(),
+          ?.let(S3GlacierJobTier.fromString),
     );
   }
 
@@ -12675,7 +15656,7 @@ class S3InitiateRestoreObjectOperation {
     final glacierJobTier = this.glacierJobTier;
     return {
       if (expirationInDays != null) 'ExpirationInDays': expirationInDays,
-      if (glacierJobTier != null) 'GlacierJobTier': glacierJobTier.toValue(),
+      if (glacierJobTier != null) 'GlacierJobTier': glacierJobTier.value,
     };
   }
 
@@ -12686,7 +15667,7 @@ class S3InitiateRestoreObjectOperation {
       if (expirationInDays != null)
         _s.encodeXmlIntValue('ExpirationInDays', expirationInDays),
       if (glacierJobTier != null)
-        _s.encodeXmlStringValue('GlacierJobTier', glacierJobTier.toValue()),
+        _s.encodeXmlStringValue('GlacierJobTier', glacierJobTier.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -12705,6 +15686,11 @@ class S3JobManifestGenerator {
   final bool enableManifestOutput;
 
   /// The source bucket used by the ManifestGenerator.
+  /// <note>
+  /// <b>Directory buckets</b> - Directory buckets aren't supported as the source
+  /// buckets used by <code>S3JobManifestGenerator</code> to generate the job
+  /// manifest.
+  /// </note>
   final String sourceBucket;
 
   /// The Amazon Web Services account ID that owns the bucket the generated
@@ -12712,12 +15698,15 @@ class S3JobManifestGenerator {
   /// Amazon Web Services account ID must match this value, else the job fails.
   final String? expectedBucketOwner;
 
-  /// Specifies rules the S3JobManifestGenerator should use to use to decide
-  /// whether an object in the source bucket should or should not be included in
-  /// the generated job manifest.
+  /// Specifies rules the S3JobManifestGenerator should use to decide whether an
+  /// object in the source bucket should or should not be included in the
+  /// generated job manifest.
   final JobManifestGeneratorFilter? filter;
 
-  /// Specifies the location the generated manifest will be written to.
+  /// Specifies the location the generated manifest will be written to. Manifests
+  /// can't be written to directory buckets. For more information, see <a
+  /// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/directory-buckets-overview.html">Directory
+  /// buckets</a>.
   final S3ManifestOutputLocation? manifestOutputLocation;
 
   S3JobManifestGenerator({
@@ -12789,6 +15778,10 @@ class S3JobManifestGenerator {
 /// Location details for where the generated manifest should be written.
 class S3ManifestOutputLocation {
   /// The bucket ARN the generated manifest should be written to.
+  /// <note>
+  /// <b>Directory buckets</b> - Directory buckets aren't supported as the buckets
+  /// to store the generated manifest.
+  /// </note>
   final String bucket;
 
   /// The format of the generated manifest.
@@ -12816,7 +15809,7 @@ class S3ManifestOutputLocation {
       bucket: _s.extractXmlStringValue(elem, 'Bucket')!,
       manifestFormat: _s
           .extractXmlStringValue(elem, 'ManifestFormat')!
-          .toGeneratedManifestFormat(),
+          .let(GeneratedManifestFormat.fromString),
       expectedManifestBucketOwner:
           _s.extractXmlStringValue(elem, 'ExpectedManifestBucketOwner'),
       manifestEncryption: _s
@@ -12834,7 +15827,7 @@ class S3ManifestOutputLocation {
     final manifestPrefix = this.manifestPrefix;
     return {
       'Bucket': bucket,
-      'ManifestFormat': manifestFormat.toValue(),
+      'ManifestFormat': manifestFormat.value,
       if (expectedManifestBucketOwner != null)
         'ExpectedManifestBucketOwner': expectedManifestBucketOwner,
       if (manifestEncryption != null) 'ManifestEncryption': manifestEncryption,
@@ -12857,7 +15850,7 @@ class S3ManifestOutputLocation {
         _s.encodeXmlStringValue('ManifestPrefix', manifestPrefix),
       if (manifestEncryption != null)
         manifestEncryption.toXml('ManifestEncryption'),
-      _s.encodeXmlStringValue('ManifestFormat', manifestFormat.toValue()),
+      _s.encodeXmlStringValue('ManifestFormat', manifestFormat.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -12871,31 +15864,18 @@ class S3ManifestOutputLocation {
 }
 
 enum S3MetadataDirective {
-  copy,
-  replace,
-}
+  copy('COPY'),
+  replace('REPLACE'),
+  ;
 
-extension S3MetadataDirectiveValueExtension on S3MetadataDirective {
-  String toValue() {
-    switch (this) {
-      case S3MetadataDirective.copy:
-        return 'COPY';
-      case S3MetadataDirective.replace:
-        return 'REPLACE';
-    }
-  }
-}
+  final String value;
 
-extension S3MetadataDirectiveFromString on String {
-  S3MetadataDirective toS3MetadataDirective() {
-    switch (this) {
-      case 'COPY':
-        return S3MetadataDirective.copy;
-      case 'REPLACE':
-        return S3MetadataDirective.replace;
-    }
-    throw Exception('$this is not known in enum S3MetadataDirective');
-  }
+  const S3MetadataDirective(this.value);
+
+  static S3MetadataDirective fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum S3MetadataDirective'));
 }
 
 /// Whether S3 Object Lock legal hold will be applied to objects in an S3 Batch
@@ -12912,21 +15892,21 @@ class S3ObjectLockLegalHold {
     return S3ObjectLockLegalHold(
       status: _s
           .extractXmlStringValue(elem, 'Status')!
-          .toS3ObjectLockLegalHoldStatus(),
+          .let(S3ObjectLockLegalHoldStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
     };
   }
 
   _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
     final status = this.status;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -12940,88 +15920,48 @@ class S3ObjectLockLegalHold {
 }
 
 enum S3ObjectLockLegalHoldStatus {
-  off,
-  on,
-}
+  off('OFF'),
+  on('ON'),
+  ;
 
-extension S3ObjectLockLegalHoldStatusValueExtension
-    on S3ObjectLockLegalHoldStatus {
-  String toValue() {
-    switch (this) {
-      case S3ObjectLockLegalHoldStatus.off:
-        return 'OFF';
-      case S3ObjectLockLegalHoldStatus.on:
-        return 'ON';
-    }
-  }
-}
+  final String value;
 
-extension S3ObjectLockLegalHoldStatusFromString on String {
-  S3ObjectLockLegalHoldStatus toS3ObjectLockLegalHoldStatus() {
-    switch (this) {
-      case 'OFF':
-        return S3ObjectLockLegalHoldStatus.off;
-      case 'ON':
-        return S3ObjectLockLegalHoldStatus.on;
-    }
-    throw Exception('$this is not known in enum S3ObjectLockLegalHoldStatus');
-  }
+  const S3ObjectLockLegalHoldStatus(this.value);
+
+  static S3ObjectLockLegalHoldStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum S3ObjectLockLegalHoldStatus'));
 }
 
 enum S3ObjectLockMode {
-  compliance,
-  governance,
-}
+  compliance('COMPLIANCE'),
+  governance('GOVERNANCE'),
+  ;
 
-extension S3ObjectLockModeValueExtension on S3ObjectLockMode {
-  String toValue() {
-    switch (this) {
-      case S3ObjectLockMode.compliance:
-        return 'COMPLIANCE';
-      case S3ObjectLockMode.governance:
-        return 'GOVERNANCE';
-    }
-  }
-}
+  final String value;
 
-extension S3ObjectLockModeFromString on String {
-  S3ObjectLockMode toS3ObjectLockMode() {
-    switch (this) {
-      case 'COMPLIANCE':
-        return S3ObjectLockMode.compliance;
-      case 'GOVERNANCE':
-        return S3ObjectLockMode.governance;
-    }
-    throw Exception('$this is not known in enum S3ObjectLockMode');
-  }
+  const S3ObjectLockMode(this.value);
+
+  static S3ObjectLockMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum S3ObjectLockMode'));
 }
 
 enum S3ObjectLockRetentionMode {
-  compliance,
-  governance,
-}
+  compliance('COMPLIANCE'),
+  governance('GOVERNANCE'),
+  ;
 
-extension S3ObjectLockRetentionModeValueExtension on S3ObjectLockRetentionMode {
-  String toValue() {
-    switch (this) {
-      case S3ObjectLockRetentionMode.compliance:
-        return 'COMPLIANCE';
-      case S3ObjectLockRetentionMode.governance:
-        return 'GOVERNANCE';
-    }
-  }
-}
+  final String value;
 
-extension S3ObjectLockRetentionModeFromString on String {
-  S3ObjectLockRetentionMode toS3ObjectLockRetentionMode() {
-    switch (this) {
-      case 'COMPLIANCE':
-        return S3ObjectLockRetentionMode.compliance;
-      case 'GOVERNANCE':
-        return S3ObjectLockRetentionMode.governance;
-    }
-    throw Exception('$this is not known in enum S3ObjectLockRetentionMode');
-  }
+  const S3ObjectLockRetentionMode(this.value);
+
+  static S3ObjectLockRetentionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum S3ObjectLockRetentionMode'));
 }
 
 /// <p/>
@@ -13038,9 +15978,11 @@ class S3ObjectMetadata {
   /// <p/>
   final String? contentLanguage;
 
+  /// <i>This member has been deprecated.</i>
   /// <p/>
   final int? contentLength;
 
+  /// <i>This member has been deprecated.</i>
   /// <p/>
   final String? contentMD5;
 
@@ -13050,10 +15992,14 @@ class S3ObjectMetadata {
   /// <p/>
   final DateTime? httpExpiresDate;
 
+  /// <i>This member has been deprecated.</i>
   /// <p/>
   final bool? requesterCharged;
 
-  /// <p/>
+  /// <p/> <note>
+  /// For directory buckets, only the server-side encryption with Amazon S3
+  /// managed keys (SSE-S3) (<code>AES256</code>) is supported.
+  /// </note>
   final S3SSEAlgorithm? sSEAlgorithm;
 
   /// <p/>
@@ -13083,8 +16029,9 @@ class S3ObjectMetadata {
       contentType: _s.extractXmlStringValue(elem, 'ContentType'),
       httpExpiresDate: _s.extractXmlDateTimeValue(elem, 'HttpExpiresDate'),
       requesterCharged: _s.extractXmlBoolValue(elem, 'RequesterCharged'),
-      sSEAlgorithm:
-          _s.extractXmlStringValue(elem, 'SSEAlgorithm')?.toS3SSEAlgorithm(),
+      sSEAlgorithm: _s
+          .extractXmlStringValue(elem, 'SSEAlgorithm')
+          ?.let(S3SSEAlgorithm.fromString),
       userMetadata: Map.fromEntries(
         elem.getElement('UserMetadata')?.findElements('entry').map(
                   (c) => MapEntry(
@@ -13120,7 +16067,7 @@ class S3ObjectMetadata {
       if (httpExpiresDate != null)
         'HttpExpiresDate': iso8601ToJson(httpExpiresDate),
       if (requesterCharged != null) 'RequesterCharged': requesterCharged,
-      if (sSEAlgorithm != null) 'SSEAlgorithm': sSEAlgorithm.toValue(),
+      if (sSEAlgorithm != null) 'SSEAlgorithm': sSEAlgorithm.value,
       if (userMetadata != null) 'UserMetadata': userMetadata,
     };
   }
@@ -13165,7 +16112,7 @@ class S3ObjectMetadata {
       if (requesterCharged != null)
         _s.encodeXmlBoolValue('RequesterCharged', requesterCharged),
       if (sSEAlgorithm != null)
-        _s.encodeXmlStringValue('SSEAlgorithm', sSEAlgorithm.toValue()),
+        _s.encodeXmlStringValue('SSEAlgorithm', sSEAlgorithm.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -13226,46 +16173,35 @@ class S3ObjectOwner {
 }
 
 enum S3Permission {
-  fullControl,
-  read,
-  write,
-  readAcp,
-  writeAcp,
+  fullControl('FULL_CONTROL'),
+  read('READ'),
+  write('WRITE'),
+  readAcp('READ_ACP'),
+  writeAcp('WRITE_ACP'),
+  ;
+
+  final String value;
+
+  const S3Permission(this.value);
+
+  static S3Permission fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum S3Permission'));
 }
 
-extension S3PermissionValueExtension on S3Permission {
-  String toValue() {
-    switch (this) {
-      case S3Permission.fullControl:
-        return 'FULL_CONTROL';
-      case S3Permission.read:
-        return 'READ';
-      case S3Permission.write:
-        return 'WRITE';
-      case S3Permission.readAcp:
-        return 'READ_ACP';
-      case S3Permission.writeAcp:
-        return 'WRITE_ACP';
-    }
-  }
-}
+enum S3PrefixType {
+  object('Object'),
+  ;
 
-extension S3PermissionFromString on String {
-  S3Permission toS3Permission() {
-    switch (this) {
-      case 'FULL_CONTROL':
-        return S3Permission.fullControl;
-      case 'READ':
-        return S3Permission.read;
-      case 'WRITE':
-        return S3Permission.write;
-      case 'READ_ACP':
-        return S3Permission.readAcp;
-      case 'WRITE_ACP':
-        return S3Permission.writeAcp;
-    }
-    throw Exception('$this is not known in enum S3Permission');
-  }
+  final String value;
+
+  const S3PrefixType(this.value);
+
+  static S3PrefixType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum S3PrefixType'));
 }
 
 /// Directs the specified job to invoke <code>ReplicateObject</code> on every
@@ -13317,8 +16253,9 @@ class S3Retention {
   });
   factory S3Retention.fromXml(_s.XmlElement elem) {
     return S3Retention(
-      mode:
-          _s.extractXmlStringValue(elem, 'Mode')?.toS3ObjectLockRetentionMode(),
+      mode: _s
+          .extractXmlStringValue(elem, 'Mode')
+          ?.let(S3ObjectLockRetentionMode.fromString),
       retainUntilDate: _s.extractXmlDateTimeValue(elem, 'RetainUntilDate'),
     );
   }
@@ -13327,7 +16264,7 @@ class S3Retention {
     final mode = this.mode;
     final retainUntilDate = this.retainUntilDate;
     return {
-      if (mode != null) 'Mode': mode.toValue(),
+      if (mode != null) 'Mode': mode.value,
       if (retainUntilDate != null)
         'RetainUntilDate': iso8601ToJson(retainUntilDate),
     };
@@ -13339,7 +16276,7 @@ class S3Retention {
     final $children = <_s.XmlNode>[
       if (retainUntilDate != null)
         _s.encodeXmlDateTimeValue('RetainUntilDate', retainUntilDate),
-      if (mode != null) _s.encodeXmlStringValue('Mode', mode.toValue()),
+      if (mode != null) _s.encodeXmlStringValue('Mode', mode.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -13353,31 +16290,18 @@ class S3Retention {
 }
 
 enum S3SSEAlgorithm {
-  aes256,
-  kms,
-}
+  aes256('AES256'),
+  kms('KMS'),
+  ;
 
-extension S3SSEAlgorithmValueExtension on S3SSEAlgorithm {
-  String toValue() {
-    switch (this) {
-      case S3SSEAlgorithm.aes256:
-        return 'AES256';
-      case S3SSEAlgorithm.kms:
-        return 'KMS';
-    }
-  }
-}
+  final String value;
 
-extension S3SSEAlgorithmFromString on String {
-  S3SSEAlgorithm toS3SSEAlgorithm() {
-    switch (this) {
-      case 'AES256':
-        return S3SSEAlgorithm.aes256;
-      case 'KMS':
-        return S3SSEAlgorithm.kms;
-    }
-    throw Exception('$this is not known in enum S3SSEAlgorithm');
-  }
+  const S3SSEAlgorithm(this.value);
+
+  static S3SSEAlgorithm fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum S3SSEAlgorithm'));
 }
 
 /// Contains the configuration parameters for a PUT Object ACL operation. S3
@@ -13431,6 +16355,9 @@ class S3SetObjectAclOperation {
 /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/batch-ops-legal-hold.html">Using
 /// S3 Object Lock legal hold with S3 Batch Operations</a> in the <i>Amazon S3
 /// User Guide</i>.
+/// <note>
+/// This functionality is not supported by directory buckets.
+/// </note>
 class S3SetObjectLegalHoldOperation {
   /// Contains the Object Lock legal hold status to be applied to all objects in
   /// the Batch Operations job.
@@ -13476,6 +16403,9 @@ class S3SetObjectLegalHoldOperation {
 /// href="https://docs.aws.amazon.com/AmazonS3/latest/dev/batch-ops-retention-date.html">Using
 /// S3 Object Lock retention with S3 Batch Operations</a> in the <i>Amazon S3
 /// User Guide</i>.
+/// <note>
+/// This functionality is not supported by directory buckets.
+/// </note>
 class S3SetObjectRetentionOperation {
   /// Contains the Object Lock retention mode to be applied to all objects in the
   /// Batch Operations job. For more information, see <a
@@ -13575,56 +16505,23 @@ class S3SetObjectTaggingOperation {
 }
 
 enum S3StorageClass {
-  standard,
-  standardIa,
-  onezoneIa,
-  glacier,
-  intelligentTiering,
-  deepArchive,
-  glacierIr,
-}
+  standard('STANDARD'),
+  standardIa('STANDARD_IA'),
+  onezoneIa('ONEZONE_IA'),
+  glacier('GLACIER'),
+  intelligentTiering('INTELLIGENT_TIERING'),
+  deepArchive('DEEP_ARCHIVE'),
+  glacierIr('GLACIER_IR'),
+  ;
 
-extension S3StorageClassValueExtension on S3StorageClass {
-  String toValue() {
-    switch (this) {
-      case S3StorageClass.standard:
-        return 'STANDARD';
-      case S3StorageClass.standardIa:
-        return 'STANDARD_IA';
-      case S3StorageClass.onezoneIa:
-        return 'ONEZONE_IA';
-      case S3StorageClass.glacier:
-        return 'GLACIER';
-      case S3StorageClass.intelligentTiering:
-        return 'INTELLIGENT_TIERING';
-      case S3StorageClass.deepArchive:
-        return 'DEEP_ARCHIVE';
-      case S3StorageClass.glacierIr:
-        return 'GLACIER_IR';
-    }
-  }
-}
+  final String value;
 
-extension S3StorageClassFromString on String {
-  S3StorageClass toS3StorageClass() {
-    switch (this) {
-      case 'STANDARD':
-        return S3StorageClass.standard;
-      case 'STANDARD_IA':
-        return S3StorageClass.standardIa;
-      case 'ONEZONE_IA':
-        return S3StorageClass.onezoneIa;
-      case 'GLACIER':
-        return S3StorageClass.glacier;
-      case 'INTELLIGENT_TIERING':
-        return S3StorageClass.intelligentTiering;
-      case 'DEEP_ARCHIVE':
-        return S3StorageClass.deepArchive;
-      case 'GLACIER_IR':
-        return S3StorageClass.glacierIr;
-    }
-    throw Exception('$this is not known in enum S3StorageClass');
-  }
+  const S3StorageClass(this.value);
+
+  static S3StorageClass fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum S3StorageClass'));
 }
 
 /// A container for a key-value name pair.
@@ -13961,21 +16858,21 @@ class SseKmsEncryptedObjects {
     return SseKmsEncryptedObjects(
       status: _s
           .extractXmlStringValue(elem, 'Status')!
-          .toSseKmsEncryptedObjectsStatus(),
+          .let(SseKmsEncryptedObjectsStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
     };
   }
 
   _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
     final status = this.status;
     final $children = <_s.XmlNode>[
-      _s.encodeXmlStringValue('Status', status.toValue()),
+      _s.encodeXmlStringValue('Status', status.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -13989,32 +16886,18 @@ class SseKmsEncryptedObjects {
 }
 
 enum SseKmsEncryptedObjectsStatus {
-  enabled,
-  disabled,
-}
+  enabled('Enabled'),
+  disabled('Disabled'),
+  ;
 
-extension SseKmsEncryptedObjectsStatusValueExtension
-    on SseKmsEncryptedObjectsStatus {
-  String toValue() {
-    switch (this) {
-      case SseKmsEncryptedObjectsStatus.enabled:
-        return 'Enabled';
-      case SseKmsEncryptedObjectsStatus.disabled:
-        return 'Disabled';
-    }
-  }
-}
+  final String value;
 
-extension SseKmsEncryptedObjectsStatusFromString on String {
-  SseKmsEncryptedObjectsStatus toSseKmsEncryptedObjectsStatus() {
-    switch (this) {
-      case 'Enabled':
-        return SseKmsEncryptedObjectsStatus.enabled;
-      case 'Disabled':
-        return SseKmsEncryptedObjectsStatus.disabled;
-    }
-    throw Exception('$this is not known in enum SseKmsEncryptedObjectsStatus');
-  }
+  const SseKmsEncryptedObjectsStatus(this.value);
+
+  static SseKmsEncryptedObjectsStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SseKmsEncryptedObjectsStatus'));
 }
 
 /// The Amazon Web Services organization for your S3 Storage Lens.
@@ -14279,6 +17162,487 @@ class StorageLensDataExportEncryption {
   }
 }
 
+/// A custom grouping of objects that include filters for prefixes, suffixes,
+/// object tags, object size, or object age. You can create an S3 Storage Lens
+/// group that includes a single filter or multiple filter conditions. To
+/// specify multiple filter conditions, you use <code>AND</code> or
+/// <code>OR</code> logical operators.
+class StorageLensGroup {
+  /// Sets the criteria for the Storage Lens group data that is displayed. For
+  /// multiple filter conditions, the <code>AND</code> or <code>OR</code> logical
+  /// operator is used.
+  final StorageLensGroupFilter filter;
+
+  /// Contains the name of the Storage Lens group.
+  final String name;
+
+  /// Contains the Amazon Resource Name (ARN) of the Storage Lens group. This
+  /// property is read-only.
+  final String? storageLensGroupArn;
+
+  StorageLensGroup({
+    required this.filter,
+    required this.name,
+    this.storageLensGroupArn,
+  });
+  factory StorageLensGroup.fromXml(_s.XmlElement elem) {
+    return StorageLensGroup(
+      filter:
+          StorageLensGroupFilter.fromXml(_s.extractXmlChild(elem, 'Filter')!),
+      name: _s.extractXmlStringValue(elem, 'Name')!,
+      storageLensGroupArn:
+          _s.extractXmlStringValue(elem, 'StorageLensGroupArn'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final filter = this.filter;
+    final name = this.name;
+    final storageLensGroupArn = this.storageLensGroupArn;
+    return {
+      'Filter': filter,
+      'Name': name,
+      if (storageLensGroupArn != null)
+        'StorageLensGroupArn': storageLensGroupArn,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final filter = this.filter;
+    final name = this.name;
+    final storageLensGroupArn = this.storageLensGroupArn;
+    final $children = <_s.XmlNode>[
+      _s.encodeXmlStringValue('Name', name),
+      filter.toXml('Filter'),
+      if (storageLensGroupArn != null)
+        _s.encodeXmlStringValue('StorageLensGroupArn', storageLensGroupArn),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+/// A logical operator that allows multiple filter conditions to be joined for
+/// more complex comparisons of Storage Lens group data.
+class StorageLensGroupAndOperator {
+  /// Contains a list of prefixes. At least one prefix must be specified. Up to 10
+  /// prefixes are allowed.
+  final List<String>? matchAnyPrefix;
+
+  /// Contains a list of suffixes. At least one suffix must be specified. Up to 10
+  /// suffixes are allowed.
+  final List<String>? matchAnySuffix;
+
+  /// Contains the list of object tags. At least one object tag must be specified.
+  /// Up to 10 object tags are allowed.
+  final List<S3Tag>? matchAnyTag;
+
+  /// Contains <code>DaysGreaterThan</code> and <code>DaysLessThan</code> to
+  /// define the object age range (minimum and maximum number of days).
+  final MatchObjectAge? matchObjectAge;
+
+  /// Contains <code>BytesGreaterThan</code> and <code>BytesLessThan</code> to
+  /// define the object size range (minimum and maximum number of Bytes).
+  final MatchObjectSize? matchObjectSize;
+
+  StorageLensGroupAndOperator({
+    this.matchAnyPrefix,
+    this.matchAnySuffix,
+    this.matchAnyTag,
+    this.matchObjectAge,
+    this.matchObjectSize,
+  });
+  factory StorageLensGroupAndOperator.fromXml(_s.XmlElement elem) {
+    return StorageLensGroupAndOperator(
+      matchAnyPrefix: _s
+          .extractXmlChild(elem, 'MatchAnyPrefix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Prefix')),
+      matchAnySuffix: _s
+          .extractXmlChild(elem, 'MatchAnySuffix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Suffix')),
+      matchAnyTag: _s
+          .extractXmlChild(elem, 'MatchAnyTag')
+          ?.let((elem) => elem.findElements('Tag').map(S3Tag.fromXml).toList()),
+      matchObjectAge: _s
+          .extractXmlChild(elem, 'MatchObjectAge')
+          ?.let(MatchObjectAge.fromXml),
+      matchObjectSize: _s
+          .extractXmlChild(elem, 'MatchObjectSize')
+          ?.let(MatchObjectSize.fromXml),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySuffix = this.matchAnySuffix;
+    final matchAnyTag = this.matchAnyTag;
+    final matchObjectAge = this.matchObjectAge;
+    final matchObjectSize = this.matchObjectSize;
+    return {
+      if (matchAnyPrefix != null) 'MatchAnyPrefix': matchAnyPrefix,
+      if (matchAnySuffix != null) 'MatchAnySuffix': matchAnySuffix,
+      if (matchAnyTag != null) 'MatchAnyTag': matchAnyTag,
+      if (matchObjectAge != null) 'MatchObjectAge': matchObjectAge,
+      if (matchObjectSize != null) 'MatchObjectSize': matchObjectSize,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySuffix = this.matchAnySuffix;
+    final matchAnyTag = this.matchAnyTag;
+    final matchObjectAge = this.matchObjectAge;
+    final matchObjectSize = this.matchObjectSize;
+    final $children = <_s.XmlNode>[
+      if (matchAnyPrefix != null)
+        _s.XmlElement(_s.XmlName('MatchAnyPrefix'), [],
+            matchAnyPrefix.map((e) => _s.encodeXmlStringValue('Prefix', e))),
+      if (matchAnySuffix != null)
+        _s.XmlElement(_s.XmlName('MatchAnySuffix'), [],
+            matchAnySuffix.map((e) => _s.encodeXmlStringValue('Suffix', e))),
+      if (matchAnyTag != null)
+        _s.XmlElement(_s.XmlName('MatchAnyTag'), [],
+            matchAnyTag.map((e) => e.toXml('Tag'))),
+      if (matchObjectAge != null) matchObjectAge.toXml('MatchObjectAge'),
+      if (matchObjectSize != null) matchObjectSize.toXml('MatchObjectSize'),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+/// The filter element sets the criteria for the Storage Lens group data that is
+/// displayed. For multiple filter conditions, the <code>AND</code> or
+/// <code>OR</code> logical operator is used.
+class StorageLensGroupFilter {
+  /// A logical operator that allows multiple filter conditions to be joined for
+  /// more complex comparisons of Storage Lens group data. Objects must match all
+  /// of the listed filter conditions that are joined by the <code>And</code>
+  /// logical operator. Only one of each filter condition is allowed.
+  final StorageLensGroupAndOperator? and;
+
+  /// Contains a list of prefixes. At least one prefix must be specified. Up to 10
+  /// prefixes are allowed.
+  final List<String>? matchAnyPrefix;
+
+  /// Contains a list of suffixes. At least one suffix must be specified. Up to 10
+  /// suffixes are allowed.
+  final List<String>? matchAnySuffix;
+
+  /// Contains the list of S3 object tags. At least one object tag must be
+  /// specified. Up to 10 object tags are allowed.
+  final List<S3Tag>? matchAnyTag;
+
+  /// Contains <code>DaysGreaterThan</code> and <code>DaysLessThan</code> to
+  /// define the object age range (minimum and maximum number of days).
+  final MatchObjectAge? matchObjectAge;
+
+  /// Contains <code>BytesGreaterThan</code> and <code>BytesLessThan</code> to
+  /// define the object size range (minimum and maximum number of Bytes).
+  final MatchObjectSize? matchObjectSize;
+
+  /// A single logical operator that allows multiple filter conditions to be
+  /// joined. Objects can match any of the listed filter conditions, which are
+  /// joined by the <code>Or</code> logical operator. Only one of each filter
+  /// condition is allowed.
+  final StorageLensGroupOrOperator? or;
+
+  StorageLensGroupFilter({
+    this.and,
+    this.matchAnyPrefix,
+    this.matchAnySuffix,
+    this.matchAnyTag,
+    this.matchObjectAge,
+    this.matchObjectSize,
+    this.or,
+  });
+  factory StorageLensGroupFilter.fromXml(_s.XmlElement elem) {
+    return StorageLensGroupFilter(
+      and: _s
+          .extractXmlChild(elem, 'And')
+          ?.let(StorageLensGroupAndOperator.fromXml),
+      matchAnyPrefix: _s
+          .extractXmlChild(elem, 'MatchAnyPrefix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Prefix')),
+      matchAnySuffix: _s
+          .extractXmlChild(elem, 'MatchAnySuffix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Suffix')),
+      matchAnyTag: _s
+          .extractXmlChild(elem, 'MatchAnyTag')
+          ?.let((elem) => elem.findElements('Tag').map(S3Tag.fromXml).toList()),
+      matchObjectAge: _s
+          .extractXmlChild(elem, 'MatchObjectAge')
+          ?.let(MatchObjectAge.fromXml),
+      matchObjectSize: _s
+          .extractXmlChild(elem, 'MatchObjectSize')
+          ?.let(MatchObjectSize.fromXml),
+      or: _s
+          .extractXmlChild(elem, 'Or')
+          ?.let(StorageLensGroupOrOperator.fromXml),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final and = this.and;
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySuffix = this.matchAnySuffix;
+    final matchAnyTag = this.matchAnyTag;
+    final matchObjectAge = this.matchObjectAge;
+    final matchObjectSize = this.matchObjectSize;
+    final or = this.or;
+    return {
+      if (and != null) 'And': and,
+      if (matchAnyPrefix != null) 'MatchAnyPrefix': matchAnyPrefix,
+      if (matchAnySuffix != null) 'MatchAnySuffix': matchAnySuffix,
+      if (matchAnyTag != null) 'MatchAnyTag': matchAnyTag,
+      if (matchObjectAge != null) 'MatchObjectAge': matchObjectAge,
+      if (matchObjectSize != null) 'MatchObjectSize': matchObjectSize,
+      if (or != null) 'Or': or,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final and = this.and;
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySuffix = this.matchAnySuffix;
+    final matchAnyTag = this.matchAnyTag;
+    final matchObjectAge = this.matchObjectAge;
+    final matchObjectSize = this.matchObjectSize;
+    final or = this.or;
+    final $children = <_s.XmlNode>[
+      if (matchAnyPrefix != null)
+        _s.XmlElement(_s.XmlName('MatchAnyPrefix'), [],
+            matchAnyPrefix.map((e) => _s.encodeXmlStringValue('Prefix', e))),
+      if (matchAnySuffix != null)
+        _s.XmlElement(_s.XmlName('MatchAnySuffix'), [],
+            matchAnySuffix.map((e) => _s.encodeXmlStringValue('Suffix', e))),
+      if (matchAnyTag != null)
+        _s.XmlElement(_s.XmlName('MatchAnyTag'), [],
+            matchAnyTag.map((e) => e.toXml('Tag'))),
+      if (matchObjectAge != null) matchObjectAge.toXml('MatchObjectAge'),
+      if (matchObjectSize != null) matchObjectSize.toXml('MatchObjectSize'),
+      if (and != null) and.toXml('And'),
+      if (or != null) or.toXml('Or'),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+/// Specifies the Storage Lens groups to include in the Storage Lens group
+/// aggregation.
+class StorageLensGroupLevel {
+  /// Indicates which Storage Lens group ARNs to include or exclude in the Storage
+  /// Lens group aggregation. If this value is left null, then all Storage Lens
+  /// groups are selected.
+  final StorageLensGroupLevelSelectionCriteria? selectionCriteria;
+
+  StorageLensGroupLevel({
+    this.selectionCriteria,
+  });
+  factory StorageLensGroupLevel.fromXml(_s.XmlElement elem) {
+    return StorageLensGroupLevel(
+      selectionCriteria: _s
+          .extractXmlChild(elem, 'SelectionCriteria')
+          ?.let(StorageLensGroupLevelSelectionCriteria.fromXml),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final selectionCriteria = this.selectionCriteria;
+    return {
+      if (selectionCriteria != null) 'SelectionCriteria': selectionCriteria,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final selectionCriteria = this.selectionCriteria;
+    final $children = <_s.XmlNode>[
+      if (selectionCriteria != null)
+        selectionCriteria.toXml('SelectionCriteria'),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+/// Indicates which Storage Lens group ARNs to include or exclude in the Storage
+/// Lens group aggregation. You can only attach Storage Lens groups to your
+/// Storage Lens dashboard if they're included in your Storage Lens group
+/// aggregation. If this value is left null, then all Storage Lens groups are
+/// selected.
+class StorageLensGroupLevelSelectionCriteria {
+  /// Indicates which Storage Lens group ARNs to exclude from the Storage Lens
+  /// group aggregation.
+  final List<String>? exclude;
+
+  /// Indicates which Storage Lens group ARNs to include in the Storage Lens group
+  /// aggregation.
+  final List<String>? include;
+
+  StorageLensGroupLevelSelectionCriteria({
+    this.exclude,
+    this.include,
+  });
+  factory StorageLensGroupLevelSelectionCriteria.fromXml(_s.XmlElement elem) {
+    return StorageLensGroupLevelSelectionCriteria(
+      exclude: _s
+          .extractXmlChild(elem, 'Exclude')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Arn')),
+      include: _s
+          .extractXmlChild(elem, 'Include')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Arn')),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final exclude = this.exclude;
+    final include = this.include;
+    return {
+      if (exclude != null) 'Exclude': exclude,
+      if (include != null) 'Include': include,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final exclude = this.exclude;
+    final include = this.include;
+    final $children = <_s.XmlNode>[
+      if (include != null)
+        _s.XmlElement(_s.XmlName('Include'), [],
+            include.map((e) => _s.encodeXmlStringValue('Arn', e))),
+      if (exclude != null)
+        _s.XmlElement(_s.XmlName('Exclude'), [],
+            exclude.map((e) => _s.encodeXmlStringValue('Arn', e))),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+/// A container element for specifying <code>Or</code> rule conditions. The rule
+/// conditions determine the subset of objects to which the <code>Or</code> rule
+/// applies. Objects can match any of the listed filter conditions, which are
+/// joined by the <code>Or</code> logical operator. Only one of each filter
+/// condition is allowed.
+class StorageLensGroupOrOperator {
+  /// Filters objects that match any of the specified prefixes.
+  final List<String>? matchAnyPrefix;
+
+  /// Filters objects that match any of the specified suffixes.
+  final List<String>? matchAnySuffix;
+
+  /// Filters objects that match any of the specified S3 object tags.
+  final List<S3Tag>? matchAnyTag;
+
+  /// Filters objects that match the specified object age range.
+  final MatchObjectAge? matchObjectAge;
+
+  /// Filters objects that match the specified object size range.
+  final MatchObjectSize? matchObjectSize;
+
+  StorageLensGroupOrOperator({
+    this.matchAnyPrefix,
+    this.matchAnySuffix,
+    this.matchAnyTag,
+    this.matchObjectAge,
+    this.matchObjectSize,
+  });
+  factory StorageLensGroupOrOperator.fromXml(_s.XmlElement elem) {
+    return StorageLensGroupOrOperator(
+      matchAnyPrefix: _s
+          .extractXmlChild(elem, 'MatchAnyPrefix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Prefix')),
+      matchAnySuffix: _s
+          .extractXmlChild(elem, 'MatchAnySuffix')
+          ?.let((elem) => _s.extractXmlStringListValues(elem, 'Suffix')),
+      matchAnyTag: _s
+          .extractXmlChild(elem, 'MatchAnyTag')
+          ?.let((elem) => elem.findElements('Tag').map(S3Tag.fromXml).toList()),
+      matchObjectAge: _s
+          .extractXmlChild(elem, 'MatchObjectAge')
+          ?.let(MatchObjectAge.fromXml),
+      matchObjectSize: _s
+          .extractXmlChild(elem, 'MatchObjectSize')
+          ?.let(MatchObjectSize.fromXml),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySuffix = this.matchAnySuffix;
+    final matchAnyTag = this.matchAnyTag;
+    final matchObjectAge = this.matchObjectAge;
+    final matchObjectSize = this.matchObjectSize;
+    return {
+      if (matchAnyPrefix != null) 'MatchAnyPrefix': matchAnyPrefix,
+      if (matchAnySuffix != null) 'MatchAnySuffix': matchAnySuffix,
+      if (matchAnyTag != null) 'MatchAnyTag': matchAnyTag,
+      if (matchObjectAge != null) 'MatchObjectAge': matchObjectAge,
+      if (matchObjectSize != null) 'MatchObjectSize': matchObjectSize,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final matchAnyPrefix = this.matchAnyPrefix;
+    final matchAnySuffix = this.matchAnySuffix;
+    final matchAnyTag = this.matchAnyTag;
+    final matchObjectAge = this.matchObjectAge;
+    final matchObjectSize = this.matchObjectSize;
+    final $children = <_s.XmlNode>[
+      if (matchAnyPrefix != null)
+        _s.XmlElement(_s.XmlName('MatchAnyPrefix'), [],
+            matchAnyPrefix.map((e) => _s.encodeXmlStringValue('Prefix', e))),
+      if (matchAnySuffix != null)
+        _s.XmlElement(_s.XmlName('MatchAnySuffix'), [],
+            matchAnySuffix.map((e) => _s.encodeXmlStringValue('Suffix', e))),
+      if (matchAnyTag != null)
+        _s.XmlElement(_s.XmlName('MatchAnyTag'), [],
+            matchAnyTag.map((e) => e.toXml('Tag'))),
+      if (matchObjectAge != null) matchObjectAge.toXml('MatchObjectAge'),
+      if (matchObjectSize != null) matchObjectSize.toXml('MatchObjectSize'),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
 /// <p/>
 class StorageLensTag {
   /// <p/>
@@ -14385,6 +17749,127 @@ class SubmitMultiRegionAccessPointRoutesResult {
   }
 }
 
+/// An Amazon Web Services resource tag that's associated with your S3 resource.
+/// You can add tags to new objects when you upload them, or you can add object
+/// tags to existing objects.
+/// <note>
+/// This operation is only supported for <a
+/// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/storage-lens-groups.html">S3
+/// Storage Lens groups</a> and for <a
+/// href="https://docs.aws.amazon.com/AmazonS3/latest/userguide/access-grants-tagging.html">S3
+/// Access Grants</a>. The tagged resource can be an S3 Storage Lens group or S3
+/// Access Grants instance, registered location, or grant.
+/// </note>
+class Tag {
+  /// The key of the key-value pair of a tag added to your Amazon Web Services
+  /// resource. A tag key can be up to 128 Unicode characters in length and is
+  /// case-sensitive. System created tags that begin with <code>aws:</code> aren’t
+  /// supported.
+  final String key;
+
+  /// The value of the key-value pair of a tag added to your Amazon Web Services
+  /// resource. A tag value can be up to 256 Unicode characters in length and is
+  /// case-sensitive.
+  final String value;
+
+  Tag({
+    required this.key,
+    required this.value,
+  });
+  factory Tag.fromXml(_s.XmlElement elem) {
+    return Tag(
+      key: _s.extractXmlStringValue(elem, 'Key')!,
+      value: _s.extractXmlStringValue(elem, 'Value')!,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      'Value': value,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final key = this.key;
+    final value = this.value;
+    final $children = <_s.XmlNode>[
+      _s.encodeXmlStringValue('Key', key),
+      _s.encodeXmlStringValue('Value', value),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+class TagResourceRequest {
+  /// The Amazon Web Services account ID that created the S3 resource that you're
+  /// trying to add tags to or the requester's account ID.
+  final String accountId;
+
+  /// The Amazon Resource Name (ARN) of the S3 resource that you're trying to add
+  /// tags to. The tagged resource can be an S3 Storage Lens group or S3 Access
+  /// Grants instance, registered location, or grant.
+  final String resourceArn;
+
+  /// The Amazon Web Services resource tags that you want to add to the specified
+  /// S3 resource.
+  final List<Tag> tags;
+
+  TagResourceRequest({
+    required this.accountId,
+    required this.resourceArn,
+    required this.tags,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final resourceArn = this.resourceArn;
+    final tags = this.tags;
+    return {
+      'Tags': tags,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accountId = this.accountId;
+    final resourceArn = this.resourceArn;
+    final tags = this.tags;
+    final $children = <_s.XmlNode>[
+      _s.XmlElement(_s.XmlName('Tags'), [], tags.map((e) => e.toXml('Tag'))),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+class TagResourceResult {
+  TagResourceResult();
+  factory TagResourceResult.fromXml(
+      // ignore: avoid_unused_constructor_parameters
+      _s.XmlElement elem) {
+    return TagResourceResult();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 /// <p/>
 class Tagging {
   /// A collection for a set of tags.
@@ -14446,7 +17931,7 @@ class Transition {
       days: _s.extractXmlIntValue(elem, 'Days'),
       storageClass: _s
           .extractXmlStringValue(elem, 'StorageClass')
-          ?.toTransitionStorageClass(),
+          ?.let(TransitionStorageClass.fromString),
     );
   }
 
@@ -14457,7 +17942,7 @@ class Transition {
     return {
       if (date != null) 'Date': iso8601ToJson(date),
       if (days != null) 'Days': days,
-      if (storageClass != null) 'StorageClass': storageClass.toValue(),
+      if (storageClass != null) 'StorageClass': storageClass.value,
     };
   }
 
@@ -14469,7 +17954,7 @@ class Transition {
       if (date != null) _s.encodeXmlDateTimeValue('Date', date),
       if (days != null) _s.encodeXmlIntValue('Days', days),
       if (storageClass != null)
-        _s.encodeXmlStringValue('StorageClass', storageClass.toValue()),
+        _s.encodeXmlStringValue('StorageClass', storageClass.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,
@@ -14483,45 +17968,155 @@ class Transition {
 }
 
 enum TransitionStorageClass {
-  glacier,
-  standardIa,
-  onezoneIa,
-  intelligentTiering,
-  deepArchive,
+  glacier('GLACIER'),
+  standardIa('STANDARD_IA'),
+  onezoneIa('ONEZONE_IA'),
+  intelligentTiering('INTELLIGENT_TIERING'),
+  deepArchive('DEEP_ARCHIVE'),
+  ;
+
+  final String value;
+
+  const TransitionStorageClass(this.value);
+
+  static TransitionStorageClass fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TransitionStorageClass'));
 }
 
-extension TransitionStorageClassValueExtension on TransitionStorageClass {
-  String toValue() {
-    switch (this) {
-      case TransitionStorageClass.glacier:
-        return 'GLACIER';
-      case TransitionStorageClass.standardIa:
-        return 'STANDARD_IA';
-      case TransitionStorageClass.onezoneIa:
-        return 'ONEZONE_IA';
-      case TransitionStorageClass.intelligentTiering:
-        return 'INTELLIGENT_TIERING';
-      case TransitionStorageClass.deepArchive:
-        return 'DEEP_ARCHIVE';
-    }
+class UntagResourceResult {
+  UntagResourceResult();
+  factory UntagResourceResult.fromXml(
+      // ignore: avoid_unused_constructor_parameters
+      _s.XmlElement elem) {
+    return UntagResourceResult();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
-extension TransitionStorageClassFromString on String {
-  TransitionStorageClass toTransitionStorageClass() {
-    switch (this) {
-      case 'GLACIER':
-        return TransitionStorageClass.glacier;
-      case 'STANDARD_IA':
-        return TransitionStorageClass.standardIa;
-      case 'ONEZONE_IA':
-        return TransitionStorageClass.onezoneIa;
-      case 'INTELLIGENT_TIERING':
-        return TransitionStorageClass.intelligentTiering;
-      case 'DEEP_ARCHIVE':
-        return TransitionStorageClass.deepArchive;
-    }
-    throw Exception('$this is not known in enum TransitionStorageClass');
+class UpdateAccessGrantsLocationRequest {
+  /// The ID of the registered location that you are updating. S3 Access Grants
+  /// assigns this ID when you register the location. S3 Access Grants assigns the
+  /// ID <code>default</code> to the default location <code>s3://</code> and
+  /// assigns an auto-generated ID to other locations that you register.
+  ///
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigned this ID when you registered the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  ///
+  /// If you are passing the <code>default</code> location, you cannot create an
+  /// access grant for the entire default location. You must also specify a bucket
+  /// or a bucket and prefix in the <code>Subprefix</code> field.
+  final String accessGrantsLocationId;
+
+  /// The ID of the Amazon Web Services account that is making this request.
+  final String accountId;
+
+  /// The Amazon Resource Name (ARN) of the IAM role for the registered location.
+  /// S3 Access Grants assumes this role to manage access to the registered
+  /// location.
+  final String iAMRoleArn;
+
+  UpdateAccessGrantsLocationRequest({
+    required this.accessGrantsLocationId,
+    required this.accountId,
+    required this.iAMRoleArn,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final accountId = this.accountId;
+    final iAMRoleArn = this.iAMRoleArn;
+    return {
+      'IAMRoleArn': iAMRoleArn,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final accountId = this.accountId;
+    final iAMRoleArn = this.iAMRoleArn;
+    final $children = <_s.XmlNode>[
+      _s.encodeXmlStringValue('IAMRoleArn', iAMRoleArn),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
+  }
+}
+
+class UpdateAccessGrantsLocationResult {
+  /// The Amazon Resource Name (ARN) of the registered location that you are
+  /// updating.
+  final String? accessGrantsLocationArn;
+
+  /// The ID of the registered location to which you are granting access. S3
+  /// Access Grants assigned this ID when you registered the location. S3 Access
+  /// Grants assigns the ID <code>default</code> to the default location
+  /// <code>s3://</code> and assigns an auto-generated ID to other locations that
+  /// you register.
+  final String? accessGrantsLocationId;
+
+  /// The date and time when you registered the location.
+  final DateTime? createdAt;
+
+  /// The Amazon Resource Name (ARN) of the IAM role of the registered location.
+  /// S3 Access Grants assumes this role to manage access to the registered
+  /// location.
+  final String? iAMRoleArn;
+
+  /// The S3 URI path of the location that you are updating. You cannot update the
+  /// scope of the registered location. The location scope can be the default S3
+  /// location <code>s3://</code>, the S3 path to a bucket
+  /// <code>s3://&lt;bucket&gt;</code>, or the S3 path to a bucket and prefix
+  /// <code>s3://&lt;bucket&gt;/&lt;prefix&gt;</code>.
+  final String? locationScope;
+
+  UpdateAccessGrantsLocationResult({
+    this.accessGrantsLocationArn,
+    this.accessGrantsLocationId,
+    this.createdAt,
+    this.iAMRoleArn,
+    this.locationScope,
+  });
+  factory UpdateAccessGrantsLocationResult.fromXml(_s.XmlElement elem) {
+    return UpdateAccessGrantsLocationResult(
+      accessGrantsLocationArn:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationArn'),
+      accessGrantsLocationId:
+          _s.extractXmlStringValue(elem, 'AccessGrantsLocationId'),
+      createdAt: _s.extractXmlDateTimeValue(elem, 'CreatedAt'),
+      iAMRoleArn: _s.extractXmlStringValue(elem, 'IAMRoleArn'),
+      locationScope: _s.extractXmlStringValue(elem, 'LocationScope'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessGrantsLocationArn = this.accessGrantsLocationArn;
+    final accessGrantsLocationId = this.accessGrantsLocationId;
+    final createdAt = this.createdAt;
+    final iAMRoleArn = this.iAMRoleArn;
+    final locationScope = this.locationScope;
+    return {
+      if (accessGrantsLocationArn != null)
+        'AccessGrantsLocationArn': accessGrantsLocationArn,
+      if (accessGrantsLocationId != null)
+        'AccessGrantsLocationId': accessGrantsLocationId,
+      if (createdAt != null) 'CreatedAt': iso8601ToJson(createdAt),
+      if (iAMRoleArn != null) 'IAMRoleArn': iAMRoleArn,
+      if (locationScope != null) 'LocationScope': locationScope,
+    };
   }
 }
 
@@ -14571,7 +18166,8 @@ class UpdateJobStatusResult {
   factory UpdateJobStatusResult.fromXml(_s.XmlElement elem) {
     return UpdateJobStatusResult(
       jobId: _s.extractXmlStringValue(elem, 'JobId'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toJobStatus(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')?.let(JobStatus.fromString),
       statusUpdateReason: _s.extractXmlStringValue(elem, 'StatusUpdateReason'),
     );
   }
@@ -14582,9 +18178,52 @@ class UpdateJobStatusResult {
     final statusUpdateReason = this.statusUpdateReason;
     return {
       if (jobId != null) 'JobId': jobId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusUpdateReason != null) 'StatusUpdateReason': statusUpdateReason,
     };
+  }
+}
+
+class UpdateStorageLensGroupRequest {
+  /// The Amazon Web Services account ID of the Storage Lens group owner.
+  final String accountId;
+
+  /// The name of the Storage Lens group that you want to update.
+  final String name;
+
+  /// The JSON file that contains the Storage Lens group configuration.
+  final StorageLensGroup storageLensGroup;
+
+  UpdateStorageLensGroupRequest({
+    required this.accountId,
+    required this.name,
+    required this.storageLensGroup,
+  });
+
+  Map<String, dynamic> toJson() {
+    final accountId = this.accountId;
+    final name = this.name;
+    final storageLensGroup = this.storageLensGroup;
+    return {
+      'StorageLensGroup': storageLensGroup,
+    };
+  }
+
+  _s.XmlElement toXml(String elemName, {List<_s.XmlAttribute>? attributes}) {
+    final accountId = this.accountId;
+    final name = this.name;
+    final storageLensGroup = this.storageLensGroup;
+    final $children = <_s.XmlNode>[
+      storageLensGroup.toXml('StorageLensGroup'),
+    ];
+    final $attributes = <_s.XmlAttribute>[
+      ...?attributes,
+    ];
+    return _s.XmlElement(
+      _s.XmlName(elemName),
+      $attributes,
+      $children,
+    );
   }
 }
 
@@ -14608,8 +18247,8 @@ class VersioningConfiguration {
     final mFADelete = this.mFADelete;
     final status = this.status;
     return {
-      if (mFADelete != null) 'MfaDelete': mFADelete.toValue(),
-      if (status != null) 'Status': status.toValue(),
+      if (mFADelete != null) 'MfaDelete': mFADelete.value,
+      if (status != null) 'Status': status.value,
     };
   }
 
@@ -14618,8 +18257,8 @@ class VersioningConfiguration {
     final status = this.status;
     final $children = <_s.XmlNode>[
       if (mFADelete != null)
-        _s.encodeXmlStringValue('MfaDelete', mFADelete.toValue()),
-      if (status != null) _s.encodeXmlStringValue('Status', status.toValue()),
+        _s.encodeXmlStringValue('MfaDelete', mFADelete.value),
+      if (status != null) _s.encodeXmlStringValue('Status', status.value),
     ];
     final $attributes = <_s.XmlAttribute>[
       ...?attributes,

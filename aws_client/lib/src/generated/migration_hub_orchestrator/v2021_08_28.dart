@@ -20,8 +20,8 @@ import '../../shared/shared.dart'
 export '../../shared/shared.dart' show AwsClientCredentials;
 
 /// This API reference provides descriptions, syntax, and other details about
-/// each of the actions and data types for AWS Migration Hub Orchestrator. he
-/// topic for each action shows the API request parameters and the response.
+/// each of the actions and data types for AWS Migration Hub Orchestrator. The
+/// topic for each action shows the API request parameters and responses.
 /// Alternatively, you can use one of the AWS SDKs to access an API that is
 /// tailored to the programming language or platform that you're using.
 class MigrationHubOrchestrator {
@@ -53,16 +53,61 @@ class MigrationHubOrchestrator {
     _protocol.close();
   }
 
+  /// Creates a migration workflow template.
+  ///
+  /// May throw [ThrottlingException].
+  /// May throw [ConflictException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [templateName] :
+  /// The name of the migration workflow template.
+  ///
+  /// Parameter [templateSource] :
+  /// The source of the migration workflow template.
+  ///
+  /// Parameter [clientToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request. For more information, see <a
+  /// href="https://smithy.io/2.0/spec/behavior-traits.html#idempotencytoken-trait">Idempotency</a>
+  /// in the Smithy documentation.
+  ///
+  /// Parameter [tags] :
+  /// The tags to add to the migration workflow template.
+  ///
+  /// Parameter [templateDescription] :
+  /// A description of the migration workflow template.
+  Future<CreateTemplateResponse> createTemplate({
+    required String templateName,
+    required TemplateSource templateSource,
+    String? clientToken,
+    Map<String, String>? tags,
+    String? templateDescription,
+  }) async {
+    final $payload = <String, dynamic>{
+      'templateName': templateName,
+      'templateSource': templateSource,
+      'clientToken': clientToken ?? _s.generateIdempotencyToken(),
+      if (tags != null) 'tags': tags,
+      if (templateDescription != null)
+        'templateDescription': templateDescription,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/template',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateTemplateResponse.fromJson(response);
+  }
+
   /// Create a workflow to orchestrate your migrations.
   ///
   /// May throw [ThrottlingException].
   /// May throw [AccessDeniedException].
   /// May throw [InternalServerException].
   /// May throw [ValidationException].
-  ///
-  /// Parameter [applicationConfigurationId] :
-  /// The configuration ID of the application configured in Application
-  /// Discovery Service.
   ///
   /// Parameter [inputParameters] :
   /// The input parameters required to create a migration workflow.
@@ -73,6 +118,10 @@ class MigrationHubOrchestrator {
   /// Parameter [templateId] :
   /// The ID of the template.
   ///
+  /// Parameter [applicationConfigurationId] :
+  /// The configuration ID of the application configured in Application
+  /// Discovery Service.
+  ///
   /// Parameter [description] :
   /// The description of the migration workflow.
   ///
@@ -82,19 +131,20 @@ class MigrationHubOrchestrator {
   /// Parameter [tags] :
   /// The tags to add on a migration workflow.
   Future<CreateMigrationWorkflowResponse> createWorkflow({
-    required String applicationConfigurationId,
     required Map<String, StepInput> inputParameters,
     required String name,
     required String templateId,
+    String? applicationConfigurationId,
     String? description,
     List<String>? stepTargets,
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
-      'applicationConfigurationId': applicationConfigurationId,
       'inputParameters': inputParameters,
       'name': name,
       'templateId': templateId,
+      if (applicationConfigurationId != null)
+        'applicationConfigurationId': applicationConfigurationId,
       if (description != null) 'description': description,
       if (stepTargets != null) 'stepTargets': stepTargets,
       if (tags != null) 'tags': tags,
@@ -159,7 +209,7 @@ class MigrationHubOrchestrator {
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      'stepActionType': stepActionType.toValue(),
+      'stepActionType': stepActionType.value,
       'stepGroupId': stepGroupId,
       'workflowId': workflowId,
       if (description != null) 'description': description,
@@ -222,6 +272,27 @@ class MigrationHubOrchestrator {
       exceptionFnMap: _exceptionFns,
     );
     return CreateWorkflowStepGroupResponse.fromJson(response);
+  }
+
+  /// Deletes a migration workflow template.
+  ///
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [id] :
+  /// The ID of the request to delete a migration workflow template.
+  Future<void> deleteTemplate({
+    required String id,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri: '/template/${Uri.encodeComponent(id)}',
+      exceptionFnMap: _exceptionFns,
+    );
   }
 
   /// Delete a migration workflow. You must pause a running workflow in
@@ -427,7 +498,7 @@ class MigrationHubOrchestrator {
   /// The ID of the step.
   ///
   /// Parameter [stepGroupId] :
-  /// desThe ID of the step group.
+  /// The ID of the step group.
   ///
   /// Parameter [workflowId] :
   /// The ID of the migration workflow.
@@ -794,7 +865,7 @@ class MigrationHubOrchestrator {
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (name != null) 'name': [name],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (status != null) 'status': [status.toValue()],
+      if (status != null) 'status': [status.value],
       if (templateId != null) 'templateId': [templateId],
     };
     final response = await _protocol.send(
@@ -939,6 +1010,47 @@ class MigrationHubOrchestrator {
     );
   }
 
+  /// Updates a migration workflow template.
+  ///
+  /// May throw [ThrottlingException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [id] :
+  /// The ID of the request to update a migration workflow template.
+  ///
+  /// Parameter [clientToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
+  ///
+  /// Parameter [templateDescription] :
+  /// The description of the migration workflow template to update.
+  ///
+  /// Parameter [templateName] :
+  /// The name of the migration workflow template to update.
+  Future<UpdateTemplateResponse> updateTemplate({
+    required String id,
+    String? clientToken,
+    String? templateDescription,
+    String? templateName,
+  }) async {
+    final $payload = <String, dynamic>{
+      'clientToken': clientToken ?? _s.generateIdempotencyToken(),
+      if (templateDescription != null)
+        'templateDescription': templateDescription,
+      if (templateName != null) 'templateName': templateName,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/template/${Uri.encodeComponent(id)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateTemplateResponse.fromJson(response);
+  }
+
   /// Update a migration workflow.
   ///
   /// May throw [ThrottlingException].
@@ -1048,8 +1160,8 @@ class MigrationHubOrchestrator {
       if (next != null) 'next': next,
       if (outputs != null) 'outputs': outputs,
       if (previous != null) 'previous': previous,
-      if (status != null) 'status': status.toValue(),
-      if (stepActionType != null) 'stepActionType': stepActionType.toValue(),
+      if (status != null) 'status': status.value,
+      if (stepActionType != null) 'stepActionType': stepActionType.value,
       if (stepTarget != null) 'stepTarget': stepTarget,
       if (workflowStepAutomationConfiguration != null)
         'workflowStepAutomationConfiguration':
@@ -1175,9 +1287,10 @@ class CreateMigrationWorkflowResponse {
       description: json['description'] as String?,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toMigrationWorkflowStatusEnum(),
+      status: (json['status'] as String?)
+          ?.let(MigrationWorkflowStatusEnum.fromString),
       stepTargets: (json['stepTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
@@ -1209,11 +1322,53 @@ class CreateMigrationWorkflowResponse {
       if (description != null) 'description': description,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (stepTargets != null) 'stepTargets': stepTargets,
       if (tags != null) 'tags': tags,
       if (templateId != null) 'templateId': templateId,
       if (workflowInputs != null) 'workflowInputs': workflowInputs,
+    };
+  }
+}
+
+class CreateTemplateResponse {
+  /// The tags added to the migration workflow template.
+  final Map<String, String>? tags;
+
+  /// The Amazon Resource Name (ARN) of the migration workflow template. The
+  /// format for an Migration Hub Orchestrator template ARN is
+  /// <code>arn:aws:migrationhub-orchestrator:region:account:template/template-abcd1234</code>.
+  /// For more information about ARNs, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html">Amazon
+  /// Resource Names (ARNs)</a> in the <i>AWS General Reference</i>.
+  final String? templateArn;
+
+  /// The ID of the migration workflow template.
+  final String? templateId;
+
+  CreateTemplateResponse({
+    this.tags,
+    this.templateArn,
+    this.templateId,
+  });
+
+  factory CreateTemplateResponse.fromJson(Map<String, dynamic> json) {
+    return CreateTemplateResponse(
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      templateArn: json['templateArn'] as String?,
+      templateId: json['templateId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final tags = this.tags;
+    final templateArn = this.templateArn;
+    final templateId = this.templateId;
+    return {
+      if (tags != null) 'tags': tags,
+      if (templateArn != null) 'templateArn': templateArn,
+      if (templateId != null) 'templateId': templateId,
     };
   }
 }
@@ -1260,16 +1415,13 @@ class CreateWorkflowStepGroupResponse {
       description: json['description'] as String?,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tools: (json['tools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tool.fromJson(e as Map<String, dynamic>))
           .toList(),
       workflowId: json['workflowId'] as String?,
@@ -1343,41 +1495,19 @@ class CreateWorkflowStepResponse {
 }
 
 enum DataType {
-  string,
-  integer,
-  stringlist,
-  stringmap,
-}
+  string('STRING'),
+  integer('INTEGER'),
+  stringlist('STRINGLIST'),
+  stringmap('STRINGMAP'),
+  ;
 
-extension DataTypeValueExtension on DataType {
-  String toValue() {
-    switch (this) {
-      case DataType.string:
-        return 'STRING';
-      case DataType.integer:
-        return 'INTEGER';
-      case DataType.stringlist:
-        return 'STRINGLIST';
-      case DataType.stringmap:
-        return 'STRINGMAP';
-    }
-  }
-}
+  final String value;
 
-extension DataTypeFromString on String {
-  DataType toDataType() {
-    switch (this) {
-      case 'STRING':
-        return DataType.string;
-      case 'INTEGER':
-        return DataType.integer;
-      case 'STRINGLIST':
-        return DataType.stringlist;
-      case 'STRINGMAP':
-        return DataType.stringmap;
-    }
-    throw Exception('$this is not known in enum DataType');
-  }
+  const DataType(this.value);
+
+  static DataType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum DataType'));
 }
 
 class DeleteMigrationWorkflowResponse {
@@ -1400,7 +1530,8 @@ class DeleteMigrationWorkflowResponse {
     return DeleteMigrationWorkflowResponse(
       arn: json['arn'] as String?,
       id: json['id'] as String?,
-      status: (json['status'] as String?)?.toMigrationWorkflowStatusEnum(),
+      status: (json['status'] as String?)
+          ?.let(MigrationWorkflowStatusEnum.fromString),
     );
   }
 
@@ -1411,8 +1542,20 @@ class DeleteMigrationWorkflowResponse {
     return {
       if (arn != null) 'arn': arn,
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
+  }
+}
+
+class DeleteTemplateResponse {
+  DeleteTemplateResponse();
+
+  factory DeleteTemplateResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteTemplateResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -1540,13 +1683,14 @@ class GetMigrationWorkflowResponse {
       lastStartTime: timeStampFromJson(json['lastStartTime']),
       lastStopTime: timeStampFromJson(json['lastStopTime']),
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toMigrationWorkflowStatusEnum(),
+      status: (json['status'] as String?)
+          ?.let(MigrationWorkflowStatusEnum.fromString),
       statusMessage: json['statusMessage'] as String?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       templateId: json['templateId'] as String?,
       tools: (json['tools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tool.fromJson(e as Map<String, dynamic>))
           .toList(),
       totalSteps: json['totalSteps'] as int?,
@@ -1595,7 +1739,7 @@ class GetMigrationWorkflowResponse {
       if (lastStopTime != null)
         'lastStopTime': unixTimestampToJson(lastStopTime),
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
       if (tags != null) 'tags': tags,
       if (templateId != null) 'templateId': templateId,
@@ -1623,8 +1767,50 @@ class GetMigrationWorkflowTemplateResponse {
   /// The name of the template.
   final String? name;
 
+  /// The owner of the migration workflow template.
+  final String? owner;
+
   /// The status of the template.
   final TemplateStatus? status;
+
+  /// The status message of retrieving migration workflow templates.
+  final String? statusMessage;
+
+  /// The tags added to the migration workflow template.
+  final Map<String, String>? tags;
+
+  /// &gt;The Amazon Resource Name (ARN) of the migration workflow template. The
+  /// format for an Migration Hub Orchestrator template ARN is
+  /// <code>arn:aws:migrationhub-orchestrator:region:account:template/template-abcd1234</code>.
+  /// For more information about ARNs, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html">Amazon
+  /// Resource Names (ARNs)</a> in the <i>AWS General Reference</i>.
+  final String? templateArn;
+
+  /// The class of the migration workflow template. The available template classes
+  /// are:
+  ///
+  /// <ul>
+  /// <li>
+  /// A2C
+  /// </li>
+  /// <li>
+  /// MGN
+  /// </li>
+  /// <li>
+  /// SAP_MULTI
+  /// </li>
+  /// <li>
+  /// SQL_EC2
+  /// </li>
+  /// <li>
+  /// SQL_RDS
+  /// </li>
+  /// <li>
+  /// VMIE
+  /// </li>
+  /// </ul>
+  final String? templateClass;
 
   /// List of AWS services utilized in a migration workflow.
   final List<Tool>? tools;
@@ -1635,7 +1821,12 @@ class GetMigrationWorkflowTemplateResponse {
     this.id,
     this.inputs,
     this.name,
+    this.owner,
     this.status,
+    this.statusMessage,
+    this.tags,
+    this.templateArn,
+    this.templateClass,
     this.tools,
   });
 
@@ -1646,13 +1837,19 @@ class GetMigrationWorkflowTemplateResponse {
       description: json['description'] as String?,
       id: json['id'] as String?,
       inputs: (json['inputs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TemplateInput.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toTemplateStatus(),
+      owner: json['owner'] as String?,
+      status: (json['status'] as String?)?.let(TemplateStatus.fromString),
+      statusMessage: json['statusMessage'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      templateArn: json['templateArn'] as String?,
+      templateClass: json['templateClass'] as String?,
       tools: (json['tools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tool.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1664,7 +1861,12 @@ class GetMigrationWorkflowTemplateResponse {
     final id = this.id;
     final inputs = this.inputs;
     final name = this.name;
+    final owner = this.owner;
     final status = this.status;
+    final statusMessage = this.statusMessage;
+    final tags = this.tags;
+    final templateArn = this.templateArn;
+    final templateClass = this.templateClass;
     final tools = this.tools;
     return {
       if (creationTime != null)
@@ -1673,7 +1875,12 @@ class GetMigrationWorkflowTemplateResponse {
       if (id != null) 'id': id,
       if (inputs != null) 'inputs': inputs,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (owner != null) 'owner': owner,
+      if (status != null) 'status': status.value,
+      if (statusMessage != null) 'statusMessage': statusMessage,
+      if (tags != null) 'tags': tags,
+      if (templateArn != null) 'templateArn': templateArn,
+      if (templateClass != null) 'templateClass': templateClass,
       if (tools != null) 'tools': tools,
     };
   }
@@ -1730,18 +1937,15 @@ class GetTemplateStepGroupResponse {
       id: json['id'] as String?,
       lastModifiedTime: timeStampFromJson(json['lastModifiedTime']),
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status: (json['status'] as String?)?.toStepGroupStatus(),
+      status: (json['status'] as String?)?.let(StepGroupStatus.fromString),
       templateId: json['templateId'] as String?,
       tools: (json['tools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tool.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1768,7 +1972,7 @@ class GetTemplateStepGroupResponse {
       if (name != null) 'name': name,
       if (next != null) 'next': next,
       if (previous != null) 'previous': previous,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (templateId != null) 'templateId': templateId,
       if (tools != null) 'tools': tools,
     };
@@ -1830,19 +2034,17 @@ class GetTemplateStepResponse {
       description: json['description'] as String?,
       id: json['id'] as String?,
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
       outputs: (json['outputs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StepOutput.fromJson(e as Map<String, dynamic>))
           .toList(),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      stepActionType: (json['stepActionType'] as String?)?.toStepActionType(),
+      stepActionType:
+          (json['stepActionType'] as String?)?.let(StepActionType.fromString),
       stepAutomationConfiguration: json['stepAutomationConfiguration'] != null
           ? StepAutomationConfiguration.fromJson(
               json['stepAutomationConfiguration'] as Map<String, dynamic>)
@@ -1872,7 +2074,7 @@ class GetTemplateStepResponse {
       if (next != null) 'next': next,
       if (outputs != null) 'outputs': outputs,
       if (previous != null) 'previous': previous,
-      if (stepActionType != null) 'stepActionType': stepActionType.toValue(),
+      if (stepActionType != null) 'stepActionType': stepActionType.value,
       if (stepAutomationConfiguration != null)
         'stepAutomationConfiguration': stepAutomationConfiguration,
       if (stepGroupId != null) 'stepGroupId': stepGroupId,
@@ -1941,18 +2143,15 @@ class GetWorkflowStepGroupResponse {
       id: json['id'] as String?,
       lastModifiedTime: timeStampFromJson(json['lastModifiedTime']),
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      owner: (json['owner'] as String?)?.toOwner(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      owner: (json['owner'] as String?)?.let(Owner.fromString),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status: (json['status'] as String?)?.toStepGroupStatus(),
+      status: (json['status'] as String?)?.let(StepGroupStatus.fromString),
       tools: (json['tools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tool.fromJson(e as Map<String, dynamic>))
           .toList(),
       workflowId: json['workflowId'] as String?,
@@ -1982,9 +2181,9 @@ class GetWorkflowStepGroupResponse {
         'lastModifiedTime': unixTimestampToJson(lastModifiedTime),
       if (name != null) 'name': name,
       if (next != null) 'next': next,
-      if (owner != null) 'owner': owner.toValue(),
+      if (owner != null) 'owner': owner.value,
       if (previous != null) 'previous': previous,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tools != null) 'tools': tools,
       if (workflowId != null) 'workflowId': workflowId,
     };
@@ -2088,29 +2287,27 @@ class GetWorkflowStepResponse {
       endTime: timeStampFromJson(json['endTime']),
       lastStartTime: timeStampFromJson(json['lastStartTime']),
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
       noOfSrvCompleted: json['noOfSrvCompleted'] as int?,
       noOfSrvFailed: json['noOfSrvFailed'] as int?,
       outputs: (json['outputs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowStepOutput.fromJson(e as Map<String, dynamic>))
           .toList(),
-      owner: (json['owner'] as String?)?.toOwner(),
+      owner: (json['owner'] as String?)?.let(Owner.fromString),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       scriptOutputLocation: json['scriptOutputLocation'] as String?,
-      status: (json['status'] as String?)?.toStepStatus(),
+      status: (json['status'] as String?)?.let(StepStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
-      stepActionType: (json['stepActionType'] as String?)?.toStepActionType(),
+      stepActionType:
+          (json['stepActionType'] as String?)?.let(StepActionType.fromString),
       stepGroupId: json['stepGroupId'] as String?,
       stepId: json['stepId'] as String?,
       stepTarget: (json['stepTarget'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       totalNoOfSrv: json['totalNoOfSrv'] as int?,
@@ -2159,13 +2356,13 @@ class GetWorkflowStepResponse {
       if (noOfSrvCompleted != null) 'noOfSrvCompleted': noOfSrvCompleted,
       if (noOfSrvFailed != null) 'noOfSrvFailed': noOfSrvFailed,
       if (outputs != null) 'outputs': outputs,
-      if (owner != null) 'owner': owner.toValue(),
+      if (owner != null) 'owner': owner.value,
       if (previous != null) 'previous': previous,
       if (scriptOutputLocation != null)
         'scriptOutputLocation': scriptOutputLocation,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
-      if (stepActionType != null) 'stepActionType': stepActionType.toValue(),
+      if (stepActionType != null) 'stepActionType': stepActionType.value,
       if (stepGroupId != null) 'stepGroupId': stepGroupId,
       if (stepId != null) 'stepId': stepId,
       if (stepTarget != null) 'stepTarget': stepTarget,
@@ -2194,7 +2391,7 @@ class ListMigrationWorkflowTemplatesResponse {
       Map<String, dynamic> json) {
     return ListMigrationWorkflowTemplatesResponse(
       templateSummary: (json['templateSummary'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => TemplateSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2226,7 +2423,7 @@ class ListMigrationWorkflowsResponse {
   factory ListMigrationWorkflowsResponse.fromJson(Map<String, dynamic> json) {
     return ListMigrationWorkflowsResponse(
       migrationWorkflowSummary: (json['migrationWorkflowSummary'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               MigrationWorkflowSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2260,7 +2457,7 @@ class ListPluginsResponse {
     return ListPluginsResponse(
       nextToken: json['nextToken'] as String?,
       plugins: (json['plugins'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PluginSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2314,7 +2511,7 @@ class ListTemplateStepGroupsResponse {
   factory ListTemplateStepGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListTemplateStepGroupsResponse(
       templateStepGroupSummary: (json['templateStepGroupSummary'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               TemplateStepGroupSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2348,7 +2545,7 @@ class ListTemplateStepsResponse {
     return ListTemplateStepsResponse(
       nextToken: json['nextToken'] as String?,
       templateStepSummaryList: (json['templateStepSummaryList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TemplateStepSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2380,7 +2577,7 @@ class ListWorkflowStepGroupsResponse {
   factory ListWorkflowStepGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListWorkflowStepGroupsResponse(
       workflowStepGroupsSummary: (json['workflowStepGroupsSummary'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               WorkflowStepGroupSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2413,7 +2610,7 @@ class ListWorkflowStepsResponse {
   factory ListWorkflowStepsResponse.fromJson(Map<String, dynamic> json) {
     return ListWorkflowStepsResponse(
       workflowStepsSummary: (json['workflowStepsSummary'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => WorkflowStepSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -2431,92 +2628,30 @@ class ListWorkflowStepsResponse {
 }
 
 enum MigrationWorkflowStatusEnum {
-  creating,
-  notStarted,
-  creationFailed,
-  starting,
-  inProgress,
-  workflowFailed,
-  paused,
-  pausing,
-  pausingFailed,
-  userAttentionRequired,
-  deleting,
-  deletionFailed,
-  deleted,
-  completed,
-}
+  creating('CREATING'),
+  notStarted('NOT_STARTED'),
+  creationFailed('CREATION_FAILED'),
+  starting('STARTING'),
+  inProgress('IN_PROGRESS'),
+  workflowFailed('WORKFLOW_FAILED'),
+  paused('PAUSED'),
+  pausing('PAUSING'),
+  pausingFailed('PAUSING_FAILED'),
+  userAttentionRequired('USER_ATTENTION_REQUIRED'),
+  deleting('DELETING'),
+  deletionFailed('DELETION_FAILED'),
+  deleted('DELETED'),
+  completed('COMPLETED'),
+  ;
 
-extension MigrationWorkflowStatusEnumValueExtension
-    on MigrationWorkflowStatusEnum {
-  String toValue() {
-    switch (this) {
-      case MigrationWorkflowStatusEnum.creating:
-        return 'CREATING';
-      case MigrationWorkflowStatusEnum.notStarted:
-        return 'NOT_STARTED';
-      case MigrationWorkflowStatusEnum.creationFailed:
-        return 'CREATION_FAILED';
-      case MigrationWorkflowStatusEnum.starting:
-        return 'STARTING';
-      case MigrationWorkflowStatusEnum.inProgress:
-        return 'IN_PROGRESS';
-      case MigrationWorkflowStatusEnum.workflowFailed:
-        return 'WORKFLOW_FAILED';
-      case MigrationWorkflowStatusEnum.paused:
-        return 'PAUSED';
-      case MigrationWorkflowStatusEnum.pausing:
-        return 'PAUSING';
-      case MigrationWorkflowStatusEnum.pausingFailed:
-        return 'PAUSING_FAILED';
-      case MigrationWorkflowStatusEnum.userAttentionRequired:
-        return 'USER_ATTENTION_REQUIRED';
-      case MigrationWorkflowStatusEnum.deleting:
-        return 'DELETING';
-      case MigrationWorkflowStatusEnum.deletionFailed:
-        return 'DELETION_FAILED';
-      case MigrationWorkflowStatusEnum.deleted:
-        return 'DELETED';
-      case MigrationWorkflowStatusEnum.completed:
-        return 'COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension MigrationWorkflowStatusEnumFromString on String {
-  MigrationWorkflowStatusEnum toMigrationWorkflowStatusEnum() {
-    switch (this) {
-      case 'CREATING':
-        return MigrationWorkflowStatusEnum.creating;
-      case 'NOT_STARTED':
-        return MigrationWorkflowStatusEnum.notStarted;
-      case 'CREATION_FAILED':
-        return MigrationWorkflowStatusEnum.creationFailed;
-      case 'STARTING':
-        return MigrationWorkflowStatusEnum.starting;
-      case 'IN_PROGRESS':
-        return MigrationWorkflowStatusEnum.inProgress;
-      case 'WORKFLOW_FAILED':
-        return MigrationWorkflowStatusEnum.workflowFailed;
-      case 'PAUSED':
-        return MigrationWorkflowStatusEnum.paused;
-      case 'PAUSING':
-        return MigrationWorkflowStatusEnum.pausing;
-      case 'PAUSING_FAILED':
-        return MigrationWorkflowStatusEnum.pausingFailed;
-      case 'USER_ATTENTION_REQUIRED':
-        return MigrationWorkflowStatusEnum.userAttentionRequired;
-      case 'DELETING':
-        return MigrationWorkflowStatusEnum.deleting;
-      case 'DELETION_FAILED':
-        return MigrationWorkflowStatusEnum.deletionFailed;
-      case 'DELETED':
-        return MigrationWorkflowStatusEnum.deleted;
-      case 'COMPLETED':
-        return MigrationWorkflowStatusEnum.completed;
-    }
-    throw Exception('$this is not known in enum MigrationWorkflowStatusEnum');
-  }
+  const MigrationWorkflowStatusEnum(this.value);
+
+  static MigrationWorkflowStatusEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MigrationWorkflowStatusEnum'));
 }
 
 /// The summary of a migration workflow.
@@ -2573,7 +2708,8 @@ class MigrationWorkflowSummary {
       endTime: timeStampFromJson(json['endTime']),
       id: json['id'] as String?,
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toMigrationWorkflowStatusEnum(),
+      status: (json['status'] as String?)
+          ?.let(MigrationWorkflowStatusEnum.fromString),
       statusMessage: json['statusMessage'] as String?,
       templateId: json['templateId'] as String?,
       totalSteps: json['totalSteps'] as int?,
@@ -2601,7 +2737,7 @@ class MigrationWorkflowSummary {
       if (endTime != null) 'endTime': unixTimestampToJson(endTime),
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
       if (templateId != null) 'templateId': templateId,
       if (totalSteps != null) 'totalSteps': totalSteps,
@@ -2610,31 +2746,17 @@ class MigrationWorkflowSummary {
 }
 
 enum Owner {
-  awsManaged,
-  custom,
-}
+  awsManaged('AWS_MANAGED'),
+  custom('CUSTOM'),
+  ;
 
-extension OwnerValueExtension on Owner {
-  String toValue() {
-    switch (this) {
-      case Owner.awsManaged:
-        return 'AWS_MANAGED';
-      case Owner.custom:
-        return 'CUSTOM';
-    }
-  }
-}
+  final String value;
 
-extension OwnerFromString on String {
-  Owner toOwner() {
-    switch (this) {
-      case 'AWS_MANAGED':
-        return Owner.awsManaged;
-      case 'CUSTOM':
-        return Owner.custom;
-    }
-    throw Exception('$this is not known in enum Owner');
-  }
+  const Owner(this.value);
+
+  static Owner fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Owner'));
 }
 
 /// Command to be run on a particular operating system.
@@ -2698,31 +2820,18 @@ class PlatformScriptKey {
 }
 
 enum PluginHealth {
-  healthy,
-  unhealthy,
-}
+  healthy('HEALTHY'),
+  unhealthy('UNHEALTHY'),
+  ;
 
-extension PluginHealthValueExtension on PluginHealth {
-  String toValue() {
-    switch (this) {
-      case PluginHealth.healthy:
-        return 'HEALTHY';
-      case PluginHealth.unhealthy:
-        return 'UNHEALTHY';
-    }
-  }
-}
+  final String value;
 
-extension PluginHealthFromString on String {
-  PluginHealth toPluginHealth() {
-    switch (this) {
-      case 'HEALTHY':
-        return PluginHealth.healthy;
-      case 'UNHEALTHY':
-        return PluginHealth.unhealthy;
-    }
-    throw Exception('$this is not known in enum PluginHealth');
-  }
+  const PluginHealth(this.value);
+
+  static PluginHealth fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PluginHealth'));
 }
 
 /// The summary of the Migration Hub Orchestrator plugin.
@@ -2760,7 +2869,7 @@ class PluginSummary {
       ipAddress: json['ipAddress'] as String?,
       pluginId: json['pluginId'] as String?,
       registeredTime: json['registeredTime'] as String?,
-      status: (json['status'] as String?)?.toPluginHealth(),
+      status: (json['status'] as String?)?.let(PluginHealth.fromString),
       version: json['version'] as String?,
     );
   }
@@ -2777,7 +2886,7 @@ class PluginSummary {
       if (ipAddress != null) 'ipAddress': ipAddress,
       if (pluginId != null) 'pluginId': pluginId,
       if (registeredTime != null) 'registeredTime': registeredTime,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (version != null) 'version': version,
     };
   }
@@ -2806,7 +2915,7 @@ class RetryWorkflowStepResponse {
   factory RetryWorkflowStepResponse.fromJson(Map<String, dynamic> json) {
     return RetryWorkflowStepResponse(
       id: json['id'] as String?,
-      status: (json['status'] as String?)?.toStepStatus(),
+      status: (json['status'] as String?)?.let(StepStatus.fromString),
       stepGroupId: json['stepGroupId'] as String?,
       workflowId: json['workflowId'] as String?,
     );
@@ -2819,7 +2928,7 @@ class RetryWorkflowStepResponse {
     final workflowId = this.workflowId;
     return {
       if (id != null) 'id': id,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (stepGroupId != null) 'stepGroupId': stepGroupId,
       if (workflowId != null) 'workflowId': workflowId,
     };
@@ -2827,31 +2936,18 @@ class RetryWorkflowStepResponse {
 }
 
 enum RunEnvironment {
-  aws,
-  onpremise,
-}
+  aws('AWS'),
+  onpremise('ONPREMISE'),
+  ;
 
-extension RunEnvironmentValueExtension on RunEnvironment {
-  String toValue() {
-    switch (this) {
-      case RunEnvironment.aws:
-        return 'AWS';
-      case RunEnvironment.onpremise:
-        return 'ONPREMISE';
-    }
-  }
-}
+  final String value;
 
-extension RunEnvironmentFromString on String {
-  RunEnvironment toRunEnvironment() {
-    switch (this) {
-      case 'AWS':
-        return RunEnvironment.aws;
-      case 'ONPREMISE':
-        return RunEnvironment.onpremise;
-    }
-    throw Exception('$this is not known in enum RunEnvironment');
-  }
+  const RunEnvironment(this.value);
+
+  static RunEnvironment fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RunEnvironment'));
 }
 
 class StartMigrationWorkflowResponse {
@@ -2883,7 +2979,8 @@ class StartMigrationWorkflowResponse {
       arn: json['arn'] as String?,
       id: json['id'] as String?,
       lastStartTime: timeStampFromJson(json['lastStartTime']),
-      status: (json['status'] as String?)?.toMigrationWorkflowStatusEnum(),
+      status: (json['status'] as String?)
+          ?.let(MigrationWorkflowStatusEnum.fromString),
       statusMessage: json['statusMessage'] as String?,
     );
   }
@@ -2899,38 +2996,25 @@ class StartMigrationWorkflowResponse {
       if (id != null) 'id': id,
       if (lastStartTime != null)
         'lastStartTime': unixTimestampToJson(lastStartTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
     };
   }
 }
 
 enum StepActionType {
-  manual,
-  automated,
-}
+  manual('MANUAL'),
+  automated('AUTOMATED'),
+  ;
 
-extension StepActionTypeValueExtension on StepActionType {
-  String toValue() {
-    switch (this) {
-      case StepActionType.manual:
-        return 'MANUAL';
-      case StepActionType.automated:
-        return 'AUTOMATED';
-    }
-  }
-}
+  final String value;
 
-extension StepActionTypeFromString on String {
-  StepActionType toStepActionType() {
-    switch (this) {
-      case 'MANUAL':
-        return StepActionType.manual;
-      case 'AUTOMATED':
-        return StepActionType.automated;
-    }
-    throw Exception('$this is not known in enum StepActionType');
-  }
+  const StepActionType(this.value);
+
+  static StepActionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StepActionType'));
 }
 
 /// The custom script to run tests on source or target environments.
@@ -2963,13 +3047,14 @@ class StepAutomationConfiguration {
       command: json['command'] != null
           ? PlatformCommand.fromJson(json['command'] as Map<String, dynamic>)
           : null,
-      runEnvironment: (json['runEnvironment'] as String?)?.toRunEnvironment(),
+      runEnvironment:
+          (json['runEnvironment'] as String?)?.let(RunEnvironment.fromString),
       scriptLocationS3Bucket: json['scriptLocationS3Bucket'] as String?,
       scriptLocationS3Key: json['scriptLocationS3Key'] != null
           ? PlatformScriptKey.fromJson(
               json['scriptLocationS3Key'] as Map<String, dynamic>)
           : null,
-      targetType: (json['targetType'] as String?)?.toTargetType(),
+      targetType: (json['targetType'] as String?)?.let(TargetType.fromString),
     );
   }
 
@@ -2981,72 +3066,35 @@ class StepAutomationConfiguration {
     final targetType = this.targetType;
     return {
       if (command != null) 'command': command,
-      if (runEnvironment != null) 'runEnvironment': runEnvironment.toValue(),
+      if (runEnvironment != null) 'runEnvironment': runEnvironment.value,
       if (scriptLocationS3Bucket != null)
         'scriptLocationS3Bucket': scriptLocationS3Bucket,
       if (scriptLocationS3Key != null)
         'scriptLocationS3Key': scriptLocationS3Key,
-      if (targetType != null) 'targetType': targetType.toValue(),
+      if (targetType != null) 'targetType': targetType.value,
     };
   }
 }
 
 enum StepGroupStatus {
-  awaitingDependencies,
-  ready,
-  inProgress,
-  completed,
-  failed,
-  paused,
-  pausing,
-  userAttentionRequired,
-}
+  awaitingDependencies('AWAITING_DEPENDENCIES'),
+  ready('READY'),
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  paused('PAUSED'),
+  pausing('PAUSING'),
+  userAttentionRequired('USER_ATTENTION_REQUIRED'),
+  ;
 
-extension StepGroupStatusValueExtension on StepGroupStatus {
-  String toValue() {
-    switch (this) {
-      case StepGroupStatus.awaitingDependencies:
-        return 'AWAITING_DEPENDENCIES';
-      case StepGroupStatus.ready:
-        return 'READY';
-      case StepGroupStatus.inProgress:
-        return 'IN_PROGRESS';
-      case StepGroupStatus.completed:
-        return 'COMPLETED';
-      case StepGroupStatus.failed:
-        return 'FAILED';
-      case StepGroupStatus.paused:
-        return 'PAUSED';
-      case StepGroupStatus.pausing:
-        return 'PAUSING';
-      case StepGroupStatus.userAttentionRequired:
-        return 'USER_ATTENTION_REQUIRED';
-    }
-  }
-}
+  final String value;
 
-extension StepGroupStatusFromString on String {
-  StepGroupStatus toStepGroupStatus() {
-    switch (this) {
-      case 'AWAITING_DEPENDENCIES':
-        return StepGroupStatus.awaitingDependencies;
-      case 'READY':
-        return StepGroupStatus.ready;
-      case 'IN_PROGRESS':
-        return StepGroupStatus.inProgress;
-      case 'COMPLETED':
-        return StepGroupStatus.completed;
-      case 'FAILED':
-        return StepGroupStatus.failed;
-      case 'PAUSED':
-        return StepGroupStatus.paused;
-      case 'PAUSING':
-        return StepGroupStatus.pausing;
-      case 'USER_ATTENTION_REQUIRED':
-        return StepGroupStatus.userAttentionRequired;
-    }
-    throw Exception('$this is not known in enum StepGroupStatus');
-  }
+  const StepGroupStatus(this.value);
+
+  static StepGroupStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StepGroupStatus'));
 }
 
 /// A map of key value pairs that is generated when you create a migration
@@ -3076,7 +3124,7 @@ class StepInput {
     return StepInput(
       integerValue: json['integerValue'] as int?,
       listOfStringsValue: (json['listOfStringsValue'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       mapOfStringValue: (json['mapOfStringValue'] as Map<String, dynamic>?)
@@ -3118,7 +3166,7 @@ class StepOutput {
 
   factory StepOutput.fromJson(Map<String, dynamic> json) {
     return StepOutput(
-      dataType: (json['dataType'] as String?)?.toDataType(),
+      dataType: (json['dataType'] as String?)?.let(DataType.fromString),
       name: json['name'] as String?,
       required: json['required'] as bool?,
     );
@@ -3129,7 +3177,7 @@ class StepOutput {
     final name = this.name;
     final required = this.required;
     return {
-      if (dataType != null) 'dataType': dataType.toValue(),
+      if (dataType != null) 'dataType': dataType.value,
       if (name != null) 'name': name,
       if (required != null) 'required': required,
     };
@@ -3137,56 +3185,23 @@ class StepOutput {
 }
 
 enum StepStatus {
-  awaitingDependencies,
-  ready,
-  inProgress,
-  completed,
-  failed,
-  paused,
-  userAttentionRequired,
-}
+  awaitingDependencies('AWAITING_DEPENDENCIES'),
+  skipped('SKIPPED'),
+  ready('READY'),
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  paused('PAUSED'),
+  userAttentionRequired('USER_ATTENTION_REQUIRED'),
+  ;
 
-extension StepStatusValueExtension on StepStatus {
-  String toValue() {
-    switch (this) {
-      case StepStatus.awaitingDependencies:
-        return 'AWAITING_DEPENDENCIES';
-      case StepStatus.ready:
-        return 'READY';
-      case StepStatus.inProgress:
-        return 'IN_PROGRESS';
-      case StepStatus.completed:
-        return 'COMPLETED';
-      case StepStatus.failed:
-        return 'FAILED';
-      case StepStatus.paused:
-        return 'PAUSED';
-      case StepStatus.userAttentionRequired:
-        return 'USER_ATTENTION_REQUIRED';
-    }
-  }
-}
+  final String value;
 
-extension StepStatusFromString on String {
-  StepStatus toStepStatus() {
-    switch (this) {
-      case 'AWAITING_DEPENDENCIES':
-        return StepStatus.awaitingDependencies;
-      case 'READY':
-        return StepStatus.ready;
-      case 'IN_PROGRESS':
-        return StepStatus.inProgress;
-      case 'COMPLETED':
-        return StepStatus.completed;
-      case 'FAILED':
-        return StepStatus.failed;
-      case 'PAUSED':
-        return StepStatus.paused;
-      case 'USER_ATTENTION_REQUIRED':
-        return StepStatus.userAttentionRequired;
-    }
-    throw Exception('$this is not known in enum StepStatus');
-  }
+  const StepStatus(this.value);
+
+  static StepStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StepStatus'));
 }
 
 class StopMigrationWorkflowResponse {
@@ -3218,7 +3233,8 @@ class StopMigrationWorkflowResponse {
       arn: json['arn'] as String?,
       id: json['id'] as String?,
       lastStopTime: timeStampFromJson(json['lastStopTime']),
-      status: (json['status'] as String?)?.toMigrationWorkflowStatusEnum(),
+      status: (json['status'] as String?)
+          ?.let(MigrationWorkflowStatusEnum.fromString),
       statusMessage: json['statusMessage'] as String?,
     );
   }
@@ -3234,7 +3250,7 @@ class StopMigrationWorkflowResponse {
       if (id != null) 'id': id,
       if (lastStopTime != null)
         'lastStopTime': unixTimestampToJson(lastStopTime),
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
     };
   }
@@ -3253,36 +3269,18 @@ class TagResourceResponse {
 }
 
 enum TargetType {
-  single,
-  all,
-  none,
-}
+  single('SINGLE'),
+  all('ALL'),
+  none('NONE'),
+  ;
 
-extension TargetTypeValueExtension on TargetType {
-  String toValue() {
-    switch (this) {
-      case TargetType.single:
-        return 'SINGLE';
-      case TargetType.all:
-        return 'ALL';
-      case TargetType.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension TargetTypeFromString on String {
-  TargetType toTargetType() {
-    switch (this) {
-      case 'SINGLE':
-        return TargetType.single;
-      case 'ALL':
-        return TargetType.all;
-      case 'NONE':
-        return TargetType.none;
-    }
-    throw Exception('$this is not known in enum TargetType');
-  }
+  const TargetType(this.value);
+
+  static TargetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TargetType'));
 }
 
 /// The input parameters of a template.
@@ -3304,7 +3302,7 @@ class TemplateInput {
 
   factory TemplateInput.fromJson(Map<String, dynamic> json) {
     return TemplateInput(
-      dataType: (json['dataType'] as String?)?.toDataType(),
+      dataType: (json['dataType'] as String?)?.let(DataType.fromString),
       inputName: json['inputName'] as String?,
       required: json['required'] as bool?,
     );
@@ -3315,34 +3313,46 @@ class TemplateInput {
     final inputName = this.inputName;
     final required = this.required;
     return {
-      if (dataType != null) 'dataType': dataType.toValue(),
+      if (dataType != null) 'dataType': dataType.value,
       if (inputName != null) 'inputName': inputName,
       if (required != null) 'required': required,
     };
   }
 }
 
+/// The migration workflow template used as the source for the new template.
+class TemplateSource {
+  /// The ID of the workflow from the source migration workflow template.
+  final String? workflowId;
+
+  TemplateSource({
+    this.workflowId,
+  });
+
+  Map<String, dynamic> toJson() {
+    final workflowId = this.workflowId;
+    return {
+      if (workflowId != null) 'workflowId': workflowId,
+    };
+  }
+}
+
 enum TemplateStatus {
-  created,
-}
+  created('CREATED'),
+  ready('READY'),
+  pendingCreation('PENDING_CREATION'),
+  creating('CREATING'),
+  creationFailed('CREATION_FAILED'),
+  ;
 
-extension TemplateStatusValueExtension on TemplateStatus {
-  String toValue() {
-    switch (this) {
-      case TemplateStatus.created:
-        return 'CREATED';
-    }
-  }
-}
+  final String value;
 
-extension TemplateStatusFromString on String {
-  TemplateStatus toTemplateStatus() {
-    switch (this) {
-      case 'CREATED':
-        return TemplateStatus.created;
-    }
-    throw Exception('$this is not known in enum TemplateStatus');
-  }
+  const TemplateStatus(this.value);
+
+  static TemplateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TemplateStatus'));
 }
 
 /// The summary of the step group in the template.
@@ -3370,12 +3380,9 @@ class TemplateStepGroupSummary {
     return TemplateStepGroupSummary(
       id: json['id'] as String?,
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3441,18 +3448,16 @@ class TemplateStepSummary {
     return TemplateStepSummary(
       id: json['id'] as String?,
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      owner: (json['owner'] as String?)?.toOwner(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      owner: (json['owner'] as String?)?.let(Owner.fromString),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      stepActionType: (json['stepActionType'] as String?)?.toStepActionType(),
+      stepActionType:
+          (json['stepActionType'] as String?)?.let(StepActionType.fromString),
       stepGroupId: json['stepGroupId'] as String?,
-      targetType: (json['targetType'] as String?)?.toTargetType(),
+      targetType: (json['targetType'] as String?)?.let(TargetType.fromString),
       templateId: json['templateId'] as String?,
     );
   }
@@ -3471,11 +3476,11 @@ class TemplateStepSummary {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (next != null) 'next': next,
-      if (owner != null) 'owner': owner.toValue(),
+      if (owner != null) 'owner': owner.value,
       if (previous != null) 'previous': previous,
-      if (stepActionType != null) 'stepActionType': stepActionType.toValue(),
+      if (stepActionType != null) 'stepActionType': stepActionType.value,
       if (stepGroupId != null) 'stepGroupId': stepGroupId,
-      if (targetType != null) 'targetType': targetType.toValue(),
+      if (targetType != null) 'targetType': targetType.value,
       if (templateId != null) 'templateId': templateId,
     };
   }
@@ -3629,9 +3634,10 @@ class UpdateMigrationWorkflowResponse {
       id: json['id'] as String?,
       lastModifiedTime: timeStampFromJson(json['lastModifiedTime']),
       name: json['name'] as String?,
-      status: (json['status'] as String?)?.toMigrationWorkflowStatusEnum(),
+      status: (json['status'] as String?)
+          ?.let(MigrationWorkflowStatusEnum.fromString),
       stepTargets: (json['stepTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
@@ -3666,11 +3672,53 @@ class UpdateMigrationWorkflowResponse {
       if (lastModifiedTime != null)
         'lastModifiedTime': unixTimestampToJson(lastModifiedTime),
       if (name != null) 'name': name,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (stepTargets != null) 'stepTargets': stepTargets,
       if (tags != null) 'tags': tags,
       if (templateId != null) 'templateId': templateId,
       if (workflowInputs != null) 'workflowInputs': workflowInputs,
+    };
+  }
+}
+
+class UpdateTemplateResponse {
+  /// The tags added to the migration workflow template.
+  final Map<String, String>? tags;
+
+  /// The ARN of the migration workflow template being updated. The format for an
+  /// Migration Hub Orchestrator template ARN is
+  /// <code>arn:aws:migrationhub-orchestrator:region:account:template/template-abcd1234</code>.
+  /// For more information about ARNs, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html">Amazon
+  /// Resource Names (ARNs)</a> in the <i>AWS General Reference</i>.
+  final String? templateArn;
+
+  /// The ID of the migration workflow template being updated.
+  final String? templateId;
+
+  UpdateTemplateResponse({
+    this.tags,
+    this.templateArn,
+    this.templateId,
+  });
+
+  factory UpdateTemplateResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateTemplateResponse(
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      templateArn: json['templateArn'] as String?,
+      templateId: json['templateId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final tags = this.tags;
+    final templateArn = this.templateArn;
+    final templateId = this.templateId;
+    return {
+      if (tags != null) 'tags': tags,
+      if (templateArn != null) 'templateArn': templateArn,
+      if (templateId != null) 'templateId': templateId,
     };
   }
 }
@@ -3717,16 +3765,13 @@ class UpdateWorkflowStepGroupResponse {
       id: json['id'] as String?,
       lastModifiedTime: timeStampFromJson(json['lastModifiedTime']),
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tools: (json['tools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tool.fromJson(e as Map<String, dynamic>))
           .toList(),
       workflowId: json['workflowId'] as String?,
@@ -3830,13 +3875,14 @@ class WorkflowStepAutomationConfiguration {
       command: json['command'] != null
           ? PlatformCommand.fromJson(json['command'] as Map<String, dynamic>)
           : null,
-      runEnvironment: (json['runEnvironment'] as String?)?.toRunEnvironment(),
+      runEnvironment:
+          (json['runEnvironment'] as String?)?.let(RunEnvironment.fromString),
       scriptLocationS3Bucket: json['scriptLocationS3Bucket'] as String?,
       scriptLocationS3Key: json['scriptLocationS3Key'] != null
           ? PlatformScriptKey.fromJson(
               json['scriptLocationS3Key'] as Map<String, dynamic>)
           : null,
-      targetType: (json['targetType'] as String?)?.toTargetType(),
+      targetType: (json['targetType'] as String?)?.let(TargetType.fromString),
     );
   }
 
@@ -3848,12 +3894,12 @@ class WorkflowStepAutomationConfiguration {
     final targetType = this.targetType;
     return {
       if (command != null) 'command': command,
-      if (runEnvironment != null) 'runEnvironment': runEnvironment.toValue(),
+      if (runEnvironment != null) 'runEnvironment': runEnvironment.value,
       if (scriptLocationS3Bucket != null)
         'scriptLocationS3Bucket': scriptLocationS3Bucket,
       if (scriptLocationS3Key != null)
         'scriptLocationS3Key': scriptLocationS3Key,
-      if (targetType != null) 'targetType': targetType.toValue(),
+      if (targetType != null) 'targetType': targetType.value,
     };
   }
 }
@@ -3891,16 +3937,13 @@ class WorkflowStepGroupSummary {
     return WorkflowStepGroupSummary(
       id: json['id'] as String?,
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      owner: (json['owner'] as String?)?.toOwner(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      owner: (json['owner'] as String?)?.let(Owner.fromString),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
-      status: (json['status'] as String?)?.toStepGroupStatus(),
+      status: (json['status'] as String?)?.let(StepGroupStatus.fromString),
     );
   }
 
@@ -3915,9 +3958,9 @@ class WorkflowStepGroupSummary {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (next != null) 'next': next,
-      if (owner != null) 'owner': owner.toValue(),
+      if (owner != null) 'owner': owner.value,
       if (previous != null) 'previous': previous,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3945,7 +3988,7 @@ class WorkflowStepOutput {
 
   factory WorkflowStepOutput.fromJson(Map<String, dynamic> json) {
     return WorkflowStepOutput(
-      dataType: (json['dataType'] as String?)?.toDataType(),
+      dataType: (json['dataType'] as String?)?.let(DataType.fromString),
       name: json['name'] as String?,
       required: json['required'] as bool?,
       value: json['value'] != null
@@ -3961,7 +4004,7 @@ class WorkflowStepOutput {
     final required = this.required;
     final value = this.value;
     return {
-      if (dataType != null) 'dataType': dataType.toValue(),
+      if (dataType != null) 'dataType': dataType.value,
       if (name != null) 'name': name,
       if (required != null) 'required': required,
       if (value != null) 'value': value,
@@ -3990,7 +4033,7 @@ class WorkflowStepOutputUnion {
     return WorkflowStepOutputUnion(
       integerValue: json['integerValue'] as int?,
       listOfStringValue: (json['listOfStringValue'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       stringValue: json['stringValue'] as String?,
@@ -4071,21 +4114,19 @@ class WorkflowStepSummary {
     return WorkflowStepSummary(
       description: json['description'] as String?,
       name: json['name'] as String?,
-      next: (json['next'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      next: (json['next'] as List?)?.nonNulls.map((e) => e as String).toList(),
       noOfSrvCompleted: json['noOfSrvCompleted'] as int?,
       noOfSrvFailed: json['noOfSrvFailed'] as int?,
-      owner: (json['owner'] as String?)?.toOwner(),
+      owner: (json['owner'] as String?)?.let(Owner.fromString),
       previous: (json['previous'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       scriptLocation: json['scriptLocation'] as String?,
-      status: (json['status'] as String?)?.toStepStatus(),
+      status: (json['status'] as String?)?.let(StepStatus.fromString),
       statusMessage: json['statusMessage'] as String?,
-      stepActionType: (json['stepActionType'] as String?)?.toStepActionType(),
+      stepActionType:
+          (json['stepActionType'] as String?)?.let(StepActionType.fromString),
       stepId: json['stepId'] as String?,
       totalNoOfSrv: json['totalNoOfSrv'] as int?,
     );
@@ -4111,12 +4152,12 @@ class WorkflowStepSummary {
       if (next != null) 'next': next,
       if (noOfSrvCompleted != null) 'noOfSrvCompleted': noOfSrvCompleted,
       if (noOfSrvFailed != null) 'noOfSrvFailed': noOfSrvFailed,
-      if (owner != null) 'owner': owner.toValue(),
+      if (owner != null) 'owner': owner.value,
       if (previous != null) 'previous': previous,
       if (scriptLocation != null) 'scriptLocation': scriptLocation,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (statusMessage != null) 'statusMessage': statusMessage,
-      if (stepActionType != null) 'stepActionType': stepActionType.toValue(),
+      if (stepActionType != null) 'stepActionType': stepActionType.value,
       if (stepId != null) 'stepId': stepId,
       if (totalNoOfSrv != null) 'totalNoOfSrv': totalNoOfSrv,
     };
@@ -4126,6 +4167,11 @@ class WorkflowStepSummary {
 class AccessDeniedException extends _s.GenericAwsException {
   AccessDeniedException({String? type, String? message})
       : super(type: type, code: 'AccessDeniedException', message: message);
+}
+
+class ConflictException extends _s.GenericAwsException {
+  ConflictException({String? type, String? message})
+      : super(type: type, code: 'ConflictException', message: message);
 }
 
 class InternalServerException extends _s.GenericAwsException {
@@ -4151,6 +4197,8 @@ class ValidationException extends _s.GenericAwsException {
 final _exceptionFns = <String, _s.AwsExceptionFn>{
   'AccessDeniedException': (type, message) =>
       AccessDeniedException(type: type, message: message),
+  'ConflictException': (type, message) =>
+      ConflictException(type: type, message: message),
   'InternalServerException': (type, message) =>
       InternalServerException(type: type, message: message),
   'ResourceNotFoundException': (type, message) =>

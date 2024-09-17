@@ -77,7 +77,21 @@ class ConnectWisdom {
   /// The description of the assistant.
   ///
   /// Parameter [serverSideEncryptionConfiguration] :
-  /// The KMS key used for encryption.
+  /// The configuration information for the customer managed key used for
+  /// encryption.
+  ///
+  /// The customer managed key must have a policy that allows
+  /// <code>kms:CreateGrant</code>, <code> kms:DescribeKey</code>, and
+  /// <code>kms:Decrypt/kms:GenerateDataKey</code> permissions to the IAM
+  /// identity using the key to invoke Wisdom. To use Wisdom with chat, the key
+  /// policy must also allow <code>kms:Decrypt</code>,
+  /// <code>kms:GenerateDataKey*</code>, and <code>kms:DescribeKey</code>
+  /// permissions to the <code>connect.amazonaws.com</code> service principal.
+  ///
+  /// For more information about setting up a customer managed key for Wisdom,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/enable-wisdom.html">Enable
+  /// Amazon Connect Wisdom for your instance</a>.
   ///
   /// Parameter [tags] :
   /// The tags used to organize, track, or control access for this resource.
@@ -91,7 +105,7 @@ class ConnectWisdom {
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      'type': type.toValue(),
+      'type': type.value,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
       if (description != null) 'description': description,
       if (serverSideEncryptionConfiguration != null)
@@ -145,7 +159,7 @@ class ConnectWisdom {
   }) async {
     final $payload = <String, dynamic>{
       'association': association,
-      'associationType': associationType.toValue(),
+      'associationType': associationType.value,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
       if (tags != null) 'tags': tags,
     };
@@ -170,8 +184,9 @@ class ConnectWisdom {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   ///
   /// Parameter [name] :
   /// The name of the content. Each piece of content in a knowledge base must
@@ -291,7 +306,18 @@ class ConnectWisdom {
   /// Information about how to render the content.
   ///
   /// Parameter [serverSideEncryptionConfiguration] :
-  /// The KMS key used for encryption.
+  /// The configuration information for the customer managed key used for
+  /// encryption.
+  ///
+  /// This KMS key must have a policy that allows <code>kms:CreateGrant</code>,
+  /// <code>kms:DescribeKey</code>, and
+  /// <code>kms:Decrypt/kms:GenerateDataKey</code> permissions to the IAM
+  /// identity using the key to invoke Wisdom.
+  ///
+  /// For more information about setting up a customer managed key for Wisdom,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/enable-wisdom.html">Enable
+  /// Amazon Connect Wisdom for your instance</a>.
   ///
   /// Parameter [sourceConfiguration] :
   /// The source of the knowledge base content. Only set this argument for
@@ -310,7 +336,7 @@ class ConnectWisdom {
     Map<String, String>? tags,
   }) async {
     final $payload = <String, dynamic>{
-      'knowledgeBaseType': knowledgeBaseType.toValue(),
+      'knowledgeBaseType': knowledgeBaseType.value,
       'name': name,
       'clientToken': clientToken ?? _s.generateIdempotencyToken(),
       if (description != null) 'description': description,
@@ -329,6 +355,111 @@ class ConnectWisdom {
       exceptionFnMap: _exceptionFns,
     );
     return CreateKnowledgeBaseResponse.fromJson(response);
+  }
+
+  /// Creates a Wisdom quick response.
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ValidationException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [content] :
+  /// The content of the quick response.
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
+  ///
+  /// Parameter [name] :
+  /// The name of the quick response.
+  ///
+  /// Parameter [channels] :
+  /// The Amazon Connect channels this quick response applies to.
+  ///
+  /// Parameter [clientToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request. If not provided, the Amazon Web Services SDK
+  /// populates this field. For more information about idempotency, see <a
+  /// href="https://aws.amazon.com/builders-library/making-retries-safe-with-idempotent-APIs/">Making
+  /// retries safe with idempotent APIs</a>.
+  ///
+  /// Parameter [contentType] :
+  /// The media type of the quick response content.
+  ///
+  /// <ul>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=plain</code> for a quick
+  /// response written in plain text.
+  /// </li>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=markdown</code> for a quick
+  /// response written in richtext.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [description] :
+  /// The description of the quick response.
+  ///
+  /// Parameter [groupingConfiguration] :
+  /// The configuration information of the user groups that the quick response
+  /// is accessible to.
+  ///
+  /// Parameter [isActive] :
+  /// Whether the quick response is active.
+  ///
+  /// Parameter [language] :
+  /// The language code value for the language in which the quick response is
+  /// written. The supported language codes include <code>de_DE</code>,
+  /// <code>en_US</code>, <code>es_ES</code>, <code>fr_FR</code>,
+  /// <code>id_ID</code>, <code>it_IT</code>, <code>ja_JP</code>,
+  /// <code>ko_KR</code>, <code>pt_BR</code>, <code>zh_CN</code>,
+  /// <code>zh_TW</code>
+  ///
+  /// Parameter [shortcutKey] :
+  /// The shortcut key of the quick response. The value should be unique across
+  /// the knowledge base.
+  ///
+  /// Parameter [tags] :
+  /// The tags used to organize, track, or control access for this resource.
+  Future<CreateQuickResponseResponse> createQuickResponse({
+    required QuickResponseDataProvider content,
+    required String knowledgeBaseId,
+    required String name,
+    List<String>? channels,
+    String? clientToken,
+    String? contentType,
+    String? description,
+    GroupingConfiguration? groupingConfiguration,
+    bool? isActive,
+    String? language,
+    String? shortcutKey,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'content': content,
+      'name': name,
+      if (channels != null) 'channels': channels,
+      'clientToken': clientToken ?? _s.generateIdempotencyToken(),
+      if (contentType != null) 'contentType': contentType,
+      if (description != null) 'description': description,
+      if (groupingConfiguration != null)
+        'groupingConfiguration': groupingConfiguration,
+      if (isActive != null) 'isActive': isActive,
+      if (language != null) 'language': language,
+      if (shortcutKey != null) 'shortcutKey': shortcutKey,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/quickResponses',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateQuickResponseResponse.fromJson(response);
   }
 
   /// Creates a session. A session is a contextual container used for generating
@@ -437,8 +568,9 @@ class ConnectWisdom {
   /// cannot contain the ARN.
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   Future<void> deleteContent({
     required String contentId,
     required String knowledgeBaseId,
@@ -448,6 +580,32 @@ class ConnectWisdom {
       method: 'DELETE',
       requestUri:
           '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/contents/${Uri.encodeComponent(contentId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes the quick response import job.
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [importJobId] :
+  /// The identifier of the import job to be deleted.
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
+  Future<void> deleteImportJob({
+    required String importJobId,
+    required String knowledgeBaseId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/importJobs/${Uri.encodeComponent(importJobId)}',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -481,6 +639,32 @@ class ConnectWisdom {
       payload: null,
       method: 'DELETE',
       requestUri: '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes a quick response.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The knowledge base from which the quick response is deleted. The
+  /// identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
+  ///
+  /// Parameter [quickResponseId] :
+  /// The identifier of the quick response to delete.
+  Future<void> deleteQuickResponse({
+    required String knowledgeBaseId,
+    required String quickResponseId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/quickResponses/${Uri.encodeComponent(quickResponseId)}',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -544,8 +728,9 @@ class ConnectWisdom {
   /// cannot contain the ARN.
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   Future<GetContentResponse> getContent({
     required String contentId,
     required String knowledgeBaseId,
@@ -571,8 +756,9 @@ class ConnectWisdom {
   /// cannot contain the ARN.
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   Future<GetContentSummaryResponse> getContentSummary({
     required String contentId,
     required String knowledgeBaseId,
@@ -587,6 +773,31 @@ class ConnectWisdom {
     return GetContentSummaryResponse.fromJson(response);
   }
 
+  /// Retrieves the started import job.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [importJobId] :
+  /// The identifier of the import job to retrieve.
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base that the import job belongs to.
+  Future<GetImportJobResponse> getImportJob({
+    required String importJobId,
+    required String knowledgeBaseId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/importJobs/${Uri.encodeComponent(importJobId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetImportJobResponse.fromJson(response);
+  }
+
   /// Retrieves information about the knowledge base.
   ///
   /// May throw [ValidationException].
@@ -594,8 +805,9 @@ class ConnectWisdom {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   Future<GetKnowledgeBaseResponse> getKnowledgeBase({
     required String knowledgeBaseId,
   }) async {
@@ -606,6 +818,32 @@ class ConnectWisdom {
       exceptionFnMap: _exceptionFns,
     );
     return GetKnowledgeBaseResponse.fromJson(response);
+  }
+
+  /// Retrieves the quick response.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should be a QUICK_RESPONSES
+  /// type knowledge base.
+  ///
+  /// Parameter [quickResponseId] :
+  /// The identifier of the quick response.
+  Future<GetQuickResponseResponse> getQuickResponse({
+    required String knowledgeBaseId,
+    required String quickResponseId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/quickResponses/${Uri.encodeComponent(quickResponseId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetQuickResponseResponse.fromJson(response);
   }
 
   /// Retrieves recommendations for the specified session. To avoid retrieving
@@ -638,6 +876,8 @@ class ConnectWisdom {
   /// call returns sooner than <code>WaitTimeSeconds</code>. If no messages are
   /// available and the wait time expires, the call returns successfully with an
   /// empty list.
+  @Deprecated(
+      'GetRecommendations API will be discontinued starting June 1, 2024. To receive generative responses after March 1, 2024 you will need to create a new Assistant in the Connect console and integrate the Amazon Q in Connect JavaScript library (amazon-q-connectjs) into your applications.')
   Future<GetRecommendationsResponse> getRecommendations({
     required String assistantId,
     required String sessionId,
@@ -783,8 +1023,9 @@ class ConnectWisdom {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   ///
   /// Parameter [maxResults] :
   /// The maximum number of results to return per page.
@@ -816,6 +1057,48 @@ class ConnectWisdom {
       exceptionFnMap: _exceptionFns,
     );
     return ListContentsResponse.fromJson(response);
+  }
+
+  /// Lists information about import jobs.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  Future<ListImportJobsResponse> listImportJobs({
+    required String knowledgeBaseId,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/importJobs',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListImportJobsResponse.fromJson(response);
   }
 
   /// Lists the knowledge bases.
@@ -851,6 +1134,49 @@ class ConnectWisdom {
       exceptionFnMap: _exceptionFns,
     );
     return ListKnowledgeBasesResponse.fromJson(response);
+  }
+
+  /// Lists information about quick response.
+  ///
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  Future<ListQuickResponsesResponse> listQuickResponses({
+    required String knowledgeBaseId,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/quickResponses',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListQuickResponsesResponse.fromJson(response);
   }
 
   /// Lists the tags for the specified resource.
@@ -914,6 +1240,7 @@ class ConnectWisdom {
   /// recommendations for an assistant, use <a
   /// href="https://docs.aws.amazon.com/wisdom/latest/APIReference/API_GetRecommendations.html">GetRecommendations</a>.
   ///
+  /// May throw [RequestTimeoutException].
   /// May throw [ValidationException].
   /// May throw [AccessDeniedException].
   /// May throw [ResourceNotFoundException].
@@ -931,6 +1258,8 @@ class ConnectWisdom {
   /// Parameter [nextToken] :
   /// The token for the next set of results. Use the value returned in the
   /// previous response in the next request to retrieve the next set of results.
+  @Deprecated(
+      'QueryAssistant API will be discontinued starting June 1, 2024. To receive generative responses after March 1, 2024 you will need to create a new Assistant in the Connect console and integrate the Amazon Q in Connect JavaScript library (amazon-q-connectjs) into your applications.')
   Future<QueryAssistantResponse> queryAssistant({
     required String assistantId,
     required String queryText,
@@ -964,8 +1293,9 @@ class ConnectWisdom {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   Future<void> removeKnowledgeBaseTemplateUri({
     required String knowledgeBaseId,
   }) async {
@@ -986,8 +1316,9 @@ class ConnectWisdom {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   ///
   /// Parameter [searchExpression] :
   /// The search expression to filter results.
@@ -1026,6 +1357,65 @@ class ConnectWisdom {
       exceptionFnMap: _exceptionFns,
     );
     return SearchContentResponse.fromJson(response);
+  }
+
+  /// Searches existing Wisdom quick responses in a Wisdom knowledge base.
+  ///
+  /// May throw [RequestTimeoutException].
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should be a QUICK_RESPONSES
+  /// type knowledge base. Can be either the ID or the ARN. URLs cannot contain
+  /// the ARN.
+  ///
+  /// Parameter [searchExpression] :
+  /// The search expression for querying the quick response.
+  ///
+  /// Parameter [attributes] :
+  /// The <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/connect-attrib-list.html#user-defined-attributes">user-defined
+  /// Amazon Connect contact attributes</a> to be resolved when search results
+  /// are returned.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  Future<SearchQuickResponsesResponse> searchQuickResponses({
+    required String knowledgeBaseId,
+    required QuickResponseSearchExpression searchExpression,
+    Map<String, String>? attributes,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final $payload = <String, dynamic>{
+      'searchExpression': searchExpression,
+      if (attributes != null) 'attributes': attributes,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/search/quickResponses',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return SearchQuickResponsesResponse.fromJson(response);
   }
 
   /// Searches for sessions.
@@ -1094,14 +1484,28 @@ class ConnectWisdom {
   /// The type of content to upload.
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
+  ///
+  /// Parameter [presignedUrlTimeToLive] :
+  /// The expected expiration time of the generated presigned URL, specified in
+  /// minutes.
   Future<StartContentUploadResponse> startContentUpload({
     required String contentType,
     required String knowledgeBaseId,
+    int? presignedUrlTimeToLive,
   }) async {
+    _s.validateNumRange(
+      'presignedUrlTimeToLive',
+      presignedUrlTimeToLive,
+      1,
+      60,
+    );
     final $payload = <String, dynamic>{
       'contentType': contentType,
+      if (presignedUrlTimeToLive != null)
+        'presignedUrlTimeToLive': presignedUrlTimeToLive,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1111,6 +1515,88 @@ class ConnectWisdom {
       exceptionFnMap: _exceptionFns,
     );
     return StartContentUploadResponse.fromJson(response);
+  }
+
+  /// Start an asynchronous job to import Wisdom resources from an uploaded
+  /// source file. Before calling this API, use <a
+  /// href="https://docs.aws.amazon.com/wisdom/latest/APIReference/API_StartContentUpload.html">StartContentUpload</a>
+  /// to upload an asset that contains the resource data.
+  ///
+  /// <ul>
+  /// <li>
+  /// For importing Wisdom quick responses, you need to upload a csv file
+  /// including the quick responses. For information about how to format the csv
+  /// file for importing quick responses, see <a
+  /// href="https://docs.aws.amazon.com/console/connect/quick-responses/add-data">Import
+  /// quick responses</a>.
+  /// </li>
+  /// </ul>
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ValidationException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [importJobType] :
+  /// The type of the import job.
+  ///
+  /// <ul>
+  /// <li>
+  /// For importing quick response resource, set the value to
+  /// <code>QUICK_RESPONSES</code>.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
+  ///
+  /// <ul>
+  /// <li>
+  /// For importing Wisdom quick responses, this should be a
+  /// <code>QUICK_RESPONSES</code> type knowledge base.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [uploadId] :
+  /// A pointer to the uploaded asset. This value is returned by <a
+  /// href="https://docs.aws.amazon.com/wisdom/latest/APIReference/API_StartContentUpload.html">StartContentUpload</a>.
+  ///
+  /// Parameter [clientToken] :
+  /// The tags used to organize, track, or control access for this resource.
+  ///
+  /// Parameter [externalSourceConfiguration] :
+  /// The configuration information of the external source that the resource
+  /// data are imported from.
+  ///
+  /// Parameter [metadata] :
+  /// The metadata fields of the imported Wisdom resources.
+  Future<StartImportJobResponse> startImportJob({
+    required ImportJobType importJobType,
+    required String knowledgeBaseId,
+    required String uploadId,
+    String? clientToken,
+    ExternalSourceConfiguration? externalSourceConfiguration,
+    Map<String, String>? metadata,
+  }) async {
+    final $payload = <String, dynamic>{
+      'importJobType': importJobType.value,
+      'uploadId': uploadId,
+      'clientToken': clientToken ?? _s.generateIdempotencyToken(),
+      if (externalSourceConfiguration != null)
+        'externalSourceConfiguration': externalSourceConfiguration,
+      if (metadata != null) 'metadata': metadata,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/importJobs',
+      exceptionFnMap: _exceptionFns,
+    );
+    return StartImportJobResponse.fromJson(response);
   }
 
   /// Adds the specified tags to the specified resource.
@@ -1175,7 +1661,9 @@ class ConnectWisdom {
   /// cannot contain the ARN.
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN
   ///
   /// Parameter [metadata] :
   /// A key/value map to store attributes without affecting tagging or
@@ -1248,8 +1736,9 @@ class ConnectWisdom {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [knowledgeBaseId] :
-  /// The identifier of the knowledge base. Can be either the ID or the ARN.
-  /// URLs cannot contain the ARN.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
   ///
   /// Parameter [templateUri] :
   /// The template URI to update.
@@ -1269,6 +1758,117 @@ class ConnectWisdom {
       exceptionFnMap: _exceptionFns,
     );
     return UpdateKnowledgeBaseTemplateUriResponse.fromJson(response);
+  }
+
+  /// Updates an existing Wisdom quick response.
+  ///
+  /// May throw [ConflictException].
+  /// May throw [ValidationException].
+  /// May throw [AccessDeniedException].
+  /// May throw [PreconditionFailedException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [knowledgeBaseId] :
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can
+  /// be either the ID or the ARN. URLs cannot contain the ARN.
+  ///
+  /// Parameter [quickResponseId] :
+  /// The identifier of the quick response.
+  ///
+  /// Parameter [channels] :
+  /// The Amazon Connect contact channels this quick response applies to. The
+  /// supported contact channel types include <code>Chat</code>.
+  ///
+  /// Parameter [content] :
+  /// The updated content of the quick response.
+  ///
+  /// Parameter [contentType] :
+  /// The media type of the quick response content.
+  ///
+  /// <ul>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=plain</code> for quick
+  /// response written in plain text.
+  /// </li>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=markdown</code> for quick
+  /// response written in richtext.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [description] :
+  /// The updated description of the quick response.
+  ///
+  /// Parameter [groupingConfiguration] :
+  /// The updated grouping configuration of the quick response.
+  ///
+  /// Parameter [isActive] :
+  /// Whether the quick response is active.
+  ///
+  /// Parameter [language] :
+  /// The language code value for the language in which the quick response is
+  /// written. The supported language codes include <code>de_DE</code>,
+  /// <code>en_US</code>, <code>es_ES</code>, <code>fr_FR</code>,
+  /// <code>id_ID</code>, <code>it_IT</code>, <code>ja_JP</code>,
+  /// <code>ko_KR</code>, <code>pt_BR</code>, <code>zh_CN</code>,
+  /// <code>zh_TW</code>
+  ///
+  /// Parameter [name] :
+  /// The name of the quick response.
+  ///
+  /// Parameter [removeDescription] :
+  /// Whether to remove the description from the quick response.
+  ///
+  /// Parameter [removeGroupingConfiguration] :
+  /// Whether to remove the grouping configuration of the quick response.
+  ///
+  /// Parameter [removeShortcutKey] :
+  /// Whether to remove the shortcut key of the quick response.
+  ///
+  /// Parameter [shortcutKey] :
+  /// The shortcut key of the quick response. The value should be unique across
+  /// the knowledge base.
+  Future<UpdateQuickResponseResponse> updateQuickResponse({
+    required String knowledgeBaseId,
+    required String quickResponseId,
+    List<String>? channels,
+    QuickResponseDataProvider? content,
+    String? contentType,
+    String? description,
+    GroupingConfiguration? groupingConfiguration,
+    bool? isActive,
+    String? language,
+    String? name,
+    bool? removeDescription,
+    bool? removeGroupingConfiguration,
+    bool? removeShortcutKey,
+    String? shortcutKey,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (channels != null) 'channels': channels,
+      if (content != null) 'content': content,
+      if (contentType != null) 'contentType': contentType,
+      if (description != null) 'description': description,
+      if (groupingConfiguration != null)
+        'groupingConfiguration': groupingConfiguration,
+      if (isActive != null) 'isActive': isActive,
+      if (language != null) 'language': language,
+      if (name != null) 'name': name,
+      if (removeDescription != null) 'removeDescription': removeDescription,
+      if (removeGroupingConfiguration != null)
+        'removeGroupingConfiguration': removeGroupingConfiguration,
+      if (removeShortcutKey != null) 'removeShortcutKey': removeShortcutKey,
+      if (shortcutKey != null) 'shortcutKey': shortcutKey,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/knowledgeBases/${Uri.encodeComponent(knowledgeBaseId)}/quickResponses/${Uri.encodeComponent(quickResponseId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateQuickResponseResponse.fromJson(response);
   }
 }
 
@@ -1307,12 +1907,23 @@ class AppIntegrationsConfiguration {
   /// </li>
   /// <li>
   /// For <a
-  /// href="https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/sharepoint-net-server-csom-jsom-and-rest-api-index">
-  /// SharePoint</a>, your AppIntegrations DataIntegration must have a
-  /// FileConfiguration, including only file extensions that are among
-  /// <code>docx</code>, <code>pdf</code>, <code>html</code>, <code>htm</code>,
-  /// and <code>txt</code>.
+  /// href="https://learn.microsoft.com/en-us/sharepoint/dev/sp-add-ins/sharepoint-net-server-csom-jsom-and-rest-api-index">SharePoint</a>,
+  /// your AppIntegrations DataIntegration must have a FileConfiguration,
+  /// including only file extensions that are among <code>docx</code>,
+  /// <code>pdf</code>, <code>html</code>, <code>htm</code>, and <code>txt</code>.
   /// </li>
+  /// <li>
+  /// For <a href="https://aws.amazon.com/s3/">Amazon S3</a>, the
+  /// ObjectConfiguration and FileConfiguration of your AppIntegrations
+  /// DataIntegration must be null. The <code>SourceURI</code> of your
+  /// DataIntegration must use the following format:
+  /// <code>s3://your_s3_bucket_name</code>.
+  /// <important>
+  /// The bucket policy of the corresponding S3 bucket must allow the Amazon Web
+  /// Services principal <code>app-integrations.amazonaws.com</code> to perform
+  /// <code>s3:ListBucket</code>, <code>s3:GetObject</code>, and
+  /// <code>s3:GetBucketLocation</code> against the bucket.
+  /// </important> </li>
   /// </ul>
   final String appIntegrationArn;
 
@@ -1354,7 +1965,7 @@ class AppIntegrationsConfiguration {
     return AppIntegrationsConfiguration(
       appIntegrationArn: json['appIntegrationArn'] as String,
       objectFields: (json['objectFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -1411,7 +2022,8 @@ class AssistantAssociationData {
       assistantId: json['assistantId'] as String,
       associationData: AssistantAssociationOutputData.fromJson(
           json['associationData'] as Map<String, dynamic>),
-      associationType: (json['associationType'] as String).toAssociationType(),
+      associationType:
+          AssociationType.fromString((json['associationType'] as String)),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -1431,7 +2043,7 @@ class AssistantAssociationData {
       'assistantAssociationId': assistantAssociationId,
       'assistantId': assistantId,
       'associationData': associationData,
-      'associationType': associationType.toValue(),
+      'associationType': associationType.value,
       if (tags != null) 'tags': tags,
     };
   }
@@ -1439,7 +2051,8 @@ class AssistantAssociationData {
 
 /// The data that is input into Wisdom as a result of the assistant association.
 class AssistantAssociationInputData {
-  /// The identifier of the knowledge base.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
   final String? knowledgeBaseId;
 
   AssistantAssociationInputData({
@@ -1522,7 +2135,8 @@ class AssistantAssociationSummary {
       assistantId: json['assistantId'] as String,
       associationData: AssistantAssociationOutputData.fromJson(
           json['associationData'] as Map<String, dynamic>),
-      associationType: (json['associationType'] as String).toAssociationType(),
+      associationType:
+          AssociationType.fromString((json['associationType'] as String)),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -1542,7 +2156,7 @@ class AssistantAssociationSummary {
       'assistantAssociationId': assistantAssociationId,
       'assistantId': assistantId,
       'associationData': associationData,
-      'associationType': associationType.toValue(),
+      'associationType': associationType.value,
       if (tags != null) 'tags': tags,
     };
   }
@@ -1568,7 +2182,24 @@ class AssistantData {
   /// The description.
   final String? description;
 
-  /// The KMS key used for encryption.
+  /// The configuration information for the Wisdom assistant integration.
+  final AssistantIntegrationConfiguration? integrationConfiguration;
+
+  /// The configuration information for the customer managed key used for
+  /// encryption.
+  ///
+  /// This KMS key must have a policy that allows <code>kms:CreateGrant</code>,
+  /// <code>kms:DescribeKey</code>, and
+  /// <code>kms:Decrypt/kms:GenerateDataKey</code> permissions to the IAM identity
+  /// using the key to invoke Wisdom. To use Wisdom with chat, the key policy must
+  /// also allow <code>kms:Decrypt</code>, <code>kms:GenerateDataKey*</code>, and
+  /// <code>kms:DescribeKey</code> permissions to the
+  /// <code>connect.amazonaws.com</code> service principal.
+  ///
+  /// For more information about setting up a customer managed key for Wisdom, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/enable-wisdom.html">Enable
+  /// Amazon Connect Wisdom for your instance</a>.
   final ServerSideEncryptionConfiguration? serverSideEncryptionConfiguration;
 
   /// The tags used to organize, track, or control access for this resource.
@@ -1581,6 +2212,7 @@ class AssistantData {
     required this.status,
     required this.type,
     this.description,
+    this.integrationConfiguration,
     this.serverSideEncryptionConfiguration,
     this.tags,
   });
@@ -1590,9 +2222,13 @@ class AssistantData {
       assistantArn: json['assistantArn'] as String,
       assistantId: json['assistantId'] as String,
       name: json['name'] as String,
-      status: (json['status'] as String).toAssistantStatus(),
-      type: (json['type'] as String).toAssistantType(),
+      status: AssistantStatus.fromString((json['status'] as String)),
+      type: AssistantType.fromString((json['type'] as String)),
       description: json['description'] as String?,
+      integrationConfiguration: json['integrationConfiguration'] != null
+          ? AssistantIntegrationConfiguration.fromJson(
+              json['integrationConfiguration'] as Map<String, dynamic>)
+          : null,
       serverSideEncryptionConfiguration:
           json['serverSideEncryptionConfiguration'] != null
               ? ServerSideEncryptionConfiguration.fromJson(
@@ -1611,6 +2247,7 @@ class AssistantData {
     final status = this.status;
     final type = this.type;
     final description = this.description;
+    final integrationConfiguration = this.integrationConfiguration;
     final serverSideEncryptionConfiguration =
         this.serverSideEncryptionConfiguration;
     final tags = this.tags;
@@ -1618,9 +2255,11 @@ class AssistantData {
       'assistantArn': assistantArn,
       'assistantId': assistantId,
       'name': name,
-      'status': status.toValue(),
-      'type': type.toValue(),
+      'status': status.value,
+      'type': type.value,
       if (description != null) 'description': description,
+      if (integrationConfiguration != null)
+        'integrationConfiguration': integrationConfiguration,
       if (serverSideEncryptionConfiguration != null)
         'serverSideEncryptionConfiguration': serverSideEncryptionConfiguration,
       if (tags != null) 'tags': tags,
@@ -1628,52 +2267,49 @@ class AssistantData {
   }
 }
 
+/// The configuration information for the Wisdom assistant integration.
+class AssistantIntegrationConfiguration {
+  /// The Amazon Resource Name (ARN) of the integrated Amazon SNS topic used for
+  /// streaming chat messages.
+  final String? topicIntegrationArn;
+
+  AssistantIntegrationConfiguration({
+    this.topicIntegrationArn,
+  });
+
+  factory AssistantIntegrationConfiguration.fromJson(
+      Map<String, dynamic> json) {
+    return AssistantIntegrationConfiguration(
+      topicIntegrationArn: json['topicIntegrationArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final topicIntegrationArn = this.topicIntegrationArn;
+    return {
+      if (topicIntegrationArn != null)
+        'topicIntegrationArn': topicIntegrationArn,
+    };
+  }
+}
+
 enum AssistantStatus {
-  createInProgress,
-  createFailed,
-  active,
-  deleteInProgress,
-  deleteFailed,
-  deleted,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  active('ACTIVE'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  deleteFailed('DELETE_FAILED'),
+  deleted('DELETED'),
+  ;
 
-extension AssistantStatusValueExtension on AssistantStatus {
-  String toValue() {
-    switch (this) {
-      case AssistantStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case AssistantStatus.createFailed:
-        return 'CREATE_FAILED';
-      case AssistantStatus.active:
-        return 'ACTIVE';
-      case AssistantStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case AssistantStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case AssistantStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension AssistantStatusFromString on String {
-  AssistantStatus toAssistantStatus() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return AssistantStatus.createInProgress;
-      case 'CREATE_FAILED':
-        return AssistantStatus.createFailed;
-      case 'ACTIVE':
-        return AssistantStatus.active;
-      case 'DELETE_IN_PROGRESS':
-        return AssistantStatus.deleteInProgress;
-      case 'DELETE_FAILED':
-        return AssistantStatus.deleteFailed;
-      case 'DELETED':
-        return AssistantStatus.deleted;
-    }
-    throw Exception('$this is not known in enum AssistantStatus');
-  }
+  const AssistantStatus(this.value);
+
+  static AssistantStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssistantStatus'));
 }
 
 /// Summary information about the assistant.
@@ -1696,7 +2332,24 @@ class AssistantSummary {
   /// The description of the assistant.
   final String? description;
 
-  /// The KMS key used for encryption.
+  /// The configuration information for the Wisdom assistant integration.
+  final AssistantIntegrationConfiguration? integrationConfiguration;
+
+  /// The configuration information for the customer managed key used for
+  /// encryption.
+  ///
+  /// This KMS key must have a policy that allows <code>kms:CreateGrant</code>,
+  /// <code>kms:DescribeKey</code>, and
+  /// <code>kms:Decrypt/kms:GenerateDataKey</code> permissions to the IAM identity
+  /// using the key to invoke Wisdom. To use Wisdom with chat, the key policy must
+  /// also allow <code>kms:Decrypt</code>, <code>kms:GenerateDataKey*</code>, and
+  /// <code>kms:DescribeKey</code> permissions to the
+  /// <code>connect.amazonaws.com</code> service principal.
+  ///
+  /// For more information about setting up a customer managed key for Wisdom, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/enable-wisdom.html">Enable
+  /// Amazon Connect Wisdom for your instance</a>.
   final ServerSideEncryptionConfiguration? serverSideEncryptionConfiguration;
 
   /// The tags used to organize, track, or control access for this resource.
@@ -1709,6 +2362,7 @@ class AssistantSummary {
     required this.status,
     required this.type,
     this.description,
+    this.integrationConfiguration,
     this.serverSideEncryptionConfiguration,
     this.tags,
   });
@@ -1718,9 +2372,13 @@ class AssistantSummary {
       assistantArn: json['assistantArn'] as String,
       assistantId: json['assistantId'] as String,
       name: json['name'] as String,
-      status: (json['status'] as String).toAssistantStatus(),
-      type: (json['type'] as String).toAssistantType(),
+      status: AssistantStatus.fromString((json['status'] as String)),
+      type: AssistantType.fromString((json['type'] as String)),
       description: json['description'] as String?,
+      integrationConfiguration: json['integrationConfiguration'] != null
+          ? AssistantIntegrationConfiguration.fromJson(
+              json['integrationConfiguration'] as Map<String, dynamic>)
+          : null,
       serverSideEncryptionConfiguration:
           json['serverSideEncryptionConfiguration'] != null
               ? ServerSideEncryptionConfiguration.fromJson(
@@ -1739,6 +2397,7 @@ class AssistantSummary {
     final status = this.status;
     final type = this.type;
     final description = this.description;
+    final integrationConfiguration = this.integrationConfiguration;
     final serverSideEncryptionConfiguration =
         this.serverSideEncryptionConfiguration;
     final tags = this.tags;
@@ -1746,9 +2405,11 @@ class AssistantSummary {
       'assistantArn': assistantArn,
       'assistantId': assistantId,
       'name': name,
-      'status': status.toValue(),
-      'type': type.toValue(),
+      'status': status.value,
+      'type': type.value,
       if (description != null) 'description': description,
+      if (integrationConfiguration != null)
+        'integrationConfiguration': integrationConfiguration,
       if (serverSideEncryptionConfiguration != null)
         'serverSideEncryptionConfiguration': serverSideEncryptionConfiguration,
       if (tags != null) 'tags': tags,
@@ -1757,48 +2418,81 @@ class AssistantSummary {
 }
 
 enum AssistantType {
-  agent,
-}
+  agent('AGENT'),
+  ;
 
-extension AssistantTypeValueExtension on AssistantType {
-  String toValue() {
-    switch (this) {
-      case AssistantType.agent:
-        return 'AGENT';
-    }
-  }
-}
+  final String value;
 
-extension AssistantTypeFromString on String {
-  AssistantType toAssistantType() {
-    switch (this) {
-      case 'AGENT':
-        return AssistantType.agent;
-    }
-    throw Exception('$this is not known in enum AssistantType');
-  }
+  const AssistantType(this.value);
+
+  static AssistantType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssistantType'));
 }
 
 enum AssociationType {
-  knowledgeBase,
+  knowledgeBase('KNOWLEDGE_BASE'),
+  ;
+
+  final String value;
+
+  const AssociationType(this.value);
+
+  static AssociationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssociationType'));
 }
 
-extension AssociationTypeValueExtension on AssociationType {
-  String toValue() {
-    switch (this) {
-      case AssociationType.knowledgeBase:
-        return 'KNOWLEDGE_BASE';
-    }
+/// The configuration information of the external data source.
+class Configuration {
+  /// The configuration information of the Amazon Connect data source.
+  final ConnectConfiguration? connectConfiguration;
+
+  Configuration({
+    this.connectConfiguration,
+  });
+
+  factory Configuration.fromJson(Map<String, dynamic> json) {
+    return Configuration(
+      connectConfiguration: json['connectConfiguration'] != null
+          ? ConnectConfiguration.fromJson(
+              json['connectConfiguration'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final connectConfiguration = this.connectConfiguration;
+    return {
+      if (connectConfiguration != null)
+        'connectConfiguration': connectConfiguration,
+    };
   }
 }
 
-extension AssociationTypeFromString on String {
-  AssociationType toAssociationType() {
-    switch (this) {
-      case 'KNOWLEDGE_BASE':
-        return AssociationType.knowledgeBase;
-    }
-    throw Exception('$this is not known in enum AssociationType');
+/// The configuration information of the Amazon Connect data source.
+class ConnectConfiguration {
+  /// The identifier of the Amazon Connect instance. You can find the instanceId
+  /// in the ARN of the instance.
+  final String? instanceId;
+
+  ConnectConfiguration({
+    this.instanceId,
+  });
+
+  factory ConnectConfiguration.fromJson(Map<String, dynamic> json) {
+    return ConnectConfiguration(
+      instanceId: json['instanceId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final instanceId = this.instanceId;
+    return {
+      if (instanceId != null) 'instanceId': instanceId,
+    };
   }
 }
 
@@ -1816,7 +2510,8 @@ class ContentData {
   /// The Amazon Resource Name (ARN) of the knowledge base.
   final String knowledgeBaseArn;
 
-  /// The identifier of the knowledge base.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
   final String knowledgeBaseId;
 
   /// A key/value map to store attributes without affecting tagging or
@@ -1877,7 +2572,7 @@ class ContentData {
           .map((k, e) => MapEntry(k, e as String)),
       name: json['name'] as String,
       revisionId: json['revisionId'] as String,
-      status: (json['status'] as String).toContentStatus(),
+      status: ContentStatus.fromString((json['status'] as String)),
       title: json['title'] as String,
       url: json['url'] as String,
       urlExpiry: nonNullableTimeStampFromJson(json['urlExpiry'] as Object),
@@ -1911,7 +2606,7 @@ class ContentData {
       'metadata': metadata,
       'name': name,
       'revisionId': revisionId,
-      'status': status.toValue(),
+      'status': status.value,
       'title': title,
       'url': url,
       'urlExpiry': unixTimestampToJson(urlExpiry),
@@ -1932,7 +2627,8 @@ class ContentReference {
   /// The Amazon Resource Name (ARN) of the knowledge base.
   final String? knowledgeBaseArn;
 
-  /// The identifier of the knowledge base.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
   final String? knowledgeBaseId;
 
   ContentReference({
@@ -1966,56 +2662,23 @@ class ContentReference {
 }
 
 enum ContentStatus {
-  createInProgress,
-  createFailed,
-  active,
-  deleteInProgress,
-  deleteFailed,
-  deleted,
-  updateFailed,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  active('ACTIVE'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  deleteFailed('DELETE_FAILED'),
+  deleted('DELETED'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension ContentStatusValueExtension on ContentStatus {
-  String toValue() {
-    switch (this) {
-      case ContentStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case ContentStatus.createFailed:
-        return 'CREATE_FAILED';
-      case ContentStatus.active:
-        return 'ACTIVE';
-      case ContentStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case ContentStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case ContentStatus.deleted:
-        return 'DELETED';
-      case ContentStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ContentStatusFromString on String {
-  ContentStatus toContentStatus() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return ContentStatus.createInProgress;
-      case 'CREATE_FAILED':
-        return ContentStatus.createFailed;
-      case 'ACTIVE':
-        return ContentStatus.active;
-      case 'DELETE_IN_PROGRESS':
-        return ContentStatus.deleteInProgress;
-      case 'DELETE_FAILED':
-        return ContentStatus.deleteFailed;
-      case 'DELETED':
-        return ContentStatus.deleted;
-      case 'UPDATE_FAILED':
-        return ContentStatus.updateFailed;
-    }
-    throw Exception('$this is not known in enum ContentStatus');
-  }
+  const ContentStatus(this.value);
+
+  static ContentStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContentStatus'));
 }
 
 /// Summary information about the content.
@@ -2032,7 +2695,8 @@ class ContentSummary {
   /// The Amazon Resource Name (ARN) of the knowledge base.
   final String knowledgeBaseArn;
 
-  /// The identifier of the knowledge base.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
   final String knowledgeBaseId;
 
   /// A key/value map to store attributes without affecting tagging or
@@ -2081,7 +2745,7 @@ class ContentSummary {
           .map((k, e) => MapEntry(k, e as String)),
       name: json['name'] as String,
       revisionId: json['revisionId'] as String,
-      status: (json['status'] as String).toContentStatus(),
+      status: ContentStatus.fromString((json['status'] as String)),
       title: json['title'] as String,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
@@ -2109,7 +2773,7 @@ class ContentSummary {
       'metadata': metadata,
       'name': name,
       'revisionId': revisionId,
-      'status': status.toValue(),
+      'status': status.value,
       'title': title,
       if (tags != null) 'tags': tags,
     };
@@ -2216,6 +2880,31 @@ class CreateKnowledgeBaseResponse {
   }
 }
 
+class CreateQuickResponseResponse {
+  /// The quick response.
+  final QuickResponseData? quickResponse;
+
+  CreateQuickResponseResponse({
+    this.quickResponse,
+  });
+
+  factory CreateQuickResponseResponse.fromJson(Map<String, dynamic> json) {
+    return CreateQuickResponseResponse(
+      quickResponse: json['quickResponse'] != null
+          ? QuickResponseData.fromJson(
+              json['quickResponse'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final quickResponse = this.quickResponse;
+    return {
+      if (quickResponse != null) 'quickResponse': quickResponse,
+    };
+  }
+}
+
 class CreateSessionResponse {
   /// The session.
   final SessionData? session;
@@ -2276,11 +2965,35 @@ class DeleteContentResponse {
   }
 }
 
+class DeleteImportJobResponse {
+  DeleteImportJobResponse();
+
+  factory DeleteImportJobResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteImportJobResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 class DeleteKnowledgeBaseResponse {
   DeleteKnowledgeBaseResponse();
 
   factory DeleteKnowledgeBaseResponse.fromJson(Map<String, dynamic> _) {
     return DeleteKnowledgeBaseResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
+class DeleteQuickResponseResponse {
+  DeleteQuickResponseResponse();
+
+  factory DeleteQuickResponseResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteQuickResponseResponse();
   }
 
   Map<String, dynamic> toJson() {
@@ -2346,7 +3059,7 @@ class DocumentText {
   factory DocumentText.fromJson(Map<String, dynamic> json) {
     return DocumentText(
       highlights: (json['highlights'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Highlight.fromJson(e as Map<String, dynamic>))
           .toList(),
       text: json['text'] as String?,
@@ -2359,6 +3072,51 @@ class DocumentText {
     return {
       if (highlights != null) 'highlights': highlights,
       if (text != null) 'text': text,
+    };
+  }
+}
+
+enum ExternalSource {
+  amazonConnect('AMAZON_CONNECT'),
+  ;
+
+  final String value;
+
+  const ExternalSource(this.value);
+
+  static ExternalSource fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExternalSource'));
+}
+
+/// The configuration information of the external data source.
+class ExternalSourceConfiguration {
+  /// The configuration information of the external data source.
+  final Configuration configuration;
+
+  /// The type of the external data source.
+  final ExternalSource source;
+
+  ExternalSourceConfiguration({
+    required this.configuration,
+    required this.source,
+  });
+
+  factory ExternalSourceConfiguration.fromJson(Map<String, dynamic> json) {
+    return ExternalSourceConfiguration(
+      configuration:
+          Configuration.fromJson(json['configuration'] as Map<String, dynamic>),
+      source: ExternalSource.fromString((json['source'] as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final configuration = this.configuration;
+    final source = this.source;
+    return {
+      'configuration': configuration,
+      'source': source.value,
     };
   }
 }
@@ -2385,57 +3143,38 @@ class Filter {
     final operator = this.operator;
     final value = this.value;
     return {
-      'field': field.toValue(),
-      'operator': operator.toValue(),
+      'field': field.value,
+      'operator': operator.value,
       'value': value,
     };
   }
 }
 
 enum FilterField {
-  name,
-}
+  name('NAME'),
+  ;
 
-extension FilterFieldValueExtension on FilterField {
-  String toValue() {
-    switch (this) {
-      case FilterField.name:
-        return 'NAME';
-    }
-  }
-}
+  final String value;
 
-extension FilterFieldFromString on String {
-  FilterField toFilterField() {
-    switch (this) {
-      case 'NAME':
-        return FilterField.name;
-    }
-    throw Exception('$this is not known in enum FilterField');
-  }
+  const FilterField(this.value);
+
+  static FilterField fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FilterField'));
 }
 
 enum FilterOperator {
-  equals,
-}
+  equals('EQUALS'),
+  ;
 
-extension FilterOperatorValueExtension on FilterOperator {
-  String toValue() {
-    switch (this) {
-      case FilterOperator.equals:
-        return 'EQUALS';
-    }
-  }
-}
+  final String value;
 
-extension FilterOperatorFromString on String {
-  FilterOperator toFilterOperator() {
-    switch (this) {
-      case 'EQUALS':
-        return FilterOperator.equals;
-    }
-    throw Exception('$this is not known in enum FilterOperator');
-  }
+  const FilterOperator(this.value);
+
+  static FilterOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FilterOperator'));
 }
 
 class GetAssistantAssociationResponse {
@@ -2537,6 +3276,30 @@ class GetContentSummaryResponse {
   }
 }
 
+class GetImportJobResponse {
+  /// The import job.
+  final ImportJobData? importJob;
+
+  GetImportJobResponse({
+    this.importJob,
+  });
+
+  factory GetImportJobResponse.fromJson(Map<String, dynamic> json) {
+    return GetImportJobResponse(
+      importJob: json['importJob'] != null
+          ? ImportJobData.fromJson(json['importJob'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final importJob = this.importJob;
+    return {
+      if (importJob != null) 'importJob': importJob,
+    };
+  }
+}
+
 class GetKnowledgeBaseResponse {
   /// The knowledge base.
   final KnowledgeBaseData? knowledgeBase;
@@ -2562,6 +3325,31 @@ class GetKnowledgeBaseResponse {
   }
 }
 
+class GetQuickResponseResponse {
+  /// The quick response.
+  final QuickResponseData? quickResponse;
+
+  GetQuickResponseResponse({
+    this.quickResponse,
+  });
+
+  factory GetQuickResponseResponse.fromJson(Map<String, dynamic> json) {
+    return GetQuickResponseResponse(
+      quickResponse: json['quickResponse'] != null
+          ? QuickResponseData.fromJson(
+              json['quickResponse'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final quickResponse = this.quickResponse;
+    return {
+      if (quickResponse != null) 'quickResponse': quickResponse,
+    };
+  }
+}
+
 class GetRecommendationsResponse {
   /// The recommendations.
   final List<RecommendationData> recommendations;
@@ -2577,11 +3365,11 @@ class GetRecommendationsResponse {
   factory GetRecommendationsResponse.fromJson(Map<String, dynamic> json) {
     return GetRecommendationsResponse(
       recommendations: (json['recommendations'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => RecommendationData.fromJson(e as Map<String, dynamic>))
           .toList(),
       triggers: (json['triggers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecommendationTrigger.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2621,6 +3409,60 @@ class GetSessionResponse {
   }
 }
 
+/// The configuration information of the grouping of Wisdom users.
+class GroupingConfiguration {
+  /// The criteria used for grouping Wisdom users.
+  ///
+  /// The following is the list of supported criteria values.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>RoutingProfileArn</code>: Grouping the users by their <a
+  /// href="https://docs.aws.amazon.com/connect/latest/APIReference/API_RoutingProfile.html">Amazon
+  /// Connect routing profile ARN</a>. User should have <a
+  /// href="https://docs.aws.amazon.com/connect/latest/APIReference/API_SearchRoutingProfiles.html">SearchRoutingProfile</a>
+  /// and <a
+  /// href="https://docs.aws.amazon.com/connect/latest/APIReference/API_DescribeRoutingProfile.html">DescribeRoutingProfile</a>
+  /// permissions when setting criteria to this value.
+  /// </li>
+  /// </ul>
+  final String? criteria;
+
+  /// The list of values that define different groups of Wisdom users.
+  ///
+  /// <ul>
+  /// <li>
+  /// When setting <code>criteria</code> to <code>RoutingProfileArn</code>, you
+  /// need to provide a list of ARNs of <a
+  /// href="https://docs.aws.amazon.com/connect/latest/APIReference/API_RoutingProfile.html">Amazon
+  /// Connect routing profiles</a> as values of this parameter.
+  /// </li>
+  /// </ul>
+  final List<String>? values;
+
+  GroupingConfiguration({
+    this.criteria,
+    this.values,
+  });
+
+  factory GroupingConfiguration.fromJson(Map<String, dynamic> json) {
+    return GroupingConfiguration(
+      criteria: json['criteria'] as String?,
+      values:
+          (json['values'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final criteria = this.criteria;
+    final values = this.values;
+    return {
+      if (criteria != null) 'criteria': criteria,
+      if (values != null) 'values': values,
+    };
+  }
+}
+
 /// Offset specification to describe highlighting of document excerpts for
 /// rendering search results and recommendations.
 class Highlight {
@@ -2653,12 +3495,257 @@ class Highlight {
   }
 }
 
+/// Summary information about the import job.
+class ImportJobData {
+  /// The timestamp when the import job was created.
+  final DateTime createdTime;
+
+  /// The identifier of the import job.
+  final String importJobId;
+
+  /// The type of the import job.
+  final ImportJobType importJobType;
+
+  /// The Amazon Resource Name (ARN) of the knowledge base.
+  final String knowledgeBaseArn;
+
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
+  final String knowledgeBaseId;
+
+  /// The timestamp when the import job data was last modified.
+  final DateTime lastModifiedTime;
+
+  /// The status of the import job.
+  final ImportJobStatus status;
+
+  /// A pointer to the uploaded asset. This value is returned by <a
+  /// href="https://docs.aws.amazon.com/wisdom/latest/APIReference/API_StartContentUpload.html">StartContentUpload</a>.
+  final String uploadId;
+
+  /// The download link to the resource file that is uploaded to the import job.
+  final String url;
+
+  /// The expiration time of the URL as an epoch timestamp.
+  final DateTime urlExpiry;
+  final ExternalSourceConfiguration? externalSourceConfiguration;
+
+  /// The link to donwload the information of resource data that failed to be
+  /// imported.
+  final String? failedRecordReport;
+
+  /// The metadata fields of the imported Wisdom resources.
+  final Map<String, String>? metadata;
+
+  ImportJobData({
+    required this.createdTime,
+    required this.importJobId,
+    required this.importJobType,
+    required this.knowledgeBaseArn,
+    required this.knowledgeBaseId,
+    required this.lastModifiedTime,
+    required this.status,
+    required this.uploadId,
+    required this.url,
+    required this.urlExpiry,
+    this.externalSourceConfiguration,
+    this.failedRecordReport,
+    this.metadata,
+  });
+
+  factory ImportJobData.fromJson(Map<String, dynamic> json) {
+    return ImportJobData(
+      createdTime: nonNullableTimeStampFromJson(json['createdTime'] as Object),
+      importJobId: json['importJobId'] as String,
+      importJobType:
+          ImportJobType.fromString((json['importJobType'] as String)),
+      knowledgeBaseArn: json['knowledgeBaseArn'] as String,
+      knowledgeBaseId: json['knowledgeBaseId'] as String,
+      lastModifiedTime:
+          nonNullableTimeStampFromJson(json['lastModifiedTime'] as Object),
+      status: ImportJobStatus.fromString((json['status'] as String)),
+      uploadId: json['uploadId'] as String,
+      url: json['url'] as String,
+      urlExpiry: nonNullableTimeStampFromJson(json['urlExpiry'] as Object),
+      externalSourceConfiguration: json['externalSourceConfiguration'] != null
+          ? ExternalSourceConfiguration.fromJson(
+              json['externalSourceConfiguration'] as Map<String, dynamic>)
+          : null,
+      failedRecordReport: json['failedRecordReport'] as String?,
+      metadata: (json['metadata'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final createdTime = this.createdTime;
+    final importJobId = this.importJobId;
+    final importJobType = this.importJobType;
+    final knowledgeBaseArn = this.knowledgeBaseArn;
+    final knowledgeBaseId = this.knowledgeBaseId;
+    final lastModifiedTime = this.lastModifiedTime;
+    final status = this.status;
+    final uploadId = this.uploadId;
+    final url = this.url;
+    final urlExpiry = this.urlExpiry;
+    final externalSourceConfiguration = this.externalSourceConfiguration;
+    final failedRecordReport = this.failedRecordReport;
+    final metadata = this.metadata;
+    return {
+      'createdTime': unixTimestampToJson(createdTime),
+      'importJobId': importJobId,
+      'importJobType': importJobType.value,
+      'knowledgeBaseArn': knowledgeBaseArn,
+      'knowledgeBaseId': knowledgeBaseId,
+      'lastModifiedTime': unixTimestampToJson(lastModifiedTime),
+      'status': status.value,
+      'uploadId': uploadId,
+      'url': url,
+      'urlExpiry': unixTimestampToJson(urlExpiry),
+      if (externalSourceConfiguration != null)
+        'externalSourceConfiguration': externalSourceConfiguration,
+      if (failedRecordReport != null) 'failedRecordReport': failedRecordReport,
+      if (metadata != null) 'metadata': metadata,
+    };
+  }
+}
+
+enum ImportJobStatus {
+  startInProgress('START_IN_PROGRESS'),
+  failed('FAILED'),
+  complete('COMPLETE'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  deleteFailed('DELETE_FAILED'),
+  deleted('DELETED'),
+  ;
+
+  final String value;
+
+  const ImportJobStatus(this.value);
+
+  static ImportJobStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ImportJobStatus'));
+}
+
+/// Summary information about the import job.
+class ImportJobSummary {
+  /// The timestamp when the import job was created.
+  final DateTime createdTime;
+
+  /// The identifier of the import job.
+  final String importJobId;
+
+  /// The type of import job.
+  final ImportJobType importJobType;
+
+  /// The Amazon Resource Name (ARN) of the knowledge base.
+  final String knowledgeBaseArn;
+
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
+  final String knowledgeBaseId;
+
+  /// The timestamp when the import job was last modified.
+  final DateTime lastModifiedTime;
+
+  /// The status of the import job.
+  final ImportJobStatus status;
+
+  /// A pointer to the uploaded asset. This value is returned by <a
+  /// href="https://docs.aws.amazon.com/wisdom/latest/APIReference/API_StartContentUpload.html">StartContentUpload</a>.
+  final String uploadId;
+
+  /// The configuration information of the external source that the resource data
+  /// are imported from.
+  final ExternalSourceConfiguration? externalSourceConfiguration;
+
+  /// The metadata fields of the imported Wisdom resources.
+  final Map<String, String>? metadata;
+
+  ImportJobSummary({
+    required this.createdTime,
+    required this.importJobId,
+    required this.importJobType,
+    required this.knowledgeBaseArn,
+    required this.knowledgeBaseId,
+    required this.lastModifiedTime,
+    required this.status,
+    required this.uploadId,
+    this.externalSourceConfiguration,
+    this.metadata,
+  });
+
+  factory ImportJobSummary.fromJson(Map<String, dynamic> json) {
+    return ImportJobSummary(
+      createdTime: nonNullableTimeStampFromJson(json['createdTime'] as Object),
+      importJobId: json['importJobId'] as String,
+      importJobType:
+          ImportJobType.fromString((json['importJobType'] as String)),
+      knowledgeBaseArn: json['knowledgeBaseArn'] as String,
+      knowledgeBaseId: json['knowledgeBaseId'] as String,
+      lastModifiedTime:
+          nonNullableTimeStampFromJson(json['lastModifiedTime'] as Object),
+      status: ImportJobStatus.fromString((json['status'] as String)),
+      uploadId: json['uploadId'] as String,
+      externalSourceConfiguration: json['externalSourceConfiguration'] != null
+          ? ExternalSourceConfiguration.fromJson(
+              json['externalSourceConfiguration'] as Map<String, dynamic>)
+          : null,
+      metadata: (json['metadata'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final createdTime = this.createdTime;
+    final importJobId = this.importJobId;
+    final importJobType = this.importJobType;
+    final knowledgeBaseArn = this.knowledgeBaseArn;
+    final knowledgeBaseId = this.knowledgeBaseId;
+    final lastModifiedTime = this.lastModifiedTime;
+    final status = this.status;
+    final uploadId = this.uploadId;
+    final externalSourceConfiguration = this.externalSourceConfiguration;
+    final metadata = this.metadata;
+    return {
+      'createdTime': unixTimestampToJson(createdTime),
+      'importJobId': importJobId,
+      'importJobType': importJobType.value,
+      'knowledgeBaseArn': knowledgeBaseArn,
+      'knowledgeBaseId': knowledgeBaseId,
+      'lastModifiedTime': unixTimestampToJson(lastModifiedTime),
+      'status': status.value,
+      'uploadId': uploadId,
+      if (externalSourceConfiguration != null)
+        'externalSourceConfiguration': externalSourceConfiguration,
+      if (metadata != null) 'metadata': metadata,
+    };
+  }
+}
+
+enum ImportJobType {
+  quickResponses('QUICK_RESPONSES'),
+  ;
+
+  final String value;
+
+  const ImportJobType(this.value);
+
+  static ImportJobType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ImportJobType'));
+}
+
 /// Association information about the knowledge base.
 class KnowledgeBaseAssociationData {
   /// The Amazon Resource Name (ARN) of the knowledge base.
   final String? knowledgeBaseArn;
 
-  /// The identifier of the knowledge base.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
   final String? knowledgeBaseId;
 
   KnowledgeBaseAssociationData({
@@ -2688,7 +3775,8 @@ class KnowledgeBaseData {
   /// The Amazon Resource Name (ARN) of the knowledge base.
   final String knowledgeBaseArn;
 
-  /// The identifier of the knowledge base.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
   final String knowledgeBaseId;
 
   /// The type of knowledge base.
@@ -2711,7 +3799,18 @@ class KnowledgeBaseData {
   /// Information about how to render the content.
   final RenderingConfiguration? renderingConfiguration;
 
-  /// The KMS key used for encryption.
+  /// The configuration information for the customer managed key used for
+  /// encryption.
+  ///
+  /// This KMS key must have a policy that allows <code>kms:CreateGrant</code>,
+  /// <code>kms:DescribeKey</code>, and
+  /// <code>kms:Decrypt/kms:GenerateDataKey</code> permissions to the IAM identity
+  /// using the key to invoke Wisdom.
+  ///
+  /// For more information about setting up a customer managed key for Wisdom, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/enable-wisdom.html">Enable
+  /// Amazon Connect Wisdom for your instance</a>.
   final ServerSideEncryptionConfiguration? serverSideEncryptionConfiguration;
 
   /// Source configuration information about the knowledge base.
@@ -2739,9 +3838,9 @@ class KnowledgeBaseData {
       knowledgeBaseArn: json['knowledgeBaseArn'] as String,
       knowledgeBaseId: json['knowledgeBaseId'] as String,
       knowledgeBaseType:
-          (json['knowledgeBaseType'] as String).toKnowledgeBaseType(),
+          KnowledgeBaseType.fromString((json['knowledgeBaseType'] as String)),
       name: json['name'] as String,
-      status: (json['status'] as String).toKnowledgeBaseStatus(),
+      status: KnowledgeBaseStatus.fromString((json['status'] as String)),
       description: json['description'] as String?,
       lastContentModificationTime:
           timeStampFromJson(json['lastContentModificationTime']),
@@ -2780,9 +3879,9 @@ class KnowledgeBaseData {
     return {
       'knowledgeBaseArn': knowledgeBaseArn,
       'knowledgeBaseId': knowledgeBaseId,
-      'knowledgeBaseType': knowledgeBaseType.toValue(),
+      'knowledgeBaseType': knowledgeBaseType.value,
       'name': name,
-      'status': status.toValue(),
+      'status': status.value,
       if (description != null) 'description': description,
       if (lastContentModificationTime != null)
         'lastContentModificationTime':
@@ -2799,51 +3898,22 @@ class KnowledgeBaseData {
 }
 
 enum KnowledgeBaseStatus {
-  createInProgress,
-  createFailed,
-  active,
-  deleteInProgress,
-  deleteFailed,
-  deleted,
-}
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  active('ACTIVE'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  deleteFailed('DELETE_FAILED'),
+  deleted('DELETED'),
+  ;
 
-extension KnowledgeBaseStatusValueExtension on KnowledgeBaseStatus {
-  String toValue() {
-    switch (this) {
-      case KnowledgeBaseStatus.createInProgress:
-        return 'CREATE_IN_PROGRESS';
-      case KnowledgeBaseStatus.createFailed:
-        return 'CREATE_FAILED';
-      case KnowledgeBaseStatus.active:
-        return 'ACTIVE';
-      case KnowledgeBaseStatus.deleteInProgress:
-        return 'DELETE_IN_PROGRESS';
-      case KnowledgeBaseStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case KnowledgeBaseStatus.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension KnowledgeBaseStatusFromString on String {
-  KnowledgeBaseStatus toKnowledgeBaseStatus() {
-    switch (this) {
-      case 'CREATE_IN_PROGRESS':
-        return KnowledgeBaseStatus.createInProgress;
-      case 'CREATE_FAILED':
-        return KnowledgeBaseStatus.createFailed;
-      case 'ACTIVE':
-        return KnowledgeBaseStatus.active;
-      case 'DELETE_IN_PROGRESS':
-        return KnowledgeBaseStatus.deleteInProgress;
-      case 'DELETE_FAILED':
-        return KnowledgeBaseStatus.deleteFailed;
-      case 'DELETED':
-        return KnowledgeBaseStatus.deleted;
-    }
-    throw Exception('$this is not known in enum KnowledgeBaseStatus');
-  }
+  const KnowledgeBaseStatus(this.value);
+
+  static KnowledgeBaseStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum KnowledgeBaseStatus'));
 }
 
 /// Summary information about the knowledge base.
@@ -2851,7 +3921,8 @@ class KnowledgeBaseSummary {
   /// The Amazon Resource Name (ARN) of the knowledge base.
   final String knowledgeBaseArn;
 
-  /// The identifier of the knowledge base.
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
   final String knowledgeBaseId;
 
   /// The type of knowledge base.
@@ -2869,7 +3940,17 @@ class KnowledgeBaseSummary {
   /// Information about how to render the content.
   final RenderingConfiguration? renderingConfiguration;
 
-  /// The KMS key used for encryption.
+  /// The configuration information for the customer managed key used for
+  /// encryption.
+  ///
+  /// This KMS key must have a policy that allows <code>kms:CreateGrant</code>,
+  /// <code>kms:DescribeKey</code>, <code>kms:Decrypt/kms:GenerateDataKey</code>
+  /// permissions to the IAM identity using the key to invoke Wisdom.
+  ///
+  /// For more information about setting up a customer managed key for Wisdom, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/enable-wisdom.html">Enable
+  /// Amazon Connect Wisdom for your instance</a>.
   final ServerSideEncryptionConfiguration? serverSideEncryptionConfiguration;
 
   /// Configuration information about the external data source.
@@ -2896,9 +3977,9 @@ class KnowledgeBaseSummary {
       knowledgeBaseArn: json['knowledgeBaseArn'] as String,
       knowledgeBaseId: json['knowledgeBaseId'] as String,
       knowledgeBaseType:
-          (json['knowledgeBaseType'] as String).toKnowledgeBaseType(),
+          KnowledgeBaseType.fromString((json['knowledgeBaseType'] as String)),
       name: json['name'] as String,
-      status: (json['status'] as String).toKnowledgeBaseStatus(),
+      status: KnowledgeBaseStatus.fromString((json['status'] as String)),
       description: json['description'] as String?,
       renderingConfiguration: json['renderingConfiguration'] != null
           ? RenderingConfiguration.fromJson(
@@ -2934,9 +4015,9 @@ class KnowledgeBaseSummary {
     return {
       'knowledgeBaseArn': knowledgeBaseArn,
       'knowledgeBaseId': knowledgeBaseId,
-      'knowledgeBaseType': knowledgeBaseType.toValue(),
+      'knowledgeBaseType': knowledgeBaseType.value,
       'name': name,
-      'status': status.toValue(),
+      'status': status.value,
       if (description != null) 'description': description,
       if (renderingConfiguration != null)
         'renderingConfiguration': renderingConfiguration,
@@ -2950,31 +4031,19 @@ class KnowledgeBaseSummary {
 }
 
 enum KnowledgeBaseType {
-  external,
-  custom,
-}
+  external('EXTERNAL'),
+  custom('CUSTOM'),
+  quickResponses('QUICK_RESPONSES'),
+  ;
 
-extension KnowledgeBaseTypeValueExtension on KnowledgeBaseType {
-  String toValue() {
-    switch (this) {
-      case KnowledgeBaseType.external:
-        return 'EXTERNAL';
-      case KnowledgeBaseType.custom:
-        return 'CUSTOM';
-    }
-  }
-}
+  final String value;
 
-extension KnowledgeBaseTypeFromString on String {
-  KnowledgeBaseType toKnowledgeBaseType() {
-    switch (this) {
-      case 'EXTERNAL':
-        return KnowledgeBaseType.external;
-      case 'CUSTOM':
-        return KnowledgeBaseType.custom;
-    }
-    throw Exception('$this is not known in enum KnowledgeBaseType');
-  }
+  const KnowledgeBaseType(this.value);
+
+  static KnowledgeBaseType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum KnowledgeBaseType'));
 }
 
 class ListAssistantAssociationsResponse {
@@ -2995,7 +4064,7 @@ class ListAssistantAssociationsResponse {
     return ListAssistantAssociationsResponse(
       assistantAssociationSummaries: (json['assistantAssociationSummaries']
               as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               AssistantAssociationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3029,7 +4098,7 @@ class ListAssistantsResponse {
   factory ListAssistantsResponse.fromJson(Map<String, dynamic> json) {
     return ListAssistantsResponse(
       assistantSummaries: (json['assistantSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AssistantSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3062,7 +4131,7 @@ class ListContentsResponse {
   factory ListContentsResponse.fromJson(Map<String, dynamic> json) {
     return ListContentsResponse(
       contentSummaries: (json['contentSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ContentSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3074,6 +4143,39 @@ class ListContentsResponse {
     final nextToken = this.nextToken;
     return {
       'contentSummaries': contentSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListImportJobsResponse {
+  /// Summary information about the import jobs.
+  final List<ImportJobSummary> importJobSummaries;
+
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  final String? nextToken;
+
+  ListImportJobsResponse({
+    required this.importJobSummaries,
+    this.nextToken,
+  });
+
+  factory ListImportJobsResponse.fromJson(Map<String, dynamic> json) {
+    return ListImportJobsResponse(
+      importJobSummaries: (json['importJobSummaries'] as List)
+          .nonNulls
+          .map((e) => ImportJobSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final importJobSummaries = this.importJobSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'importJobSummaries': importJobSummaries,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -3095,7 +4197,7 @@ class ListKnowledgeBasesResponse {
   factory ListKnowledgeBasesResponse.fromJson(Map<String, dynamic> json) {
     return ListKnowledgeBasesResponse(
       knowledgeBaseSummaries: (json['knowledgeBaseSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => KnowledgeBaseSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3107,6 +4209,39 @@ class ListKnowledgeBasesResponse {
     final nextToken = this.nextToken;
     return {
       'knowledgeBaseSummaries': knowledgeBaseSummaries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListQuickResponsesResponse {
+  /// Summary information about the quick responses.
+  final List<QuickResponseSummary> quickResponseSummaries;
+
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  final String? nextToken;
+
+  ListQuickResponsesResponse({
+    required this.quickResponseSummaries,
+    this.nextToken,
+  });
+
+  factory ListQuickResponsesResponse.fromJson(Map<String, dynamic> json) {
+    return ListQuickResponsesResponse(
+      quickResponseSummaries: (json['quickResponseSummaries'] as List)
+          .nonNulls
+          .map((e) => QuickResponseSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final quickResponseSummaries = this.quickResponseSummaries;
+    final nextToken = this.nextToken;
+    return {
+      'quickResponseSummaries': quickResponseSummaries,
       if (nextToken != null) 'nextToken': nextToken,
     };
   }
@@ -3182,12 +4317,12 @@ class NotifyRecommendationsReceivedResponse {
       Map<String, dynamic> json) {
     return NotifyRecommendationsReceivedResponse(
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NotifyRecommendationsReceivedError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       recommendationIds: (json['recommendationIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3201,6 +4336,35 @@ class NotifyRecommendationsReceivedResponse {
       if (recommendationIds != null) 'recommendationIds': recommendationIds,
     };
   }
+}
+
+enum Order {
+  asc('ASC'),
+  desc('DESC'),
+  ;
+
+  final String value;
+
+  const Order(this.value);
+
+  static Order fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Order'));
+}
+
+enum Priority {
+  high('HIGH'),
+  medium('MEDIUM'),
+  low('LOW'),
+  ;
+
+  final String value;
+
+  const Priority(this.value);
+
+  static Priority fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Priority'));
 }
 
 class QueryAssistantResponse {
@@ -3219,7 +4383,7 @@ class QueryAssistantResponse {
   factory QueryAssistantResponse.fromJson(Map<String, dynamic> json) {
     return QueryAssistantResponse(
       results: (json['results'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ResultData.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3259,6 +4423,861 @@ class QueryRecommendationTriggerData {
   }
 }
 
+/// The container quick response content.
+class QuickResponseContentProvider {
+  /// The content of the quick response.
+  final String? content;
+
+  QuickResponseContentProvider({
+    this.content,
+  });
+
+  factory QuickResponseContentProvider.fromJson(Map<String, dynamic> json) {
+    return QuickResponseContentProvider(
+      content: json['content'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final content = this.content;
+    return {
+      if (content != null) 'content': content,
+    };
+  }
+}
+
+/// The content of the quick response stored in different media types.
+class QuickResponseContents {
+  final QuickResponseContentProvider? markdown;
+  final QuickResponseContentProvider? plainText;
+
+  QuickResponseContents({
+    this.markdown,
+    this.plainText,
+  });
+
+  factory QuickResponseContents.fromJson(Map<String, dynamic> json) {
+    return QuickResponseContents(
+      markdown: json['markdown'] != null
+          ? QuickResponseContentProvider.fromJson(
+              json['markdown'] as Map<String, dynamic>)
+          : null,
+      plainText: json['plainText'] != null
+          ? QuickResponseContentProvider.fromJson(
+              json['plainText'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final markdown = this.markdown;
+    final plainText = this.plainText;
+    return {
+      if (markdown != null) 'markdown': markdown,
+      if (plainText != null) 'plainText': plainText,
+    };
+  }
+}
+
+/// Information about the quick response.
+class QuickResponseData {
+  /// The media type of the quick response content.
+  ///
+  /// <ul>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=plain</code> for quick response
+  /// written in plain text.
+  /// </li>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=markdown</code> for quick
+  /// response written in richtext.
+  /// </li>
+  /// </ul>
+  final String contentType;
+
+  /// The timestamp when the quick response was created.
+  final DateTime createdTime;
+
+  /// The Amazon Resource Name (ARN) of the knowledge base.
+  final String knowledgeBaseArn;
+
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can be
+  /// either the ID or the ARN. URLs cannot contain the ARN.
+  final String knowledgeBaseId;
+
+  /// The timestamp when the quick response data was last modified.
+  final DateTime lastModifiedTime;
+
+  /// The name of the quick response.
+  final String name;
+
+  /// The Amazon Resource Name (ARN) of the quick response.
+  final String quickResponseArn;
+
+  /// The identifier of the quick response.
+  final String quickResponseId;
+
+  /// The status of the quick response data.
+  final QuickResponseStatus status;
+
+  /// The Amazon Connect contact channels this quick response applies to. The
+  /// supported contact channel types include <code>Chat</code>.
+  final List<String>? channels;
+
+  /// The contents of the quick response.
+  final QuickResponseContents? contents;
+
+  /// The description of the quick response.
+  final String? description;
+
+  /// The configuration information of the user groups that the quick response is
+  /// accessible to.
+  final GroupingConfiguration? groupingConfiguration;
+
+  /// Whether the quick response is active.
+  final bool? isActive;
+
+  /// The language code value for the language in which the quick response is
+  /// written.
+  final String? language;
+
+  /// The Amazon Resource Name (ARN) of the user who last updated the quick
+  /// response data.
+  final String? lastModifiedBy;
+
+  /// The shortcut key of the quick response. The value should be unique across
+  /// the knowledge base.
+  final String? shortcutKey;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  QuickResponseData({
+    required this.contentType,
+    required this.createdTime,
+    required this.knowledgeBaseArn,
+    required this.knowledgeBaseId,
+    required this.lastModifiedTime,
+    required this.name,
+    required this.quickResponseArn,
+    required this.quickResponseId,
+    required this.status,
+    this.channels,
+    this.contents,
+    this.description,
+    this.groupingConfiguration,
+    this.isActive,
+    this.language,
+    this.lastModifiedBy,
+    this.shortcutKey,
+    this.tags,
+  });
+
+  factory QuickResponseData.fromJson(Map<String, dynamic> json) {
+    return QuickResponseData(
+      contentType: json['contentType'] as String,
+      createdTime: nonNullableTimeStampFromJson(json['createdTime'] as Object),
+      knowledgeBaseArn: json['knowledgeBaseArn'] as String,
+      knowledgeBaseId: json['knowledgeBaseId'] as String,
+      lastModifiedTime:
+          nonNullableTimeStampFromJson(json['lastModifiedTime'] as Object),
+      name: json['name'] as String,
+      quickResponseArn: json['quickResponseArn'] as String,
+      quickResponseId: json['quickResponseId'] as String,
+      status: QuickResponseStatus.fromString((json['status'] as String)),
+      channels: (json['channels'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      contents: json['contents'] != null
+          ? QuickResponseContents.fromJson(
+              json['contents'] as Map<String, dynamic>)
+          : null,
+      description: json['description'] as String?,
+      groupingConfiguration: json['groupingConfiguration'] != null
+          ? GroupingConfiguration.fromJson(
+              json['groupingConfiguration'] as Map<String, dynamic>)
+          : null,
+      isActive: json['isActive'] as bool?,
+      language: json['language'] as String?,
+      lastModifiedBy: json['lastModifiedBy'] as String?,
+      shortcutKey: json['shortcutKey'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final contentType = this.contentType;
+    final createdTime = this.createdTime;
+    final knowledgeBaseArn = this.knowledgeBaseArn;
+    final knowledgeBaseId = this.knowledgeBaseId;
+    final lastModifiedTime = this.lastModifiedTime;
+    final name = this.name;
+    final quickResponseArn = this.quickResponseArn;
+    final quickResponseId = this.quickResponseId;
+    final status = this.status;
+    final channels = this.channels;
+    final contents = this.contents;
+    final description = this.description;
+    final groupingConfiguration = this.groupingConfiguration;
+    final isActive = this.isActive;
+    final language = this.language;
+    final lastModifiedBy = this.lastModifiedBy;
+    final shortcutKey = this.shortcutKey;
+    final tags = this.tags;
+    return {
+      'contentType': contentType,
+      'createdTime': unixTimestampToJson(createdTime),
+      'knowledgeBaseArn': knowledgeBaseArn,
+      'knowledgeBaseId': knowledgeBaseId,
+      'lastModifiedTime': unixTimestampToJson(lastModifiedTime),
+      'name': name,
+      'quickResponseArn': quickResponseArn,
+      'quickResponseId': quickResponseId,
+      'status': status.value,
+      if (channels != null) 'channels': channels,
+      if (contents != null) 'contents': contents,
+      if (description != null) 'description': description,
+      if (groupingConfiguration != null)
+        'groupingConfiguration': groupingConfiguration,
+      if (isActive != null) 'isActive': isActive,
+      if (language != null) 'language': language,
+      if (lastModifiedBy != null) 'lastModifiedBy': lastModifiedBy,
+      if (shortcutKey != null) 'shortcutKey': shortcutKey,
+      if (tags != null) 'tags': tags,
+    };
+  }
+}
+
+/// The container of quick response data.
+class QuickResponseDataProvider {
+  /// The content of the quick response.
+  final String? content;
+
+  QuickResponseDataProvider({
+    this.content,
+  });
+
+  Map<String, dynamic> toJson() {
+    final content = this.content;
+    return {
+      if (content != null) 'content': content,
+    };
+  }
+}
+
+/// The quick response fields to filter the quick response query results by.
+///
+/// The following is the list of supported field names.
+///
+/// <ul>
+/// <li>
+/// name
+/// </li>
+/// <li>
+/// description
+/// </li>
+/// <li>
+/// shortcutKey
+/// </li>
+/// <li>
+/// isActive
+/// </li>
+/// <li>
+/// channels
+/// </li>
+/// <li>
+/// language
+/// </li>
+/// <li>
+/// contentType
+/// </li>
+/// <li>
+/// createdTime
+/// </li>
+/// <li>
+/// lastModifiedTime
+/// </li>
+/// <li>
+/// lastModifiedBy
+/// </li>
+/// <li>
+/// groupingConfiguration.criteria
+/// </li>
+/// <li>
+/// groupingConfiguration.values
+/// </li>
+/// </ul>
+class QuickResponseFilterField {
+  /// The name of the attribute field to filter the quick responses by.
+  final String name;
+
+  /// The operator to use for filtering.
+  final QuickResponseFilterOperator operator;
+
+  /// Whether to treat null value as a match for the attribute field.
+  final bool? includeNoExistence;
+
+  /// The values of attribute field to filter the quick response by.
+  final List<String>? values;
+
+  QuickResponseFilterField({
+    required this.name,
+    required this.operator,
+    this.includeNoExistence,
+    this.values,
+  });
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final operator = this.operator;
+    final includeNoExistence = this.includeNoExistence;
+    final values = this.values;
+    return {
+      'name': name,
+      'operator': operator.value,
+      if (includeNoExistence != null) 'includeNoExistence': includeNoExistence,
+      if (values != null) 'values': values,
+    };
+  }
+}
+
+enum QuickResponseFilterOperator {
+  equals('EQUALS'),
+  prefix('PREFIX'),
+  ;
+
+  final String value;
+
+  const QuickResponseFilterOperator(this.value);
+
+  static QuickResponseFilterOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum QuickResponseFilterOperator'));
+}
+
+/// The quick response fields to order the quick response query results by.
+///
+/// The following is the list of supported field names.
+///
+/// <ul>
+/// <li>
+/// name
+/// </li>
+/// <li>
+/// description
+/// </li>
+/// <li>
+/// shortcutKey
+/// </li>
+/// <li>
+/// isActive
+/// </li>
+/// <li>
+/// channels
+/// </li>
+/// <li>
+/// language
+/// </li>
+/// <li>
+/// contentType
+/// </li>
+/// <li>
+/// createdTime
+/// </li>
+/// <li>
+/// lastModifiedTime
+/// </li>
+/// <li>
+/// lastModifiedBy
+/// </li>
+/// <li>
+/// groupingConfiguration.criteria
+/// </li>
+/// <li>
+/// groupingConfiguration.values
+/// </li>
+/// </ul>
+class QuickResponseOrderField {
+  /// The name of the attribute to order the quick response query results by.
+  final String name;
+
+  /// The order at which the quick responses are sorted by.
+  final Order? order;
+
+  QuickResponseOrderField({
+    required this.name,
+    this.order,
+  });
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final order = this.order;
+    return {
+      'name': name,
+      if (order != null) 'order': order.value,
+    };
+  }
+}
+
+/// The quick response fields to query quick responses by.
+///
+/// The following is the list of supported field names.
+///
+/// <ul>
+/// <li>
+/// content
+/// </li>
+/// <li>
+/// name
+/// </li>
+/// <li>
+/// description
+/// </li>
+/// <li>
+/// shortcutKey
+/// </li>
+/// </ul>
+class QuickResponseQueryField {
+  /// The name of the attribute to query the quick responses by.
+  final String name;
+
+  /// The operator to use for matching attribute field values in the query.
+  final QuickResponseQueryOperator operator;
+
+  /// The values of the attribute to query the quick responses by.
+  final List<String> values;
+
+  /// Whether the query expects only exact matches on the attribute field values.
+  /// The results of the query will only include exact matches if this parameter
+  /// is set to false.
+  final bool? allowFuzziness;
+
+  /// The importance of the attribute field when calculating query result
+  /// relevancy scores. The value set for this parameter affects the ordering of
+  /// search results.
+  final Priority? priority;
+
+  QuickResponseQueryField({
+    required this.name,
+    required this.operator,
+    required this.values,
+    this.allowFuzziness,
+    this.priority,
+  });
+
+  Map<String, dynamic> toJson() {
+    final name = this.name;
+    final operator = this.operator;
+    final values = this.values;
+    final allowFuzziness = this.allowFuzziness;
+    final priority = this.priority;
+    return {
+      'name': name,
+      'operator': operator.value,
+      'values': values,
+      if (allowFuzziness != null) 'allowFuzziness': allowFuzziness,
+      if (priority != null) 'priority': priority.value,
+    };
+  }
+}
+
+enum QuickResponseQueryOperator {
+  contains('CONTAINS'),
+  containsAndPrefix('CONTAINS_AND_PREFIX'),
+  ;
+
+  final String value;
+
+  const QuickResponseQueryOperator(this.value);
+
+  static QuickResponseQueryOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum QuickResponseQueryOperator'));
+}
+
+/// Information about the import job.
+class QuickResponseSearchExpression {
+  /// The configuration of filtering rules applied to quick response query
+  /// results.
+  final List<QuickResponseFilterField>? filters;
+
+  /// The quick response attribute fields on which the query results are ordered.
+  final QuickResponseOrderField? orderOnField;
+
+  /// The quick response query expressions.
+  final List<QuickResponseQueryField>? queries;
+
+  QuickResponseSearchExpression({
+    this.filters,
+    this.orderOnField,
+    this.queries,
+  });
+
+  Map<String, dynamic> toJson() {
+    final filters = this.filters;
+    final orderOnField = this.orderOnField;
+    final queries = this.queries;
+    return {
+      if (filters != null) 'filters': filters,
+      if (orderOnField != null) 'orderOnField': orderOnField,
+      if (queries != null) 'queries': queries,
+    };
+  }
+}
+
+/// The result of quick response search.
+class QuickResponseSearchResultData {
+  /// The media type of the quick response content.
+  ///
+  /// <ul>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=plain</code> for quick response
+  /// written in plain text.
+  /// </li>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=markdown</code> for quick
+  /// response written in richtext.
+  /// </li>
+  /// </ul>
+  final String contentType;
+
+  /// The contents of the quick response.
+  final QuickResponseContents contents;
+
+  /// The timestamp when the quick response was created.
+  final DateTime createdTime;
+
+  /// Whether the quick response is active.
+  final bool isActive;
+
+  /// The Amazon Resource Name (ARN) of the knowledge base.
+  final String knowledgeBaseArn;
+
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it. Can be
+  /// either the ID or the ARN. URLs cannot contain the ARN.
+  final String knowledgeBaseId;
+
+  /// The timestamp when the quick response search result data was last modified.
+  final DateTime lastModifiedTime;
+
+  /// The name of the quick response.
+  final String name;
+
+  /// The Amazon Resource Name (ARN) of the quick response.
+  final String quickResponseArn;
+
+  /// The identifier of the quick response.
+  final String quickResponseId;
+
+  /// The resource status of the quick response.
+  final QuickResponseStatus status;
+
+  /// The user defined contact attributes that are resolved when the search result
+  /// is returned.
+  final List<String>? attributesInterpolated;
+
+  /// The user defined contact attributes that are not resolved when the search
+  /// result is returned.
+  final List<String>? attributesNotInterpolated;
+
+  /// The Amazon Connect contact channels this quick response applies to. The
+  /// supported contact channel types include <code>Chat</code>.
+  final List<String>? channels;
+
+  /// The description of the quick response.
+  final String? description;
+
+  /// The configuration information of the user groups that the quick response is
+  /// accessible to.
+  final GroupingConfiguration? groupingConfiguration;
+
+  /// The language code value for the language in which the quick response is
+  /// written.
+  final String? language;
+
+  /// The Amazon Resource Name (ARN) of the user who last updated the quick
+  /// response search result data.
+  final String? lastModifiedBy;
+
+  /// The shortcut key of the quick response. The value should be unique across
+  /// the knowledge base.
+  final String? shortcutKey;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  QuickResponseSearchResultData({
+    required this.contentType,
+    required this.contents,
+    required this.createdTime,
+    required this.isActive,
+    required this.knowledgeBaseArn,
+    required this.knowledgeBaseId,
+    required this.lastModifiedTime,
+    required this.name,
+    required this.quickResponseArn,
+    required this.quickResponseId,
+    required this.status,
+    this.attributesInterpolated,
+    this.attributesNotInterpolated,
+    this.channels,
+    this.description,
+    this.groupingConfiguration,
+    this.language,
+    this.lastModifiedBy,
+    this.shortcutKey,
+    this.tags,
+  });
+
+  factory QuickResponseSearchResultData.fromJson(Map<String, dynamic> json) {
+    return QuickResponseSearchResultData(
+      contentType: json['contentType'] as String,
+      contents: QuickResponseContents.fromJson(
+          json['contents'] as Map<String, dynamic>),
+      createdTime: nonNullableTimeStampFromJson(json['createdTime'] as Object),
+      isActive: json['isActive'] as bool,
+      knowledgeBaseArn: json['knowledgeBaseArn'] as String,
+      knowledgeBaseId: json['knowledgeBaseId'] as String,
+      lastModifiedTime:
+          nonNullableTimeStampFromJson(json['lastModifiedTime'] as Object),
+      name: json['name'] as String,
+      quickResponseArn: json['quickResponseArn'] as String,
+      quickResponseId: json['quickResponseId'] as String,
+      status: QuickResponseStatus.fromString((json['status'] as String)),
+      attributesInterpolated: (json['attributesInterpolated'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      attributesNotInterpolated: (json['attributesNotInterpolated'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      channels: (json['channels'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      description: json['description'] as String?,
+      groupingConfiguration: json['groupingConfiguration'] != null
+          ? GroupingConfiguration.fromJson(
+              json['groupingConfiguration'] as Map<String, dynamic>)
+          : null,
+      language: json['language'] as String?,
+      lastModifiedBy: json['lastModifiedBy'] as String?,
+      shortcutKey: json['shortcutKey'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final contentType = this.contentType;
+    final contents = this.contents;
+    final createdTime = this.createdTime;
+    final isActive = this.isActive;
+    final knowledgeBaseArn = this.knowledgeBaseArn;
+    final knowledgeBaseId = this.knowledgeBaseId;
+    final lastModifiedTime = this.lastModifiedTime;
+    final name = this.name;
+    final quickResponseArn = this.quickResponseArn;
+    final quickResponseId = this.quickResponseId;
+    final status = this.status;
+    final attributesInterpolated = this.attributesInterpolated;
+    final attributesNotInterpolated = this.attributesNotInterpolated;
+    final channels = this.channels;
+    final description = this.description;
+    final groupingConfiguration = this.groupingConfiguration;
+    final language = this.language;
+    final lastModifiedBy = this.lastModifiedBy;
+    final shortcutKey = this.shortcutKey;
+    final tags = this.tags;
+    return {
+      'contentType': contentType,
+      'contents': contents,
+      'createdTime': unixTimestampToJson(createdTime),
+      'isActive': isActive,
+      'knowledgeBaseArn': knowledgeBaseArn,
+      'knowledgeBaseId': knowledgeBaseId,
+      'lastModifiedTime': unixTimestampToJson(lastModifiedTime),
+      'name': name,
+      'quickResponseArn': quickResponseArn,
+      'quickResponseId': quickResponseId,
+      'status': status.value,
+      if (attributesInterpolated != null)
+        'attributesInterpolated': attributesInterpolated,
+      if (attributesNotInterpolated != null)
+        'attributesNotInterpolated': attributesNotInterpolated,
+      if (channels != null) 'channels': channels,
+      if (description != null) 'description': description,
+      if (groupingConfiguration != null)
+        'groupingConfiguration': groupingConfiguration,
+      if (language != null) 'language': language,
+      if (lastModifiedBy != null) 'lastModifiedBy': lastModifiedBy,
+      if (shortcutKey != null) 'shortcutKey': shortcutKey,
+      if (tags != null) 'tags': tags,
+    };
+  }
+}
+
+enum QuickResponseStatus {
+  createInProgress('CREATE_IN_PROGRESS'),
+  createFailed('CREATE_FAILED'),
+  created('CREATED'),
+  deleteInProgress('DELETE_IN_PROGRESS'),
+  deleteFailed('DELETE_FAILED'),
+  deleted('DELETED'),
+  updateInProgress('UPDATE_IN_PROGRESS'),
+  updateFailed('UPDATE_FAILED'),
+  ;
+
+  final String value;
+
+  const QuickResponseStatus(this.value);
+
+  static QuickResponseStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum QuickResponseStatus'));
+}
+
+/// The summary information about the quick response.
+class QuickResponseSummary {
+  /// The media type of the quick response content.
+  ///
+  /// <ul>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=plain</code> for quick response
+  /// written in plain text.
+  /// </li>
+  /// <li>
+  /// Use <code>application/x.quickresponse;format=markdown</code> for quick
+  /// response written in richtext.
+  /// </li>
+  /// </ul>
+  final String contentType;
+
+  /// The timestamp when the quick response was created.
+  final DateTime createdTime;
+
+  /// The Amazon Resource Name (ARN) of the knowledge base.
+  final String knowledgeBaseArn;
+
+  /// The identifier of the knowledge base. This should not be a QUICK_RESPONSES
+  /// type knowledge base if you're storing Wisdom Content resource to it.
+  final String knowledgeBaseId;
+
+  /// The timestamp when the quick response summary was last modified.
+  final DateTime lastModifiedTime;
+
+  /// The name of the quick response.
+  final String name;
+
+  /// The Amazon Resource Name (ARN) of the quick response.
+  final String quickResponseArn;
+
+  /// The identifier of the quick response.
+  final String quickResponseId;
+
+  /// The resource status of the quick response.
+  final QuickResponseStatus status;
+
+  /// The Amazon Connect contact channels this quick response applies to. The
+  /// supported contact channel types include <code>Chat</code>.
+  final List<String>? channels;
+
+  /// The description of the quick response.
+  final String? description;
+
+  /// Whether the quick response is active.
+  final bool? isActive;
+
+  /// The Amazon Resource Name (ARN) of the user who last updated the quick
+  /// response data.
+  final String? lastModifiedBy;
+
+  /// The tags used to organize, track, or control access for this resource.
+  final Map<String, String>? tags;
+
+  QuickResponseSummary({
+    required this.contentType,
+    required this.createdTime,
+    required this.knowledgeBaseArn,
+    required this.knowledgeBaseId,
+    required this.lastModifiedTime,
+    required this.name,
+    required this.quickResponseArn,
+    required this.quickResponseId,
+    required this.status,
+    this.channels,
+    this.description,
+    this.isActive,
+    this.lastModifiedBy,
+    this.tags,
+  });
+
+  factory QuickResponseSummary.fromJson(Map<String, dynamic> json) {
+    return QuickResponseSummary(
+      contentType: json['contentType'] as String,
+      createdTime: nonNullableTimeStampFromJson(json['createdTime'] as Object),
+      knowledgeBaseArn: json['knowledgeBaseArn'] as String,
+      knowledgeBaseId: json['knowledgeBaseId'] as String,
+      lastModifiedTime:
+          nonNullableTimeStampFromJson(json['lastModifiedTime'] as Object),
+      name: json['name'] as String,
+      quickResponseArn: json['quickResponseArn'] as String,
+      quickResponseId: json['quickResponseId'] as String,
+      status: QuickResponseStatus.fromString((json['status'] as String)),
+      channels: (json['channels'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      description: json['description'] as String?,
+      isActive: json['isActive'] as bool?,
+      lastModifiedBy: json['lastModifiedBy'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final contentType = this.contentType;
+    final createdTime = this.createdTime;
+    final knowledgeBaseArn = this.knowledgeBaseArn;
+    final knowledgeBaseId = this.knowledgeBaseId;
+    final lastModifiedTime = this.lastModifiedTime;
+    final name = this.name;
+    final quickResponseArn = this.quickResponseArn;
+    final quickResponseId = this.quickResponseId;
+    final status = this.status;
+    final channels = this.channels;
+    final description = this.description;
+    final isActive = this.isActive;
+    final lastModifiedBy = this.lastModifiedBy;
+    final tags = this.tags;
+    return {
+      'contentType': contentType,
+      'createdTime': unixTimestampToJson(createdTime),
+      'knowledgeBaseArn': knowledgeBaseArn,
+      'knowledgeBaseId': knowledgeBaseId,
+      'lastModifiedTime': unixTimestampToJson(lastModifiedTime),
+      'name': name,
+      'quickResponseArn': quickResponseArn,
+      'quickResponseId': quickResponseId,
+      'status': status.value,
+      if (channels != null) 'channels': channels,
+      if (description != null) 'description': description,
+      if (isActive != null) 'isActive': isActive,
+      if (lastModifiedBy != null) 'lastModifiedBy': lastModifiedBy,
+      if (tags != null) 'tags': tags,
+    };
+  }
+}
+
 /// Information about the recommendation.
 class RecommendationData {
   /// The recommended document.
@@ -3288,9 +5307,10 @@ class RecommendationData {
     return RecommendationData(
       document: Document.fromJson(json['document'] as Map<String, dynamic>),
       recommendationId: json['recommendationId'] as String,
-      relevanceLevel: (json['relevanceLevel'] as String?)?.toRelevanceLevel(),
+      relevanceLevel:
+          (json['relevanceLevel'] as String?)?.let(RelevanceLevel.fromString),
       relevanceScore: json['relevanceScore'] as double?,
-      type: (json['type'] as String?)?.toRecommendationType(),
+      type: (json['type'] as String?)?.let(RecommendationType.fromString),
     );
   }
 
@@ -3303,44 +5323,27 @@ class RecommendationData {
     return {
       'document': document,
       'recommendationId': recommendationId,
-      if (relevanceLevel != null) 'relevanceLevel': relevanceLevel.toValue(),
+      if (relevanceLevel != null) 'relevanceLevel': relevanceLevel.value,
       if (relevanceScore != null) 'relevanceScore': relevanceScore,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
 enum RecommendationSourceType {
-  issueDetection,
-  ruleEvaluation,
-  other,
-}
+  issueDetection('ISSUE_DETECTION'),
+  ruleEvaluation('RULE_EVALUATION'),
+  other('OTHER'),
+  ;
 
-extension RecommendationSourceTypeValueExtension on RecommendationSourceType {
-  String toValue() {
-    switch (this) {
-      case RecommendationSourceType.issueDetection:
-        return 'ISSUE_DETECTION';
-      case RecommendationSourceType.ruleEvaluation:
-        return 'RULE_EVALUATION';
-      case RecommendationSourceType.other:
-        return 'OTHER';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationSourceTypeFromString on String {
-  RecommendationSourceType toRecommendationSourceType() {
-    switch (this) {
-      case 'ISSUE_DETECTION':
-        return RecommendationSourceType.issueDetection;
-      case 'RULE_EVALUATION':
-        return RecommendationSourceType.ruleEvaluation;
-      case 'OTHER':
-        return RecommendationSourceType.other;
-    }
-    throw Exception('$this is not known in enum RecommendationSourceType');
-  }
+  const RecommendationSourceType(this.value);
+
+  static RecommendationSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecommendationSourceType'));
 }
 
 /// A recommendation trigger provides context on the event that produced the
@@ -3387,11 +5390,11 @@ class RecommendationTrigger {
           json['data'] as Map<String, dynamic>),
       id: json['id'] as String,
       recommendationIds: (json['recommendationIds'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
-      source: (json['source'] as String).toRecommendationSourceType(),
-      type: (json['type'] as String).toRecommendationTriggerType(),
+      source: RecommendationSourceType.fromString((json['source'] as String)),
+      type: RecommendationTriggerType.fromString((json['type'] as String)),
     );
   }
 
@@ -3405,8 +5408,8 @@ class RecommendationTrigger {
       'data': data,
       'id': id,
       'recommendationIds': recommendationIds,
-      'source': source.toValue(),
-      'type': type.toValue(),
+      'source': source.value,
+      'type': type.value,
     };
   }
 }
@@ -3438,82 +5441,47 @@ class RecommendationTriggerData {
 }
 
 enum RecommendationTriggerType {
-  query,
-}
+  query('QUERY'),
+  ;
 
-extension RecommendationTriggerTypeValueExtension on RecommendationTriggerType {
-  String toValue() {
-    switch (this) {
-      case RecommendationTriggerType.query:
-        return 'QUERY';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationTriggerTypeFromString on String {
-  RecommendationTriggerType toRecommendationTriggerType() {
-    switch (this) {
-      case 'QUERY':
-        return RecommendationTriggerType.query;
-    }
-    throw Exception('$this is not known in enum RecommendationTriggerType');
-  }
+  const RecommendationTriggerType(this.value);
+
+  static RecommendationTriggerType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RecommendationTriggerType'));
 }
 
 enum RecommendationType {
-  knowledgeContent,
-}
+  knowledgeContent('KNOWLEDGE_CONTENT'),
+  ;
 
-extension RecommendationTypeValueExtension on RecommendationType {
-  String toValue() {
-    switch (this) {
-      case RecommendationType.knowledgeContent:
-        return 'KNOWLEDGE_CONTENT';
-    }
-  }
-}
+  final String value;
 
-extension RecommendationTypeFromString on String {
-  RecommendationType toRecommendationType() {
-    switch (this) {
-      case 'KNOWLEDGE_CONTENT':
-        return RecommendationType.knowledgeContent;
-    }
-    throw Exception('$this is not known in enum RecommendationType');
-  }
+  const RecommendationType(this.value);
+
+  static RecommendationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RecommendationType'));
 }
 
 enum RelevanceLevel {
-  high,
-  medium,
-  low,
-}
+  high('HIGH'),
+  medium('MEDIUM'),
+  low('LOW'),
+  ;
 
-extension RelevanceLevelValueExtension on RelevanceLevel {
-  String toValue() {
-    switch (this) {
-      case RelevanceLevel.high:
-        return 'HIGH';
-      case RelevanceLevel.medium:
-        return 'MEDIUM';
-      case RelevanceLevel.low:
-        return 'LOW';
-    }
-  }
-}
+  final String value;
 
-extension RelevanceLevelFromString on String {
-  RelevanceLevel toRelevanceLevel() {
-    switch (this) {
-      case 'HIGH':
-        return RelevanceLevel.high;
-      case 'MEDIUM':
-        return RelevanceLevel.medium;
-      case 'LOW':
-        return RelevanceLevel.low;
-    }
-    throw Exception('$this is not known in enum RelevanceLevel');
-  }
+  const RelevanceLevel(this.value);
+
+  static RelevanceLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RelevanceLevel'));
 }
 
 class RemoveKnowledgeBaseTemplateUriResponse {
@@ -3628,7 +5596,7 @@ class SearchContentResponse {
   factory SearchContentResponse.fromJson(Map<String, dynamic> json) {
     return SearchContentResponse(
       contentSummaries: (json['contentSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ContentSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3662,6 +5630,40 @@ class SearchExpression {
   }
 }
 
+class SearchQuickResponsesResponse {
+  /// The results of the quick response search.
+  final List<QuickResponseSearchResultData> results;
+
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  final String? nextToken;
+
+  SearchQuickResponsesResponse({
+    required this.results,
+    this.nextToken,
+  });
+
+  factory SearchQuickResponsesResponse.fromJson(Map<String, dynamic> json) {
+    return SearchQuickResponsesResponse(
+      results: (json['results'] as List)
+          .nonNulls
+          .map((e) =>
+              QuickResponseSearchResultData.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final results = this.results;
+    final nextToken = this.nextToken;
+    return {
+      'results': results,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
 class SearchSessionsResponse {
   /// Summary information about the sessions.
   final List<SessionSummary> sessionSummaries;
@@ -3678,7 +5680,7 @@ class SearchSessionsResponse {
   factory SearchSessionsResponse.fromJson(Map<String, dynamic> json) {
     return SearchSessionsResponse(
       sessionSummaries: (json['sessionSummaries'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SessionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3695,9 +5697,14 @@ class SearchSessionsResponse {
   }
 }
 
-/// The KMS key used for encryption.
+/// The configuration information for the customer managed key used for
+/// encryption.
 class ServerSideEncryptionConfiguration {
-  /// The KMS key. For information about valid ID values, see <a
+  /// The customer managed key used for encryption. For more information about
+  /// setting up a customer managed key for Wisdom, see <a
+  /// href="https://docs.aws.amazon.com/connect/latest/adminguide/enable-wisdom.html">Enable
+  /// Amazon Connect Wisdom for your instance</a>. For information about valid ID
+  /// values, see <a
   /// href="https://docs.aws.amazon.com/kms/latest/developerguide/concepts.html#key-id">Key
   /// identifiers (KeyId)</a>.
   final String? kmsKeyId;
@@ -3735,6 +5742,9 @@ class SessionData {
   /// The description of the session.
   final String? description;
 
+  /// The configuration information for the session integration.
+  final SessionIntegrationConfiguration? integrationConfiguration;
+
   /// The tags used to organize, track, or control access for this resource.
   final Map<String, String>? tags;
 
@@ -3743,6 +5753,7 @@ class SessionData {
     required this.sessionArn,
     required this.sessionId,
     this.description,
+    this.integrationConfiguration,
     this.tags,
   });
 
@@ -3752,6 +5763,10 @@ class SessionData {
       sessionArn: json['sessionArn'] as String,
       sessionId: json['sessionId'] as String,
       description: json['description'] as String?,
+      integrationConfiguration: json['integrationConfiguration'] != null
+          ? SessionIntegrationConfiguration.fromJson(
+              json['integrationConfiguration'] as Map<String, dynamic>)
+          : null,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -3762,13 +5777,41 @@ class SessionData {
     final sessionArn = this.sessionArn;
     final sessionId = this.sessionId;
     final description = this.description;
+    final integrationConfiguration = this.integrationConfiguration;
     final tags = this.tags;
     return {
       'name': name,
       'sessionArn': sessionArn,
       'sessionId': sessionId,
       if (description != null) 'description': description,
+      if (integrationConfiguration != null)
+        'integrationConfiguration': integrationConfiguration,
       if (tags != null) 'tags': tags,
+    };
+  }
+}
+
+/// The configuration information for the session integration.
+class SessionIntegrationConfiguration {
+  /// The Amazon Resource Name (ARN) of the integrated Amazon SNS topic used for
+  /// streaming chat messages.
+  final String? topicIntegrationArn;
+
+  SessionIntegrationConfiguration({
+    this.topicIntegrationArn,
+  });
+
+  factory SessionIntegrationConfiguration.fromJson(Map<String, dynamic> json) {
+    return SessionIntegrationConfiguration(
+      topicIntegrationArn: json['topicIntegrationArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final topicIntegrationArn = this.topicIntegrationArn;
+    return {
+      if (topicIntegrationArn != null)
+        'topicIntegrationArn': topicIntegrationArn,
     };
   }
 }
@@ -3888,6 +5931,30 @@ class StartContentUploadResponse {
   }
 }
 
+class StartImportJobResponse {
+  /// The import job.
+  final ImportJobData? importJob;
+
+  StartImportJobResponse({
+    this.importJob,
+  });
+
+  factory StartImportJobResponse.fromJson(Map<String, dynamic> json) {
+    return StartImportJobResponse(
+      importJob: json['importJob'] != null
+          ? ImportJobData.fromJson(json['importJob'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final importJob = this.importJob;
+    return {
+      if (importJob != null) 'importJob': importJob,
+    };
+  }
+}
+
 class TagResourceResponse {
   TagResourceResponse();
 
@@ -3962,6 +6029,31 @@ class UpdateKnowledgeBaseTemplateUriResponse {
   }
 }
 
+class UpdateQuickResponseResponse {
+  /// The quick response.
+  final QuickResponseData? quickResponse;
+
+  UpdateQuickResponseResponse({
+    this.quickResponse,
+  });
+
+  factory UpdateQuickResponseResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateQuickResponseResponse(
+      quickResponse: json['quickResponse'] != null
+          ? QuickResponseData.fromJson(
+              json['quickResponse'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final quickResponse = this.quickResponse;
+    return {
+      if (quickResponse != null) 'quickResponse': quickResponse,
+    };
+  }
+}
+
 class AccessDeniedException extends _s.GenericAwsException {
   AccessDeniedException({String? type, String? message})
       : super(type: type, code: 'AccessDeniedException', message: message);
@@ -3976,6 +6068,11 @@ class PreconditionFailedException extends _s.GenericAwsException {
   PreconditionFailedException({String? type, String? message})
       : super(
             type: type, code: 'PreconditionFailedException', message: message);
+}
+
+class RequestTimeoutException extends _s.GenericAwsException {
+  RequestTimeoutException({String? type, String? message})
+      : super(type: type, code: 'RequestTimeoutException', message: message);
 }
 
 class ResourceNotFoundException extends _s.GenericAwsException {
@@ -4008,6 +6105,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       ConflictException(type: type, message: message),
   'PreconditionFailedException': (type, message) =>
       PreconditionFailedException(type: type, message: message),
+  'RequestTimeoutException': (type, message) =>
+      RequestTimeoutException(type: type, message: message),
   'ResourceNotFoundException': (type, message) =>
       ResourceNotFoundException(type: type, message: message),
   'ServiceQuotaExceededException': (type, message) =>

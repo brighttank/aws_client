@@ -19,20 +19,19 @@ import '../../shared/shared.dart'
 
 export '../../shared/shared.dart' show AwsClientCredentials;
 
-/// The Identity Store service used by AWS IAM Identity Center (successor to AWS
-/// Single Sign-On) provides a single place to retrieve all of your identities
-/// (users and groups). For more information, see the <a
+/// The Identity Store service used by IAM Identity Center provides a single
+/// place to retrieve all of your identities (users and groups). For more
+/// information, see the <a
 /// href="https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html">IAM
 /// Identity Center User Guide</a>.
-/// <pre><code> &lt;note&gt; &lt;p&gt;Although AWS Single Sign-On was renamed,
-/// the &lt;code&gt;sso&lt;/code&gt; and &lt;code&gt;identitystore&lt;/code&gt;
-/// API namespaces will continue to retain their original name for backward
-/// compatibility purposes. For more information, see &lt;a
-/// href=&quot;https://docs.aws.amazon.com/singlesignon/latest/userguide/what-is.html#renamed&quot;&gt;IAM
-/// Identity Center rename&lt;/a&gt;.&lt;/p&gt; &lt;/note&gt; &lt;p&gt;This
-/// reference guide describes the identity store operations that you can call
-/// programatically and includes detailed information about data types and
-/// errors.&lt;/p&gt; </code></pre>
+///
+/// This reference guide describes the identity store operations that you can
+/// call programmatically and includes detailed information about data types and
+/// errors.
+/// <note>
+/// IAM Identity Center uses the <code>sso</code> and <code>identitystore</code>
+/// API namespaces.
+/// </note>
 class IdentityStore {
   final _s.JsonProtocol _protocol;
   IdentityStore({
@@ -80,9 +79,9 @@ class IdentityStore {
   ///
   /// Parameter [displayName] :
   /// A string containing the name of the group. This value is commonly
-  /// displayed when the group is referenced. "Administrator" and
-  /// "AWSAdministrators" are reserved names and can't be used for users or
-  /// groups.
+  /// displayed when the group is referenced. <code>Administrator</code> and
+  /// <code>AWSAdministrators</code> are reserved names and can't be used for
+  /// users or groups.
   Future<CreateGroupResponse> createGroup({
     required String identityStoreId,
     String? description,
@@ -213,8 +212,9 @@ class IdentityStore {
   /// characters. This value can consist of letters, accented characters,
   /// symbols, numbers, and punctuation. This value is specified at the time the
   /// user is created and stored as an attribute of the user object in the
-  /// identity store. "Administrator" and "AWSAdministrators" are reserved names
-  /// and can't be used for users or groups.
+  /// identity store. <code>Administrator</code> and
+  /// <code>AWSAdministrators</code> are reserved names and can't be used for
+  /// users or groups.
   ///
   /// Parameter [userType] :
   /// A string indicating the type of user. Possible values are left
@@ -373,6 +373,12 @@ class IdentityStore {
 
   /// Retrieves the group metadata and attributes from <code>GroupId</code> in
   /// an identity store.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -414,6 +420,12 @@ class IdentityStore {
 
   /// Retrieves membership metadata and attributes from
   /// <code>MembershipId</code> in an identity store.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -451,6 +463,12 @@ class IdentityStore {
 
   /// Retrieves the user metadata and attributes from the <code>UserId</code> in
   /// an identity store.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -491,6 +509,12 @@ class IdentityStore {
   }
 
   /// Retrieves <code>GroupId</code> in an identity store.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -531,6 +555,12 @@ class IdentityStore {
   }
 
   /// Retrieves the <code>MembershipId</code> in an identity store.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -574,6 +604,12 @@ class IdentityStore {
   }
 
   /// Retrieves the <code>UserId</code> in an identity store.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -615,6 +651,12 @@ class IdentityStore {
 
   /// Checks the user's membership in all requested groups and returns if the
   /// member exists in all queried groups.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -658,6 +700,12 @@ class IdentityStore {
   /// For the specified group in the specified identity store, returns the list
   /// of all <code>GroupMembership</code> objects and returns results in
   /// paginated form.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -719,6 +767,12 @@ class IdentityStore {
   /// For the specified member in the specified identity store, returns the list
   /// of all <code>GroupMembership</code> objects and returns results in
   /// paginated form.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -784,6 +838,12 @@ class IdentityStore {
   /// complete <code>Group</code> objects. Filtering for a <code>Group</code> by
   /// the <code>DisplayName</code> attribute is deprecated. Instead, use the
   /// <code>GetGroupId</code> API action.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -851,6 +911,12 @@ class IdentityStore {
   /// complete <code>User</code> objects. Filtering for a <code>User</code> by
   /// the <code>UserName</code> attribute is deprecated. Instead, use the
   /// <code>GetUserId</code> API action.
+  /// <note>
+  /// If you have administrator access to a member account, you can use this API
+  /// from the member account. Read about <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html">member
+  /// accounts</a> in the <i>Organizations User Guide</i>.
+  /// </note>
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [ThrottlingException].
@@ -1109,7 +1175,7 @@ class AttributeOperation {
   final String attributePath;
 
   /// The value of the attribute. This is a <code>Document</code> type. This type
-  /// is not supported by Java V1, Go V1, and older versions of the AWS CLI.
+  /// is not supported by Java V1, Go V1, and older versions of the CLI.
   final AttributeValue? attributeValue;
 
   AttributeOperation({
@@ -1128,7 +1194,7 @@ class AttributeOperation {
 }
 
 /// The value of the attribute. This is a <code>Document</code> type. This type
-/// is not supported by Java V1, Go V1, and older versions of the AWS CLI.
+/// is not supported by Java V1, Go V1, and older versions of the CLI.
 class AttributeValue {
   AttributeValue();
 
@@ -1339,7 +1405,7 @@ class DescribeGroupResponse {
       description: json['Description'] as String?,
       displayName: json['DisplayName'] as String?,
       externalIds: (json['ExternalIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExternalId.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1438,16 +1504,16 @@ class DescribeUserResponse {
       identityStoreId: json['IdentityStoreId'] as String,
       userId: json['UserId'] as String,
       addresses: (json['Addresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Address.fromJson(e as Map<String, dynamic>))
           .toList(),
       displayName: json['DisplayName'] as String?,
       emails: (json['Emails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Email.fromJson(e as Map<String, dynamic>))
           .toList(),
       externalIds: (json['ExternalIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExternalId.fromJson(e as Map<String, dynamic>))
           .toList(),
       locale: json['Locale'] as String?,
@@ -1456,7 +1522,7 @@ class DescribeUserResponse {
           : null,
       nickName: json['NickName'] as String?,
       phoneNumbers: (json['PhoneNumbers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumber.fromJson(e as Map<String, dynamic>))
           .toList(),
       preferredLanguage: json['PreferredLanguage'] as String?,
@@ -1729,7 +1795,7 @@ class Group {
       description: json['Description'] as String?,
       displayName: json['DisplayName'] as String?,
       externalIds: (json['ExternalIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExternalId.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1853,7 +1919,7 @@ class IsMemberInGroupsResponse {
   factory IsMemberInGroupsResponse.fromJson(Map<String, dynamic> json) {
     return IsMemberInGroupsResponse(
       results: (json['Results'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => GroupMembershipExistenceResult.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -1890,7 +1956,7 @@ class ListGroupMembershipsForMemberResponse {
       Map<String, dynamic> json) {
     return ListGroupMembershipsForMemberResponse(
       groupMemberships: (json['GroupMemberships'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => GroupMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1927,7 +1993,7 @@ class ListGroupMembershipsResponse {
   factory ListGroupMembershipsResponse.fromJson(Map<String, dynamic> json) {
     return ListGroupMembershipsResponse(
       groupMemberships: (json['GroupMemberships'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => GroupMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1963,7 +2029,7 @@ class ListGroupsResponse {
   factory ListGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListGroupsResponse(
       groups: (json['Groups'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Group.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1999,7 +2065,7 @@ class ListUsersResponse {
   factory ListUsersResponse.fromJson(Map<String, dynamic> json) {
     return ListUsersResponse(
       users: (json['Users'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => User.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2143,7 +2209,7 @@ class UniqueAttribute {
   final String attributePath;
 
   /// The value of the attribute. This is a <code>Document</code> type. This type
-  /// is not supported by Java V1, Go V1, and older versions of the AWS CLI.
+  /// is not supported by Java V1, Go V1, and older versions of the CLI.
   final AttributeValue attributeValue;
 
   UniqueAttribute({
@@ -2271,16 +2337,16 @@ class User {
       identityStoreId: json['IdentityStoreId'] as String,
       userId: json['UserId'] as String,
       addresses: (json['Addresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Address.fromJson(e as Map<String, dynamic>))
           .toList(),
       displayName: json['DisplayName'] as String?,
       emails: (json['Emails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Email.fromJson(e as Map<String, dynamic>))
           .toList(),
       externalIds: (json['ExternalIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExternalId.fromJson(e as Map<String, dynamic>))
           .toList(),
       locale: json['Locale'] as String?,
@@ -2289,7 +2355,7 @@ class User {
           : null,
       nickName: json['NickName'] as String?,
       phoneNumbers: (json['PhoneNumbers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PhoneNumber.fromJson(e as Map<String, dynamic>))
           .toList(),
       preferredLanguage: json['PreferredLanguage'] as String?,

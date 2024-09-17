@@ -1034,7 +1034,7 @@ class MemoryDB {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (sourceName != null) 'SourceName': sourceName,
-        if (sourceType != null) 'SourceType': sourceType.toValue(),
+        if (sourceType != null) 'SourceType': sourceType.value,
         if (startTime != null) 'StartTime': unixTimestampToJson(startTime),
       },
     );
@@ -1327,7 +1327,7 @@ class MemoryDB {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (serviceUpdateName != null) 'ServiceUpdateName': serviceUpdateName,
-        if (status != null) 'Status': status.map((e) => e.toValue()).toList(),
+        if (status != null) 'Status': status.map((e) => e.value).toList(),
       },
     );
 
@@ -2172,7 +2172,7 @@ class ACL {
     return ACL(
       arn: json['ARN'] as String?,
       clusters: (json['Clusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       minimumEngineVersion: json['MinimumEngineVersion'] as String?,
@@ -2183,7 +2183,7 @@ class ACL {
           : null,
       status: json['Status'] as String?,
       userNames: (json['UserNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2226,11 +2226,11 @@ class ACLPendingChanges {
   factory ACLPendingChanges.fromJson(Map<String, dynamic> json) {
     return ACLPendingChanges(
       userNamesToAdd: (json['UserNamesToAdd'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       userNamesToRemove: (json['UserNamesToRemove'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2270,31 +2270,17 @@ class ACLsUpdateStatus {
 }
 
 enum AZStatus {
-  singleaz,
-  multiaz,
-}
+  singleaz('singleaz'),
+  multiaz('multiaz'),
+  ;
 
-extension AZStatusValueExtension on AZStatus {
-  String toValue() {
-    switch (this) {
-      case AZStatus.singleaz:
-        return 'singleaz';
-      case AZStatus.multiaz:
-        return 'multiaz';
-    }
-  }
-}
+  final String value;
 
-extension AZStatusFromString on String {
-  AZStatus toAZStatus() {
-    switch (this) {
-      case 'singleaz':
-        return AZStatus.singleaz;
-      case 'multiaz':
-        return AZStatus.multiaz;
-    }
-    throw Exception('$this is not known in enum AZStatus');
-  }
+  const AZStatus(this.value);
+
+  static AZStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AZStatus'));
 }
 
 /// Denotes the user's authentication properties, such as whether it requires a
@@ -2314,7 +2300,7 @@ class Authentication {
   factory Authentication.fromJson(Map<String, dynamic> json) {
     return Authentication(
       passwordCount: json['PasswordCount'] as int?,
-      type: (json['Type'] as String?)?.toAuthenticationType(),
+      type: (json['Type'] as String?)?.let(AuthenticationType.fromString),
     );
   }
 
@@ -2323,7 +2309,7 @@ class Authentication {
     final type = this.type;
     return {
       if (passwordCount != null) 'PasswordCount': passwordCount,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -2348,37 +2334,25 @@ class AuthenticationMode {
     final type = this.type;
     return {
       if (passwords != null) 'Passwords': passwords,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum AuthenticationType {
-  password,
-  noPassword,
-}
+  password('password'),
+  noPassword('no-password'),
+  iam('iam'),
+  ;
 
-extension AuthenticationTypeValueExtension on AuthenticationType {
-  String toValue() {
-    switch (this) {
-      case AuthenticationType.password:
-        return 'password';
-      case AuthenticationType.noPassword:
-        return 'no-password';
-    }
-  }
-}
+  final String value;
 
-extension AuthenticationTypeFromString on String {
-  AuthenticationType toAuthenticationType() {
-    switch (this) {
-      case 'password':
-        return AuthenticationType.password;
-      case 'no-password':
-        return AuthenticationType.noPassword;
-    }
-    throw Exception('$this is not known in enum AuthenticationType');
-  }
+  const AuthenticationType(this.value);
+
+  static AuthenticationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AuthenticationType'));
 }
 
 /// Indicates if the cluster has a Multi-AZ configuration (multiaz) or not
@@ -2420,11 +2394,11 @@ class BatchUpdateClusterResponse {
   factory BatchUpdateClusterResponse.fromJson(Map<String, dynamic> json) {
     return BatchUpdateClusterResponse(
       processedClusters: (json['ProcessedClusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Cluster.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedClusters: (json['UnprocessedClusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UnprocessedCluster.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2569,11 +2543,13 @@ class Cluster {
       aCLName: json['ACLName'] as String?,
       arn: json['ARN'] as String?,
       autoMinorVersionUpgrade: json['AutoMinorVersionUpgrade'] as bool?,
-      availabilityMode: (json['AvailabilityMode'] as String?)?.toAZStatus(),
+      availabilityMode:
+          (json['AvailabilityMode'] as String?)?.let(AZStatus.fromString),
       clusterEndpoint: json['ClusterEndpoint'] != null
           ? Endpoint.fromJson(json['ClusterEndpoint'] as Map<String, dynamic>)
           : null,
-      dataTiering: (json['DataTiering'] as String?)?.toDataTieringStatus(),
+      dataTiering:
+          (json['DataTiering'] as String?)?.let(DataTieringStatus.fromString),
       description: json['Description'] as String?,
       enginePatchVersion: json['EnginePatchVersion'] as String?,
       engineVersion: json['EngineVersion'] as String?,
@@ -2589,12 +2565,12 @@ class Cluster {
               json['PendingUpdates'] as Map<String, dynamic>)
           : null,
       securityGroups: (json['SecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SecurityGroupMembership.fromJson(e as Map<String, dynamic>))
           .toList(),
       shards: (json['Shards'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Shard.fromJson(e as Map<String, dynamic>))
           .toList(),
       snapshotRetentionLimit: json['SnapshotRetentionLimit'] as int?,
@@ -2639,10 +2615,9 @@ class Cluster {
       if (arn != null) 'ARN': arn,
       if (autoMinorVersionUpgrade != null)
         'AutoMinorVersionUpgrade': autoMinorVersionUpgrade,
-      if (availabilityMode != null)
-        'AvailabilityMode': availabilityMode.toValue(),
+      if (availabilityMode != null) 'AvailabilityMode': availabilityMode.value,
       if (clusterEndpoint != null) 'ClusterEndpoint': clusterEndpoint,
-      if (dataTiering != null) 'DataTiering': dataTiering.toValue(),
+      if (dataTiering != null) 'DataTiering': dataTiering.value,
       if (description != null) 'Description': description,
       if (enginePatchVersion != null) 'EnginePatchVersion': enginePatchVersion,
       if (engineVersion != null) 'EngineVersion': engineVersion,
@@ -2741,7 +2716,7 @@ class ClusterConfiguration {
       parameterGroupName: json['ParameterGroupName'] as String?,
       port: json['Port'] as int?,
       shards: (json['Shards'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ShardDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       snapshotRetentionLimit: json['SnapshotRetentionLimit'] as int?,
@@ -2814,7 +2789,7 @@ class ClusterPendingUpdates {
               json['Resharding'] as Map<String, dynamic>)
           : null,
       serviceUpdates: (json['ServiceUpdates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               PendingModifiedServiceUpdate.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3004,31 +2979,18 @@ class CreateUserResponse {
 }
 
 enum DataTieringStatus {
-  $true,
-  $false,
-}
+  $true('true'),
+  $false('false'),
+  ;
 
-extension DataTieringStatusValueExtension on DataTieringStatus {
-  String toValue() {
-    switch (this) {
-      case DataTieringStatus.$true:
-        return 'true';
-      case DataTieringStatus.$false:
-        return 'false';
-    }
-  }
-}
+  final String value;
 
-extension DataTieringStatusFromString on String {
-  DataTieringStatus toDataTieringStatus() {
-    switch (this) {
-      case 'true':
-        return DataTieringStatus.$true;
-      case 'false':
-        return DataTieringStatus.$false;
-    }
-    throw Exception('$this is not known in enum DataTieringStatus');
-  }
+  const DataTieringStatus(this.value);
+
+  static DataTieringStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DataTieringStatus'));
 }
 
 class DeleteACLResponse {
@@ -3194,7 +3156,7 @@ class DescribeACLsResponse {
   factory DescribeACLsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeACLsResponse(
       aCLs: (json['ACLs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ACL.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3230,7 +3192,7 @@ class DescribeClustersResponse {
   factory DescribeClustersResponse.fromJson(Map<String, dynamic> json) {
     return DescribeClustersResponse(
       clusters: (json['Clusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Cluster.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3267,7 +3229,7 @@ class DescribeEngineVersionsResponse {
   factory DescribeEngineVersionsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEngineVersionsResponse(
       engineVersions: (json['EngineVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EngineVersionInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3304,7 +3266,7 @@ class DescribeEventsResponse {
   factory DescribeEventsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeEventsResponse(
       events: (json['Events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Event.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -3342,7 +3304,7 @@ class DescribeParameterGroupsResponse {
     return DescribeParameterGroupsResponse(
       nextToken: json['NextToken'] as String?,
       parameterGroups: (json['ParameterGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ParameterGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3379,7 +3341,7 @@ class DescribeParametersResponse {
     return DescribeParametersResponse(
       nextToken: json['NextToken'] as String?,
       parameters: (json['Parameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Parameter.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3415,7 +3377,7 @@ class DescribeReservedNodesOfferingsResponse {
     return DescribeReservedNodesOfferingsResponse(
       nextToken: json['NextToken'] as String?,
       reservedNodesOfferings: (json['ReservedNodesOfferings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReservedNodesOffering.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3452,7 +3414,7 @@ class DescribeReservedNodesResponse {
     return DescribeReservedNodesResponse(
       nextToken: json['NextToken'] as String?,
       reservedNodes: (json['ReservedNodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ReservedNode.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3488,7 +3450,7 @@ class DescribeServiceUpdatesResponse {
     return DescribeServiceUpdatesResponse(
       nextToken: json['NextToken'] as String?,
       serviceUpdates: (json['ServiceUpdates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceUpdate.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3525,7 +3487,7 @@ class DescribeSnapshotsResponse {
     return DescribeSnapshotsResponse(
       nextToken: json['NextToken'] as String?,
       snapshots: (json['Snapshots'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Snapshot.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3562,7 +3524,7 @@ class DescribeSubnetGroupsResponse {
     return DescribeSubnetGroupsResponse(
       nextToken: json['NextToken'] as String?,
       subnetGroups: (json['SubnetGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SubnetGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3598,7 +3560,7 @@ class DescribeUsersResponse {
     return DescribeUsersResponse(
       nextToken: json['NextToken'] as String?,
       users: (json['Users'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => User.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3713,7 +3675,7 @@ class Event {
       date: timeStampFromJson(json['Date']),
       message: json['Message'] as String?,
       sourceName: json['SourceName'] as String?,
-      sourceType: (json['SourceType'] as String?)?.toSourceType(),
+      sourceType: (json['SourceType'] as String?)?.let(SourceType.fromString),
     );
   }
 
@@ -3726,7 +3688,7 @@ class Event {
       if (date != null) 'Date': unixTimestampToJson(date),
       if (message != null) 'Message': message,
       if (sourceName != null) 'SourceName': sourceName,
-      if (sourceType != null) 'SourceType': sourceType.toValue(),
+      if (sourceType != null) 'SourceType': sourceType.value,
     };
   }
 }
@@ -3779,26 +3741,18 @@ class Filter {
 }
 
 enum InputAuthenticationType {
-  password,
-}
+  password('password'),
+  iam('iam'),
+  ;
 
-extension InputAuthenticationTypeValueExtension on InputAuthenticationType {
-  String toValue() {
-    switch (this) {
-      case InputAuthenticationType.password:
-        return 'password';
-    }
-  }
-}
+  final String value;
 
-extension InputAuthenticationTypeFromString on String {
-  InputAuthenticationType toInputAuthenticationType() {
-    switch (this) {
-      case 'password':
-        return InputAuthenticationType.password;
-    }
-    throw Exception('$this is not known in enum InputAuthenticationType');
-  }
+  const InputAuthenticationType(this.value);
+
+  static InputAuthenticationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InputAuthenticationType'));
 }
 
 class ListAllowedNodeTypeUpdatesResponse {
@@ -3817,11 +3771,11 @@ class ListAllowedNodeTypeUpdatesResponse {
       Map<String, dynamic> json) {
     return ListAllowedNodeTypeUpdatesResponse(
       scaleDownNodeTypes: (json['ScaleDownNodeTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       scaleUpNodeTypes: (json['ScaleUpNodeTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3848,7 +3802,7 @@ class ListTagsResponse {
   factory ListTagsResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsResponse(
       tagList: (json['TagList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4065,7 +4019,7 @@ class PendingModifiedServiceUpdate {
   factory PendingModifiedServiceUpdate.fromJson(Map<String, dynamic> json) {
     return PendingModifiedServiceUpdate(
       serviceUpdateName: json['ServiceUpdateName'] as String?,
-      status: (json['Status'] as String?)?.toServiceUpdateStatus(),
+      status: (json['Status'] as String?)?.let(ServiceUpdateStatus.fromString),
     );
   }
 
@@ -4074,7 +4028,7 @@ class PendingModifiedServiceUpdate {
     final status = this.status;
     return {
       if (serviceUpdateName != null) 'ServiceUpdateName': serviceUpdateName,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
@@ -4213,7 +4167,7 @@ class ReservedNode {
       nodeType: json['NodeType'] as String?,
       offeringType: json['OfferingType'] as String?,
       recurringCharges: (json['RecurringCharges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecurringCharge.fromJson(e as Map<String, dynamic>))
           .toList(),
       reservationId: json['ReservationId'] as String?,
@@ -4290,7 +4244,7 @@ class ReservedNodesOffering {
       nodeType: json['NodeType'] as String?,
       offeringType: json['OfferingType'] as String?,
       recurringCharges: (json['RecurringCharges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RecurringCharge.fromJson(e as Map<String, dynamic>))
           .toList(),
       reservedNodesOfferingId: json['ReservedNodesOfferingId'] as String?,
@@ -4444,8 +4398,8 @@ class ServiceUpdate {
       nodesUpdated: json['NodesUpdated'] as String?,
       releaseDate: timeStampFromJson(json['ReleaseDate']),
       serviceUpdateName: json['ServiceUpdateName'] as String?,
-      status: (json['Status'] as String?)?.toServiceUpdateStatus(),
-      type: (json['Type'] as String?)?.toServiceUpdateType(),
+      status: (json['Status'] as String?)?.let(ServiceUpdateStatus.fromString),
+      type: (json['Type'] as String?)?.let(ServiceUpdateType.fromString),
     );
   }
 
@@ -4466,8 +4420,8 @@ class ServiceUpdate {
       if (nodesUpdated != null) 'NodesUpdated': nodesUpdated,
       if (releaseDate != null) 'ReleaseDate': unixTimestampToJson(releaseDate),
       if (serviceUpdateName != null) 'ServiceUpdateName': serviceUpdateName,
-      if (status != null) 'Status': status.toValue(),
-      if (type != null) 'Type': type.toValue(),
+      if (status != null) 'Status': status.value,
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -4491,64 +4445,34 @@ class ServiceUpdateRequest {
 }
 
 enum ServiceUpdateStatus {
-  available,
-  inProgress,
-  complete,
-  scheduled,
-}
+  available('available'),
+  inProgress('in-progress'),
+  complete('complete'),
+  scheduled('scheduled'),
+  ;
 
-extension ServiceUpdateStatusValueExtension on ServiceUpdateStatus {
-  String toValue() {
-    switch (this) {
-      case ServiceUpdateStatus.available:
-        return 'available';
-      case ServiceUpdateStatus.inProgress:
-        return 'in-progress';
-      case ServiceUpdateStatus.complete:
-        return 'complete';
-      case ServiceUpdateStatus.scheduled:
-        return 'scheduled';
-    }
-  }
-}
+  final String value;
 
-extension ServiceUpdateStatusFromString on String {
-  ServiceUpdateStatus toServiceUpdateStatus() {
-    switch (this) {
-      case 'available':
-        return ServiceUpdateStatus.available;
-      case 'in-progress':
-        return ServiceUpdateStatus.inProgress;
-      case 'complete':
-        return ServiceUpdateStatus.complete;
-      case 'scheduled':
-        return ServiceUpdateStatus.scheduled;
-    }
-    throw Exception('$this is not known in enum ServiceUpdateStatus');
-  }
+  const ServiceUpdateStatus(this.value);
+
+  static ServiceUpdateStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ServiceUpdateStatus'));
 }
 
 enum ServiceUpdateType {
-  securityUpdate,
-}
+  securityUpdate('security-update'),
+  ;
 
-extension ServiceUpdateTypeValueExtension on ServiceUpdateType {
-  String toValue() {
-    switch (this) {
-      case ServiceUpdateType.securityUpdate:
-        return 'security-update';
-    }
-  }
-}
+  final String value;
 
-extension ServiceUpdateTypeFromString on String {
-  ServiceUpdateType toServiceUpdateType() {
-    switch (this) {
-      case 'security-update':
-        return ServiceUpdateType.securityUpdate;
-    }
-    throw Exception('$this is not known in enum ServiceUpdateType');
-  }
+  const ServiceUpdateType(this.value);
+
+  static ServiceUpdateType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ServiceUpdateType'));
 }
 
 /// Represents a collection of nodes in a cluster. One node in the node group is
@@ -4583,7 +4507,7 @@ class Shard {
     return Shard(
       name: json['Name'] as String?,
       nodes: (json['Nodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Node.fromJson(e as Map<String, dynamic>))
           .toList(),
       numberOfNodes: json['NumberOfNodes'] as int?,
@@ -4775,7 +4699,8 @@ class Snapshot {
           ? ClusterConfiguration.fromJson(
               json['ClusterConfiguration'] as Map<String, dynamic>)
           : null,
-      dataTiering: (json['DataTiering'] as String?)?.toDataTieringStatus(),
+      dataTiering:
+          (json['DataTiering'] as String?)?.let(DataTieringStatus.fromString),
       kmsKeyId: json['KmsKeyId'] as String?,
       name: json['Name'] as String?,
       source: json['Source'] as String?,
@@ -4795,7 +4720,7 @@ class Snapshot {
       if (arn != null) 'ARN': arn,
       if (clusterConfiguration != null)
         'ClusterConfiguration': clusterConfiguration,
-      if (dataTiering != null) 'DataTiering': dataTiering.toValue(),
+      if (dataTiering != null) 'DataTiering': dataTiering.value,
       if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
       if (name != null) 'Name': name,
       if (source != null) 'Source': source,
@@ -4805,51 +4730,21 @@ class Snapshot {
 }
 
 enum SourceType {
-  node,
-  parameterGroup,
-  subnetGroup,
-  cluster,
-  user,
-  acl,
-}
+  node('node'),
+  parameterGroup('parameter-group'),
+  subnetGroup('subnet-group'),
+  cluster('cluster'),
+  user('user'),
+  acl('acl'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.node:
-        return 'node';
-      case SourceType.parameterGroup:
-        return 'parameter-group';
-      case SourceType.subnetGroup:
-        return 'subnet-group';
-      case SourceType.cluster:
-        return 'cluster';
-      case SourceType.user:
-        return 'user';
-      case SourceType.acl:
-        return 'acl';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'node':
-        return SourceType.node;
-      case 'parameter-group':
-        return SourceType.parameterGroup;
-      case 'subnet-group':
-        return SourceType.subnetGroup;
-      case 'cluster':
-        return SourceType.cluster;
-      case 'user':
-        return SourceType.user;
-      case 'acl':
-        return SourceType.acl;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 /// Represents the subnet associated with a cluster. This parameter refers to
@@ -4930,7 +4825,7 @@ class SubnetGroup {
       description: json['Description'] as String?,
       name: json['Name'] as String?,
       subnets: (json['Subnets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Subnet.fromJson(e as Map<String, dynamic>))
           .toList(),
       vpcId: json['VpcId'] as String?,
@@ -5000,7 +4895,7 @@ class TagResourceResponse {
   factory TagResourceResponse.fromJson(Map<String, dynamic> json) {
     return TagResourceResponse(
       tagList: (json['TagList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5062,7 +4957,7 @@ class UntagResourceResponse {
   factory UntagResourceResponse.fromJson(Map<String, dynamic> json) {
     return UntagResourceResponse(
       tagList: (json['TagList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5236,7 +5131,7 @@ class User {
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       aCLNames: (json['ACLNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       arn: json['ARN'] as String?,

@@ -51,8 +51,34 @@ class Dlm {
     _protocol.close();
   }
 
-  /// Creates a policy to manage the lifecycle of the specified Amazon Web
-  /// Services resources. You can create up to 100 lifecycle policies.
+  /// Creates an Amazon Data Lifecycle Manager lifecycle policy. Amazon Data
+  /// Lifecycle Manager supports the following policy types:
+  ///
+  /// <ul>
+  /// <li>
+  /// Custom EBS snapshot policy
+  /// </li>
+  /// <li>
+  /// Custom EBS-backed AMI policy
+  /// </li>
+  /// <li>
+  /// Cross-account copy event policy
+  /// </li>
+  /// <li>
+  /// Default policy for EBS snapshots
+  /// </li>
+  /// <li>
+  /// Default policy for EBS-backed AMIs
+  /// </li>
+  /// </ul>
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/policy-differences.html">
+  /// Default policies vs custom policies</a>.
+  /// <important>
+  /// If you create a default policy, you can specify the request parameters
+  /// either in the request body, or in the PolicyDetails request structure, but
+  /// not both.
+  /// </important>
   ///
   /// May throw [InvalidRequestException].
   /// May throw [LimitExceededException].
@@ -66,26 +92,139 @@ class Dlm {
   /// The Amazon Resource Name (ARN) of the IAM role used to run the operations
   /// specified by the lifecycle policy.
   ///
+  /// Parameter [state] :
+  /// The activation state of the lifecycle policy after creation.
+  ///
+  /// Parameter [copyTags] :
+  /// <b>[Default policies only]</b> Indicates whether the policy should copy
+  /// tags from the source resource to the snapshot or AMI. If you do not
+  /// specify a value, the default is <code>false</code>.
+  ///
+  /// Default: false
+  ///
+  /// Parameter [createInterval] :
+  /// <b>[Default policies only]</b> Specifies how often the policy should run
+  /// and create snapshots or AMIs. The creation frequency can range from 1 to 7
+  /// days. If you do not specify a value, the default is 1.
+  ///
+  /// Default: 1
+  ///
+  /// Parameter [crossRegionCopyTargets] :
+  /// <b>[Default policies only]</b> Specifies destination Regions for snapshot
+  /// or AMI copies. You can specify up to 3 destination Regions. If you do not
+  /// want to create cross-Region copies, omit this parameter.
+  ///
+  /// Parameter [defaultPolicy] :
+  /// <b>[Default policies only]</b> Specify the type of default policy to
+  /// create.
+  ///
+  /// <ul>
+  /// <li>
+  /// To create a default policy for EBS snapshots, that creates snapshots of
+  /// all volumes in the Region that do not have recent backups, specify
+  /// <code>VOLUME</code>.
+  /// </li>
+  /// <li>
+  /// To create a default policy for EBS-backed AMIs, that creates EBS-backed
+  /// AMIs from all instances in the Region that do not have recent backups,
+  /// specify <code>INSTANCE</code>.
+  /// </li>
+  /// </ul>
+  ///
+  /// Parameter [exclusions] :
+  /// <b>[Default policies only]</b> Specifies exclusion parameters for volumes
+  /// or instances for which you do not want to create snapshots or AMIs. The
+  /// policy will not create snapshots or AMIs for target resources that match
+  /// any of the specified exclusion parameters.
+  ///
+  /// Parameter [extendDeletion] :
+  /// <b>[Default policies only]</b> Defines the snapshot or AMI retention
+  /// behavior for the policy if the source volume or instance is deleted, or if
+  /// the policy enters the error, disabled, or deleted state.
+  ///
+  /// By default (<b>ExtendDeletion=false</b>):
+  ///
+  /// <ul>
+  /// <li>
+  /// If a source resource is deleted, Amazon Data Lifecycle Manager will
+  /// continue to delete previously created snapshots or AMIs, up to but not
+  /// including the last one, based on the specified retention period. If you
+  /// want Amazon Data Lifecycle Manager to delete all snapshots or AMIs,
+  /// including the last one, specify <code>true</code>.
+  /// </li>
+  /// <li>
+  /// If a policy enters the error, disabled, or deleted state, Amazon Data
+  /// Lifecycle Manager stops deleting snapshots and AMIs. If you want Amazon
+  /// Data Lifecycle Manager to continue deleting snapshots or AMIs, including
+  /// the last one, if the policy enters one of these states, specify
+  /// <code>true</code>.
+  /// </li>
+  /// </ul>
+  /// If you enable extended deletion (<b>ExtendDeletion=true</b>), you override
+  /// both default behaviors simultaneously.
+  ///
+  /// If you do not specify a value, the default is <code>false</code>.
+  ///
+  /// Default: false
+  ///
   /// Parameter [policyDetails] :
   /// The configuration details of the lifecycle policy.
+  /// <important>
+  /// If you create a default policy, you can specify the request parameters
+  /// either in the request body, or in the PolicyDetails request structure, but
+  /// not both.
+  /// </important>
   ///
-  /// Parameter [state] :
-  /// The desired activation state of the lifecycle policy after creation.
+  /// Parameter [retainInterval] :
+  /// <b>[Default policies only]</b> Specifies how long the policy should retain
+  /// snapshots or AMIs before deleting them. The retention period can range
+  /// from 2 to 14 days, but it must be greater than the creation frequency to
+  /// ensure that the policy retains at least 1 snapshot or AMI at any given
+  /// time. If you do not specify a value, the default is 7.
+  ///
+  /// Default: 7
   ///
   /// Parameter [tags] :
   /// The tags to apply to the lifecycle policy during creation.
   Future<CreateLifecyclePolicyResponse> createLifecyclePolicy({
     required String description,
     required String executionRoleArn,
-    required PolicyDetails policyDetails,
     required SettablePolicyStateValues state,
+    bool? copyTags,
+    int? createInterval,
+    List<CrossRegionCopyTarget>? crossRegionCopyTargets,
+    DefaultPolicyTypeValues? defaultPolicy,
+    Exclusions? exclusions,
+    bool? extendDeletion,
+    PolicyDetails? policyDetails,
+    int? retainInterval,
     Map<String, String>? tags,
   }) async {
+    _s.validateNumRange(
+      'createInterval',
+      createInterval,
+      1,
+      1152921504606846976,
+    );
+    _s.validateNumRange(
+      'retainInterval',
+      retainInterval,
+      1,
+      1152921504606846976,
+    );
     final $payload = <String, dynamic>{
       'Description': description,
       'ExecutionRoleArn': executionRoleArn,
-      'PolicyDetails': policyDetails,
-      'State': state.toValue(),
+      'State': state.value,
+      if (copyTags != null) 'CopyTags': copyTags,
+      if (createInterval != null) 'CreateInterval': createInterval,
+      if (crossRegionCopyTargets != null)
+        'CrossRegionCopyTargets': crossRegionCopyTargets,
+      if (defaultPolicy != null) 'DefaultPolicy': defaultPolicy.value,
+      if (exclusions != null) 'Exclusions': exclusions,
+      if (extendDeletion != null) 'ExtendDeletion': extendDeletion,
+      if (policyDetails != null) 'PolicyDetails': policyDetails,
+      if (retainInterval != null) 'RetainInterval': retainInterval,
       if (tags != null) 'Tags': tags,
     };
     final response = await _protocol.send(
@@ -116,7 +255,7 @@ class Dlm {
     final response = await _protocol.send(
       payload: null,
       method: 'DELETE',
-      requestUri: '/policies/${Uri.encodeComponent(policyId)}/',
+      requestUri: '/policies/${Uri.encodeComponent(policyId)}',
       exceptionFnMap: _exceptionFns,
     );
   }
@@ -124,12 +263,29 @@ class Dlm {
   /// Gets summary information about all or the specified data lifecycle
   /// policies.
   ///
-  /// To get complete information about a policy, use <a>GetLifecyclePolicy</a>.
+  /// To get complete information about a policy, use <a
+  /// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_GetLifecyclePolicy.html">GetLifecyclePolicy</a>.
   ///
   /// May throw [ResourceNotFoundException].
   /// May throw [InvalidRequestException].
   /// May throw [InternalServerException].
   /// May throw [LimitExceededException].
+  ///
+  /// Parameter [defaultPolicyType] :
+  /// <b>[Default policies only]</b> Specifies the type of default policy to
+  /// get. Specify one of the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>VOLUME</code> - To get only the default policy for EBS snapshots
+  /// </li>
+  /// <li>
+  /// <code>INSTANCE</code> - To get only the default policy for EBS-backed AMIs
+  /// </li>
+  /// <li>
+  /// <code>ALL</code> - To get all default policies
+  /// </li>
+  /// </ul>
   ///
   /// Parameter [policyIds] :
   /// The identifiers of the data lifecycle policies.
@@ -153,6 +309,7 @@ class Dlm {
   ///
   /// Tags are strings in the format <code>key=value</code>.
   Future<GetLifecyclePoliciesResponse> getLifecyclePolicies({
+    DefaultPoliciesTypeValues? defaultPolicyType,
     List<String>? policyIds,
     List<ResourceTypeValues>? resourceTypes,
     GettablePolicyStateValues? state,
@@ -160,10 +317,12 @@ class Dlm {
     List<String>? targetTags,
   }) async {
     final $query = <String, List<String>>{
+      if (defaultPolicyType != null)
+        'defaultPolicyType': [defaultPolicyType.value],
       if (policyIds != null) 'policyIds': policyIds,
       if (resourceTypes != null)
-        'resourceTypes': resourceTypes.map((e) => e.toValue()).toList(),
-      if (state != null) 'state': [state.toValue()],
+        'resourceTypes': resourceTypes.map((e) => e.value).toList(),
+      if (state != null) 'state': [state.value],
       if (tagsToAdd != null) 'tagsToAdd': tagsToAdd,
       if (targetTags != null) 'targetTags': targetTags,
     };
@@ -191,7 +350,7 @@ class Dlm {
     final response = await _protocol.send(
       payload: null,
       method: 'GET',
-      requestUri: '/policies/${Uri.encodeComponent(policyId)}/',
+      requestUri: '/policies/${Uri.encodeComponent(policyId)}',
       exceptionFnMap: _exceptionFns,
     );
     return GetLifecyclePolicyResponse.fromJson(response);
@@ -284,31 +443,111 @@ class Dlm {
   /// Parameter [policyId] :
   /// The identifier of the lifecycle policy.
   ///
+  /// Parameter [copyTags] :
+  /// <b>[Default policies only]</b> Indicates whether the policy should copy
+  /// tags from the source resource to the snapshot or AMI.
+  ///
+  /// Parameter [createInterval] :
+  /// <b>[Default policies only]</b> Specifies how often the policy should run
+  /// and create snapshots or AMIs. The creation frequency can range from 1 to 7
+  /// days.
+  ///
+  /// Parameter [crossRegionCopyTargets] :
+  /// <b>[Default policies only]</b> Specifies destination Regions for snapshot
+  /// or AMI copies. You can specify up to 3 destination Regions. If you do not
+  /// want to create cross-Region copies, omit this parameter.
+  ///
   /// Parameter [description] :
   /// A description of the lifecycle policy.
+  ///
+  /// Parameter [exclusions] :
+  /// <b>[Default policies only]</b> Specifies exclusion parameters for volumes
+  /// or instances for which you do not want to create snapshots or AMIs. The
+  /// policy will not create snapshots or AMIs for target resources that match
+  /// any of the specified exclusion parameters.
   ///
   /// Parameter [executionRoleArn] :
   /// The Amazon Resource Name (ARN) of the IAM role used to run the operations
   /// specified by the lifecycle policy.
   ///
+  /// Parameter [extendDeletion] :
+  /// <b>[Default policies only]</b> Defines the snapshot or AMI retention
+  /// behavior for the policy if the source volume or instance is deleted, or if
+  /// the policy enters the error, disabled, or deleted state.
+  ///
+  /// By default (<b>ExtendDeletion=false</b>):
+  ///
+  /// <ul>
+  /// <li>
+  /// If a source resource is deleted, Amazon Data Lifecycle Manager will
+  /// continue to delete previously created snapshots or AMIs, up to but not
+  /// including the last one, based on the specified retention period. If you
+  /// want Amazon Data Lifecycle Manager to delete all snapshots or AMIs,
+  /// including the last one, specify <code>true</code>.
+  /// </li>
+  /// <li>
+  /// If a policy enters the error, disabled, or deleted state, Amazon Data
+  /// Lifecycle Manager stops deleting snapshots and AMIs. If you want Amazon
+  /// Data Lifecycle Manager to continue deleting snapshots or AMIs, including
+  /// the last one, if the policy enters one of these states, specify
+  /// <code>true</code>.
+  /// </li>
+  /// </ul>
+  /// If you enable extended deletion (<b>ExtendDeletion=true</b>), you override
+  /// both default behaviors simultaneously.
+  ///
+  /// Default: false
+  ///
   /// Parameter [policyDetails] :
   /// The configuration of the lifecycle policy. You cannot update the policy
   /// type or the resource type.
+  ///
+  /// Parameter [retainInterval] :
+  /// <b>[Default policies only]</b> Specifies how long the policy should retain
+  /// snapshots or AMIs before deleting them. The retention period can range
+  /// from 2 to 14 days, but it must be greater than the creation frequency to
+  /// ensure that the policy retains at least 1 snapshot or AMI at any given
+  /// time.
   ///
   /// Parameter [state] :
   /// The desired activation state of the lifecycle policy after creation.
   Future<void> updateLifecyclePolicy({
     required String policyId,
+    bool? copyTags,
+    int? createInterval,
+    List<CrossRegionCopyTarget>? crossRegionCopyTargets,
     String? description,
+    Exclusions? exclusions,
     String? executionRoleArn,
+    bool? extendDeletion,
     PolicyDetails? policyDetails,
+    int? retainInterval,
     SettablePolicyStateValues? state,
   }) async {
+    _s.validateNumRange(
+      'createInterval',
+      createInterval,
+      1,
+      1152921504606846976,
+    );
+    _s.validateNumRange(
+      'retainInterval',
+      retainInterval,
+      1,
+      1152921504606846976,
+    );
     final $payload = <String, dynamic>{
+      if (copyTags != null) 'CopyTags': copyTags,
+      if (createInterval != null) 'CreateInterval': createInterval,
+      if (crossRegionCopyTargets != null)
+        'CrossRegionCopyTargets': crossRegionCopyTargets,
       if (description != null) 'Description': description,
+      if (exclusions != null) 'Exclusions': exclusions,
       if (executionRoleArn != null) 'ExecutionRoleArn': executionRoleArn,
+      if (extendDeletion != null) 'ExtendDeletion': extendDeletion,
       if (policyDetails != null) 'PolicyDetails': policyDetails,
-      if (state != null) 'State': state.toValue(),
+      if (retainInterval != null) 'RetainInterval': retainInterval,
+      if (state != null) 'State': state.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -336,7 +575,7 @@ class Action {
   factory Action.fromJson(Map<String, dynamic> json) {
     return Action(
       crossRegionCopy: (json['CrossRegionCopy'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CrossRegionCopyAction.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String,
@@ -353,8 +592,8 @@ class Action {
   }
 }
 
-/// <b>[Snapshot policies only]</b> Specifies information about the archive
-/// storage tier retention period.
+/// <b>[Custom snapshot policies only]</b> Specifies information about the
+/// archive storage tier retention period.
 class ArchiveRetainRule {
   /// Information about retention period in the Amazon EBS Snapshots Archive. For
   /// more information, see <a
@@ -381,8 +620,8 @@ class ArchiveRetainRule {
   }
 }
 
-/// <b>[Snapshot policies only]</b> Specifies a snapshot archiving rule for a
-/// schedule.
+/// <b>[Custom snapshot policies only]</b> Specifies a snapshot archiving rule
+/// for a schedule.
 class ArchiveRule {
   /// Information about the retention period for the snapshot archiving rule.
   final ArchiveRetainRule retainRule;
@@ -428,8 +667,8 @@ class CreateLifecyclePolicyResponse {
   }
 }
 
-/// <b>[Snapshot and AMI policies only]</b> Specifies when the policy should
-/// create snapshots or AMIs.
+/// <b>[Custom snapshot and AMI policies only]</b> Specifies when the policy
+/// should create snapshots or AMIs.
 /// <note>
 /// <ul>
 /// <li>
@@ -437,8 +676,10 @@ class CreateLifecyclePolicyResponse {
 /// <b>IntervalUnit</b>, and <b>Times</b>.
 /// </li>
 /// <li>
-/// If you need to specify an <a>ArchiveRule</a> for the schedule, then you must
-/// specify a creation frequency of at least 28 days.
+/// If you need to specify an <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ArchiveRule.html">ArchiveRule</a>
+/// for the schedule, then you must specify a creation frequency of at least 28
+/// days.
 /// </li>
 /// </ul> </note>
 class CreateRule {
@@ -455,17 +696,28 @@ class CreateRule {
   /// The interval unit.
   final IntervalUnitValues? intervalUnit;
 
-  /// <b>[Snapshot policies only]</b> Specifies the destination for snapshots
-  /// created by the policy. To create snapshots in the same Region as the source
-  /// resource, specify <code>CLOUD</code>. To create snapshots on the same
-  /// Outpost as the source resource, specify <code>OUTPOST_LOCAL</code>. If you
-  /// omit this parameter, <code>CLOUD</code> is used by default.
+  /// <b>[Custom snapshot policies only]</b> Specifies the destination for
+  /// snapshots created by the policy. To create snapshots in the same Region as
+  /// the source resource, specify <code>CLOUD</code>. To create snapshots on the
+  /// same Outpost as the source resource, specify <code>OUTPOST_LOCAL</code>. If
+  /// you omit this parameter, <code>CLOUD</code> is used by default.
   ///
   /// If the policy targets resources in an Amazon Web Services Region, then you
   /// must create snapshots in the same Region as the source resource. If the
   /// policy targets resources on an Outpost, then you can create snapshots on the
   /// same Outpost as the source resource, or in the Region of that Outpost.
   final LocationValues? location;
+
+  /// <b>[Custom snapshot policies that target instances only]</b> Specifies pre
+  /// and/or post scripts for a snapshot lifecycle policy that targets instances.
+  /// This is useful for creating application-consistent snapshots, or for
+  /// performing specific administrative tasks before or after Amazon Data
+  /// Lifecycle Manager initiates snapshot creation.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/automate-app-consistent-backups.html">Automating
+  /// application-consistent snapshots with pre and post scripts</a>.
+  final List<Script>? scripts;
 
   /// The time, in UTC, to start the operation. The supported format is hh:mm.
   ///
@@ -479,6 +731,7 @@ class CreateRule {
     this.interval,
     this.intervalUnit,
     this.location,
+    this.scripts,
     this.times,
   });
 
@@ -486,12 +739,15 @@ class CreateRule {
     return CreateRule(
       cronExpression: json['CronExpression'] as String?,
       interval: json['Interval'] as int?,
-      intervalUnit: (json['IntervalUnit'] as String?)?.toIntervalUnitValues(),
-      location: (json['Location'] as String?)?.toLocationValues(),
-      times: (json['Times'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
+      intervalUnit:
+          (json['IntervalUnit'] as String?)?.let(IntervalUnitValues.fromString),
+      location: (json['Location'] as String?)?.let(LocationValues.fromString),
+      scripts: (json['Scripts'] as List?)
+          ?.nonNulls
+          .map((e) => Script.fromJson(e as Map<String, dynamic>))
           .toList(),
+      times:
+          (json['Times'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -500,12 +756,14 @@ class CreateRule {
     final interval = this.interval;
     final intervalUnit = this.intervalUnit;
     final location = this.location;
+    final scripts = this.scripts;
     final times = this.times;
     return {
       if (cronExpression != null) 'CronExpression': cronExpression,
       if (interval != null) 'Interval': interval,
-      if (intervalUnit != null) 'IntervalUnit': intervalUnit.toValue(),
-      if (location != null) 'Location': location.toValue(),
+      if (intervalUnit != null) 'IntervalUnit': intervalUnit.value,
+      if (location != null) 'Location': location.value,
+      if (scripts != null) 'Scripts': scripts,
       if (times != null) 'Times': times,
     };
   }
@@ -514,8 +772,8 @@ class CreateRule {
 /// <b>[Event-based policies only]</b> Specifies a cross-Region copy action for
 /// event-based policies.
 /// <note>
-/// To specify a cross-Region copy rule for snapshot and AMI policies, use
-/// <a>CrossRegionCopyRule</a>.
+/// To specify a cross-Region copy rule for snapshot and AMI policies, use <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_CrossRegionCopyRule.html">CrossRegionCopyRule</a>.
 /// </note>
 class CrossRegionCopyAction {
   /// The encryption settings for the copied snapshot.
@@ -555,7 +813,7 @@ class CrossRegionCopyAction {
   }
 }
 
-/// <b>[AMI policies only]</b> Specifies an AMI deprecation rule for
+/// <b>[Custom AMI policies only]</b> Specifies an AMI deprecation rule for
 /// cross-Region AMI copies created by an AMI policy.
 class CrossRegionCopyDeprecateRule {
   /// The period after which to deprecate the cross-Region AMI copies. The period
@@ -577,8 +835,8 @@ class CrossRegionCopyDeprecateRule {
   factory CrossRegionCopyDeprecateRule.fromJson(Map<String, dynamic> json) {
     return CrossRegionCopyDeprecateRule(
       interval: json['Interval'] as int?,
-      intervalUnit:
-          (json['IntervalUnit'] as String?)?.toRetentionIntervalUnitValues(),
+      intervalUnit: (json['IntervalUnit'] as String?)
+          ?.let(RetentionIntervalUnitValues.fromString),
     );
   }
 
@@ -587,7 +845,7 @@ class CrossRegionCopyDeprecateRule {
     final intervalUnit = this.intervalUnit;
     return {
       if (interval != null) 'Interval': interval,
-      if (intervalUnit != null) 'IntervalUnit': intervalUnit.toValue(),
+      if (intervalUnit != null) 'IntervalUnit': intervalUnit.value,
     };
   }
 }
@@ -615,8 +873,8 @@ class CrossRegionCopyRetainRule {
   factory CrossRegionCopyRetainRule.fromJson(Map<String, dynamic> json) {
     return CrossRegionCopyRetainRule(
       interval: json['Interval'] as int?,
-      intervalUnit:
-          (json['IntervalUnit'] as String?)?.toRetentionIntervalUnitValues(),
+      intervalUnit: (json['IntervalUnit'] as String?)
+          ?.let(RetentionIntervalUnitValues.fromString),
     );
   }
 
@@ -625,16 +883,16 @@ class CrossRegionCopyRetainRule {
     final intervalUnit = this.intervalUnit;
     return {
       if (interval != null) 'Interval': interval,
-      if (intervalUnit != null) 'IntervalUnit': intervalUnit.toValue(),
+      if (intervalUnit != null) 'IntervalUnit': intervalUnit.value,
     };
   }
 }
 
-/// <b>[Snapshot and AMI policies only]</b> Specifies a cross-Region copy rule
-/// for snapshot and AMI policies.
+/// <b>[Custom snapshot and AMI policies only]</b> Specifies a cross-Region copy
+/// rule for a snapshot and AMI policies.
 /// <note>
-/// To specify a cross-Region copy action for event-based polices, use
-/// <a>CrossRegionCopyAction</a>.
+/// To specify a cross-Region copy action for event-based polices, use <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_CrossRegionCopyAction.html">CrossRegionCopyAction</a>.
 /// </note>
 class CrossRegionCopyRule {
   /// To encrypt a copy of an unencrypted snapshot if encryption by default is not
@@ -652,28 +910,30 @@ class CrossRegionCopyRule {
   /// AMI to the cross-Region copy.
   final bool? copyTags;
 
-  /// <b>[AMI policies only]</b> The AMI deprecation rule for cross-Region AMI
-  /// copies created by the rule.
+  /// <b>[Custom AMI policies only]</b> The AMI deprecation rule for cross-Region
+  /// AMI copies created by the rule.
   final CrossRegionCopyDeprecateRule? deprecateRule;
 
   /// The retention rule that indicates how long the cross-Region snapshot or AMI
   /// copies are to be retained in the destination Region.
   final CrossRegionCopyRetainRule? retainRule;
 
-  /// The target Region or the Amazon Resource Name (ARN) of the target Outpost
-  /// for the snapshot copies.
-  ///
-  /// Use this parameter instead of <b>TargetRegion</b>. Do not specify both.
+  /// <note>
+  /// Use this parameter for snapshot policies only. For AMI policies, use
+  /// <b>TargetRegion</b> instead.
+  /// </note>
+  /// <b>[Custom snapshot policies only]</b> The target Region or the Amazon
+  /// Resource Name (ARN) of the target Outpost for the snapshot copies.
   final String? target;
 
   /// <note>
-  /// Avoid using this parameter when creating new policies. Instead, use
-  /// <b>Target</b> to specify a target Region or a target Outpost for snapshot
-  /// copies.
-  ///
-  /// For policies created before the <b>Target</b> parameter was introduced, this
-  /// parameter indicates the target Region for snapshot copies.
-  /// </note>
+  /// Use this parameter for AMI policies only. For snapshot policies, use
+  /// <b>Target</b> instead. For snapshot policies created before the
+  /// <b>Target</b> parameter was introduced, this parameter indicates the target
+  /// Region for snapshot copies.
+  /// <p/> </note>
+  /// <b>[Custom AMI policies only]</b> The target Region or the Amazon Resource
+  /// Name (ARN) of the target Outpost for the snapshot copies.
   final String? targetRegion;
 
   CrossRegionCopyRule({
@@ -724,6 +984,61 @@ class CrossRegionCopyRule {
   }
 }
 
+/// <b>[Default policies only]</b> Specifies a destination Region for
+/// cross-Region copy actions.
+class CrossRegionCopyTarget {
+  /// The target Region, for example <code>us-east-1</code>.
+  final String? targetRegion;
+
+  CrossRegionCopyTarget({
+    this.targetRegion,
+  });
+
+  factory CrossRegionCopyTarget.fromJson(Map<String, dynamic> json) {
+    return CrossRegionCopyTarget(
+      targetRegion: json['TargetRegion'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final targetRegion = this.targetRegion;
+    return {
+      if (targetRegion != null) 'TargetRegion': targetRegion,
+    };
+  }
+}
+
+enum DefaultPoliciesTypeValues {
+  volume('VOLUME'),
+  instance('INSTANCE'),
+  all('ALL'),
+  ;
+
+  final String value;
+
+  const DefaultPoliciesTypeValues(this.value);
+
+  static DefaultPoliciesTypeValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DefaultPoliciesTypeValues'));
+}
+
+enum DefaultPolicyTypeValues {
+  volume('VOLUME'),
+  instance('INSTANCE'),
+  ;
+
+  final String value;
+
+  const DefaultPolicyTypeValues(this.value);
+
+  static DefaultPolicyTypeValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DefaultPolicyTypeValues'));
+}
+
 class DeleteLifecyclePolicyResponse {
   DeleteLifecyclePolicyResponse();
 
@@ -736,7 +1051,7 @@ class DeleteLifecyclePolicyResponse {
   }
 }
 
-/// <b>[AMI policies only]</b> Specifies an AMI deprecation rule for AMIs
+/// <b>[Custom AMI policies only]</b> Specifies an AMI deprecation rule for AMIs
 /// created by an AMI lifecycle policy.
 ///
 /// For age-based schedules, you must specify <b>Interval</b> and
@@ -768,8 +1083,8 @@ class DeprecateRule {
     return DeprecateRule(
       count: json['Count'] as int?,
       interval: json['Interval'] as int?,
-      intervalUnit:
-          (json['IntervalUnit'] as String?)?.toRetentionIntervalUnitValues(),
+      intervalUnit: (json['IntervalUnit'] as String?)
+          ?.let(RetentionIntervalUnitValues.fromString),
     );
   }
 
@@ -780,7 +1095,7 @@ class DeprecateRule {
     return {
       if (count != null) 'Count': count,
       if (interval != null) 'Interval': interval,
-      if (intervalUnit != null) 'IntervalUnit': intervalUnit.toValue(),
+      if (intervalUnit != null) 'IntervalUnit': intervalUnit.value,
     };
   }
 }
@@ -852,9 +1167,9 @@ class EventParameters {
   factory EventParameters.fromJson(Map<String, dynamic> json) {
     return EventParameters(
       descriptionRegex: json['DescriptionRegex'] as String,
-      eventType: (json['EventType'] as String).toEventTypeValues(),
+      eventType: EventTypeValues.fromString((json['EventType'] as String)),
       snapshotOwner: (json['SnapshotOwner'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -866,7 +1181,7 @@ class EventParameters {
     final snapshotOwner = this.snapshotOwner;
     return {
       'DescriptionRegex': descriptionRegex,
-      'EventType': eventType.toValue(),
+      'EventType': eventType.value,
       'SnapshotOwner': snapshotOwner,
     };
   }
@@ -889,7 +1204,7 @@ class EventSource {
 
   factory EventSource.fromJson(Map<String, dynamic> json) {
     return EventSource(
-      type: (json['Type'] as String).toEventSourceValues(),
+      type: EventSourceValues.fromString((json['Type'] as String)),
       parameters: json['Parameters'] != null
           ? EventParameters.fromJson(json['Parameters'] as Map<String, dynamic>)
           : null,
@@ -900,61 +1215,110 @@ class EventSource {
     final type = this.type;
     final parameters = this.parameters;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (parameters != null) 'Parameters': parameters,
     };
   }
 }
 
 enum EventSourceValues {
-  managedCwe,
-}
+  managedCwe('MANAGED_CWE'),
+  ;
 
-extension EventSourceValuesValueExtension on EventSourceValues {
-  String toValue() {
-    switch (this) {
-      case EventSourceValues.managedCwe:
-        return 'MANAGED_CWE';
-    }
-  }
-}
+  final String value;
 
-extension EventSourceValuesFromString on String {
-  EventSourceValues toEventSourceValues() {
-    switch (this) {
-      case 'MANAGED_CWE':
-        return EventSourceValues.managedCwe;
-    }
-    throw Exception('$this is not known in enum EventSourceValues');
-  }
+  const EventSourceValues(this.value);
+
+  static EventSourceValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EventSourceValues'));
 }
 
 enum EventTypeValues {
-  shareSnapshot,
+  shareSnapshot('shareSnapshot'),
+  ;
+
+  final String value;
+
+  const EventTypeValues(this.value);
+
+  static EventTypeValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EventTypeValues'));
 }
 
-extension EventTypeValuesValueExtension on EventTypeValues {
-  String toValue() {
-    switch (this) {
-      case EventTypeValues.shareSnapshot:
-        return 'shareSnapshot';
-    }
+/// <b>[Default policies only]</b> Specifies exclusion parameters for volumes or
+/// instances for which you do not want to create snapshots or AMIs. The policy
+/// will not create snapshots or AMIs for target resources that match any of the
+/// specified exclusion parameters.
+class Exclusions {
+  /// <b>[Default policies for EBS snapshots only]</b> Indicates whether to
+  /// exclude volumes that are attached to instances as the boot volume. If you
+  /// exclude boot volumes, only volumes attached as data (non-boot) volumes will
+  /// be backed up by the policy. To exclude boot volumes, specify
+  /// <code>true</code>.
+  final bool? excludeBootVolumes;
+
+  /// <b>[Default policies for EBS-backed AMIs only]</b> Specifies whether to
+  /// exclude volumes that have specific tags.
+  final List<Tag>? excludeTags;
+
+  /// <b>[Default policies for EBS snapshots only]</b> Specifies the volume types
+  /// to exclude. Volumes of the specified types will not be targeted by the
+  /// policy.
+  final List<String>? excludeVolumeTypes;
+
+  Exclusions({
+    this.excludeBootVolumes,
+    this.excludeTags,
+    this.excludeVolumeTypes,
+  });
+
+  factory Exclusions.fromJson(Map<String, dynamic> json) {
+    return Exclusions(
+      excludeBootVolumes: json['ExcludeBootVolumes'] as bool?,
+      excludeTags: (json['ExcludeTags'] as List?)
+          ?.nonNulls
+          .map((e) => Tag.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      excludeVolumeTypes: (json['ExcludeVolumeTypes'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final excludeBootVolumes = this.excludeBootVolumes;
+    final excludeTags = this.excludeTags;
+    final excludeVolumeTypes = this.excludeVolumeTypes;
+    return {
+      if (excludeBootVolumes != null) 'ExcludeBootVolumes': excludeBootVolumes,
+      if (excludeTags != null) 'ExcludeTags': excludeTags,
+      if (excludeVolumeTypes != null) 'ExcludeVolumeTypes': excludeVolumeTypes,
+    };
   }
 }
 
-extension EventTypeValuesFromString on String {
-  EventTypeValues toEventTypeValues() {
-    switch (this) {
-      case 'shareSnapshot':
-        return EventTypeValues.shareSnapshot;
-    }
-    throw Exception('$this is not known in enum EventTypeValues');
-  }
+enum ExecutionHandlerServiceValues {
+  awsSystemsManager('AWS_SYSTEMS_MANAGER'),
+  ;
+
+  final String value;
+
+  const ExecutionHandlerServiceValues(this.value);
+
+  static ExecutionHandlerServiceValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExecutionHandlerServiceValues'));
 }
 
-/// <b>[Snapshot policies only]</b> Specifies a rule for enabling fast snapshot
-/// restore for snapshots created by snapshot policies. You can enable fast
-/// snapshot restore based on either a count or a time interval.
+/// <b>[Custom snapshot policies only]</b> Specifies a rule for enabling fast
+/// snapshot restore for snapshots created by snapshot policies. You can enable
+/// fast snapshot restore based on either a count or a time interval.
 class FastRestoreRule {
   /// The Availability Zones in which to enable fast snapshot restore.
   final List<String> availabilityZones;
@@ -979,13 +1343,13 @@ class FastRestoreRule {
   factory FastRestoreRule.fromJson(Map<String, dynamic> json) {
     return FastRestoreRule(
       availabilityZones: (json['AvailabilityZones'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       count: json['Count'] as int?,
       interval: json['Interval'] as int?,
-      intervalUnit:
-          (json['IntervalUnit'] as String?)?.toRetentionIntervalUnitValues(),
+      intervalUnit: (json['IntervalUnit'] as String?)
+          ?.let(RetentionIntervalUnitValues.fromString),
     );
   }
 
@@ -998,7 +1362,7 @@ class FastRestoreRule {
       'AvailabilityZones': availabilityZones,
       if (count != null) 'Count': count,
       if (interval != null) 'Interval': interval,
-      if (intervalUnit != null) 'IntervalUnit': intervalUnit.toValue(),
+      if (intervalUnit != null) 'IntervalUnit': intervalUnit.value,
     };
   }
 }
@@ -1014,7 +1378,7 @@ class GetLifecyclePoliciesResponse {
   factory GetLifecyclePoliciesResponse.fromJson(Map<String, dynamic> json) {
     return GetLifecyclePoliciesResponse(
       policies: (json['Policies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => LifecyclePolicySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1054,62 +1418,36 @@ class GetLifecyclePolicyResponse {
 }
 
 enum GettablePolicyStateValues {
-  enabled,
-  disabled,
-  error,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  error('ERROR'),
+  ;
 
-extension GettablePolicyStateValuesValueExtension on GettablePolicyStateValues {
-  String toValue() {
-    switch (this) {
-      case GettablePolicyStateValues.enabled:
-        return 'ENABLED';
-      case GettablePolicyStateValues.disabled:
-        return 'DISABLED';
-      case GettablePolicyStateValues.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension GettablePolicyStateValuesFromString on String {
-  GettablePolicyStateValues toGettablePolicyStateValues() {
-    switch (this) {
-      case 'ENABLED':
-        return GettablePolicyStateValues.enabled;
-      case 'DISABLED':
-        return GettablePolicyStateValues.disabled;
-      case 'ERROR':
-        return GettablePolicyStateValues.error;
-    }
-    throw Exception('$this is not known in enum GettablePolicyStateValues');
-  }
+  const GettablePolicyStateValues(this.value);
+
+  static GettablePolicyStateValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GettablePolicyStateValues'));
 }
 
 enum IntervalUnitValues {
-  hours,
+  hours('HOURS'),
+  ;
+
+  final String value;
+
+  const IntervalUnitValues(this.value);
+
+  static IntervalUnitValues fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum IntervalUnitValues'));
 }
 
-extension IntervalUnitValuesValueExtension on IntervalUnitValues {
-  String toValue() {
-    switch (this) {
-      case IntervalUnitValues.hours:
-        return 'HOURS';
-    }
-  }
-}
-
-extension IntervalUnitValuesFromString on String {
-  IntervalUnitValues toIntervalUnitValues() {
-    switch (this) {
-      case 'HOURS':
-        return IntervalUnitValues.hours;
-    }
-    throw Exception('$this is not known in enum IntervalUnitValues');
-  }
-}
-
-/// <b>[All policy types]</b> Detailed information about a snapshot, AMI, or
+/// <b>[Custom policies only]</b> Detailed information about a snapshot, AMI, or
 /// event-based lifecycle policy.
 class LifecyclePolicy {
   /// The local date and time when the lifecycle policy was created.
@@ -1117,6 +1455,18 @@ class LifecyclePolicy {
 
   /// The local date and time when the lifecycle policy was last modified.
   final DateTime? dateModified;
+
+  /// <b>[Default policies only]</b> The type of default policy. Values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>VOLUME</code> - Default policy for EBS snapshots
+  /// </li>
+  /// <li>
+  /// <code>INSTANCE</code> - Default policy for EBS-backed AMIs
+  /// </li>
+  /// </ul>
+  final bool? defaultPolicy;
 
   /// The description of the lifecycle policy.
   final String? description;
@@ -1146,6 +1496,7 @@ class LifecyclePolicy {
   LifecyclePolicy({
     this.dateCreated,
     this.dateModified,
+    this.defaultPolicy,
     this.description,
     this.executionRoleArn,
     this.policyArn,
@@ -1160,6 +1511,7 @@ class LifecyclePolicy {
     return LifecyclePolicy(
       dateCreated: timeStampFromJson(json['DateCreated']),
       dateModified: timeStampFromJson(json['DateModified']),
+      defaultPolicy: json['DefaultPolicy'] as bool?,
       description: json['Description'] as String?,
       executionRoleArn: json['ExecutionRoleArn'] as String?,
       policyArn: json['PolicyArn'] as String?,
@@ -1168,7 +1520,8 @@ class LifecyclePolicy {
               json['PolicyDetails'] as Map<String, dynamic>)
           : null,
       policyId: json['PolicyId'] as String?,
-      state: (json['State'] as String?)?.toGettablePolicyStateValues(),
+      state:
+          (json['State'] as String?)?.let(GettablePolicyStateValues.fromString),
       statusMessage: json['StatusMessage'] as String?,
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
@@ -1178,6 +1531,7 @@ class LifecyclePolicy {
   Map<String, dynamic> toJson() {
     final dateCreated = this.dateCreated;
     final dateModified = this.dateModified;
+    final defaultPolicy = this.defaultPolicy;
     final description = this.description;
     final executionRoleArn = this.executionRoleArn;
     final policyArn = this.policyArn;
@@ -1189,12 +1543,13 @@ class LifecyclePolicy {
     return {
       if (dateCreated != null) 'DateCreated': iso8601ToJson(dateCreated),
       if (dateModified != null) 'DateModified': iso8601ToJson(dateModified),
+      if (defaultPolicy != null) 'DefaultPolicy': defaultPolicy,
       if (description != null) 'Description': description,
       if (executionRoleArn != null) 'ExecutionRoleArn': executionRoleArn,
       if (policyArn != null) 'PolicyArn': policyArn,
       if (policyDetails != null) 'PolicyDetails': policyDetails,
       if (policyId != null) 'PolicyId': policyId,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
       if (tags != null) 'Tags': tags,
     };
@@ -1203,6 +1558,18 @@ class LifecyclePolicy {
 
 /// Summary information about a lifecycle policy.
 class LifecyclePolicySummary {
+  /// <b>[Default policies only]</b> The type of default policy. Values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>VOLUME</code> - Default policy for EBS snapshots
+  /// </li>
+  /// <li>
+  /// <code>INSTANCE</code> - Default policy for EBS-backed AMIs
+  /// </li>
+  /// </ul>
+  final bool? defaultPolicy;
+
   /// The description of the lifecycle policy.
   final String? description;
 
@@ -1224,6 +1591,7 @@ class LifecyclePolicySummary {
   final Map<String, String>? tags;
 
   LifecyclePolicySummary({
+    this.defaultPolicy,
     this.description,
     this.policyId,
     this.policyType,
@@ -1233,26 +1601,31 @@ class LifecyclePolicySummary {
 
   factory LifecyclePolicySummary.fromJson(Map<String, dynamic> json) {
     return LifecyclePolicySummary(
+      defaultPolicy: json['DefaultPolicy'] as bool?,
       description: json['Description'] as String?,
       policyId: json['PolicyId'] as String?,
-      policyType: (json['PolicyType'] as String?)?.toPolicyTypeValues(),
-      state: (json['State'] as String?)?.toGettablePolicyStateValues(),
+      policyType:
+          (json['PolicyType'] as String?)?.let(PolicyTypeValues.fromString),
+      state:
+          (json['State'] as String?)?.let(GettablePolicyStateValues.fromString),
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
+    final defaultPolicy = this.defaultPolicy;
     final description = this.description;
     final policyId = this.policyId;
     final policyType = this.policyType;
     final state = this.state;
     final tags = this.tags;
     return {
+      if (defaultPolicy != null) 'DefaultPolicy': defaultPolicy,
       if (description != null) 'Description': description,
       if (policyId != null) 'PolicyId': policyId,
-      if (policyType != null) 'PolicyType': policyType.toValue(),
-      if (state != null) 'State': state.toValue(),
+      if (policyType != null) 'PolicyType': policyType.value,
+      if (state != null) 'State': state.value,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -1282,35 +1655,22 @@ class ListTagsForResourceResponse {
 }
 
 enum LocationValues {
-  cloud,
-  outpostLocal,
+  cloud('CLOUD'),
+  outpostLocal('OUTPOST_LOCAL'),
+  ;
+
+  final String value;
+
+  const LocationValues(this.value);
+
+  static LocationValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LocationValues'));
 }
 
-extension LocationValuesValueExtension on LocationValues {
-  String toValue() {
-    switch (this) {
-      case LocationValues.cloud:
-        return 'CLOUD';
-      case LocationValues.outpostLocal:
-        return 'OUTPOST_LOCAL';
-    }
-  }
-}
-
-extension LocationValuesFromString on String {
-  LocationValues toLocationValues() {
-    switch (this) {
-      case 'CLOUD':
-        return LocationValues.cloud;
-      case 'OUTPOST_LOCAL':
-        return LocationValues.outpostLocal;
-    }
-    throw Exception('$this is not known in enum LocationValues');
-  }
-}
-
-/// <b>[Snapshot and AMI policies only]</b> Specifies optional parameters for
-/// snapshot and AMI policies. The set of valid parameters depends on the
+/// <b>[Custom snapshot and AMI policies only]</b> Specifies optional parameters
+/// for snapshot and AMI policies. The set of valid parameters depends on the
 /// combination of policy type and target resource type.
 ///
 /// If you choose to exclude boot volumes and you specify tags that consequently
@@ -1321,15 +1681,16 @@ extension LocationValuesFromString on String {
 /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/monitor-dlm-cw-metrics.html">Monitor
 /// your policies using Amazon CloudWatch</a>.
 class Parameters {
-  /// <b>[Snapshot policies that target instances only]</b> Indicates whether to
-  /// exclude the root volume from multi-volume snapshot sets. The default is
-  /// <code>false</code>. If you specify <code>true</code>, then the root volumes
-  /// attached to targeted instances will be excluded from the multi-volume
-  /// snapshot sets created by the policy.
+  /// <b>[Custom snapshot policies that target instances only]</b> Indicates
+  /// whether to exclude the root volume from multi-volume snapshot sets. The
+  /// default is <code>false</code>. If you specify <code>true</code>, then the
+  /// root volumes attached to targeted instances will be excluded from the
+  /// multi-volume snapshot sets created by the policy.
   final bool? excludeBootVolume;
 
-  /// <b>[Snapshot policies that target instances only]</b> The tags used to
-  /// identify data (non-root) volumes to exclude from multi-volume snapshot sets.
+  /// <b>[Custom snapshot policies that target instances only]</b> The tags used
+  /// to identify data (non-root) volumes to exclude from multi-volume snapshot
+  /// sets.
   ///
   /// If you create a snapshot lifecycle policy that targets instances and you
   /// specify tags for this parameter, then data volumes with the specified tags
@@ -1337,9 +1698,9 @@ class Parameters {
   /// multi-volume snapshot sets created by the policy.
   final List<Tag>? excludeDataVolumeTags;
 
-  /// <b>[AMI policies only]</b> Indicates whether targeted instances are rebooted
-  /// when the lifecycle policy runs. <code>true</code> indicates that targeted
-  /// instances are not rebooted when the policy runs. <code>false</code>
+  /// <b>[Custom AMI policies only]</b> Indicates whether targeted instances are
+  /// rebooted when the lifecycle policy runs. <code>true</code> indicates that
+  /// targeted instances are not rebooted when the policy runs. <code>false</code>
   /// indicates that target instances are rebooted when the policy runs. The
   /// default is <code>true</code> (instances are not rebooted).
   final bool? noReboot;
@@ -1354,7 +1715,7 @@ class Parameters {
     return Parameters(
       excludeBootVolume: json['ExcludeBootVolume'] as bool?,
       excludeDataVolumeTags: (json['ExcludeDataVolumeTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       noReboot: json['NoReboot'] as bool?,
@@ -1374,18 +1735,72 @@ class Parameters {
   }
 }
 
-/// <b>[All policy types]</b> Specifies the configuration of a lifecycle policy.
+/// Specifies the configuration of a lifecycle policy.
 class PolicyDetails {
   /// <b>[Event-based policies only]</b> The actions to be performed when the
   /// event-based policy is activated. You can specify only one action per policy.
   final List<Action>? actions;
 
+  /// <b>[Default policies only]</b> Indicates whether the policy should copy tags
+  /// from the source resource to the snapshot or AMI. If you do not specify a
+  /// value, the default is <code>false</code>.
+  ///
+  /// Default: false
+  final bool? copyTags;
+
+  /// <b>[Default policies only]</b> Specifies how often the policy should run and
+  /// create snapshots or AMIs. The creation frequency can range from 1 to 7 days.
+  /// If you do not specify a value, the default is 1.
+  ///
+  /// Default: 1
+  final int? createInterval;
+
+  /// <b>[Default policies only]</b> Specifies destination Regions for snapshot or
+  /// AMI copies. You can specify up to 3 destination Regions. If you do not want
+  /// to create cross-Region copies, omit this parameter.
+  final List<CrossRegionCopyTarget>? crossRegionCopyTargets;
+
   /// <b>[Event-based policies only]</b> The event that activates the event-based
   /// policy.
   final EventSource? eventSource;
 
-  /// <b>[Snapshot and AMI policies only]</b> A set of optional parameters for
-  /// snapshot and AMI lifecycle policies.
+  /// <b>[Default policies only]</b> Specifies exclusion parameters for volumes or
+  /// instances for which you do not want to create snapshots or AMIs. The policy
+  /// will not create snapshots or AMIs for target resources that match any of the
+  /// specified exclusion parameters.
+  final Exclusions? exclusions;
+
+  /// <b>[Default policies only]</b> Defines the snapshot or AMI retention
+  /// behavior for the policy if the source volume or instance is deleted, or if
+  /// the policy enters the error, disabled, or deleted state.
+  ///
+  /// By default (<b>ExtendDeletion=false</b>):
+  ///
+  /// <ul>
+  /// <li>
+  /// If a source resource is deleted, Amazon Data Lifecycle Manager will continue
+  /// to delete previously created snapshots or AMIs, up to but not including the
+  /// last one, based on the specified retention period. If you want Amazon Data
+  /// Lifecycle Manager to delete all snapshots or AMIs, including the last one,
+  /// specify <code>true</code>.
+  /// </li>
+  /// <li>
+  /// If a policy enters the error, disabled, or deleted state, Amazon Data
+  /// Lifecycle Manager stops deleting snapshots and AMIs. If you want Amazon Data
+  /// Lifecycle Manager to continue deleting snapshots or AMIs, including the last
+  /// one, if the policy enters one of these states, specify <code>true</code>.
+  /// </li>
+  /// </ul>
+  /// If you enable extended deletion (<b>ExtendDeletion=true</b>), you override
+  /// both default behaviors simultaneously.
+  ///
+  /// If you do not specify a value, the default is <code>false</code>.
+  ///
+  /// Default: false
+  final bool? extendDeletion;
+
+  /// <b>[Custom snapshot and AMI policies only]</b> A set of optional parameters
+  /// for snapshot and AMI lifecycle policies.
   /// <note>
   /// If you are modifying a policy that was created or previously modified using
   /// the Amazon Data Lifecycle Manager console, then you must include this
@@ -1394,7 +1809,19 @@ class PolicyDetails {
   /// </note>
   final Parameters? parameters;
 
-  /// <b>[All policy types]</b> The valid target resource types and actions a
+  /// The type of policy to create. Specify one of the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SIMPLIFIED</code> To create a default policy.
+  /// </li>
+  /// <li>
+  /// <code>STANDARD</code> To create a custom policy.
+  /// </li>
+  /// </ul>
+  final PolicyLanguageValues? policyLanguage;
+
+  /// <b>[Custom policies only]</b> The valid target resource types and actions a
   /// policy can manage. Specify <code>EBS_SNAPSHOT_MANAGEMENT</code> to create a
   /// lifecycle policy that manages the lifecycle of Amazon EBS snapshots. Specify
   /// <code>IMAGE_MANAGEMENT</code> to create a lifecycle policy that manages the
@@ -1405,8 +1832,8 @@ class PolicyDetails {
   /// The default is <code>EBS_SNAPSHOT_MANAGEMENT</code>.
   final PolicyTypeValues? policyType;
 
-  /// <b>[Snapshot and AMI policies only]</b> The location of the resources to
-  /// backup. If the source resources are located in an Amazon Web Services
+  /// <b>[Custom snapshot and AMI policies only]</b> The location of the resources
+  /// to backup. If the source resources are located in an Amazon Web Services
   /// Region, specify <code>CLOUD</code>. If the source resources are located on
   /// an Outpost in your account, specify <code>OUTPOST</code>.
   ///
@@ -1415,28 +1842,62 @@ class PolicyDetails {
   /// the Outposts in your account.
   final List<ResourceLocationValues>? resourceLocations;
 
-  /// <b>[Snapshot policies only]</b> The target resource type for snapshot and
-  /// AMI lifecycle policies. Use <code>VOLUME </code>to create snapshots of
+  /// <b>[Default policies only]</b> Specify the type of default policy to create.
+  ///
+  /// <ul>
+  /// <li>
+  /// To create a default policy for EBS snapshots, that creates snapshots of all
+  /// volumes in the Region that do not have recent backups, specify
+  /// <code>VOLUME</code>.
+  /// </li>
+  /// <li>
+  /// To create a default policy for EBS-backed AMIs, that creates EBS-backed AMIs
+  /// from all instances in the Region that do not have recent backups, specify
+  /// <code>INSTANCE</code>.
+  /// </li>
+  /// </ul>
+  final ResourceTypeValues? resourceType;
+
+  /// <b>[Custom snapshot policies only]</b> The target resource type for snapshot
+  /// and AMI lifecycle policies. Use <code>VOLUME </code>to create snapshots of
   /// individual volumes or use <code>INSTANCE</code> to create multi-volume
   /// snapshots from the volumes for an instance.
   final List<ResourceTypeValues>? resourceTypes;
 
-  /// <b>[Snapshot and AMI policies only]</b> The schedules of policy-defined
-  /// actions for snapshot and AMI lifecycle policies. A policy can have up to
-  /// four schedules—one mandatory schedule and up to three optional schedules.
+  /// <b>[Default policies only]</b> Specifies how long the policy should retain
+  /// snapshots or AMIs before deleting them. The retention period can range from
+  /// 2 to 14 days, but it must be greater than the creation frequency to ensure
+  /// that the policy retains at least 1 snapshot or AMI at any given time. If you
+  /// do not specify a value, the default is 7.
+  ///
+  /// Default: 7
+  final int? retainInterval;
+
+  /// <b>[Custom snapshot and AMI policies only]</b> The schedules of
+  /// policy-defined actions for snapshot and AMI lifecycle policies. A policy can
+  /// have up to four schedules—one mandatory schedule and up to three optional
+  /// schedules.
   final List<Schedule>? schedules;
 
-  /// <b>[Snapshot and AMI policies only]</b> The single tag that identifies
-  /// targeted resources for this policy.
+  /// <b>[Custom snapshot and AMI policies only]</b> The single tag that
+  /// identifies targeted resources for this policy.
   final List<Tag>? targetTags;
 
   PolicyDetails({
     this.actions,
+    this.copyTags,
+    this.createInterval,
+    this.crossRegionCopyTargets,
     this.eventSource,
+    this.exclusions,
+    this.extendDeletion,
     this.parameters,
+    this.policyLanguage,
     this.policyType,
     this.resourceLocations,
+    this.resourceType,
     this.resourceTypes,
+    this.retainInterval,
     this.schedules,
     this.targetTags,
   });
@@ -1444,30 +1905,46 @@ class PolicyDetails {
   factory PolicyDetails.fromJson(Map<String, dynamic> json) {
     return PolicyDetails(
       actions: (json['Actions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Action.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      copyTags: json['CopyTags'] as bool?,
+      createInterval: json['CreateInterval'] as int?,
+      crossRegionCopyTargets: (json['CrossRegionCopyTargets'] as List?)
+          ?.nonNulls
+          .map((e) => CrossRegionCopyTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       eventSource: json['EventSource'] != null
           ? EventSource.fromJson(json['EventSource'] as Map<String, dynamic>)
           : null,
+      exclusions: json['Exclusions'] != null
+          ? Exclusions.fromJson(json['Exclusions'] as Map<String, dynamic>)
+          : null,
+      extendDeletion: json['ExtendDeletion'] as bool?,
       parameters: json['Parameters'] != null
           ? Parameters.fromJson(json['Parameters'] as Map<String, dynamic>)
           : null,
-      policyType: (json['PolicyType'] as String?)?.toPolicyTypeValues(),
+      policyLanguage: (json['PolicyLanguage'] as String?)
+          ?.let(PolicyLanguageValues.fromString),
+      policyType:
+          (json['PolicyType'] as String?)?.let(PolicyTypeValues.fromString),
       resourceLocations: (json['ResourceLocations'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toResourceLocationValues())
+          ?.nonNulls
+          .map((e) => ResourceLocationValues.fromString((e as String)))
           .toList(),
+      resourceType:
+          (json['ResourceType'] as String?)?.let(ResourceTypeValues.fromString),
       resourceTypes: (json['ResourceTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toResourceTypeValues())
+          ?.nonNulls
+          .map((e) => ResourceTypeValues.fromString((e as String)))
           .toList(),
+      retainInterval: json['RetainInterval'] as int?,
       schedules: (json['Schedules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Schedule.fromJson(e as Map<String, dynamic>))
           .toList(),
       targetTags: (json['TargetTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1475,123 +1952,114 @@ class PolicyDetails {
 
   Map<String, dynamic> toJson() {
     final actions = this.actions;
+    final copyTags = this.copyTags;
+    final createInterval = this.createInterval;
+    final crossRegionCopyTargets = this.crossRegionCopyTargets;
     final eventSource = this.eventSource;
+    final exclusions = this.exclusions;
+    final extendDeletion = this.extendDeletion;
     final parameters = this.parameters;
+    final policyLanguage = this.policyLanguage;
     final policyType = this.policyType;
     final resourceLocations = this.resourceLocations;
+    final resourceType = this.resourceType;
     final resourceTypes = this.resourceTypes;
+    final retainInterval = this.retainInterval;
     final schedules = this.schedules;
     final targetTags = this.targetTags;
     return {
       if (actions != null) 'Actions': actions,
+      if (copyTags != null) 'CopyTags': copyTags,
+      if (createInterval != null) 'CreateInterval': createInterval,
+      if (crossRegionCopyTargets != null)
+        'CrossRegionCopyTargets': crossRegionCopyTargets,
       if (eventSource != null) 'EventSource': eventSource,
+      if (exclusions != null) 'Exclusions': exclusions,
+      if (extendDeletion != null) 'ExtendDeletion': extendDeletion,
       if (parameters != null) 'Parameters': parameters,
-      if (policyType != null) 'PolicyType': policyType.toValue(),
+      if (policyLanguage != null) 'PolicyLanguage': policyLanguage.value,
+      if (policyType != null) 'PolicyType': policyType.value,
       if (resourceLocations != null)
-        'ResourceLocations': resourceLocations.map((e) => e.toValue()).toList(),
+        'ResourceLocations': resourceLocations.map((e) => e.value).toList(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (resourceTypes != null)
-        'ResourceTypes': resourceTypes.map((e) => e.toValue()).toList(),
+        'ResourceTypes': resourceTypes.map((e) => e.value).toList(),
+      if (retainInterval != null) 'RetainInterval': retainInterval,
       if (schedules != null) 'Schedules': schedules,
       if (targetTags != null) 'TargetTags': targetTags,
     };
   }
 }
 
+enum PolicyLanguageValues {
+  simplified('SIMPLIFIED'),
+  standard('STANDARD'),
+  ;
+
+  final String value;
+
+  const PolicyLanguageValues(this.value);
+
+  static PolicyLanguageValues fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PolicyLanguageValues'));
+}
+
 enum PolicyTypeValues {
-  ebsSnapshotManagement,
-  imageManagement,
-  eventBasedPolicy,
-}
+  ebsSnapshotManagement('EBS_SNAPSHOT_MANAGEMENT'),
+  imageManagement('IMAGE_MANAGEMENT'),
+  eventBasedPolicy('EVENT_BASED_POLICY'),
+  ;
 
-extension PolicyTypeValuesValueExtension on PolicyTypeValues {
-  String toValue() {
-    switch (this) {
-      case PolicyTypeValues.ebsSnapshotManagement:
-        return 'EBS_SNAPSHOT_MANAGEMENT';
-      case PolicyTypeValues.imageManagement:
-        return 'IMAGE_MANAGEMENT';
-      case PolicyTypeValues.eventBasedPolicy:
-        return 'EVENT_BASED_POLICY';
-    }
-  }
-}
+  final String value;
 
-extension PolicyTypeValuesFromString on String {
-  PolicyTypeValues toPolicyTypeValues() {
-    switch (this) {
-      case 'EBS_SNAPSHOT_MANAGEMENT':
-        return PolicyTypeValues.ebsSnapshotManagement;
-      case 'IMAGE_MANAGEMENT':
-        return PolicyTypeValues.imageManagement;
-      case 'EVENT_BASED_POLICY':
-        return PolicyTypeValues.eventBasedPolicy;
-    }
-    throw Exception('$this is not known in enum PolicyTypeValues');
-  }
+  const PolicyTypeValues(this.value);
+
+  static PolicyTypeValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PolicyTypeValues'));
 }
 
 enum ResourceLocationValues {
-  cloud,
-  outpost,
-}
+  cloud('CLOUD'),
+  outpost('OUTPOST'),
+  ;
 
-extension ResourceLocationValuesValueExtension on ResourceLocationValues {
-  String toValue() {
-    switch (this) {
-      case ResourceLocationValues.cloud:
-        return 'CLOUD';
-      case ResourceLocationValues.outpost:
-        return 'OUTPOST';
-    }
-  }
-}
+  final String value;
 
-extension ResourceLocationValuesFromString on String {
-  ResourceLocationValues toResourceLocationValues() {
-    switch (this) {
-      case 'CLOUD':
-        return ResourceLocationValues.cloud;
-      case 'OUTPOST':
-        return ResourceLocationValues.outpost;
-    }
-    throw Exception('$this is not known in enum ResourceLocationValues');
-  }
+  const ResourceLocationValues(this.value);
+
+  static ResourceLocationValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResourceLocationValues'));
 }
 
 enum ResourceTypeValues {
-  volume,
-  instance,
+  volume('VOLUME'),
+  instance('INSTANCE'),
+  ;
+
+  final String value;
+
+  const ResourceTypeValues(this.value);
+
+  static ResourceTypeValues fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceTypeValues'));
 }
 
-extension ResourceTypeValuesValueExtension on ResourceTypeValues {
-  String toValue() {
-    switch (this) {
-      case ResourceTypeValues.volume:
-        return 'VOLUME';
-      case ResourceTypeValues.instance:
-        return 'INSTANCE';
-    }
-  }
-}
-
-extension ResourceTypeValuesFromString on String {
-  ResourceTypeValues toResourceTypeValues() {
-    switch (this) {
-      case 'VOLUME':
-        return ResourceTypeValues.volume;
-      case 'INSTANCE':
-        return ResourceTypeValues.instance;
-    }
-    throw Exception('$this is not known in enum ResourceTypeValues');
-  }
-}
-
-/// <b>[Snapshot and AMI policies only]</b> Specifies a retention rule for
-/// snapshots created by snapshot policies, or for AMIs created by AMI policies.
+/// <b>[Custom snapshot and AMI policies only]</b> Specifies a retention rule
+/// for snapshots created by snapshot policies, or for AMIs created by AMI
+/// policies.
 /// <note>
-/// For snapshot policies that have an <a>ArchiveRule</a>, this retention rule
-/// applies to standard tier retention. When the retention threshold is met,
-/// snapshots are moved from the standard to the archive tier.
+/// For snapshot policies that have an <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ArchiveRule.html">ArchiveRule</a>,
+/// this retention rule applies to standard tier retention. When the retention
+/// threshold is met, snapshots are moved from the standard to the archive tier.
 ///
 /// For snapshot policies that do not have an <b>ArchiveRule</b>, snapshots are
 /// permanently deleted when this retention threshold is met.
@@ -1602,21 +2070,32 @@ extension ResourceTypeValuesFromString on String {
 /// <li>
 /// <b>Count-based retention</b>
 ///
-/// You must specify <b>Count</b>. If you specify an <a>ArchiveRule</a> for the
-/// schedule, then you can specify a retention count of <code>0</code> to
-/// archive snapshots immediately after creation. If you specify a
-/// <a>FastRestoreRule</a>, <a>ShareRule</a>, or a <a>CrossRegionCopyRule</a>,
+/// You must specify <b>Count</b>. If you specify an <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ArchiveRule.html">ArchiveRule</a>
+/// for the schedule, then you can specify a retention count of <code>0</code>
+/// to archive snapshots immediately after creation. If you specify a <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_FastRestoreRule.html">FastRestoreRule</a>,
+/// <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ShareRule.html">ShareRule</a>,
+/// or a <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_CrossRegionCopyRule.html">CrossRegionCopyRule</a>,
 /// then you must specify a retention count of <code>1</code> or more.
 /// </li>
 /// <li>
 /// <b>Age-based retention</b>
 ///
 /// You must specify <b>Interval</b> and <b>IntervalUnit</b>. If you specify an
-/// <a>ArchiveRule</a> for the schedule, then you can specify a retention
-/// interval of <code>0</code> days to archive snapshots immediately after
-/// creation. If you specify a <a>FastRestoreRule</a>, <a>ShareRule</a>, or a
-/// <a>CrossRegionCopyRule</a>, then you must specify a retention interval of
-/// <code>1</code> day or more.
+/// <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ArchiveRule.html">ArchiveRule</a>
+/// for the schedule, then you can specify a retention interval of
+/// <code>0</code> days to archive snapshots immediately after creation. If you
+/// specify a <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_FastRestoreRule.html">FastRestoreRule</a>,
+/// <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ShareRule.html">ShareRule</a>,
+/// or a <a
+/// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_CrossRegionCopyRule.html">CrossRegionCopyRule</a>,
+/// then you must specify a retention interval of <code>1</code> day or more.
 /// </li>
 /// </ul>
 class RetainRule {
@@ -1624,7 +2103,8 @@ class RetainRule {
   /// For example if you want to retain a maximum of three snapshots, specify
   /// <code>3</code>. When the fourth snapshot is created, the oldest retained
   /// snapshot is deleted, or it is moved to the archive tier if you have
-  /// specified an <a>ArchiveRule</a>.
+  /// specified an <a
+  /// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ArchiveRule.html">ArchiveRule</a>.
   final int? count;
 
   /// The amount of time to retain each snapshot. The maximum is 100 years. This
@@ -1635,7 +2115,8 @@ class RetainRule {
   /// for 3 months, specify <code>Interval=3</code> and
   /// <code>IntervalUnit=MONTHS</code>. Once the snapshot has been retained for 3
   /// months, it is deleted, or it is moved to the archive tier if you have
-  /// specified an <a>ArchiveRule</a>.
+  /// specified an <a
+  /// href="https://docs.aws.amazon.com/dlm/latest/APIReference/API_ArchiveRule.html">ArchiveRule</a>.
   final RetentionIntervalUnitValues? intervalUnit;
 
   RetainRule({
@@ -1648,8 +2129,8 @@ class RetainRule {
     return RetainRule(
       count: json['Count'] as int?,
       interval: json['Interval'] as int?,
-      intervalUnit:
-          (json['IntervalUnit'] as String?)?.toRetentionIntervalUnitValues(),
+      intervalUnit: (json['IntervalUnit'] as String?)
+          ?.let(RetentionIntervalUnitValues.fromString),
     );
   }
 
@@ -1660,14 +2141,14 @@ class RetainRule {
     return {
       if (count != null) 'Count': count,
       if (interval != null) 'Interval': interval,
-      if (intervalUnit != null) 'IntervalUnit': intervalUnit.toValue(),
+      if (intervalUnit != null) 'IntervalUnit': intervalUnit.value,
     };
   }
 }
 
-/// <b>[Snapshot policies only]</b> Describes the retention rule for archived
-/// snapshots. Once the archive retention threshold is met, the snapshots are
-/// permanently deleted from the archive tier.
+/// <b>[Custom snapshot policies only]</b> Describes the retention rule for
+/// archived snapshots. Once the archive retention threshold is met, the
+/// snapshots are permanently deleted from the archive tier.
 /// <note>
 /// The archive retention rule must retain snapshots in the archive tier for a
 /// minimum of 90 days.
@@ -1706,8 +2187,8 @@ class RetentionArchiveTier {
     return RetentionArchiveTier(
       count: json['Count'] as int?,
       interval: json['Interval'] as int?,
-      intervalUnit:
-          (json['IntervalUnit'] as String?)?.toRetentionIntervalUnitValues(),
+      intervalUnit: (json['IntervalUnit'] as String?)
+          ?.let(RetentionIntervalUnitValues.fromString),
     );
   }
 
@@ -1718,58 +2199,36 @@ class RetentionArchiveTier {
     return {
       if (count != null) 'Count': count,
       if (interval != null) 'Interval': interval,
-      if (intervalUnit != null) 'IntervalUnit': intervalUnit.toValue(),
+      if (intervalUnit != null) 'IntervalUnit': intervalUnit.value,
     };
   }
 }
 
 enum RetentionIntervalUnitValues {
-  days,
-  weeks,
-  months,
-  years,
+  days('DAYS'),
+  weeks('WEEKS'),
+  months('MONTHS'),
+  years('YEARS'),
+  ;
+
+  final String value;
+
+  const RetentionIntervalUnitValues(this.value);
+
+  static RetentionIntervalUnitValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RetentionIntervalUnitValues'));
 }
 
-extension RetentionIntervalUnitValuesValueExtension
-    on RetentionIntervalUnitValues {
-  String toValue() {
-    switch (this) {
-      case RetentionIntervalUnitValues.days:
-        return 'DAYS';
-      case RetentionIntervalUnitValues.weeks:
-        return 'WEEKS';
-      case RetentionIntervalUnitValues.months:
-        return 'MONTHS';
-      case RetentionIntervalUnitValues.years:
-        return 'YEARS';
-    }
-  }
-}
-
-extension RetentionIntervalUnitValuesFromString on String {
-  RetentionIntervalUnitValues toRetentionIntervalUnitValues() {
-    switch (this) {
-      case 'DAYS':
-        return RetentionIntervalUnitValues.days;
-      case 'WEEKS':
-        return RetentionIntervalUnitValues.weeks;
-      case 'MONTHS':
-        return RetentionIntervalUnitValues.months;
-      case 'YEARS':
-        return RetentionIntervalUnitValues.years;
-    }
-    throw Exception('$this is not known in enum RetentionIntervalUnitValues');
-  }
-}
-
-/// <b>[Snapshot and AMI policies only]</b> Specifies a schedule for a snapshot
-/// or AMI lifecycle policy.
+/// <b>[Custom snapshot and AMI policies only]</b> Specifies a schedule for a
+/// snapshot or AMI lifecycle policy.
 class Schedule {
-  /// <b>[Snapshot policies that target volumes only]</b> The snapshot archiving
-  /// rule for the schedule. When you specify an archiving rule, snapshots are
-  /// automatically moved from the standard tier to the archive tier once the
-  /// schedule's retention threshold is met. Snapshots are then retained in the
-  /// archive tier for the archive retention period that you specify.
+  /// <b>[Custom snapshot policies that target volumes only]</b> The snapshot
+  /// archiving rule for the schedule. When you specify an archiving rule,
+  /// snapshots are automatically moved from the standard tier to the archive tier
+  /// once the schedule's retention threshold is met. Snapshots are then retained
+  /// in the archive tier for the archive retention period that you specify.
   ///
   /// For more information about using snapshot archiving, see <a
   /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/snapshot-ami-policy.html#dlm-archive">Considerations
@@ -1791,10 +2250,11 @@ class Schedule {
   /// </note>
   final List<CrossRegionCopyRule>? crossRegionCopyRules;
 
-  /// <b>[AMI policies only]</b> The AMI deprecation rule for the schedule.
+  /// <b>[Custom AMI policies only]</b> The AMI deprecation rule for the schedule.
   final DeprecateRule? deprecateRule;
 
-  /// <b>[Snapshot policies only]</b> The rule for enabling fast snapshot restore.
+  /// <b>[Custom snapshot policies only]</b> The rule for enabling fast snapshot
+  /// restore.
   final FastRestoreRule? fastRestoreRule;
 
   /// The name of the schedule.
@@ -1803,8 +2263,8 @@ class Schedule {
   /// The retention rule for snapshots or AMIs created by the policy.
   final RetainRule? retainRule;
 
-  /// <b>[Snapshot policies only]</b> The rule for sharing snapshots with other
-  /// Amazon Web Services accounts.
+  /// <b>[Custom snapshot policies only]</b> The rule for sharing snapshots with
+  /// other Amazon Web Services accounts.
   final List<ShareRule>? shareRules;
 
   /// The tags to apply to policy-created resources. These user-defined tags are
@@ -1843,7 +2303,7 @@ class Schedule {
           ? CreateRule.fromJson(json['CreateRule'] as Map<String, dynamic>)
           : null,
       crossRegionCopyRules: (json['CrossRegionCopyRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CrossRegionCopyRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       deprecateRule: json['DeprecateRule'] != null
@@ -1859,15 +2319,15 @@ class Schedule {
           ? RetainRule.fromJson(json['RetainRule'] as Map<String, dynamic>)
           : null,
       shareRules: (json['ShareRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ShareRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       tagsToAdd: (json['TagsToAdd'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       variableTags: (json['VariableTags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1902,36 +2362,189 @@ class Schedule {
   }
 }
 
+/// <b>[Custom snapshot policies that target instances only]</b> Information
+/// about pre and/or post scripts for a snapshot lifecycle policy that targets
+/// instances. For more information, see <a
+/// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/automate-app-consistent-backups.html">
+/// Automating application-consistent snapshots with pre and post scripts</a>.
+class Script {
+  /// The SSM document that includes the pre and/or post scripts to run.
+  ///
+  /// <ul>
+  /// <li>
+  /// If you are automating VSS backups, specify <code>AWS_VSS_BACKUP</code>. In
+  /// this case, Amazon Data Lifecycle Manager automatically uses the
+  /// <code>AWSEC2-CreateVssSnapshot</code> SSM document.
+  /// </li>
+  /// <li>
+  /// If you are automating application-consistent snapshots for SAP HANA
+  /// workloads, specify
+  /// <code>AWSSystemsManagerSAP-CreateDLMSnapshotForSAPHANA</code>.
+  /// </li>
+  /// <li>
+  /// If you are using a custom SSM document that you own, specify either the name
+  /// or ARN of the SSM document. If you are using a custom SSM document that is
+  /// shared with you, specify the ARN of the SSM document.
+  /// </li>
+  /// </ul>
+  final String executionHandler;
+
+  /// Indicates whether Amazon Data Lifecycle Manager should default to
+  /// crash-consistent snapshots if the pre script fails.
+  ///
+  /// <ul>
+  /// <li>
+  /// To default to crash consistent snapshot if the pre script fails, specify
+  /// <code>true</code>.
+  /// </li>
+  /// <li>
+  /// To skip the instance for snapshot creation if the pre script fails, specify
+  /// <code>false</code>.
+  /// </li>
+  /// </ul>
+  /// This parameter is supported only if you run a pre script. If you run a post
+  /// script only, omit this parameter.
+  ///
+  /// Default: true
+  final bool? executeOperationOnScriptFailure;
+
+  /// Indicates the service used to execute the pre and/or post scripts.
+  ///
+  /// <ul>
+  /// <li>
+  /// If you are using custom SSM documents or automating application-consistent
+  /// snapshots of SAP HANA workloads, specify <code>AWS_SYSTEMS_MANAGER</code>.
+  /// </li>
+  /// <li>
+  /// If you are automating VSS Backups, omit this parameter.
+  /// </li>
+  /// </ul>
+  /// Default: AWS_SYSTEMS_MANAGER
+  final ExecutionHandlerServiceValues? executionHandlerService;
+
+  /// Specifies a timeout period, in seconds, after which Amazon Data Lifecycle
+  /// Manager fails the script run attempt if it has not completed. If a script
+  /// does not complete within its timeout period, Amazon Data Lifecycle Manager
+  /// fails the attempt. The timeout period applies to the pre and post scripts
+  /// individually.
+  ///
+  /// If you are automating VSS Backups, omit this parameter.
+  ///
+  /// Default: 10
+  final int? executionTimeout;
+
+  /// Specifies the number of times Amazon Data Lifecycle Manager should retry
+  /// scripts that fail.
+  ///
+  /// <ul>
+  /// <li>
+  /// If the pre script fails, Amazon Data Lifecycle Manager retries the entire
+  /// snapshot creation process, including running the pre and post scripts.
+  /// </li>
+  /// <li>
+  /// If the post script fails, Amazon Data Lifecycle Manager retries the post
+  /// script only; in this case, the pre script will have completed and the
+  /// snapshot might have been created.
+  /// </li>
+  /// </ul>
+  /// If you do not want Amazon Data Lifecycle Manager to retry failed scripts,
+  /// specify <code>0</code>.
+  ///
+  /// Default: 0
+  final int? maximumRetryCount;
+
+  /// Indicate which scripts Amazon Data Lifecycle Manager should run on target
+  /// instances. Pre scripts run before Amazon Data Lifecycle Manager initiates
+  /// snapshot creation. Post scripts run after Amazon Data Lifecycle Manager
+  /// initiates snapshot creation.
+  ///
+  /// <ul>
+  /// <li>
+  /// To run a pre script only, specify <code>PRE</code>. In this case, Amazon
+  /// Data Lifecycle Manager calls the SSM document with the
+  /// <code>pre-script</code> parameter before initiating snapshot creation.
+  /// </li>
+  /// <li>
+  /// To run a post script only, specify <code>POST</code>. In this case, Amazon
+  /// Data Lifecycle Manager calls the SSM document with the
+  /// <code>post-script</code> parameter after initiating snapshot creation.
+  /// </li>
+  /// <li>
+  /// To run both pre and post scripts, specify both <code>PRE</code> and
+  /// <code>POST</code>. In this case, Amazon Data Lifecycle Manager calls the SSM
+  /// document with the <code>pre-script</code> parameter before initiating
+  /// snapshot creation, and then it calls the SSM document again with the
+  /// <code>post-script</code> parameter after initiating snapshot creation.
+  /// </li>
+  /// </ul>
+  /// If you are automating VSS Backups, omit this parameter.
+  ///
+  /// Default: PRE and POST
+  final List<StageValues>? stages;
+
+  Script({
+    required this.executionHandler,
+    this.executeOperationOnScriptFailure,
+    this.executionHandlerService,
+    this.executionTimeout,
+    this.maximumRetryCount,
+    this.stages,
+  });
+
+  factory Script.fromJson(Map<String, dynamic> json) {
+    return Script(
+      executionHandler: json['ExecutionHandler'] as String,
+      executeOperationOnScriptFailure:
+          json['ExecuteOperationOnScriptFailure'] as bool?,
+      executionHandlerService: (json['ExecutionHandlerService'] as String?)
+          ?.let(ExecutionHandlerServiceValues.fromString),
+      executionTimeout: json['ExecutionTimeout'] as int?,
+      maximumRetryCount: json['MaximumRetryCount'] as int?,
+      stages: (json['Stages'] as List?)
+          ?.nonNulls
+          .map((e) => StageValues.fromString((e as String)))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final executionHandler = this.executionHandler;
+    final executeOperationOnScriptFailure =
+        this.executeOperationOnScriptFailure;
+    final executionHandlerService = this.executionHandlerService;
+    final executionTimeout = this.executionTimeout;
+    final maximumRetryCount = this.maximumRetryCount;
+    final stages = this.stages;
+    return {
+      'ExecutionHandler': executionHandler,
+      if (executeOperationOnScriptFailure != null)
+        'ExecuteOperationOnScriptFailure': executeOperationOnScriptFailure,
+      if (executionHandlerService != null)
+        'ExecutionHandlerService': executionHandlerService.value,
+      if (executionTimeout != null) 'ExecutionTimeout': executionTimeout,
+      if (maximumRetryCount != null) 'MaximumRetryCount': maximumRetryCount,
+      if (stages != null) 'Stages': stages.map((e) => e.value).toList(),
+    };
+  }
+}
+
 enum SettablePolicyStateValues {
-  enabled,
-  disabled,
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const SettablePolicyStateValues(this.value);
+
+  static SettablePolicyStateValues fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SettablePolicyStateValues'));
 }
 
-extension SettablePolicyStateValuesValueExtension on SettablePolicyStateValues {
-  String toValue() {
-    switch (this) {
-      case SettablePolicyStateValues.enabled:
-        return 'ENABLED';
-      case SettablePolicyStateValues.disabled:
-        return 'DISABLED';
-    }
-  }
-}
-
-extension SettablePolicyStateValuesFromString on String {
-  SettablePolicyStateValues toSettablePolicyStateValues() {
-    switch (this) {
-      case 'ENABLED':
-        return SettablePolicyStateValues.enabled;
-      case 'DISABLED':
-        return SettablePolicyStateValues.disabled;
-    }
-    throw Exception('$this is not known in enum SettablePolicyStateValues');
-  }
-}
-
-/// <b>[Snapshot policies only]</b> Specifies a rule for sharing snapshots
-/// across Amazon Web Services accounts.
+/// <b>[Custom snapshot policies only]</b> Specifies a rule for sharing
+/// snapshots across Amazon Web Services accounts.
 class ShareRule {
   /// The IDs of the Amazon Web Services accounts with which to share the
   /// snapshots.
@@ -1953,12 +2566,12 @@ class ShareRule {
   factory ShareRule.fromJson(Map<String, dynamic> json) {
     return ShareRule(
       targetAccounts: (json['TargetAccounts'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       unshareInterval: json['UnshareInterval'] as int?,
       unshareIntervalUnit: (json['UnshareIntervalUnit'] as String?)
-          ?.toRetentionIntervalUnitValues(),
+          ?.let(RetentionIntervalUnitValues.fromString),
     );
   }
 
@@ -1970,9 +2583,23 @@ class ShareRule {
       'TargetAccounts': targetAccounts,
       if (unshareInterval != null) 'UnshareInterval': unshareInterval,
       if (unshareIntervalUnit != null)
-        'UnshareIntervalUnit': unshareIntervalUnit.toValue(),
+        'UnshareIntervalUnit': unshareIntervalUnit.value,
     };
   }
+}
+
+enum StageValues {
+  pre('PRE'),
+  post('POST'),
+  ;
+
+  final String value;
+
+  const StageValues(this.value);
+
+  static StageValues fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StageValues'));
 }
 
 /// Specifies a tag for a resource.

@@ -1325,32 +1325,18 @@ class CognitoIdentity {
 }
 
 enum AmbiguousRoleResolutionType {
-  authenticatedRole,
-  deny,
-}
+  authenticatedRole('AuthenticatedRole'),
+  deny('Deny'),
+  ;
 
-extension AmbiguousRoleResolutionTypeValueExtension
-    on AmbiguousRoleResolutionType {
-  String toValue() {
-    switch (this) {
-      case AmbiguousRoleResolutionType.authenticatedRole:
-        return 'AuthenticatedRole';
-      case AmbiguousRoleResolutionType.deny:
-        return 'Deny';
-    }
-  }
-}
+  final String value;
 
-extension AmbiguousRoleResolutionTypeFromString on String {
-  AmbiguousRoleResolutionType toAmbiguousRoleResolutionType() {
-    switch (this) {
-      case 'AuthenticatedRole':
-        return AmbiguousRoleResolutionType.authenticatedRole;
-      case 'Deny':
-        return AmbiguousRoleResolutionType.deny;
-    }
-    throw Exception('$this is not known in enum AmbiguousRoleResolutionType');
-  }
+  const AmbiguousRoleResolutionType(this.value);
+
+  static AmbiguousRoleResolutionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AmbiguousRoleResolutionType'));
 }
 
 /// A provider representing an Amazon Cognito user pool and its client ID.
@@ -1446,7 +1432,7 @@ class DeleteIdentitiesResponse {
   factory DeleteIdentitiesResponse.fromJson(Map<String, dynamic> json) {
     return DeleteIdentitiesResponse(
       unprocessedIdentityIds: (json['UnprocessedIdentityIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UnprocessedIdentityId.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1454,31 +1440,17 @@ class DeleteIdentitiesResponse {
 }
 
 enum ErrorCode {
-  accessDenied,
-  internalServerError,
-}
+  accessDenied('AccessDenied'),
+  internalServerError('InternalServerError'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.accessDenied:
-        return 'AccessDenied';
-      case ErrorCode.internalServerError:
-        return 'InternalServerError';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'AccessDenied':
-        return ErrorCode.accessDenied;
-      case 'InternalServerError':
-        return ErrorCode.internalServerError;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 /// Returned in response to a successful <code>GetCredentialsForIdentity</code>
@@ -1662,10 +1634,8 @@ class IdentityDescription {
       creationDate: timeStampFromJson(json['CreationDate']),
       identityId: json['IdentityId'] as String?,
       lastModifiedDate: timeStampFromJson(json['LastModifiedDate']),
-      logins: (json['Logins'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      logins:
+          (json['Logins'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -1730,7 +1700,7 @@ class IdentityPool {
       identityPoolName: json['IdentityPoolName'] as String,
       allowClassicFlow: json['AllowClassicFlow'] as bool?,
       cognitoIdentityProviders: (json['CognitoIdentityProviders'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CognitoIdentityProvider.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1738,11 +1708,11 @@ class IdentityPool {
       identityPoolTags: (json['IdentityPoolTags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       openIdConnectProviderARNs: (json['OpenIdConnectProviderARNs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       samlProviderARNs: (json['SamlProviderARNs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       supportedLoginProviders:
@@ -1793,7 +1763,7 @@ class ListIdentitiesResponse {
   factory ListIdentitiesResponse.fromJson(Map<String, dynamic> json) {
     return ListIdentitiesResponse(
       identities: (json['Identities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IdentityDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       identityPoolId: json['IdentityPoolId'] as String?,
@@ -1818,7 +1788,7 @@ class ListIdentityPoolsResponse {
   factory ListIdentityPoolsResponse.fromJson(Map<String, dynamic> json) {
     return ListIdentityPoolsResponse(
       identityPools: (json['IdentityPools'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               IdentityPoolShortDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1873,7 +1843,7 @@ class LookupDeveloperIdentityResponse {
     return LookupDeveloperIdentityResponse(
       developerUserIdentifierList:
           (json['DeveloperUserIdentifierList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       identityId: json['IdentityId'] as String?,
@@ -1909,7 +1879,7 @@ class MappingRule {
   factory MappingRule.fromJson(Map<String, dynamic> json) {
     return MappingRule(
       claim: json['Claim'] as String,
-      matchType: (json['MatchType'] as String).toMappingRuleMatchType(),
+      matchType: MappingRuleMatchType.fromString((json['MatchType'] as String)),
       roleARN: json['RoleARN'] as String,
       value: json['Value'] as String,
     );
@@ -1922,7 +1892,7 @@ class MappingRule {
     final value = this.value;
     return {
       'Claim': claim,
-      'MatchType': matchType.toValue(),
+      'MatchType': matchType.value,
       'RoleARN': roleARN,
       'Value': value,
     };
@@ -1930,41 +1900,20 @@ class MappingRule {
 }
 
 enum MappingRuleMatchType {
-  equals,
-  contains,
-  startsWith,
-  notEqual,
-}
+  equals('Equals'),
+  contains('Contains'),
+  startsWith('StartsWith'),
+  notEqual('NotEqual'),
+  ;
 
-extension MappingRuleMatchTypeValueExtension on MappingRuleMatchType {
-  String toValue() {
-    switch (this) {
-      case MappingRuleMatchType.equals:
-        return 'Equals';
-      case MappingRuleMatchType.contains:
-        return 'Contains';
-      case MappingRuleMatchType.startsWith:
-        return 'StartsWith';
-      case MappingRuleMatchType.notEqual:
-        return 'NotEqual';
-    }
-  }
-}
+  final String value;
 
-extension MappingRuleMatchTypeFromString on String {
-  MappingRuleMatchType toMappingRuleMatchType() {
-    switch (this) {
-      case 'Equals':
-        return MappingRuleMatchType.equals;
-      case 'Contains':
-        return MappingRuleMatchType.contains;
-      case 'StartsWith':
-        return MappingRuleMatchType.startsWith;
-      case 'NotEqual':
-        return MappingRuleMatchType.notEqual;
-    }
-    throw Exception('$this is not known in enum MappingRuleMatchType');
-  }
+  const MappingRuleMatchType(this.value);
+
+  static MappingRuleMatchType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum MappingRuleMatchType'));
 }
 
 /// Returned in response to a successful <code>MergeDeveloperIdentities</code>
@@ -2015,9 +1964,9 @@ class RoleMapping {
 
   factory RoleMapping.fromJson(Map<String, dynamic> json) {
     return RoleMapping(
-      type: (json['Type'] as String).toRoleMappingType(),
+      type: RoleMappingType.fromString((json['Type'] as String)),
       ambiguousRoleResolution: (json['AmbiguousRoleResolution'] as String?)
-          ?.toAmbiguousRoleResolutionType(),
+          ?.let(AmbiguousRoleResolutionType.fromString),
       rulesConfiguration: json['RulesConfiguration'] != null
           ? RulesConfigurationType.fromJson(
               json['RulesConfiguration'] as Map<String, dynamic>)
@@ -2030,40 +1979,27 @@ class RoleMapping {
     final ambiguousRoleResolution = this.ambiguousRoleResolution;
     final rulesConfiguration = this.rulesConfiguration;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (ambiguousRoleResolution != null)
-        'AmbiguousRoleResolution': ambiguousRoleResolution.toValue(),
+        'AmbiguousRoleResolution': ambiguousRoleResolution.value,
       if (rulesConfiguration != null) 'RulesConfiguration': rulesConfiguration,
     };
   }
 }
 
 enum RoleMappingType {
-  token,
-  rules,
-}
+  token('Token'),
+  rules('Rules'),
+  ;
 
-extension RoleMappingTypeValueExtension on RoleMappingType {
-  String toValue() {
-    switch (this) {
-      case RoleMappingType.token:
-        return 'Token';
-      case RoleMappingType.rules:
-        return 'Rules';
-    }
-  }
-}
+  final String value;
 
-extension RoleMappingTypeFromString on String {
-  RoleMappingType toRoleMappingType() {
-    switch (this) {
-      case 'Token':
-        return RoleMappingType.token;
-      case 'Rules':
-        return RoleMappingType.rules;
-    }
-    throw Exception('$this is not known in enum RoleMappingType');
-  }
+  const RoleMappingType(this.value);
+
+  static RoleMappingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RoleMappingType'));
 }
 
 /// A container for rules.
@@ -2080,7 +2016,7 @@ class RulesConfigurationType {
   factory RulesConfigurationType.fromJson(Map<String, dynamic> json) {
     return RulesConfigurationType(
       rules: (json['Rules'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => MappingRule.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2153,7 +2089,7 @@ class UnprocessedIdentityId {
 
   factory UnprocessedIdentityId.fromJson(Map<String, dynamic> json) {
     return UnprocessedIdentityId(
-      errorCode: (json['ErrorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['ErrorCode'] as String?)?.let(ErrorCode.fromString),
       identityId: json['IdentityId'] as String?,
     );
   }

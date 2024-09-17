@@ -274,6 +274,25 @@ class AppSync {
   /// At-rest encryption flag for cache. You cannot update this setting after
   /// creation.
   ///
+  /// Parameter [healthMetricsConfig] :
+  /// Controls how cache health metrics will be emitted to CloudWatch. Cache
+  /// health metrics include:
+  ///
+  /// <ul>
+  /// <li>
+  /// NetworkBandwidthOutAllowanceExceeded: The network packets dropped because
+  /// the throughput exceeded the aggregated bandwidth limit. This is useful for
+  /// diagnosing bottlenecks in a cache configuration.
+  /// </li>
+  /// <li>
+  /// EngineCPUUtilization: The CPU utilization (percentage) allocated to the
+  /// Redis process. This is useful for diagnosing bottlenecks in a cache
+  /// configuration.
+  /// </li>
+  /// </ul>
+  /// Metrics will be recorded by API ID. You can set the value to
+  /// <code>ENABLED</code> or <code>DISABLED</code>.
+  ///
   /// Parameter [transitEncryptionEnabled] :
   /// Transit encryption flag when connecting to cache. You cannot update this
   /// setting after creation.
@@ -283,14 +302,17 @@ class AppSync {
     required int ttl,
     required ApiCacheType type,
     bool? atRestEncryptionEnabled,
+    CacheHealthMetricsConfig? healthMetricsConfig,
     bool? transitEncryptionEnabled,
   }) async {
     final $payload = <String, dynamic>{
-      'apiCachingBehavior': apiCachingBehavior.toValue(),
+      'apiCachingBehavior': apiCachingBehavior.value,
       'ttl': ttl,
-      'type': type.toValue(),
+      'type': type.value,
       if (atRestEncryptionEnabled != null)
         'atRestEncryptionEnabled': atRestEncryptionEnabled,
+      if (healthMetricsConfig != null)
+        'healthMetricsConfig': healthMetricsConfig.value,
       if (transitEncryptionEnabled != null)
         'transitEncryptionEnabled': transitEncryptionEnabled,
     };
@@ -384,6 +406,19 @@ class AppSync {
   /// Parameter [lambdaConfig] :
   /// Lambda settings.
   ///
+  /// Parameter [metricsConfig] :
+  /// Enables or disables enhanced data source metrics for specified data
+  /// sources. Note that <code>metricsConfig</code> won't be used unless the
+  /// <code>dataSourceLevelMetricsBehavior</code> value is set to
+  /// <code>PER_DATA_SOURCE_METRICS</code>. If the
+  /// <code>dataSourceLevelMetricsBehavior</code> is set to
+  /// <code>FULL_REQUEST_DATA_SOURCE_METRICS</code> instead,
+  /// <code>metricsConfig</code> will be ignored. However, you can still set its
+  /// value.
+  ///
+  /// <code>metricsConfig</code> can be <code>ENABLED</code> or
+  /// <code>DISABLED</code>.
+  ///
   /// Parameter [openSearchServiceConfig] :
   /// Amazon OpenSearch Service settings.
   ///
@@ -404,13 +439,14 @@ class AppSync {
     EventBridgeDataSourceConfig? eventBridgeConfig,
     HttpDataSourceConfig? httpConfig,
     LambdaDataSourceConfig? lambdaConfig,
+    DataSourceLevelMetricsConfig? metricsConfig,
     OpenSearchServiceDataSourceConfig? openSearchServiceConfig,
     RelationalDatabaseDataSourceConfig? relationalDatabaseConfig,
     String? serviceRoleArn,
   }) async {
     final $payload = <String, dynamic>{
       'name': name,
-      'type': type.toValue(),
+      'type': type.value,
       if (description != null) 'description': description,
       if (dynamodbConfig != null) 'dynamodbConfig': dynamodbConfig,
       if (elasticsearchConfig != null)
@@ -418,6 +454,7 @@ class AppSync {
       if (eventBridgeConfig != null) 'eventBridgeConfig': eventBridgeConfig,
       if (httpConfig != null) 'httpConfig': httpConfig,
       if (lambdaConfig != null) 'lambdaConfig': lambdaConfig,
+      if (metricsConfig != null) 'metricsConfig': metricsConfig.value,
       if (openSearchServiceConfig != null)
         'openSearchServiceConfig': openSearchServiceConfig,
       if (relationalDatabaseConfig != null)
@@ -477,6 +514,7 @@ class AppSync {
   /// May throw [NotFoundException].
   /// May throw [UnauthorizedException].
   /// May throw [InternalFailureException].
+  /// May throw [BadRequestException].
   ///
   /// Parameter [apiId] :
   /// The GraphQL API ID.
@@ -576,6 +614,19 @@ class AppSync {
   /// The value that indicates whether the GraphQL API is a standard API
   /// (<code>GRAPHQL</code>) or merged API (<code>MERGED</code>).
   ///
+  /// Parameter [enhancedMetricsConfig] :
+  /// The <code>enhancedMetricsConfig</code> object.
+  ///
+  /// Parameter [introspectionConfig] :
+  /// Sets the value of the GraphQL API to enable (<code>ENABLED</code>) or
+  /// disable (<code>DISABLED</code>) introspection. If no value is provided,
+  /// the introspection configuration will be set to <code>ENABLED</code> by
+  /// default. This field will produce an error if the operation attempts to use
+  /// the introspection feature while this field is disabled.
+  ///
+  /// For more information about introspection, see <a
+  /// href="https://graphql.org/learn/introspection/">GraphQL introspection</a>.
+  ///
   /// Parameter [lambdaAuthorizerConfig] :
   /// Configuration for Lambda function authorization.
   ///
@@ -597,6 +648,25 @@ class AppSync {
   ///
   /// This field accepts any string input with a length of 0 - 256 characters.
   ///
+  /// Parameter [queryDepthLimit] :
+  /// The maximum depth a query can have in a single request. Depth refers to
+  /// the amount of nested levels allowed in the body of query. The default
+  /// value is <code>0</code> (or unspecified), which indicates there's no depth
+  /// limit. If you set a limit, it can be between <code>1</code> and
+  /// <code>75</code> nested levels. This field will produce a limit error if
+  /// the operation falls out of bounds.
+  ///
+  /// Note that fields can still be set to nullable or non-nullable. If a
+  /// non-nullable field produces an error, the error will be thrown upwards to
+  /// the first nullable field available.
+  ///
+  /// Parameter [resolverCountLimit] :
+  /// The maximum number of resolvers that can be invoked in a single request.
+  /// The default value is <code>0</code> (or unspecified), which will set the
+  /// limit to <code>10000</code>. When specified, the limit value can be
+  /// between <code>1</code> and <code>10000</code>. This field will produce a
+  /// limit error if the operation falls out of bounds.
+  ///
   /// Parameter [tags] :
   /// A <code>TagMap</code> object.
   ///
@@ -617,22 +687,42 @@ class AppSync {
     required String name,
     List<AdditionalAuthenticationProvider>? additionalAuthenticationProviders,
     GraphQLApiType? apiType,
+    EnhancedMetricsConfig? enhancedMetricsConfig,
+    GraphQLApiIntrospectionConfig? introspectionConfig,
     LambdaAuthorizerConfig? lambdaAuthorizerConfig,
     LogConfig? logConfig,
     String? mergedApiExecutionRoleArn,
     OpenIDConnectConfig? openIDConnectConfig,
     String? ownerContact,
+    int? queryDepthLimit,
+    int? resolverCountLimit,
     Map<String, String>? tags,
     UserPoolConfig? userPoolConfig,
     GraphQLApiVisibility? visibility,
     bool? xrayEnabled,
   }) async {
+    _s.validateNumRange(
+      'queryDepthLimit',
+      queryDepthLimit,
+      0,
+      75,
+    );
+    _s.validateNumRange(
+      'resolverCountLimit',
+      resolverCountLimit,
+      0,
+      10000,
+    );
     final $payload = <String, dynamic>{
-      'authenticationType': authenticationType.toValue(),
+      'authenticationType': authenticationType.value,
       'name': name,
       if (additionalAuthenticationProviders != null)
         'additionalAuthenticationProviders': additionalAuthenticationProviders,
-      if (apiType != null) 'apiType': apiType.toValue(),
+      if (apiType != null) 'apiType': apiType.value,
+      if (enhancedMetricsConfig != null)
+        'enhancedMetricsConfig': enhancedMetricsConfig,
+      if (introspectionConfig != null)
+        'introspectionConfig': introspectionConfig.value,
       if (lambdaAuthorizerConfig != null)
         'lambdaAuthorizerConfig': lambdaAuthorizerConfig,
       if (logConfig != null) 'logConfig': logConfig,
@@ -641,9 +731,11 @@ class AppSync {
       if (openIDConnectConfig != null)
         'openIDConnectConfig': openIDConnectConfig,
       if (ownerContact != null) 'ownerContact': ownerContact,
+      if (queryDepthLimit != null) 'queryDepthLimit': queryDepthLimit,
+      if (resolverCountLimit != null) 'resolverCountLimit': resolverCountLimit,
       if (tags != null) 'tags': tags,
       if (userPoolConfig != null) 'userPoolConfig': userPoolConfig,
-      if (visibility != null) 'visibility': visibility.toValue(),
+      if (visibility != null) 'visibility': visibility.value,
       if (xrayEnabled != null) 'xrayEnabled': xrayEnabled,
     };
     final response = await _protocol.send(
@@ -706,6 +798,19 @@ class AppSync {
   /// Parameter [maxBatchSize] :
   /// The maximum batching size for a resolver.
   ///
+  /// Parameter [metricsConfig] :
+  /// Enables or disables enhanced resolver metrics for specified resolvers.
+  /// Note that <code>metricsConfig</code> won't be used unless the
+  /// <code>resolverLevelMetricsBehavior</code> value is set to
+  /// <code>PER_RESOLVER_METRICS</code>. If the
+  /// <code>resolverLevelMetricsBehavior</code> is set to
+  /// <code>FULL_REQUEST_RESOLVER_METRICS</code> instead,
+  /// <code>metricsConfig</code> will be ignored. However, you can still set its
+  /// value.
+  ///
+  /// <code>metricsConfig</code> can be <code>ENABLED</code> or
+  /// <code>DISABLED</code>.
+  ///
   /// Parameter [pipelineConfig] :
   /// The <code>PipelineConfig</code>.
   ///
@@ -735,6 +840,7 @@ class AppSync {
     String? dataSourceName,
     ResolverKind? kind,
     int? maxBatchSize,
+    ResolverLevelMetricsConfig? metricsConfig,
     PipelineConfig? pipelineConfig,
     String? requestMappingTemplate,
     String? responseMappingTemplate,
@@ -752,8 +858,9 @@ class AppSync {
       if (cachingConfig != null) 'cachingConfig': cachingConfig,
       if (code != null) 'code': code,
       if (dataSourceName != null) 'dataSourceName': dataSourceName,
-      if (kind != null) 'kind': kind.toValue(),
+      if (kind != null) 'kind': kind.value,
       if (maxBatchSize != null) 'maxBatchSize': maxBatchSize,
+      if (metricsConfig != null) 'metricsConfig': metricsConfig.value,
       if (pipelineConfig != null) 'pipelineConfig': pipelineConfig,
       if (requestMappingTemplate != null)
         'requestMappingTemplate': requestMappingTemplate,
@@ -798,7 +905,7 @@ class AppSync {
   }) async {
     final $payload = <String, dynamic>{
       'definition': definition,
-      'format': format.toValue(),
+      'format': format.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -908,6 +1015,7 @@ class AppSync {
   /// May throw [NotFoundException].
   /// May throw [UnauthorizedException].
   /// May throw [InternalFailureException].
+  /// May throw [BadRequestException].
   ///
   /// Parameter [apiId] :
   /// The GraphQL API ID.
@@ -1271,6 +1379,62 @@ class AppSync {
     return GetDataSourceResponse.fromJson(response);
   }
 
+  /// Retrieves the record of an existing introspection. If the retrieval is
+  /// successful, the result of the instrospection will also be returned. If the
+  /// retrieval fails the operation, an error message will be returned instead.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [NotFoundException].
+  /// May throw [InternalFailureException].
+  ///
+  /// Parameter [introspectionId] :
+  /// The introspection ID. Each introspection contains a unique ID that can be
+  /// used to reference the instrospection record.
+  ///
+  /// Parameter [includeModelsSDL] :
+  /// A boolean flag that determines whether SDL should be generated for
+  /// introspected types or not. If set to <code>true</code>, each model will
+  /// contain an <code>sdl</code> property that contains the SDL for that type.
+  /// The SDL only contains the type data and no additional metadata or
+  /// directives.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of introspected types that will be returned in a single
+  /// response.
+  ///
+  /// Parameter [nextToken] :
+  /// Determines the number of types to be returned in a single response before
+  /// paginating. This value is typically taken from <code>nextToken</code>
+  /// value from the previous response.
+  Future<GetDataSourceIntrospectionResponse> getDataSourceIntrospection({
+    required String introspectionId,
+    bool? includeModelsSDL,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      0,
+      25,
+    );
+    final $query = <String, List<String>>{
+      if (includeModelsSDL != null)
+        'includeModelsSDL': [includeModelsSDL.toString()],
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/v1/datasources/introspections/${Uri.encodeComponent(introspectionId)}',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetDataSourceIntrospectionResponse.fromJson(response);
+  }
+
   /// Retrieves a custom <code>DomainName</code> object.
   ///
   /// May throw [AccessDeniedException].
@@ -1339,6 +1503,31 @@ class AppSync {
     return GetGraphqlApiResponse.fromJson(response);
   }
 
+  /// Retrieves the list of environmental variable key-value pairs associated
+  /// with an API by its ID value.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [NotFoundException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalFailureException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [apiId] :
+  /// The ID of the API from which the environmental variable list will be
+  /// retrieved.
+  Future<GetGraphqlApiEnvironmentVariablesResponse>
+      getGraphqlApiEnvironmentVariables({
+    required String apiId,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v1/apis/${Uri.encodeComponent(apiId)}/environmentVariables',
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetGraphqlApiEnvironmentVariablesResponse.fromJson(response);
+  }
+
   /// Retrieves the introspection schema for a GraphQL API.
   ///
   /// May throw [GraphQLSchemaException].
@@ -1361,7 +1550,7 @@ class AppSync {
     bool? includeDirectives,
   }) async {
     final $query = <String, List<String>>{
-      'format': [format.toValue()],
+      'format': [format.value],
       if (includeDirectives != null)
         'includeDirectives': [includeDirectives.toString()],
     };
@@ -1479,7 +1668,7 @@ class AppSync {
     required String typeName,
   }) async {
     final $query = <String, List<String>>{
-      'format': [format.toValue()],
+      'format': [format.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -1689,10 +1878,10 @@ class AppSync {
       25,
     );
     final $query = <String, List<String>>{
-      if (apiType != null) 'apiType': [apiType.toValue()],
+      if (apiType != null) 'apiType': [apiType.value],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
-      if (owner != null) 'owner': [owner.toValue()],
+      if (owner != null) 'owner': [owner.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -1894,7 +2083,7 @@ class AppSync {
       25,
     );
     final $query = <String, List<String>>{
-      'format': [format.toValue()],
+      'format': [format.value],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
     };
@@ -1949,7 +2138,7 @@ class AppSync {
       25,
     );
     final $query = <String, List<String>>{
-      'format': [format.toValue()],
+      'format': [format.value],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
     };
@@ -1962,6 +2151,142 @@ class AppSync {
       exceptionFnMap: _exceptionFns,
     );
     return ListTypesByAssociationResponse.fromJson(response);
+  }
+
+  /// Creates a list of environmental variables in an API by its ID value.
+  ///
+  /// When creating an environmental variable, it must follow the constraints
+  /// below:
+  ///
+  /// <ul>
+  /// <li>
+  /// Both JavaScript and VTL templates support environmental variables.
+  /// </li>
+  /// <li>
+  /// Environmental variables are not evaluated before function invocation.
+  /// </li>
+  /// <li>
+  /// Environmental variables only support string values.
+  /// </li>
+  /// <li>
+  /// Any defined value in an environmental variable is considered a string
+  /// literal and not expanded.
+  /// </li>
+  /// <li>
+  /// Variable evaluations should ideally be performed in the function code.
+  /// </li>
+  /// </ul>
+  /// When creating an environmental variable key-value pair, it must follow the
+  /// additional constraints below:
+  ///
+  /// <ul>
+  /// <li>
+  /// Keys must begin with a letter.
+  /// </li>
+  /// <li>
+  /// Keys must be at least two characters long.
+  /// </li>
+  /// <li>
+  /// Keys can only contain letters, numbers, and the underscore character (_).
+  /// </li>
+  /// <li>
+  /// Values can be up to 512 characters long.
+  /// </li>
+  /// <li>
+  /// You can configure up to 50 key-value pairs in a GraphQL API.
+  /// </li>
+  /// </ul>
+  /// You can create a list of environmental variables by adding it to the
+  /// <code>environmentVariables</code> payload as a list in the format
+  /// <code>{"key1":"value1","key2":"value2", …}</code>. Note that each call of
+  /// the <code>PutGraphqlApiEnvironmentVariables</code> action will result in
+  /// the overwriting of the existing environmental variable list of that API.
+  /// This means the existing environmental variables will be lost. To avoid
+  /// this, you must include all existing and new environmental variables in the
+  /// list each time you call this action.
+  ///
+  /// May throw [BadRequestException].
+  /// May throw [ConcurrentModificationException].
+  /// May throw [NotFoundException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalFailureException].
+  /// May throw [AccessDeniedException].
+  ///
+  /// Parameter [apiId] :
+  /// The ID of the API to which the environmental variable list will be
+  /// written.
+  ///
+  /// Parameter [environmentVariables] :
+  /// The list of environmental variables to add to the API.
+  ///
+  /// When creating an environmental variable key-value pair, it must follow the
+  /// additional constraints below:
+  ///
+  /// <ul>
+  /// <li>
+  /// Keys must begin with a letter.
+  /// </li>
+  /// <li>
+  /// Keys must be at least two characters long.
+  /// </li>
+  /// <li>
+  /// Keys can only contain letters, numbers, and the underscore character (_).
+  /// </li>
+  /// <li>
+  /// Values can be up to 512 characters long.
+  /// </li>
+  /// <li>
+  /// You can configure up to 50 key-value pairs in a GraphQL API.
+  /// </li>
+  /// </ul>
+  /// You can create a list of environmental variables by adding it to the
+  /// <code>environmentVariables</code> payload as a list in the format
+  /// <code>{"key1":"value1","key2":"value2", …}</code>. Note that each call of
+  /// the <code>PutGraphqlApiEnvironmentVariables</code> action will result in
+  /// the overwriting of the existing environmental variable list of that API.
+  /// This means the existing environmental variables will be lost. To avoid
+  /// this, you must include all existing and new environmental variables in the
+  /// list each time you call this action.
+  Future<PutGraphqlApiEnvironmentVariablesResponse>
+      putGraphqlApiEnvironmentVariables({
+    required String apiId,
+    required Map<String, String> environmentVariables,
+  }) async {
+    final $payload = <String, dynamic>{
+      'environmentVariables': environmentVariables,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PUT',
+      requestUri: '/v1/apis/${Uri.encodeComponent(apiId)}/environmentVariables',
+      exceptionFnMap: _exceptionFns,
+    );
+    return PutGraphqlApiEnvironmentVariablesResponse.fromJson(response);
+  }
+
+  /// Creates a new introspection. Returns the <code>introspectionId</code> of
+  /// the new introspection after its creation.
+  ///
+  /// May throw [NotFoundException].
+  /// May throw [UnauthorizedException].
+  /// May throw [InternalFailureException].
+  /// May throw [BadRequestException].
+  ///
+  /// Parameter [rdsDataApiConfig] :
+  /// The <code>rdsDataApiConfig</code> object data.
+  Future<StartDataSourceIntrospectionResponse> startDataSourceIntrospection({
+    RdsDataApiConfig? rdsDataApiConfig,
+  }) async {
+    final $payload = <String, dynamic>{
+      if (rdsDataApiConfig != null) 'rdsDataApiConfig': rdsDataApiConfig,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/v1/datasources/introspections',
+      exceptionFnMap: _exceptionFns,
+    );
+    return StartDataSourceIntrospectionResponse.fromJson(response);
   }
 
   /// Adds a new schema to your GraphQL API.
@@ -2174,16 +2499,38 @@ class AppSync {
   /// <b>R4_8XLARGE</b>: A r4.8xlarge instance type.
   /// </li>
   /// </ul>
+  ///
+  /// Parameter [healthMetricsConfig] :
+  /// Controls how cache health metrics will be emitted to CloudWatch. Cache
+  /// health metrics include:
+  ///
+  /// <ul>
+  /// <li>
+  /// NetworkBandwidthOutAllowanceExceeded: The network packets dropped because
+  /// the throughput exceeded the aggregated bandwidth limit. This is useful for
+  /// diagnosing bottlenecks in a cache configuration.
+  /// </li>
+  /// <li>
+  /// EngineCPUUtilization: The CPU utilization (percentage) allocated to the
+  /// Redis process. This is useful for diagnosing bottlenecks in a cache
+  /// configuration.
+  /// </li>
+  /// </ul>
+  /// Metrics will be recorded by API ID. You can set the value to
+  /// <code>ENABLED</code> or <code>DISABLED</code>.
   Future<UpdateApiCacheResponse> updateApiCache({
     required ApiCachingBehavior apiCachingBehavior,
     required String apiId,
     required int ttl,
     required ApiCacheType type,
+    CacheHealthMetricsConfig? healthMetricsConfig,
   }) async {
     final $payload = <String, dynamic>{
-      'apiCachingBehavior': apiCachingBehavior.toValue(),
+      'apiCachingBehavior': apiCachingBehavior.value,
       'ttl': ttl,
-      'type': type.toValue(),
+      'type': type.value,
+      if (healthMetricsConfig != null)
+        'healthMetricsConfig': healthMetricsConfig.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -2275,6 +2622,19 @@ class AppSync {
   /// Parameter [lambdaConfig] :
   /// The new Lambda configuration.
   ///
+  /// Parameter [metricsConfig] :
+  /// Enables or disables enhanced data source metrics for specified data
+  /// sources. Note that <code>metricsConfig</code> won't be used unless the
+  /// <code>dataSourceLevelMetricsBehavior</code> value is set to
+  /// <code>PER_DATA_SOURCE_METRICS</code>. If the
+  /// <code>dataSourceLevelMetricsBehavior</code> is set to
+  /// <code>FULL_REQUEST_DATA_SOURCE_METRICS</code> instead,
+  /// <code>metricsConfig</code> will be ignored. However, you can still set its
+  /// value.
+  ///
+  /// <code>metricsConfig</code> can be <code>ENABLED</code> or
+  /// <code>DISABLED</code>.
+  ///
   /// Parameter [openSearchServiceConfig] :
   /// The new OpenSearch configuration.
   ///
@@ -2293,12 +2653,13 @@ class AppSync {
     EventBridgeDataSourceConfig? eventBridgeConfig,
     HttpDataSourceConfig? httpConfig,
     LambdaDataSourceConfig? lambdaConfig,
+    DataSourceLevelMetricsConfig? metricsConfig,
     OpenSearchServiceDataSourceConfig? openSearchServiceConfig,
     RelationalDatabaseDataSourceConfig? relationalDatabaseConfig,
     String? serviceRoleArn,
   }) async {
     final $payload = <String, dynamic>{
-      'type': type.toValue(),
+      'type': type.value,
       if (description != null) 'description': description,
       if (dynamodbConfig != null) 'dynamodbConfig': dynamodbConfig,
       if (elasticsearchConfig != null)
@@ -2306,6 +2667,7 @@ class AppSync {
       if (eventBridgeConfig != null) 'eventBridgeConfig': eventBridgeConfig,
       if (httpConfig != null) 'httpConfig': httpConfig,
       if (lambdaConfig != null) 'lambdaConfig': lambdaConfig,
+      if (metricsConfig != null) 'metricsConfig': metricsConfig.value,
       if (openSearchServiceConfig != null)
         'openSearchServiceConfig': openSearchServiceConfig,
       if (relationalDatabaseConfig != null)
@@ -2357,6 +2719,7 @@ class AppSync {
   /// May throw [NotFoundException].
   /// May throw [UnauthorizedException].
   /// May throw [InternalFailureException].
+  /// May throw [BadRequestException].
   ///
   /// Parameter [apiId] :
   /// The GraphQL API ID.
@@ -2448,6 +2811,9 @@ class AppSync {
   /// Parameter [apiId] :
   /// The API ID.
   ///
+  /// Parameter [authenticationType] :
+  /// The new authentication type for the <code>GraphqlApi</code> object.
+  ///
   /// Parameter [name] :
   /// The new name for the <code>GraphqlApi</code> object.
   ///
@@ -2455,8 +2821,18 @@ class AppSync {
   /// A list of additional authentication providers for the
   /// <code>GraphqlApi</code> API.
   ///
-  /// Parameter [authenticationType] :
-  /// The new authentication type for the <code>GraphqlApi</code> object.
+  /// Parameter [enhancedMetricsConfig] :
+  /// The <code>enhancedMetricsConfig</code> object.
+  ///
+  /// Parameter [introspectionConfig] :
+  /// Sets the value of the GraphQL API to enable (<code>ENABLED</code>) or
+  /// disable (<code>DISABLED</code>) introspection. If no value is provided,
+  /// the introspection configuration will be set to <code>ENABLED</code> by
+  /// default. This field will produce an error if the operation attempts to use
+  /// the introspection feature while this field is disabled.
+  ///
+  /// For more information about introspection, see <a
+  /// href="https://graphql.org/learn/introspection/">GraphQL introspection</a>.
   ///
   /// Parameter [lambdaAuthorizerConfig] :
   /// Configuration for Lambda function authorization.
@@ -2480,6 +2856,25 @@ class AppSync {
   ///
   /// This field accepts any string input with a length of 0 - 256 characters.
   ///
+  /// Parameter [queryDepthLimit] :
+  /// The maximum depth a query can have in a single request. Depth refers to
+  /// the amount of nested levels allowed in the body of query. The default
+  /// value is <code>0</code> (or unspecified), which indicates there's no depth
+  /// limit. If you set a limit, it can be between <code>1</code> and
+  /// <code>75</code> nested levels. This field will produce a limit error if
+  /// the operation falls out of bounds.
+  ///
+  /// Note that fields can still be set to nullable or non-nullable. If a
+  /// non-nullable field produces an error, the error will be thrown upwards to
+  /// the first nullable field available.
+  ///
+  /// Parameter [resolverCountLimit] :
+  /// The maximum number of resolvers that can be invoked in a single request.
+  /// The default value is <code>0</code> (or unspecified), which will set the
+  /// limit to <code>10000</code>. When specified, the limit value can be
+  /// between <code>1</code> and <code>10000</code>. This field will produce a
+  /// limit error if the operation falls out of bounds.
+  ///
   /// Parameter [userPoolConfig] :
   /// The new Amazon Cognito user pool configuration for the
   /// <code>~GraphqlApi</code> object.
@@ -2489,23 +2884,42 @@ class AppSync {
   /// <code>GraphqlApi</code>.
   Future<UpdateGraphqlApiResponse> updateGraphqlApi({
     required String apiId,
+    required AuthenticationType authenticationType,
     required String name,
     List<AdditionalAuthenticationProvider>? additionalAuthenticationProviders,
-    AuthenticationType? authenticationType,
+    EnhancedMetricsConfig? enhancedMetricsConfig,
+    GraphQLApiIntrospectionConfig? introspectionConfig,
     LambdaAuthorizerConfig? lambdaAuthorizerConfig,
     LogConfig? logConfig,
     String? mergedApiExecutionRoleArn,
     OpenIDConnectConfig? openIDConnectConfig,
     String? ownerContact,
+    int? queryDepthLimit,
+    int? resolverCountLimit,
     UserPoolConfig? userPoolConfig,
     bool? xrayEnabled,
   }) async {
+    _s.validateNumRange(
+      'queryDepthLimit',
+      queryDepthLimit,
+      0,
+      75,
+    );
+    _s.validateNumRange(
+      'resolverCountLimit',
+      resolverCountLimit,
+      0,
+      10000,
+    );
     final $payload = <String, dynamic>{
+      'authenticationType': authenticationType.value,
       'name': name,
       if (additionalAuthenticationProviders != null)
         'additionalAuthenticationProviders': additionalAuthenticationProviders,
-      if (authenticationType != null)
-        'authenticationType': authenticationType.toValue(),
+      if (enhancedMetricsConfig != null)
+        'enhancedMetricsConfig': enhancedMetricsConfig,
+      if (introspectionConfig != null)
+        'introspectionConfig': introspectionConfig.value,
       if (lambdaAuthorizerConfig != null)
         'lambdaAuthorizerConfig': lambdaAuthorizerConfig,
       if (logConfig != null) 'logConfig': logConfig,
@@ -2514,6 +2928,8 @@ class AppSync {
       if (openIDConnectConfig != null)
         'openIDConnectConfig': openIDConnectConfig,
       if (ownerContact != null) 'ownerContact': ownerContact,
+      if (queryDepthLimit != null) 'queryDepthLimit': queryDepthLimit,
+      if (resolverCountLimit != null) 'resolverCountLimit': resolverCountLimit,
       if (userPoolConfig != null) 'userPoolConfig': userPoolConfig,
       if (xrayEnabled != null) 'xrayEnabled': xrayEnabled,
     };
@@ -2574,6 +2990,19 @@ class AppSync {
   /// Parameter [maxBatchSize] :
   /// The maximum batching size for a resolver.
   ///
+  /// Parameter [metricsConfig] :
+  /// Enables or disables enhanced resolver metrics for specified resolvers.
+  /// Note that <code>metricsConfig</code> won't be used unless the
+  /// <code>resolverLevelMetricsBehavior</code> value is set to
+  /// <code>PER_RESOLVER_METRICS</code>. If the
+  /// <code>resolverLevelMetricsBehavior</code> is set to
+  /// <code>FULL_REQUEST_RESOLVER_METRICS</code> instead,
+  /// <code>metricsConfig</code> will be ignored. However, you can still set its
+  /// value.
+  ///
+  /// <code>metricsConfig</code> can be <code>ENABLED</code> or
+  /// <code>DISABLED</code>.
+  ///
   /// Parameter [pipelineConfig] :
   /// The <code>PipelineConfig</code>.
   ///
@@ -2603,6 +3032,7 @@ class AppSync {
     String? dataSourceName,
     ResolverKind? kind,
     int? maxBatchSize,
+    ResolverLevelMetricsConfig? metricsConfig,
     PipelineConfig? pipelineConfig,
     String? requestMappingTemplate,
     String? responseMappingTemplate,
@@ -2619,8 +3049,9 @@ class AppSync {
       if (cachingConfig != null) 'cachingConfig': cachingConfig,
       if (code != null) 'code': code,
       if (dataSourceName != null) 'dataSourceName': dataSourceName,
-      if (kind != null) 'kind': kind.toValue(),
+      if (kind != null) 'kind': kind.value,
       if (maxBatchSize != null) 'maxBatchSize': maxBatchSize,
+      if (metricsConfig != null) 'metricsConfig': metricsConfig.value,
       if (pipelineConfig != null) 'pipelineConfig': pipelineConfig,
       if (requestMappingTemplate != null)
         'requestMappingTemplate': requestMappingTemplate,
@@ -2710,7 +3141,7 @@ class AppSync {
     String? definition,
   }) async {
     final $payload = <String, dynamic>{
-      'format': format.toValue(),
+      'format': format.value,
       if (definition != null) 'definition': definition,
     };
     final response = await _protocol.send(
@@ -2748,8 +3179,8 @@ class AdditionalAuthenticationProvider {
 
   factory AdditionalAuthenticationProvider.fromJson(Map<String, dynamic> json) {
     return AdditionalAuthenticationProvider(
-      authenticationType:
-          (json['authenticationType'] as String?)?.toAuthenticationType(),
+      authenticationType: (json['authenticationType'] as String?)
+          ?.let(AuthenticationType.fromString),
       lambdaAuthorizerConfig: json['lambdaAuthorizerConfig'] != null
           ? LambdaAuthorizerConfig.fromJson(
               json['lambdaAuthorizerConfig'] as Map<String, dynamic>)
@@ -2772,7 +3203,7 @@ class AdditionalAuthenticationProvider {
     final userPoolConfig = this.userPoolConfig;
     return {
       if (authenticationType != null)
-        'authenticationType': authenticationType.toValue(),
+        'authenticationType': authenticationType.value,
       if (lambdaAuthorizerConfig != null)
         'lambdaAuthorizerConfig': lambdaAuthorizerConfig,
       if (openIDConnectConfig != null)
@@ -2821,8 +3252,8 @@ class ApiAssociation {
   factory ApiAssociation.fromJson(Map<String, dynamic> json) {
     return ApiAssociation(
       apiId: json['apiId'] as String?,
-      associationStatus:
-          (json['associationStatus'] as String?)?.toAssociationStatus(),
+      associationStatus: (json['associationStatus'] as String?)
+          ?.let(AssociationStatus.fromString),
       deploymentDetail: json['deploymentDetail'] as String?,
       domainName: json['domainName'] as String?,
     );
@@ -2836,7 +3267,7 @@ class ApiAssociation {
     return {
       if (apiId != null) 'apiId': apiId,
       if (associationStatus != null)
-        'associationStatus': associationStatus.toValue(),
+        'associationStatus': associationStatus.value,
       if (deploymentDetail != null) 'deploymentDetail': deploymentDetail,
       if (domainName != null) 'domainName': domainName,
     };
@@ -2861,6 +3292,25 @@ class ApiCache {
   /// At-rest encryption flag for cache. You cannot update this setting after
   /// creation.
   final bool? atRestEncryptionEnabled;
+
+  /// Controls how cache health metrics will be emitted to CloudWatch. Cache
+  /// health metrics include:
+  ///
+  /// <ul>
+  /// <li>
+  /// NetworkBandwidthOutAllowanceExceeded: The network packets dropped because
+  /// the throughput exceeded the aggregated bandwidth limit. This is useful for
+  /// diagnosing bottlenecks in a cache configuration.
+  /// </li>
+  /// <li>
+  /// EngineCPUUtilization: The CPU utilization (percentage) allocated to the
+  /// Redis process. This is useful for diagnosing bottlenecks in a cache
+  /// configuration.
+  /// </li>
+  /// </ul>
+  /// Metrics will be recorded by API ID. You can set the value to
+  /// <code>ENABLED</code> or <code>DISABLED</code>.
+  final CacheHealthMetricsConfig? healthMetricsConfig;
 
   /// The cache instance status.
   ///
@@ -2955,6 +3405,7 @@ class ApiCache {
   ApiCache({
     this.apiCachingBehavior,
     this.atRestEncryptionEnabled,
+    this.healthMetricsConfig,
     this.status,
     this.transitEncryptionEnabled,
     this.ttl,
@@ -2963,199 +3414,101 @@ class ApiCache {
 
   factory ApiCache.fromJson(Map<String, dynamic> json) {
     return ApiCache(
-      apiCachingBehavior:
-          (json['apiCachingBehavior'] as String?)?.toApiCachingBehavior(),
+      apiCachingBehavior: (json['apiCachingBehavior'] as String?)
+          ?.let(ApiCachingBehavior.fromString),
       atRestEncryptionEnabled: json['atRestEncryptionEnabled'] as bool?,
-      status: (json['status'] as String?)?.toApiCacheStatus(),
+      healthMetricsConfig: (json['healthMetricsConfig'] as String?)
+          ?.let(CacheHealthMetricsConfig.fromString),
+      status: (json['status'] as String?)?.let(ApiCacheStatus.fromString),
       transitEncryptionEnabled: json['transitEncryptionEnabled'] as bool?,
       ttl: json['ttl'] as int?,
-      type: (json['type'] as String?)?.toApiCacheType(),
+      type: (json['type'] as String?)?.let(ApiCacheType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final apiCachingBehavior = this.apiCachingBehavior;
     final atRestEncryptionEnabled = this.atRestEncryptionEnabled;
+    final healthMetricsConfig = this.healthMetricsConfig;
     final status = this.status;
     final transitEncryptionEnabled = this.transitEncryptionEnabled;
     final ttl = this.ttl;
     final type = this.type;
     return {
       if (apiCachingBehavior != null)
-        'apiCachingBehavior': apiCachingBehavior.toValue(),
+        'apiCachingBehavior': apiCachingBehavior.value,
       if (atRestEncryptionEnabled != null)
         'atRestEncryptionEnabled': atRestEncryptionEnabled,
-      if (status != null) 'status': status.toValue(),
+      if (healthMetricsConfig != null)
+        'healthMetricsConfig': healthMetricsConfig.value,
+      if (status != null) 'status': status.value,
       if (transitEncryptionEnabled != null)
         'transitEncryptionEnabled': transitEncryptionEnabled,
       if (ttl != null) 'ttl': ttl,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
 enum ApiCacheStatus {
-  available,
-  creating,
-  deleting,
-  modifying,
-  failed,
-}
+  available('AVAILABLE'),
+  creating('CREATING'),
+  deleting('DELETING'),
+  modifying('MODIFYING'),
+  failed('FAILED'),
+  ;
 
-extension ApiCacheStatusValueExtension on ApiCacheStatus {
-  String toValue() {
-    switch (this) {
-      case ApiCacheStatus.available:
-        return 'AVAILABLE';
-      case ApiCacheStatus.creating:
-        return 'CREATING';
-      case ApiCacheStatus.deleting:
-        return 'DELETING';
-      case ApiCacheStatus.modifying:
-        return 'MODIFYING';
-      case ApiCacheStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ApiCacheStatusFromString on String {
-  ApiCacheStatus toApiCacheStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return ApiCacheStatus.available;
-      case 'CREATING':
-        return ApiCacheStatus.creating;
-      case 'DELETING':
-        return ApiCacheStatus.deleting;
-      case 'MODIFYING':
-        return ApiCacheStatus.modifying;
-      case 'FAILED':
-        return ApiCacheStatus.failed;
-    }
-    throw Exception('$this is not known in enum ApiCacheStatus');
-  }
+  const ApiCacheStatus(this.value);
+
+  static ApiCacheStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ApiCacheStatus'));
 }
 
 enum ApiCacheType {
-  t2Small,
-  t2Medium,
-  r4Large,
-  r4Xlarge,
-  r4_2xlarge,
-  r4_4xlarge,
-  r4_8xlarge,
-  small,
-  medium,
-  large,
-  xlarge,
-  large_2x,
-  large_4x,
-  large_8x,
-  large_12x,
-}
+  t2Small('T2_SMALL'),
+  t2Medium('T2_MEDIUM'),
+  r4Large('R4_LARGE'),
+  r4Xlarge('R4_XLARGE'),
+  r4_2xlarge('R4_2XLARGE'),
+  r4_4xlarge('R4_4XLARGE'),
+  r4_8xlarge('R4_8XLARGE'),
+  small('SMALL'),
+  medium('MEDIUM'),
+  large('LARGE'),
+  xlarge('XLARGE'),
+  large_2x('LARGE_2X'),
+  large_4x('LARGE_4X'),
+  large_8x('LARGE_8X'),
+  large_12x('LARGE_12X'),
+  ;
 
-extension ApiCacheTypeValueExtension on ApiCacheType {
-  String toValue() {
-    switch (this) {
-      case ApiCacheType.t2Small:
-        return 'T2_SMALL';
-      case ApiCacheType.t2Medium:
-        return 'T2_MEDIUM';
-      case ApiCacheType.r4Large:
-        return 'R4_LARGE';
-      case ApiCacheType.r4Xlarge:
-        return 'R4_XLARGE';
-      case ApiCacheType.r4_2xlarge:
-        return 'R4_2XLARGE';
-      case ApiCacheType.r4_4xlarge:
-        return 'R4_4XLARGE';
-      case ApiCacheType.r4_8xlarge:
-        return 'R4_8XLARGE';
-      case ApiCacheType.small:
-        return 'SMALL';
-      case ApiCacheType.medium:
-        return 'MEDIUM';
-      case ApiCacheType.large:
-        return 'LARGE';
-      case ApiCacheType.xlarge:
-        return 'XLARGE';
-      case ApiCacheType.large_2x:
-        return 'LARGE_2X';
-      case ApiCacheType.large_4x:
-        return 'LARGE_4X';
-      case ApiCacheType.large_8x:
-        return 'LARGE_8X';
-      case ApiCacheType.large_12x:
-        return 'LARGE_12X';
-    }
-  }
-}
+  final String value;
 
-extension ApiCacheTypeFromString on String {
-  ApiCacheType toApiCacheType() {
-    switch (this) {
-      case 'T2_SMALL':
-        return ApiCacheType.t2Small;
-      case 'T2_MEDIUM':
-        return ApiCacheType.t2Medium;
-      case 'R4_LARGE':
-        return ApiCacheType.r4Large;
-      case 'R4_XLARGE':
-        return ApiCacheType.r4Xlarge;
-      case 'R4_2XLARGE':
-        return ApiCacheType.r4_2xlarge;
-      case 'R4_4XLARGE':
-        return ApiCacheType.r4_4xlarge;
-      case 'R4_8XLARGE':
-        return ApiCacheType.r4_8xlarge;
-      case 'SMALL':
-        return ApiCacheType.small;
-      case 'MEDIUM':
-        return ApiCacheType.medium;
-      case 'LARGE':
-        return ApiCacheType.large;
-      case 'XLARGE':
-        return ApiCacheType.xlarge;
-      case 'LARGE_2X':
-        return ApiCacheType.large_2x;
-      case 'LARGE_4X':
-        return ApiCacheType.large_4x;
-      case 'LARGE_8X':
-        return ApiCacheType.large_8x;
-      case 'LARGE_12X':
-        return ApiCacheType.large_12x;
-    }
-    throw Exception('$this is not known in enum ApiCacheType');
-  }
+  const ApiCacheType(this.value);
+
+  static ApiCacheType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ApiCacheType'));
 }
 
 enum ApiCachingBehavior {
-  fullRequestCaching,
-  perResolverCaching,
-}
+  fullRequestCaching('FULL_REQUEST_CACHING'),
+  perResolverCaching('PER_RESOLVER_CACHING'),
+  ;
 
-extension ApiCachingBehaviorValueExtension on ApiCachingBehavior {
-  String toValue() {
-    switch (this) {
-      case ApiCachingBehavior.fullRequestCaching:
-        return 'FULL_REQUEST_CACHING';
-      case ApiCachingBehavior.perResolverCaching:
-        return 'PER_RESOLVER_CACHING';
-    }
-  }
-}
+  final String value;
 
-extension ApiCachingBehaviorFromString on String {
-  ApiCachingBehavior toApiCachingBehavior() {
-    switch (this) {
-      case 'FULL_REQUEST_CACHING':
-        return ApiCachingBehavior.fullRequestCaching;
-      case 'PER_RESOLVER_CACHING':
-        return ApiCachingBehavior.perResolverCaching;
-    }
-    throw Exception('$this is not known in enum ApiCachingBehavior');
-  }
+  const ApiCachingBehavior(this.value);
+
+  static ApiCachingBehavior fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ApiCachingBehavior'));
 }
 
 /// Describes an API key.
@@ -3284,7 +3637,7 @@ class AppSyncRuntime {
 
   factory AppSyncRuntime.fromJson(Map<String, dynamic> json) {
     return AppSyncRuntime(
-      name: (json['name'] as String).toRuntimeName(),
+      name: RuntimeName.fromString((json['name'] as String)),
       runtimeVersion: json['runtimeVersion'] as String,
     );
   }
@@ -3293,7 +3646,7 @@ class AppSyncRuntime {
     final name = this.name;
     final runtimeVersion = this.runtimeVersion;
     return {
-      'name': name.toValue(),
+      'name': name.value,
       'runtimeVersion': runtimeVersion,
     };
   }
@@ -3379,79 +3732,37 @@ class AssociateSourceGraphqlApiResponse {
 }
 
 enum AssociationStatus {
-  processing,
-  failed,
-  success,
-}
+  processing('PROCESSING'),
+  failed('FAILED'),
+  success('SUCCESS'),
+  ;
 
-extension AssociationStatusValueExtension on AssociationStatus {
-  String toValue() {
-    switch (this) {
-      case AssociationStatus.processing:
-        return 'PROCESSING';
-      case AssociationStatus.failed:
-        return 'FAILED';
-      case AssociationStatus.success:
-        return 'SUCCESS';
-    }
-  }
-}
+  final String value;
 
-extension AssociationStatusFromString on String {
-  AssociationStatus toAssociationStatus() {
-    switch (this) {
-      case 'PROCESSING':
-        return AssociationStatus.processing;
-      case 'FAILED':
-        return AssociationStatus.failed;
-      case 'SUCCESS':
-        return AssociationStatus.success;
-    }
-    throw Exception('$this is not known in enum AssociationStatus');
-  }
+  const AssociationStatus(this.value);
+
+  static AssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AssociationStatus'));
 }
 
 enum AuthenticationType {
-  apiKey,
-  awsIam,
-  amazonCognitoUserPools,
-  openidConnect,
-  awsLambda,
-}
+  apiKey('API_KEY'),
+  awsIam('AWS_IAM'),
+  amazonCognitoUserPools('AMAZON_COGNITO_USER_POOLS'),
+  openidConnect('OPENID_CONNECT'),
+  awsLambda('AWS_LAMBDA'),
+  ;
 
-extension AuthenticationTypeValueExtension on AuthenticationType {
-  String toValue() {
-    switch (this) {
-      case AuthenticationType.apiKey:
-        return 'API_KEY';
-      case AuthenticationType.awsIam:
-        return 'AWS_IAM';
-      case AuthenticationType.amazonCognitoUserPools:
-        return 'AMAZON_COGNITO_USER_POOLS';
-      case AuthenticationType.openidConnect:
-        return 'OPENID_CONNECT';
-      case AuthenticationType.awsLambda:
-        return 'AWS_LAMBDA';
-    }
-  }
-}
+  final String value;
 
-extension AuthenticationTypeFromString on String {
-  AuthenticationType toAuthenticationType() {
-    switch (this) {
-      case 'API_KEY':
-        return AuthenticationType.apiKey;
-      case 'AWS_IAM':
-        return AuthenticationType.awsIam;
-      case 'AMAZON_COGNITO_USER_POOLS':
-        return AuthenticationType.amazonCognitoUserPools;
-      case 'OPENID_CONNECT':
-        return AuthenticationType.openidConnect;
-      case 'AWS_LAMBDA':
-        return AuthenticationType.awsLambda;
-    }
-    throw Exception('$this is not known in enum AuthenticationType');
-  }
+  const AuthenticationType(this.value);
+
+  static AuthenticationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AuthenticationType'));
 }
 
 /// The authorization configuration in case the HTTP endpoint requires
@@ -3477,7 +3788,7 @@ class AuthorizationConfig {
   factory AuthorizationConfig.fromJson(Map<String, dynamic> json) {
     return AuthorizationConfig(
       authorizationType:
-          (json['authorizationType'] as String).toAuthorizationType(),
+          AuthorizationType.fromString((json['authorizationType'] as String)),
       awsIamConfig: json['awsIamConfig'] != null
           ? AwsIamConfig.fromJson(json['awsIamConfig'] as Map<String, dynamic>)
           : null,
@@ -3488,33 +3799,24 @@ class AuthorizationConfig {
     final authorizationType = this.authorizationType;
     final awsIamConfig = this.awsIamConfig;
     return {
-      'authorizationType': authorizationType.toValue(),
+      'authorizationType': authorizationType.value,
       if (awsIamConfig != null) 'awsIamConfig': awsIamConfig,
     };
   }
 }
 
 enum AuthorizationType {
-  awsIam,
-}
+  awsIam('AWS_IAM'),
+  ;
 
-extension AuthorizationTypeValueExtension on AuthorizationType {
-  String toValue() {
-    switch (this) {
-      case AuthorizationType.awsIam:
-        return 'AWS_IAM';
-    }
-  }
-}
+  final String value;
 
-extension AuthorizationTypeFromString on String {
-  AuthorizationType toAuthorizationType() {
-    switch (this) {
-      case 'AWS_IAM':
-        return AuthorizationType.awsIam;
-    }
-    throw Exception('$this is not known in enum AuthorizationType');
-  }
+  const AuthorizationType(this.value);
+
+  static AuthorizationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AuthorizationType'));
 }
 
 /// The Identity and Access Management (IAM) configuration.
@@ -3547,6 +3849,21 @@ class AwsIamConfig {
   }
 }
 
+enum CacheHealthMetricsConfig {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const CacheHealthMetricsConfig(this.value);
+
+  static CacheHealthMetricsConfig fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CacheHealthMetricsConfig'));
+}
+
 /// The caching configuration for a resolver that has caching activated.
 class CachingConfig {
   /// The TTL in seconds for a resolver that has caching activated.
@@ -3569,7 +3886,7 @@ class CachingConfig {
     return CachingConfig(
       ttl: json['ttl'] as int,
       cachingKeys: (json['cachingKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3706,69 +4023,35 @@ class CognitoUserPoolConfig {
 }
 
 enum ConflictDetectionType {
-  version,
-  none,
-}
+  version('VERSION'),
+  none('NONE'),
+  ;
 
-extension ConflictDetectionTypeValueExtension on ConflictDetectionType {
-  String toValue() {
-    switch (this) {
-      case ConflictDetectionType.version:
-        return 'VERSION';
-      case ConflictDetectionType.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension ConflictDetectionTypeFromString on String {
-  ConflictDetectionType toConflictDetectionType() {
-    switch (this) {
-      case 'VERSION':
-        return ConflictDetectionType.version;
-      case 'NONE':
-        return ConflictDetectionType.none;
-    }
-    throw Exception('$this is not known in enum ConflictDetectionType');
-  }
+  const ConflictDetectionType(this.value);
+
+  static ConflictDetectionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConflictDetectionType'));
 }
 
 enum ConflictHandlerType {
-  optimisticConcurrency,
-  lambda,
-  automerge,
-  none,
-}
+  optimisticConcurrency('OPTIMISTIC_CONCURRENCY'),
+  lambda('LAMBDA'),
+  automerge('AUTOMERGE'),
+  none('NONE'),
+  ;
 
-extension ConflictHandlerTypeValueExtension on ConflictHandlerType {
-  String toValue() {
-    switch (this) {
-      case ConflictHandlerType.optimisticConcurrency:
-        return 'OPTIMISTIC_CONCURRENCY';
-      case ConflictHandlerType.lambda:
-        return 'LAMBDA';
-      case ConflictHandlerType.automerge:
-        return 'AUTOMERGE';
-      case ConflictHandlerType.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension ConflictHandlerTypeFromString on String {
-  ConflictHandlerType toConflictHandlerType() {
-    switch (this) {
-      case 'OPTIMISTIC_CONCURRENCY':
-        return ConflictHandlerType.optimisticConcurrency;
-      case 'LAMBDA':
-        return ConflictHandlerType.lambda;
-      case 'AUTOMERGE':
-        return ConflictHandlerType.automerge;
-      case 'NONE':
-        return ConflictHandlerType.none;
-    }
-    throw Exception('$this is not known in enum ConflictHandlerType');
-  }
+  const ConflictHandlerType(this.value);
+
+  static ConflictHandlerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConflictHandlerType'));
 }
 
 /// Represents the output of a <code>CreateApiCache</code> operation.
@@ -3990,6 +4273,19 @@ class DataSource {
   /// Lambda settings.
   final LambdaDataSourceConfig? lambdaConfig;
 
+  /// Enables or disables enhanced data source metrics for specified data sources.
+  /// Note that <code>metricsConfig</code> won't be used unless the
+  /// <code>dataSourceLevelMetricsBehavior</code> value is set to
+  /// <code>PER_DATA_SOURCE_METRICS</code>. If the
+  /// <code>dataSourceLevelMetricsBehavior</code> is set to
+  /// <code>FULL_REQUEST_DATA_SOURCE_METRICS</code> instead,
+  /// <code>metricsConfig</code> will be ignored. However, you can still set its
+  /// value.
+  ///
+  /// <code>metricsConfig</code> can be <code>ENABLED</code> or
+  /// <code>DISABLED</code>.
+  final DataSourceLevelMetricsConfig? metricsConfig;
+
   /// The name of the data source.
   final String? name;
 
@@ -4048,6 +4344,7 @@ class DataSource {
     this.eventBridgeConfig,
     this.httpConfig,
     this.lambdaConfig,
+    this.metricsConfig,
     this.name,
     this.openSearchServiceConfig,
     this.relationalDatabaseConfig,
@@ -4079,6 +4376,8 @@ class DataSource {
           ? LambdaDataSourceConfig.fromJson(
               json['lambdaConfig'] as Map<String, dynamic>)
           : null,
+      metricsConfig: (json['metricsConfig'] as String?)
+          ?.let(DataSourceLevelMetricsConfig.fromString),
       name: json['name'] as String?,
       openSearchServiceConfig: json['openSearchServiceConfig'] != null
           ? OpenSearchServiceDataSourceConfig.fromJson(
@@ -4089,7 +4388,7 @@ class DataSource {
               json['relationalDatabaseConfig'] as Map<String, dynamic>)
           : null,
       serviceRoleArn: json['serviceRoleArn'] as String?,
-      type: (json['type'] as String?)?.toDataSourceType(),
+      type: (json['type'] as String?)?.let(DataSourceType.fromString),
     );
   }
 
@@ -4101,6 +4400,7 @@ class DataSource {
     final eventBridgeConfig = this.eventBridgeConfig;
     final httpConfig = this.httpConfig;
     final lambdaConfig = this.lambdaConfig;
+    final metricsConfig = this.metricsConfig;
     final name = this.name;
     final openSearchServiceConfig = this.openSearchServiceConfig;
     final relationalDatabaseConfig = this.relationalDatabaseConfig;
@@ -4115,101 +4415,352 @@ class DataSource {
       if (eventBridgeConfig != null) 'eventBridgeConfig': eventBridgeConfig,
       if (httpConfig != null) 'httpConfig': httpConfig,
       if (lambdaConfig != null) 'lambdaConfig': lambdaConfig,
+      if (metricsConfig != null) 'metricsConfig': metricsConfig.value,
       if (name != null) 'name': name,
       if (openSearchServiceConfig != null)
         'openSearchServiceConfig': openSearchServiceConfig,
       if (relationalDatabaseConfig != null)
         'relationalDatabaseConfig': relationalDatabaseConfig,
       if (serviceRoleArn != null) 'serviceRoleArn': serviceRoleArn,
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
     };
   }
 }
 
+/// Contains the introspected data that was retrieved from the data source.
+class DataSourceIntrospectionModel {
+  /// The <code>DataSourceIntrospectionModelField</code> object data.
+  final List<DataSourceIntrospectionModelField>? fields;
+
+  /// The array of <code>DataSourceIntrospectionModelIndex</code> objects.
+  final List<DataSourceIntrospectionModelIndex>? indexes;
+
+  /// The name of the model. For example, this could be the name of a single table
+  /// in a database.
+  final String? name;
+
+  /// The primary key stored as a <code>DataSourceIntrospectionModelIndex</code>
+  /// object.
+  final DataSourceIntrospectionModelIndex? primaryKey;
+
+  /// Contains the output of the SDL that was generated from the introspected
+  /// types. This is controlled by the <code>includeModelsSDL</code> parameter of
+  /// the <code>GetDataSourceIntrospection</code> operation.
+  final String? sdl;
+
+  DataSourceIntrospectionModel({
+    this.fields,
+    this.indexes,
+    this.name,
+    this.primaryKey,
+    this.sdl,
+  });
+
+  factory DataSourceIntrospectionModel.fromJson(Map<String, dynamic> json) {
+    return DataSourceIntrospectionModel(
+      fields: (json['fields'] as List?)
+          ?.nonNulls
+          .map((e) => DataSourceIntrospectionModelField.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      indexes: (json['indexes'] as List?)
+          ?.nonNulls
+          .map((e) => DataSourceIntrospectionModelIndex.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      name: json['name'] as String?,
+      primaryKey: json['primaryKey'] != null
+          ? DataSourceIntrospectionModelIndex.fromJson(
+              json['primaryKey'] as Map<String, dynamic>)
+          : null,
+      sdl: json['sdl'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fields = this.fields;
+    final indexes = this.indexes;
+    final name = this.name;
+    final primaryKey = this.primaryKey;
+    final sdl = this.sdl;
+    return {
+      if (fields != null) 'fields': fields,
+      if (indexes != null) 'indexes': indexes,
+      if (name != null) 'name': name,
+      if (primaryKey != null) 'primaryKey': primaryKey,
+      if (sdl != null) 'sdl': sdl,
+    };
+  }
+}
+
+/// Represents the fields that were retrieved from the introspected data.
+class DataSourceIntrospectionModelField {
+  /// The length value of the introspected field.
+  final int? length;
+
+  /// The name of the field that was retrieved from the introspected data.
+  final String? name;
+
+  /// The <code>DataSourceIntrospectionModelFieldType</code> object data.
+  final DataSourceIntrospectionModelFieldType? type;
+
+  DataSourceIntrospectionModelField({
+    this.length,
+    this.name,
+    this.type,
+  });
+
+  factory DataSourceIntrospectionModelField.fromJson(
+      Map<String, dynamic> json) {
+    return DataSourceIntrospectionModelField(
+      length: json['length'] as int?,
+      name: json['name'] as String?,
+      type: json['type'] != null
+          ? DataSourceIntrospectionModelFieldType.fromJson(
+              json['type'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final length = this.length;
+    final name = this.name;
+    final type = this.type;
+    return {
+      if (length != null) 'length': length,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+    };
+  }
+}
+
+/// Represents the type data for each field retrieved from the introspection.
+class DataSourceIntrospectionModelFieldType {
+  /// Specifies the classification of data. For example, this could be set to
+  /// values like <code>Scalar</code> or <code>NonNull</code> to indicate a
+  /// fundamental property of the field.
+  ///
+  /// Valid values include:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>Scalar</code>: Indicates the value is a primitive type (scalar).
+  /// </li>
+  /// <li>
+  /// <code>NonNull</code>: Indicates the field cannot be <code>null</code>.
+  /// </li>
+  /// <li>
+  /// <code>List</code>: Indicates the field contains a list.
+  /// </li>
+  /// </ul>
+  final String? kind;
+
+  /// The name of the data type that represents the field. For example,
+  /// <code>String</code> is a valid <code>name</code> value.
+  final String? name;
+
+  /// The <code>DataSourceIntrospectionModelFieldType</code> object data. The
+  /// <code>type</code> is only present if
+  /// <code>DataSourceIntrospectionModelFieldType.kind</code> is set to
+  /// <code>NonNull</code> or <code>List</code>.
+  ///
+  /// The <code>type</code> typically contains its own <code>kind</code> and
+  /// <code>name</code> fields to represent the actual type data. For instance,
+  /// <code>type</code> could contain a <code>kind</code> value of
+  /// <code>Scalar</code> with a <code>name</code> value of <code>String</code>.
+  /// The values <code>Scalar</code> and <code>String</code> will be collectively
+  /// stored in the <code>values</code> field.
+  final DataSourceIntrospectionModelFieldType? type;
+
+  /// The values of the <code>type</code> field. This field represents the AppSync
+  /// data type equivalent of the introspected field.
+  final List<String>? values;
+
+  DataSourceIntrospectionModelFieldType({
+    this.kind,
+    this.name,
+    this.type,
+    this.values,
+  });
+
+  factory DataSourceIntrospectionModelFieldType.fromJson(
+      Map<String, dynamic> json) {
+    return DataSourceIntrospectionModelFieldType(
+      kind: json['kind'] as String?,
+      name: json['name'] as String?,
+      type: json['type'] != null
+          ? DataSourceIntrospectionModelFieldType.fromJson(
+              json['type'] as Map<String, dynamic>)
+          : null,
+      values:
+          (json['values'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final kind = this.kind;
+    final name = this.name;
+    final type = this.type;
+    final values = this.values;
+    return {
+      if (kind != null) 'kind': kind,
+      if (name != null) 'name': name,
+      if (type != null) 'type': type,
+      if (values != null) 'values': values,
+    };
+  }
+}
+
+/// The index that was retrieved from the introspected data.
+class DataSourceIntrospectionModelIndex {
+  /// The fields of the index.
+  final List<String>? fields;
+
+  /// The name of the index.
+  final String? name;
+
+  DataSourceIntrospectionModelIndex({
+    this.fields,
+    this.name,
+  });
+
+  factory DataSourceIntrospectionModelIndex.fromJson(
+      Map<String, dynamic> json) {
+    return DataSourceIntrospectionModelIndex(
+      fields:
+          (json['fields'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final fields = this.fields;
+    final name = this.name;
+    return {
+      if (fields != null) 'fields': fields,
+      if (name != null) 'name': name,
+    };
+  }
+}
+
+/// Represents the output of a <code>DataSourceIntrospectionResult</code>. This
+/// is the populated result of a <code>GetDataSourceIntrospection</code>
+/// operation.
+class DataSourceIntrospectionResult {
+  /// The array of <code>DataSourceIntrospectionModel</code> objects.
+  final List<DataSourceIntrospectionModel>? models;
+
+  /// Determines the number of types to be returned in a single response before
+  /// paginating. This value is typically taken from <code>nextToken</code> value
+  /// from the previous response.
+  final String? nextToken;
+
+  DataSourceIntrospectionResult({
+    this.models,
+    this.nextToken,
+  });
+
+  factory DataSourceIntrospectionResult.fromJson(Map<String, dynamic> json) {
+    return DataSourceIntrospectionResult(
+      models: (json['models'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              DataSourceIntrospectionModel.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final models = this.models;
+    final nextToken = this.nextToken;
+    return {
+      if (models != null) 'models': models,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+enum DataSourceIntrospectionStatus {
+  processing('PROCESSING'),
+  failed('FAILED'),
+  success('SUCCESS'),
+  ;
+
+  final String value;
+
+  const DataSourceIntrospectionStatus(this.value);
+
+  static DataSourceIntrospectionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataSourceIntrospectionStatus'));
+}
+
+enum DataSourceLevelMetricsBehavior {
+  fullRequestDataSourceMetrics('FULL_REQUEST_DATA_SOURCE_METRICS'),
+  perDataSourceMetrics('PER_DATA_SOURCE_METRICS'),
+  ;
+
+  final String value;
+
+  const DataSourceLevelMetricsBehavior(this.value);
+
+  static DataSourceLevelMetricsBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataSourceLevelMetricsBehavior'));
+}
+
+enum DataSourceLevelMetricsConfig {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const DataSourceLevelMetricsConfig(this.value);
+
+  static DataSourceLevelMetricsConfig fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataSourceLevelMetricsConfig'));
+}
+
 enum DataSourceType {
-  awsLambda,
-  amazonDynamodb,
-  amazonElasticsearch,
-  none,
-  http,
-  relationalDatabase,
-  amazonOpensearchService,
-  amazonEventbridge,
-}
+  awsLambda('AWS_LAMBDA'),
+  amazonDynamodb('AMAZON_DYNAMODB'),
+  amazonElasticsearch('AMAZON_ELASTICSEARCH'),
+  none('NONE'),
+  http('HTTP'),
+  relationalDatabase('RELATIONAL_DATABASE'),
+  amazonOpensearchService('AMAZON_OPENSEARCH_SERVICE'),
+  amazonEventbridge('AMAZON_EVENTBRIDGE'),
+  ;
 
-extension DataSourceTypeValueExtension on DataSourceType {
-  String toValue() {
-    switch (this) {
-      case DataSourceType.awsLambda:
-        return 'AWS_LAMBDA';
-      case DataSourceType.amazonDynamodb:
-        return 'AMAZON_DYNAMODB';
-      case DataSourceType.amazonElasticsearch:
-        return 'AMAZON_ELASTICSEARCH';
-      case DataSourceType.none:
-        return 'NONE';
-      case DataSourceType.http:
-        return 'HTTP';
-      case DataSourceType.relationalDatabase:
-        return 'RELATIONAL_DATABASE';
-      case DataSourceType.amazonOpensearchService:
-        return 'AMAZON_OPENSEARCH_SERVICE';
-      case DataSourceType.amazonEventbridge:
-        return 'AMAZON_EVENTBRIDGE';
-    }
-  }
-}
+  final String value;
 
-extension DataSourceTypeFromString on String {
-  DataSourceType toDataSourceType() {
-    switch (this) {
-      case 'AWS_LAMBDA':
-        return DataSourceType.awsLambda;
-      case 'AMAZON_DYNAMODB':
-        return DataSourceType.amazonDynamodb;
-      case 'AMAZON_ELASTICSEARCH':
-        return DataSourceType.amazonElasticsearch;
-      case 'NONE':
-        return DataSourceType.none;
-      case 'HTTP':
-        return DataSourceType.http;
-      case 'RELATIONAL_DATABASE':
-        return DataSourceType.relationalDatabase;
-      case 'AMAZON_OPENSEARCH_SERVICE':
-        return DataSourceType.amazonOpensearchService;
-      case 'AMAZON_EVENTBRIDGE':
-        return DataSourceType.amazonEventbridge;
-    }
-    throw Exception('$this is not known in enum DataSourceType');
-  }
+  const DataSourceType(this.value);
+
+  static DataSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DataSourceType'));
 }
 
 enum DefaultAction {
-  allow,
-  deny,
-}
+  allow('ALLOW'),
+  deny('DENY'),
+  ;
 
-extension DefaultActionValueExtension on DefaultAction {
-  String toValue() {
-    switch (this) {
-      case DefaultAction.allow:
-        return 'ALLOW';
-      case DefaultAction.deny:
-        return 'DENY';
-    }
-  }
-}
+  final String value;
 
-extension DefaultActionFromString on String {
-  DefaultAction toDefaultAction() {
-    switch (this) {
-      case 'ALLOW':
-        return DefaultAction.allow;
-      case 'DENY':
-        return DefaultAction.deny;
-    }
-    throw Exception('$this is not known in enum DefaultAction');
-  }
+  const DefaultAction(this.value);
+
+  static DefaultAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DefaultAction'));
 }
 
 /// Represents the output of a <code>DeleteApiCache</code> operation.
@@ -4372,7 +4923,7 @@ class DisassociateMergedGraphqlApiResponse {
     return DisassociateMergedGraphqlApiResponse(
       sourceApiAssociationStatus:
           (json['sourceApiAssociationStatus'] as String?)
-              ?.toSourceApiAssociationStatus(),
+              ?.let(SourceApiAssociationStatus.fromString),
     );
   }
 
@@ -4380,7 +4931,7 @@ class DisassociateMergedGraphqlApiResponse {
     final sourceApiAssociationStatus = this.sourceApiAssociationStatus;
     return {
       if (sourceApiAssociationStatus != null)
-        'sourceApiAssociationStatus': sourceApiAssociationStatus.toValue(),
+        'sourceApiAssociationStatus': sourceApiAssociationStatus.value,
     };
   }
 }
@@ -4398,7 +4949,7 @@ class DisassociateSourceGraphqlApiResponse {
     return DisassociateSourceGraphqlApiResponse(
       sourceApiAssociationStatus:
           (json['sourceApiAssociationStatus'] as String?)
-              ?.toSourceApiAssociationStatus(),
+              ?.let(SourceApiAssociationStatus.fromString),
     );
   }
 
@@ -4406,7 +4957,7 @@ class DisassociateSourceGraphqlApiResponse {
     final sourceApiAssociationStatus = this.sourceApiAssociationStatus;
     return {
       if (sourceApiAssociationStatus != null)
-        'sourceApiAssociationStatus': sourceApiAssociationStatus.toValue(),
+        'sourceApiAssociationStatus': sourceApiAssociationStatus.value,
     };
   }
 }
@@ -4554,6 +5105,216 @@ class ElasticsearchDataSourceConfig {
   }
 }
 
+/// Enables and controls the enhanced metrics feature. Enhanced metrics emit
+/// granular data on API usage and performance such as AppSync request and error
+/// counts, latency, and cache hits/misses. All enhanced metric data is sent to
+/// your CloudWatch account, and you can configure the types of data that will
+/// be sent.
+///
+/// Enhanced metrics can be configured at the resolver, data source, and
+/// operation levels. <code>EnhancedMetricsConfig</code> contains three required
+/// parameters, each controlling one of these categories:
+/// <ol>
+/// <li>
+/// <code>resolverLevelMetricsBehavior</code>: Controls how resolver metrics
+/// will be emitted to CloudWatch. Resolver metrics include:
+///
+/// <ul>
+/// <li>
+/// GraphQL errors: The number of GraphQL errors that occurred.
+/// </li>
+/// <li>
+/// Requests: The number of invocations that occurred during a request.
+/// </li>
+/// <li>
+/// Latency: The time to complete a resolver invocation.
+/// </li>
+/// <li>
+/// Cache hits: The number of cache hits during a request.
+/// </li>
+/// <li>
+/// Cache misses: The number of cache misses during a request.
+/// </li>
+/// </ul>
+/// These metrics can be emitted to CloudWatch per resolver or for all resolvers
+/// in the request. Metrics will be recorded by API ID and resolver name.
+/// <code>resolverLevelMetricsBehavior</code> accepts one of these values at a
+/// time:
+///
+/// <ul>
+/// <li>
+/// <code>FULL_REQUEST_RESOLVER_METRICS</code>: Records and emits metric data
+/// for all resolvers in the request.
+/// </li>
+/// <li>
+/// <code>PER_RESOLVER_METRICS</code>: Records and emits metric data for
+/// resolvers that have the <code>metricsConfig</code> value set to
+/// <code>ENABLED</code>.
+/// </li>
+/// </ul> </li>
+/// <li>
+/// <code>dataSourceLevelMetricsBehavior</code>: Controls how data source
+/// metrics will be emitted to CloudWatch. Data source metrics include:
+///
+/// <ul>
+/// <li>
+/// Requests: The number of invocations that occured during a request.
+/// </li>
+/// <li>
+/// Latency: The time to complete a data source invocation.
+/// </li>
+/// <li>
+/// Errors: The number of errors that occurred during a data source invocation.
+/// </li>
+/// </ul>
+/// These metrics can be emitted to CloudWatch per data source or for all data
+/// sources in the request. Metrics will be recorded by API ID and data source
+/// name. <code>dataSourceLevelMetricsBehavior</code> accepts one of these
+/// values at a time:
+///
+/// <ul>
+/// <li>
+/// <code>FULL_REQUEST_DATA_SOURCE_METRICS</code>: Records and emits metric data
+/// for all data sources in the request.
+/// </li>
+/// <li>
+/// <code>PER_DATA_SOURCE_METRICS</code>: Records and emits metric data for data
+/// sources that have the <code>metricsConfig</code> value set to
+/// <code>ENABLED</code>.
+/// </li>
+/// </ul> </li>
+/// <li>
+/// <code>operationLevelMetricsConfig</code>: Controls how operation metrics
+/// will be emitted to CloudWatch. Operation metrics include:
+///
+/// <ul>
+/// <li>
+/// Requests: The number of times a specified GraphQL operation was called.
+/// </li>
+/// <li>
+/// GraphQL errors: The number of GraphQL errors that occurred during a
+/// specified GraphQL operation.
+/// </li>
+/// </ul>
+/// Metrics will be recorded by API ID and operation name. You can set the value
+/// to <code>ENABLED</code> or <code>DISABLED</code>.
+/// </li> </ol>
+class EnhancedMetricsConfig {
+  /// Controls how data source metrics will be emitted to CloudWatch. Data source
+  /// metrics include:
+  ///
+  /// <ul>
+  /// <li>
+  /// Requests: The number of invocations that occured during a request.
+  /// </li>
+  /// <li>
+  /// Latency: The time to complete a data source invocation.
+  /// </li>
+  /// <li>
+  /// Errors: The number of errors that occurred during a data source invocation.
+  /// </li>
+  /// </ul>
+  /// These metrics can be emitted to CloudWatch per data source or for all data
+  /// sources in the request. Metrics will be recorded by API ID and data source
+  /// name. <code>dataSourceLevelMetricsBehavior</code> accepts one of these
+  /// values at a time:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>FULL_REQUEST_DATA_SOURCE_METRICS</code>: Records and emits metric data
+  /// for all data sources in the request.
+  /// </li>
+  /// <li>
+  /// <code>PER_DATA_SOURCE_METRICS</code>: Records and emits metric data for data
+  /// sources that have the <code>metricsConfig</code> value set to
+  /// <code>ENABLED</code>.
+  /// </li>
+  /// </ul>
+  final DataSourceLevelMetricsBehavior dataSourceLevelMetricsBehavior;
+
+  /// Controls how operation metrics will be emitted to CloudWatch. Operation
+  /// metrics include:
+  ///
+  /// <ul>
+  /// <li>
+  /// Requests: The number of times a specified GraphQL operation was called.
+  /// </li>
+  /// <li>
+  /// GraphQL errors: The number of GraphQL errors that occurred during a
+  /// specified GraphQL operation.
+  /// </li>
+  /// </ul>
+  /// Metrics will be recorded by API ID and operation name. You can set the value
+  /// to <code>ENABLED</code> or <code>DISABLED</code>.
+  final OperationLevelMetricsConfig operationLevelMetricsConfig;
+
+  /// Controls how resolver metrics will be emitted to CloudWatch. Resolver
+  /// metrics include:
+  ///
+  /// <ul>
+  /// <li>
+  /// GraphQL errors: The number of GraphQL errors that occurred.
+  /// </li>
+  /// <li>
+  /// Requests: The number of invocations that occurred during a request.
+  /// </li>
+  /// <li>
+  /// Latency: The time to complete a resolver invocation.
+  /// </li>
+  /// <li>
+  /// Cache hits: The number of cache hits during a request.
+  /// </li>
+  /// <li>
+  /// Cache misses: The number of cache misses during a request.
+  /// </li>
+  /// </ul>
+  /// These metrics can be emitted to CloudWatch per resolver or for all resolvers
+  /// in the request. Metrics will be recorded by API ID and resolver name.
+  /// <code>resolverLevelMetricsBehavior</code> accepts one of these values at a
+  /// time:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>FULL_REQUEST_RESOLVER_METRICS</code>: Records and emits metric data
+  /// for all resolvers in the request.
+  /// </li>
+  /// <li>
+  /// <code>PER_RESOLVER_METRICS</code>: Records and emits metric data for
+  /// resolvers that have the <code>metricsConfig</code> value set to
+  /// <code>ENABLED</code>.
+  /// </li>
+  /// </ul>
+  final ResolverLevelMetricsBehavior resolverLevelMetricsBehavior;
+
+  EnhancedMetricsConfig({
+    required this.dataSourceLevelMetricsBehavior,
+    required this.operationLevelMetricsConfig,
+    required this.resolverLevelMetricsBehavior,
+  });
+
+  factory EnhancedMetricsConfig.fromJson(Map<String, dynamic> json) {
+    return EnhancedMetricsConfig(
+      dataSourceLevelMetricsBehavior: DataSourceLevelMetricsBehavior.fromString(
+          (json['dataSourceLevelMetricsBehavior'] as String)),
+      operationLevelMetricsConfig: OperationLevelMetricsConfig.fromString(
+          (json['operationLevelMetricsConfig'] as String)),
+      resolverLevelMetricsBehavior: ResolverLevelMetricsBehavior.fromString(
+          (json['resolverLevelMetricsBehavior'] as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final dataSourceLevelMetricsBehavior = this.dataSourceLevelMetricsBehavior;
+    final operationLevelMetricsConfig = this.operationLevelMetricsConfig;
+    final resolverLevelMetricsBehavior = this.resolverLevelMetricsBehavior;
+    return {
+      'dataSourceLevelMetricsBehavior': dataSourceLevelMetricsBehavior.value,
+      'operationLevelMetricsConfig': operationLevelMetricsConfig.value,
+      'resolverLevelMetricsBehavior': resolverLevelMetricsBehavior.value,
+    };
+  }
+}
+
 /// Contains the list of errors generated. When using JavaScript, this will
 /// apply to the request or response function evaluation.
 class ErrorDetail {
@@ -4594,7 +5355,7 @@ class EvaluateCodeErrorDetail {
   factory EvaluateCodeErrorDetail.fromJson(Map<String, dynamic> json) {
     return EvaluateCodeErrorDetail(
       codeErrors: (json['codeErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CodeError.fromJson(e as Map<String, dynamic>))
           .toList(),
       message: json['message'] as String?,
@@ -4635,10 +5396,7 @@ class EvaluateCodeResponse {
               json['error'] as Map<String, dynamic>)
           : null,
       evaluationResult: json['evaluationResult'] as String?,
-      logs: (json['logs'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      logs: (json['logs'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -4677,10 +5435,7 @@ class EvaluateMappingTemplateResponse {
           ? ErrorDetail.fromJson(json['error'] as Map<String, dynamic>)
           : null,
       evaluationResult: json['evaluationResult'] as String?,
-      logs: (json['logs'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      logs: (json['logs'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -4722,36 +5477,19 @@ class EventBridgeDataSourceConfig {
 }
 
 enum FieldLogLevel {
-  none,
-  error,
-  all,
-}
+  none('NONE'),
+  error('ERROR'),
+  all('ALL'),
+  ;
 
-extension FieldLogLevelValueExtension on FieldLogLevel {
-  String toValue() {
-    switch (this) {
-      case FieldLogLevel.none:
-        return 'NONE';
-      case FieldLogLevel.error:
-        return 'ERROR';
-      case FieldLogLevel.all:
-        return 'ALL';
-    }
-  }
-}
+  final String value;
 
-extension FieldLogLevelFromString on String {
-  FieldLogLevel toFieldLogLevel() {
-    switch (this) {
-      case 'NONE':
-        return FieldLogLevel.none;
-      case 'ERROR':
-        return FieldLogLevel.error;
-      case 'ALL':
-        return FieldLogLevel.all;
-    }
-    throw Exception('$this is not known in enum FieldLogLevel');
-  }
+  const FieldLogLevel(this.value);
+
+  static FieldLogLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FieldLogLevel'));
 }
 
 /// Represents the output of a <code>FlushApiCache</code> operation.
@@ -4924,6 +5662,66 @@ class GetApiCacheResponse {
   }
 }
 
+class GetDataSourceIntrospectionResponse {
+  /// The introspection ID. Each introspection contains a unique ID that can be
+  /// used to reference the instrospection record.
+  final String? introspectionId;
+
+  /// The <code>DataSourceIntrospectionResult</code> object data.
+  final DataSourceIntrospectionResult? introspectionResult;
+
+  /// The status of the introspection during retrieval. By default, when a new
+  /// instrospection is being retrieved, the status will be set to
+  /// <code>PROCESSING</code>. Once the operation has been completed, the status
+  /// will change to <code>SUCCESS</code> or <code>FAILED</code> depending on how
+  /// the data was parsed. A <code>FAILED</code> operation will return an error
+  /// and its details as an <code>introspectionStatusDetail</code>.
+  final DataSourceIntrospectionStatus? introspectionStatus;
+
+  /// The error detail field. When a <code>FAILED</code>
+  /// <code>introspectionStatus</code> is returned, the
+  /// <code>introspectionStatusDetail</code> will also return the exact error that
+  /// was generated during the operation.
+  final String? introspectionStatusDetail;
+
+  GetDataSourceIntrospectionResponse({
+    this.introspectionId,
+    this.introspectionResult,
+    this.introspectionStatus,
+    this.introspectionStatusDetail,
+  });
+
+  factory GetDataSourceIntrospectionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetDataSourceIntrospectionResponse(
+      introspectionId: json['introspectionId'] as String?,
+      introspectionResult: json['introspectionResult'] != null
+          ? DataSourceIntrospectionResult.fromJson(
+              json['introspectionResult'] as Map<String, dynamic>)
+          : null,
+      introspectionStatus: (json['introspectionStatus'] as String?)
+          ?.let(DataSourceIntrospectionStatus.fromString),
+      introspectionStatusDetail: json['introspectionStatusDetail'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final introspectionId = this.introspectionId;
+    final introspectionResult = this.introspectionResult;
+    final introspectionStatus = this.introspectionStatus;
+    final introspectionStatusDetail = this.introspectionStatusDetail;
+    return {
+      if (introspectionId != null) 'introspectionId': introspectionId,
+      if (introspectionResult != null)
+        'introspectionResult': introspectionResult,
+      if (introspectionStatus != null)
+        'introspectionStatus': introspectionStatus.value,
+      if (introspectionStatusDetail != null)
+        'introspectionStatusDetail': introspectionStatusDetail,
+    };
+  }
+}
+
 class GetDataSourceResponse {
   /// The <code>DataSource</code> object.
   final DataSource? dataSource;
@@ -4995,6 +5793,33 @@ class GetFunctionResponse {
     return {
       if (functionConfiguration != null)
         'functionConfiguration': functionConfiguration,
+    };
+  }
+}
+
+class GetGraphqlApiEnvironmentVariablesResponse {
+  /// The payload containing each environmental variable in the <code>"key" :
+  /// "value"</code> format.
+  final Map<String, String>? environmentVariables;
+
+  GetGraphqlApiEnvironmentVariablesResponse({
+    this.environmentVariables,
+  });
+
+  factory GetGraphqlApiEnvironmentVariablesResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetGraphqlApiEnvironmentVariablesResponse(
+      environmentVariables:
+          (json['environmentVariables'] as Map<String, dynamic>?)
+              ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final environmentVariables = this.environmentVariables;
+    return {
+      if (environmentVariables != null)
+        'environmentVariables': environmentVariables,
     };
   }
 }
@@ -5082,7 +5907,7 @@ class GetSchemaCreationStatusResponse {
   factory GetSchemaCreationStatusResponse.fromJson(Map<String, dynamic> json) {
     return GetSchemaCreationStatusResponse(
       details: json['details'] as String?,
-      status: (json['status'] as String?)?.toSchemaStatus(),
+      status: (json['status'] as String?)?.let(SchemaStatus.fromString),
     );
   }
 
@@ -5091,7 +5916,7 @@ class GetSchemaCreationStatusResponse {
     final status = this.status;
     return {
       if (details != null) 'details': details,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5146,60 +5971,49 @@ class GetTypeResponse {
   }
 }
 
+enum GraphQLApiIntrospectionConfig {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const GraphQLApiIntrospectionConfig(this.value);
+
+  static GraphQLApiIntrospectionConfig fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GraphQLApiIntrospectionConfig'));
+}
+
 enum GraphQLApiType {
-  graphql,
-  merged,
-}
+  graphql('GRAPHQL'),
+  merged('MERGED'),
+  ;
 
-extension GraphQLApiTypeValueExtension on GraphQLApiType {
-  String toValue() {
-    switch (this) {
-      case GraphQLApiType.graphql:
-        return 'GRAPHQL';
-      case GraphQLApiType.merged:
-        return 'MERGED';
-    }
-  }
-}
+  final String value;
 
-extension GraphQLApiTypeFromString on String {
-  GraphQLApiType toGraphQLApiType() {
-    switch (this) {
-      case 'GRAPHQL':
-        return GraphQLApiType.graphql;
-      case 'MERGED':
-        return GraphQLApiType.merged;
-    }
-    throw Exception('$this is not known in enum GraphQLApiType');
-  }
+  const GraphQLApiType(this.value);
+
+  static GraphQLApiType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum GraphQLApiType'));
 }
 
 enum GraphQLApiVisibility {
-  global,
-  private,
-}
+  global('GLOBAL'),
+  private('PRIVATE'),
+  ;
 
-extension GraphQLApiVisibilityValueExtension on GraphQLApiVisibility {
-  String toValue() {
-    switch (this) {
-      case GraphQLApiVisibility.global:
-        return 'GLOBAL';
-      case GraphQLApiVisibility.private:
-        return 'PRIVATE';
-    }
-  }
-}
+  final String value;
 
-extension GraphQLApiVisibilityFromString on String {
-  GraphQLApiVisibility toGraphQLApiVisibility() {
-    switch (this) {
-      case 'GLOBAL':
-        return GraphQLApiVisibility.global;
-      case 'PRIVATE':
-        return GraphQLApiVisibility.private;
-    }
-    throw Exception('$this is not known in enum GraphQLApiVisibility');
-  }
+  const GraphQLApiVisibility(this.value);
+
+  static GraphQLApiVisibility fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum GraphQLApiVisibility'));
 }
 
 /// Describes a GraphQL API.
@@ -5224,6 +6038,19 @@ class GraphqlApi {
 
   /// The DNS records for the API.
   final Map<String, String>? dns;
+
+  /// The <code>enhancedMetricsConfig</code> object.
+  final EnhancedMetricsConfig? enhancedMetricsConfig;
+
+  /// Sets the value of the GraphQL API to enable (<code>ENABLED</code>) or
+  /// disable (<code>DISABLED</code>) introspection. If no value is provided, the
+  /// introspection configuration will be set to <code>ENABLED</code> by default.
+  /// This field will produce an error if the operation attempts to use the
+  /// introspection feature while this field is disabled.
+  ///
+  /// For more information about introspection, see <a
+  /// href="https://graphql.org/learn/introspection/">GraphQL introspection</a>.
+  final GraphQLApiIntrospectionConfig? introspectionConfig;
 
   /// Configuration for Lambda function authorization.
   final LambdaAuthorizerConfig? lambdaAuthorizerConfig;
@@ -5250,6 +6077,25 @@ class GraphqlApi {
   ///
   /// This field accepts any string input with a length of 0 - 256 characters.
   final String? ownerContact;
+
+  /// The maximum depth a query can have in a single request. Depth refers to the
+  /// amount of nested levels allowed in the body of query. The default value is
+  /// <code>0</code> (or unspecified), which indicates there's no depth limit. If
+  /// you set a limit, it can be between <code>1</code> and <code>75</code> nested
+  /// levels. This field will produce a limit error if the operation falls out of
+  /// bounds.
+  ///
+  /// Note that fields can still be set to nullable or non-nullable. If a
+  /// non-nullable field produces an error, the error will be thrown upwards to
+  /// the first nullable field available.
+  final int? queryDepthLimit;
+
+  /// The maximum number of resolvers that can be invoked in a single request. The
+  /// default value is <code>0</code> (or unspecified), which will set the limit
+  /// to <code>10000</code>. When specified, the limit value can be between
+  /// <code>1</code> and <code>10000</code>. This field will produce a limit error
+  /// if the operation falls out of bounds.
+  final int? resolverCountLimit;
 
   /// The tags.
   final Map<String, String>? tags;
@@ -5281,6 +6127,8 @@ class GraphqlApi {
     this.arn,
     this.authenticationType,
     this.dns,
+    this.enhancedMetricsConfig,
+    this.introspectionConfig,
     this.lambdaAuthorizerConfig,
     this.logConfig,
     this.mergedApiExecutionRoleArn,
@@ -5288,6 +6136,8 @@ class GraphqlApi {
     this.openIDConnectConfig,
     this.owner,
     this.ownerContact,
+    this.queryDepthLimit,
+    this.resolverCountLimit,
     this.tags,
     this.uris,
     this.userPoolConfig,
@@ -5300,17 +6150,23 @@ class GraphqlApi {
     return GraphqlApi(
       additionalAuthenticationProviders:
           (json['additionalAuthenticationProviders'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => AdditionalAuthenticationProvider.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
       apiId: json['apiId'] as String?,
-      apiType: (json['apiType'] as String?)?.toGraphQLApiType(),
+      apiType: (json['apiType'] as String?)?.let(GraphQLApiType.fromString),
       arn: json['arn'] as String?,
-      authenticationType:
-          (json['authenticationType'] as String?)?.toAuthenticationType(),
+      authenticationType: (json['authenticationType'] as String?)
+          ?.let(AuthenticationType.fromString),
       dns: (json['dns'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
+      enhancedMetricsConfig: json['enhancedMetricsConfig'] != null
+          ? EnhancedMetricsConfig.fromJson(
+              json['enhancedMetricsConfig'] as Map<String, dynamic>)
+          : null,
+      introspectionConfig: (json['introspectionConfig'] as String?)
+          ?.let(GraphQLApiIntrospectionConfig.fromString),
       lambdaAuthorizerConfig: json['lambdaAuthorizerConfig'] != null
           ? LambdaAuthorizerConfig.fromJson(
               json['lambdaAuthorizerConfig'] as Map<String, dynamic>)
@@ -5326,6 +6182,8 @@ class GraphqlApi {
           : null,
       owner: json['owner'] as String?,
       ownerContact: json['ownerContact'] as String?,
+      queryDepthLimit: json['queryDepthLimit'] as int?,
+      resolverCountLimit: json['resolverCountLimit'] as int?,
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       uris: (json['uris'] as Map<String, dynamic>?)
@@ -5334,7 +6192,8 @@ class GraphqlApi {
           ? UserPoolConfig.fromJson(
               json['userPoolConfig'] as Map<String, dynamic>)
           : null,
-      visibility: (json['visibility'] as String?)?.toGraphQLApiVisibility(),
+      visibility:
+          (json['visibility'] as String?)?.let(GraphQLApiVisibility.fromString),
       wafWebAclArn: json['wafWebAclArn'] as String?,
       xrayEnabled: json['xrayEnabled'] as bool?,
     );
@@ -5348,6 +6207,8 @@ class GraphqlApi {
     final arn = this.arn;
     final authenticationType = this.authenticationType;
     final dns = this.dns;
+    final enhancedMetricsConfig = this.enhancedMetricsConfig;
+    final introspectionConfig = this.introspectionConfig;
     final lambdaAuthorizerConfig = this.lambdaAuthorizerConfig;
     final logConfig = this.logConfig;
     final mergedApiExecutionRoleArn = this.mergedApiExecutionRoleArn;
@@ -5355,6 +6216,8 @@ class GraphqlApi {
     final openIDConnectConfig = this.openIDConnectConfig;
     final owner = this.owner;
     final ownerContact = this.ownerContact;
+    final queryDepthLimit = this.queryDepthLimit;
+    final resolverCountLimit = this.resolverCountLimit;
     final tags = this.tags;
     final uris = this.uris;
     final userPoolConfig = this.userPoolConfig;
@@ -5365,11 +6228,15 @@ class GraphqlApi {
       if (additionalAuthenticationProviders != null)
         'additionalAuthenticationProviders': additionalAuthenticationProviders,
       if (apiId != null) 'apiId': apiId,
-      if (apiType != null) 'apiType': apiType.toValue(),
+      if (apiType != null) 'apiType': apiType.value,
       if (arn != null) 'arn': arn,
       if (authenticationType != null)
-        'authenticationType': authenticationType.toValue(),
+        'authenticationType': authenticationType.value,
       if (dns != null) 'dns': dns,
+      if (enhancedMetricsConfig != null)
+        'enhancedMetricsConfig': enhancedMetricsConfig,
+      if (introspectionConfig != null)
+        'introspectionConfig': introspectionConfig.value,
       if (lambdaAuthorizerConfig != null)
         'lambdaAuthorizerConfig': lambdaAuthorizerConfig,
       if (logConfig != null) 'logConfig': logConfig,
@@ -5380,10 +6247,12 @@ class GraphqlApi {
         'openIDConnectConfig': openIDConnectConfig,
       if (owner != null) 'owner': owner,
       if (ownerContact != null) 'ownerContact': ownerContact,
+      if (queryDepthLimit != null) 'queryDepthLimit': queryDepthLimit,
+      if (resolverCountLimit != null) 'resolverCountLimit': resolverCountLimit,
       if (tags != null) 'tags': tags,
       if (uris != null) 'uris': uris,
       if (userPoolConfig != null) 'userPoolConfig': userPoolConfig,
-      if (visibility != null) 'visibility': visibility.toValue(),
+      if (visibility != null) 'visibility': visibility.value,
       if (wafWebAclArn != null) 'wafWebAclArn': wafWebAclArn,
       if (xrayEnabled != null) 'xrayEnabled': xrayEnabled,
     };
@@ -5553,7 +6422,7 @@ class ListApiKeysResponse {
   factory ListApiKeysResponse.fromJson(Map<String, dynamic> json) {
     return ListApiKeysResponse(
       apiKeys: (json['apiKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApiKey.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5586,7 +6455,7 @@ class ListDataSourcesResponse {
   factory ListDataSourcesResponse.fromJson(Map<String, dynamic> json) {
     return ListDataSourcesResponse(
       dataSources: (json['dataSources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataSource.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5619,7 +6488,7 @@ class ListDomainNamesResponse {
   factory ListDomainNamesResponse.fromJson(Map<String, dynamic> json) {
     return ListDomainNamesResponse(
       domainNameConfigs: (json['domainNameConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DomainNameConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5652,7 +6521,7 @@ class ListFunctionsResponse {
   factory ListFunctionsResponse.fromJson(Map<String, dynamic> json) {
     return ListFunctionsResponse(
       functions: (json['functions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FunctionConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5685,7 +6554,7 @@ class ListGraphqlApisResponse {
   factory ListGraphqlApisResponse.fromJson(Map<String, dynamic> json) {
     return ListGraphqlApisResponse(
       graphqlApis: (json['graphqlApis'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GraphqlApi.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -5718,7 +6587,7 @@ class ListResolversByFunctionResponse {
     return ListResolversByFunctionResponse(
       nextToken: json['nextToken'] as String?,
       resolvers: (json['resolvers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Resolver.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5751,7 +6620,7 @@ class ListResolversResponse {
     return ListResolversResponse(
       nextToken: json['nextToken'] as String?,
       resolvers: (json['resolvers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Resolver.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5786,7 +6655,7 @@ class ListSourceApiAssociationsResponse {
       nextToken: json['nextToken'] as String?,
       sourceApiAssociationSummaries: (json['sourceApiAssociationSummaries']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SourceApiAssociationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5844,7 +6713,7 @@ class ListTypesByAssociationResponse {
     return ListTypesByAssociationResponse(
       nextToken: json['nextToken'] as String?,
       types: (json['types'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Type.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5877,7 +6746,7 @@ class ListTypesResponse {
     return ListTypesResponse(
       nextToken: json['nextToken'] as String?,
       types: (json['types'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Type.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5947,7 +6816,8 @@ class LogConfig {
   factory LogConfig.fromJson(Map<String, dynamic> json) {
     return LogConfig(
       cloudWatchLogsRoleArn: json['cloudWatchLogsRoleArn'] as String,
-      fieldLogLevel: (json['fieldLogLevel'] as String).toFieldLogLevel(),
+      fieldLogLevel:
+          FieldLogLevel.fromString((json['fieldLogLevel'] as String)),
       excludeVerboseContent: json['excludeVerboseContent'] as bool?,
     );
   }
@@ -5958,7 +6828,7 @@ class LogConfig {
     final excludeVerboseContent = this.excludeVerboseContent;
     return {
       'cloudWatchLogsRoleArn': cloudWatchLogsRoleArn,
-      'fieldLogLevel': fieldLogLevel.toValue(),
+      'fieldLogLevel': fieldLogLevel.value,
       if (excludeVerboseContent != null)
         'excludeVerboseContent': excludeVerboseContent,
     };
@@ -5966,31 +6836,17 @@ class LogConfig {
 }
 
 enum MergeType {
-  manualMerge,
-  autoMerge,
-}
+  manualMerge('MANUAL_MERGE'),
+  autoMerge('AUTO_MERGE'),
+  ;
 
-extension MergeTypeValueExtension on MergeType {
-  String toValue() {
-    switch (this) {
-      case MergeType.manualMerge:
-        return 'MANUAL_MERGE';
-      case MergeType.autoMerge:
-        return 'AUTO_MERGE';
-    }
-  }
-}
+  final String value;
 
-extension MergeTypeFromString on String {
-  MergeType toMergeType() {
-    switch (this) {
-      case 'MANUAL_MERGE':
-        return MergeType.manualMerge;
-      case 'AUTO_MERGE':
-        return MergeType.autoMerge;
-    }
-    throw Exception('$this is not known in enum MergeType');
-  }
+  const MergeType(this.value);
+
+  static MergeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MergeType'));
 }
 
 /// Describes an OpenID Connect (OIDC) configuration.
@@ -6073,60 +6929,47 @@ class OpenSearchServiceDataSourceConfig {
   }
 }
 
+enum OperationLevelMetricsConfig {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const OperationLevelMetricsConfig(this.value);
+
+  static OperationLevelMetricsConfig fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OperationLevelMetricsConfig'));
+}
+
 enum OutputType {
-  sdl,
-  json,
-}
+  sdl('SDL'),
+  json('JSON'),
+  ;
 
-extension OutputTypeValueExtension on OutputType {
-  String toValue() {
-    switch (this) {
-      case OutputType.sdl:
-        return 'SDL';
-      case OutputType.json:
-        return 'JSON';
-    }
-  }
-}
+  final String value;
 
-extension OutputTypeFromString on String {
-  OutputType toOutputType() {
-    switch (this) {
-      case 'SDL':
-        return OutputType.sdl;
-      case 'JSON':
-        return OutputType.json;
-    }
-    throw Exception('$this is not known in enum OutputType');
-  }
+  const OutputType(this.value);
+
+  static OutputType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum OutputType'));
 }
 
 enum Ownership {
-  currentAccount,
-  otherAccounts,
-}
+  currentAccount('CURRENT_ACCOUNT'),
+  otherAccounts('OTHER_ACCOUNTS'),
+  ;
 
-extension OwnershipValueExtension on Ownership {
-  String toValue() {
-    switch (this) {
-      case Ownership.currentAccount:
-        return 'CURRENT_ACCOUNT';
-      case Ownership.otherAccounts:
-        return 'OTHER_ACCOUNTS';
-    }
-  }
-}
+  final String value;
 
-extension OwnershipFromString on String {
-  Ownership toOwnership() {
-    switch (this) {
-      case 'CURRENT_ACCOUNT':
-        return Ownership.currentAccount;
-      case 'OTHER_ACCOUNTS':
-        return Ownership.otherAccounts;
-    }
-    throw Exception('$this is not known in enum Ownership');
-  }
+  const Ownership(this.value);
+
+  static Ownership fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Ownership'));
 }
 
 /// The pipeline configuration for a resolver of kind <code>PIPELINE</code>.
@@ -6141,7 +6984,7 @@ class PipelineConfig {
   factory PipelineConfig.fromJson(Map<String, dynamic> json) {
     return PipelineConfig(
       functions: (json['functions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6151,6 +6994,66 @@ class PipelineConfig {
     final functions = this.functions;
     return {
       if (functions != null) 'functions': functions,
+    };
+  }
+}
+
+class PutGraphqlApiEnvironmentVariablesResponse {
+  /// The payload containing each environmental variable in the <code>"key" :
+  /// "value"</code> format.
+  final Map<String, String>? environmentVariables;
+
+  PutGraphqlApiEnvironmentVariablesResponse({
+    this.environmentVariables,
+  });
+
+  factory PutGraphqlApiEnvironmentVariablesResponse.fromJson(
+      Map<String, dynamic> json) {
+    return PutGraphqlApiEnvironmentVariablesResponse(
+      environmentVariables:
+          (json['environmentVariables'] as Map<String, dynamic>?)
+              ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final environmentVariables = this.environmentVariables;
+    return {
+      if (environmentVariables != null)
+        'environmentVariables': environmentVariables,
+    };
+  }
+}
+
+/// Contains the metadata required to introspect the RDS cluster.
+class RdsDataApiConfig {
+  /// The name of the database in the cluster.
+  final String databaseName;
+
+  /// The resource ARN of the RDS cluster.
+  final String resourceArn;
+
+  /// The secret's ARN that was obtained from Secrets Manager. A secret consists
+  /// of secret information, the secret value, plus metadata about the secret. A
+  /// secret value can be a string or binary. It typically includes the ARN,
+  /// secret name and description, policies, tags, encryption key from the Key
+  /// Management Service, and key rotation data.
+  final String secretArn;
+
+  RdsDataApiConfig({
+    required this.databaseName,
+    required this.resourceArn,
+    required this.secretArn,
+  });
+
+  Map<String, dynamic> toJson() {
+    final databaseName = this.databaseName;
+    final resourceArn = this.resourceArn;
+    final secretArn = this.secretArn;
+    return {
+      'databaseName': databaseName,
+      'resourceArn': resourceArn,
+      'secretArn': secretArn,
     };
   }
 }
@@ -6238,7 +7141,7 @@ class RelationalDatabaseDataSourceConfig {
           : null,
       relationalDatabaseSourceType:
           (json['relationalDatabaseSourceType'] as String?)
-              ?.toRelationalDatabaseSourceType(),
+              ?.let(RelationalDatabaseSourceType.fromString),
     );
   }
 
@@ -6249,33 +7152,23 @@ class RelationalDatabaseDataSourceConfig {
       if (rdsHttpEndpointConfig != null)
         'rdsHttpEndpointConfig': rdsHttpEndpointConfig,
       if (relationalDatabaseSourceType != null)
-        'relationalDatabaseSourceType': relationalDatabaseSourceType.toValue(),
+        'relationalDatabaseSourceType': relationalDatabaseSourceType.value,
     };
   }
 }
 
 enum RelationalDatabaseSourceType {
-  rdsHttpEndpoint,
-}
+  rdsHttpEndpoint('RDS_HTTP_ENDPOINT'),
+  ;
 
-extension RelationalDatabaseSourceTypeValueExtension
-    on RelationalDatabaseSourceType {
-  String toValue() {
-    switch (this) {
-      case RelationalDatabaseSourceType.rdsHttpEndpoint:
-        return 'RDS_HTTP_ENDPOINT';
-    }
-  }
-}
+  final String value;
 
-extension RelationalDatabaseSourceTypeFromString on String {
-  RelationalDatabaseSourceType toRelationalDatabaseSourceType() {
-    switch (this) {
-      case 'RDS_HTTP_ENDPOINT':
-        return RelationalDatabaseSourceType.rdsHttpEndpoint;
-    }
-    throw Exception('$this is not known in enum RelationalDatabaseSourceType');
-  }
+  const RelationalDatabaseSourceType(this.value);
+
+  static RelationalDatabaseSourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RelationalDatabaseSourceType'));
 }
 
 /// Describes a resolver.
@@ -6314,6 +7207,19 @@ class Resolver {
   /// The maximum batching size for a resolver.
   final int? maxBatchSize;
 
+  /// Enables or disables enhanced resolver metrics for specified resolvers. Note
+  /// that <code>metricsConfig</code> won't be used unless the
+  /// <code>resolverLevelMetricsBehavior</code> value is set to
+  /// <code>PER_RESOLVER_METRICS</code>. If the
+  /// <code>resolverLevelMetricsBehavior</code> is set to
+  /// <code>FULL_REQUEST_RESOLVER_METRICS</code> instead,
+  /// <code>metricsConfig</code> will be ignored. However, you can still set its
+  /// value.
+  ///
+  /// <code>metricsConfig</code> can be <code>ENABLED</code> or
+  /// <code>DISABLED</code>.
+  final ResolverLevelMetricsConfig? metricsConfig;
+
   /// The <code>PipelineConfig</code>.
   final PipelineConfig? pipelineConfig;
 
@@ -6341,6 +7247,7 @@ class Resolver {
     this.fieldName,
     this.kind,
     this.maxBatchSize,
+    this.metricsConfig,
     this.pipelineConfig,
     this.requestMappingTemplate,
     this.resolverArn,
@@ -6359,8 +7266,10 @@ class Resolver {
       code: json['code'] as String?,
       dataSourceName: json['dataSourceName'] as String?,
       fieldName: json['fieldName'] as String?,
-      kind: (json['kind'] as String?)?.toResolverKind(),
+      kind: (json['kind'] as String?)?.let(ResolverKind.fromString),
       maxBatchSize: json['maxBatchSize'] as int?,
+      metricsConfig: (json['metricsConfig'] as String?)
+          ?.let(ResolverLevelMetricsConfig.fromString),
       pipelineConfig: json['pipelineConfig'] != null
           ? PipelineConfig.fromJson(
               json['pipelineConfig'] as Map<String, dynamic>)
@@ -6385,6 +7294,7 @@ class Resolver {
     final fieldName = this.fieldName;
     final kind = this.kind;
     final maxBatchSize = this.maxBatchSize;
+    final metricsConfig = this.metricsConfig;
     final pipelineConfig = this.pipelineConfig;
     final requestMappingTemplate = this.requestMappingTemplate;
     final resolverArn = this.resolverArn;
@@ -6397,8 +7307,9 @@ class Resolver {
       if (code != null) 'code': code,
       if (dataSourceName != null) 'dataSourceName': dataSourceName,
       if (fieldName != null) 'fieldName': fieldName,
-      if (kind != null) 'kind': kind.toValue(),
+      if (kind != null) 'kind': kind.value,
       if (maxBatchSize != null) 'maxBatchSize': maxBatchSize,
+      if (metricsConfig != null) 'metricsConfig': metricsConfig.value,
       if (pipelineConfig != null) 'pipelineConfig': pipelineConfig,
       if (requestMappingTemplate != null)
         'requestMappingTemplate': requestMappingTemplate,
@@ -6413,102 +7324,80 @@ class Resolver {
 }
 
 enum ResolverKind {
-  unit,
-  pipeline,
+  unit('UNIT'),
+  pipeline('PIPELINE'),
+  ;
+
+  final String value;
+
+  const ResolverKind(this.value);
+
+  static ResolverKind fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResolverKind'));
 }
 
-extension ResolverKindValueExtension on ResolverKind {
-  String toValue() {
-    switch (this) {
-      case ResolverKind.unit:
-        return 'UNIT';
-      case ResolverKind.pipeline:
-        return 'PIPELINE';
-    }
-  }
+enum ResolverLevelMetricsBehavior {
+  fullRequestResolverMetrics('FULL_REQUEST_RESOLVER_METRICS'),
+  perResolverMetrics('PER_RESOLVER_METRICS'),
+  ;
+
+  final String value;
+
+  const ResolverLevelMetricsBehavior(this.value);
+
+  static ResolverLevelMetricsBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverLevelMetricsBehavior'));
 }
 
-extension ResolverKindFromString on String {
-  ResolverKind toResolverKind() {
-    switch (this) {
-      case 'UNIT':
-        return ResolverKind.unit;
-      case 'PIPELINE':
-        return ResolverKind.pipeline;
-    }
-    throw Exception('$this is not known in enum ResolverKind');
-  }
+enum ResolverLevelMetricsConfig {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const ResolverLevelMetricsConfig(this.value);
+
+  static ResolverLevelMetricsConfig fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ResolverLevelMetricsConfig'));
 }
 
 enum RuntimeName {
-  appsyncJs,
-}
+  appsyncJs('APPSYNC_JS'),
+  ;
 
-extension RuntimeNameValueExtension on RuntimeName {
-  String toValue() {
-    switch (this) {
-      case RuntimeName.appsyncJs:
-        return 'APPSYNC_JS';
-    }
-  }
-}
+  final String value;
 
-extension RuntimeNameFromString on String {
-  RuntimeName toRuntimeName() {
-    switch (this) {
-      case 'APPSYNC_JS':
-        return RuntimeName.appsyncJs;
-    }
-    throw Exception('$this is not known in enum RuntimeName');
-  }
+  const RuntimeName(this.value);
+
+  static RuntimeName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RuntimeName'));
 }
 
 enum SchemaStatus {
-  processing,
-  active,
-  deleting,
-  failed,
-  success,
-  notApplicable,
-}
+  processing('PROCESSING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  success('SUCCESS'),
+  notApplicable('NOT_APPLICABLE'),
+  ;
 
-extension SchemaStatusValueExtension on SchemaStatus {
-  String toValue() {
-    switch (this) {
-      case SchemaStatus.processing:
-        return 'PROCESSING';
-      case SchemaStatus.active:
-        return 'ACTIVE';
-      case SchemaStatus.deleting:
-        return 'DELETING';
-      case SchemaStatus.failed:
-        return 'FAILED';
-      case SchemaStatus.success:
-        return 'SUCCESS';
-      case SchemaStatus.notApplicable:
-        return 'NOT_APPLICABLE';
-    }
-  }
-}
+  final String value;
 
-extension SchemaStatusFromString on String {
-  SchemaStatus toSchemaStatus() {
-    switch (this) {
-      case 'PROCESSING':
-        return SchemaStatus.processing;
-      case 'ACTIVE':
-        return SchemaStatus.active;
-      case 'DELETING':
-        return SchemaStatus.deleting;
-      case 'FAILED':
-        return SchemaStatus.failed;
-      case 'SUCCESS':
-        return SchemaStatus.success;
-      case 'NOT_APPLICABLE':
-        return SchemaStatus.notApplicable;
-    }
-    throw Exception('$this is not known in enum SchemaStatus');
-  }
+  const SchemaStatus(this.value);
+
+  static SchemaStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SchemaStatus'));
 }
 
 /// Describes the configuration of a source API. A source API is a GraphQL API
@@ -6589,7 +7478,7 @@ class SourceApiAssociation {
           : null,
       sourceApiAssociationStatus:
           (json['sourceApiAssociationStatus'] as String?)
-              ?.toSourceApiAssociationStatus(),
+              ?.let(SourceApiAssociationStatus.fromString),
       sourceApiAssociationStatusDetail:
           json['sourceApiAssociationStatusDetail'] as String?,
       sourceApiId: json['sourceApiId'] as String?,
@@ -6621,7 +7510,7 @@ class SourceApiAssociation {
       if (sourceApiAssociationConfig != null)
         'sourceApiAssociationConfig': sourceApiAssociationConfig,
       if (sourceApiAssociationStatus != null)
-        'sourceApiAssociationStatus': sourceApiAssociationStatus.toValue(),
+        'sourceApiAssociationStatus': sourceApiAssociationStatus.value,
       if (sourceApiAssociationStatusDetail != null)
         'sourceApiAssociationStatusDetail': sourceApiAssociationStatusDetail,
       if (sourceApiId != null) 'sourceApiId': sourceApiId,
@@ -6649,75 +7538,37 @@ class SourceApiAssociationConfig {
 
   factory SourceApiAssociationConfig.fromJson(Map<String, dynamic> json) {
     return SourceApiAssociationConfig(
-      mergeType: (json['mergeType'] as String?)?.toMergeType(),
+      mergeType: (json['mergeType'] as String?)?.let(MergeType.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final mergeType = this.mergeType;
     return {
-      if (mergeType != null) 'mergeType': mergeType.toValue(),
+      if (mergeType != null) 'mergeType': mergeType.value,
     };
   }
 }
 
 enum SourceApiAssociationStatus {
-  mergeScheduled,
-  mergeFailed,
-  mergeSuccess,
-  mergeInProgress,
-  autoMergeScheduleFailed,
-  deletionScheduled,
-  deletionInProgress,
-  deletionFailed,
-}
+  mergeScheduled('MERGE_SCHEDULED'),
+  mergeFailed('MERGE_FAILED'),
+  mergeSuccess('MERGE_SUCCESS'),
+  mergeInProgress('MERGE_IN_PROGRESS'),
+  autoMergeScheduleFailed('AUTO_MERGE_SCHEDULE_FAILED'),
+  deletionScheduled('DELETION_SCHEDULED'),
+  deletionInProgress('DELETION_IN_PROGRESS'),
+  deletionFailed('DELETION_FAILED'),
+  ;
 
-extension SourceApiAssociationStatusValueExtension
-    on SourceApiAssociationStatus {
-  String toValue() {
-    switch (this) {
-      case SourceApiAssociationStatus.mergeScheduled:
-        return 'MERGE_SCHEDULED';
-      case SourceApiAssociationStatus.mergeFailed:
-        return 'MERGE_FAILED';
-      case SourceApiAssociationStatus.mergeSuccess:
-        return 'MERGE_SUCCESS';
-      case SourceApiAssociationStatus.mergeInProgress:
-        return 'MERGE_IN_PROGRESS';
-      case SourceApiAssociationStatus.autoMergeScheduleFailed:
-        return 'AUTO_MERGE_SCHEDULE_FAILED';
-      case SourceApiAssociationStatus.deletionScheduled:
-        return 'DELETION_SCHEDULED';
-      case SourceApiAssociationStatus.deletionInProgress:
-        return 'DELETION_IN_PROGRESS';
-      case SourceApiAssociationStatus.deletionFailed:
-        return 'DELETION_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension SourceApiAssociationStatusFromString on String {
-  SourceApiAssociationStatus toSourceApiAssociationStatus() {
-    switch (this) {
-      case 'MERGE_SCHEDULED':
-        return SourceApiAssociationStatus.mergeScheduled;
-      case 'MERGE_FAILED':
-        return SourceApiAssociationStatus.mergeFailed;
-      case 'MERGE_SUCCESS':
-        return SourceApiAssociationStatus.mergeSuccess;
-      case 'MERGE_IN_PROGRESS':
-        return SourceApiAssociationStatus.mergeInProgress;
-      case 'AUTO_MERGE_SCHEDULE_FAILED':
-        return SourceApiAssociationStatus.autoMergeScheduleFailed;
-      case 'DELETION_SCHEDULED':
-        return SourceApiAssociationStatus.deletionScheduled;
-      case 'DELETION_IN_PROGRESS':
-        return SourceApiAssociationStatus.deletionInProgress;
-      case 'DELETION_FAILED':
-        return SourceApiAssociationStatus.deletionFailed;
-    }
-    throw Exception('$this is not known in enum SourceApiAssociationStatus');
-  }
+  const SourceApiAssociationStatus(this.value);
+
+  static SourceApiAssociationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SourceApiAssociationStatus'));
 }
 
 /// Describes the ARNs and IDs of associations, Merged APIs, and source APIs.
@@ -6785,6 +7636,55 @@ class SourceApiAssociationSummary {
   }
 }
 
+class StartDataSourceIntrospectionResponse {
+  /// The introspection ID. Each introspection contains a unique ID that can be
+  /// used to reference the instrospection record.
+  final String? introspectionId;
+
+  /// The status of the introspection during creation. By default, when a new
+  /// instrospection has been created, the status will be set to
+  /// <code>PROCESSING</code>. Once the operation has been completed, the status
+  /// will change to <code>SUCCESS</code> or <code>FAILED</code> depending on how
+  /// the data was parsed. A <code>FAILED</code> operation will return an error
+  /// and its details as an <code>introspectionStatusDetail</code>.
+  final DataSourceIntrospectionStatus? introspectionStatus;
+
+  /// The error detail field. When a <code>FAILED</code>
+  /// <code>introspectionStatus</code> is returned, the
+  /// <code>introspectionStatusDetail</code> will also return the exact error that
+  /// was generated during the operation.
+  final String? introspectionStatusDetail;
+
+  StartDataSourceIntrospectionResponse({
+    this.introspectionId,
+    this.introspectionStatus,
+    this.introspectionStatusDetail,
+  });
+
+  factory StartDataSourceIntrospectionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return StartDataSourceIntrospectionResponse(
+      introspectionId: json['introspectionId'] as String?,
+      introspectionStatus: (json['introspectionStatus'] as String?)
+          ?.let(DataSourceIntrospectionStatus.fromString),
+      introspectionStatusDetail: json['introspectionStatusDetail'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final introspectionId = this.introspectionId;
+    final introspectionStatus = this.introspectionStatus;
+    final introspectionStatusDetail = this.introspectionStatusDetail;
+    return {
+      if (introspectionId != null) 'introspectionId': introspectionId,
+      if (introspectionStatus != null)
+        'introspectionStatus': introspectionStatus.value,
+      if (introspectionStatusDetail != null)
+        'introspectionStatusDetail': introspectionStatusDetail,
+    };
+  }
+}
+
 class StartSchemaCreationResponse {
   /// The current state of the schema (PROCESSING, FAILED, SUCCESS, or
   /// NOT_APPLICABLE). When the schema is in the ACTIVE state, you can add data.
@@ -6796,14 +7696,14 @@ class StartSchemaCreationResponse {
 
   factory StartSchemaCreationResponse.fromJson(Map<String, dynamic> json) {
     return StartSchemaCreationResponse(
-      status: (json['status'] as String?)?.toSchemaStatus(),
+      status: (json['status'] as String?)?.let(SchemaStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -6820,7 +7720,7 @@ class StartSchemaMergeResponse {
     return StartSchemaMergeResponse(
       sourceApiAssociationStatus:
           (json['sourceApiAssociationStatus'] as String?)
-              ?.toSourceApiAssociationStatus(),
+              ?.let(SourceApiAssociationStatus.fromString),
     );
   }
 
@@ -6828,7 +7728,7 @@ class StartSchemaMergeResponse {
     final sourceApiAssociationStatus = this.sourceApiAssociationStatus;
     return {
       if (sourceApiAssociationStatus != null)
-        'sourceApiAssociationStatus': sourceApiAssociationStatus.toValue(),
+        'sourceApiAssociationStatus': sourceApiAssociationStatus.value,
     };
   }
 }
@@ -6880,10 +7780,10 @@ class SyncConfig {
 
   factory SyncConfig.fromJson(Map<String, dynamic> json) {
     return SyncConfig(
-      conflictDetection:
-          (json['conflictDetection'] as String?)?.toConflictDetectionType(),
-      conflictHandler:
-          (json['conflictHandler'] as String?)?.toConflictHandlerType(),
+      conflictDetection: (json['conflictDetection'] as String?)
+          ?.let(ConflictDetectionType.fromString),
+      conflictHandler: (json['conflictHandler'] as String?)
+          ?.let(ConflictHandlerType.fromString),
       lambdaConflictHandlerConfig: json['lambdaConflictHandlerConfig'] != null
           ? LambdaConflictHandlerConfig.fromJson(
               json['lambdaConflictHandlerConfig'] as Map<String, dynamic>)
@@ -6897,8 +7797,8 @@ class SyncConfig {
     final lambdaConflictHandlerConfig = this.lambdaConflictHandlerConfig;
     return {
       if (conflictDetection != null)
-        'conflictDetection': conflictDetection.toValue(),
-      if (conflictHandler != null) 'conflictHandler': conflictHandler.toValue(),
+        'conflictDetection': conflictDetection.value,
+      if (conflictHandler != null) 'conflictHandler': conflictHandler.value,
       if (lambdaConflictHandlerConfig != null)
         'lambdaConflictHandlerConfig': lambdaConflictHandlerConfig,
     };
@@ -6947,7 +7847,7 @@ class Type {
       arn: json['arn'] as String?,
       definition: json['definition'] as String?,
       description: json['description'] as String?,
-      format: (json['format'] as String?)?.toTypeDefinitionFormat(),
+      format: (json['format'] as String?)?.let(TypeDefinitionFormat.fromString),
       name: json['name'] as String?,
     );
   }
@@ -6962,38 +7862,25 @@ class Type {
       if (arn != null) 'arn': arn,
       if (definition != null) 'definition': definition,
       if (description != null) 'description': description,
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (name != null) 'name': name,
     };
   }
 }
 
 enum TypeDefinitionFormat {
-  sdl,
-  json,
-}
+  sdl('SDL'),
+  json('JSON'),
+  ;
 
-extension TypeDefinitionFormatValueExtension on TypeDefinitionFormat {
-  String toValue() {
-    switch (this) {
-      case TypeDefinitionFormat.sdl:
-        return 'SDL';
-      case TypeDefinitionFormat.json:
-        return 'JSON';
-    }
-  }
-}
+  final String value;
 
-extension TypeDefinitionFormatFromString on String {
-  TypeDefinitionFormat toTypeDefinitionFormat() {
-    switch (this) {
-      case 'SDL':
-        return TypeDefinitionFormat.sdl;
-      case 'JSON':
-        return TypeDefinitionFormat.json;
-    }
-    throw Exception('$this is not known in enum TypeDefinitionFormat');
-  }
+  const TypeDefinitionFormat(this.value);
+
+  static TypeDefinitionFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TypeDefinitionFormat'));
 }
 
 class UntagResourceResponse {
@@ -7258,7 +8145,8 @@ class UserPoolConfig {
   factory UserPoolConfig.fromJson(Map<String, dynamic> json) {
     return UserPoolConfig(
       awsRegion: json['awsRegion'] as String,
-      defaultAction: (json['defaultAction'] as String).toDefaultAction(),
+      defaultAction:
+          DefaultAction.fromString((json['defaultAction'] as String)),
       userPoolId: json['userPoolId'] as String,
       appIdClientRegex: json['appIdClientRegex'] as String?,
     );
@@ -7271,7 +8159,7 @@ class UserPoolConfig {
     final appIdClientRegex = this.appIdClientRegex;
     return {
       'awsRegion': awsRegion,
-      'defaultAction': defaultAction.toValue(),
+      'defaultAction': defaultAction.value,
       'userPoolId': userPoolId,
       if (appIdClientRegex != null) 'appIdClientRegex': appIdClientRegex,
     };

@@ -275,7 +275,7 @@ class EMR {
         'ClusterId': clusterId,
         'StepIds': stepIds,
         if (stepCancellationOption != null)
-          'StepCancellationOption': stepCancellationOption.toValue(),
+          'StepCancellationOption': stepCancellationOption.value,
       },
     );
 
@@ -365,6 +365,20 @@ class EMR {
   /// Parameter [description] :
   /// A detailed description of the Amazon EMR Studio.
   ///
+  /// Parameter [encryptionKeyArn] :
+  /// The KMS key identifier (ARN) used to encrypt Amazon EMR Studio workspace
+  /// and notebook files when backed up to Amazon S3.
+  ///
+  /// Parameter [idcInstanceArn] :
+  /// The ARN of the IAM Identity Center instance to create the Studio
+  /// application.
+  ///
+  /// Parameter [idcUserAssignment] :
+  /// Specifies whether IAM Identity Center user assignment is
+  /// <code>REQUIRED</code> or <code>OPTIONAL</code>. If the value is set to
+  /// <code>REQUIRED</code>, users must be explicitly assigned to the Studio
+  /// application to access the Studio.
+  ///
   /// Parameter [idpAuthUrl] :
   /// The authentication endpoint of your identity provider (IdP). Specify this
   /// value when you use IAM authentication and want to let federated users log
@@ -384,6 +398,10 @@ class EMR {
   /// maximum of 128 characters, and an optional value string with a maximum of
   /// 256 characters.
   ///
+  /// Parameter [trustedIdentityPropagationEnabled] :
+  /// A Boolean indicating whether to enable Trusted identity propagation for
+  /// the Studio. The default value is <code>false</code>.
+  ///
   /// Parameter [userRole] :
   /// The IAM user role that users and groups assume when logged in to an Amazon
   /// EMR Studio. Only specify a <code>UserRole</code> when you use IAM Identity
@@ -400,9 +418,13 @@ class EMR {
     required String vpcId,
     required String workspaceSecurityGroupId,
     String? description,
+    String? encryptionKeyArn,
+    String? idcInstanceArn,
+    IdcUserAssignment? idcUserAssignment,
     String? idpAuthUrl,
     String? idpRelayStateParameterName,
     List<Tag>? tags,
+    bool? trustedIdentityPropagationEnabled,
     String? userRole,
   }) async {
     final headers = <String, String>{
@@ -416,7 +438,7 @@ class EMR {
       // TODO queryParams
       headers: headers,
       payload: {
-        'AuthMode': authMode.toValue(),
+        'AuthMode': authMode.value,
         'DefaultS3Location': defaultS3Location,
         'EngineSecurityGroupId': engineSecurityGroupId,
         'Name': name,
@@ -425,10 +447,17 @@ class EMR {
         'VpcId': vpcId,
         'WorkspaceSecurityGroupId': workspaceSecurityGroupId,
         if (description != null) 'Description': description,
+        if (encryptionKeyArn != null) 'EncryptionKeyArn': encryptionKeyArn,
+        if (idcInstanceArn != null) 'IdcInstanceArn': idcInstanceArn,
+        if (idcUserAssignment != null)
+          'IdcUserAssignment': idcUserAssignment.value,
         if (idpAuthUrl != null) 'IdpAuthUrl': idpAuthUrl,
         if (idpRelayStateParameterName != null)
           'IdpRelayStateParameterName': idpRelayStateParameterName,
         if (tags != null) 'Tags': tags,
+        if (trustedIdentityPropagationEnabled != null)
+          'TrustedIdentityPropagationEnabled':
+              trustedIdentityPropagationEnabled,
         if (userRole != null) 'UserRole': userRole,
       },
     );
@@ -499,7 +528,7 @@ class EMR {
       // TODO queryParams
       headers: headers,
       payload: {
-        'IdentityType': identityType.toValue(),
+        'IdentityType': identityType.value,
         'SessionPolicyArn': sessionPolicyArn,
         'StudioId': studioId,
         if (identityId != null) 'IdentityId': identityId,
@@ -606,7 +635,7 @@ class EMR {
       // TODO queryParams
       headers: headers,
       payload: {
-        'IdentityType': identityType.toValue(),
+        'IdentityType': identityType.value,
         'StudioId': studioId,
         if (identityId != null) 'IdentityId': identityId,
         if (identityName != null) 'IdentityName': identityName,
@@ -707,7 +736,7 @@ class EMR {
           'CreatedBefore': unixTimestampToJson(createdBefore),
         if (jobFlowIds != null) 'JobFlowIds': jobFlowIds,
         if (jobFlowStates != null)
-          'JobFlowStates': jobFlowStates.map((e) => e.toValue()).toList(),
+          'JobFlowStates': jobFlowStates.map((e) => e.value).toList(),
       },
     );
 
@@ -950,7 +979,7 @@ class EMR {
   /// <code>arn:partition:service:region:account:resource</code>.
   Future<GetClusterSessionCredentialsOutput> getClusterSessionCredentials({
     required String clusterId,
-    required String executionRoleArn,
+    String? executionRoleArn,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -964,7 +993,7 @@ class EMR {
       headers: headers,
       payload: {
         'ClusterId': clusterId,
-        'ExecutionRoleArn': executionRoleArn,
+        if (executionRoleArn != null) 'ExecutionRoleArn': executionRoleArn,
       },
     );
 
@@ -1042,7 +1071,7 @@ class EMR {
       // TODO queryParams
       headers: headers,
       payload: {
-        'IdentityType': identityType.toValue(),
+        'IdentityType': identityType.value,
         'StudioId': studioId,
         if (identityId != null) 'IdentityId': identityId,
         if (identityName != null) 'IdentityName': identityName,
@@ -1127,7 +1156,7 @@ class EMR {
       headers: headers,
       payload: {
         if (clusterStates != null)
-          'ClusterStates': clusterStates.map((e) => e.toValue()).toList(),
+          'ClusterStates': clusterStates.map((e) => e.value).toList(),
         if (createdAfter != null)
           'CreatedAfter': unixTimestampToJson(createdAfter),
         if (createdBefore != null)
@@ -1261,13 +1290,12 @@ class EMR {
         'ClusterId': clusterId,
         if (instanceFleetId != null) 'InstanceFleetId': instanceFleetId,
         if (instanceFleetType != null)
-          'InstanceFleetType': instanceFleetType.toValue(),
+          'InstanceFleetType': instanceFleetType.value,
         if (instanceGroupId != null) 'InstanceGroupId': instanceGroupId,
         if (instanceGroupTypes != null)
-          'InstanceGroupTypes':
-              instanceGroupTypes.map((e) => e.toValue()).toList(),
+          'InstanceGroupTypes': instanceGroupTypes.map((e) => e.value).toList(),
         if (instanceStates != null)
-          'InstanceStates': instanceStates.map((e) => e.toValue()).toList(),
+          'InstanceStates': instanceStates.map((e) => e.value).toList(),
         if (marker != null) 'Marker': marker,
       },
     );
@@ -1371,7 +1399,7 @@ class EMR {
         if (executionEngineId != null) 'ExecutionEngineId': executionEngineId,
         if (from != null) 'From': unixTimestampToJson(from),
         if (marker != null) 'Marker': marker,
-        if (status != null) 'Status': status.toValue(),
+        if (status != null) 'Status': status.value,
         if (to != null) 'To': unixTimestampToJson(to),
       },
     );
@@ -1514,7 +1542,7 @@ class EMR {
         if (marker != null) 'Marker': marker,
         if (stepIds != null) 'StepIds': stepIds,
         if (stepStates != null)
-          'StepStates': stepStates.map((e) => e.toValue()).toList(),
+          'StepStates': stepStates.map((e) => e.value).toList(),
       },
     );
 
@@ -1553,7 +1581,7 @@ class EMR {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (identityType != null) 'IdentityType': identityType.toValue(),
+        if (identityType != null) 'IdentityType': identityType.value,
         if (marker != null) 'Marker': marker,
         if (studioId != null) 'StudioId': studioId,
       },
@@ -1590,6 +1618,48 @@ class EMR {
     );
 
     return ListStudiosOutput.fromJson(jsonResponse.body);
+  }
+
+  /// A list of the instance types that Amazon EMR supports. You can filter the
+  /// list by Amazon Web Services Region and Amazon EMR release.
+  ///
+  /// May throw [InternalServerException].
+  /// May throw [InvalidRequestException].
+  ///
+  /// Parameter [releaseLabel] :
+  /// The Amazon EMR release label determines the <a
+  /// href="https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-release-app-versions-6.x.html">versions
+  /// of open-source application packages</a> that Amazon EMR has installed on
+  /// the cluster. Release labels are in the format <code>emr-x.x.x</code>,
+  /// where x.x.x is an Amazon EMR release number such as
+  /// <code>emr-6.10.0</code>. For more information about Amazon EMR releases
+  /// and their included application versions and features, see the <i> <a
+  /// href="https://docs.aws.amazon.com/emr/latest/ReleaseGuide/emr-release-components.html">Amazon
+  /// EMR Release Guide</a> </i>.
+  ///
+  /// Parameter [marker] :
+  /// The pagination token that marks the next set of results to retrieve.
+  Future<ListSupportedInstanceTypesOutput> listSupportedInstanceTypes({
+    required String releaseLabel,
+    String? marker,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'ElasticMapReduce.ListSupportedInstanceTypes'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ReleaseLabel': releaseLabel,
+        if (marker != null) 'Marker': marker,
+      },
+    );
+
+    return ListSupportedInstanceTypesOutput.fromJson(jsonResponse.body);
   }
 
   /// Modifies the number of steps that can be executed concurrently for the
@@ -2069,10 +2139,20 @@ class EMR {
   /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html">Finding
   /// a Linux AMI</a>.
   ///
+  /// Parameter [ebsRootVolumeIops] :
+  /// The IOPS, of the Amazon EBS root device volume of the Linux AMI that is
+  /// used for each Amazon EC2 instance. Available in Amazon EMR releases 6.15.0
+  /// and later.
+  ///
   /// Parameter [ebsRootVolumeSize] :
   /// The size, in GiB, of the Amazon EBS root device volume of the Linux AMI
   /// that is used for each Amazon EC2 instance. Available in Amazon EMR
   /// releases 4.x and later.
+  ///
+  /// Parameter [ebsRootVolumeThroughput] :
+  /// The throughput, in MiB/s, of the Amazon EBS root device volume of the
+  /// Linux AMI that is used for each Amazon EC2 instance. Available in Amazon
+  /// EMR releases 6.15.0 and later.
   ///
   /// Parameter [jobFlowRole] :
   /// Also called instance profile and Amazon EC2 role. An IAM role for an
@@ -2254,7 +2334,9 @@ class EMR {
     List<BootstrapActionConfig>? bootstrapActions,
     List<Configuration>? configurations,
     String? customAmiId,
+    int? ebsRootVolumeIops,
     int? ebsRootVolumeSize,
+    int? ebsRootVolumeThroughput,
     String? jobFlowRole,
     KerberosAttributes? kerberosAttributes,
     String? logEncryptionKmsKeyId,
@@ -2296,7 +2378,10 @@ class EMR {
         if (bootstrapActions != null) 'BootstrapActions': bootstrapActions,
         if (configurations != null) 'Configurations': configurations,
         if (customAmiId != null) 'CustomAmiId': customAmiId,
+        if (ebsRootVolumeIops != null) 'EbsRootVolumeIops': ebsRootVolumeIops,
         if (ebsRootVolumeSize != null) 'EbsRootVolumeSize': ebsRootVolumeSize,
+        if (ebsRootVolumeThroughput != null)
+          'EbsRootVolumeThroughput': ebsRootVolumeThroughput,
         if (jobFlowRole != null) 'JobFlowRole': jobFlowRole,
         if (kerberosAttributes != null)
           'KerberosAttributes': kerberosAttributes,
@@ -2312,9 +2397,9 @@ class EMR {
           'PlacementGroupConfigs': placementGroupConfigs,
         if (releaseLabel != null) 'ReleaseLabel': releaseLabel,
         if (repoUpgradeOnBoot != null)
-          'RepoUpgradeOnBoot': repoUpgradeOnBoot.toValue(),
+          'RepoUpgradeOnBoot': repoUpgradeOnBoot.value,
         if (scaleDownBehavior != null)
-          'ScaleDownBehavior': scaleDownBehavior.toValue(),
+          'ScaleDownBehavior': scaleDownBehavior.value,
         if (securityConfiguration != null)
           'SecurityConfiguration': securityConfiguration,
         if (serviceRole != null) 'ServiceRole': serviceRole,
@@ -2328,6 +2413,51 @@ class EMR {
     );
 
     return RunJobFlowOutput.fromJson(jsonResponse.body);
+  }
+
+  /// You can use the <code>SetKeepJobFlowAliveWhenNoSteps</code> to configure a
+  /// cluster (job flow) to terminate after the step execution, i.e., all your
+  /// steps are executed. If you want a transient cluster that shuts down after
+  /// the last of the current executing steps are completed, you can configure
+  /// <code>SetKeepJobFlowAliveWhenNoSteps</code> to false. If you want a long
+  /// running cluster, configure <code>SetKeepJobFlowAliveWhenNoSteps</code> to
+  /// true.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/emr/latest/ManagementGuide/UsingEMR_TerminationProtection.html">Managing
+  /// Cluster Termination</a> in the <i>Amazon EMR Management Guide</i>.
+  ///
+  /// May throw [InternalServerError].
+  ///
+  /// Parameter [jobFlowIds] :
+  /// A list of strings that uniquely identify the clusters to protect. This
+  /// identifier is returned by <a
+  /// href="https://docs.aws.amazon.com/emr/latest/APIReference/API_RunJobFlow.html">RunJobFlow</a>
+  /// and can also be obtained from <a
+  /// href="https://docs.aws.amazon.com/emr/latest/APIReference/API_DescribeJobFlows.html">DescribeJobFlows</a>.
+  ///
+  /// Parameter [keepJobFlowAliveWhenNoSteps] :
+  /// A Boolean that indicates whether to terminate the cluster after all steps
+  /// are executed.
+  Future<void> setKeepJobFlowAliveWhenNoSteps({
+    required List<String> jobFlowIds,
+    required bool keepJobFlowAliveWhenNoSteps,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'ElasticMapReduce.SetKeepJobFlowAliveWhenNoSteps'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'JobFlowIds': jobFlowIds,
+        'KeepJobFlowAliveWhenNoSteps': keepJobFlowAliveWhenNoSteps,
+      },
+    );
   }
 
   /// SetTerminationProtection locks a cluster (job flow) so the Amazon EC2
@@ -2349,7 +2479,7 @@ class EMR {
   /// <code>SetTerminationProtection</code> in which you set the value to
   /// <code>false</code>.
   ///
-  /// For more information, see<a
+  /// For more information, see <a
   /// href="https://docs.aws.amazon.com/emr/latest/ManagementGuide/UsingEMR_TerminationProtection.html">Managing
   /// Cluster Termination</a> in the <i>Amazon EMR Management Guide</i>.
   ///
@@ -2381,6 +2511,55 @@ class EMR {
       payload: {
         'JobFlowIds': jobFlowIds,
         'TerminationProtected': terminationProtected,
+      },
+    );
+  }
+
+  /// Specify whether to enable unhealthy node replacement, which lets Amazon
+  /// EMR gracefully replace core nodes on a cluster if any nodes become
+  /// unhealthy. For example, a node becomes unhealthy if disk usage is above
+  /// 90%. If unhealthy node replacement is on and
+  /// <code>TerminationProtected</code> are off, Amazon EMR immediately
+  /// terminates the unhealthy core nodes. To use unhealthy node replacement and
+  /// retain unhealthy core nodes, use to turn on termination protection. In
+  /// such cases, Amazon EMR adds the unhealthy nodes to a denylist, reducing
+  /// job interruptions and failures.
+  ///
+  /// If unhealthy node replacement is on, Amazon EMR notifies YARN and other
+  /// applications on the cluster to stop scheduling tasks with these nodes,
+  /// moves the data, and then terminates the nodes.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-plan-node-replacement.html">graceful
+  /// node replacement</a> in the <i>Amazon EMR Management Guide</i>.
+  ///
+  /// May throw [InternalServerError].
+  ///
+  /// Parameter [jobFlowIds] :
+  /// The list of strings that uniquely identify the clusters for which to turn
+  /// on unhealthy node replacement. You can get these identifiers by running
+  /// the <a>RunJobFlow</a> or the <a>DescribeJobFlows</a> operations.
+  ///
+  /// Parameter [unhealthyNodeReplacement] :
+  /// Indicates whether to turn on or turn off graceful unhealthy node
+  /// replacement.
+  Future<void> setUnhealthyNodeReplacement({
+    required List<String> jobFlowIds,
+    required bool unhealthyNodeReplacement,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'ElasticMapReduce.SetUnhealthyNodeReplacement'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'JobFlowIds': jobFlowIds,
+        'UnhealthyNodeReplacement': unhealthyNodeReplacement,
       },
     );
   }
@@ -2534,7 +2713,7 @@ class EMR {
         if (notebookS3Location != null)
           'NotebookS3Location': notebookS3Location,
         if (outputNotebookFormat != null)
-          'OutputNotebookFormat': outputNotebookFormat.toValue(),
+          'OutputNotebookFormat': outputNotebookFormat.value,
         if (outputNotebookS3Location != null)
           'OutputNotebookS3Location': outputNotebookS3Location,
         if (relativePath != null) 'RelativePath': relativePath,
@@ -2622,6 +2801,10 @@ class EMR {
   /// Parameter [description] :
   /// A detailed description to assign to the Amazon EMR Studio.
   ///
+  /// Parameter [encryptionKeyArn] :
+  /// The KMS key identifier (ARN) used to encrypt Amazon EMR Studio workspace
+  /// and notebook files when backed up to Amazon S3.
+  ///
   /// Parameter [name] :
   /// A descriptive name for the Amazon EMR Studio.
   ///
@@ -2635,6 +2818,7 @@ class EMR {
     required String studioId,
     String? defaultS3Location,
     String? description,
+    String? encryptionKeyArn,
     String? name,
     List<String>? subnetIds,
   }) async {
@@ -2652,6 +2836,7 @@ class EMR {
         'StudioId': studioId,
         if (defaultS3Location != null) 'DefaultS3Location': defaultS3Location,
         if (description != null) 'Description': description,
+        if (encryptionKeyArn != null) 'EncryptionKeyArn': encryptionKeyArn,
         if (name != null) 'Name': name,
         if (subnetIds != null) 'SubnetIds': subnetIds,
       },
@@ -2708,7 +2893,7 @@ class EMR {
       // TODO queryParams
       headers: headers,
       payload: {
-        'IdentityType': identityType.toValue(),
+        'IdentityType': identityType.value,
         'SessionPolicyArn': sessionPolicyArn,
         'StudioId': studioId,
         if (identityId != null) 'IdentityId': identityId,
@@ -2719,41 +2904,20 @@ class EMR {
 }
 
 enum ActionOnFailure {
-  terminateJobFlow,
-  terminateCluster,
-  cancelAndWait,
-  $continue,
-}
+  terminateJobFlow('TERMINATE_JOB_FLOW'),
+  terminateCluster('TERMINATE_CLUSTER'),
+  cancelAndWait('CANCEL_AND_WAIT'),
+  $continue('CONTINUE'),
+  ;
 
-extension ActionOnFailureValueExtension on ActionOnFailure {
-  String toValue() {
-    switch (this) {
-      case ActionOnFailure.terminateJobFlow:
-        return 'TERMINATE_JOB_FLOW';
-      case ActionOnFailure.terminateCluster:
-        return 'TERMINATE_CLUSTER';
-      case ActionOnFailure.cancelAndWait:
-        return 'CANCEL_AND_WAIT';
-      case ActionOnFailure.$continue:
-        return 'CONTINUE';
-    }
-  }
-}
+  final String value;
 
-extension ActionOnFailureFromString on String {
-  ActionOnFailure toActionOnFailure() {
-    switch (this) {
-      case 'TERMINATE_JOB_FLOW':
-        return ActionOnFailure.terminateJobFlow;
-      case 'TERMINATE_CLUSTER':
-        return ActionOnFailure.terminateCluster;
-      case 'CANCEL_AND_WAIT':
-        return ActionOnFailure.cancelAndWait;
-      case 'CONTINUE':
-        return ActionOnFailure.$continue;
-    }
-    throw Exception('$this is not known in enum ActionOnFailure');
-  }
+  const ActionOnFailure(this.value);
+
+  static ActionOnFailure fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ActionOnFailure'));
 }
 
 class AddInstanceFleetOutput {
@@ -2802,7 +2966,7 @@ class AddInstanceGroupsOutput {
     return AddInstanceGroupsOutput(
       clusterArn: json['ClusterArn'] as String?,
       instanceGroupIds: (json['InstanceGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       jobFlowId: json['JobFlowId'] as String?,
@@ -2821,10 +2985,8 @@ class AddJobFlowStepsOutput {
 
   factory AddJobFlowStepsOutput.fromJson(Map<String, dynamic> json) {
     return AddJobFlowStepsOutput(
-      stepIds: (json['StepIds'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      stepIds:
+          (json['StepIds'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -2839,36 +3001,19 @@ class AddTagsOutput {
 }
 
 enum AdjustmentType {
-  changeInCapacity,
-  percentChangeInCapacity,
-  exactCapacity,
-}
+  changeInCapacity('CHANGE_IN_CAPACITY'),
+  percentChangeInCapacity('PERCENT_CHANGE_IN_CAPACITY'),
+  exactCapacity('EXACT_CAPACITY'),
+  ;
 
-extension AdjustmentTypeValueExtension on AdjustmentType {
-  String toValue() {
-    switch (this) {
-      case AdjustmentType.changeInCapacity:
-        return 'CHANGE_IN_CAPACITY';
-      case AdjustmentType.percentChangeInCapacity:
-        return 'PERCENT_CHANGE_IN_CAPACITY';
-      case AdjustmentType.exactCapacity:
-        return 'EXACT_CAPACITY';
-    }
-  }
-}
+  final String value;
 
-extension AdjustmentTypeFromString on String {
-  AdjustmentType toAdjustmentType() {
-    switch (this) {
-      case 'CHANGE_IN_CAPACITY':
-        return AdjustmentType.changeInCapacity;
-      case 'PERCENT_CHANGE_IN_CAPACITY':
-        return AdjustmentType.percentChangeInCapacity;
-      case 'EXACT_CAPACITY':
-        return AdjustmentType.exactCapacity;
-    }
-    throw Exception('$this is not known in enum AdjustmentType');
-  }
+  const AdjustmentType(this.value);
+
+  static AdjustmentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AdjustmentType'));
 }
 
 /// With Amazon EMR release version 4.0 and later, the only accepted parameter
@@ -2909,10 +3054,7 @@ class Application {
     return Application(
       additionalInfo: (json['AdditionalInfo'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      args: (json['Args'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      args: (json['Args'] as List?)?.nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String?,
       version: json['Version'] as String?,
     );
@@ -2933,31 +3075,17 @@ class Application {
 }
 
 enum AuthMode {
-  sso,
-  iam,
-}
+  sso('SSO'),
+  iam('IAM'),
+  ;
 
-extension AuthModeValueExtension on AuthMode {
-  String toValue() {
-    switch (this) {
-      case AuthMode.sso:
-        return 'SSO';
-      case AuthMode.iam:
-        return 'IAM';
-    }
-  }
-}
+  final String value;
 
-extension AuthModeFromString on String {
-  AuthMode toAuthMode() {
-    switch (this) {
-      case 'SSO':
-        return AuthMode.sso;
-      case 'IAM':
-        return AuthMode.iam;
-    }
-    throw Exception('$this is not known in enum AuthMode');
-  }
+  const AuthMode(this.value);
+
+  static AuthMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AuthMode'));
 }
 
 /// An automatic scaling policy for a core instance group or task instance group
@@ -3019,7 +3147,7 @@ class AutoScalingPolicyDescription {
               json['Constraints'] as Map<String, dynamic>)
           : null,
       rules: (json['Rules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ScalingRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       status: json['Status'] != null
@@ -3031,51 +3159,22 @@ class AutoScalingPolicyDescription {
 }
 
 enum AutoScalingPolicyState {
-  pending,
-  attaching,
-  attached,
-  detaching,
-  detached,
-  failed,
-}
+  pending('PENDING'),
+  attaching('ATTACHING'),
+  attached('ATTACHED'),
+  detaching('DETACHING'),
+  detached('DETACHED'),
+  failed('FAILED'),
+  ;
 
-extension AutoScalingPolicyStateValueExtension on AutoScalingPolicyState {
-  String toValue() {
-    switch (this) {
-      case AutoScalingPolicyState.pending:
-        return 'PENDING';
-      case AutoScalingPolicyState.attaching:
-        return 'ATTACHING';
-      case AutoScalingPolicyState.attached:
-        return 'ATTACHED';
-      case AutoScalingPolicyState.detaching:
-        return 'DETACHING';
-      case AutoScalingPolicyState.detached:
-        return 'DETACHED';
-      case AutoScalingPolicyState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension AutoScalingPolicyStateFromString on String {
-  AutoScalingPolicyState toAutoScalingPolicyState() {
-    switch (this) {
-      case 'PENDING':
-        return AutoScalingPolicyState.pending;
-      case 'ATTACHING':
-        return AutoScalingPolicyState.attaching;
-      case 'ATTACHED':
-        return AutoScalingPolicyState.attached;
-      case 'DETACHING':
-        return AutoScalingPolicyState.detaching;
-      case 'DETACHED':
-        return AutoScalingPolicyState.detached;
-      case 'FAILED':
-        return AutoScalingPolicyState.failed;
-    }
-    throw Exception('$this is not known in enum AutoScalingPolicyState');
-  }
+  const AutoScalingPolicyState(this.value);
+
+  static AutoScalingPolicyState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AutoScalingPolicyState'));
 }
 
 /// The reason for an <a>AutoScalingPolicyStatus</a> change.
@@ -3099,47 +3198,27 @@ class AutoScalingPolicyStateChangeReason {
   factory AutoScalingPolicyStateChangeReason.fromJson(
       Map<String, dynamic> json) {
     return AutoScalingPolicyStateChangeReason(
-      code:
-          (json['Code'] as String?)?.toAutoScalingPolicyStateChangeReasonCode(),
+      code: (json['Code'] as String?)
+          ?.let(AutoScalingPolicyStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum AutoScalingPolicyStateChangeReasonCode {
-  userRequest,
-  provisionFailure,
-  cleanupFailure,
-}
+  userRequest('USER_REQUEST'),
+  provisionFailure('PROVISION_FAILURE'),
+  cleanupFailure('CLEANUP_FAILURE'),
+  ;
 
-extension AutoScalingPolicyStateChangeReasonCodeValueExtension
-    on AutoScalingPolicyStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case AutoScalingPolicyStateChangeReasonCode.userRequest:
-        return 'USER_REQUEST';
-      case AutoScalingPolicyStateChangeReasonCode.provisionFailure:
-        return 'PROVISION_FAILURE';
-      case AutoScalingPolicyStateChangeReasonCode.cleanupFailure:
-        return 'CLEANUP_FAILURE';
-    }
-  }
-}
+  final String value;
 
-extension AutoScalingPolicyStateChangeReasonCodeFromString on String {
-  AutoScalingPolicyStateChangeReasonCode
-      toAutoScalingPolicyStateChangeReasonCode() {
-    switch (this) {
-      case 'USER_REQUEST':
-        return AutoScalingPolicyStateChangeReasonCode.userRequest;
-      case 'PROVISION_FAILURE':
-        return AutoScalingPolicyStateChangeReasonCode.provisionFailure;
-      case 'CLEANUP_FAILURE':
-        return AutoScalingPolicyStateChangeReasonCode.cleanupFailure;
-    }
-    throw Exception(
-        '$this is not known in enum AutoScalingPolicyStateChangeReasonCode');
-  }
+  const AutoScalingPolicyStateChangeReasonCode(this.value);
+
+  static AutoScalingPolicyStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AutoScalingPolicyStateChangeReasonCode'));
 }
 
 /// The status of an automatic scaling policy.
@@ -3157,7 +3236,7 @@ class AutoScalingPolicyStatus {
 
   factory AutoScalingPolicyStatus.fromJson(Map<String, dynamic> json) {
     return AutoScalingPolicyStatus(
-      state: (json['State'] as String?)?.toAutoScalingPolicyState(),
+      state: (json['State'] as String?)?.let(AutoScalingPolicyState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? AutoScalingPolicyStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
@@ -3234,7 +3313,7 @@ class BlockPublicAccessConfiguration {
           json['BlockPublicSecurityGroupRules'] as bool,
       permittedPublicSecurityGroupRuleRanges:
           (json['PermittedPublicSecurityGroupRuleRanges'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
               .toList(),
     );
@@ -3351,7 +3430,8 @@ class CancelStepsInfo {
   factory CancelStepsInfo.fromJson(Map<String, dynamic> json) {
     return CancelStepsInfo(
       reason: json['Reason'] as String?,
-      status: (json['Status'] as String?)?.toCancelStepsRequestStatus(),
+      status:
+          (json['Status'] as String?)?.let(CancelStepsRequestStatus.fromString),
       stepId: json['StepId'] as String?,
     );
   }
@@ -3370,7 +3450,7 @@ class CancelStepsOutput {
   factory CancelStepsOutput.fromJson(Map<String, dynamic> json) {
     return CancelStepsOutput(
       cancelStepsInfoList: (json['CancelStepsInfoList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CancelStepsInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3378,31 +3458,18 @@ class CancelStepsOutput {
 }
 
 enum CancelStepsRequestStatus {
-  submitted,
-  failed,
-}
+  submitted('SUBMITTED'),
+  failed('FAILED'),
+  ;
 
-extension CancelStepsRequestStatusValueExtension on CancelStepsRequestStatus {
-  String toValue() {
-    switch (this) {
-      case CancelStepsRequestStatus.submitted:
-        return 'SUBMITTED';
-      case CancelStepsRequestStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension CancelStepsRequestStatusFromString on String {
-  CancelStepsRequestStatus toCancelStepsRequestStatus() {
-    switch (this) {
-      case 'SUBMITTED':
-        return CancelStepsRequestStatus.submitted;
-      case 'FAILED':
-        return CancelStepsRequestStatus.failed;
-    }
-    throw Exception('$this is not known in enum CancelStepsRequestStatus');
-  }
+  const CancelStepsRequestStatus(this.value);
+
+  static CancelStepsRequestStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CancelStepsRequestStatus'));
 }
 
 /// The definition of a CloudWatch metric alarm, which determines when an
@@ -3461,18 +3528,18 @@ class CloudWatchAlarmDefinition {
   factory CloudWatchAlarmDefinition.fromJson(Map<String, dynamic> json) {
     return CloudWatchAlarmDefinition(
       comparisonOperator:
-          (json['ComparisonOperator'] as String).toComparisonOperator(),
+          ComparisonOperator.fromString((json['ComparisonOperator'] as String)),
       metricName: json['MetricName'] as String,
       period: json['Period'] as int,
       threshold: json['Threshold'] as double,
       dimensions: (json['Dimensions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDimension.fromJson(e as Map<String, dynamic>))
           .toList(),
       evaluationPeriods: json['EvaluationPeriods'] as int?,
       namespace: json['Namespace'] as String?,
-      statistic: (json['Statistic'] as String?)?.toStatistic(),
-      unit: (json['Unit'] as String?)?.toUnit(),
+      statistic: (json['Statistic'] as String?)?.let(Statistic.fromString),
+      unit: (json['Unit'] as String?)?.let(Unit.fromString),
     );
   }
 
@@ -3487,15 +3554,15 @@ class CloudWatchAlarmDefinition {
     final statistic = this.statistic;
     final unit = this.unit;
     return {
-      'ComparisonOperator': comparisonOperator.toValue(),
+      'ComparisonOperator': comparisonOperator.value,
       'MetricName': metricName,
       'Period': period,
       'Threshold': threshold,
       if (dimensions != null) 'Dimensions': dimensions,
       if (evaluationPeriods != null) 'EvaluationPeriods': evaluationPeriods,
       if (namespace != null) 'Namespace': namespace,
-      if (statistic != null) 'Statistic': statistic.toValue(),
-      if (unit != null) 'Unit': unit.toValue(),
+      if (statistic != null) 'Statistic': statistic.value,
+      if (unit != null) 'Unit': unit.value,
     };
   }
 }
@@ -3525,10 +3592,20 @@ class Cluster {
   /// Amazon EBS-backed Linux AMI if the cluster uses a custom AMI.
   final String? customAmiId;
 
+  /// The IOPS, of the Amazon EBS root device volume of the Linux AMI that is used
+  /// for each Amazon EC2 instance. Available in Amazon EMR releases 6.15.0 and
+  /// later.
+  final int? ebsRootVolumeIops;
+
   /// The size, in GiB, of the Amazon EBS root device volume of the Linux AMI that
   /// is used for each Amazon EC2 instance. Available in Amazon EMR releases 4.x
   /// and later.
   final int? ebsRootVolumeSize;
+
+  /// The throughput, in MiB/s, of the Amazon EBS root device volume of the Linux
+  /// AMI that is used for each Amazon EC2 instance. Available in Amazon EMR
+  /// releases 6.15.0 and later.
+  final int? ebsRootVolumeThroughput;
 
   /// Provides information about the Amazon EC2 instances in a cluster grouped by
   /// category. For example, key name, subnet ID, IAM instance profile, and so on.
@@ -3564,7 +3641,8 @@ class Cluster {
   /// is the private DNS name. On a public subnet, this is the public DNS name.
   final String? masterPublicDnsName;
 
-  /// The name of the cluster.
+  /// The name of the cluster. This parameter can't contain the characters &lt;,
+  /// &gt;, $, |, or ` (backtick).
   final String? name;
 
   /// An approximation of the cost of the cluster, represented in m1.small/hours.
@@ -3644,6 +3722,10 @@ class Cluster {
   /// the event of a cluster error.
   final bool? terminationProtected;
 
+  /// Indicates whether Amazon EMR should gracefully replace Amazon EC2 core
+  /// instances that have degraded within the cluster.
+  final bool? unhealthyNodeReplacement;
+
   /// Indicates whether the cluster is visible to IAM principals in the Amazon Web
   /// Services account associated with the cluster. When <code>true</code>, IAM
   /// principals in the Amazon Web Services account can perform Amazon EMR cluster
@@ -3666,7 +3748,9 @@ class Cluster {
     this.clusterArn,
     this.configurations,
     this.customAmiId,
+    this.ebsRootVolumeIops,
     this.ebsRootVolumeSize,
+    this.ebsRootVolumeThroughput,
     this.ec2InstanceAttributes,
     this.id,
     this.instanceCollectionType,
@@ -3690,31 +3774,34 @@ class Cluster {
     this.stepConcurrencyLevel,
     this.tags,
     this.terminationProtected,
+    this.unhealthyNodeReplacement,
     this.visibleToAllUsers,
   });
 
   factory Cluster.fromJson(Map<String, dynamic> json) {
     return Cluster(
       applications: (json['Applications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Application.fromJson(e as Map<String, dynamic>))
           .toList(),
       autoScalingRole: json['AutoScalingRole'] as String?,
       autoTerminate: json['AutoTerminate'] as bool?,
       clusterArn: json['ClusterArn'] as String?,
       configurations: (json['Configurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Configuration.fromJson(e as Map<String, dynamic>))
           .toList(),
       customAmiId: json['CustomAmiId'] as String?,
+      ebsRootVolumeIops: json['EbsRootVolumeIops'] as int?,
       ebsRootVolumeSize: json['EbsRootVolumeSize'] as int?,
+      ebsRootVolumeThroughput: json['EbsRootVolumeThroughput'] as int?,
       ec2InstanceAttributes: json['Ec2InstanceAttributes'] != null
           ? Ec2InstanceAttributes.fromJson(
               json['Ec2InstanceAttributes'] as Map<String, dynamic>)
           : null,
       id: json['Id'] as String?,
       instanceCollectionType: (json['InstanceCollectionType'] as String?)
-          ?.toInstanceCollectionType(),
+          ?.let(InstanceCollectionType.fromString),
       kerberosAttributes: json['KerberosAttributes'] != null
           ? KerberosAttributes.fromJson(
               json['KerberosAttributes'] as Map<String, dynamic>)
@@ -3727,16 +3814,16 @@ class Cluster {
       oSReleaseLabel: json['OSReleaseLabel'] as String?,
       outpostArn: json['OutpostArn'] as String?,
       placementGroups: (json['PlacementGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PlacementGroupConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       releaseLabel: json['ReleaseLabel'] as String?,
-      repoUpgradeOnBoot:
-          (json['RepoUpgradeOnBoot'] as String?)?.toRepoUpgradeOnBoot(),
+      repoUpgradeOnBoot: (json['RepoUpgradeOnBoot'] as String?)
+          ?.let(RepoUpgradeOnBoot.fromString),
       requestedAmiVersion: json['RequestedAmiVersion'] as String?,
       runningAmiVersion: json['RunningAmiVersion'] as String?,
-      scaleDownBehavior:
-          (json['ScaleDownBehavior'] as String?)?.toScaleDownBehavior(),
+      scaleDownBehavior: (json['ScaleDownBehavior'] as String?)
+          ?.let(ScaleDownBehavior.fromString),
       securityConfiguration: json['SecurityConfiguration'] as String?,
       serviceRole: json['ServiceRole'] as String?,
       status: json['Status'] != null
@@ -3744,66 +3831,34 @@ class Cluster {
           : null,
       stepConcurrencyLevel: json['StepConcurrencyLevel'] as int?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
       terminationProtected: json['TerminationProtected'] as bool?,
+      unhealthyNodeReplacement: json['UnhealthyNodeReplacement'] as bool?,
       visibleToAllUsers: json['VisibleToAllUsers'] as bool?,
     );
   }
 }
 
 enum ClusterState {
-  starting,
-  bootstrapping,
-  running,
-  waiting,
-  terminating,
-  terminated,
-  terminatedWithErrors,
-}
+  starting('STARTING'),
+  bootstrapping('BOOTSTRAPPING'),
+  running('RUNNING'),
+  waiting('WAITING'),
+  terminating('TERMINATING'),
+  terminated('TERMINATED'),
+  terminatedWithErrors('TERMINATED_WITH_ERRORS'),
+  ;
 
-extension ClusterStateValueExtension on ClusterState {
-  String toValue() {
-    switch (this) {
-      case ClusterState.starting:
-        return 'STARTING';
-      case ClusterState.bootstrapping:
-        return 'BOOTSTRAPPING';
-      case ClusterState.running:
-        return 'RUNNING';
-      case ClusterState.waiting:
-        return 'WAITING';
-      case ClusterState.terminating:
-        return 'TERMINATING';
-      case ClusterState.terminated:
-        return 'TERMINATED';
-      case ClusterState.terminatedWithErrors:
-        return 'TERMINATED_WITH_ERRORS';
-    }
-  }
-}
+  final String value;
 
-extension ClusterStateFromString on String {
-  ClusterState toClusterState() {
-    switch (this) {
-      case 'STARTING':
-        return ClusterState.starting;
-      case 'BOOTSTRAPPING':
-        return ClusterState.bootstrapping;
-      case 'RUNNING':
-        return ClusterState.running;
-      case 'WAITING':
-        return ClusterState.waiting;
-      case 'TERMINATING':
-        return ClusterState.terminating;
-      case 'TERMINATED':
-        return ClusterState.terminated;
-      case 'TERMINATED_WITH_ERRORS':
-        return ClusterState.terminatedWithErrors;
-    }
-    throw Exception('$this is not known in enum ClusterState');
-  }
+  const ClusterState(this.value);
+
+  static ClusterState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ClusterState'));
 }
 
 /// The reason that the cluster changed to its current state.
@@ -3821,69 +3876,32 @@ class ClusterStateChangeReason {
 
   factory ClusterStateChangeReason.fromJson(Map<String, dynamic> json) {
     return ClusterStateChangeReason(
-      code: (json['Code'] as String?)?.toClusterStateChangeReasonCode(),
+      code: (json['Code'] as String?)
+          ?.let(ClusterStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum ClusterStateChangeReasonCode {
-  internalError,
-  validationError,
-  instanceFailure,
-  instanceFleetTimeout,
-  bootstrapFailure,
-  userRequest,
-  stepFailure,
-  allStepsCompleted,
-}
+  internalError('INTERNAL_ERROR'),
+  validationError('VALIDATION_ERROR'),
+  instanceFailure('INSTANCE_FAILURE'),
+  instanceFleetTimeout('INSTANCE_FLEET_TIMEOUT'),
+  bootstrapFailure('BOOTSTRAP_FAILURE'),
+  userRequest('USER_REQUEST'),
+  stepFailure('STEP_FAILURE'),
+  allStepsCompleted('ALL_STEPS_COMPLETED'),
+  ;
 
-extension ClusterStateChangeReasonCodeValueExtension
-    on ClusterStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case ClusterStateChangeReasonCode.internalError:
-        return 'INTERNAL_ERROR';
-      case ClusterStateChangeReasonCode.validationError:
-        return 'VALIDATION_ERROR';
-      case ClusterStateChangeReasonCode.instanceFailure:
-        return 'INSTANCE_FAILURE';
-      case ClusterStateChangeReasonCode.instanceFleetTimeout:
-        return 'INSTANCE_FLEET_TIMEOUT';
-      case ClusterStateChangeReasonCode.bootstrapFailure:
-        return 'BOOTSTRAP_FAILURE';
-      case ClusterStateChangeReasonCode.userRequest:
-        return 'USER_REQUEST';
-      case ClusterStateChangeReasonCode.stepFailure:
-        return 'STEP_FAILURE';
-      case ClusterStateChangeReasonCode.allStepsCompleted:
-        return 'ALL_STEPS_COMPLETED';
-    }
-  }
-}
+  final String value;
 
-extension ClusterStateChangeReasonCodeFromString on String {
-  ClusterStateChangeReasonCode toClusterStateChangeReasonCode() {
-    switch (this) {
-      case 'INTERNAL_ERROR':
-        return ClusterStateChangeReasonCode.internalError;
-      case 'VALIDATION_ERROR':
-        return ClusterStateChangeReasonCode.validationError;
-      case 'INSTANCE_FAILURE':
-        return ClusterStateChangeReasonCode.instanceFailure;
-      case 'INSTANCE_FLEET_TIMEOUT':
-        return ClusterStateChangeReasonCode.instanceFleetTimeout;
-      case 'BOOTSTRAP_FAILURE':
-        return ClusterStateChangeReasonCode.bootstrapFailure;
-      case 'USER_REQUEST':
-        return ClusterStateChangeReasonCode.userRequest;
-      case 'STEP_FAILURE':
-        return ClusterStateChangeReasonCode.stepFailure;
-      case 'ALL_STEPS_COMPLETED':
-        return ClusterStateChangeReasonCode.allStepsCompleted;
-    }
-    throw Exception('$this is not known in enum ClusterStateChangeReasonCode');
-  }
+  const ClusterStateChangeReasonCode(this.value);
+
+  static ClusterStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ClusterStateChangeReasonCode'));
 }
 
 /// The detailed status of the cluster.
@@ -3913,10 +3931,10 @@ class ClusterStatus {
   factory ClusterStatus.fromJson(Map<String, dynamic> json) {
     return ClusterStatus(
       errorDetails: (json['ErrorDetails'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ErrorDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
-      state: (json['State'] as String?)?.toClusterState(),
+      state: (json['State'] as String?)?.let(ClusterState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? ClusterStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
@@ -4021,10 +4039,7 @@ class Command {
 
   factory Command.fromJson(Map<String, dynamic> json) {
     return Command(
-      args: (json['Args'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      args: (json['Args'] as List?)?.nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String?,
       scriptPath: json['ScriptPath'] as String?,
     );
@@ -4032,41 +4047,20 @@ class Command {
 }
 
 enum ComparisonOperator {
-  greaterThanOrEqual,
-  greaterThan,
-  lessThan,
-  lessThanOrEqual,
-}
+  greaterThanOrEqual('GREATER_THAN_OR_EQUAL'),
+  greaterThan('GREATER_THAN'),
+  lessThan('LESS_THAN'),
+  lessThanOrEqual('LESS_THAN_OR_EQUAL'),
+  ;
 
-extension ComparisonOperatorValueExtension on ComparisonOperator {
-  String toValue() {
-    switch (this) {
-      case ComparisonOperator.greaterThanOrEqual:
-        return 'GREATER_THAN_OR_EQUAL';
-      case ComparisonOperator.greaterThan:
-        return 'GREATER_THAN';
-      case ComparisonOperator.lessThan:
-        return 'LESS_THAN';
-      case ComparisonOperator.lessThanOrEqual:
-        return 'LESS_THAN_OR_EQUAL';
-    }
-  }
-}
+  final String value;
 
-extension ComparisonOperatorFromString on String {
-  ComparisonOperator toComparisonOperator() {
-    switch (this) {
-      case 'GREATER_THAN_OR_EQUAL':
-        return ComparisonOperator.greaterThanOrEqual;
-      case 'GREATER_THAN':
-        return ComparisonOperator.greaterThan;
-      case 'LESS_THAN':
-        return ComparisonOperator.lessThan;
-      case 'LESS_THAN_OR_EQUAL':
-        return ComparisonOperator.lessThanOrEqual;
-    }
-    throw Exception('$this is not known in enum ComparisonOperator');
-  }
+  const ComparisonOperator(this.value);
+
+  static ComparisonOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComparisonOperator'));
 }
 
 /// The Amazon EC2 unit limits for a managed scaling policy. The managed scaling
@@ -4117,7 +4111,7 @@ class ComputeLimits {
     return ComputeLimits(
       maximumCapacityUnits: json['MaximumCapacityUnits'] as int,
       minimumCapacityUnits: json['MinimumCapacityUnits'] as int,
-      unitType: (json['UnitType'] as String).toComputeLimitsUnitType(),
+      unitType: ComputeLimitsUnitType.fromString((json['UnitType'] as String)),
       maximumCoreCapacityUnits: json['MaximumCoreCapacityUnits'] as int?,
       maximumOnDemandCapacityUnits:
           json['MaximumOnDemandCapacityUnits'] as int?,
@@ -4133,7 +4127,7 @@ class ComputeLimits {
     return {
       'MaximumCapacityUnits': maximumCapacityUnits,
       'MinimumCapacityUnits': minimumCapacityUnits,
-      'UnitType': unitType.toValue(),
+      'UnitType': unitType.value,
       if (maximumCoreCapacityUnits != null)
         'MaximumCoreCapacityUnits': maximumCoreCapacityUnits,
       if (maximumOnDemandCapacityUnits != null)
@@ -4143,36 +4137,19 @@ class ComputeLimits {
 }
 
 enum ComputeLimitsUnitType {
-  instanceFleetUnits,
-  instances,
-  vcpu,
-}
+  instanceFleetUnits('InstanceFleetUnits'),
+  instances('Instances'),
+  vcpu('VCPU'),
+  ;
 
-extension ComputeLimitsUnitTypeValueExtension on ComputeLimitsUnitType {
-  String toValue() {
-    switch (this) {
-      case ComputeLimitsUnitType.instanceFleetUnits:
-        return 'InstanceFleetUnits';
-      case ComputeLimitsUnitType.instances:
-        return 'Instances';
-      case ComputeLimitsUnitType.vcpu:
-        return 'VCPU';
-    }
-  }
-}
+  final String value;
 
-extension ComputeLimitsUnitTypeFromString on String {
-  ComputeLimitsUnitType toComputeLimitsUnitType() {
-    switch (this) {
-      case 'InstanceFleetUnits':
-        return ComputeLimitsUnitType.instanceFleetUnits;
-      case 'Instances':
-        return ComputeLimitsUnitType.instances;
-      case 'VCPU':
-        return ComputeLimitsUnitType.vcpu;
-    }
-    throw Exception('$this is not known in enum ComputeLimitsUnitType');
-  }
+  const ComputeLimitsUnitType(this.value);
+
+  static ComputeLimitsUnitType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ComputeLimitsUnitType'));
 }
 
 /// <note>
@@ -4206,7 +4183,7 @@ class Configuration {
     return Configuration(
       classification: json['Classification'] as String?,
       configurations: (json['Configurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Configuration.fromJson(e as Map<String, dynamic>))
           .toList(),
       properties: (json['Properties'] as Map<String, dynamic>?)
@@ -4326,7 +4303,7 @@ class DescribeJobFlowsOutput {
   factory DescribeJobFlowsOutput.fromJson(Map<String, dynamic> json) {
     return DescribeJobFlowsOutput(
       jobFlows: (json['JobFlows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => JobFlowDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4380,11 +4357,11 @@ class DescribeReleaseLabelOutput {
   factory DescribeReleaseLabelOutput.fromJson(Map<String, dynamic> json) {
     return DescribeReleaseLabelOutput(
       applications: (json['Applications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SimplifiedApplication.fromJson(e as Map<String, dynamic>))
           .toList(),
       availableOSReleases: (json['AvailableOSReleases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OSRelease.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4632,12 +4609,12 @@ class Ec2InstanceAttributes {
     return Ec2InstanceAttributes(
       additionalMasterSecurityGroups:
           (json['AdditionalMasterSecurityGroups'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       additionalSlaveSecurityGroups:
           (json['AdditionalSlaveSecurityGroups'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       ec2AvailabilityZone: json['Ec2AvailabilityZone'] as String?,
@@ -4650,11 +4627,11 @@ class Ec2InstanceAttributes {
       iamInstanceProfile: json['IamInstanceProfile'] as String?,
       requestedEc2AvailabilityZones:
           (json['RequestedEc2AvailabilityZones'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => e as String)
               .toList(),
       requestedEc2SubnetIds: (json['RequestedEc2SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       serviceAccessSecurityGroup: json['ServiceAccessSecurityGroup'] as String?,
@@ -4685,7 +4662,7 @@ class ErrorDetail {
     return ErrorDetail(
       errorCode: json['ErrorCode'] as String?,
       errorData: (json['ErrorData'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => (e as Map<String, dynamic>)
               .map((k, e) => MapEntry(k, e as String)))
           .toList(),
@@ -4729,7 +4706,7 @@ class ExecutionEngineConfig {
       executionRoleArn: json['ExecutionRoleArn'] as String?,
       masterInstanceSecurityGroupId:
           json['MasterInstanceSecurityGroupId'] as String?,
-      type: (json['Type'] as String?)?.toExecutionEngineType(),
+      type: (json['Type'] as String?)?.let(ExecutionEngineType.fromString),
     );
   }
 
@@ -4743,32 +4720,23 @@ class ExecutionEngineConfig {
       if (executionRoleArn != null) 'ExecutionRoleArn': executionRoleArn,
       if (masterInstanceSecurityGroupId != null)
         'MasterInstanceSecurityGroupId': masterInstanceSecurityGroupId,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum ExecutionEngineType {
-  emr,
-}
+  emr('EMR'),
+  ;
 
-extension ExecutionEngineTypeValueExtension on ExecutionEngineType {
-  String toValue() {
-    switch (this) {
-      case ExecutionEngineType.emr:
-        return 'EMR';
-    }
-  }
-}
+  final String value;
 
-extension ExecutionEngineTypeFromString on String {
-  ExecutionEngineType toExecutionEngineType() {
-    switch (this) {
-      case 'EMR':
-        return ExecutionEngineType.emr;
-    }
-    throw Exception('$this is not known in enum ExecutionEngineType');
-  }
+  const ExecutionEngineType(this.value);
+
+  static ExecutionEngineType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ExecutionEngineType'));
 }
 
 /// The details of the step failure. The service attempts to detect the root
@@ -4960,13 +4928,10 @@ class HadoopJarStepConfig {
   factory HadoopJarStepConfig.fromJson(Map<String, dynamic> json) {
     return HadoopJarStepConfig(
       jar: json['Jar'] as String,
-      args: (json['Args'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      args: (json['Args'] as List?)?.nonNulls.map((e) => e as String).toList(),
       mainClass: json['MainClass'] as String?,
       properties: (json['Properties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => KeyValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5014,10 +4979,7 @@ class HadoopStepConfig {
 
   factory HadoopStepConfig.fromJson(Map<String, dynamic> json) {
     return HadoopStepConfig(
-      args: (json['Args'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      args: (json['Args'] as List?)?.nonNulls.map((e) => e as String).toList(),
       jar: json['Jar'] as String?,
       mainClass: json['MainClass'] as String?,
       properties: (json['Properties'] as Map<String, dynamic>?)
@@ -5026,32 +4988,34 @@ class HadoopStepConfig {
   }
 }
 
+enum IdcUserAssignment {
+  required('REQUIRED'),
+  optional('OPTIONAL'),
+  ;
+
+  final String value;
+
+  const IdcUserAssignment(this.value);
+
+  static IdcUserAssignment fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IdcUserAssignment'));
+}
+
 enum IdentityType {
-  user,
-  group,
-}
+  user('USER'),
+  group('GROUP'),
+  ;
 
-extension IdentityTypeValueExtension on IdentityType {
-  String toValue() {
-    switch (this) {
-      case IdentityType.user:
-        return 'USER';
-      case IdentityType.group:
-        return 'GROUP';
-    }
-  }
-}
+  final String value;
 
-extension IdentityTypeFromString on String {
-  IdentityType toIdentityType() {
-    switch (this) {
-      case 'USER':
-        return IdentityType.user;
-      case 'GROUP':
-        return IdentityType.group;
-    }
-    throw Exception('$this is not known in enum IdentityType');
-  }
+  const IdentityType(this.value);
+
+  static IdentityType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IdentityType'));
 }
 
 /// Represents an Amazon EC2 instance provisioned as part of cluster.
@@ -5112,7 +5076,7 @@ class Instance {
   factory Instance.fromJson(Map<String, dynamic> json) {
     return Instance(
       ebsVolumes: (json['EbsVolumes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EbsVolume.fromJson(e as Map<String, dynamic>))
           .toList(),
       ec2InstanceId: json['Ec2InstanceId'] as String?,
@@ -5120,7 +5084,7 @@ class Instance {
       instanceFleetId: json['InstanceFleetId'] as String?,
       instanceGroupId: json['InstanceGroupId'] as String?,
       instanceType: json['InstanceType'] as String?,
-      market: (json['Market'] as String?)?.toMarketType(),
+      market: (json['Market'] as String?)?.let(MarketType.fromString),
       privateDnsName: json['PrivateDnsName'] as String?,
       privateIpAddress: json['PrivateIpAddress'] as String?,
       publicDnsName: json['PublicDnsName'] as String?,
@@ -5133,31 +5097,18 @@ class Instance {
 }
 
 enum InstanceCollectionType {
-  instanceFleet,
-  instanceGroup,
-}
+  instanceFleet('INSTANCE_FLEET'),
+  instanceGroup('INSTANCE_GROUP'),
+  ;
 
-extension InstanceCollectionTypeValueExtension on InstanceCollectionType {
-  String toValue() {
-    switch (this) {
-      case InstanceCollectionType.instanceFleet:
-        return 'INSTANCE_FLEET';
-      case InstanceCollectionType.instanceGroup:
-        return 'INSTANCE_GROUP';
-    }
-  }
-}
+  final String value;
 
-extension InstanceCollectionTypeFromString on String {
-  InstanceCollectionType toInstanceCollectionType() {
-    switch (this) {
-      case 'INSTANCE_FLEET':
-        return InstanceCollectionType.instanceFleet;
-      case 'INSTANCE_GROUP':
-        return InstanceCollectionType.instanceGroup;
-    }
-    throw Exception('$this is not known in enum InstanceCollectionType');
-  }
+  const InstanceCollectionType(this.value);
+
+  static InstanceCollectionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstanceCollectionType'));
 }
 
 /// Describes an instance fleet, which is a group of Amazon EC2 instances that
@@ -5267,10 +5218,10 @@ class InstanceFleet {
   factory InstanceFleet.fromJson(Map<String, dynamic> json) {
     return InstanceFleet(
       id: json['Id'] as String?,
-      instanceFleetType:
-          (json['InstanceFleetType'] as String?)?.toInstanceFleetType(),
+      instanceFleetType: (json['InstanceFleetType'] as String?)
+          ?.let(InstanceFleetType.fromString),
       instanceTypeSpecifications: (json['InstanceTypeSpecifications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               InstanceTypeSpecification.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5378,7 +5329,7 @@ class InstanceFleetConfig {
     final targetOnDemandCapacity = this.targetOnDemandCapacity;
     final targetSpotCapacity = this.targetSpotCapacity;
     return {
-      'InstanceFleetType': instanceFleetType.toValue(),
+      'InstanceFleetType': instanceFleetType.value,
       if (instanceTypeConfigs != null)
         'InstanceTypeConfigs': instanceTypeConfigs,
       if (launchSpecifications != null)
@@ -5531,56 +5482,23 @@ class InstanceFleetResizingSpecifications {
 }
 
 enum InstanceFleetState {
-  provisioning,
-  bootstrapping,
-  running,
-  resizing,
-  suspended,
-  terminating,
-  terminated,
-}
+  provisioning('PROVISIONING'),
+  bootstrapping('BOOTSTRAPPING'),
+  running('RUNNING'),
+  resizing('RESIZING'),
+  suspended('SUSPENDED'),
+  terminating('TERMINATING'),
+  terminated('TERMINATED'),
+  ;
 
-extension InstanceFleetStateValueExtension on InstanceFleetState {
-  String toValue() {
-    switch (this) {
-      case InstanceFleetState.provisioning:
-        return 'PROVISIONING';
-      case InstanceFleetState.bootstrapping:
-        return 'BOOTSTRAPPING';
-      case InstanceFleetState.running:
-        return 'RUNNING';
-      case InstanceFleetState.resizing:
-        return 'RESIZING';
-      case InstanceFleetState.suspended:
-        return 'SUSPENDED';
-      case InstanceFleetState.terminating:
-        return 'TERMINATING';
-      case InstanceFleetState.terminated:
-        return 'TERMINATED';
-    }
-  }
-}
+  final String value;
 
-extension InstanceFleetStateFromString on String {
-  InstanceFleetState toInstanceFleetState() {
-    switch (this) {
-      case 'PROVISIONING':
-        return InstanceFleetState.provisioning;
-      case 'BOOTSTRAPPING':
-        return InstanceFleetState.bootstrapping;
-      case 'RUNNING':
-        return InstanceFleetState.running;
-      case 'RESIZING':
-        return InstanceFleetState.resizing;
-      case 'SUSPENDED':
-        return InstanceFleetState.suspended;
-      case 'TERMINATING':
-        return InstanceFleetState.terminating;
-      case 'TERMINATED':
-        return InstanceFleetState.terminated;
-    }
-    throw Exception('$this is not known in enum InstanceFleetState');
-  }
+  const InstanceFleetState(this.value);
+
+  static InstanceFleetState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InstanceFleetState'));
 }
 
 /// Provides status change reason details for the instance fleet.
@@ -5602,50 +5520,28 @@ class InstanceFleetStateChangeReason {
 
   factory InstanceFleetStateChangeReason.fromJson(Map<String, dynamic> json) {
     return InstanceFleetStateChangeReason(
-      code: (json['Code'] as String?)?.toInstanceFleetStateChangeReasonCode(),
+      code: (json['Code'] as String?)
+          ?.let(InstanceFleetStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum InstanceFleetStateChangeReasonCode {
-  internalError,
-  validationError,
-  instanceFailure,
-  clusterTerminated,
-}
+  internalError('INTERNAL_ERROR'),
+  validationError('VALIDATION_ERROR'),
+  instanceFailure('INSTANCE_FAILURE'),
+  clusterTerminated('CLUSTER_TERMINATED'),
+  ;
 
-extension InstanceFleetStateChangeReasonCodeValueExtension
-    on InstanceFleetStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case InstanceFleetStateChangeReasonCode.internalError:
-        return 'INTERNAL_ERROR';
-      case InstanceFleetStateChangeReasonCode.validationError:
-        return 'VALIDATION_ERROR';
-      case InstanceFleetStateChangeReasonCode.instanceFailure:
-        return 'INSTANCE_FAILURE';
-      case InstanceFleetStateChangeReasonCode.clusterTerminated:
-        return 'CLUSTER_TERMINATED';
-    }
-  }
-}
+  final String value;
 
-extension InstanceFleetStateChangeReasonCodeFromString on String {
-  InstanceFleetStateChangeReasonCode toInstanceFleetStateChangeReasonCode() {
-    switch (this) {
-      case 'INTERNAL_ERROR':
-        return InstanceFleetStateChangeReasonCode.internalError;
-      case 'VALIDATION_ERROR':
-        return InstanceFleetStateChangeReasonCode.validationError;
-      case 'INSTANCE_FAILURE':
-        return InstanceFleetStateChangeReasonCode.instanceFailure;
-      case 'CLUSTER_TERMINATED':
-        return InstanceFleetStateChangeReasonCode.clusterTerminated;
-    }
-    throw Exception(
-        '$this is not known in enum InstanceFleetStateChangeReasonCode');
-  }
+  const InstanceFleetStateChangeReasonCode(this.value);
+
+  static InstanceFleetStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstanceFleetStateChangeReasonCode'));
 }
 
 /// The status of the instance fleet.
@@ -5704,7 +5600,7 @@ class InstanceFleetStatus {
 
   factory InstanceFleetStatus.fromJson(Map<String, dynamic> json) {
     return InstanceFleetStatus(
-      state: (json['State'] as String?)?.toInstanceFleetState(),
+      state: (json['State'] as String?)?.let(InstanceFleetState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? InstanceFleetStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
@@ -5749,36 +5645,19 @@ class InstanceFleetTimeline {
 }
 
 enum InstanceFleetType {
-  master,
-  core,
-  task,
-}
+  master('MASTER'),
+  core('CORE'),
+  task('TASK'),
+  ;
 
-extension InstanceFleetTypeValueExtension on InstanceFleetType {
-  String toValue() {
-    switch (this) {
-      case InstanceFleetType.master:
-        return 'MASTER';
-      case InstanceFleetType.core:
-        return 'CORE';
-      case InstanceFleetType.task:
-        return 'TASK';
-    }
-  }
-}
+  final String value;
 
-extension InstanceFleetTypeFromString on String {
-  InstanceFleetType toInstanceFleetType() {
-    switch (this) {
-      case 'MASTER':
-        return InstanceFleetType.master;
-      case 'CORE':
-        return InstanceFleetType.core;
-      case 'TASK':
-        return InstanceFleetType.task;
-    }
-    throw Exception('$this is not known in enum InstanceFleetType');
-  }
+  const InstanceFleetType(this.value);
+
+  static InstanceFleetType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceFleetType'));
 }
 
 /// This entity represents an instance group, which is a group of instances that
@@ -5884,28 +5763,28 @@ class InstanceGroup {
           : null,
       bidPrice: json['BidPrice'] as String?,
       configurations: (json['Configurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Configuration.fromJson(e as Map<String, dynamic>))
           .toList(),
       configurationsVersion: json['ConfigurationsVersion'] as int?,
       customAmiId: json['CustomAmiId'] as String?,
       ebsBlockDevices: (json['EbsBlockDevices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EbsBlockDevice.fromJson(e as Map<String, dynamic>))
           .toList(),
       ebsOptimized: json['EbsOptimized'] as bool?,
       id: json['Id'] as String?,
-      instanceGroupType:
-          (json['InstanceGroupType'] as String?)?.toInstanceGroupType(),
+      instanceGroupType: (json['InstanceGroupType'] as String?)
+          ?.let(InstanceGroupType.fromString),
       instanceType: json['InstanceType'] as String?,
       lastSuccessfullyAppliedConfigurations:
           (json['LastSuccessfullyAppliedConfigurations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => Configuration.fromJson(e as Map<String, dynamic>))
               .toList(),
       lastSuccessfullyAppliedConfigurationsVersion:
           json['LastSuccessfullyAppliedConfigurationsVersion'] as int?,
-      market: (json['Market'] as String?)?.toMarketType(),
+      market: (json['Market'] as String?)?.let(MarketType.fromString),
       name: json['Name'] as String?,
       requestedInstanceCount: json['RequestedInstanceCount'] as int?,
       runningInstanceCount: json['RunningInstanceCount'] as int?,
@@ -5990,14 +5869,14 @@ class InstanceGroupConfig {
     final name = this.name;
     return {
       'InstanceCount': instanceCount,
-      'InstanceRole': instanceRole.toValue(),
+      'InstanceRole': instanceRole.value,
       'InstanceType': instanceType,
       if (autoScalingPolicy != null) 'AutoScalingPolicy': autoScalingPolicy,
       if (bidPrice != null) 'BidPrice': bidPrice,
       if (configurations != null) 'Configurations': configurations,
       if (customAmiId != null) 'CustomAmiId': customAmiId,
       if (ebsConfiguration != null) 'EbsConfiguration': ebsConfiguration,
-      if (market != null) 'Market': market.toValue(),
+      if (market != null) 'Market': market.value,
       if (name != null) 'Name': name,
     };
   }
@@ -6077,11 +5956,12 @@ class InstanceGroupDetail {
       creationDateTime:
           nonNullableTimeStampFromJson(json['CreationDateTime'] as Object),
       instanceRequestCount: json['InstanceRequestCount'] as int,
-      instanceRole: (json['InstanceRole'] as String).toInstanceRoleType(),
+      instanceRole:
+          InstanceRoleType.fromString((json['InstanceRole'] as String)),
       instanceRunningCount: json['InstanceRunningCount'] as int,
       instanceType: json['InstanceType'] as String,
-      market: (json['Market'] as String).toMarketType(),
-      state: (json['State'] as String).toInstanceGroupState(),
+      market: MarketType.fromString((json['Market'] as String)),
+      state: InstanceGroupState.fromString((json['State'] as String)),
       bidPrice: json['BidPrice'] as String?,
       customAmiId: json['CustomAmiId'] as String?,
       endDateTime: timeStampFromJson(json['EndDateTime']),
@@ -6138,83 +6018,34 @@ class InstanceGroupModifyConfig {
         'EC2InstanceIdsToTerminate': eC2InstanceIdsToTerminate,
       if (instanceCount != null) 'InstanceCount': instanceCount,
       if (reconfigurationType != null)
-        'ReconfigurationType': reconfigurationType.toValue(),
+        'ReconfigurationType': reconfigurationType.value,
       if (shrinkPolicy != null) 'ShrinkPolicy': shrinkPolicy,
     };
   }
 }
 
 enum InstanceGroupState {
-  provisioning,
-  bootstrapping,
-  running,
-  reconfiguring,
-  resizing,
-  suspended,
-  terminating,
-  terminated,
-  arrested,
-  shuttingDown,
-  ended,
-}
+  provisioning('PROVISIONING'),
+  bootstrapping('BOOTSTRAPPING'),
+  running('RUNNING'),
+  reconfiguring('RECONFIGURING'),
+  resizing('RESIZING'),
+  suspended('SUSPENDED'),
+  terminating('TERMINATING'),
+  terminated('TERMINATED'),
+  arrested('ARRESTED'),
+  shuttingDown('SHUTTING_DOWN'),
+  ended('ENDED'),
+  ;
 
-extension InstanceGroupStateValueExtension on InstanceGroupState {
-  String toValue() {
-    switch (this) {
-      case InstanceGroupState.provisioning:
-        return 'PROVISIONING';
-      case InstanceGroupState.bootstrapping:
-        return 'BOOTSTRAPPING';
-      case InstanceGroupState.running:
-        return 'RUNNING';
-      case InstanceGroupState.reconfiguring:
-        return 'RECONFIGURING';
-      case InstanceGroupState.resizing:
-        return 'RESIZING';
-      case InstanceGroupState.suspended:
-        return 'SUSPENDED';
-      case InstanceGroupState.terminating:
-        return 'TERMINATING';
-      case InstanceGroupState.terminated:
-        return 'TERMINATED';
-      case InstanceGroupState.arrested:
-        return 'ARRESTED';
-      case InstanceGroupState.shuttingDown:
-        return 'SHUTTING_DOWN';
-      case InstanceGroupState.ended:
-        return 'ENDED';
-    }
-  }
-}
+  final String value;
 
-extension InstanceGroupStateFromString on String {
-  InstanceGroupState toInstanceGroupState() {
-    switch (this) {
-      case 'PROVISIONING':
-        return InstanceGroupState.provisioning;
-      case 'BOOTSTRAPPING':
-        return InstanceGroupState.bootstrapping;
-      case 'RUNNING':
-        return InstanceGroupState.running;
-      case 'RECONFIGURING':
-        return InstanceGroupState.reconfiguring;
-      case 'RESIZING':
-        return InstanceGroupState.resizing;
-      case 'SUSPENDED':
-        return InstanceGroupState.suspended;
-      case 'TERMINATING':
-        return InstanceGroupState.terminating;
-      case 'TERMINATED':
-        return InstanceGroupState.terminated;
-      case 'ARRESTED':
-        return InstanceGroupState.arrested;
-      case 'SHUTTING_DOWN':
-        return InstanceGroupState.shuttingDown;
-      case 'ENDED':
-        return InstanceGroupState.ended;
-    }
-    throw Exception('$this is not known in enum InstanceGroupState');
-  }
+  const InstanceGroupState(this.value);
+
+  static InstanceGroupState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InstanceGroupState'));
 }
 
 /// The status change reason details for the instance group.
@@ -6232,50 +6063,28 @@ class InstanceGroupStateChangeReason {
 
   factory InstanceGroupStateChangeReason.fromJson(Map<String, dynamic> json) {
     return InstanceGroupStateChangeReason(
-      code: (json['Code'] as String?)?.toInstanceGroupStateChangeReasonCode(),
+      code: (json['Code'] as String?)
+          ?.let(InstanceGroupStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum InstanceGroupStateChangeReasonCode {
-  internalError,
-  validationError,
-  instanceFailure,
-  clusterTerminated,
-}
+  internalError('INTERNAL_ERROR'),
+  validationError('VALIDATION_ERROR'),
+  instanceFailure('INSTANCE_FAILURE'),
+  clusterTerminated('CLUSTER_TERMINATED'),
+  ;
 
-extension InstanceGroupStateChangeReasonCodeValueExtension
-    on InstanceGroupStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case InstanceGroupStateChangeReasonCode.internalError:
-        return 'INTERNAL_ERROR';
-      case InstanceGroupStateChangeReasonCode.validationError:
-        return 'VALIDATION_ERROR';
-      case InstanceGroupStateChangeReasonCode.instanceFailure:
-        return 'INSTANCE_FAILURE';
-      case InstanceGroupStateChangeReasonCode.clusterTerminated:
-        return 'CLUSTER_TERMINATED';
-    }
-  }
-}
+  final String value;
 
-extension InstanceGroupStateChangeReasonCodeFromString on String {
-  InstanceGroupStateChangeReasonCode toInstanceGroupStateChangeReasonCode() {
-    switch (this) {
-      case 'INTERNAL_ERROR':
-        return InstanceGroupStateChangeReasonCode.internalError;
-      case 'VALIDATION_ERROR':
-        return InstanceGroupStateChangeReasonCode.validationError;
-      case 'INSTANCE_FAILURE':
-        return InstanceGroupStateChangeReasonCode.instanceFailure;
-      case 'CLUSTER_TERMINATED':
-        return InstanceGroupStateChangeReasonCode.clusterTerminated;
-    }
-    throw Exception(
-        '$this is not known in enum InstanceGroupStateChangeReasonCode');
-  }
+  const InstanceGroupStateChangeReasonCode(this.value);
+
+  static InstanceGroupStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstanceGroupStateChangeReasonCode'));
 }
 
 /// The details of the instance group status.
@@ -6297,7 +6106,7 @@ class InstanceGroupStatus {
 
   factory InstanceGroupStatus.fromJson(Map<String, dynamic> json) {
     return InstanceGroupStatus(
-      state: (json['State'] as String?)?.toInstanceGroupState(),
+      state: (json['State'] as String?)?.let(InstanceGroupState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? InstanceGroupStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
@@ -6337,36 +6146,19 @@ class InstanceGroupTimeline {
 }
 
 enum InstanceGroupType {
-  master,
-  core,
-  task,
-}
+  master('MASTER'),
+  core('CORE'),
+  task('TASK'),
+  ;
 
-extension InstanceGroupTypeValueExtension on InstanceGroupType {
-  String toValue() {
-    switch (this) {
-      case InstanceGroupType.master:
-        return 'MASTER';
-      case InstanceGroupType.core:
-        return 'CORE';
-      case InstanceGroupType.task:
-        return 'TASK';
-    }
-  }
-}
+  final String value;
 
-extension InstanceGroupTypeFromString on String {
-  InstanceGroupType toInstanceGroupType() {
-    switch (this) {
-      case 'MASTER':
-        return InstanceGroupType.master;
-      case 'CORE':
-        return InstanceGroupType.core;
-      case 'TASK':
-        return InstanceGroupType.task;
-    }
-    throw Exception('$this is not known in enum InstanceGroupType');
-  }
+  const InstanceGroupType(this.value);
+
+  static InstanceGroupType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceGroupType'));
 }
 
 /// Custom policy for requesting termination protection or termination of
@@ -6393,11 +6185,11 @@ class InstanceResizePolicy {
     return InstanceResizePolicy(
       instanceTerminationTimeout: json['InstanceTerminationTimeout'] as int?,
       instancesToProtect: (json['InstancesToProtect'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       instancesToTerminate: (json['InstancesToTerminate'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6418,79 +6210,37 @@ class InstanceResizePolicy {
 }
 
 enum InstanceRoleType {
-  master,
-  core,
-  task,
-}
+  master('MASTER'),
+  core('CORE'),
+  task('TASK'),
+  ;
 
-extension InstanceRoleTypeValueExtension on InstanceRoleType {
-  String toValue() {
-    switch (this) {
-      case InstanceRoleType.master:
-        return 'MASTER';
-      case InstanceRoleType.core:
-        return 'CORE';
-      case InstanceRoleType.task:
-        return 'TASK';
-    }
-  }
-}
+  final String value;
 
-extension InstanceRoleTypeFromString on String {
-  InstanceRoleType toInstanceRoleType() {
-    switch (this) {
-      case 'MASTER':
-        return InstanceRoleType.master;
-      case 'CORE':
-        return InstanceRoleType.core;
-      case 'TASK':
-        return InstanceRoleType.task;
-    }
-    throw Exception('$this is not known in enum InstanceRoleType');
-  }
+  const InstanceRoleType(this.value);
+
+  static InstanceRoleType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceRoleType'));
 }
 
 enum InstanceState {
-  awaitingFulfillment,
-  provisioning,
-  bootstrapping,
-  running,
-  terminated,
-}
+  awaitingFulfillment('AWAITING_FULFILLMENT'),
+  provisioning('PROVISIONING'),
+  bootstrapping('BOOTSTRAPPING'),
+  running('RUNNING'),
+  terminated('TERMINATED'),
+  ;
 
-extension InstanceStateValueExtension on InstanceState {
-  String toValue() {
-    switch (this) {
-      case InstanceState.awaitingFulfillment:
-        return 'AWAITING_FULFILLMENT';
-      case InstanceState.provisioning:
-        return 'PROVISIONING';
-      case InstanceState.bootstrapping:
-        return 'BOOTSTRAPPING';
-      case InstanceState.running:
-        return 'RUNNING';
-      case InstanceState.terminated:
-        return 'TERMINATED';
-    }
-  }
-}
+  final String value;
 
-extension InstanceStateFromString on String {
-  InstanceState toInstanceState() {
-    switch (this) {
-      case 'AWAITING_FULFILLMENT':
-        return InstanceState.awaitingFulfillment;
-      case 'PROVISIONING':
-        return InstanceState.provisioning;
-      case 'BOOTSTRAPPING':
-        return InstanceState.bootstrapping;
-      case 'RUNNING':
-        return InstanceState.running;
-      case 'TERMINATED':
-        return InstanceState.terminated;
-    }
-    throw Exception('$this is not known in enum InstanceState');
-  }
+  const InstanceState(this.value);
+
+  static InstanceState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InstanceState'));
 }
 
 /// The details of the status change reason for the instance.
@@ -6508,54 +6258,29 @@ class InstanceStateChangeReason {
 
   factory InstanceStateChangeReason.fromJson(Map<String, dynamic> json) {
     return InstanceStateChangeReason(
-      code: (json['Code'] as String?)?.toInstanceStateChangeReasonCode(),
+      code: (json['Code'] as String?)
+          ?.let(InstanceStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum InstanceStateChangeReasonCode {
-  internalError,
-  validationError,
-  instanceFailure,
-  bootstrapFailure,
-  clusterTerminated,
-}
+  internalError('INTERNAL_ERROR'),
+  validationError('VALIDATION_ERROR'),
+  instanceFailure('INSTANCE_FAILURE'),
+  bootstrapFailure('BOOTSTRAP_FAILURE'),
+  clusterTerminated('CLUSTER_TERMINATED'),
+  ;
 
-extension InstanceStateChangeReasonCodeValueExtension
-    on InstanceStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case InstanceStateChangeReasonCode.internalError:
-        return 'INTERNAL_ERROR';
-      case InstanceStateChangeReasonCode.validationError:
-        return 'VALIDATION_ERROR';
-      case InstanceStateChangeReasonCode.instanceFailure:
-        return 'INSTANCE_FAILURE';
-      case InstanceStateChangeReasonCode.bootstrapFailure:
-        return 'BOOTSTRAP_FAILURE';
-      case InstanceStateChangeReasonCode.clusterTerminated:
-        return 'CLUSTER_TERMINATED';
-    }
-  }
-}
+  final String value;
 
-extension InstanceStateChangeReasonCodeFromString on String {
-  InstanceStateChangeReasonCode toInstanceStateChangeReasonCode() {
-    switch (this) {
-      case 'INTERNAL_ERROR':
-        return InstanceStateChangeReasonCode.internalError;
-      case 'VALIDATION_ERROR':
-        return InstanceStateChangeReasonCode.validationError;
-      case 'INSTANCE_FAILURE':
-        return InstanceStateChangeReasonCode.instanceFailure;
-      case 'BOOTSTRAP_FAILURE':
-        return InstanceStateChangeReasonCode.bootstrapFailure;
-      case 'CLUSTER_TERMINATED':
-        return InstanceStateChangeReasonCode.clusterTerminated;
-    }
-    throw Exception('$this is not known in enum InstanceStateChangeReasonCode');
-  }
+  const InstanceStateChangeReasonCode(this.value);
+
+  static InstanceStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum InstanceStateChangeReasonCode'));
 }
 
 /// The instance status details.
@@ -6577,7 +6302,7 @@ class InstanceStatus {
 
   factory InstanceStatus.fromJson(Map<String, dynamic> json) {
     return InstanceStatus(
-      state: (json['State'] as String?)?.toInstanceState(),
+      state: (json['State'] as String?)?.let(InstanceState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? InstanceStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
@@ -6753,12 +6478,12 @@ class InstanceTypeSpecification {
       bidPriceAsPercentageOfOnDemandPrice:
           json['BidPriceAsPercentageOfOnDemandPrice'] as double?,
       configurations: (json['Configurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Configuration.fromJson(e as Map<String, dynamic>))
           .toList(),
       customAmiId: json['CustomAmiId'] as String?,
       ebsBlockDevices: (json['EbsBlockDevices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EbsBlockDevice.fromJson(e as Map<String, dynamic>))
           .toList(),
       ebsOptimized: json['EbsOptimized'] as bool?,
@@ -6879,21 +6604,21 @@ class JobFlowDetail {
       amiVersion: json['AmiVersion'] as String?,
       autoScalingRole: json['AutoScalingRole'] as String?,
       bootstrapActions: (json['BootstrapActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BootstrapActionDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       jobFlowRole: json['JobFlowRole'] as String?,
       logEncryptionKmsKeyId: json['LogEncryptionKmsKeyId'] as String?,
       logUri: json['LogUri'] as String?,
-      scaleDownBehavior:
-          (json['ScaleDownBehavior'] as String?)?.toScaleDownBehavior(),
+      scaleDownBehavior: (json['ScaleDownBehavior'] as String?)
+          ?.let(ScaleDownBehavior.fromString),
       serviceRole: json['ServiceRole'] as String?,
       steps: (json['Steps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StepDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       supportedProducts: (json['SupportedProducts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       visibleToAllUsers: json['VisibleToAllUsers'] as bool?,
@@ -6903,61 +6628,24 @@ class JobFlowDetail {
 
 /// The type of instance.
 enum JobFlowExecutionState {
-  starting,
-  bootstrapping,
-  running,
-  waiting,
-  shuttingDown,
-  terminated,
-  completed,
-  failed,
-}
+  starting('STARTING'),
+  bootstrapping('BOOTSTRAPPING'),
+  running('RUNNING'),
+  waiting('WAITING'),
+  shuttingDown('SHUTTING_DOWN'),
+  terminated('TERMINATED'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  ;
 
-extension JobFlowExecutionStateValueExtension on JobFlowExecutionState {
-  String toValue() {
-    switch (this) {
-      case JobFlowExecutionState.starting:
-        return 'STARTING';
-      case JobFlowExecutionState.bootstrapping:
-        return 'BOOTSTRAPPING';
-      case JobFlowExecutionState.running:
-        return 'RUNNING';
-      case JobFlowExecutionState.waiting:
-        return 'WAITING';
-      case JobFlowExecutionState.shuttingDown:
-        return 'SHUTTING_DOWN';
-      case JobFlowExecutionState.terminated:
-        return 'TERMINATED';
-      case JobFlowExecutionState.completed:
-        return 'COMPLETED';
-      case JobFlowExecutionState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension JobFlowExecutionStateFromString on String {
-  JobFlowExecutionState toJobFlowExecutionState() {
-    switch (this) {
-      case 'STARTING':
-        return JobFlowExecutionState.starting;
-      case 'BOOTSTRAPPING':
-        return JobFlowExecutionState.bootstrapping;
-      case 'RUNNING':
-        return JobFlowExecutionState.running;
-      case 'WAITING':
-        return JobFlowExecutionState.waiting;
-      case 'SHUTTING_DOWN':
-        return JobFlowExecutionState.shuttingDown;
-      case 'TERMINATED':
-        return JobFlowExecutionState.terminated;
-      case 'COMPLETED':
-        return JobFlowExecutionState.completed;
-      case 'FAILED':
-        return JobFlowExecutionState.failed;
-    }
-    throw Exception('$this is not known in enum JobFlowExecutionState');
-  }
+  const JobFlowExecutionState(this.value);
+
+  static JobFlowExecutionState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum JobFlowExecutionState'));
 }
 
 /// Describes the status of the cluster (job flow).
@@ -6994,7 +6682,7 @@ class JobFlowExecutionStatusDetail {
     return JobFlowExecutionStatusDetail(
       creationDateTime:
           nonNullableTimeStampFromJson(json['CreationDateTime'] as Object),
-      state: (json['State'] as String).toJobFlowExecutionState(),
+      state: JobFlowExecutionState.fromString((json['State'] as String)),
       endDateTime: timeStampFromJson(json['EndDateTime']),
       lastStateChangeReason: json['LastStateChangeReason'] as String?,
       readyDateTime: timeStampFromJson(json['ReadyDateTime']),
@@ -7070,8 +6758,8 @@ class JobFlowInstancesConfig {
   final List<InstanceGroupConfig>? instanceGroups;
 
   /// Specifies whether the cluster should remain available after completing all
-  /// steps. Defaults to <code>true</code>. For more information about configuring
-  /// cluster termination, see <a
+  /// steps. Defaults to <code>false</code>. For more information about
+  /// configuring cluster termination, see <a
   /// href="https://docs.aws.amazon.com/emr/latest/ManagementGuide/emr-plan-termination.html">Control
   /// Cluster Termination</a> in the <i>EMR Management Guide</i>.
   final bool? keepJobFlowAliveWhenNoSteps;
@@ -7094,6 +6782,10 @@ class JobFlowInstancesConfig {
   /// job-flow error.
   final bool? terminationProtected;
 
+  /// Indicates whether Amazon EMR should gracefully replace core nodes that have
+  /// degraded within the cluster.
+  final bool? unhealthyNodeReplacement;
+
   JobFlowInstancesConfig({
     this.additionalMasterSecurityGroups,
     this.additionalSlaveSecurityGroups,
@@ -7112,6 +6804,7 @@ class JobFlowInstancesConfig {
     this.serviceAccessSecurityGroup,
     this.slaveInstanceType,
     this.terminationProtected,
+    this.unhealthyNodeReplacement,
   });
 
   Map<String, dynamic> toJson() {
@@ -7132,6 +6825,7 @@ class JobFlowInstancesConfig {
     final serviceAccessSecurityGroup = this.serviceAccessSecurityGroup;
     final slaveInstanceType = this.slaveInstanceType;
     final terminationProtected = this.terminationProtected;
+    final unhealthyNodeReplacement = this.unhealthyNodeReplacement;
     return {
       if (additionalMasterSecurityGroups != null)
         'AdditionalMasterSecurityGroups': additionalMasterSecurityGroups,
@@ -7157,6 +6851,8 @@ class JobFlowInstancesConfig {
       if (slaveInstanceType != null) 'SlaveInstanceType': slaveInstanceType,
       if (terminationProtected != null)
         'TerminationProtected': terminationProtected,
+      if (unhealthyNodeReplacement != null)
+        'UnhealthyNodeReplacement': unhealthyNodeReplacement,
     };
   }
 }
@@ -7217,6 +6913,10 @@ class JobFlowInstancesDetail {
   /// error.
   final bool? terminationProtected;
 
+  /// Indicates whether Amazon EMR should gracefully replace core nodes that have
+  /// degraded within the cluster.
+  final bool? unhealthyNodeReplacement;
+
   JobFlowInstancesDetail({
     required this.instanceCount,
     required this.masterInstanceType,
@@ -7231,6 +6931,7 @@ class JobFlowInstancesDetail {
     this.normalizedInstanceHours,
     this.placement,
     this.terminationProtected,
+    this.unhealthyNodeReplacement,
   });
 
   factory JobFlowInstancesDetail.fromJson(Map<String, dynamic> json) {
@@ -7242,7 +6943,7 @@ class JobFlowInstancesDetail {
       ec2SubnetId: json['Ec2SubnetId'] as String?,
       hadoopVersion: json['HadoopVersion'] as String?,
       instanceGroups: (json['InstanceGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceGroupDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       keepJobFlowAliveWhenNoSteps: json['KeepJobFlowAliveWhenNoSteps'] as bool?,
@@ -7253,6 +6954,7 @@ class JobFlowInstancesDetail {
           ? PlacementType.fromJson(json['Placement'] as Map<String, dynamic>)
           : null,
       terminationProtected: json['TerminationProtected'] as bool?,
+      unhealthyNodeReplacement: json['UnhealthyNodeReplacement'] as bool?,
     );
   }
 }
@@ -7367,7 +7069,7 @@ class ListBootstrapActionsOutput {
   factory ListBootstrapActionsOutput.fromJson(Map<String, dynamic> json) {
     return ListBootstrapActionsOutput(
       bootstrapActions: (json['BootstrapActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Command.fromJson(e as Map<String, dynamic>))
           .toList(),
       marker: json['Marker'] as String?,
@@ -7392,7 +7094,7 @@ class ListClustersOutput {
   factory ListClustersOutput.fromJson(Map<String, dynamic> json) {
     return ListClustersOutput(
       clusters: (json['Clusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ClusterSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       marker: json['Marker'] as String?,
@@ -7415,7 +7117,7 @@ class ListInstanceFleetsOutput {
   factory ListInstanceFleetsOutput.fromJson(Map<String, dynamic> json) {
     return ListInstanceFleetsOutput(
       instanceFleets: (json['InstanceFleets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceFleet.fromJson(e as Map<String, dynamic>))
           .toList(),
       marker: json['Marker'] as String?,
@@ -7439,7 +7141,7 @@ class ListInstanceGroupsOutput {
   factory ListInstanceGroupsOutput.fromJson(Map<String, dynamic> json) {
     return ListInstanceGroupsOutput(
       instanceGroups: (json['InstanceGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       marker: json['Marker'] as String?,
@@ -7463,7 +7165,7 @@ class ListInstancesOutput {
   factory ListInstancesOutput.fromJson(Map<String, dynamic> json) {
     return ListInstancesOutput(
       instances: (json['Instances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Instance.fromJson(e as Map<String, dynamic>))
           .toList(),
       marker: json['Marker'] as String?,
@@ -7488,7 +7190,7 @@ class ListNotebookExecutionsOutput {
     return ListNotebookExecutionsOutput(
       marker: json['Marker'] as String?,
       notebookExecutions: (json['NotebookExecutions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               NotebookExecutionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7513,7 +7215,7 @@ class ListReleaseLabelsOutput {
     return ListReleaseLabelsOutput(
       nextToken: json['NextToken'] as String?,
       releaseLabels: (json['ReleaseLabels'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -7538,7 +7240,7 @@ class ListSecurityConfigurationsOutput {
     return ListSecurityConfigurationsOutput(
       marker: json['Marker'] as String?,
       securityConfigurations: (json['SecurityConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SecurityConfigurationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -7568,7 +7270,7 @@ class ListStepsOutput {
     return ListStepsOutput(
       marker: json['Marker'] as String?,
       steps: (json['Steps'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StepSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7593,7 +7295,7 @@ class ListStudioSessionMappingsOutput {
     return ListStudioSessionMappingsOutput(
       marker: json['Marker'] as String?,
       sessionMappings: (json['SessionMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SessionMappingSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7616,8 +7318,33 @@ class ListStudiosOutput {
     return ListStudiosOutput(
       marker: json['Marker'] as String?,
       studios: (json['Studios'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StudioSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class ListSupportedInstanceTypesOutput {
+  /// The pagination token that marks the next set of results to retrieve.
+  final String? marker;
+
+  /// The list of instance types that the release specified in
+  /// <code>ListSupportedInstanceTypesInput$ReleaseLabel</code> supports, filtered
+  /// by Amazon Web Services Region.
+  final List<SupportedInstanceType>? supportedInstanceTypes;
+
+  ListSupportedInstanceTypesOutput({
+    this.marker,
+    this.supportedInstanceTypes,
+  });
+
+  factory ListSupportedInstanceTypesOutput.fromJson(Map<String, dynamic> json) {
+    return ListSupportedInstanceTypesOutput(
+      marker: json['Marker'] as String?,
+      supportedInstanceTypes: (json['SupportedInstanceTypes'] as List?)
+          ?.nonNulls
+          .map((e) => SupportedInstanceType.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -7656,31 +7383,17 @@ class ManagedScalingPolicy {
 }
 
 enum MarketType {
-  onDemand,
-  spot,
-}
+  onDemand('ON_DEMAND'),
+  spot('SPOT'),
+  ;
 
-extension MarketTypeValueExtension on MarketType {
-  String toValue() {
-    switch (this) {
-      case MarketType.onDemand:
-        return 'ON_DEMAND';
-      case MarketType.spot:
-        return 'SPOT';
-    }
-  }
-}
+  final String value;
 
-extension MarketTypeFromString on String {
-  MarketType toMarketType() {
-    switch (this) {
-      case 'ON_DEMAND':
-        return MarketType.onDemand;
-      case 'SPOT':
-        return MarketType.spot;
-    }
-    throw Exception('$this is not known in enum MarketType');
-  }
+  const MarketType(this.value);
+
+  static MarketType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum MarketType'));
 }
 
 /// A CloudWatch dimension, which is specified using a <code>Key</code> (known
@@ -7881,17 +7594,18 @@ class NotebookExecution {
           ? NotebookS3LocationForOutput.fromJson(
               json['NotebookS3Location'] as Map<String, dynamic>)
           : null,
-      outputNotebookFormat:
-          (json['OutputNotebookFormat'] as String?)?.toOutputNotebookFormat(),
+      outputNotebookFormat: (json['OutputNotebookFormat'] as String?)
+          ?.let(OutputNotebookFormat.fromString),
       outputNotebookS3Location: json['OutputNotebookS3Location'] != null
           ? OutputNotebookS3LocationForOutput.fromJson(
               json['OutputNotebookS3Location'] as Map<String, dynamic>)
           : null,
       outputNotebookURI: json['OutputNotebookURI'] as String?,
       startTime: timeStampFromJson(json['StartTime']),
-      status: (json['Status'] as String?)?.toNotebookExecutionStatus(),
+      status:
+          (json['Status'] as String?)?.let(NotebookExecutionStatus.fromString),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7899,71 +7613,26 @@ class NotebookExecution {
 }
 
 enum NotebookExecutionStatus {
-  startPending,
-  starting,
-  running,
-  finishing,
-  finished,
-  failing,
-  failed,
-  stopPending,
-  stopping,
-  stopped,
-}
+  startPending('START_PENDING'),
+  starting('STARTING'),
+  running('RUNNING'),
+  finishing('FINISHING'),
+  finished('FINISHED'),
+  failing('FAILING'),
+  failed('FAILED'),
+  stopPending('STOP_PENDING'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  ;
 
-extension NotebookExecutionStatusValueExtension on NotebookExecutionStatus {
-  String toValue() {
-    switch (this) {
-      case NotebookExecutionStatus.startPending:
-        return 'START_PENDING';
-      case NotebookExecutionStatus.starting:
-        return 'STARTING';
-      case NotebookExecutionStatus.running:
-        return 'RUNNING';
-      case NotebookExecutionStatus.finishing:
-        return 'FINISHING';
-      case NotebookExecutionStatus.finished:
-        return 'FINISHED';
-      case NotebookExecutionStatus.failing:
-        return 'FAILING';
-      case NotebookExecutionStatus.failed:
-        return 'FAILED';
-      case NotebookExecutionStatus.stopPending:
-        return 'STOP_PENDING';
-      case NotebookExecutionStatus.stopping:
-        return 'STOPPING';
-      case NotebookExecutionStatus.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension NotebookExecutionStatusFromString on String {
-  NotebookExecutionStatus toNotebookExecutionStatus() {
-    switch (this) {
-      case 'START_PENDING':
-        return NotebookExecutionStatus.startPending;
-      case 'STARTING':
-        return NotebookExecutionStatus.starting;
-      case 'RUNNING':
-        return NotebookExecutionStatus.running;
-      case 'FINISHING':
-        return NotebookExecutionStatus.finishing;
-      case 'FINISHED':
-        return NotebookExecutionStatus.finished;
-      case 'FAILING':
-        return NotebookExecutionStatus.failing;
-      case 'FAILED':
-        return NotebookExecutionStatus.failed;
-      case 'STOP_PENDING':
-        return NotebookExecutionStatus.stopPending;
-      case 'STOPPING':
-        return NotebookExecutionStatus.stopping;
-      case 'STOPPED':
-        return NotebookExecutionStatus.stopped;
-    }
-    throw Exception('$this is not known in enum NotebookExecutionStatus');
-  }
+  const NotebookExecutionStatus(this.value);
+
+  static NotebookExecutionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum NotebookExecutionStatus'));
 }
 
 /// Details for a notebook execution. The details include information such as
@@ -8059,7 +7728,8 @@ class NotebookExecutionSummary {
               json['NotebookS3Location'] as Map<String, dynamic>)
           : null,
       startTime: timeStampFromJson(json['StartTime']),
-      status: (json['Status'] as String?)?.toNotebookExecutionStatus(),
+      status:
+          (json['Status'] as String?)?.let(NotebookExecutionStatus.fromString),
     );
   }
 }
@@ -8176,11 +7846,11 @@ class OnDemandCapacityReservationOptions {
     return OnDemandCapacityReservationOptions(
       capacityReservationPreference:
           (json['CapacityReservationPreference'] as String?)
-              ?.toOnDemandCapacityReservationPreference(),
+              ?.let(OnDemandCapacityReservationPreference.fromString),
       capacityReservationResourceGroupArn:
           json['CapacityReservationResourceGroupArn'] as String?,
       usageStrategy: (json['UsageStrategy'] as String?)
-          ?.toOnDemandCapacityReservationUsageStrategy(),
+          ?.let(OnDemandCapacityReservationUsageStrategy.fromString),
     );
   }
 
@@ -8191,99 +7861,56 @@ class OnDemandCapacityReservationOptions {
     final usageStrategy = this.usageStrategy;
     return {
       if (capacityReservationPreference != null)
-        'CapacityReservationPreference':
-            capacityReservationPreference.toValue(),
+        'CapacityReservationPreference': capacityReservationPreference.value,
       if (capacityReservationResourceGroupArn != null)
         'CapacityReservationResourceGroupArn':
             capacityReservationResourceGroupArn,
-      if (usageStrategy != null) 'UsageStrategy': usageStrategy.toValue(),
+      if (usageStrategy != null) 'UsageStrategy': usageStrategy.value,
     };
   }
 }
 
 enum OnDemandCapacityReservationPreference {
-  open,
-  none,
-}
+  open('open'),
+  none('none'),
+  ;
 
-extension OnDemandCapacityReservationPreferenceValueExtension
-    on OnDemandCapacityReservationPreference {
-  String toValue() {
-    switch (this) {
-      case OnDemandCapacityReservationPreference.open:
-        return 'open';
-      case OnDemandCapacityReservationPreference.none:
-        return 'none';
-    }
-  }
-}
+  final String value;
 
-extension OnDemandCapacityReservationPreferenceFromString on String {
-  OnDemandCapacityReservationPreference
-      toOnDemandCapacityReservationPreference() {
-    switch (this) {
-      case 'open':
-        return OnDemandCapacityReservationPreference.open;
-      case 'none':
-        return OnDemandCapacityReservationPreference.none;
-    }
-    throw Exception(
-        '$this is not known in enum OnDemandCapacityReservationPreference');
-  }
+  const OnDemandCapacityReservationPreference(this.value);
+
+  static OnDemandCapacityReservationPreference fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OnDemandCapacityReservationPreference'));
 }
 
 enum OnDemandCapacityReservationUsageStrategy {
-  useCapacityReservationsFirst,
-}
+  useCapacityReservationsFirst('use-capacity-reservations-first'),
+  ;
 
-extension OnDemandCapacityReservationUsageStrategyValueExtension
-    on OnDemandCapacityReservationUsageStrategy {
-  String toValue() {
-    switch (this) {
-      case OnDemandCapacityReservationUsageStrategy
-            .useCapacityReservationsFirst:
-        return 'use-capacity-reservations-first';
-    }
-  }
-}
+  final String value;
 
-extension OnDemandCapacityReservationUsageStrategyFromString on String {
-  OnDemandCapacityReservationUsageStrategy
-      toOnDemandCapacityReservationUsageStrategy() {
-    switch (this) {
-      case 'use-capacity-reservations-first':
-        return OnDemandCapacityReservationUsageStrategy
-            .useCapacityReservationsFirst;
-    }
-    throw Exception(
-        '$this is not known in enum OnDemandCapacityReservationUsageStrategy');
-  }
+  const OnDemandCapacityReservationUsageStrategy(this.value);
+
+  static OnDemandCapacityReservationUsageStrategy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OnDemandCapacityReservationUsageStrategy'));
 }
 
 enum OnDemandProvisioningAllocationStrategy {
-  lowestPrice,
-}
+  lowestPrice('lowest-price'),
+  ;
 
-extension OnDemandProvisioningAllocationStrategyValueExtension
-    on OnDemandProvisioningAllocationStrategy {
-  String toValue() {
-    switch (this) {
-      case OnDemandProvisioningAllocationStrategy.lowestPrice:
-        return 'lowest-price';
-    }
-  }
-}
+  final String value;
 
-extension OnDemandProvisioningAllocationStrategyFromString on String {
-  OnDemandProvisioningAllocationStrategy
-      toOnDemandProvisioningAllocationStrategy() {
-    switch (this) {
-      case 'lowest-price':
-        return OnDemandProvisioningAllocationStrategy.lowestPrice;
-    }
-    throw Exception(
-        '$this is not known in enum OnDemandProvisioningAllocationStrategy');
-  }
+  const OnDemandProvisioningAllocationStrategy(this.value);
+
+  static OnDemandProvisioningAllocationStrategy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OnDemandProvisioningAllocationStrategy'));
 }
 
 /// The launch specification for On-Demand Instances in the instance fleet,
@@ -8311,8 +7938,8 @@ class OnDemandProvisioningSpecification {
   factory OnDemandProvisioningSpecification.fromJson(
       Map<String, dynamic> json) {
     return OnDemandProvisioningSpecification(
-      allocationStrategy: (json['AllocationStrategy'] as String)
-          .toOnDemandProvisioningAllocationStrategy(),
+      allocationStrategy: OnDemandProvisioningAllocationStrategy.fromString(
+          (json['AllocationStrategy'] as String)),
       capacityReservationOptions: json['CapacityReservationOptions'] != null
           ? OnDemandCapacityReservationOptions.fromJson(
               json['CapacityReservationOptions'] as Map<String, dynamic>)
@@ -8324,7 +7951,7 @@ class OnDemandProvisioningSpecification {
     final allocationStrategy = this.allocationStrategy;
     final capacityReservationOptions = this.capacityReservationOptions;
     return {
-      'AllocationStrategy': allocationStrategy.toValue(),
+      'AllocationStrategy': allocationStrategy.value,
       if (capacityReservationOptions != null)
         'CapacityReservationOptions': capacityReservationOptions,
     };
@@ -8363,26 +7990,17 @@ class OnDemandResizingSpecification {
 }
 
 enum OutputNotebookFormat {
-  html,
-}
+  html('HTML'),
+  ;
 
-extension OutputNotebookFormatValueExtension on OutputNotebookFormat {
-  String toValue() {
-    switch (this) {
-      case OutputNotebookFormat.html:
-        return 'HTML';
-    }
-  }
-}
+  final String value;
 
-extension OutputNotebookFormatFromString on String {
-  OutputNotebookFormat toOutputNotebookFormat() {
-    switch (this) {
-      case 'HTML':
-        return OutputNotebookFormat.html;
-    }
-    throw Exception('$this is not known in enum OutputNotebookFormat');
-  }
+  const OutputNotebookFormat(this.value);
+
+  static OutputNotebookFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum OutputNotebookFormat'));
 }
 
 /// The Amazon S3 location that stores the notebook execution output.
@@ -8456,9 +8074,10 @@ class PlacementGroupConfig {
 
   factory PlacementGroupConfig.fromJson(Map<String, dynamic> json) {
     return PlacementGroupConfig(
-      instanceRole: (json['InstanceRole'] as String).toInstanceRoleType(),
-      placementStrategy:
-          (json['PlacementStrategy'] as String?)?.toPlacementGroupStrategy(),
+      instanceRole:
+          InstanceRoleType.fromString((json['InstanceRole'] as String)),
+      placementStrategy: (json['PlacementStrategy'] as String?)
+          ?.let(PlacementGroupStrategy.fromString),
     );
   }
 
@@ -8466,49 +8085,28 @@ class PlacementGroupConfig {
     final instanceRole = this.instanceRole;
     final placementStrategy = this.placementStrategy;
     return {
-      'InstanceRole': instanceRole.toValue(),
+      'InstanceRole': instanceRole.value,
       if (placementStrategy != null)
-        'PlacementStrategy': placementStrategy.toValue(),
+        'PlacementStrategy': placementStrategy.value,
     };
   }
 }
 
 enum PlacementGroupStrategy {
-  spread,
-  partition,
-  cluster,
-  none,
-}
+  spread('SPREAD'),
+  partition('PARTITION'),
+  cluster('CLUSTER'),
+  none('NONE'),
+  ;
 
-extension PlacementGroupStrategyValueExtension on PlacementGroupStrategy {
-  String toValue() {
-    switch (this) {
-      case PlacementGroupStrategy.spread:
-        return 'SPREAD';
-      case PlacementGroupStrategy.partition:
-        return 'PARTITION';
-      case PlacementGroupStrategy.cluster:
-        return 'CLUSTER';
-      case PlacementGroupStrategy.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension PlacementGroupStrategyFromString on String {
-  PlacementGroupStrategy toPlacementGroupStrategy() {
-    switch (this) {
-      case 'SPREAD':
-        return PlacementGroupStrategy.spread;
-      case 'PARTITION':
-        return PlacementGroupStrategy.partition;
-      case 'CLUSTER':
-        return PlacementGroupStrategy.cluster;
-      case 'NONE':
-        return PlacementGroupStrategy.none;
-    }
-    throw Exception('$this is not known in enum PlacementGroupStrategy');
-  }
+  const PlacementGroupStrategy(this.value);
+
+  static PlacementGroupStrategy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PlacementGroupStrategy'));
 }
 
 /// The Amazon EC2 Availability Zone configuration of the cluster (job flow).
@@ -8538,7 +8136,7 @@ class PlacementType {
     return PlacementType(
       availabilityZone: json['AvailabilityZone'] as String?,
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -8647,31 +8245,18 @@ class PutManagedScalingPolicyOutput {
 }
 
 enum ReconfigurationType {
-  overwrite,
-  merge,
-}
+  overwrite('OVERWRITE'),
+  merge('MERGE'),
+  ;
 
-extension ReconfigurationTypeValueExtension on ReconfigurationType {
-  String toValue() {
-    switch (this) {
-      case ReconfigurationType.overwrite:
-        return 'OVERWRITE';
-      case ReconfigurationType.merge:
-        return 'MERGE';
-    }
-  }
-}
+  final String value;
 
-extension ReconfigurationTypeFromString on String {
-  ReconfigurationType toReconfigurationType() {
-    switch (this) {
-      case 'OVERWRITE':
-        return ReconfigurationType.overwrite;
-      case 'MERGE':
-        return ReconfigurationType.merge;
-    }
-    throw Exception('$this is not known in enum ReconfigurationType');
-  }
+  const ReconfigurationType(this.value);
+
+  static ReconfigurationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ReconfigurationType'));
 }
 
 /// The release label filters by application or version prefix.
@@ -8733,31 +8318,18 @@ class RemoveTagsOutput {
 }
 
 enum RepoUpgradeOnBoot {
-  security,
-  none,
-}
+  security('SECURITY'),
+  none('NONE'),
+  ;
 
-extension RepoUpgradeOnBootValueExtension on RepoUpgradeOnBoot {
-  String toValue() {
-    switch (this) {
-      case RepoUpgradeOnBoot.security:
-        return 'SECURITY';
-      case RepoUpgradeOnBoot.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension RepoUpgradeOnBootFromString on String {
-  RepoUpgradeOnBoot toRepoUpgradeOnBoot() {
-    switch (this) {
-      case 'SECURITY':
-        return RepoUpgradeOnBoot.security;
-      case 'NONE':
-        return RepoUpgradeOnBoot.none;
-    }
-    throw Exception('$this is not known in enum RepoUpgradeOnBoot');
-  }
+  const RepoUpgradeOnBoot(this.value);
+
+  static RepoUpgradeOnBoot fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RepoUpgradeOnBoot'));
 }
 
 /// The result of the <a>RunJobFlow</a> operation.
@@ -8782,31 +8354,18 @@ class RunJobFlowOutput {
 }
 
 enum ScaleDownBehavior {
-  terminateAtInstanceHour,
-  terminateAtTaskCompletion,
-}
+  terminateAtInstanceHour('TERMINATE_AT_INSTANCE_HOUR'),
+  terminateAtTaskCompletion('TERMINATE_AT_TASK_COMPLETION'),
+  ;
 
-extension ScaleDownBehaviorValueExtension on ScaleDownBehavior {
-  String toValue() {
-    switch (this) {
-      case ScaleDownBehavior.terminateAtInstanceHour:
-        return 'TERMINATE_AT_INSTANCE_HOUR';
-      case ScaleDownBehavior.terminateAtTaskCompletion:
-        return 'TERMINATE_AT_TASK_COMPLETION';
-    }
-  }
-}
+  final String value;
 
-extension ScaleDownBehaviorFromString on String {
-  ScaleDownBehavior toScaleDownBehavior() {
-    switch (this) {
-      case 'TERMINATE_AT_INSTANCE_HOUR':
-        return ScaleDownBehavior.terminateAtInstanceHour;
-      case 'TERMINATE_AT_TASK_COMPLETION':
-        return ScaleDownBehavior.terminateAtTaskCompletion;
-    }
-    throw Exception('$this is not known in enum ScaleDownBehavior');
-  }
+  const ScaleDownBehavior(this.value);
+
+  static ScaleDownBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ScaleDownBehavior'));
 }
 
 /// The type of adjustment the automatic scaling activity makes when triggered,
@@ -8830,7 +8389,7 @@ class ScalingAction {
       simpleScalingPolicyConfiguration:
           SimpleScalingPolicyConfiguration.fromJson(
               json['SimpleScalingPolicyConfiguration'] as Map<String, dynamic>),
-      market: (json['Market'] as String?)?.toMarketType(),
+      market: (json['Market'] as String?)?.let(MarketType.fromString),
     );
   }
 
@@ -8840,7 +8399,7 @@ class ScalingAction {
     final market = this.market;
     return {
       'SimpleScalingPolicyConfiguration': simpleScalingPolicyConfiguration,
-      if (market != null) 'Market': market.toValue(),
+      if (market != null) 'Market': market.value,
     };
   }
 }
@@ -8973,10 +8532,7 @@ class ScriptBootstrapActionConfig {
   factory ScriptBootstrapActionConfig.fromJson(Map<String, dynamic> json) {
     return ScriptBootstrapActionConfig(
       path: json['Path'] as String,
-      args: (json['Args'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      args: (json['Args'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -9056,7 +8612,8 @@ class SessionMappingDetail {
       creationTime: timeStampFromJson(json['CreationTime']),
       identityId: json['IdentityId'] as String?,
       identityName: json['IdentityName'] as String?,
-      identityType: (json['IdentityType'] as String?)?.toIdentityType(),
+      identityType:
+          (json['IdentityType'] as String?)?.let(IdentityType.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       sessionPolicyArn: json['SessionPolicyArn'] as String?,
       studioId: json['StudioId'] as String?,
@@ -9106,7 +8663,8 @@ class SessionMappingSummary {
       creationTime: timeStampFromJson(json['CreationTime']),
       identityId: json['IdentityId'] as String?,
       identityName: json['IdentityName'] as String?,
-      identityType: (json['IdentityType'] as String?)?.toIdentityType(),
+      identityType:
+          (json['IdentityType'] as String?)?.let(IdentityType.fromString),
       sessionPolicyArn: json['SessionPolicyArn'] as String?,
       studioId: json['StudioId'] as String?,
     );
@@ -9196,7 +8754,8 @@ class SimpleScalingPolicyConfiguration {
   factory SimpleScalingPolicyConfiguration.fromJson(Map<String, dynamic> json) {
     return SimpleScalingPolicyConfiguration(
       scalingAdjustment: json['ScalingAdjustment'] as int,
-      adjustmentType: (json['AdjustmentType'] as String?)?.toAdjustmentType(),
+      adjustmentType:
+          (json['AdjustmentType'] as String?)?.let(AdjustmentType.fromString),
       coolDown: json['CoolDown'] as int?,
     );
   }
@@ -9207,7 +8766,7 @@ class SimpleScalingPolicyConfiguration {
     final coolDown = this.coolDown;
     return {
       'ScalingAdjustment': scalingAdjustment,
-      if (adjustmentType != null) 'AdjustmentType': adjustmentType.toValue(),
+      if (adjustmentType != null) 'AdjustmentType': adjustmentType.value,
       if (coolDown != null) 'CoolDown': coolDown,
     };
   }
@@ -9237,28 +8796,20 @@ class SimplifiedApplication {
 }
 
 enum SpotProvisioningAllocationStrategy {
-  capacityOptimized,
-}
+  capacityOptimized('capacity-optimized'),
+  priceCapacityOptimized('price-capacity-optimized'),
+  lowestPrice('lowest-price'),
+  diversified('diversified'),
+  ;
 
-extension SpotProvisioningAllocationStrategyValueExtension
-    on SpotProvisioningAllocationStrategy {
-  String toValue() {
-    switch (this) {
-      case SpotProvisioningAllocationStrategy.capacityOptimized:
-        return 'capacity-optimized';
-    }
-  }
-}
+  final String value;
 
-extension SpotProvisioningAllocationStrategyFromString on String {
-  SpotProvisioningAllocationStrategy toSpotProvisioningAllocationStrategy() {
-    switch (this) {
-      case 'capacity-optimized':
-        return SpotProvisioningAllocationStrategy.capacityOptimized;
-    }
-    throw Exception(
-        '$this is not known in enum SpotProvisioningAllocationStrategy');
-  }
+  const SpotProvisioningAllocationStrategy(this.value);
+
+  static SpotProvisioningAllocationStrategy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SpotProvisioningAllocationStrategy'));
 }
 
 /// The launch specification for Spot Instances in the instance fleet, which
@@ -9290,10 +8841,18 @@ class SpotProvisioningSpecification {
   /// only during initial provisioning, when the cluster is first created.
   final int timeoutDurationMinutes;
 
-  /// Specifies the strategy to use in launching Spot Instance fleets. Currently,
-  /// the only option is capacity-optimized (the default), which launches
-  /// instances from Spot Instance pools with optimal capacity for the number of
-  /// instances that are launching.
+  /// Specifies one of the following strategies to launch Spot Instance fleets:
+  /// <code>price-capacity-optimized</code>, <code>capacity-optimized</code>,
+  /// <code>lowest-price</code>, or <code>diversified</code>. For more information
+  /// on the provisioning strategies, see <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-fleet-allocation-strategy.html">Allocation
+  /// strategies for Spot Instances</a> in the <i>Amazon EC2 User Guide for Linux
+  /// Instances</i>.
+  /// <note>
+  /// When you launch a Spot Instance fleet with the old console, it automatically
+  /// launches with the <code>capacity-optimized</code> strategy. You can't change
+  /// the allocation strategy from the old console.
+  /// </note>
   final SpotProvisioningAllocationStrategy? allocationStrategy;
 
   /// The defined duration for Spot Instances (also known as Spot blocks) in
@@ -9321,11 +8880,11 @@ class SpotProvisioningSpecification {
 
   factory SpotProvisioningSpecification.fromJson(Map<String, dynamic> json) {
     return SpotProvisioningSpecification(
-      timeoutAction:
-          (json['TimeoutAction'] as String).toSpotProvisioningTimeoutAction(),
+      timeoutAction: SpotProvisioningTimeoutAction.fromString(
+          (json['TimeoutAction'] as String)),
       timeoutDurationMinutes: json['TimeoutDurationMinutes'] as int,
       allocationStrategy: (json['AllocationStrategy'] as String?)
-          ?.toSpotProvisioningAllocationStrategy(),
+          ?.let(SpotProvisioningAllocationStrategy.fromString),
       blockDurationMinutes: json['BlockDurationMinutes'] as int?,
     );
   }
@@ -9336,10 +8895,10 @@ class SpotProvisioningSpecification {
     final allocationStrategy = this.allocationStrategy;
     final blockDurationMinutes = this.blockDurationMinutes;
     return {
-      'TimeoutAction': timeoutAction.toValue(),
+      'TimeoutAction': timeoutAction.value,
       'TimeoutDurationMinutes': timeoutDurationMinutes,
       if (allocationStrategy != null)
-        'AllocationStrategy': allocationStrategy.toValue(),
+        'AllocationStrategy': allocationStrategy.value,
       if (blockDurationMinutes != null)
         'BlockDurationMinutes': blockDurationMinutes,
     };
@@ -9347,32 +8906,18 @@ class SpotProvisioningSpecification {
 }
 
 enum SpotProvisioningTimeoutAction {
-  switchToOnDemand,
-  terminateCluster,
-}
+  switchToOnDemand('SWITCH_TO_ON_DEMAND'),
+  terminateCluster('TERMINATE_CLUSTER'),
+  ;
 
-extension SpotProvisioningTimeoutActionValueExtension
-    on SpotProvisioningTimeoutAction {
-  String toValue() {
-    switch (this) {
-      case SpotProvisioningTimeoutAction.switchToOnDemand:
-        return 'SWITCH_TO_ON_DEMAND';
-      case SpotProvisioningTimeoutAction.terminateCluster:
-        return 'TERMINATE_CLUSTER';
-    }
-  }
-}
+  final String value;
 
-extension SpotProvisioningTimeoutActionFromString on String {
-  SpotProvisioningTimeoutAction toSpotProvisioningTimeoutAction() {
-    switch (this) {
-      case 'SWITCH_TO_ON_DEMAND':
-        return SpotProvisioningTimeoutAction.switchToOnDemand;
-      case 'TERMINATE_CLUSTER':
-        return SpotProvisioningTimeoutAction.terminateCluster;
-    }
-    throw Exception('$this is not known in enum SpotProvisioningTimeoutAction');
-  }
+  const SpotProvisioningTimeoutAction(this.value);
+
+  static SpotProvisioningTimeoutAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SpotProvisioningTimeoutAction'));
 }
 
 /// The resize specification for Spot Instances in the instance fleet, which
@@ -9422,46 +8967,20 @@ class StartNotebookExecutionOutput {
 }
 
 enum Statistic {
-  sampleCount,
-  average,
-  sum,
-  minimum,
-  maximum,
-}
+  sampleCount('SAMPLE_COUNT'),
+  average('AVERAGE'),
+  sum('SUM'),
+  minimum('MINIMUM'),
+  maximum('MAXIMUM'),
+  ;
 
-extension StatisticValueExtension on Statistic {
-  String toValue() {
-    switch (this) {
-      case Statistic.sampleCount:
-        return 'SAMPLE_COUNT';
-      case Statistic.average:
-        return 'AVERAGE';
-      case Statistic.sum:
-        return 'SUM';
-      case Statistic.minimum:
-        return 'MINIMUM';
-      case Statistic.maximum:
-        return 'MAXIMUM';
-    }
-  }
-}
+  final String value;
 
-extension StatisticFromString on String {
-  Statistic toStatistic() {
-    switch (this) {
-      case 'SAMPLE_COUNT':
-        return Statistic.sampleCount;
-      case 'AVERAGE':
-        return Statistic.average;
-      case 'SUM':
-        return Statistic.sum;
-      case 'MINIMUM':
-        return Statistic.minimum;
-      case 'MAXIMUM':
-        return Statistic.maximum;
-    }
-    throw Exception('$this is not known in enum Statistic');
-  }
+  const Statistic(this.value);
+
+  static Statistic fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Statistic'));
 }
 
 /// This represents a step in a cluster.
@@ -9521,7 +9040,7 @@ class Step {
   factory Step.fromJson(Map<String, dynamic> json) {
     return Step(
       actionOnFailure:
-          (json['ActionOnFailure'] as String?)?.toActionOnFailure(),
+          (json['ActionOnFailure'] as String?)?.let(ActionOnFailure.fromString),
       config: json['Config'] != null
           ? HadoopStepConfig.fromJson(json['Config'] as Map<String, dynamic>)
           : null,
@@ -9536,31 +9055,18 @@ class Step {
 }
 
 enum StepCancellationOption {
-  sendInterrupt,
-  terminateProcess,
-}
+  sendInterrupt('SEND_INTERRUPT'),
+  terminateProcess('TERMINATE_PROCESS'),
+  ;
 
-extension StepCancellationOptionValueExtension on StepCancellationOption {
-  String toValue() {
-    switch (this) {
-      case StepCancellationOption.sendInterrupt:
-        return 'SEND_INTERRUPT';
-      case StepCancellationOption.terminateProcess:
-        return 'TERMINATE_PROCESS';
-    }
-  }
-}
+  final String value;
 
-extension StepCancellationOptionFromString on String {
-  StepCancellationOption toStepCancellationOption() {
-    switch (this) {
-      case 'SEND_INTERRUPT':
-        return StepCancellationOption.sendInterrupt;
-      case 'TERMINATE_PROCESS':
-        return StepCancellationOption.terminateProcess;
-    }
-    throw Exception('$this is not known in enum StepCancellationOption');
-  }
+  const StepCancellationOption(this.value);
+
+  static StepCancellationOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum StepCancellationOption'));
 }
 
 /// Specification for a cluster (job flow) step.
@@ -9617,7 +9123,7 @@ class StepConfig {
           json['HadoopJarStep'] as Map<String, dynamic>),
       name: json['Name'] as String,
       actionOnFailure:
-          (json['ActionOnFailure'] as String?)?.toActionOnFailure(),
+          (json['ActionOnFailure'] as String?)?.let(ActionOnFailure.fromString),
     );
   }
 
@@ -9628,7 +9134,7 @@ class StepConfig {
     return {
       'HadoopJarStep': hadoopJarStep,
       'Name': name,
-      if (actionOnFailure != null) 'ActionOnFailure': actionOnFailure.toValue(),
+      if (actionOnFailure != null) 'ActionOnFailure': actionOnFailure.value,
     };
   }
 }
@@ -9657,56 +9163,23 @@ class StepDetail {
 }
 
 enum StepExecutionState {
-  pending,
-  running,
-  $continue,
-  completed,
-  cancelled,
-  failed,
-  interrupted,
-}
+  pending('PENDING'),
+  running('RUNNING'),
+  $continue('CONTINUE'),
+  completed('COMPLETED'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  interrupted('INTERRUPTED'),
+  ;
 
-extension StepExecutionStateValueExtension on StepExecutionState {
-  String toValue() {
-    switch (this) {
-      case StepExecutionState.pending:
-        return 'PENDING';
-      case StepExecutionState.running:
-        return 'RUNNING';
-      case StepExecutionState.$continue:
-        return 'CONTINUE';
-      case StepExecutionState.completed:
-        return 'COMPLETED';
-      case StepExecutionState.cancelled:
-        return 'CANCELLED';
-      case StepExecutionState.failed:
-        return 'FAILED';
-      case StepExecutionState.interrupted:
-        return 'INTERRUPTED';
-    }
-  }
-}
+  final String value;
 
-extension StepExecutionStateFromString on String {
-  StepExecutionState toStepExecutionState() {
-    switch (this) {
-      case 'PENDING':
-        return StepExecutionState.pending;
-      case 'RUNNING':
-        return StepExecutionState.running;
-      case 'CONTINUE':
-        return StepExecutionState.$continue;
-      case 'COMPLETED':
-        return StepExecutionState.completed;
-      case 'CANCELLED':
-        return StepExecutionState.cancelled;
-      case 'FAILED':
-        return StepExecutionState.failed;
-      case 'INTERRUPTED':
-        return StepExecutionState.interrupted;
-    }
-    throw Exception('$this is not known in enum StepExecutionState');
-  }
+  const StepExecutionState(this.value);
+
+  static StepExecutionState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StepExecutionState'));
 }
 
 /// The execution state of a step.
@@ -9738,7 +9211,7 @@ class StepExecutionStatusDetail {
     return StepExecutionStatusDetail(
       creationDateTime:
           nonNullableTimeStampFromJson(json['CreationDateTime'] as Object),
-      state: (json['State'] as String).toStepExecutionState(),
+      state: StepExecutionState.fromString((json['State'] as String)),
       endDateTime: timeStampFromJson(json['EndDateTime']),
       lastStateChangeReason: json['LastStateChangeReason'] as String?,
       startDateTime: timeStampFromJson(json['StartDateTime']),
@@ -9747,56 +9220,22 @@ class StepExecutionStatusDetail {
 }
 
 enum StepState {
-  pending,
-  cancelPending,
-  running,
-  completed,
-  cancelled,
-  failed,
-  interrupted,
-}
+  pending('PENDING'),
+  cancelPending('CANCEL_PENDING'),
+  running('RUNNING'),
+  completed('COMPLETED'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  interrupted('INTERRUPTED'),
+  ;
 
-extension StepStateValueExtension on StepState {
-  String toValue() {
-    switch (this) {
-      case StepState.pending:
-        return 'PENDING';
-      case StepState.cancelPending:
-        return 'CANCEL_PENDING';
-      case StepState.running:
-        return 'RUNNING';
-      case StepState.completed:
-        return 'COMPLETED';
-      case StepState.cancelled:
-        return 'CANCELLED';
-      case StepState.failed:
-        return 'FAILED';
-      case StepState.interrupted:
-        return 'INTERRUPTED';
-    }
-  }
-}
+  final String value;
 
-extension StepStateFromString on String {
-  StepState toStepState() {
-    switch (this) {
-      case 'PENDING':
-        return StepState.pending;
-      case 'CANCEL_PENDING':
-        return StepState.cancelPending;
-      case 'RUNNING':
-        return StepState.running;
-      case 'COMPLETED':
-        return StepState.completed;
-      case 'CANCELLED':
-        return StepState.cancelled;
-      case 'FAILED':
-        return StepState.failed;
-      case 'INTERRUPTED':
-        return StepState.interrupted;
-    }
-    throw Exception('$this is not known in enum StepState');
-  }
+  const StepState(this.value);
+
+  static StepState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StepState'));
 }
 
 /// The details of the step state change reason.
@@ -9815,33 +9254,25 @@ class StepStateChangeReason {
 
   factory StepStateChangeReason.fromJson(Map<String, dynamic> json) {
     return StepStateChangeReason(
-      code: (json['Code'] as String?)?.toStepStateChangeReasonCode(),
+      code:
+          (json['Code'] as String?)?.let(StepStateChangeReasonCode.fromString),
       message: json['Message'] as String?,
     );
   }
 }
 
 enum StepStateChangeReasonCode {
-  none,
-}
+  none('NONE'),
+  ;
 
-extension StepStateChangeReasonCodeValueExtension on StepStateChangeReasonCode {
-  String toValue() {
-    switch (this) {
-      case StepStateChangeReasonCode.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension StepStateChangeReasonCodeFromString on String {
-  StepStateChangeReasonCode toStepStateChangeReasonCode() {
-    switch (this) {
-      case 'NONE':
-        return StepStateChangeReasonCode.none;
-    }
-    throw Exception('$this is not known in enum StepStateChangeReasonCode');
-  }
+  const StepStateChangeReasonCode(this.value);
+
+  static StepStateChangeReasonCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum StepStateChangeReasonCode'));
 }
 
 /// The execution status details of the cluster step.
@@ -9872,7 +9303,7 @@ class StepStatus {
           ? FailureDetails.fromJson(
               json['FailureDetails'] as Map<String, dynamic>)
           : null,
-      state: (json['State'] as String?)?.toStepState(),
+      state: (json['State'] as String?)?.let(StepState.fromString),
       stateChangeReason: json['StateChangeReason'] != null
           ? StepStateChangeReason.fromJson(
               json['StateChangeReason'] as Map<String, dynamic>)
@@ -9914,7 +9345,7 @@ class StepSummary {
   factory StepSummary.fromJson(Map<String, dynamic> json) {
     return StepSummary(
       actionOnFailure:
-          (json['ActionOnFailure'] as String?)?.toActionOnFailure(),
+          (json['ActionOnFailure'] as String?)?.let(ActionOnFailure.fromString),
       config: json['Config'] != null
           ? HadoopStepConfig.fromJson(json['Config'] as Map<String, dynamic>)
           : null,
@@ -9970,10 +9401,24 @@ class Studio {
   /// The detailed description of the Amazon EMR Studio.
   final String? description;
 
+  /// The KMS key identifier (ARN) used to encrypt Amazon EMR Studio workspace and
+  /// notebook files when backed up to Amazon S3.
+  final String? encryptionKeyArn;
+
   /// The ID of the Engine security group associated with the Amazon EMR Studio.
   /// The Engine security group allows inbound network traffic from resources in
   /// the Workspace security group.
   final String? engineSecurityGroupId;
+
+  /// The ARN of the IAM Identity Center instance the Studio application belongs
+  /// to.
+  final String? idcInstanceArn;
+
+  /// Indicates whether the Studio has <code>REQUIRED</code> or
+  /// <code>OPTIONAL</code> IAM Identity Center user assignment. If the value is
+  /// set to <code>REQUIRED</code>, users must be explicitly assigned to the
+  /// Studio application to access the Studio.
+  final IdcUserAssignment? idcUserAssignment;
 
   /// Your identity provider's authentication endpoint. Amazon EMR Studio
   /// redirects federated users to this endpoint for authentication when logging
@@ -10001,6 +9446,10 @@ class Studio {
   /// A list of tags associated with the Amazon EMR Studio.
   final List<Tag>? tags;
 
+  /// Indicates whether the Studio has Trusted identity propagation enabled. The
+  /// default value is <code>false</code>.
+  final bool? trustedIdentityPropagationEnabled;
+
   /// The unique access URL of the Amazon EMR Studio.
   final String? url;
 
@@ -10022,7 +9471,10 @@ class Studio {
     this.creationTime,
     this.defaultS3Location,
     this.description,
+    this.encryptionKeyArn,
     this.engineSecurityGroupId,
+    this.idcInstanceArn,
+    this.idcUserAssignment,
     this.idpAuthUrl,
     this.idpRelayStateParameterName,
     this.name,
@@ -10031,6 +9483,7 @@ class Studio {
     this.studioId,
     this.subnetIds,
     this.tags,
+    this.trustedIdentityPropagationEnabled,
     this.url,
     this.userRole,
     this.vpcId,
@@ -10039,11 +9492,15 @@ class Studio {
 
   factory Studio.fromJson(Map<String, dynamic> json) {
     return Studio(
-      authMode: (json['AuthMode'] as String?)?.toAuthMode(),
+      authMode: (json['AuthMode'] as String?)?.let(AuthMode.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       defaultS3Location: json['DefaultS3Location'] as String?,
       description: json['Description'] as String?,
+      encryptionKeyArn: json['EncryptionKeyArn'] as String?,
       engineSecurityGroupId: json['EngineSecurityGroupId'] as String?,
+      idcInstanceArn: json['IdcInstanceArn'] as String?,
+      idcUserAssignment: (json['IdcUserAssignment'] as String?)
+          ?.let(IdcUserAssignment.fromString),
       idpAuthUrl: json['IdpAuthUrl'] as String?,
       idpRelayStateParameterName: json['IdpRelayStateParameterName'] as String?,
       name: json['Name'] as String?,
@@ -10051,13 +9508,15 @@ class Studio {
       studioArn: json['StudioArn'] as String?,
       studioId: json['StudioId'] as String?,
       subnetIds: (json['SubnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
+      trustedIdentityPropagationEnabled:
+          json['TrustedIdentityPropagationEnabled'] as bool?,
       url: json['Url'] as String?,
       userRole: json['UserRole'] as String?,
       vpcId: json['VpcId'] as String?,
@@ -10067,8 +9526,8 @@ class Studio {
 }
 
 /// Details for an Amazon EMR Studio, including ID, Name, VPC, and Description.
-/// The details do not include subnets, IAM roles, security groups, or tags
-/// associated with the Studio.
+/// To fetch additional details such as subnets, IAM roles, security groups, and
+/// tags for the Studio, use the <a>DescribeStudio</a> API.
 class StudioSummary {
   /// Specifies whether the Studio authenticates users using IAM or IAM Identity
   /// Center.
@@ -10105,13 +9564,93 @@ class StudioSummary {
 
   factory StudioSummary.fromJson(Map<String, dynamic> json) {
     return StudioSummary(
-      authMode: (json['AuthMode'] as String?)?.toAuthMode(),
+      authMode: (json['AuthMode'] as String?)?.let(AuthMode.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       description: json['Description'] as String?,
       name: json['Name'] as String?,
       studioId: json['StudioId'] as String?,
       url: json['Url'] as String?,
       vpcId: json['VpcId'] as String?,
+    );
+  }
+}
+
+/// An instance type that the specified Amazon EMR release supports.
+class SupportedInstanceType {
+  /// The CPU architecture, for example <code>X86_64</code> or
+  /// <code>AARCH64</code>.
+  final String? architecture;
+
+  /// Indicates whether the <code>SupportedInstanceType</code> supports Amazon EBS
+  /// optimization.
+  final bool? ebsOptimizedAvailable;
+
+  /// Indicates whether the <code>SupportedInstanceType</code> uses Amazon EBS
+  /// optimization by default.
+  final bool? ebsOptimizedByDefault;
+
+  /// Indicates whether the <code>SupportedInstanceType</code> only supports
+  /// Amazon EBS.
+  final bool? ebsStorageOnly;
+
+  /// The Amazon EC2 family and generation for the
+  /// <code>SupportedInstanceType</code>.
+  final String? instanceFamilyId;
+
+  /// Indicates whether the <code>SupportedInstanceType</code> only supports
+  /// 64-bit architecture.
+  final bool? is64BitsOnly;
+
+  /// The amount of memory that is available to Amazon EMR from the
+  /// <code>SupportedInstanceType</code>. The kernel and hypervisor software
+  /// consume some memory, so this value might be lower than the overall memory
+  /// for the instance type.
+  final double? memoryGB;
+
+  /// Number of disks for the <code>SupportedInstanceType</code>. This value is
+  /// <code>0</code> for Amazon EBS-only instance types.
+  final int? numberOfDisks;
+
+  /// <code>StorageGB</code> represents the storage capacity of the
+  /// <code>SupportedInstanceType</code>. This value is <code>0</code> for Amazon
+  /// EBS-only instance types.
+  final int? storageGB;
+
+  /// The <a href="http://aws.amazon.com/ec2/instance-types/">Amazon EC2 instance
+  /// type</a>, for example <code>m5.xlarge</code>, of the
+  /// <code>SupportedInstanceType</code>.
+  final String? type;
+
+  /// The number of vCPUs available for the <code>SupportedInstanceType</code>.
+  final int? vcpu;
+
+  SupportedInstanceType({
+    this.architecture,
+    this.ebsOptimizedAvailable,
+    this.ebsOptimizedByDefault,
+    this.ebsStorageOnly,
+    this.instanceFamilyId,
+    this.is64BitsOnly,
+    this.memoryGB,
+    this.numberOfDisks,
+    this.storageGB,
+    this.type,
+    this.vcpu,
+  });
+
+  factory SupportedInstanceType.fromJson(Map<String, dynamic> json) {
+    return SupportedInstanceType(
+      architecture: json['Architecture'] as String?,
+      ebsOptimizedAvailable: json['EbsOptimizedAvailable'] as bool?,
+      ebsOptimizedByDefault: json['EbsOptimizedByDefault'] as bool?,
+      ebsStorageOnly: json['EbsStorageOnly'] as bool?,
+      instanceFamilyId: json['InstanceFamilyId'] as String?,
+      is64BitsOnly: json['Is64BitsOnly'] as bool?,
+      memoryGB: json['MemoryGB'] as double?,
+      numberOfDisks: json['NumberOfDisks'] as int?,
+      storageGB: json['StorageGB'] as int?,
+      type: json['Type'] as String?,
+      vcpu: json['VCPU'] as int?,
     );
   }
 }
@@ -10182,156 +9721,42 @@ class Tag {
 }
 
 enum Unit {
-  none,
-  seconds,
-  microSeconds,
-  milliSeconds,
-  bytes,
-  kiloBytes,
-  megaBytes,
-  gigaBytes,
-  teraBytes,
-  bits,
-  kiloBits,
-  megaBits,
-  gigaBits,
-  teraBits,
-  percent,
-  count,
-  bytesPerSecond,
-  kiloBytesPerSecond,
-  megaBytesPerSecond,
-  gigaBytesPerSecond,
-  teraBytesPerSecond,
-  bitsPerSecond,
-  kiloBitsPerSecond,
-  megaBitsPerSecond,
-  gigaBitsPerSecond,
-  teraBitsPerSecond,
-  countPerSecond,
-}
+  none('NONE'),
+  seconds('SECONDS'),
+  microSeconds('MICRO_SECONDS'),
+  milliSeconds('MILLI_SECONDS'),
+  bytes('BYTES'),
+  kiloBytes('KILO_BYTES'),
+  megaBytes('MEGA_BYTES'),
+  gigaBytes('GIGA_BYTES'),
+  teraBytes('TERA_BYTES'),
+  bits('BITS'),
+  kiloBits('KILO_BITS'),
+  megaBits('MEGA_BITS'),
+  gigaBits('GIGA_BITS'),
+  teraBits('TERA_BITS'),
+  percent('PERCENT'),
+  count('COUNT'),
+  bytesPerSecond('BYTES_PER_SECOND'),
+  kiloBytesPerSecond('KILO_BYTES_PER_SECOND'),
+  megaBytesPerSecond('MEGA_BYTES_PER_SECOND'),
+  gigaBytesPerSecond('GIGA_BYTES_PER_SECOND'),
+  teraBytesPerSecond('TERA_BYTES_PER_SECOND'),
+  bitsPerSecond('BITS_PER_SECOND'),
+  kiloBitsPerSecond('KILO_BITS_PER_SECOND'),
+  megaBitsPerSecond('MEGA_BITS_PER_SECOND'),
+  gigaBitsPerSecond('GIGA_BITS_PER_SECOND'),
+  teraBitsPerSecond('TERA_BITS_PER_SECOND'),
+  countPerSecond('COUNT_PER_SECOND'),
+  ;
 
-extension UnitValueExtension on Unit {
-  String toValue() {
-    switch (this) {
-      case Unit.none:
-        return 'NONE';
-      case Unit.seconds:
-        return 'SECONDS';
-      case Unit.microSeconds:
-        return 'MICRO_SECONDS';
-      case Unit.milliSeconds:
-        return 'MILLI_SECONDS';
-      case Unit.bytes:
-        return 'BYTES';
-      case Unit.kiloBytes:
-        return 'KILO_BYTES';
-      case Unit.megaBytes:
-        return 'MEGA_BYTES';
-      case Unit.gigaBytes:
-        return 'GIGA_BYTES';
-      case Unit.teraBytes:
-        return 'TERA_BYTES';
-      case Unit.bits:
-        return 'BITS';
-      case Unit.kiloBits:
-        return 'KILO_BITS';
-      case Unit.megaBits:
-        return 'MEGA_BITS';
-      case Unit.gigaBits:
-        return 'GIGA_BITS';
-      case Unit.teraBits:
-        return 'TERA_BITS';
-      case Unit.percent:
-        return 'PERCENT';
-      case Unit.count:
-        return 'COUNT';
-      case Unit.bytesPerSecond:
-        return 'BYTES_PER_SECOND';
-      case Unit.kiloBytesPerSecond:
-        return 'KILO_BYTES_PER_SECOND';
-      case Unit.megaBytesPerSecond:
-        return 'MEGA_BYTES_PER_SECOND';
-      case Unit.gigaBytesPerSecond:
-        return 'GIGA_BYTES_PER_SECOND';
-      case Unit.teraBytesPerSecond:
-        return 'TERA_BYTES_PER_SECOND';
-      case Unit.bitsPerSecond:
-        return 'BITS_PER_SECOND';
-      case Unit.kiloBitsPerSecond:
-        return 'KILO_BITS_PER_SECOND';
-      case Unit.megaBitsPerSecond:
-        return 'MEGA_BITS_PER_SECOND';
-      case Unit.gigaBitsPerSecond:
-        return 'GIGA_BITS_PER_SECOND';
-      case Unit.teraBitsPerSecond:
-        return 'TERA_BITS_PER_SECOND';
-      case Unit.countPerSecond:
-        return 'COUNT_PER_SECOND';
-    }
-  }
-}
+  final String value;
 
-extension UnitFromString on String {
-  Unit toUnit() {
-    switch (this) {
-      case 'NONE':
-        return Unit.none;
-      case 'SECONDS':
-        return Unit.seconds;
-      case 'MICRO_SECONDS':
-        return Unit.microSeconds;
-      case 'MILLI_SECONDS':
-        return Unit.milliSeconds;
-      case 'BYTES':
-        return Unit.bytes;
-      case 'KILO_BYTES':
-        return Unit.kiloBytes;
-      case 'MEGA_BYTES':
-        return Unit.megaBytes;
-      case 'GIGA_BYTES':
-        return Unit.gigaBytes;
-      case 'TERA_BYTES':
-        return Unit.teraBytes;
-      case 'BITS':
-        return Unit.bits;
-      case 'KILO_BITS':
-        return Unit.kiloBits;
-      case 'MEGA_BITS':
-        return Unit.megaBits;
-      case 'GIGA_BITS':
-        return Unit.gigaBits;
-      case 'TERA_BITS':
-        return Unit.teraBits;
-      case 'PERCENT':
-        return Unit.percent;
-      case 'COUNT':
-        return Unit.count;
-      case 'BYTES_PER_SECOND':
-        return Unit.bytesPerSecond;
-      case 'KILO_BYTES_PER_SECOND':
-        return Unit.kiloBytesPerSecond;
-      case 'MEGA_BYTES_PER_SECOND':
-        return Unit.megaBytesPerSecond;
-      case 'GIGA_BYTES_PER_SECOND':
-        return Unit.gigaBytesPerSecond;
-      case 'TERA_BYTES_PER_SECOND':
-        return Unit.teraBytesPerSecond;
-      case 'BITS_PER_SECOND':
-        return Unit.bitsPerSecond;
-      case 'KILO_BITS_PER_SECOND':
-        return Unit.kiloBitsPerSecond;
-      case 'MEGA_BITS_PER_SECOND':
-        return Unit.megaBitsPerSecond;
-      case 'GIGA_BITS_PER_SECOND':
-        return Unit.gigaBitsPerSecond;
-      case 'TERA_BITS_PER_SECOND':
-        return Unit.teraBitsPerSecond;
-      case 'COUNT_PER_SECOND':
-        return Unit.countPerSecond;
-    }
-    throw Exception('$this is not known in enum Unit');
-  }
+  const Unit(this.value);
+
+  static Unit fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Unit'));
 }
 
 /// The username and password that you use to connect to cluster endpoints.

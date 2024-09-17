@@ -17,7 +17,6 @@ import 'package:shared_aws_api/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'elasticloadbalancingv2-2015-12-01.meta.dart';
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// A load balancer distributes incoming traffic across targets, such as your
@@ -32,7 +31,6 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// health status of the targets.
 class ElasticLoadBalancingv2 {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   ElasticLoadBalancingv2({
     required String region,
@@ -40,7 +38,7 @@ class ElasticLoadBalancingv2 {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'elasticloadbalancing',
@@ -49,9 +47,7 @@ class ElasticLoadBalancingv2 {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -89,9 +85,15 @@ class ElasticLoadBalancingv2 {
     required List<Certificate> certificates,
     required String listenerArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Certificates'] = certificates;
-    $request['ListenerArn'] = listenerArn;
+    final $request = <String, String>{
+      if (certificates.isEmpty)
+        'Certificates': ''
+      else
+        for (var i1 = 0; i1 < certificates.length; i1++)
+          for (var e3 in certificates[i1].toQueryMap().entries)
+            'Certificates.member.${i1 + 1}.${e3.key}': e3.value,
+      'ListenerArn': listenerArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AddListenerCertificates',
@@ -99,8 +101,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddListenerCertificatesInput'],
-      shapes: shapes,
       resultWrapper: 'AddListenerCertificatesResult',
     );
     return AddListenerCertificatesOutput.fromXml($result);
@@ -108,7 +108,7 @@ class ElasticLoadBalancingv2 {
 
   /// Adds the specified tags to the specified Elastic Load Balancing resource.
   /// You can tag your Application Load Balancers, Network Load Balancers,
-  /// Gateway Load Balancers, target groups, listeners, and rules.
+  /// Gateway Load Balancers, target groups, trust stores, listeners, and rules.
   ///
   /// Each tag consists of a key and an optional value. If a resource already
   /// has a tag with the same key, <code>AddTags</code> updates its value.
@@ -119,6 +119,7 @@ class ElasticLoadBalancingv2 {
   /// May throw [TargetGroupNotFoundException].
   /// May throw [ListenerNotFoundException].
   /// May throw [RuleNotFoundException].
+  /// May throw [TrustStoreNotFoundException].
   ///
   /// Parameter [resourceArns] :
   /// The Amazon Resource Name (ARN) of the resource.
@@ -129,9 +130,19 @@ class ElasticLoadBalancingv2 {
     required List<String> resourceArns,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceArns'] = resourceArns;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      if (resourceArns.isEmpty)
+        'ResourceArns': ''
+      else
+        for (var i1 = 0; i1 < resourceArns.length; i1++)
+          'ResourceArns.member.${i1 + 1}': resourceArns[i1],
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'AddTags',
@@ -139,10 +150,46 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddTagsInput'],
-      shapes: shapes,
       resultWrapper: 'AddTagsResult',
     );
+  }
+
+  /// Adds the specified revocation file to the specified trust store.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [InvalidRevocationContentException].
+  /// May throw [TooManyTrustStoreRevocationEntriesException].
+  /// May throw [RevocationContentNotFoundException].
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  ///
+  /// Parameter [revocationContents] :
+  /// The revocation file to add.
+  Future<AddTrustStoreRevocationsOutput> addTrustStoreRevocations({
+    required String trustStoreArn,
+    List<RevocationContent>? revocationContents,
+  }) async {
+    final $request = <String, String>{
+      'TrustStoreArn': trustStoreArn,
+      if (revocationContents != null)
+        if (revocationContents.isEmpty)
+          'RevocationContents': ''
+        else
+          for (var i1 = 0; i1 < revocationContents.length; i1++)
+            for (var e3 in revocationContents[i1].toQueryMap().entries)
+              'RevocationContents.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'AddTrustStoreRevocations',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'AddTrustStoreRevocationsResult',
+    );
+    return AddTrustStoreRevocationsOutput.fromXml($result);
   }
 
   /// Creates a listener for the specified Application Load Balancer, Network
@@ -189,6 +236,8 @@ class ElasticLoadBalancingv2 {
   /// May throw [TooManyUniqueTargetGroupsPerLoadBalancerException].
   /// May throw [ALPNPolicyNotSupportedException].
   /// May throw [TooManyTagsException].
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [TrustStoreNotReadyException].
   ///
   /// Parameter [defaultActions] :
   /// The actions for the default rule.
@@ -227,6 +276,9 @@ class ElasticLoadBalancingv2 {
   /// must provide exactly one certificate. Set <code>CertificateArn</code> to
   /// the certificate ARN but do not set <code>IsDefault</code>.
   ///
+  /// Parameter [mutualAuthentication] :
+  /// The mutual authentication configuration information.
+  ///
   /// Parameter [port] :
   /// The port on which the load balancer is listening. You cannot specify a
   /// port for a Gateway Load Balancer.
@@ -255,6 +307,7 @@ class ElasticLoadBalancingv2 {
     required String loadBalancerArn,
     List<String>? alpnPolicy,
     List<Certificate>? certificates,
+    MutualAuthenticationAttributes? mutualAuthentication,
     int? port,
     ProtocolEnum? protocol,
     String? sslPolicy,
@@ -266,15 +319,41 @@ class ElasticLoadBalancingv2 {
       1,
       65535,
     );
-    final $request = <String, dynamic>{};
-    $request['DefaultActions'] = defaultActions;
-    $request['LoadBalancerArn'] = loadBalancerArn;
-    alpnPolicy?.also((arg) => $request['AlpnPolicy'] = arg);
-    certificates?.also((arg) => $request['Certificates'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    protocol?.also((arg) => $request['Protocol'] = arg.toValue());
-    sslPolicy?.also((arg) => $request['SslPolicy'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      if (defaultActions.isEmpty)
+        'DefaultActions': ''
+      else
+        for (var i1 = 0; i1 < defaultActions.length; i1++)
+          for (var e3 in defaultActions[i1].toQueryMap().entries)
+            'DefaultActions.member.${i1 + 1}.${e3.key}': e3.value,
+      'LoadBalancerArn': loadBalancerArn,
+      if (alpnPolicy != null)
+        if (alpnPolicy.isEmpty)
+          'AlpnPolicy': ''
+        else
+          for (var i1 = 0; i1 < alpnPolicy.length; i1++)
+            'AlpnPolicy.member.${i1 + 1}': alpnPolicy[i1],
+      if (certificates != null)
+        if (certificates.isEmpty)
+          'Certificates': ''
+        else
+          for (var i1 = 0; i1 < certificates.length; i1++)
+            for (var e3 in certificates[i1].toQueryMap().entries)
+              'Certificates.member.${i1 + 1}.${e3.key}': e3.value,
+      if (mutualAuthentication != null)
+        for (var e1 in mutualAuthentication.toQueryMap().entries)
+          'MutualAuthentication.${e1.key}': e1.value,
+      if (port != null) 'Port': port.toString(),
+      if (protocol != null) 'Protocol': protocol.value,
+      if (sslPolicy != null) 'SslPolicy': sslPolicy,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateListener',
@@ -282,8 +361,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateListenerInput'],
-      shapes: shapes,
       resultWrapper: 'CreateListenerResult',
     );
     return CreateListenerOutput.fromXml($result);
@@ -341,9 +418,22 @@ class ElasticLoadBalancingv2 {
   /// address pool (CoIP pool).
   ///
   /// Parameter [ipAddressType] :
-  /// The type of IP addresses used by the subnets for your load balancer. The
-  /// possible values are <code>ipv4</code> (for IPv4 addresses) and
-  /// <code>dualstack</code> (for IPv4 and IPv6 addresses).
+  /// Note: Internal load balancers must use the <code>ipv4</code> IP address
+  /// type.
+  ///
+  /// [Application Load Balancers] The IP address type. The possible values are
+  /// <code>ipv4</code> (for only IPv4 addresses), <code>dualstack</code> (for
+  /// IPv4 and IPv6 addresses), and <code>dualstack-without-public-ipv4</code>
+  /// (for IPv6 only public addresses, with private IPv4 and IPv6 addresses).
+  ///
+  /// [Network Load Balancers] The IP address type. The possible values are
+  /// <code>ipv4</code> (for only IPv4 addresses) and <code>dualstack</code>
+  /// (for IPv4 and IPv6 addresses). You can’t specify <code>dualstack</code>
+  /// for a load balancer with a UDP or TCP_UDP listener.
+  ///
+  /// [Gateway Load Balancers] The IP address type. The possible values are
+  /// <code>ipv4</code> (for only IPv4 addresses) and <code>dualstack</code>
+  /// (for IPv4 and IPv6 addresses).
   ///
   /// Parameter [scheme] :
   /// The nodes of an Internet-facing load balancer have public IP addresses.
@@ -362,13 +452,12 @@ class ElasticLoadBalancingv2 {
   /// You cannot specify a scheme for a Gateway Load Balancer.
   ///
   /// Parameter [securityGroups] :
-  /// [Application Load Balancers] The IDs of the security groups for the load
-  /// balancer.
+  /// [Application Load Balancers and Network Load Balancers] The IDs of the
+  /// security groups for the load balancer.
   ///
   /// Parameter [subnetMappings] :
-  /// The IDs of the public subnets. You can specify only one subnet per
-  /// Availability Zone. You must specify either subnets or subnet mappings, but
-  /// not both.
+  /// The IDs of the subnets. You can specify only one subnet per Availability
+  /// Zone. You must specify either subnets or subnet mappings, but not both.
   ///
   /// [Application Load Balancers] You must specify subnets from at least two
   /// Availability Zones. You cannot specify Elastic IP addresses for your
@@ -392,10 +481,9 @@ class ElasticLoadBalancingv2 {
   /// subnets.
   ///
   /// Parameter [subnets] :
-  /// The IDs of the public subnets. You can specify only one subnet per
-  /// Availability Zone. You must specify either subnets or subnet mappings, but
-  /// not both. To specify an Elastic IP address, specify subnet mappings
-  /// instead of subnets.
+  /// The IDs of the subnets. You can specify only one subnet per Availability
+  /// Zone. You must specify either subnets or subnet mappings, but not both. To
+  /// specify an Elastic IP address, specify subnet mappings instead of subnets.
   ///
   /// [Application Load Balancers] You must specify subnets from at least two
   /// Availability Zones.
@@ -428,17 +516,40 @@ class ElasticLoadBalancingv2 {
     List<Tag>? tags,
     LoadBalancerTypeEnum? type,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Name'] = name;
-    customerOwnedIpv4Pool
-        ?.also((arg) => $request['CustomerOwnedIpv4Pool'] = arg);
-    ipAddressType?.also((arg) => $request['IpAddressType'] = arg.toValue());
-    scheme?.also((arg) => $request['Scheme'] = arg.toValue());
-    securityGroups?.also((arg) => $request['SecurityGroups'] = arg);
-    subnetMappings?.also((arg) => $request['SubnetMappings'] = arg);
-    subnets?.also((arg) => $request['Subnets'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    type?.also((arg) => $request['Type'] = arg.toValue());
+    final $request = <String, String>{
+      'Name': name,
+      if (customerOwnedIpv4Pool != null)
+        'CustomerOwnedIpv4Pool': customerOwnedIpv4Pool,
+      if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
+      if (scheme != null) 'Scheme': scheme.value,
+      if (securityGroups != null)
+        if (securityGroups.isEmpty)
+          'SecurityGroups': ''
+        else
+          for (var i1 = 0; i1 < securityGroups.length; i1++)
+            'SecurityGroups.member.${i1 + 1}': securityGroups[i1],
+      if (subnetMappings != null)
+        if (subnetMappings.isEmpty)
+          'SubnetMappings': ''
+        else
+          for (var i1 = 0; i1 < subnetMappings.length; i1++)
+            for (var e3 in subnetMappings[i1].toQueryMap().entries)
+              'SubnetMappings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (subnets != null)
+        if (subnets.isEmpty)
+          'Subnets': ''
+        else
+          for (var i1 = 0; i1 < subnets.length; i1++)
+            'Subnets.member.${i1 + 1}': subnets[i1],
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+      if (type != null) 'Type': type.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateLoadBalancer',
@@ -446,8 +557,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateLoadBalancerInput'],
-      shapes: shapes,
       resultWrapper: 'CreateLoadBalancerResult',
     );
     return CreateLoadBalancerOutput.fromXml($result);
@@ -509,12 +618,29 @@ class ElasticLoadBalancingv2 {
       50000,
       isRequired: true,
     );
-    final $request = <String, dynamic>{};
-    $request['Actions'] = actions;
-    $request['Conditions'] = conditions;
-    $request['ListenerArn'] = listenerArn;
-    $request['Priority'] = priority;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      if (actions.isEmpty)
+        'Actions': ''
+      else
+        for (var i1 = 0; i1 < actions.length; i1++)
+          for (var e3 in actions[i1].toQueryMap().entries)
+            'Actions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (conditions.isEmpty)
+        'Conditions': ''
+      else
+        for (var i1 = 0; i1 < conditions.length; i1++)
+          for (var e3 in conditions[i1].toQueryMap().entries)
+            'Conditions.member.${i1 + 1}.${e3.key}': e3.value,
+      'ListenerArn': listenerArn,
+      'Priority': priority.toString(),
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateRule',
@@ -522,8 +648,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateRuleInput'],
-      shapes: shapes,
       resultWrapper: 'CreateRuleResult',
     );
     return CreateRuleOutput.fromXml($result);
@@ -740,29 +864,39 @@ class ElasticLoadBalancingv2 {
       2,
       10,
     );
-    final $request = <String, dynamic>{};
-    $request['Name'] = name;
-    healthCheckEnabled?.also((arg) => $request['HealthCheckEnabled'] = arg);
-    healthCheckIntervalSeconds
-        ?.also((arg) => $request['HealthCheckIntervalSeconds'] = arg);
-    healthCheckPath?.also((arg) => $request['HealthCheckPath'] = arg);
-    healthCheckPort?.also((arg) => $request['HealthCheckPort'] = arg);
-    healthCheckProtocol
-        ?.also((arg) => $request['HealthCheckProtocol'] = arg.toValue());
-    healthCheckTimeoutSeconds
-        ?.also((arg) => $request['HealthCheckTimeoutSeconds'] = arg);
-    healthyThresholdCount
-        ?.also((arg) => $request['HealthyThresholdCount'] = arg);
-    ipAddressType?.also((arg) => $request['IpAddressType'] = arg.toValue());
-    matcher?.also((arg) => $request['Matcher'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    protocol?.also((arg) => $request['Protocol'] = arg.toValue());
-    protocolVersion?.also((arg) => $request['ProtocolVersion'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    targetType?.also((arg) => $request['TargetType'] = arg.toValue());
-    unhealthyThresholdCount
-        ?.also((arg) => $request['UnhealthyThresholdCount'] = arg);
-    vpcId?.also((arg) => $request['VpcId'] = arg);
+    final $request = <String, String>{
+      'Name': name,
+      if (healthCheckEnabled != null)
+        'HealthCheckEnabled': healthCheckEnabled.toString(),
+      if (healthCheckIntervalSeconds != null)
+        'HealthCheckIntervalSeconds': healthCheckIntervalSeconds.toString(),
+      if (healthCheckPath != null) 'HealthCheckPath': healthCheckPath,
+      if (healthCheckPort != null) 'HealthCheckPort': healthCheckPort,
+      if (healthCheckProtocol != null)
+        'HealthCheckProtocol': healthCheckProtocol.value,
+      if (healthCheckTimeoutSeconds != null)
+        'HealthCheckTimeoutSeconds': healthCheckTimeoutSeconds.toString(),
+      if (healthyThresholdCount != null)
+        'HealthyThresholdCount': healthyThresholdCount.toString(),
+      if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
+      if (matcher != null)
+        for (var e1 in matcher.toQueryMap().entries)
+          'Matcher.${e1.key}': e1.value,
+      if (port != null) 'Port': port.toString(),
+      if (protocol != null) 'Protocol': protocol.value,
+      if (protocolVersion != null) 'ProtocolVersion': protocolVersion,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+      if (targetType != null) 'TargetType': targetType.value,
+      if (unhealthyThresholdCount != null)
+        'UnhealthyThresholdCount': unhealthyThresholdCount.toString(),
+      if (vpcId != null) 'VpcId': vpcId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateTargetGroup',
@@ -770,11 +904,69 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateTargetGroupInput'],
-      shapes: shapes,
       resultWrapper: 'CreateTargetGroupResult',
     );
     return CreateTargetGroupOutput.fromXml($result);
+  }
+
+  /// Creates a trust store.
+  ///
+  /// May throw [DuplicateTrustStoreNameException].
+  /// May throw [TooManyTrustStoresException].
+  /// May throw [InvalidCaCertificatesBundleException].
+  /// May throw [CaCertificatesBundleNotFoundException].
+  /// May throw [TooManyTagsException].
+  /// May throw [DuplicateTagKeysException].
+  ///
+  /// Parameter [caCertificatesBundleS3Bucket] :
+  /// The Amazon S3 bucket for the ca certificates bundle.
+  ///
+  /// Parameter [caCertificatesBundleS3Key] :
+  /// The Amazon S3 path for the ca certificates bundle.
+  ///
+  /// Parameter [name] :
+  /// The name of the trust store.
+  ///
+  /// This name must be unique per region and cannot be changed after creation.
+  ///
+  /// Parameter [caCertificatesBundleS3ObjectVersion] :
+  /// The Amazon S3 object version for the ca certificates bundle. If undefined
+  /// the current version is used.
+  ///
+  /// Parameter [tags] :
+  /// The tags to assign to the trust store.
+  Future<CreateTrustStoreOutput> createTrustStore({
+    required String caCertificatesBundleS3Bucket,
+    required String caCertificatesBundleS3Key,
+    required String name,
+    String? caCertificatesBundleS3ObjectVersion,
+    List<Tag>? tags,
+  }) async {
+    final $request = <String, String>{
+      'CaCertificatesBundleS3Bucket': caCertificatesBundleS3Bucket,
+      'CaCertificatesBundleS3Key': caCertificatesBundleS3Key,
+      'Name': name,
+      if (caCertificatesBundleS3ObjectVersion != null)
+        'CaCertificatesBundleS3ObjectVersion':
+            caCertificatesBundleS3ObjectVersion,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'CreateTrustStore',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'CreateTrustStoreResult',
+    );
+    return CreateTrustStoreOutput.fromXml($result);
   }
 
   /// Deletes the specified listener.
@@ -790,8 +982,9 @@ class ElasticLoadBalancingv2 {
   Future<void> deleteListener({
     required String listenerArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ListenerArn'] = listenerArn;
+    final $request = <String, String>{
+      'ListenerArn': listenerArn,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteListener',
@@ -799,8 +992,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteListenerInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteListenerResult',
     );
   }
@@ -827,8 +1018,9 @@ class ElasticLoadBalancingv2 {
   Future<void> deleteLoadBalancer({
     required String loadBalancerArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['LoadBalancerArn'] = loadBalancerArn;
+    final $request = <String, String>{
+      'LoadBalancerArn': loadBalancerArn,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteLoadBalancer',
@@ -836,8 +1028,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteLoadBalancerInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteLoadBalancerResult',
     );
   }
@@ -854,8 +1044,9 @@ class ElasticLoadBalancingv2 {
   Future<void> deleteRule({
     required String ruleArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RuleArn'] = ruleArn;
+    final $request = <String, String>{
+      'RuleArn': ruleArn,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteRule',
@@ -863,8 +1054,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteRuleInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteRuleResult',
     );
   }
@@ -884,8 +1073,9 @@ class ElasticLoadBalancingv2 {
   Future<void> deleteTargetGroup({
     required String targetGroupArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['TargetGroupArn'] = targetGroupArn;
+    final $request = <String, String>{
+      'TargetGroupArn': targetGroupArn,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteTargetGroup',
@@ -893,15 +1083,65 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteTargetGroupInput'],
-      shapes: shapes,
       resultWrapper: 'DeleteTargetGroupResult',
+    );
+  }
+
+  /// Deletes a trust store.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [TrustStoreInUseException].
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  Future<void> deleteTrustStore({
+    required String trustStoreArn,
+  }) async {
+    final $request = <String, String>{
+      'TrustStoreArn': trustStoreArn,
+    };
+    await _protocol.send(
+      $request,
+      action: 'DeleteTrustStore',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'DeleteTrustStoreResult',
     );
   }
 
   /// Deregisters the specified targets from the specified target group. After
   /// the targets are deregistered, they no longer receive traffic from the load
   /// balancer.
+  ///
+  /// The load balancer stops sending requests to targets that are
+  /// deregistering, but uses connection draining to ensure that in-flight
+  /// traffic completes on the existing connections. This deregistration delay
+  /// is configured by default but can be updated for each target group.
+  ///
+  /// For more information, see the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// <a
+  /// href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-target-groups.html#deregistration-delay">
+  /// Deregistration delay</a> in the <i>Application Load Balancers User
+  /// Guide</i>
+  /// </li>
+  /// <li>
+  /// <a
+  /// href="https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-target-groups.html#deregistration-delay">
+  /// Deregistration delay</a> in the <i>Network Load Balancers User Guide</i>
+  /// </li>
+  /// <li>
+  /// <a
+  /// href="https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/target-groups.html#deregistration-delay">
+  /// Deregistration delay</a> in the <i>Gateway Load Balancers User Guide</i>
+  /// </li>
+  /// </ul>
+  /// Note: If the specified target does not exist, the action returns
+  /// successfully.
   ///
   /// May throw [TargetGroupNotFoundException].
   /// May throw [InvalidTargetException].
@@ -917,9 +1157,15 @@ class ElasticLoadBalancingv2 {
     required String targetGroupArn,
     required List<TargetDescription> targets,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['TargetGroupArn'] = targetGroupArn;
-    $request['Targets'] = targets;
+    final $request = <String, String>{
+      'TargetGroupArn': targetGroupArn,
+      if (targets.isEmpty)
+        'Targets': ''
+      else
+        for (var i1 = 0; i1 < targets.length; i1++)
+          for (var e3 in targets[i1].toQueryMap().entries)
+            'Targets.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'DeregisterTargets',
@@ -927,8 +1173,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeregisterTargetsInput'],
-      shapes: shapes,
       resultWrapper: 'DeregisterTargetsResult',
     );
   }
@@ -972,9 +1216,10 @@ class ElasticLoadBalancingv2 {
       1,
       400,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    pageSize?.also((arg) => $request['PageSize'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeAccountLimits',
@@ -982,8 +1227,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeAccountLimitsInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeAccountLimitsResult',
     );
     return DescribeAccountLimitsOutput.fromXml($result);
@@ -1024,10 +1267,11 @@ class ElasticLoadBalancingv2 {
       1,
       400,
     );
-    final $request = <String, dynamic>{};
-    $request['ListenerArn'] = listenerArn;
-    marker?.also((arg) => $request['Marker'] = arg);
-    pageSize?.also((arg) => $request['PageSize'] = arg);
+    final $request = <String, String>{
+      'ListenerArn': listenerArn,
+      if (marker != null) 'Marker': marker,
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeListenerCertificates',
@@ -1035,8 +1279,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeListenerCertificatesInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeListenerCertificatesResult',
     );
     return DescribeListenerCertificatesOutput.fromXml($result);
@@ -1075,11 +1317,17 @@ class ElasticLoadBalancingv2 {
       1,
       400,
     );
-    final $request = <String, dynamic>{};
-    listenerArns?.also((arg) => $request['ListenerArns'] = arg);
-    loadBalancerArn?.also((arg) => $request['LoadBalancerArn'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    pageSize?.also((arg) => $request['PageSize'] = arg);
+    final $request = <String, String>{
+      if (listenerArns != null)
+        if (listenerArns.isEmpty)
+          'ListenerArns': ''
+        else
+          for (var i1 = 0; i1 < listenerArns.length; i1++)
+            'ListenerArns.member.${i1 + 1}': listenerArns[i1],
+      if (loadBalancerArn != null) 'LoadBalancerArn': loadBalancerArn,
+      if (marker != null) 'Marker': marker,
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeListeners',
@@ -1087,8 +1335,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeListenersInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeListenersResult',
     );
     return DescribeListenersOutput.fromXml($result);
@@ -1124,8 +1370,9 @@ class ElasticLoadBalancingv2 {
   Future<DescribeLoadBalancerAttributesOutput> describeLoadBalancerAttributes({
     required String loadBalancerArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['LoadBalancerArn'] = loadBalancerArn;
+    final $request = <String, String>{
+      'LoadBalancerArn': loadBalancerArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeLoadBalancerAttributes',
@@ -1133,8 +1380,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeLoadBalancerAttributesInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeLoadBalancerAttributesResult',
     );
     return DescribeLoadBalancerAttributesOutput.fromXml($result);
@@ -1169,11 +1414,22 @@ class ElasticLoadBalancingv2 {
       1,
       400,
     );
-    final $request = <String, dynamic>{};
-    loadBalancerArns?.also((arg) => $request['LoadBalancerArns'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    names?.also((arg) => $request['Names'] = arg);
-    pageSize?.also((arg) => $request['PageSize'] = arg);
+    final $request = <String, String>{
+      if (loadBalancerArns != null)
+        if (loadBalancerArns.isEmpty)
+          'LoadBalancerArns': ''
+        else
+          for (var i1 = 0; i1 < loadBalancerArns.length; i1++)
+            'LoadBalancerArns.member.${i1 + 1}': loadBalancerArns[i1],
+      if (marker != null) 'Marker': marker,
+      if (names != null)
+        if (names.isEmpty)
+          'Names': ''
+        else
+          for (var i1 = 0; i1 < names.length; i1++)
+            'Names.member.${i1 + 1}': names[i1],
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeLoadBalancers',
@@ -1181,8 +1437,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeLoadBalancersInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeLoadBalancersResult',
     );
     return DescribeLoadBalancersOutput.fromXml($result);
@@ -1219,11 +1473,17 @@ class ElasticLoadBalancingv2 {
       1,
       400,
     );
-    final $request = <String, dynamic>{};
-    listenerArn?.also((arg) => $request['ListenerArn'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    pageSize?.also((arg) => $request['PageSize'] = arg);
-    ruleArns?.also((arg) => $request['RuleArns'] = arg);
+    final $request = <String, String>{
+      if (listenerArn != null) 'ListenerArn': listenerArn,
+      if (marker != null) 'Marker': marker,
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+      if (ruleArns != null)
+        if (ruleArns.isEmpty)
+          'RuleArns': ''
+        else
+          for (var i1 = 0; i1 < ruleArns.length; i1++)
+            'RuleArns.member.${i1 + 1}': ruleArns[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeRules',
@@ -1231,8 +1491,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeRulesInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeRulesResult',
     );
     return DescribeRulesOutput.fromXml($result);
@@ -1273,12 +1531,17 @@ class ElasticLoadBalancingv2 {
       1,
       400,
     );
-    final $request = <String, dynamic>{};
-    loadBalancerType
-        ?.also((arg) => $request['LoadBalancerType'] = arg.toValue());
-    marker?.also((arg) => $request['Marker'] = arg);
-    names?.also((arg) => $request['Names'] = arg);
-    pageSize?.also((arg) => $request['PageSize'] = arg);
+    final $request = <String, String>{
+      if (loadBalancerType != null) 'LoadBalancerType': loadBalancerType.value,
+      if (marker != null) 'Marker': marker,
+      if (names != null)
+        if (names.isEmpty)
+          'Names': ''
+        else
+          for (var i1 = 0; i1 < names.length; i1++)
+            'Names.member.${i1 + 1}': names[i1],
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeSSLPolicies',
@@ -1286,8 +1549,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeSSLPoliciesInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeSSLPoliciesResult',
     );
     return DescribeSSLPoliciesOutput.fromXml($result);
@@ -1302,6 +1563,7 @@ class ElasticLoadBalancingv2 {
   /// May throw [TargetGroupNotFoundException].
   /// May throw [ListenerNotFoundException].
   /// May throw [RuleNotFoundException].
+  /// May throw [TrustStoreNotFoundException].
   ///
   /// Parameter [resourceArns] :
   /// The Amazon Resource Names (ARN) of the resources. You can specify up to 20
@@ -1309,8 +1571,13 @@ class ElasticLoadBalancingv2 {
   Future<DescribeTagsOutput> describeTags({
     required List<String> resourceArns,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceArns'] = resourceArns;
+    final $request = <String, String>{
+      if (resourceArns.isEmpty)
+        'ResourceArns': ''
+      else
+        for (var i1 = 0; i1 < resourceArns.length; i1++)
+          'ResourceArns.member.${i1 + 1}': resourceArns[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeTags',
@@ -1318,8 +1585,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeTagsInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeTagsResult',
     );
     return DescribeTagsOutput.fromXml($result);
@@ -1354,8 +1619,9 @@ class ElasticLoadBalancingv2 {
   Future<DescribeTargetGroupAttributesOutput> describeTargetGroupAttributes({
     required String targetGroupArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['TargetGroupArn'] = targetGroupArn;
+    final $request = <String, String>{
+      'TargetGroupArn': targetGroupArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeTargetGroupAttributes',
@@ -1363,8 +1629,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeTargetGroupAttributesInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeTargetGroupAttributesResult',
     );
     return DescribeTargetGroupAttributesOutput.fromXml($result);
@@ -1407,12 +1671,23 @@ class ElasticLoadBalancingv2 {
       1,
       400,
     );
-    final $request = <String, dynamic>{};
-    loadBalancerArn?.also((arg) => $request['LoadBalancerArn'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    names?.also((arg) => $request['Names'] = arg);
-    pageSize?.also((arg) => $request['PageSize'] = arg);
-    targetGroupArns?.also((arg) => $request['TargetGroupArns'] = arg);
+    final $request = <String, String>{
+      if (loadBalancerArn != null) 'LoadBalancerArn': loadBalancerArn,
+      if (marker != null) 'Marker': marker,
+      if (names != null)
+        if (names.isEmpty)
+          'Names': ''
+        else
+          for (var i1 = 0; i1 < names.length; i1++)
+            'Names.member.${i1 + 1}': names[i1],
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+      if (targetGroupArns != null)
+        if (targetGroupArns.isEmpty)
+          'TargetGroupArns': ''
+        else
+          for (var i1 = 0; i1 < targetGroupArns.length; i1++)
+            'TargetGroupArns.member.${i1 + 1}': targetGroupArns[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeTargetGroups',
@@ -1420,8 +1695,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeTargetGroupsInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeTargetGroupsResult',
     );
     return DescribeTargetGroupsOutput.fromXml($result);
@@ -1436,15 +1709,32 @@ class ElasticLoadBalancingv2 {
   /// Parameter [targetGroupArn] :
   /// The Amazon Resource Name (ARN) of the target group.
   ///
+  /// Parameter [include] :
+  /// Used to inclue anomaly detection information.
+  ///
   /// Parameter [targets] :
   /// The targets.
   Future<DescribeTargetHealthOutput> describeTargetHealth({
     required String targetGroupArn,
+    List<DescribeTargetHealthInputIncludeEnum>? include,
     List<TargetDescription>? targets,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['TargetGroupArn'] = targetGroupArn;
-    targets?.also((arg) => $request['Targets'] = arg);
+    final $request = <String, String>{
+      'TargetGroupArn': targetGroupArn,
+      if (include != null)
+        if (include.isEmpty)
+          'Include': ''
+        else
+          for (var i1 = 0; i1 < include.length; i1++)
+            'Include.member.${i1 + 1}': include[i1].value,
+      if (targets != null)
+        if (targets.isEmpty)
+          'Targets': ''
+        else
+          for (var i1 = 0; i1 < targets.length; i1++)
+            for (var e3 in targets[i1].toQueryMap().entries)
+              'Targets.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeTargetHealth',
@@ -1452,11 +1742,219 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeTargetHealthInput'],
-      shapes: shapes,
       resultWrapper: 'DescribeTargetHealthResult',
     );
     return DescribeTargetHealthOutput.fromXml($result);
+  }
+
+  /// Describes all resources associated with the specified trust store.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  ///
+  /// Parameter [marker] :
+  /// The marker for the next set of results. (You received this marker from a
+  /// previous call.)
+  ///
+  /// Parameter [pageSize] :
+  /// The maximum number of results to return with this call.
+  Future<DescribeTrustStoreAssociationsOutput> describeTrustStoreAssociations({
+    required String trustStoreArn,
+    String? marker,
+    int? pageSize,
+  }) async {
+    _s.validateNumRange(
+      'pageSize',
+      pageSize,
+      1,
+      400,
+    );
+    final $request = <String, String>{
+      'TrustStoreArn': trustStoreArn,
+      if (marker != null) 'Marker': marker,
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'DescribeTrustStoreAssociations',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'DescribeTrustStoreAssociationsResult',
+    );
+    return DescribeTrustStoreAssociationsOutput.fromXml($result);
+  }
+
+  /// Describes the revocation files in use by the specified trust store arn, or
+  /// revocation ID.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [RevocationIdNotFoundException].
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  ///
+  /// Parameter [marker] :
+  /// The marker for the next set of results. (You received this marker from a
+  /// previous call.)
+  ///
+  /// Parameter [pageSize] :
+  /// The maximum number of results to return with this call.
+  ///
+  /// Parameter [revocationIds] :
+  /// The revocation IDs of the revocation files you want to describe.
+  Future<DescribeTrustStoreRevocationsOutput> describeTrustStoreRevocations({
+    required String trustStoreArn,
+    String? marker,
+    int? pageSize,
+    List<int>? revocationIds,
+  }) async {
+    _s.validateNumRange(
+      'pageSize',
+      pageSize,
+      1,
+      400,
+    );
+    final $request = <String, String>{
+      'TrustStoreArn': trustStoreArn,
+      if (marker != null) 'Marker': marker,
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+      if (revocationIds != null)
+        if (revocationIds.isEmpty)
+          'RevocationIds': ''
+        else
+          for (var i1 = 0; i1 < revocationIds.length; i1++)
+            'RevocationIds.member.${i1 + 1}': revocationIds[i1].toString(),
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'DescribeTrustStoreRevocations',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'DescribeTrustStoreRevocationsResult',
+    );
+    return DescribeTrustStoreRevocationsOutput.fromXml($result);
+  }
+
+  /// Describes all trust stores for a given account by trust store arn’s or
+  /// name.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  ///
+  /// Parameter [marker] :
+  /// The marker for the next set of results. (You received this marker from a
+  /// previous call.)
+  ///
+  /// Parameter [names] :
+  /// The names of the trust stores.
+  ///
+  /// Parameter [pageSize] :
+  /// The maximum number of results to return with this call.
+  ///
+  /// Parameter [trustStoreArns] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  Future<DescribeTrustStoresOutput> describeTrustStores({
+    String? marker,
+    List<String>? names,
+    int? pageSize,
+    List<String>? trustStoreArns,
+  }) async {
+    _s.validateNumRange(
+      'pageSize',
+      pageSize,
+      1,
+      400,
+    );
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (names != null)
+        if (names.isEmpty)
+          'Names': ''
+        else
+          for (var i1 = 0; i1 < names.length; i1++)
+            'Names.member.${i1 + 1}': names[i1],
+      if (pageSize != null) 'PageSize': pageSize.toString(),
+      if (trustStoreArns != null)
+        if (trustStoreArns.isEmpty)
+          'TrustStoreArns': ''
+        else
+          for (var i1 = 0; i1 < trustStoreArns.length; i1++)
+            'TrustStoreArns.member.${i1 + 1}': trustStoreArns[i1],
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'DescribeTrustStores',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'DescribeTrustStoresResult',
+    );
+    return DescribeTrustStoresOutput.fromXml($result);
+  }
+
+  /// Retrieves the ca certificate bundle.
+  ///
+  /// This action returns a pre-signed S3 URI which is active for ten minutes.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  Future<GetTrustStoreCaCertificatesBundleOutput>
+      getTrustStoreCaCertificatesBundle({
+    required String trustStoreArn,
+  }) async {
+    final $request = <String, String>{
+      'TrustStoreArn': trustStoreArn,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'GetTrustStoreCaCertificatesBundle',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'GetTrustStoreCaCertificatesBundleResult',
+    );
+    return GetTrustStoreCaCertificatesBundleOutput.fromXml($result);
+  }
+
+  /// Retrieves the specified revocation file.
+  ///
+  /// This action returns a pre-signed S3 URI which is active for ten minutes.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [RevocationIdNotFoundException].
+  ///
+  /// Parameter [revocationId] :
+  /// The revocation ID of the revocation file.
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  Future<GetTrustStoreRevocationContentOutput> getTrustStoreRevocationContent({
+    required int revocationId,
+    required String trustStoreArn,
+  }) async {
+    final $request = <String, String>{
+      'RevocationId': revocationId.toString(),
+      'TrustStoreArn': trustStoreArn,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'GetTrustStoreRevocationContent',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'GetTrustStoreRevocationContentResult',
+    );
+    return GetTrustStoreRevocationContentOutput.fromXml($result);
   }
 
   /// Replaces the specified properties of the specified listener. Any
@@ -1488,6 +1986,8 @@ class ElasticLoadBalancingv2 {
   /// May throw [InvalidLoadBalancerActionException].
   /// May throw [TooManyUniqueTargetGroupsPerLoadBalancerException].
   /// May throw [ALPNPolicyNotSupportedException].
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [TrustStoreNotReadyException].
   ///
   /// Parameter [listenerArn] :
   /// The Amazon Resource Name (ARN) of the listener.
@@ -1526,6 +2026,9 @@ class ElasticLoadBalancingv2 {
   /// Parameter [defaultActions] :
   /// The actions for the default rule.
   ///
+  /// Parameter [mutualAuthentication] :
+  /// The mutual authentication configuration information.
+  ///
   /// Parameter [port] :
   /// The port for connections from clients to the load balancer. You cannot
   /// specify a port for a Gateway Load Balancer.
@@ -1551,6 +2054,7 @@ class ElasticLoadBalancingv2 {
     List<String>? alpnPolicy,
     List<Certificate>? certificates,
     List<Action>? defaultActions,
+    MutualAuthenticationAttributes? mutualAuthentication,
     int? port,
     ProtocolEnum? protocol,
     String? sslPolicy,
@@ -1561,14 +2065,35 @@ class ElasticLoadBalancingv2 {
       1,
       65535,
     );
-    final $request = <String, dynamic>{};
-    $request['ListenerArn'] = listenerArn;
-    alpnPolicy?.also((arg) => $request['AlpnPolicy'] = arg);
-    certificates?.also((arg) => $request['Certificates'] = arg);
-    defaultActions?.also((arg) => $request['DefaultActions'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    protocol?.also((arg) => $request['Protocol'] = arg.toValue());
-    sslPolicy?.also((arg) => $request['SslPolicy'] = arg);
+    final $request = <String, String>{
+      'ListenerArn': listenerArn,
+      if (alpnPolicy != null)
+        if (alpnPolicy.isEmpty)
+          'AlpnPolicy': ''
+        else
+          for (var i1 = 0; i1 < alpnPolicy.length; i1++)
+            'AlpnPolicy.member.${i1 + 1}': alpnPolicy[i1],
+      if (certificates != null)
+        if (certificates.isEmpty)
+          'Certificates': ''
+        else
+          for (var i1 = 0; i1 < certificates.length; i1++)
+            for (var e3 in certificates[i1].toQueryMap().entries)
+              'Certificates.member.${i1 + 1}.${e3.key}': e3.value,
+      if (defaultActions != null)
+        if (defaultActions.isEmpty)
+          'DefaultActions': ''
+        else
+          for (var i1 = 0; i1 < defaultActions.length; i1++)
+            for (var e3 in defaultActions[i1].toQueryMap().entries)
+              'DefaultActions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (mutualAuthentication != null)
+        for (var e1 in mutualAuthentication.toQueryMap().entries)
+          'MutualAuthentication.${e1.key}': e1.value,
+      if (port != null) 'Port': port.toString(),
+      if (protocol != null) 'Protocol': protocol.value,
+      if (sslPolicy != null) 'SslPolicy': sslPolicy,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyListener',
@@ -1576,8 +2101,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyListenerInput'],
-      shapes: shapes,
       resultWrapper: 'ModifyListenerResult',
     );
     return ModifyListenerOutput.fromXml($result);
@@ -1602,9 +2125,15 @@ class ElasticLoadBalancingv2 {
     required List<LoadBalancerAttribute> attributes,
     required String loadBalancerArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Attributes'] = attributes;
-    $request['LoadBalancerArn'] = loadBalancerArn;
+    final $request = <String, String>{
+      if (attributes.isEmpty)
+        'Attributes': ''
+      else
+        for (var i1 = 0; i1 < attributes.length; i1++)
+          for (var e3 in attributes[i1].toQueryMap().entries)
+            'Attributes.member.${i1 + 1}.${e3.key}': e3.value,
+      'LoadBalancerArn': loadBalancerArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyLoadBalancerAttributes',
@@ -1612,8 +2141,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyLoadBalancerAttributesInput'],
-      shapes: shapes,
       resultWrapper: 'ModifyLoadBalancerAttributesResult',
     );
     return ModifyLoadBalancerAttributesOutput.fromXml($result);
@@ -1651,10 +2178,23 @@ class ElasticLoadBalancingv2 {
     List<Action>? actions,
     List<RuleCondition>? conditions,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RuleArn'] = ruleArn;
-    actions?.also((arg) => $request['Actions'] = arg);
-    conditions?.also((arg) => $request['Conditions'] = arg);
+    final $request = <String, String>{
+      'RuleArn': ruleArn,
+      if (actions != null)
+        if (actions.isEmpty)
+          'Actions': ''
+        else
+          for (var i1 = 0; i1 < actions.length; i1++)
+            for (var e3 in actions[i1].toQueryMap().entries)
+              'Actions.member.${i1 + 1}.${e3.key}': e3.value,
+      if (conditions != null)
+        if (conditions.isEmpty)
+          'Conditions': ''
+        else
+          for (var i1 = 0; i1 < conditions.length; i1++)
+            for (var e3 in conditions[i1].toQueryMap().entries)
+              'Conditions.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyRule',
@@ -1662,8 +2202,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyRuleInput'],
-      shapes: shapes,
       resultWrapper: 'ModifyRuleResult',
     );
     return ModifyRuleOutput.fromXml($result);
@@ -1761,22 +2299,26 @@ class ElasticLoadBalancingv2 {
       2,
       10,
     );
-    final $request = <String, dynamic>{};
-    $request['TargetGroupArn'] = targetGroupArn;
-    healthCheckEnabled?.also((arg) => $request['HealthCheckEnabled'] = arg);
-    healthCheckIntervalSeconds
-        ?.also((arg) => $request['HealthCheckIntervalSeconds'] = arg);
-    healthCheckPath?.also((arg) => $request['HealthCheckPath'] = arg);
-    healthCheckPort?.also((arg) => $request['HealthCheckPort'] = arg);
-    healthCheckProtocol
-        ?.also((arg) => $request['HealthCheckProtocol'] = arg.toValue());
-    healthCheckTimeoutSeconds
-        ?.also((arg) => $request['HealthCheckTimeoutSeconds'] = arg);
-    healthyThresholdCount
-        ?.also((arg) => $request['HealthyThresholdCount'] = arg);
-    matcher?.also((arg) => $request['Matcher'] = arg);
-    unhealthyThresholdCount
-        ?.also((arg) => $request['UnhealthyThresholdCount'] = arg);
+    final $request = <String, String>{
+      'TargetGroupArn': targetGroupArn,
+      if (healthCheckEnabled != null)
+        'HealthCheckEnabled': healthCheckEnabled.toString(),
+      if (healthCheckIntervalSeconds != null)
+        'HealthCheckIntervalSeconds': healthCheckIntervalSeconds.toString(),
+      if (healthCheckPath != null) 'HealthCheckPath': healthCheckPath,
+      if (healthCheckPort != null) 'HealthCheckPort': healthCheckPort,
+      if (healthCheckProtocol != null)
+        'HealthCheckProtocol': healthCheckProtocol.value,
+      if (healthCheckTimeoutSeconds != null)
+        'HealthCheckTimeoutSeconds': healthCheckTimeoutSeconds.toString(),
+      if (healthyThresholdCount != null)
+        'HealthyThresholdCount': healthyThresholdCount.toString(),
+      if (matcher != null)
+        for (var e1 in matcher.toQueryMap().entries)
+          'Matcher.${e1.key}': e1.value,
+      if (unhealthyThresholdCount != null)
+        'UnhealthyThresholdCount': unhealthyThresholdCount.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyTargetGroup',
@@ -1784,8 +2326,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyTargetGroupInput'],
-      shapes: shapes,
       resultWrapper: 'ModifyTargetGroupResult',
     );
     return ModifyTargetGroupOutput.fromXml($result);
@@ -1805,9 +2345,15 @@ class ElasticLoadBalancingv2 {
     required List<TargetGroupAttribute> attributes,
     required String targetGroupArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Attributes'] = attributes;
-    $request['TargetGroupArn'] = targetGroupArn;
+    final $request = <String, String>{
+      if (attributes.isEmpty)
+        'Attributes': ''
+      else
+        for (var i1 = 0; i1 < attributes.length; i1++)
+          for (var e3 in attributes[i1].toQueryMap().entries)
+            'Attributes.member.${i1 + 1}.${e3.key}': e3.value,
+      'TargetGroupArn': targetGroupArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyTargetGroupAttributes',
@@ -1815,11 +2361,53 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyTargetGroupAttributesInput'],
-      shapes: shapes,
       resultWrapper: 'ModifyTargetGroupAttributesResult',
     );
     return ModifyTargetGroupAttributesOutput.fromXml($result);
+  }
+
+  /// Update the ca certificate bundle for a given trust store.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [InvalidCaCertificatesBundleException].
+  /// May throw [CaCertificatesBundleNotFoundException].
+  ///
+  /// Parameter [caCertificatesBundleS3Bucket] :
+  /// The Amazon S3 bucket for the ca certificates bundle.
+  ///
+  /// Parameter [caCertificatesBundleS3Key] :
+  /// The Amazon S3 path for the ca certificates bundle.
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  ///
+  /// Parameter [caCertificatesBundleS3ObjectVersion] :
+  /// The Amazon S3 object version for the ca certificates bundle. If undefined
+  /// the current version is used.
+  Future<ModifyTrustStoreOutput> modifyTrustStore({
+    required String caCertificatesBundleS3Bucket,
+    required String caCertificatesBundleS3Key,
+    required String trustStoreArn,
+    String? caCertificatesBundleS3ObjectVersion,
+  }) async {
+    final $request = <String, String>{
+      'CaCertificatesBundleS3Bucket': caCertificatesBundleS3Bucket,
+      'CaCertificatesBundleS3Key': caCertificatesBundleS3Key,
+      'TrustStoreArn': trustStoreArn,
+      if (caCertificatesBundleS3ObjectVersion != null)
+        'CaCertificatesBundleS3ObjectVersion':
+            caCertificatesBundleS3ObjectVersion,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'ModifyTrustStore',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'ModifyTrustStoreResult',
+    );
+    return ModifyTrustStoreOutput.fromXml($result);
   }
 
   /// Registers the specified targets with the specified target group.
@@ -1852,9 +2440,15 @@ class ElasticLoadBalancingv2 {
     required String targetGroupArn,
     required List<TargetDescription> targets,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['TargetGroupArn'] = targetGroupArn;
-    $request['Targets'] = targets;
+    final $request = <String, String>{
+      'TargetGroupArn': targetGroupArn,
+      if (targets.isEmpty)
+        'Targets': ''
+      else
+        for (var i1 = 0; i1 < targets.length; i1++)
+          for (var e3 in targets[i1].toQueryMap().entries)
+            'Targets.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'RegisterTargets',
@@ -1862,8 +2456,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RegisterTargetsInput'],
-      shapes: shapes,
       resultWrapper: 'RegisterTargetsResult',
     );
   }
@@ -1885,9 +2477,15 @@ class ElasticLoadBalancingv2 {
     required List<Certificate> certificates,
     required String listenerArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Certificates'] = certificates;
-    $request['ListenerArn'] = listenerArn;
+    final $request = <String, String>{
+      if (certificates.isEmpty)
+        'Certificates': ''
+      else
+        for (var i1 = 0; i1 < certificates.length; i1++)
+          for (var e3 in certificates[i1].toQueryMap().entries)
+            'Certificates.member.${i1 + 1}.${e3.key}': e3.value,
+      'ListenerArn': listenerArn,
+    };
     await _protocol.send(
       $request,
       action: 'RemoveListenerCertificates',
@@ -1895,8 +2493,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveListenerCertificatesInput'],
-      shapes: shapes,
       resultWrapper: 'RemoveListenerCertificatesResult',
     );
   }
@@ -1911,6 +2507,7 @@ class ElasticLoadBalancingv2 {
   /// May throw [ListenerNotFoundException].
   /// May throw [RuleNotFoundException].
   /// May throw [TooManyTagsException].
+  /// May throw [TrustStoreNotFoundException].
   ///
   /// Parameter [resourceArns] :
   /// The Amazon Resource Name (ARN) of the resource.
@@ -1921,9 +2518,18 @@ class ElasticLoadBalancingv2 {
     required List<String> resourceArns,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceArns'] = resourceArns;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      if (resourceArns.isEmpty)
+        'ResourceArns': ''
+      else
+        for (var i1 = 0; i1 < resourceArns.length; i1++)
+          'ResourceArns.member.${i1 + 1}': resourceArns[i1],
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'RemoveTags',
@@ -1931,9 +2537,40 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveTagsInput'],
-      shapes: shapes,
       resultWrapper: 'RemoveTagsResult',
+    );
+  }
+
+  /// Removes the specified revocation file from the specified trust store.
+  ///
+  /// May throw [TrustStoreNotFoundException].
+  /// May throw [RevocationIdNotFoundException].
+  ///
+  /// Parameter [revocationIds] :
+  /// The revocation IDs of the revocation files you want to remove.
+  ///
+  /// Parameter [trustStoreArn] :
+  /// The Amazon Resource Name (ARN) of the trust store.
+  Future<void> removeTrustStoreRevocations({
+    required List<int> revocationIds,
+    required String trustStoreArn,
+  }) async {
+    final $request = <String, String>{
+      if (revocationIds.isEmpty)
+        'RevocationIds': ''
+      else
+        for (var i1 = 0; i1 < revocationIds.length; i1++)
+          'RevocationIds.member.${i1 + 1}': revocationIds[i1].toString(),
+      'TrustStoreArn': trustStoreArn,
+    };
+    await _protocol.send(
+      $request,
+      action: 'RemoveTrustStoreRevocations',
+      version: '2015-12-01',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'RemoveTrustStoreRevocationsResult',
     );
   }
 
@@ -1945,10 +2582,22 @@ class ElasticLoadBalancingv2 {
   /// May throw [InvalidSubnetException].
   ///
   /// Parameter [ipAddressType] :
-  /// The IP address type. The possible values are <code>ipv4</code> (for IPv4
-  /// addresses) and <code>dualstack</code> (for IPv4 and IPv6 addresses). You
-  /// can’t specify <code>dualstack</code> for a load balancer with a UDP or
-  /// TCP_UDP listener.
+  /// Note: Internal load balancers must use the <code>ipv4</code> IP address
+  /// type.
+  ///
+  /// [Application Load Balancers] The IP address type. The possible values are
+  /// <code>ipv4</code> (for only IPv4 addresses), <code>dualstack</code> (for
+  /// IPv4 and IPv6 addresses), and <code>dualstack-without-public-ipv4</code>
+  /// (for IPv6 only public addresses, with private IPv4 and IPv6 addresses).
+  ///
+  /// [Network Load Balancers] The IP address type. The possible values are
+  /// <code>ipv4</code> (for only IPv4 addresses) and <code>dualstack</code>
+  /// (for IPv4 and IPv6 addresses). You can’t specify <code>dualstack</code>
+  /// for a load balancer with a UDP or TCP_UDP listener.
+  ///
+  /// [Gateway Load Balancers] The IP address type. The possible values are
+  /// <code>ipv4</code> (for only IPv4 addresses) and <code>dualstack</code>
+  /// (for IPv4 and IPv6 addresses).
   ///
   /// Parameter [loadBalancerArn] :
   /// The Amazon Resource Name (ARN) of the load balancer.
@@ -1956,9 +2605,10 @@ class ElasticLoadBalancingv2 {
     required IpAddressType ipAddressType,
     required String loadBalancerArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['IpAddressType'] = ipAddressType.toValue();
-    $request['LoadBalancerArn'] = loadBalancerArn;
+    final $request = <String, String>{
+      'IpAddressType': ipAddressType.value,
+      'LoadBalancerArn': loadBalancerArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'SetIpAddressType',
@@ -1966,8 +2616,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SetIpAddressTypeInput'],
-      shapes: shapes,
       resultWrapper: 'SetIpAddressTypeResult',
     );
     return SetIpAddressTypeOutput.fromXml($result);
@@ -1988,8 +2636,14 @@ class ElasticLoadBalancingv2 {
   Future<SetRulePrioritiesOutput> setRulePriorities({
     required List<RulePriorityPair> rulePriorities,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RulePriorities'] = rulePriorities;
+    final $request = <String, String>{
+      if (rulePriorities.isEmpty)
+        'RulePriorities': ''
+      else
+        for (var i1 = 0; i1 < rulePriorities.length; i1++)
+          for (var e3 in rulePriorities[i1].toQueryMap().entries)
+            'RulePriorities.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'SetRulePriorities',
@@ -1997,19 +2651,19 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SetRulePrioritiesInput'],
-      shapes: shapes,
       resultWrapper: 'SetRulePrioritiesResult',
     );
     return SetRulePrioritiesOutput.fromXml($result);
   }
 
   /// Associates the specified security groups with the specified Application
-  /// Load Balancer. The specified security groups override the previously
-  /// associated security groups.
+  /// Load Balancer or Network Load Balancer. The specified security groups
+  /// override the previously associated security groups.
   ///
-  /// You can't specify a security group for a Network Load Balancer or Gateway
-  /// Load Balancer.
+  /// You can't perform this operation on a Network Load Balancer unless you
+  /// specified a security group for the load balancer when you created it.
+  ///
+  /// You can't associate a security group with a Gateway Load Balancer.
   ///
   /// May throw [LoadBalancerNotFoundException].
   /// May throw [InvalidConfigurationRequestException].
@@ -2020,13 +2674,28 @@ class ElasticLoadBalancingv2 {
   ///
   /// Parameter [securityGroups] :
   /// The IDs of the security groups.
+  ///
+  /// Parameter [enforceSecurityGroupInboundRulesOnPrivateLinkTraffic] :
+  /// Indicates whether to evaluate inbound security group rules for traffic
+  /// sent to a Network Load Balancer through Amazon Web Services PrivateLink.
+  /// The default is <code>on</code>.
   Future<SetSecurityGroupsOutput> setSecurityGroups({
     required String loadBalancerArn,
     required List<String> securityGroups,
+    EnforceSecurityGroupInboundRulesOnPrivateLinkTrafficEnum?
+        enforceSecurityGroupInboundRulesOnPrivateLinkTraffic,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['LoadBalancerArn'] = loadBalancerArn;
-    $request['SecurityGroups'] = securityGroups;
+    final $request = <String, String>{
+      'LoadBalancerArn': loadBalancerArn,
+      if (securityGroups.isEmpty)
+        'SecurityGroups': ''
+      else
+        for (var i1 = 0; i1 < securityGroups.length; i1++)
+          'SecurityGroups.member.${i1 + 1}': securityGroups[i1],
+      if (enforceSecurityGroupInboundRulesOnPrivateLinkTraffic != null)
+        'EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic':
+            enforceSecurityGroupInboundRulesOnPrivateLinkTraffic.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'SetSecurityGroups',
@@ -2034,20 +2703,18 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SetSecurityGroupsInput'],
-      shapes: shapes,
       resultWrapper: 'SetSecurityGroupsResult',
     );
     return SetSecurityGroupsOutput.fromXml($result);
   }
 
   /// Enables the Availability Zones for the specified public subnets for the
-  /// specified Application Load Balancer or Network Load Balancer. The
-  /// specified subnets replace the previously enabled subnets.
+  /// specified Application Load Balancer, Network Load Balancer or Gateway Load
+  /// Balancer. The specified subnets replace the previously enabled subnets.
   ///
-  /// When you specify subnets for a Network Load Balancer, you must include all
-  /// subnets that were enabled previously, with their existing configurations,
-  /// plus any additional subnets.
+  /// When you specify subnets for a Network Load Balancer, or Gateway Load
+  /// Balancer you must include all subnets that were enabled previously, with
+  /// their existing configurations, plus any additional subnets.
   ///
   /// May throw [LoadBalancerNotFoundException].
   /// May throw [InvalidConfigurationRequestException].
@@ -2060,11 +2727,20 @@ class ElasticLoadBalancingv2 {
   /// The Amazon Resource Name (ARN) of the load balancer.
   ///
   /// Parameter [ipAddressType] :
+  /// [Application Load Balancers] The IP address type. The possible values are
+  /// <code>ipv4</code> (for only IPv4 addresses), <code>dualstack</code> (for
+  /// IPv4 and IPv6 addresses), and <code>dualstack-without-public-ipv4</code>
+  /// (for IPv6 only public addresses, with private IPv4 and IPv6 addresses).
+  ///
   /// [Network Load Balancers] The type of IP addresses used by the subnets for
   /// your load balancer. The possible values are <code>ipv4</code> (for IPv4
   /// addresses) and <code>dualstack</code> (for IPv4 and IPv6 addresses). You
   /// can’t specify <code>dualstack</code> for a load balancer with a UDP or
-  /// TCP_UDP listener. .
+  /// TCP_UDP listener.
+  ///
+  /// [Gateway Load Balancers] The type of IP addresses used by the subnets for
+  /// your load balancer. The possible values are <code>ipv4</code> (for IPv4
+  /// addresses) and <code>dualstack</code> (for IPv4 and IPv6 addresses).
   ///
   /// Parameter [subnetMappings] :
   /// The IDs of the public subnets. You can specify only one subnet per
@@ -2087,6 +2763,9 @@ class ElasticLoadBalancingv2 {
   /// from the IPv4 range of the subnet. For internet-facing load balancer, you
   /// can specify one IPv6 address per subnet.
   ///
+  /// [Gateway Load Balancers] You can specify subnets from one or more
+  /// Availability Zones.
+  ///
   /// Parameter [subnets] :
   /// The IDs of the public subnets. You can specify only one subnet per
   /// Availability Zone. You must specify either subnets or subnet mappings.
@@ -2102,17 +2781,32 @@ class ElasticLoadBalancingv2 {
   ///
   /// [Network Load Balancers] You can specify subnets from one or more
   /// Availability Zones.
+  ///
+  /// [Gateway Load Balancers] You can specify subnets from one or more
+  /// Availability Zones.
   Future<SetSubnetsOutput> setSubnets({
     required String loadBalancerArn,
     IpAddressType? ipAddressType,
     List<SubnetMapping>? subnetMappings,
     List<String>? subnets,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['LoadBalancerArn'] = loadBalancerArn;
-    ipAddressType?.also((arg) => $request['IpAddressType'] = arg.toValue());
-    subnetMappings?.also((arg) => $request['SubnetMappings'] = arg);
-    subnets?.also((arg) => $request['Subnets'] = arg);
+    final $request = <String, String>{
+      'LoadBalancerArn': loadBalancerArn,
+      if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
+      if (subnetMappings != null)
+        if (subnetMappings.isEmpty)
+          'SubnetMappings': ''
+        else
+          for (var i1 = 0; i1 < subnetMappings.length; i1++)
+            for (var e3 in subnetMappings[i1].toQueryMap().entries)
+              'SubnetMappings.member.${i1 + 1}.${e3.key}': e3.value,
+      if (subnets != null)
+        if (subnets.isEmpty)
+          'Subnets': ''
+        else
+          for (var i1 = 0; i1 < subnets.length; i1++)
+            'Subnets.member.${i1 + 1}': subnets[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'SetSubnets',
@@ -2120,8 +2814,6 @@ class ElasticLoadBalancingv2 {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SetSubnetsInput'],
-      shapes: shapes,
       resultWrapper: 'SetSubnetsResult',
     );
     return SetSubnetsOutput.fromXml($result);
@@ -2187,7 +2879,9 @@ class Action {
   });
   factory Action.fromXml(_s.XmlElement elem) {
     return Action(
-      type: _s.extractXmlStringValue(elem, 'Type')!.toActionTypeEnum(),
+      type: _s
+          .extractXmlStringValue(elem, 'Type')!
+          .let(ActionTypeEnum.fromString),
       authenticateCognitoConfig: _s
           .extractXmlChild(elem, 'AuthenticateCognitoConfig')
           ?.let(AuthenticateCognitoActionConfig.fromXml),
@@ -2218,7 +2912,7 @@ class Action {
     final redirectConfig = this.redirectConfig;
     final targetGroupArn = this.targetGroupArn;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (authenticateCognitoConfig != null)
         'AuthenticateCognitoConfig': authenticateCognitoConfig,
       if (authenticateOidcConfig != null)
@@ -2231,49 +2925,55 @@ class Action {
       if (targetGroupArn != null) 'TargetGroupArn': targetGroupArn,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final type = this.type;
+    final authenticateCognitoConfig = this.authenticateCognitoConfig;
+    final authenticateOidcConfig = this.authenticateOidcConfig;
+    final fixedResponseConfig = this.fixedResponseConfig;
+    final forwardConfig = this.forwardConfig;
+    final order = this.order;
+    final redirectConfig = this.redirectConfig;
+    final targetGroupArn = this.targetGroupArn;
+    return {
+      'Type': type.value,
+      if (authenticateCognitoConfig != null)
+        for (var e1 in authenticateCognitoConfig.toQueryMap().entries)
+          'AuthenticateCognitoConfig.${e1.key}': e1.value,
+      if (authenticateOidcConfig != null)
+        for (var e1 in authenticateOidcConfig.toQueryMap().entries)
+          'AuthenticateOidcConfig.${e1.key}': e1.value,
+      if (fixedResponseConfig != null)
+        for (var e1 in fixedResponseConfig.toQueryMap().entries)
+          'FixedResponseConfig.${e1.key}': e1.value,
+      if (forwardConfig != null)
+        for (var e1 in forwardConfig.toQueryMap().entries)
+          'ForwardConfig.${e1.key}': e1.value,
+      if (order != null) 'Order': order.toString(),
+      if (redirectConfig != null)
+        for (var e1 in redirectConfig.toQueryMap().entries)
+          'RedirectConfig.${e1.key}': e1.value,
+      if (targetGroupArn != null) 'TargetGroupArn': targetGroupArn,
+    };
+  }
 }
 
 enum ActionTypeEnum {
-  forward,
-  authenticateOidc,
-  authenticateCognito,
-  redirect,
-  fixedResponse,
-}
+  forward('forward'),
+  authenticateOidc('authenticate-oidc'),
+  authenticateCognito('authenticate-cognito'),
+  redirect('redirect'),
+  fixedResponse('fixed-response'),
+  ;
 
-extension ActionTypeEnumValueExtension on ActionTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ActionTypeEnum.forward:
-        return 'forward';
-      case ActionTypeEnum.authenticateOidc:
-        return 'authenticate-oidc';
-      case ActionTypeEnum.authenticateCognito:
-        return 'authenticate-cognito';
-      case ActionTypeEnum.redirect:
-        return 'redirect';
-      case ActionTypeEnum.fixedResponse:
-        return 'fixed-response';
-    }
-  }
-}
+  final String value;
 
-extension ActionTypeEnumFromString on String {
-  ActionTypeEnum toActionTypeEnum() {
-    switch (this) {
-      case 'forward':
-        return ActionTypeEnum.forward;
-      case 'authenticate-oidc':
-        return ActionTypeEnum.authenticateOidc;
-      case 'authenticate-cognito':
-        return ActionTypeEnum.authenticateCognito;
-      case 'redirect':
-        return ActionTypeEnum.redirect;
-      case 'fixed-response':
-        return ActionTypeEnum.fixedResponse;
-    }
-    throw Exception('$this is not known in enum ActionTypeEnum');
-  }
+  const ActionTypeEnum(this.value);
+
+  static ActionTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ActionTypeEnum'));
 }
 
 class AddListenerCertificatesOutput {
@@ -2300,40 +3000,79 @@ class AddTagsOutput {
   }
 }
 
+class AddTrustStoreRevocationsOutput {
+  /// Information about the revocation file added to the trust store.
+  final List<TrustStoreRevocation>? trustStoreRevocations;
+
+  AddTrustStoreRevocationsOutput({
+    this.trustStoreRevocations,
+  });
+  factory AddTrustStoreRevocationsOutput.fromXml(_s.XmlElement elem) {
+    return AddTrustStoreRevocationsOutput(
+      trustStoreRevocations: _s
+          .extractXmlChild(elem, 'TrustStoreRevocations')
+          ?.let((elem) => elem
+              .findElements('member')
+              .map(TrustStoreRevocation.fromXml)
+              .toList()),
+    );
+  }
+}
+
+/// Information about anomaly detection and mitigation.
+class AnomalyDetection {
+  /// Indicates whether anomaly mitigation is in progress.
+  final MitigationInEffectEnum? mitigationInEffect;
+
+  /// The latest anomaly detection result.
+  final AnomalyResultEnum? result;
+
+  AnomalyDetection({
+    this.mitigationInEffect,
+    this.result,
+  });
+  factory AnomalyDetection.fromXml(_s.XmlElement elem) {
+    return AnomalyDetection(
+      mitigationInEffect: _s
+          .extractXmlStringValue(elem, 'MitigationInEffect')
+          ?.let(MitigationInEffectEnum.fromString),
+      result: _s
+          .extractXmlStringValue(elem, 'Result')
+          ?.let(AnomalyResultEnum.fromString),
+    );
+  }
+}
+
+enum AnomalyResultEnum {
+  anomalous('anomalous'),
+  normal('normal'),
+  ;
+
+  final String value;
+
+  const AnomalyResultEnum(this.value);
+
+  static AnomalyResultEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AnomalyResultEnum'));
+}
+
 enum AuthenticateCognitoActionConditionalBehaviorEnum {
-  deny,
-  allow,
-  authenticate,
-}
+  deny('deny'),
+  allow('allow'),
+  authenticate('authenticate'),
+  ;
 
-extension AuthenticateCognitoActionConditionalBehaviorEnumValueExtension
-    on AuthenticateCognitoActionConditionalBehaviorEnum {
-  String toValue() {
-    switch (this) {
-      case AuthenticateCognitoActionConditionalBehaviorEnum.deny:
-        return 'deny';
-      case AuthenticateCognitoActionConditionalBehaviorEnum.allow:
-        return 'allow';
-      case AuthenticateCognitoActionConditionalBehaviorEnum.authenticate:
-        return 'authenticate';
-    }
-  }
-}
+  final String value;
 
-extension AuthenticateCognitoActionConditionalBehaviorEnumFromString on String {
-  AuthenticateCognitoActionConditionalBehaviorEnum
-      toAuthenticateCognitoActionConditionalBehaviorEnum() {
-    switch (this) {
-      case 'deny':
-        return AuthenticateCognitoActionConditionalBehaviorEnum.deny;
-      case 'allow':
-        return AuthenticateCognitoActionConditionalBehaviorEnum.allow;
-      case 'authenticate':
-        return AuthenticateCognitoActionConditionalBehaviorEnum.authenticate;
-    }
-    throw Exception(
-        '$this is not known in enum AuthenticateCognitoActionConditionalBehaviorEnum');
-  }
+  const AuthenticateCognitoActionConditionalBehaviorEnum(this.value);
+
+  static AuthenticateCognitoActionConditionalBehaviorEnum fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AuthenticateCognitoActionConditionalBehaviorEnum'));
 }
 
 /// Request parameters to use when integrating with Amazon Cognito to
@@ -2415,7 +3154,7 @@ class AuthenticateCognitoActionConfig {
       ),
       onUnauthenticatedRequest: _s
           .extractXmlStringValue(elem, 'OnUnauthenticatedRequest')
-          ?.toAuthenticateCognitoActionConditionalBehaviorEnum(),
+          ?.let(AuthenticateCognitoActionConditionalBehaviorEnum.fromString),
       scope: _s.extractXmlStringValue(elem, 'Scope'),
       sessionCookieName: _s.extractXmlStringValue(elem, 'SessionCookieName'),
       sessionTimeout: _s.extractXmlIntValue(elem, 'SessionTimeout'),
@@ -2439,48 +3178,61 @@ class AuthenticateCognitoActionConfig {
       if (authenticationRequestExtraParams != null)
         'AuthenticationRequestExtraParams': authenticationRequestExtraParams,
       if (onUnauthenticatedRequest != null)
-        'OnUnauthenticatedRequest': onUnauthenticatedRequest.toValue(),
+        'OnUnauthenticatedRequest': onUnauthenticatedRequest.value,
       if (scope != null) 'Scope': scope,
       if (sessionCookieName != null) 'SessionCookieName': sessionCookieName,
       if (sessionTimeout != null) 'SessionTimeout': sessionTimeout,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final userPoolArn = this.userPoolArn;
+    final userPoolClientId = this.userPoolClientId;
+    final userPoolDomain = this.userPoolDomain;
+    final authenticationRequestExtraParams =
+        this.authenticationRequestExtraParams;
+    final onUnauthenticatedRequest = this.onUnauthenticatedRequest;
+    final scope = this.scope;
+    final sessionCookieName = this.sessionCookieName;
+    final sessionTimeout = this.sessionTimeout;
+    return {
+      'UserPoolArn': userPoolArn,
+      'UserPoolClientId': userPoolClientId,
+      'UserPoolDomain': userPoolDomain,
+      if (authenticationRequestExtraParams != null)
+        for (var e1 in authenticationRequestExtraParams.entries
+            .toList()
+            .asMap()
+            .entries) ...{
+          'AuthenticationRequestExtraParams.entry.${e1.key + 1}.key':
+              e1.value.key,
+          'AuthenticationRequestExtraParams.entry.${e1.key + 1}.value':
+              e1.value.value,
+        },
+      if (onUnauthenticatedRequest != null)
+        'OnUnauthenticatedRequest': onUnauthenticatedRequest.value,
+      if (scope != null) 'Scope': scope,
+      if (sessionCookieName != null) 'SessionCookieName': sessionCookieName,
+      if (sessionTimeout != null) 'SessionTimeout': sessionTimeout.toString(),
+    };
+  }
 }
 
 enum AuthenticateOidcActionConditionalBehaviorEnum {
-  deny,
-  allow,
-  authenticate,
-}
+  deny('deny'),
+  allow('allow'),
+  authenticate('authenticate'),
+  ;
 
-extension AuthenticateOidcActionConditionalBehaviorEnumValueExtension
-    on AuthenticateOidcActionConditionalBehaviorEnum {
-  String toValue() {
-    switch (this) {
-      case AuthenticateOidcActionConditionalBehaviorEnum.deny:
-        return 'deny';
-      case AuthenticateOidcActionConditionalBehaviorEnum.allow:
-        return 'allow';
-      case AuthenticateOidcActionConditionalBehaviorEnum.authenticate:
-        return 'authenticate';
-    }
-  }
-}
+  final String value;
 
-extension AuthenticateOidcActionConditionalBehaviorEnumFromString on String {
-  AuthenticateOidcActionConditionalBehaviorEnum
-      toAuthenticateOidcActionConditionalBehaviorEnum() {
-    switch (this) {
-      case 'deny':
-        return AuthenticateOidcActionConditionalBehaviorEnum.deny;
-      case 'allow':
-        return AuthenticateOidcActionConditionalBehaviorEnum.allow;
-      case 'authenticate':
-        return AuthenticateOidcActionConditionalBehaviorEnum.authenticate;
-    }
-    throw Exception(
-        '$this is not known in enum AuthenticateOidcActionConditionalBehaviorEnum');
-  }
+  const AuthenticateOidcActionConditionalBehaviorEnum(this.value);
+
+  static AuthenticateOidcActionConditionalBehaviorEnum fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AuthenticateOidcActionConditionalBehaviorEnum'));
 }
 
 /// Request parameters when using an identity provider (IdP) that is compliant
@@ -2587,7 +3339,7 @@ class AuthenticateOidcActionConfig {
       clientSecret: _s.extractXmlStringValue(elem, 'ClientSecret'),
       onUnauthenticatedRequest: _s
           .extractXmlStringValue(elem, 'OnUnauthenticatedRequest')
-          ?.toAuthenticateOidcActionConditionalBehaviorEnum(),
+          ?.let(AuthenticateOidcActionConditionalBehaviorEnum.fromString),
       scope: _s.extractXmlStringValue(elem, 'Scope'),
       sessionCookieName: _s.extractXmlStringValue(elem, 'SessionCookieName'),
       sessionTimeout: _s.extractXmlIntValue(elem, 'SessionTimeout'),
@@ -2620,12 +3372,53 @@ class AuthenticateOidcActionConfig {
         'AuthenticationRequestExtraParams': authenticationRequestExtraParams,
       if (clientSecret != null) 'ClientSecret': clientSecret,
       if (onUnauthenticatedRequest != null)
-        'OnUnauthenticatedRequest': onUnauthenticatedRequest.toValue(),
+        'OnUnauthenticatedRequest': onUnauthenticatedRequest.value,
       if (scope != null) 'Scope': scope,
       if (sessionCookieName != null) 'SessionCookieName': sessionCookieName,
       if (sessionTimeout != null) 'SessionTimeout': sessionTimeout,
       if (useExistingClientSecret != null)
         'UseExistingClientSecret': useExistingClientSecret,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final authorizationEndpoint = this.authorizationEndpoint;
+    final clientId = this.clientId;
+    final issuer = this.issuer;
+    final tokenEndpoint = this.tokenEndpoint;
+    final userInfoEndpoint = this.userInfoEndpoint;
+    final authenticationRequestExtraParams =
+        this.authenticationRequestExtraParams;
+    final clientSecret = this.clientSecret;
+    final onUnauthenticatedRequest = this.onUnauthenticatedRequest;
+    final scope = this.scope;
+    final sessionCookieName = this.sessionCookieName;
+    final sessionTimeout = this.sessionTimeout;
+    final useExistingClientSecret = this.useExistingClientSecret;
+    return {
+      'AuthorizationEndpoint': authorizationEndpoint,
+      'ClientId': clientId,
+      'Issuer': issuer,
+      'TokenEndpoint': tokenEndpoint,
+      'UserInfoEndpoint': userInfoEndpoint,
+      if (authenticationRequestExtraParams != null)
+        for (var e1 in authenticationRequestExtraParams.entries
+            .toList()
+            .asMap()
+            .entries) ...{
+          'AuthenticationRequestExtraParams.entry.${e1.key + 1}.key':
+              e1.value.key,
+          'AuthenticationRequestExtraParams.entry.${e1.key + 1}.value':
+              e1.value.value,
+        },
+      if (clientSecret != null) 'ClientSecret': clientSecret,
+      if (onUnauthenticatedRequest != null)
+        'OnUnauthenticatedRequest': onUnauthenticatedRequest.value,
+      if (scope != null) 'Scope': scope,
+      if (sessionCookieName != null) 'SessionCookieName': sessionCookieName,
+      if (sessionTimeout != null) 'SessionTimeout': sessionTimeout.toString(),
+      if (useExistingClientSecret != null)
+        'UseExistingClientSecret': useExistingClientSecret.toString(),
     };
   }
 }
@@ -2696,6 +3489,15 @@ class Certificate {
     return {
       if (certificateArn != null) 'CertificateArn': certificateArn,
       if (isDefault != null) 'IsDefault': isDefault,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final certificateArn = this.certificateArn;
+    final isDefault = this.isDefault;
+    return {
+      if (certificateArn != null) 'CertificateArn': certificateArn,
+      if (isDefault != null) 'IsDefault': isDefault.toString(),
     };
   }
 }
@@ -2780,6 +3582,21 @@ class CreateTargetGroupOutput {
   }
 }
 
+class CreateTrustStoreOutput {
+  /// Information about the trust store created.
+  final List<TrustStore>? trustStores;
+
+  CreateTrustStoreOutput({
+    this.trustStores,
+  });
+  factory CreateTrustStoreOutput.fromXml(_s.XmlElement elem) {
+    return CreateTrustStoreOutput(
+      trustStores: _s.extractXmlChild(elem, 'TrustStores')?.let((elem) =>
+          elem.findElements('member').map(TrustStore.fromXml).toList()),
+    );
+  }
+}
+
 class DeleteListenerOutput {
   DeleteListenerOutput();
   factory DeleteListenerOutput.fromXml(
@@ -2813,6 +3630,15 @@ class DeleteTargetGroupOutput {
       // ignore: avoid_unused_constructor_parameters
       _s.XmlElement elem) {
     return DeleteTargetGroupOutput();
+  }
+}
+
+class DeleteTrustStoreOutput {
+  DeleteTrustStoreOutput();
+  factory DeleteTrustStoreOutput.fromXml(
+      // ignore: avoid_unused_constructor_parameters
+      _s.XmlElement elem) {
+    return DeleteTrustStoreOutput();
   }
 }
 
@@ -3022,6 +3848,21 @@ class DescribeTargetGroupsOutput {
   }
 }
 
+enum DescribeTargetHealthInputIncludeEnum {
+  anomalyDetection('AnomalyDetection'),
+  all('All'),
+  ;
+
+  final String value;
+
+  const DescribeTargetHealthInputIncludeEnum(this.value);
+
+  static DescribeTargetHealthInputIncludeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DescribeTargetHealthInputIncludeEnum'));
+}
+
 class DescribeTargetHealthOutput {
   /// Information about the health of the targets.
   final List<TargetHealthDescription>? targetHealthDescriptions;
@@ -3039,6 +3880,126 @@ class DescribeTargetHealthOutput {
               .toList()),
     );
   }
+}
+
+class DescribeTrustStoreAssociationsOutput {
+  /// If there are additional results, this is the marker for the next set of
+  /// results. Otherwise, this is null.
+  final String? nextMarker;
+
+  /// Information about the resources the trust store is associated to.
+  final List<TrustStoreAssociation>? trustStoreAssociations;
+
+  DescribeTrustStoreAssociationsOutput({
+    this.nextMarker,
+    this.trustStoreAssociations,
+  });
+  factory DescribeTrustStoreAssociationsOutput.fromXml(_s.XmlElement elem) {
+    return DescribeTrustStoreAssociationsOutput(
+      nextMarker: _s.extractXmlStringValue(elem, 'NextMarker'),
+      trustStoreAssociations: _s
+          .extractXmlChild(elem, 'TrustStoreAssociations')
+          ?.let((elem) => elem
+              .findElements('member')
+              .map(TrustStoreAssociation.fromXml)
+              .toList()),
+    );
+  }
+}
+
+/// Information about the revocations used by a trust store.
+class DescribeTrustStoreRevocation {
+  /// The number of revoked certificates.
+  final int? numberOfRevokedEntries;
+
+  /// The revocation ID of a revocation file in use.
+  final int? revocationId;
+
+  /// The type of revocation file.
+  final RevocationType? revocationType;
+
+  /// The Amazon Resource Name (ARN) of the trust store.
+  final String? trustStoreArn;
+
+  DescribeTrustStoreRevocation({
+    this.numberOfRevokedEntries,
+    this.revocationId,
+    this.revocationType,
+    this.trustStoreArn,
+  });
+  factory DescribeTrustStoreRevocation.fromXml(_s.XmlElement elem) {
+    return DescribeTrustStoreRevocation(
+      numberOfRevokedEntries:
+          _s.extractXmlIntValue(elem, 'NumberOfRevokedEntries'),
+      revocationId: _s.extractXmlIntValue(elem, 'RevocationId'),
+      revocationType: _s
+          .extractXmlStringValue(elem, 'RevocationType')
+          ?.let(RevocationType.fromString),
+      trustStoreArn: _s.extractXmlStringValue(elem, 'TrustStoreArn'),
+    );
+  }
+}
+
+class DescribeTrustStoreRevocationsOutput {
+  /// If there are additional results, this is the marker for the next set of
+  /// results. Otherwise, this is null.
+  final String? nextMarker;
+
+  /// Information about the revocation file in the trust store.
+  final List<DescribeTrustStoreRevocation>? trustStoreRevocations;
+
+  DescribeTrustStoreRevocationsOutput({
+    this.nextMarker,
+    this.trustStoreRevocations,
+  });
+  factory DescribeTrustStoreRevocationsOutput.fromXml(_s.XmlElement elem) {
+    return DescribeTrustStoreRevocationsOutput(
+      nextMarker: _s.extractXmlStringValue(elem, 'NextMarker'),
+      trustStoreRevocations: _s
+          .extractXmlChild(elem, 'TrustStoreRevocations')
+          ?.let((elem) => elem
+              .findElements('member')
+              .map(DescribeTrustStoreRevocation.fromXml)
+              .toList()),
+    );
+  }
+}
+
+class DescribeTrustStoresOutput {
+  /// If there are additional results, this is the marker for the next set of
+  /// results. Otherwise, this is null.
+  final String? nextMarker;
+
+  /// Information about the trust stores.
+  final List<TrustStore>? trustStores;
+
+  DescribeTrustStoresOutput({
+    this.nextMarker,
+    this.trustStores,
+  });
+  factory DescribeTrustStoresOutput.fromXml(_s.XmlElement elem) {
+    return DescribeTrustStoresOutput(
+      nextMarker: _s.extractXmlStringValue(elem, 'NextMarker'),
+      trustStores: _s.extractXmlChild(elem, 'TrustStores')?.let((elem) =>
+          elem.findElements('member').map(TrustStore.fromXml).toList()),
+    );
+  }
+}
+
+enum EnforceSecurityGroupInboundRulesOnPrivateLinkTrafficEnum {
+  on('on'),
+  off('off'),
+  ;
+
+  final String value;
+
+  const EnforceSecurityGroupInboundRulesOnPrivateLinkTrafficEnum(this.value);
+
+  static EnforceSecurityGroupInboundRulesOnPrivateLinkTrafficEnum fromString(
+          String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EnforceSecurityGroupInboundRulesOnPrivateLinkTrafficEnum'));
 }
 
 /// Information about an action that returns a custom HTTP response.
@@ -3069,6 +4030,17 @@ class FixedResponseActionConfig {
   }
 
   Map<String, dynamic> toJson() {
+    final statusCode = this.statusCode;
+    final contentType = this.contentType;
+    final messageBody = this.messageBody;
+    return {
+      'StatusCode': statusCode,
+      if (contentType != null) 'ContentType': contentType,
+      if (messageBody != null) 'MessageBody': messageBody,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final statusCode = this.statusCode;
     final contentType = this.contentType;
     final messageBody = this.messageBody;
@@ -3112,6 +4084,51 @@ class ForwardActionConfig {
       if (targetGroups != null) 'TargetGroups': targetGroups,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final targetGroupStickinessConfig = this.targetGroupStickinessConfig;
+    final targetGroups = this.targetGroups;
+    return {
+      if (targetGroupStickinessConfig != null)
+        for (var e1 in targetGroupStickinessConfig.toQueryMap().entries)
+          'TargetGroupStickinessConfig.${e1.key}': e1.value,
+      if (targetGroups != null)
+        if (targetGroups.isEmpty)
+          'TargetGroups': ''
+        else
+          for (var i1 = 0; i1 < targetGroups.length; i1++)
+            for (var e3 in targetGroups[i1].toQueryMap().entries)
+              'TargetGroups.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+  }
+}
+
+class GetTrustStoreCaCertificatesBundleOutput {
+  /// The ca certificate bundles Amazon S3 URI.
+  final String? location;
+
+  GetTrustStoreCaCertificatesBundleOutput({
+    this.location,
+  });
+  factory GetTrustStoreCaCertificatesBundleOutput.fromXml(_s.XmlElement elem) {
+    return GetTrustStoreCaCertificatesBundleOutput(
+      location: _s.extractXmlStringValue(elem, 'Location'),
+    );
+  }
+}
+
+class GetTrustStoreRevocationContentOutput {
+  /// The revocation files Amazon S3 URI.
+  final String? location;
+
+  GetTrustStoreRevocationContentOutput({
+    this.location,
+  });
+  factory GetTrustStoreRevocationContentOutput.fromXml(_s.XmlElement elem) {
+    return GetTrustStoreRevocationContentOutput(
+      location: _s.extractXmlStringValue(elem, 'Location'),
+    );
+  }
 }
 
 /// Information about a host header condition.
@@ -3140,6 +4157,18 @@ class HostHeaderConditionConfig {
     final values = this.values;
     return {
       if (values != null) 'Values': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final values = this.values;
+    return {
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
     };
   }
 }
@@ -3191,6 +4220,20 @@ class HttpHeaderConditionConfig {
       if (values != null) 'Values': values,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final httpHeaderName = this.httpHeaderName;
+    final values = this.values;
+    return {
+      if (httpHeaderName != null) 'HttpHeaderName': httpHeaderName,
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
+    };
+  }
 }
 
 /// Information about an HTTP method condition.
@@ -3228,38 +4271,58 @@ class HttpRequestMethodConditionConfig {
       if (values != null) 'Values': values,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final values = this.values;
+    return {
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
+    };
+  }
 }
 
 enum IpAddressType {
-  ipv4,
-  dualstack,
-}
+  ipv4('ipv4'),
+  dualstack('dualstack'),
+  dualstackWithoutPublicIpv4('dualstack-without-public-ipv4'),
+  ;
 
-extension IpAddressTypeValueExtension on IpAddressType {
-  String toValue() {
-    switch (this) {
-      case IpAddressType.ipv4:
-        return 'ipv4';
-      case IpAddressType.dualstack:
-        return 'dualstack';
-    }
-  }
-}
+  final String value;
 
-extension IpAddressTypeFromString on String {
-  IpAddressType toIpAddressType() {
-    switch (this) {
-      case 'ipv4':
-        return IpAddressType.ipv4;
-      case 'dualstack':
-        return IpAddressType.dualstack;
-    }
-    throw Exception('$this is not known in enum IpAddressType');
-  }
+  const IpAddressType(this.value);
+
+  static IpAddressType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IpAddressType'));
 }
 
 /// Information about an Elastic Load Balancing resource limit for your Amazon
 /// Web Services account.
+///
+/// For more information, see the following:
+///
+/// <ul>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html">Quotas
+/// for your Application Load Balancers</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-limits.html">Quotas
+/// for your Network Load Balancers</a>
+/// </li>
+/// <li>
+/// <a
+/// href="https://docs.aws.amazon.com/elasticloadbalancing/latest/gateway/quotas-limits.html">Quotas
+/// for your Gateway Load Balancers</a>
+/// </li>
+/// </ul>
 class Limit {
   /// The maximum value of the limit.
   final String? max;
@@ -3354,6 +4417,9 @@ class Listener {
   /// The Amazon Resource Name (ARN) of the load balancer.
   final String? loadBalancerArn;
 
+  /// The mutual authentication configuration information.
+  final MutualAuthenticationAttributes? mutualAuthentication;
+
   /// The port on which the load balancer is listening.
   final int? port;
 
@@ -3370,6 +4436,7 @@ class Listener {
     this.defaultActions,
     this.listenerArn,
     this.loadBalancerArn,
+    this.mutualAuthentication,
     this.port,
     this.protocol,
     this.sslPolicy,
@@ -3385,8 +4452,13 @@ class Listener {
           (elem) => elem.findElements('member').map(Action.fromXml).toList()),
       listenerArn: _s.extractXmlStringValue(elem, 'ListenerArn'),
       loadBalancerArn: _s.extractXmlStringValue(elem, 'LoadBalancerArn'),
+      mutualAuthentication: _s
+          .extractXmlChild(elem, 'MutualAuthentication')
+          ?.let(MutualAuthenticationAttributes.fromXml),
       port: _s.extractXmlIntValue(elem, 'Port'),
-      protocol: _s.extractXmlStringValue(elem, 'Protocol')?.toProtocolEnum(),
+      protocol: _s
+          .extractXmlStringValue(elem, 'Protocol')
+          ?.let(ProtocolEnum.fromString),
       sslPolicy: _s.extractXmlStringValue(elem, 'SslPolicy'),
     );
   }
@@ -3410,9 +4482,21 @@ class LoadBalancer {
   /// The public DNS name of the load balancer.
   final String? dNSName;
 
-  /// The type of IP addresses used by the subnets for your load balancer. The
-  /// possible values are <code>ipv4</code> (for IPv4 addresses) and
-  /// <code>dualstack</code> (for IPv4 and IPv6 addresses).
+  /// Indicates whether to evaluate inbound security group rules for traffic sent
+  /// to a Network Load Balancer through Amazon Web Services PrivateLink.
+  final String? enforceSecurityGroupInboundRulesOnPrivateLinkTraffic;
+
+  /// [Application Load Balancers] The type of IP addresses used for public or
+  /// private connections by the subnets attached to your load balancer. The
+  /// possible values are <code>ipv4</code> (for only IPv4 addresses),
+  /// <code>dualstack</code> (for IPv4 and IPv6 addresses), and
+  /// <code>dualstack-without-public-ipv4</code> (for IPv6 only public addresses,
+  /// with private IPv4 and IPv6 addresses).
+  ///
+  /// [Network Load Balancers and Gateway Load Balancers] The type of IP addresses
+  /// used for public or private connections by the subnets attached to your load
+  /// balancer. The possible values are <code>ipv4</code> (for only IPv4
+  /// addresses) and <code>dualstack</code> (for IPv4 and IPv6 addresses).
   final IpAddressType? ipAddressType;
 
   /// The Amazon Resource Name (ARN) of the load balancer.
@@ -3450,6 +4534,7 @@ class LoadBalancer {
     this.createdTime,
     this.customerOwnedIpv4Pool,
     this.dNSName,
+    this.enforceSecurityGroupInboundRulesOnPrivateLinkTraffic,
     this.ipAddressType,
     this.loadBalancerArn,
     this.loadBalancerName,
@@ -3472,17 +4557,24 @@ class LoadBalancer {
       customerOwnedIpv4Pool:
           _s.extractXmlStringValue(elem, 'CustomerOwnedIpv4Pool'),
       dNSName: _s.extractXmlStringValue(elem, 'DNSName'),
-      ipAddressType:
-          _s.extractXmlStringValue(elem, 'IpAddressType')?.toIpAddressType(),
+      enforceSecurityGroupInboundRulesOnPrivateLinkTraffic:
+          _s.extractXmlStringValue(
+              elem, 'EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic'),
+      ipAddressType: _s
+          .extractXmlStringValue(elem, 'IpAddressType')
+          ?.let(IpAddressType.fromString),
       loadBalancerArn: _s.extractXmlStringValue(elem, 'LoadBalancerArn'),
       loadBalancerName: _s.extractXmlStringValue(elem, 'LoadBalancerName'),
-      scheme:
-          _s.extractXmlStringValue(elem, 'Scheme')?.toLoadBalancerSchemeEnum(),
+      scheme: _s
+          .extractXmlStringValue(elem, 'Scheme')
+          ?.let(LoadBalancerSchemeEnum.fromString),
       securityGroups: _s
           .extractXmlChild(elem, 'SecurityGroups')
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
       state: _s.extractXmlChild(elem, 'State')?.let(LoadBalancerState.fromXml),
-      type: _s.extractXmlStringValue(elem, 'Type')?.toLoadBalancerTypeEnum(),
+      type: _s
+          .extractXmlStringValue(elem, 'Type')
+          ?.let(LoadBalancerTypeEnum.fromString),
       vpcId: _s.extractXmlStringValue(elem, 'VpcId'),
     );
   }
@@ -3576,6 +4668,26 @@ class LoadBalancerAttribute {
   /// seconds. The valid range is 1-4000 seconds. The default is 60 seconds.
   /// </li>
   /// <li>
+  /// <code>client_keep_alive.seconds</code> - The client keep alive value, in
+  /// seconds. The valid range is 60-604800 seconds. The default is 3600 seconds.
+  /// </li>
+  /// <li>
+  /// <code>connection_logs.s3.enabled</code> - Indicates whether connection logs
+  /// are enabled. The value is <code>true</code> or <code>false</code>. The
+  /// default is <code>false</code>.
+  /// </li>
+  /// <li>
+  /// <code>connection_logs.s3.bucket</code> - The name of the S3 bucket for the
+  /// connection logs. This attribute is required if connection logs are enabled.
+  /// The bucket must exist in the same region as the load balancer and have a
+  /// bucket policy that grants Elastic Load Balancing permissions to write to the
+  /// bucket.
+  /// </li>
+  /// <li>
+  /// <code>connection_logs.s3.prefix</code> - The prefix for the location in the
+  /// S3 bucket for the connection logs.
+  /// </li>
+  /// <li>
   /// <code>routing.http.desync_mitigation_mode</code> - Determines how the load
   /// balancer handles requests that might pose a security risk to your
   /// application. The possible values are <code>monitor</code>,
@@ -3650,6 +4762,18 @@ class LoadBalancerAttribute {
   /// <code>true</code> and <code>false</code>. The default is <code>false</code>.
   /// </li>
   /// </ul>
+  /// The following attributes are supported by only Network Load Balancers:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>dns_record.client_routing_policy</code> - Indicates how traffic is
+  /// distributed among the load balancer Availability Zones. The possible values
+  /// are <code>availability_zone_affinity</code> with 100 percent zonal affinity,
+  /// <code>partial_availability_zone_affinity</code> with 85 percent zonal
+  /// affinity, and <code>any_availability_zone</code> with 0 percent zonal
+  /// affinity.
+  /// </li>
+  /// </ul>
   final String? key;
 
   /// The value of the attribute.
@@ -3674,34 +4798,30 @@ class LoadBalancerAttribute {
       if (value != null) 'Value': value,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      if (key != null) 'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
 }
 
 enum LoadBalancerSchemeEnum {
-  internetFacing,
-  internal,
-}
+  internetFacing('internet-facing'),
+  internal('internal'),
+  ;
 
-extension LoadBalancerSchemeEnumValueExtension on LoadBalancerSchemeEnum {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerSchemeEnum.internetFacing:
-        return 'internet-facing';
-      case LoadBalancerSchemeEnum.internal:
-        return 'internal';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerSchemeEnumFromString on String {
-  LoadBalancerSchemeEnum toLoadBalancerSchemeEnum() {
-    switch (this) {
-      case 'internet-facing':
-        return LoadBalancerSchemeEnum.internetFacing;
-      case 'internal':
-        return LoadBalancerSchemeEnum.internal;
-    }
-    throw Exception('$this is not known in enum LoadBalancerSchemeEnum');
-  }
+  const LoadBalancerSchemeEnum(this.value);
+
+  static LoadBalancerSchemeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum LoadBalancerSchemeEnum'));
 }
 
 /// Information about the state of the load balancer.
@@ -3723,81 +4843,45 @@ class LoadBalancerState {
   });
   factory LoadBalancerState.fromXml(_s.XmlElement elem) {
     return LoadBalancerState(
-      code: _s.extractXmlStringValue(elem, 'Code')?.toLoadBalancerStateEnum(),
+      code: _s
+          .extractXmlStringValue(elem, 'Code')
+          ?.let(LoadBalancerStateEnum.fromString),
       reason: _s.extractXmlStringValue(elem, 'Reason'),
     );
   }
 }
 
 enum LoadBalancerStateEnum {
-  active,
-  provisioning,
-  activeImpaired,
-  failed,
-}
+  active('active'),
+  provisioning('provisioning'),
+  activeImpaired('active_impaired'),
+  failed('failed'),
+  ;
 
-extension LoadBalancerStateEnumValueExtension on LoadBalancerStateEnum {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerStateEnum.active:
-        return 'active';
-      case LoadBalancerStateEnum.provisioning:
-        return 'provisioning';
-      case LoadBalancerStateEnum.activeImpaired:
-        return 'active_impaired';
-      case LoadBalancerStateEnum.failed:
-        return 'failed';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerStateEnumFromString on String {
-  LoadBalancerStateEnum toLoadBalancerStateEnum() {
-    switch (this) {
-      case 'active':
-        return LoadBalancerStateEnum.active;
-      case 'provisioning':
-        return LoadBalancerStateEnum.provisioning;
-      case 'active_impaired':
-        return LoadBalancerStateEnum.activeImpaired;
-      case 'failed':
-        return LoadBalancerStateEnum.failed;
-    }
-    throw Exception('$this is not known in enum LoadBalancerStateEnum');
-  }
+  const LoadBalancerStateEnum(this.value);
+
+  static LoadBalancerStateEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LoadBalancerStateEnum'));
 }
 
 enum LoadBalancerTypeEnum {
-  application,
-  network,
-  gateway,
-}
+  application('application'),
+  network('network'),
+  gateway('gateway'),
+  ;
 
-extension LoadBalancerTypeEnumValueExtension on LoadBalancerTypeEnum {
-  String toValue() {
-    switch (this) {
-      case LoadBalancerTypeEnum.application:
-        return 'application';
-      case LoadBalancerTypeEnum.network:
-        return 'network';
-      case LoadBalancerTypeEnum.gateway:
-        return 'gateway';
-    }
-  }
-}
+  final String value;
 
-extension LoadBalancerTypeEnumFromString on String {
-  LoadBalancerTypeEnum toLoadBalancerTypeEnum() {
-    switch (this) {
-      case 'application':
-        return LoadBalancerTypeEnum.application;
-      case 'network':
-        return LoadBalancerTypeEnum.network;
-      case 'gateway':
-        return LoadBalancerTypeEnum.gateway;
-    }
-    throw Exception('$this is not known in enum LoadBalancerTypeEnum');
-  }
+  const LoadBalancerTypeEnum(this.value);
+
+  static LoadBalancerTypeEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LoadBalancerTypeEnum'));
 }
 
 /// The codes to use when checking for a successful response from a target. If
@@ -3842,6 +4926,30 @@ class Matcher {
       if (httpCode != null) 'HttpCode': httpCode,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final grpcCode = this.grpcCode;
+    final httpCode = this.httpCode;
+    return {
+      if (grpcCode != null) 'GrpcCode': grpcCode,
+      if (httpCode != null) 'HttpCode': httpCode,
+    };
+  }
+}
+
+enum MitigationInEffectEnum {
+  yes('yes'),
+  no('no'),
+  ;
+
+  final String value;
+
+  const MitigationInEffectEnum(this.value);
+
+  static MitigationInEffectEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MitigationInEffectEnum'));
 }
 
 class ModifyListenerOutput {
@@ -3923,6 +5031,74 @@ class ModifyTargetGroupOutput {
   }
 }
 
+class ModifyTrustStoreOutput {
+  /// Information about the modified trust store.
+  final List<TrustStore>? trustStores;
+
+  ModifyTrustStoreOutput({
+    this.trustStores,
+  });
+  factory ModifyTrustStoreOutput.fromXml(_s.XmlElement elem) {
+    return ModifyTrustStoreOutput(
+      trustStores: _s.extractXmlChild(elem, 'TrustStores')?.let((elem) =>
+          elem.findElements('member').map(TrustStore.fromXml).toList()),
+    );
+  }
+}
+
+/// Information about the mutual authentication attributes of a listener.
+class MutualAuthenticationAttributes {
+  /// Indicates whether expired client certificates are ignored.
+  final bool? ignoreClientCertificateExpiry;
+
+  /// The client certificate handling method. Options are <code>off</code>,
+  /// <code>passthrough</code> or <code>verify</code>. The default value is
+  /// <code>off</code>.
+  final String? mode;
+
+  /// The Amazon Resource Name (ARN) of the trust store.
+  final String? trustStoreArn;
+
+  MutualAuthenticationAttributes({
+    this.ignoreClientCertificateExpiry,
+    this.mode,
+    this.trustStoreArn,
+  });
+  factory MutualAuthenticationAttributes.fromXml(_s.XmlElement elem) {
+    return MutualAuthenticationAttributes(
+      ignoreClientCertificateExpiry:
+          _s.extractXmlBoolValue(elem, 'IgnoreClientCertificateExpiry'),
+      mode: _s.extractXmlStringValue(elem, 'Mode'),
+      trustStoreArn: _s.extractXmlStringValue(elem, 'TrustStoreArn'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final ignoreClientCertificateExpiry = this.ignoreClientCertificateExpiry;
+    final mode = this.mode;
+    final trustStoreArn = this.trustStoreArn;
+    return {
+      if (ignoreClientCertificateExpiry != null)
+        'IgnoreClientCertificateExpiry': ignoreClientCertificateExpiry,
+      if (mode != null) 'Mode': mode,
+      if (trustStoreArn != null) 'TrustStoreArn': trustStoreArn,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final ignoreClientCertificateExpiry = this.ignoreClientCertificateExpiry;
+    final mode = this.mode;
+    final trustStoreArn = this.trustStoreArn;
+    return {
+      if (ignoreClientCertificateExpiry != null)
+        'IgnoreClientCertificateExpiry':
+            ignoreClientCertificateExpiry.toString(),
+      if (mode != null) 'Mode': mode,
+      if (trustStoreArn != null) 'TrustStoreArn': trustStoreArn,
+    };
+  }
+}
+
 /// Information about a path pattern condition.
 class PathPatternConditionConfig {
   /// The path patterns to compare against the request URL. The maximum size of
@@ -3953,59 +5129,38 @@ class PathPatternConditionConfig {
       if (values != null) 'Values': values,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final values = this.values;
+    return {
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
+    };
+  }
 }
 
 enum ProtocolEnum {
-  http,
-  https,
-  tcp,
-  tls,
-  udp,
-  tcpUdp,
-  geneve,
-}
+  http('HTTP'),
+  https('HTTPS'),
+  tcp('TCP'),
+  tls('TLS'),
+  udp('UDP'),
+  tcpUdp('TCP_UDP'),
+  geneve('GENEVE'),
+  ;
 
-extension ProtocolEnumValueExtension on ProtocolEnum {
-  String toValue() {
-    switch (this) {
-      case ProtocolEnum.http:
-        return 'HTTP';
-      case ProtocolEnum.https:
-        return 'HTTPS';
-      case ProtocolEnum.tcp:
-        return 'TCP';
-      case ProtocolEnum.tls:
-        return 'TLS';
-      case ProtocolEnum.udp:
-        return 'UDP';
-      case ProtocolEnum.tcpUdp:
-        return 'TCP_UDP';
-      case ProtocolEnum.geneve:
-        return 'GENEVE';
-    }
-  }
-}
+  final String value;
 
-extension ProtocolEnumFromString on String {
-  ProtocolEnum toProtocolEnum() {
-    switch (this) {
-      case 'HTTP':
-        return ProtocolEnum.http;
-      case 'HTTPS':
-        return ProtocolEnum.https;
-      case 'TCP':
-        return ProtocolEnum.tcp;
-      case 'TLS':
-        return ProtocolEnum.tls;
-      case 'UDP':
-        return ProtocolEnum.udp;
-      case 'TCP_UDP':
-        return ProtocolEnum.tcpUdp;
-      case 'GENEVE':
-        return ProtocolEnum.geneve;
-    }
-    throw Exception('$this is not known in enum ProtocolEnum');
-  }
+  const ProtocolEnum(this.value);
+
+  static ProtocolEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ProtocolEnum'));
 }
 
 /// Information about a query string condition.
@@ -4045,6 +5200,19 @@ class QueryStringConditionConfig {
       if (values != null) 'Values': values,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final values = this.values;
+    return {
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            for (var e3 in values[i1].toQueryMap().entries)
+              'Values.member.${i1 + 1}.${e3.key}': e3.value,
+    };
+  }
 }
 
 /// Information about a key/value pair.
@@ -4067,6 +5235,15 @@ class QueryStringKeyValuePair {
   }
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      if (key != null) 'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {
@@ -4142,7 +5319,7 @@ class RedirectActionConfig {
     return RedirectActionConfig(
       statusCode: _s
           .extractXmlStringValue(elem, 'StatusCode')!
-          .toRedirectActionStatusCodeEnum(),
+          .let(RedirectActionStatusCodeEnum.fromString),
       host: _s.extractXmlStringValue(elem, 'Host'),
       path: _s.extractXmlStringValue(elem, 'Path'),
       port: _s.extractXmlStringValue(elem, 'Port'),
@@ -4159,7 +5336,24 @@ class RedirectActionConfig {
     final protocol = this.protocol;
     final query = this.query;
     return {
-      'StatusCode': statusCode.toValue(),
+      'StatusCode': statusCode.value,
+      if (host != null) 'Host': host,
+      if (path != null) 'Path': path,
+      if (port != null) 'Port': port,
+      if (protocol != null) 'Protocol': protocol,
+      if (query != null) 'Query': query,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final statusCode = this.statusCode;
+    final host = this.host;
+    final path = this.path;
+    final port = this.port;
+    final protocol = this.protocol;
+    final query = this.query;
+    return {
+      'StatusCode': statusCode.value,
       if (host != null) 'Host': host,
       if (path != null) 'Path': path,
       if (port != null) 'Port': port,
@@ -4170,32 +5364,18 @@ class RedirectActionConfig {
 }
 
 enum RedirectActionStatusCodeEnum {
-  http_301,
-  http_302,
-}
+  http_301('HTTP_301'),
+  http_302('HTTP_302'),
+  ;
 
-extension RedirectActionStatusCodeEnumValueExtension
-    on RedirectActionStatusCodeEnum {
-  String toValue() {
-    switch (this) {
-      case RedirectActionStatusCodeEnum.http_301:
-        return 'HTTP_301';
-      case RedirectActionStatusCodeEnum.http_302:
-        return 'HTTP_302';
-    }
-  }
-}
+  final String value;
 
-extension RedirectActionStatusCodeEnumFromString on String {
-  RedirectActionStatusCodeEnum toRedirectActionStatusCodeEnum() {
-    switch (this) {
-      case 'HTTP_301':
-        return RedirectActionStatusCodeEnum.http_301;
-      case 'HTTP_302':
-        return RedirectActionStatusCodeEnum.http_302;
-    }
-    throw Exception('$this is not known in enum RedirectActionStatusCodeEnum');
-  }
+  const RedirectActionStatusCodeEnum(this.value);
+
+  static RedirectActionStatusCodeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RedirectActionStatusCodeEnum'));
 }
 
 class RegisterTargetsOutput {
@@ -4223,6 +5403,77 @@ class RemoveTagsOutput {
       _s.XmlElement elem) {
     return RemoveTagsOutput();
   }
+}
+
+class RemoveTrustStoreRevocationsOutput {
+  RemoveTrustStoreRevocationsOutput();
+  factory RemoveTrustStoreRevocationsOutput.fromXml(
+      // ignore: avoid_unused_constructor_parameters
+      _s.XmlElement elem) {
+    return RemoveTrustStoreRevocationsOutput();
+  }
+}
+
+/// Information about a revocation file.
+class RevocationContent {
+  /// The type of revocation file.
+  final RevocationType? revocationType;
+
+  /// The Amazon S3 bucket for the revocation file.
+  final String? s3Bucket;
+
+  /// The Amazon S3 path for the revocation file.
+  final String? s3Key;
+
+  /// The Amazon S3 object version of the revocation file.
+  final String? s3ObjectVersion;
+
+  RevocationContent({
+    this.revocationType,
+    this.s3Bucket,
+    this.s3Key,
+    this.s3ObjectVersion,
+  });
+
+  Map<String, dynamic> toJson() {
+    final revocationType = this.revocationType;
+    final s3Bucket = this.s3Bucket;
+    final s3Key = this.s3Key;
+    final s3ObjectVersion = this.s3ObjectVersion;
+    return {
+      if (revocationType != null) 'RevocationType': revocationType.value,
+      if (s3Bucket != null) 'S3Bucket': s3Bucket,
+      if (s3Key != null) 'S3Key': s3Key,
+      if (s3ObjectVersion != null) 'S3ObjectVersion': s3ObjectVersion,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final revocationType = this.revocationType;
+    final s3Bucket = this.s3Bucket;
+    final s3Key = this.s3Key;
+    final s3ObjectVersion = this.s3ObjectVersion;
+    return {
+      if (revocationType != null) 'RevocationType': revocationType.value,
+      if (s3Bucket != null) 'S3Bucket': s3Bucket,
+      if (s3Key != null) 'S3Key': s3Key,
+      if (s3ObjectVersion != null) 'S3ObjectVersion': s3ObjectVersion,
+    };
+  }
+}
+
+enum RevocationType {
+  crl('CRL'),
+  ;
+
+  final String value;
+
+  const RevocationType(this.value);
+
+  static RevocationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RevocationType'));
 }
 
 /// Information about a rule.
@@ -4276,6 +5527,10 @@ class Rule {
 /// optionally include one or more of each of the following conditions:
 /// <code>http-header</code> and <code>query-string</code>. Note that the value
 /// for a condition cannot be empty.
+///
+/// For more information, see <a
+/// href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/load-balancer-limits.html">Quotas
+/// for your Application Load Balancers</a>.
 class RuleCondition {
   /// The field in the HTTP request. The following are the possible values:
   ///
@@ -4433,6 +5688,44 @@ class RuleCondition {
       if (values != null) 'Values': values,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final field = this.field;
+    final hostHeaderConfig = this.hostHeaderConfig;
+    final httpHeaderConfig = this.httpHeaderConfig;
+    final httpRequestMethodConfig = this.httpRequestMethodConfig;
+    final pathPatternConfig = this.pathPatternConfig;
+    final queryStringConfig = this.queryStringConfig;
+    final sourceIpConfig = this.sourceIpConfig;
+    final values = this.values;
+    return {
+      if (field != null) 'Field': field,
+      if (hostHeaderConfig != null)
+        for (var e1 in hostHeaderConfig.toQueryMap().entries)
+          'HostHeaderConfig.${e1.key}': e1.value,
+      if (httpHeaderConfig != null)
+        for (var e1 in httpHeaderConfig.toQueryMap().entries)
+          'HttpHeaderConfig.${e1.key}': e1.value,
+      if (httpRequestMethodConfig != null)
+        for (var e1 in httpRequestMethodConfig.toQueryMap().entries)
+          'HttpRequestMethodConfig.${e1.key}': e1.value,
+      if (pathPatternConfig != null)
+        for (var e1 in pathPatternConfig.toQueryMap().entries)
+          'PathPatternConfig.${e1.key}': e1.value,
+      if (queryStringConfig != null)
+        for (var e1 in queryStringConfig.toQueryMap().entries)
+          'QueryStringConfig.${e1.key}': e1.value,
+      if (sourceIpConfig != null)
+        for (var e1 in sourceIpConfig.toQueryMap().entries)
+          'SourceIpConfig.${e1.key}': e1.value,
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
+    };
+  }
 }
 
 /// Information about the priorities for the rules for a listener.
@@ -4456,6 +5749,15 @@ class RulePriorityPair {
       if (ruleArn != null) 'RuleArn': ruleArn,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final priority = this.priority;
+    final ruleArn = this.ruleArn;
+    return {
+      if (priority != null) 'Priority': priority.toString(),
+      if (ruleArn != null) 'RuleArn': ruleArn,
+    };
+  }
 }
 
 class SetIpAddressTypeOutput {
@@ -4467,8 +5769,9 @@ class SetIpAddressTypeOutput {
   });
   factory SetIpAddressTypeOutput.fromXml(_s.XmlElement elem) {
     return SetIpAddressTypeOutput(
-      ipAddressType:
-          _s.extractXmlStringValue(elem, 'IpAddressType')?.toIpAddressType(),
+      ipAddressType: _s
+          .extractXmlStringValue(elem, 'IpAddressType')
+          ?.let(IpAddressType.fromString),
     );
   }
 }
@@ -4489,14 +5792,25 @@ class SetRulePrioritiesOutput {
 }
 
 class SetSecurityGroupsOutput {
+  /// Indicates whether to evaluate inbound security group rules for traffic sent
+  /// to a Network Load Balancer through Amazon Web Services PrivateLink.
+  final EnforceSecurityGroupInboundRulesOnPrivateLinkTrafficEnum?
+      enforceSecurityGroupInboundRulesOnPrivateLinkTraffic;
+
   /// The IDs of the security groups associated with the load balancer.
   final List<String>? securityGroupIds;
 
   SetSecurityGroupsOutput({
+    this.enforceSecurityGroupInboundRulesOnPrivateLinkTraffic,
     this.securityGroupIds,
   });
   factory SetSecurityGroupsOutput.fromXml(_s.XmlElement elem) {
     return SetSecurityGroupsOutput(
+      enforceSecurityGroupInboundRulesOnPrivateLinkTraffic: _s
+          .extractXmlStringValue(
+              elem, 'EnforceSecurityGroupInboundRulesOnPrivateLinkTraffic')
+          ?.let(EnforceSecurityGroupInboundRulesOnPrivateLinkTrafficEnum
+              .fromString),
       securityGroupIds: _s
           .extractXmlChild(elem, 'SecurityGroupIds')
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
@@ -4508,7 +5822,11 @@ class SetSubnetsOutput {
   /// Information about the subnets.
   final List<AvailabilityZone>? availabilityZones;
 
+  /// [Application Load Balancers] The IP address type.
+  ///
   /// [Network Load Balancers] The IP address type.
+  ///
+  /// [Gateway Load Balancers] The IP address type.
   final IpAddressType? ipAddressType;
 
   SetSubnetsOutput({
@@ -4522,8 +5840,9 @@ class SetSubnetsOutput {
               .findElements('member')
               .map(AvailabilityZone.fromXml)
               .toList()),
-      ipAddressType:
-          _s.extractXmlStringValue(elem, 'IpAddressType')?.toIpAddressType(),
+      ipAddressType: _s
+          .extractXmlStringValue(elem, 'IpAddressType')
+          ?.let(IpAddressType.fromString),
     );
   }
 }
@@ -4542,6 +5861,8 @@ class SourceIpConditionConfig {
   /// not satisfied by the addresses in the X-Forwarded-For header. To search for
   /// addresses in the X-Forwarded-For header, use
   /// <a>HttpHeaderConditionConfig</a>.
+  ///
+  /// The total number of values must be less than, or equal to five.
   final List<String>? values;
 
   SourceIpConditionConfig({
@@ -4559,6 +5880,18 @@ class SourceIpConditionConfig {
     final values = this.values;
     return {
       if (values != null) 'Values': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final values = this.values;
+    return {
+      if (values != null)
+        if (values.isEmpty)
+          'Values': ''
+        else
+          for (var i1 = 0; i1 < values.length; i1++)
+            'Values.member.${i1 + 1}': values[i1],
     };
   }
 }
@@ -4633,6 +5966,19 @@ class SubnetMapping {
       if (subnetId != null) 'SubnetId': subnetId,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final allocationId = this.allocationId;
+    final iPv6Address = this.iPv6Address;
+    final privateIPv4Address = this.privateIPv4Address;
+    final subnetId = this.subnetId;
+    return {
+      if (allocationId != null) 'AllocationId': allocationId,
+      if (iPv6Address != null) 'IPv6Address': iPv6Address,
+      if (privateIPv4Address != null) 'PrivateIPv4Address': privateIPv4Address,
+      if (subnetId != null) 'SubnetId': subnetId,
+    };
+  }
 }
 
 /// Information about a tag.
@@ -4655,6 +6001,15 @@ class Tag {
   }
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {
@@ -4723,8 +6078,8 @@ class TargetDescription {
   /// The port on which the target is listening. If the target group protocol is
   /// GENEVE, the supported port is 6081. If the target type is <code>alb</code>,
   /// the targeted Application Load Balancer must have at least one listener whose
-  /// port matches the target group port. Not used if the target is a Lambda
-  /// function.
+  /// port matches the target group port. This parameter is not used if the target
+  /// is a Lambda function.
   final int? port;
 
   TargetDescription({
@@ -4748,6 +6103,17 @@ class TargetDescription {
       'Id': id,
       if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
       if (port != null) 'Port': port,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final id = this.id;
+    final availabilityZone = this.availabilityZone;
+    final port = this.port;
+    return {
+      'Id': id,
+      if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
+      if (port != null) 'Port': port.toString(),
     };
   }
 }
@@ -4784,16 +6150,17 @@ class TargetGroup {
   /// not specified, the IP address type defaults to <code>ipv4</code>.
   final TargetGroupIpAddressTypeEnum? ipAddressType;
 
-  /// The Amazon Resource Names (ARN) of the load balancers that route traffic to
-  /// this target group.
+  /// The Amazon Resource Name (ARN) of the load balancer that routes traffic to
+  /// this target group. You can use each target group with only one load
+  /// balancer.
   final List<String>? loadBalancerArns;
 
   /// The HTTP or gRPC codes to use when checking for a successful response from a
   /// target.
   final Matcher? matcher;
 
-  /// The port on which the targets are listening. Not used if the target is a
-  /// Lambda function.
+  /// The port on which the targets are listening. This parameter is not used if
+  /// the target is a Lambda function.
   final int? port;
 
   /// The protocol to use for routing traffic to the targets.
@@ -4852,25 +6219,28 @@ class TargetGroup {
       healthCheckPort: _s.extractXmlStringValue(elem, 'HealthCheckPort'),
       healthCheckProtocol: _s
           .extractXmlStringValue(elem, 'HealthCheckProtocol')
-          ?.toProtocolEnum(),
+          ?.let(ProtocolEnum.fromString),
       healthCheckTimeoutSeconds:
           _s.extractXmlIntValue(elem, 'HealthCheckTimeoutSeconds'),
       healthyThresholdCount:
           _s.extractXmlIntValue(elem, 'HealthyThresholdCount'),
       ipAddressType: _s
           .extractXmlStringValue(elem, 'IpAddressType')
-          ?.toTargetGroupIpAddressTypeEnum(),
+          ?.let(TargetGroupIpAddressTypeEnum.fromString),
       loadBalancerArns: _s
           .extractXmlChild(elem, 'LoadBalancerArns')
           ?.let((elem) => _s.extractXmlStringListValues(elem, 'member')),
       matcher: _s.extractXmlChild(elem, 'Matcher')?.let(Matcher.fromXml),
       port: _s.extractXmlIntValue(elem, 'Port'),
-      protocol: _s.extractXmlStringValue(elem, 'Protocol')?.toProtocolEnum(),
+      protocol: _s
+          .extractXmlStringValue(elem, 'Protocol')
+          ?.let(ProtocolEnum.fromString),
       protocolVersion: _s.extractXmlStringValue(elem, 'ProtocolVersion'),
       targetGroupArn: _s.extractXmlStringValue(elem, 'TargetGroupArn'),
       targetGroupName: _s.extractXmlStringValue(elem, 'TargetGroupName'),
-      targetType:
-          _s.extractXmlStringValue(elem, 'TargetType')?.toTargetTypeEnum(),
+      targetType: _s
+          .extractXmlStringValue(elem, 'TargetType')
+          ?.let(TargetTypeEnum.fromString),
       unhealthyThresholdCount:
           _s.extractXmlIntValue(elem, 'UnhealthyThresholdCount'),
       vpcId: _s.extractXmlStringValue(elem, 'VpcId'),
@@ -4963,9 +6333,15 @@ class TargetGroupAttribute {
   /// <li>
   /// <code>load_balancing.algorithm.type</code> - The load balancing algorithm
   /// determines how the load balancer selects targets when routing requests. The
-  /// value is <code>round_robin</code> or
-  /// <code>least_outstanding_requests</code>. The default is
-  /// <code>round_robin</code>.
+  /// value is <code>round_robin</code>, <code>least_outstanding_requests</code>,
+  /// or <code>weighted_random</code>. The default is <code>round_robin</code>.
+  /// </li>
+  /// <li>
+  /// <code>load_balancing.algorithm.anomaly_mitigation</code> - Only available
+  /// when <code>load_balancing.algorithm.type</code> is
+  /// <code>weighted_random</code>. Indicates whether anomaly mitigation is
+  /// enabled. The value is <code>on</code> or <code>off</code>. The default is
+  /// <code>off</code>.
   /// </li>
   /// <li>
   /// <code>slow_start.duration_seconds</code> - The time period, in seconds,
@@ -5016,7 +6392,8 @@ class TargetGroupAttribute {
   /// <code>deregistration_delay.connection_termination.enabled</code> - Indicates
   /// whether the load balancer terminates connections at the end of the
   /// deregistration timeout. The value is <code>true</code> or
-  /// <code>false</code>. The default is <code>false</code>.
+  /// <code>false</code>. For new UDP/TCP_UDP target groups the default is
+  /// <code>true</code>. Otherwise, the default is <code>false</code>.
   /// </li>
   /// <li>
   /// <code>preserve_client_ip.enabled</code> - Indicates whether client IP
@@ -5030,6 +6407,23 @@ class TargetGroupAttribute {
   /// <code>proxy_protocol_v2.enabled</code> - Indicates whether Proxy Protocol
   /// version 2 is enabled. The value is <code>true</code> or <code>false</code>.
   /// The default is <code>false</code>.
+  /// </li>
+  /// <li>
+  /// <code>target_health_state.unhealthy.connection_termination.enabled</code> -
+  /// Indicates whether the load balancer terminates connections to unhealthy
+  /// targets. The value is <code>true</code> or <code>false</code>. The default
+  /// is <code>true</code>.
+  /// </li>
+  /// <li>
+  /// <code>target_health_state.unhealthy.draining_interval_seconds</code> - The
+  /// amount of time for Elastic Load Balancing to wait before changing the state
+  /// of an unhealthy target from <code>unhealthy.draining</code> to
+  /// <code>unhealthy</code>. The range is 0-360000 seconds. The default value is
+  /// 0 seconds.
+  ///
+  /// Note: This attribute can only be configured when
+  /// <code>target_health_state.unhealthy.connection_termination.enabled</code> is
+  /// <code>false</code>.
   /// </li>
   /// </ul>
   /// The following attributes are supported only by Gateway Load Balancers:
@@ -5078,35 +6472,30 @@ class TargetGroupAttribute {
       if (value != null) 'Value': value,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      if (key != null) 'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
 }
 
 enum TargetGroupIpAddressTypeEnum {
-  ipv4,
-  ipv6,
-}
+  ipv4('ipv4'),
+  ipv6('ipv6'),
+  ;
 
-extension TargetGroupIpAddressTypeEnumValueExtension
-    on TargetGroupIpAddressTypeEnum {
-  String toValue() {
-    switch (this) {
-      case TargetGroupIpAddressTypeEnum.ipv4:
-        return 'ipv4';
-      case TargetGroupIpAddressTypeEnum.ipv6:
-        return 'ipv6';
-    }
-  }
-}
+  final String value;
 
-extension TargetGroupIpAddressTypeEnumFromString on String {
-  TargetGroupIpAddressTypeEnum toTargetGroupIpAddressTypeEnum() {
-    switch (this) {
-      case 'ipv4':
-        return TargetGroupIpAddressTypeEnum.ipv4;
-      case 'ipv6':
-        return TargetGroupIpAddressTypeEnum.ipv6;
-    }
-    throw Exception('$this is not known in enum TargetGroupIpAddressTypeEnum');
-  }
+  const TargetGroupIpAddressTypeEnum(this.value);
+
+  static TargetGroupIpAddressTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TargetGroupIpAddressTypeEnum'));
 }
 
 /// Information about the target group stickiness for a rule.
@@ -5137,6 +6526,16 @@ class TargetGroupStickinessConfig {
       if (enabled != null) 'Enabled': enabled,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final durationSeconds = this.durationSeconds;
+    final enabled = this.enabled;
+    return {
+      if (durationSeconds != null)
+        'DurationSeconds': durationSeconds.toString(),
+      if (enabled != null) 'Enabled': enabled.toString(),
+    };
+  }
 }
 
 /// Information about how traffic will be distributed between multiple target
@@ -5165,6 +6564,15 @@ class TargetGroupTuple {
     return {
       if (targetGroupArn != null) 'TargetGroupArn': targetGroupArn,
       if (weight != null) 'Weight': weight,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final targetGroupArn = this.targetGroupArn;
+    final weight = this.weight;
+    return {
+      if (targetGroupArn != null) 'TargetGroupArn': targetGroupArn,
+      if (weight != null) 'Weight': weight.toString(),
     };
   }
 }
@@ -5273,15 +6681,25 @@ class TargetHealth {
   factory TargetHealth.fromXml(_s.XmlElement elem) {
     return TargetHealth(
       description: _s.extractXmlStringValue(elem, 'Description'),
-      reason:
-          _s.extractXmlStringValue(elem, 'Reason')?.toTargetHealthReasonEnum(),
-      state: _s.extractXmlStringValue(elem, 'State')?.toTargetHealthStateEnum(),
+      reason: _s
+          .extractXmlStringValue(elem, 'Reason')
+          ?.let(TargetHealthReasonEnum.fromString),
+      state: _s
+          .extractXmlStringValue(elem, 'State')
+          ?.let(TargetHealthStateEnum.fromString),
     );
   }
 }
 
 /// Information about the health of a target.
 class TargetHealthDescription {
+  /// The anomaly detection result for the target.
+  ///
+  /// If no anomalies were detected, the result is <code>normal</code>.
+  ///
+  /// If anomalies were detected, the result is <code>anomalous</code>.
+  final AnomalyDetection? anomalyDetection;
+
   /// The port to use to connect with the target.
   final String? healthCheckPort;
 
@@ -5292,12 +6710,16 @@ class TargetHealthDescription {
   final TargetHealth? targetHealth;
 
   TargetHealthDescription({
+    this.anomalyDetection,
     this.healthCheckPort,
     this.target,
     this.targetHealth,
   });
   factory TargetHealthDescription.fromXml(_s.XmlElement elem) {
     return TargetHealthDescription(
+      anomalyDetection: _s
+          .extractXmlChild(elem, 'AnomalyDetection')
+          ?.let(AnomalyDetection.fromXml),
       healthCheckPort: _s.extractXmlStringValue(elem, 'HealthCheckPort'),
       target:
           _s.extractXmlChild(elem, 'Target')?.let(TargetDescription.fromXml),
@@ -5308,167 +6730,166 @@ class TargetHealthDescription {
 }
 
 enum TargetHealthReasonEnum {
-  elbRegistrationInProgress,
-  elbInitialHealthChecking,
-  targetResponseCodeMismatch,
-  targetTimeout,
-  targetFailedHealthChecks,
-  targetNotRegistered,
-  targetNotInUse,
-  targetDeregistrationInProgress,
-  targetInvalidState,
-  targetIpUnusable,
-  targetHealthCheckDisabled,
-  elbInternalError,
-}
+  elbRegistrationInProgress('Elb.RegistrationInProgress'),
+  elbInitialHealthChecking('Elb.InitialHealthChecking'),
+  targetResponseCodeMismatch('Target.ResponseCodeMismatch'),
+  targetTimeout('Target.Timeout'),
+  targetFailedHealthChecks('Target.FailedHealthChecks'),
+  targetNotRegistered('Target.NotRegistered'),
+  targetNotInUse('Target.NotInUse'),
+  targetDeregistrationInProgress('Target.DeregistrationInProgress'),
+  targetInvalidState('Target.InvalidState'),
+  targetIpUnusable('Target.IpUnusable'),
+  targetHealthCheckDisabled('Target.HealthCheckDisabled'),
+  elbInternalError('Elb.InternalError'),
+  ;
 
-extension TargetHealthReasonEnumValueExtension on TargetHealthReasonEnum {
-  String toValue() {
-    switch (this) {
-      case TargetHealthReasonEnum.elbRegistrationInProgress:
-        return 'Elb.RegistrationInProgress';
-      case TargetHealthReasonEnum.elbInitialHealthChecking:
-        return 'Elb.InitialHealthChecking';
-      case TargetHealthReasonEnum.targetResponseCodeMismatch:
-        return 'Target.ResponseCodeMismatch';
-      case TargetHealthReasonEnum.targetTimeout:
-        return 'Target.Timeout';
-      case TargetHealthReasonEnum.targetFailedHealthChecks:
-        return 'Target.FailedHealthChecks';
-      case TargetHealthReasonEnum.targetNotRegistered:
-        return 'Target.NotRegistered';
-      case TargetHealthReasonEnum.targetNotInUse:
-        return 'Target.NotInUse';
-      case TargetHealthReasonEnum.targetDeregistrationInProgress:
-        return 'Target.DeregistrationInProgress';
-      case TargetHealthReasonEnum.targetInvalidState:
-        return 'Target.InvalidState';
-      case TargetHealthReasonEnum.targetIpUnusable:
-        return 'Target.IpUnusable';
-      case TargetHealthReasonEnum.targetHealthCheckDisabled:
-        return 'Target.HealthCheckDisabled';
-      case TargetHealthReasonEnum.elbInternalError:
-        return 'Elb.InternalError';
-    }
-  }
-}
+  final String value;
 
-extension TargetHealthReasonEnumFromString on String {
-  TargetHealthReasonEnum toTargetHealthReasonEnum() {
-    switch (this) {
-      case 'Elb.RegistrationInProgress':
-        return TargetHealthReasonEnum.elbRegistrationInProgress;
-      case 'Elb.InitialHealthChecking':
-        return TargetHealthReasonEnum.elbInitialHealthChecking;
-      case 'Target.ResponseCodeMismatch':
-        return TargetHealthReasonEnum.targetResponseCodeMismatch;
-      case 'Target.Timeout':
-        return TargetHealthReasonEnum.targetTimeout;
-      case 'Target.FailedHealthChecks':
-        return TargetHealthReasonEnum.targetFailedHealthChecks;
-      case 'Target.NotRegistered':
-        return TargetHealthReasonEnum.targetNotRegistered;
-      case 'Target.NotInUse':
-        return TargetHealthReasonEnum.targetNotInUse;
-      case 'Target.DeregistrationInProgress':
-        return TargetHealthReasonEnum.targetDeregistrationInProgress;
-      case 'Target.InvalidState':
-        return TargetHealthReasonEnum.targetInvalidState;
-      case 'Target.IpUnusable':
-        return TargetHealthReasonEnum.targetIpUnusable;
-      case 'Target.HealthCheckDisabled':
-        return TargetHealthReasonEnum.targetHealthCheckDisabled;
-      case 'Elb.InternalError':
-        return TargetHealthReasonEnum.elbInternalError;
-    }
-    throw Exception('$this is not known in enum TargetHealthReasonEnum');
-  }
+  const TargetHealthReasonEnum(this.value);
+
+  static TargetHealthReasonEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TargetHealthReasonEnum'));
 }
 
 enum TargetHealthStateEnum {
-  initial,
-  healthy,
-  unhealthy,
-  unused,
-  draining,
-  unavailable,
-}
+  initial('initial'),
+  healthy('healthy'),
+  unhealthy('unhealthy'),
+  unhealthyDraining('unhealthy.draining'),
+  unused('unused'),
+  draining('draining'),
+  unavailable('unavailable'),
+  ;
 
-extension TargetHealthStateEnumValueExtension on TargetHealthStateEnum {
-  String toValue() {
-    switch (this) {
-      case TargetHealthStateEnum.initial:
-        return 'initial';
-      case TargetHealthStateEnum.healthy:
-        return 'healthy';
-      case TargetHealthStateEnum.unhealthy:
-        return 'unhealthy';
-      case TargetHealthStateEnum.unused:
-        return 'unused';
-      case TargetHealthStateEnum.draining:
-        return 'draining';
-      case TargetHealthStateEnum.unavailable:
-        return 'unavailable';
-    }
-  }
-}
+  final String value;
 
-extension TargetHealthStateEnumFromString on String {
-  TargetHealthStateEnum toTargetHealthStateEnum() {
-    switch (this) {
-      case 'initial':
-        return TargetHealthStateEnum.initial;
-      case 'healthy':
-        return TargetHealthStateEnum.healthy;
-      case 'unhealthy':
-        return TargetHealthStateEnum.unhealthy;
-      case 'unused':
-        return TargetHealthStateEnum.unused;
-      case 'draining':
-        return TargetHealthStateEnum.draining;
-      case 'unavailable':
-        return TargetHealthStateEnum.unavailable;
-    }
-    throw Exception('$this is not known in enum TargetHealthStateEnum');
-  }
+  const TargetHealthStateEnum(this.value);
+
+  static TargetHealthStateEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TargetHealthStateEnum'));
 }
 
 enum TargetTypeEnum {
-  instance,
-  ip,
-  lambda,
-  alb,
+  instance('instance'),
+  ip('ip'),
+  lambda('lambda'),
+  alb('alb'),
+  ;
+
+  final String value;
+
+  const TargetTypeEnum(this.value);
+
+  static TargetTypeEnum fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TargetTypeEnum'));
 }
 
-extension TargetTypeEnumValueExtension on TargetTypeEnum {
-  String toValue() {
-    switch (this) {
-      case TargetTypeEnum.instance:
-        return 'instance';
-      case TargetTypeEnum.ip:
-        return 'ip';
-      case TargetTypeEnum.lambda:
-        return 'lambda';
-      case TargetTypeEnum.alb:
-        return 'alb';
-    }
+/// Information about a trust store.
+class TrustStore {
+  /// The name of the trust store.
+  final String? name;
+
+  /// The number of ca certificates in the trust store.
+  final int? numberOfCaCertificates;
+
+  /// The current status of the trust store.
+  final TrustStoreStatus? status;
+
+  /// The number of revoked certificates in the trust store.
+  final int? totalRevokedEntries;
+
+  /// The Amazon Resource Name (ARN) of the trust store.
+  final String? trustStoreArn;
+
+  TrustStore({
+    this.name,
+    this.numberOfCaCertificates,
+    this.status,
+    this.totalRevokedEntries,
+    this.trustStoreArn,
+  });
+  factory TrustStore.fromXml(_s.XmlElement elem) {
+    return TrustStore(
+      name: _s.extractXmlStringValue(elem, 'Name'),
+      numberOfCaCertificates:
+          _s.extractXmlIntValue(elem, 'NumberOfCaCertificates'),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')
+          ?.let(TrustStoreStatus.fromString),
+      totalRevokedEntries: _s.extractXmlIntValue(elem, 'TotalRevokedEntries'),
+      trustStoreArn: _s.extractXmlStringValue(elem, 'TrustStoreArn'),
+    );
   }
 }
 
-extension TargetTypeEnumFromString on String {
-  TargetTypeEnum toTargetTypeEnum() {
-    switch (this) {
-      case 'instance':
-        return TargetTypeEnum.instance;
-      case 'ip':
-        return TargetTypeEnum.ip;
-      case 'lambda':
-        return TargetTypeEnum.lambda;
-      case 'alb':
-        return TargetTypeEnum.alb;
-    }
-    throw Exception('$this is not known in enum TargetTypeEnum');
+/// Information about the resources a trust store is associated with.
+class TrustStoreAssociation {
+  /// The Amazon Resource Name (ARN) of the resource.
+  final String? resourceArn;
+
+  TrustStoreAssociation({
+    this.resourceArn,
+  });
+  factory TrustStoreAssociation.fromXml(_s.XmlElement elem) {
+    return TrustStoreAssociation(
+      resourceArn: _s.extractXmlStringValue(elem, 'ResourceArn'),
+    );
   }
+}
+
+/// Information about a revocation file in use by a trust store.
+class TrustStoreRevocation {
+  /// The number of revoked certificates.
+  final int? numberOfRevokedEntries;
+
+  /// The revocation ID of the revocation file.
+  final int? revocationId;
+
+  /// The type of revocation file.
+  final RevocationType? revocationType;
+
+  /// The Amazon Resource Name (ARN) of the trust store.
+  final String? trustStoreArn;
+
+  TrustStoreRevocation({
+    this.numberOfRevokedEntries,
+    this.revocationId,
+    this.revocationType,
+    this.trustStoreArn,
+  });
+  factory TrustStoreRevocation.fromXml(_s.XmlElement elem) {
+    return TrustStoreRevocation(
+      numberOfRevokedEntries:
+          _s.extractXmlIntValue(elem, 'NumberOfRevokedEntries'),
+      revocationId: _s.extractXmlIntValue(elem, 'RevocationId'),
+      revocationType: _s
+          .extractXmlStringValue(elem, 'RevocationType')
+          ?.let(RevocationType.fromString),
+      trustStoreArn: _s.extractXmlStringValue(elem, 'TrustStoreArn'),
+    );
+  }
+}
+
+enum TrustStoreStatus {
+  active('ACTIVE'),
+  creating('CREATING'),
+  ;
+
+  final String value;
+
+  const TrustStoreStatus(this.value);
+
+  static TrustStoreStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TrustStoreStatus'));
 }
 
 class ALPNPolicyNotSupportedException extends _s.GenericAwsException {
@@ -5492,6 +6913,14 @@ class AvailabilityZoneNotSupportedException extends _s.GenericAwsException {
       : super(
             type: type,
             code: 'AvailabilityZoneNotSupportedException',
+            message: message);
+}
+
+class CaCertificatesBundleNotFoundException extends _s.GenericAwsException {
+  CaCertificatesBundleNotFoundException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'CaCertificatesBundleNotFoundException',
             message: message);
 }
 
@@ -5527,6 +6956,14 @@ class DuplicateTargetGroupNameException extends _s.GenericAwsException {
             message: message);
 }
 
+class DuplicateTrustStoreNameException extends _s.GenericAwsException {
+  DuplicateTrustStoreNameException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'DuplicateTrustStoreNameException',
+            message: message);
+}
+
 class HealthUnavailableException extends _s.GenericAwsException {
   HealthUnavailableException({String? type, String? message})
       : super(type: type, code: 'HealthUnavailableException', message: message);
@@ -5537,6 +6974,14 @@ class IncompatibleProtocolsException extends _s.GenericAwsException {
       : super(
             type: type,
             code: 'IncompatibleProtocolsException',
+            message: message);
+}
+
+class InvalidCaCertificatesBundleException extends _s.GenericAwsException {
+  InvalidCaCertificatesBundleException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'InvalidCaCertificatesBundleException',
             message: message);
 }
 
@@ -5553,6 +6998,14 @@ class InvalidLoadBalancerActionException extends _s.GenericAwsException {
       : super(
             type: type,
             code: 'InvalidLoadBalancerActionException',
+            message: message);
+}
+
+class InvalidRevocationContentException extends _s.GenericAwsException {
+  InvalidRevocationContentException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'InvalidRevocationContentException',
             message: message);
 }
 
@@ -5608,6 +7061,22 @@ class PriorityInUseException extends _s.GenericAwsException {
 class ResourceInUseException extends _s.GenericAwsException {
   ResourceInUseException({String? type, String? message})
       : super(type: type, code: 'ResourceInUseException', message: message);
+}
+
+class RevocationContentNotFoundException extends _s.GenericAwsException {
+  RevocationContentNotFoundException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'RevocationContentNotFoundException',
+            message: message);
+}
+
+class RevocationIdNotFoundException extends _s.GenericAwsException {
+  RevocationIdNotFoundException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'RevocationIdNotFoundException',
+            message: message);
 }
 
 class RuleNotFoundException extends _s.GenericAwsException {
@@ -5692,6 +7161,21 @@ class TooManyTargetsException extends _s.GenericAwsException {
       : super(type: type, code: 'TooManyTargetsException', message: message);
 }
 
+class TooManyTrustStoreRevocationEntriesException
+    extends _s.GenericAwsException {
+  TooManyTrustStoreRevocationEntriesException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'TooManyTrustStoreRevocationEntriesException',
+            message: message);
+}
+
+class TooManyTrustStoresException extends _s.GenericAwsException {
+  TooManyTrustStoresException({String? type, String? message})
+      : super(
+            type: type, code: 'TooManyTrustStoresException', message: message);
+}
+
 class TooManyUniqueTargetGroupsPerLoadBalancerException
     extends _s.GenericAwsException {
   TooManyUniqueTargetGroupsPerLoadBalancerException(
@@ -5700,6 +7184,23 @@ class TooManyUniqueTargetGroupsPerLoadBalancerException
             type: type,
             code: 'TooManyUniqueTargetGroupsPerLoadBalancerException',
             message: message);
+}
+
+class TrustStoreInUseException extends _s.GenericAwsException {
+  TrustStoreInUseException({String? type, String? message})
+      : super(type: type, code: 'TrustStoreInUseException', message: message);
+}
+
+class TrustStoreNotFoundException extends _s.GenericAwsException {
+  TrustStoreNotFoundException({String? type, String? message})
+      : super(
+            type: type, code: 'TrustStoreNotFoundException', message: message);
+}
+
+class TrustStoreNotReadyException extends _s.GenericAwsException {
+  TrustStoreNotReadyException({String? type, String? message})
+      : super(
+            type: type, code: 'TrustStoreNotReadyException', message: message);
 }
 
 class UnsupportedProtocolException extends _s.GenericAwsException {
@@ -5715,6 +7216,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       AllocationIdNotFoundException(type: type, message: message),
   'AvailabilityZoneNotSupportedException': (type, message) =>
       AvailabilityZoneNotSupportedException(type: type, message: message),
+  'CaCertificatesBundleNotFoundException': (type, message) =>
+      CaCertificatesBundleNotFoundException(type: type, message: message),
   'CertificateNotFoundException': (type, message) =>
       CertificateNotFoundException(type: type, message: message),
   'DuplicateListenerException': (type, message) =>
@@ -5725,14 +7228,20 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       DuplicateTagKeysException(type: type, message: message),
   'DuplicateTargetGroupNameException': (type, message) =>
       DuplicateTargetGroupNameException(type: type, message: message),
+  'DuplicateTrustStoreNameException': (type, message) =>
+      DuplicateTrustStoreNameException(type: type, message: message),
   'HealthUnavailableException': (type, message) =>
       HealthUnavailableException(type: type, message: message),
   'IncompatibleProtocolsException': (type, message) =>
       IncompatibleProtocolsException(type: type, message: message),
+  'InvalidCaCertificatesBundleException': (type, message) =>
+      InvalidCaCertificatesBundleException(type: type, message: message),
   'InvalidConfigurationRequestException': (type, message) =>
       InvalidConfigurationRequestException(type: type, message: message),
   'InvalidLoadBalancerActionException': (type, message) =>
       InvalidLoadBalancerActionException(type: type, message: message),
+  'InvalidRevocationContentException': (type, message) =>
+      InvalidRevocationContentException(type: type, message: message),
   'InvalidSchemeException': (type, message) =>
       InvalidSchemeException(type: type, message: message),
   'InvalidSecurityGroupException': (type, message) =>
@@ -5751,6 +7260,10 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       PriorityInUseException(type: type, message: message),
   'ResourceInUseException': (type, message) =>
       ResourceInUseException(type: type, message: message),
+  'RevocationContentNotFoundException': (type, message) =>
+      RevocationContentNotFoundException(type: type, message: message),
+  'RevocationIdNotFoundException': (type, message) =>
+      RevocationIdNotFoundException(type: type, message: message),
   'RuleNotFoundException': (type, message) =>
       RuleNotFoundException(type: type, message: message),
   'SSLPolicyNotFoundException': (type, message) =>
@@ -5779,9 +7292,19 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       TooManyTargetGroupsException(type: type, message: message),
   'TooManyTargetsException': (type, message) =>
       TooManyTargetsException(type: type, message: message),
+  'TooManyTrustStoreRevocationEntriesException': (type, message) =>
+      TooManyTrustStoreRevocationEntriesException(type: type, message: message),
+  'TooManyTrustStoresException': (type, message) =>
+      TooManyTrustStoresException(type: type, message: message),
   'TooManyUniqueTargetGroupsPerLoadBalancerException': (type, message) =>
       TooManyUniqueTargetGroupsPerLoadBalancerException(
           type: type, message: message),
+  'TrustStoreInUseException': (type, message) =>
+      TrustStoreInUseException(type: type, message: message),
+  'TrustStoreNotFoundException': (type, message) =>
+      TrustStoreNotFoundException(type: type, message: message),
+  'TrustStoreNotReadyException': (type, message) =>
+      TrustStoreNotReadyException(type: type, message: message),
   'UnsupportedProtocolException': (type, message) =>
       UnsupportedProtocolException(type: type, message: message),
 };

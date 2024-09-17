@@ -27,10 +27,7 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// between a CodeArtifact repository and another repository, which effectively
 /// merges their contents from the point of view of a package manager client.
 ///
-/// <b>CodeArtifact Components</b>
-///
-/// Use the information in this guide to help you work with the following
-/// CodeArtifact components:
+/// <b>CodeArtifact concepts</b>
 ///
 /// <ul>
 /// <li>
@@ -39,10 +36,10 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// versions</a>, each of which maps to a set of assets, or files. Repositories
 /// are polyglot, so a single repository can contain packages of any supported
 /// type. Each repository exposes endpoints for fetching and publishing packages
-/// using tools like the <b> <code>npm</code> </b> CLI, the Maven CLI (<b>
-/// <code>mvn</code> </b>), Python CLIs (<b> <code>pip</code> </b> and
-/// <code>twine</code>), and NuGet CLIs (<code>nuget</code> and
-/// <code>dotnet</code>).
+/// using tools such as the <b> <code>npm</code> </b> CLI or the Maven CLI (<b>
+/// <code>mvn</code> </b>). For a list of supported package managers, see the <a
+/// href="https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html">CodeArtifact
+/// User Guide</a>.
 /// </li>
 /// <li>
 /// <b>Domain</b>: Repositories are aggregated into a higher-level entity known
@@ -67,15 +64,11 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// <li>
 /// <b>Package</b>: A <i>package</i> is a bundle of software and the metadata
 /// required to resolve dependencies and install the software. CodeArtifact
-/// supports <a
-/// href="https://docs.aws.amazon.com/codeartifact/latest/ug/using-npm.html">npm</a>,
-/// <a
-/// href="https://docs.aws.amazon.com/codeartifact/latest/ug/using-python.html">PyPI</a>,
-/// <a
-/// href="https://docs.aws.amazon.com/codeartifact/latest/ug/using-maven">Maven</a>,
-/// and <a
-/// href="https://docs.aws.amazon.com/codeartifact/latest/ug/using-nuget">NuGet</a>
-/// package formats.
+/// supports npm, PyPI, Maven, NuGet, Swift, Ruby, and generic package formats.
+/// For more information about the supported package formats and how to use
+/// CodeArtifact with them, see the <a
+/// href="https://docs.aws.amazon.com/codeartifact/latest/ug/welcome.html">CodeArtifact
+/// User Guide</a>.
 ///
 /// In CodeArtifact, a package consists of:
 ///
@@ -97,6 +90,16 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// </li>
 /// </ul> </li>
 /// <li>
+/// <b>Package group</b>: A group of packages that match a specified definition.
+/// Package groups can be used to apply configuration to multiple packages that
+/// match a defined pattern using package format, package namespace, and package
+/// name. You can use package groups to more conveniently configure package
+/// origin controls for multiple packages. Package origin controls are used to
+/// block or allow ingestion or publishing of new package versions, which
+/// protects users from malicious actions known as dependency substitution
+/// attacks.
+/// </li>
+/// <li>
 /// <b>Package version</b>: A version of a package, such as <code>@types/node
 /// 12.6.9</code>. The version number format and semantics vary for different
 /// package formats. For example, npm package versions must conform to the <a
@@ -117,7 +120,7 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// files.
 /// </li>
 /// </ul>
-/// CodeArtifact supports these operations:
+/// <b>CodeArtifact supported API operations</b>
 ///
 /// <ul>
 /// <li>
@@ -129,7 +132,10 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// repository to another repository in the same domain.
 /// </li>
 /// <li>
-/// <code>CreateDomain</code>: Creates a domain
+/// <code>CreateDomain</code>: Creates a domain.
+/// </li>
+/// <li>
+/// <code>CreatePackageGroup</code>: Creates a package group.
 /// </li>
 /// <li>
 /// <code>CreateRepository</code>: Creates a CodeArtifact repository in a
@@ -146,6 +152,10 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// <li>
 /// <code>DeletePackage</code>: Deletes a package and all associated package
 /// versions.
+/// </li>
+/// <li>
+/// <code>DeletePackageGroup</code>: Deletes a package group. Does not delete
+/// packages or package versions that are associated with a package group.
 /// </li>
 /// <li>
 /// <code>DeletePackageVersions</code>: Deletes versions of a package. After a
@@ -169,6 +179,11 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// object that contains details about a package.
 /// </li>
 /// <li>
+/// <code>DescribePackageGroup</code>: Returns a <a
+/// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_PackageGroup.html">PackageGroup</a>
+/// object that contains details about a package group.
+/// </li>
+/// <li>
 /// <code>DescribePackageVersion</code>: Returns a <a
 /// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_PackageVersionDescription.html">PackageVersionDescription</a>
 /// object that contains details about a package version.
@@ -186,6 +201,10 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// <li>
 /// <code>DisassociateExternalConnection</code>: Removes an existing external
 /// connection from a repository.
+/// </li>
+/// <li>
+/// <code>GetAssociatedPackageGroup</code>: Returns the most closely associated
+/// package group to the specified package.
 /// </li>
 /// <li>
 /// <code>GetAuthorizationToken</code>: Generates a temporary authorization
@@ -212,6 +231,9 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 ///
 /// <ul>
 /// <li>
+/// <code>generic</code>
+/// </li>
+/// <li>
 /// <code>maven</code>
 /// </li>
 /// <li>
@@ -223,10 +245,25 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// <li>
 /// <code>pypi</code>
 /// </li>
+/// <li>
+/// <code>ruby</code>
+/// </li>
+/// <li>
+/// <code>swift</code>
+/// </li>
 /// </ul> </li>
 /// <li>
 /// <code>GetRepositoryPermissionsPolicy</code>: Returns the resource policy
 /// that is set on a repository.
+/// </li>
+/// <li>
+/// <code>ListAllowedRepositoriesForGroup</code>: Lists the allowed repositories
+/// for a package group that has origin configuration set to
+/// <code>ALLOW_SPECIFIC_REPOSITORIES</code>.
+/// </li>
+/// <li>
+/// <code>ListAssociatedPackages</code>: Returns a list of packages associated
+/// with the requested package group.
 /// </li>
 /// <li>
 /// <code>ListDomains</code>: Returns a list of <code>DomainSummary</code>
@@ -235,6 +272,10 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// </li>
 /// <li>
 /// <code>ListPackages</code>: Lists the packages in a repository.
+/// </li>
+/// <li>
+/// <code>ListPackageGroups</code>: Returns a list of package groups in the
+/// requested domain.
 /// </li>
 /// <li>
 /// <code>ListPackageVersionAssets</code>: Lists the assets for a given package
@@ -257,6 +298,10 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// a domain.
 /// </li>
 /// <li>
+/// <code>ListSubPackageGroups</code>: Returns a list of direct children of the
+/// specified package group.
+/// </li>
+/// <li>
 /// <code>PublishPackageVersion</code>: Creates a new package version containing
 /// one or more assets.
 /// </li>
@@ -272,6 +317,14 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// <li>
 /// <code>PutRepositoryPermissionsPolicy</code>: Sets the resource policy on a
 /// repository that specifies permissions to access it.
+/// </li>
+/// <li>
+/// <code>UpdatePackageGroup</code>: Updates a package group. This API cannot be
+/// used to update a package group's origin configuration or pattern.
+/// </li>
+/// <li>
+/// <code>UpdatePackageGroupOriginConfiguration</code>: Updates the package
+/// origin configuration for a package group.
 /// </li>
 /// <li>
 /// <code>UpdatePackageVersionsStatus</code>: Updates the status of one or more
@@ -441,23 +494,37 @@ class CodeArtifact {
   /// with upstream repositories</a>.
   ///
   /// Parameter [namespace] :
-  /// The namespace of the package versions to be copied. The package version
-  /// component that specifies its namespace depends on its type. For example:
+  /// The namespace of the package versions to be copied. The package component
+  /// that specifies its namespace depends on its type. For example:
+  /// <note>
+  /// The namespace is required when copying package versions of the following
+  /// formats:
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package version is its <code>groupId</code>. The
-  /// namespace is required when copying Maven package versions.
+  /// Maven
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
+  /// Swift
   /// </li>
   /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// generic
+  /// </li>
+  /// </ul> </note>
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -493,7 +560,7 @@ class CodeArtifact {
     final $query = <String, List<String>>{
       'destination-repository': [destinationRepository],
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'source-repository': [sourceRepository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
@@ -584,6 +651,66 @@ class CodeArtifact {
       exceptionFnMap: _exceptionFns,
     );
     return CreateDomainResult.fromJson(response);
+  }
+
+  /// Creates a package group. For more information about creating package
+  /// groups, including example CLI commands, see <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/ug/create-package-group.html">Create
+  /// a package group</a> in the <i>CodeArtifact User Guide</i>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain in which you want to create a package group.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the package group to create. The pattern is also the
+  /// identifier of the package group.
+  ///
+  /// Parameter [contactInfo] :
+  /// The contact information for the created package group.
+  ///
+  /// Parameter [description] :
+  /// A description of the package group.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  ///
+  /// Parameter [tags] :
+  /// One or more tag key-value pairs for the package group.
+  Future<CreatePackageGroupResult> createPackageGroup({
+    required String domain,
+    required String packageGroup,
+    String? contactInfo,
+    String? description,
+    String? domainOwner,
+    List<Tag>? tags,
+  }) async {
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+    };
+    final $payload = <String, dynamic>{
+      'packageGroup': packageGroup,
+      if (contactInfo != null) 'contactInfo': contactInfo,
+      if (description != null) 'description': description,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/v1/package-group',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreatePackageGroupResult.fromJson(response);
   }
 
   /// Creates a repository.
@@ -752,21 +879,34 @@ class CodeArtifact {
   /// Parameter [namespace] :
   /// The namespace of the package to delete. The package component that
   /// specifies its namespace depends on its type. For example:
+  /// <note>
+  /// The namespace is required when deleting packages of the following formats:
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>. The
-  /// namespace is required when deleting Maven package versions.
+  /// Maven
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
+  /// Swift
   /// </li>
   /// <li>
-  /// Python and NuGet packages do not contain corresponding components,
-  /// packages of those formats do not have a namespace.
+  /// generic
+  /// </li>
+  /// </ul> </note>
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   Future<DeletePackageResult> deletePackage({
@@ -779,7 +919,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
@@ -793,6 +933,50 @@ class CodeArtifact {
       exceptionFnMap: _exceptionFns,
     );
     return DeletePackageResult.fromJson(response);
+  }
+
+  /// Deletes a package group. Deleting a package group does not delete packages
+  /// or package versions associated with the package group. When a package
+  /// group is deleted, the direct child package groups will become children of
+  /// the package group's direct parent package group. Therefore, if any of the
+  /// child groups are inheriting any settings from the parent, those settings
+  /// could change.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [domain] :
+  /// The domain that contains the package group to be deleted.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the package group to be deleted.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  Future<DeletePackageGroupResult> deletePackageGroup({
+    required String domain,
+    required String packageGroup,
+    String? domainOwner,
+  }) async {
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      'package-group': [packageGroup],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri: '/v1/package-group',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeletePackageGroupResult.fromJson(response);
   }
 
   /// Deletes one or more versions of a package. A deleted package version
@@ -835,23 +1019,37 @@ class CodeArtifact {
   /// The expected status of the package version to delete.
   ///
   /// Parameter [namespace] :
-  /// The namespace of the package versions to be deleted. The package version
-  /// component that specifies its namespace depends on its type. For example:
+  /// The namespace of the package versions to be deleted. The package component
+  /// that specifies its namespace depends on its type. For example:
+  /// <note>
+  /// The namespace is required when deleting package versions of the following
+  /// formats:
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package version is its <code>groupId</code>. The
-  /// namespace is required when deleting Maven package versions.
+  /// Maven
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
+  /// Swift
   /// </li>
   /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// generic
+  /// </li>
+  /// </ul> </note>
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   Future<DeletePackageVersionsResult> deletePackageVersions({
@@ -866,7 +1064,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
@@ -874,7 +1072,7 @@ class CodeArtifact {
     };
     final $payload = <String, dynamic>{
       'versions': versions,
-      if (expectedStatus != null) 'expectedStatus': expectedStatus.toValue(),
+      if (expectedStatus != null) 'expectedStatus': expectedStatus.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1045,21 +1243,35 @@ class CodeArtifact {
   /// Parameter [namespace] :
   /// The namespace of the requested package. The package component that
   /// specifies its namespace depends on its type. For example:
+  /// <note>
+  /// The namespace is required when requesting packages of the following
+  /// formats:
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>. The
-  /// namespace is required when requesting Maven packages.
+  /// Maven
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
+  /// Swift
   /// </li>
   /// <li>
-  /// Python and NuGet packages do not contain a corresponding component,
-  /// packages of those formats do not have a namespace.
+  /// generic
+  /// </li>
+  /// </ul> </note>
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   Future<DescribePackageResult> describePackage({
@@ -1072,7 +1284,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
@@ -1086,6 +1298,45 @@ class CodeArtifact {
       exceptionFnMap: _exceptionFns,
     );
     return DescribePackageResult.fromJson(response);
+  }
+
+  /// Returns a <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_PackageGroupDescription.html">PackageGroupDescription</a>
+  /// object that contains information about the requested package group.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain that contains the package group.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the requested package group.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  Future<DescribePackageGroupResult> describePackageGroup({
+    required String domain,
+    required String packageGroup,
+    String? domainOwner,
+  }) async {
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      'package-group': [packageGroup],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v1/package-group',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribePackageGroupResult.fromJson(response);
   }
 
   /// Returns a <a
@@ -1121,22 +1372,37 @@ class CodeArtifact {
   /// the domain. It does not include dashes or spaces.
   ///
   /// Parameter [namespace] :
-  /// The namespace of the requested package version. The package version
-  /// component that specifies its namespace depends on its type. For example:
+  /// The namespace of the requested package version. The package component that
+  /// specifies its namespace depends on its type. For example:
+  /// <note>
+  /// The namespace is required when requesting package versions of the
+  /// following formats:
   ///
+  /// <ul>
+  /// <li>
+  /// Maven
+  /// </li>
+  /// <li>
+  /// Swift
+  /// </li>
+  /// <li>
+  /// generic
+  /// </li>
+  /// </ul> </note>
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   Future<DescribePackageVersionResult> describePackageVersion({
@@ -1150,7 +1416,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'version': [packageVersion],
       'repository': [repository],
@@ -1295,22 +1561,37 @@ class CodeArtifact {
   /// The expected status of the package version to dispose.
   ///
   /// Parameter [namespace] :
-  /// The namespace of the package versions to be disposed. The package version
+  /// The namespace of the package versions to be disposed. The package
   /// component that specifies its namespace depends on its type. For example:
+  /// <note>
+  /// The namespace is required when disposing package versions of the following
+  /// formats:
   ///
+  /// <ul>
+  /// <li>
+  /// Maven
+  /// </li>
+  /// <li>
+  /// Swift
+  /// </li>
+  /// <li>
+  /// generic
+  /// </li>
+  /// </ul> </note>
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -1329,7 +1610,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
@@ -1337,7 +1618,7 @@ class CodeArtifact {
     };
     final $payload = <String, dynamic>{
       'versions': versions,
-      if (expectedStatus != null) 'expectedStatus': expectedStatus.toValue(),
+      if (expectedStatus != null) 'expectedStatus': expectedStatus.value,
       if (versionRevisions != null) 'versionRevisions': versionRevisions,
     };
     final response = await _protocol.send(
@@ -1348,6 +1629,96 @@ class CodeArtifact {
       exceptionFnMap: _exceptionFns,
     );
     return DisposePackageVersionsResult.fromJson(response);
+  }
+
+  /// Returns the most closely associated package group to the specified
+  /// package. This API does not require that the package exist in any
+  /// repository in the domain. As such, <code>GetAssociatedPackageGroup</code>
+  /// can be used to see which package group's origin configuration applies to a
+  /// package before that package is in a repository. This can be helpful to
+  /// check if public packages are blocked without ingesting them.
+  ///
+  /// For information package group association and matching, see <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/ug/package-group-definition-syntax-matching-behavior.html">Package
+  /// group definition syntax and matching behavior</a> in the <i>CodeArtifact
+  /// User Guide</i>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain that contains the package from which to get the
+  /// associated package group.
+  ///
+  /// Parameter [format] :
+  /// The format of the package from which to get the associated package group.
+  ///
+  /// Parameter [package] :
+  /// The package from which to get the associated package group.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  ///
+  /// Parameter [namespace] :
+  /// The namespace of the package from which to get the associated package
+  /// group. The package component that specifies its namespace depends on its
+  /// type. For example:
+  /// <note>
+  /// The namespace is required when getting associated package groups from
+  /// packages of the following formats:
+  ///
+  /// <ul>
+  /// <li>
+  /// Maven
+  /// </li>
+  /// <li>
+  /// Swift
+  /// </li>
+  /// <li>
+  /// generic
+  /// </li>
+  /// </ul> </note>
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
+  /// </li>
+  /// </ul>
+  Future<GetAssociatedPackageGroupResult> getAssociatedPackageGroup({
+    required String domain,
+    required PackageFormat format,
+    required String package,
+    String? domainOwner,
+    String? namespace,
+  }) async {
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      'format': [format.value],
+      'package': [package],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+      if (namespace != null) 'namespace': [namespace],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v1/get-associated-package-group',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return GetAssociatedPackageGroupResult.fromJson(response);
   }
 
   /// Generates a temporary authorization token for accessing repositories in
@@ -1502,22 +1873,37 @@ class CodeArtifact {
   ///
   /// Parameter [namespace] :
   /// The namespace of the package version with the requested asset file. The
-  /// package version component that specifies its namespace depends on its
-  /// type. For example:
+  /// package component that specifies its namespace depends on its type. For
+  /// example:
+  /// <note>
+  /// The namespace is required when requesting assets from package versions of
+  /// the following formats:
   ///
+  /// <ul>
+  /// <li>
+  /// Maven
+  /// </li>
+  /// <li>
+  /// Swift
+  /// </li>
+  /// <li>
+  /// generic
+  /// </li>
+  /// </ul> </note>
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -1538,7 +1924,7 @@ class CodeArtifact {
     final $query = <String, List<String>>{
       'asset': [asset],
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'version': [packageVersion],
       'repository': [repository],
@@ -1598,15 +1984,36 @@ class CodeArtifact {
   ///
   /// Parameter [namespace] :
   /// The namespace of the package version with the requested readme file. The
-  /// package version component that specifies its namespace depends on its
-  /// type. For example:
+  /// package component that specifies its namespace depends on its type. For
+  /// example:
+  /// <note>
+  /// The namespace is required when requesting the readme from package versions
+  /// of the following formats:
   ///
   /// <ul>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
+  /// Maven
   /// </li>
   /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
+  /// Swift
+  /// </li>
+  /// <li>
+  /// generic
+  /// </li>
+  /// </ul> </note>
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
   /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
@@ -1621,7 +2028,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'version': [packageVersion],
       'repository': [repository],
@@ -1643,6 +2050,9 @@ class CodeArtifact {
   ///
   /// <ul>
   /// <li>
+  /// <code>generic</code>
+  /// </li>
+  /// <li>
   /// <code>maven</code>
   /// </li>
   /// <li>
@@ -1653,6 +2063,12 @@ class CodeArtifact {
   /// </li>
   /// <li>
   /// <code>pypi</code>
+  /// </li>
+  /// <li>
+  /// <code>ruby</code>
+  /// </li>
+  /// <li>
+  /// <code>swift</code>
   /// </li>
   /// </ul>
   ///
@@ -1684,7 +2100,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
     };
@@ -1737,6 +2153,138 @@ class CodeArtifact {
     return GetRepositoryPermissionsPolicyResult.fromJson(response);
   }
 
+  /// Lists the repositories in the added repositories list of the specified
+  /// restriction type for a package group. For more information about
+  /// restriction types and added repository lists, see <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/ug/package-group-origin-controls.html">Package
+  /// group origin controls</a> in the <i>CodeArtifact User Guide</i>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain that contains the package group from which to list
+  /// allowed repositories.
+  ///
+  /// Parameter [originRestrictionType] :
+  /// The origin configuration restriction type of which to list allowed
+  /// repositories.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the package group from which to list allowed repositories.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  Future<ListAllowedRepositoriesForGroupResult>
+      listAllowedRepositoriesForGroup({
+    required String domain,
+    required PackageGroupOriginRestrictionType originRestrictionType,
+    required String packageGroup,
+    String? domainOwner,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      'originRestrictionType': [originRestrictionType.value],
+      'package-group': [packageGroup],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v1/package-group-allowed-repositories',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAllowedRepositoriesForGroupResult.fromJson(response);
+  }
+
+  /// Returns a list of packages associated with the requested package group.
+  /// For information package group association and matching, see <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/ug/package-group-definition-syntax-matching-behavior.html">Package
+  /// group definition syntax and matching behavior</a> in the <i>CodeArtifact
+  /// User Guide</i>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain that contains the package group from which to list
+  /// associated packages.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the package group from which to list associated packages.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  ///
+  /// Parameter [preview] :
+  /// When this flag is included, <code>ListAssociatedPackages</code> will
+  /// return a list of packages that would be associated with a package group,
+  /// even if it does not exist.
+  Future<ListAssociatedPackagesResult> listAssociatedPackages({
+    required String domain,
+    required String packageGroup,
+    String? domainOwner,
+    int? maxResults,
+    String? nextToken,
+    bool? preview,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      'package-group': [packageGroup],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+      if (preview != null) 'preview': [preview.toString()],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/v1/list-associated-packages',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAssociatedPackagesResult.fromJson(response);
+  }
+
   /// Returns a list of <a
   /// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_PackageVersionDescription.html">DomainSummary</a>
   /// objects for all domains owned by the Amazon Web Services account that
@@ -1775,6 +2323,62 @@ class CodeArtifact {
       exceptionFnMap: _exceptionFns,
     );
     return ListDomainsResult.fromJson(response);
+  }
+
+  /// Returns a list of package groups in the requested domain.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The domain for which you want to list package groups.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  ///
+  /// Parameter [prefix] :
+  /// A prefix for which to search package groups. When included,
+  /// <code>ListPackageGroups</code> will return only package groups with
+  /// patterns that match the prefix.
+  Future<ListPackageGroupsResult> listPackageGroups({
+    required String domain,
+    String? domainOwner,
+    int? maxResults,
+    String? nextToken,
+    String? prefix,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+      if (prefix != null) 'prefix': [prefix],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'POST',
+      requestUri: '/v1/package-groups',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListPackageGroupsResult.fromJson(response);
   }
 
   /// Returns a list of <a
@@ -1816,22 +2420,37 @@ class CodeArtifact {
   ///
   /// Parameter [namespace] :
   /// The namespace of the package version that contains the requested package
-  /// version assets. The package version component that specifies its namespace
-  /// depends on its type. For example:
+  /// version assets. The package component that specifies its namespace depends
+  /// on its type. For example:
+  /// <note>
+  /// The namespace is required requesting assets from package versions of the
+  /// following formats:
   ///
+  /// <ul>
+  /// <li>
+  /// Maven
+  /// </li>
+  /// <li>
+  /// Swift
+  /// </li>
+  /// <li>
+  /// generic
+  /// </li>
+  /// </ul> </note>
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -1857,7 +2476,7 @@ class CodeArtifact {
     );
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'version': [packageVersion],
       'repository': [repository],
@@ -1914,22 +2533,37 @@ class CodeArtifact {
   ///
   /// Parameter [namespace] :
   /// The namespace of the package version with the requested dependencies. The
-  /// package version component that specifies its namespace depends on its
-  /// type. For example:
+  /// package component that specifies its namespace depends on its type. For
+  /// example:
+  /// <note>
+  /// The namespace is required when listing dependencies from package versions
+  /// of the following formats:
   ///
+  /// <ul>
+  /// <li>
+  /// Maven
+  /// </li>
+  /// <li>
+  /// Swift
+  /// </li>
+  /// <li>
+  /// generic
+  /// </li>
+  /// </ul> </note>
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -1948,7 +2582,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'version': [packageVersion],
       'repository': [repository],
@@ -2003,20 +2637,35 @@ class CodeArtifact {
   /// The namespace of the package that contains the requested package versions.
   /// The package component that specifies its namespace depends on its type.
   /// For example:
+  /// <note>
+  /// The namespace is required when deleting package versions of the following
+  /// formats:
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>.
+  /// Maven
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
+  /// Swift
   /// </li>
   /// <li>
-  /// Python and NuGet packages do not contain a corresponding component,
-  /// packages of those formats do not have a namespace.
+  /// generic
+  /// </li>
+  /// </ul> </note>
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -2054,16 +2703,16 @@ class CodeArtifact {
     );
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (namespace != null) 'namespace': [namespace],
       if (nextToken != null) 'next-token': [nextToken],
-      if (originType != null) 'originType': [originType.toValue()],
-      if (sortBy != null) 'sortBy': [sortBy.toValue()],
-      if (status != null) 'status': [status.toValue()],
+      if (originType != null) 'originType': [originType.value],
+      if (sortBy != null) 'sortBy': [sortBy.value],
+      if (status != null) 'status': [status.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -2113,17 +2762,18 @@ class CodeArtifact {
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>.
+  /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet packages do not contain a corresponding component,
-  /// packages of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -2168,13 +2818,13 @@ class CodeArtifact {
       'domain': [domain],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
-      if (format != null) 'format': [format.toValue()],
+      if (format != null) 'format': [format.value],
       if (maxResults != null) 'max-results': [maxResults.toString()],
       if (namespace != null) 'namespace': [namespace],
       if (nextToken != null) 'next-token': [nextToken],
       if (packagePrefix != null) 'package-prefix': [packagePrefix],
-      if (publish != null) 'publish': [publish.toValue()],
-      if (upstream != null) 'upstream': [upstream.toValue()],
+      if (publish != null) 'publish': [publish.value],
+      if (upstream != null) 'upstream': [upstream.value],
     };
     final response = await _protocol.send(
       payload: null,
@@ -2298,6 +2948,66 @@ class CodeArtifact {
     return ListRepositoriesInDomainResult.fromJson(response);
   }
 
+  /// Returns a list of direct children of the specified package group.
+  ///
+  /// For information package group hierarchy, see <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/ug/package-group-definition-syntax-matching-behavior.html">Package
+  /// group definition syntax and matching behavior</a> in the <i>CodeArtifact
+  /// User Guide</i>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain which contains the package group from which to list
+  /// sub package groups.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the package group from which to list sub package groups.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return per page.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  Future<ListSubPackageGroupsResult> listSubPackageGroups({
+    required String domain,
+    required String packageGroup,
+    String? domainOwner,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      'package-group': [packageGroup],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+      if (maxResults != null) 'max-results': [maxResults.toString()],
+      if (nextToken != null) 'next-token': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'POST',
+      requestUri: '/v1/package-groups/sub-groups',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListSubPackageGroupsResult.fromJson(response);
+  }
+
   /// Gets information about Amazon Web Services tags for a specified Amazon
   /// Resource Name (ARN) in CodeArtifact.
   ///
@@ -2377,6 +3087,8 @@ class CodeArtifact {
   /// A format that specifies the type of the package version with the requested
   /// asset file.
   ///
+  /// The only supported value is <code>generic</code>.
+  ///
   /// Parameter [package] :
   /// The name of the package version to publish.
   ///
@@ -2420,7 +3132,7 @@ class CodeArtifact {
     final $query = <String, List<String>>{
       'asset': [assetName],
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'version': [packageVersion],
       'repository': [repository],
@@ -2552,17 +3264,18 @@ class CodeArtifact {
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>.
+  /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet packages do not contain a corresponding component,
-  /// packages of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   Future<PutPackageOriginConfigurationResult> putPackageOriginConfiguration({
@@ -2576,7 +3289,7 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
@@ -2723,6 +3436,133 @@ class CodeArtifact {
     );
   }
 
+  /// Updates a package group. This API cannot be used to update a package
+  /// group's origin configuration or pattern. To update a package group's
+  /// origin configuration, use <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_UpdatePackageGroupOriginConfiguration.html">UpdatePackageGroupOriginConfiguration</a>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain which contains the package group to be updated.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the package group to be updated.
+  ///
+  /// Parameter [contactInfo] :
+  /// Contact information which you want to update the requested package group
+  /// with.
+  ///
+  /// Parameter [description] :
+  /// The description you want to update the requested package group with.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  Future<UpdatePackageGroupResult> updatePackageGroup({
+    required String domain,
+    required String packageGroup,
+    String? contactInfo,
+    String? description,
+    String? domainOwner,
+  }) async {
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+    };
+    final $payload = <String, dynamic>{
+      'packageGroup': packageGroup,
+      if (contactInfo != null) 'contactInfo': contactInfo,
+      if (description != null) 'description': description,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PUT',
+      requestUri: '/v1/package-group',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdatePackageGroupResult.fromJson(response);
+  }
+
+  /// Updates the package origin configuration for a package group.
+  ///
+  /// The package origin configuration determines how new versions of a package
+  /// can be added to a repository. You can allow or block direct publishing of
+  /// new package versions, or ingestion and retaining of new package versions
+  /// from an external connection or upstream source. For more information about
+  /// package group origin controls and configuration, see <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/ug/package-group-origin-controls.html">Package
+  /// group origin controls</a> in the <i>CodeArtifact User Guide</i>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServerException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [domain] :
+  /// The name of the domain which contains the package group for which to
+  /// update the origin configuration.
+  ///
+  /// Parameter [packageGroup] :
+  /// The pattern of the package group for which to update the origin
+  /// configuration.
+  ///
+  /// Parameter [addAllowedRepositories] :
+  /// The repository name and restrictions to add to the allowed repository list
+  /// of the specified package group.
+  ///
+  /// Parameter [domainOwner] :
+  /// The 12-digit account number of the Amazon Web Services account that owns
+  /// the domain. It does not include dashes or spaces.
+  ///
+  /// Parameter [removeAllowedRepositories] :
+  /// The repository name and restrictions to remove from the allowed repository
+  /// list of the specified package group.
+  ///
+  /// Parameter [restrictions] :
+  /// The origin configuration settings that determine how package versions can
+  /// enter repositories.
+  Future<UpdatePackageGroupOriginConfigurationResult>
+      updatePackageGroupOriginConfiguration({
+    required String domain,
+    required String packageGroup,
+    List<PackageGroupAllowedRepository>? addAllowedRepositories,
+    String? domainOwner,
+    List<PackageGroupAllowedRepository>? removeAllowedRepositories,
+    Map<PackageGroupOriginRestrictionType, PackageGroupOriginRestrictionMode>?
+        restrictions,
+  }) async {
+    final $query = <String, List<String>>{
+      'domain': [domain],
+      'package-group': [packageGroup],
+      if (domainOwner != null) 'domain-owner': [domainOwner],
+    };
+    final $payload = <String, dynamic>{
+      if (addAllowedRepositories != null)
+        'addAllowedRepositories': addAllowedRepositories,
+      if (removeAllowedRepositories != null)
+        'removeAllowedRepositories': removeAllowedRepositories,
+      if (restrictions != null)
+        'restrictions': restrictions.map((k, e) => MapEntry(k.value, e.value)),
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'PUT',
+      requestUri: '/v1/package-group-origin-configuration',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdatePackageGroupOriginConfigurationResult.fromJson(response);
+  }
+
   /// Updates the status of one or more versions of a package. Using
   /// <code>UpdatePackageVersionsStatus</code>, you can update the status of
   /// package versions to <code>Archived</code>, <code>Published</code>, or
@@ -2771,22 +3611,23 @@ class CodeArtifact {
   /// <code>expectedStatus</code>.
   ///
   /// Parameter [namespace] :
-  /// The namespace of the package version to be updated. The package version
-  /// component that specifies its namespace depends on its type. For example:
+  /// The namespace of the package version to be updated. The package component
+  /// that specifies its namespace depends on its type. For example:
   ///
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet package versions do not contain a corresponding
-  /// component, package versions of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its
+  /// <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   ///
@@ -2808,16 +3649,16 @@ class CodeArtifact {
   }) async {
     final $query = <String, List<String>>{
       'domain': [domain],
-      'format': [format.toValue()],
+      'format': [format.value],
       'package': [package],
       'repository': [repository],
       if (domainOwner != null) 'domain-owner': [domainOwner],
       if (namespace != null) 'namespace': [namespace],
     };
     final $payload = <String, dynamic>{
-      'targetStatus': targetStatus.toValue(),
+      'targetStatus': targetStatus.value,
       'versions': versions,
-      if (expectedStatus != null) 'expectedStatus': expectedStatus.toValue(),
+      if (expectedStatus != null) 'expectedStatus': expectedStatus.value,
       if (versionRevisions != null) 'versionRevisions': versionRevisions,
     };
     final response = await _protocol.send(
@@ -2888,59 +3729,33 @@ class CodeArtifact {
 }
 
 enum AllowPublish {
-  allow,
-  block,
-}
+  allow('ALLOW'),
+  block('BLOCK'),
+  ;
 
-extension AllowPublishValueExtension on AllowPublish {
-  String toValue() {
-    switch (this) {
-      case AllowPublish.allow:
-        return 'ALLOW';
-      case AllowPublish.block:
-        return 'BLOCK';
-    }
-  }
-}
+  final String value;
 
-extension AllowPublishFromString on String {
-  AllowPublish toAllowPublish() {
-    switch (this) {
-      case 'ALLOW':
-        return AllowPublish.allow;
-      case 'BLOCK':
-        return AllowPublish.block;
-    }
-    throw Exception('$this is not known in enum AllowPublish');
-  }
+  const AllowPublish(this.value);
+
+  static AllowPublish fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AllowPublish'));
 }
 
 enum AllowUpstream {
-  allow,
-  block,
-}
+  allow('ALLOW'),
+  block('BLOCK'),
+  ;
 
-extension AllowUpstreamValueExtension on AllowUpstream {
-  String toValue() {
-    switch (this) {
-      case AllowUpstream.allow:
-        return 'ALLOW';
-      case AllowUpstream.block:
-        return 'BLOCK';
-    }
-  }
-}
+  final String value;
 
-extension AllowUpstreamFromString on String {
-  AllowUpstream toAllowUpstream() {
-    switch (this) {
-      case 'ALLOW':
-        return AllowUpstream.allow;
-      case 'BLOCK':
-        return AllowUpstream.block;
-    }
-    throw Exception('$this is not known in enum AllowUpstream');
-  }
+  const AllowUpstream(this.value);
+
+  static AllowUpstream fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AllowUpstream'));
 }
 
 /// Contains details about a package version asset.
@@ -2964,7 +3779,7 @@ class AssetSummary {
     return AssetSummary(
       name: json['name'] as String,
       hashes: (json['hashes'] as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toHashAlgorithm(), e as String)),
+          ?.map((k, e) => MapEntry(HashAlgorithm.fromString(k), e as String)),
       size: json['size'] as int?,
     );
   }
@@ -2975,8 +3790,7 @@ class AssetSummary {
     final size = this.size;
     return {
       'name': name,
-      if (hashes != null)
-        'hashes': hashes.map((k, e) => MapEntry(k.toValue(), e)),
+      if (hashes != null) 'hashes': hashes.map((k, e) => MapEntry(k.value, e)),
       if (size != null) 'size': size,
     };
   }
@@ -3004,6 +3818,75 @@ class AssociateExternalConnectionResult {
     final repository = this.repository;
     return {
       if (repository != null) 'repository': repository,
+    };
+  }
+}
+
+/// A package associated with a package group.
+class AssociatedPackage {
+  /// Describes the strength of the association between the package and package
+  /// group. A strong match can be thought of as an exact match, and a weak match
+  /// can be thought of as a variation match, for example, the package name
+  /// matches a variation of the package group pattern. For more information about
+  /// package group pattern matching, including strong and weak matches, see <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/ug/package-group-definition-syntax-matching-behavior.html">Package
+  /// group definition syntax and matching behavior</a> in the <i>CodeArtifact
+  /// User Guide</i>.
+  final PackageGroupAssociationType? associationType;
+
+  /// A format that specifies the type of the associated package.
+  final PackageFormat? format;
+
+  /// The namespace of the associated package. The package component that
+  /// specifies its namespace depends on its type. For example:
+  ///
+  /// <ul>
+  /// <li>
+  /// The namespace of a Maven package version is its <code>groupId</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
+  /// </li>
+  /// <li>
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
+  /// </li>
+  /// </ul>
+  final String? namespace;
+
+  /// The name of the associated package.
+  final String? package;
+
+  AssociatedPackage({
+    this.associationType,
+    this.format,
+    this.namespace,
+    this.package,
+  });
+
+  factory AssociatedPackage.fromJson(Map<String, dynamic> json) {
+    return AssociatedPackage(
+      associationType: (json['associationType'] as String?)
+          ?.let(PackageGroupAssociationType.fromString),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
+      namespace: json['namespace'] as String?,
+      package: json['package'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associationType = this.associationType;
+    final format = this.format;
+    final namespace = this.namespace;
+    final package = this.package;
+    return {
+      if (associationType != null) 'associationType': associationType.value,
+      if (format != null) 'format': format.value,
+      if (namespace != null) 'namespace': namespace,
+      if (package != null) 'package': package,
     };
   }
 }
@@ -3091,6 +3974,31 @@ class CreateDomainResult {
   }
 }
 
+class CreatePackageGroupResult {
+  /// Information about the created package group after processing the request.
+  final PackageGroupDescription? packageGroup;
+
+  CreatePackageGroupResult({
+    this.packageGroup,
+  });
+
+  factory CreatePackageGroupResult.fromJson(Map<String, dynamic> json) {
+    return CreatePackageGroupResult(
+      packageGroup: json['packageGroup'] != null
+          ? PackageGroupDescription.fromJson(
+              json['packageGroup'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final packageGroup = this.packageGroup;
+    return {
+      if (packageGroup != null) 'packageGroup': packageGroup,
+    };
+  }
+}
+
 class CreateRepositoryResult {
   /// Information about the created repository after processing the request.
   final RepositoryDescription? repository;
@@ -3161,6 +4069,31 @@ class DeleteDomainResult {
     final domain = this.domain;
     return {
       if (domain != null) 'domain': domain,
+    };
+  }
+}
+
+class DeletePackageGroupResult {
+  /// Information about the deleted package group after processing the request.
+  final PackageGroupDescription? packageGroup;
+
+  DeletePackageGroupResult({
+    this.packageGroup,
+  });
+
+  factory DeletePackageGroupResult.fromJson(Map<String, dynamic> json) {
+    return DeletePackageGroupResult(
+      packageGroup: json['packageGroup'] != null
+          ? PackageGroupDescription.fromJson(
+              json['packageGroup'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final packageGroup = this.packageGroup;
+    return {
+      if (packageGroup != null) 'packageGroup': packageGroup,
     };
   }
 }
@@ -3316,6 +4249,33 @@ class DescribeDomainResult {
     final domain = this.domain;
     return {
       if (domain != null) 'domain': domain,
+    };
+  }
+}
+
+class DescribePackageGroupResult {
+  /// A <a
+  /// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_PackageGroupDescription.html">PackageGroupDescription</a>
+  /// object that contains information about the requested package group.
+  final PackageGroupDescription? packageGroup;
+
+  DescribePackageGroupResult({
+    this.packageGroup,
+  });
+
+  factory DescribePackageGroupResult.fromJson(Map<String, dynamic> json) {
+    return DescribePackageGroupResult(
+      packageGroup: json['packageGroup'] != null
+          ? PackageGroupDescription.fromJson(
+              json['packageGroup'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final packageGroup = this.packageGroup;
+    return {
+      if (packageGroup != null) 'packageGroup': packageGroup,
     };
   }
 }
@@ -3533,7 +4493,7 @@ class DomainDescription {
       owner: json['owner'] as String?,
       repositoryCount: json['repositoryCount'] as int?,
       s3BucketArn: json['s3BucketArn'] as String?,
-      status: (json['status'] as String?)?.toDomainStatus(),
+      status: (json['status'] as String?)?.let(DomainStatus.fromString),
     );
   }
 
@@ -3556,7 +4516,7 @@ class DomainDescription {
       if (owner != null) 'owner': owner,
       if (repositoryCount != null) 'repositoryCount': repositoryCount,
       if (s3BucketArn != null) 's3BucketArn': s3BucketArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -3567,6 +4527,12 @@ class DomainDescription {
 /// repository, the entry point is the external connection that it was ingested
 /// from. An external connection is a CodeArtifact repository that is connected
 /// to an external repository such as the npm registry or NuGet gallery.
+/// <note>
+/// If a package version exists in a repository and is updated, for example if a
+/// package of the same version is added with additional assets, the package
+/// version's <code>DomainEntryPoint</code> will not change from the original
+/// package version's value.
+/// </note>
 class DomainEntryPoint {
   /// The name of the external connection that a package was ingested from.
   final String? externalConnectionName;
@@ -3598,31 +4564,18 @@ class DomainEntryPoint {
 }
 
 enum DomainStatus {
-  active,
-  deleted,
-}
+  active('Active'),
+  deleted('Deleted'),
+  ;
 
-extension DomainStatusValueExtension on DomainStatus {
-  String toValue() {
-    switch (this) {
-      case DomainStatus.active:
-        return 'Active';
-      case DomainStatus.deleted:
-        return 'Deleted';
-    }
-  }
-}
+  final String value;
 
-extension DomainStatusFromString on String {
-  DomainStatus toDomainStatus() {
-    switch (this) {
-      case 'Active':
-        return DomainStatus.active;
-      case 'Deleted':
-        return DomainStatus.deleted;
-    }
-    throw Exception('$this is not known in enum DomainStatus');
-  }
+  const DomainStatus(this.value);
+
+  static DomainStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DomainStatus'));
 }
 
 /// Information about a domain, including its name, Amazon Resource Name (ARN),
@@ -3665,7 +4618,7 @@ class DomainSummary {
       encryptionKey: json['encryptionKey'] as String?,
       name: json['name'] as String?,
       owner: json['owner'] as String?,
-      status: (json['status'] as String?)?.toDomainStatus(),
+      status: (json['status'] as String?)?.let(DomainStatus.fromString),
     );
   }
 
@@ -3682,31 +4635,57 @@ class DomainSummary {
       if (encryptionKey != null) 'encryptionKey': encryptionKey,
       if (name != null) 'name': name,
       if (owner != null) 'owner': owner,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
 
 enum ExternalConnectionStatus {
-  available,
+  available('Available'),
+  ;
+
+  final String value;
+
+  const ExternalConnectionStatus(this.value);
+
+  static ExternalConnectionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ExternalConnectionStatus'));
 }
 
-extension ExternalConnectionStatusValueExtension on ExternalConnectionStatus {
-  String toValue() {
-    switch (this) {
-      case ExternalConnectionStatus.available:
-        return 'Available';
-    }
+class GetAssociatedPackageGroupResult {
+  /// Describes the strength of the association between the package and package
+  /// group. A strong match is also known as an exact match, and a weak match is
+  /// known as a relative match.
+  final PackageGroupAssociationType? associationType;
+
+  /// The package group that is associated with the requested package.
+  final PackageGroupDescription? packageGroup;
+
+  GetAssociatedPackageGroupResult({
+    this.associationType,
+    this.packageGroup,
+  });
+
+  factory GetAssociatedPackageGroupResult.fromJson(Map<String, dynamic> json) {
+    return GetAssociatedPackageGroupResult(
+      associationType: (json['associationType'] as String?)
+          ?.let(PackageGroupAssociationType.fromString),
+      packageGroup: json['packageGroup'] != null
+          ? PackageGroupDescription.fromJson(
+              json['packageGroup'] as Map<String, dynamic>)
+          : null,
+    );
   }
-}
 
-extension ExternalConnectionStatusFromString on String {
-  ExternalConnectionStatus toExternalConnectionStatus() {
-    switch (this) {
-      case 'Available':
-        return ExternalConnectionStatus.available;
-    }
-    throw Exception('$this is not known in enum ExternalConnectionStatus');
+  Map<String, dynamic> toJson() {
+    final associationType = this.associationType;
+    final packageGroup = this.packageGroup;
+    return {
+      if (associationType != null) 'associationType': associationType.value,
+      if (packageGroup != null) 'packageGroup': packageGroup,
+    };
   }
 }
 
@@ -3801,19 +4780,22 @@ class GetPackageVersionReadmeResult {
   final PackageFormat? format;
 
   /// The namespace of the package version with the requested readme file. The
-  /// package version component that specifies its namespace depends on its type.
-  /// For example:
+  /// package component that specifies its namespace depends on its type. For
+  /// example:
   ///
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
-  /// Python and NuGet package versions do not contain a corresponding component,
-  /// package versions of those formats do not have a namespace.
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -3841,7 +4823,7 @@ class GetPackageVersionReadmeResult {
 
   factory GetPackageVersionReadmeResult.fromJson(Map<String, dynamic> json) {
     return GetPackageVersionReadmeResult(
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       namespace: json['namespace'] as String?,
       package: json['package'] as String?,
       readme: json['readme'] as String?,
@@ -3858,7 +4840,7 @@ class GetPackageVersionReadmeResult {
     final version = this.version;
     final versionRevision = this.versionRevision;
     return {
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (namespace != null) 'namespace': namespace,
       if (package != null) 'package': package,
       if (readme != null) 'readme': readme,
@@ -3916,41 +4898,20 @@ class GetRepositoryPermissionsPolicyResult {
 }
 
 enum HashAlgorithm {
-  md5,
-  sha_1,
-  sha_256,
-  sha_512,
-}
+  md5('MD5'),
+  sha_1('SHA-1'),
+  sha_256('SHA-256'),
+  sha_512('SHA-512'),
+  ;
 
-extension HashAlgorithmValueExtension on HashAlgorithm {
-  String toValue() {
-    switch (this) {
-      case HashAlgorithm.md5:
-        return 'MD5';
-      case HashAlgorithm.sha_1:
-        return 'SHA-1';
-      case HashAlgorithm.sha_256:
-        return 'SHA-256';
-      case HashAlgorithm.sha_512:
-        return 'SHA-512';
-    }
-  }
-}
+  final String value;
 
-extension HashAlgorithmFromString on String {
-  HashAlgorithm toHashAlgorithm() {
-    switch (this) {
-      case 'MD5':
-        return HashAlgorithm.md5;
-      case 'SHA-1':
-        return HashAlgorithm.sha_1;
-      case 'SHA-256':
-        return HashAlgorithm.sha_256;
-      case 'SHA-512':
-        return HashAlgorithm.sha_512;
-    }
-    throw Exception('$this is not known in enum HashAlgorithm');
-  }
+  const HashAlgorithm(this.value);
+
+  static HashAlgorithm fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum HashAlgorithm'));
 }
 
 /// Details of the license data.
@@ -3983,6 +4944,75 @@ class LicenseInfo {
   }
 }
 
+class ListAllowedRepositoriesForGroupResult {
+  /// The list of allowed repositories for the package group and origin
+  /// configuration restriction type.
+  final List<String>? allowedRepositories;
+
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  final String? nextToken;
+
+  ListAllowedRepositoriesForGroupResult({
+    this.allowedRepositories,
+    this.nextToken,
+  });
+
+  factory ListAllowedRepositoriesForGroupResult.fromJson(
+      Map<String, dynamic> json) {
+    return ListAllowedRepositoriesForGroupResult(
+      allowedRepositories: (json['allowedRepositories'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final allowedRepositories = this.allowedRepositories;
+    final nextToken = this.nextToken;
+    return {
+      if (allowedRepositories != null)
+        'allowedRepositories': allowedRepositories,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListAssociatedPackagesResult {
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  final String? nextToken;
+
+  /// The list of packages associated with the requested package group.
+  final List<AssociatedPackage>? packages;
+
+  ListAssociatedPackagesResult({
+    this.nextToken,
+    this.packages,
+  });
+
+  factory ListAssociatedPackagesResult.fromJson(Map<String, dynamic> json) {
+    return ListAssociatedPackagesResult(
+      nextToken: json['nextToken'] as String?,
+      packages: (json['packages'] as List?)
+          ?.nonNulls
+          .map((e) => AssociatedPackage.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nextToken = this.nextToken;
+    final packages = this.packages;
+    return {
+      if (nextToken != null) 'nextToken': nextToken,
+      if (packages != null) 'packages': packages,
+    };
+  }
+}
+
 class ListDomainsResult {
   /// The returned list of <a
   /// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_DomainSummary.html">DomainSummary</a>
@@ -4001,7 +5031,7 @@ class ListDomainsResult {
   factory ListDomainsResult.fromJson(Map<String, dynamic> json) {
     return ListDomainsResult(
       domains: (json['domains'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DomainSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4018,6 +5048,39 @@ class ListDomainsResult {
   }
 }
 
+class ListPackageGroupsResult {
+  /// The token for the next set of results. Use the value returned in the
+  /// previous response in the next request to retrieve the next set of results.
+  final String? nextToken;
+
+  /// The list of package groups in the requested domain.
+  final List<PackageGroupSummary>? packageGroups;
+
+  ListPackageGroupsResult({
+    this.nextToken,
+    this.packageGroups,
+  });
+
+  factory ListPackageGroupsResult.fromJson(Map<String, dynamic> json) {
+    return ListPackageGroupsResult(
+      nextToken: json['nextToken'] as String?,
+      packageGroups: (json['packageGroups'] as List?)
+          ?.nonNulls
+          .map((e) => PackageGroupSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nextToken = this.nextToken;
+    final packageGroups = this.packageGroups;
+    return {
+      if (nextToken != null) 'nextToken': nextToken,
+      if (packageGroups != null) 'packageGroups': packageGroups,
+    };
+  }
+}
+
 class ListPackageVersionAssetsResult {
   /// The returned list of <a
   /// href="https://docs.aws.amazon.com/codeartifact/latest/APIReference/API_AssetSummary.html">AssetSummary</a>
@@ -4029,19 +5092,22 @@ class ListPackageVersionAssetsResult {
   final PackageFormat? format;
 
   /// The namespace of the package version that contains the requested package
-  /// version assets. The package version component that specifies its namespace
-  /// depends on its type. For example:
+  /// version assets. The package component that specifies its namespace depends
+  /// on its type. For example:
   ///
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
-  /// Python and NuGet package versions do not contain a corresponding component,
-  /// package versions of those formats do not have a namespace.
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -4072,10 +5138,10 @@ class ListPackageVersionAssetsResult {
   factory ListPackageVersionAssetsResult.fromJson(Map<String, dynamic> json) {
     return ListPackageVersionAssetsResult(
       assets: (json['assets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AssetSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       namespace: json['namespace'] as String?,
       nextToken: json['nextToken'] as String?,
       package: json['package'] as String?,
@@ -4094,7 +5160,7 @@ class ListPackageVersionAssetsResult {
     final versionRevision = this.versionRevision;
     return {
       if (assets != null) 'assets': assets,
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (namespace != null) 'namespace': namespace,
       if (nextToken != null) 'nextToken': nextToken,
       if (package != null) 'package': package,
@@ -4115,19 +5181,22 @@ class ListPackageVersionDependenciesResult {
   final PackageFormat? format;
 
   /// The namespace of the package version that contains the returned
-  /// dependencies. The package version component that specifies its namespace
-  /// depends on its type. For example:
+  /// dependencies. The package component that specifies its namespace depends on
+  /// its type. For example:
   ///
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
-  /// Python and NuGet package versions do not contain a corresponding component,
-  /// package versions of those formats do not have a namespace.
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -4160,10 +5229,10 @@ class ListPackageVersionDependenciesResult {
       Map<String, dynamic> json) {
     return ListPackageVersionDependenciesResult(
       dependencies: (json['dependencies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PackageDependency.fromJson(e as Map<String, dynamic>))
           .toList(),
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       namespace: json['namespace'] as String?,
       nextToken: json['nextToken'] as String?,
       package: json['package'] as String?,
@@ -4182,7 +5251,7 @@ class ListPackageVersionDependenciesResult {
     final versionRevision = this.versionRevision;
     return {
       if (dependencies != null) 'dependencies': dependencies,
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (namespace != null) 'namespace': namespace,
       if (nextToken != null) 'nextToken': nextToken,
       if (package != null) 'package': package,
@@ -4217,14 +5286,17 @@ class ListPackageVersionsResult {
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>.
+  /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
-  /// Python and NuGet packages do not contain a corresponding component, packages
-  /// of those formats do not have a namespace.
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -4253,12 +5325,12 @@ class ListPackageVersionsResult {
   factory ListPackageVersionsResult.fromJson(Map<String, dynamic> json) {
     return ListPackageVersionsResult(
       defaultDisplayVersion: json['defaultDisplayVersion'] as String?,
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       namespace: json['namespace'] as String?,
       nextToken: json['nextToken'] as String?,
       package: json['package'] as String?,
       versions: (json['versions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PackageVersionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4274,7 +5346,7 @@ class ListPackageVersionsResult {
     return {
       if (defaultDisplayVersion != null)
         'defaultDisplayVersion': defaultDisplayVersion,
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (namespace != null) 'namespace': namespace,
       if (nextToken != null) 'nextToken': nextToken,
       if (package != null) 'package': package,
@@ -4302,7 +5374,7 @@ class ListPackagesResult {
     return ListPackagesResult(
       nextToken: json['nextToken'] as String?,
       packages: (json['packages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PackageSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4335,7 +5407,7 @@ class ListRepositoriesInDomainResult {
     return ListRepositoriesInDomainResult(
       nextToken: json['nextToken'] as String?,
       repositories: (json['repositories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RepositorySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4370,7 +5442,7 @@ class ListRepositoriesResult {
     return ListRepositoriesResult(
       nextToken: json['nextToken'] as String?,
       repositories: (json['repositories'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RepositorySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4386,6 +5458,39 @@ class ListRepositoriesResult {
   }
 }
 
+class ListSubPackageGroupsResult {
+  /// If there are additional results, this is the token for the next set of
+  /// results.
+  final String? nextToken;
+
+  /// A list of sub package groups for the requested package group.
+  final List<PackageGroupSummary>? packageGroups;
+
+  ListSubPackageGroupsResult({
+    this.nextToken,
+    this.packageGroups,
+  });
+
+  factory ListSubPackageGroupsResult.fromJson(Map<String, dynamic> json) {
+    return ListSubPackageGroupsResult(
+      nextToken: json['nextToken'] as String?,
+      packageGroups: (json['packageGroups'] as List?)
+          ?.nonNulls
+          .map((e) => PackageGroupSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nextToken = this.nextToken;
+    final packageGroups = this.packageGroups;
+    return {
+      if (nextToken != null) 'nextToken': nextToken,
+      if (packageGroups != null) 'packageGroups': packageGroups,
+    };
+  }
+}
+
 class ListTagsForResourceResult {
   /// A list of tag key and value pairs associated with the specified resource.
   final List<Tag>? tags;
@@ -4397,7 +5502,7 @@ class ListTagsForResourceResult {
   factory ListTagsForResourceResult.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResult(
       tags: (json['tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4445,14 +5550,17 @@ class PackageDependency {
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>.
+  /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
-  /// Python and NuGet packages do not contain a corresponding component, packages
-  /// of those formats do not have a namespace.
+  /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -4509,17 +5617,17 @@ class PackageDescription {
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>.
+  /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet packages do not contain a corresponding component, packages
-  /// of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -4536,7 +5644,7 @@ class PackageDescription {
 
   factory PackageDescription.fromJson(Map<String, dynamic> json) {
     return PackageDescription(
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       name: json['name'] as String?,
       namespace: json['namespace'] as String?,
       originConfiguration: json['originConfiguration'] != null
@@ -4552,7 +5660,7 @@ class PackageDescription {
     final namespace = this.namespace;
     final originConfiguration = this.originConfiguration;
     return {
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (name != null) 'name': name,
       if (namespace != null) 'namespace': namespace,
       if (originConfiguration != null)
@@ -4562,45 +5670,413 @@ class PackageDescription {
 }
 
 enum PackageFormat {
-  npm,
-  pypi,
-  maven,
-  nuget,
-  generic,
+  npm('npm'),
+  pypi('pypi'),
+  maven('maven'),
+  nuget('nuget'),
+  generic('generic'),
+  ruby('ruby'),
+  swift('swift'),
+  ;
+
+  final String value;
+
+  const PackageFormat(this.value);
+
+  static PackageFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PackageFormat'));
 }
 
-extension PackageFormatValueExtension on PackageFormat {
-  String toValue() {
-    switch (this) {
-      case PackageFormat.npm:
-        return 'npm';
-      case PackageFormat.pypi:
-        return 'pypi';
-      case PackageFormat.maven:
-        return 'maven';
-      case PackageFormat.nuget:
-        return 'nuget';
-      case PackageFormat.generic:
-        return 'generic';
-    }
+/// Details about an allowed repository for a package group, including its name
+/// and origin configuration.
+class PackageGroupAllowedRepository {
+  /// The origin configuration restriction type of the allowed repository.
+  final PackageGroupOriginRestrictionType? originRestrictionType;
+
+  /// The name of the allowed repository.
+  final String? repositoryName;
+
+  PackageGroupAllowedRepository({
+    this.originRestrictionType,
+    this.repositoryName,
+  });
+
+  Map<String, dynamic> toJson() {
+    final originRestrictionType = this.originRestrictionType;
+    final repositoryName = this.repositoryName;
+    return {
+      if (originRestrictionType != null)
+        'originRestrictionType': originRestrictionType.value,
+      if (repositoryName != null) 'repositoryName': repositoryName,
+    };
   }
 }
 
-extension PackageFormatFromString on String {
-  PackageFormat toPackageFormat() {
-    switch (this) {
-      case 'npm':
-        return PackageFormat.npm;
-      case 'pypi':
-        return PackageFormat.pypi;
-      case 'maven':
-        return PackageFormat.maven;
-      case 'nuget':
-        return PackageFormat.nuget;
-      case 'generic':
-        return PackageFormat.generic;
-    }
-    throw Exception('$this is not known in enum PackageFormat');
+enum PackageGroupAllowedRepositoryUpdateType {
+  added('ADDED'),
+  removed('REMOVED'),
+  ;
+
+  final String value;
+
+  const PackageGroupAllowedRepositoryUpdateType(this.value);
+
+  static PackageGroupAllowedRepositoryUpdateType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PackageGroupAllowedRepositoryUpdateType'));
+}
+
+enum PackageGroupAssociationType {
+  strong('STRONG'),
+  weak('WEAK'),
+  ;
+
+  final String value;
+
+  const PackageGroupAssociationType(this.value);
+
+  static PackageGroupAssociationType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PackageGroupAssociationType'));
+}
+
+/// The description of the package group.
+class PackageGroupDescription {
+  /// The ARN of the package group.
+  final String? arn;
+
+  /// The contact information of the package group.
+  final String? contactInfo;
+
+  /// A timestamp that represents the date and time the package group was created.
+  final DateTime? createdTime;
+
+  /// The description of the package group.
+  final String? description;
+
+  /// The name of the domain that contains the package group.
+  final String? domainName;
+
+  /// The 12-digit account number of the Amazon Web Services account that owns the
+  /// domain. It does not include dashes or spaces.
+  final String? domainOwner;
+
+  /// The package group origin configuration that determines how package versions
+  /// can enter repositories.
+  final PackageGroupOriginConfiguration? originConfiguration;
+
+  /// The direct parent package group of the package group.
+  final PackageGroupReference? parent;
+
+  /// The pattern of the package group. The pattern determines which packages are
+  /// associated with the package group.
+  final String? pattern;
+
+  PackageGroupDescription({
+    this.arn,
+    this.contactInfo,
+    this.createdTime,
+    this.description,
+    this.domainName,
+    this.domainOwner,
+    this.originConfiguration,
+    this.parent,
+    this.pattern,
+  });
+
+  factory PackageGroupDescription.fromJson(Map<String, dynamic> json) {
+    return PackageGroupDescription(
+      arn: json['arn'] as String?,
+      contactInfo: json['contactInfo'] as String?,
+      createdTime: timeStampFromJson(json['createdTime']),
+      description: json['description'] as String?,
+      domainName: json['domainName'] as String?,
+      domainOwner: json['domainOwner'] as String?,
+      originConfiguration: json['originConfiguration'] != null
+          ? PackageGroupOriginConfiguration.fromJson(
+              json['originConfiguration'] as Map<String, dynamic>)
+          : null,
+      parent: json['parent'] != null
+          ? PackageGroupReference.fromJson(
+              json['parent'] as Map<String, dynamic>)
+          : null,
+      pattern: json['pattern'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final contactInfo = this.contactInfo;
+    final createdTime = this.createdTime;
+    final description = this.description;
+    final domainName = this.domainName;
+    final domainOwner = this.domainOwner;
+    final originConfiguration = this.originConfiguration;
+    final parent = this.parent;
+    final pattern = this.pattern;
+    return {
+      if (arn != null) 'arn': arn,
+      if (contactInfo != null) 'contactInfo': contactInfo,
+      if (createdTime != null) 'createdTime': unixTimestampToJson(createdTime),
+      if (description != null) 'description': description,
+      if (domainName != null) 'domainName': domainName,
+      if (domainOwner != null) 'domainOwner': domainOwner,
+      if (originConfiguration != null)
+        'originConfiguration': originConfiguration,
+      if (parent != null) 'parent': parent,
+      if (pattern != null) 'pattern': pattern,
+    };
+  }
+}
+
+/// The package group origin configuration that determines how package versions
+/// can enter repositories.
+class PackageGroupOriginConfiguration {
+  /// The origin configuration settings that determine how package versions can
+  /// enter repositories.
+  final Map<PackageGroupOriginRestrictionType, PackageGroupOriginRestriction>?
+      restrictions;
+
+  PackageGroupOriginConfiguration({
+    this.restrictions,
+  });
+
+  factory PackageGroupOriginConfiguration.fromJson(Map<String, dynamic> json) {
+    return PackageGroupOriginConfiguration(
+      restrictions: (json['restrictions'] as Map<String, dynamic>?)?.map(
+          (k, e) => MapEntry(
+              PackageGroupOriginRestrictionType.fromString(k),
+              PackageGroupOriginRestriction.fromJson(
+                  e as Map<String, dynamic>))),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final restrictions = this.restrictions;
+    return {
+      if (restrictions != null)
+        'restrictions': restrictions.map((k, e) => MapEntry(k.value, e)),
+    };
+  }
+}
+
+/// Contains information about the configured restrictions of the origin
+/// controls of a package group.
+class PackageGroupOriginRestriction {
+  /// The effective package group origin restriction setting. If the value of
+  /// <code>mode</code> is <code>ALLOW</code>,
+  /// <code>ALLOW_SPECIFIC_REPOSITORIES</code>, or <code>BLOCK</code>, then the
+  /// value of <code>effectiveMode</code> is the same. Otherwise, when the value
+  /// of <code>mode</code> is <code>INHERIT</code>, then the value of
+  /// <code>effectiveMode</code> is the value of <code>mode</code> of the first
+  /// parent group which does not have a value of <code>INHERIT</code>.
+  final PackageGroupOriginRestrictionMode? effectiveMode;
+
+  /// The parent package group that the package group origin restrictions are
+  /// inherited from.
+  final PackageGroupReference? inheritedFrom;
+
+  /// The package group origin restriction setting. If the value of
+  /// <code>mode</code> is <code>ALLOW</code>,
+  /// <code>ALLOW_SPECIFIC_REPOSITORIES</code>, or <code>BLOCK</code>, then the
+  /// value of <code>effectiveMode</code> is the same. Otherwise, when the value
+  /// is <code>INHERIT</code>, then the value of <code>effectiveMode</code> is the
+  /// value of <code>mode</code> of the first parent group which does not have a
+  /// value of <code>INHERIT</code>.
+  final PackageGroupOriginRestrictionMode? mode;
+
+  /// The number of repositories in the allowed repository list.
+  final int? repositoriesCount;
+
+  PackageGroupOriginRestriction({
+    this.effectiveMode,
+    this.inheritedFrom,
+    this.mode,
+    this.repositoriesCount,
+  });
+
+  factory PackageGroupOriginRestriction.fromJson(Map<String, dynamic> json) {
+    return PackageGroupOriginRestriction(
+      effectiveMode: (json['effectiveMode'] as String?)
+          ?.let(PackageGroupOriginRestrictionMode.fromString),
+      inheritedFrom: json['inheritedFrom'] != null
+          ? PackageGroupReference.fromJson(
+              json['inheritedFrom'] as Map<String, dynamic>)
+          : null,
+      mode: (json['mode'] as String?)
+          ?.let(PackageGroupOriginRestrictionMode.fromString),
+      repositoriesCount: json['repositoriesCount'] as int?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final effectiveMode = this.effectiveMode;
+    final inheritedFrom = this.inheritedFrom;
+    final mode = this.mode;
+    final repositoriesCount = this.repositoriesCount;
+    return {
+      if (effectiveMode != null) 'effectiveMode': effectiveMode.value,
+      if (inheritedFrom != null) 'inheritedFrom': inheritedFrom,
+      if (mode != null) 'mode': mode.value,
+      if (repositoriesCount != null) 'repositoriesCount': repositoriesCount,
+    };
+  }
+}
+
+enum PackageGroupOriginRestrictionMode {
+  allow('ALLOW'),
+  allowSpecificRepositories('ALLOW_SPECIFIC_REPOSITORIES'),
+  block('BLOCK'),
+  inherit('INHERIT'),
+  ;
+
+  final String value;
+
+  const PackageGroupOriginRestrictionMode(this.value);
+
+  static PackageGroupOriginRestrictionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PackageGroupOriginRestrictionMode'));
+}
+
+enum PackageGroupOriginRestrictionType {
+  externalUpstream('EXTERNAL_UPSTREAM'),
+  internalUpstream('INTERNAL_UPSTREAM'),
+  publish('PUBLISH'),
+  ;
+
+  final String value;
+
+  const PackageGroupOriginRestrictionType(this.value);
+
+  static PackageGroupOriginRestrictionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PackageGroupOriginRestrictionType'));
+}
+
+/// Information about the identifiers of a package group.
+class PackageGroupReference {
+  /// The ARN of the package group.
+  final String? arn;
+
+  /// The pattern of the package group. The pattern determines which packages are
+  /// associated with the package group, and is also the identifier of the package
+  /// group.
+  final String? pattern;
+
+  PackageGroupReference({
+    this.arn,
+    this.pattern,
+  });
+
+  factory PackageGroupReference.fromJson(Map<String, dynamic> json) {
+    return PackageGroupReference(
+      arn: json['arn'] as String?,
+      pattern: json['pattern'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final pattern = this.pattern;
+    return {
+      if (arn != null) 'arn': arn,
+      if (pattern != null) 'pattern': pattern,
+    };
+  }
+}
+
+/// Details about a package group.
+class PackageGroupSummary {
+  /// The ARN of the package group.
+  final String? arn;
+
+  /// The contact information of the package group.
+  final String? contactInfo;
+
+  /// A timestamp that represents the date and time the repository was created.
+  final DateTime? createdTime;
+
+  /// The description of the package group.
+  final String? description;
+
+  /// The domain that contains the package group.
+  final String? domainName;
+
+  /// The 12-digit account number of the Amazon Web Services account that owns the
+  /// domain. It does not include dashes or spaces.
+  final String? domainOwner;
+
+  /// Details about the package origin configuration of a package group.
+  final PackageGroupOriginConfiguration? originConfiguration;
+
+  /// The direct parent package group of the package group.
+  final PackageGroupReference? parent;
+
+  /// The pattern of the package group. The pattern determines which packages are
+  /// associated with the package group.
+  final String? pattern;
+
+  PackageGroupSummary({
+    this.arn,
+    this.contactInfo,
+    this.createdTime,
+    this.description,
+    this.domainName,
+    this.domainOwner,
+    this.originConfiguration,
+    this.parent,
+    this.pattern,
+  });
+
+  factory PackageGroupSummary.fromJson(Map<String, dynamic> json) {
+    return PackageGroupSummary(
+      arn: json['arn'] as String?,
+      contactInfo: json['contactInfo'] as String?,
+      createdTime: timeStampFromJson(json['createdTime']),
+      description: json['description'] as String?,
+      domainName: json['domainName'] as String?,
+      domainOwner: json['domainOwner'] as String?,
+      originConfiguration: json['originConfiguration'] != null
+          ? PackageGroupOriginConfiguration.fromJson(
+              json['originConfiguration'] as Map<String, dynamic>)
+          : null,
+      parent: json['parent'] != null
+          ? PackageGroupReference.fromJson(
+              json['parent'] as Map<String, dynamic>)
+          : null,
+      pattern: json['pattern'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final contactInfo = this.contactInfo;
+    final createdTime = this.createdTime;
+    final description = this.description;
+    final domainName = this.domainName;
+    final domainOwner = this.domainOwner;
+    final originConfiguration = this.originConfiguration;
+    final parent = this.parent;
+    final pattern = this.pattern;
+    return {
+      if (arn != null) 'arn': arn,
+      if (contactInfo != null) 'contactInfo': contactInfo,
+      if (createdTime != null) 'createdTime': unixTimestampToJson(createdTime),
+      if (description != null) 'description': description,
+      if (domainName != null) 'domainName': domainName,
+      if (domainOwner != null) 'domainOwner': domainOwner,
+      if (originConfiguration != null)
+        'originConfiguration': originConfiguration,
+      if (parent != null) 'parent': parent,
+      if (pattern != null) 'pattern': pattern,
+    };
   }
 }
 
@@ -4651,8 +6127,8 @@ class PackageOriginRestrictions {
 
   factory PackageOriginRestrictions.fromJson(Map<String, dynamic> json) {
     return PackageOriginRestrictions(
-      publish: (json['publish'] as String).toAllowPublish(),
-      upstream: (json['upstream'] as String).toAllowUpstream(),
+      publish: AllowPublish.fromString((json['publish'] as String)),
+      upstream: AllowUpstream.fromString((json['upstream'] as String)),
     );
   }
 
@@ -4660,8 +6136,8 @@ class PackageOriginRestrictions {
     final publish = this.publish;
     final upstream = this.upstream;
     return {
-      'publish': publish.toValue(),
-      'upstream': upstream.toValue(),
+      'publish': publish.value,
+      'upstream': upstream.value,
     };
   }
 }
@@ -4676,17 +6152,17 @@ class PackageSummary {
   ///
   /// <ul>
   /// <li>
-  /// The namespace of a Maven package is its <code>groupId</code>.
+  /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet packages do not contain a corresponding component, packages
-  /// of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -4711,7 +6187,7 @@ class PackageSummary {
 
   factory PackageSummary.fromJson(Map<String, dynamic> json) {
     return PackageSummary(
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       namespace: json['namespace'] as String?,
       originConfiguration: json['originConfiguration'] != null
           ? PackageOriginConfiguration.fromJson(
@@ -4727,7 +6203,7 @@ class PackageSummary {
     final originConfiguration = this.originConfiguration;
     final package = this.package;
     return {
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (namespace != null) 'namespace': namespace,
       if (originConfiguration != null)
         'originConfiguration': originConfiguration,
@@ -4754,22 +6230,22 @@ class PackageVersionDescription {
   /// Information about licenses associated with the package version.
   final List<LicenseInfo>? licenses;
 
-  /// The namespace of the package version. The package version component that
-  /// specifies its namespace depends on its type. For example:
+  /// The namespace of the package version. The package component that specifies
+  /// its namespace depends on its type. For example:
   ///
   /// <ul>
   /// <li>
   /// The namespace of a Maven package version is its <code>groupId</code>.
   /// </li>
   /// <li>
-  /// The namespace of an npm package version is its <code>scope</code>.
-  /// </li>
-  /// <li>
-  /// Python and NuGet package versions do not contain a corresponding component,
-  /// package versions of those formats do not have a namespace.
+  /// The namespace of an npm or Swift package version is its <code>scope</code>.
   /// </li>
   /// <li>
   /// The namespace of a generic package is its <code>namespace</code>.
+  /// </li>
+  /// <li>
+  /// Python, NuGet, and Ruby package versions do not contain a corresponding
+  /// component, package versions of those formats do not have a namespace.
   /// </li>
   /// </ul>
   final String? namespace;
@@ -4824,10 +6300,10 @@ class PackageVersionDescription {
   factory PackageVersionDescription.fromJson(Map<String, dynamic> json) {
     return PackageVersionDescription(
       displayName: json['displayName'] as String?,
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       homePage: json['homePage'] as String?,
       licenses: (json['licenses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LicenseInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       namespace: json['namespace'] as String?,
@@ -4839,7 +6315,7 @@ class PackageVersionDescription {
       publishedTime: timeStampFromJson(json['publishedTime']),
       revision: json['revision'] as String?,
       sourceCodeRepository: json['sourceCodeRepository'] as String?,
-      status: (json['status'] as String?)?.toPackageVersionStatus(),
+      status: (json['status'] as String?)?.let(PackageVersionStatus.fromString),
       summary: json['summary'] as String?,
       version: json['version'] as String?,
     );
@@ -4861,7 +6337,7 @@ class PackageVersionDescription {
     final version = this.version;
     return {
       if (displayName != null) 'displayName': displayName,
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (homePage != null) 'homePage': homePage,
       if (licenses != null) 'licenses': licenses,
       if (namespace != null) 'namespace': namespace,
@@ -4872,7 +6348,7 @@ class PackageVersionDescription {
       if (revision != null) 'revision': revision,
       if (sourceCodeRepository != null)
         'sourceCodeRepository': sourceCodeRepository,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (summary != null) 'summary': summary,
       if (version != null) 'version': version,
     };
@@ -4915,7 +6391,8 @@ class PackageVersionError {
 
   factory PackageVersionError.fromJson(Map<String, dynamic> json) {
     return PackageVersionError(
-      errorCode: (json['errorCode'] as String?)?.toPackageVersionErrorCode(),
+      errorCode: (json['errorCode'] as String?)
+          ?.let(PackageVersionErrorCode.fromString),
       errorMessage: json['errorMessage'] as String?,
     );
   }
@@ -4924,58 +6401,29 @@ class PackageVersionError {
     final errorCode = this.errorCode;
     final errorMessage = this.errorMessage;
     return {
-      if (errorCode != null) 'errorCode': errorCode.toValue(),
+      if (errorCode != null) 'errorCode': errorCode.value,
       if (errorMessage != null) 'errorMessage': errorMessage,
     };
   }
 }
 
 enum PackageVersionErrorCode {
-  alreadyExists,
-  mismatchedRevision,
-  mismatchedStatus,
-  notAllowed,
-  notFound,
-  skipped,
-}
+  alreadyExists('ALREADY_EXISTS'),
+  mismatchedRevision('MISMATCHED_REVISION'),
+  mismatchedStatus('MISMATCHED_STATUS'),
+  notAllowed('NOT_ALLOWED'),
+  notFound('NOT_FOUND'),
+  skipped('SKIPPED'),
+  ;
 
-extension PackageVersionErrorCodeValueExtension on PackageVersionErrorCode {
-  String toValue() {
-    switch (this) {
-      case PackageVersionErrorCode.alreadyExists:
-        return 'ALREADY_EXISTS';
-      case PackageVersionErrorCode.mismatchedRevision:
-        return 'MISMATCHED_REVISION';
-      case PackageVersionErrorCode.mismatchedStatus:
-        return 'MISMATCHED_STATUS';
-      case PackageVersionErrorCode.notAllowed:
-        return 'NOT_ALLOWED';
-      case PackageVersionErrorCode.notFound:
-        return 'NOT_FOUND';
-      case PackageVersionErrorCode.skipped:
-        return 'SKIPPED';
-    }
-  }
-}
+  final String value;
 
-extension PackageVersionErrorCodeFromString on String {
-  PackageVersionErrorCode toPackageVersionErrorCode() {
-    switch (this) {
-      case 'ALREADY_EXISTS':
-        return PackageVersionErrorCode.alreadyExists;
-      case 'MISMATCHED_REVISION':
-        return PackageVersionErrorCode.mismatchedRevision;
-      case 'MISMATCHED_STATUS':
-        return PackageVersionErrorCode.mismatchedStatus;
-      case 'NOT_ALLOWED':
-        return PackageVersionErrorCode.notAllowed;
-      case 'NOT_FOUND':
-        return PackageVersionErrorCode.notFound;
-      case 'SKIPPED':
-        return PackageVersionErrorCode.skipped;
-    }
-    throw Exception('$this is not known in enum PackageVersionErrorCode');
-  }
+  const PackageVersionErrorCode(this.value);
+
+  static PackageVersionErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PackageVersionErrorCode'));
 }
 
 /// Information about how a package version was added to a repository.
@@ -5003,7 +6451,8 @@ class PackageVersionOrigin {
           ? DomainEntryPoint.fromJson(
               json['domainEntryPoint'] as Map<String, dynamic>)
           : null,
-      originType: (json['originType'] as String?)?.toPackageVersionOriginType(),
+      originType: (json['originType'] as String?)
+          ?.let(PackageVersionOriginType.fromString),
     );
   }
 
@@ -5012,113 +6461,58 @@ class PackageVersionOrigin {
     final originType = this.originType;
     return {
       if (domainEntryPoint != null) 'domainEntryPoint': domainEntryPoint,
-      if (originType != null) 'originType': originType.toValue(),
+      if (originType != null) 'originType': originType.value,
     };
   }
 }
 
 enum PackageVersionOriginType {
-  internal,
-  external,
-  unknown,
-}
+  internal('INTERNAL'),
+  external('EXTERNAL'),
+  unknown('UNKNOWN'),
+  ;
 
-extension PackageVersionOriginTypeValueExtension on PackageVersionOriginType {
-  String toValue() {
-    switch (this) {
-      case PackageVersionOriginType.internal:
-        return 'INTERNAL';
-      case PackageVersionOriginType.external:
-        return 'EXTERNAL';
-      case PackageVersionOriginType.unknown:
-        return 'UNKNOWN';
-    }
-  }
-}
+  final String value;
 
-extension PackageVersionOriginTypeFromString on String {
-  PackageVersionOriginType toPackageVersionOriginType() {
-    switch (this) {
-      case 'INTERNAL':
-        return PackageVersionOriginType.internal;
-      case 'EXTERNAL':
-        return PackageVersionOriginType.external;
-      case 'UNKNOWN':
-        return PackageVersionOriginType.unknown;
-    }
-    throw Exception('$this is not known in enum PackageVersionOriginType');
-  }
+  const PackageVersionOriginType(this.value);
+
+  static PackageVersionOriginType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PackageVersionOriginType'));
 }
 
 enum PackageVersionSortType {
-  publishedTime,
-}
+  publishedTime('PUBLISHED_TIME'),
+  ;
 
-extension PackageVersionSortTypeValueExtension on PackageVersionSortType {
-  String toValue() {
-    switch (this) {
-      case PackageVersionSortType.publishedTime:
-        return 'PUBLISHED_TIME';
-    }
-  }
-}
+  final String value;
 
-extension PackageVersionSortTypeFromString on String {
-  PackageVersionSortType toPackageVersionSortType() {
-    switch (this) {
-      case 'PUBLISHED_TIME':
-        return PackageVersionSortType.publishedTime;
-    }
-    throw Exception('$this is not known in enum PackageVersionSortType');
-  }
+  const PackageVersionSortType(this.value);
+
+  static PackageVersionSortType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PackageVersionSortType'));
 }
 
 enum PackageVersionStatus {
-  published,
-  unfinished,
-  unlisted,
-  archived,
-  disposed,
-  deleted,
-}
+  published('Published'),
+  unfinished('Unfinished'),
+  unlisted('Unlisted'),
+  archived('Archived'),
+  disposed('Disposed'),
+  deleted('Deleted'),
+  ;
 
-extension PackageVersionStatusValueExtension on PackageVersionStatus {
-  String toValue() {
-    switch (this) {
-      case PackageVersionStatus.published:
-        return 'Published';
-      case PackageVersionStatus.unfinished:
-        return 'Unfinished';
-      case PackageVersionStatus.unlisted:
-        return 'Unlisted';
-      case PackageVersionStatus.archived:
-        return 'Archived';
-      case PackageVersionStatus.disposed:
-        return 'Disposed';
-      case PackageVersionStatus.deleted:
-        return 'Deleted';
-    }
-  }
-}
+  final String value;
 
-extension PackageVersionStatusFromString on String {
-  PackageVersionStatus toPackageVersionStatus() {
-    switch (this) {
-      case 'Published':
-        return PackageVersionStatus.published;
-      case 'Unfinished':
-        return PackageVersionStatus.unfinished;
-      case 'Unlisted':
-        return PackageVersionStatus.unlisted;
-      case 'Archived':
-        return PackageVersionStatus.archived;
-      case 'Disposed':
-        return PackageVersionStatus.disposed;
-      case 'Deleted':
-        return PackageVersionStatus.deleted;
-    }
-    throw Exception('$this is not known in enum PackageVersionStatus');
-  }
+  const PackageVersionStatus(this.value);
+
+  static PackageVersionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PackageVersionStatus'));
 }
 
 /// Details about a package version, including its status, version, and
@@ -5151,7 +6545,7 @@ class PackageVersionSummary {
 
   factory PackageVersionSummary.fromJson(Map<String, dynamic> json) {
     return PackageVersionSummary(
-      status: (json['status'] as String).toPackageVersionStatus(),
+      status: PackageVersionStatus.fromString((json['status'] as String)),
       version: json['version'] as String,
       origin: json['origin'] != null
           ? PackageVersionOrigin.fromJson(
@@ -5167,7 +6561,7 @@ class PackageVersionSummary {
     final origin = this.origin;
     final revision = this.revision;
     return {
-      'status': status.toValue(),
+      'status': status.value,
       'version': version,
       if (origin != null) 'origin': origin,
       if (revision != null) 'revision': revision,
@@ -5217,10 +6611,10 @@ class PublishPackageVersionResult {
       asset: json['asset'] != null
           ? AssetSummary.fromJson(json['asset'] as Map<String, dynamic>)
           : null,
-      format: (json['format'] as String?)?.toPackageFormat(),
+      format: (json['format'] as String?)?.let(PackageFormat.fromString),
       namespace: json['namespace'] as String?,
       package: json['package'] as String?,
-      status: (json['status'] as String?)?.toPackageVersionStatus(),
+      status: (json['status'] as String?)?.let(PackageVersionStatus.fromString),
       version: json['version'] as String?,
       versionRevision: json['versionRevision'] as String?,
     );
@@ -5236,10 +6630,10 @@ class PublishPackageVersionResult {
     final versionRevision = this.versionRevision;
     return {
       if (asset != null) 'asset': asset,
-      if (format != null) 'format': format.toValue(),
+      if (format != null) 'format': format.value,
       if (namespace != null) 'namespace': namespace,
       if (package != null) 'package': package,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (version != null) 'version': version,
       if (versionRevision != null) 'versionRevision': versionRevision,
     };
@@ -5391,13 +6785,13 @@ class RepositoryDescription {
       domainName: json['domainName'] as String?,
       domainOwner: json['domainOwner'] as String?,
       externalConnections: (json['externalConnections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RepositoryExternalConnectionInfo.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       name: json['name'] as String?,
       upstreams: (json['upstreams'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => UpstreamRepositoryInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5468,8 +6862,10 @@ class RepositoryExternalConnectionInfo {
   factory RepositoryExternalConnectionInfo.fromJson(Map<String, dynamic> json) {
     return RepositoryExternalConnectionInfo(
       externalConnectionName: json['externalConnectionName'] as String?,
-      packageFormat: (json['packageFormat'] as String?)?.toPackageFormat(),
-      status: (json['status'] as String?)?.toExternalConnectionStatus(),
+      packageFormat:
+          (json['packageFormat'] as String?)?.let(PackageFormat.fromString),
+      status:
+          (json['status'] as String?)?.let(ExternalConnectionStatus.fromString),
     );
   }
 
@@ -5480,8 +6876,8 @@ class RepositoryExternalConnectionInfo {
     return {
       if (externalConnectionName != null)
         'externalConnectionName': externalConnectionName,
-      if (packageFormat != null) 'packageFormat': packageFormat.toValue(),
-      if (status != null) 'status': status.toValue(),
+      if (packageFormat != null) 'packageFormat': packageFormat.value,
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5610,7 +7006,7 @@ class SuccessfulPackageVersionInfo {
   factory SuccessfulPackageVersionInfo.fromJson(Map<String, dynamic> json) {
     return SuccessfulPackageVersionInfo(
       revision: json['revision'] as String?,
-      status: (json['status'] as String?)?.toPackageVersionStatus(),
+      status: (json['status'] as String?)?.let(PackageVersionStatus.fromString),
     );
   }
 
@@ -5619,7 +7015,7 @@ class SuccessfulPackageVersionInfo {
     final status = this.status;
     return {
       if (revision != null) 'revision': revision,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
     };
   }
 }
@@ -5676,6 +7072,76 @@ class UntagResourceResult {
 
   Map<String, dynamic> toJson() {
     return {};
+  }
+}
+
+class UpdatePackageGroupOriginConfigurationResult {
+  /// Information about the updated allowed repositories after processing the
+  /// request.
+  final Map<PackageGroupOriginRestrictionType,
+          Map<PackageGroupAllowedRepositoryUpdateType, List<String>>>?
+      allowedRepositoryUpdates;
+
+  /// The package group and information about it after processing the request.
+  final PackageGroupDescription? packageGroup;
+
+  UpdatePackageGroupOriginConfigurationResult({
+    this.allowedRepositoryUpdates,
+    this.packageGroup,
+  });
+
+  factory UpdatePackageGroupOriginConfigurationResult.fromJson(
+      Map<String, dynamic> json) {
+    return UpdatePackageGroupOriginConfigurationResult(
+      allowedRepositoryUpdates:
+          (json['allowedRepositoryUpdates'] as Map<String, dynamic>?)?.map(
+              (k, e) => MapEntry(
+                  PackageGroupOriginRestrictionType.fromString(k),
+                  (e as Map<String, dynamic>).map((k, e) => MapEntry(
+                      PackageGroupAllowedRepositoryUpdateType.fromString(k),
+                      (e as List).nonNulls.map((e) => e as String).toList())))),
+      packageGroup: json['packageGroup'] != null
+          ? PackageGroupDescription.fromJson(
+              json['packageGroup'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final allowedRepositoryUpdates = this.allowedRepositoryUpdates;
+    final packageGroup = this.packageGroup;
+    return {
+      if (allowedRepositoryUpdates != null)
+        'allowedRepositoryUpdates': allowedRepositoryUpdates.map(
+            (k, e) => MapEntry(k.value, e.map((k, e) => MapEntry(k.value, e)))),
+      if (packageGroup != null) 'packageGroup': packageGroup,
+    };
+  }
+}
+
+class UpdatePackageGroupResult {
+  /// The package group and information about it after the request has been
+  /// processed.
+  final PackageGroupDescription? packageGroup;
+
+  UpdatePackageGroupResult({
+    this.packageGroup,
+  });
+
+  factory UpdatePackageGroupResult.fromJson(Map<String, dynamic> json) {
+    return UpdatePackageGroupResult(
+      packageGroup: json['packageGroup'] != null
+          ? PackageGroupDescription.fromJson(
+              json['packageGroup'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final packageGroup = this.packageGroup;
+    return {
+      if (packageGroup != null) 'packageGroup': packageGroup,
+    };
   }
 }
 

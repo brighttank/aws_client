@@ -17,7 +17,6 @@ import '../../shared/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'v2010_05_08.meta.dart';
 export '../../shared/shared.dart' show AwsClientCredentials;
 
 /// Identity and Access Management (IAM) is a web service for securely
@@ -30,7 +29,6 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// and Access Management User Guide</a>.
 class Iam {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   Iam({
     String? region,
@@ -38,7 +36,7 @@ class Iam {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'iam',
@@ -47,9 +45,7 @@ class Iam {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -84,9 +80,10 @@ class Iam {
     required String clientID,
     required String openIDConnectProviderArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClientID'] = clientID;
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
+    final $request = <String, String>{
+      'ClientID': clientID,
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+    };
     await _protocol.send(
       $request,
       action: 'AddClientIDToOpenIDConnectProvider',
@@ -94,8 +91,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddClientIDToOpenIDConnectProviderRequest'],
-      shapes: shapes,
     );
   }
 
@@ -116,10 +111,11 @@ class Iam {
   /// permission on the IAM role by a permissions policy.
   /// </note>
   /// For more information about roles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html">Working
-  /// with roles</a>. For more information about instance profiles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AboutInstanceProfiles.html">About
-  /// instance profiles</a>.
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html">IAM
+  /// roles</a> in the <i>IAM User Guide</i>. For more information about
+  /// instance profiles, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html">Using
+  /// instance profiles</a> in the <i>IAM User Guide</i>.
   ///
   /// May throw [NoSuchEntityException].
   /// May throw [EntityAlreadyExistsException].
@@ -146,9 +142,10 @@ class Iam {
     required String instanceProfileName,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'AddRoleToInstanceProfile',
@@ -156,8 +153,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddRoleToInstanceProfileRequest'],
-      shapes: shapes,
     );
   }
 
@@ -186,9 +181,10 @@ class Iam {
     required String groupName,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'GroupName': groupName,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'AddUserToGroup',
@@ -196,15 +192,15 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddUserToGroupRequest'],
-      shapes: shapes,
     );
   }
 
   /// Attaches the specified managed policy to the specified IAM group.
   ///
   /// You use this operation to attach a managed policy to a group. To embed an
-  /// inline policy in a group, use <a>PutGroupPolicy</a>.
+  /// inline policy in a group, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_PutGroupPolicy.html">
+  /// <code>PutGroupPolicy</code> </a>.
   ///
   /// As a best practice, you can validate your IAM policies. To learn more, see
   /// <a
@@ -240,9 +236,10 @@ class Iam {
     required String groupName,
     required String policyArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    $request['PolicyArn'] = policyArn;
+    final $request = <String, String>{
+      'GroupName': groupName,
+      'PolicyArn': policyArn,
+    };
     await _protocol.send(
       $request,
       action: 'AttachGroupPolicy',
@@ -250,8 +247,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AttachGroupPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -260,13 +255,18 @@ class Iam {
   /// role's permission (access) policy.
   /// <note>
   /// You cannot use a managed policy as the role's trust policy. The role's
-  /// trust policy is created at the same time as the role, using
-  /// <a>CreateRole</a>. You can update a role's trust policy using
-  /// <a>UpdateAssumeRolePolicy</a>.
+  /// trust policy is created at the same time as the role, using <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreateRole.html">
+  /// <code>CreateRole</code> </a>. You can update a role's trust policy using
+  /// <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_UpdateAssumeRolePolicy.html">
+  /// <code>UpdateAssumerolePolicy</code> </a>.
   /// </note>
   /// Use this operation to attach a <i>managed</i> policy to a role. To embed
-  /// an inline policy in a role, use <a>PutRolePolicy</a>. For more information
-  /// about policies, see <a
+  /// an inline policy in a role, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_PutRolePolicy.html">
+  /// <code>PutRolePolicy</code> </a>. For more information about policies, see
+  /// <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html">Managed
   /// policies and inline policies</a> in the <i>IAM User Guide</i>.
   ///
@@ -301,9 +301,10 @@ class Iam {
     required String policyArn,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'AttachRolePolicy',
@@ -311,15 +312,15 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AttachRolePolicyRequest'],
-      shapes: shapes,
     );
   }
 
   /// Attaches the specified managed policy to the specified user.
   ///
   /// You use this operation to attach a <i>managed</i> policy to a user. To
-  /// embed an inline policy in a user, use <a>PutUserPolicy</a>.
+  /// embed an inline policy in a user, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_PutUserPolicy.html">
+  /// <code>PutUserPolicy</code> </a>.
   ///
   /// As a best practice, you can validate your IAM policies. To learn more, see
   /// <a
@@ -355,9 +356,10 @@ class Iam {
     required String policyArn,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'AttachUserPolicy',
@@ -365,8 +367,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AttachUserPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -410,9 +410,10 @@ class Iam {
     required String newPassword,
     required String oldPassword,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['NewPassword'] = newPassword;
-    $request['OldPassword'] = oldPassword;
+    final $request = <String, String>{
+      'NewPassword': newPassword,
+      'OldPassword': oldPassword,
+    };
     await _protocol.send(
       $request,
       action: 'ChangePassword',
@@ -420,8 +421,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ChangePasswordRequest'],
-      shapes: shapes,
     );
   }
 
@@ -461,8 +460,9 @@ class Iam {
   Future<CreateAccessKeyResponse> createAccessKey({
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateAccessKey',
@@ -470,8 +470,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateAccessKeyRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateAccessKeyResult',
     );
     return CreateAccessKeyResponse.fromXml($result);
@@ -479,10 +477,11 @@ class Iam {
 
   /// Creates an alias for your Amazon Web Services account. For information
   /// about using an Amazon Web Services account alias, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AccountAlias.html">Using
-  /// an alias for your Amazon Web Services account ID</a> in the <i>IAM User
-  /// Guide</i>.
+  /// href="https://docs.aws.amazon.com/signin/latest/userguide/CreateAccountAlias.html">Creating,
+  /// deleting, and listing an Amazon Web Services account alias</a> in the
+  /// <i>Amazon Web Services Sign-In User Guide</i>.
   ///
+  /// May throw [ConcurrentModificationException].
   /// May throw [EntityAlreadyExistsException].
   /// May throw [LimitExceededException].
   /// May throw [ServiceFailureException].
@@ -497,8 +496,9 @@ class Iam {
   Future<void> createAccountAlias({
     required String accountAlias,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountAlias'] = accountAlias;
+    final $request = <String, String>{
+      'AccountAlias': accountAlias,
+    };
     await _protocol.send(
       $request,
       action: 'CreateAccountAlias',
@@ -506,8 +506,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateAccountAliasRequest'],
-      shapes: shapes,
     );
   }
 
@@ -548,9 +546,10 @@ class Iam {
     required String groupName,
     String? path,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    path?.also((arg) => $request['Path'] = arg);
+    final $request = <String, String>{
+      'GroupName': groupName,
+      if (path != null) 'Path': path,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateGroup',
@@ -558,8 +557,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateGroupRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateGroupResult',
     );
     return CreateGroupResponse.fromXml($result);
@@ -624,10 +621,17 @@ class Iam {
     String? path,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
-    path?.also((arg) => $request['Path'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+      if (path != null) 'Path': path,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateInstanceProfile',
@@ -635,8 +639,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateInstanceProfileRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateInstanceProfileResult',
     );
     return CreateInstanceProfileResponse.fromXml($result);
@@ -693,11 +695,12 @@ class Iam {
     required String userName,
     bool? passwordResetRequired,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Password'] = password;
-    $request['UserName'] = userName;
-    passwordResetRequired
-        ?.also((arg) => $request['PasswordResetRequired'] = arg);
+    final $request = <String, String>{
+      'Password': password,
+      'UserName': userName,
+      if (passwordResetRequired != null)
+        'PasswordResetRequired': passwordResetRequired.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateLoginProfile',
@@ -705,8 +708,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateLoginProfileRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateLoginProfileResult',
     );
     return CreateLoginProfileResponse.fromXml($result);
@@ -750,12 +751,12 @@ class Iam {
   /// access Amazon Web Services.
   /// <note>
   /// Amazon Web Services secures communication with some OIDC identity
-  /// providers (IdPs) through our library of trusted certificate authorities
-  /// (CAs) instead of using a certificate thumbprint to verify your IdP server
-  /// certificate. These OIDC IdPs include Google, Auth0, and those that use an
-  /// Amazon S3 bucket to host a JSON Web Key Set (JWKS) endpoint. In these
-  /// cases, your legacy thumbprint remains in your configuration, but is no
-  /// longer used for validation.
+  /// providers (IdPs) through our library of trusted root certificate
+  /// authorities (CAs) instead of using a certificate thumbprint to verify your
+  /// IdP server certificate. In these cases, your legacy thumbprint remains in
+  /// your configuration, but is no longer used for validation. These OIDC IdPs
+  /// include Auth0, GitHub, GitLab, Google, and those that use an Amazon S3
+  /// bucket to host a JSON Web Key Set (JWKS) endpoint.
   /// </note> <note>
   /// The trust for the OIDC provider is derived from the IAM provider that this
   /// operation creates. Therefore, it is best to limit access to the
@@ -767,29 +768,7 @@ class Iam {
   /// May throw [LimitExceededException].
   /// May throw [ConcurrentModificationException].
   /// May throw [ServiceFailureException].
-  ///
-  /// Parameter [thumbprintList] :
-  /// A list of server certificate thumbprints for the OpenID Connect (OIDC)
-  /// identity provider's server certificates. Typically this list includes only
-  /// one entry. However, IAM lets you have up to five thumbprints for an OIDC
-  /// provider. This lets you maintain multiple thumbprints if the identity
-  /// provider is rotating certificates.
-  ///
-  /// The server certificate thumbprint is the hex-encoded SHA-1 hash value of
-  /// the X.509 certificate used by the domain where the OpenID Connect provider
-  /// makes its keys available. It is always a 40-character string.
-  ///
-  /// You must provide at least one thumbprint when creating an IAM OIDC
-  /// provider. For example, assume that the OIDC provider is
-  /// <code>server.example.com</code> and the provider stores its keys at
-  /// https://keys.server.example.com/openid-connect. In that case, the
-  /// thumbprint string would be the hex-encoded SHA-1 hash value of the
-  /// certificate used by <code>https://keys.server.example.com.</code>
-  ///
-  /// For more information about obtaining the OIDC provider thumbprint, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/identity-providers-oidc-obtain-thumbprint.html">Obtaining
-  /// the thumbprint for an OpenID Connect provider</a> in the <i>IAM user
-  /// Guide</i>.
+  /// May throw [OpenIdIdpCommunicationErrorException].
   ///
   /// Parameter [url] :
   /// The URL of the identity provider. The URL must begin with
@@ -830,17 +809,60 @@ class Iam {
   /// number of tags, then the entire request fails and the resource is not
   /// created.
   /// </note>
+  ///
+  /// Parameter [thumbprintList] :
+  /// A list of server certificate thumbprints for the OpenID Connect (OIDC)
+  /// identity provider's server certificates. Typically this list includes only
+  /// one entry. However, IAM lets you have up to five thumbprints for an OIDC
+  /// provider. This lets you maintain multiple thumbprints if the identity
+  /// provider is rotating certificates.
+  ///
+  /// This parameter is optional. If it is not included, IAM will retrieve and
+  /// use the top intermediate certificate authority (CA) thumbprint of the
+  /// OpenID Connect identity provider server certificate.
+  ///
+  /// The server certificate thumbprint is the hex-encoded SHA-1 hash value of
+  /// the X.509 certificate used by the domain where the OpenID Connect provider
+  /// makes its keys available. It is always a 40-character string.
+  ///
+  /// For example, assume that the OIDC provider is
+  /// <code>server.example.com</code> and the provider stores its keys at
+  /// https://keys.server.example.com/openid-connect. In that case, the
+  /// thumbprint string would be the hex-encoded SHA-1 hash value of the
+  /// certificate used by <code>https://keys.server.example.com.</code>
+  ///
+  /// For more information about obtaining the OIDC provider thumbprint, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/identity-providers-oidc-obtain-thumbprint.html">Obtaining
+  /// the thumbprint for an OpenID Connect provider</a> in the <i>IAM user
+  /// Guide</i>.
   Future<CreateOpenIDConnectProviderResponse> createOpenIDConnectProvider({
-    required List<String> thumbprintList,
     required String url,
     List<String>? clientIDList,
     List<Tag>? tags,
+    List<String>? thumbprintList,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ThumbprintList'] = thumbprintList;
-    $request['Url'] = url;
-    clientIDList?.also((arg) => $request['ClientIDList'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'Url': url,
+      if (clientIDList != null)
+        if (clientIDList.isEmpty)
+          'ClientIDList': ''
+        else
+          for (var i1 = 0; i1 < clientIDList.length; i1++)
+            'ClientIDList.member.${i1 + 1}': clientIDList[i1],
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+      if (thumbprintList != null)
+        if (thumbprintList.isEmpty)
+          'ThumbprintList': ''
+        else
+          for (var i1 = 0; i1 < thumbprintList.length; i1++)
+            'ThumbprintList.member.${i1 + 1}': thumbprintList[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateOpenIDConnectProvider',
@@ -848,8 +870,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateOpenIDConnectProviderRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateOpenIDConnectProviderResult',
     );
     return CreateOpenIDConnectProviderResponse.fromXml($result);
@@ -972,12 +992,19 @@ class Iam {
     String? path,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyDocument'] = policyDocument;
-    $request['PolicyName'] = policyName;
-    description?.also((arg) => $request['Description'] = arg);
-    path?.also((arg) => $request['Path'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'PolicyDocument': policyDocument,
+      'PolicyName': policyName,
+      if (description != null) 'Description': description,
+      if (path != null) 'Path': path,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreatePolicy',
@@ -985,8 +1012,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreatePolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'CreatePolicyResult',
     );
     return CreatePolicyResponse.fromXml($result);
@@ -1070,10 +1095,11 @@ class Iam {
     required String policyDocument,
     bool? setAsDefault,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['PolicyDocument'] = policyDocument;
-    setAsDefault?.also((arg) => $request['SetAsDefault'] = arg);
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'PolicyDocument': policyDocument,
+      if (setAsDefault != null) 'SetAsDefault': setAsDefault.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreatePolicyVersion',
@@ -1081,18 +1107,17 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreatePolicyVersionRequest'],
-      shapes: shapes,
       resultWrapper: 'CreatePolicyVersionResult',
     );
     return CreatePolicyVersionResponse.fromXml($result);
   }
 
-  /// Creates a new role for your Amazon Web Services account. For more
-  /// information about roles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html">IAM
-  /// roles</a>. For information about quotas for role names and the number of
-  /// roles you can create, see <a
+  /// Creates a new role for your Amazon Web Services account.
+  ///
+  /// For more information about roles, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html">IAM
+  /// roles</a> in the <i>IAM User Guide</i>. For information about quotas for
+  /// role names and the number of roles you can create, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference_iam-quotas.html">IAM
   /// and STS quotas</a> in the <i>IAM User Guide</i>.
   ///
@@ -1224,14 +1249,23 @@ class Iam {
       3600,
       43200,
     );
-    final $request = <String, dynamic>{};
-    $request['AssumeRolePolicyDocument'] = assumeRolePolicyDocument;
-    $request['RoleName'] = roleName;
-    description?.also((arg) => $request['Description'] = arg);
-    maxSessionDuration?.also((arg) => $request['MaxSessionDuration'] = arg);
-    path?.also((arg) => $request['Path'] = arg);
-    permissionsBoundary?.also((arg) => $request['PermissionsBoundary'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'AssumeRolePolicyDocument': assumeRolePolicyDocument,
+      'RoleName': roleName,
+      if (description != null) 'Description': description,
+      if (maxSessionDuration != null)
+        'MaxSessionDuration': maxSessionDuration.toString(),
+      if (path != null) 'Path': path,
+      if (permissionsBoundary != null)
+        'PermissionsBoundary': permissionsBoundary,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateRole',
@@ -1239,8 +1273,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateRoleRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateRoleResult',
     );
     return CreateRoleResponse.fromXml($result);
@@ -1316,10 +1348,17 @@ class Iam {
     required String sAMLMetadataDocument,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Name'] = name;
-    $request['SAMLMetadataDocument'] = sAMLMetadataDocument;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'Name': name,
+      'SAMLMetadataDocument': sAMLMetadataDocument,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateSAMLProvider',
@@ -1327,8 +1366,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateSAMLProviderRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateSAMLProviderResult',
     );
     return CreateSAMLProviderResponse.fromXml($result);
@@ -1386,10 +1423,11 @@ class Iam {
     String? customSuffix,
     String? description,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AWSServiceName'] = awsServiceName;
-    customSuffix?.also((arg) => $request['CustomSuffix'] = arg);
-    description?.also((arg) => $request['Description'] = arg);
+    final $request = <String, String>{
+      'AWSServiceName': awsServiceName,
+      if (customSuffix != null) 'CustomSuffix': customSuffix,
+      if (description != null) 'Description': description,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateServiceLinkedRole',
@@ -1397,8 +1435,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateServiceLinkedRoleRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateServiceLinkedRoleResult',
     );
     return CreateServiceLinkedRoleResponse.fromXml($result);
@@ -1447,9 +1483,10 @@ class Iam {
     required String serviceName,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServiceName'] = serviceName;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'ServiceName': serviceName,
+      'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateServiceSpecificCredential',
@@ -1457,8 +1494,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateServiceSpecificCredentialRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateServiceSpecificCredentialResult',
     );
     return CreateServiceSpecificCredentialResponse.fromXml($result);
@@ -1533,11 +1568,19 @@ class Iam {
     String? permissionsBoundary,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
-    path?.also((arg) => $request['Path'] = arg);
-    permissionsBoundary?.also((arg) => $request['PermissionsBoundary'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'UserName': userName,
+      if (path != null) 'Path': path,
+      if (permissionsBoundary != null)
+        'PermissionsBoundary': permissionsBoundary,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateUser',
@@ -1545,8 +1588,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateUserRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateUserResult',
     );
     return CreateUserResponse.fromXml($result);
@@ -1620,10 +1661,17 @@ class Iam {
     String? path,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['VirtualMFADeviceName'] = virtualMFADeviceName;
-    path?.also((arg) => $request['Path'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'VirtualMFADeviceName': virtualMFADeviceName,
+      if (path != null) 'Path': path,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateVirtualMFADevice',
@@ -1631,8 +1679,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateVirtualMFADeviceRequest'],
-      shapes: shapes,
       resultWrapper: 'CreateVirtualMFADeviceResult',
     );
     return CreateVirtualMFADeviceResponse.fromXml($result);
@@ -1651,6 +1697,7 @@ class Iam {
   /// May throw [NoSuchEntityException].
   /// May throw [LimitExceededException].
   /// May throw [ServiceFailureException].
+  /// May throw [ConcurrentModificationException].
   ///
   /// Parameter [serialNumber] :
   /// The serial number that uniquely identifies the MFA device. For virtual MFA
@@ -1672,9 +1719,10 @@ class Iam {
     required String serialNumber,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SerialNumber'] = serialNumber;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'SerialNumber': serialNumber,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeactivateMFADevice',
@@ -1682,8 +1730,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeactivateMFADeviceRequest'],
-      shapes: shapes,
     );
   }
 
@@ -1719,9 +1765,10 @@ class Iam {
     required String accessKeyId,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccessKeyId'] = accessKeyId;
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'AccessKeyId': accessKeyId,
+      if (userName != null) 'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteAccessKey',
@@ -1729,17 +1776,16 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteAccessKeyRequest'],
-      shapes: shapes,
     );
   }
 
   /// Deletes the specified Amazon Web Services account alias. For information
   /// about using an Amazon Web Services account alias, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AccountAlias.html">Using
-  /// an alias for your Amazon Web Services account ID</a> in the <i>IAM User
-  /// Guide</i>.
+  /// href="https://docs.aws.amazon.com/signin/latest/userguide/CreateAccountAlias.html">Creating,
+  /// deleting, and listing an Amazon Web Services account alias</a> in the
+  /// <i>Amazon Web Services Sign-In User Guide</i>.
   ///
+  /// May throw [ConcurrentModificationException].
   /// May throw [NoSuchEntityException].
   /// May throw [LimitExceededException].
   /// May throw [ServiceFailureException].
@@ -1754,8 +1800,9 @@ class Iam {
   Future<void> deleteAccountAlias({
     required String accountAlias,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccountAlias'] = accountAlias;
+    final $request = <String, String>{
+      'AccountAlias': accountAlias,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteAccountAlias',
@@ -1763,8 +1810,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteAccountAliasRequest'],
-      shapes: shapes,
     );
   }
 
@@ -1775,7 +1820,7 @@ class Iam {
   /// May throw [LimitExceededException].
   /// May throw [ServiceFailureException].
   Future<void> deleteAccountPasswordPolicy() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     await _protocol.send(
       $request,
       action: 'DeleteAccountPasswordPolicy',
@@ -1783,7 +1828,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
     );
   }
 
@@ -1805,8 +1849,9 @@ class Iam {
   Future<void> deleteGroup({
     required String groupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
+    final $request = <String, String>{
+      'GroupName': groupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteGroup',
@@ -1814,8 +1859,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteGroupRequest'],
-      shapes: shapes,
     );
   }
 
@@ -1852,9 +1895,10 @@ class Iam {
     required String groupName,
     required String policyName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    $request['PolicyName'] = policyName;
+    final $request = <String, String>{
+      'GroupName': groupName,
+      'PolicyName': policyName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteGroupPolicy',
@@ -1862,8 +1906,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteGroupPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -1876,8 +1918,8 @@ class Iam {
   /// applications running on the instance.
   /// </important>
   /// For more information about instance profiles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AboutInstanceProfiles.html">About
-  /// instance profiles</a>.
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html">Using
+  /// instance profiles</a> in the <i>IAM User Guide</i>.
   ///
   /// May throw [NoSuchEntityException].
   /// May throw [DeleteConflictException].
@@ -1894,8 +1936,9 @@ class Iam {
   Future<void> deleteInstanceProfile({
     required String instanceProfileName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteInstanceProfile',
@@ -1903,8 +1946,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteInstanceProfileRequest'],
-      shapes: shapes,
     );
   }
 
@@ -1941,8 +1982,9 @@ class Iam {
   Future<void> deleteLoginProfile({
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteLoginProfile',
@@ -1950,8 +1992,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteLoginProfileRequest'],
-      shapes: shapes,
     );
   }
 
@@ -1975,8 +2015,9 @@ class Iam {
   Future<void> deleteOpenIDConnectProvider({
     required String openIDConnectProviderArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
+    final $request = <String, String>{
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteOpenIDConnectProvider',
@@ -1984,8 +2025,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteOpenIDConnectProviderRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2035,8 +2074,9 @@ class Iam {
   Future<void> deletePolicy({
     required String policyArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+    };
     await _protocol.send(
       $request,
       action: 'DeletePolicy',
@@ -2044,8 +2084,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeletePolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2091,9 +2129,10 @@ class Iam {
     required String policyArn,
     required String versionId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['VersionId'] = versionId;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'VersionId': versionId,
+    };
     await _protocol.send(
       $request,
       action: 'DeletePolicyVersion',
@@ -2101,8 +2140,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeletePolicyVersionRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2152,8 +2189,9 @@ class Iam {
   Future<void> deleteRole({
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteRole',
@@ -2161,8 +2199,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteRoleRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2185,8 +2221,9 @@ class Iam {
   Future<void> deleteRolePermissionsBoundary({
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteRolePermissionsBoundary',
@@ -2194,8 +2231,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteRolePermissionsBoundaryRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2233,9 +2268,10 @@ class Iam {
     required String policyName,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyName'] = policyName;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'PolicyName': policyName,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteRolePolicy',
@@ -2243,8 +2279,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteRolePolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2270,8 +2304,9 @@ class Iam {
   Future<void> deleteSAMLProvider({
     required String sAMLProviderArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SAMLProviderArn'] = sAMLProviderArn;
+    final $request = <String, String>{
+      'SAMLProviderArn': sAMLProviderArn,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteSAMLProvider',
@@ -2279,8 +2314,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteSAMLProviderRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2313,9 +2346,10 @@ class Iam {
     required String sSHPublicKeyId,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SSHPublicKeyId'] = sSHPublicKeyId;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'SSHPublicKeyId': sSHPublicKeyId,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteSSHPublicKey',
@@ -2323,8 +2357,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteSSHPublicKeyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2362,8 +2394,9 @@ class Iam {
   Future<void> deleteServerCertificate({
     required String serverCertificateName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServerCertificateName'] = serverCertificateName;
+    final $request = <String, String>{
+      'ServerCertificateName': serverCertificateName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteServerCertificate',
@@ -2371,8 +2404,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteServerCertificateRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2409,8 +2440,9 @@ class Iam {
   Future<DeleteServiceLinkedRoleResponse> deleteServiceLinkedRole({
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'RoleName': roleName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteServiceLinkedRole',
@@ -2418,8 +2450,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteServiceLinkedRoleRequest'],
-      shapes: shapes,
       resultWrapper: 'DeleteServiceLinkedRoleResult',
     );
     return DeleteServiceLinkedRoleResponse.fromXml($result);
@@ -2450,9 +2480,10 @@ class Iam {
     required String serviceSpecificCredentialId,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServiceSpecificCredentialId'] = serviceSpecificCredentialId;
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'ServiceSpecificCredentialId': serviceSpecificCredentialId,
+      if (userName != null) 'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteServiceSpecificCredential',
@@ -2460,8 +2491,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteServiceSpecificCredentialRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2476,6 +2505,7 @@ class Iam {
   ///
   /// May throw [NoSuchEntityException].
   /// May throw [LimitExceededException].
+  /// May throw [ConcurrentModificationException].
   /// May throw [ServiceFailureException].
   ///
   /// Parameter [certificateId] :
@@ -2496,9 +2526,10 @@ class Iam {
     required String certificateId,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['CertificateId'] = certificateId;
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'CertificateId': certificateId,
+      if (userName != null) 'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteSigningCertificate',
@@ -2506,8 +2537,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteSigningCertificateRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2566,8 +2595,9 @@ class Iam {
   Future<void> deleteUser({
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteUser',
@@ -2575,8 +2605,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteUserRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2596,8 +2624,9 @@ class Iam {
   Future<void> deleteUserPermissionsBoundary({
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteUserPermissionsBoundary',
@@ -2605,8 +2634,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteUserPermissionsBoundaryRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2643,9 +2670,10 @@ class Iam {
     required String policyName,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyName'] = policyName;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'PolicyName': policyName,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteUserPolicy',
@@ -2653,8 +2681,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteUserPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2669,6 +2695,7 @@ class Iam {
   /// May throw [DeleteConflictException].
   /// May throw [LimitExceededException].
   /// May throw [ServiceFailureException].
+  /// May throw [ConcurrentModificationException].
   ///
   /// Parameter [serialNumber] :
   /// The serial number that uniquely identifies the MFA device. For virtual MFA
@@ -2681,8 +2708,9 @@ class Iam {
   Future<void> deleteVirtualMFADevice({
     required String serialNumber,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SerialNumber'] = serialNumber;
+    final $request = <String, String>{
+      'SerialNumber': serialNumber,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteVirtualMFADevice',
@@ -2690,8 +2718,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteVirtualMFADeviceRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2728,9 +2754,10 @@ class Iam {
     required String groupName,
     required String policyArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    $request['PolicyArn'] = policyArn;
+    final $request = <String, String>{
+      'GroupName': groupName,
+      'PolicyArn': policyArn,
+    };
     await _protocol.send(
       $request,
       action: 'DetachGroupPolicy',
@@ -2738,8 +2765,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DetachGroupPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2777,9 +2802,10 @@ class Iam {
     required String policyArn,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'DetachRolePolicy',
@@ -2787,8 +2813,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DetachRolePolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2825,9 +2849,10 @@ class Iam {
     required String policyArn,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'DetachUserPolicy',
@@ -2835,8 +2860,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DetachUserPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2850,6 +2873,7 @@ class Iam {
   /// May throw [LimitExceededException].
   /// May throw [NoSuchEntityException].
   /// May throw [ServiceFailureException].
+  /// May throw [ConcurrentModificationException].
   ///
   /// Parameter [authenticationCode1] :
   /// An authentication code emitted by the device.
@@ -2901,11 +2925,12 @@ class Iam {
     required String serialNumber,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AuthenticationCode1'] = authenticationCode1;
-    $request['AuthenticationCode2'] = authenticationCode2;
-    $request['SerialNumber'] = serialNumber;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'AuthenticationCode1': authenticationCode1,
+      'AuthenticationCode2': authenticationCode2,
+      'SerialNumber': serialNumber,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'EnableMFADevice',
@@ -2913,8 +2938,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['EnableMFADeviceRequest'],
-      shapes: shapes,
     );
   }
 
@@ -2926,7 +2949,7 @@ class Iam {
   /// May throw [LimitExceededException].
   /// May throw [ServiceFailureException].
   Future<GenerateCredentialReportResponse> generateCredentialReport() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'GenerateCredentialReport',
@@ -2934,7 +2957,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'GenerateCredentialReportResult',
     );
     return GenerateCredentialReportResponse.fromXml($result);
@@ -3102,10 +3124,11 @@ class Iam {
     required String entityPath,
     String? organizationsPolicyId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['EntityPath'] = entityPath;
-    organizationsPolicyId
-        ?.also((arg) => $request['OrganizationsPolicyId'] = arg);
+    final $request = <String, String>{
+      'EntityPath': entityPath,
+      if (organizationsPolicyId != null)
+        'OrganizationsPolicyId': organizationsPolicyId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GenerateOrganizationsAccessReport',
@@ -3113,8 +3136,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GenerateOrganizationsAccessReportRequest'],
-      shapes: shapes,
       resultWrapper: 'GenerateOrganizationsAccessReportResult',
     );
     return GenerateOrganizationsAccessReportResponse.fromXml($result);
@@ -3127,7 +3148,10 @@ class Iam {
   /// began supporting this feature within the last year. For more information,
   /// see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor.html#access-advisor_tracking-period">Regions
-  /// where data is tracked</a>.
+  /// where data is tracked</a>. For more information about services and actions
+  /// for which action last accessed information is displayed, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_access-advisor-action-last-accessed.html">IAM
+  /// action last accessed information services and actions</a>.
   /// <important>
   /// The service last accessed data includes all attempts to access an Amazon
   /// Web Services API, not just the successful ones. This includes all attempts
@@ -3206,9 +3230,10 @@ class Iam {
     required String arn,
     AccessAdvisorUsageGranularityType? granularity,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Arn'] = arn;
-    granularity?.also((arg) => $request['Granularity'] = arg.toValue());
+    final $request = <String, String>{
+      'Arn': arn,
+      if (granularity != null) 'Granularity': granularity.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GenerateServiceLastAccessedDetails',
@@ -3216,8 +3241,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GenerateServiceLastAccessedDetailsRequest'],
-      shapes: shapes,
       resultWrapper: 'GenerateServiceLastAccessedDetailsResult',
     );
     return GenerateServiceLastAccessedDetailsResponse.fromXml($result);
@@ -3228,8 +3251,6 @@ class Iam {
   /// Amazon Web Services service and Region that were specified in the last
   /// request made with that key.
   ///
-  /// May throw [NoSuchEntityException].
-  ///
   /// Parameter [accessKeyId] :
   /// The identifier of an access key.
   ///
@@ -3239,8 +3260,9 @@ class Iam {
   Future<GetAccessKeyLastUsedResponse> getAccessKeyLastUsed({
     required String accessKeyId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccessKeyId'] = accessKeyId;
+    final $request = <String, String>{
+      'AccessKeyId': accessKeyId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetAccessKeyLastUsed',
@@ -3248,8 +3270,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetAccessKeyLastUsedRequest'],
-      shapes: shapes,
       resultWrapper: 'GetAccessKeyLastUsedResult',
     );
     return GetAccessKeyLastUsedResponse.fromXml($result);
@@ -3312,11 +3332,16 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    filter?.also(
-        (arg) => $request['Filter'] = arg.map((e) => e.toValue()).toList());
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      if (filter != null)
+        if (filter.isEmpty)
+          'Filter': ''
+        else
+          for (var i1 = 0; i1 < filter.length; i1++)
+            'Filter.member.${i1 + 1}': filter[i1].value,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetAccountAuthorizationDetails',
@@ -3324,8 +3349,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetAccountAuthorizationDetailsRequest'],
-      shapes: shapes,
       resultWrapper: 'GetAccountAuthorizationDetailsResult',
     );
     return GetAccountAuthorizationDetailsResponse.fromXml($result);
@@ -3341,7 +3364,7 @@ class Iam {
   /// May throw [NoSuchEntityException].
   /// May throw [ServiceFailureException].
   Future<GetAccountPasswordPolicyResponse> getAccountPasswordPolicy() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'GetAccountPasswordPolicy',
@@ -3349,7 +3372,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'GetAccountPasswordPolicyResult',
     );
     return GetAccountPasswordPolicyResponse.fromXml($result);
@@ -3364,7 +3386,7 @@ class Iam {
   ///
   /// May throw [ServiceFailureException].
   Future<GetAccountSummaryResponse> getAccountSummary() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'GetAccountSummary',
@@ -3372,7 +3394,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'GetAccountSummaryResult',
     );
     return GetAccountSummaryResponse.fromXml($result);
@@ -3420,8 +3441,13 @@ class Iam {
   Future<GetContextKeysForPolicyResponse> getContextKeysForCustomPolicy({
     required List<String> policyInputList,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyInputList'] = policyInputList;
+    final $request = <String, String>{
+      if (policyInputList.isEmpty)
+        'PolicyInputList': ''
+      else
+        for (var i1 = 0; i1 < policyInputList.length; i1++)
+          'PolicyInputList.member.${i1 + 1}': policyInputList[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetContextKeysForCustomPolicy',
@@ -3429,8 +3455,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetContextKeysForCustomPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'GetContextKeysForCustomPolicyResult',
     );
     return GetContextKeysForPolicyResponse.fromXml($result);
@@ -3501,9 +3525,15 @@ class Iam {
     required String policySourceArn,
     List<String>? policyInputList,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicySourceArn'] = policySourceArn;
-    policyInputList?.also((arg) => $request['PolicyInputList'] = arg);
+    final $request = <String, String>{
+      'PolicySourceArn': policySourceArn,
+      if (policyInputList != null)
+        if (policyInputList.isEmpty)
+          'PolicyInputList': ''
+        else
+          for (var i1 = 0; i1 < policyInputList.length; i1++)
+            'PolicyInputList.member.${i1 + 1}': policyInputList[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetContextKeysForPrincipalPolicy',
@@ -3511,8 +3541,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetContextKeysForPrincipalPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'GetContextKeysForPrincipalPolicyResult',
     );
     return GetContextKeysForPolicyResponse.fromXml($result);
@@ -3528,7 +3556,7 @@ class Iam {
   /// May throw [CredentialReportNotReadyException].
   /// May throw [ServiceFailureException].
   Future<GetCredentialReportResponse> getCredentialReport() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'GetCredentialReport',
@@ -3536,7 +3564,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shapes: shapes,
       resultWrapper: 'GetCredentialReportResult',
     );
     return GetCredentialReportResponse.fromXml($result);
@@ -3586,10 +3613,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'GroupName': groupName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetGroup',
@@ -3597,8 +3625,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetGroupRequest'],
-      shapes: shapes,
       resultWrapper: 'GetGroupResult',
     );
     return GetGroupResponse.fromXml($result);
@@ -3645,9 +3671,10 @@ class Iam {
     required String groupName,
     required String policyName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    $request['PolicyName'] = policyName;
+    final $request = <String, String>{
+      'GroupName': groupName,
+      'PolicyName': policyName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetGroupPolicy',
@@ -3655,8 +3682,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetGroupPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'GetGroupPolicyResult',
     );
     return GetGroupPolicyResponse.fromXml($result);
@@ -3665,7 +3690,7 @@ class Iam {
   /// Retrieves information about the specified instance profile, including the
   /// instance profile's path, GUID, ARN, and role. For more information about
   /// instance profiles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AboutInstanceProfiles.html">About
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html">Using
   /// instance profiles</a> in the <i>IAM User Guide</i>.
   ///
   /// May throw [NoSuchEntityException].
@@ -3681,8 +3706,9 @@ class Iam {
   Future<GetInstanceProfileResponse> getInstanceProfile({
     required String instanceProfileName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetInstanceProfile',
@@ -3690,8 +3716,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetInstanceProfileRequest'],
-      shapes: shapes,
       resultWrapper: 'GetInstanceProfileResult',
     );
     return GetInstanceProfileResponse.fromXml($result);
@@ -3726,8 +3750,9 @@ class Iam {
   Future<GetLoginProfileResponse> getLoginProfile({
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetLoginProfile',
@@ -3735,11 +3760,41 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetLoginProfileRequest'],
-      shapes: shapes,
       resultWrapper: 'GetLoginProfileResult',
     );
     return GetLoginProfileResponse.fromXml($result);
+  }
+
+  /// Retrieves information about an MFA device for a specified user.
+  ///
+  /// May throw [NoSuchEntityException].
+  /// May throw [ServiceFailureException].
+  ///
+  /// Parameter [serialNumber] :
+  /// Serial number that uniquely identifies the MFA device. For this API, we
+  /// only accept FIDO security key <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html">ARNs</a>.
+  ///
+  /// Parameter [userName] :
+  /// The friendly name identifying the user.
+  Future<GetMFADeviceResponse> getMFADevice({
+    required String serialNumber,
+    String? userName,
+  }) async {
+    final $request = <String, String>{
+      'SerialNumber': serialNumber,
+      if (userName != null) 'UserName': userName,
+    };
+    final $result = await _protocol.send(
+      $request,
+      action: 'GetMFADevice',
+      version: '2010-05-08',
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      resultWrapper: 'GetMFADeviceResult',
+    );
+    return GetMFADeviceResponse.fromXml($result);
   }
 
   /// Returns information about the specified OpenID Connect (OIDC) provider
@@ -3761,8 +3816,9 @@ class Iam {
   Future<GetOpenIDConnectProviderResponse> getOpenIDConnectProvider({
     required String openIDConnectProviderArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
+    final $request = <String, String>{
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetOpenIDConnectProvider',
@@ -3770,8 +3826,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetOpenIDConnectProviderRequest'],
-      shapes: shapes,
       resultWrapper: 'GetOpenIDConnectProviderResult',
     );
     return GetOpenIDConnectProviderResponse.fromXml($result);
@@ -3843,11 +3897,12 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['JobId'] = jobId;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    sortKey?.also((arg) => $request['SortKey'] = arg.toValue());
+    final $request = <String, String>{
+      'JobId': jobId,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (sortKey != null) 'SortKey': sortKey.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetOrganizationsAccessReport',
@@ -3855,8 +3910,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetOrganizationsAccessReportRequest'],
-      shapes: shapes,
       resultWrapper: 'GetOrganizationsAccessReportResult',
     );
     return GetOrganizationsAccessReportResponse.fromXml($result);
@@ -3894,8 +3947,9 @@ class Iam {
   Future<GetPolicyResponse> getPolicy({
     required String policyArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetPolicy',
@@ -3903,8 +3957,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'GetPolicyResult',
     );
     return GetPolicyResponse.fromXml($result);
@@ -3961,9 +4013,10 @@ class Iam {
     required String policyArn,
     required String versionId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['VersionId'] = versionId;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'VersionId': versionId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetPolicyVersion',
@@ -3971,8 +4024,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetPolicyVersionRequest'],
-      shapes: shapes,
       resultWrapper: 'GetPolicyVersionResult',
     );
     return GetPolicyVersionResponse.fromXml($result);
@@ -3981,8 +4032,8 @@ class Iam {
   /// Retrieves information about the specified role, including the role's path,
   /// GUID, ARN, and the role's trust policy that grants permission to assume
   /// the role. For more information about roles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html">Working
-  /// with roles</a>.
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html">IAM
+  /// roles</a> in the <i>IAM User Guide</i>.
   /// <note>
   /// Policies returned by this operation are URL-encoded compliant with <a
   /// href="https://tools.ietf.org/html/rfc3986">RFC 3986</a>. You can use a URL
@@ -4005,8 +4056,9 @@ class Iam {
   Future<GetRoleResponse> getRole({
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'RoleName': roleName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetRole',
@@ -4014,8 +4066,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetRoleRequest'],
-      shapes: shapes,
       resultWrapper: 'GetRoleResult',
     );
     return GetRoleResponse.fromXml($result);
@@ -4041,8 +4091,8 @@ class Iam {
   /// policies and inline policies</a> in the <i>IAM User Guide</i>.
   ///
   /// For more information about roles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/roles-toplevel.html">Using
-  /// roles to delegate permissions and federate identities</a>.
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html">IAM
+  /// roles</a> in the <i>IAM User Guide</i>.
   ///
   /// May throw [NoSuchEntityException].
   /// May throw [ServiceFailureException].
@@ -4066,9 +4116,10 @@ class Iam {
     required String policyName,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyName'] = policyName;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'PolicyName': policyName,
+      'RoleName': roleName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetRolePolicy',
@@ -4076,8 +4127,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetRolePolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'GetRolePolicyResult',
     );
     return GetRolePolicyResponse.fromXml($result);
@@ -4106,8 +4155,9 @@ class Iam {
   Future<GetSAMLProviderResponse> getSAMLProvider({
     required String sAMLProviderArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SAMLProviderArn'] = sAMLProviderArn;
+    final $request = <String, String>{
+      'SAMLProviderArn': sAMLProviderArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetSAMLProvider',
@@ -4115,8 +4165,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetSAMLProviderRequest'],
-      shapes: shapes,
       resultWrapper: 'GetSAMLProviderResult',
     );
     return GetSAMLProviderResponse.fromXml($result);
@@ -4158,10 +4206,11 @@ class Iam {
     required String sSHPublicKeyId,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Encoding'] = encoding.toValue();
-    $request['SSHPublicKeyId'] = sSHPublicKeyId;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'Encoding': encoding.value,
+      'SSHPublicKeyId': sSHPublicKeyId,
+      'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetSSHPublicKey',
@@ -4169,8 +4218,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetSSHPublicKeyRequest'],
-      shapes: shapes,
       resultWrapper: 'GetSSHPublicKeyResult',
     );
     return GetSSHPublicKeyResponse.fromXml($result);
@@ -4198,8 +4245,9 @@ class Iam {
   Future<GetServerCertificateResponse> getServerCertificate({
     required String serverCertificateName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServerCertificateName'] = serverCertificateName;
+    final $request = <String, String>{
+      'ServerCertificateName': serverCertificateName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetServerCertificate',
@@ -4207,8 +4255,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetServerCertificateRequest'],
-      shapes: shapes,
       resultWrapper: 'GetServerCertificateResult',
     );
     return GetServerCertificateResponse.fromXml($result);
@@ -4312,10 +4358,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['JobId'] = jobId;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'JobId': jobId,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetServiceLastAccessedDetails',
@@ -4323,8 +4370,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetServiceLastAccessedDetailsRequest'],
-      shapes: shapes,
       resultWrapper: 'GetServiceLastAccessedDetailsResult',
     );
     return GetServiceLastAccessedDetailsResponse.fromXml($result);
@@ -4413,11 +4458,12 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['JobId'] = jobId;
-    $request['ServiceNamespace'] = serviceNamespace;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'JobId': jobId,
+      'ServiceNamespace': serviceNamespace,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetServiceLastAccessedDetailsWithEntities',
@@ -4425,8 +4471,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetServiceLastAccessedDetailsWithEntitiesRequest'],
-      shapes: shapes,
       resultWrapper: 'GetServiceLastAccessedDetailsWithEntitiesResult',
     );
     return GetServiceLastAccessedDetailsWithEntitiesResponse.fromXml($result);
@@ -4451,8 +4495,9 @@ class Iam {
       getServiceLinkedRoleDeletionStatus({
     required String deletionTaskId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DeletionTaskId'] = deletionTaskId;
+    final $request = <String, String>{
+      'DeletionTaskId': deletionTaskId,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetServiceLinkedRoleDeletionStatus',
@@ -4460,8 +4505,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetServiceLinkedRoleDeletionStatusRequest'],
-      shapes: shapes,
       resultWrapper: 'GetServiceLinkedRoleDeletionStatusResult',
     );
     return GetServiceLinkedRoleDeletionStatusResponse.fromXml($result);
@@ -4488,8 +4531,9 @@ class Iam {
   Future<GetUserResponse> getUser({
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetUser',
@@ -4497,8 +4541,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetUserRequest'],
-      shapes: shapes,
       resultWrapper: 'GetUserResult',
     );
     return GetUserResponse.fromXml($result);
@@ -4545,9 +4587,10 @@ class Iam {
     required String policyName,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyName'] = policyName;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'PolicyName': policyName,
+      'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'GetUserPolicy',
@@ -4555,8 +4598,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['GetUserPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'GetUserPolicyResult',
     );
     return GetUserPolicyResponse.fromXml($result);
@@ -4573,10 +4614,11 @@ class Iam {
   /// implicitly based on the Amazon Web Services access key ID used to sign the
   /// request. If a temporary access key is used, then <code>UserName</code> is
   /// required. If a long-term key is assigned to the user, then
-  /// <code>UserName</code> is not required. This operation works for access
-  /// keys under the Amazon Web Services account. Consequently, you can use this
-  /// operation to manage Amazon Web Services account root user credentials even
-  /// if the Amazon Web Services account has no associated users.
+  /// <code>UserName</code> is not required.
+  ///
+  /// This operation works for access keys under the Amazon Web Services
+  /// account. If the Amazon Web Services account has no associated users, the
+  /// root user returns it's own access key IDs by running this command.
   /// <note>
   /// To ensure the security of your Amazon Web Services account, the secret
   /// access key is accessible only during key and user creation.
@@ -4622,10 +4664,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListAccessKeys',
@@ -4633,8 +4676,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListAccessKeysRequest'],
-      shapes: shapes,
       resultWrapper: 'ListAccessKeysResult',
     );
     return ListAccessKeysResponse.fromXml($result);
@@ -4643,9 +4684,9 @@ class Iam {
   /// Lists the account alias associated with the Amazon Web Services account
   /// (Note: you can have only one). For information about using an Amazon Web
   /// Services account alias, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AccountAlias.html">Using
-  /// an alias for your Amazon Web Services account ID</a> in the <i>IAM User
-  /// Guide</i>.
+  /// href="https://docs.aws.amazon.com/signin/latest/userguide/CreateAccountAlias.html">Creating,
+  /// deleting, and listing an Amazon Web Services account alias</a> in the
+  /// <i>Amazon Web Services Sign-In User Guide</i>.
   ///
   /// May throw [ServiceFailureException].
   ///
@@ -4677,9 +4718,10 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListAccountAliases',
@@ -4687,8 +4729,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListAccountAliasesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListAccountAliasesResult',
     );
     return ListAccountAliasesResponse.fromXml($result);
@@ -4764,11 +4804,12 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      'GroupName': groupName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListAttachedGroupPolicies',
@@ -4776,8 +4817,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListAttachedGroupPoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListAttachedGroupPoliciesResult',
     );
     return ListAttachedGroupPoliciesResponse.fromXml($result);
@@ -4853,11 +4892,12 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      'RoleName': roleName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListAttachedRolePolicies',
@@ -4865,8 +4905,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListAttachedRolePoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListAttachedRolePoliciesResult',
     );
     return ListAttachedRolePoliciesResponse.fromXml($result);
@@ -4942,11 +4980,12 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      'UserName': userName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListAttachedUserPolicies',
@@ -4954,8 +4993,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListAttachedUserPoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListAttachedUserPoliciesResult',
     );
     return ListAttachedUserPoliciesResponse.fromXml($result);
@@ -5049,14 +5086,15 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    entityFilter?.also((arg) => $request['EntityFilter'] = arg.toValue());
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
-    policyUsageFilter
-        ?.also((arg) => $request['PolicyUsageFilter'] = arg.toValue());
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      if (entityFilter != null) 'EntityFilter': entityFilter.value,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+      if (policyUsageFilter != null)
+        'PolicyUsageFilter': policyUsageFilter.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListEntitiesForPolicy',
@@ -5064,8 +5102,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListEntitiesForPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'ListEntitiesForPolicyResult',
     );
     return ListEntitiesForPolicyResponse.fromXml($result);
@@ -5125,10 +5161,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'GroupName': groupName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListGroupPolicies',
@@ -5136,8 +5173,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListGroupPoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListGroupPoliciesResult',
     );
     return ListGroupPoliciesResponse.fromXml($result);
@@ -5193,10 +5228,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListGroups',
@@ -5204,8 +5240,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListGroupsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListGroupsResult',
     );
     return ListGroupsResponse.fromXml($result);
@@ -5256,10 +5290,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'UserName': userName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListGroupsForUser',
@@ -5267,8 +5302,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListGroupsForUserRequest'],
-      shapes: shapes,
       resultWrapper: 'ListGroupsForUserResult',
     );
     return ListGroupsForUserResponse.fromXml($result);
@@ -5320,10 +5353,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListInstanceProfileTags',
@@ -5331,8 +5365,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListInstanceProfileTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListInstanceProfileTagsResult',
     );
     return ListInstanceProfileTagsResponse.fromXml($result);
@@ -5341,8 +5373,8 @@ class Iam {
   /// Lists the instance profiles that have the specified path prefix. If there
   /// are none, the operation returns an empty list. For more information about
   /// instance profiles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AboutInstanceProfiles.html">About
-  /// instance profiles</a>.
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html">Using
+  /// instance profiles</a> in the <i>IAM User Guide</i>.
   /// <note>
   /// IAM resource-listing operations return a subset of the available
   /// attributes for the resource. For example, this operation does not return
@@ -5398,10 +5430,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListInstanceProfiles',
@@ -5409,8 +5442,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListInstanceProfilesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListInstanceProfilesResult',
     );
     return ListInstanceProfilesResponse.fromXml($result);
@@ -5419,8 +5450,8 @@ class Iam {
   /// Lists the instance profiles that have the specified associated IAM role.
   /// If there are none, the operation returns an empty list. For more
   /// information about instance profiles, go to <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AboutInstanceProfiles.html">About
-  /// instance profiles</a>.
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html">Using
+  /// instance profiles</a> in the <i>IAM User Guide</i>.
   ///
   /// You can paginate the results using the <code>MaxItems</code> and
   /// <code>Marker</code> parameters.
@@ -5465,10 +5496,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'RoleName': roleName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListInstanceProfilesForRole',
@@ -5476,8 +5508,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListInstanceProfilesForRoleRequest'],
-      shapes: shapes,
       resultWrapper: 'ListInstanceProfilesForRoleResult',
     );
     return ListInstanceProfilesForRoleResponse.fromXml($result);
@@ -5531,10 +5561,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['SerialNumber'] = serialNumber;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'SerialNumber': serialNumber,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListMFADeviceTags',
@@ -5542,8 +5573,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListMFADeviceTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListMFADeviceTagsResult',
     );
     return ListMFADeviceTagsResponse.fromXml($result);
@@ -5598,10 +5627,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListMFADevices',
@@ -5609,8 +5639,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListMFADevicesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListMFADevicesResult',
     );
     return ListMFADevicesResponse.fromXml($result);
@@ -5668,10 +5696,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListOpenIDConnectProviderTags',
@@ -5679,8 +5708,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListOpenIDConnectProviderTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListOpenIDConnectProviderTagsResult',
     );
     return ListOpenIDConnectProviderTagsResponse.fromXml($result);
@@ -5699,7 +5726,7 @@ class Iam {
   /// May throw [ServiceFailureException].
   Future<ListOpenIDConnectProvidersResponse>
       listOpenIDConnectProviders() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'ListOpenIDConnectProviders',
@@ -5707,8 +5734,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListOpenIDConnectProvidersRequest'],
-      shapes: shapes,
       resultWrapper: 'ListOpenIDConnectProvidersResult',
     );
     return ListOpenIDConnectProvidersResponse.fromXml($result);
@@ -5812,14 +5837,15 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    onlyAttached?.also((arg) => $request['OnlyAttached'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
-    policyUsageFilter
-        ?.also((arg) => $request['PolicyUsageFilter'] = arg.toValue());
-    scope?.also((arg) => $request['Scope'] = arg.toValue());
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (onlyAttached != null) 'OnlyAttached': onlyAttached.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+      if (policyUsageFilter != null)
+        'PolicyUsageFilter': policyUsageFilter.value,
+      if (scope != null) 'Scope': scope.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListPolicies',
@@ -5827,8 +5853,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListPoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListPoliciesResult',
     );
     return ListPoliciesResponse.fromXml($result);
@@ -5911,10 +5935,15 @@ class Iam {
     required List<String> serviceNamespaces,
     String? marker,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Arn'] = arn;
-    $request['ServiceNamespaces'] = serviceNamespaces;
-    marker?.also((arg) => $request['Marker'] = arg);
+    final $request = <String, String>{
+      'Arn': arn,
+      if (serviceNamespaces.isEmpty)
+        'ServiceNamespaces': ''
+      else
+        for (var i1 = 0; i1 < serviceNamespaces.length; i1++)
+          'ServiceNamespaces.member.${i1 + 1}': serviceNamespaces[i1],
+      if (marker != null) 'Marker': marker,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListPoliciesGrantingServiceAccess',
@@ -5922,8 +5951,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListPoliciesGrantingServiceAccessRequest'],
-      shapes: shapes,
       resultWrapper: 'ListPoliciesGrantingServiceAccessResult',
     );
     return ListPoliciesGrantingServiceAccessResponse.fromXml($result);
@@ -5976,10 +6003,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListPolicyTags',
@@ -5987,8 +6015,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListPolicyTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListPolicyTagsResult',
     );
     return ListPolicyTagsResponse.fromXml($result);
@@ -6044,10 +6070,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListPolicyVersions',
@@ -6055,8 +6082,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListPolicyVersionsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListPolicyVersionsResult',
     );
     return ListPolicyVersionsResponse.fromXml($result);
@@ -6116,10 +6141,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'RoleName': roleName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListRolePolicies',
@@ -6127,8 +6153,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListRolePoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListRolePoliciesResult',
     );
     return ListRolePoliciesResponse.fromXml($result);
@@ -6180,10 +6204,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'RoleName': roleName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListRoleTags',
@@ -6191,8 +6216,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListRoleTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListRoleTagsResult',
     );
     return ListRoleTagsResponse.fromXml($result);
@@ -6201,13 +6224,25 @@ class Iam {
   /// Lists the IAM roles that have the specified path prefix. If there are
   /// none, the operation returns an empty list. For more information about
   /// roles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html">Working
-  /// with roles</a>.
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html">IAM
+  /// roles</a> in the <i>IAM User Guide</i>.
   /// <note>
   /// IAM resource-listing operations return a subset of the available
-  /// attributes for the resource. For example, this operation does not return
-  /// tags, even though they are an attribute of the returned object. To view
-  /// all of the information for a role, see <a>GetRole</a>.
+  /// attributes for the resource. This operation does not return the following
+  /// attributes, even though they are an attribute of the returned object:
+  ///
+  /// <ul>
+  /// <li>
+  /// PermissionsBoundary
+  /// </li>
+  /// <li>
+  /// RoleLastUsed
+  /// </li>
+  /// <li>
+  /// Tags
+  /// </li>
+  /// </ul>
+  /// To view all of the information for a role, see <a>GetRole</a>.
   /// </note>
   /// You can paginate the results using the <code>MaxItems</code> and
   /// <code>Marker</code> parameters.
@@ -6257,10 +6292,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListRoles',
@@ -6268,8 +6304,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListRolesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListRolesResult',
     );
     return ListRolesResponse.fromXml($result);
@@ -6327,10 +6361,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['SAMLProviderArn'] = sAMLProviderArn;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'SAMLProviderArn': sAMLProviderArn,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListSAMLProviderTags',
@@ -6338,8 +6373,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListSAMLProviderTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListSAMLProviderTagsResult',
     );
     return ListSAMLProviderTagsResponse.fromXml($result);
@@ -6358,7 +6391,7 @@ class Iam {
   ///
   /// May throw [ServiceFailureException].
   Future<ListSAMLProvidersResponse> listSAMLProviders() async {
-    final $request = <String, dynamic>{};
+    final $request = <String, String>{};
     final $result = await _protocol.send(
       $request,
       action: 'ListSAMLProviders',
@@ -6366,8 +6399,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListSAMLProvidersRequest'],
-      shapes: shapes,
       resultWrapper: 'ListSAMLProvidersResult',
     );
     return ListSAMLProvidersResponse.fromXml($result);
@@ -6428,10 +6459,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListSSHPublicKeys',
@@ -6439,8 +6471,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListSSHPublicKeysRequest'],
-      shapes: shapes,
       resultWrapper: 'ListSSHPublicKeysResult',
     );
     return ListSSHPublicKeysResponse.fromXml($result);
@@ -6500,10 +6530,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['ServerCertificateName'] = serverCertificateName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'ServerCertificateName': serverCertificateName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListServerCertificateTags',
@@ -6511,8 +6542,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListServerCertificateTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListServerCertificateTagsResult',
     );
     return ListServerCertificateTagsResponse.fromXml($result);
@@ -6582,10 +6611,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListServerCertificates',
@@ -6593,8 +6623,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListServerCertificatesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListServerCertificatesResult',
     );
     return ListServerCertificatesResponse.fromXml($result);
@@ -6631,9 +6659,10 @@ class Iam {
     String? serviceName,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    serviceName?.also((arg) => $request['ServiceName'] = arg);
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      if (serviceName != null) 'ServiceName': serviceName,
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListServiceSpecificCredentials',
@@ -6641,8 +6670,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListServiceSpecificCredentialsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListServiceSpecificCredentialsResult',
     );
     return ListServiceSpecificCredentialsResponse.fromXml($result);
@@ -6702,10 +6729,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListSigningCertificates',
@@ -6713,8 +6741,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListSigningCertificatesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListSigningCertificatesResult',
     );
     return ListSigningCertificatesResponse.fromXml($result);
@@ -6773,10 +6799,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'UserName': userName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListUserPolicies',
@@ -6784,8 +6811,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListUserPoliciesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListUserPoliciesResult',
     );
     return ListUserPoliciesResponse.fromXml($result);
@@ -6837,10 +6862,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      'UserName': userName,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListUserTags',
@@ -6848,8 +6874,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListUserTagsRequest'],
-      shapes: shapes,
       resultWrapper: 'ListUserTagsResult',
     );
     return ListUserTagsResponse.fromXml($result);
@@ -6860,9 +6884,18 @@ class Iam {
   /// account. If there are none, the operation returns an empty list.
   /// <note>
   /// IAM resource-listing operations return a subset of the available
-  /// attributes for the resource. For example, this operation does not return
-  /// tags, even though they are an attribute of the returned object. To view
-  /// all of the information for a user, see <a>GetUser</a>.
+  /// attributes for the resource. This operation does not return the following
+  /// attributes, even though they are an attribute of the returned object:
+  ///
+  /// <ul>
+  /// <li>
+  /// PermissionsBoundary
+  /// </li>
+  /// <li>
+  /// Tags
+  /// </li>
+  /// </ul>
+  /// To view all of the information for a user, see <a>GetUser</a>.
   /// </note>
   /// You can paginate the results using the <code>MaxItems</code> and
   /// <code>Marker</code> parameters.
@@ -6912,10 +6945,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    pathPrefix?.also((arg) => $request['PathPrefix'] = arg);
+    final $request = <String, String>{
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (pathPrefix != null) 'PathPrefix': pathPrefix,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListUsers',
@@ -6923,8 +6957,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListUsersRequest'],
-      shapes: shapes,
       resultWrapper: 'ListUsersResult',
     );
     return ListUsersResponse.fromXml($result);
@@ -6978,11 +7010,11 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    assignmentStatus
-        ?.also((arg) => $request['AssignmentStatus'] = arg.toValue());
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
+    final $request = <String, String>{
+      if (assignmentStatus != null) 'AssignmentStatus': assignmentStatus.value,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListVirtualMFADevices',
@@ -6990,8 +7022,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListVirtualMFADevicesRequest'],
-      shapes: shapes,
       resultWrapper: 'ListVirtualMFADevicesResult',
     );
     return ListVirtualMFADevicesResponse.fromXml($result);
@@ -7001,8 +7031,12 @@ class Iam {
   /// specified IAM group.
   ///
   /// A user can also have managed policies attached to it. To attach a managed
-  /// policy to a group, use <a>AttachGroupPolicy</a>. To create a new managed
-  /// policy, use <a>CreatePolicy</a>. For information about policies, see <a
+  /// policy to a group, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_AttachGroupPolicy.html">
+  /// <code>AttachGroupPolicy</code> </a>. To create a new managed policy, use
+  /// <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreatePolicy.html">
+  /// <code>CreatePolicy</code> </a>. For information about policies, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html">Managed
   /// policies and inline policies</a> in the <i>IAM User Guide</i>.
   ///
@@ -7037,7 +7071,7 @@ class Iam {
   /// You must provide policies in JSON format in IAM. However, for
   /// CloudFormation templates formatted in YAML, you can provide the policy in
   /// JSON or YAML format. CloudFormation always converts a YAML policy to JSON
-  /// format before submitting it to = IAM.
+  /// format before submitting it to IAM.
   ///
   /// The <a href="http://wikipedia.org/wiki/regex">regex pattern</a> used to
   /// validate this parameter is a string of characters consisting of the
@@ -7070,10 +7104,11 @@ class Iam {
     required String policyDocument,
     required String policyName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    $request['PolicyDocument'] = policyDocument;
-    $request['PolicyName'] = policyName;
+    final $request = <String, String>{
+      'GroupName': groupName,
+      'PolicyDocument': policyDocument,
+      'PolicyName': policyName,
+    };
     await _protocol.send(
       $request,
       action: 'PutGroupPolicy',
@@ -7081,8 +7116,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutGroupPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7130,9 +7163,10 @@ class Iam {
     required String permissionsBoundary,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PermissionsBoundary'] = permissionsBoundary;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'PermissionsBoundary': permissionsBoundary,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'PutRolePermissionsBoundary',
@@ -7140,8 +7174,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutRolePermissionsBoundaryRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7150,15 +7182,22 @@ class Iam {
   ///
   /// When you embed an inline policy in a role, the inline policy is used as
   /// part of the role's access (permissions) policy. The role's trust policy is
-  /// created at the same time as the role, using <a>CreateRole</a>. You can
-  /// update a role's trust policy using <a>UpdateAssumeRolePolicy</a>. For more
-  /// information about IAM roles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/roles-toplevel.html">Using
-  /// roles to delegate permissions and federate identities</a>.
+  /// created at the same time as the role, using <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreateRole.html">
+  /// <code>CreateRole</code> </a>. You can update a role's trust policy using
+  /// <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_UpdateAssumeRolePolicy.html">
+  /// <code>UpdateAssumeRolePolicy</code> </a>. For more information about
+  /// roles, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/roles-toplevel.html">IAM
+  /// roles</a> in the <i>IAM User Guide</i>.
   ///
   /// A role can also have a managed policy attached to it. To attach a managed
-  /// policy to a role, use <a>AttachRolePolicy</a>. To create a new managed
-  /// policy, use <a>CreatePolicy</a>. For information about policies, see <a
+  /// policy to a role, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_AttachRolePolicy.html">
+  /// <code>AttachRolePolicy</code> </a>. To create a new managed policy, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreatePolicy.html">
+  /// <code>CreatePolicy</code> </a>. For information about policies, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html">Managed
   /// policies and inline policies</a> in the <i>IAM User Guide</i>.
   ///
@@ -7227,10 +7266,11 @@ class Iam {
     required String policyName,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyDocument'] = policyDocument;
-    $request['PolicyName'] = policyName;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'PolicyDocument': policyDocument,
+      'PolicyName': policyName,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'PutRolePolicy',
@@ -7238,8 +7278,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutRolePolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7284,9 +7322,10 @@ class Iam {
     required String permissionsBoundary,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PermissionsBoundary'] = permissionsBoundary;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'PermissionsBoundary': permissionsBoundary,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'PutUserPermissionsBoundary',
@@ -7294,8 +7333,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutUserPermissionsBoundaryRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7303,9 +7340,11 @@ class Iam {
   /// specified IAM user.
   ///
   /// An IAM user can also have a managed policy attached to it. To attach a
-  /// managed policy to a user, use <a>AttachUserPolicy</a>. To create a new
-  /// managed policy, use <a>CreatePolicy</a>. For information about policies,
-  /// see <a
+  /// managed policy to a user, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_AttachUserPolicy.html">
+  /// <code>AttachUserPolicy</code> </a>. To create a new managed policy, use <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/APIReference/API_CreatePolicy.html">
+  /// <code>CreatePolicy</code> </a>. For information about policies, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/policies-managed-vs-inline.html">Managed
   /// policies and inline policies</a> in the <i>IAM User Guide</i>.
   ///
@@ -7373,10 +7412,11 @@ class Iam {
     required String policyName,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyDocument'] = policyDocument;
-    $request['PolicyName'] = policyName;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'PolicyDocument': policyDocument,
+      'PolicyName': policyName,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'PutUserPolicy',
@@ -7384,8 +7424,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PutUserPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7418,9 +7456,10 @@ class Iam {
     required String clientID,
     required String openIDConnectProviderArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ClientID'] = clientID;
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
+    final $request = <String, String>{
+      'ClientID': clientID,
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+    };
     await _protocol.send(
       $request,
       action: 'RemoveClientIDFromOpenIDConnectProvider',
@@ -7428,23 +7467,23 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveClientIDFromOpenIDConnectProviderRequest'],
-      shapes: shapes,
     );
   }
 
-  /// Removes the specified IAM role from the specified EC2 instance profile.
+  /// Removes the specified IAM role from the specified Amazon EC2 instance
+  /// profile.
   /// <important>
   /// Make sure that you do not have any Amazon EC2 instances running with the
   /// role you are about to remove from the instance profile. Removing a role
   /// from an instance profile that is associated with a running instance might
   /// break any applications running on the instance.
   /// </important>
-  /// For more information about IAM roles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/WorkingWithRoles.html">Working
-  /// with roles</a>. For more information about instance profiles, see <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/AboutInstanceProfiles.html">About
-  /// instance profiles</a>.
+  /// For more information about roles, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles.html">IAM
+  /// roles</a> in the <i>IAM User Guide</i>. For more information about
+  /// instance profiles, see <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_switch-role-ec2_instance-profiles.html">Using
+  /// instance profiles</a> in the <i>IAM User Guide</i>.
   ///
   /// May throw [NoSuchEntityException].
   /// May throw [LimitExceededException].
@@ -7470,9 +7509,10 @@ class Iam {
     required String instanceProfileName,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'RemoveRoleFromInstanceProfile',
@@ -7480,8 +7520,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveRoleFromInstanceProfileRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7510,9 +7548,10 @@ class Iam {
     required String groupName,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'GroupName': groupName,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'RemoveUserFromGroup',
@@ -7520,8 +7559,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveUserFromGroupRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7553,9 +7590,10 @@ class Iam {
     required String serviceSpecificCredentialId,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServiceSpecificCredentialId'] = serviceSpecificCredentialId;
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'ServiceSpecificCredentialId': serviceSpecificCredentialId,
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ResetServiceSpecificCredential',
@@ -7563,8 +7601,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResetServiceSpecificCredentialRequest'],
-      shapes: shapes,
       resultWrapper: 'ResetServiceSpecificCredentialResult',
     );
     return ResetServiceSpecificCredentialResponse.fromXml($result);
@@ -7582,6 +7618,7 @@ class Iam {
   /// May throw [NoSuchEntityException].
   /// May throw [LimitExceededException].
   /// May throw [ServiceFailureException].
+  /// May throw [ConcurrentModificationException].
   ///
   /// Parameter [authenticationCode1] :
   /// An authentication code emitted by the device.
@@ -7614,11 +7651,12 @@ class Iam {
     required String serialNumber,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AuthenticationCode1'] = authenticationCode1;
-    $request['AuthenticationCode2'] = authenticationCode2;
-    $request['SerialNumber'] = serialNumber;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'AuthenticationCode1': authenticationCode1,
+      'AuthenticationCode2': authenticationCode2,
+      'SerialNumber': serialNumber,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'ResyncMFADevice',
@@ -7626,8 +7664,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResyncMFADeviceRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7666,9 +7702,10 @@ class Iam {
     required String policyArn,
     required String versionId,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['VersionId'] = versionId;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      'VersionId': versionId,
+    };
     await _protocol.send(
       $request,
       action: 'SetDefaultPolicyVersion',
@@ -7676,8 +7713,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SetDefaultPolicyVersionRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7726,9 +7761,9 @@ class Iam {
   Future<void> setSecurityTokenServicePreferences({
     required GlobalEndpointTokenVersion globalEndpointTokenVersion,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalEndpointTokenVersion'] =
-        globalEndpointTokenVersion.toValue();
+    final $request = <String, String>{
+      'GlobalEndpointTokenVersion': globalEndpointTokenVersion.value,
+    };
     await _protocol.send(
       $request,
       action: 'SetSecurityTokenServicePreferences',
@@ -7736,8 +7771,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SetSecurityTokenServicePreferencesRequest'],
-      shapes: shapes,
     );
   }
 
@@ -7926,12 +7959,12 @@ class Iam {
   /// following list shows each of the supported scenario values and the
   /// resources that you must define to run the simulation.
   ///
-  /// Each of the EC2 scenarios requires that you specify instance, image, and
-  /// security group resources. If your scenario includes an EBS volume, then
-  /// you must specify that volume as a resource. If the EC2 scenario includes
-  /// VPC, then you must supply the network interface resource. If it includes
-  /// an IP subnet, then you must specify the subnet resource. For more
-  /// information on the EC2 scenario options, see <a
+  /// Each of the Amazon EC2 scenarios requires that you specify instance,
+  /// image, and security group resources. If your scenario includes an EBS
+  /// volume, then you must specify that volume as a resource. If the Amazon EC2
+  /// scenario includes VPC, then you must supply the network interface
+  /// resource. If it includes an IP subnet, then you must specify the subnet
+  /// resource. For more information on the Amazon EC2 scenario options, see <a
   /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-supported-platforms.html">Supported
   /// platforms</a> in the <i>Amazon EC2 User Guide</i>.
   ///
@@ -8026,20 +8059,45 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['ActionNames'] = actionNames;
-    $request['PolicyInputList'] = policyInputList;
-    callerArn?.also((arg) => $request['CallerArn'] = arg);
-    contextEntries?.also((arg) => $request['ContextEntries'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    permissionsBoundaryPolicyInputList
-        ?.also((arg) => $request['PermissionsBoundaryPolicyInputList'] = arg);
-    resourceArns?.also((arg) => $request['ResourceArns'] = arg);
-    resourceHandlingOption
-        ?.also((arg) => $request['ResourceHandlingOption'] = arg);
-    resourceOwner?.also((arg) => $request['ResourceOwner'] = arg);
-    resourcePolicy?.also((arg) => $request['ResourcePolicy'] = arg);
+    final $request = <String, String>{
+      if (actionNames.isEmpty)
+        'ActionNames': ''
+      else
+        for (var i1 = 0; i1 < actionNames.length; i1++)
+          'ActionNames.member.${i1 + 1}': actionNames[i1],
+      if (policyInputList.isEmpty)
+        'PolicyInputList': ''
+      else
+        for (var i1 = 0; i1 < policyInputList.length; i1++)
+          'PolicyInputList.member.${i1 + 1}': policyInputList[i1],
+      if (callerArn != null) 'CallerArn': callerArn,
+      if (contextEntries != null)
+        if (contextEntries.isEmpty)
+          'ContextEntries': ''
+        else
+          for (var i1 = 0; i1 < contextEntries.length; i1++)
+            for (var e3 in contextEntries[i1].toQueryMap().entries)
+              'ContextEntries.member.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (permissionsBoundaryPolicyInputList != null)
+        if (permissionsBoundaryPolicyInputList.isEmpty)
+          'PermissionsBoundaryPolicyInputList': ''
+        else
+          for (var i1 = 0; i1 < permissionsBoundaryPolicyInputList.length; i1++)
+            'PermissionsBoundaryPolicyInputList.member.${i1 + 1}':
+                permissionsBoundaryPolicyInputList[i1],
+      if (resourceArns != null)
+        if (resourceArns.isEmpty)
+          'ResourceArns': ''
+        else
+          for (var i1 = 0; i1 < resourceArns.length; i1++)
+            'ResourceArns.member.${i1 + 1}': resourceArns[i1],
+      if (resourceHandlingOption != null)
+        'ResourceHandlingOption': resourceHandlingOption,
+      if (resourceOwner != null) 'ResourceOwner': resourceOwner,
+      if (resourcePolicy != null) 'ResourcePolicy': resourcePolicy,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'SimulateCustomPolicy',
@@ -8047,8 +8105,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SimulateCustomPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'SimulateCustomPolicyResult',
     );
     return SimulatePolicyResponse.fromXml($result);
@@ -8272,12 +8328,12 @@ class Iam {
   /// following list shows each of the supported scenario values and the
   /// resources that you must define to run the simulation.
   ///
-  /// Each of the EC2 scenarios requires that you specify instance, image, and
-  /// security group resources. If your scenario includes an EBS volume, then
-  /// you must specify that volume as a resource. If the EC2 scenario includes
-  /// VPC, then you must supply the network interface resource. If it includes
-  /// an IP subnet, then you must specify the subnet resource. For more
-  /// information on the EC2 scenario options, see <a
+  /// Each of the Amazon EC2 scenarios requires that you specify instance,
+  /// image, and security group resources. If your scenario includes an EBS
+  /// volume, then you must specify that volume as a resource. If the Amazon EC2
+  /// scenario includes VPC, then you must supply the network interface
+  /// resource. If it includes an IP subnet, then you must specify the subnet
+  /// resource. For more information on the Amazon EC2 scenario options, see <a
   /// href="https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-supported-platforms.html">Supported
   /// platforms</a> in the <i>Amazon EC2 User Guide</i>.
   ///
@@ -8368,21 +8424,47 @@ class Iam {
       1,
       1000,
     );
-    final $request = <String, dynamic>{};
-    $request['ActionNames'] = actionNames;
-    $request['PolicySourceArn'] = policySourceArn;
-    callerArn?.also((arg) => $request['CallerArn'] = arg);
-    contextEntries?.also((arg) => $request['ContextEntries'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxItems?.also((arg) => $request['MaxItems'] = arg);
-    permissionsBoundaryPolicyInputList
-        ?.also((arg) => $request['PermissionsBoundaryPolicyInputList'] = arg);
-    policyInputList?.also((arg) => $request['PolicyInputList'] = arg);
-    resourceArns?.also((arg) => $request['ResourceArns'] = arg);
-    resourceHandlingOption
-        ?.also((arg) => $request['ResourceHandlingOption'] = arg);
-    resourceOwner?.also((arg) => $request['ResourceOwner'] = arg);
-    resourcePolicy?.also((arg) => $request['ResourcePolicy'] = arg);
+    final $request = <String, String>{
+      if (actionNames.isEmpty)
+        'ActionNames': ''
+      else
+        for (var i1 = 0; i1 < actionNames.length; i1++)
+          'ActionNames.member.${i1 + 1}': actionNames[i1],
+      'PolicySourceArn': policySourceArn,
+      if (callerArn != null) 'CallerArn': callerArn,
+      if (contextEntries != null)
+        if (contextEntries.isEmpty)
+          'ContextEntries': ''
+        else
+          for (var i1 = 0; i1 < contextEntries.length; i1++)
+            for (var e3 in contextEntries[i1].toQueryMap().entries)
+              'ContextEntries.member.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxItems != null) 'MaxItems': maxItems.toString(),
+      if (permissionsBoundaryPolicyInputList != null)
+        if (permissionsBoundaryPolicyInputList.isEmpty)
+          'PermissionsBoundaryPolicyInputList': ''
+        else
+          for (var i1 = 0; i1 < permissionsBoundaryPolicyInputList.length; i1++)
+            'PermissionsBoundaryPolicyInputList.member.${i1 + 1}':
+                permissionsBoundaryPolicyInputList[i1],
+      if (policyInputList != null)
+        if (policyInputList.isEmpty)
+          'PolicyInputList': ''
+        else
+          for (var i1 = 0; i1 < policyInputList.length; i1++)
+            'PolicyInputList.member.${i1 + 1}': policyInputList[i1],
+      if (resourceArns != null)
+        if (resourceArns.isEmpty)
+          'ResourceArns': ''
+        else
+          for (var i1 = 0; i1 < resourceArns.length; i1++)
+            'ResourceArns.member.${i1 + 1}': resourceArns[i1],
+      if (resourceHandlingOption != null)
+        'ResourceHandlingOption': resourceHandlingOption,
+      if (resourceOwner != null) 'ResourceOwner': resourceOwner,
+      if (resourcePolicy != null) 'ResourcePolicy': resourcePolicy,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'SimulatePrincipalPolicy',
@@ -8390,8 +8472,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['SimulatePrincipalPolicyRequest'],
-      shapes: shapes,
       resultWrapper: 'SimulatePrincipalPolicyResult',
     );
     return SimulatePolicyResponse.fromXml($result);
@@ -8457,9 +8537,15 @@ class Iam {
     required String instanceProfileName,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagInstanceProfile',
@@ -8467,8 +8553,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagInstanceProfileRequest'],
-      shapes: shapes,
     );
   }
 
@@ -8535,9 +8619,15 @@ class Iam {
     required String serialNumber,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SerialNumber'] = serialNumber;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'SerialNumber': serialNumber,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagMFADevice',
@@ -8545,8 +8635,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagMFADeviceRequest'],
-      shapes: shapes,
     );
   }
 
@@ -8614,9 +8702,15 @@ class Iam {
     required String openIDConnectProviderArn,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagOpenIDConnectProvider',
@@ -8624,8 +8718,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagOpenIDConnectProviderRequest'],
-      shapes: shapes,
     );
   }
 
@@ -8690,9 +8782,15 @@ class Iam {
     required String policyArn,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagPolicy',
@@ -8700,8 +8798,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -8775,9 +8871,15 @@ class Iam {
     required String roleName,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'RoleName': roleName,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagRole',
@@ -8785,8 +8887,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagRoleRequest'],
-      shapes: shapes,
     );
   }
 
@@ -8854,9 +8954,15 @@ class Iam {
     required String sAMLProviderArn,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SAMLProviderArn'] = sAMLProviderArn;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'SAMLProviderArn': sAMLProviderArn,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagSAMLProvider',
@@ -8864,8 +8970,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagSAMLProviderRequest'],
-      shapes: shapes,
     );
   }
 
@@ -8940,9 +9044,15 @@ class Iam {
     required String serverCertificateName,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServerCertificateName'] = serverCertificateName;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'ServerCertificateName': serverCertificateName,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'TagServerCertificate',
@@ -8950,8 +9060,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagServerCertificateRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9024,9 +9132,15 @@ class Iam {
     required List<Tag> tags,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Tags'] = tags;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'TagUser',
@@ -9034,8 +9148,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['TagUserRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9064,9 +9176,14 @@ class Iam {
     required String instanceProfileName,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['InstanceProfileName'] = instanceProfileName;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'InstanceProfileName': instanceProfileName,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagInstanceProfile',
@@ -9074,8 +9191,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagInstanceProfileRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9106,9 +9221,14 @@ class Iam {
     required String serialNumber,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SerialNumber'] = serialNumber;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'SerialNumber': serialNumber,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagMFADevice',
@@ -9116,8 +9236,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagMFADeviceRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9149,9 +9267,14 @@ class Iam {
     required String openIDConnectProviderArn,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagOpenIDConnectProvider',
@@ -9159,8 +9282,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagOpenIDConnectProviderRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9190,9 +9311,14 @@ class Iam {
     required String policyArn,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyArn'] = policyArn;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'PolicyArn': policyArn,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagPolicy',
@@ -9200,8 +9326,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9230,9 +9354,14 @@ class Iam {
     required String roleName,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'RoleName': roleName,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagRole',
@@ -9240,8 +9369,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagRoleRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9274,9 +9401,14 @@ class Iam {
     required String sAMLProviderArn,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SAMLProviderArn'] = sAMLProviderArn;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'SAMLProviderArn': sAMLProviderArn,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagSAMLProvider',
@@ -9284,8 +9416,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagSAMLProviderRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9322,9 +9452,14 @@ class Iam {
     required String serverCertificateName,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServerCertificateName'] = serverCertificateName;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'ServerCertificateName': serverCertificateName,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UntagServerCertificate',
@@ -9332,8 +9467,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagServerCertificateRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9361,9 +9494,14 @@ class Iam {
     required List<String> tagKeys,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['TagKeys'] = tagKeys;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'UntagUser',
@@ -9371,8 +9509,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UntagUserRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9422,10 +9558,11 @@ class Iam {
     required StatusType status,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AccessKeyId'] = accessKeyId;
-    $request['Status'] = status.toValue();
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'AccessKeyId': accessKeyId,
+      'Status': status.value,
+      if (userName != null) 'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateAccessKey',
@@ -9433,8 +9570,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateAccessKeyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9573,21 +9708,22 @@ class Iam {
       1,
       24,
     );
-    final $request = <String, dynamic>{};
-    allowUsersToChangePassword
-        ?.also((arg) => $request['AllowUsersToChangePassword'] = arg);
-    hardExpiry?.also((arg) => $request['HardExpiry'] = arg);
-    maxPasswordAge?.also((arg) => $request['MaxPasswordAge'] = arg);
-    minimumPasswordLength
-        ?.also((arg) => $request['MinimumPasswordLength'] = arg);
-    passwordReusePrevention
-        ?.also((arg) => $request['PasswordReusePrevention'] = arg);
-    requireLowercaseCharacters
-        ?.also((arg) => $request['RequireLowercaseCharacters'] = arg);
-    requireNumbers?.also((arg) => $request['RequireNumbers'] = arg);
-    requireSymbols?.also((arg) => $request['RequireSymbols'] = arg);
-    requireUppercaseCharacters
-        ?.also((arg) => $request['RequireUppercaseCharacters'] = arg);
+    final $request = <String, String>{
+      if (allowUsersToChangePassword != null)
+        'AllowUsersToChangePassword': allowUsersToChangePassword.toString(),
+      if (hardExpiry != null) 'HardExpiry': hardExpiry.toString(),
+      if (maxPasswordAge != null) 'MaxPasswordAge': maxPasswordAge.toString(),
+      if (minimumPasswordLength != null)
+        'MinimumPasswordLength': minimumPasswordLength.toString(),
+      if (passwordReusePrevention != null)
+        'PasswordReusePrevention': passwordReusePrevention.toString(),
+      if (requireLowercaseCharacters != null)
+        'RequireLowercaseCharacters': requireLowercaseCharacters.toString(),
+      if (requireNumbers != null) 'RequireNumbers': requireNumbers.toString(),
+      if (requireSymbols != null) 'RequireSymbols': requireSymbols.toString(),
+      if (requireUppercaseCharacters != null)
+        'RequireUppercaseCharacters': requireUppercaseCharacters.toString(),
+    };
     await _protocol.send(
       $request,
       action: 'UpdateAccountPasswordPolicy',
@@ -9595,8 +9731,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateAccountPasswordPolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9650,9 +9784,10 @@ class Iam {
     required String policyDocument,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['PolicyDocument'] = policyDocument;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'PolicyDocument': policyDocument,
+      'RoleName': roleName,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateAssumeRolePolicy',
@@ -9660,8 +9795,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateAssumeRolePolicyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9721,10 +9854,11 @@ class Iam {
     String? newGroupName,
     String? newPath,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GroupName'] = groupName;
-    newGroupName?.also((arg) => $request['NewGroupName'] = arg);
-    newPath?.also((arg) => $request['NewPath'] = arg);
+    final $request = <String, String>{
+      'GroupName': groupName,
+      if (newGroupName != null) 'NewGroupName': newGroupName,
+      if (newPath != null) 'NewPath': newPath,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateGroup',
@@ -9732,8 +9866,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateGroupRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9794,11 +9926,12 @@ class Iam {
     String? password,
     bool? passwordResetRequired,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
-    password?.also((arg) => $request['Password'] = arg);
-    passwordResetRequired
-        ?.also((arg) => $request['PasswordResetRequired'] = arg);
+    final $request = <String, String>{
+      'UserName': userName,
+      if (password != null) 'Password': password,
+      if (passwordResetRequired != null)
+        'PasswordResetRequired': passwordResetRequired.toString(),
+    };
     await _protocol.send(
       $request,
       action: 'UpdateLoginProfile',
@@ -9806,8 +9939,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateLoginProfileRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9825,12 +9956,12 @@ class Iam {
   /// thumbprint is updated.
   /// <note>
   /// Amazon Web Services secures communication with some OIDC identity
-  /// providers (IdPs) through our library of trusted certificate authorities
-  /// (CAs) instead of using a certificate thumbprint to verify your IdP server
-  /// certificate. These OIDC IdPs include Google, Auth0, and those that use an
-  /// Amazon S3 bucket to host a JSON Web Key Set (JWKS) endpoint. In these
-  /// cases, your legacy thumbprint remains in your configuration, but is no
-  /// longer used for validation.
+  /// providers (IdPs) through our library of trusted root certificate
+  /// authorities (CAs) instead of using a certificate thumbprint to verify your
+  /// IdP server certificate. In these cases, your legacy thumbprint remains in
+  /// your configuration, but is no longer used for validation. These OIDC IdPs
+  /// include Auth0, GitHub, GitLab, Google, and those that use an Amazon S3
+  /// bucket to host a JSON Web Key Set (JWKS) endpoint.
   /// </note> <note>
   /// Trust for the OIDC provider is derived from the provider certificate and
   /// is validated by the thumbprint. Therefore, it is best to limit access to
@@ -9860,9 +9991,14 @@ class Iam {
     required String openIDConnectProviderArn,
     required List<String> thumbprintList,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['OpenIDConnectProviderArn'] = openIDConnectProviderArn;
-    $request['ThumbprintList'] = thumbprintList;
+    final $request = <String, String>{
+      'OpenIDConnectProviderArn': openIDConnectProviderArn,
+      if (thumbprintList.isEmpty)
+        'ThumbprintList': ''
+      else
+        for (var i1 = 0; i1 < thumbprintList.length; i1++)
+          'ThumbprintList.member.${i1 + 1}': thumbprintList[i1],
+    };
     await _protocol.send(
       $request,
       action: 'UpdateOpenIDConnectProviderThumbprint',
@@ -9870,8 +10006,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateOpenIDConnectProviderThumbprintRequest'],
-      shapes: shapes,
     );
   }
 
@@ -9906,6 +10040,10 @@ class Iam {
   /// a console URL. For more information, see <a
   /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use.html">Using
   /// IAM roles</a> in the <i>IAM User Guide</i>.
+  /// <note>
+  /// IAM role credentials provided by Amazon EC2 instances assigned to the role
+  /// are not subject to the specified maximum session duration.
+  /// </note>
   Future<void> updateRole({
     required String roleName,
     String? description,
@@ -9917,10 +10055,12 @@ class Iam {
       3600,
       43200,
     );
-    final $request = <String, dynamic>{};
-    $request['RoleName'] = roleName;
-    description?.also((arg) => $request['Description'] = arg);
-    maxSessionDuration?.also((arg) => $request['MaxSessionDuration'] = arg);
+    final $request = <String, String>{
+      'RoleName': roleName,
+      if (description != null) 'Description': description,
+      if (maxSessionDuration != null)
+        'MaxSessionDuration': maxSessionDuration.toString(),
+    };
     await _protocol.send(
       $request,
       action: 'UpdateRole',
@@ -9928,8 +10068,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateRoleRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateRoleResult',
     );
   }
@@ -9953,9 +10091,10 @@ class Iam {
     required String description,
     required String roleName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Description'] = description;
-    $request['RoleName'] = roleName;
+    final $request = <String, String>{
+      'Description': description,
+      'RoleName': roleName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateRoleDescription',
@@ -9963,8 +10102,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateRoleDescriptionRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateRoleDescriptionResult',
     );
     return UpdateRoleDescriptionResponse.fromXml($result);
@@ -10002,9 +10139,10 @@ class Iam {
     required String sAMLMetadataDocument,
     required String sAMLProviderArn,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SAMLMetadataDocument'] = sAMLMetadataDocument;
-    $request['SAMLProviderArn'] = sAMLProviderArn;
+    final $request = <String, String>{
+      'SAMLMetadataDocument': sAMLMetadataDocument,
+      'SAMLProviderArn': sAMLProviderArn,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UpdateSAMLProvider',
@@ -10012,8 +10150,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateSAMLProviderRequest'],
-      shapes: shapes,
       resultWrapper: 'UpdateSAMLProviderResult',
     );
     return UpdateSAMLProviderResponse.fromXml($result);
@@ -10057,10 +10193,11 @@ class Iam {
     required StatusType status,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SSHPublicKeyId'] = sSHPublicKeyId;
-    $request['Status'] = status.toValue();
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'SSHPublicKeyId': sSHPublicKeyId,
+      'Status': status.value,
+      'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateSSHPublicKey',
@@ -10068,8 +10205,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateSSHPublicKeyRequest'],
-      shapes: shapes,
     );
   }
 
@@ -10138,11 +10273,12 @@ class Iam {
     String? newPath,
     String? newServerCertificateName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServerCertificateName'] = serverCertificateName;
-    newPath?.also((arg) => $request['NewPath'] = arg);
-    newServerCertificateName
-        ?.also((arg) => $request['NewServerCertificateName'] = arg);
+    final $request = <String, String>{
+      'ServerCertificateName': serverCertificateName,
+      if (newPath != null) 'NewPath': newPath,
+      if (newServerCertificateName != null)
+        'NewServerCertificateName': newServerCertificateName,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateServerCertificate',
@@ -10150,8 +10286,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateServerCertificateRequest'],
-      shapes: shapes,
     );
   }
 
@@ -10187,10 +10321,11 @@ class Iam {
     required StatusType status,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ServiceSpecificCredentialId'] = serviceSpecificCredentialId;
-    $request['Status'] = status.toValue();
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'ServiceSpecificCredentialId': serviceSpecificCredentialId,
+      'Status': status.value,
+      if (userName != null) 'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateServiceSpecificCredential',
@@ -10198,8 +10333,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateServiceSpecificCredentialRequest'],
-      shapes: shapes,
     );
   }
 
@@ -10243,10 +10376,11 @@ class Iam {
     required StatusType status,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['CertificateId'] = certificateId;
-    $request['Status'] = status.toValue();
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'CertificateId': certificateId,
+      'Status': status.value,
+      if (userName != null) 'UserName': userName,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateSigningCertificate',
@@ -10254,8 +10388,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateSigningCertificateRequest'],
-      shapes: shapes,
     );
   }
 
@@ -10317,10 +10449,11 @@ class Iam {
     String? newPath,
     String? newUserName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['UserName'] = userName;
-    newPath?.also((arg) => $request['NewPath'] = arg);
-    newUserName?.also((arg) => $request['NewUserName'] = arg);
+    final $request = <String, String>{
+      'UserName': userName,
+      if (newPath != null) 'NewPath': newPath,
+      if (newUserName != null) 'NewUserName': newUserName,
+    };
     await _protocol.send(
       $request,
       action: 'UpdateUser',
@@ -10328,8 +10461,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UpdateUserRequest'],
-      shapes: shapes,
     );
   }
 
@@ -10384,9 +10515,10 @@ class Iam {
     required String sSHPublicKeyBody,
     required String userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SSHPublicKeyBody'] = sSHPublicKeyBody;
-    $request['UserName'] = userName;
+    final $request = <String, String>{
+      'SSHPublicKeyBody': sSHPublicKeyBody,
+      'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UploadSSHPublicKey',
@@ -10394,8 +10526,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UploadSSHPublicKeyRequest'],
-      shapes: shapes,
       resultWrapper: 'UploadSSHPublicKeyResult',
     );
     return UploadSSHPublicKeyResponse.fromXml($result);
@@ -10562,13 +10692,20 @@ class Iam {
     String? path,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['CertificateBody'] = certificateBody;
-    $request['PrivateKey'] = privateKey;
-    $request['ServerCertificateName'] = serverCertificateName;
-    certificateChain?.also((arg) => $request['CertificateChain'] = arg);
-    path?.also((arg) => $request['Path'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'CertificateBody': certificateBody,
+      'PrivateKey': privateKey,
+      'ServerCertificateName': serverCertificateName,
+      if (certificateChain != null) 'CertificateChain': certificateChain,
+      if (path != null) 'Path': path,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.member.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UploadServerCertificate',
@@ -10576,8 +10713,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UploadServerCertificateRequest'],
-      shapes: shapes,
       resultWrapper: 'UploadServerCertificateResult',
     );
     return UploadServerCertificateResponse.fromXml($result);
@@ -10619,6 +10754,7 @@ class Iam {
   /// May throw [InvalidCertificateException].
   /// May throw [DuplicateCertificateException].
   /// May throw [NoSuchEntityException].
+  /// May throw [ConcurrentModificationException].
   /// May throw [ServiceFailureException].
   ///
   /// Parameter [certificateBody] :
@@ -10654,9 +10790,10 @@ class Iam {
     required String certificateBody,
     String? userName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['CertificateBody'] = certificateBody;
-    userName?.also((arg) => $request['UserName'] = arg);
+    final $request = <String, String>{
+      'CertificateBody': certificateBody,
+      if (userName != null) 'UserName': userName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'UploadSigningCertificate',
@@ -10664,8 +10801,6 @@ class Iam {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['UploadSigningCertificateRequest'],
-      shapes: shapes,
       resultWrapper: 'UploadSigningCertificateResult',
     );
     return UploadSigningCertificateResponse.fromXml($result);
@@ -10673,33 +10808,18 @@ class Iam {
 }
 
 enum AccessAdvisorUsageGranularityType {
-  serviceLevel,
-  actionLevel,
-}
+  serviceLevel('SERVICE_LEVEL'),
+  actionLevel('ACTION_LEVEL'),
+  ;
 
-extension AccessAdvisorUsageGranularityTypeValueExtension
-    on AccessAdvisorUsageGranularityType {
-  String toValue() {
-    switch (this) {
-      case AccessAdvisorUsageGranularityType.serviceLevel:
-        return 'SERVICE_LEVEL';
-      case AccessAdvisorUsageGranularityType.actionLevel:
-        return 'ACTION_LEVEL';
-    }
-  }
-}
+  final String value;
 
-extension AccessAdvisorUsageGranularityTypeFromString on String {
-  AccessAdvisorUsageGranularityType toAccessAdvisorUsageGranularityType() {
-    switch (this) {
-      case 'SERVICE_LEVEL':
-        return AccessAdvisorUsageGranularityType.serviceLevel;
-      case 'ACTION_LEVEL':
-        return AccessAdvisorUsageGranularityType.actionLevel;
-    }
-    throw Exception(
-        '$this is not known in enum AccessAdvisorUsageGranularityType');
-  }
+  const AccessAdvisorUsageGranularityType(this.value);
+
+  static AccessAdvisorUsageGranularityType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum AccessAdvisorUsageGranularityType'));
 }
 
 /// An object that contains details about when a principal in the reported
@@ -10840,7 +10960,8 @@ class AccessKey {
     return AccessKey(
       accessKeyId: _s.extractXmlStringValue(elem, 'AccessKeyId')!,
       secretAccessKey: _s.extractXmlStringValue(elem, 'SecretAccessKey')!,
-      status: _s.extractXmlStringValue(elem, 'Status')!.toStatusType(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')!.let(StatusType.fromString),
       userName: _s.extractXmlStringValue(elem, 'UserName')!,
       createDate: _s.extractXmlDateTimeValue(elem, 'CreateDate'),
     );
@@ -10855,7 +10976,7 @@ class AccessKey {
     return {
       'AccessKeyId': accessKeyId,
       'SecretAccessKey': secretAccessKey,
-      'Status': status.toValue(),
+      'Status': status.value,
       'UserName': userName,
       if (createDate != null) 'CreateDate': iso8601ToJson(createDate),
     };
@@ -10978,7 +11099,8 @@ class AccessKeyMetadata {
     return AccessKeyMetadata(
       accessKeyId: _s.extractXmlStringValue(elem, 'AccessKeyId'),
       createDate: _s.extractXmlDateTimeValue(elem, 'CreateDate'),
-      status: _s.extractXmlStringValue(elem, 'Status')?.toStatusType(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')?.let(StatusType.fromString),
       userName: _s.extractXmlStringValue(elem, 'UserName'),
     );
   }
@@ -10991,7 +11113,7 @@ class AccessKeyMetadata {
     return {
       if (accessKeyId != null) 'AccessKeyId': accessKeyId,
       if (createDate != null) 'CreateDate': iso8601ToJson(createDate),
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (userName != null) 'UserName': userName,
     };
   }
@@ -11025,7 +11147,7 @@ class AttachedPermissionsBoundary {
           _s.extractXmlStringValue(elem, 'PermissionsBoundaryArn'),
       permissionsBoundaryType: _s
           .extractXmlStringValue(elem, 'PermissionsBoundaryType')
-          ?.toPermissionsBoundaryAttachmentType(),
+          ?.let(PermissionsBoundaryAttachmentType.fromString),
     );
   }
 
@@ -11036,7 +11158,7 @@ class AttachedPermissionsBoundary {
       if (permissionsBoundaryArn != null)
         'PermissionsBoundaryArn': permissionsBoundaryArn,
       if (permissionsBoundaryType != null)
-        'PermissionsBoundaryType': permissionsBoundaryType.toValue(),
+        'PermissionsBoundaryType': permissionsBoundaryType.value,
     };
   }
 }
@@ -11112,88 +11234,51 @@ class ContextEntry {
     final contextKeyValues = this.contextKeyValues;
     return {
       if (contextKeyName != null) 'ContextKeyName': contextKeyName,
-      if (contextKeyType != null) 'ContextKeyType': contextKeyType.toValue(),
+      if (contextKeyType != null) 'ContextKeyType': contextKeyType.value,
       if (contextKeyValues != null) 'ContextKeyValues': contextKeyValues,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final contextKeyName = this.contextKeyName;
+    final contextKeyType = this.contextKeyType;
+    final contextKeyValues = this.contextKeyValues;
+    return {
+      if (contextKeyName != null) 'ContextKeyName': contextKeyName,
+      if (contextKeyType != null) 'ContextKeyType': contextKeyType.value,
+      if (contextKeyValues != null)
+        if (contextKeyValues.isEmpty)
+          'ContextKeyValues': ''
+        else
+          for (var i1 = 0; i1 < contextKeyValues.length; i1++)
+            'ContextKeyValues.member.${i1 + 1}': contextKeyValues[i1],
     };
   }
 }
 
 enum ContextKeyTypeEnum {
-  string,
-  stringList,
-  numeric,
-  numericList,
-  boolean,
-  booleanList,
-  ip,
-  ipList,
-  binary,
-  binaryList,
-  date,
-  dateList,
-}
+  string('string'),
+  stringList('stringList'),
+  numeric('numeric'),
+  numericList('numericList'),
+  boolean('boolean'),
+  booleanList('booleanList'),
+  ip('ip'),
+  ipList('ipList'),
+  binary('binary'),
+  binaryList('binaryList'),
+  date('date'),
+  dateList('dateList'),
+  ;
 
-extension ContextKeyTypeEnumValueExtension on ContextKeyTypeEnum {
-  String toValue() {
-    switch (this) {
-      case ContextKeyTypeEnum.string:
-        return 'string';
-      case ContextKeyTypeEnum.stringList:
-        return 'stringList';
-      case ContextKeyTypeEnum.numeric:
-        return 'numeric';
-      case ContextKeyTypeEnum.numericList:
-        return 'numericList';
-      case ContextKeyTypeEnum.boolean:
-        return 'boolean';
-      case ContextKeyTypeEnum.booleanList:
-        return 'booleanList';
-      case ContextKeyTypeEnum.ip:
-        return 'ip';
-      case ContextKeyTypeEnum.ipList:
-        return 'ipList';
-      case ContextKeyTypeEnum.binary:
-        return 'binary';
-      case ContextKeyTypeEnum.binaryList:
-        return 'binaryList';
-      case ContextKeyTypeEnum.date:
-        return 'date';
-      case ContextKeyTypeEnum.dateList:
-        return 'dateList';
-    }
-  }
-}
+  final String value;
 
-extension ContextKeyTypeEnumFromString on String {
-  ContextKeyTypeEnum toContextKeyTypeEnum() {
-    switch (this) {
-      case 'string':
-        return ContextKeyTypeEnum.string;
-      case 'stringList':
-        return ContextKeyTypeEnum.stringList;
-      case 'numeric':
-        return ContextKeyTypeEnum.numeric;
-      case 'numericList':
-        return ContextKeyTypeEnum.numericList;
-      case 'boolean':
-        return ContextKeyTypeEnum.boolean;
-      case 'booleanList':
-        return ContextKeyTypeEnum.booleanList;
-      case 'ip':
-        return ContextKeyTypeEnum.ip;
-      case 'ipList':
-        return ContextKeyTypeEnum.ipList;
-      case 'binary':
-        return ContextKeyTypeEnum.binary;
-      case 'binaryList':
-        return ContextKeyTypeEnum.binaryList;
-      case 'date':
-        return ContextKeyTypeEnum.date;
-      case 'dateList':
-        return ContextKeyTypeEnum.dateList;
-    }
-    throw Exception('$this is not known in enum ContextKeyTypeEnum');
-  }
+  const ContextKeyTypeEnum(this.value);
+
+  static ContextKeyTypeEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ContextKeyTypeEnum'));
 }
 
 /// Contains the response to a successful <a>CreateAccessKey</a> request.
@@ -11584,41 +11669,20 @@ class DeletionTaskFailureReasonType {
 }
 
 enum DeletionTaskStatusType {
-  succeeded,
-  inProgress,
-  failed,
-  notStarted,
-}
+  succeeded('SUCCEEDED'),
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  notStarted('NOT_STARTED'),
+  ;
 
-extension DeletionTaskStatusTypeValueExtension on DeletionTaskStatusType {
-  String toValue() {
-    switch (this) {
-      case DeletionTaskStatusType.succeeded:
-        return 'SUCCEEDED';
-      case DeletionTaskStatusType.inProgress:
-        return 'IN_PROGRESS';
-      case DeletionTaskStatusType.failed:
-        return 'FAILED';
-      case DeletionTaskStatusType.notStarted:
-        return 'NOT_STARTED';
-    }
-  }
-}
+  final String value;
 
-extension DeletionTaskStatusTypeFromString on String {
-  DeletionTaskStatusType toDeletionTaskStatusType() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return DeletionTaskStatusType.succeeded;
-      case 'IN_PROGRESS':
-        return DeletionTaskStatusType.inProgress;
-      case 'FAILED':
-        return DeletionTaskStatusType.failed;
-      case 'NOT_STARTED':
-        return DeletionTaskStatusType.notStarted;
-    }
-    throw Exception('$this is not known in enum DeletionTaskStatusType');
-  }
+  const DeletionTaskStatusType(this.value);
+
+  static DeletionTaskStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DeletionTaskStatusType'));
 }
 
 /// An object that contains details about when the IAM entities (users or roles)
@@ -11698,7 +11762,9 @@ class EntityInfo {
       arn: _s.extractXmlStringValue(elem, 'Arn')!,
       id: _s.extractXmlStringValue(elem, 'Id')!,
       name: _s.extractXmlStringValue(elem, 'Name')!,
-      type: _s.extractXmlStringValue(elem, 'Type')!.toPolicyOwnerEntityType(),
+      type: _s
+          .extractXmlStringValue(elem, 'Type')!
+          .let(PolicyOwnerEntityType.fromString),
       path: _s.extractXmlStringValue(elem, 'Path'),
     );
   }
@@ -11713,53 +11779,27 @@ class EntityInfo {
       'Arn': arn,
       'Id': id,
       'Name': name,
-      'Type': type.toValue(),
+      'Type': type.value,
       if (path != null) 'Path': path,
     };
   }
 }
 
 enum EntityType {
-  user,
-  role,
-  group,
-  localManagedPolicy,
-  awsManagedPolicy,
-}
+  user('User'),
+  role('Role'),
+  group('Group'),
+  localManagedPolicy('LocalManagedPolicy'),
+  awsManagedPolicy('AWSManagedPolicy'),
+  ;
 
-extension EntityTypeValueExtension on EntityType {
-  String toValue() {
-    switch (this) {
-      case EntityType.user:
-        return 'User';
-      case EntityType.role:
-        return 'Role';
-      case EntityType.group:
-        return 'Group';
-      case EntityType.localManagedPolicy:
-        return 'LocalManagedPolicy';
-      case EntityType.awsManagedPolicy:
-        return 'AWSManagedPolicy';
-    }
-  }
-}
+  final String value;
 
-extension EntityTypeFromString on String {
-  EntityType toEntityType() {
-    switch (this) {
-      case 'User':
-        return EntityType.user;
-      case 'Role':
-        return EntityType.role;
-      case 'Group':
-        return EntityType.group;
-      case 'LocalManagedPolicy':
-        return EntityType.localManagedPolicy;
-      case 'AWSManagedPolicy':
-        return EntityType.awsManagedPolicy;
-    }
-    throw Exception('$this is not known in enum EntityType');
-  }
+  const EntityType(this.value);
+
+  static EntityType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EntityType'));
 }
 
 /// Contains information about the reason that the operation failed.
@@ -11878,14 +11918,14 @@ class EvaluationResult {
       evalActionName: _s.extractXmlStringValue(elem, 'EvalActionName')!,
       evalDecision: _s
           .extractXmlStringValue(elem, 'EvalDecision')!
-          .toPolicyEvaluationDecisionType(),
+          .let(PolicyEvaluationDecisionType.fromString),
       evalDecisionDetails: Map.fromEntries(
         elem.getElement('EvalDecisionDetails')?.findElements('entry').map(
                   (c) => MapEntry(
                     _s.extractXmlStringValue(c, 'key')!,
                     _s
                         .extractXmlStringValue(c, 'value')!
-                        .toPolicyEvaluationDecisionType(),
+                        .let(PolicyEvaluationDecisionType.fromString),
                   ),
                 ) ??
             {},
@@ -11925,10 +11965,10 @@ class EvaluationResult {
     final resourceSpecificResults = this.resourceSpecificResults;
     return {
       'EvalActionName': evalActionName,
-      'EvalDecision': evalDecision.toValue(),
+      'EvalDecision': evalDecision.value,
       if (evalDecisionDetails != null)
         'EvalDecisionDetails':
-            evalDecisionDetails.map((k, e) => MapEntry(k, e.toValue())),
+            evalDecisionDetails.map((k, e) => MapEntry(k, e.value)),
       if (evalResourceName != null) 'EvalResourceName': evalResourceName,
       if (matchedStatements != null) 'MatchedStatements': matchedStatements,
       if (missingContextValues != null)
@@ -11959,7 +11999,9 @@ class GenerateCredentialReportResponse {
   factory GenerateCredentialReportResponse.fromXml(_s.XmlElement elem) {
     return GenerateCredentialReportResponse(
       description: _s.extractXmlStringValue(elem, 'Description'),
-      state: _s.extractXmlStringValue(elem, 'State')?.toReportStateType(),
+      state: _s
+          .extractXmlStringValue(elem, 'State')
+          ?.let(ReportStateType.fromString),
     );
   }
 
@@ -11968,7 +12010,7 @@ class GenerateCredentialReportResponse {
     final state = this.state;
     return {
       if (description != null) 'Description': description,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -12169,7 +12211,9 @@ class GetAccountSummaryResponse {
       summaryMap: Map.fromEntries(
         elem.getElement('SummaryMap')?.findElements('entry').map(
                   (c) => MapEntry(
-                    _s.extractXmlStringValue(c, 'key')!.toSummaryKeyType(),
+                    _s
+                        .extractXmlStringValue(c, 'key')!
+                        .let(SummaryKeyType.fromString),
                     _s.extractXmlIntValue(c, 'value')!,
                   ),
                 ) ??
@@ -12182,7 +12226,7 @@ class GetAccountSummaryResponse {
     final summaryMap = this.summaryMap;
     return {
       if (summaryMap != null)
-        'SummaryMap': summaryMap.map((k, e) => MapEntry(k.toValue(), e)),
+        'SummaryMap': summaryMap.map((k, e) => MapEntry(k.value, e)),
     };
   }
 }
@@ -12234,8 +12278,9 @@ class GetCredentialReportResponse {
     return GetCredentialReportResponse(
       content: _s.extractXmlUint8ListValue(elem, 'Content'),
       generatedTime: _s.extractXmlDateTimeValue(elem, 'GeneratedTime'),
-      reportFormat:
-          _s.extractXmlStringValue(elem, 'ReportFormat')?.toReportFormatType(),
+      reportFormat: _s
+          .extractXmlStringValue(elem, 'ReportFormat')
+          ?.let(ReportFormatType.fromString),
     );
   }
 
@@ -12246,7 +12291,7 @@ class GetCredentialReportResponse {
     return {
       if (content != null) 'Content': base64Encode(content),
       if (generatedTime != null) 'GeneratedTime': iso8601ToJson(generatedTime),
-      if (reportFormat != null) 'ReportFormat': reportFormat.toValue(),
+      if (reportFormat != null) 'ReportFormat': reportFormat.value,
     };
   }
 }
@@ -12393,6 +12438,61 @@ class GetLoginProfileResponse {
   }
 }
 
+class GetMFADeviceResponse {
+  /// Serial number that uniquely identifies the MFA device. For this API, we only
+  /// accept FIDO security key <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/reference-arns.html">ARNs</a>.
+  final String serialNumber;
+
+  /// The certifications of a specified user's MFA device. We currently provide
+  /// FIPS-140-2, FIPS-140-3, and FIDO certification levels obtained from <a
+  /// href="https://fidoalliance.org/metadata/"> FIDO Alliance Metadata Service
+  /// (MDS)</a>.
+  final Map<String, String>? certifications;
+
+  /// The date that a specified user's MFA device was first enabled.
+  final DateTime? enableDate;
+
+  /// The friendly name identifying the user.
+  final String? userName;
+
+  GetMFADeviceResponse({
+    required this.serialNumber,
+    this.certifications,
+    this.enableDate,
+    this.userName,
+  });
+  factory GetMFADeviceResponse.fromXml(_s.XmlElement elem) {
+    return GetMFADeviceResponse(
+      serialNumber: _s.extractXmlStringValue(elem, 'SerialNumber')!,
+      certifications: Map.fromEntries(
+        elem.getElement('Certifications')?.findElements('entry').map(
+                  (c) => MapEntry(
+                    _s.extractXmlStringValue(c, 'key')!,
+                    _s.extractXmlStringValue(c, 'value')!,
+                  ),
+                ) ??
+            {},
+      ),
+      enableDate: _s.extractXmlDateTimeValue(elem, 'EnableDate'),
+      userName: _s.extractXmlStringValue(elem, 'UserName'),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final serialNumber = this.serialNumber;
+    final certifications = this.certifications;
+    final enableDate = this.enableDate;
+    final userName = this.userName;
+    return {
+      'SerialNumber': serialNumber,
+      if (certifications != null) 'Certifications': certifications,
+      if (enableDate != null) 'EnableDate': iso8601ToJson(enableDate),
+      if (userName != null) 'UserName': userName,
+    };
+  }
+}
+
 /// Contains the response to a successful <a>GetOpenIDConnectProvider</a>
 /// request.
 class GetOpenIDConnectProviderResponse {
@@ -12515,7 +12615,9 @@ class GetOrganizationsAccessReportResponse {
   factory GetOrganizationsAccessReportResponse.fromXml(_s.XmlElement elem) {
     return GetOrganizationsAccessReportResponse(
       jobCreationDate: _s.extractXmlDateTimeValue(elem, 'JobCreationDate')!,
-      jobStatus: _s.extractXmlStringValue(elem, 'JobStatus')!.toJobStatusType(),
+      jobStatus: _s
+          .extractXmlStringValue(elem, 'JobStatus')!
+          .let(JobStatusType.fromString),
       accessDetails: _s.extractXmlChild(elem, 'AccessDetails')?.let((elem) =>
           elem.findElements('member').map(AccessDetail.fromXml).toList()),
       errorDetails:
@@ -12542,7 +12644,7 @@ class GetOrganizationsAccessReportResponse {
     final numberOfServicesNotAccessed = this.numberOfServicesNotAccessed;
     return {
       'JobCreationDate': iso8601ToJson(jobCreationDate),
-      'JobStatus': jobStatus.toValue(),
+      'JobStatus': jobStatus.value,
       if (accessDetails != null) 'AccessDetails': accessDetails,
       if (errorDetails != null) 'ErrorDetails': errorDetails,
       if (isTruncated != null) 'IsTruncated': isTruncated,
@@ -12816,7 +12918,9 @@ class GetServiceLastAccessedDetailsResponse {
     return GetServiceLastAccessedDetailsResponse(
       jobCompletionDate: _s.extractXmlDateTimeValue(elem, 'JobCompletionDate')!,
       jobCreationDate: _s.extractXmlDateTimeValue(elem, 'JobCreationDate')!,
-      jobStatus: _s.extractXmlStringValue(elem, 'JobStatus')!.toJobStatusType(),
+      jobStatus: _s
+          .extractXmlStringValue(elem, 'JobStatus')!
+          .let(JobStatusType.fromString),
       servicesLastAccessed: _s
           .extractXmlChild(elem, 'ServicesLastAccessed')!
           .findElements('member')
@@ -12826,7 +12930,7 @@ class GetServiceLastAccessedDetailsResponse {
       isTruncated: _s.extractXmlBoolValue(elem, 'IsTruncated'),
       jobType: _s
           .extractXmlStringValue(elem, 'JobType')
-          ?.toAccessAdvisorUsageGranularityType(),
+          ?.let(AccessAdvisorUsageGranularityType.fromString),
       marker: _s.extractXmlStringValue(elem, 'Marker'),
     );
   }
@@ -12843,11 +12947,11 @@ class GetServiceLastAccessedDetailsResponse {
     return {
       'JobCompletionDate': iso8601ToJson(jobCompletionDate),
       'JobCreationDate': iso8601ToJson(jobCreationDate),
-      'JobStatus': jobStatus.toValue(),
+      'JobStatus': jobStatus.value,
       'ServicesLastAccessed': servicesLastAccessed,
       if (error != null) 'Error': error,
       if (isTruncated != null) 'IsTruncated': isTruncated,
-      if (jobType != null) 'JobType': jobType.toValue(),
+      if (jobType != null) 'JobType': jobType.value,
       if (marker != null) 'Marker': marker,
     };
   }
@@ -12909,7 +13013,9 @@ class GetServiceLastAccessedDetailsWithEntitiesResponse {
           .toList(),
       jobCompletionDate: _s.extractXmlDateTimeValue(elem, 'JobCompletionDate')!,
       jobCreationDate: _s.extractXmlDateTimeValue(elem, 'JobCreationDate')!,
-      jobStatus: _s.extractXmlStringValue(elem, 'JobStatus')!.toJobStatusType(),
+      jobStatus: _s
+          .extractXmlStringValue(elem, 'JobStatus')!
+          .let(JobStatusType.fromString),
       error: _s.extractXmlChild(elem, 'Error')?.let(ErrorDetails.fromXml),
       isTruncated: _s.extractXmlBoolValue(elem, 'IsTruncated'),
       marker: _s.extractXmlStringValue(elem, 'Marker'),
@@ -12928,7 +13034,7 @@ class GetServiceLastAccessedDetailsWithEntitiesResponse {
       'EntityDetailsList': entityDetailsList,
       'JobCompletionDate': iso8601ToJson(jobCompletionDate),
       'JobCreationDate': iso8601ToJson(jobCreationDate),
-      'JobStatus': jobStatus.toValue(),
+      'JobStatus': jobStatus.value,
       if (error != null) 'Error': error,
       if (isTruncated != null) 'IsTruncated': isTruncated,
       if (marker != null) 'Marker': marker,
@@ -12950,8 +13056,9 @@ class GetServiceLinkedRoleDeletionStatusResponse {
   factory GetServiceLinkedRoleDeletionStatusResponse.fromXml(
       _s.XmlElement elem) {
     return GetServiceLinkedRoleDeletionStatusResponse(
-      status:
-          _s.extractXmlStringValue(elem, 'Status')!.toDeletionTaskStatusType(),
+      status: _s
+          .extractXmlStringValue(elem, 'Status')!
+          .let(DeletionTaskStatusType.fromString),
       reason: _s
           .extractXmlChild(elem, 'Reason')
           ?.let(DeletionTaskFailureReasonType.fromXml),
@@ -12962,7 +13069,7 @@ class GetServiceLinkedRoleDeletionStatusResponse {
     final status = this.status;
     final reason = this.reason;
     return {
-      'Status': status.toValue(),
+      'Status': status.value,
       if (reason != null) 'Reason': reason,
     };
   }
@@ -15322,28 +15429,17 @@ class PasswordPolicy {
 }
 
 enum PermissionsBoundaryAttachmentType {
-  permissionsBoundaryPolicy,
-}
+  permissionsBoundaryPolicy('PermissionsBoundaryPolicy'),
+  ;
 
-extension PermissionsBoundaryAttachmentTypeValueExtension
-    on PermissionsBoundaryAttachmentType {
-  String toValue() {
-    switch (this) {
-      case PermissionsBoundaryAttachmentType.permissionsBoundaryPolicy:
-        return 'PermissionsBoundaryPolicy';
-    }
-  }
-}
+  final String value;
 
-extension PermissionsBoundaryAttachmentTypeFromString on String {
-  PermissionsBoundaryAttachmentType toPermissionsBoundaryAttachmentType() {
-    switch (this) {
-      case 'PermissionsBoundaryPolicy':
-        return PermissionsBoundaryAttachmentType.permissionsBoundaryPolicy;
-    }
-    throw Exception(
-        '$this is not known in enum PermissionsBoundaryAttachmentType');
-  }
+  const PermissionsBoundaryAttachmentType(this.value);
+
+  static PermissionsBoundaryAttachmentType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PermissionsBoundaryAttachmentType'));
 }
 
 /// Contains information about the effect that a permissions boundary has on a
@@ -15548,37 +15644,19 @@ class PolicyDetail {
 }
 
 enum PolicyEvaluationDecisionType {
-  allowed,
-  explicitDeny,
-  implicitDeny,
-}
+  allowed('allowed'),
+  explicitDeny('explicitDeny'),
+  implicitDeny('implicitDeny'),
+  ;
 
-extension PolicyEvaluationDecisionTypeValueExtension
-    on PolicyEvaluationDecisionType {
-  String toValue() {
-    switch (this) {
-      case PolicyEvaluationDecisionType.allowed:
-        return 'allowed';
-      case PolicyEvaluationDecisionType.explicitDeny:
-        return 'explicitDeny';
-      case PolicyEvaluationDecisionType.implicitDeny:
-        return 'implicitDeny';
-    }
-  }
-}
+  final String value;
 
-extension PolicyEvaluationDecisionTypeFromString on String {
-  PolicyEvaluationDecisionType toPolicyEvaluationDecisionType() {
-    switch (this) {
-      case 'allowed':
-        return PolicyEvaluationDecisionType.allowed;
-      case 'explicitDeny':
-        return PolicyEvaluationDecisionType.explicitDeny;
-      case 'implicitDeny':
-        return PolicyEvaluationDecisionType.implicitDeny;
-    }
-    throw Exception('$this is not known in enum PolicyEvaluationDecisionType');
-  }
+  const PolicyEvaluationDecisionType(this.value);
+
+  static PolicyEvaluationDecisionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PolicyEvaluationDecisionType'));
 }
 
 /// Contains details about the permissions policies that are attached to the
@@ -15624,11 +15702,13 @@ class PolicyGrantingServiceAccess {
   factory PolicyGrantingServiceAccess.fromXml(_s.XmlElement elem) {
     return PolicyGrantingServiceAccess(
       policyName: _s.extractXmlStringValue(elem, 'PolicyName')!,
-      policyType: _s.extractXmlStringValue(elem, 'PolicyType')!.toPolicyType(),
+      policyType: _s
+          .extractXmlStringValue(elem, 'PolicyType')!
+          .let(PolicyType.fromString),
       entityName: _s.extractXmlStringValue(elem, 'EntityName'),
       entityType: _s
           .extractXmlStringValue(elem, 'EntityType')
-          ?.toPolicyOwnerEntityType(),
+          ?.let(PolicyOwnerEntityType.fromString),
       policyArn: _s.extractXmlStringValue(elem, 'PolicyArn'),
     );
   }
@@ -15641,9 +15721,9 @@ class PolicyGrantingServiceAccess {
     final policyArn = this.policyArn;
     return {
       'PolicyName': policyName,
-      'PolicyType': policyType.toValue(),
+      'PolicyType': policyType.value,
       if (entityName != null) 'EntityName': entityName,
-      if (entityType != null) 'EntityType': entityType.toValue(),
+      if (entityType != null) 'EntityType': entityType.value,
       if (policyArn != null) 'PolicyArn': policyArn,
     };
   }
@@ -15728,56 +15808,23 @@ class PolicyRole {
 }
 
 enum PolicySourceType {
-  user,
-  group,
-  role,
-  awsManaged,
-  userManaged,
-  resource,
-  none,
-}
+  user('user'),
+  group('group'),
+  role('role'),
+  awsManaged('aws-managed'),
+  userManaged('user-managed'),
+  resource('resource'),
+  none('none'),
+  ;
 
-extension PolicySourceTypeValueExtension on PolicySourceType {
-  String toValue() {
-    switch (this) {
-      case PolicySourceType.user:
-        return 'user';
-      case PolicySourceType.group:
-        return 'group';
-      case PolicySourceType.role:
-        return 'role';
-      case PolicySourceType.awsManaged:
-        return 'aws-managed';
-      case PolicySourceType.userManaged:
-        return 'user-managed';
-      case PolicySourceType.resource:
-        return 'resource';
-      case PolicySourceType.none:
-        return 'none';
-    }
-  }
-}
+  final String value;
 
-extension PolicySourceTypeFromString on String {
-  PolicySourceType toPolicySourceType() {
-    switch (this) {
-      case 'user':
-        return PolicySourceType.user;
-      case 'group':
-        return PolicySourceType.group;
-      case 'role':
-        return PolicySourceType.role;
-      case 'aws-managed':
-        return PolicySourceType.awsManaged;
-      case 'user-managed':
-        return PolicySourceType.userManaged;
-      case 'resource':
-        return PolicySourceType.resource;
-      case 'none':
-        return PolicySourceType.none;
-    }
-    throw Exception('$this is not known in enum PolicySourceType');
-  }
+  const PolicySourceType(this.value);
+
+  static PolicySourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PolicySourceType'));
 }
 
 /// The policy usage type that indicates whether the policy is used as a
@@ -15787,31 +15834,18 @@ extension PolicySourceTypeFromString on String {
 /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies_boundaries.html">Permissions
 /// boundaries for IAM identities </a> in the <i>IAM User Guide</i>.
 enum PolicyUsageType {
-  permissionsPolicy,
-  permissionsBoundary,
-}
+  permissionsPolicy('PermissionsPolicy'),
+  permissionsBoundary('PermissionsBoundary'),
+  ;
 
-extension PolicyUsageTypeValueExtension on PolicyUsageType {
-  String toValue() {
-    switch (this) {
-      case PolicyUsageType.permissionsPolicy:
-        return 'PermissionsPolicy';
-      case PolicyUsageType.permissionsBoundary:
-        return 'PermissionsBoundary';
-    }
-  }
-}
+  final String value;
 
-extension PolicyUsageTypeFromString on String {
-  PolicyUsageType toPolicyUsageType() {
-    switch (this) {
-      case 'PermissionsPolicy':
-        return PolicyUsageType.permissionsPolicy;
-      case 'PermissionsBoundary':
-        return PolicyUsageType.permissionsBoundary;
-    }
-    throw Exception('$this is not known in enum PolicyUsageType');
-  }
+  const PolicyUsageType(this.value);
+
+  static PolicyUsageType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PolicyUsageType'));
 }
 
 /// Contains information about a user that a managed policy is attached to.
@@ -15956,59 +15990,33 @@ class Position {
 }
 
 enum ReportFormatType {
-  textCsv,
-}
+  textCsv('text/csv'),
+  ;
 
-extension ReportFormatTypeValueExtension on ReportFormatType {
-  String toValue() {
-    switch (this) {
-      case ReportFormatType.textCsv:
-        return 'text/csv';
-    }
-  }
-}
+  final String value;
 
-extension ReportFormatTypeFromString on String {
-  ReportFormatType toReportFormatType() {
-    switch (this) {
-      case 'text/csv':
-        return ReportFormatType.textCsv;
-    }
-    throw Exception('$this is not known in enum ReportFormatType');
-  }
+  const ReportFormatType(this.value);
+
+  static ReportFormatType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReportFormatType'));
 }
 
 enum ReportStateType {
-  started,
-  inprogress,
-  complete,
-}
+  started('STARTED'),
+  inprogress('INPROGRESS'),
+  complete('COMPLETE'),
+  ;
 
-extension ReportStateTypeValueExtension on ReportStateType {
-  String toValue() {
-    switch (this) {
-      case ReportStateType.started:
-        return 'STARTED';
-      case ReportStateType.inprogress:
-        return 'INPROGRESS';
-      case ReportStateType.complete:
-        return 'COMPLETE';
-    }
-  }
-}
+  final String value;
 
-extension ReportStateTypeFromString on String {
-  ReportStateType toReportStateType() {
-    switch (this) {
-      case 'STARTED':
-        return ReportStateType.started;
-      case 'INPROGRESS':
-        return ReportStateType.inprogress;
-      case 'COMPLETE':
-        return ReportStateType.complete;
-    }
-    throw Exception('$this is not known in enum ReportStateType');
-  }
+  const ReportStateType(this.value);
+
+  static ReportStateType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ReportStateType'));
 }
 
 class ResetServiceSpecificCredentialResponse {
@@ -16093,7 +16101,7 @@ class ResourceSpecificResult {
     return ResourceSpecificResult(
       evalResourceDecision: _s
           .extractXmlStringValue(elem, 'EvalResourceDecision')!
-          .toPolicyEvaluationDecisionType(),
+          .let(PolicyEvaluationDecisionType.fromString),
       evalResourceName: _s.extractXmlStringValue(elem, 'EvalResourceName')!,
       evalDecisionDetails: Map.fromEntries(
         elem.getElement('EvalDecisionDetails')?.findElements('entry').map(
@@ -16101,7 +16109,7 @@ class ResourceSpecificResult {
                     _s.extractXmlStringValue(c, 'key')!,
                     _s
                         .extractXmlStringValue(c, 'value')!
-                        .toPolicyEvaluationDecisionType(),
+                        .let(PolicyEvaluationDecisionType.fromString),
                   ),
                 ) ??
             {},
@@ -16127,11 +16135,11 @@ class ResourceSpecificResult {
     final permissionsBoundaryDecisionDetail =
         this.permissionsBoundaryDecisionDetail;
     return {
-      'EvalResourceDecision': evalResourceDecision.toValue(),
+      'EvalResourceDecision': evalResourceDecision.value,
       'EvalResourceName': evalResourceName,
       if (evalDecisionDetails != null)
         'EvalDecisionDetails':
-            evalDecisionDetails.map((k, e) => MapEntry(k, e.toValue())),
+            evalDecisionDetails.map((k, e) => MapEntry(k, e.value)),
       if (matchedStatements != null) 'MatchedStatements': matchedStatements,
       if (missingContextValues != null)
         'MissingContextValues': missingContextValues,
@@ -16563,7 +16571,8 @@ class SSHPublicKey {
       fingerprint: _s.extractXmlStringValue(elem, 'Fingerprint')!,
       sSHPublicKeyBody: _s.extractXmlStringValue(elem, 'SSHPublicKeyBody')!,
       sSHPublicKeyId: _s.extractXmlStringValue(elem, 'SSHPublicKeyId')!,
-      status: _s.extractXmlStringValue(elem, 'Status')!.toStatusType(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')!.let(StatusType.fromString),
       userName: _s.extractXmlStringValue(elem, 'UserName')!,
       uploadDate: _s.extractXmlDateTimeValue(elem, 'UploadDate'),
     );
@@ -16580,7 +16589,7 @@ class SSHPublicKey {
       'Fingerprint': fingerprint,
       'SSHPublicKeyBody': sSHPublicKeyBody,
       'SSHPublicKeyId': sSHPublicKeyId,
-      'Status': status.toValue(),
+      'Status': status.value,
       'UserName': userName,
       if (uploadDate != null) 'UploadDate': iso8601ToJson(uploadDate),
     };
@@ -16617,7 +16626,8 @@ class SSHPublicKeyMetadata {
   factory SSHPublicKeyMetadata.fromXml(_s.XmlElement elem) {
     return SSHPublicKeyMetadata(
       sSHPublicKeyId: _s.extractXmlStringValue(elem, 'SSHPublicKeyId')!,
-      status: _s.extractXmlStringValue(elem, 'Status')!.toStatusType(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')!.let(StatusType.fromString),
       uploadDate: _s.extractXmlDateTimeValue(elem, 'UploadDate')!,
       userName: _s.extractXmlStringValue(elem, 'UserName')!,
     );
@@ -16630,7 +16640,7 @@ class SSHPublicKeyMetadata {
     final userName = this.userName;
     return {
       'SSHPublicKeyId': sSHPublicKeyId,
-      'Status': status.toValue(),
+      'Status': status.value,
       'UploadDate': iso8601ToJson(uploadDate),
       'UserName': userName,
     };
@@ -16933,7 +16943,8 @@ class ServiceSpecificCredential {
       serviceSpecificCredentialId:
           _s.extractXmlStringValue(elem, 'ServiceSpecificCredentialId')!,
       serviceUserName: _s.extractXmlStringValue(elem, 'ServiceUserName')!,
-      status: _s.extractXmlStringValue(elem, 'Status')!.toStatusType(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')!.let(StatusType.fromString),
       userName: _s.extractXmlStringValue(elem, 'UserName')!,
     );
   }
@@ -16952,7 +16963,7 @@ class ServiceSpecificCredential {
       'ServicePassword': servicePassword,
       'ServiceSpecificCredentialId': serviceSpecificCredentialId,
       'ServiceUserName': serviceUserName,
-      'Status': status.toValue(),
+      'Status': status.value,
       'UserName': userName,
     };
   }
@@ -16996,7 +17007,8 @@ class ServiceSpecificCredentialMetadata {
       serviceSpecificCredentialId:
           _s.extractXmlStringValue(elem, 'ServiceSpecificCredentialId')!,
       serviceUserName: _s.extractXmlStringValue(elem, 'ServiceUserName')!,
-      status: _s.extractXmlStringValue(elem, 'Status')!.toStatusType(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')!.let(StatusType.fromString),
       userName: _s.extractXmlStringValue(elem, 'UserName')!,
     );
   }
@@ -17013,7 +17025,7 @@ class ServiceSpecificCredentialMetadata {
       'ServiceName': serviceName,
       'ServiceSpecificCredentialId': serviceSpecificCredentialId,
       'ServiceUserName': serviceUserName,
-      'Status': status.toValue(),
+      'Status': status.value,
       'UserName': userName,
     };
   }
@@ -17052,7 +17064,8 @@ class SigningCertificate {
     return SigningCertificate(
       certificateBody: _s.extractXmlStringValue(elem, 'CertificateBody')!,
       certificateId: _s.extractXmlStringValue(elem, 'CertificateId')!,
-      status: _s.extractXmlStringValue(elem, 'Status')!.toStatusType(),
+      status:
+          _s.extractXmlStringValue(elem, 'Status')!.let(StatusType.fromString),
       userName: _s.extractXmlStringValue(elem, 'UserName')!,
       uploadDate: _s.extractXmlDateTimeValue(elem, 'UploadDate'),
     );
@@ -17067,7 +17080,7 @@ class SigningCertificate {
     return {
       'CertificateBody': certificateBody,
       'CertificateId': certificateId,
-      'Status': status.toValue(),
+      'Status': status.value,
       'UserName': userName,
       if (uploadDate != null) 'UploadDate': iso8601ToJson(uploadDate),
     };
@@ -17155,7 +17168,7 @@ class Statement {
       sourcePolicyId: _s.extractXmlStringValue(elem, 'SourcePolicyId'),
       sourcePolicyType: _s
           .extractXmlStringValue(elem, 'SourcePolicyType')
-          ?.toPolicySourceType(),
+          ?.let(PolicySourceType.fromString),
       startPosition:
           _s.extractXmlChild(elem, 'StartPosition')?.let(Position.fromXml),
     );
@@ -17169,8 +17182,7 @@ class Statement {
     return {
       if (endPosition != null) 'EndPosition': endPosition,
       if (sourcePolicyId != null) 'SourcePolicyId': sourcePolicyId,
-      if (sourcePolicyType != null)
-        'SourcePolicyType': sourcePolicyType.toValue(),
+      if (sourcePolicyType != null) 'SourcePolicyType': sourcePolicyType.value,
       if (startPosition != null) 'StartPosition': startPosition,
     };
   }
@@ -17212,6 +17224,15 @@ class Tag {
   }
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      'Key': key,
+      'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {
@@ -17674,7 +17695,7 @@ class VirtualMFADevice {
 
   /// The base32 seed defined as specified in <a
   /// href="https://tools.ietf.org/html/rfc3548.txt">RFC3548</a>. The
-  /// <code>Base32StringSeed</code> is base64-encoded.
+  /// <code>Base32StringSeed</code> is base32-encoded.
   final Uint8List? base32StringSeed;
 
   /// The date and time on which the virtual MFA device was enabled.
@@ -17737,434 +17758,180 @@ class VirtualMFADevice {
 }
 
 enum AssignmentStatusType {
-  assigned,
-  unassigned,
-  any,
-}
+  assigned('Assigned'),
+  unassigned('Unassigned'),
+  any('Any'),
+  ;
 
-extension AssignmentStatusTypeValueExtension on AssignmentStatusType {
-  String toValue() {
-    switch (this) {
-      case AssignmentStatusType.assigned:
-        return 'Assigned';
-      case AssignmentStatusType.unassigned:
-        return 'Unassigned';
-      case AssignmentStatusType.any:
-        return 'Any';
-    }
-  }
-}
+  final String value;
 
-extension AssignmentStatusTypeFromString on String {
-  AssignmentStatusType toAssignmentStatusType() {
-    switch (this) {
-      case 'Assigned':
-        return AssignmentStatusType.assigned;
-      case 'Unassigned':
-        return AssignmentStatusType.unassigned;
-      case 'Any':
-        return AssignmentStatusType.any;
-    }
-    throw Exception('$this is not known in enum AssignmentStatusType');
-  }
+  const AssignmentStatusType(this.value);
+
+  static AssignmentStatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AssignmentStatusType'));
 }
 
 enum EncodingType {
-  ssh,
-  pem,
-}
+  ssh('SSH'),
+  pem('PEM'),
+  ;
 
-extension EncodingTypeValueExtension on EncodingType {
-  String toValue() {
-    switch (this) {
-      case EncodingType.ssh:
-        return 'SSH';
-      case EncodingType.pem:
-        return 'PEM';
-    }
-  }
-}
+  final String value;
 
-extension EncodingTypeFromString on String {
-  EncodingType toEncodingType() {
-    switch (this) {
-      case 'SSH':
-        return EncodingType.ssh;
-      case 'PEM':
-        return EncodingType.pem;
-    }
-    throw Exception('$this is not known in enum EncodingType');
-  }
+  const EncodingType(this.value);
+
+  static EncodingType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncodingType'));
 }
 
 enum GlobalEndpointTokenVersion {
-  v1Token,
-  v2Token,
-}
+  v1Token('v1Token'),
+  v2Token('v2Token'),
+  ;
 
-extension GlobalEndpointTokenVersionValueExtension
-    on GlobalEndpointTokenVersion {
-  String toValue() {
-    switch (this) {
-      case GlobalEndpointTokenVersion.v1Token:
-        return 'v1Token';
-      case GlobalEndpointTokenVersion.v2Token:
-        return 'v2Token';
-    }
-  }
-}
+  final String value;
 
-extension GlobalEndpointTokenVersionFromString on String {
-  GlobalEndpointTokenVersion toGlobalEndpointTokenVersion() {
-    switch (this) {
-      case 'v1Token':
-        return GlobalEndpointTokenVersion.v1Token;
-      case 'v2Token':
-        return GlobalEndpointTokenVersion.v2Token;
-    }
-    throw Exception('$this is not known in enum GlobalEndpointTokenVersion');
-  }
+  const GlobalEndpointTokenVersion(this.value);
+
+  static GlobalEndpointTokenVersion fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum GlobalEndpointTokenVersion'));
 }
 
 enum JobStatusType {
-  inProgress,
-  completed,
-  failed,
-}
+  inProgress('IN_PROGRESS'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  ;
 
-extension JobStatusTypeValueExtension on JobStatusType {
-  String toValue() {
-    switch (this) {
-      case JobStatusType.inProgress:
-        return 'IN_PROGRESS';
-      case JobStatusType.completed:
-        return 'COMPLETED';
-      case JobStatusType.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusTypeFromString on String {
-  JobStatusType toJobStatusType() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return JobStatusType.inProgress;
-      case 'COMPLETED':
-        return JobStatusType.completed;
-      case 'FAILED':
-        return JobStatusType.failed;
-    }
-    throw Exception('$this is not known in enum JobStatusType');
-  }
+  const JobStatusType(this.value);
+
+  static JobStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JobStatusType'));
 }
 
 enum PolicyOwnerEntityType {
-  user,
-  role,
-  group,
-}
+  user('USER'),
+  role('ROLE'),
+  group('GROUP'),
+  ;
 
-extension PolicyOwnerEntityTypeValueExtension on PolicyOwnerEntityType {
-  String toValue() {
-    switch (this) {
-      case PolicyOwnerEntityType.user:
-        return 'USER';
-      case PolicyOwnerEntityType.role:
-        return 'ROLE';
-      case PolicyOwnerEntityType.group:
-        return 'GROUP';
-    }
-  }
-}
+  final String value;
 
-extension PolicyOwnerEntityTypeFromString on String {
-  PolicyOwnerEntityType toPolicyOwnerEntityType() {
-    switch (this) {
-      case 'USER':
-        return PolicyOwnerEntityType.user;
-      case 'ROLE':
-        return PolicyOwnerEntityType.role;
-      case 'GROUP':
-        return PolicyOwnerEntityType.group;
-    }
-    throw Exception('$this is not known in enum PolicyOwnerEntityType');
-  }
+  const PolicyOwnerEntityType(this.value);
+
+  static PolicyOwnerEntityType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PolicyOwnerEntityType'));
 }
 
 enum PolicyScopeType {
-  all,
-  aws,
-  local,
-}
+  all('All'),
+  aws('AWS'),
+  local('Local'),
+  ;
 
-extension PolicyScopeTypeValueExtension on PolicyScopeType {
-  String toValue() {
-    switch (this) {
-      case PolicyScopeType.all:
-        return 'All';
-      case PolicyScopeType.aws:
-        return 'AWS';
-      case PolicyScopeType.local:
-        return 'Local';
-    }
-  }
-}
+  final String value;
 
-extension PolicyScopeTypeFromString on String {
-  PolicyScopeType toPolicyScopeType() {
-    switch (this) {
-      case 'All':
-        return PolicyScopeType.all;
-      case 'AWS':
-        return PolicyScopeType.aws;
-      case 'Local':
-        return PolicyScopeType.local;
-    }
-    throw Exception('$this is not known in enum PolicyScopeType');
-  }
+  const PolicyScopeType(this.value);
+
+  static PolicyScopeType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PolicyScopeType'));
 }
 
 enum PolicyType {
-  inline,
-  managed,
-}
+  inline('INLINE'),
+  managed('MANAGED'),
+  ;
 
-extension PolicyTypeValueExtension on PolicyType {
-  String toValue() {
-    switch (this) {
-      case PolicyType.inline:
-        return 'INLINE';
-      case PolicyType.managed:
-        return 'MANAGED';
-    }
-  }
-}
+  final String value;
 
-extension PolicyTypeFromString on String {
-  PolicyType toPolicyType() {
-    switch (this) {
-      case 'INLINE':
-        return PolicyType.inline;
-      case 'MANAGED':
-        return PolicyType.managed;
-    }
-    throw Exception('$this is not known in enum PolicyType');
-  }
+  const PolicyType(this.value);
+
+  static PolicyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PolicyType'));
 }
 
 enum SortKeyType {
-  serviceNamespaceAscending,
-  serviceNamespaceDescending,
-  lastAuthenticatedTimeAscending,
-  lastAuthenticatedTimeDescending,
-}
+  serviceNamespaceAscending('SERVICE_NAMESPACE_ASCENDING'),
+  serviceNamespaceDescending('SERVICE_NAMESPACE_DESCENDING'),
+  lastAuthenticatedTimeAscending('LAST_AUTHENTICATED_TIME_ASCENDING'),
+  lastAuthenticatedTimeDescending('LAST_AUTHENTICATED_TIME_DESCENDING'),
+  ;
 
-extension SortKeyTypeValueExtension on SortKeyType {
-  String toValue() {
-    switch (this) {
-      case SortKeyType.serviceNamespaceAscending:
-        return 'SERVICE_NAMESPACE_ASCENDING';
-      case SortKeyType.serviceNamespaceDescending:
-        return 'SERVICE_NAMESPACE_DESCENDING';
-      case SortKeyType.lastAuthenticatedTimeAscending:
-        return 'LAST_AUTHENTICATED_TIME_ASCENDING';
-      case SortKeyType.lastAuthenticatedTimeDescending:
-        return 'LAST_AUTHENTICATED_TIME_DESCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortKeyTypeFromString on String {
-  SortKeyType toSortKeyType() {
-    switch (this) {
-      case 'SERVICE_NAMESPACE_ASCENDING':
-        return SortKeyType.serviceNamespaceAscending;
-      case 'SERVICE_NAMESPACE_DESCENDING':
-        return SortKeyType.serviceNamespaceDescending;
-      case 'LAST_AUTHENTICATED_TIME_ASCENDING':
-        return SortKeyType.lastAuthenticatedTimeAscending;
-      case 'LAST_AUTHENTICATED_TIME_DESCENDING':
-        return SortKeyType.lastAuthenticatedTimeDescending;
-    }
-    throw Exception('$this is not known in enum SortKeyType');
-  }
+  const SortKeyType(this.value);
+
+  static SortKeyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SortKeyType'));
 }
 
 enum StatusType {
-  active,
-  inactive,
-}
+  active('Active'),
+  inactive('Inactive'),
+  ;
 
-extension StatusTypeValueExtension on StatusType {
-  String toValue() {
-    switch (this) {
-      case StatusType.active:
-        return 'Active';
-      case StatusType.inactive:
-        return 'Inactive';
-    }
-  }
-}
+  final String value;
 
-extension StatusTypeFromString on String {
-  StatusType toStatusType() {
-    switch (this) {
-      case 'Active':
-        return StatusType.active;
-      case 'Inactive':
-        return StatusType.inactive;
-    }
-    throw Exception('$this is not known in enum StatusType');
-  }
+  const StatusType(this.value);
+
+  static StatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StatusType'));
 }
 
 enum SummaryKeyType {
-  users,
-  usersQuota,
-  groups,
-  groupsQuota,
-  serverCertificates,
-  serverCertificatesQuota,
-  userPolicySizeQuota,
-  groupPolicySizeQuota,
-  groupsPerUserQuota,
-  signingCertificatesPerUserQuota,
-  accessKeysPerUserQuota,
-  mFADevices,
-  mFADevicesInUse,
-  accountMFAEnabled,
-  accountAccessKeysPresent,
-  accountSigningCertificatesPresent,
-  attachedPoliciesPerGroupQuota,
-  attachedPoliciesPerRoleQuota,
-  attachedPoliciesPerUserQuota,
-  policies,
-  policiesQuota,
-  policySizeQuota,
-  policyVersionsInUse,
-  policyVersionsInUseQuota,
-  versionsPerPolicyQuota,
-  globalEndpointTokenVersion,
-}
+  users('Users'),
+  usersQuota('UsersQuota'),
+  groups('Groups'),
+  groupsQuota('GroupsQuota'),
+  serverCertificates('ServerCertificates'),
+  serverCertificatesQuota('ServerCertificatesQuota'),
+  userPolicySizeQuota('UserPolicySizeQuota'),
+  groupPolicySizeQuota('GroupPolicySizeQuota'),
+  groupsPerUserQuota('GroupsPerUserQuota'),
+  signingCertificatesPerUserQuota('SigningCertificatesPerUserQuota'),
+  accessKeysPerUserQuota('AccessKeysPerUserQuota'),
+  mFADevices('MFADevices'),
+  mFADevicesInUse('MFADevicesInUse'),
+  accountMFAEnabled('AccountMFAEnabled'),
+  accountAccessKeysPresent('AccountAccessKeysPresent'),
+  accountSigningCertificatesPresent('AccountSigningCertificatesPresent'),
+  attachedPoliciesPerGroupQuota('AttachedPoliciesPerGroupQuota'),
+  attachedPoliciesPerRoleQuota('AttachedPoliciesPerRoleQuota'),
+  attachedPoliciesPerUserQuota('AttachedPoliciesPerUserQuota'),
+  policies('Policies'),
+  policiesQuota('PoliciesQuota'),
+  policySizeQuota('PolicySizeQuota'),
+  policyVersionsInUse('PolicyVersionsInUse'),
+  policyVersionsInUseQuota('PolicyVersionsInUseQuota'),
+  versionsPerPolicyQuota('VersionsPerPolicyQuota'),
+  globalEndpointTokenVersion('GlobalEndpointTokenVersion'),
+  ;
 
-extension SummaryKeyTypeValueExtension on SummaryKeyType {
-  String toValue() {
-    switch (this) {
-      case SummaryKeyType.users:
-        return 'Users';
-      case SummaryKeyType.usersQuota:
-        return 'UsersQuota';
-      case SummaryKeyType.groups:
-        return 'Groups';
-      case SummaryKeyType.groupsQuota:
-        return 'GroupsQuota';
-      case SummaryKeyType.serverCertificates:
-        return 'ServerCertificates';
-      case SummaryKeyType.serverCertificatesQuota:
-        return 'ServerCertificatesQuota';
-      case SummaryKeyType.userPolicySizeQuota:
-        return 'UserPolicySizeQuota';
-      case SummaryKeyType.groupPolicySizeQuota:
-        return 'GroupPolicySizeQuota';
-      case SummaryKeyType.groupsPerUserQuota:
-        return 'GroupsPerUserQuota';
-      case SummaryKeyType.signingCertificatesPerUserQuota:
-        return 'SigningCertificatesPerUserQuota';
-      case SummaryKeyType.accessKeysPerUserQuota:
-        return 'AccessKeysPerUserQuota';
-      case SummaryKeyType.mFADevices:
-        return 'MFADevices';
-      case SummaryKeyType.mFADevicesInUse:
-        return 'MFADevicesInUse';
-      case SummaryKeyType.accountMFAEnabled:
-        return 'AccountMFAEnabled';
-      case SummaryKeyType.accountAccessKeysPresent:
-        return 'AccountAccessKeysPresent';
-      case SummaryKeyType.accountSigningCertificatesPresent:
-        return 'AccountSigningCertificatesPresent';
-      case SummaryKeyType.attachedPoliciesPerGroupQuota:
-        return 'AttachedPoliciesPerGroupQuota';
-      case SummaryKeyType.attachedPoliciesPerRoleQuota:
-        return 'AttachedPoliciesPerRoleQuota';
-      case SummaryKeyType.attachedPoliciesPerUserQuota:
-        return 'AttachedPoliciesPerUserQuota';
-      case SummaryKeyType.policies:
-        return 'Policies';
-      case SummaryKeyType.policiesQuota:
-        return 'PoliciesQuota';
-      case SummaryKeyType.policySizeQuota:
-        return 'PolicySizeQuota';
-      case SummaryKeyType.policyVersionsInUse:
-        return 'PolicyVersionsInUse';
-      case SummaryKeyType.policyVersionsInUseQuota:
-        return 'PolicyVersionsInUseQuota';
-      case SummaryKeyType.versionsPerPolicyQuota:
-        return 'VersionsPerPolicyQuota';
-      case SummaryKeyType.globalEndpointTokenVersion:
-        return 'GlobalEndpointTokenVersion';
-    }
-  }
-}
+  final String value;
 
-extension SummaryKeyTypeFromString on String {
-  SummaryKeyType toSummaryKeyType() {
-    switch (this) {
-      case 'Users':
-        return SummaryKeyType.users;
-      case 'UsersQuota':
-        return SummaryKeyType.usersQuota;
-      case 'Groups':
-        return SummaryKeyType.groups;
-      case 'GroupsQuota':
-        return SummaryKeyType.groupsQuota;
-      case 'ServerCertificates':
-        return SummaryKeyType.serverCertificates;
-      case 'ServerCertificatesQuota':
-        return SummaryKeyType.serverCertificatesQuota;
-      case 'UserPolicySizeQuota':
-        return SummaryKeyType.userPolicySizeQuota;
-      case 'GroupPolicySizeQuota':
-        return SummaryKeyType.groupPolicySizeQuota;
-      case 'GroupsPerUserQuota':
-        return SummaryKeyType.groupsPerUserQuota;
-      case 'SigningCertificatesPerUserQuota':
-        return SummaryKeyType.signingCertificatesPerUserQuota;
-      case 'AccessKeysPerUserQuota':
-        return SummaryKeyType.accessKeysPerUserQuota;
-      case 'MFADevices':
-        return SummaryKeyType.mFADevices;
-      case 'MFADevicesInUse':
-        return SummaryKeyType.mFADevicesInUse;
-      case 'AccountMFAEnabled':
-        return SummaryKeyType.accountMFAEnabled;
-      case 'AccountAccessKeysPresent':
-        return SummaryKeyType.accountAccessKeysPresent;
-      case 'AccountSigningCertificatesPresent':
-        return SummaryKeyType.accountSigningCertificatesPresent;
-      case 'AttachedPoliciesPerGroupQuota':
-        return SummaryKeyType.attachedPoliciesPerGroupQuota;
-      case 'AttachedPoliciesPerRoleQuota':
-        return SummaryKeyType.attachedPoliciesPerRoleQuota;
-      case 'AttachedPoliciesPerUserQuota':
-        return SummaryKeyType.attachedPoliciesPerUserQuota;
-      case 'Policies':
-        return SummaryKeyType.policies;
-      case 'PoliciesQuota':
-        return SummaryKeyType.policiesQuota;
-      case 'PolicySizeQuota':
-        return SummaryKeyType.policySizeQuota;
-      case 'PolicyVersionsInUse':
-        return SummaryKeyType.policyVersionsInUse;
-      case 'PolicyVersionsInUseQuota':
-        return SummaryKeyType.policyVersionsInUseQuota;
-      case 'VersionsPerPolicyQuota':
-        return SummaryKeyType.versionsPerPolicyQuota;
-      case 'GlobalEndpointTokenVersion':
-        return SummaryKeyType.globalEndpointTokenVersion;
-    }
-    throw Exception('$this is not known in enum SummaryKeyType');
-  }
+  const SummaryKeyType(this.value);
+
+  static SummaryKeyType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SummaryKeyType'));
 }
 
 class ConcurrentModificationException extends _s.GenericAwsException {
@@ -18294,6 +18061,14 @@ class NoSuchEntityException extends _s.GenericAwsException {
       : super(type: type, code: 'NoSuchEntityException', message: message);
 }
 
+class OpenIdIdpCommunicationErrorException extends _s.GenericAwsException {
+  OpenIdIdpCommunicationErrorException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'OpenIdIdpCommunicationErrorException',
+            message: message);
+}
+
 class PasswordPolicyViolationException extends _s.GenericAwsException {
   PasswordPolicyViolationException({String? type, String? message})
       : super(
@@ -18385,6 +18160,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       MalformedPolicyDocumentException(type: type, message: message),
   'NoSuchEntityException': (type, message) =>
       NoSuchEntityException(type: type, message: message),
+  'OpenIdIdpCommunicationErrorException': (type, message) =>
+      OpenIdIdpCommunicationErrorException(type: type, message: message),
   'PasswordPolicyViolationException': (type, message) =>
       PasswordPolicyViolationException(type: type, message: message),
   'PolicyEvaluationException': (type, message) =>

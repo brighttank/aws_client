@@ -387,7 +387,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'Operations': operations,
@@ -553,8 +553,8 @@ class CloudDirectory {
     final $payload = <String, dynamic>{
       'Name': name,
       if (attributes != null) 'Attributes': attributes,
-      if (facetStyle != null) 'FacetStyle': facetStyle.toValue(),
-      if (objectType != null) 'ObjectType': objectType.toValue(),
+      if (facetStyle != null) 'FacetStyle': facetStyle.value,
+      if (objectType != null) 'ObjectType': objectType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1323,8 +1323,7 @@ class CloudDirectory {
     final $payload = <String, dynamic>{
       'AttributeNames': attributeNames,
       'TypedLinkSpecifier': typedLinkSpecifier,
-      if (consistencyLevel != null)
-        'ConsistencyLevel': consistencyLevel.toValue(),
+      if (consistencyLevel != null) 'ConsistencyLevel': consistencyLevel.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1374,7 +1373,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'AttributeNames': attributeNames,
@@ -1418,7 +1417,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'ObjectReference': objectReference,
@@ -1597,7 +1596,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'TargetReference': targetReference,
@@ -1687,7 +1686,7 @@ class CloudDirectory {
     final $payload = <String, dynamic>{
       if (maxResults != null) 'MaxResults': maxResults,
       if (nextToken != null) 'NextToken': nextToken,
-      if (state != null) 'state': state.toValue(),
+      if (state != null) 'state': state.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -1860,8 +1859,7 @@ class CloudDirectory {
     };
     final $payload = <String, dynamic>{
       'ObjectReference': objectReference,
-      if (consistencyLevel != null)
-        'ConsistencyLevel': consistencyLevel.toValue(),
+      if (consistencyLevel != null) 'ConsistencyLevel': consistencyLevel.value,
       if (filterAttributeRanges != null)
         'FilterAttributeRanges': filterAttributeRanges,
       if (filterTypedLink != null) 'FilterTypedLink': filterTypedLink,
@@ -1929,7 +1927,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'IndexReference': indexReference,
@@ -2046,7 +2044,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'ObjectReference': objectReference,
@@ -2114,7 +2112,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'ObjectReference': objectReference,
@@ -2253,7 +2251,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'ObjectReference': objectReference,
@@ -2319,7 +2317,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'ObjectReference': objectReference,
@@ -2398,8 +2396,7 @@ class CloudDirectory {
     };
     final $payload = <String, dynamic>{
       'ObjectReference': objectReference,
-      if (consistencyLevel != null)
-        'ConsistencyLevel': consistencyLevel.toValue(),
+      if (consistencyLevel != null) 'ConsistencyLevel': consistencyLevel.value,
       if (filterAttributeRanges != null)
         'FilterAttributeRanges': filterAttributeRanges,
       if (filterTypedLink != null) 'FilterTypedLink': filterTypedLink,
@@ -2465,7 +2462,7 @@ class CloudDirectory {
     final headers = <String, String>{
       'x-amz-data-partition': directoryArn.toString(),
       if (consistencyLevel != null)
-        'x-amz-consistency-level': consistencyLevel.toValue(),
+        'x-amz-consistency-level': consistencyLevel.value,
     };
     final $payload = <String, dynamic>{
       'PolicyReference': policyReference,
@@ -3002,7 +2999,7 @@ class CloudDirectory {
     final $payload = <String, dynamic>{
       'Name': name,
       if (attributeUpdates != null) 'AttributeUpdates': attributeUpdates,
-      if (objectType != null) 'ObjectType': objectType.toValue(),
+      if (objectType != null) 'ObjectType': objectType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -4045,7 +4042,7 @@ class BatchGetLinkAttributesResponse {
   factory BatchGetLinkAttributesResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetLinkAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeKeyAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4096,7 +4093,7 @@ class BatchGetObjectAttributesResponse {
   factory BatchGetObjectAttributesResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetObjectAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeKeyAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4140,7 +4137,7 @@ class BatchGetObjectInformationResponse {
     return BatchGetObjectInformationResponse(
       objectIdentifier: json['ObjectIdentifier'] as String?,
       schemaFacets: (json['SchemaFacets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SchemaFacet.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4194,7 +4191,7 @@ class BatchListAttachedIndicesResponse {
   factory BatchListAttachedIndicesResponse.fromJson(Map<String, dynamic> json) {
     return BatchListAttachedIndicesResponse(
       indexAttachments: (json['IndexAttachments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IndexAttachment.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4268,7 +4265,7 @@ class BatchListIncomingTypedLinksResponse {
       Map<String, dynamic> json) {
     return BatchListIncomingTypedLinksResponse(
       linkSpecifiers: (json['LinkSpecifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TypedLinkSpecifier.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4330,7 +4327,7 @@ class BatchListIndexResponse {
   factory BatchListIndexResponse.fromJson(Map<String, dynamic> json) {
     return BatchListIndexResponse(
       indexAttachments: (json['IndexAttachments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IndexAttachment.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4393,7 +4390,7 @@ class BatchListObjectAttributesResponse {
       Map<String, dynamic> json) {
     return BatchListObjectAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeKeyAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4506,7 +4503,7 @@ class BatchListObjectParentPathsResponse {
       nextToken: json['NextToken'] as String?,
       pathToObjectIdentifiersList:
           (json['PathToObjectIdentifiersList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   PathToObjectIdentifiers.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -4561,7 +4558,7 @@ class BatchListObjectParentsResponse {
     return BatchListObjectParentsResponse(
       nextToken: json['NextToken'] as String?,
       parentLinks: (json['ParentLinks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ObjectIdentifierAndLinkNameTuple.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -4617,7 +4614,7 @@ class BatchListObjectPoliciesResponse {
   factory BatchListObjectPoliciesResponse.fromJson(Map<String, dynamic> json) {
     return BatchListObjectPoliciesResponse(
       attachedPolicyIds: (json['AttachedPolicyIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4692,7 +4689,7 @@ class BatchListOutgoingTypedLinksResponse {
     return BatchListOutgoingTypedLinksResponse(
       nextToken: json['NextToken'] as String?,
       typedLinkSpecifiers: (json['TypedLinkSpecifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TypedLinkSpecifier.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4748,7 +4745,7 @@ class BatchListPolicyAttachmentsResponse {
     return BatchListPolicyAttachmentsResponse(
       nextToken: json['NextToken'] as String?,
       objectIdentifiers: (json['ObjectIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4806,7 +4803,7 @@ class BatchLookupPolicyResponse {
     return BatchLookupPolicyResponse(
       nextToken: json['NextToken'] as String?,
       policyToPathList: (json['PolicyToPathList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicyToPath.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4830,92 +4827,35 @@ class BatchReadException {
   factory BatchReadException.fromJson(Map<String, dynamic> json) {
     return BatchReadException(
       message: json['Message'] as String?,
-      type: (json['Type'] as String?)?.toBatchReadExceptionType(),
+      type: (json['Type'] as String?)?.let(BatchReadExceptionType.fromString),
     );
   }
 }
 
 enum BatchReadExceptionType {
-  validationException,
-  invalidArnException,
-  resourceNotFoundException,
-  invalidNextTokenException,
-  accessDeniedException,
-  notNodeException,
-  facetValidationException,
-  cannotListParentOfRootException,
-  notIndexException,
-  notPolicyException,
-  directoryNotEnabledException,
-  limitExceededException,
-  internalServiceException,
-}
+  validationException('ValidationException'),
+  invalidArnException('InvalidArnException'),
+  resourceNotFoundException('ResourceNotFoundException'),
+  invalidNextTokenException('InvalidNextTokenException'),
+  accessDeniedException('AccessDeniedException'),
+  notNodeException('NotNodeException'),
+  facetValidationException('FacetValidationException'),
+  cannotListParentOfRootException('CannotListParentOfRootException'),
+  notIndexException('NotIndexException'),
+  notPolicyException('NotPolicyException'),
+  directoryNotEnabledException('DirectoryNotEnabledException'),
+  limitExceededException('LimitExceededException'),
+  internalServiceException('InternalServiceException'),
+  ;
 
-extension BatchReadExceptionTypeValueExtension on BatchReadExceptionType {
-  String toValue() {
-    switch (this) {
-      case BatchReadExceptionType.validationException:
-        return 'ValidationException';
-      case BatchReadExceptionType.invalidArnException:
-        return 'InvalidArnException';
-      case BatchReadExceptionType.resourceNotFoundException:
-        return 'ResourceNotFoundException';
-      case BatchReadExceptionType.invalidNextTokenException:
-        return 'InvalidNextTokenException';
-      case BatchReadExceptionType.accessDeniedException:
-        return 'AccessDeniedException';
-      case BatchReadExceptionType.notNodeException:
-        return 'NotNodeException';
-      case BatchReadExceptionType.facetValidationException:
-        return 'FacetValidationException';
-      case BatchReadExceptionType.cannotListParentOfRootException:
-        return 'CannotListParentOfRootException';
-      case BatchReadExceptionType.notIndexException:
-        return 'NotIndexException';
-      case BatchReadExceptionType.notPolicyException:
-        return 'NotPolicyException';
-      case BatchReadExceptionType.directoryNotEnabledException:
-        return 'DirectoryNotEnabledException';
-      case BatchReadExceptionType.limitExceededException:
-        return 'LimitExceededException';
-      case BatchReadExceptionType.internalServiceException:
-        return 'InternalServiceException';
-    }
-  }
-}
+  final String value;
 
-extension BatchReadExceptionTypeFromString on String {
-  BatchReadExceptionType toBatchReadExceptionType() {
-    switch (this) {
-      case 'ValidationException':
-        return BatchReadExceptionType.validationException;
-      case 'InvalidArnException':
-        return BatchReadExceptionType.invalidArnException;
-      case 'ResourceNotFoundException':
-        return BatchReadExceptionType.resourceNotFoundException;
-      case 'InvalidNextTokenException':
-        return BatchReadExceptionType.invalidNextTokenException;
-      case 'AccessDeniedException':
-        return BatchReadExceptionType.accessDeniedException;
-      case 'NotNodeException':
-        return BatchReadExceptionType.notNodeException;
-      case 'FacetValidationException':
-        return BatchReadExceptionType.facetValidationException;
-      case 'CannotListParentOfRootException':
-        return BatchReadExceptionType.cannotListParentOfRootException;
-      case 'NotIndexException':
-        return BatchReadExceptionType.notIndexException;
-      case 'NotPolicyException':
-        return BatchReadExceptionType.notPolicyException;
-      case 'DirectoryNotEnabledException':
-        return BatchReadExceptionType.directoryNotEnabledException;
-      case 'LimitExceededException':
-        return BatchReadExceptionType.limitExceededException;
-      case 'InternalServiceException':
-        return BatchReadExceptionType.internalServiceException;
-    }
-    throw Exception('$this is not known in enum BatchReadExceptionType');
-  }
+  const BatchReadExceptionType(this.value);
+
+  static BatchReadExceptionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum BatchReadExceptionType'));
 }
 
 /// Represents the output of a <code>BatchRead</code> operation.
@@ -5081,7 +5021,7 @@ class BatchReadResponse {
   factory BatchReadResponse.fromJson(Map<String, dynamic> json) {
     return BatchReadResponse(
       responses: (json['Responses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchReadOperationResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5605,7 +5545,7 @@ class BatchWriteResponse {
   factory BatchWriteResponse.fromJson(Map<String, dynamic> json) {
     return BatchWriteResponse(
       responses: (json['Responses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               BatchWriteOperationResponse.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5614,31 +5554,18 @@ class BatchWriteResponse {
 }
 
 enum ConsistencyLevel {
-  serializable,
-  eventual,
-}
+  serializable('SERIALIZABLE'),
+  eventual('EVENTUAL'),
+  ;
 
-extension ConsistencyLevelValueExtension on ConsistencyLevel {
-  String toValue() {
-    switch (this) {
-      case ConsistencyLevel.serializable:
-        return 'SERIALIZABLE';
-      case ConsistencyLevel.eventual:
-        return 'EVENTUAL';
-    }
-  }
-}
+  final String value;
 
-extension ConsistencyLevelFromString on String {
-  ConsistencyLevel toConsistencyLevel() {
-    switch (this) {
-      case 'SERIALIZABLE':
-        return ConsistencyLevel.serializable;
-      case 'EVENTUAL':
-        return ConsistencyLevel.eventual;
-    }
-    throw Exception('$this is not known in enum ConsistencyLevel');
-  }
+  const ConsistencyLevel(this.value);
+
+  static ConsistencyLevel fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConsistencyLevel'));
 }
 
 class CreateDirectoryResponse {
@@ -5858,42 +5785,25 @@ class Directory {
       creationDateTime: timeStampFromJson(json['CreationDateTime']),
       directoryArn: json['DirectoryArn'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toDirectoryState(),
+      state: (json['State'] as String?)?.let(DirectoryState.fromString),
     );
   }
 }
 
 enum DirectoryState {
-  enabled,
-  disabled,
-  deleted,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  deleted('DELETED'),
+  ;
 
-extension DirectoryStateValueExtension on DirectoryState {
-  String toValue() {
-    switch (this) {
-      case DirectoryState.enabled:
-        return 'ENABLED';
-      case DirectoryState.disabled:
-        return 'DISABLED';
-      case DirectoryState.deleted:
-        return 'DELETED';
-    }
-  }
-}
+  final String value;
 
-extension DirectoryStateFromString on String {
-  DirectoryState toDirectoryState() {
-    switch (this) {
-      case 'ENABLED':
-        return DirectoryState.enabled;
-      case 'DISABLED':
-        return DirectoryState.disabled;
-      case 'DELETED':
-        return DirectoryState.deleted;
-    }
-    throw Exception('$this is not known in enum DirectoryState');
-  }
+  const DirectoryState(this.value);
+
+  static DirectoryState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DirectoryState'));
 }
 
 class DisableDirectoryResponse {
@@ -5953,9 +5863,9 @@ class Facet {
 
   factory Facet.fromJson(Map<String, dynamic> json) {
     return Facet(
-      facetStyle: (json['FacetStyle'] as String?)?.toFacetStyle(),
+      facetStyle: (json['FacetStyle'] as String?)?.let(FacetStyle.fromString),
       name: json['Name'] as String?,
-      objectType: (json['ObjectType'] as String?)?.toObjectType(),
+      objectType: (json['ObjectType'] as String?)?.let(ObjectType.fromString),
     );
   }
 }
@@ -5997,8 +5907,8 @@ class FacetAttribute {
           ? FacetAttributeReference.fromJson(
               json['AttributeReference'] as Map<String, dynamic>)
           : null,
-      requiredBehavior:
-          (json['RequiredBehavior'] as String?)?.toRequiredAttributeBehavior(),
+      requiredBehavior: (json['RequiredBehavior'] as String?)
+          ?.let(RequiredAttributeBehavior.fromString),
     );
   }
 
@@ -6012,8 +5922,7 @@ class FacetAttribute {
       if (attributeDefinition != null)
         'AttributeDefinition': attributeDefinition,
       if (attributeReference != null) 'AttributeReference': attributeReference,
-      if (requiredBehavior != null)
-        'RequiredBehavior': requiredBehavior.toValue(),
+      if (requiredBehavior != null) 'RequiredBehavior': requiredBehavior.value,
     };
   }
 }
@@ -6043,7 +5952,7 @@ class FacetAttributeDefinition {
 
   factory FacetAttributeDefinition.fromJson(Map<String, dynamic> json) {
     return FacetAttributeDefinition(
-      type: (json['Type'] as String).toFacetAttributeType(),
+      type: FacetAttributeType.fromString((json['Type'] as String)),
       defaultValue: json['DefaultValue'] != null
           ? TypedAttributeValue.fromJson(
               json['DefaultValue'] as Map<String, dynamic>)
@@ -6060,7 +5969,7 @@ class FacetAttributeDefinition {
     final isImmutable = this.isImmutable;
     final rules = this.rules;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (defaultValue != null) 'DefaultValue': defaultValue,
       if (isImmutable != null) 'IsImmutable': isImmutable,
       if (rules != null) 'Rules': rules,
@@ -6105,51 +6014,22 @@ class FacetAttributeReference {
 }
 
 enum FacetAttributeType {
-  string,
-  binary,
-  boolean,
-  number,
-  datetime,
-  variant,
-}
+  string('STRING'),
+  binary('BINARY'),
+  boolean('BOOLEAN'),
+  number('NUMBER'),
+  datetime('DATETIME'),
+  variant('VARIANT'),
+  ;
 
-extension FacetAttributeTypeValueExtension on FacetAttributeType {
-  String toValue() {
-    switch (this) {
-      case FacetAttributeType.string:
-        return 'STRING';
-      case FacetAttributeType.binary:
-        return 'BINARY';
-      case FacetAttributeType.boolean:
-        return 'BOOLEAN';
-      case FacetAttributeType.number:
-        return 'NUMBER';
-      case FacetAttributeType.datetime:
-        return 'DATETIME';
-      case FacetAttributeType.variant:
-        return 'VARIANT';
-    }
-  }
-}
+  final String value;
 
-extension FacetAttributeTypeFromString on String {
-  FacetAttributeType toFacetAttributeType() {
-    switch (this) {
-      case 'STRING':
-        return FacetAttributeType.string;
-      case 'BINARY':
-        return FacetAttributeType.binary;
-      case 'BOOLEAN':
-        return FacetAttributeType.boolean;
-      case 'NUMBER':
-        return FacetAttributeType.number;
-      case 'DATETIME':
-        return FacetAttributeType.datetime;
-      case 'VARIANT':
-        return FacetAttributeType.variant;
-    }
-    throw Exception('$this is not known in enum FacetAttributeType');
-  }
+  const FacetAttributeType(this.value);
+
+  static FacetAttributeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FacetAttributeType'));
 }
 
 /// A structure that contains information used to update an attribute.
@@ -6169,38 +6049,24 @@ class FacetAttributeUpdate {
     final action = this.action;
     final attribute = this.attribute;
     return {
-      if (action != null) 'Action': action.toValue(),
+      if (action != null) 'Action': action.value,
       if (attribute != null) 'Attribute': attribute,
     };
   }
 }
 
 enum FacetStyle {
-  static,
-  dynamic,
-}
+  static('STATIC'),
+  $dynamic('DYNAMIC'),
+  ;
 
-extension FacetStyleValueExtension on FacetStyle {
-  String toValue() {
-    switch (this) {
-      case FacetStyle.static:
-        return 'STATIC';
-      case FacetStyle.dynamic:
-        return 'DYNAMIC';
-    }
-  }
-}
+  final String value;
 
-extension FacetStyleFromString on String {
-  FacetStyle toFacetStyle() {
-    switch (this) {
-      case 'STATIC':
-        return FacetStyle.static;
-      case 'DYNAMIC':
-        return FacetStyle.dynamic;
-    }
-    throw Exception('$this is not known in enum FacetStyle');
-  }
+  const FacetStyle(this.value);
+
+  static FacetStyle fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FacetStyle'));
 }
 
 class GetAppliedSchemaVersionResponse {
@@ -6262,7 +6128,7 @@ class GetLinkAttributesResponse {
   factory GetLinkAttributesResponse.fromJson(Map<String, dynamic> json) {
     return GetLinkAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeKeyAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6280,7 +6146,7 @@ class GetObjectAttributesResponse {
   factory GetObjectAttributesResponse.fromJson(Map<String, dynamic> json) {
     return GetObjectAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeKeyAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6305,7 +6171,7 @@ class GetObjectInformationResponse {
     return GetObjectInformationResponse(
       objectIdentifier: json['ObjectIdentifier'] as String?,
       schemaFacets: (json['SchemaFacets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SchemaFacet.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6353,7 +6219,7 @@ class GetTypedLinkFacetInformationResponse {
       Map<String, dynamic> json) {
     return GetTypedLinkFacetInformationResponse(
       identityAttributeOrder: (json['IdentityAttributeOrder'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6380,7 +6246,7 @@ class IndexAttachment {
   factory IndexAttachment.fromJson(Map<String, dynamic> json) {
     return IndexAttachment(
       indexedAttributes: (json['IndexedAttributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeKeyAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       objectIdentifier: json['ObjectIdentifier'] as String?,
@@ -6408,7 +6274,7 @@ class LinkAttributeAction {
     final attributeUpdateValue = this.attributeUpdateValue;
     return {
       if (attributeActionType != null)
-        'AttributeActionType': attributeActionType.toValue(),
+        'AttributeActionType': attributeActionType.value,
       if (attributeUpdateValue != null)
         'AttributeUpdateValue': attributeUpdateValue,
     };
@@ -6454,7 +6320,7 @@ class ListAppliedSchemaArnsResponse {
     return ListAppliedSchemaArnsResponse(
       nextToken: json['NextToken'] as String?,
       schemaArns: (json['SchemaArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6476,7 +6342,7 @@ class ListAttachedIndicesResponse {
   factory ListAttachedIndicesResponse.fromJson(Map<String, dynamic> json) {
     return ListAttachedIndicesResponse(
       indexAttachments: (json['IndexAttachments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IndexAttachment.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6501,7 +6367,7 @@ class ListDevelopmentSchemaArnsResponse {
     return ListDevelopmentSchemaArnsResponse(
       nextToken: json['NextToken'] as String?,
       schemaArns: (json['SchemaArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6524,7 +6390,7 @@ class ListDirectoriesResponse {
   factory ListDirectoriesResponse.fromJson(Map<String, dynamic> json) {
     return ListDirectoriesResponse(
       directories: (json['Directories'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Directory.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6547,7 +6413,7 @@ class ListFacetAttributesResponse {
   factory ListFacetAttributesResponse.fromJson(Map<String, dynamic> json) {
     return ListFacetAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FacetAttribute.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6570,7 +6436,7 @@ class ListFacetNamesResponse {
   factory ListFacetNamesResponse.fromJson(Map<String, dynamic> json) {
     return ListFacetNamesResponse(
       facetNames: (json['FacetNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6593,7 +6459,7 @@ class ListIncomingTypedLinksResponse {
   factory ListIncomingTypedLinksResponse.fromJson(Map<String, dynamic> json) {
     return ListIncomingTypedLinksResponse(
       linkSpecifiers: (json['LinkSpecifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TypedLinkSpecifier.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6616,7 +6482,7 @@ class ListIndexResponse {
   factory ListIndexResponse.fromJson(Map<String, dynamic> json) {
     return ListIndexResponse(
       indexAttachments: (json['IndexAttachments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IndexAttachment.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6640,7 +6506,7 @@ class ListManagedSchemaArnsResponse {
     return ListManagedSchemaArnsResponse(
       nextToken: json['NextToken'] as String?,
       schemaArns: (json['SchemaArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6663,7 +6529,7 @@ class ListObjectAttributesResponse {
   factory ListObjectAttributesResponse.fromJson(Map<String, dynamic> json) {
     return ListObjectAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AttributeKeyAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6711,7 +6577,7 @@ class ListObjectParentPathsResponse {
       nextToken: json['NextToken'] as String?,
       pathToObjectIdentifiersList:
           (json['PathToObjectIdentifiersList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   PathToObjectIdentifiers.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -6740,7 +6606,7 @@ class ListObjectParentsResponse {
     return ListObjectParentsResponse(
       nextToken: json['NextToken'] as String?,
       parentLinks: (json['ParentLinks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ObjectIdentifierAndLinkNameTuple.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -6766,7 +6632,7 @@ class ListObjectPoliciesResponse {
   factory ListObjectPoliciesResponse.fromJson(Map<String, dynamic> json) {
     return ListObjectPoliciesResponse(
       attachedPolicyIds: (json['AttachedPolicyIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6790,7 +6656,7 @@ class ListOutgoingTypedLinksResponse {
     return ListOutgoingTypedLinksResponse(
       nextToken: json['NextToken'] as String?,
       typedLinkSpecifiers: (json['TypedLinkSpecifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TypedLinkSpecifier.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6813,7 +6679,7 @@ class ListPolicyAttachmentsResponse {
     return ListPolicyAttachmentsResponse(
       nextToken: json['NextToken'] as String?,
       objectIdentifiers: (json['ObjectIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6836,7 +6702,7 @@ class ListPublishedSchemaArnsResponse {
     return ListPublishedSchemaArnsResponse(
       nextToken: json['NextToken'] as String?,
       schemaArns: (json['SchemaArns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6860,7 +6726,7 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6883,7 +6749,7 @@ class ListTypedLinkFacetAttributesResponse {
       Map<String, dynamic> json) {
     return ListTypedLinkFacetAttributesResponse(
       attributes: (json['Attributes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               TypedLinkAttributeDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6907,7 +6773,7 @@ class ListTypedLinkFacetNamesResponse {
   factory ListTypedLinkFacetNamesResponse.fromJson(Map<String, dynamic> json) {
     return ListTypedLinkFacetNamesResponse(
       facetNames: (json['FacetNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6934,7 +6800,7 @@ class LookupPolicyResponse {
     return LookupPolicyResponse(
       nextToken: json['NextToken'] as String?,
       policyToPathList: (json['PolicyToPathList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicyToPath.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6959,7 +6825,7 @@ class ObjectAttributeAction {
     final objectAttributeUpdateValue = this.objectAttributeUpdateValue;
     return {
       if (objectAttributeActionType != null)
-        'ObjectAttributeActionType': objectAttributeActionType.toValue(),
+        'ObjectAttributeActionType': objectAttributeActionType.value,
       if (objectAttributeUpdateValue != null)
         'ObjectAttributeUpdateValue': objectAttributeUpdateValue,
     };
@@ -7081,41 +6947,19 @@ class ObjectReference {
 }
 
 enum ObjectType {
-  node,
-  leafNode,
-  policy,
-  $index,
-}
+  node('NODE'),
+  leafNode('LEAF_NODE'),
+  policy('POLICY'),
+  $index('INDEX'),
+  ;
 
-extension ObjectTypeValueExtension on ObjectType {
-  String toValue() {
-    switch (this) {
-      case ObjectType.node:
-        return 'NODE';
-      case ObjectType.leafNode:
-        return 'LEAF_NODE';
-      case ObjectType.policy:
-        return 'POLICY';
-      case ObjectType.$index:
-        return 'INDEX';
-    }
-  }
-}
+  final String value;
 
-extension ObjectTypeFromString on String {
-  ObjectType toObjectType() {
-    switch (this) {
-      case 'NODE':
-        return ObjectType.node;
-      case 'LEAF_NODE':
-        return ObjectType.leafNode;
-      case 'POLICY':
-        return ObjectType.policy;
-      case 'INDEX':
-        return ObjectType.$index;
-    }
-    throw Exception('$this is not known in enum ObjectType');
-  }
+  const ObjectType(this.value);
+
+  static ObjectType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ObjectType'));
 }
 
 /// Returns the path to the <code>ObjectIdentifiers</code> that is associated
@@ -7136,7 +6980,7 @@ class PathToObjectIdentifiers {
   factory PathToObjectIdentifiers.fromJson(Map<String, dynamic> json) {
     return PathToObjectIdentifiers(
       objectIdentifiers: (json['ObjectIdentifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       path: json['Path'] as String?,
@@ -7194,7 +7038,7 @@ class PolicyToPath {
     return PolicyToPath(
       path: json['Path'] as String?,
       policies: (json['Policies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicyAttachment.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7233,46 +7077,20 @@ class PutSchemaFromJsonResponse {
 }
 
 enum RangeMode {
-  first,
-  last,
-  lastBeforeMissingValues,
-  inclusive,
-  exclusive,
-}
+  first('FIRST'),
+  last('LAST'),
+  lastBeforeMissingValues('LAST_BEFORE_MISSING_VALUES'),
+  inclusive('INCLUSIVE'),
+  exclusive('EXCLUSIVE'),
+  ;
 
-extension RangeModeValueExtension on RangeMode {
-  String toValue() {
-    switch (this) {
-      case RangeMode.first:
-        return 'FIRST';
-      case RangeMode.last:
-        return 'LAST';
-      case RangeMode.lastBeforeMissingValues:
-        return 'LAST_BEFORE_MISSING_VALUES';
-      case RangeMode.inclusive:
-        return 'INCLUSIVE';
-      case RangeMode.exclusive:
-        return 'EXCLUSIVE';
-    }
-  }
-}
+  final String value;
 
-extension RangeModeFromString on String {
-  RangeMode toRangeMode() {
-    switch (this) {
-      case 'FIRST':
-        return RangeMode.first;
-      case 'LAST':
-        return RangeMode.last;
-      case 'LAST_BEFORE_MISSING_VALUES':
-        return RangeMode.lastBeforeMissingValues;
-      case 'INCLUSIVE':
-        return RangeMode.inclusive;
-      case 'EXCLUSIVE':
-        return RangeMode.exclusive;
-    }
-    throw Exception('$this is not known in enum RangeMode');
-  }
+  const RangeMode(this.value);
+
+  static RangeMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RangeMode'));
 }
 
 class RemoveFacetFromObjectResponse {
@@ -7284,31 +7102,18 @@ class RemoveFacetFromObjectResponse {
 }
 
 enum RequiredAttributeBehavior {
-  requiredAlways,
-  notRequired,
-}
+  requiredAlways('REQUIRED_ALWAYS'),
+  notRequired('NOT_REQUIRED'),
+  ;
 
-extension RequiredAttributeBehaviorValueExtension on RequiredAttributeBehavior {
-  String toValue() {
-    switch (this) {
-      case RequiredAttributeBehavior.requiredAlways:
-        return 'REQUIRED_ALWAYS';
-      case RequiredAttributeBehavior.notRequired:
-        return 'NOT_REQUIRED';
-    }
-  }
-}
+  final String value;
 
-extension RequiredAttributeBehaviorFromString on String {
-  RequiredAttributeBehavior toRequiredAttributeBehavior() {
-    switch (this) {
-      case 'REQUIRED_ALWAYS':
-        return RequiredAttributeBehavior.requiredAlways;
-      case 'NOT_REQUIRED':
-        return RequiredAttributeBehavior.notRequired;
-    }
-    throw Exception('$this is not known in enum RequiredAttributeBehavior');
-  }
+  const RequiredAttributeBehavior(this.value);
+
+  static RequiredAttributeBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum RequiredAttributeBehavior'));
 }
 
 /// Contains an Amazon Resource Name (ARN) and parameters that are associated
@@ -7329,7 +7134,7 @@ class Rule {
     return Rule(
       parameters: (json['Parameters'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      type: (json['Type'] as String?)?.toRuleType(),
+      type: (json['Type'] as String?)?.let(RuleType.fromString),
     );
   }
 
@@ -7338,47 +7143,25 @@ class Rule {
     final type = this.type;
     return {
       if (parameters != null) 'Parameters': parameters,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum RuleType {
-  binaryLength,
-  numberComparison,
-  stringFromSet,
-  stringLength,
-}
+  binaryLength('BINARY_LENGTH'),
+  numberComparison('NUMBER_COMPARISON'),
+  stringFromSet('STRING_FROM_SET'),
+  stringLength('STRING_LENGTH'),
+  ;
 
-extension RuleTypeValueExtension on RuleType {
-  String toValue() {
-    switch (this) {
-      case RuleType.binaryLength:
-        return 'BINARY_LENGTH';
-      case RuleType.numberComparison:
-        return 'NUMBER_COMPARISON';
-      case RuleType.stringFromSet:
-        return 'STRING_FROM_SET';
-      case RuleType.stringLength:
-        return 'STRING_LENGTH';
-    }
-  }
-}
+  final String value;
 
-extension RuleTypeFromString on String {
-  RuleType toRuleType() {
-    switch (this) {
-      case 'BINARY_LENGTH':
-        return RuleType.binaryLength;
-      case 'NUMBER_COMPARISON':
-        return RuleType.numberComparison;
-      case 'STRING_FROM_SET':
-        return RuleType.stringFromSet;
-      case 'STRING_LENGTH':
-        return RuleType.stringLength;
-    }
-    throw Exception('$this is not known in enum RuleType');
-  }
+  const RuleType(this.value);
+
+  static RuleType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RuleType'));
 }
 
 /// A facet.
@@ -7536,8 +7319,8 @@ class TypedAttributeValueRange {
     final endValue = this.endValue;
     final startValue = this.startValue;
     return {
-      'EndMode': endMode.toValue(),
-      'StartMode': startMode.toValue(),
+      'EndMode': endMode.value,
+      'StartMode': startMode.value,
       if (endValue != null) 'EndValue': endValue,
       if (startValue != null) 'StartValue': startValue,
     };
@@ -7576,9 +7359,9 @@ class TypedLinkAttributeDefinition {
   factory TypedLinkAttributeDefinition.fromJson(Map<String, dynamic> json) {
     return TypedLinkAttributeDefinition(
       name: json['Name'] as String,
-      requiredBehavior:
-          (json['RequiredBehavior'] as String).toRequiredAttributeBehavior(),
-      type: (json['Type'] as String).toFacetAttributeType(),
+      requiredBehavior: RequiredAttributeBehavior.fromString(
+          (json['RequiredBehavior'] as String)),
+      type: FacetAttributeType.fromString((json['Type'] as String)),
       defaultValue: json['DefaultValue'] != null
           ? TypedAttributeValue.fromJson(
               json['DefaultValue'] as Map<String, dynamic>)
@@ -7598,8 +7381,8 @@ class TypedLinkAttributeDefinition {
     final rules = this.rules;
     return {
       'Name': name,
-      'RequiredBehavior': requiredBehavior.toValue(),
-      'Type': type.toValue(),
+      'RequiredBehavior': requiredBehavior.value,
+      'Type': type.value,
       if (defaultValue != null) 'DefaultValue': defaultValue,
       if (isImmutable != null) 'IsImmutable': isImmutable,
       if (rules != null) 'Rules': rules,
@@ -7684,7 +7467,7 @@ class TypedLinkFacetAttributeUpdate {
     final action = this.action;
     final attribute = this.attribute;
     return {
-      'Action': action.toValue(),
+      'Action': action.value,
       'Attribute': attribute,
     };
   }
@@ -7752,7 +7535,7 @@ class TypedLinkSpecifier {
   factory TypedLinkSpecifier.fromJson(Map<String, dynamic> json) {
     return TypedLinkSpecifier(
       identityAttributeValues: (json['IdentityAttributeValues'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AttributeNameAndValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       sourceObjectReference: ObjectReference.fromJson(
@@ -7787,31 +7570,18 @@ class UntagResourceResponse {
 }
 
 enum UpdateActionType {
-  createOrUpdate,
-  delete,
-}
+  createOrUpdate('CREATE_OR_UPDATE'),
+  delete('DELETE'),
+  ;
 
-extension UpdateActionTypeValueExtension on UpdateActionType {
-  String toValue() {
-    switch (this) {
-      case UpdateActionType.createOrUpdate:
-        return 'CREATE_OR_UPDATE';
-      case UpdateActionType.delete:
-        return 'DELETE';
-    }
-  }
-}
+  final String value;
 
-extension UpdateActionTypeFromString on String {
-  UpdateActionType toUpdateActionType() {
-    switch (this) {
-      case 'CREATE_OR_UPDATE':
-        return UpdateActionType.createOrUpdate;
-      case 'DELETE':
-        return UpdateActionType.delete;
-    }
-    throw Exception('$this is not known in enum UpdateActionType');
-  }
+  const UpdateActionType(this.value);
+
+  static UpdateActionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateActionType'));
 }
 
 class UpdateFacetResponse {

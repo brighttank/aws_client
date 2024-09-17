@@ -94,7 +94,7 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// made the request and when, and so on. For more about Organizations and its
 /// support for CloudTrail, see <a
 /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_incident-response.html#orgs_cloudtrail-integration">Logging
-/// Organizations Events with CloudTrail</a> in the <i>Organizations User
+/// Organizations API calls with CloudTrail</a> in the <i>Organizations User
 /// Guide</i>. To learn more about CloudTrail, including how to turn it on and
 /// find your log files, see the <a
 /// href="https://docs.aws.amazon.com/awscloudtrail/latest/userguide/what_is_cloud_trail_top_level.html">CloudTrail
@@ -144,8 +144,8 @@ class Organizations {
   /// <code>iam:CreateServiceLinkedRole</code> permission so that Organizations
   /// can create the required service-linked role named
   /// <code>AWSServiceRoleForOrganizations</code>. For more information, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integration_services.html#orgs_integration_service-linked-roles">Organizations
-  /// and Service-Linked Roles</a> in the <i>Organizations User Guide</i>.
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integration_services.html#orgs_integrate_services-using_slrs">Organizations
+  /// and service-linked roles</a> in the <i>Organizations User Guide</i>.
   /// </li>
   /// <li>
   /// <b>Enable all features final confirmation</b> handshake: only a principal
@@ -154,11 +154,11 @@ class Organizations {
   /// For more information about invitations, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_invites.html">Inviting
   /// an Amazon Web Services account to join your organization</a> in the
-  /// <i>Organizations User Guide.</i> For more information about requests to
+  /// <i>Organizations User Guide</i>. For more information about requests to
   /// enable all features in the organization, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_org_support-all-features.html">Enabling
   /// all features in your organization</a> in the <i>Organizations User
-  /// Guide.</i>
+  /// Guide</i>.
   /// </li>
   /// </ul>
   /// After you accept a handshake, it continues to appear in the results of
@@ -227,7 +227,8 @@ class Organizations {
   /// </li>
   /// </ul>
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AWSOrganizationsNotInUseException].
@@ -372,20 +373,19 @@ class Organizations {
   /// on using CloudTrail with Organizations, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_security_incident-response.html#orgs_cloudtrail-integration">Logging
   /// and monitoring in Organizations</a> in the <i>Organizations User
-  /// Guide.</i>
+  /// Guide</i>.
   /// </li>
   /// </ul> <note>
   /// <ul>
   /// <li>
-  /// You can close only 10% of member accounts, between 10 and 200, within a
+  /// You can close only 10% of member accounts, between 10 and 1000, within a
   /// rolling 30 day period. This quota is not bound by a calendar month, but
-  /// starts when you close an account.
-  ///
-  /// After you reach this limit, you can close additional accounts in the
-  /// Billing console. For more information, see <a
-  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/close-account.html">Closing
-  /// an account</a> in the Amazon Web Services Billing and Cost Management User
-  /// Guide.
+  /// starts when you close an account. After you reach this limit, you can
+  /// close additional accounts. For more information, see <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_close.html">Closing
+  /// a member account in your organization</a> and <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_reference_limits.html">Quotas
+  /// for Organizations</a>in the <i>Organizations User Guide</i>.
   /// </li>
   /// <li>
   /// To reinstate a closed account, contact Amazon Web Services Support within
@@ -401,9 +401,6 @@ class Organizations {
   /// Web Services GovCloud User Guide</i>.
   /// </li>
   /// </ul> </note>
-  /// For more information about closing accounts, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_close.html">Closing
-  /// an Amazon Web Services account</a> in the <i>Organizations User Guide.</i>
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AccountAlreadyClosedException].
@@ -459,7 +456,7 @@ class Organizations {
   /// For information on using CloudTrail with Organizations, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_security_incident-response.html#orgs_cloudtrail-integration">Logging
   /// and monitoring in Organizations</a> in the <i>Organizations User
-  /// Guide.</i>
+  /// Guide</i>.
   /// </li>
   /// </ul>
   /// The user who calls the API to create an account must have the
@@ -468,7 +465,7 @@ class Organizations {
   /// service-linked role named <code>AWSServiceRoleForOrganizations</code>. For
   /// more information, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html#orgs_integrate_services-using_slrs">Organizations
-  /// and Service-Linked Roles</a> in the <i>Organizations User Guide</i>.
+  /// and service-linked roles</a> in the <i>Organizations User Guide</i>.
   ///
   /// If the request includes tags, then the requester must have the
   /// <code>organizations:TagResource</code> permission.
@@ -485,8 +482,8 @@ class Organizations {
   ///
   /// For more information about creating accounts, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_create.html">Creating
-  /// an Amazon Web Services account in Your Organization</a> in the
-  /// <i>Organizations User Guide.</i>
+  /// a member account in your organization</a> in the <i>Organizations User
+  /// Guide</i>.
   /// <important>
   /// <ul>
   /// <li>
@@ -495,10 +492,11 @@ class Organizations {
   /// operate as a standalone account, such as a payment method and signing the
   /// end user license agreement (EULA) is <i>not</i> automatically collected.
   /// If you must remove an account from your organization later, you can do so
-  /// only after you provide the missing information. Follow the steps at <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_remove.html#leave-without-all-info">
-  /// To leave an organization as a member account</a> in the <i>Organizations
-  /// User Guide</i>.
+  /// only after you provide the missing information. For more information, see
+  /// <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_account-before-remove.html">Considerations
+  /// before removing an account from an organization</a> in the
+  /// <i>Organizations User Guide</i>.
   /// </li>
   /// <li>
   /// If you get an exception that indicates that you exceeded your account
@@ -519,7 +517,8 @@ class Organizations {
   /// Management console, and you must be signed in as the root user. For
   /// information on the requirements and process for closing an account, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_close.html">Closing
-  /// an Amazon Web Services account</a> in the <i>Organizations User Guide</i>.
+  /// a member account in your organization</a> in the <i>Organizations User
+  /// Guide</i>.
   /// </li>
   /// </ul> </important> <note>
   /// When you create a member account with this operation, you can choose
@@ -529,8 +528,8 @@ class Organizations {
   /// the account. If you disable it, only the account root user can access
   /// billing information. For information about how to disable this switch for
   /// an account, see <a
-  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html">Granting
-  /// Access to Your Billing Information and Tools</a>.
+  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/control-access-billing.html#grantaccess">Granting
+  /// access to your billing information and tools</a>.
   /// </note>
   ///
   /// May throw [AccessDeniedException].
@@ -592,9 +591,9 @@ class Organizations {
   /// account billing information <i>if</i> they have the required permissions.
   /// If set to <code>DENY</code>, only the root user of the new account can
   /// access account billing information. For more information, see <a
-  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html#ControllingAccessWebsite-Activate">Activating
-  /// Access to the Billing and Cost Management Console</a> in the <i>Amazon Web
-  /// Services Billing and Cost Management User Guide</i>.
+  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html#ControllingAccessWebsite-Activate">About
+  /// IAM access to the Billing and Cost Management console</a> in the <i>Amazon
+  /// Web Services Billing and Cost Management User Guide</i>.
   ///
   /// If you don't specify this parameter, the value defaults to
   /// <code>ALLOW</code>, and IAM users and roles with the required permissions
@@ -616,15 +615,15 @@ class Organizations {
   /// <ul>
   /// <li>
   /// <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html#orgs_manage_accounts_create-cross-account-role">Accessing
-  /// and Administering the Member Accounts in Your Organization</a> in the
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html#orgs_manage_accounts_create-cross-account-role">Creating
+  /// the OrganizationAccountAccessRole in an invited member account</a> in the
   /// <i>Organizations User Guide</i>
   /// </li>
   /// <li>
   /// Steps 2 and 3 in <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html">Tutorial:
-  /// Delegate Access Across Amazon Web Services accounts Using IAM Roles</a> in
-  /// the <i>IAM User Guide</i>
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html">IAM
+  /// Tutorial: Delegate access across Amazon Web Services accounts using IAM
+  /// roles</a> in the <i>IAM User Guide</i>
   /// </li>
   /// </ul>
   /// The <a href="http://wikipedia.org/wiki/regex">regex pattern</a> that is
@@ -665,7 +664,7 @@ class Organizations {
         'AccountName': accountName,
         'Email': email,
         if (iamUserAccessToBilling != null)
-          'IamUserAccessToBilling': iamUserAccessToBilling.toValue(),
+          'IamUserAccessToBilling': iamUserAccessToBilling.value,
         if (roleName != null) 'RoleName': roleName,
         if (tags != null) 'Tags': tags,
       },
@@ -700,7 +699,7 @@ class Organizations {
   /// Organizations automatically creates the required service-linked role named
   /// <code>AWSServiceRoleForOrganizations</code>. For more information, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html#orgs_integrate_services-using_slrs">Organizations
-  /// and Service-Linked Roles</a> in the <i>Organizations User Guide.</i>
+  /// and service-linked roles</a> in the <i>Organizations User Guide</i>.
   ///
   /// Amazon Web Services automatically enables CloudTrail for Amazon Web
   /// Services GovCloud (US) accounts, but you should also do the following:
@@ -733,7 +732,7 @@ class Organizations {
   /// information on inviting standalone accounts in the Amazon Web Services
   /// GovCloud (US) to join an organization, see <a
   /// href="https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-organizations.html">Organizations</a>
-  /// in the <i>Amazon Web Services GovCloud User Guide.</i>
+  /// in the <i>Amazon Web Services GovCloud User Guide</i>.
   ///
   /// Calling <code>CreateGovCloudAccount</code> is an asynchronous request that
   /// Amazon Web Services performs in the background. Because
@@ -752,9 +751,9 @@ class Organizations {
   /// <li>
   /// Check the CloudTrail log for the <code>CreateAccountResult</code> event.
   /// For information on using CloudTrail with Organizations, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_monitoring.html">Monitoring
-  /// the Activity in Your Organization</a> in the <i>Organizations User
-  /// Guide.</i>
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_security_incident-response.html">Logging
+  /// and monitoring in Organizations</a> in the <i>Organizations User
+  /// Guide</i>.
   /// </li>
   /// </ul> <p/>
   /// When you call the <code>CreateGovCloudAccount</code> action, you create
@@ -774,12 +773,12 @@ class Organizations {
   /// more information and to view a diagram that explains how account access
   /// works, see <a
   /// href="https://docs.aws.amazon.com/govcloud-us/latest/UserGuide/govcloud-organizations.html">Organizations</a>
-  /// in the <i>Amazon Web Services GovCloud User Guide.</i>
+  /// in the <i>Amazon Web Services GovCloud User Guide</i>.
   ///
   /// For more information about creating accounts, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_create.html">Creating
-  /// an Amazon Web Services account in Your Organization</a> in the
-  /// <i>Organizations User Guide.</i>
+  /// a member account in your organization</a> in the <i>Organizations User
+  /// Guide</i>.
   /// <important>
   /// <ul>
   /// <li>
@@ -788,11 +787,11 @@ class Organizations {
   /// operate as a standalone account is <i>not</i> automatically collected.
   /// This includes a payment method and signing the end user license agreement
   /// (EULA). If you must remove an account from your organization later, you
-  /// can do so only after you provide the missing information. Follow the steps
-  /// at <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_remove.html#leave-without-all-info">
-  /// To leave an organization as a member account</a> in the <i>Organizations
-  /// User Guide.</i>
+  /// can do so only after you provide the missing information. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_account-before-remove.html">Considerations
+  /// before removing an account from an organization</a> in the
+  /// <i>Organizations User Guide</i>.
   /// </li>
   /// <li>
   /// If you get an exception that indicates that you exceeded your account
@@ -814,7 +813,8 @@ class Organizations {
   /// in as the root user. For information on the requirements and process for
   /// closing an account, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_close.html">Closing
-  /// an Amazon Web Services account</a> in the <i>Organizations User Guide</i>.
+  /// a member account in your organization</a> in the <i>Organizations User
+  /// Guide</i>.
   /// </li>
   /// </ul> </important> <note>
   /// When you create a member account with this operation, you can choose
@@ -825,7 +825,7 @@ class Organizations {
   /// billing information. For information about how to disable this switch for
   /// an account, see <a
   /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html">Granting
-  /// Access to Your Billing Information and Tools</a>.
+  /// access to your billing information and tools</a>.
   /// </note>
   ///
   /// May throw [AccessDeniedException].
@@ -894,9 +894,9 @@ class Organizations {
   /// they have the required permissions. If set to <code>DENY</code>, only the
   /// root user of the new account can access account billing information. For
   /// more information, see <a
-  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html#ControllingAccessWebsite-Activate">Activating
-  /// Access to the Billing and Cost Management Console</a> in the <i>Amazon Web
-  /// Services Billing and Cost Management User Guide.</i>
+  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html#ControllingAccessWebsite-Activate">About
+  /// IAM access to the Billing and Cost Management console</a> in the <i>Amazon
+  /// Web Services Billing and Cost Management User Guide</i>.
   ///
   /// If you don't specify this parameter, the value defaults to
   /// <code>ALLOW</code>, and IAM users and roles with the required permissions
@@ -916,14 +916,22 @@ class Organizations {
   /// <code>OrganizationAccountAccessRole</code>.
   ///
   /// For more information about how to use this role to access the member
-  /// account, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html#orgs_manage_accounts_create-cross-account-role">Accessing
-  /// and Administering the Member Accounts in Your Organization</a> in the
-  /// <i>Organizations User Guide</i> and steps 2 and 3 in <a
-  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html">Tutorial:
-  /// Delegate Access Across Amazon Web Services accounts Using IAM Roles</a> in
-  /// the <i>IAM User Guide.</i>
+  /// account, see the following links:
   ///
+  /// <ul>
+  /// <li>
+  /// <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_access.html#orgs_manage_accounts_create-cross-account-role">Creating
+  /// the OrganizationAccountAccessRole in an invited member account</a> in the
+  /// <i>Organizations User Guide</i>
+  /// </li>
+  /// <li>
+  /// Steps 2 and 3 in <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/tutorial_cross-account-with-roles.html">IAM
+  /// Tutorial: Delegate access across Amazon Web Services accounts using IAM
+  /// roles</a> in the <i>IAM User Guide</i>
+  /// </li>
+  /// </ul>
   /// The <a href="http://wikipedia.org/wiki/regex">regex pattern</a> that is
   /// used to validate this parameter. The pattern can include uppercase
   /// letters, lowercase letters, digits with no spaces, and any of the
@@ -967,7 +975,7 @@ class Organizations {
         'AccountName': accountName,
         'Email': email,
         if (iamUserAccessToBilling != null)
-          'IamUserAccessToBilling': iamUserAccessToBilling.toValue(),
+          'IamUserAccessToBilling': iamUserAccessToBilling.value,
         if (roleName != null) 'RoleName': roleName,
         if (tags != null) 'Tags': tags,
       },
@@ -991,8 +999,8 @@ class Organizations {
   /// enabled and service control policies automatically enabled in the root. If
   /// you instead choose to create the organization supporting only the
   /// consolidated billing features by setting the <code>FeatureSet</code>
-  /// parameter to <code>CONSOLIDATED_BILLING"</code>, no policy types are
-  /// enabled by default, and you can't use organization policies
+  /// parameter to <code>CONSOLIDATED_BILLING</code>, no policy types are
+  /// enabled by default and you can't use organization policies.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AlreadyInOrganizationException].
@@ -1013,7 +1021,7 @@ class Organizations {
   /// consolidated to and paid by the management account. For more information,
   /// see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_getting-started_concepts.html#feature-set-cb-only">Consolidated
-  /// billing</a> in the <i>Organizations User Guide.</i>
+  /// billing</a> in the <i>Organizations User Guide</i>.
   ///
   /// The consolidated billing feature subset isn't available for organizations
   /// in the Amazon Web Services GovCloud (US) Region.
@@ -1024,7 +1032,7 @@ class Organizations {
   /// any policy type to any member account in the organization. For more
   /// information, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_getting-started_concepts.html#feature-set-all">All
-  /// features</a> in the <i>Organizations User Guide.</i>
+  /// features</a> in the <i>Organizations User Guide</i>.
   /// </li>
   /// </ul>
   Future<CreateOrganizationResponse> createOrganization({
@@ -1041,7 +1049,7 @@ class Organizations {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (featureSet != null) 'FeatureSet': featureSet.toValue(),
+        if (featureSet != null) 'FeatureSet': featureSet.value,
       },
     );
 
@@ -1056,7 +1064,7 @@ class Organizations {
   ///
   /// For more information about OUs, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_ous.html">Managing
-  /// Organizational Units</a> in the <i>Organizations User Guide.</i>
+  /// organizational units (OUs)</a> in the <i>Organizations User Guide</i>.
   ///
   /// If the request includes tags, then the requester must have the
   /// <code>organizations:TagResource</code> permission.
@@ -1138,13 +1146,14 @@ class Organizations {
   ///
   /// For more information about policies and their use, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies.html">Managing
-  /// Organization Policies</a>.
+  /// Organizations policies</a>.
   ///
   /// If the request includes tags, then the requester must have the
   /// <code>organizations:TagResource</code> permission.
   ///
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AWSOrganizationsNotInUseException].
@@ -1162,6 +1171,11 @@ class Organizations {
   /// The policy text content to add to the new policy. The text that you supply
   /// must adhere to the rules of the policy type you specify in the
   /// <code>Type</code> parameter.
+  ///
+  /// The maximum size of a policy document depends on the policy's type. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_reference_limits.html#min-max-values">Maximum
+  /// and minimum values</a> in the <i>Organizations User Guide</i>.
   ///
   /// Parameter [description] :
   /// An optional description to assign to the policy.
@@ -1228,7 +1242,7 @@ class Organizations {
         'Content': content,
         'Description': description,
         'Name': name,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (tags != null) 'Tags': tags,
       },
     );
@@ -1359,7 +1373,8 @@ class Organizations {
   /// units (OUs), roots, and accounts.
   ///
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AWSOrganizationsNotInUseException].
@@ -1585,12 +1600,10 @@ class Organizations {
   /// control policies (SCPs).
   ///
   /// For more information about policy inheritance, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies-inheritance.html">How
-  /// Policy Inheritance Works</a> in the <i>Organizations User Guide</i>.
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_inheritance_mgmt.html">Understanding
+  /// management policy inheritance</a> in the <i>Organizations User Guide</i>.
   ///
-  /// This operation can be called only from the organization's management
-  /// account or by a member account that is a delegated administrator for an
-  /// Amazon Web Services service.
+  /// This operation can be called from any account in the organization.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AWSOrganizationsNotInUseException].
@@ -1640,7 +1653,7 @@ class Organizations {
       // TODO queryParams
       headers: headers,
       payload: {
-        'PolicyType': policyType.toValue(),
+        'PolicyType': policyType.value,
         if (targetId != null) 'TargetId': targetId,
       },
     );
@@ -1815,7 +1828,7 @@ class Organizations {
 
   /// Retrieves information about a resource policy.
   ///
-  /// You can only call this operation from the organization's management
+  /// This operation can be called only from the organization's management
   /// account or by a member account that is a delegated administrator for an
   /// Amazon Web Services service.
   ///
@@ -1864,7 +1877,8 @@ class Organizations {
   /// list</a>".
   ///
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AWSOrganizationsNotInUseException].
@@ -1996,9 +2010,9 @@ class Organizations {
   ///
   /// For more information about integrating other services with Organizations,
   /// including the list of services that work with Organizations, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html">Integrating
-  /// Organizations with Other Amazon Web Services Services</a> in the
-  /// <i>Organizations User Guide.</i>
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html">Using
+  /// Organizations with other Amazon Web Services services</a> in the
+  /// <i>Organizations User Guide</i>.
   ///
   /// This operation can be called only from the organization's management
   /// account.
@@ -2052,7 +2066,8 @@ class Organizations {
   /// types for a specified root, and then use this operation.
   ///
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// To view the status of available policy types in the organization, use
   /// <a>DescribeOrganization</a>.
@@ -2114,7 +2129,7 @@ class Organizations {
       // TODO queryParams
       headers: headers,
       payload: {
-        'PolicyType': policyType.toValue(),
+        'PolicyType': policyType.value,
         'RootId': rootId,
       },
     );
@@ -2141,9 +2156,9 @@ class Organizations {
   /// </important>
   /// For more information about enabling services to integrate with
   /// Organizations, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html">Integrating
-  /// Organizations with Other Amazon Web Services Services</a> in the
-  /// <i>Organizations User Guide.</i>
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html">Using
+  /// Organizations with other Amazon Web Services services</a> in the
+  /// <i>Organizations User Guide</i>.
   ///
   /// You can only call this operation from the organization's management
   /// account and only if the organization has <a
@@ -2190,8 +2205,8 @@ class Organizations {
   /// account administration features that Organizations supports. For more
   /// information, see <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_org_support-all-features.html">Enabling
-  /// All Features in Your Organization</a> in the <i>Organizations User
-  /// Guide.</i>
+  /// all features in your organization</a> in the <i>Organizations User
+  /// Guide</i>.
   /// <important>
   /// This operation is required only for organizations that were created
   /// explicitly with only the consolidated billing features enabled. Calling
@@ -2253,7 +2268,8 @@ class Organizations {
   /// and then use this operation.
   ///
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// You can enable a policy type in a root only if that policy type is
   /// available in the organization. To view the status of available policy
@@ -2317,7 +2333,7 @@ class Organizations {
       // TODO queryParams
       headers: headers,
       payload: {
-        'PolicyType': policyType.toValue(),
+        'PolicyType': policyType.value,
         'RootId': rootId,
       },
     );
@@ -2339,8 +2355,8 @@ class Organizations {
   /// accounts to your organization. You can't combine accounts from AISPL and
   /// Amazon Web Services or from any other Amazon Web Services seller. For more
   /// information, see <a
-  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/useconsolidatedbilliing-India.html">Consolidated
-  /// Billing in India</a>.
+  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/useconsolidatedbilling-India.html">Consolidated
+  /// billing in India</a>.
   /// </li>
   /// <li>
   /// If you receive an exception that indicates that you exceeded your account
@@ -2477,10 +2493,10 @@ class Organizations {
   /// </ul>
   /// Amazon Web Services uses the payment method to charge for any billable
   /// (not free tier) Amazon Web Services activity that occurs while the account
-  /// isn't attached to an organization. Follow the steps at <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_remove.html#leave-without-all-info">
-  /// To leave an organization when all required account information has not yet
-  /// been provided</a> in the <i>Organizations User Guide.</i>
+  /// isn't attached to an organization. For more information, see <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_account-before-remove.html">Considerations
+  /// before removing an account from an organization</a> in the
+  /// <i>Organizations User Guide</i>.
   /// </li>
   /// <li>
   /// The account that you want to leave must not be a delegated administrator
@@ -2492,9 +2508,9 @@ class Organizations {
   /// <li>
   /// You can leave an organization only after you enable IAM user access to
   /// billing in your account. For more information, see <a
-  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html#ControllingAccessWebsite-Activate">Activating
-  /// Access to the Billing and Cost Management Console</a> in the <i>Amazon Web
-  /// Services Billing and Cost Management User Guide.</i>
+  /// href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/grantaccess.html#ControllingAccessWebsite-Activate">About
+  /// IAM access to the Billing and Cost Management console</a> in the <i>Amazon
+  /// Web Services Billing and Cost Management User Guide</i>.
   /// </li>
   /// <li>
   /// After the account leaves the organization, all tags that were attached to
@@ -2505,6 +2521,11 @@ class Organizations {
   /// A newly created account has a waiting period before it can be removed from
   /// its organization. If you get an error that indicates that a wait period is
   /// required, then try again in a few days.
+  /// </li>
+  /// <li>
+  /// If you are using an organization principal to call
+  /// <code>LeaveOrganization</code> across multiple accounts, you can only do
+  /// this up to 5 accounts per second in a single organization.
   /// </li>
   /// </ul> </important>
   ///
@@ -2539,9 +2560,9 @@ class Organizations {
   /// For more information about integrating other services with Organizations,
   /// including the list of services that currently work with Organizations, see
   /// <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html">Integrating
-  /// Organizations with Other Amazon Web Services Services</a> in the
-  /// <i>Organizations User Guide.</i>
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_integrate_services.html">Using
+  /// Organizations with other Amazon Web Services services</a> in the
+  /// <i>Organizations User Guide</i>.
   ///
   /// This operation can be called only from the organization's management
   /// account or by a member account that is a delegated administrator for an
@@ -2842,7 +2863,7 @@ class Organizations {
       // TODO queryParams
       headers: headers,
       payload: {
-        'ChildType': childType.toValue(),
+        'ChildType': childType.value,
         'ParentId': parentId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
@@ -2920,7 +2941,7 @@ class Organizations {
       payload: {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (states != null) 'States': states.map((e) => e.toValue()).toList(),
+        if (states != null) 'States': states.map((e) => e.value).toList(),
       },
     );
 
@@ -3515,7 +3536,7 @@ class Organizations {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Filter': filter.toValue(),
+        'Filter': filter.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -3635,7 +3656,7 @@ class Organizations {
       // TODO queryParams
       headers: headers,
       payload: {
-        'Filter': filter.toValue(),
+        'Filter': filter.value,
         'TargetId': targetId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
@@ -3985,8 +4006,8 @@ class Organizations {
   /// If provided, the new content for the resource policy. The text must be
   /// correctly formatted JSON that complies with the syntax for the resource
   /// policy's type. For more information, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_reference_scp-syntax.html">Service
-  /// Control Policy Syntax</a> in the <i>Organizations User Guide.</i>
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps_syntax.html">SCP
+  /// syntax</a> in the <i>Organizations User Guide</i>.
   ///
   /// Parameter [tags] :
   /// A list of tags that you want to attach to the newly created resource
@@ -4096,17 +4117,11 @@ class Organizations {
   /// configured with the information required to operate as a standalone
   /// account. When you create an account in an organization using the
   /// Organizations console, API, or CLI commands, the information required of
-  /// standalone accounts is <i>not</i> automatically collected. For an account
-  /// that you want to make standalone, you must choose a support plan, provide
-  /// and verify the required contact information, and provide a current payment
-  /// method. Amazon Web Services uses the payment method to charge for any
-  /// billable (not free tier) Amazon Web Services activity that occurs while
-  /// the account isn't attached to an organization. To remove an account that
-  /// doesn't yet have this information, you must sign in as the member account
-  /// and follow the steps at <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_accounts_remove.html#leave-without-all-info">
-  /// To leave an organization when all required account information has not yet
-  /// been provided</a> in the <i>Organizations User Guide.</i>
+  /// standalone accounts is <i>not</i> automatically collected. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_account-before-remove.html">Considerations
+  /// before removing an account from an organization</a> in the
+  /// <i>Organizations User Guide</i>.
   /// </li>
   /// <li>
   /// The account that you want to leave must not be a delegated administrator
@@ -4177,7 +4192,8 @@ class Organizations {
   /// </li>
   /// </ul>
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [ConcurrentModificationException].
@@ -4260,7 +4276,8 @@ class Organizations {
   /// </li>
   /// </ul>
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [ConcurrentModificationException].
@@ -4377,7 +4394,8 @@ class Organizations {
   /// change a policy's type.
   ///
   /// This operation can be called only from the organization's management
-  /// account.
+  /// account or by a member account that is a delegated administrator for an
+  /// Amazon Web Services service.
   ///
   /// May throw [AccessDeniedException].
   /// May throw [AWSOrganizationsNotInUseException].
@@ -4403,8 +4421,13 @@ class Organizations {
   /// If provided, the new content for the policy. The text must be correctly
   /// formatted JSON that complies with the syntax for the policy's type. For
   /// more information, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_reference_scp-syntax.html">Service
-  /// Control Policy Syntax</a> in the <i>Organizations User Guide.</i>
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_policies_scps_syntax.html">SCP
+  /// syntax</a> in the <i>Organizations User Guide</i>.
+  ///
+  /// The maximum size of a policy document depends on the policy's type. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_reference_limits.html#min-max-values">Maximum
+  /// and minimum values</a> in the <i>Organizations User Guide</i>.
   ///
   /// Parameter [description] :
   /// If provided, the new description for the policy.
@@ -4515,111 +4538,60 @@ class Account {
       arn: json['Arn'] as String?,
       email: json['Email'] as String?,
       id: json['Id'] as String?,
-      joinedMethod: (json['JoinedMethod'] as String?)?.toAccountJoinedMethod(),
+      joinedMethod: (json['JoinedMethod'] as String?)
+          ?.let(AccountJoinedMethod.fromString),
       joinedTimestamp: timeStampFromJson(json['JoinedTimestamp']),
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toAccountStatus(),
+      status: (json['Status'] as String?)?.let(AccountStatus.fromString),
     );
   }
 }
 
 enum AccountJoinedMethod {
-  invited,
-  created,
-}
+  invited('INVITED'),
+  created('CREATED'),
+  ;
 
-extension AccountJoinedMethodValueExtension on AccountJoinedMethod {
-  String toValue() {
-    switch (this) {
-      case AccountJoinedMethod.invited:
-        return 'INVITED';
-      case AccountJoinedMethod.created:
-        return 'CREATED';
-    }
-  }
-}
+  final String value;
 
-extension AccountJoinedMethodFromString on String {
-  AccountJoinedMethod toAccountJoinedMethod() {
-    switch (this) {
-      case 'INVITED':
-        return AccountJoinedMethod.invited;
-      case 'CREATED':
-        return AccountJoinedMethod.created;
-    }
-    throw Exception('$this is not known in enum AccountJoinedMethod');
-  }
+  const AccountJoinedMethod(this.value);
+
+  static AccountJoinedMethod fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AccountJoinedMethod'));
 }
 
 enum AccountStatus {
-  active,
-  suspended,
-  pendingClosure,
-}
+  active('ACTIVE'),
+  suspended('SUSPENDED'),
+  pendingClosure('PENDING_CLOSURE'),
+  ;
 
-extension AccountStatusValueExtension on AccountStatus {
-  String toValue() {
-    switch (this) {
-      case AccountStatus.active:
-        return 'ACTIVE';
-      case AccountStatus.suspended:
-        return 'SUSPENDED';
-      case AccountStatus.pendingClosure:
-        return 'PENDING_CLOSURE';
-    }
-  }
-}
+  final String value;
 
-extension AccountStatusFromString on String {
-  AccountStatus toAccountStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return AccountStatus.active;
-      case 'SUSPENDED':
-        return AccountStatus.suspended;
-      case 'PENDING_CLOSURE':
-        return AccountStatus.pendingClosure;
-    }
-    throw Exception('$this is not known in enum AccountStatus');
-  }
+  const AccountStatus(this.value);
+
+  static AccountStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccountStatus'));
 }
 
 enum ActionType {
-  invite,
-  enableAllFeatures,
-  approveAllFeatures,
-  addOrganizationsServiceLinkedRole,
-}
+  invite('INVITE'),
+  enableAllFeatures('ENABLE_ALL_FEATURES'),
+  approveAllFeatures('APPROVE_ALL_FEATURES'),
+  addOrganizationsServiceLinkedRole('ADD_ORGANIZATIONS_SERVICE_LINKED_ROLE'),
+  ;
 
-extension ActionTypeValueExtension on ActionType {
-  String toValue() {
-    switch (this) {
-      case ActionType.invite:
-        return 'INVITE';
-      case ActionType.enableAllFeatures:
-        return 'ENABLE_ALL_FEATURES';
-      case ActionType.approveAllFeatures:
-        return 'APPROVE_ALL_FEATURES';
-      case ActionType.addOrganizationsServiceLinkedRole:
-        return 'ADD_ORGANIZATIONS_SERVICE_LINKED_ROLE';
-    }
-  }
-}
+  final String value;
 
-extension ActionTypeFromString on String {
-  ActionType toActionType() {
-    switch (this) {
-      case 'INVITE':
-        return ActionType.invite;
-      case 'ENABLE_ALL_FEATURES':
-        return ActionType.enableAllFeatures;
-      case 'APPROVE_ALL_FEATURES':
-        return ActionType.approveAllFeatures;
-      case 'ADD_ORGANIZATIONS_SERVICE_LINKED_ROLE':
-        return ActionType.addOrganizationsServiceLinkedRole;
-    }
-    throw Exception('$this is not known in enum ActionType');
-  }
+  const ActionType(this.value);
+
+  static ActionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ActionType'));
 }
 
 class CancelHandshakeResponse {
@@ -4670,133 +4642,53 @@ class Child {
   factory Child.fromJson(Map<String, dynamic> json) {
     return Child(
       id: json['Id'] as String?,
-      type: (json['Type'] as String?)?.toChildType(),
+      type: (json['Type'] as String?)?.let(ChildType.fromString),
     );
   }
 }
 
 enum ChildType {
-  account,
-  organizationalUnit,
-}
+  account('ACCOUNT'),
+  organizationalUnit('ORGANIZATIONAL_UNIT'),
+  ;
 
-extension ChildTypeValueExtension on ChildType {
-  String toValue() {
-    switch (this) {
-      case ChildType.account:
-        return 'ACCOUNT';
-      case ChildType.organizationalUnit:
-        return 'ORGANIZATIONAL_UNIT';
-    }
-  }
-}
+  final String value;
 
-extension ChildTypeFromString on String {
-  ChildType toChildType() {
-    switch (this) {
-      case 'ACCOUNT':
-        return ChildType.account;
-      case 'ORGANIZATIONAL_UNIT':
-        return ChildType.organizationalUnit;
-    }
-    throw Exception('$this is not known in enum ChildType');
-  }
+  const ChildType(this.value);
+
+  static ChildType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ChildType'));
 }
 
 enum CreateAccountFailureReason {
-  accountLimitExceeded,
-  emailAlreadyExists,
-  invalidAddress,
-  invalidEmail,
-  concurrentAccountModification,
-  internalFailure,
-  govcloudAccountAlreadyExists,
-  missingBusinessValidation,
-  failedBusinessValidation,
-  pendingBusinessValidation,
-  invalidIdentityForBusinessValidation,
-  unknownBusinessValidation,
-  missingPaymentInstrument,
-  invalidPaymentInstrument,
-  updateExistingResourcePolicyWithTagsNotSupported,
-}
+  accountLimitExceeded('ACCOUNT_LIMIT_EXCEEDED'),
+  emailAlreadyExists('EMAIL_ALREADY_EXISTS'),
+  invalidAddress('INVALID_ADDRESS'),
+  invalidEmail('INVALID_EMAIL'),
+  concurrentAccountModification('CONCURRENT_ACCOUNT_MODIFICATION'),
+  internalFailure('INTERNAL_FAILURE'),
+  govcloudAccountAlreadyExists('GOVCLOUD_ACCOUNT_ALREADY_EXISTS'),
+  missingBusinessValidation('MISSING_BUSINESS_VALIDATION'),
+  failedBusinessValidation('FAILED_BUSINESS_VALIDATION'),
+  pendingBusinessValidation('PENDING_BUSINESS_VALIDATION'),
+  invalidIdentityForBusinessValidation(
+      'INVALID_IDENTITY_FOR_BUSINESS_VALIDATION'),
+  unknownBusinessValidation('UNKNOWN_BUSINESS_VALIDATION'),
+  missingPaymentInstrument('MISSING_PAYMENT_INSTRUMENT'),
+  invalidPaymentInstrument('INVALID_PAYMENT_INSTRUMENT'),
+  updateExistingResourcePolicyWithTagsNotSupported(
+      'UPDATE_EXISTING_RESOURCE_POLICY_WITH_TAGS_NOT_SUPPORTED'),
+  ;
 
-extension CreateAccountFailureReasonValueExtension
-    on CreateAccountFailureReason {
-  String toValue() {
-    switch (this) {
-      case CreateAccountFailureReason.accountLimitExceeded:
-        return 'ACCOUNT_LIMIT_EXCEEDED';
-      case CreateAccountFailureReason.emailAlreadyExists:
-        return 'EMAIL_ALREADY_EXISTS';
-      case CreateAccountFailureReason.invalidAddress:
-        return 'INVALID_ADDRESS';
-      case CreateAccountFailureReason.invalidEmail:
-        return 'INVALID_EMAIL';
-      case CreateAccountFailureReason.concurrentAccountModification:
-        return 'CONCURRENT_ACCOUNT_MODIFICATION';
-      case CreateAccountFailureReason.internalFailure:
-        return 'INTERNAL_FAILURE';
-      case CreateAccountFailureReason.govcloudAccountAlreadyExists:
-        return 'GOVCLOUD_ACCOUNT_ALREADY_EXISTS';
-      case CreateAccountFailureReason.missingBusinessValidation:
-        return 'MISSING_BUSINESS_VALIDATION';
-      case CreateAccountFailureReason.failedBusinessValidation:
-        return 'FAILED_BUSINESS_VALIDATION';
-      case CreateAccountFailureReason.pendingBusinessValidation:
-        return 'PENDING_BUSINESS_VALIDATION';
-      case CreateAccountFailureReason.invalidIdentityForBusinessValidation:
-        return 'INVALID_IDENTITY_FOR_BUSINESS_VALIDATION';
-      case CreateAccountFailureReason.unknownBusinessValidation:
-        return 'UNKNOWN_BUSINESS_VALIDATION';
-      case CreateAccountFailureReason.missingPaymentInstrument:
-        return 'MISSING_PAYMENT_INSTRUMENT';
-      case CreateAccountFailureReason.invalidPaymentInstrument:
-        return 'INVALID_PAYMENT_INSTRUMENT';
-      case CreateAccountFailureReason
-            .updateExistingResourcePolicyWithTagsNotSupported:
-        return 'UPDATE_EXISTING_RESOURCE_POLICY_WITH_TAGS_NOT_SUPPORTED';
-    }
-  }
-}
+  final String value;
 
-extension CreateAccountFailureReasonFromString on String {
-  CreateAccountFailureReason toCreateAccountFailureReason() {
-    switch (this) {
-      case 'ACCOUNT_LIMIT_EXCEEDED':
-        return CreateAccountFailureReason.accountLimitExceeded;
-      case 'EMAIL_ALREADY_EXISTS':
-        return CreateAccountFailureReason.emailAlreadyExists;
-      case 'INVALID_ADDRESS':
-        return CreateAccountFailureReason.invalidAddress;
-      case 'INVALID_EMAIL':
-        return CreateAccountFailureReason.invalidEmail;
-      case 'CONCURRENT_ACCOUNT_MODIFICATION':
-        return CreateAccountFailureReason.concurrentAccountModification;
-      case 'INTERNAL_FAILURE':
-        return CreateAccountFailureReason.internalFailure;
-      case 'GOVCLOUD_ACCOUNT_ALREADY_EXISTS':
-        return CreateAccountFailureReason.govcloudAccountAlreadyExists;
-      case 'MISSING_BUSINESS_VALIDATION':
-        return CreateAccountFailureReason.missingBusinessValidation;
-      case 'FAILED_BUSINESS_VALIDATION':
-        return CreateAccountFailureReason.failedBusinessValidation;
-      case 'PENDING_BUSINESS_VALIDATION':
-        return CreateAccountFailureReason.pendingBusinessValidation;
-      case 'INVALID_IDENTITY_FOR_BUSINESS_VALIDATION':
-        return CreateAccountFailureReason.invalidIdentityForBusinessValidation;
-      case 'UNKNOWN_BUSINESS_VALIDATION':
-        return CreateAccountFailureReason.unknownBusinessValidation;
-      case 'MISSING_PAYMENT_INSTRUMENT':
-        return CreateAccountFailureReason.missingPaymentInstrument;
-      case 'INVALID_PAYMENT_INSTRUMENT':
-        return CreateAccountFailureReason.invalidPaymentInstrument;
-      case 'UPDATE_EXISTING_RESOURCE_POLICY_WITH_TAGS_NOT_SUPPORTED':
-        return CreateAccountFailureReason
-            .updateExistingResourcePolicyWithTagsNotSupported;
-    }
-    throw Exception('$this is not known in enum CreateAccountFailureReason');
-  }
+  const CreateAccountFailureReason(this.value);
+
+  static CreateAccountFailureReason fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CreateAccountFailureReason'));
 }
 
 class CreateAccountResponse {
@@ -4807,9 +4699,8 @@ class CreateAccountResponse {
   /// <a>DescribeCreateAccountStatus</a> to get status about the progress of the
   /// request at later times. You can also check the CloudTrail log for the
   /// <code>CreateAccountResult</code> event. For more information, see <a
-  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_monitoring.html">Monitoring
-  /// the Activity in Your Organization</a> in the <i>Organizations User
-  /// Guide</i>.
+  /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_security_incident-response.html">Logging
+  /// and monitoring in Organizations</a> in the <i>Organizations User Guide</i>.
   final CreateAccountStatus? createAccountStatus;
 
   CreateAccountResponse({
@@ -4827,36 +4718,19 @@ class CreateAccountResponse {
 }
 
 enum CreateAccountState {
-  inProgress,
-  succeeded,
-  failed,
-}
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
 
-extension CreateAccountStateValueExtension on CreateAccountState {
-  String toValue() {
-    switch (this) {
-      case CreateAccountState.inProgress:
-        return 'IN_PROGRESS';
-      case CreateAccountState.succeeded:
-        return 'SUCCEEDED';
-      case CreateAccountState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension CreateAccountStateFromString on String {
-  CreateAccountState toCreateAccountState() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return CreateAccountState.inProgress;
-      case 'SUCCEEDED':
-        return CreateAccountState.succeeded;
-      case 'FAILED':
-        return CreateAccountState.failed;
-    }
-    throw Exception('$this is not known in enum CreateAccountState');
-  }
+  const CreateAccountState(this.value);
+
+  static CreateAccountState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CreateAccountState'));
 }
 
 /// Contains the status about a <a>CreateAccount</a> or
@@ -4982,12 +4856,12 @@ class CreateAccountStatus {
       accountId: json['AccountId'] as String?,
       accountName: json['AccountName'] as String?,
       completedTimestamp: timeStampFromJson(json['CompletedTimestamp']),
-      failureReason:
-          (json['FailureReason'] as String?)?.toCreateAccountFailureReason(),
+      failureReason: (json['FailureReason'] as String?)
+          ?.let(CreateAccountFailureReason.fromString),
       govCloudAccountId: json['GovCloudAccountId'] as String?,
       id: json['Id'] as String?,
       requestedTimestamp: timeStampFromJson(json['RequestedTimestamp']),
-      state: (json['State'] as String?)?.toCreateAccountState(),
+      state: (json['State'] as String?)?.let(CreateAccountState.fromString),
     );
   }
 }
@@ -5125,10 +4999,11 @@ class DelegatedAdministrator {
       delegationEnabledDate: timeStampFromJson(json['DelegationEnabledDate']),
       email: json['Email'] as String?,
       id: json['Id'] as String?,
-      joinedMethod: (json['JoinedMethod'] as String?)?.toAccountJoinedMethod(),
+      joinedMethod: (json['JoinedMethod'] as String?)
+          ?.let(AccountJoinedMethod.fromString),
       joinedTimestamp: timeStampFromJson(json['JoinedTimestamp']),
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toAccountStatus(),
+      status: (json['Status'] as String?)?.let(AccountStatus.fromString),
     );
   }
 }
@@ -5351,43 +5226,27 @@ class EffectivePolicy {
     return EffectivePolicy(
       lastUpdatedTimestamp: timeStampFromJson(json['LastUpdatedTimestamp']),
       policyContent: json['PolicyContent'] as String?,
-      policyType: (json['PolicyType'] as String?)?.toEffectivePolicyType(),
+      policyType:
+          (json['PolicyType'] as String?)?.let(EffectivePolicyType.fromString),
       targetId: json['TargetId'] as String?,
     );
   }
 }
 
 enum EffectivePolicyType {
-  tagPolicy,
-  backupPolicy,
-  aiservicesOptOutPolicy,
-}
+  tagPolicy('TAG_POLICY'),
+  backupPolicy('BACKUP_POLICY'),
+  aiservicesOptOutPolicy('AISERVICES_OPT_OUT_POLICY'),
+  ;
 
-extension EffectivePolicyTypeValueExtension on EffectivePolicyType {
-  String toValue() {
-    switch (this) {
-      case EffectivePolicyType.tagPolicy:
-        return 'TAG_POLICY';
-      case EffectivePolicyType.backupPolicy:
-        return 'BACKUP_POLICY';
-      case EffectivePolicyType.aiservicesOptOutPolicy:
-        return 'AISERVICES_OPT_OUT_POLICY';
-    }
-  }
-}
+  final String value;
 
-extension EffectivePolicyTypeFromString on String {
-  EffectivePolicyType toEffectivePolicyType() {
-    switch (this) {
-      case 'TAG_POLICY':
-        return EffectivePolicyType.tagPolicy;
-      case 'BACKUP_POLICY':
-        return EffectivePolicyType.backupPolicy;
-      case 'AISERVICES_OPT_OUT_POLICY':
-        return EffectivePolicyType.aiservicesOptOutPolicy;
-    }
-    throw Exception('$this is not known in enum EffectivePolicyType');
-  }
+  const EffectivePolicyType(this.value);
+
+  static EffectivePolicyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EffectivePolicyType'));
 }
 
 class EnableAllFeaturesResponse {
@@ -5566,20 +5425,20 @@ class Handshake {
 
   factory Handshake.fromJson(Map<String, dynamic> json) {
     return Handshake(
-      action: (json['Action'] as String?)?.toActionType(),
+      action: (json['Action'] as String?)?.let(ActionType.fromString),
       arn: json['Arn'] as String?,
       expirationTimestamp: timeStampFromJson(json['ExpirationTimestamp']),
       id: json['Id'] as String?,
       parties: (json['Parties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HandshakeParty.fromJson(e as Map<String, dynamic>))
           .toList(),
       requestedTimestamp: timeStampFromJson(json['RequestedTimestamp']),
       resources: (json['Resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HandshakeResource.fromJson(e as Map<String, dynamic>))
           .toList(),
-      state: (json['State'] as String?)?.toHandshakeState(),
+      state: (json['State'] as String?)?.let(HandshakeState.fromString),
     );
   }
 }
@@ -5613,7 +5472,7 @@ class HandshakeFilter {
     final actionType = this.actionType;
     final parentHandshakeId = this.parentHandshakeId;
     return {
-      if (actionType != null) 'ActionType': actionType.toValue(),
+      if (actionType != null) 'ActionType': actionType.value,
       if (parentHandshakeId != null) 'ParentHandshakeId': parentHandshakeId,
     };
   }
@@ -5639,7 +5498,7 @@ class HandshakeParty {
   factory HandshakeParty.fromJson(Map<String, dynamic> json) {
     return HandshakeParty(
       id: json['Id'] as String,
-      type: (json['Type'] as String).toHandshakePartyType(),
+      type: HandshakePartyType.fromString((json['Type'] as String)),
     );
   }
 
@@ -5648,42 +5507,25 @@ class HandshakeParty {
     final type = this.type;
     return {
       'Id': id,
-      'Type': type.toValue(),
+      'Type': type.value,
     };
   }
 }
 
 enum HandshakePartyType {
-  account,
-  organization,
-  email,
-}
+  account('ACCOUNT'),
+  organization('ORGANIZATION'),
+  email('EMAIL'),
+  ;
 
-extension HandshakePartyTypeValueExtension on HandshakePartyType {
-  String toValue() {
-    switch (this) {
-      case HandshakePartyType.account:
-        return 'ACCOUNT';
-      case HandshakePartyType.organization:
-        return 'ORGANIZATION';
-      case HandshakePartyType.email:
-        return 'EMAIL';
-    }
-  }
-}
+  final String value;
 
-extension HandshakePartyTypeFromString on String {
-  HandshakePartyType toHandshakePartyType() {
-    switch (this) {
-      case 'ACCOUNT':
-        return HandshakePartyType.account;
-      case 'ORGANIZATION':
-        return HandshakePartyType.organization;
-      case 'EMAIL':
-        return HandshakePartyType.email;
-    }
-    throw Exception('$this is not known in enum HandshakePartyType');
-  }
+  const HandshakePartyType(this.value);
+
+  static HandshakePartyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum HandshakePartyType'));
 }
 
 /// Contains additional data that is needed to process a handshake.
@@ -5735,147 +5577,68 @@ class HandshakeResource {
   factory HandshakeResource.fromJson(Map<String, dynamic> json) {
     return HandshakeResource(
       resources: (json['Resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HandshakeResource.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['Type'] as String?)?.toHandshakeResourceType(),
+      type: (json['Type'] as String?)?.let(HandshakeResourceType.fromString),
       value: json['Value'] as String?,
     );
   }
 }
 
 enum HandshakeResourceType {
-  account,
-  organization,
-  organizationFeatureSet,
-  email,
-  masterEmail,
-  masterName,
-  notes,
-  parentHandshake,
-}
+  account('ACCOUNT'),
+  organization('ORGANIZATION'),
+  organizationFeatureSet('ORGANIZATION_FEATURE_SET'),
+  email('EMAIL'),
+  masterEmail('MASTER_EMAIL'),
+  masterName('MASTER_NAME'),
+  notes('NOTES'),
+  parentHandshake('PARENT_HANDSHAKE'),
+  ;
 
-extension HandshakeResourceTypeValueExtension on HandshakeResourceType {
-  String toValue() {
-    switch (this) {
-      case HandshakeResourceType.account:
-        return 'ACCOUNT';
-      case HandshakeResourceType.organization:
-        return 'ORGANIZATION';
-      case HandshakeResourceType.organizationFeatureSet:
-        return 'ORGANIZATION_FEATURE_SET';
-      case HandshakeResourceType.email:
-        return 'EMAIL';
-      case HandshakeResourceType.masterEmail:
-        return 'MASTER_EMAIL';
-      case HandshakeResourceType.masterName:
-        return 'MASTER_NAME';
-      case HandshakeResourceType.notes:
-        return 'NOTES';
-      case HandshakeResourceType.parentHandshake:
-        return 'PARENT_HANDSHAKE';
-    }
-  }
-}
+  final String value;
 
-extension HandshakeResourceTypeFromString on String {
-  HandshakeResourceType toHandshakeResourceType() {
-    switch (this) {
-      case 'ACCOUNT':
-        return HandshakeResourceType.account;
-      case 'ORGANIZATION':
-        return HandshakeResourceType.organization;
-      case 'ORGANIZATION_FEATURE_SET':
-        return HandshakeResourceType.organizationFeatureSet;
-      case 'EMAIL':
-        return HandshakeResourceType.email;
-      case 'MASTER_EMAIL':
-        return HandshakeResourceType.masterEmail;
-      case 'MASTER_NAME':
-        return HandshakeResourceType.masterName;
-      case 'NOTES':
-        return HandshakeResourceType.notes;
-      case 'PARENT_HANDSHAKE':
-        return HandshakeResourceType.parentHandshake;
-    }
-    throw Exception('$this is not known in enum HandshakeResourceType');
-  }
+  const HandshakeResourceType(this.value);
+
+  static HandshakeResourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum HandshakeResourceType'));
 }
 
 enum HandshakeState {
-  requested,
-  open,
-  canceled,
-  accepted,
-  declined,
-  expired,
-}
+  requested('REQUESTED'),
+  open('OPEN'),
+  canceled('CANCELED'),
+  accepted('ACCEPTED'),
+  declined('DECLINED'),
+  expired('EXPIRED'),
+  ;
 
-extension HandshakeStateValueExtension on HandshakeState {
-  String toValue() {
-    switch (this) {
-      case HandshakeState.requested:
-        return 'REQUESTED';
-      case HandshakeState.open:
-        return 'OPEN';
-      case HandshakeState.canceled:
-        return 'CANCELED';
-      case HandshakeState.accepted:
-        return 'ACCEPTED';
-      case HandshakeState.declined:
-        return 'DECLINED';
-      case HandshakeState.expired:
-        return 'EXPIRED';
-    }
-  }
-}
+  final String value;
 
-extension HandshakeStateFromString on String {
-  HandshakeState toHandshakeState() {
-    switch (this) {
-      case 'REQUESTED':
-        return HandshakeState.requested;
-      case 'OPEN':
-        return HandshakeState.open;
-      case 'CANCELED':
-        return HandshakeState.canceled;
-      case 'ACCEPTED':
-        return HandshakeState.accepted;
-      case 'DECLINED':
-        return HandshakeState.declined;
-      case 'EXPIRED':
-        return HandshakeState.expired;
-    }
-    throw Exception('$this is not known in enum HandshakeState');
-  }
+  const HandshakeState(this.value);
+
+  static HandshakeState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum HandshakeState'));
 }
 
 enum IAMUserAccessToBilling {
-  allow,
-  deny,
-}
+  allow('ALLOW'),
+  deny('DENY'),
+  ;
 
-extension IAMUserAccessToBillingValueExtension on IAMUserAccessToBilling {
-  String toValue() {
-    switch (this) {
-      case IAMUserAccessToBilling.allow:
-        return 'ALLOW';
-      case IAMUserAccessToBilling.deny:
-        return 'DENY';
-    }
-  }
-}
+  final String value;
 
-extension IAMUserAccessToBillingFromString on String {
-  IAMUserAccessToBilling toIAMUserAccessToBilling() {
-    switch (this) {
-      case 'ALLOW':
-        return IAMUserAccessToBilling.allow;
-      case 'DENY':
-        return IAMUserAccessToBilling.deny;
-    }
-    throw Exception('$this is not known in enum IAMUserAccessToBilling');
-  }
+  const IAMUserAccessToBilling(this.value);
+
+  static IAMUserAccessToBilling fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum IAMUserAccessToBilling'));
 }
 
 class InviteAccountToOrganizationResponse {
@@ -5920,7 +5683,7 @@ class ListAWSServiceAccessForOrganizationResponse {
       Map<String, dynamic> json) {
     return ListAWSServiceAccessForOrganizationResponse(
       enabledServicePrincipals: (json['EnabledServicePrincipals'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               EnabledServicePrincipal.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5948,7 +5711,7 @@ class ListAccountsForParentResponse {
   factory ListAccountsForParentResponse.fromJson(Map<String, dynamic> json) {
     return ListAccountsForParentResponse(
       accounts: (json['Accounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Account.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5975,7 +5738,7 @@ class ListAccountsResponse {
   factory ListAccountsResponse.fromJson(Map<String, dynamic> json) {
     return ListAccountsResponse(
       accounts: (json['Accounts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Account.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6002,7 +5765,7 @@ class ListChildrenResponse {
   factory ListChildrenResponse.fromJson(Map<String, dynamic> json) {
     return ListChildrenResponse(
       children: (json['Children'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Child.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6031,7 +5794,7 @@ class ListCreateAccountStatusResponse {
   factory ListCreateAccountStatusResponse.fromJson(Map<String, dynamic> json) {
     return ListCreateAccountStatusResponse(
       createAccountStatuses: (json['CreateAccountStatuses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CreateAccountStatus.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6059,7 +5822,7 @@ class ListDelegatedAdministratorsResponse {
       Map<String, dynamic> json) {
     return ListDelegatedAdministratorsResponse(
       delegatedAdministrators: (json['DelegatedAdministrators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => DelegatedAdministrator.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -6088,7 +5851,7 @@ class ListDelegatedServicesForAccountResponse {
       Map<String, dynamic> json) {
     return ListDelegatedServicesForAccountResponse(
       delegatedServices: (json['DelegatedServices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DelegatedService.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6116,7 +5879,7 @@ class ListHandshakesForAccountResponse {
   factory ListHandshakesForAccountResponse.fromJson(Map<String, dynamic> json) {
     return ListHandshakesForAccountResponse(
       handshakes: (json['Handshakes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Handshake.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6145,7 +5908,7 @@ class ListHandshakesForOrganizationResponse {
       Map<String, dynamic> json) {
     return ListHandshakesForOrganizationResponse(
       handshakes: (json['Handshakes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Handshake.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -6174,7 +5937,7 @@ class ListOrganizationalUnitsForParentResponse {
     return ListOrganizationalUnitsForParentResponse(
       nextToken: json['NextToken'] as String?,
       organizationalUnits: (json['OrganizationalUnits'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => OrganizationalUnit.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6201,7 +5964,7 @@ class ListParentsResponse {
     return ListParentsResponse(
       nextToken: json['NextToken'] as String?,
       parents: (json['Parents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Parent.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6228,7 +5991,7 @@ class ListPoliciesForTargetResponse {
     return ListPoliciesForTargetResponse(
       nextToken: json['NextToken'] as String?,
       policies: (json['Policies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6257,7 +6020,7 @@ class ListPoliciesResponse {
     return ListPoliciesResponse(
       nextToken: json['NextToken'] as String?,
       policies: (json['Policies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6284,7 +6047,7 @@ class ListRootsResponse {
     return ListRootsResponse(
       nextToken: json['NextToken'] as String?,
       roots: (json['Roots'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Root.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6311,7 +6074,7 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6339,7 +6102,7 @@ class ListTargetsForPolicyResponse {
     return ListTargetsForPolicyResponse(
       nextToken: json['NextToken'] as String?,
       targets: (json['Targets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicyTargetSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6373,7 +6136,7 @@ class Organization {
   /// consolidated billing functionality is available. For more information, see
   /// <a
   /// href="https://docs.aws.amazon.com/organizations/latest/userguide/orgs_manage_org_support-all-features.html">Enabling
-  /// All Features in Your Organization</a> in the <i>Organizations User
+  /// all features in your organization</a> in the <i>Organizations User
   /// Guide</i>.
   final OrganizationFeatureSet? featureSet;
 
@@ -6417,10 +6180,11 @@ class Organization {
     return Organization(
       arn: json['Arn'] as String?,
       availablePolicyTypes: (json['AvailablePolicyTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicyTypeSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
-      featureSet: (json['FeatureSet'] as String?)?.toOrganizationFeatureSet(),
+      featureSet: (json['FeatureSet'] as String?)
+          ?.let(OrganizationFeatureSet.fromString),
       id: json['Id'] as String?,
       masterAccountArn: json['MasterAccountArn'] as String?,
       masterAccountEmail: json['MasterAccountEmail'] as String?,
@@ -6430,31 +6194,18 @@ class Organization {
 }
 
 enum OrganizationFeatureSet {
-  all,
-  consolidatedBilling,
-}
+  all('ALL'),
+  consolidatedBilling('CONSOLIDATED_BILLING'),
+  ;
 
-extension OrganizationFeatureSetValueExtension on OrganizationFeatureSet {
-  String toValue() {
-    switch (this) {
-      case OrganizationFeatureSet.all:
-        return 'ALL';
-      case OrganizationFeatureSet.consolidatedBilling:
-        return 'CONSOLIDATED_BILLING';
-    }
-  }
-}
+  final String value;
 
-extension OrganizationFeatureSetFromString on String {
-  OrganizationFeatureSet toOrganizationFeatureSet() {
-    switch (this) {
-      case 'ALL':
-        return OrganizationFeatureSet.all;
-      case 'CONSOLIDATED_BILLING':
-        return OrganizationFeatureSet.consolidatedBilling;
-    }
-    throw Exception('$this is not known in enum OrganizationFeatureSet');
-  }
+  const OrganizationFeatureSet(this.value);
+
+  static OrganizationFeatureSet fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum OrganizationFeatureSet'));
 }
 
 /// Contains details about an organizational unit (OU). An OU is a container of
@@ -6470,7 +6221,8 @@ class OrganizationalUnit {
   /// Authorization Reference</i>.
   final String? arn;
 
-  /// The unique identifier (ID) associated with this OU.
+  /// The unique identifier (ID) associated with this OU. The ID is unique to the
+  /// organization only.
   ///
   /// The <a href="http://wikipedia.org/wiki/regex">regex pattern</a> for an
   /// organizational unit ID string requires "ou-" followed by from 4 to 32
@@ -6534,37 +6286,23 @@ class Parent {
   factory Parent.fromJson(Map<String, dynamic> json) {
     return Parent(
       id: json['Id'] as String?,
-      type: (json['Type'] as String?)?.toParentType(),
+      type: (json['Type'] as String?)?.let(ParentType.fromString),
     );
   }
 }
 
 enum ParentType {
-  root,
-  organizationalUnit,
-}
+  root('ROOT'),
+  organizationalUnit('ORGANIZATIONAL_UNIT'),
+  ;
 
-extension ParentTypeValueExtension on ParentType {
-  String toValue() {
-    switch (this) {
-      case ParentType.root:
-        return 'ROOT';
-      case ParentType.organizationalUnit:
-        return 'ORGANIZATIONAL_UNIT';
-    }
-  }
-}
+  final String value;
 
-extension ParentTypeFromString on String {
-  ParentType toParentType() {
-    switch (this) {
-      case 'ROOT':
-        return ParentType.root;
-      case 'ORGANIZATIONAL_UNIT':
-        return ParentType.organizationalUnit;
-    }
-    throw Exception('$this is not known in enum ParentType');
-  }
+  const ParentType(this.value);
+
+  static ParentType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ParentType'));
 }
 
 /// Contains rules to be applied to the affected accounts. Policies can be
@@ -6645,7 +6383,7 @@ class PolicySummary {
       description: json['Description'] as String?,
       id: json['Id'] as String?,
       name: json['Name'] as String?,
-      type: (json['Type'] as String?)?.toPolicyType(),
+      type: (json['Type'] as String?)?.let(PolicyType.fromString),
     );
   }
 }
@@ -6705,80 +6443,41 @@ class PolicyTargetSummary {
       arn: json['Arn'] as String?,
       name: json['Name'] as String?,
       targetId: json['TargetId'] as String?,
-      type: (json['Type'] as String?)?.toTargetType(),
+      type: (json['Type'] as String?)?.let(TargetType.fromString),
     );
   }
 }
 
 enum PolicyType {
-  serviceControlPolicy,
-  tagPolicy,
-  backupPolicy,
-  aiservicesOptOutPolicy,
-}
+  serviceControlPolicy('SERVICE_CONTROL_POLICY'),
+  tagPolicy('TAG_POLICY'),
+  backupPolicy('BACKUP_POLICY'),
+  aiservicesOptOutPolicy('AISERVICES_OPT_OUT_POLICY'),
+  ;
 
-extension PolicyTypeValueExtension on PolicyType {
-  String toValue() {
-    switch (this) {
-      case PolicyType.serviceControlPolicy:
-        return 'SERVICE_CONTROL_POLICY';
-      case PolicyType.tagPolicy:
-        return 'TAG_POLICY';
-      case PolicyType.backupPolicy:
-        return 'BACKUP_POLICY';
-      case PolicyType.aiservicesOptOutPolicy:
-        return 'AISERVICES_OPT_OUT_POLICY';
-    }
-  }
-}
+  final String value;
 
-extension PolicyTypeFromString on String {
-  PolicyType toPolicyType() {
-    switch (this) {
-      case 'SERVICE_CONTROL_POLICY':
-        return PolicyType.serviceControlPolicy;
-      case 'TAG_POLICY':
-        return PolicyType.tagPolicy;
-      case 'BACKUP_POLICY':
-        return PolicyType.backupPolicy;
-      case 'AISERVICES_OPT_OUT_POLICY':
-        return PolicyType.aiservicesOptOutPolicy;
-    }
-    throw Exception('$this is not known in enum PolicyType');
-  }
+  const PolicyType(this.value);
+
+  static PolicyType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum PolicyType'));
 }
 
 enum PolicyTypeStatus {
-  enabled,
-  pendingEnable,
-  pendingDisable,
-}
+  enabled('ENABLED'),
+  pendingEnable('PENDING_ENABLE'),
+  pendingDisable('PENDING_DISABLE'),
+  ;
 
-extension PolicyTypeStatusValueExtension on PolicyTypeStatus {
-  String toValue() {
-    switch (this) {
-      case PolicyTypeStatus.enabled:
-        return 'ENABLED';
-      case PolicyTypeStatus.pendingEnable:
-        return 'PENDING_ENABLE';
-      case PolicyTypeStatus.pendingDisable:
-        return 'PENDING_DISABLE';
-    }
-  }
-}
+  final String value;
 
-extension PolicyTypeStatusFromString on String {
-  PolicyTypeStatus toPolicyTypeStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return PolicyTypeStatus.enabled;
-      case 'PENDING_ENABLE':
-        return PolicyTypeStatus.pendingEnable;
-      case 'PENDING_DISABLE':
-        return PolicyTypeStatus.pendingDisable;
-    }
-    throw Exception('$this is not known in enum PolicyTypeStatus');
-  }
+  const PolicyTypeStatus(this.value);
+
+  static PolicyTypeStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PolicyTypeStatus'));
 }
 
 /// Contains information about a policy type and its status in the associated
@@ -6800,8 +6499,8 @@ class PolicyTypeSummary {
 
   factory PolicyTypeSummary.fromJson(Map<String, dynamic> json) {
     return PolicyTypeSummary(
-      status: (json['Status'] as String?)?.toPolicyTypeStatus(),
-      type: (json['Type'] as String?)?.toPolicyType(),
+      status: (json['Status'] as String?)?.let(PolicyTypeStatus.fromString),
+      type: (json['Type'] as String?)?.let(PolicyType.fromString),
     );
   }
 }
@@ -6882,7 +6581,8 @@ class Root {
   /// Authorization Reference</i>.
   final String? arn;
 
-  /// The unique identifier (ID) for the root.
+  /// The unique identifier (ID) for the root. The ID is unique to the
+  /// organization only.
   ///
   /// The <a href="http://wikipedia.org/wiki/regex">regex pattern</a> for a root
   /// ID string requires "r-" followed by from 4 to 32 lowercase letters or
@@ -6920,7 +6620,7 @@ class Root {
       id: json['Id'] as String?,
       name: json['Name'] as String?,
       policyTypes: (json['PolicyTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PolicyTypeSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6977,36 +6677,18 @@ class Tag {
 }
 
 enum TargetType {
-  account,
-  organizationalUnit,
-  root,
-}
+  account('ACCOUNT'),
+  organizationalUnit('ORGANIZATIONAL_UNIT'),
+  root('ROOT'),
+  ;
 
-extension TargetTypeValueExtension on TargetType {
-  String toValue() {
-    switch (this) {
-      case TargetType.account:
-        return 'ACCOUNT';
-      case TargetType.organizationalUnit:
-        return 'ORGANIZATIONAL_UNIT';
-      case TargetType.root:
-        return 'ROOT';
-    }
-  }
-}
+  final String value;
 
-extension TargetTypeFromString on String {
-  TargetType toTargetType() {
-    switch (this) {
-      case 'ACCOUNT':
-        return TargetType.account;
-      case 'ORGANIZATIONAL_UNIT':
-        return TargetType.organizationalUnit;
-      case 'ROOT':
-        return TargetType.root;
-    }
-    throw Exception('$this is not known in enum TargetType');
-  }
+  const TargetType(this.value);
+
+  static TargetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TargetType'));
 }
 
 class UpdateOrganizationalUnitResponse {

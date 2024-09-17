@@ -923,16 +923,14 @@ class ApplicationPolicyStatement {
 
   factory ApplicationPolicyStatement.fromJson(Map<String, dynamic> json) {
     return ApplicationPolicyStatement(
-      actions: (json['actions'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      actions:
+          (json['actions'] as List).nonNulls.map((e) => e as String).toList(),
       principals: (json['principals'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       principalOrgIDs: (json['principalOrgIDs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       statementId: json['statementId'] as String?,
@@ -1014,10 +1012,8 @@ class ApplicationSummary {
       name: json['name'] as String,
       creationTime: json['creationTime'] as String?,
       homePageUrl: json['homePageUrl'] as String?,
-      labels: (json['labels'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      labels:
+          (json['labels'] as List?)?.nonNulls.map((e) => e as String).toList(),
       spdxLicenseId: json['spdxLicenseId'] as String?,
     );
   }
@@ -1025,41 +1021,19 @@ class ApplicationSummary {
 
 /// Values that must be specified in order to deploy some applications.
 enum Capability {
-  capabilityIam,
-  capabilityNamedIam,
-  capabilityAutoExpand,
-  capabilityResourcePolicy,
-}
+  capabilityIam('CAPABILITY_IAM'),
+  capabilityNamedIam('CAPABILITY_NAMED_IAM'),
+  capabilityAutoExpand('CAPABILITY_AUTO_EXPAND'),
+  capabilityResourcePolicy('CAPABILITY_RESOURCE_POLICY'),
+  ;
 
-extension CapabilityValueExtension on Capability {
-  String toValue() {
-    switch (this) {
-      case Capability.capabilityIam:
-        return 'CAPABILITY_IAM';
-      case Capability.capabilityNamedIam:
-        return 'CAPABILITY_NAMED_IAM';
-      case Capability.capabilityAutoExpand:
-        return 'CAPABILITY_AUTO_EXPAND';
-      case Capability.capabilityResourcePolicy:
-        return 'CAPABILITY_RESOURCE_POLICY';
-    }
-  }
-}
+  final String value;
 
-extension CapabilityFromString on String {
-  Capability toCapability() {
-    switch (this) {
-      case 'CAPABILITY_IAM':
-        return Capability.capabilityIam;
-      case 'CAPABILITY_NAMED_IAM':
-        return Capability.capabilityNamedIam;
-      case 'CAPABILITY_AUTO_EXPAND':
-        return Capability.capabilityAutoExpand;
-      case 'CAPABILITY_RESOURCE_POLICY':
-        return Capability.capabilityResourcePolicy;
-    }
-    throw Exception('$this is not known in enum Capability');
-  }
+  const Capability(this.value);
+
+  static Capability fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Capability'));
 }
 
 class CreateApplicationResponse {
@@ -1151,10 +1125,8 @@ class CreateApplicationResponse {
       description: json['description'] as String?,
       homePageUrl: json['homePageUrl'] as String?,
       isVerifiedAuthor: json['isVerifiedAuthor'] as bool?,
-      labels: (json['labels'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      labels:
+          (json['labels'] as List?)?.nonNulls.map((e) => e as String).toList(),
       licenseUrl: json['licenseUrl'] as String?,
       name: json['name'] as String?,
       readmeUrl: json['readmeUrl'] as String?,
@@ -1275,12 +1247,12 @@ class CreateApplicationVersionResponse {
       applicationId: json['applicationId'] as String?,
       creationTime: json['creationTime'] as String?,
       parameterDefinitions: (json['parameterDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ParameterDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
       requiredCapabilities: (json['requiredCapabilities'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toCapability())
+          ?.nonNulls
+          .map((e) => Capability.fromString((e as String)))
           .toList(),
       resourcesSupported: json['resourcesSupported'] as bool?,
       semanticVersion: json['semanticVersion'] as String?,
@@ -1381,7 +1353,7 @@ class CreateCloudFormationTemplateResponse {
       creationTime: json['creationTime'] as String?,
       expirationTime: json['expirationTime'] as String?,
       semanticVersion: json['semanticVersion'] as String?,
-      status: (json['status'] as String?)?.toStatus(),
+      status: (json['status'] as String?)?.let(Status.fromString),
       templateId: json['templateId'] as String?,
       templateUrl: json['templateUrl'] as String?,
     );
@@ -1399,7 +1371,7 @@ class GetApplicationPolicyResponse {
   factory GetApplicationPolicyResponse.fromJson(Map<String, dynamic> json) {
     return GetApplicationPolicyResponse(
       statements: (json['statements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ApplicationPolicyStatement.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1496,10 +1468,8 @@ class GetApplicationResponse {
       description: json['description'] as String?,
       homePageUrl: json['homePageUrl'] as String?,
       isVerifiedAuthor: json['isVerifiedAuthor'] as bool?,
-      labels: (json['labels'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      labels:
+          (json['labels'] as List?)?.nonNulls.map((e) => e as String).toList(),
       licenseUrl: json['licenseUrl'] as String?,
       name: json['name'] as String?,
       readmeUrl: json['readmeUrl'] as String?,
@@ -1563,7 +1533,7 @@ class GetCloudFormationTemplateResponse {
       creationTime: json['creationTime'] as String?,
       expirationTime: json['expirationTime'] as String?,
       semanticVersion: json['semanticVersion'] as String?,
-      status: (json['status'] as String?)?.toStatus(),
+      status: (json['status'] as String?)?.let(Status.fromString),
       templateId: json['templateId'] as String?,
       templateUrl: json['templateUrl'] as String?,
     );
@@ -1586,7 +1556,7 @@ class ListApplicationDependenciesResponse {
       Map<String, dynamic> json) {
     return ListApplicationDependenciesResponse(
       dependencies: (json['dependencies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ApplicationDependencySummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1611,7 +1581,7 @@ class ListApplicationVersionsResponse {
     return ListApplicationVersionsResponse(
       nextToken: json['nextToken'] as String?,
       versions: (json['versions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => VersionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1633,7 +1603,7 @@ class ListApplicationsResponse {
   factory ListApplicationsResponse.fromJson(Map<String, dynamic> json) {
     return ListApplicationsResponse(
       applications: (json['applications'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApplicationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -1763,12 +1733,12 @@ class ParameterDefinition {
     return ParameterDefinition(
       name: json['name'] as String,
       referencedByResources: (json['referencedByResources'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       allowedPattern: json['allowedPattern'] as String?,
       allowedValues: (json['allowedValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       constraintDescription: json['constraintDescription'] as String?,
@@ -1820,7 +1790,7 @@ class PutApplicationPolicyResponse {
   factory PutApplicationPolicyResponse.fromJson(Map<String, dynamic> json) {
     return PutApplicationPolicyResponse(
       statements: (json['statements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ApplicationPolicyStatement.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1892,36 +1862,18 @@ class RollbackTrigger {
 }
 
 enum Status {
-  preparing,
-  active,
-  expired,
-}
+  preparing('PREPARING'),
+  active('ACTIVE'),
+  expired('EXPIRED'),
+  ;
 
-extension StatusValueExtension on Status {
-  String toValue() {
-    switch (this) {
-      case Status.preparing:
-        return 'PREPARING';
-      case Status.active:
-        return 'ACTIVE';
-      case Status.expired:
-        return 'EXPIRED';
-    }
-  }
-}
+  final String value;
 
-extension StatusFromString on String {
-  Status toStatus() {
-    switch (this) {
-      case 'PREPARING':
-        return Status.preparing;
-      case 'ACTIVE':
-        return Status.active;
-      case 'EXPIRED':
-        return Status.expired;
-    }
-    throw Exception('$this is not known in enum Status');
-  }
+  const Status(this.value);
+
+  static Status fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Status'));
 }
 
 /// This property corresponds to the <i>AWS CloudFormation <a
@@ -2046,10 +1998,8 @@ class UpdateApplicationResponse {
       description: json['description'] as String?,
       homePageUrl: json['homePageUrl'] as String?,
       isVerifiedAuthor: json['isVerifiedAuthor'] as bool?,
-      labels: (json['labels'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      labels:
+          (json['labels'] as List?)?.nonNulls.map((e) => e as String).toList(),
       licenseUrl: json['licenseUrl'] as String?,
       name: json['name'] as String?,
       readmeUrl: json['readmeUrl'] as String?,
@@ -2171,12 +2121,12 @@ class Version {
       applicationId: json['applicationId'] as String,
       creationTime: json['creationTime'] as String,
       parameterDefinitions: (json['parameterDefinitions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => ParameterDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
       requiredCapabilities: (json['requiredCapabilities'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toCapability())
+          .nonNulls
+          .map((e) => Capability.fromString((e as String)))
           .toList(),
       resourcesSupported: json['resourcesSupported'] as bool,
       semanticVersion: json['semanticVersion'] as String,

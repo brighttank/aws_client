@@ -119,19 +119,25 @@ class GlobalAccelerator {
   /// API).
   ///
   /// There are two advantages to using <code>AddEndpoints</code> to add
-  /// endpoints:
+  /// endpoints in Global Accelerator:
   ///
   /// <ul>
   /// <li>
   /// It's faster, because Global Accelerator only has to resolve the new
-  /// endpoints that you're adding.
+  /// endpoints that you're adding, rather than resolving new and existing
+  /// endpoints.
   /// </li>
   /// <li>
-  /// It's more convenient, because you don't need to specify all of the current
-  /// endpoints that are already in the endpoint group in addition to the new
+  /// It's more convenient, because you don't need to specify the current
+  /// endpoints that are already in the endpoint group, in addition to the new
   /// endpoints that you want to add.
   /// </li>
   /// </ul>
+  /// For information about endpoint types and requirements for endpoints that
+  /// you can add to Global Accelerator, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/about-endpoints.html">
+  /// Endpoints for standard accelerators</a> in the <i>Global Accelerator
+  /// Developer Guide</i>.
   ///
   /// May throw [TransactionInProgressException].
   /// May throw [EndpointGroupNotFoundException].
@@ -191,6 +197,11 @@ class GlobalAccelerator {
   /// Parameter [cidr] :
   /// The address range, in CIDR notation. This must be the exact range that you
   /// provisioned. You can't advertise only a portion of the provisioned range.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html">Bring
+  /// your own IP addresses (BYOIP)</a> in the Global Accelerator Developer
+  /// Guide.
   Future<AdvertiseByoipCidrResponse> advertiseByoipCidr({
     required String cidr,
   }) async {
@@ -300,7 +311,8 @@ class GlobalAccelerator {
   /// Global Accelerator is a global service that supports endpoints in multiple
   /// Amazon Web Services Regions but you must specify the US West (Oregon)
   /// Region to create, update, or otherwise work with accelerators. That is,
-  /// for example, specify <code>--region us-west-2</code> on AWS CLI commands.
+  /// for example, specify <code>--region us-west-2</code> on Amazon Web
+  /// Services CLI commands.
   /// </important>
   ///
   /// May throw [InternalServiceErrorException].
@@ -381,13 +393,101 @@ class GlobalAccelerator {
         'Name': name,
         if (enabled != null) 'Enabled': enabled,
         'IdempotencyToken': idempotencyToken ?? _s.generateIdempotencyToken(),
-        if (ipAddressType != null) 'IpAddressType': ipAddressType.toValue(),
+        if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
         if (ipAddresses != null) 'IpAddresses': ipAddresses,
         if (tags != null) 'Tags': tags,
       },
     );
 
     return CreateAcceleratorResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Create a cross-account attachment in Global Accelerator. You create a
+  /// cross-account attachment to specify the <i>principals</i> who have
+  /// permission to work with <i>resources</i> in accelerators in their own
+  /// account. You specify, in the same attachment, the resources that are
+  /// shared.
+  ///
+  /// A principal can be an Amazon Web Services account number or the Amazon
+  /// Resource Name (ARN) for an accelerator. For account numbers that are
+  /// listed as principals, to work with a resource listed in the attachment,
+  /// you must sign in to an account specified as a principal. Then, you can
+  /// work with resources that are listed, with any of your accelerators. If an
+  /// accelerator ARN is listed in the cross-account attachment as a principal,
+  /// anyone with permission to make updates to the accelerator can work with
+  /// resources that are listed in the attachment.
+  ///
+  /// Specify each principal and resource separately. To specify two CIDR
+  /// address pools, list them individually under <code>Resources</code>, and so
+  /// on. For a command line operation, for example, you might use a statement
+  /// like the following:
+  ///
+  /// <code> "Resources": [{"Cidr": "169.254.60.0/24"},{"Cidr":
+  /// "169.254.59.0/24"}]</code>
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/cross-account-resources.html">
+  /// Working with cross-account attachments and resources in Global
+  /// Accelerator</a> in the <i> Global Accelerator Developer Guide</i>.
+  ///
+  /// May throw [InternalServiceErrorException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [LimitExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [TransactionInProgressException].
+  ///
+  /// Parameter [name] :
+  /// The name of the cross-account attachment.
+  ///
+  /// Parameter [idempotencyToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency—that is, the uniqueness—of the request.
+  ///
+  /// Parameter [principals] :
+  /// The principals to include in the cross-account attachment. A principal can
+  /// be an Amazon Web Services account number or the Amazon Resource Name (ARN)
+  /// for an accelerator.
+  ///
+  /// Parameter [resources] :
+  /// The Amazon Resource Names (ARNs) for the resources to include in the
+  /// cross-account attachment. A resource can be any supported Amazon Web
+  /// Services resource type for Global Accelerator or a CIDR range for a bring
+  /// your own IP address (BYOIP) address pool.
+  ///
+  /// Parameter [tags] :
+  /// Add tags for a cross-account attachment.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/tagging-in-global-accelerator.html">Tagging
+  /// in Global Accelerator</a> in the <i>Global Accelerator Developer
+  /// Guide</i>.
+  Future<CreateCrossAccountAttachmentResponse> createCrossAccountAttachment({
+    required String name,
+    String? idempotencyToken,
+    List<String>? principals,
+    List<Resource>? resources,
+    List<Tag>? tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'GlobalAccelerator_V20180706.CreateCrossAccountAttachment'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Name': name,
+        'IdempotencyToken': idempotencyToken ?? _s.generateIdempotencyToken(),
+        if (principals != null) 'Principals': principals,
+        if (resources != null) 'Resources': resources,
+        if (tags != null) 'Tags': tags,
+      },
+    );
+
+    return CreateCrossAccountAttachmentResponse.fromJson(jsonResponse.body);
   }
 
   /// Create a custom routing accelerator. A custom routing accelerator directs
@@ -405,7 +505,8 @@ class GlobalAccelerator {
   /// Global Accelerator is a global service that supports endpoints in multiple
   /// Amazon Web Services Regions but you must specify the US West (Oregon)
   /// Region to create, update, or otherwise work with accelerators. That is,
-  /// for example, specify <code>--region us-west-2</code> on AWS CLI commands.
+  /// for example, specify <code>--region us-west-2</code> on Amazon Web
+  /// Services CLI commands.
   /// </important>
   ///
   /// May throw [InternalServiceErrorException].
@@ -489,7 +590,7 @@ class GlobalAccelerator {
         'Name': name,
         if (enabled != null) 'Enabled': enabled,
         'IdempotencyToken': idempotencyToken ?? _s.generateIdempotencyToken(),
-        if (ipAddressType != null) 'IpAddressType': ipAddressType.toValue(),
+        if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
         if (ipAddresses != null) 'IpAddresses': ipAddresses,
         if (tags != null) 'Tags': tags,
       },
@@ -610,6 +711,12 @@ class GlobalAccelerator {
   /// Create an endpoint group for the specified listener. An endpoint group is
   /// a collection of endpoints in one Amazon Web Services Region. A resource
   /// must be valid and active when you add it as an endpoint.
+  ///
+  /// For more information about endpoint types and requirements for endpoints
+  /// that you can add to Global Accelerator, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/about-endpoints.html">
+  /// Endpoints for standard accelerators</a> in the <i>Global Accelerator
+  /// Developer Guide</i>.
   ///
   /// May throw [AcceleratorNotFoundException].
   /// May throw [EndpointGroupAlreadyExistsException].
@@ -735,7 +842,7 @@ class GlobalAccelerator {
         if (healthCheckPath != null) 'HealthCheckPath': healthCheckPath,
         if (healthCheckPort != null) 'HealthCheckPort': healthCheckPort,
         if (healthCheckProtocol != null)
-          'HealthCheckProtocol': healthCheckProtocol.toValue(),
+          'HealthCheckProtocol': healthCheckProtocol.value,
         'IdempotencyToken': idempotencyToken ?? _s.generateIdempotencyToken(),
         if (portOverrides != null) 'PortOverrides': portOverrides,
         if (thresholdCount != null) 'ThresholdCount': thresholdCount,
@@ -813,8 +920,8 @@ class GlobalAccelerator {
       payload: {
         'AcceleratorArn': acceleratorArn,
         'PortRanges': portRanges,
-        'Protocol': protocol.toValue(),
-        if (clientAffinity != null) 'ClientAffinity': clientAffinity.toValue(),
+        'Protocol': protocol.value,
+        if (clientAffinity != null) 'ClientAffinity': clientAffinity.value,
         'IdempotencyToken': idempotencyToken ?? _s.generateIdempotencyToken(),
       },
     );
@@ -868,6 +975,43 @@ class GlobalAccelerator {
       headers: headers,
       payload: {
         'AcceleratorArn': acceleratorArn,
+      },
+    );
+  }
+
+  /// Delete a cross-account attachment. When you delete an attachment, Global
+  /// Accelerator revokes the permission to use the resources in the attachment
+  /// from all principals in the list of principals. Global Accelerator revokes
+  /// the permission for specific resources.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/cross-account-resources.html">
+  /// Working with cross-account attachments and resources in Global
+  /// Accelerator</a> in the <i> Global Accelerator Developer Guide</i>.
+  ///
+  /// May throw [AttachmentNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [TransactionInProgressException].
+  ///
+  /// Parameter [attachmentArn] :
+  /// The Amazon Resource Name (ARN) for the cross-account attachment to delete.
+  Future<void> deleteCrossAccountAttachment({
+    required String attachmentArn,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'GlobalAccelerator_V20180706.DeleteCrossAccountAttachment'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AttachmentArn': attachmentArn,
       },
     );
   }
@@ -1133,6 +1277,11 @@ class GlobalAccelerator {
   /// Parameter [cidr] :
   /// The address range, in CIDR notation. The prefix must be the same prefix
   /// that you specified when you provisioned the address range.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html">Bring
+  /// your own IP addresses (BYOIP)</a> in the Global Accelerator Developer
+  /// Guide.
   Future<DeprovisionByoipCidrResponse> deprovisionByoipCidr({
     required String cidr,
   }) async {
@@ -1212,6 +1361,39 @@ class GlobalAccelerator {
     );
 
     return DescribeAcceleratorAttributesResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Gets configuration information about a cross-account attachment.
+  ///
+  /// May throw [AttachmentNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [InvalidArgumentException].
+  ///
+  /// Parameter [attachmentArn] :
+  /// The Amazon Resource Name (ARN) for the cross-account attachment to
+  /// describe.
+  Future<DescribeCrossAccountAttachmentResponse>
+      describeCrossAccountAttachment({
+    required String attachmentArn,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'GlobalAccelerator_V20180706.DescribeCrossAccountAttachment'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AttachmentArn': attachmentArn,
+      },
+    );
+
+    return DescribeCrossAccountAttachmentResponse.fromJson(jsonResponse.body);
   }
 
   /// Describe a custom routing accelerator.
@@ -1483,6 +1665,132 @@ class GlobalAccelerator {
     );
 
     return ListByoipCidrsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// List the cross-account attachments that have been created in Global
+  /// Accelerator.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [InvalidNextTokenException].
+  /// May throw [InternalServiceErrorException].
+  ///
+  /// Parameter [maxResults] :
+  /// The number of cross-account attachment objects that you want to return
+  /// with this call. The default value is 10.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. You receive this token from a
+  /// previous call.
+  Future<ListCrossAccountAttachmentsResponse> listCrossAccountAttachments({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'GlobalAccelerator_V20180706.ListCrossAccountAttachments'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListCrossAccountAttachmentsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// List the accounts that have cross-account resources.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/cross-account-resources.html">
+  /// Working with cross-account attachments and resources in Global
+  /// Accelerator</a> in the <i> Global Accelerator Developer Guide</i>.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceErrorException].
+  Future<ListCrossAccountResourceAccountsResponse>
+      listCrossAccountResourceAccounts() async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target':
+          'GlobalAccelerator_V20180706.ListCrossAccountResourceAccounts'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+    );
+
+    return ListCrossAccountResourceAccountsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// List the cross-account resources available to work with.
+  ///
+  /// May throw [InternalServiceErrorException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [InvalidNextTokenException].
+  /// May throw [AccessDeniedException].
+  /// May throw [AcceleratorNotFoundException].
+  ///
+  /// Parameter [resourceOwnerAwsAccountId] :
+  /// The account ID of a resource owner in a cross-account attachment.
+  ///
+  /// Parameter [acceleratorArn] :
+  /// The Amazon Resource Name (ARN) of an accelerator in a cross-account
+  /// attachment.
+  ///
+  /// Parameter [maxResults] :
+  /// The number of cross-account resource objects that you want to return with
+  /// this call. The default value is 10.
+  ///
+  /// Parameter [nextToken] :
+  /// The token for the next set of results. You receive this token from a
+  /// previous call.
+  Future<ListCrossAccountResourcesResponse> listCrossAccountResources({
+    required String resourceOwnerAwsAccountId,
+    String? acceleratorArn,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'GlobalAccelerator_V20180706.ListCrossAccountResources'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceOwnerAwsAccountId': resourceOwnerAwsAccountId,
+        if (acceleratorArn != null) 'AcceleratorArn': acceleratorArn,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListCrossAccountResourcesResponse.fromJson(jsonResponse.body);
   }
 
   /// List the custom routing accelerators for an Amazon Web Services account.
@@ -1916,7 +2224,13 @@ class GlobalAccelerator {
   /// Parameter [cidr] :
   /// The public IPv4 address range, in CIDR notation. The most specific IP
   /// prefix that you can specify is /24. The address range cannot overlap with
-  /// another address range that you've brought to this or another Region.
+  /// another address range that you've brought to this Amazon Web Services
+  /// Region or another Region.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html">Bring
+  /// your own IP addresses (BYOIP)</a> in the Global Accelerator Developer
+  /// Guide.
   ///
   /// Parameter [cidrAuthorizationContext] :
   /// A signed document that proves that you are authorized to bring the
@@ -2116,12 +2430,35 @@ class GlobalAccelerator {
     );
   }
 
-  /// Update an accelerator.
+  /// Update an accelerator to make changes, such as the following:
+  ///
+  /// <ul>
+  /// <li>
+  /// Change the name of the accelerator.
+  /// </li>
+  /// <li>
+  /// Disable the accelerator so that it no longer accepts or routes traffic, or
+  /// so that you can delete it.
+  /// </li>
+  /// <li>
+  /// Enable the accelerator, if it is disabled.
+  /// </li>
+  /// <li>
+  /// Change the IP address type to dual-stack if it is IPv4, or change the IP
+  /// address type to IPv4 if it's dual-stack.
+  /// </li>
+  /// </ul>
+  /// Be aware that static IP addresses remain assigned to your accelerator for
+  /// as long as it exists, even if you disable the accelerator and it no longer
+  /// accepts or routes traffic. However, when you delete the accelerator, you
+  /// lose the static IP addresses that are assigned to it, so you can no longer
+  /// route traffic by using them.
   /// <important>
   /// Global Accelerator is a global service that supports endpoints in multiple
   /// Amazon Web Services Regions but you must specify the US West (Oregon)
   /// Region to create, update, or otherwise work with accelerators. That is,
-  /// for example, specify <code>--region us-west-2</code> on AWS CLI commands.
+  /// for example, specify <code>--region us-west-2</code> on Amazon Web
+  /// Services CLI commands.
   /// </important>
   ///
   /// May throw [AcceleratorNotFoundException].
@@ -2143,6 +2480,9 @@ class GlobalAccelerator {
   /// The IP address type that an accelerator supports. For a standard
   /// accelerator, the value can be IPV4 or DUAL_STACK.
   ///
+  /// Parameter [ipAddresses] :
+  /// The IP addresses for an accelerator.
+  ///
   /// Parameter [name] :
   /// The name of the accelerator. The name can have a maximum of 64 characters,
   /// must contain only alphanumeric characters, periods (.), or hyphens (-),
@@ -2151,6 +2491,7 @@ class GlobalAccelerator {
     required String acceleratorArn,
     bool? enabled,
     IpAddressType? ipAddressType,
+    List<String>? ipAddresses,
     String? name,
   }) async {
     final headers = <String, String>{
@@ -2166,7 +2507,8 @@ class GlobalAccelerator {
       payload: {
         'AcceleratorArn': acceleratorArn,
         if (enabled != null) 'Enabled': enabled,
-        if (ipAddressType != null) 'IpAddressType': ipAddressType.toValue(),
+        if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
+        if (ipAddresses != null) 'IpAddresses': ipAddresses,
         if (name != null) 'Name': name,
       },
     );
@@ -2235,6 +2577,91 @@ class GlobalAccelerator {
     return UpdateAcceleratorAttributesResponse.fromJson(jsonResponse.body);
   }
 
+  /// Update a cross-account attachment to add or remove principals or
+  /// resources. When you update an attachment to remove a principal (account ID
+  /// or accelerator) or a resource, Global Accelerator revokes the permission
+  /// for specific resources.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/cross-account-resources.html">
+  /// Working with cross-account attachments and resources in Global
+  /// Accelerator</a> in the <i> Global Accelerator Developer Guide</i>.
+  ///
+  /// May throw [AttachmentNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceErrorException].
+  /// May throw [InvalidArgumentException].
+  /// May throw [LimitExceededException].
+  /// May throw [TransactionInProgressException].
+  ///
+  /// Parameter [attachmentArn] :
+  /// The Amazon Resource Name (ARN) of the cross-account attachment to update.
+  ///
+  /// Parameter [addPrincipals] :
+  /// The principals to add to the cross-account attachment. A principal is an
+  /// account or the Amazon Resource Name (ARN) of an accelerator that the
+  /// attachment gives permission to work with resources from another account.
+  /// The resources are also listed in the attachment.
+  ///
+  /// To add more than one principal, separate the account numbers or
+  /// accelerator ARNs, or both, with commas.
+  ///
+  /// Parameter [addResources] :
+  /// The resources to add to the cross-account attachment. A resource listed in
+  /// a cross-account attachment can be used with an accelerator by the
+  /// principals that are listed in the attachment.
+  ///
+  /// To add more than one resource, separate the resource ARNs with commas.
+  ///
+  /// Parameter [name] :
+  /// The name of the cross-account attachment.
+  ///
+  /// Parameter [removePrincipals] :
+  /// The principals to remove from the cross-account attachment. A principal is
+  /// an account or the Amazon Resource Name (ARN) of an accelerator that the
+  /// attachment gives permission to work with resources from another account.
+  /// The resources are also listed in the attachment.
+  ///
+  /// To remove more than one principal, separate the account numbers or
+  /// accelerator ARNs, or both, with commas.
+  ///
+  /// Parameter [removeResources] :
+  /// The resources to remove from the cross-account attachment. A resource
+  /// listed in a cross-account attachment can be used with an accelerator by
+  /// the principals that are listed in the attachment.
+  ///
+  /// To remove more than one resource, separate the resource ARNs with commas.
+  Future<UpdateCrossAccountAttachmentResponse> updateCrossAccountAttachment({
+    required String attachmentArn,
+    List<String>? addPrincipals,
+    List<Resource>? addResources,
+    String? name,
+    List<String>? removePrincipals,
+    List<Resource>? removeResources,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'GlobalAccelerator_V20180706.UpdateCrossAccountAttachment'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AttachmentArn': attachmentArn,
+        if (addPrincipals != null) 'AddPrincipals': addPrincipals,
+        if (addResources != null) 'AddResources': addResources,
+        if (name != null) 'Name': name,
+        if (removePrincipals != null) 'RemovePrincipals': removePrincipals,
+        if (removeResources != null) 'RemoveResources': removeResources,
+      },
+    );
+
+    return UpdateCrossAccountAttachmentResponse.fromJson(jsonResponse.body);
+  }
+
   /// Update a custom routing accelerator.
   ///
   /// May throw [AcceleratorNotFoundException].
@@ -2255,6 +2682,9 @@ class GlobalAccelerator {
   /// The IP address type that an accelerator supports. For a custom routing
   /// accelerator, the value must be IPV4.
   ///
+  /// Parameter [ipAddresses] :
+  /// The IP addresses for an accelerator.
+  ///
   /// Parameter [name] :
   /// The name of the accelerator. The name can have a maximum of 64 characters,
   /// must contain only alphanumeric characters, periods (.), or hyphens (-),
@@ -2264,6 +2694,7 @@ class GlobalAccelerator {
     required String acceleratorArn,
     bool? enabled,
     IpAddressType? ipAddressType,
+    List<String>? ipAddresses,
     String? name,
   }) async {
     final headers = <String, String>{
@@ -2280,7 +2711,8 @@ class GlobalAccelerator {
       payload: {
         'AcceleratorArn': acceleratorArn,
         if (enabled != null) 'Enabled': enabled,
-        if (ipAddressType != null) 'IpAddressType': ipAddressType.toValue(),
+        if (ipAddressType != null) 'IpAddressType': ipAddressType.value,
+        if (ipAddresses != null) 'IpAddresses': ipAddresses,
         if (name != null) 'Name': name,
       },
     );
@@ -2513,7 +2945,7 @@ class GlobalAccelerator {
         if (healthCheckPath != null) 'HealthCheckPath': healthCheckPath,
         if (healthCheckPort != null) 'HealthCheckPort': healthCheckPort,
         if (healthCheckProtocol != null)
-          'HealthCheckProtocol': healthCheckProtocol.toValue(),
+          'HealthCheckProtocol': healthCheckProtocol.value,
         if (portOverrides != null) 'PortOverrides': portOverrides,
         if (thresholdCount != null) 'ThresholdCount': thresholdCount,
         if (trafficDialPercentage != null)
@@ -2582,9 +3014,9 @@ class GlobalAccelerator {
       headers: headers,
       payload: {
         'ListenerArn': listenerArn,
-        if (clientAffinity != null) 'ClientAffinity': clientAffinity.toValue(),
+        if (clientAffinity != null) 'ClientAffinity': clientAffinity.value,
         if (portRanges != null) 'PortRanges': portRanges,
-        if (protocol != null) 'Protocol': protocol.toValue(),
+        if (protocol != null) 'Protocol': protocol.value,
       },
     );
 
@@ -2611,6 +3043,11 @@ class GlobalAccelerator {
   ///
   /// Parameter [cidr] :
   /// The address range, in CIDR notation.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html">Bring
+  /// your own IP addresses (BYOIP)</a> in the Global Accelerator Developer
+  /// Guide.
   Future<WithdrawByoipCidrResponse> withdrawByoipCidr({
     required String cidr,
   }) async {
@@ -2731,17 +3168,18 @@ class Accelerator {
       dualStackDnsName: json['DualStackDnsName'] as String?,
       enabled: json['Enabled'] as bool?,
       events: (json['Events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AcceleratorEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      ipAddressType: (json['IpAddressType'] as String?)?.toIpAddressType(),
+      ipAddressType:
+          (json['IpAddressType'] as String?)?.let(IpAddressType.fromString),
       ipSets: (json['IpSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IpSet.fromJson(e as Map<String, dynamic>))
           .toList(),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toAcceleratorStatus(),
+      status: (json['Status'] as String?)?.let(AcceleratorStatus.fromString),
     );
   }
 }
@@ -2816,31 +3254,18 @@ class AcceleratorEvent {
 }
 
 enum AcceleratorStatus {
-  deployed,
-  inProgress,
-}
+  deployed('DEPLOYED'),
+  inProgress('IN_PROGRESS'),
+  ;
 
-extension AcceleratorStatusValueExtension on AcceleratorStatus {
-  String toValue() {
-    switch (this) {
-      case AcceleratorStatus.deployed:
-        return 'DEPLOYED';
-      case AcceleratorStatus.inProgress:
-        return 'IN_PROGRESS';
-    }
-  }
-}
+  final String value;
 
-extension AcceleratorStatusFromString on String {
-  AcceleratorStatus toAcceleratorStatus() {
-    switch (this) {
-      case 'DEPLOYED':
-        return AcceleratorStatus.deployed;
-      case 'IN_PROGRESS':
-        return AcceleratorStatus.inProgress;
-    }
-    throw Exception('$this is not known in enum AcceleratorStatus');
-  }
+  const AcceleratorStatus(this.value);
+
+  static AcceleratorStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AcceleratorStatus'));
 }
 
 class AddCustomRoutingEndpointsResponse {
@@ -2860,7 +3285,7 @@ class AddCustomRoutingEndpointsResponse {
       Map<String, dynamic> json) {
     return AddCustomRoutingEndpointsResponse(
       endpointDescriptions: (json['EndpointDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomRoutingEndpointDescription.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -2884,7 +3309,7 @@ class AddEndpointsResponse {
   factory AddEndpointsResponse.fromJson(Map<String, dynamic> json) {
     return AddEndpointsResponse(
       endpointDescriptions: (json['EndpointDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EndpointDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       endpointGroupArn: json['EndpointGroupArn'] as String?,
@@ -2905,6 +3330,55 @@ class AdvertiseByoipCidrResponse {
       byoipCidr: json['ByoipCidr'] != null
           ? ByoipCidr.fromJson(json['ByoipCidr'] as Map<String, dynamic>)
           : null,
+    );
+  }
+}
+
+/// A cross-account attachment in Global Accelerator. A cross-account attachment
+/// specifies the <i>principals</i> who have permission to work with
+/// <i>resources</i> in your account, which you also list in the attachment.
+class Attachment {
+  /// The Amazon Resource Name (ARN) of the cross-account attachment.
+  final String? attachmentArn;
+
+  /// The date and time that the cross-account attachment was created.
+  final DateTime? createdTime;
+
+  /// The date and time that the cross-account attachment was last modified.
+  final DateTime? lastModifiedTime;
+
+  /// The name of the cross-account attachment.
+  final String? name;
+
+  /// The principals included in the cross-account attachment.
+  final List<String>? principals;
+
+  /// The resources included in the cross-account attachment.
+  final List<Resource>? resources;
+
+  Attachment({
+    this.attachmentArn,
+    this.createdTime,
+    this.lastModifiedTime,
+    this.name,
+    this.principals,
+    this.resources,
+  });
+
+  factory Attachment.fromJson(Map<String, dynamic> json) {
+    return Attachment(
+      attachmentArn: json['AttachmentArn'] as String?,
+      createdTime: timeStampFromJson(json['CreatedTime']),
+      lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
+      name: json['Name'] as String?,
+      principals: (json['Principals'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      resources: (json['Resources'] as List?)
+          ?.nonNulls
+          .map((e) => Resource.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 }
@@ -2973,6 +3447,10 @@ class AdvertiseByoipCidrResponse {
 /// </ul>
 class ByoipCidr {
   /// The address range, in CIDR notation.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html">Bring
+  /// your own IP addresses (BYOIP)</a> in the Global Accelerator Developer Guide.
   final String? cidr;
 
   /// A history of status changes for an IP address range that you bring to Global
@@ -2992,10 +3470,10 @@ class ByoipCidr {
     return ByoipCidr(
       cidr: json['Cidr'] as String?,
       events: (json['Events'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ByoipCidrEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
-      state: (json['State'] as String?)?.toByoipCidrState(),
+      state: (json['State'] as String?)?.let(ByoipCidrState.fromString),
     );
   }
 }
@@ -3028,76 +3506,27 @@ class ByoipCidrEvent {
 }
 
 enum ByoipCidrState {
-  pendingProvisioning,
-  ready,
-  pendingAdvertising,
-  advertising,
-  pendingWithdrawing,
-  pendingDeprovisioning,
-  deprovisioned,
-  failedProvision,
-  failedAdvertising,
-  failedWithdraw,
-  failedDeprovision,
-}
+  pendingProvisioning('PENDING_PROVISIONING'),
+  ready('READY'),
+  pendingAdvertising('PENDING_ADVERTISING'),
+  advertising('ADVERTISING'),
+  pendingWithdrawing('PENDING_WITHDRAWING'),
+  pendingDeprovisioning('PENDING_DEPROVISIONING'),
+  deprovisioned('DEPROVISIONED'),
+  failedProvision('FAILED_PROVISION'),
+  failedAdvertising('FAILED_ADVERTISING'),
+  failedWithdraw('FAILED_WITHDRAW'),
+  failedDeprovision('FAILED_DEPROVISION'),
+  ;
 
-extension ByoipCidrStateValueExtension on ByoipCidrState {
-  String toValue() {
-    switch (this) {
-      case ByoipCidrState.pendingProvisioning:
-        return 'PENDING_PROVISIONING';
-      case ByoipCidrState.ready:
-        return 'READY';
-      case ByoipCidrState.pendingAdvertising:
-        return 'PENDING_ADVERTISING';
-      case ByoipCidrState.advertising:
-        return 'ADVERTISING';
-      case ByoipCidrState.pendingWithdrawing:
-        return 'PENDING_WITHDRAWING';
-      case ByoipCidrState.pendingDeprovisioning:
-        return 'PENDING_DEPROVISIONING';
-      case ByoipCidrState.deprovisioned:
-        return 'DEPROVISIONED';
-      case ByoipCidrState.failedProvision:
-        return 'FAILED_PROVISION';
-      case ByoipCidrState.failedAdvertising:
-        return 'FAILED_ADVERTISING';
-      case ByoipCidrState.failedWithdraw:
-        return 'FAILED_WITHDRAW';
-      case ByoipCidrState.failedDeprovision:
-        return 'FAILED_DEPROVISION';
-    }
-  }
-}
+  final String value;
 
-extension ByoipCidrStateFromString on String {
-  ByoipCidrState toByoipCidrState() {
-    switch (this) {
-      case 'PENDING_PROVISIONING':
-        return ByoipCidrState.pendingProvisioning;
-      case 'READY':
-        return ByoipCidrState.ready;
-      case 'PENDING_ADVERTISING':
-        return ByoipCidrState.pendingAdvertising;
-      case 'ADVERTISING':
-        return ByoipCidrState.advertising;
-      case 'PENDING_WITHDRAWING':
-        return ByoipCidrState.pendingWithdrawing;
-      case 'PENDING_DEPROVISIONING':
-        return ByoipCidrState.pendingDeprovisioning;
-      case 'DEPROVISIONED':
-        return ByoipCidrState.deprovisioned;
-      case 'FAILED_PROVISION':
-        return ByoipCidrState.failedProvision;
-      case 'FAILED_ADVERTISING':
-        return ByoipCidrState.failedAdvertising;
-      case 'FAILED_WITHDRAW':
-        return ByoipCidrState.failedWithdraw;
-      case 'FAILED_DEPROVISION':
-        return ByoipCidrState.failedDeprovision;
-    }
-    throw Exception('$this is not known in enum ByoipCidrState');
-  }
+  const ByoipCidrState(this.value);
+
+  static ByoipCidrState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ByoipCidrState'));
 }
 
 /// Provides authorization for Amazon to bring a specific IP address range to a
@@ -3131,31 +3560,18 @@ class CidrAuthorizationContext {
 }
 
 enum ClientAffinity {
-  none,
-  sourceIp,
-}
+  none('NONE'),
+  sourceIp('SOURCE_IP'),
+  ;
 
-extension ClientAffinityValueExtension on ClientAffinity {
-  String toValue() {
-    switch (this) {
-      case ClientAffinity.none:
-        return 'NONE';
-      case ClientAffinity.sourceIp:
-        return 'SOURCE_IP';
-    }
-  }
-}
+  final String value;
 
-extension ClientAffinityFromString on String {
-  ClientAffinity toClientAffinity() {
-    switch (this) {
-      case 'NONE':
-        return ClientAffinity.none;
-      case 'SOURCE_IP':
-        return ClientAffinity.sourceIp;
-    }
-    throw Exception('$this is not known in enum ClientAffinity');
-  }
+  const ClientAffinity(this.value);
+
+  static ClientAffinity fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ClientAffinity'));
 }
 
 class CreateAcceleratorResponse {
@@ -3171,6 +3587,25 @@ class CreateAcceleratorResponse {
     return CreateAcceleratorResponse(
       accelerator: json['Accelerator'] != null
           ? Accelerator.fromJson(json['Accelerator'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class CreateCrossAccountAttachmentResponse {
+  /// Information about the cross-account attachment.
+  final Attachment? crossAccountAttachment;
+
+  CreateCrossAccountAttachmentResponse({
+    this.crossAccountAttachment,
+  });
+
+  factory CreateCrossAccountAttachmentResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreateCrossAccountAttachmentResponse(
+      crossAccountAttachment: json['CrossAccountAttachment'] != null
+          ? Attachment.fromJson(
+              json['CrossAccountAttachment'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -3269,6 +3704,50 @@ class CreateListenerResponse {
   }
 }
 
+/// An endpoint (Amazon Web Services resource) or an IP address range, in CIDR
+/// format, that is listed in a cross-account attachment. A cross-account
+/// resource can be added to an accelerator by specified principals, which are
+/// also listed in the attachment.
+///
+/// For more information, see <a
+/// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/cross-account-resources.html">
+/// Working with cross-account attachments and resources in Global
+/// Accelerator</a> in the <i> Global Accelerator Developer Guide</i>.
+class CrossAccountResource {
+  /// The Amazon Resource Name (ARN) of the cross-account attachment that
+  /// specifies the resources (endpoints or CIDR range) that can be added to
+  /// accelerators and principals that have permission to add them.
+  final String? attachmentArn;
+
+  /// An IP address range, in CIDR format, that is specified as an Amazon Web
+  /// Services resource. The address must be provisioned and advertised in Global
+  /// Accelerator by following the bring your own IP address (BYOIP) process for
+  /// Global Accelerator.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html">Bring
+  /// your own IP addresses (BYOIP)</a> in the Global Accelerator Developer Guide.
+  final String? cidr;
+
+  /// The endpoint ID for the endpoint that is listed in a cross-account
+  /// attachment and can be added to an accelerator by specified principals.
+  final String? endpointId;
+
+  CrossAccountResource({
+    this.attachmentArn,
+    this.cidr,
+    this.endpointId,
+  });
+
+  factory CrossAccountResource.fromJson(Map<String, dynamic> json) {
+    return CrossAccountResource(
+      attachmentArn: json['AttachmentArn'] as String?,
+      cidr: json['Cidr'] as String?,
+      endpointId: json['EndpointId'] as String?,
+    );
+  }
+}
+
 /// Attributes of a custom routing accelerator.
 class CustomRoutingAccelerator {
   /// The Amazon Resource Name (ARN) of the custom routing accelerator.
@@ -3339,14 +3818,16 @@ class CustomRoutingAccelerator {
       createdTime: timeStampFromJson(json['CreatedTime']),
       dnsName: json['DnsName'] as String?,
       enabled: json['Enabled'] as bool?,
-      ipAddressType: (json['IpAddressType'] as String?)?.toIpAddressType(),
+      ipAddressType:
+          (json['IpAddressType'] as String?)?.let(IpAddressType.fromString),
       ipSets: (json['IpSets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IpSet.fromJson(e as Map<String, dynamic>))
           .toList(),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       name: json['Name'] as String?,
-      status: (json['Status'] as String?)?.toCustomRoutingAcceleratorStatus(),
+      status: (json['Status'] as String?)
+          ?.let(CustomRoutingAcceleratorStatus.fromString),
     );
   }
 }
@@ -3396,33 +3877,18 @@ class CustomRoutingAcceleratorAttributes {
 }
 
 enum CustomRoutingAcceleratorStatus {
-  deployed,
-  inProgress,
-}
+  deployed('DEPLOYED'),
+  inProgress('IN_PROGRESS'),
+  ;
 
-extension CustomRoutingAcceleratorStatusValueExtension
-    on CustomRoutingAcceleratorStatus {
-  String toValue() {
-    switch (this) {
-      case CustomRoutingAcceleratorStatus.deployed:
-        return 'DEPLOYED';
-      case CustomRoutingAcceleratorStatus.inProgress:
-        return 'IN_PROGRESS';
-    }
-  }
-}
+  final String value;
 
-extension CustomRoutingAcceleratorStatusFromString on String {
-  CustomRoutingAcceleratorStatus toCustomRoutingAcceleratorStatus() {
-    switch (this) {
-      case 'DEPLOYED':
-        return CustomRoutingAcceleratorStatus.deployed;
-      case 'IN_PROGRESS':
-        return CustomRoutingAcceleratorStatus.inProgress;
-    }
-    throw Exception(
-        '$this is not known in enum CustomRoutingAcceleratorStatus');
-  }
+  const CustomRoutingAcceleratorStatus(this.value);
+
+  static CustomRoutingAcceleratorStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomRoutingAcceleratorStatus'));
 }
 
 /// For a custom routing accelerator, sets the port range and protocol for all
@@ -3453,7 +3919,7 @@ class CustomRoutingDestinationConfiguration {
     final toPort = this.toPort;
     return {
       'FromPort': fromPort,
-      'Protocols': protocols.map((e) => e.toValue()).toList(),
+      'Protocols': protocols.map((e) => e.value).toList(),
       'ToPort': toPort,
     };
   }
@@ -3486,8 +3952,8 @@ class CustomRoutingDestinationDescription {
     return CustomRoutingDestinationDescription(
       fromPort: json['FromPort'] as int?,
       protocols: (json['Protocols'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toProtocol())
+          ?.nonNulls
+          .map((e) => Protocol.fromString((e as String)))
           .toList(),
       toPort: json['ToPort'] as int?,
     );
@@ -3495,50 +3961,42 @@ class CustomRoutingDestinationDescription {
 }
 
 enum CustomRoutingDestinationTrafficState {
-  allow,
-  deny,
-}
+  allow('ALLOW'),
+  deny('DENY'),
+  ;
 
-extension CustomRoutingDestinationTrafficStateValueExtension
-    on CustomRoutingDestinationTrafficState {
-  String toValue() {
-    switch (this) {
-      case CustomRoutingDestinationTrafficState.allow:
-        return 'ALLOW';
-      case CustomRoutingDestinationTrafficState.deny:
-        return 'DENY';
-    }
-  }
-}
+  final String value;
 
-extension CustomRoutingDestinationTrafficStateFromString on String {
-  CustomRoutingDestinationTrafficState
-      toCustomRoutingDestinationTrafficState() {
-    switch (this) {
-      case 'ALLOW':
-        return CustomRoutingDestinationTrafficState.allow;
-      case 'DENY':
-        return CustomRoutingDestinationTrafficState.deny;
-    }
-    throw Exception(
-        '$this is not known in enum CustomRoutingDestinationTrafficState');
-  }
+  const CustomRoutingDestinationTrafficState(this.value);
+
+  static CustomRoutingDestinationTrafficState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CustomRoutingDestinationTrafficState'));
 }
 
 /// The list of endpoint objects. For custom routing, this is a list of virtual
 /// private cloud (VPC) subnet IDs.
 class CustomRoutingEndpointConfiguration {
+  /// The Amazon Resource Name (ARN) of the cross-account attachment that
+  /// specifies the endpoints (resources) that can be added to accelerators and
+  /// principals that have permission to add the endpoints.
+  final String? attachmentArn;
+
   /// An ID for the endpoint. For custom routing accelerators, this is the virtual
   /// private cloud (VPC) subnet ID.
   final String? endpointId;
 
   CustomRoutingEndpointConfiguration({
+    this.attachmentArn,
     this.endpointId,
   });
 
   Map<String, dynamic> toJson() {
+    final attachmentArn = this.attachmentArn;
     final endpointId = this.endpointId;
     return {
+      if (attachmentArn != null) 'AttachmentArn': attachmentArn,
       if (endpointId != null) 'EndpointId': endpointId,
     };
   }
@@ -3592,12 +4050,12 @@ class CustomRoutingEndpointGroup {
   factory CustomRoutingEndpointGroup.fromJson(Map<String, dynamic> json) {
     return CustomRoutingEndpointGroup(
       destinationDescriptions: (json['DestinationDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomRoutingDestinationDescription.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       endpointDescriptions: (json['EndpointDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomRoutingEndpointDescription.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -3628,7 +4086,7 @@ class CustomRoutingListener {
     return CustomRoutingListener(
       listenerArn: json['ListenerArn'] as String?,
       portRanges: (json['PortRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3636,31 +4094,18 @@ class CustomRoutingListener {
 }
 
 enum CustomRoutingProtocol {
-  tcp,
-  udp,
-}
+  tcp('TCP'),
+  udp('UDP'),
+  ;
 
-extension CustomRoutingProtocolValueExtension on CustomRoutingProtocol {
-  String toValue() {
-    switch (this) {
-      case CustomRoutingProtocol.tcp:
-        return 'TCP';
-      case CustomRoutingProtocol.udp:
-        return 'UDP';
-    }
-  }
-}
+  final String value;
 
-extension CustomRoutingProtocolFromString on String {
-  CustomRoutingProtocol toCustomRoutingProtocol() {
-    switch (this) {
-      case 'TCP':
-        return CustomRoutingProtocol.tcp;
-      case 'UDP':
-        return CustomRoutingProtocol.udp;
-    }
-    throw Exception('$this is not known in enum CustomRoutingProtocol');
-  }
+  const CustomRoutingProtocol(this.value);
+
+  static CustomRoutingProtocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CustomRoutingProtocol'));
 }
 
 class DeprovisionByoipCidrResponse {
@@ -3711,6 +4156,25 @@ class DescribeAcceleratorResponse {
     return DescribeAcceleratorResponse(
       accelerator: json['Accelerator'] != null
           ? Accelerator.fromJson(json['Accelerator'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class DescribeCrossAccountAttachmentResponse {
+  /// Information about the cross-account attachment.
+  final Attachment? crossAccountAttachment;
+
+  DescribeCrossAccountAttachmentResponse({
+    this.crossAccountAttachment,
+  });
+
+  factory DescribeCrossAccountAttachmentResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DescribeCrossAccountAttachmentResponse(
+      crossAccountAttachment: json['CrossAccountAttachment'] != null
+          ? Attachment.fromJson(
+              json['CrossAccountAttachment'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -3874,7 +4338,7 @@ class DestinationPortMapping {
     return DestinationPortMapping(
       acceleratorArn: json['AcceleratorArn'] as String?,
       acceleratorSocketAddresses: (json['AcceleratorSocketAddresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SocketAddress.fromJson(e as Map<String, dynamic>))
           .toList(),
       destinationSocketAddress: json['DestinationSocketAddress'] != null
@@ -3882,11 +4346,12 @@ class DestinationPortMapping {
               json['DestinationSocketAddress'] as Map<String, dynamic>)
           : null,
       destinationTrafficState: (json['DestinationTrafficState'] as String?)
-          ?.toCustomRoutingDestinationTrafficState(),
+          ?.let(CustomRoutingDestinationTrafficState.fromString),
       endpointGroupArn: json['EndpointGroupArn'] as String?,
       endpointGroupRegion: json['EndpointGroupRegion'] as String?,
       endpointId: json['EndpointId'] as String?,
-      ipAddressType: (json['IpAddressType'] as String?)?.toIpAddressType(),
+      ipAddressType:
+          (json['IpAddressType'] as String?)?.let(IpAddressType.fromString),
     );
   }
 }
@@ -3894,16 +4359,24 @@ class DestinationPortMapping {
 /// A complex type for endpoints. A resource must be valid and active when you
 /// add it as an endpoint.
 class EndpointConfiguration {
+  /// The Amazon Resource Name (ARN) of the cross-account attachment that
+  /// specifies the endpoints (resources) that can be added to accelerators and
+  /// principals that have permission to add the endpoints.
+  final String? attachmentArn;
+
   /// Indicates whether client IP address preservation is enabled for an endpoint.
-  /// The value is true or false. The default value is true for new accelerators.
+  /// The value is true or false. The default value is true for Application Load
+  /// Balancer endpoints.
   ///
   /// If the value is set to true, the client's IP address is preserved in the
   /// <code>X-Forwarded-For</code> request header as traffic travels to
   /// applications on the endpoint fronted by the accelerator.
   ///
   /// Client IP address preservation is supported, in specific Amazon Web Services
-  /// Regions, for endpoints that are Application Load Balancers and Amazon EC2
-  /// instances.
+  /// Regions, for endpoints that are Application Load Balancers, Amazon EC2
+  /// instances, and Network Load Balancers with security groups. IMPORTANT: You
+  /// cannot use client IP address preservation with Network Load Balancers with
+  /// TLS listeners.
   ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/preserve-client-ip-address.html">
@@ -3917,7 +4390,7 @@ class EndpointConfiguration {
   /// address allocation ID. For Amazon EC2 instances, this is the EC2 instance
   /// ID. A resource must be valid and active when you add it as an endpoint.
   ///
-  /// An Application Load Balancer can be either internal or internet-facing.
+  /// For cross-account endpoints, this must be the ARN of the resource.
   final String? endpointId;
 
   /// The weight associated with the endpoint. When you add weights to endpoints,
@@ -3932,16 +4405,19 @@ class EndpointConfiguration {
   final int? weight;
 
   EndpointConfiguration({
+    this.attachmentArn,
     this.clientIPPreservationEnabled,
     this.endpointId,
     this.weight,
   });
 
   Map<String, dynamic> toJson() {
+    final attachmentArn = this.attachmentArn;
     final clientIPPreservationEnabled = this.clientIPPreservationEnabled;
     final endpointId = this.endpointId;
     final weight = this.weight;
     return {
+      if (attachmentArn != null) 'AttachmentArn': attachmentArn,
       if (clientIPPreservationEnabled != null)
         'ClientIPPreservationEnabled': clientIPPreservationEnabled,
       if (endpointId != null) 'EndpointId': endpointId,
@@ -3954,15 +4430,18 @@ class EndpointConfiguration {
 /// endpoints, such as load balancers.
 class EndpointDescription {
   /// Indicates whether client IP address preservation is enabled for an endpoint.
-  /// The value is true or false. The default value is true for new accelerators.
+  /// The value is true or false. The default value is true for Application Load
+  /// Balancers endpoints.
   ///
   /// If the value is set to true, the client's IP address is preserved in the
   /// <code>X-Forwarded-For</code> request header as traffic travels to
   /// applications on the endpoint fronted by the accelerator.
   ///
   /// Client IP address preservation is supported, in specific Amazon Web Services
-  /// Regions, for endpoints that are Application Load Balancers and Amazon EC2
-  /// instances.
+  /// Regions, for endpoints that are Application Load Balancers, Amazon EC2
+  /// instances, and Network Load Balancers with security groups. IMPORTANT: You
+  /// cannot use client IP address preservation with Network Load Balancers with
+  /// TLS listeners.
   ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/preserve-client-ip-address.html">
@@ -4009,7 +4488,8 @@ class EndpointDescription {
       clientIPPreservationEnabled: json['ClientIPPreservationEnabled'] as bool?,
       endpointId: json['EndpointId'] as String?,
       healthReason: json['HealthReason'] as String?,
-      healthState: (json['HealthState'] as String?)?.toHealthState(),
+      healthState:
+          (json['HealthState'] as String?)?.let(HealthState.fromString),
       weight: json['Weight'] as int?,
     );
   }
@@ -4086,7 +4566,7 @@ class EndpointGroup {
   factory EndpointGroup.fromJson(Map<String, dynamic> json) {
     return EndpointGroup(
       endpointDescriptions: (json['EndpointDescriptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EndpointDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
       endpointGroupArn: json['EndpointGroupArn'] as String?,
@@ -4094,10 +4574,10 @@ class EndpointGroup {
       healthCheckIntervalSeconds: json['HealthCheckIntervalSeconds'] as int?,
       healthCheckPath: json['HealthCheckPath'] as String?,
       healthCheckPort: json['HealthCheckPort'] as int?,
-      healthCheckProtocol:
-          (json['HealthCheckProtocol'] as String?)?.toHealthCheckProtocol(),
+      healthCheckProtocol: (json['HealthCheckProtocol'] as String?)
+          ?.let(HealthCheckProtocol.fromString),
       portOverrides: (json['PortOverrides'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortOverride.fromJson(e as Map<String, dynamic>))
           .toList(),
       thresholdCount: json['ThresholdCount'] as int?,
@@ -4143,125 +4623,64 @@ class EndpointIdentifier {
 }
 
 enum HealthCheckProtocol {
-  tcp,
-  http,
-  https,
-}
+  tcp('TCP'),
+  http('HTTP'),
+  https('HTTPS'),
+  ;
 
-extension HealthCheckProtocolValueExtension on HealthCheckProtocol {
-  String toValue() {
-    switch (this) {
-      case HealthCheckProtocol.tcp:
-        return 'TCP';
-      case HealthCheckProtocol.http:
-        return 'HTTP';
-      case HealthCheckProtocol.https:
-        return 'HTTPS';
-    }
-  }
-}
+  final String value;
 
-extension HealthCheckProtocolFromString on String {
-  HealthCheckProtocol toHealthCheckProtocol() {
-    switch (this) {
-      case 'TCP':
-        return HealthCheckProtocol.tcp;
-      case 'HTTP':
-        return HealthCheckProtocol.http;
-      case 'HTTPS':
-        return HealthCheckProtocol.https;
-    }
-    throw Exception('$this is not known in enum HealthCheckProtocol');
-  }
+  const HealthCheckProtocol(this.value);
+
+  static HealthCheckProtocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum HealthCheckProtocol'));
 }
 
 enum HealthState {
-  initial,
-  healthy,
-  unhealthy,
-}
+  initial('INITIAL'),
+  healthy('HEALTHY'),
+  unhealthy('UNHEALTHY'),
+  ;
 
-extension HealthStateValueExtension on HealthState {
-  String toValue() {
-    switch (this) {
-      case HealthState.initial:
-        return 'INITIAL';
-      case HealthState.healthy:
-        return 'HEALTHY';
-      case HealthState.unhealthy:
-        return 'UNHEALTHY';
-    }
-  }
-}
+  final String value;
 
-extension HealthStateFromString on String {
-  HealthState toHealthState() {
-    switch (this) {
-      case 'INITIAL':
-        return HealthState.initial;
-      case 'HEALTHY':
-        return HealthState.healthy;
-      case 'UNHEALTHY':
-        return HealthState.unhealthy;
-    }
-    throw Exception('$this is not known in enum HealthState');
-  }
+  const HealthState(this.value);
+
+  static HealthState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum HealthState'));
 }
 
 enum IpAddressFamily {
-  iPv4,
-  iPv6,
-}
+  iPv4('IPv4'),
+  iPv6('IPv6'),
+  ;
 
-extension IpAddressFamilyValueExtension on IpAddressFamily {
-  String toValue() {
-    switch (this) {
-      case IpAddressFamily.iPv4:
-        return 'IPv4';
-      case IpAddressFamily.iPv6:
-        return 'IPv6';
-    }
-  }
-}
+  final String value;
 
-extension IpAddressFamilyFromString on String {
-  IpAddressFamily toIpAddressFamily() {
-    switch (this) {
-      case 'IPv4':
-        return IpAddressFamily.iPv4;
-      case 'IPv6':
-        return IpAddressFamily.iPv6;
-    }
-    throw Exception('$this is not known in enum IpAddressFamily');
-  }
+  const IpAddressFamily(this.value);
+
+  static IpAddressFamily fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IpAddressFamily'));
 }
 
 enum IpAddressType {
-  ipv4,
-  dualStack,
-}
+  ipv4('IPV4'),
+  dualStack('DUAL_STACK'),
+  ;
 
-extension IpAddressTypeValueExtension on IpAddressType {
-  String toValue() {
-    switch (this) {
-      case IpAddressType.ipv4:
-        return 'IPV4';
-      case IpAddressType.dualStack:
-        return 'DUAL_STACK';
-    }
-  }
-}
+  final String value;
 
-extension IpAddressTypeFromString on String {
-  IpAddressType toIpAddressType() {
-    switch (this) {
-      case 'IPV4':
-        return IpAddressType.ipv4;
-      case 'DUAL_STACK':
-        return IpAddressType.dualStack;
-    }
-    throw Exception('$this is not known in enum IpAddressType');
-  }
+  const IpAddressType(this.value);
+
+  static IpAddressType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IpAddressType'));
 }
 
 /// A complex type for the set of IP addresses for an accelerator.
@@ -4285,9 +4704,9 @@ class IpSet {
   factory IpSet.fromJson(Map<String, dynamic> json) {
     return IpSet(
       ipAddressFamily:
-          (json['IpAddressFamily'] as String?)?.toIpAddressFamily(),
+          (json['IpAddressFamily'] as String?)?.let(IpAddressFamily.fromString),
       ipAddresses: (json['IpAddresses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       ipFamily: json['IpFamily'] as String?,
@@ -4311,7 +4730,7 @@ class ListAcceleratorsResponse {
   factory ListAcceleratorsResponse.fromJson(Map<String, dynamic> json) {
     return ListAcceleratorsResponse(
       accelerators: (json['Accelerators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Accelerator.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4334,8 +4753,78 @@ class ListByoipCidrsResponse {
   factory ListByoipCidrsResponse.fromJson(Map<String, dynamic> json) {
     return ListByoipCidrsResponse(
       byoipCidrs: (json['ByoipCidrs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ByoipCidr.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class ListCrossAccountAttachmentsResponse {
+  /// Information about the cross-account attachments.
+  final List<Attachment>? crossAccountAttachments;
+
+  /// The token for the next set of results. You receive this token from a
+  /// previous call.
+  final String? nextToken;
+
+  ListCrossAccountAttachmentsResponse({
+    this.crossAccountAttachments,
+    this.nextToken,
+  });
+
+  factory ListCrossAccountAttachmentsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListCrossAccountAttachmentsResponse(
+      crossAccountAttachments: (json['CrossAccountAttachments'] as List?)
+          ?.nonNulls
+          .map((e) => Attachment.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class ListCrossAccountResourceAccountsResponse {
+  /// The account IDs of principals (resource owners) in a cross-account
+  /// attachment who can work with resources listed in the same attachment.
+  final List<String>? resourceOwnerAwsAccountIds;
+
+  ListCrossAccountResourceAccountsResponse({
+    this.resourceOwnerAwsAccountIds,
+  });
+
+  factory ListCrossAccountResourceAccountsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListCrossAccountResourceAccountsResponse(
+      resourceOwnerAwsAccountIds: (json['ResourceOwnerAwsAccountIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+}
+
+class ListCrossAccountResourcesResponse {
+  /// The cross-account resources used with an accelerator.
+  final List<CrossAccountResource>? crossAccountResources;
+
+  /// The token for the next set of results. You receive this token from a
+  /// previous call.
+  final String? nextToken;
+
+  ListCrossAccountResourcesResponse({
+    this.crossAccountResources,
+    this.nextToken,
+  });
+
+  factory ListCrossAccountResourcesResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListCrossAccountResourcesResponse(
+      crossAccountResources: (json['CrossAccountResources'] as List?)
+          ?.nonNulls
+          .map((e) => CrossAccountResource.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
     );
@@ -4359,7 +4848,7 @@ class ListCustomRoutingAcceleratorsResponse {
       Map<String, dynamic> json) {
     return ListCustomRoutingAcceleratorsResponse(
       accelerators: (json['Accelerators'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CustomRoutingAccelerator.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4386,7 +4875,7 @@ class ListCustomRoutingEndpointGroupsResponse {
       Map<String, dynamic> json) {
     return ListCustomRoutingEndpointGroupsResponse(
       endpointGroups: (json['EndpointGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               CustomRoutingEndpointGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4412,7 +4901,7 @@ class ListCustomRoutingListenersResponse {
       Map<String, dynamic> json) {
     return ListCustomRoutingListenersResponse(
       listeners: (json['Listeners'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomRoutingListener.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4438,7 +4927,7 @@ class ListCustomRoutingPortMappingsByDestinationResponse {
       Map<String, dynamic> json) {
     return ListCustomRoutingPortMappingsByDestinationResponse(
       destinationPortMappings: (json['DestinationPortMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => DestinationPortMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4465,7 +4954,7 @@ class ListCustomRoutingPortMappingsResponse {
     return ListCustomRoutingPortMappingsResponse(
       nextToken: json['NextToken'] as String?,
       portMappings: (json['PortMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4488,7 +4977,7 @@ class ListEndpointGroupsResponse {
   factory ListEndpointGroupsResponse.fromJson(Map<String, dynamic> json) {
     return ListEndpointGroupsResponse(
       endpointGroups: (json['EndpointGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EndpointGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4512,7 +5001,7 @@ class ListListenersResponse {
   factory ListListenersResponse.fromJson(Map<String, dynamic> json) {
     return ListListenersResponse(
       listeners: (json['Listeners'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Listener.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4531,7 +5020,7 @@ class ListTagsForResourceResponse {
   factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
     return ListTagsForResourceResponse(
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4581,13 +5070,14 @@ class Listener {
 
   factory Listener.fromJson(Map<String, dynamic> json) {
     return Listener(
-      clientAffinity: (json['ClientAffinity'] as String?)?.toClientAffinity(),
+      clientAffinity:
+          (json['ClientAffinity'] as String?)?.let(ClientAffinity.fromString),
       listenerArn: json['ListenerArn'] as String?,
       portRanges: (json['PortRanges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
           .toList(),
-      protocol: (json['Protocol'] as String?)?.toProtocol(),
+      protocol: (json['Protocol'] as String?)?.let(Protocol.fromString),
     );
   }
 }
@@ -4636,12 +5126,12 @@ class PortMapping {
               json['DestinationSocketAddress'] as Map<String, dynamic>)
           : null,
       destinationTrafficState: (json['DestinationTrafficState'] as String?)
-          ?.toCustomRoutingDestinationTrafficState(),
+          ?.let(CustomRoutingDestinationTrafficState.fromString),
       endpointGroupArn: json['EndpointGroupArn'] as String?,
       endpointId: json['EndpointId'] as String?,
       protocols: (json['Protocols'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toCustomRoutingProtocol())
+          ?.nonNulls
+          .map((e) => CustomRoutingProtocol.fromString((e as String)))
           .toList(),
     );
   }
@@ -4720,31 +5210,17 @@ class PortRange {
 }
 
 enum Protocol {
-  tcp,
-  udp,
-}
+  tcp('TCP'),
+  udp('UDP'),
+  ;
 
-extension ProtocolValueExtension on Protocol {
-  String toValue() {
-    switch (this) {
-      case Protocol.tcp:
-        return 'TCP';
-      case Protocol.udp:
-        return 'UDP';
-    }
-  }
-}
+  final String value;
 
-extension ProtocolFromString on String {
-  Protocol toProtocol() {
-    switch (this) {
-      case 'TCP':
-        return Protocol.tcp;
-      case 'UDP':
-        return Protocol.udp;
-    }
-    throw Exception('$this is not known in enum Protocol');
-  }
+  const Protocol(this.value);
+
+  static Protocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Protocol'));
 }
 
 class ProvisionByoipCidrResponse {
@@ -4761,6 +5237,57 @@ class ProvisionByoipCidrResponse {
           ? ByoipCidr.fromJson(json['ByoipCidr'] as Map<String, dynamic>)
           : null,
     );
+  }
+}
+
+/// A resource is one of the following: the ARN for an Amazon Web Services
+/// resource that is supported by Global Accelerator to be added as an endpoint,
+/// or a CIDR range that specifies a bring your own IP (BYOIP) address pool.
+class Resource {
+  /// An IP address range, in CIDR format, that is specified as resource. The
+  /// address must be provisioned and advertised in Global Accelerator by
+  /// following the bring your own IP address (BYOIP) process for Global
+  /// Accelerator
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/global-accelerator/latest/dg/using-byoip.html">Bring
+  /// your own IP addresses (BYOIP)</a> in the Global Accelerator Developer Guide.
+  final String? cidr;
+
+  /// The endpoint ID for the endpoint that is specified as a Amazon Web Services
+  /// resource.
+  ///
+  /// An endpoint ID for the cross-account feature is the ARN of an Amazon Web
+  /// Services resource, such as a Network Load Balancer, that Global Accelerator
+  /// supports as an endpoint for an accelerator.
+  final String? endpointId;
+
+  /// The Amazon Web Services Region where a shared endpoint resource is located.
+  final String? region;
+
+  Resource({
+    this.cidr,
+    this.endpointId,
+    this.region,
+  });
+
+  factory Resource.fromJson(Map<String, dynamic> json) {
+    return Resource(
+      cidr: json['Cidr'] as String?,
+      endpointId: json['EndpointId'] as String?,
+      region: json['Region'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final cidr = this.cidr;
+    final endpointId = this.endpointId;
+    final region = this.region;
+    return {
+      if (cidr != null) 'Cidr': cidr,
+      if (endpointId != null) 'EndpointId': endpointId,
+      if (region != null) 'Region': region,
+    };
   }
 }
 
@@ -4868,6 +5395,25 @@ class UpdateAcceleratorResponse {
   }
 }
 
+class UpdateCrossAccountAttachmentResponse {
+  /// Information about the updated cross-account attachment.
+  final Attachment? crossAccountAttachment;
+
+  UpdateCrossAccountAttachmentResponse({
+    this.crossAccountAttachment,
+  });
+
+  factory UpdateCrossAccountAttachmentResponse.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateCrossAccountAttachmentResponse(
+      crossAccountAttachment: json['CrossAccountAttachment'] != null
+          ? Attachment.fromJson(
+              json['CrossAccountAttachment'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
 class UpdateCustomRoutingAcceleratorAttributesResponse {
   /// Updated custom routing accelerator.
   final CustomRoutingAcceleratorAttributes? acceleratorAttributes;
@@ -4961,7 +5507,7 @@ class UpdateListenerResponse {
 }
 
 class WithdrawByoipCidrResponse {
-  /// Information about the address pool.
+  /// Information about the BYOIP address pool.
   final ByoipCidr? byoipCidr;
 
   WithdrawByoipCidrResponse({
@@ -5010,6 +5556,12 @@ class AssociatedListenerFoundException extends _s.GenericAwsException {
             type: type,
             code: 'AssociatedListenerFoundException',
             message: message);
+}
+
+class AttachmentNotFoundException extends _s.GenericAwsException {
+  AttachmentNotFoundException({String? type, String? message})
+      : super(
+            type: type, code: 'AttachmentNotFoundException', message: message);
 }
 
 class ByoipCidrNotFoundException extends _s.GenericAwsException {
@@ -5109,6 +5661,8 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       AssociatedEndpointGroupFoundException(type: type, message: message),
   'AssociatedListenerFoundException': (type, message) =>
       AssociatedListenerFoundException(type: type, message: message),
+  'AttachmentNotFoundException': (type, message) =>
+      AttachmentNotFoundException(type: type, message: message),
   'ByoipCidrNotFoundException': (type, message) =>
       ByoipCidrNotFoundException(type: type, message: message),
   'ConflictException': (type, message) =>

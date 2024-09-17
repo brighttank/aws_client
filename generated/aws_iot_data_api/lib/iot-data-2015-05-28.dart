@@ -389,8 +389,7 @@ class IoTDataPlane {
       if (correlationData != null)
         'x-amz-mqtt5-correlation-data': correlationData.toString(),
       if (payloadFormatIndicator != null)
-        'x-amz-mqtt5-payload-format-indicator':
-            payloadFormatIndicator.toValue(),
+        'x-amz-mqtt5-payload-format-indicator': payloadFormatIndicator.value,
       if (userProperties != null)
         'x-amz-mqtt5-user-properties':
             base64Encode(utf8.encode(jsonEncode(userProperties))),
@@ -545,10 +544,8 @@ class ListNamedShadowsForThingResponse {
   factory ListNamedShadowsForThingResponse.fromJson(Map<String, dynamic> json) {
     return ListNamedShadowsForThingResponse(
       nextToken: json['nextToken'] as String?,
-      results: (json['results'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      results:
+          (json['results'] as List?)?.nonNulls.map((e) => e as String).toList(),
       timestamp: json['timestamp'] as int?,
     );
   }
@@ -572,7 +569,7 @@ class ListRetainedMessagesResponse {
     return ListRetainedMessagesResponse(
       nextToken: json['nextToken'] as String?,
       retainedTopics: (json['retainedTopics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => RetainedMessageSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -581,31 +578,18 @@ class ListRetainedMessagesResponse {
 }
 
 enum PayloadFormatIndicator {
-  unspecifiedBytes,
-  utf8Data,
-}
+  unspecifiedBytes('UNSPECIFIED_BYTES'),
+  utf8Data('UTF8_DATA'),
+  ;
 
-extension PayloadFormatIndicatorValueExtension on PayloadFormatIndicator {
-  String toValue() {
-    switch (this) {
-      case PayloadFormatIndicator.unspecifiedBytes:
-        return 'UNSPECIFIED_BYTES';
-      case PayloadFormatIndicator.utf8Data:
-        return 'UTF8_DATA';
-    }
-  }
-}
+  final String value;
 
-extension PayloadFormatIndicatorFromString on String {
-  PayloadFormatIndicator toPayloadFormatIndicator() {
-    switch (this) {
-      case 'UNSPECIFIED_BYTES':
-        return PayloadFormatIndicator.unspecifiedBytes;
-      case 'UTF8_DATA':
-        return PayloadFormatIndicator.utf8Data;
-    }
-    throw Exception('$this is not known in enum PayloadFormatIndicator');
-  }
+  const PayloadFormatIndicator(this.value);
+
+  static PayloadFormatIndicator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum PayloadFormatIndicator'));
 }
 
 /// Information about a single retained message.

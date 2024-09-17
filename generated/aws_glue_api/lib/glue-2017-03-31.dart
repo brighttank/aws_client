@@ -541,6 +541,34 @@ class Glue {
     return BatchGetPartitionResponse.fromJson(jsonResponse.body);
   }
 
+  /// Returns the configuration for the specified table optimizers.
+  ///
+  /// May throw [InternalServiceException].
+  ///
+  /// Parameter [entries] :
+  /// A list of <code>BatchGetTableOptimizerEntry</code> objects specifying the
+  /// table optimizers to retrieve.
+  Future<BatchGetTableOptimizerResponse> batchGetTableOptimizer({
+    required List<BatchGetTableOptimizerEntry> entries,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.BatchGetTableOptimizer'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Entries': entries,
+      },
+    );
+
+    return BatchGetTableOptimizerResponse.fromJson(jsonResponse.body);
+  }
+
   /// Returns a list of resource metadata for a given list of trigger names.
   /// After calling the <code>ListTriggers</code> operation, you can call this
   /// operation to access the data to which you have been granted permissions.
@@ -864,7 +892,7 @@ class Glue {
       // TODO queryParams
       headers: headers,
       payload: {
-        'DataFormat': dataFormat.toValue(),
+        'DataFormat': dataFormat.value,
         'SchemaDefinition': schemaDefinition,
       },
     );
@@ -965,6 +993,9 @@ class Glue {
 
   /// Creates a connection definition in the Data Catalog.
   ///
+  /// Connections used for creating federated resources require the IAM
+  /// <code>glue:PassConnection</code> permission.
+  ///
   /// May throw [AlreadyExistsException].
   /// May throw [InvalidInputException].
   /// May throw [OperationTimeoutException].
@@ -980,7 +1011,7 @@ class Glue {
   ///
   /// Parameter [tags] :
   /// The tags you assign to the connection.
-  Future<void> createConnection({
+  Future<CreateConnectionResponse> createConnection({
     required ConnectionInput connectionInput,
     String? catalogId,
     Map<String, String>? tags,
@@ -989,7 +1020,7 @@ class Glue {
       'Content-Type': 'application/x-amz-json-1.1',
       'X-Amz-Target': 'AWSGlue.CreateConnection'
     };
-    await _protocol.send(
+    final jsonResponse = await _protocol.send(
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
@@ -1001,6 +1032,8 @@ class Glue {
         if (tags != null) 'Tags': tags,
       },
     );
+
+    return CreateConnectionResponse.fromJson(jsonResponse.body);
   }
 
   /// Creates a new crawler with specified targets, role, configuration, and
@@ -1455,7 +1488,7 @@ class Glue {
         if (securityGroupIds != null) 'SecurityGroupIds': securityGroupIds,
         if (subnetId != null) 'SubnetId': subnetId,
         if (tags != null) 'Tags': tags,
-        if (workerType != null) 'WorkerType': workerType.toValue(),
+        if (workerType != null) 'WorkerType': workerType.value,
       },
     );
 
@@ -1500,7 +1533,8 @@ class Glue {
   /// The connections used for this job.
   ///
   /// Parameter [defaultArguments] :
-  /// The default arguments for this job.
+  /// The default arguments for every run of this job, specified as name-value
+  /// pairs.
   ///
   /// You can specify arguments here that your own job-execution script
   /// consumes, as well as arguments that Glue itself consumes.
@@ -1514,10 +1548,15 @@ class Glue {
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python-calling.html">Calling
   /// Glue APIs in Python</a> topic in the developer guide.
   ///
-  /// For information about the key-value pairs that Glue consumes to set up
-  /// your job, see the <a
+  /// For information about the arguments you can provide to this field when
+  /// configuring Spark jobs, see the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html">Special
   /// Parameters Used by Glue</a> topic in the developer guide.
+  ///
+  /// For information about the arguments you can provide to this field when
+  /// configuring Ray jobs, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/author-job-ray-job-parameters.html">Using
+  /// job parameters in Ray jobs</a> in the developer guide.
   ///
   /// Parameter [description] :
   /// Description of the job being defined.
@@ -1540,9 +1579,14 @@ class Glue {
   /// concurrent runs allowed for this job.
   ///
   /// Parameter [glueVersion] :
-  /// Glue version determines the versions of Apache Spark and Python that Glue
-  /// supports. The Python version indicates the version supported for jobs of
-  /// type Spark.
+  /// In Spark jobs, <code>GlueVersion</code> determines the versions of Apache
+  /// Spark and Python that Glue available in a job. The Python version
+  /// indicates the version supported for jobs of type Spark.
+  ///
+  /// Ray jobs should set <code>GlueVersion</code> to <code>4.0</code> or
+  /// greater. However, the versions of Ray, Python and additional libraries
+  /// available in your Ray job are determined by the <code>Runtime</code>
+  /// parameter of the Job command.
   ///
   /// For more information about the available Glue versions and corresponding
   /// Spark and Python versions, see <a
@@ -1552,22 +1596,58 @@ class Glue {
   /// Jobs that are created without specifying a Glue version default to Glue
   /// 0.9.
   ///
+  /// Parameter [jobMode] :
+  /// A mode that describes how a job was created. Valid values are:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SCRIPT</code> - The job was created using the Glue Studio script
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>VISUAL</code> - The job was created using the Glue Studio visual
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>NOTEBOOK</code> - The job was created using an interactive sessions
+  /// notebook.
+  /// </li>
+  /// </ul>
+  /// When the <code>JobMode</code> field is missing or null,
+  /// <code>SCRIPT</code> is assigned as the default value.
+  ///
   /// Parameter [logUri] :
   /// This field is reserved for future use.
+  ///
+  /// Parameter [maintenanceWindow] :
+  /// This field specifies a day of the week and hour for a maintenance window
+  /// for streaming jobs. Glue periodically performs maintenance activities.
+  /// During these maintenance windows, Glue will need to restart your streaming
+  /// jobs.
+  ///
+  /// Glue will restart the job within 3 hours of the specified maintenance
+  /// window. For instance, if you set up the maintenance window for Monday at
+  /// 10:00AM GMT, your jobs will be restarted between 10:00AM GMT to 1:00PM
+  /// GMT.
   ///
   /// Parameter [maxCapacity] :
   /// For Glue version 1.0 or earlier jobs, using the standard worker type, the
   /// number of Glue data processing units (DPUs) that can be allocated when
   /// this job runs. A DPU is a relative measure of processing power that
   /// consists of 4 vCPUs of compute capacity and 16 GB of memory. For more
-  /// information, see the <a href="https://aws.amazon.com/glue/pricing/">Glue
+  /// information, see the <a href="https://aws.amazon.com/glue/pricing/"> Glue
   /// pricing page</a>.
   ///
-  /// Do not set <code>Max Capacity</code> if using <code>WorkerType</code> and
+  /// For Glue version 2.0+ jobs, you cannot specify a <code>Maximum
+  /// capacity</code>. Instead, you should specify a <code>Worker type</code>
+  /// and the <code>Number of workers</code>.
+  ///
+  /// Do not set <code>MaxCapacity</code> if using <code>WorkerType</code> and
   /// <code>NumberOfWorkers</code>.
   ///
   /// The value that can be allocated for <code>MaxCapacity</code> depends on
-  /// whether you are running a Python shell job or an Apache Spark ETL job:
+  /// whether you are running a Python shell job, an Apache Spark ETL job, or an
+  /// Apache Spark streaming ETL job:
   ///
   /// <ul>
   /// <li>
@@ -1578,20 +1658,18 @@ class Glue {
   /// <li>
   /// When you specify an Apache Spark ETL job
   /// (<code>JobCommand.Name</code>="glueetl") or Apache Spark streaming ETL job
-  /// (<code>JobCommand.Name</code>="gluestreaming"), you can allocate a minimum
-  /// of 2 DPUs. The default is 10 DPUs. This job type cannot have a fractional
+  /// (<code>JobCommand.Name</code>="gluestreaming"), you can allocate from 2 to
+  /// 100 DPUs. The default is 10 DPUs. This job type cannot have a fractional
   /// DPU allocation.
   /// </li>
   /// </ul>
-  /// For Glue version 2.0 jobs, you cannot instead specify a <code>Maximum
-  /// capacity</code>. Instead, you should specify a <code>Worker type</code>
-  /// and the <code>Number of workers</code>.
   ///
   /// Parameter [maxRetries] :
   /// The maximum number of times to retry this job if it fails.
   ///
   /// Parameter [nonOverridableArguments] :
-  /// Non-overridable arguments for this job, specified as name-value pairs.
+  /// Arguments for this job that are not overridden when providing job
+  /// arguments in a job run, specified as name-value pairs.
   ///
   /// Parameter [notificationProperty] :
   /// Specifies configuration properties of a job notification.
@@ -1617,32 +1695,64 @@ class Glue {
   /// Parameter [timeout] :
   /// The job timeout in minutes. This is the maximum time that a job run can
   /// consume resources before it is terminated and enters <code>TIMEOUT</code>
-  /// status. The default is 2,880 minutes (48 hours).
+  /// status. The default is 2,880 minutes (48 hours) for batch jobs.
+  ///
+  /// Streaming jobs must have timeout values less than 7 days or 10080 minutes.
+  /// When the value is left blank, the job will be restarted after 7 days based
+  /// if you have not setup a maintenance window. If you have setup maintenance
+  /// window, it will be restarted during the maintenance window after 7 days.
   ///
   /// Parameter [workerType] :
   /// The type of predefined worker that is allocated when a job runs. Accepts a
-  /// value of Standard, G.1X, G.2X, or G.025X.
+  /// value of G.1X, G.2X, G.4X, G.8X or G.025X for Spark jobs. Accepts the
+  /// value Z.2X for Ray jobs.
   ///
   /// <ul>
   /// <li>
-  /// For the <code>Standard</code> worker type, each worker provides 4 vCPU, 16
-  /// GB of memory and a 50GB disk, and 2 executors per worker.
+  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPUs,
+  /// 16 GB of memory) with 84GB disk (approximately 34GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost
+  /// effective way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPU,
-  /// 16 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for memory-intensive jobs.
+  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPUs,
+  /// 32 GB of memory) with 128GB disk (approximately 77GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost
+  /// effective way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPU,
-  /// 32 GB of memory, 128 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for memory-intensive jobs.
+  /// For the <code>G.4X</code> worker type, each worker maps to 4 DPU (16
+  /// vCPUs, 64 GB of memory) with 256GB disk (approximately 235GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for jobs
+  /// whose workloads contain your most demanding transforms, aggregations,
+  /// joins, and queries. This worker type is available only for Glue version
+  /// 3.0 or later Spark ETL jobs in the following Amazon Web Services Regions:
+  /// US East (Ohio), US East (N. Virginia), US West (Oregon), Asia Pacific
+  /// (Singapore), Asia Pacific (Sydney), Asia Pacific (Tokyo), Canada
+  /// (Central), Europe (Frankfurt), Europe (Ireland), and Europe (Stockholm).
+  /// </li>
+  /// <li>
+  /// For the <code>G.8X</code> worker type, each worker maps to 8 DPU (32
+  /// vCPUs, 128 GB of memory) with 512GB disk (approximately 487GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for jobs
+  /// whose workloads contain your most demanding transforms, aggregations,
+  /// joins, and queries. This worker type is available only for Glue version
+  /// 3.0 or later Spark ETL jobs, in the same Amazon Web Services Regions as
+  /// supported for the <code>G.4X</code> worker type.
   /// </li>
   /// <li>
   /// For the <code>G.025X</code> worker type, each worker maps to 0.25 DPU (2
-  /// vCPU, 4 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for low volume streaming jobs. This worker type
-  /// is only available for Glue version 3.0 streaming jobs.
+  /// vCPUs, 4 GB of memory) with 84GB disk (approximately 34GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for low
+  /// volume streaming jobs. This worker type is only available for Glue version
+  /// 3.0 streaming jobs.
+  /// </li>
+  /// <li>
+  /// For the <code>Z.2X</code> worker type, each worker maps to 2 M-DPU
+  /// (8vCPUs, 64 GB of memory) with 128 GB disk (approximately 120GB free), and
+  /// provides up to 8 Ray workers based on the autoscaler.
   /// </li>
   /// </ul>
   Future<CreateJobResponse> createJob({
@@ -1657,7 +1767,9 @@ class Glue {
     ExecutionClass? executionClass,
     ExecutionProperty? executionProperty,
     String? glueVersion,
+    JobMode? jobMode,
     String? logUri,
+    String? maintenanceWindow,
     double? maxCapacity,
     int? maxRetries,
     Map<String, String>? nonOverridableArguments,
@@ -1695,10 +1807,12 @@ class Glue {
         if (connections != null) 'Connections': connections,
         if (defaultArguments != null) 'DefaultArguments': defaultArguments,
         if (description != null) 'Description': description,
-        if (executionClass != null) 'ExecutionClass': executionClass.toValue(),
+        if (executionClass != null) 'ExecutionClass': executionClass.value,
         if (executionProperty != null) 'ExecutionProperty': executionProperty,
         if (glueVersion != null) 'GlueVersion': glueVersion,
+        if (jobMode != null) 'JobMode': jobMode.value,
         if (logUri != null) 'LogUri': logUri,
+        if (maintenanceWindow != null) 'MaintenanceWindow': maintenanceWindow,
         if (maxCapacity != null) 'MaxCapacity': maxCapacity,
         if (maxRetries != null) 'MaxRetries': maxRetries,
         if (nonOverridableArguments != null)
@@ -1712,7 +1826,7 @@ class Glue {
           'SourceControlDetails': sourceControlDetails,
         if (tags != null) 'Tags': tags,
         if (timeout != null) 'Timeout': timeout,
-        if (workerType != null) 'WorkerType': workerType.toValue(),
+        if (workerType != null) 'WorkerType': workerType.value,
       },
     );
 
@@ -1933,7 +2047,7 @@ class Glue {
         if (timeout != null) 'Timeout': timeout,
         if (transformEncryption != null)
           'TransformEncryption': transformEncryption,
-        if (workerType != null) 'WorkerType': workerType.toValue(),
+        if (workerType != null) 'WorkerType': workerType.value,
       },
     );
 
@@ -2209,9 +2323,9 @@ class Glue {
       // TODO queryParams
       headers: headers,
       payload: {
-        'DataFormat': dataFormat.toValue(),
+        'DataFormat': dataFormat.value,
         'SchemaName': schemaName,
-        if (compatibility != null) 'Compatibility': compatibility.toValue(),
+        if (compatibility != null) 'Compatibility': compatibility.value,
         if (description != null) 'Description': description,
         if (registryId != null) 'RegistryId': registryId,
         if (schemaDefinition != null) 'SchemaDefinition': schemaDefinition,
@@ -2254,7 +2368,7 @@ class Glue {
       payload: {
         if (dagEdges != null) 'DagEdges': dagEdges,
         if (dagNodes != null) 'DagNodes': dagNodes,
-        if (language != null) 'Language': language.toValue(),
+        if (language != null) 'Language': language.value,
       },
     );
 
@@ -2365,29 +2479,49 @@ class Glue {
   /// type. Consult the documentation for other job types.
   ///
   /// Parameter [workerType] :
-  /// The type of predefined worker that is allocated to use for the session.
-  /// Accepts a value of Standard, G.1X, G.2X, or G.025X.
+  /// The type of predefined worker that is allocated when a job runs. Accepts a
+  /// value of G.1X, G.2X, G.4X, or G.8X for Spark jobs. Accepts the value Z.2X
+  /// for Ray notebooks.
   ///
   /// <ul>
   /// <li>
-  /// For the <code>Standard</code> worker type, each worker provides 4 vCPU, 16
-  /// GB of memory and a 50GB disk, and 2 executors per worker.
+  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPUs,
+  /// 16 GB of memory) with 84GB disk (approximately 34GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost
+  /// effective way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPU,
-  /// 16 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for memory-intensive jobs.
+  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPUs,
+  /// 32 GB of memory) with 128GB disk (approximately 77GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost
+  /// effective way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPU,
-  /// 32 GB of memory, 128 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for memory-intensive jobs.
+  /// For the <code>G.4X</code> worker type, each worker maps to 4 DPU (16
+  /// vCPUs, 64 GB of memory) with 256GB disk (approximately 235GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for jobs
+  /// whose workloads contain your most demanding transforms, aggregations,
+  /// joins, and queries. This worker type is available only for Glue version
+  /// 3.0 or later Spark ETL jobs in the following Amazon Web Services Regions:
+  /// US East (Ohio), US East (N. Virginia), US West (Oregon), Asia Pacific
+  /// (Singapore), Asia Pacific (Sydney), Asia Pacific (Tokyo), Canada
+  /// (Central), Europe (Frankfurt), Europe (Ireland), and Europe (Stockholm).
   /// </li>
   /// <li>
-  /// For the <code>G.025X</code> worker type, each worker maps to 0.25 DPU (2
-  /// vCPU, 4 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for low volume streaming jobs. This worker type
-  /// is only available for Glue version 3.0 streaming jobs.
+  /// For the <code>G.8X</code> worker type, each worker maps to 8 DPU (32
+  /// vCPUs, 128 GB of memory) with 512GB disk (approximately 487GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for jobs
+  /// whose workloads contain your most demanding transforms, aggregations,
+  /// joins, and queries. This worker type is available only for Glue version
+  /// 3.0 or later Spark ETL jobs, in the same Amazon Web Services Regions as
+  /// supported for the <code>G.4X</code> worker type.
+  /// </li>
+  /// <li>
+  /// For the <code>Z.2X</code> worker type, each worker maps to 2 M-DPU
+  /// (8vCPUs, 64 GB of memory) with 128 GB disk (approximately 120GB free), and
+  /// provides up to 8 Ray workers based on the autoscaler.
   /// </li>
   /// </ul>
   Future<CreateSessionResponse> createSession({
@@ -2445,7 +2579,7 @@ class Glue {
           'SecurityConfiguration': securityConfiguration,
         if (tags != null) 'Tags': tags,
         if (timeout != null) 'Timeout': timeout,
-        if (workerType != null) 'WorkerType': workerType.toValue(),
+        if (workerType != null) 'WorkerType': workerType.value,
       },
     );
 
@@ -2476,6 +2610,10 @@ class Glue {
   /// The ID of the Data Catalog in which to create the <code>Table</code>. If
   /// none is supplied, the Amazon Web Services account ID is used by default.
   ///
+  /// Parameter [openTableFormatInput] :
+  /// Specifies an <code>OpenTableFormatInput</code> structure when creating an
+  /// open format table.
+  ///
   /// Parameter [partitionIndexes] :
   /// A list of partition indexes, <code>PartitionIndex</code> structures, to
   /// create in the table.
@@ -2486,6 +2624,7 @@ class Glue {
     required String databaseName,
     required TableInput tableInput,
     String? catalogId,
+    OpenTableFormatInput? openTableFormatInput,
     List<PartitionIndex>? partitionIndexes,
     String? transactionId,
   }) async {
@@ -2503,8 +2642,62 @@ class Glue {
         'DatabaseName': databaseName,
         'TableInput': tableInput,
         if (catalogId != null) 'CatalogId': catalogId,
+        if (openTableFormatInput != null)
+          'OpenTableFormatInput': openTableFormatInput,
         if (partitionIndexes != null) 'PartitionIndexes': partitionIndexes,
         if (transactionId != null) 'TransactionId': transactionId,
+      },
+    );
+  }
+
+  /// Creates a new table optimizer for a specific function.
+  /// <code>compaction</code> is the only currently supported optimizer type.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [InvalidInputException].
+  /// May throw [AccessDeniedException].
+  /// May throw [AlreadyExistsException].
+  /// May throw [InternalServiceException].
+  ///
+  /// Parameter [catalogId] :
+  /// The Catalog ID of the table.
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database in the catalog in which the table resides.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table.
+  ///
+  /// Parameter [tableOptimizerConfiguration] :
+  /// A <code>TableOptimizerConfiguration</code> object representing the
+  /// configuration of a table optimizer.
+  ///
+  /// Parameter [type] :
+  /// The type of table optimizer. Currently, the only valid value is
+  /// <code>compaction</code>.
+  Future<void> createTableOptimizer({
+    required String catalogId,
+    required String databaseName,
+    required String tableName,
+    required TableOptimizerConfiguration tableOptimizerConfiguration,
+    required TableOptimizerType type,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.CreateTableOptimizer'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CatalogId': catalogId,
+        'DatabaseName': databaseName,
+        'TableName': tableName,
+        'TableOptimizerConfiguration': tableOptimizerConfiguration,
+        'Type': type.value,
       },
     );
   }
@@ -2587,7 +2780,7 @@ class Glue {
       payload: {
         'Actions': actions,
         'Name': name,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (description != null) 'Description': description,
         if (eventBatchingCondition != null)
           'EventBatchingCondition': eventBatchingCondition,
@@ -3510,6 +3703,50 @@ class Glue {
     );
   }
 
+  /// Deletes an optimizer and all associated metadata for a table. The
+  /// optimization will no longer be performed on the table.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [InvalidInputException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceException].
+  ///
+  /// Parameter [catalogId] :
+  /// The Catalog ID of the table.
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database in the catalog in which the table resides.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table.
+  ///
+  /// Parameter [type] :
+  /// The type of table optimizer.
+  Future<void> deleteTableOptimizer({
+    required String catalogId,
+    required String databaseName,
+    required String tableName,
+    required TableOptimizerType type,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.DeleteTableOptimizer'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CatalogId': catalogId,
+        'DatabaseName': databaseName,
+        'TableName': tableName,
+        'Type': type.value,
+      },
+    );
+  }
+
   /// Deletes a specified version of a table.
   ///
   /// May throw [EntityNotFoundException].
@@ -3977,6 +4214,84 @@ class Glue {
     );
 
     return GetColumnStatisticsForTableResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Get the associated metadata/information for a task run, given a task run
+  /// ID.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [OperationTimeoutException].
+  /// May throw [InvalidInputException].
+  ///
+  /// Parameter [columnStatisticsTaskRunId] :
+  /// The identifier for the particular column statistics task run.
+  Future<GetColumnStatisticsTaskRunResponse> getColumnStatisticsTaskRun({
+    required String columnStatisticsTaskRunId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.GetColumnStatisticsTaskRun'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ColumnStatisticsTaskRunId': columnStatisticsTaskRunId,
+      },
+    );
+
+    return GetColumnStatisticsTaskRunResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Retrieves information about all runs associated with the specified table.
+  ///
+  /// May throw [OperationTimeoutException].
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database where the table resides.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the response.
+  ///
+  /// Parameter [nextToken] :
+  /// A continuation token, if this is a continuation call.
+  Future<GetColumnStatisticsTaskRunsResponse> getColumnStatisticsTaskRuns({
+    required String databaseName,
+    required String tableName,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.GetColumnStatisticsTaskRuns'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'DatabaseName': databaseName,
+        'TableName': tableName,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return GetColumnStatisticsTaskRunsResponse.fromJson(jsonResponse.body);
   }
 
   /// Retrieves a connection definition from the Data Catalog.
@@ -4486,7 +4801,7 @@ class Glue {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (resourceShareType != null)
-          'ResourceShareType': resourceShareType.toValue(),
+          'ResourceShareType': resourceShareType.value,
       },
     );
 
@@ -4757,7 +5072,7 @@ class Glue {
       'maxResults',
       maxResults,
       1,
-      1000,
+      200,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -5390,7 +5705,7 @@ class Glue {
         'Source': source,
         if (additionalPlanOptionsMap != null)
           'AdditionalPlanOptionsMap': additionalPlanOptionsMap,
-        if (language != null) 'Language': language.toValue(),
+        if (language != null) 'Language': language.value,
         if (location != null) 'Location': location,
         if (sinks != null) 'Sinks': sinks,
       },
@@ -5720,7 +6035,7 @@ class Glue {
       headers: headers,
       payload: {
         'FirstSchemaVersionNumber': firstSchemaVersionNumber,
-        'SchemaDiffType': schemaDiffType.toValue(),
+        'SchemaDiffType': schemaDiffType.value,
         'SchemaId': schemaId,
         'SecondSchemaVersionNumber': secondSchemaVersionNumber,
       },
@@ -5937,6 +6252,52 @@ class Glue {
     );
 
     return GetTableResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Returns the configuration of all optimizers associated with a specified
+  /// table.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [InvalidInputException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceException].
+  ///
+  /// Parameter [catalogId] :
+  /// The Catalog ID of the table.
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database in the catalog in which the table resides.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table.
+  ///
+  /// Parameter [type] :
+  /// The type of table optimizer.
+  Future<GetTableOptimizerResponse> getTableOptimizer({
+    required String catalogId,
+    required String databaseName,
+    required String tableName,
+    required TableOptimizerType type,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.GetTableOptimizer'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CatalogId': catalogId,
+        'DatabaseName': databaseName,
+        'TableName': tableName,
+        'Type': type.value,
+      },
+    );
+
+    return GetTableOptimizerResponse.fromJson(jsonResponse.body);
   }
 
   /// Retrieves a specified version of a table.
@@ -6213,7 +6574,7 @@ class Glue {
       'maxResults',
       maxResults,
       1,
-      1000,
+      200,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -6267,6 +6628,15 @@ class Glue {
   ///
   /// Parameter [auditContext] :
   /// A structure containing Lake Formation audit context information.
+  ///
+  /// Parameter [querySessionContext] :
+  /// A structure used as a protocol between query engines and Lake Formation or
+  /// Glue. Contains both a Lake Formation generated authorization identifier
+  /// and information from the request's authorization context.
+  ///
+  /// Parameter [region] :
+  /// Specified only if the base tables belong to a different Amazon Web
+  /// Services Region.
   Future<GetUnfilteredPartitionMetadataResponse>
       getUnfilteredPartitionMetadata({
     required String catalogId,
@@ -6275,6 +6645,8 @@ class Glue {
     required List<PermissionType> supportedPermissionTypes,
     required String tableName,
     AuditContext? auditContext,
+    QuerySessionContext? querySessionContext,
+    String? region,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -6291,9 +6663,12 @@ class Glue {
         'DatabaseName': databaseName,
         'PartitionValues': partitionValues,
         'SupportedPermissionTypes':
-            supportedPermissionTypes.map((e) => e.toValue()).toList(),
+            supportedPermissionTypes.map((e) => e.value).toList(),
         'TableName': tableName,
         if (auditContext != null) 'AuditContext': auditContext,
+        if (querySessionContext != null)
+          'QuerySessionContext': querySessionContext,
+        if (region != null) 'Region': region,
       },
     );
 
@@ -6417,6 +6792,15 @@ class Glue {
   /// A continuation token, if this is not the first call to retrieve these
   /// partitions.
   ///
+  /// Parameter [querySessionContext] :
+  /// A structure used as a protocol between query engines and Lake Formation or
+  /// Glue. Contains both a Lake Formation generated authorization identifier
+  /// and information from the request's authorization context.
+  ///
+  /// Parameter [region] :
+  /// Specified only if the base tables belong to a different Amazon Web
+  /// Services Region.
+  ///
   /// Parameter [segment] :
   /// The segment of the table's partitions to scan in this request.
   Future<GetUnfilteredPartitionsMetadataResponse>
@@ -6429,6 +6813,8 @@ class Glue {
     String? expression,
     int? maxResults,
     String? nextToken,
+    QuerySessionContext? querySessionContext,
+    String? region,
     Segment? segment,
   }) async {
     _s.validateNumRange(
@@ -6451,12 +6837,15 @@ class Glue {
         'CatalogId': catalogId,
         'DatabaseName': databaseName,
         'SupportedPermissionTypes':
-            supportedPermissionTypes.map((e) => e.toValue()).toList(),
+            supportedPermissionTypes.map((e) => e.value).toList(),
         'TableName': tableName,
         if (auditContext != null) 'AuditContext': auditContext,
         if (expression != null) 'Expression': expression,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
+        if (querySessionContext != null)
+          'QuerySessionContext': querySessionContext,
+        if (region != null) 'Region': region,
         if (segment != null) 'Segment': segment,
       },
     );
@@ -6464,8 +6853,8 @@ class Glue {
     return GetUnfilteredPartitionsMetadataResponse.fromJson(jsonResponse.body);
   }
 
-  /// Retrieves table metadata from the Data Catalog that contains unfiltered
-  /// metadata.
+  /// Allows a third-party analytical engine to retrieve unfiltered table
+  /// metadata from the Data Catalog.
   ///
   /// For IAM authorization, the public IAM action associated with this API is
   /// <code>glue:GetTable</code>.
@@ -6490,16 +6879,84 @@ class Glue {
   /// metadata.
   ///
   /// Parameter [supportedPermissionTypes] :
-  /// (Required) A list of supported permission types.
+  /// Indicates the level of filtering a third-party analytical engine is
+  /// capable of enforcing when calling the
+  /// <code>GetUnfilteredTableMetadata</code> API operation. Accepted values
+  /// are:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>COLUMN_PERMISSION</code> - Column permissions ensure that users can
+  /// access only specific columns in the table. If there are particular columns
+  /// contain sensitive data, data lake administrators can define column filters
+  /// that exclude access to specific columns.
+  /// </li>
+  /// <li>
+  /// <code>CELL_FILTER_PERMISSION</code> - Cell-level filtering combines column
+  /// filtering (include or exclude columns) and row filter expressions to
+  /// restrict access to individual elements in the table.
+  /// </li>
+  /// <li>
+  /// <code>NESTED_PERMISSION</code> - Nested permissions combines cell-level
+  /// filtering and nested column filtering to restrict access to columns and/or
+  /// nested columns in specific rows based on row filter expressions.
+  /// </li>
+  /// <li>
+  /// <code>NESTED_CELL_PERMISSION</code> - Nested cell permissions combines
+  /// nested permission with nested cell-level filtering. This allows different
+  /// subsets of nested columns to be restricted based on an array of row filter
+  /// expressions.
+  /// </li>
+  /// </ul>
+  /// Note: Each of these permission types follows a hierarchical order where
+  /// each subsequent permission type includes all permission of the previous
+  /// type.
+  ///
+  /// Important: If you provide a supported permission type that doesn't match
+  /// the user's level of permissions on the table, then Lake Formation raises
+  /// an exception. For example, if the third-party engine calling the
+  /// <code>GetUnfilteredTableMetadata</code> operation can enforce only
+  /// column-level filtering, and the user has nested cell filtering applied on
+  /// the table, Lake Formation throws an exception, and will not return
+  /// unfiltered table metadata and data access credentials.
   ///
   /// Parameter [auditContext] :
   /// A structure containing Lake Formation audit context information.
+  ///
+  /// Parameter [parentResourceArn] :
+  /// The resource ARN of the view.
+  ///
+  /// Parameter [permissions] :
+  /// The Lake Formation data permissions of the caller on the table. Used to
+  /// authorize the call when no view context is found.
+  ///
+  /// Parameter [querySessionContext] :
+  /// A structure used as a protocol between query engines and Lake Formation or
+  /// Glue. Contains both a Lake Formation generated authorization identifier
+  /// and information from the request's authorization context.
+  ///
+  /// Parameter [region] :
+  /// Specified only if the base tables belong to a different Amazon Web
+  /// Services Region.
+  ///
+  /// Parameter [rootResourceArn] :
+  /// The resource ARN of the root view in a chain of nested views.
+  ///
+  /// Parameter [supportedDialect] :
+  /// A structure specifying the dialect and dialect version used by the query
+  /// engine.
   Future<GetUnfilteredTableMetadataResponse> getUnfilteredTableMetadata({
     required String catalogId,
     required String databaseName,
     required String name,
     required List<PermissionType> supportedPermissionTypes,
     AuditContext? auditContext,
+    String? parentResourceArn,
+    List<Permission>? permissions,
+    QuerySessionContext? querySessionContext,
+    String? region,
+    String? rootResourceArn,
+    SupportedDialect? supportedDialect,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -6516,8 +6973,16 @@ class Glue {
         'DatabaseName': databaseName,
         'Name': name,
         'SupportedPermissionTypes':
-            supportedPermissionTypes.map((e) => e.toValue()).toList(),
+            supportedPermissionTypes.map((e) => e.value).toList(),
         if (auditContext != null) 'AuditContext': auditContext,
+        if (parentResourceArn != null) 'ParentResourceArn': parentResourceArn,
+        if (permissions != null)
+          'Permissions': permissions.map((e) => e.value).toList(),
+        if (querySessionContext != null)
+          'QuerySessionContext': querySessionContext,
+        if (region != null) 'Region': region,
+        if (rootResourceArn != null) 'RootResourceArn': rootResourceArn,
+        if (supportedDialect != null) 'SupportedDialect': supportedDialect,
       },
     );
 
@@ -6841,7 +7306,7 @@ class Glue {
       'maxResults',
       maxResults,
       1,
-      1000,
+      25,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -6861,6 +7326,44 @@ class Glue {
     );
 
     return ListBlueprintsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// List all task runs for a particular account.
+  ///
+  /// May throw [OperationTimeoutException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum size of the response.
+  ///
+  /// Parameter [nextToken] :
+  /// A continuation token, if this is a continuation call.
+  Future<ListColumnStatisticsTaskRunsResponse> listColumnStatisticsTaskRuns({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1000,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.ListColumnStatisticsTaskRuns'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListColumnStatisticsTaskRunsResponse.fromJson(jsonResponse.body);
   }
 
   /// Retrieves the names of all crawler resources in this Amazon Web Services
@@ -7648,6 +8151,62 @@ class Glue {
     return ListStatementsResponse.fromJson(jsonResponse.body);
   }
 
+  /// Lists the history of previous optimizer runs for a specific table.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InvalidInputException].
+  /// May throw [InternalServiceException].
+  ///
+  /// Parameter [catalogId] :
+  /// The Catalog ID of the table.
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database in the catalog in which the table resides.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table.
+  ///
+  /// Parameter [type] :
+  /// The type of table optimizer. Currently, the only valid value is
+  /// <code>compaction</code>.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of optimizer runs to return on each call.
+  ///
+  /// Parameter [nextToken] :
+  /// A continuation token, if this is a continuation call.
+  Future<ListTableOptimizerRunsResponse> listTableOptimizerRuns({
+    required String catalogId,
+    required String databaseName,
+    required String tableName,
+    required TableOptimizerType type,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.ListTableOptimizerRuns'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CatalogId': catalogId,
+        'DatabaseName': databaseName,
+        'TableName': tableName,
+        'Type': type.value,
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListTableOptimizerRunsResponse.fromJson(jsonResponse.body);
+  }
+
   /// Retrieves the names of all trigger resources in this Amazon Web Services
   /// account, or the resources with the specified tag. This operation allows
   /// you to see which resources are available in your account, and their names.
@@ -7685,7 +8244,7 @@ class Glue {
       'maxResults',
       maxResults,
       1,
-      1000,
+      200,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -7727,7 +8286,7 @@ class Glue {
       'maxResults',
       maxResults,
       1,
-      1000,
+      25,
     );
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -7845,9 +8404,9 @@ class Glue {
       headers: headers,
       payload: {
         'PolicyInJson': policyInJson,
-        if (enableHybrid != null) 'EnableHybrid': enableHybrid.toValue(),
+        if (enableHybrid != null) 'EnableHybrid': enableHybrid.value,
         if (policyExistsCondition != null)
-          'PolicyExistsCondition': policyExistsCondition.toValue(),
+          'PolicyExistsCondition': policyExistsCondition.value,
         if (policyHashCondition != null)
           'PolicyHashCondition': policyHashCondition,
         if (resourceArn != null) 'ResourceArn': resourceArn,
@@ -8364,7 +8923,7 @@ class Glue {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
         if (resourceShareType != null)
-          'ResourceShareType': resourceShareType.toValue(),
+          'ResourceShareType': resourceShareType.value,
         if (searchText != null) 'SearchText': searchText,
         if (sortCriteria != null) 'SortCriteria': sortCriteria,
       },
@@ -8413,6 +8972,79 @@ class Glue {
     );
 
     return StartBlueprintRunResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Starts a column statistics task run, for a specified table and columns.
+  ///
+  /// May throw [AccessDeniedException].
+  /// May throw [EntityNotFoundException].
+  /// May throw [ColumnStatisticsTaskRunningException].
+  /// May throw [OperationTimeoutException].
+  /// May throw [ResourceNumberLimitExceededException].
+  /// May throw [InvalidInputException].
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database where the table resides.
+  ///
+  /// Parameter [role] :
+  /// The IAM role that the service assumes to generate statistics.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table to generate statistics.
+  ///
+  /// Parameter [catalogID] :
+  /// The ID of the Data Catalog where the table reside. If none is supplied,
+  /// the Amazon Web Services account ID is used by default.
+  ///
+  /// Parameter [columnNameList] :
+  /// A list of the column names to generate statistics. If none is supplied,
+  /// all column names for the table will be used by default.
+  ///
+  /// Parameter [sampleSize] :
+  /// The percentage of rows used to generate statistics. If none is supplied,
+  /// the entire table will be used to generate stats.
+  ///
+  /// Parameter [securityConfiguration] :
+  /// Name of the security configuration that is used to encrypt CloudWatch logs
+  /// for the column stats task run.
+  Future<StartColumnStatisticsTaskRunResponse> startColumnStatisticsTaskRun({
+    required String databaseName,
+    required String role,
+    required String tableName,
+    String? catalogID,
+    List<String>? columnNameList,
+    double? sampleSize,
+    String? securityConfiguration,
+  }) async {
+    _s.validateNumRange(
+      'sampleSize',
+      sampleSize,
+      0,
+      100,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.StartColumnStatisticsTaskRun'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'DatabaseName': databaseName,
+        'Role': role,
+        'TableName': tableName,
+        if (catalogID != null) 'CatalogID': catalogID,
+        if (columnNameList != null) 'ColumnNameList': columnNameList,
+        if (sampleSize != null) 'SampleSize': sampleSize,
+        if (securityConfiguration != null)
+          'SecurityConfiguration': securityConfiguration,
+      },
+    );
+
+    return StartColumnStatisticsTaskRunResponse.fromJson(jsonResponse.body);
   }
 
   /// Starts a crawl using the specified crawler, regardless of what is
@@ -8479,6 +9111,8 @@ class Glue {
   /// know what rules to write. Glue Data Quality analyzes the data and comes up
   /// with recommendations for a potential ruleset. You can then triage the
   /// ruleset and modify the generated ruleset to your liking.
+  ///
+  /// Recommendation runs are automatically deleted after 90 days.
   ///
   /// May throw [InvalidInputException].
   /// May throw [OperationTimeoutException].
@@ -8567,6 +9201,10 @@ class Glue {
   /// Parameter [rulesetNames] :
   /// A list of ruleset names.
   ///
+  /// Parameter [additionalDataSources] :
+  /// A map of reference strings to additional data sources you can specify for
+  /// an evaluation run.
+  ///
   /// Parameter [additionalRunOptions] :
   /// Additional run options you can specify for an evaluation run.
   ///
@@ -8588,6 +9226,7 @@ class Glue {
     required DataSource dataSource,
     required String role,
     required List<String> rulesetNames,
+    Map<String, DataSource>? additionalDataSources,
     DataQualityEvaluationRunAdditionalRunOptions? additionalRunOptions,
     String? clientToken,
     int? numberOfWorkers,
@@ -8613,6 +9252,8 @@ class Glue {
         'DataSource': dataSource,
         'Role': role,
         'RulesetNames': rulesetNames,
+        if (additionalDataSources != null)
+          'AdditionalDataSources': additionalDataSources,
         if (additionalRunOptions != null)
           'AdditionalRunOptions': additionalRunOptions,
         if (clientToken != null) 'ClientToken': clientToken,
@@ -8762,8 +9403,8 @@ class Glue {
   /// href="https://aws.amazon.com/glue/pricing/">Glue pricing page</a>.
   ///
   /// Parameter [arguments] :
-  /// The job arguments specifically for this run. For this job run, they
-  /// replace the default arguments set in the job definition itself.
+  /// The job arguments associated with this run. For this job run, they replace
+  /// the default arguments set in the job definition itself.
   ///
   /// You can specify arguments here that your own job-execution script
   /// consumes, as well as arguments that Glue itself consumes.
@@ -8777,10 +9418,15 @@ class Glue {
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python-calling.html">Calling
   /// Glue APIs in Python</a> topic in the developer guide.
   ///
-  /// For information about the key-value pairs that Glue consumes to set up
-  /// your job, see the <a
+  /// For information about the arguments you can provide to this field when
+  /// configuring Spark jobs, see the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html">Special
   /// Parameters Used by Glue</a> topic in the developer guide.
+  ///
+  /// For information about the arguments you can provide to this field when
+  /// configuring Ray jobs, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/author-job-ray-job-parameters.html">Using
+  /// job parameters in Ray jobs</a> in the developer guide.
   ///
   /// Parameter [executionClass] :
   /// Indicates whether the job is run with a standard or flexible execution
@@ -8799,17 +9445,23 @@ class Glue {
   /// The ID of a previous <code>JobRun</code> to retry.
   ///
   /// Parameter [maxCapacity] :
-  /// The number of Glue data processing units (DPUs) that can be allocated when
+  /// For Glue version 1.0 or earlier jobs, using the standard worker type, the
+  /// number of Glue data processing units (DPUs) that can be allocated when
   /// this job runs. A DPU is a relative measure of processing power that
   /// consists of 4 vCPUs of compute capacity and 16 GB of memory. For more
-  /// information, see the <a href="https://aws.amazon.com/glue/pricing/">Glue
+  /// information, see the <a href="https://aws.amazon.com/glue/pricing/"> Glue
   /// pricing page</a>.
   ///
-  /// Do not set <code>Max Capacity</code> if using <code>WorkerType</code> and
+  /// For Glue version 2.0+ jobs, you cannot specify a <code>Maximum
+  /// capacity</code>. Instead, you should specify a <code>Worker type</code>
+  /// and the <code>Number of workers</code>.
+  ///
+  /// Do not set <code>MaxCapacity</code> if using <code>WorkerType</code> and
   /// <code>NumberOfWorkers</code>.
   ///
   /// The value that can be allocated for <code>MaxCapacity</code> depends on
-  /// whether you are running a Python shell job, or an Apache Spark ETL job:
+  /// whether you are running a Python shell job, an Apache Spark ETL job, or an
+  /// Apache Spark streaming ETL job:
   ///
   /// <ul>
   /// <li>
@@ -8819,9 +9471,10 @@ class Glue {
   /// </li>
   /// <li>
   /// When you specify an Apache Spark ETL job
-  /// (<code>JobCommand.Name</code>="glueetl"), you can allocate a minimum of 2
-  /// DPUs. The default is 10 DPUs. This job type cannot have a fractional DPU
-  /// allocation.
+  /// (<code>JobCommand.Name</code>="glueetl") or Apache Spark streaming ETL job
+  /// (<code>JobCommand.Name</code>="gluestreaming"), you can allocate from 2 to
+  /// 100 DPUs. The default is 10 DPUs. This job type cannot have a fractional
+  /// DPU allocation.
   /// </li>
   /// </ul>
   ///
@@ -8842,31 +9495,62 @@ class Glue {
   /// <code>TIMEOUT</code> status. This value overrides the timeout value set in
   /// the parent job.
   ///
-  /// Streaming jobs do not have a timeout. The default for non-streaming jobs
-  /// is 2,880 minutes (48 hours).
+  /// Streaming jobs must have timeout values less than 7 days or 10080 minutes.
+  /// When the value is left blank, the job will be restarted after 7 days based
+  /// if you have not setup a maintenance window. If you have setup maintenance
+  /// window, it will be restarted during the maintenance window after 7 days.
   ///
   /// Parameter [workerType] :
   /// The type of predefined worker that is allocated when a job runs. Accepts a
-  /// value of Standard, G.1X, G.2X, or G.025X.
+  /// value of G.1X, G.2X, G.4X, G.8X or G.025X for Spark jobs. Accepts the
+  /// value Z.2X for Ray jobs.
   ///
   /// <ul>
   /// <li>
-  /// For the <code>Standard</code> worker type, each worker provides 4 vCPU, 16
-  /// GB of memory and a 50GB disk, and 2 executors per worker.
+  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPUs,
+  /// 16 GB of memory) with 84GB disk (approximately 34GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost
+  /// effective way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.1X</code> worker type, each worker provides 4 vCPU, 16 GB
-  /// of memory and a 64GB disk, and 1 executor per worker.
+  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPUs,
+  /// 32 GB of memory) with 128GB disk (approximately 77GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost
+  /// effective way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.2X</code> worker type, each worker provides 8 vCPU, 32 GB
-  /// of memory and a 128GB disk, and 1 executor per worker.
+  /// For the <code>G.4X</code> worker type, each worker maps to 4 DPU (16
+  /// vCPUs, 64 GB of memory) with 256GB disk (approximately 235GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for jobs
+  /// whose workloads contain your most demanding transforms, aggregations,
+  /// joins, and queries. This worker type is available only for Glue version
+  /// 3.0 or later Spark ETL jobs in the following Amazon Web Services Regions:
+  /// US East (Ohio), US East (N. Virginia), US West (Oregon), Asia Pacific
+  /// (Singapore), Asia Pacific (Sydney), Asia Pacific (Tokyo), Canada
+  /// (Central), Europe (Frankfurt), Europe (Ireland), and Europe (Stockholm).
+  /// </li>
+  /// <li>
+  /// For the <code>G.8X</code> worker type, each worker maps to 8 DPU (32
+  /// vCPUs, 128 GB of memory) with 512GB disk (approximately 487GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for jobs
+  /// whose workloads contain your most demanding transforms, aggregations,
+  /// joins, and queries. This worker type is available only for Glue version
+  /// 3.0 or later Spark ETL jobs, in the same Amazon Web Services Regions as
+  /// supported for the <code>G.4X</code> worker type.
   /// </li>
   /// <li>
   /// For the <code>G.025X</code> worker type, each worker maps to 0.25 DPU (2
-  /// vCPU, 4 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for low volume streaming jobs. This worker type
-  /// is only available for Glue version 3.0 streaming jobs.
+  /// vCPUs, 4 GB of memory) with 84GB disk (approximately 34GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for low
+  /// volume streaming jobs. This worker type is only available for Glue version
+  /// 3.0 streaming jobs.
+  /// </li>
+  /// <li>
+  /// For the <code>Z.2X</code> worker type, each worker maps to 2 M-DPU
+  /// (8vCPUs, 64 GB of memory) with 128 GB disk (approximately 120GB free), and
+  /// provides up to 8 Ray workers based on the autoscaler.
   /// </li>
   /// </ul>
   Future<StartJobRunResponse> startJobRun({
@@ -8902,7 +9586,7 @@ class Glue {
         'JobName': jobName,
         if (allocatedCapacity != null) 'AllocatedCapacity': allocatedCapacity,
         if (arguments != null) 'Arguments': arguments,
-        if (executionClass != null) 'ExecutionClass': executionClass.toValue(),
+        if (executionClass != null) 'ExecutionClass': executionClass.value,
         if (jobRunId != null) 'JobRunId': jobRunId,
         if (maxCapacity != null) 'MaxCapacity': maxCapacity,
         if (notificationProperty != null)
@@ -8911,7 +9595,7 @@ class Glue {
         if (securityConfiguration != null)
           'SecurityConfiguration': securityConfiguration,
         if (timeout != null) 'Timeout': timeout,
-        if (workerType != null) 'WorkerType': workerType.toValue(),
+        if (workerType != null) 'WorkerType': workerType.value,
       },
     );
 
@@ -9082,6 +9766,39 @@ class Glue {
     );
 
     return StartWorkflowRunResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Stops a task run for the specified table.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [ColumnStatisticsTaskNotRunningException].
+  /// May throw [ColumnStatisticsTaskStoppingException].
+  /// May throw [OperationTimeoutException].
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database where the table resides.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table.
+  Future<void> stopColumnStatisticsTaskRun({
+    required String databaseName,
+    required String tableName,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.StopColumnStatisticsTaskRun'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'DatabaseName': databaseName,
+        'TableName': tableName,
+      },
+    );
   }
 
   /// If the specified crawler is running, stops the crawl.
@@ -9946,10 +10663,14 @@ class Glue {
   /// repository.
   ///
   /// Parameter [provider] :
-  /// The provider for the remote repository.
+  /// The provider for the remote repository. Possible values: GITHUB,
+  /// AWS_CODE_COMMIT, GITLAB, BITBUCKET.
   ///
   /// Parameter [repositoryName] :
-  /// The name of the remote repository that contains the job artifacts.
+  /// The name of the remote repository that contains the job artifacts. For
+  /// BitBucket providers, <code>RepositoryName</code> should include
+  /// <code>WorkspaceName</code>. Use the format
+  /// <code>&lt;WorkspaceName&gt;/&lt;RepositoryName&gt;</code>.
   ///
   /// Parameter [repositoryOwner] :
   /// The owner of the remote repository that contains the job artifacts.
@@ -9975,13 +10696,13 @@ class Glue {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (authStrategy != null) 'AuthStrategy': authStrategy.toValue(),
+        if (authStrategy != null) 'AuthStrategy': authStrategy.value,
         if (authToken != null) 'AuthToken': authToken,
         if (branchName != null) 'BranchName': branchName,
         if (commitId != null) 'CommitId': commitId,
         if (folder != null) 'Folder': folder,
         if (jobName != null) 'JobName': jobName,
-        if (provider != null) 'Provider': provider.toValue(),
+        if (provider != null) 'Provider': provider.value,
         if (repositoryName != null) 'RepositoryName': repositoryName,
         if (repositoryOwner != null) 'RepositoryOwner': repositoryOwner,
       },
@@ -10112,7 +10833,7 @@ class Glue {
         if (parameters != null) 'Parameters': parameters,
         if (role != null) 'Role': role,
         if (timeout != null) 'Timeout': timeout,
-        if (workerType != null) 'WorkerType': workerType.toValue(),
+        if (workerType != null) 'WorkerType': workerType.value,
       },
     );
 
@@ -10277,7 +10998,7 @@ class Glue {
       headers: headers,
       payload: {
         'SchemaId': schemaId,
-        if (compatibility != null) 'Compatibility': compatibility.toValue(),
+        if (compatibility != null) 'Compatibility': compatibility.value,
         if (description != null) 'Description': description,
         if (schemaVersionNumber != null)
           'SchemaVersionNumber': schemaVersionNumber,
@@ -10323,10 +11044,14 @@ class Glue {
   /// repository.
   ///
   /// Parameter [provider] :
-  /// The provider for the remote repository.
+  /// The provider for the remote repository. Possible values: GITHUB,
+  /// AWS_CODE_COMMIT, GITLAB, BITBUCKET.
   ///
   /// Parameter [repositoryName] :
-  /// The name of the remote repository that contains the job artifacts.
+  /// The name of the remote repository that contains the job artifacts. For
+  /// BitBucket providers, <code>RepositoryName</code> should include
+  /// <code>WorkspaceName</code>. Use the format
+  /// <code>&lt;WorkspaceName&gt;/&lt;RepositoryName&gt;</code>.
   ///
   /// Parameter [repositoryOwner] :
   /// The owner of the remote repository that contains the job artifacts.
@@ -10352,13 +11077,13 @@ class Glue {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (authStrategy != null) 'AuthStrategy': authStrategy.toValue(),
+        if (authStrategy != null) 'AuthStrategy': authStrategy.value,
         if (authToken != null) 'AuthToken': authToken,
         if (branchName != null) 'BranchName': branchName,
         if (commitId != null) 'CommitId': commitId,
         if (folder != null) 'Folder': folder,
         if (jobName != null) 'JobName': jobName,
-        if (provider != null) 'Provider': provider.toValue(),
+        if (provider != null) 'Provider': provider.value,
         if (repositoryName != null) 'RepositoryName': repositoryName,
         if (repositoryOwner != null) 'RepositoryOwner': repositoryOwner,
       },
@@ -10425,6 +11150,56 @@ class Glue {
         if (skipArchive != null) 'SkipArchive': skipArchive,
         if (transactionId != null) 'TransactionId': transactionId,
         if (versionId != null) 'VersionId': versionId,
+      },
+    );
+  }
+
+  /// Updates the configuration for an existing table optimizer.
+  ///
+  /// May throw [EntityNotFoundException].
+  /// May throw [InvalidInputException].
+  /// May throw [AccessDeniedException].
+  /// May throw [InternalServiceException].
+  ///
+  /// Parameter [catalogId] :
+  /// The Catalog ID of the table.
+  ///
+  /// Parameter [databaseName] :
+  /// The name of the database in the catalog in which the table resides.
+  ///
+  /// Parameter [tableName] :
+  /// The name of the table.
+  ///
+  /// Parameter [tableOptimizerConfiguration] :
+  /// A <code>TableOptimizerConfiguration</code> object representing the
+  /// configuration of a table optimizer.
+  ///
+  /// Parameter [type] :
+  /// The type of table optimizer. Currently, the only valid value is
+  /// <code>compaction</code>.
+  Future<void> updateTableOptimizer({
+    required String catalogId,
+    required String databaseName,
+    required String tableName,
+    required TableOptimizerConfiguration tableOptimizerConfiguration,
+    required TableOptimizerType type,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AWSGlue.UpdateTableOptimizer'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'CatalogId': catalogId,
+        'DatabaseName': databaseName,
+        'TableName': tableName,
+        'TableOptimizerConfiguration': tableOptimizerConfiguration,
+        'Type': type.value,
       },
     );
   }
@@ -10647,97 +11422,46 @@ class Action {
   }
 }
 
+enum AdditionalOptionKeys {
+  performanceTuningCaching('performanceTuning.caching'),
+  observationsScope('observations.scope'),
+  ;
+
+  final String value;
+
+  const AdditionalOptionKeys(this.value);
+
+  static AdditionalOptionKeys fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AdditionalOptionKeys'));
+}
+
 enum AggFunction {
-  avg,
-  countDistinct,
-  count,
-  first,
-  last,
-  kurtosis,
-  max,
-  min,
-  skewness,
-  stddevSamp,
-  stddevPop,
-  sum,
-  sumDistinct,
-  varSamp,
-  varPop,
-}
+  avg('avg'),
+  countDistinct('countDistinct'),
+  count('count'),
+  first('first'),
+  last('last'),
+  kurtosis('kurtosis'),
+  max('max'),
+  min('min'),
+  skewness('skewness'),
+  stddevSamp('stddev_samp'),
+  stddevPop('stddev_pop'),
+  sum('sum'),
+  sumDistinct('sumDistinct'),
+  varSamp('var_samp'),
+  varPop('var_pop'),
+  ;
 
-extension AggFunctionValueExtension on AggFunction {
-  String toValue() {
-    switch (this) {
-      case AggFunction.avg:
-        return 'avg';
-      case AggFunction.countDistinct:
-        return 'countDistinct';
-      case AggFunction.count:
-        return 'count';
-      case AggFunction.first:
-        return 'first';
-      case AggFunction.last:
-        return 'last';
-      case AggFunction.kurtosis:
-        return 'kurtosis';
-      case AggFunction.max:
-        return 'max';
-      case AggFunction.min:
-        return 'min';
-      case AggFunction.skewness:
-        return 'skewness';
-      case AggFunction.stddevSamp:
-        return 'stddev_samp';
-      case AggFunction.stddevPop:
-        return 'stddev_pop';
-      case AggFunction.sum:
-        return 'sum';
-      case AggFunction.sumDistinct:
-        return 'sumDistinct';
-      case AggFunction.varSamp:
-        return 'var_samp';
-      case AggFunction.varPop:
-        return 'var_pop';
-    }
-  }
-}
+  final String value;
 
-extension AggFunctionFromString on String {
-  AggFunction toAggFunction() {
-    switch (this) {
-      case 'avg':
-        return AggFunction.avg;
-      case 'countDistinct':
-        return AggFunction.countDistinct;
-      case 'count':
-        return AggFunction.count;
-      case 'first':
-        return AggFunction.first;
-      case 'last':
-        return AggFunction.last;
-      case 'kurtosis':
-        return AggFunction.kurtosis;
-      case 'max':
-        return AggFunction.max;
-      case 'min':
-        return AggFunction.min;
-      case 'skewness':
-        return AggFunction.skewness;
-      case 'stddev_samp':
-        return AggFunction.stddevSamp;
-      case 'stddev_pop':
-        return AggFunction.stddevPop;
-      case 'sum':
-        return AggFunction.sum;
-      case 'sumDistinct':
-        return AggFunction.sumDistinct;
-      case 'var_samp':
-        return AggFunction.varSamp;
-      case 'var_pop':
-        return AggFunction.varPop;
-    }
-    throw Exception('$this is not known in enum AggFunction');
-  }
+  const AggFunction(this.value);
+
+  static AggFunction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AggFunction'));
 }
 
 /// Specifies a transform that groups rows by chosen fields and computes the
@@ -10765,18 +11489,15 @@ class Aggregate {
   factory Aggregate.fromJson(Map<String, dynamic> json) {
     return Aggregate(
       aggs: (json['Aggs'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => AggregateOperation.fromJson(e as Map<String, dynamic>))
           .toList(),
       groups: (json['Groups'] as List)
-          .whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          .nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
     );
   }
@@ -10816,11 +11537,9 @@ class AggregateOperation {
 
   factory AggregateOperation.fromJson(Map<String, dynamic> json) {
     return AggregateOperation(
-      aggFunc: (json['AggFunc'] as String).toAggFunction(),
-      column: (json['Column'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      aggFunc: AggFunction.fromString((json['AggFunc'] as String)),
+      column:
+          (json['Column'] as List).nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -10828,18 +11547,18 @@ class AggregateOperation {
     final aggFunc = this.aggFunc;
     final column = this.column;
     return {
-      'AggFunc': aggFunc.toValue(),
+      'AggFunc': aggFunc.value,
       'Column': column,
     };
   }
 }
 
-/// Specifies an Amazon Redshift data store.
+/// Specifies an optional value when connecting to the Redshift cluster.
 class AmazonRedshiftAdvancedOption {
-  /// The key when specifying a key-value pair.
+  /// The key for the additional connection option.
   final String? key;
 
-  /// The value when specifying a key-value pair.
+  /// The value for the additional connection option.
   final String? value;
 
   AmazonRedshiftAdvancedOption({
@@ -10989,7 +11708,7 @@ class AmazonRedshiftNodeData {
       accessType: json['AccessType'] as String?,
       action: json['Action'] as String?,
       advancedOptions: (json['AdvancedOptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               AmazonRedshiftAdvancedOption.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -11019,7 +11738,7 @@ class AmazonRedshiftNodeData {
           ? Option.fromJson(json['Schema'] as Map<String, dynamic>)
           : null,
       selectedColumns: (json['SelectedColumns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Option.fromJson(e as Map<String, dynamic>))
           .toList(),
       sourceType: json['SourceType'] as String?,
@@ -11029,7 +11748,7 @@ class AmazonRedshiftNodeData {
           : null,
       tablePrefix: json['TablePrefix'] as String?,
       tableSchema: (json['TableSchema'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Option.fromJson(e as Map<String, dynamic>))
           .toList(),
       tempDir: json['TempDir'] as String?,
@@ -11133,7 +11852,7 @@ class AmazonRedshiftSource {
 
 /// Specifies an Amazon Redshift target.
 class AmazonRedshiftTarget {
-  /// Specifies the data of the Amazon Reshift target node.
+  /// Specifies the data of the Amazon Redshift target node.
   final AmazonRedshiftNodeData? data;
 
   /// The nodes that are inputs to the data target.
@@ -11154,10 +11873,8 @@ class AmazonRedshiftTarget {
           ? AmazonRedshiftNodeData.fromJson(
               json['Data'] as Map<String, dynamic>)
           : null,
-      inputs: (json['Inputs'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List?)?.nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String?,
     );
   }
@@ -11196,12 +11913,10 @@ class ApplyMapping {
 
   factory ApplyMapping.fromJson(Map<String, dynamic> json) {
     return ApplyMapping(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       mapping: (json['Mapping'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Mapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String,
@@ -11265,7 +11980,7 @@ class AthenaConnectorSource {
       schemaName: json['SchemaName'] as String,
       connectionTable: json['ConnectionTable'] as String?,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11322,6 +12037,113 @@ class AuditContext {
   }
 }
 
+/// A structure containing the authentication configuration.
+class AuthenticationConfiguration {
+  /// A structure containing the authentication configuration.
+  final AuthenticationType? authenticationType;
+
+  /// The properties for OAuth2 authentication.
+  final OAuth2Properties? oAuth2Properties;
+
+  /// The secret manager ARN to store credentials.
+  final String? secretArn;
+
+  AuthenticationConfiguration({
+    this.authenticationType,
+    this.oAuth2Properties,
+    this.secretArn,
+  });
+
+  factory AuthenticationConfiguration.fromJson(Map<String, dynamic> json) {
+    return AuthenticationConfiguration(
+      authenticationType: (json['AuthenticationType'] as String?)
+          ?.let(AuthenticationType.fromString),
+      oAuth2Properties: json['OAuth2Properties'] != null
+          ? OAuth2Properties.fromJson(
+              json['OAuth2Properties'] as Map<String, dynamic>)
+          : null,
+      secretArn: json['SecretArn'] as String?,
+    );
+  }
+}
+
+/// A structure containing the authentication configuration in the
+/// CreateConnection request.
+class AuthenticationConfigurationInput {
+  /// A structure containing the authentication configuration in the
+  /// CreateConnection request.
+  final AuthenticationType? authenticationType;
+
+  /// The properties for OAuth2 authentication in the CreateConnection request.
+  final OAuth2PropertiesInput? oAuth2Properties;
+
+  /// The secret manager ARN to store credentials in the CreateConnection request.
+  final String? secretArn;
+
+  AuthenticationConfigurationInput({
+    this.authenticationType,
+    this.oAuth2Properties,
+    this.secretArn,
+  });
+
+  Map<String, dynamic> toJson() {
+    final authenticationType = this.authenticationType;
+    final oAuth2Properties = this.oAuth2Properties;
+    final secretArn = this.secretArn;
+    return {
+      if (authenticationType != null)
+        'AuthenticationType': authenticationType.value,
+      if (oAuth2Properties != null) 'OAuth2Properties': oAuth2Properties,
+      if (secretArn != null) 'SecretArn': secretArn,
+    };
+  }
+}
+
+enum AuthenticationType {
+  basic('BASIC'),
+  oauth2('OAUTH2'),
+  custom('CUSTOM'),
+  ;
+
+  final String value;
+
+  const AuthenticationType(this.value);
+
+  static AuthenticationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AuthenticationType'));
+}
+
+/// The set of properties required for the the OAuth2
+/// <code>AUTHORIZATION_CODE</code> grant type workflow.
+class AuthorizationCodeProperties {
+  /// An authorization code to be used in the third leg of the
+  /// <code>AUTHORIZATION_CODE</code> grant workflow. This is a single-use code
+  /// which becomes invalid once exchanged for an access token, thus it is
+  /// acceptable to have this value as a request parameter.
+  final String? authorizationCode;
+
+  /// The redirect URI where the user gets redirected to by authorization server
+  /// when issuing an authorization code. The URI is subsequently used when the
+  /// authorization code is exchanged for an access token.
+  final String? redirectUri;
+
+  AuthorizationCodeProperties({
+    this.authorizationCode,
+    this.redirectUri,
+  });
+
+  Map<String, dynamic> toJson() {
+    final authorizationCode = this.authorizationCode;
+    final redirectUri = this.redirectUri;
+    return {
+      if (authorizationCode != null) 'AuthorizationCode': authorizationCode,
+      if (redirectUri != null) 'RedirectUri': redirectUri,
+    };
+  }
+}
+
 /// A list of errors that can occur when registering partition indexes for an
 /// existing table.
 ///
@@ -11364,9 +12186,9 @@ class BackfillError {
 
   factory BackfillError.fromJson(Map<String, dynamic> json) {
     return BackfillError(
-      code: (json['Code'] as String?)?.toBackfillErrorCode(),
+      code: (json['Code'] as String?)?.let(BackfillErrorCode.fromString),
       partitions: (json['Partitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PartitionValueList.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11374,46 +12196,21 @@ class BackfillError {
 }
 
 enum BackfillErrorCode {
-  encryptedPartitionError,
-  internalError,
-  invalidPartitionTypeDataError,
-  missingPartitionValueError,
-  unsupportedPartitionCharacterError,
-}
+  encryptedPartitionError('ENCRYPTED_PARTITION_ERROR'),
+  internalError('INTERNAL_ERROR'),
+  invalidPartitionTypeDataError('INVALID_PARTITION_TYPE_DATA_ERROR'),
+  missingPartitionValueError('MISSING_PARTITION_VALUE_ERROR'),
+  unsupportedPartitionCharacterError('UNSUPPORTED_PARTITION_CHARACTER_ERROR'),
+  ;
 
-extension BackfillErrorCodeValueExtension on BackfillErrorCode {
-  String toValue() {
-    switch (this) {
-      case BackfillErrorCode.encryptedPartitionError:
-        return 'ENCRYPTED_PARTITION_ERROR';
-      case BackfillErrorCode.internalError:
-        return 'INTERNAL_ERROR';
-      case BackfillErrorCode.invalidPartitionTypeDataError:
-        return 'INVALID_PARTITION_TYPE_DATA_ERROR';
-      case BackfillErrorCode.missingPartitionValueError:
-        return 'MISSING_PARTITION_VALUE_ERROR';
-      case BackfillErrorCode.unsupportedPartitionCharacterError:
-        return 'UNSUPPORTED_PARTITION_CHARACTER_ERROR';
-    }
-  }
-}
+  final String value;
 
-extension BackfillErrorCodeFromString on String {
-  BackfillErrorCode toBackfillErrorCode() {
-    switch (this) {
-      case 'ENCRYPTED_PARTITION_ERROR':
-        return BackfillErrorCode.encryptedPartitionError;
-      case 'INTERNAL_ERROR':
-        return BackfillErrorCode.internalError;
-      case 'INVALID_PARTITION_TYPE_DATA_ERROR':
-        return BackfillErrorCode.invalidPartitionTypeDataError;
-      case 'MISSING_PARTITION_VALUE_ERROR':
-        return BackfillErrorCode.missingPartitionValueError;
-      case 'UNSUPPORTED_PARTITION_CHARACTER_ERROR':
-        return BackfillErrorCode.unsupportedPartitionCharacterError;
-    }
-    throw Exception('$this is not known in enum BackfillErrorCode');
-  }
+  const BackfillErrorCode(this.value);
+
+  static BackfillErrorCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BackfillErrorCode'));
 }
 
 /// Specifies a target that uses a Glue Data Catalog table.
@@ -11442,10 +12239,8 @@ class BasicCatalogTarget {
   factory BasicCatalogTarget.fromJson(Map<String, dynamic> json) {
     return BasicCatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
     );
@@ -11476,7 +12271,7 @@ class BatchCreatePartitionResponse {
   factory BatchCreatePartitionResponse.fromJson(Map<String, dynamic> json) {
     return BatchCreatePartitionResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PartitionError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11502,7 +12297,7 @@ class BatchDeleteConnectionResponse {
       errors: (json['Errors'] as Map<String, dynamic>?)?.map((k, e) =>
           MapEntry(k, ErrorDetail.fromJson(e as Map<String, dynamic>))),
       succeeded: (json['Succeeded'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11520,7 +12315,7 @@ class BatchDeletePartitionResponse {
   factory BatchDeletePartitionResponse.fromJson(Map<String, dynamic> json) {
     return BatchDeletePartitionResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PartitionError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11538,7 +12333,7 @@ class BatchDeleteTableResponse {
   factory BatchDeleteTableResponse.fromJson(Map<String, dynamic> json) {
     return BatchDeleteTableResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TableError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11557,7 +12352,7 @@ class BatchDeleteTableVersionResponse {
   factory BatchDeleteTableVersionResponse.fromJson(Map<String, dynamic> json) {
     return BatchDeleteTableVersionResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TableVersionError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11579,11 +12374,11 @@ class BatchGetBlueprintsResponse {
   factory BatchGetBlueprintsResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetBlueprintsResponse(
       blueprints: (json['Blueprints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Blueprint.fromJson(e as Map<String, dynamic>))
           .toList(),
       missingBlueprints: (json['MissingBlueprints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11605,11 +12400,11 @@ class BatchGetCrawlersResponse {
   factory BatchGetCrawlersResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetCrawlersResponse(
       crawlers: (json['Crawlers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Crawler.fromJson(e as Map<String, dynamic>))
           .toList(),
       crawlersNotFound: (json['CrawlersNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11633,11 +12428,11 @@ class BatchGetCustomEntityTypesResponse {
       Map<String, dynamic> json) {
     return BatchGetCustomEntityTypesResponse(
       customEntityTypes: (json['CustomEntityTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomEntityType.fromJson(e as Map<String, dynamic>))
           .toList(),
       customEntityTypesNotFound: (json['CustomEntityTypesNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11661,11 +12456,11 @@ class BatchGetDataQualityResultResponse {
       Map<String, dynamic> json) {
     return BatchGetDataQualityResultResponse(
       results: (json['Results'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => DataQualityResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       resultsNotFound: (json['ResultsNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11687,11 +12482,11 @@ class BatchGetDevEndpointsResponse {
   factory BatchGetDevEndpointsResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetDevEndpointsResponse(
       devEndpoints: (json['DevEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DevEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       devEndpointsNotFound: (json['DevEndpointsNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11713,11 +12508,11 @@ class BatchGetJobsResponse {
   factory BatchGetJobsResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetJobsResponse(
       jobs: (json['Jobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Job.fromJson(e as Map<String, dynamic>))
           .toList(),
       jobsNotFound: (json['JobsNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11740,12 +12535,115 @@ class BatchGetPartitionResponse {
   factory BatchGetPartitionResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetPartitionResponse(
       partitions: (json['Partitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Partition.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedKeys: (json['UnprocessedKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PartitionValueList.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+/// Represents a table optimizer to retrieve in the
+/// <code>BatchGetTableOptimizer</code> operation.
+class BatchGetTableOptimizerEntry {
+  /// The Catalog ID of the table.
+  final String? catalogId;
+
+  /// The name of the database in the catalog in which the table resides.
+  final String? databaseName;
+
+  /// The name of the table.
+  final String? tableName;
+
+  /// The type of table optimizer.
+  final TableOptimizerType? type;
+
+  BatchGetTableOptimizerEntry({
+    this.catalogId,
+    this.databaseName,
+    this.tableName,
+    this.type,
+  });
+
+  Map<String, dynamic> toJson() {
+    final catalogId = this.catalogId;
+    final databaseName = this.databaseName;
+    final tableName = this.tableName;
+    final type = this.type;
+    return {
+      if (catalogId != null) 'catalogId': catalogId,
+      if (databaseName != null) 'databaseName': databaseName,
+      if (tableName != null) 'tableName': tableName,
+      if (type != null) 'type': type.value,
+    };
+  }
+}
+
+/// Contains details on one of the errors in the error list returned by the
+/// <code>BatchGetTableOptimizer</code> operation.
+class BatchGetTableOptimizerError {
+  /// The Catalog ID of the table.
+  final String? catalogId;
+
+  /// The name of the database in the catalog in which the table resides.
+  final String? databaseName;
+
+  /// An <code>ErrorDetail</code> object containing code and message details about
+  /// the error.
+  final ErrorDetail? error;
+
+  /// The name of the table.
+  final String? tableName;
+
+  /// The type of table optimizer.
+  final TableOptimizerType? type;
+
+  BatchGetTableOptimizerError({
+    this.catalogId,
+    this.databaseName,
+    this.error,
+    this.tableName,
+    this.type,
+  });
+
+  factory BatchGetTableOptimizerError.fromJson(Map<String, dynamic> json) {
+    return BatchGetTableOptimizerError(
+      catalogId: json['catalogId'] as String?,
+      databaseName: json['databaseName'] as String?,
+      error: json['error'] != null
+          ? ErrorDetail.fromJson(json['error'] as Map<String, dynamic>)
+          : null,
+      tableName: json['tableName'] as String?,
+      type: (json['type'] as String?)?.let(TableOptimizerType.fromString),
+    );
+  }
+}
+
+class BatchGetTableOptimizerResponse {
+  /// A list of errors from the operation.
+  final List<BatchGetTableOptimizerError>? failures;
+
+  /// A list of <code>BatchTableOptimizer</code> objects.
+  final List<BatchTableOptimizer>? tableOptimizers;
+
+  BatchGetTableOptimizerResponse({
+    this.failures,
+    this.tableOptimizers,
+  });
+
+  factory BatchGetTableOptimizerResponse.fromJson(Map<String, dynamic> json) {
+    return BatchGetTableOptimizerResponse(
+      failures: (json['Failures'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              BatchGetTableOptimizerError.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      tableOptimizers: (json['TableOptimizers'] as List?)
+          ?.nonNulls
+          .map((e) => BatchTableOptimizer.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -11766,11 +12664,11 @@ class BatchGetTriggersResponse {
   factory BatchGetTriggersResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetTriggersResponse(
       triggers: (json['Triggers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Trigger.fromJson(e as Map<String, dynamic>))
           .toList(),
       triggersNotFound: (json['TriggersNotFound'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11792,11 +12690,11 @@ class BatchGetWorkflowsResponse {
   factory BatchGetWorkflowsResponse.fromJson(Map<String, dynamic> json) {
     return BatchGetWorkflowsResponse(
       missingWorkflows: (json['MissingWorkflows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       workflows: (json['Workflows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Workflow.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -11848,11 +12746,11 @@ class BatchStopJobRunResponse {
   factory BatchStopJobRunResponse.fromJson(Map<String, dynamic> json) {
     return BatchStopJobRunResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchStopJobRunError.fromJson(e as Map<String, dynamic>))
           .toList(),
       successfulSubmissions: (json['SuccessfulSubmissions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchStopJobRunSuccessfulSubmission.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -11882,6 +12780,42 @@ class BatchStopJobRunSuccessfulSubmission {
   }
 }
 
+/// Contains details for one of the table optimizers returned by the
+/// <code>BatchGetTableOptimizer</code> operation.
+class BatchTableOptimizer {
+  /// The Catalog ID of the table.
+  final String? catalogId;
+
+  /// The name of the database in the catalog in which the table resides.
+  final String? databaseName;
+
+  /// The name of the table.
+  final String? tableName;
+
+  /// A <code>TableOptimizer</code> object that contains details on the
+  /// configuration and last run of a table optimzer.
+  final TableOptimizer? tableOptimizer;
+
+  BatchTableOptimizer({
+    this.catalogId,
+    this.databaseName,
+    this.tableName,
+    this.tableOptimizer,
+  });
+
+  factory BatchTableOptimizer.fromJson(Map<String, dynamic> json) {
+    return BatchTableOptimizer(
+      catalogId: json['catalogId'] as String?,
+      databaseName: json['databaseName'] as String?,
+      tableName: json['tableName'] as String?,
+      tableOptimizer: json['tableOptimizer'] != null
+          ? TableOptimizer.fromJson(
+              json['tableOptimizer'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
 /// Contains information about a batch update partition error.
 class BatchUpdatePartitionFailureEntry {
   /// The details about the batch update partition error.
@@ -11901,7 +12835,7 @@ class BatchUpdatePartitionFailureEntry {
           ? ErrorDetail.fromJson(json['ErrorDetail'] as Map<String, dynamic>)
           : null,
       partitionValueList: (json['PartitionValueList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -11944,7 +12878,7 @@ class BatchUpdatePartitionResponse {
   factory BatchUpdatePartitionResponse.fromJson(Map<String, dynamic> json) {
     return BatchUpdatePartitionResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BatchUpdatePartitionFailureEntry.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -12068,7 +13002,7 @@ class Blueprint {
       lastModifiedOn: timeStampFromJson(json['LastModifiedOn']),
       name: json['Name'] as String?,
       parameterSpec: json['ParameterSpec'] as String?,
-      status: (json['Status'] as String?)?.toBlueprintStatus(),
+      status: (json['Status'] as String?)?.let(BlueprintStatus.fromString),
     );
   }
 }
@@ -12171,86 +13105,44 @@ class BlueprintRun {
       rollbackErrorMessage: json['RollbackErrorMessage'] as String?,
       runId: json['RunId'] as String?,
       startedOn: timeStampFromJson(json['StartedOn']),
-      state: (json['State'] as String?)?.toBlueprintRunState(),
+      state: (json['State'] as String?)?.let(BlueprintRunState.fromString),
       workflowName: json['WorkflowName'] as String?,
     );
   }
 }
 
 enum BlueprintRunState {
-  running,
-  succeeded,
-  failed,
-  rollingBack,
-}
+  running('RUNNING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  rollingBack('ROLLING_BACK'),
+  ;
 
-extension BlueprintRunStateValueExtension on BlueprintRunState {
-  String toValue() {
-    switch (this) {
-      case BlueprintRunState.running:
-        return 'RUNNING';
-      case BlueprintRunState.succeeded:
-        return 'SUCCEEDED';
-      case BlueprintRunState.failed:
-        return 'FAILED';
-      case BlueprintRunState.rollingBack:
-        return 'ROLLING_BACK';
-    }
-  }
-}
+  final String value;
 
-extension BlueprintRunStateFromString on String {
-  BlueprintRunState toBlueprintRunState() {
-    switch (this) {
-      case 'RUNNING':
-        return BlueprintRunState.running;
-      case 'SUCCEEDED':
-        return BlueprintRunState.succeeded;
-      case 'FAILED':
-        return BlueprintRunState.failed;
-      case 'ROLLING_BACK':
-        return BlueprintRunState.rollingBack;
-    }
-    throw Exception('$this is not known in enum BlueprintRunState');
-  }
+  const BlueprintRunState(this.value);
+
+  static BlueprintRunState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BlueprintRunState'));
 }
 
 enum BlueprintStatus {
-  creating,
-  active,
-  updating,
-  failed,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  updating('UPDATING'),
+  failed('FAILED'),
+  ;
 
-extension BlueprintStatusValueExtension on BlueprintStatus {
-  String toValue() {
-    switch (this) {
-      case BlueprintStatus.creating:
-        return 'CREATING';
-      case BlueprintStatus.active:
-        return 'ACTIVE';
-      case BlueprintStatus.updating:
-        return 'UPDATING';
-      case BlueprintStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension BlueprintStatusFromString on String {
-  BlueprintStatus toBlueprintStatus() {
-    switch (this) {
-      case 'CREATING':
-        return BlueprintStatus.creating;
-      case 'ACTIVE':
-        return BlueprintStatus.active;
-      case 'UPDATING':
-        return BlueprintStatus.updating;
-      case 'FAILED':
-        return BlueprintStatus.failed;
-    }
-    throw Exception('$this is not known in enum BlueprintStatus');
-  }
+  const BlueprintStatus(this.value);
+
+  static BlueprintStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum BlueprintStatus'));
 }
 
 /// Defines column statistics supported for Boolean data columns.
@@ -12326,7 +13218,7 @@ class CancelMLTaskRunResponse {
 
   factory CancelMLTaskRunResponse.fromJson(Map<String, dynamic> json) {
     return CancelMLTaskRunResponse(
-      status: (json['Status'] as String?)?.toTaskStatusType(),
+      status: (json['Status'] as String?)?.let(TaskStatusType.fromString),
       taskRunId: json['TaskRunId'] as String?,
       transformId: json['TransformId'] as String?,
     );
@@ -12376,7 +13268,7 @@ class CatalogDeltaSource {
           (json['AdditionalDeltaOptions'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12400,31 +13292,19 @@ class CatalogDeltaSource {
 }
 
 enum CatalogEncryptionMode {
-  disabled,
-  sseKms,
-}
+  disabled('DISABLED'),
+  sseKms('SSE-KMS'),
+  sseKmsWithServiceRole('SSE-KMS-WITH-SERVICE-ROLE'),
+  ;
 
-extension CatalogEncryptionModeValueExtension on CatalogEncryptionMode {
-  String toValue() {
-    switch (this) {
-      case CatalogEncryptionMode.disabled:
-        return 'DISABLED';
-      case CatalogEncryptionMode.sseKms:
-        return 'SSE-KMS';
-    }
-  }
-}
+  final String value;
 
-extension CatalogEncryptionModeFromString on String {
-  CatalogEncryptionMode toCatalogEncryptionMode() {
-    switch (this) {
-      case 'DISABLED':
-        return CatalogEncryptionMode.disabled;
-      case 'SSE-KMS':
-        return CatalogEncryptionMode.sseKms;
-    }
-    throw Exception('$this is not known in enum CatalogEncryptionMode');
-  }
+  const CatalogEncryptionMode(this.value);
+
+  static CatalogEncryptionMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CatalogEncryptionMode'));
 }
 
 /// Specifies a table definition in the Glue Data Catalog.
@@ -12484,7 +13364,7 @@ class CatalogHudiSource {
           (json['AdditionalHudiOptions'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -12693,8 +13573,8 @@ class CatalogSchemaChangePolicy {
   factory CatalogSchemaChangePolicy.fromJson(Map<String, dynamic> json) {
     return CatalogSchemaChangePolicy(
       enableUpdateCatalog: json['EnableUpdateCatalog'] as bool?,
-      updateBehavior:
-          (json['UpdateBehavior'] as String?)?.toUpdateCatalogBehavior(),
+      updateBehavior: (json['UpdateBehavior'] as String?)
+          ?.let(UpdateCatalogBehavior.fromString),
     );
   }
 
@@ -12704,7 +13584,7 @@ class CatalogSchemaChangePolicy {
     return {
       if (enableUpdateCatalog != null)
         'EnableUpdateCatalog': enableUpdateCatalog,
-      if (updateBehavior != null) 'UpdateBehavior': updateBehavior.toValue(),
+      if (updateBehavior != null) 'UpdateBehavior': updateBehavior.value,
     };
   }
 }
@@ -12778,10 +13658,8 @@ class CatalogTarget {
   factory CatalogTarget.fromJson(Map<String, dynamic> json) {
     return CatalogTarget(
       databaseName: json['DatabaseName'] as String,
-      tables: (json['Tables'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      tables:
+          (json['Tables'] as List).nonNulls.map((e) => e as String).toList(),
       connectionName: json['ConnectionName'] as String?,
       dlqEventQueueArn: json['DlqEventQueueArn'] as String?,
       eventQueueArn: json['EventQueueArn'] as String?,
@@ -12895,7 +13773,7 @@ class CloudWatchEncryption {
   factory CloudWatchEncryption.fromJson(Map<String, dynamic> json) {
     return CloudWatchEncryption(
       cloudWatchEncryptionMode: (json['CloudWatchEncryptionMode'] as String?)
-          ?.toCloudWatchEncryptionMode(),
+          ?.let(CloudWatchEncryptionMode.fromString),
       kmsKeyArn: json['KmsKeyArn'] as String?,
     );
   }
@@ -12905,38 +13783,25 @@ class CloudWatchEncryption {
     final kmsKeyArn = this.kmsKeyArn;
     return {
       if (cloudWatchEncryptionMode != null)
-        'CloudWatchEncryptionMode': cloudWatchEncryptionMode.toValue(),
+        'CloudWatchEncryptionMode': cloudWatchEncryptionMode.value,
       if (kmsKeyArn != null) 'KmsKeyArn': kmsKeyArn,
     };
   }
 }
 
 enum CloudWatchEncryptionMode {
-  disabled,
-  sseKms,
-}
+  disabled('DISABLED'),
+  sseKms('SSE-KMS'),
+  ;
 
-extension CloudWatchEncryptionModeValueExtension on CloudWatchEncryptionMode {
-  String toValue() {
-    switch (this) {
-      case CloudWatchEncryptionMode.disabled:
-        return 'DISABLED';
-      case CloudWatchEncryptionMode.sseKms:
-        return 'SSE-KMS';
-    }
-  }
-}
+  final String value;
 
-extension CloudWatchEncryptionModeFromString on String {
-  CloudWatchEncryptionMode toCloudWatchEncryptionMode() {
-    switch (this) {
-      case 'DISABLED':
-        return CloudWatchEncryptionMode.disabled;
-      case 'SSE-KMS':
-        return CloudWatchEncryptionMode.sseKms;
-    }
-    throw Exception('$this is not known in enum CloudWatchEncryptionMode');
-  }
+  const CloudWatchEncryptionMode(this.value);
+
+  static CloudWatchEncryptionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CloudWatchEncryptionMode'));
 }
 
 /// <code>CodeGenConfigurationNode</code> enumerates all valid Node types. One
@@ -12979,6 +13844,12 @@ class CodeGenConfigurationNode {
   /// Specifies a target that uses a Glue Data Catalog table.
   final BasicCatalogTarget? catalogTarget;
 
+  /// Specifies a source generated with standard connection options.
+  final ConnectorDataSource? connectorDataSource;
+
+  /// Specifies a target generated with standard connection options.
+  final ConnectorDataTarget? connectorDataTarget;
+
   /// Specifies a transform that uses custom code you provide to perform the data
   /// transformation. The output is a collection of DynamicFrames.
   final CustomCode? customCode;
@@ -13012,6 +13883,10 @@ class CodeGenConfigurationNode {
 
   /// Specifies your data quality evaluation criteria.
   final EvaluateDataQuality? evaluateDataQuality;
+
+  /// Specifies your data quality evaluation criteria. Allows multiple input data
+  /// and returns a collection of Dynamic Frames.
+  final EvaluateDataQualityMultiFrame? evaluateDataQualityMultiFrame;
 
   /// Specifies a transform that locates records in the dataset that have missing
   /// values and adds a new field with a value determined by imputation. The input
@@ -13073,6 +13948,9 @@ class CodeGenConfigurationNode {
 
   /// Specifies a target that uses Postgres SQL.
   final PostgreSQLCatalogTarget? postgreSQLCatalogTarget;
+
+  /// Specifies a Glue DataBrew recipe node.
+  final Recipe? recipe;
 
   /// Specifies an Amazon Redshift data store.
   final RedshiftSource? redshiftSource;
@@ -13146,6 +14024,12 @@ class CodeGenConfigurationNode {
   /// <code>DynamicFrame</code>
   final SelectFromCollection? selectFromCollection;
 
+  /// Specifies a Snowflake data source.
+  final SnowflakeSource? snowflakeSource;
+
+  /// Specifies a target that writes to a Snowflake data source.
+  final SnowflakeTarget? snowflakeTarget;
+
   /// Specifies a connector to an Apache Spark data source.
   final SparkConnectorSource? sparkConnectorSource;
 
@@ -13182,6 +14066,8 @@ class CodeGenConfigurationNode {
     this.catalogKinesisSource,
     this.catalogSource,
     this.catalogTarget,
+    this.connectorDataSource,
+    this.connectorDataTarget,
     this.customCode,
     this.directJDBCSource,
     this.directKafkaSource,
@@ -13192,6 +14078,7 @@ class CodeGenConfigurationNode {
     this.dynamicTransform,
     this.dynamoDBCatalogSource,
     this.evaluateDataQuality,
+    this.evaluateDataQualityMultiFrame,
     this.fillMissingValues,
     this.filter,
     this.governedCatalogSource,
@@ -13209,6 +14096,7 @@ class CodeGenConfigurationNode {
     this.pIIDetection,
     this.postgreSQLCatalogSource,
     this.postgreSQLCatalogTarget,
+    this.recipe,
     this.redshiftSource,
     this.redshiftTarget,
     this.relationalCatalogSource,
@@ -13230,6 +14118,8 @@ class CodeGenConfigurationNode {
     this.s3ParquetSource,
     this.selectFields,
     this.selectFromCollection,
+    this.snowflakeSource,
+    this.snowflakeTarget,
     this.sparkConnectorSource,
     this.sparkConnectorTarget,
     this.sparkSQL,
@@ -13282,6 +14172,14 @@ class CodeGenConfigurationNode {
           ? BasicCatalogTarget.fromJson(
               json['CatalogTarget'] as Map<String, dynamic>)
           : null,
+      connectorDataSource: json['ConnectorDataSource'] != null
+          ? ConnectorDataSource.fromJson(
+              json['ConnectorDataSource'] as Map<String, dynamic>)
+          : null,
+      connectorDataTarget: json['ConnectorDataTarget'] != null
+          ? ConnectorDataTarget.fromJson(
+              json['ConnectorDataTarget'] as Map<String, dynamic>)
+          : null,
       customCode: json['CustomCode'] != null
           ? CustomCode.fromJson(json['CustomCode'] as Map<String, dynamic>)
           : null,
@@ -13320,6 +14218,11 @@ class CodeGenConfigurationNode {
           ? EvaluateDataQuality.fromJson(
               json['EvaluateDataQuality'] as Map<String, dynamic>)
           : null,
+      evaluateDataQualityMultiFrame:
+          json['EvaluateDataQualityMultiFrame'] != null
+              ? EvaluateDataQualityMultiFrame.fromJson(
+                  json['EvaluateDataQualityMultiFrame'] as Map<String, dynamic>)
+              : null,
       fillMissingValues: json['FillMissingValues'] != null
           ? FillMissingValues.fromJson(
               json['FillMissingValues'] as Map<String, dynamic>)
@@ -13387,6 +14290,9 @@ class CodeGenConfigurationNode {
       postgreSQLCatalogTarget: json['PostgreSQLCatalogTarget'] != null
           ? PostgreSQLCatalogTarget.fromJson(
               json['PostgreSQLCatalogTarget'] as Map<String, dynamic>)
+          : null,
+      recipe: json['Recipe'] != null
+          ? Recipe.fromJson(json['Recipe'] as Map<String, dynamic>)
           : null,
       redshiftSource: json['RedshiftSource'] != null
           ? RedshiftSource.fromJson(
@@ -13467,6 +14373,14 @@ class CodeGenConfigurationNode {
           ? SelectFromCollection.fromJson(
               json['SelectFromCollection'] as Map<String, dynamic>)
           : null,
+      snowflakeSource: json['SnowflakeSource'] != null
+          ? SnowflakeSource.fromJson(
+              json['SnowflakeSource'] as Map<String, dynamic>)
+          : null,
+      snowflakeTarget: json['SnowflakeTarget'] != null
+          ? SnowflakeTarget.fromJson(
+              json['SnowflakeTarget'] as Map<String, dynamic>)
+          : null,
       sparkConnectorSource: json['SparkConnectorSource'] != null
           ? SparkConnectorSource.fromJson(
               json['SparkConnectorSource'] as Map<String, dynamic>)
@@ -13502,6 +14416,8 @@ class CodeGenConfigurationNode {
     final catalogKinesisSource = this.catalogKinesisSource;
     final catalogSource = this.catalogSource;
     final catalogTarget = this.catalogTarget;
+    final connectorDataSource = this.connectorDataSource;
+    final connectorDataTarget = this.connectorDataTarget;
     final customCode = this.customCode;
     final directJDBCSource = this.directJDBCSource;
     final directKafkaSource = this.directKafkaSource;
@@ -13512,6 +14428,7 @@ class CodeGenConfigurationNode {
     final dynamicTransform = this.dynamicTransform;
     final dynamoDBCatalogSource = this.dynamoDBCatalogSource;
     final evaluateDataQuality = this.evaluateDataQuality;
+    final evaluateDataQualityMultiFrame = this.evaluateDataQualityMultiFrame;
     final fillMissingValues = this.fillMissingValues;
     final filter = this.filter;
     final governedCatalogSource = this.governedCatalogSource;
@@ -13531,6 +14448,7 @@ class CodeGenConfigurationNode {
     final pIIDetection = this.pIIDetection;
     final postgreSQLCatalogSource = this.postgreSQLCatalogSource;
     final postgreSQLCatalogTarget = this.postgreSQLCatalogTarget;
+    final recipe = this.recipe;
     final redshiftSource = this.redshiftSource;
     final redshiftTarget = this.redshiftTarget;
     final relationalCatalogSource = this.relationalCatalogSource;
@@ -13552,6 +14470,8 @@ class CodeGenConfigurationNode {
     final s3ParquetSource = this.s3ParquetSource;
     final selectFields = this.selectFields;
     final selectFromCollection = this.selectFromCollection;
+    final snowflakeSource = this.snowflakeSource;
+    final snowflakeTarget = this.snowflakeTarget;
     final sparkConnectorSource = this.sparkConnectorSource;
     final sparkConnectorTarget = this.sparkConnectorTarget;
     final sparkSQL = this.sparkSQL;
@@ -13574,6 +14494,10 @@ class CodeGenConfigurationNode {
         'CatalogKinesisSource': catalogKinesisSource,
       if (catalogSource != null) 'CatalogSource': catalogSource,
       if (catalogTarget != null) 'CatalogTarget': catalogTarget,
+      if (connectorDataSource != null)
+        'ConnectorDataSource': connectorDataSource,
+      if (connectorDataTarget != null)
+        'ConnectorDataTarget': connectorDataTarget,
       if (customCode != null) 'CustomCode': customCode,
       if (directJDBCSource != null) 'DirectJDBCSource': directJDBCSource,
       if (directKafkaSource != null) 'DirectKafkaSource': directKafkaSource,
@@ -13587,6 +14511,8 @@ class CodeGenConfigurationNode {
         'DynamoDBCatalogSource': dynamoDBCatalogSource,
       if (evaluateDataQuality != null)
         'EvaluateDataQuality': evaluateDataQuality,
+      if (evaluateDataQualityMultiFrame != null)
+        'EvaluateDataQualityMultiFrame': evaluateDataQualityMultiFrame,
       if (fillMissingValues != null) 'FillMissingValues': fillMissingValues,
       if (filter != null) 'Filter': filter,
       if (governedCatalogSource != null)
@@ -13614,6 +14540,7 @@ class CodeGenConfigurationNode {
         'PostgreSQLCatalogSource': postgreSQLCatalogSource,
       if (postgreSQLCatalogTarget != null)
         'PostgreSQLCatalogTarget': postgreSQLCatalogTarget,
+      if (recipe != null) 'Recipe': recipe,
       if (redshiftSource != null) 'RedshiftSource': redshiftSource,
       if (redshiftTarget != null) 'RedshiftTarget': redshiftTarget,
       if (relationalCatalogSource != null)
@@ -13643,6 +14570,8 @@ class CodeGenConfigurationNode {
       if (selectFields != null) 'SelectFields': selectFields,
       if (selectFromCollection != null)
         'SelectFromCollection': selectFromCollection,
+      if (snowflakeSource != null) 'SnowflakeSource': snowflakeSource,
+      if (snowflakeTarget != null) 'SnowflakeTarget': snowflakeTarget,
       if (sparkConnectorSource != null)
         'SparkConnectorSource': sparkConnectorSource,
       if (sparkConnectorTarget != null)
@@ -13716,7 +14645,7 @@ class CodeGenNode {
   factory CodeGenNode.fromJson(Map<String, dynamic> json) {
     return CodeGenNode(
       args: (json['Args'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CodeGenNodeArg.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['Id'] as String,
@@ -13979,7 +14908,7 @@ class ColumnStatisticsData {
 
   factory ColumnStatisticsData.fromJson(Map<String, dynamic> json) {
     return ColumnStatisticsData(
-      type: (json['Type'] as String).toColumnStatisticsType(),
+      type: ColumnStatisticsType.fromString((json['Type'] as String)),
       binaryColumnStatisticsData: json['BinaryColumnStatisticsData'] != null
           ? BinaryColumnStatisticsData.fromJson(
               json['BinaryColumnStatisticsData'] as Map<String, dynamic>)
@@ -14021,7 +14950,7 @@ class ColumnStatisticsData {
     final longColumnStatisticsData = this.longColumnStatisticsData;
     final stringColumnStatisticsData = this.stringColumnStatisticsData;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (binaryColumnStatisticsData != null)
         'BinaryColumnStatisticsData': binaryColumnStatisticsData,
       if (booleanColumnStatisticsData != null)
@@ -14067,186 +14996,206 @@ class ColumnStatisticsError {
   }
 }
 
+enum ColumnStatisticsState {
+  starting('STARTING'),
+  running('RUNNING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  stopped('STOPPED'),
+  ;
+
+  final String value;
+
+  const ColumnStatisticsState(this.value);
+
+  static ColumnStatisticsState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ColumnStatisticsState'));
+}
+
+/// The object that shows the details of the column stats run.
+class ColumnStatisticsTaskRun {
+  /// The ID of the Data Catalog where the table resides. If none is supplied, the
+  /// Amazon Web Services account ID is used by default.
+  final String? catalogID;
+
+  /// A list of the column names. If none is supplied, all column names for the
+  /// table will be used by default.
+  final List<String>? columnNameList;
+
+  /// The identifier for the particular column statistics task run.
+  final String? columnStatisticsTaskRunId;
+
+  /// The time that this task was created.
+  final DateTime? creationTime;
+
+  /// The Amazon Web Services account ID.
+  final String? customerId;
+
+  /// The calculated DPU usage in seconds for all autoscaled workers.
+  final double? dPUSeconds;
+
+  /// The database where the table resides.
+  final String? databaseName;
+
+  /// The end time of the task.
+  final DateTime? endTime;
+
+  /// The error message for the job.
+  final String? errorMessage;
+
+  /// The last point in time when this task was modified.
+  final DateTime? lastUpdated;
+
+  /// The number of workers used to generate column statistics. The job is
+  /// preconfigured to autoscale up to 25 instances.
+  final int? numberOfWorkers;
+
+  /// The IAM role that the service assumes to generate statistics.
+  final String? role;
+
+  /// The percentage of rows used to generate statistics. If none is supplied, the
+  /// entire table will be used to generate stats.
+  final double? sampleSize;
+
+  /// Name of the security configuration that is used to encrypt CloudWatch logs
+  /// for the column stats task run.
+  final String? securityConfiguration;
+
+  /// The start time of the task.
+  final DateTime? startTime;
+
+  /// The status of the task run.
+  final ColumnStatisticsState? status;
+
+  /// The name of the table for which column statistics is generated.
+  final String? tableName;
+
+  /// The type of workers being used for generating stats. The default is
+  /// <code>g.1x</code>.
+  final String? workerType;
+
+  ColumnStatisticsTaskRun({
+    this.catalogID,
+    this.columnNameList,
+    this.columnStatisticsTaskRunId,
+    this.creationTime,
+    this.customerId,
+    this.dPUSeconds,
+    this.databaseName,
+    this.endTime,
+    this.errorMessage,
+    this.lastUpdated,
+    this.numberOfWorkers,
+    this.role,
+    this.sampleSize,
+    this.securityConfiguration,
+    this.startTime,
+    this.status,
+    this.tableName,
+    this.workerType,
+  });
+
+  factory ColumnStatisticsTaskRun.fromJson(Map<String, dynamic> json) {
+    return ColumnStatisticsTaskRun(
+      catalogID: json['CatalogID'] as String?,
+      columnNameList: (json['ColumnNameList'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      columnStatisticsTaskRunId: json['ColumnStatisticsTaskRunId'] as String?,
+      creationTime: timeStampFromJson(json['CreationTime']),
+      customerId: json['CustomerId'] as String?,
+      dPUSeconds: json['DPUSeconds'] as double?,
+      databaseName: json['DatabaseName'] as String?,
+      endTime: timeStampFromJson(json['EndTime']),
+      errorMessage: json['ErrorMessage'] as String?,
+      lastUpdated: timeStampFromJson(json['LastUpdated']),
+      numberOfWorkers: json['NumberOfWorkers'] as int?,
+      role: json['Role'] as String?,
+      sampleSize: json['SampleSize'] as double?,
+      securityConfiguration: json['SecurityConfiguration'] as String?,
+      startTime: timeStampFromJson(json['StartTime']),
+      status:
+          (json['Status'] as String?)?.let(ColumnStatisticsState.fromString),
+      tableName: json['TableName'] as String?,
+      workerType: json['WorkerType'] as String?,
+    );
+  }
+}
+
 enum ColumnStatisticsType {
-  boolean,
-  date,
-  decimal,
-  double,
-  long,
-  string,
-  binary,
-}
+  boolean('BOOLEAN'),
+  date('DATE'),
+  decimal('DECIMAL'),
+  double('DOUBLE'),
+  long('LONG'),
+  string('STRING'),
+  binary('BINARY'),
+  ;
 
-extension ColumnStatisticsTypeValueExtension on ColumnStatisticsType {
-  String toValue() {
-    switch (this) {
-      case ColumnStatisticsType.boolean:
-        return 'BOOLEAN';
-      case ColumnStatisticsType.date:
-        return 'DATE';
-      case ColumnStatisticsType.decimal:
-        return 'DECIMAL';
-      case ColumnStatisticsType.double:
-        return 'DOUBLE';
-      case ColumnStatisticsType.long:
-        return 'LONG';
-      case ColumnStatisticsType.string:
-        return 'STRING';
-      case ColumnStatisticsType.binary:
-        return 'BINARY';
-    }
-  }
-}
+  final String value;
 
-extension ColumnStatisticsTypeFromString on String {
-  ColumnStatisticsType toColumnStatisticsType() {
-    switch (this) {
-      case 'BOOLEAN':
-        return ColumnStatisticsType.boolean;
-      case 'DATE':
-        return ColumnStatisticsType.date;
-      case 'DECIMAL':
-        return ColumnStatisticsType.decimal;
-      case 'DOUBLE':
-        return ColumnStatisticsType.double;
-      case 'LONG':
-        return ColumnStatisticsType.long;
-      case 'STRING':
-        return ColumnStatisticsType.string;
-      case 'BINARY':
-        return ColumnStatisticsType.binary;
-    }
-    throw Exception('$this is not known in enum ColumnStatisticsType');
-  }
+  const ColumnStatisticsType(this.value);
+
+  static ColumnStatisticsType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ColumnStatisticsType'));
 }
 
 enum Comparator {
-  equals,
-  greaterThan,
-  lessThan,
-  greaterThanEquals,
-  lessThanEquals,
-}
+  equals('EQUALS'),
+  greaterThan('GREATER_THAN'),
+  lessThan('LESS_THAN'),
+  greaterThanEquals('GREATER_THAN_EQUALS'),
+  lessThanEquals('LESS_THAN_EQUALS'),
+  ;
 
-extension ComparatorValueExtension on Comparator {
-  String toValue() {
-    switch (this) {
-      case Comparator.equals:
-        return 'EQUALS';
-      case Comparator.greaterThan:
-        return 'GREATER_THAN';
-      case Comparator.lessThan:
-        return 'LESS_THAN';
-      case Comparator.greaterThanEquals:
-        return 'GREATER_THAN_EQUALS';
-      case Comparator.lessThanEquals:
-        return 'LESS_THAN_EQUALS';
-    }
-  }
-}
+  final String value;
 
-extension ComparatorFromString on String {
-  Comparator toComparator() {
-    switch (this) {
-      case 'EQUALS':
-        return Comparator.equals;
-      case 'GREATER_THAN':
-        return Comparator.greaterThan;
-      case 'LESS_THAN':
-        return Comparator.lessThan;
-      case 'GREATER_THAN_EQUALS':
-        return Comparator.greaterThanEquals;
-      case 'LESS_THAN_EQUALS':
-        return Comparator.lessThanEquals;
-    }
-    throw Exception('$this is not known in enum Comparator');
-  }
+  const Comparator(this.value);
+
+  static Comparator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Comparator'));
 }
 
 enum Compatibility {
-  none,
-  disabled,
-  backward,
-  backwardAll,
-  forward,
-  forwardAll,
-  full,
-  fullAll,
-}
+  none('NONE'),
+  disabled('DISABLED'),
+  backward('BACKWARD'),
+  backwardAll('BACKWARD_ALL'),
+  forward('FORWARD'),
+  forwardAll('FORWARD_ALL'),
+  full('FULL'),
+  fullAll('FULL_ALL'),
+  ;
 
-extension CompatibilityValueExtension on Compatibility {
-  String toValue() {
-    switch (this) {
-      case Compatibility.none:
-        return 'NONE';
-      case Compatibility.disabled:
-        return 'DISABLED';
-      case Compatibility.backward:
-        return 'BACKWARD';
-      case Compatibility.backwardAll:
-        return 'BACKWARD_ALL';
-      case Compatibility.forward:
-        return 'FORWARD';
-      case Compatibility.forwardAll:
-        return 'FORWARD_ALL';
-      case Compatibility.full:
-        return 'FULL';
-      case Compatibility.fullAll:
-        return 'FULL_ALL';
-    }
-  }
-}
+  final String value;
 
-extension CompatibilityFromString on String {
-  Compatibility toCompatibility() {
-    switch (this) {
-      case 'NONE':
-        return Compatibility.none;
-      case 'DISABLED':
-        return Compatibility.disabled;
-      case 'BACKWARD':
-        return Compatibility.backward;
-      case 'BACKWARD_ALL':
-        return Compatibility.backwardAll;
-      case 'FORWARD':
-        return Compatibility.forward;
-      case 'FORWARD_ALL':
-        return Compatibility.forwardAll;
-      case 'FULL':
-        return Compatibility.full;
-      case 'FULL_ALL':
-        return Compatibility.fullAll;
-    }
-    throw Exception('$this is not known in enum Compatibility');
-  }
+  const Compatibility(this.value);
+
+  static Compatibility fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum Compatibility'));
 }
 
 enum CompressionType {
-  gzip,
-  bzip2,
-}
+  gzip('gzip'),
+  bzip2('bzip2'),
+  ;
 
-extension CompressionTypeValueExtension on CompressionType {
-  String toValue() {
-    switch (this) {
-      case CompressionType.gzip:
-        return 'gzip';
-      case CompressionType.bzip2:
-        return 'bzip2';
-    }
-  }
-}
+  final String value;
 
-extension CompressionTypeFromString on String {
-  CompressionType toCompressionType() {
-    switch (this) {
-      case 'gzip':
-        return CompressionType.gzip;
-      case 'bzip2':
-        return CompressionType.bzip2;
-    }
-    throw Exception('$this is not known in enum CompressionType');
-  }
+  const CompressionType(this.value);
+
+  static CompressionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CompressionType'));
 }
 
 /// Defines a condition under which a trigger fires.
@@ -14281,12 +15230,12 @@ class Condition {
 
   factory Condition.fromJson(Map<String, dynamic> json) {
     return Condition(
-      crawlState: (json['CrawlState'] as String?)?.toCrawlState(),
+      crawlState: (json['CrawlState'] as String?)?.let(CrawlState.fromString),
       crawlerName: json['CrawlerName'] as String?,
       jobName: json['JobName'] as String?,
       logicalOperator:
-          (json['LogicalOperator'] as String?)?.toLogicalOperator(),
-      state: (json['State'] as String?)?.toJobRunState(),
+          (json['LogicalOperator'] as String?)?.let(LogicalOperator.fromString),
+      state: (json['State'] as String?)?.let(JobRunState.fromString),
     );
   }
 
@@ -14297,11 +15246,11 @@ class Condition {
     final logicalOperator = this.logicalOperator;
     final state = this.state;
     return {
-      if (crawlState != null) 'CrawlState': crawlState.toValue(),
+      if (crawlState != null) 'CrawlState': crawlState.value,
       if (crawlerName != null) 'CrawlerName': crawlerName,
       if (jobName != null) 'JobName': jobName,
-      if (logicalOperator != null) 'LogicalOperator': logicalOperator.toValue(),
-      if (state != null) 'State': state.toValue(),
+      if (logicalOperator != null) 'LogicalOperator': logicalOperator.value,
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -14348,6 +15297,9 @@ class ConfusionMatrix {
 
 /// Defines a connection to a data source.
 class Connection {
+  /// The authentication properties of the connection.
+  final AuthenticationConfiguration? authenticationConfiguration;
+
   /// These key-value pairs define parameters for the connection:
   ///
   /// <ul>
@@ -14486,10 +15438,23 @@ class Connection {
   /// </li>
   /// <li>
   /// <code>KAFKA_SASL_MECHANISM</code> - <code>"SCRAM-SHA-512"</code>,
-  /// <code>"GSSAPI"</code>, or <code>"AWS_MSK_IAM"</code>. These are the
-  /// supported <a
+  /// <code>"GSSAPI"</code>, <code>"AWS_MSK_IAM"</code>, or <code>"PLAIN"</code>.
+  /// These are the supported <a
   /// href="https://www.iana.org/assignments/sasl-mechanisms/sasl-mechanisms.xhtml">SASL
   /// Mechanisms</a>.
+  /// </li>
+  /// <li>
+  /// <code>KAFKA_SASL_PLAIN_USERNAME</code> - A plaintext username used to
+  /// authenticate with the "PLAIN" mechanism.
+  /// </li>
+  /// <li>
+  /// <code>KAFKA_SASL_PLAIN_PASSWORD</code> - A plaintext password used to
+  /// authenticate with the "PLAIN" mechanism.
+  /// </li>
+  /// <li>
+  /// <code>ENCRYPTED_KAFKA_SASL_PLAIN_PASSWORD</code> - The encrypted version of
+  /// the Kafka SASL PLAIN password (if the user has the Glue encrypt passwords
+  /// setting selected).
   /// </li>
   /// <li>
   /// <code>KAFKA_SASL_SCRAM_USERNAME</code> - A plaintext username used to
@@ -14503,6 +15468,10 @@ class Connection {
   /// <code>ENCRYPTED_KAFKA_SASL_SCRAM_PASSWORD</code> - The encrypted version of
   /// the Kafka SASL SCRAM password (if the user has the Glue encrypt passwords
   /// setting selected).
+  /// </li>
+  /// <li>
+  /// <code>KAFKA_SASL_SCRAM_SECRETS_ARN</code> - The Amazon Resource Name of a
+  /// secret in Amazon Web Services Secrets Manager.
   /// </li>
   /// <li>
   /// <code>KAFKA_SASL_GSSAPI_KEYTAB</code> - The S3 location of a Kerberos
@@ -14537,16 +15506,19 @@ class Connection {
   /// The type of the connection. Currently, SFTP is not supported.
   final ConnectionType? connectionType;
 
-  /// The time that this connection definition was created.
+  /// The timestamp of the time that this connection definition was created.
   final DateTime? creationTime;
 
   /// The description of the connection.
   final String? description;
 
+  /// A timestamp of the time this connection was last validated.
+  final DateTime? lastConnectionValidationTime;
+
   /// The user, group, or role that last updated this connection definition.
   final String? lastUpdatedBy;
 
-  /// The last time that this connection definition was updated.
+  /// The timestamp of the last time the connection definition was updated.
   final DateTime? lastUpdatedTime;
 
   /// A list of criteria that can be used in selecting this connection.
@@ -14555,35 +15527,53 @@ class Connection {
   /// The name of the connection definition.
   final String? name;
 
-  /// A map of physical connection requirements, such as virtual private cloud
-  /// (VPC) and <code>SecurityGroup</code>, that are needed to make this
-  /// connection successfully.
+  /// The physical connection requirements, such as virtual private cloud (VPC)
+  /// and <code>SecurityGroup</code>, that are needed to make this connection
+  /// successfully.
   final PhysicalConnectionRequirements? physicalConnectionRequirements;
 
+  /// The status of the connection. Can be one of: <code>READY</code>,
+  /// <code>IN_PROGRESS</code>, or <code>FAILED</code>.
+  final ConnectionStatus? status;
+
+  /// The reason for the connection status.
+  final String? statusReason;
+
   Connection({
+    this.authenticationConfiguration,
     this.connectionProperties,
     this.connectionType,
     this.creationTime,
     this.description,
+    this.lastConnectionValidationTime,
     this.lastUpdatedBy,
     this.lastUpdatedTime,
     this.matchCriteria,
     this.name,
     this.physicalConnectionRequirements,
+    this.status,
+    this.statusReason,
   });
 
   factory Connection.fromJson(Map<String, dynamic> json) {
     return Connection(
-      connectionProperties: (json['ConnectionProperties']
-              as Map<String, dynamic>?)
-          ?.map((k, e) => MapEntry(k.toConnectionPropertyKey(), e as String)),
-      connectionType: (json['ConnectionType'] as String?)?.toConnectionType(),
+      authenticationConfiguration: json['AuthenticationConfiguration'] != null
+          ? AuthenticationConfiguration.fromJson(
+              json['AuthenticationConfiguration'] as Map<String, dynamic>)
+          : null,
+      connectionProperties:
+          (json['ConnectionProperties'] as Map<String, dynamic>?)?.map((k, e) =>
+              MapEntry(ConnectionPropertyKey.fromString(k), e as String)),
+      connectionType:
+          (json['ConnectionType'] as String?)?.let(ConnectionType.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       description: json['Description'] as String?,
+      lastConnectionValidationTime:
+          timeStampFromJson(json['LastConnectionValidationTime']),
       lastUpdatedBy: json['LastUpdatedBy'] as String?,
       lastUpdatedTime: timeStampFromJson(json['LastUpdatedTime']),
       matchCriteria: (json['MatchCriteria'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       name: json['Name'] as String?,
@@ -14592,6 +15582,8 @@ class Connection {
           ? PhysicalConnectionRequirements.fromJson(
               json['PhysicalConnectionRequirements'] as Map<String, dynamic>)
           : null,
+      status: (json['Status'] as String?)?.let(ConnectionStatus.fromString),
+      statusReason: json['StatusReason'] as String?,
     );
   }
 }
@@ -14684,6 +15676,16 @@ class ConnectionInput {
   /// </li>
   /// </ul> </li>
   /// <li>
+  /// <code>SALESFORCE</code> - Designates a connection to Salesforce using OAuth
+  /// authencation.
+  ///
+  /// <ul>
+  /// <li>
+  /// Requires the <code>AuthenticationConfiguration</code> member to be
+  /// configured.
+  /// </li>
+  /// </ul> </li>
+  /// <li>
   /// <code>NETWORK</code> - Designates a network connection to a data source
   /// within an Amazon Virtual Private Cloud environment (Amazon VPC).
   ///
@@ -14726,9 +15728,12 @@ class ConnectionInput {
   /// connectors and connections</a>.
   final ConnectionType connectionType;
 
-  /// The name of the connection. Connection will not function as expected without
-  /// a name.
+  /// The name of the connection.
   final String name;
+
+  /// The authentication properties of the connection. Used for a Salesforce
+  /// connection.
+  final AuthenticationConfigurationInput? authenticationConfiguration;
 
   /// The description of the connection.
   final String? description;
@@ -14736,36 +15741,48 @@ class ConnectionInput {
   /// A list of criteria that can be used in selecting this connection.
   final List<String>? matchCriteria;
 
-  /// A map of physical connection requirements, such as virtual private cloud
-  /// (VPC) and <code>SecurityGroup</code>, that are needed to successfully make
-  /// this connection.
+  /// The physical connection requirements, such as virtual private cloud (VPC)
+  /// and <code>SecurityGroup</code>, that are needed to successfully make this
+  /// connection.
   final PhysicalConnectionRequirements? physicalConnectionRequirements;
+
+  /// A flag to validate the credentials during create connection. Used for a
+  /// Salesforce connection. Default is true.
+  final bool? validateCredentials;
 
   ConnectionInput({
     required this.connectionProperties,
     required this.connectionType,
     required this.name,
+    this.authenticationConfiguration,
     this.description,
     this.matchCriteria,
     this.physicalConnectionRequirements,
+    this.validateCredentials,
   });
 
   Map<String, dynamic> toJson() {
     final connectionProperties = this.connectionProperties;
     final connectionType = this.connectionType;
     final name = this.name;
+    final authenticationConfiguration = this.authenticationConfiguration;
     final description = this.description;
     final matchCriteria = this.matchCriteria;
     final physicalConnectionRequirements = this.physicalConnectionRequirements;
+    final validateCredentials = this.validateCredentials;
     return {
       'ConnectionProperties':
-          connectionProperties.map((k, e) => MapEntry(k.toValue(), e)),
-      'ConnectionType': connectionType.toValue(),
+          connectionProperties.map((k, e) => MapEntry(k.value, e)),
+      'ConnectionType': connectionType.value,
       'Name': name,
+      if (authenticationConfiguration != null)
+        'AuthenticationConfiguration': authenticationConfiguration,
       if (description != null) 'Description': description,
       if (matchCriteria != null) 'MatchCriteria': matchCriteria,
       if (physicalConnectionRequirements != null)
         'PhysicalConnectionRequirements': physicalConnectionRequirements,
+      if (validateCredentials != null)
+        'ValidateCredentials': validateCredentials,
     };
   }
 }
@@ -14827,224 +15844,97 @@ class ConnectionPasswordEncryption {
 }
 
 enum ConnectionPropertyKey {
-  host,
-  port,
-  username,
-  password,
-  encryptedPassword,
-  jdbcDriverJarUri,
-  jdbcDriverClassName,
-  jdbcEngine,
-  jdbcEngineVersion,
-  configFiles,
-  instanceId,
-  jdbcConnectionUrl,
-  jdbcEnforceSsl,
-  customJdbcCert,
-  skipCustomJdbcCertValidation,
-  customJdbcCertString,
-  connectionUrl,
-  kafkaBootstrapServers,
-  kafkaSslEnabled,
-  kafkaCustomCert,
-  kafkaSkipCustomCertValidation,
-  kafkaClientKeystore,
-  kafkaClientKeystorePassword,
-  kafkaClientKeyPassword,
-  encryptedKafkaClientKeystorePassword,
-  encryptedKafkaClientKeyPassword,
-  secretId,
-  connectorUrl,
-  connectorType,
-  connectorClassName,
+  host('HOST'),
+  port('PORT'),
+  username('USERNAME'),
+  password('PASSWORD'),
+  encryptedPassword('ENCRYPTED_PASSWORD'),
+  jdbcDriverJarUri('JDBC_DRIVER_JAR_URI'),
+  jdbcDriverClassName('JDBC_DRIVER_CLASS_NAME'),
+  jdbcEngine('JDBC_ENGINE'),
+  jdbcEngineVersion('JDBC_ENGINE_VERSION'),
+  configFiles('CONFIG_FILES'),
+  instanceId('INSTANCE_ID'),
+  jdbcConnectionUrl('JDBC_CONNECTION_URL'),
+  jdbcEnforceSsl('JDBC_ENFORCE_SSL'),
+  customJdbcCert('CUSTOM_JDBC_CERT'),
+  skipCustomJdbcCertValidation('SKIP_CUSTOM_JDBC_CERT_VALIDATION'),
+  customJdbcCertString('CUSTOM_JDBC_CERT_STRING'),
+  connectionUrl('CONNECTION_URL'),
+  kafkaBootstrapServers('KAFKA_BOOTSTRAP_SERVERS'),
+  kafkaSslEnabled('KAFKA_SSL_ENABLED'),
+  kafkaCustomCert('KAFKA_CUSTOM_CERT'),
+  kafkaSkipCustomCertValidation('KAFKA_SKIP_CUSTOM_CERT_VALIDATION'),
+  kafkaClientKeystore('KAFKA_CLIENT_KEYSTORE'),
+  kafkaClientKeystorePassword('KAFKA_CLIENT_KEYSTORE_PASSWORD'),
+  kafkaClientKeyPassword('KAFKA_CLIENT_KEY_PASSWORD'),
+  encryptedKafkaClientKeystorePassword(
+      'ENCRYPTED_KAFKA_CLIENT_KEYSTORE_PASSWORD'),
+  encryptedKafkaClientKeyPassword('ENCRYPTED_KAFKA_CLIENT_KEY_PASSWORD'),
+  secretId('SECRET_ID'),
+  connectorUrl('CONNECTOR_URL'),
+  connectorType('CONNECTOR_TYPE'),
+  connectorClassName('CONNECTOR_CLASS_NAME'),
+  kafkaSaslMechanism('KAFKA_SASL_MECHANISM'),
+  kafkaSaslPlainUsername('KAFKA_SASL_PLAIN_USERNAME'),
+  kafkaSaslPlainPassword('KAFKA_SASL_PLAIN_PASSWORD'),
+  encryptedKafkaSaslPlainPassword('ENCRYPTED_KAFKA_SASL_PLAIN_PASSWORD'),
+  kafkaSaslScramUsername('KAFKA_SASL_SCRAM_USERNAME'),
+  kafkaSaslScramPassword('KAFKA_SASL_SCRAM_PASSWORD'),
+  kafkaSaslScramSecretsArn('KAFKA_SASL_SCRAM_SECRETS_ARN'),
+  encryptedKafkaSaslScramPassword('ENCRYPTED_KAFKA_SASL_SCRAM_PASSWORD'),
+  kafkaSaslGssapiKeytab('KAFKA_SASL_GSSAPI_KEYTAB'),
+  kafkaSaslGssapiKrb5Conf('KAFKA_SASL_GSSAPI_KRB5_CONF'),
+  kafkaSaslGssapiService('KAFKA_SASL_GSSAPI_SERVICE'),
+  kafkaSaslGssapiPrincipal('KAFKA_SASL_GSSAPI_PRINCIPAL'),
+  roleArn('ROLE_ARN'),
+  ;
+
+  final String value;
+
+  const ConnectionPropertyKey(this.value);
+
+  static ConnectionPropertyKey fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ConnectionPropertyKey'));
 }
 
-extension ConnectionPropertyKeyValueExtension on ConnectionPropertyKey {
-  String toValue() {
-    switch (this) {
-      case ConnectionPropertyKey.host:
-        return 'HOST';
-      case ConnectionPropertyKey.port:
-        return 'PORT';
-      case ConnectionPropertyKey.username:
-        return 'USERNAME';
-      case ConnectionPropertyKey.password:
-        return 'PASSWORD';
-      case ConnectionPropertyKey.encryptedPassword:
-        return 'ENCRYPTED_PASSWORD';
-      case ConnectionPropertyKey.jdbcDriverJarUri:
-        return 'JDBC_DRIVER_JAR_URI';
-      case ConnectionPropertyKey.jdbcDriverClassName:
-        return 'JDBC_DRIVER_CLASS_NAME';
-      case ConnectionPropertyKey.jdbcEngine:
-        return 'JDBC_ENGINE';
-      case ConnectionPropertyKey.jdbcEngineVersion:
-        return 'JDBC_ENGINE_VERSION';
-      case ConnectionPropertyKey.configFiles:
-        return 'CONFIG_FILES';
-      case ConnectionPropertyKey.instanceId:
-        return 'INSTANCE_ID';
-      case ConnectionPropertyKey.jdbcConnectionUrl:
-        return 'JDBC_CONNECTION_URL';
-      case ConnectionPropertyKey.jdbcEnforceSsl:
-        return 'JDBC_ENFORCE_SSL';
-      case ConnectionPropertyKey.customJdbcCert:
-        return 'CUSTOM_JDBC_CERT';
-      case ConnectionPropertyKey.skipCustomJdbcCertValidation:
-        return 'SKIP_CUSTOM_JDBC_CERT_VALIDATION';
-      case ConnectionPropertyKey.customJdbcCertString:
-        return 'CUSTOM_JDBC_CERT_STRING';
-      case ConnectionPropertyKey.connectionUrl:
-        return 'CONNECTION_URL';
-      case ConnectionPropertyKey.kafkaBootstrapServers:
-        return 'KAFKA_BOOTSTRAP_SERVERS';
-      case ConnectionPropertyKey.kafkaSslEnabled:
-        return 'KAFKA_SSL_ENABLED';
-      case ConnectionPropertyKey.kafkaCustomCert:
-        return 'KAFKA_CUSTOM_CERT';
-      case ConnectionPropertyKey.kafkaSkipCustomCertValidation:
-        return 'KAFKA_SKIP_CUSTOM_CERT_VALIDATION';
-      case ConnectionPropertyKey.kafkaClientKeystore:
-        return 'KAFKA_CLIENT_KEYSTORE';
-      case ConnectionPropertyKey.kafkaClientKeystorePassword:
-        return 'KAFKA_CLIENT_KEYSTORE_PASSWORD';
-      case ConnectionPropertyKey.kafkaClientKeyPassword:
-        return 'KAFKA_CLIENT_KEY_PASSWORD';
-      case ConnectionPropertyKey.encryptedKafkaClientKeystorePassword:
-        return 'ENCRYPTED_KAFKA_CLIENT_KEYSTORE_PASSWORD';
-      case ConnectionPropertyKey.encryptedKafkaClientKeyPassword:
-        return 'ENCRYPTED_KAFKA_CLIENT_KEY_PASSWORD';
-      case ConnectionPropertyKey.secretId:
-        return 'SECRET_ID';
-      case ConnectionPropertyKey.connectorUrl:
-        return 'CONNECTOR_URL';
-      case ConnectionPropertyKey.connectorType:
-        return 'CONNECTOR_TYPE';
-      case ConnectionPropertyKey.connectorClassName:
-        return 'CONNECTOR_CLASS_NAME';
-    }
-  }
-}
+enum ConnectionStatus {
+  ready('READY'),
+  inProgress('IN_PROGRESS'),
+  failed('FAILED'),
+  ;
 
-extension ConnectionPropertyKeyFromString on String {
-  ConnectionPropertyKey toConnectionPropertyKey() {
-    switch (this) {
-      case 'HOST':
-        return ConnectionPropertyKey.host;
-      case 'PORT':
-        return ConnectionPropertyKey.port;
-      case 'USERNAME':
-        return ConnectionPropertyKey.username;
-      case 'PASSWORD':
-        return ConnectionPropertyKey.password;
-      case 'ENCRYPTED_PASSWORD':
-        return ConnectionPropertyKey.encryptedPassword;
-      case 'JDBC_DRIVER_JAR_URI':
-        return ConnectionPropertyKey.jdbcDriverJarUri;
-      case 'JDBC_DRIVER_CLASS_NAME':
-        return ConnectionPropertyKey.jdbcDriverClassName;
-      case 'JDBC_ENGINE':
-        return ConnectionPropertyKey.jdbcEngine;
-      case 'JDBC_ENGINE_VERSION':
-        return ConnectionPropertyKey.jdbcEngineVersion;
-      case 'CONFIG_FILES':
-        return ConnectionPropertyKey.configFiles;
-      case 'INSTANCE_ID':
-        return ConnectionPropertyKey.instanceId;
-      case 'JDBC_CONNECTION_URL':
-        return ConnectionPropertyKey.jdbcConnectionUrl;
-      case 'JDBC_ENFORCE_SSL':
-        return ConnectionPropertyKey.jdbcEnforceSsl;
-      case 'CUSTOM_JDBC_CERT':
-        return ConnectionPropertyKey.customJdbcCert;
-      case 'SKIP_CUSTOM_JDBC_CERT_VALIDATION':
-        return ConnectionPropertyKey.skipCustomJdbcCertValidation;
-      case 'CUSTOM_JDBC_CERT_STRING':
-        return ConnectionPropertyKey.customJdbcCertString;
-      case 'CONNECTION_URL':
-        return ConnectionPropertyKey.connectionUrl;
-      case 'KAFKA_BOOTSTRAP_SERVERS':
-        return ConnectionPropertyKey.kafkaBootstrapServers;
-      case 'KAFKA_SSL_ENABLED':
-        return ConnectionPropertyKey.kafkaSslEnabled;
-      case 'KAFKA_CUSTOM_CERT':
-        return ConnectionPropertyKey.kafkaCustomCert;
-      case 'KAFKA_SKIP_CUSTOM_CERT_VALIDATION':
-        return ConnectionPropertyKey.kafkaSkipCustomCertValidation;
-      case 'KAFKA_CLIENT_KEYSTORE':
-        return ConnectionPropertyKey.kafkaClientKeystore;
-      case 'KAFKA_CLIENT_KEYSTORE_PASSWORD':
-        return ConnectionPropertyKey.kafkaClientKeystorePassword;
-      case 'KAFKA_CLIENT_KEY_PASSWORD':
-        return ConnectionPropertyKey.kafkaClientKeyPassword;
-      case 'ENCRYPTED_KAFKA_CLIENT_KEYSTORE_PASSWORD':
-        return ConnectionPropertyKey.encryptedKafkaClientKeystorePassword;
-      case 'ENCRYPTED_KAFKA_CLIENT_KEY_PASSWORD':
-        return ConnectionPropertyKey.encryptedKafkaClientKeyPassword;
-      case 'SECRET_ID':
-        return ConnectionPropertyKey.secretId;
-      case 'CONNECTOR_URL':
-        return ConnectionPropertyKey.connectorUrl;
-      case 'CONNECTOR_TYPE':
-        return ConnectionPropertyKey.connectorType;
-      case 'CONNECTOR_CLASS_NAME':
-        return ConnectionPropertyKey.connectorClassName;
-    }
-    throw Exception('$this is not known in enum ConnectionPropertyKey');
-  }
+  final String value;
+
+  const ConnectionStatus(this.value);
+
+  static ConnectionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConnectionStatus'));
 }
 
 enum ConnectionType {
-  jdbc,
-  sftp,
-  mongodb,
-  kafka,
-  network,
-  marketplace,
-  custom,
-}
+  jdbc('JDBC'),
+  sftp('SFTP'),
+  mongodb('MONGODB'),
+  kafka('KAFKA'),
+  network('NETWORK'),
+  marketplace('MARKETPLACE'),
+  custom('CUSTOM'),
+  salesforce('SALESFORCE'),
+  ;
 
-extension ConnectionTypeValueExtension on ConnectionType {
-  String toValue() {
-    switch (this) {
-      case ConnectionType.jdbc:
-        return 'JDBC';
-      case ConnectionType.sftp:
-        return 'SFTP';
-      case ConnectionType.mongodb:
-        return 'MONGODB';
-      case ConnectionType.kafka:
-        return 'KAFKA';
-      case ConnectionType.network:
-        return 'NETWORK';
-      case ConnectionType.marketplace:
-        return 'MARKETPLACE';
-      case ConnectionType.custom:
-        return 'CUSTOM';
-    }
-  }
-}
+  final String value;
 
-extension ConnectionTypeFromString on String {
-  ConnectionType toConnectionType() {
-    switch (this) {
-      case 'JDBC':
-        return ConnectionType.jdbc;
-      case 'SFTP':
-        return ConnectionType.sftp;
-      case 'MONGODB':
-        return ConnectionType.mongodb;
-      case 'KAFKA':
-        return ConnectionType.kafka;
-      case 'NETWORK':
-        return ConnectionType.network;
-      case 'MARKETPLACE':
-        return ConnectionType.marketplace;
-      case 'CUSTOM':
-        return ConnectionType.custom;
-    }
-    throw Exception('$this is not known in enum ConnectionType');
-  }
+  const ConnectionType(this.value);
+
+  static ConnectionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConnectionType'));
 }
 
 /// Specifies the connections used by a job.
@@ -15059,7 +15949,7 @@ class ConnectionsList {
   factory ConnectionsList.fromJson(Map<String, dynamic> json) {
     return ConnectionsList(
       connections: (json['Connections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -15069,6 +15959,156 @@ class ConnectionsList {
     final connections = this.connections;
     return {
       if (connections != null) 'Connections': connections,
+    };
+  }
+}
+
+/// Specifies a source generated with standard connection options.
+class ConnectorDataSource {
+  /// The <code>connectionType</code>, as provided to the underlying Glue library.
+  /// This node type supports the following connection types:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>opensearch</code>
+  /// </li>
+  /// <li>
+  /// <code>azuresql</code>
+  /// </li>
+  /// <li>
+  /// <code>azurecosmos</code>
+  /// </li>
+  /// <li>
+  /// <code>bigquery</code>
+  /// </li>
+  /// <li>
+  /// <code>saphana</code>
+  /// </li>
+  /// <li>
+  /// <code>teradata</code>
+  /// </li>
+  /// <li>
+  /// <code>vertica</code>
+  /// </li>
+  /// </ul>
+  final String connectionType;
+
+  /// A map specifying connection options for the node. You can find standard
+  /// connection options for the corresponding connection type in the <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-connect.html">
+  /// Connection parameters</a> section of the Glue documentation.
+  final Map<String, String> data;
+
+  /// The name of this source node.
+  final String name;
+
+  /// Specifies the data schema for this source.
+  final List<GlueSchema>? outputSchemas;
+
+  ConnectorDataSource({
+    required this.connectionType,
+    required this.data,
+    required this.name,
+    this.outputSchemas,
+  });
+
+  factory ConnectorDataSource.fromJson(Map<String, dynamic> json) {
+    return ConnectorDataSource(
+      connectionType: json['ConnectionType'] as String,
+      data: (json['Data'] as Map<String, dynamic>)
+          .map((k, e) => MapEntry(k, e as String)),
+      name: json['Name'] as String,
+      outputSchemas: (json['OutputSchemas'] as List?)
+          ?.nonNulls
+          .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final connectionType = this.connectionType;
+    final data = this.data;
+    final name = this.name;
+    final outputSchemas = this.outputSchemas;
+    return {
+      'ConnectionType': connectionType,
+      'Data': data,
+      'Name': name,
+      if (outputSchemas != null) 'OutputSchemas': outputSchemas,
+    };
+  }
+}
+
+/// Specifies a target generated with standard connection options.
+class ConnectorDataTarget {
+  /// The <code>connectionType</code>, as provided to the underlying Glue library.
+  /// This node type supports the following connection types:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>opensearch</code>
+  /// </li>
+  /// <li>
+  /// <code>azuresql</code>
+  /// </li>
+  /// <li>
+  /// <code>azurecosmos</code>
+  /// </li>
+  /// <li>
+  /// <code>bigquery</code>
+  /// </li>
+  /// <li>
+  /// <code>saphana</code>
+  /// </li>
+  /// <li>
+  /// <code>teradata</code>
+  /// </li>
+  /// <li>
+  /// <code>vertica</code>
+  /// </li>
+  /// </ul>
+  final String connectionType;
+
+  /// A map specifying connection options for the node. You can find standard
+  /// connection options for the corresponding connection type in the <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-connect.html">
+  /// Connection parameters</a> section of the Glue documentation.
+  final Map<String, String> data;
+
+  /// The name of this target node.
+  final String name;
+
+  /// The nodes that are inputs to the data target.
+  final List<String>? inputs;
+
+  ConnectorDataTarget({
+    required this.connectionType,
+    required this.data,
+    required this.name,
+    this.inputs,
+  });
+
+  factory ConnectorDataTarget.fromJson(Map<String, dynamic> json) {
+    return ConnectorDataTarget(
+      connectionType: json['ConnectionType'] as String,
+      data: (json['Data'] as Map<String, dynamic>)
+          .map((k, e) => MapEntry(k, e as String)),
+      name: json['Name'] as String,
+      inputs:
+          (json['Inputs'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final connectionType = this.connectionType;
+    final data = this.data;
+    final name = this.name;
+    final inputs = this.inputs;
+    return {
+      'ConnectionType': connectionType,
+      'Data': data,
+      'Name': name,
+      if (inputs != null) 'Inputs': inputs,
     };
   }
 }
@@ -15109,57 +16149,27 @@ class Crawl {
       logGroup: json['LogGroup'] as String?,
       logStream: json['LogStream'] as String?,
       startedOn: timeStampFromJson(json['StartedOn']),
-      state: (json['State'] as String?)?.toCrawlState(),
+      state: (json['State'] as String?)?.let(CrawlState.fromString),
     );
   }
 }
 
 enum CrawlState {
-  running,
-  cancelling,
-  cancelled,
-  succeeded,
-  failed,
-  error,
-}
+  running('RUNNING'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  error('ERROR'),
+  ;
 
-extension CrawlStateValueExtension on CrawlState {
-  String toValue() {
-    switch (this) {
-      case CrawlState.running:
-        return 'RUNNING';
-      case CrawlState.cancelling:
-        return 'CANCELLING';
-      case CrawlState.cancelled:
-        return 'CANCELLED';
-      case CrawlState.succeeded:
-        return 'SUCCEEDED';
-      case CrawlState.failed:
-        return 'FAILED';
-      case CrawlState.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension CrawlStateFromString on String {
-  CrawlState toCrawlState() {
-    switch (this) {
-      case 'RUNNING':
-        return CrawlState.running;
-      case 'CANCELLING':
-        return CrawlState.cancelling;
-      case 'CANCELLED':
-        return CrawlState.cancelled;
-      case 'SUCCEEDED':
-        return CrawlState.succeeded;
-      case 'FAILED':
-        return CrawlState.failed;
-      case 'ERROR':
-        return CrawlState.error;
-    }
-    throw Exception('$this is not known in enum CrawlState');
-  }
+  const CrawlState(this.value);
+
+  static CrawlState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum CrawlState'));
 }
 
 /// Specifies a crawler program that examines a data source and uses classifiers
@@ -15263,7 +16273,7 @@ class Crawler {
   factory Crawler.fromJson(Map<String, dynamic> json) {
     return Crawler(
       classifiers: (json['Classifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       configuration: json['Configuration'] as String?,
@@ -15298,7 +16308,7 @@ class Crawler {
           ? SchemaChangePolicy.fromJson(
               json['SchemaChangePolicy'] as Map<String, dynamic>)
           : null,
-      state: (json['State'] as String?)?.toCrawlerState(),
+      state: (json['State'] as String?)?.let(CrawlerState.fromString),
       tablePrefix: json['TablePrefix'] as String?,
       targets: json['Targets'] != null
           ? CrawlerTargets.fromJson(json['Targets'] as Map<String, dynamic>)
@@ -15364,76 +16374,42 @@ class CrawlerHistory {
       logStream: json['LogStream'] as String?,
       messagePrefix: json['MessagePrefix'] as String?,
       startTime: timeStampFromJson(json['StartTime']),
-      state: (json['State'] as String?)?.toCrawlerHistoryState(),
+      state: (json['State'] as String?)?.let(CrawlerHistoryState.fromString),
       summary: json['Summary'] as String?,
     );
   }
 }
 
 enum CrawlerHistoryState {
-  running,
-  completed,
-  failed,
-  stopped,
-}
+  running('RUNNING'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  stopped('STOPPED'),
+  ;
 
-extension CrawlerHistoryStateValueExtension on CrawlerHistoryState {
-  String toValue() {
-    switch (this) {
-      case CrawlerHistoryState.running:
-        return 'RUNNING';
-      case CrawlerHistoryState.completed:
-        return 'COMPLETED';
-      case CrawlerHistoryState.failed:
-        return 'FAILED';
-      case CrawlerHistoryState.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension CrawlerHistoryStateFromString on String {
-  CrawlerHistoryState toCrawlerHistoryState() {
-    switch (this) {
-      case 'RUNNING':
-        return CrawlerHistoryState.running;
-      case 'COMPLETED':
-        return CrawlerHistoryState.completed;
-      case 'FAILED':
-        return CrawlerHistoryState.failed;
-      case 'STOPPED':
-        return CrawlerHistoryState.stopped;
-    }
-    throw Exception('$this is not known in enum CrawlerHistoryState');
-  }
+  const CrawlerHistoryState(this.value);
+
+  static CrawlerHistoryState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CrawlerHistoryState'));
 }
 
 enum CrawlerLineageSettings {
-  enable,
-  disable,
-}
+  enable('ENABLE'),
+  disable('DISABLE'),
+  ;
 
-extension CrawlerLineageSettingsValueExtension on CrawlerLineageSettings {
-  String toValue() {
-    switch (this) {
-      case CrawlerLineageSettings.enable:
-        return 'ENABLE';
-      case CrawlerLineageSettings.disable:
-        return 'DISABLE';
-    }
-  }
-}
+  final String value;
 
-extension CrawlerLineageSettingsFromString on String {
-  CrawlerLineageSettings toCrawlerLineageSettings() {
-    switch (this) {
-      case 'ENABLE':
-        return CrawlerLineageSettings.enable;
-      case 'DISABLE':
-        return CrawlerLineageSettings.disable;
-    }
-    throw Exception('$this is not known in enum CrawlerLineageSettings');
-  }
+  const CrawlerLineageSettings(this.value);
+
+  static CrawlerLineageSettings fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CrawlerLineageSettings'));
 }
 
 /// Metrics for a specified crawler.
@@ -15500,7 +16476,7 @@ class CrawlerNodeDetails {
   factory CrawlerNodeDetails.fromJson(Map<String, dynamic> json) {
     return CrawlerNodeDetails(
       crawls: (json['Crawls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Crawl.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -15508,36 +16484,19 @@ class CrawlerNodeDetails {
 }
 
 enum CrawlerState {
-  ready,
-  running,
-  stopping,
-}
+  ready('READY'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  ;
 
-extension CrawlerStateValueExtension on CrawlerState {
-  String toValue() {
-    switch (this) {
-      case CrawlerState.ready:
-        return 'READY';
-      case CrawlerState.running:
-        return 'RUNNING';
-      case CrawlerState.stopping:
-        return 'STOPPING';
-    }
-  }
-}
+  final String value;
 
-extension CrawlerStateFromString on String {
-  CrawlerState toCrawlerState() {
-    switch (this) {
-      case 'READY':
-        return CrawlerState.ready;
-      case 'RUNNING':
-        return CrawlerState.running;
-      case 'STOPPING':
-        return CrawlerState.stopping;
-    }
-    throw Exception('$this is not known in enum CrawlerState');
-  }
+  const CrawlerState(this.value);
+
+  static CrawlerState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CrawlerState'));
 }
 
 /// Specifies data stores to crawl.
@@ -15550,6 +16509,12 @@ class CrawlerTargets {
 
   /// Specifies Amazon DynamoDB targets.
   final List<DynamoDBTarget>? dynamoDBTargets;
+
+  /// Specifies Apache Hudi data store targets.
+  final List<HudiTarget>? hudiTargets;
+
+  /// Specifies Apache Iceberg data store targets.
+  final List<IcebergTarget>? icebergTargets;
 
   /// Specifies JDBC targets.
   final List<JdbcTarget>? jdbcTargets;
@@ -15564,6 +16529,8 @@ class CrawlerTargets {
     this.catalogTargets,
     this.deltaTargets,
     this.dynamoDBTargets,
+    this.hudiTargets,
+    this.icebergTargets,
     this.jdbcTargets,
     this.mongoDBTargets,
     this.s3Targets,
@@ -15572,27 +16539,35 @@ class CrawlerTargets {
   factory CrawlerTargets.fromJson(Map<String, dynamic> json) {
     return CrawlerTargets(
       catalogTargets: (json['CatalogTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CatalogTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       deltaTargets: (json['DeltaTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DeltaTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       dynamoDBTargets: (json['DynamoDBTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DynamoDBTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
+      hudiTargets: (json['HudiTargets'] as List?)
+          ?.nonNulls
+          .map((e) => HudiTarget.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      icebergTargets: (json['IcebergTargets'] as List?)
+          ?.nonNulls
+          .map((e) => IcebergTarget.fromJson(e as Map<String, dynamic>))
+          .toList(),
       jdbcTargets: (json['JdbcTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => JdbcTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       mongoDBTargets: (json['MongoDBTargets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MongoDBTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
       s3Targets: (json['S3Targets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => S3Target.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -15602,6 +16577,8 @@ class CrawlerTargets {
     final catalogTargets = this.catalogTargets;
     final deltaTargets = this.deltaTargets;
     final dynamoDBTargets = this.dynamoDBTargets;
+    final hudiTargets = this.hudiTargets;
+    final icebergTargets = this.icebergTargets;
     final jdbcTargets = this.jdbcTargets;
     final mongoDBTargets = this.mongoDBTargets;
     final s3Targets = this.s3Targets;
@@ -15609,6 +16586,8 @@ class CrawlerTargets {
       if (catalogTargets != null) 'CatalogTargets': catalogTargets,
       if (deltaTargets != null) 'DeltaTargets': deltaTargets,
       if (dynamoDBTargets != null) 'DynamoDBTargets': dynamoDBTargets,
+      if (hudiTargets != null) 'HudiTargets': hudiTargets,
+      if (icebergTargets != null) 'IcebergTargets': icebergTargets,
       if (jdbcTargets != null) 'JdbcTargets': jdbcTargets,
       if (mongoDBTargets != null) 'MongoDBTargets': mongoDBTargets,
       if (s3Targets != null) 'S3Targets': s3Targets,
@@ -15680,9 +16659,9 @@ class CrawlsFilter {
     final fieldValue = this.fieldValue;
     final filterOperator = this.filterOperator;
     return {
-      if (fieldName != null) 'FieldName': fieldName.toValue(),
+      if (fieldName != null) 'FieldName': fieldName.value,
       if (fieldValue != null) 'FieldValue': fieldValue,
-      if (filterOperator != null) 'FilterOperator': filterOperator.toValue(),
+      if (filterOperator != null) 'FilterOperator': filterOperator.value,
     };
   }
 }
@@ -15711,10 +16690,20 @@ class CreateClassifierResponse {
 }
 
 class CreateConnectionResponse {
-  CreateConnectionResponse();
+  /// The status of the connection creation request. The request can take some
+  /// time for certain authentication types, for example when creating an OAuth
+  /// connection with token exchange over VPC.
+  final ConnectionStatus? createConnectionStatus;
 
-  factory CreateConnectionResponse.fromJson(Map<String, dynamic> _) {
-    return CreateConnectionResponse();
+  CreateConnectionResponse({
+    this.createConnectionStatus,
+  });
+
+  factory CreateConnectionResponse.fromJson(Map<String, dynamic> json) {
+    return CreateConnectionResponse(
+      createConnectionStatus: (json['CreateConnectionStatus'] as String?)
+          ?.let(ConnectionStatus.fromString),
+    );
   }
 }
 
@@ -15758,6 +16747,12 @@ class CreateCsvClassifierRequest {
   /// Must be different from the column delimiter.
   final String? quoteSymbol;
 
+  /// Sets the SerDe for processing CSV in the classifier, which will be applied
+  /// in the Data Catalog. Valid values are <code>OpenCSVSerDe</code>,
+  /// <code>LazySimpleSerDe</code>, and <code>None</code>. You can specify the
+  /// <code>None</code> value when you want the crawler to do the detection.
+  final CsvSerdeOption? serde;
+
   CreateCsvClassifierRequest({
     required this.name,
     this.allowSingleColumn,
@@ -15768,6 +16763,7 @@ class CreateCsvClassifierRequest {
     this.disableValueTrimming,
     this.header,
     this.quoteSymbol,
+    this.serde,
   });
 
   Map<String, dynamic> toJson() {
@@ -15780,10 +16776,11 @@ class CreateCsvClassifierRequest {
     final disableValueTrimming = this.disableValueTrimming;
     final header = this.header;
     final quoteSymbol = this.quoteSymbol;
+    final serde = this.serde;
     return {
       'Name': name,
       if (allowSingleColumn != null) 'AllowSingleColumn': allowSingleColumn,
-      if (containsHeader != null) 'ContainsHeader': containsHeader.toValue(),
+      if (containsHeader != null) 'ContainsHeader': containsHeader.value,
       if (customDatatypeConfigured != null)
         'CustomDatatypeConfigured': customDatatypeConfigured,
       if (customDatatypes != null) 'CustomDatatypes': customDatatypes,
@@ -15792,6 +16789,7 @@ class CreateCsvClassifierRequest {
         'DisableValueTrimming': disableValueTrimming,
       if (header != null) 'Header': header,
       if (quoteSymbol != null) 'QuoteSymbol': quoteSymbol,
+      if (serde != null) 'Serde': serde.value,
     };
   }
 }
@@ -15958,13 +16956,13 @@ class CreateDevEndpointResponse {
       roleArn: json['RoleArn'] as String?,
       securityConfiguration: json['SecurityConfiguration'] as String?,
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       status: json['Status'] as String?,
       subnetId: json['SubnetId'] as String?,
       vpcId: json['VpcId'] as String?,
-      workerType: (json['WorkerType'] as String?)?.toWorkerType(),
+      workerType: (json['WorkerType'] as String?)?.let(WorkerType.fromString),
       yarnEndpointAddress: json['YarnEndpointAddress'] as String?,
       zeppelinRemoteSparkInterpreterPort:
           json['ZeppelinRemoteSparkInterpreterPort'] as int?,
@@ -16178,8 +17176,9 @@ class CreateSchemaResponse {
 
   factory CreateSchemaResponse.fromJson(Map<String, dynamic> json) {
     return CreateSchemaResponse(
-      compatibility: (json['Compatibility'] as String?)?.toCompatibility(),
-      dataFormat: (json['DataFormat'] as String?)?.toDataFormat(),
+      compatibility:
+          (json['Compatibility'] as String?)?.let(Compatibility.fromString),
+      dataFormat: (json['DataFormat'] as String?)?.let(DataFormat.fromString),
       description: json['Description'] as String?,
       latestSchemaVersion: json['LatestSchemaVersion'] as int?,
       nextSchemaVersion: json['NextSchemaVersion'] as int?,
@@ -16188,10 +17187,11 @@ class CreateSchemaResponse {
       schemaArn: json['SchemaArn'] as String?,
       schemaCheckpoint: json['SchemaCheckpoint'] as int?,
       schemaName: json['SchemaName'] as String?,
-      schemaStatus: (json['SchemaStatus'] as String?)?.toSchemaStatus(),
+      schemaStatus:
+          (json['SchemaStatus'] as String?)?.let(SchemaStatus.fromString),
       schemaVersionId: json['SchemaVersionId'] as String?,
-      schemaVersionStatus:
-          (json['SchemaVersionStatus'] as String?)?.toSchemaVersionStatus(),
+      schemaVersionStatus: (json['SchemaVersionStatus'] as String?)
+          ?.let(SchemaVersionStatus.fromString),
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -16253,6 +17253,14 @@ class CreateSessionResponse {
           ? Session.fromJson(json['Session'] as Map<String, dynamic>)
           : null,
     );
+  }
+}
+
+class CreateTableOptimizerResponse {
+  CreateTableOptimizerResponse();
+
+  factory CreateTableOptimizerResponse.fromJson(Map<String, dynamic> _) {
+    return CreateTableOptimizerResponse();
   }
 }
 
@@ -16374,6 +17382,12 @@ class CsvClassifier {
   /// It must be different from the column delimiter.
   final String? quoteSymbol;
 
+  /// Sets the SerDe for processing CSV in the classifier, which will be applied
+  /// in the Data Catalog. Valid values are <code>OpenCSVSerDe</code>,
+  /// <code>LazySimpleSerDe</code>, and <code>None</code>. You can specify the
+  /// <code>None</code> value when you want the crawler to do the detection.
+  final CsvSerdeOption? serde;
+
   /// The version of this classifier.
   final int? version;
 
@@ -16389,6 +17403,7 @@ class CsvClassifier {
     this.header,
     this.lastUpdated,
     this.quoteSymbol,
+    this.serde,
     this.version,
   });
 
@@ -16396,57 +17411,56 @@ class CsvClassifier {
     return CsvClassifier(
       name: json['Name'] as String,
       allowSingleColumn: json['AllowSingleColumn'] as bool?,
-      containsHeader: (json['ContainsHeader'] as String?)?.toCsvHeaderOption(),
+      containsHeader:
+          (json['ContainsHeader'] as String?)?.let(CsvHeaderOption.fromString),
       creationTime: timeStampFromJson(json['CreationTime']),
       customDatatypeConfigured: json['CustomDatatypeConfigured'] as bool?,
       customDatatypes: (json['CustomDatatypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       delimiter: json['Delimiter'] as String?,
       disableValueTrimming: json['DisableValueTrimming'] as bool?,
-      header: (json['Header'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      header:
+          (json['Header'] as List?)?.nonNulls.map((e) => e as String).toList(),
       lastUpdated: timeStampFromJson(json['LastUpdated']),
       quoteSymbol: json['QuoteSymbol'] as String?,
+      serde: (json['Serde'] as String?)?.let(CsvSerdeOption.fromString),
       version: json['Version'] as int?,
     );
   }
 }
 
 enum CsvHeaderOption {
-  unknown,
-  present,
-  absent,
+  unknown('UNKNOWN'),
+  present('PRESENT'),
+  absent('ABSENT'),
+  ;
+
+  final String value;
+
+  const CsvHeaderOption(this.value);
+
+  static CsvHeaderOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CsvHeaderOption'));
 }
 
-extension CsvHeaderOptionValueExtension on CsvHeaderOption {
-  String toValue() {
-    switch (this) {
-      case CsvHeaderOption.unknown:
-        return 'UNKNOWN';
-      case CsvHeaderOption.present:
-        return 'PRESENT';
-      case CsvHeaderOption.absent:
-        return 'ABSENT';
-    }
-  }
-}
+enum CsvSerdeOption {
+  openCSVSerDe('OpenCSVSerDe'),
+  lazySimpleSerDe('LazySimpleSerDe'),
+  none('None'),
+  ;
 
-extension CsvHeaderOptionFromString on String {
-  CsvHeaderOption toCsvHeaderOption() {
-    switch (this) {
-      case 'UNKNOWN':
-        return CsvHeaderOption.unknown;
-      case 'PRESENT':
-        return CsvHeaderOption.present;
-      case 'ABSENT':
-        return CsvHeaderOption.absent;
-    }
-    throw Exception('$this is not known in enum CsvHeaderOption');
-  }
+  final String value;
+
+  const CsvSerdeOption(this.value);
+
+  static CsvSerdeOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CsvSerdeOption'));
 }
 
 /// Specifies a transform that uses custom code you provide to perform the data
@@ -16479,13 +17493,11 @@ class CustomCode {
     return CustomCode(
       className: json['ClassName'] as String,
       code: json['Code'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -16536,7 +17548,7 @@ class CustomEntityType {
       name: json['Name'] as String,
       regexString: json['RegexString'] as String,
       contextWords: (json['ContextWords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -16603,7 +17615,7 @@ class DQStopJobOnFailureOptions {
   factory DQStopJobOnFailureOptions.fromJson(Map<String, dynamic> json) {
     return DQStopJobOnFailureOptions(
       stopJobOnFailureTiming: (json['StopJobOnFailureTiming'] as String?)
-          ?.toDQStopJobOnFailureTiming(),
+          ?.let(DQStopJobOnFailureTiming.fromString),
     );
   }
 
@@ -16611,65 +17623,39 @@ class DQStopJobOnFailureOptions {
     final stopJobOnFailureTiming = this.stopJobOnFailureTiming;
     return {
       if (stopJobOnFailureTiming != null)
-        'StopJobOnFailureTiming': stopJobOnFailureTiming.toValue(),
+        'StopJobOnFailureTiming': stopJobOnFailureTiming.value,
     };
   }
 }
 
 enum DQStopJobOnFailureTiming {
-  immediate,
-  afterDataLoad,
-}
+  immediate('Immediate'),
+  afterDataLoad('AfterDataLoad'),
+  ;
 
-extension DQStopJobOnFailureTimingValueExtension on DQStopJobOnFailureTiming {
-  String toValue() {
-    switch (this) {
-      case DQStopJobOnFailureTiming.immediate:
-        return 'Immediate';
-      case DQStopJobOnFailureTiming.afterDataLoad:
-        return 'AfterDataLoad';
-    }
-  }
-}
+  final String value;
 
-extension DQStopJobOnFailureTimingFromString on String {
-  DQStopJobOnFailureTiming toDQStopJobOnFailureTiming() {
-    switch (this) {
-      case 'Immediate':
-        return DQStopJobOnFailureTiming.immediate;
-      case 'AfterDataLoad':
-        return DQStopJobOnFailureTiming.afterDataLoad;
-    }
-    throw Exception('$this is not known in enum DQStopJobOnFailureTiming');
-  }
+  const DQStopJobOnFailureTiming(this.value);
+
+  static DQStopJobOnFailureTiming fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DQStopJobOnFailureTiming'));
 }
 
 enum DQTransformOutput {
-  primaryInput,
-  evaluationResults,
-}
+  primaryInput('PrimaryInput'),
+  evaluationResults('EvaluationResults'),
+  ;
 
-extension DQTransformOutputValueExtension on DQTransformOutput {
-  String toValue() {
-    switch (this) {
-      case DQTransformOutput.primaryInput:
-        return 'PrimaryInput';
-      case DQTransformOutput.evaluationResults:
-        return 'EvaluationResults';
-    }
-  }
-}
+  final String value;
 
-extension DQTransformOutputFromString on String {
-  DQTransformOutput toDQTransformOutput() {
-    switch (this) {
-      case 'PrimaryInput':
-        return DQTransformOutput.primaryInput;
-      case 'EvaluationResults':
-        return DQTransformOutput.evaluationResults;
-    }
-    throw Exception('$this is not known in enum DQTransformOutput');
-  }
+  const DQTransformOutput(this.value);
+
+  static DQTransformOutput fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DQTransformOutput'));
 }
 
 /// Contains configuration information for maintaining Data Catalog security.
@@ -16714,36 +17700,18 @@ class DataCatalogEncryptionSettings {
 }
 
 enum DataFormat {
-  avro,
-  json,
-  protobuf,
-}
+  avro('AVRO'),
+  json('JSON'),
+  protobuf('PROTOBUF'),
+  ;
 
-extension DataFormatValueExtension on DataFormat {
-  String toValue() {
-    switch (this) {
-      case DataFormat.avro:
-        return 'AVRO';
-      case DataFormat.json:
-        return 'JSON';
-      case DataFormat.protobuf:
-        return 'PROTOBUF';
-    }
-  }
-}
+  final String value;
 
-extension DataFormatFromString on String {
-  DataFormat toDataFormat() {
-    switch (this) {
-      case 'AVRO':
-        return DataFormat.avro;
-      case 'JSON':
-        return DataFormat.json;
-      case 'PROTOBUF':
-        return DataFormat.protobuf;
-    }
-    throw Exception('$this is not known in enum DataFormat');
-  }
+  const DataFormat(this.value);
+
+  static DataFormat fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum DataFormat'));
 }
 
 /// The Lake Formation principal.
@@ -16768,6 +17736,38 @@ class DataLakePrincipal {
       if (dataLakePrincipalIdentifier != null)
         'DataLakePrincipalIdentifier': dataLakePrincipalIdentifier,
     };
+  }
+}
+
+/// Describes the result of the evaluation of a data quality analyzer.
+class DataQualityAnalyzerResult {
+  /// A description of the data quality analyzer.
+  final String? description;
+
+  /// A map of metrics associated with the evaluation of the analyzer.
+  final Map<String, double>? evaluatedMetrics;
+
+  /// An evaluation message.
+  final String? evaluationMessage;
+
+  /// The name of the data quality analyzer.
+  final String? name;
+
+  DataQualityAnalyzerResult({
+    this.description,
+    this.evaluatedMetrics,
+    this.evaluationMessage,
+    this.name,
+  });
+
+  factory DataQualityAnalyzerResult.fromJson(Map<String, dynamic> json) {
+    return DataQualityAnalyzerResult(
+      description: json['Description'] as String?,
+      evaluatedMetrics: (json['EvaluatedMetrics'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as double)),
+      evaluationMessage: json['EvaluationMessage'] as String?,
+      name: json['Name'] as String?,
+    );
   }
 }
 
@@ -16803,8 +17803,73 @@ class DataQualityEvaluationRunAdditionalRunOptions {
   }
 }
 
+/// Describes the data quality metric value according to the analysis of
+/// historical data.
+class DataQualityMetricValues {
+  /// The actual value of the data quality metric.
+  final double? actualValue;
+
+  /// The expected value of the data quality metric according to the analysis of
+  /// historical data.
+  final double? expectedValue;
+
+  /// The lower limit of the data quality metric value according to the analysis
+  /// of historical data.
+  final double? lowerLimit;
+
+  /// The upper limit of the data quality metric value according to the analysis
+  /// of historical data.
+  final double? upperLimit;
+
+  DataQualityMetricValues({
+    this.actualValue,
+    this.expectedValue,
+    this.lowerLimit,
+    this.upperLimit,
+  });
+
+  factory DataQualityMetricValues.fromJson(Map<String, dynamic> json) {
+    return DataQualityMetricValues(
+      actualValue: json['ActualValue'] as double?,
+      expectedValue: json['ExpectedValue'] as double?,
+      lowerLimit: json['LowerLimit'] as double?,
+      upperLimit: json['UpperLimit'] as double?,
+    );
+  }
+}
+
+/// Describes the observation generated after evaluating the rules and
+/// analyzers.
+class DataQualityObservation {
+  /// A description of the data quality observation.
+  final String? description;
+
+  /// An object of type <code>MetricBasedObservation</code> representing the
+  /// observation that is based on evaluated data quality metrics.
+  final MetricBasedObservation? metricBasedObservation;
+
+  DataQualityObservation({
+    this.description,
+    this.metricBasedObservation,
+  });
+
+  factory DataQualityObservation.fromJson(Map<String, dynamic> json) {
+    return DataQualityObservation(
+      description: json['Description'] as String?,
+      metricBasedObservation: json['MetricBasedObservation'] != null
+          ? MetricBasedObservation.fromJson(
+              json['MetricBasedObservation'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
 /// Describes a data quality result.
 class DataQualityResult {
+  /// A list of <code>DataQualityAnalyzerResult</code> objects representing the
+  /// results for each analyzer.
+  final List<DataQualityAnalyzerResult>? analyzerResults;
+
   /// The date and time when this data quality run completed.
   final DateTime? completedOn;
 
@@ -16822,6 +17887,10 @@ class DataQualityResult {
 
   /// The job run ID associated with the data quality result, if any.
   final String? jobRunId;
+
+  /// A list of <code>DataQualityObservation</code> objects representing the
+  /// observations generated after evaluating the rules and analyzers.
+  final List<DataQualityObservation>? observations;
 
   /// A unique result ID for the data quality result.
   final String? resultId;
@@ -16844,11 +17913,13 @@ class DataQualityResult {
   final DateTime? startedOn;
 
   DataQualityResult({
+    this.analyzerResults,
     this.completedOn,
     this.dataSource,
     this.evaluationContext,
     this.jobName,
     this.jobRunId,
+    this.observations,
     this.resultId,
     this.ruleResults,
     this.rulesetEvaluationRunId,
@@ -16859,6 +17930,11 @@ class DataQualityResult {
 
   factory DataQualityResult.fromJson(Map<String, dynamic> json) {
     return DataQualityResult(
+      analyzerResults: (json['AnalyzerResults'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              DataQualityAnalyzerResult.fromJson(e as Map<String, dynamic>))
+          .toList(),
       completedOn: timeStampFromJson(json['CompletedOn']),
       dataSource: json['DataSource'] != null
           ? DataSource.fromJson(json['DataSource'] as Map<String, dynamic>)
@@ -16866,9 +17942,14 @@ class DataQualityResult {
       evaluationContext: json['EvaluationContext'] as String?,
       jobName: json['JobName'] as String?,
       jobRunId: json['JobRunId'] as String?,
+      observations: (json['Observations'] as List?)
+          ?.nonNulls
+          .map(
+              (e) => DataQualityObservation.fromJson(e as Map<String, dynamic>))
+          .toList(),
       resultId: json['ResultId'] as String?,
       ruleResults: (json['RuleResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataQualityRuleResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       rulesetEvaluationRunId: json['RulesetEvaluationRunId'] as String?,
@@ -16990,7 +18071,7 @@ class DataQualityRuleRecommendationRunDescription {
           : null,
       runId: json['RunId'] as String?,
       startedOn: timeStampFromJson(json['StartedOn']),
-      status: (json['Status'] as String?)?.toTaskStatusType(),
+      status: (json['Status'] as String?)?.let(TaskStatusType.fromString),
     );
   }
 }
@@ -17031,6 +18112,9 @@ class DataQualityRuleResult {
   /// A description of the data quality rule.
   final String? description;
 
+  /// A map of metrics associated with the evaluation of the rule.
+  final Map<String, double>? evaluatedMetrics;
+
   /// An evaluation message.
   final String? evaluationMessage;
 
@@ -17042,6 +18126,7 @@ class DataQualityRuleResult {
 
   DataQualityRuleResult({
     this.description,
+    this.evaluatedMetrics,
     this.evaluationMessage,
     this.name,
     this.result,
@@ -17050,45 +18135,30 @@ class DataQualityRuleResult {
   factory DataQualityRuleResult.fromJson(Map<String, dynamic> json) {
     return DataQualityRuleResult(
       description: json['Description'] as String?,
+      evaluatedMetrics: (json['EvaluatedMetrics'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as double)),
       evaluationMessage: json['EvaluationMessage'] as String?,
       name: json['Name'] as String?,
-      result: (json['Result'] as String?)?.toDataQualityRuleResultStatus(),
+      result: (json['Result'] as String?)
+          ?.let(DataQualityRuleResultStatus.fromString),
     );
   }
 }
 
 enum DataQualityRuleResultStatus {
-  pass,
-  fail,
-  error,
-}
+  pass('PASS'),
+  fail('FAIL'),
+  error('ERROR'),
+  ;
 
-extension DataQualityRuleResultStatusValueExtension
-    on DataQualityRuleResultStatus {
-  String toValue() {
-    switch (this) {
-      case DataQualityRuleResultStatus.pass:
-        return 'PASS';
-      case DataQualityRuleResultStatus.fail:
-        return 'FAIL';
-      case DataQualityRuleResultStatus.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension DataQualityRuleResultStatusFromString on String {
-  DataQualityRuleResultStatus toDataQualityRuleResultStatus() {
-    switch (this) {
-      case 'PASS':
-        return DataQualityRuleResultStatus.pass;
-      case 'FAIL':
-        return DataQualityRuleResultStatus.fail;
-      case 'ERROR':
-        return DataQualityRuleResultStatus.error;
-    }
-    throw Exception('$this is not known in enum DataQualityRuleResultStatus');
-  }
+  const DataQualityRuleResultStatus(this.value);
+
+  static DataQualityRuleResultStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DataQualityRuleResultStatus'));
 }
 
 /// Describes the result of a data quality ruleset evaluation run.
@@ -17120,7 +18190,7 @@ class DataQualityRulesetEvaluationRunDescription {
           : null,
       runId: json['RunId'] as String?,
       startedOn: timeStampFromJson(json['StartedOn']),
-      status: (json['Status'] as String?)?.toTaskStatusType(),
+      status: (json['Status'] as String?)?.let(TaskStatusType.fromString),
     );
   }
 }
@@ -17272,24 +18342,31 @@ class DataQualityTargetTable {
   /// The name of the Glue table.
   final String tableName;
 
+  /// The catalog id where the Glue table exists.
+  final String? catalogId;
+
   DataQualityTargetTable({
     required this.databaseName,
     required this.tableName,
+    this.catalogId,
   });
 
   factory DataQualityTargetTable.fromJson(Map<String, dynamic> json) {
     return DataQualityTargetTable(
       databaseName: json['DatabaseName'] as String,
       tableName: json['TableName'] as String,
+      catalogId: json['CatalogId'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final databaseName = this.databaseName;
     final tableName = this.tableName;
+    final catalogId = this.catalogId;
     return {
       'DatabaseName': databaseName,
       'TableName': tableName,
+      if (catalogId != null) 'CatalogId': catalogId,
     };
   }
 }
@@ -17369,7 +18446,7 @@ class Database {
       catalogId: json['CatalogId'] as String?,
       createTableDefaultPermissions: (json['CreateTableDefaultPermissions']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PrincipalPermissions.fromJson(e as Map<String, dynamic>))
           .toList(),
       createTime: timeStampFromJson(json['CreateTime']),
@@ -17397,24 +18474,31 @@ class DatabaseIdentifier {
   /// The name of the catalog database.
   final String? databaseName;
 
+  /// Region of the target database.
+  final String? region;
+
   DatabaseIdentifier({
     this.catalogId,
     this.databaseName,
+    this.region,
   });
 
   factory DatabaseIdentifier.fromJson(Map<String, dynamic> json) {
     return DatabaseIdentifier(
       catalogId: json['CatalogId'] as String?,
       databaseName: json['DatabaseName'] as String?,
+      region: json['Region'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final catalogId = this.catalogId;
     final databaseName = this.databaseName;
+    final region = this.region;
     return {
       if (catalogId != null) 'CatalogId': catalogId,
       if (databaseName != null) 'DatabaseName': databaseName,
+      if (region != null) 'Region': region,
     };
   }
 }
@@ -17635,36 +18719,19 @@ class DecimalNumber {
 }
 
 enum DeleteBehavior {
-  log,
-  deleteFromDatabase,
-  deprecateInDatabase,
-}
+  log('LOG'),
+  deleteFromDatabase('DELETE_FROM_DATABASE'),
+  deprecateInDatabase('DEPRECATE_IN_DATABASE'),
+  ;
 
-extension DeleteBehaviorValueExtension on DeleteBehavior {
-  String toValue() {
-    switch (this) {
-      case DeleteBehavior.log:
-        return 'LOG';
-      case DeleteBehavior.deleteFromDatabase:
-        return 'DELETE_FROM_DATABASE';
-      case DeleteBehavior.deprecateInDatabase:
-        return 'DEPRECATE_IN_DATABASE';
-    }
-  }
-}
+  final String value;
 
-extension DeleteBehaviorFromString on String {
-  DeleteBehavior toDeleteBehavior() {
-    switch (this) {
-      case 'LOG':
-        return DeleteBehavior.log;
-      case 'DELETE_FROM_DATABASE':
-        return DeleteBehavior.deleteFromDatabase;
-      case 'DEPRECATE_IN_DATABASE':
-        return DeleteBehavior.deprecateInDatabase;
-    }
-    throw Exception('$this is not known in enum DeleteBehavior');
-  }
+  const DeleteBehavior(this.value);
+
+  static DeleteBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DeleteBehavior'));
 }
 
 class DeleteBlueprintResponse {
@@ -17830,7 +18897,7 @@ class DeleteRegistryResponse {
     return DeleteRegistryResponse(
       registryArn: json['RegistryArn'] as String?,
       registryName: json['RegistryName'] as String?,
-      status: (json['Status'] as String?)?.toRegistryStatus(),
+      status: (json['Status'] as String?)?.let(RegistryStatus.fromString),
     );
   }
 }
@@ -17863,7 +18930,7 @@ class DeleteSchemaResponse {
     return DeleteSchemaResponse(
       schemaArn: json['SchemaArn'] as String?,
       schemaName: json['SchemaName'] as String?,
-      status: (json['Status'] as String?)?.toSchemaStatus(),
+      status: (json['Status'] as String?)?.let(SchemaStatus.fromString),
     );
   }
 }
@@ -17880,7 +18947,7 @@ class DeleteSchemaVersionsResponse {
   factory DeleteSchemaVersionsResponse.fromJson(Map<String, dynamic> json) {
     return DeleteSchemaVersionsResponse(
       schemaVersionErrors: (json['SchemaVersionErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => SchemaVersionErrorItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -17908,6 +18975,14 @@ class DeleteSessionResponse {
     return DeleteSessionResponse(
       id: json['Id'] as String?,
     );
+  }
+}
+
+class DeleteTableOptimizerResponse {
+  DeleteTableOptimizerResponse();
+
+  factory DeleteTableOptimizerResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteTableOptimizerResponse();
   }
 }
 
@@ -17993,7 +19068,7 @@ class DeltaTarget {
       connectionName: json['ConnectionName'] as String?,
       createNativeDeltaTable: json['CreateNativeDeltaTable'] as bool?,
       deltaTables: (json['DeltaTables'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       writeManifest: json['WriteManifest'] as bool?,
@@ -18016,32 +19091,18 @@ class DeltaTarget {
 }
 
 enum DeltaTargetCompressionType {
-  uncompressed,
-  snappy,
-}
+  uncompressed('uncompressed'),
+  snappy('snappy'),
+  ;
 
-extension DeltaTargetCompressionTypeValueExtension
-    on DeltaTargetCompressionType {
-  String toValue() {
-    switch (this) {
-      case DeltaTargetCompressionType.uncompressed:
-        return 'uncompressed';
-      case DeltaTargetCompressionType.snappy:
-        return 'snappy';
-    }
-  }
-}
+  final String value;
 
-extension DeltaTargetCompressionTypeFromString on String {
-  DeltaTargetCompressionType toDeltaTargetCompressionType() {
-    switch (this) {
-      case 'uncompressed':
-        return DeltaTargetCompressionType.uncompressed;
-      case 'snappy':
-        return DeltaTargetCompressionType.snappy;
-    }
-    throw Exception('$this is not known in enum DeltaTargetCompressionType');
-  }
+  const DeltaTargetCompressionType(this.value);
+
+  static DeltaTargetCompressionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum DeltaTargetCompressionType'));
 }
 
 /// A development endpoint where a developer can remotely debug extract,
@@ -18256,19 +19317,19 @@ class DevEndpoint {
       publicAddress: json['PublicAddress'] as String?,
       publicKey: json['PublicKey'] as String?,
       publicKeys: (json['PublicKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       roleArn: json['RoleArn'] as String?,
       securityConfiguration: json['SecurityConfiguration'] as String?,
       securityGroupIds: (json['SecurityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       status: json['Status'] as String?,
       subnetId: json['SubnetId'] as String?,
       vpcId: json['VpcId'] as String?,
-      workerType: (json['WorkerType'] as String?)?.toWorkerType(),
+      workerType: (json['WorkerType'] as String?)?.let(WorkerType.fromString),
       yarnEndpointAddress: json['YarnEndpointAddress'] as String?,
       zeppelinRemoteSparkInterpreterPort:
           json['ZeppelinRemoteSparkInterpreterPort'] as int?,
@@ -18345,7 +19406,8 @@ class DirectJDBCSource {
   factory DirectJDBCSource.fromJson(Map<String, dynamic> json) {
     return DirectJDBCSource(
       connectionName: json['ConnectionName'] as String,
-      connectionType: (json['ConnectionType'] as String).toJDBCConnectionType(),
+      connectionType:
+          JDBCConnectionType.fromString((json['ConnectionType'] as String)),
       database: json['Database'] as String,
       name: json['Name'] as String,
       table: json['Table'] as String,
@@ -18362,7 +19424,7 @@ class DirectJDBCSource {
     final redshiftTmpDir = this.redshiftTmpDir;
     return {
       'ConnectionName': connectionName,
-      'ConnectionType': connectionType.toValue(),
+      'ConnectionType': connectionType.value,
       'Database': database,
       'Name': name,
       'Table': table,
@@ -18513,8 +19575,8 @@ class DirectSchemaChangePolicy {
       database: json['Database'] as String?,
       enableUpdateCatalog: json['EnableUpdateCatalog'] as bool?,
       table: json['Table'] as String?,
-      updateBehavior:
-          (json['UpdateBehavior'] as String?)?.toUpdateCatalogBehavior(),
+      updateBehavior: (json['UpdateBehavior'] as String?)
+          ?.let(UpdateCatalogBehavior.fromString),
     );
   }
 
@@ -18528,7 +19590,7 @@ class DirectSchemaChangePolicy {
       if (enableUpdateCatalog != null)
         'EnableUpdateCatalog': enableUpdateCatalog,
       if (table != null) 'Table': table,
-      if (updateBehavior != null) 'UpdateBehavior': updateBehavior.toValue(),
+      if (updateBehavior != null) 'UpdateBehavior': updateBehavior.value,
     };
   }
 }
@@ -18596,15 +19658,12 @@ class DropDuplicates {
 
   factory DropDuplicates.fromJson(Map<String, dynamic> json) {
     return DropDuplicates(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       columns: (json['Columns'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
     );
   }
@@ -18641,15 +19700,12 @@ class DropFields {
 
   factory DropFields.fromJson(Map<String, dynamic> json) {
     return DropFields(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          .nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
     );
   }
@@ -18699,17 +19755,15 @@ class DropNullFields {
 
   factory DropNullFields.fromJson(Map<String, dynamic> json) {
     return DropNullFields(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       nullCheckBoxList: json['NullCheckBoxList'] != null
           ? NullCheckBoxList.fromJson(
               json['NullCheckBoxList'] as Map<String, dynamic>)
           : null,
       nullTextList: (json['NullTextList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NullValueField.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -18770,19 +19824,17 @@ class DynamicTransform {
   factory DynamicTransform.fromJson(Map<String, dynamic> json) {
     return DynamicTransform(
       functionName: json['FunctionName'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       path: json['Path'] as String,
       transformName: json['TransformName'] as String,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
       parameters: (json['Parameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               TransformConfigParameter.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -18923,31 +19975,18 @@ class Edge {
 }
 
 enum EnableHybridValues {
-  $true,
-  $false,
-}
+  $true('TRUE'),
+  $false('FALSE'),
+  ;
 
-extension EnableHybridValuesValueExtension on EnableHybridValues {
-  String toValue() {
-    switch (this) {
-      case EnableHybridValues.$true:
-        return 'TRUE';
-      case EnableHybridValues.$false:
-        return 'FALSE';
-    }
-  }
-}
+  final String value;
 
-extension EnableHybridValuesFromString on String {
-  EnableHybridValues toEnableHybridValues() {
-    switch (this) {
-      case 'TRUE':
-        return EnableHybridValues.$true;
-      case 'FALSE':
-        return EnableHybridValues.$false;
-    }
-    throw Exception('$this is not known in enum EnableHybridValues');
-  }
+  const EnableHybridValues(this.value);
+
+  static EnableHybridValues fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum EnableHybridValues'));
 }
 
 /// Specifies the encryption-at-rest configuration for the Data Catalog.
@@ -18955,27 +19994,37 @@ class EncryptionAtRest {
   /// The encryption-at-rest mode for encrypting Data Catalog data.
   final CatalogEncryptionMode catalogEncryptionMode;
 
+  /// The role that Glue assumes to encrypt and decrypt the Data Catalog objects
+  /// on the caller's behalf.
+  final String? catalogEncryptionServiceRole;
+
   /// The ID of the KMS key to use for encryption at rest.
   final String? sseAwsKmsKeyId;
 
   EncryptionAtRest({
     required this.catalogEncryptionMode,
+    this.catalogEncryptionServiceRole,
     this.sseAwsKmsKeyId,
   });
 
   factory EncryptionAtRest.fromJson(Map<String, dynamic> json) {
     return EncryptionAtRest(
-      catalogEncryptionMode:
-          (json['CatalogEncryptionMode'] as String).toCatalogEncryptionMode(),
+      catalogEncryptionMode: CatalogEncryptionMode.fromString(
+          (json['CatalogEncryptionMode'] as String)),
+      catalogEncryptionServiceRole:
+          json['CatalogEncryptionServiceRole'] as String?,
       sseAwsKmsKeyId: json['SseAwsKmsKeyId'] as String?,
     );
   }
 
   Map<String, dynamic> toJson() {
     final catalogEncryptionMode = this.catalogEncryptionMode;
+    final catalogEncryptionServiceRole = this.catalogEncryptionServiceRole;
     final sseAwsKmsKeyId = this.sseAwsKmsKeyId;
     return {
-      'CatalogEncryptionMode': catalogEncryptionMode.toValue(),
+      'CatalogEncryptionMode': catalogEncryptionMode.value,
+      if (catalogEncryptionServiceRole != null)
+        'CatalogEncryptionServiceRole': catalogEncryptionServiceRole,
       if (sseAwsKmsKeyId != null) 'SseAwsKmsKeyId': sseAwsKmsKeyId,
     };
   }
@@ -19010,7 +20059,7 @@ class EncryptionConfiguration {
               json['JobBookmarksEncryption'] as Map<String, dynamic>)
           : null,
       s3Encryption: (json['S3Encryption'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => S3Encryption.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -19104,13 +20153,11 @@ class EvaluateDataQuality {
 
   factory EvaluateDataQuality.fromJson(Map<String, dynamic> json) {
     return EvaluateDataQuality(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       ruleset: json['Ruleset'] as String,
-      output: (json['Output'] as String?)?.toDQTransformOutput(),
+      output: (json['Output'] as String?)?.let(DQTransformOutput.fromString),
       publishingOptions: json['PublishingOptions'] != null
           ? DQResultsPublishingOptions.fromJson(
               json['PublishingOptions'] as Map<String, dynamic>)
@@ -19133,7 +20180,89 @@ class EvaluateDataQuality {
       'Inputs': inputs,
       'Name': name,
       'Ruleset': ruleset,
-      if (output != null) 'Output': output.toValue(),
+      if (output != null) 'Output': output.value,
+      if (publishingOptions != null) 'PublishingOptions': publishingOptions,
+      if (stopJobOnFailureOptions != null)
+        'StopJobOnFailureOptions': stopJobOnFailureOptions,
+    };
+  }
+}
+
+/// Specifies your data quality evaluation criteria.
+class EvaluateDataQualityMultiFrame {
+  /// The inputs of your data quality evaluation. The first input in this list is
+  /// the primary data source.
+  final List<String> inputs;
+
+  /// The name of the data quality evaluation.
+  final String name;
+
+  /// The ruleset for your data quality evaluation.
+  final String ruleset;
+
+  /// The aliases of all data sources except primary.
+  final Map<String, String>? additionalDataSources;
+
+  /// Options to configure runtime behavior of the transform.
+  final Map<AdditionalOptionKeys, String>? additionalOptions;
+
+  /// Options to configure how your results are published.
+  final DQResultsPublishingOptions? publishingOptions;
+
+  /// Options to configure how your job will stop if your data quality evaluation
+  /// fails.
+  final DQStopJobOnFailureOptions? stopJobOnFailureOptions;
+
+  EvaluateDataQualityMultiFrame({
+    required this.inputs,
+    required this.name,
+    required this.ruleset,
+    this.additionalDataSources,
+    this.additionalOptions,
+    this.publishingOptions,
+    this.stopJobOnFailureOptions,
+  });
+
+  factory EvaluateDataQualityMultiFrame.fromJson(Map<String, dynamic> json) {
+    return EvaluateDataQualityMultiFrame(
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
+      name: json['Name'] as String,
+      ruleset: json['Ruleset'] as String,
+      additionalDataSources:
+          (json['AdditionalDataSources'] as Map<String, dynamic>?)
+              ?.map((k, e) => MapEntry(k, e as String)),
+      additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>?)
+          ?.map((k, e) =>
+              MapEntry(AdditionalOptionKeys.fromString(k), e as String)),
+      publishingOptions: json['PublishingOptions'] != null
+          ? DQResultsPublishingOptions.fromJson(
+              json['PublishingOptions'] as Map<String, dynamic>)
+          : null,
+      stopJobOnFailureOptions: json['StopJobOnFailureOptions'] != null
+          ? DQStopJobOnFailureOptions.fromJson(
+              json['StopJobOnFailureOptions'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final inputs = this.inputs;
+    final name = this.name;
+    final ruleset = this.ruleset;
+    final additionalDataSources = this.additionalDataSources;
+    final additionalOptions = this.additionalOptions;
+    final publishingOptions = this.publishingOptions;
+    final stopJobOnFailureOptions = this.stopJobOnFailureOptions;
+    return {
+      'Inputs': inputs,
+      'Name': name,
+      'Ruleset': ruleset,
+      if (additionalDataSources != null)
+        'AdditionalDataSources': additionalDataSources,
+      if (additionalOptions != null)
+        'AdditionalOptions':
+            additionalOptions.map((k, e) => MapEntry(k.value, e)),
       if (publishingOptions != null) 'PublishingOptions': publishingOptions,
       if (stopJobOnFailureOptions != null)
         'StopJobOnFailureOptions': stopJobOnFailureOptions,
@@ -19157,7 +20286,8 @@ class EvaluationMetrics {
 
   factory EvaluationMetrics.fromJson(Map<String, dynamic> json) {
     return EvaluationMetrics(
-      transformType: (json['TransformType'] as String).toTransformType(),
+      transformType:
+          TransformType.fromString((json['TransformType'] as String)),
       findMatchesMetrics: json['FindMatchesMetrics'] != null
           ? FindMatchesMetrics.fromJson(
               json['FindMatchesMetrics'] as Map<String, dynamic>)
@@ -19200,31 +20330,18 @@ class EventBatchingCondition {
 }
 
 enum ExecutionClass {
-  flex,
-  standard,
-}
+  flex('FLEX'),
+  standard('STANDARD'),
+  ;
 
-extension ExecutionClassValueExtension on ExecutionClass {
-  String toValue() {
-    switch (this) {
-      case ExecutionClass.flex:
-        return 'FLEX';
-      case ExecutionClass.standard:
-        return 'STANDARD';
-    }
-  }
-}
+  final String value;
 
-extension ExecutionClassFromString on String {
-  ExecutionClass toExecutionClass() {
-    switch (this) {
-      case 'FLEX':
-        return ExecutionClass.flex;
-      case 'STANDARD':
-        return ExecutionClass.standard;
-    }
-    throw Exception('$this is not known in enum ExecutionClass');
-  }
+  const ExecutionClass(this.value);
+
+  static ExecutionClass fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExecutionClass'));
 }
 
 /// An execution property of a job.
@@ -19253,36 +20370,19 @@ class ExecutionProperty {
 }
 
 enum ExistCondition {
-  mustExist,
-  notExist,
-  none,
-}
+  mustExist('MUST_EXIST'),
+  notExist('NOT_EXIST'),
+  none('NONE'),
+  ;
 
-extension ExistConditionValueExtension on ExistCondition {
-  String toValue() {
-    switch (this) {
-      case ExistCondition.mustExist:
-        return 'MUST_EXIST';
-      case ExistCondition.notExist:
-        return 'NOT_EXIST';
-      case ExistCondition.none:
-        return 'NONE';
-    }
-  }
-}
+  final String value;
 
-extension ExistConditionFromString on String {
-  ExistCondition toExistCondition() {
-    switch (this) {
-      case 'MUST_EXIST':
-        return ExistCondition.mustExist;
-      case 'NOT_EXIST':
-        return ExistCondition.notExist;
-      case 'NONE':
-        return ExistCondition.none;
-    }
-    throw Exception('$this is not known in enum ExistCondition');
-  }
+  const ExistCondition(this.value);
+
+  static ExistCondition fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExistCondition'));
 }
 
 /// Specifies configuration properties for an exporting labels task run.
@@ -19359,46 +20459,20 @@ class FederatedTable {
 }
 
 enum FieldName {
-  crawlId,
-  state,
-  startTime,
-  endTime,
-  dpuHour,
-}
+  crawlId('CRAWL_ID'),
+  state('STATE'),
+  startTime('START_TIME'),
+  endTime('END_TIME'),
+  dpuHour('DPU_HOUR'),
+  ;
 
-extension FieldNameValueExtension on FieldName {
-  String toValue() {
-    switch (this) {
-      case FieldName.crawlId:
-        return 'CRAWL_ID';
-      case FieldName.state:
-        return 'STATE';
-      case FieldName.startTime:
-        return 'START_TIME';
-      case FieldName.endTime:
-        return 'END_TIME';
-      case FieldName.dpuHour:
-        return 'DPU_HOUR';
-    }
-  }
-}
+  final String value;
 
-extension FieldNameFromString on String {
-  FieldName toFieldName() {
-    switch (this) {
-      case 'CRAWL_ID':
-        return FieldName.crawlId;
-      case 'STATE':
-        return FieldName.state;
-      case 'START_TIME':
-        return FieldName.startTime;
-      case 'END_TIME':
-        return FieldName.endTime;
-      case 'DPU_HOUR':
-        return FieldName.dpuHour;
-    }
-    throw Exception('$this is not known in enum FieldName');
-  }
+  const FieldName(this.value);
+
+  static FieldName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FieldName'));
 }
 
 /// Specifies a transform that locates records in the dataset that have missing
@@ -19430,10 +20504,8 @@ class FillMissingValues {
   factory FillMissingValues.fromJson(Map<String, dynamic> json) {
     return FillMissingValues(
       imputedPath: json['ImputedPath'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       filledPath: json['FilledPath'] as String?,
     );
@@ -19479,15 +20551,13 @@ class Filter {
   factory Filter.fromJson(Map<String, dynamic> json) {
     return Filter(
       filters: (json['Filters'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FilterExpression.fromJson(e as Map<String, dynamic>))
           .toList(),
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       logicalOperator:
-          (json['LogicalOperator'] as String).toFilterLogicalOperator(),
+          FilterLogicalOperator.fromString((json['LogicalOperator'] as String)),
       name: json['Name'] as String,
     );
   }
@@ -19500,7 +20570,7 @@ class Filter {
     return {
       'Filters': filters,
       'Inputs': inputs,
-      'LogicalOperator': logicalOperator.toValue(),
+      'LogicalOperator': logicalOperator.value,
       'Name': name,
     };
   }
@@ -19525,9 +20595,9 @@ class FilterExpression {
 
   factory FilterExpression.fromJson(Map<String, dynamic> json) {
     return FilterExpression(
-      operation: (json['Operation'] as String).toFilterOperation(),
+      operation: FilterOperation.fromString((json['Operation'] as String)),
       values: (json['Values'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => FilterValue.fromJson(e as Map<String, dynamic>))
           .toList(),
       negated: json['Negated'] as bool?,
@@ -19539,7 +20609,7 @@ class FilterExpression {
     final values = this.values;
     final negated = this.negated;
     return {
-      'Operation': operation.toValue(),
+      'Operation': operation.value,
       'Values': values,
       if (negated != null) 'Negated': negated,
     };
@@ -19547,132 +20617,57 @@ class FilterExpression {
 }
 
 enum FilterLogicalOperator {
-  and,
-  or,
-}
+  and('AND'),
+  or('OR'),
+  ;
 
-extension FilterLogicalOperatorValueExtension on FilterLogicalOperator {
-  String toValue() {
-    switch (this) {
-      case FilterLogicalOperator.and:
-        return 'AND';
-      case FilterLogicalOperator.or:
-        return 'OR';
-    }
-  }
-}
+  final String value;
 
-extension FilterLogicalOperatorFromString on String {
-  FilterLogicalOperator toFilterLogicalOperator() {
-    switch (this) {
-      case 'AND':
-        return FilterLogicalOperator.and;
-      case 'OR':
-        return FilterLogicalOperator.or;
-    }
-    throw Exception('$this is not known in enum FilterLogicalOperator');
-  }
+  const FilterLogicalOperator(this.value);
+
+  static FilterLogicalOperator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FilterLogicalOperator'));
 }
 
 enum FilterOperation {
-  eq,
-  lt,
-  gt,
-  lte,
-  gte,
-  regex,
-  isnull,
-}
+  eq('EQ'),
+  lt('LT'),
+  gt('GT'),
+  lte('LTE'),
+  gte('GTE'),
+  regex('REGEX'),
+  isnull('ISNULL'),
+  ;
 
-extension FilterOperationValueExtension on FilterOperation {
-  String toValue() {
-    switch (this) {
-      case FilterOperation.eq:
-        return 'EQ';
-      case FilterOperation.lt:
-        return 'LT';
-      case FilterOperation.gt:
-        return 'GT';
-      case FilterOperation.lte:
-        return 'LTE';
-      case FilterOperation.gte:
-        return 'GTE';
-      case FilterOperation.regex:
-        return 'REGEX';
-      case FilterOperation.isnull:
-        return 'ISNULL';
-    }
-  }
-}
+  final String value;
 
-extension FilterOperationFromString on String {
-  FilterOperation toFilterOperation() {
-    switch (this) {
-      case 'EQ':
-        return FilterOperation.eq;
-      case 'LT':
-        return FilterOperation.lt;
-      case 'GT':
-        return FilterOperation.gt;
-      case 'LTE':
-        return FilterOperation.lte;
-      case 'GTE':
-        return FilterOperation.gte;
-      case 'REGEX':
-        return FilterOperation.regex;
-      case 'ISNULL':
-        return FilterOperation.isnull;
-    }
-    throw Exception('$this is not known in enum FilterOperation');
-  }
+  const FilterOperation(this.value);
+
+  static FilterOperation fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FilterOperation'));
 }
 
 enum FilterOperator {
-  gt,
-  ge,
-  lt,
-  le,
-  eq,
-  ne,
-}
+  gt('GT'),
+  ge('GE'),
+  lt('LT'),
+  le('LE'),
+  eq('EQ'),
+  ne('NE'),
+  ;
 
-extension FilterOperatorValueExtension on FilterOperator {
-  String toValue() {
-    switch (this) {
-      case FilterOperator.gt:
-        return 'GT';
-      case FilterOperator.ge:
-        return 'GE';
-      case FilterOperator.lt:
-        return 'LT';
-      case FilterOperator.le:
-        return 'LE';
-      case FilterOperator.eq:
-        return 'EQ';
-      case FilterOperator.ne:
-        return 'NE';
-    }
-  }
-}
+  final String value;
 
-extension FilterOperatorFromString on String {
-  FilterOperator toFilterOperator() {
-    switch (this) {
-      case 'GT':
-        return FilterOperator.gt;
-      case 'GE':
-        return FilterOperator.ge;
-      case 'LT':
-        return FilterOperator.lt;
-      case 'LE':
-        return FilterOperator.le;
-      case 'EQ':
-        return FilterOperator.eq;
-      case 'NE':
-        return FilterOperator.ne;
-    }
-    throw Exception('$this is not known in enum FilterOperator');
-  }
+  const FilterOperator(this.value);
+
+  static FilterOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FilterOperator'));
 }
 
 /// Represents a single entry in the list of values for a
@@ -19691,11 +20686,8 @@ class FilterValue {
 
   factory FilterValue.fromJson(Map<String, dynamic> json) {
     return FilterValue(
-      type: (json['Type'] as String).toFilterValueType(),
-      value: (json['Value'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      type: FilterValueType.fromString((json['Type'] as String)),
+      value: (json['Value'] as List).nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -19703,38 +20695,25 @@ class FilterValue {
     final type = this.type;
     final value = this.value;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       'Value': value,
     };
   }
 }
 
 enum FilterValueType {
-  columnextracted,
-  constant,
-}
+  columnextracted('COLUMNEXTRACTED'),
+  constant('CONSTANT'),
+  ;
 
-extension FilterValueTypeValueExtension on FilterValueType {
-  String toValue() {
-    switch (this) {
-      case FilterValueType.columnextracted:
-        return 'COLUMNEXTRACTED';
-      case FilterValueType.constant:
-        return 'CONSTANT';
-    }
-  }
-}
+  final String value;
 
-extension FilterValueTypeFromString on String {
-  FilterValueType toFilterValueType() {
-    switch (this) {
-      case 'COLUMNEXTRACTED':
-        return FilterValueType.columnextracted;
-      case 'CONSTANT':
-        return FilterValueType.constant;
-    }
-    throw Exception('$this is not known in enum FilterValueType');
-  }
+  const FilterValueType(this.value);
+
+  static FilterValueType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum FilterValueType'));
 }
 
 /// The evaluation metrics for the find matches algorithm. The quality of your
@@ -19803,7 +20782,7 @@ class FindMatchesMetrics {
     return FindMatchesMetrics(
       areaUnderPRCurve: json['AreaUnderPRCurve'] as double?,
       columnImportances: (json['ColumnImportances'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnImportance.fromJson(e as Map<String, dynamic>))
           .toList(),
       confusionMatrix: json['ConfusionMatrix'] != null
@@ -19972,7 +20951,7 @@ class GetBlueprintRunsResponse {
   factory GetBlueprintRunsResponse.fromJson(Map<String, dynamic> json) {
     return GetBlueprintRunsResponse(
       blueprintRuns: (json['BlueprintRuns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BlueprintRun.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20030,7 +21009,7 @@ class GetClassifiersResponse {
   factory GetClassifiersResponse.fromJson(Map<String, dynamic> json) {
     return GetClassifiersResponse(
       classifiers: (json['Classifiers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Classifier.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20054,11 +21033,11 @@ class GetColumnStatisticsForPartitionResponse {
       Map<String, dynamic> json) {
     return GetColumnStatisticsForPartitionResponse(
       columnStatisticsList: (json['ColumnStatisticsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnStatistics.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -20081,13 +21060,58 @@ class GetColumnStatisticsForTableResponse {
       Map<String, dynamic> json) {
     return GetColumnStatisticsForTableResponse(
       columnStatisticsList: (json['ColumnStatisticsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnStatistics.fromJson(e as Map<String, dynamic>))
           .toList(),
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnError.fromJson(e as Map<String, dynamic>))
           .toList(),
+    );
+  }
+}
+
+class GetColumnStatisticsTaskRunResponse {
+  /// A <code>ColumnStatisticsTaskRun</code> object representing the details of
+  /// the column stats run.
+  final ColumnStatisticsTaskRun? columnStatisticsTaskRun;
+
+  GetColumnStatisticsTaskRunResponse({
+    this.columnStatisticsTaskRun,
+  });
+
+  factory GetColumnStatisticsTaskRunResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetColumnStatisticsTaskRunResponse(
+      columnStatisticsTaskRun: json['ColumnStatisticsTaskRun'] != null
+          ? ColumnStatisticsTaskRun.fromJson(
+              json['ColumnStatisticsTaskRun'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class GetColumnStatisticsTaskRunsResponse {
+  /// A list of column statistics task runs.
+  final List<ColumnStatisticsTaskRun>? columnStatisticsTaskRuns;
+
+  /// A continuation token, if not all task runs have yet been returned.
+  final String? nextToken;
+
+  GetColumnStatisticsTaskRunsResponse({
+    this.columnStatisticsTaskRuns,
+    this.nextToken,
+  });
+
+  factory GetColumnStatisticsTaskRunsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return GetColumnStatisticsTaskRunsResponse(
+      columnStatisticsTaskRuns: (json['ColumnStatisticsTaskRuns'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              ColumnStatisticsTaskRun.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
     );
   }
 }
@@ -20128,7 +21152,7 @@ class GetConnectionsFilter {
     final connectionType = this.connectionType;
     final matchCriteria = this.matchCriteria;
     return {
-      if (connectionType != null) 'ConnectionType': connectionType.toValue(),
+      if (connectionType != null) 'ConnectionType': connectionType.value,
       if (matchCriteria != null) 'MatchCriteria': matchCriteria,
     };
   }
@@ -20150,7 +21174,7 @@ class GetConnectionsResponse {
   factory GetConnectionsResponse.fromJson(Map<String, dynamic> json) {
     return GetConnectionsResponse(
       connectionList: (json['ConnectionList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Connection.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20174,7 +21198,7 @@ class GetCrawlerMetricsResponse {
   factory GetCrawlerMetricsResponse.fromJson(Map<String, dynamic> json) {
     return GetCrawlerMetricsResponse(
       crawlerMetricsList: (json['CrawlerMetricsList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CrawlerMetrics.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20215,7 +21239,7 @@ class GetCrawlersResponse {
   factory GetCrawlersResponse.fromJson(Map<String, dynamic> json) {
     return GetCrawlersResponse(
       crawlers: (json['Crawlers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Crawler.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20245,7 +21269,7 @@ class GetCustomEntityTypeResponse {
   factory GetCustomEntityTypeResponse.fromJson(Map<String, dynamic> json) {
     return GetCustomEntityTypeResponse(
       contextWords: (json['ContextWords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       name: json['Name'] as String?,
@@ -20275,6 +21299,10 @@ class GetDataCatalogEncryptionSettingsResponse {
 }
 
 class GetDataQualityResultResponse {
+  /// A list of <code>DataQualityAnalyzerResult</code> objects representing the
+  /// results for each analyzer.
+  final List<DataQualityAnalyzerResult>? analyzerResults;
+
   /// The date and time when the run for this data quality result was completed.
   final DateTime? completedOn;
 
@@ -20292,6 +21320,10 @@ class GetDataQualityResultResponse {
 
   /// The job run ID associated with the data quality result, if any.
   final String? jobRunId;
+
+  /// A list of <code>DataQualityObservation</code> objects representing the
+  /// observations generated after evaluating the rules and analyzers.
+  final List<DataQualityObservation>? observations;
 
   /// A unique result ID for the data quality result.
   final String? resultId;
@@ -20314,11 +21346,13 @@ class GetDataQualityResultResponse {
   final DateTime? startedOn;
 
   GetDataQualityResultResponse({
+    this.analyzerResults,
     this.completedOn,
     this.dataSource,
     this.evaluationContext,
     this.jobName,
     this.jobRunId,
+    this.observations,
     this.resultId,
     this.ruleResults,
     this.rulesetEvaluationRunId,
@@ -20329,6 +21363,11 @@ class GetDataQualityResultResponse {
 
   factory GetDataQualityResultResponse.fromJson(Map<String, dynamic> json) {
     return GetDataQualityResultResponse(
+      analyzerResults: (json['AnalyzerResults'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              DataQualityAnalyzerResult.fromJson(e as Map<String, dynamic>))
+          .toList(),
       completedOn: timeStampFromJson(json['CompletedOn']),
       dataSource: json['DataSource'] != null
           ? DataSource.fromJson(json['DataSource'] as Map<String, dynamic>)
@@ -20336,9 +21375,14 @@ class GetDataQualityResultResponse {
       evaluationContext: json['EvaluationContext'] as String?,
       jobName: json['JobName'] as String?,
       jobRunId: json['JobRunId'] as String?,
+      observations: (json['Observations'] as List?)
+          ?.nonNulls
+          .map(
+              (e) => DataQualityObservation.fromJson(e as Map<String, dynamic>))
+          .toList(),
       resultId: json['ResultId'] as String?,
       ruleResults: (json['RuleResults'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataQualityRuleResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       rulesetEvaluationRunId: json['RulesetEvaluationRunId'] as String?,
@@ -20427,13 +21471,17 @@ class GetDataQualityRuleRecommendationRunResponse {
       role: json['Role'] as String?,
       runId: json['RunId'] as String?,
       startedOn: timeStampFromJson(json['StartedOn']),
-      status: (json['Status'] as String?)?.toTaskStatusType(),
+      status: (json['Status'] as String?)?.let(TaskStatusType.fromString),
       timeout: json['Timeout'] as int?,
     );
   }
 }
 
 class GetDataQualityRulesetEvaluationRunResponse {
+  /// A map of reference strings to additional data sources you can specify for an
+  /// evaluation run.
+  final Map<String, DataSource>? additionalDataSources;
+
   /// Additional run options you can specify for an evaluation run.
   final DataQualityEvaluationRunAdditionalRunOptions? additionalRunOptions;
 
@@ -20481,6 +21529,7 @@ class GetDataQualityRulesetEvaluationRunResponse {
   final int? timeout;
 
   GetDataQualityRulesetEvaluationRunResponse({
+    this.additionalDataSources,
     this.additionalRunOptions,
     this.completedOn,
     this.dataSource,
@@ -20500,6 +21549,10 @@ class GetDataQualityRulesetEvaluationRunResponse {
   factory GetDataQualityRulesetEvaluationRunResponse.fromJson(
       Map<String, dynamic> json) {
     return GetDataQualityRulesetEvaluationRunResponse(
+      additionalDataSources:
+          (json['AdditionalDataSources'] as Map<String, dynamic>?)?.map(
+              (k, e) =>
+                  MapEntry(k, DataSource.fromJson(e as Map<String, dynamic>))),
       additionalRunOptions: json['AdditionalRunOptions'] != null
           ? DataQualityEvaluationRunAdditionalRunOptions.fromJson(
               json['AdditionalRunOptions'] as Map<String, dynamic>)
@@ -20513,17 +21566,17 @@ class GetDataQualityRulesetEvaluationRunResponse {
       lastModifiedOn: timeStampFromJson(json['LastModifiedOn']),
       numberOfWorkers: json['NumberOfWorkers'] as int?,
       resultIds: (json['ResultIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       role: json['Role'] as String?,
       rulesetNames: (json['RulesetNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       runId: json['RunId'] as String?,
       startedOn: timeStampFromJson(json['StartedOn']),
-      status: (json['Status'] as String?)?.toTaskStatusType(),
+      status: (json['Status'] as String?)?.let(TaskStatusType.fromString),
       timeout: json['Timeout'] as int?,
     );
   }
@@ -20613,7 +21666,7 @@ class GetDatabasesResponse {
   factory GetDatabasesResponse.fromJson(Map<String, dynamic> json) {
     return GetDatabasesResponse(
       databaseList: (json['DatabaseList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Database.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20636,11 +21689,11 @@ class GetDataflowGraphResponse {
   factory GetDataflowGraphResponse.fromJson(Map<String, dynamic> json) {
     return GetDataflowGraphResponse(
       dagEdges: (json['DagEdges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CodeGenEdge.fromJson(e as Map<String, dynamic>))
           .toList(),
       dagNodes: (json['DagNodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CodeGenNode.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -20680,7 +21733,7 @@ class GetDevEndpointsResponse {
   factory GetDevEndpointsResponse.fromJson(Map<String, dynamic> json) {
     return GetDevEndpointsResponse(
       devEndpoints: (json['DevEndpoints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DevEndpoint.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20755,7 +21808,7 @@ class GetJobRunsResponse {
   factory GetJobRunsResponse.fromJson(Map<String, dynamic> json) {
     return GetJobRunsResponse(
       jobRuns: (json['JobRuns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => JobRun.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20778,7 +21831,7 @@ class GetJobsResponse {
   factory GetJobsResponse.fromJson(Map<String, dynamic> json) {
     return GetJobsResponse(
       jobs: (json['Jobs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Job.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -20842,7 +21895,7 @@ class GetMLTaskRunResponse {
               json['Properties'] as Map<String, dynamic>)
           : null,
       startedOn: timeStampFromJson(json['StartedOn']),
-      status: (json['Status'] as String?)?.toTaskStatusType(),
+      status: (json['Status'] as String?)?.let(TaskStatusType.fromString),
       taskRunId: json['TaskRunId'] as String?,
       transformId: json['TransformId'] as String?,
     );
@@ -20865,7 +21918,7 @@ class GetMLTaskRunsResponse {
     return GetMLTaskRunsResponse(
       nextToken: json['NextToken'] as String?,
       taskRuns: (json['TaskRuns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TaskRun.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21002,7 +22055,7 @@ class GetMLTransformResponse {
           : null,
       glueVersion: json['GlueVersion'] as String?,
       inputRecordTables: (json['InputRecordTables'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueTable.fromJson(e as Map<String, dynamic>))
           .toList(),
       labelCount: json['LabelCount'] as int?,
@@ -21017,17 +22070,17 @@ class GetMLTransformResponse {
           : null,
       role: json['Role'] as String?,
       schema: (json['Schema'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SchemaColumn.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['Status'] as String?)?.toTransformStatusType(),
+      status: (json['Status'] as String?)?.let(TransformStatusType.fromString),
       timeout: json['Timeout'] as int?,
       transformEncryption: json['TransformEncryption'] != null
           ? TransformEncryption.fromJson(
               json['TransformEncryption'] as Map<String, dynamic>)
           : null,
       transformId: json['TransformId'] as String?,
-      workerType: (json['WorkerType'] as String?)?.toWorkerType(),
+      workerType: (json['WorkerType'] as String?)?.let(WorkerType.fromString),
     );
   }
 }
@@ -21047,7 +22100,7 @@ class GetMLTransformsResponse {
   factory GetMLTransformsResponse.fromJson(Map<String, dynamic> json) {
     return GetMLTransformsResponse(
       transforms: (json['Transforms'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => MLTransform.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -21066,7 +22119,7 @@ class GetMappingResponse {
   factory GetMappingResponse.fromJson(Map<String, dynamic> json) {
     return GetMappingResponse(
       mapping: (json['Mapping'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => MappingEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21090,7 +22143,7 @@ class GetPartitionIndexesResponse {
       nextToken: json['NextToken'] as String?,
       partitionIndexDescriptorList:
           (json['PartitionIndexDescriptorList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) =>
                   PartitionIndexDescriptor.fromJson(e as Map<String, dynamic>))
               .toList(),
@@ -21132,7 +22185,7 @@ class GetPartitionsResponse {
     return GetPartitionsResponse(
       nextToken: json['NextToken'] as String?,
       partitions: (json['Partitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Partition.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21193,7 +22246,7 @@ class GetRegistryResponse {
       description: json['Description'] as String?,
       registryArn: json['RegistryArn'] as String?,
       registryName: json['RegistryName'] as String?,
-      status: (json['Status'] as String?)?.toRegistryStatus(),
+      status: (json['Status'] as String?)?.let(RegistryStatus.fromString),
       updatedTime: json['UpdatedTime'] as String?,
     );
   }
@@ -21217,7 +22270,7 @@ class GetResourcePoliciesResponse {
     return GetResourcePoliciesResponse(
       getResourcePoliciesResponseList:
           (json['GetResourcePoliciesResponseList'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => GluePolicy.fromJson(e as Map<String, dynamic>))
               .toList(),
       nextToken: json['NextToken'] as String?,
@@ -21283,10 +22336,10 @@ class GetSchemaByDefinitionResponse {
   factory GetSchemaByDefinitionResponse.fromJson(Map<String, dynamic> json) {
     return GetSchemaByDefinitionResponse(
       createdTime: json['CreatedTime'] as String?,
-      dataFormat: (json['DataFormat'] as String?)?.toDataFormat(),
+      dataFormat: (json['DataFormat'] as String?)?.let(DataFormat.fromString),
       schemaArn: json['SchemaArn'] as String?,
       schemaVersionId: json['SchemaVersionId'] as String?,
-      status: (json['Status'] as String?)?.toSchemaVersionStatus(),
+      status: (json['Status'] as String?)?.let(SchemaVersionStatus.fromString),
     );
   }
 }
@@ -21353,9 +22406,10 @@ class GetSchemaResponse {
 
   factory GetSchemaResponse.fromJson(Map<String, dynamic> json) {
     return GetSchemaResponse(
-      compatibility: (json['Compatibility'] as String?)?.toCompatibility(),
+      compatibility:
+          (json['Compatibility'] as String?)?.let(Compatibility.fromString),
       createdTime: json['CreatedTime'] as String?,
-      dataFormat: (json['DataFormat'] as String?)?.toDataFormat(),
+      dataFormat: (json['DataFormat'] as String?)?.let(DataFormat.fromString),
       description: json['Description'] as String?,
       latestSchemaVersion: json['LatestSchemaVersion'] as int?,
       nextSchemaVersion: json['NextSchemaVersion'] as int?,
@@ -21364,7 +22418,8 @@ class GetSchemaResponse {
       schemaArn: json['SchemaArn'] as String?,
       schemaCheckpoint: json['SchemaCheckpoint'] as int?,
       schemaName: json['SchemaName'] as String?,
-      schemaStatus: (json['SchemaStatus'] as String?)?.toSchemaStatus(),
+      schemaStatus:
+          (json['SchemaStatus'] as String?)?.let(SchemaStatus.fromString),
       updatedTime: json['UpdatedTime'] as String?,
     );
   }
@@ -21406,11 +22461,11 @@ class GetSchemaVersionResponse {
   factory GetSchemaVersionResponse.fromJson(Map<String, dynamic> json) {
     return GetSchemaVersionResponse(
       createdTime: json['CreatedTime'] as String?,
-      dataFormat: (json['DataFormat'] as String?)?.toDataFormat(),
+      dataFormat: (json['DataFormat'] as String?)?.let(DataFormat.fromString),
       schemaArn: json['SchemaArn'] as String?,
       schemaDefinition: json['SchemaDefinition'] as String?,
       schemaVersionId: json['SchemaVersionId'] as String?,
-      status: (json['Status'] as String?)?.toSchemaVersionStatus(),
+      status: (json['Status'] as String?)?.let(SchemaVersionStatus.fromString),
       versionNumber: json['VersionNumber'] as int?,
     );
   }
@@ -21466,7 +22521,7 @@ class GetSecurityConfigurationsResponse {
     return GetSecurityConfigurationsResponse(
       nextToken: json['NextToken'] as String?,
       securityConfigurations: (json['SecurityConfigurations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SecurityConfiguration.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21502,6 +22557,39 @@ class GetStatementResponse {
     return GetStatementResponse(
       statement: json['Statement'] != null
           ? Statement.fromJson(json['Statement'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+}
+
+class GetTableOptimizerResponse {
+  /// The Catalog ID of the table.
+  final String? catalogId;
+
+  /// The name of the database in the catalog in which the table resides.
+  final String? databaseName;
+
+  /// The name of the table.
+  final String? tableName;
+
+  /// The optimizer associated with the specified table.
+  final TableOptimizer? tableOptimizer;
+
+  GetTableOptimizerResponse({
+    this.catalogId,
+    this.databaseName,
+    this.tableName,
+    this.tableOptimizer,
+  });
+
+  factory GetTableOptimizerResponse.fromJson(Map<String, dynamic> json) {
+    return GetTableOptimizerResponse(
+      catalogId: json['CatalogId'] as String?,
+      databaseName: json['DatabaseName'] as String?,
+      tableName: json['TableName'] as String?,
+      tableOptimizer: json['TableOptimizer'] != null
+          ? TableOptimizer.fromJson(
+              json['TableOptimizer'] as Map<String, dynamic>)
           : null,
     );
   }
@@ -21558,7 +22646,7 @@ class GetTableVersionsResponse {
     return GetTableVersionsResponse(
       nextToken: json['NextToken'] as String?,
       tableVersions: (json['TableVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TableVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21581,7 +22669,7 @@ class GetTablesResponse {
     return GetTablesResponse(
       nextToken: json['NextToken'] as String?,
       tableList: (json['TableList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Table.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21638,7 +22726,7 @@ class GetTriggersResponse {
     return GetTriggersResponse(
       nextToken: json['NextToken'] as String?,
       triggers: (json['Triggers'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Trigger.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21666,7 +22754,7 @@ class GetUnfilteredPartitionMetadataResponse {
       Map<String, dynamic> json) {
     return GetUnfilteredPartitionMetadataResponse(
       authorizedColumns: (json['AuthorizedColumns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       isRegisteredWithLakeFormation:
@@ -21696,7 +22784,7 @@ class GetUnfilteredPartitionsMetadataResponse {
     return GetUnfilteredPartitionsMetadataResponse(
       nextToken: json['NextToken'] as String?,
       unfilteredPartitions: (json['UnfilteredPartitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UnfilteredPartition.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21710,9 +22798,36 @@ class GetUnfilteredTableMetadataResponse {
   /// A list of column row filters.
   final List<ColumnRowFilter>? cellFilters;
 
+  /// Specifies whether the view supports the SQL dialects of one or more
+  /// different query engines and can therefore be read by those engines.
+  final bool? isMultiDialectView;
+
+  /// A flag that instructs the engine not to push user-provided operations into
+  /// the logical plan of the view during query planning. However, if set this
+  /// flag does not guarantee that the engine will comply. Refer to the engine's
+  /// documentation to understand the guarantees provided, if any.
+  final bool? isProtected;
+
   /// A Boolean value that indicates whether the partition location is registered
   /// with Lake Formation.
   final bool? isRegisteredWithLakeFormation;
+
+  /// The Lake Formation data permissions of the caller on the table. Used to
+  /// authorize the call when no view context is found.
+  final List<Permission>? permissions;
+
+  /// A cryptographically generated query identifier generated by Glue or Lake
+  /// Formation.
+  final String? queryAuthorizationId;
+
+  /// The resource ARN of the parent resource extracted from the request.
+  final String? resourceArn;
+
+  /// The filter that applies to the table. For example when applying the filter
+  /// in SQL, it would go in the <code>WHERE</code> clause and can be evaluated by
+  /// using an <code>AND</code> operator with any other predicates applied by the
+  /// user querying the table.
+  final String? rowFilter;
 
   /// A Table object containing the table metadata.
   final Table? table;
@@ -21720,7 +22835,13 @@ class GetUnfilteredTableMetadataResponse {
   GetUnfilteredTableMetadataResponse({
     this.authorizedColumns,
     this.cellFilters,
+    this.isMultiDialectView,
+    this.isProtected,
     this.isRegisteredWithLakeFormation,
+    this.permissions,
+    this.queryAuthorizationId,
+    this.resourceArn,
+    this.rowFilter,
     this.table,
   });
 
@@ -21728,15 +22849,24 @@ class GetUnfilteredTableMetadataResponse {
       Map<String, dynamic> json) {
     return GetUnfilteredTableMetadataResponse(
       authorizedColumns: (json['AuthorizedColumns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       cellFilters: (json['CellFilters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnRowFilter.fromJson(e as Map<String, dynamic>))
           .toList(),
+      isMultiDialectView: json['IsMultiDialectView'] as bool?,
+      isProtected: json['IsProtected'] as bool?,
       isRegisteredWithLakeFormation:
           json['IsRegisteredWithLakeFormation'] as bool?,
+      permissions: (json['Permissions'] as List?)
+          ?.nonNulls
+          .map((e) => Permission.fromString((e as String)))
+          .toList(),
+      queryAuthorizationId: json['QueryAuthorizationId'] as String?,
+      resourceArn: json['ResourceArn'] as String?,
+      rowFilter: json['RowFilter'] as String?,
       table: json['Table'] != null
           ? Table.fromJson(json['Table'] as Map<String, dynamic>)
           : null,
@@ -21779,7 +22909,7 @@ class GetUserDefinedFunctionsResponse {
     return GetUserDefinedFunctionsResponse(
       nextToken: json['NextToken'] as String?,
       userDefinedFunctions: (json['UserDefinedFunctions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UserDefinedFunction.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21852,7 +22982,7 @@ class GetWorkflowRunsResponse {
     return GetWorkflowRunsResponse(
       nextToken: json['NextToken'] as String?,
       runs: (json['Runs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkflowRun.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -21891,71 +23021,26 @@ class GluePolicy {
 }
 
 enum GlueRecordType {
-  date,
-  string,
-  timestamp,
-  int,
-  float,
-  long,
-  bigdecimal,
-  byte,
-  short,
-  double,
-}
+  date('DATE'),
+  string('STRING'),
+  timestamp('TIMESTAMP'),
+  int('INT'),
+  float('FLOAT'),
+  long('LONG'),
+  bigdecimal('BIGDECIMAL'),
+  byte('BYTE'),
+  short('SHORT'),
+  double('DOUBLE'),
+  ;
 
-extension GlueRecordTypeValueExtension on GlueRecordType {
-  String toValue() {
-    switch (this) {
-      case GlueRecordType.date:
-        return 'DATE';
-      case GlueRecordType.string:
-        return 'STRING';
-      case GlueRecordType.timestamp:
-        return 'TIMESTAMP';
-      case GlueRecordType.int:
-        return 'INT';
-      case GlueRecordType.float:
-        return 'FLOAT';
-      case GlueRecordType.long:
-        return 'LONG';
-      case GlueRecordType.bigdecimal:
-        return 'BIGDECIMAL';
-      case GlueRecordType.byte:
-        return 'BYTE';
-      case GlueRecordType.short:
-        return 'SHORT';
-      case GlueRecordType.double:
-        return 'DOUBLE';
-    }
-  }
-}
+  final String value;
 
-extension GlueRecordTypeFromString on String {
-  GlueRecordType toGlueRecordType() {
-    switch (this) {
-      case 'DATE':
-        return GlueRecordType.date;
-      case 'STRING':
-        return GlueRecordType.string;
-      case 'TIMESTAMP':
-        return GlueRecordType.timestamp;
-      case 'INT':
-        return GlueRecordType.int;
-      case 'FLOAT':
-        return GlueRecordType.float;
-      case 'LONG':
-        return GlueRecordType.long;
-      case 'BIGDECIMAL':
-        return GlueRecordType.bigdecimal;
-      case 'BYTE':
-        return GlueRecordType.byte;
-      case 'SHORT':
-        return GlueRecordType.short;
-      case 'DOUBLE':
-        return GlueRecordType.double;
-    }
-    throw Exception('$this is not known in enum GlueRecordType');
-  }
+  const GlueRecordType(this.value);
+
+  static GlueRecordType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum GlueRecordType'));
 }
 
 /// Specifies a user-defined schema when a schema cannot be determined by Glue.
@@ -21970,7 +23055,7 @@ class GlueSchema {
   factory GlueSchema.fromJson(Map<String, dynamic> json) {
     return GlueSchema(
       columns: (json['Columns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => GlueStudioSchemaColumn.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -22168,16 +23253,13 @@ class GovernedCatalogTarget {
   factory GovernedCatalogTarget.fromJson(Map<String, dynamic> json) {
     return GovernedCatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? CatalogSchemaChangePolicy.fromJson(
@@ -22257,41 +23339,160 @@ class GrokClassifier {
   }
 }
 
-enum HudiTargetCompressionType {
-  gzip,
-  lzo,
-  uncompressed,
-  snappy,
-}
+/// Specifies an Apache Hudi data source.
+class HudiTarget {
+  /// The name of the connection to use to connect to the Hudi target. If your
+  /// Hudi files are stored in buckets that require VPC authorization, you can set
+  /// their connection properties here.
+  final String? connectionName;
 
-extension HudiTargetCompressionTypeValueExtension on HudiTargetCompressionType {
-  String toValue() {
-    switch (this) {
-      case HudiTargetCompressionType.gzip:
-        return 'gzip';
-      case HudiTargetCompressionType.lzo:
-        return 'lzo';
-      case HudiTargetCompressionType.uncompressed:
-        return 'uncompressed';
-      case HudiTargetCompressionType.snappy:
-        return 'snappy';
-    }
+  /// A list of glob patterns used to exclude from the crawl. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/add-crawler.html">Catalog
+  /// Tables with a Crawler</a>.
+  final List<String>? exclusions;
+
+  /// The maximum depth of Amazon S3 paths that the crawler can traverse to
+  /// discover the Hudi metadata folder in your Amazon S3 path. Used to limit the
+  /// crawler run time.
+  final int? maximumTraversalDepth;
+
+  /// An array of Amazon S3 location strings for Hudi, each indicating the root
+  /// folder with which the metadata files for a Hudi table resides. The Hudi
+  /// folder may be located in a child folder of the root folder.
+  ///
+  /// The crawler will scan all folders underneath a path for a Hudi folder.
+  final List<String>? paths;
+
+  HudiTarget({
+    this.connectionName,
+    this.exclusions,
+    this.maximumTraversalDepth,
+    this.paths,
+  });
+
+  factory HudiTarget.fromJson(Map<String, dynamic> json) {
+    return HudiTarget(
+      connectionName: json['ConnectionName'] as String?,
+      exclusions: (json['Exclusions'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      maximumTraversalDepth: json['MaximumTraversalDepth'] as int?,
+      paths:
+          (json['Paths'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final connectionName = this.connectionName;
+    final exclusions = this.exclusions;
+    final maximumTraversalDepth = this.maximumTraversalDepth;
+    final paths = this.paths;
+    return {
+      if (connectionName != null) 'ConnectionName': connectionName,
+      if (exclusions != null) 'Exclusions': exclusions,
+      if (maximumTraversalDepth != null)
+        'MaximumTraversalDepth': maximumTraversalDepth,
+      if (paths != null) 'Paths': paths,
+    };
   }
 }
 
-extension HudiTargetCompressionTypeFromString on String {
-  HudiTargetCompressionType toHudiTargetCompressionType() {
-    switch (this) {
-      case 'gzip':
-        return HudiTargetCompressionType.gzip;
-      case 'lzo':
-        return HudiTargetCompressionType.lzo;
-      case 'uncompressed':
-        return HudiTargetCompressionType.uncompressed;
-      case 'snappy':
-        return HudiTargetCompressionType.snappy;
-    }
-    throw Exception('$this is not known in enum HudiTargetCompressionType');
+enum HudiTargetCompressionType {
+  gzip('gzip'),
+  lzo('lzo'),
+  uncompressed('uncompressed'),
+  snappy('snappy'),
+  ;
+
+  final String value;
+
+  const HudiTargetCompressionType(this.value);
+
+  static HudiTargetCompressionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum HudiTargetCompressionType'));
+}
+
+/// A structure that defines an Apache Iceberg metadata table to create in the
+/// catalog.
+class IcebergInput {
+  /// A required metadata operation. Can only be set to <code>CREATE</code>.
+  final MetadataOperation metadataOperation;
+
+  /// The table version for the Iceberg table. Defaults to 2.
+  final String? version;
+
+  IcebergInput({
+    required this.metadataOperation,
+    this.version,
+  });
+
+  Map<String, dynamic> toJson() {
+    final metadataOperation = this.metadataOperation;
+    final version = this.version;
+    return {
+      'MetadataOperation': metadataOperation.value,
+      if (version != null) 'Version': version,
+    };
+  }
+}
+
+/// Specifies an Apache Iceberg data source where Iceberg tables are stored in
+/// Amazon S3.
+class IcebergTarget {
+  /// The name of the connection to use to connect to the Iceberg target.
+  final String? connectionName;
+
+  /// A list of glob patterns used to exclude from the crawl. For more
+  /// information, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/add-crawler.html">Catalog
+  /// Tables with a Crawler</a>.
+  final List<String>? exclusions;
+
+  /// The maximum depth of Amazon S3 paths that the crawler can traverse to
+  /// discover the Iceberg metadata folder in your Amazon S3 path. Used to limit
+  /// the crawler run time.
+  final int? maximumTraversalDepth;
+
+  /// One or more Amazon S3 paths that contains Iceberg metadata folders as
+  /// <code>s3://bucket/prefix</code>.
+  final List<String>? paths;
+
+  IcebergTarget({
+    this.connectionName,
+    this.exclusions,
+    this.maximumTraversalDepth,
+    this.paths,
+  });
+
+  factory IcebergTarget.fromJson(Map<String, dynamic> json) {
+    return IcebergTarget(
+      connectionName: json['ConnectionName'] as String?,
+      exclusions: (json['Exclusions'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      maximumTraversalDepth: json['MaximumTraversalDepth'] as int?,
+      paths:
+          (json['Paths'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final connectionName = this.connectionName;
+    final exclusions = this.exclusions;
+    final maximumTraversalDepth = this.maximumTraversalDepth;
+    final paths = this.paths;
+    return {
+      if (connectionName != null) 'ConnectionName': connectionName,
+      if (exclusions != null) 'Exclusions': exclusions,
+      if (maximumTraversalDepth != null)
+        'MaximumTraversalDepth': maximumTraversalDepth,
+      if (paths != null) 'Paths': paths,
+    };
   }
 }
 
@@ -22326,46 +23527,21 @@ class ImportLabelsTaskRunProperties {
 }
 
 enum JDBCConnectionType {
-  sqlserver,
-  mysql,
-  oracle,
-  postgresql,
-  redshift,
-}
+  sqlserver('sqlserver'),
+  mysql('mysql'),
+  oracle('oracle'),
+  postgresql('postgresql'),
+  redshift('redshift'),
+  ;
 
-extension JDBCConnectionTypeValueExtension on JDBCConnectionType {
-  String toValue() {
-    switch (this) {
-      case JDBCConnectionType.sqlserver:
-        return 'sqlserver';
-      case JDBCConnectionType.mysql:
-        return 'mysql';
-      case JDBCConnectionType.oracle:
-        return 'oracle';
-      case JDBCConnectionType.postgresql:
-        return 'postgresql';
-      case JDBCConnectionType.redshift:
-        return 'redshift';
-    }
-  }
-}
+  final String value;
 
-extension JDBCConnectionTypeFromString on String {
-  JDBCConnectionType toJDBCConnectionType() {
-    switch (this) {
-      case 'sqlserver':
-        return JDBCConnectionType.sqlserver;
-      case 'mysql':
-        return JDBCConnectionType.mysql;
-      case 'oracle':
-        return JDBCConnectionType.oracle;
-      case 'postgresql':
-        return JDBCConnectionType.postgresql;
-      case 'redshift':
-        return JDBCConnectionType.redshift;
-    }
-    throw Exception('$this is not known in enum JDBCConnectionType');
-  }
+  const JDBCConnectionType(this.value);
+
+  static JDBCConnectionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum JDBCConnectionType'));
 }
 
 /// Additional connection options for the connector.
@@ -22429,11 +23605,11 @@ class JDBCConnectorOptions {
   factory JDBCConnectorOptions.fromJson(Map<String, dynamic> json) {
     return JDBCConnectorOptions(
       dataTypeMapping: (json['DataTypeMapping'] as Map<String, dynamic>?)?.map(
-          (k, e) =>
-              MapEntry(k.toJDBCDataType(), (e as String).toGlueRecordType())),
+          (k, e) => MapEntry(JDBCDataType.fromString(k),
+              GlueRecordType.fromString((e as String)))),
       filterPredicate: json['FilterPredicate'] as String?,
       jobBookmarkKeys: (json['JobBookmarkKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       jobBookmarkKeysSortOrder: json['JobBookmarkKeysSortOrder'] as String?,
@@ -22456,7 +23632,7 @@ class JDBCConnectorOptions {
     return {
       if (dataTypeMapping != null)
         'DataTypeMapping':
-            dataTypeMapping.map((k, e) => MapEntry(k.toValue(), e.toValue())),
+            dataTypeMapping.map((k, e) => MapEntry(k.value, e.value)),
       if (filterPredicate != null) 'FilterPredicate': filterPredicate,
       if (jobBookmarkKeys != null) 'JobBookmarkKeys': jobBookmarkKeys,
       if (jobBookmarkKeysSortOrder != null)
@@ -22521,7 +23697,7 @@ class JDBCConnectorSource {
           : null,
       connectionTable: json['ConnectionTable'] as String?,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
       query: json['Query'] as String?,
@@ -22595,15 +23771,13 @@ class JDBCConnectorTarget {
       connectionTable: json['ConnectionTable'] as String,
       connectionType: json['ConnectionType'] as String,
       connectorName: json['ConnectorName'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -22632,244 +23806,70 @@ class JDBCConnectorTarget {
 }
 
 enum JDBCDataType {
-  array,
-  bigint,
-  binary,
-  bit,
-  blob,
-  boolean,
-  char,
-  clob,
-  datalink,
-  date,
-  decimal,
-  distinct,
-  double,
-  float,
-  integer,
-  javaObject,
-  longnvarchar,
-  longvarbinary,
-  longvarchar,
-  nchar,
-  nclob,
-  $null,
-  numeric,
-  nvarchar,
-  other,
-  real,
-  ref,
-  refCursor,
-  rowid,
-  smallint,
-  sqlxml,
-  struct,
-  time,
-  timeWithTimezone,
-  timestamp,
-  timestampWithTimezone,
-  tinyint,
-  varbinary,
-  varchar,
-}
+  array('ARRAY'),
+  bigint('BIGINT'),
+  binary('BINARY'),
+  bit('BIT'),
+  blob('BLOB'),
+  boolean('BOOLEAN'),
+  char('CHAR'),
+  clob('CLOB'),
+  datalink('DATALINK'),
+  date('DATE'),
+  decimal('DECIMAL'),
+  distinct('DISTINCT'),
+  double('DOUBLE'),
+  float('FLOAT'),
+  integer('INTEGER'),
+  javaObject('JAVA_OBJECT'),
+  longnvarchar('LONGNVARCHAR'),
+  longvarbinary('LONGVARBINARY'),
+  longvarchar('LONGVARCHAR'),
+  nchar('NCHAR'),
+  nclob('NCLOB'),
+  $null('NULL'),
+  numeric('NUMERIC'),
+  nvarchar('NVARCHAR'),
+  other('OTHER'),
+  real('REAL'),
+  ref('REF'),
+  refCursor('REF_CURSOR'),
+  rowid('ROWID'),
+  smallint('SMALLINT'),
+  sqlxml('SQLXML'),
+  struct('STRUCT'),
+  time('TIME'),
+  timeWithTimezone('TIME_WITH_TIMEZONE'),
+  timestamp('TIMESTAMP'),
+  timestampWithTimezone('TIMESTAMP_WITH_TIMEZONE'),
+  tinyint('TINYINT'),
+  varbinary('VARBINARY'),
+  varchar('VARCHAR'),
+  ;
 
-extension JDBCDataTypeValueExtension on JDBCDataType {
-  String toValue() {
-    switch (this) {
-      case JDBCDataType.array:
-        return 'ARRAY';
-      case JDBCDataType.bigint:
-        return 'BIGINT';
-      case JDBCDataType.binary:
-        return 'BINARY';
-      case JDBCDataType.bit:
-        return 'BIT';
-      case JDBCDataType.blob:
-        return 'BLOB';
-      case JDBCDataType.boolean:
-        return 'BOOLEAN';
-      case JDBCDataType.char:
-        return 'CHAR';
-      case JDBCDataType.clob:
-        return 'CLOB';
-      case JDBCDataType.datalink:
-        return 'DATALINK';
-      case JDBCDataType.date:
-        return 'DATE';
-      case JDBCDataType.decimal:
-        return 'DECIMAL';
-      case JDBCDataType.distinct:
-        return 'DISTINCT';
-      case JDBCDataType.double:
-        return 'DOUBLE';
-      case JDBCDataType.float:
-        return 'FLOAT';
-      case JDBCDataType.integer:
-        return 'INTEGER';
-      case JDBCDataType.javaObject:
-        return 'JAVA_OBJECT';
-      case JDBCDataType.longnvarchar:
-        return 'LONGNVARCHAR';
-      case JDBCDataType.longvarbinary:
-        return 'LONGVARBINARY';
-      case JDBCDataType.longvarchar:
-        return 'LONGVARCHAR';
-      case JDBCDataType.nchar:
-        return 'NCHAR';
-      case JDBCDataType.nclob:
-        return 'NCLOB';
-      case JDBCDataType.$null:
-        return 'NULL';
-      case JDBCDataType.numeric:
-        return 'NUMERIC';
-      case JDBCDataType.nvarchar:
-        return 'NVARCHAR';
-      case JDBCDataType.other:
-        return 'OTHER';
-      case JDBCDataType.real:
-        return 'REAL';
-      case JDBCDataType.ref:
-        return 'REF';
-      case JDBCDataType.refCursor:
-        return 'REF_CURSOR';
-      case JDBCDataType.rowid:
-        return 'ROWID';
-      case JDBCDataType.smallint:
-        return 'SMALLINT';
-      case JDBCDataType.sqlxml:
-        return 'SQLXML';
-      case JDBCDataType.struct:
-        return 'STRUCT';
-      case JDBCDataType.time:
-        return 'TIME';
-      case JDBCDataType.timeWithTimezone:
-        return 'TIME_WITH_TIMEZONE';
-      case JDBCDataType.timestamp:
-        return 'TIMESTAMP';
-      case JDBCDataType.timestampWithTimezone:
-        return 'TIMESTAMP_WITH_TIMEZONE';
-      case JDBCDataType.tinyint:
-        return 'TINYINT';
-      case JDBCDataType.varbinary:
-        return 'VARBINARY';
-      case JDBCDataType.varchar:
-        return 'VARCHAR';
-    }
-  }
-}
+  final String value;
 
-extension JDBCDataTypeFromString on String {
-  JDBCDataType toJDBCDataType() {
-    switch (this) {
-      case 'ARRAY':
-        return JDBCDataType.array;
-      case 'BIGINT':
-        return JDBCDataType.bigint;
-      case 'BINARY':
-        return JDBCDataType.binary;
-      case 'BIT':
-        return JDBCDataType.bit;
-      case 'BLOB':
-        return JDBCDataType.blob;
-      case 'BOOLEAN':
-        return JDBCDataType.boolean;
-      case 'CHAR':
-        return JDBCDataType.char;
-      case 'CLOB':
-        return JDBCDataType.clob;
-      case 'DATALINK':
-        return JDBCDataType.datalink;
-      case 'DATE':
-        return JDBCDataType.date;
-      case 'DECIMAL':
-        return JDBCDataType.decimal;
-      case 'DISTINCT':
-        return JDBCDataType.distinct;
-      case 'DOUBLE':
-        return JDBCDataType.double;
-      case 'FLOAT':
-        return JDBCDataType.float;
-      case 'INTEGER':
-        return JDBCDataType.integer;
-      case 'JAVA_OBJECT':
-        return JDBCDataType.javaObject;
-      case 'LONGNVARCHAR':
-        return JDBCDataType.longnvarchar;
-      case 'LONGVARBINARY':
-        return JDBCDataType.longvarbinary;
-      case 'LONGVARCHAR':
-        return JDBCDataType.longvarchar;
-      case 'NCHAR':
-        return JDBCDataType.nchar;
-      case 'NCLOB':
-        return JDBCDataType.nclob;
-      case 'NULL':
-        return JDBCDataType.$null;
-      case 'NUMERIC':
-        return JDBCDataType.numeric;
-      case 'NVARCHAR':
-        return JDBCDataType.nvarchar;
-      case 'OTHER':
-        return JDBCDataType.other;
-      case 'REAL':
-        return JDBCDataType.real;
-      case 'REF':
-        return JDBCDataType.ref;
-      case 'REF_CURSOR':
-        return JDBCDataType.refCursor;
-      case 'ROWID':
-        return JDBCDataType.rowid;
-      case 'SMALLINT':
-        return JDBCDataType.smallint;
-      case 'SQLXML':
-        return JDBCDataType.sqlxml;
-      case 'STRUCT':
-        return JDBCDataType.struct;
-      case 'TIME':
-        return JDBCDataType.time;
-      case 'TIME_WITH_TIMEZONE':
-        return JDBCDataType.timeWithTimezone;
-      case 'TIMESTAMP':
-        return JDBCDataType.timestamp;
-      case 'TIMESTAMP_WITH_TIMEZONE':
-        return JDBCDataType.timestampWithTimezone;
-      case 'TINYINT':
-        return JDBCDataType.tinyint;
-      case 'VARBINARY':
-        return JDBCDataType.varbinary;
-      case 'VARCHAR':
-        return JDBCDataType.varchar;
-    }
-    throw Exception('$this is not known in enum JDBCDataType');
-  }
+  const JDBCDataType(this.value);
+
+  static JDBCDataType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JDBCDataType'));
 }
 
 enum JdbcMetadataEntry {
-  comments,
-  rawtypes,
-}
+  comments('COMMENTS'),
+  rawtypes('RAWTYPES'),
+  ;
 
-extension JdbcMetadataEntryValueExtension on JdbcMetadataEntry {
-  String toValue() {
-    switch (this) {
-      case JdbcMetadataEntry.comments:
-        return 'COMMENTS';
-      case JdbcMetadataEntry.rawtypes:
-        return 'RAWTYPES';
-    }
-  }
-}
+  final String value;
 
-extension JdbcMetadataEntryFromString on String {
-  JdbcMetadataEntry toJdbcMetadataEntry() {
-    switch (this) {
-      case 'COMMENTS':
-        return JdbcMetadataEntry.comments;
-      case 'RAWTYPES':
-        return JdbcMetadataEntry.rawtypes;
-    }
-    throw Exception('$this is not known in enum JdbcMetadataEntry');
-  }
+  const JdbcMetadataEntry(this.value);
+
+  static JdbcMetadataEntry fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum JdbcMetadataEntry'));
 }
 
 /// Specifies a JDBC data store to crawl.
@@ -22905,11 +23905,11 @@ class JdbcTarget {
     return JdbcTarget(
       connectionName: json['ConnectionName'] as String?,
       enableAdditionalMetadata: (json['EnableAdditionalMetadata'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toJdbcMetadataEntry())
+          ?.nonNulls
+          .map((e) => JdbcMetadataEntry.fromString((e as String)))
           .toList(),
       exclusions: (json['Exclusions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       path: json['Path'] as String?,
@@ -22925,7 +23925,7 @@ class JdbcTarget {
       if (connectionName != null) 'ConnectionName': connectionName,
       if (enableAdditionalMetadata != null)
         'EnableAdditionalMetadata':
-            enableAdditionalMetadata.map((e) => e.toValue()).toList(),
+            enableAdditionalMetadata.map((e) => e.value).toList(),
       if (exclusions != null) 'Exclusions': exclusions,
       if (path != null) 'Path': path,
     };
@@ -22957,20 +23957,30 @@ class Job {
   /// The time and date that this job definition was created.
   final DateTime? createdOn;
 
-  /// The default arguments for this job, specified as name-value pairs.
+  /// The default arguments for every run of this job, specified as name-value
+  /// pairs.
   ///
   /// You can specify arguments here that your own job-execution script consumes,
   /// as well as arguments that Glue itself consumes.
+  ///
+  /// Job arguments may be logged. Do not pass plaintext secrets as arguments.
+  /// Retrieve secrets from a Glue Connection, Secrets Manager or other secret
+  /// management mechanism if you intend to keep them within the Job.
   ///
   /// For information about how to specify and consume your own Job arguments, see
   /// the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python-calling.html">Calling
   /// Glue APIs in Python</a> topic in the developer guide.
   ///
-  /// For information about the key-value pairs that Glue consumes to set up your
-  /// job, see the <a
+  /// For information about the arguments you can provide to this field when
+  /// configuring Spark jobs, see the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html">Special
   /// Parameters Used by Glue</a> topic in the developer guide.
+  ///
+  /// For information about the arguments you can provide to this field when
+  /// configuring Ray jobs, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/author-job-ray-job-parameters.html">Using
+  /// job parameters in Ray jobs</a> in the developer guide.
   final Map<String, String>? defaultArguments;
 
   /// A description of the job.
@@ -22992,9 +24002,14 @@ class Job {
   /// concurrent runs allowed for this job.
   final ExecutionProperty? executionProperty;
 
-  /// Glue version determines the versions of Apache Spark and Python that Glue
-  /// supports. The Python version indicates the version supported for jobs of
-  /// type Spark.
+  /// In Spark jobs, <code>GlueVersion</code> determines the versions of Apache
+  /// Spark and Python that Glue available in a job. The Python version indicates
+  /// the version supported for jobs of type Spark.
+  ///
+  /// Ray jobs should set <code>GlueVersion</code> to <code>4.0</code> or greater.
+  /// However, the versions of Ray, Python and additional libraries available in
+  /// your Ray job are determined by the <code>Runtime</code> parameter of the Job
+  /// command.
   ///
   /// For more information about the available Glue versions and corresponding
   /// Spark and Python versions, see <a
@@ -23004,17 +24019,46 @@ class Job {
   /// Jobs that are created without specifying a Glue version default to Glue 0.9.
   final String? glueVersion;
 
+  /// A mode that describes how a job was created. Valid values are:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SCRIPT</code> - The job was created using the Glue Studio script
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>VISUAL</code> - The job was created using the Glue Studio visual
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>NOTEBOOK</code> - The job was created using an interactive sessions
+  /// notebook.
+  /// </li>
+  /// </ul>
+  /// When the <code>JobMode</code> field is missing or null, <code>SCRIPT</code>
+  /// is assigned as the default value.
+  final JobMode? jobMode;
+
   /// The last point in time when this job definition was modified.
   final DateTime? lastModifiedOn;
 
   /// This field is reserved for future use.
   final String? logUri;
 
+  /// This field specifies a day of the week and hour for a maintenance window for
+  /// streaming jobs. Glue periodically performs maintenance activities. During
+  /// these maintenance windows, Glue will need to restart your streaming jobs.
+  ///
+  /// Glue will restart the job within 3 hours of the specified maintenance
+  /// window. For instance, if you set up the maintenance window for Monday at
+  /// 10:00AM GMT, your jobs will be restarted between 10:00AM GMT to 1:00PM GMT.
+  final String? maintenanceWindow;
+
   /// For Glue version 1.0 or earlier jobs, using the standard worker type, the
   /// number of Glue data processing units (DPUs) that can be allocated when this
   /// job runs. A DPU is a relative measure of processing power that consists of 4
   /// vCPUs of compute capacity and 16 GB of memory. For more information, see the
-  /// <a href="https://aws.amazon.com/glue/pricing/">Glue pricing page</a>.
+  /// <a href="https://aws.amazon.com/glue/pricing/"> Glue pricing page</a>.
   ///
   /// For Glue version 2.0 or later jobs, you cannot specify a <code>Maximum
   /// capacity</code>. Instead, you should specify a <code>Worker type</code> and
@@ -23049,7 +24093,8 @@ class Job {
   /// The name you assign to this job definition.
   final String? name;
 
-  /// Non-overridable arguments for this job, specified as name-value pairs.
+  /// Arguments for this job that are not overridden when providing job arguments
+  /// in a job run, specified as name-value pairs.
   final Map<String, String>? nonOverridableArguments;
 
   /// Specifies configuration properties of a job notification.
@@ -23073,48 +24118,64 @@ class Job {
 
   /// The job timeout in minutes. This is the maximum time that a job run can
   /// consume resources before it is terminated and enters <code>TIMEOUT</code>
-  /// status. The default is 2,880 minutes (48 hours).
+  /// status. The default is 2,880 minutes (48 hours) for batch jobs.
+  ///
+  /// Streaming jobs must have timeout values less than 7 days or 10080 minutes.
+  /// When the value is left blank, the job will be restarted after 7 days based
+  /// if you have not setup a maintenance window. If you have setup maintenance
+  /// window, it will be restarted during the maintenance window after 7 days.
   final int? timeout;
 
   /// The type of predefined worker that is allocated when a job runs. Accepts a
-  /// value of Standard, G.1X, G.2X, or G.025X.
+  /// value of G.1X, G.2X, G.4X, G.8X or G.025X for Spark jobs. Accepts the value
+  /// Z.2X for Ray jobs.
   ///
   /// <ul>
   /// <li>
-  /// For the <code>Standard</code> worker type, each worker provides 4 vCPU, 16
-  /// GB of memory and a 50GB disk, and 2 executors per worker.
+  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPUs,
+  /// 16 GB of memory) with 84GB disk (approximately 34GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost effective
+  /// way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPU, 16
-  /// GB of memory, 64 GB disk), and provides 1 executor per worker. We recommend
-  /// this worker type for workloads such as data transforms, joins, and queries,
-  /// to offers a scalable and cost effective way to run most jobs.
+  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPUs,
+  /// 32 GB of memory) with 128GB disk (approximately 77GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost effective
+  /// way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPU, 32
-  /// GB of memory, 128 GB disk), and provides 1 executor per worker. We recommend
-  /// this worker type for workloads such as data transforms, joins, and queries,
-  /// to offers a scalable and cost effective way to run most jobs.
+  /// For the <code>G.4X</code> worker type, each worker maps to 4 DPU (16 vCPUs,
+  /// 64 GB of memory) with 256GB disk (approximately 235GB free), and provides 1
+  /// executor per worker. We recommend this worker type for jobs whose workloads
+  /// contain your most demanding transforms, aggregations, joins, and queries.
+  /// This worker type is available only for Glue version 3.0 or later Spark ETL
+  /// jobs in the following Amazon Web Services Regions: US East (Ohio), US East
+  /// (N. Virginia), US West (Oregon), Asia Pacific (Singapore), Asia Pacific
+  /// (Sydney), Asia Pacific (Tokyo), Canada (Central), Europe (Frankfurt), Europe
+  /// (Ireland), and Europe (Stockholm).
   /// </li>
   /// <li>
-  /// For the <code>G.4X</code> worker type, each worker maps to 4 DPU (16 vCPU,
-  /// 64 GB of memory, 256 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for jobs whose workloads contain your most
-  /// demanding transforms, aggregations, joins, and queries. This worker type is
-  /// available only for Glue version 3.0 or later jobs.
-  /// </li>
-  /// <li>
-  /// For the <code>G.8X</code> worker type, each worker maps to 8 DPU (32 vCPU,
-  /// 128 GB of memory, 512 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for jobs whose workloads contain your most
-  /// demanding transforms, aggregations, joins, and queries. This worker type is
-  /// available only for Glue version 3.0 or later jobs.
+  /// For the <code>G.8X</code> worker type, each worker maps to 8 DPU (32 vCPUs,
+  /// 128 GB of memory) with 512GB disk (approximately 487GB free), and provides 1
+  /// executor per worker. We recommend this worker type for jobs whose workloads
+  /// contain your most demanding transforms, aggregations, joins, and queries.
+  /// This worker type is available only for Glue version 3.0 or later Spark ETL
+  /// jobs, in the same Amazon Web Services Regions as supported for the
+  /// <code>G.4X</code> worker type.
   /// </li>
   /// <li>
   /// For the <code>G.025X</code> worker type, each worker maps to 0.25 DPU (2
-  /// vCPU, 4 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for low volume streaming jobs. This worker type
-  /// is only available for Glue version 3.0 streaming jobs.
+  /// vCPUs, 4 GB of memory) with 84GB disk (approximately 34GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for low volume
+  /// streaming jobs. This worker type is only available for Glue version 3.0
+  /// streaming jobs.
+  /// </li>
+  /// <li>
+  /// For the <code>Z.2X</code> worker type, each worker maps to 2 M-DPU (8vCPUs,
+  /// 64 GB of memory) with 128 GB disk (approximately 120GB free), and provides
+  /// up to 8 Ray workers based on the autoscaler.
   /// </li>
   /// </ul>
   final WorkerType? workerType;
@@ -23130,8 +24191,10 @@ class Job {
     this.executionClass,
     this.executionProperty,
     this.glueVersion,
+    this.jobMode,
     this.lastModifiedOn,
     this.logUri,
+    this.maintenanceWindow,
     this.maxCapacity,
     this.maxRetries,
     this.name,
@@ -23163,14 +24226,17 @@ class Job {
       defaultArguments: (json['DefaultArguments'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       description: json['Description'] as String?,
-      executionClass: (json['ExecutionClass'] as String?)?.toExecutionClass(),
+      executionClass:
+          (json['ExecutionClass'] as String?)?.let(ExecutionClass.fromString),
       executionProperty: json['ExecutionProperty'] != null
           ? ExecutionProperty.fromJson(
               json['ExecutionProperty'] as Map<String, dynamic>)
           : null,
       glueVersion: json['GlueVersion'] as String?,
+      jobMode: (json['JobMode'] as String?)?.let(JobMode.fromString),
       lastModifiedOn: timeStampFromJson(json['LastModifiedOn']),
       logUri: json['LogUri'] as String?,
+      maintenanceWindow: json['MaintenanceWindow'] as String?,
       maxCapacity: json['MaxCapacity'] as double?,
       maxRetries: json['MaxRetries'] as int?,
       name: json['Name'] as String?,
@@ -23189,7 +24255,7 @@ class Job {
               json['SourceControlDetails'] as Map<String, dynamic>)
           : null,
       timeout: json['Timeout'] as int?,
-      workerType: (json['WorkerType'] as String?)?.toWorkerType(),
+      workerType: (json['WorkerType'] as String?)?.let(WorkerType.fromString),
     );
   }
 }
@@ -23258,7 +24324,7 @@ class JobBookmarksEncryption {
     return JobBookmarksEncryption(
       jobBookmarksEncryptionMode:
           (json['JobBookmarksEncryptionMode'] as String?)
-              ?.toJobBookmarksEncryptionMode(),
+              ?.let(JobBookmarksEncryptionMode.fromString),
       kmsKeyArn: json['KmsKeyArn'] as String?,
     );
   }
@@ -23268,39 +24334,25 @@ class JobBookmarksEncryption {
     final kmsKeyArn = this.kmsKeyArn;
     return {
       if (jobBookmarksEncryptionMode != null)
-        'JobBookmarksEncryptionMode': jobBookmarksEncryptionMode.toValue(),
+        'JobBookmarksEncryptionMode': jobBookmarksEncryptionMode.value,
       if (kmsKeyArn != null) 'KmsKeyArn': kmsKeyArn,
     };
   }
 }
 
 enum JobBookmarksEncryptionMode {
-  disabled,
-  cseKms,
-}
+  disabled('DISABLED'),
+  cseKms('CSE-KMS'),
+  ;
 
-extension JobBookmarksEncryptionModeValueExtension
-    on JobBookmarksEncryptionMode {
-  String toValue() {
-    switch (this) {
-      case JobBookmarksEncryptionMode.disabled:
-        return 'DISABLED';
-      case JobBookmarksEncryptionMode.cseKms:
-        return 'CSE-KMS';
-    }
-  }
-}
+  final String value;
 
-extension JobBookmarksEncryptionModeFromString on String {
-  JobBookmarksEncryptionMode toJobBookmarksEncryptionMode() {
-    switch (this) {
-      case 'DISABLED':
-        return JobBookmarksEncryptionMode.disabled;
-      case 'CSE-KMS':
-        return JobBookmarksEncryptionMode.cseKms;
-    }
-    throw Exception('$this is not known in enum JobBookmarksEncryptionMode');
-  }
+  const JobBookmarksEncryptionMode(this.value);
+
+  static JobBookmarksEncryptionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum JobBookmarksEncryptionMode'));
 }
 
 /// Specifies code that runs when a job is run.
@@ -23308,12 +24360,20 @@ class JobCommand {
   /// The name of the job command. For an Apache Spark ETL job, this must be
   /// <code>glueetl</code>. For a Python shell job, it must be
   /// <code>pythonshell</code>. For an Apache Spark streaming ETL job, this must
-  /// be <code>gluestreaming</code>.
+  /// be <code>gluestreaming</code>. For a Ray job, this must be
+  /// <code>glueray</code>.
   final String? name;
 
   /// The Python version being used to run a Python shell job. Allowed values are
   /// 2 or 3.
   final String? pythonVersion;
+
+  /// In Ray jobs, Runtime is used to specify the versions of Ray, Python and
+  /// additional libraries available in your environment. This field is not used
+  /// in other job types. For supported runtime environment values, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/ray-jobs-section.html">Supported
+  /// Ray runtime environments</a> in the Glue Developer Guide.
+  final String? runtime;
 
   /// Specifies the Amazon Simple Storage Service (Amazon S3) path to a script
   /// that runs a job.
@@ -23322,6 +24382,7 @@ class JobCommand {
   JobCommand({
     this.name,
     this.pythonVersion,
+    this.runtime,
     this.scriptLocation,
   });
 
@@ -23329,6 +24390,7 @@ class JobCommand {
     return JobCommand(
       name: json['Name'] as String?,
       pythonVersion: json['PythonVersion'] as String?,
+      runtime: json['Runtime'] as String?,
       scriptLocation: json['ScriptLocation'] as String?,
     );
   }
@@ -23336,13 +24398,30 @@ class JobCommand {
   Map<String, dynamic> toJson() {
     final name = this.name;
     final pythonVersion = this.pythonVersion;
+    final runtime = this.runtime;
     final scriptLocation = this.scriptLocation;
     return {
       if (name != null) 'Name': name,
       if (pythonVersion != null) 'PythonVersion': pythonVersion,
+      if (runtime != null) 'Runtime': runtime,
       if (scriptLocation != null) 'ScriptLocation': scriptLocation,
     };
   }
+}
+
+enum JobMode {
+  script('SCRIPT'),
+  visual('VISUAL'),
+  notebook('NOTEBOOK'),
+  ;
+
+  final String value;
+
+  const JobMode(this.value);
+
+  static JobMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum JobMode'));
 }
 
 /// The details of a Job node present in the workflow.
@@ -23357,7 +24436,7 @@ class JobNodeDetails {
   factory JobNodeDetails.fromJson(Map<String, dynamic> json) {
     return JobNodeDetails(
       jobRuns: (json['JobRuns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => JobRun.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -23381,15 +24460,24 @@ class JobRun {
   /// You can specify arguments here that your own job-execution script consumes,
   /// as well as arguments that Glue itself consumes.
   ///
-  /// For information about how to specify and consume your own job arguments, see
+  /// Job arguments may be logged. Do not pass plaintext secrets as arguments.
+  /// Retrieve secrets from a Glue Connection, Secrets Manager or other secret
+  /// management mechanism if you intend to keep them within the Job.
+  ///
+  /// For information about how to specify and consume your own Job arguments, see
   /// the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python-calling.html">Calling
   /// Glue APIs in Python</a> topic in the developer guide.
   ///
-  /// For information about the key-value pairs that Glue consumes to set up your
-  /// job, see the <a
+  /// For information about the arguments you can provide to this field when
+  /// configuring Spark jobs, see the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html">Special
   /// Parameters Used by Glue</a> topic in the developer guide.
+  ///
+  /// For information about the arguments you can provide to this field when
+  /// configuring Ray jobs, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/author-job-ray-job-parameters.html">Using
+  /// job parameters in Ray jobs</a> in the developer guide.
   final Map<String, String>? arguments;
 
   /// The number of the attempt to run this job.
@@ -23398,8 +24486,9 @@ class JobRun {
   /// The date and time that this job run completed.
   final DateTime? completedOn;
 
-  /// This field populates only for Auto Scaling job runs, and represents the
-  /// total time each executor ran during the lifecycle of a job run in seconds,
+  /// This field can be set for either job runs with execution class
+  /// <code>FLEX</code> or when Auto Scaling is enabled, and represents the total
+  /// time each executor ran during the lifecycle of a job run in seconds,
   /// multiplied by a DPU factor (1 for <code>G.1X</code>, 2 for
   /// <code>G.2X</code>, or 0.25 for <code>G.025X</code> workers). This value may
   /// be different than the <code>executionEngineRuntime</code> *
@@ -23428,9 +24517,14 @@ class JobRun {
   /// The amount of time (in seconds) that the job run consumed resources.
   final int? executionTime;
 
-  /// Glue version determines the versions of Apache Spark and Python that Glue
-  /// supports. The Python version indicates the version supported for jobs of
-  /// type Spark.
+  /// In Spark jobs, <code>GlueVersion</code> determines the versions of Apache
+  /// Spark and Python that Glue available in a job. The Python version indicates
+  /// the version supported for jobs of type Spark.
+  ///
+  /// Ray jobs should set <code>GlueVersion</code> to <code>4.0</code> or greater.
+  /// However, the versions of Ray, Python and additional libraries available in
+  /// your Ray job are determined by the <code>Runtime</code> parameter of the Job
+  /// command.
   ///
   /// For more information about the available Glue versions and corresponding
   /// Spark and Python versions, see <a
@@ -23442,6 +24536,26 @@ class JobRun {
 
   /// The ID of this job run.
   final String? id;
+
+  /// A mode that describes how a job was created. Valid values are:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SCRIPT</code> - The job was created using the Glue Studio script
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>VISUAL</code> - The job was created using the Glue Studio visual
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>NOTEBOOK</code> - The job was created using an interactive sessions
+  /// notebook.
+  /// </li>
+  /// </ul>
+  /// When the <code>JobMode</code> field is missing or null, <code>SCRIPT</code>
+  /// is assigned as the default value.
+  final JobMode? jobMode;
 
   /// The name of the job definition being used in this run.
   final String? jobName;
@@ -23464,17 +24578,31 @@ class JobRun {
   /// then that security configuration is used to encrypt the log group.
   final String? logGroupName;
 
-  /// The number of Glue data processing units (DPUs) that can be allocated when
-  /// this job runs. A DPU is a relative measure of processing power that consists
-  /// of 4 vCPUs of compute capacity and 16 GB of memory. For more information,
-  /// see the <a href="https://aws.amazon.com/glue/pricing/">Glue pricing
-  /// page</a>.
+  /// This field specifies a day of the week and hour for a maintenance window for
+  /// streaming jobs. Glue periodically performs maintenance activities. During
+  /// these maintenance windows, Glue will need to restart your streaming jobs.
   ///
-  /// Do not set <code>Max Capacity</code> if using <code>WorkerType</code> and
+  /// Glue will restart the job within 3 hours of the specified maintenance
+  /// window. For instance, if you set up the maintenance window for Monday at
+  /// 10:00AM GMT, your jobs will be restarted between 10:00AM GMT to 1:00PM GMT.
+  final String? maintenanceWindow;
+
+  /// For Glue version 1.0 or earlier jobs, using the standard worker type, the
+  /// number of Glue data processing units (DPUs) that can be allocated when this
+  /// job runs. A DPU is a relative measure of processing power that consists of 4
+  /// vCPUs of compute capacity and 16 GB of memory. For more information, see the
+  /// <a href="https://aws.amazon.com/glue/pricing/"> Glue pricing page</a>.
+  ///
+  /// For Glue version 2.0+ jobs, you cannot specify a <code>Maximum
+  /// capacity</code>. Instead, you should specify a <code>Worker type</code> and
+  /// the <code>Number of workers</code>.
+  ///
+  /// Do not set <code>MaxCapacity</code> if using <code>WorkerType</code> and
   /// <code>NumberOfWorkers</code>.
   ///
   /// The value that can be allocated for <code>MaxCapacity</code> depends on
-  /// whether you are running a Python shell job or an Apache Spark ETL job:
+  /// whether you are running a Python shell job, an Apache Spark ETL job, or an
+  /// Apache Spark streaming ETL job:
   ///
   /// <ul>
   /// <li>
@@ -23484,8 +24612,9 @@ class JobRun {
   /// </li>
   /// <li>
   /// When you specify an Apache Spark ETL job
-  /// (<code>JobCommand.Name</code>="glueetl"), you can allocate a minimum of 2
-  /// DPUs. The default is 10 DPUs. This job type cannot have a fractional DPU
+  /// (<code>JobCommand.Name</code>="glueetl") or Apache Spark streaming ETL job
+  /// (<code>JobCommand.Name</code>="gluestreaming"), you can allocate from 2 to
+  /// 100 DPUs. The default is 10 DPUs. This job type cannot have a fractional DPU
   /// allocation.
   /// </li>
   /// </ul>
@@ -23517,34 +24646,65 @@ class JobRun {
   /// <code>TIMEOUT</code> status. This value overrides the timeout value set in
   /// the parent job.
   ///
-  /// Streaming jobs do not have a timeout. The default for non-streaming jobs is
-  /// 2,880 minutes (48 hours).
+  /// Streaming jobs must have timeout values less than 7 days or 10080 minutes.
+  /// When the value is left blank, the job will be restarted after 7 days based
+  /// if you have not setup a maintenance window. If you have setup maintenance
+  /// window, it will be restarted during the maintenance window after 7 days.
   final int? timeout;
 
   /// The name of the trigger that started this job run.
   final String? triggerName;
 
   /// The type of predefined worker that is allocated when a job runs. Accepts a
-  /// value of Standard, G.1X, G.2X, or G.025X.
+  /// value of G.1X, G.2X, G.4X, G.8X or G.025X for Spark jobs. Accepts the value
+  /// Z.2X for Ray jobs.
   ///
   /// <ul>
   /// <li>
-  /// For the <code>Standard</code> worker type, each worker provides 4 vCPU, 16
-  /// GB of memory and a 50GB disk, and 2 executors per worker.
+  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPUs,
+  /// 16 GB of memory) with 84GB disk (approximately 34GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost effective
+  /// way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.1X</code> worker type, each worker provides 4 vCPU, 16 GB of
-  /// memory and a 64GB disk, and 1 executor per worker.
+  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPUs,
+  /// 32 GB of memory) with 128GB disk (approximately 77GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost effective
+  /// way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.2X</code> worker type, each worker provides 8 vCPU, 32 GB of
-  /// memory and a 128GB disk, and 1 executor per worker.
+  /// For the <code>G.4X</code> worker type, each worker maps to 4 DPU (16 vCPUs,
+  /// 64 GB of memory) with 256GB disk (approximately 235GB free), and provides 1
+  /// executor per worker. We recommend this worker type for jobs whose workloads
+  /// contain your most demanding transforms, aggregations, joins, and queries.
+  /// This worker type is available only for Glue version 3.0 or later Spark ETL
+  /// jobs in the following Amazon Web Services Regions: US East (Ohio), US East
+  /// (N. Virginia), US West (Oregon), Asia Pacific (Singapore), Asia Pacific
+  /// (Sydney), Asia Pacific (Tokyo), Canada (Central), Europe (Frankfurt), Europe
+  /// (Ireland), and Europe (Stockholm).
+  /// </li>
+  /// <li>
+  /// For the <code>G.8X</code> worker type, each worker maps to 8 DPU (32 vCPUs,
+  /// 128 GB of memory) with 512GB disk (approximately 487GB free), and provides 1
+  /// executor per worker. We recommend this worker type for jobs whose workloads
+  /// contain your most demanding transforms, aggregations, joins, and queries.
+  /// This worker type is available only for Glue version 3.0 or later Spark ETL
+  /// jobs, in the same Amazon Web Services Regions as supported for the
+  /// <code>G.4X</code> worker type.
   /// </li>
   /// <li>
   /// For the <code>G.025X</code> worker type, each worker maps to 0.25 DPU (2
-  /// vCPU, 4 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for low volume streaming jobs. This worker type
-  /// is only available for Glue version 3.0 streaming jobs.
+  /// vCPUs, 4 GB of memory) with 84GB disk (approximately 34GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for low volume
+  /// streaming jobs. This worker type is only available for Glue version 3.0
+  /// streaming jobs.
+  /// </li>
+  /// <li>
+  /// For the <code>Z.2X</code> worker type, each worker maps to 2 M-DPU (8vCPUs,
+  /// 64 GB of memory) with 128 GB disk (approximately 120GB free), and provides
+  /// up to 8 Ray workers based on the autoscaler.
   /// </li>
   /// </ul>
   final WorkerType? workerType;
@@ -23560,10 +24720,12 @@ class JobRun {
     this.executionTime,
     this.glueVersion,
     this.id,
+    this.jobMode,
     this.jobName,
     this.jobRunState,
     this.lastModifiedOn,
     this.logGroupName,
+    this.maintenanceWindow,
     this.maxCapacity,
     this.notificationProperty,
     this.numberOfWorkers,
@@ -23585,14 +24747,18 @@ class JobRun {
       completedOn: timeStampFromJson(json['CompletedOn']),
       dPUSeconds: json['DPUSeconds'] as double?,
       errorMessage: json['ErrorMessage'] as String?,
-      executionClass: (json['ExecutionClass'] as String?)?.toExecutionClass(),
+      executionClass:
+          (json['ExecutionClass'] as String?)?.let(ExecutionClass.fromString),
       executionTime: json['ExecutionTime'] as int?,
       glueVersion: json['GlueVersion'] as String?,
       id: json['Id'] as String?,
+      jobMode: (json['JobMode'] as String?)?.let(JobMode.fromString),
       jobName: json['JobName'] as String?,
-      jobRunState: (json['JobRunState'] as String?)?.toJobRunState(),
+      jobRunState:
+          (json['JobRunState'] as String?)?.let(JobRunState.fromString),
       lastModifiedOn: timeStampFromJson(json['LastModifiedOn']),
       logGroupName: json['LogGroupName'] as String?,
+      maintenanceWindow: json['MaintenanceWindow'] as String?,
       maxCapacity: json['MaxCapacity'] as double?,
       notificationProperty: json['NotificationProperty'] != null
           ? NotificationProperty.fromJson(
@@ -23600,7 +24766,7 @@ class JobRun {
           : null,
       numberOfWorkers: json['NumberOfWorkers'] as int?,
       predecessorRuns: (json['PredecessorRuns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Predecessor.fromJson(e as Map<String, dynamic>))
           .toList(),
       previousRunId: json['PreviousRunId'] as String?,
@@ -23608,72 +24774,31 @@ class JobRun {
       startedOn: timeStampFromJson(json['StartedOn']),
       timeout: json['Timeout'] as int?,
       triggerName: json['TriggerName'] as String?,
-      workerType: (json['WorkerType'] as String?)?.toWorkerType(),
+      workerType: (json['WorkerType'] as String?)?.let(WorkerType.fromString),
     );
   }
 }
 
 enum JobRunState {
-  starting,
-  running,
-  stopping,
-  stopped,
-  succeeded,
-  failed,
-  timeout,
-  error,
-  waiting,
-}
+  starting('STARTING'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  timeout('TIMEOUT'),
+  error('ERROR'),
+  waiting('WAITING'),
+  expired('EXPIRED'),
+  ;
 
-extension JobRunStateValueExtension on JobRunState {
-  String toValue() {
-    switch (this) {
-      case JobRunState.starting:
-        return 'STARTING';
-      case JobRunState.running:
-        return 'RUNNING';
-      case JobRunState.stopping:
-        return 'STOPPING';
-      case JobRunState.stopped:
-        return 'STOPPED';
-      case JobRunState.succeeded:
-        return 'SUCCEEDED';
-      case JobRunState.failed:
-        return 'FAILED';
-      case JobRunState.timeout:
-        return 'TIMEOUT';
-      case JobRunState.error:
-        return 'ERROR';
-      case JobRunState.waiting:
-        return 'WAITING';
-    }
-  }
-}
+  final String value;
 
-extension JobRunStateFromString on String {
-  JobRunState toJobRunState() {
-    switch (this) {
-      case 'STARTING':
-        return JobRunState.starting;
-      case 'RUNNING':
-        return JobRunState.running;
-      case 'STOPPING':
-        return JobRunState.stopping;
-      case 'STOPPED':
-        return JobRunState.stopped;
-      case 'SUCCEEDED':
-        return JobRunState.succeeded;
-      case 'FAILED':
-        return JobRunState.failed;
-      case 'TIMEOUT':
-        return JobRunState.timeout;
-      case 'ERROR':
-        return JobRunState.error;
-      case 'WAITING':
-        return JobRunState.waiting;
-    }
-    throw Exception('$this is not known in enum JobRunState');
-  }
+  const JobRunState(this.value);
+
+  static JobRunState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobRunState'));
 }
 
 /// Specifies information used to update an existing job definition. The
@@ -23698,20 +24823,30 @@ class JobUpdate {
   /// The connections used for this job.
   final ConnectionsList? connections;
 
-  /// The default arguments for this job.
+  /// The default arguments for every run of this job, specified as name-value
+  /// pairs.
   ///
   /// You can specify arguments here that your own job-execution script consumes,
   /// as well as arguments that Glue itself consumes.
+  ///
+  /// Job arguments may be logged. Do not pass plaintext secrets as arguments.
+  /// Retrieve secrets from a Glue Connection, Secrets Manager or other secret
+  /// management mechanism if you intend to keep them within the Job.
   ///
   /// For information about how to specify and consume your own Job arguments, see
   /// the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-python-calling.html">Calling
   /// Glue APIs in Python</a> topic in the developer guide.
   ///
-  /// For information about the key-value pairs that Glue consumes to set up your
-  /// job, see the <a
+  /// For information about the arguments you can provide to this field when
+  /// configuring Spark jobs, see the <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/aws-glue-programming-etl-glue-arguments.html">Special
   /// Parameters Used by Glue</a> topic in the developer guide.
+  ///
+  /// For information about the arguments you can provide to this field when
+  /// configuring Ray jobs, see <a
+  /// href="https://docs.aws.amazon.com/glue/latest/dg/author-job-ray-job-parameters.html">Using
+  /// job parameters in Ray jobs</a> in the developer guide.
   final Map<String, String>? defaultArguments;
 
   /// Description of the job being defined.
@@ -23733,30 +24868,71 @@ class JobUpdate {
   /// concurrent runs allowed for this job.
   final ExecutionProperty? executionProperty;
 
-  /// Glue version determines the versions of Apache Spark and Python that Glue
-  /// supports. The Python version indicates the version supported for jobs of
-  /// type Spark.
+  /// In Spark jobs, <code>GlueVersion</code> determines the versions of Apache
+  /// Spark and Python that Glue available in a job. The Python version indicates
+  /// the version supported for jobs of type Spark.
+  ///
+  /// Ray jobs should set <code>GlueVersion</code> to <code>4.0</code> or greater.
+  /// However, the versions of Ray, Python and additional libraries available in
+  /// your Ray job are determined by the <code>Runtime</code> parameter of the Job
+  /// command.
   ///
   /// For more information about the available Glue versions and corresponding
   /// Spark and Python versions, see <a
   /// href="https://docs.aws.amazon.com/glue/latest/dg/add-job.html">Glue
   /// version</a> in the developer guide.
+  ///
+  /// Jobs that are created without specifying a Glue version default to Glue 0.9.
   final String? glueVersion;
+
+  /// A mode that describes how a job was created. Valid values are:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>SCRIPT</code> - The job was created using the Glue Studio script
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>VISUAL</code> - The job was created using the Glue Studio visual
+  /// editor.
+  /// </li>
+  /// <li>
+  /// <code>NOTEBOOK</code> - The job was created using an interactive sessions
+  /// notebook.
+  /// </li>
+  /// </ul>
+  /// When the <code>JobMode</code> field is missing or null, <code>SCRIPT</code>
+  /// is assigned as the default value.
+  final JobMode? jobMode;
 
   /// This field is reserved for future use.
   final String? logUri;
+
+  /// This field specifies a day of the week and hour for a maintenance window for
+  /// streaming jobs. Glue periodically performs maintenance activities. During
+  /// these maintenance windows, Glue will need to restart your streaming jobs.
+  ///
+  /// Glue will restart the job within 3 hours of the specified maintenance
+  /// window. For instance, if you set up the maintenance window for Monday at
+  /// 10:00AM GMT, your jobs will be restarted between 10:00AM GMT to 1:00PM GMT.
+  final String? maintenanceWindow;
 
   /// For Glue version 1.0 or earlier jobs, using the standard worker type, the
   /// number of Glue data processing units (DPUs) that can be allocated when this
   /// job runs. A DPU is a relative measure of processing power that consists of 4
   /// vCPUs of compute capacity and 16 GB of memory. For more information, see the
-  /// <a href="https://aws.amazon.com/glue/pricing/">Glue pricing page</a>.
+  /// <a href="https://aws.amazon.com/glue/pricing/"> Glue pricing page</a>.
   ///
-  /// Do not set <code>Max Capacity</code> if using <code>WorkerType</code> and
+  /// For Glue version 2.0+ jobs, you cannot specify a <code>Maximum
+  /// capacity</code>. Instead, you should specify a <code>Worker type</code> and
+  /// the <code>Number of workers</code>.
+  ///
+  /// Do not set <code>MaxCapacity</code> if using <code>WorkerType</code> and
   /// <code>NumberOfWorkers</code>.
   ///
   /// The value that can be allocated for <code>MaxCapacity</code> depends on
-  /// whether you are running a Python shell job or an Apache Spark ETL job:
+  /// whether you are running a Python shell job, an Apache Spark ETL job, or an
+  /// Apache Spark streaming ETL job:
   ///
   /// <ul>
   /// <li>
@@ -23767,20 +24943,18 @@ class JobUpdate {
   /// <li>
   /// When you specify an Apache Spark ETL job
   /// (<code>JobCommand.Name</code>="glueetl") or Apache Spark streaming ETL job
-  /// (<code>JobCommand.Name</code>="gluestreaming"), you can allocate a minimum
-  /// of 2 DPUs. The default is 10 DPUs. This job type cannot have a fractional
-  /// DPU allocation.
+  /// (<code>JobCommand.Name</code>="gluestreaming"), you can allocate from 2 to
+  /// 100 DPUs. The default is 10 DPUs. This job type cannot have a fractional DPU
+  /// allocation.
   /// </li>
   /// </ul>
-  /// For Glue version 2.0 jobs, you cannot instead specify a <code>Maximum
-  /// capacity</code>. Instead, you should specify a <code>Worker type</code> and
-  /// the <code>Number of workers</code>.
   final double? maxCapacity;
 
   /// The maximum number of times to retry this job if it fails.
   final int? maxRetries;
 
-  /// Non-overridable arguments for this job, specified as name-value pairs.
+  /// Arguments for this job that are not overridden when providing job arguments
+  /// in a job run, specified as name-value pairs.
   final Map<String, String>? nonOverridableArguments;
 
   /// Specifies the configuration properties of a job notification.
@@ -23804,32 +24978,64 @@ class JobUpdate {
 
   /// The job timeout in minutes. This is the maximum time that a job run can
   /// consume resources before it is terminated and enters <code>TIMEOUT</code>
-  /// status. The default is 2,880 minutes (48 hours).
+  /// status. The default is 2,880 minutes (48 hours) for batch jobs.
+  ///
+  /// Streaming jobs must have timeout values less than 7 days or 10080 minutes.
+  /// When the value is left blank, the job will be restarted after 7 days based
+  /// if you have not setup a maintenance window. If you have setup maintenance
+  /// window, it will be restarted during the maintenance window after 7 days.
   final int? timeout;
 
   /// The type of predefined worker that is allocated when a job runs. Accepts a
-  /// value of Standard, G.1X, G.2X, or G.025X.
+  /// value of G.1X, G.2X, G.4X, G.8X or G.025X for Spark jobs. Accepts the value
+  /// Z.2X for Ray jobs.
   ///
   /// <ul>
   /// <li>
-  /// For the <code>Standard</code> worker type, each worker provides 4 vCPU, 16
-  /// GB of memory and a 50GB disk, and 2 executors per worker.
+  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPUs,
+  /// 16 GB of memory) with 84GB disk (approximately 34GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost effective
+  /// way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.1X</code> worker type, each worker maps to 1 DPU (4 vCPU, 16
-  /// GB of memory, 64 GB disk), and provides 1 executor per worker. We recommend
-  /// this worker type for memory-intensive jobs.
+  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPUs,
+  /// 32 GB of memory) with 128GB disk (approximately 77GB free), and provides 1
+  /// executor per worker. We recommend this worker type for workloads such as
+  /// data transforms, joins, and queries, to offers a scalable and cost effective
+  /// way to run most jobs.
   /// </li>
   /// <li>
-  /// For the <code>G.2X</code> worker type, each worker maps to 2 DPU (8 vCPU, 32
-  /// GB of memory, 128 GB disk), and provides 1 executor per worker. We recommend
-  /// this worker type for memory-intensive jobs.
+  /// For the <code>G.4X</code> worker type, each worker maps to 4 DPU (16 vCPUs,
+  /// 64 GB of memory) with 256GB disk (approximately 235GB free), and provides 1
+  /// executor per worker. We recommend this worker type for jobs whose workloads
+  /// contain your most demanding transforms, aggregations, joins, and queries.
+  /// This worker type is available only for Glue version 3.0 or later Spark ETL
+  /// jobs in the following Amazon Web Services Regions: US East (Ohio), US East
+  /// (N. Virginia), US West (Oregon), Asia Pacific (Singapore), Asia Pacific
+  /// (Sydney), Asia Pacific (Tokyo), Canada (Central), Europe (Frankfurt), Europe
+  /// (Ireland), and Europe (Stockholm).
+  /// </li>
+  /// <li>
+  /// For the <code>G.8X</code> worker type, each worker maps to 8 DPU (32 vCPUs,
+  /// 128 GB of memory) with 512GB disk (approximately 487GB free), and provides 1
+  /// executor per worker. We recommend this worker type for jobs whose workloads
+  /// contain your most demanding transforms, aggregations, joins, and queries.
+  /// This worker type is available only for Glue version 3.0 or later Spark ETL
+  /// jobs, in the same Amazon Web Services Regions as supported for the
+  /// <code>G.4X</code> worker type.
   /// </li>
   /// <li>
   /// For the <code>G.025X</code> worker type, each worker maps to 0.25 DPU (2
-  /// vCPU, 4 GB of memory, 64 GB disk), and provides 1 executor per worker. We
-  /// recommend this worker type for low volume streaming jobs. This worker type
-  /// is only available for Glue version 3.0 streaming jobs.
+  /// vCPUs, 4 GB of memory) with 84GB disk (approximately 34GB free), and
+  /// provides 1 executor per worker. We recommend this worker type for low volume
+  /// streaming jobs. This worker type is only available for Glue version 3.0
+  /// streaming jobs.
+  /// </li>
+  /// <li>
+  /// For the <code>Z.2X</code> worker type, each worker maps to 2 M-DPU (8vCPUs,
+  /// 64 GB of memory) with 128 GB disk (approximately 120GB free), and provides
+  /// up to 8 Ray workers based on the autoscaler.
   /// </li>
   /// </ul>
   final WorkerType? workerType;
@@ -23844,7 +25050,9 @@ class JobUpdate {
     this.executionClass,
     this.executionProperty,
     this.glueVersion,
+    this.jobMode,
     this.logUri,
+    this.maintenanceWindow,
     this.maxCapacity,
     this.maxRetries,
     this.nonOverridableArguments,
@@ -23867,7 +25075,9 @@ class JobUpdate {
     final executionClass = this.executionClass;
     final executionProperty = this.executionProperty;
     final glueVersion = this.glueVersion;
+    final jobMode = this.jobMode;
     final logUri = this.logUri;
+    final maintenanceWindow = this.maintenanceWindow;
     final maxCapacity = this.maxCapacity;
     final maxRetries = this.maxRetries;
     final nonOverridableArguments = this.nonOverridableArguments;
@@ -23886,10 +25096,12 @@ class JobUpdate {
       if (connections != null) 'Connections': connections,
       if (defaultArguments != null) 'DefaultArguments': defaultArguments,
       if (description != null) 'Description': description,
-      if (executionClass != null) 'ExecutionClass': executionClass.toValue(),
+      if (executionClass != null) 'ExecutionClass': executionClass.value,
       if (executionProperty != null) 'ExecutionProperty': executionProperty,
       if (glueVersion != null) 'GlueVersion': glueVersion,
+      if (jobMode != null) 'JobMode': jobMode.value,
       if (logUri != null) 'LogUri': logUri,
+      if (maintenanceWindow != null) 'MaintenanceWindow': maintenanceWindow,
       if (maxCapacity != null) 'MaxCapacity': maxCapacity,
       if (maxRetries != null) 'MaxRetries': maxRetries,
       if (nonOverridableArguments != null)
@@ -23903,7 +25115,7 @@ class JobUpdate {
       if (sourceControlDetails != null)
         'SourceControlDetails': sourceControlDetails,
       if (timeout != null) 'Timeout': timeout,
-      if (workerType != null) 'WorkerType': workerType.toValue(),
+      if (workerType != null) 'WorkerType': workerType.value,
     };
   }
 }
@@ -23934,14 +25146,12 @@ class Join {
   factory Join.fromJson(Map<String, dynamic> json) {
     return Join(
       columns: (json['Columns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => JoinColumn.fromJson(e as Map<String, dynamic>))
           .toList(),
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      joinType: (json['JoinType'] as String).toJoinType(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
+      joinType: JoinType.fromString((json['JoinType'] as String)),
       name: json['Name'] as String,
     );
   }
@@ -23954,7 +25164,7 @@ class Join {
     return {
       'Columns': columns,
       'Inputs': inputs,
-      'JoinType': joinType.toValue(),
+      'JoinType': joinType.value,
       'Name': name,
     };
   }
@@ -23977,9 +25187,8 @@ class JoinColumn {
     return JoinColumn(
       from: json['From'] as String,
       keys: (json['Keys'] as List)
-          .whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          .nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
     );
   }
@@ -23995,51 +25204,21 @@ class JoinColumn {
 }
 
 enum JoinType {
-  equijoin,
-  left,
-  right,
-  outer,
-  leftsemi,
-  leftanti,
-}
+  equijoin('equijoin'),
+  left('left'),
+  right('right'),
+  outer('outer'),
+  leftsemi('leftsemi'),
+  leftanti('leftanti'),
+  ;
 
-extension JoinTypeValueExtension on JoinType {
-  String toValue() {
-    switch (this) {
-      case JoinType.equijoin:
-        return 'equijoin';
-      case JoinType.left:
-        return 'left';
-      case JoinType.right:
-        return 'right';
-      case JoinType.outer:
-        return 'outer';
-      case JoinType.leftsemi:
-        return 'leftsemi';
-      case JoinType.leftanti:
-        return 'leftanti';
-    }
-  }
-}
+  final String value;
 
-extension JoinTypeFromString on String {
-  JoinType toJoinType() {
-    switch (this) {
-      case 'equijoin':
-        return JoinType.equijoin;
-      case 'left':
-        return JoinType.left;
-      case 'right':
-        return JoinType.right;
-      case 'outer':
-        return JoinType.outer;
-      case 'leftsemi':
-        return JoinType.leftsemi;
-      case 'leftanti':
-        return JoinType.leftanti;
-    }
-    throw Exception('$this is not known in enum JoinType');
-  }
+  const JoinType(this.value);
+
+  static JoinType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JoinType'));
 }
 
 /// A classifier for <code>JSON</code> content.
@@ -24161,6 +25340,15 @@ class KafkaStreamingSourceOptions {
   /// value is <code>"latest"</code>.
   final String? startingOffsets;
 
+  /// The timestamp of the record in the Kafka topic to start reading data from.
+  /// The possible values are a timestamp string in UTC format of the pattern
+  /// <code>yyyy-mm-ddTHH:MM:SSZ</code> (where Z represents a UTC timezone offset
+  /// with a +/-. For example: "2023-04-04T08:00:00+08:00").
+  ///
+  /// Only one of <code>StartingTimestamp</code> or <code>StartingOffsets</code>
+  /// must be set.
+  final DateTime? startingTimestamp;
+
   /// A Java regex string that identifies the topic list to subscribe to. You must
   /// specify at least one of <code>"topicName"</code>, <code>"assign"</code> or
   /// <code>"subscribePattern"</code>.
@@ -24188,6 +25376,7 @@ class KafkaStreamingSourceOptions {
     this.retryIntervalMs,
     this.securityProtocol,
     this.startingOffsets,
+    this.startingTimestamp,
     this.subscribePattern,
     this.topicName,
   });
@@ -24210,6 +25399,7 @@ class KafkaStreamingSourceOptions {
       retryIntervalMs: json['RetryIntervalMs'] as int?,
       securityProtocol: json['SecurityProtocol'] as String?,
       startingOffsets: json['StartingOffsets'] as String?,
+      startingTimestamp: timeStampFromJson(json['StartingTimestamp']),
       subscribePattern: json['SubscribePattern'] as String?,
       topicName: json['TopicName'] as String?,
     );
@@ -24232,6 +25422,7 @@ class KafkaStreamingSourceOptions {
     final retryIntervalMs = this.retryIntervalMs;
     final securityProtocol = this.securityProtocol;
     final startingOffsets = this.startingOffsets;
+    final startingTimestamp = this.startingTimestamp;
     final subscribePattern = this.subscribePattern;
     final topicName = this.topicName;
     return {
@@ -24253,6 +25444,8 @@ class KafkaStreamingSourceOptions {
       if (retryIntervalMs != null) 'RetryIntervalMs': retryIntervalMs,
       if (securityProtocol != null) 'SecurityProtocol': securityProtocol,
       if (startingOffsets != null) 'StartingOffsets': startingOffsets,
+      if (startingTimestamp != null)
+        'StartingTimestamp': iso8601ToJson(startingTimestamp),
       if (subscribePattern != null) 'SubscribePattern': subscribePattern,
       if (topicName != null) 'TopicName': topicName,
     };
@@ -24323,12 +25516,17 @@ class KinesisStreamingSourceOptions {
   /// configurable for Glue version 2.0 and above.
   final int? idleTimeBetweenReadsInMs;
 
-  /// The maximum number of records to fetch per shard in the Kinesis data stream.
-  /// The default value is <code>100000</code>.
+  /// The maximum number of records to fetch per shard in the Kinesis data stream
+  /// per microbatch. Note: The client can exceed this limit if the streaming job
+  /// has already read extra records from Kinesis (in the same get-records call).
+  /// If <code>MaxFetchRecordsPerShard</code> needs to be strict then it needs to
+  /// be a multiple of <code>MaxRecordPerRead</code>. The default value is
+  /// <code>100000</code>.
   final int? maxFetchRecordsPerShard;
 
-  /// The maximum time spent in the job executor to fetch a record from the
-  /// Kinesis data stream per shard, specified in milliseconds (ms). The default
+  /// The maximum time spent for the job executor to read records for the current
+  /// batch from the Kinesis data stream, specified in milliseconds (ms). Multiple
+  /// <code>GetRecords</code> API calls may be made within this time. The default
   /// value is <code>1000</code>.
   final int? maxFetchTimeInMs;
 
@@ -24361,9 +25559,21 @@ class KinesisStreamingSourceOptions {
   final String? roleSessionName;
 
   /// The starting position in the Kinesis data stream to read data from. The
-  /// possible values are <code>"latest"</code>, <code>"trim_horizon"</code>, or
-  /// <code>"earliest"</code>. The default value is <code>"latest"</code>.
+  /// possible values are <code>"latest"</code>, <code>"trim_horizon"</code>,
+  /// <code>"earliest"</code>, or a timestamp string in UTC format in the pattern
+  /// <code>yyyy-mm-ddTHH:MM:SSZ</code> (where <code>Z</code> represents a UTC
+  /// timezone offset with a +/-. For example: "2023-04-04T08:00:00-04:00"). The
+  /// default value is <code>"latest"</code>.
+  ///
+  /// Note: Using a value that is a timestamp string in UTC format for
+  /// "startingPosition" is supported only for Glue version 4.0 or later.
   final StartingPosition? startingPosition;
+
+  /// The timestamp of the record in the Kinesis data stream to start reading data
+  /// from. The possible values are a timestamp string in UTC format of the
+  /// pattern <code>yyyy-mm-ddTHH:MM:SSZ</code> (where Z represents a UTC timezone
+  /// offset with a +/-. For example: "2023-04-04T08:00:00+08:00").
+  final DateTime? startingTimestamp;
 
   /// The Amazon Resource Name (ARN) of the Kinesis data stream.
   final String? streamArn;
@@ -24390,6 +25600,7 @@ class KinesisStreamingSourceOptions {
     this.roleArn,
     this.roleSessionName,
     this.startingPosition,
+    this.startingTimestamp,
     this.streamArn,
     this.streamName,
   });
@@ -24413,8 +25624,9 @@ class KinesisStreamingSourceOptions {
       retryIntervalMs: json['RetryIntervalMs'] as int?,
       roleArn: json['RoleArn'] as String?,
       roleSessionName: json['RoleSessionName'] as String?,
-      startingPosition:
-          (json['StartingPosition'] as String?)?.toStartingPosition(),
+      startingPosition: (json['StartingPosition'] as String?)
+          ?.let(StartingPosition.fromString),
+      startingTimestamp: timeStampFromJson(json['StartingTimestamp']),
       streamArn: json['StreamArn'] as String?,
       streamName: json['StreamName'] as String?,
     );
@@ -24439,6 +25651,7 @@ class KinesisStreamingSourceOptions {
     final roleArn = this.roleArn;
     final roleSessionName = this.roleSessionName;
     final startingPosition = this.startingPosition;
+    final startingTimestamp = this.startingTimestamp;
     final streamArn = this.streamArn;
     final streamName = this.streamName;
     return {
@@ -24464,8 +25677,9 @@ class KinesisStreamingSourceOptions {
       if (retryIntervalMs != null) 'RetryIntervalMs': retryIntervalMs,
       if (roleArn != null) 'RoleArn': roleArn,
       if (roleSessionName != null) 'RoleSessionName': roleSessionName,
-      if (startingPosition != null)
-        'StartingPosition': startingPosition.toValue(),
+      if (startingPosition != null) 'StartingPosition': startingPosition.value,
+      if (startingTimestamp != null)
+        'StartingTimestamp': iso8601ToJson(startingTimestamp),
       if (streamArn != null) 'StreamArn': streamArn,
       if (streamName != null) 'StreamName': streamName,
     };
@@ -24524,31 +25738,17 @@ class LakeFormationConfiguration {
 }
 
 enum Language {
-  python,
-  scala,
-}
+  python('PYTHON'),
+  scala('SCALA'),
+  ;
 
-extension LanguageValueExtension on Language {
-  String toValue() {
-    switch (this) {
-      case Language.python:
-        return 'PYTHON';
-      case Language.scala:
-        return 'SCALA';
-    }
-  }
-}
+  final String value;
 
-extension LanguageFromString on String {
-  Language toLanguage() {
-    switch (this) {
-      case 'PYTHON':
-        return Language.python;
-      case 'SCALA':
-        return Language.scala;
-    }
-    throw Exception('$this is not known in enum Language');
-  }
+  const Language(this.value);
+
+  static Language fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Language'));
 }
 
 /// When there are multiple versions of a blueprint and the latest version has
@@ -24627,42 +25827,25 @@ class LastCrawlInfo {
       logStream: json['LogStream'] as String?,
       messagePrefix: json['MessagePrefix'] as String?,
       startTime: timeStampFromJson(json['StartTime']),
-      status: (json['Status'] as String?)?.toLastCrawlStatus(),
+      status: (json['Status'] as String?)?.let(LastCrawlStatus.fromString),
     );
   }
 }
 
 enum LastCrawlStatus {
-  succeeded,
-  cancelled,
-  failed,
-}
+  succeeded('SUCCEEDED'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  ;
 
-extension LastCrawlStatusValueExtension on LastCrawlStatus {
-  String toValue() {
-    switch (this) {
-      case LastCrawlStatus.succeeded:
-        return 'SUCCEEDED';
-      case LastCrawlStatus.cancelled:
-        return 'CANCELLED';
-      case LastCrawlStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension LastCrawlStatusFromString on String {
-  LastCrawlStatus toLastCrawlStatus() {
-    switch (this) {
-      case 'SUCCEEDED':
-        return LastCrawlStatus.succeeded;
-      case 'CANCELLED':
-        return LastCrawlStatus.cancelled;
-      case 'FAILED':
-        return LastCrawlStatus.failed;
-    }
-    throw Exception('$this is not known in enum LastCrawlStatus');
-  }
+  const LastCrawlStatus(this.value);
+
+  static LastCrawlStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LastCrawlStatus'));
 }
 
 /// Specifies data lineage configuration settings for the crawler.
@@ -24686,7 +25869,7 @@ class LineageConfiguration {
   factory LineageConfiguration.fromJson(Map<String, dynamic> json) {
     return LineageConfiguration(
       crawlerLineageSettings: (json['CrawlerLineageSettings'] as String?)
-          ?.toCrawlerLineageSettings(),
+          ?.let(CrawlerLineageSettings.fromString),
     );
   }
 
@@ -24694,7 +25877,7 @@ class LineageConfiguration {
     final crawlerLineageSettings = this.crawlerLineageSettings;
     return {
       if (crawlerLineageSettings != null)
-        'CrawlerLineageSettings': crawlerLineageSettings.toValue(),
+        'CrawlerLineageSettings': crawlerLineageSettings.value,
     };
   }
 }
@@ -24714,7 +25897,31 @@ class ListBlueprintsResponse {
   factory ListBlueprintsResponse.fromJson(Map<String, dynamic> json) {
     return ListBlueprintsResponse(
       blueprints: (json['Blueprints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class ListColumnStatisticsTaskRunsResponse {
+  /// A list of column statistics task run IDs.
+  final List<String>? columnStatisticsTaskRunIds;
+
+  /// A continuation token, if not all task run IDs have yet been returned.
+  final String? nextToken;
+
+  ListColumnStatisticsTaskRunsResponse({
+    this.columnStatisticsTaskRunIds,
+    this.nextToken,
+  });
+
+  factory ListColumnStatisticsTaskRunsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListColumnStatisticsTaskRunsResponse(
+      columnStatisticsTaskRunIds: (json['ColumnStatisticsTaskRunIds'] as List?)
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -24739,7 +25946,7 @@ class ListCrawlersResponse {
   factory ListCrawlersResponse.fromJson(Map<String, dynamic> json) {
     return ListCrawlersResponse(
       crawlerNames: (json['CrawlerNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -24764,7 +25971,7 @@ class ListCrawlsResponse {
   factory ListCrawlsResponse.fromJson(Map<String, dynamic> json) {
     return ListCrawlsResponse(
       crawls: (json['Crawls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CrawlerHistory.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -24788,7 +25995,7 @@ class ListCustomEntityTypesResponse {
   factory ListCustomEntityTypesResponse.fromJson(Map<String, dynamic> json) {
     return ListCustomEntityTypesResponse(
       customEntityTypes: (json['CustomEntityTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomEntityType.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -24811,7 +26018,7 @@ class ListDataQualityResultsResponse {
   factory ListDataQualityResultsResponse.fromJson(Map<String, dynamic> json) {
     return ListDataQualityResultsResponse(
       results: (json['Results'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) =>
               DataQualityResultDescription.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -24837,7 +26044,7 @@ class ListDataQualityRuleRecommendationRunsResponse {
     return ListDataQualityRuleRecommendationRunsResponse(
       nextToken: json['NextToken'] as String?,
       runs: (json['Runs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataQualityRuleRecommendationRunDescription.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -24863,7 +26070,7 @@ class ListDataQualityRulesetEvaluationRunsResponse {
     return ListDataQualityRulesetEvaluationRunsResponse(
       nextToken: json['NextToken'] as String?,
       runs: (json['Runs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataQualityRulesetEvaluationRunDescription.fromJson(
               e as Map<String, dynamic>))
           .toList(),
@@ -24887,7 +26094,7 @@ class ListDataQualityRulesetsResponse {
     return ListDataQualityRulesetsResponse(
       nextToken: json['NextToken'] as String?,
       rulesets: (json['Rulesets'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               DataQualityRulesetListDetails.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -24912,7 +26119,7 @@ class ListDevEndpointsResponse {
   factory ListDevEndpointsResponse.fromJson(Map<String, dynamic> json) {
     return ListDevEndpointsResponse(
       devEndpointNames: (json['DevEndpointNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -24936,7 +26143,7 @@ class ListJobsResponse {
   factory ListJobsResponse.fromJson(Map<String, dynamic> json) {
     return ListJobsResponse(
       jobNames: (json['JobNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -24961,7 +26168,7 @@ class ListMLTransformsResponse {
   factory ListMLTransformsResponse.fromJson(Map<String, dynamic> json) {
     return ListMLTransformsResponse(
       transformIds: (json['TransformIds'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -24987,7 +26194,7 @@ class ListRegistriesResponse {
     return ListRegistriesResponse(
       nextToken: json['NextToken'] as String?,
       registries: (json['Registries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RegistryListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -25012,7 +26219,7 @@ class ListSchemaVersionsResponse {
     return ListSchemaVersionsResponse(
       nextToken: json['NextToken'] as String?,
       schemas: (json['Schemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SchemaVersionListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -25037,7 +26244,7 @@ class ListSchemasResponse {
     return ListSchemasResponse(
       nextToken: json['NextToken'] as String?,
       schemas: (json['Schemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SchemaListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -25062,13 +26269,10 @@ class ListSessionsResponse {
 
   factory ListSessionsResponse.fromJson(Map<String, dynamic> json) {
     return ListSessionsResponse(
-      ids: (json['Ids'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      ids: (json['Ids'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['NextToken'] as String?,
       sessions: (json['Sessions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Session.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -25091,8 +26295,47 @@ class ListStatementsResponse {
     return ListStatementsResponse(
       nextToken: json['NextToken'] as String?,
       statements: (json['Statements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Statement.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class ListTableOptimizerRunsResponse {
+  /// The Catalog ID of the table.
+  final String? catalogId;
+
+  /// The name of the database in the catalog in which the table resides.
+  final String? databaseName;
+
+  /// A continuation token for paginating the returned list of optimizer runs,
+  /// returned if the current segment of the list is not the last.
+  final String? nextToken;
+
+  /// The name of the table.
+  final String? tableName;
+
+  /// A list of the optimizer runs associated with a table.
+  final List<TableOptimizerRun>? tableOptimizerRuns;
+
+  ListTableOptimizerRunsResponse({
+    this.catalogId,
+    this.databaseName,
+    this.nextToken,
+    this.tableName,
+    this.tableOptimizerRuns,
+  });
+
+  factory ListTableOptimizerRunsResponse.fromJson(Map<String, dynamic> json) {
+    return ListTableOptimizerRunsResponse(
+      catalogId: json['CatalogId'] as String?,
+      databaseName: json['DatabaseName'] as String?,
+      nextToken: json['NextToken'] as String?,
+      tableName: json['TableName'] as String?,
+      tableOptimizerRuns: (json['TableOptimizerRuns'] as List?)
+          ?.nonNulls
+          .map((e) => TableOptimizerRun.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
@@ -25116,7 +26359,7 @@ class ListTriggersResponse {
     return ListTriggersResponse(
       nextToken: json['NextToken'] as String?,
       triggerNames: (json['TriggerNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -25139,7 +26382,7 @@ class ListWorkflowsResponse {
     return ListWorkflowsResponse(
       nextToken: json['NextToken'] as String?,
       workflows: (json['Workflows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -25176,54 +26419,31 @@ class Location {
 }
 
 enum Logical {
-  and,
-  any,
-}
+  and('AND'),
+  any('ANY'),
+  ;
 
-extension LogicalValueExtension on Logical {
-  String toValue() {
-    switch (this) {
-      case Logical.and:
-        return 'AND';
-      case Logical.any:
-        return 'ANY';
-    }
-  }
-}
+  final String value;
 
-extension LogicalFromString on String {
-  Logical toLogical() {
-    switch (this) {
-      case 'AND':
-        return Logical.and;
-      case 'ANY':
-        return Logical.any;
-    }
-    throw Exception('$this is not known in enum Logical');
-  }
+  const Logical(this.value);
+
+  static Logical fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Logical'));
 }
 
 enum LogicalOperator {
-  equals,
-}
+  equals('EQUALS'),
+  ;
 
-extension LogicalOperatorValueExtension on LogicalOperator {
-  String toValue() {
-    switch (this) {
-      case LogicalOperator.equals:
-        return 'EQUALS';
-    }
-  }
-}
+  final String value;
 
-extension LogicalOperatorFromString on String {
-  LogicalOperator toLogicalOperator() {
-    switch (this) {
-      case 'EQUALS':
-        return LogicalOperator.equals;
-    }
-    throw Exception('$this is not known in enum LogicalOperator');
-  }
+  const LogicalOperator(this.value);
+
+  static LogicalOperator fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum LogicalOperator'));
 }
 
 /// Defines column statistics supported for integer data columns.
@@ -25469,7 +26689,7 @@ class MLTransform {
           : null,
       glueVersion: json['GlueVersion'] as String?,
       inputRecordTables: (json['InputRecordTables'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueTable.fromJson(e as Map<String, dynamic>))
           .toList(),
       labelCount: json['LabelCount'] as int?,
@@ -25484,17 +26704,17 @@ class MLTransform {
           : null,
       role: json['Role'] as String?,
       schema: (json['Schema'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SchemaColumn.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['Status'] as String?)?.toTransformStatusType(),
+      status: (json['Status'] as String?)?.let(TransformStatusType.fromString),
       timeout: json['Timeout'] as int?,
       transformEncryption: json['TransformEncryption'] != null
           ? TransformEncryption.fromJson(
               json['TransformEncryption'] as Map<String, dynamic>)
           : null,
       transformId: json['TransformId'] as String?,
-      workerType: (json['WorkerType'] as String?)?.toWorkerType(),
+      workerType: (json['WorkerType'] as String?)?.let(WorkerType.fromString),
     );
   }
 }
@@ -25525,8 +26745,8 @@ class MLUserDataEncryption {
 
   factory MLUserDataEncryption.fromJson(Map<String, dynamic> json) {
     return MLUserDataEncryption(
-      mlUserDataEncryptionMode: (json['MlUserDataEncryptionMode'] as String)
-          .toMLUserDataEncryptionModeString(),
+      mlUserDataEncryptionMode: MLUserDataEncryptionModeString.fromString(
+          (json['MlUserDataEncryptionMode'] as String)),
       kmsKeyId: json['KmsKeyId'] as String?,
     );
   }
@@ -25535,40 +26755,25 @@ class MLUserDataEncryption {
     final mlUserDataEncryptionMode = this.mlUserDataEncryptionMode;
     final kmsKeyId = this.kmsKeyId;
     return {
-      'MlUserDataEncryptionMode': mlUserDataEncryptionMode.toValue(),
+      'MlUserDataEncryptionMode': mlUserDataEncryptionMode.value,
       if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
     };
   }
 }
 
 enum MLUserDataEncryptionModeString {
-  disabled,
-  sseKms,
-}
+  disabled('DISABLED'),
+  sseKms('SSE-KMS'),
+  ;
 
-extension MLUserDataEncryptionModeStringValueExtension
-    on MLUserDataEncryptionModeString {
-  String toValue() {
-    switch (this) {
-      case MLUserDataEncryptionModeString.disabled:
-        return 'DISABLED';
-      case MLUserDataEncryptionModeString.sseKms:
-        return 'SSE-KMS';
-    }
-  }
-}
+  final String value;
 
-extension MLUserDataEncryptionModeStringFromString on String {
-  MLUserDataEncryptionModeString toMLUserDataEncryptionModeString() {
-    switch (this) {
-      case 'DISABLED':
-        return MLUserDataEncryptionModeString.disabled;
-      case 'SSE-KMS':
-        return MLUserDataEncryptionModeString.sseKms;
-    }
-    throw Exception(
-        '$this is not known in enum MLUserDataEncryptionModeString');
-  }
+  const MLUserDataEncryptionModeString(this.value);
+
+  static MLUserDataEncryptionModeString fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum MLUserDataEncryptionModeString'));
 }
 
 /// Specifies the mapping of data property keys.
@@ -25620,12 +26825,12 @@ class Mapping {
   factory Mapping.fromJson(Map<String, dynamic> json) {
     return Mapping(
       children: (json['Children'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Mapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       dropped: json['Dropped'] as bool?,
       fromPath: (json['FromPath'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       fromType: json['FromType'] as String?,
@@ -25738,15 +26943,12 @@ class Merge {
 
   factory Merge.fromJson(Map<String, dynamic> json) {
     return Merge(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       primaryKeys: (json['PrimaryKeys'] as List)
-          .whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          .nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       source: json['Source'] as String,
     );
@@ -25788,7 +26990,7 @@ class MetadataInfo {
       createdTime: json['CreatedTime'] as String?,
       metadataValue: json['MetadataValue'] as String?,
       otherMetadataValueList: (json['OtherMetadataValueList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               OtherMetadataValueListItem.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -25816,6 +27018,55 @@ class MetadataKeyValuePair {
       if (metadataKey != null) 'MetadataKey': metadataKey,
       if (metadataValue != null) 'MetadataValue': metadataValue,
     };
+  }
+}
+
+enum MetadataOperation {
+  create('CREATE'),
+  ;
+
+  final String value;
+
+  const MetadataOperation(this.value);
+
+  static MetadataOperation fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MetadataOperation'));
+}
+
+/// Describes the metric based observation generated based on evaluated data
+/// quality metrics.
+class MetricBasedObservation {
+  /// The name of the data quality metric used for generating the observation.
+  final String? metricName;
+
+  /// An object of type <code>DataQualityMetricValues</code> representing the
+  /// analysis of the data quality metric value.
+  final DataQualityMetricValues? metricValues;
+
+  /// A list of new data quality rules generated as part of the observation based
+  /// on the data quality metric value.
+  final List<String>? newRules;
+
+  MetricBasedObservation({
+    this.metricName,
+    this.metricValues,
+    this.newRules,
+  });
+
+  factory MetricBasedObservation.fromJson(Map<String, dynamic> json) {
+    return MetricBasedObservation(
+      metricName: json['MetricName'] as String?,
+      metricValues: json['MetricValues'] != null
+          ? DataQualityMetricValues.fromJson(
+              json['MetricValues'] as Map<String, dynamic>)
+          : null,
+      newRules: (json['NewRules'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
   }
 }
 
@@ -25880,10 +27131,8 @@ class MicrosoftSQLServerCatalogTarget {
   factory MicrosoftSQLServerCatalogTarget.fromJson(Map<String, dynamic> json) {
     return MicrosoftSQLServerCatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
     );
@@ -26008,10 +27257,8 @@ class MySQLCatalogTarget {
   factory MySQLCatalogTarget.fromJson(Map<String, dynamic> json) {
     return MySQLCatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
     );
@@ -26075,43 +27322,25 @@ class Node {
           ? TriggerNodeDetails.fromJson(
               json['TriggerDetails'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toNodeType(),
+      type: (json['Type'] as String?)?.let(NodeType.fromString),
       uniqueId: json['UniqueId'] as String?,
     );
   }
 }
 
 enum NodeType {
-  crawler,
-  job,
-  trigger,
-}
+  crawler('CRAWLER'),
+  job('JOB'),
+  trigger('TRIGGER'),
+  ;
 
-extension NodeTypeValueExtension on NodeType {
-  String toValue() {
-    switch (this) {
-      case NodeType.crawler:
-        return 'CRAWLER';
-      case NodeType.job:
-        return 'JOB';
-      case NodeType.trigger:
-        return 'TRIGGER';
-    }
-  }
-}
+  final String value;
 
-extension NodeTypeFromString on String {
-  NodeType toNodeType() {
-    switch (this) {
-      case 'CRAWLER':
-        return NodeType.crawler;
-      case 'JOB':
-        return NodeType.job;
-      case 'TRIGGER':
-        return NodeType.trigger;
-    }
-    throw Exception('$this is not known in enum NodeType');
-  }
+  const NodeType(this.value);
+
+  static NodeType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum NodeType'));
 }
 
 /// Specifies configuration properties of a notification.
@@ -26203,6 +27432,169 @@ class NullValueField {
     return {
       'Datatype': datatype,
       'Value': value,
+    };
+  }
+}
+
+/// The OAuth2 client app used for the connection.
+class OAuth2ClientApplication {
+  /// The reference to the SaaS-side client app that is Amazon Web Services
+  /// managed.
+  final String? awsManagedClientApplicationReference;
+
+  /// The client application clientID if the ClientAppType is
+  /// <code>USER_MANAGED</code>.
+  final String? userManagedClientApplicationClientId;
+
+  OAuth2ClientApplication({
+    this.awsManagedClientApplicationReference,
+    this.userManagedClientApplicationClientId,
+  });
+
+  factory OAuth2ClientApplication.fromJson(Map<String, dynamic> json) {
+    return OAuth2ClientApplication(
+      awsManagedClientApplicationReference:
+          json['AWSManagedClientApplicationReference'] as String?,
+      userManagedClientApplicationClientId:
+          json['UserManagedClientApplicationClientId'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final awsManagedClientApplicationReference =
+        this.awsManagedClientApplicationReference;
+    final userManagedClientApplicationClientId =
+        this.userManagedClientApplicationClientId;
+    return {
+      if (awsManagedClientApplicationReference != null)
+        'AWSManagedClientApplicationReference':
+            awsManagedClientApplicationReference,
+      if (userManagedClientApplicationClientId != null)
+        'UserManagedClientApplicationClientId':
+            userManagedClientApplicationClientId,
+    };
+  }
+}
+
+enum OAuth2GrantType {
+  authorizationCode('AUTHORIZATION_CODE'),
+  clientCredentials('CLIENT_CREDENTIALS'),
+  jwtBearer('JWT_BEARER'),
+  ;
+
+  final String value;
+
+  const OAuth2GrantType(this.value);
+
+  static OAuth2GrantType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OAuth2GrantType'));
+}
+
+/// A structure containing properties for OAuth2 authentication.
+class OAuth2Properties {
+  /// The client application type. For example, AWS_MANAGED or USER_MANAGED.
+  final OAuth2ClientApplication? oAuth2ClientApplication;
+
+  /// The OAuth2 grant type. For example, <code>AUTHORIZATION_CODE</code>,
+  /// <code>JWT_BEARER</code>, or <code>CLIENT_CREDENTIALS</code>.
+  final OAuth2GrantType? oAuth2GrantType;
+
+  /// The URL of the provider's authentication server, to exchange an
+  /// authorization code for an access token.
+  final String? tokenUrl;
+
+  /// A map of parameters that are added to the token <code>GET</code> request.
+  final Map<String, String>? tokenUrlParametersMap;
+
+  OAuth2Properties({
+    this.oAuth2ClientApplication,
+    this.oAuth2GrantType,
+    this.tokenUrl,
+    this.tokenUrlParametersMap,
+  });
+
+  factory OAuth2Properties.fromJson(Map<String, dynamic> json) {
+    return OAuth2Properties(
+      oAuth2ClientApplication: json['OAuth2ClientApplication'] != null
+          ? OAuth2ClientApplication.fromJson(
+              json['OAuth2ClientApplication'] as Map<String, dynamic>)
+          : null,
+      oAuth2GrantType:
+          (json['OAuth2GrantType'] as String?)?.let(OAuth2GrantType.fromString),
+      tokenUrl: json['TokenUrl'] as String?,
+      tokenUrlParametersMap:
+          (json['TokenUrlParametersMap'] as Map<String, dynamic>?)
+              ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+}
+
+/// A structure containing properties for OAuth2 in the CreateConnection
+/// request.
+class OAuth2PropertiesInput {
+  /// The set of properties required for the the OAuth2
+  /// <code>AUTHORIZATION_CODE</code> grant type.
+  final AuthorizationCodeProperties? authorizationCodeProperties;
+
+  /// The client application type in the CreateConnection request. For example,
+  /// <code>AWS_MANAGED</code> or <code>USER_MANAGED</code>.
+  final OAuth2ClientApplication? oAuth2ClientApplication;
+
+  /// The OAuth2 grant type in the CreateConnection request. For example,
+  /// <code>AUTHORIZATION_CODE</code>, <code>JWT_BEARER</code>, or
+  /// <code>CLIENT_CREDENTIALS</code>.
+  final OAuth2GrantType? oAuth2GrantType;
+
+  /// The URL of the provider's authentication server, to exchange an
+  /// authorization code for an access token.
+  final String? tokenUrl;
+
+  /// A map of parameters that are added to the token <code>GET</code> request.
+  final Map<String, String>? tokenUrlParametersMap;
+
+  OAuth2PropertiesInput({
+    this.authorizationCodeProperties,
+    this.oAuth2ClientApplication,
+    this.oAuth2GrantType,
+    this.tokenUrl,
+    this.tokenUrlParametersMap,
+  });
+
+  Map<String, dynamic> toJson() {
+    final authorizationCodeProperties = this.authorizationCodeProperties;
+    final oAuth2ClientApplication = this.oAuth2ClientApplication;
+    final oAuth2GrantType = this.oAuth2GrantType;
+    final tokenUrl = this.tokenUrl;
+    final tokenUrlParametersMap = this.tokenUrlParametersMap;
+    return {
+      if (authorizationCodeProperties != null)
+        'AuthorizationCodeProperties': authorizationCodeProperties,
+      if (oAuth2ClientApplication != null)
+        'OAuth2ClientApplication': oAuth2ClientApplication,
+      if (oAuth2GrantType != null) 'OAuth2GrantType': oAuth2GrantType.value,
+      if (tokenUrl != null) 'TokenUrl': tokenUrl,
+      if (tokenUrlParametersMap != null)
+        'TokenUrlParametersMap': tokenUrlParametersMap,
+    };
+  }
+}
+
+/// A structure representing an open format table.
+class OpenTableFormatInput {
+  /// Specifies an <code>IcebergInput</code> structure that defines an Apache
+  /// Iceberg metadata table.
+  final IcebergInput? icebergInput;
+
+  OpenTableFormatInput({
+    this.icebergInput,
+  });
+
+  Map<String, dynamic> toJson() {
+    final icebergInput = this.icebergInput;
+    return {
+      if (icebergInput != null) 'IcebergInput': icebergInput,
     };
   }
 }
@@ -26305,10 +27697,8 @@ class OracleSQLCatalogTarget {
   factory OracleSQLCatalogTarget.fromJson(Map<String, dynamic> json) {
     return OracleSQLCatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
     );
@@ -26431,15 +27821,13 @@ class PIIDetection {
   factory PIIDetection.fromJson(Map<String, dynamic> json) {
     return PIIDetection(
       entityTypesToDetect: (json['EntityTypesToDetect'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
-      piiType: (json['PiiType'] as String).toPiiType(),
+      piiType: PiiType.fromString((json['PiiType'] as String)),
       maskValue: json['MaskValue'] as String?,
       outputColumnName: json['OutputColumnName'] as String?,
       sampleFraction: json['SampleFraction'] as double?,
@@ -26460,7 +27848,7 @@ class PIIDetection {
       'EntityTypesToDetect': entityTypesToDetect,
       'Inputs': inputs,
       'Name': name,
-      'PiiType': piiType.toValue(),
+      'PiiType': piiType.value,
       if (maskValue != null) 'MaskValue': maskValue,
       if (outputColumnName != null) 'OutputColumnName': outputColumnName,
       if (sampleFraction != null) 'SampleFraction': sampleFraction,
@@ -26470,99 +27858,40 @@ class PIIDetection {
 }
 
 enum ParamType {
-  str,
-  int,
-  float,
-  complex,
-  $bool,
-  list,
-  $null,
-}
+  str('str'),
+  int('int'),
+  float('float'),
+  complex('complex'),
+  $bool('bool'),
+  list('list'),
+  $null('null'),
+  ;
 
-extension ParamTypeValueExtension on ParamType {
-  String toValue() {
-    switch (this) {
-      case ParamType.str:
-        return 'str';
-      case ParamType.int:
-        return 'int';
-      case ParamType.float:
-        return 'float';
-      case ParamType.complex:
-        return 'complex';
-      case ParamType.$bool:
-        return 'bool';
-      case ParamType.list:
-        return 'list';
-      case ParamType.$null:
-        return 'null';
-    }
-  }
-}
+  final String value;
 
-extension ParamTypeFromString on String {
-  ParamType toParamType() {
-    switch (this) {
-      case 'str':
-        return ParamType.str;
-      case 'int':
-        return ParamType.int;
-      case 'float':
-        return ParamType.float;
-      case 'complex':
-        return ParamType.complex;
-      case 'bool':
-        return ParamType.$bool;
-      case 'list':
-        return ParamType.list;
-      case 'null':
-        return ParamType.$null;
-    }
-    throw Exception('$this is not known in enum ParamType');
-  }
+  const ParamType(this.value);
+
+  static ParamType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ParamType'));
 }
 
 enum ParquetCompressionType {
-  snappy,
-  lzo,
-  gzip,
-  uncompressed,
-  none,
-}
+  snappy('snappy'),
+  lzo('lzo'),
+  gzip('gzip'),
+  uncompressed('uncompressed'),
+  none('none'),
+  ;
 
-extension ParquetCompressionTypeValueExtension on ParquetCompressionType {
-  String toValue() {
-    switch (this) {
-      case ParquetCompressionType.snappy:
-        return 'snappy';
-      case ParquetCompressionType.lzo:
-        return 'lzo';
-      case ParquetCompressionType.gzip:
-        return 'gzip';
-      case ParquetCompressionType.uncompressed:
-        return 'uncompressed';
-      case ParquetCompressionType.none:
-        return 'none';
-    }
-  }
-}
+  final String value;
 
-extension ParquetCompressionTypeFromString on String {
-  ParquetCompressionType toParquetCompressionType() {
-    switch (this) {
-      case 'snappy':
-        return ParquetCompressionType.snappy;
-      case 'lzo':
-        return ParquetCompressionType.lzo;
-      case 'gzip':
-        return ParquetCompressionType.gzip;
-      case 'uncompressed':
-        return ParquetCompressionType.uncompressed;
-      case 'none':
-        return ParquetCompressionType.none;
-    }
-    throw Exception('$this is not known in enum ParquetCompressionType');
-  }
+  const ParquetCompressionType(this.value);
+
+  static ParquetCompressionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ParquetCompressionType'));
 }
 
 /// Represents a slice of table data.
@@ -26621,10 +27950,8 @@ class Partition {
               json['StorageDescriptor'] as Map<String, dynamic>)
           : null,
       tableName: json['TableName'] as String?,
-      values: (json['Values'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -26648,7 +27975,7 @@ class PartitionError {
           ? ErrorDetail.fromJson(json['ErrorDetail'] as Map<String, dynamic>)
           : null,
       partitionValues: (json['PartitionValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -26722,13 +28049,14 @@ class PartitionIndexDescriptor {
   factory PartitionIndexDescriptor.fromJson(Map<String, dynamic> json) {
     return PartitionIndexDescriptor(
       indexName: json['IndexName'] as String,
-      indexStatus: (json['IndexStatus'] as String).toPartitionIndexStatus(),
+      indexStatus:
+          PartitionIndexStatus.fromString((json['IndexStatus'] as String)),
       keys: (json['Keys'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => KeySchemaElement.fromJson(e as Map<String, dynamic>))
           .toList(),
       backfillErrors: (json['BackfillErrors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => BackfillError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -26736,41 +28064,20 @@ class PartitionIndexDescriptor {
 }
 
 enum PartitionIndexStatus {
-  creating,
-  active,
-  deleting,
-  failed,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  ;
 
-extension PartitionIndexStatusValueExtension on PartitionIndexStatus {
-  String toValue() {
-    switch (this) {
-      case PartitionIndexStatus.creating:
-        return 'CREATING';
-      case PartitionIndexStatus.active:
-        return 'ACTIVE';
-      case PartitionIndexStatus.deleting:
-        return 'DELETING';
-      case PartitionIndexStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension PartitionIndexStatusFromString on String {
-  PartitionIndexStatus toPartitionIndexStatus() {
-    switch (this) {
-      case 'CREATING':
-        return PartitionIndexStatus.creating;
-      case 'ACTIVE':
-        return PartitionIndexStatus.active;
-      case 'DELETING':
-        return PartitionIndexStatus.deleting;
-      case 'FAILED':
-        return PartitionIndexStatus.failed;
-    }
-    throw Exception('$this is not known in enum PartitionIndexStatus');
-  }
+  const PartitionIndexStatus(this.value);
+
+  static PartitionIndexStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PartitionIndexStatus'));
 }
 
 /// The structure used to create and update a partition.
@@ -26834,10 +28141,8 @@ class PartitionValueList {
 
   factory PartitionValueList.fromJson(Map<String, dynamic> json) {
     return PartitionValueList(
-      values: (json['Values'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      values:
+          (json['Values'] as List).nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -26850,101 +28155,46 @@ class PartitionValueList {
 }
 
 enum Permission {
-  all,
-  select,
-  alter,
-  drop,
-  delete,
-  insert,
-  createDatabase,
-  createTable,
-  dataLocationAccess,
-}
+  all('ALL'),
+  select('SELECT'),
+  alter('ALTER'),
+  drop('DROP'),
+  delete('DELETE'),
+  insert('INSERT'),
+  createDatabase('CREATE_DATABASE'),
+  createTable('CREATE_TABLE'),
+  dataLocationAccess('DATA_LOCATION_ACCESS'),
+  ;
 
-extension PermissionValueExtension on Permission {
-  String toValue() {
-    switch (this) {
-      case Permission.all:
-        return 'ALL';
-      case Permission.select:
-        return 'SELECT';
-      case Permission.alter:
-        return 'ALTER';
-      case Permission.drop:
-        return 'DROP';
-      case Permission.delete:
-        return 'DELETE';
-      case Permission.insert:
-        return 'INSERT';
-      case Permission.createDatabase:
-        return 'CREATE_DATABASE';
-      case Permission.createTable:
-        return 'CREATE_TABLE';
-      case Permission.dataLocationAccess:
-        return 'DATA_LOCATION_ACCESS';
-    }
-  }
-}
+  final String value;
 
-extension PermissionFromString on String {
-  Permission toPermission() {
-    switch (this) {
-      case 'ALL':
-        return Permission.all;
-      case 'SELECT':
-        return Permission.select;
-      case 'ALTER':
-        return Permission.alter;
-      case 'DROP':
-        return Permission.drop;
-      case 'DELETE':
-        return Permission.delete;
-      case 'INSERT':
-        return Permission.insert;
-      case 'CREATE_DATABASE':
-        return Permission.createDatabase;
-      case 'CREATE_TABLE':
-        return Permission.createTable;
-      case 'DATA_LOCATION_ACCESS':
-        return Permission.dataLocationAccess;
-    }
-    throw Exception('$this is not known in enum Permission');
-  }
+  const Permission(this.value);
+
+  static Permission fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Permission'));
 }
 
 enum PermissionType {
-  columnPermission,
-  cellFilterPermission,
+  columnPermission('COLUMN_PERMISSION'),
+  cellFilterPermission('CELL_FILTER_PERMISSION'),
+  nestedPermission('NESTED_PERMISSION'),
+  nestedCellPermission('NESTED_CELL_PERMISSION'),
+  ;
+
+  final String value;
+
+  const PermissionType(this.value);
+
+  static PermissionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PermissionType'));
 }
 
-extension PermissionTypeValueExtension on PermissionType {
-  String toValue() {
-    switch (this) {
-      case PermissionType.columnPermission:
-        return 'COLUMN_PERMISSION';
-      case PermissionType.cellFilterPermission:
-        return 'CELL_FILTER_PERMISSION';
-    }
-  }
-}
-
-extension PermissionTypeFromString on String {
-  PermissionType toPermissionType() {
-    switch (this) {
-      case 'COLUMN_PERMISSION':
-        return PermissionType.columnPermission;
-      case 'CELL_FILTER_PERMISSION':
-        return PermissionType.cellFilterPermission;
-    }
-    throw Exception('$this is not known in enum PermissionType');
-  }
-}
-
-/// Specifies the physical requirements for a connection.
+/// The OAuth client app in GetConnection response.
 class PhysicalConnectionRequirements {
-  /// The connection's Availability Zone. This field is redundant because the
-  /// specified subnet implies the Availability Zone to be used. Currently the
-  /// field must be populated, but it will be deprecated in the future.
+  /// The connection's Availability Zone.
   final String? availabilityZone;
 
   /// The security group ID list used by the connection.
@@ -26963,7 +28213,7 @@ class PhysicalConnectionRequirements {
     return PhysicalConnectionRequirements(
       availabilityZone: json['AvailabilityZone'] as String?,
       securityGroupIdList: (json['SecurityGroupIdList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetId: json['SubnetId'] as String?,
@@ -26984,41 +28234,19 @@ class PhysicalConnectionRequirements {
 }
 
 enum PiiType {
-  rowAudit,
-  rowMasking,
-  columnAudit,
-  columnMasking,
-}
+  rowAudit('RowAudit'),
+  rowMasking('RowMasking'),
+  columnAudit('ColumnAudit'),
+  columnMasking('ColumnMasking'),
+  ;
 
-extension PiiTypeValueExtension on PiiType {
-  String toValue() {
-    switch (this) {
-      case PiiType.rowAudit:
-        return 'RowAudit';
-      case PiiType.rowMasking:
-        return 'RowMasking';
-      case PiiType.columnAudit:
-        return 'ColumnAudit';
-      case PiiType.columnMasking:
-        return 'ColumnMasking';
-    }
-  }
-}
+  final String value;
 
-extension PiiTypeFromString on String {
-  PiiType toPiiType() {
-    switch (this) {
-      case 'RowAudit':
-        return PiiType.rowAudit;
-      case 'RowMasking':
-        return PiiType.rowMasking;
-      case 'ColumnAudit':
-        return PiiType.columnAudit;
-      case 'ColumnMasking':
-        return PiiType.columnMasking;
-    }
-    throw Exception('$this is not known in enum PiiType');
-  }
+  const PiiType(this.value);
+
+  static PiiType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum PiiType'));
 }
 
 /// Specifies a PostgresSQL data source in the Glue Data Catalog.
@@ -27082,10 +28310,8 @@ class PostgreSQLCatalogTarget {
   factory PostgreSQLCatalogTarget.fromJson(Map<String, dynamic> json) {
     return PostgreSQLCatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
     );
@@ -27144,10 +28370,10 @@ class Predicate {
   factory Predicate.fromJson(Map<String, dynamic> json) {
     return Predicate(
       conditions: (json['Conditions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Condition.fromJson(e as Map<String, dynamic>))
           .toList(),
-      logical: (json['Logical'] as String?)?.toLogical(),
+      logical: (json['Logical'] as String?)?.let(Logical.fromString),
     );
   }
 
@@ -27156,7 +28382,7 @@ class Predicate {
     final logical = this.logical;
     return {
       if (conditions != null) 'Conditions': conditions,
-      if (logical != null) 'Logical': logical.toValue(),
+      if (logical != null) 'Logical': logical.value,
     };
   }
 }
@@ -27177,8 +28403,8 @@ class PrincipalPermissions {
   factory PrincipalPermissions.fromJson(Map<String, dynamic> json) {
     return PrincipalPermissions(
       permissions: (json['Permissions'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toPermission())
+          ?.nonNulls
+          .map((e) => Permission.fromString((e as String)))
           .toList(),
       principal: json['Principal'] != null
           ? DataLakePrincipal.fromJson(
@@ -27192,43 +28418,26 @@ class PrincipalPermissions {
     final principal = this.principal;
     return {
       if (permissions != null)
-        'Permissions': permissions.map((e) => e.toValue()).toList(),
+        'Permissions': permissions.map((e) => e.value).toList(),
       if (principal != null) 'Principal': principal,
     };
   }
 }
 
 enum PrincipalType {
-  user,
-  role,
-  group,
-}
+  user('USER'),
+  role('ROLE'),
+  group('GROUP'),
+  ;
 
-extension PrincipalTypeValueExtension on PrincipalType {
-  String toValue() {
-    switch (this) {
-      case PrincipalType.user:
-        return 'USER';
-      case PrincipalType.role:
-        return 'ROLE';
-      case PrincipalType.group:
-        return 'GROUP';
-    }
-  }
-}
+  final String value;
 
-extension PrincipalTypeFromString on String {
-  PrincipalType toPrincipalType() {
-    switch (this) {
-      case 'USER':
-        return PrincipalType.user;
-      case 'ROLE':
-        return PrincipalType.role;
-      case 'GROUP':
-        return PrincipalType.group;
-    }
-    throw Exception('$this is not known in enum PrincipalType');
-  }
+  const PrincipalType(this.value);
+
+  static PrincipalType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum PrincipalType'));
 }
 
 /// Defines a property predicate.
@@ -27253,7 +28462,7 @@ class PropertyPredicate {
     final key = this.key;
     final value = this.value;
     return {
-      if (comparator != null) 'Comparator': comparator.toValue(),
+      if (comparator != null) 'Comparator': comparator.value,
       if (key != null) 'Key': key,
       if (value != null) 'Value': value,
     };
@@ -27372,75 +28581,151 @@ class QuerySchemaVersionMetadataResponse {
   }
 }
 
-enum QuoteChar {
-  quote,
-  quillemet,
-  singleQuote,
-  disabled,
-}
+/// A structure used as a protocol between query engines and Lake Formation or
+/// Glue. Contains both a Lake Formation generated authorization identifier and
+/// information from the request's authorization context.
+class QuerySessionContext {
+  /// An opaque string-string map passed by the query engine.
+  final Map<String, String>? additionalContext;
 
-extension QuoteCharValueExtension on QuoteChar {
-  String toValue() {
-    switch (this) {
-      case QuoteChar.quote:
-        return 'quote';
-      case QuoteChar.quillemet:
-        return 'quillemet';
-      case QuoteChar.singleQuote:
-        return 'single_quote';
-      case QuoteChar.disabled:
-        return 'disabled';
-    }
+  /// An identifier string for the consumer cluster.
+  final String? clusterId;
+
+  /// A cryptographically generated query identifier generated by Glue or Lake
+  /// Formation.
+  final String? queryAuthorizationId;
+
+  /// A unique identifier generated by the query engine for the query.
+  final String? queryId;
+
+  /// A timestamp provided by the query engine for when the query started.
+  final DateTime? queryStartTime;
+
+  QuerySessionContext({
+    this.additionalContext,
+    this.clusterId,
+    this.queryAuthorizationId,
+    this.queryId,
+    this.queryStartTime,
+  });
+
+  Map<String, dynamic> toJson() {
+    final additionalContext = this.additionalContext;
+    final clusterId = this.clusterId;
+    final queryAuthorizationId = this.queryAuthorizationId;
+    final queryId = this.queryId;
+    final queryStartTime = this.queryStartTime;
+    return {
+      if (additionalContext != null) 'AdditionalContext': additionalContext,
+      if (clusterId != null) 'ClusterId': clusterId,
+      if (queryAuthorizationId != null)
+        'QueryAuthorizationId': queryAuthorizationId,
+      if (queryId != null) 'QueryId': queryId,
+      if (queryStartTime != null)
+        'QueryStartTime': unixTimestampToJson(queryStartTime),
+    };
   }
 }
 
-extension QuoteCharFromString on String {
-  QuoteChar toQuoteChar() {
-    switch (this) {
-      case 'quote':
-        return QuoteChar.quote;
-      case 'quillemet':
-        return QuoteChar.quillemet;
-      case 'single_quote':
-        return QuoteChar.singleQuote;
-      case 'disabled':
-        return QuoteChar.disabled;
-    }
-    throw Exception('$this is not known in enum QuoteChar');
+enum QuoteChar {
+  quote('quote'),
+  quillemet('quillemet'),
+  singleQuote('single_quote'),
+  disabled('disabled'),
+  ;
+
+  final String value;
+
+  const QuoteChar(this.value);
+
+  static QuoteChar fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum QuoteChar'));
+}
+
+/// A Glue Studio node that uses a Glue DataBrew recipe in Glue jobs.
+class Recipe {
+  /// The nodes that are inputs to the recipe node, identified by id.
+  final List<String> inputs;
+
+  /// The name of the Glue Studio node.
+  final String name;
+
+  /// A reference to the DataBrew recipe used by the node.
+  final RecipeReference recipeReference;
+
+  Recipe({
+    required this.inputs,
+    required this.name,
+    required this.recipeReference,
+  });
+
+  factory Recipe.fromJson(Map<String, dynamic> json) {
+    return Recipe(
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
+      name: json['Name'] as String,
+      recipeReference: RecipeReference.fromJson(
+          json['RecipeReference'] as Map<String, dynamic>),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final inputs = this.inputs;
+    final name = this.name;
+    final recipeReference = this.recipeReference;
+    return {
+      'Inputs': inputs,
+      'Name': name,
+      'RecipeReference': recipeReference,
+    };
+  }
+}
+
+/// A reference to a Glue DataBrew recipe.
+class RecipeReference {
+  /// The ARN of the DataBrew recipe.
+  final String recipeArn;
+
+  /// The RecipeVersion of the DataBrew recipe.
+  final String recipeVersion;
+
+  RecipeReference({
+    required this.recipeArn,
+    required this.recipeVersion,
+  });
+
+  factory RecipeReference.fromJson(Map<String, dynamic> json) {
+    return RecipeReference(
+      recipeArn: json['RecipeArn'] as String,
+      recipeVersion: json['RecipeVersion'] as String,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final recipeArn = this.recipeArn;
+    final recipeVersion = this.recipeVersion;
+    return {
+      'RecipeArn': recipeArn,
+      'RecipeVersion': recipeVersion,
+    };
   }
 }
 
 enum RecrawlBehavior {
-  crawlEverything,
-  crawlNewFoldersOnly,
-  crawlEventMode,
-}
+  crawlEverything('CRAWL_EVERYTHING'),
+  crawlNewFoldersOnly('CRAWL_NEW_FOLDERS_ONLY'),
+  crawlEventMode('CRAWL_EVENT_MODE'),
+  ;
 
-extension RecrawlBehaviorValueExtension on RecrawlBehavior {
-  String toValue() {
-    switch (this) {
-      case RecrawlBehavior.crawlEverything:
-        return 'CRAWL_EVERYTHING';
-      case RecrawlBehavior.crawlNewFoldersOnly:
-        return 'CRAWL_NEW_FOLDERS_ONLY';
-      case RecrawlBehavior.crawlEventMode:
-        return 'CRAWL_EVENT_MODE';
-    }
-  }
-}
+  final String value;
 
-extension RecrawlBehaviorFromString on String {
-  RecrawlBehavior toRecrawlBehavior() {
-    switch (this) {
-      case 'CRAWL_EVERYTHING':
-        return RecrawlBehavior.crawlEverything;
-      case 'CRAWL_NEW_FOLDERS_ONLY':
-        return RecrawlBehavior.crawlNewFoldersOnly;
-      case 'CRAWL_EVENT_MODE':
-        return RecrawlBehavior.crawlEventMode;
-    }
-    throw Exception('$this is not known in enum RecrawlBehavior');
-  }
+  const RecrawlBehavior(this.value);
+
+  static RecrawlBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RecrawlBehavior'));
 }
 
 /// When crawling an Amazon S3 data source after the first crawl is complete,
@@ -27469,14 +28754,14 @@ class RecrawlPolicy {
   factory RecrawlPolicy.fromJson(Map<String, dynamic> json) {
     return RecrawlPolicy(
       recrawlBehavior:
-          (json['RecrawlBehavior'] as String?)?.toRecrawlBehavior(),
+          (json['RecrawlBehavior'] as String?)?.let(RecrawlBehavior.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final recrawlBehavior = this.recrawlBehavior;
     return {
-      if (recrawlBehavior != null) 'RecrawlBehavior': recrawlBehavior.toValue(),
+      if (recrawlBehavior != null) 'RecrawlBehavior': recrawlBehavior.value,
     };
   }
 }
@@ -27571,10 +28856,8 @@ class RedshiftTarget {
   factory RedshiftTarget.fromJson(Map<String, dynamic> json) {
     return RedshiftTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
       redshiftTmpDir: json['RedshiftTmpDir'] as String?,
@@ -27627,7 +28910,7 @@ class RegisterSchemaVersionResponse {
   factory RegisterSchemaVersionResponse.fromJson(Map<String, dynamic> json) {
     return RegisterSchemaVersionResponse(
       schemaVersionId: json['SchemaVersionId'] as String?,
-      status: (json['Status'] as String?)?.toSchemaVersionStatus(),
+      status: (json['Status'] as String?)?.let(SchemaVersionStatus.fromString),
       versionNumber: json['VersionNumber'] as int?,
     );
   }
@@ -27694,38 +28977,25 @@ class RegistryListItem {
       description: json['Description'] as String?,
       registryArn: json['RegistryArn'] as String?,
       registryName: json['RegistryName'] as String?,
-      status: (json['Status'] as String?)?.toRegistryStatus(),
+      status: (json['Status'] as String?)?.let(RegistryStatus.fromString),
       updatedTime: json['UpdatedTime'] as String?,
     );
   }
 }
 
 enum RegistryStatus {
-  available,
-  deleting,
-}
+  available('AVAILABLE'),
+  deleting('DELETING'),
+  ;
 
-extension RegistryStatusValueExtension on RegistryStatus {
-  String toValue() {
-    switch (this) {
-      case RegistryStatus.available:
-        return 'AVAILABLE';
-      case RegistryStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension RegistryStatusFromString on String {
-  RegistryStatus toRegistryStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return RegistryStatus.available;
-      case 'DELETING':
-        return RegistryStatus.deleting;
-    }
-    throw Exception('$this is not known in enum RegistryStatus');
-  }
+  const RegistryStatus(this.value);
+
+  static RegistryStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RegistryStatus'));
 }
 
 /// Specifies a Relational database data source in the Glue Data Catalog.
@@ -27839,17 +29109,15 @@ class RenameField {
 
   factory RenameField.fromJson(Map<String, dynamic> json) {
     return RenameField(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       sourcePath: (json['SourcePath'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       targetPath: (json['TargetPath'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -27888,69 +29156,35 @@ class ResetJobBookmarkResponse {
 }
 
 enum ResourceShareType {
-  foreign,
-  all,
-  federated,
-}
+  foreign('FOREIGN'),
+  all('ALL'),
+  federated('FEDERATED'),
+  ;
 
-extension ResourceShareTypeValueExtension on ResourceShareType {
-  String toValue() {
-    switch (this) {
-      case ResourceShareType.foreign:
-        return 'FOREIGN';
-      case ResourceShareType.all:
-        return 'ALL';
-      case ResourceShareType.federated:
-        return 'FEDERATED';
-    }
-  }
-}
+  final String value;
 
-extension ResourceShareTypeFromString on String {
-  ResourceShareType toResourceShareType() {
-    switch (this) {
-      case 'FOREIGN':
-        return ResourceShareType.foreign;
-      case 'ALL':
-        return ResourceShareType.all;
-      case 'FEDERATED':
-        return ResourceShareType.federated;
-    }
-    throw Exception('$this is not known in enum ResourceShareType');
-  }
+  const ResourceShareType(this.value);
+
+  static ResourceShareType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceShareType'));
 }
 
 enum ResourceType {
-  jar,
-  file,
-  archive,
-}
+  jar('JAR'),
+  file('FILE'),
+  archive('ARCHIVE'),
+  ;
 
-extension ResourceTypeValueExtension on ResourceType {
-  String toValue() {
-    switch (this) {
-      case ResourceType.jar:
-        return 'JAR';
-      case ResourceType.file:
-        return 'FILE';
-      case ResourceType.archive:
-        return 'ARCHIVE';
-    }
-  }
-}
+  final String value;
 
-extension ResourceTypeFromString on String {
-  ResourceType toResourceType() {
-    switch (this) {
-      case 'JAR':
-        return ResourceType.jar;
-      case 'FILE':
-        return ResourceType.file;
-      case 'ARCHIVE':
-        return ResourceType.archive;
-    }
-    throw Exception('$this is not known in enum ResourceType');
-  }
+  const ResourceType(this.value);
+
+  static ResourceType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceType'));
 }
 
 /// The URIs for function resources.
@@ -27968,7 +29202,8 @@ class ResourceUri {
 
   factory ResourceUri.fromJson(Map<String, dynamic> json) {
     return ResourceUri(
-      resourceType: (json['ResourceType'] as String?)?.toResourceType(),
+      resourceType:
+          (json['ResourceType'] as String?)?.let(ResourceType.fromString),
       uri: json['Uri'] as String?,
     );
   }
@@ -27977,7 +29212,7 @@ class ResourceUri {
     final resourceType = this.resourceType;
     final uri = this.uri;
     return {
-      if (resourceType != null) 'ResourceType': resourceType.toValue(),
+      if (resourceType != null) 'ResourceType': resourceType.value,
       if (uri != null) 'Uri': uri,
     };
   }
@@ -27998,11 +29233,40 @@ class ResumeWorkflowRunResponse {
 
   factory ResumeWorkflowRunResponse.fromJson(Map<String, dynamic> json) {
     return ResumeWorkflowRunResponse(
-      nodeIds: (json['NodeIds'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      nodeIds:
+          (json['NodeIds'] as List?)?.nonNulls.map((e) => e as String).toList(),
       runId: json['RunId'] as String?,
+    );
+  }
+}
+
+/// Metrics for the optimizer run.
+class RunMetrics {
+  /// The duration of the job in hours.
+  final String? jobDurationInHour;
+
+  /// The number of bytes removed by the compaction job run.
+  final String? numberOfBytesCompacted;
+
+  /// The number of DPU hours consumed by the job.
+  final String? numberOfDpus;
+
+  /// The number of files removed by the compaction job run.
+  final String? numberOfFilesCompacted;
+
+  RunMetrics({
+    this.jobDurationInHour,
+    this.numberOfBytesCompacted,
+    this.numberOfDpus,
+    this.numberOfFilesCompacted,
+  });
+
+  factory RunMetrics.fromJson(Map<String, dynamic> json) {
+    return RunMetrics(
+      jobDurationInHour: json['JobDurationInHour'] as String?,
+      numberOfBytesCompacted: json['NumberOfBytesCompacted'] as String?,
+      numberOfDpus: json['NumberOfDpus'] as String?,
+      numberOfFilesCompacted: json['NumberOfFilesCompacted'] as String?,
     );
   }
 }
@@ -28057,7 +29321,7 @@ class S3CatalogDeltaSource {
           (json['AdditionalDeltaOptions'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -28115,7 +29379,7 @@ class S3CatalogHudiSource {
           (json['AdditionalHudiOptions'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -28227,16 +29491,13 @@ class S3CatalogTarget {
   factory S3CatalogTarget.fromJson(Map<String, dynamic> json) {
     return S3CatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? CatalogSchemaChangePolicy.fromJson(
@@ -28378,21 +29639,18 @@ class S3CsvSource {
   factory S3CsvSource.fromJson(Map<String, dynamic> json) {
     return S3CsvSource(
       name: json['Name'] as String,
-      paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      quoteChar: (json['QuoteChar'] as String).toQuoteChar(),
-      separator: (json['Separator'] as String).toSeparator(),
+      paths: (json['Paths'] as List).nonNulls.map((e) => e as String).toList(),
+      quoteChar: QuoteChar.fromString((json['QuoteChar'] as String)),
+      separator: Separator.fromString((json['Separator'] as String)),
       additionalOptions: json['AdditionalOptions'] != null
           ? S3DirectSourceAdditionalOptions.fromJson(
               json['AdditionalOptions'] as Map<String, dynamic>)
           : null,
       compressionType:
-          (json['CompressionType'] as String?)?.toCompressionType(),
+          (json['CompressionType'] as String?)?.let(CompressionType.fromString),
       escaper: json['Escaper'] as String?,
       exclusions: (json['Exclusions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       groupFiles: json['GroupFiles'] as String?,
@@ -28402,7 +29660,7 @@ class S3CsvSource {
       multiline: json['Multiline'] as bool?,
       optimizePerformance: json['OptimizePerformance'] as bool?,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
       recurse: json['Recurse'] as bool?,
@@ -28435,10 +29693,10 @@ class S3CsvSource {
     return {
       'Name': name,
       'Paths': paths,
-      'QuoteChar': quoteChar.toValue(),
-      'Separator': separator.toValue(),
+      'QuoteChar': quoteChar.value,
+      'Separator': separator.value,
       if (additionalOptions != null) 'AdditionalOptions': additionalOptions,
-      if (compressionType != null) 'CompressionType': compressionType.toValue(),
+      if (compressionType != null) 'CompressionType': compressionType.value,
       if (escaper != null) 'Escaper': escaper,
       if (exclusions != null) 'Exclusions': exclusions,
       if (groupFiles != null) 'GroupFiles': groupFiles,
@@ -28494,18 +29752,15 @@ class S3DeltaCatalogTarget {
   factory S3DeltaCatalogTarget.fromJson(Map<String, dynamic> json) {
     return S3DeltaCatalogTarget(
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
       additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? CatalogSchemaChangePolicy.fromJson(
@@ -28575,21 +29830,18 @@ class S3DeltaDirectTarget {
 
   factory S3DeltaDirectTarget.fromJson(Map<String, dynamic> json) {
     return S3DeltaDirectTarget(
-      compression:
-          (json['Compression'] as String).toDeltaTargetCompressionType(),
-      format: (json['Format'] as String).toTargetFormat(),
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      compression: DeltaTargetCompressionType.fromString(
+          (json['Compression'] as String)),
+      format: TargetFormat.fromString((json['Format'] as String)),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       path: json['Path'] as String,
       additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? DirectSchemaChangePolicy.fromJson(
@@ -28608,8 +29860,8 @@ class S3DeltaDirectTarget {
     final partitionKeys = this.partitionKeys;
     final schemaChangePolicy = this.schemaChangePolicy;
     return {
-      'Compression': compression.toValue(),
-      'Format': format.toValue(),
+      'Compression': compression.value,
+      'Format': format.value,
       'Inputs': inputs,
       'Name': name,
       'Path': path,
@@ -28648,10 +29900,7 @@ class S3DeltaSource {
   factory S3DeltaSource.fromJson(Map<String, dynamic> json) {
     return S3DeltaSource(
       name: json['Name'] as String,
-      paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      paths: (json['Paths'] as List).nonNulls.map((e) => e as String).toList(),
       additionalDeltaOptions:
           (json['AdditionalDeltaOptions'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
@@ -28660,7 +29909,7 @@ class S3DeltaSource {
               json['AdditionalOptions'] as Map<String, dynamic>)
           : null,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -28765,18 +30014,15 @@ class S3DirectTarget {
 
   factory S3DirectTarget.fromJson(Map<String, dynamic> json) {
     return S3DirectTarget(
-      format: (json['Format'] as String).toTargetFormat(),
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      format: TargetFormat.fromString((json['Format'] as String)),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       path: json['Path'] as String,
       compression: json['Compression'] as String?,
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? DirectSchemaChangePolicy.fromJson(
@@ -28794,7 +30040,7 @@ class S3DirectTarget {
     final partitionKeys = this.partitionKeys;
     final schemaChangePolicy = this.schemaChangePolicy;
     return {
-      'Format': format.toValue(),
+      'Format': format.value,
       'Inputs': inputs,
       'Name': name,
       'Path': path,
@@ -28823,8 +30069,8 @@ class S3Encryption {
   factory S3Encryption.fromJson(Map<String, dynamic> json) {
     return S3Encryption(
       kmsKeyArn: json['KmsKeyArn'] as String?,
-      s3EncryptionMode:
-          (json['S3EncryptionMode'] as String?)?.toS3EncryptionMode(),
+      s3EncryptionMode: (json['S3EncryptionMode'] as String?)
+          ?.let(S3EncryptionMode.fromString),
     );
   }
 
@@ -28833,43 +30079,25 @@ class S3Encryption {
     final s3EncryptionMode = this.s3EncryptionMode;
     return {
       if (kmsKeyArn != null) 'KmsKeyArn': kmsKeyArn,
-      if (s3EncryptionMode != null)
-        'S3EncryptionMode': s3EncryptionMode.toValue(),
+      if (s3EncryptionMode != null) 'S3EncryptionMode': s3EncryptionMode.value,
     };
   }
 }
 
 enum S3EncryptionMode {
-  disabled,
-  sseKms,
-  sseS3,
-}
+  disabled('DISABLED'),
+  sseKms('SSE-KMS'),
+  sseS3('SSE-S3'),
+  ;
 
-extension S3EncryptionModeValueExtension on S3EncryptionMode {
-  String toValue() {
-    switch (this) {
-      case S3EncryptionMode.disabled:
-        return 'DISABLED';
-      case S3EncryptionMode.sseKms:
-        return 'SSE-KMS';
-      case S3EncryptionMode.sseS3:
-        return 'SSE-S3';
-    }
-  }
-}
+  final String value;
 
-extension S3EncryptionModeFromString on String {
-  S3EncryptionMode toS3EncryptionMode() {
-    switch (this) {
-      case 'DISABLED':
-        return S3EncryptionMode.disabled;
-      case 'SSE-KMS':
-        return S3EncryptionMode.sseKms;
-      case 'SSE-S3':
-        return S3EncryptionMode.sseS3;
-    }
-    throw Exception('$this is not known in enum S3EncryptionMode');
-  }
+  const S3EncryptionMode(this.value);
+
+  static S3EncryptionMode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum S3EncryptionMode'));
 }
 
 /// Specifies a data target that writes to Amazon S3 in Apache Parquet columnar
@@ -28906,17 +30134,15 @@ class S3GlueParquetTarget {
 
   factory S3GlueParquetTarget.fromJson(Map<String, dynamic> json) {
     return S3GlueParquetTarget(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       path: json['Path'] as String,
-      compression: (json['Compression'] as String?)?.toParquetCompressionType(),
+      compression: (json['Compression'] as String?)
+          ?.let(ParquetCompressionType.fromString),
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? DirectSchemaChangePolicy.fromJson(
@@ -28936,7 +30162,7 @@ class S3GlueParquetTarget {
       'Inputs': inputs,
       'Name': name,
       'Path': path,
-      if (compression != null) 'Compression': compression.toValue(),
+      if (compression != null) 'Compression': compression.value,
       if (partitionKeys != null) 'PartitionKeys': partitionKeys,
       if (schemaChangePolicy != null) 'SchemaChangePolicy': schemaChangePolicy,
     };
@@ -28982,16 +30208,13 @@ class S3HudiCatalogTarget {
       additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>)
           .map((k, e) => MapEntry(k, e as String)),
       database: json['Database'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       table: json['Table'] as String,
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? CatalogSchemaChangePolicy.fromJson(
@@ -29064,18 +30287,15 @@ class S3HudiDirectTarget {
       additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>)
           .map((k, e) => MapEntry(k, e as String)),
       compression:
-          (json['Compression'] as String).toHudiTargetCompressionType(),
-      format: (json['Format'] as String).toTargetFormat(),
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+          HudiTargetCompressionType.fromString((json['Compression'] as String)),
+      format: TargetFormat.fromString((json['Format'] as String)),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       path: json['Path'] as String,
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          ?.nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
       schemaChangePolicy: json['SchemaChangePolicy'] != null
           ? DirectSchemaChangePolicy.fromJson(
@@ -29095,8 +30315,8 @@ class S3HudiDirectTarget {
     final schemaChangePolicy = this.schemaChangePolicy;
     return {
       'AdditionalOptions': additionalOptions,
-      'Compression': compression.toValue(),
-      'Format': format.toValue(),
+      'Compression': compression.value,
+      'Format': format.value,
       'Inputs': inputs,
       'Name': name,
       'Path': path,
@@ -29134,10 +30354,7 @@ class S3HudiSource {
   factory S3HudiSource.fromJson(Map<String, dynamic> json) {
     return S3HudiSource(
       name: json['Name'] as String,
-      paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      paths: (json['Paths'] as List).nonNulls.map((e) => e as String).toList(),
       additionalHudiOptions:
           (json['AdditionalHudiOptions'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
@@ -29146,7 +30363,7 @@ class S3HudiSource {
               json['AdditionalOptions'] as Map<String, dynamic>)
           : null,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -29249,18 +30466,15 @@ class S3JsonSource {
   factory S3JsonSource.fromJson(Map<String, dynamic> json) {
     return S3JsonSource(
       name: json['Name'] as String,
-      paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      paths: (json['Paths'] as List).nonNulls.map((e) => e as String).toList(),
       additionalOptions: json['AdditionalOptions'] != null
           ? S3DirectSourceAdditionalOptions.fromJson(
               json['AdditionalOptions'] as Map<String, dynamic>)
           : null,
       compressionType:
-          (json['CompressionType'] as String?)?.toCompressionType(),
+          (json['CompressionType'] as String?)?.let(CompressionType.fromString),
       exclusions: (json['Exclusions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       groupFiles: json['GroupFiles'] as String?,
@@ -29270,7 +30484,7 @@ class S3JsonSource {
       maxFilesInBand: json['MaxFilesInBand'] as int?,
       multiline: json['Multiline'] as bool?,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
       recurse: json['Recurse'] as bool?,
@@ -29295,7 +30509,7 @@ class S3JsonSource {
       'Name': name,
       'Paths': paths,
       if (additionalOptions != null) 'AdditionalOptions': additionalOptions,
-      if (compressionType != null) 'CompressionType': compressionType.toValue(),
+      if (compressionType != null) 'CompressionType': compressionType.value,
       if (exclusions != null) 'Exclusions': exclusions,
       if (groupFiles != null) 'GroupFiles': groupFiles,
       if (groupSize != null) 'GroupSize': groupSize,
@@ -29377,18 +30591,15 @@ class S3ParquetSource {
   factory S3ParquetSource.fromJson(Map<String, dynamic> json) {
     return S3ParquetSource(
       name: json['Name'] as String,
-      paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      paths: (json['Paths'] as List).nonNulls.map((e) => e as String).toList(),
       additionalOptions: json['AdditionalOptions'] != null
           ? S3DirectSourceAdditionalOptions.fromJson(
               json['AdditionalOptions'] as Map<String, dynamic>)
           : null,
-      compressionType:
-          (json['CompressionType'] as String?)?.toParquetCompressionType(),
+      compressionType: (json['CompressionType'] as String?)
+          ?.let(ParquetCompressionType.fromString),
       exclusions: (json['Exclusions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       groupFiles: json['GroupFiles'] as String?,
@@ -29396,7 +30607,7 @@ class S3ParquetSource {
       maxBand: json['MaxBand'] as int?,
       maxFilesInBand: json['MaxFilesInBand'] as int?,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
       recurse: json['Recurse'] as bool?,
@@ -29419,7 +30630,7 @@ class S3ParquetSource {
       'Name': name,
       'Paths': paths,
       if (additionalOptions != null) 'AdditionalOptions': additionalOptions,
-      if (compressionType != null) 'CompressionType': compressionType.toValue(),
+      if (compressionType != null) 'CompressionType': compressionType.value,
       if (exclusions != null) 'Exclusions': exclusions,
       if (groupFiles != null) 'GroupFiles': groupFiles,
       if (groupSize != null) 'GroupSize': groupSize,
@@ -29505,7 +30716,7 @@ class S3Target {
       dlqEventQueueArn: json['DlqEventQueueArn'] as String?,
       eventQueueArn: json['EventQueueArn'] as String?,
       exclusions: (json['Exclusions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       path: json['Path'] as String?,
@@ -29551,42 +30762,25 @@ class Schedule {
   factory Schedule.fromJson(Map<String, dynamic> json) {
     return Schedule(
       scheduleExpression: json['ScheduleExpression'] as String?,
-      state: (json['State'] as String?)?.toScheduleState(),
+      state: (json['State'] as String?)?.let(ScheduleState.fromString),
     );
   }
 }
 
 enum ScheduleState {
-  scheduled,
-  notScheduled,
-  transitioning,
-}
+  scheduled('SCHEDULED'),
+  notScheduled('NOT_SCHEDULED'),
+  transitioning('TRANSITIONING'),
+  ;
 
-extension ScheduleStateValueExtension on ScheduleState {
-  String toValue() {
-    switch (this) {
-      case ScheduleState.scheduled:
-        return 'SCHEDULED';
-      case ScheduleState.notScheduled:
-        return 'NOT_SCHEDULED';
-      case ScheduleState.transitioning:
-        return 'TRANSITIONING';
-    }
-  }
-}
+  final String value;
 
-extension ScheduleStateFromString on String {
-  ScheduleState toScheduleState() {
-    switch (this) {
-      case 'SCHEDULED':
-        return ScheduleState.scheduled;
-      case 'NOT_SCHEDULED':
-        return ScheduleState.notScheduled;
-      case 'TRANSITIONING':
-        return ScheduleState.transitioning;
-    }
-    throw Exception('$this is not known in enum ScheduleState');
-  }
+  const ScheduleState(this.value);
+
+  static ScheduleState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ScheduleState'));
 }
 
 /// A policy that specifies update and deletion behaviors for the crawler.
@@ -29604,8 +30798,10 @@ class SchemaChangePolicy {
 
   factory SchemaChangePolicy.fromJson(Map<String, dynamic> json) {
     return SchemaChangePolicy(
-      deleteBehavior: (json['DeleteBehavior'] as String?)?.toDeleteBehavior(),
-      updateBehavior: (json['UpdateBehavior'] as String?)?.toUpdateBehavior(),
+      deleteBehavior:
+          (json['DeleteBehavior'] as String?)?.let(DeleteBehavior.fromString),
+      updateBehavior:
+          (json['UpdateBehavior'] as String?)?.let(UpdateBehavior.fromString),
     );
   }
 
@@ -29613,8 +30809,8 @@ class SchemaChangePolicy {
     final deleteBehavior = this.deleteBehavior;
     final updateBehavior = this.updateBehavior;
     return {
-      if (deleteBehavior != null) 'DeleteBehavior': deleteBehavior.toValue(),
-      if (updateBehavior != null) 'UpdateBehavior': updateBehavior.toValue(),
+      if (deleteBehavior != null) 'DeleteBehavior': deleteBehavior.value,
+      if (updateBehavior != null) 'UpdateBehavior': updateBehavior.value,
     };
   }
 }
@@ -29652,26 +30848,17 @@ class SchemaColumn {
 }
 
 enum SchemaDiffType {
-  syntaxDiff,
-}
+  syntaxDiff('SYNTAX_DIFF'),
+  ;
 
-extension SchemaDiffTypeValueExtension on SchemaDiffType {
-  String toValue() {
-    switch (this) {
-      case SchemaDiffType.syntaxDiff:
-        return 'SYNTAX_DIFF';
-    }
-  }
-}
+  final String value;
 
-extension SchemaDiffTypeFromString on String {
-  SchemaDiffType toSchemaDiffType() {
-    switch (this) {
-      case 'SYNTAX_DIFF':
-        return SchemaDiffType.syntaxDiff;
-    }
-    throw Exception('$this is not known in enum SchemaDiffType');
-  }
+  const SchemaDiffType(this.value);
+
+  static SchemaDiffType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SchemaDiffType'));
 }
 
 /// The unique ID of the schema in the Glue schema registry.
@@ -29753,7 +30940,8 @@ class SchemaListItem {
       registryName: json['RegistryName'] as String?,
       schemaArn: json['SchemaArn'] as String?,
       schemaName: json['SchemaName'] as String?,
-      schemaStatus: (json['SchemaStatus'] as String?)?.toSchemaStatus(),
+      schemaStatus:
+          (json['SchemaStatus'] as String?)?.let(SchemaStatus.fromString),
       updatedTime: json['UpdatedTime'] as String?,
     );
   }
@@ -29802,36 +30990,19 @@ class SchemaReference {
 }
 
 enum SchemaStatus {
-  available,
-  pending,
-  deleting,
-}
+  available('AVAILABLE'),
+  pending('PENDING'),
+  deleting('DELETING'),
+  ;
 
-extension SchemaStatusValueExtension on SchemaStatus {
-  String toValue() {
-    switch (this) {
-      case SchemaStatus.available:
-        return 'AVAILABLE';
-      case SchemaStatus.pending:
-        return 'PENDING';
-      case SchemaStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension SchemaStatusFromString on String {
-  SchemaStatus toSchemaStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return SchemaStatus.available;
-      case 'PENDING':
-        return SchemaStatus.pending;
-      case 'DELETING':
-        return SchemaStatus.deleting;
-    }
-    throw Exception('$this is not known in enum SchemaStatus');
-  }
+  const SchemaStatus(this.value);
+
+  static SchemaStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SchemaStatus'));
 }
 
 /// An object that contains the error details for an operation on a schema
@@ -29888,7 +31059,7 @@ class SchemaVersionListItem {
       createdTime: json['CreatedTime'] as String?,
       schemaArn: json['SchemaArn'] as String?,
       schemaVersionId: json['SchemaVersionId'] as String?,
-      status: (json['Status'] as String?)?.toSchemaVersionStatus(),
+      status: (json['Status'] as String?)?.let(SchemaVersionStatus.fromString),
       versionNumber: json['VersionNumber'] as int?,
     );
   }
@@ -29918,41 +31089,20 @@ class SchemaVersionNumber {
 }
 
 enum SchemaVersionStatus {
-  available,
-  pending,
-  failure,
-  deleting,
-}
+  available('AVAILABLE'),
+  pending('PENDING'),
+  failure('FAILURE'),
+  deleting('DELETING'),
+  ;
 
-extension SchemaVersionStatusValueExtension on SchemaVersionStatus {
-  String toValue() {
-    switch (this) {
-      case SchemaVersionStatus.available:
-        return 'AVAILABLE';
-      case SchemaVersionStatus.pending:
-        return 'PENDING';
-      case SchemaVersionStatus.failure:
-        return 'FAILURE';
-      case SchemaVersionStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension SchemaVersionStatusFromString on String {
-  SchemaVersionStatus toSchemaVersionStatus() {
-    switch (this) {
-      case 'AVAILABLE':
-        return SchemaVersionStatus.available;
-      case 'PENDING':
-        return SchemaVersionStatus.pending;
-      case 'FAILURE':
-        return SchemaVersionStatus.failure;
-      case 'DELETING':
-        return SchemaVersionStatus.deleting;
-    }
-    throw Exception('$this is not known in enum SchemaVersionStatus');
-  }
+  const SchemaVersionStatus(this.value);
+
+  static SchemaVersionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SchemaVersionStatus'));
 }
 
 class SearchTablesResponse {
@@ -29973,7 +31123,7 @@ class SearchTablesResponse {
     return SearchTablesResponse(
       nextToken: json['NextToken'] as String?,
       tableList: (json['TableList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Table.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -30054,15 +31204,12 @@ class SelectFields {
 
   factory SelectFields.fromJson(Map<String, dynamic> json) {
     return SelectFields(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          .nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
     );
   }
@@ -30101,10 +31248,8 @@ class SelectFromCollection {
   factory SelectFromCollection.fromJson(Map<String, dynamic> json) {
     return SelectFromCollection(
       index: json['Index'] as int,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
     );
   }
@@ -30122,46 +31267,20 @@ class SelectFromCollection {
 }
 
 enum Separator {
-  comma,
-  ctrla,
-  pipe,
-  semicolon,
-  tab,
-}
+  comma('comma'),
+  ctrla('ctrla'),
+  pipe('pipe'),
+  semicolon('semicolon'),
+  tab('tab'),
+  ;
 
-extension SeparatorValueExtension on Separator {
-  String toValue() {
-    switch (this) {
-      case Separator.comma:
-        return 'comma';
-      case Separator.ctrla:
-        return 'ctrla';
-      case Separator.pipe:
-        return 'pipe';
-      case Separator.semicolon:
-        return 'semicolon';
-      case Separator.tab:
-        return 'tab';
-    }
-  }
-}
+  final String value;
 
-extension SeparatorFromString on String {
-  Separator toSeparator() {
-    switch (this) {
-      case 'comma':
-        return Separator.comma;
-      case 'ctrla':
-        return Separator.ctrla;
-      case 'pipe':
-        return Separator.pipe;
-      case 'semicolon':
-        return Separator.semicolon;
-      case 'tab':
-        return Separator.tab;
-    }
-    throw Exception('$this is not known in enum Separator');
-  }
+  const Separator(this.value);
+
+  static Separator fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Separator'));
 }
 
 /// Information about a serialization/deserialization program (SerDe) that
@@ -30210,11 +31329,17 @@ class Session {
   /// The command object.See SessionCommand.
   final SessionCommand? command;
 
+  /// The date and time that this session is completed.
+  final DateTime? completedOn;
+
   /// The number of connections used for the session.
   final ConnectionsList? connections;
 
   /// The time and date when the session was created.
   final DateTime? createdOn;
+
+  /// The DPUs consumed by the session (formula: ExecutionTime * MaxCapacity).
+  final double? dPUSeconds;
 
   /// A map array of key-value pairs. Max is 75 pairs.
   final Map<String, String>? defaultArguments;
@@ -30225,6 +31350,9 @@ class Session {
   /// The error message displayed during the session.
   final String? errorMessage;
 
+  /// The total time the session ran for.
+  final double? executionTime;
+
   /// The Glue version determines the versions of Apache Spark and Python that
   /// Glue supports. The GlueVersion must be greater than 2.0.
   final String? glueVersion;
@@ -30232,10 +31360,17 @@ class Session {
   /// The ID of the session.
   final String? id;
 
+  /// The number of minutes when idle before the session times out.
+  final int? idleTimeout;
+
   /// The number of Glue data processing units (DPUs) that can be allocated when
   /// the job runs. A DPU is a relative measure of processing power that consists
   /// of 4 vCPUs of compute capacity and 16 GB memory.
   final double? maxCapacity;
+
+  /// The number of workers of a defined <code>WorkerType</code> to use for the
+  /// session.
+  final int? numberOfWorkers;
 
   /// The code execution progress of the session.
   final double? progress;
@@ -30250,20 +31385,32 @@ class Session {
   /// The session status.
   final SessionStatus? status;
 
+  /// The type of predefined worker that is allocated when a session runs. Accepts
+  /// a value of <code>G.1X</code>, <code>G.2X</code>, <code>G.4X</code>, or
+  /// <code>G.8X</code> for Spark sessions. Accepts the value <code>Z.2X</code>
+  /// for Ray sessions.
+  final WorkerType? workerType;
+
   Session({
     this.command,
+    this.completedOn,
     this.connections,
     this.createdOn,
+    this.dPUSeconds,
     this.defaultArguments,
     this.description,
     this.errorMessage,
+    this.executionTime,
     this.glueVersion,
     this.id,
+    this.idleTimeout,
     this.maxCapacity,
+    this.numberOfWorkers,
     this.progress,
     this.role,
     this.securityConfiguration,
     this.status,
+    this.workerType,
   });
 
   factory Session.fromJson(Map<String, dynamic> json) {
@@ -30271,22 +31418,28 @@ class Session {
       command: json['Command'] != null
           ? SessionCommand.fromJson(json['Command'] as Map<String, dynamic>)
           : null,
+      completedOn: timeStampFromJson(json['CompletedOn']),
       connections: json['Connections'] != null
           ? ConnectionsList.fromJson(
               json['Connections'] as Map<String, dynamic>)
           : null,
       createdOn: timeStampFromJson(json['CreatedOn']),
+      dPUSeconds: json['DPUSeconds'] as double?,
       defaultArguments: (json['DefaultArguments'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       description: json['Description'] as String?,
       errorMessage: json['ErrorMessage'] as String?,
+      executionTime: json['ExecutionTime'] as double?,
       glueVersion: json['GlueVersion'] as String?,
       id: json['Id'] as String?,
+      idleTimeout: json['IdleTimeout'] as int?,
       maxCapacity: json['MaxCapacity'] as double?,
+      numberOfWorkers: json['NumberOfWorkers'] as int?,
       progress: json['Progress'] as double?,
       role: json['Role'] as String?,
       securityConfiguration: json['SecurityConfiguration'] as String?,
-      status: (json['Status'] as String?)?.toSessionStatus(),
+      status: (json['Status'] as String?)?.let(SessionStatus.fromString),
+      workerType: (json['WorkerType'] as String?)?.let(WorkerType.fromString),
     );
   }
 }
@@ -30324,51 +31477,22 @@ class SessionCommand {
 }
 
 enum SessionStatus {
-  provisioning,
-  ready,
-  failed,
-  timeout,
-  stopping,
-  stopped,
-}
+  provisioning('PROVISIONING'),
+  ready('READY'),
+  failed('FAILED'),
+  timeout('TIMEOUT'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  ;
 
-extension SessionStatusValueExtension on SessionStatus {
-  String toValue() {
-    switch (this) {
-      case SessionStatus.provisioning:
-        return 'PROVISIONING';
-      case SessionStatus.ready:
-        return 'READY';
-      case SessionStatus.failed:
-        return 'FAILED';
-      case SessionStatus.timeout:
-        return 'TIMEOUT';
-      case SessionStatus.stopping:
-        return 'STOPPING';
-      case SessionStatus.stopped:
-        return 'STOPPED';
-    }
-  }
-}
+  final String value;
 
-extension SessionStatusFromString on String {
-  SessionStatus toSessionStatus() {
-    switch (this) {
-      case 'PROVISIONING':
-        return SessionStatus.provisioning;
-      case 'READY':
-        return SessionStatus.ready;
-      case 'FAILED':
-        return SessionStatus.failed;
-      case 'TIMEOUT':
-        return SessionStatus.timeout;
-      case 'STOPPING':
-        return SessionStatus.stopping;
-      case 'STOPPED':
-        return SessionStatus.stopped;
-    }
-    throw Exception('$this is not known in enum SessionStatus');
-  }
+  const SessionStatus(this.value);
+
+  static SessionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SessionStatus'));
 }
 
 /// Specifies skewed values in a table. Skewed values are those that occur with
@@ -30392,14 +31516,14 @@ class SkewedInfo {
   factory SkewedInfo.fromJson(Map<String, dynamic> json) {
     return SkewedInfo(
       skewedColumnNames: (json['SkewedColumnNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       skewedColumnValueLocationMaps:
           (json['SkewedColumnValueLocationMaps'] as Map<String, dynamic>?)
               ?.map((k, e) => MapEntry(k, e as String)),
       skewedColumnValues: (json['SkewedColumnValues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -30418,32 +31542,294 @@ class SkewedInfo {
   }
 }
 
+/// Specifies configuration for Snowflake nodes in Glue Studio.
+class SnowflakeNodeData {
+  /// Specifies what action to take when writing to a table with preexisting data.
+  /// Valid values: <code> append</code>, <code>merge</code>,
+  /// <code>truncate</code>, <code>drop</code>.
+  final String? action;
+
+  /// Specifies additional options passed to the Snowflake connector. If options
+  /// are specified elsewhere in this node, this will take precedence.
+  final Map<String, String>? additionalOptions;
+
+  /// Specifies whether automatic query pushdown is enabled. If pushdown is
+  /// enabled, then when a query is run on Spark, if part of the query can be
+  /// "pushed down" to the Snowflake server, it is pushed down. This improves
+  /// performance of some queries.
+  final bool? autoPushdown;
+
+  /// Specifies a Glue Data Catalog Connection to a Snowflake endpoint.
+  final Option? connection;
+
+  /// Specifies a Snowflake database for your node to use.
+  final String? database;
+
+  /// Not currently used.
+  final Option? iamRole;
+
+  /// Specifies a merge action. Valid values: <code>simple</code>,
+  /// <code>custom</code>. If simple, merge behavior is defined by
+  /// <code>MergeWhenMatched</code> and <code> MergeWhenNotMatched</code>. If
+  /// custom, defined by <code>MergeClause</code>.
+  final String? mergeAction;
+
+  /// A SQL statement that specifies a custom merge behavior.
+  final String? mergeClause;
+
+  /// Specifies how to resolve records that match preexisting data when merging.
+  /// Valid values: <code> update</code>, <code>delete</code>.
+  final String? mergeWhenMatched;
+
+  /// Specifies how to process records that do not match preexisting data when
+  /// merging. Valid values: <code>insert</code>, <code>none</code>.
+  final String? mergeWhenNotMatched;
+
+  /// A SQL string run after the Snowflake connector performs its standard
+  /// actions.
+  final String? postAction;
+
+  /// A SQL string run before the Snowflake connector performs its standard
+  /// actions.
+  final String? preAction;
+
+  /// A SQL string used to retrieve data with the <code>query</code> sourcetype.
+  final String? sampleQuery;
+
+  /// Specifies a Snowflake database schema for your node to use.
+  final String? schema;
+
+  /// Specifies the columns combined to identify a record when detecting matches
+  /// for merges and upserts. A list of structures with <code>value</code>,
+  /// <code>label</code> and <code> description</code> keys. Each structure
+  /// describes a column.
+  final List<Option>? selectedColumns;
+
+  /// Specifies how retrieved data is specified. Valid values:
+  /// <code>"table"</code>, <code> "query"</code>.
+  final String? sourceType;
+
+  /// The name of a staging table used when performing <code>merge</code> or
+  /// upsert <code>append</code> actions. Data is written to this table, then
+  /// moved to <code>table</code> by a generated postaction.
+  final String? stagingTable;
+
+  /// Specifies a Snowflake table for your node to use.
+  final String? table;
+
+  /// Manually defines the target schema for the node. A list of structures with
+  /// <code>value</code> , <code>label</code> and <code>description</code> keys.
+  /// Each structure defines a column.
+  final List<Option>? tableSchema;
+
+  /// Not currently used.
+  final String? tempDir;
+
+  /// Used when Action is <code>append</code>. Specifies the resolution behavior
+  /// when a row already exists. If true, preexisting rows will be updated. If
+  /// false, those rows will be inserted.
+  final bool? upsert;
+
+  SnowflakeNodeData({
+    this.action,
+    this.additionalOptions,
+    this.autoPushdown,
+    this.connection,
+    this.database,
+    this.iamRole,
+    this.mergeAction,
+    this.mergeClause,
+    this.mergeWhenMatched,
+    this.mergeWhenNotMatched,
+    this.postAction,
+    this.preAction,
+    this.sampleQuery,
+    this.schema,
+    this.selectedColumns,
+    this.sourceType,
+    this.stagingTable,
+    this.table,
+    this.tableSchema,
+    this.tempDir,
+    this.upsert,
+  });
+
+  factory SnowflakeNodeData.fromJson(Map<String, dynamic> json) {
+    return SnowflakeNodeData(
+      action: json['Action'] as String?,
+      additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      autoPushdown: json['AutoPushdown'] as bool?,
+      connection: json['Connection'] != null
+          ? Option.fromJson(json['Connection'] as Map<String, dynamic>)
+          : null,
+      database: json['Database'] as String?,
+      iamRole: json['IamRole'] != null
+          ? Option.fromJson(json['IamRole'] as Map<String, dynamic>)
+          : null,
+      mergeAction: json['MergeAction'] as String?,
+      mergeClause: json['MergeClause'] as String?,
+      mergeWhenMatched: json['MergeWhenMatched'] as String?,
+      mergeWhenNotMatched: json['MergeWhenNotMatched'] as String?,
+      postAction: json['PostAction'] as String?,
+      preAction: json['PreAction'] as String?,
+      sampleQuery: json['SampleQuery'] as String?,
+      schema: json['Schema'] as String?,
+      selectedColumns: (json['SelectedColumns'] as List?)
+          ?.nonNulls
+          .map((e) => Option.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      sourceType: json['SourceType'] as String?,
+      stagingTable: json['StagingTable'] as String?,
+      table: json['Table'] as String?,
+      tableSchema: (json['TableSchema'] as List?)
+          ?.nonNulls
+          .map((e) => Option.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      tempDir: json['TempDir'] as String?,
+      upsert: json['Upsert'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final action = this.action;
+    final additionalOptions = this.additionalOptions;
+    final autoPushdown = this.autoPushdown;
+    final connection = this.connection;
+    final database = this.database;
+    final iamRole = this.iamRole;
+    final mergeAction = this.mergeAction;
+    final mergeClause = this.mergeClause;
+    final mergeWhenMatched = this.mergeWhenMatched;
+    final mergeWhenNotMatched = this.mergeWhenNotMatched;
+    final postAction = this.postAction;
+    final preAction = this.preAction;
+    final sampleQuery = this.sampleQuery;
+    final schema = this.schema;
+    final selectedColumns = this.selectedColumns;
+    final sourceType = this.sourceType;
+    final stagingTable = this.stagingTable;
+    final table = this.table;
+    final tableSchema = this.tableSchema;
+    final tempDir = this.tempDir;
+    final upsert = this.upsert;
+    return {
+      if (action != null) 'Action': action,
+      if (additionalOptions != null) 'AdditionalOptions': additionalOptions,
+      if (autoPushdown != null) 'AutoPushdown': autoPushdown,
+      if (connection != null) 'Connection': connection,
+      if (database != null) 'Database': database,
+      if (iamRole != null) 'IamRole': iamRole,
+      if (mergeAction != null) 'MergeAction': mergeAction,
+      if (mergeClause != null) 'MergeClause': mergeClause,
+      if (mergeWhenMatched != null) 'MergeWhenMatched': mergeWhenMatched,
+      if (mergeWhenNotMatched != null)
+        'MergeWhenNotMatched': mergeWhenNotMatched,
+      if (postAction != null) 'PostAction': postAction,
+      if (preAction != null) 'PreAction': preAction,
+      if (sampleQuery != null) 'SampleQuery': sampleQuery,
+      if (schema != null) 'Schema': schema,
+      if (selectedColumns != null) 'SelectedColumns': selectedColumns,
+      if (sourceType != null) 'SourceType': sourceType,
+      if (stagingTable != null) 'StagingTable': stagingTable,
+      if (table != null) 'Table': table,
+      if (tableSchema != null) 'TableSchema': tableSchema,
+      if (tempDir != null) 'TempDir': tempDir,
+      if (upsert != null) 'Upsert': upsert,
+    };
+  }
+}
+
+/// Specifies a Snowflake data source.
+class SnowflakeSource {
+  /// Configuration for the Snowflake data source.
+  final SnowflakeNodeData data;
+
+  /// The name of the Snowflake data source.
+  final String name;
+
+  /// Specifies user-defined schemas for your output data.
+  final List<GlueSchema>? outputSchemas;
+
+  SnowflakeSource({
+    required this.data,
+    required this.name,
+    this.outputSchemas,
+  });
+
+  factory SnowflakeSource.fromJson(Map<String, dynamic> json) {
+    return SnowflakeSource(
+      data: SnowflakeNodeData.fromJson(json['Data'] as Map<String, dynamic>),
+      name: json['Name'] as String,
+      outputSchemas: (json['OutputSchemas'] as List?)
+          ?.nonNulls
+          .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = this.data;
+    final name = this.name;
+    final outputSchemas = this.outputSchemas;
+    return {
+      'Data': data,
+      'Name': name,
+      if (outputSchemas != null) 'OutputSchemas': outputSchemas,
+    };
+  }
+}
+
+/// Specifies a Snowflake target.
+class SnowflakeTarget {
+  /// Specifies the data of the Snowflake target node.
+  final SnowflakeNodeData data;
+
+  /// The name of the Snowflake target.
+  final String name;
+
+  /// The nodes that are inputs to the data target.
+  final List<String>? inputs;
+
+  SnowflakeTarget({
+    required this.data,
+    required this.name,
+    this.inputs,
+  });
+
+  factory SnowflakeTarget.fromJson(Map<String, dynamic> json) {
+    return SnowflakeTarget(
+      data: SnowflakeNodeData.fromJson(json['Data'] as Map<String, dynamic>),
+      name: json['Name'] as String,
+      inputs:
+          (json['Inputs'] as List?)?.nonNulls.map((e) => e as String).toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final data = this.data;
+    final name = this.name;
+    final inputs = this.inputs;
+    return {
+      'Data': data,
+      'Name': name,
+      if (inputs != null) 'Inputs': inputs,
+    };
+  }
+}
+
 enum Sort {
-  asc,
-  desc,
-}
+  asc('ASC'),
+  desc('DESC'),
+  ;
 
-extension SortValueExtension on Sort {
-  String toValue() {
-    switch (this) {
-      case Sort.asc:
-        return 'ASC';
-      case Sort.desc:
-        return 'DESC';
-    }
-  }
-}
+  final String value;
 
-extension SortFromString on String {
-  Sort toSort() {
-    switch (this) {
-      case 'ASC':
-        return Sort.asc;
-      case 'DESC':
-        return Sort.desc;
-    }
-    throw Exception('$this is not known in enum Sort');
-  }
+  const Sort(this.value);
+
+  static Sort fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Sort'));
 }
 
 /// Specifies a field to sort by and a sort order.
@@ -30464,65 +31850,39 @@ class SortCriterion {
     final sort = this.sort;
     return {
       if (fieldName != null) 'FieldName': fieldName,
-      if (sort != null) 'Sort': sort.toValue(),
+      if (sort != null) 'Sort': sort.value,
     };
   }
 }
 
 enum SortDirectionType {
-  descending,
-  ascending,
-}
+  descending('DESCENDING'),
+  ascending('ASCENDING'),
+  ;
 
-extension SortDirectionTypeValueExtension on SortDirectionType {
-  String toValue() {
-    switch (this) {
-      case SortDirectionType.descending:
-        return 'DESCENDING';
-      case SortDirectionType.ascending:
-        return 'ASCENDING';
-    }
-  }
-}
+  final String value;
 
-extension SortDirectionTypeFromString on String {
-  SortDirectionType toSortDirectionType() {
-    switch (this) {
-      case 'DESCENDING':
-        return SortDirectionType.descending;
-      case 'ASCENDING':
-        return SortDirectionType.ascending;
-    }
-    throw Exception('$this is not known in enum SortDirectionType');
-  }
+  const SortDirectionType(this.value);
+
+  static SortDirectionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SortDirectionType'));
 }
 
 enum SourceControlAuthStrategy {
-  personalAccessToken,
-  awsSecretsManager,
-}
+  personalAccessToken('PERSONAL_ACCESS_TOKEN'),
+  awsSecretsManager('AWS_SECRETS_MANAGER'),
+  ;
 
-extension SourceControlAuthStrategyValueExtension on SourceControlAuthStrategy {
-  String toValue() {
-    switch (this) {
-      case SourceControlAuthStrategy.personalAccessToken:
-        return 'PERSONAL_ACCESS_TOKEN';
-      case SourceControlAuthStrategy.awsSecretsManager:
-        return 'AWS_SECRETS_MANAGER';
-    }
-  }
-}
+  final String value;
 
-extension SourceControlAuthStrategyFromString on String {
-  SourceControlAuthStrategy toSourceControlAuthStrategy() {
-    switch (this) {
-      case 'PERSONAL_ACCESS_TOKEN':
-        return SourceControlAuthStrategy.personalAccessToken;
-      case 'AWS_SECRETS_MANAGER':
-        return SourceControlAuthStrategy.awsSecretsManager;
-    }
-    throw Exception('$this is not known in enum SourceControlAuthStrategy');
-  }
+  const SourceControlAuthStrategy(this.value);
+
+  static SourceControlAuthStrategy fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum SourceControlAuthStrategy'));
 }
 
 /// The details for a source control configuration for a job, allowing
@@ -30566,14 +31926,15 @@ class SourceControlDetails {
 
   factory SourceControlDetails.fromJson(Map<String, dynamic> json) {
     return SourceControlDetails(
-      authStrategy:
-          (json['AuthStrategy'] as String?)?.toSourceControlAuthStrategy(),
+      authStrategy: (json['AuthStrategy'] as String?)
+          ?.let(SourceControlAuthStrategy.fromString),
       authToken: json['AuthToken'] as String?,
       branch: json['Branch'] as String?,
       folder: json['Folder'] as String?,
       lastCommitId: json['LastCommitId'] as String?,
       owner: json['Owner'] as String?,
-      provider: (json['Provider'] as String?)?.toSourceControlProvider(),
+      provider:
+          (json['Provider'] as String?)?.let(SourceControlProvider.fromString),
       repository: json['Repository'] as String?,
     );
   }
@@ -30588,44 +31949,33 @@ class SourceControlDetails {
     final provider = this.provider;
     final repository = this.repository;
     return {
-      if (authStrategy != null) 'AuthStrategy': authStrategy.toValue(),
+      if (authStrategy != null) 'AuthStrategy': authStrategy.value,
       if (authToken != null) 'AuthToken': authToken,
       if (branch != null) 'Branch': branch,
       if (folder != null) 'Folder': folder,
       if (lastCommitId != null) 'LastCommitId': lastCommitId,
       if (owner != null) 'Owner': owner,
-      if (provider != null) 'Provider': provider.toValue(),
+      if (provider != null) 'Provider': provider.value,
       if (repository != null) 'Repository': repository,
     };
   }
 }
 
 enum SourceControlProvider {
-  github,
-  awsCodeCommit,
-}
+  github('GITHUB'),
+  gitlab('GITLAB'),
+  bitbucket('BITBUCKET'),
+  awsCodeCommit('AWS_CODE_COMMIT'),
+  ;
 
-extension SourceControlProviderValueExtension on SourceControlProvider {
-  String toValue() {
-    switch (this) {
-      case SourceControlProvider.github:
-        return 'GITHUB';
-      case SourceControlProvider.awsCodeCommit:
-        return 'AWS_CODE_COMMIT';
-    }
-  }
-}
+  final String value;
 
-extension SourceControlProviderFromString on String {
-  SourceControlProvider toSourceControlProvider() {
-    switch (this) {
-      case 'GITHUB':
-        return SourceControlProvider.github;
-      case 'AWS_CODE_COMMIT':
-        return SourceControlProvider.awsCodeCommit;
-    }
-    throw Exception('$this is not known in enum SourceControlProvider');
-  }
+  const SourceControlProvider(this.value);
+
+  static SourceControlProvider fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SourceControlProvider'));
 }
 
 /// Specifies a connector to an Apache Spark data source.
@@ -30668,7 +32018,7 @@ class SparkConnectorSource {
       additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -30731,15 +32081,13 @@ class SparkConnectorTarget {
       connectionName: json['ConnectionName'] as String,
       connectionType: json['ConnectionType'] as String,
       connectorName: json['ConnectorName'] as String,
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       additionalOptions: (json['AdditionalOptions'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -30802,18 +32150,16 @@ class SparkSQL {
 
   factory SparkSQL.fromJson(Map<String, dynamic> json) {
     return SparkSQL(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       sqlAliases: (json['SqlAliases'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SqlAlias.fromJson(e as Map<String, dynamic>))
           .toList(),
       sqlQuery: json['SqlQuery'] as String,
       outputSchemas: (json['OutputSchemas'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GlueSchema.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -30867,10 +32213,8 @@ class Spigot {
 
   factory Spigot.fromJson(Map<String, dynamic> json) {
     return Spigot(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       path: json['Path'] as String,
       prob: json['Prob'] as double?,
@@ -30916,15 +32260,12 @@ class SplitFields {
 
   factory SplitFields.fromJson(Map<String, dynamic> json) {
     return SplitFields(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
       paths: (json['Paths'] as List)
-          .whereNotNull()
-          .map((e) =>
-              (e as List).whereNotNull().map((e) => e as String).toList())
+          .nonNulls
+          .map((e) => (e as List).nonNulls.map((e) => e as String).toList())
           .toList(),
     );
   }
@@ -30982,6 +32323,22 @@ class StartBlueprintRunResponse {
   factory StartBlueprintRunResponse.fromJson(Map<String, dynamic> json) {
     return StartBlueprintRunResponse(
       runId: json['RunId'] as String?,
+    );
+  }
+}
+
+class StartColumnStatisticsTaskRunResponse {
+  /// The identifier for the column statistics task run.
+  final String? columnStatisticsTaskRunId;
+
+  StartColumnStatisticsTaskRunResponse({
+    this.columnStatisticsTaskRunId,
+  });
+
+  factory StartColumnStatisticsTaskRunResponse.fromJson(
+      Map<String, dynamic> json) {
+    return StartColumnStatisticsTaskRunResponse(
+      columnStatisticsTaskRunId: json['ColumnStatisticsTaskRunId'] as String?,
     );
   }
 }
@@ -31165,36 +32522,20 @@ class StartingEventBatchCondition {
 }
 
 enum StartingPosition {
-  latest,
-  trimHorizon,
-  earliest,
-}
+  latest('latest'),
+  trimHorizon('trim_horizon'),
+  earliest('earliest'),
+  timestamp('timestamp'),
+  ;
 
-extension StartingPositionValueExtension on StartingPosition {
-  String toValue() {
-    switch (this) {
-      case StartingPosition.latest:
-        return 'latest';
-      case StartingPosition.trimHorizon:
-        return 'trim_horizon';
-      case StartingPosition.earliest:
-        return 'earliest';
-    }
-  }
-}
+  final String value;
 
-extension StartingPositionFromString on String {
-  StartingPosition toStartingPosition() {
-    switch (this) {
-      case 'latest':
-        return StartingPosition.latest;
-      case 'trim_horizon':
-        return StartingPosition.trimHorizon;
-      case 'earliest':
-        return StartingPosition.earliest;
-    }
-    throw Exception('$this is not known in enum StartingPosition');
-  }
+  const StartingPosition(this.value);
+
+  static StartingPosition fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StartingPosition'));
 }
 
 /// The statement or request for a particular action to occur in a session.
@@ -31240,7 +32581,7 @@ class Statement {
           : null,
       progress: json['Progress'] as double?,
       startedOn: json['StartedOn'] as int?,
-      state: (json['State'] as String?)?.toStatementState(),
+      state: (json['State'] as String?)?.let(StatementState.fromString),
     );
   }
 }
@@ -31282,9 +32623,9 @@ class StatementOutput {
       errorName: json['ErrorName'] as String?,
       errorValue: json['ErrorValue'] as String?,
       executionCount: json['ExecutionCount'] as int?,
-      status: (json['Status'] as String?)?.toStatementState(),
+      status: (json['Status'] as String?)?.let(StatementState.fromString),
       traceback: (json['Traceback'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -31308,50 +32649,29 @@ class StatementOutputData {
 }
 
 enum StatementState {
-  waiting,
-  running,
-  available,
-  cancelling,
-  cancelled,
-  error,
+  waiting('WAITING'),
+  running('RUNNING'),
+  available('AVAILABLE'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  error('ERROR'),
+  ;
+
+  final String value;
+
+  const StatementState(this.value);
+
+  static StatementState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StatementState'));
 }
 
-extension StatementStateValueExtension on StatementState {
-  String toValue() {
-    switch (this) {
-      case StatementState.waiting:
-        return 'WAITING';
-      case StatementState.running:
-        return 'RUNNING';
-      case StatementState.available:
-        return 'AVAILABLE';
-      case StatementState.cancelling:
-        return 'CANCELLING';
-      case StatementState.cancelled:
-        return 'CANCELLED';
-      case StatementState.error:
-        return 'ERROR';
-    }
-  }
-}
+class StopColumnStatisticsTaskRunResponse {
+  StopColumnStatisticsTaskRunResponse();
 
-extension StatementStateFromString on String {
-  StatementState toStatementState() {
-    switch (this) {
-      case 'WAITING':
-        return StatementState.waiting;
-      case 'RUNNING':
-        return StatementState.running;
-      case 'AVAILABLE':
-        return StatementState.available;
-      case 'CANCELLING':
-        return StatementState.cancelling;
-      case 'CANCELLED':
-        return StatementState.cancelled;
-      case 'ERROR':
-        return StatementState.error;
-    }
-    throw Exception('$this is not known in enum StatementState');
+  factory StopColumnStatisticsTaskRunResponse.fromJson(Map<String, dynamic> _) {
+    return StopColumnStatisticsTaskRunResponse();
   }
 }
 
@@ -31484,15 +32804,15 @@ class StorageDescriptor {
   factory StorageDescriptor.fromJson(Map<String, dynamic> json) {
     return StorageDescriptor(
       additionalLocations: (json['AdditionalLocations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       bucketColumns: (json['BucketColumns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       columns: (json['Columns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Column.fromJson(e as Map<String, dynamic>))
           .toList(),
       compressed: json['Compressed'] as bool?,
@@ -31513,7 +32833,7 @@ class StorageDescriptor {
           ? SkewedInfo.fromJson(json['SkewedInfo'] as Map<String, dynamic>)
           : null,
       sortColumns: (json['SortColumns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Order.fromJson(e as Map<String, dynamic>))
           .toList(),
       storedAsSubDirectories: json['StoredAsSubDirectories'] as bool?,
@@ -31630,6 +32950,30 @@ class StringColumnStatisticsData {
   }
 }
 
+/// A structure specifying the dialect and dialect version used by the query
+/// engine.
+class SupportedDialect {
+  /// The dialect of the query engine.
+  final ViewDialect? dialect;
+
+  /// The version of the dialect of the query engine. For example, 3.0.0.
+  final String? dialectVersion;
+
+  SupportedDialect({
+    this.dialect,
+    this.dialectVersion,
+  });
+
+  Map<String, dynamic> toJson() {
+    final dialect = this.dialect;
+    final dialectVersion = this.dialectVersion;
+    return {
+      if (dialect != null) 'Dialect': dialect.value,
+      if (dialectVersion != null) 'DialectVersion': dialectVersion,
+    };
+  }
+}
+
 /// Represents a collection of related data organized in columns and rows.
 class Table {
   /// The table name. For Hive compatibility, this must be entirely lowercase.
@@ -31654,6 +32998,10 @@ class Table {
   /// A <code>FederatedTable</code> structure that references an entity outside
   /// the Glue Data Catalog.
   final FederatedTable? federatedTable;
+
+  /// Specifies whether the view supports the SQL dialects of one or more
+  /// different query engines and can therefore be read by those engines.
+  final bool? isMultiDialectView;
 
   /// Indicates whether the table has been registered with Lake Formation.
   final bool? isRegisteredWithLakeFormation;
@@ -31711,6 +33059,10 @@ class Table {
   /// The ID of the table version.
   final String? versionId;
 
+  /// A structure that contains all the information that defines the view,
+  /// including the dialect or dialects for the view, and the query.
+  final ViewDefinition? viewDefinition;
+
   /// Included for Apache Hive compatibility. Not used in the normal course of
   /// Glue operations.
   final String? viewExpandedText;
@@ -31728,6 +33080,7 @@ class Table {
     this.databaseName,
     this.description,
     this.federatedTable,
+    this.isMultiDialectView,
     this.isRegisteredWithLakeFormation,
     this.lastAccessTime,
     this.lastAnalyzedTime,
@@ -31740,6 +33093,7 @@ class Table {
     this.targetTable,
     this.updateTime,
     this.versionId,
+    this.viewDefinition,
     this.viewExpandedText,
     this.viewOriginalText,
   });
@@ -31756,6 +33110,7 @@ class Table {
           ? FederatedTable.fromJson(
               json['FederatedTable'] as Map<String, dynamic>)
           : null,
+      isMultiDialectView: json['IsMultiDialectView'] as bool?,
       isRegisteredWithLakeFormation:
           json['IsRegisteredWithLakeFormation'] as bool?,
       lastAccessTime: timeStampFromJson(json['LastAccessTime']),
@@ -31764,7 +33119,7 @@ class Table {
       parameters: (json['Parameters'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Column.fromJson(e as Map<String, dynamic>))
           .toList(),
       retention: json['Retention'] as int?,
@@ -31779,6 +33134,10 @@ class Table {
           : null,
       updateTime: timeStampFromJson(json['UpdateTime']),
       versionId: json['VersionId'] as String?,
+      viewDefinition: json['ViewDefinition'] != null
+          ? ViewDefinition.fromJson(
+              json['ViewDefinition'] as Map<String, dynamic>)
+          : null,
       viewExpandedText: json['ViewExpandedText'] as String?,
       viewOriginalText: json['ViewOriginalText'] as String?,
     );
@@ -31820,10 +33179,14 @@ class TableIdentifier {
   /// The name of the target table.
   final String? name;
 
+  /// Region of the target table.
+  final String? region;
+
   TableIdentifier({
     this.catalogId,
     this.databaseName,
     this.name,
+    this.region,
   });
 
   factory TableIdentifier.fromJson(Map<String, dynamic> json) {
@@ -31831,6 +33194,7 @@ class TableIdentifier {
       catalogId: json['CatalogId'] as String?,
       databaseName: json['DatabaseName'] as String?,
       name: json['Name'] as String?,
+      region: json['Region'] as String?,
     );
   }
 
@@ -31838,10 +33202,12 @@ class TableIdentifier {
     final catalogId = this.catalogId;
     final databaseName = this.databaseName;
     final name = this.name;
+    final region = this.region;
     return {
       if (catalogId != null) 'CatalogId': catalogId,
       if (databaseName != null) 'DatabaseName': databaseName,
       if (name != null) 'Name': name,
+      if (region != null) 'Region': region,
     };
   }
 }
@@ -31961,6 +33327,143 @@ class TableInput {
   }
 }
 
+/// Contains details about an optimizer associated with a table.
+class TableOptimizer {
+  /// A <code>TableOptimizerConfiguration</code> object that was specified when
+  /// creating or updating a table optimizer.
+  final TableOptimizerConfiguration? configuration;
+
+  /// A <code>TableOptimizerRun</code> object representing the last run of the
+  /// table optimizer.
+  final TableOptimizerRun? lastRun;
+
+  /// The type of table optimizer. Currently, the only valid value is
+  /// <code>compaction</code>.
+  final TableOptimizerType? type;
+
+  TableOptimizer({
+    this.configuration,
+    this.lastRun,
+    this.type,
+  });
+
+  factory TableOptimizer.fromJson(Map<String, dynamic> json) {
+    return TableOptimizer(
+      configuration: json['configuration'] != null
+          ? TableOptimizerConfiguration.fromJson(
+              json['configuration'] as Map<String, dynamic>)
+          : null,
+      lastRun: json['lastRun'] != null
+          ? TableOptimizerRun.fromJson(json['lastRun'] as Map<String, dynamic>)
+          : null,
+      type: (json['type'] as String?)?.let(TableOptimizerType.fromString),
+    );
+  }
+}
+
+/// Contains details on the configuration of a table optimizer. You pass this
+/// configuration when creating or updating a table optimizer.
+class TableOptimizerConfiguration {
+  /// Whether table optimization is enabled.
+  final bool? enabled;
+
+  /// A role passed by the caller which gives the service permission to update the
+  /// resources associated with the optimizer on the caller's behalf.
+  final String? roleArn;
+
+  TableOptimizerConfiguration({
+    this.enabled,
+    this.roleArn,
+  });
+
+  factory TableOptimizerConfiguration.fromJson(Map<String, dynamic> json) {
+    return TableOptimizerConfiguration(
+      enabled: json['enabled'] as bool?,
+      roleArn: json['roleArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enabled = this.enabled;
+    final roleArn = this.roleArn;
+    return {
+      if (enabled != null) 'enabled': enabled,
+      if (roleArn != null) 'roleArn': roleArn,
+    };
+  }
+}
+
+enum TableOptimizerEventType {
+  starting('starting'),
+  completed('completed'),
+  failed('failed'),
+  inProgress('in_progress'),
+  ;
+
+  final String value;
+
+  const TableOptimizerEventType(this.value);
+
+  static TableOptimizerEventType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TableOptimizerEventType'));
+}
+
+/// Contains details for a table optimizer run.
+class TableOptimizerRun {
+  /// Represents the epoch timestamp at which the compaction job ended.
+  final DateTime? endTimestamp;
+
+  /// An error that occured during the optimizer run.
+  final String? error;
+
+  /// An event type representing the status of the table optimizer run.
+  final TableOptimizerEventType? eventType;
+
+  /// A <code>RunMetrics</code> object containing metrics for the optimizer run.
+  final RunMetrics? metrics;
+
+  /// Represents the epoch timestamp at which the compaction job was started
+  /// within Lake Formation.
+  final DateTime? startTimestamp;
+
+  TableOptimizerRun({
+    this.endTimestamp,
+    this.error,
+    this.eventType,
+    this.metrics,
+    this.startTimestamp,
+  });
+
+  factory TableOptimizerRun.fromJson(Map<String, dynamic> json) {
+    return TableOptimizerRun(
+      endTimestamp: timeStampFromJson(json['endTimestamp']),
+      error: json['error'] as String?,
+      eventType: (json['eventType'] as String?)
+          ?.let(TableOptimizerEventType.fromString),
+      metrics: json['metrics'] != null
+          ? RunMetrics.fromJson(json['metrics'] as Map<String, dynamic>)
+          : null,
+      startTimestamp: timeStampFromJson(json['startTimestamp']),
+    );
+  }
+}
+
+enum TableOptimizerType {
+  compaction('compaction'),
+  ;
+
+  final String value;
+
+  const TableOptimizerType(this.value);
+
+  static TableOptimizerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TableOptimizerType'));
+}
+
 /// Specifies a version of a table.
 class TableVersion {
   /// The table in question.
@@ -32023,56 +33526,23 @@ class TagResourceResponse {
 }
 
 enum TargetFormat {
-  json,
-  csv,
-  avro,
-  orc,
-  parquet,
-  hudi,
-  delta,
-}
+  json('json'),
+  csv('csv'),
+  avro('avro'),
+  orc('orc'),
+  parquet('parquet'),
+  hudi('hudi'),
+  delta('delta'),
+  ;
 
-extension TargetFormatValueExtension on TargetFormat {
-  String toValue() {
-    switch (this) {
-      case TargetFormat.json:
-        return 'json';
-      case TargetFormat.csv:
-        return 'csv';
-      case TargetFormat.avro:
-        return 'avro';
-      case TargetFormat.orc:
-        return 'orc';
-      case TargetFormat.parquet:
-        return 'parquet';
-      case TargetFormat.hudi:
-        return 'hudi';
-      case TargetFormat.delta:
-        return 'delta';
-    }
-  }
-}
+  final String value;
 
-extension TargetFormatFromString on String {
-  TargetFormat toTargetFormat() {
-    switch (this) {
-      case 'json':
-        return TargetFormat.json;
-      case 'csv':
-        return TargetFormat.csv;
-      case 'avro':
-        return TargetFormat.avro;
-      case 'orc':
-        return TargetFormat.orc;
-      case 'parquet':
-        return TargetFormat.parquet;
-      case 'hudi':
-        return TargetFormat.hudi;
-      case 'delta':
-        return TargetFormat.delta;
-    }
-    throw Exception('$this is not known in enum TargetFormat');
-  }
+  const TargetFormat(this.value);
+
+  static TargetFormat fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TargetFormat'));
 }
 
 /// The sampling parameters that are associated with the machine learning
@@ -32134,7 +33604,7 @@ class TaskRun {
               json['Properties'] as Map<String, dynamic>)
           : null,
       startedOn: timeStampFromJson(json['StartedOn']),
-      status: (json['Status'] as String?)?.toTaskStatusType(),
+      status: (json['Status'] as String?)?.let(TaskStatusType.fromString),
       taskRunId: json['TaskRunId'] as String?,
       transformId: json['TransformId'] as String?,
     );
@@ -32173,8 +33643,8 @@ class TaskRunFilterCriteria {
         'StartedAfter': unixTimestampToJson(startedAfter),
       if (startedBefore != null)
         'StartedBefore': unixTimestampToJson(startedBefore),
-      if (status != null) 'Status': status.toValue(),
-      if (taskRunType != null) 'TaskRunType': taskRunType.toValue(),
+      if (status != null) 'Status': status.value,
+      if (taskRunType != null) 'TaskRunType': taskRunType.value,
     };
   }
 }
@@ -32227,42 +33697,25 @@ class TaskRunProperties {
                   json['LabelingSetGenerationTaskRunProperties']
                       as Map<String, dynamic>)
               : null,
-      taskType: (json['TaskType'] as String?)?.toTaskType(),
+      taskType: (json['TaskType'] as String?)?.let(TaskType.fromString),
     );
   }
 }
 
 enum TaskRunSortColumnType {
-  taskRunType,
-  status,
-  started,
-}
+  taskRunType('TASK_RUN_TYPE'),
+  status('STATUS'),
+  started('STARTED'),
+  ;
 
-extension TaskRunSortColumnTypeValueExtension on TaskRunSortColumnType {
-  String toValue() {
-    switch (this) {
-      case TaskRunSortColumnType.taskRunType:
-        return 'TASK_RUN_TYPE';
-      case TaskRunSortColumnType.status:
-        return 'STATUS';
-      case TaskRunSortColumnType.started:
-        return 'STARTED';
-    }
-  }
-}
+  final String value;
 
-extension TaskRunSortColumnTypeFromString on String {
-  TaskRunSortColumnType toTaskRunSortColumnType() {
-    switch (this) {
-      case 'TASK_RUN_TYPE':
-        return TaskRunSortColumnType.taskRunType;
-      case 'STATUS':
-        return TaskRunSortColumnType.status;
-      case 'STARTED':
-        return TaskRunSortColumnType.started;
-    }
-    throw Exception('$this is not known in enum TaskRunSortColumnType');
-  }
+  const TaskRunSortColumnType(this.value);
+
+  static TaskRunSortColumnType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TaskRunSortColumnType'));
 }
 
 /// The sorting criteria that are used to sort the list of task runs for the
@@ -32285,106 +33738,47 @@ class TaskRunSortCriteria {
     final column = this.column;
     final sortDirection = this.sortDirection;
     return {
-      'Column': column.toValue(),
-      'SortDirection': sortDirection.toValue(),
+      'Column': column.value,
+      'SortDirection': sortDirection.value,
     };
   }
 }
 
 enum TaskStatusType {
-  starting,
-  running,
-  stopping,
-  stopped,
-  succeeded,
-  failed,
-  timeout,
-}
+  starting('STARTING'),
+  running('RUNNING'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  timeout('TIMEOUT'),
+  ;
 
-extension TaskStatusTypeValueExtension on TaskStatusType {
-  String toValue() {
-    switch (this) {
-      case TaskStatusType.starting:
-        return 'STARTING';
-      case TaskStatusType.running:
-        return 'RUNNING';
-      case TaskStatusType.stopping:
-        return 'STOPPING';
-      case TaskStatusType.stopped:
-        return 'STOPPED';
-      case TaskStatusType.succeeded:
-        return 'SUCCEEDED';
-      case TaskStatusType.failed:
-        return 'FAILED';
-      case TaskStatusType.timeout:
-        return 'TIMEOUT';
-    }
-  }
-}
+  final String value;
 
-extension TaskStatusTypeFromString on String {
-  TaskStatusType toTaskStatusType() {
-    switch (this) {
-      case 'STARTING':
-        return TaskStatusType.starting;
-      case 'RUNNING':
-        return TaskStatusType.running;
-      case 'STOPPING':
-        return TaskStatusType.stopping;
-      case 'STOPPED':
-        return TaskStatusType.stopped;
-      case 'SUCCEEDED':
-        return TaskStatusType.succeeded;
-      case 'FAILED':
-        return TaskStatusType.failed;
-      case 'TIMEOUT':
-        return TaskStatusType.timeout;
-    }
-    throw Exception('$this is not known in enum TaskStatusType');
-  }
+  const TaskStatusType(this.value);
+
+  static TaskStatusType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TaskStatusType'));
 }
 
 enum TaskType {
-  evaluation,
-  labelingSetGeneration,
-  importLabels,
-  exportLabels,
-  findMatches,
-}
+  evaluation('EVALUATION'),
+  labelingSetGeneration('LABELING_SET_GENERATION'),
+  importLabels('IMPORT_LABELS'),
+  exportLabels('EXPORT_LABELS'),
+  findMatches('FIND_MATCHES'),
+  ;
 
-extension TaskTypeValueExtension on TaskType {
-  String toValue() {
-    switch (this) {
-      case TaskType.evaluation:
-        return 'EVALUATION';
-      case TaskType.labelingSetGeneration:
-        return 'LABELING_SET_GENERATION';
-      case TaskType.importLabels:
-        return 'IMPORT_LABELS';
-      case TaskType.exportLabels:
-        return 'EXPORT_LABELS';
-      case TaskType.findMatches:
-        return 'FIND_MATCHES';
-    }
-  }
-}
+  final String value;
 
-extension TaskTypeFromString on String {
-  TaskType toTaskType() {
-    switch (this) {
-      case 'EVALUATION':
-        return TaskType.evaluation;
-      case 'LABELING_SET_GENERATION':
-        return TaskType.labelingSetGeneration;
-      case 'IMPORT_LABELS':
-        return TaskType.importLabels;
-      case 'EXPORT_LABELS':
-        return TaskType.exportLabels;
-      case 'FIND_MATCHES':
-        return TaskType.findMatches;
-    }
-    throw Exception('$this is not known in enum TaskType');
-  }
+  const TaskType(this.value);
+
+  static TaskType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TaskType'));
 }
 
 /// Specifies the parameters in the config file of the dynamic transform.
@@ -32428,15 +33822,13 @@ class TransformConfigParameter {
   factory TransformConfigParameter.fromJson(Map<String, dynamic> json) {
     return TransformConfigParameter(
       name: json['Name'] as String,
-      type: (json['Type'] as String).toParamType(),
+      type: ParamType.fromString((json['Type'] as String)),
       isOptional: json['IsOptional'] as bool?,
-      listType: (json['ListType'] as String?)?.toParamType(),
+      listType: (json['ListType'] as String?)?.let(ParamType.fromString),
       validationMessage: json['ValidationMessage'] as String?,
       validationRule: json['ValidationRule'] as String?,
-      value: (json['Value'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      value:
+          (json['Value'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -32450,9 +33842,9 @@ class TransformConfigParameter {
     final value = this.value;
     return {
       'Name': name,
-      'Type': type.toValue(),
+      'Type': type.value,
       if (isOptional != null) 'IsOptional': isOptional,
-      if (listType != null) 'ListType': listType.toValue(),
+      if (listType != null) 'ListType': listType.value,
       if (validationMessage != null) 'ValidationMessage': validationMessage,
       if (validationRule != null) 'ValidationRule': validationRule,
       if (value != null) 'Value': value,
@@ -32579,8 +33971,8 @@ class TransformFilterCriteria {
         'LastModifiedBefore': unixTimestampToJson(lastModifiedBefore),
       if (name != null) 'Name': name,
       if (schema != null) 'Schema': schema,
-      if (status != null) 'Status': status.toValue(),
-      if (transformType != null) 'TransformType': transformType.toValue(),
+      if (status != null) 'Status': status.value,
+      if (transformType != null) 'TransformType': transformType.value,
     };
   }
 }
@@ -32605,7 +33997,8 @@ class TransformParameters {
 
   factory TransformParameters.fromJson(Map<String, dynamic> json) {
     return TransformParameters(
-      transformType: (json['TransformType'] as String).toTransformType(),
+      transformType:
+          TransformType.fromString((json['TransformType'] as String)),
       findMatchesParameters: json['FindMatchesParameters'] != null
           ? FindMatchesParameters.fromJson(
               json['FindMatchesParameters'] as Map<String, dynamic>)
@@ -32617,7 +34010,7 @@ class TransformParameters {
     final transformType = this.transformType;
     final findMatchesParameters = this.findMatchesParameters;
     return {
-      'TransformType': transformType.toValue(),
+      'TransformType': transformType.value,
       if (findMatchesParameters != null)
         'FindMatchesParameters': findMatchesParameters,
     };
@@ -32625,46 +34018,21 @@ class TransformParameters {
 }
 
 enum TransformSortColumnType {
-  name,
-  transformType,
-  status,
-  created,
-  lastModified,
-}
+  name('NAME'),
+  transformType('TRANSFORM_TYPE'),
+  status('STATUS'),
+  created('CREATED'),
+  lastModified('LAST_MODIFIED'),
+  ;
 
-extension TransformSortColumnTypeValueExtension on TransformSortColumnType {
-  String toValue() {
-    switch (this) {
-      case TransformSortColumnType.name:
-        return 'NAME';
-      case TransformSortColumnType.transformType:
-        return 'TRANSFORM_TYPE';
-      case TransformSortColumnType.status:
-        return 'STATUS';
-      case TransformSortColumnType.created:
-        return 'CREATED';
-      case TransformSortColumnType.lastModified:
-        return 'LAST_MODIFIED';
-    }
-  }
-}
+  final String value;
 
-extension TransformSortColumnTypeFromString on String {
-  TransformSortColumnType toTransformSortColumnType() {
-    switch (this) {
-      case 'NAME':
-        return TransformSortColumnType.name;
-      case 'TRANSFORM_TYPE':
-        return TransformSortColumnType.transformType;
-      case 'STATUS':
-        return TransformSortColumnType.status;
-      case 'CREATED':
-        return TransformSortColumnType.created;
-      case 'LAST_MODIFIED':
-        return TransformSortColumnType.lastModified;
-    }
-    throw Exception('$this is not known in enum TransformSortColumnType');
-  }
+  const TransformSortColumnType(this.value);
+
+  static TransformSortColumnType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum TransformSortColumnType'));
 }
 
 /// The sorting criteria that are associated with the machine learning
@@ -32687,66 +34055,40 @@ class TransformSortCriteria {
     final column = this.column;
     final sortDirection = this.sortDirection;
     return {
-      'Column': column.toValue(),
-      'SortDirection': sortDirection.toValue(),
+      'Column': column.value,
+      'SortDirection': sortDirection.value,
     };
   }
 }
 
 enum TransformStatusType {
-  notReady,
-  ready,
-  deleting,
-}
+  notReady('NOT_READY'),
+  ready('READY'),
+  deleting('DELETING'),
+  ;
 
-extension TransformStatusTypeValueExtension on TransformStatusType {
-  String toValue() {
-    switch (this) {
-      case TransformStatusType.notReady:
-        return 'NOT_READY';
-      case TransformStatusType.ready:
-        return 'READY';
-      case TransformStatusType.deleting:
-        return 'DELETING';
-    }
-  }
-}
+  final String value;
 
-extension TransformStatusTypeFromString on String {
-  TransformStatusType toTransformStatusType() {
-    switch (this) {
-      case 'NOT_READY':
-        return TransformStatusType.notReady;
-      case 'READY':
-        return TransformStatusType.ready;
-      case 'DELETING':
-        return TransformStatusType.deleting;
-    }
-    throw Exception('$this is not known in enum TransformStatusType');
-  }
+  const TransformStatusType(this.value);
+
+  static TransformStatusType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum TransformStatusType'));
 }
 
 enum TransformType {
-  findMatches,
-}
+  findMatches('FIND_MATCHES'),
+  ;
 
-extension TransformTypeValueExtension on TransformType {
-  String toValue() {
-    switch (this) {
-      case TransformType.findMatches:
-        return 'FIND_MATCHES';
-    }
-  }
-}
+  final String value;
 
-extension TransformTypeFromString on String {
-  TransformType toTransformType() {
-    switch (this) {
-      case 'FIND_MATCHES':
-        return TransformType.findMatches;
-    }
-    throw Exception('$this is not known in enum TransformType');
-  }
+  const TransformType(this.value);
+
+  static TransformType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TransformType'));
 }
 
 /// Information about a specific trigger.
@@ -32801,7 +34143,7 @@ class Trigger {
   factory Trigger.fromJson(Map<String, dynamic> json) {
     return Trigger(
       actions: (json['Actions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Action.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: json['Description'] as String?,
@@ -32815,8 +34157,8 @@ class Trigger {
           ? Predicate.fromJson(json['Predicate'] as Map<String, dynamic>)
           : null,
       schedule: json['Schedule'] as String?,
-      state: (json['State'] as String?)?.toTriggerState(),
-      type: (json['Type'] as String?)?.toTriggerType(),
+      state: (json['State'] as String?)?.let(TriggerState.fromString),
+      type: (json['Type'] as String?)?.let(TriggerType.fromString),
       workflowName: json['WorkflowName'] as String?,
     );
   }
@@ -32841,99 +34183,40 @@ class TriggerNodeDetails {
 }
 
 enum TriggerState {
-  creating,
-  created,
-  activating,
-  activated,
-  deactivating,
-  deactivated,
-  deleting,
-  updating,
-}
+  creating('CREATING'),
+  created('CREATED'),
+  activating('ACTIVATING'),
+  activated('ACTIVATED'),
+  deactivating('DEACTIVATING'),
+  deactivated('DEACTIVATED'),
+  deleting('DELETING'),
+  updating('UPDATING'),
+  ;
 
-extension TriggerStateValueExtension on TriggerState {
-  String toValue() {
-    switch (this) {
-      case TriggerState.creating:
-        return 'CREATING';
-      case TriggerState.created:
-        return 'CREATED';
-      case TriggerState.activating:
-        return 'ACTIVATING';
-      case TriggerState.activated:
-        return 'ACTIVATED';
-      case TriggerState.deactivating:
-        return 'DEACTIVATING';
-      case TriggerState.deactivated:
-        return 'DEACTIVATED';
-      case TriggerState.deleting:
-        return 'DELETING';
-      case TriggerState.updating:
-        return 'UPDATING';
-    }
-  }
-}
+  final String value;
 
-extension TriggerStateFromString on String {
-  TriggerState toTriggerState() {
-    switch (this) {
-      case 'CREATING':
-        return TriggerState.creating;
-      case 'CREATED':
-        return TriggerState.created;
-      case 'ACTIVATING':
-        return TriggerState.activating;
-      case 'ACTIVATED':
-        return TriggerState.activated;
-      case 'DEACTIVATING':
-        return TriggerState.deactivating;
-      case 'DEACTIVATED':
-        return TriggerState.deactivated;
-      case 'DELETING':
-        return TriggerState.deleting;
-      case 'UPDATING':
-        return TriggerState.updating;
-    }
-    throw Exception('$this is not known in enum TriggerState');
-  }
+  const TriggerState(this.value);
+
+  static TriggerState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TriggerState'));
 }
 
 enum TriggerType {
-  scheduled,
-  conditional,
-  onDemand,
-  event,
-}
+  scheduled('SCHEDULED'),
+  conditional('CONDITIONAL'),
+  onDemand('ON_DEMAND'),
+  event('EVENT'),
+  ;
 
-extension TriggerTypeValueExtension on TriggerType {
-  String toValue() {
-    switch (this) {
-      case TriggerType.scheduled:
-        return 'SCHEDULED';
-      case TriggerType.conditional:
-        return 'CONDITIONAL';
-      case TriggerType.onDemand:
-        return 'ON_DEMAND';
-      case TriggerType.event:
-        return 'EVENT';
-    }
-  }
-}
+  final String value;
 
-extension TriggerTypeFromString on String {
-  TriggerType toTriggerType() {
-    switch (this) {
-      case 'SCHEDULED':
-        return TriggerType.scheduled;
-      case 'CONDITIONAL':
-        return TriggerType.conditional;
-      case 'ON_DEMAND':
-        return TriggerType.onDemand;
-      case 'EVENT':
-        return TriggerType.event;
-    }
-    throw Exception('$this is not known in enum TriggerType');
-  }
+  const TriggerType(this.value);
+
+  static TriggerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TriggerType'));
 }
 
 /// A structure used to provide information used to update a trigger. This
@@ -33010,7 +34293,7 @@ class UnfilteredPartition {
   factory UnfilteredPartition.fromJson(Map<String, dynamic> json) {
     return UnfilteredPartition(
       authorizedColumns: (json['AuthorizedColumns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       isRegisteredWithLakeFormation:
@@ -33048,12 +34331,10 @@ class Union {
 
   factory Union.fromJson(Map<String, dynamic> json) {
     return Union(
-      inputs: (json['Inputs'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      inputs:
+          (json['Inputs'] as List).nonNulls.map((e) => e as String).toList(),
       name: json['Name'] as String,
-      unionType: (json['UnionType'] as String).toUnionType(),
+      unionType: UnionType.fromString((json['UnionType'] as String)),
     );
   }
 
@@ -33064,37 +34345,23 @@ class Union {
     return {
       'Inputs': inputs,
       'Name': name,
-      'UnionType': unionType.toValue(),
+      'UnionType': unionType.value,
     };
   }
 }
 
 enum UnionType {
-  all,
-  distinct,
-}
+  all('ALL'),
+  distinct('DISTINCT'),
+  ;
 
-extension UnionTypeValueExtension on UnionType {
-  String toValue() {
-    switch (this) {
-      case UnionType.all:
-        return 'ALL';
-      case UnionType.distinct:
-        return 'DISTINCT';
-    }
-  }
-}
+  final String value;
 
-extension UnionTypeFromString on String {
-  UnionType toUnionType() {
-    switch (this) {
-      case 'ALL':
-        return UnionType.all;
-      case 'DISTINCT':
-        return UnionType.distinct;
-    }
-    throw Exception('$this is not known in enum UnionType');
-  }
+  const UnionType(this.value);
+
+  static UnionType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum UnionType'));
 }
 
 class UntagResourceResponse {
@@ -33106,31 +34373,18 @@ class UntagResourceResponse {
 }
 
 enum UpdateBehavior {
-  log,
-  updateInDatabase,
-}
+  log('LOG'),
+  updateInDatabase('UPDATE_IN_DATABASE'),
+  ;
 
-extension UpdateBehaviorValueExtension on UpdateBehavior {
-  String toValue() {
-    switch (this) {
-      case UpdateBehavior.log:
-        return 'LOG';
-      case UpdateBehavior.updateInDatabase:
-        return 'UPDATE_IN_DATABASE';
-    }
-  }
-}
+  final String value;
 
-extension UpdateBehaviorFromString on String {
-  UpdateBehavior toUpdateBehavior() {
-    switch (this) {
-      case 'LOG':
-        return UpdateBehavior.log;
-      case 'UPDATE_IN_DATABASE':
-        return UpdateBehavior.updateInDatabase;
-    }
-    throw Exception('$this is not known in enum UpdateBehavior');
-  }
+  const UpdateBehavior(this.value);
+
+  static UpdateBehavior fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateBehavior'));
 }
 
 class UpdateBlueprintResponse {
@@ -33149,31 +34403,18 @@ class UpdateBlueprintResponse {
 }
 
 enum UpdateCatalogBehavior {
-  updateInDatabase,
-  log,
-}
+  updateInDatabase('UPDATE_IN_DATABASE'),
+  log('LOG'),
+  ;
 
-extension UpdateCatalogBehaviorValueExtension on UpdateCatalogBehavior {
-  String toValue() {
-    switch (this) {
-      case UpdateCatalogBehavior.updateInDatabase:
-        return 'UPDATE_IN_DATABASE';
-      case UpdateCatalogBehavior.log:
-        return 'LOG';
-    }
-  }
-}
+  final String value;
 
-extension UpdateCatalogBehaviorFromString on String {
-  UpdateCatalogBehavior toUpdateCatalogBehavior() {
-    switch (this) {
-      case 'UPDATE_IN_DATABASE':
-        return UpdateCatalogBehavior.updateInDatabase;
-      case 'LOG':
-        return UpdateCatalogBehavior.log;
-    }
-    throw Exception('$this is not known in enum UpdateCatalogBehavior');
-  }
+  const UpdateCatalogBehavior(this.value);
+
+  static UpdateCatalogBehavior fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum UpdateCatalogBehavior'));
 }
 
 class UpdateClassifierResponse {
@@ -33196,7 +34437,7 @@ class UpdateColumnStatisticsForPartitionResponse {
       Map<String, dynamic> json) {
     return UpdateColumnStatisticsForPartitionResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnStatisticsError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -33215,7 +34456,7 @@ class UpdateColumnStatisticsForTableResponse {
       Map<String, dynamic> json) {
     return UpdateColumnStatisticsForTableResponse(
       errors: (json['Errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnStatisticsError.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -33277,6 +34518,12 @@ class UpdateCsvClassifierRequest {
   /// It must be different from the column delimiter.
   final String? quoteSymbol;
 
+  /// Sets the SerDe for processing CSV in the classifier, which will be applied
+  /// in the Data Catalog. Valid values are <code>OpenCSVSerDe</code>,
+  /// <code>LazySimpleSerDe</code>, and <code>None</code>. You can specify the
+  /// <code>None</code> value when you want the crawler to do the detection.
+  final CsvSerdeOption? serde;
+
   UpdateCsvClassifierRequest({
     required this.name,
     this.allowSingleColumn,
@@ -33287,6 +34534,7 @@ class UpdateCsvClassifierRequest {
     this.disableValueTrimming,
     this.header,
     this.quoteSymbol,
+    this.serde,
   });
 
   Map<String, dynamic> toJson() {
@@ -33299,10 +34547,11 @@ class UpdateCsvClassifierRequest {
     final disableValueTrimming = this.disableValueTrimming;
     final header = this.header;
     final quoteSymbol = this.quoteSymbol;
+    final serde = this.serde;
     return {
       'Name': name,
       if (allowSingleColumn != null) 'AllowSingleColumn': allowSingleColumn,
-      if (containsHeader != null) 'ContainsHeader': containsHeader.toValue(),
+      if (containsHeader != null) 'ContainsHeader': containsHeader.value,
       if (customDatatypeConfigured != null)
         'CustomDatatypeConfigured': customDatatypeConfigured,
       if (customDatatypes != null) 'CustomDatatypes': customDatatypes,
@@ -33311,6 +34560,7 @@ class UpdateCsvClassifierRequest {
         'DisableValueTrimming': disableValueTrimming,
       if (header != null) 'Header': header,
       if (quoteSymbol != null) 'QuoteSymbol': quoteSymbol,
+      if (serde != null) 'Serde': serde.value,
     };
   }
 }
@@ -33535,6 +34785,14 @@ class UpdateSourceControlFromJobResponse {
   }
 }
 
+class UpdateTableOptimizerResponse {
+  UpdateTableOptimizerResponse();
+
+  factory UpdateTableOptimizerResponse.fromJson(Map<String, dynamic> _) {
+    return UpdateTableOptimizerResponse();
+  }
+}
+
 class UpdateTableResponse {
   UpdateTableResponse();
 
@@ -33640,7 +34898,7 @@ class UpsertRedshiftTargetOptions {
       connectionName: json['ConnectionName'] as String?,
       tableLocation: json['TableLocation'] as String?,
       upsertKeys: (json['UpsertKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -33704,9 +34962,9 @@ class UserDefinedFunction {
       databaseName: json['DatabaseName'] as String?,
       functionName: json['FunctionName'] as String?,
       ownerName: json['OwnerName'] as String?,
-      ownerType: (json['OwnerType'] as String?)?.toPrincipalType(),
+      ownerType: (json['OwnerType'] as String?)?.let(PrincipalType.fromString),
       resourceUris: (json['ResourceUris'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceUri.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -33748,58 +35006,138 @@ class UserDefinedFunctionInput {
       if (className != null) 'ClassName': className,
       if (functionName != null) 'FunctionName': functionName,
       if (ownerName != null) 'OwnerName': ownerName,
-      if (ownerType != null) 'OwnerType': ownerType.toValue(),
+      if (ownerType != null) 'OwnerType': ownerType.value,
       if (resourceUris != null) 'ResourceUris': resourceUris,
     };
   }
 }
 
+/// A structure containing details for representations.
+class ViewDefinition {
+  /// The definer of a view in SQL.
+  final String? definer;
+
+  /// You can set this flag as true to instruct the engine not to push
+  /// user-provided operations into the logical plan of the view during query
+  /// planning. However, setting this flag does not guarantee that the engine will
+  /// comply. Refer to the engine's documentation to understand the guarantees
+  /// provided, if any.
+  final bool? isProtected;
+
+  /// A list of representations.
+  final List<ViewRepresentation>? representations;
+
+  /// A list of table Amazon Resource Names (ARNs).
+  final List<String>? subObjects;
+
+  ViewDefinition({
+    this.definer,
+    this.isProtected,
+    this.representations,
+    this.subObjects,
+  });
+
+  factory ViewDefinition.fromJson(Map<String, dynamic> json) {
+    return ViewDefinition(
+      definer: json['Definer'] as String?,
+      isProtected: json['IsProtected'] as bool?,
+      representations: (json['Representations'] as List?)
+          ?.nonNulls
+          .map((e) => ViewRepresentation.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      subObjects: (json['SubObjects'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+    );
+  }
+}
+
+enum ViewDialect {
+  redshift('REDSHIFT'),
+  athena('ATHENA'),
+  spark('SPARK'),
+  ;
+
+  final String value;
+
+  const ViewDialect(this.value);
+
+  static ViewDialect fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ViewDialect'));
+}
+
+/// A structure that contains the dialect of the view, and the query that
+/// defines the view.
+class ViewRepresentation {
+  /// The dialect of the query engine.
+  final ViewDialect? dialect;
+
+  /// The version of the dialect of the query engine. For example, 3.0.0.
+  final String? dialectVersion;
+
+  /// Dialects marked as stale are no longer valid and must be updated before they
+  /// can be queried in their respective query engines.
+  final bool? isStale;
+
+  /// The expanded SQL for the view. This SQL is used by engines while processing
+  /// a query on a view. Engines may perform operations during view creation to
+  /// transform <code>ViewOriginalText</code> to <code>ViewExpandedText</code>.
+  /// For example:
+  ///
+  /// <ul>
+  /// <li>
+  /// Fully qualified identifiers: <code>SELECT * from table1 -&gt; SELECT * from
+  /// db1.table1</code>
+  /// </li>
+  /// </ul>
+  final String? viewExpandedText;
+
+  /// The <code>SELECT</code> query provided by the customer during <code>CREATE
+  /// VIEW DDL</code>. This SQL is not used during a query on a view
+  /// (<code>ViewExpandedText</code> is used instead).
+  /// <code>ViewOriginalText</code> is used for cases like <code>SHOW CREATE
+  /// VIEW</code> where users want to see the original DDL command that created
+  /// the view.
+  final String? viewOriginalText;
+
+  ViewRepresentation({
+    this.dialect,
+    this.dialectVersion,
+    this.isStale,
+    this.viewExpandedText,
+    this.viewOriginalText,
+  });
+
+  factory ViewRepresentation.fromJson(Map<String, dynamic> json) {
+    return ViewRepresentation(
+      dialect: (json['Dialect'] as String?)?.let(ViewDialect.fromString),
+      dialectVersion: json['DialectVersion'] as String?,
+      isStale: json['IsStale'] as bool?,
+      viewExpandedText: json['ViewExpandedText'] as String?,
+      viewOriginalText: json['ViewOriginalText'] as String?,
+    );
+  }
+}
+
 enum WorkerType {
-  standard,
-  g_1x,
-  g_2x,
-  g_025x,
-  g_4x,
-  g_8x,
-}
+  standard('Standard'),
+  g_1x('G.1X'),
+  g_2x('G.2X'),
+  g_025x('G.025X'),
+  g_4x('G.4X'),
+  g_8x('G.8X'),
+  z_2x('Z.2X'),
+  ;
 
-extension WorkerTypeValueExtension on WorkerType {
-  String toValue() {
-    switch (this) {
-      case WorkerType.standard:
-        return 'Standard';
-      case WorkerType.g_1x:
-        return 'G.1X';
-      case WorkerType.g_2x:
-        return 'G.2X';
-      case WorkerType.g_025x:
-        return 'G.025X';
-      case WorkerType.g_4x:
-        return 'G.4X';
-      case WorkerType.g_8x:
-        return 'G.8X';
-    }
-  }
-}
+  final String value;
 
-extension WorkerTypeFromString on String {
-  WorkerType toWorkerType() {
-    switch (this) {
-      case 'Standard':
-        return WorkerType.standard;
-      case 'G.1X':
-        return WorkerType.g_1x;
-      case 'G.2X':
-        return WorkerType.g_2x;
-      case 'G.025X':
-        return WorkerType.g_025x;
-      case 'G.4X':
-        return WorkerType.g_4x;
-      case 'G.8X':
-        return WorkerType.g_8x;
-    }
-    throw Exception('$this is not known in enum WorkerType');
-  }
+  const WorkerType(this.value);
+
+  static WorkerType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum WorkerType'));
 }
 
 /// A workflow is a collection of multiple dependent Glue jobs and crawlers that
@@ -33896,11 +35234,11 @@ class WorkflowGraph {
   factory WorkflowGraph.fromJson(Map<String, dynamic> json) {
     return WorkflowGraph(
       edges: (json['Edges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Edge.fromJson(e as Map<String, dynamic>))
           .toList(),
       nodes: (json['Nodes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Node.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -33978,7 +35316,7 @@ class WorkflowRun {
           ? WorkflowRunStatistics.fromJson(
               json['Statistics'] as Map<String, dynamic>)
           : null,
-      status: (json['Status'] as String?)?.toWorkflowRunStatus(),
+      status: (json['Status'] as String?)?.let(WorkflowRunStatus.fromString),
       workflowRunId: json['WorkflowRunId'] as String?,
       workflowRunProperties:
           (json['WorkflowRunProperties'] as Map<String, dynamic>?)
@@ -34039,46 +35377,21 @@ class WorkflowRunStatistics {
 }
 
 enum WorkflowRunStatus {
-  running,
-  completed,
-  stopping,
-  stopped,
-  error,
-}
+  running('RUNNING'),
+  completed('COMPLETED'),
+  stopping('STOPPING'),
+  stopped('STOPPED'),
+  error('ERROR'),
+  ;
 
-extension WorkflowRunStatusValueExtension on WorkflowRunStatus {
-  String toValue() {
-    switch (this) {
-      case WorkflowRunStatus.running:
-        return 'RUNNING';
-      case WorkflowRunStatus.completed:
-        return 'COMPLETED';
-      case WorkflowRunStatus.stopping:
-        return 'STOPPING';
-      case WorkflowRunStatus.stopped:
-        return 'STOPPED';
-      case WorkflowRunStatus.error:
-        return 'ERROR';
-    }
-  }
-}
+  final String value;
 
-extension WorkflowRunStatusFromString on String {
-  WorkflowRunStatus toWorkflowRunStatus() {
-    switch (this) {
-      case 'RUNNING':
-        return WorkflowRunStatus.running;
-      case 'COMPLETED':
-        return WorkflowRunStatus.completed;
-      case 'STOPPING':
-        return WorkflowRunStatus.stopping;
-      case 'STOPPED':
-        return WorkflowRunStatus.stopped;
-      case 'ERROR':
-        return WorkflowRunStatus.error;
-    }
-    throw Exception('$this is not known in enum WorkflowRunStatus');
-  }
+  const WorkflowRunStatus(this.value);
+
+  static WorkflowRunStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkflowRunStatus'));
 }
 
 /// A classifier for <code>XML</code> content.
@@ -34135,6 +35448,30 @@ class AccessDeniedException extends _s.GenericAwsException {
 class AlreadyExistsException extends _s.GenericAwsException {
   AlreadyExistsException({String? type, String? message})
       : super(type: type, code: 'AlreadyExistsException', message: message);
+}
+
+class ColumnStatisticsTaskNotRunningException extends _s.GenericAwsException {
+  ColumnStatisticsTaskNotRunningException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'ColumnStatisticsTaskNotRunningException',
+            message: message);
+}
+
+class ColumnStatisticsTaskRunningException extends _s.GenericAwsException {
+  ColumnStatisticsTaskRunningException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'ColumnStatisticsTaskRunningException',
+            message: message);
+}
+
+class ColumnStatisticsTaskStoppingException extends _s.GenericAwsException {
+  ColumnStatisticsTaskStoppingException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'ColumnStatisticsTaskStoppingException',
+            message: message);
 }
 
 class ConcurrentModificationException extends _s.GenericAwsException {
@@ -34328,6 +35665,12 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       AccessDeniedException(type: type, message: message),
   'AlreadyExistsException': (type, message) =>
       AlreadyExistsException(type: type, message: message),
+  'ColumnStatisticsTaskNotRunningException': (type, message) =>
+      ColumnStatisticsTaskNotRunningException(type: type, message: message),
+  'ColumnStatisticsTaskRunningException': (type, message) =>
+      ColumnStatisticsTaskRunningException(type: type, message: message),
+  'ColumnStatisticsTaskStoppingException': (type, message) =>
+      ColumnStatisticsTaskStoppingException(type: type, message: message),
   'ConcurrentModificationException': (type, message) =>
       ConcurrentModificationException(type: type, message: message),
   'ConcurrentRunsExceededException': (type, message) =>

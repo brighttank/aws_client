@@ -554,6 +554,13 @@ class NetworkFirewall {
   /// group is stateless, it contains stateless rules. If it is stateful, it
   /// contains stateful rules.
   ///
+  /// Parameter [analyzeRuleGroup] :
+  /// Indicates whether you want Network Firewall to analyze the stateless rules
+  /// in the rule group for rule behavior such as asymmetric routing. If set to
+  /// <code>TRUE</code>, Network Firewall runs the analysis and then creates the
+  /// rule group for you. To run the stateless rule group analyzer without
+  /// creating the rule group, set <code>DryRun</code> to <code>TRUE</code>.
+  ///
   /// Parameter [description] :
   /// A description of the rule group.
   ///
@@ -607,6 +614,7 @@ class NetworkFirewall {
     required int capacity,
     required String ruleGroupName,
     required RuleGroupType type,
+    bool? analyzeRuleGroup,
     String? description,
     bool? dryRun,
     EncryptionConfiguration? encryptionConfiguration,
@@ -628,7 +636,8 @@ class NetworkFirewall {
       payload: {
         'Capacity': capacity,
         'RuleGroupName': ruleGroupName,
-        'Type': type.toValue(),
+        'Type': type.value,
+        if (analyzeRuleGroup != null) 'AnalyzeRuleGroup': analyzeRuleGroup,
         if (description != null) 'Description': description,
         if (dryRun != null) 'DryRun': dryRun,
         if (encryptionConfiguration != null)
@@ -644,11 +653,12 @@ class NetworkFirewall {
   }
 
   /// Creates an Network Firewall TLS inspection configuration. A TLS inspection
-  /// configuration contains the Certificate Manager certificate references that
-  /// Network Firewall uses to decrypt and re-encrypt inbound traffic.
+  /// configuration contains Certificate Manager certificate associations
+  /// between and the scope configurations that Network Firewall uses to decrypt
+  /// and re-encrypt traffic traveling through your firewall.
   ///
-  /// After you create a TLS inspection configuration, you associate it with a
-  /// firewall policy.
+  /// After you create a TLS inspection configuration, you can associate it with
+  /// a new firewall policy.
   ///
   /// To update the settings for a TLS inspection configuration, use
   /// <a>UpdateTLSInspectionConfiguration</a>.
@@ -662,13 +672,15 @@ class NetworkFirewall {
   /// <a>DescribeTLSInspectionConfiguration</a>.
   ///
   /// For more information about TLS inspection configurations, see <a
-  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Decrypting
+  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Inspecting
   /// SSL/TLS traffic with TLS inspection configurations</a> in the <i>Network
   /// Firewall Developer Guide</i>.
   ///
   /// May throw [InvalidRequestException].
   /// May throw [ThrottlingException].
   /// May throw [InternalServerError].
+  /// May throw [LimitExceededException].
+  /// May throw [InsufficientCapacityException].
   ///
   /// Parameter [tLSInspectionConfiguration] :
   /// The object that defines a TLS inspection configuration. This, along with
@@ -680,14 +692,14 @@ class NetworkFirewall {
   /// Network Firewall re-encrypts the traffic before sending it to its
   /// destination.
   ///
-  /// To use a TLS inspection configuration, you add it to a Network Firewall
-  /// firewall policy, then you apply the firewall policy to a firewall. Network
-  /// Firewall acts as a proxy service to decrypt and inspect inbound traffic.
-  /// You can reference a TLS inspection configuration from more than one
-  /// firewall policy, and you can use a firewall policy in more than one
-  /// firewall. For more information about using TLS inspection configurations,
-  /// see <a
-  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Decrypting
+  /// To use a TLS inspection configuration, you add it to a new Network
+  /// Firewall firewall policy, then you apply the firewall policy to a
+  /// firewall. Network Firewall acts as a proxy service to decrypt and inspect
+  /// the traffic traveling through your firewalls. You can reference a TLS
+  /// inspection configuration from more than one firewall policy, and you can
+  /// use a firewall policy in more than one firewall. For more information
+  /// about using TLS inspection configurations, see <a
+  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Inspecting
   /// SSL/TLS traffic with TLS inspection configurations</a> in the <i>Network
   /// Firewall Developer Guide</i>.
   ///
@@ -908,7 +920,7 @@ class NetworkFirewall {
       payload: {
         if (ruleGroupArn != null) 'RuleGroupArn': ruleGroupArn,
         if (ruleGroupName != null) 'RuleGroupName': ruleGroupName,
-        if (type != null) 'Type': type.toValue(),
+        if (type != null) 'Type': type.value,
       },
     );
 
@@ -1120,6 +1132,11 @@ class NetworkFirewall {
   /// May throw [ThrottlingException].
   /// May throw [InternalServerError].
   ///
+  /// Parameter [analyzeRuleGroup] :
+  /// Indicates whether you want Network Firewall to analyze the stateless rules
+  /// in the rule group for rule behavior such as asymmetric routing. If set to
+  /// <code>TRUE</code>, Network Firewall runs the analysis.
+  ///
   /// Parameter [ruleGroupArn] :
   /// The Amazon Resource Name (ARN) of the rule group.
   ///
@@ -1140,6 +1157,7 @@ class NetworkFirewall {
   /// <code>RuleGroupARN</code>.
   /// </note>
   Future<DescribeRuleGroupResponse> describeRuleGroup({
+    bool? analyzeRuleGroup,
     String? ruleGroupArn,
     String? ruleGroupName,
     RuleGroupType? type,
@@ -1155,9 +1173,10 @@ class NetworkFirewall {
       // TODO queryParams
       headers: headers,
       payload: {
+        if (analyzeRuleGroup != null) 'AnalyzeRuleGroup': analyzeRuleGroup,
         if (ruleGroupArn != null) 'RuleGroupArn': ruleGroupArn,
         if (ruleGroupName != null) 'RuleGroupName': ruleGroupName,
-        if (type != null) 'Type': type.toValue(),
+        if (type != null) 'Type': type.value,
       },
     );
 
@@ -1212,7 +1231,7 @@ class NetworkFirewall {
       payload: {
         if (ruleGroupArn != null) 'RuleGroupArn': ruleGroupArn,
         if (ruleGroupName != null) 'RuleGroupName': ruleGroupName,
-        if (type != null) 'Type': type.toValue(),
+        if (type != null) 'Type': type.value,
       },
     );
 
@@ -1503,11 +1522,11 @@ class NetworkFirewall {
       // TODO queryParams
       headers: headers,
       payload: {
-        if (managedType != null) 'ManagedType': managedType.toValue(),
+        if (managedType != null) 'ManagedType': managedType.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (scope != null) 'Scope': scope.toValue(),
-        if (type != null) 'Type': type.toValue(),
+        if (scope != null) 'Scope': scope.value,
+        if (type != null) 'Type': type.value,
       },
     );
 
@@ -2023,7 +2042,10 @@ class NetworkFirewall {
   /// May throw [InvalidTokenException].
   ///
   /// Parameter [firewallPolicy] :
-  /// The updated firewall policy to use for the firewall.
+  /// The updated firewall policy to use for the firewall. You can't add or
+  /// remove a <a>TLSInspectionConfiguration</a> after you create a firewall
+  /// policy. However, you can replace an existing TLS inspection configuration
+  /// with another <code>TLSInspectionConfiguration</code>.
   ///
   /// Parameter [updateToken] :
   /// A token used for optimistic locking. Network Firewall returns a token to
@@ -2290,6 +2312,13 @@ class NetworkFirewall {
   /// token. Reapply your changes as needed, then try the operation again using
   /// the new token.
   ///
+  /// Parameter [analyzeRuleGroup] :
+  /// Indicates whether you want Network Firewall to analyze the stateless rules
+  /// in the rule group for rule behavior such as asymmetric routing. If set to
+  /// <code>TRUE</code>, Network Firewall runs the analysis and then updates the
+  /// rule group for you. To run the stateless rule group analyzer without
+  /// updating the rule group, set <code>DryRun</code> to <code>TRUE</code>.
+  ///
   /// Parameter [description] :
   /// A description of the rule group.
   ///
@@ -2358,6 +2387,7 @@ class NetworkFirewall {
   /// </note>
   Future<UpdateRuleGroupResponse> updateRuleGroup({
     required String updateToken,
+    bool? analyzeRuleGroup,
     String? description,
     bool? dryRun,
     EncryptionConfiguration? encryptionConfiguration,
@@ -2380,6 +2410,7 @@ class NetworkFirewall {
       headers: headers,
       payload: {
         'UpdateToken': updateToken,
+        if (analyzeRuleGroup != null) 'AnalyzeRuleGroup': analyzeRuleGroup,
         if (description != null) 'Description': description,
         if (dryRun != null) 'DryRun': dryRun,
         if (encryptionConfiguration != null)
@@ -2389,7 +2420,7 @@ class NetworkFirewall {
         if (ruleGroupName != null) 'RuleGroupName': ruleGroupName,
         if (rules != null) 'Rules': rules,
         if (sourceMetadata != null) 'SourceMetadata': sourceMetadata,
-        if (type != null) 'Type': type.toValue(),
+        if (type != null) 'Type': type.value,
       },
     );
 
@@ -2469,7 +2500,7 @@ class NetworkFirewall {
 
   /// Updates the TLS inspection configuration settings for the specified TLS
   /// inspection configuration. You use a TLS inspection configuration by
-  /// reference in one or more firewall policies. When you modify a TLS
+  /// referencing it in one or more firewall policies. When you modify a TLS
   /// inspection configuration, you modify all firewall policies that use the
   /// TLS inspection configuration.
   ///
@@ -2494,14 +2525,14 @@ class NetworkFirewall {
   /// Network Firewall re-encrypts the traffic before sending it to its
   /// destination.
   ///
-  /// To use a TLS inspection configuration, you add it to a Network Firewall
-  /// firewall policy, then you apply the firewall policy to a firewall. Network
-  /// Firewall acts as a proxy service to decrypt and inspect inbound traffic.
-  /// You can reference a TLS inspection configuration from more than one
-  /// firewall policy, and you can use a firewall policy in more than one
-  /// firewall. For more information about using TLS inspection configurations,
-  /// see <a
-  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Decrypting
+  /// To use a TLS inspection configuration, you add it to a new Network
+  /// Firewall firewall policy, then you apply the firewall policy to a
+  /// firewall. Network Firewall acts as a proxy service to decrypt and inspect
+  /// the traffic traveling through your firewalls. You can reference a TLS
+  /// inspection configuration from more than one firewall policy, and you can
+  /// use a firewall policy in more than one firewall. For more information
+  /// about using TLS inspection configurations, see <a
+  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Inspecting
   /// SSL/TLS traffic with TLS inspection configurations</a> in the <i>Network
   /// Firewall Developer Guide</i>.
   ///
@@ -2659,6 +2690,93 @@ class Address {
   }
 }
 
+/// The analysis result for Network Firewall's stateless rule group analyzer.
+/// Every time you call <a>CreateRuleGroup</a>, <a>UpdateRuleGroup</a>, or
+/// <a>DescribeRuleGroup</a> on a stateless rule group, Network Firewall
+/// analyzes the stateless rule groups in your account and identifies the rules
+/// that might adversely effect your firewall's functionality. For example, if
+/// Network Firewall detects a rule that's routing traffic asymmetrically, which
+/// impacts the service's ability to properly process traffic, the service
+/// includes the rule in a list of analysis results.
+class AnalysisResult {
+  /// Provides analysis details for the identified rule.
+  final String? analysisDetail;
+
+  /// The priority number of the stateless rules identified in the analysis.
+  final List<String>? identifiedRuleIds;
+
+  /// The types of rule configurations that Network Firewall analyzes your rule
+  /// groups for. Network Firewall analyzes stateless rule groups for the
+  /// following types of rule configurations:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>STATELESS_RULE_FORWARDING_ASYMMETRICALLY</code>
+  ///
+  /// Cause: One or more stateless rules with the action <code>pass</code> or
+  /// <code>forward</code> are forwarding traffic asymmetrically. Specifically,
+  /// the rule's set of source IP addresses or their associated port numbers,
+  /// don't match the set of destination IP addresses or their associated port
+  /// numbers.
+  ///
+  /// To mitigate: Make sure that there's an existing return path. For example, if
+  /// the rule allows traffic from source 10.1.0.0/24 to destination 20.1.0.0/24,
+  /// you should allow return traffic from source 20.1.0.0/24 to destination
+  /// 10.1.0.0/24.
+  /// </li>
+  /// <li>
+  /// <code>STATELESS_RULE_CONTAINS_TCP_FLAGS</code>
+  ///
+  /// Cause: At least one stateless rule with the action <code>pass</code>
+  /// or<code>forward</code> contains TCP flags that are inconsistent in the
+  /// forward and return directions.
+  ///
+  /// To mitigate: Prevent asymmetric routing issues caused by TCP flags by
+  /// following these actions:
+  ///
+  /// <ul>
+  /// <li>
+  /// Remove unnecessary TCP flag inspections from the rules.
+  /// </li>
+  /// <li>
+  /// If you need to inspect TCP flags, check that the rules correctly account for
+  /// changes in TCP flags throughout the TCP connection cycle, for example
+  /// <code>SYN</code> and <code>ACK</code> flags used in a 3-way TCP handshake.
+  /// </li>
+  /// </ul> </li>
+  /// </ul>
+  final IdentifiedType? identifiedType;
+
+  AnalysisResult({
+    this.analysisDetail,
+    this.identifiedRuleIds,
+    this.identifiedType,
+  });
+
+  factory AnalysisResult.fromJson(Map<String, dynamic> json) {
+    return AnalysisResult(
+      analysisDetail: json['AnalysisDetail'] as String?,
+      identifiedRuleIds: (json['IdentifiedRuleIds'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      identifiedType:
+          (json['IdentifiedType'] as String?)?.let(IdentifiedType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final analysisDetail = this.analysisDetail;
+    final identifiedRuleIds = this.identifiedRuleIds;
+    final identifiedType = this.identifiedType;
+    return {
+      if (analysisDetail != null) 'AnalysisDetail': analysisDetail,
+      if (identifiedRuleIds != null) 'IdentifiedRuleIds': identifiedRuleIds,
+      if (identifiedType != null) 'IdentifiedType': identifiedType.value,
+    };
+  }
+}
+
 class AssociateFirewallPolicyResponse {
   /// The Amazon Resource Name (ARN) of the firewall.
   final String? firewallArn;
@@ -2755,7 +2873,7 @@ class AssociateSubnetsResponse {
       firewallArn: json['FirewallArn'] as String?,
       firewallName: json['FirewallName'] as String?,
       subnetMappings: (json['SubnetMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SubnetMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       updateToken: json['UpdateToken'] as String?,
@@ -2821,7 +2939,7 @@ class Attachment {
   factory Attachment.fromJson(Map<String, dynamic> json) {
     return Attachment(
       endpointId: json['EndpointId'] as String?,
-      status: (json['Status'] as String?)?.toAttachmentStatus(),
+      status: (json['Status'] as String?)?.let(AttachmentStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       subnetId: json['SubnetId'] as String?,
     );
@@ -2834,7 +2952,7 @@ class Attachment {
     final subnetId = this.subnetId;
     return {
       if (endpointId != null) 'EndpointId': endpointId,
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
       if (statusMessage != null) 'StatusMessage': statusMessage,
       if (subnetId != null) 'SubnetId': subnetId,
     };
@@ -2842,51 +2960,22 @@ class Attachment {
 }
 
 enum AttachmentStatus {
-  creating,
-  deleting,
-  failed,
-  error,
-  scaling,
-  ready,
-}
+  creating('CREATING'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  error('ERROR'),
+  scaling('SCALING'),
+  ready('READY'),
+  ;
 
-extension AttachmentStatusValueExtension on AttachmentStatus {
-  String toValue() {
-    switch (this) {
-      case AttachmentStatus.creating:
-        return 'CREATING';
-      case AttachmentStatus.deleting:
-        return 'DELETING';
-      case AttachmentStatus.failed:
-        return 'FAILED';
-      case AttachmentStatus.error:
-        return 'ERROR';
-      case AttachmentStatus.scaling:
-        return 'SCALING';
-      case AttachmentStatus.ready:
-        return 'READY';
-    }
-  }
-}
+  final String value;
 
-extension AttachmentStatusFromString on String {
-  AttachmentStatus toAttachmentStatus() {
-    switch (this) {
-      case 'CREATING':
-        return AttachmentStatus.creating;
-      case 'DELETING':
-        return AttachmentStatus.deleting;
-      case 'FAILED':
-        return AttachmentStatus.failed;
-      case 'ERROR':
-        return AttachmentStatus.error;
-      case 'SCALING':
-        return AttachmentStatus.scaling;
-      case 'READY':
-        return AttachmentStatus.ready;
-    }
-    throw Exception('$this is not known in enum AttachmentStatus');
-  }
+  const AttachmentStatus(this.value);
+
+  static AttachmentStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AttachmentStatus'));
 }
 
 /// Summarizes the CIDR blocks used by the IP set references in a firewall.
@@ -2958,37 +3047,94 @@ class CapacityUsageSummary {
   }
 }
 
+/// Defines the actions to take on the SSL/TLS connection if the certificate
+/// presented by the server in the connection has a revoked or unknown status.
+class CheckCertificateRevocationStatusActions {
+  /// Configures how Network Firewall processes traffic when it determines that
+  /// the certificate presented by the server in the SSL/TLS connection has a
+  /// revoked status.
+  ///
+  /// <ul>
+  /// <li>
+  /// <b>PASS</b> - Allow the connection to continue, and pass subsequent packets
+  /// to the stateful engine for inspection.
+  /// </li>
+  /// <li>
+  /// <b>DROP</b> - Network Firewall closes the connection and drops subsequent
+  /// packets for that connection.
+  /// </li>
+  /// <li>
+  /// <b>REJECT</b> - Network Firewall sends a TCP reject packet back to your
+  /// client. The service closes the connection and drops subsequent packets for
+  /// that connection. <code>REJECT</code> is available only for TCP traffic.
+  /// </li>
+  /// </ul>
+  final RevocationCheckAction? revokedStatusAction;
+
+  /// Configures how Network Firewall processes traffic when it determines that
+  /// the certificate presented by the server in the SSL/TLS connection has an
+  /// unknown status, or a status that cannot be determined for any other reason,
+  /// including when the service is unable to connect to the OCSP and CRL
+  /// endpoints for the certificate.
+  ///
+  /// <ul>
+  /// <li>
+  /// <b>PASS</b> - Allow the connection to continue, and pass subsequent packets
+  /// to the stateful engine for inspection.
+  /// </li>
+  /// <li>
+  /// <b>DROP</b> - Network Firewall closes the connection and drops subsequent
+  /// packets for that connection.
+  /// </li>
+  /// <li>
+  /// <b>REJECT</b> - Network Firewall sends a TCP reject packet back to your
+  /// client. The service closes the connection and drops subsequent packets for
+  /// that connection. <code>REJECT</code> is available only for TCP traffic.
+  /// </li>
+  /// </ul>
+  final RevocationCheckAction? unknownStatusAction;
+
+  CheckCertificateRevocationStatusActions({
+    this.revokedStatusAction,
+    this.unknownStatusAction,
+  });
+
+  factory CheckCertificateRevocationStatusActions.fromJson(
+      Map<String, dynamic> json) {
+    return CheckCertificateRevocationStatusActions(
+      revokedStatusAction: (json['RevokedStatusAction'] as String?)
+          ?.let(RevocationCheckAction.fromString),
+      unknownStatusAction: (json['UnknownStatusAction'] as String?)
+          ?.let(RevocationCheckAction.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final revokedStatusAction = this.revokedStatusAction;
+    final unknownStatusAction = this.unknownStatusAction;
+    return {
+      if (revokedStatusAction != null)
+        'RevokedStatusAction': revokedStatusAction.value,
+      if (unknownStatusAction != null)
+        'UnknownStatusAction': unknownStatusAction.value,
+    };
+  }
+}
+
 enum ConfigurationSyncState {
-  pending,
-  inSync,
-  capacityConstrained,
-}
+  pending('PENDING'),
+  inSync('IN_SYNC'),
+  capacityConstrained('CAPACITY_CONSTRAINED'),
+  ;
 
-extension ConfigurationSyncStateValueExtension on ConfigurationSyncState {
-  String toValue() {
-    switch (this) {
-      case ConfigurationSyncState.pending:
-        return 'PENDING';
-      case ConfigurationSyncState.inSync:
-        return 'IN_SYNC';
-      case ConfigurationSyncState.capacityConstrained:
-        return 'CAPACITY_CONSTRAINED';
-    }
-  }
-}
+  final String value;
 
-extension ConfigurationSyncStateFromString on String {
-  ConfigurationSyncState toConfigurationSyncState() {
-    switch (this) {
-      case 'PENDING':
-        return ConfigurationSyncState.pending;
-      case 'IN_SYNC':
-        return ConfigurationSyncState.inSync;
-      case 'CAPACITY_CONSTRAINED':
-        return ConfigurationSyncState.capacityConstrained;
-    }
-    throw Exception('$this is not known in enum ConfigurationSyncState');
-  }
+  const ConfigurationSyncState(this.value);
+
+  static ConfigurationSyncState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConfigurationSyncState'));
 }
 
 class CreateFirewallPolicyResponse {
@@ -3560,7 +3706,7 @@ class DescribeRuleGroupMetadataResponse {
           ? StatefulRuleOptions.fromJson(
               json['StatefulRuleOptions'] as Map<String, dynamic>)
           : null,
-      type: (json['Type'] as String?)?.toRuleGroupType(),
+      type: (json['Type'] as String?)?.let(RuleGroupType.fromString),
     );
   }
 
@@ -3581,7 +3727,7 @@ class DescribeRuleGroupMetadataResponse {
         'LastModifiedTime': unixTimestampToJson(lastModifiedTime),
       if (statefulRuleOptions != null)
         'StatefulRuleOptions': statefulRuleOptions,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
@@ -3678,13 +3824,14 @@ class DescribeTLSInspectionConfigurationResponse {
   /// Network Firewall re-encrypts the traffic before sending it to its
   /// destination.
   ///
-  /// To use a TLS inspection configuration, you add it to a Network Firewall
+  /// To use a TLS inspection configuration, you add it to a new Network Firewall
   /// firewall policy, then you apply the firewall policy to a firewall. Network
-  /// Firewall acts as a proxy service to decrypt and inspect inbound traffic. You
-  /// can reference a TLS inspection configuration from more than one firewall
-  /// policy, and you can use a firewall policy in more than one firewall. For
-  /// more information about using TLS inspection configurations, see <a
-  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Decrypting
+  /// Firewall acts as a proxy service to decrypt and inspect the traffic
+  /// traveling through your firewalls. You can reference a TLS inspection
+  /// configuration from more than one firewall policy, and you can use a firewall
+  /// policy in more than one firewall. For more information about using TLS
+  /// inspection configurations, see <a
+  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Inspecting
   /// SSL/TLS traffic with TLS inspection configurations</a> in the <i>Network
   /// Firewall Developer Guide</i>.
   final TLSInspectionConfiguration? tLSInspectionConfiguration;
@@ -3798,7 +3945,7 @@ class DisassociateSubnetsResponse {
       firewallArn: json['FirewallArn'] as String?,
       firewallName: json['FirewallName'] as String?,
       subnetMappings: (json['SubnetMappings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SubnetMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       updateToken: json['UpdateToken'] as String?,
@@ -3849,7 +3996,7 @@ class EncryptionConfiguration {
 
   factory EncryptionConfiguration.fromJson(Map<String, dynamic> json) {
     return EncryptionConfiguration(
-      type: (json['Type'] as String).toEncryptionType(),
+      type: EncryptionType.fromString((json['Type'] as String)),
       keyId: json['KeyId'] as String?,
     );
   }
@@ -3858,38 +4005,25 @@ class EncryptionConfiguration {
     final type = this.type;
     final keyId = this.keyId;
     return {
-      'Type': type.toValue(),
+      'Type': type.value,
       if (keyId != null) 'KeyId': keyId,
     };
   }
 }
 
 enum EncryptionType {
-  customerKms,
-  awsOwnedKmsKey,
-}
+  customerKms('CUSTOMER_KMS'),
+  awsOwnedKmsKey('AWS_OWNED_KMS_KEY'),
+  ;
 
-extension EncryptionTypeValueExtension on EncryptionType {
-  String toValue() {
-    switch (this) {
-      case EncryptionType.customerKms:
-        return 'CUSTOMER_KMS';
-      case EncryptionType.awsOwnedKmsKey:
-        return 'AWS_OWNED_KMS_KEY';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionTypeFromString on String {
-  EncryptionType toEncryptionType() {
-    switch (this) {
-      case 'CUSTOMER_KMS':
-        return EncryptionType.customerKms;
-      case 'AWS_OWNED_KMS_KEY':
-        return EncryptionType.awsOwnedKmsKey;
-    }
-    throw Exception('$this is not known in enum EncryptionType');
-  }
+  const EncryptionType(this.value);
+
+  static EncryptionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionType'));
 }
 
 /// The firewall defines the configuration settings for an Network Firewall
@@ -3976,7 +4110,7 @@ class Firewall {
       firewallId: json['FirewallId'] as String,
       firewallPolicyArn: json['FirewallPolicyArn'] as String,
       subnetMappings: (json['SubnetMappings'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => SubnetMapping.fromJson(e as Map<String, dynamic>))
           .toList(),
       vpcId: json['VpcId'] as String,
@@ -3992,7 +4126,7 @@ class Firewall {
           json['FirewallPolicyChangeProtection'] as bool?,
       subnetChangeProtection: json['SubnetChangeProtection'] as bool?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4168,12 +4302,12 @@ class FirewallPolicy {
   factory FirewallPolicy.fromJson(Map<String, dynamic> json) {
     return FirewallPolicy(
       statelessDefaultActions: (json['StatelessDefaultActions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       statelessFragmentDefaultActions:
           (json['StatelessFragmentDefaultActions'] as List)
-              .whereNotNull()
+              .nonNulls
               .map((e) => e as String)
               .toList(),
       policyVariables: json['PolicyVariables'] != null
@@ -4181,7 +4315,7 @@ class FirewallPolicy {
               json['PolicyVariables'] as Map<String, dynamic>)
           : null,
       statefulDefaultActions: (json['StatefulDefaultActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       statefulEngineOptions: json['StatefulEngineOptions'] != null
@@ -4190,17 +4324,17 @@ class FirewallPolicy {
           : null,
       statefulRuleGroupReferences: (json['StatefulRuleGroupReferences']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               StatefulRuleGroupReference.fromJson(e as Map<String, dynamic>))
           .toList(),
       statelessCustomActions: (json['StatelessCustomActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomAction.fromJson(e as Map<String, dynamic>))
           .toList(),
       statelessRuleGroupReferences: (json['StatelessRuleGroupReferences']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               StatelessRuleGroupReference.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4350,12 +4484,12 @@ class FirewallPolicyResponse {
           ? EncryptionConfiguration.fromJson(
               json['EncryptionConfiguration'] as Map<String, dynamic>)
           : null,
-      firewallPolicyStatus:
-          (json['FirewallPolicyStatus'] as String?)?.toResourceStatus(),
+      firewallPolicyStatus: (json['FirewallPolicyStatus'] as String?)
+          ?.let(ResourceStatus.fromString),
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       numberOfAssociations: json['NumberOfAssociations'] as int?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4385,7 +4519,7 @@ class FirewallPolicyResponse {
       if (encryptionConfiguration != null)
         'EncryptionConfiguration': encryptionConfiguration,
       if (firewallPolicyStatus != null)
-        'FirewallPolicyStatus': firewallPolicyStatus.toValue(),
+        'FirewallPolicyStatus': firewallPolicyStatus.value,
       if (lastModifiedTime != null)
         'LastModifiedTime': unixTimestampToJson(lastModifiedTime),
       if (numberOfAssociations != null)
@@ -4444,10 +4578,9 @@ class FirewallStatus {
 
   factory FirewallStatus.fromJson(Map<String, dynamic> json) {
     return FirewallStatus(
-      configurationSyncStateSummary:
-          (json['ConfigurationSyncStateSummary'] as String)
-              .toConfigurationSyncState(),
-      status: (json['Status'] as String).toFirewallStatusValue(),
+      configurationSyncStateSummary: ConfigurationSyncState.fromString(
+          (json['ConfigurationSyncStateSummary'] as String)),
+      status: FirewallStatusValue.fromString((json['Status'] as String)),
       capacityUsageSummary: json['CapacityUsageSummary'] != null
           ? CapacityUsageSummary.fromJson(
               json['CapacityUsageSummary'] as Map<String, dynamic>)
@@ -4463,8 +4596,8 @@ class FirewallStatus {
     final capacityUsageSummary = this.capacityUsageSummary;
     final syncStates = this.syncStates;
     return {
-      'ConfigurationSyncStateSummary': configurationSyncStateSummary.toValue(),
-      'Status': status.toValue(),
+      'ConfigurationSyncStateSummary': configurationSyncStateSummary.value,
+      'Status': status.value,
       if (capacityUsageSummary != null)
         'CapacityUsageSummary': capacityUsageSummary,
       if (syncStates != null) 'SyncStates': syncStates,
@@ -4473,64 +4606,34 @@ class FirewallStatus {
 }
 
 enum FirewallStatusValue {
-  provisioning,
-  deleting,
-  ready,
-}
+  provisioning('PROVISIONING'),
+  deleting('DELETING'),
+  ready('READY'),
+  ;
 
-extension FirewallStatusValueValueExtension on FirewallStatusValue {
-  String toValue() {
-    switch (this) {
-      case FirewallStatusValue.provisioning:
-        return 'PROVISIONING';
-      case FirewallStatusValue.deleting:
-        return 'DELETING';
-      case FirewallStatusValue.ready:
-        return 'READY';
-    }
-  }
-}
+  final String value;
 
-extension FirewallStatusValueFromString on String {
-  FirewallStatusValue toFirewallStatusValue() {
-    switch (this) {
-      case 'PROVISIONING':
-        return FirewallStatusValue.provisioning;
-      case 'DELETING':
-        return FirewallStatusValue.deleting;
-      case 'READY':
-        return FirewallStatusValue.ready;
-    }
-    throw Exception('$this is not known in enum FirewallStatusValue');
-  }
+  const FirewallStatusValue(this.value);
+
+  static FirewallStatusValue fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FirewallStatusValue'));
 }
 
 enum GeneratedRulesType {
-  allowlist,
-  denylist,
-}
+  allowlist('ALLOWLIST'),
+  denylist('DENYLIST'),
+  ;
 
-extension GeneratedRulesTypeValueExtension on GeneratedRulesType {
-  String toValue() {
-    switch (this) {
-      case GeneratedRulesType.allowlist:
-        return 'ALLOWLIST';
-      case GeneratedRulesType.denylist:
-        return 'DENYLIST';
-    }
-  }
-}
+  final String value;
 
-extension GeneratedRulesTypeFromString on String {
-  GeneratedRulesType toGeneratedRulesType() {
-    switch (this) {
-      case 'ALLOWLIST':
-        return GeneratedRulesType.allowlist;
-      case 'DENYLIST':
-        return GeneratedRulesType.denylist;
-    }
-    throw Exception('$this is not known in enum GeneratedRulesType');
-  }
+  const GeneratedRulesType(this.value);
+
+  static GeneratedRulesType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum GeneratedRulesType'));
 }
 
 /// The basic rule criteria for Network Firewall to use to inspect packet
@@ -4641,8 +4744,9 @@ class Header {
     return Header(
       destination: json['Destination'] as String,
       destinationPort: json['DestinationPort'] as String,
-      direction: (json['Direction'] as String).toStatefulRuleDirection(),
-      protocol: (json['Protocol'] as String).toStatefulRuleProtocol(),
+      direction:
+          StatefulRuleDirection.fromString((json['Direction'] as String)),
+      protocol: StatefulRuleProtocol.fromString((json['Protocol'] as String)),
       source: json['Source'] as String,
       sourcePort: json['SourcePort'] as String,
     );
@@ -4658,8 +4762,8 @@ class Header {
     return {
       'Destination': destination,
       'DestinationPort': destinationPort,
-      'Direction': direction.toValue(),
-      'Protocol': protocol.toValue(),
+      'Direction': direction.value,
+      'Protocol': protocol.value,
       'Source': source,
       'SourcePort': sourcePort,
     };
@@ -4667,36 +4771,19 @@ class Header {
 }
 
 enum IPAddressType {
-  dualstack,
-  ipv4,
-  ipv6,
-}
+  dualstack('DUALSTACK'),
+  ipv4('IPV4'),
+  ipv6('IPV6'),
+  ;
 
-extension IPAddressTypeValueExtension on IPAddressType {
-  String toValue() {
-    switch (this) {
-      case IPAddressType.dualstack:
-        return 'DUALSTACK';
-      case IPAddressType.ipv4:
-        return 'IPV4';
-      case IPAddressType.ipv6:
-        return 'IPV6';
-    }
-  }
-}
+  final String value;
 
-extension IPAddressTypeFromString on String {
-  IPAddressType toIPAddressType() {
-    switch (this) {
-      case 'DUALSTACK':
-        return IPAddressType.dualstack;
-      case 'IPV4':
-        return IPAddressType.ipv4;
-      case 'IPV6':
-        return IPAddressType.ipv6;
-    }
-    throw Exception('$this is not known in enum IPAddressType');
-  }
+  const IPAddressType(this.value);
+
+  static IPAddressType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IPAddressType'));
 }
 
 /// A list of IP addresses and address ranges, in CIDR notation. This is part of
@@ -4712,7 +4799,7 @@ class IPSet {
   factory IPSet.fromJson(Map<String, dynamic> json) {
     return IPSet(
       definition: (json['Definition'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4791,6 +4878,22 @@ class IPSetReference {
   }
 }
 
+enum IdentifiedType {
+  statelessRuleForwardingAsymmetrically(
+      'STATELESS_RULE_FORWARDING_ASYMMETRICALLY'),
+  statelessRuleContainsTcpFlags('STATELESS_RULE_CONTAINS_TCP_FLAGS'),
+  ;
+
+  final String value;
+
+  const IdentifiedType(this.value);
+
+  static IdentifiedType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum IdentifiedType'));
+}
+
 class ListFirewallPoliciesResponse {
   /// The metadata for the firewall policies. Depending on your setting for max
   /// results and the number of firewall policies that you have, this might not be
@@ -4812,7 +4915,7 @@ class ListFirewallPoliciesResponse {
   factory ListFirewallPoliciesResponse.fromJson(Map<String, dynamic> json) {
     return ListFirewallPoliciesResponse(
       firewallPolicies: (json['FirewallPolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => FirewallPolicyMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4851,7 +4954,7 @@ class ListFirewallsResponse {
   factory ListFirewallsResponse.fromJson(Map<String, dynamic> json) {
     return ListFirewallsResponse(
       firewalls: (json['Firewalls'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FirewallMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -4890,7 +4993,7 @@ class ListRuleGroupsResponse {
     return ListRuleGroupsResponse(
       nextToken: json['NextToken'] as String?,
       ruleGroups: (json['RuleGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RuleGroupMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4930,7 +5033,7 @@ class ListTLSInspectionConfigurationsResponse {
       nextToken: json['NextToken'] as String?,
       tLSInspectionConfigurations:
           (json['TLSInspectionConfigurations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => TLSInspectionConfigurationMetadata.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -4968,7 +5071,7 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5046,8 +5149,8 @@ class LogDestinationConfig {
       logDestination: (json['LogDestination'] as Map<String, dynamic>)
           .map((k, e) => MapEntry(k, e as String)),
       logDestinationType:
-          (json['LogDestinationType'] as String).toLogDestinationType(),
-      logType: (json['LogType'] as String).toLogType(),
+          LogDestinationType.fromString((json['LogDestinationType'] as String)),
+      logType: LogType.fromString((json['LogType'] as String)),
     );
   }
 
@@ -5057,71 +5160,40 @@ class LogDestinationConfig {
     final logType = this.logType;
     return {
       'LogDestination': logDestination,
-      'LogDestinationType': logDestinationType.toValue(),
-      'LogType': logType.toValue(),
+      'LogDestinationType': logDestinationType.value,
+      'LogType': logType.value,
     };
   }
 }
 
 enum LogDestinationType {
-  s3,
-  cloudWatchLogs,
-  kinesisDataFirehose,
-}
+  s3('S3'),
+  cloudWatchLogs('CloudWatchLogs'),
+  kinesisDataFirehose('KinesisDataFirehose'),
+  ;
 
-extension LogDestinationTypeValueExtension on LogDestinationType {
-  String toValue() {
-    switch (this) {
-      case LogDestinationType.s3:
-        return 'S3';
-      case LogDestinationType.cloudWatchLogs:
-        return 'CloudWatchLogs';
-      case LogDestinationType.kinesisDataFirehose:
-        return 'KinesisDataFirehose';
-    }
-  }
-}
+  final String value;
 
-extension LogDestinationTypeFromString on String {
-  LogDestinationType toLogDestinationType() {
-    switch (this) {
-      case 'S3':
-        return LogDestinationType.s3;
-      case 'CloudWatchLogs':
-        return LogDestinationType.cloudWatchLogs;
-      case 'KinesisDataFirehose':
-        return LogDestinationType.kinesisDataFirehose;
-    }
-    throw Exception('$this is not known in enum LogDestinationType');
-  }
+  const LogDestinationType(this.value);
+
+  static LogDestinationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum LogDestinationType'));
 }
 
 enum LogType {
-  alert,
-  flow,
-}
+  alert('ALERT'),
+  flow('FLOW'),
+  ;
 
-extension LogTypeValueExtension on LogType {
-  String toValue() {
-    switch (this) {
-      case LogType.alert:
-        return 'ALERT';
-      case LogType.flow:
-        return 'FLOW';
-    }
-  }
-}
+  final String value;
 
-extension LogTypeFromString on String {
-  LogType toLogType() {
-    switch (this) {
-      case 'ALERT':
-        return LogType.alert;
-      case 'FLOW':
-        return LogType.flow;
-    }
-    throw Exception('$this is not known in enum LogType');
-  }
+  const LogType(this.value);
+
+  static LogType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum LogType'));
 }
 
 /// Defines how Network Firewall performs logging for a <a>Firewall</a>.
@@ -5137,7 +5209,7 @@ class LoggingConfiguration {
   factory LoggingConfiguration.fromJson(Map<String, dynamic> json) {
     return LoggingConfiguration(
       logDestinationConfigs: (json['LogDestinationConfigs'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => LogDestinationConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5199,27 +5271,25 @@ class MatchAttributes {
   factory MatchAttributes.fromJson(Map<String, dynamic> json) {
     return MatchAttributes(
       destinationPorts: (json['DestinationPorts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
           .toList(),
       destinations: (json['Destinations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Address.fromJson(e as Map<String, dynamic>))
           .toList(),
-      protocols: (json['Protocols'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      protocols:
+          (json['Protocols'] as List?)?.nonNulls.map((e) => e as int).toList(),
       sourcePorts: (json['SourcePorts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
           .toList(),
       sources: (json['Sources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Address.fromJson(e as Map<String, dynamic>))
           .toList(),
       tCPFlags: (json['TCPFlags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TCPFlagField.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5244,26 +5314,17 @@ class MatchAttributes {
 }
 
 enum OverrideAction {
-  dropToAlert,
-}
+  dropToAlert('DROP_TO_ALERT'),
+  ;
 
-extension OverrideActionValueExtension on OverrideAction {
-  String toValue() {
-    switch (this) {
-      case OverrideAction.dropToAlert:
-        return 'DROP_TO_ALERT';
-    }
-  }
-}
+  final String value;
 
-extension OverrideActionFromString on String {
-  OverrideAction toOverrideAction() {
-    switch (this) {
-      case 'DROP_TO_ALERT':
-        return OverrideAction.dropToAlert;
-    }
-    throw Exception('$this is not known in enum OverrideAction');
-  }
+  const OverrideAction(this.value);
+
+  static OverrideAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum OverrideAction'));
 }
 
 /// Provides configuration status for a single policy or rule group that is used
@@ -5288,7 +5349,8 @@ class PerObjectStatus {
 
   factory PerObjectStatus.fromJson(Map<String, dynamic> json) {
     return PerObjectStatus(
-      syncStatus: (json['SyncStatus'] as String?)?.toPerObjectSyncStatus(),
+      syncStatus:
+          (json['SyncStatus'] as String?)?.let(PerObjectSyncStatus.fromString),
       updateToken: json['UpdateToken'] as String?,
     );
   }
@@ -5297,43 +5359,26 @@ class PerObjectStatus {
     final syncStatus = this.syncStatus;
     final updateToken = this.updateToken;
     return {
-      if (syncStatus != null) 'SyncStatus': syncStatus.toValue(),
+      if (syncStatus != null) 'SyncStatus': syncStatus.value,
       if (updateToken != null) 'UpdateToken': updateToken,
     };
   }
 }
 
 enum PerObjectSyncStatus {
-  pending,
-  inSync,
-  capacityConstrained,
-}
+  pending('PENDING'),
+  inSync('IN_SYNC'),
+  capacityConstrained('CAPACITY_CONSTRAINED'),
+  ;
 
-extension PerObjectSyncStatusValueExtension on PerObjectSyncStatus {
-  String toValue() {
-    switch (this) {
-      case PerObjectSyncStatus.pending:
-        return 'PENDING';
-      case PerObjectSyncStatus.inSync:
-        return 'IN_SYNC';
-      case PerObjectSyncStatus.capacityConstrained:
-        return 'CAPACITY_CONSTRAINED';
-    }
-  }
-}
+  final String value;
 
-extension PerObjectSyncStatusFromString on String {
-  PerObjectSyncStatus toPerObjectSyncStatus() {
-    switch (this) {
-      case 'PENDING':
-        return PerObjectSyncStatus.pending;
-      case 'IN_SYNC':
-        return PerObjectSyncStatus.inSync;
-      case 'CAPACITY_CONSTRAINED':
-        return PerObjectSyncStatus.capacityConstrained;
-    }
-    throw Exception('$this is not known in enum PerObjectSyncStatus');
-  }
+  const PerObjectSyncStatus(this.value);
+
+  static PerObjectSyncStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum PerObjectSyncStatus'));
 }
 
 /// Contains variables that you can use to override default Suricata settings in
@@ -5411,7 +5456,7 @@ class PortSet {
   factory PortSet.fromJson(Map<String, dynamic> json) {
     return PortSet(
       definition: (json['Definition'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5439,7 +5484,7 @@ class PublishMetricAction {
   factory PublishMetricAction.fromJson(Map<String, dynamic> json) {
     return PublishMetricAction(
       dimensions: (json['Dimensions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Dimension.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5491,87 +5536,65 @@ class ReferenceSets {
 }
 
 enum ResourceManagedStatus {
-  managed,
-  account,
-}
+  managed('MANAGED'),
+  account('ACCOUNT'),
+  ;
 
-extension ResourceManagedStatusValueExtension on ResourceManagedStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceManagedStatus.managed:
-        return 'MANAGED';
-      case ResourceManagedStatus.account:
-        return 'ACCOUNT';
-    }
-  }
-}
+  final String value;
 
-extension ResourceManagedStatusFromString on String {
-  ResourceManagedStatus toResourceManagedStatus() {
-    switch (this) {
-      case 'MANAGED':
-        return ResourceManagedStatus.managed;
-      case 'ACCOUNT':
-        return ResourceManagedStatus.account;
-    }
-    throw Exception('$this is not known in enum ResourceManagedStatus');
-  }
+  const ResourceManagedStatus(this.value);
+
+  static ResourceManagedStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceManagedStatus'));
 }
 
 enum ResourceManagedType {
-  awsManagedThreatSignatures,
-  awsManagedDomainLists,
-}
+  awsManagedThreatSignatures('AWS_MANAGED_THREAT_SIGNATURES'),
+  awsManagedDomainLists('AWS_MANAGED_DOMAIN_LISTS'),
+  ;
 
-extension ResourceManagedTypeValueExtension on ResourceManagedType {
-  String toValue() {
-    switch (this) {
-      case ResourceManagedType.awsManagedThreatSignatures:
-        return 'AWS_MANAGED_THREAT_SIGNATURES';
-      case ResourceManagedType.awsManagedDomainLists:
-        return 'AWS_MANAGED_DOMAIN_LISTS';
-    }
-  }
-}
+  final String value;
 
-extension ResourceManagedTypeFromString on String {
-  ResourceManagedType toResourceManagedType() {
-    switch (this) {
-      case 'AWS_MANAGED_THREAT_SIGNATURES':
-        return ResourceManagedType.awsManagedThreatSignatures;
-      case 'AWS_MANAGED_DOMAIN_LISTS':
-        return ResourceManagedType.awsManagedDomainLists;
-    }
-    throw Exception('$this is not known in enum ResourceManagedType');
-  }
+  const ResourceManagedType(this.value);
+
+  static ResourceManagedType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum ResourceManagedType'));
 }
 
 enum ResourceStatus {
-  active,
-  deleting,
+  active('ACTIVE'),
+  deleting('DELETING'),
+  error('ERROR'),
+  ;
+
+  final String value;
+
+  const ResourceStatus(this.value);
+
+  static ResourceStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResourceStatus'));
 }
 
-extension ResourceStatusValueExtension on ResourceStatus {
-  String toValue() {
-    switch (this) {
-      case ResourceStatus.active:
-        return 'ACTIVE';
-      case ResourceStatus.deleting:
-        return 'DELETING';
-    }
-  }
-}
+enum RevocationCheckAction {
+  pass('PASS'),
+  drop('DROP'),
+  reject('REJECT'),
+  ;
 
-extension ResourceStatusFromString on String {
-  ResourceStatus toResourceStatus() {
-    switch (this) {
-      case 'ACTIVE':
-        return ResourceStatus.active;
-      case 'DELETING':
-        return ResourceStatus.deleting;
-    }
-    throw Exception('$this is not known in enum ResourceStatus');
-  }
+  final String value;
+
+  const RevocationCheckAction(this.value);
+
+  static RevocationCheckAction fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum RevocationCheckAction'));
 }
 
 /// The inspection criteria and action for a single stateless rule. Network
@@ -5630,10 +5653,8 @@ class RuleDefinition {
 
   factory RuleDefinition.fromJson(Map<String, dynamic> json) {
     return RuleDefinition(
-      actions: (json['Actions'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      actions:
+          (json['Actions'] as List).nonNulls.map((e) => e as String).toList(),
       matchAttributes: MatchAttributes.fromJson(
           json['MatchAttributes'] as Map<String, dynamic>),
     );
@@ -5675,7 +5696,10 @@ class RuleGroup {
 
   /// Additional options governing how Network Firewall handles stateful rules.
   /// The policies where you use your stateful rule group must have stateful rule
-  /// options settings that are compatible with these settings.
+  /// options settings that are compatible with these settings. Some limitations
+  /// apply; for more information, see <a
+  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/suricata-limitations-caveats.html">Strict
+  /// evaluation order</a> in the <i>Network Firewall Developer Guide</i>.
   final StatefulRuleOptions? statefulRuleOptions;
 
   RuleGroup({
@@ -5771,6 +5795,16 @@ class RuleGroupResponse {
   /// group after you create it.
   final String ruleGroupName;
 
+  /// The list of analysis results for <code>AnalyzeRuleGroup</code>. If you set
+  /// <code>AnalyzeRuleGroup</code> to <code>TRUE</code> in
+  /// <a>CreateRuleGroup</a>, <a>UpdateRuleGroup</a>, or <a>DescribeRuleGroup</a>,
+  /// Network Firewall analyzes the rule group and identifies the rules that might
+  /// adversely effect your firewall's functionality. For example, if Network
+  /// Firewall detects a rule that's routing traffic asymmetrically, which impacts
+  /// the service's ability to properly process traffic, the service includes the
+  /// rule in the list of analysis results.
+  final List<AnalysisResult>? analysisResults;
+
   /// The maximum operating resources that this rule group can use. Rule group
   /// capacity is fixed at creation. When you update a rule group, you are limited
   /// to this capacity. When you reference a rule group from a firewall policy,
@@ -5826,6 +5860,7 @@ class RuleGroupResponse {
     required this.ruleGroupArn,
     required this.ruleGroupId,
     required this.ruleGroupName,
+    this.analysisResults,
     this.capacity,
     this.consumedCapacity,
     this.description,
@@ -5844,6 +5879,10 @@ class RuleGroupResponse {
       ruleGroupArn: json['RuleGroupArn'] as String,
       ruleGroupId: json['RuleGroupId'] as String,
       ruleGroupName: json['RuleGroupName'] as String,
+      analysisResults: (json['AnalysisResults'] as List?)
+          ?.nonNulls
+          .map((e) => AnalysisResult.fromJson(e as Map<String, dynamic>))
+          .toList(),
       capacity: json['Capacity'] as int?,
       consumedCapacity: json['ConsumedCapacity'] as int?,
       description: json['Description'] as String?,
@@ -5853,17 +5892,18 @@ class RuleGroupResponse {
           : null,
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       numberOfAssociations: json['NumberOfAssociations'] as int?,
-      ruleGroupStatus: (json['RuleGroupStatus'] as String?)?.toResourceStatus(),
+      ruleGroupStatus:
+          (json['RuleGroupStatus'] as String?)?.let(ResourceStatus.fromString),
       snsTopic: json['SnsTopic'] as String?,
       sourceMetadata: json['SourceMetadata'] != null
           ? SourceMetadata.fromJson(
               json['SourceMetadata'] as Map<String, dynamic>)
           : null,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
-      type: (json['Type'] as String?)?.toRuleGroupType(),
+      type: (json['Type'] as String?)?.let(RuleGroupType.fromString),
     );
   }
 
@@ -5871,6 +5911,7 @@ class RuleGroupResponse {
     final ruleGroupArn = this.ruleGroupArn;
     final ruleGroupId = this.ruleGroupId;
     final ruleGroupName = this.ruleGroupName;
+    final analysisResults = this.analysisResults;
     final capacity = this.capacity;
     final consumedCapacity = this.consumedCapacity;
     final description = this.description;
@@ -5886,6 +5927,7 @@ class RuleGroupResponse {
       'RuleGroupArn': ruleGroupArn,
       'RuleGroupId': ruleGroupId,
       'RuleGroupName': ruleGroupName,
+      if (analysisResults != null) 'AnalysisResults': analysisResults,
       if (capacity != null) 'Capacity': capacity,
       if (consumedCapacity != null) 'ConsumedCapacity': consumedCapacity,
       if (description != null) 'Description': description,
@@ -5895,50 +5937,46 @@ class RuleGroupResponse {
         'LastModifiedTime': unixTimestampToJson(lastModifiedTime),
       if (numberOfAssociations != null)
         'NumberOfAssociations': numberOfAssociations,
-      if (ruleGroupStatus != null) 'RuleGroupStatus': ruleGroupStatus.toValue(),
+      if (ruleGroupStatus != null) 'RuleGroupStatus': ruleGroupStatus.value,
       if (snsTopic != null) 'SnsTopic': snsTopic,
       if (sourceMetadata != null) 'SourceMetadata': sourceMetadata,
       if (tags != null) 'Tags': tags,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum RuleGroupType {
-  stateless,
-  stateful,
-}
+  stateless('STATELESS'),
+  stateful('STATEFUL'),
+  ;
 
-extension RuleGroupTypeValueExtension on RuleGroupType {
-  String toValue() {
-    switch (this) {
-      case RuleGroupType.stateless:
-        return 'STATELESS';
-      case RuleGroupType.stateful:
-        return 'STATEFUL';
-    }
-  }
-}
+  final String value;
 
-extension RuleGroupTypeFromString on String {
-  RuleGroupType toRuleGroupType() {
-    switch (this) {
-      case 'STATELESS':
-        return RuleGroupType.stateless;
-      case 'STATEFUL':
-        return RuleGroupType.stateful;
-    }
-    throw Exception('$this is not known in enum RuleGroupType');
-  }
+  const RuleGroupType(this.value);
+
+  static RuleGroupType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RuleGroupType'));
 }
 
 /// Additional settings for a stateful rule. This is part of the
 /// <a>StatefulRule</a> configuration.
 class RuleOption {
-  /// <p/>
+  /// The keyword for the Suricata compatible rule option. You must include a
+  /// <code>sid</code> (signature ID), and can optionally include other keywords.
+  /// For information about Suricata compatible keywords, see <a
+  /// href="https://suricata.readthedocs.io/en/suricata-6.0.9/rules/intro.html#rule-options">Rule
+  /// options</a> in the Suricata documentation.
   final String keyword;
 
-  /// <p/>
+  /// The settings of the Suricata compatible rule option. Rule options have zero
+  /// or more setting values, and the number of possible and required settings
+  /// depends on the <code>Keyword</code>. For more information about the settings
+  /// for specific options, see <a
+  /// href="https://suricata.readthedocs.io/en/suricata-6.0.9/rules/intro.html#rule-options">Rule
+  /// options</a>.
   final List<String>? settings;
 
   RuleOption({
@@ -5950,7 +5988,7 @@ class RuleOption {
     return RuleOption(
       keyword: json['Keyword'] as String,
       settings: (json['Settings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5967,31 +6005,17 @@ class RuleOption {
 }
 
 enum RuleOrder {
-  defaultActionOrder,
-  strictOrder,
-}
+  defaultActionOrder('DEFAULT_ACTION_ORDER'),
+  strictOrder('STRICT_ORDER'),
+  ;
 
-extension RuleOrderValueExtension on RuleOrder {
-  String toValue() {
-    switch (this) {
-      case RuleOrder.defaultActionOrder:
-        return 'DEFAULT_ACTION_ORDER';
-      case RuleOrder.strictOrder:
-        return 'STRICT_ORDER';
-    }
-  }
-}
+  final String value;
 
-extension RuleOrderFromString on String {
-  RuleOrder toRuleOrder() {
-    switch (this) {
-      case 'DEFAULT_ACTION_ORDER':
-        return RuleOrder.defaultActionOrder;
-      case 'STRICT_ORDER':
-        return RuleOrder.strictOrder;
-    }
-    throw Exception('$this is not known in enum RuleOrder');
-  }
+  const RuleOrder(this.value);
+
+  static RuleOrder fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum RuleOrder'));
 }
 
 /// Settings that are available for use in the rules in the <a>RuleGroup</a>
@@ -6034,20 +6058,26 @@ class RulesSource {
   /// Stateful inspection criteria for a domain list rule group.
   final RulesSourceList? rulesSourceList;
 
-  /// Stateful inspection criteria, provided in Suricata compatible intrusion
-  /// prevention system (IPS) rules. Suricata is an open-source network IPS that
-  /// includes a standard rule-based language for network traffic inspection.
+  /// Stateful inspection criteria, provided in Suricata compatible rules.
+  /// Suricata is an open-source threat detection framework that includes a
+  /// standard rule-based language for network traffic inspection.
   ///
   /// These rules contain the inspection criteria and the action to take for
   /// traffic that matches the criteria, so this type of rule group doesn't have a
   /// separate action setting.
+  /// <note>
+  /// You can't use the <code>priority</code> keyword if the
+  /// <code>RuleOrder</code> option in <a>StatefulRuleOptions</a> is set to
+  /// <code>STRICT_ORDER</code>.
+  /// </note>
   final String? rulesString;
 
   /// An array of individual stateful rules inspection criteria to be used
   /// together in a stateful rule group. Use this option to specify simple
   /// Suricata rules with protocol, source and destination, ports, direction, and
   /// rule options. For information about the Suricata <code>Rules</code> format,
-  /// see <a href="https://suricata.readthedocs.iorules/intro.html#">Rules
+  /// see <a
+  /// href="https://suricata.readthedocs.io/en/suricata-6.0.9/rules/intro.html">Rules
   /// Format</a>.
   final List<StatefulRule>? statefulRules;
 
@@ -6069,7 +6099,7 @@ class RulesSource {
           : null,
       rulesString: json['RulesString'] as String?,
       statefulRules: (json['StatefulRules'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => StatefulRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       statelessRulesAndCustomActions: json['StatelessRulesAndCustomActions'] !=
@@ -6145,15 +6175,13 @@ class RulesSourceList {
   factory RulesSourceList.fromJson(Map<String, dynamic> json) {
     return RulesSourceList(
       generatedRulesType:
-          (json['GeneratedRulesType'] as String).toGeneratedRulesType(),
+          GeneratedRulesType.fromString((json['GeneratedRulesType'] as String)),
       targetTypes: (json['TargetTypes'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toTargetType())
+          .nonNulls
+          .map((e) => TargetType.fromString((e as String)))
           .toList(),
-      targets: (json['Targets'] as List)
-          .whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      targets:
+          (json['Targets'] as List).nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -6162,28 +6190,29 @@ class RulesSourceList {
     final targetTypes = this.targetTypes;
     final targets = this.targets;
     return {
-      'GeneratedRulesType': generatedRulesType.toValue(),
-      'TargetTypes': targetTypes.map((e) => e.toValue()).toList(),
+      'GeneratedRulesType': generatedRulesType.value,
+      'TargetTypes': targetTypes.map((e) => e.value).toList(),
       'Targets': targets,
     };
   }
 }
 
-/// Any Certificate Manager Secure Sockets Layer/Transport Layer Security
+/// Any Certificate Manager (ACM) Secure Sockets Layer/Transport Layer Security
 /// (SSL/TLS) server certificate that's associated with a
-/// <a>ServerCertificateConfiguration</a> used in a
-/// <a>TLSInspectionConfiguration</a>. You must request or import a SSL/TLS
-/// certificate into ACM for each domain Network Firewall needs to decrypt and
-/// inspect. Network Firewall uses the SSL/TLS certificates to decrypt specified
-/// inbound SSL/TLS traffic going to your firewall. For information about
-/// working with certificates in Certificate Manager, see <a
+/// <a>ServerCertificateConfiguration</a>. Used in a
+/// <a>TLSInspectionConfiguration</a> for inspection of inbound traffic to your
+/// firewall. You must request or import a SSL/TLS certificate into ACM for each
+/// domain Network Firewall needs to decrypt and inspect. Network Firewall uses
+/// the SSL/TLS certificates to decrypt specified inbound SSL/TLS traffic going
+/// to your firewall. For information about working with certificates in
+/// Certificate Manager, see <a
 /// href="https://docs.aws.amazon.com/acm/latest/userguide/gs-acm-request-public.html">Request
 /// a public certificate </a> or <a
 /// href="https://docs.aws.amazon.com/acm/latest/userguide/import-certificate.html">Importing
 /// certificates</a> in the <i>Certificate Manager User Guide</i>.
 class ServerCertificate {
   /// The Amazon Resource Name (ARN) of the Certificate Manager SSL/TLS server
-  /// certificate.
+  /// certificate that's used for inbound SSL/TLS inspection.
   final String? resourceArn;
 
   ServerCertificate({
@@ -6204,50 +6233,103 @@ class ServerCertificate {
   }
 }
 
-/// Configures the associated Certificate Manager Secure Sockets Layer/Transport
-/// Layer Security (SSL/TLS) server certificates and scope settings Network
-/// Firewall uses to decrypt traffic in a <a>TLSInspectionConfiguration</a>. For
-/// information about working with SSL/TLS certificates for TLS inspection, see
-/// <a
+/// Configures the Certificate Manager certificates and scope that Network
+/// Firewall uses to decrypt and re-encrypt traffic using a
+/// <a>TLSInspectionConfiguration</a>. You can configure
+/// <code>ServerCertificates</code> for inbound SSL/TLS inspection, a
+/// <code>CertificateAuthorityArn</code> for outbound SSL/TLS inspection, or
+/// both. For information about working with certificates for TLS inspection,
+/// see <a
 /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection-certificate-requirements.html">
-/// Requirements for using SSL/TLS server certficiates with TLS inspection
-/// configurations</a> in the <i>Network Firewall Developer Guide</i>.
+/// Using SSL/TLS server certficiates with TLS inspection configurations</a> in
+/// the <i>Network Firewall Developer Guide</i>.
 /// <note>
 /// If a server certificate that's associated with your
 /// <a>TLSInspectionConfiguration</a> is revoked, deleted, or expired it can
 /// result in client-side TLS errors.
 /// </note>
 class ServerCertificateConfiguration {
-  /// A list of a server certificate configuration's scopes.
+  /// The Amazon Resource Name (ARN) of the imported certificate authority (CA)
+  /// certificate within Certificate Manager (ACM) to use for outbound SSL/TLS
+  /// inspection.
+  ///
+  /// The following limitations apply:
+  ///
+  /// <ul>
+  /// <li>
+  /// You can use CA certificates that you imported into ACM, but you can't
+  /// generate CA certificates with ACM.
+  /// </li>
+  /// <li>
+  /// You can't use certificates issued by Private Certificate Authority.
+  /// </li>
+  /// </ul>
+  /// For more information about configuring certificates for outbound inspection,
+  /// see <a
+  /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection-certificate-requirements.html">Using
+  /// SSL/TLS certificates with certificates with TLS inspection
+  /// configurations</a> in the <i>Network Firewall Developer Guide</i>.
+  ///
+  /// For information about working with certificates in ACM, see <a
+  /// href="https://docs.aws.amazon.com/acm/latest/userguide/import-certificate.html">Importing
+  /// certificates</a> in the <i>Certificate Manager User Guide</i>.
+  final String? certificateAuthorityArn;
+
+  /// When enabled, Network Firewall checks if the server certificate presented by
+  /// the server in the SSL/TLS connection has a revoked or unkown status. If the
+  /// certificate has an unknown or revoked status, you must specify the actions
+  /// that Network Firewall takes on outbound traffic. To check the certificate
+  /// revocation status, you must also specify a
+  /// <code>CertificateAuthorityArn</code> in
+  /// <a>ServerCertificateConfiguration</a>.
+  final CheckCertificateRevocationStatusActions?
+      checkCertificateRevocationStatus;
+
+  /// A list of scopes.
   final List<ServerCertificateScope>? scopes;
 
-  /// The list of a server certificate configuration's Certificate Manager SSL/TLS
-  /// certificates.
+  /// The list of server certificates to use for inbound SSL/TLS inspection.
   final List<ServerCertificate>? serverCertificates;
 
   ServerCertificateConfiguration({
+    this.certificateAuthorityArn,
+    this.checkCertificateRevocationStatus,
     this.scopes,
     this.serverCertificates,
   });
 
   factory ServerCertificateConfiguration.fromJson(Map<String, dynamic> json) {
     return ServerCertificateConfiguration(
+      certificateAuthorityArn: json['CertificateAuthorityArn'] as String?,
+      checkCertificateRevocationStatus:
+          json['CheckCertificateRevocationStatus'] != null
+              ? CheckCertificateRevocationStatusActions.fromJson(
+                  json['CheckCertificateRevocationStatus']
+                      as Map<String, dynamic>)
+              : null,
       scopes: (json['Scopes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => ServerCertificateScope.fromJson(e as Map<String, dynamic>))
           .toList(),
       serverCertificates: (json['ServerCertificates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServerCertificate.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
 
   Map<String, dynamic> toJson() {
+    final certificateAuthorityArn = this.certificateAuthorityArn;
+    final checkCertificateRevocationStatus =
+        this.checkCertificateRevocationStatus;
     final scopes = this.scopes;
     final serverCertificates = this.serverCertificates;
     return {
+      if (certificateAuthorityArn != null)
+        'CertificateAuthorityArn': certificateAuthorityArn,
+      if (checkCertificateRevocationStatus != null)
+        'CheckCertificateRevocationStatus': checkCertificateRevocationStatus,
       if (scopes != null) 'Scopes': scopes,
       if (serverCertificates != null) 'ServerCertificates': serverCertificates,
     };
@@ -6298,23 +6380,21 @@ class ServerCertificateScope {
   factory ServerCertificateScope.fromJson(Map<String, dynamic> json) {
     return ServerCertificateScope(
       destinationPorts: (json['DestinationPorts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
           .toList(),
       destinations: (json['Destinations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Address.fromJson(e as Map<String, dynamic>))
           .toList(),
-      protocols: (json['Protocols'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      protocols:
+          (json['Protocols'] as List?)?.nonNulls.map((e) => e as int).toList(),
       sourcePorts: (json['SourcePorts'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PortRange.fromJson(e as Map<String, dynamic>))
           .toList(),
       sources: (json['Sources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Address.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6375,51 +6455,36 @@ class SourceMetadata {
 }
 
 enum StatefulAction {
-  pass,
-  drop,
-  alert,
-  reject,
-}
+  pass('PASS'),
+  drop('DROP'),
+  alert('ALERT'),
+  reject('REJECT'),
+  ;
 
-extension StatefulActionValueExtension on StatefulAction {
-  String toValue() {
-    switch (this) {
-      case StatefulAction.pass:
-        return 'PASS';
-      case StatefulAction.drop:
-        return 'DROP';
-      case StatefulAction.alert:
-        return 'ALERT';
-      case StatefulAction.reject:
-        return 'REJECT';
-    }
-  }
-}
+  final String value;
 
-extension StatefulActionFromString on String {
-  StatefulAction toStatefulAction() {
-    switch (this) {
-      case 'PASS':
-        return StatefulAction.pass;
-      case 'DROP':
-        return StatefulAction.drop;
-      case 'ALERT':
-        return StatefulAction.alert;
-      case 'REJECT':
-        return StatefulAction.reject;
-    }
-    throw Exception('$this is not known in enum StatefulAction');
-  }
+  const StatefulAction(this.value);
+
+  static StatefulAction fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StatefulAction'));
 }
 
 /// Configuration settings for the handling of the stateful rule groups in a
 /// firewall policy.
 class StatefulEngineOptions {
   /// Indicates how to manage the order of stateful rule evaluation for the
-  /// policy. <code>DEFAULT_ACTION_ORDER</code> is the default behavior. Stateful
-  /// rules are provided to the rule engine as Suricata compatible strings, and
-  /// Suricata evaluates them based on certain settings. For more information, see
-  /// <a
+  /// policy. <code>STRICT_ORDER</code> is the default and recommended option.
+  /// With <code>STRICT_ORDER</code>, provide your rules in the order that you
+  /// want them to be evaluated. You can then choose one or more default actions
+  /// for packets that don't match any rules. Choose <code>STRICT_ORDER</code> to
+  /// have the stateful rules engine determine the evaluation order of your rules.
+  /// The default action for this rule order is <code>PASS</code>, followed by
+  /// <code>DROP</code>, <code>REJECT</code>, and <code>ALERT</code> actions.
+  /// Stateful rules are provided to the rule engine as Suricata compatible
+  /// strings, and Suricata evaluates them based on your settings. For more
+  /// information, see <a
   /// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/suricata-rule-evaluation-order.html">Evaluation
   /// order for stateful rules</a> in the <i>Network Firewall Developer Guide</i>.
   final RuleOrder? ruleOrder;
@@ -6461,9 +6526,9 @@ class StatefulEngineOptions {
 
   factory StatefulEngineOptions.fromJson(Map<String, dynamic> json) {
     return StatefulEngineOptions(
-      ruleOrder: (json['RuleOrder'] as String?)?.toRuleOrder(),
-      streamExceptionPolicy:
-          (json['StreamExceptionPolicy'] as String?)?.toStreamExceptionPolicy(),
+      ruleOrder: (json['RuleOrder'] as String?)?.let(RuleOrder.fromString),
+      streamExceptionPolicy: (json['StreamExceptionPolicy'] as String?)
+          ?.let(StreamExceptionPolicy.fromString),
     );
   }
 
@@ -6471,9 +6536,9 @@ class StatefulEngineOptions {
     final ruleOrder = this.ruleOrder;
     final streamExceptionPolicy = this.streamExceptionPolicy;
     return {
-      if (ruleOrder != null) 'RuleOrder': ruleOrder.toValue(),
+      if (ruleOrder != null) 'RuleOrder': ruleOrder.value,
       if (streamExceptionPolicy != null)
-        'StreamExceptionPolicy': streamExceptionPolicy.toValue(),
+        'StreamExceptionPolicy': streamExceptionPolicy.value,
     };
   }
 }
@@ -6482,7 +6547,8 @@ class StatefulEngineOptions {
 /// this option to specify a simple Suricata rule with protocol, source and
 /// destination, ports, direction, and rule options. For information about the
 /// Suricata <code>Rules</code> format, see <a
-/// href="https://suricata.readthedocs.iorules/intro.html#">Rules Format</a>.
+/// href="https://suricata.readthedocs.io/en/suricata-6.0.9/rules/intro.html">Rules
+/// Format</a>.
 class StatefulRule {
   /// Defines what Network Firewall should do with the packets in a traffic flow
   /// when the flow matches the stateful rule criteria. For all actions, Network
@@ -6501,24 +6567,13 @@ class StatefulRule {
   /// <a>Firewall</a> <a>LoggingConfiguration</a>.
   /// </li>
   /// <li>
-  /// <b>ALERT</b> - Permits the packets to go to the intended destination and
-  /// sends an alert log message, if alert logging is configured in the
-  /// <a>Firewall</a> <a>LoggingConfiguration</a>.
+  /// <b>ALERT</b> - Sends an alert log message, if alert logging is configured in
+  /// the <a>Firewall</a> <a>LoggingConfiguration</a>.
   ///
   /// You can use this action to test a rule that you intend to use to drop
   /// traffic. You can enable the rule with <code>ALERT</code> action, verify in
   /// the logs that the rule is filtering as you want, then change the action to
   /// <code>DROP</code>.
-  /// </li>
-  /// <li>
-  /// <b>REJECT</b> - Drops TCP traffic that matches the conditions of the
-  /// stateful rule, and sends a TCP reset packet back to sender of the packet. A
-  /// TCP reset packet is a packet with no payload and a <code>RST</code> bit
-  /// contained in the TCP header flags. Also sends an alert log mesage if alert
-  /// logging is configured in the <a>Firewall</a> <a>LoggingConfiguration</a>.
-  ///
-  /// <code>REJECT</code> isn't currently available for use with IMAP and FTP
-  /// protocols.
   /// </li>
   /// </ul>
   final StatefulAction action;
@@ -6539,10 +6594,10 @@ class StatefulRule {
 
   factory StatefulRule.fromJson(Map<String, dynamic> json) {
     return StatefulRule(
-      action: (json['Action'] as String).toStatefulAction(),
+      action: StatefulAction.fromString((json['Action'] as String)),
       header: Header.fromJson(json['Header'] as Map<String, dynamic>),
       ruleOptions: (json['RuleOptions'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => RuleOption.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6553,7 +6608,7 @@ class StatefulRule {
     final header = this.header;
     final ruleOptions = this.ruleOptions;
     return {
-      'Action': action.toValue(),
+      'Action': action.value,
       'Header': header,
       'RuleOptions': ruleOptions,
     };
@@ -6561,31 +6616,18 @@ class StatefulRule {
 }
 
 enum StatefulRuleDirection {
-  forward,
-  any,
-}
+  forward('FORWARD'),
+  any('ANY'),
+  ;
 
-extension StatefulRuleDirectionValueExtension on StatefulRuleDirection {
-  String toValue() {
-    switch (this) {
-      case StatefulRuleDirection.forward:
-        return 'FORWARD';
-      case StatefulRuleDirection.any:
-        return 'ANY';
-    }
-  }
-}
+  final String value;
 
-extension StatefulRuleDirectionFromString on String {
-  StatefulRuleDirection toStatefulRuleDirection() {
-    switch (this) {
-      case 'FORWARD':
-        return StatefulRuleDirection.forward;
-      case 'ANY':
-        return StatefulRuleDirection.any;
-    }
-    throw Exception('$this is not known in enum StatefulRuleDirection');
-  }
+  const StatefulRuleDirection(this.value);
+
+  static StatefulRuleDirection fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StatefulRuleDirection'));
 }
 
 /// The setting that allows the policy owner to change the behavior of the rule
@@ -6601,14 +6643,14 @@ class StatefulRuleGroupOverride {
 
   factory StatefulRuleGroupOverride.fromJson(Map<String, dynamic> json) {
     return StatefulRuleGroupOverride(
-      action: (json['Action'] as String?)?.toOverrideAction(),
+      action: (json['Action'] as String?)?.let(OverrideAction.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final action = this.action;
     return {
-      if (action != null) 'Action': action.toValue(),
+      if (action != null) 'Action': action.value,
     };
   }
 }
@@ -6683,129 +6725,48 @@ class StatefulRuleOptions {
 
   factory StatefulRuleOptions.fromJson(Map<String, dynamic> json) {
     return StatefulRuleOptions(
-      ruleOrder: (json['RuleOrder'] as String?)?.toRuleOrder(),
+      ruleOrder: (json['RuleOrder'] as String?)?.let(RuleOrder.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final ruleOrder = this.ruleOrder;
     return {
-      if (ruleOrder != null) 'RuleOrder': ruleOrder.toValue(),
+      if (ruleOrder != null) 'RuleOrder': ruleOrder.value,
     };
   }
 }
 
 enum StatefulRuleProtocol {
-  ip,
-  tcp,
-  udp,
-  icmp,
-  http,
-  ftp,
-  tls,
-  smb,
-  dns,
-  dcerpc,
-  ssh,
-  smtp,
-  imap,
-  msn,
-  krb5,
-  ikev2,
-  tftp,
-  ntp,
-  dhcp,
-}
+  ip('IP'),
+  tcp('TCP'),
+  udp('UDP'),
+  icmp('ICMP'),
+  http('HTTP'),
+  ftp('FTP'),
+  tls('TLS'),
+  smb('SMB'),
+  dns('DNS'),
+  dcerpc('DCERPC'),
+  ssh('SSH'),
+  smtp('SMTP'),
+  imap('IMAP'),
+  msn('MSN'),
+  krb5('KRB5'),
+  ikev2('IKEV2'),
+  tftp('TFTP'),
+  ntp('NTP'),
+  dhcp('DHCP'),
+  ;
 
-extension StatefulRuleProtocolValueExtension on StatefulRuleProtocol {
-  String toValue() {
-    switch (this) {
-      case StatefulRuleProtocol.ip:
-        return 'IP';
-      case StatefulRuleProtocol.tcp:
-        return 'TCP';
-      case StatefulRuleProtocol.udp:
-        return 'UDP';
-      case StatefulRuleProtocol.icmp:
-        return 'ICMP';
-      case StatefulRuleProtocol.http:
-        return 'HTTP';
-      case StatefulRuleProtocol.ftp:
-        return 'FTP';
-      case StatefulRuleProtocol.tls:
-        return 'TLS';
-      case StatefulRuleProtocol.smb:
-        return 'SMB';
-      case StatefulRuleProtocol.dns:
-        return 'DNS';
-      case StatefulRuleProtocol.dcerpc:
-        return 'DCERPC';
-      case StatefulRuleProtocol.ssh:
-        return 'SSH';
-      case StatefulRuleProtocol.smtp:
-        return 'SMTP';
-      case StatefulRuleProtocol.imap:
-        return 'IMAP';
-      case StatefulRuleProtocol.msn:
-        return 'MSN';
-      case StatefulRuleProtocol.krb5:
-        return 'KRB5';
-      case StatefulRuleProtocol.ikev2:
-        return 'IKEV2';
-      case StatefulRuleProtocol.tftp:
-        return 'TFTP';
-      case StatefulRuleProtocol.ntp:
-        return 'NTP';
-      case StatefulRuleProtocol.dhcp:
-        return 'DHCP';
-    }
-  }
-}
+  final String value;
 
-extension StatefulRuleProtocolFromString on String {
-  StatefulRuleProtocol toStatefulRuleProtocol() {
-    switch (this) {
-      case 'IP':
-        return StatefulRuleProtocol.ip;
-      case 'TCP':
-        return StatefulRuleProtocol.tcp;
-      case 'UDP':
-        return StatefulRuleProtocol.udp;
-      case 'ICMP':
-        return StatefulRuleProtocol.icmp;
-      case 'HTTP':
-        return StatefulRuleProtocol.http;
-      case 'FTP':
-        return StatefulRuleProtocol.ftp;
-      case 'TLS':
-        return StatefulRuleProtocol.tls;
-      case 'SMB':
-        return StatefulRuleProtocol.smb;
-      case 'DNS':
-        return StatefulRuleProtocol.dns;
-      case 'DCERPC':
-        return StatefulRuleProtocol.dcerpc;
-      case 'SSH':
-        return StatefulRuleProtocol.ssh;
-      case 'SMTP':
-        return StatefulRuleProtocol.smtp;
-      case 'IMAP':
-        return StatefulRuleProtocol.imap;
-      case 'MSN':
-        return StatefulRuleProtocol.msn;
-      case 'KRB5':
-        return StatefulRuleProtocol.krb5;
-      case 'IKEV2':
-        return StatefulRuleProtocol.ikev2;
-      case 'TFTP':
-        return StatefulRuleProtocol.tftp;
-      case 'NTP':
-        return StatefulRuleProtocol.ntp;
-      case 'DHCP':
-        return StatefulRuleProtocol.dhcp;
-    }
-    throw Exception('$this is not known in enum StatefulRuleProtocol');
-  }
+  const StatefulRuleProtocol(this.value);
+
+  static StatefulRuleProtocol fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StatefulRuleProtocol'));
 }
 
 /// A single stateless rule. This is used in
@@ -6912,11 +6873,11 @@ class StatelessRulesAndCustomActions {
   factory StatelessRulesAndCustomActions.fromJson(Map<String, dynamic> json) {
     return StatelessRulesAndCustomActions(
       statelessRules: (json['StatelessRules'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => StatelessRule.fromJson(e as Map<String, dynamic>))
           .toList(),
       customActions: (json['CustomActions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CustomAction.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6933,36 +6894,19 @@ class StatelessRulesAndCustomActions {
 }
 
 enum StreamExceptionPolicy {
-  drop,
-  $continue,
-  reject,
-}
+  drop('DROP'),
+  $continue('CONTINUE'),
+  reject('REJECT'),
+  ;
 
-extension StreamExceptionPolicyValueExtension on StreamExceptionPolicy {
-  String toValue() {
-    switch (this) {
-      case StreamExceptionPolicy.drop:
-        return 'DROP';
-      case StreamExceptionPolicy.$continue:
-        return 'CONTINUE';
-      case StreamExceptionPolicy.reject:
-        return 'REJECT';
-    }
-  }
-}
+  final String value;
 
-extension StreamExceptionPolicyFromString on String {
-  StreamExceptionPolicy toStreamExceptionPolicy() {
-    switch (this) {
-      case 'DROP':
-        return StreamExceptionPolicy.drop;
-      case 'CONTINUE':
-        return StreamExceptionPolicy.$continue;
-      case 'REJECT':
-        return StreamExceptionPolicy.reject;
-    }
-    throw Exception('$this is not known in enum StreamExceptionPolicy');
-  }
+  const StreamExceptionPolicy(this.value);
+
+  static StreamExceptionPolicy fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum StreamExceptionPolicy'));
 }
 
 /// The ID for a subnet that you want to associate with the firewall. This is
@@ -6985,7 +6929,8 @@ class SubnetMapping {
   factory SubnetMapping.fromJson(Map<String, dynamic> json) {
     return SubnetMapping(
       subnetId: json['SubnetId'] as String,
-      iPAddressType: (json['IPAddressType'] as String?)?.toIPAddressType(),
+      iPAddressType:
+          (json['IPAddressType'] as String?)?.let(IPAddressType.fromString),
     );
   }
 
@@ -6994,7 +6939,7 @@ class SubnetMapping {
     final iPAddressType = this.iPAddressType;
     return {
       'SubnetId': subnetId,
-      if (iPAddressType != null) 'IPAddressType': iPAddressType.toValue(),
+      if (iPAddressType != null) 'IPAddressType': iPAddressType.value,
     };
   }
 }
@@ -7058,61 +7003,23 @@ class SyncState {
 }
 
 enum TCPFlag {
-  fin,
-  syn,
-  rst,
-  psh,
-  ack,
-  urg,
-  ece,
-  cwr,
-}
+  fin('FIN'),
+  syn('SYN'),
+  rst('RST'),
+  psh('PSH'),
+  ack('ACK'),
+  urg('URG'),
+  ece('ECE'),
+  cwr('CWR'),
+  ;
 
-extension TCPFlagValueExtension on TCPFlag {
-  String toValue() {
-    switch (this) {
-      case TCPFlag.fin:
-        return 'FIN';
-      case TCPFlag.syn:
-        return 'SYN';
-      case TCPFlag.rst:
-        return 'RST';
-      case TCPFlag.psh:
-        return 'PSH';
-      case TCPFlag.ack:
-        return 'ACK';
-      case TCPFlag.urg:
-        return 'URG';
-      case TCPFlag.ece:
-        return 'ECE';
-      case TCPFlag.cwr:
-        return 'CWR';
-    }
-  }
-}
+  final String value;
 
-extension TCPFlagFromString on String {
-  TCPFlag toTCPFlag() {
-    switch (this) {
-      case 'FIN':
-        return TCPFlag.fin;
-      case 'SYN':
-        return TCPFlag.syn;
-      case 'RST':
-        return TCPFlag.rst;
-      case 'PSH':
-        return TCPFlag.psh;
-      case 'ACK':
-        return TCPFlag.ack;
-      case 'URG':
-        return TCPFlag.urg;
-      case 'ECE':
-        return TCPFlag.ece;
-      case 'CWR':
-        return TCPFlag.cwr;
-    }
-    throw Exception('$this is not known in enum TCPFlag');
-  }
+  const TCPFlag(this.value);
+
+  static TCPFlag fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum TCPFlag'));
 }
 
 /// TCP flags and masks to inspect packets for, used in stateless rules
@@ -7149,12 +7056,12 @@ class TCPFlagField {
   factory TCPFlagField.fromJson(Map<String, dynamic> json) {
     return TCPFlagField(
       flags: (json['Flags'] as List)
-          .whereNotNull()
-          .map((e) => (e as String).toTCPFlag())
+          .nonNulls
+          .map((e) => TCPFlag.fromString((e as String)))
           .toList(),
       masks: (json['Masks'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toTCPFlag())
+          ?.nonNulls
+          .map((e) => TCPFlag.fromString((e as String)))
           .toList(),
     );
   }
@@ -7163,8 +7070,8 @@ class TCPFlagField {
     final flags = this.flags;
     final masks = this.masks;
     return {
-      'Flags': flags.map((e) => e.toValue()).toList(),
-      if (masks != null) 'Masks': masks.map((e) => e.toValue()).toList(),
+      'Flags': flags.map((e) => e.value).toList(),
+      if (masks != null) 'Masks': masks.map((e) => e.value).toList(),
     };
   }
 }
@@ -7178,13 +7085,14 @@ class TCPFlagField {
 /// Network Firewall re-encrypts the traffic before sending it to its
 /// destination.
 ///
-/// To use a TLS inspection configuration, you add it to a Network Firewall
+/// To use a TLS inspection configuration, you add it to a new Network Firewall
 /// firewall policy, then you apply the firewall policy to a firewall. Network
-/// Firewall acts as a proxy service to decrypt and inspect inbound traffic. You
-/// can reference a TLS inspection configuration from more than one firewall
-/// policy, and you can use a firewall policy in more than one firewall. For
-/// more information about using TLS inspection configurations, see <a
-/// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Decrypting
+/// Firewall acts as a proxy service to decrypt and inspect the traffic
+/// traveling through your firewalls. You can reference a TLS inspection
+/// configuration from more than one firewall policy, and you can use a firewall
+/// policy in more than one firewall. For more information about using TLS
+/// inspection configurations, see <a
+/// href="https://docs.aws.amazon.com/network-firewall/latest/developerguide/tls-inspection.html">Inspecting
 /// SSL/TLS traffic with TLS inspection configurations</a> in the <i>Network
 /// Firewall Developer Guide</i>.
 class TLSInspectionConfiguration {
@@ -7200,7 +7108,7 @@ class TLSInspectionConfiguration {
     return TLSInspectionConfiguration(
       serverCertificateConfigurations:
           (json['ServerCertificateConfigurations'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => ServerCertificateConfiguration.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -7267,6 +7175,7 @@ class TLSInspectionConfigurationResponse {
   /// The descriptive name of the TLS inspection configuration. You can't change
   /// the name of a TLS inspection configuration after you create it.
   final String tLSInspectionConfigurationName;
+  final TlsCertificateData? certificateAuthority;
 
   /// A list of the certificates associated with the TLS inspection configuration.
   final List<TlsCertificateData>? certificates;
@@ -7298,6 +7207,7 @@ class TLSInspectionConfigurationResponse {
     required this.tLSInspectionConfigurationArn,
     required this.tLSInspectionConfigurationId,
     required this.tLSInspectionConfigurationName,
+    this.certificateAuthority,
     this.certificates,
     this.description,
     this.encryptionConfiguration,
@@ -7316,8 +7226,12 @@ class TLSInspectionConfigurationResponse {
           json['TLSInspectionConfigurationId'] as String,
       tLSInspectionConfigurationName:
           json['TLSInspectionConfigurationName'] as String,
+      certificateAuthority: json['CertificateAuthority'] != null
+          ? TlsCertificateData.fromJson(
+              json['CertificateAuthority'] as Map<String, dynamic>)
+          : null,
       certificates: (json['Certificates'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TlsCertificateData.fromJson(e as Map<String, dynamic>))
           .toList(),
       description: json['Description'] as String?,
@@ -7329,9 +7243,9 @@ class TLSInspectionConfigurationResponse {
       numberOfAssociations: json['NumberOfAssociations'] as int?,
       tLSInspectionConfigurationStatus:
           (json['TLSInspectionConfigurationStatus'] as String?)
-              ?.toResourceStatus(),
+              ?.let(ResourceStatus.fromString),
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7341,6 +7255,7 @@ class TLSInspectionConfigurationResponse {
     final tLSInspectionConfigurationArn = this.tLSInspectionConfigurationArn;
     final tLSInspectionConfigurationId = this.tLSInspectionConfigurationId;
     final tLSInspectionConfigurationName = this.tLSInspectionConfigurationName;
+    final certificateAuthority = this.certificateAuthority;
     final certificates = this.certificates;
     final description = this.description;
     final encryptionConfiguration = this.encryptionConfiguration;
@@ -7353,6 +7268,8 @@ class TLSInspectionConfigurationResponse {
       'TLSInspectionConfigurationArn': tLSInspectionConfigurationArn,
       'TLSInspectionConfigurationId': tLSInspectionConfigurationId,
       'TLSInspectionConfigurationName': tLSInspectionConfigurationName,
+      if (certificateAuthority != null)
+        'CertificateAuthority': certificateAuthority,
       if (certificates != null) 'Certificates': certificates,
       if (description != null) 'Description': description,
       if (encryptionConfiguration != null)
@@ -7363,7 +7280,7 @@ class TLSInspectionConfigurationResponse {
         'NumberOfAssociations': numberOfAssociations,
       if (tLSInspectionConfigurationStatus != null)
         'TLSInspectionConfigurationStatus':
-            tLSInspectionConfigurationStatus.toValue(),
+            tLSInspectionConfigurationStatus.value,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -7420,31 +7337,17 @@ class TagResourceResponse {
 }
 
 enum TargetType {
-  tlsSni,
-  httpHost,
-}
+  tlsSni('TLS_SNI'),
+  httpHost('HTTP_HOST'),
+  ;
 
-extension TargetTypeValueExtension on TargetType {
-  String toValue() {
-    switch (this) {
-      case TargetType.tlsSni:
-        return 'TLS_SNI';
-      case TargetType.httpHost:
-        return 'HTTP_HOST';
-    }
-  }
-}
+  final String value;
 
-extension TargetTypeFromString on String {
-  TargetType toTargetType() {
-    switch (this) {
-      case 'TLS_SNI':
-        return TargetType.tlsSni;
-      case 'HTTP_HOST':
-        return TargetType.httpHost;
-    }
-    throw Exception('$this is not known in enum TargetType');
-  }
+  const TargetType(this.value);
+
+  static TargetType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TargetType'));
 }
 
 /// Contains metadata about an Certificate Manager certificate.

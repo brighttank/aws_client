@@ -130,12 +130,13 @@ class Textract {
   /// A list of the types of analysis to perform. Add TABLES to the list to
   /// return information about the tables that are detected in the input
   /// document. Add FORMS to return detected form data. Add SIGNATURES to return
-  /// the locations of detected signatures. To perform both forms and table
-  /// analysis, add TABLES and FORMS to <code>FeatureTypes</code>. To detect
-  /// signatures within form data and table data, add SIGNATURES to either
-  /// TABLES or FORMS. All lines and words detected in the document are included
-  /// in the response (including text that isn't related to the value of
-  /// <code>FeatureTypes</code>).
+  /// the locations of detected signatures. Add LAYOUT to the list to return
+  /// information about the layout of the document. All lines and words detected
+  /// in the document are included in the response (including text that isn't
+  /// related to the value of <code>FeatureTypes</code>).
+  ///
+  /// Parameter [adaptersConfig] :
+  /// Specifies the adapter to be used when analyzing a document.
   ///
   /// Parameter [humanLoopConfig] :
   /// Sets the configuration for the human in the loop workflow for analyzing
@@ -147,6 +148,7 @@ class Textract {
   Future<AnalyzeDocumentResponse> analyzeDocument({
     required Document document,
     required List<FeatureType> featureTypes,
+    AdaptersConfig? adaptersConfig,
     HumanLoopConfig? humanLoopConfig,
     QueriesConfig? queriesConfig,
   }) async {
@@ -162,7 +164,8 @@ class Textract {
       headers: headers,
       payload: {
         'Document': document,
-        'FeatureTypes': featureTypes.map((e) => e.toValue()).toList(),
+        'FeatureTypes': featureTypes.map((e) => e.value).toList(),
+        if (adaptersConfig != null) 'AdaptersConfig': adaptersConfig,
         if (humanLoopConfig != null) 'HumanLoopConfig': humanLoopConfig,
         if (queriesConfig != null) 'QueriesConfig': queriesConfig,
       },
@@ -258,6 +261,223 @@ class Textract {
     return AnalyzeIDResponse.fromJson(jsonResponse.body);
   }
 
+  /// Creates an adapter, which can be fine-tuned for enhanced performance on
+  /// user provided documents. Takes an AdapterName and FeatureType. Currently
+  /// the only supported feature type is <code>QUERIES</code>. You can also
+  /// provide a Description, Tags, and a ClientRequestToken. You can choose
+  /// whether or not the adapter should be AutoUpdated with the AutoUpdate
+  /// argument. By default, AutoUpdate is set to DISABLED.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [IdempotentParameterMismatchException].
+  /// May throw [ThrottlingException].
+  /// May throw [LimitExceededException].
+  /// May throw [ValidationException].
+  /// May throw [ServiceQuotaExceededException].
+  ///
+  /// Parameter [adapterName] :
+  /// The name to be assigned to the adapter being created.
+  ///
+  /// Parameter [featureTypes] :
+  /// The type of feature that the adapter is being trained on. Currrenly,
+  /// supported feature types are: <code>QUERIES</code>
+  ///
+  /// Parameter [autoUpdate] :
+  /// Controls whether or not the adapter should automatically update.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Idempotent token is used to recognize the request. If the same token is
+  /// used with multiple CreateAdapter requests, the same session is returned.
+  /// This token is employed to avoid unintentionally creating the same session
+  /// multiple times.
+  ///
+  /// Parameter [description] :
+  /// The description to be assigned to the adapter being created.
+  ///
+  /// Parameter [tags] :
+  /// A list of tags to be added to the adapter.
+  Future<CreateAdapterResponse> createAdapter({
+    required String adapterName,
+    required List<FeatureType> featureTypes,
+    AutoUpdate? autoUpdate,
+    String? clientRequestToken,
+    String? description,
+    Map<String, String>? tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.CreateAdapter'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AdapterName': adapterName,
+        'FeatureTypes': featureTypes.map((e) => e.value).toList(),
+        if (autoUpdate != null) 'AutoUpdate': autoUpdate.value,
+        'ClientRequestToken':
+            clientRequestToken ?? _s.generateIdempotencyToken(),
+        if (description != null) 'Description': description,
+        if (tags != null) 'Tags': tags,
+      },
+    );
+
+    return CreateAdapterResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Creates a new version of an adapter. Operates on a provided AdapterId and
+  /// a specified dataset provided via the DatasetConfig argument. Requires that
+  /// you specify an Amazon S3 bucket with the OutputConfig argument. You can
+  /// provide an optional KMSKeyId, an optional ClientRequestToken, and optional
+  /// tags.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [InvalidS3ObjectException].
+  /// May throw [InvalidKMSKeyException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [IdempotentParameterMismatchException].
+  /// May throw [ThrottlingException].
+  /// May throw [LimitExceededException].
+  /// May throw [ValidationException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ConflictException].
+  ///
+  /// Parameter [adapterId] :
+  /// A string containing a unique ID for the adapter that will receive a new
+  /// version.
+  ///
+  /// Parameter [datasetConfig] :
+  /// Specifies a dataset used to train a new adapter version. Takes a
+  /// ManifestS3Object as the value.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Idempotent token is used to recognize the request. If the same token is
+  /// used with multiple CreateAdapterVersion requests, the same session is
+  /// returned. This token is employed to avoid unintentionally creating the
+  /// same session multiple times.
+  ///
+  /// Parameter [kMSKeyId] :
+  /// The identifier for your AWS Key Management Service key (AWS KMS key). Used
+  /// to encrypt your documents.
+  ///
+  /// Parameter [tags] :
+  /// A set of tags (key-value pairs) that you want to attach to the adapter
+  /// version.
+  Future<CreateAdapterVersionResponse> createAdapterVersion({
+    required String adapterId,
+    required AdapterVersionDatasetConfig datasetConfig,
+    required OutputConfig outputConfig,
+    String? clientRequestToken,
+    String? kMSKeyId,
+    Map<String, String>? tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.CreateAdapterVersion'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AdapterId': adapterId,
+        'DatasetConfig': datasetConfig,
+        'OutputConfig': outputConfig,
+        'ClientRequestToken':
+            clientRequestToken ?? _s.generateIdempotencyToken(),
+        if (kMSKeyId != null) 'KMSKeyId': kMSKeyId,
+        if (tags != null) 'Tags': tags,
+      },
+    );
+
+    return CreateAdapterVersionResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Deletes an Amazon Textract adapter. Takes an AdapterId and deletes the
+  /// adapter specified by the ID.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [adapterId] :
+  /// A string containing a unique ID for the adapter to be deleted.
+  Future<void> deleteAdapter({
+    required String adapterId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.DeleteAdapter'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AdapterId': adapterId,
+      },
+    );
+  }
+
+  /// Deletes an Amazon Textract adapter version. Requires that you specify both
+  /// an AdapterId and a AdapterVersion. Deletes the adapter version specified
+  /// by the AdapterId and the AdapterVersion.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [adapterId] :
+  /// A string containing a unique ID for the adapter version that will be
+  /// deleted.
+  ///
+  /// Parameter [adapterVersion] :
+  /// Specifies the adapter version to be deleted.
+  Future<void> deleteAdapterVersion({
+    required String adapterId,
+    required String adapterVersion,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.DeleteAdapterVersion'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AdapterId': adapterId,
+        'AdapterVersion': adapterVersion,
+      },
+    );
+  }
+
   /// Detects text in the input document. Amazon Textract can detect lines of
   /// text and the words that make up a line of text. The input document must be
   /// in one of the following image formats: JPEG, PNG, PDF, or TIFF.
@@ -315,6 +535,83 @@ class Textract {
     );
 
     return DetectDocumentTextResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Gets configuration information for an adapter specified by an AdapterId,
+  /// returning information on AdapterName, Description, CreationTime,
+  /// AutoUpdate status, and FeatureTypes.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [adapterId] :
+  /// A string containing a unique ID for the adapter.
+  Future<GetAdapterResponse> getAdapter({
+    required String adapterId,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.GetAdapter'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AdapterId': adapterId,
+      },
+    );
+
+    return GetAdapterResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Gets configuration information for the specified adapter version,
+  /// including: AdapterId, AdapterVersion, FeatureTypes, Status, StatusMessage,
+  /// DatasetConfig, KMSKeyId, OutputConfig, Tags and EvaluationMetrics.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [adapterId] :
+  /// A string specifying a unique ID for the adapter version you want to
+  /// retrieve information for.
+  ///
+  /// Parameter [adapterVersion] :
+  /// A string specifying the adapter version you want to retrieve information
+  /// for.
+  Future<GetAdapterVersionResponse> getAdapterVersion({
+    required String adapterId,
+    required String adapterVersion,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.GetAdapterVersion'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AdapterId': adapterId,
+        'AdapterVersion': adapterVersion,
+      },
+    );
+
+    return GetAdapterVersionResponse.fromJson(jsonResponse.body);
   }
 
   /// Gets the results for an Amazon Textract asynchronous operation that
@@ -740,6 +1037,167 @@ class Textract {
     return GetLendingAnalysisSummaryResponse.fromJson(jsonResponse.body);
   }
 
+  /// List all version of an adapter that meet the specified filtration
+  /// criteria.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [adapterId] :
+  /// A string containing a unique ID for the adapter to match for when listing
+  /// adapter versions.
+  ///
+  /// Parameter [afterCreationTime] :
+  /// Specifies the lower bound for the ListAdapterVersions operation. Ensures
+  /// ListAdapterVersions returns only adapter versions created after the
+  /// specified creation time.
+  ///
+  /// Parameter [beforeCreationTime] :
+  /// Specifies the upper bound for the ListAdapterVersions operation. Ensures
+  /// ListAdapterVersions returns only adapter versions created after the
+  /// specified creation time.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return when listing adapter versions.
+  ///
+  /// Parameter [nextToken] :
+  /// Identifies the next page of results to return when listing adapter
+  /// versions.
+  Future<ListAdapterVersionsResponse> listAdapterVersions({
+    String? adapterId,
+    DateTime? afterCreationTime,
+    DateTime? beforeCreationTime,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1152921504606846976,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.ListAdapterVersions'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (adapterId != null) 'AdapterId': adapterId,
+        if (afterCreationTime != null)
+          'AfterCreationTime': unixTimestampToJson(afterCreationTime),
+        if (beforeCreationTime != null)
+          'BeforeCreationTime': unixTimestampToJson(beforeCreationTime),
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListAdapterVersionsResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Lists all adapters that match the specified filtration criteria.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [afterCreationTime] :
+  /// Specifies the lower bound for the ListAdapters operation. Ensures
+  /// ListAdapters returns only adapters created after the specified creation
+  /// time.
+  ///
+  /// Parameter [beforeCreationTime] :
+  /// Specifies the upper bound for the ListAdapters operation. Ensures
+  /// ListAdapters returns only adapters created before the specified creation
+  /// time.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results to return when listing adapters.
+  ///
+  /// Parameter [nextToken] :
+  /// Identifies the next page of results to return when listing adapters.
+  Future<ListAdaptersResponse> listAdapters({
+    DateTime? afterCreationTime,
+    DateTime? beforeCreationTime,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      1152921504606846976,
+    );
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.ListAdapters'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        if (afterCreationTime != null)
+          'AfterCreationTime': unixTimestampToJson(afterCreationTime),
+        if (beforeCreationTime != null)
+          'BeforeCreationTime': unixTimestampToJson(beforeCreationTime),
+        if (maxResults != null) 'MaxResults': maxResults,
+        if (nextToken != null) 'NextToken': nextToken,
+      },
+    );
+
+    return ListAdaptersResponse.fromJson(jsonResponse.body);
+  }
+
+  /// Lists all tags for an Amazon Textract resource.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon Resource Name (ARN) that specifies the resource to list tags
+  /// for.
+  Future<ListTagsForResourceResponse> listTagsForResource({
+    required String resourceARN,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.ListTagsForResource'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+      },
+    );
+
+    return ListTagsForResourceResponse.fromJson(jsonResponse.body);
+  }
+
   /// Starts the asynchronous analysis of an input document for relationships
   /// between detected items such as key-value pairs, tables, and selection
   /// elements.
@@ -788,6 +1246,9 @@ class Textract {
   /// words detected in the document are included in the response (including
   /// text that isn't related to the value of <code>FeatureTypes</code>).
   ///
+  /// Parameter [adaptersConfig] :
+  /// Specifies the adapter to be used when analyzing a document.
+  ///
   /// Parameter [clientRequestToken] :
   /// The idempotent token that you use to identify the start request. If you
   /// use the same token with multiple <code>StartDocumentAnalysis</code>
@@ -821,6 +1282,7 @@ class Textract {
   Future<StartDocumentAnalysisResponse> startDocumentAnalysis({
     required DocumentLocation documentLocation,
     required List<FeatureType> featureTypes,
+    AdaptersConfig? adaptersConfig,
     String? clientRequestToken,
     String? jobTag,
     String? kMSKeyId,
@@ -840,7 +1302,8 @@ class Textract {
       headers: headers,
       payload: {
         'DocumentLocation': documentLocation,
-        'FeatureTypes': featureTypes.map((e) => e.toValue()).toList(),
+        'FeatureTypes': featureTypes.map((e) => e.value).toList(),
+        if (adaptersConfig != null) 'AdaptersConfig': adaptersConfig,
         if (clientRequestToken != null)
           'ClientRequestToken': clientRequestToken,
         if (jobTag != null) 'JobTag': jobTag,
@@ -1165,6 +1628,359 @@ class Textract {
 
     return StartLendingAnalysisResponse.fromJson(jsonResponse.body);
   }
+
+  /// Adds one or more tags to the specified resource.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidParameterException].
+  /// May throw [ServiceQuotaExceededException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon Resource Name (ARN) that specifies the resource to be tagged.
+  ///
+  /// Parameter [tags] :
+  /// A set of tags (key-value pairs) that you want to assign to the resource.
+  Future<void> tagResource({
+    required String resourceARN,
+    required Map<String, String> tags,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.TagResource'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+        'Tags': tags,
+      },
+    );
+  }
+
+  /// Removes any tags with the specified keys from the specified resource.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  ///
+  /// Parameter [resourceARN] :
+  /// The Amazon Resource Name (ARN) that specifies the resource to be untagged.
+  ///
+  /// Parameter [tagKeys] :
+  /// Specifies the tags to be removed from the resource specified by the
+  /// ResourceARN.
+  Future<void> untagResource({
+    required String resourceARN,
+    required List<String> tagKeys,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.UntagResource'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'ResourceARN': resourceARN,
+        'TagKeys': tagKeys,
+      },
+    );
+  }
+
+  /// Update the configuration for an adapter. FeatureTypes configurations
+  /// cannot be updated. At least one new parameter must be specified as an
+  /// argument.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [AccessDeniedException].
+  /// May throw [ConflictException].
+  /// May throw [ProvisionedThroughputExceededException].
+  /// May throw [InternalServerError].
+  /// May throw [ThrottlingException].
+  /// May throw [ValidationException].
+  /// May throw [ResourceNotFoundException].
+  ///
+  /// Parameter [adapterId] :
+  /// A string containing a unique ID for the adapter that will be updated.
+  ///
+  /// Parameter [adapterName] :
+  /// The new name to be applied to the adapter.
+  ///
+  /// Parameter [autoUpdate] :
+  /// The new auto-update status to be applied to the adapter.
+  ///
+  /// Parameter [description] :
+  /// The new description to be applied to the adapter.
+  Future<UpdateAdapterResponse> updateAdapter({
+    required String adapterId,
+    String? adapterName,
+    AutoUpdate? autoUpdate,
+    String? description,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'Textract.UpdateAdapter'
+    };
+    final jsonResponse = await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'AdapterId': adapterId,
+        if (adapterName != null) 'AdapterName': adapterName,
+        if (autoUpdate != null) 'AutoUpdate': autoUpdate.value,
+        if (description != null) 'Description': description,
+      },
+    );
+
+    return UpdateAdapterResponse.fromJson(jsonResponse.body);
+  }
+}
+
+/// An adapter selected for use when analyzing documents. Contains an adapter ID
+/// and a version number. Contains information on pages selected for analysis
+/// when analyzing documents asychronously.
+class Adapter {
+  /// A unique identifier for the adapter resource.
+  final String adapterId;
+
+  /// A string that identifies the version of the adapter.
+  final String version;
+
+  /// Pages is a parameter that the user inputs to specify which pages to apply an
+  /// adapter to. The following is a list of rules for using this parameter.
+  ///
+  /// <ul>
+  /// <li>
+  /// If a page is not specified, it is set to <code>["1"]</code> by default.
+  /// </li>
+  /// <li>
+  /// The following characters are allowed in the parameter's string: <code>0 1 2
+  /// 3 4 5 6 7 8 9 - *</code>. No whitespace is allowed.
+  /// </li>
+  /// <li>
+  /// When using * to indicate all pages, it must be the only element in the list.
+  /// </li>
+  /// <li>
+  /// You can use page intervals, such as <code>["1-3", "1-1", "4-*"]</code>.
+  /// Where <code>*</code> indicates last page of document.
+  /// </li>
+  /// <li>
+  /// Specified pages must be greater than 0 and less than or equal to the number
+  /// of pages in the document.
+  /// </li>
+  /// </ul>
+  final List<String>? pages;
+
+  Adapter({
+    required this.adapterId,
+    required this.version,
+    this.pages,
+  });
+
+  Map<String, dynamic> toJson() {
+    final adapterId = this.adapterId;
+    final version = this.version;
+    final pages = this.pages;
+    return {
+      'AdapterId': adapterId,
+      'Version': version,
+      if (pages != null) 'Pages': pages,
+    };
+  }
+}
+
+/// Contains information on the adapter, including the adapter ID, Name,
+/// Creation time, and feature types.
+class AdapterOverview {
+  /// A unique identifier for the adapter resource.
+  final String? adapterId;
+
+  /// A string naming the adapter resource.
+  final String? adapterName;
+
+  /// The date and time that the adapter was created.
+  final DateTime? creationTime;
+
+  /// The feature types that the adapter is operating on.
+  final List<FeatureType>? featureTypes;
+
+  AdapterOverview({
+    this.adapterId,
+    this.adapterName,
+    this.creationTime,
+    this.featureTypes,
+  });
+
+  factory AdapterOverview.fromJson(Map<String, dynamic> json) {
+    return AdapterOverview(
+      adapterId: json['AdapterId'] as String?,
+      adapterName: json['AdapterName'] as String?,
+      creationTime: timeStampFromJson(json['CreationTime']),
+      featureTypes: (json['FeatureTypes'] as List?)
+          ?.nonNulls
+          .map((e) => FeatureType.fromString((e as String)))
+          .toList(),
+    );
+  }
+}
+
+/// The dataset configuration options for a given version of an adapter. Can
+/// include an Amazon S3 bucket if specified.
+class AdapterVersionDatasetConfig {
+  final S3Object? manifestS3Object;
+
+  AdapterVersionDatasetConfig({
+    this.manifestS3Object,
+  });
+
+  factory AdapterVersionDatasetConfig.fromJson(Map<String, dynamic> json) {
+    return AdapterVersionDatasetConfig(
+      manifestS3Object: json['ManifestS3Object'] != null
+          ? S3Object.fromJson(json['ManifestS3Object'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final manifestS3Object = this.manifestS3Object;
+    return {
+      if (manifestS3Object != null) 'ManifestS3Object': manifestS3Object,
+    };
+  }
+}
+
+/// Contains information on the metrics used to evalute the peformance of a
+/// given adapter version. Includes data for baseline model performance and
+/// individual adapter version perfromance.
+class AdapterVersionEvaluationMetric {
+  /// The F1 score, precision, and recall metrics for the baseline model.
+  final EvaluationMetric? adapterVersion;
+
+  /// The F1 score, precision, and recall metrics for the baseline model.
+  final EvaluationMetric? baseline;
+
+  /// Indicates the feature type being analyzed by a given adapter version.
+  final FeatureType? featureType;
+
+  AdapterVersionEvaluationMetric({
+    this.adapterVersion,
+    this.baseline,
+    this.featureType,
+  });
+
+  factory AdapterVersionEvaluationMetric.fromJson(Map<String, dynamic> json) {
+    return AdapterVersionEvaluationMetric(
+      adapterVersion: json['AdapterVersion'] != null
+          ? EvaluationMetric.fromJson(
+              json['AdapterVersion'] as Map<String, dynamic>)
+          : null,
+      baseline: json['Baseline'] != null
+          ? EvaluationMetric.fromJson(json['Baseline'] as Map<String, dynamic>)
+          : null,
+      featureType:
+          (json['FeatureType'] as String?)?.let(FeatureType.fromString),
+    );
+  }
+}
+
+/// Summary info for an adapter version. Contains information on the AdapterId,
+/// AdapterVersion, CreationTime, FeatureTypes, and Status.
+class AdapterVersionOverview {
+  /// A unique identifier for the adapter associated with a given adapter version.
+  final String? adapterId;
+
+  /// An identified for a given adapter version.
+  final String? adapterVersion;
+
+  /// The date and time that a given adapter version was created.
+  final DateTime? creationTime;
+
+  /// The feature types that the adapter version is operating on.
+  final List<FeatureType>? featureTypes;
+
+  /// Contains information on the status of a given adapter version.
+  final AdapterVersionStatus? status;
+
+  /// A message explaining the status of a given adapter vesion.
+  final String? statusMessage;
+
+  AdapterVersionOverview({
+    this.adapterId,
+    this.adapterVersion,
+    this.creationTime,
+    this.featureTypes,
+    this.status,
+    this.statusMessage,
+  });
+
+  factory AdapterVersionOverview.fromJson(Map<String, dynamic> json) {
+    return AdapterVersionOverview(
+      adapterId: json['AdapterId'] as String?,
+      adapterVersion: json['AdapterVersion'] as String?,
+      creationTime: timeStampFromJson(json['CreationTime']),
+      featureTypes: (json['FeatureTypes'] as List?)
+          ?.nonNulls
+          .map((e) => FeatureType.fromString((e as String)))
+          .toList(),
+      status: (json['Status'] as String?)?.let(AdapterVersionStatus.fromString),
+      statusMessage: json['StatusMessage'] as String?,
+    );
+  }
+}
+
+enum AdapterVersionStatus {
+  active('ACTIVE'),
+  atRisk('AT_RISK'),
+  deprecated('DEPRECATED'),
+  creationError('CREATION_ERROR'),
+  creationInProgress('CREATION_IN_PROGRESS'),
+  ;
+
+  final String value;
+
+  const AdapterVersionStatus(this.value);
+
+  static AdapterVersionStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AdapterVersionStatus'));
+}
+
+/// Contains information about adapters used when analyzing a document, with
+/// each adapter specified using an AdapterId and version
+class AdaptersConfig {
+  /// A list of adapters to be used when analyzing the specified document.
+  final List<Adapter> adapters;
+
+  AdaptersConfig({
+    required this.adapters,
+  });
+
+  Map<String, dynamic> toJson() {
+    final adapters = this.adapters;
+    return {
+      'Adapters': adapters,
+    };
+  }
 }
 
 class AnalyzeDocumentResponse {
@@ -1192,7 +2008,7 @@ class AnalyzeDocumentResponse {
       analyzeDocumentModelVersion:
           json['AnalyzeDocumentModelVersion'] as String?,
       blocks: (json['Blocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Block.fromJson(e as Map<String, dynamic>))
           .toList(),
       documentMetadata: json['DocumentMetadata'] != null
@@ -1225,7 +2041,7 @@ class AnalyzeExpenseResponse {
               json['DocumentMetadata'] as Map<String, dynamic>)
           : null,
       expenseDocuments: (json['ExpenseDocuments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExpenseDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1285,11 +2101,25 @@ class AnalyzeIDResponse {
               json['DocumentMetadata'] as Map<String, dynamic>)
           : null,
       identityDocuments: (json['IdentityDocuments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IdentityDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
   }
+}
+
+enum AutoUpdate {
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
+
+  final String value;
+
+  const AutoUpdate(this.value);
+
+  static AutoUpdate fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AutoUpdate'));
 }
 
 /// A <code>Block</code> represents items that are recognized in a document
@@ -1379,7 +2209,7 @@ class Block {
   /// selection element.
   /// </li>
   /// <li>
-  /// <i>SIGNATURE</i> - The location and confidene score of a signature detected
+  /// <i>SIGNATURE</i> - The location and confidence score of a signature detected
   /// on a document page. Can be returned as part of a Key-Value pair or a
   /// detected cell.
   /// </li>
@@ -1391,6 +2221,46 @@ class Block {
   /// <i>QUERY_RESULT</i> - A response to a question asked during the call of
   /// analyze document. Comes with an alias and ID for ease of locating in a
   /// response. Also contains location and confidence score.
+  /// </li>
+  /// </ul>
+  /// The following BlockTypes are only returned for Amazon Textract Layout.
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>LAYOUT_TITLE</code> - The main title of the document.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_HEADER</code> - Text located in the top margin of the document.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_FOOTER</code> - Text located in the bottom margin of the
+  /// document.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_SECTION_HEADER</code> - The titles of sections within a
+  /// document.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_PAGE_NUMBER</code> - The page number of the documents.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_LIST</code> - Any information grouped together in list form.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_FIGURE</code> - Indicates the location of an image in a
+  /// document.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_TABLE</code> - Indicates the location of a table in the
+  /// document.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_KEY_VALUE</code> - Indicates the location of form key-values in
+  /// a document.
+  /// </li>
+  /// <li>
+  /// <code>LAYOUT_TEXT</code> - Text that is present typically as a part of
+  /// paragraphs in documents.
   /// </li>
   /// </ul>
   final BlockType? blockType;
@@ -1471,8 +2341,6 @@ class Block {
   /// image (JPEG/PNG) provided to an asynchronous operation, even if it contains
   /// multiple document pages, is considered a single-page document. This means
   /// that for scanned images the value of <code>Page</code> is always 1.
-  /// Synchronous operations will also return a <code>Page</code> value of 1
-  /// because every input document is considered to be a single-page document.
   final int? page;
 
   /// <p/>
@@ -1526,13 +2394,13 @@ class Block {
 
   factory Block.fromJson(Map<String, dynamic> json) {
     return Block(
-      blockType: (json['BlockType'] as String?)?.toBlockType(),
+      blockType: (json['BlockType'] as String?)?.let(BlockType.fromString),
       columnIndex: json['ColumnIndex'] as int?,
       columnSpan: json['ColumnSpan'] as int?,
       confidence: json['Confidence'] as double?,
       entityTypes: (json['EntityTypes'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toEntityType())
+          ?.nonNulls
+          .map((e) => EntityType.fromString((e as String)))
           .toList(),
       geometry: json['Geometry'] != null
           ? Geometry.fromJson(json['Geometry'] as Map<String, dynamic>)
@@ -1543,105 +2411,53 @@ class Block {
           ? Query.fromJson(json['Query'] as Map<String, dynamic>)
           : null,
       relationships: (json['Relationships'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Relationship.fromJson(e as Map<String, dynamic>))
           .toList(),
       rowIndex: json['RowIndex'] as int?,
       rowSpan: json['RowSpan'] as int?,
       selectionStatus:
-          (json['SelectionStatus'] as String?)?.toSelectionStatus(),
+          (json['SelectionStatus'] as String?)?.let(SelectionStatus.fromString),
       text: json['Text'] as String?,
-      textType: (json['TextType'] as String?)?.toTextType(),
+      textType: (json['TextType'] as String?)?.let(TextType.fromString),
     );
   }
 }
 
 enum BlockType {
-  keyValueSet,
-  page,
-  line,
-  word,
-  table,
-  cell,
-  selectionElement,
-  mergedCell,
-  title,
-  query,
-  queryResult,
-  signature,
-  tableTitle,
-  tableFooter,
-}
+  keyValueSet('KEY_VALUE_SET'),
+  page('PAGE'),
+  line('LINE'),
+  word('WORD'),
+  table('TABLE'),
+  cell('CELL'),
+  selectionElement('SELECTION_ELEMENT'),
+  mergedCell('MERGED_CELL'),
+  title('TITLE'),
+  query('QUERY'),
+  queryResult('QUERY_RESULT'),
+  signature('SIGNATURE'),
+  tableTitle('TABLE_TITLE'),
+  tableFooter('TABLE_FOOTER'),
+  layoutText('LAYOUT_TEXT'),
+  layoutTitle('LAYOUT_TITLE'),
+  layoutHeader('LAYOUT_HEADER'),
+  layoutFooter('LAYOUT_FOOTER'),
+  layoutSectionHeader('LAYOUT_SECTION_HEADER'),
+  layoutPageNumber('LAYOUT_PAGE_NUMBER'),
+  layoutList('LAYOUT_LIST'),
+  layoutFigure('LAYOUT_FIGURE'),
+  layoutTable('LAYOUT_TABLE'),
+  layoutKeyValue('LAYOUT_KEY_VALUE'),
+  ;
 
-extension BlockTypeValueExtension on BlockType {
-  String toValue() {
-    switch (this) {
-      case BlockType.keyValueSet:
-        return 'KEY_VALUE_SET';
-      case BlockType.page:
-        return 'PAGE';
-      case BlockType.line:
-        return 'LINE';
-      case BlockType.word:
-        return 'WORD';
-      case BlockType.table:
-        return 'TABLE';
-      case BlockType.cell:
-        return 'CELL';
-      case BlockType.selectionElement:
-        return 'SELECTION_ELEMENT';
-      case BlockType.mergedCell:
-        return 'MERGED_CELL';
-      case BlockType.title:
-        return 'TITLE';
-      case BlockType.query:
-        return 'QUERY';
-      case BlockType.queryResult:
-        return 'QUERY_RESULT';
-      case BlockType.signature:
-        return 'SIGNATURE';
-      case BlockType.tableTitle:
-        return 'TABLE_TITLE';
-      case BlockType.tableFooter:
-        return 'TABLE_FOOTER';
-    }
-  }
-}
+  final String value;
 
-extension BlockTypeFromString on String {
-  BlockType toBlockType() {
-    switch (this) {
-      case 'KEY_VALUE_SET':
-        return BlockType.keyValueSet;
-      case 'PAGE':
-        return BlockType.page;
-      case 'LINE':
-        return BlockType.line;
-      case 'WORD':
-        return BlockType.word;
-      case 'TABLE':
-        return BlockType.table;
-      case 'CELL':
-        return BlockType.cell;
-      case 'SELECTION_ELEMENT':
-        return BlockType.selectionElement;
-      case 'MERGED_CELL':
-        return BlockType.mergedCell;
-      case 'TITLE':
-        return BlockType.title;
-      case 'QUERY':
-        return BlockType.query;
-      case 'QUERY_RESULT':
-        return BlockType.queryResult;
-      case 'SIGNATURE':
-        return BlockType.signature;
-      case 'TABLE_TITLE':
-        return BlockType.tableTitle;
-      case 'TABLE_FOOTER':
-        return BlockType.tableFooter;
-    }
-    throw Exception('$this is not known in enum BlockType');
-  }
+  const BlockType(this.value);
+
+  static BlockType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum BlockType'));
 }
 
 /// The bounding box around the detected page, text, key-value pair, table,
@@ -1694,30 +2510,70 @@ class BoundingBox {
 }
 
 enum ContentClassifier {
-  freeOfPersonallyIdentifiableInformation,
-  freeOfAdultContent,
+  freeOfPersonallyIdentifiableInformation(
+      'FreeOfPersonallyIdentifiableInformation'),
+  freeOfAdultContent('FreeOfAdultContent'),
+  ;
+
+  final String value;
+
+  const ContentClassifier(this.value);
+
+  static ContentClassifier fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ContentClassifier'));
 }
 
-extension ContentClassifierValueExtension on ContentClassifier {
-  String toValue() {
-    switch (this) {
-      case ContentClassifier.freeOfPersonallyIdentifiableInformation:
-        return 'FreeOfPersonallyIdentifiableInformation';
-      case ContentClassifier.freeOfAdultContent:
-        return 'FreeOfAdultContent';
-    }
+class CreateAdapterResponse {
+  /// A string containing the unique ID for the adapter that has been created.
+  final String? adapterId;
+
+  CreateAdapterResponse({
+    this.adapterId,
+  });
+
+  factory CreateAdapterResponse.fromJson(Map<String, dynamic> json) {
+    return CreateAdapterResponse(
+      adapterId: json['AdapterId'] as String?,
+    );
   }
 }
 
-extension ContentClassifierFromString on String {
-  ContentClassifier toContentClassifier() {
-    switch (this) {
-      case 'FreeOfPersonallyIdentifiableInformation':
-        return ContentClassifier.freeOfPersonallyIdentifiableInformation;
-      case 'FreeOfAdultContent':
-        return ContentClassifier.freeOfAdultContent;
-    }
-    throw Exception('$this is not known in enum ContentClassifier');
+class CreateAdapterVersionResponse {
+  /// A string containing the unique ID for the adapter that has received a new
+  /// version.
+  final String? adapterId;
+
+  /// A string describing the new version of the adapter.
+  final String? adapterVersion;
+
+  CreateAdapterVersionResponse({
+    this.adapterId,
+    this.adapterVersion,
+  });
+
+  factory CreateAdapterVersionResponse.fromJson(Map<String, dynamic> json) {
+    return CreateAdapterVersionResponse(
+      adapterId: json['AdapterId'] as String?,
+      adapterVersion: json['AdapterVersion'] as String?,
+    );
+  }
+}
+
+class DeleteAdapterResponse {
+  DeleteAdapterResponse();
+
+  factory DeleteAdapterResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteAdapterResponse();
+  }
+}
+
+class DeleteAdapterVersionResponse {
+  DeleteAdapterVersionResponse();
+
+  factory DeleteAdapterVersionResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteAdapterVersionResponse();
   }
 }
 
@@ -1742,7 +2598,7 @@ class DetectDocumentTextResponse {
   factory DetectDocumentTextResponse.fromJson(Map<String, dynamic> json) {
     return DetectDocumentTextResponse(
       blocks: (json['Blocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Block.fromJson(e as Map<String, dynamic>))
           .toList(),
       detectDocumentTextModelVersion:
@@ -1849,16 +2705,16 @@ class DocumentGroup {
   factory DocumentGroup.fromJson(Map<String, dynamic> json) {
     return DocumentGroup(
       detectedSignatures: (json['DetectedSignatures'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DetectedSignature.fromJson(e as Map<String, dynamic>))
           .toList(),
       splitDocuments: (json['SplitDocuments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SplitDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
       type: json['Type'] as String?,
       undetectedSignatures: (json['UndetectedSignatures'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UndetectedSignature.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1903,65 +2759,50 @@ class DocumentMetadata {
 }
 
 enum EntityType {
-  key,
-  value,
-  columnHeader,
-  tableTitle,
-  tableFooter,
-  tableSectionTitle,
-  tableSummary,
-  structuredTable,
-  semiStructuredTable,
+  key('KEY'),
+  $value('VALUE'),
+  columnHeader('COLUMN_HEADER'),
+  tableTitle('TABLE_TITLE'),
+  tableFooter('TABLE_FOOTER'),
+  tableSectionTitle('TABLE_SECTION_TITLE'),
+  tableSummary('TABLE_SUMMARY'),
+  structuredTable('STRUCTURED_TABLE'),
+  semiStructuredTable('SEMI_STRUCTURED_TABLE'),
+  ;
+
+  final String value;
+
+  const EntityType(this.value);
+
+  static EntityType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum EntityType'));
 }
 
-extension EntityTypeValueExtension on EntityType {
-  String toValue() {
-    switch (this) {
-      case EntityType.key:
-        return 'KEY';
-      case EntityType.value:
-        return 'VALUE';
-      case EntityType.columnHeader:
-        return 'COLUMN_HEADER';
-      case EntityType.tableTitle:
-        return 'TABLE_TITLE';
-      case EntityType.tableFooter:
-        return 'TABLE_FOOTER';
-      case EntityType.tableSectionTitle:
-        return 'TABLE_SECTION_TITLE';
-      case EntityType.tableSummary:
-        return 'TABLE_SUMMARY';
-      case EntityType.structuredTable:
-        return 'STRUCTURED_TABLE';
-      case EntityType.semiStructuredTable:
-        return 'SEMI_STRUCTURED_TABLE';
-    }
-  }
-}
+/// The evaluation metrics (F1 score, Precision, and Recall) for an adapter
+/// version.
+class EvaluationMetric {
+  /// The F1 score for an adapter version.
+  final double? f1Score;
 
-extension EntityTypeFromString on String {
-  EntityType toEntityType() {
-    switch (this) {
-      case 'KEY':
-        return EntityType.key;
-      case 'VALUE':
-        return EntityType.value;
-      case 'COLUMN_HEADER':
-        return EntityType.columnHeader;
-      case 'TABLE_TITLE':
-        return EntityType.tableTitle;
-      case 'TABLE_FOOTER':
-        return EntityType.tableFooter;
-      case 'TABLE_SECTION_TITLE':
-        return EntityType.tableSectionTitle;
-      case 'TABLE_SUMMARY':
-        return EntityType.tableSummary;
-      case 'STRUCTURED_TABLE':
-        return EntityType.structuredTable;
-      case 'SEMI_STRUCTURED_TABLE':
-        return EntityType.semiStructuredTable;
-    }
-    throw Exception('$this is not known in enum EntityType');
+  /// The Precision score for an adapter version.
+  final double? precision;
+
+  /// The Recall score for an adapter version.
+  final double? recall;
+
+  EvaluationMetric({
+    this.f1Score,
+    this.precision,
+    this.recall,
+  });
+
+  factory EvaluationMetric.fromJson(Map<String, dynamic> json) {
+    return EvaluationMetric(
+      f1Score: json['F1Score'] as double?,
+      precision: json['Precision'] as double?,
+      recall: json['Recall'] as double?,
+    );
   }
 }
 
@@ -2079,16 +2920,16 @@ class ExpenseDocument {
   factory ExpenseDocument.fromJson(Map<String, dynamic> json) {
     return ExpenseDocument(
       blocks: (json['Blocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Block.fromJson(e as Map<String, dynamic>))
           .toList(),
       expenseIndex: json['ExpenseIndex'] as int?,
       lineItemGroups: (json['LineItemGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LineItemGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       summaryFields: (json['SummaryFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExpenseField.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2134,7 +2975,7 @@ class ExpenseField {
           ? ExpenseCurrency.fromJson(json['Currency'] as Map<String, dynamic>)
           : null,
       groupProperties: (json['GroupProperties'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExpenseGroupProperty.fromJson(e as Map<String, dynamic>))
           .toList(),
       labelDetection: json['LabelDetection'] != null
@@ -2171,10 +3012,8 @@ class ExpenseGroupProperty {
   factory ExpenseGroupProperty.fromJson(Map<String, dynamic> json) {
     return ExpenseGroupProperty(
       id: json['Id'] as String?,
-      types: (json['Types'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      types:
+          (json['Types'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 }
@@ -2235,41 +3074,20 @@ class Extraction {
 }
 
 enum FeatureType {
-  tables,
-  forms,
-  queries,
-  signatures,
-}
+  tables('TABLES'),
+  forms('FORMS'),
+  queries('QUERIES'),
+  signatures('SIGNATURES'),
+  layout('LAYOUT'),
+  ;
 
-extension FeatureTypeValueExtension on FeatureType {
-  String toValue() {
-    switch (this) {
-      case FeatureType.tables:
-        return 'TABLES';
-      case FeatureType.forms:
-        return 'FORMS';
-      case FeatureType.queries:
-        return 'QUERIES';
-      case FeatureType.signatures:
-        return 'SIGNATURES';
-    }
-  }
-}
+  final String value;
 
-extension FeatureTypeFromString on String {
-  FeatureType toFeatureType() {
-    switch (this) {
-      case 'TABLES':
-        return FeatureType.tables;
-      case 'FORMS':
-        return FeatureType.forms;
-      case 'QUERIES':
-        return FeatureType.queries;
-      case 'SIGNATURES':
-        return FeatureType.signatures;
-    }
-    throw Exception('$this is not known in enum FeatureType');
-  }
+  const FeatureType(this.value);
+
+  static FeatureType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum FeatureType'));
 }
 
 /// Information about where the following items are located on a document page:
@@ -2294,9 +3112,140 @@ class Geometry {
           ? BoundingBox.fromJson(json['BoundingBox'] as Map<String, dynamic>)
           : null,
       polygon: (json['Polygon'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Point.fromJson(e as Map<String, dynamic>))
           .toList(),
+    );
+  }
+}
+
+class GetAdapterResponse {
+  /// A string identifying the adapter that information has been retrieved for.
+  final String? adapterId;
+
+  /// The name of the requested adapter.
+  final String? adapterName;
+
+  /// Binary value indicating if the adapter is being automatically updated or
+  /// not.
+  final AutoUpdate? autoUpdate;
+
+  /// The date and time the requested adapter was created at.
+  final DateTime? creationTime;
+
+  /// The description for the requested adapter.
+  final String? description;
+
+  /// List of the targeted feature types for the requested adapter.
+  final List<FeatureType>? featureTypes;
+
+  /// A set of tags (key-value pairs) associated with the adapter that has been
+  /// retrieved.
+  final Map<String, String>? tags;
+
+  GetAdapterResponse({
+    this.adapterId,
+    this.adapterName,
+    this.autoUpdate,
+    this.creationTime,
+    this.description,
+    this.featureTypes,
+    this.tags,
+  });
+
+  factory GetAdapterResponse.fromJson(Map<String, dynamic> json) {
+    return GetAdapterResponse(
+      adapterId: json['AdapterId'] as String?,
+      adapterName: json['AdapterName'] as String?,
+      autoUpdate: (json['AutoUpdate'] as String?)?.let(AutoUpdate.fromString),
+      creationTime: timeStampFromJson(json['CreationTime']),
+      description: json['Description'] as String?,
+      featureTypes: (json['FeatureTypes'] as List?)
+          ?.nonNulls
+          .map((e) => FeatureType.fromString((e as String)))
+          .toList(),
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+}
+
+class GetAdapterVersionResponse {
+  /// A string containing a unique ID for the adapter version being retrieved.
+  final String? adapterId;
+
+  /// A string containing the adapter version that has been retrieved.
+  final String? adapterVersion;
+
+  /// The time that the adapter version was created.
+  final DateTime? creationTime;
+
+  /// Specifies a dataset used to train a new adapter version. Takes a
+  /// ManifestS3Objec as the value.
+  final AdapterVersionDatasetConfig? datasetConfig;
+
+  /// The evaluation metrics (F1 score, Precision, and Recall) for the requested
+  /// version, grouped by baseline metrics and adapter version.
+  final List<AdapterVersionEvaluationMetric>? evaluationMetrics;
+
+  /// List of the targeted feature types for the requested adapter version.
+  final List<FeatureType>? featureTypes;
+
+  /// The identifier for your AWS Key Management Service key (AWS KMS key). Used
+  /// to encrypt your documents.
+  final String? kMSKeyId;
+  final OutputConfig? outputConfig;
+
+  /// The status of the adapter version that has been requested.
+  final AdapterVersionStatus? status;
+
+  /// A message that describes the status of the requested adapter version.
+  final String? statusMessage;
+
+  /// A set of tags (key-value pairs) that are associated with the adapter
+  /// version.
+  final Map<String, String>? tags;
+
+  GetAdapterVersionResponse({
+    this.adapterId,
+    this.adapterVersion,
+    this.creationTime,
+    this.datasetConfig,
+    this.evaluationMetrics,
+    this.featureTypes,
+    this.kMSKeyId,
+    this.outputConfig,
+    this.status,
+    this.statusMessage,
+    this.tags,
+  });
+
+  factory GetAdapterVersionResponse.fromJson(Map<String, dynamic> json) {
+    return GetAdapterVersionResponse(
+      adapterId: json['AdapterId'] as String?,
+      adapterVersion: json['AdapterVersion'] as String?,
+      creationTime: timeStampFromJson(json['CreationTime']),
+      datasetConfig: json['DatasetConfig'] != null
+          ? AdapterVersionDatasetConfig.fromJson(
+              json['DatasetConfig'] as Map<String, dynamic>)
+          : null,
+      evaluationMetrics: (json['EvaluationMetrics'] as List?)
+          ?.nonNulls
+          .map((e) => AdapterVersionEvaluationMetric.fromJson(
+              e as Map<String, dynamic>))
+          .toList(),
+      featureTypes: (json['FeatureTypes'] as List?)
+          ?.nonNulls
+          .map((e) => FeatureType.fromString((e as String)))
+          .toList(),
+      kMSKeyId: json['KMSKeyId'] as String?,
+      outputConfig: json['OutputConfig'] != null
+          ? OutputConfig.fromJson(json['OutputConfig'] as Map<String, dynamic>)
+          : null,
+      status: (json['Status'] as String?)?.let(AdapterVersionStatus.fromString),
+      statusMessage: json['StatusMessage'] as String?,
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
     );
   }
 }
@@ -2343,18 +3292,18 @@ class GetDocumentAnalysisResponse {
       analyzeDocumentModelVersion:
           json['AnalyzeDocumentModelVersion'] as String?,
       blocks: (json['Blocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Block.fromJson(e as Map<String, dynamic>))
           .toList(),
       documentMetadata: json['DocumentMetadata'] != null
           ? DocumentMetadata.fromJson(
               json['DocumentMetadata'] as Map<String, dynamic>)
           : null,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       nextToken: json['NextToken'] as String?,
       statusMessage: json['StatusMessage'] as String?,
       warnings: (json['Warnings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Warning.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2402,7 +3351,7 @@ class GetDocumentTextDetectionResponse {
   factory GetDocumentTextDetectionResponse.fromJson(Map<String, dynamic> json) {
     return GetDocumentTextDetectionResponse(
       blocks: (json['Blocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Block.fromJson(e as Map<String, dynamic>))
           .toList(),
       detectDocumentTextModelVersion:
@@ -2411,11 +3360,11 @@ class GetDocumentTextDetectionResponse {
           ? DocumentMetadata.fromJson(
               json['DocumentMetadata'] as Map<String, dynamic>)
           : null,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       nextToken: json['NextToken'] as String?,
       statusMessage: json['StatusMessage'] as String?,
       warnings: (json['Warnings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Warning.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2468,14 +3417,14 @@ class GetExpenseAnalysisResponse {
               json['DocumentMetadata'] as Map<String, dynamic>)
           : null,
       expenseDocuments: (json['ExpenseDocuments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExpenseDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       nextToken: json['NextToken'] as String?,
       statusMessage: json['StatusMessage'] as String?,
       warnings: (json['Warnings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Warning.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2523,15 +3472,15 @@ class GetLendingAnalysisResponse {
           ? DocumentMetadata.fromJson(
               json['DocumentMetadata'] as Map<String, dynamic>)
           : null,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       nextToken: json['NextToken'] as String?,
       results: (json['Results'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LendingResult.fromJson(e as Map<String, dynamic>))
           .toList(),
       statusMessage: json['StatusMessage'] as String?,
       warnings: (json['Warnings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Warning.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2573,13 +3522,13 @@ class GetLendingAnalysisSummaryResponse {
           ? DocumentMetadata.fromJson(
               json['DocumentMetadata'] as Map<String, dynamic>)
           : null,
-      jobStatus: (json['JobStatus'] as String?)?.toJobStatus(),
+      jobStatus: (json['JobStatus'] as String?)?.let(JobStatus.fromString),
       statusMessage: json['StatusMessage'] as String?,
       summary: json['Summary'] != null
           ? LendingSummary.fromJson(json['Summary'] as Map<String, dynamic>)
           : null,
       warnings: (json['Warnings'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Warning.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2614,7 +3563,7 @@ class HumanLoopActivationOutput {
                   json['HumanLoopActivationConditionsEvaluationResults']
                       as String),
       humanLoopActivationReasons: (json['HumanLoopActivationReasons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       humanLoopArn: json['HumanLoopArn'] as String?,
@@ -2669,8 +3618,7 @@ class HumanLoopDataAttributes {
     final contentClassifiers = this.contentClassifiers;
     return {
       if (contentClassifiers != null)
-        'ContentClassifiers':
-            contentClassifiers.map((e) => e.toValue()).toList(),
+        'ContentClassifiers': contentClassifiers.map((e) => e.value).toList(),
     };
   }
 }
@@ -2697,12 +3645,12 @@ class IdentityDocument {
   factory IdentityDocument.fromJson(Map<String, dynamic> json) {
     return IdentityDocument(
       blocks: (json['Blocks'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Block.fromJson(e as Map<String, dynamic>))
           .toList(),
       documentIndex: json['DocumentIndex'] as int?,
       identityDocumentFields: (json['IdentityDocumentFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IdentityDocumentField.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2735,41 +3683,19 @@ class IdentityDocumentField {
 }
 
 enum JobStatus {
-  inProgress,
-  succeeded,
-  failed,
-  partialSuccess,
-}
+  inProgress('IN_PROGRESS'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  partialSuccess('PARTIAL_SUCCESS'),
+  ;
 
-extension JobStatusValueExtension on JobStatus {
-  String toValue() {
-    switch (this) {
-      case JobStatus.inProgress:
-        return 'IN_PROGRESS';
-      case JobStatus.succeeded:
-        return 'SUCCEEDED';
-      case JobStatus.failed:
-        return 'FAILED';
-      case JobStatus.partialSuccess:
-        return 'PARTIAL_SUCCESS';
-    }
-  }
-}
+  final String value;
 
-extension JobStatusFromString on String {
-  JobStatus toJobStatus() {
-    switch (this) {
-      case 'IN_PROGRESS':
-        return JobStatus.inProgress;
-      case 'SUCCEEDED':
-        return JobStatus.succeeded;
-      case 'FAILED':
-        return JobStatus.failed;
-      case 'PARTIAL_SUCCESS':
-        return JobStatus.partialSuccess;
-    }
-    throw Exception('$this is not known in enum JobStatus');
-  }
+  const JobStatus(this.value);
+
+  static JobStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum JobStatus'));
 }
 
 /// The results extracted for a lending document.
@@ -2799,7 +3725,7 @@ class LendingDetection {
           ? Geometry.fromJson(json['Geometry'] as Map<String, dynamic>)
           : null,
       selectionStatus:
-          (json['SelectionStatus'] as String?)?.toSelectionStatus(),
+          (json['SelectionStatus'] as String?)?.let(SelectionStatus.fromString),
       text: json['Text'] as String?,
     );
   }
@@ -2821,11 +3747,11 @@ class LendingDocument {
   factory LendingDocument.fromJson(Map<String, dynamic> json) {
     return LendingDocument(
       lendingFields: (json['LendingFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LendingField.fromJson(e as Map<String, dynamic>))
           .toList(),
       signatureDetections: (json['SignatureDetections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SignatureDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2857,7 +3783,7 @@ class LendingField {
           : null,
       type: json['Type'] as String?,
       valueDetections: (json['ValueDetections'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LendingDetection.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2886,7 +3812,7 @@ class LendingResult {
   factory LendingResult.fromJson(Map<String, dynamic> json) {
     return LendingResult(
       extractions: (json['Extractions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Extraction.fromJson(e as Map<String, dynamic>))
           .toList(),
       page: json['Page'] as int?,
@@ -2914,11 +3840,11 @@ class LendingSummary {
   factory LendingSummary.fromJson(Map<String, dynamic> json) {
     return LendingSummary(
       documentGroups: (json['DocumentGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DocumentGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       undetectedDocumentTypes: (json['UndetectedDocumentTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2938,7 +3864,7 @@ class LineItemFields {
   factory LineItemFields.fromJson(Map<String, dynamic> json) {
     return LineItemFields(
       lineItemExpenseFields: (json['LineItemExpenseFields'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExpenseField.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2964,9 +3890,74 @@ class LineItemGroup {
     return LineItemGroup(
       lineItemGroupIndex: json['LineItemGroupIndex'] as int?,
       lineItems: (json['LineItems'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LineItemFields.fromJson(e as Map<String, dynamic>))
           .toList(),
+    );
+  }
+}
+
+class ListAdapterVersionsResponse {
+  /// Adapter versions that match the filtering criteria specified when calling
+  /// ListAdapters.
+  final List<AdapterVersionOverview>? adapterVersions;
+
+  /// Identifies the next page of results to return when listing adapter versions.
+  final String? nextToken;
+
+  ListAdapterVersionsResponse({
+    this.adapterVersions,
+    this.nextToken,
+  });
+
+  factory ListAdapterVersionsResponse.fromJson(Map<String, dynamic> json) {
+    return ListAdapterVersionsResponse(
+      adapterVersions: (json['AdapterVersions'] as List?)
+          ?.nonNulls
+          .map(
+              (e) => AdapterVersionOverview.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class ListAdaptersResponse {
+  /// A list of adapters that matches the filtering criteria specified when
+  /// calling ListAdapters.
+  final List<AdapterOverview>? adapters;
+
+  /// Identifies the next page of results to return when listing adapters.
+  final String? nextToken;
+
+  ListAdaptersResponse({
+    this.adapters,
+    this.nextToken,
+  });
+
+  factory ListAdaptersResponse.fromJson(Map<String, dynamic> json) {
+    return ListAdaptersResponse(
+      adapters: (json['Adapters'] as List?)
+          ?.nonNulls
+          .map((e) => AdapterOverview.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['NextToken'] as String?,
+    );
+  }
+}
+
+class ListTagsForResourceResponse {
+  /// A set of tags (key-value pairs) that are part of the requested resource.
+  final Map<String, String>? tags;
+
+  ListTagsForResourceResponse({
+    this.tags,
+  });
+
+  factory ListTagsForResourceResponse.fromJson(Map<String, dynamic> json) {
+    return ListTagsForResourceResponse(
+      tags: (json['Tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
     );
   }
 }
@@ -2988,7 +3979,7 @@ class NormalizedValue {
   factory NormalizedValue.fromJson(Map<String, dynamic> json) {
     return NormalizedValue(
       value: json['Value'] as String?,
-      valueType: (json['ValueType'] as String?)?.toValueType(),
+      valueType: (json['ValueType'] as String?)?.let(ValueType.fromString),
     );
   }
 }
@@ -3057,6 +4048,13 @@ class OutputConfig {
     this.s3Prefix,
   });
 
+  factory OutputConfig.fromJson(Map<String, dynamic> json) {
+    return OutputConfig(
+      s3Bucket: json['S3Bucket'] as String,
+      s3Prefix: json['S3Prefix'] as String?,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final s3Bucket = this.s3Bucket;
     final s3Prefix = this.s3Prefix;
@@ -3087,11 +4085,11 @@ class PageClassification {
   factory PageClassification.fromJson(Map<String, dynamic> json) {
     return PageClassification(
       pageNumber: (json['PageNumber'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Prediction.fromJson(e as Map<String, dynamic>))
           .toList(),
       pageType: (json['PageType'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => Prediction.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3213,10 +4211,8 @@ class Query {
     return Query(
       text: json['Text'] as String,
       alias: json['Alias'] as String?,
-      pages: (json['Pages'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      pages:
+          (json['Pages'] as List?)?.nonNulls.map((e) => e as String).toList(),
     );
   }
 
@@ -3286,76 +4282,32 @@ class Relationship {
 
   factory Relationship.fromJson(Map<String, dynamic> json) {
     return Relationship(
-      ids: (json['Ids'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
-      type: (json['Type'] as String?)?.toRelationshipType(),
+      ids: (json['Ids'] as List?)?.nonNulls.map((e) => e as String).toList(),
+      type: (json['Type'] as String?)?.let(RelationshipType.fromString),
     );
   }
 }
 
 enum RelationshipType {
-  value,
-  child,
-  complexFeatures,
-  mergedCell,
-  title,
-  answer,
-  table,
-  tableTitle,
-  tableFooter,
-}
+  $value('VALUE'),
+  child('CHILD'),
+  complexFeatures('COMPLEX_FEATURES'),
+  mergedCell('MERGED_CELL'),
+  title('TITLE'),
+  answer('ANSWER'),
+  table('TABLE'),
+  tableTitle('TABLE_TITLE'),
+  tableFooter('TABLE_FOOTER'),
+  ;
 
-extension RelationshipTypeValueExtension on RelationshipType {
-  String toValue() {
-    switch (this) {
-      case RelationshipType.value:
-        return 'VALUE';
-      case RelationshipType.child:
-        return 'CHILD';
-      case RelationshipType.complexFeatures:
-        return 'COMPLEX_FEATURES';
-      case RelationshipType.mergedCell:
-        return 'MERGED_CELL';
-      case RelationshipType.title:
-        return 'TITLE';
-      case RelationshipType.answer:
-        return 'ANSWER';
-      case RelationshipType.table:
-        return 'TABLE';
-      case RelationshipType.tableTitle:
-        return 'TABLE_TITLE';
-      case RelationshipType.tableFooter:
-        return 'TABLE_FOOTER';
-    }
-  }
-}
+  final String value;
 
-extension RelationshipTypeFromString on String {
-  RelationshipType toRelationshipType() {
-    switch (this) {
-      case 'VALUE':
-        return RelationshipType.value;
-      case 'CHILD':
-        return RelationshipType.child;
-      case 'COMPLEX_FEATURES':
-        return RelationshipType.complexFeatures;
-      case 'MERGED_CELL':
-        return RelationshipType.mergedCell;
-      case 'TITLE':
-        return RelationshipType.title;
-      case 'ANSWER':
-        return RelationshipType.answer;
-      case 'TABLE':
-        return RelationshipType.table;
-      case 'TABLE_TITLE':
-        return RelationshipType.tableTitle;
-      case 'TABLE_FOOTER':
-        return RelationshipType.tableFooter;
-    }
-    throw Exception('$this is not known in enum RelationshipType');
-  }
+  const RelationshipType(this.value);
+
+  static RelationshipType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum RelationshipType'));
 }
 
 /// The S3 bucket name and file name that identifies the document.
@@ -3384,6 +4336,14 @@ class S3Object {
     this.version,
   });
 
+  factory S3Object.fromJson(Map<String, dynamic> json) {
+    return S3Object(
+      bucket: json['Bucket'] as String?,
+      name: json['Name'] as String?,
+      version: json['Version'] as String?,
+    );
+  }
+
   Map<String, dynamic> toJson() {
     final bucket = this.bucket;
     final name = this.name;
@@ -3397,31 +4357,18 @@ class S3Object {
 }
 
 enum SelectionStatus {
-  selected,
-  notSelected,
-}
+  selected('SELECTED'),
+  notSelected('NOT_SELECTED'),
+  ;
 
-extension SelectionStatusValueExtension on SelectionStatus {
-  String toValue() {
-    switch (this) {
-      case SelectionStatus.selected:
-        return 'SELECTED';
-      case SelectionStatus.notSelected:
-        return 'NOT_SELECTED';
-    }
-  }
-}
+  final String value;
 
-extension SelectionStatusFromString on String {
-  SelectionStatus toSelectionStatus() {
-    switch (this) {
-      case 'SELECTED':
-        return SelectionStatus.selected;
-      case 'NOT_SELECTED':
-        return SelectionStatus.notSelected;
-    }
-    throw Exception('$this is not known in enum SelectionStatus');
-  }
+  const SelectionStatus(this.value);
+
+  static SelectionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SelectionStatus'));
 }
 
 /// Information regarding a detected signature on a page.
@@ -3464,10 +4411,7 @@ class SplitDocument {
   factory SplitDocument.fromJson(Map<String, dynamic> json) {
     return SplitDocument(
       index: json['Index'] as int?,
-      pages: (json['Pages'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      pages: (json['Pages'] as List?)?.nonNulls.map((e) => e as int).toList(),
     );
   }
 }
@@ -3543,32 +4487,26 @@ class StartLendingAnalysisResponse {
   }
 }
 
+class TagResourceResponse {
+  TagResourceResponse();
+
+  factory TagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return TagResourceResponse();
+  }
+}
+
 enum TextType {
-  handwriting,
-  printed,
-}
+  handwriting('HANDWRITING'),
+  printed('PRINTED'),
+  ;
 
-extension TextTypeValueExtension on TextType {
-  String toValue() {
-    switch (this) {
-      case TextType.handwriting:
-        return 'HANDWRITING';
-      case TextType.printed:
-        return 'PRINTED';
-    }
-  }
-}
+  final String value;
 
-extension TextTypeFromString on String {
-  TextType toTextType() {
-    switch (this) {
-      case 'HANDWRITING':
-        return TextType.handwriting;
-      case 'PRINTED':
-        return TextType.printed;
-    }
-    throw Exception('$this is not known in enum TextType');
-  }
+  const TextType(this.value);
+
+  static TextType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TextType'));
 }
 
 /// A structure containing information about an undetected signature on a page
@@ -3588,27 +4526,69 @@ class UndetectedSignature {
   }
 }
 
+class UntagResourceResponse {
+  UntagResourceResponse();
+
+  factory UntagResourceResponse.fromJson(Map<String, dynamic> _) {
+    return UntagResourceResponse();
+  }
+}
+
+class UpdateAdapterResponse {
+  /// A string containing a unique ID for the adapter that has been updated.
+  final String? adapterId;
+
+  /// A string containing the name of the adapter that has been updated.
+  final String? adapterName;
+
+  /// The auto-update status of the adapter that has been updated.
+  final AutoUpdate? autoUpdate;
+
+  /// An object specifying the creation time of the the adapter that has been
+  /// updated.
+  final DateTime? creationTime;
+
+  /// A string containing the description of the adapter that has been updated.
+  final String? description;
+
+  /// List of the targeted feature types for the updated adapter.
+  final List<FeatureType>? featureTypes;
+
+  UpdateAdapterResponse({
+    this.adapterId,
+    this.adapterName,
+    this.autoUpdate,
+    this.creationTime,
+    this.description,
+    this.featureTypes,
+  });
+
+  factory UpdateAdapterResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateAdapterResponse(
+      adapterId: json['AdapterId'] as String?,
+      adapterName: json['AdapterName'] as String?,
+      autoUpdate: (json['AutoUpdate'] as String?)?.let(AutoUpdate.fromString),
+      creationTime: timeStampFromJson(json['CreationTime']),
+      description: json['Description'] as String?,
+      featureTypes: (json['FeatureTypes'] as List?)
+          ?.nonNulls
+          .map((e) => FeatureType.fromString((e as String)))
+          .toList(),
+    );
+  }
+}
+
 enum ValueType {
-  date,
-}
+  date('DATE'),
+  ;
 
-extension ValueTypeValueExtension on ValueType {
-  String toValue() {
-    switch (this) {
-      case ValueType.date:
-        return 'DATE';
-    }
-  }
-}
+  final String value;
 
-extension ValueTypeFromString on String {
-  ValueType toValueType() {
-    switch (this) {
-      case 'DATE':
-        return ValueType.date;
-    }
-    throw Exception('$this is not known in enum ValueType');
-  }
+  const ValueType(this.value);
+
+  static ValueType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ValueType'));
 }
 
 /// A warning about an issue that occurred during asynchronous text analysis
@@ -3629,10 +4609,7 @@ class Warning {
   factory Warning.fromJson(Map<String, dynamic> json) {
     return Warning(
       errorCode: json['ErrorCode'] as String?,
-      pages: (json['Pages'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as int)
-          .toList(),
+      pages: (json['Pages'] as List?)?.nonNulls.map((e) => e as int).toList(),
     );
   }
 }
@@ -3645,6 +4622,11 @@ class AccessDeniedException extends _s.GenericAwsException {
 class BadDocumentException extends _s.GenericAwsException {
   BadDocumentException({String? type, String? message})
       : super(type: type, code: 'BadDocumentException', message: message);
+}
+
+class ConflictException extends _s.GenericAwsException {
+  ConflictException({String? type, String? message})
+      : super(type: type, code: 'ConflictException', message: message);
 }
 
 class DocumentTooLargeException extends _s.GenericAwsException {
@@ -3706,6 +4688,19 @@ class ProvisionedThroughputExceededException extends _s.GenericAwsException {
             message: message);
 }
 
+class ResourceNotFoundException extends _s.GenericAwsException {
+  ResourceNotFoundException({String? type, String? message})
+      : super(type: type, code: 'ResourceNotFoundException', message: message);
+}
+
+class ServiceQuotaExceededException extends _s.GenericAwsException {
+  ServiceQuotaExceededException({String? type, String? message})
+      : super(
+            type: type,
+            code: 'ServiceQuotaExceededException',
+            message: message);
+}
+
 class ThrottlingException extends _s.GenericAwsException {
   ThrottlingException({String? type, String? message})
       : super(type: type, code: 'ThrottlingException', message: message);
@@ -3717,11 +4712,18 @@ class UnsupportedDocumentException extends _s.GenericAwsException {
             type: type, code: 'UnsupportedDocumentException', message: message);
 }
 
+class ValidationException extends _s.GenericAwsException {
+  ValidationException({String? type, String? message})
+      : super(type: type, code: 'ValidationException', message: message);
+}
+
 final _exceptionFns = <String, _s.AwsExceptionFn>{
   'AccessDeniedException': (type, message) =>
       AccessDeniedException(type: type, message: message),
   'BadDocumentException': (type, message) =>
       BadDocumentException(type: type, message: message),
+  'ConflictException': (type, message) =>
+      ConflictException(type: type, message: message),
   'DocumentTooLargeException': (type, message) =>
       DocumentTooLargeException(type: type, message: message),
   'HumanLoopQuotaExceededException': (type, message) =>
@@ -3742,8 +4744,14 @@ final _exceptionFns = <String, _s.AwsExceptionFn>{
       LimitExceededException(type: type, message: message),
   'ProvisionedThroughputExceededException': (type, message) =>
       ProvisionedThroughputExceededException(type: type, message: message),
+  'ResourceNotFoundException': (type, message) =>
+      ResourceNotFoundException(type: type, message: message),
+  'ServiceQuotaExceededException': (type, message) =>
+      ServiceQuotaExceededException(type: type, message: message),
   'ThrottlingException': (type, message) =>
       ThrottlingException(type: type, message: message),
   'UnsupportedDocumentException': (type, message) =>
       UnsupportedDocumentException(type: type, message: message),
+  'ValidationException': (type, message) =>
+      ValidationException(type: type, message: message),
 };

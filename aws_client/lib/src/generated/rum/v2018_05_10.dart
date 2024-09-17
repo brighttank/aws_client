@@ -71,13 +71,13 @@ class CloudWatchRum {
   /// metrics that you can collect with CloudWatch RUM</a>.
   ///
   /// In addition to these default metrics, you can choose to send extended
-  /// metrics or custom metrics or both.
+  /// metrics, custom metrics, or both.
   ///
   /// <ul>
   /// <li>
-  /// Extended metrics enable you to send metrics with additional dimensions not
-  /// included in the default metrics. You can also send extended metrics to
-  /// Evidently as well as CloudWatch. The valid dimension names for the
+  /// Extended metrics let you send metrics with additional dimensions that
+  /// aren't included in the default metrics. You can also send extended metrics
+  /// to both Evidently and CloudWatch. The valid dimension names for the
   /// additional dimensions for extended metrics are <code>BrowserName</code>,
   /// <code>CountryCode</code>, <code>DeviceType</code>, <code>FileType</code>,
   /// <code>OSName</code>, and <code>PageId</code>. For more information, see <a
@@ -87,10 +87,9 @@ class CloudWatchRum {
   /// </li>
   /// <li>
   /// Custom metrics are metrics that you define. You can send custom metrics to
-  /// CloudWatch or to CloudWatch Evidently or to both. With custom metrics, you
-  /// can use any metric name and namespace, and to derive the metrics you can
-  /// use any custom events, built-in events, custom attributes, or default
-  /// attributes.
+  /// CloudWatch. CloudWatch Evidently, or both. With custom metrics, you can
+  /// use any metric name and namespace. To derive the metrics, you can use any
+  /// custom events, built-in events, custom attributes, or default attributes.
   ///
   /// You can't send custom metrics to the <code>AWS/RUM</code> namespace. You
   /// must send custom metrics to a custom namespace that you define. The
@@ -135,9 +134,9 @@ class CloudWatchRum {
   /// Parameter [destination] :
   /// The destination to send the metrics to. Valid values are
   /// <code>CloudWatch</code> and <code>Evidently</code>. If you specify
-  /// <code>Evidently</code>, you must also specify the ARN of the
-  /// CloudWatchEvidently experiment that will receive the metrics and an IAM
-  /// role that has permission to write to the experiment.
+  /// <code>Evidently</code>, you must also specify the Amazon Resource Name
+  /// (ARN) of the CloudWatchEvidently experiment that will receive the metrics
+  /// and an IAM role that has permission to write to the experiment.
   ///
   /// Parameter [metricDefinitions] :
   /// An array of structures which define the metrics that you want to send.
@@ -159,7 +158,7 @@ class CloudWatchRum {
     String? destinationArn,
   }) async {
     final $payload = <String, dynamic>{
-      'Destination': destination.toValue(),
+      'Destination': destination.value,
       'MetricDefinitions': metricDefinitions,
       if (destinationArn != null) 'DestinationArn': destinationArn,
     };
@@ -220,7 +219,7 @@ class CloudWatchRum {
     String? destinationArn,
   }) async {
     final $query = <String, List<String>>{
-      'destination': [destination.toValue()],
+      'destination': [destination.value],
       'metricDefinitionIds': metricDefinitionIds,
       if (destinationArn != null) 'destinationArn': [destinationArn],
     };
@@ -281,7 +280,7 @@ class CloudWatchRum {
       100,
     );
     final $query = <String, List<String>>{
-      'destination': [destination.toValue()],
+      'destination': [destination.value],
       if (destinationArn != null) 'destinationArn': [destinationArn],
       if (maxResults != null) 'maxResults': [maxResults.toString()],
       if (nextToken != null) 'nextToken': [nextToken],
@@ -334,7 +333,7 @@ class CloudWatchRum {
   /// Amazon Cognito identity pool to use for authorization. If you don't
   /// include <code>AppMonitorConfiguration</code>, you must set up your own
   /// authorization method. For more information, see <a
-  /// href="https://docs.aws.amazon.com/monitoring/CloudWatch-RUM-get-started-authorization.html">Authorize
+  /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-RUM-get-started-authorization.html">Authorize
   /// your application to send data to Amazon Web Services</a>.
   ///
   /// If you omit this argument, the sample rate used for RUM is set to 10% of
@@ -452,7 +451,7 @@ class CloudWatchRum {
     String? destinationArn,
   }) async {
     final $query = <String, List<String>>{
-      'destination': [destination.toValue()],
+      'destination': [destination.value],
       if (destinationArn != null) 'destinationArn': [destinationArn],
     };
     final response = await _protocol.send(
@@ -735,11 +734,18 @@ class CloudWatchRum {
   /// Parameter [iamRoleArn] :
   /// This parameter is required if <code>Destination</code> is
   /// <code>Evidently</code>. If <code>Destination</code> is
-  /// <code>CloudWatch</code>, do not use this parameter.
+  /// <code>CloudWatch</code>, don't use this parameter.
   ///
   /// This parameter specifies the ARN of an IAM role that RUM will assume to
   /// write to the Evidently experiment that you are sending metrics to. This
   /// role must have permission to write to that experiment.
+  ///
+  /// If you specify this parameter, you must be signed on to a role that has <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_use_passrole.html">PassRole</a>
+  /// permissions attached to it, to allow the role to be passed. The <a
+  /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/auth-and-access-control-cw.html#managed-policies-cloudwatch-RUM">
+  /// CloudWatchAmazonCloudWatchRUMFullAccess</a> policy doesn't include
+  /// <code>PassRole</code> permissions.
   Future<void> putRumMetricsDestination({
     required String appMonitorName,
     required MetricDestination destination,
@@ -747,7 +753,7 @@ class CloudWatchRum {
     String? iamRoleArn,
   }) async {
     final $payload = <String, dynamic>{
-      'Destination': destination.toValue(),
+      'Destination': destination.value,
       if (destinationArn != null) 'DestinationArn': destinationArn,
       if (iamRoleArn != null) 'IamRoleArn': iamRoleArn,
     };
@@ -868,7 +874,7 @@ class CloudWatchRum {
   /// Amazon Cognito identity pool to use for authorization. If you don't
   /// include <code>AppMonitorConfiguration</code>, you must set up your own
   /// authorization method. For more information, see <a
-  /// href="https://docs.aws.amazon.com/monitoring/CloudWatch-RUM-get-started-authorization.html">Authorize
+  /// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-RUM-get-started-authorization.html">Authorize
   /// your application to send data to Amazon Web Services</a>.
   ///
   /// Parameter [customEvents] :
@@ -958,7 +964,7 @@ class CloudWatchRum {
     String? destinationArn,
   }) async {
     final $payload = <String, dynamic>{
-      'Destination': destination.toValue(),
+      'Destination': destination.value,
       'MetricDefinition': metricDefinition,
       'MetricDefinitionId': metricDefinitionId,
       if (destinationArn != null) 'DestinationArn': destinationArn,
@@ -1045,7 +1051,7 @@ class AppMonitor {
       id: json['Id'] as String?,
       lastModified: json['LastModified'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toStateEnum(),
+      state: (json['State'] as String?)?.let(StateEnum.fromString),
       tags: (json['Tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -1072,7 +1078,7 @@ class AppMonitor {
       if (id != null) 'Id': id,
       if (lastModified != null) 'LastModified': lastModified,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (tags != null) 'Tags': tags,
     };
   }
@@ -1109,6 +1115,28 @@ class AppMonitorConfiguration {
 
   /// The ARN of the guest IAM role that is attached to the Amazon Cognito
   /// identity pool that is used to authorize the sending of data to RUM.
+  /// <note>
+  /// It is possible that an app monitor does not have a value for
+  /// <code>GuestRoleArn</code>. For example, this can happen when you use the
+  /// console to create an app monitor and you allow CloudWatch RUM to create a
+  /// new identity pool for Authorization. In this case, <code>GuestRoleArn</code>
+  /// is not present in the <a
+  /// href="https://docs.aws.amazon.com/cloudwatchrum/latest/APIReference/API_GetAppMonitor.html">GetAppMonitor</a>
+  /// response because it is not stored by the service.
+  ///
+  /// If this issue affects you, you can take one of the following steps:
+  ///
+  /// <ul>
+  /// <li>
+  /// Use the Cloud Development Kit (CDK) to create an identity pool and the
+  /// associated IAM role, and use that for your app monitor.
+  /// </li>
+  /// <li>
+  /// Make a separate <a
+  /// href="https://docs.aws.amazon.com/cognitoidentity/latest/APIReference/API_GetIdentityPoolRoles.html">GetIdentityPoolRoles</a>
+  /// call to Amazon Cognito to retrieve the <code>GuestRoleArn</code>.
+  /// </li>
+  /// </ul> </note>
   final String? guestRoleArn;
 
   /// The ID of the Amazon Cognito identity pool that is used to authorize the
@@ -1170,23 +1198,23 @@ class AppMonitorConfiguration {
       allowCookies: json['AllowCookies'] as bool?,
       enableXRay: json['EnableXRay'] as bool?,
       excludedPages: (json['ExcludedPages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       favoritePages: (json['FavoritePages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       guestRoleArn: json['GuestRoleArn'] as String?,
       identityPoolId: json['IdentityPoolId'] as String?,
       includedPages: (json['IncludedPages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       sessionSampleRate: json['SessionSampleRate'] as double?,
       telemetries: (json['Telemetries'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toTelemetry())
+          ?.nonNulls
+          .map((e) => Telemetry.fromString((e as String)))
           .toList(),
     );
   }
@@ -1211,7 +1239,7 @@ class AppMonitorConfiguration {
       if (includedPages != null) 'IncludedPages': includedPages,
       if (sessionSampleRate != null) 'SessionSampleRate': sessionSampleRate,
       if (telemetries != null)
-        'Telemetries': telemetries.map((e) => e.toValue()).toList(),
+        'Telemetries': telemetries.map((e) => e.value).toList(),
     };
   }
 }
@@ -1277,7 +1305,7 @@ class AppMonitorSummary {
       id: json['Id'] as String?,
       lastModified: json['LastModified'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toStateEnum(),
+      state: (json['State'] as String?)?.let(StateEnum.fromString),
     );
   }
 
@@ -1292,7 +1320,7 @@ class AppMonitorSummary {
       if (id != null) 'Id': id,
       if (lastModified != null) 'LastModified': lastModified,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -1354,12 +1382,12 @@ class BatchCreateRumMetricDefinitionsResponse {
       Map<String, dynamic> json) {
     return BatchCreateRumMetricDefinitionsResponse(
       errors: (json['Errors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BatchCreateRumMetricDefinitionsError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       metricDefinitions: (json['MetricDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1431,12 +1459,12 @@ class BatchDeleteRumMetricDefinitionsResponse {
       Map<String, dynamic> json) {
     return BatchDeleteRumMetricDefinitionsResponse(
       errors: (json['Errors'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => BatchDeleteRumMetricDefinitionsError.fromJson(
               e as Map<String, dynamic>))
           .toList(),
       metricDefinitionIds: (json['MetricDefinitionIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -1471,7 +1499,7 @@ class BatchGetRumMetricDefinitionsResponse {
       Map<String, dynamic> json) {
     return BatchGetRumMetricDefinitionsResponse(
       metricDefinitions: (json['MetricDefinitions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => MetricDefinition.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1523,44 +1551,31 @@ class CustomEvents {
 
   factory CustomEvents.fromJson(Map<String, dynamic> json) {
     return CustomEvents(
-      status: (json['Status'] as String?)?.toCustomEventsStatus(),
+      status: (json['Status'] as String?)?.let(CustomEventsStatus.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final status = this.status;
     return {
-      if (status != null) 'Status': status.toValue(),
+      if (status != null) 'Status': status.value,
     };
   }
 }
 
 enum CustomEventsStatus {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension CustomEventsStatusValueExtension on CustomEventsStatus {
-  String toValue() {
-    switch (this) {
-      case CustomEventsStatus.enabled:
-        return 'ENABLED';
-      case CustomEventsStatus.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension CustomEventsStatusFromString on String {
-  CustomEventsStatus toCustomEventsStatus() {
-    switch (this) {
-      case 'ENABLED':
-        return CustomEventsStatus.enabled;
-      case 'DISABLED':
-        return CustomEventsStatus.disabled;
-    }
-    throw Exception('$this is not known in enum CustomEventsStatus');
-  }
+  const CustomEventsStatus(this.value);
+
+  static CustomEventsStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum CustomEventsStatus'));
 }
 
 /// A structure that contains the information about whether the app monitor
@@ -1663,10 +1678,8 @@ class GetAppMonitorDataResponse {
 
   factory GetAppMonitorDataResponse.fromJson(Map<String, dynamic> json) {
     return GetAppMonitorDataResponse(
-      events: (json['Events'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      events:
+          (json['Events'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['NextToken'] as String?,
     );
   }
@@ -1723,7 +1736,7 @@ class ListAppMonitorsResponse {
   factory ListAppMonitorsResponse.fromJson(Map<String, dynamic> json) {
     return ListAppMonitorsResponse(
       appMonitorSummaries: (json['AppMonitorSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AppMonitorSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -1759,7 +1772,7 @@ class ListRumMetricsDestinationsResponse {
       Map<String, dynamic> json) {
     return ListRumMetricsDestinationsResponse(
       destinations: (json['Destinations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               MetricDestinationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -1893,9 +1906,9 @@ class MetricDefinition {
 /// Use this structure to define one extended metric or custom metric that RUM
 /// will send to CloudWatch or CloudWatch Evidently. For more information, see
 /// <a
-/// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-RUM-vended-metrics.html">
-/// Additional metrics that you can send to CloudWatch and CloudWatch
-/// Evidently</a>.
+/// href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-RUM-custom-and-extended-metrics.html">
+/// Custom metrics and extended metrics that you can send to CloudWatch and
+/// CloudWatch Evidently</a>.
 ///
 /// This structure is validated differently for extended metrics and custom
 /// metrics. For extended metrics that are sent to the <code>AWS/RUM</code>
@@ -1909,8 +1922,8 @@ class MetricDefinition {
 /// <li>
 /// Only certain combinations of values for <code>Name</code>,
 /// <code>ValueKey</code>, and <code>EventPattern</code> are valid. In addition
-/// to what is displayed in the list below, the <code>EventPattern</code> can
-/// also include information used by the <code>DimensionKeys</code> field.
+/// to what is displayed in the following list, the <code>EventPattern</code>
+/// can also include information used by the <code>DimensionKeys</code> field.
 ///
 /// <ul>
 /// <li>
@@ -1978,6 +1991,25 @@ class MetricDefinition {
 /// If <code>Name</code> is <code>SessionCount</code>, then
 /// <code>ValueKey</code>must be null and the <code>EventPattern</code> must
 /// include <code>{"event_type":["com.amazon.rum.session_start_event"]}</code>
+/// </li>
+/// <li>
+/// If <code>Name</code> is <code>PageViewCount</code>, then
+/// <code>ValueKey</code>must be null and the <code>EventPattern</code> must
+/// include <code>{"event_type":["com.amazon.rum.page_view_event"]}</code>
+/// </li>
+/// <li>
+/// If <code>Name</code> is <code>Http4xxCount</code>, then
+/// <code>ValueKey</code>must be null and the <code>EventPattern</code> must
+/// include <code>{"event_type":
+/// ["com.amazon.rum.http_event"],"event_details":{"response":{"status":[{"numeric":["&gt;=",400,"&lt;",500]}]}}}
+/// }</code>
+/// </li>
+/// <li>
+/// If <code>Name</code> is <code>Http5xxCount</code>, then
+/// <code>ValueKey</code>must be null and the <code>EventPattern</code> must
+/// include <code>{"event_type":
+/// ["com.amazon.rum.http_event"],"event_details":{"response":{"status":[{"numeric":["&gt;=",500,"&lt;=",599]}]}}}
+/// }</code>
 /// </li>
 /// </ul> </li>
 /// </ul>
@@ -2169,7 +2201,7 @@ class MetricDefinitionRequest {
   /// 8000 ] }] } }'</code>
   /// </li>
   /// </ul>
-  /// If the metrics destination' is <code>CloudWatch</code> and the event also
+  /// If the metrics destination is <code>CloudWatch</code> and the event also
   /// matches a value in <code>DimensionKeys</code>, then the metric is published
   /// with the specified dimensions.
   final String? eventPattern;
@@ -2189,11 +2221,11 @@ class MetricDefinitionRequest {
   /// The field within the event object that the metric value is sourced from.
   ///
   /// If you omit this field, a hardcoded value of 1 is pushed as the metric
-  /// value. This is useful if you just want to count the number of events that
-  /// the filter catches.
+  /// value. This is useful if you want to count the number of events that the
+  /// filter catches.
   ///
   /// If this metric is sent to CloudWatch Evidently, this field will be passed to
-  /// Evidently raw and Evidently will handle data extraction from the event.
+  /// Evidently raw. Evidently will handle data extraction from the event.
   final String? valueKey;
 
   MetricDefinitionRequest({
@@ -2236,31 +2268,18 @@ class MetricDefinitionRequest {
 }
 
 enum MetricDestination {
-  cloudWatch,
-  evidently,
-}
+  cloudWatch('CloudWatch'),
+  evidently('Evidently'),
+  ;
 
-extension MetricDestinationValueExtension on MetricDestination {
-  String toValue() {
-    switch (this) {
-      case MetricDestination.cloudWatch:
-        return 'CloudWatch';
-      case MetricDestination.evidently:
-        return 'Evidently';
-    }
-  }
-}
+  final String value;
 
-extension MetricDestinationFromString on String {
-  MetricDestination toMetricDestination() {
-    switch (this) {
-      case 'CloudWatch':
-        return MetricDestination.cloudWatch;
-      case 'Evidently':
-        return MetricDestination.evidently;
-    }
-    throw Exception('$this is not known in enum MetricDestination');
-  }
+  const MetricDestination(this.value);
+
+  static MetricDestination fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum MetricDestination'));
 }
 
 /// A structure that displays information about one destination that CloudWatch
@@ -2287,7 +2306,8 @@ class MetricDestinationSummary {
 
   factory MetricDestinationSummary.fromJson(Map<String, dynamic> json) {
     return MetricDestinationSummary(
-      destination: (json['Destination'] as String?)?.toMetricDestination(),
+      destination:
+          (json['Destination'] as String?)?.let(MetricDestination.fromString),
       destinationArn: json['DestinationArn'] as String?,
       iamRoleArn: json['IamRoleArn'] as String?,
     );
@@ -2298,7 +2318,7 @@ class MetricDestinationSummary {
     final destinationArn = this.destinationArn;
     final iamRoleArn = this.iamRoleArn;
     return {
-      if (destination != null) 'Destination': destination.toValue(),
+      if (destination != null) 'Destination': destination.value,
       if (destinationArn != null) 'DestinationArn': destinationArn,
       if (iamRoleArn != null) 'IamRoleArn': iamRoleArn,
     };
@@ -2417,36 +2437,18 @@ class RumEvent {
 }
 
 enum StateEnum {
-  created,
-  deleting,
-  active,
-}
+  created('CREATED'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  ;
 
-extension StateEnumValueExtension on StateEnum {
-  String toValue() {
-    switch (this) {
-      case StateEnum.created:
-        return 'CREATED';
-      case StateEnum.deleting:
-        return 'DELETING';
-      case StateEnum.active:
-        return 'ACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension StateEnumFromString on String {
-  StateEnum toStateEnum() {
-    switch (this) {
-      case 'CREATED':
-        return StateEnum.created;
-      case 'DELETING':
-        return StateEnum.deleting;
-      case 'ACTIVE':
-        return StateEnum.active;
-    }
-    throw Exception('$this is not known in enum StateEnum');
-  }
+  const StateEnum(this.value);
+
+  static StateEnum fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum StateEnum'));
 }
 
 class TagResourceResponse {
@@ -2462,36 +2464,18 @@ class TagResourceResponse {
 }
 
 enum Telemetry {
-  errors,
-  performance,
-  http,
-}
+  errors('errors'),
+  performance('performance'),
+  http('http'),
+  ;
 
-extension TelemetryValueExtension on Telemetry {
-  String toValue() {
-    switch (this) {
-      case Telemetry.errors:
-        return 'errors';
-      case Telemetry.performance:
-        return 'performance';
-      case Telemetry.http:
-        return 'http';
-    }
-  }
-}
+  final String value;
 
-extension TelemetryFromString on String {
-  Telemetry toTelemetry() {
-    switch (this) {
-      case 'errors':
-        return Telemetry.errors;
-      case 'performance':
-        return Telemetry.performance;
-      case 'http':
-        return Telemetry.http;
-    }
-    throw Exception('$this is not known in enum Telemetry');
-  }
+  const Telemetry(this.value);
+
+  static Telemetry fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Telemetry'));
 }
 
 /// A structure that defines the time range that you want to retrieve results

@@ -17,7 +17,6 @@ import 'package:shared_aws_api/shared.dart'
         nonNullableTimeStampFromJson,
         timeStampFromJson;
 
-import 'neptune-2014-10-31.meta.dart';
 export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 
 /// Amazon Neptune is a fast, reliable, fully-managed graph database service
@@ -33,7 +32,6 @@ export 'package:shared_aws_api/shared.dart' show AwsClientCredentials;
 /// security.
 class Neptune {
   final _s.QueryProtocol _protocol;
-  final Map<String, _s.Shape> shapes;
 
   Neptune({
     required String region,
@@ -41,7 +39,7 @@ class Neptune {
     _s.AwsClientCredentialsProvider? credentialsProvider,
     _s.Client? client,
     String? endpointUrl,
-  })  : _protocol = _s.QueryProtocol(
+  }) : _protocol = _s.QueryProtocol(
           client: client,
           service: _s.ServiceMetadata(
             endpointPrefix: 'rds',
@@ -51,9 +49,7 @@ class Neptune {
           credentials: credentials,
           credentialsProvider: credentialsProvider,
           endpointUrl: endpointUrl,
-        ),
-        shapes = shapesJson
-            .map((key, value) => MapEntry(key, _s.Shape.fromJson(value)));
+        );
 
   /// Closes the internal HTTP client if none was provided at creation.
   /// If a client was passed as a constructor argument, this becomes a noop.
@@ -82,17 +78,18 @@ class Neptune {
   ///
   /// Parameter [featureName] :
   /// The name of the feature for the Neptune DB cluster that the IAM role is to
-  /// be associated with. For the list of supported feature names, see <a
-  /// href="neptune/latest/userguide/api-other-apis.html#DBEngineVersion">DBEngineVersion</a>.
+  /// be associated with. For the list of supported feature names, see
+  /// <a>DBEngineVersion</a>.
   Future<void> addRoleToDBCluster({
     required String dBClusterIdentifier,
     required String roleArn,
     String? featureName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['RoleArn'] = roleArn;
-    featureName?.also((arg) => $request['FeatureName'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'RoleArn': roleArn,
+      if (featureName != null) 'FeatureName': featureName,
+    };
     await _protocol.send(
       $request,
       action: 'AddRoleToDBCluster',
@@ -100,8 +97,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddRoleToDBClusterMessage'],
-      shapes: shapes,
     );
   }
 
@@ -142,9 +137,10 @@ class Neptune {
     required String sourceIdentifier,
     required String subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceIdentifier'] = sourceIdentifier;
-    $request['SubscriptionName'] = subscriptionName;
+    final $request = <String, String>{
+      'SourceIdentifier': sourceIdentifier,
+      'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'AddSourceIdentifierToSubscription',
@@ -152,8 +148,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddSourceIdentifierToSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'AddSourceIdentifierToSubscriptionResult',
     );
     return AddSourceIdentifierToSubscriptionResult.fromXml($result);
@@ -180,9 +174,15 @@ class Neptune {
     required String resourceName,
     required List<Tag> tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    $request['Tags'] = tags;
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (tags.isEmpty)
+        'Tags': ''
+      else
+        for (var i1 = 0; i1 < tags.length; i1++)
+          for (var e3 in tags[i1].toQueryMap().entries)
+            'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     await _protocol.send(
       $request,
       action: 'AddTagsToResource',
@@ -190,8 +190,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['AddTagsToResourceMessage'],
-      shapes: shapes,
     );
   }
 
@@ -236,10 +234,11 @@ class Neptune {
     required String optInType,
     required String resourceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ApplyAction'] = applyAction;
-    $request['OptInType'] = optInType;
-    $request['ResourceIdentifier'] = resourceIdentifier;
+    final $request = <String, String>{
+      'ApplyAction': applyAction,
+      'OptInType': optInType,
+      'ResourceIdentifier': resourceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ApplyPendingMaintenanceAction',
@@ -247,8 +246,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ApplyPendingMaintenanceActionMessage'],
-      shapes: shapes,
       resultWrapper: 'ApplyPendingMaintenanceActionResult',
     );
     return ApplyPendingMaintenanceActionResult.fromXml($result);
@@ -316,14 +313,21 @@ class Neptune {
     required String targetDBClusterParameterGroupIdentifier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceDBClusterParameterGroupIdentifier'] =
-        sourceDBClusterParameterGroupIdentifier;
-    $request['TargetDBClusterParameterGroupDescription'] =
-        targetDBClusterParameterGroupDescription;
-    $request['TargetDBClusterParameterGroupIdentifier'] =
-        targetDBClusterParameterGroupIdentifier;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SourceDBClusterParameterGroupIdentifier':
+          sourceDBClusterParameterGroupIdentifier,
+      'TargetDBClusterParameterGroupDescription':
+          targetDBClusterParameterGroupDescription,
+      'TargetDBClusterParameterGroupIdentifier':
+          targetDBClusterParameterGroupIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CopyDBClusterParameterGroup',
@@ -331,8 +335,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CopyDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CopyDBClusterParameterGroupResult',
     );
     return CopyDBClusterParameterGroupResult.fromXml($result);
@@ -425,15 +427,20 @@ class Neptune {
     String? preSignedUrl,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceDBClusterSnapshotIdentifier'] =
-        sourceDBClusterSnapshotIdentifier;
-    $request['TargetDBClusterSnapshotIdentifier'] =
-        targetDBClusterSnapshotIdentifier;
-    copyTags?.also((arg) => $request['CopyTags'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    preSignedUrl?.also((arg) => $request['PreSignedUrl'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SourceDBClusterSnapshotIdentifier': sourceDBClusterSnapshotIdentifier,
+      'TargetDBClusterSnapshotIdentifier': targetDBClusterSnapshotIdentifier,
+      if (copyTags != null) 'CopyTags': copyTags.toString(),
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (preSignedUrl != null) 'PreSignedUrl': preSignedUrl,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CopyDBClusterSnapshot',
@@ -441,8 +448,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CopyDBClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'CopyDBClusterSnapshotResult',
     );
     return CopyDBClusterSnapshotResult.fromXml($result);
@@ -504,14 +509,18 @@ class Neptune {
     required String targetDBParameterGroupIdentifier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceDBParameterGroupIdentifier'] =
-        sourceDBParameterGroupIdentifier;
-    $request['TargetDBParameterGroupDescription'] =
-        targetDBParameterGroupDescription;
-    $request['TargetDBParameterGroupIdentifier'] =
-        targetDBParameterGroupIdentifier;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SourceDBParameterGroupIdentifier': sourceDBParameterGroupIdentifier,
+      'TargetDBParameterGroupDescription': targetDBParameterGroupDescription,
+      'TargetDBParameterGroupIdentifier': targetDBParameterGroupIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CopyDBParameterGroup',
@@ -519,8 +528,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CopyDBParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CopyDBParameterGroupResult',
     );
     return CopyDBParameterGroupResult.fromXml($result);
@@ -635,8 +642,11 @@ class Neptune {
   /// enabled. By default, deletion protection is enabled.
   ///
   /// Parameter [enableCloudwatchLogsExports] :
-  /// The list of log types that need to be enabled for exporting to CloudWatch
-  /// Logs.
+  /// A list of the log types that this DB cluster should export to CloudWatch
+  /// Logs. Valid log types are: <code>audit</code> (to publish audit logs) and
+  /// <code>slowquery</code> (to publish slow-query logs). See <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/cloudwatch-logs.html">Publishing
+  /// Neptune logs to Amazon CloudWatch logs</a>.
   ///
   /// Parameter [enableIAMDatabaseAuthentication] :
   /// If set to <code>true</code>, enables Amazon Identity and Access Management
@@ -712,9 +722,8 @@ class Neptune {
   ///
   /// The default is a 30-minute window selected at random from an 8-hour block
   /// of time for each Amazon Region. To see the time blocks available, see <a
-  /// href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/AdjustingTheMaintenanceWindow.html">
-  /// Adjusting the Preferred Maintenance Window</a> in the <i>Amazon Neptune
-  /// User Guide.</i>
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/manage-console-maintaining.html#manage-console-maintaining-window">Neptune
+  /// Maintenance Window</a> in the <i>Amazon Neptune User Guide.</i>
   ///
   /// Constraints:
   ///
@@ -742,9 +751,8 @@ class Neptune {
   /// The default is a 30-minute window selected at random from an 8-hour block
   /// of time for each Amazon Region, occurring on a random day of the week. To
   /// see the time blocks available, see <a
-  /// href="https://docs.aws.amazon.com/AmazonRDS/latest/UserGuide/AdjustingTheMaintenanceWindow.html">
-  /// Adjusting the Preferred Maintenance Window</a> in the <i>Amazon Neptune
-  /// User Guide.</i>
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/manage-console-maintaining.html#manage-console-maintaining-window">Neptune
+  /// Maintenance Window</a> in the <i>Amazon Neptune User Guide.</i>
   ///
   /// Valid Days: Mon, Tue, Wed, Thu, Fri, Sat, Sun.
   ///
@@ -754,8 +762,37 @@ class Neptune {
   /// The Amazon Resource Name (ARN) of the source DB instance or DB cluster if
   /// this DB cluster is created as a Read Replica.
   ///
+  /// Parameter [serverlessV2ScalingConfiguration] :
+  /// Contains the scaling configuration of a Neptune Serverless DB cluster.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/neptune-serverless-using.html">Using
+  /// Amazon Neptune Serverless</a> in the <i>Amazon Neptune User Guide</i>.
+  ///
   /// Parameter [storageEncrypted] :
   /// Specifies whether the DB cluster is encrypted.
+  ///
+  /// Parameter [storageType] :
+  /// The storage type to associate with the DB cluster.
+  ///
+  /// Valid Values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>standard | iopt1</code>
+  /// </li>
+  /// </ul>
+  /// Default:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>standard</code>
+  /// </li>
+  /// </ul> <note>
+  /// When you create a Neptune cluster with the storage type set to
+  /// <code>iopt1</code>, the storage type is returned in the response. The
+  /// storage type isn't returned when you set it to <code>standard</code>.
+  /// </note>
   ///
   /// Parameter [tags] :
   /// The tags to assign to the new DB cluster.
@@ -788,46 +825,77 @@ class Neptune {
     String? replicationSourceIdentifier,
     ServerlessV2ScalingConfiguration? serverlessV2ScalingConfiguration,
     bool? storageEncrypted,
+    String? storageType,
     List<Tag>? tags,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['Engine'] = engine;
-    availabilityZones?.also((arg) => $request['AvailabilityZones'] = arg);
-    backupRetentionPeriod
-        ?.also((arg) => $request['BackupRetentionPeriod'] = arg);
-    characterSetName?.also((arg) => $request['CharacterSetName'] = arg);
-    copyTagsToSnapshot?.also((arg) => $request['CopyTagsToSnapshot'] = arg);
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    databaseName?.also((arg) => $request['DatabaseName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    enableCloudwatchLogsExports
-        ?.also((arg) => $request['EnableCloudwatchLogsExports'] = arg);
-    enableIAMDatabaseAuthentication
-        ?.also((arg) => $request['EnableIAMDatabaseAuthentication'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    globalClusterIdentifier
-        ?.also((arg) => $request['GlobalClusterIdentifier'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    masterUserPassword?.also((arg) => $request['MasterUserPassword'] = arg);
-    masterUsername?.also((arg) => $request['MasterUsername'] = arg);
-    optionGroupName?.also((arg) => $request['OptionGroupName'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preSignedUrl?.also((arg) => $request['PreSignedUrl'] = arg);
-    preferredBackupWindow
-        ?.also((arg) => $request['PreferredBackupWindow'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    replicationSourceIdentifier
-        ?.also((arg) => $request['ReplicationSourceIdentifier'] = arg);
-    serverlessV2ScalingConfiguration
-        ?.also((arg) => $request['ServerlessV2ScalingConfiguration'] = arg);
-    storageEncrypted?.also((arg) => $request['StorageEncrypted'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'Engine': engine,
+      if (availabilityZones != null)
+        if (availabilityZones.isEmpty)
+          'AvailabilityZones': ''
+        else
+          for (var i1 = 0; i1 < availabilityZones.length; i1++)
+            'AvailabilityZones.AvailabilityZone.${i1 + 1}':
+                availabilityZones[i1],
+      if (backupRetentionPeriod != null)
+        'BackupRetentionPeriod': backupRetentionPeriod.toString(),
+      if (characterSetName != null) 'CharacterSetName': characterSetName,
+      if (copyTagsToSnapshot != null)
+        'CopyTagsToSnapshot': copyTagsToSnapshot.toString(),
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (databaseName != null) 'DatabaseName': databaseName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (enableCloudwatchLogsExports != null)
+        if (enableCloudwatchLogsExports.isEmpty)
+          'EnableCloudwatchLogsExports': ''
+        else
+          for (var i1 = 0; i1 < enableCloudwatchLogsExports.length; i1++)
+            'EnableCloudwatchLogsExports.member.${i1 + 1}':
+                enableCloudwatchLogsExports[i1],
+      if (enableIAMDatabaseAuthentication != null)
+        'EnableIAMDatabaseAuthentication':
+            enableIAMDatabaseAuthentication.toString(),
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (globalClusterIdentifier != null)
+        'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (masterUsername != null) 'MasterUsername': masterUsername,
+      if (optionGroupName != null) 'OptionGroupName': optionGroupName,
+      if (port != null) 'Port': port.toString(),
+      if (preSignedUrl != null) 'PreSignedUrl': preSignedUrl,
+      if (preferredBackupWindow != null)
+        'PreferredBackupWindow': preferredBackupWindow,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (replicationSourceIdentifier != null)
+        'ReplicationSourceIdentifier': replicationSourceIdentifier,
+      if (serverlessV2ScalingConfiguration != null)
+        for (var e1 in serverlessV2ScalingConfiguration.toQueryMap().entries)
+          'ServerlessV2ScalingConfiguration.${e1.key}': e1.value,
+      if (storageEncrypted != null)
+        'StorageEncrypted': storageEncrypted.toString(),
+      if (storageType != null) 'StorageType': storageType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBCluster',
@@ -835,8 +903,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBClusterResult',
     );
     return CreateDBClusterResult.fromXml($result);
@@ -883,13 +949,30 @@ class Neptune {
     List<String>? staticMembers,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterEndpointIdentifier'] = dBClusterEndpointIdentifier;
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['EndpointType'] = endpointType;
-    excludedMembers?.also((arg) => $request['ExcludedMembers'] = arg);
-    staticMembers?.also((arg) => $request['StaticMembers'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBClusterEndpointIdentifier': dBClusterEndpointIdentifier,
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'EndpointType': endpointType,
+      if (excludedMembers != null)
+        if (excludedMembers.isEmpty)
+          'ExcludedMembers': ''
+        else
+          for (var i1 = 0; i1 < excludedMembers.length; i1++)
+            'ExcludedMembers.member.${i1 + 1}': excludedMembers[i1],
+      if (staticMembers != null)
+        if (staticMembers.isEmpty)
+          'StaticMembers': ''
+        else
+          for (var i1 = 0; i1 < staticMembers.length; i1++)
+            'StaticMembers.member.${i1 + 1}': staticMembers[i1],
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBClusterEndpoint',
@@ -897,8 +980,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBClusterEndpointMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBClusterEndpointResult',
     );
     return CreateDBClusterEndpointOutput.fromXml($result);
@@ -966,11 +1047,18 @@ class Neptune {
     required String description,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    $request['DBParameterGroupFamily'] = dBParameterGroupFamily;
-    $request['Description'] = description;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      'DBParameterGroupFamily': dBParameterGroupFamily,
+      'Description': description,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBClusterParameterGroup',
@@ -978,8 +1066,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBClusterParameterGroupResult',
     );
     return CreateDBClusterParameterGroupResult.fromXml($result);
@@ -1032,10 +1118,17 @@ class Neptune {
     required String dBClusterSnapshotIdentifier,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBClusterSnapshot',
@@ -1043,8 +1136,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBClusterSnapshotResult',
     );
     return CreateDBClusterSnapshotResult.fromXml($result);
@@ -1399,59 +1490,91 @@ class Neptune {
     String? timezone,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['DBInstanceClass'] = dBInstanceClass;
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
-    $request['Engine'] = engine;
-    allocatedStorage?.also((arg) => $request['AllocatedStorage'] = arg);
-    autoMinorVersionUpgrade
-        ?.also((arg) => $request['AutoMinorVersionUpgrade'] = arg);
-    availabilityZone?.also((arg) => $request['AvailabilityZone'] = arg);
-    backupRetentionPeriod
-        ?.also((arg) => $request['BackupRetentionPeriod'] = arg);
-    characterSetName?.also((arg) => $request['CharacterSetName'] = arg);
-    copyTagsToSnapshot?.also((arg) => $request['CopyTagsToSnapshot'] = arg);
-    dBName?.also((arg) => $request['DBName'] = arg);
-    dBParameterGroupName?.also((arg) => $request['DBParameterGroupName'] = arg);
-    dBSecurityGroups?.also((arg) => $request['DBSecurityGroups'] = arg);
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    domain?.also((arg) => $request['Domain'] = arg);
-    domainIAMRoleName?.also((arg) => $request['DomainIAMRoleName'] = arg);
-    enableCloudwatchLogsExports
-        ?.also((arg) => $request['EnableCloudwatchLogsExports'] = arg);
-    enableIAMDatabaseAuthentication
-        ?.also((arg) => $request['EnableIAMDatabaseAuthentication'] = arg);
-    enablePerformanceInsights
-        ?.also((arg) => $request['EnablePerformanceInsights'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    iops?.also((arg) => $request['Iops'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    licenseModel?.also((arg) => $request['LicenseModel'] = arg);
-    masterUserPassword?.also((arg) => $request['MasterUserPassword'] = arg);
-    masterUsername?.also((arg) => $request['MasterUsername'] = arg);
-    monitoringInterval?.also((arg) => $request['MonitoringInterval'] = arg);
-    monitoringRoleArn?.also((arg) => $request['MonitoringRoleArn'] = arg);
-    multiAZ?.also((arg) => $request['MultiAZ'] = arg);
-    optionGroupName?.also((arg) => $request['OptionGroupName'] = arg);
-    performanceInsightsKMSKeyId
-        ?.also((arg) => $request['PerformanceInsightsKMSKeyId'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preferredBackupWindow
-        ?.also((arg) => $request['PreferredBackupWindow'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    promotionTier?.also((arg) => $request['PromotionTier'] = arg);
-    publiclyAccessible?.also((arg) => $request['PubliclyAccessible'] = arg);
-    storageEncrypted?.also((arg) => $request['StorageEncrypted'] = arg);
-    storageType?.also((arg) => $request['StorageType'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    tdeCredentialArn?.also((arg) => $request['TdeCredentialArn'] = arg);
-    tdeCredentialPassword
-        ?.also((arg) => $request['TdeCredentialPassword'] = arg);
-    timezone?.also((arg) => $request['Timezone'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'DBInstanceClass': dBInstanceClass,
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+      'Engine': engine,
+      if (allocatedStorage != null)
+        'AllocatedStorage': allocatedStorage.toString(),
+      if (autoMinorVersionUpgrade != null)
+        'AutoMinorVersionUpgrade': autoMinorVersionUpgrade.toString(),
+      if (availabilityZone != null) 'AvailabilityZone': availabilityZone,
+      if (backupRetentionPeriod != null)
+        'BackupRetentionPeriod': backupRetentionPeriod.toString(),
+      if (characterSetName != null) 'CharacterSetName': characterSetName,
+      if (copyTagsToSnapshot != null)
+        'CopyTagsToSnapshot': copyTagsToSnapshot.toString(),
+      if (dBName != null) 'DBName': dBName,
+      if (dBParameterGroupName != null)
+        'DBParameterGroupName': dBParameterGroupName,
+      if (dBSecurityGroups != null)
+        if (dBSecurityGroups.isEmpty)
+          'DBSecurityGroups': ''
+        else
+          for (var i1 = 0; i1 < dBSecurityGroups.length; i1++)
+            'DBSecurityGroups.DBSecurityGroupName.${i1 + 1}':
+                dBSecurityGroups[i1],
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (domain != null) 'Domain': domain,
+      if (domainIAMRoleName != null) 'DomainIAMRoleName': domainIAMRoleName,
+      if (enableCloudwatchLogsExports != null)
+        if (enableCloudwatchLogsExports.isEmpty)
+          'EnableCloudwatchLogsExports': ''
+        else
+          for (var i1 = 0; i1 < enableCloudwatchLogsExports.length; i1++)
+            'EnableCloudwatchLogsExports.member.${i1 + 1}':
+                enableCloudwatchLogsExports[i1],
+      if (enableIAMDatabaseAuthentication != null)
+        'EnableIAMDatabaseAuthentication':
+            enableIAMDatabaseAuthentication.toString(),
+      if (enablePerformanceInsights != null)
+        'EnablePerformanceInsights': enablePerformanceInsights.toString(),
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (iops != null) 'Iops': iops.toString(),
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (licenseModel != null) 'LicenseModel': licenseModel,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (masterUsername != null) 'MasterUsername': masterUsername,
+      if (monitoringInterval != null)
+        'MonitoringInterval': monitoringInterval.toString(),
+      if (monitoringRoleArn != null) 'MonitoringRoleArn': monitoringRoleArn,
+      if (multiAZ != null) 'MultiAZ': multiAZ.toString(),
+      if (optionGroupName != null) 'OptionGroupName': optionGroupName,
+      if (performanceInsightsKMSKeyId != null)
+        'PerformanceInsightsKMSKeyId': performanceInsightsKMSKeyId,
+      if (port != null) 'Port': port.toString(),
+      if (preferredBackupWindow != null)
+        'PreferredBackupWindow': preferredBackupWindow,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (promotionTier != null) 'PromotionTier': promotionTier.toString(),
+      if (publiclyAccessible != null)
+        'PubliclyAccessible': publiclyAccessible.toString(),
+      if (storageEncrypted != null)
+        'StorageEncrypted': storageEncrypted.toString(),
+      if (storageType != null) 'StorageType': storageType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (tdeCredentialArn != null) 'TdeCredentialArn': tdeCredentialArn,
+      if (tdeCredentialPassword != null)
+        'TdeCredentialPassword': tdeCredentialPassword,
+      if (timezone != null) 'Timezone': timezone,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBInstance',
@@ -1459,8 +1582,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBInstanceResult',
     );
     return CreateDBInstanceResult.fromXml($result);
@@ -1529,11 +1650,18 @@ class Neptune {
     required String description,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupFamily'] = dBParameterGroupFamily;
-    $request['DBParameterGroupName'] = dBParameterGroupName;
-    $request['Description'] = description;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBParameterGroupFamily': dBParameterGroupFamily,
+      'DBParameterGroupName': dBParameterGroupName,
+      'Description': description,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBParameterGroup',
@@ -1541,8 +1669,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBParameterGroupResult',
     );
     return CreateDBParameterGroupResult.fromXml($result);
@@ -1580,11 +1706,22 @@ class Neptune {
     required List<String> subnetIds,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBSubnetGroupDescription'] = dBSubnetGroupDescription;
-    $request['DBSubnetGroupName'] = dBSubnetGroupName;
-    $request['SubnetIds'] = subnetIds;
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'DBSubnetGroupDescription': dBSubnetGroupDescription,
+      'DBSubnetGroupName': dBSubnetGroupName,
+      if (subnetIds.isEmpty)
+        'SubnetIds': ''
+      else
+        for (var i1 = 0; i1 < subnetIds.length; i1++)
+          'SubnetIds.SubnetIdentifier.${i1 + 1}': subnetIds[i1],
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateDBSubnetGroup',
@@ -1592,8 +1729,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateDBSubnetGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateDBSubnetGroupResult',
     );
     return CreateDBSubnetGroupResult.fromXml($result);
@@ -1700,14 +1835,31 @@ class Neptune {
     String? sourceType,
     List<Tag>? tags,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SnsTopicArn'] = snsTopicArn;
-    $request['SubscriptionName'] = subscriptionName;
-    enabled?.also((arg) => $request['Enabled'] = arg);
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    sourceIds?.also((arg) => $request['SourceIds'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
+    final $request = <String, String>{
+      'SnsTopicArn': snsTopicArn,
+      'SubscriptionName': subscriptionName,
+      if (enabled != null) 'Enabled': enabled.toString(),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (sourceIds != null)
+        if (sourceIds.isEmpty)
+          'SourceIds': ''
+        else
+          for (var i1 = 0; i1 < sourceIds.length; i1++)
+            'SourceIds.SourceId.${i1 + 1}': sourceIds[i1],
+      if (sourceType != null) 'SourceType': sourceType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateEventSubscription',
@@ -1715,8 +1867,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateEventSubscriptionResult',
     );
     return CreateEventSubscriptionResult.fromXml($result);
@@ -1769,14 +1919,17 @@ class Neptune {
     String? sourceDBClusterIdentifier,
     bool? storageEncrypted,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    engine?.also((arg) => $request['Engine'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    sourceDBClusterIdentifier
-        ?.also((arg) => $request['SourceDBClusterIdentifier'] = arg);
-    storageEncrypted?.also((arg) => $request['StorageEncrypted'] = arg);
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (engine != null) 'Engine': engine,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (sourceDBClusterIdentifier != null)
+        'SourceDBClusterIdentifier': sourceDBClusterIdentifier,
+      if (storageEncrypted != null)
+        'StorageEncrypted': storageEncrypted.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'CreateGlobalCluster',
@@ -1784,8 +1937,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['CreateGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'CreateGlobalClusterResult',
     );
     return CreateGlobalClusterResult.fromXml($result);
@@ -1854,11 +2005,13 @@ class Neptune {
     String? finalDBSnapshotIdentifier,
     bool? skipFinalSnapshot,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    finalDBSnapshotIdentifier
-        ?.also((arg) => $request['FinalDBSnapshotIdentifier'] = arg);
-    skipFinalSnapshot?.also((arg) => $request['SkipFinalSnapshot'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      if (finalDBSnapshotIdentifier != null)
+        'FinalDBSnapshotIdentifier': finalDBSnapshotIdentifier,
+      if (skipFinalSnapshot != null)
+        'SkipFinalSnapshot': skipFinalSnapshot.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDBCluster',
@@ -1866,8 +2019,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteDBClusterResult',
     );
     return DeleteDBClusterResult.fromXml($result);
@@ -1886,8 +2037,9 @@ class Neptune {
   Future<DeleteDBClusterEndpointOutput> deleteDBClusterEndpoint({
     required String dBClusterEndpointIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterEndpointIdentifier'] = dBClusterEndpointIdentifier;
+    final $request = <String, String>{
+      'DBClusterEndpointIdentifier': dBClusterEndpointIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDBClusterEndpoint',
@@ -1895,8 +2047,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBClusterEndpointMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteDBClusterEndpointResult',
     );
     return DeleteDBClusterEndpointOutput.fromXml($result);
@@ -1927,8 +2077,9 @@ class Neptune {
   Future<void> deleteDBClusterParameterGroup({
     required String dBClusterParameterGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteDBClusterParameterGroup',
@@ -1936,8 +2087,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBClusterParameterGroupMessage'],
-      shapes: shapes,
     );
   }
 
@@ -1959,8 +2108,9 @@ class Neptune {
   Future<DeleteDBClusterSnapshotResult> deleteDBClusterSnapshot({
     required String dBClusterSnapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
+    final $request = <String, String>{
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDBClusterSnapshot',
@@ -1968,8 +2118,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBClusterSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteDBClusterSnapshotResult',
     );
     return DeleteDBClusterSnapshotResult.fromXml($result);
@@ -2057,11 +2205,13 @@ class Neptune {
     String? finalDBSnapshotIdentifier,
     bool? skipFinalSnapshot,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
-    finalDBSnapshotIdentifier
-        ?.also((arg) => $request['FinalDBSnapshotIdentifier'] = arg);
-    skipFinalSnapshot?.also((arg) => $request['SkipFinalSnapshot'] = arg);
+    final $request = <String, String>{
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+      if (finalDBSnapshotIdentifier != null)
+        'FinalDBSnapshotIdentifier': finalDBSnapshotIdentifier,
+      if (skipFinalSnapshot != null)
+        'SkipFinalSnapshot': skipFinalSnapshot.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteDBInstance',
@@ -2069,8 +2219,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteDBInstanceResult',
     );
     return DeleteDBInstanceResult.fromXml($result);
@@ -2101,8 +2249,9 @@ class Neptune {
   Future<void> deleteDBParameterGroup({
     required String dBParameterGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupName'] = dBParameterGroupName;
+    final $request = <String, String>{
+      'DBParameterGroupName': dBParameterGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteDBParameterGroup',
@@ -2110,8 +2259,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBParameterGroupMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2139,8 +2286,9 @@ class Neptune {
   Future<void> deleteDBSubnetGroup({
     required String dBSubnetGroupName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBSubnetGroupName'] = dBSubnetGroupName;
+    final $request = <String, String>{
+      'DBSubnetGroupName': dBSubnetGroupName,
+    };
     await _protocol.send(
       $request,
       action: 'DeleteDBSubnetGroup',
@@ -2148,8 +2296,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteDBSubnetGroupMessage'],
-      shapes: shapes,
     );
   }
 
@@ -2163,8 +2309,9 @@ class Neptune {
   Future<DeleteEventSubscriptionResult> deleteEventSubscription({
     required String subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SubscriptionName'] = subscriptionName;
+    final $request = <String, String>{
+      'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteEventSubscription',
@@ -2172,8 +2319,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteEventSubscriptionResult',
     );
     return DeleteEventSubscriptionResult.fromXml($result);
@@ -2190,8 +2335,9 @@ class Neptune {
   Future<DeleteGlobalClusterResult> deleteGlobalCluster({
     required String globalClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DeleteGlobalCluster',
@@ -2199,8 +2345,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DeleteGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'DeleteGlobalClusterResult',
     );
     return DeleteGlobalClusterResult.fromXml($result);
@@ -2260,13 +2404,21 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterEndpointIdentifier
-        ?.also((arg) => $request['DBClusterEndpointIdentifier'] = arg);
-    dBClusterIdentifier?.also((arg) => $request['DBClusterIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBClusterEndpointIdentifier != null)
+        'DBClusterEndpointIdentifier': dBClusterEndpointIdentifier,
+      if (dBClusterIdentifier != null)
+        'DBClusterIdentifier': dBClusterIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterEndpoints',
@@ -2274,8 +2426,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterEndpointsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterEndpointsResult',
     );
     return DBClusterEndpointMessage.fromXml($result);
@@ -2323,12 +2473,19 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterParameterGroups',
@@ -2336,8 +2493,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterParameterGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterParameterGroupsResult',
     );
     return DBClusterParameterGroupsMessage.fromXml($result);
@@ -2390,12 +2545,19 @@ class Neptune {
     int? maxRecords,
     String? source,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    source?.also((arg) => $request['Source'] = arg);
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (source != null) 'Source': source,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterParameters',
@@ -2403,8 +2565,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterParametersResult',
     );
     return DBClusterParameterGroupDetails.fromXml($result);
@@ -2433,8 +2593,9 @@ class Neptune {
       describeDBClusterSnapshotAttributes({
     required String dBClusterSnapshotIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
+    final $request = <String, String>{
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterSnapshotAttributes',
@@ -2442,8 +2603,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterSnapshotAttributesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterSnapshotAttributesResult',
     );
     return DescribeDBClusterSnapshotAttributesResult.fromXml($result);
@@ -2566,16 +2725,24 @@ class Neptune {
     int? maxRecords,
     String? snapshotType,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterIdentifier?.also((arg) => $request['DBClusterIdentifier'] = arg);
-    dBClusterSnapshotIdentifier
-        ?.also((arg) => $request['DBClusterSnapshotIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    includePublic?.also((arg) => $request['IncludePublic'] = arg);
-    includeShared?.also((arg) => $request['IncludeShared'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    snapshotType?.also((arg) => $request['SnapshotType'] = arg);
+    final $request = <String, String>{
+      if (dBClusterIdentifier != null)
+        'DBClusterIdentifier': dBClusterIdentifier,
+      if (dBClusterSnapshotIdentifier != null)
+        'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (includePublic != null) 'IncludePublic': includePublic.toString(),
+      if (includeShared != null) 'IncludeShared': includeShared.toString(),
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (snapshotType != null) 'SnapshotType': snapshotType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusterSnapshots',
@@ -2583,8 +2750,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClusterSnapshotsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClusterSnapshotsResult',
     );
     return DBClusterSnapshotMessage.fromXml($result);
@@ -2654,11 +2819,19 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterIdentifier?.also((arg) => $request['DBClusterIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBClusterIdentifier != null)
+        'DBClusterIdentifier': dBClusterIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBClusters',
@@ -2666,8 +2839,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBClustersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBClustersResult',
     );
     return DBClusterMessage.fromXml($result);
@@ -2737,19 +2908,26 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBParameterGroupFamily
-        ?.also((arg) => $request['DBParameterGroupFamily'] = arg);
-    defaultOnly?.also((arg) => $request['DefaultOnly'] = arg);
-    engine?.also((arg) => $request['Engine'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    listSupportedCharacterSets
-        ?.also((arg) => $request['ListSupportedCharacterSets'] = arg);
-    listSupportedTimezones
-        ?.also((arg) => $request['ListSupportedTimezones'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBParameterGroupFamily != null)
+        'DBParameterGroupFamily': dBParameterGroupFamily,
+      if (defaultOnly != null) 'DefaultOnly': defaultOnly.toString(),
+      if (engine != null) 'Engine': engine,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (listSupportedCharacterSets != null)
+        'ListSupportedCharacterSets': listSupportedCharacterSets.toString(),
+      if (listSupportedTimezones != null)
+        'ListSupportedTimezones': listSupportedTimezones.toString(),
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBEngineVersions',
@@ -2757,8 +2935,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBEngineVersionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBEngineVersionsResult',
     );
     return DBEngineVersionMessage.fromXml($result);
@@ -2828,11 +3004,19 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBInstanceIdentifier?.also((arg) => $request['DBInstanceIdentifier'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBInstanceIdentifier != null)
+        'DBInstanceIdentifier': dBInstanceIdentifier,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBInstances',
@@ -2840,8 +3024,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBInstancesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBInstancesResult',
     );
     return DBInstanceMessage.fromXml($result);
@@ -2888,11 +3070,19 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBParameterGroupName?.also((arg) => $request['DBParameterGroupName'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBParameterGroupName != null)
+        'DBParameterGroupName': dBParameterGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBParameterGroups',
@@ -2900,8 +3090,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBParameterGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBParameterGroupsResult',
     );
     return DBParameterGroupsMessage.fromXml($result);
@@ -2954,12 +3142,19 @@ class Neptune {
     int? maxRecords,
     String? source,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupName'] = dBParameterGroupName;
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    source?.also((arg) => $request['Source'] = arg);
+    final $request = <String, String>{
+      'DBParameterGroupName': dBParameterGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (source != null) 'Source': source,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBParameters',
@@ -2967,8 +3162,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBParametersResult',
     );
     return DBParameterGroupDetails.fromXml($result);
@@ -3011,11 +3204,18 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeDBSubnetGroups',
@@ -3023,8 +3223,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeDBSubnetGroupsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeDBSubnetGroupsResult',
     );
     return DBSubnetGroupMessage.fromXml($result);
@@ -3062,11 +3260,18 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupFamily'] = dBParameterGroupFamily;
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      'DBParameterGroupFamily': dBParameterGroupFamily,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEngineDefaultClusterParameters',
@@ -3074,8 +3279,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEngineDefaultClusterParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEngineDefaultClusterParametersResult',
     );
     return DescribeEngineDefaultClusterParametersResult.fromXml($result);
@@ -3112,11 +3315,18 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupFamily'] = dBParameterGroupFamily;
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      'DBParameterGroupFamily': dBParameterGroupFamily,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEngineDefaultParameters',
@@ -3124,8 +3334,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEngineDefaultParametersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEngineDefaultParametersResult',
     );
     return DescribeEngineDefaultParametersResult.fromXml($result);
@@ -3146,9 +3354,16 @@ class Neptune {
     List<Filter>? filters,
     String? sourceType,
   }) async {
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (sourceType != null) 'SourceType': sourceType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEventCategories',
@@ -3156,8 +3371,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventCategoriesMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventCategoriesResult',
     );
     return EventCategoriesMessage.fromXml($result);
@@ -3199,11 +3412,18 @@ class Neptune {
     int? maxRecords,
     String? subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    subscriptionName?.also((arg) => $request['SubscriptionName'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (subscriptionName != null) 'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEventSubscriptions',
@@ -3211,8 +3431,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventSubscriptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventSubscriptionsResult',
     );
     return EventSubscriptionsMessage.fromXml($result);
@@ -3311,16 +3529,28 @@ class Neptune {
     SourceType? sourceType,
     DateTime? startTime,
   }) async {
-    final $request = <String, dynamic>{};
-    duration?.also((arg) => $request['Duration'] = arg);
-    endTime?.also((arg) => $request['EndTime'] = _s.iso8601ToJson(arg));
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    sourceIdentifier?.also((arg) => $request['SourceIdentifier'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg.toValue());
-    startTime?.also((arg) => $request['StartTime'] = _s.iso8601ToJson(arg));
+    final $request = <String, String>{
+      if (duration != null) 'Duration': duration.toString(),
+      if (endTime != null) 'EndTime': _s.iso8601ToJson(endTime),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (sourceIdentifier != null) 'SourceIdentifier': sourceIdentifier,
+      if (sourceType != null) 'SourceType': sourceType.value,
+      if (startTime != null) 'StartTime': _s.iso8601ToJson(startTime),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeEvents',
@@ -3328,8 +3558,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeEventsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeEventsResult',
     );
     return EventsMessage.fromXml($result);
@@ -3367,11 +3595,12 @@ class Neptune {
     String? marker,
     int? maxRecords,
   }) async {
-    final $request = <String, dynamic>{};
-    globalClusterIdentifier
-        ?.also((arg) => $request['GlobalClusterIdentifier'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
+    final $request = <String, String>{
+      if (globalClusterIdentifier != null)
+        'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeGlobalClusters',
@@ -3379,8 +3608,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeGlobalClustersMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeGlobalClustersResult',
     );
     return GlobalClustersMessage.fromXml($result);
@@ -3435,15 +3662,22 @@ class Neptune {
     int? maxRecords,
     bool? vpc,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['Engine'] = engine;
-    dBInstanceClass?.also((arg) => $request['DBInstanceClass'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    filters?.also((arg) => $request['Filters'] = arg);
-    licenseModel?.also((arg) => $request['LicenseModel'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    vpc?.also((arg) => $request['Vpc'] = arg);
+    final $request = <String, String>{
+      'Engine': engine,
+      if (dBInstanceClass != null) 'DBInstanceClass': dBInstanceClass,
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (licenseModel != null) 'LicenseModel': licenseModel,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (vpc != null) 'Vpc': vpc.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeOrderableDBInstanceOptions',
@@ -3451,8 +3685,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeOrderableDBInstanceOptionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeOrderableDBInstanceOptionsResult',
     );
     return OrderableDBInstanceOptionsMessage.fromXml($result);
@@ -3506,11 +3738,18 @@ class Neptune {
     int? maxRecords,
     String? resourceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    filters?.also((arg) => $request['Filters'] = arg);
-    marker?.also((arg) => $request['Marker'] = arg);
-    maxRecords?.also((arg) => $request['MaxRecords'] = arg);
-    resourceIdentifier?.also((arg) => $request['ResourceIdentifier'] = arg);
+    final $request = <String, String>{
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+      if (marker != null) 'Marker': marker,
+      if (maxRecords != null) 'MaxRecords': maxRecords.toString(),
+      if (resourceIdentifier != null) 'ResourceIdentifier': resourceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribePendingMaintenanceActions',
@@ -3518,8 +3757,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribePendingMaintenanceActionsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribePendingMaintenanceActionsResult',
     );
     return PendingMaintenanceActionsMessage.fromXml($result);
@@ -3538,8 +3775,9 @@ class Neptune {
       describeValidDBInstanceModifications({
     required String dBInstanceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
+    final $request = <String, String>{
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'DescribeValidDBInstanceModifications',
@@ -3547,8 +3785,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['DescribeValidDBInstanceModificationsMessage'],
-      shapes: shapes,
       resultWrapper: 'DescribeValidDBInstanceModificationsResult',
     );
     return DescribeValidDBInstanceModificationsResult.fromXml($result);
@@ -3592,10 +3828,12 @@ class Neptune {
     String? dBClusterIdentifier,
     String? targetDBInstanceIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    dBClusterIdentifier?.also((arg) => $request['DBClusterIdentifier'] = arg);
-    targetDBInstanceIdentifier
-        ?.also((arg) => $request['TargetDBInstanceIdentifier'] = arg);
+    final $request = <String, String>{
+      if (dBClusterIdentifier != null)
+        'DBClusterIdentifier': dBClusterIdentifier,
+      if (targetDBInstanceIdentifier != null)
+        'TargetDBInstanceIdentifier': targetDBInstanceIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'FailoverDBCluster',
@@ -3603,8 +3841,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['FailoverDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'FailoverDBClusterResult',
     );
     return FailoverDBClusterResult.fromXml($result);
@@ -3646,9 +3882,10 @@ class Neptune {
     required String globalClusterIdentifier,
     required String targetDbClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
-    $request['TargetDbClusterIdentifier'] = targetDbClusterIdentifier;
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+      'TargetDbClusterIdentifier': targetDbClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'FailoverGlobalCluster',
@@ -3656,8 +3893,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['FailoverGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'FailoverGlobalClusterResult',
     );
     return FailoverGlobalClusterResult.fromXml($result);
@@ -3681,9 +3916,16 @@ class Neptune {
     required String resourceName,
     List<Filter>? filters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    filters?.also((arg) => $request['Filters'] = arg);
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (filters != null)
+        if (filters.isEmpty)
+          'Filters': ''
+        else
+          for (var i1 = 0; i1 < filters.length; i1++)
+            for (var e3 in filters[i1].toQueryMap().entries)
+              'Filters.Filter.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ListTagsForResource',
@@ -3691,8 +3933,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ListTagsForResourceMessage'],
-      shapes: shapes,
       resultWrapper: 'ListTagsForResourceResult',
     );
     return TagListMessage.fromXml($result);
@@ -3713,6 +3953,7 @@ class Neptune {
   /// May throw [InvalidDBSecurityGroupStateFault].
   /// May throw [InvalidDBInstanceStateFault].
   /// May throw [DBClusterAlreadyExistsFault].
+  /// May throw [StorageTypeNotSupportedFault].
   ///
   /// Parameter [dBClusterIdentifier] :
   /// The DB cluster identifier for the cluster being modified. This parameter
@@ -3766,7 +4007,9 @@ class Neptune {
   ///
   /// Parameter [cloudwatchLogsExportConfiguration] :
   /// The configuration setting for the log types to be enabled for export to
-  /// CloudWatch Logs for a specific DB cluster.
+  /// CloudWatch Logs for a specific DB cluster. See <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/cloudwatch-logs.html#cloudwatch-logs-cli">Using
+  /// the CLI to publish Neptune audit logs to CloudWatch Logs</a>.
   ///
   /// Parameter [copyTagsToSnapshot] :
   /// <i>If set to <code>true</code>, tags are copied to any snapshot of the DB
@@ -3818,8 +4061,7 @@ class Neptune {
   ///
   /// For a list of valid engine versions, see <a
   /// href="https://docs.aws.amazon.com/neptune/latest/userguide/engine-releases.html">Engine
-  /// Releases for Amazon Neptune</a>, or call <a
-  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/api-other-apis.html#DescribeDBEngineVersions">DescribeDBEngineVersions</a>.
+  /// Releases for Amazon Neptune</a>, or call <a>DescribeDBEngineVersions</a>.
   ///
   /// Parameter [masterUserPassword] :
   /// Not supported by Neptune.
@@ -3891,6 +4133,31 @@ class Neptune {
   ///
   /// Constraints: Minimum 30-minute window.
   ///
+  /// Parameter [serverlessV2ScalingConfiguration] :
+  /// Contains the scaling configuration of a Neptune Serverless DB cluster.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/neptune-serverless-using.html">Using
+  /// Amazon Neptune Serverless</a> in the <i>Amazon Neptune User Guide</i>.
+  ///
+  /// Parameter [storageType] :
+  /// The storage type to associate with the DB cluster.
+  ///
+  /// Valid Values:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>standard | iopt1</code>
+  /// </li>
+  /// </ul>
+  /// Default:
+  ///
+  /// <ul>
+  /// <li>
+  /// <code>standard</code>
+  /// </li>
+  /// </ul>
+  ///
   /// Parameter [vpcSecurityGroupIds] :
   /// A list of VPC security groups that the DB cluster will belong to.
   Future<ModifyDBClusterResult> modifyDBCluster({
@@ -3912,38 +4179,53 @@ class Neptune {
     String? preferredBackupWindow,
     String? preferredMaintenanceWindow,
     ServerlessV2ScalingConfiguration? serverlessV2ScalingConfiguration,
+    String? storageType,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    allowMajorVersionUpgrade
-        ?.also((arg) => $request['AllowMajorVersionUpgrade'] = arg);
-    applyImmediately?.also((arg) => $request['ApplyImmediately'] = arg);
-    backupRetentionPeriod
-        ?.also((arg) => $request['BackupRetentionPeriod'] = arg);
-    cloudwatchLogsExportConfiguration
-        ?.also((arg) => $request['CloudwatchLogsExportConfiguration'] = arg);
-    copyTagsToSnapshot?.also((arg) => $request['CopyTagsToSnapshot'] = arg);
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    dBInstanceParameterGroupName
-        ?.also((arg) => $request['DBInstanceParameterGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    enableIAMDatabaseAuthentication
-        ?.also((arg) => $request['EnableIAMDatabaseAuthentication'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    masterUserPassword?.also((arg) => $request['MasterUserPassword'] = arg);
-    newDBClusterIdentifier
-        ?.also((arg) => $request['NewDBClusterIdentifier'] = arg);
-    optionGroupName?.also((arg) => $request['OptionGroupName'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    preferredBackupWindow
-        ?.also((arg) => $request['PreferredBackupWindow'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    serverlessV2ScalingConfiguration
-        ?.also((arg) => $request['ServerlessV2ScalingConfiguration'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      if (allowMajorVersionUpgrade != null)
+        'AllowMajorVersionUpgrade': allowMajorVersionUpgrade.toString(),
+      if (applyImmediately != null)
+        'ApplyImmediately': applyImmediately.toString(),
+      if (backupRetentionPeriod != null)
+        'BackupRetentionPeriod': backupRetentionPeriod.toString(),
+      if (cloudwatchLogsExportConfiguration != null)
+        for (var e1 in cloudwatchLogsExportConfiguration.toQueryMap().entries)
+          'CloudwatchLogsExportConfiguration.${e1.key}': e1.value,
+      if (copyTagsToSnapshot != null)
+        'CopyTagsToSnapshot': copyTagsToSnapshot.toString(),
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (dBInstanceParameterGroupName != null)
+        'DBInstanceParameterGroupName': dBInstanceParameterGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (enableIAMDatabaseAuthentication != null)
+        'EnableIAMDatabaseAuthentication':
+            enableIAMDatabaseAuthentication.toString(),
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (newDBClusterIdentifier != null)
+        'NewDBClusterIdentifier': newDBClusterIdentifier,
+      if (optionGroupName != null) 'OptionGroupName': optionGroupName,
+      if (port != null) 'Port': port.toString(),
+      if (preferredBackupWindow != null)
+        'PreferredBackupWindow': preferredBackupWindow,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (serverlessV2ScalingConfiguration != null)
+        for (var e1 in serverlessV2ScalingConfiguration.toQueryMap().entries)
+          'ServerlessV2ScalingConfiguration.${e1.key}': e1.value,
+      if (storageType != null) 'StorageType': storageType,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBCluster',
@@ -3951,8 +4233,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBClusterResult',
     );
     return ModifyDBClusterResult.fromXml($result);
@@ -3988,11 +4268,22 @@ class Neptune {
     List<String>? excludedMembers,
     List<String>? staticMembers,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterEndpointIdentifier'] = dBClusterEndpointIdentifier;
-    endpointType?.also((arg) => $request['EndpointType'] = arg);
-    excludedMembers?.also((arg) => $request['ExcludedMembers'] = arg);
-    staticMembers?.also((arg) => $request['StaticMembers'] = arg);
+    final $request = <String, String>{
+      'DBClusterEndpointIdentifier': dBClusterEndpointIdentifier,
+      if (endpointType != null) 'EndpointType': endpointType,
+      if (excludedMembers != null)
+        if (excludedMembers.isEmpty)
+          'ExcludedMembers': ''
+        else
+          for (var i1 = 0; i1 < excludedMembers.length; i1++)
+            'ExcludedMembers.member.${i1 + 1}': excludedMembers[i1],
+      if (staticMembers != null)
+        if (staticMembers.isEmpty)
+          'StaticMembers': ''
+        else
+          for (var i1 = 0; i1 < staticMembers.length; i1++)
+            'StaticMembers.member.${i1 + 1}': staticMembers[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBClusterEndpoint',
@@ -4000,8 +4291,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBClusterEndpointMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBClusterEndpointResult',
     );
     return ModifyDBClusterEndpointOutput.fromXml($result);
@@ -4042,9 +4331,15 @@ class Neptune {
     required String dBClusterParameterGroupName,
     required List<Parameter> parameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    $request['Parameters'] = parameters;
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (parameters.isEmpty)
+        'Parameters': ''
+      else
+        for (var i1 = 0; i1 < parameters.length; i1++)
+          for (var e3 in parameters[i1].toQueryMap().entries)
+            'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBClusterParameterGroup',
@@ -4052,8 +4347,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBClusterParameterGroupResult',
     );
     return DBClusterParameterGroupNameMessage.fromXml($result);
@@ -4121,11 +4414,22 @@ class Neptune {
     List<String>? valuesToAdd,
     List<String>? valuesToRemove,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['AttributeName'] = attributeName;
-    $request['DBClusterSnapshotIdentifier'] = dBClusterSnapshotIdentifier;
-    valuesToAdd?.also((arg) => $request['ValuesToAdd'] = arg);
-    valuesToRemove?.also((arg) => $request['ValuesToRemove'] = arg);
+    final $request = <String, String>{
+      'AttributeName': attributeName,
+      'DBClusterSnapshotIdentifier': dBClusterSnapshotIdentifier,
+      if (valuesToAdd != null)
+        if (valuesToAdd.isEmpty)
+          'ValuesToAdd': ''
+        else
+          for (var i1 = 0; i1 < valuesToAdd.length; i1++)
+            'ValuesToAdd.AttributeValue.${i1 + 1}': valuesToAdd[i1],
+      if (valuesToRemove != null)
+        if (valuesToRemove.isEmpty)
+          'ValuesToRemove': ''
+        else
+          for (var i1 = 0; i1 < valuesToRemove.length; i1++)
+            'ValuesToRemove.AttributeValue.${i1 + 1}': valuesToRemove[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBClusterSnapshotAttribute',
@@ -4133,8 +4437,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBClusterSnapshotAttributeMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBClusterSnapshotAttributeResult',
     );
     return ModifyDBClusterSnapshotAttributeResult.fromXml($result);
@@ -4507,56 +4809,78 @@ class Neptune {
     String? tdeCredentialPassword,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
-    allocatedStorage?.also((arg) => $request['AllocatedStorage'] = arg);
-    allowMajorVersionUpgrade
-        ?.also((arg) => $request['AllowMajorVersionUpgrade'] = arg);
-    applyImmediately?.also((arg) => $request['ApplyImmediately'] = arg);
-    autoMinorVersionUpgrade
-        ?.also((arg) => $request['AutoMinorVersionUpgrade'] = arg);
-    backupRetentionPeriod
-        ?.also((arg) => $request['BackupRetentionPeriod'] = arg);
-    cACertificateIdentifier
-        ?.also((arg) => $request['CACertificateIdentifier'] = arg);
-    cloudwatchLogsExportConfiguration
-        ?.also((arg) => $request['CloudwatchLogsExportConfiguration'] = arg);
-    copyTagsToSnapshot?.also((arg) => $request['CopyTagsToSnapshot'] = arg);
-    dBInstanceClass?.also((arg) => $request['DBInstanceClass'] = arg);
-    dBParameterGroupName?.also((arg) => $request['DBParameterGroupName'] = arg);
-    dBPortNumber?.also((arg) => $request['DBPortNumber'] = arg);
-    dBSecurityGroups?.also((arg) => $request['DBSecurityGroups'] = arg);
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    domain?.also((arg) => $request['Domain'] = arg);
-    domainIAMRoleName?.also((arg) => $request['DomainIAMRoleName'] = arg);
-    enableIAMDatabaseAuthentication
-        ?.also((arg) => $request['EnableIAMDatabaseAuthentication'] = arg);
-    enablePerformanceInsights
-        ?.also((arg) => $request['EnablePerformanceInsights'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    iops?.also((arg) => $request['Iops'] = arg);
-    licenseModel?.also((arg) => $request['LicenseModel'] = arg);
-    masterUserPassword?.also((arg) => $request['MasterUserPassword'] = arg);
-    monitoringInterval?.also((arg) => $request['MonitoringInterval'] = arg);
-    monitoringRoleArn?.also((arg) => $request['MonitoringRoleArn'] = arg);
-    multiAZ?.also((arg) => $request['MultiAZ'] = arg);
-    newDBInstanceIdentifier
-        ?.also((arg) => $request['NewDBInstanceIdentifier'] = arg);
-    optionGroupName?.also((arg) => $request['OptionGroupName'] = arg);
-    performanceInsightsKMSKeyId
-        ?.also((arg) => $request['PerformanceInsightsKMSKeyId'] = arg);
-    preferredBackupWindow
-        ?.also((arg) => $request['PreferredBackupWindow'] = arg);
-    preferredMaintenanceWindow
-        ?.also((arg) => $request['PreferredMaintenanceWindow'] = arg);
-    promotionTier?.also((arg) => $request['PromotionTier'] = arg);
-    publiclyAccessible?.also((arg) => $request['PubliclyAccessible'] = arg);
-    storageType?.also((arg) => $request['StorageType'] = arg);
-    tdeCredentialArn?.also((arg) => $request['TdeCredentialArn'] = arg);
-    tdeCredentialPassword
-        ?.also((arg) => $request['TdeCredentialPassword'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+      if (allocatedStorage != null)
+        'AllocatedStorage': allocatedStorage.toString(),
+      if (allowMajorVersionUpgrade != null)
+        'AllowMajorVersionUpgrade': allowMajorVersionUpgrade.toString(),
+      if (applyImmediately != null)
+        'ApplyImmediately': applyImmediately.toString(),
+      if (autoMinorVersionUpgrade != null)
+        'AutoMinorVersionUpgrade': autoMinorVersionUpgrade.toString(),
+      if (backupRetentionPeriod != null)
+        'BackupRetentionPeriod': backupRetentionPeriod.toString(),
+      if (cACertificateIdentifier != null)
+        'CACertificateIdentifier': cACertificateIdentifier,
+      if (cloudwatchLogsExportConfiguration != null)
+        for (var e1 in cloudwatchLogsExportConfiguration.toQueryMap().entries)
+          'CloudwatchLogsExportConfiguration.${e1.key}': e1.value,
+      if (copyTagsToSnapshot != null)
+        'CopyTagsToSnapshot': copyTagsToSnapshot.toString(),
+      if (dBInstanceClass != null) 'DBInstanceClass': dBInstanceClass,
+      if (dBParameterGroupName != null)
+        'DBParameterGroupName': dBParameterGroupName,
+      if (dBPortNumber != null) 'DBPortNumber': dBPortNumber.toString(),
+      if (dBSecurityGroups != null)
+        if (dBSecurityGroups.isEmpty)
+          'DBSecurityGroups': ''
+        else
+          for (var i1 = 0; i1 < dBSecurityGroups.length; i1++)
+            'DBSecurityGroups.DBSecurityGroupName.${i1 + 1}':
+                dBSecurityGroups[i1],
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (domain != null) 'Domain': domain,
+      if (domainIAMRoleName != null) 'DomainIAMRoleName': domainIAMRoleName,
+      if (enableIAMDatabaseAuthentication != null)
+        'EnableIAMDatabaseAuthentication':
+            enableIAMDatabaseAuthentication.toString(),
+      if (enablePerformanceInsights != null)
+        'EnablePerformanceInsights': enablePerformanceInsights.toString(),
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (iops != null) 'Iops': iops.toString(),
+      if (licenseModel != null) 'LicenseModel': licenseModel,
+      if (masterUserPassword != null) 'MasterUserPassword': masterUserPassword,
+      if (monitoringInterval != null)
+        'MonitoringInterval': monitoringInterval.toString(),
+      if (monitoringRoleArn != null) 'MonitoringRoleArn': monitoringRoleArn,
+      if (multiAZ != null) 'MultiAZ': multiAZ.toString(),
+      if (newDBInstanceIdentifier != null)
+        'NewDBInstanceIdentifier': newDBInstanceIdentifier,
+      if (optionGroupName != null) 'OptionGroupName': optionGroupName,
+      if (performanceInsightsKMSKeyId != null)
+        'PerformanceInsightsKMSKeyId': performanceInsightsKMSKeyId,
+      if (preferredBackupWindow != null)
+        'PreferredBackupWindow': preferredBackupWindow,
+      if (preferredMaintenanceWindow != null)
+        'PreferredMaintenanceWindow': preferredMaintenanceWindow,
+      if (promotionTier != null) 'PromotionTier': promotionTier.toString(),
+      if (publiclyAccessible != null)
+        'PubliclyAccessible': publiclyAccessible.toString(),
+      if (storageType != null) 'StorageType': storageType,
+      if (tdeCredentialArn != null) 'TdeCredentialArn': tdeCredentialArn,
+      if (tdeCredentialPassword != null)
+        'TdeCredentialPassword': tdeCredentialPassword,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBInstance',
@@ -4564,8 +4888,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBInstanceResult',
     );
     return ModifyDBInstanceResult.fromXml($result);
@@ -4624,9 +4946,15 @@ class Neptune {
     required String dBParameterGroupName,
     required List<Parameter> parameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupName'] = dBParameterGroupName;
-    $request['Parameters'] = parameters;
+    final $request = <String, String>{
+      'DBParameterGroupName': dBParameterGroupName,
+      if (parameters.isEmpty)
+        'Parameters': ''
+      else
+        for (var i1 = 0; i1 < parameters.length; i1++)
+          for (var e3 in parameters[i1].toQueryMap().entries)
+            'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBParameterGroup',
@@ -4634,8 +4962,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBParameterGroupResult',
     );
     return DBParameterGroupNameMessage.fromXml($result);
@@ -4669,11 +4995,16 @@ class Neptune {
     required List<String> subnetIds,
     String? dBSubnetGroupDescription,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBSubnetGroupName'] = dBSubnetGroupName;
-    $request['SubnetIds'] = subnetIds;
-    dBSubnetGroupDescription
-        ?.also((arg) => $request['DBSubnetGroupDescription'] = arg);
+    final $request = <String, String>{
+      'DBSubnetGroupName': dBSubnetGroupName,
+      if (subnetIds.isEmpty)
+        'SubnetIds': ''
+      else
+        for (var i1 = 0; i1 < subnetIds.length; i1++)
+          'SubnetIds.SubnetIdentifier.${i1 + 1}': subnetIds[i1],
+      if (dBSubnetGroupDescription != null)
+        'DBSubnetGroupDescription': dBSubnetGroupDescription,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyDBSubnetGroup',
@@ -4681,8 +5012,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyDBSubnetGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyDBSubnetGroupResult',
     );
     return ModifyDBSubnetGroupResult.fromXml($result);
@@ -4735,12 +5064,18 @@ class Neptune {
     String? snsTopicArn,
     String? sourceType,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SubscriptionName'] = subscriptionName;
-    enabled?.also((arg) => $request['Enabled'] = arg);
-    eventCategories?.also((arg) => $request['EventCategories'] = arg);
-    snsTopicArn?.also((arg) => $request['SnsTopicArn'] = arg);
-    sourceType?.also((arg) => $request['SourceType'] = arg);
+    final $request = <String, String>{
+      'SubscriptionName': subscriptionName,
+      if (enabled != null) 'Enabled': enabled.toString(),
+      if (eventCategories != null)
+        if (eventCategories.isEmpty)
+          'EventCategories': ''
+        else
+          for (var i1 = 0; i1 < eventCategories.length; i1++)
+            'EventCategories.EventCategory.${i1 + 1}': eventCategories[i1],
+      if (snsTopicArn != null) 'SnsTopicArn': snsTopicArn,
+      if (sourceType != null) 'SourceType': sourceType,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyEventSubscription',
@@ -4748,8 +5083,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyEventSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyEventSubscriptionResult',
     );
     return ModifyEventSubscriptionResult.fromXml($result);
@@ -4819,14 +5152,16 @@ class Neptune {
     String? engineVersion,
     String? newGlobalClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
-    allowMajorVersionUpgrade
-        ?.also((arg) => $request['AllowMajorVersionUpgrade'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    newGlobalClusterIdentifier
-        ?.also((arg) => $request['NewGlobalClusterIdentifier'] = arg);
+    final $request = <String, String>{
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+      if (allowMajorVersionUpgrade != null)
+        'AllowMajorVersionUpgrade': allowMajorVersionUpgrade.toString(),
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (newGlobalClusterIdentifier != null)
+        'NewGlobalClusterIdentifier': newGlobalClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ModifyGlobalCluster',
@@ -4834,8 +5169,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ModifyGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'ModifyGlobalClusterResult',
     );
     return ModifyGlobalClusterResult.fromXml($result);
@@ -4851,8 +5184,9 @@ class Neptune {
   Future<PromoteReadReplicaDBClusterResult> promoteReadReplicaDBCluster({
     required String dBClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'PromoteReadReplicaDBCluster',
@@ -4860,8 +5194,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['PromoteReadReplicaDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'PromoteReadReplicaDBClusterResult',
     );
     return PromoteReadReplicaDBClusterResult.fromXml($result);
@@ -4901,9 +5233,10 @@ class Neptune {
     required String dBInstanceIdentifier,
     bool? forceFailover,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBInstanceIdentifier'] = dBInstanceIdentifier;
-    forceFailover?.also((arg) => $request['ForceFailover'] = arg);
+    final $request = <String, String>{
+      'DBInstanceIdentifier': dBInstanceIdentifier,
+      if (forceFailover != null) 'ForceFailover': forceFailover.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RebootDBInstance',
@@ -4911,8 +5244,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RebootDBInstanceMessage'],
-      shapes: shapes,
       resultWrapper: 'RebootDBInstanceResult',
     );
     return RebootDBInstanceResult.fromXml($result);
@@ -4938,9 +5269,10 @@ class Neptune {
     required String dbClusterIdentifier,
     required String globalClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DbClusterIdentifier'] = dbClusterIdentifier;
-    $request['GlobalClusterIdentifier'] = globalClusterIdentifier;
+    final $request = <String, String>{
+      'DbClusterIdentifier': dbClusterIdentifier,
+      'GlobalClusterIdentifier': globalClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RemoveFromGlobalCluster',
@@ -4948,8 +5280,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveFromGlobalClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'RemoveFromGlobalClusterResult',
     );
     return RemoveFromGlobalClusterResult.fromXml($result);
@@ -4972,17 +5302,18 @@ class Neptune {
   ///
   /// Parameter [featureName] :
   /// The name of the feature for the DB cluster that the IAM role is to be
-  /// disassociated from. For the list of supported feature names, see <a
-  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/api-other-apis.html#DescribeDBEngineVersions">DescribeDBEngineVersions</a>.
+  /// disassociated from. For the list of supported feature names, see
+  /// <a>DescribeDBEngineVersions</a>.
   Future<void> removeRoleFromDBCluster({
     required String dBClusterIdentifier,
     required String roleArn,
     String? featureName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['RoleArn'] = roleArn;
-    featureName?.also((arg) => $request['FeatureName'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'RoleArn': roleArn,
+      if (featureName != null) 'FeatureName': featureName,
+    };
     await _protocol.send(
       $request,
       action: 'RemoveRoleFromDBCluster',
@@ -4990,8 +5321,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveRoleFromDBClusterMessage'],
-      shapes: shapes,
     );
   }
 
@@ -5014,9 +5343,10 @@ class Neptune {
     required String sourceIdentifier,
     required String subscriptionName,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['SourceIdentifier'] = sourceIdentifier;
-    $request['SubscriptionName'] = subscriptionName;
+    final $request = <String, String>{
+      'SourceIdentifier': sourceIdentifier,
+      'SubscriptionName': subscriptionName,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RemoveSourceIdentifierFromSubscription',
@@ -5024,8 +5354,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveSourceIdentifierFromSubscriptionMessage'],
-      shapes: shapes,
       resultWrapper: 'RemoveSourceIdentifierFromSubscriptionResult',
     );
     return RemoveSourceIdentifierFromSubscriptionResult.fromXml($result);
@@ -5050,9 +5378,14 @@ class Neptune {
     required String resourceName,
     required List<String> tagKeys,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['ResourceName'] = resourceName;
-    $request['TagKeys'] = tagKeys;
+    final $request = <String, String>{
+      'ResourceName': resourceName,
+      if (tagKeys.isEmpty)
+        'TagKeys': ''
+      else
+        for (var i1 = 0; i1 < tagKeys.length; i1++)
+          'TagKeys.member.${i1 + 1}': tagKeys[i1],
+    };
     await _protocol.send(
       $request,
       action: 'RemoveTagsFromResource',
@@ -5060,8 +5393,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RemoveTagsFromResourceMessage'],
-      shapes: shapes,
     );
   }
 
@@ -5099,10 +5430,18 @@ class Neptune {
     List<Parameter>? parameters,
     bool? resetAllParameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterParameterGroupName'] = dBClusterParameterGroupName;
-    parameters?.also((arg) => $request['Parameters'] = arg);
-    resetAllParameters?.also((arg) => $request['ResetAllParameters'] = arg);
+    final $request = <String, String>{
+      'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (parameters != null)
+        if (parameters.isEmpty)
+          'Parameters': ''
+        else
+          for (var i1 = 0; i1 < parameters.length; i1++)
+            for (var e3 in parameters[i1].toQueryMap().entries)
+              'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+      if (resetAllParameters != null)
+        'ResetAllParameters': resetAllParameters.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ResetDBClusterParameterGroup',
@@ -5110,8 +5449,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResetDBClusterParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ResetDBClusterParameterGroupResult',
     );
     return DBClusterParameterGroupNameMessage.fromXml($result);
@@ -5160,10 +5497,18 @@ class Neptune {
     List<Parameter>? parameters,
     bool? resetAllParameters,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBParameterGroupName'] = dBParameterGroupName;
-    parameters?.also((arg) => $request['Parameters'] = arg);
-    resetAllParameters?.also((arg) => $request['ResetAllParameters'] = arg);
+    final $request = <String, String>{
+      'DBParameterGroupName': dBParameterGroupName,
+      if (parameters != null)
+        if (parameters.isEmpty)
+          'Parameters': ''
+        else
+          for (var i1 = 0; i1 < parameters.length; i1++)
+            for (var e3 in parameters[i1].toQueryMap().entries)
+              'Parameters.Parameter.${i1 + 1}.${e3.key}': e3.value,
+      if (resetAllParameters != null)
+        'ResetAllParameters': resetAllParameters.toString(),
+    };
     final $result = await _protocol.send(
       $request,
       action: 'ResetDBParameterGroup',
@@ -5171,8 +5516,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['ResetDBParameterGroupMessage'],
-      shapes: shapes,
       resultWrapper: 'ResetDBParameterGroupResult',
     );
     return DBParameterGroupNameMessage.fromXml($result);
@@ -5335,6 +5678,20 @@ class Neptune {
   ///
   /// Default: The same port as the original DB cluster.
   ///
+  /// Parameter [serverlessV2ScalingConfiguration] :
+  /// Contains the scaling configuration of a Neptune Serverless DB cluster.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/neptune-serverless-using.html">Using
+  /// Amazon Neptune Serverless</a> in the <i>Amazon Neptune User Guide</i>.
+  ///
+  /// Parameter [storageType] :
+  /// Specifies the storage type to be associated with the DB cluster.
+  ///
+  /// Valid values: <code>standard</code>, <code>iopt1</code>
+  ///
+  /// Default: <code>standard</code>
+  ///
   /// Parameter [tags] :
   /// The tags to be assigned to the restored DB cluster.
   ///
@@ -5357,32 +5714,62 @@ class Neptune {
     String? optionGroupName,
     int? port,
     ServerlessV2ScalingConfiguration? serverlessV2ScalingConfiguration,
+    String? storageType,
     List<Tag>? tags,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['Engine'] = engine;
-    $request['SnapshotIdentifier'] = snapshotIdentifier;
-    availabilityZones?.also((arg) => $request['AvailabilityZones'] = arg);
-    copyTagsToSnapshot?.also((arg) => $request['CopyTagsToSnapshot'] = arg);
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    databaseName?.also((arg) => $request['DatabaseName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    enableCloudwatchLogsExports
-        ?.also((arg) => $request['EnableCloudwatchLogsExports'] = arg);
-    enableIAMDatabaseAuthentication
-        ?.also((arg) => $request['EnableIAMDatabaseAuthentication'] = arg);
-    engineVersion?.also((arg) => $request['EngineVersion'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    optionGroupName?.also((arg) => $request['OptionGroupName'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    serverlessV2ScalingConfiguration
-        ?.also((arg) => $request['ServerlessV2ScalingConfiguration'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'Engine': engine,
+      'SnapshotIdentifier': snapshotIdentifier,
+      if (availabilityZones != null)
+        if (availabilityZones.isEmpty)
+          'AvailabilityZones': ''
+        else
+          for (var i1 = 0; i1 < availabilityZones.length; i1++)
+            'AvailabilityZones.AvailabilityZone.${i1 + 1}':
+                availabilityZones[i1],
+      if (copyTagsToSnapshot != null)
+        'CopyTagsToSnapshot': copyTagsToSnapshot.toString(),
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (databaseName != null) 'DatabaseName': databaseName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (enableCloudwatchLogsExports != null)
+        if (enableCloudwatchLogsExports.isEmpty)
+          'EnableCloudwatchLogsExports': ''
+        else
+          for (var i1 = 0; i1 < enableCloudwatchLogsExports.length; i1++)
+            'EnableCloudwatchLogsExports.member.${i1 + 1}':
+                enableCloudwatchLogsExports[i1],
+      if (enableIAMDatabaseAuthentication != null)
+        'EnableIAMDatabaseAuthentication':
+            enableIAMDatabaseAuthentication.toString(),
+      if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (optionGroupName != null) 'OptionGroupName': optionGroupName,
+      if (port != null) 'Port': port.toString(),
+      if (serverlessV2ScalingConfiguration != null)
+        for (var e1 in serverlessV2ScalingConfiguration.toQueryMap().entries)
+          'ServerlessV2ScalingConfiguration.${e1.key}': e1.value,
+      if (storageType != null) 'StorageType': storageType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RestoreDBClusterFromSnapshot',
@@ -5390,8 +5777,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RestoreDBClusterFromSnapshotMessage'],
-      shapes: shapes,
       resultWrapper: 'RestoreDBClusterFromSnapshotResult',
     );
     return RestoreDBClusterFromSnapshotResult.fromXml($result);
@@ -5578,6 +5963,20 @@ class Neptune {
   /// If you don't specify a <code>RestoreType</code> value, then the new DB
   /// cluster is restored as a full copy of the source DB cluster.
   ///
+  /// Parameter [serverlessV2ScalingConfiguration] :
+  /// Contains the scaling configuration of a Neptune Serverless DB cluster.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/neptune-serverless-using.html">Using
+  /// Amazon Neptune Serverless</a> in the <i>Amazon Neptune User Guide</i>.
+  ///
+  /// Parameter [storageType] :
+  /// Specifies the storage type to be associated with the DB cluster.
+  ///
+  /// Valid values: <code>standard</code>, <code>iopt1</code>
+  ///
+  /// Default: <code>standard</code>
+  ///
   /// Parameter [tags] :
   /// The tags to be applied to the restored DB cluster.
   ///
@@ -5606,33 +6005,56 @@ class Neptune {
     DateTime? restoreToTime,
     String? restoreType,
     ServerlessV2ScalingConfiguration? serverlessV2ScalingConfiguration,
+    String? storageType,
     List<Tag>? tags,
     bool? useLatestRestorableTime,
     List<String>? vpcSecurityGroupIds,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
-    $request['SourceDBClusterIdentifier'] = sourceDBClusterIdentifier;
-    dBClusterParameterGroupName
-        ?.also((arg) => $request['DBClusterParameterGroupName'] = arg);
-    dBSubnetGroupName?.also((arg) => $request['DBSubnetGroupName'] = arg);
-    deletionProtection?.also((arg) => $request['DeletionProtection'] = arg);
-    enableCloudwatchLogsExports
-        ?.also((arg) => $request['EnableCloudwatchLogsExports'] = arg);
-    enableIAMDatabaseAuthentication
-        ?.also((arg) => $request['EnableIAMDatabaseAuthentication'] = arg);
-    kmsKeyId?.also((arg) => $request['KmsKeyId'] = arg);
-    optionGroupName?.also((arg) => $request['OptionGroupName'] = arg);
-    port?.also((arg) => $request['Port'] = arg);
-    restoreToTime
-        ?.also((arg) => $request['RestoreToTime'] = _s.iso8601ToJson(arg));
-    restoreType?.also((arg) => $request['RestoreType'] = arg);
-    serverlessV2ScalingConfiguration
-        ?.also((arg) => $request['ServerlessV2ScalingConfiguration'] = arg);
-    tags?.also((arg) => $request['Tags'] = arg);
-    useLatestRestorableTime
-        ?.also((arg) => $request['UseLatestRestorableTime'] = arg);
-    vpcSecurityGroupIds?.also((arg) => $request['VpcSecurityGroupIds'] = arg);
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+      'SourceDBClusterIdentifier': sourceDBClusterIdentifier,
+      if (dBClusterParameterGroupName != null)
+        'DBClusterParameterGroupName': dBClusterParameterGroupName,
+      if (dBSubnetGroupName != null) 'DBSubnetGroupName': dBSubnetGroupName,
+      if (deletionProtection != null)
+        'DeletionProtection': deletionProtection.toString(),
+      if (enableCloudwatchLogsExports != null)
+        if (enableCloudwatchLogsExports.isEmpty)
+          'EnableCloudwatchLogsExports': ''
+        else
+          for (var i1 = 0; i1 < enableCloudwatchLogsExports.length; i1++)
+            'EnableCloudwatchLogsExports.member.${i1 + 1}':
+                enableCloudwatchLogsExports[i1],
+      if (enableIAMDatabaseAuthentication != null)
+        'EnableIAMDatabaseAuthentication':
+            enableIAMDatabaseAuthentication.toString(),
+      if (kmsKeyId != null) 'KmsKeyId': kmsKeyId,
+      if (optionGroupName != null) 'OptionGroupName': optionGroupName,
+      if (port != null) 'Port': port.toString(),
+      if (restoreToTime != null)
+        'RestoreToTime': _s.iso8601ToJson(restoreToTime),
+      if (restoreType != null) 'RestoreType': restoreType,
+      if (serverlessV2ScalingConfiguration != null)
+        for (var e1 in serverlessV2ScalingConfiguration.toQueryMap().entries)
+          'ServerlessV2ScalingConfiguration.${e1.key}': e1.value,
+      if (storageType != null) 'StorageType': storageType,
+      if (tags != null)
+        if (tags.isEmpty)
+          'Tags': ''
+        else
+          for (var i1 = 0; i1 < tags.length; i1++)
+            for (var e3 in tags[i1].toQueryMap().entries)
+              'Tags.Tag.${i1 + 1}.${e3.key}': e3.value,
+      if (useLatestRestorableTime != null)
+        'UseLatestRestorableTime': useLatestRestorableTime.toString(),
+      if (vpcSecurityGroupIds != null)
+        if (vpcSecurityGroupIds.isEmpty)
+          'VpcSecurityGroupIds': ''
+        else
+          for (var i1 = 0; i1 < vpcSecurityGroupIds.length; i1++)
+            'VpcSecurityGroupIds.VpcSecurityGroupId.${i1 + 1}':
+                vpcSecurityGroupIds[i1],
+    };
     final $result = await _protocol.send(
       $request,
       action: 'RestoreDBClusterToPointInTime',
@@ -5640,8 +6062,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['RestoreDBClusterToPointInTimeMessage'],
-      shapes: shapes,
       resultWrapper: 'RestoreDBClusterToPointInTimeResult',
     );
     return RestoreDBClusterToPointInTimeResult.fromXml($result);
@@ -5660,8 +6080,9 @@ class Neptune {
   Future<StartDBClusterResult> startDBCluster({
     required String dBClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'StartDBCluster',
@@ -5669,8 +6090,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['StartDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'StartDBClusterResult',
     );
     return StartDBClusterResult.fromXml($result);
@@ -5693,8 +6112,9 @@ class Neptune {
   Future<StopDBClusterResult> stopDBCluster({
     required String dBClusterIdentifier,
   }) async {
-    final $request = <String, dynamic>{};
-    $request['DBClusterIdentifier'] = dBClusterIdentifier;
+    final $request = <String, String>{
+      'DBClusterIdentifier': dBClusterIdentifier,
+    };
     final $result = await _protocol.send(
       $request,
       action: 'StopDBCluster',
@@ -5702,8 +6122,6 @@ class Neptune {
       method: 'POST',
       requestUri: '/',
       exceptionFnMap: _exceptionFns,
-      shape: shapes['StopDBClusterMessage'],
-      shapes: shapes,
       resultWrapper: 'StopDBClusterResult',
     );
     return StopDBClusterResult.fromXml($result);
@@ -5726,31 +6144,17 @@ class AddSourceIdentifierToSubscriptionResult {
 }
 
 enum ApplyMethod {
-  immediate,
-  pendingReboot,
-}
+  immediate('immediate'),
+  pendingReboot('pending-reboot'),
+  ;
 
-extension ApplyMethodValueExtension on ApplyMethod {
-  String toValue() {
-    switch (this) {
-      case ApplyMethod.immediate:
-        return 'immediate';
-      case ApplyMethod.pendingReboot:
-        return 'pending-reboot';
-    }
-  }
-}
+  final String value;
 
-extension ApplyMethodFromString on String {
-  ApplyMethod toApplyMethod() {
-    switch (this) {
-      case 'immediate':
-        return ApplyMethod.immediate;
-      case 'pending-reboot':
-        return ApplyMethod.pendingReboot;
-    }
-    throw Exception('$this is not known in enum ApplyMethod');
-  }
+  const ApplyMethod(this.value);
+
+  static ApplyMethod fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ApplyMethod'));
 }
 
 class ApplyPendingMaintenanceActionResult {
@@ -5809,6 +6213,11 @@ class CharacterSet {
 ///
 /// The <code>EnableLogTypes</code> and <code>DisableLogTypes</code> arrays
 /// determine which logs will be exported (or not exported) to CloudWatch Logs.
+///
+/// Valid log types are: <code>audit</code> (to publish audit logs) and
+/// <code>slowquery</code> (to publish slow-query logs). See <a
+/// href="https://docs.aws.amazon.com/neptune/latest/userguide/cloudwatch-logs.html">Publishing
+/// Neptune logs to Amazon CloudWatch logs</a>.
 class CloudwatchLogsExportConfiguration {
   /// The list of log types to disable.
   final List<String>? disableLogTypes;
@@ -5827,6 +6236,25 @@ class CloudwatchLogsExportConfiguration {
     return {
       if (disableLogTypes != null) 'DisableLogTypes': disableLogTypes,
       if (enableLogTypes != null) 'EnableLogTypes': enableLogTypes,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final disableLogTypes = this.disableLogTypes;
+    final enableLogTypes = this.enableLogTypes;
+    return {
+      if (disableLogTypes != null)
+        if (disableLogTypes.isEmpty)
+          'DisableLogTypes': ''
+        else
+          for (var i1 = 0; i1 < disableLogTypes.length; i1++)
+            'DisableLogTypes.member.${i1 + 1}': disableLogTypes[i1],
+      if (enableLogTypes != null)
+        if (enableLogTypes.isEmpty)
+          'EnableLogTypes': ''
+        else
+          for (var i1 = 0; i1 < enableLogTypes.length; i1++)
+            'EnableLogTypes.member.${i1 + 1}': enableLogTypes[i1],
     };
   }
 }
@@ -5862,6 +6290,9 @@ class ClusterPendingModifiedValues {
   /// changes to which CloudWatch logs are enabled and which are disabled.
   final PendingCloudwatchLogsExports? pendingCloudwatchLogsExports;
 
+  /// The storage type for the DB cluster.
+  final String? storageType;
+
   ClusterPendingModifiedValues({
     this.allocatedStorage,
     this.backupRetentionPeriod,
@@ -5870,6 +6301,7 @@ class ClusterPendingModifiedValues {
     this.iAMDatabaseAuthenticationEnabled,
     this.iops,
     this.pendingCloudwatchLogsExports,
+    this.storageType,
   });
   factory ClusterPendingModifiedValues.fromXml(_s.XmlElement elem) {
     return ClusterPendingModifiedValues(
@@ -5885,6 +6317,7 @@ class ClusterPendingModifiedValues {
       pendingCloudwatchLogsExports: _s
           .extractXmlChild(elem, 'PendingCloudwatchLogsExports')
           ?.let(PendingCloudwatchLogsExports.fromXml),
+      storageType: _s.extractXmlStringValue(elem, 'StorageType'),
     );
   }
 }
@@ -6151,7 +6584,7 @@ class CreateGlobalClusterResult {
 /// Contains the details of an Amazon Neptune DB cluster.
 ///
 /// This data type is used as a response element in the
-/// <a>DescribeDBClusters</a> action.
+/// <a>DescribeDBClusters</a>.
 class DBCluster {
   /// <code>AllocatedStorage</code> always returns 1, because Neptune DB cluster
   /// storage size is not fixed, but instead automatically adjusts as needed.
@@ -6228,8 +6661,12 @@ class DBCluster {
   /// point-in-time restore.
   final DateTime? earliestRestorableTime;
 
-  /// A list of log types that this DB cluster is configured to export to
-  /// CloudWatch Logs.
+  /// A list of the log types that this DB cluster is configured to export to
+  /// CloudWatch Logs. Valid log types are: <code>audit</code> (to publish audit
+  /// logs to CloudWatch) and slowquery (to publish slow-query logs to
+  /// CloudWatch). See <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/cloudwatch-logs.html">Publishing
+  /// Neptune logs to Amazon CloudWatch logs</a>.
   final List<String>? enabledCloudwatchLogsExports;
 
   /// Specifies the connection endpoint for the primary instance of the DB
@@ -6252,6 +6689,10 @@ class DBCluster {
   /// True if mapping of Amazon Identity and Access Management (IAM) accounts to
   /// database accounts is enabled, and otherwise false.
   final bool? iAMDatabaseAuthenticationEnabled;
+
+  /// The next time you can modify the DB cluster to use the <code>iopt1</code>
+  /// storage type.
+  final DateTime? iOOptimizedNextAllowedModificationTime;
 
   /// If <code>StorageEncrypted</code> is true, the Amazon KMS key identifier for
   /// the encrypted DB cluster.
@@ -6307,6 +6748,12 @@ class DBCluster {
 
   /// Not supported by Neptune.
   final String? replicationSourceIdentifier;
+
+  /// Shows the scaling configuration for a Neptune Serverless DB cluster.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/neptune-serverless-using.html">Using
+  /// Amazon Neptune Serverless</a> in the <i>Amazon Neptune User Guide</i>.
   final ServerlessV2ScalingConfigurationInfo? serverlessV2ScalingConfiguration;
 
   /// Specifies the current state of this DB cluster.
@@ -6314,6 +6761,9 @@ class DBCluster {
 
   /// Specifies whether the DB cluster is encrypted.
   final bool? storageEncrypted;
+
+  /// The storage type associated with the DB cluster.
+  final String? storageType;
 
   /// Provides a list of VPC security groups that the DB cluster belongs to.
   final List<VpcSecurityGroupMembership>? vpcSecurityGroups;
@@ -6346,6 +6796,7 @@ class DBCluster {
     this.globalClusterIdentifier,
     this.hostedZoneId,
     this.iAMDatabaseAuthenticationEnabled,
+    this.iOOptimizedNextAllowedModificationTime,
     this.kmsKeyId,
     this.latestRestorableTime,
     this.masterUsername,
@@ -6361,6 +6812,7 @@ class DBCluster {
     this.serverlessV2ScalingConfiguration,
     this.status,
     this.storageEncrypted,
+    this.storageType,
     this.vpcSecurityGroups,
   });
   factory DBCluster.fromXml(_s.XmlElement elem) {
@@ -6416,6 +6868,8 @@ class DBCluster {
       hostedZoneId: _s.extractXmlStringValue(elem, 'HostedZoneId'),
       iAMDatabaseAuthenticationEnabled:
           _s.extractXmlBoolValue(elem, 'IAMDatabaseAuthenticationEnabled'),
+      iOOptimizedNextAllowedModificationTime: _s.extractXmlDateTimeValue(
+          elem, 'IOOptimizedNextAllowedModificationTime'),
       kmsKeyId: _s.extractXmlStringValue(elem, 'KmsKeyId'),
       latestRestorableTime:
           _s.extractXmlDateTimeValue(elem, 'LatestRestorableTime'),
@@ -6442,6 +6896,7 @@ class DBCluster {
           ?.let(ServerlessV2ScalingConfigurationInfo.fromXml),
       status: _s.extractXmlStringValue(elem, 'Status'),
       storageEncrypted: _s.extractXmlBoolValue(elem, 'StorageEncrypted'),
+      storageType: _s.extractXmlStringValue(elem, 'StorageType'),
       vpcSecurityGroups: _s.extractXmlChild(elem, 'VpcSecurityGroups')?.let(
           (elem) => elem
               .findElements('VpcSecurityGroupMembership')
@@ -6777,8 +7232,8 @@ class DBClusterParameterGroupsMessage {
 /// associated with a DB cluster.
 class DBClusterRole {
   /// The name of the feature associated with the Amazon Identity and Access
-  /// Management (IAM) role. For the list of supported feature names, see <a
-  /// href="https://docs.aws.amazon.com/neptune/latest/userguide/api-other-apis.html#DescribeDBEngineVersions">DescribeDBEngineVersions</a>.
+  /// Management (IAM) role. For the list of supported feature names, see
+  /// <a>DescribeDBEngineVersions</a>.
   final String? featureName;
 
   /// The Amazon Resource Name (ARN) of the IAM role that is associated with the
@@ -6905,6 +7360,9 @@ class DBClusterSnapshot {
   /// Specifies whether the DB cluster snapshot is encrypted.
   final bool? storageEncrypted;
 
+  /// The storage type associated with the DB cluster snapshot.
+  final String? storageType;
+
   /// Provides the VPC ID associated with the DB cluster snapshot.
   final String? vpcId;
 
@@ -6928,6 +7386,7 @@ class DBClusterSnapshot {
     this.sourceDBClusterSnapshotArn,
     this.status,
     this.storageEncrypted,
+    this.storageType,
     this.vpcId,
   });
   factory DBClusterSnapshot.fromXml(_s.XmlElement elem) {
@@ -6958,6 +7417,7 @@ class DBClusterSnapshot {
           _s.extractXmlStringValue(elem, 'SourceDBClusterSnapshotArn'),
       status: _s.extractXmlStringValue(elem, 'Status'),
       storageEncrypted: _s.extractXmlBoolValue(elem, 'StorageEncrypted'),
+      storageType: _s.extractXmlStringValue(elem, 'StorageType'),
       vpcId: _s.extractXmlStringValue(elem, 'VpcId'),
     );
   }
@@ -8210,7 +8670,9 @@ class Event {
       message: _s.extractXmlStringValue(elem, 'Message'),
       sourceArn: _s.extractXmlStringValue(elem, 'SourceArn'),
       sourceIdentifier: _s.extractXmlStringValue(elem, 'SourceIdentifier'),
-      sourceType: _s.extractXmlStringValue(elem, 'SourceType')?.toSourceType(),
+      sourceType: _s
+          .extractXmlStringValue(elem, 'SourceType')
+          ?.let(SourceType.fromString),
     );
   }
 }
@@ -8430,6 +8892,19 @@ class Filter {
     return {
       'Name': name,
       'Values': values,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
+    final name = this.name;
+    final values = this.values;
+    return {
+      'Name': name,
+      if (values.isEmpty)
+        'Value': ''
+      else
+        for (var i1 = 0; i1 < values.length; i1++)
+          'Value.Value.${i1 + 1}': values[i1],
     };
   }
 }
@@ -8972,8 +9447,9 @@ class Parameter {
   factory Parameter.fromXml(_s.XmlElement elem) {
     return Parameter(
       allowedValues: _s.extractXmlStringValue(elem, 'AllowedValues'),
-      applyMethod:
-          _s.extractXmlStringValue(elem, 'ApplyMethod')?.toApplyMethod(),
+      applyMethod: _s
+          .extractXmlStringValue(elem, 'ApplyMethod')
+          ?.let(ApplyMethod.fromString),
       applyType: _s.extractXmlStringValue(elem, 'ApplyType'),
       dataType: _s.extractXmlStringValue(elem, 'DataType'),
       description: _s.extractXmlStringValue(elem, 'Description'),
@@ -8999,7 +9475,7 @@ class Parameter {
     final source = this.source;
     return {
       if (allowedValues != null) 'AllowedValues': allowedValues,
-      if (applyMethod != null) 'ApplyMethod': applyMethod.toValue(),
+      if (applyMethod != null) 'ApplyMethod': applyMethod.value,
       if (applyType != null) 'ApplyType': applyType,
       if (dataType != null) 'DataType': dataType,
       if (description != null) 'Description': description,
@@ -9011,10 +9487,41 @@ class Parameter {
       if (source != null) 'Source': source,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final allowedValues = this.allowedValues;
+    final applyMethod = this.applyMethod;
+    final applyType = this.applyType;
+    final dataType = this.dataType;
+    final description = this.description;
+    final isModifiable = this.isModifiable;
+    final minimumEngineVersion = this.minimumEngineVersion;
+    final parameterName = this.parameterName;
+    final parameterValue = this.parameterValue;
+    final source = this.source;
+    return {
+      if (allowedValues != null) 'AllowedValues': allowedValues,
+      if (applyMethod != null) 'ApplyMethod': applyMethod.value,
+      if (applyType != null) 'ApplyType': applyType,
+      if (dataType != null) 'DataType': dataType,
+      if (description != null) 'Description': description,
+      if (isModifiable != null) 'IsModifiable': isModifiable.toString(),
+      if (minimumEngineVersion != null)
+        'MinimumEngineVersion': minimumEngineVersion,
+      if (parameterName != null) 'ParameterName': parameterName,
+      if (parameterValue != null) 'ParameterValue': parameterValue,
+      if (source != null) 'Source': source,
+    };
+  }
 }
 
 /// A list of the log types whose configuration is still pending. In other
 /// words, these log types are in the process of being activated or deactivated.
+///
+/// Valid log types are: <code>audit</code> (to publish audit logs) and
+/// <code>slowquery</code> (to publish slow-query logs). See <a
+/// href="https://docs.aws.amazon.com/neptune/latest/userguide/cloudwatch-logs.html">Publishing
+/// Neptune logs to Amazon CloudWatch logs</a>.
 class PendingCloudwatchLogsExports {
   /// Log types that are in the process of being enabled. After they are enabled,
   /// these log types are exported to CloudWatch Logs.
@@ -9380,6 +9887,15 @@ class ServerlessV2ScalingConfiguration {
       if (minCapacity != null) 'MinCapacity': minCapacity,
     };
   }
+
+  Map<String, String> toQueryMap() {
+    final maxCapacity = this.maxCapacity;
+    final minCapacity = this.minCapacity;
+    return {
+      if (maxCapacity != null) 'MaxCapacity': maxCapacity.toString(),
+      if (minCapacity != null) 'MinCapacity': minCapacity.toString(),
+    };
+  }
 }
 
 /// Shows the scaling configuration for a Neptune Serverless DB cluster.
@@ -9411,51 +9927,21 @@ class ServerlessV2ScalingConfigurationInfo {
 }
 
 enum SourceType {
-  dbInstance,
-  dbParameterGroup,
-  dbSecurityGroup,
-  dbSnapshot,
-  dbCluster,
-  dbClusterSnapshot,
-}
+  dbInstance('db-instance'),
+  dbParameterGroup('db-parameter-group'),
+  dbSecurityGroup('db-security-group'),
+  dbSnapshot('db-snapshot'),
+  dbCluster('db-cluster'),
+  dbClusterSnapshot('db-cluster-snapshot'),
+  ;
 
-extension SourceTypeValueExtension on SourceType {
-  String toValue() {
-    switch (this) {
-      case SourceType.dbInstance:
-        return 'db-instance';
-      case SourceType.dbParameterGroup:
-        return 'db-parameter-group';
-      case SourceType.dbSecurityGroup:
-        return 'db-security-group';
-      case SourceType.dbSnapshot:
-        return 'db-snapshot';
-      case SourceType.dbCluster:
-        return 'db-cluster';
-      case SourceType.dbClusterSnapshot:
-        return 'db-cluster-snapshot';
-    }
-  }
-}
+  final String value;
 
-extension SourceTypeFromString on String {
-  SourceType toSourceType() {
-    switch (this) {
-      case 'db-instance':
-        return SourceType.dbInstance;
-      case 'db-parameter-group':
-        return SourceType.dbParameterGroup;
-      case 'db-security-group':
-        return SourceType.dbSecurityGroup;
-      case 'db-snapshot':
-        return SourceType.dbSnapshot;
-      case 'db-cluster':
-        return SourceType.dbCluster;
-      case 'db-cluster-snapshot':
-        return SourceType.dbClusterSnapshot;
-    }
-    throw Exception('$this is not known in enum SourceType');
-  }
+  const SourceType(this.value);
+
+  static SourceType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum SourceType'));
 }
 
 class StartDBClusterResult {
@@ -9543,6 +10029,15 @@ class Tag {
   }
 
   Map<String, dynamic> toJson() {
+    final key = this.key;
+    final value = this.value;
+    return {
+      if (key != null) 'Key': key,
+      if (value != null) 'Value': value,
+    };
+  }
+
+  Map<String, String> toQueryMap() {
     final key = this.key;
     final value = this.value;
     return {

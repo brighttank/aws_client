@@ -21,9 +21,9 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 
 /// Amazon Elastic Kubernetes Service (Amazon EKS) is a managed service that
 /// makes it easy for you to run Kubernetes on Amazon Web Services without
-/// needing to stand up or maintain your own Kubernetes control plane.
-/// Kubernetes is an open-source system for automating the deployment, scaling,
-/// and management of containerized applications.
+/// needing to setup or maintain your own Kubernetes control plane. Kubernetes
+/// is an open-source system for automating the deployment, scaling, and
+/// management of containerized applications.
 ///
 /// Amazon EKS runs up-to-date versions of the open-source Kubernetes software,
 /// so you can use all the existing plugins and tooling from the Kubernetes
@@ -61,12 +61,57 @@ class Eks {
     _protocol.close();
   }
 
-  /// Associate encryption configuration to an existing cluster.
+  /// Associates an access policy and its scope to an access entry. For more
+  /// information about associating access policies, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/access-policies.html">Associating
+  /// and disassociating access policies to and from access entries</a> in the
+  /// <i>Amazon EKS User Guide</i>.
   ///
-  /// You can use this API to enable encryption on existing clusters which do
-  /// not have encryption already enabled. This allows you to implement a
-  /// defense-in-depth security strategy without migrating applications to new
-  /// Amazon EKS clusters.
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [accessScope] :
+  /// The scope for the <code>AccessPolicy</code>. You can scope access policies
+  /// to an entire cluster or to specific Kubernetes namespaces.
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [policyArn] :
+  /// The ARN of the <code>AccessPolicy</code> that you're associating. For a
+  /// list of ARNs, use <code>ListAccessPolicies</code>.
+  ///
+  /// Parameter [principalArn] :
+  /// The Amazon Resource Name (ARN) of the IAM user or role for the
+  /// <code>AccessEntry</code> that you're associating the access policy to.
+  Future<AssociateAccessPolicyResponse> associateAccessPolicy({
+    required AccessScope accessScope,
+    required String clusterName,
+    required String policyArn,
+    required String principalArn,
+  }) async {
+    final $payload = <String, dynamic>{
+      'accessScope': accessScope,
+      'policyArn': policyArn,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries/${Uri.encodeComponent(principalArn)}/access-policies',
+      exceptionFnMap: _exceptionFns,
+    );
+    return AssociateAccessPolicyResponse.fromJson(response);
+  }
+
+  /// Associates an encryption configuration to an existing cluster.
+  ///
+  /// Use this API to enable encryption on existing clusters that don't already
+  /// have encryption enabled. This allows you to implement a defense-in-depth
+  /// security strategy without migrating applications to new Amazon EKS
+  /// clusters.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -76,14 +121,14 @@ class Eks {
   /// May throw [InvalidRequestException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster that you are associating with encryption
-  /// configuration.
+  /// The name of your cluster.
   ///
   /// Parameter [encryptionConfig] :
   /// The configuration you are using for encryption.
   ///
   /// Parameter [clientRequestToken] :
-  /// The client request token you are using with the encryption configuration.
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
   Future<AssociateEncryptionConfigResponse> associateEncryptionConfig({
     required String clusterName,
     required List<EncryptionConfig> encryptionConfig,
@@ -103,15 +148,15 @@ class Eks {
     return AssociateEncryptionConfigResponse.fromJson(response);
   }
 
-  /// Associate an identity provider configuration to a cluster.
+  /// Associates an identity provider configuration to a cluster.
   ///
   /// If you want to authenticate identities using an identity provider, you can
   /// create an identity provider configuration and associate it to your
   /// cluster. After configuring authentication to your cluster you can create
-  /// Kubernetes <code>roles</code> and <code>clusterroles</code> to assign
-  /// permissions to the roles, and then bind the roles to the identities using
-  /// Kubernetes <code>rolebindings</code> and <code>clusterrolebindings</code>.
-  /// For more information see <a
+  /// Kubernetes <code>Role</code> and <code>ClusterRole</code> objects, assign
+  /// permissions to them, and then bind them to the identities using Kubernetes
+  /// <code>RoleBinding</code> and <code>ClusterRoleBinding</code> objects. For
+  /// more information see <a
   /// href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">Using
   /// RBAC Authorization</a> in the Kubernetes documentation.
   ///
@@ -123,20 +168,20 @@ class Eks {
   /// May throw [InvalidRequestException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster to associate the configuration to.
+  /// The name of your cluster.
   ///
   /// Parameter [oidc] :
   /// An object representing an OpenID Connect (OIDC) identity provider
   /// configuration.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [tags] :
-  /// The metadata to apply to the configuration to assist with categorization
-  /// and organization. Each tag consists of a key and an optional value. You
-  /// define both.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   Future<AssociateIdentityProviderConfigResponse>
       associateIdentityProviderConfig({
     required String clusterName,
@@ -159,6 +204,144 @@ class Eks {
     return AssociateIdentityProviderConfigResponse.fromJson(response);
   }
 
+  /// Creates an access entry.
+  ///
+  /// An access entry allows an IAM principal to access your cluster. Access
+  /// entries can replace the need to maintain entries in the
+  /// <code>aws-auth</code> <code>ConfigMap</code> for authentication. You have
+  /// the following options for authorizing an IAM principal to access
+  /// Kubernetes objects on your cluster: Kubernetes role-based access control
+  /// (RBAC), Amazon EKS, or both. Kubernetes RBAC authorization requires you to
+  /// create and manage Kubernetes <code>Role</code>, <code>ClusterRole</code>,
+  /// <code>RoleBinding</code>, and <code>ClusterRoleBinding</code> objects, in
+  /// addition to managing access entries. If you use Amazon EKS authorization
+  /// exclusively, you don't need to create and manage Kubernetes
+  /// <code>Role</code>, <code>ClusterRole</code>, <code>RoleBinding</code>, and
+  /// <code>ClusterRoleBinding</code> objects.
+  ///
+  /// For more information about access entries, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html">Access
+  /// entries</a> in the <i>Amazon EKS User Guide</i>.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  /// May throw [ResourceLimitExceededException].
+  /// May throw [ResourceInUseException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [principalArn] :
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>. You can
+  /// specify one ARN for each access entry. You can't specify the same ARN in
+  /// more than one access entry. This value can't be changed after access entry
+  /// creation.
+  ///
+  /// The valid principals differ depending on the type of the access entry in
+  /// the <code>type</code> field. The only valid ARN is IAM roles for the types
+  /// of access entries for nodes: <code/> <code/>. You can use every IAM
+  /// principal type for <code>STANDARD</code> access entries. You can't use the
+  /// STS session principal type with access entries because this is a temporary
+  /// principal for each session and not a permanent identity that can be
+  /// assigned permissions.
+  ///
+  /// <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/best-practices.html#bp-users-federation-idp">IAM
+  /// best practices</a> recommend using IAM roles with temporary credentials,
+  /// rather than IAM users with long-term credentials.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
+  ///
+  /// Parameter [kubernetesGroups] :
+  /// The value for <code>name</code> that you've specified for <code>kind:
+  /// Group</code> as a <code>subject</code> in a Kubernetes
+  /// <code>RoleBinding</code> or <code>ClusterRoleBinding</code> object. Amazon
+  /// EKS doesn't confirm that the value for <code>name</code> exists in any
+  /// bindings on your cluster. You can specify one or more names.
+  ///
+  /// Kubernetes authorizes the <code>principalArn</code> of the access entry to
+  /// access any cluster objects that you've specified in a Kubernetes
+  /// <code>Role</code> or <code>ClusterRole</code> object that is also
+  /// specified in a binding's <code>roleRef</code>. For more information about
+  /// creating Kubernetes <code>RoleBinding</code>,
+  /// <code>ClusterRoleBinding</code>, <code>Role</code>, or
+  /// <code>ClusterRole</code> objects, see <a
+  /// href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">Using
+  /// RBAC Authorization in the Kubernetes documentation</a>.
+  ///
+  /// If you want Amazon EKS to authorize the <code>principalArn</code> (instead
+  /// of, or in addition to Kubernetes authorizing the
+  /// <code>principalArn</code>), you can associate one or more access policies
+  /// to the access entry using <code>AssociateAccessPolicy</code>. If you
+  /// associate any access policies, the <code>principalARN</code> has all
+  /// permissions assigned in the associated access policies and all permissions
+  /// in any Kubernetes <code>Role</code> or <code>ClusterRole</code> objects
+  /// that the group names are bound to.
+  ///
+  /// Parameter [tags] :
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
+  ///
+  /// Parameter [type] :
+  /// The type of the new access entry. Valid values are <code>Standard</code>,
+  /// <code>FARGATE_LINUX</code>, <code>EC2_LINUX</code>, and
+  /// <code>EC2_WINDOWS</code>.
+  ///
+  /// If the <code>principalArn</code> is for an IAM role that's used for
+  /// self-managed Amazon EC2 nodes, specify <code>EC2_LINUX</code> or
+  /// <code>EC2_WINDOWS</code>. Amazon EKS grants the necessary permissions to
+  /// the node for you. If the <code>principalArn</code> is for any other
+  /// purpose, specify <code>STANDARD</code>. If you don't specify a value,
+  /// Amazon EKS sets the value to <code>STANDARD</code>. It's unnecessary to
+  /// create access entries for IAM roles used with Fargate profiles or managed
+  /// Amazon EC2 nodes, because Amazon EKS creates entries in the
+  /// <code>aws-auth</code> <code>ConfigMap</code> for the roles. You can't
+  /// change this value once you've created the access entry.
+  ///
+  /// If you set the value to <code>EC2_LINUX</code> or
+  /// <code>EC2_WINDOWS</code>, you can't specify values for
+  /// <code>kubernetesGroups</code>, or associate an <code>AccessPolicy</code>
+  /// to the access entry.
+  ///
+  /// Parameter [username] :
+  /// The username to authenticate to Kubernetes with. We recommend not
+  /// specifying a username and letting Amazon EKS specify it for you. For more
+  /// information about the value Amazon EKS specifies for you, or constraints
+  /// before specifying your own username, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html#creating-access-entries">Creating
+  /// access entries</a> in the <i>Amazon EKS User Guide</i>.
+  Future<CreateAccessEntryResponse> createAccessEntry({
+    required String clusterName,
+    required String principalArn,
+    String? clientRequestToken,
+    List<String>? kubernetesGroups,
+    Map<String, String>? tags,
+    String? type,
+    String? username,
+  }) async {
+    final $payload = <String, dynamic>{
+      'principalArn': principalArn,
+      'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
+      if (kubernetesGroups != null) 'kubernetesGroups': kubernetesGroups,
+      if (tags != null) 'tags': tags,
+      if (type != null) 'type': type,
+      if (username != null) 'username': username,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateAccessEntryResponse.fromJson(response);
+  }
+
   /// Creates an Amazon EKS add-on.
   ///
   /// Amazon EKS add-ons help to automate the provisioning and lifecycle
@@ -175,12 +358,11 @@ class Eks {
   /// May throw [ServerException].
   ///
   /// Parameter [addonName] :
-  /// The name of the add-on. The name must match one of the names that <a
-  /// href="https://docs.aws.amazon.com/eks/latest/APIReference/API_DescribeAddonVersions.html">
-  /// <code>DescribeAddonVersions</code> </a> returns.
+  /// The name of the add-on. The name must match one of the names returned by
+  /// <code>DescribeAddonVersions</code>.
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster to create the add-on for.
+  /// The name of your cluster.
   ///
   /// Parameter [addonVersion] :
   /// The version of the add-on. The version must match one of the versions
@@ -194,9 +376,17 @@ class Eks {
   ///
   /// Parameter [configurationValues] :
   /// The set of configuration values for the add-on that's created. The values
-  /// that you provide are validated against the schema in <a
-  /// href="https://docs.aws.amazon.com/eks/latest/APIReference/API_DescribeAddonConfiguration.html">
-  /// <code>DescribeAddonConfiguration</code> </a>.
+  /// that you provide are validated against the schema returned by
+  /// <code>DescribeAddonConfiguration</code>.
+  ///
+  /// Parameter [podIdentityAssociations] :
+  /// An array of Pod Identity Assocations to be created. Each EKS Pod Identity
+  /// association maps a Kubernetes service account to an IAM Role.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/add-ons-iam.html">Attach
+  /// an IAM Role to an Amazon EKS add-on using Pod Identity</a> in the EKS User
+  /// Guide.
   ///
   /// Parameter [resolveConflicts] :
   /// How to resolve field value conflicts for an Amazon EKS add-on. Conflicts
@@ -215,8 +405,11 @@ class Eks {
   /// value.
   /// </li>
   /// <li>
-  /// <b>Preserve</b> – Not supported. You can set this value when updating an
-  /// add-on though. For more information, see <a
+  /// <b>Preserve</b> – This is similar to the NONE option. If the self-managed
+  /// version of the add-on is installed on your cluster Amazon EKS doesn't
+  /// change the add-on resource properties. Creation of the add-on might fail
+  /// if conflicts are detected. This option works differently during the update
+  /// operation. For more information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/APIReference/API_UpdateAddon.html">UpdateAddon</a>.
   /// </li>
   /// </ul>
@@ -242,15 +435,16 @@ class Eks {
   /// </note>
   ///
   /// Parameter [tags] :
-  /// The metadata to apply to the cluster to assist with categorization and
-  /// organization. Each tag consists of a key and an optional value. You define
-  /// both.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   Future<CreateAddonResponse> createAddon({
     required String addonName,
     required String clusterName,
     String? addonVersion,
     String? clientRequestToken,
     String? configurationValues,
+    List<AddonPodIdentityAssociations>? podIdentityAssociations,
     ResolveConflicts? resolveConflicts,
     String? serviceAccountRoleArn,
     Map<String, String>? tags,
@@ -261,8 +455,9 @@ class Eks {
       'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (configurationValues != null)
         'configurationValues': configurationValues,
-      if (resolveConflicts != null)
-        'resolveConflicts': resolveConflicts.toValue(),
+      if (podIdentityAssociations != null)
+        'podIdentityAssociations': podIdentityAssociations,
+      if (resolveConflicts != null) 'resolveConflicts': resolveConflicts.value,
       if (serviceAccountRoleArn != null)
         'serviceAccountRoleArn': serviceAccountRoleArn,
       if (tags != null) 'tags': tags,
@@ -296,12 +491,33 @@ class Eks {
   /// your cluster's control plane over the Kubernetes API server endpoint and a
   /// certificate file that is created for your cluster.
   ///
+  /// You can use the <code>endpointPublicAccess</code> and
+  /// <code>endpointPrivateAccess</code> parameters to enable or disable public
+  /// and private access to your cluster's Kubernetes API server endpoint. By
+  /// default, public access is enabled, and private access is disabled. For
+  /// more information, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html">Amazon
+  /// EKS Cluster Endpoint Access Control</a> in the <i> <i>Amazon EKS User
+  /// Guide</i> </i>.
+  ///
+  /// You can use the <code>logging</code> parameter to enable or disable
+  /// exporting the Kubernetes control plane logs for your cluster to CloudWatch
+  /// Logs. By default, cluster control plane logs aren't exported to CloudWatch
+  /// Logs. For more information, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html">Amazon
+  /// EKS Cluster Control Plane Logs</a> in the <i> <i>Amazon EKS User Guide</i>
+  /// </i>.
+  /// <note>
+  /// CloudWatch Logs ingestion, archive storage, and data scanning rates apply
+  /// to exported control plane logs. For more information, see <a
+  /// href="http://aws.amazon.com/cloudwatch/pricing/">CloudWatch Pricing</a>.
+  /// </note>
   /// In most cases, it takes several minutes to create a cluster. After you
   /// create an Amazon EKS cluster, you must configure your Kubernetes tooling
   /// to communicate with the API server and launch nodes into your cluster. For
   /// more information, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/managing-auth.html">Managing
-  /// Cluster Authentication</a> and <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-auth.html">Allowing
+  /// users to access your cluster</a> and <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-workers.html">Launching
   /// Amazon EKS nodes</a> in the <i>Amazon EKS User Guide</i>.
   ///
@@ -335,8 +551,11 @@ class Eks {
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/service_IAM_role.html">Amazon
   /// EKS Service IAM Role</a> in the <i> <i>Amazon EKS User Guide</i> </i>.
   ///
+  /// Parameter [accessConfig] :
+  /// The access configuration for the cluster.
+  ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [encryptionConfig] :
@@ -368,9 +587,9 @@ class Eks {
   /// Amazon EKS clusters on the Amazon Web Services cloud.
   ///
   /// Parameter [tags] :
-  /// The metadata to apply to the cluster to assist with categorization and
-  /// organization. Each tag consists of a key and an optional value. You define
-  /// both.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   ///
   /// Parameter [version] :
   /// The desired Kubernetes version for your cluster. If you don't specify a
@@ -382,6 +601,7 @@ class Eks {
     required String name,
     required VpcConfigRequest resourcesVpcConfig,
     required String roleArn,
+    CreateAccessConfigRequest? accessConfig,
     String? clientRequestToken,
     List<EncryptionConfig>? encryptionConfig,
     KubernetesNetworkConfigRequest? kubernetesNetworkConfig,
@@ -394,6 +614,7 @@ class Eks {
       'name': name,
       'resourcesVpcConfig': resourcesVpcConfig,
       'roleArn': roleArn,
+      if (accessConfig != null) 'accessConfig': accessConfig,
       'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (encryptionConfig != null) 'encryptionConfig': encryptionConfig,
       if (kubernetesNetworkConfig != null)
@@ -412,6 +633,82 @@ class Eks {
     return CreateClusterResponse.fromJson(response);
   }
 
+  /// Creates an EKS Anywhere subscription. When a subscription is created, it
+  /// is a contract agreement for the length of the term specified in the
+  /// request. Licenses that are used to validate support are provisioned in
+  /// Amazon Web Services License Manager and the caller account is granted
+  /// access to EKS Anywhere Curated Packages.
+  ///
+  /// May throw [ResourceLimitExceededException].
+  /// May throw [InvalidParameterException].
+  /// May throw [ClientException].
+  /// May throw [ServerException].
+  /// May throw [ServiceUnavailableException].
+  ///
+  /// Parameter [name] :
+  /// The unique name for your subscription. It must be unique in your Amazon
+  /// Web Services account in the Amazon Web Services Region you're creating the
+  /// subscription in. The name can contain only alphanumeric characters
+  /// (case-sensitive), hyphens, and underscores. It must start with an
+  /// alphabetic character and can't be longer than 100 characters.
+  ///
+  /// Parameter [term] :
+  /// An object representing the term duration and term unit type of your
+  /// subscription. This determines the term length of your subscription. Valid
+  /// values are MONTHS for term unit and 12 or 36 for term duration, indicating
+  /// a 12 month or 36 month subscription. This value cannot be changed after
+  /// creating the subscription.
+  ///
+  /// Parameter [autoRenew] :
+  /// A boolean indicating whether the subscription auto renews at the end of
+  /// the term.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
+  ///
+  /// Parameter [licenseQuantity] :
+  /// The number of licenses to purchase with the subscription. Valid values are
+  /// between 1 and 100. This value can't be changed after creating the
+  /// subscription.
+  ///
+  /// Parameter [licenseType] :
+  /// The license type for all licenses in the subscription. Valid value is
+  /// CLUSTER. With the CLUSTER license type, each license covers support for a
+  /// single EKS Anywhere cluster.
+  ///
+  /// Parameter [tags] :
+  /// The metadata for a subscription to assist with categorization and
+  /// organization. Each tag consists of a key and an optional value.
+  /// Subscription tags don't propagate to any other resources associated with
+  /// the subscription.
+  Future<CreateEksAnywhereSubscriptionResponse> createEksAnywhereSubscription({
+    required String name,
+    required EksAnywhereSubscriptionTerm term,
+    bool? autoRenew,
+    String? clientRequestToken,
+    int? licenseQuantity,
+    EksAnywhereSubscriptionLicenseType? licenseType,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'name': name,
+      'term': term,
+      if (autoRenew != null) 'autoRenew': autoRenew,
+      'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
+      if (licenseQuantity != null) 'licenseQuantity': licenseQuantity,
+      if (licenseType != null) 'licenseType': licenseType.value,
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/eks-anywhere-subscriptions',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreateEksAnywhereSubscriptionResponse.fromJson(response);
+  }
+
   /// Creates an Fargate profile for your Amazon EKS cluster. You must have at
   /// least one Fargate profile in a cluster to be able to run pods on Fargate.
   ///
@@ -427,8 +724,8 @@ class Eks {
   /// When you create a Fargate profile, you must specify a pod execution role
   /// to use with the pods that are scheduled with the profile. This role is
   /// added to the cluster's Kubernetes <a
-  /// href="https://kubernetes.io/docs/admin/authorization/rbac/">Role Based
-  /// Access Control</a> (RBAC) for authorization so that the
+  /// href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">Role
+  /// Based Access Control</a> (RBAC) for authorization so that the
   /// <code>kubelet</code> that is running on the Fargate infrastructure can
   /// register with your Amazon EKS cluster so that it can appear in your
   /// cluster as a node. The pod execution role also provides IAM permissions to
@@ -447,7 +744,7 @@ class Eks {
   ///
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/fargate-profile.html">Fargate
-  /// Profile</a> in the <i>Amazon EKS User Guide</i>.
+  /// profile</a> in the <i>Amazon EKS User Guide</i>.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [InvalidRequestException].
@@ -457,42 +754,41 @@ class Eks {
   /// May throw [UnsupportedAvailabilityZoneException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster to apply the Fargate profile to.
+  /// The name of your cluster.
   ///
   /// Parameter [fargateProfileName] :
   /// The name of the Fargate profile.
   ///
   /// Parameter [podExecutionRoleArn] :
-  /// The Amazon Resource Name (ARN) of the pod execution role to use for pods
-  /// that match the selectors in the Fargate profile. The pod execution role
-  /// allows Fargate infrastructure to register with your cluster as a node, and
-  /// it provides read access to Amazon ECR image repositories. For more
-  /// information, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html">Pod
-  /// Execution Role</a> in the <i>Amazon EKS User Guide</i>.
+  /// The Amazon Resource Name (ARN) of the <code>Pod</code> execution role to
+  /// use for a <code>Pod</code> that matches the selectors in the Fargate
+  /// profile. The <code>Pod</code> execution role allows Fargate infrastructure
+  /// to register with your cluster as a node, and it provides read access to
+  /// Amazon ECR image repositories. For more information, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html">
+  /// <code>Pod</code> execution role</a> in the <i>Amazon EKS User Guide</i>.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [selectors] :
-  /// The selectors to match for pods to use this Fargate profile. Each selector
-  /// must have an associated namespace. Optionally, you can also specify labels
-  /// for a namespace. You may specify up to five selectors in a Fargate
+  /// The selectors to match for a <code>Pod</code> to use this Fargate profile.
+  /// Each selector must have an associated Kubernetes <code>namespace</code>.
+  /// Optionally, you can also specify <code>labels</code> for a
+  /// <code>namespace</code>. You may specify up to five selectors in a Fargate
   /// profile.
   ///
   /// Parameter [subnets] :
-  /// The IDs of subnets to launch your pods into. At this time, pods running on
-  /// Fargate are not assigned public IP addresses, so only private subnets
-  /// (with no direct route to an Internet Gateway) are accepted for this
-  /// parameter.
+  /// The IDs of subnets to launch a <code>Pod</code> into. A <code>Pod</code>
+  /// running on Fargate isn't assigned a public IP address, so only private
+  /// subnets (with no direct route to an Internet Gateway) are accepted for
+  /// this parameter.
   ///
   /// Parameter [tags] :
-  /// The metadata to apply to the Fargate profile to assist with categorization
-  /// and organization. Each tag consists of a key and an optional value. You
-  /// define both. Fargate profile tags do not propagate to any other resources
-  /// associated with the Fargate profile, such as the pods that are scheduled
-  /// with it.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   Future<CreateFargateProfileResponse> createFargateProfile({
     required String clusterName,
     required String fargateProfileName,
@@ -520,14 +816,15 @@ class Eks {
     return CreateFargateProfileResponse.fromJson(response);
   }
 
-  /// Creates a managed node group for an Amazon EKS cluster. You can only
-  /// create a node group for your cluster that is equal to the current
-  /// Kubernetes version for the cluster. All node groups are created with the
-  /// latest AMI release version for the respective minor Kubernetes version of
-  /// the cluster, unless you deploy a custom AMI using a launch template. For
-  /// more information about using launch templates, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a>.
+  /// Creates a managed node group for an Amazon EKS cluster.
+  ///
+  /// You can only create a node group for your cluster that is equal to the
+  /// current Kubernetes version for the cluster. All node groups are created
+  /// with the latest AMI release version for the respective minor Kubernetes
+  /// version of the cluster, unless you deploy a custom AMI using a launch
+  /// template. For more information about using launch templates, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a>.
   ///
   /// An Amazon EKS managed node group is an Amazon EC2 Auto Scaling group and
   /// associated Amazon EC2 instances that are managed by Amazon Web Services
@@ -535,8 +832,8 @@ class Eks {
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html">Managed
   /// node groups</a> in the <i>Amazon EKS User Guide</i>.
   /// <note>
-  /// Windows AMI types are only supported for commercial Regions that support
-  /// Windows Amazon EKS.
+  /// Windows AMI types are only supported for commercial Amazon Web Services
+  /// Regions that support Windows on Amazon EKS.
   /// </note>
   ///
   /// May throw [ResourceInUseException].
@@ -548,7 +845,7 @@ class Eks {
   /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster to create the node group in.
+  /// The name of your cluster.
   ///
   /// Parameter [nodeRole] :
   /// The Amazon Resource Name (ARN) of the IAM role to associate with your node
@@ -560,13 +857,13 @@ class Eks {
   /// information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/create-node-role.html">Amazon
   /// EKS node IAM role</a> in the <i> <i>Amazon EKS User Guide</i> </i>. If you
-  /// specify <code>launchTemplate</code>, then don't specify <a
-  /// href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IamInstanceProfile.html">
-  /// <code>IamInstanceProfile</code> </a> in your launch template, or the node
-  /// group deployment will fail. For more information about using launch
-  /// templates with Amazon EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// specify <code>launchTemplate</code>, then don't specify <code> <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_IamInstanceProfile.html">IamInstanceProfile</a>
+  /// </code> in your launch template, or the node group deployment will fail.
+  /// For more information about using launch templates with Amazon EKS, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [nodegroupName] :
   /// The unique name to give your node group.
@@ -574,13 +871,13 @@ class Eks {
   /// Parameter [subnets] :
   /// The subnets to use for the Auto Scaling group that is created for your
   /// node group. If you specify <code>launchTemplate</code>, then don't specify
-  /// <a
-  /// href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateNetworkInterface.html">
-  /// <code>SubnetId</code> </a> in your launch template, or the node group
-  /// deployment will fail. For more information about using launch templates
-  /// with Amazon EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// <code> <a
+  /// href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateNetworkInterface.html">SubnetId</a>
+  /// </code> in your launch template, or the node group deployment will fail.
+  /// For more information about using launch templates with Amazon EKS, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [amiType] :
   /// The AMI type for your node group. If you specify
@@ -590,14 +887,15 @@ class Eks {
   /// <code>eks:kube-proxy-windows</code> to your Windows nodes
   /// <code>rolearn</code> in the <code>aws-auth</code> <code>ConfigMap</code>.
   /// For more information about using launch templates with Amazon EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [capacityType] :
   /// The capacity type for your node group.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [diskSize] :
@@ -607,8 +905,9 @@ class Eks {
   /// then don't specify <code>diskSize</code>, or the node group deployment
   /// will fail. For more information about using launch templates with Amazon
   /// EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [instanceTypes] :
   /// Specify the instance types for a node group. If you specify a GPU instance
@@ -626,19 +925,23 @@ class Eks {
   /// information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/managed-node-groups.html#managed-node-group-capacity-types">Managed
   /// node group capacity types</a> and <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [labels] :
-  /// The Kubernetes labels to be applied to the nodes in the node group when
-  /// they are created.
+  /// The Kubernetes <code>labels</code> to apply to the nodes in the node group
+  /// when they are created.
   ///
   /// Parameter [launchTemplate] :
-  /// An object representing a node group's launch template specification. If
-  /// specified, then do not specify <code>instanceTypes</code>,
-  /// <code>diskSize</code>, or <code>remoteAccess</code> and make sure that the
+  /// An object representing a node group's launch template specification. When
+  /// using this object, don't directly specify <code>instanceTypes</code>,
+  /// <code>diskSize</code>, or <code>remoteAccess</code>. Make sure that the
   /// launch template meets the requirements in
-  /// <code>launchTemplateSpecification</code>.
+  /// <code>launchTemplateSpecification</code>. Also refer to <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [releaseVersion] :
   /// The AMI version of the Amazon EKS optimized AMI to use with your node
@@ -658,8 +961,9 @@ class Eks {
   /// a custom AMI, then don't specify <code>releaseVersion</code>, or the node
   /// group deployment will fail. For more information about using launch
   /// templates with Amazon EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [remoteAccess] :
   /// The remote access configuration to use with your node group. For Linux,
@@ -667,18 +971,18 @@ class Eks {
   /// <code>launchTemplate</code>, then don't specify <code>remoteAccess</code>,
   /// or the node group deployment will fail. For more information about using
   /// launch templates with Amazon EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [scalingConfig] :
   /// The scaling configuration details for the Auto Scaling group that is
   /// created for your node group.
   ///
   /// Parameter [tags] :
-  /// The metadata to apply to the node group to assist with categorization and
-  /// organization. Each tag consists of a key and an optional value. You define
-  /// both. Node group tags do not propagate to any other resources associated
-  /// with the node group, such as the Amazon EC2 instances or subnets.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   ///
   /// Parameter [taints] :
   /// The Kubernetes taints to be applied to the nodes in the node group. For
@@ -696,8 +1000,9 @@ class Eks {
   /// launch template uses a custom AMI, then don't specify
   /// <code>version</code>, or the node group deployment will fail. For more
   /// information about using launch templates with Amazon EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   Future<CreateNodegroupResponse> createNodegroup({
     required String clusterName,
     required String nodeRole,
@@ -722,8 +1027,8 @@ class Eks {
       'nodeRole': nodeRole,
       'nodegroupName': nodegroupName,
       'subnets': subnets,
-      if (amiType != null) 'amiType': amiType.toValue(),
-      if (capacityType != null) 'capacityType': capacityType.toValue(),
+      if (amiType != null) 'amiType': amiType.value,
+      if (capacityType != null) 'capacityType': capacityType.value,
       'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (diskSize != null) 'diskSize': diskSize,
       if (instanceTypes != null) 'instanceTypes': instanceTypes,
@@ -746,11 +1051,149 @@ class Eks {
     return CreateNodegroupResponse.fromJson(response);
   }
 
-  /// Delete an Amazon EKS add-on.
+  /// Creates an EKS Pod Identity association between a service account in an
+  /// Amazon EKS cluster and an IAM role with <i>EKS Pod Identity</i>. Use EKS
+  /// Pod Identity to give temporary IAM credentials to pods and the credentials
+  /// are rotated automatically.
   ///
-  /// When you remove the add-on, it will also be deleted from the cluster. You
-  /// can always manually start an add-on on the cluster using the Kubernetes
-  /// API.
+  /// Amazon EKS Pod Identity associations provide the ability to manage
+  /// credentials for your applications, similar to the way that Amazon EC2
+  /// instance profiles provide credentials to Amazon EC2 instances.
+  ///
+  /// If a pod uses a service account that has an association, Amazon EKS sets
+  /// environment variables in the containers of the pod. The environment
+  /// variables configure the Amazon Web Services SDKs, including the Command
+  /// Line Interface, to use the EKS Pod Identity credentials.
+  ///
+  /// Pod Identity is a simpler method than <i>IAM roles for service
+  /// accounts</i>, as this method doesn't use OIDC identity providers.
+  /// Additionally, you can configure a role for Pod Identity once, and reuse it
+  /// across clusters.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  /// May throw [ResourceLimitExceededException].
+  /// May throw [ResourceInUseException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of the cluster to create the association in.
+  ///
+  /// Parameter [namespace] :
+  /// The name of the Kubernetes namespace inside the cluster to create the
+  /// association in. The service account and the pods that use the service
+  /// account must be in this namespace.
+  ///
+  /// Parameter [roleArn] :
+  /// The Amazon Resource Name (ARN) of the IAM role to associate with the
+  /// service account. The EKS Pod Identity agent manages credentials to assume
+  /// this role for applications in the containers in the pods that use this
+  /// service account.
+  ///
+  /// Parameter [serviceAccount] :
+  /// The name of the Kubernetes service account inside the cluster to associate
+  /// the IAM credentials with.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
+  ///
+  /// Parameter [tags] :
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
+  ///
+  /// The following basic restrictions apply to tags:
+  ///
+  /// <ul>
+  /// <li>
+  /// Maximum number of tags per resource – 50
+  /// </li>
+  /// <li>
+  /// For each resource, each tag key must be unique, and each tag key can have
+  /// only one value.
+  /// </li>
+  /// <li>
+  /// Maximum key length – 128 Unicode characters in UTF-8
+  /// </li>
+  /// <li>
+  /// Maximum value length – 256 Unicode characters in UTF-8
+  /// </li>
+  /// <li>
+  /// If your tagging schema is used across multiple services and resources,
+  /// remember that other services may have restrictions on allowed characters.
+  /// Generally allowed characters are: letters, numbers, and spaces
+  /// representable in UTF-8, and the following characters: + - = . _ : / @.
+  /// </li>
+  /// <li>
+  /// Tag keys and values are case-sensitive.
+  /// </li>
+  /// <li>
+  /// Do not use <code>aws:</code>, <code>AWS:</code>, or any upper or lowercase
+  /// combination of such as a prefix for either keys or values as it is
+  /// reserved for Amazon Web Services use. You cannot edit or delete tag keys
+  /// or values with this prefix. Tags with this prefix do not count against
+  /// your tags per resource limit.
+  /// </li>
+  /// </ul>
+  Future<CreatePodIdentityAssociationResponse> createPodIdentityAssociation({
+    required String clusterName,
+    required String namespace,
+    required String roleArn,
+    required String serviceAccount,
+    String? clientRequestToken,
+    Map<String, String>? tags,
+  }) async {
+    final $payload = <String, dynamic>{
+      'namespace': namespace,
+      'roleArn': roleArn,
+      'serviceAccount': serviceAccount,
+      'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
+      if (tags != null) 'tags': tags,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/pod-identity-associations',
+      exceptionFnMap: _exceptionFns,
+    );
+    return CreatePodIdentityAssociationResponse.fromJson(response);
+  }
+
+  /// Deletes an access entry.
+  ///
+  /// Deleting an access entry of a type other than <code>Standard</code> can
+  /// cause your cluster to function improperly. If you delete an access entry
+  /// in error, you can recreate it.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [principalArn] :
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  Future<void> deleteAccessEntry({
+    required String clusterName,
+    required String principalArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries/${Uri.encodeComponent(principalArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Deletes an Amazon EKS add-on.
+  ///
+  /// When you remove an add-on, it's deleted from the cluster. You can always
+  /// manually start an add-on on the cluster using the Kubernetes API.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [InvalidRequestException].
@@ -765,7 +1208,7 @@ class Eks {
   /// <code>ListAddons</code> </a>.
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster to delete the add-on from.
+  /// The name of your cluster.
   ///
   /// Parameter [preserve] :
   /// Specifying this option preserves the add-on software on your cluster but
@@ -790,7 +1233,7 @@ class Eks {
     return DeleteAddonResponse.fromJson(response);
   }
 
-  /// Deletes the Amazon EKS cluster control plane.
+  /// Deletes an Amazon EKS cluster control plane.
   ///
   /// If you have active services in your cluster that are associated with a
   /// load balancer, you must delete those services before deleting the cluster
@@ -798,11 +1241,11 @@ class Eks {
   /// orphaned resources in your VPC that prevent you from being able to delete
   /// the VPC. For more information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/delete-cluster.html">Deleting
-  /// a Cluster</a> in the <i>Amazon EKS User Guide</i>.
+  /// a cluster</a> in the <i>Amazon EKS User Guide</i>.
   ///
   /// If you have managed node groups or Fargate profiles attached to the
   /// cluster, you must delete them first. For more information, see
-  /// <a>DeleteNodegroup</a> and <a>DeleteFargateProfile</a>.
+  /// <code>DeleteNodgroup</code> and <code>DeleteFargateProfile</code>.
   ///
   /// May throw [ResourceInUseException].
   /// May throw [ResourceNotFoundException].
@@ -824,13 +1267,38 @@ class Eks {
     return DeleteClusterResponse.fromJson(response);
   }
 
+  /// Deletes an expired or inactive subscription. Deleting inactive
+  /// subscriptions removes them from the Amazon Web Services Management Console
+  /// view and from list/describe API responses. Subscriptions can only be
+  /// cancelled within 7 days of creation and are cancelled by creating a ticket
+  /// in the Amazon Web Services Support Center.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ClientException].
+  /// May throw [InvalidRequestException].
+  /// May throw [ServerException].
+  ///
+  /// Parameter [id] :
+  /// The ID of the subscription.
+  Future<DeleteEksAnywhereSubscriptionResponse> deleteEksAnywhereSubscription({
+    required String id,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri: '/eks-anywhere-subscriptions/${Uri.encodeComponent(id)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeleteEksAnywhereSubscriptionResponse.fromJson(response);
+  }
+
   /// Deletes an Fargate profile.
   ///
-  /// When you delete a Fargate profile, any pods running on Fargate that were
-  /// created with the profile are deleted. If those pods match another Fargate
-  /// profile, then they are scheduled on Fargate with that profile. If they no
-  /// longer match any Fargate profiles, then they are not scheduled on Fargate
-  /// and they may remain in a pending state.
+  /// When you delete a Fargate profile, any <code>Pod</code> running on Fargate
+  /// that was created with the profile is deleted. If the <code>Pod</code>
+  /// matches another Fargate profile, then it is scheduled on Fargate with that
+  /// profile. If it no longer matches any Fargate profiles, then it's not
+  /// scheduled on Fargate and may remain in a pending state.
   ///
   /// Only one Fargate profile in a cluster can be in the <code>DELETING</code>
   /// status at a time. You must wait for a Fargate profile to finish deleting
@@ -842,8 +1310,7 @@ class Eks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster associated with the Fargate profile to
-  /// delete.
+  /// The name of your cluster.
   ///
   /// Parameter [fargateProfileName] :
   /// The name of the Fargate profile to delete.
@@ -861,7 +1328,7 @@ class Eks {
     return DeleteFargateProfileResponse.fromJson(response);
   }
 
-  /// Deletes an Amazon EKS node group for a cluster.
+  /// Deletes a managed node group.
   ///
   /// May throw [ResourceInUseException].
   /// May throw [ResourceNotFoundException].
@@ -871,8 +1338,7 @@ class Eks {
   /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster that is associated with your node
-  /// group.
+  /// The name of your cluster.
   ///
   /// Parameter [nodegroupName] :
   /// The name of the node group to delete.
@@ -890,8 +1356,44 @@ class Eks {
     return DeleteNodegroupResponse.fromJson(response);
   }
 
+  /// Deletes a EKS Pod Identity association.
+  ///
+  /// The temporary Amazon Web Services credentials from the previous IAM role
+  /// session might still be valid until the session expiry. If you need to
+  /// immediately revoke the temporary session credentials, then go to the role
+  /// in the IAM console.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [associationId] :
+  /// The ID of the association to be deleted.
+  ///
+  /// Parameter [clusterName] :
+  /// The cluster name that
+  Future<DeletePodIdentityAssociationResponse> deletePodIdentityAssociation({
+    required String associationId,
+    required String clusterName,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/pod-identity-associations/${Uri.encodeComponent(associationId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DeletePodIdentityAssociationResponse.fromJson(response);
+  }
+
   /// Deregisters a connected cluster to remove it from the Amazon EKS control
   /// plane.
+  ///
+  /// A connected cluster is a Kubernetes cluster that you've connected to your
+  /// control plane using the <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/eks-connector.html">Amazon
+  /// EKS Connector</a>.
   ///
   /// May throw [ResourceInUseException].
   /// May throw [ResourceNotFoundException].
@@ -914,6 +1416,31 @@ class Eks {
     return DeregisterClusterResponse.fromJson(response);
   }
 
+  /// Describes an access entry.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [principalArn] :
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  Future<DescribeAccessEntryResponse> describeAccessEntry({
+    required String clusterName,
+    required String principalArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries/${Uri.encodeComponent(principalArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribeAccessEntryResponse.fromJson(response);
+  }
+
   /// Describes an Amazon EKS add-on.
   ///
   /// May throw [InvalidParameterException].
@@ -929,7 +1456,7 @@ class Eks {
   /// <code>ListAddons</code> </a>.
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster.
+  /// The name of your cluster.
   Future<DescribeAddonResponse> describeAddon({
     required String addonName,
     required String clusterName,
@@ -951,9 +1478,8 @@ class Eks {
   /// May throw [InvalidParameterException].
   ///
   /// Parameter [addonName] :
-  /// The name of the add-on. The name must match one of the names that <a
-  /// href="https://docs.aws.amazon.com/eks/latest/APIReference/API_DescribeAddonVersions.html">
-  /// <code>DescribeAddonVersions</code> </a> returns.
+  /// The name of the add-on. The name must match one of the names returned by
+  /// <code>DescribeAddonVersions</code>.
   ///
   /// Parameter [addonVersion] :
   /// The version of the add-on. The version must match one of the versions
@@ -978,10 +1504,11 @@ class Eks {
     return DescribeAddonConfigurationResponse.fromJson(response);
   }
 
-  /// Describes the versions for an add-on. Information such as the Kubernetes
-  /// versions that you can use the add-on with, the <code>owner</code>,
-  /// <code>publisher</code>, and the <code>type</code> of the add-on are
-  /// returned.
+  /// Describes the versions for an add-on.
+  ///
+  /// Information such as the Kubernetes versions that you can use the add-on
+  /// with, the <code>owner</code>, <code>publisher</code>, and the
+  /// <code>type</code> of the add-on are returned.
   ///
   /// May throw [ServerException].
   /// May throw [ResourceNotFoundException].
@@ -997,14 +1524,20 @@ class Eks {
   /// The Kubernetes versions that you can use the add-on with.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of results to return.
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
+  /// <code>nextToken</code> response element. You can see the remaining results
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>DescribeAddonVersionsRequest</code> where <code>maxResults</code>
-  /// was used and the results exceeded the value of that parameter. Pagination
-  /// continues from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
   /// <note>
   /// This token should be treated as an opaque identifier that is used only to
   /// retrieve the next items in a list and not for other programmatic purposes.
@@ -1055,14 +1588,14 @@ class Eks {
     return DescribeAddonVersionsResponse.fromJson(response);
   }
 
-  /// Returns descriptive information about an Amazon EKS cluster.
+  /// Describes an Amazon EKS cluster.
   ///
   /// The API server endpoint and certificate authority data returned by this
   /// operation are required for <code>kubelet</code> and <code>kubectl</code>
   /// to communicate with your Kubernetes API server. For more information, see
   /// <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html">Create
-  /// a kubeconfig for Amazon EKS</a>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/create-kubeconfig.html">Creating
+  /// or updating a <code>kubeconfig</code> file for an Amazon EKS cluster</a>.
   /// <note>
   /// The API server endpoint and certificate authority data aren't available
   /// until the cluster reaches the <code>ACTIVE</code> state.
@@ -1074,7 +1607,7 @@ class Eks {
   /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [name] :
-  /// The name of the cluster to describe.
+  /// The name of your cluster.
   Future<DescribeClusterResponse> describeCluster({
     required String name,
   }) async {
@@ -1087,7 +1620,29 @@ class Eks {
     return DescribeClusterResponse.fromJson(response);
   }
 
-  /// Returns descriptive information about an Fargate profile.
+  /// Returns descriptive information about a subscription.
+  ///
+  /// May throw [ResourceNotFoundException].
+  /// May throw [ClientException].
+  /// May throw [ServerException].
+  /// May throw [ServiceUnavailableException].
+  ///
+  /// Parameter [id] :
+  /// The ID of the subscription.
+  Future<DescribeEksAnywhereSubscriptionResponse>
+      describeEksAnywhereSubscription({
+    required String id,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/eks-anywhere-subscriptions/${Uri.encodeComponent(id)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribeEksAnywhereSubscriptionResponse.fromJson(response);
+  }
+
+  /// Describes an Fargate profile.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -1095,7 +1650,7 @@ class Eks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster associated with the Fargate profile.
+  /// The name of your cluster.
   ///
   /// Parameter [fargateProfileName] :
   /// The name of the Fargate profile to describe.
@@ -1113,7 +1668,7 @@ class Eks {
     return DescribeFargateProfileResponse.fromJson(response);
   }
 
-  /// Returns descriptive information about an identity provider configuration.
+  /// Describes an identity provider configuration.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ResourceNotFoundException].
@@ -1122,8 +1677,7 @@ class Eks {
   /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [clusterName] :
-  /// The cluster name that the identity provider configuration is associated
-  /// to.
+  /// The name of your cluster.
   ///
   /// Parameter [identityProviderConfig] :
   /// An object representing an identity provider configuration.
@@ -1145,7 +1699,33 @@ class Eks {
     return DescribeIdentityProviderConfigResponse.fromJson(response);
   }
 
-  /// Returns descriptive information about an Amazon EKS node group.
+  /// Returns details about an insight that you specify using its ID.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of the cluster to describe the insight for.
+  ///
+  /// Parameter [id] :
+  /// The identity of the insight to describe.
+  Future<DescribeInsightResponse> describeInsight({
+    required String clusterName,
+    required String id,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/insights/${Uri.encodeComponent(id)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribeInsightResponse.fromJson(response);
+  }
+
+  /// Describes a managed node group.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ResourceNotFoundException].
@@ -1154,7 +1734,7 @@ class Eks {
   /// May throw [ServiceUnavailableException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster associated with the node group.
+  /// The name of your cluster.
   ///
   /// Parameter [nodegroupName] :
   /// The name of the node group to describe.
@@ -1172,8 +1752,40 @@ class Eks {
     return DescribeNodegroupResponse.fromJson(response);
   }
 
-  /// Returns descriptive information about an update against your Amazon EKS
-  /// cluster or associated managed node group or Amazon EKS add-on.
+  /// Returns descriptive information about an EKS Pod Identity association.
+  ///
+  /// This action requires the ID of the association. You can get the ID from
+  /// the response to the <code>CreatePodIdentityAssocation</code> for newly
+  /// created associations. Or, you can list the IDs for associations with
+  /// <code>ListPodIdentityAssociations</code> and filter the list by namespace
+  /// or service account.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [associationId] :
+  /// The ID of the association that you want the description of.
+  ///
+  /// Parameter [clusterName] :
+  /// The name of the cluster that the association is in.
+  Future<DescribePodIdentityAssociationResponse>
+      describePodIdentityAssociation({
+    required String associationId,
+    required String clusterName,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/pod-identity-associations/${Uri.encodeComponent(associationId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return DescribePodIdentityAssociationResponse.fromJson(response);
+  }
+
+  /// Describes an update to an Amazon EKS resource.
   ///
   /// When the status of the update is <code>Succeeded</code>, the update is
   /// complete. If an update fails, the status is <code>Failed</code>, and an
@@ -1221,10 +1833,40 @@ class Eks {
     return DescribeUpdateResponse.fromJson(response);
   }
 
-  /// Disassociates an identity provider configuration from a cluster. If you
-  /// disassociate an identity provider from your cluster, users included in the
-  /// provider can no longer access the cluster. However, you can still access
-  /// the cluster with Amazon Web Services IAM users.
+  /// Disassociates an access policy from an access entry.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [policyArn] :
+  /// The ARN of the policy to disassociate from the access entry. For a list of
+  /// associated policies ARNs, use <code>ListAssociatedAccessPolicies</code>.
+  ///
+  /// Parameter [principalArn] :
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  Future<void> disassociateAccessPolicy({
+    required String clusterName,
+    required String policyArn,
+    required String principalArn,
+  }) async {
+    final response = await _protocol.send(
+      payload: null,
+      method: 'DELETE',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries/${Uri.encodeComponent(principalArn)}/access-policies/${Uri.encodeComponent(policyArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+  }
+
+  /// Disassociates an identity provider configuration from a cluster.
+  ///
+  /// If you disassociate an identity provider from your cluster, users included
+  /// in the provider can no longer access the cluster. However, you can still
+  /// access the cluster with IAM principals.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -1234,7 +1876,7 @@ class Eks {
   /// May throw [InvalidRequestException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster to disassociate an identity provider from.
+  /// The name of your cluster.
   ///
   /// Parameter [identityProviderConfig] :
   /// An object representing an identity provider configuration.
@@ -1262,7 +1904,118 @@ class Eks {
     return DisassociateIdentityProviderConfigResponse.fromJson(response);
   }
 
-  /// Lists the available add-ons.
+  /// Lists the access entries for your cluster.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [associatedPolicyArn] :
+  /// The ARN of an <code>AccessPolicy</code>. When you specify an access policy
+  /// ARN, only the access entries associated to that access policy are
+  /// returned. For a list of available policy ARNs, use
+  /// <code>ListAccessPolicies</code>.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
+  /// <code>nextToken</code> response element. You can see the remaining results
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
+  ///
+  /// Parameter [nextToken] :
+  /// The <code>nextToken</code> value returned from a previous paginated
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  Future<ListAccessEntriesResponse> listAccessEntries({
+    required String clusterName,
+    String? associatedPolicyArn,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (associatedPolicyArn != null)
+        'associatedPolicyArn': [associatedPolicyArn],
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAccessEntriesResponse.fromJson(response);
+  }
+
+  /// Lists the available access policies.
+  ///
+  /// May throw [ServerException].
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
+  /// <code>nextToken</code> response element. You can see the remaining results
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
+  ///
+  /// Parameter [nextToken] :
+  /// The <code>nextToken</code> value returned from a previous paginated
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  Future<ListAccessPoliciesResponse> listAccessPolicies({
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/access-policies',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAccessPoliciesResponse.fromJson(response);
+  }
+
+  /// Lists the installed add-ons.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [InvalidRequestException].
@@ -1271,26 +2024,23 @@ class Eks {
   /// May throw [ServerException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster.
+  /// The name of your cluster.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of add-on results returned by
-  /// <code>ListAddonsRequest</code> in paginated output. When you use this
-  /// parameter, <code>ListAddonsRequest</code> returns only
-  /// <code>maxResults</code> results in a single page along with a
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
   /// <code>nextToken</code> response element. You can see the remaining results
-  /// of the initial request by sending another <code>ListAddonsRequest</code>
-  /// request with the returned <code>nextToken</code> value. This value can be
-  /// between 1 and 100. If you don't use this parameter,
-  /// <code>ListAddonsRequest</code> returns up to 100 results and a
-  /// <code>nextToken</code> value, if applicable.
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>ListAddonsRequest</code> where <code>maxResults</code> was used and
-  /// the results exceeded the value of that parameter. Pagination continues
-  /// from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
   /// <note>
   /// This token should be treated as an opaque identifier that is used only to
   /// retrieve the next items in a list and not for other programmatic purposes.
@@ -1320,8 +2070,66 @@ class Eks {
     return ListAddonsResponse.fromJson(response);
   }
 
+  /// Lists the access policies associated with an access entry.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [principalArn] :
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
+  /// <code>nextToken</code> response element. You can see the remaining results
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
+  ///
+  /// Parameter [nextToken] :
+  /// The <code>nextToken</code> value returned from a previous paginated
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  Future<ListAssociatedAccessPoliciesResponse> listAssociatedAccessPolicies({
+    required String clusterName,
+    required String principalArn,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries/${Uri.encodeComponent(principalArn)}/access-policies',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListAssociatedAccessPoliciesResponse.fromJson(response);
+  }
+
   /// Lists the Amazon EKS clusters in your Amazon Web Services account in the
-  /// specified Region.
+  /// specified Amazon Web Services Region.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -1330,27 +2138,26 @@ class Eks {
   ///
   /// Parameter [include] :
   /// Indicates whether external clusters are included in the returned list. Use
-  /// '<code>all</code>' to return connected clusters, or blank to return only
-  /// Amazon EKS clusters. '<code>all</code>' must be in lowercase otherwise an
-  /// error occurs.
+  /// '<code>all</code>' to return <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/eks-connector.html">https://docs.aws.amazon.com/eks/latest/userguide/eks-connector.html</a>connected
+  /// clusters, or blank to return only Amazon EKS clusters. '<code>all</code>'
+  /// must be in lowercase otherwise an error occurs.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of cluster results returned by
-  /// <code>ListClusters</code> in paginated output. When you use this
-  /// parameter, <code>ListClusters</code> returns only <code>maxResults</code>
-  /// results in a single page along with a <code>nextToken</code> response
-  /// element. You can see the remaining results of the initial request by
-  /// sending another <code>ListClusters</code> request with the returned
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
+  /// <code>nextToken</code> response element. You can see the remaining results
+  /// of the initial request by sending another request with the returned
   /// <code>nextToken</code> value. This value can be between 1 and 100. If you
-  /// don't use this parameter, <code>ListClusters</code> returns up to 100
-  /// results and a <code>nextToken</code> value if applicable.
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>ListClusters</code> request where <code>maxResults</code> was used
-  /// and the results exceeded the value of that parameter. Pagination continues
-  /// from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
   /// <note>
   /// This token should be treated as an opaque identifier that is used only to
   /// retrieve the next items in a list and not for other programmatic purposes.
@@ -1381,8 +2188,62 @@ class Eks {
     return ListClustersResponse.fromJson(response);
   }
 
+  /// Displays the full description of the subscription.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [ClientException].
+  /// May throw [ServerException].
+  /// May throw [ServiceUnavailableException].
+  ///
+  /// Parameter [includeStatus] :
+  /// An array of subscription statuses to filter on.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of cluster results returned by
+  /// ListEksAnywhereSubscriptions in paginated output. When you use this
+  /// parameter, ListEksAnywhereSubscriptions returns only maxResults results in
+  /// a single page along with a nextToken response element. You can see the
+  /// remaining results of the initial request by sending another
+  /// ListEksAnywhereSubscriptions request with the returned nextToken value.
+  /// This value can be between 1 and 100. If you don't use this parameter,
+  /// ListEksAnywhereSubscriptions returns up to 10 results and a nextToken
+  /// value if applicable.
+  ///
+  /// Parameter [nextToken] :
+  /// The <code>nextToken</code> value returned from a previous paginated
+  /// <code>ListEksAnywhereSubscriptions</code> request where
+  /// <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value.
+  Future<ListEksAnywhereSubscriptionsResponse> listEksAnywhereSubscriptions({
+    List<EksAnywhereSubscriptionStatus>? includeStatus,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (includeStatus != null)
+        'includeStatus': includeStatus.map((e) => e.value).toList(),
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (nextToken != null) 'nextToken': [nextToken],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri: '/eks-anywhere-subscriptions',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListEksAnywhereSubscriptionsResponse.fromJson(response);
+  }
+
   /// Lists the Fargate profiles associated with the specified cluster in your
-  /// Amazon Web Services account in the specified Region.
+  /// Amazon Web Services account in the specified Amazon Web Services Region.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ResourceNotFoundException].
@@ -1390,27 +2251,27 @@ class Eks {
   /// May throw [ServerException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster that you would like to list Fargate
-  /// profiles in.
+  /// The name of your cluster.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of Fargate profile results returned by
-  /// <code>ListFargateProfiles</code> in paginated output. When you use this
-  /// parameter, <code>ListFargateProfiles</code> returns only
-  /// <code>maxResults</code> results in a single page along with a
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
   /// <code>nextToken</code> response element. You can see the remaining results
-  /// of the initial request by sending another <code>ListFargateProfiles</code>
-  /// request with the returned <code>nextToken</code> value. This value can be
-  /// between 1 and 100. If you don't use this parameter,
-  /// <code>ListFargateProfiles</code> returns up to 100 results and a
-  /// <code>nextToken</code> value if applicable.
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>ListFargateProfiles</code> request where <code>maxResults</code> was
-  /// used and the results exceeded the value of that parameter. Pagination
-  /// continues from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   Future<ListFargateProfilesResponse> listFargateProfiles({
     required String clusterName,
     int? maxResults,
@@ -1437,7 +2298,7 @@ class Eks {
     return ListFargateProfilesResponse.fromJson(response);
   }
 
-  /// A list of identity provider configurations.
+  /// Lists the identity provider configurations for your cluster.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -1446,27 +2307,27 @@ class Eks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [clusterName] :
-  /// The cluster name that you want to list identity provider configurations
-  /// for.
+  /// The name of your cluster.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of identity provider configurations returned by
-  /// <code>ListIdentityProviderConfigs</code> in paginated output. When you use
-  /// this parameter, <code>ListIdentityProviderConfigs</code> returns only
-  /// <code>maxResults</code> results in a single page along with a
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
   /// <code>nextToken</code> response element. You can see the remaining results
-  /// of the initial request by sending another
-  /// <code>ListIdentityProviderConfigs</code> request with the returned
+  /// of the initial request by sending another request with the returned
   /// <code>nextToken</code> value. This value can be between 1 and 100. If you
-  /// don't use this parameter, <code>ListIdentityProviderConfigs</code> returns
-  /// up to 100 results and a <code>nextToken</code> value, if applicable.
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>IdentityProviderConfigsRequest</code> where <code>maxResults</code>
-  /// was used and the results exceeded the value of that parameter. Pagination
-  /// continues from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   Future<ListIdentityProviderConfigsResponse> listIdentityProviderConfigs({
     required String clusterName,
     int? maxResults,
@@ -1493,9 +2354,69 @@ class Eks {
     return ListIdentityProviderConfigsResponse.fromJson(response);
   }
 
-  /// Lists the Amazon EKS managed node groups associated with the specified
-  /// cluster in your Amazon Web Services account in the specified Region.
-  /// Self-managed node groups are not listed.
+  /// Returns a list of all insights checked for against the specified cluster.
+  /// You can filter which insights are returned by category, associated
+  /// Kubernetes version, and status.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of the Amazon EKS cluster associated with the insights.
+  ///
+  /// Parameter [filter] :
+  /// The criteria to filter your list of insights for your cluster. You can
+  /// filter which insights are returned by category, associated Kubernetes
+  /// version, and status.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of identity provider configurations returned by
+  /// <code>ListInsights</code> in paginated output. When you use this
+  /// parameter, <code>ListInsights</code> returns only <code>maxResults</code>
+  /// results in a single page along with a <code>nextToken</code> response
+  /// element. You can see the remaining results of the initial request by
+  /// sending another <code>ListInsights</code> request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, <code>ListInsights</code> returns up to 100
+  /// results and a <code>nextToken</code> value, if applicable.
+  ///
+  /// Parameter [nextToken] :
+  /// The <code>nextToken</code> value returned from a previous paginated
+  /// <code>ListInsights</code> request. When the results of a
+  /// <code>ListInsights</code> request exceed <code>maxResults</code>, you can
+  /// use this value to retrieve the next page of results. This value is
+  /// <code>null</code> when there are no more results to return.
+  Future<ListInsightsResponse> listInsights({
+    required String clusterName,
+    InsightsFilter? filter,
+    int? maxResults,
+    String? nextToken,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $payload = <String, dynamic>{
+      if (filter != null) 'filter': filter,
+      if (maxResults != null) 'maxResults': maxResults,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/clusters/${Uri.encodeComponent(clusterName)}/insights',
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListInsightsResponse.fromJson(response);
+  }
+
+  /// Lists the managed node groups associated with the specified cluster in
+  /// your Amazon Web Services account in the specified Amazon Web Services
+  /// Region. Self-managed node groups aren't listed.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -1504,27 +2425,27 @@ class Eks {
   /// May throw [ResourceNotFoundException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster that you would like to list node groups
-  /// in.
+  /// The name of your cluster.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of node group results returned by
-  /// <code>ListNodegroups</code> in paginated output. When you use this
-  /// parameter, <code>ListNodegroups</code> returns only
-  /// <code>maxResults</code> results in a single page along with a
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
   /// <code>nextToken</code> response element. You can see the remaining results
-  /// of the initial request by sending another <code>ListNodegroups</code>
-  /// request with the returned <code>nextToken</code> value. This value can be
-  /// between 1 and 100. If you don't use this parameter,
-  /// <code>ListNodegroups</code> returns up to 100 results and a
-  /// <code>nextToken</code> value if applicable.
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>ListNodegroups</code> request where <code>maxResults</code> was used
-  /// and the results exceeded the value of that parameter. Pagination continues
-  /// from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   Future<ListNodegroupsResponse> listNodegroups({
     required String clusterName,
     int? maxResults,
@@ -1550,15 +2471,85 @@ class Eks {
     return ListNodegroupsResponse.fromJson(response);
   }
 
+  /// List the EKS Pod Identity associations in a cluster. You can filter the
+  /// list by the namespace that the association is in or the service account
+  /// that the association uses.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of the cluster that the associations are in.
+  ///
+  /// Parameter [maxResults] :
+  /// The maximum number of EKS Pod Identity association results returned by
+  /// <code>ListPodIdentityAssociations</code> in paginated output. When you use
+  /// this parameter, <code>ListPodIdentityAssociations</code> returns only
+  /// <code>maxResults</code> results in a single page along with a
+  /// <code>nextToken</code> response element. You can see the remaining results
+  /// of the initial request by sending another
+  /// <code>ListPodIdentityAssociations</code> request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, <code>ListPodIdentityAssociations</code> returns
+  /// up to 100 results and a <code>nextToken</code> value if applicable.
+  ///
+  /// Parameter [namespace] :
+  /// The name of the Kubernetes namespace inside the cluster that the
+  /// associations are in.
+  ///
+  /// Parameter [nextToken] :
+  /// The <code>nextToken</code> value returned from a previous paginated
+  /// <code>ListUpdates</code> request where <code>maxResults</code> was used
+  /// and the results exceeded the value of that parameter. Pagination continues
+  /// from the end of the previous results that returned the
+  /// <code>nextToken</code> value.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  ///
+  /// Parameter [serviceAccount] :
+  /// The name of the Kubernetes service account that the associations use.
+  Future<ListPodIdentityAssociationsResponse> listPodIdentityAssociations({
+    required String clusterName,
+    int? maxResults,
+    String? namespace,
+    String? nextToken,
+    String? serviceAccount,
+  }) async {
+    _s.validateNumRange(
+      'maxResults',
+      maxResults,
+      1,
+      100,
+    );
+    final $query = <String, List<String>>{
+      if (maxResults != null) 'maxResults': [maxResults.toString()],
+      if (namespace != null) 'namespace': [namespace],
+      if (nextToken != null) 'nextToken': [nextToken],
+      if (serviceAccount != null) 'serviceAccount': [serviceAccount],
+    };
+    final response = await _protocol.send(
+      payload: null,
+      method: 'GET',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/pod-identity-associations',
+      queryParams: $query,
+      exceptionFnMap: _exceptionFns,
+    );
+    return ListPodIdentityAssociationsResponse.fromJson(response);
+  }
+
   /// List the tags for an Amazon EKS resource.
   ///
   /// May throw [BadRequestException].
   /// May throw [NotFoundException].
   ///
   /// Parameter [resourceArn] :
-  /// The Amazon Resource Name (ARN) that identifies the resource for which to
-  /// list the tags. Currently, the supported resources are Amazon EKS clusters
-  /// and managed node groups.
+  /// The Amazon Resource Name (ARN) that identifies the resource to list tags
+  /// for.
   Future<ListTagsForResourceResponse> listTagsForResource({
     required String resourceArn,
   }) async {
@@ -1571,8 +2562,8 @@ class Eks {
     return ListTagsForResourceResponse.fromJson(response);
   }
 
-  /// Lists the updates associated with an Amazon EKS cluster or managed node
-  /// group in your Amazon Web Services account, in the specified Region.
+  /// Lists the updates associated with an Amazon EKS resource in your Amazon
+  /// Web Services account, in the specified Amazon Web Services Region.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -1586,22 +2577,24 @@ class Eks {
   /// The names of the installed add-ons that have available updates.
   ///
   /// Parameter [maxResults] :
-  /// The maximum number of update results returned by <code>ListUpdates</code>
-  /// in paginated output. When you use this parameter, <code>ListUpdates</code>
-  /// returns only <code>maxResults</code> results in a single page along with a
+  /// The maximum number of results, returned in paginated output. You receive
+  /// <code>maxResults</code> in a single page, along with a
   /// <code>nextToken</code> response element. You can see the remaining results
-  /// of the initial request by sending another <code>ListUpdates</code> request
-  /// with the returned <code>nextToken</code> value. This value can be between
-  /// 1 and 100. If you don't use this parameter, <code>ListUpdates</code>
-  /// returns up to 100 results and a <code>nextToken</code> value if
-  /// applicable.
+  /// of the initial request by sending another request with the returned
+  /// <code>nextToken</code> value. This value can be between 1 and 100. If you
+  /// don't use this parameter, 100 results and a <code>nextToken</code> value,
+  /// if applicable, are returned.
   ///
   /// Parameter [nextToken] :
   /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>ListUpdates</code> request where <code>maxResults</code> was used
-  /// and the results exceeded the value of that parameter. Pagination continues
-  /// from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// request, where <code>maxResults</code> was used and the results exceeded
+  /// the value of that parameter. Pagination continues from the end of the
+  /// previous results that returned the <code>nextToken</code> value. This
+  /// value is null when there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   ///
   /// Parameter [nodegroupName] :
   /// The name of the Amazon EKS managed node group to list updates for.
@@ -1649,10 +2642,10 @@ class Eks {
   /// must be applied to the Kubernetes cluster through it's native provider to
   /// provide visibility.
   ///
-  /// After the Manifest is updated and applied, then the connected cluster is
-  /// visible to the Amazon EKS control plane. If the Manifest is not applied
-  /// within three days, then the connected cluster will no longer be visible
-  /// and must be deregistered. See <a>DeregisterCluster</a>.
+  /// After the manifest is updated and applied, the connected cluster is
+  /// visible to the Amazon EKS control plane. If the manifest isn't applied
+  /// within three days, the connected cluster will no longer be visible and
+  /// must be deregistered using <code>DeregisterCluster</code>.
   ///
   /// May throw [ResourceLimitExceededException].
   /// May throw [InvalidParameterException].
@@ -1668,17 +2661,16 @@ class Eks {
   /// the Amazon EKS control plane.
   ///
   /// Parameter [name] :
-  /// Define a unique name for this cluster for your Region.
+  /// A unique name for this cluster in your Amazon Web Services Region.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [tags] :
-  /// The metadata that you apply to the cluster to assist with categorization
-  /// and organization. Each tag consists of a key and an optional value, both
-  /// of which you define. Cluster tags do not propagate to any other resources
-  /// associated with the cluster.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   Future<RegisterClusterResponse> registerCluster({
     required ConnectorConfigRequest connectorConfig,
     required String name,
@@ -1700,25 +2692,25 @@ class Eks {
     return RegisterClusterResponse.fromJson(response);
   }
 
-  /// Associates the specified tags to a resource with the specified
+  /// Associates the specified tags to an Amazon EKS resource with the specified
   /// <code>resourceArn</code>. If existing tags on a resource are not specified
-  /// in the request parameters, they are not changed. When a resource is
-  /// deleted, the tags associated with that resource are deleted as well. Tags
-  /// that you create for Amazon EKS resources do not propagate to any other
+  /// in the request parameters, they aren't changed. When a resource is
+  /// deleted, the tags associated with that resource are also deleted. Tags
+  /// that you create for Amazon EKS resources don't propagate to any other
   /// resources associated with the cluster. For example, if you tag a cluster
-  /// with this operation, that tag does not automatically propagate to the
+  /// with this operation, that tag doesn't automatically propagate to the
   /// subnets and nodes associated with the cluster.
   ///
   /// May throw [BadRequestException].
   /// May throw [NotFoundException].
   ///
   /// Parameter [resourceArn] :
-  /// The Amazon Resource Name (ARN) of the resource to which to add tags.
-  /// Currently, the supported resources are Amazon EKS clusters and managed
-  /// node groups.
+  /// The Amazon Resource Name (ARN) of the resource to add tags to.
   ///
   /// Parameter [tags] :
-  /// The tags to add to the resource. A tag is an array of key-value pairs.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   Future<void> tagResource({
     required String resourceArn,
     required Map<String, String> tags,
@@ -1734,18 +2726,16 @@ class Eks {
     );
   }
 
-  /// Deletes specified tags from a resource.
+  /// Deletes specified tags from an Amazon EKS resource.
   ///
   /// May throw [BadRequestException].
   /// May throw [NotFoundException].
   ///
   /// Parameter [resourceArn] :
-  /// The Amazon Resource Name (ARN) of the resource from which to delete tags.
-  /// Currently, the supported resources are Amazon EKS clusters and managed
-  /// node groups.
+  /// The Amazon Resource Name (ARN) of the resource to delete tags from.
   ///
   /// Parameter [tagKeys] :
-  /// The keys of the tags to be removed.
+  /// The keys of the tags to remove.
   Future<void> untagResource({
     required String resourceArn,
     required List<String> tagKeys,
@@ -1760,6 +2750,78 @@ class Eks {
       queryParams: $query,
       exceptionFnMap: _exceptionFns,
     );
+  }
+
+  /// Updates an access entry.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [clusterName] :
+  /// The name of your cluster.
+  ///
+  /// Parameter [principalArn] :
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
+  ///
+  /// Parameter [kubernetesGroups] :
+  /// The value for <code>name</code> that you've specified for <code>kind:
+  /// Group</code> as a <code>subject</code> in a Kubernetes
+  /// <code>RoleBinding</code> or <code>ClusterRoleBinding</code> object. Amazon
+  /// EKS doesn't confirm that the value for <code>name</code> exists in any
+  /// bindings on your cluster. You can specify one or more names.
+  ///
+  /// Kubernetes authorizes the <code>principalArn</code> of the access entry to
+  /// access any cluster objects that you've specified in a Kubernetes
+  /// <code>Role</code> or <code>ClusterRole</code> object that is also
+  /// specified in a binding's <code>roleRef</code>. For more information about
+  /// creating Kubernetes <code>RoleBinding</code>,
+  /// <code>ClusterRoleBinding</code>, <code>Role</code>, or
+  /// <code>ClusterRole</code> objects, see <a
+  /// href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/">Using
+  /// RBAC Authorization in the Kubernetes documentation</a>.
+  ///
+  /// If you want Amazon EKS to authorize the <code>principalArn</code> (instead
+  /// of, or in addition to Kubernetes authorizing the
+  /// <code>principalArn</code>), you can associate one or more access policies
+  /// to the access entry using <code>AssociateAccessPolicy</code>. If you
+  /// associate any access policies, the <code>principalARN</code> has all
+  /// permissions assigned in the associated access policies and all permissions
+  /// in any Kubernetes <code>Role</code> or <code>ClusterRole</code> objects
+  /// that the group names are bound to.
+  ///
+  /// Parameter [username] :
+  /// The username to authenticate to Kubernetes with. We recommend not
+  /// specifying a username and letting Amazon EKS specify it for you. For more
+  /// information about the value Amazon EKS specifies for you, or constraints
+  /// before specifying your own username, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html#creating-access-entries">Creating
+  /// access entries</a> in the <i>Amazon EKS User Guide</i>.
+  Future<UpdateAccessEntryResponse> updateAccessEntry({
+    required String clusterName,
+    required String principalArn,
+    String? clientRequestToken,
+    List<String>? kubernetesGroups,
+    String? username,
+  }) async {
+    final $payload = <String, dynamic>{
+      'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
+      if (kubernetesGroups != null) 'kubernetesGroups': kubernetesGroups,
+      if (username != null) 'username': username,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/access-entries/${Uri.encodeComponent(principalArn)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateAccessEntryResponse.fromJson(response);
   }
 
   /// Updates an Amazon EKS add-on.
@@ -1778,7 +2840,7 @@ class Eks {
   /// <code>ListAddons</code> </a>.
   ///
   /// Parameter [clusterName] :
-  /// The name of the cluster.
+  /// The name of your cluster.
   ///
   /// Parameter [addonVersion] :
   /// The version of the add-on. The version must match one of the versions
@@ -1787,13 +2849,24 @@ class Eks {
   /// <code>DescribeAddonVersions</code> </a>.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [configurationValues] :
   /// The set of configuration values for the add-on that's created. The values
-  /// that you provide are validated against the schema in <a
-  /// href="https://docs.aws.amazon.com/eks/latest/APIReference/API_DescribeAddonConfiguration.html">DescribeAddonConfiguration</a>.
+  /// that you provide are validated against the schema returned by
+  /// <code>DescribeAddonConfiguration</code>.
+  ///
+  /// Parameter [podIdentityAssociations] :
+  /// An array of Pod Identity Assocations to be updated. Each EKS Pod Identity
+  /// association maps a Kubernetes service account to an IAM Role. If this
+  /// value is left blank, no change. If an empty array is provided, existing
+  /// Pod Identity Assocations owned by the Addon are deleted.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/add-ons-iam.html">Attach
+  /// an IAM Role to an Amazon EKS add-on using Pod Identity</a> in the EKS User
+  /// Guide.
   ///
   /// Parameter [resolveConflicts] :
   /// How to resolve field value conflicts for an Amazon EKS add-on if you've
@@ -1837,6 +2910,7 @@ class Eks {
     String? addonVersion,
     String? clientRequestToken,
     String? configurationValues,
+    List<AddonPodIdentityAssociations>? podIdentityAssociations,
     ResolveConflicts? resolveConflicts,
     String? serviceAccountRoleArn,
   }) async {
@@ -1845,8 +2919,9 @@ class Eks {
       'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (configurationValues != null)
         'configurationValues': configurationValues,
-      if (resolveConflicts != null)
-        'resolveConflicts': resolveConflicts.toValue(),
+      if (podIdentityAssociations != null)
+        'podIdentityAssociations': podIdentityAssociations,
+      if (resolveConflicts != null) 'resolveConflicts': resolveConflicts.value,
       if (serviceAccountRoleArn != null)
         'serviceAccountRoleArn': serviceAccountRoleArn,
     };
@@ -1862,15 +2937,15 @@ class Eks {
 
   /// Updates an Amazon EKS cluster configuration. Your cluster continues to
   /// function during the update. The response output includes an update ID that
-  /// you can use to track the status of your cluster update with the
-  /// <a>DescribeUpdate</a> API operation.
+  /// you can use to track the status of your cluster update with
+  /// <code>DescribeUpdate</code>"/&gt;.
   ///
   /// You can use this API operation to enable or disable exporting the
   /// Kubernetes control plane logs for your cluster to CloudWatch Logs. By
   /// default, cluster control plane logs aren't exported to CloudWatch Logs.
   /// For more information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/control-plane-logs.html">Amazon
-  /// EKS Cluster Control Plane Logs</a> in the <i> <i>Amazon EKS User Guide</i>
+  /// EKS Cluster control plane logs</a> in the <i> <i>Amazon EKS User Guide</i>
   /// </i>.
   /// <note>
   /// CloudWatch Logs ingestion, archive storage, and data scanning rates apply
@@ -1884,10 +2959,16 @@ class Eks {
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html">Amazon
   /// EKS cluster endpoint access control</a> in the <i> <i>Amazon EKS User
   /// Guide</i> </i>.
-  /// <important>
-  /// You can't update the subnets or security group IDs for an existing
-  /// cluster.
-  /// </important>
+  ///
+  /// You can also use this API operation to choose different subnets and
+  /// security groups for the cluster. You must specify at least two subnets
+  /// that are in different Availability Zones. You can't change which VPC the
+  /// subnets are from, the subnets must be in the same VPC as the subnets that
+  /// the cluster was created with. For more information about the VPC
+  /// requirements, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html">https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html</a>
+  /// in the <i> <i>Amazon EKS User Guide</i> </i>.
+  ///
   /// Cluster updates are asynchronous, and they should finish within a few
   /// minutes. During an update, the cluster status moves to
   /// <code>UPDATING</code> (this status transition is eventually consistent).
@@ -1904,8 +2985,11 @@ class Eks {
   /// Parameter [name] :
   /// The name of the Amazon EKS cluster to update.
   ///
+  /// Parameter [accessConfig] :
+  /// The access configuration for the cluster.
+  ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [logging] :
@@ -1922,11 +3006,13 @@ class Eks {
   /// </note>
   Future<UpdateClusterConfigResponse> updateClusterConfig({
     required String name,
+    UpdateAccessConfigRequest? accessConfig,
     String? clientRequestToken,
     Logging? logging,
     VpcConfigRequest? resourcesVpcConfig,
   }) async {
     final $payload = <String, dynamic>{
+      if (accessConfig != null) 'accessConfig': accessConfig,
       'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
       if (logging != null) 'logging': logging,
       if (resourcesVpcConfig != null) 'resourcesVpcConfig': resourcesVpcConfig,
@@ -1969,7 +3055,7 @@ class Eks {
   /// The desired Kubernetes version following a successful update.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   Future<UpdateClusterVersionResponse> updateClusterVersion({
     required String name,
@@ -1989,6 +3075,43 @@ class Eks {
     return UpdateClusterVersionResponse.fromJson(response);
   }
 
+  /// Update an EKS Anywhere Subscription. Only auto renewal and tags can be
+  /// updated after subscription creation.
+  ///
+  /// May throw [InvalidParameterException].
+  /// May throw [ClientException].
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  ///
+  /// Parameter [autoRenew] :
+  /// A boolean indicating whether or not to automatically renew the
+  /// subscription.
+  ///
+  /// Parameter [id] :
+  /// The ID of the subscription.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// Unique, case-sensitive identifier to ensure the idempotency of the
+  /// request.
+  Future<UpdateEksAnywhereSubscriptionResponse> updateEksAnywhereSubscription({
+    required bool autoRenew,
+    required String id,
+    String? clientRequestToken,
+  }) async {
+    final $payload = <String, dynamic>{
+      'autoRenew': autoRenew,
+      'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri: '/eks-anywhere-subscriptions/${Uri.encodeComponent(id)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdateEksAnywhereSubscriptionResponse.fromJson(response);
+  }
+
   /// Updates an Amazon EKS managed node group configuration. Your node group
   /// continues to function during the update. The response output includes an
   /// update ID that you can use to track the status of your node group update
@@ -2003,18 +3126,18 @@ class Eks {
   /// May throw [InvalidRequestException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster that the managed node group resides in.
+  /// The name of your cluster.
   ///
   /// Parameter [nodegroupName] :
   /// The name of the managed node group to update.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [labels] :
-  /// The Kubernetes labels to be applied to the nodes in the node group after
-  /// the update.
+  /// The Kubernetes <code>labels</code> to apply to the nodes in the node group
+  /// after the update.
   ///
   /// Parameter [scalingConfig] :
   /// The scaling configuration details for the Auto Scaling group after the
@@ -2081,10 +3204,10 @@ class Eks {
   /// version.
   ///
   /// When a node in a managed node group is terminated due to a scaling action
-  /// or update, the pods in that node are drained first. Amazon EKS attempts to
-  /// drain the nodes gracefully and will fail if it is unable to do so. You can
-  /// <code>force</code> the update if Amazon EKS is unable to drain the nodes
-  /// as a result of a pod disruption budget issue.
+  /// or update, every <code>Pod</code> on that node is drained first. Amazon
+  /// EKS attempts to drain the nodes gracefully and will fail if it is unable
+  /// to do so. You can <code>force</code> the update if Amazon EKS is unable to
+  /// drain the nodes as a result of a <code>Pod</code> disruption budget issue.
   ///
   /// May throw [InvalidParameterException].
   /// May throw [ClientException].
@@ -2094,21 +3217,21 @@ class Eks {
   /// May throw [InvalidRequestException].
   ///
   /// Parameter [clusterName] :
-  /// The name of the Amazon EKS cluster that is associated with the managed
-  /// node group to update.
+  /// The name of your cluster.
   ///
   /// Parameter [nodegroupName] :
   /// The name of the managed node group to update.
   ///
   /// Parameter [clientRequestToken] :
-  /// Unique, case-sensitive identifier that you provide to ensure the
+  /// A unique, case-sensitive identifier that you provide to ensure the
   /// idempotency of the request.
   ///
   /// Parameter [force] :
-  /// Force the update if the existing node group's pods are unable to be
-  /// drained due to a pod disruption budget issue. If an update fails because
-  /// pods could not be drained, you can force the update after it fails to
-  /// terminate the old node whether or not any pods are running on the node.
+  /// Force the update if any <code>Pod</code> on the existing node group can't
+  /// be drained due to a <code>Pod</code> disruption budget issue. If an update
+  /// fails because all Pods can't be drained, you can force the update after it
+  /// fails to terminate the old node whether or not any <code>Pod</code> is
+  /// running on the node.
   ///
   /// Parameter [launchTemplate] :
   /// An object representing a node group's launch template specification. You
@@ -2132,8 +3255,9 @@ class Eks {
   /// a custom AMI, then don't specify <code>releaseVersion</code>, or the node
   /// group update will fail. For more information about using launch templates
   /// with Amazon EKS, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   ///
   /// Parameter [version] :
   /// The Kubernetes version to update to. If no version is specified, then the
@@ -2144,8 +3268,9 @@ class Eks {
   /// then don't specify <code>version</code>, or the node group update will
   /// fail. For more information about using launch templates with Amazon EKS,
   /// see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-  /// template support</a> in the <i>Amazon EKS User Guide</i>.
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+  /// managed nodes with launch templates</a> in the <i>Amazon EKS User
+  /// Guide</i>.
   Future<UpdateNodegroupVersionResponse> updateNodegroupVersion({
     required String clusterName,
     required String nodegroupName,
@@ -2171,84 +3296,308 @@ class Eks {
     );
     return UpdateNodegroupVersionResponse.fromJson(response);
   }
+
+  /// Updates a EKS Pod Identity association. Only the IAM role can be changed;
+  /// an association can't be moved between clusters, namespaces, or service
+  /// accounts. If you need to edit the namespace or service account, you need
+  /// to delete the association and then create a new association with your
+  /// desired settings.
+  ///
+  /// May throw [ServerException].
+  /// May throw [ResourceNotFoundException].
+  /// May throw [InvalidRequestException].
+  /// May throw [InvalidParameterException].
+  ///
+  /// Parameter [associationId] :
+  /// The ID of the association to be updated.
+  ///
+  /// Parameter [clusterName] :
+  /// The name of the cluster that you want to update the association in.
+  ///
+  /// Parameter [clientRequestToken] :
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
+  ///
+  /// Parameter [roleArn] :
+  /// The new IAM role to change the
+  Future<UpdatePodIdentityAssociationResponse> updatePodIdentityAssociation({
+    required String associationId,
+    required String clusterName,
+    String? clientRequestToken,
+    String? roleArn,
+  }) async {
+    final $payload = <String, dynamic>{
+      'clientRequestToken': clientRequestToken ?? _s.generateIdempotencyToken(),
+      if (roleArn != null) 'roleArn': roleArn,
+    };
+    final response = await _protocol.send(
+      payload: $payload,
+      method: 'POST',
+      requestUri:
+          '/clusters/${Uri.encodeComponent(clusterName)}/pod-identity-associations/${Uri.encodeComponent(associationId)}',
+      exceptionFnMap: _exceptionFns,
+    );
+    return UpdatePodIdentityAssociationResponse.fromJson(response);
+  }
 }
 
 enum AMITypes {
-  al2X86_64,
-  al2X86_64Gpu,
-  al2Arm_64,
-  custom,
-  bottlerocketArm_64,
-  bottlerocketX86_64,
-  bottlerocketArm_64Nvidia,
-  bottlerocketX86_64Nvidia,
-  windowsCore_2019X86_64,
-  windowsFull_2019X86_64,
-  windowsCore_2022X86_64,
-  windowsFull_2022X86_64,
+  al2X86_64('AL2_x86_64'),
+  al2X86_64Gpu('AL2_x86_64_GPU'),
+  al2Arm_64('AL2_ARM_64'),
+  custom('CUSTOM'),
+  bottlerocketArm_64('BOTTLEROCKET_ARM_64'),
+  bottlerocketX86_64('BOTTLEROCKET_x86_64'),
+  bottlerocketArm_64Nvidia('BOTTLEROCKET_ARM_64_NVIDIA'),
+  bottlerocketX86_64Nvidia('BOTTLEROCKET_x86_64_NVIDIA'),
+  windowsCore_2019X86_64('WINDOWS_CORE_2019_x86_64'),
+  windowsFull_2019X86_64('WINDOWS_FULL_2019_x86_64'),
+  windowsCore_2022X86_64('WINDOWS_CORE_2022_x86_64'),
+  windowsFull_2022X86_64('WINDOWS_FULL_2022_x86_64'),
+  al2023X86_64Standard('AL2023_x86_64_STANDARD'),
+  al2023Arm_64Standard('AL2023_ARM_64_STANDARD'),
+  ;
+
+  final String value;
+
+  const AMITypes(this.value);
+
+  static AMITypes fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AMITypes'));
 }
 
-extension AMITypesValueExtension on AMITypes {
-  String toValue() {
-    switch (this) {
-      case AMITypes.al2X86_64:
-        return 'AL2_x86_64';
-      case AMITypes.al2X86_64Gpu:
-        return 'AL2_x86_64_GPU';
-      case AMITypes.al2Arm_64:
-        return 'AL2_ARM_64';
-      case AMITypes.custom:
-        return 'CUSTOM';
-      case AMITypes.bottlerocketArm_64:
-        return 'BOTTLEROCKET_ARM_64';
-      case AMITypes.bottlerocketX86_64:
-        return 'BOTTLEROCKET_x86_64';
-      case AMITypes.bottlerocketArm_64Nvidia:
-        return 'BOTTLEROCKET_ARM_64_NVIDIA';
-      case AMITypes.bottlerocketX86_64Nvidia:
-        return 'BOTTLEROCKET_x86_64_NVIDIA';
-      case AMITypes.windowsCore_2019X86_64:
-        return 'WINDOWS_CORE_2019_x86_64';
-      case AMITypes.windowsFull_2019X86_64:
-        return 'WINDOWS_FULL_2019_x86_64';
-      case AMITypes.windowsCore_2022X86_64:
-        return 'WINDOWS_CORE_2022_x86_64';
-      case AMITypes.windowsFull_2022X86_64:
-        return 'WINDOWS_FULL_2022_x86_64';
-    }
+/// The access configuration for the cluster.
+class AccessConfigResponse {
+  /// The current authentication mode of the cluster.
+  final AuthenticationMode? authenticationMode;
+
+  /// Specifies whether or not the cluster creator IAM principal was set as a
+  /// cluster admin access entry during cluster creation time.
+  final bool? bootstrapClusterCreatorAdminPermissions;
+
+  AccessConfigResponse({
+    this.authenticationMode,
+    this.bootstrapClusterCreatorAdminPermissions,
+  });
+
+  factory AccessConfigResponse.fromJson(Map<String, dynamic> json) {
+    return AccessConfigResponse(
+      authenticationMode: (json['authenticationMode'] as String?)
+          ?.let(AuthenticationMode.fromString),
+      bootstrapClusterCreatorAdminPermissions:
+          json['bootstrapClusterCreatorAdminPermissions'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authenticationMode = this.authenticationMode;
+    final bootstrapClusterCreatorAdminPermissions =
+        this.bootstrapClusterCreatorAdminPermissions;
+    return {
+      if (authenticationMode != null)
+        'authenticationMode': authenticationMode.value,
+      if (bootstrapClusterCreatorAdminPermissions != null)
+        'bootstrapClusterCreatorAdminPermissions':
+            bootstrapClusterCreatorAdminPermissions,
+    };
   }
 }
 
-extension AMITypesFromString on String {
-  AMITypes toAMITypes() {
-    switch (this) {
-      case 'AL2_x86_64':
-        return AMITypes.al2X86_64;
-      case 'AL2_x86_64_GPU':
-        return AMITypes.al2X86_64Gpu;
-      case 'AL2_ARM_64':
-        return AMITypes.al2Arm_64;
-      case 'CUSTOM':
-        return AMITypes.custom;
-      case 'BOTTLEROCKET_ARM_64':
-        return AMITypes.bottlerocketArm_64;
-      case 'BOTTLEROCKET_x86_64':
-        return AMITypes.bottlerocketX86_64;
-      case 'BOTTLEROCKET_ARM_64_NVIDIA':
-        return AMITypes.bottlerocketArm_64Nvidia;
-      case 'BOTTLEROCKET_x86_64_NVIDIA':
-        return AMITypes.bottlerocketX86_64Nvidia;
-      case 'WINDOWS_CORE_2019_x86_64':
-        return AMITypes.windowsCore_2019X86_64;
-      case 'WINDOWS_FULL_2019_x86_64':
-        return AMITypes.windowsFull_2019X86_64;
-      case 'WINDOWS_CORE_2022_x86_64':
-        return AMITypes.windowsCore_2022X86_64;
-      case 'WINDOWS_FULL_2022_x86_64':
-        return AMITypes.windowsFull_2022X86_64;
-    }
-    throw Exception('$this is not known in enum AMITypes');
+/// An access entry allows an IAM principal (user or role) to access your
+/// cluster. Access entries can replace the need to maintain the
+/// <code>aws-auth</code> <code>ConfigMap</code> for authentication. For more
+/// information about access entries, see <a
+/// href="https://docs.aws.amazon.com/eks/latest/userguide/access-entries.html">Access
+/// entries</a> in the <i>Amazon EKS User Guide</i>.
+class AccessEntry {
+  /// The ARN of the access entry.
+  final String? accessEntryArn;
+
+  /// The name of your cluster.
+  final String? clusterName;
+
+  /// The Unix epoch timestamp at object creation.
+  final DateTime? createdAt;
+
+  /// A <code>name</code> that you've specified in a Kubernetes
+  /// <code>RoleBinding</code> or <code>ClusterRoleBinding</code> object so that
+  /// Kubernetes authorizes the <code>principalARN</code> access to cluster
+  /// objects.
+  final List<String>? kubernetesGroups;
+
+  /// The Unix epoch timestamp for the last modification to the object.
+  final DateTime? modifiedAt;
+
+  /// The ARN of the IAM principal for the access entry. If you ever delete the
+  /// IAM principal with this ARN, the access entry isn't automatically deleted.
+  /// We recommend that you delete the access entry with an ARN for an IAM
+  /// principal that you delete. If you don't delete the access entry and ever
+  /// recreate the IAM principal, even if it has the same ARN, the access entry
+  /// won't work. This is because even though the ARN is the same for the
+  /// recreated IAM principal, the <code>roleID</code> or <code>userID</code> (you
+  /// can see this with the Security Token Service <code>GetCallerIdentity</code>
+  /// API) is different for the recreated IAM principal than it was for the
+  /// original IAM principal. Even though you don't see the IAM principal's
+  /// <code>roleID</code> or <code>userID</code> for an access entry, Amazon EKS
+  /// stores it with the access entry.
+  final String? principalArn;
+
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
+  final Map<String, String>? tags;
+
+  /// The type of the access entry.
+  final String? type;
+
+  /// The <code>name</code> of a user that can authenticate to your cluster.
+  final String? username;
+
+  AccessEntry({
+    this.accessEntryArn,
+    this.clusterName,
+    this.createdAt,
+    this.kubernetesGroups,
+    this.modifiedAt,
+    this.principalArn,
+    this.tags,
+    this.type,
+    this.username,
+  });
+
+  factory AccessEntry.fromJson(Map<String, dynamic> json) {
+    return AccessEntry(
+      accessEntryArn: json['accessEntryArn'] as String?,
+      clusterName: json['clusterName'] as String?,
+      createdAt: timeStampFromJson(json['createdAt']),
+      kubernetesGroups: (json['kubernetesGroups'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      modifiedAt: timeStampFromJson(json['modifiedAt']),
+      principalArn: json['principalArn'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      type: json['type'] as String?,
+      username: json['username'] as String?,
+    );
   }
+
+  Map<String, dynamic> toJson() {
+    final accessEntryArn = this.accessEntryArn;
+    final clusterName = this.clusterName;
+    final createdAt = this.createdAt;
+    final kubernetesGroups = this.kubernetesGroups;
+    final modifiedAt = this.modifiedAt;
+    final principalArn = this.principalArn;
+    final tags = this.tags;
+    final type = this.type;
+    final username = this.username;
+    return {
+      if (accessEntryArn != null) 'accessEntryArn': accessEntryArn,
+      if (clusterName != null) 'clusterName': clusterName,
+      if (createdAt != null) 'createdAt': unixTimestampToJson(createdAt),
+      if (kubernetesGroups != null) 'kubernetesGroups': kubernetesGroups,
+      if (modifiedAt != null) 'modifiedAt': unixTimestampToJson(modifiedAt),
+      if (principalArn != null) 'principalArn': principalArn,
+      if (tags != null) 'tags': tags,
+      if (type != null) 'type': type,
+      if (username != null) 'username': username,
+    };
+  }
+}
+
+/// An access policy includes permissions that allow Amazon EKS to authorize an
+/// IAM principal to work with Kubernetes objects on your cluster. The policies
+/// are managed by Amazon EKS, but they're not IAM policies. You can't view the
+/// permissions in the policies using the API. The permissions for many of the
+/// policies are similar to the Kubernetes <code>cluster-admin</code>,
+/// <code>admin</code>, <code>edit</code>, and <code>view</code> cluster roles.
+/// For more information about these cluster roles, see <a
+/// href="https://kubernetes.io/docs/reference/access-authn-authz/rbac/#user-facing-roles">User-facing
+/// roles</a> in the Kubernetes documentation. To view the contents of the
+/// policies, see <a
+/// href="https://docs.aws.amazon.com/eks/latest/userguide/access-policies.html#access-policy-permissions">Access
+/// policy permissions</a> in the <i>Amazon EKS User Guide</i>.
+class AccessPolicy {
+  /// The ARN of the access policy.
+  final String? arn;
+
+  /// The name of the access policy.
+  final String? name;
+
+  AccessPolicy({
+    this.arn,
+    this.name,
+  });
+
+  factory AccessPolicy.fromJson(Map<String, dynamic> json) {
+    return AccessPolicy(
+      arn: json['arn'] as String?,
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final name = this.name;
+    return {
+      if (arn != null) 'arn': arn,
+      if (name != null) 'name': name,
+    };
+  }
+}
+
+/// The scope of an <code>AccessPolicy</code> that's associated to an
+/// <code>AccessEntry</code>.
+class AccessScope {
+  /// A Kubernetes <code>namespace</code> that an access policy is scoped to. A
+  /// value is required if you specified <code>namespace</code> for
+  /// <code>Type</code>.
+  final List<String>? namespaces;
+
+  /// The scope type of an access policy.
+  final AccessScopeType? type;
+
+  AccessScope({
+    this.namespaces,
+    this.type,
+  });
+
+  factory AccessScope.fromJson(Map<String, dynamic> json) {
+    return AccessScope(
+      namespaces: (json['namespaces'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      type: (json['type'] as String?)?.let(AccessScopeType.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final namespaces = this.namespaces;
+    final type = this.type;
+    return {
+      if (namespaces != null) 'namespaces': namespaces,
+      if (type != null) 'type': type.value,
+    };
+  }
+}
+
+enum AccessScopeType {
+  cluster('cluster'),
+  namespace('namespace'),
+  ;
+
+  final String value;
+
+  const AccessScopeType(this.value);
+
+  static AccessScopeType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AccessScopeType'));
 }
 
 /// An Amazon EKS add-on. For more information, see <a
@@ -2264,13 +3613,13 @@ class Addon {
   /// The version of the add-on.
   final String? addonVersion;
 
-  /// The name of the cluster.
+  /// The name of your cluster.
   final String? clusterName;
 
   /// The configuration values that you provided.
   final String? configurationValues;
 
-  /// The date and time that the add-on was created.
+  /// The Unix epoch timestamp at object creation.
   final DateTime? createdAt;
 
   /// An object that represents the health of the add-on.
@@ -2280,26 +3629,35 @@ class Addon {
   /// Marketplace.
   final MarketplaceInformation? marketplaceInformation;
 
-  /// The date and time that the add-on was last modified.
+  /// The Unix epoch timestamp for the last modification to the object.
   final DateTime? modifiedAt;
 
   /// The owner of the add-on.
   final String? owner;
 
+  /// An array of Pod Identity Assocations owned by the Addon. Each EKS Pod
+  /// Identity association maps a role to a service account in a namespace in the
+  /// cluster.
+  ///
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/add-ons-iam.html">Attach
+  /// an IAM Role to an Amazon EKS add-on using Pod Identity</a> in the EKS User
+  /// Guide.
+  final List<String>? podIdentityAssociations;
+
   /// The publisher of the add-on.
   final String? publisher;
 
   /// The Amazon Resource Name (ARN) of the IAM role that's bound to the
-  /// Kubernetes service account that the add-on uses.
+  /// Kubernetes <code>ServiceAccount</code> object that the add-on uses.
   final String? serviceAccountRoleArn;
 
   /// The status of the add-on.
   final AddonStatus? status;
 
-  /// The metadata that you apply to the add-on to assist with categorization and
-  /// organization. Each tag consists of a key and an optional value. You define
-  /// both. Add-on tags do not propagate to any other resources associated with
-  /// the cluster.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   final Map<String, String>? tags;
 
   Addon({
@@ -2313,6 +3671,7 @@ class Addon {
     this.marketplaceInformation,
     this.modifiedAt,
     this.owner,
+    this.podIdentityAssociations,
     this.publisher,
     this.serviceAccountRoleArn,
     this.status,
@@ -2336,9 +3695,13 @@ class Addon {
           : null,
       modifiedAt: timeStampFromJson(json['modifiedAt']),
       owner: json['owner'] as String?,
+      podIdentityAssociations: (json['podIdentityAssociations'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
       publisher: json['publisher'] as String?,
       serviceAccountRoleArn: json['serviceAccountRoleArn'] as String?,
-      status: (json['status'] as String?)?.toAddonStatus(),
+      status: (json['status'] as String?)?.let(AddonStatus.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -2355,6 +3718,7 @@ class Addon {
     final marketplaceInformation = this.marketplaceInformation;
     final modifiedAt = this.modifiedAt;
     final owner = this.owner;
+    final podIdentityAssociations = this.podIdentityAssociations;
     final publisher = this.publisher;
     final serviceAccountRoleArn = this.serviceAccountRoleArn;
     final status = this.status;
@@ -2372,10 +3736,12 @@ class Addon {
         'marketplaceInformation': marketplaceInformation,
       if (modifiedAt != null) 'modifiedAt': unixTimestampToJson(modifiedAt),
       if (owner != null) 'owner': owner,
+      if (podIdentityAssociations != null)
+        'podIdentityAssociations': podIdentityAssociations,
       if (publisher != null) 'publisher': publisher,
       if (serviceAccountRoleArn != null)
         'serviceAccountRoleArn': serviceAccountRoleArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
     };
   }
@@ -2393,7 +3759,7 @@ class AddonHealth {
   factory AddonHealth.fromJson(Map<String, dynamic> json) {
     return AddonHealth(
       issues: (json['issues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AddonIssue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2441,7 +3807,7 @@ class AddonInfo {
     return AddonInfo(
       addonName: json['addonName'] as String?,
       addonVersions: (json['addonVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AddonVersionInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       marketplaceInformation: json['marketplaceInformation'] != null
@@ -2492,10 +3858,10 @@ class AddonIssue {
 
   factory AddonIssue.fromJson(Map<String, dynamic> json) {
     return AddonIssue(
-      code: (json['code'] as String?)?.toAddonIssueCode(),
+      code: (json['code'] as String?)?.let(AddonIssueCode.fromString),
       message: json['message'] as String?,
       resourceIds: (json['resourceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -2506,7 +3872,7 @@ class AddonIssue {
     final message = this.message;
     final resourceIds = this.resourceIds;
     return {
-      if (code != null) 'code': code.toValue(),
+      if (code != null) 'code': code.value,
       if (message != null) 'message': message,
       if (resourceIds != null) 'resourceIds': resourceIds,
     };
@@ -2514,119 +3880,111 @@ class AddonIssue {
 }
 
 enum AddonIssueCode {
-  accessDenied,
-  internalFailure,
-  clusterUnreachable,
-  insufficientNumberOfReplicas,
-  configurationConflict,
-  admissionRequestDenied,
-  unsupportedAddonModification,
-  k8sResourceNotFound,
+  accessDenied('AccessDenied'),
+  internalFailure('InternalFailure'),
+  clusterUnreachable('ClusterUnreachable'),
+  insufficientNumberOfReplicas('InsufficientNumberOfReplicas'),
+  configurationConflict('ConfigurationConflict'),
+  admissionRequestDenied('AdmissionRequestDenied'),
+  unsupportedAddonModification('UnsupportedAddonModification'),
+  k8sResourceNotFound('K8sResourceNotFound'),
+  addonSubscriptionNeeded('AddonSubscriptionNeeded'),
+  addonPermissionFailure('AddonPermissionFailure'),
+  ;
+
+  final String value;
+
+  const AddonIssueCode(this.value);
+
+  static AddonIssueCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum AddonIssueCode'));
 }
 
-extension AddonIssueCodeValueExtension on AddonIssueCode {
-  String toValue() {
-    switch (this) {
-      case AddonIssueCode.accessDenied:
-        return 'AccessDenied';
-      case AddonIssueCode.internalFailure:
-        return 'InternalFailure';
-      case AddonIssueCode.clusterUnreachable:
-        return 'ClusterUnreachable';
-      case AddonIssueCode.insufficientNumberOfReplicas:
-        return 'InsufficientNumberOfReplicas';
-      case AddonIssueCode.configurationConflict:
-        return 'ConfigurationConflict';
-      case AddonIssueCode.admissionRequestDenied:
-        return 'AdmissionRequestDenied';
-      case AddonIssueCode.unsupportedAddonModification:
-        return 'UnsupportedAddonModification';
-      case AddonIssueCode.k8sResourceNotFound:
-        return 'K8sResourceNotFound';
-    }
+/// A type of Pod Identity Association owned by an Amazon EKS Add-on.
+///
+/// Each EKS Pod Identity Association maps a role to a service account in a
+/// namespace in the cluster.
+///
+/// For more information, see <a
+/// href="https://docs.aws.amazon.com/eks/latest/userguide/add-ons-iam.html">Attach
+/// an IAM Role to an Amazon EKS add-on using Pod Identity</a> in the EKS User
+/// Guide.
+class AddonPodIdentityAssociations {
+  /// The ARN of an IAM Role.
+  final String roleArn;
+
+  /// The name of a Kubernetes Service Account.
+  final String serviceAccount;
+
+  AddonPodIdentityAssociations({
+    required this.roleArn,
+    required this.serviceAccount,
+  });
+
+  Map<String, dynamic> toJson() {
+    final roleArn = this.roleArn;
+    final serviceAccount = this.serviceAccount;
+    return {
+      'roleArn': roleArn,
+      'serviceAccount': serviceAccount,
+    };
   }
 }
 
-extension AddonIssueCodeFromString on String {
-  AddonIssueCode toAddonIssueCode() {
-    switch (this) {
-      case 'AccessDenied':
-        return AddonIssueCode.accessDenied;
-      case 'InternalFailure':
-        return AddonIssueCode.internalFailure;
-      case 'ClusterUnreachable':
-        return AddonIssueCode.clusterUnreachable;
-      case 'InsufficientNumberOfReplicas':
-        return AddonIssueCode.insufficientNumberOfReplicas;
-      case 'ConfigurationConflict':
-        return AddonIssueCode.configurationConflict;
-      case 'AdmissionRequestDenied':
-        return AddonIssueCode.admissionRequestDenied;
-      case 'UnsupportedAddonModification':
-        return AddonIssueCode.unsupportedAddonModification;
-      case 'K8sResourceNotFound':
-        return AddonIssueCode.k8sResourceNotFound;
-    }
-    throw Exception('$this is not known in enum AddonIssueCode');
+/// Information about how to configure IAM for an Addon.
+class AddonPodIdentityConfiguration {
+  /// A suggested IAM Policy for the addon.
+  final List<String>? recommendedManagedPolicies;
+
+  /// The Kubernetes Service Account name used by the addon.
+  final String? serviceAccount;
+
+  AddonPodIdentityConfiguration({
+    this.recommendedManagedPolicies,
+    this.serviceAccount,
+  });
+
+  factory AddonPodIdentityConfiguration.fromJson(Map<String, dynamic> json) {
+    return AddonPodIdentityConfiguration(
+      recommendedManagedPolicies: (json['recommendedManagedPolicies'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      serviceAccount: json['serviceAccount'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final recommendedManagedPolicies = this.recommendedManagedPolicies;
+    final serviceAccount = this.serviceAccount;
+    return {
+      if (recommendedManagedPolicies != null)
+        'recommendedManagedPolicies': recommendedManagedPolicies,
+      if (serviceAccount != null) 'serviceAccount': serviceAccount,
+    };
   }
 }
 
 enum AddonStatus {
-  creating,
-  active,
-  createFailed,
-  updating,
-  deleting,
-  deleteFailed,
-  degraded,
-  updateFailed,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  createFailed('CREATE_FAILED'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  deleteFailed('DELETE_FAILED'),
+  degraded('DEGRADED'),
+  updateFailed('UPDATE_FAILED'),
+  ;
 
-extension AddonStatusValueExtension on AddonStatus {
-  String toValue() {
-    switch (this) {
-      case AddonStatus.creating:
-        return 'CREATING';
-      case AddonStatus.active:
-        return 'ACTIVE';
-      case AddonStatus.createFailed:
-        return 'CREATE_FAILED';
-      case AddonStatus.updating:
-        return 'UPDATING';
-      case AddonStatus.deleting:
-        return 'DELETING';
-      case AddonStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case AddonStatus.degraded:
-        return 'DEGRADED';
-      case AddonStatus.updateFailed:
-        return 'UPDATE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension AddonStatusFromString on String {
-  AddonStatus toAddonStatus() {
-    switch (this) {
-      case 'CREATING':
-        return AddonStatus.creating;
-      case 'ACTIVE':
-        return AddonStatus.active;
-      case 'CREATE_FAILED':
-        return AddonStatus.createFailed;
-      case 'UPDATING':
-        return AddonStatus.updating;
-      case 'DELETING':
-        return AddonStatus.deleting;
-      case 'DELETE_FAILED':
-        return AddonStatus.deleteFailed;
-      case 'DEGRADED':
-        return AddonStatus.degraded;
-      case 'UPDATE_FAILED':
-        return AddonStatus.updateFailed;
-    }
-    throw Exception('$this is not known in enum AddonStatus');
-  }
+  const AddonStatus(this.value);
+
+  static AddonStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum AddonStatus'));
 }
 
 /// Information about an add-on version.
@@ -2643,25 +4001,31 @@ class AddonVersionInfo {
   /// Whether the add-on requires configuration.
   final bool? requiresConfiguration;
 
+  /// Indicates if the Addon requires IAM Permissions to operate, such as
+  /// networking permissions.
+  final bool? requiresIamPermissions;
+
   AddonVersionInfo({
     this.addonVersion,
     this.architecture,
     this.compatibilities,
     this.requiresConfiguration,
+    this.requiresIamPermissions,
   });
 
   factory AddonVersionInfo.fromJson(Map<String, dynamic> json) {
     return AddonVersionInfo(
       addonVersion: json['addonVersion'] as String?,
       architecture: (json['architecture'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       compatibilities: (json['compatibilities'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Compatibility.fromJson(e as Map<String, dynamic>))
           .toList(),
       requiresConfiguration: json['requiresConfiguration'] as bool?,
+      requiresIamPermissions: json['requiresIamPermissions'] as bool?,
     );
   }
 
@@ -2670,12 +4034,56 @@ class AddonVersionInfo {
     final architecture = this.architecture;
     final compatibilities = this.compatibilities;
     final requiresConfiguration = this.requiresConfiguration;
+    final requiresIamPermissions = this.requiresIamPermissions;
     return {
       if (addonVersion != null) 'addonVersion': addonVersion,
       if (architecture != null) 'architecture': architecture,
       if (compatibilities != null) 'compatibilities': compatibilities,
       if (requiresConfiguration != null)
         'requiresConfiguration': requiresConfiguration,
+      if (requiresIamPermissions != null)
+        'requiresIamPermissions': requiresIamPermissions,
+    };
+  }
+}
+
+class AssociateAccessPolicyResponse {
+  /// The <code>AccessPolicy</code> and scope associated to the
+  /// <code>AccessEntry</code>.
+  final AssociatedAccessPolicy? associatedAccessPolicy;
+
+  /// The name of your cluster.
+  final String? clusterName;
+
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  final String? principalArn;
+
+  AssociateAccessPolicyResponse({
+    this.associatedAccessPolicy,
+    this.clusterName,
+    this.principalArn,
+  });
+
+  factory AssociateAccessPolicyResponse.fromJson(Map<String, dynamic> json) {
+    return AssociateAccessPolicyResponse(
+      associatedAccessPolicy: json['associatedAccessPolicy'] != null
+          ? AssociatedAccessPolicy.fromJson(
+              json['associatedAccessPolicy'] as Map<String, dynamic>)
+          : null,
+      clusterName: json['clusterName'] as String?,
+      principalArn: json['principalArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associatedAccessPolicy = this.associatedAccessPolicy;
+    final clusterName = this.clusterName;
+    final principalArn = this.principalArn;
+    return {
+      if (associatedAccessPolicy != null)
+        'associatedAccessPolicy': associatedAccessPolicy,
+      if (clusterName != null) 'clusterName': clusterName,
+      if (principalArn != null) 'principalArn': principalArn,
     };
   }
 }
@@ -2735,6 +4143,70 @@ class AssociateIdentityProviderConfigResponse {
   }
 }
 
+/// An access policy association.
+class AssociatedAccessPolicy {
+  /// The scope of the access policy.
+  final AccessScope? accessScope;
+
+  /// The date and time the <code>AccessPolicy</code> was associated with an
+  /// <code>AccessEntry</code>.
+  final DateTime? associatedAt;
+
+  /// The Unix epoch timestamp for the last modification to the object.
+  final DateTime? modifiedAt;
+
+  /// The ARN of the <code>AccessPolicy</code>.
+  final String? policyArn;
+
+  AssociatedAccessPolicy({
+    this.accessScope,
+    this.associatedAt,
+    this.modifiedAt,
+    this.policyArn,
+  });
+
+  factory AssociatedAccessPolicy.fromJson(Map<String, dynamic> json) {
+    return AssociatedAccessPolicy(
+      accessScope: json['accessScope'] != null
+          ? AccessScope.fromJson(json['accessScope'] as Map<String, dynamic>)
+          : null,
+      associatedAt: timeStampFromJson(json['associatedAt']),
+      modifiedAt: timeStampFromJson(json['modifiedAt']),
+      policyArn: json['policyArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessScope = this.accessScope;
+    final associatedAt = this.associatedAt;
+    final modifiedAt = this.modifiedAt;
+    final policyArn = this.policyArn;
+    return {
+      if (accessScope != null) 'accessScope': accessScope,
+      if (associatedAt != null)
+        'associatedAt': unixTimestampToJson(associatedAt),
+      if (modifiedAt != null) 'modifiedAt': unixTimestampToJson(modifiedAt),
+      if (policyArn != null) 'policyArn': policyArn,
+    };
+  }
+}
+
+enum AuthenticationMode {
+  api('API'),
+  apiAndConfigMap('API_AND_CONFIG_MAP'),
+  configMap('CONFIG_MAP'),
+  ;
+
+  final String value;
+
+  const AuthenticationMode(this.value);
+
+  static AuthenticationMode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AuthenticationMode'));
+}
+
 /// An Auto Scaling group that is associated with an Amazon EKS managed node
 /// group.
 class AutoScalingGroup {
@@ -2761,31 +4233,31 @@ class AutoScalingGroup {
 }
 
 enum CapacityTypes {
-  onDemand,
-  spot,
+  onDemand('ON_DEMAND'),
+  spot('SPOT'),
+  ;
+
+  final String value;
+
+  const CapacityTypes(this.value);
+
+  static CapacityTypes fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum CapacityTypes'));
 }
 
-extension CapacityTypesValueExtension on CapacityTypes {
-  String toValue() {
-    switch (this) {
-      case CapacityTypes.onDemand:
-        return 'ON_DEMAND';
-      case CapacityTypes.spot:
-        return 'SPOT';
-    }
-  }
-}
+enum Category {
+  upgradeReadiness('UPGRADE_READINESS'),
+  ;
 
-extension CapacityTypesFromString on String {
-  CapacityTypes toCapacityTypes() {
-    switch (this) {
-      case 'ON_DEMAND':
-        return CapacityTypes.onDemand;
-      case 'SPOT':
-        return CapacityTypes.spot;
-    }
-    throw Exception('$this is not known in enum CapacityTypes');
-  }
+  final String value;
+
+  const Category(this.value);
+
+  static Category fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum Category'));
 }
 
 /// An object representing the <code>certificate-authority-data</code> for your
@@ -2814,22 +4286,65 @@ class Certificate {
   }
 }
 
+/// Details about clients using the deprecated resources.
+class ClientStat {
+  /// The timestamp of the last request seen from the Kubernetes client.
+  final DateTime? lastRequestTime;
+
+  /// The number of requests from the Kubernetes client seen over the last 30
+  /// days.
+  final int? numberOfRequestsLast30Days;
+
+  /// The user agent of the Kubernetes client using the deprecated resource.
+  final String? userAgent;
+
+  ClientStat({
+    this.lastRequestTime,
+    this.numberOfRequestsLast30Days,
+    this.userAgent,
+  });
+
+  factory ClientStat.fromJson(Map<String, dynamic> json) {
+    return ClientStat(
+      lastRequestTime: timeStampFromJson(json['lastRequestTime']),
+      numberOfRequestsLast30Days: json['numberOfRequestsLast30Days'] as int?,
+      userAgent: json['userAgent'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final lastRequestTime = this.lastRequestTime;
+    final numberOfRequestsLast30Days = this.numberOfRequestsLast30Days;
+    final userAgent = this.userAgent;
+    return {
+      if (lastRequestTime != null)
+        'lastRequestTime': unixTimestampToJson(lastRequestTime),
+      if (numberOfRequestsLast30Days != null)
+        'numberOfRequestsLast30Days': numberOfRequestsLast30Days,
+      if (userAgent != null) 'userAgent': userAgent,
+    };
+  }
+}
+
 /// An object representing an Amazon EKS cluster.
 class Cluster {
+  /// The access configuration for the cluster.
+  final AccessConfigResponse? accessConfig;
+
   /// The Amazon Resource Name (ARN) of the cluster.
   final String? arn;
 
   /// The <code>certificate-authority-data</code> for your cluster.
   final Certificate? certificateAuthority;
 
-  /// Unique, case-sensitive identifier that you provide to ensure the idempotency
-  /// of the request.
+  /// A unique, case-sensitive identifier that you provide to ensure the
+  /// idempotency of the request.
   final String? clientRequestToken;
 
   /// The configuration used to connect to a cluster for registration.
   final ConnectorConfigResponse? connectorConfig;
 
-  /// The Unix epoch timestamp in seconds for when the cluster was created.
+  /// The Unix epoch timestamp at object creation.
   final DateTime? createdAt;
 
   /// The encryption configuration for the cluster.
@@ -2838,9 +4353,7 @@ class Cluster {
   /// The endpoint for your Kubernetes API server.
   final String? endpoint;
 
-  /// An object representing the health of your local Amazon EKS cluster on an
-  /// Amazon Web Services Outpost. This object isn't available for clusters on the
-  /// Amazon Web Services cloud.
+  /// An object representing the health of your Amazon EKS cluster.
   final ClusterHealth? health;
 
   /// The ID of your local Amazon EKS cluster on an Amazon Web Services Outpost.
@@ -2857,7 +4370,7 @@ class Cluster {
   /// The logging configuration for your cluster.
   final Logging? logging;
 
-  /// The name of the cluster.
+  /// The name of your cluster.
   final String? name;
 
   /// An object representing the configuration of your local Amazon EKS cluster on
@@ -2865,19 +4378,23 @@ class Cluster {
   /// the Amazon Web Services cloud.
   final OutpostConfigResponse? outpostConfig;
 
-  /// The platform version of your Amazon EKS cluster. For more information, see
-  /// <a
+  /// The platform version of your Amazon EKS cluster. For more information about
+  /// clusters deployed on the Amazon Web Services Cloud, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/platform-versions.html">Platform
-  /// Versions</a> in the <i> <i>Amazon EKS User Guide</i> </i>.
+  /// versions</a> in the <i> <i>Amazon EKS User Guide</i> </i>. For more
+  /// information about local clusters deployed on an Outpost, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/eks-outposts-platform-versions.html">Amazon
+  /// EKS local cluster platform versions</a> in the <i> <i>Amazon EKS User
+  /// Guide</i> </i>.
   final String? platformVersion;
 
   /// The VPC configuration used by the cluster control plane. Amazon EKS VPC
   /// resources have specific requirements to work properly with Kubernetes. For
   /// more information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/network_reqs.html">Cluster
-  /// VPC Considerations</a> and <a
+  /// VPC considerations</a> and <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/sec-group-reqs.html">Cluster
-  /// Security Group Considerations</a> in the <i>Amazon EKS User Guide</i>.
+  /// security group considerations</a> in the <i>Amazon EKS User Guide</i>.
   final VpcConfigResponse? resourcesVpcConfig;
 
   /// The Amazon Resource Name (ARN) of the IAM role that provides permissions for
@@ -2888,16 +4405,16 @@ class Cluster {
   /// The current status of the cluster.
   final ClusterStatus? status;
 
-  /// The metadata that you apply to the cluster to assist with categorization and
-  /// organization. Each tag consists of a key and an optional value. You define
-  /// both. Cluster tags do not propagate to any other resources associated with
-  /// the cluster.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   final Map<String, String>? tags;
 
   /// The Kubernetes server version for the cluster.
   final String? version;
 
   Cluster({
+    this.accessConfig,
     this.arn,
     this.certificateAuthority,
     this.clientRequestToken,
@@ -2922,6 +4439,10 @@ class Cluster {
 
   factory Cluster.fromJson(Map<String, dynamic> json) {
     return Cluster(
+      accessConfig: json['accessConfig'] != null
+          ? AccessConfigResponse.fromJson(
+              json['accessConfig'] as Map<String, dynamic>)
+          : null,
       arn: json['arn'] as String?,
       certificateAuthority: json['certificateAuthority'] != null
           ? Certificate.fromJson(
@@ -2934,7 +4455,7 @@ class Cluster {
           : null,
       createdAt: timeStampFromJson(json['createdAt']),
       encryptionConfig: (json['encryptionConfig'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EncryptionConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
       endpoint: json['endpoint'] as String?,
@@ -2963,7 +4484,7 @@ class Cluster {
               json['resourcesVpcConfig'] as Map<String, dynamic>)
           : null,
       roleArn: json['roleArn'] as String?,
-      status: (json['status'] as String?)?.toClusterStatus(),
+      status: (json['status'] as String?)?.let(ClusterStatus.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       version: json['version'] as String?,
@@ -2971,6 +4492,7 @@ class Cluster {
   }
 
   Map<String, dynamic> toJson() {
+    final accessConfig = this.accessConfig;
     final arn = this.arn;
     final certificateAuthority = this.certificateAuthority;
     final clientRequestToken = this.clientRequestToken;
@@ -2992,6 +4514,7 @@ class Cluster {
     final tags = this.tags;
     final version = this.version;
     return {
+      if (accessConfig != null) 'accessConfig': accessConfig,
       if (arn != null) 'arn': arn,
       if (certificateAuthority != null)
         'certificateAuthority': certificateAuthority,
@@ -3011,19 +4534,16 @@ class Cluster {
       if (platformVersion != null) 'platformVersion': platformVersion,
       if (resourcesVpcConfig != null) 'resourcesVpcConfig': resourcesVpcConfig,
       if (roleArn != null) 'roleArn': roleArn,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
       if (version != null) 'version': version,
     };
   }
 }
 
-/// An object representing the health of your local Amazon EKS cluster on an
-/// Amazon Web Services Outpost. You can't use this API with an Amazon EKS
-/// cluster on the Amazon Web Services cloud.
+/// An object representing the health of your Amazon EKS cluster.
 class ClusterHealth {
-  /// An object representing the health issues of your local Amazon EKS cluster on
-  /// an Amazon Web Services Outpost.
+  /// An object representing the health issues of your Amazon EKS cluster.
   final List<ClusterIssue>? issues;
 
   ClusterHealth({
@@ -3033,7 +4553,7 @@ class ClusterHealth {
   factory ClusterHealth.fromJson(Map<String, dynamic> json) {
     return ClusterHealth(
       issues: (json['issues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ClusterIssue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3047,9 +4567,7 @@ class ClusterHealth {
   }
 }
 
-/// An issue with your local Amazon EKS cluster on an Amazon Web Services
-/// Outpost. You can't use this API with an Amazon EKS cluster on the Amazon Web
-/// Services cloud.
+/// An issue with your Amazon EKS cluster.
 class ClusterIssue {
   /// The error code of the issue.
   final ClusterIssueCode? code;
@@ -3068,10 +4586,10 @@ class ClusterIssue {
 
   factory ClusterIssue.fromJson(Map<String, dynamic> json) {
     return ClusterIssue(
-      code: (json['code'] as String?)?.toClusterIssueCode(),
+      code: (json['code'] as String?)?.let(ClusterIssueCode.fromString),
       message: json['message'] as String?,
       resourceIds: (json['resourceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3082,7 +4600,7 @@ class ClusterIssue {
     final message = this.message;
     final resourceIds = this.resourceIds;
     return {
-      if (code != null) 'code': code.toValue(),
+      if (code != null) 'code': code.value,
       if (message != null) 'message': message,
       if (resourceIds != null) 'resourceIds': resourceIds,
     };
@@ -3090,99 +4608,54 @@ class ClusterIssue {
 }
 
 enum ClusterIssueCode {
-  accessDenied,
-  clusterUnreachable,
-  configurationConflict,
-  internalFailure,
-  resourceLimitExceeded,
-  resourceNotFound,
-}
+  accessDenied('AccessDenied'),
+  clusterUnreachable('ClusterUnreachable'),
+  configurationConflict('ConfigurationConflict'),
+  internalFailure('InternalFailure'),
+  resourceLimitExceeded('ResourceLimitExceeded'),
+  resourceNotFound('ResourceNotFound'),
+  iamRoleNotFound('IamRoleNotFound'),
+  vpcNotFound('VpcNotFound'),
+  insufficientFreeAddresses('InsufficientFreeAddresses'),
+  ec2ServiceNotSubscribed('Ec2ServiceNotSubscribed'),
+  ec2SubnetNotFound('Ec2SubnetNotFound'),
+  ec2SecurityGroupNotFound('Ec2SecurityGroupNotFound'),
+  kmsGrantRevoked('KmsGrantRevoked'),
+  kmsKeyNotFound('KmsKeyNotFound'),
+  kmsKeyMarkedForDeletion('KmsKeyMarkedForDeletion'),
+  kmsKeyDisabled('KmsKeyDisabled'),
+  stsRegionalEndpointDisabled('StsRegionalEndpointDisabled'),
+  unsupportedVersion('UnsupportedVersion'),
+  other('Other'),
+  ;
 
-extension ClusterIssueCodeValueExtension on ClusterIssueCode {
-  String toValue() {
-    switch (this) {
-      case ClusterIssueCode.accessDenied:
-        return 'AccessDenied';
-      case ClusterIssueCode.clusterUnreachable:
-        return 'ClusterUnreachable';
-      case ClusterIssueCode.configurationConflict:
-        return 'ConfigurationConflict';
-      case ClusterIssueCode.internalFailure:
-        return 'InternalFailure';
-      case ClusterIssueCode.resourceLimitExceeded:
-        return 'ResourceLimitExceeded';
-      case ClusterIssueCode.resourceNotFound:
-        return 'ResourceNotFound';
-    }
-  }
-}
+  final String value;
 
-extension ClusterIssueCodeFromString on String {
-  ClusterIssueCode toClusterIssueCode() {
-    switch (this) {
-      case 'AccessDenied':
-        return ClusterIssueCode.accessDenied;
-      case 'ClusterUnreachable':
-        return ClusterIssueCode.clusterUnreachable;
-      case 'ConfigurationConflict':
-        return ClusterIssueCode.configurationConflict;
-      case 'InternalFailure':
-        return ClusterIssueCode.internalFailure;
-      case 'ResourceLimitExceeded':
-        return ClusterIssueCode.resourceLimitExceeded;
-      case 'ResourceNotFound':
-        return ClusterIssueCode.resourceNotFound;
-    }
-    throw Exception('$this is not known in enum ClusterIssueCode');
-  }
+  const ClusterIssueCode(this.value);
+
+  static ClusterIssueCode fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ClusterIssueCode'));
 }
 
 enum ClusterStatus {
-  creating,
-  active,
-  deleting,
-  failed,
-  updating,
-  pending,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  failed('FAILED'),
+  updating('UPDATING'),
+  pending('PENDING'),
+  ;
 
-extension ClusterStatusValueExtension on ClusterStatus {
-  String toValue() {
-    switch (this) {
-      case ClusterStatus.creating:
-        return 'CREATING';
-      case ClusterStatus.active:
-        return 'ACTIVE';
-      case ClusterStatus.deleting:
-        return 'DELETING';
-      case ClusterStatus.failed:
-        return 'FAILED';
-      case ClusterStatus.updating:
-        return 'UPDATING';
-      case ClusterStatus.pending:
-        return 'PENDING';
-    }
-  }
-}
+  final String value;
 
-extension ClusterStatusFromString on String {
-  ClusterStatus toClusterStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ClusterStatus.creating;
-      case 'ACTIVE':
-        return ClusterStatus.active;
-      case 'DELETING':
-        return ClusterStatus.deleting;
-      case 'FAILED':
-        return ClusterStatus.failed;
-      case 'UPDATING':
-        return ClusterStatus.updating;
-      case 'PENDING':
-        return ClusterStatus.pending;
-    }
-    throw Exception('$this is not known in enum ClusterStatus');
-  }
+  const ClusterStatus(this.value);
+
+  static ClusterStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ClusterStatus'));
 }
 
 /// Compatibility information.
@@ -3207,7 +4680,7 @@ class Compatibility {
       clusterVersion: json['clusterVersion'] as String?,
       defaultVersion: json['defaultVersion'] as bool?,
       platformVersions: (json['platformVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3226,66 +4699,25 @@ class Compatibility {
 }
 
 enum ConnectorConfigProvider {
-  eksAnywhere,
-  anthos,
-  gke,
-  aks,
-  openshift,
-  tanzu,
-  rancher,
-  ec2,
-  other,
-}
+  eksAnywhere('EKS_ANYWHERE'),
+  anthos('ANTHOS'),
+  gke('GKE'),
+  aks('AKS'),
+  openshift('OPENSHIFT'),
+  tanzu('TANZU'),
+  rancher('RANCHER'),
+  ec2('EC2'),
+  other('OTHER'),
+  ;
 
-extension ConnectorConfigProviderValueExtension on ConnectorConfigProvider {
-  String toValue() {
-    switch (this) {
-      case ConnectorConfigProvider.eksAnywhere:
-        return 'EKS_ANYWHERE';
-      case ConnectorConfigProvider.anthos:
-        return 'ANTHOS';
-      case ConnectorConfigProvider.gke:
-        return 'GKE';
-      case ConnectorConfigProvider.aks:
-        return 'AKS';
-      case ConnectorConfigProvider.openshift:
-        return 'OPENSHIFT';
-      case ConnectorConfigProvider.tanzu:
-        return 'TANZU';
-      case ConnectorConfigProvider.rancher:
-        return 'RANCHER';
-      case ConnectorConfigProvider.ec2:
-        return 'EC2';
-      case ConnectorConfigProvider.other:
-        return 'OTHER';
-    }
-  }
-}
+  final String value;
 
-extension ConnectorConfigProviderFromString on String {
-  ConnectorConfigProvider toConnectorConfigProvider() {
-    switch (this) {
-      case 'EKS_ANYWHERE':
-        return ConnectorConfigProvider.eksAnywhere;
-      case 'ANTHOS':
-        return ConnectorConfigProvider.anthos;
-      case 'GKE':
-        return ConnectorConfigProvider.gke;
-      case 'AKS':
-        return ConnectorConfigProvider.aks;
-      case 'OPENSHIFT':
-        return ConnectorConfigProvider.openshift;
-      case 'TANZU':
-        return ConnectorConfigProvider.tanzu;
-      case 'RANCHER':
-        return ConnectorConfigProvider.rancher;
-      case 'EC2':
-        return ConnectorConfigProvider.ec2;
-      case 'OTHER':
-        return ConnectorConfigProvider.other;
-    }
-    throw Exception('$this is not known in enum ConnectorConfigProvider');
-  }
+  const ConnectorConfigProvider(this.value);
+
+  static ConnectorConfigProvider fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum ConnectorConfigProvider'));
 }
 
 /// The configuration sent to a cluster for configuration.
@@ -3306,7 +4738,7 @@ class ConnectorConfigRequest {
     final provider = this.provider;
     final roleArn = this.roleArn;
     return {
-      'provider': provider.toValue(),
+      'provider': provider.value,
       'roleArn': roleArn,
     };
   }
@@ -3370,7 +4802,7 @@ class ConnectorConfigResponse {
 /// local Amazon EKS cluster on an Amazon Web Services Outpost. For more
 /// information, see <a
 /// href="https://docs.aws.amazon.com/eks/latest/userguide/eks-outposts-capacity-considerations.html">Capacity
-/// considerations</a> in the <i>Amazon EKS User Guide</i>
+/// considerations</a> in the Amazon EKS User Guide.
 class ControlPlanePlacementRequest {
   /// The name of the placement group for the Kubernetes control plane instances.
   /// This setting can't be changed after cluster creation.
@@ -3411,6 +4843,62 @@ class ControlPlanePlacementResponse {
     final groupName = this.groupName;
     return {
       if (groupName != null) 'groupName': groupName,
+    };
+  }
+}
+
+/// The access configuration information for the cluster.
+class CreateAccessConfigRequest {
+  /// The desired authentication mode for the cluster. If you create a cluster by
+  /// using the EKS API, Amazon Web Services SDKs, or CloudFormation, the default
+  /// is <code>CONFIG_MAP</code>. If you create the cluster by using the Amazon
+  /// Web Services Management Console, the default value is
+  /// <code>API_AND_CONFIG_MAP</code>.
+  final AuthenticationMode? authenticationMode;
+
+  /// Specifies whether or not the cluster creator IAM principal was set as a
+  /// cluster admin access entry during cluster creation time. The default value
+  /// is <code>true</code>.
+  final bool? bootstrapClusterCreatorAdminPermissions;
+
+  CreateAccessConfigRequest({
+    this.authenticationMode,
+    this.bootstrapClusterCreatorAdminPermissions,
+  });
+
+  Map<String, dynamic> toJson() {
+    final authenticationMode = this.authenticationMode;
+    final bootstrapClusterCreatorAdminPermissions =
+        this.bootstrapClusterCreatorAdminPermissions;
+    return {
+      if (authenticationMode != null)
+        'authenticationMode': authenticationMode.value,
+      if (bootstrapClusterCreatorAdminPermissions != null)
+        'bootstrapClusterCreatorAdminPermissions':
+            bootstrapClusterCreatorAdminPermissions,
+    };
+  }
+}
+
+class CreateAccessEntryResponse {
+  final AccessEntry? accessEntry;
+
+  CreateAccessEntryResponse({
+    this.accessEntry,
+  });
+
+  factory CreateAccessEntryResponse.fromJson(Map<String, dynamic> json) {
+    return CreateAccessEntryResponse(
+      accessEntry: json['accessEntry'] != null
+          ? AccessEntry.fromJson(json['accessEntry'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessEntry = this.accessEntry;
+    return {
+      if (accessEntry != null) 'accessEntry': accessEntry,
     };
   }
 }
@@ -3458,6 +4946,32 @@ class CreateClusterResponse {
     final cluster = this.cluster;
     return {
       if (cluster != null) 'cluster': cluster,
+    };
+  }
+}
+
+class CreateEksAnywhereSubscriptionResponse {
+  /// The full description of the subscription.
+  final EksAnywhereSubscription? subscription;
+
+  CreateEksAnywhereSubscriptionResponse({
+    this.subscription,
+  });
+
+  factory CreateEksAnywhereSubscriptionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreateEksAnywhereSubscriptionResponse(
+      subscription: json['subscription'] != null
+          ? EksAnywhereSubscription.fromJson(
+              json['subscription'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final subscription = this.subscription;
+    return {
+      if (subscription != null) 'subscription': subscription,
     };
   }
 }
@@ -3511,6 +5025,47 @@ class CreateNodegroupResponse {
   }
 }
 
+class CreatePodIdentityAssociationResponse {
+  /// The full description of your new association.
+  ///
+  /// The description includes an ID for the association. Use the ID of the
+  /// association in further actions to manage the association.
+  final PodIdentityAssociation? association;
+
+  CreatePodIdentityAssociationResponse({
+    this.association,
+  });
+
+  factory CreatePodIdentityAssociationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return CreatePodIdentityAssociationResponse(
+      association: json['association'] != null
+          ? PodIdentityAssociation.fromJson(
+              json['association'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final association = this.association;
+    return {
+      if (association != null) 'association': association,
+    };
+  }
+}
+
+class DeleteAccessEntryResponse {
+  DeleteAccessEntryResponse();
+
+  factory DeleteAccessEntryResponse.fromJson(Map<String, dynamic> _) {
+    return DeleteAccessEntryResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 class DeleteAddonResponse {
   final Addon? addon;
 
@@ -3554,6 +5109,32 @@ class DeleteClusterResponse {
     final cluster = this.cluster;
     return {
       if (cluster != null) 'cluster': cluster,
+    };
+  }
+}
+
+class DeleteEksAnywhereSubscriptionResponse {
+  /// The full description of the subscription to be deleted.
+  final EksAnywhereSubscription? subscription;
+
+  DeleteEksAnywhereSubscriptionResponse({
+    this.subscription,
+  });
+
+  factory DeleteEksAnywhereSubscriptionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DeleteEksAnywhereSubscriptionResponse(
+      subscription: json['subscription'] != null
+          ? EksAnywhereSubscription.fromJson(
+              json['subscription'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final subscription = this.subscription;
+    return {
+      if (subscription != null) 'subscription': subscription,
     };
   }
 }
@@ -3607,6 +5188,91 @@ class DeleteNodegroupResponse {
   }
 }
 
+class DeletePodIdentityAssociationResponse {
+  /// The full description of the EKS Pod Identity association that was deleted.
+  final PodIdentityAssociation? association;
+
+  DeletePodIdentityAssociationResponse({
+    this.association,
+  });
+
+  factory DeletePodIdentityAssociationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DeletePodIdentityAssociationResponse(
+      association: json['association'] != null
+          ? PodIdentityAssociation.fromJson(
+              json['association'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final association = this.association;
+    return {
+      if (association != null) 'association': association,
+    };
+  }
+}
+
+/// The summary information about deprecated resource usage for an insight check
+/// in the <code>UPGRADE_READINESS</code> category.
+class DeprecationDetail {
+  /// Details about Kubernetes clients using the deprecated resources.
+  final List<ClientStat>? clientStats;
+
+  /// The newer version of the resource to migrate to if applicable.
+  final String? replacedWith;
+
+  /// The version of the software where the newer resource version became
+  /// available to migrate to if applicable.
+  final String? startServingReplacementVersion;
+
+  /// The version of the software where the deprecated resource version will stop
+  /// being served.
+  final String? stopServingVersion;
+
+  /// The deprecated version of the resource.
+  final String? usage;
+
+  DeprecationDetail({
+    this.clientStats,
+    this.replacedWith,
+    this.startServingReplacementVersion,
+    this.stopServingVersion,
+    this.usage,
+  });
+
+  factory DeprecationDetail.fromJson(Map<String, dynamic> json) {
+    return DeprecationDetail(
+      clientStats: (json['clientStats'] as List?)
+          ?.nonNulls
+          .map((e) => ClientStat.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      replacedWith: json['replacedWith'] as String?,
+      startServingReplacementVersion:
+          json['startServingReplacementVersion'] as String?,
+      stopServingVersion: json['stopServingVersion'] as String?,
+      usage: json['usage'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final clientStats = this.clientStats;
+    final replacedWith = this.replacedWith;
+    final startServingReplacementVersion = this.startServingReplacementVersion;
+    final stopServingVersion = this.stopServingVersion;
+    final usage = this.usage;
+    return {
+      if (clientStats != null) 'clientStats': clientStats,
+      if (replacedWith != null) 'replacedWith': replacedWith,
+      if (startServingReplacementVersion != null)
+        'startServingReplacementVersion': startServingReplacementVersion,
+      if (stopServingVersion != null) 'stopServingVersion': stopServingVersion,
+      if (usage != null) 'usage': usage,
+    };
+  }
+}
+
 class DeregisterClusterResponse {
   final Cluster? cluster;
 
@@ -3630,6 +5296,30 @@ class DeregisterClusterResponse {
   }
 }
 
+class DescribeAccessEntryResponse {
+  /// Information about the access entry.
+  final AccessEntry? accessEntry;
+
+  DescribeAccessEntryResponse({
+    this.accessEntry,
+  });
+
+  factory DescribeAccessEntryResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeAccessEntryResponse(
+      accessEntry: json['accessEntry'] != null
+          ? AccessEntry.fromJson(json['accessEntry'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessEntry = this.accessEntry;
+    return {
+      if (accessEntry != null) 'accessEntry': accessEntry,
+    };
+  }
+}
+
 class DescribeAddonConfigurationResponse {
   /// The name of the add-on.
   final String? addonName;
@@ -3640,14 +5330,19 @@ class DescribeAddonConfigurationResponse {
   /// <code>DescribeAddonVersions</code> </a>.
   final String? addonVersion;
 
-  /// A JSON schema that's used to validate the configuration values that you
-  /// provide when an addon is created or updated.
+  /// A JSON schema that's used to validate the configuration values you provide
+  /// when an add-on is created or updated.
   final String? configurationSchema;
+
+  /// The Kubernetes service account name used by the addon, and any suggested IAM
+  /// policies. Use this information to create an IAM Role for the Addon.
+  final List<AddonPodIdentityConfiguration>? podIdentityConfiguration;
 
   DescribeAddonConfigurationResponse({
     this.addonName,
     this.addonVersion,
     this.configurationSchema,
+    this.podIdentityConfiguration,
   });
 
   factory DescribeAddonConfigurationResponse.fromJson(
@@ -3656,6 +5351,11 @@ class DescribeAddonConfigurationResponse {
       addonName: json['addonName'] as String?,
       addonVersion: json['addonVersion'] as String?,
       configurationSchema: json['configurationSchema'] as String?,
+      podIdentityConfiguration: (json['podIdentityConfiguration'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              AddonPodIdentityConfiguration.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -3663,11 +5363,14 @@ class DescribeAddonConfigurationResponse {
     final addonName = this.addonName;
     final addonVersion = this.addonVersion;
     final configurationSchema = this.configurationSchema;
+    final podIdentityConfiguration = this.podIdentityConfiguration;
     return {
       if (addonName != null) 'addonName': addonName,
       if (addonVersion != null) 'addonVersion': addonVersion,
       if (configurationSchema != null)
         'configurationSchema': configurationSchema,
+      if (podIdentityConfiguration != null)
+        'podIdentityConfiguration': podIdentityConfiguration,
     };
   }
 }
@@ -3700,11 +5403,11 @@ class DescribeAddonVersionsResponse {
   /// other properties.
   final List<AddonInfo>? addons;
 
-  /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>DescribeAddonVersionsResponse</code> where <code>maxResults</code> was
-  /// used and the results exceeded the value of that parameter. Pagination
-  /// continues from the end of the previous results that returned the
-  /// <code>nextToken</code> value.
+  /// The <code>nextToken</code> value to include in a future
+  /// <code>DescribeAddonVersions</code> request. When the results of a
+  /// <code>DescribeAddonVersions</code> request exceed <code>maxResults</code>,
+  /// you can use this value to retrieve the next page of results. This value is
+  /// <code>null</code> when there are no more results to return.
   /// <note>
   /// This token should be treated as an opaque identifier that is used only to
   /// retrieve the next items in a list and not for other programmatic purposes.
@@ -3719,7 +5422,7 @@ class DescribeAddonVersionsResponse {
   factory DescribeAddonVersionsResponse.fromJson(Map<String, dynamic> json) {
     return DescribeAddonVersionsResponse(
       addons: (json['addons'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AddonInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -3756,6 +5459,32 @@ class DescribeClusterResponse {
     final cluster = this.cluster;
     return {
       if (cluster != null) 'cluster': cluster,
+    };
+  }
+}
+
+class DescribeEksAnywhereSubscriptionResponse {
+  /// The full description of the subscription.
+  final EksAnywhereSubscription? subscription;
+
+  DescribeEksAnywhereSubscriptionResponse({
+    this.subscription,
+  });
+
+  factory DescribeEksAnywhereSubscriptionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DescribeEksAnywhereSubscriptionResponse(
+      subscription: json['subscription'] != null
+          ? EksAnywhereSubscription.fromJson(
+              json['subscription'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final subscription = this.subscription;
+    return {
+      if (subscription != null) 'subscription': subscription,
     };
   }
 }
@@ -3813,6 +5542,30 @@ class DescribeIdentityProviderConfigResponse {
   }
 }
 
+class DescribeInsightResponse {
+  /// The full description of the insight.
+  final Insight? insight;
+
+  DescribeInsightResponse({
+    this.insight,
+  });
+
+  factory DescribeInsightResponse.fromJson(Map<String, dynamic> json) {
+    return DescribeInsightResponse(
+      insight: json['insight'] != null
+          ? Insight.fromJson(json['insight'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final insight = this.insight;
+    return {
+      if (insight != null) 'insight': insight,
+    };
+  }
+}
+
 class DescribeNodegroupResponse {
   /// The full description of your node group.
   final Nodegroup? nodegroup;
@@ -3833,6 +5586,32 @@ class DescribeNodegroupResponse {
     final nodegroup = this.nodegroup;
     return {
       if (nodegroup != null) 'nodegroup': nodegroup,
+    };
+  }
+}
+
+class DescribePodIdentityAssociationResponse {
+  /// The full description of the EKS Pod Identity association.
+  final PodIdentityAssociation? association;
+
+  DescribePodIdentityAssociationResponse({
+    this.association,
+  });
+
+  factory DescribePodIdentityAssociationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return DescribePodIdentityAssociationResponse(
+      association: json['association'] != null
+          ? PodIdentityAssociation.fromJson(
+              json['association'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final association = this.association;
+    return {
+      if (association != null) 'association': association,
     };
   }
 }
@@ -3861,6 +5640,18 @@ class DescribeUpdateResponse {
   }
 }
 
+class DisassociateAccessPolicyResponse {
+  DisassociateAccessPolicyResponse();
+
+  factory DisassociateAccessPolicyResponse.fromJson(Map<String, dynamic> _) {
+    return DisassociateAccessPolicyResponse();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
+  }
+}
+
 class DisassociateIdentityProviderConfigResponse {
   final Update? update;
 
@@ -3885,13 +5676,214 @@ class DisassociateIdentityProviderConfigResponse {
   }
 }
 
+/// An EKS Anywhere subscription authorizing the customer to support for
+/// licensed clusters and access to EKS Anywhere Curated Packages.
+class EksAnywhereSubscription {
+  /// The Amazon Resource Name (ARN) for the subscription.
+  final String? arn;
+
+  /// A boolean indicating whether or not a subscription will auto renew when it
+  /// expires.
+  final bool? autoRenew;
+
+  /// The Unix timestamp in seconds for when the subscription was created.
+  final DateTime? createdAt;
+
+  /// The Unix timestamp in seconds for when the subscription is effective.
+  final DateTime? effectiveDate;
+
+  /// The Unix timestamp in seconds for when the subscription will expire or auto
+  /// renew, depending on the auto renew configuration of the subscription object.
+  final DateTime? expirationDate;
+
+  /// UUID identifying a subscription.
+  final String? id;
+
+  /// Amazon Web Services License Manager ARN associated with the subscription.
+  final List<String>? licenseArns;
+
+  /// The number of licenses included in a subscription. Valid values are between
+  /// 1 and 100.
+  final int? licenseQuantity;
+
+  /// The type of licenses included in the subscription. Valid value is CLUSTER.
+  /// With the CLUSTER license type, each license covers support for a single EKS
+  /// Anywhere cluster.
+  final EksAnywhereSubscriptionLicenseType? licenseType;
+
+  /// The status of a subscription.
+  final String? status;
+
+  /// The metadata for a subscription to assist with categorization and
+  /// organization. Each tag consists of a key and an optional value. Subscription
+  /// tags do not propagate to any other resources associated with the
+  /// subscription.
+  final Map<String, String>? tags;
+
+  /// An EksAnywhereSubscriptionTerm object.
+  final EksAnywhereSubscriptionTerm? term;
+
+  EksAnywhereSubscription({
+    this.arn,
+    this.autoRenew,
+    this.createdAt,
+    this.effectiveDate,
+    this.expirationDate,
+    this.id,
+    this.licenseArns,
+    this.licenseQuantity,
+    this.licenseType,
+    this.status,
+    this.tags,
+    this.term,
+  });
+
+  factory EksAnywhereSubscription.fromJson(Map<String, dynamic> json) {
+    return EksAnywhereSubscription(
+      arn: json['arn'] as String?,
+      autoRenew: json['autoRenew'] as bool?,
+      createdAt: timeStampFromJson(json['createdAt']),
+      effectiveDate: timeStampFromJson(json['effectiveDate']),
+      expirationDate: timeStampFromJson(json['expirationDate']),
+      id: json['id'] as String?,
+      licenseArns: (json['licenseArns'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      licenseQuantity: json['licenseQuantity'] as int?,
+      licenseType: (json['licenseType'] as String?)
+          ?.let(EksAnywhereSubscriptionLicenseType.fromString),
+      status: json['status'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      term: json['term'] != null
+          ? EksAnywhereSubscriptionTerm.fromJson(
+              json['term'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final autoRenew = this.autoRenew;
+    final createdAt = this.createdAt;
+    final effectiveDate = this.effectiveDate;
+    final expirationDate = this.expirationDate;
+    final id = this.id;
+    final licenseArns = this.licenseArns;
+    final licenseQuantity = this.licenseQuantity;
+    final licenseType = this.licenseType;
+    final status = this.status;
+    final tags = this.tags;
+    final term = this.term;
+    return {
+      if (arn != null) 'arn': arn,
+      if (autoRenew != null) 'autoRenew': autoRenew,
+      if (createdAt != null) 'createdAt': unixTimestampToJson(createdAt),
+      if (effectiveDate != null)
+        'effectiveDate': unixTimestampToJson(effectiveDate),
+      if (expirationDate != null)
+        'expirationDate': unixTimestampToJson(expirationDate),
+      if (id != null) 'id': id,
+      if (licenseArns != null) 'licenseArns': licenseArns,
+      if (licenseQuantity != null) 'licenseQuantity': licenseQuantity,
+      if (licenseType != null) 'licenseType': licenseType.value,
+      if (status != null) 'status': status,
+      if (tags != null) 'tags': tags,
+      if (term != null) 'term': term,
+    };
+  }
+}
+
+enum EksAnywhereSubscriptionLicenseType {
+  cluster('Cluster'),
+  ;
+
+  final String value;
+
+  const EksAnywhereSubscriptionLicenseType(this.value);
+
+  static EksAnywhereSubscriptionLicenseType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EksAnywhereSubscriptionLicenseType'));
+}
+
+enum EksAnywhereSubscriptionStatus {
+  creating('CREATING'),
+  active('ACTIVE'),
+  updating('UPDATING'),
+  expiring('EXPIRING'),
+  expired('EXPIRED'),
+  deleting('DELETING'),
+  ;
+
+  final String value;
+
+  const EksAnywhereSubscriptionStatus(this.value);
+
+  static EksAnywhereSubscriptionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EksAnywhereSubscriptionStatus'));
+}
+
+/// An object representing the term duration and term unit type of your
+/// subscription. This determines the term length of your subscription. Valid
+/// values are MONTHS for term unit and 12 or 36 for term duration, indicating a
+/// 12 month or 36 month subscription.
+class EksAnywhereSubscriptionTerm {
+  /// The duration of the subscription term. Valid values are 12 and 36,
+  /// indicating a 12 month or 36 month subscription.
+  final int? duration;
+
+  /// The term unit of the subscription. Valid value is <code>MONTHS</code>.
+  final EksAnywhereSubscriptionTermUnit? unit;
+
+  EksAnywhereSubscriptionTerm({
+    this.duration,
+    this.unit,
+  });
+
+  factory EksAnywhereSubscriptionTerm.fromJson(Map<String, dynamic> json) {
+    return EksAnywhereSubscriptionTerm(
+      duration: json['duration'] as int?,
+      unit: (json['unit'] as String?)
+          ?.let(EksAnywhereSubscriptionTermUnit.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final duration = this.duration;
+    final unit = this.unit;
+    return {
+      if (duration != null) 'duration': duration,
+      if (unit != null) 'unit': unit.value,
+    };
+  }
+}
+
+enum EksAnywhereSubscriptionTermUnit {
+  months('MONTHS'),
+  ;
+
+  final String value;
+
+  const EksAnywhereSubscriptionTermUnit(this.value);
+
+  static EksAnywhereSubscriptionTermUnit fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum EksAnywhereSubscriptionTermUnit'));
+}
+
 /// The encryption configuration for the cluster.
 class EncryptionConfig {
   /// Key Management Service (KMS) key. Either the ARN or the alias can be used.
   final Provider? provider;
 
   /// Specifies the resources to be encrypted. The only supported value is
-  /// "secrets".
+  /// <code>secrets</code>.
   final List<String>? resources;
 
   EncryptionConfig({
@@ -3905,7 +5897,7 @@ class EncryptionConfig {
           ? Provider.fromJson(json['provider'] as Map<String, dynamic>)
           : null,
       resources: (json['resources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3922,106 +5914,32 @@ class EncryptionConfig {
 }
 
 enum ErrorCode {
-  subnetNotFound,
-  securityGroupNotFound,
-  eniLimitReached,
-  ipNotAvailable,
-  accessDenied,
-  operationNotPermitted,
-  vpcIdNotFound,
-  unknown,
-  nodeCreationFailure,
-  podEvictionFailure,
-  insufficientFreeAddresses,
-  clusterUnreachable,
-  insufficientNumberOfReplicas,
-  configurationConflict,
-  admissionRequestDenied,
-  unsupportedAddonModification,
-  k8sResourceNotFound,
-}
+  subnetNotFound('SubnetNotFound'),
+  securityGroupNotFound('SecurityGroupNotFound'),
+  eniLimitReached('EniLimitReached'),
+  ipNotAvailable('IpNotAvailable'),
+  accessDenied('AccessDenied'),
+  operationNotPermitted('OperationNotPermitted'),
+  vpcIdNotFound('VpcIdNotFound'),
+  unknown('Unknown'),
+  nodeCreationFailure('NodeCreationFailure'),
+  podEvictionFailure('PodEvictionFailure'),
+  insufficientFreeAddresses('InsufficientFreeAddresses'),
+  clusterUnreachable('ClusterUnreachable'),
+  insufficientNumberOfReplicas('InsufficientNumberOfReplicas'),
+  configurationConflict('ConfigurationConflict'),
+  admissionRequestDenied('AdmissionRequestDenied'),
+  unsupportedAddonModification('UnsupportedAddonModification'),
+  k8sResourceNotFound('K8sResourceNotFound'),
+  ;
 
-extension ErrorCodeValueExtension on ErrorCode {
-  String toValue() {
-    switch (this) {
-      case ErrorCode.subnetNotFound:
-        return 'SubnetNotFound';
-      case ErrorCode.securityGroupNotFound:
-        return 'SecurityGroupNotFound';
-      case ErrorCode.eniLimitReached:
-        return 'EniLimitReached';
-      case ErrorCode.ipNotAvailable:
-        return 'IpNotAvailable';
-      case ErrorCode.accessDenied:
-        return 'AccessDenied';
-      case ErrorCode.operationNotPermitted:
-        return 'OperationNotPermitted';
-      case ErrorCode.vpcIdNotFound:
-        return 'VpcIdNotFound';
-      case ErrorCode.unknown:
-        return 'Unknown';
-      case ErrorCode.nodeCreationFailure:
-        return 'NodeCreationFailure';
-      case ErrorCode.podEvictionFailure:
-        return 'PodEvictionFailure';
-      case ErrorCode.insufficientFreeAddresses:
-        return 'InsufficientFreeAddresses';
-      case ErrorCode.clusterUnreachable:
-        return 'ClusterUnreachable';
-      case ErrorCode.insufficientNumberOfReplicas:
-        return 'InsufficientNumberOfReplicas';
-      case ErrorCode.configurationConflict:
-        return 'ConfigurationConflict';
-      case ErrorCode.admissionRequestDenied:
-        return 'AdmissionRequestDenied';
-      case ErrorCode.unsupportedAddonModification:
-        return 'UnsupportedAddonModification';
-      case ErrorCode.k8sResourceNotFound:
-        return 'K8sResourceNotFound';
-    }
-  }
-}
+  final String value;
 
-extension ErrorCodeFromString on String {
-  ErrorCode toErrorCode() {
-    switch (this) {
-      case 'SubnetNotFound':
-        return ErrorCode.subnetNotFound;
-      case 'SecurityGroupNotFound':
-        return ErrorCode.securityGroupNotFound;
-      case 'EniLimitReached':
-        return ErrorCode.eniLimitReached;
-      case 'IpNotAvailable':
-        return ErrorCode.ipNotAvailable;
-      case 'AccessDenied':
-        return ErrorCode.accessDenied;
-      case 'OperationNotPermitted':
-        return ErrorCode.operationNotPermitted;
-      case 'VpcIdNotFound':
-        return ErrorCode.vpcIdNotFound;
-      case 'Unknown':
-        return ErrorCode.unknown;
-      case 'NodeCreationFailure':
-        return ErrorCode.nodeCreationFailure;
-      case 'PodEvictionFailure':
-        return ErrorCode.podEvictionFailure;
-      case 'InsufficientFreeAddresses':
-        return ErrorCode.insufficientFreeAddresses;
-      case 'ClusterUnreachable':
-        return ErrorCode.clusterUnreachable;
-      case 'InsufficientNumberOfReplicas':
-        return ErrorCode.insufficientNumberOfReplicas;
-      case 'ConfigurationConflict':
-        return ErrorCode.configurationConflict;
-      case 'AdmissionRequestDenied':
-        return ErrorCode.admissionRequestDenied;
-      case 'UnsupportedAddonModification':
-        return ErrorCode.unsupportedAddonModification;
-      case 'K8sResourceNotFound':
-        return ErrorCode.k8sResourceNotFound;
-    }
-    throw Exception('$this is not known in enum ErrorCode');
-  }
+  const ErrorCode(this.value);
+
+  static ErrorCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum ErrorCode'));
 }
 
 /// An object representing an error when an asynchronous operation fails.
@@ -4043,7 +5961,7 @@ class ErrorDetail {
   /// </li>
   /// <li>
   /// <b>IpNotAvailable</b>: A subnet associated with the cluster doesn't have any
-  /// free IP addresses.
+  /// available IP addresses.
   /// </li>
   /// <li>
   /// <b>AccessDenied</b>: You don't have permissions to perform the specified
@@ -4073,10 +5991,10 @@ class ErrorDetail {
 
   factory ErrorDetail.fromJson(Map<String, dynamic> json) {
     return ErrorDetail(
-      errorCode: (json['errorCode'] as String?)?.toErrorCode(),
+      errorCode: (json['errorCode'] as String?)?.let(ErrorCode.fromString),
       errorMessage: json['errorMessage'] as String?,
       resourceIds: (json['resourceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4087,7 +6005,7 @@ class ErrorDetail {
     final errorMessage = this.errorMessage;
     final resourceIds = this.resourceIds;
     return {
-      if (errorCode != null) 'errorCode': errorCode.toValue(),
+      if (errorCode != null) 'errorCode': errorCode.value,
       if (errorMessage != null) 'errorMessage': errorMessage,
       if (resourceIds != null) 'resourceIds': resourceIds,
     };
@@ -4096,11 +6014,10 @@ class ErrorDetail {
 
 /// An object representing an Fargate profile.
 class FargateProfile {
-  /// The name of the Amazon EKS cluster that the Fargate profile belongs to.
+  /// The name of your cluster.
   final String? clusterName;
 
-  /// The Unix epoch timestamp in seconds for when the Fargate profile was
-  /// created.
+  /// The Unix epoch timestamp at object creation.
   final DateTime? createdAt;
 
   /// The full Amazon Resource Name (ARN) of the Fargate profile.
@@ -4109,27 +6026,25 @@ class FargateProfile {
   /// The name of the Fargate profile.
   final String? fargateProfileName;
 
-  /// The Amazon Resource Name (ARN) of the pod execution role to use for pods
-  /// that match the selectors in the Fargate profile. For more information, see
-  /// <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html">Pod
-  /// Execution Role</a> in the <i>Amazon EKS User Guide</i>.
+  /// The Amazon Resource Name (ARN) of the <code>Pod</code> execution role to use
+  /// for any <code>Pod</code> that matches the selectors in the Fargate profile.
+  /// For more information, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/pod-execution-role.html">
+  /// <code>Pod</code> execution role</a> in the <i>Amazon EKS User Guide</i>.
   final String? podExecutionRoleArn;
 
-  /// The selectors to match for pods to use this Fargate profile.
+  /// The selectors to match for a <code>Pod</code> to use this Fargate profile.
   final List<FargateProfileSelector>? selectors;
 
   /// The current status of the Fargate profile.
   final FargateProfileStatus? status;
 
-  /// The IDs of subnets to launch pods into.
+  /// The IDs of subnets to launch a <code>Pod</code> into.
   final List<String>? subnets;
 
-  /// The metadata applied to the Fargate profile to assist with categorization
-  /// and organization. Each tag consists of a key and an optional value. You
-  /// define both. Fargate profile tags do not propagate to any other resources
-  /// associated with the Fargate profile, such as the pods that are scheduled
-  /// with it.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   final Map<String, String>? tags;
 
   FargateProfile({
@@ -4152,15 +6067,13 @@ class FargateProfile {
       fargateProfileName: json['fargateProfileName'] as String?,
       podExecutionRoleArn: json['podExecutionRoleArn'] as String?,
       selectors: (json['selectors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => FargateProfileSelector.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toFargateProfileStatus(),
-      subnets: (json['subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      status: (json['status'] as String?)?.let(FargateProfileStatus.fromString),
+      subnets:
+          (json['subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
     );
@@ -4184,7 +6097,7 @@ class FargateProfile {
       if (podExecutionRoleArn != null)
         'podExecutionRoleArn': podExecutionRoleArn,
       if (selectors != null) 'selectors': selectors,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (subnets != null) 'subnets': subnets,
       if (tags != null) 'tags': tags,
     };
@@ -4198,7 +6111,7 @@ class FargateProfileSelector {
   /// match.
   final Map<String, String>? labels;
 
-  /// The Kubernetes namespace that the selector should match.
+  /// The Kubernetes <code>namespace</code> that the selector should match.
   final String? namespace;
 
   FargateProfileSelector({
@@ -4225,46 +6138,21 @@ class FargateProfileSelector {
 }
 
 enum FargateProfileStatus {
-  creating,
-  active,
-  deleting,
-  createFailed,
-  deleteFailed,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  deleting('DELETING'),
+  createFailed('CREATE_FAILED'),
+  deleteFailed('DELETE_FAILED'),
+  ;
 
-extension FargateProfileStatusValueExtension on FargateProfileStatus {
-  String toValue() {
-    switch (this) {
-      case FargateProfileStatus.creating:
-        return 'CREATING';
-      case FargateProfileStatus.active:
-        return 'ACTIVE';
-      case FargateProfileStatus.deleting:
-        return 'DELETING';
-      case FargateProfileStatus.createFailed:
-        return 'CREATE_FAILED';
-      case FargateProfileStatus.deleteFailed:
-        return 'DELETE_FAILED';
-    }
-  }
-}
+  final String value;
 
-extension FargateProfileStatusFromString on String {
-  FargateProfileStatus toFargateProfileStatus() {
-    switch (this) {
-      case 'CREATING':
-        return FargateProfileStatus.creating;
-      case 'ACTIVE':
-        return FargateProfileStatus.active;
-      case 'DELETING':
-        return FargateProfileStatus.deleting;
-      case 'CREATE_FAILED':
-        return FargateProfileStatus.createFailed;
-      case 'DELETE_FAILED':
-        return FargateProfileStatus.deleteFailed;
-    }
-    throw Exception('$this is not known in enum FargateProfileStatus');
-  }
+  const FargateProfileStatus(this.value);
+
+  static FargateProfileStatus fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum FargateProfileStatus'));
 }
 
 /// An object representing an identity provider.
@@ -4351,32 +6239,362 @@ class IdentityProviderConfigResponse {
   }
 }
 
+/// A check that provides recommendations to remedy potential upgrade-impacting
+/// issues.
+class Insight {
+  /// Links to sources that provide additional context on the insight.
+  final Map<String, String>? additionalInfo;
+
+  /// The category of the insight.
+  final Category? category;
+
+  /// Summary information that relates to the category of the insight. Currently
+  /// only returned with certain insights having category
+  /// <code>UPGRADE_READINESS</code>.
+  final InsightCategorySpecificSummary? categorySpecificSummary;
+
+  /// The description of the insight which includes alert criteria, remediation
+  /// recommendation, and additional resources (contains Markdown).
+  final String? description;
+
+  /// The ID of the insight.
+  final String? id;
+
+  /// An object containing more detail on the status of the insight resource.
+  final InsightStatus? insightStatus;
+
+  /// The Kubernetes minor version associated with an insight if applicable.
+  final String? kubernetesVersion;
+
+  /// The time Amazon EKS last successfully completed a refresh of this insight
+  /// check on the cluster.
+  final DateTime? lastRefreshTime;
+
+  /// The time the status of the insight last changed.
+  final DateTime? lastTransitionTime;
+
+  /// The name of the insight.
+  final String? name;
+
+  /// A summary of how to remediate the finding of this insight if applicable.
+  final String? recommendation;
+
+  /// The details about each resource listed in the insight check result.
+  final List<InsightResourceDetail>? resources;
+
+  Insight({
+    this.additionalInfo,
+    this.category,
+    this.categorySpecificSummary,
+    this.description,
+    this.id,
+    this.insightStatus,
+    this.kubernetesVersion,
+    this.lastRefreshTime,
+    this.lastTransitionTime,
+    this.name,
+    this.recommendation,
+    this.resources,
+  });
+
+  factory Insight.fromJson(Map<String, dynamic> json) {
+    return Insight(
+      additionalInfo: (json['additionalInfo'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+      category: (json['category'] as String?)?.let(Category.fromString),
+      categorySpecificSummary: json['categorySpecificSummary'] != null
+          ? InsightCategorySpecificSummary.fromJson(
+              json['categorySpecificSummary'] as Map<String, dynamic>)
+          : null,
+      description: json['description'] as String?,
+      id: json['id'] as String?,
+      insightStatus: json['insightStatus'] != null
+          ? InsightStatus.fromJson(
+              json['insightStatus'] as Map<String, dynamic>)
+          : null,
+      kubernetesVersion: json['kubernetesVersion'] as String?,
+      lastRefreshTime: timeStampFromJson(json['lastRefreshTime']),
+      lastTransitionTime: timeStampFromJson(json['lastTransitionTime']),
+      name: json['name'] as String?,
+      recommendation: json['recommendation'] as String?,
+      resources: (json['resources'] as List?)
+          ?.nonNulls
+          .map((e) => InsightResourceDetail.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final additionalInfo = this.additionalInfo;
+    final category = this.category;
+    final categorySpecificSummary = this.categorySpecificSummary;
+    final description = this.description;
+    final id = this.id;
+    final insightStatus = this.insightStatus;
+    final kubernetesVersion = this.kubernetesVersion;
+    final lastRefreshTime = this.lastRefreshTime;
+    final lastTransitionTime = this.lastTransitionTime;
+    final name = this.name;
+    final recommendation = this.recommendation;
+    final resources = this.resources;
+    return {
+      if (additionalInfo != null) 'additionalInfo': additionalInfo,
+      if (category != null) 'category': category.value,
+      if (categorySpecificSummary != null)
+        'categorySpecificSummary': categorySpecificSummary,
+      if (description != null) 'description': description,
+      if (id != null) 'id': id,
+      if (insightStatus != null) 'insightStatus': insightStatus,
+      if (kubernetesVersion != null) 'kubernetesVersion': kubernetesVersion,
+      if (lastRefreshTime != null)
+        'lastRefreshTime': unixTimestampToJson(lastRefreshTime),
+      if (lastTransitionTime != null)
+        'lastTransitionTime': unixTimestampToJson(lastTransitionTime),
+      if (name != null) 'name': name,
+      if (recommendation != null) 'recommendation': recommendation,
+      if (resources != null) 'resources': resources,
+    };
+  }
+}
+
+/// Summary information that relates to the category of the insight. Currently
+/// only returned with certain insights having category
+/// <code>UPGRADE_READINESS</code>.
+class InsightCategorySpecificSummary {
+  /// The summary information about deprecated resource usage for an insight check
+  /// in the <code>UPGRADE_READINESS</code> category.
+  final List<DeprecationDetail>? deprecationDetails;
+
+  InsightCategorySpecificSummary({
+    this.deprecationDetails,
+  });
+
+  factory InsightCategorySpecificSummary.fromJson(Map<String, dynamic> json) {
+    return InsightCategorySpecificSummary(
+      deprecationDetails: (json['deprecationDetails'] as List?)
+          ?.nonNulls
+          .map((e) => DeprecationDetail.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final deprecationDetails = this.deprecationDetails;
+    return {
+      if (deprecationDetails != null) 'deprecationDetails': deprecationDetails,
+    };
+  }
+}
+
+/// Returns information about the resource being evaluated.
+class InsightResourceDetail {
+  /// The Amazon Resource Name (ARN) if applicable.
+  final String? arn;
+
+  /// An object containing more detail on the status of the insight resource.
+  final InsightStatus? insightStatus;
+
+  /// The Kubernetes resource URI if applicable.
+  final String? kubernetesResourceUri;
+
+  InsightResourceDetail({
+    this.arn,
+    this.insightStatus,
+    this.kubernetesResourceUri,
+  });
+
+  factory InsightResourceDetail.fromJson(Map<String, dynamic> json) {
+    return InsightResourceDetail(
+      arn: json['arn'] as String?,
+      insightStatus: json['insightStatus'] != null
+          ? InsightStatus.fromJson(
+              json['insightStatus'] as Map<String, dynamic>)
+          : null,
+      kubernetesResourceUri: json['kubernetesResourceUri'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final arn = this.arn;
+    final insightStatus = this.insightStatus;
+    final kubernetesResourceUri = this.kubernetesResourceUri;
+    return {
+      if (arn != null) 'arn': arn,
+      if (insightStatus != null) 'insightStatus': insightStatus,
+      if (kubernetesResourceUri != null)
+        'kubernetesResourceUri': kubernetesResourceUri,
+    };
+  }
+}
+
+/// The status of the insight.
+class InsightStatus {
+  /// Explanation on the reasoning for the status of the resource.
+  final String? reason;
+
+  /// The status of the resource.
+  final InsightStatusValue? status;
+
+  InsightStatus({
+    this.reason,
+    this.status,
+  });
+
+  factory InsightStatus.fromJson(Map<String, dynamic> json) {
+    return InsightStatus(
+      reason: json['reason'] as String?,
+      status: (json['status'] as String?)?.let(InsightStatusValue.fromString),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final reason = this.reason;
+    final status = this.status;
+    return {
+      if (reason != null) 'reason': reason,
+      if (status != null) 'status': status.value,
+    };
+  }
+}
+
+enum InsightStatusValue {
+  passing('PASSING'),
+  warning('WARNING'),
+  error('ERROR'),
+  unknown('UNKNOWN'),
+  ;
+
+  final String value;
+
+  const InsightStatusValue(this.value);
+
+  static InsightStatusValue fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum InsightStatusValue'));
+}
+
+/// The summarized description of the insight.
+class InsightSummary {
+  /// The category of the insight.
+  final Category? category;
+
+  /// The description of the insight which includes alert criteria, remediation
+  /// recommendation, and additional resources (contains Markdown).
+  final String? description;
+
+  /// The ID of the insight.
+  final String? id;
+
+  /// An object containing more detail on the status of the insight.
+  final InsightStatus? insightStatus;
+
+  /// The Kubernetes minor version associated with an insight if applicable.
+  final String? kubernetesVersion;
+
+  /// The time Amazon EKS last successfully completed a refresh of this insight
+  /// check on the cluster.
+  final DateTime? lastRefreshTime;
+
+  /// The time the status of the insight last changed.
+  final DateTime? lastTransitionTime;
+
+  /// The name of the insight.
+  final String? name;
+
+  InsightSummary({
+    this.category,
+    this.description,
+    this.id,
+    this.insightStatus,
+    this.kubernetesVersion,
+    this.lastRefreshTime,
+    this.lastTransitionTime,
+    this.name,
+  });
+
+  factory InsightSummary.fromJson(Map<String, dynamic> json) {
+    return InsightSummary(
+      category: (json['category'] as String?)?.let(Category.fromString),
+      description: json['description'] as String?,
+      id: json['id'] as String?,
+      insightStatus: json['insightStatus'] != null
+          ? InsightStatus.fromJson(
+              json['insightStatus'] as Map<String, dynamic>)
+          : null,
+      kubernetesVersion: json['kubernetesVersion'] as String?,
+      lastRefreshTime: timeStampFromJson(json['lastRefreshTime']),
+      lastTransitionTime: timeStampFromJson(json['lastTransitionTime']),
+      name: json['name'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final category = this.category;
+    final description = this.description;
+    final id = this.id;
+    final insightStatus = this.insightStatus;
+    final kubernetesVersion = this.kubernetesVersion;
+    final lastRefreshTime = this.lastRefreshTime;
+    final lastTransitionTime = this.lastTransitionTime;
+    final name = this.name;
+    return {
+      if (category != null) 'category': category.value,
+      if (description != null) 'description': description,
+      if (id != null) 'id': id,
+      if (insightStatus != null) 'insightStatus': insightStatus,
+      if (kubernetesVersion != null) 'kubernetesVersion': kubernetesVersion,
+      if (lastRefreshTime != null)
+        'lastRefreshTime': unixTimestampToJson(lastRefreshTime),
+      if (lastTransitionTime != null)
+        'lastTransitionTime': unixTimestampToJson(lastTransitionTime),
+      if (name != null) 'name': name,
+    };
+  }
+}
+
+/// The criteria to use for the insights.
+class InsightsFilter {
+  /// The categories to use to filter insights.
+  final List<Category>? categories;
+
+  /// The Kubernetes versions to use to filter the insights.
+  final List<String>? kubernetesVersions;
+
+  /// The statuses to use to filter the insights.
+  final List<InsightStatusValue>? statuses;
+
+  InsightsFilter({
+    this.categories,
+    this.kubernetesVersions,
+    this.statuses,
+  });
+
+  Map<String, dynamic> toJson() {
+    final categories = this.categories;
+    final kubernetesVersions = this.kubernetesVersions;
+    final statuses = this.statuses;
+    return {
+      if (categories != null)
+        'categories': categories.map((e) => e.value).toList(),
+      if (kubernetesVersions != null) 'kubernetesVersions': kubernetesVersions,
+      if (statuses != null) 'statuses': statuses.map((e) => e.value).toList(),
+    };
+  }
+}
+
 enum IpFamily {
-  ipv4,
-  ipv6,
-}
+  ipv4('ipv4'),
+  ipv6('ipv6'),
+  ;
 
-extension IpFamilyValueExtension on IpFamily {
-  String toValue() {
-    switch (this) {
-      case IpFamily.ipv4:
-        return 'ipv4';
-      case IpFamily.ipv6:
-        return 'ipv6';
-    }
-  }
-}
+  final String value;
 
-extension IpFamilyFromString on String {
-  IpFamily toIpFamily() {
-    switch (this) {
-      case 'ipv4':
-        return IpFamily.ipv4;
-      case 'ipv6':
-        return IpFamily.ipv6;
-    }
-    throw Exception('$this is not known in enum IpFamily');
-  }
+  const IpFamily(this.value);
+
+  static IpFamily fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum IpFamily'));
 }
 
 /// An object representing an issue with an Amazon EKS resource.
@@ -4431,8 +6649,8 @@ class Issue {
   /// public IP address, then you need to enable the <code>auto-assign public IP
   /// address</code> setting for the subnet. See <a
   /// href="https://docs.aws.amazon.com/vpc/latest/userguide/vpc-ip-addressing.html#subnet-public-ip">Modifying
-  /// the public IPv4 addressing attribute for your subnet</a> in the <i>Amazon
-  /// VPC User Guide</i>.
+  /// the public <code>IPv4</code> addressing attribute for your subnet</a> in the
+  /// <i>Amazon VPC User Guide</i>.
   /// </li>
   /// <li>
   /// <b>IamInstanceProfileNotFound</b>: We couldn't find the IAM instance profile
@@ -4482,10 +6700,10 @@ class Issue {
 
   factory Issue.fromJson(Map<String, dynamic> json) {
     return Issue(
-      code: (json['code'] as String?)?.toNodegroupIssueCode(),
+      code: (json['code'] as String?)?.let(NodegroupIssueCode.fromString),
       message: json['message'] as String?,
       resourceIds: (json['resourceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4496,7 +6714,7 @@ class Issue {
     final message = this.message;
     final resourceIds = this.resourceIds;
     return {
-      if (code != null) 'code': code.toValue(),
+      if (code != null) 'code': code.value,
       if (message != null) 'message': message,
       if (resourceIds != null) 'resourceIds': resourceIds,
     };
@@ -4544,11 +6762,11 @@ class KubernetesNetworkConfigRequest {
   /// for VPC.
   /// </li>
   /// <li>
-  /// Between /24 and /12.
+  /// Between <code>/24</code> and <code>/12</code>.
   /// </li>
   /// </ul> <important>
-  /// You can only specify a custom CIDR block when you create a cluster and can't
-  /// change this value once the cluster is created.
+  /// You can only specify a custom CIDR block when you create a cluster. You
+  /// can't change this value after the cluster is created.
   /// </important>
   final String? serviceIpv4Cidr;
 
@@ -4561,7 +6779,7 @@ class KubernetesNetworkConfigRequest {
     final ipFamily = this.ipFamily;
     final serviceIpv4Cidr = this.serviceIpv4Cidr;
     return {
-      if (ipFamily != null) 'ipFamily': ipFamily.toValue(),
+      if (ipFamily != null) 'ipFamily': ipFamily.value,
       if (serviceIpv4Cidr != null) 'serviceIpv4Cidr': serviceIpv4Cidr,
     };
   }
@@ -4570,19 +6788,20 @@ class KubernetesNetworkConfigRequest {
 /// The Kubernetes network configuration for the cluster. The response contains
 /// a value for <b>serviceIpv6Cidr</b> or <b>serviceIpv4Cidr</b>, but not both.
 class KubernetesNetworkConfigResponse {
-  /// The IP family used to assign Kubernetes pod and service IP addresses. The IP
-  /// family is always <code>ipv4</code>, unless you have a <code>1.21</code> or
-  /// later cluster running version 1.10.1 or later of the Amazon VPC CNI add-on
-  /// and specified <code>ipv6</code> when you created the cluster.
+  /// The IP family used to assign Kubernetes <code>Pod</code> and
+  /// <code>Service</code> objects IP addresses. The IP family is always
+  /// <code>ipv4</code>, unless you have a <code>1.21</code> or later cluster
+  /// running version <code>1.10.1</code> or later of the Amazon VPC CNI plugin
+  /// for Kubernetes and specified <code>ipv6</code> when you created the cluster.
   final IpFamily? ipFamily;
 
-  /// The CIDR block that Kubernetes pod and service IP addresses are assigned
-  /// from. Kubernetes assigns addresses from an IPv4 CIDR block assigned to a
-  /// subnet that the node is in. If you didn't specify a CIDR block when you
-  /// created the cluster, then Kubernetes assigns addresses from either the
-  /// <code>10.100.0.0/16</code> or <code>172.20.0.0/16</code> CIDR blocks. If
-  /// this was specified, then it was specified when the cluster was created and
-  /// it can't be changed.
+  /// The CIDR block that Kubernetes <code>Pod</code> and <code>Service</code>
+  /// object IP addresses are assigned from. Kubernetes assigns addresses from an
+  /// <code>IPv4</code> CIDR block assigned to a subnet that the node is in. If
+  /// you didn't specify a CIDR block when you created the cluster, then
+  /// Kubernetes assigns addresses from either the <code>10.100.0.0/16</code> or
+  /// <code>172.20.0.0/16</code> CIDR blocks. If this was specified, then it was
+  /// specified when the cluster was created and it can't be changed.
   final String? serviceIpv4Cidr;
 
   /// The CIDR block that Kubernetes pod and service IP addresses are assigned
@@ -4602,7 +6821,7 @@ class KubernetesNetworkConfigResponse {
 
   factory KubernetesNetworkConfigResponse.fromJson(Map<String, dynamic> json) {
     return KubernetesNetworkConfigResponse(
-      ipFamily: (json['ipFamily'] as String?)?.toIpFamily(),
+      ipFamily: (json['ipFamily'] as String?)?.let(IpFamily.fromString),
       serviceIpv4Cidr: json['serviceIpv4Cidr'] as String?,
       serviceIpv6Cidr: json['serviceIpv6Cidr'] as String?,
     );
@@ -4613,7 +6832,7 @@ class KubernetesNetworkConfigResponse {
     final serviceIpv4Cidr = this.serviceIpv4Cidr;
     final serviceIpv6Cidr = this.serviceIpv6Cidr;
     return {
-      if (ipFamily != null) 'ipFamily': ipFamily.toValue(),
+      if (ipFamily != null) 'ipFamily': ipFamily.value,
       if (serviceIpv4Cidr != null) 'serviceIpv4Cidr': serviceIpv4Cidr,
       if (serviceIpv6Cidr != null) 'serviceIpv6Cidr': serviceIpv6Cidr,
     };
@@ -4636,8 +6855,8 @@ class KubernetesNetworkConfigResponse {
 /// href="https://docs.aws.amazon.com/AWSEC2/latest/APIReference/API_CreateLaunchTemplate.html">
 /// <code>CreateLaunchTemplate</code> </a> in the Amazon EC2 API Reference. For
 /// more information about using launch templates with Amazon EKS, see <a
-/// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Launch
-/// template support</a> in the <i>Amazon EKS User Guide</i>.
+/// href="https://docs.aws.amazon.com/eks/latest/userguide/launch-templates.html">Customizing
+/// managed nodes with launch templates</a> in the <i>Amazon EKS User Guide</i>.
 ///
 /// You must specify either the launch template ID or the launch template name
 /// in the request, but not both.
@@ -4684,15 +6903,98 @@ class LaunchTemplateSpecification {
   }
 }
 
+class ListAccessEntriesResponse {
+  /// The list of access entries that exist for the cluster.
+  final List<String>? accessEntries;
+
+  /// The <code>nextToken</code> value returned from a previous paginated request,
+  /// where <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value. This value is null when
+  /// there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  final String? nextToken;
+
+  ListAccessEntriesResponse({
+    this.accessEntries,
+    this.nextToken,
+  });
+
+  factory ListAccessEntriesResponse.fromJson(Map<String, dynamic> json) {
+    return ListAccessEntriesResponse(
+      accessEntries: (json['accessEntries'] as List?)
+          ?.nonNulls
+          .map((e) => e as String)
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessEntries = this.accessEntries;
+    final nextToken = this.nextToken;
+    return {
+      if (accessEntries != null) 'accessEntries': accessEntries,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListAccessPoliciesResponse {
+  /// The list of available access policies. You can't view the contents of an
+  /// access policy using the API. To view the contents, see <a
+  /// href="https://docs.aws.amazon.com/eks/latest/userguide/access-policies.html#access-policy-permissions">Access
+  /// policy permissions</a> in the <i>Amazon EKS User Guide</i>.
+  final List<AccessPolicy>? accessPolicies;
+
+  /// The <code>nextToken</code> value returned from a previous paginated request,
+  /// where <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value. This value is null when
+  /// there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  final String? nextToken;
+
+  ListAccessPoliciesResponse({
+    this.accessPolicies,
+    this.nextToken,
+  });
+
+  factory ListAccessPoliciesResponse.fromJson(Map<String, dynamic> json) {
+    return ListAccessPoliciesResponse(
+      accessPolicies: (json['accessPolicies'] as List?)
+          ?.nonNulls
+          .map((e) => AccessPolicy.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessPolicies = this.accessPolicies;
+    final nextToken = this.nextToken;
+    return {
+      if (accessPolicies != null) 'accessPolicies': accessPolicies,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
 class ListAddonsResponse {
-  /// A list of available add-ons.
+  /// A list of installed add-ons.
   final List<String>? addons;
 
-  /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>ListAddonsResponse</code> where <code>maxResults</code> was used and
-  /// the results exceeded the value of that parameter. Pagination continues from
-  /// the end of the previous results that returned the <code>nextToken</code>
-  /// value.
+  /// The <code>nextToken</code> value to include in a future
+  /// <code>ListAddons</code> request. When the results of a
+  /// <code>ListAddons</code> request exceed <code>maxResults</code>, you can use
+  /// this value to retrieve the next page of results. This value is
+  /// <code>null</code> when there are no more results to return.
   /// <note>
   /// This token should be treated as an opaque identifier that is used only to
   /// retrieve the next items in a list and not for other programmatic purposes.
@@ -4706,10 +7008,8 @@ class ListAddonsResponse {
 
   factory ListAddonsResponse.fromJson(Map<String, dynamic> json) {
     return ListAddonsResponse(
-      addons: (json['addons'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      addons:
+          (json['addons'] as List?)?.nonNulls.map((e) => e as String).toList(),
       nextToken: json['nextToken'] as String?,
     );
   }
@@ -4724,15 +7024,77 @@ class ListAddonsResponse {
   }
 }
 
+class ListAssociatedAccessPoliciesResponse {
+  /// The list of access policies associated with the access entry.
+  final List<AssociatedAccessPolicy>? associatedAccessPolicies;
+
+  /// The name of your cluster.
+  final String? clusterName;
+
+  /// The <code>nextToken</code> value returned from a previous paginated request,
+  /// where <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value. This value is null when
+  /// there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  final String? nextToken;
+
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  final String? principalArn;
+
+  ListAssociatedAccessPoliciesResponse({
+    this.associatedAccessPolicies,
+    this.clusterName,
+    this.nextToken,
+    this.principalArn,
+  });
+
+  factory ListAssociatedAccessPoliciesResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListAssociatedAccessPoliciesResponse(
+      associatedAccessPolicies: (json['associatedAccessPolicies'] as List?)
+          ?.nonNulls
+          .map(
+              (e) => AssociatedAccessPolicy.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      clusterName: json['clusterName'] as String?,
+      nextToken: json['nextToken'] as String?,
+      principalArn: json['principalArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associatedAccessPolicies = this.associatedAccessPolicies;
+    final clusterName = this.clusterName;
+    final nextToken = this.nextToken;
+    final principalArn = this.principalArn;
+    return {
+      if (associatedAccessPolicies != null)
+        'associatedAccessPolicies': associatedAccessPolicies,
+      if (clusterName != null) 'clusterName': clusterName,
+      if (nextToken != null) 'nextToken': nextToken,
+      if (principalArn != null) 'principalArn': principalArn,
+    };
+  }
+}
+
 class ListClustersResponse {
-  /// A list of all of the clusters for your account in the specified Region.
+  /// A list of all of the clusters for your account in the specified Amazon Web
+  /// Services Region.
   final List<String>? clusters;
 
-  /// The <code>nextToken</code> value to include in a future
-  /// <code>ListClusters</code> request. When the results of a
-  /// <code>ListClusters</code> request exceed <code>maxResults</code>, you can
-  /// use this value to retrieve the next page of results. This value is
-  /// <code>null</code> when there are no more results to return.
+  /// The <code>nextToken</code> value returned from a previous paginated request,
+  /// where <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value. This value is null when
+  /// there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   final String? nextToken;
 
   ListClustersResponse({
@@ -4743,7 +7105,7 @@ class ListClustersResponse {
   factory ListClustersResponse.fromJson(Map<String, dynamic> json) {
     return ListClustersResponse(
       clusters: (json['clusters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4760,15 +7122,57 @@ class ListClustersResponse {
   }
 }
 
+class ListEksAnywhereSubscriptionsResponse {
+  /// The nextToken value to include in a future ListEksAnywhereSubscriptions
+  /// request. When the results of a ListEksAnywhereSubscriptions request exceed
+  /// maxResults, you can use this value to retrieve the next page of results.
+  /// This value is null when there are no more results to return.
+  final String? nextToken;
+
+  /// A list of all subscription objects in the region, filtered by includeStatus
+  /// and paginated by nextToken and maxResults.
+  final List<EksAnywhereSubscription>? subscriptions;
+
+  ListEksAnywhereSubscriptionsResponse({
+    this.nextToken,
+    this.subscriptions,
+  });
+
+  factory ListEksAnywhereSubscriptionsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListEksAnywhereSubscriptionsResponse(
+      nextToken: json['nextToken'] as String?,
+      subscriptions: (json['subscriptions'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              EksAnywhereSubscription.fromJson(e as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final nextToken = this.nextToken;
+    final subscriptions = this.subscriptions;
+    return {
+      if (nextToken != null) 'nextToken': nextToken,
+      if (subscriptions != null) 'subscriptions': subscriptions,
+    };
+  }
+}
+
 class ListFargateProfilesResponse {
   /// A list of all of the Fargate profiles associated with the specified cluster.
   final List<String>? fargateProfileNames;
 
-  /// The <code>nextToken</code> value to include in a future
-  /// <code>ListFargateProfiles</code> request. When the results of a
-  /// <code>ListFargateProfiles</code> request exceed <code>maxResults</code>, you
-  /// can use this value to retrieve the next page of results. This value is
-  /// <code>null</code> when there are no more results to return.
+  /// The <code>nextToken</code> value returned from a previous paginated request,
+  /// where <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value. This value is null when
+  /// there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   final String? nextToken;
 
   ListFargateProfilesResponse({
@@ -4779,7 +7183,7 @@ class ListFargateProfilesResponse {
   factory ListFargateProfilesResponse.fromJson(Map<String, dynamic> json) {
     return ListFargateProfilesResponse(
       fargateProfileNames: (json['fargateProfileNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['nextToken'] as String?,
@@ -4801,11 +7205,16 @@ class ListIdentityProviderConfigsResponse {
   /// The identity provider configurations for the cluster.
   final List<IdentityProviderConfig>? identityProviderConfigs;
 
-  /// The <code>nextToken</code> value returned from a previous paginated
-  /// <code>ListIdentityProviderConfigsResponse</code> where
-  /// <code>maxResults</code> was used and the results exceeded the value of that
-  /// parameter. Pagination continues from the end of the previous results that
-  /// returned the <code>nextToken</code> value.
+  /// The <code>nextToken</code> value to include in a future
+  /// <code>ListIdentityProviderConfigsResponse</code> request. When the results
+  /// of a <code>ListIdentityProviderConfigsResponse</code> request exceed
+  /// <code>maxResults</code>, you can use this value to retrieve the next page of
+  /// results. This value is <code>null</code> when there are no more results to
+  /// return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   final String? nextToken;
 
   ListIdentityProviderConfigsResponse({
@@ -4817,7 +7226,7 @@ class ListIdentityProviderConfigsResponse {
       Map<String, dynamic> json) {
     return ListIdentityProviderConfigsResponse(
       identityProviderConfigs: (json['identityProviderConfigs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => IdentityProviderConfig.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4836,12 +7245,52 @@ class ListIdentityProviderConfigsResponse {
   }
 }
 
-class ListNodegroupsResponse {
+class ListInsightsResponse {
+  /// The returned list of insights.
+  final List<InsightSummary>? insights;
+
   /// The <code>nextToken</code> value to include in a future
-  /// <code>ListNodegroups</code> request. When the results of a
-  /// <code>ListNodegroups</code> request exceed <code>maxResults</code>, you can
+  /// <code>ListInsights</code> request. When the results of a
+  /// <code>ListInsights</code> request exceed <code>maxResults</code>, you can
   /// use this value to retrieve the next page of results. This value is
   /// <code>null</code> when there are no more results to return.
+  final String? nextToken;
+
+  ListInsightsResponse({
+    this.insights,
+    this.nextToken,
+  });
+
+  factory ListInsightsResponse.fromJson(Map<String, dynamic> json) {
+    return ListInsightsResponse(
+      insights: (json['insights'] as List?)
+          ?.nonNulls
+          .map((e) => InsightSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final insights = this.insights;
+    final nextToken = this.nextToken;
+    return {
+      if (insights != null) 'insights': insights,
+      if (nextToken != null) 'nextToken': nextToken,
+    };
+  }
+}
+
+class ListNodegroupsResponse {
+  /// The <code>nextToken</code> value returned from a previous paginated request,
+  /// where <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value. This value is null when
+  /// there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   final String? nextToken;
 
   /// A list of all of the node groups associated with the specified cluster.
@@ -4856,7 +7305,7 @@ class ListNodegroupsResponse {
     return ListNodegroupsResponse(
       nextToken: json['nextToken'] as String?,
       nodegroups: (json['nodegroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4868,6 +7317,69 @@ class ListNodegroupsResponse {
     return {
       if (nextToken != null) 'nextToken': nextToken,
       if (nodegroups != null) 'nodegroups': nodegroups,
+    };
+  }
+}
+
+class ListPodIdentityAssociationsResponse {
+  /// The list of summarized descriptions of the associations that are in the
+  /// cluster and match any filters that you provided.
+  ///
+  /// Each summary is simplified by removing these fields compared to the full
+  /// <code> <a>PodIdentityAssociation</a> </code>:
+  ///
+  /// <ul>
+  /// <li>
+  /// The IAM role: <code>roleArn</code>
+  /// </li>
+  /// <li>
+  /// The timestamp that the association was created at: <code>createdAt</code>
+  /// </li>
+  /// <li>
+  /// The most recent timestamp that the association was modified at:.
+  /// <code>modifiedAt</code>
+  /// </li>
+  /// <li>
+  /// The tags on the association: <code>tags</code>
+  /// </li>
+  /// </ul>
+  final List<PodIdentityAssociationSummary>? associations;
+
+  /// The <code>nextToken</code> value to include in a future
+  /// <code>ListPodIdentityAssociations</code> request. When the results of a
+  /// <code>ListPodIdentityAssociations</code> request exceed
+  /// <code>maxResults</code>, you can use this value to retrieve the next page of
+  /// results. This value is <code>null</code> when there are no more results to
+  /// return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
+  final String? nextToken;
+
+  ListPodIdentityAssociationsResponse({
+    this.associations,
+    this.nextToken,
+  });
+
+  factory ListPodIdentityAssociationsResponse.fromJson(
+      Map<String, dynamic> json) {
+    return ListPodIdentityAssociationsResponse(
+      associations: (json['associations'] as List?)
+          ?.nonNulls
+          .map((e) =>
+              PodIdentityAssociationSummary.fromJson(e as Map<String, dynamic>))
+          .toList(),
+      nextToken: json['nextToken'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associations = this.associations;
+    final nextToken = this.nextToken;
+    return {
+      if (associations != null) 'associations': associations,
+      if (nextToken != null) 'nextToken': nextToken,
     };
   }
 }
@@ -4896,11 +7408,15 @@ class ListTagsForResourceResponse {
 }
 
 class ListUpdatesResponse {
-  /// The <code>nextToken</code> value to include in a future
-  /// <code>ListUpdates</code> request. When the results of a
-  /// <code>ListUpdates</code> request exceed <code>maxResults</code>, you can use
-  /// this value to retrieve the next page of results. This value is
-  /// <code>null</code> when there are no more results to return.
+  /// The <code>nextToken</code> value returned from a previous paginated request,
+  /// where <code>maxResults</code> was used and the results exceeded the value of
+  /// that parameter. Pagination continues from the end of the previous results
+  /// that returned the <code>nextToken</code> value. This value is null when
+  /// there are no more results to return.
+  /// <note>
+  /// This token should be treated as an opaque identifier that is used only to
+  /// retrieve the next items in a list and not for other programmatic purposes.
+  /// </note>
   final String? nextToken;
 
   /// A list of all the updates for the specified cluster and Region.
@@ -4915,7 +7431,7 @@ class ListUpdatesResponse {
     return ListUpdatesResponse(
       nextToken: json['nextToken'] as String?,
       updateIds: (json['updateIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -4952,8 +7468,8 @@ class LogSetup {
     return LogSetup(
       enabled: json['enabled'] as bool?,
       types: (json['types'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toLogType())
+          ?.nonNulls
+          .map((e) => LogType.fromString((e as String)))
           .toList(),
     );
   }
@@ -4963,52 +7479,26 @@ class LogSetup {
     final types = this.types;
     return {
       if (enabled != null) 'enabled': enabled,
-      if (types != null) 'types': types.map((e) => e.toValue()).toList(),
+      if (types != null) 'types': types.map((e) => e.value).toList(),
     };
   }
 }
 
 enum LogType {
-  api,
-  audit,
-  authenticator,
-  controllerManager,
-  scheduler,
-}
+  api('api'),
+  audit('audit'),
+  authenticator('authenticator'),
+  controllerManager('controllerManager'),
+  scheduler('scheduler'),
+  ;
 
-extension LogTypeValueExtension on LogType {
-  String toValue() {
-    switch (this) {
-      case LogType.api:
-        return 'api';
-      case LogType.audit:
-        return 'audit';
-      case LogType.authenticator:
-        return 'authenticator';
-      case LogType.controllerManager:
-        return 'controllerManager';
-      case LogType.scheduler:
-        return 'scheduler';
-    }
-  }
-}
+  final String value;
 
-extension LogTypeFromString on String {
-  LogType toLogType() {
-    switch (this) {
-      case 'api':
-        return LogType.api;
-      case 'audit':
-        return LogType.audit;
-      case 'authenticator':
-        return LogType.authenticator;
-      case 'controllerManager':
-        return LogType.controllerManager;
-      case 'scheduler':
-        return LogType.scheduler;
-    }
-    throw Exception('$this is not known in enum LogType');
-  }
+  const LogType(this.value);
+
+  static LogType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum LogType'));
 }
 
 /// An object representing the logging configuration for resources in your
@@ -5024,7 +7514,7 @@ class Logging {
   factory Logging.fromJson(Map<String, dynamic> json) {
     return Logging(
       clusterLogging: (json['clusterLogging'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => LogSetup.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5080,11 +7570,10 @@ class Nodegroup {
   /// The capacity type of your managed node group.
   final CapacityTypes? capacityType;
 
-  /// The name of the cluster that the managed node group resides in.
+  /// The name of your cluster.
   final String? clusterName;
 
-  /// The Unix epoch timestamp in seconds for when the managed node group was
-  /// created.
+  /// The Unix epoch timestamp at object creation.
   final DateTime? createdAt;
 
   /// If the node group wasn't deployed with a launch template, then this is the
@@ -5101,10 +7590,11 @@ class Nodegroup {
   /// deployed with a launch template, then this is <code>null</code>.
   final List<String>? instanceTypes;
 
-  /// The Kubernetes labels applied to the nodes in the node group.
+  /// The Kubernetes <code>labels</code> applied to the nodes in the node group.
   /// <note>
-  /// Only labels that are applied with the Amazon EKS API are shown here. There
-  /// may be other Kubernetes labels applied to the nodes in this group.
+  /// Only <code>labels</code> that are applied with the Amazon EKS API are shown
+  /// here. There may be other Kubernetes <code>labels</code> applied to the nodes
+  /// in this group.
   /// </note>
   final Map<String, String>? labels;
 
@@ -5112,8 +7602,7 @@ class Nodegroup {
   /// launch template that was used.
   final LaunchTemplateSpecification? launchTemplate;
 
-  /// The Unix epoch timestamp in seconds for when the managed node group was last
-  /// modified.
+  /// The Unix epoch timestamp for the last modification to the object.
   final DateTime? modifiedAt;
 
   /// The IAM role associated with your node group. The Amazon EKS node
@@ -5155,10 +7644,9 @@ class Nodegroup {
   /// associated with your node group.
   final List<String>? subnets;
 
-  /// The metadata applied to the node group to assist with categorization and
-  /// organization. Each tag consists of a key and an optional value. You define
-  /// both. Node group tags do not propagate to any other resources associated
-  /// with the node group, such as the Amazon EC2 instances or subnets.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   final Map<String, String>? tags;
 
   /// The Kubernetes taints to be applied to the nodes in the node group when they
@@ -5204,8 +7692,9 @@ class Nodegroup {
 
   factory Nodegroup.fromJson(Map<String, dynamic> json) {
     return Nodegroup(
-      amiType: (json['amiType'] as String?)?.toAMITypes(),
-      capacityType: (json['capacityType'] as String?)?.toCapacityTypes(),
+      amiType: (json['amiType'] as String?)?.let(AMITypes.fromString),
+      capacityType:
+          (json['capacityType'] as String?)?.let(CapacityTypes.fromString),
       clusterName: json['clusterName'] as String?,
       createdAt: timeStampFromJson(json['createdAt']),
       diskSize: json['diskSize'] as int?,
@@ -5213,7 +7702,7 @@ class Nodegroup {
           ? NodegroupHealth.fromJson(json['health'] as Map<String, dynamic>)
           : null,
       instanceTypes: (json['instanceTypes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       labels: (json['labels'] as Map<String, dynamic>?)
@@ -5239,15 +7728,13 @@ class Nodegroup {
           ? NodegroupScalingConfig.fromJson(
               json['scalingConfig'] as Map<String, dynamic>)
           : null,
-      status: (json['status'] as String?)?.toNodegroupStatus(),
-      subnets: (json['subnets'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      status: (json['status'] as String?)?.let(NodegroupStatus.fromString),
+      subnets:
+          (json['subnets'] as List?)?.nonNulls.map((e) => e as String).toList(),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       taints: (json['taints'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Taint.fromJson(e as Map<String, dynamic>))
           .toList(),
       updateConfig: json['updateConfig'] != null
@@ -5283,8 +7770,8 @@ class Nodegroup {
     final updateConfig = this.updateConfig;
     final version = this.version;
     return {
-      if (amiType != null) 'amiType': amiType.toValue(),
-      if (capacityType != null) 'capacityType': capacityType.toValue(),
+      if (amiType != null) 'amiType': amiType.value,
+      if (capacityType != null) 'capacityType': capacityType.value,
       if (clusterName != null) 'clusterName': clusterName,
       if (createdAt != null) 'createdAt': unixTimestampToJson(createdAt),
       if (diskSize != null) 'diskSize': diskSize,
@@ -5300,7 +7787,7 @@ class Nodegroup {
       if (remoteAccess != null) 'remoteAccess': remoteAccess,
       if (resources != null) 'resources': resources,
       if (scalingConfig != null) 'scalingConfig': scalingConfig,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (subnets != null) 'subnets': subnets,
       if (tags != null) 'tags': tags,
       if (taints != null) 'taints': taints,
@@ -5322,7 +7809,7 @@ class NodegroupHealth {
   factory NodegroupHealth.fromJson(Map<String, dynamic> json) {
     return NodegroupHealth(
       issues: (json['issues'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Issue.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5337,116 +7824,54 @@ class NodegroupHealth {
 }
 
 enum NodegroupIssueCode {
-  autoScalingGroupNotFound,
-  autoScalingGroupInvalidConfiguration,
-  ec2SecurityGroupNotFound,
-  ec2SecurityGroupDeletionFailure,
-  ec2LaunchTemplateNotFound,
-  ec2LaunchTemplateVersionMismatch,
-  ec2SubnetNotFound,
-  ec2SubnetInvalidConfiguration,
-  iamInstanceProfileNotFound,
-  iamLimitExceeded,
-  iamNodeRoleNotFound,
-  nodeCreationFailure,
-  asgInstanceLaunchFailures,
-  instanceLimitExceeded,
-  insufficientFreeAddresses,
-  accessDenied,
-  internalFailure,
-  clusterUnreachable,
-  ec2SubnetMissingIpv6Assignment,
-}
+  autoScalingGroupNotFound('AutoScalingGroupNotFound'),
+  autoScalingGroupInvalidConfiguration('AutoScalingGroupInvalidConfiguration'),
+  ec2SecurityGroupNotFound('Ec2SecurityGroupNotFound'),
+  ec2SecurityGroupDeletionFailure('Ec2SecurityGroupDeletionFailure'),
+  ec2LaunchTemplateNotFound('Ec2LaunchTemplateNotFound'),
+  ec2LaunchTemplateVersionMismatch('Ec2LaunchTemplateVersionMismatch'),
+  ec2SubnetNotFound('Ec2SubnetNotFound'),
+  ec2SubnetInvalidConfiguration('Ec2SubnetInvalidConfiguration'),
+  iamInstanceProfileNotFound('IamInstanceProfileNotFound'),
+  ec2SubnetMissingIpv6Assignment('Ec2SubnetMissingIpv6Assignment'),
+  iamLimitExceeded('IamLimitExceeded'),
+  iamNodeRoleNotFound('IamNodeRoleNotFound'),
+  nodeCreationFailure('NodeCreationFailure'),
+  asgInstanceLaunchFailures('AsgInstanceLaunchFailures'),
+  instanceLimitExceeded('InstanceLimitExceeded'),
+  insufficientFreeAddresses('InsufficientFreeAddresses'),
+  accessDenied('AccessDenied'),
+  internalFailure('InternalFailure'),
+  clusterUnreachable('ClusterUnreachable'),
+  amiIdNotFound('AmiIdNotFound'),
+  autoScalingGroupOptInRequired('AutoScalingGroupOptInRequired'),
+  autoScalingGroupRateLimitExceeded('AutoScalingGroupRateLimitExceeded'),
+  ec2LaunchTemplateDeletionFailure('Ec2LaunchTemplateDeletionFailure'),
+  ec2LaunchTemplateInvalidConfiguration(
+      'Ec2LaunchTemplateInvalidConfiguration'),
+  ec2LaunchTemplateMaxLimitExceeded('Ec2LaunchTemplateMaxLimitExceeded'),
+  ec2SubnetListTooLong('Ec2SubnetListTooLong'),
+  iamThrottling('IamThrottling'),
+  nodeTerminationFailure('NodeTerminationFailure'),
+  podEvictionFailure('PodEvictionFailure'),
+  sourceEc2LaunchTemplateNotFound('SourceEc2LaunchTemplateNotFound'),
+  limitExceeded('LimitExceeded'),
+  unknown('Unknown'),
+  autoScalingGroupInstanceRefreshActive(
+      'AutoScalingGroupInstanceRefreshActive'),
+  kubernetesLabelInvalid('KubernetesLabelInvalid'),
+  ec2LaunchTemplateVersionMaxLimitExceeded(
+      'Ec2LaunchTemplateVersionMaxLimitExceeded'),
+  ;
 
-extension NodegroupIssueCodeValueExtension on NodegroupIssueCode {
-  String toValue() {
-    switch (this) {
-      case NodegroupIssueCode.autoScalingGroupNotFound:
-        return 'AutoScalingGroupNotFound';
-      case NodegroupIssueCode.autoScalingGroupInvalidConfiguration:
-        return 'AutoScalingGroupInvalidConfiguration';
-      case NodegroupIssueCode.ec2SecurityGroupNotFound:
-        return 'Ec2SecurityGroupNotFound';
-      case NodegroupIssueCode.ec2SecurityGroupDeletionFailure:
-        return 'Ec2SecurityGroupDeletionFailure';
-      case NodegroupIssueCode.ec2LaunchTemplateNotFound:
-        return 'Ec2LaunchTemplateNotFound';
-      case NodegroupIssueCode.ec2LaunchTemplateVersionMismatch:
-        return 'Ec2LaunchTemplateVersionMismatch';
-      case NodegroupIssueCode.ec2SubnetNotFound:
-        return 'Ec2SubnetNotFound';
-      case NodegroupIssueCode.ec2SubnetInvalidConfiguration:
-        return 'Ec2SubnetInvalidConfiguration';
-      case NodegroupIssueCode.iamInstanceProfileNotFound:
-        return 'IamInstanceProfileNotFound';
-      case NodegroupIssueCode.iamLimitExceeded:
-        return 'IamLimitExceeded';
-      case NodegroupIssueCode.iamNodeRoleNotFound:
-        return 'IamNodeRoleNotFound';
-      case NodegroupIssueCode.nodeCreationFailure:
-        return 'NodeCreationFailure';
-      case NodegroupIssueCode.asgInstanceLaunchFailures:
-        return 'AsgInstanceLaunchFailures';
-      case NodegroupIssueCode.instanceLimitExceeded:
-        return 'InstanceLimitExceeded';
-      case NodegroupIssueCode.insufficientFreeAddresses:
-        return 'InsufficientFreeAddresses';
-      case NodegroupIssueCode.accessDenied:
-        return 'AccessDenied';
-      case NodegroupIssueCode.internalFailure:
-        return 'InternalFailure';
-      case NodegroupIssueCode.clusterUnreachable:
-        return 'ClusterUnreachable';
-      case NodegroupIssueCode.ec2SubnetMissingIpv6Assignment:
-        return 'Ec2SubnetMissingIpv6Assignment';
-    }
-  }
-}
+  final String value;
 
-extension NodegroupIssueCodeFromString on String {
-  NodegroupIssueCode toNodegroupIssueCode() {
-    switch (this) {
-      case 'AutoScalingGroupNotFound':
-        return NodegroupIssueCode.autoScalingGroupNotFound;
-      case 'AutoScalingGroupInvalidConfiguration':
-        return NodegroupIssueCode.autoScalingGroupInvalidConfiguration;
-      case 'Ec2SecurityGroupNotFound':
-        return NodegroupIssueCode.ec2SecurityGroupNotFound;
-      case 'Ec2SecurityGroupDeletionFailure':
-        return NodegroupIssueCode.ec2SecurityGroupDeletionFailure;
-      case 'Ec2LaunchTemplateNotFound':
-        return NodegroupIssueCode.ec2LaunchTemplateNotFound;
-      case 'Ec2LaunchTemplateVersionMismatch':
-        return NodegroupIssueCode.ec2LaunchTemplateVersionMismatch;
-      case 'Ec2SubnetNotFound':
-        return NodegroupIssueCode.ec2SubnetNotFound;
-      case 'Ec2SubnetInvalidConfiguration':
-        return NodegroupIssueCode.ec2SubnetInvalidConfiguration;
-      case 'IamInstanceProfileNotFound':
-        return NodegroupIssueCode.iamInstanceProfileNotFound;
-      case 'IamLimitExceeded':
-        return NodegroupIssueCode.iamLimitExceeded;
-      case 'IamNodeRoleNotFound':
-        return NodegroupIssueCode.iamNodeRoleNotFound;
-      case 'NodeCreationFailure':
-        return NodegroupIssueCode.nodeCreationFailure;
-      case 'AsgInstanceLaunchFailures':
-        return NodegroupIssueCode.asgInstanceLaunchFailures;
-      case 'InstanceLimitExceeded':
-        return NodegroupIssueCode.instanceLimitExceeded;
-      case 'InsufficientFreeAddresses':
-        return NodegroupIssueCode.insufficientFreeAddresses;
-      case 'AccessDenied':
-        return NodegroupIssueCode.accessDenied;
-      case 'InternalFailure':
-        return NodegroupIssueCode.internalFailure;
-      case 'ClusterUnreachable':
-        return NodegroupIssueCode.clusterUnreachable;
-      case 'Ec2SubnetMissingIpv6Assignment':
-        return NodegroupIssueCode.ec2SubnetMissingIpv6Assignment;
-    }
-    throw Exception('$this is not known in enum NodegroupIssueCode');
-  }
+  const NodegroupIssueCode(this.value);
+
+  static NodegroupIssueCode fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum NodegroupIssueCode'));
 }
 
 /// An object representing the resources associated with the node group, such as
@@ -5467,7 +7892,7 @@ class NodegroupResources {
   factory NodegroupResources.fromJson(Map<String, dynamic> json) {
     return NodegroupResources(
       autoScalingGroups: (json['autoScalingGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AutoScalingGroup.fromJson(e as Map<String, dynamic>))
           .toList(),
       remoteAccessSecurityGroup: json['remoteAccessSecurityGroup'] as String?,
@@ -5492,7 +7917,9 @@ class NodegroupResources {
 class NodegroupScalingConfig {
   /// The current number of nodes that the managed node group should maintain.
   /// <important>
-  /// If you use Cluster Autoscaler, you shouldn't change the desiredSize value
+  /// If you use the Kubernetes <a
+  /// href="https://github.com/kubernetes/autoscaler#kubernetes-autoscaler">Cluster
+  /// Autoscaler</a>, you shouldn't change the <code>desiredSize</code> value
   /// directly, as this can cause the Cluster Autoscaler to suddenly scale up or
   /// scale down.
   /// </important>
@@ -5503,14 +7930,14 @@ class NodegroupScalingConfig {
   /// When using CloudFormation, no action occurs if you remove this parameter
   /// from your CFN template.
   ///
-  /// This parameter can be different from minSize in some cases, such as when
-  /// starting with extra hosts for testing. This parameter can also be different
-  /// when you want to start with an estimated number of needed hosts, but let
-  /// Cluster Autoscaler reduce the number if there are too many. When Cluster
-  /// Autoscaler is used, the desiredSize parameter is altered by Cluster
-  /// Autoscaler (but can be out-of-date for short periods of time). Cluster
-  /// Autoscaler doesn't scale a managed node group lower than minSize or higher
-  /// than maxSize.
+  /// This parameter can be different from <code>minSize</code> in some cases,
+  /// such as when starting with extra hosts for testing. This parameter can also
+  /// be different when you want to start with an estimated number of needed
+  /// hosts, but let the Cluster Autoscaler reduce the number if there are too
+  /// many. When the Cluster Autoscaler is used, the <code>desiredSize</code>
+  /// parameter is altered by the Cluster Autoscaler (but can be out-of-date for
+  /// short periods of time). the Cluster Autoscaler doesn't scale a managed node
+  /// group lower than <code>minSize</code> or higher than <code>maxSize</code>.
   final int? desiredSize;
 
   /// The maximum number of nodes that the managed node group can scale out to.
@@ -5549,69 +7976,36 @@ class NodegroupScalingConfig {
 }
 
 enum NodegroupStatus {
-  creating,
-  active,
-  updating,
-  deleting,
-  createFailed,
-  deleteFailed,
-  degraded,
-}
+  creating('CREATING'),
+  active('ACTIVE'),
+  updating('UPDATING'),
+  deleting('DELETING'),
+  createFailed('CREATE_FAILED'),
+  deleteFailed('DELETE_FAILED'),
+  degraded('DEGRADED'),
+  ;
 
-extension NodegroupStatusValueExtension on NodegroupStatus {
-  String toValue() {
-    switch (this) {
-      case NodegroupStatus.creating:
-        return 'CREATING';
-      case NodegroupStatus.active:
-        return 'ACTIVE';
-      case NodegroupStatus.updating:
-        return 'UPDATING';
-      case NodegroupStatus.deleting:
-        return 'DELETING';
-      case NodegroupStatus.createFailed:
-        return 'CREATE_FAILED';
-      case NodegroupStatus.deleteFailed:
-        return 'DELETE_FAILED';
-      case NodegroupStatus.degraded:
-        return 'DEGRADED';
-    }
-  }
-}
+  final String value;
 
-extension NodegroupStatusFromString on String {
-  NodegroupStatus toNodegroupStatus() {
-    switch (this) {
-      case 'CREATING':
-        return NodegroupStatus.creating;
-      case 'ACTIVE':
-        return NodegroupStatus.active;
-      case 'UPDATING':
-        return NodegroupStatus.updating;
-      case 'DELETING':
-        return NodegroupStatus.deleting;
-      case 'CREATE_FAILED':
-        return NodegroupStatus.createFailed;
-      case 'DELETE_FAILED':
-        return NodegroupStatus.deleteFailed;
-      case 'DEGRADED':
-        return NodegroupStatus.degraded;
-    }
-    throw Exception('$this is not known in enum NodegroupStatus');
-  }
+  const NodegroupStatus(this.value);
+
+  static NodegroupStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum NodegroupStatus'));
 }
 
 /// The node group update configuration.
 class NodegroupUpdateConfig {
   /// The maximum number of nodes unavailable at once during a version update.
-  /// Nodes will be updated in parallel. This value or
+  /// Nodes are updated in parallel. This value or
   /// <code>maxUnavailablePercentage</code> is required to have a value.The
   /// maximum number is 100.
   final int? maxUnavailable;
 
   /// The maximum percentage of nodes unavailable during a version update. This
-  /// percentage of nodes will be updated in parallel, up to 100 nodes at once.
-  /// This value or <code>maxUnavailable</code> is required to have a value.
+  /// percentage of nodes are updated in parallel, up to 100 nodes at once. This
+  /// value or <code>maxUnavailable</code> is required to have a value.
   final int? maxUnavailablePercentage;
 
   NodegroupUpdateConfig({
@@ -5668,7 +8062,7 @@ class OidcIdentityProviderConfig {
   /// makes authentication requests to the OIDC identity provider.
   final String? clientId;
 
-  /// The cluster that the configuration is associated to.
+  /// The name of your cluster.
   final String? clusterName;
 
   /// The JSON web token (JWT) claim that the provider uses to return your groups.
@@ -5699,9 +8093,9 @@ class OidcIdentityProviderConfig {
   /// The status of the OIDC identity provider.
   final ConfigStatus? status;
 
-  /// The metadata to apply to the provider configuration to assist with
-  /// categorization and organization. Each tag consists of a key and an optional
-  /// value. You define both.
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
   final Map<String, String>? tags;
 
   /// The JSON Web token (JWT) claim that is used as the username.
@@ -5737,7 +8131,7 @@ class OidcIdentityProviderConfig {
       issuerUrl: json['issuerUrl'] as String?,
       requiredClaims: (json['requiredClaims'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
-      status: (json['status'] as String?)?.toConfigStatus(),
+      status: (json['status'] as String?)?.let(ConfigStatus.fromString),
       tags: (json['tags'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       usernameClaim: json['usernameClaim'] as String?,
@@ -5769,7 +8163,7 @@ class OidcIdentityProviderConfig {
         'identityProviderConfigName': identityProviderConfigName,
       if (issuerUrl != null) 'issuerUrl': issuerUrl,
       if (requiredClaims != null) 'requiredClaims': requiredClaims,
-      if (status != null) 'status': status.toValue(),
+      if (status != null) 'status': status.value,
       if (tags != null) 'tags': tags,
       if (usernameClaim != null) 'usernameClaim': usernameClaim,
       if (usernamePrefix != null) 'usernamePrefix': usernamePrefix,
@@ -5781,22 +8175,22 @@ class OidcIdentityProviderConfig {
 /// associating an OIDC identity provider to your cluster, review the
 /// considerations in <a
 /// href="https://docs.aws.amazon.com/eks/latest/userguide/authenticate-oidc-identity-provider.html">Authenticating
-/// users for your cluster from an OpenID Connect identity provider</a> in the
-/// <i>Amazon EKS User Guide</i>.
+/// users for your cluster from an OIDC identity provider</a> in the <i>Amazon
+/// EKS User Guide</i>.
 class OidcIdentityProviderConfigRequest {
   /// This is also known as <i>audience</i>. The ID for the client application
-  /// that makes authentication requests to the OpenID identity provider.
+  /// that makes authentication requests to the OIDC identity provider.
   final String clientId;
 
   /// The name of the OIDC provider configuration.
   final String identityProviderConfigName;
 
-  /// The URL of the OpenID identity provider that allows the API server to
-  /// discover public signing keys for verifying tokens. The URL must begin with
+  /// The URL of the OIDC identity provider that allows the API server to discover
+  /// public signing keys for verifying tokens. The URL must begin with
   /// <code>https://</code> and should correspond to the <code>iss</code> claim in
-  /// the provider's OIDC ID tokens. Per the OIDC standard, path components are
-  /// allowed but query parameters are not. Typically the URL consists of only a
-  /// hostname, like <code>https://server.example.org</code> or
+  /// the provider's OIDC ID tokens. Based on the OIDC standard, path components
+  /// are allowed but query parameters are not. Typically the URL consists of only
+  /// a hostname, like <code>https://server.example.org</code> or
   /// <code>https://example.com</code>. This URL should point to the level below
   /// <code>.well-known/openid-configuration</code> and must be publicly
   /// accessible over the internet.
@@ -5821,7 +8215,7 @@ class OidcIdentityProviderConfigRequest {
   /// The JSON Web Token (JWT) claim to use as the username. The default is
   /// <code>sub</code>, which is expected to be a unique identifier of the end
   /// user. You can choose other claims, such as <code>email</code> or
-  /// <code>name</code>, depending on the OpenID identity provider. Claims other
+  /// <code>name</code>, depending on the OIDC identity provider. Claims other
   /// than <code>email</code> are prefixed with the issuer URL to prevent naming
   /// clashes with other plug-ins.
   final String? usernameClaim;
@@ -5945,7 +8339,7 @@ class OutpostConfigResponse {
     return OutpostConfigResponse(
       controlPlaneInstanceType: json['controlPlaneInstanceType'] as String,
       outpostArns: (json['outpostArns'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => e as String)
           .toList(),
       controlPlanePlacement: json['controlPlanePlacement'] != null
@@ -5968,14 +8362,226 @@ class OutpostConfigResponse {
   }
 }
 
+/// Amazon EKS Pod Identity associations provide the ability to manage
+/// credentials for your applications, similar to the way that Amazon EC2
+/// instance profiles provide credentials to Amazon EC2 instances.
+class PodIdentityAssociation {
+  /// The Amazon Resource Name (ARN) of the association.
+  final String? associationArn;
+
+  /// The ID of the association.
+  final String? associationId;
+
+  /// The name of the cluster that the association is in.
+  final String? clusterName;
+
+  /// The timestamp that the association was created at.
+  final DateTime? createdAt;
+
+  /// The most recent timestamp that the association was modified at
+  final DateTime? modifiedAt;
+
+  /// The name of the Kubernetes namespace inside the cluster to create the
+  /// association in. The service account and the pods that use the service
+  /// account must be in this namespace.
+  final String? namespace;
+
+  /// If defined, the Pod Identity Association is owned by an Amazon EKS Addon.
+  final String? ownerArn;
+
+  /// The Amazon Resource Name (ARN) of the IAM role to associate with the service
+  /// account. The EKS Pod Identity agent manages credentials to assume this role
+  /// for applications in the containers in the pods that use this service
+  /// account.
+  final String? roleArn;
+
+  /// The name of the Kubernetes service account inside the cluster to associate
+  /// the IAM credentials with.
+  final String? serviceAccount;
+
+  /// Metadata that assists with categorization and organization. Each tag
+  /// consists of a key and an optional value. You define both. Tags don't
+  /// propagate to any other cluster or Amazon Web Services resources.
+  ///
+  /// The following basic restrictions apply to tags:
+  ///
+  /// <ul>
+  /// <li>
+  /// Maximum number of tags per resource – 50
+  /// </li>
+  /// <li>
+  /// For each resource, each tag key must be unique, and each tag key can have
+  /// only one value.
+  /// </li>
+  /// <li>
+  /// Maximum key length – 128 Unicode characters in UTF-8
+  /// </li>
+  /// <li>
+  /// Maximum value length – 256 Unicode characters in UTF-8
+  /// </li>
+  /// <li>
+  /// If your tagging schema is used across multiple services and resources,
+  /// remember that other services may have restrictions on allowed characters.
+  /// Generally allowed characters are: letters, numbers, and spaces representable
+  /// in UTF-8, and the following characters: + - = . _ : / @.
+  /// </li>
+  /// <li>
+  /// Tag keys and values are case-sensitive.
+  /// </li>
+  /// <li>
+  /// Do not use <code>aws:</code>, <code>AWS:</code>, or any upper or lowercase
+  /// combination of such as a prefix for either keys or values as it is reserved
+  /// for Amazon Web Services use. You cannot edit or delete tag keys or values
+  /// with this prefix. Tags with this prefix do not count against your tags per
+  /// resource limit.
+  /// </li>
+  /// </ul>
+  final Map<String, String>? tags;
+
+  PodIdentityAssociation({
+    this.associationArn,
+    this.associationId,
+    this.clusterName,
+    this.createdAt,
+    this.modifiedAt,
+    this.namespace,
+    this.ownerArn,
+    this.roleArn,
+    this.serviceAccount,
+    this.tags,
+  });
+
+  factory PodIdentityAssociation.fromJson(Map<String, dynamic> json) {
+    return PodIdentityAssociation(
+      associationArn: json['associationArn'] as String?,
+      associationId: json['associationId'] as String?,
+      clusterName: json['clusterName'] as String?,
+      createdAt: timeStampFromJson(json['createdAt']),
+      modifiedAt: timeStampFromJson(json['modifiedAt']),
+      namespace: json['namespace'] as String?,
+      ownerArn: json['ownerArn'] as String?,
+      roleArn: json['roleArn'] as String?,
+      serviceAccount: json['serviceAccount'] as String?,
+      tags: (json['tags'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associationArn = this.associationArn;
+    final associationId = this.associationId;
+    final clusterName = this.clusterName;
+    final createdAt = this.createdAt;
+    final modifiedAt = this.modifiedAt;
+    final namespace = this.namespace;
+    final ownerArn = this.ownerArn;
+    final roleArn = this.roleArn;
+    final serviceAccount = this.serviceAccount;
+    final tags = this.tags;
+    return {
+      if (associationArn != null) 'associationArn': associationArn,
+      if (associationId != null) 'associationId': associationId,
+      if (clusterName != null) 'clusterName': clusterName,
+      if (createdAt != null) 'createdAt': unixTimestampToJson(createdAt),
+      if (modifiedAt != null) 'modifiedAt': unixTimestampToJson(modifiedAt),
+      if (namespace != null) 'namespace': namespace,
+      if (ownerArn != null) 'ownerArn': ownerArn,
+      if (roleArn != null) 'roleArn': roleArn,
+      if (serviceAccount != null) 'serviceAccount': serviceAccount,
+      if (tags != null) 'tags': tags,
+    };
+  }
+}
+
+/// The summarized description of the association.
+///
+/// Each summary is simplified by removing these fields compared to the full
+/// <code> <a>PodIdentityAssociation</a> </code>:
+///
+/// <ul>
+/// <li>
+/// The IAM role: <code>roleArn</code>
+/// </li>
+/// <li>
+/// The timestamp that the association was created at: <code>createdAt</code>
+/// </li>
+/// <li>
+/// The most recent timestamp that the association was modified at:.
+/// <code>modifiedAt</code>
+/// </li>
+/// <li>
+/// The tags on the association: <code>tags</code>
+/// </li>
+/// </ul>
+class PodIdentityAssociationSummary {
+  /// The Amazon Resource Name (ARN) of the association.
+  final String? associationArn;
+
+  /// The ID of the association.
+  final String? associationId;
+
+  /// The name of the cluster that the association is in.
+  final String? clusterName;
+
+  /// The name of the Kubernetes namespace inside the cluster to create the
+  /// association in. The service account and the pods that use the service
+  /// account must be in this namespace.
+  final String? namespace;
+
+  /// If defined, the Pod Identity Association is owned by an Amazon EKS Addon.
+  final String? ownerArn;
+
+  /// The name of the Kubernetes service account inside the cluster to associate
+  /// the IAM credentials with.
+  final String? serviceAccount;
+
+  PodIdentityAssociationSummary({
+    this.associationArn,
+    this.associationId,
+    this.clusterName,
+    this.namespace,
+    this.ownerArn,
+    this.serviceAccount,
+  });
+
+  factory PodIdentityAssociationSummary.fromJson(Map<String, dynamic> json) {
+    return PodIdentityAssociationSummary(
+      associationArn: json['associationArn'] as String?,
+      associationId: json['associationId'] as String?,
+      clusterName: json['clusterName'] as String?,
+      namespace: json['namespace'] as String?,
+      ownerArn: json['ownerArn'] as String?,
+      serviceAccount: json['serviceAccount'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final associationArn = this.associationArn;
+    final associationId = this.associationId;
+    final clusterName = this.clusterName;
+    final namespace = this.namespace;
+    final ownerArn = this.ownerArn;
+    final serviceAccount = this.serviceAccount;
+    return {
+      if (associationArn != null) 'associationArn': associationArn,
+      if (associationId != null) 'associationId': associationId,
+      if (clusterName != null) 'clusterName': clusterName,
+      if (namespace != null) 'namespace': namespace,
+      if (ownerArn != null) 'ownerArn': ownerArn,
+      if (serviceAccount != null) 'serviceAccount': serviceAccount,
+    };
+  }
+}
+
 /// Identifies the Key Management Service (KMS) key used to encrypt the secrets.
 class Provider {
   /// Amazon Resource Name (ARN) or alias of the KMS key. The KMS key must be
-  /// symmetric, created in the same region as the cluster, and if the KMS key was
-  /// created in a different account, the user must have access to the KMS key.
-  /// For more information, see <a
+  /// symmetric and created in the same Amazon Web Services Region as the cluster.
+  /// If the KMS key was created in a different account, the <a
+  /// href="https://docs.aws.amazon.com/IAM/latest/UserGuide/id_roles_terms-and-concepts.html">IAM
+  /// principal</a> must have access to the KMS key. For more information, see <a
   /// href="https://docs.aws.amazon.com/kms/latest/developerguide/key-policy-modifying-external-accounts.html">Allowing
-  /// Users in Other Accounts to Use a KMS key</a> in the <i>Key Management
+  /// users in other accounts to use a KMS key</a> in the <i>Key Management
   /// Service Developer Guide</i>.
   final String? keyArn;
 
@@ -6053,7 +8659,7 @@ class RemoteAccessConfig {
     return RemoteAccessConfig(
       ec2SshKey: json['ec2SshKey'] as String?,
       sourceSecurityGroups: (json['sourceSecurityGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6071,36 +8677,19 @@ class RemoteAccessConfig {
 }
 
 enum ResolveConflicts {
-  overwrite,
-  none,
-  preserve,
-}
+  overwrite('OVERWRITE'),
+  none('NONE'),
+  preserve('PRESERVE'),
+  ;
 
-extension ResolveConflictsValueExtension on ResolveConflicts {
-  String toValue() {
-    switch (this) {
-      case ResolveConflicts.overwrite:
-        return 'OVERWRITE';
-      case ResolveConflicts.none:
-        return 'NONE';
-      case ResolveConflicts.preserve:
-        return 'PRESERVE';
-    }
-  }
-}
+  final String value;
 
-extension ResolveConflictsFromString on String {
-  ResolveConflicts toResolveConflicts() {
-    switch (this) {
-      case 'OVERWRITE':
-        return ResolveConflicts.overwrite;
-      case 'NONE':
-        return ResolveConflicts.none;
-      case 'PRESERVE':
-        return ResolveConflicts.preserve;
-    }
-    throw Exception('$this is not known in enum ResolveConflicts');
-  }
+  const ResolveConflicts(this.value);
+
+  static ResolveConflicts fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ResolveConflicts'));
 }
 
 class TagResourceResponse {
@@ -6115,10 +8704,10 @@ class TagResourceResponse {
   }
 }
 
-/// A property that allows a node to repel a set of pods. For more information,
-/// see <a
+/// A property that allows a node to repel a <code>Pod</code>. For more
+/// information, see <a
 /// href="https://docs.aws.amazon.com/eks/latest/userguide/node-taints-managed-node-groups.html">Node
-/// taints on managed node groups</a>.
+/// taints on managed node groups</a> in the <i>Amazon EKS User Guide</i>.
 class Taint {
   /// The effect of the taint.
   final TaintEffect? effect;
@@ -6137,7 +8726,7 @@ class Taint {
 
   factory Taint.fromJson(Map<String, dynamic> json) {
     return Taint(
-      effect: (json['effect'] as String?)?.toTaintEffect(),
+      effect: (json['effect'] as String?)?.let(TaintEffect.fromString),
       key: json['key'] as String?,
       value: json['value'] as String?,
     );
@@ -6148,7 +8737,7 @@ class Taint {
     final key = this.key;
     final value = this.value;
     return {
-      if (effect != null) 'effect': effect.toValue(),
+      if (effect != null) 'effect': effect.value,
       if (key != null) 'key': key,
       if (value != null) 'value': value,
     };
@@ -6156,36 +8745,18 @@ class Taint {
 }
 
 enum TaintEffect {
-  noSchedule,
-  noExecute,
-  preferNoSchedule,
-}
+  noSchedule('NO_SCHEDULE'),
+  noExecute('NO_EXECUTE'),
+  preferNoSchedule('PREFER_NO_SCHEDULE'),
+  ;
 
-extension TaintEffectValueExtension on TaintEffect {
-  String toValue() {
-    switch (this) {
-      case TaintEffect.noSchedule:
-        return 'NO_SCHEDULE';
-      case TaintEffect.noExecute:
-        return 'NO_EXECUTE';
-      case TaintEffect.preferNoSchedule:
-        return 'PREFER_NO_SCHEDULE';
-    }
-  }
-}
+  final String value;
 
-extension TaintEffectFromString on String {
-  TaintEffect toTaintEffect() {
-    switch (this) {
-      case 'NO_SCHEDULE':
-        return TaintEffect.noSchedule;
-      case 'NO_EXECUTE':
-        return TaintEffect.noExecute;
-      case 'PREFER_NO_SCHEDULE':
-        return TaintEffect.preferNoSchedule;
-    }
-    throw Exception('$this is not known in enum TaintEffect');
-  }
+  const TaintEffect(this.value);
+
+  static TaintEffect fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum TaintEffect'));
 }
 
 class UntagResourceResponse {
@@ -6202,7 +8773,7 @@ class UntagResourceResponse {
 
 /// An object representing an asynchronous update.
 class Update {
-  /// The Unix epoch timestamp in seconds for when the update was created.
+  /// The Unix epoch timestamp at object creation.
   final DateTime? createdAt;
 
   /// Any errors associated with a <code>Failed</code> update.
@@ -6233,16 +8804,16 @@ class Update {
     return Update(
       createdAt: timeStampFromJson(json['createdAt']),
       errors: (json['errors'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ErrorDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       id: json['id'] as String?,
       params: (json['params'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UpdateParam.fromJson(e as Map<String, dynamic>))
           .toList(),
-      status: (json['status'] as String?)?.toUpdateStatus(),
-      type: (json['type'] as String?)?.toUpdateType(),
+      status: (json['status'] as String?)?.let(UpdateStatus.fromString),
+      type: (json['type'] as String?)?.let(UpdateType.fromString),
     );
   }
 
@@ -6258,8 +8829,50 @@ class Update {
       if (errors != null) 'errors': errors,
       if (id != null) 'id': id,
       if (params != null) 'params': params,
-      if (status != null) 'status': status.toValue(),
-      if (type != null) 'type': type.toValue(),
+      if (status != null) 'status': status.value,
+      if (type != null) 'type': type.value,
+    };
+  }
+}
+
+/// The access configuration information for the cluster.
+class UpdateAccessConfigRequest {
+  /// The desired authentication mode for the cluster.
+  final AuthenticationMode? authenticationMode;
+
+  UpdateAccessConfigRequest({
+    this.authenticationMode,
+  });
+
+  Map<String, dynamic> toJson() {
+    final authenticationMode = this.authenticationMode;
+    return {
+      if (authenticationMode != null)
+        'authenticationMode': authenticationMode.value,
+    };
+  }
+}
+
+class UpdateAccessEntryResponse {
+  /// The ARN of the IAM principal for the <code>AccessEntry</code>.
+  final AccessEntry? accessEntry;
+
+  UpdateAccessEntryResponse({
+    this.accessEntry,
+  });
+
+  factory UpdateAccessEntryResponse.fromJson(Map<String, dynamic> json) {
+    return UpdateAccessEntryResponse(
+      accessEntry: json['accessEntry'] != null
+          ? AccessEntry.fromJson(json['accessEntry'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final accessEntry = this.accessEntry;
+    return {
+      if (accessEntry != null) 'accessEntry': accessEntry,
     };
   }
 }
@@ -6334,12 +8947,39 @@ class UpdateClusterVersionResponse {
   }
 }
 
-/// An object representing a Kubernetes label change for a managed node group.
+class UpdateEksAnywhereSubscriptionResponse {
+  /// The full description of the updated subscription.
+  final EksAnywhereSubscription? subscription;
+
+  UpdateEksAnywhereSubscriptionResponse({
+    this.subscription,
+  });
+
+  factory UpdateEksAnywhereSubscriptionResponse.fromJson(
+      Map<String, dynamic> json) {
+    return UpdateEksAnywhereSubscriptionResponse(
+      subscription: json['subscription'] != null
+          ? EksAnywhereSubscription.fromJson(
+              json['subscription'] as Map<String, dynamic>)
+          : null,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final subscription = this.subscription;
+    return {
+      if (subscription != null) 'subscription': subscription,
+    };
+  }
+}
+
+/// An object representing a Kubernetes <code>label</code> change for a managed
+/// node group.
 class UpdateLabelsPayload {
-  /// Kubernetes labels to be added or updated.
+  /// The Kubernetes <code>labels</code> to add or update.
   final Map<String, String>? addOrUpdateLabels;
 
-  /// Kubernetes labels to be removed.
+  /// The Kubernetes <code>labels</code> to remove.
   final List<String>? removeLabels;
 
   UpdateLabelsPayload({
@@ -6418,7 +9058,7 @@ class UpdateParam {
 
   factory UpdateParam.fromJson(Map<String, dynamic> json) {
     return UpdateParam(
-      type: (json['type'] as String?)?.toUpdateParamType(),
+      type: (json['type'] as String?)?.let(UpdateParamType.fromString),
       value: json['value'] as String?,
     );
   }
@@ -6427,187 +9067,100 @@ class UpdateParam {
     final type = this.type;
     final value = this.value;
     return {
-      if (type != null) 'type': type.toValue(),
+      if (type != null) 'type': type.value,
       if (value != null) 'value': value,
     };
   }
 }
 
 enum UpdateParamType {
-  version,
-  platformVersion,
-  endpointPrivateAccess,
-  endpointPublicAccess,
-  clusterLogging,
-  desiredSize,
-  labelsToAdd,
-  labelsToRemove,
-  taintsToAdd,
-  taintsToRemove,
-  maxSize,
-  minSize,
-  releaseVersion,
-  publicAccessCidrs,
-  launchTemplateName,
-  launchTemplateVersion,
-  identityProviderConfig,
-  encryptionConfig,
-  addonVersion,
-  serviceAccountRoleArn,
-  resolveConflicts,
-  maxUnavailable,
-  maxUnavailablePercentage,
+  version('Version'),
+  platformVersion('PlatformVersion'),
+  endpointPrivateAccess('EndpointPrivateAccess'),
+  endpointPublicAccess('EndpointPublicAccess'),
+  clusterLogging('ClusterLogging'),
+  desiredSize('DesiredSize'),
+  labelsToAdd('LabelsToAdd'),
+  labelsToRemove('LabelsToRemove'),
+  taintsToAdd('TaintsToAdd'),
+  taintsToRemove('TaintsToRemove'),
+  maxSize('MaxSize'),
+  minSize('MinSize'),
+  releaseVersion('ReleaseVersion'),
+  publicAccessCidrs('PublicAccessCidrs'),
+  launchTemplateName('LaunchTemplateName'),
+  launchTemplateVersion('LaunchTemplateVersion'),
+  identityProviderConfig('IdentityProviderConfig'),
+  encryptionConfig('EncryptionConfig'),
+  addonVersion('AddonVersion'),
+  serviceAccountRoleArn('ServiceAccountRoleArn'),
+  resolveConflicts('ResolveConflicts'),
+  maxUnavailable('MaxUnavailable'),
+  maxUnavailablePercentage('MaxUnavailablePercentage'),
+  configurationValues('ConfigurationValues'),
+  securityGroups('SecurityGroups'),
+  subnets('Subnets'),
+  authenticationMode('AuthenticationMode'),
+  podIdentityAssociations('PodIdentityAssociations'),
+  ;
+
+  final String value;
+
+  const UpdateParamType(this.value);
+
+  static UpdateParamType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateParamType'));
 }
 
-extension UpdateParamTypeValueExtension on UpdateParamType {
-  String toValue() {
-    switch (this) {
-      case UpdateParamType.version:
-        return 'Version';
-      case UpdateParamType.platformVersion:
-        return 'PlatformVersion';
-      case UpdateParamType.endpointPrivateAccess:
-        return 'EndpointPrivateAccess';
-      case UpdateParamType.endpointPublicAccess:
-        return 'EndpointPublicAccess';
-      case UpdateParamType.clusterLogging:
-        return 'ClusterLogging';
-      case UpdateParamType.desiredSize:
-        return 'DesiredSize';
-      case UpdateParamType.labelsToAdd:
-        return 'LabelsToAdd';
-      case UpdateParamType.labelsToRemove:
-        return 'LabelsToRemove';
-      case UpdateParamType.taintsToAdd:
-        return 'TaintsToAdd';
-      case UpdateParamType.taintsToRemove:
-        return 'TaintsToRemove';
-      case UpdateParamType.maxSize:
-        return 'MaxSize';
-      case UpdateParamType.minSize:
-        return 'MinSize';
-      case UpdateParamType.releaseVersion:
-        return 'ReleaseVersion';
-      case UpdateParamType.publicAccessCidrs:
-        return 'PublicAccessCidrs';
-      case UpdateParamType.launchTemplateName:
-        return 'LaunchTemplateName';
-      case UpdateParamType.launchTemplateVersion:
-        return 'LaunchTemplateVersion';
-      case UpdateParamType.identityProviderConfig:
-        return 'IdentityProviderConfig';
-      case UpdateParamType.encryptionConfig:
-        return 'EncryptionConfig';
-      case UpdateParamType.addonVersion:
-        return 'AddonVersion';
-      case UpdateParamType.serviceAccountRoleArn:
-        return 'ServiceAccountRoleArn';
-      case UpdateParamType.resolveConflicts:
-        return 'ResolveConflicts';
-      case UpdateParamType.maxUnavailable:
-        return 'MaxUnavailable';
-      case UpdateParamType.maxUnavailablePercentage:
-        return 'MaxUnavailablePercentage';
-    }
+class UpdatePodIdentityAssociationResponse {
+  /// The full description of the EKS Pod Identity association that was updated.
+  final PodIdentityAssociation? association;
+
+  UpdatePodIdentityAssociationResponse({
+    this.association,
+  });
+
+  factory UpdatePodIdentityAssociationResponse.fromJson(
+      Map<String, dynamic> json) {
+    return UpdatePodIdentityAssociationResponse(
+      association: json['association'] != null
+          ? PodIdentityAssociation.fromJson(
+              json['association'] as Map<String, dynamic>)
+          : null,
+    );
   }
-}
 
-extension UpdateParamTypeFromString on String {
-  UpdateParamType toUpdateParamType() {
-    switch (this) {
-      case 'Version':
-        return UpdateParamType.version;
-      case 'PlatformVersion':
-        return UpdateParamType.platformVersion;
-      case 'EndpointPrivateAccess':
-        return UpdateParamType.endpointPrivateAccess;
-      case 'EndpointPublicAccess':
-        return UpdateParamType.endpointPublicAccess;
-      case 'ClusterLogging':
-        return UpdateParamType.clusterLogging;
-      case 'DesiredSize':
-        return UpdateParamType.desiredSize;
-      case 'LabelsToAdd':
-        return UpdateParamType.labelsToAdd;
-      case 'LabelsToRemove':
-        return UpdateParamType.labelsToRemove;
-      case 'TaintsToAdd':
-        return UpdateParamType.taintsToAdd;
-      case 'TaintsToRemove':
-        return UpdateParamType.taintsToRemove;
-      case 'MaxSize':
-        return UpdateParamType.maxSize;
-      case 'MinSize':
-        return UpdateParamType.minSize;
-      case 'ReleaseVersion':
-        return UpdateParamType.releaseVersion;
-      case 'PublicAccessCidrs':
-        return UpdateParamType.publicAccessCidrs;
-      case 'LaunchTemplateName':
-        return UpdateParamType.launchTemplateName;
-      case 'LaunchTemplateVersion':
-        return UpdateParamType.launchTemplateVersion;
-      case 'IdentityProviderConfig':
-        return UpdateParamType.identityProviderConfig;
-      case 'EncryptionConfig':
-        return UpdateParamType.encryptionConfig;
-      case 'AddonVersion':
-        return UpdateParamType.addonVersion;
-      case 'ServiceAccountRoleArn':
-        return UpdateParamType.serviceAccountRoleArn;
-      case 'ResolveConflicts':
-        return UpdateParamType.resolveConflicts;
-      case 'MaxUnavailable':
-        return UpdateParamType.maxUnavailable;
-      case 'MaxUnavailablePercentage':
-        return UpdateParamType.maxUnavailablePercentage;
-    }
-    throw Exception('$this is not known in enum UpdateParamType');
+  Map<String, dynamic> toJson() {
+    final association = this.association;
+    return {
+      if (association != null) 'association': association,
+    };
   }
 }
 
 enum UpdateStatus {
-  inProgress,
-  failed,
-  cancelled,
-  successful,
-}
+  inProgress('InProgress'),
+  failed('Failed'),
+  cancelled('Cancelled'),
+  successful('Successful'),
+  ;
 
-extension UpdateStatusValueExtension on UpdateStatus {
-  String toValue() {
-    switch (this) {
-      case UpdateStatus.inProgress:
-        return 'InProgress';
-      case UpdateStatus.failed:
-        return 'Failed';
-      case UpdateStatus.cancelled:
-        return 'Cancelled';
-      case UpdateStatus.successful:
-        return 'Successful';
-    }
-  }
-}
+  final String value;
 
-extension UpdateStatusFromString on String {
-  UpdateStatus toUpdateStatus() {
-    switch (this) {
-      case 'InProgress':
-        return UpdateStatus.inProgress;
-      case 'Failed':
-        return UpdateStatus.failed;
-      case 'Cancelled':
-        return UpdateStatus.cancelled;
-      case 'Successful':
-        return UpdateStatus.successful;
-    }
-    throw Exception('$this is not known in enum UpdateStatus');
-  }
+  const UpdateStatus(this.value);
+
+  static UpdateStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum UpdateStatus'));
 }
 
 /// An object representing the details of an update to a taints payload. For
 /// more information, see <a
 /// href="https://docs.aws.amazon.com/eks/latest/userguide/node-taints-managed-node-groups.html">Node
-/// taints on managed node groups</a>.
+/// taints on managed node groups</a> in the <i>Amazon EKS User Guide</i>.
 class UpdateTaintsPayload {
   /// Kubernetes taints to be added or updated.
   final List<Taint>? addOrUpdateTaints;
@@ -6631,61 +9184,25 @@ class UpdateTaintsPayload {
 }
 
 enum UpdateType {
-  versionUpdate,
-  endpointAccessUpdate,
-  loggingUpdate,
-  configUpdate,
-  associateIdentityProviderConfig,
-  disassociateIdentityProviderConfig,
-  associateEncryptionConfig,
-  addonUpdate,
-}
+  versionUpdate('VersionUpdate'),
+  endpointAccessUpdate('EndpointAccessUpdate'),
+  loggingUpdate('LoggingUpdate'),
+  configUpdate('ConfigUpdate'),
+  associateIdentityProviderConfig('AssociateIdentityProviderConfig'),
+  disassociateIdentityProviderConfig('DisassociateIdentityProviderConfig'),
+  associateEncryptionConfig('AssociateEncryptionConfig'),
+  addonUpdate('AddonUpdate'),
+  vpcConfigUpdate('VpcConfigUpdate'),
+  accessConfigUpdate('AccessConfigUpdate'),
+  ;
 
-extension UpdateTypeValueExtension on UpdateType {
-  String toValue() {
-    switch (this) {
-      case UpdateType.versionUpdate:
-        return 'VersionUpdate';
-      case UpdateType.endpointAccessUpdate:
-        return 'EndpointAccessUpdate';
-      case UpdateType.loggingUpdate:
-        return 'LoggingUpdate';
-      case UpdateType.configUpdate:
-        return 'ConfigUpdate';
-      case UpdateType.associateIdentityProviderConfig:
-        return 'AssociateIdentityProviderConfig';
-      case UpdateType.disassociateIdentityProviderConfig:
-        return 'DisassociateIdentityProviderConfig';
-      case UpdateType.associateEncryptionConfig:
-        return 'AssociateEncryptionConfig';
-      case UpdateType.addonUpdate:
-        return 'AddonUpdate';
-    }
-  }
-}
+  final String value;
 
-extension UpdateTypeFromString on String {
-  UpdateType toUpdateType() {
-    switch (this) {
-      case 'VersionUpdate':
-        return UpdateType.versionUpdate;
-      case 'EndpointAccessUpdate':
-        return UpdateType.endpointAccessUpdate;
-      case 'LoggingUpdate':
-        return UpdateType.loggingUpdate;
-      case 'ConfigUpdate':
-        return UpdateType.configUpdate;
-      case 'AssociateIdentityProviderConfig':
-        return UpdateType.associateIdentityProviderConfig;
-      case 'DisassociateIdentityProviderConfig':
-        return UpdateType.disassociateIdentityProviderConfig;
-      case 'AssociateEncryptionConfig':
-        return UpdateType.associateEncryptionConfig;
-      case 'AddonUpdate':
-        return UpdateType.addonUpdate;
-    }
-    throw Exception('$this is not known in enum UpdateType');
-  }
+  const UpdateType(this.value);
+
+  static UpdateType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum UpdateType'));
 }
 
 /// An object representing the VPC configuration to use for an Amazon EKS
@@ -6719,9 +9236,9 @@ class VpcConfigRequest {
   /// The CIDR blocks that are allowed access to your cluster's public Kubernetes
   /// API server endpoint. Communication to the endpoint from addresses outside of
   /// the CIDR blocks that you specify is denied. The default value is
-  /// <code>0.0.0.0/0</code>. If you've disabled private endpoint access and you
-  /// have nodes or Fargate pods in the cluster, then ensure that you specify the
-  /// necessary CIDR blocks. For more information, see <a
+  /// <code>0.0.0.0/0</code>. If you've disabled private endpoint access, make
+  /// sure that you specify the necessary CIDR blocks for every node and Fargate
+  /// <code>Pod</code> in the cluster. For more information, see <a
   /// href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html">Amazon
   /// EKS cluster endpoint access control</a> in the <i> <i>Amazon EKS User
   /// Guide</i> </i>.
@@ -6788,21 +9305,11 @@ class VpcConfigResponse {
   /// Guide</i> </i>.
   final bool? endpointPrivateAccess;
 
-  /// This parameter indicates whether the Amazon EKS public API server endpoint
-  /// is enabled. If the Amazon EKS public API server endpoint is disabled, your
-  /// cluster's Kubernetes API server can only receive requests that originate
-  /// from within the cluster VPC.
+  /// Whether the public API server endpoint is enabled.
   final bool? endpointPublicAccess;
 
   /// The CIDR blocks that are allowed access to your cluster's public Kubernetes
-  /// API server endpoint. Communication to the endpoint from addresses outside of
-  /// the listed CIDR blocks is denied. The default value is
-  /// <code>0.0.0.0/0</code>. If you've disabled private endpoint access and you
-  /// have nodes or Fargate pods in the cluster, then ensure that the necessary
-  /// CIDR blocks are listed. For more information, see <a
-  /// href="https://docs.aws.amazon.com/eks/latest/userguide/cluster-endpoint.html">Amazon
-  /// EKS cluster endpoint access control</a> in the <i> <i>Amazon EKS User
-  /// Guide</i> </i>.
+  /// API server endpoint.
   final List<String>? publicAccessCidrs;
 
   /// The security groups associated with the cross-account elastic network
@@ -6832,15 +9339,15 @@ class VpcConfigResponse {
       endpointPrivateAccess: json['endpointPrivateAccess'] as bool?,
       endpointPublicAccess: json['endpointPublicAccess'] as bool?,
       publicAccessCidrs: (json['publicAccessCidrs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       securityGroupIds: (json['securityGroupIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       subnetIds: (json['subnetIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       vpcId: json['vpcId'] as String?,
@@ -6871,36 +9378,19 @@ class VpcConfigResponse {
 }
 
 enum ConfigStatus {
-  creating,
-  deleting,
-  active,
-}
+  creating('CREATING'),
+  deleting('DELETING'),
+  active('ACTIVE'),
+  ;
 
-extension ConfigStatusValueExtension on ConfigStatus {
-  String toValue() {
-    switch (this) {
-      case ConfigStatus.creating:
-        return 'CREATING';
-      case ConfigStatus.deleting:
-        return 'DELETING';
-      case ConfigStatus.active:
-        return 'ACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension ConfigStatusFromString on String {
-  ConfigStatus toConfigStatus() {
-    switch (this) {
-      case 'CREATING':
-        return ConfigStatus.creating;
-      case 'DELETING':
-        return ConfigStatus.deleting;
-      case 'ACTIVE':
-        return ConfigStatus.active;
-    }
-    throw Exception('$this is not known in enum ConfigStatus');
-  }
+  const ConfigStatus(this.value);
+
+  static ConfigStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ConfigStatus'));
 }
 
 class AccessDeniedException extends _s.GenericAwsException {

@@ -536,7 +536,7 @@ class XRay {
       if (groupName != null) 'GroupName': groupName,
       if (maxResults != null) 'MaxResults': maxResults,
       if (nextToken != null) 'NextToken': nextToken,
-      if (states != null) 'States': states.map((e) => e.toValue()).toList(),
+      if (states != null) 'States': states.map((e) => e.value).toList(),
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -801,8 +801,8 @@ class XRay {
   /// Input parameters are Name and Value.
   ///
   /// Parameter [timeRangeType] :
-  /// A parameter to indicate whether to query trace summaries by TraceId or
-  /// Event time.
+  /// A parameter to indicate whether to query trace summaries by TraceId, Event
+  /// (trace update time), or Service (segment end time).
   Future<GetTraceSummariesResult> getTraceSummaries({
     required DateTime endTime,
     required DateTime startTime,
@@ -819,7 +819,7 @@ class XRay {
       if (nextToken != null) 'NextToken': nextToken,
       if (sampling != null) 'Sampling': sampling,
       if (samplingStrategy != null) 'SamplingStrategy': samplingStrategy,
-      if (timeRangeType != null) 'TimeRangeType': timeRangeType.toValue(),
+      if (timeRangeType != null) 'TimeRangeType': timeRangeType.value,
     };
     final response = await _protocol.send(
       payload: $payload,
@@ -918,7 +918,7 @@ class XRay {
     String? keyId,
   }) async {
     final $payload = <String, dynamic>{
-      'Type': type.toValue(),
+      'Type': type.value,
       if (keyId != null) 'KeyId': keyId,
     };
     final response = await _protocol.send(
@@ -1300,10 +1300,8 @@ class Alias {
   factory Alias.fromJson(Map<String, dynamic> json) {
     return Alias(
       name: json['Name'] as String?,
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       type: json['Type'] as String?,
     );
   }
@@ -1437,11 +1435,11 @@ class BatchGetTracesResult {
     return BatchGetTracesResult(
       nextToken: json['NextToken'] as String?,
       traces: (json['Traces'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Trace.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedTraceIds: (json['UnprocessedTraceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -1566,18 +1564,18 @@ class Edge {
   factory Edge.fromJson(Map<String, dynamic> json) {
     return Edge(
       aliases: (json['Aliases'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Alias.fromJson(e as Map<String, dynamic>))
           .toList(),
       edgeType: json['EdgeType'] as String?,
       endTime: timeStampFromJson(json['EndTime']),
       receivedEventAgeHistogram: (json['ReceivedEventAgeHistogram'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HistogramEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       referenceId: json['ReferenceId'] as int?,
       responseTimeHistogram: (json['ResponseTimeHistogram'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HistogramEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       startTime: timeStampFromJson(json['StartTime']),
@@ -1653,66 +1651,40 @@ class EncryptionConfig {
   factory EncryptionConfig.fromJson(Map<String, dynamic> json) {
     return EncryptionConfig(
       keyId: json['KeyId'] as String?,
-      status: (json['Status'] as String?)?.toEncryptionStatus(),
-      type: (json['Type'] as String?)?.toEncryptionType(),
+      status: (json['Status'] as String?)?.let(EncryptionStatus.fromString),
+      type: (json['Type'] as String?)?.let(EncryptionType.fromString),
     );
   }
 }
 
 enum EncryptionStatus {
-  updating,
-  active,
-}
+  updating('UPDATING'),
+  active('ACTIVE'),
+  ;
 
-extension EncryptionStatusValueExtension on EncryptionStatus {
-  String toValue() {
-    switch (this) {
-      case EncryptionStatus.updating:
-        return 'UPDATING';
-      case EncryptionStatus.active:
-        return 'ACTIVE';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionStatusFromString on String {
-  EncryptionStatus toEncryptionStatus() {
-    switch (this) {
-      case 'UPDATING':
-        return EncryptionStatus.updating;
-      case 'ACTIVE':
-        return EncryptionStatus.active;
-    }
-    throw Exception('$this is not known in enum EncryptionStatus');
-  }
+  const EncryptionStatus(this.value);
+
+  static EncryptionStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionStatus'));
 }
 
 enum EncryptionType {
-  none,
-  kms,
-}
+  none('NONE'),
+  kms('KMS'),
+  ;
 
-extension EncryptionTypeValueExtension on EncryptionType {
-  String toValue() {
-    switch (this) {
-      case EncryptionType.none:
-        return 'NONE';
-      case EncryptionType.kms:
-        return 'KMS';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionTypeFromString on String {
-  EncryptionType toEncryptionType() {
-    switch (this) {
-      case 'NONE':
-        return EncryptionType.none;
-      case 'KMS':
-        return EncryptionType.kms;
-    }
-    throw Exception('$this is not known in enum EncryptionType');
-  }
+  const EncryptionType(this.value);
+
+  static EncryptionType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionType'));
 }
 
 /// The root cause of a trace summary error.
@@ -1733,7 +1705,7 @@ class ErrorRootCause {
     return ErrorRootCause(
       clientImpacting: json['ClientImpacting'] as bool?,
       services: (json['Services'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ErrorRootCauseService.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1761,7 +1733,7 @@ class ErrorRootCauseEntity {
   factory ErrorRootCauseEntity.fromJson(Map<String, dynamic> json) {
     return ErrorRootCauseEntity(
       exceptions: (json['Exceptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RootCauseException.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
@@ -1803,15 +1775,13 @@ class ErrorRootCauseService {
     return ErrorRootCauseService(
       accountId: json['AccountId'] as String?,
       entityPath: (json['EntityPath'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ErrorRootCauseEntity.fromJson(e as Map<String, dynamic>))
           .toList(),
       inferred: json['Inferred'] as bool?,
       name: json['Name'] as String?,
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       type: json['Type'] as String?,
     );
   }
@@ -1863,7 +1833,7 @@ class FaultRootCause {
     return FaultRootCause(
       clientImpacting: json['ClientImpacting'] as bool?,
       services: (json['Services'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaultRootCauseService.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -1891,7 +1861,7 @@ class FaultRootCauseEntity {
   factory FaultRootCauseEntity.fromJson(Map<String, dynamic> json) {
     return FaultRootCauseEntity(
       exceptions: (json['Exceptions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => RootCauseException.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
@@ -1933,15 +1903,13 @@ class FaultRootCauseService {
     return FaultRootCauseService(
       accountId: json['AccountId'] as String?,
       entityPath: (json['EntityPath'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaultRootCauseEntity.fromJson(e as Map<String, dynamic>))
           .toList(),
       inferred: json['Inferred'] as bool?,
       name: json['Name'] as String?,
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       type: json['Type'] as String?,
     );
   }
@@ -2044,7 +2012,7 @@ class GetGroupsResult {
   factory GetGroupsResult.fromJson(Map<String, dynamic> json) {
     return GetGroupsResult(
       groups: (json['Groups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => GroupSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2069,7 +2037,7 @@ class GetInsightEventsResult {
   factory GetInsightEventsResult.fromJson(Map<String, dynamic> json) {
     return GetInsightEventsResult(
       insightEvents: (json['InsightEvents'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InsightEvent.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2117,7 +2085,7 @@ class GetInsightImpactGraphResult {
       serviceGraphEndTime: timeStampFromJson(json['ServiceGraphEndTime']),
       serviceGraphStartTime: timeStampFromJson(json['ServiceGraphStartTime']),
       services: (json['Services'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               InsightImpactGraphService.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2161,7 +2129,7 @@ class GetInsightSummariesResult {
   factory GetInsightSummariesResult.fromJson(Map<String, dynamic> json) {
     return GetInsightSummariesResult(
       insightSummaries: (json['InsightSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InsightSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -2185,7 +2153,7 @@ class GetSamplingRulesResult {
     return GetSamplingRulesResult(
       nextToken: json['NextToken'] as String?,
       samplingRuleRecords: (json['SamplingRuleRecords'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SamplingRuleRecord.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2210,7 +2178,7 @@ class GetSamplingStatisticSummariesResult {
     return GetSamplingStatisticSummariesResult(
       nextToken: json['NextToken'] as String?,
       samplingStatisticSummaries: (json['SamplingStatisticSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               SamplingStatisticSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2244,12 +2212,12 @@ class GetSamplingTargetsResult {
     return GetSamplingTargetsResult(
       lastRuleModification: timeStampFromJson(json['LastRuleModification']),
       samplingTargetDocuments: (json['SamplingTargetDocuments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => SamplingTargetDocument.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedStatistics: (json['UnprocessedStatistics'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => UnprocessedStatistics.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2289,7 +2257,7 @@ class GetServiceGraphResult {
       endTime: timeStampFromJson(json['EndTime']),
       nextToken: json['NextToken'] as String?,
       services: (json['Services'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Service.fromJson(e as Map<String, dynamic>))
           .toList(),
       startTime: timeStampFromJson(json['StartTime']),
@@ -2322,7 +2290,7 @@ class GetTimeSeriesServiceStatisticsResult {
       nextToken: json['NextToken'] as String?,
       timeSeriesServiceStatistics: (json['TimeSeriesServiceStatistics']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               TimeSeriesServiceStatistics.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -2346,7 +2314,7 @@ class GetTraceGraphResult {
     return GetTraceGraphResult(
       nextToken: json['NextToken'] as String?,
       services: (json['Services'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Service.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2382,7 +2350,7 @@ class GetTraceSummariesResult {
       approximateTime: timeStampFromJson(json['ApproximateTime']),
       nextToken: json['NextToken'] as String?,
       traceSummaries: (json['TraceSummaries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TraceSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       tracesProcessedCount: json['TracesProcessedCount'] as int?,
@@ -2599,8 +2567,8 @@ class Insight {
   factory Insight.fromJson(Map<String, dynamic> json) {
     return Insight(
       categories: (json['Categories'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toInsightCategory())
+          ?.nonNulls
+          .map((e) => InsightCategory.fromString((e as String)))
           .toList(),
       clientRequestImpactStatistics:
           json['ClientRequestImpactStatistics'] != null
@@ -2622,10 +2590,10 @@ class Insight {
                       as Map<String, dynamic>)
               : null,
       startTime: timeStampFromJson(json['StartTime']),
-      state: (json['State'] as String?)?.toInsightState(),
+      state: (json['State'] as String?)?.let(InsightState.fromString),
       summary: json['Summary'] as String?,
       topAnomalousServices: (json['TopAnomalousServices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AnomalousService.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2633,26 +2601,17 @@ class Insight {
 }
 
 enum InsightCategory {
-  fault,
-}
+  fault('FAULT'),
+  ;
 
-extension InsightCategoryValueExtension on InsightCategory {
-  String toValue() {
-    switch (this) {
-      case InsightCategory.fault:
-        return 'FAULT';
-    }
-  }
-}
+  final String value;
 
-extension InsightCategoryFromString on String {
-  InsightCategory toInsightCategory() {
-    switch (this) {
-      case 'FAULT':
-        return InsightCategory.fault;
-    }
-    throw Exception('$this is not known in enum InsightCategory');
-  }
+  const InsightCategory(this.value);
+
+  static InsightCategory fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InsightCategory'));
 }
 
 /// X-Ray reevaluates insights periodically until they are resolved, and records
@@ -2701,7 +2660,7 @@ class InsightEvent {
               : null,
       summary: json['Summary'] as String?,
       topAnomalousServices: (json['TopAnomalousServices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AnomalousService.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2780,15 +2739,13 @@ class InsightImpactGraphService {
     return InsightImpactGraphService(
       accountId: json['AccountId'] as String?,
       edges: (json['Edges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => InsightImpactGraphEdge.fromJson(e as Map<String, dynamic>))
           .toList(),
       name: json['Name'] as String?,
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       referenceId: json['ReferenceId'] as int?,
       type: json['Type'] as String?,
     );
@@ -2796,31 +2753,18 @@ class InsightImpactGraphService {
 }
 
 enum InsightState {
-  active,
-  closed,
-}
+  active('ACTIVE'),
+  closed('CLOSED'),
+  ;
 
-extension InsightStateValueExtension on InsightState {
-  String toValue() {
-    switch (this) {
-      case InsightState.active:
-        return 'ACTIVE';
-      case InsightState.closed:
-        return 'CLOSED';
-    }
-  }
-}
+  final String value;
 
-extension InsightStateFromString on String {
-  InsightState toInsightState() {
-    switch (this) {
-      case 'ACTIVE':
-        return InsightState.active;
-      case 'CLOSED':
-        return InsightState.closed;
-    }
-    throw Exception('$this is not known in enum InsightState');
-  }
+  const InsightState(this.value);
+
+  static InsightState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum InsightState'));
 }
 
 /// Information that describes an insight.
@@ -2884,8 +2828,8 @@ class InsightSummary {
   factory InsightSummary.fromJson(Map<String, dynamic> json) {
     return InsightSummary(
       categories: (json['Categories'] as List?)
-          ?.whereNotNull()
-          .map((e) => (e as String).toInsightCategory())
+          ?.nonNulls
+          .map((e) => InsightCategory.fromString((e as String)))
           .toList(),
       clientRequestImpactStatistics:
           json['ClientRequestImpactStatistics'] != null
@@ -2908,10 +2852,10 @@ class InsightSummary {
                       as Map<String, dynamic>)
               : null,
       startTime: timeStampFromJson(json['StartTime']),
-      state: (json['State'] as String?)?.toInsightState(),
+      state: (json['State'] as String?)?.let(InsightState.fromString),
       summary: json['Summary'] as String?,
       topAnomalousServices: (json['TopAnomalousServices'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => AnomalousService.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -2984,7 +2928,7 @@ class ListResourcePoliciesResult {
     return ListResourcePoliciesResult(
       nextToken: json['NextToken'] as String?,
       resourcePolicies: (json['ResourcePolicies'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourcePolicy.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3010,7 +2954,7 @@ class ListTagsForResourceResponse {
     return ListTagsForResourceResponse(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -3073,7 +3017,7 @@ class PutTraceSegmentsResult {
   factory PutTraceSegmentsResult.fromJson(Map<String, dynamic> json) {
     return PutTraceSegmentsResult(
       unprocessedTraceSegments: (json['UnprocessedTraceSegments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               UnprocessedTraceSegment.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3175,7 +3119,7 @@ class ResponseTimeRootCause {
     return ResponseTimeRootCause(
       clientImpacting: json['ClientImpacting'] as bool?,
       services: (json['Services'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResponseTimeRootCauseService.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3243,16 +3187,14 @@ class ResponseTimeRootCauseService {
     return ResponseTimeRootCauseService(
       accountId: json['AccountId'] as String?,
       entityPath: (json['EntityPath'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               ResponseTimeRootCauseEntity.fromJson(e as Map<String, dynamic>))
           .toList(),
       inferred: json['Inferred'] as bool?,
       name: json['Name'] as String?,
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       type: json['Type'] as String?,
     );
   }
@@ -3622,38 +3564,25 @@ class SamplingStrategy {
     final name = this.name;
     final value = this.value;
     return {
-      if (name != null) 'Name': name.toValue(),
+      if (name != null) 'Name': name.value,
       if (value != null) 'Value': value,
     };
   }
 }
 
 enum SamplingStrategyName {
-  partialScan,
-  fixedRate,
-}
+  partialScan('PartialScan'),
+  fixedRate('FixedRate'),
+  ;
 
-extension SamplingStrategyNameValueExtension on SamplingStrategyName {
-  String toValue() {
-    switch (this) {
-      case SamplingStrategyName.partialScan:
-        return 'PartialScan';
-      case SamplingStrategyName.fixedRate:
-        return 'FixedRate';
-    }
-  }
-}
+  final String value;
 
-extension SamplingStrategyNameFromString on String {
-  SamplingStrategyName toSamplingStrategyName() {
-    switch (this) {
-      case 'PartialScan':
-        return SamplingStrategyName.partialScan;
-      case 'FixedRate':
-        return SamplingStrategyName.fixedRate;
-    }
-    throw Exception('$this is not known in enum SamplingStrategyName');
-  }
+  const SamplingStrategyName(this.value);
+
+  static SamplingStrategyName fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum SamplingStrategyName'));
 }
 
 /// Temporary changes to a sampling rule configuration. To meet the global
@@ -3811,22 +3740,20 @@ class Service {
     return Service(
       accountId: json['AccountId'] as String?,
       durationHistogram: (json['DurationHistogram'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HistogramEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       edges: (json['Edges'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Edge.fromJson(e as Map<String, dynamic>))
           .toList(),
       endTime: timeStampFromJson(json['EndTime']),
       name: json['Name'] as String?,
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       referenceId: json['ReferenceId'] as int?,
       responseTimeHistogram: (json['ResponseTimeHistogram'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HistogramEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       root: json['Root'] as bool?,
@@ -3866,10 +3793,8 @@ class ServiceId {
     return ServiceId(
       accountId: json['AccountId'] as String?,
       name: json['Name'] as String?,
-      names: (json['Names'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      names:
+          (json['Names'] as List?)?.nonNulls.map((e) => e as String).toList(),
       type: json['Type'] as String?,
     );
   }
@@ -4033,31 +3958,19 @@ class TelemetryRecord {
 }
 
 enum TimeRangeType {
-  traceId,
-  event,
-}
+  traceId('TraceId'),
+  event('Event'),
+  service('Service'),
+  ;
 
-extension TimeRangeTypeValueExtension on TimeRangeType {
-  String toValue() {
-    switch (this) {
-      case TimeRangeType.traceId:
-        return 'TraceId';
-      case TimeRangeType.event:
-        return 'Event';
-    }
-  }
-}
+  final String value;
 
-extension TimeRangeTypeFromString on String {
-  TimeRangeType toTimeRangeType() {
-    switch (this) {
-      case 'TraceId':
-        return TimeRangeType.traceId;
-      case 'Event':
-        return TimeRangeType.event;
-    }
-    throw Exception('$this is not known in enum TimeRangeType');
-  }
+  const TimeRangeType(this.value);
+
+  static TimeRangeType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum TimeRangeType'));
 }
 
 /// A list of TimeSeriesStatistic structures.
@@ -4089,7 +4002,7 @@ class TimeSeriesServiceStatistics {
               json['EdgeSummaryStatistics'] as Map<String, dynamic>)
           : null,
       responseTimeHistogram: (json['ResponseTimeHistogram'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => HistogramEntry.fromJson(e as Map<String, dynamic>))
           .toList(),
       serviceForecastStatistics: json['ServiceForecastStatistics'] != null
@@ -4138,7 +4051,7 @@ class Trace {
       id: json['Id'] as String?,
       limitExceeded: json['LimitExceeded'] as bool?,
       segments: (json['Segments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Segment.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4216,6 +4129,9 @@ class TraceSummary {
   /// Service IDs from the trace's segment documents.
   final List<ServiceId>? serviceIds;
 
+  /// The start time of a trace, based on the earliest trace segment start time.
+  final DateTime? startTime;
+
   /// Users from the trace's segment documents.
   final List<TraceUser>? users;
 
@@ -4239,6 +4155,7 @@ class TraceSummary {
     this.responseTimeRootCauses,
     this.revision,
     this.serviceIds,
+    this.startTime,
     this.users,
   });
 
@@ -4248,12 +4165,12 @@ class TraceSummary {
           MapEntry(
               k,
               (e as List)
-                  .whereNotNull()
+                  .nonNulls
                   .map((e) =>
                       ValueWithServiceIds.fromJson(e as Map<String, dynamic>))
                   .toList())),
       availabilityZones: (json['AvailabilityZones'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map(
               (e) => AvailabilityZoneDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -4262,11 +4179,11 @@ class TraceSummary {
           ? ServiceId.fromJson(json['EntryPoint'] as Map<String, dynamic>)
           : null,
       errorRootCauses: (json['ErrorRootCauses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ErrorRootCause.fromJson(e as Map<String, dynamic>))
           .toList(),
       faultRootCauses: (json['FaultRootCauses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => FaultRootCause.fromJson(e as Map<String, dynamic>))
           .toList(),
       hasError: json['HasError'] as bool?,
@@ -4277,27 +4194,28 @@ class TraceSummary {
           : null,
       id: json['Id'] as String?,
       instanceIds: (json['InstanceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => InstanceIdDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       isPartial: json['IsPartial'] as bool?,
       matchedEventTime: timeStampFromJson(json['MatchedEventTime']),
       resourceARNs: (json['ResourceARNs'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResourceARNDetail.fromJson(e as Map<String, dynamic>))
           .toList(),
       responseTime: json['ResponseTime'] as double?,
       responseTimeRootCauses: (json['ResponseTimeRootCauses'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ResponseTimeRootCause.fromJson(e as Map<String, dynamic>))
           .toList(),
       revision: json['Revision'] as int?,
       serviceIds: (json['ServiceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceId.fromJson(e as Map<String, dynamic>))
           .toList(),
+      startTime: timeStampFromJson(json['StartTime']),
       users: (json['Users'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TraceUser.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -4320,7 +4238,7 @@ class TraceUser {
   factory TraceUser.fromJson(Map<String, dynamic> json) {
     return TraceUser(
       serviceIds: (json['ServiceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceId.fromJson(e as Map<String, dynamic>))
           .toList(),
       userName: json['UserName'] as String?,
@@ -4447,7 +4365,7 @@ class ValueWithServiceIds {
               json['AnnotationValue'] as Map<String, dynamic>)
           : null,
       serviceIds: (json['ServiceIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ServiceId.fromJson(e as Map<String, dynamic>))
           .toList(),
     );

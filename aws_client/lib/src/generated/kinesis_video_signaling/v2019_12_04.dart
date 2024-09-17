@@ -100,7 +100,7 @@ class KinesisVideoSignalingChannels {
     final $payload = <String, dynamic>{
       'ChannelARN': channelARN,
       if (clientId != null) 'ClientId': clientId,
-      if (service != null) 'Service': service.toValue(),
+      if (service != null) 'Service': service.value,
       if (username != null) 'Username': username,
     };
     final response = await _protocol.send(
@@ -165,7 +165,7 @@ class GetIceServerConfigResponse {
   factory GetIceServerConfigResponse.fromJson(Map<String, dynamic> json) {
     return GetIceServerConfigResponse(
       iceServerList: (json['IceServerList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => IceServer.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -208,10 +208,7 @@ class IceServer {
     return IceServer(
       password: json['Password'] as String?,
       ttl: json['Ttl'] as int?,
-      uris: (json['Uris'] as List?)
-          ?.whereNotNull()
-          .map((e) => e as String)
-          .toList(),
+      uris: (json['Uris'] as List?)?.nonNulls.map((e) => e as String).toList(),
       username: json['Username'] as String?,
     );
   }
@@ -253,26 +250,16 @@ class SendAlexaOfferToMasterResponse {
 }
 
 enum Service {
-  turn,
-}
+  turn('TURN'),
+  ;
 
-extension ServiceValueExtension on Service {
-  String toValue() {
-    switch (this) {
-      case Service.turn:
-        return 'TURN';
-    }
-  }
-}
+  final String value;
 
-extension ServiceFromString on String {
-  Service toService() {
-    switch (this) {
-      case 'TURN':
-        return Service.turn;
-    }
-    throw Exception('$this is not known in enum Service');
-  }
+  const Service(this.value);
+
+  static Service fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception('$value is not known in enum Service'));
 }
 
 class ClientLimitExceededException extends _s.GenericAwsException {

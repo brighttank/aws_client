@@ -34,10 +34,6 @@ export '../../shared/shared.dart' show AwsClientCredentials;
 /// support the API. For more information and to download the driver, see <a
 /// href="https://docs.aws.amazon.com/athena/latest/ug/connect-with-jdbc.html">Accessing
 /// Amazon Athena with JDBC</a>.
-///
-/// For code samples using the Amazon Web Services SDK for Java, see <a
-/// href="https://docs.aws.amazon.com/athena/latest/ug/code-samples.html">Examples
-/// and Code Samples</a> in the <i>Amazon Athena User Guide</i>.
 class Athena {
   final _s.JsonProtocol _protocol;
   Athena({
@@ -175,7 +171,11 @@ class Athena {
     return BatchGetQueryExecutionOutput.fromJson(jsonResponse.body);
   }
 
-  /// Cancels the capacity reservation with the specified name.
+  /// Cancels the capacity reservation with the specified name. Cancelled
+  /// reservations remain in your account and will be deleted 45 days after
+  /// cancellation. During the 45 days, you cannot re-purpose or reuse a
+  /// reservation that has been cancelled, but you can refer to its tags and
+  /// view it for historical reference.
   ///
   /// May throw [InvalidRequestException].
   /// May throw [InternalServerException].
@@ -313,14 +313,6 @@ class Athena {
   /// <code>AwsDataCatalog</code> that already exists in your account, of which
   /// you can have only one and cannot modify.
   /// </li>
-  /// <li>
-  /// Queries that specify a Glue Data Catalog other than the default
-  /// <code>AwsDataCatalog</code> must be run on Athena engine version 2.
-  /// </li>
-  /// <li>
-  /// In Regions where Athena engine version 2 is not available, creating new
-  /// Glue data catalogs results in an <code>INVALID_INPUT</code> error.
-  /// </li>
   /// </ul> </li>
   /// </ul>
   ///
@@ -345,7 +337,7 @@ class Athena {
       headers: headers,
       payload: {
         'Name': name,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (description != null) 'Description': description,
         if (parameters != null) 'Parameters': parameters,
         if (tags != null) 'Tags': tags,
@@ -355,10 +347,6 @@ class Athena {
 
   /// Creates a named query in the specified workgroup. Requires that you have
   /// access to the workgroup.
-  ///
-  /// For code samples using the Amazon Web Services SDK for Java, see <a
-  /// href="http://docs.aws.amazon.com/athena/latest/ug/code-samples.html">Examples
-  /// and Code Samples</a> in the <i>Amazon Athena User Guide</i>.
   ///
   /// May throw [InternalServerException].
   /// May throw [InvalidRequestException].
@@ -600,6 +588,37 @@ class Athena {
     );
   }
 
+  /// Deletes a cancelled capacity reservation. A reservation must be cancelled
+  /// before it can be deleted. A deleted reservation is immediately removed
+  /// from your account and can no longer be referenced, including by its ARN. A
+  /// deleted reservation cannot be called by
+  /// <code>GetCapacityReservation</code>, and deleted reservations do not
+  /// appear in the output of <code>ListCapacityReservations</code>.
+  ///
+  /// May throw [InvalidRequestException].
+  /// May throw [InternalServerException].
+  ///
+  /// Parameter [name] :
+  /// The name of the capacity reservation to delete.
+  Future<void> deleteCapacityReservation({
+    required String name,
+  }) async {
+    final headers = <String, String>{
+      'Content-Type': 'application/x-amz-json-1.1',
+      'X-Amz-Target': 'AmazonAthena.DeleteCapacityReservation'
+    };
+    await _protocol.send(
+      method: 'POST',
+      requestUri: '/',
+      exceptionFnMap: _exceptionFns,
+      // TODO queryParams
+      headers: headers,
+      payload: {
+        'Name': name,
+      },
+    );
+  }
+
   /// Deletes a data catalog.
   ///
   /// May throw [InternalServerException].
@@ -628,10 +647,6 @@ class Athena {
 
   /// Deletes the named query if you have access to the workgroup in which the
   /// query was saved.
-  ///
-  /// For code samples using the Amazon Web Services SDK for Java, see <a
-  /// href="http://docs.aws.amazon.com/athena/latest/ug/code-samples.html">Examples
-  /// and Code Samples</a> in the <i>Amazon Athena User Guide</i>.
   ///
   /// May throw [InternalServerException].
   /// May throw [InvalidRequestException].
@@ -934,8 +949,13 @@ class Athena {
   ///
   /// Parameter [name] :
   /// The name of the data catalog to return.
+  ///
+  /// Parameter [workGroup] :
+  /// The name of the workgroup. Required if making an IAM Identity Center
+  /// request.
   Future<GetDataCatalogOutput> getDataCatalog({
     required String name,
+    String? workGroup,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -949,6 +969,7 @@ class Athena {
       headers: headers,
       payload: {
         'Name': name,
+        if (workGroup != null) 'WorkGroup': workGroup,
       },
     );
 
@@ -966,9 +987,14 @@ class Athena {
   ///
   /// Parameter [databaseName] :
   /// The name of the database to return.
+  ///
+  /// Parameter [workGroup] :
+  /// The name of the workgroup for which the metadata is being fetched.
+  /// Required if requesting an IAM Identity Center enabled Glue Data Catalog.
   Future<GetDatabaseOutput> getDatabase({
     required String catalogName,
     required String databaseName,
+    String? workGroup,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -983,6 +1009,7 @@ class Athena {
       payload: {
         'CatalogName': catalogName,
         'DatabaseName': databaseName,
+        if (workGroup != null) 'WorkGroup': workGroup,
       },
     );
 
@@ -1179,10 +1206,13 @@ class Athena {
 
   /// Returns query execution runtime statistics related to a single execution
   /// of a query if you have access to the workgroup in which the query ran.
-  /// Query execution runtime statistics are returned only when
-  /// <a>QueryExecutionStatus$State</a> is in a SUCCEEDED or FAILED state.
-  /// Stage-level input and output row count and data size statistics are not
-  /// shown when a query has row-level filters defined in Lake Formation.
+  /// Statistics from the <code>Timeline</code> section of the response object
+  /// are available as soon as <a>QueryExecutionStatus$State</a> is in a
+  /// SUCCEEDED or FAILED state. The remaining non-timeline statistics in the
+  /// response (like stage-level input and output row count and data size) are
+  /// updated asynchronously and may not be available immediately after a query
+  /// completes. The non-timeline statistics are also not included when a query
+  /// has row-level filters defined in Lake Formation.
   ///
   /// May throw [InternalServerException].
   /// May throw [InvalidRequestException].
@@ -1284,10 +1314,15 @@ class Athena {
   ///
   /// Parameter [tableName] :
   /// The name of the table for which metadata is returned.
+  ///
+  /// Parameter [workGroup] :
+  /// The name of the workgroup for which the metadata is being fetched.
+  /// Required if requesting an IAM Identity Center enabled Glue Data Catalog.
   Future<GetTableMetadataOutput> getTableMetadata({
     required String catalogName,
     required String databaseName,
     required String tableName,
+    String? workGroup,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -1303,6 +1338,7 @@ class Athena {
         'CatalogName': catalogName,
         'DatabaseName': databaseName,
         'TableName': tableName,
+        if (workGroup != null) 'WorkGroup': workGroup,
       },
     );
 
@@ -1337,8 +1373,11 @@ class Athena {
     return GetWorkGroupOutput.fromJson(jsonResponse.body);
   }
 
-  /// Imports a single <code>ipynb</code> file to a Spark enabled workgroup. The
-  /// maximum file size that can be imported is 10 megabytes. If an
+  /// Imports a single <code>ipynb</code> file to a Spark enabled workgroup. To
+  /// import the notebook, the request must specify a value for either
+  /// <code>Payload</code> or <code>NoteBookS3LocationUri</code>. If neither is
+  /// specified or both are specified, an <code>InvalidRequestException</code>
+  /// occurs. The maximum file size that can be imported is 10 megabytes. If an
   /// <code>ipynb</code> file with the same name already exists in the
   /// workgroup, throws an error.
   ///
@@ -1348,9 +1387,6 @@ class Athena {
   ///
   /// Parameter [name] :
   /// The name of the notebook to import.
-  ///
-  /// Parameter [payload] :
-  /// The notebook content to be imported.
   ///
   /// Parameter [type] :
   /// The notebook content type. Currently, the only valid type is
@@ -1368,12 +1404,21 @@ class Athena {
   /// you. If you are not using the Amazon Web Services SDK or the Amazon Web
   /// Services CLI, you must provide this token or the action will fail.
   /// </important>
+  ///
+  /// Parameter [notebookS3LocationUri] :
+  /// A URI that specifies the Amazon S3 location of a notebook file in
+  /// <code>ipynb</code> format.
+  ///
+  /// Parameter [payload] :
+  /// The notebook content to be imported. The payload must be in
+  /// <code>ipynb</code> format.
   Future<ImportNotebookOutput> importNotebook({
     required String name,
-    required String payload,
     required NotebookType type,
     required String workGroup,
     String? clientRequestToken,
+    String? notebookS3LocationUri,
+    String? payload,
   }) async {
     final headers = <String, String>{
       'Content-Type': 'application/x-amz-json-1.1',
@@ -1387,11 +1432,13 @@ class Athena {
       headers: headers,
       payload: {
         'Name': name,
-        'Payload': payload,
-        'Type': type.toValue(),
+        'Type': type.value,
         'WorkGroup': workGroup,
         if (clientRequestToken != null)
           'ClientRequestToken': clientRequestToken,
+        if (notebookS3LocationUri != null)
+          'NotebookS3LocationUri': notebookS3LocationUri,
+        if (payload != null) 'Payload': payload,
       },
     );
 
@@ -1509,7 +1556,7 @@ class Athena {
         'SessionId': sessionId,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (stateFilter != null) 'StateFilter': stateFilter.toValue(),
+        if (stateFilter != null) 'StateFilter': stateFilter.value,
       },
     );
 
@@ -1573,9 +1620,14 @@ class Athena {
   /// pagination if a previous request was truncated. To obtain the next set of
   /// pages, pass in the NextToken from the response object of the previous page
   /// call.
+  ///
+  /// Parameter [workGroup] :
+  /// The name of the workgroup. Required if making an IAM Identity Center
+  /// request.
   Future<ListDataCatalogsOutput> listDataCatalogs({
     int? maxResults,
     String? nextToken,
+    String? workGroup,
   }) async {
     _s.validateNumRange(
       'maxResults',
@@ -1596,6 +1648,7 @@ class Athena {
       payload: {
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
+        if (workGroup != null) 'WorkGroup': workGroup,
       },
     );
 
@@ -1619,10 +1672,15 @@ class Athena {
   /// pagination if a previous request was truncated. To obtain the next set of
   /// pages, pass in the <code>NextToken</code> from the response object of the
   /// previous page call.
+  ///
+  /// Parameter [workGroup] :
+  /// The name of the workgroup for which the metadata is being fetched.
+  /// Required if requesting an IAM Identity Center enabled Glue Data Catalog.
   Future<ListDatabasesOutput> listDatabases({
     required String catalogName,
     int? maxResults,
     String? nextToken,
+    String? workGroup,
   }) async {
     _s.validateNumRange(
       'maxResults',
@@ -1644,6 +1702,7 @@ class Athena {
         'CatalogName': catalogName,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
+        if (workGroup != null) 'WorkGroup': workGroup,
       },
     );
 
@@ -1755,7 +1814,7 @@ class Athena {
       payload: {
         'SessionId': sessionId,
         if (executorStateFilter != null)
-          'ExecutorStateFilter': executorStateFilter.toValue(),
+          'ExecutorStateFilter': executorStateFilter.value,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
       },
@@ -1768,10 +1827,6 @@ class Athena {
   /// specified workgroup. Requires that you have access to the specified
   /// workgroup. If a workgroup is not specified, lists the saved queries for
   /// the primary workgroup.
-  ///
-  /// For code samples using the Amazon Web Services SDK for Java, see <a
-  /// href="http://docs.aws.amazon.com/athena/latest/ug/code-samples.html">Examples
-  /// and Code Samples</a> in the <i>Amazon Athena User Guide</i>.
   ///
   /// May throw [InternalServerException].
   /// May throw [InvalidRequestException].
@@ -1971,13 +2026,10 @@ class Athena {
   }
 
   /// Provides a list of available query execution IDs for the queries in the
-  /// specified workgroup. If a workgroup is not specified, returns a list of
-  /// query execution IDs for the primary workgroup. Requires you to have access
-  /// to the workgroup in which the queries ran.
-  ///
-  /// For code samples using the Amazon Web Services SDK for Java, see <a
-  /// href="http://docs.aws.amazon.com/athena/latest/ug/code-samples.html">Examples
-  /// and Code Samples</a> in the <i>Amazon Athena User Guide</i>.
+  /// specified workgroup. Athena keeps a query history for 45 days. If a
+  /// workgroup is not specified, returns a list of query execution IDs for the
+  /// primary workgroup. Requires you to have access to the workgroup in which
+  /// the queries ran.
   ///
   /// May throw [InternalServerException].
   /// May throw [InvalidRequestException].
@@ -2096,7 +2148,7 @@ class Athena {
         'WorkGroup': workGroup,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
-        if (stateFilter != null) 'StateFilter': stateFilter.toValue(),
+        if (stateFilter != null) 'StateFilter': stateFilter.value,
       },
     );
 
@@ -2127,12 +2179,17 @@ class Athena {
   /// pagination if a previous request was truncated. To obtain the next set of
   /// pages, pass in the NextToken from the response object of the previous page
   /// call.
+  ///
+  /// Parameter [workGroup] :
+  /// The name of the workgroup for which the metadata is being fetched.
+  /// Required if requesting an IAM Identity Center enabled Glue Data Catalog.
   Future<ListTableMetadataOutput> listTableMetadata({
     required String catalogName,
     required String databaseName,
     String? expression,
     int? maxResults,
     String? nextToken,
+    String? workGroup,
   }) async {
     _s.validateNumRange(
       'maxResults',
@@ -2156,6 +2213,7 @@ class Athena {
         if (expression != null) 'Expression': expression,
         if (maxResults != null) 'MaxResults': maxResults,
         if (nextToken != null) 'NextToken': nextToken,
+        if (workGroup != null) 'WorkGroup': workGroup,
       },
     );
 
@@ -2289,6 +2347,13 @@ class Athena {
 
   /// Submits calculations for execution within a session. You can supply the
   /// code to run as an inline code block within the request.
+  /// <note>
+  /// The request syntax requires the
+  /// <a>StartCalculationExecutionRequest$CodeBlock</a> parameter or the
+  /// <a>CalculationConfiguration$CodeBlock</a> parameter, but not both. Because
+  /// <a>CalculationConfiguration$CodeBlock</a> is deprecated, use the
+  /// <a>StartCalculationExecutionRequest$CodeBlock</a> parameter instead.
+  /// </note>
   ///
   /// May throw [InternalServerException].
   /// May throw [InvalidRequestException].
@@ -2314,7 +2379,8 @@ class Athena {
   /// </important>
   ///
   /// Parameter [codeBlock] :
-  /// A string that contains the code of the calculation.
+  /// A string that contains the code of the calculation. Use this parameter
+  /// instead of <a>CalculationConfiguration$CodeBlock</a>, which is deprecated.
   ///
   /// Parameter [description] :
   /// A description of the calculation.
@@ -2368,8 +2434,12 @@ class Athena {
   /// A unique case-sensitive string used to ensure the request to create the
   /// query is idempotent (executes only once). If another
   /// <code>StartQueryExecution</code> request is received, the same response is
-  /// returned and another query is not created. If a parameter has changed, for
-  /// example, the <code>QueryString</code>, an error is returned.
+  /// returned and another query is not created. An error is returned if a
+  /// parameter, such as <code>QueryString</code>, has changed. A call to
+  /// <code>StartQueryExecution</code> that uses a previous client request token
+  /// returns the same <code>QueryExecutionId</code> even if the requester
+  /// doesn't have permission on the tables specified in
+  /// <code>QueryString</code>.
   /// <important>
   /// This token is listed as not required because Amazon Web Services SDKs (for
   /// example the Amazon Web Services SDK for Java) auto-generate the token for
@@ -2558,10 +2628,6 @@ class Athena {
 
   /// Stops a query execution. Requires you to have access to the workgroup in
   /// which the query ran.
-  ///
-  /// For code samples using the Amazon Web Services SDK for Java, see <a
-  /// href="http://docs.aws.amazon.com/athena/latest/ug/code-samples.html">Examples
-  /// and Code Samples</a> in the <i>Amazon Athena User Guide</i>.
   ///
   /// May throw [InternalServerException].
   /// May throw [InvalidRequestException].
@@ -2811,7 +2877,7 @@ class Athena {
       headers: headers,
       payload: {
         'Name': name,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (description != null) 'Description': description,
         if (parameters != null) 'Parameters': parameters,
       },
@@ -2909,7 +2975,7 @@ class Athena {
       payload: {
         'NotebookId': notebookId,
         'Payload': payload,
-        'Type': type.toValue(),
+        'Type': type.value,
         if (clientRequestToken != null)
           'ClientRequestToken': clientRequestToken,
         if (sessionId != null) 'SessionId': sessionId,
@@ -3042,7 +3108,7 @@ class Athena {
         if (configurationUpdates != null)
           'ConfigurationUpdates': configurationUpdates,
         if (description != null) 'Description': description,
-        if (state != null) 'State': state.toValue(),
+        if (state != null) 'State': state.value,
       },
     );
   }
@@ -3071,14 +3137,14 @@ class AclConfiguration {
 
   factory AclConfiguration.fromJson(Map<String, dynamic> json) {
     return AclConfiguration(
-      s3AclOption: (json['S3AclOption'] as String).toS3AclOption(),
+      s3AclOption: S3AclOption.fromString((json['S3AclOption'] as String)),
     );
   }
 
   Map<String, dynamic> toJson() {
     final s3AclOption = this.s3AclOption;
     return {
-      'S3AclOption': s3AclOption.toValue(),
+      'S3AclOption': s3AclOption.value,
     };
   }
 }
@@ -3101,7 +3167,7 @@ class ApplicationDPUSizes {
     return ApplicationDPUSizes(
       applicationRuntimeId: json['ApplicationRuntimeId'] as String?,
       supportedDPUSizes: (json['SupportedDPUSizes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as int)
           .toList(),
     );
@@ -3177,6 +3243,20 @@ class AthenaError {
   }
 }
 
+enum AuthenticationType {
+  directoryIdentity('DIRECTORY_IDENTITY'),
+  ;
+
+  final String value;
+
+  const AuthenticationType(this.value);
+
+  static AuthenticationType fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum AuthenticationType'));
+}
+
 class BatchGetNamedQueryOutput {
   /// Information about the named query IDs submitted.
   final List<NamedQuery>? namedQueries;
@@ -3192,11 +3272,11 @@ class BatchGetNamedQueryOutput {
   factory BatchGetNamedQueryOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetNamedQueryOutput(
       namedQueries: (json['NamedQueries'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NamedQuery.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedNamedQueryIds: (json['UnprocessedNamedQueryIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               UnprocessedNamedQueryId.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3231,12 +3311,12 @@ class BatchGetPreparedStatementOutput {
   factory BatchGetPreparedStatementOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetPreparedStatementOutput(
       preparedStatements: (json['PreparedStatements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => PreparedStatement.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedPreparedStatementNames:
           (json['UnprocessedPreparedStatementNames'] as List?)
-              ?.whereNotNull()
+              ?.nonNulls
               .map((e) => UnprocessedPreparedStatementName.fromJson(
                   e as Map<String, dynamic>))
               .toList(),
@@ -3270,12 +3350,12 @@ class BatchGetQueryExecutionOutput {
   factory BatchGetQueryExecutionOutput.fromJson(Map<String, dynamic> json) {
     return BatchGetQueryExecutionOutput(
       queryExecutions: (json['QueryExecutions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => QueryExecution.fromJson(e as Map<String, dynamic>))
           .toList(),
       unprocessedQueryExecutionIds: (json['UnprocessedQueryExecutionIds']
               as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               UnprocessedQueryExecutionId.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -3311,61 +3391,24 @@ class CalculationConfiguration {
 }
 
 enum CalculationExecutionState {
-  creating,
-  created,
-  queued,
-  running,
-  canceling,
-  canceled,
-  completed,
-  failed,
-}
+  creating('CREATING'),
+  created('CREATED'),
+  queued('QUEUED'),
+  running('RUNNING'),
+  canceling('CANCELING'),
+  canceled('CANCELED'),
+  completed('COMPLETED'),
+  failed('FAILED'),
+  ;
 
-extension CalculationExecutionStateValueExtension on CalculationExecutionState {
-  String toValue() {
-    switch (this) {
-      case CalculationExecutionState.creating:
-        return 'CREATING';
-      case CalculationExecutionState.created:
-        return 'CREATED';
-      case CalculationExecutionState.queued:
-        return 'QUEUED';
-      case CalculationExecutionState.running:
-        return 'RUNNING';
-      case CalculationExecutionState.canceling:
-        return 'CANCELING';
-      case CalculationExecutionState.canceled:
-        return 'CANCELED';
-      case CalculationExecutionState.completed:
-        return 'COMPLETED';
-      case CalculationExecutionState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension CalculationExecutionStateFromString on String {
-  CalculationExecutionState toCalculationExecutionState() {
-    switch (this) {
-      case 'CREATING':
-        return CalculationExecutionState.creating;
-      case 'CREATED':
-        return CalculationExecutionState.created;
-      case 'QUEUED':
-        return CalculationExecutionState.queued;
-      case 'RUNNING':
-        return CalculationExecutionState.running;
-      case 'CANCELING':
-        return CalculationExecutionState.canceling;
-      case 'CANCELED':
-        return CalculationExecutionState.canceled;
-      case 'COMPLETED':
-        return CalculationExecutionState.completed;
-      case 'FAILED':
-        return CalculationExecutionState.failed;
-    }
-    throw Exception('$this is not known in enum CalculationExecutionState');
-  }
+  const CalculationExecutionState(this.value);
+
+  static CalculationExecutionState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CalculationExecutionState'));
 }
 
 /// Contains information about an application-specific calculation result.
@@ -3487,7 +3530,8 @@ class CalculationStatus {
   factory CalculationStatus.fromJson(Map<String, dynamic> json) {
     return CalculationStatus(
       completionDateTime: timeStampFromJson(json['CompletionDateTime']),
-      state: (json['State'] as String?)?.toCalculationExecutionState(),
+      state:
+          (json['State'] as String?)?.let(CalculationExecutionState.fromString),
       stateChangeReason: json['StateChangeReason'] as String?,
       submissionDateTime: timeStampFromJson(json['SubmissionDateTime']),
     );
@@ -3501,7 +3545,7 @@ class CalculationStatus {
     return {
       if (completionDateTime != null)
         'CompletionDateTime': unixTimestampToJson(completionDateTime),
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (stateChangeReason != null) 'StateChangeReason': stateChangeReason,
       if (submissionDateTime != null)
         'SubmissionDateTime': unixTimestampToJson(submissionDateTime),
@@ -3586,7 +3630,7 @@ class CapacityAllocation {
   factory CapacityAllocation.fromJson(Map<String, dynamic> json) {
     return CapacityAllocation(
       requestTime: nonNullableTimeStampFromJson(json['RequestTime'] as Object),
-      status: (json['Status'] as String).toCapacityAllocationStatus(),
+      status: CapacityAllocationStatus.fromString((json['Status'] as String)),
       requestCompletionTime: timeStampFromJson(json['RequestCompletionTime']),
       statusMessage: json['StatusMessage'] as String?,
     );
@@ -3599,7 +3643,7 @@ class CapacityAllocation {
     final statusMessage = this.statusMessage;
     return {
       'RequestTime': unixTimestampToJson(requestTime),
-      'Status': status.toValue(),
+      'Status': status.value,
       if (requestCompletionTime != null)
         'RequestCompletionTime': unixTimestampToJson(requestCompletionTime),
       if (statusMessage != null) 'StatusMessage': statusMessage,
@@ -3608,36 +3652,19 @@ class CapacityAllocation {
 }
 
 enum CapacityAllocationStatus {
-  pending,
-  succeeded,
-  failed,
-}
+  pending('PENDING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  ;
 
-extension CapacityAllocationStatusValueExtension on CapacityAllocationStatus {
-  String toValue() {
-    switch (this) {
-      case CapacityAllocationStatus.pending:
-        return 'PENDING';
-      case CapacityAllocationStatus.succeeded:
-        return 'SUCCEEDED';
-      case CapacityAllocationStatus.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension CapacityAllocationStatusFromString on String {
-  CapacityAllocationStatus toCapacityAllocationStatus() {
-    switch (this) {
-      case 'PENDING':
-        return CapacityAllocationStatus.pending;
-      case 'SUCCEEDED':
-        return CapacityAllocationStatus.succeeded;
-      case 'FAILED':
-        return CapacityAllocationStatus.failed;
-    }
-    throw Exception('$this is not known in enum CapacityAllocationStatus');
-  }
+  const CapacityAllocationStatus(this.value);
+
+  static CapacityAllocationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CapacityAllocationStatus'));
 }
 
 /// A mapping between one or more workgroups and a capacity reservation.
@@ -3652,7 +3679,7 @@ class CapacityAssignment {
   factory CapacityAssignment.fromJson(Map<String, dynamic> json) {
     return CapacityAssignment(
       workGroupNames: (json['WorkGroupNames'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -3688,7 +3715,7 @@ class CapacityAssignmentConfiguration {
   factory CapacityAssignmentConfiguration.fromJson(Map<String, dynamic> json) {
     return CapacityAssignmentConfiguration(
       capacityAssignments: (json['CapacityAssignments'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CapacityAssignment.fromJson(e as Map<String, dynamic>))
           .toList(),
       capacityReservationName: json['CapacityReservationName'] as String?,
@@ -3746,7 +3773,7 @@ class CapacityReservation {
       creationTime:
           nonNullableTimeStampFromJson(json['CreationTime'] as Object),
       name: json['Name'] as String,
-      status: (json['Status'] as String).toCapacityReservationStatus(),
+      status: CapacityReservationStatus.fromString((json['Status'] as String)),
       targetDpus: json['TargetDpus'] as int,
       lastAllocation: json['LastAllocation'] != null
           ? CapacityAllocation.fromJson(
@@ -3769,7 +3796,7 @@ class CapacityReservation {
       'AllocatedDpus': allocatedDpus,
       'CreationTime': unixTimestampToJson(creationTime),
       'Name': name,
-      'Status': status.toValue(),
+      'Status': status.value,
       'TargetDpus': targetDpus,
       if (lastAllocation != null) 'LastAllocation': lastAllocation,
       if (lastSuccessfulAllocationTime != null)
@@ -3780,51 +3807,22 @@ class CapacityReservation {
 }
 
 enum CapacityReservationStatus {
-  pending,
-  active,
-  cancelling,
-  cancelled,
-  failed,
-  updatePending,
-}
+  pending('PENDING'),
+  active('ACTIVE'),
+  cancelling('CANCELLING'),
+  cancelled('CANCELLED'),
+  failed('FAILED'),
+  updatePending('UPDATE_PENDING'),
+  ;
 
-extension CapacityReservationStatusValueExtension on CapacityReservationStatus {
-  String toValue() {
-    switch (this) {
-      case CapacityReservationStatus.pending:
-        return 'PENDING';
-      case CapacityReservationStatus.active:
-        return 'ACTIVE';
-      case CapacityReservationStatus.cancelling:
-        return 'CANCELLING';
-      case CapacityReservationStatus.cancelled:
-        return 'CANCELLED';
-      case CapacityReservationStatus.failed:
-        return 'FAILED';
-      case CapacityReservationStatus.updatePending:
-        return 'UPDATE_PENDING';
-    }
-  }
-}
+  final String value;
 
-extension CapacityReservationStatusFromString on String {
-  CapacityReservationStatus toCapacityReservationStatus() {
-    switch (this) {
-      case 'PENDING':
-        return CapacityReservationStatus.pending;
-      case 'ACTIVE':
-        return CapacityReservationStatus.active;
-      case 'CANCELLING':
-        return CapacityReservationStatus.cancelling;
-      case 'CANCELLED':
-        return CapacityReservationStatus.cancelled;
-      case 'FAILED':
-        return CapacityReservationStatus.failed;
-      case 'UPDATE_PENDING':
-        return CapacityReservationStatus.updatePending;
-    }
-    throw Exception('$this is not known in enum CapacityReservationStatus');
-  }
+  const CapacityReservationStatus(this.value);
+
+  static CapacityReservationStatus fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () => throw Exception(
+              '$value is not known in enum CapacityReservationStatus'));
 }
 
 /// Contains metadata for a column in a table.
@@ -3881,7 +3879,7 @@ class ColumnInfo {
   /// A column label.
   final String? label;
 
-  /// Indicates the column's nullable status.
+  /// Unsupported constraint. This value always shows as <code>UNKNOWN</code>.
   final ColumnNullable? nullable;
 
   /// For <code>DECIMAL</code> data types, specifies the total number of digits,
@@ -3918,7 +3916,7 @@ class ColumnInfo {
       caseSensitive: json['CaseSensitive'] as bool?,
       catalogName: json['CatalogName'] as String?,
       label: json['Label'] as String?,
-      nullable: (json['Nullable'] as String?)?.toColumnNullable(),
+      nullable: (json['Nullable'] as String?)?.let(ColumnNullable.fromString),
       precision: json['Precision'] as int?,
       scale: json['Scale'] as int?,
       schemaName: json['SchemaName'] as String?,
@@ -3943,7 +3941,7 @@ class ColumnInfo {
       if (caseSensitive != null) 'CaseSensitive': caseSensitive,
       if (catalogName != null) 'CatalogName': catalogName,
       if (label != null) 'Label': label,
-      if (nullable != null) 'Nullable': nullable.toValue(),
+      if (nullable != null) 'Nullable': nullable.value,
       if (precision != null) 'Precision': precision,
       if (scale != null) 'Scale': scale,
       if (schemaName != null) 'SchemaName': schemaName,
@@ -3953,36 +3951,19 @@ class ColumnInfo {
 }
 
 enum ColumnNullable {
-  notNull,
-  nullable,
-  unknown,
-}
+  notNull('NOT_NULL'),
+  nullable('NULLABLE'),
+  unknown('UNKNOWN'),
+  ;
 
-extension ColumnNullableValueExtension on ColumnNullable {
-  String toValue() {
-    switch (this) {
-      case ColumnNullable.notNull:
-        return 'NOT_NULL';
-      case ColumnNullable.nullable:
-        return 'NULLABLE';
-      case ColumnNullable.unknown:
-        return 'UNKNOWN';
-    }
-  }
-}
+  final String value;
 
-extension ColumnNullableFromString on String {
-  ColumnNullable toColumnNullable() {
-    switch (this) {
-      case 'NOT_NULL':
-        return ColumnNullable.notNull;
-      case 'NULLABLE':
-        return ColumnNullable.nullable;
-      case 'UNKNOWN':
-        return ColumnNullable.unknown;
-    }
-    throw Exception('$this is not known in enum ColumnNullable');
-  }
+  const ColumnNullable(this.value);
+
+  static ColumnNullable fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ColumnNullable'));
 }
 
 class CreateCapacityReservationOutput {
@@ -4115,10 +4096,12 @@ class CreateWorkGroupOutput {
   }
 }
 
-/// Specifies the KMS key that is used to encrypt the user's data stores in
-/// Athena.
+/// Specifies the customer managed KMS key that is used to encrypt the user's
+/// data stores in Athena. When an Amazon Web Services managed key is used, this
+/// value is null. This setting does not apply to Athena SQL workgroups.
 class CustomerContentEncryptionConfiguration {
-  /// The KMS key that is used to encrypt the user's data stores in Athena.
+  /// The customer managed KMS key that is used to encrypt the user's data stores
+  /// in Athena.
   final String kmsKey;
 
   CustomerContentEncryptionConfiguration({
@@ -4206,10 +4189,6 @@ class DataCatalog {
   /// <code>AwsDataCatalog</code> that already exists in your account, of which
   /// you can have only one and cannot modify.
   /// </li>
-  /// <li>
-  /// Queries that specify a Glue Data Catalog other than the default
-  /// <code>AwsDataCatalog</code> must be run on Athena engine version 2.
-  /// </li>
   /// </ul> </li>
   /// </ul>
   final Map<String, String>? parameters;
@@ -4224,7 +4203,7 @@ class DataCatalog {
   factory DataCatalog.fromJson(Map<String, dynamic> json) {
     return DataCatalog(
       name: json['Name'] as String,
-      type: (json['Type'] as String).toDataCatalogType(),
+      type: DataCatalogType.fromString((json['Type'] as String)),
       description: json['Description'] as String?,
       parameters: (json['Parameters'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
@@ -4238,7 +4217,7 @@ class DataCatalog {
     final parameters = this.parameters;
     return {
       'Name': name,
-      'Type': type.toValue(),
+      'Type': type.value,
       if (description != null) 'Description': description,
       if (parameters != null) 'Parameters': parameters,
     };
@@ -4265,7 +4244,7 @@ class DataCatalogSummary {
   factory DataCatalogSummary.fromJson(Map<String, dynamic> json) {
     return DataCatalogSummary(
       catalogName: json['CatalogName'] as String?,
-      type: (json['Type'] as String?)?.toDataCatalogType(),
+      type: (json['Type'] as String?)?.let(DataCatalogType.fromString),
     );
   }
 
@@ -4274,42 +4253,25 @@ class DataCatalogSummary {
     final type = this.type;
     return {
       if (catalogName != null) 'CatalogName': catalogName,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
     };
   }
 }
 
 enum DataCatalogType {
-  lambda,
-  glue,
-  hive,
-}
+  lambda('LAMBDA'),
+  glue('GLUE'),
+  hive('HIVE'),
+  ;
 
-extension DataCatalogTypeValueExtension on DataCatalogType {
-  String toValue() {
-    switch (this) {
-      case DataCatalogType.lambda:
-        return 'LAMBDA';
-      case DataCatalogType.glue:
-        return 'GLUE';
-      case DataCatalogType.hive:
-        return 'HIVE';
-    }
-  }
-}
+  final String value;
 
-extension DataCatalogTypeFromString on String {
-  DataCatalogType toDataCatalogType() {
-    switch (this) {
-      case 'LAMBDA':
-        return DataCatalogType.lambda;
-      case 'GLUE':
-        return DataCatalogType.glue;
-      case 'HIVE':
-        return DataCatalogType.hive;
-    }
-    throw Exception('$this is not known in enum DataCatalogType');
-  }
+  const DataCatalogType(this.value);
+
+  static DataCatalogType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum DataCatalogType'));
 }
 
 /// Contains metadata information for a database in a data catalog.
@@ -4370,6 +4332,18 @@ class Datum {
     return {
       if (varCharValue != null) 'VarCharValue': varCharValue,
     };
+  }
+}
+
+class DeleteCapacityReservationOutput {
+  DeleteCapacityReservationOutput();
+
+  factory DeleteCapacityReservationOutput.fromJson(Map<String, dynamic> _) {
+    return DeleteCapacityReservationOutput();
+  }
+
+  Map<String, dynamic> toJson() {
+    return {};
   }
 }
 
@@ -4460,7 +4434,7 @@ class EncryptionConfiguration {
   factory EncryptionConfiguration.fromJson(Map<String, dynamic> json) {
     return EncryptionConfiguration(
       encryptionOption:
-          (json['EncryptionOption'] as String).toEncryptionOption(),
+          EncryptionOption.fromString((json['EncryptionOption'] as String)),
       kmsKey: json['KmsKey'] as String?,
     );
   }
@@ -4469,43 +4443,26 @@ class EncryptionConfiguration {
     final encryptionOption = this.encryptionOption;
     final kmsKey = this.kmsKey;
     return {
-      'EncryptionOption': encryptionOption.toValue(),
+      'EncryptionOption': encryptionOption.value,
       if (kmsKey != null) 'KmsKey': kmsKey,
     };
   }
 }
 
 enum EncryptionOption {
-  sseS3,
-  sseKms,
-  cseKms,
-}
+  sseS3('SSE_S3'),
+  sseKms('SSE_KMS'),
+  cseKms('CSE_KMS'),
+  ;
 
-extension EncryptionOptionValueExtension on EncryptionOption {
-  String toValue() {
-    switch (this) {
-      case EncryptionOption.sseS3:
-        return 'SSE_S3';
-      case EncryptionOption.sseKms:
-        return 'SSE_KMS';
-      case EncryptionOption.cseKms:
-        return 'CSE_KMS';
-    }
-  }
-}
+  final String value;
 
-extension EncryptionOptionFromString on String {
-  EncryptionOption toEncryptionOption() {
-    switch (this) {
-      case 'SSE_S3':
-        return EncryptionOption.sseS3;
-      case 'SSE_KMS':
-        return EncryptionOption.sseKms;
-      case 'CSE_KMS':
-        return EncryptionOption.cseKms;
-    }
-    throw Exception('$this is not known in enum EncryptionOption');
-  }
+  const EncryptionOption(this.value);
+
+  static EncryptionOption fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum EncryptionOption'));
 }
 
 /// Contains data processing unit (DPU) configuration settings and parameter
@@ -4532,11 +4489,16 @@ class EngineConfiguration {
   /// is 1.
   final int? defaultExecutorDpuSize;
 
+  /// Specifies custom jar files and Spark properties for use cases like cluster
+  /// encryption, table formats, and general Spark tuning.
+  final Map<String, String>? sparkProperties;
+
   EngineConfiguration({
     required this.maxConcurrentDpus,
     this.additionalConfigs,
     this.coordinatorDpuSize,
     this.defaultExecutorDpuSize,
+    this.sparkProperties,
   });
 
   factory EngineConfiguration.fromJson(Map<String, dynamic> json) {
@@ -4546,6 +4508,8 @@ class EngineConfiguration {
           ?.map((k, e) => MapEntry(k, e as String)),
       coordinatorDpuSize: json['CoordinatorDpuSize'] as int?,
       defaultExecutorDpuSize: json['DefaultExecutorDpuSize'] as int?,
+      sparkProperties: (json['SparkProperties'] as Map<String, dynamic>?)
+          ?.map((k, e) => MapEntry(k, e as String)),
     );
   }
 
@@ -4554,12 +4518,14 @@ class EngineConfiguration {
     final additionalConfigs = this.additionalConfigs;
     final coordinatorDpuSize = this.coordinatorDpuSize;
     final defaultExecutorDpuSize = this.defaultExecutorDpuSize;
+    final sparkProperties = this.sparkProperties;
     return {
       'MaxConcurrentDpus': maxConcurrentDpus,
       if (additionalConfigs != null) 'AdditionalConfigs': additionalConfigs,
       if (coordinatorDpuSize != null) 'CoordinatorDpuSize': coordinatorDpuSize,
       if (defaultExecutorDpuSize != null)
         'DefaultExecutorDpuSize': defaultExecutorDpuSize,
+      if (sparkProperties != null) 'SparkProperties': sparkProperties,
     };
   }
 }
@@ -4606,84 +4572,38 @@ class EngineVersion {
 }
 
 enum ExecutorState {
-  creating,
-  created,
-  registered,
-  terminating,
-  terminated,
-  failed,
-}
+  creating('CREATING'),
+  created('CREATED'),
+  registered('REGISTERED'),
+  terminating('TERMINATING'),
+  terminated('TERMINATED'),
+  failed('FAILED'),
+  ;
 
-extension ExecutorStateValueExtension on ExecutorState {
-  String toValue() {
-    switch (this) {
-      case ExecutorState.creating:
-        return 'CREATING';
-      case ExecutorState.created:
-        return 'CREATED';
-      case ExecutorState.registered:
-        return 'REGISTERED';
-      case ExecutorState.terminating:
-        return 'TERMINATING';
-      case ExecutorState.terminated:
-        return 'TERMINATED';
-      case ExecutorState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension ExecutorStateFromString on String {
-  ExecutorState toExecutorState() {
-    switch (this) {
-      case 'CREATING':
-        return ExecutorState.creating;
-      case 'CREATED':
-        return ExecutorState.created;
-      case 'REGISTERED':
-        return ExecutorState.registered;
-      case 'TERMINATING':
-        return ExecutorState.terminating;
-      case 'TERMINATED':
-        return ExecutorState.terminated;
-      case 'FAILED':
-        return ExecutorState.failed;
-    }
-    throw Exception('$this is not known in enum ExecutorState');
-  }
+  const ExecutorState(this.value);
+
+  static ExecutorState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExecutorState'));
 }
 
 enum ExecutorType {
-  coordinator,
-  gateway,
-  worker,
-}
+  coordinator('COORDINATOR'),
+  gateway('GATEWAY'),
+  worker('WORKER'),
+  ;
 
-extension ExecutorTypeValueExtension on ExecutorType {
-  String toValue() {
-    switch (this) {
-      case ExecutorType.coordinator:
-        return 'COORDINATOR';
-      case ExecutorType.gateway:
-        return 'GATEWAY';
-      case ExecutorType.worker:
-        return 'WORKER';
-    }
-  }
-}
+  final String value;
 
-extension ExecutorTypeFromString on String {
-  ExecutorType toExecutorType() {
-    switch (this) {
-      case 'COORDINATOR':
-        return ExecutorType.coordinator;
-      case 'GATEWAY':
-        return ExecutorType.gateway;
-      case 'WORKER':
-        return ExecutorType.worker;
-    }
-    throw Exception('$this is not known in enum ExecutorType');
-  }
+  const ExecutorType(this.value);
+
+  static ExecutorType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum ExecutorType'));
 }
 
 /// Contains summary information about an executor.
@@ -4735,8 +4655,10 @@ class ExecutorsSummary {
     return ExecutorsSummary(
       executorId: json['ExecutorId'] as String,
       executorSize: json['ExecutorSize'] as int?,
-      executorState: (json['ExecutorState'] as String?)?.toExecutorState(),
-      executorType: (json['ExecutorType'] as String?)?.toExecutorType(),
+      executorState:
+          (json['ExecutorState'] as String?)?.let(ExecutorState.fromString),
+      executorType:
+          (json['ExecutorType'] as String?)?.let(ExecutorType.fromString),
       startDateTime: json['StartDateTime'] as int?,
       terminationDateTime: json['TerminationDateTime'] as int?,
     );
@@ -4752,8 +4674,8 @@ class ExecutorsSummary {
     return {
       'ExecutorId': executorId,
       if (executorSize != null) 'ExecutorSize': executorSize,
-      if (executorState != null) 'ExecutorState': executorState.toValue(),
-      if (executorType != null) 'ExecutorType': executorType.toValue(),
+      if (executorState != null) 'ExecutorState': executorState.value,
+      if (executorType != null) 'ExecutorType': executorType.value,
       if (startDateTime != null) 'StartDateTime': startDateTime,
       if (terminationDateTime != null)
         'TerminationDateTime': terminationDateTime,
@@ -5380,6 +5302,38 @@ class GetWorkGroupOutput {
   }
 }
 
+/// Specifies whether the workgroup is IAM Identity Center supported.
+class IdentityCenterConfiguration {
+  /// Specifies whether the workgroup is IAM Identity Center supported.
+  final bool? enableIdentityCenter;
+
+  /// The IAM Identity Center instance ARN that the workgroup associates to.
+  final String? identityCenterInstanceArn;
+
+  IdentityCenterConfiguration({
+    this.enableIdentityCenter,
+    this.identityCenterInstanceArn,
+  });
+
+  factory IdentityCenterConfiguration.fromJson(Map<String, dynamic> json) {
+    return IdentityCenterConfiguration(
+      enableIdentityCenter: json['EnableIdentityCenter'] as bool?,
+      identityCenterInstanceArn: json['IdentityCenterInstanceArn'] as String?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final enableIdentityCenter = this.enableIdentityCenter;
+    final identityCenterInstanceArn = this.identityCenterInstanceArn;
+    return {
+      if (enableIdentityCenter != null)
+        'EnableIdentityCenter': enableIdentityCenter,
+      if (identityCenterInstanceArn != null)
+        'IdentityCenterInstanceArn': identityCenterInstanceArn,
+    };
+  }
+}
+
 class ImportNotebookOutput {
   /// The ID assigned to the imported notebook.
   final String? notebookId;
@@ -5420,7 +5374,7 @@ class ListApplicationDPUSizesOutput {
   factory ListApplicationDPUSizesOutput.fromJson(Map<String, dynamic> json) {
     return ListApplicationDPUSizesOutput(
       applicationDPUSizes: (json['ApplicationDPUSizes'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ApplicationDPUSizes.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5457,7 +5411,7 @@ class ListCalculationExecutionsResponse {
       Map<String, dynamic> json) {
     return ListCalculationExecutionsResponse(
       calculations: (json['Calculations'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => CalculationSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5492,7 +5446,7 @@ class ListCapacityReservationsOutput {
   factory ListCapacityReservationsOutput.fromJson(Map<String, dynamic> json) {
     return ListCapacityReservationsOutput(
       capacityReservations: (json['CapacityReservations'] as List)
-          .whereNotNull()
+          .nonNulls
           .map((e) => CapacityReservation.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5527,7 +5481,7 @@ class ListDataCatalogsOutput {
   factory ListDataCatalogsOutput.fromJson(Map<String, dynamic> json) {
     return ListDataCatalogsOutput(
       dataCatalogsSummary: (json['DataCatalogsSummary'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => DataCatalogSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5563,7 +5517,7 @@ class ListDatabasesOutput {
   factory ListDatabasesOutput.fromJson(Map<String, dynamic> json) {
     return ListDatabasesOutput(
       databaseList: (json['DatabaseList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Database.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5598,7 +5552,7 @@ class ListEngineVersionsOutput {
   factory ListEngineVersionsOutput.fromJson(Map<String, dynamic> json) {
     return ListEngineVersionsOutput(
       engineVersions: (json['EngineVersions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => EngineVersion.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5638,7 +5592,7 @@ class ListExecutorsResponse {
     return ListExecutorsResponse(
       sessionId: json['SessionId'] as String,
       executorsSummary: (json['ExecutorsSummary'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ExecutorsSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5675,7 +5629,7 @@ class ListNamedQueriesOutput {
   factory ListNamedQueriesOutput.fromJson(Map<String, dynamic> json) {
     return ListNamedQueriesOutput(
       namedQueryIds: (json['NamedQueryIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       nextToken: json['NextToken'] as String?,
@@ -5711,7 +5665,7 @@ class ListNotebookMetadataOutput {
     return ListNotebookMetadataOutput(
       nextToken: json['NextToken'] as String?,
       notebookMetadataList: (json['NotebookMetadataList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => NotebookMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5746,7 +5700,7 @@ class ListNotebookSessionsResponse {
   factory ListNotebookSessionsResponse.fromJson(Map<String, dynamic> json) {
     return ListNotebookSessionsResponse(
       notebookSessionsList: (json['NotebookSessionsList'] as List)
-          .whereNotNull()
+          .nonNulls
           .map(
               (e) => NotebookSessionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5783,7 +5737,7 @@ class ListPreparedStatementsOutput {
     return ListPreparedStatementsOutput(
       nextToken: json['NextToken'] as String?,
       preparedStatements: (json['PreparedStatements'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) =>
               PreparedStatementSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -5816,7 +5770,7 @@ class ListQueryExecutionsOutput {
     return ListQueryExecutionsOutput(
       nextToken: json['NextToken'] as String?,
       queryExecutionIds: (json['QueryExecutionIds'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -5851,7 +5805,7 @@ class ListSessionsResponse {
     return ListSessionsResponse(
       nextToken: json['NextToken'] as String?,
       sessions: (json['Sessions'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => SessionSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5886,7 +5840,7 @@ class ListTableMetadataOutput {
     return ListTableMetadataOutput(
       nextToken: json['NextToken'] as String?,
       tableMetadataList: (json['TableMetadataList'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => TableMetadata.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5918,7 +5872,7 @@ class ListTagsForResourceOutput {
     return ListTagsForResourceOutput(
       nextToken: json['NextToken'] as String?,
       tags: (json['Tags'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Tag.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -5954,7 +5908,7 @@ class ListWorkGroupsOutput {
     return ListWorkGroupsOutput(
       nextToken: json['NextToken'] as String?,
       workGroups: (json['WorkGroups'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => WorkGroupSummary.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6065,7 +6019,7 @@ class NotebookMetadata {
       lastModifiedTime: timeStampFromJson(json['LastModifiedTime']),
       name: json['Name'] as String?,
       notebookId: json['NotebookId'] as String?,
-      type: (json['Type'] as String?)?.toNotebookType(),
+      type: (json['Type'] as String?)?.let(NotebookType.fromString),
       workGroup: json['WorkGroup'] as String?,
     );
   }
@@ -6084,7 +6038,7 @@ class NotebookMetadata {
         'LastModifiedTime': unixTimestampToJson(lastModifiedTime),
       if (name != null) 'Name': name,
       if (notebookId != null) 'NotebookId': notebookId,
-      if (type != null) 'Type': type.toValue(),
+      if (type != null) 'Type': type.value,
       if (workGroup != null) 'WorkGroup': workGroup,
     };
   }
@@ -6122,26 +6076,17 @@ class NotebookSessionSummary {
 }
 
 enum NotebookType {
-  ipynb,
-}
+  ipynb('IPYNB'),
+  ;
 
-extension NotebookTypeValueExtension on NotebookType {
-  String toValue() {
-    switch (this) {
-      case NotebookType.ipynb:
-        return 'IPYNB';
-    }
-  }
-}
+  final String value;
 
-extension NotebookTypeFromString on String {
-  NotebookType toNotebookType() {
-    switch (this) {
-      case 'IPYNB':
-        return NotebookType.ipynb;
-    }
-    throw Exception('$this is not known in enum NotebookType');
-  }
+  const NotebookType(this.value);
+
+  static NotebookType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum NotebookType'));
 }
 
 /// A prepared SQL statement for use with Athena.
@@ -6247,7 +6192,7 @@ class QueryExecution {
 
   /// A list of values for the parameters in a query. The values are applied
   /// sequentially to the parameters in the query in the order in which the
-  /// parameters occur.
+  /// parameters occur. The list of parameters is not returned in the response.
   final List<String>? executionParameters;
 
   /// The SQL query statements which the query execution ran.
@@ -6258,6 +6203,10 @@ class QueryExecution {
 
   /// The unique identifier for each query execution.
   final String? queryExecutionId;
+
+  /// Specifies whether Amazon S3 access grants are enabled for query results.
+  final QueryResultsS3AccessGrantsConfiguration?
+      queryResultsS3AccessGrantsConfiguration;
 
   /// The location in Amazon S3 where query and calculation results are stored and
   /// the encryption option, if any, used for query results. These are known as
@@ -6297,6 +6246,7 @@ class QueryExecution {
     this.query,
     this.queryExecutionContext,
     this.queryExecutionId,
+    this.queryResultsS3AccessGrantsConfiguration,
     this.resultConfiguration,
     this.resultReuseConfiguration,
     this.statementType,
@@ -6313,7 +6263,7 @@ class QueryExecution {
               json['EngineVersion'] as Map<String, dynamic>)
           : null,
       executionParameters: (json['ExecutionParameters'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
       query: json['Query'] as String?,
@@ -6322,6 +6272,12 @@ class QueryExecution {
               json['QueryExecutionContext'] as Map<String, dynamic>)
           : null,
       queryExecutionId: json['QueryExecutionId'] as String?,
+      queryResultsS3AccessGrantsConfiguration:
+          json['QueryResultsS3AccessGrantsConfiguration'] != null
+              ? QueryResultsS3AccessGrantsConfiguration.fromJson(
+                  json['QueryResultsS3AccessGrantsConfiguration']
+                      as Map<String, dynamic>)
+              : null,
       resultConfiguration: json['ResultConfiguration'] != null
           ? ResultConfiguration.fromJson(
               json['ResultConfiguration'] as Map<String, dynamic>)
@@ -6330,7 +6286,8 @@ class QueryExecution {
           ? ResultReuseConfiguration.fromJson(
               json['ResultReuseConfiguration'] as Map<String, dynamic>)
           : null,
-      statementType: (json['StatementType'] as String?)?.toStatementType(),
+      statementType:
+          (json['StatementType'] as String?)?.let(StatementType.fromString),
       statistics: json['Statistics'] != null
           ? QueryExecutionStatistics.fromJson(
               json['Statistics'] as Map<String, dynamic>)
@@ -6350,6 +6307,8 @@ class QueryExecution {
     final query = this.query;
     final queryExecutionContext = this.queryExecutionContext;
     final queryExecutionId = this.queryExecutionId;
+    final queryResultsS3AccessGrantsConfiguration =
+        this.queryResultsS3AccessGrantsConfiguration;
     final resultConfiguration = this.resultConfiguration;
     final resultReuseConfiguration = this.resultReuseConfiguration;
     final statementType = this.statementType;
@@ -6365,11 +6324,14 @@ class QueryExecution {
       if (queryExecutionContext != null)
         'QueryExecutionContext': queryExecutionContext,
       if (queryExecutionId != null) 'QueryExecutionId': queryExecutionId,
+      if (queryResultsS3AccessGrantsConfiguration != null)
+        'QueryResultsS3AccessGrantsConfiguration':
+            queryResultsS3AccessGrantsConfiguration,
       if (resultConfiguration != null)
         'ResultConfiguration': resultConfiguration,
       if (resultReuseConfiguration != null)
         'ResultReuseConfiguration': resultReuseConfiguration,
-      if (statementType != null) 'StatementType': statementType.toValue(),
+      if (statementType != null) 'StatementType': statementType.value,
       if (statistics != null) 'Statistics': statistics,
       if (status != null) 'Status': status,
       if (substatementType != null) 'SubstatementType': substatementType,
@@ -6410,46 +6372,21 @@ class QueryExecutionContext {
 }
 
 enum QueryExecutionState {
-  queued,
-  running,
-  succeeded,
-  failed,
-  cancelled,
-}
+  queued('QUEUED'),
+  running('RUNNING'),
+  succeeded('SUCCEEDED'),
+  failed('FAILED'),
+  cancelled('CANCELLED'),
+  ;
 
-extension QueryExecutionStateValueExtension on QueryExecutionState {
-  String toValue() {
-    switch (this) {
-      case QueryExecutionState.queued:
-        return 'QUEUED';
-      case QueryExecutionState.running:
-        return 'RUNNING';
-      case QueryExecutionState.succeeded:
-        return 'SUCCEEDED';
-      case QueryExecutionState.failed:
-        return 'FAILED';
-      case QueryExecutionState.cancelled:
-        return 'CANCELLED';
-    }
-  }
-}
+  final String value;
 
-extension QueryExecutionStateFromString on String {
-  QueryExecutionState toQueryExecutionState() {
-    switch (this) {
-      case 'QUEUED':
-        return QueryExecutionState.queued;
-      case 'RUNNING':
-        return QueryExecutionState.running;
-      case 'SUCCEEDED':
-        return QueryExecutionState.succeeded;
-      case 'FAILED':
-        return QueryExecutionState.failed;
-      case 'CANCELLED':
-        return QueryExecutionState.cancelled;
-    }
-    throw Exception('$this is not known in enum QueryExecutionState');
-  }
+  const QueryExecutionState(this.value);
+
+  static QueryExecutionState fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () =>
+          throw Exception('$value is not known in enum QueryExecutionState'));
 }
 
 /// The amount of data scanned during the query execution and the amount of time
@@ -6487,6 +6424,10 @@ class QueryExecutionStatistics {
   /// the query.
   final ResultReuseInformation? resultReuseInformation;
 
+  /// The number of milliseconds that Athena took to preprocess the query before
+  /// submitting the query to the query engine.
+  final int? servicePreProcessingTimeInMillis;
+
   /// The number of milliseconds that Athena took to finalize and publish the
   /// query results after the query engine finished running the query.
   final int? serviceProcessingTimeInMillis;
@@ -6501,6 +6442,7 @@ class QueryExecutionStatistics {
     this.queryPlanningTimeInMillis,
     this.queryQueueTimeInMillis,
     this.resultReuseInformation,
+    this.servicePreProcessingTimeInMillis,
     this.serviceProcessingTimeInMillis,
     this.totalExecutionTimeInMillis,
   });
@@ -6516,6 +6458,8 @@ class QueryExecutionStatistics {
           ? ResultReuseInformation.fromJson(
               json['ResultReuseInformation'] as Map<String, dynamic>)
           : null,
+      servicePreProcessingTimeInMillis:
+          json['ServicePreProcessingTimeInMillis'] as int?,
       serviceProcessingTimeInMillis:
           json['ServiceProcessingTimeInMillis'] as int?,
       totalExecutionTimeInMillis: json['TotalExecutionTimeInMillis'] as int?,
@@ -6529,6 +6473,8 @@ class QueryExecutionStatistics {
     final queryPlanningTimeInMillis = this.queryPlanningTimeInMillis;
     final queryQueueTimeInMillis = this.queryQueueTimeInMillis;
     final resultReuseInformation = this.resultReuseInformation;
+    final servicePreProcessingTimeInMillis =
+        this.servicePreProcessingTimeInMillis;
     final serviceProcessingTimeInMillis = this.serviceProcessingTimeInMillis;
     final totalExecutionTimeInMillis = this.totalExecutionTimeInMillis;
     return {
@@ -6543,6 +6489,8 @@ class QueryExecutionStatistics {
         'QueryQueueTimeInMillis': queryQueueTimeInMillis,
       if (resultReuseInformation != null)
         'ResultReuseInformation': resultReuseInformation,
+      if (servicePreProcessingTimeInMillis != null)
+        'ServicePreProcessingTimeInMillis': servicePreProcessingTimeInMillis,
       if (serviceProcessingTimeInMillis != null)
         'ServiceProcessingTimeInMillis': serviceProcessingTimeInMillis,
       if (totalExecutionTimeInMillis != null)
@@ -6594,7 +6542,7 @@ class QueryExecutionStatus {
           ? AthenaError.fromJson(json['AthenaError'] as Map<String, dynamic>)
           : null,
       completionDateTime: timeStampFromJson(json['CompletionDateTime']),
-      state: (json['State'] as String?)?.toQueryExecutionState(),
+      state: (json['State'] as String?)?.let(QueryExecutionState.fromString),
       stateChangeReason: json['StateChangeReason'] as String?,
       submissionDateTime: timeStampFromJson(json['SubmissionDateTime']),
     );
@@ -6610,10 +6558,52 @@ class QueryExecutionStatus {
       if (athenaError != null) 'AthenaError': athenaError,
       if (completionDateTime != null)
         'CompletionDateTime': unixTimestampToJson(completionDateTime),
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (stateChangeReason != null) 'StateChangeReason': stateChangeReason,
       if (submissionDateTime != null)
         'SubmissionDateTime': unixTimestampToJson(submissionDateTime),
+    };
+  }
+}
+
+/// Specifies whether Amazon S3 access grants are enabled for query results.
+class QueryResultsS3AccessGrantsConfiguration {
+  /// The authentication type used for Amazon S3 access grants. Currently, only
+  /// <code>DIRECTORY_IDENTITY</code> is supported.
+  final AuthenticationType authenticationType;
+
+  /// Specifies whether Amazon S3 access grants are enabled for query results.
+  final bool enableS3AccessGrants;
+
+  /// When enabled, appends the user ID as an Amazon S3 path prefix to the query
+  /// result output location.
+  final bool? createUserLevelPrefix;
+
+  QueryResultsS3AccessGrantsConfiguration({
+    required this.authenticationType,
+    required this.enableS3AccessGrants,
+    this.createUserLevelPrefix,
+  });
+
+  factory QueryResultsS3AccessGrantsConfiguration.fromJson(
+      Map<String, dynamic> json) {
+    return QueryResultsS3AccessGrantsConfiguration(
+      authenticationType:
+          AuthenticationType.fromString((json['AuthenticationType'] as String)),
+      enableS3AccessGrants: json['EnableS3AccessGrants'] as bool,
+      createUserLevelPrefix: json['CreateUserLevelPrefix'] as bool?,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    final authenticationType = this.authenticationType;
+    final enableS3AccessGrants = this.enableS3AccessGrants;
+    final createUserLevelPrefix = this.createUserLevelPrefix;
+    return {
+      'AuthenticationType': authenticationType.value,
+      'EnableS3AccessGrants': enableS3AccessGrants,
+      if (createUserLevelPrefix != null)
+        'CreateUserLevelPrefix': createUserLevelPrefix,
     };
   }
 }
@@ -6724,6 +6714,10 @@ class QueryRuntimeStatisticsTimeline {
   /// automatically add the query back to the queue.
   final int? queryQueueTimeInMillis;
 
+  /// The number of milliseconds that Athena spends on preprocessing before it
+  /// submits the query to the engine.
+  final int? servicePreProcessingTimeInMillis;
+
   /// The number of milliseconds that Athena took to finalize and publish the
   /// query results after the query engine finished running the query.
   final int? serviceProcessingTimeInMillis;
@@ -6735,6 +6729,7 @@ class QueryRuntimeStatisticsTimeline {
     this.engineExecutionTimeInMillis,
     this.queryPlanningTimeInMillis,
     this.queryQueueTimeInMillis,
+    this.servicePreProcessingTimeInMillis,
     this.serviceProcessingTimeInMillis,
     this.totalExecutionTimeInMillis,
   });
@@ -6744,6 +6739,8 @@ class QueryRuntimeStatisticsTimeline {
       engineExecutionTimeInMillis: json['EngineExecutionTimeInMillis'] as int?,
       queryPlanningTimeInMillis: json['QueryPlanningTimeInMillis'] as int?,
       queryQueueTimeInMillis: json['QueryQueueTimeInMillis'] as int?,
+      servicePreProcessingTimeInMillis:
+          json['ServicePreProcessingTimeInMillis'] as int?,
       serviceProcessingTimeInMillis:
           json['ServiceProcessingTimeInMillis'] as int?,
       totalExecutionTimeInMillis: json['TotalExecutionTimeInMillis'] as int?,
@@ -6754,6 +6751,8 @@ class QueryRuntimeStatisticsTimeline {
     final engineExecutionTimeInMillis = this.engineExecutionTimeInMillis;
     final queryPlanningTimeInMillis = this.queryPlanningTimeInMillis;
     final queryQueueTimeInMillis = this.queryQueueTimeInMillis;
+    final servicePreProcessingTimeInMillis =
+        this.servicePreProcessingTimeInMillis;
     final serviceProcessingTimeInMillis = this.serviceProcessingTimeInMillis;
     final totalExecutionTimeInMillis = this.totalExecutionTimeInMillis;
     return {
@@ -6763,6 +6762,8 @@ class QueryRuntimeStatisticsTimeline {
         'QueryPlanningTimeInMillis': queryPlanningTimeInMillis,
       if (queryQueueTimeInMillis != null)
         'QueryQueueTimeInMillis': queryQueueTimeInMillis,
+      if (servicePreProcessingTimeInMillis != null)
+        'ServicePreProcessingTimeInMillis': servicePreProcessingTimeInMillis,
       if (serviceProcessingTimeInMillis != null)
         'ServiceProcessingTimeInMillis': serviceProcessingTimeInMillis,
       if (totalExecutionTimeInMillis != null)
@@ -6829,7 +6830,7 @@ class QueryStage {
       stageId: json['StageId'] as int?,
       state: json['State'] as String?,
       subStages: (json['SubStages'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => QueryStage.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -6886,13 +6887,13 @@ class QueryStagePlanNode {
   factory QueryStagePlanNode.fromJson(Map<String, dynamic> json) {
     return QueryStagePlanNode(
       children: (json['Children'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => QueryStagePlanNode.fromJson(e as Map<String, dynamic>))
           .toList(),
       identifier: json['Identifier'] as String?,
       name: json['Name'] as String?,
       remoteSources: (json['RemoteSources'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => e as String)
           .toList(),
     );
@@ -6962,10 +6963,7 @@ class ResultConfiguration {
   /// you must specify the query results location using one of the ways: either
   /// for individual queries using either this setting (client-side), or in the
   /// workgroup, using <a>WorkGroupConfiguration</a>. If none of them is set,
-  /// Athena issues an error that no output location is provided. For more
-  /// information, see <a
-  /// href="https://docs.aws.amazon.com/athena/latest/ug/querying.html">Working
-  /// with query results, recent queries, and output files</a>. If workgroup
+  /// Athena issues an error that no output location is provided. If workgroup
   /// settings override client-side settings, then the query uses the settings
   /// specified for the workgroup. See
   /// <a>WorkGroupConfiguration$EnforceWorkGroupConfiguration</a>.
@@ -7036,10 +7034,7 @@ class ResultConfigurationUpdates {
   final String? expectedBucketOwner;
 
   /// The location in Amazon S3 where your query and calculation results are
-  /// stored, such as <code>s3://path/to/query/bucket/</code>. For more
-  /// information, see <a
-  /// href="https://docs.aws.amazon.com/athena/latest/ug/querying.html">Working
-  /// with query results, recent queries, and output files</a>. If workgroup
+  /// stored, such as <code>s3://path/to/query/bucket/</code>. If workgroup
   /// settings override client-side settings, then the query uses the location for
   /// the query results and the encryption configuration that are specified for
   /// the workgroup. The "workgroup settings override" is specified in
@@ -7243,7 +7238,7 @@ class ResultSet {
               json['ResultSetMetadata'] as Map<String, dynamic>)
           : null,
       rows: (json['Rows'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Row.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7273,7 +7268,7 @@ class ResultSetMetadata {
   factory ResultSetMetadata.fromJson(Map<String, dynamic> json) {
     return ResultSetMetadata(
       columnInfo: (json['ColumnInfo'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => ColumnInfo.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7299,7 +7294,7 @@ class Row {
   factory Row.fromJson(Map<String, dynamic> json) {
     return Row(
       data: (json['Data'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Datum.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
@@ -7314,33 +7309,25 @@ class Row {
 }
 
 enum S3AclOption {
-  bucketOwnerFullControl,
-}
+  bucketOwnerFullControl('BUCKET_OWNER_FULL_CONTROL'),
+  ;
 
-extension S3AclOptionValueExtension on S3AclOption {
-  String toValue() {
-    switch (this) {
-      case S3AclOption.bucketOwnerFullControl:
-        return 'BUCKET_OWNER_FULL_CONTROL';
-    }
-  }
-}
+  final String value;
 
-extension S3AclOptionFromString on String {
-  S3AclOption toS3AclOption() {
-    switch (this) {
-      case 'BUCKET_OWNER_FULL_CONTROL':
-        return S3AclOption.bucketOwnerFullControl;
-    }
-    throw Exception('$this is not known in enum S3AclOption');
-  }
+  const S3AclOption(this.value);
+
+  static S3AclOption fromString(String value) => values.firstWhere(
+      (e) => e.value == value,
+      orElse: () => throw Exception('$value is not known in enum S3AclOption'));
 }
 
 /// Contains session configuration information.
 class SessionConfiguration {
   final EncryptionConfiguration? encryptionConfiguration;
 
-  /// The ARN of the execution role used for the session.
+  /// The ARN of the execution role used to access user resources for Spark
+  /// sessions and Identity Center enabled workgroups. This property applies only
+  /// to Spark enabled workgroups and Identity Center enabled workgroups.
   final String? executionRole;
 
   /// The idle timeout in seconds for the session.
@@ -7384,61 +7371,24 @@ class SessionConfiguration {
 }
 
 enum SessionState {
-  creating,
-  created,
-  idle,
-  busy,
-  terminating,
-  terminated,
-  degraded,
-  failed,
-}
+  creating('CREATING'),
+  created('CREATED'),
+  idle('IDLE'),
+  busy('BUSY'),
+  terminating('TERMINATING'),
+  terminated('TERMINATED'),
+  degraded('DEGRADED'),
+  failed('FAILED'),
+  ;
 
-extension SessionStateValueExtension on SessionState {
-  String toValue() {
-    switch (this) {
-      case SessionState.creating:
-        return 'CREATING';
-      case SessionState.created:
-        return 'CREATED';
-      case SessionState.idle:
-        return 'IDLE';
-      case SessionState.busy:
-        return 'BUSY';
-      case SessionState.terminating:
-        return 'TERMINATING';
-      case SessionState.terminated:
-        return 'TERMINATED';
-      case SessionState.degraded:
-        return 'DEGRADED';
-      case SessionState.failed:
-        return 'FAILED';
-    }
-  }
-}
+  final String value;
 
-extension SessionStateFromString on String {
-  SessionState toSessionState() {
-    switch (this) {
-      case 'CREATING':
-        return SessionState.creating;
-      case 'CREATED':
-        return SessionState.created;
-      case 'IDLE':
-        return SessionState.idle;
-      case 'BUSY':
-        return SessionState.busy;
-      case 'TERMINATING':
-        return SessionState.terminating;
-      case 'TERMINATED':
-        return SessionState.terminated;
-      case 'DEGRADED':
-        return SessionState.degraded;
-      case 'FAILED':
-        return SessionState.failed;
-    }
-    throw Exception('$this is not known in enum SessionState');
-  }
+  const SessionState(this.value);
+
+  static SessionState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum SessionState'));
 }
 
 /// Contains statistics for a session.
@@ -7522,7 +7472,7 @@ class SessionStatus {
       idleSinceDateTime: timeStampFromJson(json['IdleSinceDateTime']),
       lastModifiedDateTime: timeStampFromJson(json['LastModifiedDateTime']),
       startDateTime: timeStampFromJson(json['StartDateTime']),
-      state: (json['State'] as String?)?.toSessionState(),
+      state: (json['State'] as String?)?.let(SessionState.fromString),
       stateChangeReason: json['StateChangeReason'] as String?,
     );
   }
@@ -7542,7 +7492,7 @@ class SessionStatus {
         'LastModifiedDateTime': unixTimestampToJson(lastModifiedDateTime),
       if (startDateTime != null)
         'StartDateTime': unixTimestampToJson(startDateTime),
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
       if (stateChangeReason != null) 'StateChangeReason': stateChangeReason,
     };
   }
@@ -7637,7 +7587,8 @@ class StartCalculationExecutionResponse {
       Map<String, dynamic> json) {
     return StartCalculationExecutionResponse(
       calculationExecutionId: json['CalculationExecutionId'] as String?,
-      state: (json['State'] as String?)?.toCalculationExecutionState(),
+      state:
+          (json['State'] as String?)?.let(CalculationExecutionState.fromString),
     );
   }
 
@@ -7647,7 +7598,7 @@ class StartCalculationExecutionResponse {
     return {
       if (calculationExecutionId != null)
         'CalculationExecutionId': calculationExecutionId,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -7709,7 +7660,7 @@ class StartSessionResponse {
   factory StartSessionResponse.fromJson(Map<String, dynamic> json) {
     return StartSessionResponse(
       sessionId: json['SessionId'] as String?,
-      state: (json['State'] as String?)?.toSessionState(),
+      state: (json['State'] as String?)?.let(SessionState.fromString),
     );
   }
 
@@ -7718,42 +7669,25 @@ class StartSessionResponse {
     final state = this.state;
     return {
       if (sessionId != null) 'SessionId': sessionId,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
 
 enum StatementType {
-  ddl,
-  dml,
-  utility,
-}
+  ddl('DDL'),
+  dml('DML'),
+  utility('UTILITY'),
+  ;
 
-extension StatementTypeValueExtension on StatementType {
-  String toValue() {
-    switch (this) {
-      case StatementType.ddl:
-        return 'DDL';
-      case StatementType.dml:
-        return 'DML';
-      case StatementType.utility:
-        return 'UTILITY';
-    }
-  }
-}
+  final String value;
 
-extension StatementTypeFromString on String {
-  StatementType toStatementType() {
-    switch (this) {
-      case 'DDL':
-        return StatementType.ddl;
-      case 'DML':
-        return StatementType.dml;
-      case 'UTILITY':
-        return StatementType.utility;
-    }
-    throw Exception('$this is not known in enum StatementType');
-  }
+  const StatementType(this.value);
+
+  static StatementType fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum StatementType'));
 }
 
 class StopCalculationExecutionResponse {
@@ -7782,14 +7716,15 @@ class StopCalculationExecutionResponse {
 
   factory StopCalculationExecutionResponse.fromJson(Map<String, dynamic> json) {
     return StopCalculationExecutionResponse(
-      state: (json['State'] as String?)?.toCalculationExecutionState(),
+      state:
+          (json['State'] as String?)?.let(CalculationExecutionState.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final state = this.state;
     return {
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -7843,7 +7778,7 @@ class TableMetadata {
     return TableMetadata(
       name: json['Name'] as String,
       columns: (json['Columns'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Column.fromJson(e as Map<String, dynamic>))
           .toList(),
       createTime: timeStampFromJson(json['CreateTime']),
@@ -7851,7 +7786,7 @@ class TableMetadata {
       parameters: (json['Parameters'] as Map<String, dynamic>?)
           ?.map((k, e) => MapEntry(k, e as String)),
       partitionKeys: (json['PartitionKeys'] as List?)
-          ?.whereNotNull()
+          ?.nonNulls
           .map((e) => Column.fromJson(e as Map<String, dynamic>))
           .toList(),
       tableType: json['TableType'] as String?,
@@ -7968,14 +7903,14 @@ class TerminateSessionResponse {
 
   factory TerminateSessionResponse.fromJson(Map<String, dynamic> json) {
     return TerminateSessionResponse(
-      state: (json['State'] as String?)?.toSessionState(),
+      state: (json['State'] as String?)?.let(SessionState.fromString),
     );
   }
 
   Map<String, dynamic> toJson() {
     final state = this.state;
     return {
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -8238,6 +8173,10 @@ class WorkGroup {
   /// The workgroup description.
   final String? description;
 
+  /// The ARN of the IAM Identity Center enabled application associated with the
+  /// workgroup.
+  final String? identityCenterApplicationArn;
+
   /// The state of the workgroup: ENABLED or DISABLED.
   final WorkGroupState? state;
 
@@ -8246,6 +8185,7 @@ class WorkGroup {
     this.configuration,
     this.creationTime,
     this.description,
+    this.identityCenterApplicationArn,
     this.state,
   });
 
@@ -8258,7 +8198,9 @@ class WorkGroup {
           : null,
       creationTime: timeStampFromJson(json['CreationTime']),
       description: json['Description'] as String?,
-      state: (json['State'] as String?)?.toWorkGroupState(),
+      identityCenterApplicationArn:
+          json['IdentityCenterApplicationArn'] as String?,
+      state: (json['State'] as String?)?.let(WorkGroupState.fromString),
     );
   }
 
@@ -8267,6 +8209,7 @@ class WorkGroup {
     final configuration = this.configuration;
     final creationTime = this.creationTime;
     final description = this.description;
+    final identityCenterApplicationArn = this.identityCenterApplicationArn;
     final state = this.state;
     return {
       'Name': name,
@@ -8274,7 +8217,9 @@ class WorkGroup {
       if (creationTime != null)
         'CreationTime': unixTimestampToJson(creationTime),
       if (description != null) 'Description': description,
-      if (state != null) 'State': state.toValue(),
+      if (identityCenterApplicationArn != null)
+        'IdentityCenterApplicationArn': identityCenterApplicationArn,
+      if (state != null) 'State': state.value,
     };
   }
 }
@@ -8297,7 +8242,7 @@ class WorkGroupConfiguration {
   final int? bytesScannedCutoffPerQuery;
 
   /// Specifies the KMS key that is used to encrypt the user's data stores in
-  /// Athena.
+  /// Athena. This setting does not apply to Athena SQL workgroups.
   final CustomerContentEncryptionConfiguration?
       customerContentEncryptionConfiguration;
 
@@ -8325,11 +8270,21 @@ class WorkGroupConfiguration {
   /// preview engine regardless of this setting.
   final EngineVersion? engineVersion;
 
-  /// Role used in a session for accessing the user's resources.
+  /// The ARN of the execution role used to access user resources for Spark
+  /// sessions and IAM Identity Center enabled workgroups. This property applies
+  /// only to Spark enabled workgroups and IAM Identity Center enabled workgroups.
+  /// The property is required for IAM Identity Center enabled workgroups.
   final String? executionRole;
+
+  /// Specifies whether the workgroup is IAM Identity Center supported.
+  final IdentityCenterConfiguration? identityCenterConfiguration;
 
   /// Indicates that the Amazon CloudWatch metrics are enabled for the workgroup.
   final bool? publishCloudWatchMetricsEnabled;
+
+  /// Specifies whether Amazon S3 access grants are enabled for query results.
+  final QueryResultsS3AccessGrantsConfiguration?
+      queryResultsS3AccessGrantsConfiguration;
 
   /// If set to <code>true</code>, allows members assigned to a workgroup to
   /// reference Amazon S3 Requester Pays buckets in queries. If set to
@@ -8348,10 +8303,7 @@ class WorkGroupConfiguration {
   /// specify the query results location using one of the ways: either in the
   /// workgroup using this setting, or for individual queries (client-side), using
   /// <a>ResultConfiguration$OutputLocation</a>. If none of them is set, Athena
-  /// issues an error that no output location is provided. For more information,
-  /// see <a
-  /// href="https://docs.aws.amazon.com/athena/latest/ug/querying.html">Working
-  /// with query results, recent queries, and output files</a>.
+  /// issues an error that no output location is provided.
   final ResultConfiguration? resultConfiguration;
 
   WorkGroupConfiguration({
@@ -8362,7 +8314,9 @@ class WorkGroupConfiguration {
     this.enforceWorkGroupConfiguration,
     this.engineVersion,
     this.executionRole,
+    this.identityCenterConfiguration,
     this.publishCloudWatchMetricsEnabled,
+    this.queryResultsS3AccessGrantsConfiguration,
     this.requesterPaysEnabled,
     this.resultConfiguration,
   });
@@ -8386,8 +8340,18 @@ class WorkGroupConfiguration {
               json['EngineVersion'] as Map<String, dynamic>)
           : null,
       executionRole: json['ExecutionRole'] as String?,
+      identityCenterConfiguration: json['IdentityCenterConfiguration'] != null
+          ? IdentityCenterConfiguration.fromJson(
+              json['IdentityCenterConfiguration'] as Map<String, dynamic>)
+          : null,
       publishCloudWatchMetricsEnabled:
           json['PublishCloudWatchMetricsEnabled'] as bool?,
+      queryResultsS3AccessGrantsConfiguration:
+          json['QueryResultsS3AccessGrantsConfiguration'] != null
+              ? QueryResultsS3AccessGrantsConfiguration.fromJson(
+                  json['QueryResultsS3AccessGrantsConfiguration']
+                      as Map<String, dynamic>)
+              : null,
       requesterPaysEnabled: json['RequesterPaysEnabled'] as bool?,
       resultConfiguration: json['ResultConfiguration'] != null
           ? ResultConfiguration.fromJson(
@@ -8406,8 +8370,11 @@ class WorkGroupConfiguration {
     final enforceWorkGroupConfiguration = this.enforceWorkGroupConfiguration;
     final engineVersion = this.engineVersion;
     final executionRole = this.executionRole;
+    final identityCenterConfiguration = this.identityCenterConfiguration;
     final publishCloudWatchMetricsEnabled =
         this.publishCloudWatchMetricsEnabled;
+    final queryResultsS3AccessGrantsConfiguration =
+        this.queryResultsS3AccessGrantsConfiguration;
     final requesterPaysEnabled = this.requesterPaysEnabled;
     final resultConfiguration = this.resultConfiguration;
     return {
@@ -8425,8 +8392,13 @@ class WorkGroupConfiguration {
         'EnforceWorkGroupConfiguration': enforceWorkGroupConfiguration,
       if (engineVersion != null) 'EngineVersion': engineVersion,
       if (executionRole != null) 'ExecutionRole': executionRole,
+      if (identityCenterConfiguration != null)
+        'IdentityCenterConfiguration': identityCenterConfiguration,
       if (publishCloudWatchMetricsEnabled != null)
         'PublishCloudWatchMetricsEnabled': publishCloudWatchMetricsEnabled,
+      if (queryResultsS3AccessGrantsConfiguration != null)
+        'QueryResultsS3AccessGrantsConfiguration':
+            queryResultsS3AccessGrantsConfiguration,
       if (requesterPaysEnabled != null)
         'RequesterPaysEnabled': requesterPaysEnabled,
       if (resultConfiguration != null)
@@ -8478,18 +8450,25 @@ class WorkGroupConfigurationUpdates {
   /// engine regardless of this setting.
   final EngineVersion? engineVersion;
 
-  /// Contains the ARN of the execution role for the workgroup
+  /// The ARN of the execution role used to access user resources for Spark
+  /// sessions and Identity Center enabled workgroups. This property applies only
+  /// to Spark enabled workgroups and Identity Center enabled workgroups.
   final String? executionRole;
 
   /// Indicates whether this workgroup enables publishing metrics to Amazon
   /// CloudWatch.
   final bool? publishCloudWatchMetricsEnabled;
 
+  /// Specifies whether Amazon S3 access grants are enabled for query results.
+  final QueryResultsS3AccessGrantsConfiguration?
+      queryResultsS3AccessGrantsConfiguration;
+
   /// Indicates that the data usage control limit per query is removed.
   /// <a>WorkGroupConfiguration$BytesScannedCutoffPerQuery</a>
   final bool? removeBytesScannedCutoffPerQuery;
 
-  /// Removes content encryption configuration for a workgroup.
+  /// Removes content encryption configuration from an Apache Spark-enabled Athena
+  /// workgroup.
   final bool? removeCustomerContentEncryptionConfiguration;
 
   /// If set to <code>true</code>, allows members assigned to a workgroup to
@@ -8517,6 +8496,7 @@ class WorkGroupConfigurationUpdates {
     this.engineVersion,
     this.executionRole,
     this.publishCloudWatchMetricsEnabled,
+    this.queryResultsS3AccessGrantsConfiguration,
     this.removeBytesScannedCutoffPerQuery,
     this.removeCustomerContentEncryptionConfiguration,
     this.requesterPaysEnabled,
@@ -8535,6 +8515,8 @@ class WorkGroupConfigurationUpdates {
     final executionRole = this.executionRole;
     final publishCloudWatchMetricsEnabled =
         this.publishCloudWatchMetricsEnabled;
+    final queryResultsS3AccessGrantsConfiguration =
+        this.queryResultsS3AccessGrantsConfiguration;
     final removeBytesScannedCutoffPerQuery =
         this.removeBytesScannedCutoffPerQuery;
     final removeCustomerContentEncryptionConfiguration =
@@ -8558,6 +8540,9 @@ class WorkGroupConfigurationUpdates {
       if (executionRole != null) 'ExecutionRole': executionRole,
       if (publishCloudWatchMetricsEnabled != null)
         'PublishCloudWatchMetricsEnabled': publishCloudWatchMetricsEnabled,
+      if (queryResultsS3AccessGrantsConfiguration != null)
+        'QueryResultsS3AccessGrantsConfiguration':
+            queryResultsS3AccessGrantsConfiguration,
       if (removeBytesScannedCutoffPerQuery != null)
         'RemoveBytesScannedCutoffPerQuery': removeBytesScannedCutoffPerQuery,
       if (removeCustomerContentEncryptionConfiguration != null)
@@ -8572,31 +8557,18 @@ class WorkGroupConfigurationUpdates {
 }
 
 enum WorkGroupState {
-  enabled,
-  disabled,
-}
+  enabled('ENABLED'),
+  disabled('DISABLED'),
+  ;
 
-extension WorkGroupStateValueExtension on WorkGroupState {
-  String toValue() {
-    switch (this) {
-      case WorkGroupState.enabled:
-        return 'ENABLED';
-      case WorkGroupState.disabled:
-        return 'DISABLED';
-    }
-  }
-}
+  final String value;
 
-extension WorkGroupStateFromString on String {
-  WorkGroupState toWorkGroupState() {
-    switch (this) {
-      case 'ENABLED':
-        return WorkGroupState.enabled;
-      case 'DISABLED':
-        return WorkGroupState.disabled;
-    }
-    throw Exception('$this is not known in enum WorkGroupState');
-  }
+  const WorkGroupState(this.value);
+
+  static WorkGroupState fromString(String value) =>
+      values.firstWhere((e) => e.value == value,
+          orElse: () =>
+              throw Exception('$value is not known in enum WorkGroupState'));
 }
 
 /// The summary information for the workgroup, which includes its name, state,
@@ -8613,6 +8585,10 @@ class WorkGroupSummary {
   /// engine regardless of this setting.
   final EngineVersion? engineVersion;
 
+  /// The ARN of the IAM Identity Center enabled application associated with the
+  /// workgroup.
+  final String? identityCenterApplicationArn;
+
   /// The name of the workgroup.
   final String? name;
 
@@ -8623,6 +8599,7 @@ class WorkGroupSummary {
     this.creationTime,
     this.description,
     this.engineVersion,
+    this.identityCenterApplicationArn,
     this.name,
     this.state,
   });
@@ -8635,8 +8612,10 @@ class WorkGroupSummary {
           ? EngineVersion.fromJson(
               json['EngineVersion'] as Map<String, dynamic>)
           : null,
+      identityCenterApplicationArn:
+          json['IdentityCenterApplicationArn'] as String?,
       name: json['Name'] as String?,
-      state: (json['State'] as String?)?.toWorkGroupState(),
+      state: (json['State'] as String?)?.let(WorkGroupState.fromString),
     );
   }
 
@@ -8644,6 +8623,7 @@ class WorkGroupSummary {
     final creationTime = this.creationTime;
     final description = this.description;
     final engineVersion = this.engineVersion;
+    final identityCenterApplicationArn = this.identityCenterApplicationArn;
     final name = this.name;
     final state = this.state;
     return {
@@ -8651,8 +8631,10 @@ class WorkGroupSummary {
         'CreationTime': unixTimestampToJson(creationTime),
       if (description != null) 'Description': description,
       if (engineVersion != null) 'EngineVersion': engineVersion,
+      if (identityCenterApplicationArn != null)
+        'IdentityCenterApplicationArn': identityCenterApplicationArn,
       if (name != null) 'Name': name,
-      if (state != null) 'State': state.toValue(),
+      if (state != null) 'State': state.value,
     };
   }
 }
